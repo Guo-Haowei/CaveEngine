@@ -38,7 +38,11 @@ private:
 struct AssetMetaData {
     AssetType type{ AssetType::Count };
     Guid guid;
+    std::string name;
     std::string path;
+    std::vector<Guid> dependencies;
+
+    // @TODO: import settings
 
     /// Load meta from a .meta file
     [[nodiscard]] static auto LoadMeta(std::string_view p_path) -> Result<AssetMetaData>;

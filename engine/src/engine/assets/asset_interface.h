@@ -8,19 +8,34 @@ struct BufferAsset;
 struct TextAsset;
 struct ImageAsset;
 struct SpriteSheetAsset;
+class AssetEntry;
 
 using AssetRef = std::shared_ptr<IAsset>;
 using OnAssetLoadSuccessFunc = void (*)(AssetRef p_asset, void* p_userdata);
 
+// @TODO: make it a class
 struct IAsset {
     const AssetType type;
+    std::weak_ptr<AssetEntry> m_entry; // to retrieve meta data
 
     IAsset(AssetType p_type)
         : type(p_type) {}
 
     virtual ~IAsset() = default;
 
-    virtual void Serialize(std::ostream&) {}
+    virtual auto LoadFromDisk(std::string_view p_path) -> Result<void> {
+        unused(p_path);
+        CRASH_NOW_MSG("TODO: implmenet");
+        return Result<void>();
+    }
+
+    virtual void SaveToDisk() const {
+        CRASH_NOW_MSG("TODO: implmenet");
+    }
+
+    virtual std::vector<Guid> GetDependencies() const {
+        return {};
+    }
 };
 
 }  // namespace my

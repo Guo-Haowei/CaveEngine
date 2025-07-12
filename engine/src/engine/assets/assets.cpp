@@ -4,6 +4,6 @@
 
 namespace my {
 
-void SpriteSheetAsset::Serialize(std::ostream&) {}
+void SpriteSheetAsset::SaveToDisk() const {}
 
 }  // namespace my

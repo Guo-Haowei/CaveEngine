@@ -40,7 +40,7 @@ namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
 
 struct AssetManager::LoadTask {
-    AssetEntry* handle;
+    AssetEntry* entry;
     OnAssetLoadSuccessFunc on_success;
     void* userdata;
 };
@@ -56,6 +56,25 @@ static struct {
 
     AssetCreateFunc createFuncs[AssetType::Count];
 } s_assetManagerGlob;
+
+// @TODO: use DeserializerRegistry first,
+// if no suitable, use importer
+
+// @TODO: implement
+
+AssetRef CreateAssetInstance(AssetType p_type) {
+    if (p_type == AssetType::Binary) {
+    }
+    CRASH_NOW();
+    return nullptr;
+}
+
+AssetRef LoadAsset(std::string_view p_path, std::shared_ptr<AssetMetaData> p_meta) {
+    AssetRef asset = CreateAssetInstance(p_meta->type);
+
+    asset->LoadFromDisk(p_path);
+    return asset;
+}
 
 auto AssetManager::InitializeImpl() -> Result<void> {
     m_assets_root = fs::path{ m_app->GetResourceFolder() };
@@ -99,6 +118,9 @@ auto AssetManager::InitializeImpl() -> Result<void> {
 void AssetManager::CreateAsset(const AssetType& p_type,
                                const fs::path& p_folder,
                                const char* p_name) {
+    // @TODO: change this to serialize once done
+    LOG_WARN("Move logic to IAsset::SaveToDisk");
+
     DEV_ASSERT(p_type == AssetType::SpriteSheet);
     // 1. Creates both meta and file
     fs::path new_file = p_folder;
@@ -116,7 +138,7 @@ void AssetManager::CreateAsset(const AssetType& p_type,
         fs::remove(new_file);
     }
     std::ofstream file(new_file);
-    asset->Serialize(file);
+    asset->SaveToDisk();
 
     std::string meta_file = new_file.string();
     meta_file.append(".meta");
@@ -198,9 +220,9 @@ auto AssetManager::LoadAssetSync(const AssetEntry* p_entry) -> Result<AssetRef> 
     return asset;
 }
 
-void AssetManager::LoadAssetAsync(AssetEntry* p_handle, OnAssetLoadSuccessFunc p_on_success, void* p_userdata) {
+void AssetManager::LoadAssetAsync(AssetEntry* p_entry, OnAssetLoadSuccessFunc p_on_success, void* p_userdata) {
     LoadTask task;
-    task.handle = p_handle;
+    task.entry = p_entry;
     task.on_success = p_on_success;
     task.userdata = p_userdata;
     EnqueueLoadTask(task);
@@ -231,22 +253,22 @@ void AssetManager::WorkerMain() {
         s_assetManagerGlob.runningWorkers.fetch_add(1);
 
         Timer timer;
-        auto res = AssetManager::GetSingleton().LoadAssetSync(task.handle);
+        auto res = AssetManager::GetSingleton().LoadAssetSync(task.entry);
 
         if (res) {
             AssetRef asset = *res;
             if (task.on_success) {
                 task.on_success(asset, task.userdata);
             }
-            LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", task.handle->metadata.path, timer.GetDurationString());
+            LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", task.entry->metadata.path, timer.GetDurationString());
 
-            task.handle->MarkLoaded(asset);
+            task.entry->MarkLoaded(asset);
         } else {
             StringStreamBuilder builder;
             builder << res.error();
             LOG_ERROR("{}", builder.ToString());
 
-            task.handle->MarkFailed();
+            task.entry->MarkFailed();
         }
 
         s_assetManagerGlob.runningWorkers.fetch_sub(1);

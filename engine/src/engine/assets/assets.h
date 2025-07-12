@@ -52,7 +52,7 @@ struct SpriteSheetAsset : IAsset {
     SpriteSheetAsset()
         : IAsset(AssetType::SpriteSheet) {}
 
-    void Serialize(std::ostream&) override;
+    void SaveToDisk() const override;
 };
 
 }  // namespace my
