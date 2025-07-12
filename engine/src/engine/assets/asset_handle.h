@@ -1,10 +1,10 @@
 #pragma once
+#include "asset_entry.h"
 #include "asset_interface.h"
 #include "guid.h"
 
 namespace my {
 
-class AssetEntry;
 struct IAsset;
 
 struct AssetHandle {
@@ -23,6 +23,12 @@ struct AssetHandle {
 
         AssetRef ptr = *res;
         return std::dynamic_pointer_cast<T>(ptr);
+    }
+
+    template<typename T>
+    T* Get() {
+        DEV_ASSERT(IsReady());
+        return dynamic_cast<T*>(entry->asset.get());
     }
 };
 

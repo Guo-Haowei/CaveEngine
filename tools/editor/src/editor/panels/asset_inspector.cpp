@@ -23,25 +23,24 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
         return;
     }
 
-    const ImageAsset& image = static_cast<ImageAsset&>(*(handle.entry->asset.get()));
+    const ImageAsset* image = handle.Get<ImageAsset>();
+    DEV_ASSERT(image);
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     ImVec2 cursor = ImGui::GetCursorScreenPos();
-    ImVec2 tile_size((float)image.width, (float)image.height);
+    ImVec2 tile_size((float)image->width, (float)image->height);
 
     ImGui::InvisibleButton("TileClickable", tile_size);  // enables interaction
     bool hovered = ImGui::IsItemHovered();
     bool clicked = ImGui::IsItemClicked();
 
     // Draw tileset
-    {
-        draw_list->AddImage(
-            image.gpu_texture->GetHandle(),
-            cursor,
-            cursor + tile_size,
-            ImVec2(0, 0), ImVec2(1, 1),
-            IM_COL32(255, 255, 255, 255));
-    }
+    draw_list->AddImage(
+        image->gpu_texture->GetHandle(),
+        cursor,
+        cursor + tile_size,
+        ImVec2(0, 0), ImVec2(1, 1),
+        IM_COL32(255, 255, 255, 255));
 
     const int sep_x = p_sprite.separation.x;
     const int sep_y = p_sprite.separation.y;
@@ -121,11 +120,12 @@ void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
 
     const float w = 300;
     if (p_sprite.image_handle.IsReady()) {
-        const auto& asset = static_cast<ImageAsset&>(*p_sprite.image_handle.entry->asset.get());
-        const float h = w / asset.width * asset.height;
+        const ImageAsset* asset = p_sprite.image_handle.Get<ImageAsset>();
+        DEV_ASSERT(asset);
+        const float h = w / asset->width * asset->height;
         ImVec2 size = ImVec2(w, h);
 
-        ImGui::Image(asset.gpu_texture->GetHandle(), size);
+        ImGui::Image(asset->gpu_texture->GetHandle(), size);
     } else {
         ImVec2 size = ImVec2(w, w);
 
