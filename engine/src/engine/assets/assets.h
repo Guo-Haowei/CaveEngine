@@ -47,7 +47,7 @@ struct SpriteSheetAsset : IAsset {
     std::vector<Rect> frames;
 
     /// Non serialized
-    AssetHandle image_handle;
+    std::optional<AssetHandle> image_handle;
 
     SpriteSheetAsset()
         : IAsset(AssetType::SpriteSheet) {}

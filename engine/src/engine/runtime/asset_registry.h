@@ -12,7 +12,7 @@ public:
     AssetRegistry()
         : Module("AssetRegistry") {}
 
-    AssetHandle Request(const std::string& p_path);
+    std::optional<AssetHandle> Request(const std::string& p_path);
 
     void MoveAsset(std::string&& p_old, std::string&& p_new);
 

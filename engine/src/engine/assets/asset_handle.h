@@ -1,17 +1,23 @@
 #pragma once
-#include "asset_entry.h"
 #include "asset_interface.h"
 #include "guid.h"
 
 namespace my {
 
+class AssetEntry;
+struct AssetMetaData;
 struct IAsset;
 
-struct AssetHandle {
-    Guid guid;
-    std::shared_ptr<AssetEntry> entry;
+class AssetHandle {
+public:
+    AssetHandle(const Guid& p_guid, std::shared_ptr<AssetEntry> p_entry)
+        : m_guid(p_guid)
+        , m_entry(p_entry) {}
 
     bool IsReady() const;
+
+    IAsset* Get();
+
     [[nodiscard]] auto Wait() const -> Result<AssetRef>;
 
     template<typename T>
@@ -27,9 +33,16 @@ struct AssetHandle {
 
     template<typename T>
     T* Get() {
-        DEV_ASSERT(IsReady());
-        return dynamic_cast<T*>(entry->asset.get());
+        return dynamic_cast<T*>(Get());
     }
+
+    const Guid& GetGuid() const { return m_guid; }
+
+    const AssetMetaData* GetMeta() const;
+
+private:
+    Guid m_guid;
+    std::weak_ptr<AssetEntry> m_entry;
 };
 
 }  // namespace my

@@ -440,7 +440,7 @@ Scene* Application::CreateInitialScene() {
 
         auto& sprite = tileMap->m_sprite;
 
-        auto res = m_assetRegistry->Request("@res://images/tiles.png").Wait<ImageAsset>();
+        auto res = (m_assetRegistry->Request("@res://images/tiles.png")).value().Wait<ImageAsset>();
 
         sprite.texture = (*res).get();
 

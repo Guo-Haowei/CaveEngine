@@ -133,13 +133,14 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
         const bool hovered = ImGui::IsItemHovered();
         if (hovered) {
             auto asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-            auto handle = asset_registry->Request(short_path);
-
-            if (handle.IsReady()) {
+            auto _handle = asset_registry->Request(short_path);
+            if (_handle) {
+                auto handle = std::move(*_handle);
+                IAsset* asset = handle.Get();
                 if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-                    m_editor.context.selected_asset = handle.entry->asset;
+                    m_editor.context.selected_asset = asset;
                 } else if (is_file) {
-                    ShowResourceToolTip(handle.entry->metadata, *handle.entry->asset.get());
+                    ShowResourceToolTip(*handle.GetMeta(), *asset);
                 }
             }
         }

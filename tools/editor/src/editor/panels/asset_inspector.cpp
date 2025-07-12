@@ -19,11 +19,11 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
     ImGui::Text("TileSet");
 
     auto& handle = p_sprite.image_handle;
-    if (!handle.IsReady()) {
+    if (!handle || !handle.value().IsReady()) {
         return;
     }
 
-    const ImageAsset* image = handle.Get<ImageAsset>();
+    const ImageAsset* image = handle.value().Get<ImageAsset>();
     DEV_ASSERT(image);
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -98,9 +98,9 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
 void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
     if (ImGui::BeginTabBar("TileSetModes")) {
         if (ImGui::BeginTabItem("Setup")) {
-            if (p_sprite.image_handle.IsReady()) {
-                ImGui::Text("Image: %s", p_sprite.image_handle.entry->metadata.path.c_str());
-            }
+            // if (p_sprite.image_handle.IsReady()) {
+            //     //ImGui::Text("Image: %s", p_sprite.image_handle.entry->metadata.path.c_str());
+            // }
 
             ImGui::InputInt("Separation X", &p_sprite.separation.x);
             ImGui::InputInt("Separation Y", &p_sprite.separation.y);
@@ -118,18 +118,21 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
 void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
     ImGui::Text("Image");
 
-    const float w = 300;
-    if (p_sprite.image_handle.IsReady()) {
-        const ImageAsset* asset = p_sprite.image_handle.Get<ImageAsset>();
-        DEV_ASSERT(asset);
-        const float h = w / asset->width * asset->height;
-        ImVec2 size = ImVec2(w, h);
+    {
+        const float w = 300;
+        auto& handle = p_sprite.image_handle;
+        if (handle && handle.value().IsReady()) {
+            const ImageAsset* asset = handle.value().Get<ImageAsset>();
+            DEV_ASSERT(asset);
+            const float h = w / asset->width * asset->height;
+            ImVec2 size = ImVec2(w, h);
 
-        ImGui::Image(asset->gpu_texture->GetHandle(), size);
-    } else {
-        ImVec2 size = ImVec2(w, w);
+            ImGui::Image(asset->gpu_texture->GetHandle(), size);
+        } else {
+            ImVec2 size = ImVec2(w, w);
 
-        ImGui::InvisibleButton("DropTarget", size);
+            ImGui::InvisibleButton("DropTarget", size);
+        }
     }
 
     // @TODO: refactor
@@ -138,10 +141,13 @@ void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
             std::string& texture = *((std::string*)payload->Data);
             LOG_OK("{}", texture);
 
-            auto image_handle = m_asset_registry->Request(texture);
-            if (image_handle.IsReady() && image_handle.entry->asset->type == AssetType::Image) {
-                p_sprite.image_id = image_handle.guid;
-                p_sprite.image_handle = image_handle;
+            auto handle = m_asset_registry->Request(texture);
+            if (handle) {
+                const ImageAsset* image = handle.value().Get<ImageAsset>();
+                if (image) {
+                    p_sprite.image_id = handle.value().GetGuid();
+                    p_sprite.image_handle = handle;
+                }
             }
         }
         ImGui::EndDragDropTarget();
@@ -172,7 +178,7 @@ void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
 }
 
 void AssetInspector::UpdateInternal(Scene&) {
-    IAsset* asset = m_editor.context.selected_asset.get();
+    IAsset* asset = m_editor.context.selected_asset;
     if (!asset) {
         return;
     }

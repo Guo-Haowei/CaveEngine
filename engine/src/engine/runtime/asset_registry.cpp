@@ -111,18 +111,18 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
     return ok;
 }
 
-AssetHandle AssetRegistry::Request(const std::string& p_path) {
+std::optional<AssetHandle> AssetRegistry::Request(const std::string& p_path) {
     std::lock_guard lock(registry_mutex);
     auto it = m_path_map.find(p_path);
     if (it != m_path_map.end()) {
         const Guid& guid = it->second;
         auto it2 = m_guid_map.find(guid);
         if (it2 != m_guid_map.end()) {
-            return AssetHandle{ guid, it2->second };
+            return AssetHandle(guid, it2->second);
         }
     }
 
-    return AssetHandle{ .guid = Guid(), .entry = nullptr };
+    return std::nullopt;
 }
 
 void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
