@@ -12,9 +12,9 @@
 
 namespace my {
 
+enum class KeyCode : uint16_t;
 struct ImageAsset;
 class MenuBar;
-enum class KeyCode : uint16_t;
 class Viewer;
 
 enum {
@@ -33,13 +33,6 @@ struct EditorContext {
     // Should never use raw pointer
     IAsset* selected_asset = nullptr;
     std::string drag_payload;
-};
-
-enum class EditorState {
-    TileMapEditing,
-    Translating,
-    Rotating,
-    Scaling,
 };
 
 class EditorLayer : public Layer, public IInputHandler {
@@ -74,7 +67,7 @@ public:
 
     EditorContext context;
 
-    void SetTool(EditorToolType p_type);
+    void SetTool(ToolType p_type);
     ITool* GetActiveTool();
 
 private:
@@ -109,8 +102,8 @@ private:
     std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
 
 public:
-    std::array<std::unique_ptr<ITool>, std::to_underlying(EditorToolType::Count)> m_tools;
-    EditorToolType m_current_tool{ EditorToolType ::None };
+    std::array<std::unique_ptr<ITool>, std::to_underlying(ToolType::Count)> m_tools;
+    ToolType m_current_tool{ ToolType ::None };
 };
 
 }  // namespace my

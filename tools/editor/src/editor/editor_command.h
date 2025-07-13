@@ -1,26 +1,14 @@
 #pragma once
-#include "engine/scene/scene.h"
+#include "enums.h"
+
+#include "engine/ecs/entity.h"
+#include "engine/math/geomath.h"
 #include "engine/systems/undo_redo/undo_command.h"
 
 namespace my {
 
 class EditorLayer;
-
-enum CommandType : uint8_t {
-    COMMAND_TYPE_ENTITY_TRANSLATE,
-    COMMAND_TYPE_ENTITY_ROTATE,
-    COMMAND_TYPE_ENTITY_SCALE,
-
-    COMMAND_TYPE_ENTITY_CREATE,
-    COMMAND_TYPE_ENTITY_REMOVE,
-
-    COMMAND_TYPE_COMPONENT_ADD,
-
-    COMMAND_TYPE_OPEN_PROJECT,
-    COMMAND_TYPE_SAVE_PROJECT,
-    COMMAND_TYPE_REDO_VIEWER,
-    COMMAND_TYPE_UNDO_VIEWER,
-};
+class Scene;
 
 // clang-format off
 //------------ Enum,                Name,           Separator
@@ -54,7 +42,7 @@ enum class ComponentType : uint8_t {
 
 class EditorCommandBase {
 public:
-    EditorCommandBase(CommandType p_type) : m_type(p_type) {}
+    EditorCommandBase() {}
 
     virtual ~EditorCommandBase() = default;
 
@@ -62,14 +50,14 @@ public:
 
 protected:
     EditorLayer* m_editor{ nullptr };
-    const CommandType m_type;
 
     friend class EditorLayer;
 };
 
 class EditorUndoCommandBase : public EditorCommandBase, public UndoCommand {
 public:
-    EditorUndoCommandBase(CommandType p_type) : EditorCommandBase(p_type) {}
+    EditorUndoCommandBase()
+        : EditorCommandBase() {}
 
     void Execute(Scene&) final { Redo(); }
 };
@@ -77,7 +65,7 @@ public:
 class EditorCommandAddEntity : public EditorCommandBase {
 public:
     EditorCommandAddEntity(EntityType p_entity_type)
-        : EditorCommandBase(COMMAND_TYPE_ENTITY_CREATE), m_entityType(p_entity_type) {}
+        : m_entityType(p_entity_type) {}
 
     virtual void Execute(Scene& p_scene) override;
 
@@ -92,7 +80,7 @@ protected:
 class EditorCommandAddComponent : public EditorCommandBase {
 public:
     EditorCommandAddComponent(ComponentType p_component_type)
-        : EditorCommandBase(COMMAND_TYPE_COMPONENT_ADD), m_componentType(p_component_type) {}
+        : m_componentType(p_component_type) {}
 
     virtual void Execute(Scene& p_scene) override;
 
@@ -106,7 +94,7 @@ protected:
 class EditorCommandRemoveEntity : public EditorCommandBase {
 public:
     EditorCommandRemoveEntity(ecs::Entity p_target)
-        : EditorCommandBase(COMMAND_TYPE_ENTITY_REMOVE), m_target(p_target) {}
+        : m_target(p_target) {}
 
     virtual void Execute(Scene& p_scene) override;
 
@@ -116,6 +104,7 @@ protected:
     friend class EditorLayer;
 };
 
+#if 0
 class OpenProjectCommand : public EditorCommandBase {
 public:
     OpenProjectCommand(bool p_open_dialog) : EditorCommandBase(COMMAND_TYPE_OPEN_PROJECT), m_openDialog(p_open_dialog) {}
@@ -135,24 +124,25 @@ public:
 protected:
     bool m_openDialog;
 };
+#endif
 
 class UndoViewerCommand : public EditorCommandBase {
 public:
-    UndoViewerCommand() : EditorCommandBase(COMMAND_TYPE_UNDO_VIEWER) {}
+    UndoViewerCommand() {}
 
     virtual void Execute(Scene& p_scene) override;
 };
 
 class RedoViewerCommand : public EditorCommandBase {
 public:
-    RedoViewerCommand() : EditorCommandBase(COMMAND_TYPE_REDO_VIEWER) {}
+    RedoViewerCommand() {}
 
     virtual void Execute(Scene& p_scene) override;
 };
 
 class EntityTransformCommand : public EditorUndoCommandBase {
 public:
-    EntityTransformCommand(CommandType p_type,
+    EntityTransformCommand(GizmoAction p_action,
                            Scene& p_scene,
                            ecs::Entity p_entity,
                            const Matrix4x4f& p_before,
@@ -164,6 +154,7 @@ public:
     bool MergeCommand(const UndoCommand* p_command) override;
 
 protected:
+    GizmoAction m_action;
     Scene& m_scene;
     ecs::Entity m_entity;
 

@@ -14,7 +14,7 @@ namespace my {
 void EditorTool::Update(Scene* p_scene) {
     const auto& cam = m_viewer->GetActiveCamera();
     const Matrix4x4f& view_matrix = cam.GetViewMatrix();
-    // const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
+    const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
     const Matrix4x4f& proj_view = cam.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer->GetCanvasMin();
@@ -42,45 +42,40 @@ void EditorTool::Update(Scene* p_scene) {
                 ImGuizmo::DrawCone(proj_view, matrix);
             }
         }
-    }
 
-#if 0
-    auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation, CommandType p_type) {
-        if (transform_component) {
-            const Matrix4x4f before = transform_component->GetLocalMatrix();
-            Matrix4x4f after = before;
-            if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
-                                     glm::value_ptr(proj_matrix),
-                                     p_operation,
-                                     // ImGuizmo::LOCAL,
-                                     ImGuizmo::WORLD,
-                                     glm::value_ptr(after),
-                                     nullptr, nullptr, nullptr, nullptr)) {
+        auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation, GizmoAction p_action) {
+            if (transform_component) {
+                const Matrix4x4f before = transform_component->GetLocalMatrix();
+                Matrix4x4f after = before;
+                if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
+                                         glm::value_ptr(proj_matrix),
+                                         p_operation,
+                                         ImGuizmo::LOCAL,
+                                         // ImGuizmo::WORLD,
+                                         glm::value_ptr(after),
+                                         nullptr, nullptr, nullptr, nullptr)) {
 
-                auto command = std::make_shared<EntityTransformCommand>(p_type, p_scene, id, before, after);
-                m_editor.BufferCommand(command);
+                    auto command = std::make_shared<EntityTransformCommand>(p_action, *p_scene, id, before, after);
+                    m_editor.BufferCommand(command);
+                }
             }
-        }
-    };
+        };
 
-    if (m_active == EditorToolType::Gizmo) {
-        draw_gizmo(ImGuizmo::TRANSLATE, COMMAND_TYPE_ENTITY_TRANSLATE);
         // @TODO: fix
-        switch (m_gizmoState) {
-            case GizmoState::Translating:
-                draw_gizmo(ImGuizmo::TRANSLATE, COMMAND_TYPE_ENTITY_TRANSLATE);
+        switch (m_state) {
+            case GizmoAction::Translate:
+                draw_gizmo(ImGuizmo::TRANSLATE, m_state);
                 break;
-            case GizmoState::Rotating:
-                draw_gizmo(ImGuizmo::ROTATE, COMMAND_TYPE_ENTITY_ROTATE);
+            case GizmoAction::Rotate:
+                draw_gizmo(ImGuizmo::ROTATE, m_state);
                 break;
-            case GizmoState::Scaling:
-                draw_gizmo(ImGuizmo::SCALE, COMMAND_TYPE_ENTITY_SCALE);
+            case GizmoAction::Scale:
+                draw_gizmo(ImGuizmo::SCALE, m_state);
                 break;
             default:
                 break;
         }
     }
-#endif
 
     if (show_editor) {
         const float size = 120.f;
@@ -101,13 +96,13 @@ bool EditorTool::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
             bool handled = true;
             switch (e->GetKey()) {
                 case KeyCode::KEY_Z: {
-                    m_state = GizmoState::Translating;
+                    m_state = GizmoAction::Translate;
                 } break;
                 case KeyCode::KEY_X: {
-                    m_state = GizmoState::Rotating;
+                    m_state = GizmoAction::Rotate;
                 } break;
                 case KeyCode::KEY_C: {
-                    m_state = GizmoState::Scaling;
+                    m_state = GizmoAction::Scale;
                 } break;
                 default:
                     handled = false;

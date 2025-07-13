@@ -1,9 +1,10 @@
 #include "editor_command.h"
 
 #include "editor_layer.h"
-#include "engine/runtime/common_dvars.h"
 #include "engine/core/string/string_utils.h"
+#include "engine/runtime/common_dvars.h"
 #include "engine/drivers/windows/dialog.h"
+#include "engine/scene/scene.h"
 #include "engine/scene/scene_serialization.h"
 // @TODO: refactor
 // #include "engine/runtime/scene_manager.h"
@@ -33,7 +34,6 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
     p_scene.AttachChild(id, m_parent.IsValid() ? m_parent : p_scene.m_root);
     m_editor->SelectEntity(id);
 
-    CRASH_NOW();
     // SceneManager::GetSingleton().BumpRevision();
 }
 
@@ -57,6 +57,7 @@ void EditorCommandRemoveEntity::Execute(Scene& p_scene) {
     p_scene.RemoveEntity(entity);
 }
 
+#if 0
 /// OpenProjectCommand
 void OpenProjectCommand::Execute(Scene&) {
     std::string path;
@@ -113,6 +114,7 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
 
     LOG_OK("scene saved to '{}'", path.string());
 }
+#endif
 
 /// RedoViewerCommand
 void RedoViewerCommand::Execute(Scene&) {
@@ -125,15 +127,16 @@ void UndoViewerCommand::Execute(Scene&) {
 }
 
 /// TransformCommand
-EntityTransformCommand::EntityTransformCommand(CommandType p_type,
+EntityTransformCommand::EntityTransformCommand(GizmoAction p_action,
                                                Scene& p_scene,
                                                ecs::Entity p_entity,
                                                const Matrix4x4f& p_before,
-                                               const Matrix4x4f& p_after) : EditorUndoCommandBase(p_type),
-                                                                            m_scene(p_scene),
-                                                                            m_entity(p_entity),
-                                                                            m_before(p_before),
-                                                                            m_after(p_after) {
+                                               const Matrix4x4f& p_after)
+    : m_action(p_action)
+    , m_scene(p_scene)
+    , m_entity(p_entity)
+    , m_before(p_before)
+    , m_after(p_after) {
 }
 
 void EntityTransformCommand::Undo() {
@@ -160,7 +163,7 @@ bool EntityTransformCommand::MergeCommand(const UndoCommand* p_command) {
         return false;
     }
 
-    if (command->m_type != m_type) {
+    if (command->m_action != m_action) {
         return false;
     }
 

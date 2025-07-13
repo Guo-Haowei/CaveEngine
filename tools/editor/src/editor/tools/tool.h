@@ -1,4 +1,5 @@
 #pragma once
+#include "editor/enums.h"
 
 namespace my {
 
@@ -6,18 +7,6 @@ class CameraComponent;
 class EditorLayer;
 class InputEvent;
 class Scene;
-
-enum class EditorToolType {
-    None,
-    Edit,
-    TileMap,
-    Count,
-};
-
-enum class ToolCameraPolicy {
-    Any,
-    Only2D,
-};
 
 class ITool {
 public:

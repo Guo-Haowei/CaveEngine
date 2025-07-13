@@ -51,6 +51,7 @@ protected:
         }
     } m_input_state;
 
+    // @TODO: refactor
     enum {
         CAM2D,
         CAM3D,

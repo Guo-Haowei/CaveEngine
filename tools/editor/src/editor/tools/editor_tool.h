@@ -25,11 +25,7 @@ public:
     const char* GetName() const override { return "Editor"; }
 
 protected:
-    enum class GizmoState {
-        Translating,
-        Rotating,
-        Scaling,
-    } m_state{ GizmoState::Translating };
+    GizmoAction m_state{ GizmoAction::Translate };
 
     Viewer* m_viewer;
 };

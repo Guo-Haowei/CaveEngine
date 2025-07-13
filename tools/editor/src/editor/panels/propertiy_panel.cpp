@@ -148,18 +148,18 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
                                               &scale.x);
 
         bool dirty = false;
-        CommandType command_type{};
+        GizmoAction action;
         if (DrawVec3ControlDisabled(disable_translation, "translation", translation)) {
             dirty = true;
-            command_type = COMMAND_TYPE_ENTITY_TRANSLATE;
+            action = GizmoAction::Translate;
         }
         if (DrawVec3ControlDisabled(disable_rotation, "rotation", rotation)) {
             dirty = true;
-            command_type = COMMAND_TYPE_ENTITY_ROTATE;
+            action = GizmoAction::Rotate;
         }
         if (DrawVec3ControlDisabled(disable_scale, "scale", scale, 1.0f)) {
             dirty = true;
-            command_type = COMMAND_TYPE_ENTITY_SCALE;
+            action = GizmoAction::Scale;
         }
         if (dirty) {
             Matrix4x4f new_transform;
@@ -168,7 +168,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
                                                     &scale.x,
                                                     glm::value_ptr(new_transform));
 
-            auto command = std::make_shared<EntityTransformCommand>(command_type, scene, id, old_transform, new_transform);
+            auto command = std::make_shared<EntityTransformCommand>(action, scene, id, old_transform, new_transform);
             m_editor.BufferCommand(command);
         }
     });

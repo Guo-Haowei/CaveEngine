@@ -46,26 +46,26 @@ EditorLayer::EditorLayer()
     AddPanel(std::make_shared<FileSystemPanel>(*this));
 #endif
 
-    m_tools[std::to_underlying(EditorToolType::Edit)].reset(new EditorTool(*this, m_viewer.get()));
-    m_tools[std::to_underlying(EditorToolType::TileMap)].reset(new TileMapEditor(*this, m_viewer.get()));
+    m_tools[std::to_underlying(ToolType::Edit)].reset(new EditorTool(*this, m_viewer.get()));
+    m_tools[std::to_underlying(ToolType::TileMap)].reset(new TileMapEditor(*this, m_viewer.get()));
 
     // @TODO: refactor this at some point
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
         "Save As..",
         "Ctrl+Shift+S",
         [&]() {
-            this->BufferCommand(std::make_shared<SaveProjectCommand>(true));
+            //this->BufferCommand(std::make_shared<SaveProjectCommand>(true));
         },
     };
     m_shortcuts[SHORT_CUT_SAVE] = {
         "Save",
         "Ctrl+S",
-        [&]() { this->BufferCommand(std::make_shared<SaveProjectCommand>(false)); },
+        //[&]() { this->BufferCommand(std::make_shared<SaveProjectCommand>(false)); },
     };
     m_shortcuts[SHORT_CUT_OPEN] = {
         "Open",
         "Ctrl+O",
-        [&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
+        //[&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
     };
     m_shortcuts[SHORT_CUT_REDO] = {
         "Redo",
@@ -136,8 +136,7 @@ EditorLayer::EditorLayer()
 void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
-    SetTool(EditorToolType::Edit);
-    SetTool(EditorToolType::TileMap);
+    SetTool(ToolType::Edit);
 
     m_app->GetInputManager()->PushInputHandler(this);
     m_app->GetInputManager()->PushInputHandler(m_viewer.get());
@@ -162,9 +161,8 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 
 void EditorLayer::SelectEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
-    CRASH_NOW();
-    // Scene* scene = m_app->GetActiveScene();
-    // scene->m_selected = m_selected;
+    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
+    scene->m_selected = m_selected;
 }
 
 void EditorLayer::DockSpace(Scene* p_scene) {
@@ -340,7 +338,7 @@ CameraComponent& EditorLayer::GetActiveCamera() {
     return m_viewer->GetActiveCamera();
 }
 
-void EditorLayer::SetTool(EditorToolType p_type) {
+void EditorLayer::SetTool(ToolType p_type) {
     if (m_current_tool == p_type) {
         return;
     }
@@ -361,7 +359,7 @@ void EditorLayer::SetTool(EditorToolType p_type) {
 
 // @NOTE: do not hold the pointer
 ITool* EditorLayer::GetActiveTool() {
-    DEV_ASSERT_INDEX(m_current_tool, EditorToolType::Count);
+    DEV_ASSERT_INDEX(m_current_tool, ToolType::Count);
     return m_tools[std::to_underlying(m_current_tool)].get();
 }
 
