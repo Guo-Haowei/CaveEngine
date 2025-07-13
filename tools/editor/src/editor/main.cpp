@@ -1,11 +1,11 @@
 #include <filesystem>
 
 #include "editor/editor_layer.h"
+#include "editor/editor_scene_manager.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/scene_manager_interface.h"
-#include "engine/scene/scene_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
 #define DEFINE_DVAR
@@ -15,13 +15,6 @@
 namespace my {
 
 namespace fs = std::filesystem;
-
-extern Scene* CreateTheAviatorScene();
-extern Scene* CreateBoxScene();
-extern Scene* CreatePbrTestScene();
-extern Scene* CreatePhysicsTestScene();
-
-// @TODO: EditorContext
 
 class Editor : public Application {
 public:
@@ -75,98 +68,7 @@ Application* CreateApplication() {
     return new Editor(spec);
 }
 
-class EditorSceneManager : public SceneManager {
-public:
-    virtual Scene* CreateDefaultScene() override {
-        auto scene = DVAR_GET_STRING(default_scene);
-        if (scene == "pbr_test") {
-            return CreatePbrTestScene();
-        }
-        if (scene == "physics_test") {
-            return CreatePhysicsTestScene();
-        }
-        if (scene == "the_aviator") {
-            return CreateTheAviatorScene();
-        }
-        if (scene == "box") {
-            return CreateBoxScene();
-        }
-        return nullptr;
-    }
-};
-
 }  // namespace my
-
-#if 0
-Scene* Application::CreateInitialScene() {
-    ecs::Entity::SetSeed();
-
-    Scene* scene = new Scene;
-
-    Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-
-    auto root = scene->CreateTransformEntity("world");
-    scene->m_root = root;
-
-#if 0
-    {
-
-        // clang-format off
-        const std::vector<std::vector<int>> data = {
-            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
-            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
-            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
-            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
-            { 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, },
-            { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, },
-            { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, },
-            { 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, },
-            { 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, },
-            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, },
-            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, },
-            { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, },
-            { 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
-            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
-        };
-        // clang-format on
-
-        // test code, remember to take out
-        auto id = scene->CreateTileMapEntity("tile_map");
-        scene->AttachChild(id);
-
-        TileMapComponent* tileMap = scene->GetComponent<TileMapComponent>(id);
-        tileMap->FromArray(data);
-
-        auto& sprite = tileMap->m_sprite;
-
-        auto res = (m_assetRegistry->FindByPath("@res://images/tiles.png")).value().Wait<ImageAsset>();
-
-        sprite.texture = (*res).get();
-
-        const int grid_x = 3;
-        const int grid_y = 2;
-
-        const float dx = 1.0f / grid_x;
-        const float dy = 1.0f / grid_y;
-
-        for (int y = 0; y < grid_y; ++y) {
-            for (int x = 0; x < grid_x; ++x) {
-                const float u0 = x * dx;
-                const float v0 = (y + 1) * dy;
-                const float u1 = (x + 1) * dx;
-                const float v1 = y * dy;
-
-                sprite.frames.push_back(Rect(Vector2f(u0, v0), Vector2f(u1, v1)));
-            }
-        }
-    }
-#endif
-
-    // test code, remember to take out
-
-    return scene;
-}
-#endif
 
 int main(int p_argc, const char** p_argv) {
     using namespace my;

@@ -2,6 +2,7 @@
 
 #include "engine/scene/scene.h"
 #include "editor/editor_layer.h"
+#include "editor/editor_scene_manager.h"
 #include "editor/panels/viewer.h"
 #include "editor/utility/imguizmo.h"
 
@@ -10,6 +11,8 @@
 #include "engine/runtime/common_dvars.h"
 
 namespace my {
+
+#define TEMP_SCENE_NAME "tile_map_scene"
 
 void TileMapEditor::Update(Scene*) {
     const CameraComponent& camera = m_viewer->GetActiveCamera();
@@ -71,9 +74,78 @@ bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event
 void TileMapEditor::OnEnter(const Guid& p_guid) {
     m_tile_map_guid = p_guid;
     // @TODO: create a dummy scene
+
+    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
+    DEV_ASSERT(scene_manager);
+
+    scene_manager->OpenTemporaryScene(TEMP_SCENE_NAME, [&p_guid]() {
+        auto scene = std::make_shared<Scene>();
+        auto root = scene->CreateTransformEntity(TEMP_SCENE_NAME);
+        scene->m_root = root;
+
+        // clang-format off
+        [[maybe_unused]]
+        const std::vector<std::vector<int>> data = {
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
+            { 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, },
+            { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, },
+            { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, },
+            { 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, },
+            { 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, },
+            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, },
+            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, },
+            { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, },
+            { 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
+        };
+        // clang-format on
+
+        // test code, remember to take out
+        auto id = scene->CreateTileMapEntity("tile_map");
+        scene->AttachChild(id);
+
+        TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
+        tile_map_renderer->tile_map = p_guid;
+
+        #if 0
+        tileMap->FromArray(data);
+
+        auto& sprite = tileMap->m_sprite;
+
+        auto res = (m_assetRegistry->FindByPath("@res://images/tiles.png")).value().Wait<ImageAsset>();
+
+        sprite.texture = (*res).get();
+
+        const int grid_x = 3;
+        const int grid_y = 2;
+
+        const float dx = 1.0f / grid_x;
+        const float dy = 1.0f / grid_y;
+
+        for (int y = 0; y < grid_y; ++y) {
+            for (int x = 0; x < grid_x; ++x) {
+                const float u0 = x * dx;
+                const float v0 = (y + 1) * dy;
+                const float u1 = (x + 1) * dx;
+                const float v1 = y * dy;
+
+                sprite.frames.push_back(Rect(Vector2f(u0, v0), Vector2f(u1, v1)));
+            }
+        }
+
+        #endif
+        return scene;
+    });
 }
 
 void TileMapEditor::OnExit() {
+    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
+    DEV_ASSERT(scene_manager);
+
+    scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
 }
 
 #if 0

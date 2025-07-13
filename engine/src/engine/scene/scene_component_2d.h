@@ -1,7 +1,9 @@
 #pragma once
+#include "scene_component_base.h"
+
+#include "engine/assets/guid.h"
 #include "engine/math/box.h"
 #include "engine/math/geomath.h"
-#include "scene_component_base.h"
 
 namespace my {
 
@@ -9,8 +11,9 @@ class Archive;
 struct GpuMesh;
 struct ImageAsset;
 
-class TileMapRenderer : public ComponentFlagBase {
-public:
+struct TileMapRenderer : public ComponentFlagBase {
+    Guid tile_map;
+
     void Serialize(Archive& p_archive, uint32_t p_version);
 
     void OnDeserialized() {}

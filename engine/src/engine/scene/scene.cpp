@@ -424,8 +424,7 @@ ecs::Entity Scene::CreateTileMapEntity(const std::string& p_name, const Matrix4x
     TransformComponent& transform = Create<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
 
-    DEV_ASSERT(0);
-    // Create<TileMapComponent>(entity);
+    Create<TileMapRenderer>(entity);
     return entity;
 }
 
