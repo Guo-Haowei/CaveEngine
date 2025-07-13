@@ -4,6 +4,7 @@
 #include <latch>
 #include <yaml-cpp/yaml.h>
 
+#include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager.h"
@@ -153,7 +154,12 @@ void AssetRegistry::SaveAssets() {
     std::lock_guard lock(registry_mutex);
 
     for (const auto& [guid, entry] : m_guid_map) {
-        entry->asset->SaveToDisk(entry->metadata);
+        auto res = entry->asset->SaveToDisk(entry->metadata);
+        if (!res) {
+            StringStreamBuilder builder;
+            builder << res.error();
+            LOG_ERROR("{}", builder.ToString());
+        }
     }
 }
 

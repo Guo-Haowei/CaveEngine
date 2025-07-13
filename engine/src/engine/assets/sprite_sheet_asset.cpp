@@ -81,6 +81,7 @@ auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<v
 
     YAML::Emitter out;
     out << YAML::BeginMap;
+
     out << YAML::Key << "version" << YAML::Value << VERSION;
 
     out << YAML::Key << "image" << YAML::Value << m_image.ToString();
@@ -96,7 +97,6 @@ auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<v
     out << YAML::Key << "column" << YAML::Value;
     serialize::SerializeYaml(out, m_column, ctx);
 
-    out << YAML::EndSeq;
     out << YAML::EndMap;
 
     return serialize::SaveYaml(p_meta.path, out);
