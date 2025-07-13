@@ -185,7 +185,7 @@ void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::
 Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const std::string& p_path, const char* p_class_name, ObjectFunctions& p_meta) {
     auto asset_registry = m_app->GetAssetRegistry();
     [[maybe_unused]]
-    auto handle = asset_registry->Request(p_path);
+    auto handle = asset_registry->FindByPath(p_path);
     DEV_ASSERT(0);
 
 #if 0

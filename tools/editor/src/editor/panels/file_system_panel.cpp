@@ -133,7 +133,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
         const bool hovered = ImGui::IsItemHovered();
         if (hovered) {
             auto asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-            auto _handle = asset_registry->Request(short_path);
+            auto _handle = asset_registry->FindByPath(short_path);
             if (_handle) {
                 auto handle = std::move(*_handle);
                 IAsset* asset = handle.Get();

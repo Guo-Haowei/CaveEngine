@@ -18,12 +18,12 @@ void AssetInspector::OnAttach() {
 void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
     ImGui::Text("TileSet");
 
-    auto& handle = p_sprite.image_handle;
-    if (!handle || !handle.value().IsReady()) {
+    auto& handle = p_sprite.GetHandle();
+    if (!handle.IsReady()) {
         return;
     }
 
-    const ImageAsset* image = handle.value().Get<ImageAsset>();
+    const ImageAsset* image = handle.Get<ImageAsset>();
     DEV_ASSERT(image);
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -42,8 +42,8 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
         ImVec2(0, 0), ImVec2(1, 1),
         IM_COL32(255, 255, 255, 255));
 
-    const int sep_x = p_sprite.separation.x;
-    const int sep_y = p_sprite.separation.y;
+    const int sep_x = p_sprite.GetSeparation().x;
+    const int sep_y = p_sprite.GetSeparation().y;
 
     if (sep_x <= 0 || sep_y <= 0) {
         return;
@@ -102,8 +102,13 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
             //     //ImGui::Text("Image: %s", p_sprite.image_handle.entry->metadata.path.c_str());
             // }
 
-            ImGui::InputInt("Separation X", &p_sprite.separation.x);
-            ImGui::InputInt("Separation Y", &p_sprite.separation.y);
+            Vector2i sep = p_sprite.GetSeparation();
+
+            const bool x_dirty = ImGui::InputInt("Separation X", &sep.x);
+            const bool y_dirty = ImGui::InputInt("Separation Y", &sep.y);
+            if (x_dirty || y_dirty) {
+                p_sprite.SetSeparation(sep);
+            }
 
             // ImGui::Checkbox("Use Texture Region", &use_region);
             ImGui::EndTabItem();
@@ -120,9 +125,9 @@ void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
 
     {
         const float w = 300;
-        auto& handle = p_sprite.image_handle;
-        if (handle && handle.value().IsReady()) {
-            const ImageAsset* asset = handle.value().Get<ImageAsset>();
+        auto& handle = p_sprite.GetHandle();
+        if (handle.IsReady()) {
+            const ImageAsset* asset = handle.Get<ImageAsset>();
             DEV_ASSERT(asset);
             const float h = w / asset->width * asset->height;
             ImVec2 size = ImVec2(w, h);
@@ -139,16 +144,8 @@ void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MY_PAYLOAD_TYPE")) {
             std::string& texture = *((std::string*)payload->Data);
-            LOG_OK("{}", texture);
 
-            auto handle = m_asset_registry->Request(texture);
-            if (handle) {
-                const ImageAsset* image = handle.value().Get<ImageAsset>();
-                if (image) {
-                    p_sprite.image_id = handle.value().GetGuid();
-                    p_sprite.image_handle = handle;
-                }
-            }
+            p_sprite.SetImage(texture);
         }
         ImGui::EndDragDropTarget();
     }

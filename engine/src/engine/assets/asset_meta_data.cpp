@@ -1,10 +1,9 @@
 #include "asset_meta_data.h"
 
-#include <yaml-cpp/yaml.h>
-
 #include "engine/assets/assets.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
+#include "engine/systems/serialization/serialization.h"
 
 namespace my {
 
@@ -31,26 +30,12 @@ static Result<AssetType> ParseAssetType(std::string_view p_string) {
 }
 
 auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
-    std::shared_ptr<FileAccess> file;
-    {
-        auto res = FileAccess::Open(p_path, FileAccess::READ);
-        if (!res) {
-            return HBN_ERROR(res.error());
-        }
-
-        file = *res;
+    YAML::Node node;
+    if (auto res = serialize::LoadYaml(p_path, node); !res) {
+        return HBN_ERROR(res.error());
     }
 
-    // @TODO: refactor this part
-    const size_t size = file->GetLength();
-    std::vector<char> buffer;
-    buffer.resize(size);
-    file->ReadBuffer(buffer.data(), size);
-    buffer.push_back('\0');
-
     AssetMetaData meta;
-
-    YAML::Node node = YAML::Load(buffer.data());
     {
         auto guid = node["guid"].as<std::string>();
         auto res = Guid::Parse(guid);
@@ -94,12 +79,6 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> std::optional<AssetMe
 }
 
 auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
-    auto meta_path = std::format("{}.meta", path);
-    auto res = FileAccess::Open(meta_path, FileAccess::WRITE);
-    if (!res) {
-        return HBN_ERROR(res.error());
-    }
-    auto meta = *res;
     YAML::Emitter out;
     out << YAML::BeginMap;
     out << YAML::Key << "guid" << YAML::Value << guid.ToString();
@@ -116,15 +95,8 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
     }
     out << YAML::EndMap;
 
-    if (!out.good()) {
-        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "error: {}", out.GetLastError());
-    }
-
-    const char* string = out.c_str();
-    const size_t len = strlen(string);
-    const size_t written = meta->WriteBuffer(string, len);
-    DEV_ASSERT(written == len);
-    return Result<void>();
+    auto meta_path = std::format("{}.meta", path);
+    return serialize::SaveYaml(meta_path, out);
 }
 
 }  // namespace my

@@ -7,7 +7,7 @@ struct IAsset;
 struct BufferAsset;
 struct TextAsset;
 struct ImageAsset;
-struct SpriteSheetAsset;
+class SpriteSheetAsset;
 class AssetEntry;
 struct AssetMetaData;
 
@@ -17,20 +17,19 @@ using OnAssetLoadSuccessFunc = void (*)(AssetRef p_asset, void* p_userdata);
 // @TODO: make it a class
 struct IAsset {
     const AssetType type;
-    std::weak_ptr<AssetEntry> m_entry; // to retrieve meta data
+    std::weak_ptr<AssetEntry> m_entry;  // to retrieve meta data
 
     IAsset(AssetType p_type)
         : type(p_type) {}
 
     virtual ~IAsset() = default;
 
-    virtual auto LoadFromDisk(std::string_view p_path) -> Result<void> {
-        unused(p_path);
+    virtual auto LoadFromDisk(const AssetMetaData&) -> Result<void> {
         // CRASH_NOW_MSG("TODO: implmenet");
         return Result<void>();
     }
 
-    virtual Result<void> SaveToDisk(const AssetMetaData&) const {
+    virtual auto SaveToDisk(const AssetMetaData&) const -> Result<void> {
         // CRASH_NOW_MSG("TODO: implmenet");
         return Result<void>();
     }

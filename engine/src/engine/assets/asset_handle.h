@@ -10,6 +10,8 @@ struct IAsset;
 
 class AssetHandle {
 public:
+    AssetHandle() {}
+
     AssetHandle(const Guid& p_guid, std::shared_ptr<AssetEntry> p_entry)
         : m_guid(p_guid)
         , m_entry(p_entry) {}

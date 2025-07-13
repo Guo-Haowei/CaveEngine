@@ -55,20 +55,6 @@ public:
     auto Load() -> Result<AssetRef> override;
 };
 
-template<typename T>
-class YamlAssetLoader : public IAssetLoader {
-public:
-    using IAssetLoader::IAssetLoader;
-
-    static std::unique_ptr<IAssetLoader> CreateLoader(const AssetMetaData& p_meta) {
-        return std::make_unique<YamlAssetLoader<T>>(p_meta);
-    }
-
-    auto Load() -> Result<AssetRef> override {
-        return AssetRef(new T);
-    }
-};
-
 class ImageAssetLoader : public IAssetLoader {
 public:
     ImageAssetLoader(const AssetMetaData& p_meta, uint32_t p_size)

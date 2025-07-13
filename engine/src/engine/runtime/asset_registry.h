@@ -12,7 +12,8 @@ public:
     AssetRegistry()
         : Module("AssetRegistry") {}
 
-    std::optional<AssetHandle> Request(const std::string& p_path);
+    std::optional<AssetHandle> FindByGuid(const Guid& p_guid);
+    std::optional<AssetHandle> FindByPath(const std::string& p_path);
 
     void MoveAsset(std::string&& p_old, std::string&& p_new);
 
@@ -25,6 +26,8 @@ protected:
     bool StartAsyncLoad(AssetMetaData&& p_meta,
                         OnAssetLoadSuccessFunc p_on_success,
                         void* p_userdata);
+
+    std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
 
     mutable std::mutex registry_mutex;
     std::unordered_map<std::string, Guid> m_path_map;

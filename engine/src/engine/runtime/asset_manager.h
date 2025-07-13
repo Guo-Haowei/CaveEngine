@@ -30,9 +30,11 @@ public:
     static void RequestShutdown();
 
 private:
-    [[nodiscard]] auto LoadAssetSync(const AssetEntry* p_entry) -> Result<AssetRef>;
+    [[nodiscard]] void LoadAssetSync(const Guid& p_guid,
+                                     OnAssetLoadSuccessFunc p_on_success,
+                                     void* p_userdata);
 
-    void LoadAssetAsync(AssetEntry* p_entry,
+    void LoadAssetAsync(const Guid& p_guid,
                         OnAssetLoadSuccessFunc p_on_success,
                         void* p_userdata);
 
