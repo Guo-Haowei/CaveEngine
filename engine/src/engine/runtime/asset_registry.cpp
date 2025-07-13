@@ -68,7 +68,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
         }
 
         auto meta2 = std::move(meta.value());
-        auto res = meta2.SaveMeta(meta_path);
+        auto res = meta2.SaveToDisk(nullptr);
         if (!res) {
             return HBN_ERROR(res.error());
         }
@@ -92,6 +92,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 
 void AssetRegistry::FinalizeImpl() {
     // @TODO: clean up all the stuff
+    SaveAssets();
 }
 
 bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
@@ -136,6 +137,15 @@ void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
 
     m_path_map[p_new] = guid;
     it2->second->metadata.path = std::move(p_new);
+}
+
+void AssetRegistry::SaveAssets() {
+    std::lock_guard lock(registry_mutex);
+
+    for (const auto& [guid, entry] : m_guid_map) {
+        entry->asset->SaveToDisk(entry->metadata);
+    }
+
 }
 
 #if 0

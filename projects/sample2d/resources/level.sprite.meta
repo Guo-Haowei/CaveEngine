@@ -1,3 +1,5 @@
 guid: 996BCD22-4F23-5945-B96BF395A4847255
 type: sprite_sheet
-path: "@res://untitled1.sprite"
+path: "@res://level.sprite"
+dependencies:
+  - E80CA6A7-92E8-9A41-8B944860C64DFBA5

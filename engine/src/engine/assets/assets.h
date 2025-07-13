@@ -52,7 +52,9 @@ struct SpriteSheetAsset : IAsset {
     SpriteSheetAsset()
         : IAsset(AssetType::SpriteSheet) {}
 
-    void SaveToDisk() const override;
+    Result<void> SaveToDisk(const AssetMetaData& p_meta) const override;
+
+    std::vector<Guid> GetDependencies() const override;
 };
 
 }  // namespace my

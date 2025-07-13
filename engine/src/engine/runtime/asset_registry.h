@@ -16,10 +16,7 @@ public:
 
     void MoveAsset(std::string&& p_old, std::string&& p_new);
 
-#if 0
-    void GetAssetByType(AssetType p_type, std::vector<IAsset*>& p_out);
-    void RemoveAsset(const std::string& p_path);
-#endif
+    void SaveAssets();
 
 protected:
     auto InitializeImpl() -> Result<void> override;

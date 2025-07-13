@@ -9,6 +9,7 @@ struct TextAsset;
 struct ImageAsset;
 struct SpriteSheetAsset;
 class AssetEntry;
+struct AssetMetaData;
 
 using AssetRef = std::shared_ptr<IAsset>;
 using OnAssetLoadSuccessFunc = void (*)(AssetRef p_asset, void* p_userdata);
@@ -25,12 +26,13 @@ struct IAsset {
 
     virtual auto LoadFromDisk(std::string_view p_path) -> Result<void> {
         unused(p_path);
-        CRASH_NOW_MSG("TODO: implmenet");
+        // CRASH_NOW_MSG("TODO: implmenet");
         return Result<void>();
     }
 
-    virtual void SaveToDisk() const {
-        CRASH_NOW_MSG("TODO: implmenet");
+    virtual Result<void> SaveToDisk(const AssetMetaData&) const {
+        // CRASH_NOW_MSG("TODO: implmenet");
+        return Result<void>();
     }
 
     virtual std::vector<Guid> GetDependencies() const {

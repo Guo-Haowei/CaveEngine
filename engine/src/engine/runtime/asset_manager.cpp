@@ -119,7 +119,7 @@ void AssetManager::CreateAsset(const AssetType& p_type,
                                const fs::path& p_folder,
                                const char* p_name) {
     // @TODO: change this to serialize once done
-    LOG_WARN("Move logic to IAsset::SaveToDisk");
+    CRASH_NOW_MSG("Move logic to IAsset::SaveToDisk");
 
     DEV_ASSERT(p_type == AssetType::SpriteSheet);
     // 1. Creates both meta and file
@@ -138,7 +138,7 @@ void AssetManager::CreateAsset(const AssetType& p_type,
         fs::remove(new_file);
     }
     std::ofstream file(new_file);
-    asset->SaveToDisk();
+    //asset->SaveToDisk();
 
     std::string meta_file = new_file.string();
     meta_file.append(".meta");
@@ -155,10 +155,10 @@ void AssetManager::CreateAsset(const AssetType& p_type,
         fs::remove(meta_file);
     }
 
-    auto res = meta.SaveMeta(meta_file);
-    if (!res) {
-        return;
-    }
+    //auto res = meta.SaveMeta(meta_file);
+    //if (!res) {
+    //    return;
+    //}
 
     // 2. Update AssetRegistry when done
     m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta), nullptr, nullptr);

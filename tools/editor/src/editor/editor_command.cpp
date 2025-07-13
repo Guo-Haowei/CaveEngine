@@ -77,6 +77,9 @@ void OpenProjectCommand::Execute(Scene&) {
 
 /// SaveProjectCommand
 void SaveProjectCommand::Execute(Scene& p_scene) {
+
+    // Check dirty commands
+
     const std::string& scene = DVAR_GET_STRING(scene);
 
     std::filesystem::path path{ scene.empty() ? "untitled.scene" : scene.c_str() };

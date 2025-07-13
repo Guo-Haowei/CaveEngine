@@ -3,6 +3,8 @@
 
 namespace my {
 
+struct IAsset;
+
 #define ASSET_TYPE_LIST                     \
     ASSET_TYPE(Image, "image")              \
     ASSET_TYPE(Binary, "binary")            \
@@ -50,8 +52,7 @@ struct AssetMetaData {
     /// Create meta based on asset file
     [[nodiscard]] static auto CreateMeta(std::string_view p_path) -> std::optional<AssetMetaData>;
 
-    /// Save .meta to disk
-    [[nodiscard]] auto SaveMeta(std::string_view p_path) const -> Result<void>;
+    [[nodiscard]] auto SaveToDisk(const IAsset* p_asset) const -> Result<void>;
 };
 
 }  // namespace my

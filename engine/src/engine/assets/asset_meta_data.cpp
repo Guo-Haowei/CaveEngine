@@ -93,20 +93,27 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> std::optional<AssetMe
     return meta;
 }
 
-auto AssetMetaData::SaveMeta(std::string_view p_path) const -> Result<void> {
-    DEV_ASSERT(!fs::exists(p_path));
-
-    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
+auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
+    auto meta_path = std::format("{}.meta", path);
+    auto res = FileAccess::Open(meta_path, FileAccess::WRITE);
     if (!res) {
         return HBN_ERROR(res.error());
     }
-
+    auto meta = *res;
     YAML::Emitter out;
-
     out << YAML::BeginMap;
     out << YAML::Key << "guid" << YAML::Value << guid.ToString();
     out << YAML::Key << "type" << YAML::Value << type.ToString();
     out << YAML::Key << "path" << YAML::Value << path;
+    if (p_asset) {
+        out << YAML::Key << "dependencies" << YAML::Value << YAML::BeginSeq;
+        for (const Guid& id : p_asset->GetDependencies()) {
+            out << id.ToString();
+        }
+        out << YAML::EndSeq;
+
+        // @TODO: extra params
+    }
     out << YAML::EndMap;
 
     if (!out.good()) {
@@ -114,9 +121,8 @@ auto AssetMetaData::SaveMeta(std::string_view p_path) const -> Result<void> {
     }
 
     const char* string = out.c_str();
-    size_t len = strlen(string);
-    auto file = *res;
-    [[maybe_unused]] size_t written = file->WriteBuffer(string, len);
+    const size_t len = strlen(string);
+    const size_t written = meta->WriteBuffer(string, len);
     DEV_ASSERT(written == len);
     return Result<void>();
 }
