@@ -1,6 +1,7 @@
 #pragma once
 #include "editor/editor_command.h"
 #include "editor/editor_window.h"
+#include "editor/tools/tool.h"
 #include "engine/core/base/ring_buffer.h"
 #include "engine/input/input_router.h"
 #include "engine/runtime/application.h"
@@ -8,8 +9,6 @@
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_component.h"
 #include "engine/systems/undo_redo/undo_stack.h"
-
-#include "editor/tools/tool_interface.h"
 
 namespace my {
 
@@ -25,12 +24,6 @@ enum {
     SHORT_CUT_UNDO,
     SHORT_CUT_REDO,
     SHORT_CUT_MAX,
-};
-
-enum EditorCameraType : uint8_t {
-    CAMERA_2D = 0,
-    CAMERA_3D,
-    CAMERA_MAX,
 };
 
 struct EditorContext {

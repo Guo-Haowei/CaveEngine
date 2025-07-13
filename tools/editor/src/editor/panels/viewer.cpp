@@ -19,7 +19,32 @@ namespace my {
 
 static constexpr float TOOL_BAR_OFFSET = 40.0f;
 
-Viewer::Viewer(EditorLayer& p_editor) : EditorWindow("Viewer" VIEWER_WINDOW_ID, p_editor) {
+Viewer::Viewer(EditorLayer& p_editor)
+    : EditorWindow("Viewer" VIEWER_WINDOW_ID, p_editor) {
+    const auto res = DVAR_GET_IVEC2(resolution);
+    {
+        CameraComponent camera;
+        camera.SetDimension(res.x, res.y);
+        camera.SetNear(1.0f);
+        camera.SetFar(1000.0f);
+        camera.SetPosition(Vector3f(0, 4, 10));
+        camera.SetDirty();
+        camera.Update();
+
+        m_controller.cameras[CAM3D] = camera;
+    }
+    {
+        CameraComponent camera;
+        camera.SetOrtho();
+        camera.SetDimension(res.x, res.y);
+        camera.SetNear(1.0f);
+        camera.SetFar(1000.0f);
+        camera.SetPosition(Vector3f(0, 0, 10));
+        camera.SetDirty();
+        camera.Update();
+
+        m_controller.cameras[CAM2D] = camera;
+    }
 }
 
 void Viewer::UpdateData() {
@@ -43,7 +68,7 @@ void Viewer::UpdateData() {
     m_focused = ImGui::IsWindowHovered();
 }
 
-void Viewer::DrawGui(Scene* p_scene) {
+void Viewer::DrawGui(Scene*) {
     // @TODO: fix this
     const auto& gm = IGraphicsManager::GetSingleton();
     uint64_t handle = gm.GetFinalImage();
@@ -71,15 +96,6 @@ void Viewer::DrawGui(Scene* p_scene) {
             CRASH_NOW();
             break;
     }
-
-    ImGuizmo::SetOrthographic(false);
-    ImGuizmo::BeginFrame();
-
-    ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(m_canvas_min.x, m_canvas_min.y, m_canvas_size.x, m_canvas_size.y);
-
-    ITool* tool = m_editor.GetActiveTool();
-    tool->Draw(p_scene);
 }
 
 void Viewer::DrawToolBar() {
@@ -100,6 +116,9 @@ void Viewer::DrawToolBar() {
     auto app = m_editor.GetApplication();
     auto app_state = app->GetState();
 
+    ITool* tool = m_editor.GetActiveTool();
+    const bool only_2d = tool->GetCameraPolicy() == ToolCameraPolicy::Only2D;
+
     static const ToolBarButtonDesc s_buttons[] = {
         { ICON_FA_PLAY, "Run Project",
           [&]() { app->SetState(Application::State::BEGIN_SIM); },
@@ -109,16 +128,13 @@ void Viewer::DrawToolBar() {
           [&]() { return app_state != Application::State::EDITING; } },
         { ICON_FA_HAND, "Enter gizmo mode",
           [&]() {
-              // m_active = EditorToolType::Gizmo;
           } },
         { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
           [&]() {
-              // bool is_2d = context.cameraType == CAMERA_2D;
-              // context.cameraType = is_2d ? CAMERA_3D : CAMERA_2D;
+              m_controller.Toggle(only_2d);
           } },
         { ICON_FA_BRUSH, "TileMap editor mode",
           [&]() {
-              // m_active = EditorToolType::TileMapEditor;
           } },
     };
 
@@ -176,7 +192,6 @@ std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
 
 bool Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_event) {
     InputEvent* event = p_input_event.get();
-    unused(event);
 
     if (auto e = dynamic_cast<InputEventKey*>(event); e) {
         if (e->IsHolding() && !e->IsModiferPressed()) {
@@ -232,140 +247,48 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     // update name
     m_name = std::format("{}" VIEWER_WINDOW_ID, tool->GetName());
 
+    // @TODO: tool bar policy
     DrawToolBar();
 
     UpdateData();
 
-    CameraComponent& camera = tool->GetCamera();
+    CameraComponent& camera = GetActiveCamera();
 
     const float dt = m_editor.context.timestep;
     const auto& move = m_input_state.mouse_move;
     const auto& scroll = m_input_state.scroll;
-        //case CAMERA_2D: {
-        //    CameraInputState state{
-        //        .move = dt * Vector3f(-move.x, move.y, 0.0f),
-        //        .zoomDelta = -dt * scroll,
-        //    };
-        //    m_cameraController2D.Update(camera, state);
-        //    camera.Update();
-        //} break;
+
+    const bool only_2d = tool->GetCameraPolicy() == ToolCameraPolicy::Only2D;
+    m_controller.Check(only_2d);
+
+
+    switch (m_controller.current) {
+        case CAM2D: {
+            CameraInputState state{
+                .move = dt * Vector3f(-move.x, move.y, 0.0f),
+                .zoomDelta = -dt * scroll,
+            };
+            m_controller.controller_2d.Update(camera, state);
+        } break;
+        case CAM3D: {
+            CameraInputState state{
+                .move = dt * Vector3f(m_input_state.dx, m_input_state.dy, m_input_state.dz),
+                .zoomDelta = dt * scroll,
+                .rotation = dt * move,
+            };
+            m_controller.controller_3d.Update(camera, state);
+        } break;
+    }
+
+    camera.Update();
 
     // GetActiveTool()->Process(scene, camera);
 
-    CameraInputState state{
-        .move = dt * Vector3f(m_input_state.dx, m_input_state.dy, m_input_state.dz),
-        .zoomDelta = dt * scroll,
-        .rotation = dt * move,
-    };
-    m_cameraController3D.Update(camera, state);
-    camera.Update();
-
     DrawGui(p_scene);
+
+    tool->Update(p_scene);
 
     m_input_state.Reset();
 }
-
-#if 0
-class Gizmo : public IEditorTool {
-public:
-    Gizmo(Viewer& p_viewer)
-        : m_viewer(p_viewer) {}
-
-    bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override {
-    }
-
-    void Process(Scene& p_scene, const CameraComponent& p_camera) override {
-        if (!m_viewer.m_focused || !m_viewer.m_input_state.ndc) {
-            return;
-        }
-
-        Vector2f clicked = *m_viewer.m_input_state.ndc;
-
-        const Matrix4x4f inversed_projection_view = glm::inverse(p_camera.GetProjectionViewMatrix());
-
-        const Vector3f ray_start = p_camera.GetPosition();
-        const Vector3f direction = normalize(Vector3f((inversed_projection_view * Vector4f(clicked, 1.0f, 1.0f)).xyz));
-        const Vector3f ray_end = ray_start + direction * p_camera.GetFar();
-        Ray ray(ray_start, ray_end);
-
-        const auto result = p_scene.Intersects(ray);
-
-        m_viewer.m_editor.SelectEntity(result.entity);
-    }
-
-protected:
-    Viewer& m_viewer;
-};
-
-class TileMapEditor : public IEditorTool {
-public:
-    TileMapEditor(Viewer& p_viewer)
-        : m_viewer(p_viewer) {}
-
-    bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override {
-        InputEvent* event = p_input_event.get();
-        if (auto e = dynamic_cast<InputEventMouse*>(event); e) {
-            if (!e->IsModiferPressed()) {
-                if (e->IsButtonDown(MouseButton::LEFT)) {
-                    m_viewer.m_input_state.ndc = m_viewer.CursorToNDC(e->GetPos());
-                    m_viewer.m_input_state.buttons[std::to_underlying(MouseButton::LEFT)] = true;
-                    return true;
-                }
-                if (e->IsButtonDown(MouseButton::RIGHT)) {
-                    m_viewer.m_input_state.ndc = m_viewer.CursorToNDC(e->GetPos());
-                    m_viewer.m_input_state.buttons[std::to_underlying(MouseButton::RIGHT)] = true;
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    void Process(Scene& p_scene, const CameraComponent& p_camera) override {
-
-        if (!m_viewer.m_focused || !m_viewer.m_input_state.ndc) {
-            return;
-        }
-
-        Vector2f ndc_2 = *m_viewer.m_input_state.ndc;
-
-        auto selected = m_viewer.m_editor.GetSelectedEntity();
-
-        unused(ndc_2);
-        unused(p_scene);
-        unused(p_camera);
-        unused(selected);
-
-#if 0
-        TileMapComponent* tile_map = p_scene.GetComponent<TileMapComponent>(selected);
-
-        if (!tile_map) {
-            return;
-        }
-
-        Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
-        const auto inv_proj_view = glm::inverse(p_camera.GetProjectionViewMatrix());
-        Vector4f position = inv_proj_view * ndc;
-        position /= position.w;
-
-        int tile_x = static_cast<int>(position.x);
-        int tile_y = static_cast<int>(position.y);
-
-        // erase if right button down
-        int value = 0;
-        if (m_viewer.m_input_state.buttons[std::to_underlying(MouseButton::LEFT)]) {
-            value = m_viewer.m_editor.context.selected_tile;
-            if (value < 0 || value > 5) {
-                value = 0;
-            }
-        }
-        tile_map->SetTile(tile_x, tile_y, value);
-#endif
-    }
-
-protected:
-    Viewer& m_viewer;
-};
-#endif
 
 }  // namespace my

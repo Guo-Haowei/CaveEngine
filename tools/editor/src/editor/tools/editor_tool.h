@@ -1,5 +1,5 @@
 #pragma once
-#include "tool_interface.h"
+#include "tool.h"
 
 #include "engine/input/input_event.h"
 #include "engine/scene/scene.h"
@@ -15,12 +15,10 @@ public:
 
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
 
-    CameraComponent& GetCamera() override;
-
     void OnEnter() override;
     void OnExit() override;
 
-    void Draw(Scene* p_scene) override;
+    void Update(Scene* p_scene) override;
 
     virtual bool Is2D() const { return false; }
 
@@ -34,8 +32,6 @@ protected:
     } m_state{ GizmoState::Translating };
 
     Viewer* m_viewer;
-
-    CameraComponent m_camera;
 };
 
 }  // namespace my

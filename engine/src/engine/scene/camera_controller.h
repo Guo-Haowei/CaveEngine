@@ -12,14 +12,20 @@ struct CameraInputState {
     Vector2f rotation{ 0, 0 };
 };
 
-class CameraController2DEditor {
+class ICameraController {
 public:
-    void Update(CameraComponent& p_camera, const CameraInputState& p_state);
+    virtual ~ICameraController() = default;
+    virtual void Update(CameraComponent& p_camera, const CameraInputState& p_state) = 0;
 };
 
-class CameraControllerFPS {
+class CameraController2DEditor : public ICameraController {
 public:
-    void Update(CameraComponent& p_camera, const CameraInputState& p_state);
+    void Update(CameraComponent& p_camera, const CameraInputState& p_state) override;
+};
+
+class CameraControllerFPS : public ICameraController {
+public:
+    void Update(CameraComponent& p_camera, const CameraInputState& p_state) override;
 
     float m_moveSpeed{ 10.0f };
     float m_rotateSpeed{ 10.0f };

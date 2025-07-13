@@ -14,6 +14,9 @@ public:
     std::optional<Vector2f> CursorToNDC(Vector2f p_point) const;
 
     const Vector2f& GetCanvasMin() const { return m_canvas_min; }
+    const Vector2f& GetCanvasSize() const { return m_canvas_size; }
+
+    CameraComponent& GetActiveCamera() { return m_controller.cameras[m_controller.current]; }
 
     auto& GetInputState() { return m_input_state; }
 
@@ -48,8 +51,33 @@ protected:
         }
     } m_input_state;
 
-    CameraControllerFPS m_cameraController3D;
-    CameraController2DEditor m_cameraController2D;
+    enum {
+        CAM2D,
+        CAM3D,
+    };
+    struct EditorCameraController {
+        CameraControllerFPS controller_3d;
+        CameraController2DEditor controller_2d;
+
+        CameraComponent& GetCamera(int p_idx) { return cameras[p_idx]; }
+
+        std::array<CameraComponent, 2> cameras;
+        int current = CAM3D;
+
+        void Check(bool p_only_2d) {
+            if (p_only_2d) {
+                current = CAM2D;
+            }
+        }
+
+        void Toggle(bool p_only_2d) {
+            if (p_only_2d) {
+                current = CAM2D;
+            } else {
+                current ^= 1; 
+            }
+        }
+    } m_controller;
 };
 
 }  // namespace my

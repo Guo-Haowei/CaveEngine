@@ -31,28 +31,6 @@ namespace my {
 
 EditorLayer::EditorLayer()
     : Layer("EditorLayer") {
-#if 0
-    const auto res = DVAR_GET_IVEC2(resolution);
-    {
-        CameraComponent& camera = context.cameras[CAMERA_3D];
-        camera.SetDimension(res.x, res.y);
-        camera.SetNear(1.0f);
-        camera.SetFar(1000.0f);
-        camera.SetPosition(Vector3f(0, 4, 10));
-        camera.SetDirty();
-        camera.Update();
-    }
-    {
-        CameraComponent& camera = context.cameras[CAMERA_2D];
-        camera.SetOrtho();
-        camera.SetDimension(res.x, res.y);
-        camera.SetNear(1.0f);
-        camera.SetFar(1000.0f);
-        camera.SetPosition(Vector3f(0, 0, 10));
-        camera.SetDirty();
-        camera.Update();
-    }
-#endif
 
     m_menuBar = std::make_shared<MenuBar>(*this);
     m_viewer = std::make_shared<Viewer>(*this);
@@ -69,7 +47,9 @@ EditorLayer::EditorLayer()
 #endif
 
     m_tools[std::to_underlying(EditorToolType::Edit)].reset(new EditorTool(*this, m_viewer.get()));
+    m_tools[std::to_underlying(EditorToolType::TileMap)].reset(new TileMapEditor(*this, m_viewer.get()));
 
+    // @TODO: refactor this at some point
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
         "Save As..",
         "Ctrl+Shift+S",
@@ -157,6 +137,7 @@ void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
     SetTool(EditorToolType::Edit);
+    SetTool(EditorToolType::TileMap);
 
     m_app->GetInputManager()->PushInputHandler(this);
     m_app->GetInputManager()->PushInputHandler(m_viewer.get());
@@ -356,7 +337,7 @@ void EditorLayer::FlushCommand(Scene* p_scene) {
 }
 
 CameraComponent& EditorLayer::GetActiveCamera() {
-    return m_tools[std::to_underlying(m_current_tool)]->GetCamera();
+    return m_viewer->GetActiveCamera();
 }
 
 void EditorLayer::SetTool(EditorToolType p_type) {

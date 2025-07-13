@@ -14,6 +14,11 @@ enum class EditorToolType {
     Count,
 };
 
+enum class ToolCameraPolicy {
+    Any,
+    Only2D,
+};
+
 class ITool {
 public:
     ITool(EditorLayer& p_editor)
@@ -28,12 +33,14 @@ public:
     virtual void OnEnter() = 0;
     virtual void OnExit() = 0;
 
-    virtual CameraComponent& GetCamera() = 0;
-    virtual void Draw(Scene* p_scene) = 0;
+    virtual void Update(Scene* p_scene) = 0;
 
     virtual bool Is2D() const = 0;
 
+    ToolCameraPolicy GetCameraPolicy() const { return m_policy; }
+
 protected:
+    ToolCameraPolicy m_policy{ ToolCameraPolicy::Any };
     EditorLayer& m_editor;
 };
 

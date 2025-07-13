@@ -11,14 +11,25 @@
 
 namespace my {
 
-void EditorTool::Draw(Scene* p_scene) {
-    const Matrix4x4f view_matrix = m_camera.GetViewMatrix();
-    const Matrix4x4f proj_matrix = m_camera.GetProjectionMatrix();
+void EditorTool::Update(Scene* p_scene) {
+    const auto& cam = m_viewer->GetActiveCamera();
+    const Matrix4x4f& view_matrix = cam.GetViewMatrix();
+    // const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
+    const Matrix4x4f& proj_view = cam.GetProjectionViewMatrix();
+
+    const Vector2f& canvas_min = m_viewer->GetCanvasMin();
+    const Vector2f& canvas_size = m_viewer->GetCanvasSize();
+
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::BeginFrame();
+
+    ImGuizmo::SetDrawlist();
+    ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
     bool show_editor = DVAR_GET_BOOL(show_editor);
     if (show_editor) {
         Matrix4x4f identity(1.0f);
-        ImGuizmo::DrawGrid(m_camera.GetProjectionViewMatrix(), identity, 10.0f, ImGuizmo::GridPlane::XZ);
+        ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XZ);
     }
 
     if (p_scene) {
@@ -28,7 +39,7 @@ void EditorTool::Draw(Scene* p_scene) {
             LightComponent* light = p_scene->GetComponent<LightComponent>(id);
             if (light && light->GetType() == LIGHT_TYPE_INFINITE) {
                 const auto& matrix = transform_component->GetWorldMatrix();
-                ImGuizmo::DrawCone(m_camera.GetProjectionViewMatrix(), matrix);
+                ImGuizmo::DrawCone(proj_view, matrix);
             }
         }
     }
@@ -118,24 +129,32 @@ bool EditorTool::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
     return false;
 }
 
-CameraComponent& EditorTool::GetCamera() {
-    return m_camera;
-}
-
 void EditorTool::OnEnter() {
-    const auto res = DVAR_GET_IVEC2(resolution);
-    CameraComponent camera;
-    camera.SetDimension(res.x, res.y);
-    camera.SetNear(1.0f);
-    camera.SetFar(1000.0f);
-    camera.SetPosition(Vector3f(0, 4, 10));
-    camera.SetDirty();
-    camera.Update();
-
-    m_camera = camera;
 }
 
 void EditorTool::OnExit() {
 }
+
+#if 0
+    void Process(Scene& p_scene, const CameraComponent& p_camera) override {
+        if (!m_viewer.m_focused || !m_viewer.m_input_state.ndc) {
+            return;
+        }
+
+        Vector2f clicked = *m_viewer.m_input_state.ndc;
+
+        const Matrix4x4f inversed_projection_view = glm::inverse(p_camera.GetProjectionViewMatrix());
+
+        const Vector3f ray_start = p_camera.GetPosition();
+        const Vector3f direction = normalize(Vector3f((inversed_projection_view * Vector4f(clicked, 1.0f, 1.0f)).xyz));
+        const Vector3f ray_end = ray_start + direction * p_camera.GetFar();
+        Ray ray(ray_start, ray_end);
+
+        const auto result = p_scene.Intersects(ray);
+
+        m_viewer.m_editor.SelectEntity(result.entity);
+    }
+
+#endif
 
 }  // namespace my
