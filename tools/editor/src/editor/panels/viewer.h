@@ -1,18 +1,9 @@
 #pragma once
-#include "editor/editor_window.h"
 #include "engine/input/input_router.h"
 #include "engine/scene/camera_controller.h"
+#include "editor/editor_window.h"
 
 namespace my {
-
-// @TODO: maybe move it to top level
-enum class EditorToolType {
-    Gizmo,
-    TileMapEditor,
-    Count,
-};
-
-class IEditorTool;
 
 class Viewer : public EditorWindow, public IInputHandler {
 public:
@@ -20,32 +11,31 @@ public:
 
     bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
 
+    std::optional<Vector2f> CursorToNDC(Vector2f p_point) const;
+
+    const Vector2f& GetCanvasMin() const { return m_canvas_min; }
+
+    auto& GetInputState() { return m_input_state; }
+
 protected:
     void UpdateInternal(Scene* p_scene) override;
 
-    std::optional<Vector2f> CursorToNDC(Vector2f p_point) const;
-
     void DrawToolBar();
-    void DrawGui(Scene& p_scene, CameraComponent& p_camera);
+    void DrawGui(Scene* p_scene);
 
     void UpdateData();
     bool HandleInputCamera(std::shared_ptr<InputEvent> p_input_event);
 
-    IEditorTool* GetActiveTool() { return m_tools[std::to_underlying(m_active)].get(); }
-
-    Vector2f m_canvasMin;
-    Vector2f m_canvasSize;
+    Vector2f m_canvas_min;
+    Vector2f m_canvas_size;
     bool m_focused;
-
-    CameraControllerFPS m_cameraController3D;
-    CameraController2DEditor m_cameraController2D;
 
     struct InputState {
         int dx, dy, dz;
         float scroll;
         Vector2f mouse_move;
         std::optional<Vector2f> ndc;
-        std::array<bool, std::to_underlying(MouseButton::COUNT)> buttons;
+        std::array<bool, 3> buttons;
 
         InputState() { Reset(); }
 
@@ -56,14 +46,10 @@ protected:
             ndc = std::nullopt;
             buttons.fill(0);
         }
-    } m_inputState;
+    } m_input_state;
 
-    // ViewerTool m_activeTool{ ViewerTool::GizmoEditing };
-    std::array<std::shared_ptr<IEditorTool>, std::to_underlying(EditorToolType::Count)> m_tools;
-    EditorToolType m_active{ EditorToolType::Gizmo };
-
-    friend class Gizmo;
-    friend class TileMapEditor;
+    CameraControllerFPS m_cameraController3D;
+    CameraController2DEditor m_cameraController2D;
 };
 
 }  // namespace my

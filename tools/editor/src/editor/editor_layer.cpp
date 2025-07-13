@@ -3,6 +3,8 @@
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
+#include "editor/tools/editor_tool.h"
+#include "editor/tools/tile_map_editor_tool.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/panels/file_system_panel.h"
 #include "editor/panels/hierarchy_panel.h"
@@ -27,7 +29,9 @@
 
 namespace my {
 
-EditorLayer::EditorLayer() : Layer("EditorLayer") {
+EditorLayer::EditorLayer()
+    : Layer("EditorLayer") {
+#if 0
     const auto res = DVAR_GET_IVEC2(resolution);
     {
         CameraComponent& camera = context.cameras[CAMERA_3D];
@@ -48,6 +52,7 @@ EditorLayer::EditorLayer() : Layer("EditorLayer") {
         camera.SetDirty();
         camera.Update();
     }
+#endif
 
     m_menuBar = std::make_shared<MenuBar>(*this);
     m_viewer = std::make_shared<Viewer>(*this);
@@ -62,6 +67,8 @@ EditorLayer::EditorLayer() : Layer("EditorLayer") {
 #if !USING(PLATFORM_WASM)
     AddPanel(std::make_shared<FileSystemPanel>(*this));
 #endif
+
+    m_tools[std::to_underlying(EditorToolType::Edit)].reset(new EditorTool(*this, m_viewer.get()));
 
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
         "Save As..",
@@ -149,6 +156,8 @@ EditorLayer::EditorLayer() : Layer("EditorLayer") {
 void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
+    SetTool(EditorToolType::Edit);
+
     m_app->GetInputManager()->PushInputHandler(this);
     m_app->GetInputManager()->PushInputHandler(m_viewer.get());
 
@@ -173,8 +182,8 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 void EditorLayer::SelectEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
     CRASH_NOW();
-    //Scene* scene = m_app->GetActiveScene();
-    //scene->m_selected = m_selected;
+    // Scene* scene = m_app->GetActiveScene();
+    // scene->m_selected = m_selected;
 }
 
 void EditorLayer::DockSpace(Scene* p_scene) {
@@ -223,9 +232,9 @@ void EditorLayer::DockSpace(Scene* p_scene) {
 void EditorLayer::OnUpdate(float p_timestep) {
     context.timestep = p_timestep;
 
-// Scene* scene = SceneManager::GetSingleton().GetScenePtr();
-// Scene* scene = nullptr;
-    #if 0
+    // Scene* scene = SceneManager::GetSingleton().GetScenePtr();
+    // Scene* scene = nullptr;
+#if 0
     switch (m_app->GetState()) {
         case Application::State::EDITING: {
             m_app->SetActiveScene(scene);
@@ -261,7 +270,7 @@ void EditorLayer::OnUpdate(float p_timestep) {
             CRASH_NOW();
             break;
     }
-    #endif
+#endif
 }
 
 void EditorLayer::OnImGuiRender() {
@@ -347,7 +356,32 @@ void EditorLayer::FlushCommand(Scene* p_scene) {
 }
 
 CameraComponent& EditorLayer::GetActiveCamera() {
-    return context.GetActiveCamera();
+    return m_tools[std::to_underlying(m_current_tool)]->GetCamera();
+}
+
+void EditorLayer::SetTool(EditorToolType p_type) {
+    if (m_current_tool == p_type) {
+        return;
+    }
+    ITool* new_tool = m_tools[std::to_underlying(p_type)].get();
+
+    if (DEV_VERIFY(new_tool)) {
+        ITool* old_tool = m_tools[std::to_underlying(m_current_tool)].get();
+
+        if (old_tool) {
+            old_tool->OnExit();
+        }
+        m_current_tool = p_type;
+        new_tool->OnEnter();
+
+        LOG("Tool [{}] -> [{}]", old_tool ? old_tool->GetName() : "(null)", new_tool->GetName());
+    }
+}
+
+// @NOTE: do not hold the pointer
+ITool* EditorLayer::GetActiveTool() {
+    DEV_ASSERT_INDEX(m_current_tool, EditorToolType::Count);
+    return m_tools[std::to_underlying(m_current_tool)].get();
 }
 
 }  // namespace my

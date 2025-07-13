@@ -92,9 +92,7 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
         draw_list->AddRectFilled(pMin, pMax, IM_COL32(0, 255, 0, 100));  // green transparent overlay
         draw_list->AddRect(pMin, pMax, IM_COL32(0, 255, 0, 255));        // solid border
 
-        m_editor.context.selected_tile = m_selected_x + m_selected_y * 3 + 1;
     } else {
-        m_editor.context.selected_tile = -1;
     }
 }
 

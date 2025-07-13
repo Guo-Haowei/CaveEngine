@@ -9,6 +9,8 @@
 #include "engine/scene/scene_component.h"
 #include "engine/systems/undo_redo/undo_stack.h"
 
+#include "editor/tools/tool_interface.h"
+
 namespace my {
 
 struct ImageAsset;
@@ -33,20 +35,11 @@ enum EditorCameraType : uint8_t {
 
 struct EditorContext {
     float timestep{ 0 };
-    EditorCameraType cameraType{ CAMERA_3D };
-    CameraComponent cameras[CAMERA_MAX];
 
     // THIS IS BAD
+    // Should never use raw pointer
     IAsset* selected_asset = nullptr;
     std::string drag_payload;
-
-    // for tile map editor
-    // need to refactor
-    int selected_tile = -1;
-
-    CameraComponent& GetActiveCamera() {
-        return cameras[cameraType];
-    }
 };
 
 enum class EditorState {
@@ -88,6 +81,9 @@ public:
 
     EditorContext context;
 
+    void SetTool(EditorToolType p_type);
+    ITool* GetActiveTool();
+
 private:
     void DockSpace(Scene* p_scene);
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
@@ -118,6 +114,10 @@ private:
     };
 
     std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
+
+public:
+    std::array<std::unique_ptr<ITool>, std::to_underlying(EditorToolType::Count)> m_tools;
+    EditorToolType m_current_tool{ EditorToolType ::None };
 };
 
 }  // namespace my
