@@ -245,7 +245,7 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     DEV_ASSERT(tool);
 
     // update name
-    m_name = std::format("{}" VIEWER_WINDOW_ID, tool->GetName());
+    m_name = std::format("{}" VIEWER_WINDOW_ID, tool->GetTile());
 
     // @TODO: tool bar policy
     DrawToolBar();
@@ -261,7 +261,7 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     const bool only_2d = tool->GetCameraPolicy() == ToolCameraPolicy::Only2D;
     m_controller.Check(only_2d);
 
-
+    // @TODO: still need to figure out a better way to do it
     switch (m_controller.current) {
         case CAM2D: {
             CameraInputState state{

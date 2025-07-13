@@ -14,6 +14,12 @@ struct ImageAsset;
 struct TileMapRenderer : public ComponentFlagBase {
     Guid tile_map;
 
+    // Non serialize
+    mutable std::shared_ptr<GpuMesh> m_mesh;
+
+    // @TODO: better way
+    void CreateRenderData();
+
     void Serialize(Archive& p_archive, uint32_t p_version);
 
     void OnDeserialized() {}
@@ -44,7 +50,6 @@ public:
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }
 
-    void CreateRenderData();
 
     // @TODO: change to private
 public:
@@ -55,8 +60,6 @@ public:
     // Non-serialized
     // @TODO: make it an asset
     SpriteSheet m_sprite;
-
-    mutable std::shared_ptr<GpuMesh> m_mesh;
 };
 #endif
 

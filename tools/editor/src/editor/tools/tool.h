@@ -17,6 +17,7 @@ public:
     virtual ~ITool() = default;
 
     virtual const char* GetName() const = 0;
+    virtual const std::string& GetTile() const = 0;
 
     virtual bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) = 0;
 

@@ -1,5 +1,7 @@
 #include "tile_map_editor_tool.h"
 
+#include "engine/assets/tile_map_asset.h"
+#include "engine/runtime/asset_registry.h"
 #include "engine/scene/scene.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
@@ -75,16 +77,28 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
     m_tile_map_guid = p_guid;
     // @TODO: create a dummy scene
 
+    auto handle = *(m_editor.GetApplication()->GetAssetRegistry()->FindByGuid(p_guid));
+    auto asset = handle.Get<TileMapAsset>();
+    auto meta = handle.GetMeta();
+
+    m_title = std::format("tilemap ({})", meta->path);
+
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
 
-    scene_manager->OpenTemporaryScene(TEMP_SCENE_NAME, [&p_guid]() {
+    scene_manager->OpenTemporaryScene(TEMP_SCENE_NAME, [&]() {
         auto scene = std::make_shared<Scene>();
         auto root = scene->CreateTransformEntity(TEMP_SCENE_NAME);
         scene->m_root = root;
 
+        // test code, remember to take out
+        auto id = scene->CreateTileMapEntity("tile_map");
+        scene->AttachChild(id);
+
+        TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
+        tile_map_renderer->tile_map = p_guid;
+
         // clang-format off
-        [[maybe_unused]]
         const std::vector<std::vector<int>> data = {
             { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
             { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
@@ -103,14 +117,16 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
         };
         // clang-format on
 
-        // test code, remember to take out
-        auto id = scene->CreateTileMapEntity("tile_map");
-        scene->AttachChild(id);
-
-        TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
-        tile_map_renderer->tile_map = p_guid;
-
-        #if 0
+        // @HACK
+        TileMapLayer& layer = asset->AddLayer("default");
+        for (int16_t y = 0; y < (int16_t)data.size(); ++y) {
+            for (int16_t x = 0; x < (int16_t)data[0].size(); ++x) {
+                if (data[y][x]) {
+                    layer.AddTile(x, y, data[y][x]);
+                }
+            }
+        }
+#if 0
         tileMap->FromArray(data);
 
         auto& sprite = tileMap->m_sprite;
@@ -136,7 +152,7 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
             }
         }
 
-        #endif
+#endif
         return scene;
     });
 }

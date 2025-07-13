@@ -7,6 +7,21 @@
 
 namespace my {
 
+void TileMapLayer::AddTile(int16_t p_x, int16_t p_y, int id) {
+    auto key = Pack(p_x, p_y);
+
+    tiles.insert({ key, id });
+}
+
+TileMapLayer& TileMapAsset::AddLayer(std::string&& p_name) {
+    m_layers.resize(m_layers.size() + 1);
+
+    auto& layer = m_layers.back();
+    layer.name = std::move(p_name);
+
+    return layer;
+}
+
 #if 0
 void SpriteSheetAsset::SetImage(const std::string& p_path) {
     auto handle = AssetRegistry::GetSingleton().FindByPath(p_path);

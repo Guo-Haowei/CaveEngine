@@ -20,11 +20,13 @@ public:
     virtual bool Is2D() const { return false; }
 
     const char* GetName() const override { return "Editor"; }
+    const std::string& GetTile() const override { return m_title; }
 
 protected:
     GizmoAction m_state{ GizmoAction::Translate };
 
     Viewer* m_viewer;
+    std::string m_title{ "Editor" };
 };
 
 }  // namespace my

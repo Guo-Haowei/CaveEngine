@@ -40,11 +40,14 @@ public:
 
     const char* GetName() const override { return "TileMapEditor"; }
 
+    const std::string& GetTile() const override { return m_title; }
+
 protected:
     Viewer* m_viewer;
 
     Guid m_tile_map_guid;
     std::vector<TileMapEditCommand> m_commands;
+    std::string m_title;
 };
 
 }  // namespace my

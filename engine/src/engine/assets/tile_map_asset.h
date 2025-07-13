@@ -8,21 +8,29 @@ namespace YAML { class Node; }
 
 namespace my {
 
-struct TileMapTile {
-    uint16_t x;
-    uint16_t y;
-    uint32_t id;
-};
-
 struct TileMapLayer {
     std::string name;
 
     Guid tileset;
     int z_index = 0;
-    std::unordered_map<uint32_t, TileMapTile> tiles;
+    std::unordered_map<uint32_t, int> tiles;
 
     // Non serialized
     AssetHandle tileset_handle;
+
+    static constexpr uint32_t Pack(int16_t p_x, int16_t p_y) {
+        const uint32_t x = static_cast<uint32_t>(p_x);
+        const uint32_t y = static_cast<uint32_t>(p_y);
+        return x << 16 | y;
+    }
+
+    static constexpr std::pair<int16_t, int16_t> Unpack(uint32_t p_key) {
+        int16_t a = static_cast<int16_t>(p_key >> 16);
+        int16_t b = static_cast<int16_t>(p_key & 0xFFFF);
+        return { a, b };
+    }
+
+    void AddTile(int16_t p_x, int16_t p_y, int id);
 };
 
 class TileMapAsset : public IAsset {
@@ -32,7 +40,9 @@ public:
     TileMapAsset()
         : IAsset(AssetType::TileMap) {}
 
-    TileMapLayer& AddLayer(const std::string& p_name);
+    TileMapLayer& AddLayer(std::string&& p_name);
+
+    const auto& GetAllLayers() const { return m_layers; }
 
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
