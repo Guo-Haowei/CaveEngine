@@ -9,6 +9,16 @@ class Archive;
 struct GpuMesh;
 struct ImageAsset;
 
+class TileMapRenderer : public ComponentFlagBase {
+public:
+    void Serialize(Archive& p_archive, uint32_t p_version);
+
+    void OnDeserialized() {}
+
+    static void RegisterClass();
+};
+
+#if 0
 struct SpriteSheet {
     std::vector<Rect> frames;
 
@@ -33,12 +43,6 @@ public:
 
     void CreateRenderData();
 
-    void Serialize(Archive& p_archive, uint32_t p_version);
-
-    void OnDeserialized() {}
-
-    static void RegisterClass();
-
     // @TODO: change to private
 public:
     int m_width{ 0 };
@@ -51,5 +55,6 @@ public:
 
     mutable std::shared_ptr<GpuMesh> m_mesh;
 };
+#endif
 
 }  // namespace my

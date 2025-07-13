@@ -410,6 +410,7 @@ Scene* Application::CreateInitialScene() {
     auto root = scene->CreateTransformEntity("world");
     scene->m_root = root;
 
+#if 0
     {
 
         // clang-format off
@@ -461,6 +462,7 @@ Scene* Application::CreateInitialScene() {
             }
         }
     }
+#endif
 
     // test code, remember to take out
 

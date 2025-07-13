@@ -5,6 +5,7 @@
 
 namespace my {
 
+#if 0
 void TileMapComponent::FromArray(const std::vector<std::vector<int>>& p_data) {
     m_width = static_cast<int>(p_data[0].size());
     m_height = static_cast<int>(p_data.size());
@@ -126,5 +127,6 @@ void TileMapComponent::CreateRenderData() {
 
     m_mesh = *mesh;
 }
+#endif
 
 }  // namespace my

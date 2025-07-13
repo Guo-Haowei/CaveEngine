@@ -5,11 +5,12 @@ namespace my {
 
 struct IAsset;
 
-#define ASSET_TYPE_LIST                     \
-    ASSET_TYPE(Image, "image")              \
-    ASSET_TYPE(Binary, "binary")            \
-    ASSET_TYPE(Text, "text")                \
-    ASSET_TYPE(SpriteSheet, "sprite_sheet") \
+#define ASSET_TYPE_LIST               \
+    ASSET_TYPE(Image, "image")        \
+    ASSET_TYPE(Binary, "binary")      \
+    ASSET_TYPE(Text, "text")          \
+    ASSET_TYPE(SpriteSheet, "sprite") \
+    ASSET_TYPE(TileMap, "tilemap")    \
     ASSET_TYPE(Scene, "scene")
 
 class AssetType {

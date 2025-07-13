@@ -5,6 +5,10 @@
 namespace my {
 
 void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
+    // DEV_ASSERT(0);
+    unused(p_scene);
+    unused(p_framedata);
+#if 0
     auto view = p_scene.View<TileMapComponent>();
     for (const auto [id, tileMap] : view) {
 
@@ -34,6 +38,7 @@ void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
             p_framedata.tile_maps.push_back(RenderCommand::From(draw));
         }
     }
+#endif
 }
 
 }  // namespace my

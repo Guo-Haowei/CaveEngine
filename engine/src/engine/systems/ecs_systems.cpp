@@ -307,7 +307,7 @@ void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float)
 
     AABB bound;
 
-    for (auto [entity, obj] : p_scene.m_MeshRendererComponents) {
+    for (auto [entity, obj] : p_scene.View<MeshRenderer>()) {
         if (!p_scene.Contains<TransformComponent>(entity)) {
             continue;
         }

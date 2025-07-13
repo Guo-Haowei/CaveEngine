@@ -369,7 +369,8 @@ void Viewer::UpdateInternal(Scene& p_scene) {
 
 class Gizmo : public IEditorTool {
 public:
-    Gizmo(Viewer& p_viewer) : m_viewer(p_viewer) {}
+    Gizmo(Viewer& p_viewer)
+        : m_viewer(p_viewer) {}
 
     bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override {
         // change gizmo state
@@ -437,7 +438,8 @@ protected:
 
 class TileMapEditor : public IEditorTool {
 public:
-    TileMapEditor(Viewer& p_viewer) : m_viewer(p_viewer) {}
+    TileMapEditor(Viewer& p_viewer)
+        : m_viewer(p_viewer) {}
 
     bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override {
         InputEvent* event = p_input_event.get();
@@ -467,6 +469,13 @@ public:
         Vector2f ndc_2 = *m_viewer.m_inputState.ndc;
 
         auto selected = m_viewer.m_editor.GetSelectedEntity();
+
+        unused(ndc_2);
+        unused(p_scene);
+        unused(p_camera);
+        unused(selected);
+
+#if 0
         TileMapComponent* tile_map = p_scene.GetComponent<TileMapComponent>(selected);
 
         if (!tile_map) {
@@ -490,6 +499,7 @@ public:
             }
         }
         tile_map->SetTile(tile_x, tile_y, value);
+#endif
     }
 
 protected:

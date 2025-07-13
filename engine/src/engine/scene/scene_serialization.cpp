@@ -577,16 +577,16 @@ void LightComponent::RegisterClass() {
     END_REGISTRY(LightComponent);
 }
 
-void MeshRendererComponent::Serialize(Archive& p_archive, uint32_t) {
+void MeshRenderer::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);
     p_archive.ArchiveValue(meshId);
 }
 
-void MeshRendererComponent::RegisterClass() {
-    BEGIN_REGISTRY(MeshRendererComponent);
-    REGISTER_FIELD(MeshRendererComponent, "flags", flags);
-    REGISTER_FIELD(MeshRendererComponent, "mesh_id", meshId);
-    END_REGISTRY(MeshRendererComponent);
+void MeshRenderer::RegisterClass() {
+    BEGIN_REGISTRY(MeshRenderer);
+    REGISTER_FIELD(MeshRenderer, "flags", flags);
+    REGISTER_FIELD(MeshRenderer, "mesh_id", meshId);
+    END_REGISTRY(MeshRenderer);
 }
 
 void CameraComponent::Serialize(Archive& p_archive, uint32_t) {
@@ -765,16 +765,16 @@ void VoxelGiComponent::RegisterClass() {
     END_REGISTRY(VoxelGiComponent);
 }
 
-void TileMapComponent::Serialize(Archive& p_archive, uint32_t p_version) {
+void TileMapRenderer::Serialize(Archive& p_archive, uint32_t p_version) {
     unused(p_archive);
     unused(p_version);
     CRASH_NOW();
 }
 
-void TileMapComponent::RegisterClass() {
+void TileMapRenderer::RegisterClass() {
     // @TODO: serialization
-    BEGIN_REGISTRY(TileMapComponent);
-    END_REGISTRY(TileMapComponent);
+    BEGIN_REGISTRY(TileMapRenderer);
+    END_REGISTRY(TileMapRenderer);
 }
 
 #pragma endregion SCENE_COMPONENT_SERIALIZATION
