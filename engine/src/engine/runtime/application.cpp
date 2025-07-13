@@ -340,8 +340,6 @@ bool Application::MainLoop() {
 }
 
 void Application::Run(Application* p_app) {
-    LOG_WARN("TODO: reverse z");
-
     LOG("\n********************************************************************************"
         "\nMain Loop"
         "\n********************************************************************************");
@@ -442,7 +440,7 @@ Scene* Application::CreateInitialScene() {
 
         auto& sprite = tileMap->m_sprite;
 
-        auto res = m_assetRegistry->Request("@res://images/tiles.png").Wait<ImageAsset>();
+        auto res = (m_assetRegistry->FindByPath("@res://images/tiles.png")).value().Wait<ImageAsset>();
 
         sprite.texture = (*res).get();
 

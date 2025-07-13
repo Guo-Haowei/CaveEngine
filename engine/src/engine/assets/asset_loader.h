@@ -43,6 +43,7 @@ public:
     auto Load() -> Result<AssetRef> override;
 };
 
+// @TODO: this need rework
 class TextAssetLoader : public IAssetLoader {
 public:
     using IAssetLoader::IAssetLoader;

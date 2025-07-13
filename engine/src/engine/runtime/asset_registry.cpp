@@ -68,7 +68,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
         }
 
         auto meta2 = std::move(meta.value());
-        auto res = meta2.SaveMeta(meta_path);
+        auto res = meta2.SaveToDisk(nullptr);
         if (!res) {
             return HBN_ERROR(res.error());
         }
@@ -92,6 +92,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 
 void AssetRegistry::FinalizeImpl() {
     // @TODO: clean up all the stuff
+    SaveAssets();
 }
 
 bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
@@ -106,23 +107,63 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
         ok = ok && m_path_map.try_emplace(entry->metadata.path, entry->metadata.guid).second;
     }
     if (ok) {
-        m_app->GetAssetManager()->LoadAssetAsync(entry.get(), p_on_success, p_userdata);
+        m_app->GetAssetManager()->LoadAssetAsync(entry->metadata.guid, p_on_success, p_userdata);
     }
     return ok;
 }
 
-AssetHandle AssetRegistry::Request(const std::string& p_path) {
+std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid) {
+    std::lock_guard lock(registry_mutex);
+    auto it = m_guid_map.find(p_guid);
+    if (it != m_guid_map.end()) {
+        return AssetHandle(p_guid, it->second);
+    }
+
+    return std::nullopt;
+}
+
+std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path) {
     std::lock_guard lock(registry_mutex);
     auto it = m_path_map.find(p_path);
     if (it != m_path_map.end()) {
         const Guid& guid = it->second;
         auto it2 = m_guid_map.find(guid);
         if (it2 != m_guid_map.end()) {
-            return AssetHandle{ guid, it2->second };
+            return AssetHandle(guid, it2->second);
         }
     }
 
-    return AssetHandle{ .guid = Guid(), .entry = nullptr };
+    return std::nullopt;
+}
+
+void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
+    std::lock_guard lock(registry_mutex);
+    auto it = m_path_map.find(p_old);
+    DEV_ASSERT(it != m_path_map.end());
+    const Guid& guid = it->second;
+
+    auto it2 = m_guid_map.find(guid);
+    DEV_ASSERT(it2 != m_guid_map.end());
+
+    m_path_map[p_new] = guid;
+    it2->second->metadata.path = std::move(p_new);
+}
+
+void AssetRegistry::SaveAssets() {
+    std::lock_guard lock(registry_mutex);
+
+    for (const auto& [guid, entry] : m_guid_map) {
+        entry->asset->SaveToDisk(entry->metadata);
+    }
+}
+
+std::shared_ptr<AssetEntry> AssetRegistry::GetEntry(const Guid& p_guid) {
+    std::lock_guard lock(registry_mutex);
+    auto it = m_guid_map.find(p_guid);
+    if (it == m_guid_map.end()) {
+        return nullptr;
+    }
+    return it->second;
 }
 
 #if 0

@@ -22,14 +22,19 @@ public:
 
     void CreateAsset(const AssetType& p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr);
 
+    auto MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) -> Result<void>;
+
     std::string ResolvePath(const std::filesystem::path& p_path);
 
     static void WorkerMain();
     static void RequestShutdown();
 
 private:
-    [[nodiscard]] auto LoadAssetSync(const AssetEntry* p_entry) -> Result<AssetRef>;
-    void LoadAssetAsync(AssetEntry* p_entry,
+    [[nodiscard]] void LoadAssetSync(const Guid& p_guid,
+                                     OnAssetLoadSuccessFunc p_on_success,
+                                     void* p_userdata);
+
+    void LoadAssetAsync(const Guid& p_guid,
                         OnAssetLoadSuccessFunc p_on_success,
                         void* p_userdata);
 

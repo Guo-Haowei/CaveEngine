@@ -38,39 +38,6 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, Seriali
     return Result<void>();
 }
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const AABB& p_object, SerializeYamlContext& p_context) {
-    if (!p_object.IsValid()) {
-        p_out << YAML::Null;
-        return Result<void>();
-    }
-
-    p_out << YAML::BeginMap;
-    p_out << YAML::Key << "min" << YAML::Value;
-    SerializeYaml(p_out, p_object.GetMin(), p_context);
-    p_out << YAML::Key << "max" << YAML::Value;
-    SerializeYaml(p_out, p_object.GetMax(), p_context);
-    p_out << YAML::EndMap;
-    return Result<void>();
-}
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, AABB& p_object, SerializeYamlContext& p_context) {
-    if (!p_node || p_node.IsNull()) {
-        p_object.MakeInvalid();
-        return Result<void>();
-    }
-
-    Vector3f min, max;
-    if (auto res = DeserializeYaml(p_node["min"], min, p_context); !res) {
-        return HBN_ERROR(res.error());
-    }
-    if (auto res = DeserializeYaml(p_node["max"], max, p_context); !res) {
-        return HBN_ERROR(res.error());
-    }
-
-    p_object = AABB(min, max);
-    return Result<void>();
-}
-
 Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, SerializeYamlContext&) {
     p_out << p_object;
     return Result<void>();
@@ -86,6 +53,43 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, Se
     }
 
     p_object = p_node.as<std::string>();
+    return Result<void>();
+}
+
+auto SaveYaml(std::string_view p_path, YAML::Emitter& p_out) -> Result<void> {
+    if (!p_out.good()) {
+        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "error: {}", p_out.GetLastError());
+    }
+
+    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
+    if (!res) {
+        return HBN_ERROR(res.error());
+    }
+    auto file = *res;
+
+    const char* string = p_out.c_str();
+    const size_t len = strlen(string);
+    const size_t written = file->WriteBuffer(string, len);
+    DEV_ASSERT(written == len);
+
+    return Result<void>();
+}
+
+auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void> {
+    auto res = FileAccess::Open(p_path, FileAccess::READ);
+    if (!res) {
+        return HBN_ERROR(res.error());
+    }
+
+    auto file = *res;
+
+    const size_t size = file->GetLength();
+    std::vector<char> buffer;
+    buffer.resize(size);
+    file->ReadBuffer(buffer.data(), size);
+    buffer.push_back('\0');
+
+    p_node = YAML::Load(buffer.data());
     return Result<void>();
 }
 

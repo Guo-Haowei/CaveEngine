@@ -4,8 +4,9 @@
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/ecs/entity.h"
-#include "engine/math/aabb.h"
 #include "engine/math/angle.h"
+#include "engine/math/box.h"
+#include "engine/math/matrix.h"
 
 namespace my::serialize {
 
@@ -27,10 +28,6 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, Se
 Result<void> SerializeYaml(YAML::Emitter& p_out, const Degree& p_object, SerializeYamlContext&);
 
 Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, SerializeYamlContext&);
-
-Result<void> SerializeYaml(YAML::Emitter& p_out, const AABB& p_object, SerializeYamlContext& p_context);
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, AABB& p_object, SerializeYamlContext& p_context);
 
 Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, SerializeYamlContext&);
 
@@ -165,6 +162,41 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Vector<T, N>& p_object, S
     if constexpr (N > 3) {
         p_object.w = p_node[3].as<T>();
     }
+    return Result<void>();
+}
+
+template<int N>
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Box<N>& p_object, SerializeYamlContext& p_context) {
+    if (!p_object.IsValid()) {
+        p_out << YAML::Null;
+        return Result<void>();
+    }
+
+    p_out << YAML::BeginMap;
+    p_out << YAML::Key << "min" << YAML::Value;
+    SerializeYaml(p_out, p_object.GetMin(), p_context);
+    p_out << YAML::Key << "max" << YAML::Value;
+    SerializeYaml(p_out, p_object.GetMax(), p_context);
+    p_out << YAML::EndMap;
+    return Result<void>();
+}
+
+template<int N>
+Result<void> DeserializeYaml(const YAML::Node& p_node, Box<N>& p_object, SerializeYamlContext& p_context) {
+    if (!p_node || p_node.IsNull()) {
+        p_object.MakeInvalid();
+        return Result<void>();
+    }
+
+    Vector<float, N> min, max;
+    if (auto res = DeserializeYaml(p_node["min"], min, p_context); !res) {
+        return HBN_ERROR(res.error());
+    }
+    if (auto res = DeserializeYaml(p_node["max"], max, p_context); !res) {
+        return HBN_ERROR(res.error());
+    }
+
+    p_object = AABB(min, max);
     return Result<void>();
 }
 

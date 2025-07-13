@@ -5,15 +5,21 @@
 namespace my {
 
 class AssetEntry;
+struct AssetMetaData;
 struct IAsset;
 
-struct AssetHandle {
-    Guid guid;
-    std::shared_ptr<AssetEntry> entry;
+class AssetHandle {
+public:
+    AssetHandle() {}
 
-    bool IsValid() const { return !!entry; }
+    AssetHandle(const Guid& p_guid, std::shared_ptr<AssetEntry> p_entry)
+        : m_guid(p_guid)
+        , m_entry(p_entry) {}
 
     bool IsReady() const;
+
+    IAsset* Get();
+
     [[nodiscard]] auto Wait() const -> Result<AssetRef>;
 
     template<typename T>
@@ -26,6 +32,19 @@ struct AssetHandle {
         AssetRef ptr = *res;
         return std::dynamic_pointer_cast<T>(ptr);
     }
+
+    template<typename T>
+    T* Get() {
+        return dynamic_cast<T*>(Get());
+    }
+
+    const Guid& GetGuid() const { return m_guid; }
+
+    const AssetMetaData* GetMeta() const;
+
+private:
+    Guid m_guid;
+    std::weak_ptr<AssetEntry> m_entry;
 };
 
 }  // namespace my

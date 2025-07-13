@@ -36,6 +36,10 @@ struct EditorContext {
     EditorCameraType cameraType{ CAMERA_3D };
     CameraComponent cameras[CAMERA_MAX];
 
+    // THIS IS BAD
+    IAsset* selected_asset = nullptr;
+    std::string drag_payload;
+
     // for tile map editor
     // need to refactor
     int selected_tile = -1;

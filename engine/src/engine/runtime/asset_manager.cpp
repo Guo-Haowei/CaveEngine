@@ -3,7 +3,9 @@
 #include <filesystem>
 #include <fstream>
 
+// @TODO: get rid of this file
 #include "engine/assets/assets.h"
+#include "engine/assets/sprite_sheet_asset.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/os/threads.h"
@@ -40,7 +42,7 @@ namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
 
 struct AssetManager::LoadTask {
-    AssetEntry* handle;
+    Guid guid;
     OnAssetLoadSuccessFunc on_success;
     void* userdata;
 };
@@ -56,6 +58,31 @@ static struct {
 
     AssetCreateFunc createFuncs[AssetType::Count];
 } s_assetManagerGlob;
+
+// @TODO: use DeserializerRegistry first,
+// if no suitable, use importer
+
+// @TODO: implement
+
+AssetRef CreateAssetInstance(AssetType p_type) {
+    if (p_type != AssetType::SpriteSheet) {
+        return nullptr;
+    }
+
+    auto sprite = std::make_shared<SpriteSheetAsset>();
+    return std::static_pointer_cast<IAsset>(sprite);
+}
+
+AssetRef LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) {
+    AssetRef asset = CreateAssetInstance(p_entry->metadata.type);
+    if (!asset) {
+        return nullptr;
+    }
+
+    asset->m_entry = p_entry;
+    asset->LoadFromDisk(p_entry->metadata);
+    return asset;
+}
 
 auto AssetManager::InitializeImpl() -> Result<void> {
     m_assets_root = fs::path{ m_app->GetResourceFolder() };
@@ -73,7 +100,6 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     IAssetLoader::RegisterLoader(".obj", AssimpAssetLoader::CreateLoader);
 #endif
 
-    IAssetLoader::RegisterLoader(".sprite", TextAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".lua", TextAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".ttf", BufferAssetLoader::CreateLoader);
 
@@ -85,12 +111,10 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     IAssetLoader::RegisterLoader(".jpg", ImageAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".hdr", ImageAssetLoader::CreateLoaderF);
 
-    s_assetManagerGlob.createFuncs[AssetType::SpriteSheet] = []() {
-        SpriteSheetAsset* sprite = new SpriteSheetAsset;
-
-        sprite->frames.push_back({ Vector2f::Zero, Vector2f::One });
-
-        return AssetRef(sprite);
+    //
+    s_assetManagerGlob.createFuncs[AssetType::SpriteSheet] = []() -> AssetRef {
+        auto sprite = std::make_shared<SpriteSheetAsset>();
+        return std::static_pointer_cast<IAsset>(sprite);
     };
 
     return Result<void>();
@@ -99,6 +123,9 @@ auto AssetManager::InitializeImpl() -> Result<void> {
 void AssetManager::CreateAsset(const AssetType& p_type,
                                const fs::path& p_folder,
                                const char* p_name) {
+    // @TODO: change this to serialize once done
+    CRASH_NOW_MSG("Move logic to IAsset::SaveToDisk");
+
     DEV_ASSERT(p_type == AssetType::SpriteSheet);
     // 1. Creates both meta and file
     fs::path new_file = p_folder;
@@ -116,7 +143,7 @@ void AssetManager::CreateAsset(const AssetType& p_type,
         fs::remove(new_file);
     }
     std::ofstream file(new_file);
-    asset->Serialize(file);
+    // asset->SaveToDisk();
 
     std::string meta_file = new_file.string();
     meta_file.append(".meta");
@@ -133,13 +160,38 @@ void AssetManager::CreateAsset(const AssetType& p_type,
         fs::remove(meta_file);
     }
 
-    auto res = meta.SaveMeta(meta_file);
-    if (!res) {
-        return;
-    }
+    // auto res = meta.SaveMeta(meta_file);
+    // if (!res) {
+    //     return;
+    // }
 
     // 2. Update AssetRegistry when done
     m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta), nullptr, nullptr);
+}
+
+auto AssetManager::MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) -> Result<void> {
+    if (fs::is_directory(p_old)) {
+        LOG_WARN("don't support moving folder yet");
+        return Result<void>();
+    }
+
+    auto meta_path_str = std::format("{}.meta", p_old.string());
+    fs::path old_meta{ meta_path_str };
+
+    meta_path_str = std::format("{}.meta", p_new.string());
+    fs::path new_meta{ meta_path_str };
+
+    auto old_path = ResolvePath(p_old);
+    auto new_path = ResolvePath(p_new);
+    try {
+        fs::rename(old_meta, new_meta);
+        fs::rename(p_old, p_new);
+    } catch (const fs::filesystem_error& e) {
+        return HBN_ERROR(ErrorCode::ERR_FILE_NO_PERMISSION, "{}", e.what());
+    }
+
+    m_app->GetAssetRegistry()->MoveAsset(std::move(old_path), std::move(new_path));
+    return Result<void>();
 }
 
 std::string AssetManager::ResolvePath(const fs::path& p_path) {
@@ -147,21 +199,43 @@ std::string AssetManager::ResolvePath(const fs::path& p_path) {
     return std::format("@res://{}", relative.generic_string());
 }
 
-auto AssetManager::LoadAssetSync(const AssetEntry* p_entry) -> Result<AssetRef> {
+void AssetManager::LoadAssetSync(const Guid& p_guid,
+                                 OnAssetLoadSuccessFunc p_on_success,
+                                 void* p_userdata) {
     DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
 
-    auto loader = IAssetLoader::Create(p_entry->metadata);
-    if (!loader) {
-        return HBN_ERROR(ErrorCode::ERR_CANT_OPEN, "No suitable loader found for asset '{}'", p_entry->metadata.path);
-    }
+    Timer timer;
+    auto entry = m_app->GetAssetRegistry()->GetEntry(p_guid);
 
-    auto res = loader->Load();
-    if (!res) {
-        return HBN_ERROR(res.error());
-    }
+    AssetRef asset;
 
-    AssetRef asset = *res;
+    do {
+        // @TODO: gradully replace all the logic
+        // @TODO: change loader to importer
+        asset = LoadAsset(entry);
+        if (asset) {
+            break;
+        }
 
+        auto loader = IAssetLoader::Create(entry->metadata);
+        if (!loader) {
+            LOG_ERROR("No suitable loader found for asset '{}'", entry->metadata.path);
+            entry->MarkFailed();
+            return;
+        }
+
+        auto res = loader->Load();
+        if (!res) {
+            LOG_ERROR("Failed to load '{}'", entry->metadata.path);
+            entry->MarkFailed();
+            return;
+        }
+
+        asset = *res;
+
+    } while (0);
+
+    DEV_ASSERT(asset);
     if (asset->type == AssetType::Image) {
         auto image = std::dynamic_pointer_cast<ImageAsset>(asset);
 
@@ -169,13 +243,17 @@ auto AssetManager::LoadAssetSync(const AssetEntry* p_entry) -> Result<AssetRef> 
         m_app->GetGraphicsManager()->RequestTexture(image.get());
     }
 
-    LOG_VERBOSE("asset {} loaded", p_entry->metadata.path);
-    return asset;
+    if (p_on_success) {
+        p_on_success(asset, p_userdata);
+    }
+    LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.path, timer.GetDurationString());
+
+    entry->MarkLoaded(asset);
 }
 
-void AssetManager::LoadAssetAsync(AssetEntry* p_handle, OnAssetLoadSuccessFunc p_on_success, void* p_userdata) {
+void AssetManager::LoadAssetAsync(const Guid& p_guid, OnAssetLoadSuccessFunc p_on_success, void* p_userdata) {
     LoadTask task;
-    task.handle = p_handle;
+    task.guid = p_guid;
     task.on_success = p_on_success;
     task.userdata = p_userdata;
     EnqueueLoadTask(task);
@@ -205,24 +283,7 @@ void AssetManager::WorkerMain() {
 
         s_assetManagerGlob.runningWorkers.fetch_add(1);
 
-        Timer timer;
-        auto res = AssetManager::GetSingleton().LoadAssetSync(task.handle);
-
-        if (res) {
-            AssetRef asset = *res;
-            if (task.on_success) {
-                task.on_success(asset, task.userdata);
-            }
-            LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", task.handle->metadata.path, timer.GetDurationString());
-
-            task.handle->MarkLoaded(asset);
-        } else {
-            StringStreamBuilder builder;
-            builder << res.error();
-            LOG_ERROR("{}", builder.ToString());
-
-            task.handle->MarkFailed();
-        }
+        GetSingleton().LoadAssetSync(task.guid, task.on_success, task.userdata);
 
         s_assetManagerGlob.runningWorkers.fetch_sub(1);
     }

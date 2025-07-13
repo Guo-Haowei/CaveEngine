@@ -3,9 +3,12 @@
 #include "asset_handle.h"
 #include "asset_meta_data.h"
 
-#include "engine/math/box.h"
 #include "engine/math/geomath.h"
 #include "engine/renderer/gpu_resource.h"
+
+// clang-format off
+namespace YAML { class Node; }
+// clang-format on
 
 namespace my {
 
@@ -36,25 +39,6 @@ struct ImageAsset : IAsset {
 
     ImageAsset()
         : IAsset(AssetType::Image) {}
-};
-
-struct SpriteSheetAsset : IAsset {
-    Guid image_id;
-
-    int columns = 1;
-    int rows = 1;
-    Vector2i separation = Vector2i::Zero;
-    Vector2i offset = Vector2i::Zero;
-
-    std::vector<Rect> frames;
-
-    /// Non serialized
-    AssetHandle image_handle;
-
-    SpriteSheetAsset()
-        : IAsset(AssetType::SpriteSheet) {}
-
-    void Serialize(std::ostream&) override;
 };
 
 }  // namespace my

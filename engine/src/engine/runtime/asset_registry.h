@@ -12,12 +12,12 @@ public:
     AssetRegistry()
         : Module("AssetRegistry") {}
 
-    AssetHandle Request(const std::string& p_path);
+    std::optional<AssetHandle> FindByGuid(const Guid& p_guid);
+    std::optional<AssetHandle> FindByPath(const std::string& p_path);
 
-#if 0
-    void GetAssetByType(AssetType p_type, std::vector<IAsset*>& p_out);
-    void RemoveAsset(const std::string& p_path);
-#endif
+    void MoveAsset(std::string&& p_old, std::string&& p_new);
+
+    void SaveAssets();
 
 protected:
     auto InitializeImpl() -> Result<void> override;
@@ -26,6 +26,8 @@ protected:
     bool StartAsyncLoad(AssetMetaData&& p_meta,
                         OnAssetLoadSuccessFunc p_on_success,
                         void* p_userdata);
+
+    std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
 
     mutable std::mutex registry_mutex;
     std::unordered_map<std::string, Guid> m_path_map;
