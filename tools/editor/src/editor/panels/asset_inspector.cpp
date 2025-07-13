@@ -1,6 +1,7 @@
 #include "asset_inspector.h"
 
 #include "engine/assets/assets.h"
+#include "engine/assets/sprite_sheet.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
 #include "engine/runtime/asset_registry.h"

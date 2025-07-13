@@ -1,6 +1,6 @@
 version: 1
 image: E80CA6A7-92E8-9A41-8B944860C64DFBA5
-dimension: [0, 0]
-separtion: [64, 64]
+dimension: [192, 128]
+separation: [64, 64]
 offset: [0, 0]
 frames: []

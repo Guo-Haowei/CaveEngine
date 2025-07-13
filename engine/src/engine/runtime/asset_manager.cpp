@@ -3,7 +3,9 @@
 #include <filesystem>
 #include <fstream>
 
+// @TODO: get rid of this file
 #include "engine/assets/assets.h"
+#include "engine/assets/sprite_sheet.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/os/threads.h"
