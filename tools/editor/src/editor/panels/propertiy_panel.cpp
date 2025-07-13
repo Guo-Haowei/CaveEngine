@@ -2,6 +2,7 @@
 
 #include <ImGuizmo/ImGuizmo.h>
 
+#include "editor/editor_command.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
 #include "engine/runtime/asset_registry.h"

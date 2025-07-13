@@ -7,8 +7,6 @@
 #include "engine/drivers/windows/dialog.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_serialization.h"
-// @TODO: refactor
-// #include "engine/runtime/scene_manager.h"
 
 namespace my {
 

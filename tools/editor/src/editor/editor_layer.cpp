@@ -3,6 +3,7 @@
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
+#include "editor/editor_command.h"
 #include "editor/tools/editor_tool.h"
 #include "editor/tools/tile_map_editor_tool.h"
 #include "editor/panels/asset_inspector.h"

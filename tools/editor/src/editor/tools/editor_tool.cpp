@@ -1,6 +1,7 @@
 #include "editor_tool.h"
 
 #include "engine/scene/scene.h"
+#include "editor/editor_command.h"
 #include "editor/editor_layer.h"
 #include "editor/panels/viewer.h"
 #include "editor/utility/imguizmo.h"

@@ -1,5 +1,4 @@
 #pragma once
-#include "editor/editor_command.h"
 #include "editor/editor_window.h"
 #include "editor/tools/tool.h"
 #include "engine/core/base/ring_buffer.h"
@@ -14,6 +13,7 @@ namespace my {
 
 enum class KeyCode : uint16_t;
 struct ImageAsset;
+class EditorCommandBase;
 class MenuBar;
 class Viewer;
 
