@@ -101,9 +101,9 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, Point& p_out) const {
     Vector4f position = inv_proj_view * ndc;
     position /= position.w;
 
-    p_out.x = static_cast<int16_t>(position.x);
-    p_out.y = static_cast<int16_t>(position.y);
-    
+    p_out.x = static_cast<int16_t>(std::floor(position.x));
+    p_out.y = static_cast<int16_t>(std::floor(position.y));
+
     return true;
 }
 
@@ -209,6 +209,5 @@ void TileMapEditor::OnExit() {
 
     scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
 }
-
 
 }  // namespace my

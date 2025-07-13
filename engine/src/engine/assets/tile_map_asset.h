@@ -28,14 +28,19 @@ struct TileMapLayer {
         return static_cast<int16_t>(x - 10000);
     }
 
-    static uint32_t Pack(int16_t p_x, int16_t p_y) {
-        return (to_unsigned(p_x) << 16) | to_unsigned(p_y);
+    struct PackData {
+        int16_t x;
+        int16_t y;
+    };
+
+    static constexpr uint32_t Pack(int16_t p_x, int16_t p_y) {
+        PackData data = { p_x, p_y };
+        return std::bit_cast<uint32_t>(data);
     }
 
-    static std::pair<int16_t, int16_t> Unpack(uint32_t p_key) {
-        uint32_t a = p_key >> 16;
-        uint32_t b = p_key & 0xFFFF;
-        return { to_signed(a), to_signed(b) };
+    static constexpr std::pair<int16_t, int16_t> Unpack(uint32_t value) {
+        auto data = std::bit_cast<PackData>(value);
+        return { data.x, data.y };
     }
 
     void AddTile(int16_t p_x, int16_t p_y, int id);
