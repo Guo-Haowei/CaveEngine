@@ -11,6 +11,16 @@ void TileMapLayer::AddTile(int16_t p_x, int16_t p_y, int id) {
     auto key = Pack(p_x, p_y);
 
     tiles.insert({ key, id });
+
+    ++revision;
+}
+
+void TileMapLayer::EraseTile(int16_t p_x, int16_t p_y) {
+    auto key = Pack(p_x, p_y);
+
+    if (tiles.erase(key) > 0) {
+        ++revision;
+    }
 }
 
 TileMapLayer& TileMapAsset::AddLayer(std::string&& p_name) {

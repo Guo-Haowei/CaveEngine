@@ -8,6 +8,7 @@ namespace YAML { class Node; }
 
 namespace my {
 
+// @TODO: make it class once stable
 struct TileMapLayer {
     std::string name;
 
@@ -17,20 +18,28 @@ struct TileMapLayer {
 
     // Non serialized
     AssetHandle tileset_handle;
+    uint32_t revision{ 1 };  // start from 1, so it always create the first frame
 
-    static constexpr uint32_t Pack(int16_t p_x, int16_t p_y) {
-        const uint32_t x = static_cast<uint32_t>(p_x);
-        const uint32_t y = static_cast<uint32_t>(p_y);
-        return x << 16 | y;
+    static int to_unsigned(int16_t x) {
+        return x + 10000;
     }
 
-    static constexpr std::pair<int16_t, int16_t> Unpack(uint32_t p_key) {
-        int16_t a = static_cast<int16_t>(p_key >> 16);
-        int16_t b = static_cast<int16_t>(p_key & 0xFFFF);
-        return { a, b };
+    static int16_t to_signed(int x) {
+        return static_cast<int16_t>(x - 10000);
+    }
+
+    static uint32_t Pack(int16_t p_x, int16_t p_y) {
+        return (to_unsigned(p_x) << 16) | to_unsigned(p_y);
+    }
+
+    static std::pair<int16_t, int16_t> Unpack(uint32_t p_key) {
+        uint32_t a = p_key >> 16;
+        uint32_t b = p_key & 0xFFFF;
+        return { to_signed(a), to_signed(b) };
     }
 
     void AddTile(int16_t p_x, int16_t p_y, int id);
+    void EraseTile(int16_t p_x, int16_t p_y);
 };
 
 class TileMapAsset : public IAsset {
@@ -41,6 +50,8 @@ public:
         : IAsset(AssetType::TileMap) {}
 
     TileMapLayer& AddLayer(std::string&& p_name);
+
+    auto& GetAllLayers() { return m_layers; }
 
     const auto& GetAllLayers() const { return m_layers; }
 

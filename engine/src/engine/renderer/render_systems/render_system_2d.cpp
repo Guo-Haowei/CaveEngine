@@ -6,7 +6,7 @@ namespace my {
 
 void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
     auto view = p_scene.View<TileMapRenderer>();
-    for (const auto [id, tileMap] : view) {
+    for (const auto [id, tile_map] : view) {
 
         // Should move tile map logic to somewhere else
         // But this is a editor only logic, we are not going to update it in actual game
@@ -14,7 +14,7 @@ void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
         //    tileMap.SetDirty(false);
         //}
 
-        tileMap.CreateRenderData();
+        tile_map.CreateRenderData();
 
         // if (tileMap.m_sprite.texture->gpu_texture)
         {
@@ -25,8 +25,8 @@ void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
             batch_buffer.c_worldMatrix = world_matrix;
 
             DrawCommand draw;
-            draw.indexCount = tileMap.m_mesh->desc.drawCount;
-            draw.mesh_data = tileMap.m_mesh.get();
+            draw.indexCount = tile_map.m_mesh->desc.drawCount;
+            draw.mesh_data = tile_map.m_mesh.get();
             draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
             // @TODO: ?

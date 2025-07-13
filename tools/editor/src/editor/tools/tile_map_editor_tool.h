@@ -1,4 +1,6 @@
 #pragma once
+#include <variant>
+
 #include "tool.h"
 
 #include "engine/input/input_event.h"
@@ -8,22 +10,19 @@ namespace my {
 
 class Viewer;
 
-struct TileMapEditCommand {
-    enum {
-        INSERT,
-        ERASE,
-    } type;
-
-    union {
-        Vector2f cursor;
-        struct {
-
-        } dummy;
-    };
-};
-
 class TileMapEditor : public ITool {
 public:
+    struct CommandAddTile {
+        Vector2f cursor;
+        int tile;
+    };
+
+    struct CommandEraseTile {
+        Vector2f cursor;
+    };
+
+    using Command = std::variant<CommandAddTile, CommandEraseTile>;
+
     TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
         : ITool(p_editor), m_viewer(p_viewer) {
         m_policy = ToolCameraPolicy::Only2D;
@@ -43,10 +42,15 @@ public:
     const std::string& GetTile() const override { return m_title; }
 
 protected:
+    struct Point {
+        int16_t x, y;
+    };
+    bool CursorToTile(const Vector2f& p_in, Point& p_out) const;
+
     Viewer* m_viewer;
 
     Guid m_tile_map_guid;
-    std::vector<TileMapEditCommand> m_commands;
+    std::vector<Command> m_commands;
     std::string m_title;
 };
 

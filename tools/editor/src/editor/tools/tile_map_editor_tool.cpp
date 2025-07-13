@@ -17,6 +17,15 @@ namespace my {
 #define TEMP_SCENE_NAME "tile_map_scene"
 
 void TileMapEditor::Update(Scene*) {
+    {
+        int16_t x = -2;
+        int16_t y = -8;
+        auto a = TileMapLayer::Pack(x, y);
+        auto [x1, y1] = TileMapLayer::Unpack(a);
+        DEV_ASSERT(x1 == x);
+        DEV_ASSERT(y1 == y);
+    }
+
     const CameraComponent& camera = m_viewer->GetActiveCamera();
     const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
 
@@ -32,21 +41,70 @@ void TileMapEditor::Update(Scene*) {
     Matrix4x4f identity(1.0f);
     ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XY);
 
-    // process commands
-    for (const auto& command : m_commands) {
-        switch (command.type) {
-            case TileMapEditCommand::INSERT:
-                LOG_OK("insert");
-                break;
-            case TileMapEditCommand::ERASE:
-                LOG_OK("erase");
-                break;
-            default:
-                break;
+    do {
+        auto res = m_editor.GetApplication()->GetAssetRegistry()->FindByGuid(m_tile_map_guid);
+        if (!res) {
+            break;
         }
-    }
+
+        auto handle = *res;
+        TileMapAsset* asset = handle.Get<TileMapAsset>();
+        if (!asset) {
+            break;
+        }
+
+        auto& layers = asset->GetAllLayers();
+        if (layers.empty()) {
+            break;
+        }
+
+        auto& layer = layers[0];
+
+        // process commands
+        for (const auto& command : m_commands) {
+            std::visit([this, &layer](auto&& cmd) {
+                using T = std::decay_t<decltype(cmd)>;
+                if constexpr (std::is_same_v<T, CommandAddTile>) {
+                    auto ndc = m_viewer->CursorToNDC(cmd.cursor);
+                    Point tile;
+                    if (CursorToTile(cmd.cursor, tile)) {
+                        layer.AddTile(tile.x, tile.y, 1);
+                        LOG_OK("add {} {}", tile.x, tile.y);
+                    }
+                } else if constexpr (std::is_same_v<T, CommandEraseTile>) {
+                    auto ndc = m_viewer->CursorToNDC(cmd.cursor);
+                    Point tile;
+                    if (CursorToTile(cmd.cursor, tile)) {
+                        layer.EraseTile(tile.x, tile.y);
+                        LOG_OK("remove {} {}", tile.x, tile.y);
+                    }
+                }
+            },
+                       command);
+        }
+    } while (0);
 
     m_commands.clear();
+}
+
+bool TileMapEditor::CursorToTile(const Vector2f& p_in, Point& p_out) const {
+    auto res = m_viewer->CursorToNDC(p_in);
+    if (!res) {
+        return false;
+    }
+    auto ndc_2 = *res;
+    Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
+
+    CameraComponent& cam = m_viewer->GetActiveCamera();
+    const auto inv_proj_view = glm::inverse(cam.GetProjectionViewMatrix());
+
+    Vector4f position = inv_proj_view * ndc;
+    position /= position.w;
+
+    p_out.x = static_cast<int16_t>(position.x);
+    p_out.y = static_cast<int16_t>(position.y);
+    
+    return true;
 }
 
 bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
@@ -54,16 +112,12 @@ bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event
     if (auto e = dynamic_cast<InputEventMouse*>(event); e) {
         if (!e->IsModiferPressed()) {
             if (e->IsButtonDown(MouseButton::LEFT)) {
-                TileMapEditCommand command;
-                command.type = TileMapEditCommand::INSERT;
-                command.cursor = e->GetPos();
+                CommandAddTile command{ e->GetPos(), 1 };
                 m_commands.push_back(command);
                 return true;
             }
             if (e->IsButtonDown(MouseButton::RIGHT)) {
-                TileMapEditCommand command;
-                command.type = TileMapEditCommand::ERASE;
-                command.cursor = e->GetPos();
+                CommandEraseTile command{ e->GetPos() };
                 m_commands.push_back(command);
                 return true;
             }
@@ -127,14 +181,6 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
             }
         }
 #if 0
-        tileMap->FromArray(data);
-
-        auto& sprite = tileMap->m_sprite;
-
-        auto res = (m_assetRegistry->FindByPath("@res://images/tiles.png")).value().Wait<ImageAsset>();
-
-        sprite.texture = (*res).get();
-
         const int grid_x = 3;
         const int grid_y = 2;
 
@@ -164,45 +210,5 @@ void TileMapEditor::OnExit() {
     scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
 }
 
-#if 0
-    void Process(Scene& p_scene, const CameraComponent& p_camera) override {
-
-        if (!m_viewer.m_focused || !m_viewer.m_input_state.ndc) {
-            return;
-        }
-
-        Vector2f ndc_2 = *m_viewer.m_input_state.ndc;
-
-        auto selected = m_viewer.m_editor.GetSelectedEntity();
-
-        unused(ndc_2);
-        unused(p_scene);
-        unused(p_camera);
-        unused(selected);
-
-        TileMapComponent* tile_map = p_scene.GetComponent<TileMapComponent>(selected);
-
-        if (!tile_map) {
-            return;
-        }
-
-        Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
-        const auto inv_proj_view = glm::inverse(p_camera.GetProjectionViewMatrix());
-        Vector4f position = inv_proj_view * ndc;
-        position /= position.w;
-
-        int tile_x = static_cast<int>(position.x);
-        int tile_y = static_cast<int>(position.y);
-
-        // erase if right button down
-        int value = 0;
-        if (m_viewer.m_input_state.buttons[std::to_underlying(MouseButton::LEFT)]) {
-            value = m_viewer.m_editor.context.selected_tile;
-            if (value < 0 || value > 5) {
-                value = 0;
-            }
-        }
-        tile_map->SetTile(tile_x, tile_y, value);
-#endif
 
 }  // namespace my

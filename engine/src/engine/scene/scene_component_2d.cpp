@@ -21,6 +21,10 @@ void TileMapRenderer::CreateRenderData() {
 
     int i = 0;
     for (const auto& layer : tile_map_asset->GetAllLayers()) {
+        if (layer.revision == revision) {
+            break;
+        }
+
         std::vector<Vector2f> vertices;
         std::vector<Vector2f> uvs;
         std::vector<uint32_t> indices;
@@ -100,6 +104,8 @@ void TileMapRenderer::CreateRenderData() {
         auto mesh = IGraphicsManager::GetSingleton().CreateMeshImpl(desc, 2, buffers, &index_desc);
 
         m_mesh = *mesh;
+
+        revision = layer.revision;
 
         if (i == 0) break;
     }
