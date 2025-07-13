@@ -54,8 +54,8 @@ void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, bool p_is
             if (ImGui::MenuItem("SpriteSheet")) {
                 asset_manager->CreateAsset(AssetType::SpriteSheet, p_path);
             }
-            if (ImGui::MenuItem("xxxx")) {
-
+            if (ImGui::MenuItem("TileMap")) {
+                asset_manager->CreateAsset(AssetType::TileMap, p_path);
             }
             ImGui::EndMenu();
         }

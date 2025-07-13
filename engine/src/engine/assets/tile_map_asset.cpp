@@ -1,4 +1,4 @@
-#include "sprite_sheet_asset.h"
+#include "tile_map_asset.h"
 
 #include "engine/assets/assets.h"
 #include "engine/core/io/file_access.h"
@@ -8,35 +8,6 @@
 namespace my {
 
 #if 0
-void SpriteSheetAsset::SetRow(uint32_t p_row) {
-    if (p_row == 0) return;
-    if (p_row == m_row) return;
-    m_row = p_row;
-    UpdateFrames();
-}
-
-void SpriteSheetAsset::SetCol(uint32_t p_col) {
-    if (p_col == 0) return;
-    if (p_col == m_column) return;
-    m_column = p_col;
-    UpdateFrames();
-}
-
-void SpriteSheetAsset::SetHandle(AssetHandle&& p_handle) {
-    m_image_handle = std::move(p_handle);
-    const ImageAsset* image = m_image_handle.Get<ImageAsset>();
-    if (image) {
-        Guid guid = m_image_handle.GetGuid();
-        if (guid != m_image) {
-            LOG("SpriteSheetAsset: GUID changed from {} to {}", m_image.ToString(), guid.ToString());
-            m_image = guid;
-        }
-
-        m_width = image->width;
-        m_height = image->height;
-    }
-}
-
 void SpriteSheetAsset::SetImage(const std::string& p_path) {
     auto handle = AssetRegistry::GetSingleton().FindByPath(p_path);
     if (handle) {
@@ -44,10 +15,6 @@ void SpriteSheetAsset::SetImage(const std::string& p_path) {
     }
 
     UpdateFrames();
-}
-
-std::vector<Guid> SpriteSheetAsset::GetDependencies() const {
-    return { m_image };
 }
 
 void SpriteSheetAsset::UpdateFrames() {
@@ -69,8 +36,13 @@ void SpriteSheetAsset::UpdateFrames() {
         }
     }
 }
+#endif
 
-auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
+std::vector<Guid> TileMapAsset::GetDependencies() const {
+    return {};
+}
+
+auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     // meta
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
@@ -78,49 +50,26 @@ auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<v
     }
 
     // file
-    serialize::SerializeYamlContext ctx;
+    //serialize::SerializeYamlContext ctx;
 
     YAML::Emitter out;
     out << YAML::BeginMap;
 
     out << YAML::Key << "version" << YAML::Value << VERSION;
 
-    out << YAML::Key << "image" << YAML::Value << m_image.ToString();
-
-    out << YAML::Key << "width" << YAML::Value;
-    serialize::SerializeYaml(out, m_width, ctx);
-
-    out << YAML::Key << "height" << YAML::Value;
-    serialize::SerializeYaml(out, m_height, ctx);
-
-    out << YAML::Key << "row" << YAML::Value;
-    serialize::SerializeYaml(out, m_row, ctx);
-    out << YAML::Key << "column" << YAML::Value;
-    serialize::SerializeYaml(out, m_column, ctx);
-
     out << YAML::EndMap;
 
     return serialize::SaveYaml(p_meta.path, out);
 }
 
-auto SpriteSheetAsset::LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void> {
-    serialize::SerializeYamlContext ctx;
-
-    auto res = Guid::Parse(p_node["image"].as<std::string>());
-    if (!res) {
-        return HBN_ERROR(res.error());
-    }
-
-    m_image = *res;
-    serialize::DeserializeYaml(p_node["row"], m_row, ctx);
-    serialize::DeserializeYaml(p_node["column"], m_column, ctx);
-    serialize::DeserializeYaml(p_node["width"], m_width, ctx);
-    serialize::DeserializeYaml(p_node["height"], m_height, ctx);
+auto TileMapAsset::LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void> {
+    //serialize::SerializeYamlContext ctx;
+    unused(p_node);
 
     return Result<void>();
 }
 
-auto SpriteSheetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     YAML::Node node;
     if (auto res = serialize::LoadYaml(p_meta.path, node); !res) {
         return HBN_ERROR(res.error());
@@ -137,15 +86,7 @@ auto SpriteSheetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void>
             break;
     }
 
-    // update image
-    auto handle = AssetRegistry::GetSingleton().FindByGuid(m_image);
-    if (handle) {
-        SetHandle(std::move(*handle));
-    }
-    UpdateFrames();
-
     return Result<void>();
 }
-#endif
 
 }  // namespace my

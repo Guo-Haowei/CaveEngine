@@ -6,6 +6,7 @@
 // @TODO: get rid of this file
 #include "engine/assets/assets.h"
 #include "engine/assets/sprite_sheet_asset.h"
+#include "engine/assets/tile_map_asset.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/os/threads.h"
@@ -55,22 +56,17 @@ static struct {
     // @TODO: better thread safe queue
     ConcurrentQueue<AssetManager::LoadTask> jobQueue;
     std::atomic_int runningWorkers;
-
-    AssetCreateFunc createFuncs[AssetType::Count];
 } s_assetManagerGlob;
 
-// @TODO: use DeserializerRegistry first,
-// if no suitable, use importer
-
-// @TODO: implement
-
-AssetRef CreateAssetInstance(AssetType p_type) {
-    if (p_type != AssetType::SpriteSheet) {
-        return nullptr;
+static AssetRef CreateAssetInstance(AssetType p_type) {
+    switch (p_type.GetData()) {
+        case AssetType::SpriteSheet:
+            return std::make_shared<SpriteSheetAsset>();
+        case AssetType::TileMap:
+            return std::make_shared<TileMapAsset>();
+        default:
+            return nullptr;
     }
-
-    auto sprite = std::make_shared<SpriteSheetAsset>();
-    return std::static_pointer_cast<IAsset>(sprite);
 }
 
 AssetRef LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) {
@@ -111,39 +107,23 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     IAssetLoader::RegisterLoader(".jpg", ImageAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".hdr", ImageAssetLoader::CreateLoaderF);
 
-    //
-    s_assetManagerGlob.createFuncs[AssetType::SpriteSheet] = []() -> AssetRef {
-        auto sprite = std::make_shared<SpriteSheetAsset>();
-        return std::static_pointer_cast<IAsset>(sprite);
-    };
-
     return Result<void>();
 }
 
 void AssetManager::CreateAsset(const AssetType& p_type,
                                const fs::path& p_folder,
                                const char* p_name) {
-    // @TODO: change this to serialize once done
-    CRASH_NOW_MSG("Move logic to IAsset::SaveToDisk");
+    AssetRef asset = CreateAssetInstance(p_type);
+    DEV_ASSERT(asset);
+    if (!asset) {
+        return;
+    }
 
-    DEV_ASSERT(p_type == AssetType::SpriteSheet);
     // 1. Creates both meta and file
     fs::path new_file = p_folder;
-    if (p_name) {
-        new_file = new_file / p_name;
-    } else {
-        // @TODO: extension
-        new_file = new_file / std::format("untitled{}.sprite", ++m_counter);
-    }
-
-    DEV_ASSERT(s_assetManagerGlob.createFuncs[p_type.GetData()]);
-    AssetRef asset = s_assetManagerGlob.createFuncs[p_type.GetData()]();
-
-    if (fs::exists(new_file)) {
-        fs::remove(new_file);
-    }
-    std::ofstream file(new_file);
-    // asset->SaveToDisk();
+    const char* ext = p_type.ToString();
+    auto name = std::format("{}_{}.{}", p_name ? p_name : "untitled", ++m_counter, ext);
+    new_file = new_file / name;
 
     std::string meta_file = new_file.string();
     meta_file.append(".meta");
@@ -154,16 +134,9 @@ void AssetManager::CreateAsset(const AssetType& p_type,
     if (!_meta) {
         return;
     }
+
     auto meta = std::move(_meta.value());
-
-    if (fs::exists(meta_file)) {
-        fs::remove(meta_file);
-    }
-
-    // auto res = meta.SaveMeta(meta_file);
-    // if (!res) {
-    //     return;
-    // }
+    asset->SaveToDisk(meta);
 
     // 2. Update AssetRegistry when done
     m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta), nullptr, nullptr);

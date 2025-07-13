@@ -66,6 +66,8 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> std::optional<AssetMe
         type = AssetType::Binary;
     } else if (extension == ".sprite") {
         type = AssetType::SpriteSheet;
+    } else if (extension == ".tilemap") {
+        type = AssetType::TileMap;
     } else {
         return std::nullopt;
     }
