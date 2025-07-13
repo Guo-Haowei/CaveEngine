@@ -17,7 +17,6 @@ using ecs::Entity;
 namespace fs = std::filesystem;
 
 auto SceneManager::InitializeImpl() -> Result<void> {
-    m_scene = m_app->CreateInitialScene();
     // BumpRevision();
 
     const std::string& path = DVAR_GET_STRING(scene);

@@ -83,8 +83,6 @@ public:
     bool IsRuntime() const { return m_type == Type::RUNTIME; }
     bool IsEditor() const { return m_type == Type::EDITOR; }
 
-    virtual Scene* CreateInitialScene();
-
     virtual CameraComponent* GetActiveCamera() = 0;
 
 protected:
