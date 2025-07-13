@@ -1,9 +1,11 @@
 #include <filesystem>
 
 #include "editor/editor_layer.h"
+#include "editor/editor_scene_manager.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
+#include "engine/runtime/scene_manager_interface.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
 #define DEFINE_DVAR
@@ -14,16 +16,10 @@ namespace my {
 
 namespace fs = std::filesystem;
 
-extern Scene* CreateTheAviatorScene();
-extern Scene* CreateBoxScene();
-extern Scene* CreatePbrTestScene();
-extern Scene* CreatePhysicsTestScene();
-
-// @TODO: EditorContext
-
 class Editor : public Application {
 public:
-    Editor(const ApplicationSpec& p_spec) : Application(p_spec, Application::Type::EDITOR) {}
+    Editor(const ApplicationSpec& p_spec)
+        : Application(p_spec, Application::Type::EDITOR) {}
 
     void InitLayers() override {
         m_editorLayer = std::make_unique<EditorLayer>();
@@ -32,8 +28,6 @@ public:
         // Only creates game layer, don't attach yet
         m_gameLayer = std::make_unique<GameLayer>("GameLayer");
     }
-
-    Scene* CreateInitialScene() override;
 
     CameraComponent* GetActiveCamera() override {
         return &m_editorLayer->GetActiveCamera();
@@ -74,24 +68,6 @@ Application* CreateApplication() {
     return new Editor(spec);
 }
 
-Scene* Editor::CreateInitialScene() {
-    auto scene = DVAR_GET_STRING(default_scene);
-    if (scene == "pbr_test") {
-        return CreatePbrTestScene();
-    }
-    if (scene == "physics_test") {
-        return CreatePhysicsTestScene();
-    }
-    if (scene == "the_aviator") {
-        return CreateTheAviatorScene();
-    }
-    if (scene == "box") {
-        return CreateBoxScene();
-    }
-
-    return Application::CreateInitialScene();
-}
-
 }  // namespace my
 
 int main(int p_argc, const char** p_argv) {
@@ -102,6 +78,9 @@ int main(int p_argc, const char** p_argv) {
         return new Bullet3PhysicsManager();
     });
 #endif
+    ISceneManager::RegisterCreateFunc([]() -> ISceneManager* {
+        return new EditorSceneManager();
+    });
 
     return Main(p_argc, p_argv);
 }

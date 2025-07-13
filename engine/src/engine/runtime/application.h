@@ -18,7 +18,7 @@ class InputManager;
 class IPhysicsManager;
 class RenderSystem;
 class Scene;
-class SceneManager;
+class ISceneManager;
 class ScriptManager;
 
 struct ApplicationSpec {
@@ -65,7 +65,7 @@ public:
     AssetRegistry* GetAssetRegistry() { return m_assetRegistry; }
     AssetManager* GetAssetManager() { return m_assetManager; }
     InputManager* GetInputManager() { return m_inputManager; }
-    SceneManager* GetSceneManager() { return m_sceneManager; }
+    ISceneManager* GetSceneManager() { return m_sceneManager; }
     IPhysicsManager* GetPhysicsManager() { return m_physicsManager; }
     ScriptManager* GetScriptManager() { return m_scriptManager; }
     DisplayManager* GetDisplayServer() { return m_displayServer; }
@@ -77,16 +77,11 @@ public:
     const std::string& GetUserFolder() const { return m_userFolder; }
     const std::string& GetResourceFolder() const { return m_resourceFolder; }
 
-    Scene* GetActiveScene() const { return m_activeScene; }
-    void SetActiveScene(Scene* p_scene) { m_activeScene = p_scene; }
-
     State GetState() const { return m_state; }
     void SetState(State p_state);
 
     bool IsRuntime() const { return m_type == Type::RUNTIME; }
     bool IsEditor() const { return m_type == Type::EDITOR; }
-
-    virtual Scene* CreateInitialScene();
 
     virtual CameraComponent* GetActiveCamera() = 0;
 
@@ -120,7 +115,7 @@ protected:
 
     AssetRegistry* m_assetRegistry{ nullptr };
     AssetManager* m_assetManager{ nullptr };
-    SceneManager* m_sceneManager{ nullptr };
+    ISceneManager* m_sceneManager{ nullptr };
     IPhysicsManager* m_physicsManager{ nullptr };
     DisplayManager* m_displayServer{ nullptr };
     IGraphicsManager* m_graphicsManager{ nullptr };
@@ -133,7 +128,6 @@ protected:
 
     const Type m_type;
     State m_state{ State::EDITING };
-    Scene* m_activeScene{ nullptr };
 
     Timer m_timer;
 };

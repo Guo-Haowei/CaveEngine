@@ -8,7 +8,7 @@ void EditorItem::OpenAddEntityPopup(ecs::Entity p_parent) {
     if (ImGui::BeginMenu("Add")) {
 #define ENTITY_TYPE(ENUM, NAME, SEP)                    \
     if (ImGui::MenuItem(#NAME)) {                       \
-        m_editor.AddEntity(EntityType::ENUM, p_parent); \
+        m_editor.CommandAddEntity(EntityType::ENUM, p_parent); \
     }                                                   \
     if constexpr (SEP) {                                \
         ImGui::Separator();                             \

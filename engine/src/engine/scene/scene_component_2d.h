@@ -1,7 +1,9 @@
 #pragma once
+#include "scene_component_base.h"
+
+#include "engine/assets/guid.h"
 #include "engine/math/box.h"
 #include "engine/math/geomath.h"
-#include "scene_component_base.h"
 
 namespace my {
 
@@ -9,6 +11,23 @@ class Archive;
 struct GpuMesh;
 struct ImageAsset;
 
+struct TileMapRenderer : public ComponentFlagBase {
+    Guid tile_map;
+
+    // Non serialize
+    mutable std::shared_ptr<GpuMesh> m_mesh;
+
+    // @TODO: better way
+    void CreateRenderData();
+
+    void Serialize(Archive& p_archive, uint32_t p_version);
+
+    void OnDeserialized() {}
+
+    static void RegisterClass();
+};
+
+#if 0
 struct SpriteSheet {
     std::vector<Rect> frames;
 
@@ -31,13 +50,6 @@ public:
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }
 
-    void CreateRenderData();
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-
-    void OnDeserialized() {}
-
-    static void RegisterClass();
 
     // @TODO: change to private
 public:
@@ -48,8 +60,7 @@ public:
     // Non-serialized
     // @TODO: make it an asset
     SpriteSheet m_sprite;
-
-    mutable std::shared_ptr<GpuMesh> m_mesh;
 };
+#endif
 
 }  // namespace my

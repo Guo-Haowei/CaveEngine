@@ -4,7 +4,6 @@
 #include <imgui/imgui_internal.h>
 
 #include "editor/editor_layer.h"
-#include "engine/runtime/scene_manager.h"
 
 namespace my {
 using ecs::Entity;
@@ -85,7 +84,7 @@ static bool TreeNodeHelper(const Scene& p_scene,
 void HierarchyCreator::DrawNode(const Scene& p_scene, HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flags) {
     DEV_ASSERT(p_hier);
     Entity id = p_hier->entity;
-    const MeshRendererComponent* object_component = p_scene.GetComponent<MeshRendererComponent>(id);
+    const MeshRenderer* object_component = p_scene.GetComponent<MeshRenderer>(id);
     const MeshComponent* mesh_component = object_component ? p_scene.GetComponent<MeshComponent>(object_component->meshId) : nullptr;
 
     p_flags |= (p_hier->children.empty() && !mesh_component) ? ImGuiTreeNodeFlags_Leaf : 0;
@@ -179,13 +178,15 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
     return true;
 }
 
-void HierarchyPanel::UpdateInternal(Scene& p_scene) {
-    // @TODO: on scene change, rebuild hierarchy
-    HierarchyCreator creator(m_editor);
+void HierarchyPanel::UpdateInternal(Scene* p_scene) {
+    // @TODO: don't rebuild it every frame
+    if (p_scene) {
+        HierarchyCreator creator(m_editor);
 
-    DrawPopup(p_scene);
+        DrawPopup(*p_scene);
 
-    creator.Update(p_scene);
+        creator.Update(*p_scene);
+    }
 }
 
 void HierarchyPanel::DrawPopup(Scene&) {
@@ -197,7 +198,7 @@ void HierarchyPanel::DrawPopup(Scene&) {
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
                 m_editor.SelectEntity(Entity::INVALID);
-                m_editor.RemoveEntity(selected);
+                m_editor.CommandRemoveEntity(selected);
             }
         }
         ImGui::EndPopup();

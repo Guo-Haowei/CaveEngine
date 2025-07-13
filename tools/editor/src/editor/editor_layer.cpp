@@ -3,8 +3,10 @@
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
+#include "editor/editor_command.h"
+#include "editor/tools/editor_tool.h"
+#include "editor/tools/tile_map_editor_tool.h"
 #include "editor/panels/asset_inspector.h"
-#include "editor/panels/content_browser.h"
 #include "editor/panels/file_system_panel.h"
 #include "editor/panels/hierarchy_panel.h"
 #include "editor/panels/log_panel.h"
@@ -20,7 +22,7 @@
 #include "engine/runtime/input_manager.h"
 #include "engine/runtime/layer.h"
 #include "engine/runtime/physics_manager.h"
-#include "engine/runtime/scene_manager.h"
+#include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 
 // @NOTE: include dvars at last
@@ -28,27 +30,8 @@
 
 namespace my {
 
-EditorLayer::EditorLayer() : Layer("EditorLayer") {
-    const auto res = DVAR_GET_IVEC2(resolution);
-    {
-        CameraComponent& camera = context.cameras[CAMERA_3D];
-        camera.SetDimension(res.x, res.y);
-        camera.SetNear(1.0f);
-        camera.SetFar(1000.0f);
-        camera.SetPosition(Vector3f(0, 4, 10));
-        camera.SetDirty();
-        camera.Update();
-    }
-    {
-        CameraComponent& camera = context.cameras[CAMERA_2D];
-        camera.SetOrtho();
-        camera.SetDimension(res.x, res.y);
-        camera.SetNear(1.0f);
-        camera.SetFar(1000.0f);
-        camera.SetPosition(Vector3f(0, 0, 10));
-        camera.SetDirty();
-        camera.Update();
-    }
+EditorLayer::EditorLayer()
+    : Layer("EditorLayer") {
 
     m_menuBar = std::make_shared<MenuBar>(*this);
     m_viewer = std::make_shared<Viewer>(*this);
@@ -60,27 +43,30 @@ EditorLayer::EditorLayer() : Layer("EditorLayer") {
     AddPanel(m_viewer);
     AddPanel(std::make_shared<AssetInspector>(*this));
     AddPanel(std::make_shared<RenderGraphViewer>(*this));
-    AddPanel(std::make_shared<FileSystemPanel>(*this));
 #if !USING(PLATFORM_WASM)
-    AddPanel(std::make_shared<ContentBrowser>(*this));
+    AddPanel(std::make_shared<FileSystemPanel>(*this));
 #endif
 
+    m_tools[std::to_underlying(ToolType::Edit)].reset(new EditorTool(*this, m_viewer.get()));
+    m_tools[std::to_underlying(ToolType::TileMap)].reset(new TileMapEditor(*this, m_viewer.get()));
+
+    // @TODO: refactor this at some point
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
         "Save As..",
         "Ctrl+Shift+S",
         [&]() {
-            this->BufferCommand(std::make_shared<SaveProjectCommand>(true));
+            //this->BufferCommand(std::make_shared<SaveProjectCommand>(true));
         },
     };
     m_shortcuts[SHORT_CUT_SAVE] = {
         "Save",
         "Ctrl+S",
-        [&]() { this->BufferCommand(std::make_shared<SaveProjectCommand>(false)); },
+        //[&]() { this->BufferCommand(std::make_shared<SaveProjectCommand>(false)); },
     };
     m_shortcuts[SHORT_CUT_OPEN] = {
         "Open",
         "Ctrl+O",
-        [&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
+        //[&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
     };
     m_shortcuts[SHORT_CUT_REDO] = {
         "Redo",
@@ -151,6 +137,9 @@ EditorLayer::EditorLayer() : Layer("EditorLayer") {
 void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
+    Guid dummy;
+    OpenTool(ToolType::Edit, dummy);
+
     m_app->GetInputManager()->PushInputHandler(this);
     m_app->GetInputManager()->PushInputHandler(m_viewer.get());
 
@@ -174,11 +163,11 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 
 void EditorLayer::SelectEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
-    Scene* scene = m_app->GetActiveScene();
+    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
     scene->m_selected = m_selected;
 }
 
-void EditorLayer::DockSpace(Scene& p_scene) {
+void EditorLayer::DockSpace(Scene* p_scene) {
     ImGui::GetMainViewport();
 
     static bool opt_padding = false;
@@ -224,7 +213,9 @@ void EditorLayer::DockSpace(Scene& p_scene) {
 void EditorLayer::OnUpdate(float p_timestep) {
     context.timestep = p_timestep;
 
-    Scene* scene = SceneManager::GetSingleton().GetScenePtr();
+    // Scene* scene = SceneManager::GetSingleton().GetScenePtr();
+    // Scene* scene = nullptr;
+#if 0
     switch (m_app->GetState()) {
         case Application::State::EDITING: {
             m_app->SetActiveScene(scene);
@@ -260,18 +251,17 @@ void EditorLayer::OnUpdate(float p_timestep) {
             CRASH_NOW();
             break;
     }
+#endif
 }
 
 void EditorLayer::OnImGuiRender() {
-    Scene* scene = m_app->GetActiveScene();
-    DEV_ASSERT(scene);
+    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
 
-    // @TODO: fix this
-    DockSpace(*scene);
+    DockSpace(scene);
     for (auto& it : m_panels) {
-        it->Update(*scene);
+        it->Update(scene);
     }
-    FlushCommand(*scene);
+    FlushCommand(scene);
 }
 
 bool EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
@@ -314,24 +304,29 @@ void EditorLayer::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) 
     m_commandBuffer.emplace_back(std::move(p_command));
 }
 
-void EditorLayer::AddComponent(ComponentType p_type, ecs::Entity p_target) {
+void EditorLayer::CommandInspectAsset(const Guid& p_guid) {
+    auto command = std::make_shared<EditorInspectAssetCommand>(p_guid);
+    BufferCommand(command);
+}
+
+void EditorLayer::CommandAddComponent(ComponentType p_type, ecs::Entity p_target) {
     auto command = std::make_shared<EditorCommandAddComponent>(p_type);
     command->target = p_target;
     BufferCommand(command);
 }
 
-void EditorLayer::AddEntity(EntityType p_type, ecs::Entity p_parent) {
+void EditorLayer::CommandAddEntity(EntityType p_type, ecs::Entity p_parent) {
     auto command = std::make_shared<EditorCommandAddEntity>(p_type);
     command->m_parent = p_parent;
     BufferCommand(command);
 }
 
-void EditorLayer::RemoveEntity(ecs::Entity p_target) {
+void EditorLayer::CommandRemoveEntity(ecs::Entity p_target) {
     auto command = std::make_shared<EditorCommandRemoveEntity>(p_target);
     BufferCommand(command);
 }
 
-void EditorLayer::FlushCommand(Scene& p_scene) {
+void EditorLayer::FlushCommand(Scene* p_scene) {
     while (!m_commandBuffer.empty()) {
         auto task = m_commandBuffer.front();
         m_commandBuffer.pop_front();
@@ -339,12 +334,39 @@ void EditorLayer::FlushCommand(Scene& p_scene) {
             m_undoStack.PushCommand(std::move(undo_command));
             continue;
         }
-        task->Execute(p_scene);
+        task->Execute(*p_scene);
     }
 }
 
 CameraComponent& EditorLayer::GetActiveCamera() {
-    return context.GetActiveCamera();
+    return m_viewer->GetActiveCamera();
+}
+
+void EditorLayer::OpenTool(ToolType p_type, const Guid& p_guid) {
+    unused(p_guid);
+
+    if (m_current_tool == p_type) {
+        return;
+    }
+    ITool* new_tool = m_tools[std::to_underlying(p_type)].get();
+
+    if (DEV_VERIFY(new_tool)) {
+        ITool* old_tool = m_tools[std::to_underlying(m_current_tool)].get();
+
+        if (old_tool) {
+            old_tool->OnExit();
+        }
+        m_current_tool = p_type;
+        new_tool->OnEnter(p_guid);
+
+        LOG("Tool [{}] -> [{}]", old_tool ? old_tool->GetName() : "(null)", new_tool->GetName());
+    }
+}
+
+// @NOTE: do not hold the pointer
+ITool* EditorLayer::GetActiveTool() {
+    DEV_ASSERT_INDEX(m_current_tool, ToolType::Count);
+    return m_tools[std::to_underlying(m_current_tool)].get();
 }
 
 }  // namespace my

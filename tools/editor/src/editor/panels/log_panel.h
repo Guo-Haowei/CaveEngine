@@ -8,7 +8,7 @@ public:
     LogPanel(EditorLayer& editor) : EditorWindow("Console", editor) {}
 
 protected:
-    void UpdateInternal(Scene& scene) override;
+    void UpdateInternal(Scene* scene) override;
 
 private:
     bool m_autoScroll{ true };

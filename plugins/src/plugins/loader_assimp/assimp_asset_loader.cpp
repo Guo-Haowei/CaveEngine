@@ -140,7 +140,7 @@ ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_p
     if (p_node->mNumMeshes == 1) {  // geometry node
         entity = m_scene->CreateObjectEntity("Geometry::" + key);
 
-        MeshRendererComponent& objComponent = *m_scene->GetComponent<MeshRendererComponent>(entity);
+        MeshRenderer& objComponent = *m_scene->GetComponent<MeshRenderer>(entity);
         objComponent.meshId = m_meshes[p_node->mMeshes[0]];
     } else {  // else make it a transform/bone node
         entity = m_scene->CreateTransformEntity("Node::" + key);
@@ -149,7 +149,7 @@ ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_p
             ecs::Entity child = m_scene->CreateObjectEntity("");
             auto tagComponent = m_scene->GetComponent<NameComponent>(child);
             tagComponent->SetName("SubGeometry_" + std::to_string(child.GetId()));
-            MeshRendererComponent& objComponent = *m_scene->GetComponent<MeshRendererComponent>(child);
+            MeshRenderer& objComponent = *m_scene->GetComponent<MeshRenderer>(child);
             objComponent.meshId = m_meshes[p_node->mMeshes[i]];
             m_scene->AttachChild(child, entity);
         }

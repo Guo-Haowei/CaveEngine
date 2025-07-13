@@ -1,6 +1,6 @@
 #pragma once
-#include "editor/editor_command.h"
 #include "editor/editor_window.h"
+#include "editor/tools/tool.h"
 #include "engine/core/base/ring_buffer.h"
 #include "engine/input/input_router.h"
 #include "engine/runtime/application.h"
@@ -11,9 +11,10 @@
 
 namespace my {
 
-struct ImageAsset;
-class MenuBar;
 enum class KeyCode : uint16_t;
+struct ImageAsset;
+class EditorCommandBase;
+class MenuBar;
 class Viewer;
 
 enum {
@@ -25,35 +26,12 @@ enum {
     SHORT_CUT_MAX,
 };
 
-enum EditorCameraType : uint8_t {
-    CAMERA_2D = 0,
-    CAMERA_3D,
-    CAMERA_MAX,
-};
-
 struct EditorContext {
     float timestep{ 0 };
-    EditorCameraType cameraType{ CAMERA_3D };
-    CameraComponent cameras[CAMERA_MAX];
 
     // THIS IS BAD
-    IAsset* selected_asset = nullptr;
+    // Should never use raw pointer
     std::string drag_payload;
-
-    // for tile map editor
-    // need to refactor
-    int selected_tile = -1;
-
-    CameraComponent& GetActiveCamera() {
-        return cameras[cameraType];
-    }
-};
-
-enum class EditorState {
-    TileMapEditing,
-    Translating,
-    Rotating,
-    Scaling,
 };
 
 class EditorLayer : public Layer, public IInputHandler {
@@ -74,9 +52,10 @@ public:
     void SetDisplayedImage(uint64_t p_image) { m_displayedImage = p_image; }
 
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
-    void AddComponent(ComponentType p_type, ecs::Entity p_target);
-    void AddEntity(EntityType p_type, ecs::Entity p_parent);
-    void RemoveEntity(ecs::Entity p_target);
+    void CommandInspectAsset(const Guid& p_guid);
+    void CommandAddComponent(ComponentType p_type, ecs::Entity p_target);
+    void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
+    void CommandRemoveEntity(ecs::Entity p_target);
 
     UndoStack& GetUndoStack() { return m_undoStack; }
 
@@ -88,11 +67,14 @@ public:
 
     EditorContext context;
 
+    void OpenTool(ToolType p_type, const Guid& p_guid);
+    ITool* GetActiveTool();
+
 private:
-    void DockSpace(Scene& p_scene);
+    void DockSpace(Scene* p_scene);
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
 
-    void FlushCommand(Scene& p_scene);
+    void FlushCommand(Scene* p_scene);
 
     std::shared_ptr<MenuBar> m_menuBar;
     std::shared_ptr<Viewer> m_viewer;
@@ -118,6 +100,10 @@ private:
     };
 
     std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
+
+public:
+    std::array<std::unique_ptr<ITool>, std::to_underlying(ToolType::Count)> m_tools;
+    ToolType m_current_tool{ ToolType ::None };
 };
 
 }  // namespace my

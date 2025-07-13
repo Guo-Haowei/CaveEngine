@@ -95,7 +95,7 @@ static void FillConstantBuffer(const Scene& p_scene, FrameData& p_out_data) {
         cache.c_enableBloom = options.bloomEnabled;
 
         cache.c_debugVoxelId = options.debugVoxelId;
-        cache.c_ptObjectCount = (int)p_scene.m_MeshRendererComponents.GetCount();
+        cache.c_ptObjectCount = (int)p_scene.GetCount<MeshRenderer>();
     }
 
     // IBL

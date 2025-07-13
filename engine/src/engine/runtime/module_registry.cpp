@@ -57,7 +57,7 @@ public:
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}
 
-    void Update(Scene& p_scene) override {}
+    void Update(Scene* p_scene) override {}
 
     // resource
     auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> override { return nullptr; }
@@ -170,15 +170,27 @@ class NullPhysicsManager : public IPhysicsManager {
 public:
     NullPhysicsManager()
         : IPhysicsManager("NullPhysicsManager") {}
-    virtual ~NullPhysicsManager() = default;
 
-    virtual auto InitializeImpl() -> Result<void> { return Result<void>(); }
-    virtual void FinalizeImpl() {}
+    auto InitializeImpl() -> Result<void> override { return Result<void>(); }
+    void FinalizeImpl() override {}
 
-    virtual void Update(Scene&, float) {}
+    void Update(Scene&, float) override {}
 
-    virtual void OnSimBegin(Scene&) {}
-    virtual void OnSimEnd(Scene&) {}
+    void OnSimBegin(Scene&) override {}
+    void OnSimEnd(Scene&) override {}
+};
+
+class NullSceneManager : public ISceneManager {
+public:
+    NullSceneManager()
+        : ISceneManager("NullSceneManager") {}
+
+    auto InitializeImpl() -> Result<void> override { return Result<void>(); }
+    void FinalizeImpl() override {}
+
+    Scene* GetActiveScene() const override { return nullptr; }
+
+    void Update() override {}
 };
 
 DisplayManager* CreateDisplayManager() {
@@ -188,6 +200,12 @@ DisplayManager* CreateDisplayManager() {
 IPhysicsManager* CreatePhysicsManager() {
     return CreateModule<IPhysicsManager, NullPhysicsManager>();
 }
+
+ISceneManager* CreateSceneManager() {
+    return CreateModule<ISceneManager, NullSceneManager>();
+}
+
+// ISceneManager*
 
 static IGraphicsManager* SelectGraphicsManager(const std::string& p_backend) {
     if (p_backend == "d3d11") {

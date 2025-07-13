@@ -7,7 +7,7 @@
 
 namespace my {
 
-using FilterObjectFunc1 = std::function<bool(const MeshRendererComponent& p_object)>;
+using FilterObjectFunc1 = std::function<bool(const MeshRenderer& p_object)>;
 using FilterObjectFunc2 = std::function<bool(const AABB& p_object_aabb)>;
 
 // @TODO: fix this function OMG
@@ -66,7 +66,7 @@ static void FillPass(const Scene& p_scene,
                      std::vector<RenderCommand>& p_commands,
                      FrameData& p_framedata) {
 
-    for (auto [entity, obj] : p_scene.m_MeshRendererComponents) {
+    for (auto [entity, obj] : p_scene.View<MeshRenderer>()) {
         if (!p_scene.Contains<TransformComponent>(entity)) {
             continue;
         }
@@ -178,8 +178,8 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
                 Frustum light_frustum(light.projection_matrix * light.view_matrix);
                 FillPass(
                     p_scene,
-                    [](const MeshRendererComponent& p_object) {
-                        return p_object.flags & MeshRendererComponent::FLAG_CAST_SHADOW;
+                    [](const MeshRenderer& p_object) {
+                        return p_object.flags & MeshRenderer::FLAG_CAST_SHADOW;
                     },
                     [&](const AABB& p_aabb) {
                         return light_frustum.Intersects(p_aabb);
@@ -334,9 +334,9 @@ static void FillMainPass(const Scene& p_scene, FrameData& p_framedata) {
     FilterFunc filter_main = [&](const AABB& p_aabb) -> bool { return camera_frustum.Intersects(p_aabb); };
 
     const bool is_opengl = p_framedata.options.isOpengl;
-    for (auto [entity, obj] : p_scene.m_MeshRendererComponents) {
-        const bool is_renderable = obj.flags & MeshRendererComponent::FLAG_RENDERABLE;
-        const bool is_transparent = obj.flags & MeshRendererComponent::FLAG_TRANSPARENT;
+    for (auto [entity, obj] : p_scene.View<MeshRenderer>()) {
+        const bool is_renderable = obj.flags & MeshRenderer::FLAG_RENDERABLE;
+        const bool is_transparent = obj.flags & MeshRenderer::FLAG_TRANSPARENT;
         const bool is_opaque = is_renderable && !is_transparent;
 
         // @TODO: cast shadow

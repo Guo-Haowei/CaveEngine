@@ -42,27 +42,7 @@ void MenuBar::MainMenuBar() {
     EditorItem::OpenAddEntityPopup(ecs::Entity::INVALID);
 }
 
-void MenuBar::Update(Scene&) {
-
-    #if 0
-    if (ImGui::BeginMenuBar()) {
-        ViewerBar();
-        ImGui::EndMenuBar();
-    }
-
-    ImGuiViewportP* viewport = (ImGuiViewportP*)(void*)ImGui::GetMainViewport();
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
-    float height = ImGui::GetFrameHeight();
-
-    if (ImGui::BeginViewportSideBar("##SecondaryMenuBar", viewport, ImGuiDir_Up, height, window_flags)) {
-        if (ImGui::BeginMenuBar()) {
-            MainMenuBar();
-            ImGui::EndMenuBar();
-        }
-        ImGui::End();
-    }
-#endif
-
+void MenuBar::Update(Scene*) {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetCurrentViewport(nullptr, (ImGuiViewportP*)viewport);  // Set viewport explicitly so GetFrameHeight reacts to DPI changes
 

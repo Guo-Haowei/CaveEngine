@@ -272,8 +272,9 @@ std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) 
     return p_image->gpu_texture;
 }
 
-void GraphicsManager::Update(Scene& p_scene) {
+void GraphicsManager::Update(Scene* p_scene) {
     HBN_PROFILE_EVENT();
+    unused(p_scene);
 
     // @TODO: make it a function
     auto loaded_images = m_loadedImages.pop_all();
@@ -295,9 +296,11 @@ void GraphicsManager::Update(Scene& p_scene) {
         auto data = m_app->GetRenderSystem()->GetFrameData();
 
         // @TODO: remove this
-        UpdateEmitters(p_scene);
+        // if (p_scene) {
+        //    UpdateEmitters(*p_scene);
+        //}
 
-        if (data) {
+        if (data && p_scene) {
             auto& frame = GetCurrentFrame();
             UpdateConstantBuffer(frame.batchCb.get(), data->batchCache.buffer);
             UpdateConstantBuffer(frame.materialCb.get(), data->materialCache.buffer);

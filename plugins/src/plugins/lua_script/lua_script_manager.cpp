@@ -4,7 +4,7 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/input_manager.h"
-#include "engine/runtime/scene_manager.h"
+//#include "engine/runtime/scene_manager_interface.h"
 #include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/scene/scene.h"

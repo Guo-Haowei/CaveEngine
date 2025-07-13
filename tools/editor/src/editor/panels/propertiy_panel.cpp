@@ -2,10 +2,10 @@
 
 #include <ImGuizmo/ImGuizmo.h>
 
+#include "editor/editor_command.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/runtime/scene_manager.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 
@@ -61,14 +61,20 @@ static bool DrawVec3ControlDisabled(bool disabled, Args&&... args) {
     return dirty;
 };
 
-void PropertyPanel::UpdateInternal(Scene& p_scene) {
+void PropertyPanel::UpdateInternal(Scene* p_scene) {
+    if (!p_scene) {
+        return;
+    }
+
     ecs::Entity id = m_editor.GetSelectedEntity();
 
     if (!id.IsValid()) {
         return;
     }
 
-    NameComponent* name_component = p_scene.GetComponent<NameComponent>(id);
+    Scene& scene = *p_scene;
+
+    NameComponent* name_component = scene.GetComponent<NameComponent>(id);
     // @NOTE: when loading another scene, the selected entity will expire, thus don't have name
     if (!name_component) {
         // LOG_WARN("Entity {} does not have name", id.get_id());
@@ -89,25 +95,25 @@ void PropertyPanel::UpdateInternal(Scene& p_scene) {
             ImGui::CloseCurrentPopup();
         }
         if (ImGui::MenuItem("Script")) {
-            m_editor.AddComponent(ComponentType::SCRIPT, id);
+            m_editor.CommandAddComponent(ComponentType::Script, id);
         }
         ImGui::EndPopup();
     }
 
-    TransformComponent* transform_component = p_scene.GetComponent<TransformComponent>(id);
-    LightComponent* light_component = p_scene.GetComponent<LightComponent>(id);
-    MeshRendererComponent* object_component = p_scene.GetComponent<MeshRendererComponent>(id);
-    MeshComponent* mesh_component = object_component ? p_scene.GetComponent<MeshComponent>(object_component->meshId) : nullptr;
-    MaterialComponent* material_component = p_scene.GetComponent<MaterialComponent>(id);
-    RigidBodyComponent* rigid_body_component = p_scene.GetComponent<RigidBodyComponent>(id);
-    AnimationComponent* animation_component = p_scene.GetComponent<AnimationComponent>(id);
-    ParticleEmitterComponent* particle_emitter_component = p_scene.GetComponent<ParticleEmitterComponent>(id);
-    MeshEmitterComponent* mesh_emitter_component = p_scene.GetComponent<MeshEmitterComponent>(id);
-    ForceFieldComponent* force_field_component = p_scene.GetComponent<ForceFieldComponent>(id);
-    LuaScriptComponent* script_component = p_scene.GetComponent<LuaScriptComponent>(id);
-    CameraComponent* camera_component = p_scene.GetComponent<CameraComponent>(id);
-    EnvironmentComponent* environment_component = p_scene.GetComponent<EnvironmentComponent>(id);
-    VoxelGiComponent* voxel_gi_component = p_scene.GetComponent<VoxelGiComponent>(id);
+    TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
+    LightComponent* light_component = scene.GetComponent<LightComponent>(id);
+    MeshRenderer* object_component = scene.GetComponent<MeshRenderer>(id);
+    MeshComponent* mesh_component = object_component ? scene.GetComponent<MeshComponent>(object_component->meshId) : nullptr;
+    MaterialComponent* material_component = scene.GetComponent<MaterialComponent>(id);
+    RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
+    AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
+    ParticleEmitterComponent* particle_emitter_component = scene.GetComponent<ParticleEmitterComponent>(id);
+    MeshEmitterComponent* mesh_emitter_component = scene.GetComponent<MeshEmitterComponent>(id);
+    ForceFieldComponent* force_field_component = scene.GetComponent<ForceFieldComponent>(id);
+    LuaScriptComponent* script_component = scene.GetComponent<LuaScriptComponent>(id);
+    CameraComponent* camera_component = scene.GetComponent<CameraComponent>(id);
+    EnvironmentComponent* environment_component = scene.GetComponent<EnvironmentComponent>(id);
+    VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
 
     bool disable_translation = false;
     bool disable_rotation = false;
@@ -143,18 +149,18 @@ void PropertyPanel::UpdateInternal(Scene& p_scene) {
                                               &scale.x);
 
         bool dirty = false;
-        CommandType command_type{};
+        GizmoAction action;
         if (DrawVec3ControlDisabled(disable_translation, "translation", translation)) {
             dirty = true;
-            command_type = COMMAND_TYPE_ENTITY_TRANSLATE;
+            action = GizmoAction::Translate;
         }
         if (DrawVec3ControlDisabled(disable_rotation, "rotation", rotation)) {
             dirty = true;
-            command_type = COMMAND_TYPE_ENTITY_ROTATE;
+            action = GizmoAction::Rotate;
         }
         if (DrawVec3ControlDisabled(disable_scale, "scale", scale, 1.0f)) {
             dirty = true;
-            command_type = COMMAND_TYPE_ENTITY_SCALE;
+            action = GizmoAction::Scale;
         }
         if (dirty) {
             Matrix4x4f new_transform;
@@ -163,7 +169,7 @@ void PropertyPanel::UpdateInternal(Scene& p_scene) {
                                                     &scale.x,
                                                     glm::value_ptr(new_transform));
 
-            auto command = std::make_shared<EntityTransformCommand>(command_type, p_scene, id, old_transform, new_transform);
+            auto command = std::make_shared<EntityTransformCommand>(action, scene, id, old_transform, new_transform);
             m_editor.BufferCommand(command);
         }
     });
@@ -288,13 +294,13 @@ void PropertyPanel::UpdateInternal(Scene& p_scene) {
         }
     });
 
-    DrawComponent("Object", object_component, [&](MeshRendererComponent& p_object) {
-        bool hide = !(p_object.flags & MeshRendererComponent::FLAG_RENDERABLE);
-        bool cast_shadow = p_object.flags & MeshRendererComponent::FLAG_CAST_SHADOW;
+    DrawComponent("Object", object_component, [&](MeshRenderer& p_object) {
+        bool hide = !(p_object.flags & MeshRenderer::FLAG_RENDERABLE);
+        bool cast_shadow = p_object.flags & MeshRenderer::FLAG_CAST_SHADOW;
         ImGui::Checkbox("Hide", &hide);
         ImGui::Checkbox("Cast shadow", &cast_shadow);
-        p_object.flags = (hide ? 0 : MeshRendererComponent::FLAG_RENDERABLE);
-        p_object.flags |= (cast_shadow ? MeshRendererComponent::FLAG_CAST_SHADOW : 0);
+        p_object.flags = (hide ? 0 : MeshRenderer::FLAG_RENDERABLE);
+        p_object.flags |= (cast_shadow ? MeshRenderer::FLAG_CAST_SHADOW : 0);
     });
 
     DrawComponent("Mesh", mesh_component, [&](MeshComponent& mesh) {

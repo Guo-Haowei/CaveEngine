@@ -60,12 +60,14 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> std::optional<AssetMe
     auto extension = StringUtils::Extension(p_path);
 
     AssetType type = AssetType::Binary;
-    if (extension == ".png" || extension == ".jpg") {
+    if (extension == ".png" || extension == ".jpg" || extension == ".hdr") {
         type = AssetType::Image;
     } else if (extension == ".ttf") {
         type = AssetType::Binary;
     } else if (extension == ".sprite") {
         type = AssetType::SpriteSheet;
+    } else if (extension == ".tilemap") {
+        type = AssetType::TileMap;
     } else {
         return std::nullopt;
     }

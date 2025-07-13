@@ -54,8 +54,8 @@ void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, bool p_is
             if (ImGui::MenuItem("SpriteSheet")) {
                 asset_manager->CreateAsset(AssetType::SpriteSheet, p_path);
             }
-            if (ImGui::MenuItem("xxxx")) {
-
+            if (ImGui::MenuItem("TileMap")) {
+                asset_manager->CreateAsset(AssetType::TileMap, p_path);
             }
             ImGui::EndMenu();
         }
@@ -138,7 +138,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
                 auto handle = std::move(*_handle);
                 IAsset* asset = handle.Get();
                 if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-                    m_editor.context.selected_asset = asset;
+                    m_editor.CommandInspectAsset(handle.GetGuid());
                 } else if (is_file) {
                     ShowResourceToolTip(*handle.GetMeta(), *asset);
                 }
@@ -156,7 +156,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
     }
 }
 
-void FileSystemPanel::UpdateInternal(Scene&) {
+void FileSystemPanel::UpdateInternal(Scene*) {
     ListFile(m_root, "@res://");
 }
 

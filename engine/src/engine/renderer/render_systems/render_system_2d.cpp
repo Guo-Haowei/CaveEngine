@@ -5,17 +5,19 @@
 namespace my {
 
 void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
-    auto view = p_scene.View<TileMapComponent>();
+    auto view = p_scene.View<TileMapRenderer>();
     for (const auto [id, tileMap] : view) {
 
         // Should move tile map logic to somewhere else
         // But this is a editor only logic, we are not going to update it in actual game
-        if (tileMap.IsDirty()) {
-            tileMap.CreateRenderData();
-            tileMap.SetDirty(false);
-        }
+        // if (tileMap.IsDirty()) {
+        //    tileMap.SetDirty(false);
+        //}
 
-        if (tileMap.m_sprite.texture->gpu_texture) {
+        tileMap.CreateRenderData();
+
+        // if (tileMap.m_sprite.texture->gpu_texture)
+        {
             const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
 
             const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
@@ -28,7 +30,7 @@ void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
             draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
             // @TODO: ?
-            draw.texture = tileMap.m_sprite.texture->gpu_texture.get();
+            // draw.texture = tileMap.m_sprite.texture->gpu_texture.get();
 
             // @TODO: make a render command
             p_framedata.tile_maps.push_back(RenderCommand::From(draw));

@@ -13,7 +13,7 @@ public:
     void OnAttach() override;
 
 protected:
-    void UpdateInternal(Scene&) override;
+    void UpdateInternal(Scene*) override;
 
     void DropRegion(SpriteSheetAsset& p_sprite);
     void DrawSprite(SpriteSheetAsset& p_sprite);

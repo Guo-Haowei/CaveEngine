@@ -14,7 +14,7 @@ public:
     RenderGraphViewer(EditorLayer& p_editor);
 
 protected:
-    void UpdateInternal(Scene& p_scene) override;
+    void UpdateInternal(Scene* p_scene) override;
     void DrawNodes(const RenderGraph& p_graph);
 
     bool m_firstFrame{ true };

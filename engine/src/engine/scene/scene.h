@@ -21,7 +21,6 @@ namespace my {
     REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)             \
     REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)               \
     REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)                       \
-    REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)       \
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                     \
     REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)               \
     REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0)             \
@@ -35,7 +34,8 @@ namespace my {
     REGISTER_COMPONENT(ClothComponent, "World::ClothComponent", 0)                     \
     REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)                 \
     REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)         \
-    REGISTER_COMPONENT(TileMapComponent, "World::TileMapComponent", 0)
+    REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)                         \
+    REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)
 
 // @TODO: refactor
 struct PhysicsWorldContext;

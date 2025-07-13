@@ -27,13 +27,21 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
     const ImageAsset* image = handle.Get<ImageAsset>();
     DEV_ASSERT(image);
 
+    const uint32_t width = p_sprite.GetWidth();
+    const uint32_t height = p_sprite.GetHeight();
+    if (!width || !height) {
+        return;
+    }
+
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     ImVec2 cursor = ImGui::GetCursorScreenPos();
-    ImVec2 tile_size((float)image->width, (float)image->height);
+    ImVec2 tile_size((float)width, (float)height);
 
     ImGui::InvisibleButton("TileClickable", tile_size);  // enables interaction
     bool hovered = ImGui::IsItemHovered();
     bool clicked = ImGui::IsItemClicked();
+    unused(hovered);
+    unused(clicked);
 
     // Draw tileset
     draw_list->AddImage(
@@ -43,23 +51,17 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
         ImVec2(0, 0), ImVec2(1, 1),
         IM_COL32(255, 255, 255, 255));
 
-    const int sep_x = p_sprite.GetSeparation().x;
-    const int sep_y = p_sprite.GetSeparation().y;
+    const int num_col = p_sprite.GetCol();
+    const int num_row = p_sprite.GetRow();
 
-    if (sep_x <= 0 || sep_y <= 0) {
-        return;
-    }
-
-    const int num_col = static_cast<int>(tile_size.x / sep_x);
-    const int num_row = static_cast<int>(tile_size.y / sep_y);
+    const float cell_w = static_cast<float>(width) / num_col;
+    const float cell_h = static_cast<float>(height) / num_row;
 
     if (hovered && clicked) {
         ImVec2 mouse_pos = ImGui::GetMousePos();
-        float cellWidth = tile_size.x / num_col;
-        float cellHeight = tile_size.y / num_row;
 
-        int local_x = (int)((mouse_pos.x - cursor.x) / cellWidth);
-        int local_y = (int)((mouse_pos.y - cursor.y) / cellHeight);
+        int local_x = (int)((mouse_pos.x - cursor.x) / cell_w);
+        int local_y = (int)((mouse_pos.y - cursor.y) / cell_h);
 
         // Clamp to valid range
         if (local_x >= 0 && local_x < num_col && local_y >= 0 && local_y < num_row) {
@@ -68,13 +70,13 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
         }
     }
 
-    for (int dx = sep_x; dx < tile_size.x; dx += sep_x) {
+    for (float dx = cell_w; dx < tile_size.x; dx += cell_w) {
         draw_list->AddLine(ImVec2(cursor.x + dx, cursor.y),
                            ImVec2(cursor.x + dx, cursor.y + tile_size.y),
                            IM_COL32(255, 255, 255, 255));
     }
 
-    for (int dy = sep_y; dy < tile_size.y; dy += sep_y) {
+    for (float dy = cell_h; dy < tile_size.y; dy += cell_h) {
         draw_list->AddLine(ImVec2(cursor.x, cursor.y + dy),
                            ImVec2(cursor.x + tile_size.x, cursor.y + dy),
                            IM_COL32(255, 255, 255, 255));
@@ -90,9 +92,7 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
         draw_list->AddRectFilled(pMin, pMax, IM_COL32(0, 255, 0, 100));  // green transparent overlay
         draw_list->AddRect(pMin, pMax, IM_COL32(0, 255, 0, 255));        // solid border
 
-        m_editor.context.selected_tile = m_selected_x + m_selected_y * 3 + 1;
     } else {
-        m_editor.context.selected_tile = -1;
     }
 }
 
@@ -103,12 +103,13 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
             //     //ImGui::Text("Image: %s", p_sprite.image_handle.entry->metadata.path.c_str());
             // }
 
-            Vector2i sep = p_sprite.GetSeparation();
-
-            const bool x_dirty = ImGui::InputInt("Separation X", &sep.x);
-            const bool y_dirty = ImGui::InputInt("Separation Y", &sep.y);
-            if (x_dirty || y_dirty) {
-                p_sprite.SetSeparation(sep);
+            int column = p_sprite.GetCol();
+            if (ImGui::InputInt("column", &column)) {
+                p_sprite.SetCol(column);
+            }
+            int row = p_sprite.GetRow();
+            if (ImGui::InputInt("row", &row)) {
+                p_sprite.SetRow(row);
             }
 
             // ImGui::Checkbox("Use Texture Region", &use_region);
@@ -175,8 +176,8 @@ void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
     ImGui::EndChild();
 }
 
-void AssetInspector::UpdateInternal(Scene&) {
-    IAsset* asset = m_editor.context.selected_asset;
+void AssetInspector::UpdateInternal(Scene*) {
+    IAsset* asset = nullptr;
     if (!asset) {
         return;
     }
