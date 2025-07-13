@@ -6,7 +6,7 @@
 #include "engine/drivers/windows/dialog.h"
 #include "engine/scene/scene_serialization.h"
 // @TODO: refactor
-#include "engine/runtime/scene_manager.h"
+// #include "engine/runtime/scene_manager.h"
 
 namespace my {
 
@@ -32,7 +32,9 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
 
     p_scene.AttachChild(id, m_parent.IsValid() ? m_parent : p_scene.m_root);
     m_editor->SelectEntity(id);
-    SceneManager::GetSingleton().BumpRevision();
+
+    CRASH_NOW();
+    // SceneManager::GetSingleton().BumpRevision();
 }
 
 /// EditorCommandAddComponent
@@ -72,7 +74,8 @@ void OpenProjectCommand::Execute(Scene&) {
     // @TODO: validate
     DVAR_SET_STRING(scene, path);
 
-    SceneManager::GetSingleton().RequestScene(path);
+    CRASH_NOW();
+    //SceneManager::GetSingleton().RequestScene(path);
 }
 
 /// SaveProjectCommand

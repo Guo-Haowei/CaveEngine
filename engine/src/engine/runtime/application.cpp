@@ -20,7 +20,7 @@
 #include "engine/runtime/layer.h"
 #include "engine/runtime/module_registry.h"
 #include "engine/runtime/render_system.h"
-#include "engine/runtime/scene_manager.h"
+#include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 #include "engine/scene/scene.h"
 
@@ -119,7 +119,7 @@ auto Application::SetupModules() -> Result<void> {
         }
         m_scriptManager = *res;
     }
-    m_sceneManager = new SceneManager();
+    m_sceneManager = CreateSceneManager();
     m_physicsManager = CreatePhysicsManager();
     m_graphicsManager = CreateGraphicsManager();
     m_displayServer = DisplayManager::Create();
@@ -310,9 +310,11 @@ bool Application::MainLoop() {
         m_layers[i]->OnUpdate(timestep);
     }
 
-    m_activeScene->Update(timestep);
-
-    m_renderSystem->RenderFrame(*m_activeScene);
+    Scene* scene = m_sceneManager->GetActiveScene();
+    if (scene) {
+        scene->Update(timestep);
+        m_renderSystem->RenderFrame(*scene);
+    }
 
     // @TODO: refactor this
     if (m_imguiManager) {
@@ -326,13 +328,13 @@ bool Application::MainLoop() {
         ImGui::Render();
     }
 
-    if (m_state == State::SIM) {
-        m_scriptManager->Update(*m_activeScene, timestep);
-        m_physicsManager->Update(*m_activeScene, timestep);
+    if (scene && m_state == State::SIM) {
+        m_scriptManager->Update(*scene, timestep);
+        m_physicsManager->Update(*scene, timestep);
     }
 
     // === Rendering Phase ===
-    m_graphicsManager->Update(*m_activeScene);
+    m_graphicsManager->Update(scene);
 
     // === End Frame ===
     m_inputManager->EndFrame();

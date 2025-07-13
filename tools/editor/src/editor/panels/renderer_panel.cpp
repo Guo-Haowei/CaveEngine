@@ -28,7 +28,7 @@ static void CollapseWindow(const std::string& p_window_name, std::function<void(
     }
 }
 
-void RendererPanel::UpdateInternal(Scene&) {
+void RendererPanel::UpdateInternal(Scene*) {
     ImGui::Text("Debug");
     ImGui::Text("Frame rate:%.2f", ImGui::GetIO().Framerate);
     ImGui::Checkbox("show editor", (bool*)DVAR_GET_POINTER(show_editor));

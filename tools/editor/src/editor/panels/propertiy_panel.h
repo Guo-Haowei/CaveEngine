@@ -8,7 +8,7 @@ public:
     PropertyPanel(EditorLayer& p_editor) : EditorWindow("Properties", p_editor) {}
 
 protected:
-    void UpdateInternal(Scene& p_scene) override;
+    void UpdateInternal(Scene* p_scene) override;
 };
 
 }  // namespace my

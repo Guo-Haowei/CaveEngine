@@ -8,7 +8,7 @@ class MenuBar : public EditorItem {
 public:
     MenuBar(EditorLayer& p_editor) : EditorItem(p_editor) {}
 
-    void Update(Scene& p_scene) override;
+    void Update(Scene* p_scene) override;
 
 private:
     void MainMenuBar();

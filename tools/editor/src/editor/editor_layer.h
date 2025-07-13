@@ -89,10 +89,10 @@ public:
     EditorContext context;
 
 private:
-    void DockSpace(Scene& p_scene);
+    void DockSpace(Scene* p_scene);
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
 
-    void FlushCommand(Scene& p_scene);
+    void FlushCommand(Scene* p_scene);
 
     std::shared_ptr<MenuBar> m_menuBar;
     std::shared_ptr<Viewer> m_viewer;

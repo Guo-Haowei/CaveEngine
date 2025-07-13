@@ -8,7 +8,7 @@ public:
     HierarchyPanel(EditorLayer& editor) : EditorWindow("Scene", editor) {}
 
 protected:
-    void UpdateInternal(Scene& scene) override;
+    void UpdateInternal(Scene* scene) override;
 
 private:
     void DrawPopup(Scene& scene);

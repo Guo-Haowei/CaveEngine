@@ -21,7 +21,7 @@ public:
     bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
 
 protected:
-    void UpdateInternal(Scene& p_scene) override;
+    void UpdateInternal(Scene* p_scene) override;
 
     std::optional<Vector2f> CursorToNDC(Vector2f p_point) const;
 

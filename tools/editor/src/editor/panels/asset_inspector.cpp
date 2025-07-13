@@ -178,7 +178,7 @@ void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
     ImGui::EndChild();
 }
 
-void AssetInspector::UpdateInternal(Scene&) {
+void AssetInspector::UpdateInternal(Scene*) {
     IAsset* asset = m_editor.context.selected_asset;
     if (!asset) {
         return;

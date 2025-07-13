@@ -4,7 +4,6 @@
 #include <imnodes/imnodes.h>
 
 #include "editor/panels/asset_inspector.h"
-#include "editor/panels/content_browser.h"
 #include "editor/panels/file_system_panel.h"
 #include "editor/panels/hierarchy_panel.h"
 #include "editor/panels/log_panel.h"
@@ -20,7 +19,7 @@
 #include "engine/runtime/input_manager.h"
 #include "engine/runtime/layer.h"
 #include "engine/runtime/physics_manager.h"
-#include "engine/runtime/scene_manager.h"
+#include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 
 // @NOTE: include dvars at last
@@ -60,9 +59,8 @@ EditorLayer::EditorLayer() : Layer("EditorLayer") {
     AddPanel(m_viewer);
     AddPanel(std::make_shared<AssetInspector>(*this));
     AddPanel(std::make_shared<RenderGraphViewer>(*this));
-    AddPanel(std::make_shared<FileSystemPanel>(*this));
 #if !USING(PLATFORM_WASM)
-    AddPanel(std::make_shared<ContentBrowser>(*this));
+    AddPanel(std::make_shared<FileSystemPanel>(*this));
 #endif
 
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
@@ -174,11 +172,12 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 
 void EditorLayer::SelectEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
-    Scene* scene = m_app->GetActiveScene();
-    scene->m_selected = m_selected;
+    CRASH_NOW();
+    //Scene* scene = m_app->GetActiveScene();
+    //scene->m_selected = m_selected;
 }
 
-void EditorLayer::DockSpace(Scene& p_scene) {
+void EditorLayer::DockSpace(Scene* p_scene) {
     ImGui::GetMainViewport();
 
     static bool opt_padding = false;
@@ -224,7 +223,9 @@ void EditorLayer::DockSpace(Scene& p_scene) {
 void EditorLayer::OnUpdate(float p_timestep) {
     context.timestep = p_timestep;
 
-    Scene* scene = SceneManager::GetSingleton().GetScenePtr();
+// Scene* scene = SceneManager::GetSingleton().GetScenePtr();
+// Scene* scene = nullptr;
+    #if 0
     switch (m_app->GetState()) {
         case Application::State::EDITING: {
             m_app->SetActiveScene(scene);
@@ -260,18 +261,17 @@ void EditorLayer::OnUpdate(float p_timestep) {
             CRASH_NOW();
             break;
     }
+    #endif
 }
 
 void EditorLayer::OnImGuiRender() {
-    Scene* scene = m_app->GetActiveScene();
-    DEV_ASSERT(scene);
+    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
 
-    // @TODO: fix this
-    DockSpace(*scene);
+    DockSpace(scene);
     for (auto& it : m_panels) {
-        it->Update(*scene);
+        it->Update(scene);
     }
-    FlushCommand(*scene);
+    FlushCommand(scene);
 }
 
 bool EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
@@ -331,7 +331,10 @@ void EditorLayer::RemoveEntity(ecs::Entity p_target) {
     BufferCommand(command);
 }
 
-void EditorLayer::FlushCommand(Scene& p_scene) {
+void EditorLayer::FlushCommand(Scene* p_scene) {
+    if (p_scene == nullptr) {
+        return;
+    }
     while (!m_commandBuffer.empty()) {
         auto task = m_commandBuffer.front();
         m_commandBuffer.pop_front();
@@ -339,7 +342,7 @@ void EditorLayer::FlushCommand(Scene& p_scene) {
             m_undoStack.PushCommand(std::move(undo_command));
             continue;
         }
-        task->Execute(p_scene);
+        task->Execute(*p_scene);
     }
 }
 

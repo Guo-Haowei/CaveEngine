@@ -13,7 +13,7 @@ public:
     void OnAttach() override;
 
 protected:
-    void UpdateInternal(Scene&) override;
+    void UpdateInternal(Scene*) override;
 
     void ListFile(const std::filesystem::path& p_path, const char* p_name_override = nullptr);
 

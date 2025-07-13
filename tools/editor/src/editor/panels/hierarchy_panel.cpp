@@ -4,7 +4,6 @@
 #include <imgui/imgui_internal.h>
 
 #include "editor/editor_layer.h"
-#include "engine/runtime/scene_manager.h"
 
 namespace my {
 using ecs::Entity;
@@ -179,13 +178,15 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
     return true;
 }
 
-void HierarchyPanel::UpdateInternal(Scene& p_scene) {
-    // @TODO: on scene change, rebuild hierarchy
-    HierarchyCreator creator(m_editor);
+void HierarchyPanel::UpdateInternal(Scene* p_scene) {
+    // @TODO: don't rebuild it every frame
+    if (p_scene) {
+        HierarchyCreator creator(m_editor);
 
-    DrawPopup(p_scene);
+        DrawPopup(*p_scene);
 
-    creator.Update(p_scene);
+        creator.Update(*p_scene);
+    }
 }
 
 void HierarchyPanel::DrawPopup(Scene&) {

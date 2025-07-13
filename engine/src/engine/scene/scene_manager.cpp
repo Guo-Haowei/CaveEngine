@@ -18,11 +18,11 @@ namespace fs = std::filesystem;
 
 auto SceneManager::InitializeImpl() -> Result<void> {
     m_scene = m_app->CreateInitialScene();
-    BumpRevision();
+    // BumpRevision();
 
     const std::string& path = DVAR_GET_STRING(scene);
     if (!path.empty()) {
-        RequestScene(path);
+        // RequestScene(path);
     }
 
     return Result<void>();
@@ -67,11 +67,12 @@ void SceneManager::Update() {
         m_lastRevision = m_revision;
     }
 }
+//
+// void SceneManager::EnqueueSceneLoadingTask(Scene* p_scene, bool p_replace) {
+//    m_loadingQueue.push({ p_replace, p_scene });
+//}
 
-void SceneManager::EnqueueSceneLoadingTask(Scene* p_scene, bool p_replace) {
-    m_loadingQueue.push({ p_replace, p_scene });
-}
-
+#if 0
 void SceneManager::RequestScene(std::string_view p_path) {
     fs::path path{ p_path };
 
@@ -95,5 +96,6 @@ void SceneManager::RequestScene(std::string_view p_path) {
         // });
     }
 }
+#endif
 
 }  // namespace my

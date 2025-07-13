@@ -12,7 +12,6 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
-#include "engine/runtime/scene_manager.h"
 
 namespace my {
 
@@ -304,8 +303,14 @@ bool Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_event) {
     return false;
 }
 
-void Viewer::UpdateInternal(Scene& p_scene) {
+void Viewer::UpdateInternal(Scene* p_scene) {
     DrawToolBar();
+
+    if (!p_scene) {
+        return;
+    }
+
+    Scene& scene = *p_scene;
 
     CameraComponent& camera = m_editor.context.GetActiveCamera();
 
@@ -314,14 +319,6 @@ void Viewer::UpdateInternal(Scene& p_scene) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(EditorItem::DRAG_DROP_ENV)) {
             IM_ASSERT(payload->DataSize == sizeof(const char*));
             char* dragged_data = *(char**)payload->Data;
-
-            // @TODO: no strdup and free
-            free(dragged_data);
-        }
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(EditorItem::DRAG_DROP_IMPORT)) {
-            IM_ASSERT(payload->DataSize == sizeof(const char*));
-            char* dragged_data = *(char**)payload->Data;
-            SceneManager::GetSingleton().RequestScene(dragged_data);
 
             // @TODO: no strdup and free
             free(dragged_data);
@@ -360,9 +357,9 @@ void Viewer::UpdateInternal(Scene& p_scene) {
         }
     }
 
-    GetActiveTool()->Process(p_scene, camera);
+    GetActiveTool()->Process(scene, camera);
 
-    DrawGui(p_scene, camera);
+    DrawGui(scene, camera);
 
     m_inputState.Reset();
 }

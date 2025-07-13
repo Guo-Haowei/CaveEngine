@@ -50,7 +50,7 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
     }
 
     // file
-    //serialize::SerializeYamlContext ctx;
+    // serialize::SerializeYamlContext ctx;
 
     YAML::Emitter out;
     out << YAML::BeginMap;
@@ -63,7 +63,7 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
 }
 
 auto TileMapAsset::LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void> {
-    //serialize::SerializeYamlContext ctx;
+    // serialize::SerializeYamlContext ctx;
     unused(p_node);
 
     return Result<void>();
