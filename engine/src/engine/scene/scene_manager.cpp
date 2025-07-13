@@ -13,16 +13,19 @@
 
 namespace my {
 
+extern Scene* CreateTheAviatorScene();
+
 using ecs::Entity;
 namespace fs = std::filesystem;
 
-auto SceneManager::InitializeImpl() -> Result<void> {
-    // BumpRevision();
+Scene* SceneManager::CreateDefaultScene() {
+    return CreateTheAviatorScene();
+}
 
-    const std::string& path = DVAR_GET_STRING(scene);
-    if (!path.empty()) {
-        // RequestScene(path);
-    }
+auto SceneManager::InitializeImpl() -> Result<void> {
+    m_active_scene = CreateDefaultScene();
+
+    BumpRevision();
 
     return Result<void>();
 }
@@ -40,11 +43,11 @@ bool SceneManager::TrySwapScene() {
         auto task = queued_scene.front();
         queued_scene.pop();
         DEV_ASSERT(task.scene);
-        if (m_scene && !task.replace) {
-            m_scene->Merge(*task.scene);
-            m_scene->Update(0.0f);
+        if (m_active_scene && !task.replace) {
+            m_active_scene->Merge(*task.scene);
+            m_active_scene->Update(0.0f);
         } else {
-            m_scene = task.scene;
+            m_active_scene = task.scene;
         }
         ++m_revision;
     }
@@ -58,18 +61,24 @@ void SceneManager::Update() {
     TrySwapScene();
 
     if (m_lastRevision < m_revision) {
-        Timer timer;
-        auto event = std::make_shared<SceneChangeEvent>(m_scene);
-        LOG_WARN("offload p_scene properly");
-        m_app->GetEventQueue().DispatchEvent(event);
-        LOG("[SceneManager] Detected p_scene changed from revision {} to revision {}, took {}", m_lastRevision, m_revision, timer.GetDurationString());
-        m_lastRevision = m_revision;
+        if (m_active_scene) {
+            Timer timer;
+            auto event = std::make_shared<SceneChangeEvent>(m_active_scene);
+            LOG_WARN("offload p_scene properly");
+            m_app->GetEventQueue().DispatchEvent(event);
+            LOG("[SceneManager] Detected p_scene changed from revision {} to revision {}, took {}", m_lastRevision, m_revision, timer.GetDurationString());
+            m_lastRevision = m_revision;
+        }
     }
 }
 //
 // void SceneManager::EnqueueSceneLoadingTask(Scene* p_scene, bool p_replace) {
 //    m_loadingQueue.push({ p_replace, p_scene });
 //}
+
+Scene* SceneManager::GetActiveScene() const {
+    return m_active_scene;
+}
 
 #if 0
 void SceneManager::RequestScene(std::string_view p_path) {

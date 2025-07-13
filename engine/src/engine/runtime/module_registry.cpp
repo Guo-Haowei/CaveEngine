@@ -188,7 +188,7 @@ public:
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}
 
-    Scene* GetActiveScene() override { return nullptr; }
+    Scene* GetActiveScene() const override { return nullptr; }
 
     void Update() override {}
 };

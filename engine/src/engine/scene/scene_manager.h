@@ -52,21 +52,23 @@ public:
     void FinalizeImpl() override;
     void Update();
 
+    Scene* GetActiveScene() const override;
 #if 0
     void RequestScene(std::string_view p_path);
 
-    Scene* GetScenePtr() const { return m_scene; }
 
     uint32_t GetRevision() const { return m_revision; }
-    void BumpRevision() { ++m_revision; }
 #endif
+    void BumpRevision() { ++m_revision; }
+
+    virtual Scene* CreateDefaultScene();
 
     // void EnqueueSceneLoadingTask(Scene* p_scene, bool p_replace);
 
-private:
+protected:
     bool TrySwapScene();
 
-    Scene* m_scene = nullptr;
+    Scene* m_active_scene = nullptr;
 
     uint32_t m_revision = 0;
     uint32_t m_lastRevision = 0;

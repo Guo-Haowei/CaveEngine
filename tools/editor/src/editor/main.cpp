@@ -5,6 +5,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/scene_manager_interface.h"
+#include "engine/scene/scene_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
 #define DEFINE_DVAR
@@ -24,7 +25,8 @@ extern Scene* CreatePhysicsTestScene();
 
 class Editor : public Application {
 public:
-    Editor(const ApplicationSpec& p_spec) : Application(p_spec, Application::Type::EDITOR) {}
+    Editor(const ApplicationSpec& p_spec)
+        : Application(p_spec, Application::Type::EDITOR) {}
 
     void InitLayers() override {
         m_editorLayer = std::make_unique<EditorLayer>();
@@ -73,44 +75,25 @@ Application* CreateApplication() {
     return new Editor(spec);
 }
 
-class EditorSceneManager : public ISceneManager {
+class EditorSceneManager : public SceneManager {
 public:
-    EditorSceneManager()
-        : ISceneManager("EditorSceneManager") {}
-
-    auto InitializeImpl() -> Result<void> override;
-
-    void FinalizeImpl() override {}
-
-    Scene* GetActiveScene() override;
-
-    void Update() override;
-
-protected:
-    Scene* m_active_scene = nullptr;
-};
-
-auto EditorSceneManager::InitializeImpl() -> Result<void> {
-    auto scene = DVAR_GET_STRING(default_scene);
-    if (scene == "pbr_test") {
-        m_active_scene = CreatePbrTestScene();
-    } else if (scene == "physics_test") {
-        m_active_scene = CreatePhysicsTestScene();
-    } else if (scene == "the_aviator") {
-        m_active_scene = CreateTheAviatorScene();
-    } else if (scene == "box") {
-        m_active_scene = CreateBoxScene();
+    virtual Scene* CreateDefaultScene() override {
+        auto scene = DVAR_GET_STRING(default_scene);
+        if (scene == "pbr_test") {
+            return CreatePbrTestScene();
+        }
+        if (scene == "physics_test") {
+            return CreatePhysicsTestScene();
+        }
+        if (scene == "the_aviator") {
+            return CreateTheAviatorScene();
+        }
+        if (scene == "box") {
+            return CreateBoxScene();
+        }
+        return nullptr;
     }
-
-    return Result<void>();
-}
-
-Scene* EditorSceneManager::GetActiveScene() {
-    return m_active_scene;
-}
-
-void EditorSceneManager::Update() {
-}
+};
 
 }  // namespace my
 

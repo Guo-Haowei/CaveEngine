@@ -87,7 +87,7 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     IAssetLoader::RegisterLoader(".yaml", TextSceneLoader::CreateLoader);
 
 #if USING(USE_TINYGLTF_LOADER)
-    IAssetLoader::RegisterLoader(".gltf", TinyGLTFLoader::CreateLoader);
+    // IAssetLoader::RegisterLoader(".gltf", TinyGLTFLoader::CreateLoader);
 #elif USING(USE_ASSIMP_LOADER)
     IAssetLoader::RegisterLoader(".gltf", AssimpAssetLoader::CreateLoader);
 #endif

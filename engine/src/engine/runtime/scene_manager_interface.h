@@ -14,7 +14,7 @@ public:
     ISceneManager(std::string_view p_name)
         : Module(p_name) {}
 
-    virtual Scene* GetActiveScene() = 0;
+    virtual Scene* GetActiveScene() const = 0;
     virtual void Update() = 0;
 
 #if 0
