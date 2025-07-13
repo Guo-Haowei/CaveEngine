@@ -7,13 +7,18 @@
 
 namespace my {
 
-void SpriteSheetAsset::SetSeparation(const Vector2i& p_sep) {
-    if (p_sep.x < 1 || p_sep.y < 1 || p_sep == m_separation) {
-        return;
-    }
+void SpriteSheetAsset::SetRow(uint32_t p_row) {
+    if (p_row == 0) return;
+    if (p_row == m_row) return;
+    m_row = p_row;
+    UpdateFrames();
+}
 
-    m_separation = p_sep;
-    // @TODO: update frames
+void SpriteSheetAsset::SetCol(uint32_t p_col) {
+    if (p_col == 0) return;
+    if (p_col == m_column) return;
+    m_column = p_col;
+    UpdateFrames();
 }
 
 void SpriteSheetAsset::SetHandle(AssetHandle&& p_handle) {
@@ -26,8 +31,8 @@ void SpriteSheetAsset::SetHandle(AssetHandle&& p_handle) {
             m_image = guid;
         }
 
-        m_dimension = { image->width,
-                        image->height };
+        m_width = image->width;
+        m_height = image->height;
     }
 }
 
@@ -36,10 +41,32 @@ void SpriteSheetAsset::SetImage(const std::string& p_path) {
     if (handle) {
         SetHandle(std::move(*handle));
     }
+
+    UpdateFrames();
 }
 
 std::vector<Guid> SpriteSheetAsset::GetDependencies() const {
     return { m_image };
+}
+
+void SpriteSheetAsset::UpdateFrames() {
+    DEV_ASSERT(m_row > 0 && m_column > 0);
+    m_frames.clear();
+    m_frames.reserve(m_row * m_column);
+
+    const float dx = static_cast<float>(m_width) / m_column;
+    const float dy = static_cast<float>(m_height) / m_row;
+
+    for (uint32_t y = 0; y < m_row; ++y) {
+        for (uint32_t x = 0; x < m_column; ++x) {
+            const float x_min = x * dx;
+            const float y_min = y * dy;
+            const float x_max = (x + 1) * dx;
+            const float y_max = (y + 1) * dy;
+
+            m_frames.push_back(Rect({ x_min, y_min }, { x_max, y_max }));
+        }
+    }
 }
 
 auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
@@ -58,42 +85,24 @@ auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<v
 
     out << YAML::Key << "image" << YAML::Value << m_image.ToString();
 
-    out << YAML::Key << "dimension" << YAML::Value;
-    serialize::SerializeYaml(out, m_dimension, ctx);
+    out << YAML::Key << "width" << YAML::Value;
+    serialize::SerializeYaml(out, m_width, ctx);
 
-    out << YAML::Key << "separation" << YAML::Value;
-    serialize::SerializeYaml(out, m_separation, ctx);
+    out << YAML::Key << "height" << YAML::Value;
+    serialize::SerializeYaml(out, m_height, ctx);
 
-    out << YAML::Key << "offset" << YAML::Value;
-    serialize::SerializeYaml(out, m_offset, ctx);
+    out << YAML::Key << "row" << YAML::Value;
+    serialize::SerializeYaml(out, m_row, ctx);
+    out << YAML::Key << "column" << YAML::Value;
+    serialize::SerializeYaml(out, m_column, ctx);
 
-    out << YAML::Key << "frames" << YAML::Value << YAML::BeginSeq;
-    for (const Rect& rect : m_frames) {
-        serialize::SerializeYaml(out, rect, ctx);
-    }
     out << YAML::EndSeq;
     out << YAML::EndMap;
 
     return serialize::SaveYaml(p_meta.path, out);
 }
 
-auto SpriteSheetAsset::LoadFromDiskV0(const YAML::Node& p_node) -> Result<void> {
-    serialize::SerializeYamlContext ctx;
-
-    auto res = Guid::Parse(p_node["image_id"].as<std::string>());
-    if (!res) {
-        return HBN_ERROR(res.error());
-    }
-
-    m_image = *res;
-    serialize::DeserializeYaml(p_node["separation"], m_separation, ctx);
-    serialize::DeserializeYaml(p_node["offset"], m_offset, ctx);
-
-    return Result<void>();
-}
-
-// @TODO: make context a serializer
-auto SpriteSheetAsset::LoadFromDiskV1(const YAML::Node& p_node) -> Result<void> {
+auto SpriteSheetAsset::LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void> {
     serialize::SerializeYamlContext ctx;
 
     auto res = Guid::Parse(p_node["image"].as<std::string>());
@@ -102,9 +111,10 @@ auto SpriteSheetAsset::LoadFromDiskV1(const YAML::Node& p_node) -> Result<void> 
     }
 
     m_image = *res;
-    serialize::DeserializeYaml(p_node["separation"], m_separation, ctx);
-    serialize::DeserializeYaml(p_node["offset"], m_offset, ctx);
-    serialize::DeserializeYaml(p_node["dimension"], m_dimension, ctx);
+    serialize::DeserializeYaml(p_node["row"], m_row, ctx);
+    serialize::DeserializeYaml(p_node["column"], m_column, ctx);
+    serialize::DeserializeYaml(p_node["width"], m_width, ctx);
+    serialize::DeserializeYaml(p_node["height"], m_height, ctx);
 
     return Result<void>();
 }
@@ -120,10 +130,9 @@ auto SpriteSheetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void>
 
     switch (version) {
         case 1:
-            LoadFromDiskV1(node);
-            break;
+            [[fallthrough]];
         default:
-            LoadFromDiskV0(node);
+            LoadFromDiskCurrent(node);
             break;
     }
 
@@ -132,7 +141,7 @@ auto SpriteSheetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void>
     if (handle) {
         SetHandle(std::move(*handle));
     }
-    // @TODO: update frames
+    UpdateFrames();
 
     return Result<void>();
 }

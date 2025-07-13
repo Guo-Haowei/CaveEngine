@@ -3,7 +3,6 @@
 #include "asset_interface.h"
 
 #include "engine/math/box.h"
-#include "engine/math/geomath.h"
 
 // clang-format off
 namespace YAML { class Node; }
@@ -13,6 +12,8 @@ namespace my {
 
 class SpriteSheetAsset : public IAsset {
 public:
+    static constexpr const int VERSION = 2;
+
     SpriteSheetAsset()
         : IAsset(AssetType::SpriteSheet) {}
 
@@ -24,24 +25,27 @@ public:
 
     AssetHandle& GetHandle() { return m_image_handle; }
 
-    const Vector2i& GetSeparation() const { return m_separation; }
-
-    void SetSeparation(const Vector2i& p_sep);
-
     void SetImage(const std::string& p_path);
 
-    static constexpr const int VERSION = 1;
+    const uint32_t GetRow() const { return m_row; }
+    const uint32_t GetCol() const { return m_column; }
+    void SetRow(uint32_t p_row);
+    void SetCol(uint32_t p_col);
+
+    const uint32_t GetWidth() const { return m_width; }
+    const uint32_t GetHeight() const { return m_height; }
 
 private:
-    auto LoadFromDiskV0(const YAML::Node& p_node) -> Result<void>;
-    auto LoadFromDiskV1(const YAML::Node& p_node) -> Result<void>;
+    auto LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void>;
 
     void SetHandle(AssetHandle&& p_handle);
+    void UpdateFrames();
 
     Guid m_image;
-    Vector2i m_dimension{ 0, 0 };
-    Vector2i m_separation{ 16, 16 };
-    Vector2i m_offset{ Vector2i::Zero };
+    uint32_t m_width = 0;
+    uint32_t m_height = 0;
+    uint32_t m_row = 1;
+    uint32_t m_column = 1;
 
     /// Non serialized
     std::vector<Rect> m_frames;  // frames are calculated
