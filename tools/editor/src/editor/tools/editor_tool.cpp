@@ -26,12 +26,6 @@ void EditorTool::Update(Scene* p_scene) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
-    bool show_editor = DVAR_GET_BOOL(show_editor);
-    if (show_editor) {
-        Matrix4x4f identity(1.0f);
-        ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XZ);
-    }
-
     if (p_scene) {
         ecs::Entity id = m_editor.GetSelectedEntity();
         TransformComponent* transform_component = p_scene->GetComponent<TransformComponent>(id);
@@ -61,7 +55,6 @@ void EditorTool::Update(Scene* p_scene) {
             }
         };
 
-        // @TODO: fix
         switch (m_state) {
             case GizmoAction::Translate:
                 draw_gizmo(ImGuizmo::TRANSLATE, m_state);
@@ -77,7 +70,12 @@ void EditorTool::Update(Scene* p_scene) {
         }
     }
 
+    // @TODO: move show_editor as viewer attribute
+    const bool show_editor = DVAR_GET_BOOL(show_editor);
     if (show_editor) {
+        Matrix4x4f identity(1.0f);
+        ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XZ);
+
         const float size = 120.f;
         const auto& min = m_viewer->GetCanvasMin();
         ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
@@ -122,12 +120,6 @@ bool EditorTool::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
     }
 
     return false;
-}
-
-void EditorTool::OnEnter() {
-}
-
-void EditorTool::OnExit() {
 }
 
 #if 0

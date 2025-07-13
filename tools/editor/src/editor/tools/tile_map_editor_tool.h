@@ -31,7 +31,7 @@ public:
 
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
 
-    void OnEnter() override;
+    void OnEnter(const Guid& p_guid) override;
     void OnExit() override;
 
     void Update(Scene* p_scene) override;
@@ -43,6 +43,7 @@ public:
 protected:
     Viewer* m_viewer;
 
+    Guid m_tile_map_guid;
     std::vector<TileMapEditCommand> m_commands;
 };
 

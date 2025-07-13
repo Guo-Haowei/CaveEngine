@@ -68,7 +68,9 @@ bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event
     return false;
 }
 
-void TileMapEditor::OnEnter() {
+void TileMapEditor::OnEnter(const Guid& p_guid) {
+    m_tile_map_guid = p_guid;
+    // @TODO: create a dummy scene
 }
 
 void TileMapEditor::OnExit() {

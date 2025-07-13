@@ -94,7 +94,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             ImGui::CloseCurrentPopup();
         }
         if (ImGui::MenuItem("Script")) {
-            m_editor.AddComponent(ComponentType::SCRIPT, id);
+            m_editor.CommandAddComponent(ComponentType::Script, id);
         }
         ImGui::EndPopup();
     }

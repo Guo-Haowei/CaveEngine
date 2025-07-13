@@ -31,7 +31,6 @@ struct EditorContext {
 
     // THIS IS BAD
     // Should never use raw pointer
-    IAsset* selected_asset = nullptr;
     std::string drag_payload;
 };
 
@@ -53,9 +52,10 @@ public:
     void SetDisplayedImage(uint64_t p_image) { m_displayedImage = p_image; }
 
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
-    void AddComponent(ComponentType p_type, ecs::Entity p_target);
-    void AddEntity(EntityType p_type, ecs::Entity p_parent);
-    void RemoveEntity(ecs::Entity p_target);
+    void CommandInspectAsset(const Guid& p_guid);
+    void CommandAddComponent(ComponentType p_type, ecs::Entity p_target);
+    void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
+    void CommandRemoveEntity(ecs::Entity p_target);
 
     UndoStack& GetUndoStack() { return m_undoStack; }
 
@@ -67,7 +67,7 @@ public:
 
     EditorContext context;
 
-    void SetTool(ToolType p_type);
+    void OpenTool(ToolType p_type, const Guid& p_guid);
     ITool* GetActiveTool();
 
 private:

@@ -136,7 +136,8 @@ EditorLayer::EditorLayer()
 void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
-    SetTool(ToolType::Edit);
+    Guid dummy;
+    OpenTool(ToolType::Edit, dummy);
 
     m_app->GetInputManager()->PushInputHandler(this);
     m_app->GetInputManager()->PushInputHandler(m_viewer.get());
@@ -302,27 +303,29 @@ void EditorLayer::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) 
     m_commandBuffer.emplace_back(std::move(p_command));
 }
 
-void EditorLayer::AddComponent(ComponentType p_type, ecs::Entity p_target) {
+void EditorLayer::CommandInspectAsset(const Guid& p_guid) {
+    auto command = std::make_shared<EditorInspectAssetCommand>(p_guid);
+    BufferCommand(command);
+}
+
+void EditorLayer::CommandAddComponent(ComponentType p_type, ecs::Entity p_target) {
     auto command = std::make_shared<EditorCommandAddComponent>(p_type);
     command->target = p_target;
     BufferCommand(command);
 }
 
-void EditorLayer::AddEntity(EntityType p_type, ecs::Entity p_parent) {
+void EditorLayer::CommandAddEntity(EntityType p_type, ecs::Entity p_parent) {
     auto command = std::make_shared<EditorCommandAddEntity>(p_type);
     command->m_parent = p_parent;
     BufferCommand(command);
 }
 
-void EditorLayer::RemoveEntity(ecs::Entity p_target) {
+void EditorLayer::CommandRemoveEntity(ecs::Entity p_target) {
     auto command = std::make_shared<EditorCommandRemoveEntity>(p_target);
     BufferCommand(command);
 }
 
 void EditorLayer::FlushCommand(Scene* p_scene) {
-    if (p_scene == nullptr) {
-        return;
-    }
     while (!m_commandBuffer.empty()) {
         auto task = m_commandBuffer.front();
         m_commandBuffer.pop_front();
@@ -338,7 +341,9 @@ CameraComponent& EditorLayer::GetActiveCamera() {
     return m_viewer->GetActiveCamera();
 }
 
-void EditorLayer::SetTool(ToolType p_type) {
+void EditorLayer::OpenTool(ToolType p_type, const Guid& p_guid) {
+    unused(p_guid);
+
     if (m_current_tool == p_type) {
         return;
     }
@@ -351,7 +356,7 @@ void EditorLayer::SetTool(ToolType p_type) {
             old_tool->OnExit();
         }
         m_current_tool = p_type;
-        new_tool->OnEnter();
+        new_tool->OnEnter(p_guid);
 
         LOG("Tool [{}] -> [{}]", old_tool ? old_tool->GetName() : "(null)", new_tool->GetName());
     }

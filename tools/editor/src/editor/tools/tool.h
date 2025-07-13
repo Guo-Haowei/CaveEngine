@@ -5,6 +5,7 @@ namespace my {
 
 class CameraComponent;
 class EditorLayer;
+class Guid;
 class InputEvent;
 class Scene;
 
@@ -19,8 +20,8 @@ public:
 
     virtual bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) = 0;
 
-    virtual void OnEnter() = 0;
-    virtual void OnExit() = 0;
+    virtual void OnEnter(const Guid&) {}
+    virtual void OnExit() {}
 
     virtual void Update(Scene* p_scene) = 0;
 
