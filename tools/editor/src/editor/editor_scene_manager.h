@@ -16,10 +16,18 @@ public:
     // @TODO: do not pass raw pointers around
     Scene* GetActiveScene() const override;
 
+    void Update() override;
+
 protected:
+    struct StaleScene {
+        std::shared_ptr<Scene> scene;
+        int frame_left;
+    };
+
     std::unordered_map<std::string, std::shared_ptr<Scene>> m_caches;
 
     std::weak_ptr<Scene> m_tmp_scene;
+    std::vector<StaleScene> m_stale_scenes;
 };
 
 }  // namespace my

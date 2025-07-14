@@ -324,6 +324,10 @@ bool Application::MainLoop() {
         ImGui::Render();
     }
 
+    //// it's possible scene changed after ui update...
+    //// it's ugly...
+    //scene = m_sceneManager->GetActiveScene();
+
     if (scene && m_state == State::SIM) {
         m_scriptManager->Update(*scene, timestep);
         m_physicsManager->Update(*scene, timestep);

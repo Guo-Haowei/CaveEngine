@@ -26,6 +26,18 @@ Scene* EditorSceneManager::CreateDefaultScene() {
     return nullptr;
 }
 
+void EditorSceneManager::Update() {
+    SceneManager::Update();
+
+    for (auto& stale_scene : m_stale_scenes) {
+        --stale_scene.frame_left;
+    }
+
+    std::erase_if(m_stale_scenes, [](const StaleScene& p_stale) {
+        return p_stale.frame_left <= 0;
+    });
+}
+
 void EditorSceneManager::OpenTemporaryScene(std::string_view p_name, const CreateSceneFunc& p_func) {
     auto scene = p_func();
 
@@ -35,7 +47,10 @@ void EditorSceneManager::OpenTemporaryScene(std::string_view p_name, const Creat
 }
 
 void EditorSceneManager::DeleteTemporaryScene(const std::string& p_name) {
-    m_caches.erase(p_name);
+    auto it = m_caches.find(p_name);
+    constexpr int FRAME_TO_KEEP = 1;
+    m_stale_scenes.push_back({ it->second, FRAME_TO_KEEP });
+    m_caches.erase(it);
 }
 
 Scene* EditorSceneManager::GetActiveScene() const {
@@ -48,4 +63,3 @@ Scene* EditorSceneManager::GetActiveScene() const {
 }
 
 }  // namespace my
-
