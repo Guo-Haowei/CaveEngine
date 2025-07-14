@@ -8,43 +8,79 @@ namespace YAML { class Node; }
 
 namespace my {
 
-// @TODO: make it class once stable
-struct TileMapLayer {
+struct TileIndex {
+    int16_t x, y;
+
+    bool operator==(const TileIndex& p_rhs) const noexcept {
+        return x == p_rhs.x && y == p_rhs.y;
+    }
+};
+
+}  // namespace my
+
+namespace std {
+template<>
+struct hash<::my::TileIndex> {
+    std::size_t operator()(const ::my::TileIndex& p_key) const noexcept {
+        const uint32_t packed = std::bit_cast<uint32_t>(p_key);
+        return std::hash<uint32_t>{}(packed);
+    }
+};
+
+}  // namespace std
+
+namespace my {
+
+struct TileData {
+    uint32_t id;
+
+    explicit TileData(uint32_t p_id = UINT_MAX)
+        : id(p_id) {}
+
+    static TileData Empty() {
+        return TileData();
+    }
+
+    bool operator==(const TileData& p_rhs) const noexcept {
+        return id == p_rhs.id;
+    }
+
+    bool IsEmpty() const { return *this == Empty(); }
+};
+
+enum class TileResult : uint8_t {
+    Removed,
+    Replaced,
+    Added,
+    Noop,
+};
+
+class TileMapLayer {
+public:
     std::string name;
 
-    Guid tileset;
-    int z_index = 0;
-    std::unordered_map<uint32_t, int> tiles;
+    TileData GetTile(TileIndex p_index);
+
+    TileResult SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old);
+
+    void SetTile(TileIndex p_index, TileData p_new_tile) {
+        TileData dummy;
+        SetTile(p_index, p_new_tile, dummy);
+    }
+
+    uint32_t GetRevision() const { return m_revision; }
+    void IncRevision() { ++m_revision; }
+
+    const auto& GetTiles() const { return m_tiles; }
+
+private:
+    Guid m_tileset;
+    int m_z_index = 0;
+    std::unordered_map<TileIndex, TileData> m_tiles;
 
     // Non serialized
-    AssetHandle tileset_handle;
-    uint32_t revision{ 1 };  // start from 1, so it always create the first frame
-
-    static int to_unsigned(int16_t x) {
-        return x + 10000;
-    }
-
-    static int16_t to_signed(int x) {
-        return static_cast<int16_t>(x - 10000);
-    }
-
-    struct PackData {
-        int16_t x;
-        int16_t y;
-    };
-
-    static constexpr uint32_t Pack(int16_t p_x, int16_t p_y) {
-        PackData data = { p_x, p_y };
-        return std::bit_cast<uint32_t>(data);
-    }
-
-    static constexpr std::pair<int16_t, int16_t> Unpack(uint32_t value) {
-        auto data = std::bit_cast<PackData>(value);
-        return { data.x, data.y };
-    }
-
-    void AddTile(int16_t p_x, int16_t p_y, int id);
-    void EraseTile(int16_t p_x, int16_t p_y);
+    AssetHandle m_tileset_handle;
+    uint32_t m_revision{ 1 };  // start from 1, so it always create the first frame
 };
 
 class TileMapAsset : public IAsset {
@@ -57,6 +93,10 @@ public:
     auto& GetAllLayers() { return m_layers; }
 
     const auto& GetAllLayers() const { return m_layers; }
+
+    TileMapLayer* GetLayer(int p_idx) {
+        return p_idx < (int)m_layers.size() ? &m_layers[p_idx] : nullptr;
+    }
 
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;

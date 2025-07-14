@@ -3,7 +3,6 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/assets/assets.h"
-#include "engine/assets/tile_map_asset.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/scene.h"
 #include "editor/editor_layer.h"
@@ -19,9 +18,75 @@ namespace my {
 
 #define TEMP_SCENE_NAME "tile_map_scene"
 
+struct SetTileCommand : public UndoCommand {
+    Handle<TileMapAsset> handle;
+    int layer_id;
+    TileIndex index;
+    TileData old_tile;
+    TileData new_tile;
+
+    bool Undo() override {
+        if (TileMapAsset* tile_map = handle.Get(); tile_map) {
+            if (TileMapLayer* layer = tile_map->GetLayer(layer_id); layer) {
+                TileData dummy;
+                layer->SetTile(index, old_tile, dummy);
+                layer->IncRevision();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool Redo() override {
+        if (TileMapAsset* tile_map = handle.Get(); tile_map) {
+            if (TileMapLayer* layer = tile_map->GetLayer(layer_id); layer) {
+                TileData dummy;
+                layer->SetTile(index, new_tile, dummy);
+                layer->IncRevision();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool MergeCommand(const UndoCommand* p_other) override {
+        if (auto other = dynamic_cast<const SetTileCommand*>(p_other); other) {
+            return other->index == index &&
+                   other->layer_id == layer_id &&
+                   other->new_tile == new_tile &&
+                   other->old_tile == old_tile &&
+                   other->handle.GetGuid() == handle.GetGuid();
+        }
+        return false;
+    }
+};
+
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
     : ITool(p_editor), m_viewer(p_viewer) {
     m_policy = ToolCameraPolicy::Only2D;
+}
+
+void TileMapEditor::UndoableSetTile(TileMapLayer& p_layer,
+                                    int p_layer_id,
+                                    TileIndex p_index,
+                                    TileData p_new_tile) {
+
+    TileData old_tile;
+    TileResult result = p_layer.SetTile(p_index, p_new_tile, old_tile);
+    if (result == TileResult::Noop) {
+        return;
+    }
+
+    p_layer.IncRevision();
+
+    auto cmd = std::make_shared<SetTileCommand>();
+    cmd->handle = m_tile_map_handle;
+    cmd->index = p_index;
+    cmd->layer_id = p_layer_id;
+    cmd->new_tile = p_new_tile;
+    cmd->old_tile = old_tile;
+
+    m_undo_stack.Submit(std::move(cmd));
 }
 
 void TileMapEditor::Update(Scene*) {
@@ -57,25 +122,24 @@ void TileMapEditor::Update(Scene*) {
             break;
         }
 
-        auto& layer = layers[0];
+        int layer_id = 0;
+        auto& layer = layers[layer_id];
 
         // process commands
         for (const auto& command : m_commands) {
-            std::visit([this, &layer](auto&& cmd) {
+            std::visit([&](auto&& cmd) {
                 using T = std::decay_t<decltype(cmd)>;
                 if constexpr (std::is_same_v<T, CommandAddTile>) {
                     auto ndc = m_viewer->CursorToNDC(cmd.cursor);
-                    Point tile;
+                    TileIndex tile;
                     if (CursorToTile(cmd.cursor, tile)) {
-                        layer.AddTile(tile.x, tile.y, 1);
-                        LOG_OK("add {} {}", tile.x, tile.y);
+                        UndoableSetTile(layer, layer_id, tile, TileData(1));
                     }
                 } else if constexpr (std::is_same_v<T, CommandEraseTile>) {
                     auto ndc = m_viewer->CursorToNDC(cmd.cursor);
-                    Point tile;
+                    TileIndex tile;
                     if (CursorToTile(cmd.cursor, tile)) {
-                        layer.EraseTile(tile.x, tile.y);
-                        LOG_OK("remove {} {}", tile.x, tile.y);
+                        UndoableSetTile(layer, layer_id, tile, TileData::Empty());
                     }
                 }
             },
@@ -86,7 +150,7 @@ void TileMapEditor::Update(Scene*) {
     m_commands.clear();
 }
 
-bool TileMapEditor::CursorToTile(const Vector2f& p_in, Point& p_out) const {
+bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     auto res = m_viewer->CursorToNDC(p_in);
     if (!res) {
         return false;
@@ -127,6 +191,8 @@ bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event
 }
 
 void TileMapEditor::OnEnter(const Guid& p_guid) {
+    m_undo_stack.Clear();
+
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
     m_tile_map_guid = p_guid;
     m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
@@ -173,13 +239,18 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
 
         // @HACK
         TileMapLayer& layer = asset->AddLayer("default");
-        for (int16_t y = 0; y < (int16_t)data.size(); ++y) {
-            for (int16_t x = 0; x < (int16_t)data[0].size(); ++x) {
-                if (data[y][x]) {
-                    layer.AddTile(x, y, data[y][x]);
+        const int16_t w = static_cast<int16_t>(data[0].size());
+        const int16_t h = static_cast<int16_t>(data.size());
+        for (int16_t i = 0; i < h; ++i) {
+            int16_t y = h - 1 - i;
+            for (int16_t x = 0; x < w; ++x) {
+                int cell = data[i][x];
+                if (cell) {
+                    layer.SetTile({ x, y }, TileData(cell));
                 }
             }
         }
+        layer.IncRevision();
 #if 0
         const int grid_x = 3;
         const int grid_y = 2;

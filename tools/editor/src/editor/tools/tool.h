@@ -1,5 +1,6 @@
 #pragma once
 #include "editor/enums.h"
+#include "editor/undo_redo/undo_stack.h"
 
 namespace my {
 
@@ -21,7 +22,10 @@ public:
 
     virtual bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) = 0;
 
-    virtual void OnEnter(const Guid&) {}
+    virtual void OnEnter(const Guid&) {
+        m_undo_stack.Clear();
+    }
+
     virtual void OnExit() {}
 
     virtual void Update(Scene* p_scene) = 0;
@@ -32,9 +36,13 @@ public:
 
     ToolCameraPolicy GetCameraPolicy() const { return m_policy; }
 
+    auto& GetUndoStack() { return m_undo_stack; }
+
 protected:
     ToolCameraPolicy m_policy{ ToolCameraPolicy::Any };
     EditorLayer& m_editor;
+
+    UndoStack m_undo_stack;
 };
 
 }  // namespace my

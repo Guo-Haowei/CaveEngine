@@ -7,24 +7,48 @@
 
 namespace my {
 
-void TileMapLayer::AddTile(int16_t p_x, int16_t p_y, int id) {
-    auto key = Pack(p_x, p_y);
-
-    auto [it, ok] = tiles.try_emplace(key, id);
-    if (ok) {
-        ++revision;
-    } else if (it->second != id) {
-        it->second = id;
-        ++revision;
+TileData TileMapLayer::GetTile(TileIndex p_index) {
+    auto it = m_tiles.find(p_index);
+    if (it == m_tiles.end()) {
+        return TileData::Empty();
     }
+
+    return it->second;
 }
 
-void TileMapLayer::EraseTile(int16_t p_x, int16_t p_y) {
-    auto key = Pack(p_x, p_y);
+TileResult TileMapLayer::SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old) {
+    p_out_old = TileData::Empty();
 
-    if (tiles.erase(key) > 0) {
-        ++revision;
+    auto it = m_tiles.find(p_index);
+
+    // if there's a tile
+    if (it != m_tiles.end()) {
+        p_out_old = it->second;  // save the old tile
+
+        if (p_new_tile.IsEmpty()) {
+            // do nothing, the tile was already empty
+            m_tiles.erase(it);
+
+            return TileResult::Removed;
+        }
+
+        // if the tiles are the same, do nothing
+        if (it->second == p_new_tile) {
+            return TileResult::Noop;
+        }
+
+        it->second = p_new_tile;
+        return TileResult::Replaced;
     }
+
+    // if there isn't a tile
+    if (p_new_tile.IsEmpty()) {
+        // can't replace an empty tile with an empty tile
+        return TileResult::Noop;
+    }
+
+    m_tiles.insert({ p_index, p_new_tile });
+    return TileResult::Added;
 }
 
 TileMapLayer& TileMapAsset::AddLayer(std::string&& p_name) {

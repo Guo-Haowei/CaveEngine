@@ -135,16 +135,6 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
 }
 #endif
 
-/// RedoViewerCommand
-void RedoViewerCommand::Execute(Scene&) {
-    m_editor->GetUndoStack().Redo();
-}
-
-/// UndoViewerCommand
-void UndoViewerCommand::Execute(Scene&) {
-    m_editor->GetUndoStack().Undo();
-}
-
 /// TransformCommand
 EntityTransformCommand::EntityTransformCommand(GizmoAction p_action,
                                                Scene& p_scene,
@@ -158,18 +148,22 @@ EntityTransformCommand::EntityTransformCommand(GizmoAction p_action,
     , m_after(p_after) {
 }
 
-void EntityTransformCommand::Undo() {
+bool EntityTransformCommand::Undo() {
     TransformComponent* transform = m_scene.GetComponent<TransformComponent>(m_entity);
     if (DEV_VERIFY(transform)) {
         transform->SetLocalTransform(m_before);
+        return true;
     }
+    return false;
 }
 
-void EntityTransformCommand::Redo() {
+bool EntityTransformCommand::Redo() {
     TransformComponent* transform = m_scene.GetComponent<TransformComponent>(m_entity);
     if (DEV_VERIFY(transform)) {
         transform->SetLocalTransform(m_after);
+        return true;
     }
+    return false;
 }
 
 bool EntityTransformCommand::MergeCommand(const UndoCommand* p_command) {

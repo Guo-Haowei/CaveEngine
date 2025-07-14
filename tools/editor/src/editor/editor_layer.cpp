@@ -71,14 +71,14 @@ EditorLayer::EditorLayer()
     m_shortcuts[SHORT_CUT_REDO] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [&]() { this->BufferCommand(std::make_shared<RedoViewerCommand>()); },
-        [&]() { return this->GetUndoStack().CanRedo(); },
+        [&]() { GetActiveTool()->GetUndoStack().Redo(); },
+        [&]() { return GetActiveTool()->GetUndoStack().CanRedo(); }
     };
     m_shortcuts[SHORT_CUT_UNDO] = {
         "Undo",
         "Ctrl+Z",
-        [&]() { this->BufferCommand(std::make_shared<UndoViewerCommand>()); },
-        [&]() { return this->GetUndoStack().CanUndo(); },
+        [&]() { GetActiveTool()->GetUndoStack().Undo(); },
+        [&]() { return GetActiveTool()->GetUndoStack().CanUndo(); }
     };
 
     // @TODO: proper key mapping
@@ -330,10 +330,10 @@ void EditorLayer::FlushCommand(Scene* p_scene) {
     while (!m_commandBuffer.empty()) {
         auto task = m_commandBuffer.front();
         m_commandBuffer.pop_front();
-        if (auto undo_command = std::dynamic_pointer_cast<UndoCommand>(task); undo_command) {
-            m_undoStack.PushCommand(std::move(undo_command));
-            continue;
-        }
+        // if (auto undo_command = std::dynamic_pointer_cast<UndoCommand>(task); undo_command) {
+        //     m_undoStack.PushCommand(std::move(undo_command));
+        //     continue;
+        // }
         task->Execute(*p_scene);
     }
 }

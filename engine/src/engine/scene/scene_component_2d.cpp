@@ -21,7 +21,7 @@ void TileMapRenderer::CreateRenderData() {
 
     int i = 0;
     for (const auto& layer : tile_map_asset->GetAllLayers()) {
-        if (layer.revision == revision) {
+        if (layer.GetRevision() == revision) {
             break;
         }
 
@@ -29,9 +29,12 @@ void TileMapRenderer::CreateRenderData() {
         std::vector<Vector2f> uvs;
         std::vector<uint32_t> indices;
 
-        vertices.reserve(layer.tiles.size() * 4);
-        for (const auto& [key, tile] : layer.tiles) {
-            const auto [x, y] = TileMapLayer::Unpack(key);
+        const auto& tiles = layer.GetTiles();
+
+        vertices.reserve(tiles.size() * 4);
+        for (const auto& [key, tile] : tiles) {
+            const int16_t x = key.x;
+            const int16_t y = key.y;
 
             const float s = 1.0f;
             float x0 = s * x;
@@ -105,7 +108,7 @@ void TileMapRenderer::CreateRenderData() {
 
         m_mesh = *mesh;
 
-        revision = layer.revision;
+        revision = layer.GetRevision();
 
         if (i == 0) break;
     }
