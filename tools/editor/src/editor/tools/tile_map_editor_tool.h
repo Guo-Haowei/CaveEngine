@@ -23,10 +23,7 @@ public:
 
     using Command = std::variant<CommandAddTile, CommandEraseTile>;
 
-    TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
-        : ITool(p_editor), m_viewer(p_viewer) {
-        m_policy = ToolCameraPolicy::Only2D;
-    }
+    TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer);
 
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
 
@@ -51,7 +48,10 @@ protected:
     };
     bool CursorToTile(const Vector2f& p_in, Point& p_out) const;
 
+    void DrawLayerOverview();
+
     Viewer* m_viewer;
+    AssetRegistry* m_asset_registry;
 
     Guid m_tile_map_guid;
     std::vector<Command> m_commands;

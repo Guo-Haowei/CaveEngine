@@ -1,5 +1,6 @@
 #include "tile_map_editor_tool.h"
 
+#include "engine/assets/assets.h"
 #include "engine/assets/tile_map_asset.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/scene.h"
@@ -15,6 +16,12 @@
 namespace my {
 
 #define TEMP_SCENE_NAME "tile_map_scene"
+
+TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
+    : ITool(p_editor), m_viewer(p_viewer) {
+    m_policy = ToolCameraPolicy::Only2D;
+    m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
+}
 
 void TileMapEditor::Update(Scene*) {
     {
@@ -217,9 +224,9 @@ struct Card {
 
 static int next_card_id = 0;
 
-void DrawCardListUI() {
+void TileMapEditor::DrawLayerOverview() {
     // Top "+ Add" Button
-    //if (ImGui::Button("+ Add Card")) {
+    // if (ImGui::Button("+ Add Card")) {
     //    // Add a new card with dummy texture
     //    cards.push_back({ /* texture = */ nullptr, next_card_id++ });
     //}
@@ -229,15 +236,19 @@ void DrawCardListUI() {
     std::vector<Card> cards{};
     cards.resize(3);
 
-    for (int i = 0; i < cards.size(); ++i) {
-        ImGui::PushID(i);  // Ensure unique widget IDs per card
+    auto checkerboard = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value().Get();
+    DEV_ASSERT(checkerboard);
 
-        ImGui::BeginGroup();  // Optional visual group per card
+    for (int i = 0; i < cards.size(); ++i) {
+        ImGui::PushID(i);
+
+        ImGui::BeginGroup();
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
 
-        ImGui::BeginGroup();                             // Texture + Delete in same line
-        ImGui::Image(0, ImVec2(64, 64));  // texture left
+        ImGui::BeginGroup();
+
+        ImGui::Image(checkerboard->gpu_texture->GetHandle(), ImVec2(64, 64));
         ImGui::SameLine();
 
         ImGui::BeginGroup();
@@ -252,13 +263,13 @@ void DrawCardListUI() {
         //     //break;  // Must break because vector has changed
         // }
 
-        ImGui::EndGroup();  // right side
-        ImGui::EndGroup();  // card group
+        ImGui::EndGroup();
+        ImGui::EndGroup();
         ImGui::Separator();
 
         ImGui::PopStyleVar(2);
         ImGui::PopID();
-        ImGui::EndGroup();  // card group
+        ImGui::EndGroup();
     }
 
     ImGui::EndChild();
@@ -272,7 +283,7 @@ void TileMapEditor::DrawAssetInspector() {
     [[maybe_unused]] const float main_width = full_width - layer_tab_width - sprite_tab_width - ImGui::GetStyle().ItemSpacing.x;
 
     ImGui::BeginChild("LayerTab", ImVec2(layer_tab_width, 0), true);
-    DrawCardListUI();
+    DrawLayerOverview();
     ImGui::EndChild();
 
     ImGui::SameLine();

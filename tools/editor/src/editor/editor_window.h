@@ -5,7 +5,8 @@ namespace my {
 
 class EditorWindow : public EditorItem {
 public:
-    EditorWindow(const std::string& p_name, EditorLayer& p_editor) : EditorItem(p_editor), m_name(p_name) {}
+    EditorWindow(const std::string& p_name, EditorLayer& p_editor)
+        : EditorItem(p_editor), m_name(p_name) {}
 
     void Update(Scene*) override;
 

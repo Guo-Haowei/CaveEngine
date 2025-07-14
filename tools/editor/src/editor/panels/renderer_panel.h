@@ -5,7 +5,8 @@ namespace my {
 
 class RendererPanel : public EditorWindow {
 public:
-    RendererPanel(EditorLayer& p_editor) : EditorWindow("Renderer", p_editor) {}
+    RendererPanel(EditorLayer& p_editor)
+        : EditorWindow("Renderer", p_editor) {}
 
 protected:
     void UpdateInternal(Scene* p_scene) override;

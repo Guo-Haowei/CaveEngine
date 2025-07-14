@@ -677,7 +677,8 @@ Style::Style() {
 }
 
 struct Context {
-    Context() : mbUsing(false), mbEnable(true), mbUsingBounds(false) {
+    Context()
+        : mbUsing(false), mbEnable(true), mbUsingBounds(false) {
     }
 
     ImDrawList* mDrawList;

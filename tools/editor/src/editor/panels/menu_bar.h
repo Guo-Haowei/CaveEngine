@@ -6,7 +6,8 @@ namespace my {
 
 class MenuBar : public EditorItem {
 public:
-    MenuBar(EditorLayer& p_editor) : EditorItem(p_editor) {}
+    MenuBar(EditorLayer& p_editor)
+        : EditorItem(p_editor) {}
 
     void Update(Scene* p_scene) override;
 

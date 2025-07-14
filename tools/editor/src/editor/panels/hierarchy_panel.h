@@ -5,7 +5,8 @@ namespace my {
 
 class HierarchyPanel : public EditorWindow {
 public:
-    HierarchyPanel(EditorLayer& editor) : EditorWindow("Scene", editor) {}
+    HierarchyPanel(EditorLayer& editor)
+        : EditorWindow("Scene", editor) {}
 
 protected:
     void UpdateInternal(Scene* scene) override;

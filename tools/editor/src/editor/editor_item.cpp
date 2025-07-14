@@ -6,12 +6,12 @@ namespace my {
 
 void EditorItem::OpenAddEntityPopup(ecs::Entity p_parent) {
     if (ImGui::BeginMenu("Add")) {
-#define ENTITY_TYPE(ENUM, NAME, SEP)                    \
-    if (ImGui::MenuItem(#NAME)) {                       \
+#define ENTITY_TYPE(ENUM, NAME, SEP)                           \
+    if (ImGui::MenuItem(#NAME)) {                              \
         m_editor.CommandAddEntity(EntityType::ENUM, p_parent); \
-    }                                                   \
-    if constexpr (SEP) {                                \
-        ImGui::Separator();                             \
+    }                                                          \
+    if constexpr (SEP) {                                       \
+        ImGui::Separator();                                    \
     }
         ENTITY_TYPE_LIST
 #undef ENTITY_TYPE
