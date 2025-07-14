@@ -13,6 +13,7 @@ struct ImageAsset;
 
 struct TileMapRenderer : public ComponentFlagBase {
     Guid tile_map;
+    uint32_t revision{ 0 };
 
     // Non serialize
     mutable std::shared_ptr<GpuMesh> m_mesh;

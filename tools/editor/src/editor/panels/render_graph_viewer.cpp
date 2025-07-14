@@ -12,7 +12,8 @@ namespace my {
 // @TODO: save the nodes position to disk
 // @TODO: find longese path, and arrange nodes
 
-RenderGraphViewer::RenderGraphViewer(EditorLayer& p_editor) : EditorWindow("RenderGraph", p_editor) {
+RenderGraphViewer::RenderGraphViewer(EditorLayer& p_editor)
+    : EditorWindow("RenderGraph", p_editor) {
 }
 
 void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {

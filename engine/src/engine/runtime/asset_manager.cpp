@@ -59,7 +59,7 @@ static struct {
 } s_assetManagerGlob;
 
 static AssetRef CreateAssetInstance(AssetType p_type) {
-    switch (p_type.GetData()) {
+    switch (p_type) {
         case AssetType::SpriteSheet:
             return std::make_shared<SpriteSheetAsset>();
         case AssetType::TileMap:
@@ -110,7 +110,7 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void AssetManager::CreateAsset(const AssetType& p_type,
+void AssetManager::CreateAsset(AssetType p_type,
                                const fs::path& p_folder,
                                const char* p_name) {
     AssetRef asset = CreateAssetInstance(p_type);
@@ -121,7 +121,7 @@ void AssetManager::CreateAsset(const AssetType& p_type,
 
     // 1. Creates both meta and file
     fs::path new_file = p_folder;
-    const char* ext = p_type.ToString();
+    const char* ext = ToString(p_type);
     auto name = std::format("{}_{}.{}", p_name ? p_name : "untitled", ++m_counter, ext);
     new_file = new_file / name;
 

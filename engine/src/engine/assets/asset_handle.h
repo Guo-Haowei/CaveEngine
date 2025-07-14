@@ -18,23 +18,22 @@ public:
 
     bool IsReady() const;
 
-    IAsset* Get();
+    IAsset* Get() const;
 
-    [[nodiscard]] auto Wait() const -> Result<AssetRef>;
+    [[nodiscard]] AssetRef Wait() const;
 
     template<typename T>
-    [[nodiscard]] auto Wait() -> Result<std::shared_ptr<T>> {
-        auto res = Wait();
-        if (!res) {
-            return HBN_ERROR(res.error());
+    [[nodiscard]] std::shared_ptr<T> Wait() const {
+        auto ptr = Wait();
+        if (!ptr) {
+            return nullptr;
         }
 
-        AssetRef ptr = *res;
         return std::dynamic_pointer_cast<T>(ptr);
     }
 
     template<typename T>
-    T* Get() {
+    inline T* Get() const {
         return dynamic_cast<T*>(Get());
     }
 
@@ -45,6 +44,26 @@ public:
 private:
     Guid m_guid;
     std::weak_ptr<AssetEntry> m_entry;
+};
+
+template<typename T>
+class Handle : private AssetHandle {
+public:
+    using AssetHandle::AssetHandle;
+    using AssetHandle::GetGuid;
+    using AssetHandle::GetMeta;
+    using AssetHandle::IsReady;
+
+    Handle(AssetHandle&& p_raw)
+        : AssetHandle(std::move(p_raw)) {}
+
+    [[nodiscard]] std::shared_ptr<T> Wait() const {
+        return AssetHandle::Wait<T>();
+    }
+
+    T* Get() const {
+        return AssetHandle::Get<T>();
+    }
 };
 
 }  // namespace my

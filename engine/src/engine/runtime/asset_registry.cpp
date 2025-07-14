@@ -113,24 +113,38 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
     return ok;
 }
 
-std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid) {
+std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_type) {
     std::lock_guard lock(registry_mutex);
     auto it = m_guid_map.find(p_guid);
     if (it != m_guid_map.end()) {
-        return AssetHandle(p_guid, it->second);
+        auto ok = p_type & it->second->metadata.type;
+        if (static_cast<bool>(ok)) {
+            return AssetHandle(p_guid, it->second);
+        }
     }
 
     return std::nullopt;
 }
 
-std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path) {
+// @TODO: use this for string look up
+struct TransparentCompare {
+    using is_transparent = void;
+    bool operator()(const std::string& lhs, const std::string& rhs) const { return lhs < rhs; }
+    bool operator()(const std::string& lhs, const char* rhs) const { return lhs < rhs; }
+    bool operator()(const char* lhs, const std::string& rhs) const { return lhs < rhs; }
+};
+
+std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetType p_type) {
     std::lock_guard lock(registry_mutex);
     auto it = m_path_map.find(p_path);
     if (it != m_path_map.end()) {
         const Guid& guid = it->second;
         auto it2 = m_guid_map.find(guid);
         if (it2 != m_guid_map.end()) {
-            return AssetHandle(guid, it2->second);
+            auto ok = p_type & it2->second->metadata.type;
+            if (static_cast<bool>(ok)) {
+                return AssetHandle(guid, it2->second);
+            }
         }
     }
 

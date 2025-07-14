@@ -14,6 +14,11 @@ struct AssetMetaData;
 using AssetRef = std::shared_ptr<IAsset>;
 using OnAssetLoadSuccessFunc = void (*)(AssetRef p_asset, void* p_userdata);
 
+#define DECLARE_ASSET(NAME, TYPE)                 \
+public:                                           \
+    static constexpr AssetType ASSET_TYPE = TYPE; \
+    NAME() : IAsset(NAME::ASSET_TYPE) {}
+
 // @TODO: make it a class
 struct IAsset {
     const AssetType type;

@@ -50,7 +50,7 @@ public:
 
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
-    void Update();
+    void Update() override;
 
     Scene* GetActiveScene() const override;
 #if 0

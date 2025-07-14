@@ -318,7 +318,7 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
     cache.c_voxelSize = voxel_size;
 }
 
-static void FillMainPass(const Scene& p_scene, FrameData& p_framedata) {
+static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     const auto& camera = p_framedata.mainCamera;
     Frustum camera_frustum(camera.projectionMatrixFrustum * camera.viewMatrix);
 
@@ -330,21 +330,26 @@ static void FillMainPass(const Scene& p_scene, FrameData& p_framedata) {
     p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.passCache.size());
     p_framedata.passCache.emplace_back(pass_constant);
 
+    if (!p_scene) {
+        return;
+    }
+    const Scene& scene = *p_scene;
+
     using FilterFunc = std::function<bool(const AABB&)>;
     FilterFunc filter_main = [&](const AABB& p_aabb) -> bool { return camera_frustum.Intersects(p_aabb); };
 
     const bool is_opengl = p_framedata.options.isOpengl;
-    for (auto [entity, obj] : p_scene.View<MeshRenderer>()) {
+    for (auto [entity, obj] : scene.View<MeshRenderer>()) {
         const bool is_renderable = obj.flags & MeshRenderer::FLAG_RENDERABLE;
         const bool is_transparent = obj.flags & MeshRenderer::FLAG_TRANSPARENT;
         const bool is_opaque = is_renderable && !is_transparent;
 
         // @TODO: cast shadow
 
-        const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-        DEV_ASSERT(p_scene.Contains<TransformComponent>(entity));
-        const MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(obj.meshId);
-        DEV_ASSERT(p_scene.Contains<MeshComponent>(obj.meshId));
+        const TransformComponent& transform = *scene.GetComponent<TransformComponent>(entity);
+        DEV_ASSERT(scene.Contains<TransformComponent>(entity));
+        const MeshComponent& mesh = *scene.GetComponent<MeshComponent>(obj.meshId);
+        DEV_ASSERT(scene.Contains<MeshComponent>(obj.meshId));
 
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         AABB aabb = mesh.localBound;
@@ -356,12 +361,12 @@ static void FillMainPass(const Scene& p_scene, FrameData& p_framedata) {
 
         DrawCommand draw;
         // @TODO: refactor the stencil part
-        if (entity == p_scene.m_selected) {
+        if (entity == scene.m_selected) {
             draw.flags = STENCIL_FLAG_SELECTED;
         }
 
         if (mesh.armatureId.IsValid()) {
-            auto& armature = *p_scene.GetComponent<ArmatureComponent>(mesh.armatureId);
+            auto& armature = *scene.GetComponent<ArmatureComponent>(mesh.armatureId);
             DEV_ASSERT(armature.boneTransforms.size() <= MAX_BONE_COUNT);
 
             BoneConstantBuffer bone;
@@ -397,7 +402,7 @@ static void FillMainPass(const Scene& p_scene, FrameData& p_framedata) {
                     continue;
                 }
 
-                const MaterialComponent* material = p_scene.GetComponent<MaterialComponent>(subset.material_id);
+                const MaterialComponent* material = scene.GetComponent<MaterialComponent>(subset.material_id);
                 MaterialConstantBuffer material_buffer;
                 FillMaterialConstantBuffer(is_opengl, material, material_buffer);
 
@@ -428,9 +433,11 @@ static void FillMainPass(const Scene& p_scene, FrameData& p_framedata) {
     }
 }
 
-void RunMeshRenderSystem(Scene& p_scene, FrameData& p_framedata) {
-    FillLightBuffer(p_scene, p_framedata);
-    FillVoxelPass(p_scene, p_framedata);
+void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata) {
+    if (p_scene) {
+        FillLightBuffer(*p_scene, p_framedata);
+        FillVoxelPass(*p_scene, p_framedata);
+    }
     FillMainPass(p_scene, p_framedata);
 }
 

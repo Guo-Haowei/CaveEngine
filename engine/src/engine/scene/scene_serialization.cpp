@@ -157,6 +157,7 @@ void RegisterClasses() {
         LightComponent::Attenuation::RegisterClass();
         EnvironmentComponent::Ambient::RegisterClass();
         EnvironmentComponent::Sky::RegisterClass();
+
         s_initialized = true;
     }
 }

@@ -23,10 +23,12 @@ public:
 protected:
     void UpdateInternal(Scene* p_scene) override;
 
+    void UpdateCamera();
+
     void DrawToolBar();
     void DrawGui(Scene* p_scene);
 
-    void UpdateData();
+    void UpdateFrameSize();
     bool HandleInputCamera(std::shared_ptr<InputEvent> p_input_event);
 
     Vector2f m_canvas_min;
@@ -75,7 +77,7 @@ protected:
             if (p_only_2d) {
                 current = CAM2D;
             } else {
-                current ^= 1; 
+                current ^= 1;
             }
         }
     } m_controller;

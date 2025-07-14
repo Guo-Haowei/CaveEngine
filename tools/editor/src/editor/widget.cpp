@@ -1,5 +1,8 @@
 #include "widget.h"
 
+#include "engine/runtime/asset_registry.h"
+#include "editor/editor_window.h"
+
 namespace my {
 
 void PushDisabled() {
@@ -170,15 +173,21 @@ bool DrawInputText(const char* p_label,
                    std::string& p_string,
                    float p_column_width) {
 
-    ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
-    ImGui::NextColumn();
+    if (p_label) {
+        ImGui::Columns(2);
+        ImGui::SetColumnWidth(0, p_column_width);
+        ImGui::Text("%s", p_label);
+        ImGui::NextColumn();
+    }
 
     char buffer[256];
     strncpy(buffer, p_string.c_str(), sizeof(buffer));
-    auto tag = std::format("##{}", p_label);
-    const bool dirty = ImGui::InputText(tag.c_str(), buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue);
+    auto tag = std::format("##{}", p_label ? p_label : "dummy");
+    bool dirty = ImGui::InputText(tag.c_str(),
+                                  buffer,
+                                  sizeof(buffer),
+                                  ImGuiInputTextFlags_EnterReturnsTrue);
+
     if (dirty) {
         p_string = buffer;
     }
@@ -236,6 +245,24 @@ bool ToggleButton(const char* p_str_id, bool* p_value) {
     draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
 
     return toggled;
+}
+
+bool DragDropTarget(AssetType p_mask,
+                    const DragDropFunc& p_callback) {
+
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ASSET_DRAG_DROP_PAYLOAD)) {
+            const char* path = reinterpret_cast<const char*>(payload->Data);
+            auto handle = AssetRegistry::GetSingleton().FindByPath(path, p_mask);
+            if (handle) {
+                p_callback(*handle);
+            }
+        }
+        ImGui::EndDragDropTarget();
+        return true;
+    }
+
+    return false;
 }
 
 }  // namespace my

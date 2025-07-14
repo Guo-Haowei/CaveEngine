@@ -4,7 +4,7 @@
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
 #include "engine/math/geomath.h"
-#include "engine/systems/undo_redo/undo_command.h"
+#include "editor/undo_redo/undo_command.h"
 
 namespace my {
 
@@ -108,20 +108,7 @@ protected:
 };
 #endif
 
-class UndoViewerCommand : public EditorCommandBase {
-public:
-    UndoViewerCommand() {}
-
-    virtual void Execute(Scene& p_scene) override;
-};
-
-class RedoViewerCommand : public EditorCommandBase {
-public:
-    RedoViewerCommand() {}
-
-    virtual void Execute(Scene& p_scene) override;
-};
-
+// @TODO: move it to gizmo
 class EntityTransformCommand : public EditorUndoCommandBase {
 public:
     EntityTransformCommand(GizmoAction p_action,
@@ -130,8 +117,8 @@ public:
                            const Matrix4x4f& p_before,
                            const Matrix4x4f& p_after);
 
-    void Undo() override;
-    void Redo() override;
+    bool Undo() override;
+    bool Redo() override;
 
     bool MergeCommand(const UndoCommand* p_command) override;
 

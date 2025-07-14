@@ -8,6 +8,10 @@
 #include "engine/math/box.h"
 #include "engine/math/matrix.h"
 
+namespace my {
+class Guid;
+}
+
 namespace my::serialize {
 
 template<typename T>
@@ -32,6 +36,10 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, Seriali
 Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, SerializeYamlContext&);
 
 Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, SerializeYamlContext&);
+
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Guid& p_object, SerializeYamlContext&);
+
+Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, SerializeYamlContext&);
 
 inline Result<void> SerializeYaml(YAML::Emitter& p_out, const Matrix4x4f& p_object, SerializeYamlContext&) {
     p_out.SetSeqFormat(YAML::Flow);

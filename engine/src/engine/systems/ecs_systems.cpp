@@ -7,7 +7,7 @@
 
 namespace my {
 
-static constexpr uint32_t SMALL_SUBTASK_GROUP_SIZE = 64;
+[[maybe_unused]] static constexpr uint32_t SMALL_SUBTASK_GROUP_SIZE = 64;
 
 #define JS_FORCE_PARALLEL_FOR(TYPE, CTX, INDEX, SUBCOUNT, BODY) \
     CTX.Dispatch(                                               \

@@ -58,10 +58,10 @@ void MenuBar::Update(Scene*) {
             ImGui::Text("status bar");
             ImGui::EndMenuBar();
         }
-        //if (ImGui::BeginMenuBar()) {
-        //    ViewerBar();
-        //    ImGui::EndMenuBar();
-        //}
+        // if (ImGui::BeginMenuBar()) {
+        //     ViewerBar();
+        //     ImGui::EndMenuBar();
+        // }
         ImGui::End();
     }
 }
@@ -74,7 +74,7 @@ void MenuBar::ViewerBar() {
     ImVec2 offset((avail.x - contentSize.x) * 0.5f, 10.0f);
     ImGui::SetCursorPos(offset);
 
-    ImGui::BeginGroup(); 
+    ImGui::BeginGroup();
     ImGui::Text("Centered Content");
     ImGui::Button("Click Me");
 

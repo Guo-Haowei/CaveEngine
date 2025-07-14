@@ -300,7 +300,7 @@ void GraphicsManager::Update(Scene* p_scene) {
         //    UpdateEmitters(*p_scene);
         //}
 
-        if (data && p_scene) {
+        if (data) {
             auto& frame = GetCurrentFrame();
             UpdateConstantBuffer(frame.batchCb.get(), data->batchCache.buffer);
             UpdateConstantBuffer(frame.materialCb.get(), data->materialCache.buffer);

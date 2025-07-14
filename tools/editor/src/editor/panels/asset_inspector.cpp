@@ -2,9 +2,10 @@
 
 #include "engine/assets/assets.h"
 #include "engine/assets/sprite_sheet_asset.h"
+#include "engine/runtime/asset_registry.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
-#include "engine/runtime/asset_registry.h"
+#include "editor/tools/tile_map_editor_tool.h"
 
 namespace my {
 
@@ -24,7 +25,7 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
         return;
     }
 
-    const ImageAsset* image = handle.Get<ImageAsset>();
+    const ImageAsset* image = handle.Get();
     DEV_ASSERT(image);
 
     const uint32_t width = p_sprite.GetWidth();
@@ -125,11 +126,12 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
 void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
     ImGui::Text("Image");
 
+    // @TODO: abc
     {
         const float w = 300;
         auto& handle = p_sprite.GetHandle();
         if (handle.IsReady()) {
-            const ImageAsset* asset = handle.Get<ImageAsset>();
+            const ImageAsset* asset = handle.Get();
             DEV_ASSERT(asset);
             const float h = w / asset->width * asset->height;
             ImVec2 size = ImVec2(w, h);
@@ -140,16 +142,6 @@ void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
 
             ImGui::InvisibleButton("DropTarget", size);
         }
-    }
-
-    // @TODO: refactor
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MY_PAYLOAD_TYPE")) {
-            std::string& texture = *((std::string*)payload->Data);
-
-            p_sprite.SetImage(texture);
-        }
-        ImGui::EndDragDropTarget();
     }
 }
 
@@ -177,17 +169,8 @@ void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
 }
 
 void AssetInspector::UpdateInternal(Scene*) {
-    IAsset* asset = nullptr;
-    if (!asset) {
-        return;
-    }
-
-    switch (asset->type.GetData()) {
-        case AssetType::SpriteSheet:
-            DrawSprite(static_cast<SpriteSheetAsset&>(*asset));
-            break;
-        default:
-            break;
+    if (ITool* tool = m_editor.GetActiveTool(); DEV_VERIFY(tool)) {
+        tool->DrawAssetInspector();
     }
 }
 

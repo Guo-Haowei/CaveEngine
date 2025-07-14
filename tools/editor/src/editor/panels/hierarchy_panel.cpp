@@ -20,7 +20,8 @@ public:
         std::vector<HierarchyNode*> children;
     };
 
-    HierarchyCreator(EditorLayer& p_editor) : m_editorLayer(p_editor) {}
+    HierarchyCreator(EditorLayer& p_editor)
+        : m_editorLayer(p_editor) {}
 
     void Update(const Scene& scene) {
         if (Build(scene)) {
@@ -39,17 +40,17 @@ private:
 };
 
 static bool TreeNodeHelper(const Scene& p_scene,
-                             Entity p_id,
-                             ImGuiTreeNodeFlags p_flags,
-                             std::function<void()> p_on_left_click,
-                             std::function<void()> p_on_right_click) {
+                           Entity p_id,
+                           ImGuiTreeNodeFlags p_flags,
+                           std::function<void()> p_on_left_click,
+                           std::function<void()> p_on_right_click) {
 
     const NameComponent* name_component = p_scene.GetComponent<NameComponent>(p_id);
     std::string name = name_component->GetName();
     if (name.empty()) {
         name = "Untitled";
     }
-    
+
     const char* icon = ICON_FA_FOLDER;
     if (p_flags & ImGuiTreeNodeFlags_Leaf) {
         icon = ICON_FA_CUBE;

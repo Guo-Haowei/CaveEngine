@@ -38,6 +38,15 @@ public:
 
     virtual size_t ReadBuffer(void* p_data, size_t p_size) const = 0;
     virtual size_t WriteBuffer(const void* p_data, size_t p_size) = 0;
+
+    virtual size_t WriteString(const char* p_data) {
+        return WriteBuffer(p_data, strlen(p_data));
+    }
+
+    virtual size_t WriteString(const std::string& p_data) {
+        return WriteBuffer(p_data.data(), p_data.length());
+    }
+
     // @TODO: refactor the error codes
     virtual long Tell() = 0;
     virtual int Seek(long p_offset) = 0;

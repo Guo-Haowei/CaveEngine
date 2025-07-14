@@ -309,8 +309,8 @@ bool Application::MainLoop() {
     Scene* scene = m_sceneManager->GetActiveScene();
     if (scene) {
         scene->Update(timestep);
-        m_renderSystem->RenderFrame(*scene);
     }
+    m_renderSystem->RenderFrame(scene);
 
     // @TODO: refactor this
     if (m_imguiManager) {

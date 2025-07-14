@@ -14,7 +14,7 @@ public:
 
     void BeginFrame();
 
-    void RenderFrame(Scene& p_scene);
+    void RenderFrame(Scene* p_scene);
 
     const FrameData* GetFrameData() const { return m_frameData; }
 

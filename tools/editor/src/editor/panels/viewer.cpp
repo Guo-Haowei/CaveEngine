@@ -47,7 +47,7 @@ Viewer::Viewer(EditorLayer& p_editor)
     }
 }
 
-void Viewer::UpdateData() {
+void Viewer::UpdateFrameSize() {
     Vector2i frame_size = DVAR_GET_IVEC2(resolution);
     int frame_width = frame_size.x;
     int frame_height = frame_size.y;
@@ -240,17 +240,8 @@ bool Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_event) {
     return false;
 }
 
-void Viewer::UpdateInternal(Scene* p_scene) {
+void Viewer::UpdateCamera() {
     ITool* tool = m_editor.GetActiveTool();
-    DEV_ASSERT(tool);
-
-    // update name
-    m_name = std::format("{}" VIEWER_WINDOW_ID, tool->GetTile());
-
-    // @TODO: tool bar policy
-    DrawToolBar();
-
-    UpdateData();
 
     CameraComponent& camera = GetActiveCamera();
 
@@ -281,11 +272,27 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     }
 
     camera.Update();
+}
 
-    // GetActiveTool()->Process(scene, camera);
+void Viewer::UpdateInternal(Scene* p_scene) {
+    ITool* tool = m_editor.GetActiveTool();
+    DEV_ASSERT(tool);
+
+    // update name
+    m_name = std::format("{}" VIEWER_WINDOW_ID, tool->GetTile());
+
+    // @TODO: tool bar policy
+    DrawToolBar();
+
+    UpdateFrameSize();
+
+    if (m_focused) {
+        UpdateCamera();
+    }
 
     DrawGui(p_scene);
 
+    // @TODO: should we update tool when it's not focused?
     tool->Update(p_scene);
 
     m_input_state.Reset();

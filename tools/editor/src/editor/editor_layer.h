@@ -7,7 +7,6 @@
 #include "engine/runtime/layer.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_component.h"
-#include "engine/systems/undo_redo/undo_stack.h"
 
 namespace my {
 
@@ -28,10 +27,6 @@ enum {
 
 struct EditorContext {
     float timestep{ 0 };
-
-    // THIS IS BAD
-    // Should never use raw pointer
-    std::string drag_payload;
 };
 
 class EditorLayer : public Layer, public IInputHandler {
@@ -57,8 +52,6 @@ public:
     void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
     void CommandRemoveEntity(ecs::Entity p_target);
 
-    UndoStack& GetUndoStack() { return m_undoStack; }
-
     bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
 
     const auto& GetShortcuts() const { return m_shortcuts; }
@@ -81,11 +74,9 @@ private:
 
     std::vector<std::shared_ptr<EditorItem>> m_panels;
     ecs::Entity m_selected;
-    Scene* m_simScene{ nullptr };
 
     uint64_t m_displayedImage = 0;
     std::list<std::shared_ptr<EditorCommandBase>> m_commandBuffer;
-    UndoStack m_undoStack;
 
     struct ShortcutDesc {
         const char* name{ nullptr };

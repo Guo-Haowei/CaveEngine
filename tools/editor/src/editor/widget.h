@@ -4,6 +4,9 @@
 
 namespace my {
 
+enum class AssetType : uint32_t;
+class AssetHandle;
+
 constexpr float DEFAULT_COLUMN_WIDTH = 80.0f;
 
 void PushDisabled();
@@ -44,5 +47,9 @@ bool DrawColorPicker3(const char* p_label,
                       float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool ToggleButton(const char* p_str_id, bool* p_value);
+
+using DragDropFunc = std::function<void(AssetHandle&)>;
+
+bool DragDropTarget(AssetType p_mask, const DragDropFunc& p_callback);
 
 }  // namespace my

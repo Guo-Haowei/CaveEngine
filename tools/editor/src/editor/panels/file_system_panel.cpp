@@ -3,11 +3,12 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/assets/assets.h"
-#include "editor/editor_layer.h"
+#include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_manager.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
-#include "engine/core/string/string_utils.h"
+#include "editor/editor_layer.h"
+#include "editor/widget.h"
 
 namespace my {
 
@@ -25,7 +26,7 @@ void FileSystemPanel::OnAttach() {
 void FileSystemPanel::ShowResourceToolTip(const AssetMetaData& p_meta, const IAsset& p_asset) {
     if (ImGui::BeginTooltip()) {
         ImGui::Text("%s", p_meta.path.c_str());
-        ImGui::Text("type: %s", p_meta.type.ToString());
+        ImGui::Text("type: %s", ToString(p_meta.type));
 
         if (p_asset.type == AssetType::Image) {
             auto texture = reinterpret_cast<const ImageAsset&>(p_asset);
@@ -102,30 +103,25 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
     if (m_renaming == p_path) {
         std::string buffer;
         buffer.resize(256);
-        if (ImGui::InputText("###rename", buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+        if (DrawInputText(nullptr, buffer)) {
             fs::path to_path = m_renaming.parent_path();
             to_path = to_path / buffer.c_str();
-
             m_editor.GetApplication()->GetAssetManager()->MoveAsset(m_renaming, to_path);
-
             m_renaming = "";
         }
         if (!ImGui::IsItemActive() && ImGui::IsMouseClicked(0)) {
             m_renaming = "";
         }
     } else {
-        if (p_name_override) {
-            ImGui::Text(p_name_override);
-        } else {
-            ImGui::Text(filename.c_str());
-        }
+        ImGui::Text("%s", p_name_override ? p_name_override : filename.c_str());
         if (is_file) {
             // @TODO: refactor
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-                m_editor.context.drag_payload = short_path;
-                ImGui::SetDragDropPayload("MY_PAYLOAD_TYPE",
-                                          &m_editor.context.drag_payload, sizeof(std::string));
-                ImGui::Text("Dragging sprite...");
+                const char* data = short_path.c_str();
+                ImGui::SetDragDropPayload(ASSET_DRAG_DROP_PAYLOAD,
+                                          data,
+                                          short_path.length() + 1);
+                ImGui::Text("Dragging '%s'", data);
                 ImGui::EndDragDropSource();
             }
         }

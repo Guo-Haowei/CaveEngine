@@ -19,15 +19,26 @@ void TileMapRenderer::CreateRenderData() {
         return;
     }
 
+    // @TODO: multi layer
     int i = 0;
     for (const auto& layer : tile_map_asset->GetAllLayers()) {
+        if (layer.GetRevision() == revision) {
+            break;
+        }
+
         std::vector<Vector2f> vertices;
         std::vector<Vector2f> uvs;
         std::vector<uint32_t> indices;
 
-        vertices.reserve(layer.tiles.size() * 4);
-        for (const auto& [key, tile] : layer.tiles) {
-            const auto [x, y] = TileMapLayer::Unpack(key);
+        const auto& tiles = layer.GetTiles();
+        if (tiles.empty()) {
+            continue;
+        }
+
+        vertices.reserve(tiles.size() * 4);
+        for (const auto& [key, tile] : tiles) {
+            const int16_t x = key.x;
+            const int16_t y = key.y;
 
             const float s = 1.0f;
             float x0 = s * x;
@@ -100,6 +111,8 @@ void TileMapRenderer::CreateRenderData() {
         auto mesh = IGraphicsManager::GetSingleton().CreateMeshImpl(desc, 2, buffers, &index_desc);
 
         m_mesh = *mesh;
+
+        revision = layer.GetRevision();
 
         if (i == 0) break;
     }

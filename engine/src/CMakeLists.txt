@@ -41,6 +41,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/thirdparty/imgui
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
+    ${PROJECT_SOURCE_DIR}/thirdparty/json/single_include
     ${PROJECT_SOURCE_DIR}/thirdparty/
     ${PROJECT_SOURCE_DIR}/engine/shader
     ${PROJECT_SOURCE_DIR}/engine/src
