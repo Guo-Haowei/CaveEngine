@@ -60,27 +60,34 @@ TileMapLayer& TileMapAsset::AddLayer(std::string&& p_name) {
     return layer;
 }
 
-#if 0
-void SpriteSheetAsset::UpdateFrames() {
-    DEV_ASSERT(m_row > 0 && m_column > 0);
-    m_frames.clear();
-    m_frames.reserve(m_row * m_column);
-
-    const float dx = static_cast<float>(m_width) / m_column;
-    const float dy = static_cast<float>(m_height) / m_row;
-
-    for (uint32_t y = 0; y < m_row; ++y) {
-        for (uint32_t x = 0; x < m_column; ++x) {
-            const float x_min = x * dx;
-            const float y_min = y * dy;
-            const float x_max = (x + 1) * dx;
-            const float y_max = (y + 1) * dy;
-
-            m_frames.push_back(Rect({ x_min, y_min }, { x_max, y_max }));
-        }
-    }
+auto TileMapLayer::FromYaml(const YAML::Node& p_node) -> Result<void> {
+    unused(p_node);
+    return Result<void>();
 }
-#endif
+
+auto TileMapLayer::ToYaml(YAML::Emitter& p_out) const -> Result<void> {
+    // serialize::SerializeYamlContext ctx;
+
+    p_out << YAML::BeginMap;
+
+    p_out << YAML::Key << "name" << YAML::Value << name;
+    p_out << YAML::Key << "tiles" << YAML::Value << YAML::BeginSeq;
+
+    p_out.SetMapFormat(YAML::Flow);
+
+    for (const auto& [key, value] : m_tiles) {
+        p_out << YAML::BeginMap;
+        p_out << YAML::Key << "x" << YAML::Value << key.x;
+        p_out << YAML::Key << "y" << YAML::Value << key.y;
+        p_out << YAML::Key << "type" << YAML::Value << value.id;
+        p_out << YAML::EndMap;
+    }
+
+    p_out << YAML::EndSeq;
+
+    p_out << YAML::EndMap;
+    return Result<void>();
+}
 
 std::vector<Guid> TileMapAsset::GetDependencies() const {
     return {};
@@ -100,6 +107,14 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
     out << YAML::BeginMap;
 
     out << YAML::Key << "version" << YAML::Value << VERSION;
+
+    out << YAML::Key << "layers" << YAML::Value << YAML::BeginSeq;
+
+    for (const auto& layer : m_layers) {
+        layer.ToYaml(out);
+    }
+
+    out << YAML::EndSeq;
 
     out << YAML::EndMap;
 
@@ -132,5 +147,27 @@ auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 
     return Result<void>();
 }
+
+#if 0
+void SpriteSheetAsset::UpdateFrames() {
+    DEV_ASSERT(m_row > 0 && m_column > 0);
+    m_frames.clear();
+    m_frames.reserve(m_row * m_column);
+
+    const float dx = static_cast<float>(m_width) / m_column;
+    const float dy = static_cast<float>(m_height) / m_row;
+
+    for (uint32_t y = 0; y < m_row; ++y) {
+        for (uint32_t x = 0; x < m_column; ++x) {
+            const float x_min = x * dx;
+            const float y_min = y * dy;
+            const float x_max = (x + 1) * dx;
+            const float y_max = (y + 1) * dy;
+
+            m_frames.push_back(Rect({ x_min, y_min }, { x_max, y_max }));
+        }
+    }
+}
+#endif
 
 }  // namespace my

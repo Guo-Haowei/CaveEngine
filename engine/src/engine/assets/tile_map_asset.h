@@ -3,6 +3,7 @@
 #include "asset_interface.h"
 
 // clang-format off
+namespace YAML { class Emitter; }
 namespace YAML { class Node; }
 // clang-format on
 
@@ -74,6 +75,9 @@ public:
     const auto& GetTiles() const { return m_tiles; }
 
 private:
+    auto FromYaml(const YAML::Node& p_node) -> Result<void>;
+    auto ToYaml(YAML::Emitter& p_out) const -> Result<void>;
+
     Guid m_tileset;
     int m_z_index = 0;
     std::unordered_map<TileIndex, TileData> m_tiles;
@@ -81,6 +85,8 @@ private:
     // Non serialized
     AssetHandle m_tileset_handle;
     uint32_t m_revision{ 1 };  // start from 1, so it always create the first frame
+
+    friend class TileMapAsset;
 };
 
 class TileMapAsset : public IAsset {

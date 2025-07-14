@@ -7,6 +7,7 @@
 #include "engine/scene/scene.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
+#include "editor/widget.h"
 #include "editor/panels/viewer.h"
 #include "editor/utility/imguizmo.h"
 
@@ -306,6 +307,17 @@ void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
         // Top margin
         ImGui::Dummy(ImVec2(8, 8));
 
+        DrawInputText("layer", layer.name);
+        // ImGui::Text("%s", layer.name.c_str());
+
+        ImGui::SameLine();
+
+        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
+            LOG_WARN("TODO: DELETE");
+        }
+
+        // next line
+
         ImVec2 region_size(96, 96);
 
         ImGui::Image(checkerboard->gpu_texture->GetHandle(), region_size);
@@ -326,16 +338,6 @@ void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
                 // p_sprite.SetImage(texture);
             }
             ImGui::EndDragDropTarget();
-        }
-
-        ImGui::SameLine();
-
-        ImGui::Text("%s", layer.name.c_str());
-
-        ImGui::SameLine();
-
-        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
-            LOG_WARN("TODO: DELETE");
         }
 
         ImGui::Dummy(ImVec2(8, 8));
