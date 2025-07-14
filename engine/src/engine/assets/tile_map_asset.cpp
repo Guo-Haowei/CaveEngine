@@ -3,13 +3,17 @@
 #include "engine/assets/assets.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/systems/serialization/serialization.h"
+#include "engine/serialization/serialization.h"
 
 namespace my {
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileData, id);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileMapLayer, name, sprite_guid, tiles);
+
 TileData TileMapLayer::GetTile(TileIndex p_index) {
-    auto it = m_tiles.find(p_index);
-    if (it == m_tiles.end()) {
+    auto it = tiles.find(p_index);
+    if (it == tiles.end()) {
         return TileData::Empty();
     }
 
@@ -19,15 +23,15 @@ TileData TileMapLayer::GetTile(TileIndex p_index) {
 TileResult TileMapLayer::SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old) {
     p_out_old = TileData::Empty();
 
-    auto it = m_tiles.find(p_index);
+    auto it = tiles.find(p_index);
 
     // if there's a tile
-    if (it != m_tiles.end()) {
+    if (it != tiles.end()) {
         p_out_old = it->second;  // save the old tile
 
         if (p_new_tile.IsEmpty()) {
             // do nothing, the tile was already empty
-            m_tiles.erase(it);
+            tiles.erase(it);
 
             return TileResult::Removed;
         }
@@ -47,7 +51,7 @@ TileResult TileMapLayer::SetTile(TileIndex p_index, TileData p_new_tile, TileDat
         return TileResult::Noop;
     }
 
-    m_tiles.insert({ p_index, p_new_tile });
+    tiles.insert({ p_index, p_new_tile });
     return TileResult::Added;
 }
 
@@ -60,36 +64,8 @@ TileMapLayer& TileMapAsset::AddLayer(std::string&& p_name) {
     return layer;
 }
 
-auto TileMapLayer::FromYaml(const YAML::Node& p_node) -> Result<void> {
-    unused(p_node);
-    return Result<void>();
-}
-
-auto TileMapLayer::ToYaml(YAML::Emitter& p_out) const -> Result<void> {
-    // serialize::SerializeYamlContext ctx;
-
-    p_out << YAML::BeginMap;
-
-    p_out << YAML::Key << "name" << YAML::Value << name;
-    p_out << YAML::Key << "tiles" << YAML::Value << YAML::BeginSeq;
-
-    p_out.SetMapFormat(YAML::Flow);
-
-    for (const auto& [key, value] : m_tiles) {
-        p_out << YAML::BeginMap;
-        p_out << YAML::Key << "x" << YAML::Value << key.x;
-        p_out << YAML::Key << "y" << YAML::Value << key.y;
-        p_out << YAML::Key << "type" << YAML::Value << value.id;
-        p_out << YAML::EndMap;
-    }
-
-    p_out << YAML::EndSeq;
-
-    p_out << YAML::EndMap;
-    return Result<void>();
-}
-
 std::vector<Guid> TileMapAsset::GetDependencies() const {
+    // @TODO: walk through all layers
     return {};
 }
 
@@ -100,56 +76,39 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
         return HBN_ERROR(res.error());
     }
 
-    YAML::Emitter out;
-    out << YAML::BeginMap;
-    out << YAML::Key << "version" << YAML::Value << VERSION;
+    json j;
+    j["version"] = VERSION;
+    j["layers"] = m_layers;
 
-    out << YAML::Key << "body" << YAML::Value;
-
-    serialize::SerializeYamlContext context;
-    serialize::SerializeYaml(out, *this, context);
-
-    out << YAML::EndMap;
-    return serialize::SaveYaml(p_meta.path, out);
+    return Serialize(p_meta.path, j);
 }
 
-auto TileMapAsset::LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void> {
-    serialize::SerializeYamlContext context;
-    return serialize::DeserializeYaml(p_node, *this, context);
+void TileMapAsset::LoadFromDiskCurrent(const json& j) {
+    m_layers = j.at("layers").get<std::vector<TileMapLayer>>();
 }
 
 auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
-    YAML::Node node;
-    if (auto res = serialize::LoadYaml(p_meta.path, node); !res) {
+    json j;
+
+    if (auto res = Deserialize(p_meta.path, j); !res) {
         return HBN_ERROR(res.error());
     }
 
-    const auto& version_node = node["version"];
-    const int version = version_node ? version_node.as<int>() : 0;
-    auto body = node["body"];
+    const int version = j["version"];
 
-    switch (version) {
-        case 1:
-            [[fallthrough]];
-        default:
-            LoadFromDiskCurrent(body);
-            break;
+    try {
+        switch (version) {
+            case 1:
+                [[fallthrough]];
+            default:
+                LoadFromDiskCurrent(j);
+                break;
+        }
+    } catch (const json::exception& e) {
+        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "{}", e.what());
     }
 
     return Result<void>();
-}
-
-void TileMapLayer::RegisterClass() {
-    BEGIN_REGISTRY(TileMapLayer);
-    REGISTER_FIELD(TileMapLayer, "name", name);
-    REGISTER_FIELD(TileMapLayer, "guid", guid);
-    END_REGISTRY(TileMapLayer);
-}
-
-void TileMapAsset::RegisterClass() {
-    BEGIN_REGISTRY(TileMapAsset);
-    REGISTER_FIELD(TileMapAsset, "layers", m_layers);
-    END_REGISTRY(TileMapAsset);
 }
 
 #if 0

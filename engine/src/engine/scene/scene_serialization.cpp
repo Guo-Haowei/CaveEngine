@@ -2,7 +2,6 @@
 
 #include <fstream>
 
-#include "engine/assets/tile_map_asset.h"
 #include "engine/core/io/archive.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
@@ -158,9 +157,6 @@ void RegisterClasses() {
         LightComponent::Attenuation::RegisterClass();
         EnvironmentComponent::Ambient::RegisterClass();
         EnvironmentComponent::Sky::RegisterClass();
-
-        TileMapLayer::RegisterClass();
-        TileMapAsset::RegisterClass();
 
         s_initialized = true;
     }

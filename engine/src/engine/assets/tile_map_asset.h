@@ -1,11 +1,8 @@
 #pragma once
+#include <nlohmann/json_fwd.hpp>
+
 #include "asset_handle.h"
 #include "asset_interface.h"
-
-// clang-format off
-namespace YAML { class Emitter; }
-namespace YAML { class Node; }
-// clang-format on
 
 namespace my {
 
@@ -57,12 +54,17 @@ enum class TileResult : uint8_t {
 };
 
 class TileMapLayer {
+    // Non serialized
+    AssetHandle m_tileset_handle;
+    uint32_t m_revision{ 1 };  // make sure revision is ahead the first frame
+
 public:
     std::string name;
-    Guid guid;
+    Guid sprite_guid;
+    std::unordered_map<TileIndex, TileData> tiles;
+    int z_index = 0;
 
     TileData GetTile(TileIndex p_index);
-
     TileResult SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old);
 
     void SetTile(TileIndex p_index, TileData p_new_tile) {
@@ -72,22 +74,7 @@ public:
 
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }
-
-    const auto& GetTiles() const { return m_tiles; }
-
-    static void RegisterClass();
-
-private:
-    auto FromYaml(const YAML::Node& p_node) -> Result<void>;
-    auto ToYaml(YAML::Emitter& p_out) const -> Result<void>;
-
-    Guid m_tileset;
-    int m_z_index = 0;
-    std::unordered_map<TileIndex, TileData> m_tiles;
-
-    // Non serialized
-    AssetHandle m_tileset_handle;
-    uint32_t m_revision{ 1 };  // start from 1, so it always create the first frame
+    const auto& GetTiles() const { return tiles; }
 
     friend class TileMapAsset;
 };
@@ -113,7 +100,7 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    auto LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void>;
+    void LoadFromDiskCurrent(const nlohmann::json& p_node);
 
     std::vector<TileMapLayer> m_layers;
 };
