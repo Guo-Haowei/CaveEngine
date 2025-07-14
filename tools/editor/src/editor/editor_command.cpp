@@ -23,7 +23,7 @@ void EditorInspectAssetCommand::Execute(Scene&) {
         if (handle.IsReady()) {
             const auto meta = handle.GetMeta();
             LOG_OK("Asset {} selected", meta->path);
-            switch (meta->type.GetData()) {
+            switch (meta->type) {
                 case AssetType::TileMap: {
                     m_editor->OpenTool(ToolType::TileMap, m_guid);
                 } break;

@@ -45,4 +45,6 @@ bool DrawColorPicker3(const char* p_label,
 
 bool ToggleButton(const char* p_str_id, bool* p_value);
 
+bool DragDropTarget(const std::function<void(void)>& p_callback);
+
 }  // namespace my

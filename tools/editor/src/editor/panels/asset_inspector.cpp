@@ -143,16 +143,6 @@ void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
             ImGui::InvisibleButton("DropTarget", size);
         }
     }
-
-    // @TODO: refactor
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MY_PAYLOAD_TYPE")) {
-            std::string& texture = *((std::string*)payload->Data);
-
-            p_sprite.SetImage(texture);
-        }
-        ImGui::EndDragDropTarget();
-    }
 }
 
 void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {

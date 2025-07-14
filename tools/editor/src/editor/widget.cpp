@@ -1,5 +1,7 @@
 #include "widget.h"
 
+#include "editor/editor_window.h"
+
 namespace my {
 
 void PushDisabled() {
@@ -242,6 +244,21 @@ bool ToggleButton(const char* p_str_id, bool* p_value) {
     draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
 
     return toggled;
+}
+
+bool DragDropTarget(const std::function<void(void)>& p_callback) {
+    // @TODO: make this reusable
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ASSET_DRAG_DROP_PAYLOAD)) {
+            const char* path = reinterpret_cast<const char*>(payload->Data);
+            p_callback();
+            LOG_OK("{}", path);
+        }
+        ImGui::EndDragDropTarget();
+        return true;
+    }
+
+    return false;
 }
 
 }  // namespace my

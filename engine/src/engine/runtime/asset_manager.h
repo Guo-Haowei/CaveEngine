@@ -6,8 +6,8 @@
 
 namespace my {
 
+enum class AssetType : uint32_t;
 class AssetEntry;
-class AssetType;
 class Scene;
 
 class AssetManager : public Singleton<AssetManager>, public Module {
@@ -20,7 +20,7 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    void CreateAsset(const AssetType& p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr);
+    void CreateAsset(AssetType p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr);
 
     auto MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) -> Result<void>;
 

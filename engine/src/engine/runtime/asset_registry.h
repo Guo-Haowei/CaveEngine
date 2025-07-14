@@ -12,8 +12,8 @@ public:
     AssetRegistry()
         : Module("AssetRegistry") {}
 
-    std::optional<AssetHandle> FindByGuid(const Guid& p_guid, AssetType p_type = AssetType::Any);
-    std::optional<AssetHandle> FindByPath(const std::string& p_path, AssetType p_type = AssetType::Any);
+    std::optional<AssetHandle> FindByGuid(const Guid& p_guid, AssetType p_type = AssetType::All);
+    std::optional<AssetHandle> FindByPath(const std::string& p_path, AssetType p_type = AssetType::All);
 
     template<typename T>
     std::optional<Handle<T>> FindByPath(const std::string& p_path) {

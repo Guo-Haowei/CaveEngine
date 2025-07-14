@@ -331,17 +331,18 @@ void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
             LOG_WARN("TODO: SELECT");
         }
 
-        // @TODO: make this reusable
-        if (ImGui::BeginDragDropTarget()) {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MY_PAYLOAD_TYPE")) {
-                std::string& texture = *((std::string*)payload->Data);
+        DragDropTarget([]() {
+        });
+        // if (ImGui::BeginDragDropTarget()) {
+        //    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MY_PAYLOAD_TYPE")) {
+        //        std::string& texture = *((std::string*)payload->Data);
 
-                LOG_OK("{}", texture);
+        //        LOG_OK("{}", texture);
 
-                // p_sprite.SetImage(texture);
-            }
-            ImGui::EndDragDropTarget();
-        }
+        //        // p_sprite.SetImage(texture);
+        //    }
+        //    ImGui::EndDragDropTarget();
+        //}
 
         ImGui::Dummy(ImVec2(8, 8));
 

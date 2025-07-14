@@ -27,10 +27,6 @@ enum {
 
 struct EditorContext {
     float timestep{ 0 };
-
-    // THIS IS BAD
-    // Should never use raw pointer
-    std::string drag_payload;
 };
 
 class EditorLayer : public Layer, public IInputHandler {

@@ -117,7 +117,8 @@ std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetTy
     std::lock_guard lock(registry_mutex);
     auto it = m_guid_map.find(p_guid);
     if (it != m_guid_map.end()) {
-        if (p_type == AssetType::Any || it->second->metadata.type == p_type) {
+        auto ok = p_type & it->second->metadata.type;
+        if (static_cast<bool>(ok)) {
             return AssetHandle(p_guid, it->second);
         }
     }
@@ -132,7 +133,8 @@ std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, 
         const Guid& guid = it->second;
         auto it2 = m_guid_map.find(guid);
         if (it2 != m_guid_map.end()) {
-            if (p_type == AssetType::Any || it2->second->metadata.type == p_type) {
+            auto ok = p_type & it2->second->metadata.type;
+            if (static_cast<bool>(ok)) {
                 return AssetHandle(guid, it2->second);
             }
         }

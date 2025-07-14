@@ -26,7 +26,7 @@ void FileSystemPanel::OnAttach() {
 void FileSystemPanel::ShowResourceToolTip(const AssetMetaData& p_meta, const IAsset& p_asset) {
     if (ImGui::BeginTooltip()) {
         ImGui::Text("%s", p_meta.path.c_str());
-        ImGui::Text("type: %s", p_meta.type.ToString());
+        ImGui::Text("type: %s", ToString(p_meta.type));
 
         if (p_asset.type == AssetType::Image) {
             auto texture = reinterpret_cast<const ImageAsset&>(p_asset);
@@ -117,10 +117,11 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
         if (is_file) {
             // @TODO: refactor
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-                m_editor.context.drag_payload = short_path;
-                ImGui::SetDragDropPayload("MY_PAYLOAD_TYPE",
-                                          &m_editor.context.drag_payload, sizeof(std::string));
-                ImGui::Text("Dragging sprite...");
+                const char* data = short_path.c_str();
+                ImGui::SetDragDropPayload(ASSET_DRAG_DROP_PAYLOAD,
+                                          data,
+                                          short_path.length() + 1);
+                ImGui::Text("Dragging '%s'", data);
                 ImGui::EndDragDropSource();
             }
         }
