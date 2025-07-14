@@ -30,9 +30,9 @@ public:
     static void RequestShutdown();
 
 private:
-    [[nodiscard]] void LoadAssetSync(const Guid& p_guid,
-                                     OnAssetLoadSuccessFunc p_on_success,
-                                     void* p_userdata);
+    void LoadAssetSync(const Guid& p_guid,
+                       OnAssetLoadSuccessFunc p_on_success,
+                       void* p_userdata);
 
     void LoadAssetAsync(const Guid& p_guid,
                         OnAssetLoadSuccessFunc p_on_success,

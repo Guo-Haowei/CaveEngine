@@ -114,11 +114,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
             m_renaming = "";
         }
     } else {
-        if (p_name_override) {
-            ImGui::Text(p_name_override);
-        } else {
-            ImGui::Text(filename.c_str());
-        }
+        ImGui::Text("%s", p_name_override ? p_name_override : filename.c_str());
         if (is_file) {
             // @TODO: refactor
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {

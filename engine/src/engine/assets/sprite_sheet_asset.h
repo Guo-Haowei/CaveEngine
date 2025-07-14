@@ -25,13 +25,13 @@ public:
 
     void SetImage(const std::string& p_path);
 
-    const uint32_t GetRow() const { return m_row; }
-    const uint32_t GetCol() const { return m_column; }
+    uint32_t GetRow() const { return m_row; }
+    uint32_t GetCol() const { return m_column; }
     void SetRow(uint32_t p_row);
     void SetCol(uint32_t p_col);
 
-    const uint32_t GetWidth() const { return m_width; }
-    const uint32_t GetHeight() const { return m_height; }
+    uint32_t GetWidth() const { return m_width; }
+    uint32_t GetHeight() const { return m_height; }
 
 private:
     auto LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void>;

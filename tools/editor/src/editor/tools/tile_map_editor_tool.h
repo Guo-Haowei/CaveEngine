@@ -35,7 +35,7 @@ public:
 
     void Update(Scene* p_scene) override;
 
-    virtual bool Is2D() const { return true; }
+    bool Is2D() const override { return true; }
 
     const char* GetName() const override { return "TileMapEditor"; }
 

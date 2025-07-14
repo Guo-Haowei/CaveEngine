@@ -81,7 +81,6 @@ private:
 
     std::vector<std::shared_ptr<EditorItem>> m_panels;
     ecs::Entity m_selected;
-    Scene* m_simScene{ nullptr };
 
     uint64_t m_displayedImage = 0;
     std::list<std::shared_ptr<EditorCommandBase>> m_commandBuffer;

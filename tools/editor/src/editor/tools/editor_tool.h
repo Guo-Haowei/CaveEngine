@@ -17,7 +17,7 @@ public:
 
     void Update(Scene* p_scene) override;
 
-    virtual bool Is2D() const { return false; }
+    bool Is2D() const override { return false; }
 
     const char* GetName() const override { return "Editor"; }
     const std::string& GetTile() const override { return m_title; }
