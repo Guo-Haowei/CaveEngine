@@ -13,20 +13,20 @@ namespace YAML { class Node; }
 namespace my {
 
 struct BufferAsset : IAsset {
-    std::vector<char> buffer;
+    DECLARE_ASSET(BufferAsset, AssetType::Binary)
 
-    BufferAsset()
-        : IAsset(AssetType::Binary) {}
+    std::vector<char> buffer;
 };
 
 struct TextAsset : IAsset {
-    std::string source;
+    DECLARE_ASSET(TextAsset, AssetType::Text)
 
-    TextAsset()
-        : IAsset(AssetType::Text) {}
+    std::string source;
 };
 
 struct ImageAsset : IAsset {
+    DECLARE_ASSET(ImageAsset, AssetType::Image)
+
     PixelFormat format = PixelFormat::UNKNOWN;
     int width = 0;
     int height = 0;
@@ -36,9 +36,6 @@ struct ImageAsset : IAsset {
     // @TODO: write data to meta
     // @TODO: refactor
     std::shared_ptr<GpuTexture> gpu_texture;
-
-    ImageAsset()
-        : IAsset(AssetType::Image) {}
 };
 
 }  // namespace my

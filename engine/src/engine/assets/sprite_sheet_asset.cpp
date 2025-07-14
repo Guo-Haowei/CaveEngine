@@ -21,9 +21,9 @@ void SpriteSheetAsset::SetCol(uint32_t p_col) {
     UpdateFrames();
 }
 
-void SpriteSheetAsset::SetHandle(AssetHandle&& p_handle) {
+void SpriteSheetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     m_image_handle = std::move(p_handle);
-    const ImageAsset* image = m_image_handle.Get<ImageAsset>();
+    const ImageAsset* image = m_image_handle.Get();
     if (image) {
         Guid guid = m_image_handle.GetGuid();
         if (guid != m_image) {
@@ -37,7 +37,7 @@ void SpriteSheetAsset::SetHandle(AssetHandle&& p_handle) {
 }
 
 void SpriteSheetAsset::SetImage(const std::string& p_path) {
-    auto handle = AssetRegistry::GetSingleton().FindByPath(p_path);
+    auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>(p_path);
     if (handle) {
         SetHandle(std::move(*handle));
     }
@@ -137,7 +137,7 @@ auto SpriteSheetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void>
     }
 
     // update image
-    auto handle = AssetRegistry::GetSingleton().FindByGuid(m_image);
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image);
     if (handle) {
         SetHandle(std::move(*handle));
     }

@@ -113,24 +113,28 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
     return ok;
 }
 
-std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid) {
+std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_type) {
     std::lock_guard lock(registry_mutex);
     auto it = m_guid_map.find(p_guid);
     if (it != m_guid_map.end()) {
-        return AssetHandle(p_guid, it->second);
+        if (p_type == AssetType::Any || it->second->metadata.type == p_type) {
+            return AssetHandle(p_guid, it->second);
+        }
     }
 
     return std::nullopt;
 }
 
-std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path) {
+std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetType p_type) {
     std::lock_guard lock(registry_mutex);
     auto it = m_path_map.find(p_path);
     if (it != m_path_map.end()) {
         const Guid& guid = it->second;
         auto it2 = m_guid_map.find(guid);
         if (it2 != m_guid_map.end()) {
-            return AssetHandle(guid, it2->second);
+            if (p_type == AssetType::Any || it2->second->metadata.type == p_type) {
+                return AssetHandle(guid, it2->second);
+            }
         }
     }
 

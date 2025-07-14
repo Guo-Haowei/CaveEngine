@@ -1,10 +1,10 @@
 #include "lua_script_manager.h"
 
+#include "engine/assets/assets.h"
 #include "engine/core/debugger/profiler.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/input_manager.h"
-//#include "engine/runtime/scene_manager_interface.h"
 #include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/scene/scene.h"
@@ -185,7 +185,7 @@ void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::
 Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const std::string& p_path, const char* p_class_name, ObjectFunctions& p_meta) {
     auto asset_registry = m_app->GetAssetRegistry();
     [[maybe_unused]]
-    auto handle = asset_registry->FindByPath(p_path);
+    auto handle = asset_registry->FindByPath<TextAsset>(p_path);
     DEV_ASSERT(0);
 
 #if 0

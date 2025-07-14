@@ -195,12 +195,6 @@ template<typename T>
 struct ConstantBuffer {
     std::shared_ptr<GpuConstantBuffer> buffer;
     T cache;
-
-    void update() {
-        if (buffer) {
-            buffer->update(&cache, sizeof(T));
-        }
-    }
 };
 
 }  // namespace my

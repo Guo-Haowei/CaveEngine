@@ -48,11 +48,9 @@ struct TileMapLayer {
 };
 
 class TileMapAsset : public IAsset {
+    DECLARE_ASSET(TileMapAsset, AssetType::TileMap)
 public:
     static constexpr const int VERSION = 0;
-
-    TileMapAsset()
-        : IAsset(AssetType::TileMap) {}
 
     TileMapLayer& AddLayer(std::string&& p_name);
 

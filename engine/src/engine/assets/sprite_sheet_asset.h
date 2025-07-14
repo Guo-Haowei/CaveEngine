@@ -11,11 +11,9 @@ namespace YAML { class Node; }
 namespace my {
 
 class SpriteSheetAsset : public IAsset {
+    DECLARE_ASSET(SpriteSheetAsset, AssetType::SpriteSheet)
 public:
     static constexpr const int VERSION = 2;
-
-    SpriteSheetAsset()
-        : IAsset(AssetType::SpriteSheet) {}
 
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
 
@@ -23,7 +21,7 @@ public:
 
     std::vector<Guid> GetDependencies() const override;
 
-    AssetHandle& GetHandle() { return m_image_handle; }
+    Handle<ImageAsset>& GetHandle() { return m_image_handle; }
 
     void SetImage(const std::string& p_path);
 
@@ -38,7 +36,7 @@ public:
 private:
     auto LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void>;
 
-    void SetHandle(AssetHandle&& p_handle);
+    void SetHandle(Handle<ImageAsset>&& p_handle);
     void UpdateFrames();
 
     Guid m_image;
@@ -49,7 +47,7 @@ private:
 
     /// Non serialized
     std::vector<Rect> m_frames;  // frames are calculated
-    AssetHandle m_image_handle;
+    Handle<ImageAsset> m_image_handle;
 };
 
 }  // namespace my

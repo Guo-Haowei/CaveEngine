@@ -10,9 +10,13 @@ namespace my {
 void TileMapLayer::AddTile(int16_t p_x, int16_t p_y, int id) {
     auto key = Pack(p_x, p_y);
 
-    tiles.insert({ key, id });
-
-    ++revision;
+    auto [it, ok] = tiles.try_emplace(key, id);
+    if (ok) {
+        ++revision;
+    } else if (it->second != id) {
+        it->second = id;
+        ++revision;
+    }
 }
 
 void TileMapLayer::EraseTile(int16_t p_x, int16_t p_y) {
@@ -33,15 +37,6 @@ TileMapLayer& TileMapAsset::AddLayer(std::string&& p_name) {
 }
 
 #if 0
-void SpriteSheetAsset::SetImage(const std::string& p_path) {
-    auto handle = AssetRegistry::GetSingleton().FindByPath(p_path);
-    if (handle) {
-        SetHandle(std::move(*handle));
-    }
-
-    UpdateFrames();
-}
-
 void SpriteSheetAsset::UpdateFrames() {
     DEV_ASSERT(m_row > 0 && m_column > 0);
     m_frames.clear();

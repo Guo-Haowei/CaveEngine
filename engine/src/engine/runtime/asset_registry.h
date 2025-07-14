@@ -12,8 +12,24 @@ public:
     AssetRegistry()
         : Module("AssetRegistry") {}
 
-    std::optional<AssetHandle> FindByGuid(const Guid& p_guid);
-    std::optional<AssetHandle> FindByPath(const std::string& p_path);
+    std::optional<AssetHandle> FindByGuid(const Guid& p_guid, AssetType p_type = AssetType::Any);
+    std::optional<AssetHandle> FindByPath(const std::string& p_path, AssetType p_type = AssetType::Any);
+
+    template<typename T>
+    std::optional<Handle<T>> FindByPath(const std::string& p_path) {
+        static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
+        auto handle = FindByPath(p_path, T::ASSET_TYPE);
+        if (!handle) return std::nullopt;
+        return Handle<T>(std::move(*handle));
+    }
+
+    template<typename T>
+    std::optional<Handle<T>> FindByGuid(const Guid& p_guid) {
+        static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
+        auto handle = FindByGuid(p_guid, T::ASSET_TYPE);
+        if (!handle) return std::nullopt;
+        return Handle<T>(*std::move(handle));
+    }
 
     void MoveAsset(std::string&& p_old, std::string&& p_new);
 

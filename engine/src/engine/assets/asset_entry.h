@@ -29,7 +29,7 @@ public:
         , asset(nullptr)
         , status{ AssetStatus::Unloaded } {}
 
-    [[nodiscard]] auto Wait() -> Result<AssetRef>;
+    [[nodiscard]] AssetRef Wait();
 
     void MarkLoaded(AssetRef p_asset);
 

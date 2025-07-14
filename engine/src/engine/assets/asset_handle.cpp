@@ -9,14 +9,14 @@ bool AssetHandle::IsReady() const {
     return entry && entry->status == AssetStatus::Loaded;
 }
 
-IAsset* AssetHandle::Get() {
+IAsset* AssetHandle::Get() const {
     if (auto entry = m_entry.lock(); entry) {
         return entry->asset.get();
     }
     return nullptr;
 }
 
-[[nodiscard]] auto AssetHandle::Wait() const -> Result<AssetRef> {
+[[nodiscard]] AssetRef AssetHandle::Wait() const {
     auto entry = m_entry.lock();
     DEV_ASSERT(entry);
     return entry->Wait();

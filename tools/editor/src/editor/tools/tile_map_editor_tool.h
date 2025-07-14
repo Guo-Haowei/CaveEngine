@@ -41,6 +41,8 @@ public:
 
     const std::string& GetTile() const override { return m_title; }
 
+    const Guid& GetTileMapGuid() const { return m_tile_map_guid; }
+
 protected:
     struct Point {
         int16_t x, y;

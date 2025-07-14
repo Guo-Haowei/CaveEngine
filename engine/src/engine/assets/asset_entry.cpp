@@ -2,7 +2,7 @@
 
 namespace my {
 
-auto AssetEntry::Wait() -> Result<AssetRef> {
+AssetRef AssetEntry::Wait() {
     std::unique_lock lock(m_mutex);
 
     m_cv.wait(lock, [this]() {
@@ -10,7 +10,7 @@ auto AssetEntry::Wait() -> Result<AssetRef> {
     });
 
     if (status == AssetStatus::Failed) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "failed to load {}", metadata.path);
+        return nullptr;
     }
 
     return asset;

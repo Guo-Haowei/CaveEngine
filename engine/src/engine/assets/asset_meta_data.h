@@ -20,6 +20,7 @@ public:
         ASSET_TYPE_LIST
 #undef ASSET_TYPE
             Count,
+        Any = Count,
     };
 
     AssetType(Type type)
