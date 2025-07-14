@@ -25,15 +25,6 @@ TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
 }
 
 void TileMapEditor::Update(Scene*) {
-    {
-        int16_t x = -2;
-        int16_t y = -8;
-        auto a = TileMapLayer::Pack(x, y);
-        auto [x1, y1] = TileMapLayer::Unpack(a);
-        DEV_ASSERT(x1 == x);
-        DEV_ASSERT(y1 == y);
-    }
-
     const CameraComponent& camera = m_viewer->GetActiveCamera();
     const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
 
@@ -139,10 +130,10 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
     m_tile_map_guid = p_guid;
     m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
+    m_tile_map_handle = m_asset_registry->FindByGuid(m_tile_map_guid).value();
 
-    auto handle = *(m_editor.GetApplication()->GetAssetRegistry()->FindByGuid(p_guid));
-    auto asset = handle.Get<TileMapAsset>();
-    auto meta = handle.GetMeta();
+    auto asset = m_tile_map_handle.Get();
+    auto meta = m_tile_map_handle.GetMeta();
 
     m_title = std::format("tilemap ({})", meta->path);
 
@@ -219,25 +210,21 @@ void TileMapEditor::OnExit() {
     scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
 }
 
-void TileMapEditor::DrawLayerOverview() {
-    if (ImGui::Button(ICON_FA_SQUARE_PLUS)) {
-        LOG_WARN("TODO: ADD");
+void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
+        p_tile_map.AddLayer("untitled layer");
     }
     ImGui::Separator();
 
-    struct Card {
-        ImTextureID texture;
-        int id;  // optional for unique label suffix
-    };
-
-    // Child container for scrollable card list
-    std::vector<Card> cards{};
-    cards.resize(3);
+    auto& layers = p_tile_map.GetAllLayers();
+    const int layer_count = static_cast<int>(layers.size());
 
     auto checkerboard = m_checkerboard_handle.Get();
     DEV_ASSERT(checkerboard);
 
-    for (int i = 0; i < cards.size(); ++i) {
+    for (int i = 0; i < layer_count; ++i) {
+        TileMapLayer& layer = layers[i];
+
         ImGui::PushID(i);
 
         ImGui::BeginGroup();
@@ -257,6 +244,8 @@ void TileMapEditor::DrawLayerOverview() {
         if (ImGui::InvisibleButton("##clickable_image", region_size)) {
             LOG_WARN("TODO: SELECT");
         }
+
+        // @TODO: make this reusable
         if (ImGui::BeginDragDropTarget()) {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MY_PAYLOAD_TYPE")) {
                 std::string& texture = *((std::string*)payload->Data);
@@ -270,7 +259,9 @@ void TileMapEditor::DrawLayerOverview() {
 
         ImGui::SameLine();
 
-        // ImGui::Text("Card #%d", cards[i].id);
+        ImGui::Text("%s", layer.name.c_str());
+
+        ImGui::SameLine();
 
         if (ImGui::Button(ICON_FA_TRASH_CAN)) {
             LOG_WARN("TODO: DELETE");
@@ -288,7 +279,11 @@ void TileMapEditor::DrawLayerOverview() {
 }
 
 void TileMapEditor::DrawAssetInspector() {
-    // @TODO: draw layers with drop regions
+    TileMapAsset* tile_map = m_tile_map_handle.Get();
+    if (!tile_map) {
+        return;
+    }
+
     float full_width = ImGui::GetContentRegionAvail().x;
     constexpr float layer_tab_width = 360.0f;  // left panel fixed width
     constexpr float sprite_tab_width = 360.0f;
@@ -298,7 +293,7 @@ void TileMapEditor::DrawAssetInspector() {
 
     if (ImGui::BeginTabBar("##MyTabs1")) {
         if (ImGui::BeginTabItem("Layer")) {
-            DrawLayerOverview();
+            DrawLayerOverview(*tile_map);
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();

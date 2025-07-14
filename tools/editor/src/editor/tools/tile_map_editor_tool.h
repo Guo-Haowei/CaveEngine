@@ -10,6 +10,7 @@
 namespace my {
 
 class AssetRegistry;
+class TileMapAsset;
 class Viewer;
 
 class TileMapEditor : public ITool {
@@ -50,15 +51,18 @@ protected:
     };
     bool CursorToTile(const Vector2f& p_in, Point& p_out) const;
 
-    void DrawLayerOverview();
+    void DrawLayerOverview(TileMapAsset& p_tile_map);
 
+    std::string m_title;
     Viewer* m_viewer;
     AssetRegistry* m_asset_registry;
-    Handle<ImageAsset> m_checkerboard_handle;
 
     Guid m_tile_map_guid;
+
+    Handle<ImageAsset> m_checkerboard_handle;
+    Handle<TileMapAsset> m_tile_map_handle;
+
     std::vector<Command> m_commands;
-    std::string m_title;
 };
 
 }  // namespace my
