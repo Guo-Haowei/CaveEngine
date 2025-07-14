@@ -35,6 +35,8 @@ public:
 
     void Update(Scene* p_scene) override;
 
+    void DrawAssetInspector() override;
+
     bool Is2D() const override { return true; }
 
     const char* GetName() const override { return "TileMapEditor"; }

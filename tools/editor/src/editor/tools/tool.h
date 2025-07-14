@@ -26,6 +26,8 @@ public:
 
     virtual void Update(Scene* p_scene) = 0;
 
+    virtual void DrawAssetInspector() {}
+
     virtual bool Is2D() const = 0;
 
     ToolCameraPolicy GetCameraPolicy() const { return m_policy; }

@@ -126,6 +126,7 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
 void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
     ImGui::Text("Image");
 
+    // @TODO: abc
     {
         const float w = 300;
         auto& handle = p_sprite.GetHandle();
@@ -178,24 +179,9 @@ void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
 }
 
 void AssetInspector::UpdateInternal(Scene*) {
-    ITool* raw = m_editor.GetActiveTool();
-    AssetRegistry* asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-    if (auto tool = dynamic_cast<TileMapEditor*>(raw); tool) {
-        const Guid& guid = tool->GetTileMapGuid();
-        asset_registry->FindByGuid(guid);
+    if (ITool* tool = m_editor.GetActiveTool(); DEV_VERIFY(tool)) {
+        tool->DrawAssetInspector();
     }
-    //IAsset* asset = nullptr;
-    //if (!asset) {
-    //    return;
-    //}
-
-    //switch (asset->type.GetData()) {
-    //    case AssetType::SpriteSheet:
-    //        DrawSprite(static_cast<SpriteSheetAsset&>(*asset));
-    //        break;
-    //    default:
-    //        break;
-    //}
 }
 
 }  // namespace my

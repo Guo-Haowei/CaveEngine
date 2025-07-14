@@ -46,6 +46,32 @@ void WriteBrdfImage(const char* p_file) {
     delete[] image_data;
 }
 
+void WriteCheckerBoardImage(const char* p_file) {
+    constexpr int channels = 4;
+
+    constexpr int grid_size = 8 * 4;
+    constexpr int tex_size = 64 * 4;
+
+    struct Pixel {
+        uint8_t r, g, b, a;
+    };
+
+    constexpr Pixel light{ 204, 204, 204, 255 };
+    constexpr Pixel dark{ 136, 136, 136, 255 };
+
+    std::vector<Pixel> pixels;
+    pixels.reserve(tex_size * tex_size);
+    for (int y = 0; y < tex_size; ++y) {
+        for (int x = 0; x < tex_size; ++x) {
+            bool light_tile = ((x / grid_size) + (y / grid_size)) % 2 == 0;
+            Pixel pixel = light_tile ? light : dark;
+            pixels.push_back(pixel);
+        }
+    }
+
+    stbi_write_png(p_file, tex_size, tex_size, channels, pixels.data(), tex_size * sizeof(Pixel));
+}
+
 void WriteAviatorSkyImage(const char* p_file) {
     constexpr int width = 2048;
     constexpr int height = 1024;
@@ -75,10 +101,10 @@ void WriteAviatorSkyImage(const char* p_file) {
 }
 
 int main(int, const char**) {
-    
+
     engine::InitializeCore();
 
-    WriteImageWrapper("brdf.hdr", WriteBrdfImage);
+    WriteImageWrapper("checkerboard.png", WriteCheckerBoardImage);
 
     thread::RequestShutdown();
     engine::FinalizeCore();

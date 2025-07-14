@@ -210,4 +210,76 @@ void TileMapEditor::OnExit() {
     scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
 }
 
+struct Card {
+    ImTextureID texture;
+    int id;  // optional for unique label suffix
+};
+
+static int next_card_id = 0;
+
+void DrawCardListUI() {
+    // Top "+ Add" Button
+    //if (ImGui::Button("+ Add Card")) {
+    //    // Add a new card with dummy texture
+    //    cards.push_back({ /* texture = */ nullptr, next_card_id++ });
+    //}
+
+    // Child container for scrollable card list
+    ImGui::BeginChild("CardContainer", ImVec2(0, 400), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+    std::vector<Card> cards{};
+    cards.resize(3);
+
+    for (int i = 0; i < cards.size(); ++i) {
+        ImGui::PushID(i);  // Ensure unique widget IDs per card
+
+        ImGui::BeginGroup();  // Optional visual group per card
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
+
+        ImGui::BeginGroup();                             // Texture + Delete in same line
+        ImGui::Image(0, ImVec2(64, 64));  // texture left
+        ImGui::SameLine();
+
+        ImGui::BeginGroup();
+        ImGui::Text("Card #%d", cards[i].id);  // You can put more info here
+
+        // if (ImGui::Button("Delete")) {
+        //     cards.erase(cards.begin() + i);
+        //     ImGui::PopStyleVar(2);
+        //     ImGui::EndGroup();
+        //     ImGui::EndGroup();
+        //     ImGui::PopID();
+        //     //break;  // Must break because vector has changed
+        // }
+
+        ImGui::EndGroup();  // right side
+        ImGui::EndGroup();  // card group
+        ImGui::Separator();
+
+        ImGui::PopStyleVar(2);
+        ImGui::PopID();
+        ImGui::EndGroup();  // card group
+    }
+
+    ImGui::EndChild();
+}
+
+void TileMapEditor::DrawAssetInspector() {
+    // @TODO: draw layers with drop regions
+    float full_width = ImGui::GetContentRegionAvail().x;
+    constexpr float layer_tab_width = 360.0f;  // left panel fixed width
+    constexpr float sprite_tab_width = 360.0f;
+    [[maybe_unused]] const float main_width = full_width - layer_tab_width - sprite_tab_width - ImGui::GetStyle().ItemSpacing.x;
+
+    ImGui::BeginChild("LayerTab", ImVec2(layer_tab_width, 0), true);
+    DrawCardListUI();
+    ImGui::EndChild();
+
+    ImGui::SameLine();
+
+    ImGui::BeginChild("SpriteTab", ImVec2(sprite_tab_width, 0), true);
+    ImGui::Text("???");
+    ImGui::EndChild();
+}
+
 }  // namespace my
