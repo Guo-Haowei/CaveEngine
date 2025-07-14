@@ -1,5 +1,6 @@
 #include "widget.h"
 
+#include "engine/runtime/asset_registry.h"
 #include "editor/editor_window.h"
 
 namespace my {
@@ -246,13 +247,16 @@ bool ToggleButton(const char* p_str_id, bool* p_value) {
     return toggled;
 }
 
-bool DragDropTarget(const std::function<void(void)>& p_callback) {
-    // @TODO: make this reusable
+bool DragDropTarget(AssetType p_mask,
+                    const DragDropFunc& p_callback) {
+
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ASSET_DRAG_DROP_PAYLOAD)) {
             const char* path = reinterpret_cast<const char*>(payload->Data);
-            p_callback();
-            LOG_OK("{}", path);
+            auto handle = AssetRegistry::GetSingleton().FindByPath(path, p_mask);
+            if (handle) {
+                p_callback(*handle);
+            }
         }
         ImGui::EndDragDropTarget();
         return true;

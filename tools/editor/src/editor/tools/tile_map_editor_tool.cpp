@@ -307,11 +307,10 @@ void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
 
         ImGui::BeginGroup();
-        // Top margin
+
         ImGui::Dummy(ImVec2(8, 8));
 
         DrawInputText("layer", layer.name);
-        // ImGui::Text("%s", layer.name.c_str());
 
         ImGui::SameLine();
 
@@ -322,8 +321,23 @@ void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
         // next line
 
         ImVec2 region_size(96, 96);
+        ImVec2 image_size = region_size;
 
-        ImGui::Image(checkerboard->gpu_texture->GetHandle(), region_size);
+        uint64_t image_handle = 0;
+
+        if (layer.sprite_guid.IsValid()) {
+            if (auto handle = m_asset_registry->FindByGuid<ImageAsset>(layer.sprite_guid); handle) {
+                if (auto asset = (*handle).Get(); asset) {
+                    image_handle = asset->gpu_texture ? asset->gpu_texture->GetHandle() : 0;
+                    // @TODO: adjust texture size
+                }
+            }
+        }
+        if (image_handle == 0) {
+            image_handle = checkerboard->gpu_texture->GetHandle();
+        }
+
+        ImGui::Image(image_handle, image_size);
 
         ImVec2 pos = ImGui::GetItemRectMin();
         ImGui::SetCursorScreenPos(pos);
@@ -331,18 +345,10 @@ void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
             LOG_WARN("TODO: SELECT");
         }
 
-        DragDropTarget([]() {
+        DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
+            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
+            layer.sprite_guid = p_handle.GetGuid();
         });
-        // if (ImGui::BeginDragDropTarget()) {
-        //    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MY_PAYLOAD_TYPE")) {
-        //        std::string& texture = *((std::string*)payload->Data);
-
-        //        LOG_OK("{}", texture);
-
-        //        // p_sprite.SetImage(texture);
-        //    }
-        //    ImGui::EndDragDropTarget();
-        //}
 
         ImGui::Dummy(ImVec2(8, 8));
 

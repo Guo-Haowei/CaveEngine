@@ -15,6 +15,8 @@ public:
         return Parse(p_string.c_str(), p_string.length());
     }
 
+    bool IsValid() const;
+
     bool operator==(const Guid& p_rhs) const {
         for (int i = 0; i < array_length(m_data); ++i) {
             if (m_data[i] != p_rhs.m_data[i]) {

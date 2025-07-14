@@ -126,6 +126,14 @@ std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetTy
     return std::nullopt;
 }
 
+// @TODO: use this for string look up
+struct TransparentCompare {
+    using is_transparent = void;
+    bool operator()(const std::string& lhs, const std::string& rhs) const { return lhs < rhs; }
+    bool operator()(const std::string& lhs, const char* rhs) const { return lhs < rhs; }
+    bool operator()(const char* lhs, const std::string& rhs) const { return lhs < rhs; }
+};
+
 std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetType p_type) {
     std::lock_guard lock(registry_mutex);
     auto it = m_path_map.find(p_path);
