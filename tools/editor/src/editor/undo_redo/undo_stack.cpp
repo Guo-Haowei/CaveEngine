@@ -1,4 +1,4 @@
-#include "undo_stack.h"
+﻿#include "undo_stack.h"
 
 namespace my {
 
@@ -18,6 +18,12 @@ bool UndoStack::Submit(std::shared_ptr<UndoCommand>&& p_command) {
 
     // If can't merge, add to undo stack
     m_undo_stack.emplace_back(std::move(p_command));
+
+    // remove oldest
+    if (m_undo_stack.size() > m_max_undo) {
+        m_undo_stack.erase(m_undo_stack.begin());
+    }
+
     return true;
 }
 

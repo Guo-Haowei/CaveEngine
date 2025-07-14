@@ -5,6 +5,9 @@ namespace my {
 
 class UndoStack {
 public:
+    UndoStack(uint32_t p_max_undo = UINT_MAX)
+        : m_max_undo(p_max_undo) {}
+
     bool Submit(std::shared_ptr<UndoCommand>&& p_command);
 
     bool Undo();
@@ -24,7 +27,8 @@ public:
     }
 
 private:
-    std::vector<std::shared_ptr<UndoCommand>> m_undo_stack;
+    const uint32_t m_max_undo;
+    std::deque<std::shared_ptr<UndoCommand>> m_undo_stack;
     std::vector<std::shared_ptr<UndoCommand>> m_redo_stack;
 };
 
