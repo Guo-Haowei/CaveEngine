@@ -100,32 +100,22 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
         return HBN_ERROR(res.error());
     }
 
-    // file
-    // serialize::SerializeYamlContext ctx;
-
     YAML::Emitter out;
     out << YAML::BeginMap;
-
     out << YAML::Key << "version" << YAML::Value << VERSION;
 
-    out << YAML::Key << "layers" << YAML::Value << YAML::BeginSeq;
+    out << YAML::Key << "body" << YAML::Value;
 
-    for (const auto& layer : m_layers) {
-        layer.ToYaml(out);
-    }
-
-    out << YAML::EndSeq;
+    serialize::SerializeYamlContext context;
+    serialize::SerializeYaml(out, *this, context);
 
     out << YAML::EndMap;
-
     return serialize::SaveYaml(p_meta.path, out);
 }
 
 auto TileMapAsset::LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void> {
-    // serialize::SerializeYamlContext ctx;
-    unused(p_node);
-
-    return Result<void>();
+    serialize::SerializeYamlContext context;
+    return serialize::DeserializeYaml(p_node, *this, context);
 }
 
 auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
@@ -136,16 +126,30 @@ auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 
     const auto& version_node = node["version"];
     const int version = version_node ? version_node.as<int>() : 0;
+    auto body = node["body"];
 
     switch (version) {
         case 1:
             [[fallthrough]];
         default:
-            LoadFromDiskCurrent(node);
+            LoadFromDiskCurrent(body);
             break;
     }
 
     return Result<void>();
+}
+
+void TileMapLayer::RegisterClass() {
+    BEGIN_REGISTRY(TileMapLayer);
+    REGISTER_FIELD(TileMapLayer, "name", name);
+    REGISTER_FIELD(TileMapLayer, "guid", guid);
+    END_REGISTRY(TileMapLayer);
+}
+
+void TileMapAsset::RegisterClass() {
+    BEGIN_REGISTRY(TileMapAsset);
+    REGISTER_FIELD(TileMapAsset, "layers", m_layers);
+    END_REGISTRY(TileMapAsset);
 }
 
 #if 0

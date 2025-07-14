@@ -21,6 +21,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         tile_map.CreateRenderData();
 
         // if (tileMap.m_sprite.texture->gpu_texture)
+        if (tile_map.m_mesh)
         {
             const TransformComponent& transform = *scene.GetComponent<TransformComponent>(id);
 

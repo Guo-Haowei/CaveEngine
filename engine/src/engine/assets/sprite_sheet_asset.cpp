@@ -111,6 +111,7 @@ auto SpriteSheetAsset::LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<v
     }
 
     m_image = *res;
+
     serialize::DeserializeYaml(p_node["row"], m_row, ctx);
     serialize::DeserializeYaml(p_node["column"], m_column, ctx);
     serialize::DeserializeYaml(p_node["width"], m_width, ctx);

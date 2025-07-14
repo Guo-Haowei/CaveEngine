@@ -1,4 +1,5 @@
 #include "serialization.h"
+#include "engine/assets/guid.h"
 
 namespace my::serialize {
 
@@ -53,6 +54,25 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, Se
     }
 
     p_object = p_node.as<std::string>();
+    return Result<void>();
+}
+
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Guid& p_object, SerializeYamlContext&) {
+    p_out << p_object.ToString();
+    return Result<void>();
+}
+
+Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, SerializeYamlContext&) {
+    if (!p_node) {
+        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+    }
+
+    auto res = Guid::Parse(p_node.as<std::string>());
+    if (!res) {
+        return HBN_ERROR(res.error());
+    }
+
+    p_object = *res;
     return Result<void>();
 }
 

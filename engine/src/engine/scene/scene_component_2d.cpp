@@ -19,6 +19,7 @@ void TileMapRenderer::CreateRenderData() {
         return;
     }
 
+    // @TODO: multi layer
     int i = 0;
     for (const auto& layer : tile_map_asset->GetAllLayers()) {
         if (layer.GetRevision() == revision) {
@@ -30,6 +31,9 @@ void TileMapRenderer::CreateRenderData() {
         std::vector<uint32_t> indices;
 
         const auto& tiles = layer.GetTiles();
+        if (tiles.empty()) {
+            continue;
+        }
 
         vertices.reserve(tiles.size() * 4);
         for (const auto& [key, tile] : tiles) {

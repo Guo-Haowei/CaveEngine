@@ -59,6 +59,7 @@ enum class TileResult : uint8_t {
 class TileMapLayer {
 public:
     std::string name;
+    Guid guid;
 
     TileData GetTile(TileIndex p_index);
 
@@ -73,6 +74,8 @@ public:
     void IncRevision() { ++m_revision; }
 
     const auto& GetTiles() const { return m_tiles; }
+
+    static void RegisterClass();
 
 private:
     auto FromYaml(const YAML::Node& p_node) -> Result<void>;

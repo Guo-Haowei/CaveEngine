@@ -199,8 +199,8 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
     m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
     m_tile_map_handle = m_asset_registry->FindByGuid(m_tile_map_guid).value();
 
-    auto asset = m_tile_map_handle.Get();
-    auto meta = m_tile_map_handle.GetMeta();
+    [[maybe_unused]] auto asset = m_tile_map_handle.Get();
+    [[maybe_unused]] auto meta = m_tile_map_handle.GetMeta();
 
     m_title = std::format("tilemap ({})", meta->path);
 
@@ -219,6 +219,7 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
         TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
         tile_map_renderer->tile_map = p_guid;
 
+#if 0
         // clang-format off
         const std::vector<std::vector<int>> data = {
             { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, },
@@ -252,6 +253,8 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
             }
         }
         layer.IncRevision();
+#endif
+
 #if 0
         const int grid_x = 3;
         const int grid_y = 2;
