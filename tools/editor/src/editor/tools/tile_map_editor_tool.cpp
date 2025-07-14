@@ -1,5 +1,7 @@
 #include "tile_map_editor_tool.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
 #include "engine/assets/assets.h"
 #include "engine/assets/tile_map_asset.h"
 #include "engine/runtime/asset_registry.h"
@@ -20,7 +22,6 @@ namespace my {
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
     : ITool(p_editor), m_viewer(p_viewer) {
     m_policy = ToolCameraPolicy::Only2D;
-    m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
 }
 
 void TileMapEditor::Update(Scene*) {
@@ -135,8 +136,9 @@ bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event
 }
 
 void TileMapEditor::OnEnter(const Guid& p_guid) {
+    m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
     m_tile_map_guid = p_guid;
-    // @TODO: create a dummy scene
+    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
 
     auto handle = *(m_editor.GetApplication()->GetAssetRegistry()->FindByGuid(p_guid));
     auto asset = handle.Get<TileMapAsset>();
@@ -217,26 +219,22 @@ void TileMapEditor::OnExit() {
     scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
 }
 
-struct Card {
-    ImTextureID texture;
-    int id;  // optional for unique label suffix
-};
-
-static int next_card_id = 0;
-
 void TileMapEditor::DrawLayerOverview() {
-    // Top "+ Add" Button
-    // if (ImGui::Button("+ Add Card")) {
-    //    // Add a new card with dummy texture
-    //    cards.push_back({ /* texture = */ nullptr, next_card_id++ });
-    //}
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS)) {
+        LOG_WARN("TODO: ADD");
+    }
+    ImGui::Separator();
+
+    struct Card {
+        ImTextureID texture;
+        int id;  // optional for unique label suffix
+    };
 
     // Child container for scrollable card list
-    ImGui::BeginChild("CardContainer", ImVec2(0, 400), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
     std::vector<Card> cards{};
     cards.resize(3);
 
-    auto checkerboard = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value().Get();
+    auto checkerboard = m_checkerboard_handle.Get();
     DEV_ASSERT(checkerboard);
 
     for (int i = 0; i < cards.size(); ++i) {
@@ -247,23 +245,39 @@ void TileMapEditor::DrawLayerOverview() {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
 
         ImGui::BeginGroup();
+        // Top margin
+        ImGui::Dummy(ImVec2(8, 8));
 
-        ImGui::Image(checkerboard->gpu_texture->GetHandle(), ImVec2(64, 64));
+        ImVec2 region_size(96, 96);
+
+        ImGui::Image(checkerboard->gpu_texture->GetHandle(), region_size);
+
+        ImVec2 pos = ImGui::GetItemRectMin();
+        ImGui::SetCursorScreenPos(pos);
+        if (ImGui::InvisibleButton("##clickable_image", region_size)) {
+            LOG_WARN("TODO: SELECT");
+        }
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MY_PAYLOAD_TYPE")) {
+                std::string& texture = *((std::string*)payload->Data);
+
+                LOG_OK("{}", texture);
+
+                // p_sprite.SetImage(texture);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
         ImGui::SameLine();
 
-        ImGui::BeginGroup();
-        ImGui::Text("Card #%d", cards[i].id);  // You can put more info here
+        // ImGui::Text("Card #%d", cards[i].id);
 
-        // if (ImGui::Button("Delete")) {
-        //     cards.erase(cards.begin() + i);
-        //     ImGui::PopStyleVar(2);
-        //     ImGui::EndGroup();
-        //     ImGui::EndGroup();
-        //     ImGui::PopID();
-        //     //break;  // Must break because vector has changed
-        // }
+        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
+            LOG_WARN("TODO: DELETE");
+        }
 
-        ImGui::EndGroup();
+        ImGui::Dummy(ImVec2(8, 8));
+
         ImGui::EndGroup();
         ImGui::Separator();
 
@@ -271,8 +285,6 @@ void TileMapEditor::DrawLayerOverview() {
         ImGui::PopID();
         ImGui::EndGroup();
     }
-
-    ImGui::EndChild();
 }
 
 void TileMapEditor::DrawAssetInspector() {
@@ -283,7 +295,15 @@ void TileMapEditor::DrawAssetInspector() {
     [[maybe_unused]] const float main_width = full_width - layer_tab_width - sprite_tab_width - ImGui::GetStyle().ItemSpacing.x;
 
     ImGui::BeginChild("LayerTab", ImVec2(layer_tab_width, 0), true);
-    DrawLayerOverview();
+
+    if (ImGui::BeginTabBar("##MyTabs1")) {
+        if (ImGui::BeginTabItem("Layer")) {
+            DrawLayerOverview();
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
     ImGui::EndChild();
 
     ImGui::SameLine();

@@ -3,11 +3,13 @@
 
 #include "tool.h"
 
+#include "engine/assets/asset_handle.h"
 #include "engine/input/input_event.h"
 #include "engine/scene/scene.h"
 
 namespace my {
 
+class AssetRegistry;
 class Viewer;
 
 class TileMapEditor : public ITool {
@@ -52,6 +54,7 @@ protected:
 
     Viewer* m_viewer;
     AssetRegistry* m_asset_registry;
+    Handle<ImageAsset> m_checkerboard_handle;
 
     Guid m_tile_map_guid;
     std::vector<Command> m_commands;
