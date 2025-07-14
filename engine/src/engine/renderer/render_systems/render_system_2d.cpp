@@ -4,8 +4,12 @@
 
 namespace my {
 
-void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
-    auto view = p_scene.View<TileMapRenderer>();
+void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
+    if (!p_scene) {
+        return;
+    }
+    Scene& scene = *p_scene;
+    auto view = scene.View<TileMapRenderer>();
     for (const auto [id, tile_map] : view) {
 
         // Should move tile map logic to somewhere else
@@ -18,7 +22,7 @@ void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata) {
 
         // if (tileMap.m_sprite.texture->gpu_texture)
         {
-            const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
+            const TransformComponent& transform = *scene.GetComponent<TransformComponent>(id);
 
             const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
             PerBatchConstantBuffer batch_buffer;

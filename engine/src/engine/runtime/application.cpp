@@ -309,8 +309,8 @@ bool Application::MainLoop() {
     Scene* scene = m_sceneManager->GetActiveScene();
     if (scene) {
         scene->Update(timestep);
-        m_renderSystem->RenderFrame(*scene);
     }
+    m_renderSystem->RenderFrame(scene);
 
     // @TODO: refactor this
     if (m_imguiManager) {
@@ -323,10 +323,6 @@ bool Application::MainLoop() {
 
         ImGui::Render();
     }
-
-    //// it's possible scene changed after ui update...
-    //// it's ugly...
-    //scene = m_sceneManager->GetActiveScene();
 
     if (scene && m_state == State::SIM) {
         m_scriptManager->Update(*scene, timestep);

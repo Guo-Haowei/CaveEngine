@@ -13,8 +13,8 @@
 
 namespace my {
 
-extern void RunMeshRenderSystem(Scene& p_scene, FrameData& p_framedata);
-extern void RunTileMapRenderSystem(Scene& p_scene, FrameData& p_framedata);
+extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
+extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
 auto RenderSystem::InitializeImpl() -> Result<void> {
     return Result<void>();
@@ -71,7 +71,7 @@ static KernelData GenerateSsaoKernel() {
     return kernel;
 }
 
-static void FillConstantBuffer(const Scene& p_scene, FrameData& p_out_data) {
+static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
     const auto& options = p_out_data.options;
     auto& cache = p_out_data.perFrameCache;
 
@@ -95,7 +95,7 @@ static void FillConstantBuffer(const Scene& p_scene, FrameData& p_out_data) {
         cache.c_enableBloom = options.bloomEnabled;
 
         cache.c_debugVoxelId = options.debugVoxelId;
-        cache.c_ptObjectCount = (int)p_scene.GetCount<MeshRenderer>();
+        cache.c_ptObjectCount = p_scene ? ((int)p_scene->GetCount<MeshRenderer>()) : 0;
     }
 
     // IBL
@@ -118,47 +118,21 @@ static void FillConstantBuffer(const Scene& p_scene, FrameData& p_out_data) {
     static int s_frameIndex = 0;
     cache.c_frameIndex = s_frameIndex++;
     // @TODO: fix this
-    cache.c_sceneDirty = p_scene.GetDirtyFlags() != SCENE_DIRTY_NONE;
+    cache.c_sceneDirty = p_scene ? (p_scene->GetDirtyFlags() != SCENE_DIRTY_NONE) : true;
 
     // Force fields
-    int counter = 0;
-    for (auto [id, force_field_component] : p_scene.m_ForceFieldComponents) {
-        ForceField& force_field = cache.c_forceFields[counter++];
-        const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
-        force_field.position = transform.GetTranslation();
-        force_field.strength = force_field_component.strength;
-    }
+    // int counter = 0;
+    // for (auto [id, force_field_component] : p_scene.m_ForceFieldComponents) {
+    //    ForceField& force_field = cache.c_forceFields[counter++];
+    //    const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
+    //    force_field.position = transform.GetTranslation();
+    //    force_field.strength = force_field_component.strength;
+    //}
 
-    cache.c_forceFieldsCount = counter;
-
-    // @TODO: fix
-#if 0
-    for (auto const [entity, environment] : p_scene.View<EnvironmentComponent>()) {
-        cache.c_ambientColor = environment.ambient.color;
-        if (!environment.sky.texturePath.empty()) {
-            environment.sky.textureAsset = AssetRegistry::GetSingleton().Request<ImageAsset>(environment.sky.texturePath);
-        }
-    }
-
-    // @TODO:
-    const int level = options.debugBvhDepth;
-    if (level > -1) {
-        for (auto const [id, obj] : p_scene.m_MeshRendererComponents) {
-            const MeshComponent* mesh = p_scene.GetComponent<MeshComponent>(obj.meshId);
-            const TransformComponent* transform = p_scene.GetComponent<TransformComponent>(id);
-            if (mesh && transform) {
-                if (const auto& bvh = mesh->bvh; bvh) {
-                    const auto& matrix = transform->GetWorldMatrix();
-                    DebugDrawBVH(level, bvh.get(), &matrix);
-                }
-            }
-        }
-    }
-#endif
+    // cache.c_forceFieldsCount = counter;
 }
 
-static void FillEnvConstants(const Scene&,
-                             FrameData& p_out_data) {
+static void FillEnvConstants(FrameData& p_out_data) {
     // @TODO: return if necessary
 
     constexpr int count = IBL_MIP_CHAIN_MAX * 6;
@@ -201,7 +175,7 @@ void RenderSystem::BeginFrame() {
     s_firstFrame = false;
 }
 
-void RenderSystem::RenderFrame(Scene& p_scene) {
+void RenderSystem::RenderFrame(Scene* p_scene) {
     // HACK
     auto backend = m_app->GetGraphicsManager()->GetBackend();
     switch (backend) {
@@ -233,9 +207,11 @@ void RenderSystem::RenderFrame(Scene& p_scene) {
     FillParticleEmitterBuffer(p_scene, p_out_data);
 #endif
 
-    FillEnvConstants(p_scene, framedata);
+    FillEnvConstants(framedata);
 
-    RequestPathTracerUpdate(camera, p_scene);
+    if (p_scene) {
+        RequestPathTracerUpdate(camera, *p_scene);
+    }
 
     auto& context = m_frameData->drawDebugContext;
     context.drawCount = (uint32_t)context.positions.size();
