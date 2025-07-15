@@ -2,21 +2,22 @@ import os
 import re
 import sys
 
-def get_project_dir():
+def get_engine_src_folder():
     source_folder = os.path.dirname(os.path.abspath(__file__))
     project_dir = os.path.dirname(source_folder)
-    return project_dir
+    return os.path.join(project_dir, 'engine', 'src', 'engine')
 
-print("Project root folder:", get_project_dir())
+print("Project root folder:", get_engine_src_folder())
 
 # throw "Source folder not found"
 
 # ========= CONFIG ==========
 FILES = [
-    "engine/src/engine/tile_map/tile_map_asset.h",
+    "tile_map/tile_map_asset.h",
+    "scene/transform_component.h",
 ]
 
-OUTPUT_DIR = os.path.join(get_project_dir(), "engine/src/engine/reflection/generated")
+OUTPUT_DIR = os.path.join(get_engine_src_folder(), "reflection/generated")
 
 META_CPP_SUFFIX = ".meta.cpp"
 
@@ -47,7 +48,12 @@ def extract_field_name(line: str) -> str:
     else:
         name = last_part.strip()
 
-    return name
+    type_tokens = parts[:-1]
+    # But if last_part contained '=', it might split name and type incorrectly
+    # So safer to re-join all except last token, then remove possible trailing = in name
+    type_name = " ".join(type_tokens)
+
+    return type_name, name
 
 def parse_file(file_path):
     results = []
@@ -66,10 +72,10 @@ def parse_file(file_path):
                 i += 1
             if i < len(lines):
                 next_line = lines[i].strip()
-                if field_match := field_regex.match(next_line):
-                    field_type, field_name = field_match.groups()
+                type_name, field_name = extract_field_name(next_line)
+                if field_name:
                     results.append({
-                        "type": field_type,
+                        "type": type_name,
                         "name": field_name,
                         "meta": metadata
                     })
@@ -98,7 +104,7 @@ def generate_meta_file(file_path, fields):
 
 def main():
     for file_path in FILES:
-        file_path = os.path.join(get_project_dir(), file_path)
+        file_path = os.path.join(get_engine_src_folder(), file_path)
         if not os.path.isfile(file_path):
             print(f"File not found: {file_path}")
             continue

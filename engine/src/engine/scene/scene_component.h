@@ -2,8 +2,9 @@
 #include "engine/ecs/entity.h"
 #include "engine/math/aabb.h"
 #include "engine/math/angle.h"
-#include "engine/math/geomath.h"
 #include "scene_component_base.h"
+
+#include "transform_component.h"
 
 namespace cave {
 #include "shader_defines.hlsl.h"
@@ -65,51 +66,6 @@ private:
     friend class Scene;
 };
 #pragma endregion HIERARCHY_COMPONENT
-
-#pragma region TRANSFORM_COMPONENT
-class TransformComponent : public ComponentFlagBase {
-public:
-    const Vector3f& GetTranslation() const { return m_translation; }
-    void SetTranslation(const Vector3f& p_translation) { m_translation = p_translation; }
-    void IncreaseTranslation(const Vector3f& p_delta) { m_translation += p_delta; }
-
-    const Vector4f& GetRotation() const { return m_rotation; }
-    void SetRotation(const Vector4f& p_rotation) { m_rotation = p_rotation; }
-
-    const Vector3f& GetScale() const { return m_scale; }
-    void SetScale(const Vector3f& p_scale) { m_scale = p_scale; }
-
-    const Matrix4x4f& GetWorldMatrix() const { return m_worldMatrix; }
-
-    void SetWorldMatrix(const Matrix4x4f& p_matrix) { m_worldMatrix = p_matrix; }
-
-    Matrix4x4f GetLocalMatrix() const;
-
-    bool UpdateTransform();
-    void Scale(const Vector3f& p_scale);
-    void Translate(const Vector3f& p_translation);
-    void Rotate(const Vector3f& p_euler);
-    void RotateX(const Degree& p_degree) { Rotate(Vector3f(p_degree.GetRadians(), 0.0f, 0.0f)); }
-    void RotateY(const Degree& p_degree) { Rotate(Vector3f(0.0f, p_degree.GetRadians(), 0.0f)); }
-    void RotateZ(const Degree& p_degree) { Rotate(Vector3f(0.0f, 0.0f, p_degree.GetRadians())); }
-
-    void SetLocalTransform(const Matrix4x4f& p_matrix);
-    void MatrixTransform(const Matrix4x4f& p_matrix);
-
-    void UpdateTransformParented(const TransformComponent& p_parent);
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    static void RegisterClass();
-
-private:
-    Vector3f m_scale{ 1 };              // local scale
-    Vector3f m_translation{ 0 };        // local translation
-    Vector4f m_rotation{ 0, 0, 0, 1 };  // local rotation
-
-    // Non-serialized attributes
-    Matrix4x4f m_worldMatrix{ 1 };
-};
-#pragma endregion TRANSFORM_COMPONENT
 
 #pragma region MESH_COMPONENT
 enum class VertexAttributeName : uint8_t {

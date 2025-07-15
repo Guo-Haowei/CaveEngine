@@ -41,7 +41,7 @@ class TileMapAsset : public IAsset {
     CAVE_PROP(type = guid, editable, serialize, tooltip = "tileset id")
     Guid m_sprite_guid;
 
-    CAVE_PROP(editable, serialize, tooltip = "change layer visibility")
+    CAVE_PROP(type = boolean, editable, serialize, tooltip = "change layer visibility")
     bool m_is_visible;
 
     CAVE_PROP(serialize)

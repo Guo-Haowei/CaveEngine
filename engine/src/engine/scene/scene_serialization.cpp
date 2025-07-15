@@ -435,22 +435,6 @@ void ArmatureComponent::RegisterClass() {
     END_REGISTRY(ArmatureComponent);
 }
 
-void TransformComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(flags);
-    p_archive.ArchiveValue(m_scale);
-    p_archive.ArchiveValue(m_translation);
-    p_archive.ArchiveValue(m_rotation);
-}
-
-void TransformComponent::RegisterClass() {
-    BEGIN_REGISTRY(TransformComponent);
-    REGISTER_FIELD(TransformComponent, "flags", flags);
-    REGISTER_FIELD(TransformComponent, "translation", m_translation);
-    REGISTER_FIELD(TransformComponent, "rotation", m_rotation);
-    REGISTER_FIELD(TransformComponent, "scale", m_scale);
-    END_REGISTRY(TransformComponent);
-}
-
 void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);
     p_archive.ArchiveValue(indices);

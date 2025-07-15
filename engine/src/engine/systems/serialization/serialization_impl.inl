@@ -243,11 +243,6 @@ template<typename T>
 Result<void> FieldMeta<T>::DumpYaml(YAML::Emitter& p_out, const void* p_object, SerializeYamlContext& p_context) const {
     const T& data = FieldMetaBase::GetData<T>(p_object);
     p_out << YAML::Key << name << YAML::Value;
-    if (flags & FieldFlag::EMIT_SAME_LINE) {
-        p_out.SetSeqFormat(YAML::Flow);
-    } else {
-        p_out.SetSeqFormat(YAML::Block);
-    }
 
     auto context = p_context;
     context.flags = flags;
