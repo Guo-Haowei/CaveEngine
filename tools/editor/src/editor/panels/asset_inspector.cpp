@@ -3,7 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/assets/assets.h"
-#include "engine/assets/sprite_sheet_asset.h"
+#include "engine/assets/sprite_asset.h"
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
@@ -20,7 +20,7 @@ void AssetInspector::OnAttach() {
     m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
 }
 
-void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
+void AssetInspector::TilePaint(SpriteAsset& p_sprite) {
     ImGui::Text("TileSet");
 
     auto& handle = p_sprite.GetHandle();
@@ -100,7 +100,7 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
     }
 }
 
-void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
+void AssetInspector::TileSetup(SpriteAsset& p_sprite) {
     if (ImGui::BeginTabBar("TileSetModes")) {
         if (ImGui::BeginTabItem("Setup")) {
             // if (p_sprite.image_handle.IsReady()) {
@@ -126,7 +126,7 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
     }
 }
 
-void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
+void AssetInspector::DropRegion(SpriteAsset& p_sprite) {
     ImGui::Text("Image");
 
     // @TODO: abc
@@ -148,56 +148,51 @@ void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
     }
 }
 
-void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
-    float full_width = ImGui::GetContentRegionAvail().x;
-    constexpr float sprite_source_tab_width = 360.0f;  // left panel fixed width
-    constexpr float sprite_data_tab = 360.0f;
-    const float main_width = full_width - sprite_source_tab_width - sprite_data_tab - ImGui::GetStyle().ItemSpacing.x;
+struct ChildDesc {
+    const char* name;
+    float width;
+    std::function<void()> func;
+};
 
-    ImGui::BeginChild("ImageSource", ImVec2(sprite_source_tab_width, 0), true);
-    DropRegion(p_sprite);
-    ImGui::EndChild();
+static void DrawContents(float p_full_width, const std::vector<ChildDesc>& p_descs) {
+    const int size = static_cast<int>(p_descs.size());
+    float width_so_far = 0.0f;
+    for (int i = 0; i < size; ++i) {
+        const auto& desc = p_descs[i];
+        const bool is_last = i + 1 == size;
 
-    ImGui::SameLine();
+        const float width = is_last ? p_full_width - width_so_far : desc.width;
+        width_so_far += width;
 
-    ImGui::BeginChild("SpriteEditor", ImVec2(sprite_data_tab, 0), true);
-    TileSetup(p_sprite);
-    ImGui::EndChild();
+        ImGui::BeginChild(desc.name, ImVec2(width, 0), true);
+        desc.func();
+        ImGui::EndChild();
 
-    ImGui::SameLine();
-
-    ImGui::BeginChild("TileSetPanel", ImVec2(main_width, 0), true);
-    TilePaint(p_sprite);
-    ImGui::EndChild();
-}
-
-void AssetInspector::UpdateInternal(Scene*) {
-    const auto& handle = m_editor.GetSelectedAsset();
-    auto asset = handle.Get();
-    if (!asset) {
-        return;
-    }
-
-    switch (asset->type) {
-        case AssetType::SpriteSheet:
-            InspectSpriteSheet(asset);
-            break;
-        case AssetType::TileMap:
-            InspectTileMap(asset);
-            break;
-        default:
-            break;
+        if (!is_last) {
+            ImGui::SameLine();
+        }
     }
 }
 
-void AssetInspector::InspectSpriteSheet(IAsset* p_asset) {
+void AssetInspector::InspectSprite(IAsset* p_asset) {
     // @TODO: rename to SpriteAsset
-    auto sprite = dynamic_cast<SpriteSheetAsset*>(p_asset);
+    auto sprite = dynamic_cast<SpriteAsset*>(p_asset);
     if (!sprite) {
         return;
     }
-    
-    DrawSprite(*sprite);
+
+    std::vector<ChildDesc> descs = {
+        { "ImageSource", 360.0f,
+          [&]() { DropRegion(*sprite); } },
+        { "SpriteEditor", 360.0f,
+          [&]() { TileSetup(*sprite); } },
+        { "TileSetPanel", 0.0f,
+          [&]() { TilePaint(*sprite); } },
+    };
+
+    const float full_width = ImGui::GetContentRegionAvail().x;
+
+    DrawContents(full_width, descs);
 }
 
 void AssetInspector::InspectTileMap(IAsset* p_asset) {
@@ -206,28 +201,26 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
         return;
     }
 
-    float full_width = ImGui::GetContentRegionAvail().x;
-    constexpr float layer_tab_width = 360.0f;  // left panel fixed width
-    constexpr float sprite_tab_width = 360.0f;
-    [[maybe_unused]] const float main_width = full_width - layer_tab_width - sprite_tab_width - ImGui::GetStyle().ItemSpacing.x;
+    std::vector<ChildDesc> descs = {
+        { "LayerOverview", 360.0f,
+          [&]() {
+              if (ImGui::BeginTabBar("##MyTabs1")) {
+                  if (ImGui::BeginTabItem("Layer")) {
+                      TileMapLayerOverview(*tile_map);
+                      ImGui::EndTabItem();
+                  }
+                  ImGui::EndTabBar();
+              }
+          } },
+        { "SpriteTab", 0.0f,
+          [&]() {
+              ImGui::Text("???");
+          } },
+    };
 
-    ImGui::BeginChild("LayerTab", ImVec2(layer_tab_width, 0), true);
+    const float full_width = ImGui::GetContentRegionAvail().x;
 
-    if (ImGui::BeginTabBar("##MyTabs1")) {
-        if (ImGui::BeginTabItem("Layer")) {
-            TileMapLayerOverview(*tile_map);
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-
-    ImGui::EndChild();
-
-    ImGui::SameLine();
-
-    ImGui::BeginChild("SpriteTab", ImVec2(sprite_tab_width, 0), true);
-    ImGui::Text("???");
-    ImGui::EndChild();
+    DrawContents(full_width, descs);
 }
 
 void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
@@ -305,6 +298,25 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
         ImGui::PopStyleVar(2);
         ImGui::PopID();
         ImGui::EndGroup();
+    }
+}
+
+void AssetInspector::UpdateInternal(Scene*) {
+    const auto& handle = m_editor.GetSelectedAsset();
+    auto asset = handle.Get();
+    if (!asset) {
+        return;
+    }
+
+    switch (asset->type) {
+        case AssetType::Sprite:
+            InspectSprite(asset);
+            break;
+        case AssetType::TileMap:
+            InspectTileMap(asset);
+            break;
+        default:
+            break;
     }
 }
 

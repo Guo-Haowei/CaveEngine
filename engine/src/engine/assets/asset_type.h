@@ -2,12 +2,12 @@
 
 namespace my {
 
-#define ASSET_TYPE_LIST               \
-    ASSET_TYPE(Image, "image")        \
-    ASSET_TYPE(Binary, "binary")      \
-    ASSET_TYPE(Text, "text")          \
-    ASSET_TYPE(SpriteSheet, "sprite") \
-    ASSET_TYPE(TileMap, "tilemap")    \
+#define ASSET_TYPE_LIST            \
+    ASSET_TYPE(Image, "image")     \
+    ASSET_TYPE(Binary, "binary")   \
+    ASSET_TYPE(Text, "text")       \
+    ASSET_TYPE(Sprite, "sprite")   \
+    ASSET_TYPE(TileMap, "tilemap") \
     ASSET_TYPE(Scene, "scene")
 
 enum _AssetTypeHelper : uint32_t {

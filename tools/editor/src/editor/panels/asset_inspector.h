@@ -19,14 +19,12 @@ public:
 protected:
     void UpdateInternal(Scene*) override;
 
-    void DrawSprite(SpriteSheetAsset& p_sprite);
-
-    void TileSetup(SpriteSheetAsset& p_sprite);
-    void TilePaint(SpriteSheetAsset& p_sprite);
+    void TileSetup(SpriteAsset& p_sprite);
+    void TilePaint(SpriteAsset& p_sprite);
 
     // SpriteSheet
-    void InspectSpriteSheet(IAsset* p_asset);
-    void DropRegion(SpriteSheetAsset& p_sprite);
+    void InspectSprite(IAsset* p_asset);
+    void DropRegion(SpriteAsset& p_sprite);
 
     // TileMap
     void InspectTileMap(IAsset* p_asset);

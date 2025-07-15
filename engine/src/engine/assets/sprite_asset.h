@@ -8,8 +8,8 @@
 
 namespace my {
 
-class SpriteSheetAsset : public IAsset {
-    DECLARE_ASSET(SpriteSheetAsset, AssetType::SpriteSheet)
+class SpriteAsset : public IAsset {
+    DECLARE_ASSET(SpriteAsset, AssetType::Sprite)
 public:
     static constexpr const int VERSION = 0;
 

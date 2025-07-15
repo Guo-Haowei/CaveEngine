@@ -1,4 +1,4 @@
-#include "sprite_sheet_asset.h"
+#include "sprite_asset.h"
 
 #include "engine/assets/assets.h"
 #include "engine/core/io/file_access.h"
@@ -7,27 +7,27 @@
 
 namespace my {
 
-void SpriteSheetAsset::SetRow(uint32_t p_row) {
+void SpriteAsset::SetRow(uint32_t p_row) {
     if (p_row == 0) return;
     if (p_row == m_row) return;
     m_row = p_row;
     UpdateFrames();
 }
 
-void SpriteSheetAsset::SetCol(uint32_t p_col) {
+void SpriteAsset::SetCol(uint32_t p_col) {
     if (p_col == 0) return;
     if (p_col == m_column) return;
     m_column = p_col;
     UpdateFrames();
 }
 
-void SpriteSheetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
+void SpriteAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     m_image_handle = std::move(p_handle);
     const ImageAsset* image = m_image_handle.Get();
     if (image) {
         Guid guid = m_image_handle.GetGuid();
         if (guid != m_image_guid) {
-            LOG("SpriteSheetAsset: GUID changed from {} to {}", m_image_guid.ToString(), guid.ToString());
+            LOG("SpriteAsset: GUID changed from {} to {}", m_image_guid.ToString(), guid.ToString());
             m_image_guid = guid;
         }
 
@@ -36,7 +36,7 @@ void SpriteSheetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     }
 }
 
-void SpriteSheetAsset::SetImage(const Guid& p_guid) {
+void SpriteAsset::SetImage(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(p_guid);
     if (handle) {
         SetHandle(std::move(*handle));
@@ -45,11 +45,11 @@ void SpriteSheetAsset::SetImage(const Guid& p_guid) {
     UpdateFrames();
 }
 
-std::vector<Guid> SpriteSheetAsset::GetDependencies() const {
+std::vector<Guid> SpriteAsset::GetDependencies() const {
     return { m_image_guid };
 }
 
-void SpriteSheetAsset::UpdateFrames() {
+void SpriteAsset::UpdateFrames() {
     DEV_ASSERT(m_row > 0 && m_column > 0);
     m_frames.clear();
     m_frames.reserve(m_row * m_column);
@@ -69,7 +69,7 @@ void SpriteSheetAsset::UpdateFrames() {
     }
 }
 
-auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
+auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     // meta
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
@@ -88,7 +88,7 @@ auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<v
     return Serialize(p_meta.path, j);
 }
 
-void SpriteSheetAsset::LoadFromDiskCurrent(const nlohmann::json& j) {
+void SpriteAsset::LoadFromDiskCurrent(const nlohmann::json& j) {
     m_image_guid = j["image"];
     m_width = j["width"];
     m_height = j["height"];
@@ -97,7 +97,7 @@ void SpriteSheetAsset::LoadFromDiskCurrent(const nlohmann::json& j) {
     m_tile_scale = j["tile_scale"];
 }
 
-auto SpriteSheetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     json j;
 
     if (auto res = Deserialize(p_meta.path, j); !res) {

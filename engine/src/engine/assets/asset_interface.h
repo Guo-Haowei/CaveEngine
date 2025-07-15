@@ -7,7 +7,7 @@ struct IAsset;
 struct BufferAsset;
 struct TextAsset;
 struct ImageAsset;
-class SpriteSheetAsset;
+class SpriteAsset;
 class AssetEntry;
 struct AssetMetaData;
 

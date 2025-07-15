@@ -5,7 +5,7 @@
 
 // @TODO: get rid of this file
 #include "engine/assets/assets.h"
-#include "engine/assets/sprite_sheet_asset.h"
+#include "engine/assets/sprite_asset.h"
 #include "engine/assets/tile_map_asset.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/core/io/file_access.h"
@@ -60,8 +60,8 @@ static struct {
 
 static AssetRef CreateAssetInstance(AssetType p_type) {
     switch (p_type) {
-        case AssetType::SpriteSheet:
-            return std::make_shared<SpriteSheetAsset>();
+        case AssetType::Sprite:
+            return std::make_shared<SpriteAsset>();
         case AssetType::TileMap:
             return std::make_shared<TileMapAsset>();
         default:
