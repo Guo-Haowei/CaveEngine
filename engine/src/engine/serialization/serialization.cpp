@@ -5,14 +5,14 @@
 
 namespace my {
 
-void to_json(json& j, const Guid& guid) {
-    j = guid.ToString();
+void to_json(json& j, const Guid& p_guid) {
+    j = p_guid.ToString();
 }
 
-void from_json(const json& j, Guid& guid) {
+void from_json(const json& j, Guid& p_guid) {
     auto res = Guid::Parse(j.get<std::string>());
     if (res) {
-        guid = *res;
+        p_guid = *res;
     }
 }
 

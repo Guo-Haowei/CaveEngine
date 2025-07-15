@@ -10,9 +10,8 @@ using nlohmann::json;
 
 class Guid;
 
-void to_json(json& j, const Guid& guid);
-
-void from_json(const json& j, Guid& guid);
+void to_json(json& j, const Guid& p_guid);
+void from_json(const json& j, Guid& p_guid);
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vector2f, x, y);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vector3f, x, y, z);

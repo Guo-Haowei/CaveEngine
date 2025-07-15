@@ -44,6 +44,8 @@ public:
 
     const Guid& GetTileMapGuid() const { return m_tile_map_guid; }
 
+    TileMapLayer* GetActiveLayer();
+
 protected:
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
@@ -52,15 +54,23 @@ protected:
                          TileIndex p_index,
                          TileData p_new_tile);
 
+    void Reset() {
+        m_tile_map_guid = Guid();
+        m_commands.clear();
+        m_current_layer_id = -1;
+        m_tile_map_handle = Handle<TileMapAsset>();
+        m_undo_stack.Clear();
+    }
+
     std::string m_title;
     Viewer* m_viewer;
     AssetRegistry* m_asset_registry;
 
     Guid m_tile_map_guid;
-
     Handle<TileMapAsset> m_tile_map_handle;
 
     std::vector<Command> m_commands;
+    int m_current_layer_id;
 };
 
 }  // namespace my

@@ -17,6 +17,7 @@ namespace my {
 
 #define TEMP_SCENE_NAME "tile_map_scene"
 
+// @TODO: abstract brush class
 struct SetTileCommand : public UndoCommand {
     Handle<TileMapAsset> handle;
     int layer_id;
@@ -88,6 +89,13 @@ void TileMapEditor::UndoableSetTile(TileMapLayer& p_layer,
     m_undo_stack.Submit(std::move(cmd));
 }
 
+TileMapLayer* TileMapEditor::GetActiveLayer() {
+    if (TileMapAsset* tile_map = m_tile_map_handle.Get(); tile_map) {
+        return tile_map->GetLayer(m_current_layer_id);
+    }
+    return nullptr;
+}
+
 void TileMapEditor::Update(Scene*) {
     const CameraComponent& camera = m_viewer->GetActiveCamera();
     const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
@@ -121,8 +129,11 @@ void TileMapEditor::Update(Scene*) {
             break;
         }
 
-        int layer_id = 0;
-        auto& layer = layers[layer_id];
+        auto layer = GetActiveLayer();
+        if (!layer) {
+            break;
+        }
+        const int layer_id = m_current_layer_id;
 
         // process commands
         for (const auto& command : m_commands) {
@@ -132,13 +143,13 @@ void TileMapEditor::Update(Scene*) {
                     auto ndc = m_viewer->CursorToNDC(cmd.cursor);
                     TileIndex tile;
                     if (CursorToTile(cmd.cursor, tile)) {
-                        UndoableSetTile(layer, layer_id, tile, TileData(1));
+                        UndoableSetTile(*layer, layer_id, tile, TileData(1));
                     }
                 } else if constexpr (std::is_same_v<T, CommandEraseTile>) {
                     auto ndc = m_viewer->CursorToNDC(cmd.cursor);
                     TileIndex tile;
                     if (CursorToTile(cmd.cursor, tile)) {
-                        UndoableSetTile(layer, layer_id, tile, TileData::Empty());
+                        UndoableSetTile(*layer, layer_id, tile, TILE_DATA_EMPTY);
                     }
                 }
             },
@@ -190,7 +201,7 @@ bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event
 }
 
 void TileMapEditor::OnEnter(const Guid& p_guid) {
-    m_undo_stack.Clear();
+    Reset();
 
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
     m_tile_map_guid = p_guid;

@@ -160,34 +160,43 @@ void AssetInspector::InspectSprite(IAsset* p_asset) {
     }
 
     std::vector<AssetChildPanel> descs = {
-        { "ImageSource", 360.0f,
-          [&]() {
-              ImGui::Text("Image");
-              const float w = 300;
-              auto& handle = sprite->GetHandle();
+        {
+            "ImageSource",
+            360.0f,
+            [&]() {
+                ImGui::Text("Image");
+                const float w = 300;
+                auto& handle = sprite->GetHandle();
 
-              // @TODO: checker board
-              if (handle.IsReady()) {
-                  const ImageAsset* asset = handle.Get();
-                  DEV_ASSERT(asset);
-                  const float h = w / asset->width * asset->height;
-                  ImVec2 size = ImVec2(w, h);
+                // @TODO: checker board
+                if (handle.IsReady()) {
+                    const ImageAsset* asset = handle.Get();
+                    DEV_ASSERT(asset);
+                    const float h = w / asset->width * asset->height;
+                    ImVec2 size = ImVec2(w, h);
 
-                  ImGui::Image(asset->gpu_texture->GetHandle(), size);
-              } else {
-                  ImVec2 size = ImVec2(w, w);
-                  ImGui::InvisibleButton("DropTarget", size);
-              }
+                    ImGui::Image(asset->gpu_texture->GetHandle(), size);
+                } else {
+                    ImVec2 size = ImVec2(w, w);
+                    ImGui::InvisibleButton("DropTarget", size);
+                }
 
-              DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
-                  DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
-                  sprite->SetImage(p_handle.GetGuid());
-              });
-          } },
-        { "SpriteEditor", 360.0f,
-          [&]() { EditSprite(*sprite); } },
-        { "TileSetPanel", 0.0f,
-          [&]() { TilePaint(*sprite); } },
+                DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
+                    DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
+                    sprite->SetImage(p_handle.GetGuid());
+                });
+            },
+        },
+        {
+            "SpriteEditor",
+            360.0f,
+            [&]() { EditSprite(*sprite); },
+        },
+        {
+            "TileSetPanel",
+            0.0f,
+            [&]() { TilePaint(*sprite); },
+        },
     };
 
     const float full_width = ImGui::GetContentRegionAvail().x;
@@ -201,21 +210,45 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
         return;
     }
 
+    SpriteAsset* sprite = nullptr;
+    if (auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool()); tool) {
+        if (auto layer = tool->GetActiveLayer(); layer) {
+            sprite = layer->GetSpriteHandle().Get();
+        }
+    }
+
     std::vector<AssetChildPanel> descs = {
-        { "LayerOverview", 360.0f,
-          [&]() {
-              if (ImGui::BeginTabBar("##MyTabs1")) {
-                  if (ImGui::BeginTabItem("Layer")) {
-                      TileMapLayerOverview(*tile_map);
-                      ImGui::EndTabItem();
-                  }
-                  ImGui::EndTabBar();
-              }
-          } },
-        { "SpriteTab", 0.0f,
-          [&]() {
-              ImGui::Text("???");
-          } },
+        {
+            "LayerOverview",
+            360.0f,
+            [&]() {
+                if (ImGui::BeginTabBar("##MyTabs1")) {
+                    if (ImGui::BeginTabItem("Layer")) {
+                        TileMapLayerOverview(*tile_map);
+                        ImGui::EndTabItem();
+                    }
+                    ImGui::EndTabBar();
+                }
+            },
+        },
+        {
+            "SpriteTab",
+            360.0f,
+            [&]() {
+                if (sprite) {
+                    EditSprite(*sprite);
+                }
+            },
+        },
+        {
+            "PaintTab",
+            0.0f,
+            [&]() {
+                if (sprite) {
+                    TilePaint(*sprite);
+                }
+            },
+        }
     };
 
     const float full_width = ImGui::GetContentRegionAvail().x;
@@ -248,7 +281,9 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         ImGui::Dummy(ImVec2(8, 8));
 
-        DrawInputText("layer", layer.name);
+        if (DrawInputText("layer", layer.GetName())) {
+            // @TODO: notify dirty
+        }
 
         ImGui::SameLine();
 
@@ -263,14 +298,11 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         uint64_t image_handle = 0;
 
-        if (layer.sprite_guid.IsValid()) {
-            if (auto handle = m_asset_registry->FindByGuid<ImageAsset>(layer.sprite_guid); handle) {
-                if (auto asset = (*handle).Get(); asset) {
-                    // want image width always the same
-                    image_handle = asset->gpu_texture ? asset->gpu_texture->GetHandle() : 0;
-                    image_size = ImVec2(static_cast<float>(asset->width),
-                                        static_cast<float>(asset->height));
-                }
+        if (auto sprite = layer.GetSpriteHandle().Get(); sprite) {
+            if (auto image = sprite->GetHandle().Get(); image) {
+                image_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
+                image_size = ImVec2(static_cast<float>(image->width),
+                                    static_cast<float>(image->height));
             }
         }
         if (image_handle == 0) {
@@ -285,9 +317,9 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
             LOG_WARN("TODO: SELECT");
         }
 
-        DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
-            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
-            layer.sprite_guid = p_handle.GetGuid();
+        DragDropTarget(AssetType::Sprite, [&](AssetHandle& p_handle) {
+            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Sprite);
+            layer.SetSpriteGuid(p_handle.GetGuid());
         });
 
         ImGui::Dummy(ImVec2(8, 8));
