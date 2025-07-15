@@ -45,14 +45,15 @@ public:
     const Guid& GetTileMapGuid() const { return m_tile_map_guid; }
 
     int GetActiveLayerIndex() const { return m_current_layer_id; }
-    TileMapLayer* GetActiveLayer();
+
+    TileMapAsset* GetActiveLayer();
 
     bool SetActiveLayer(int p_index);
 
 protected:
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
-    void UndoableSetTile(TileMapLayer& p_layer,
+    void UndoableSetTile(TileMapAsset& p_layer,
                          int p_layer_id,
                          TileIndex p_index,
                          TileData p_new_tile);

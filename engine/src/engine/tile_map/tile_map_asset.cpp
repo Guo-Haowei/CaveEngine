@@ -10,23 +10,7 @@ namespace my {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
 
-static void to_json(json& j, const TileMapLayer& p_layer) {
-    j["name"] = p_layer.GetName();
-    j["sprite_guid"] = p_layer.GetSpriteGuid();
-    j["tiles"] = p_layer.GetTiles();
-}
-
-static void from_json(const json& j, TileMapLayer& p_layer) {
-    auto name = j["name"].get<std::string>();
-    p_layer.SetName(std::move(name));
-    p_layer.SetSpriteGuid(j["sprite_guid"].get<Guid>());
-
-    auto tiles = j["tiles"].get<std::unordered_map<TileIndex, TileData>>();
-
-    p_layer.SetTiles(std::move(tiles));
-}
-
-TileData TileMapLayer::GetTile(TileIndex p_index) {
+TileData TileMapAsset::GetTile(TileIndex p_index) {
     auto it = m_tiles.find(p_index);
     if (it == m_tiles.end()) {
         return TILE_DATA_EMPTY;
@@ -35,13 +19,13 @@ TileData TileMapLayer::GetTile(TileIndex p_index) {
     return it->second;
 }
 
-void TileMapLayer::SetTiles(std::unordered_map<TileIndex, TileData>&& p_tiles) {
+void TileMapAsset::SetTiles(std::unordered_map<TileIndex, TileData>&& p_tiles) {
     m_tiles = std::move(p_tiles);
 
     IncRevision();
 }
 
-void TileMapLayer::SetSpriteGuid(const Guid& p_guid) {
+void TileMapAsset::SetSpriteGuid(const Guid& p_guid) {
     if (m_sprite_guid != p_guid) {
         if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAsset>(p_guid); handle) {
             m_sprite_guid = p_guid;
@@ -56,7 +40,7 @@ void TileMapLayer::SetSpriteGuid(const Guid& p_guid) {
 }
 
 // @TODO: this should be in tile map edit module
-TileResult TileMapLayer::SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old) {
+TileResult TileMapAsset::SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old) {
     p_out_old = TILE_DATA_EMPTY;
 
     auto it = m_tiles.find(p_index);
@@ -91,22 +75,8 @@ TileResult TileMapLayer::SetTile(TileIndex p_index, TileData p_new_tile, TileDat
     return TileResult::Added;
 }
 
-TileMapLayer& TileMapAsset::AddLayer(std::string&& p_name) {
-    m_layers.resize(m_layers.size() + 1);
-
-    auto& layer = m_layers.back();
-    layer.m_name = std::move(p_name);
-
-    return layer;
-}
-
 std::vector<Guid> TileMapAsset::GetDependencies() const {
-    std::vector<Guid> dependencies;
-    dependencies.reserve(m_layers.size());
-    for (const auto& layer : m_layers) {
-        dependencies.push_back(layer.m_sprite_guid);
-    }
-    return dependencies;
+    return { m_sprite_guid };
 }
 
 auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
@@ -118,13 +88,29 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
 
     json j;
     j["version"] = VERSION;
-    j["layers"] = m_layers;
+    j["name"] = m_name;
+    j["sprite_guid"] = m_sprite_guid;
+    j["tiles"] = m_tiles;
 
     return Serialize(p_meta.path, j);
 }
 
-void TileMapAsset::LoadFromDiskCurrent(const json& j) {
-    m_layers = j.at("layers").get<std::vector<TileMapLayer>>();
+void TileMapAsset::LoadFromDiskVersion1(const json& j) {
+    auto name = j["name"].get<std::string>();
+    SetName(std::move(name));
+    SetSpriteGuid(j["sprite_guid"].get<Guid>());
+
+    auto tiles = j["tiles"].get<std::unordered_map<TileIndex, TileData>>();
+
+    SetTiles(std::move(tiles));
+}
+
+void TileMapAsset::LoadFromDiskVersion0(const json& j) {
+    auto layers = j["layers"];
+    if (layers.is_array() && !layers.empty()) {
+        const json& first_layer = layers.front();
+        LoadFromDiskVersion1(first_layer);
+    }
 }
 
 auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
@@ -138,10 +124,11 @@ auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 
     try {
         switch (version) {
-            case 1:
-                [[fallthrough]];
+            case 0:
+                LoadFromDiskVersion0(j);
+                break;
             default:
-                LoadFromDiskCurrent(j);
+                LoadFromDiskVersion1(j);
                 break;
         }
     } catch (const json::exception& e) {
@@ -150,27 +137,5 @@ auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 
     return Result<void>();
 }
-
-#if 0
-void SpriteSheetAsset::UpdateFrames() {
-    DEV_ASSERT(m_row > 0 && m_column > 0);
-    m_frames.clear();
-    m_frames.reserve(m_row * m_column);
-
-    const float dx = static_cast<float>(m_width) / m_column;
-    const float dy = static_cast<float>(m_height) / m_row;
-
-    for (uint32_t y = 0; y < m_row; ++y) {
-        for (uint32_t x = 0; x < m_column; ++x) {
-            const float x_min = x * dx;
-            const float y_min = y * dy;
-            const float x_max = (x + 1) * dx;
-            const float y_max = (y + 1) * dy;
-
-            m_frames.push_back(Rect({ x_min, y_min }, { x_max, y_max }));
-        }
-    }
-}
-#endif
 
 }  // namespace my

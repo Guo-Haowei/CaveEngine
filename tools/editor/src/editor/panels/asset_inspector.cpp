@@ -258,12 +258,9 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
 
 void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
-        p_tile_map.AddLayer("untitled layer");
+        // p_tile_map.AddLayer("untitled layer");
     }
     ImGui::Separator();
-
-    auto& layers = p_tile_map.GetAllLayers();
-    const int layer_count = static_cast<int>(layers.size());
 
     auto checkerboard = m_checkerboard_handle.Get();
     DEV_ASSERT(checkerboard);
@@ -273,8 +270,8 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
     const int current_layer = tool->GetActiveLayerIndex();
 
-    for (int layer_id = 0; layer_id < layer_count; ++layer_id) {
-        TileMapLayer& layer = layers[layer_id];
+    for (int layer_id = 0; layer_id < 1; ++layer_id) {
+        TileMapAsset& layer = p_tile_map;
         const bool is_layer_selected = current_layer == layer_id;
 
         ImGui::PushID(layer_id);

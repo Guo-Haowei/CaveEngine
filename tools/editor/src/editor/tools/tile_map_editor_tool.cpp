@@ -27,24 +27,20 @@ struct SetTileCommand : public UndoCommand {
 
     bool Undo() override {
         if (TileMapAsset* tile_map = handle.Get(); tile_map) {
-            if (TileMapLayer* layer = tile_map->GetLayer(layer_id); layer) {
-                TileData dummy;
-                layer->SetTile(index, old_tile, dummy);
-                layer->IncRevision();
-                return true;
-            }
+            TileData dummy;
+            tile_map->SetTile(index, old_tile, dummy);
+            tile_map->IncRevision();
+            return true;
         }
         return false;
     }
 
     bool Redo() override {
         if (TileMapAsset* tile_map = handle.Get(); tile_map) {
-            if (TileMapLayer* layer = tile_map->GetLayer(layer_id); layer) {
-                TileData dummy;
-                layer->SetTile(index, new_tile, dummy);
-                layer->IncRevision();
-                return true;
-            }
+            TileData dummy;
+            tile_map->SetTile(index, new_tile, dummy);
+            tile_map->IncRevision();
+            return true;
         }
         return false;
     }
@@ -66,18 +62,18 @@ TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
     m_policy = ToolCameraPolicy::Only2D;
 }
 
-void TileMapEditor::UndoableSetTile(TileMapLayer& p_layer,
+void TileMapEditor::UndoableSetTile(TileMapAsset& p_tile_map,
                                     int p_layer_id,
                                     TileIndex p_index,
                                     TileData p_new_tile) {
 
     TileData old_tile;
-    TileResult result = p_layer.SetTile(p_index, p_new_tile, old_tile);
+    TileResult result = p_tile_map.SetTile(p_index, p_new_tile, old_tile);
     if (result == TileResult::Noop) {
         return;
     }
 
-    p_layer.IncRevision();
+    p_tile_map.IncRevision();
 
     auto cmd = std::make_shared<SetTileCommand>();
     cmd->handle = m_tile_map_handle;
@@ -89,9 +85,9 @@ void TileMapEditor::UndoableSetTile(TileMapLayer& p_layer,
     m_undo_stack.Submit(std::move(cmd));
 }
 
-TileMapLayer* TileMapEditor::GetActiveLayer() {
+TileMapAsset* TileMapEditor::GetActiveLayer() {
     if (TileMapAsset* tile_map = m_tile_map_handle.Get(); tile_map) {
-        return tile_map->GetLayer(m_current_layer_id);
+        return tile_map;
     }
     return nullptr;
 }
@@ -124,20 +120,11 @@ void TileMapEditor::Update(Scene*) {
         }
 
         auto handle = *res;
-        TileMapAsset* asset = handle.Get<TileMapAsset>();
-        if (!asset) {
-            break;
-        }
-
-        auto& layers = asset->GetAllLayers();
-        if (layers.empty()) {
-            break;
-        }
-
-        auto layer = GetActiveLayer();
+        TileMapAsset* layer = handle.Get<TileMapAsset>();
         if (!layer) {
             break;
         }
+
         const int layer_id = m_current_layer_id;
 
         // process commands
