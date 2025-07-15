@@ -24,7 +24,7 @@ void SpriteAsset::SetCol(uint32_t p_col) {
 void SpriteAsset::SetScale(float p_scale) {
     p_scale = glm::max(p_scale, 0.1f);
     if (p_scale != m_tile_scale) {
-        m_tile_scale = p_scale; 
+        m_tile_scale = p_scale;
         // @TODO: dirty
     }
 }

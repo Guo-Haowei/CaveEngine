@@ -183,7 +183,7 @@ void AssetInspector::InspectSprite(IAsset* p_asset) {
                   DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
                   sprite->SetImage(p_handle.GetGuid());
               });
-        } },
+          } },
         { "SpriteEditor", 360.0f,
           [&]() { EditSprite(*sprite); } },
         { "TileSetPanel", 0.0f,

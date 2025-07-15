@@ -10,6 +10,7 @@
 
 namespace my {
 
+enum class HandleInput : uint8_t;
 enum class KeyCode : uint16_t;
 struct ImageAsset;
 class EditorCommandBase;
@@ -52,7 +53,7 @@ public:
     void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
     void CommandRemoveEntity(ecs::Entity p_target);
 
-    bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
+    HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 
