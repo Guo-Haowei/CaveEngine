@@ -15,6 +15,7 @@ class TileMapAsset;
 class TileMapRenderer : public ComponentFlagBase {
 public:
     struct LayerCache {
+        bool visible;
         uint32_t revision{ 0 };
         Handle<ImageAsset> image;
         mutable std::shared_ptr<GpuMesh> mesh;

@@ -46,8 +46,9 @@ void TileMapRenderer::CreateRenderData() {
     for (int layer_id = 0; layer_id < layer_count; ++layer_id) {
         const auto& layer = layers[layer_id];
         auto& layer_cache = m_layer_cache[layer_id];
+        layer_cache.visible = layer.IsVisible();
         if (layer.GetRevision() == layer_cache.revision) {
-            break;
+            continue;
         }
 
         // @TODO: update guid

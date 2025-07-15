@@ -65,11 +65,15 @@ public:
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }
 
+    bool IsVisible() const { return m_visible; }
+    void SetVisible(bool p_visible) { m_visible = p_visible; }
+
 private:
     std::string m_name;
     Guid m_sprite_guid;
     std::unordered_map<TileIndex, TileData> m_tiles;
 
+    bool m_visible = true;
     int m_z_index = 0;
 
     // Non serialized

@@ -14,6 +14,10 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         tile_map.CreateRenderData();
 
         for (const auto& layer : tile_map.GetLayerCache()) {
+            if (!layer.visible) {
+                continue;
+            }
+
             if (!layer.mesh) {
                 continue;
             }

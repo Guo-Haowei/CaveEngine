@@ -220,7 +220,7 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
     std::vector<AssetChildPanel> descs = {
         {
             "LayerOverview",
-            360.0f,
+            360,
             [&]() {
                 if (ImGui::BeginTabBar("##MyTabs1")) {
                     if (ImGui::BeginTabItem("Layer")) {
@@ -233,7 +233,7 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
         },
         {
             "SpriteTab",
-            360.0f,
+            360,
             [&]() {
                 if (sprite) {
                     EditSprite(*sprite);
@@ -242,7 +242,7 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
         },
         {
             "PaintTab",
-            0.0f,
+            0,
             [&]() {
                 if (sprite) {
                     TilePaint(*sprite);
@@ -271,12 +271,22 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool());
     DEV_ASSERT(tool);
 
+    const int current_layer = tool->GetActiveLayerIndex();
+
     for (int layer_id = 0; layer_id < layer_count; ++layer_id) {
         TileMapLayer& layer = layers[layer_id];
+        const bool is_layer_selected = current_layer == layer_id;
 
         ImGui::PushID(layer_id);
 
+        if (is_layer_selected) {
+            auto& style = ImGui::GetStyle();
+            auto& colors = style.Colors;
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, colors[ImGuiCol_FrameBgHovered]);
+        }
+
         ImGui::BeginGroup();
+
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
 
@@ -290,19 +300,21 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         ImGui::SameLine();
 
+        const bool visible = layer.IsVisible();
+        const char* label = visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+        if (ImGui::Button(label)) {
+            layer.SetVisible(!visible);
+        }
+
+        ImGui::SameLine();
+
         if (ImGui::Button(ICON_FA_TRASH_CAN)) {
             LOG_WARN("TODO: DELETE");
         }
 
-        //        #define ICON_FA_EYE            "\xef\x81\xae"  // U+f06e
-        // #define ICON_FA_EYE_DROPPER    "\xef\x87\xbb"  // U+f1fb
-        // #define ICON_FA_EYE_LOW_VISION "\xef\x8a\xa8"  // U+f2a8
-        // #define ICON_FA_EYE_SLASH      "\xef\x81\xb0"  // U+f070
-        //
-
         // next line
 
-        ImVec2 region_size(96, 96);
+        ImVec2 region_size(128, 128);
         ImVec2 image_size = region_size;
 
         uint64_t image_handle = 0;
@@ -337,6 +349,10 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
         ImGui::PopStyleVar(2);
         ImGui::PopID();
         ImGui::EndGroup();
+
+        if (is_layer_selected) {
+            ImGui::PopStyleColor();
+        }
     }
 }
 

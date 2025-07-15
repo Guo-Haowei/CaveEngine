@@ -44,6 +44,7 @@ public:
 
     const Guid& GetTileMapGuid() const { return m_tile_map_guid; }
 
+    int GetActiveLayerIndex() const { return m_current_layer_id; }
     TileMapLayer* GetActiveLayer();
 
     bool SetActiveLayer(int p_index);
