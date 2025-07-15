@@ -46,6 +46,8 @@ public:
 
     TileMapLayer* GetActiveLayer();
 
+    bool SetActiveLayer(int p_index);
+
 protected:
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 

@@ -96,6 +96,11 @@ TileMapLayer* TileMapEditor::GetActiveLayer() {
     return nullptr;
 }
 
+bool TileMapEditor::SetActiveLayer(int p_index) {
+    m_current_layer_id = p_index;
+    return true;
+}
+
 void TileMapEditor::Update(Scene*) {
     const CameraComponent& camera = m_viewer->GetActiveCamera();
     const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();

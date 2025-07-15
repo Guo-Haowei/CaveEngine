@@ -268,10 +268,13 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     auto checkerboard = m_checkerboard_handle.Get();
     DEV_ASSERT(checkerboard);
 
-    for (int i = 0; i < layer_count; ++i) {
-        TileMapLayer& layer = layers[i];
+    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool());
+    DEV_ASSERT(tool);
 
-        ImGui::PushID(i);
+    for (int layer_id = 0; layer_id < layer_count; ++layer_id) {
+        TileMapLayer& layer = layers[layer_id];
+
+        ImGui::PushID(layer_id);
 
         ImGui::BeginGroup();
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
@@ -311,10 +314,8 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         CenteredImage(image_handle, image_size, region_size);
 
-        ImVec2 pos = ImGui::GetItemRectMin();
-        ImGui::SetCursorScreenPos(pos);
-        if (ImGui::InvisibleButton("##clickable_image", region_size)) {
-            LOG_WARN("TODO: SELECT");
+        if (ImGui::IsItemClicked()) {
+            tool->SetActiveLayer(layer_id);
         }
 
         DragDropTarget(AssetType::Sprite, [&](AssetHandle& p_handle) {
