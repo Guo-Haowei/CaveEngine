@@ -328,8 +328,10 @@ void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
         if (layer.sprite_guid.IsValid()) {
             if (auto handle = m_asset_registry->FindByGuid<ImageAsset>(layer.sprite_guid); handle) {
                 if (auto asset = (*handle).Get(); asset) {
+                    // want image width always the same
                     image_handle = asset->gpu_texture ? asset->gpu_texture->GetHandle() : 0;
-                    // @TODO: adjust texture size
+                    image_size = ImVec2(static_cast<float>(asset->width),
+                                        static_cast<float>(asset->height));
                 }
             }
         }
@@ -337,7 +339,7 @@ void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
             image_handle = checkerboard->gpu_texture->GetHandle();
         }
 
-        ImGui::Image(image_handle, image_size);
+        CenteredImage(image_handle, image_size, region_size);
 
         ImVec2 pos = ImGui::GetItemRectMin();
         ImGui::SetCursorScreenPos(pos);

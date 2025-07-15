@@ -265,4 +265,30 @@ bool DragDropTarget(AssetType p_mask,
     return false;
 }
 
+void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_region) {
+    DEV_ASSERT(p_image_id);
+
+    const float ratio = p_image_size.x / p_image_size.y;
+    if (p_image_size.x > p_image_size.y) {
+        p_image_size.x = p_region.x;
+        p_image_size.y = p_image_size.x / ratio;
+    } else {
+        p_image_size.y = p_region.y;
+        p_image_size.x = p_image_size.y * ratio;
+    }
+
+    ImVec2 offset = {
+        (p_region.x - p_image_size.x) * 0.5f,
+        (p_region.y - p_image_size.y) * 0.5f
+    };
+
+    ImGui::BeginChild("CenteredImageRegion", p_region, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+    ImGui::SetCursorPos(offset);
+
+    ImGui::Image((ImTextureID)p_image_id, p_image_size);
+
+    ImGui::EndChild();
+}
+
 }  // namespace my
