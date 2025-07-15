@@ -10,6 +10,7 @@ namespace my {
 class Archive;
 struct GpuMesh;
 struct ImageAsset;
+class SpriteAsset;
 class TileMapAsset;
 
 class TileMapRenderer : public ComponentFlagBase {
@@ -18,6 +19,7 @@ public:
         bool visible;
         uint32_t revision{ 0 };
         Handle<ImageAsset> image;
+        Handle<SpriteAsset> sprite;
         mutable std::shared_ptr<GpuMesh> mesh;
     };
 

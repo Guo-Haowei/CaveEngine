@@ -31,6 +31,10 @@ public:
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
 
+    const Guid& GetImageGuid() const { return m_image_guid; }
+
+    const auto& GetFrames() const { return m_frames; }
+
     std::vector<Guid> GetDependencies() const override;
 
 private:

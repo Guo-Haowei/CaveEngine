@@ -67,12 +67,12 @@ void SpriteAsset::UpdateFrames() {
 
     for (uint32_t y = 0; y < m_row; ++y) {
         for (uint32_t x = 0; x < m_column; ++x) {
-            const float x_min = x * dx;
-            const float y_min = y * dy;
-            const float x_max = (x + 1) * dx;
-            const float y_max = (y + 1) * dy;
+            const float u0 = (x + 0) * dx / m_width;
+            const float v0 = (y + 1) * dy / m_height;
+            const float u1 = (x + 1) * dx / m_width;
+            const float v1 = (y + 0) * dy / m_height;
 
-            m_frames.push_back(Rect({ x_min, y_min }, { x_max, y_max }));
+            m_frames.push_back(Rect({ u0, v0 }, { u1, v1 }));
         }
     }
 }

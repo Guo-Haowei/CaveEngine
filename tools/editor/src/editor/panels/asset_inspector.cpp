@@ -300,10 +300,10 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         ImGui::SameLine();
 
-        const bool visible = layer.IsVisible();
-        const char* label = visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+        const bool is_visible = layer.IsVisible();
+        const char* label = is_visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
         if (ImGui::Button(label)) {
-            layer.SetVisible(!visible);
+            layer.SetVisible(!is_visible);
         }
 
         ImGui::SameLine();

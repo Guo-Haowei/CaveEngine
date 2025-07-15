@@ -267,26 +267,6 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
         }
         layer.IncRevision();
 #endif
-
-#if 0
-        const int grid_x = 3;
-        const int grid_y = 2;
-
-        const float dx = 1.0f / grid_x;
-        const float dy = 1.0f / grid_y;
-
-        for (int y = 0; y < grid_y; ++y) {
-            for (int x = 0; x < grid_x; ++x) {
-                const float u0 = x * dx;
-                const float v0 = (y + 1) * dy;
-                const float u1 = (x + 1) * dx;
-                const float v1 = y * dy;
-
-                sprite.frames.push_back(Rect(Vector2f(u0, v0), Vector2f(u1, v1)));
-            }
-        }
-
-#endif
         return scene;
     });
 }
