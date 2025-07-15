@@ -1,12 +1,12 @@
 #pragma once
-#include "editor/editor_window.h"
-#include "editor/tools/tool.h"
-#include "engine/core/base/ring_buffer.h"
+#include "engine/assets/asset_handle.h"
 #include "engine/input/input_router.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/layer.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_component.h"
+#include "editor/editor_window.h"
+#include "editor/tools/tool.h"
 
 namespace my {
 
@@ -63,6 +63,12 @@ public:
     void OpenTool(ToolType p_type, const Guid& p_guid);
     ITool* GetActiveTool();
 
+    void SetSelectedAsset(AssetHandle&& p_asset_handle) {
+        m_selected_asset = std::move(p_asset_handle);
+    }
+
+    const AssetHandle& GetSelectedAsset() const { return m_selected_asset; }
+
 private:
     void DockSpace(Scene* p_scene);
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
@@ -90,9 +96,11 @@ private:
         bool shift{};
     };
 
+    // @TODO: refactor shortcut
     std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
 
-public:
+    AssetHandle m_selected_asset;
+
     std::array<std::unique_ptr<ITool>, std::to_underlying(ToolType::Count)> m_tools;
     ToolType m_current_tool{ ToolType ::None };
 };

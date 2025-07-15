@@ -36,8 +36,6 @@ public:
 
     void Update(Scene* p_scene) override;
 
-    void DrawAssetInspector() override;
-
     bool Is2D() const override { return true; }
 
     const char* GetName() const override { return "TileMapEditor"; }
@@ -48,8 +46,6 @@ public:
 
 protected:
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
-
-    void DrawLayerOverview(TileMapAsset& p_tile_map);
 
     void UndoableSetTile(TileMapLayer& p_layer,
                          int p_layer_id,
@@ -62,7 +58,6 @@ protected:
 
     Guid m_tile_map_guid;
 
-    Handle<ImageAsset> m_checkerboard_handle;
     Handle<TileMapAsset> m_tile_map_handle;
 
     std::vector<Command> m_commands;

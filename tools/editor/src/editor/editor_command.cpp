@@ -31,6 +31,8 @@ void EditorInspectAssetCommand::Execute(Scene&) {
                     m_editor->OpenTool(ToolType::Edit, m_guid);
                 } break;
             }
+
+            m_editor->SetSelectedAsset(std::move(handle));
         }
     }
 }

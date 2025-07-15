@@ -1,7 +1,5 @@
 #include "tile_map_editor_tool.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
-
 #include "engine/assets/assets.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/scene.h"
@@ -196,7 +194,6 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
 
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
     m_tile_map_guid = p_guid;
-    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
     m_tile_map_handle = m_asset_registry->FindByGuid(m_tile_map_guid).value();
 
     [[maybe_unused]] auto asset = m_tile_map_handle.Get();
@@ -283,114 +280,6 @@ void TileMapEditor::OnExit() {
     DEV_ASSERT(scene_manager);
 
     scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
-}
-
-void TileMapEditor::DrawLayerOverview(TileMapAsset& p_tile_map) {
-    if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
-        p_tile_map.AddLayer("untitled layer");
-    }
-    ImGui::Separator();
-
-    auto& layers = p_tile_map.GetAllLayers();
-    const int layer_count = static_cast<int>(layers.size());
-
-    auto checkerboard = m_checkerboard_handle.Get();
-    DEV_ASSERT(checkerboard);
-
-    for (int i = 0; i < layer_count; ++i) {
-        TileMapLayer& layer = layers[i];
-
-        ImGui::PushID(i);
-
-        ImGui::BeginGroup();
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
-
-        ImGui::BeginGroup();
-
-        ImGui::Dummy(ImVec2(8, 8));
-
-        DrawInputText("layer", layer.name);
-
-        ImGui::SameLine();
-
-        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
-            LOG_WARN("TODO: DELETE");
-        }
-
-        // next line
-
-        ImVec2 region_size(96, 96);
-        ImVec2 image_size = region_size;
-
-        uint64_t image_handle = 0;
-
-        if (layer.sprite_guid.IsValid()) {
-            if (auto handle = m_asset_registry->FindByGuid<ImageAsset>(layer.sprite_guid); handle) {
-                if (auto asset = (*handle).Get(); asset) {
-                    // want image width always the same
-                    image_handle = asset->gpu_texture ? asset->gpu_texture->GetHandle() : 0;
-                    image_size = ImVec2(static_cast<float>(asset->width),
-                                        static_cast<float>(asset->height));
-                }
-            }
-        }
-        if (image_handle == 0) {
-            image_handle = checkerboard->gpu_texture->GetHandle();
-        }
-
-        CenteredImage(image_handle, image_size, region_size);
-
-        ImVec2 pos = ImGui::GetItemRectMin();
-        ImGui::SetCursorScreenPos(pos);
-        if (ImGui::InvisibleButton("##clickable_image", region_size)) {
-            LOG_WARN("TODO: SELECT");
-        }
-
-        DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
-            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
-            layer.sprite_guid = p_handle.GetGuid();
-        });
-
-        ImGui::Dummy(ImVec2(8, 8));
-
-        ImGui::EndGroup();
-        ImGui::Separator();
-
-        ImGui::PopStyleVar(2);
-        ImGui::PopID();
-        ImGui::EndGroup();
-    }
-}
-
-void TileMapEditor::DrawAssetInspector() {
-    TileMapAsset* tile_map = m_tile_map_handle.Get();
-    if (!tile_map) {
-        return;
-    }
-
-    float full_width = ImGui::GetContentRegionAvail().x;
-    constexpr float layer_tab_width = 360.0f;  // left panel fixed width
-    constexpr float sprite_tab_width = 360.0f;
-    [[maybe_unused]] const float main_width = full_width - layer_tab_width - sprite_tab_width - ImGui::GetStyle().ItemSpacing.x;
-
-    ImGui::BeginChild("LayerTab", ImVec2(layer_tab_width, 0), true);
-
-    if (ImGui::BeginTabBar("##MyTabs1")) {
-        if (ImGui::BeginTabItem("Layer")) {
-            DrawLayerOverview(*tile_map);
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-
-    ImGui::EndChild();
-
-    ImGui::SameLine();
-
-    ImGui::BeginChild("SpriteTab", ImVec2(sprite_tab_width, 0), true);
-    ImGui::Text("???");
-    ImGui::EndChild();
 }
 
 }  // namespace my
