@@ -1,3 +1,5 @@
+#include "tile_map_render_system.h"
+
 #include "engine/renderer/frame_data.h"
 #include "engine/assets/assets.h"
 #include "engine/scene/scene.h"

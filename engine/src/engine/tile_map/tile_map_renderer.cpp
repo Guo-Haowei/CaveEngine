@@ -1,7 +1,8 @@
-#include "scene_component_2d.h"
+#include "tile_map_renderer.h"
+
+#include "tile_map_asset.h"
 
 #include "engine/assets/sprite_asset.h"
-#include "engine/assets/tile_map_asset.h"
 #include "engine/renderer/gpu_resource.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/graphics_manager_interface.h"
