@@ -2,4 +2,5 @@ guid: 3CED5EDA-B1BF-3941-B5EA3E7850FD6E05
 type: tilemap
 path: "@res://world/level1.tilemap"
 dependencies:
-  []
+  - A1130333-79C5-9E43-A95F006D4AA71D4F
+  - 072AA41E-00C5-434B-900A84486CD248AE

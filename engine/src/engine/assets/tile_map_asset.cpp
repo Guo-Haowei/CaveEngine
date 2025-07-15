@@ -65,8 +65,12 @@ TileMapLayer& TileMapAsset::AddLayer(std::string&& p_name) {
 }
 
 std::vector<Guid> TileMapAsset::GetDependencies() const {
-    // @TODO: walk through all layers
-    return {};
+    std::vector<Guid> dependencies;
+    dependencies.reserve(m_layers.size());
+    for (const auto& layer : m_layers) {
+        dependencies.push_back(layer.sprite_guid);
+    }
+    return dependencies;
 }
 
 auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {

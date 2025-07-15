@@ -100,7 +100,7 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    void LoadFromDiskCurrent(const nlohmann::json& p_node);
+    void LoadFromDiskCurrent(const nlohmann::json& j);
 
     std::vector<TileMapLayer> m_layers;
 };

@@ -126,7 +126,6 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
     }
 }
 
-#if 0
 void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
     ImGui::Text("Image");
 
@@ -148,7 +147,6 @@ void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
         }
     }
 }
-#endif
 
 void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
     float full_width = ImGui::GetContentRegionAvail().x;
@@ -157,7 +155,7 @@ void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
     const float main_width = full_width - sprite_source_tab_width - sprite_data_tab - ImGui::GetStyle().ItemSpacing.x;
 
     ImGui::BeginChild("ImageSource", ImVec2(sprite_source_tab_width, 0), true);
-    // DropRegion(p_sprite);
+    DropRegion(p_sprite);
     ImGui::EndChild();
 
     ImGui::SameLine();
@@ -181,6 +179,9 @@ void AssetInspector::UpdateInternal(Scene*) {
     }
 
     switch (asset->type) {
+        case AssetType::SpriteSheet:
+            InspectSpriteSheet(asset);
+            break;
         case AssetType::TileMap:
             InspectTileMap(asset);
             break;
@@ -189,8 +190,18 @@ void AssetInspector::UpdateInternal(Scene*) {
     }
 }
 
+void AssetInspector::InspectSpriteSheet(IAsset* p_asset) {
+    // @TODO: rename to SpriteAsset
+    auto sprite = dynamic_cast<SpriteSheetAsset*>(p_asset);
+    if (!sprite) {
+        return;
+    }
+    
+    DrawSprite(*sprite);
+}
+
 void AssetInspector::InspectTileMap(IAsset* p_asset) {
-    TileMapAsset* tile_map = dynamic_cast<TileMapAsset*>(p_asset);
+    auto tile_map = dynamic_cast<TileMapAsset*>(p_asset);
     if (!tile_map) {
         return;
     }

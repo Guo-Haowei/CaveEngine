@@ -3,7 +3,7 @@
 #include "engine/assets/assets.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/systems/serialization/serialization.h"
+#include "engine/serialization/serialization.h"
 
 namespace my {
 
@@ -26,9 +26,9 @@ void SpriteSheetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     const ImageAsset* image = m_image_handle.Get();
     if (image) {
         Guid guid = m_image_handle.GetGuid();
-        if (guid != m_image) {
-            LOG("SpriteSheetAsset: GUID changed from {} to {}", m_image.ToString(), guid.ToString());
-            m_image = guid;
+        if (guid != m_image_guid) {
+            LOG("SpriteSheetAsset: GUID changed from {} to {}", m_image_guid.ToString(), guid.ToString());
+            m_image_guid = guid;
         }
 
         m_width = image->width;
@@ -36,8 +36,8 @@ void SpriteSheetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     }
 }
 
-void SpriteSheetAsset::SetImage(const std::string& p_path) {
-    auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>(p_path);
+void SpriteSheetAsset::SetImage(const Guid& p_guid) {
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(p_guid);
     if (handle) {
         SetHandle(std::move(*handle));
     }
@@ -46,7 +46,7 @@ void SpriteSheetAsset::SetImage(const std::string& p_path) {
 }
 
 std::vector<Guid> SpriteSheetAsset::GetDependencies() const {
-    return { m_image };
+    return { m_image_guid };
 }
 
 void SpriteSheetAsset::UpdateFrames() {
@@ -76,69 +76,49 @@ auto SpriteSheetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<v
         return HBN_ERROR(res.error());
     }
 
-    // file
-    serialize::SerializeYamlContext ctx;
+    json j;
+    j["version"] = VERSION;
+    j["image"] = m_image_guid;
+    j["width"] = m_width;
+    j["height"] = m_height;
+    j["column"] = m_column;
+    j["row"] = m_row;
+    j["tile_scale"] = m_tile_scale;
 
-    YAML::Emitter out;
-    out << YAML::BeginMap;
-
-    out << YAML::Key << "version" << YAML::Value << VERSION;
-
-    out << YAML::Key << "image" << YAML::Value << m_image.ToString();
-
-    out << YAML::Key << "width" << YAML::Value;
-    serialize::SerializeYaml(out, m_width, ctx);
-
-    out << YAML::Key << "height" << YAML::Value;
-    serialize::SerializeYaml(out, m_height, ctx);
-
-    out << YAML::Key << "row" << YAML::Value;
-    serialize::SerializeYaml(out, m_row, ctx);
-    out << YAML::Key << "column" << YAML::Value;
-    serialize::SerializeYaml(out, m_column, ctx);
-
-    out << YAML::EndMap;
-
-    return serialize::SaveYaml(p_meta.path, out);
+    return Serialize(p_meta.path, j);
 }
 
-auto SpriteSheetAsset::LoadFromDiskCurrent(const YAML::Node& p_node) -> Result<void> {
-    serialize::SerializeYamlContext ctx;
-
-    auto res = Guid::Parse(p_node["image"].as<std::string>());
-    if (!res) {
-        return HBN_ERROR(res.error());
-    }
-
-    m_image = *res;
-
-    serialize::DeserializeYaml(p_node["row"], m_row, ctx);
-    serialize::DeserializeYaml(p_node["column"], m_column, ctx);
-    serialize::DeserializeYaml(p_node["width"], m_width, ctx);
-    serialize::DeserializeYaml(p_node["height"], m_height, ctx);
-
-    return Result<void>();
+void SpriteSheetAsset::LoadFromDiskCurrent(const nlohmann::json& j) {
+    m_image_guid = j["image"];
+    m_width = j["width"];
+    m_height = j["height"];
+    m_column = j["column"];
+    m_row = j["row"];
+    m_tile_scale = j["tile_scale"];
 }
 
 auto SpriteSheetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
-    YAML::Node node;
-    if (auto res = serialize::LoadYaml(p_meta.path, node); !res) {
+    json j;
+
+    if (auto res = Deserialize(p_meta.path, j); !res) {
         return HBN_ERROR(res.error());
     }
 
-    const auto& version_node = node["version"];
-    const int version = version_node ? version_node.as<int>() : 0;
+    const int version = j["version"];
 
-    switch (version) {
-        case 1:
-            [[fallthrough]];
-        default:
-            LoadFromDiskCurrent(node);
-            break;
+    try {
+        switch (version) {
+            case 1:
+                [[fallthrough]];
+            default:
+                LoadFromDiskCurrent(j);
+                break;
+        }
+    } catch (const json::exception& e) {
+        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "{}", e.what());
     }
 
-    // update image
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image);
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
     if (handle) {
         SetHandle(std::move(*handle));
     }

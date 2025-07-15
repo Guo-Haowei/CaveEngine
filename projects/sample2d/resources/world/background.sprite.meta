@@ -1,0 +1,5 @@
+guid: 94FB5794-CF41-1E46-8D6DB1E633C35D85
+type: sprite
+path: "@res://world/background.sprite"
+dependencies:
+  - 00000000-0000-0000-0000000000000000

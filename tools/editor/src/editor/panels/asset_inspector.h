@@ -24,8 +24,11 @@ protected:
     void TileSetup(SpriteSheetAsset& p_sprite);
     void TilePaint(SpriteSheetAsset& p_sprite);
 
-    // void InspectSprite()
+    // SpriteSheet
+    void InspectSpriteSheet(IAsset* p_asset);
+    void DropRegion(SpriteSheetAsset& p_sprite);
 
+    // TileMap
     void InspectTileMap(IAsset* p_asset);
     void TileMapLayerOverview(TileMapAsset& p_tile_map);
 
