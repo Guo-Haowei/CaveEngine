@@ -23,28 +23,6 @@ void FileSystemPanel::OnAttach() {
     m_root = fs::path{ path };
 }
 
-void FileSystemPanel::ShowResourceToolTip(const AssetMetaData& p_meta, const IAsset& p_asset) {
-    if (ImGui::BeginTooltip()) {
-        ImGui::Text("%s", p_meta.path.c_str());
-        ImGui::Text("type: %s", ToString(p_meta.type));
-
-        if (p_asset.type == AssetType::Image) {
-            auto texture = reinterpret_cast<const ImageAsset&>(p_asset);
-            const int w = texture.width;
-            const int h = texture.height;
-            ImGui::Text("Dimension: %d x %d", w, h);
-
-            if (texture.gpu_texture) {
-                float adjusted_w = glm::min(256.f, static_cast<float>(w));
-                float adjusted_h = adjusted_w / w * h;
-                ImGui::Image(texture.gpu_texture->GetHandle(), ImVec2(adjusted_w, adjusted_h));
-            }
-        }
-
-        ImGui::EndTooltip();
-    }
-}
-
 void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, bool p_is_dir) {
     if (ImGui::MenuItem("Rename")) {
         m_renaming = p_path;
@@ -90,8 +68,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
 
     const bool node_open = ImGui::TreeNodeEx(id.c_str(), flags);
 
-    std::string short_path =
-        m_editor.GetApplication()->GetAssetManager()->ResolvePath(p_path);
+    std::string short_path = m_editor.GetApplication()->GetAssetManager()->ResolvePath(p_path);
 
     if (ImGui::BeginPopupContextItem()) {
         FolderPopup(p_path, is_dir);
@@ -137,7 +114,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
                     if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
                         m_editor.CommandInspectAsset(handle.GetGuid());
                     } else if (is_file) {
-                        ShowResourceToolTip(*handle.GetMeta(), *asset);
+                        ShowAssetToolTip(*handle.GetMeta(), asset);
                     }
                 }
             }

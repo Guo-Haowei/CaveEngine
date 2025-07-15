@@ -27,6 +27,8 @@ public:
     bool GetVisibility() const { return m_visibility; }
     const auto& GetCache() const { return m_cache; }
 
+    const Guid& GetGuid() const { return m_guid; }
+
     // @TODO: get rid of old serailization code
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}

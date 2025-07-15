@@ -1,6 +1,7 @@
 #include "editor_scene_manager.h"
 
 #include "editor_dvars.h"
+#include "engine/scene/scene.h"
 
 namespace cave {
 
@@ -10,20 +11,27 @@ extern Scene* CreatePbrTestScene();
 extern Scene* CreatePhysicsTestScene();
 
 Scene* EditorSceneManager::CreateDefaultScene() {
-    auto scene = DVAR_GET_STRING(default_scene);
-    if (scene == "pbr_test") {
+    auto scene_string = DVAR_GET_STRING(default_scene);
+    if (scene_string == "pbr_test") {
         return CreatePbrTestScene();
     }
-    if (scene == "physics_test") {
+    if (scene_string == "physics_test") {
         return CreatePhysicsTestScene();
     }
-    if (scene == "the_aviator") {
+    if (scene_string == "the_aviator") {
         return CreateTheAviatorScene();
     }
-    if (scene == "box") {
+    if (scene_string == "box") {
         return CreateBoxScene();
     }
-    return nullptr;
+
+    ecs::Entity::SetSeed();
+
+    Scene* scene = new Scene;
+    auto root = scene->CreateTransformEntity("root");
+    scene->m_root = root;
+
+    return scene;
 }
 
 void EditorSceneManager::Update() {
@@ -59,7 +67,7 @@ Scene* EditorSceneManager::GetActiveScene() const {
         return lock.get();
     }
 
-    return nullptr;
+    return m_active_scene;
 }
 
 }  // namespace cave

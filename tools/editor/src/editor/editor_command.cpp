@@ -4,6 +4,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
+#include "engine/runtime/scene_manager_interface.h"
 #include "engine/drivers/windows/dialog.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_serialization.h"
@@ -55,7 +56,7 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
     p_scene.AttachChild(id, m_parent.IsValid() ? m_parent : p_scene.m_root);
     m_editor->SelectEntity(id);
 
-    // SceneManager::GetSingleton().BumpRevision();
+    ISceneManager::GetSingleton().BumpRevision();
 }
 
 /// EditorCommandAddComponent
@@ -64,6 +65,9 @@ void EditorCommandAddComponent::Execute(Scene& p_scene) {
     switch (m_componentType) {
         case ComponentType::Script: {
             p_scene.Create<LuaScriptComponent>(target);
+        } break;
+        case ComponentType::TileMap: {
+            p_scene.Create<TileMapRenderer>(target);
         } break;
         default: {
             CRASH_NOW();

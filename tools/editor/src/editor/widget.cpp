@@ -1,5 +1,6 @@
 #include "widget.h"
 
+#include "engine/assets/assets.h"
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_window.h"
 
@@ -289,6 +290,39 @@ void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_re
     ImGui::Image((ImTextureID)p_image_id, p_image_size);
 
     ImGui::EndChild();
+}
+
+void ShowAssetToolTip(const Guid& p_guid) {
+    if (auto res = AssetRegistry::GetSingleton().FindByGuid(p_guid); res) {
+        AssetHandle handle = std::move(*res);
+        if (auto asset = handle.Get(); asset) {
+            ShowAssetToolTip(*handle.GetMeta(), asset);
+        }
+    }
+}
+
+void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset) {
+    if (ImGui::BeginTooltip()) {
+        ImGui::Text("%s", p_meta.path.c_str());
+        ImGui::Text("type: %s", ToString(p_meta.type));
+
+        if (p_asset) {
+            if (p_asset->type == AssetType::Image) {
+                auto texture = reinterpret_cast<const ImageAsset&>(*p_asset);
+                const int w = texture.width;
+                const int h = texture.height;
+                ImGui::Text("Dimension: %d x %d", w, h);
+
+                if (texture.gpu_texture) {
+                    float adjusted_w = glm::min(256.f, static_cast<float>(w));
+                    float adjusted_h = adjusted_w / w * h;
+                    ImGui::Image(texture.gpu_texture->GetHandle(), ImVec2(adjusted_w, adjusted_h));
+                }
+            }
+        }
+
+        ImGui::EndTooltip();
+    }
 }
 
 }  // namespace cave

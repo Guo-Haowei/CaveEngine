@@ -15,6 +15,7 @@ uint32_t Entity::GetSeed() {
     return s_id;
 }
 
+// @TODO: get rid this seed
 void Entity::SetSeed(uint32_t p_seed) {
     s_id = p_seed;
 }

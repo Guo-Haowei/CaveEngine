@@ -8,6 +8,9 @@ namespace cave {
 
 enum class AssetType : uint32_t;
 class AssetHandle;
+struct AssetMetaData;
+struct IAsset;
+class Guid;
 
 constexpr float DEFAULT_COLUMN_WIDTH = 80.0f;
 
@@ -56,5 +59,10 @@ bool DragDropTarget(AssetType p_mask, const DragDropFunc& p_callback);
 
 /// image
 void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_region);
+
+/// tool tip
+void ShowAssetToolTip(const Guid& p_guid);
+
+void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset);
 
 }  // namespace cave

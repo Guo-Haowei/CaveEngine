@@ -48,6 +48,7 @@ enum class EntityType : uint8_t {
 
 enum class ComponentType : uint8_t {
     Script,
+    TileMap,
     Count,
 };
 
