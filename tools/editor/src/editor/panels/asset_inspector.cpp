@@ -100,13 +100,9 @@ void AssetInspector::TilePaint(SpriteAsset& p_sprite) {
     }
 }
 
-void AssetInspector::TileSetup(SpriteAsset& p_sprite) {
+void AssetInspector::EditSprite(SpriteAsset& p_sprite) {
     if (ImGui::BeginTabBar("TileSetModes")) {
         if (ImGui::BeginTabItem("Setup")) {
-            // if (p_sprite.image_handle.IsReady()) {
-            //     //ImGui::Text("Image: %s", p_sprite.image_handle.entry->metadata.path.c_str());
-            // }
-
             int column = p_sprite.GetCol();
             if (ImGui::InputInt("column", &column)) {
                 p_sprite.SetCol(column);
@@ -114,6 +110,11 @@ void AssetInspector::TileSetup(SpriteAsset& p_sprite) {
             int row = p_sprite.GetRow();
             if (ImGui::InputInt("row", &row)) {
                 p_sprite.SetRow(row);
+            }
+
+            float scale = p_sprite.GetScale();
+            if (ImGui::InputFloat("scale", &scale)) {
+                p_sprite.SetScale(scale);
             }
 
             // ImGui::Checkbox("Use Texture Region", &use_region);
@@ -126,35 +127,13 @@ void AssetInspector::TileSetup(SpriteAsset& p_sprite) {
     }
 }
 
-void AssetInspector::DropRegion(SpriteAsset& p_sprite) {
-    ImGui::Text("Image");
-
-    // @TODO: abc
-    {
-        const float w = 300;
-        auto& handle = p_sprite.GetHandle();
-        if (handle.IsReady()) {
-            const ImageAsset* asset = handle.Get();
-            DEV_ASSERT(asset);
-            const float h = w / asset->width * asset->height;
-            ImVec2 size = ImVec2(w, h);
-
-            ImGui::Image(asset->gpu_texture->GetHandle(), size);
-        } else {
-            ImVec2 size = ImVec2(w, w);
-
-            ImGui::InvisibleButton("DropTarget", size);
-        }
-    }
-}
-
-struct ChildDesc {
+struct AssetChildPanel {
     const char* name;
     float width;
     std::function<void()> func;
 };
 
-static void DrawContents(float p_full_width, const std::vector<ChildDesc>& p_descs) {
+static void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_descs) {
     const int size = static_cast<int>(p_descs.size());
     float width_so_far = 0.0f;
     for (int i = 0; i < size; ++i) {
@@ -175,17 +154,38 @@ static void DrawContents(float p_full_width, const std::vector<ChildDesc>& p_des
 }
 
 void AssetInspector::InspectSprite(IAsset* p_asset) {
-    // @TODO: rename to SpriteAsset
     auto sprite = dynamic_cast<SpriteAsset*>(p_asset);
     if (!sprite) {
         return;
     }
 
-    std::vector<ChildDesc> descs = {
+    std::vector<AssetChildPanel> descs = {
         { "ImageSource", 360.0f,
-          [&]() { DropRegion(*sprite); } },
+          [&]() {
+              ImGui::Text("Image");
+              const float w = 300;
+              auto& handle = sprite->GetHandle();
+
+              // @TODO: checker board
+              if (handle.IsReady()) {
+                  const ImageAsset* asset = handle.Get();
+                  DEV_ASSERT(asset);
+                  const float h = w / asset->width * asset->height;
+                  ImVec2 size = ImVec2(w, h);
+
+                  ImGui::Image(asset->gpu_texture->GetHandle(), size);
+              } else {
+                  ImVec2 size = ImVec2(w, w);
+                  ImGui::InvisibleButton("DropTarget", size);
+              }
+
+              DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
+                  DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
+                  sprite->SetImage(p_handle.GetGuid());
+              });
+        } },
         { "SpriteEditor", 360.0f,
-          [&]() { TileSetup(*sprite); } },
+          [&]() { EditSprite(*sprite); } },
         { "TileSetPanel", 0.0f,
           [&]() { TilePaint(*sprite); } },
     };
@@ -201,7 +201,7 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
         return;
     }
 
-    std::vector<ChildDesc> descs = {
+    std::vector<AssetChildPanel> descs = {
         { "LayerOverview", 360.0f,
           [&]() {
               if (ImGui::BeginTabBar("##MyTabs1")) {

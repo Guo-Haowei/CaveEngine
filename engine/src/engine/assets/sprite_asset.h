@@ -23,7 +23,7 @@ public:
     uint32_t GetHeight() const { return m_height; }
 
     float GetScale() const { return m_tile_scale; }
-    void SetScale(float p_scale) { m_tile_scale = p_scale; }
+    void SetScale(float p_scale);
 
     void SetImage(const Guid& p_guid);
     const Handle<ImageAsset>& GetHandle() const { return m_image_handle; }
