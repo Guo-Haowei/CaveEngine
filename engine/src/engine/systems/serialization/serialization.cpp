@@ -10,11 +10,11 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const ecs::Entity& p_object, Se
 
 Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, SerializeYamlContext&) {
     if (!p_node) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
 
     if (!p_node.IsScalar()) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
     }
 
     p_object = ecs::Entity(p_node.as<uint32_t>());
@@ -28,11 +28,11 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const Degree& p_object, Seriali
 
 Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, SerializeYamlContext&) {
     if (!p_node) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
 
     if (!p_node.IsScalar()) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
     }
 
     p_object = Degree(p_node.as<float>());
@@ -46,11 +46,11 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, Se
 
 Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, SerializeYamlContext&) {
     if (!p_node) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
 
     if (!p_node.IsScalar()) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
     }
 
     p_object = p_node.as<std::string>();
@@ -64,12 +64,12 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const Guid& p_object, Serialize
 
 Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, SerializeYamlContext&) {
     if (!p_node) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
 
     auto res = Guid::Parse(p_node.as<std::string>());
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     p_object = *res;
@@ -78,12 +78,12 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, Serialize
 
 auto SaveYaml(std::string_view p_path, YAML::Emitter& p_out) -> Result<void> {
     if (!p_out.good()) {
-        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "error: {}", p_out.GetLastError());
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "error: {}", p_out.GetLastError());
     }
 
     auto res = FileAccess::Open(p_path, FileAccess::WRITE);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     auto file = *res;
 
@@ -98,7 +98,7 @@ auto SaveYaml(std::string_view p_path, YAML::Emitter& p_out) -> Result<void> {
 auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void> {
     auto res = FileAccess::Open(p_path, FileAccess::READ);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     auto file = *res;

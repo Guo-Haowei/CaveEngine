@@ -77,7 +77,7 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
         m_frameContexts[i] = CreateFrameContext();
     }
     if (auto res = InitializeInternal(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     if (m_backend == Backend::METAL) {
@@ -85,7 +85,7 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
     }
 
     if (auto res = SelectRenderGraph(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     for (int i = 0; i < num_frames; ++i) {
@@ -102,7 +102,7 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
     DEV_ASSERT(m_pipelineStateManager);
 
     if (auto res = m_pipelineStateManager->Initialize(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     // create meshes
@@ -123,7 +123,7 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
 
         auto res = CreateMesh(mesh);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         m_debugBuffers = *res;
     }
@@ -217,7 +217,7 @@ auto GraphicsManager::CreateMesh(const MeshComponent& p_mesh) -> Result<std::sha
 
     auto ret = CreateMeshImpl(desc, count, vb_descs.data(), ib_desc_ptr);
     if (!ret) {
-        return HBN_ERROR(ret.error());
+        return CAVE_ERROR(ret.error());
     }
 
     p_mesh.gpuResource = *ret;
@@ -273,7 +273,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) 
 }
 
 void GraphicsManager::Update(Scene* p_scene) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
     unused(p_scene);
 
     // @TODO: make it a function
@@ -290,7 +290,7 @@ void GraphicsManager::Update(Scene* p_scene) {
     }
 
     {
-        HBN_PROFILE_EVENT("Render");
+        CAVE_PROFILE_EVENT("Render");
         BeginFrame();
 
         auto data = m_app->GetRenderSystem()->GetFrameData();
@@ -385,7 +385,7 @@ auto GraphicsManager::SelectRenderGraph() -> Result<void> {
     if (!method.empty()) {
         auto it = lookup.find(method);
         if (it == lookup.end()) {
-            return HBN_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "unknown render graph '{}'", method);
+            return CAVE_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "unknown render graph '{}'", method);
         } else {
             m_activeRenderGraphName = it->second;
         }
@@ -415,7 +415,7 @@ auto GraphicsManager::SelectRenderGraph() -> Result<void> {
         case RenderGraphName::SCENE2D: {
             auto res = RenderGraph2D(config);
             if (!res) {
-                return HBN_ERROR(res.error());
+                return CAVE_ERROR(res.error());
             }
             m_renderGraphs[std::to_underlying(m_activeRenderGraphName)] = *res;
         } break;
@@ -423,7 +423,7 @@ auto GraphicsManager::SelectRenderGraph() -> Result<void> {
             {
                 auto res = RenderGraphBuilderExt::Create3D(config);
                 if (!res) {
-                    return HBN_ERROR(res.error());
+                    return CAVE_ERROR(res.error());
                 }
                 m_renderGraphs[std::to_underlying(m_activeRenderGraphName)] = *res;
             }
@@ -431,7 +431,7 @@ auto GraphicsManager::SelectRenderGraph() -> Result<void> {
                 if (m_backend == Backend::OPENGL || m_backend == Backend::D3D11) {
                     auto res = RenderGraphBuilderExt::CreatePathTracer(config);
                     if (!res) {
-                        return HBN_ERROR(res.error());
+                        return CAVE_ERROR(res.error());
                     }
                     m_renderGraphs[std::to_underlying(RenderGraphName::PATHTRACER)] = *res;
                 }
@@ -439,7 +439,7 @@ auto GraphicsManager::SelectRenderGraph() -> Result<void> {
         } break;
         default:
             DEV_ASSERT(0 && "Should not reach here");
-            return HBN_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "unknown render graph '{}'", method);
+            return CAVE_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "unknown render graph '{}'", method);
     }
 
     return Result<void>();

@@ -83,7 +83,7 @@ void Context::Dispatch(uint32_t p_job_count, uint32_t p_group_size, const std::f
 }
 
 void Context::Wait() {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     // Wake any threads that might be sleeping:
     s_glob.wakeCondition.notify_all();

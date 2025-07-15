@@ -58,7 +58,7 @@ bool SceneManager::TrySwapScene() {
 }
 
 void SceneManager::Update() {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     TrySwapScene();
 

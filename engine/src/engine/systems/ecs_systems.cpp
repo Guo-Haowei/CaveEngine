@@ -265,7 +265,7 @@ static void UpdateLight(float p_timestep,
 }
 
 void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
     unused(p_context);
 
     for (auto [id, light] : p_scene.m_LightComponents) {
@@ -277,7 +277,7 @@ void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p
 }
 
 void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     JS_PARALLEL_FOR(TransformComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, {
         if (p_scene.GetComponentByIndex<TransformComponent>(index).UpdateTransform()) {
@@ -287,22 +287,22 @@ void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context
 }
 
 void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
     JS_PARALLEL_FOR(AnimationComponent, p_context, index, 1, UpdateAnimation(p_scene, index, p_timestep));
 }
 
 void RunArmatureUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
     JS_PARALLEL_FOR(ArmatureComponent, p_context, index, 1, UpdateArmature(p_scene, index, p_timestep));
 }
 
 void RunHierarchyUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
     JS_PARALLEL_FOR(HierarchyComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, UpdateHierarchy(p_scene, index, p_timestep));
 }
 
 void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
     unused(p_context);
 
     AABB bound;
@@ -326,7 +326,7 @@ void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float)
 }
 
 void RunParticleEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
     unused(p_context);
 
     for (auto [entity, emitter] : p_scene.m_ParticleEmitterComponents) {
@@ -401,7 +401,7 @@ static void UpdateMeshEmitter(float p_timestep,
 }
 
 void RunMeshEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     unused(p_context);
     for (auto [id, emitter] : p_scene.m_MeshEmitterComponents) {

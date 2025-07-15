@@ -81,7 +81,7 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
     // meta
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     json j;
@@ -109,7 +109,7 @@ auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     json j;
 
     if (auto res = Deserialize(p_meta.path, j); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     const int version = j["version"];
@@ -123,7 +123,7 @@ auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
                 break;
         }
     } catch (const json::exception& e) {
-        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "{}", e.what());
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "{}", e.what());
     }
 
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);

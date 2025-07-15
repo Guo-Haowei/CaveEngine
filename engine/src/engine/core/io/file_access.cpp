@@ -32,7 +32,7 @@ auto FileAccess::Open(std::string_view p_path, ModeFlags p_mode_flags) -> Result
     auto file_access = CreateForPath(p_path);
 
     if (auto res = file_access->OpenInternal(FileAccess::FixPath(file_access->m_accessType, p_path), p_mode_flags); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     return file_access;

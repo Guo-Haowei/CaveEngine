@@ -188,7 +188,7 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
             return;
     }
 
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
     CameraComponent& camera = *m_app->GetActiveCamera();
 
     DEV_ASSERT(m_frameData);

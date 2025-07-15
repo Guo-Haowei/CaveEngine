@@ -46,7 +46,7 @@ static std::string ReadFileToString(const std::string &filename) {
 static auto ProcessShader(const fs::path &p_path, int p_depth) -> Result<std::string> {
     constexpr int max_depth = 100;
     if (p_depth >= max_depth) {
-        return HBN_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "circular includes in file '{}'!", p_path.string());
+        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "circular includes in file '{}'!", p_path.string());
     }
 
     std::string source = ReadFileToString(p_path.string());
@@ -76,7 +76,7 @@ static auto ProcessShader(const fs::path &p_path, int p_depth) -> Result<std::st
 
             auto res = ProcessShader(new_path, p_depth + 1);
             if (!res) {
-                return HBN_ERROR(res.error());
+                return CAVE_ERROR(res.error());
             }
 
             final_string.append(*res);
@@ -104,7 +104,7 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
     auto result = ProcessShader(fullpath, 0);
     if (!result) {
         // LOG_FATAL("Failed to create shader program '{}', reason: {}", p_file, res.error());
-        return HBN_ERROR(result.error());
+        return CAVE_ERROR(result.error());
     }
 
     // @TODO: fix this
@@ -141,12 +141,12 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
         glGetShaderInfoLog(shader_id, length, nullptr, buffer.data());
         LOG_ERROR("[glsl] failed to compile shader_id '{}'\ndetails:\n{}", p_file, buffer.data());
         glDeleteShader(shader_id);
-        return HBN_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "[glsl] failed to compile shader_id '{}'", p_file);
+        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "[glsl] failed to compile shader_id '{}'", p_file);
     }
 
     if (status == GL_FALSE) {
         glDeleteShader(shader_id);
-        return HBN_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "failed to compile shader '{}'", p_file);
+        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "failed to compile shader '{}'", p_file);
     }
 
     return shader_id;
@@ -198,7 +198,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
                 }
             } while (0);
             if (!result) {
-                return HBN_ERROR(result.error());
+                return CAVE_ERROR(result.error());
             }
         } break;
 #if !USING(USE_GLES3)
@@ -206,7 +206,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
             DEV_ASSERT(!p_desc.cs.empty());
             auto result = create_shader_helper(p_desc.cs, GL_COMPUTE_SHADER);
             if (!result) {
-                return HBN_ERROR(result.error());
+                return CAVE_ERROR(result.error());
             }
         } break;
 #endif
@@ -231,7 +231,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
 #endif
         } else {
             LOG_ERROR("[glsl] failed to link program\ndetails:\n{}", buffer.data());
-            return HBN_ERROR(ErrorCode::ERR_CANT_CREATE);
+            return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
         }
     }
 

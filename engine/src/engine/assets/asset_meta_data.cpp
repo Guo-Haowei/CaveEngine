@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     YAML::Node node;
     if (auto res = serialize::LoadYaml(p_path, node); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     AssetMetaData meta;
@@ -20,7 +20,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
         auto guid = node["guid"].as<std::string>();
         auto res = Guid::Parse(guid);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         meta.guid = *res;
     }
@@ -28,7 +28,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
         auto type = node["type"].as<std::string>();
         meta.type = AssetTypeFromString(type);
         if (meta.type == AssetType::Unknown) {
-            return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "unknown asset type '{}'", type);
+            return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "unknown asset type '{}'", type);
         }
     }
     meta.path = node["path"].as<std::string>();

@@ -58,7 +58,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
             break;
         case Backend::VULKAN:
             if (!glfwVulkanSupported()) {
-                return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "Vulkan not supported");
+                return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Vulkan not supported");
             }
             break;
         case Backend::METAL:
@@ -66,7 +66,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
         case Backend::D3D12:
             break;
         default:
-            return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", ToString(m_backend));
+            return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", ToString(m_backend));
     }
 
     glfwSetCursorPosCallback(m_window, CursorPosCallback);

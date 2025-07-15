@@ -33,16 +33,16 @@ D3d11GraphicsManager::D3d11GraphicsManager()
 
 auto D3d11GraphicsManager::InitializeInternal() -> Result<void> {
     if (auto res = CreateDevice(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = CreateSwapChain(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = CreateRenderTarget(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = InitSamplers(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     m_meshes.set_description("GPU-Mesh-Allocator");
@@ -239,7 +239,7 @@ auto D3d11GraphicsManager::InitSamplers() -> Result<void> {
     };
 
 #define SAMPLER_STATE(REG, NAME, DESC) \
-    if (!CreateSampler(REG, FillSamplerDesc(DESC))) { return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create Sampler {}", #NAME); }
+    if (!CreateSampler(REG, FillSamplerDesc(DESC))) { return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create Sampler {}", #NAME); }
 #include "sampler.hlsl.h"
 #undef SAMPLER_STATE
     return Result<void>();
@@ -782,7 +782,7 @@ auto D3d11GraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> Result<s
     D3D11_SUBRESOURCE_DATA data{};
     data.pSysMem = p_desc.initialData;
     D3D_FAIL_V_MSG(m_device->CreateBuffer(&bufferDesc, &data, buffer.GetAddressOf()),
-                   HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create buffer"),
+                   CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create buffer"),
                    "Failed to Create vertex buffer");
 
     auto ret = std::make_shared<D3d11Buffer>(p_desc);
@@ -802,7 +802,7 @@ auto D3d11GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
         }
         auto res = CreateBuffer(p_vb_descs[index]);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         ret->vertexBuffers[index] = *res;
     }
@@ -810,7 +810,7 @@ auto D3d11GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
     if (p_ib_desc) {
         auto res = CreateBuffer(*p_ib_desc);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
 
         ret->indexBuffer = *res;

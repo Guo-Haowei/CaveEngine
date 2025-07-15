@@ -213,7 +213,7 @@ auto CommonOpenGLGraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
     if (p_ib_desc) {
         auto res = CreateBuffer(*p_ib_desc);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         ret->indexBuffer = *res;
 
@@ -228,7 +228,7 @@ auto CommonOpenGLGraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
 
         auto res = CreateBuffer(p_vb_descs[slot]);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         ret->vertexBuffers[slot] = *res;
 
@@ -324,7 +324,7 @@ auto CommonOpenGLGraphicsManager::CreateConstantBuffer(const GpuBufferDesc& p_de
 
     glGenBuffers(1, &handle);
     if (handle == 0) {
-        return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to generate buffer");
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to generate buffer");
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, handle);
@@ -647,7 +647,7 @@ void CommonOpenGLGraphicsManager::Render() {
 }
 
 void CommonOpenGLGraphicsManager::Present() {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     if (m_app->GetSpecification().enableImgui) {
         GLFWwindow* oldContext = glfwGetCurrentContext();

@@ -18,12 +18,12 @@ void from_json(const json& j, Guid& p_guid) {
 
 auto Serialize(std::string_view p_path, const json& j) -> Result<void> {
     // if (!p_out.good()) {
-    //     return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "error: {}", p_out.GetLastError());
+    //     return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "error: {}", p_out.GetLastError());
     // }
 
     auto res = FileAccess::Open(p_path, FileAccess::WRITE);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     auto file = *res;
 
@@ -36,7 +36,7 @@ auto Serialize(std::string_view p_path, const json& j) -> Result<void> {
 auto Deserialize(std::string_view p_path, json& j) -> Result<void> {
     auto res = FileAccess::Open(p_path, FileAccess::READ);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     auto file = *res;
@@ -49,7 +49,7 @@ auto Deserialize(std::string_view p_path, json& j) -> Result<void> {
 
     j = json::parse(buffer.data(), nullptr, false);
     if (j.is_discarded()) {
-        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR);
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR);
     }
     return Result<void>();
 }

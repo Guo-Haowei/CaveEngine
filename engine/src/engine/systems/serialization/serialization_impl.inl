@@ -55,7 +55,7 @@ inline Result<void> SerializeYaml(YAML::Emitter& p_out, const Matrix4x4f& p_obje
 
 inline Result<void> DeserializeYaml(const YAML::Node& p_node, Matrix4x4f& p_object, SerializeYamlContext&) {
     if (!p_node || !p_node.IsSequence() || p_node.size() != 16) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "not a Matrix4x4f");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a Matrix4x4f");
     }
 
     float* ptr = &p_object[0].x;
@@ -74,11 +74,11 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, SerializeYam
 template<IsArithmetic T>
 Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYamlContext&) {
     if (!p_node) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
 
     if (!p_node.IsScalar()) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
     }
 
     p_object = p_node.as<T>();
@@ -94,11 +94,11 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, SerializeYam
 template<IsEnum T>
 Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYamlContext&) {
     if (!p_node) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
 
     if (!p_node.IsScalar()) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
     }
 
     p_object = static_cast<T>(p_node.as<uint64_t>());
@@ -110,7 +110,7 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const T (&p_object)[N], Seriali
     p_out << YAML::BeginSeq;
     for (int i = 0; i < N; ++i) {
         if (auto res = SerializeYaml(p_out, p_object[i], p_context); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
     }
     p_out << YAML::EndSeq;
@@ -120,16 +120,16 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const T (&p_object)[N], Seriali
 template<typename T, int N>
 Result<void> DeserializeYaml(const YAML::Node& p_node, T (&p_object)[N], SerializeYamlContext& p_context) {
     if (!p_node) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
 
     if (!p_node.IsSequence() || p_node.size() != N) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect sequence of {}", N);
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect sequence of {}", N);
     }
 
     for (int i = 0; i < N; ++i) {
         if (auto res = DeserializeYaml(p_node[i], p_object[i], p_context); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
     }
 
@@ -155,11 +155,11 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const Vector<T, N>& p_object, S
 template<typename T, int N>
 Result<void> DeserializeYaml(const YAML::Node& p_node, Vector<T, N>& p_object, SerializeYamlContext&) {
     if (!p_node) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
 
     if (!p_node.IsSequence() || p_node.size() != N) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect sequence of {}", N);
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect sequence of {}", N);
     }
 
     p_object.x = p_node[0].as<T>();
@@ -198,10 +198,10 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Box<N>& p_object, Seriali
 
     Vector<float, N> min, max;
     if (auto res = DeserializeYaml(p_node["min"], min, p_context); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = DeserializeYaml(p_node["max"], max, p_context); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     p_object = AABB(min, max);
@@ -218,7 +218,7 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, SerializeYam
         SerializeYamlContext context = p_context;
         context.flags = field->flags;
         if (auto res = field->DumpYaml(p_out, &p_object, p_context); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
     }
 
@@ -233,7 +233,7 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYam
     for (const auto& field : meta) {
         SerializeYamlContext context = p_context;
         if (auto res = field->UndumpYaml(p_node, &p_object, context); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
     }
     return Result<void>();
@@ -259,7 +259,7 @@ Result<void> FieldMeta<T>::UndumpYaml(const YAML::Node& p_node, void* p_object, 
     const auto& field = p_node[name];
     const bool nuallable = flags & FieldFlag::NUALLABLE;
     if (!field && !nuallable) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "missing '{}'", name);
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "missing '{}'", name);
     }
     if (nuallable && !field) {
         return Result<void>();
@@ -276,7 +276,7 @@ static constexpr char BIN_GUARD_MAGIC[] = "SEETHIS";
 static inline Result<void> FileWrite(FileAccess* p_file, const void* p_data, size_t p_length) {
     const size_t written = p_file->WriteBuffer(p_data, p_length);
     if (written != p_length) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to write {} bytes, only wrote {}", p_length, written);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to write {} bytes, only wrote {}", p_length, written);
     }
     return Result<void>();
 }
@@ -289,7 +289,7 @@ static inline Result<void> FileWrite(FileAccess* p_file, const T& p_data) {
 static inline Result<void> FileRead(FileAccess* p_file, void* p_data, size_t p_length) {
     const size_t read = p_file->ReadBuffer(p_data, p_length);
     if (read != p_length) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CANT_READ, "failed to read {} bytes, only read {}", p_length, read);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "failed to read {} bytes, only read {}", p_length, read);
     }
     return Result<void>();
 }
@@ -309,7 +309,7 @@ Result<void> SerializaYamlVec(YAML::Emitter& p_out, const std::vector<T>& p_obje
     p_out << YAML::BeginSeq;
     for (size_t i = 0; i < count; ++i) {
         if (auto res = SerializeYaml(p_out, p_object[i], p_context); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
     }
     p_out << YAML::EndSeq;
@@ -329,16 +329,16 @@ Result<void> SerializaYamlVecBinary(YAML::Emitter& p_out, const std::vector<T>& 
     long offset = 0;
     if (size_in_byte > 0) {
         if (auto res = FileWrite(file, BIN_GUARD_MAGIC); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         if (auto res = FileWrite(file, size_in_byte); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         // @TODO: better file API
         offset = file->Tell();
         DEV_ASSERT(offset > 0);
         if (auto res = FileWrite(file, p_object.data(), size_in_byte); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
     }
 
@@ -360,14 +360,14 @@ template<typename T>
 Result<void> DeserializeYamlVec(const YAML::Node& p_node, std::vector<T>& p_object, SerializeYamlContext& p_context) {
     DEV_ASSERT(!(p_context.flags & FieldFlag::BINARY));
     if (!p_node || !p_node.IsSequence()) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid sequence");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid sequence");
     }
 
     const size_t count = p_node.size();
     p_object.resize(count);
     for (size_t i = 0; i < count; ++i) {
         if (auto res = DeserializeYaml(p_node[i], p_object[i], p_context); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
     }
     return Result<void>();
@@ -379,7 +379,7 @@ Result<void> DeserializeYamlVecBinary(const YAML::Node& p_node, std::vector<T>& 
     constexpr size_t element_size = sizeof(p_object[0]);
     constexpr size_t internal_offset = sizeof(BIN_GUARD_MAGIC) + sizeof(size_t);
     if (!p_node || !p_node.IsMap()) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid buffer, expect (length, offset)");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid buffer, expect (length, offset)");
     }
 
     auto& file = p_context.file;
@@ -388,10 +388,10 @@ Result<void> DeserializeYamlVecBinary(const YAML::Node& p_node, std::vector<T>& 
     size_t offset = 0;
     size_t size_in_byte = 0;
     if (auto res = DeserializeYaml(p_node["offset"], offset, p_context); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = DeserializeYaml(p_node["buffer_size"], size_in_byte, p_context); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (size_in_byte == 0) {
         return Result<void>();
@@ -402,31 +402,31 @@ Result<void> DeserializeYamlVecBinary(const YAML::Node& p_node, std::vector<T>& 
     const size_t element_count = size_in_byte / element_size;
 
     if (auto seek = file->Seek((long)(offset - internal_offset)); seek != 0) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CANT_READ, "Seek failed");
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "Seek failed");
     }
 
     char magic[sizeof(BIN_GUARD_MAGIC)];
     if (auto res = FileRead(file, magic); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     if (!StringUtils::StringEqual(magic, BIN_GUARD_MAGIC)) {
         magic[sizeof(BIN_GUARD_MAGIC) - 1] = 0;
-        return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "wrong magic {}", magic);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "wrong magic {}", magic);
     }
 
     size_t stored_length = 0;
     if (auto res = FileRead(file, stored_length); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     if (stored_length != size_in_byte) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "wrong size (cache: {})", stored_length);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "wrong size (cache: {})", stored_length);
     }
 
     p_object.resize(element_count);
     if (auto res = FileRead(file, p_object.data(), size_in_byte); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     return Result<void>();

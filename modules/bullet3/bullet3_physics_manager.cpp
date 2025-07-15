@@ -105,7 +105,7 @@ void Bullet3PhysicsManager::FinalizeImpl() {
 }
 
 void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     PhysicsWorldContext& context = *p_scene.m_physicsWorld;
 
@@ -184,7 +184,7 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
 }
 
 void Bullet3PhysicsManager::UpdateCollision(Scene& p_scene) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     PhysicsWorldContext& context = *p_scene.m_physicsWorld;
     // set positions
@@ -265,7 +265,7 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
     if (p_scene.m_physicsMode == PhysicsMode::NONE) {
         return;
     }
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     DEV_ASSERT(p_scene.m_physicsWorld == nullptr);
 

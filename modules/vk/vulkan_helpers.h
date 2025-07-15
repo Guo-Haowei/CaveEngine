@@ -2,11 +2,11 @@
 #include <vulkan/vulkan.h>
 
 #define VK_OP(EXPR) ReportVkErrorIfFailed((EXPR), __FUNCTION__, __FILE__, __LINE__, #EXPR)
-#define VK_CHECK_ERROR(EXPR, CODE)                                                     \
-    do {                                                                               \
-        if (VkResult _result = VK_OP(EXPR); _result != VK_SUCCESS) [[unlikely]] {      \
-            return HBN_ERROR(CODE, "VkResult: {}, " #EXPR, ::cave::ToString(_result)); \
-        }                                                                              \
+#define VK_CHECK_ERROR(EXPR, CODE)                                                      \
+    do {                                                                                \
+        if (VkResult _result = VK_OP(EXPR); _result != VK_SUCCESS) [[unlikely]] {       \
+            return CAVE_ERROR(CODE, "VkResult: {}, " #EXPR, ::cave::ToString(_result)); \
+        }                                                                               \
     } while (0)
 
 namespace cave {

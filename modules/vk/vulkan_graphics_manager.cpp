@@ -109,7 +109,7 @@ auto VulkanGraphicsManager::CreateInstance() -> Result<void> {
     // Get the function pointer (required for any extensions)
     auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(g_Instance, "vkCreateDebugReportCallbackEXT");
     if (vkCreateDebugReportCallbackEXT == nullptr) {
-        return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to query vkCreateDebugReportCallbackEXT");
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to query vkCreateDebugReportCallbackEXT");
     }
 
     // Setup the debug report callback
@@ -353,19 +353,19 @@ auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayServer());
     DEV_ASSERT(display_manager);
     if (!display_manager) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
     }
 
     m_window = display_manager->GetGlfwWindow();
 
     if (auto res = CreateInstance(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = SelectHardware(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = CreateDescriptorPool(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     VK_CHECK_ERROR(glfwCreateWindowSurface(g_Instance, m_window, g_Allocator, &m_surface),

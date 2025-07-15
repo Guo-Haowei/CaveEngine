@@ -17,13 +17,13 @@ auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayServer());
     DEV_ASSERT(display_manager);
     if (!display_manager) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
     }
     m_window = display_manager->GetGlfwWindow();
 
     if (gladLoadGL() == 0) {
         LOG_FATAL("[glad] failed to import gl functions");
-        return HBN_ERROR(ErrorCode::ERR_CANT_CREATE);
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
     LOG_VERBOSE("[opengl] renderer: {}", (const char*)glGetString(GL_RENDERER));

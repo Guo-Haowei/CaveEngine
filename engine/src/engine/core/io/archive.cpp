@@ -13,7 +13,7 @@ auto Archive::OpenMode(const std::string& p_path, bool p_write_mode) -> Result<v
 
     auto result = FileAccess::Open(m_path, p_write_mode ? FileAccess::WRITE : FileAccess::READ);
     if (!result) {
-        return HBN_ERROR(result.error());
+        return CAVE_ERROR(result.error());
     }
 
     m_file = *result;

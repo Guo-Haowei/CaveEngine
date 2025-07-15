@@ -112,7 +112,7 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
     DEV_ASSERT(w > 0 && h > 0);
 
     if (auto res = CreateDevice(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     if (m_enableValidationLayer) {
@@ -124,13 +124,13 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
     }
 
     if (auto res = CreateDescriptorHeaps(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = InitGraphicsContext(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = m_copyContext.Initialize(this); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     for (int i = 0; i < NUM_BACK_BUFFERS; i++) {
@@ -144,13 +144,13 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
     }
 
     if (auto res = CreateSwapChain(w, h); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = CreateRenderTarget(w, h); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = CreateRootSignature(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     // Create debug buffer.
@@ -465,7 +465,7 @@ auto D3d12GraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> Result<s
     const uint32_t size_in_byte = p_desc.elementCount * p_desc.elementSize;
     ret->buffer = UploadBuffer(size_in_byte, p_desc.initialData, nullptr);
     if (ret->buffer == nullptr) {
-        return HBN_ERROR(ErrorCode::ERR_CANT_CREATE);
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
     return ret;
@@ -485,7 +485,7 @@ auto D3d12GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
 
         auto res = CreateBuffer(p_vb_descs[index]);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
 
         ret->vertexBuffers[index] = *res;
@@ -499,7 +499,7 @@ auto D3d12GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
     if (p_ib_desc) {
         auto res = CreateBuffer(*p_ib_desc);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         ret->indexBuffer = *res;
         ret->ibv = {
@@ -1193,13 +1193,13 @@ auto D3d12GraphicsManager::EnableDebugLayer() -> Result<void> {
 
 auto D3d12GraphicsManager::CreateDescriptorHeaps() -> Result<void> {
     if (auto res = m_rtvDescHeap.Initialize(64, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_device.Get(), false); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = m_dsvDescHeap.Initialize(64, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, m_device.Get(), false); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     if (auto res = m_srvDescHeap.Initialize(512, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_device.Get(), true); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     return Result<void>();
@@ -1360,7 +1360,7 @@ auto D3d12GraphicsManager::CreateRootSignature() -> Result<void> {
         char buffer[256]{ 0 };
         StringUtils::Sprintf(buffer, "%.*s", error->GetBufferSize(), error->GetBufferPointer());
         LOG_ERROR("Failed to create root signature, reason {}", buffer);
-        return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create root signature");
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create root signature");
     }
 
     D3D_FAIL(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)),

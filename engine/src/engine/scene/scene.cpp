@@ -24,7 +24,7 @@ REGISTER_COMPONENT_LIST
 namespace cave {
 
 void Scene::Update(float p_timestep) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     m_dirtyFlags.store(0);
 

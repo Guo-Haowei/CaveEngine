@@ -43,7 +43,7 @@ static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
 Result<void> SaveSceneBinary(const std::string& p_path, Scene& p_scene) {
     Archive archive;
     if (auto res = archive.OpenWrite(p_path); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     archive << SCENE_MAGIC;
@@ -68,24 +68,24 @@ Result<void> SaveSceneBinary(const std::string& p_path, Scene& p_scene) {
 Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
     Archive archive;
     if (auto res = archive.OpenRead(p_path); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     char magic[sizeof(SCENE_MAGIC)]{ 0 };
     if (!archive.Read(magic) || !StringUtils::StringEqual(magic, SCENE_MAGIC)) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "file corrupted, magic is not '{}'", SCENE_MAGIC);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "file corrupted, magic is not '{}'", SCENE_MAGIC);
     }
 
     uint32_t version;
     if (!archive.Read(version) || version > LATEST_SCENE_VERSION) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "incorrect scene version {}, current version is {}", version, LATEST_SCENE_VERSION);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "incorrect scene version {}, current version is {}", version, LATEST_SCENE_VERSION);
     }
 
     SCENE_DBG_LOG("loading scene '{}', version: {}", p_path, version);
 
     uint32_t seed = ecs::Entity::MAX_ID;
     if (!archive.Read(seed)) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "failed to read seed");
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "failed to read seed");
     }
 
     ecs::Entity::SetSeed(seed);
@@ -100,7 +100,7 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
     char guard_message[sizeof(SCENE_GUARD_MESSAGE)]{ 0 };
     archive >> guard_message;
     if (!StringUtils::StringEqual(guard_message, SCENE_GUARD_MESSAGE)) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT);
     }
 
     for (;;) {
@@ -117,10 +117,10 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
 
         auto it = p_scene.GetLibraryEntries().find(key);
         if (it == p_scene.GetLibraryEntries().end()) {
-            return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "entry '{}' not found", key);
+            return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "entry '{}' not found", key);
         }
         if (!it->second.m_manager->Serialize(archive, version)) {
-            return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "failed to serialize '{}'", key);
+            return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "failed to serialize '{}'", key);
         }
     }
 }
@@ -138,7 +138,7 @@ template<Serializable T>
         serialize::SerializeYamlContext context;
         context.file = p_binary;
         if (auto res = serialize::SerializeYaml(p_out, *component, context); !res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
     }
     return Result<void>();
@@ -178,7 +178,7 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
     auto binary_path = std::format("{}{}", p_path, ".bin");
     Archive archive;
     if (auto res = archive.OpenWrite(binary_path); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     YAML::Emitter out;
@@ -197,7 +197,7 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
     ok = ok && archive.Write(LATEST_SCENE_VERSION);
     ok = ok && archive.Write(SCENE_GUARD_MESSAGE);
     if (!ok) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to save file '{}'", p_path);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to save file '{}'", p_path);
     }
 
     for (auto id : entity_array) {
@@ -210,7 +210,7 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
 
 #define REGISTER_COMPONENT(a, ...)                                                                         \
     if (auto res = SerializeComponent<a>(out, #a, entity, p_scene, archive.GetFileAccess().get()); !res) { \
-        return HBN_ERROR(res.error());                                                                     \
+        return CAVE_ERROR(res.error());                                                                    \
     }
         REGISTER_COMPONENT_LIST
 #undef REGISTER_COMPONENT
@@ -225,7 +225,7 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
 
     auto res = FileAccess::Open(p_path, FileAccess::WRITE);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     auto yaml_file = *res;
@@ -247,7 +247,7 @@ static Result<void> DeserializeComponent(const YAML::Node& p_node,
     }
 
     if (!node.IsMap()) {
-        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "entity {} has invalid '{}'", p_id.GetId(), p_key);
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "entity {} has invalid '{}'", p_id.GetId(), p_key);
     }
 
     // @TODO: reserve component manager
@@ -256,7 +256,7 @@ static Result<void> DeserializeComponent(const YAML::Node& p_node,
     context.file = p_binary;
     context.version = p_version;
     if (auto res = serialize::DeserializeYaml(node, component, context); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     component.OnDeserialized();
@@ -268,7 +268,7 @@ Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
 
     auto res = FileAccess::Open(p_path, FileAccess::READ);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     auto file = *res;
@@ -277,7 +277,7 @@ Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
     std::string buffer;
     buffer.resize(size);
     if (auto read = file->ReadBuffer(buffer.data(), size); read != size) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CANT_READ, "failed to read {} bytes from '{}'", size, p_path);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "failed to read {} bytes from '{}'", size, p_path);
     }
 
     file->Close();
@@ -286,7 +286,7 @@ Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
     YAML::Emitter out;
     auto version = node["version"].as<uint32_t>();
     if (version > LATEST_SCENE_VERSION) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "incorrect version {}", version);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "incorrect version {}", version);
     }
     auto seed = node["seed"].as<uint32_t>();
     ecs::Entity::SetSeed(seed);
@@ -303,18 +303,18 @@ Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
     auto binary_file = node["binary"].as<std::string>();
     res = FileAccess::Open(binary_file, FileAccess::READ);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     file = *res;
     const auto& entities = node["entities"];
     if (!entities.IsSequence()) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
     }
 
     for (const auto& entity : entities) {
         if (!entity.IsMap()) {
-            return HBN_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
+            return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
         }
 
         ecs::Entity id(entity["id"].as<uint32_t>());
@@ -322,7 +322,7 @@ Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
 #define REGISTER_COMPONENT(a, ...)                                                         \
     do {                                                                                   \
         auto res2 = DeserializeComponent<a>(entity, #a, id, version, p_scene, file.get()); \
-        if (!res2) { return HBN_ERROR(res2.error()); }                                     \
+        if (!res2) { return CAVE_ERROR(res2.error()); }                                    \
     } while (0);
         REGISTER_COMPONENT_LIST
 #undef REGISTER_COMPONENT

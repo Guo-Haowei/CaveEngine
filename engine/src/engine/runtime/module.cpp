@@ -6,7 +6,7 @@ auto Module::Initialize() -> Result<void> {
     if (DEV_VERIFY(!m_initialized)) {
         auto res = InitializeImpl();
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
 
         m_initialized = true;

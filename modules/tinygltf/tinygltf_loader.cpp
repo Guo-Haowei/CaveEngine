@@ -156,15 +156,15 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
     bool ret = loader.LoadASCIIFromFile(m_model.get(), &err, &warn, m_filePath);
 
     if (!warn.empty()) {
-        return HBN_ERROR(ErrorCode::FAILURE, "Warn: failed to import scene '{}'\n\tdetails: {}", m_filePath, warn);
+        return CAVE_ERROR(ErrorCode::FAILURE, "Warn: failed to import scene '{}'\n\tdetails: {}", m_filePath, warn);
     }
 
     if (!err.empty()) {
-        return HBN_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", m_filePath, err);
+        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", m_filePath, err);
     }
 
     if (!ret) {
-        return HBN_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'", m_filePath);
+        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'", m_filePath);
     }
 
     ecs::Entity root = ecs::Entity::Create();

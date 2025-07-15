@@ -42,7 +42,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
 
             void* data = font->buffer.data();
             if (!io.Fonts->AddFontFromMemoryTTF(data, (int)font->buffer.size(), base_font_size, &font_cfg)) {
-                return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create font '{}'", path);
+                return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create font '{}'", path);
             }
         }
     }
@@ -63,7 +63,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
 
             void* data = (void*)font->buffer.data();
             if (!io.Fonts->AddFontFromMemoryTTF(data, (int)font->buffer.size(), base_font_size, &icons_config, icons_ranges)) {
-                return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create font '{}'", path);
+                return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create font '{}'", path);
             }
         }
     }
