@@ -294,6 +294,12 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
             LOG_WARN("TODO: DELETE");
         }
 
+        //        #define ICON_FA_EYE            "\xef\x81\xae"  // U+f06e
+        // #define ICON_FA_EYE_DROPPER    "\xef\x87\xbb"  // U+f1fb
+        // #define ICON_FA_EYE_LOW_VISION "\xef\x8a\xa8"  // U+f2a8
+        // #define ICON_FA_EYE_SLASH      "\xef\x81\xb0"  // U+f070
+        //
+
         // next line
 
         ImVec2 region_size(96, 96);

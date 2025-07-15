@@ -1,5 +1,6 @@
 #include "scene_component_2d.h"
 
+#include "engine/assets/sprite_asset.h"
 #include "engine/assets/tile_map_asset.h"
 #include "engine/renderer/gpu_resource.h"
 #include "engine/runtime/asset_registry.h"
@@ -7,23 +8,57 @@
 
 namespace my {
 
-void TileMapRenderer::CreateRenderData() {
-    auto res = AssetRegistry::GetSingleton().FindByGuid(tile_map);
-    if (!res) {
-        return;
+bool TileMapRenderer::SetTileMap(const Guid& p_guid) {
+    if (p_guid == m_guid) {
+        return false;
     }
-    auto handle = *res;
 
-    auto tile_map_asset = handle.Get<TileMapAsset>();
+    m_guid = p_guid;
+    auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(p_guid);
+    if (!res) {
+        return false;
+    }
+
+    auto handle = *res;
+    return true;
+}
+
+void TileMapRenderer::CreateRenderData() {
+    if (m_guid != m_handle.GetGuid()) {
+        auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_guid);
+        m_handle = std::move(*res);
+    }
+
+    auto tile_map_asset = m_handle.Get();
+
     if (!tile_map_asset) {
         return;
     }
 
+    const auto& layers = tile_map_asset->GetAllLayers();
+    const int layer_count = static_cast<int>(layers.size());
+    if (m_layer_cache.size() != layers.size()) {
+        m_layer_cache.clear();
+        m_layer_cache.resize(layer_count);
+    }
+
     // @TODO: multi layer
-    int i = 0;
-    for (const auto& layer : tile_map_asset->GetAllLayers()) {
-        if (layer.GetRevision() == revision) {
+    for (int layer_id = 0; layer_id < layer_count; ++layer_id) {
+        const auto& layer = layers[layer_id];
+        auto& layer_cache = m_layer_cache[layer_id];
+        if (layer.GetRevision() == layer_cache.revision) {
             break;
+        }
+
+        // @TODO: update guid
+        if (layer_cache.image.GetGuid() == Guid::Null()) {
+            auto sprite_handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAsset>(layer.GetSpriteGuid());
+            if (sprite_handle) {
+                SpriteAsset* sprite = sprite_handle->Get();
+                if (sprite) {
+                    layer_cache.image = sprite->GetHandle();
+                }
+            }
         }
 
         std::vector<Vector2f> vertices;
@@ -110,11 +145,8 @@ void TileMapRenderer::CreateRenderData() {
         // @TODO: refactor this part
         auto mesh = IGraphicsManager::GetSingleton().CreateMeshImpl(desc, 2, buffers, &index_desc);
 
-        m_mesh = *mesh;
-
-        revision = layer.GetRevision();
-
-        if (i == 0) break;
+        layer_cache.mesh = *mesh;
+        layer_cache.revision = layer.GetRevision();
     }
 }
 

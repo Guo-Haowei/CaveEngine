@@ -1,7 +1,7 @@
 #pragma once
 #include "scene_component_base.h"
 
-#include "engine/assets/guid.h"
+#include "engine/assets/asset_handle.h"
 #include "engine/math/box.h"
 #include "engine/math/geomath.h"
 
@@ -10,22 +10,34 @@ namespace my {
 class Archive;
 struct GpuMesh;
 struct ImageAsset;
+class TileMapAsset;
 
-struct TileMapRenderer : public ComponentFlagBase {
-    Guid tile_map;
-    uint32_t revision{ 0 };
-
-    // Non serialize
-    mutable std::shared_ptr<GpuMesh> m_mesh;
+class TileMapRenderer : public ComponentFlagBase {
+public:
+    struct LayerCache {
+        uint32_t revision{ 0 };
+        Handle<ImageAsset> image;
+        mutable std::shared_ptr<GpuMesh> mesh;
+    };
 
     // @TODO: better way
     void CreateRenderData();
 
+    bool SetTileMap(const Guid& p_guid);
+
+    const auto& GetLayerCache() const { return m_layer_cache; }
+
+    // @TODO: get rid of old serailization code
     void Serialize(Archive& p_archive, uint32_t p_version);
-
     void OnDeserialized() {}
-
     static void RegisterClass();
+
+private:
+    Guid m_guid;
+
+    // Non serialize
+    Handle<TileMapAsset> m_handle;
+    std::vector<LayerCache> m_layer_cache;
 };
 
 #if 0
