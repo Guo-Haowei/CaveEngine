@@ -1,0 +1,114 @@
+import os
+import re
+import sys
+
+def get_project_dir():
+    source_folder = os.path.dirname(os.path.abspath(__file__))
+    project_dir = os.path.dirname(source_folder)
+    return project_dir
+
+print("Project root folder:", get_project_dir())
+
+# throw "Source folder not found"
+
+# ========= CONFIG ==========
+FILES = [
+    "engine/src/engine/tile_map/tile_map_asset.h",
+]
+
+OUTPUT_DIR = os.path.join(get_project_dir(), "engine/src/engine/reflection/generated")
+
+META_CPP_SUFFIX = ".meta.cpp"
+
+# ========= REGEX ==========
+
+prop_regex = re.compile(r"CAVE_PROP\s*\((.*?)\)")
+field_regex = re.compile(r"([a-zA-Z_][\w:]*)\s+([a-zA-Z_]\w*)\s*;")
+
+# ========= PARSING & GENERATION ==========
+def extract_field_name(line: str) -> str:
+    # Remove trailing semicolon first
+    line = line.strip()
+    if line.endswith(';'):
+        line = line[:-1].strip()
+
+    parts = line.split()
+
+    # If no parts, no name
+    if not parts:
+        return ""
+
+    # The last part may contain '= something' or just the name
+    last_part = parts[-1]
+
+    # Check if '=' exists in last_part (like: name=val)
+    if '=' in last_part:
+        name = last_part.split('=')[0].strip()
+    else:
+        name = last_part.strip()
+
+    return name
+
+def parse_file(file_path):
+    results = []
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+
+        if prop_match := prop_regex.match(line):
+            metadata = prop_match.group(1).strip()
+            i += 1
+            while i < len(lines) and lines[i].strip() == "":
+                i += 1
+            if i < len(lines):
+                next_line = lines[i].strip()
+                if field_match := field_regex.match(next_line):
+                    field_type, field_name = field_match.groups()
+                    results.append({
+                        "type": field_type,
+                        "name": field_name,
+                        "meta": metadata
+                    })
+
+        i += 1
+
+    return results
+
+
+def generate_meta_file(file_path, fields):
+    filename = os.path.basename(file_path)
+    base = os.path.splitext(filename)[0]
+    output_file = os.path.join(OUTPUT_DIR, base + META_CPP_SUFFIX)
+
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(f"// Auto-generated metadata for {filename}\n\n")
+        for field in fields:
+            f.write(f"// {field['type']} {field['name']} ({field['meta']})\n")
+
+        f.write("\n// TODO: Register fields with meta system\n")
+
+    print(f"Generated: {output_file}")
+
+
+def main():
+    for file_path in FILES:
+        file_path = os.path.join(get_project_dir(), file_path)
+        if not os.path.isfile(file_path):
+            print(f"File not found: {file_path}")
+            continue
+
+        fields = parse_file(file_path)
+        if fields:
+            generate_meta_file(file_path, fields)
+        else:
+            print(f"No CAVE_PROP found in: {file_path}")
+
+
+if __name__ == "__main__":
+    main()

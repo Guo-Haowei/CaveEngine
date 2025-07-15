@@ -23,7 +23,7 @@ public:                                           \
 // @TODO: make it a class
 struct IAsset {
     const AssetType type;
-    std::weak_ptr<AssetEntry> m_entry;  // to retrieve meta data
+    std::weak_ptr<AssetEntry> m_entry;
 
     IAsset(AssetType p_type)
         : type(p_type) {}

@@ -3,6 +3,7 @@
 
 #include "engine/assets/asset_handle.h"
 #include "engine/assets/asset_interface.h"
+#include "engine/reflection/reflection.h"
 
 namespace cave {
 
@@ -31,19 +32,31 @@ namespace cave {
 
 using TileData = uint32_t;
 
-// @TODO: remove this to TileBrush logic
-enum class TileResult : uint8_t {
-    Removed,
-    Replaced,
-    Added,
-    Noop,
-};
-
 class TileMapAsset : public IAsset {
-    DECLARE_ASSET(TileMapAsset, AssetType::TileMap)
+    CAVE_META(TileMapAsset)
+
+    CAVE_PROP(type = name, editable, serialize)
+    std::string m_name;
+
+    CAVE_PROP(type = guid, editable, serialize, tooltip = "tileset id")
+    Guid m_sprite_guid;
+
+    CAVE_PROP(editable, serialize, tooltip = "change layer visibility")
+    bool m_is_visible;
+
+    CAVE_PROP(serialize)
+    std::unordered_map<TileIndex, TileData> m_tiles;
+
 public:
-    // promote TileMapLayer to TileMapAsset
     static constexpr const int VERSION = 1;
+    static constexpr AssetType ASSET_TYPE = AssetType::TileMap;
+
+    TileMapAsset()
+        : IAsset(AssetType::TileMap)
+        , m_is_visible(true) {
+    }
+
+    // promote TileMapLayer to TileMapAsset
 
     Option<TileData> GetTile(TileIndex p_index) const;
 
@@ -66,8 +79,8 @@ public:
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }
 
-    bool IsVisible() const { return m_visible; }
-    void SetVisible(bool p_visible) { m_visible = p_visible; }
+    bool IsVisible() const { return m_is_visible; }
+    void SetVisible(bool p_visible) { m_is_visible = p_visible; }
 
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
@@ -77,12 +90,6 @@ public:
 private:
     void LoadFromDiskVersion0(const nlohmann::json& j);
     void LoadFromDiskVersion1(const nlohmann::json& j);
-
-    std::string m_name;
-    Guid m_sprite_guid;
-    std::unordered_map<TileIndex, TileData> m_tiles;
-
-    bool m_visible = true;
 
     // Non serialized
     Handle<SpriteAsset> m_sprite_handle;

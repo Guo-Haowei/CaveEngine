@@ -10,11 +10,11 @@
 namespace cave {
 
 bool TileMapRenderer::SetTileMap(const Guid& p_guid) {
-    if (p_guid == m_guid) {
+    if (p_guid == m_tile_map) {
         return false;
     }
 
-    m_guid = p_guid;
+    m_tile_map = p_guid;
     auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(p_guid);
     if (!res) {
         return false;
@@ -25,8 +25,8 @@ bool TileMapRenderer::SetTileMap(const Guid& p_guid) {
 }
 
 void TileMapRenderer::CreateRenderData() {
-    if (m_guid != m_handle.GetGuid()) {
-        auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_guid);
+    if (m_tile_map != m_handle.GetGuid()) {
+        auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_tile_map);
         m_handle = std::move(*res);
     }
 
