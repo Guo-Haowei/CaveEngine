@@ -9,7 +9,7 @@
 #include "engine/render_graph/framebuffer.h"
 #include "engine/renderer/gpu_resource.h"
 
-namespace my {
+namespace cave {
 
 struct D3d11GpuTexture : public GpuTexture {
     using GpuTexture::GpuTexture;
@@ -46,4 +46,4 @@ struct D3d11StructuredBuffer : GpuStructuredBuffer {
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
 };
 
-}  // namespace my
+}  // namespace cave

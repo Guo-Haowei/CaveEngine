@@ -10,7 +10,7 @@
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -158,4 +158,4 @@ void FileSystemPanel::UpdateInternal(Scene*) {
     ListFile(m_root, "@res://");
 }
 
-}  // namespace my
+}  // namespace cave

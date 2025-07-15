@@ -3,7 +3,7 @@
 #include "physics_manager.h"
 #include "scene_manager_interface.h"
 
-namespace my {
+namespace cave {
 
 DisplayManager* CreateDisplayManager();
 
@@ -13,4 +13,4 @@ IPhysicsManager* CreatePhysicsManager();
 
 ISceneManager* CreateSceneManager();
 
-}  // namespace my
+}  // namespace cave

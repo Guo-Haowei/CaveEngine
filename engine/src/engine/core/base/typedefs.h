@@ -85,17 +85,17 @@
 #define _STR(x) #x
 
 /// Scope exit
-#define ON_SCOPE_EXIT(FUNC) auto __on_scope_exit_call = ::my::MakeScopeDrop(FUNC)
+#define ON_SCOPE_EXIT(FUNC) auto __on_scope_exit_call = ::cave::MakeScopeDrop(FUNC)
 
 /// Select macro functions
-#define HBN_MACRO_EXPAND(x)                                        x
-#define HBN_GET_MACRO_2(_1, _2, FUNC, ...)                         FUNC
-#define HBN_GET_MACRO_3(_1, _2, _3, FUNC, ...)                     FUNC
-#define HBN_GET_MACRO_4(_1, _2, _3, _4, FUNC, ...)                 FUNC
-#define HBN_GET_MACRO_5(_1, _2, _3, _4, _5, FUNC, ...)             FUNC
-#define HBN_GET_MACRO_6(_1, _2, _3, _4, _5, _6, FUNC, ...)         FUNC
-#define HBN_GET_MACRO_7(_1, _2, _3, _4, _5, _6, _7, FUNC, ...)     FUNC
-#define HBN_GET_MACRO_8(_1, _2, _3, _4, _5, _6, _7, _8, FUNC, ...) FUNC
+#define CAVE_MACRO_EXPAND(x)                                        x
+#define CAVE_GET_MACRO_2(_1, _2, FUNC, ...)                         FUNC
+#define CAVE_GET_MACRO_3(_1, _2, _3, FUNC, ...)                     FUNC
+#define CAVE_GET_MACRO_4(_1, _2, _3, _4, FUNC, ...)                 FUNC
+#define CAVE_GET_MACRO_5(_1, _2, _3, _4, _5, FUNC, ...)             FUNC
+#define CAVE_GET_MACRO_6(_1, _2, _3, _4, _5, _6, FUNC, ...)         FUNC
+#define CAVE_GET_MACRO_7(_1, _2, _3, _4, _5, _6, _7, FUNC, ...)     FUNC
+#define CAVE_GET_MACRO_8(_1, _2, _3, _4, _5, _6, _7, _8, FUNC, ...) FUNC
 
 /// Enum
 #define DEFINE_ENUM_BITWISE_OPERATIONS(ENUM)                                              \
@@ -117,7 +117,7 @@
         return static_cast<ENUM>(~std::to_underlying(p_enum));                            \
     }
 
-namespace my {
+namespace cave {
 
 constexpr inline size_t KB = 1024;
 constexpr inline size_t MB = 1024 * KB;
@@ -147,4 +147,4 @@ ScopeDrop<FUNC> MakeScopeDrop(FUNC func) {
     return ScopeDrop<FUNC>(func);
 }
 
-}  // namespace my
+}  // namespace cave

@@ -3,7 +3,7 @@
 #include "engine/assets/asset_interface.h"
 #include "editor/editor_window.h"
 
-namespace my {
+namespace cave {
 
 class AssetRegistry;
 struct IAsset;
@@ -39,4 +39,4 @@ protected:
     Handle<ImageAsset> m_checkerboard_handle;
 };
 
-}  // namespace my
+}  // namespace cave

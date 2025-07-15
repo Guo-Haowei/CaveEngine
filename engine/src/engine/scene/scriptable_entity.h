@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 
 class ScriptableEntity {
 public:
@@ -25,4 +25,4 @@ protected:
     friend class ScriptManager;
 };
 
-}  // namespace my
+}  // namespace cave

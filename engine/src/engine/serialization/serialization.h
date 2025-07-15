@@ -5,7 +5,7 @@
 #include "engine/math/box.h"
 #include "engine/math/geomath.h"
 
-namespace my {
+namespace cave {
 using nlohmann::json;
 
 class Guid;
@@ -21,4 +21,4 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vector4f, x, y, z, w);
 auto Serialize(std::string_view p_path, const json& j) -> Result<void>;
 auto Deserialize(std::string_view p_path, json& j) -> Result<void>;
 
-}  // namespace my
+}  // namespace cave

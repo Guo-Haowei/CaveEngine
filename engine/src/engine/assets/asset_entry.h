@@ -2,7 +2,7 @@
 #include "asset_interface.h"
 #include "asset_meta_data.h"
 
-namespace my {
+namespace cave {
 
 struct IAsset;
 
@@ -40,4 +40,4 @@ private:
     std::condition_variable m_cv;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/renderer/pixel_format.h"
 
-namespace my {
+namespace cave {
 
 constexpr const char RG_PASS_2D[] = "p:2d";
 constexpr const char RG_PASS_EARLY_Z[] = "p:early_z";
@@ -68,4 +68,4 @@ constexpr PixelFormat RT_FMT_OUTLINE_SELECT = PixelFormat::R8_UINT;
 constexpr PixelFormat DEFAULT_SURFACE_FORMAT = PixelFormat::R8G8B8A8_UNORM;
 constexpr PixelFormat DEFAULT_DEPTH_STENCIL_FORMAT = PixelFormat::D32_FLOAT;
 
-}  // namespace my
+}  // namespace cave

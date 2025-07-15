@@ -16,7 +16,7 @@
 
 extern const char* g_lua_always_load;
 
-namespace my {
+namespace cave {
 
 auto LuaScriptManager::InitializeImpl() -> Result<void> {
     return Result<void>();
@@ -142,7 +142,7 @@ void LuaScriptManager::OnSimEnd(Scene& p_scene) {
 }
 
 void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     if (DEV_VERIFY(p_scene.L)) {
         lua_State* L = p_scene.L;
@@ -191,12 +191,12 @@ Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const std::string& p_
 #if 0
     auto source = dynamic_cast<const TextAsset*>(handle.Wait().get());
     if (!source) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "file {} not found", p_path);
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "file {} not found", p_path);
     }
 
     if (luaL_dostring(L, source->source.c_str()) != LUA_OK) {
         LOG_ERROR("failed to execute script '{}', error: '{}'", source->source, lua_tostring(L, -1));
-        return HBN_ERROR(ErrorCode::ERR_SCRIPT_FAILED);
+        return CAVE_ERROR(ErrorCode::ERR_SCRIPT_FAILED);
     }
 #endif
 
@@ -233,4 +233,4 @@ ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const std::string& p_p
     return meta;
 }
 
-}  // namespace my
+}  // namespace cave

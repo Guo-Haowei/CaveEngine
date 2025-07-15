@@ -5,7 +5,7 @@
 #include "engine/core/base/rid_owner.h"
 #include "engine/renderer/graphics_manager.h"
 
-namespace my {
+namespace cave {
 
 struct D3d11Buffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -123,4 +123,4 @@ protected:
     } m_stateCache;
 };
 
-}  // namespace my
+}  // namespace cave

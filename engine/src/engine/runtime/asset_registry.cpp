@@ -9,7 +9,7 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -46,7 +46,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
         if (value.has_meta) {
             auto res = AssetMetaData::LoadMeta(meta_path);
             if (!res) {
-                return HBN_ERROR(res.error());
+                return CAVE_ERROR(res.error());
             }
 
             auto meta = std::move(*res);
@@ -71,7 +71,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
         auto meta2 = std::move(meta.value());
         auto res = meta2.SaveToDisk(nullptr);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
 
         LOG_VERBOSE("'{}' not detected, creating", meta_path);
@@ -222,4 +222,4 @@ void AssetRegistry::RemoveAsset(const std::string& p_path) {
 }
 #endif
 
-}  // namespace my
+}  // namespace cave

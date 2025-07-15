@@ -1,7 +1,7 @@
 #pragma once
 #include "editor/editor_window.h"
 
-namespace my {
+namespace cave {
 
 struct IAsset;
 struct AssetMetaData;
@@ -25,4 +25,4 @@ protected:
     std::filesystem::path m_renaming;
 };
 
-}  // namespace my
+}  // namespace cave

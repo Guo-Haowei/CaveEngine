@@ -2,7 +2,7 @@
 
 #include "engine/core/base/ring_buffer.h"
 
-namespace my {
+namespace cave {
 
 void AnsiLogger::Print(LogLevel p_level, std::string_view p_message) {
     const char* color = "\033[0m";
@@ -24,4 +24,4 @@ void AnsiLogger::Print(LogLevel p_level, std::string_view p_message) {
     fflush(file);
 }
 
-}  // namespace my
+}  // namespace cave

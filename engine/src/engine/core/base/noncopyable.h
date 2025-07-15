@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class NonCopyable {
 public:
@@ -12,4 +12,4 @@ protected:
     ~NonCopyable() = default;
 };
 
-}  // namespace my
+}  // namespace cave

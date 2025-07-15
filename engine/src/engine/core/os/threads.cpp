@@ -8,7 +8,7 @@
 #include "engine/drivers/windows/win32_prerequisites.h"
 #include "engine/runtime/asset_manager.h"
 
-namespace my::thread {
+namespace cave::thread {
 
 using ThreadMainFunc = void (*)();
 
@@ -55,7 +55,7 @@ bool Initialize() {
 
                 latch.count_down();
                 LOG_VERBOSE("[threads] thread '{}'(id: {}) starts.", p_object->name, p_object->id);
-                HBN_PROFILE_THREAD(p_object->name);
+                CAVE_PROFILE_THREAD(p_object->name);
                 p_object->threadFunc();
                 LOG_VERBOSE("[threads] thread '{}'(id: {}) ends.", p_object->name, p_object->id);
             },
@@ -106,4 +106,4 @@ uint32_t GetThreadId() {
     return g_threadId;
 }
 
-}  // namespace my::thread
+}  // namespace cave::thread

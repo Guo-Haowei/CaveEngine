@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 template<typename T>
 class LinearIterator {
@@ -42,4 +42,4 @@ private:
     T* m_ptr = nullptr;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -1,6 +1,6 @@
 #include "string_builder.h"
 
-namespace my {
+namespace cave {
 
 // @TODO: refactor
 // constexpr std::string_view find_last_slash(std::string_view p_string, char p_char) {
@@ -17,4 +17,4 @@ namespace my {
 //    return result;
 //}
 
-}  // namespace my
+}  // namespace cave

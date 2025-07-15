@@ -2,7 +2,7 @@
 
 #include "asset_entry.h"
 
-namespace my {
+namespace cave {
 
 bool AssetHandle::IsReady() const {
     auto entry = m_entry.lock();
@@ -29,4 +29,4 @@ const AssetMetaData* AssetHandle::GetMeta() const {
     return nullptr;
 }
 
-}  // namespace my
+}  // namespace cave

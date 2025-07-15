@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 enum class ToolType {
     None,
@@ -51,4 +51,4 @@ enum class ComponentType : uint8_t {
     Count,
 };
 
-}  // namespace my
+}  // namespace cave

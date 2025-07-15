@@ -4,7 +4,7 @@
 #include "engine/math/vector.h"
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 class InputManager : public Singleton<InputManager>,
                      public Module,
@@ -53,4 +53,4 @@ protected:
     friend class Win32DisplayManager;
 };
 
-};  // namespace my
+};  // namespace cave

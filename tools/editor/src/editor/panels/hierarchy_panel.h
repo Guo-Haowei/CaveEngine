@@ -1,7 +1,7 @@
 #pragma once
 #include "editor/editor_window.h"
 
-namespace my {
+namespace cave {
 
 class HierarchyPanel : public EditorWindow {
 public:
@@ -15,4 +15,4 @@ private:
     void DrawPopup(Scene& scene);
 };
 
-}  // namespace my
+}  // namespace cave

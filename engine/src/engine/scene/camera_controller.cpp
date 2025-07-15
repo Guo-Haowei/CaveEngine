@@ -4,7 +4,7 @@
 #include "engine/runtime/input_manager.h"
 #include "engine/scene/scene_component.h"
 
-namespace my {
+namespace cave {
 
 void CameraController2DEditor::Update(CameraComponent& p_camera,
                                       const CameraInputState& p_state) {
@@ -76,4 +76,4 @@ void CameraControllerFPS::Update(CameraComponent& p_camera,
     }
 }
 
-}  // namespace my
+}  // namespace cave

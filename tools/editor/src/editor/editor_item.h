@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 
 class EditorLayer;
 
@@ -23,4 +23,4 @@ protected:
     EditorLayer& m_editor;
 };
 
-}  // namespace my
+}  // namespace cave

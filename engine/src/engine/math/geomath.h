@@ -14,7 +14,7 @@ WARNING_POP()
 #include "engine/math/matrix.h"
 #include "engine/math/vector.h"
 
-namespace my {
+namespace cave {
 
 using Quaternion = glm::quat;
 
@@ -38,4 +38,4 @@ static inline void Decompose(const Matrix4x4f& p_matrix, Vector3f& p_scale, Vect
     p_translation.Set(&translation.x);
 }
 
-}  // namespace my
+}  // namespace cave

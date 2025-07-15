@@ -9,7 +9,7 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/imgui_manager.h"
 
-namespace my {
+namespace cave {
 
 static void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
 
@@ -17,13 +17,13 @@ auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayServer());
     DEV_ASSERT(display_manager);
     if (!display_manager) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
     }
     m_window = display_manager->GetGlfwWindow();
 
     if (gladLoadGL() == 0) {
         LOG_FATAL("[glad] failed to import gl functions");
-        return HBN_ERROR(ErrorCode::ERR_CANT_CREATE);
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
     LOG_VERBOSE("[opengl] renderer: {}", (const char*)glGetString(GL_RENDERER));
@@ -194,7 +194,7 @@ static void APIENTRY DebugCallback(GLenum p_source,
             break;
     }
 
-    my::LogImpl(level, std::format("[opengl] {}\n\t| id: {} | source: {} | type: {}", p_message, p_id, source, type));
+    cave::LogImpl(level, std::format("[opengl] {}\n\t| id: {} | source: {} | type: {}", p_message, p_id, source, type));
 }
 
-}  // namespace my
+}  // namespace cave

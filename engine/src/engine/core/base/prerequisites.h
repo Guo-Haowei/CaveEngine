@@ -1,7 +1,7 @@
 #pragma once
 #include <cassert>
 
-namespace my {
+namespace cave {
 
 #if USING(DEBUG_BUILD)
 constexpr inline bool IS_DEBUG_BUILD = true;
@@ -19,4 +19,4 @@ constexpr std::size_t check_out_of_range_if_debug(size_t i, size_t range) {
     return IS_DEBUG_BUILD ? check_out_of_range(i, range) : i;
 }
 
-}  // namespace my
+}  // namespace cave

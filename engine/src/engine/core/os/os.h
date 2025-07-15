@@ -2,7 +2,7 @@
 #include "engine/core/base/singleton.h"
 #include "engine/core/io/logger.h"
 
-namespace my {
+namespace cave {
 
 class OS : public Singleton<OS> {
 public:
@@ -21,4 +21,4 @@ bool IsAnsiSupported();
 
 bool EnableAnsi();
 
-}  // namespace my
+}  // namespace cave

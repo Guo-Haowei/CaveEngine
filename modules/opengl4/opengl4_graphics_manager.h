@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-namespace my {
+namespace cave {
 
 class OpenGL4GraphicsManager : public CommonOpenGLGraphicsManager {
 public:
@@ -28,4 +28,4 @@ protected:
     auto InitializeInternal() -> Result<void> final;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 class Scene;
 
@@ -19,4 +19,4 @@ public:
     virtual void OnSimEnd(Scene& p_scene) = 0;
 };
 
-}  // namespace my
+}  // namespace cave

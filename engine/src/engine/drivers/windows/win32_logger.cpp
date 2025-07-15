@@ -3,7 +3,7 @@
 #include "engine/core/base/ring_buffer.h"
 #include "engine/drivers/windows/win32_prerequisites.h"
 
-namespace my {
+namespace cave {
 
 static WORD FindColorAttribute(LogLevel p_level) {
     switch (p_level) {
@@ -36,4 +36,4 @@ void Win32Logger::Print(LogLevel p_level, std::string_view p_message) {
     m_consoleMutex.unlock();
 }
 
-}  // namespace my
+}  // namespace cave

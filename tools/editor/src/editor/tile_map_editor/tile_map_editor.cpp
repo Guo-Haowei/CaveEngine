@@ -1,4 +1,6 @@
-#include "tile_map_editor_tool.h"
+#include "tile_map_editor.h"
+
+#include "tile_map_command.h"
 
 #include "engine/assets/assets.h"
 #include "engine/runtime/asset_registry.h"
@@ -13,85 +15,18 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
 
-namespace my {
+namespace cave {
 
 #define TEMP_SCENE_NAME "tile_map_scene"
-
-// @TODO: abstract brush class
-struct SetTileCommand : public UndoCommand {
-    Handle<TileMapAsset> handle;
-    int layer_id;
-    TileIndex index;
-    TileData old_tile;
-    TileData new_tile;
-
-    bool Undo() override {
-        if (TileMapAsset* tile_map = handle.Get(); tile_map) {
-            if (TileMapLayer* layer = tile_map->GetLayer(layer_id); layer) {
-                TileData dummy;
-                layer->SetTile(index, old_tile, dummy);
-                layer->IncRevision();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool Redo() override {
-        if (TileMapAsset* tile_map = handle.Get(); tile_map) {
-            if (TileMapLayer* layer = tile_map->GetLayer(layer_id); layer) {
-                TileData dummy;
-                layer->SetTile(index, new_tile, dummy);
-                layer->IncRevision();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool MergeCommand(const UndoCommand* p_other) override {
-        if (auto other = dynamic_cast<const SetTileCommand*>(p_other); other) {
-            return other->index == index &&
-                   other->layer_id == layer_id &&
-                   other->new_tile == new_tile &&
-                   other->old_tile == old_tile &&
-                   other->handle.GetGuid() == handle.GetGuid();
-        }
-        return false;
-    }
-};
 
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
     : ITool(p_editor), m_viewer(p_viewer) {
     m_policy = ToolCameraPolicy::Only2D;
 }
 
-void TileMapEditor::UndoableSetTile(TileMapLayer& p_layer,
-                                    int p_layer_id,
-                                    TileIndex p_index,
-                                    TileData p_new_tile) {
-
-    TileData old_tile;
-    TileResult result = p_layer.SetTile(p_index, p_new_tile, old_tile);
-    if (result == TileResult::Noop) {
-        return;
-    }
-
-    p_layer.IncRevision();
-
-    auto cmd = std::make_shared<SetTileCommand>();
-    cmd->handle = m_tile_map_handle;
-    cmd->index = p_index;
-    cmd->layer_id = p_layer_id;
-    cmd->new_tile = p_new_tile;
-    cmd->old_tile = old_tile;
-
-    m_undo_stack.Submit(std::move(cmd));
-}
-
-TileMapLayer* TileMapEditor::GetActiveLayer() {
+TileMapAsset* TileMapEditor::GetActiveLayer() {
     if (TileMapAsset* tile_map = m_tile_map_handle.Get(); tile_map) {
-        return tile_map->GetLayer(m_current_layer_id);
+        return tile_map;
     }
     return nullptr;
 }
@@ -124,37 +59,32 @@ void TileMapEditor::Update(Scene*) {
         }
 
         auto handle = *res;
-        TileMapAsset* asset = handle.Get<TileMapAsset>();
-        if (!asset) {
+        TileMapAsset* tile_map = handle.Get<TileMapAsset>();
+        if (!tile_map) {
             break;
         }
-
-        auto& layers = asset->GetAllLayers();
-        if (layers.empty()) {
-            break;
-        }
-
-        auto layer = GetActiveLayer();
-        if (!layer) {
-            break;
-        }
-        const int layer_id = m_current_layer_id;
 
         // process commands
         for (const auto& command : m_commands) {
-            std::visit([&](auto&& cmd) {
-                using T = std::decay_t<decltype(cmd)>;
+            std::visit([&](auto&& p_cmd) {
+                using T = std::decay_t<decltype(p_cmd)>;
                 if constexpr (std::is_same_v<T, CommandAddTile>) {
-                    auto ndc = m_viewer->CursorToNDC(cmd.cursor);
+                    auto ndc = m_viewer->CursorToNDC(p_cmd.cursor);
                     TileIndex tile;
-                    if (CursorToTile(cmd.cursor, tile)) {
-                        UndoableSetTile(*layer, layer_id, tile, TileData(1));
+                    if (CursorToTile(p_cmd.cursor, tile)) {
+                        if (auto cmd = SetTileCommand::AddTile(*tile_map, tile, 1); cmd) {
+                            cmd->SetHandle(std::move(handle));
+                            m_undo_stack.Submit(cmd);
+                        }
                     }
                 } else if constexpr (std::is_same_v<T, CommandEraseTile>) {
-                    auto ndc = m_viewer->CursorToNDC(cmd.cursor);
+                    auto ndc = m_viewer->CursorToNDC(p_cmd.cursor);
                     TileIndex tile;
-                    if (CursorToTile(cmd.cursor, tile)) {
-                        UndoableSetTile(*layer, layer_id, tile, TILE_DATA_EMPTY);
+                    if (CursorToTile(p_cmd.cursor, tile)) {
+                        if (auto cmd = SetTileCommand::RemoveTile(*tile_map, tile); cmd) {
+                            cmd->SetHandle(std::move(handle));
+                            m_undo_stack.Submit(cmd);
+                        }
                     }
                 }
             },
@@ -278,4 +208,4 @@ void TileMapEditor::OnExit() {
     scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
 }
 
-}  // namespace my
+}  // namespace cave

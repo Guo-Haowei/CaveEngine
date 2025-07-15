@@ -2,7 +2,7 @@
 #include "dynamic_variable.h"
 
 #if USING(ENABLE_DVAR)
-namespace my {
+namespace cave {
 
 class DynamicVariableParser {
 public:
@@ -46,5 +46,5 @@ public:
     static void DumpDvars();
 };
 
-}  // namespace my
+}  // namespace cave
 #endif

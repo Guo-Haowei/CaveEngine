@@ -4,7 +4,7 @@
 
 #include "reverse_iterator.h"
 
-namespace my {
+namespace cave {
 
 template<typename T, size_t N>
 class RingBufferIterator {
@@ -119,4 +119,4 @@ private:
     size_t m_size = 0;
     T m_data[N];
 };
-}  // namespace my
+}  // namespace cave

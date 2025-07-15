@@ -2,7 +2,7 @@
 
 #include "detail/vector3.h"
 
-namespace my {
+namespace cave {
 
 template<>
 float Box<3>::SurfaceArea() const {
@@ -16,4 +16,4 @@ float Box<3>::SurfaceArea() const {
     return result;
 }
 
-}  // namespace my
+}  // namespace cave

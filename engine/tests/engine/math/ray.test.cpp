@@ -1,7 +1,7 @@
 #include "engine/math/ray.h"
 
-namespace my {
+namespace cave {
 
 // @TODO:
 
-}  // namespace my
+}  // namespace cave

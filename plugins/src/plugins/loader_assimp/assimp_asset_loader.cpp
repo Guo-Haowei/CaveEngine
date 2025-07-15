@@ -8,7 +8,7 @@
 
 #include "engine/runtime/asset_registry.h"
 
-namespace my {
+namespace cave {
 
 auto AssimpAssetLoader::Load() -> Result<AssetRef> {
     m_scene = new Scene;
@@ -20,7 +20,7 @@ auto AssimpAssetLoader::Load() -> Result<AssetRef> {
 
     // check for errors
     if (!aiscene || aiscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aiscene->mRootNode) {
-        return HBN_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", m_filePath, importer.GetErrorString());
+        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", m_filePath, importer.GetErrorString());
     }
 
     const uint32_t numMeshes = aiscene->mNumMeshes;
@@ -178,5 +178,5 @@ ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_p
     return entity;
 }
 
-}  // namespace my
+}  // namespace cave
 #endif

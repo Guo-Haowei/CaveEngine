@@ -9,7 +9,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 
-namespace my {
+namespace cave {
 
 template<typename T, typename UIFunction>
 static void DrawComponent(const std::string& p_name, T* p_component, UIFunction p_function) {
@@ -355,4 +355,4 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 }
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #include "engine/drivers/windows/win32_prerequisites.h"
 #include "engine/runtime/display_manager.h"
 
-namespace my {
+namespace cave {
 
 class Win32DisplayManager : public DisplayManager {
 public:
@@ -28,4 +28,4 @@ private:
     bool m_shouldQuit{ false };
 };
 
-}  // namespace my
+}  // namespace cave

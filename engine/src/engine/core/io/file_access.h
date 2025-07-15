@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 // @TODO: refactor concepts
 template<typename T>
@@ -117,4 +117,4 @@ private:
 
 DEFINE_ENUM_BITWISE_OPERATIONS(FileAccess::ModeFlags);
 
-}  // namespace my
+}  // namespace cave

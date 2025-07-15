@@ -15,7 +15,7 @@ struct aiMaterial;
 struct aiScene;
 struct aiAnimation;
 
-namespace my {
+namespace cave {
 
 class AssimpAssetLoader : public IAssetLoader {
 public:
@@ -39,5 +39,5 @@ protected:
     Scene* m_scene;
 };
 
-}  // namespace my
+}  // namespace cave
 #endif

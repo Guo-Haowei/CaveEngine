@@ -1,6 +1,6 @@
 #include "timer.h"
 
-namespace my {
+namespace cave {
 
 void Timer::Start() {
     m_startPoint = Clock::now();
@@ -21,4 +21,4 @@ std::string Timer::GetDurationString() const {
     return std::format("{:.2f} seconds", duration.ToSecond());
 }
 
-}  // namespace my
+}  // namespace cave

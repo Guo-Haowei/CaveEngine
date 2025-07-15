@@ -5,7 +5,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 
 using FilterObjectFunc1 = std::function<bool(const MeshRenderer& p_object)>;
 using FilterObjectFunc2 = std::function<bool(const AABB& p_object_aabb)>;
@@ -524,4 +524,4 @@ static void FillParticleEmitterBuffer(const Scene& p_scene,
 }
 #endif
 
-}  // namespace my
+}  // namespace cave

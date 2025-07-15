@@ -1,20 +1,20 @@
 #pragma once
 #include "engine/math/math.h"
 
-#define LOG_VERBOSE(...)   ::my::LogImpl(::my::LOG_LEVEL_VERBOSE, __VA_ARGS__)
-#define LOG(...)           ::my::LogImpl(::my::LOG_LEVEL_NORMAL, __VA_ARGS__)
-#define LOG_OK(...)        ::my::LogImpl(::my::LOG_LEVEL_OK, __VA_ARGS__)
-#define LOG_WARN(...)      ::my::LogImpl(::my::LOG_LEVEL_WARN, __VA_ARGS__)
-#define LOG_ERROR(...)     ::my::LogImpl(::my::LOG_LEVEL_ERROR, __VA_ARGS__)
-#define LOG_FATAL(...)     ::my::LogImpl(::my::LOG_LEVEL_FATAL, __VA_ARGS__)
-#define PRINT_VERBOSE(...) ::my::PrintImpl(::my::LOG_LEVEL_VERBOSE, __VA_ARGS__)
-#define PRINT(...)         ::my::PrintImpl(::my::LOG_LEVEL_NORMAL, __VA_ARGS__)
-#define PRINT_OK(...)      ::my::PrintImpl(::my::LOG_LEVEL_OK, __VA_ARGS__)
-#define PRINT_WARN(...)    ::my::PrintImpl(::my::LOG_LEVEL_WARN, __VA_ARGS__)
-#define PRINT_ERROR(...)   ::my::PrintImpl(::my::LOG_LEVEL_ERROR, __VA_ARGS__)
-#define PRINT_FATAL(...)   ::my::PrintImpl(::my::LOG_LEVEL_FATAL, __VA_ARGS__)
+#define LOG_VERBOSE(...)   ::cave::LogImpl(::cave::LOG_LEVEL_VERBOSE, __VA_ARGS__)
+#define LOG(...)           ::cave::LogImpl(::cave::LOG_LEVEL_NORMAL, __VA_ARGS__)
+#define LOG_OK(...)        ::cave::LogImpl(::cave::LOG_LEVEL_OK, __VA_ARGS__)
+#define LOG_WARN(...)      ::cave::LogImpl(::cave::LOG_LEVEL_WARN, __VA_ARGS__)
+#define LOG_ERROR(...)     ::cave::LogImpl(::cave::LOG_LEVEL_ERROR, __VA_ARGS__)
+#define LOG_FATAL(...)     ::cave::LogImpl(::cave::LOG_LEVEL_FATAL, __VA_ARGS__)
+#define PRINT_VERBOSE(...) ::cave::PrintImpl(::cave::LOG_LEVEL_VERBOSE, __VA_ARGS__)
+#define PRINT(...)         ::cave::PrintImpl(::cave::LOG_LEVEL_NORMAL, __VA_ARGS__)
+#define PRINT_OK(...)      ::cave::PrintImpl(::cave::LOG_LEVEL_OK, __VA_ARGS__)
+#define PRINT_WARN(...)    ::cave::PrintImpl(::cave::LOG_LEVEL_WARN, __VA_ARGS__)
+#define PRINT_ERROR(...)   ::cave::PrintImpl(::cave::LOG_LEVEL_ERROR, __VA_ARGS__)
+#define PRINT_FATAL(...)   ::cave::PrintImpl(::cave::LOG_LEVEL_FATAL, __VA_ARGS__)
 
-namespace my {
+namespace cave {
 
 enum LogLevel : uint8_t {
     LOG_LEVEL_VERBOSE = BIT(1),
@@ -48,4 +48,4 @@ inline void LogImpl(LogLevel p_level, std::format_string<Args...> p_format, Args
     LogImpl(p_level, message);
 }
 
-}  // namespace my
+}  // namespace cave

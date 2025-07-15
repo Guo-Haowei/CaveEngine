@@ -7,7 +7,7 @@
 #include "engine/renderer/gpu_resource.h"
 #include "opengl_helpers_forward.h"
 
-namespace my {
+namespace cave {
 
 struct OpenGlBuffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -67,4 +67,4 @@ struct OpenGlStructuredBuffer : public GpuStructuredBuffer {
     uint32_t handle = 0;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -1,6 +1,6 @@
 #include "engine/core/base/rid_owner.h"
 
-namespace my {
+namespace cave {
 
 struct Object {
     Object() {
@@ -142,4 +142,4 @@ TEST(rid_allocator, concurrency) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

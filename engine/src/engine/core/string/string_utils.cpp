@@ -1,6 +1,6 @@
 #include "string_utils.h"
 
-namespace my {
+namespace cave {
 
 bool StringUtils::StringEqual(const char* p_str1, const char* p_str2) {
     p_str1 = p_str1 ? p_str1 : "";
@@ -34,4 +34,4 @@ std::string_view StringUtils::RemoveExtension(std::string_view p_file, std::stri
     return std::string_view();
 }
 
-}  // namespace my
+}  // namespace cave

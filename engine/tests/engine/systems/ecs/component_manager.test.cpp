@@ -1,6 +1,6 @@
 #include "engine/ecs/component_manager.h"
 
-namespace my::ecs {
+namespace cave::ecs {
 
 template<Serializable T>
 struct dummy2 {
@@ -68,4 +68,4 @@ TEST(component_manager, iterator) {
     }
 }
 
-}  // namespace my::ecs
+}  // namespace cave::ecs

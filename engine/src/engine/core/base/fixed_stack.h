@@ -5,7 +5,7 @@
 #include "prerequisites.h"
 #include "reverse_iterator.h"
 
-namespace my {
+namespace cave {
 
 template<typename T, size_t N>
 class FixedStack {
@@ -78,4 +78,4 @@ protected:
     T m_data[N];
 };
 
-}  // namespace my
+}  // namespace cave

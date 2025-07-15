@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 // @TODO: entirely refactor this
 class CameraComponent;
@@ -20,4 +20,4 @@ bool IsPathTracerActive();
 void BindPathTracerData(IGraphicsManager& p_graphics_manager);
 void UnbindPathTracerData(IGraphicsManager& p_graphics_manager);
 
-}  // namespace my
+}  // namespace cave

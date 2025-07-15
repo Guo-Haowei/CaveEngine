@@ -13,7 +13,7 @@
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
 
-namespace my {
+namespace cave {
 
 #define VIEWER_WINDOW_ID "###Viewer"
 
@@ -302,4 +302,4 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     m_input_state.Reset();
 }
 
-}  // namespace my
+}  // namespace cave

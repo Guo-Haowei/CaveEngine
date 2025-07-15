@@ -1,12 +1,12 @@
 #pragma once
 
 // clang-format off
-namespace my { enum StencilFlags : uint8_t; }
-namespace my { struct GpuMesh; }
-namespace my { struct GpuTexture; }
+namespace cave { enum StencilFlags : uint8_t; }
+namespace cave { struct GpuMesh; }
+namespace cave { struct GpuTexture; }
 // clang-format on
 
-namespace my {
+namespace cave {
 
 enum class RenderCommandType {
     Draw,
@@ -54,4 +54,4 @@ struct RenderCommand {
     }
 };
 
-}  // namespace my
+}  // namespace cave

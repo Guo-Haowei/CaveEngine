@@ -7,7 +7,7 @@
 #include "engine/core/io/archive.h"
 #include "engine/core/string/string_builder.h"
 
-namespace my {
+namespace cave {
 
 void DynamicVariableManager::Serialize(std::string_view p_path) {
     auto res = FileAccess::Open(p_path, FileAccess::WRITE);
@@ -282,6 +282,6 @@ bool DynamicVariableManager::Parse(const std::vector<std::string>& p_commands) {
     return ok;
 }
 
-}  // namespace my
+}  // namespace cave
 
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 constexpr inline uint64_t MILLISECOND = 1000000;
 constexpr inline uint64_t SECOND = MILLISECOND * 1000;
@@ -38,4 +38,4 @@ protected:
     TimePoint m_startPoint{};
 };
 
-}  // namespace my
+}  // namespace cave

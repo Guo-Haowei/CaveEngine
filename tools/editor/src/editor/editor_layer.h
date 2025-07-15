@@ -8,7 +8,7 @@
 #include "editor/editor_window.h"
 #include "editor/tools/tool.h"
 
-namespace my {
+namespace cave {
 
 enum class HandleInput : uint8_t;
 enum class KeyCode : uint16_t;
@@ -106,4 +106,4 @@ private:
     ToolType m_current_tool{ ToolType ::None };
 };
 
-}  // namespace my
+}  // namespace cave

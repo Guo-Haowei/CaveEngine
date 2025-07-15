@@ -1,6 +1,6 @@
 #include "editor_window.h"
 
-namespace my {
+namespace cave {
 
 void EditorWindow::Update(Scene* scene) {
     if (ImGui::Begin(m_name.c_str(), nullptr, m_flags)) {
@@ -9,4 +9,4 @@ void EditorWindow::Update(Scene* scene) {
     ImGui::End();
 }
 
-}  // namespace my
+}  // namespace cave

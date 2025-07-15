@@ -2,7 +2,7 @@
 
 #include "engine/input/input_event.h"
 
-namespace my {
+namespace cave {
 
 auto InputManager::InitializeImpl() -> Result<void> {
     return Result<void>();
@@ -143,4 +143,4 @@ Vector2f InputManager::GetWheel() const {
     return Vector2f(m_wheelX, m_wheelY);
 }
 
-}  // namespace my
+}  // namespace cave

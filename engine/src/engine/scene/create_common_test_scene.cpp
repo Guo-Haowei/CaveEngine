@@ -9,7 +9,7 @@
     * refactor mesh
 */
 
-namespace my {
+namespace cave {
 
 Scene* CreateBoxScene() {
     ecs::Entity::SetSeed();
@@ -265,4 +265,4 @@ Scene* CreatePbrTestScene() {
     return scene;
 }
 
-}  // namespace my
+}  // namespace cave

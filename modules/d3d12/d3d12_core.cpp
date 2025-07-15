@@ -3,7 +3,7 @@
 #include "../d3d_common/d3d_common.h"
 #include "d3d12_graphics_manager.h"
 
-namespace my {
+namespace cave {
 
 static constexpr int DESCRIPTOR_MAX_COUNT = 512;
 
@@ -132,7 +132,7 @@ auto CopyContext::Initialize(D3d12GraphicsManager* p_device) -> Result<void> {
     if (DEV_VERIFY(m_queue)) {
         return Result<void>();
     }
-    return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create command queue");
+    return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create command queue");
 }
 
 void CopyContext::Finalize() {
@@ -213,4 +213,4 @@ void CopyContext::Submit(CopyCommand p_cmd) {
     m_lock.unlock();
 }
 
-}  // namespace my
+}  // namespace cave

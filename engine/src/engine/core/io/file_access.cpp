@@ -2,7 +2,7 @@
 
 #include "engine/core/string/string_utils.h"
 
-namespace my {
+namespace cave {
 
 FileAccess::CreateFunc FileAccess::s_createFuncs[ACCESS_MAX];
 FileAccess::GetUserFolderFunc FileAccess::s_getUserFolderFunc;
@@ -32,7 +32,7 @@ auto FileAccess::Open(std::string_view p_path, ModeFlags p_mode_flags) -> Result
     auto file_access = CreateForPath(p_path);
 
     if (auto res = file_access->OpenInternal(FileAccess::FixPath(file_access->m_accessType, p_path), p_mode_flags); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     return file_access;
@@ -60,4 +60,4 @@ std::string FileAccess::FixPath(AccessType p_access_type, std::string_view p_pat
     return fixed_path;
 }
 
-}  // namespace my
+}  // namespace cave

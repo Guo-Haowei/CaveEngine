@@ -1,6 +1,6 @@
 #include "asset_type.h"
 
-namespace my {
+namespace cave {
 
 static_assert(std::to_underlying(AssetType::Image) == 1);
 static_assert(std::to_underlying(AssetType::Binary) == 2);
@@ -27,4 +27,4 @@ AssetType AssetTypeFromString(std::string_view p_string) {
     return AssetType::Unknown;
 }
 
-}  // namespace my
+}  // namespace cave

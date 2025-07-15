@@ -1,6 +1,6 @@
 #include "input_router.h"
 
-namespace my {
+namespace cave {
 
 void InputRouter::Route(std::shared_ptr<InputEvent> p_input_event) {
     for (int i = static_cast<int>(m_stack.size()) - 1; i >= 0; --i) {
@@ -25,4 +25,4 @@ IInputHandler* InputRouter::PopHandler() {
     return back;
 }
 
-}  // namespace my
+}  // namespace cave

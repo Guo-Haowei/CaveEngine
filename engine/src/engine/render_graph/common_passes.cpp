@@ -19,18 +19,18 @@
 #include "engine/renderer/ltc_matrix.h"
 #include "engine/runtime/asset_registry.h"
 
-namespace my {
+namespace cave {
 #include "shader_resource_defines.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 // @TODO: generalize this
 #if 0
 static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<InstanceContext>& p_instances, bool p_is_prepass) {
     unused(p_is_prepass);
 
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     auto& gm = IGraphicsManager::GetSingleton();
     auto& frame = gm.GetCurrentFrame();
@@ -59,7 +59,7 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 
 static void ExecuteDrawCommands(const FrameData& p_data, const std::vector<RenderCommand>& p_commands, bool p_is_prepass = false) {
 
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     auto& gm = IGraphicsManager::GetSingleton();
     auto& frame = gm.GetCurrentFrame();
@@ -113,7 +113,7 @@ struct ScopedEvent {
 
 #define RENDER_PASS_FUNC()                                \
     ScopedEvent _scoped(p_ctx.cmd, p_ctx.pass.GetName()); \
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
 static void EarlyZPassFunc(RenderPassExcutionContext& p_ctx) {
     RENDER_PASS_FUNC();
@@ -764,7 +764,7 @@ void RenderGraphBuilderExt::AddBloomPass() {
 
 // @TODO: get rid off this!
 static void DebugVoxels(RenderPassExcutionContext& p_ctx) {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     auto& gm = p_ctx.cmd;
     auto p_framebuffer = p_ctx.framebuffer;
@@ -1065,4 +1065,4 @@ auto RenderGraphBuilderExt::CreatePathTracer(RenderGraphBuilderConfig& p_config)
     return creator.Compile();
 }
 
-}  // namespace my
+}  // namespace cave

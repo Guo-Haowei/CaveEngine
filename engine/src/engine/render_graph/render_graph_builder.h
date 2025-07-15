@@ -4,11 +4,11 @@
 #include "render_pass_builder.h"
 
 // clang-format off
-namespace my { struct Framebuffer; }
-namespace my { class IGraphicsManager; }
+namespace cave { struct Framebuffer; }
+namespace cave { class IGraphicsManager; }
 // clang-format on
 
-namespace my {
+namespace cave {
 
 class RenderGraph;
 struct FrameData;
@@ -65,4 +65,4 @@ protected:
     std::vector<std::pair<std::string, std::string>> m_dependencies;
 };
 
-}  // namespace my
+}  // namespace cave

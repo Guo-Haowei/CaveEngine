@@ -2,11 +2,11 @@
 #include "engine/math/aabb.h"
 #include "engine/math/vector.h"
 
-namespace my {
+namespace cave {
 #include "structured_buffer.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 struct BvhAccel {
     using Ref = std::shared_ptr<BvhAccel>;
@@ -36,4 +36,4 @@ struct BvhAccel {
     void FillGpuBvhAccel(std::vector<GpuPtBvh>& p_out);
 };
 
-}  // namespace my
+}  // namespace cave

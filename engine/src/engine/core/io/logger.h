@@ -3,7 +3,7 @@
 #include "engine/core/base/singleton.h"
 #include "engine/core/io/print.h"
 
-namespace my {
+namespace cave {
 // WORD is flags of FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 // clang-format off
 //                  Level,              TAG         Ansi            DWORD
@@ -59,4 +59,4 @@ private:
     int m_channels = LOG_LEVEL_ALL;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -37,7 +37,7 @@
 // plugins
 #include "plugins/loader_assimp/assimp_asset_loader.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
@@ -78,7 +78,7 @@ static auto LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) -> Result<Asse
 
     asset->m_entry = p_entry;
     if (auto res = asset->LoadFromDisk(p_entry->metadata); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
     return asset;
 }
@@ -164,7 +164,7 @@ auto AssetManager::MoveAsset(const std::filesystem::path& p_old, const std::file
         fs::rename(old_meta, new_meta);
         fs::rename(p_old, p_new);
     } catch (const fs::filesystem_error& e) {
-        return HBN_ERROR(ErrorCode::ERR_FILE_NO_PERMISSION, "{}", e.what());
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NO_PERMISSION, "{}", e.what());
     }
 
     m_app->GetAssetRegistry()->MoveAsset(std::move(old_path), std::move(new_path));
@@ -290,4 +290,4 @@ void AssetManager::RequestShutdown() {
     s_assetManagerGlob.wakeCondition.notify_all();
 }
 
-}  // namespace my
+}  // namespace cave

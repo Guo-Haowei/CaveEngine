@@ -3,7 +3,7 @@
 
 #include "component_manager.h"
 
-namespace my::ecs {
+namespace cave::ecs {
 
 template<Serializable T>
 void ComponentManager<T>::Reserve(size_t p_capacity) {
@@ -174,4 +174,4 @@ bool ComponentManager<T>::Serialize(Archive& p_archive, uint32_t p_version) {
     return true;
 }
 
-}  // namespace my::ecs
+}  // namespace cave::ecs

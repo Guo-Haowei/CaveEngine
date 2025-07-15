@@ -1,20 +1,20 @@
 #pragma once
 #include "engine/runtime/pipeline_state_manager.h"
 
-namespace my {
+namespace cave {
 
 class EmptyPipelineStateManager : public PipelineStateManager {
 public:
 protected:
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
         unused(p_desc);
-        return HBN_ERROR(ErrorCode::FAILURE);
+        return CAVE_ERROR(ErrorCode::FAILURE);
     }
 
     auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
         unused(p_desc);
-        return HBN_ERROR(ErrorCode::FAILURE);
+        return CAVE_ERROR(ErrorCode::FAILURE);
     }
 };
 
-}  // namespace my
+}  // namespace cave

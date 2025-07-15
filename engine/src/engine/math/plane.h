@@ -1,7 +1,7 @@
 #pragma once
 #include "vector.h"
 
-namespace my {
+namespace cave {
 
 struct Plane {
     Vector3f normal;
@@ -14,4 +14,4 @@ struct Plane {
     float Distance(const Vector3f& p_point) const;
 };
 
-}  // namespace my
+}  // namespace cave

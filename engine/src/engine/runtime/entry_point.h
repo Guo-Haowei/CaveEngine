@@ -3,7 +3,7 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/engine.h"
 
-namespace my {
+namespace cave {
 
 extern Application* CreateApplication();
 
@@ -29,4 +29,4 @@ int Main(int p_argc, const char** p_argv) {
     return result;
 }
 
-}  // namespace my
+}  // namespace cave

@@ -2,7 +2,7 @@
 #include "engine/ecs/entity.h"
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 class Scene;
 
@@ -39,4 +39,4 @@ protected:
     virtual void FinalizeImpl() override;
 };
 
-}  // namespace my
+}  // namespace cave

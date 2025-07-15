@@ -11,7 +11,7 @@ enum DvarFlags : uint32_t {
 };
 DEFINE_ENUM_BITWISE_OPERATIONS(DvarFlags);
 
-namespace my {
+namespace cave {
 
 enum VariantType {
     VARIANT_TYPE_INVALID = 0,
@@ -94,7 +94,7 @@ private:
     friend class DynamicVariableManager;
 };
 
-}  // namespace my
+}  // namespace cave
 
 #define DVAR_GET_BOOL(name)    (!!(DVAR_##name).AsInt())
 #define DVAR_GET_INT(name)     (DVAR_##name).AsInt()

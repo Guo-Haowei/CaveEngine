@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/runtime/physics_manager.h"
 
-namespace my {
+namespace cave {
 
 class Scene;
 
@@ -26,4 +26,4 @@ protected:
     void CleanWorld();
 };
 
-}  // namespace my
+}  // namespace cave

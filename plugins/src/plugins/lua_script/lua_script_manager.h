@@ -3,7 +3,7 @@
 
 struct lua_State;
 
-namespace my {
+namespace cave {
 
 class Scene;
 
@@ -34,4 +34,4 @@ protected:
     int m_gameRef{ 0 };
 };
 
-}  // namespace my
+}  // namespace cave

@@ -8,7 +8,7 @@
 
 #include "engine/renderer/gpu_resource.h"
 
-namespace my::d3d {
+namespace cave::d3d {
 
 inline uint32_t ConvertResourceMiscFlags(ResourceMiscFlags p_misc_flags) {
     // only support a few flags for now
@@ -62,4 +62,4 @@ inline uint32_t ConvertCpuAccessFlags(uint32_t p_access_flags) {
     return flags;
 }
 
-}  // namespace my::d3d
+}  // namespace cave::d3d

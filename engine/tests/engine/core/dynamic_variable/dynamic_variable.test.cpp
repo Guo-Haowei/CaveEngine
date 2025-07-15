@@ -2,7 +2,7 @@
 
 #include "engine/core/io/archive.h"
 
-namespace my {
+namespace cave {
 
 #define DEFINE_DVAR
 #include "test_dvars.h"
@@ -91,4 +91,4 @@ TEST(dynamic_variable, Vector4i) {
     EXPECT_EQ(value, Vector4i(7, 8, 9, 10));
 }
 
-}  // namespace my
+}  // namespace cave

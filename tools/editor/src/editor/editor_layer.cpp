@@ -4,8 +4,8 @@
 #include <imnodes/imnodes.h>
 
 #include "editor/editor_command.h"
+#include "editor/tile_map_editor/tile_map_editor.h"
 #include "editor/tools/editor_tool.h"
-#include "editor/tools/tile_map_editor_tool.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/panels/file_system_panel.h"
 #include "editor/panels/hierarchy_panel.h"
@@ -28,7 +28,7 @@
 // @NOTE: include dvars at last
 #include "engine/renderer/graphics_dvars.h"
 
-namespace my {
+namespace cave {
 
 EditorLayer::EditorLayer()
     : Layer("EditorLayer") {
@@ -369,4 +369,4 @@ ITool* EditorLayer::GetActiveTool() {
     return m_tools[std::to_underlying(m_current_tool)].get();
 }
 
-}  // namespace my
+}  // namespace cave

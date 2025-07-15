@@ -2,7 +2,7 @@
 
 #include "editor/editor_layer.h"
 
-namespace my {
+namespace cave {
 
 void EditorItem::OpenAddEntityPopup(ecs::Entity p_parent) {
     if (ImGui::BeginMenu("Add")) {
@@ -19,4 +19,4 @@ void EditorItem::OpenAddEntityPopup(ecs::Entity p_parent) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

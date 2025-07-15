@@ -3,7 +3,7 @@
 // #include "engine/core/base/singleton.h"
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 class Scene;
 class Application;
@@ -32,4 +32,4 @@ public:
 #endif
 };
 
-}  // namespace my
+}  // namespace cave

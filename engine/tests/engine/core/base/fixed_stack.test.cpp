@@ -1,6 +1,6 @@
 #include "engine/core/base/fixed_stack.h"
 
-namespace my {
+namespace cave {
 
 TEST(fixed_stack, constructor) {
     FixedStack<int, 7> stack;
@@ -148,4 +148,4 @@ TEST(fixed_stack, reverse_const_iterator) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

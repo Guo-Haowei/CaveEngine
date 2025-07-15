@@ -1,6 +1,6 @@
 #include "graph.h"
 
-namespace my {
+namespace cave {
 
 void GraphBase::SetNodeCount(int p_count) {
     DEV_ASSERT(p_count > 0);
@@ -95,4 +95,4 @@ void GraphBase::SortUtil(int p_from, std::vector<uint8_t>& p_visited, std::vecto
     p_topological_stack.push_back(p_from);
 }
 
-}  // namespace my
+}  // namespace cave

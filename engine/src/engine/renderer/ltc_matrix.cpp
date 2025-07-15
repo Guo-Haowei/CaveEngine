@@ -4,7 +4,7 @@
 WARNING_PUSH()
 WARNING_DISABLE(4305, "-Wunused-parameter")
 
-namespace my {
+namespace cave {
 
 // clang-format off
 static const float s_LTC1[] = {
@@ -8209,6 +8209,6 @@ static const float s_LTC2[] = {
 const float* LTC1 = s_LTC1;
 const float* LTC2 = s_LTC2;
 
-}  // namespace my
+}  // namespace cave
 
 WARNING_POP()

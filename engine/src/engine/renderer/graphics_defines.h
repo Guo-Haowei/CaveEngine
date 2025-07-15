@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 // clang-format off
 #define BACKEND_LIST                                \
@@ -172,4 +172,4 @@ struct Viewport {
     int topLeftY;
 };
 
-}  // namespace my
+}  // namespace cave

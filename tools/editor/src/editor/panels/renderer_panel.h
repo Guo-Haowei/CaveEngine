@@ -1,7 +1,7 @@
 #pragma once
 #include "editor/editor_window.h"
 
-namespace my {
+namespace cave {
 
 class RendererPanel : public EditorWindow {
 public:
@@ -12,4 +12,4 @@ protected:
     void UpdateInternal(Scene* p_scene) override;
 };
 
-}  // namespace my
+}  // namespace cave

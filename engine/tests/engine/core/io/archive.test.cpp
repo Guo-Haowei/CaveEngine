@@ -2,7 +2,7 @@
 
 #include "engine/core/io/file_access_unix.h"
 
-namespace my {
+namespace cave {
 
 // @TODO: allow archive to implement string stream
 TEST(archive, open_read) {
@@ -75,4 +75,4 @@ TEST(archive, write_and_read) {
     EXPECT_TRUE(std::filesystem::remove(test_file));
 }
 
-}  // namespace my
+}  // namespace cave

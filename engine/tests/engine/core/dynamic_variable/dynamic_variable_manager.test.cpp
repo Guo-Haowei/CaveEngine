@@ -2,7 +2,7 @@
 
 #include "engine/core/os/os.h"
 
-namespace my {
+namespace cave {
 
 #include "test_dvars.h"
 
@@ -176,4 +176,4 @@ TEST(dynamic_variable_parser, multiple_set_fail) {
     EXPECT_EQ(parser.GetError(), "invalid arguments: +set test_vec4 1");
 }
 
-}  // namespace my
+}  // namespace cave

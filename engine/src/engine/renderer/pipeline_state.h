@@ -2,7 +2,7 @@
 #include "engine/renderer/graphics_defines.h"
 #include "engine/renderer/pixel_format.h"
 
-namespace my {
+namespace cave {
 
 struct InputLayoutDesc {
     struct Element {
@@ -142,4 +142,4 @@ static inline const char* EnumToString(PipelineStateName p_name) {
     return s_table[p_name];
 }
 
-}  // namespace my
+}  // namespace cave

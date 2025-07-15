@@ -2,7 +2,7 @@
 
 #include "engine/core/os/os.h"
 
-namespace my {
+namespace cave {
 
 class TestOS : public OS {
 public:
@@ -333,4 +333,4 @@ TEST(error_macros, DEV_VERIFY_no_check_fail) {
     RemoveErrorHandler(&handler);
 }
 
-}  // namespace my
+}  // namespace cave

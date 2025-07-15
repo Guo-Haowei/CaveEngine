@@ -2,7 +2,7 @@
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
 
-namespace my {
+namespace cave {
 
 class CameraComponent;
 class EditorLayer;
@@ -43,4 +43,4 @@ protected:
     UndoStack m_undo_stack;
 };
 
-}  // namespace my
+}  // namespace cave

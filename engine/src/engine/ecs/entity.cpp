@@ -1,6 +1,6 @@
 #include "entity.h"
 
-namespace my::ecs {
+namespace cave::ecs {
 
 const Entity Entity::INVALID{};
 
@@ -19,4 +19,4 @@ void Entity::SetSeed(uint32_t p_seed) {
     s_id = p_seed;
 }
 
-}  // namespace my::ecs
+}  // namespace cave::ecs

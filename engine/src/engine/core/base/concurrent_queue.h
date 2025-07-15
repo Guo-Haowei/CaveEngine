@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 // @TODO: check out implmentation here
 // https://github.com/supermartian/lockfree-queue/tree/master
@@ -40,4 +40,4 @@ private:
     mutable std::mutex m_mutex;
 };
 
-}  // namespace my
+}  // namespace cave

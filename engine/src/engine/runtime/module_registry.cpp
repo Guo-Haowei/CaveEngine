@@ -13,7 +13,7 @@
 
 #include "engine/renderer/graphics_dvars.h"
 
-namespace my {
+namespace cave {
 
 template<class T1, class FALLBACK>
 inline T1* CreateModule() {
@@ -266,4 +266,4 @@ IGraphicsManager* CreateGraphicsManager() {
     return manager;
 }
 
-}  // namespace my
+}  // namespace cave

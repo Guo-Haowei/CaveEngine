@@ -14,8 +14,8 @@
 namespace std {
 
 template<>
-struct hash<my::Vector3f> {
-    std::size_t operator()(const my::Vector3f& p_vec) const {
+struct hash<cave::Vector3f> {
+    std::size_t operator()(const cave::Vector3f& p_vec) const {
         std::hash<uint8_t> byte_hash;
         size_t result = 0;
 
@@ -32,7 +32,7 @@ struct hash<my::Vector3f> {
 
 }  // namespace std
 
-namespace my {
+namespace cave {
 
 // @TODO:
 // * cascaded shadow map
@@ -732,4 +732,4 @@ Scene* CreateTheAviatorScene() {
     return creator.CreateScene();
 }
 
-}  // namespace my
+}  // namespace cave

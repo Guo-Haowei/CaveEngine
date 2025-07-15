@@ -3,7 +3,7 @@
 #include "engine/core/os/os.h"
 #include "engine/drivers/windows/win32_prerequisites.h"
 
-namespace my {
+namespace cave {
 
 IntrusiveList<ErrorHandlerListNode> s_errorHandlers;
 
@@ -81,4 +81,4 @@ void ReportErrorIndexImpl(std::string_view p_function,
     ReportErrorImpl(p_function, p_file, p_line, error2, p_detail);
 }
 
-}  // namespace my
+}  // namespace cave

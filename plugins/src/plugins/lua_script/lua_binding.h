@@ -8,11 +8,11 @@ extern "C" {
 
 #include "engine/ecs/entity.h"
 
-namespace my {
+namespace cave {
 class Scene;
 }
 
-namespace my::lua {
+namespace cave::lua {
 
 #define LUA_GLOBAL_SCENE "g_scene"
 
@@ -28,4 +28,4 @@ bool OpenEngineLib(lua_State* L);
 
 bool OpenSceneLib(lua_State* L);
 
-}  // namespace my::lua
+}  // namespace cave::lua

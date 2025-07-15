@@ -1,10 +1,10 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 struct FrameData;
 class Scene;
 
 void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
-}  // namespace my
+}  // namespace cave

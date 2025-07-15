@@ -35,10 +35,10 @@
 #undef DEFINE_DVAR
 
 #if USING(PLATFORM_WASM)
-static my::Application* s_app = nullptr;
+static cave::Application* s_app = nullptr;
 #endif
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -115,7 +115,7 @@ auto Application::SetupModules() -> Result<void> {
     {
         auto res = CreateScriptManager();
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         m_scriptManager = *res;
     }
@@ -139,7 +139,7 @@ auto Application::SetupModules() -> Result<void> {
     if (m_specification.enableImgui) {
         auto res = CreateImguiManager();
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         m_imguiManager = *res;
         RegisterModule(m_imguiManager);
@@ -183,7 +183,7 @@ auto Application::Initialize(int p_argc, const char** p_argv) -> Result<void> {
 
         std::ifstream file(project_setting.string());
         if (file.is_open()) {
-            // return HBN_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "failed to open project '{}'", project_setting.string());
+            // return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "failed to open project '{}'", project_setting.string());
             // YAML::Node node = YAML::Load(file);
         }
     }
@@ -216,20 +216,20 @@ auto Application::Initialize(int p_argc, const char** p_argv) -> Result<void> {
     }
                 BACKEND_LIST
 #undef BACKEND_DECLARE
-                return HBN_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "Unkown backend '{}', set to 'empty'", backend);
+                return CAVE_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "Unkown backend '{}', set to 'empty'", backend);
             } while (0);
         }
     }
 
     if (auto res = SetupModules(); !res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     for (Module* module : m_modules) {
         LOG("module '{}' being initialized...", module->GetName());
         if (auto res = module->Initialize(); !res) {
             // LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         LOG("module '{}' initialized\n", module->GetName());
     }
@@ -278,7 +278,7 @@ float Application::UpdateTime() {
 }
 
 bool Application::MainLoop() {
-    HBN_PROFILE_FRAME("MainThread");
+    CAVE_PROFILE_FRAME("MainThread");
 
     // === Begin Frame ===
     m_displayServer->BeginFrame();
@@ -314,7 +314,7 @@ bool Application::MainLoop() {
 
     // @TODO: refactor this
     if (m_imguiManager) {
-        HBN_PROFILE_EVENT("Application::ImGui");
+        CAVE_PROFILE_EVENT("Application::ImGui");
         m_imguiManager->BeginFrame();
 
         for (int i = (int)m_layers.size() - 1; i >= 0; --i) {
@@ -398,4 +398,4 @@ void Application::SetState(State p_state) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

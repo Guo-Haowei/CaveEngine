@@ -6,7 +6,7 @@
 #define INCLUDE_AS_D3D11
 #include "../d3d_common/d3d_convert.h"
 
-namespace my {
+namespace cave {
 
 using Microsoft::WRL::ComPtr;
 
@@ -21,7 +21,7 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
     if (!device) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA);
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA);
     }
 
     auto pipeline_state = std::make_shared<D3d11PipelineState>(p_desc);
@@ -31,7 +31,7 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     if (!p_desc.vs.empty()) {
         auto res = CompileShader(p_desc.vs, "vs_5_0", m_defines.data());
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
 
         ComPtr<ID3DBlob> blob;
@@ -43,7 +43,7 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     if (!p_desc.ps.empty()) {
         auto res = CompileShader(p_desc.ps, "ps_5_0", m_defines.data());
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
 
         ComPtr<ID3DBlob> blob;
@@ -126,25 +126,25 @@ auto D3d11PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p
     DEV_ASSERT(device);
 
     if (!device) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_DATA);
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA);
     }
 
     auto pipeline_state = std::make_shared<D3d11PipelineState>(p_desc);
 
     auto res = CompileShader(p_desc.cs, "cs_5_0", m_defines.data());
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     ComPtr<ID3DBlob> blob;
     blob = *res;
     HRESULT hr = device->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, pipeline_state->computeShader.GetAddressOf());
 
-    D3D_FAIL_V_MSG(hr, HBN_ERROR(res.error()), "failed to create vertex buffer");
+    D3D_FAIL_V_MSG(hr, CAVE_ERROR(res.error()), "failed to create vertex buffer");
 
     return pipeline_state;
 }
 
-}  // namespace my
+}  // namespace cave
 
 #undef INCLUDE_AS_D3D11

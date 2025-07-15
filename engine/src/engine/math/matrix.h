@@ -7,7 +7,7 @@ WARNING_DISABLE(4201, "-Wunused-parameter")
 #include <glm/glm.hpp>
 WARNING_POP()
 
-namespace my {
+namespace cave {
 
 using Matrix4x4f = glm::mat4;
 
@@ -17,4 +17,4 @@ constexpr inline Vector<float, 4> operator*(const glm::mat4& p_lhs, const Vector
     return Vector<float, 4>(tmp.x, tmp.y, tmp.z, tmp.w);
 }
 
-}  // namespace my
+}  // namespace cave

@@ -2,7 +2,7 @@
 #include "engine/math/matrix.h"
 #include "engine/math/plane.h"
 
-namespace my {
+namespace cave {
 
 class AABB;
 
@@ -28,4 +28,4 @@ private:
     friend class IntersectionTest;
 };
 
-}  // namespace my
+}  // namespace cave

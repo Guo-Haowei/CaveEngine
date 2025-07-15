@@ -8,7 +8,7 @@
 #include "render_graph_defines.h"
 #include "render_pass_builder.h"
 
-namespace my {
+namespace cave {
 
 RenderGraphBuilder::RenderGraphBuilder(const RenderGraphBuilderConfig& p_config)
     : m_config(p_config), m_graphicsManager(IGraphicsManager::GetSingleton()) {
@@ -68,14 +68,14 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         {
             auto [_, inserted] = lookup.try_emplace(pass.m_name, i);
             if (!inserted) {
-                return HBN_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "pass '{}' already exists", pass.m_name);
+                return CAVE_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "pass '{}' already exists", pass.m_name);
             }
         }
 
         for (const auto& create : pass.m_creates) {
             auto [_, inserted] = creates.try_emplace(std::string_view(create.first), i);
             if (!inserted) {
-                return HBN_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "resource '{}' is created multiple times", create.first);
+                return CAVE_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "resource '{}' is created multiple times", create.first);
             }
         }
 
@@ -96,12 +96,12 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
     for (const auto& [from, to] : m_dependencies) {
         auto it = lookup.find(from);
         if (it == lookup.end()) {
-            return HBN_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "pass '{}' not found", from);
+            return CAVE_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "pass '{}' not found", from);
         }
         const int from_idx = it->second;
         it = lookup.find(to);
         if (it == lookup.end()) {
-            return HBN_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "pass '{}' not found", to);
+            return CAVE_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "pass '{}' not found", to);
         }
         const int to_idx = it->second;
         edges.push_back({ from_idx, to_idx });
@@ -117,7 +117,7 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
                 edges.push_back(std::make_pair(from, to));
             } else {
                 // if not found, it's possible the resource is imported
-                // return HBN_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "resource '{}' not found", name);
+                // return CAVE_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "resource '{}' not found", name);
             }
         }
     };
@@ -127,7 +127,7 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 
     auto sorted = topological_sort(N, edges);
     if (static_cast<int>(sorted.size()) != N) {
-        return HBN_ERROR(ErrorCode::ERR_CYCLIC_LINK);
+        return CAVE_ERROR(ErrorCode::ERR_CYCLIC_LINK);
     }
 
     DEBUG_PRINT("sorted:");
@@ -147,7 +147,7 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
             desc.name = name;
             const auto it = accesses.find(name);
             if (it == accesses.end()) {
-                return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "bad resource '{}'", name);
+                return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "bad resource '{}'", name);
             }
             ResourceAccess access = it->second;
             if ((access & ResourceAccess::RTV) != ResourceAccess::NONE) {
@@ -281,4 +281,4 @@ GpuTextureDesc RenderGraphBuilder::BuildDefaultTextureDesc(PixelFormat p_format,
     return desc;
 };
 
-}  // namespace my
+}  // namespace cave

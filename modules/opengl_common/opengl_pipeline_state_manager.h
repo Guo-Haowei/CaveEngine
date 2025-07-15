@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/runtime/pipeline_state_manager.h"
 
-namespace my {
+namespace cave {
 
 struct OpenGlPipelineState : public PipelineState {
     using PipelineState::PipelineState;
@@ -20,4 +20,4 @@ private:
     auto CreatePipelineImpl(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>>;
 };
 
-}  // namespace my
+}  // namespace cave

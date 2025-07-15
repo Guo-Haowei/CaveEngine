@@ -2,7 +2,7 @@
 #include "asset_type.h"
 #include "guid.h"
 
-namespace my {
+namespace cave {
 
 struct IAsset;
 
@@ -24,4 +24,4 @@ struct AssetMetaData {
     [[nodiscard]] auto SaveToDisk(const IAsset* p_asset) const -> Result<void>;
 };
 
-}  // namespace my
+}  // namespace cave

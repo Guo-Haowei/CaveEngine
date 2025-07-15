@@ -4,7 +4,7 @@
 #include "engine/scene/scriptable_entity.h"
 #include "plugins/lua_script/lua_script_manager.h"
 
-namespace my {
+namespace cave {
 
 auto ScriptManager::InitializeImpl() -> Result<void> {
     return Result<void>();
@@ -60,4 +60,4 @@ Result<ScriptManager*> ScriptManager::Create() {
 #endif
 }
 
-}  // namespace my
+}  // namespace cave

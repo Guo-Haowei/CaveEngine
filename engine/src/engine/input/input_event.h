@@ -2,7 +2,7 @@
 #include "engine/math/geomath.h"
 #include "input_code.h"
 
-namespace my {
+namespace cave {
 
 enum class InputState : uint8_t {
     UNKNOWN = 0,
@@ -114,4 +114,4 @@ inline bool InputHasChanged(const std::bitset<N>& p_current, const std::bitset<N
     return p_current[p_index] == true && p_prev[p_index] == false;
 }
 
-}  // namespace my
+}  // namespace cave

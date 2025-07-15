@@ -2,7 +2,7 @@
 #include "swizzle.h"
 #include "vector_base.h"
 
-namespace my {
+namespace cave {
 
 template<Arithmetic T>
 struct Vector<T, 3> : VectorBase<T, 3> {
@@ -73,4 +73,4 @@ const Vector<T, 3> Vector<T, 3>::UnitY(static_cast<T>(0), static_cast<T>(1), sta
 template<Arithmetic T>
 const Vector<T, 3> Vector<T, 3>::UnitZ(static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
 
-}  // namespace my
+}  // namespace cave

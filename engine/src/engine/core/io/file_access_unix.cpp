@@ -1,6 +1,6 @@
 #include "file_access_unix.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -32,13 +32,13 @@ auto FileAccessUnix::OpenInternal(std::string_view p_path, ModeFlags p_mode_flag
 
     if (p_mode_flags & EXCLUSIVE) {
         if (fs::exists(p_path)) {
-            return HBN_ERROR(ErrorCode::ERR_FILE_ALREADY_IN_USE, "file '{}' already in use", p_path);
+            return CAVE_ERROR(ErrorCode::ERR_FILE_ALREADY_IN_USE, "file '{}' already in use", p_path);
         }
     }
 
     const char* mode = ResolveFlag(p_mode_flags);
     if (!mode) {
-        return HBN_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "invalid mode");
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "invalid mode");
     }
 
     std::string path_string{ p_path };
@@ -48,9 +48,9 @@ auto FileAccessUnix::OpenInternal(std::string_view p_path, ModeFlags p_mode_flag
     if (!m_fileHandle) {
         switch (errno) {
             case ENOENT:
-                return HBN_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "file '{}' not found", p_path);
+                return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "file '{}' not found", p_path);
             default:
-                return HBN_ERROR(ErrorCode::ERR_FILE_CANT_OPEN, "file '{}' not found", p_path);
+                return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_OPEN, "file '{}' not found", p_path);
         }
     }
 
@@ -104,4 +104,4 @@ int FileAccessUnix::Seek(long p_offset) {
     return res;
 }
 
-}  // namespace my
+}  // namespace cave

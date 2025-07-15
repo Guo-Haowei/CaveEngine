@@ -8,11 +8,11 @@
 #include "engine/renderer/graphics_defines.h"
 #include "render_command.h"
 
-namespace my {
+namespace cave {
 #include "cbuffer.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 class Scene;
 // @TODO: get rid of this
@@ -129,4 +129,4 @@ struct FrameData {
     AABB voxel_gi_bound;
 };
 
-}  // namespace my
+}  // namespace cave

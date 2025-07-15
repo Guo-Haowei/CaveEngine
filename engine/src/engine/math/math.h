@@ -3,9 +3,9 @@
 #ifdef BIT
 #undef BIT
 #endif
-#define BIT(x) my::Bit(x)
+#define BIT(x) cave::Bit(x)
 
-namespace my {
+namespace cave {
 
 constexpr inline uint64_t Bit(uint64_t p_a) {
     return (1llu << p_a) >> 1llu;
@@ -38,4 +38,4 @@ constexpr inline int CeilingDivision(int p_dividend, int p_divisor) {
     return (p_dividend + p_divisor - 1) / p_divisor;
 }
 
-}  // namespace my
+}  // namespace cave

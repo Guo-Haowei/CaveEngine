@@ -1,7 +1,7 @@
 #pragma once
 #include "undo_command.h"
 
-namespace my {
+namespace cave {
 
 class UndoStack {
 public:
@@ -32,4 +32,4 @@ private:
     std::vector<std::shared_ptr<UndoCommand>> m_redo_stack;
 };
 
-}  // namespace my
+}  // namespace cave

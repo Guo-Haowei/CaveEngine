@@ -6,11 +6,11 @@
 // @TODO: refactor
 struct MaterialConstantBuffer;
 
-namespace my {
+namespace cave {
 class RenderGraph;
 }
 
-namespace my {
+namespace cave {
 
 enum class Backend : uint8_t;
 enum ClearFlags : uint32_t;
@@ -178,4 +178,4 @@ protected:
     virtual void UpdateEmitters(const Scene& p_scene) = 0;
 };
 
-}  // namespace my
+}  // namespace cave

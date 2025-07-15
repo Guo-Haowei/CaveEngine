@@ -8,7 +8,7 @@
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_serialization.h"
 
-namespace my {
+namespace cave {
 
 static std::string GenerateName(std::string_view p_name) {
     static int s_counter = 0;
@@ -186,4 +186,4 @@ bool EntityTransformCommand::MergeCommand(const UndoCommand* p_command) {
     return true;
 }
 
-}  // namespace my
+}  // namespace cave

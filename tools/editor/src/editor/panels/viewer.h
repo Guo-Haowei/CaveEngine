@@ -3,7 +3,7 @@
 #include "engine/scene/camera_controller.h"
 #include "editor/editor_window.h"
 
-namespace my {
+namespace cave {
 
 class Viewer : public EditorWindow, public IInputHandler {
 public:
@@ -83,4 +83,4 @@ protected:
     } m_controller;
 };
 
-}  // namespace my
+}  // namespace cave

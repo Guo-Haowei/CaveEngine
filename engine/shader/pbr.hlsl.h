@@ -11,11 +11,11 @@
 #ifdef max
 #undef max
 #endif
-using namespace my;
-using ::my::cross;
-using ::my::max;
-using ::my::min;
-using ::my::normalize;
+using namespace cave;
+using ::cave::cross;
+using ::cave::max;
+using ::cave::min;
+using ::cave::normalize;
 #endif
 
 #define MAX_REFLECTION_LOD 4.0

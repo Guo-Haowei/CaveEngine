@@ -4,7 +4,7 @@
 #include "engine/core/os/os.h"
 #include "engine/core/os/threads.h"
 
-namespace my {
+namespace cave {
 
 void PrintImpl(LogLevel p_level, const std::string& p_message) {
     OS* os = OS::GetSingletonPtr();
@@ -32,4 +32,4 @@ void LogImpl(LogLevel p_level, const std::string& p_message) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

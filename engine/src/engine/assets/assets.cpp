@@ -1,5 +1,5 @@
 #include "assets.h"
 
-namespace my {
+namespace cave {
 
-}  // namespace my
+}  // namespace cave

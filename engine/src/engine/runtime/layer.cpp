@@ -5,7 +5,7 @@
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 
-namespace my {
+namespace cave {
 
 void GameLayer::OnAttach() {
     LOG("GameLayer '{}' attached", m_name);
@@ -31,4 +31,4 @@ void GameLayer::OnDetach() {
     OnDetachInternal();
 }
 
-}  // namespace my
+}  // namespace cave

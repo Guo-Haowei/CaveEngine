@@ -4,7 +4,7 @@
 #include "engine/input/input_event.h"
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 
 class Viewer;
 
@@ -29,4 +29,4 @@ protected:
     std::string m_title{ "Editor" };
 };
 
-}  // namespace my
+}  // namespace cave

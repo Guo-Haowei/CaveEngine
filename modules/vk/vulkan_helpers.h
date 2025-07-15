@@ -2,14 +2,14 @@
 #include <vulkan/vulkan.h>
 
 #define VK_OP(EXPR) ReportVkErrorIfFailed((EXPR), __FUNCTION__, __FILE__, __LINE__, #EXPR)
-#define VK_CHECK_ERROR(EXPR, CODE)                                                   \
-    do {                                                                             \
-        if (VkResult _result = VK_OP(EXPR); _result != VK_SUCCESS) [[unlikely]] {    \
-            return HBN_ERROR(CODE, "VkResult: {}, " #EXPR, ::my::ToString(_result)); \
-        }                                                                            \
+#define VK_CHECK_ERROR(EXPR, CODE)                                                      \
+    do {                                                                                \
+        if (VkResult _result = VK_OP(EXPR); _result != VK_SUCCESS) [[unlikely]] {       \
+            return CAVE_ERROR(CODE, "VkResult: {}, " #EXPR, ::cave::ToString(_result)); \
+        }                                                                               \
     } while (0)
 
-namespace my {
+namespace cave {
 
 VkResult ReportVkErrorIfFailed(VkResult p_result,
                                std::string_view p_function,
@@ -20,7 +20,7 @@ VkResult ReportVkErrorIfFailed(VkResult p_result,
 const char* ToString(VkResult p_result);
 const char* ToString(VkDebugReportObjectTypeEXT p_type);
 
-}  // namespace my
+}  // namespace cave
 
 #define VK_RESULT_LIST                                               \
     VK_RESULT(VK_SUCCESS)                                            \

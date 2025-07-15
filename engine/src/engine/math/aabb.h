@@ -3,7 +3,7 @@
 #include "engine/math/intersection.h"
 #include "engine/math/matrix.h"
 
-namespace my {
+namespace cave {
 
 class AABB : public Box3 {
 public:
@@ -19,4 +19,4 @@ public:
     friend class TestIntersection;
 };
 
-}  // namespace my
+}  // namespace cave

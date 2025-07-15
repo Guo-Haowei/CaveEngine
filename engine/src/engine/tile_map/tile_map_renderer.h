@@ -3,7 +3,7 @@
 #include "engine/math/box.h"
 #include "engine/math/geomath.h"
 
-namespace my {
+namespace cave {
 
 class Archive;
 struct GpuMesh;
@@ -13,9 +13,7 @@ class TileMapAsset;
 
 class TileMapRenderer {
 public:
-    struct LayerCache {
-        bool visible;
-        uint32_t revision{ 0 };
+    struct Cache {
         Handle<ImageAsset> image;
         Handle<SpriteAsset> sprite;
         mutable std::shared_ptr<GpuMesh> mesh;
@@ -26,7 +24,8 @@ public:
 
     bool SetTileMap(const Guid& p_guid);
 
-    const auto& GetLayerCache() const { return m_layer_cache; }
+    bool GetVisibility() const { return m_visibility; }
+    const auto& GetCache() const { return m_cache; }
 
     // @TODO: get rid of old serailization code
     void Serialize(Archive& p_archive, uint32_t p_version);
@@ -35,10 +34,12 @@ public:
 
 private:
     Guid m_guid;
+    bool m_visibility;
 
     // Non serialize
     Handle<TileMapAsset> m_handle;
-    std::vector<LayerCache> m_layer_cache;
+    Cache m_cache;
+    uint32_t m_revision{ 0 };
 };
 
-}  // namespace my
+}  // namespace cave

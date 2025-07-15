@@ -14,7 +14,7 @@
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
 
-namespace my {
+namespace cave {
 
 MetalGraphicsManager::MetalGraphicsManager() : EmptyGraphicsManager("MetalGraphicsManager", Backend::METAL, NUM_FRAMES_IN_FLIGHT) { m_pipelineStateManager = std::make_shared<EmptyPipelineStateManager>(); }
 
@@ -69,7 +69,7 @@ auto MetalGraphicsManager::InitializeInternal() -> Result<void> {
         auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayServer());
         DEV_ASSERT(display_manager);
         if (!display_manager) {
-            return HBN_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
+            return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
         }
 
         m_window = display_manager->GetGlfwWindow();
@@ -220,4 +220,4 @@ std::shared_ptr<GpuTexture> MetalGraphicsManager::CreateTextureImpl(const GpuTex
     return result;
 }
 
-} // namespace my
+} // namespace cave

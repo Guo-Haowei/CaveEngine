@@ -1,10 +1,10 @@
 #pragma once
 
-namespace my {
+namespace cave {
 class Archive;
 }
 
-namespace my::ecs {
+namespace cave::ecs {
 
 class Entity {
 public:
@@ -41,25 +41,25 @@ private:
     inline static std::atomic<uint32_t> s_id = MAX_ID;
 };
 
-}  // namespace my::ecs
+}  // namespace cave::ecs
 
 namespace std {
 
 template<>
-struct hash<my::ecs::Entity> {
-    std::size_t operator()(const my::ecs::Entity& p_entity) const { return std::hash<uint32_t>{}(p_entity.GetId()); }
+struct hash<cave::ecs::Entity> {
+    std::size_t operator()(const cave::ecs::Entity& p_entity) const { return std::hash<uint32_t>{}(p_entity.GetId()); }
 };
 
 template<>
-struct less<my::ecs::Entity> {
-    constexpr bool operator()(const my::ecs::Entity& p_lhs, const my::ecs::Entity& p_rhs) const {
+struct less<cave::ecs::Entity> {
+    constexpr bool operator()(const cave::ecs::Entity& p_lhs, const cave::ecs::Entity& p_rhs) const {
         return p_lhs.GetId() < p_rhs.GetId();
     }
 };
 
 template<>
-struct equal_to<my::ecs::Entity> {
-    constexpr bool operator()(const my::ecs::Entity& p_lhs, const my::ecs::Entity& p_rhs) const {
+struct equal_to<cave::ecs::Entity> {
+    constexpr bool operator()(const cave::ecs::Entity& p_lhs, const cave::ecs::Entity& p_rhs) const {
         return p_lhs.GetId() == p_rhs.GetId();
     }
 };

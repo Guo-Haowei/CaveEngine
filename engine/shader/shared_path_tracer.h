@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-namespace my {
+namespace cave {
 #include "structured_buffer.hlsl.h"
 
 #define inout
@@ -260,5 +260,5 @@ bool HitSphere(inout Ray ray, in Sphere sphere) {
 #endif
 
 #if defined(__cplusplus)
-}  // namespace my
+}  // namespace cave
 #endif

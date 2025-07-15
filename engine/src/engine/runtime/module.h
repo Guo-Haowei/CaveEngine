@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class Application;
 
@@ -37,4 +37,4 @@ public:
     inline static CreateFunc s_createFunc = nullptr;
 };
 
-}  // namespace my
+}  // namespace cave

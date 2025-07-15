@@ -28,16 +28,16 @@
 //-----------------------------------------------------------------------------------------------------------------
 
 // @TODO: wrap this
-#define GL_CHECK(stmt)                                                                                                     \
-    do {                                                                                                                   \
-        stmt;                                                                                                              \
-        GLenum err = glGetError();                                                                                         \
-        if (err != GL_NO_ERROR) {                                                                                          \
-            ::my::ReportErrorImpl(__FUNCTION__, __FILE__, __LINE__, std::format("OpenGL Error (0x{:0>8X}): " #stmt, err)); \
-        }                                                                                                                  \
+#define GL_CHECK(stmt)                                                                                                       \
+    do {                                                                                                                     \
+        stmt;                                                                                                                \
+        GLenum err = glGetError();                                                                                           \
+        if (err != GL_NO_ERROR) {                                                                                            \
+            ::cave::ReportErrorImpl(__FUNCTION__, __FILE__, __LINE__, std::format("OpenGL Error (0x{:0>8X}): " #stmt, err)); \
+        }                                                                                                                    \
     } while (0)
 
-namespace my {
+namespace cave {
 
 CommonOpenGLGraphicsManager::CommonOpenGLGraphicsManager()
     : GraphicsManager("CommonOpenGLGraphicsManager", Backend::OPENGL, 1) {
@@ -55,18 +55,18 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
         const auto cull_mode = pipeline->desc.rasterizerDesc->cullMode;
         if (cull_mode != m_stateCache.cullMode) {
             switch (cull_mode) {
-                case my::CullMode::NONE:
+                case cave::CullMode::NONE:
                     glDisable(GL_CULL_FACE);
                     break;
-                case my::CullMode::FRONT:
+                case cave::CullMode::FRONT:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT);
                     break;
-                case my::CullMode::BACK:
+                case cave::CullMode::BACK:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_BACK);
                     break;
-                case my::CullMode::FRONT_AND_BACK:
+                case cave::CullMode::FRONT_AND_BACK:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT_AND_BACK);
                     break;
@@ -213,7 +213,7 @@ auto CommonOpenGLGraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
     if (p_ib_desc) {
         auto res = CreateBuffer(*p_ib_desc);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         ret->indexBuffer = *res;
 
@@ -228,7 +228,7 @@ auto CommonOpenGLGraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
 
         auto res = CreateBuffer(p_vb_descs[slot]);
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         ret->vertexBuffers[slot] = *res;
 
@@ -324,7 +324,7 @@ auto CommonOpenGLGraphicsManager::CreateConstantBuffer(const GpuBufferDesc& p_de
 
     glGenBuffers(1, &handle);
     if (handle == 0) {
-        return HBN_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to generate buffer");
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to generate buffer");
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, handle);
@@ -647,7 +647,7 @@ void CommonOpenGLGraphicsManager::Render() {
 }
 
 void CommonOpenGLGraphicsManager::Present() {
-    HBN_PROFILE_EVENT();
+    CAVE_PROFILE_EVENT();
 
     if (m_app->GetSpecification().enableImgui) {
         GLFWwindow* oldContext = glfwGetCurrentContext();
@@ -659,4 +659,4 @@ void CommonOpenGLGraphicsManager::Present() {
     glfwSwapBuffers(m_window);
 }
 
-}  // namespace my
+}  // namespace cave

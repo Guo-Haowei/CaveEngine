@@ -37,7 +37,7 @@
 #include "engine/renderer/pipeline_state.h"
 #include "engine/renderer/pixel_format.h"
 
-namespace my::d3d {
+namespace cave::d3d {
 
 static inline DXGI_FORMAT Convert(PixelFormat p_format) {
     switch (p_format) {
@@ -334,4 +334,4 @@ static inline D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertToType(PrimitiveTopology p_to
 #undef D3D_STENCIL_OP_
 #undef D3D_BLEND_
 
-}  // namespace my::d3d
+}  // namespace cave::d3d

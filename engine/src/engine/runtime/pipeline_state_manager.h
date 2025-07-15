@@ -2,7 +2,7 @@
 #include "engine/renderer/graphics_defines.h"
 #include "engine/renderer/pipeline_state.h"
 
-namespace my {
+namespace cave {
 
 class PipelineStateManager {
 public:
@@ -26,4 +26,4 @@ private:
     std::array<std::shared_ptr<PipelineState>, PSO_NAME_MAX> m_cache;
 };
 
-}  // namespace my
+}  // namespace cave

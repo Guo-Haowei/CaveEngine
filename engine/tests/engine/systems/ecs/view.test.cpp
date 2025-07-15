@@ -1,6 +1,6 @@
 #include "engine/scene/scene.h"
 
-namespace my::ecs {
+namespace cave::ecs {
 
 template<typename T>
 static inline void CheckConst(T&&) {
@@ -36,4 +36,4 @@ TEST(view, iterator) {
     }
 }
 
-}  // namespace my::ecs
+}  // namespace cave::ecs

@@ -1,6 +1,6 @@
 #include "angle.h"
 
-namespace my {
+namespace cave {
 
 Degree& Degree::operator=(const Radian& p_rad) {
     m_value = p_rad.ToDegree();
@@ -12,4 +12,4 @@ Radian& Radian::operator=(const Degree& p_degree) {
     return *this;
 }
 
-}  // namespace my
+}  // namespace cave

@@ -5,7 +5,7 @@
 #define INCLUDE_AS_D3D12
 #include "../d3d_common/d3d_convert.h"
 
-namespace my {
+namespace cave {
 
 using Microsoft::WRL::ComPtr;
 
@@ -24,7 +24,7 @@ auto D3d12PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p
     if (!p_desc.cs.empty()) {
         auto res = CompileShader(p_desc.cs, "cs_5_1", m_defines.data());
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         cs_blob = *res;
     }
@@ -34,7 +34,7 @@ auto D3d12PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p
     pso_desc.CS = CD3DX12_SHADER_BYTECODE(cs_blob.Get());
 
     ID3D12Device4* device = reinterpret_cast<D3d12GraphicsManager*>(GraphicsManager::GetSingletonPtr())->GetDevice();
-    D3D_FAIL_V(device->CreateComputePipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), HBN_ERROR(ErrorCode::ERR_CANT_CREATE));
+    D3D_FAIL_V(device->CreateComputePipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), CAVE_ERROR(ErrorCode::ERR_CANT_CREATE));
 
     return pipeline_state;
 }
@@ -49,14 +49,14 @@ auto D3d12PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     if (!p_desc.vs.empty()) {
         auto res = CompileShader(p_desc.vs, "vs_5_1", m_defines.data());
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         vs_blob = *res;
     }
     if (!p_desc.ps.empty()) {
         auto res = CompileShader(p_desc.ps, "ps_5_1", m_defines.data());
         if (!res) {
-            return HBN_ERROR(res.error());
+            return CAVE_ERROR(res.error());
         }
         ps_blob = *res;
     }
@@ -115,6 +115,6 @@ auto D3d12PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     return pipeline_state;
 }
 
-}  // namespace my
+}  // namespace cave
 
 #undef INCLUDE_AS_D3D12

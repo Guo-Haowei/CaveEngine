@@ -9,7 +9,7 @@
 #include "engine/runtime/common_dvars.h"
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 
 static void CollapseWindow(const std::string& p_window_name, std::function<void(void)>&& p_funcion) {
     const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
@@ -82,4 +82,4 @@ void RendererPanel::UpdateInternal(Scene*) {
     });
 }
 
-}  // namespace my
+}  // namespace cave

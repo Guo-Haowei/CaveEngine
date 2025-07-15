@@ -8,7 +8,7 @@ struct Animation;
 struct Mesh;
 }  // namespace tinygltf
 
-namespace my {
+namespace cave {
 
 class Scene;
 
@@ -32,4 +32,4 @@ protected:
     Scene* m_scene;
 };
 
-}  // namespace my
+}  // namespace cave

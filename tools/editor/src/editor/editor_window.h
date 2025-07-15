@@ -1,7 +1,7 @@
 #pragma once
 #include "editor/editor_item.h"
 
-namespace my {
+namespace cave {
 
 inline constexpr const char* ASSET_DRAG_DROP_PAYLOAD = "ASSET_DRAG_DROP_PAYLOAD";
 
@@ -19,4 +19,4 @@ protected:
     int m_flags{ 0 };
 };
 
-}  // namespace my
+}  // namespace cave

@@ -1,6 +1,6 @@
 #include "engine/input/input_event.h"
 
-namespace my {
+namespace cave {
 
 bool MouseButtonBase::IsButtonDown(MouseButton p_button) const {
     return InputIsDown(m_buttons, std::to_underlying(p_button));
@@ -18,4 +18,4 @@ bool MouseButtonBase::IsButtonReleased(MouseButton p_button) const {
     return InputHasChanged(m_prevButtons, m_buttons, std::to_underlying(p_button));
 }
 
-}  // namespace my
+}  // namespace cave

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace my {
+namespace cave {
 
 using VertexList = std::vector<Vector3f>;
 using TriangleList = std::vector<Vector3i>;
@@ -287,4 +287,4 @@ BvhAccel::Ref BvhAccel::Construct(const std::vector<uint32_t>& p_indices,
     return builder.ConstructHelper(nullptr, triangle_indices);
 }
 
-}  // namespace my
+}  // namespace cave

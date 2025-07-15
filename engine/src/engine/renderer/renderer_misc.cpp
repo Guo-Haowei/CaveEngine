@@ -1,5 +1,5 @@
 #include "renderer_misc.h"
 
-namespace my {
+namespace cave {
 
-}  // namespace my
+}  // namespace cave

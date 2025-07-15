@@ -2,7 +2,7 @@
 
 #include "engine/core/io/print.h"
 
-namespace my {
+namespace cave {
 
 auto Archive::OpenMode(const std::string& p_path, bool p_write_mode) -> Result<void> {
     m_path = p_path;
@@ -13,7 +13,7 @@ auto Archive::OpenMode(const std::string& p_path, bool p_write_mode) -> Result<v
 
     auto result = FileAccess::Open(m_path, p_write_mode ? FileAccess::WRITE : FileAccess::READ);
     if (!result) {
-        return HBN_ERROR(result.error());
+        return CAVE_ERROR(result.error());
     }
 
     m_file = *result;
@@ -66,4 +66,4 @@ bool Archive::WriteString(const char* p_data, size_t p_length) {
     return ok;
 }
 
-}  // namespace my
+}  // namespace cave

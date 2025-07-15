@@ -1,6 +1,6 @@
 #include "algorithm.h"
 
-namespace my {
+namespace cave {
 
 std::vector<int> topological_sort(int N, const std::vector<std::pair<int, int>>& p_edges) {
     std::vector<int> indegree(N, 0);
@@ -37,4 +37,4 @@ std::vector<int> topological_sort(int N, const std::vector<std::pair<int, int>>&
     return sorted;
 }
 
-}  // namespace my
+}  // namespace cave

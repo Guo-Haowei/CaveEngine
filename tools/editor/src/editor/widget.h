@@ -4,7 +4,7 @@
 
 struct ImVec2;
 
-namespace my {
+namespace cave {
 
 enum class AssetType : uint32_t;
 class AssetHandle;
@@ -57,4 +57,4 @@ bool DragDropTarget(AssetType p_mask, const DragDropFunc& p_callback);
 /// image
 void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_region);
 
-}  // namespace my
+}  // namespace cave

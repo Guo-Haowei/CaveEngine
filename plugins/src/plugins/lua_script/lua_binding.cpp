@@ -7,7 +7,7 @@
 #include "engine/scene/scene.h"
 #include "lua_bridge_include.h"
 
-namespace my::lua {
+namespace cave::lua {
 
 // @TODO: refactor
 struct Quat {
@@ -263,4 +263,4 @@ bool OpenSceneLib(lua_State* L) {
     return true;
 }
 
-}  // namespace my::lua
+}  // namespace cave::lua

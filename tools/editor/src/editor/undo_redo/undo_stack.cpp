@@ -1,6 +1,6 @@
 ﻿#include "undo_stack.h"
 
-namespace my {
+namespace cave {
 
 bool UndoStack::Submit(std::shared_ptr<UndoCommand>&& p_command) {
     // New commands invalidate redo history
@@ -53,4 +53,4 @@ bool UndoStack::Redo() {
     return true;
 }
 
-}  // namespace my
+}  // namespace cave

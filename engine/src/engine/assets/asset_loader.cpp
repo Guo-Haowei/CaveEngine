@@ -8,7 +8,7 @@
 #include "engine/scene/scene_serialization.h"
 #include "tinygltf/stb_image.h"
 
-namespace my {
+namespace cave {
 
 IAssetLoader::IAssetLoader(const AssetMetaData& p_meta)
     : m_meta(p_meta) {
@@ -43,7 +43,7 @@ std::unique_ptr<IAssetLoader> IAssetLoader::Create(const AssetMetaData& p_meta) 
 auto BufferAssetLoader::Load() -> Result<AssetRef> {
     auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     std::shared_ptr<FileAccess> file_access = *res;
@@ -61,7 +61,7 @@ auto BufferAssetLoader::Load() -> Result<AssetRef> {
 auto TextAssetLoader::Load() -> Result<AssetRef> {
     auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     std::shared_ptr<FileAccess> file_access = *res;
@@ -95,7 +95,7 @@ static PixelFormat ChannelToFormat(int p_channel, bool p_is_float) {
 auto ImageAssetLoader::Load() -> Result<AssetRef> {
     auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
     if (!res) {
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     const bool is_float = m_size == 4;
@@ -131,7 +131,7 @@ auto ImageAssetLoader::Load() -> Result<AssetRef> {
     }
 
     if (!pixels) {
-        return HBN_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", m_meta.path);
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", m_meta.path);
     }
 
     if (req_channel > num_channels) {
@@ -163,7 +163,7 @@ auto SceneLoader::Load() -> Result<AssetRef> {
     auto res = LoadSceneBinary(m_filePath, *scene);
     if (!res) {
         delete scene;
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     scene->m_replace = true;
@@ -176,11 +176,11 @@ auto TextSceneLoader::Load() -> Result<AssetRef> {
     auto res = LoadSceneText(m_filePath, *scene);
     if (!res) {
         delete scene;
-        return HBN_ERROR(res.error());
+        return CAVE_ERROR(res.error());
     }
 
     scene->m_replace = true;
     return AssetRef(scene);
 }
 
-}  // namespace my
+}  // namespace cave

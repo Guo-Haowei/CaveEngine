@@ -3,7 +3,7 @@
 #endif
 #define GRAPHICS_PRIVATE_H_INCLUDED
 
-namespace my {
+namespace cave {
 
 template<typename T>
 static inline size_t VectorSizeInByte(const std::vector<T>& vec) {
@@ -11,4 +11,4 @@ static inline size_t VectorSizeInByte(const std::vector<T>& vec) {
     return vec.size() * sizeof(T);
 }
 
-}  // namespace my
+}  // namespace cave

@@ -2,7 +2,7 @@
 #include "editor/editor_item.h"
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 
 class MenuBar : public EditorItem {
 public:
@@ -16,4 +16,4 @@ private:
     void ViewerBar();
 };
 
-}  // namespace my
+}  // namespace cave
