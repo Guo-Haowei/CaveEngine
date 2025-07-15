@@ -2,7 +2,7 @@
 
 namespace my {
 
-class FrameData;
+struct FrameData;
 class Scene;
 
 void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);

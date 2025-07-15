@@ -1,6 +1,4 @@
 #pragma once
-#include "scene_component_base.h"
-
 #include "engine/assets/asset_handle.h"
 #include "engine/math/box.h"
 #include "engine/math/geomath.h"
@@ -13,7 +11,7 @@ struct ImageAsset;
 class SpriteAsset;
 class TileMapAsset;
 
-class TileMapRenderer : public ComponentFlagBase {
+class TileMapRenderer {
 public:
     struct LayerCache {
         bool visible;

@@ -1,8 +1,8 @@
 #pragma once
 #include <nlohmann/json_fwd.hpp>
 
-#include "asset_handle.h"
-#include "asset_interface.h"
+#include "engine/assets/asset_handle.h"
+#include "engine/assets/asset_interface.h"
 
 namespace my {
 
