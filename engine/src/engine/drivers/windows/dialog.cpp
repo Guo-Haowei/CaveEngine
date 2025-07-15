@@ -3,7 +3,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/drivers/windows/win32_prerequisites.h"
 
-namespace my {
+namespace cave {
 
 std::string OpenFileDialog(const std::vector<const char*>& p_filters) {
     std::string filter_str;
@@ -72,4 +72,4 @@ bool OpenSaveDialog(std::filesystem::path& p_inout_path) {
     return false;
 }
 
-}  // namespace my
+}  // namespace cave

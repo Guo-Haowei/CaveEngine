@@ -1,7 +1,7 @@
 #pragma once
 #include "file_access.h"
 
-namespace my {
+namespace cave {
 
 class FileAccessUnix : public FileAccess {
 public:
@@ -21,4 +21,4 @@ protected:
     FILE* m_fileHandle{ nullptr };
 };
 
-}  // namespace my
+}  // namespace cave

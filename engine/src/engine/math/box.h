@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/math/detail/vector_math.h"
 
-namespace my {
+namespace cave {
 
 template<int N>
 class Box {
@@ -80,4 +80,4 @@ using Box2 = Box<2>;
 using Box3 = Box<3>;
 using Rect = Box2;
 
-}  // namespace my
+}  // namespace cave

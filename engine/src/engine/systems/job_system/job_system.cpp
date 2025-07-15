@@ -5,7 +5,7 @@
 #include "engine/core/os/threads.h"
 #include "engine/math/geomath.h"
 
-namespace my::jobsystem {
+namespace cave::jobsystem {
 
 static struct
 {
@@ -95,4 +95,4 @@ void Context::Wait() {
 }
 #endif
 
-}  // namespace my::jobsystem
+}  // namespace cave::jobsystem

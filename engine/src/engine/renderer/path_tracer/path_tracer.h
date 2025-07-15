@@ -6,7 +6,7 @@
 // @TODO: refactor
 #include "engine/renderer/path_tracer_render_system.h"
 
-namespace my {
+namespace cave {
 
 class Scene;
 
@@ -51,4 +51,4 @@ private:
     PathTracerMode m_mode{ PathTracerMode::NONE };
 };
 
-}  // namespace my
+}  // namespace cave

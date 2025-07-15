@@ -7,7 +7,7 @@
 #include "engine/scene/scene_component.h"
 #include "render_graph_predefined.h"
 
-namespace my {
+namespace cave {
 
 static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     HBN_PROFILE_EVENT();
@@ -63,4 +63,4 @@ auto RenderGraph2D(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr
     return builder.Compile();
 }
 
-}  // namespace my
+}  // namespace cave

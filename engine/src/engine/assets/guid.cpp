@@ -7,7 +7,7 @@
 #include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 
-namespace my {
+namespace cave {
 
 Guid::Guid(const uint8_t* p_buffer) {
     memcpy(m_data, p_buffer, sizeof(Guid));
@@ -72,4 +72,4 @@ std::string Guid::ToString() const {
     return builder.ToString();
 }
 
-}  // namespace my
+}  // namespace cave

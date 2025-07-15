@@ -1,6 +1,6 @@
 #include <random>
 
-namespace my {
+namespace cave {
 
 class Random {
 public:
@@ -15,4 +15,4 @@ private:
     static std::uniform_real_distribution<float> s_distribution;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -2,7 +2,7 @@
 #include "engine/core/base/noncopyable.h"
 #include "render_pass.h"
 
-namespace my {
+namespace cave {
 
 #define RENDER_GRAPH_LIST                    \
     RENDER_GRAPH_DECLARE(SCENE2D, "scene2d") \
@@ -16,9 +16,9 @@ enum class RenderGraphName : uint8_t {
         COUNT,
 };
 
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 struct FrameData;
 
@@ -49,4 +49,4 @@ private:
     friend class RenderGraphBuilder;
 };
 
-}  // namespace my
+}  // namespace cave

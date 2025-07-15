@@ -8,7 +8,7 @@
 #endif
 #include "engine/renderer/graphics_dvars.h"
 
-namespace my {
+namespace cave {
 
 auto DisplayManager::InitializeImpl() -> Result<void> {
     InitializeKeyMapping();
@@ -66,4 +66,4 @@ DisplayManager* DisplayManager::Create() {
 #endif
 }
 
-}  // namespace my
+}  // namespace cave

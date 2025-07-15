@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class SpinLock {
 public:
@@ -32,4 +32,4 @@ protected:
     T& m_lock;
 };
 
-}  // namespace my
+}  // namespace cave

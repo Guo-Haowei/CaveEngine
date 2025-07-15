@@ -10,7 +10,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
 
-namespace my {
+namespace cave {
 
 void EditorTool::Update(Scene* p_scene) {
     const auto& cam = m_viewer->GetActiveCamera();
@@ -145,4 +145,4 @@ bool EditorTool::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
 
 #endif
 
-}  // namespace my
+}  // namespace cave

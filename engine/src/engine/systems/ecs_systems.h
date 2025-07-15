@@ -1,11 +1,11 @@
 #pragma once
 
 // clang-format off
-namespace my { class Scene; }
-namespace my::jobsystem { class Context; }
+namespace cave { class Scene; }
+namespace cave::jobsystem { class Context; }
 // clang-format on
 
-namespace my {
+namespace cave {
 
 class Scene;
 
@@ -25,4 +25,4 @@ void RunParticleEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_contex
 
 void RunMeshEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 
-}  // namespace my
+}  // namespace cave

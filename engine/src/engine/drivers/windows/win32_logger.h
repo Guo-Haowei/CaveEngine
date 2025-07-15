@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/core/io/logger.h"
 
-namespace my {
+namespace cave {
 
 class Win32Logger : public ILogger {
 public:
@@ -11,4 +11,4 @@ private:
     std::mutex m_consoleMutex;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/runtime/pipeline_state_manager.h"
 
-namespace my {
+namespace cave {
 
 class EmptyPipelineStateManager : public PipelineStateManager {
 public:
@@ -17,4 +17,4 @@ protected:
     }
 };
 
-}  // namespace my
+}  // namespace cave

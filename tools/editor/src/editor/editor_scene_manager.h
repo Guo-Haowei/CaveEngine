@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/scene/scene_manager.h"
 
-namespace my {
+namespace cave {
 
 using CreateSceneFunc = std::function<std::shared_ptr<Scene>()>;
 
@@ -30,4 +30,4 @@ protected:
     std::vector<StaleScene> m_stale_scenes;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #pragma once
 #include "file_access.h"
 
-namespace my {
+namespace cave {
 
 class Archive {
 public:
@@ -108,4 +108,4 @@ private:
     std::string m_path{};
 };
 
-}  // namespace my
+}  // namespace cave

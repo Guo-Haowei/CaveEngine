@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 class ImguiManager : public Module {
     using Callback = std::function<void()>;
@@ -39,4 +39,4 @@ private:
     std::string m_imguiSettingsPath;
 };
 
-}  // namespace my
+}  // namespace cave

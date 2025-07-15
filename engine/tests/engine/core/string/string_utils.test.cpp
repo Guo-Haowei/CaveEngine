@@ -1,6 +1,6 @@
 #include "engine/core/string/string_utils.h"
 
-namespace my::string_utils {
+namespace cave::string_utils {
 
 TEST(StringEqual, null_input) {
     EXPECT_TRUE(StringUtils::StringEqual(nullptr, nullptr));
@@ -249,4 +249,4 @@ TEST(remove_extension, extension_not_found) {
     EXPECT_EQ(file, "");
 }
 
-}  // namespace my::string_utils
+}  // namespace cave::string_utils

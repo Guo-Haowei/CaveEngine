@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class UndoCommand {
 public:
@@ -12,4 +12,4 @@ public:
     virtual bool MergeCommand(const UndoCommand*) { return false; }
 };
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/scene/scene_component.h"
 
-namespace my {
+namespace cave {
 
 void BoxWireFrameHelper(const Vector3f& p_min,
                         const Vector3f& p_max,
@@ -46,4 +46,4 @@ MeshComponent MakeBoxWireframeMesh(float p_size = 0.5f);
 
 MeshComponent MakeSkyBoxMesh();
 
-}  // namespace my
+}  // namespace cave

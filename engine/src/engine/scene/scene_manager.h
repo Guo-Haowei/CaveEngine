@@ -2,7 +2,7 @@
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/core/base/concurrent_queue.h"
 
-namespace my {
+namespace cave {
 
 class Scene;
 class Application;
@@ -81,4 +81,4 @@ protected:
     ConcurrentQueue<LoadSceneTask> m_loadingQueue;
 };
 
-}  // namespace my
+}  // namespace cave

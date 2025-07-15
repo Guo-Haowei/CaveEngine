@@ -1,7 +1,7 @@
 #include "matrix_transform.h"
 
 // @TODO: refactor
-namespace my {
+namespace cave {
 
 Matrix4x4f LookAtRh(const Vector3f& p_eye, const Vector3f& p_center, const Vector3f& p_up) {
 #define C(v) glm::vec3(v.x, v.y, v.z)
@@ -185,4 +185,4 @@ inline std::array<Matrix4x4f, 6> BuildOpenGlCubeMapViewMatrices(const Vector3f& 
 }
 #endif
 
-}  // namespace my
+}  // namespace cave

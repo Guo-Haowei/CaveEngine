@@ -16,7 +16,7 @@
 
 extern const char* g_lua_always_load;
 
-namespace my {
+namespace cave {
 
 auto LuaScriptManager::InitializeImpl() -> Result<void> {
     return Result<void>();
@@ -233,4 +233,4 @@ ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const std::string& p_p
     return meta;
 }
 
-}  // namespace my
+}  // namespace cave

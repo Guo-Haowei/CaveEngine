@@ -5,7 +5,7 @@
 #include "engine/scene/scene.h"
 #include "engine/systems/job_system/job_system.h"
 
-namespace my {
+namespace cave {
 
 [[maybe_unused]] static constexpr uint32_t SMALL_SUBTASK_GROUP_SIZE = 64;
 
@@ -412,4 +412,4 @@ void RunMeshEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, f
     }
 }
 
-}  // namespace my
+}  // namespace cave

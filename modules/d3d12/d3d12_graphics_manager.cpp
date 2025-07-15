@@ -25,11 +25,11 @@
 #define INCLUDE_AS_D3D12
 #include "../d3d_common/d3d_convert.h"
 
-namespace my {
+namespace cave {
 #include "structured_buffer.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 using Microsoft::WRL::ComPtr;
 
@@ -1399,4 +1399,4 @@ void D3d12GraphicsManager::CleanupRenderTarget() {
     SafeRelease(m_depthStencilBuffer);
 }
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #pragma once
 #include "render_graph_builder.h"
 
-namespace my {
+namespace cave {
 
 class RenderGraphBuilderExt : public RenderGraphBuilder {
 public:
@@ -29,4 +29,4 @@ private:
     void AddGenerateSkylightPass();
 };
 
-}  // namespace my
+}  // namespace cave

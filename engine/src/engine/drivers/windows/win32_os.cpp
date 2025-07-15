@@ -4,7 +4,7 @@
 #include "win32_logger.h"
 #include "win32_prerequisites.h"
 
-namespace my {
+namespace cave {
 
 class DebugConsoleLogger : public ILogger {
 public:
@@ -68,4 +68,4 @@ bool EnableAnsi() {
     return true;
 }
 
-}  // namespace my
+}  // namespace cave

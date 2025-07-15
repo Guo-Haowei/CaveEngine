@@ -6,7 +6,7 @@
 #include "engine/math/geomath.h"
 #include "editor/undo_redo/undo_command.h"
 
-namespace my {
+namespace cave {
 
 class EditorLayer;
 class Scene;
@@ -131,4 +131,4 @@ protected:
     Matrix4x4f m_after;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -15,7 +15,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
 
-namespace my {
+namespace cave {
 
 #define TEMP_SCENE_NAME "tile_map_scene"
 
@@ -208,4 +208,4 @@ void TileMapEditor::OnExit() {
     scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
 }
 
-}  // namespace my
+}  // namespace cave

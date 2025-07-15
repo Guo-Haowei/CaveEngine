@@ -8,7 +8,7 @@
 
 #include "engine/runtime/asset_registry.h"
 
-namespace my {
+namespace cave {
 
 auto AssimpAssetLoader::Load() -> Result<AssetRef> {
     m_scene = new Scene;
@@ -178,5 +178,5 @@ ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_p
     return entity;
 }
 
-}  // namespace my
+}  // namespace cave
 #endif

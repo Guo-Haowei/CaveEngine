@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class Guid {
 public:
@@ -44,18 +44,18 @@ private:
     uint8_t m_data[16]{};
 };
 
-}  // namespace my
+}  // namespace cave
 
 namespace std {
 
 template<>
-struct hash<my::Guid> {
-    std::size_t operator()(const my::Guid& p_guid) const {
+struct hash<cave::Guid> {
+    std::size_t operator()(const cave::Guid& p_guid) const {
         std::size_t hash = 0;
 
         const uint8_t* data = p_guid.GetData();
         // Combine hash for each byte in the buffer
-        for (std::size_t i = 0; i < sizeof(my::Guid); ++i) {
+        for (std::size_t i = 0; i < sizeof(cave::Guid); ++i) {
             hash ^= std::hash<uint8_t>{}(data[i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         }
 
@@ -64,9 +64,9 @@ struct hash<my::Guid> {
 };
 
 template<>
-struct less<my::Guid> {
-    bool operator()(const my::Guid& p_lhs, const my::Guid& p_rhs) const {
-        return memcmp(p_lhs.GetData(), p_rhs.GetData(), sizeof(my::Guid)) < 0;
+struct less<cave::Guid> {
+    bool operator()(const cave::Guid& p_lhs, const cave::Guid& p_rhs) const {
+        return memcmp(p_lhs.GetData(), p_rhs.GetData(), sizeof(cave::Guid)) < 0;
     }
 };
 

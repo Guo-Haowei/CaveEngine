@@ -4,7 +4,7 @@
 #include "engine/assets/asset_handle.h"
 #include "engine/assets/asset_interface.h"
 
-namespace my {
+namespace cave {
 
 struct TileIndex {
     int16_t x, y;
@@ -14,12 +14,12 @@ struct TileIndex {
     }
 };
 
-}  // namespace my
+}  // namespace cave
 
 namespace std {
 template<>
-struct hash<::my::TileIndex> {
-    std::size_t operator()(const ::my::TileIndex& p_key) const noexcept {
+struct hash<::cave::TileIndex> {
+    std::size_t operator()(const ::cave::TileIndex& p_key) const noexcept {
         const uint32_t packed = std::bit_cast<uint32_t>(p_key);
         return std::hash<uint32_t>{}(packed);
     }
@@ -27,7 +27,7 @@ struct hash<::my::TileIndex> {
 
 }  // namespace std
 
-namespace my {
+namespace cave {
 
 using TileData = uint32_t;
 
@@ -89,4 +89,4 @@ private:
     uint32_t m_revision{ 1 };  // make sure revision is ahead the first frame
 };
 
-}  // namespace my
+}  // namespace cave

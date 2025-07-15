@@ -3,7 +3,7 @@
 #include "engine/math/box.h"
 #include "engine/math/geomath.h"
 
-namespace my {
+namespace cave {
 
 class Archive;
 struct GpuMesh;
@@ -42,4 +42,4 @@ private:
     uint32_t m_revision{ 0 };
 };
 
-}  // namespace my
+}  // namespace cave

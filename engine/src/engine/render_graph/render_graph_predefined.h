@@ -1,10 +1,10 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 struct RenderGraphBuilderConfig;
 class RenderGraph;
 
 auto RenderGraph2D(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
 
-}  // namespace my
+}  // namespace cave

@@ -1,8 +1,8 @@
 #pragma once
 
-namespace my::engine {
+namespace cave::engine {
 
 bool InitializeCore();
 void FinalizeCore();
 
-}  // namespace my::engine
+}  // namespace cave::engine

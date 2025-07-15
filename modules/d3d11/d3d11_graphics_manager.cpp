@@ -22,7 +22,7 @@
 #define INCLUDE_AS_D3D11
 #include "../d3d_common/d3d_convert.h"
 
-namespace my {
+namespace cave {
 
 using Microsoft::WRL::ComPtr;
 
@@ -902,6 +902,6 @@ void D3d11GraphicsManager::SetPipelineStateImpl(PipelineStateName p_name) {
     m_deviceContext->IASetPrimitiveTopology(topology);
 }
 
-}  // namespace my
+}  // namespace cave
 
 #undef INCLUDE_AS_D3D11

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class EventListener;
 class Scene;
@@ -59,4 +59,4 @@ private:
     std::vector<EventListener*> m_listeners;
 };
 
-}  // namespace my
+}  // namespace cave

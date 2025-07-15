@@ -6,7 +6,7 @@
 
 #include "engine/math/box.h"
 
-namespace my {
+namespace cave {
 
 class SpriteAsset : public IAsset {
     DECLARE_ASSET(SpriteAsset, AssetType::Sprite)
@@ -55,4 +55,4 @@ private:
     Handle<ImageAsset> m_image_handle;
 };
 
-}  // namespace my
+}  // namespace cave

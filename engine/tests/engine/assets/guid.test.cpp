@@ -1,6 +1,6 @@
 #include <engine/assets/guid.h>
 
-namespace my {
+namespace cave {
 
 TEST(guid, default_constructor) {
     Guid guid;
@@ -128,4 +128,4 @@ TEST(guid, hasing) {
 #endif
 }
 
-}  // namespace my
+}  // namespace cave

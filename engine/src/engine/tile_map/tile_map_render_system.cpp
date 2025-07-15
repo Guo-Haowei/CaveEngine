@@ -4,7 +4,7 @@
 #include "engine/assets/assets.h"
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 
 void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
     if (!p_scene) {
@@ -47,4 +47,4 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

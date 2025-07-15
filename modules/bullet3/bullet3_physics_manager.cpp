@@ -18,7 +18,7 @@
 #include <btBulletDynamicsCommon.h>
 #pragma warning(pop)
 
-namespace my {
+namespace cave {
 
 struct PhysicsWorldContext {
     // @TODO: free properly
@@ -431,4 +431,4 @@ void Bullet3PhysicsManager::OnSimEnd(Scene&) {
     // @TODO: delete everything
 }
 
-}  // namespace my
+}  // namespace cave

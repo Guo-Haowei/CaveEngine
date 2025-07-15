@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/core/base/noncopyable.h"
 
-namespace my {
+namespace cave {
 
 class Application;
 
@@ -42,4 +42,4 @@ protected:
     virtual void OnDetachInternal() {}
 };
 
-}  // namespace my
+}  // namespace cave

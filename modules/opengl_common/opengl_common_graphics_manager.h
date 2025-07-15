@@ -6,7 +6,7 @@
 
 struct GLFWwindow;
 
-namespace my {
+namespace cave {
 
 // @TODO: fix
 struct OpenGlMeshBuffers : GpuMesh {
@@ -98,4 +98,4 @@ protected:
     } m_stateCache;
 };
 
-}  // namespace my
+}  // namespace cave

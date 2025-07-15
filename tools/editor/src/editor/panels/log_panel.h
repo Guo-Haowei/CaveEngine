@@ -1,7 +1,7 @@
 #pragma once
 #include "editor/editor_window.h"
 
-namespace my {
+namespace cave {
 
 class LogPanel : public EditorWindow {
 public:
@@ -17,4 +17,4 @@ private:
     LogLevel m_filter{ LOG_LEVEL_ALL };
 };
 
-}  // namespace my
+}  // namespace cave

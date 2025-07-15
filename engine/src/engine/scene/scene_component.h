@@ -5,16 +5,16 @@
 #include "engine/math/geomath.h"
 #include "scene_component_base.h"
 
-namespace my {
+namespace cave {
 #include "shader_defines.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
 namespace YAML {
 class Node;
 class Emitter;
 }  // namespace YAML
 
-namespace my {
+namespace cave {
 
 struct BvhAccel;
 struct GpuMesh;
@@ -753,4 +753,4 @@ public:
 // #pragma region _COMPONENT
 // #pragma endregion _COMPONENT
 
-}  // namespace my
+}  // namespace cave

@@ -12,7 +12,7 @@
 #pragma comment(lib, "dxguid.lib")
 #endif
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 using Microsoft::WRL::ComPtr;
@@ -126,4 +126,4 @@ void SetDebugName(ID3D12DeviceChild* p_resource, const std::string& p_name) {
 }
 #endif
 
-}  // namespace my
+}  // namespace cave

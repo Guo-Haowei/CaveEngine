@@ -12,16 +12,16 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/path_tracer/bvh_accel.h"
 
-namespace my::ecs {
+namespace cave::ecs {
 
 // instantiate ComponentManagers
-#define REGISTER_COMPONENT(TYPE, ...) template class ComponentManager<::my::TYPE>;
+#define REGISTER_COMPONENT(TYPE, ...) template class ComponentManager<::cave::TYPE>;
 REGISTER_COMPONENT_LIST
 #undef REGISTER_COMPONENT
 
-}  // namespace my::ecs
+}  // namespace cave::ecs
 
-namespace my {
+namespace cave {
 
 void Scene::Update(float p_timestep) {
     HBN_PROFILE_EVENT();
@@ -587,4 +587,4 @@ Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     return result;
 }
 
-}  // namespace my
+}  // namespace cave

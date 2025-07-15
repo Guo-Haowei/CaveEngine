@@ -1,6 +1,6 @@
 #include "engine/math/box.h"
 
-namespace my {
+namespace cave {
 
 using Vector3f = Vector<float, 3>;
 
@@ -51,4 +51,4 @@ TEST(box, center_and_size) {
     EXPECT_EQ(box.Size(), Vector3f(15));
 }
 
-}  // namespace my
+}  // namespace cave

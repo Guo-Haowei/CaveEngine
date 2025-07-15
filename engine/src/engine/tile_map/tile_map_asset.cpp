@@ -6,7 +6,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/serialization/serialization.h"
 
-namespace my {
+namespace cave {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
 
@@ -127,4 +127,4 @@ auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     return Result<void>();
 }
 
-}  // namespace my
+}  // namespace cave

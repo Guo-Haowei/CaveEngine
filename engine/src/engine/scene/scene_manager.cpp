@@ -11,7 +11,7 @@
 #include "engine/runtime/common_dvars.h"
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 
 extern Scene* CreateTheAviatorScene();
 
@@ -108,4 +108,4 @@ void SceneManager::RequestScene(std::string_view p_path) {
 }
 #endif
 
-}  // namespace my
+}  // namespace cave

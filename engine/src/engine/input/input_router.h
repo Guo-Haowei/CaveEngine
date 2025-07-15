@@ -2,7 +2,7 @@
 #pragma once
 #include "engine/input/input_event.h"
 
-namespace my {
+namespace cave {
 
 enum class HandleInputResult : uint8_t {
     Handled,
@@ -26,4 +26,4 @@ private:
     std::vector<IInputHandler*> m_stack;
 };
 
-}  // namespace my
+}  // namespace cave

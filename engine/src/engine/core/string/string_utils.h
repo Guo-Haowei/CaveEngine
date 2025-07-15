@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 #if USING(PLATFORM_WINDOWS)
 #define DELIMITER_CHAR '\\'
@@ -102,4 +102,4 @@ public:
     }
 };
 
-}  // namespace my
+}  // namespace cave

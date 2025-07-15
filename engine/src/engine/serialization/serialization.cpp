@@ -3,7 +3,7 @@
 #include "engine/assets/guid.h"
 #include "engine/core/io/file_access.h"
 
-namespace my {
+namespace cave {
 
 void to_json(json& j, const Guid& p_guid) {
     j = p_guid.ToString();
@@ -54,4 +54,4 @@ auto Deserialize(std::string_view p_path, json& j) -> Result<void> {
     return Result<void>();
 }
 
-}  // namespace my
+}  // namespace cave

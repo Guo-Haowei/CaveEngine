@@ -13,7 +13,7 @@
 
 #include "engine/tile_map/tile_map_render_system.h"
 
-namespace my {
+namespace cave {
 
 extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
@@ -180,9 +180,9 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     // HACK
     auto backend = m_app->GetGraphicsManager()->GetBackend();
     switch (backend) {
-        case my::Backend::OPENGL:
-        case my::Backend::D3D11:
-        case my::Backend::D3D12:
+        case cave::Backend::OPENGL:
+        case cave::Backend::D3D11:
+        case cave::Backend::D3D12:
             break;
         default:
             return;
@@ -263,4 +263,4 @@ void RenderSystem::FillCameraData(const CameraComponent& p_camera, FrameData& p_
     camera.up = cross(camera.front, camera.right);
 }
 
-}  // namespace my
+}  // namespace cave

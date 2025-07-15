@@ -7,7 +7,7 @@
 // #include "engine/math/math.h"
 #include "engine/core/os/spin_lock.h"
 
-namespace my {
+namespace cave {
 
 template<bool TREAD_SAFE>
 class RIDAllocatorLock {
@@ -274,4 +274,4 @@ protected:
 //    }
 //}
 
-}  // namespace my
+}  // namespace cave

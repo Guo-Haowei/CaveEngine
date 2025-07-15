@@ -2,7 +2,7 @@
 
 #if USING(ENABLE_DVAR)
 
-namespace my {
+namespace cave {
 
 DynamicVariable::DynamicVariable(VariantType p_type, DvarFlags p_flags, const char* p_desc)
     : m_type(p_type), m_desc(p_desc), m_flags(p_flags), m_int(0) {
@@ -283,6 +283,6 @@ void DynamicVariable::RegisterDvar(std::string_view p_key, DynamicVariable* p_dv
     s_map.insert(std::make_pair(keyStr, p_dvar));
 }
 
-}  // namespace my
+}  // namespace cave
 
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 template<typename T>
 struct IntrusiveListNode {
@@ -161,4 +161,4 @@ protected:
     size_t m_size;
 };
 
-}  // namespace my
+}  // namespace cave

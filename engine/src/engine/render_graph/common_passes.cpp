@@ -19,11 +19,11 @@
 #include "engine/renderer/ltc_matrix.h"
 #include "engine/runtime/asset_registry.h"
 
-namespace my {
+namespace cave {
 #include "shader_resource_defines.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 // @TODO: generalize this
 #if 0
@@ -1065,4 +1065,4 @@ auto RenderGraphBuilderExt::CreatePathTracer(RenderGraphBuilderConfig& p_config)
     return creator.Compile();
 }
 
-}  // namespace my
+}  // namespace cave

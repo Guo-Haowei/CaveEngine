@@ -1,7 +1,7 @@
 #include "serialization.h"
 #include "engine/assets/guid.h"
 
-namespace my::serialize {
+namespace cave::serialize {
 
 Result<void> SerializeYaml(YAML::Emitter& p_out, const ecs::Entity& p_object, SerializeYamlContext&) {
     p_out << p_object.GetId();
@@ -113,4 +113,4 @@ auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void> {
     return Result<void>();
 }
 
-}  // namespace my::serialize
+}  // namespace cave::serialize

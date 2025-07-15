@@ -10,7 +10,7 @@
 namespace YAML { class Node; }
 // clang-format on
 
-namespace my {
+namespace cave {
 
 struct BufferAsset : IAsset {
     DECLARE_ASSET(BufferAsset, AssetType::Binary)
@@ -38,4 +38,4 @@ struct ImageAsset : IAsset {
     std::shared_ptr<GpuTexture> gpu_texture;
 };
 
-}  // namespace my
+}  // namespace cave

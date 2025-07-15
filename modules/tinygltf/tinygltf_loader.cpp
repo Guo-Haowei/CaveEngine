@@ -41,7 +41,7 @@ static bool DummyWriteImage(const std::string* /* basepath */,
 
 }  // namespace tinygltf
 
-namespace my {
+namespace cave {
 
 void TinyGLTFLoader::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     if (p_node_index < 0 || m_entityMap.count(p_node_index)) {
@@ -684,4 +684,4 @@ void TinyGLTFLoader::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, in
     }
 }
 
-}  // namespace my
+}  // namespace cave

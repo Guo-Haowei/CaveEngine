@@ -8,7 +8,7 @@
 #include "render_graph_defines.h"
 #include "render_pass_builder.h"
 
-namespace my {
+namespace cave {
 
 RenderGraphBuilder::RenderGraphBuilder(const RenderGraphBuilderConfig& p_config)
     : m_config(p_config), m_graphicsManager(IGraphicsManager::GetSingleton()) {
@@ -281,4 +281,4 @@ GpuTextureDesc RenderGraphBuilder::BuildDefaultTextureDesc(PixelFormat p_format,
     return desc;
 };
 
-}  // namespace my
+}  // namespace cave

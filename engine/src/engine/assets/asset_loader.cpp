@@ -8,7 +8,7 @@
 #include "engine/scene/scene_serialization.h"
 #include "tinygltf/stb_image.h"
 
-namespace my {
+namespace cave {
 
 IAssetLoader::IAssetLoader(const AssetMetaData& p_meta)
     : m_meta(p_meta) {
@@ -183,4 +183,4 @@ auto TextSceneLoader::Load() -> Result<AssetRef> {
     return AssetRef(scene);
 }
 
-}  // namespace my
+}  // namespace cave

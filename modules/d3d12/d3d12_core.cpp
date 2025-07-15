@@ -3,7 +3,7 @@
 #include "../d3d_common/d3d_common.h"
 #include "d3d12_graphics_manager.h"
 
-namespace my {
+namespace cave {
 
 static constexpr int DESCRIPTOR_MAX_COUNT = 512;
 
@@ -213,4 +213,4 @@ void CopyContext::Submit(CopyCommand p_cmd) {
     m_lock.unlock();
 }
 
-}  // namespace my
+}  // namespace cave

@@ -5,7 +5,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/systems/serialization/serialization.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -80,4 +80,4 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
     return serialize::SaveYaml(meta_path, out);
 }
 
-}  // namespace my
+}  // namespace cave

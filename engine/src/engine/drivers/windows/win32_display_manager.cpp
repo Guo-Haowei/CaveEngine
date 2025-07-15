@@ -7,7 +7,7 @@
 #include "engine/runtime/imgui_manager.h"
 #include "engine/runtime/input_manager.h"
 
-namespace my {
+namespace cave {
 
 static LRESULT WndProcWrapper(HWND p_hwnd, UINT p_msg, WPARAM p_wparam, LPARAM p_lparam) {
     if (p_msg == WM_NCCREATE) {
@@ -231,6 +231,6 @@ void Win32DisplayManager::InitializeKeyMapping() {
     // @TODO: do the rest
 }
 
-}  // namespace my
+}  // namespace cave
 
 #include <imgui/backends/imgui_impl_win32.cpp>

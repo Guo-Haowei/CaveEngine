@@ -12,7 +12,7 @@
 // @TODO: refactor
 #include "pbr.hlsl.h"
 
-using namespace my;
+using namespace cave;
 
 static void WriteImageWrapper(const char* p_file, std::function<void(const char*)> p_func) {
     Timer timer;

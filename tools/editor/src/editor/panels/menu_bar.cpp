@@ -5,7 +5,7 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/input_manager.h"
 
-namespace my {
+namespace cave {
 
 void MenuBar::MainMenuBar() {
     const auto& shortcuts = m_editor.GetShortcuts();
@@ -83,4 +83,4 @@ void MenuBar::ViewerBar() {
     ImGui::EndGroup();
 }
 
-}  // namespace my
+}  // namespace cave

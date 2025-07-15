@@ -1,6 +1,6 @@
 #include "engine/core/base/typedefs.h"
 
-namespace my {
+namespace cave {
 
 TEST(on_scope_exit, test) {
     int counter = 0;
@@ -78,4 +78,4 @@ TEST(array_length, test_struct_array) {
     EXPECT_EQ(array_length(arr), 2);
 }
 
-}  // namespace my
+}  // namespace cave

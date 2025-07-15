@@ -1,6 +1,6 @@
 #include "vulkan_helpers.h"
 
-namespace my {
+namespace cave {
 
 VkResult ReportVkErrorIfFailed(VkResult p_result,
                                std::string_view p_function,
@@ -38,4 +38,4 @@ const char* ToString(VkDebugReportObjectTypeEXT p_type) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/systems/job_system/job_system.h"
 
-namespace my::thread {
+namespace cave::thread {
 
 enum ThreadID : uint32_t {
     THREAD_MAIN,
@@ -32,4 +32,4 @@ bool IsMainThread();
 
 uint32_t GetThreadId();
 
-}  // namespace my::thread
+}  // namespace cave::thread

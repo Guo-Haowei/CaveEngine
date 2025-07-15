@@ -1,6 +1,6 @@
 #include "event_queue.h"
 
-namespace my {
+namespace cave {
 
 void EventQueue::EnqueueEvent(std::shared_ptr<IEvent> p_event) {
     m_events.push(p_event);
@@ -31,4 +31,4 @@ void EventQueue::UnregisterListener(EventListener* p_listener) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

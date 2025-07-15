@@ -10,7 +10,7 @@
 #include "descriptor_table_defines.hlsl.h"
 #include "engine/renderer/graphics_manager.h"
 
-namespace my {
+namespace cave {
 
 class D3d12GraphicsManager;
 
@@ -147,4 +147,4 @@ private:
     std::mutex m_lock;
 };
 
-}  // namespace my
+}  // namespace cave

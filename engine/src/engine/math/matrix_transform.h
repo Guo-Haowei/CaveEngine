@@ -4,7 +4,7 @@
 #include "vector.h"
 
 // @TODO: refactor
-namespace my {
+namespace cave {
 
 Matrix4x4f LookAtRh(const Vector3f& p_eye, const Vector3f& p_center, const Vector3f& p_up);
 
@@ -54,4 +54,4 @@ static inline Matrix4x4f Rotate(const Radian& p_radians, const Vector3f& p_axis)
     return glm::rotate(p_radians.GetRad(), glm::vec3(p_axis.x, p_axis.y, p_axis.z));
 }
 
-}  // namespace my
+}  // namespace cave

@@ -1,6 +1,6 @@
 #include "vector.test.h"
 
-namespace my::detail {
+namespace cave::detail {
 
 TEST(vector, vector2_constructor) {
     CHECK_VEC2(Vector2u::Zero, 0u, 0u);
@@ -79,4 +79,4 @@ TEST(vector, access_operator) {
     CHECK_VEC2(a, 1, 1);
 }
 
-}  // namespace my::detail
+}  // namespace cave::detail

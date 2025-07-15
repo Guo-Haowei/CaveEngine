@@ -5,7 +5,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/serialization/serialization.h"
 
-namespace my {
+namespace cave {
 
 void SpriteAsset::SetRow(uint32_t p_row) {
     if (p_row == 0) return;
@@ -135,4 +135,4 @@ auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     return Result<void>();
 }
 
-}  // namespace my
+}  // namespace cave

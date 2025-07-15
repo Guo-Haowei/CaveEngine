@@ -2,7 +2,7 @@
 
 #include "editor_dvars.h"
 
-namespace my {
+namespace cave {
 
 extern Scene* CreateTheAviatorScene();
 extern Scene* CreateBoxScene();
@@ -62,4 +62,4 @@ Scene* EditorSceneManager::GetActiveScene() const {
     return nullptr;
 }
 
-}  // namespace my
+}  // namespace cave

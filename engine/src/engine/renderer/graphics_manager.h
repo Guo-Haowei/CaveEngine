@@ -9,19 +9,19 @@
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/runtime/pipeline_state_manager.h"
 
-namespace my {
+namespace cave {
 #include "cbuffer.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
 // @TODO: refactor
 struct MaterialConstantBuffer;
-using my::RenderPass;
+using cave::RenderPass;
 
 // clang-format off
-namespace my { class RenderGraph; }
+namespace cave { class RenderGraph; }
 // clang-format on
 
-namespace my {
+namespace cave {
 
 struct ImageAsset;
 struct MeshComponent;
@@ -123,4 +123,4 @@ protected:
     void UpdateEmitters(const Scene& p_scene) override;
 };
 
-}  // namespace my
+}  // namespace cave

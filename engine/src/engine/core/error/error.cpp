@@ -2,7 +2,7 @@
 
 #include "engine/core/string/string_builder.h"
 
-namespace my {
+namespace cave {
 
 const char* ErrorToString(ErrorCode p_error) {
     static const char* s_errorNames[] = {
@@ -46,4 +46,4 @@ IStringBuilder& operator<<(IStringBuilder& p_stream, const ErrorRef& p_error) {
     return p_stream;
 }
 
-}  // namespace my
+}  // namespace cave

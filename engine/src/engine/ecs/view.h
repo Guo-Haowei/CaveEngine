@@ -1,7 +1,7 @@
 #pragma once
 #include "component_manager.h"
 
-namespace my::ecs {
+namespace cave::ecs {
 
 // @TODO: combine View with reserved allocator and recycling
 // so when removing a component, we don't need to remove it from the array,
@@ -102,4 +102,4 @@ private:
     uint32_t m_size;
 };
 
-}  // namespace my::ecs
+}  // namespace cave::ecs

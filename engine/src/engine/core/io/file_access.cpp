@@ -2,7 +2,7 @@
 
 #include "engine/core/string/string_utils.h"
 
-namespace my {
+namespace cave {
 
 FileAccess::CreateFunc FileAccess::s_createFuncs[ACCESS_MAX];
 FileAccess::GetUserFolderFunc FileAccess::s_getUserFolderFunc;
@@ -60,4 +60,4 @@ std::string FileAccess::FixPath(AccessType p_access_type, std::string_view p_pat
     return fixed_path;
 }
 
-}  // namespace my
+}  // namespace cave

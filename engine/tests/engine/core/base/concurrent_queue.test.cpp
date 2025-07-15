@@ -1,6 +1,6 @@
 #include "engine/core/base/concurrent_queue.h"
 
-namespace my {
+namespace cave {
 
 TEST(concurrent_queue, test) {
     ConcurrentQueue<int> concurrent_queue;
@@ -42,4 +42,4 @@ TEST(concurrent_queue, test) {
               "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 }
 
-}  // namespace my
+}  // namespace cave

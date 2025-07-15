@@ -2,7 +2,7 @@
 #include "asset_interface.h"
 #include "guid.h"
 
-namespace my {
+namespace cave {
 
 class AssetEntry;
 struct AssetMetaData;
@@ -72,4 +72,4 @@ public:
     }
 };
 
-}  // namespace my
+}  // namespace cave

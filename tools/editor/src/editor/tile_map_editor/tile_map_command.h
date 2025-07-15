@@ -2,7 +2,7 @@
 #include "engine/tile_map/tile_map_asset.h"
 #include "editor/undo_redo/undo_command.h"
 
-namespace my {
+namespace cave {
 
 // @TODO: abstract brush class
 class SetTileCommand : public UndoCommand {
@@ -35,4 +35,4 @@ private:
     Option<TileData> m_new_tile;
 };
 
-}  // namespace my
+}  // namespace cave

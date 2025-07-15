@@ -1,11 +1,11 @@
 #pragma once
 #include "engine/renderer/gpu_resource.h"
 
-namespace my {
+namespace cave {
 struct FrameData;
 }
 
-namespace my {
+namespace cave {
 
 struct Framebuffer;
 
@@ -54,4 +54,4 @@ struct Framebuffer {
     std::vector<std::shared_ptr<GpuTexture>> outSrvs;
 };
 
-}  // namespace my
+}  // namespace cave

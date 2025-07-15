@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 // Resource's unique identifier
 class RID {
@@ -24,4 +24,4 @@ private:
     friend class RIDAllocatorBase;
 };
 
-}  // namespace my
+}  // namespace cave

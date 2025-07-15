@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class IStringBuilder;
 
@@ -139,14 +139,14 @@ template<typename T, typename... Args>
     return std::unexpected(std::shared_ptr<InternalError<T>>(new InternalError<T>(p_file, p_function, p_line, p_value, p_format, std::forward<Args>(p_args)...)));
 };
 
-#define HBN_ERROR_1(_1)                             ::my::_create_error_arg_1<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1)
-#define HBN_ERROR_2(_1, _2)                         ::my::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2)
-#define HBN_ERROR_3(_1, _2, _3)                     ::my::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3)
-#define HBN_ERROR_4(_1, _2, _3, _4)                 ::my::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4)
-#define HBN_ERROR_5(_1, _2, _3, _4, _5)             ::my::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4, _5)
-#define HBN_ERROR_6(_1, _2, _3, _4, _5, _6)         ::my::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4, _5, _6)
-#define HBN_ERROR_7(_1, _2, _3, _4, _5, _6, _7)     ::my::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4, _5, _6, _7)
-#define HBN_ERROR_8(_1, _2, _3, _4, _5, _6, _7, _8) ::my::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4, _5, _6, _7, _8)
+#define HBN_ERROR_1(_1)                             ::cave::_create_error_arg_1<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1)
+#define HBN_ERROR_2(_1, _2)                         ::cave::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2)
+#define HBN_ERROR_3(_1, _2, _3)                     ::cave::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3)
+#define HBN_ERROR_4(_1, _2, _3, _4)                 ::cave::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4)
+#define HBN_ERROR_5(_1, _2, _3, _4, _5)             ::cave::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4, _5)
+#define HBN_ERROR_6(_1, _2, _3, _4, _5, _6)         ::cave::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4, _5, _6)
+#define HBN_ERROR_7(_1, _2, _3, _4, _5, _6, _7)     ::cave::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4, _5, _6, _7)
+#define HBN_ERROR_8(_1, _2, _3, _4, _5, _6, _7, _8) ::cave::_create_error_arg_2_plus<ErrorCode>(__FILE__, __FUNCTION__, __LINE__, _1, _2, _3, _4, _5, _6, _7, _8)
 #define HBN_ERROR(...)                              HBN_MACRO_EXPAND(HBN_GET_MACRO_8(__VA_ARGS__, HBN_ERROR_8, HBN_ERROR_7, HBN_ERROR_6, HBN_ERROR_5, HBN_ERROR_4, HBN_ERROR_3, HBN_ERROR_2, HBN_ERROR_1)(__VA_ARGS__))
 
 using Error = InternalError<ErrorCode>;
@@ -157,4 +157,4 @@ using Result = std::expected<T, ErrorRef>;
 
 IStringBuilder& operator<<(IStringBuilder& p_stream, const ErrorRef& p_error);
 
-}  // namespace my
+}  // namespace cave

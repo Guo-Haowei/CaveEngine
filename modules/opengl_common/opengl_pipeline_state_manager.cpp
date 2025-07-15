@@ -7,11 +7,11 @@
 #include "engine/runtime/asset_registry.h"
 #include "opengl_helpers.h"
 
-namespace my {
+namespace cave {
 #include "shader_resource_defines.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -282,4 +282,4 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
     return program;
 }
 
-}  // namespace my
+}  // namespace cave

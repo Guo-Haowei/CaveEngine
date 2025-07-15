@@ -3,7 +3,7 @@
 
 struct GLFWwindow;
 
-namespace my {
+namespace cave {
 
 enum class Backend : uint8_t;
 
@@ -35,4 +35,4 @@ private:
     Backend m_backend;
 };
 
-}  // namespace my
+}  // namespace cave

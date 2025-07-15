@@ -1,7 +1,7 @@
 #pragma once
 #include <bitset>
 
-namespace my {
+namespace cave {
 
 enum class MouseButton : uint8_t {
     LEFT = 0,
@@ -77,4 +77,4 @@ enum class KeyCode : uint16_t {
 using MouseButtonArray = std::bitset<std::to_underlying(MouseButton::COUNT)>;
 using KeyArray = std::bitset<std::to_underlying(KeyCode::COUNT)>;
 
-}  // namespace my
+}  // namespace cave

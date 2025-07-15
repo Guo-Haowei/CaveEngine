@@ -2,7 +2,7 @@
 
 #include "engine/core/os/os.h"
 
-namespace my {
+namespace cave {
 
 class TestLogger : public ILogger {
 public:
@@ -23,4 +23,4 @@ TEST(print, PrintImpl) {
     EXPECT_EQ(logger->GetBuffer(), "1, c, 200");
 }
 
-}  // namespace my
+}  // namespace cave

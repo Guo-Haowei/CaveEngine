@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 #include <optional>
 #include <functional>
@@ -67,4 +67,4 @@ private:
     std::optional<T> m_opt;
 };
 
-}  // namespace my
+}  // namespace cave

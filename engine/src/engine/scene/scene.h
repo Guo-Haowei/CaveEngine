@@ -10,11 +10,11 @@
 
 struct lua_State;
 
-namespace my::jobsystem {
+namespace cave::jobsystem {
 class Context;
 }
 
-namespace my {
+namespace cave {
 
 #define REGISTER_COMPONENT_LIST                                                        \
     REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                       \
@@ -273,4 +273,4 @@ public:
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 };
 
-}  // namespace my
+}  // namespace cave

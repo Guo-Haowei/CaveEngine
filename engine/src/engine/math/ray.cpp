@@ -3,7 +3,7 @@
 #include "engine/math/matrix_transform.h"
 #include "engine/math/vector.h"
 
-namespace my {
+namespace cave {
 
 Vector3f Ray::Direction() const {
     return normalize(m_end - m_start);
@@ -17,4 +17,4 @@ Ray Ray::Inverse(const Matrix4x4f& p_inverse_matrix) const {
     return inversed_ray;
 }
 
-}  // namespace my
+}  // namespace cave

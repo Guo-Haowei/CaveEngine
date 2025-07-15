@@ -6,7 +6,7 @@
 #include "engine/runtime/layer.h"
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 class AssetManager;
 class AssetRegistry;
@@ -132,4 +132,4 @@ protected:
     Timer m_timer;
 };
 
-}  // namespace my
+}  // namespace cave

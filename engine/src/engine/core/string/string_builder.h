@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class IStringBuilder {
 public:
@@ -38,4 +38,4 @@ protected:
 
 // @TODO: fixed string builder
 
-}  // namespace my
+}  // namespace cave

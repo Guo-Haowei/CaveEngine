@@ -3,7 +3,7 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/renderer/pipeline_state_objects.h"
 
-namespace my {
+namespace cave {
 
 const BlendDesc& PipelineStateManager::GetBlendDescDefault() {
     return s_blendStateDefault;
@@ -363,4 +363,4 @@ void PipelineStateManager::Finalize() {
     }
 }
 
-}  // namespace my
+}  // namespace cave

@@ -1,7 +1,7 @@
 #pragma once
 #include "asset_meta_data.h"
 
-namespace my {
+namespace cave {
 
 struct IAsset;
 struct BufferAsset;
@@ -45,4 +45,4 @@ struct IAsset {
     }
 };
 
-}  // namespace my
+}  // namespace cave

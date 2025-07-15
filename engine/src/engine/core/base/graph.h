@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 class GraphBase {
 public:
@@ -99,4 +99,4 @@ private:
     std::vector<int> m_sorted;
 };
 
-}  // namespace my
+}  // namespace cave

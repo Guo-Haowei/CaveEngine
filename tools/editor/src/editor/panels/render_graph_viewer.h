@@ -3,11 +3,11 @@
 #include "engine/core/base/graph.h"
 #include "engine/renderer/graphics_defines.h"
 
-namespace my {
+namespace cave {
 class RenderGraph;
 }
 
-namespace my {
+namespace cave {
 
 class RenderGraphViewer : public EditorWindow {
 public:
@@ -21,4 +21,4 @@ protected:
     Backend m_backend{ Backend::COUNT };
 };
 
-}  // namespace my
+}  // namespace cave

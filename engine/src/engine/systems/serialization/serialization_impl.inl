@@ -8,11 +8,11 @@
 #include "engine/math/box.h"
 #include "engine/math/matrix.h"
 
-namespace my {
+namespace cave {
 class Guid;
 }
 
-namespace my::serialize {
+namespace cave::serialize {
 
 template<typename T>
 concept IsArithmetic = std::is_arithmetic_v<T>;
@@ -437,4 +437,4 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, std::vector<T>& p_object,
     return (p_context.flags & FieldFlag::BINARY) ? DeserializeYamlVecBinary(p_node, p_object, p_context) : DeserializeYamlVec(p_node, p_object, p_context);
 }
 
-}  // namespace my::serialize
+}  // namespace cave::serialize

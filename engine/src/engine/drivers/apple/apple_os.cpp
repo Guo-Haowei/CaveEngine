@@ -4,7 +4,7 @@
 #include "engine/core/io/file_access_unix.h"
 #include "engine/core/os/os.h"
 
-namespace my {
+namespace cave {
 
 void OS::Initialize() {
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_RESOURCE);
@@ -36,4 +36,4 @@ bool IsAnsiSupported() {
             term.find("ansi") != std::string::npos);
 }
 
-}  // namespace my
+}  // namespace cave

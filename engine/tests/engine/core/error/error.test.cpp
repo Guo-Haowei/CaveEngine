@@ -4,7 +4,7 @@
 
 #include "engine/core/string/string_builder.h"
 
-namespace my {
+namespace cave {
 
 using Error = InternalError<ErrorCode>;
 using ErrorRef = std::shared_ptr<Error>;
@@ -83,4 +83,4 @@ TEST(InternalError, error_stack_trace) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

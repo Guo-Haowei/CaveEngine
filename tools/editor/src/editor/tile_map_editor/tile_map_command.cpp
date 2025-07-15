@@ -1,6 +1,6 @@
 #include "tile_map_command.h"
 
-namespace my {
+namespace cave {
 
 std::shared_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileData p_tile) {
     Option<TileData> old_tile = p_tile_map.GetTile(p_index);
@@ -55,4 +55,4 @@ bool SetTileCommand::SetTile(Option<TileData> p_new_tile) {
     return ok;
 }
 
-}  // namespace my
+}  // namespace cave

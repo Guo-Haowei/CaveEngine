@@ -7,13 +7,13 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/graphics_manager_interface.h"
 
-namespace my {
+namespace cave {
 
 #pragma region TRANSFORM_COMPONENT
 Matrix4x4f TransformComponent::GetLocalMatrix() const {
     Matrix4x4f rotationMatrix = glm::toMat4(Quaternion(m_rotation.w, m_rotation.x, m_rotation.y, m_rotation.z));
-    Matrix4x4f translationMatrix = my::Translate(m_translation);
-    Matrix4x4f scaleMatrix = my::Scale(m_scale);
+    Matrix4x4f translationMatrix = cave::Translate(m_translation);
+    Matrix4x4f scaleMatrix = cave::Scale(m_scale);
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
@@ -271,4 +271,4 @@ void MeshEmitterComponent::UpdateParticle(Index p_index, float p_timestep) {
 #pragma region ENVIRONMENT_COMPONENT
 #pragma endregion ENVIRONMENT_COMPONENT
 
-}  // namespace my
+}  // namespace cave

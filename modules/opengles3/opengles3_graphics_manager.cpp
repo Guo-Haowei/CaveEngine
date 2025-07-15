@@ -7,7 +7,7 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/imgui_manager.h"
 
-namespace my {
+namespace cave {
 
 auto OpenGLES3GraphicsManager::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayServer());
@@ -37,4 +37,4 @@ auto OpenGLES3GraphicsManager::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-}  // namespace my
+}  // namespace cave

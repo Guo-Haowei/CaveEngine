@@ -28,7 +28,7 @@
 // @NOTE: include dvars at last
 #include "engine/renderer/graphics_dvars.h"
 
-namespace my {
+namespace cave {
 
 EditorLayer::EditorLayer()
     : Layer("EditorLayer") {
@@ -369,4 +369,4 @@ ITool* EditorLayer::GetActiveTool() {
     return m_tools[std::to_underlying(m_current_tool)].get();
 }
 
-}  // namespace my
+}  // namespace cave

@@ -3,7 +3,7 @@
 
 #include "engine/renderer/path_tracer/path_tracer.h"
 
-namespace my {
+namespace cave {
 
 static struct {
     PathTracer pt;
@@ -31,4 +31,4 @@ void UnbindPathTracerData(IGraphicsManager& p_graphics_manager) {
     s_glob.pt.UnbindData(p_graphics_manager);
 }
 
-}  // namespace my
+}  // namespace cave

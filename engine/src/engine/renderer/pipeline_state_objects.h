@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/renderer/pipeline_state.h"
 
-namespace my {
+namespace cave {
 
 // @TODO: make these class members
 /// input layouts
@@ -122,4 +122,4 @@ static const BlendDesc s_blendStateDisable = {
     },
 };
 
-}  // namespace my
+}  // namespace cave

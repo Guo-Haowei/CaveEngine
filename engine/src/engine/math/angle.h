@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/math/detail/common.h"
 
-namespace my {
+namespace cave {
 
 class Radian;
 class Degree;
@@ -125,4 +125,4 @@ private:
     float m_value;
 };
 
-}  // namespace my
+}  // namespace cave

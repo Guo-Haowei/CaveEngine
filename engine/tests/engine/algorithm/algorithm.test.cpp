@@ -1,6 +1,6 @@
 #include <engine/algorithm/algorithm.h>
 
-namespace my {
+namespace cave {
 
 TEST(topological_sort, test1) {
     std::vector<std::pair<int, int>> edges = { { 1, 0 } };
@@ -27,4 +27,4 @@ TEST(topological_sort, test2) {
     EXPECT_EQ(sorted[3], 3);
 }
 
-}  // namespace my
+}  // namespace cave

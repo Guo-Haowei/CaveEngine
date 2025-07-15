@@ -12,7 +12,7 @@
 #include "editor_dvars.h"
 #undef DEFINE_DVAR
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -68,10 +68,10 @@ Application* CreateApplication() {
     return new Editor(spec);
 }
 
-}  // namespace my
+}  // namespace cave
 
 int main(int p_argc, const char** p_argv) {
-    using namespace my;
+    using namespace cave;
 
 #if !USING(PLATFORM_WASM)
     IPhysicsManager::RegisterCreateFunc([]() -> IPhysicsManager* {

@@ -6,7 +6,7 @@ class Node;
 class Emitter;
 }  // namespace YAML
 
-namespace my {
+namespace cave {
 class Scene;
 class Archive;
 class FileAccess;
@@ -17,9 +17,9 @@ concept Serializable = requires(T& t, Archive& p_archive, uint32_t p_version) {
     { T::RegisterClass() } -> std::same_as<void>;
 };
 
-}  // namespace my
+}  // namespace cave
 
-namespace my::ecs {
+namespace cave::ecs {
 
 template<Serializable T>
 class View;
@@ -163,7 +163,7 @@ private:
     std::vector<Entity> m_entityArray;
     std::unordered_map<Entity, size_t> m_lookup;
 
-    friend class ::my::Scene;
+    friend class ::cave::Scene;
     friend class View<T>;
 };
 
@@ -185,7 +185,7 @@ public:
 private:
     std::unordered_map<std::string, LibraryEntry> m_entries;
 
-    friend class ::my::Scene;
+    friend class ::cave::Scene;
 };
 
-}  // namespace my::ecs
+}  // namespace cave::ecs

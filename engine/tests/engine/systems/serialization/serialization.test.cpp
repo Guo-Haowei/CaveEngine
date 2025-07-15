@@ -2,9 +2,9 @@
 
 #include "engine/scene/scene_component.h"
 
-namespace my {
+namespace cave {
 
-using ::my::AABB;
+using ::cave::AABB;
 
 struct OuterClass {
     struct InnerClass {
@@ -37,9 +37,9 @@ struct OuterClass {
     }
 };
 
-}  // namespace my
+}  // namespace cave
 
-namespace my::serialize {
+namespace cave::serialize {
 
 TEST(RegisterClass, nested_struct) {
     OuterClass::InnerClass::RegisterClass();
@@ -132,4 +132,4 @@ TEST(RegisterClass, light_component) {
     }
 }
 
-}  // namespace my::serialize
+}  // namespace cave::serialize

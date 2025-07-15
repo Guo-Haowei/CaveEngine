@@ -4,7 +4,7 @@
 #include "engine/core/base/singleton.h"
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 enum class AssetType : uint32_t;
 class AssetEntry;
@@ -46,4 +46,4 @@ private:
     friend class AssetRegistry;
 };
 
-}  // namespace my
+}  // namespace cave

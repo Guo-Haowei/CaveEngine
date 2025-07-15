@@ -11,7 +11,7 @@
 #include "engine/runtime/asset_manager.h"
 #include "engine/runtime/asset_registry.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -141,4 +141,4 @@ void ImguiManager::BeginFrame() {
     }
 }
 
-}  // namespace my
+}  // namespace cave

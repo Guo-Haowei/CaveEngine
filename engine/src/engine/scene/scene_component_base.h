@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 struct ComponentFlagBase {
     enum : uint32_t {
@@ -15,4 +15,4 @@ struct ComponentFlagBase {
     void OnDeserialized() { flags |= FLAG_DIRTY; }
 };
 
-}  // namespace my
+}  // namespace cave

@@ -8,7 +8,7 @@
 #include "engine/drivers/windows/win32_prerequisites.h"
 #include "engine/runtime/asset_manager.h"
 
-namespace my::thread {
+namespace cave::thread {
 
 using ThreadMainFunc = void (*)();
 
@@ -106,4 +106,4 @@ uint32_t GetThreadId() {
     return g_threadId;
 }
 
-}  // namespace my::thread
+}  // namespace cave::thread

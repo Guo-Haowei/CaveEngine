@@ -35,10 +35,10 @@
 #undef DEFINE_DVAR
 
 #if USING(PLATFORM_WASM)
-static my::Application* s_app = nullptr;
+static cave::Application* s_app = nullptr;
 #endif
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -398,4 +398,4 @@ void Application::SetState(State p_state) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

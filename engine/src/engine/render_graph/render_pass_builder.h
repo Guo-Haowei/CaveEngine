@@ -3,10 +3,10 @@
 #include "render_pass.h"
 
 // clang-format off
-namespace my { struct GpuTexture; }
+namespace cave { struct GpuTexture; }
 // clang-format on
 
-namespace my {
+namespace cave {
 
 struct RenderGraphResourceCreateInfo {
     GpuTextureDesc resourceDesc;
@@ -60,4 +60,4 @@ private:
     friend class RenderGraphBuilder;
 };
 
-}  // namespace my
+}  // namespace cave

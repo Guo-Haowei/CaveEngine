@@ -9,7 +9,7 @@
 #include "engine/scene/scene.h"
 #include "engine/systems/serialization/serialization.h"
 
-namespace my {
+namespace cave {
 
 #define SCENE_DBG_LOG(...) LOG_VERBOSE(__VA_ARGS__)
 
@@ -780,4 +780,4 @@ void TileMapRenderer::RegisterClass() {
 
 #pragma endregion SCENE_COMPONENT_SERIALIZATION
 
-}  // namespace my
+}  // namespace cave

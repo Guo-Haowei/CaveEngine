@@ -2,7 +2,7 @@
 
 #include "engine/core/string/string_builder.h"
 
-namespace my {
+namespace cave {
 
 TEST(file_access_unix, open_read_fail) {
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);
@@ -63,4 +63,4 @@ TEST(file_access_unix, write_read_buffer) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

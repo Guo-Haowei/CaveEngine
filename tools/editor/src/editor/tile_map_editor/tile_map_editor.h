@@ -8,7 +8,7 @@
 #include "engine/scene/scene.h"
 #include "engine/tile_map/tile_map_asset.h"
 
-namespace my {
+namespace cave {
 
 class AssetRegistry;
 class TileMapAsset;
@@ -77,4 +77,4 @@ protected:
     int m_current_layer_id;
 };
 
-}  // namespace my
+}  // namespace cave

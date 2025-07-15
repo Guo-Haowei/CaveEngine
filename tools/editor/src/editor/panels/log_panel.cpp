@@ -3,22 +3,22 @@
 #include "engine/core/io/logger.h"
 #include "engine/math/color.h"
 
-namespace my {
+namespace cave {
 
 static ImVec4 GetLogLevelColor(LogLevel level) {
     Color color = Color::Hex(ColorCode::COLOR_WHITE);
     switch (level) {
-        case my::LOG_LEVEL_VERBOSE:
+        case LOG_LEVEL_VERBOSE:
             color = Color::Hex(ColorCode::COLOR_SILVER);
             break;
-        case my::LOG_LEVEL_OK:
+        case LOG_LEVEL_OK:
             color = Color::Hex(ColorCode::COLOR_GREEN);
             break;
-        case my::LOG_LEVEL_WARN:
+        case LOG_LEVEL_WARN:
             color = Color::Hex(ColorCode::COLOR_YELLOW);
             break;
-        case my::LOG_LEVEL_ERROR:
-        case my::LOG_LEVEL_FATAL:
+        case LOG_LEVEL_ERROR:
+        case LOG_LEVEL_FATAL:
             color = Color::Hex(ColorCode::COLOR_RED);
             break;
         default:
@@ -39,7 +39,7 @@ void LogPanel::UpdateInternal(Scene*) {
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));  // Tighten spacing
 
     auto& logger = CompositeLogger::GetSingleton();
-    std::vector<my::CompositeLogger::Log> logs;
+    std::vector<cave::CompositeLogger::Log> logs;
     logger.RetrieveLog(logs);
     for (const auto& log : logs) {
         if (log.level & m_filter) {
@@ -81,4 +81,4 @@ void LogPanel::UpdateInternal(Scene*) {
     ImGui::SetItemDefaultFocus();
 }
 
-}  // namespace my
+}  // namespace cave

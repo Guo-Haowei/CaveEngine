@@ -18,9 +18,9 @@
 #include "engine/runtime/render_system.h"
 #include "engine/scene/scene.h"
 
-namespace my {
+namespace cave {
 #include "shader_resource_defines.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
 // @TODO: refactor
 #include "engine/renderer/path_tracer/path_tracer.h"
@@ -35,7 +35,7 @@ namespace my {
 #undef GetMessage
 #endif
 
-namespace my {
+namespace cave {
 
 const char* ToString(RenderGraphName p_name) {
     ERR_FAIL_INDEX_V(p_name, RenderGraphName::COUNT, nullptr);
@@ -90,13 +90,13 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
 
     for (int i = 0; i < num_frames; ++i) {
         FrameContext& frame_context = *m_frameContexts[i].get();
-        frame_context.batchCb = *::my::CreateUniformCheckSize<PerBatchConstantBuffer>(*this, 4096 * 16);
-        frame_context.passCb = *::my::CreateUniformCheckSize<PerPassConstantBuffer>(*this, 32);
-        frame_context.materialCb = *::my::CreateUniformCheckSize<MaterialConstantBuffer>(*this, 2048 * 16);
-        frame_context.boneCb = *::my::CreateUniformCheckSize<BoneConstantBuffer>(*this, 16);
-        frame_context.emitterCb = *::my::CreateUniformCheckSize<EmitterConstantBuffer>(*this, 32);
-        frame_context.pointShadowCb = *::my::CreateUniformCheckSize<PointShadowConstantBuffer>(*this, 6 * MAX_POINT_LIGHT_SHADOW_COUNT);
-        frame_context.perFrameCb = *::my::CreateUniformCheckSize<PerFrameConstantBuffer>(*this, 1);
+        frame_context.batchCb = *::cave::CreateUniformCheckSize<PerBatchConstantBuffer>(*this, 4096 * 16);
+        frame_context.passCb = *::cave::CreateUniformCheckSize<PerPassConstantBuffer>(*this, 32);
+        frame_context.materialCb = *::cave::CreateUniformCheckSize<MaterialConstantBuffer>(*this, 2048 * 16);
+        frame_context.boneCb = *::cave::CreateUniformCheckSize<BoneConstantBuffer>(*this, 16);
+        frame_context.emitterCb = *::cave::CreateUniformCheckSize<EmitterConstantBuffer>(*this, 32);
+        frame_context.pointShadowCb = *::cave::CreateUniformCheckSize<PointShadowConstantBuffer>(*this, 6 * MAX_POINT_LIGHT_SHADOW_COUNT);
+        frame_context.perFrameCb = *::cave::CreateUniformCheckSize<PerFrameConstantBuffer>(*this, 1);
     }
 
     DEV_ASSERT(m_pipelineStateManager);
@@ -565,4 +565,4 @@ void GraphicsManager::OnSceneChange(const Scene& p_scene) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

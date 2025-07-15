@@ -25,8 +25,8 @@
     } while (0)
 
 #if USING(USE_D3D_DEBUG_NAME)
-#define D3D11_SET_DEBUG_NAME(RES, NAME) ::my::SetDebugName(RES, NAME)
-#define D3D12_SET_DEBUG_NAME(RES, NAME) ::my::SetDebugName(RES, NAME)
+#define D3D11_SET_DEBUG_NAME(RES, NAME) ::cave::SetDebugName(RES, NAME)
+#define D3D12_SET_DEBUG_NAME(RES, NAME) ::cave::SetDebugName(RES, NAME)
 #else
 #define D3D11_SET_DEBUG_NAME(RES, NAME) ((void)0)
 #define D3D12_SET_DEBUG_NAME(RES, NAME) ((void)0)
@@ -35,7 +35,7 @@
 struct ID3D11DeviceChild;
 struct ID3D12DeviceChild;
 
-namespace my {
+namespace cave {
 
 template<class T>
 void SafeRelease(T*& ptr) {
@@ -80,4 +80,4 @@ void SetDebugName(ID3D12DeviceChild* p_resource, const std::string& p_name);
 #define SetDebugName(...)
 #endif
 
-}  // namespace my
+}  // namespace cave

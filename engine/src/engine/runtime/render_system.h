@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 class CameraComponent;
 struct FrameData;
@@ -27,4 +27,4 @@ protected:
     FrameData* m_frameData{ nullptr };
 };
 
-}  // namespace my
+}  // namespace cave

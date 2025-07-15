@@ -2,7 +2,7 @@
 
 #include "engine/render_graph/render_graph_defines.h"
 
-namespace my {
+namespace cave {
 
 SamplerDesc CubemapNoMipSampler() {
     SamplerDesc desc(MinFilter::LINEAR,
@@ -39,4 +39,4 @@ SamplerDesc ShadowMapSampler() {
     return desc;
 }
 
-}  // namespace my
+}  // namespace cave

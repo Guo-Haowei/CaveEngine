@@ -7,7 +7,7 @@
 #include "engine/render_graph/render_graph.h"
 #include "engine/runtime/application.h"
 
-namespace my {
+namespace cave {
 
 // @TODO: save the nodes position to disk
 // @TODO: find longese path, and arrange nodes
@@ -129,4 +129,4 @@ void RenderGraphViewer::UpdateInternal(Scene*) {
     m_firstFrame = false;
 }
 
-}  // namespace my
+}  // namespace cave

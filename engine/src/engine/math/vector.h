@@ -4,7 +4,7 @@
 #include "detail/vector4.h"
 #include "detail/vector_math.h"
 
-namespace my {
+namespace cave {
 
 using Vector2i = Vector<int, 2>;
 using Vector3i = Vector<int, 3>;
@@ -28,4 +28,4 @@ static_assert(sizeof(Vector4u) == 16);
 
 static_assert(alignof(Vector4f) == 16);
 
-}  // namespace my
+}  // namespace cave

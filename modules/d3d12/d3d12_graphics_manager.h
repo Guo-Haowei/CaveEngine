@@ -3,7 +3,7 @@
 #include "engine/core/base/rid_owner.h"
 #include "engine/renderer/graphics_manager.h"
 
-namespace my {
+namespace cave {
 
 struct D3d12Buffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -160,4 +160,4 @@ private:
     RIDAllocator<D3d12MeshBuffers> m_meshes;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -4,17 +4,17 @@
 #include "engine/renderer/render_command.h"
 
 // clang-format off
-namespace my { class IGraphicsManager; }
-namespace my { struct GpuTexture; }
-namespace my { class RenderPass; }
+namespace cave { class IGraphicsManager; }
+namespace cave { struct GpuTexture; }
+namespace cave { class RenderPass; }
 // clang-format on
 
-namespace my {
+namespace cave {
 // @TODO: split RHI and RenderCommandContext
 using IRenderCmdContext = IGraphicsManager;
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 struct FrameData;
 
@@ -56,4 +56,4 @@ protected:
     friend class RenderGraph;
 };
 
-}  // namespace my
+}  // namespace cave

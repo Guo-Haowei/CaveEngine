@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/renderer/pixel_format.h"
 
-namespace my {
+namespace cave {
 
 enum class BufferUsage {
     DEFAULT = 0,
@@ -197,4 +197,4 @@ struct ConstantBuffer {
     T cache;
 };
 
-}  // namespace my
+}  // namespace cave

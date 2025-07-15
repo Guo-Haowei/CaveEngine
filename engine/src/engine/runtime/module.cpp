@@ -1,6 +1,6 @@
 #include "module.h"
 
-namespace my {
+namespace cave {
 
 auto Module::Initialize() -> Result<void> {
     if (DEV_VERIFY(!m_initialized)) {
@@ -23,4 +23,4 @@ void Module::Finalize() {
     }
 }
 
-}  // namespace my
+}  // namespace cave

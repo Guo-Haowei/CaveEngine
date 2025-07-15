@@ -15,7 +15,7 @@
 #include <GLFW/glfw3native.h>
 #endif
 
-namespace my {
+namespace cave {
 
 auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> {
     m_backend = p_spec.backend;
@@ -347,7 +347,7 @@ void GlfwDisplayManager::InitializeKeyMapping() {
     m_keyMapping[GLFW_KEY_MENU] = KeyCode::KEY_MENU;
 }
 
-}  // namespace my
+}  // namespace cave
 
 // @TODO: get rid of this, discusting af
 WARNING_DISABLE(4127, "-Wunused-parameter")

@@ -7,7 +7,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/graphics_manager_interface.h"
 
-namespace my {
+namespace cave {
 
 bool TileMapRenderer::SetTileMap(const Guid& p_guid) {
     if (p_guid == m_guid) {
@@ -148,4 +148,4 @@ void TileMapRenderer::CreateRenderData() {
     m_revision = tile_map->GetRevision();
 }
 
-}  // namespace my
+}  // namespace cave

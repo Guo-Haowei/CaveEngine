@@ -1,6 +1,6 @@
 #include "asset_entry.h"
 
-namespace my {
+namespace cave {
 
 AssetRef AssetEntry::Wait() {
     std::unique_lock lock(m_mutex);
@@ -33,4 +33,4 @@ void AssetEntry::MarkFailed() {
     m_cv.notify_all();
 }
 
-}  // namespace my
+}  // namespace cave

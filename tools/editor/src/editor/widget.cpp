@@ -3,7 +3,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_window.h"
 
-namespace my {
+namespace cave {
 
 void PushDisabled() {
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -291,4 +291,4 @@ void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_re
     ImGui::EndChild();
 }
 
-}  // namespace my
+}  // namespace cave

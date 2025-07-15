@@ -14,7 +14,7 @@
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
 
-namespace my {
+namespace cave {
 
 MetalGraphicsManager::MetalGraphicsManager() : EmptyGraphicsManager("MetalGraphicsManager", Backend::METAL, NUM_FRAMES_IN_FLIGHT) { m_pipelineStateManager = std::make_shared<EmptyPipelineStateManager>(); }
 
@@ -220,4 +220,4 @@ std::shared_ptr<GpuTexture> MetalGraphicsManager::CreateTextureImpl(const GpuTex
     return result;
 }
 
-} // namespace my
+} // namespace cave

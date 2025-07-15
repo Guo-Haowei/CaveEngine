@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 #define ASSET_TYPE_LIST            \
     ASSET_TYPE(Image, "image")     \
@@ -50,4 +50,4 @@ AssetType AssetTypeFromString(std::string_view p_string);
 //     Type m_type;
 // };
 
-}  // namespace my
+}  // namespace cave

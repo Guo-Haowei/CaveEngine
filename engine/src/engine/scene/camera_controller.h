@@ -2,7 +2,7 @@
 #include "engine/math/geomath.h"
 #include "engine/scene/scriptable_entity.h"
 
-namespace my {
+namespace cave {
 
 class CameraComponent;
 
@@ -32,4 +32,4 @@ public:
     float m_scrollSpeed{ 2.0f };
 };
 
-}  // namespace my
+}  // namespace cave

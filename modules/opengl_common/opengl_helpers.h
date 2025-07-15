@@ -10,7 +10,7 @@
 
 // @TODO: wrap all enums for better debugging information
 
-namespace my::gl {
+namespace cave::gl {
 
 enum BUFFER_TYPE : uint32_t {
     ARRAY_BUFFER = GL_ARRAY_BUFFER,
@@ -371,4 +371,4 @@ inline GLenum ConvertDimension(Dimension p_dimension) {
     }
 }
 
-}  // namespace my::gl
+}  // namespace cave::gl

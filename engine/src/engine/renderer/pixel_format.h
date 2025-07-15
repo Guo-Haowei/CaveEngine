@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 
 enum class PixelFormat {
     UNKNOWN,
@@ -92,4 +92,4 @@ inline uint32_t channel_count(PixelFormat p_format) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

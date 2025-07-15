@@ -2,7 +2,7 @@
 
 #define ENABLE_JOB_SYSTEM USE_IF(!USING(PLATFORM_WASM))
 
-namespace my::jobsystem {
+namespace cave::jobsystem {
 
 bool Initialize();
 
@@ -44,4 +44,4 @@ private:
 
 void WorkerMain();
 
-}  // namespace my::jobsystem
+}  // namespace cave::jobsystem

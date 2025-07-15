@@ -2,7 +2,7 @@
 #include "engine/math/intersection.h"
 #include "engine/math/matrix.h"
 
-namespace my {
+namespace cave {
 
 class Ray {
 public:
@@ -32,4 +32,4 @@ private:
     friend class TestIntersection;
 };
 
-}  // namespace my
+}  // namespace cave

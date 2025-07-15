@@ -11,11 +11,11 @@
 // @TODO: refactor
 #include "engine/renderer/graphics_manager.h"
 
-namespace my {
+namespace cave {
 #include "shader_resource_defines.hlsl.h"
-}  // namespace my
+}  // namespace cave
 
-namespace my {
+namespace cave {
 
 template<typename T>
 static auto CreateBuffer(IGraphicsManager* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
@@ -341,4 +341,4 @@ void PathTracer::UnbindData(IGraphicsManager& p_gm) {
     p_gm.UnbindStructuredBuffer(GetGlobalPtMaterialsSlot());
 }
 
-}  // namespace my
+}  // namespace cave

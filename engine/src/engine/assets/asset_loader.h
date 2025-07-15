@@ -2,7 +2,7 @@
 #include "engine/assets/asset_interface.h"
 #include "engine/renderer/graphics_dvars.h"
 
-namespace my {
+namespace cave {
 
 struct IAsset;
 struct AssetMetaData;
@@ -96,4 +96,4 @@ public:
     auto Load() -> Result<AssetRef> override;
 };
 
-}  // namespace my
+}  // namespace cave

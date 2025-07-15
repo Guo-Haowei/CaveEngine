@@ -5,7 +5,7 @@
 #include "engine/renderer/graphics_defines.h"
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 enum class KeyCode : uint16_t;
 
@@ -50,4 +50,4 @@ protected:
     std::unordered_map<int, KeyCode> m_keyMapping;
 };
 
-}  // namespace my
+}  // namespace cave

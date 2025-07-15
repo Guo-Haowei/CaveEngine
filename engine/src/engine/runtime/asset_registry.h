@@ -5,7 +5,7 @@
 #include "engine/core/base/singleton.h"
 #include "engine/runtime/module.h"
 
-namespace my {
+namespace cave {
 
 class AssetRegistry : public Singleton<AssetRegistry>, public Module {
 public:
@@ -53,4 +53,4 @@ protected:
     friend class AssetManager;
 };
 
-}  // namespace my
+}  // namespace cave

@@ -9,7 +9,7 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -222,4 +222,4 @@ void AssetRegistry::RemoveAsset(const std::string& p_path) {
 }
 #endif
 
-}  // namespace my
+}  // namespace cave

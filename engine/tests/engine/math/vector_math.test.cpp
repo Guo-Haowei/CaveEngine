@@ -1,6 +1,6 @@
 #include "vector.test.h"
 
-namespace my {
+namespace cave {
 
 // add
 TEST(vector_math, add) {
@@ -402,4 +402,4 @@ TEST(vector_math, max) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

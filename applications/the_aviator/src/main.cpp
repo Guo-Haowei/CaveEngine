@@ -10,7 +10,7 @@
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/layer.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 
@@ -75,8 +75,8 @@ Application* CreateApplication() {
     return new Game(spec);
 }
 
-}  // namespace my
+}  // namespace cave
 
 int main(int p_argc, const char** p_argv) {
-    return my::Main(p_argc, p_argv);
+    return cave::Main(p_argc, p_argv);
 }

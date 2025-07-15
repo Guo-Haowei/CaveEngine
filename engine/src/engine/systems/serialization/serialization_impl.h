@@ -1,6 +1,6 @@
 #pragma once
 
-namespace my {
+namespace cave {
 class FileAccess;
 }
 
@@ -11,7 +11,7 @@ class Emitter;
 
 #define DUMP_KEY(a) ::YAML::Key << (a) << ::YAML::Value
 
-namespace my::serialize {
+namespace cave::serialize {
 
 enum FieldFlag : uint32_t {
     NONE = BIT(0),
@@ -120,8 +120,8 @@ private:
     }
 };
 
-#define BEGIN_REGISTRY(TYPE) ::my::serialize::MetaDataTable<TYPE>::BeginRegistry()
-#define END_REGISTRY(TYPE)   ::my::serialize::MetaDataTable<TYPE>::EndRegistry()
+#define BEGIN_REGISTRY(TYPE) ::cave::serialize::MetaDataTable<TYPE>::BeginRegistry()
+#define END_REGISTRY(TYPE)   ::cave::serialize::MetaDataTable<TYPE>::EndRegistry()
 
 // @TODO: fix this
 
@@ -131,13 +131,13 @@ private:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #endif
 #define REGISTER_FIELD(TYPE, NAME, FIELD, ...) \
-    ::my::serialize::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD, NAME, typeid(FIELD).name(), offsetof(TYPE, FIELD), ##__VA_ARGS__)
+    ::cave::serialize::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD, NAME, typeid(FIELD).name(), offsetof(TYPE, FIELD), ##__VA_ARGS__)
 
 #define REGISTER_FIELD_2(TYPE, FIELD, ...) \
-    ::my::serialize::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD, #FIELD, typeid(FIELD).name(), offsetof(TYPE, FIELD), ##__VA_ARGS__)
+    ::cave::serialize::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD, #FIELD, typeid(FIELD).name(), offsetof(TYPE, FIELD), ##__VA_ARGS__)
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
-}  // namespace my::serialize
+}  // namespace cave::serialize

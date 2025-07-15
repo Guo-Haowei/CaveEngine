@@ -85,7 +85,7 @@
 #define _STR(x) #x
 
 /// Scope exit
-#define ON_SCOPE_EXIT(FUNC) auto __on_scope_exit_call = ::my::MakeScopeDrop(FUNC)
+#define ON_SCOPE_EXIT(FUNC) auto __on_scope_exit_call = ::cave::MakeScopeDrop(FUNC)
 
 /// Select macro functions
 #define HBN_MACRO_EXPAND(x)                                        x
@@ -117,7 +117,7 @@
         return static_cast<ENUM>(~std::to_underlying(p_enum));                            \
     }
 
-namespace my {
+namespace cave {
 
 constexpr inline size_t KB = 1024;
 constexpr inline size_t MB = 1024 * KB;
@@ -147,4 +147,4 @@ ScopeDrop<FUNC> MakeScopeDrop(FUNC func) {
     return ScopeDrop<FUNC>(func);
 }
 
-}  // namespace my
+}  // namespace cave

@@ -37,7 +37,7 @@
 // plugins
 #include "plugins/loader_assimp/assimp_asset_loader.h"
 
-namespace my {
+namespace cave {
 
 namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
@@ -290,4 +290,4 @@ void AssetManager::RequestShutdown() {
     s_assetManagerGlob.wakeCondition.notify_all();
 }
 
-}  // namespace my
+}  // namespace cave

@@ -5,7 +5,7 @@
 
 #include "editor/editor_layer.h"
 
-namespace my {
+namespace cave {
 using ecs::Entity;
 
 #define POPUP_NAME_ID "SCENE_PANEL_POPUP"
@@ -206,4 +206,4 @@ void HierarchyPanel::DrawPopup(Scene&) {
     }
 }
 
-}  // namespace my
+}  // namespace cave

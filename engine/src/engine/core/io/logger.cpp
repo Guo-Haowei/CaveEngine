@@ -2,7 +2,7 @@
 
 #include "engine/core/base/ring_buffer.h"
 
-namespace my {
+namespace cave {
 
 void StdLogger::Print(LogLevel p_level, std::string_view p_message) {
     const char* tag = "";
@@ -63,4 +63,4 @@ void CompositeLogger::RetrieveLog(std::vector<Log>& p_buffer) {
     m_logHistoryMutex.unlock();
 }
 
-}  // namespace my
+}  // namespace cave

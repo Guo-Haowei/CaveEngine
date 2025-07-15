@@ -9,7 +9,7 @@
 #define RT_DEBUG(...)
 #endif
 
-namespace my {
+namespace cave {
 
 void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     RT_DEBUG("-- Executing pass '{}'", m_name);
@@ -52,4 +52,4 @@ void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     RT_DEBUG("-------");
 }
 
-}  // namespace my
+}  // namespace cave

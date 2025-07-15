@@ -9,7 +9,7 @@
 #include "editor/widget.h"
 #include "editor/tile_map_editor/tile_map_editor.h"
 
-namespace my {
+namespace cave {
 
 AssetInspector::AssetInspector(EditorLayer& p_editor)
     : EditorWindow("Asset Inspector", p_editor) {
@@ -372,4 +372,4 @@ void AssetInspector::UpdateInternal(Scene*) {
     }
 }
 
-}  // namespace my
+}  // namespace cave
