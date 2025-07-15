@@ -1,7 +1,7 @@
 #pragma once
 #include <variant>
 
-#include "tool.h"
+#include "editor/tools/tool.h"
 
 #include "engine/assets/asset_handle.h"
 #include "engine/input/input_event.h"
@@ -56,7 +56,7 @@ protected:
     void UndoableSetTile(TileMapAsset& p_layer,
                          int p_layer_id,
                          TileIndex p_index,
-                         TileData p_new_tile);
+                         Option<TileData> p_new_tile);
 
     void Reset() {
         m_tile_map_guid = Guid();

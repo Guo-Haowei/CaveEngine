@@ -7,7 +7,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
-#include "editor/tools/tile_map_editor_tool.h"
+#include "editor/tile_map_editor/tile_map_editor.h"
 
 namespace my {
 

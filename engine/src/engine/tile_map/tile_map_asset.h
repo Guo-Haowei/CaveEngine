@@ -30,7 +30,6 @@ struct hash<::my::TileIndex> {
 namespace my {
 
 using TileData = uint32_t;
-inline constexpr TileData TILE_DATA_EMPTY = UINT_MAX;
 
 // @TODO: remove this to TileBrush logic
 enum class TileResult : uint8_t {
@@ -46,17 +45,11 @@ public:
     // promote TileMapLayer to TileMapAsset
     static constexpr const int VERSION = 1;
 
-    TileData GetTile(TileIndex p_index);
+    Option<TileData> GetTile(TileIndex p_index) const;
 
-    // @TODO: refactor SetTile logic,
-    // Should split to add tile and remove tile
-    // this SetTile was trying to make Undo easier but it end but making things messy
-    // Undo should call GetTile before erase, then remove the current cell
-    TileResult SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old);
-    void SetTile(TileIndex p_index, TileData p_new_tile) {
-        TileData dummy;
-        SetTile(p_index, p_new_tile, dummy);
-    }
+    bool AddTile(TileIndex p_index, TileData p_data);
+
+    bool RemoveTile(TileIndex p_index);
 
     const Handle<SpriteAsset>& GetSpriteHandle() const { return m_sprite_handle; }
 

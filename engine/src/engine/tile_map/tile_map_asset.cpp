@@ -10,13 +10,38 @@ namespace my {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
 
-TileData TileMapAsset::GetTile(TileIndex p_index) {
+Option<TileData> TileMapAsset::GetTile(TileIndex p_index) const {
     auto it = m_tiles.find(p_index);
     if (it == m_tiles.end()) {
-        return TILE_DATA_EMPTY;
+        return std::nullopt;
     }
 
     return it->second;
+}
+
+bool TileMapAsset::AddTile(TileIndex p_index, TileData p_data) {
+    auto [it, inserted] = m_tiles.try_emplace(p_index, p_data);
+    if (inserted) {
+        return true;
+    }
+
+    // same tile, nothing changed
+    if (it->second == p_data) {
+        return false;
+    }
+
+    it->second = p_data;
+    return true;
+}
+
+bool TileMapAsset::RemoveTile(TileIndex p_index) {
+    auto it = m_tiles.find(p_index);
+    if (it == m_tiles.end()) {
+        return false;
+    }
+
+    m_tiles.erase(it);
+    return true;
 }
 
 void TileMapAsset::SetTiles(std::unordered_map<TileIndex, TileData>&& p_tiles) {
@@ -37,42 +62,6 @@ void TileMapAsset::SetSpriteGuid(const Guid& p_guid) {
 
         IncRevision();
     }
-}
-
-// @TODO: this should be in tile map edit module
-TileResult TileMapAsset::SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old) {
-    p_out_old = TILE_DATA_EMPTY;
-
-    auto it = m_tiles.find(p_index);
-
-    // if there's a tile
-    if (it != m_tiles.end()) {
-        p_out_old = it->second;  // save the old tile
-
-        if (p_new_tile == TILE_DATA_EMPTY) {
-            // do nothing, the tile was already empty
-            m_tiles.erase(it);
-
-            return TileResult::Removed;
-        }
-
-        // if the tiles are the same, do nothing
-        if (it->second == p_new_tile) {
-            return TileResult::Noop;
-        }
-
-        it->second = p_new_tile;
-        return TileResult::Replaced;
-    }
-
-    // if there isn't a tile
-    if (p_new_tile == TILE_DATA_EMPTY) {
-        // can't replace an empty tile with an empty tile
-        return TileResult::Noop;
-    }
-
-    m_tiles.insert({ p_index, p_new_tile });
-    return TileResult::Added;
 }
 
 std::vector<Guid> TileMapAsset::GetDependencies() const {

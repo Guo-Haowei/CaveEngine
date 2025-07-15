@@ -32,3 +32,6 @@
 #include "engine/core/base/typedefs.h"
 #include "engine/core/error/error_macros.h"
 #include "engine/core/io/print.h"
+
+// include it after error_macros.h
+#include "engine/core/base/optional.h"
