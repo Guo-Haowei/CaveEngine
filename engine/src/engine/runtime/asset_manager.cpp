@@ -44,7 +44,8 @@ using AssetCreateFunc = AssetRef (*)(void);
 
 struct AssetManager::LoadTask {
     Guid guid;
-    OnAssetLoadSuccessFunc on_success;
+    AssetLoadSuccessCallback on_success;
+    AssetLoadFailureCallback on_failure;
     void* userdata;
 };
 
@@ -69,14 +70,16 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
     }
 }
 
-AssetRef LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) {
+static auto LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) -> Result<AssetRef> {
     AssetRef asset = CreateAssetInstance(p_entry->metadata.type);
     if (!asset) {
-        return nullptr;
+        return nullptr;  // not an error
     }
 
     asset->m_entry = p_entry;
-    asset->LoadFromDisk(p_entry->metadata);
+    if (auto res = asset->LoadFromDisk(p_entry->metadata); !res) {
+        return HBN_ERROR(res.error());
+    }
     return asset;
 }
 
@@ -136,10 +139,11 @@ void AssetManager::CreateAsset(AssetType p_type,
     }
 
     auto meta = std::move(_meta.value());
-    asset->SaveToDisk(meta);
+    // @TODO: handle error
+    [[maybe_unused]] auto res = asset->SaveToDisk(meta);
 
     // 2. Update AssetRegistry when done
-    m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta), nullptr, nullptr);
+    m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta), nullptr, nullptr, nullptr);
 }
 
 auto AssetManager::MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) -> Result<void> {
@@ -172,9 +176,7 @@ std::string AssetManager::ResolvePath(const fs::path& p_path) {
     return std::format("@res://{}", relative.generic_string());
 }
 
-void AssetManager::LoadAssetSync(const Guid& p_guid,
-                                 OnAssetLoadSuccessFunc p_on_success,
-                                 void* p_userdata) {
+AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
 
     Timer timer;
@@ -183,9 +185,23 @@ void AssetManager::LoadAssetSync(const Guid& p_guid,
     AssetRef asset;
 
     do {
-        // @TODO: gradully replace all the logic
+        // @TODO: slowly replace all the logic
         // @TODO: change loader to importer
-        asset = LoadAsset(entry);
+
+        {
+            auto res = LoadAsset(entry);
+            if (!res) {
+                entry->MarkFailed();
+
+                StringStreamBuilder builder;
+                builder << res.error();
+                LOG_ERROR("Failed to load asset '{}', reason {}", entry->metadata.path, builder.ToString());
+                return nullptr;
+            }
+
+            asset = *res;
+        }
+
         if (asset) {
             break;
         }
@@ -194,14 +210,14 @@ void AssetManager::LoadAssetSync(const Guid& p_guid,
         if (!loader) {
             LOG_ERROR("No suitable loader found for asset '{}'", entry->metadata.path);
             entry->MarkFailed();
-            return;
+            break;
         }
 
         auto res = loader->Load();
         if (!res) {
             LOG_ERROR("Failed to load '{}'", entry->metadata.path);
             entry->MarkFailed();
-            return;
+            return nullptr;
         }
 
         asset = *res;
@@ -215,21 +231,24 @@ void AssetManager::LoadAssetSync(const Guid& p_guid,
         // @TODO: based on render, create asset on work threads
         m_app->GetGraphicsManager()->RequestTexture(image.get());
     }
-
-    if (p_on_success) {
-        p_on_success(asset, p_userdata);
-    }
     LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.path, timer.GetDurationString());
 
     entry->MarkLoaded(asset);
+    return asset;
 }
 
-void AssetManager::LoadAssetAsync(const Guid& p_guid, OnAssetLoadSuccessFunc p_on_success, void* p_userdata) {
+bool AssetManager::LoadAssetAsync(const Guid& p_guid,
+                                  AssetLoadSuccessCallback&& p_on_success,
+                                  AssetLoadFailureCallback&& p_on_failure,
+                                  void* p_userdata) {
+    // @TODO: check queue full
     LoadTask task;
     task.guid = p_guid;
-    task.on_success = p_on_success;
+    task.on_success = std::move(p_on_success);
+    task.on_failure = std::move(p_on_failure);
     task.userdata = p_userdata;
     EnqueueLoadTask(task);
+    return true;
 }
 
 void AssetManager::FinalizeImpl() {
@@ -256,7 +275,12 @@ void AssetManager::WorkerMain() {
 
         s_assetManagerGlob.runningWorkers.fetch_add(1);
 
-        GetSingleton().LoadAssetSync(task.guid, task.on_success, task.userdata);
+        auto asset = GetSingleton().LoadAssetSync(task.guid);
+        if (asset) {
+            task.on_success ? task.on_success(asset, task.userdata) : (void)0;
+        } else {
+            task.on_failure ? task.on_failure(task.userdata) : (void)0;
+        }
 
         s_assetManagerGlob.runningWorkers.fetch_sub(1);
     }

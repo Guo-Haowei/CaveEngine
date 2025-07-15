@@ -133,10 +133,12 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
             if (_handle) {
                 auto handle = std::move(*_handle);
                 IAsset* asset = handle.Get();
-                if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-                    m_editor.CommandInspectAsset(handle.GetGuid());
-                } else if (is_file) {
-                    ShowResourceToolTip(*handle.GetMeta(), *asset);
+                if (DEV_VERIFY(asset)) {
+                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+                        m_editor.CommandInspectAsset(handle.GetGuid());
+                    } else if (is_file) {
+                        ShowResourceToolTip(*handle.GetMeta(), *asset);
+                    }
                 }
             }
         }

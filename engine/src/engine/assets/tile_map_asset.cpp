@@ -9,7 +9,6 @@
 namespace my {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
-// NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileMapLayer, name, sprite_guid, tiles);
 
 static void to_json(json& j, const TileMapLayer& p_layer) {
     j["name"] = p_layer.GetName();

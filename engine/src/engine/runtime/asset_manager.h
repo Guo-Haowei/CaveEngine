@@ -30,12 +30,11 @@ public:
     static void RequestShutdown();
 
 private:
-    void LoadAssetSync(const Guid& p_guid,
-                       OnAssetLoadSuccessFunc p_on_success,
-                       void* p_userdata);
+    AssetRef LoadAssetSync(const Guid& p_guid);
 
-    void LoadAssetAsync(const Guid& p_guid,
-                        OnAssetLoadSuccessFunc p_on_success,
+    bool LoadAssetAsync(const Guid& p_guid,
+                        AssetLoadSuccessCallback&& p_on_success,
+                        AssetLoadFailureCallback&& p_on_failure,
                         void* p_userdata);
 
     void EnqueueLoadTask(LoadTask& p_task);

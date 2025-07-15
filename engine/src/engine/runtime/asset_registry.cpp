@@ -81,7 +81,9 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
     std::latch latch(assets.size());
     for (auto& meta : assets) {
         StartAsyncLoad(std::move(meta), [](AssetRef p_asset, void* p_userdata) {
-            unused(p_asset);
+            DEV_ASSERT(p_userdata);
+            std::latch& latch = *reinterpret_cast<std::latch*>(p_userdata);
+            latch.count_down(); }, [](void* p_userdata) {
             DEV_ASSERT(p_userdata);
             std::latch& latch = *reinterpret_cast<std::latch*>(p_userdata);
             latch.count_down(); }, &latch);
@@ -97,7 +99,8 @@ void AssetRegistry::FinalizeImpl() {
 }
 
 bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
-                                   OnAssetLoadSuccessFunc p_on_success,
+                                   AssetLoadSuccessCallback&& p_on_success,
+                                   AssetLoadFailureCallback&& p_on_failure,
                                    void* p_userdata) {
 
     auto entry = std::make_shared<AssetEntry>(std::move(p_meta));
@@ -108,7 +111,10 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
         ok = ok && m_path_map.try_emplace(entry->metadata.path, entry->metadata.guid).second;
     }
     if (ok) {
-        m_app->GetAssetManager()->LoadAssetAsync(entry->metadata.guid, p_on_success, p_userdata);
+        m_app->GetAssetManager()->LoadAssetAsync(entry->metadata.guid,
+                                                 std::move(p_on_success),
+                                                 std::move(p_on_failure),
+                                                 p_userdata);
     }
     return ok;
 }
@@ -168,11 +174,13 @@ void AssetRegistry::SaveAssets() {
     std::lock_guard lock(registry_mutex);
 
     for (const auto& [guid, entry] : m_guid_map) {
-        auto res = entry->asset->SaveToDisk(entry->metadata);
-        if (!res) {
-            StringStreamBuilder builder;
-            builder << res.error();
-            LOG_ERROR("{}", builder.ToString());
+        if (entry->asset) {
+            auto res = entry->asset->SaveToDisk(entry->metadata);
+            if (!res) {
+                StringStreamBuilder builder;
+                builder << res.error();
+                LOG_ERROR("{}", builder.ToString());
+            }
         }
     }
 }
