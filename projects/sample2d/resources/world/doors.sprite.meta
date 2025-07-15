@@ -1,0 +1,5 @@
+guid: 26782B94-FC05-B140-B2E58BA0FF24B594
+type: sprite
+path: "@res://world/doors.sprite"
+dependencies:
+  - 072AA41E-00C5-434B-900A84486CD248AE

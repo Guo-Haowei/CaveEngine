@@ -4,9 +4,13 @@ namespace my {
 
 class Guid {
 public:
-    Guid();
+    Guid() = default;
 
     explicit Guid(const uint8_t* p_buffer);
+
+    static Guid Null() {
+        return Guid{};
+    }
 
     static Guid Create();
     static Result<Guid> Parse(const char* p_start, size_t p_length);
@@ -15,7 +19,7 @@ public:
         return Parse(p_string.c_str(), p_string.length());
     }
 
-    bool IsValid() const;
+    bool IsValid() const { return *this == Guid{}; }
 
     bool operator==(const Guid& p_rhs) const {
         for (int i = 0; i < array_length(m_data); ++i) {
@@ -37,7 +41,7 @@ public:
     };
 
 private:
-    uint8_t m_data[16];
+    uint8_t m_data[16]{};
 };
 
 }  // namespace my

@@ -264,8 +264,8 @@ void EditorLayer::OnImGuiRender() {
     FlushCommand(scene);
 }
 
-bool EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
-    bool handled = false;
+HandleInputResult EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
+    HandleInputResult result = HandleInputResult::NotHandled;
     InputEvent* event = p_input_event.get();
     if (auto e = dynamic_cast<InputEventKey*>(event); e) {
         for (auto shortcut : m_shortcuts) {
@@ -290,13 +290,13 @@ bool EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
             };
             if (is_key_handled()) {
                 shortcut.executeFunc();
-                handled = true;
+                result = HandleInputResult::Handled;
                 break;
             }
         }
     }
 
-    return handled;
+    return result;
 }
 
 void EditorLayer::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {

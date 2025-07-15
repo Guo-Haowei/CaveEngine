@@ -4,9 +4,14 @@
 
 namespace my {
 
+enum class HandleInputResult : uint8_t {
+    Handled,
+    NotHandled,
+};
+
 class IInputHandler {
 public:
-    virtual bool HandleInput(std::shared_ptr<InputEvent> p_input_event) = 0;
+    virtual HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) = 0;
 };
 
 class InputRouter {

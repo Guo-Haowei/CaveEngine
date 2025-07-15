@@ -9,18 +9,8 @@
 
 namespace my {
 
-static const Guid s_empty{};
-
-Guid::Guid() {
-    memset(m_data, 0, sizeof(Guid));
-}
-
 Guid::Guid(const uint8_t* p_buffer) {
     memcpy(m_data, p_buffer, sizeof(Guid));
-}
-
-bool Guid::IsValid() const {
-    return *this != s_empty;
 }
 
 Guid Guid::Create() {
@@ -31,6 +21,8 @@ Guid Guid::Create() {
 
     ::CoCreateGuid(&guid);
     memcpy(&result, &guid, sizeof(Guid));
+#else
+    CRASH_NOW_MSG("DON'T CALL THIS");
 #endif
     return result;
 }

@@ -1,30 +1,71 @@
-#include "scene_component_2d.h"
+#include "tile_map_renderer.h"
 
-#include "engine/assets/tile_map_asset.h"
+#include "tile_map_asset.h"
+
+#include "engine/assets/sprite_asset.h"
 #include "engine/renderer/gpu_resource.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/graphics_manager_interface.h"
 
 namespace my {
 
-void TileMapRenderer::CreateRenderData() {
-    auto res = AssetRegistry::GetSingleton().FindByGuid(tile_map);
-    if (!res) {
-        return;
+bool TileMapRenderer::SetTileMap(const Guid& p_guid) {
+    if (p_guid == m_guid) {
+        return false;
     }
-    auto handle = *res;
 
-    auto tile_map_asset = handle.Get<TileMapAsset>();
+    m_guid = p_guid;
+    auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(p_guid);
+    if (!res) {
+        return false;
+    }
+
+    auto handle = *res;
+    return true;
+}
+
+void TileMapRenderer::CreateRenderData() {
+    if (m_guid != m_handle.GetGuid()) {
+        auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_guid);
+        m_handle = std::move(*res);
+    }
+
+    auto tile_map_asset = m_handle.Get();
+
     if (!tile_map_asset) {
         return;
     }
 
+    const auto& layers = tile_map_asset->GetAllLayers();
+    const int layer_count = static_cast<int>(layers.size());
+    if (m_layer_cache.size() != layers.size()) {
+        m_layer_cache.clear();
+        m_layer_cache.resize(layer_count);
+    }
+
     // @TODO: multi layer
-    int i = 0;
-    for (const auto& layer : tile_map_asset->GetAllLayers()) {
-        if (layer.GetRevision() == revision) {
-            break;
+    for (int layer_id = 0; layer_id < layer_count; ++layer_id) {
+        const auto& layer = layers[layer_id];
+        auto& layer_cache = m_layer_cache[layer_id];
+        layer_cache.visible = layer.IsVisible();
+        if (layer.GetRevision() == layer_cache.revision) {
+            continue;
         }
+
+        // @TODO: update guid
+        if (layer_cache.sprite.GetGuid() == Guid::Null()) {
+            auto sprite_handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAsset>(layer.GetSpriteGuid());
+            if (sprite_handle) {
+                layer_cache.sprite = std::move(*sprite_handle);
+            }
+        }
+
+        SpriteAsset* sprite = layer_cache.sprite.Get();
+        if (!sprite) {
+            continue;
+        }
+
+        layer_cache.image = sprite->GetHandle();
 
         std::vector<Vector2f> vertices;
         std::vector<Vector2f> uvs;
@@ -49,9 +90,11 @@ void TileMapRenderer::CreateRenderData() {
             Vector2f bottom_right{ x1, y0 };
             Vector2f top_left{ x0, y1 };
             Vector2f top_right{ x1, y1 };
-#if 0
-            Vector2f uv_min = m_sprite.frames[tile - 1].GetMin();
-            Vector2f uv_max = m_sprite.frames[tile - 1].GetMax();
+#if 1
+            const auto& frames = sprite->GetFrames();
+            DEV_ASSERT((int)frames.size() > tile);
+            Vector2f uv_min = frames[tile - 1].GetMin();
+            Vector2f uv_max = frames[tile - 1].GetMax();
 #else
             Vector2f uv_min = Vector2f::Zero;
             Vector2f uv_max = Vector2f::One;
@@ -110,52 +153,9 @@ void TileMapRenderer::CreateRenderData() {
         // @TODO: refactor this part
         auto mesh = IGraphicsManager::GetSingleton().CreateMeshImpl(desc, 2, buffers, &index_desc);
 
-        m_mesh = *mesh;
-
-        revision = layer.GetRevision();
-
-        if (i == 0) break;
+        layer_cache.mesh = *mesh;
+        layer_cache.revision = layer.GetRevision();
     }
 }
-
-#if 0
-void TileMapComponent::FromArray(const std::vector<std::vector<int>>& p_data) {
-    m_width = static_cast<int>(p_data[0].size());
-    m_height = static_cast<int>(p_data.size());
-
-    m_tiles.resize(m_width * m_height);
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) {
-            m_tiles[y * m_width + x] = p_data[m_height - 1 - y][x];
-            // m_tiles[y * m_width + x] = p_data[y][x];
-        }
-    }
-
-    SetDirty();
-}
-
-void TileMapComponent::SetTile(int p_x, int p_y, int p_tile_id) {
-    if (p_x >= 0 && p_x < m_width && p_y >= 0 && p_y < m_height) {
-        int& old = m_tiles[p_y * m_width + p_x];
-        if (old != p_tile_id) {
-            old = p_tile_id;
-            SetDirty();
-        }
-    }
-}
-
-int TileMapComponent::GetTile(int p_x, int p_y) const {
-    if (p_x >= 0 && p_x < m_width && p_y >= 0 && p_y < m_height) {
-        return m_tiles[p_y * m_width + p_x];
-    }
-    return 0;
-}
-
-void TileMapComponent::SetDimensions(int p_width, int p_height) {
-    m_width = p_width;
-    m_height = p_height;
-    m_tiles.resize(p_width * p_height);
-}
-#endif
 
 }  // namespace my

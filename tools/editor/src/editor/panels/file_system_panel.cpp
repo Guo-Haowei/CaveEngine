@@ -52,8 +52,8 @@ void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, bool p_is
     if (p_is_dir) {
         auto asset_manager = m_editor.GetApplication()->GetAssetManager();
         if (ImGui::BeginMenu("Add")) {
-            if (ImGui::MenuItem("SpriteSheet")) {
-                asset_manager->CreateAsset(AssetType::SpriteSheet, p_path);
+            if (ImGui::MenuItem("Sprite")) {
+                asset_manager->CreateAsset(AssetType::Sprite, p_path);
             }
             if (ImGui::MenuItem("TileMap")) {
                 asset_manager->CreateAsset(AssetType::TileMap, p_path);
@@ -133,10 +133,12 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
             if (_handle) {
                 auto handle = std::move(*_handle);
                 IAsset* asset = handle.Get();
-                if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-                    m_editor.CommandInspectAsset(handle.GetGuid());
-                } else if (is_file) {
-                    ShowResourceToolTip(*handle.GetMeta(), *asset);
+                if (DEV_VERIFY(asset)) {
+                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+                        m_editor.CommandInspectAsset(handle.GetGuid());
+                    } else if (is_file) {
+                        ShowResourceToolTip(*handle.GetMeta(), *asset);
+                    }
                 }
             }
         }

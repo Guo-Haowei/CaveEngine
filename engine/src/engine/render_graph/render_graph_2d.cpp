@@ -18,7 +18,7 @@ static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
 
     cmd.SetRenderTarget(fb);
     cmd.SetViewport(Viewport(width, height));
-    float clear_color[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+    float clear_color[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     cmd.Clear(fb, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, clear_color, 0.0f);
 
     auto& frame = cmd.GetCurrentFrame();

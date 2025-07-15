@@ -16,6 +16,11 @@ public:
         : m_guid(p_guid)
         , m_entry(p_entry) {}
 
+    void Invalidate() {
+        m_guid = Guid::Null();
+        m_entry.reset();
+    }
+
     bool IsReady() const;
 
     IAsset* Get() const;
@@ -52,6 +57,7 @@ public:
     using AssetHandle::AssetHandle;
     using AssetHandle::GetGuid;
     using AssetHandle::GetMeta;
+    using AssetHandle::Invalidate;
     using AssetHandle::IsReady;
 
     Handle(AssetHandle&& p_raw)

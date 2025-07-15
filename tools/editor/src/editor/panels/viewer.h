@@ -9,7 +9,7 @@ class Viewer : public EditorWindow, public IInputHandler {
 public:
     Viewer(EditorLayer& p_editor);
 
-    bool HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
+    HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
 
     std::optional<Vector2f> CursorToNDC(Vector2f p_point) const;
 
@@ -29,7 +29,7 @@ protected:
     void DrawGui(Scene* p_scene);
 
     void UpdateFrameSize();
-    bool HandleInputCamera(std::shared_ptr<InputEvent> p_input_event);
+    HandleInputResult HandleInputCamera(std::shared_ptr<InputEvent> p_input_event);
 
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;

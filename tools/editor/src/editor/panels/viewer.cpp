@@ -167,9 +167,13 @@ void Viewer::DrawToolBar() {
     ImGui::PopStyleColor(3);
 }
 
-bool Viewer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
+HandleInputResult Viewer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
+    if (!m_focused) {
+        return HandleInputResult::NotHandled;
+    }
+
     if (m_editor.GetActiveTool()->HandleInput(p_input_event)) {
-        return true;
+        return HandleInputResult::Handled;
     }
 
     return HandleInputCamera(p_input_event);
@@ -190,12 +194,12 @@ std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     return std::nullopt;
 }
 
-bool Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_event) {
+HandleInputResult Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_event) {
     InputEvent* event = p_input_event.get();
 
     if (auto e = dynamic_cast<InputEventKey*>(event); e) {
         if (e->IsHolding() && !e->IsModiferPressed()) {
-            bool handled = true;
+            HandleInputResult handled = HandleInputResult::Handled;
             switch (e->GetKey()) {
                 case KeyCode::KEY_D:
                     ++m_input_state.dx;
@@ -216,7 +220,7 @@ bool Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_event) {
                     --m_input_state.dz;
                     break;
                 default:
-                    handled = false;
+                    handled = HandleInputResult::NotHandled;
                     break;
             }
             return handled;
@@ -226,18 +230,18 @@ bool Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_event) {
     if (auto e = dynamic_cast<InputEventMouseWheel*>(event); e) {
         if (!e->IsModiferPressed()) {
             m_input_state.scroll += 3.0f * e->GetWheelY();
-            return true;
+            return HandleInputResult::Handled;
         }
     }
 
     if (auto e = dynamic_cast<InputEventMouseMove*>(event); e) {
         if (!e->IsModiferPressed() && e->IsButtonDown(MouseButton::MIDDLE)) {
             m_input_state.mouse_move += e->GetDelta();
-            return true;
+            return HandleInputResult::Handled;
         }
     }
 
-    return false;
+    return HandleInputResult::NotHandled;
 }
 
 void Viewer::UpdateCamera() {

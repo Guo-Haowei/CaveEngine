@@ -1,8 +1,8 @@
 #pragma once
 #include <nlohmann/json_fwd.hpp>
 
-#include "asset_handle.h"
-#include "asset_interface.h"
+#include "engine/assets/asset_handle.h"
+#include "engine/assets/asset_interface.h"
 
 namespace my {
 
@@ -29,23 +29,10 @@ struct hash<::my::TileIndex> {
 
 namespace my {
 
-struct TileData {
-    uint32_t id;
+using TileData = uint32_t;
+inline constexpr TileData TILE_DATA_EMPTY = UINT_MAX;
 
-    explicit TileData(uint32_t p_id = UINT_MAX)
-        : id(p_id) {}
-
-    static TileData Empty() {
-        return TileData();
-    }
-
-    bool operator==(const TileData& p_rhs) const noexcept {
-        return id == p_rhs.id;
-    }
-
-    bool IsEmpty() const { return *this == Empty(); }
-};
-
+// @TODO: remove this to TileBrush logic
 enum class TileResult : uint8_t {
     Removed,
     Replaced,
@@ -54,16 +41,7 @@ enum class TileResult : uint8_t {
 };
 
 class TileMapLayer {
-    // Non serialized
-    AssetHandle m_tileset_handle;
-    uint32_t m_revision{ 1 };  // make sure revision is ahead the first frame
-
 public:
-    std::string name;
-    Guid sprite_guid;
-    std::unordered_map<TileIndex, TileData> tiles;
-    int z_index = 0;
-
     TileData GetTile(TileIndex p_index);
     TileResult SetTile(TileIndex p_index, TileData p_new_tile, TileData& p_out_old);
 
@@ -72,9 +50,35 @@ public:
         SetTile(p_index, p_new_tile, dummy);
     }
 
+    const Handle<SpriteAsset>& GetSpriteHandle() const { return m_sprite_handle; }
+
+    std::string& GetName() { return m_name; }
+    const std::string& GetName() const { return m_name; }
+    void SetName(std::string&& p_name) { m_name = std::move(p_name); }
+
+    const Guid& GetSpriteGuid() const { return m_sprite_guid; }
+    void SetSpriteGuid(const Guid& p_guid);
+
+    const auto& GetTiles() const { return m_tiles; }
+    void SetTiles(std::unordered_map<TileIndex, TileData>&& p_tiles);
+
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }
-    const auto& GetTiles() const { return tiles; }
+
+    bool IsVisible() const { return m_visible; }
+    void SetVisible(bool p_visible) { m_visible = p_visible; }
+
+private:
+    std::string m_name;
+    Guid m_sprite_guid;
+    std::unordered_map<TileIndex, TileData> m_tiles;
+
+    bool m_visible = true;
+    int m_z_index = 0;
+
+    // Non serialized
+    Handle<SpriteAsset> m_sprite_handle;
+    uint32_t m_revision{ 1 };  // make sure revision is ahead the first frame
 
     friend class TileMapAsset;
 };
@@ -90,8 +94,8 @@ public:
 
     const auto& GetAllLayers() const { return m_layers; }
 
-    TileMapLayer* GetLayer(int p_idx) {
-        return p_idx < (int)m_layers.size() ? &m_layers[p_idx] : nullptr;
+    TileMapLayer* GetLayer(uint32_t p_idx) {
+        return p_idx < (uint32_t)m_layers.size() ? &m_layers[p_idx] : nullptr;
     }
 
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
@@ -100,7 +104,7 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    void LoadFromDiskCurrent(const nlohmann::json& p_node);
+    void LoadFromDiskCurrent(const nlohmann::json& j);
 
     std::vector<TileMapLayer> m_layers;
 };

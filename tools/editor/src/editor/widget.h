@@ -2,6 +2,8 @@
 #include "engine/math/geomath.h"
 #include "engine/scene/scene.h"
 
+struct ImVec2;
+
 namespace my {
 
 enum class AssetType : uint32_t;
@@ -51,5 +53,8 @@ bool ToggleButton(const char* p_str_id, bool* p_value);
 using DragDropFunc = std::function<void(AssetHandle&)>;
 
 bool DragDropTarget(AssetType p_mask, const DragDropFunc& p_callback);
+
+/// image
+void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_region);
 
 }  // namespace my

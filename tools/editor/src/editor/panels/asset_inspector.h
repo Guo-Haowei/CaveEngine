@@ -1,10 +1,14 @@
 #pragma once
+#include "engine/assets/asset_handle.h"
 #include "engine/assets/asset_interface.h"
 #include "editor/editor_window.h"
 
 namespace my {
 
 class AssetRegistry;
+struct IAsset;
+struct ImageAsset;
+class TileMapAsset;
 
 class AssetInspector : public EditorWindow {
 public:
@@ -15,11 +19,14 @@ public:
 protected:
     void UpdateInternal(Scene*) override;
 
-    void DropRegion(SpriteSheetAsset& p_sprite);
-    void DrawSprite(SpriteSheetAsset& p_sprite);
+    // SpriteSheet
+    void InspectSprite(IAsset* p_asset);
+    void EditSprite(SpriteAsset& p_sprite);
+    void TilePaint(SpriteAsset& p_sprite);
 
-    void TileSetup(SpriteSheetAsset& p_sprite);
-    void TilePaint(SpriteSheetAsset& p_sprite);
+    // TileMap
+    void InspectTileMap(IAsset* p_asset);
+    void TileMapLayerOverview(TileMapAsset& p_tile_map);
 
     // @TODO: refactor
 
@@ -28,6 +35,8 @@ protected:
     // @TODO: refactor
 
     AssetRegistry* m_asset_registry;
+
+    Handle<ImageAsset> m_checkerboard_handle;
 };
 
 }  // namespace my

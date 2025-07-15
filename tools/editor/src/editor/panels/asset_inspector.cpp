@@ -1,7 +1,9 @@
 #include "asset_inspector.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
 #include "engine/assets/assets.h"
-#include "engine/assets/sprite_sheet_asset.h"
+#include "engine/assets/sprite_asset.h"
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
@@ -15,9 +17,10 @@ AssetInspector::AssetInspector(EditorLayer& p_editor)
 
 void AssetInspector::OnAttach() {
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
+    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
 }
 
-void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
+void AssetInspector::TilePaint(SpriteAsset& p_sprite) {
     ImGui::Text("TileSet");
 
     auto& handle = p_sprite.GetHandle();
@@ -97,13 +100,9 @@ void AssetInspector::TilePaint(SpriteSheetAsset& p_sprite) {
     }
 }
 
-void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
+void AssetInspector::EditSprite(SpriteAsset& p_sprite) {
     if (ImGui::BeginTabBar("TileSetModes")) {
         if (ImGui::BeginTabItem("Setup")) {
-            // if (p_sprite.image_handle.IsReady()) {
-            //     //ImGui::Text("Image: %s", p_sprite.image_handle.entry->metadata.path.c_str());
-            // }
-
             int column = p_sprite.GetCol();
             if (ImGui::InputInt("column", &column)) {
                 p_sprite.SetCol(column);
@@ -111,6 +110,11 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
             int row = p_sprite.GetRow();
             if (ImGui::InputInt("row", &row)) {
                 p_sprite.SetRow(row);
+            }
+
+            float scale = p_sprite.GetScale();
+            if (ImGui::InputFloat("scale", &scale)) {
+                p_sprite.SetScale(scale);
             }
 
             // ImGui::Checkbox("Use Texture Region", &use_region);
@@ -123,54 +127,251 @@ void AssetInspector::TileSetup(SpriteSheetAsset& p_sprite) {
     }
 }
 
-void AssetInspector::DropRegion(SpriteSheetAsset& p_sprite) {
-    ImGui::Text("Image");
+struct AssetChildPanel {
+    const char* name;
+    float width;
+    std::function<void()> func;
+};
 
-    // @TODO: abc
-    {
-        const float w = 300;
-        auto& handle = p_sprite.GetHandle();
-        if (handle.IsReady()) {
-            const ImageAsset* asset = handle.Get();
-            DEV_ASSERT(asset);
-            const float h = w / asset->width * asset->height;
-            ImVec2 size = ImVec2(w, h);
+static void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_descs) {
+    const int size = static_cast<int>(p_descs.size());
+    float width_so_far = 0.0f;
+    for (int i = 0; i < size; ++i) {
+        const auto& desc = p_descs[i];
+        const bool is_last = i + 1 == size;
 
-            ImGui::Image(asset->gpu_texture->GetHandle(), size);
-        } else {
-            ImVec2 size = ImVec2(w, w);
+        const float width = is_last ? p_full_width - width_so_far : desc.width;
+        width_so_far += width;
 
-            ImGui::InvisibleButton("DropTarget", size);
+        ImGui::BeginChild(desc.name, ImVec2(width, 0), true);
+        desc.func();
+        ImGui::EndChild();
+
+        if (!is_last) {
+            ImGui::SameLine();
         }
     }
 }
 
-void AssetInspector::DrawSprite(SpriteSheetAsset& p_sprite) {
-    float full_width = ImGui::GetContentRegionAvail().x;
-    constexpr float sprite_source_tab_width = 360.0f;  // left panel fixed width
-    constexpr float sprite_data_tab = 360.0f;
-    const float main_width = full_width - sprite_source_tab_width - sprite_data_tab - ImGui::GetStyle().ItemSpacing.x;
+void AssetInspector::InspectSprite(IAsset* p_asset) {
+    auto sprite = dynamic_cast<SpriteAsset*>(p_asset);
+    if (!sprite) {
+        return;
+    }
 
-    ImGui::BeginChild("ImageSource", ImVec2(sprite_source_tab_width, 0), true);
-    DropRegion(p_sprite);
-    ImGui::EndChild();
+    std::vector<AssetChildPanel> descs = {
+        {
+            "ImageSource",
+            360.0f,
+            [&]() {
+                ImGui::Text("Image");
+                const float w = 300;
+                auto& handle = sprite->GetHandle();
 
-    ImGui::SameLine();
+                // @TODO: checker board
+                if (handle.IsReady()) {
+                    const ImageAsset* asset = handle.Get();
+                    DEV_ASSERT(asset);
+                    const float h = w / asset->width * asset->height;
+                    ImVec2 size = ImVec2(w, h);
 
-    ImGui::BeginChild("SpriteEditor", ImVec2(sprite_data_tab, 0), true);
-    TileSetup(p_sprite);
-    ImGui::EndChild();
+                    ImGui::Image(asset->gpu_texture->GetHandle(), size);
+                } else {
+                    ImVec2 size = ImVec2(w, w);
+                    ImGui::InvisibleButton("DropTarget", size);
+                }
 
-    ImGui::SameLine();
+                DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
+                    DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
+                    sprite->SetImage(p_handle.GetGuid());
+                });
+            },
+        },
+        {
+            "SpriteEditor",
+            360.0f,
+            [&]() { EditSprite(*sprite); },
+        },
+        {
+            "TileSetPanel",
+            0.0f,
+            [&]() { TilePaint(*sprite); },
+        },
+    };
 
-    ImGui::BeginChild("TileSetPanel", ImVec2(main_width, 0), true);
-    TilePaint(p_sprite);
-    ImGui::EndChild();
+    const float full_width = ImGui::GetContentRegionAvail().x;
+
+    DrawContents(full_width, descs);
+}
+
+void AssetInspector::InspectTileMap(IAsset* p_asset) {
+    auto tile_map = dynamic_cast<TileMapAsset*>(p_asset);
+    if (!tile_map) {
+        return;
+    }
+
+    SpriteAsset* sprite = nullptr;
+    if (auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool()); tool) {
+        if (auto layer = tool->GetActiveLayer(); layer) {
+            sprite = layer->GetSpriteHandle().Get();
+        }
+    }
+
+    std::vector<AssetChildPanel> descs = {
+        {
+            "LayerOverview",
+            360,
+            [&]() {
+                if (ImGui::BeginTabBar("##MyTabs1")) {
+                    if (ImGui::BeginTabItem("Layer")) {
+                        TileMapLayerOverview(*tile_map);
+                        ImGui::EndTabItem();
+                    }
+                    ImGui::EndTabBar();
+                }
+            },
+        },
+        {
+            "SpriteTab",
+            360,
+            [&]() {
+                if (sprite) {
+                    EditSprite(*sprite);
+                }
+            },
+        },
+        {
+            "PaintTab",
+            0,
+            [&]() {
+                if (sprite) {
+                    TilePaint(*sprite);
+                }
+            },
+        }
+    };
+
+    const float full_width = ImGui::GetContentRegionAvail().x;
+
+    DrawContents(full_width, descs);
+}
+
+void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
+        p_tile_map.AddLayer("untitled layer");
+    }
+    ImGui::Separator();
+
+    auto& layers = p_tile_map.GetAllLayers();
+    const int layer_count = static_cast<int>(layers.size());
+
+    auto checkerboard = m_checkerboard_handle.Get();
+    DEV_ASSERT(checkerboard);
+
+    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool());
+    DEV_ASSERT(tool);
+
+    const int current_layer = tool->GetActiveLayerIndex();
+
+    for (int layer_id = 0; layer_id < layer_count; ++layer_id) {
+        TileMapLayer& layer = layers[layer_id];
+        const bool is_layer_selected = current_layer == layer_id;
+
+        ImGui::PushID(layer_id);
+
+        if (is_layer_selected) {
+            auto& style = ImGui::GetStyle();
+            auto& colors = style.Colors;
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, colors[ImGuiCol_FrameBgHovered]);
+        }
+
+        ImGui::BeginGroup();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
+
+        ImGui::BeginGroup();
+
+        ImGui::Dummy(ImVec2(8, 8));
+
+        if (DrawInputText("layer", layer.GetName())) {
+            // @TODO: notify dirty
+        }
+
+        ImGui::SameLine();
+
+        const bool is_visible = layer.IsVisible();
+        const char* label = is_visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+        if (ImGui::Button(label)) {
+            layer.SetVisible(!is_visible);
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
+            LOG_WARN("TODO: DELETE");
+        }
+
+        // next line
+
+        ImVec2 region_size(128, 128);
+        ImVec2 image_size = region_size;
+
+        uint64_t image_handle = 0;
+
+        if (auto sprite = layer.GetSpriteHandle().Get(); sprite) {
+            if (auto image = sprite->GetHandle().Get(); image) {
+                image_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
+                image_size = ImVec2(static_cast<float>(image->width),
+                                    static_cast<float>(image->height));
+            }
+        }
+        if (image_handle == 0) {
+            image_handle = checkerboard->gpu_texture->GetHandle();
+        }
+
+        CenteredImage(image_handle, image_size, region_size);
+
+        if (ImGui::IsItemClicked()) {
+            tool->SetActiveLayer(layer_id);
+        }
+
+        DragDropTarget(AssetType::Sprite, [&](AssetHandle& p_handle) {
+            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Sprite);
+            layer.SetSpriteGuid(p_handle.GetGuid());
+        });
+
+        ImGui::Dummy(ImVec2(8, 8));
+
+        ImGui::EndGroup();
+        ImGui::Separator();
+
+        ImGui::PopStyleVar(2);
+        ImGui::PopID();
+        ImGui::EndGroup();
+
+        if (is_layer_selected) {
+            ImGui::PopStyleColor();
+        }
+    }
 }
 
 void AssetInspector::UpdateInternal(Scene*) {
-    if (ITool* tool = m_editor.GetActiveTool(); DEV_VERIFY(tool)) {
-        tool->DrawAssetInspector();
+    const auto& handle = m_editor.GetSelectedAsset();
+    auto asset = handle.Get();
+    if (!asset) {
+        return;
+    }
+
+    switch (asset->type) {
+        case AssetType::Sprite:
+            InspectSprite(asset);
+            break;
+        case AssetType::TileMap:
+            InspectTileMap(asset);
+            break;
+        default:
+            break;
     }
 }
 

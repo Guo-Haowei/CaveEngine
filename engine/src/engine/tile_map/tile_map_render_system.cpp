@@ -1,3 +1,5 @@
+#include "tile_map_render_system.h"
+
 #include "engine/renderer/frame_data.h"
 #include "engine/assets/assets.h"
 #include "engine/scene/scene.h"
@@ -11,17 +13,17 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
     Scene& scene = *p_scene;
     auto view = scene.View<TileMapRenderer>();
     for (const auto [id, tile_map] : view) {
-
-        // Should move tile map logic to somewhere else
-        // But this is a editor only logic, we are not going to update it in actual game
-        // if (tileMap.IsDirty()) {
-        //    tileMap.SetDirty(false);
-        //}
-
         tile_map.CreateRenderData();
 
-        // if (tileMap.m_sprite.texture->gpu_texture)
-        if (tile_map.m_mesh) {
+        for (const auto& layer : tile_map.GetLayerCache()) {
+            if (!layer.visible) {
+                continue;
+            }
+
+            if (!layer.mesh) {
+                continue;
+            }
+
             const TransformComponent& transform = *scene.GetComponent<TransformComponent>(id);
 
             const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
@@ -29,14 +31,15 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
             batch_buffer.c_worldMatrix = world_matrix;
 
             DrawCommand draw;
-            draw.indexCount = tile_map.m_mesh->desc.drawCount;
-            draw.mesh_data = tile_map.m_mesh.get();
+            draw.indexCount = layer.mesh->desc.drawCount;
+            draw.mesh_data = layer.mesh.get();
             draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
-            // @TODO: ?
-            // draw.texture = tileMap.m_sprite.texture->gpu_texture.get();
+            ImageAsset* image = layer.image.Get();
+            if (image) {
+                draw.texture = image->gpu_texture.get();
+            }
 
-            // @TODO: make a render command
             p_framedata.tile_maps.push_back(RenderCommand::From(draw));
         }
     }

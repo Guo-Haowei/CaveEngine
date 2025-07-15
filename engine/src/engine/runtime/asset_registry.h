@@ -40,7 +40,8 @@ protected:
     void FinalizeImpl() override;
 
     bool StartAsyncLoad(AssetMetaData&& p_meta,
-                        OnAssetLoadSuccessFunc p_on_success,
+                        AssetLoadSuccessCallback&& p_on_success,
+                        AssetLoadFailureCallback&& p_on_failure,
                         void* p_userdata);
 
     std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);

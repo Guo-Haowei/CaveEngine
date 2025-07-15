@@ -11,10 +11,11 @@
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/scene/scene.h"
 
+#include "engine/tile_map/tile_map_render_system.h"
+
 namespace my {
 
 extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
-extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
 auto RenderSystem::InitializeImpl() -> Result<void> {
     return Result<void>();

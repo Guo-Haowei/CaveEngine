@@ -4,8 +4,7 @@ namespace my {
 
 void InputRouter::Route(std::shared_ptr<InputEvent> p_input_event) {
     for (int i = static_cast<int>(m_stack.size()) - 1; i >= 0; --i) {
-        const bool handled = m_stack[i]->HandleInput(p_input_event);
-        if (handled) {
+        if (m_stack[i]->HandleInput(p_input_event) == HandleInputResult::Handled) {
             break;
         }
     }
