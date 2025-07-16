@@ -1,6 +1,13 @@
 #pragma once
 
-#define USE_REFLECTION IN_USE
+#define USE_REFLECTION USE_IF(!USING(PLATFORM_WASM))
+
+#if !USING(USE_REFLECTION)
+
+#define CAVE_META(CLASS_NAME)
+#define CAVE_PROP(...)
+
+#else
 
 #define CAVE_META(CLASS_NAME)                                       \
 public:                                                             \
@@ -30,3 +37,5 @@ template<typename T>
 const MetaTableFields& GetMetaTableFields();
 
 }  // namespace cave
+
+#endif

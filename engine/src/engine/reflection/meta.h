@@ -1,6 +1,8 @@
 #pragma once
 #include "reflection.h"
 
+#if USING(USE_REFLECTION)
+
 namespace YAML {
 class Node;
 class Emitter;
@@ -134,3 +136,5 @@ private:
 };
 
 }  // namespace cave
+
+#endif
