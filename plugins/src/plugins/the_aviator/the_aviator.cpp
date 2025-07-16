@@ -4,7 +4,7 @@
 #include "engine/math/geometry.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/scene/camera_controller.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 #include "engine/scene/scriptable_entity.h"
 
 // @TODO: remove
@@ -111,7 +111,7 @@ Scene* SceneCreator::CreateScene() {
     Scene* scene = new Scene;
     scene->m_physicsMode = PhysicsMode::COLLISION_DETECTION;
 
-    auto root = scene->CreateTransformEntity("root");
+    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
     Vector2i frame_size = DVAR_GET_IVEC2(resolution);

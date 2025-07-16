@@ -82,6 +82,7 @@ public:
     template<Serializable T>
     inline ecs::Entity GetEntityByIndex(size_t) { return ecs::Entity::INVALID; }
 
+    // @TODO: support View<A, B, ...>
     template<typename T>
     inline ecs::View<T> View() {
         static_assert(0, "this code should never instantiate");
@@ -136,109 +137,6 @@ public:
 
     ecs::Entity GetMainCamera();
 
-    ecs::Entity GetEditorCamera();
-
-    ecs::Entity CreatePerspectiveCameraEntity(const std::string& p_name,
-                                              int p_width,
-                                              int p_height,
-                                              float p_near_plane = CameraComponent::DEFAULT_NEAR,
-                                              float p_far_plane = CameraComponent::DEFAULT_FAR,
-                                              Degree p_fovy = CameraComponent::DEFAULT_FOVY);
-
-    ecs::Entity CreateNameEntity(const std::string& p_name);
-    ecs::Entity CreateTransformEntity(const std::string& p_name);
-    ecs::Entity CreateObjectEntity(const std::string& p_name);
-    ecs::Entity CreateMeshEntity(const std::string& p_name);
-    ecs::Entity CreateMaterialEntity(const std::string& p_name);
-
-    ecs::Entity CreatePointLightEntity(const std::string& p_name,
-                                       const Vector3f& p_position = Vector3f(0.0f, 1.0f, 0.0f),
-                                       const Vector3f& p_color = Vector3f(1.0f),
-                                       const float p_emissive = 5.0f);
-
-    ecs::Entity CreateAreaLightEntity(const std::string& p_name,
-                                      const Vector3f& p_color = Vector3f(1),
-                                      const float p_emissive = 5.0f);
-
-    ecs::Entity CreateInfiniteLightEntity(const std::string& p_name,
-                                          const Vector3f& p_color = Vector3f(1),
-                                          const float p_emissive = 5.0f);
-
-    ecs::Entity CreateEnvironmentEntity(const std::string& p_name);
-
-    ecs::Entity CreateVoxelGiEntity(const std::string& p_name);
-
-    ecs::Entity CreatePlaneEntity(const std::string& p_name,
-                                  const Vector3f& p_scale = Vector3f(0.5f),
-                                  const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreatePlaneEntity(const std::string& p_name,
-                                  ecs::Entity p_material_id,
-                                  const Vector3f& p_scale = Vector3f(0.5f),
-                                  const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateCubeEntity(const std::string& p_name,
-                                 const Vector3f& p_scale = Vector3f(0.5f),
-                                 const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateCubeEntity(const std::string& p_name,
-                                 ecs::Entity p_material_id,
-                                 const Vector3f& p_scale = Vector3f(0.5f),
-                                 const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateMeshEntity(const std::string& p_name,
-                                 ecs::Entity p_material_id,
-                                 MeshComponent&& p_mesh);
-
-    ecs::Entity CreateSphereEntity(const std::string& p_name,
-                                   float p_radius = 0.5f,
-                                   const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateSphereEntity(const std::string& p_name,
-                                   ecs::Entity p_material_id,
-                                   float p_radius = 0.5f,
-                                   const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateCylinderEntity(const std::string& p_name,
-                                     float p_radius = 0.5f,
-                                     float p_height = 1.0f,
-                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateCylinderEntity(const std::string& p_name,
-                                     ecs::Entity p_material_id,
-                                     float p_radius = 0.5f,
-                                     float p_height = 1.0f,
-                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateTorusEntity(const std::string& p_name,
-                                  float p_radius = 0.5f,
-                                  float p_tube_radius = 0.2f,
-                                  const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateTorusEntity(const std::string& p_name,
-                                  ecs::Entity p_material_id,
-                                  float p_radius = 0.5f,
-                                  float p_tube_radius = 0.2f,
-                                  const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateTileMapEntity(const std::string& p_name, const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateClothEntity(const std::string& p_name,
-                                  ecs::Entity p_material_id,
-                                  const Vector3f& p_point_0,
-                                  const Vector3f& p_point_1,
-                                  const Vector3f& p_point_2,
-                                  const Vector3f& p_point_3,
-                                  const Vector2i& p_res,
-                                  ClothFixFlag p_flags,
-                                  const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateEmitterEntity(const std::string& p_name, const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    ecs::Entity CreateMeshEmitterEntity(const std::string& p_name, const Vector3f& p_translation = Vector3f::Zero);
-
-    ecs::Entity CreateForceFieldEntity(const std::string& p_name, const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
     ecs::Entity FindEntityByName(const char* p_name);
 
     void AttachChild(ecs::Entity p_entity, ecs::Entity p_parent);
@@ -271,6 +169,8 @@ public:
 
     const auto& GetLibraryEntries() const { return m_componentLib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
+
+    friend class EntityFactory;
 };
 
 }  // namespace cave

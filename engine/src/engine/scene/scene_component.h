@@ -345,9 +345,9 @@ private:
     Matrix4x4f m_projectionMatrix;
     Matrix4x4f m_projectionViewMatrix;
 
-    friend class Scene;
     friend class CameraControllerFPS;
     friend class CameraController2DEditor;
+    friend class EntityFactory;
 };
 #pragma endregion CAMERA_COMPONENT
 
