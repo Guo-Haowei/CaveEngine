@@ -48,6 +48,9 @@ class TileMapAsset : public IAsset {
     std::unordered_map<TileIndex, TileData> m_tiles;
 
 public:
+    // @TODO: remember to delete this once it's fully converted
+    static void RegisterClass() {}
+
     static constexpr const int VERSION = 1;
     static constexpr AssetType ASSET_TYPE = AssetType::TileMap;
 

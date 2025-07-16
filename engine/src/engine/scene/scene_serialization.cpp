@@ -158,6 +158,8 @@ void RegisterClasses() {
         EnvironmentComponent::Ambient::RegisterClass();
         EnvironmentComponent::Sky::RegisterClass();
 
+        MetaDataTable<TransformComponent>::GetFields();
+
         s_initialized = true;
     }
 }
@@ -762,18 +764,5 @@ void TileMapRenderer::RegisterClass() {
 }
 
 #pragma endregion SCENE_COMPONENT_SERIALIZATION
-
-// new stuff
-template<>
-const MetaTableFields& GetMetaTableFields<TransformComponent>() {
-    static MetaTableFields s_table;
-    return s_table;
-}
-
-template<>
-const MetaTableFields& GetMetaTableFields<TileMapRenderer>() {
-    static MetaTableFields s_table;
-    return s_table;
-}
 
 }  // namespace cave

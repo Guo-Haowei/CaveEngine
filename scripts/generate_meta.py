@@ -14,6 +14,7 @@ print("Project root folder:", get_engine_src_folder())
 # ========= CONFIG ==========
 FILES = [
     "tile_map/tile_map_asset.h",
+    "tile_map/tile_map_renderer.h",
     "scene/transform_component.h",
 ]
 
@@ -23,19 +24,18 @@ META_CPP_SUFFIX = ".meta.cpp"
 
 # ========= REGEX ==========
 
+meta_regex = re.compile(r"CAVE_META\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)")
 prop_regex = re.compile(r"CAVE_PROP\s*\((.*?)\)")
 field_regex = re.compile(r"([a-zA-Z_][\w:]*)\s+([a-zA-Z_]\w*)\s*;")
 
 # ========= PARSING & GENERATION ==========
 def extract_field_name(line: str) -> str:
-    # Remove trailing semicolon first
     line = line.strip()
     if line.endswith(';'):
         line = line[:-1].strip()
 
     parts = line.split()
 
-    # If no parts, no name
     if not parts:
         return ""
 
@@ -55,8 +55,13 @@ def extract_field_name(line: str) -> str:
 
     return type_name, name
 
+def filed_meta():
+    pass
+
 def parse_file(file_path):
     results = []
+
+    class_name = None
 
     with open(file_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
@@ -65,7 +70,13 @@ def parse_file(file_path):
     while i < len(lines):
         line = lines[i].strip()
 
+        if meta_match := meta_regex.match(line):
+            assert class_name is None, "class_name must be None"
+            class_name = meta_match.group(1)
+
         if prop_match := prop_regex.match(line):
+            assert class_name is not None, "class_name must not be None"
+
             metadata = prop_match.group(1).strip()
             i += 1
             while i < len(lines) and lines[i].strip() == "":
@@ -82,10 +93,10 @@ def parse_file(file_path):
 
         i += 1
 
-    return results
+    return class_name, results
 
 
-def generate_meta_file(file_path, fields):
+def generate_meta_file(base_path, file_path, class_name, fields):
     filename = os.path.basename(file_path)
     base = os.path.splitext(filename)[0]
     output_file = os.path.join(OUTPUT_DIR, base + META_CPP_SUFFIX)
@@ -97,21 +108,37 @@ def generate_meta_file(file_path, fields):
         for field in fields:
             f.write(f"// {field['type']} {field['name']} ({field['meta']})\n")
 
-        f.write("\n// TODO: Register fields with meta system\n")
+        f.write('\n#include "engine/systems/serialization/serialization.h"\n')
+        f.write(f'#include "engine/{base_path}"\n\n')
+        f.write("namespace cave {\n\n")
+        # f.write(f"class {class_name};\n\n")
+        f.write("template<>\n")
+        f.write(f"const MetaTableFields& GetMetaTableFields<{class_name}>() {{\n")
+        f.write("    static MetaTableFields s_table = {\n")
+        for field in fields:
+            field_name = field['name']
+            f.write(f'        DEFINE_FILED({class_name}, "{field_name}", {field_name}),\n')
+            continue
+        f.write("    };\n\n")
+        f.write("    return s_table;\n")
+        f.write("}\n\n")
+        f.write("}  // namespace cave\n")
 
     print(f"Generated: {output_file}")
 
 
 def main():
-    for file_path in FILES:
-        file_path = os.path.join(get_engine_src_folder(), file_path)
+    for base_path in FILES:
+        file_path = os.path.join(get_engine_src_folder(), base_path)
         if not os.path.isfile(file_path):
             print(f"File not found: {file_path}")
             continue
 
-        fields = parse_file(file_path)
+        class_name, fields = parse_file(file_path)
+        assert class_name is not None, "class must not be None"
+
         if fields:
-            generate_meta_file(file_path, fields)
+            generate_meta_file(base_path, file_path, class_name, fields)
         else:
             print(f"No CAVE_PROP found in: {file_path}")
 
