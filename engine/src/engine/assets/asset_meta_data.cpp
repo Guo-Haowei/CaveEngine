@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 
 auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     YAML::Node node;
-    if (auto res = serialize::LoadYaml(p_path, node); !res) {
+    if (auto res = LoadYaml(p_path, node); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -77,7 +77,7 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
     out << YAML::EndMap;
 
     auto meta_path = std::format("{}.meta", path);
-    return serialize::SaveYaml(meta_path, out);
+    return SaveYaml(meta_path, out);
 }
 
 }  // namespace cave

@@ -3,9 +3,19 @@
 #include "engine/math/angle.h"
 #include "engine/math/matrix_transform.h"
 #include "engine/core/io/archive.h"
+
+// @TODO: remove
 #include "engine/systems/serialization/serialization.h"
 
 namespace cave {
+
+TransformComponent::TransformComponent()
+    : m_scale{ 1 }
+    , m_translation{ 0 }
+    , m_rotation{ Vector4f::UnitW }
+    , m_world_matrix{ 1 } {
+    SetDirty();
+}
 
 Matrix4x4f TransformComponent::GetLocalMatrix() const {
     Matrix4x4f rotationMatrix = glm::toMat4(Quaternion(m_rotation.w, m_rotation.x, m_rotation.y, m_rotation.z));
@@ -17,7 +27,7 @@ Matrix4x4f TransformComponent::GetLocalMatrix() const {
 bool TransformComponent::UpdateTransform() {
     if (IsDirty()) {
         SetDirty(false);
-        m_worldMatrix = GetLocalMatrix();
+        m_world_matrix = GetLocalMatrix();
         return true;
     }
     return false;
@@ -62,8 +72,8 @@ void TransformComponent::MatrixTransform(const Matrix4x4f& p_matrix) {
 void TransformComponent::UpdateTransformParented(const TransformComponent& p_parent) {
     CRASH_NOW();
     Matrix4x4f worldMatrix = GetLocalMatrix();
-    const Matrix4x4f& worldMatrixParent = p_parent.m_worldMatrix;
-    m_worldMatrix = worldMatrixParent * worldMatrix;
+    const Matrix4x4f& worldMatrixParent = p_parent.m_world_matrix;
+    m_world_matrix = worldMatrixParent * worldMatrix;
 }
 
 void TransformComponent::Serialize(Archive& p_archive, uint32_t) {
@@ -74,12 +84,6 @@ void TransformComponent::Serialize(Archive& p_archive, uint32_t) {
 }
 
 void TransformComponent::RegisterClass() {
-    // @TODO: generate it
-    BEGIN_REGISTRY(TransformComponent);
-    REGISTER_FIELD(TransformComponent, "flags", flags);
-    REGISTER_FIELD(TransformComponent, "translation", m_translation);
-    REGISTER_FIELD(TransformComponent, "rotation", m_rotation);
-    REGISTER_FIELD(TransformComponent, "scale", m_scale);
-    END_REGISTRY(TransformComponent);
 }
+
 }  // namespace cave

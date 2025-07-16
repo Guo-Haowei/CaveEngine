@@ -135,9 +135,9 @@ template<Serializable T>
     const T* component = p_scene.GetComponent<T>(p_entity);
     if (component) {
         p_out << DUMP_KEY(p_name);
-        serialize::SerializeYamlContext context;
+        SerializeYamlContext context;
         context.file = p_binary;
-        if (auto res = serialize::SerializeYaml(p_out, *component, context); !res) {
+        if (auto res = SerializeYaml(p_out, *component, context); !res) {
             return CAVE_ERROR(res.error());
         }
     }
@@ -252,10 +252,10 @@ static Result<void> DeserializeComponent(const YAML::Node& p_node,
 
     // @TODO: reserve component manager
     T& component = p_scene.Create<T>(p_id);
-    serialize::SerializeYamlContext context;
+    SerializeYamlContext context;
     context.file = p_binary;
     context.version = p_version;
-    if (auto res = serialize::DeserializeYaml(node, component, context); !res) {
+    if (auto res = DeserializeYaml(node, component, context); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -332,7 +332,6 @@ Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
 }
 
 #pragma region SCENE_COMPONENT_SERIALIZATION
-using serialize::FieldFlag;
 
 #if defined(__clang__)
 #pragma clang diagnostic push
@@ -763,5 +762,18 @@ void TileMapRenderer::RegisterClass() {
 }
 
 #pragma endregion SCENE_COMPONENT_SERIALIZATION
+
+// new stuff
+template<>
+const MetaTableFields& GetMetaTableFields<TransformComponent>() {
+    static MetaTableFields s_table;
+    return s_table;
+}
+
+template<>
+const MetaTableFields& GetMetaTableFields<TileMapRenderer>() {
+    static MetaTableFields s_table;
+    return s_table;
+}
 
 }  // namespace cave

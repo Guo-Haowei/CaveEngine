@@ -11,7 +11,6 @@ struct OuterClass {
         std::string name;
 
         static void RegisterClass() {
-            using serialize::FieldFlag;
             BEGIN_REGISTRY(InnerClass);
             REGISTER_FIELD(InnerClass, "name", name);
             END_REGISTRY(InnerClass);
@@ -25,8 +24,6 @@ struct OuterClass {
     InnerClass v5;
 
     static void RegisterClass() {
-        using serialize::FieldFlag;
-
         BEGIN_REGISTRY(OuterClass);
         REGISTER_FIELD(OuterClass, "int", v1);
         REGISTER_FIELD(OuterClass, "float", v2);
@@ -39,7 +36,7 @@ struct OuterClass {
 
 }  // namespace cave
 
-namespace cave::serialize {
+namespace cave {
 
 TEST(RegisterClass, nested_struct) {
     OuterClass::InnerClass::RegisterClass();
@@ -132,4 +129,4 @@ TEST(RegisterClass, light_component) {
     }
 }
 
-}  // namespace cave::serialize
+}  // namespace cave

@@ -9,10 +9,8 @@
 #include "engine/math/matrix.h"
 
 namespace cave {
-class Guid;
-}
 
-namespace cave::serialize {
+class Guid;
 
 template<typename T>
 concept IsArithmetic = std::is_arithmetic_v<T>;
@@ -432,4 +430,4 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, std::vector<T>& p_object,
     return (p_context.flags & FieldFlag::BINARY) ? DeserializeYamlVecBinary(p_node, p_object, p_context) : DeserializeYamlVec(p_node, p_object, p_context);
 }
 
-}  // namespace cave::serialize
+}  // namespace cave

@@ -1,6 +1,7 @@
 #pragma once
 #include "scene_component_base.h"
 
+#include "engine/math/angle.h"
 #include "engine/math/geomath.h"
 #include "engine/reflection/reflection.h"
 
@@ -13,18 +14,20 @@ class TransformComponent : public ComponentFlagBase {
     CAVE_META(TransformComponent)
 
     CAVE_PROP(type = scale, editable, serialize)
-    Vector3f m_scale = Vector3f::One;
+    Vector3f m_scale;
 
     CAVE_PROP(type = translation, editable, serialize)
-    Vector3f m_translation = Vector3f::Zero;
+    Vector3f m_translation;
 
     CAVE_PROP(type = quaternion, editable, serialize)
-    Vector4f m_rotation = Vector4f::UnitW;
+    Vector4f m_rotation;
 
     // Non-serialized attributes
-    Matrix4x4f m_worldMatrix{ 1 };
+    Matrix4x4f m_world_matrix{ 1 };
 
 public:
+    TransformComponent();
+
     const Vector3f& GetTranslation() const { return m_translation; }
     void SetTranslation(const Vector3f& p_translation) { m_translation = p_translation; }
     void IncreaseTranslation(const Vector3f& p_delta) { m_translation += p_delta; }
@@ -35,9 +38,9 @@ public:
     const Vector3f& GetScale() const { return m_scale; }
     void SetScale(const Vector3f& p_scale) { m_scale = p_scale; }
 
-    const Matrix4x4f& GetWorldMatrix() const { return m_worldMatrix; }
+    const Matrix4x4f& GetWorldMatrix() const { return m_world_matrix; }
 
-    void SetWorldMatrix(const Matrix4x4f& p_matrix) { m_worldMatrix = p_matrix; }
+    void SetWorldMatrix(const Matrix4x4f& p_matrix) { m_world_matrix = p_matrix; }
 
     Matrix4x4f GetLocalMatrix() const;
 
