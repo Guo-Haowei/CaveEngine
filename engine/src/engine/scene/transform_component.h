@@ -58,7 +58,6 @@ public:
     void UpdateTransformParented(const TransformComponent& p_parent);
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    static void RegisterClass();
 };
 
 }  // namespace cave

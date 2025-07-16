@@ -108,7 +108,7 @@ def generate_meta_file(base_path, file_path, class_name, fields):
         for field in fields:
             f.write(f"// {field['type']} {field['name']} ({field['meta']})\n")
 
-        f.write('\n#include "engine/systems/serialization/serialization.h"\n')
+        f.write('\n#include "engine/serialization/yaml_serializer.h"\n')
         f.write(f'#include "engine/{base_path}"\n\n')
         f.write("namespace cave {\n\n")
         # f.write(f"class {class_name};\n\n")

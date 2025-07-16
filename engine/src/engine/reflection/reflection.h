@@ -31,7 +31,7 @@ concept HasMetaTag = requires {
 
 struct FieldMetaBase;
 
-using MetaTableFields = std::vector<std::shared_ptr<FieldMetaBase>>;
+using MetaTableFields = std::vector<FieldMetaBase*>;
 
 template<typename T>
 const MetaTableFields& GetMetaTableFields();

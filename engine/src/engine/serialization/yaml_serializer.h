@@ -7,6 +7,44 @@
 #include "engine/math/angle.h"
 #include "engine/math/box.h"
 #include "engine/math/matrix.h"
+#include "engine/reflection/meta.h"
+
+namespace cave {
+
+class FileAccess;
+
+enum FieldFlag : uint32_t {
+    NONE = BIT(0),
+    NUALLABLE = BIT(1),
+    BINARY = BIT(2),
+    EMIT_SAME_LINE = BIT(3),
+};
+
+DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
+
+class YamlSerializer {
+public:
+    YamlSerializer() {}
+
+    YamlSerializer& BeginArray(bool p_one_line = false);
+    YamlSerializer& BeginArray();
+
+    YamlSerializer& BeginObject(bool p_one_line = false);
+    YamlSerializer& EndObject();
+
+    FieldFlag flags;
+    uint32_t version;
+    FileAccess* file;
+
+    YAML::Emitter m_out;
+
+    std::string m_error;
+    std::string m_warning;
+};
+
+}  // namespace cave
+
+#define DUMP_KEY(a) ::YAML::Key << (a) << ::YAML::Value
 
 namespace cave {
 
@@ -18,28 +56,23 @@ concept IsArithmetic = std::is_arithmetic_v<T>;
 template<typename T>
 concept IsEnum = std::is_enum_v<T>;
 
-template<typename T>
-concept HasMetaTable = requires(T) {
-    { T::RegisterClass() } -> std::same_as<void>;
-};
+Result<void> SerializeYaml(YAML::Emitter& p_out, const ecs::Entity& p_object, YamlSerializer&);
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const ecs::Entity& p_object, SerializeYamlContext&);
+Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, YamlSerializer&);
 
-Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, SerializeYamlContext&);
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Degree& p_object, YamlSerializer&);
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const Degree& p_object, SerializeYamlContext&);
+Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, YamlSerializer&);
 
-Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, SerializeYamlContext&);
+Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, YamlSerializer&);
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, SerializeYamlContext&);
+Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, YamlSerializer&);
 
-Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, SerializeYamlContext&);
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Guid& p_object, YamlSerializer&);
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const Guid& p_object, SerializeYamlContext&);
+Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, YamlSerializer&);
 
-Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, SerializeYamlContext&);
-
-inline Result<void> SerializeYaml(YAML::Emitter& p_out, const Matrix4x4f& p_object, SerializeYamlContext&) {
+inline Result<void> SerializeYaml(YAML::Emitter& p_out, const Matrix4x4f& p_object, YamlSerializer&) {
     p_out.SetSeqFormat(YAML::Flow);
     p_out << YAML::BeginSeq;
     const float* ptr = &p_object[0].x;
@@ -51,7 +84,7 @@ inline Result<void> SerializeYaml(YAML::Emitter& p_out, const Matrix4x4f& p_obje
     return Result<void>();
 }
 
-inline Result<void> DeserializeYaml(const YAML::Node& p_node, Matrix4x4f& p_object, SerializeYamlContext&) {
+inline Result<void> DeserializeYaml(const YAML::Node& p_node, Matrix4x4f& p_object, YamlSerializer&) {
     if (!p_node || !p_node.IsSequence() || p_node.size() != 16) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a Matrix4x4f");
     }
@@ -64,13 +97,13 @@ inline Result<void> DeserializeYaml(const YAML::Node& p_node, Matrix4x4f& p_obje
 }
 
 template<IsArithmetic T>
-Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, SerializeYamlContext&) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, YamlSerializer&) {
     p_out << p_object;
     return Result<void>();
 }
 
 template<IsArithmetic T>
-Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYamlContext&) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, YamlSerializer&) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
@@ -84,13 +117,13 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYam
 }
 
 template<IsEnum T>
-Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, SerializeYamlContext&) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, YamlSerializer&) {
     p_out << std::to_underlying(p_object);
     return Result<void>();
 }
 
 template<IsEnum T>
-Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYamlContext&) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, YamlSerializer&) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
@@ -104,7 +137,7 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYam
 }
 
 template<typename T, int N>
-Result<void> SerializeYaml(YAML::Emitter& p_out, const T (&p_object)[N], SerializeYamlContext& p_context) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const T (&p_object)[N], YamlSerializer& p_context) {
     p_out << YAML::BeginSeq;
     for (int i = 0; i < N; ++i) {
         if (auto res = SerializeYaml(p_out, p_object[i], p_context); !res) {
@@ -116,7 +149,7 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const T (&p_object)[N], Seriali
 }
 
 template<typename T, int N>
-Result<void> DeserializeYaml(const YAML::Node& p_node, T (&p_object)[N], SerializeYamlContext& p_context) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, T (&p_object)[N], YamlSerializer& p_context) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
@@ -135,7 +168,7 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, T (&p_object)[N], Seriali
 }
 
 template<typename T, int N>
-Result<void> SerializeYaml(YAML::Emitter& p_out, const Vector<T, N>& p_object, SerializeYamlContext&) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Vector<T, N>& p_object, YamlSerializer&) {
     p_out.SetSeqFormat(YAML::Flow);
     p_out << YAML::BeginSeq;
     p_out << p_object.x;
@@ -151,7 +184,7 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const Vector<T, N>& p_object, S
 }
 
 template<typename T, int N>
-Result<void> DeserializeYaml(const YAML::Node& p_node, Vector<T, N>& p_object, SerializeYamlContext&) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, Vector<T, N>& p_object, YamlSerializer&) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
@@ -172,7 +205,7 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Vector<T, N>& p_object, S
 }
 
 template<int N>
-Result<void> SerializeYaml(YAML::Emitter& p_out, const Box<N>& p_object, SerializeYamlContext& p_context) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Box<N>& p_object, YamlSerializer& p_context) {
     if (!p_object.IsValid()) {
         p_out << YAML::Null;
         return Result<void>();
@@ -188,7 +221,7 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const Box<N>& p_object, Seriali
 }
 
 template<int N>
-Result<void> DeserializeYaml(const YAML::Node& p_node, Box<N>& p_object, SerializeYamlContext& p_context) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, Box<N>& p_object, YamlSerializer& p_context) {
     if (!p_node || p_node.IsNull()) {
         p_object.MakeInvalid();
         return Result<void>();
@@ -206,14 +239,14 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Box<N>& p_object, Seriali
     return Result<void>();
 }
 
-template<HasMetaTable T>
-Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, SerializeYamlContext& p_context) {
+template<HasMetaTag T>
+Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, YamlSerializer& p_context) {
     const auto& meta = MetaDataTable<T>::GetFields();
 
     p_out << YAML::BeginMap;
 
     for (const auto& field : meta) {
-        SerializeYamlContext context = p_context;
+        YamlSerializer context = p_context;
         context.flags = field->flags;
         if (auto res = field->DumpYaml(p_out, &p_object, p_context); !res) {
             return CAVE_ERROR(res.error());
@@ -224,12 +257,12 @@ Result<void> SerializeYaml(YAML::Emitter& p_out, const T& p_object, SerializeYam
     return Result<void>();
 }
 
-template<HasMetaTable T>
-Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYamlContext& p_context) {
+template<HasMetaTag T>
+Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, YamlSerializer& p_context) {
     const auto& meta = MetaDataTable<T>::GetFields();
 
     for (const auto& field : meta) {
-        SerializeYamlContext context = p_context;
+        YamlSerializer context = p_context;
         if (auto res = field->UndumpYaml(p_node, &p_object, context); !res) {
             return CAVE_ERROR(res.error());
         }
@@ -238,7 +271,7 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, SerializeYam
 }
 
 template<typename T>
-Result<void> FieldMeta<T>::DumpYaml(YAML::Emitter& p_out, const void* p_object, SerializeYamlContext& p_context) const {
+Result<void> FieldMeta<T>::DumpYaml(YAML::Emitter& p_out, const void* p_object, YamlSerializer& p_context) const {
     const T& data = FieldMetaBase::GetData<T>(p_object);
     p_out << YAML::Key << name << YAML::Value;
 
@@ -248,7 +281,7 @@ Result<void> FieldMeta<T>::DumpYaml(YAML::Emitter& p_out, const void* p_object, 
 }
 
 template<typename T>
-Result<void> FieldMeta<T>::UndumpYaml(const YAML::Node& p_node, void* p_object, SerializeYamlContext& p_context) {
+Result<void> FieldMeta<T>::UndumpYaml(const YAML::Node& p_node, void* p_object, YamlSerializer& p_context) {
     const auto& field = p_node[name];
     const bool nuallable = flags & FieldFlag::NUALLABLE;
     if (!field && !nuallable) {
@@ -293,7 +326,7 @@ static inline Result<void> FileRead(FileAccess* p_file, T& p_data) {
 }
 
 template<typename T>
-Result<void> SerializaYamlVec(YAML::Emitter& p_out, const std::vector<T>& p_object, SerializeYamlContext& p_context) {
+Result<void> SerializaYamlVec(YAML::Emitter& p_out, const std::vector<T>& p_object, YamlSerializer& p_context) {
     DEV_ASSERT(!(p_context.flags & FieldFlag::BINARY));
     const size_t count = p_object.size();
     if (count < 4) {
@@ -311,7 +344,7 @@ Result<void> SerializaYamlVec(YAML::Emitter& p_out, const std::vector<T>& p_obje
 }
 
 template<typename T>
-Result<void> SerializaYamlVecBinary(YAML::Emitter& p_out, const std::vector<T>& p_object, SerializeYamlContext& p_context) {
+Result<void> SerializaYamlVecBinary(YAML::Emitter& p_out, const std::vector<T>& p_object, YamlSerializer& p_context) {
     DEV_ASSERT(p_context.flags & FieldFlag::BINARY);
     auto& file = p_context.file;
     DEV_ASSERT(file);
@@ -345,12 +378,12 @@ Result<void> SerializaYamlVecBinary(YAML::Emitter& p_out, const std::vector<T>& 
 }
 
 template<typename T>
-Result<void> SerializeYaml(YAML::Emitter& p_out, const std::vector<T>& p_object, SerializeYamlContext& p_context) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const std::vector<T>& p_object, YamlSerializer& p_context) {
     return (p_context.flags & FieldFlag::BINARY) ? SerializaYamlVecBinary(p_out, p_object, p_context) : SerializaYamlVec(p_out, p_object, p_context);
 }
 
 template<typename T>
-Result<void> DeserializeYamlVec(const YAML::Node& p_node, std::vector<T>& p_object, SerializeYamlContext& p_context) {
+Result<void> DeserializeYamlVec(const YAML::Node& p_node, std::vector<T>& p_object, YamlSerializer& p_context) {
     DEV_ASSERT(!(p_context.flags & FieldFlag::BINARY));
     if (!p_node || !p_node.IsSequence()) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid sequence");
@@ -367,7 +400,7 @@ Result<void> DeserializeYamlVec(const YAML::Node& p_node, std::vector<T>& p_obje
 }
 
 template<typename T>
-Result<void> DeserializeYamlVecBinary(const YAML::Node& p_node, std::vector<T>& p_object, SerializeYamlContext& p_context) {
+Result<void> DeserializeYamlVecBinary(const YAML::Node& p_node, std::vector<T>& p_object, YamlSerializer& p_context) {
     DEV_ASSERT(p_context.flags & FieldFlag::BINARY);
     constexpr size_t element_size = sizeof(p_object[0]);
     constexpr size_t internal_offset = sizeof(BIN_GUARD_MAGIC) + sizeof(size_t);
@@ -426,8 +459,17 @@ Result<void> DeserializeYamlVecBinary(const YAML::Node& p_node, std::vector<T>& 
 }
 
 template<typename T>
-Result<void> DeserializeYaml(const YAML::Node& p_node, std::vector<T>& p_object, SerializeYamlContext& p_context) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, std::vector<T>& p_object, YamlSerializer& p_context) {
     return (p_context.flags & FieldFlag::BINARY) ? DeserializeYamlVecBinary(p_node, p_object, p_context) : DeserializeYamlVec(p_node, p_object, p_context);
 }
+
+}  // namespace cave
+
+namespace cave {
+
+// @TODO: write to .tmp then rename, because renaming it atomic
+auto SaveYaml(std::string_view p_path, YAML::Emitter& p_out) -> Result<void>;
+
+auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void>;
 
 }  // namespace cave

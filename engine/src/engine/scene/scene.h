@@ -16,9 +16,10 @@ class Context;
 
 namespace cave {
 
+//REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)           \
 // @TODO: save all components
+
 #define REGISTER_COMPONENT_SERIALIZED_LIST                                 \
-    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)           \
     REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0) \
     REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)
 

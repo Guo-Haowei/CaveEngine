@@ -43,8 +43,6 @@ public:
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
 
-    static void RegisterClass();
-
 private:
     std::string m_name;
 };
@@ -57,8 +55,6 @@ public:
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 
 private:
     ecs::Entity m_parentId;
@@ -112,8 +108,6 @@ struct MeshComponent {
         uint32_t index_offset = 0;
         uint32_t index_count = 0;
         AABB local_bound;
-
-        static void RegisterClass();
     };
     std::vector<MeshSubset> subsets;
 
@@ -133,8 +127,6 @@ struct MeshComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized();
-
-    static void RegisterClass();
 };
 #pragma endregion MESH_COMPONENT
 
@@ -150,8 +142,6 @@ struct MaterialComponent {
     struct TextureMap {
         std::string path;
         bool enabled = true;
-
-        static void RegisterClass();
     };
 
     float metallic = 0.0f;
@@ -162,8 +152,6 @@ struct MaterialComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized();
-
-    static void RegisterClass();
 };
 #pragma endregion MATERIAL_COMPONENT
 
@@ -187,15 +175,11 @@ struct AnimationComponent {
         Path path = PATH_UNKNOWN;
         ecs::Entity targetId;
         int samplerIndex = -1;
-
-        static void RegisterClass();
     };
 
     struct Sampler {
         std::vector<float> keyframeTimes;
         std::vector<float> keyframeData;
-
-        static void RegisterClass();
     };
 
     bool IsPlaying() const { return flags & PLAYING; }
@@ -215,8 +199,6 @@ struct AnimationComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 #pragma endregion ANIMATION_COMPONENT
 
@@ -230,8 +212,6 @@ struct ArmatureComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 #pragma endregion ARMATURE_COMPONENT
 
@@ -252,8 +232,6 @@ struct MeshRenderer : public ComponentFlagBase {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 #pragma endregion MESH_RENDERER_COMPONENT
 
@@ -323,8 +301,6 @@ public:
 
     void Serialize(Archive& p_archive, uint32_t p_version);
 
-    static void RegisterClass();
-
 private:
     Degree m_fovy{ DEFAULT_FOVY };
     float m_near{ DEFAULT_NEAR };
@@ -366,8 +342,6 @@ public:
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized();
-
-    static void RegisterClass();
 
 private:
     std::string m_className;
@@ -413,8 +387,6 @@ struct NativeScriptComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 #pragma endregion NATIVE_SCRIPT_COMPONENT
 
@@ -470,8 +442,6 @@ struct RigidBodyComponent : CollisionObjectBase {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 
 enum ClothFixFlag : uint32_t {
@@ -497,8 +467,6 @@ struct ClothComponent : CollisionObjectBase {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 #pragma endregion COLLISION_OBJECT_COMPONENT
 
@@ -514,19 +482,14 @@ struct EnvironmentComponent {
         std::string texturePath;
         // Non-Serialized
         mutable const ImageAsset* textureAsset;
-
-        static void RegisterClass();
     } sky;
 
     struct Ambient {
         Vector4f color;
-        static void RegisterClass();
     } ambient;
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 
 struct VoxelGiComponent {
@@ -544,8 +507,6 @@ struct VoxelGiComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 #pragma endregion ENVIRONMENT_COMPONENT
 
@@ -573,7 +534,6 @@ struct ParticleEmitterComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-    static void RegisterClass();
 };
 #pragma endregion PARTICLE_EMITTER_COMPONENT
 
@@ -636,7 +596,6 @@ struct MeshEmitterComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() { Reset(); }
-    static void RegisterClass();
 };
 #pragma endregion MESH_EMITTER_COMPONENT
 
@@ -647,8 +606,6 @@ struct ForceFieldComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-    static void RegisterClass();
 };
 #pragma endregion FORCE_FIELD_COMPONENT
 
@@ -680,8 +637,6 @@ public:
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized();
 
-    static void RegisterClass();
-
     const auto& GetMatrices() const { return m_lightSpaceMatrices; }
     const Vector3f& GetPosition() const { return m_position; }
 
@@ -689,8 +644,6 @@ public:
         float constant;
         float linear;
         float quadratic;
-
-        static void RegisterClass();
     } m_atten;
 
     AABB m_shadowRegion;

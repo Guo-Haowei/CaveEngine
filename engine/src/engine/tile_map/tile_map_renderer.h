@@ -45,7 +45,6 @@ public:
     // @TODO: get rid of old serailization code
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-    static void RegisterClass();
 };
 
 }  // namespace cave

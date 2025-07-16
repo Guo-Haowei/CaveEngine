@@ -3,7 +3,7 @@
 #include "engine/assets/assets.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/systems/serialization/serialization.h"
+#include "engine/serialization/yaml_serializer.h"
 
 namespace cave {
 

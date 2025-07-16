@@ -5,7 +5,7 @@
 #include "engine/core/io/archive.h"
 
 // @TODO: remove
-#include "engine/systems/serialization/serialization.h"
+#include "engine/serialization/yaml_serializer.h"
 
 namespace cave {
 
@@ -81,9 +81,6 @@ void TransformComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(m_scale);
     p_archive.ArchiveValue(m_translation);
     p_archive.ArchiveValue(m_rotation);
-}
-
-void TransformComponent::RegisterClass() {
 }
 
 }  // namespace cave

@@ -1,14 +1,37 @@
-#include "serialization.h"
+#include "yaml_serializer.h"
+
 #include "engine/assets/guid.h"
 
 namespace cave {
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const ecs::Entity& p_object, SerializeYamlContext&) {
+YamlSerializer& YamlSerializer::BeginArray(bool p_one_line) {
+    m_out.SetSeqFormat(p_one_line ? YAML::Flow : YAML::Block);
+    m_out << YAML::BeginSeq;
+    return *this;
+}
+
+YamlSerializer& YamlSerializer::BeginArray() {
+    m_out << YAML::EndSeq;
+    return *this;
+}
+
+YamlSerializer& YamlSerializer::BeginObject(bool p_one_line) {
+    m_out.SetSeqFormat(p_one_line ? YAML::Flow : YAML::Block);
+    m_out << YAML::BeginMap;
+    return *this;
+}
+
+YamlSerializer& YamlSerializer::EndObject() {
+    m_out << YAML::EndMap;
+    return *this;
+}
+
+Result<void> SerializeYaml(YAML::Emitter& p_out, const ecs::Entity& p_object, YamlSerializer&) {
     p_out << p_object.GetId();
     return Result<void>();
 }
 
-Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, SerializeYamlContext&) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, YamlSerializer&) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
@@ -21,12 +44,12 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, Se
     return Result<void>();
 }
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const Degree& p_object, SerializeYamlContext&) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Degree& p_object, YamlSerializer&) {
     p_out << p_object.GetDegree();
     return Result<void>();
 }
 
-Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, SerializeYamlContext&) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, YamlSerializer&) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
@@ -39,12 +62,12 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, Seriali
     return Result<void>();
 }
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, SerializeYamlContext&) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, YamlSerializer&) {
     p_out << p_object;
     return Result<void>();
 }
 
-Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, SerializeYamlContext&) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, YamlSerializer&) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
@@ -57,12 +80,12 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, Se
     return Result<void>();
 }
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const Guid& p_object, SerializeYamlContext&) {
+Result<void> SerializeYaml(YAML::Emitter& p_out, const Guid& p_object, YamlSerializer&) {
     p_out << p_object.ToString();
     return Result<void>();
 }
 
-Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, SerializeYamlContext&) {
+Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, YamlSerializer&) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
     }
