@@ -4,25 +4,30 @@
 
 namespace cave {
 
-YamlSerializer& YamlSerializer::BeginArray(bool p_single_line) {
+ISerializer& YamlSerializer::BeginArray(bool p_single_line) {
     m_out.SetSeqFormat(p_single_line ? YAML::Flow : YAML::Block);
     m_out << YAML::BeginSeq;
     return *this;
 }
 
-YamlSerializer& YamlSerializer::EndArray() {
+ISerializer& YamlSerializer::EndArray() {
     m_out << YAML::EndSeq;
     return *this;
 }
 
-YamlSerializer& YamlSerializer::BeginMap(bool p_single_line) {
+ISerializer& YamlSerializer::BeginMap(bool p_single_line) {
     m_out.SetSeqFormat(p_single_line ? YAML::Flow : YAML::Block);
     m_out << YAML::BeginMap;
     return *this;
 }
 
-YamlSerializer& YamlSerializer::EndMap() {
+ISerializer& YamlSerializer::EndMap() {
     m_out << YAML::EndMap;
+    return *this;
+}
+
+ISerializer& YamlSerializer::Key(std::string_view p_key) {
+    m_out << YAML::Key << p_key << YAML::Value;
     return *this;
 }
 
@@ -64,11 +69,29 @@ void YamlSerializer::Serialize(const TileData& p_tile_data) {
     CRASH_NOW_MSG("TODO:");
 }
 
+auto SaveYaml(std::string_view p_path, YamlSerializer& p_serializer) -> Result<void> {
+    auto& emitter = p_serializer.GetEmitter();
+
+    if (!emitter.good()) {
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "error: {}", emitter.GetLastError());
+    }
+
+    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
+    if (!res) {
+        return CAVE_ERROR(res.error());
+    }
+    auto file = *res;
+
+    const char* string = emitter.c_str();
+    const size_t len = strlen(string);
+    const size_t written = file->WriteBuffer(string, len);
+    DEV_ASSERT(written == len);
+
+    return Result<void>();
+}
+
 /// <summary>
-/// </summary>
-/// <param name="p_out"></param>
-/// <param name="p_object"></param>
-/// <param name=""></param>
+/// MOVE THE FOLLOWING OT DESERIALIZER
 /// <returns></returns>
 
 Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, YamlSerializer&) {
@@ -121,25 +144,6 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, YamlSeria
     }
 
     p_object = *res;
-    return Result<void>();
-}
-
-auto SaveYaml(std::string_view p_path, YAML::Emitter& p_out) -> Result<void> {
-    if (!p_out.good()) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "error: {}", p_out.GetLastError());
-    }
-
-    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-    auto file = *res;
-
-    const char* string = p_out.c_str();
-    const size_t len = strlen(string);
-    const size_t written = file->WriteBuffer(string, len);
-    DEV_ASSERT(written == len);
-
     return Result<void>();
 }
 

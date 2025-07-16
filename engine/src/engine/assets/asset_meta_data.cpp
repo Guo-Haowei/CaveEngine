@@ -60,24 +60,23 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> std::optional<AssetMe
 }
 
 auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
-    YAML::Emitter out;
-    out << YAML::BeginMap;
-    out << YAML::Key << "guid" << YAML::Value << guid.ToString();
-    out << YAML::Key << "type" << YAML::Value << ToString(type);
-    out << YAML::Key << "path" << YAML::Value << path;
-    if (p_asset) {
-        out << YAML::Key << "dependencies" << YAML::Value << YAML::BeginSeq;
-        for (const Guid& id : p_asset->GetDependencies()) {
-            out << id.ToString();
-        }
-        out << YAML::EndSeq;
+    YamlSerializer serializer;
 
-        // @TODO: extra params
+    // @TODO: fix this
+    serializer.BeginMap();
+    serializer
+        .KeyValue("guid", guid)
+        .KeyValue("type", ToString(type))
+        .KeyValue("path", path);
+
+    if (p_asset) {
+        serializer.KeyValue("dependencies", p_asset->GetDependencies());
     }
-    out << YAML::EndMap;
+
+    serializer.EndMap();
 
     auto meta_path = std::format("{}.meta", path);
-    return SaveYaml(meta_path, out);
+    return SaveYaml(meta_path, serializer);
 }
 
 }  // namespace cave

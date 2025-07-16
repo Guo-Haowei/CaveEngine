@@ -1,4 +1,4 @@
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 
 namespace cave::ecs {
 
@@ -12,7 +12,7 @@ TEST(view, iterator) {
     Scene scene;
     const Scene& const_scene = scene;
     for (int i = 0; i < 4; ++i) {
-        scene.CreateNameEntity(std::format("entity_{}", i));
+        EntityFactory::CreateNameEntity(scene, std::format("entity_{}", i));
     }
 
     const char* names[] = {

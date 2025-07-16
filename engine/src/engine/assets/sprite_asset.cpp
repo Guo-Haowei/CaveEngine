@@ -4,6 +4,7 @@
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/serialization/serialization.h"
+#include "engine/serialization/yaml_serializer.h"
 
 namespace cave {
 
@@ -84,16 +85,9 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
         return CAVE_ERROR(res.error());
     }
 
-    json j;
-    j["version"] = VERSION;
-    j["image"] = m_image_guid;
-    j["width"] = m_width;
-    j["height"] = m_height;
-    j["column"] = m_column;
-    j["row"] = m_row;
-    j["tile_scale"] = m_tile_scale;
-
-    return Serialize(p_meta.path, j);
+    YamlSerializer serializer;
+    serializer.Serialize(*this);
+    return SaveYaml(p_meta.path, serializer);
 }
 
 void SpriteAsset::LoadFromDiskCurrent(const nlohmann::json& j) {

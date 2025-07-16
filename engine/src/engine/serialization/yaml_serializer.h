@@ -35,16 +35,41 @@ concept IsArithmetic = std::is_arithmetic_v<T>;
 template<typename T>
 concept IsEnum = std::is_enum_v<T>;
 
-class YamlSerializer {
+// @TODO: move general logic from YamlSerializer to ISerializer
+
+class ISerializer {
 public:
-    YamlSerializer(YAML::Emitter& p_emitter)
-        : m_out(p_emitter) {}
+    virtual ~ISerializer() = default;
 
-    YamlSerializer& BeginArray(bool p_single_line = false);
-    YamlSerializer& EndArray();
+    // virtual bool IsGood() const = 0;
 
-    YamlSerializer& BeginMap(bool p_single_line = false);
-    YamlSerializer& EndMap();
+    // virtual auto WriteToFile() -> Result<void> = 0;
+
+    // virtual const std::string& GetError() const = 0;
+
+    // virtual const std::string& GetWarning() const = 0;
+
+    virtual ISerializer& BeginArray(bool p_single_line = false) = 0;
+    virtual ISerializer& EndArray() = 0;
+
+    virtual ISerializer& BeginMap(bool p_single_line = false) = 0;
+    virtual ISerializer& EndMap() = 0;
+
+    virtual ISerializer& Key(std::string_view p_key) = 0;
+};
+
+// @TODO: refactor
+auto SaveYaml(std::string_view p_path, YamlSerializer& p_serializer) -> Result<void>;
+
+class YamlSerializer : public ISerializer {
+public:
+    ISerializer& BeginArray(bool p_single_line = false) override;
+    ISerializer& EndArray() override;
+
+    ISerializer& BeginMap(bool p_single_line = false) override;
+    ISerializer& EndMap() override;
+
+    ISerializer& Key(std::string_view p_key) override;
 
     template<typename T>
     YamlSerializer& Value(const T& p_value) {
@@ -53,8 +78,8 @@ public:
     }
 
     template<typename T>
-    YamlSerializer& KeyValue(const char* p_key, const T& p_value) {
-        m_out << ::YAML::Key << p_key << ::YAML::Value;
+    YamlSerializer& KeyValue(std::string_view p_key, const T& p_value) {
+        Key(p_key);
         Serialize(p_value);
         return *this;
     }
@@ -98,6 +123,26 @@ public:
         }
         if constexpr (N > 3) {
             Value(p_object.w);
+        }
+        EndArray();
+    }
+
+    template<std::ranges::range R>
+    auto get_range_size(const R& range) {
+        if constexpr (std::ranges::sized_range<R>) {
+            return std::ranges::size(range);  // O(1)
+        } else {
+            // fallback for non-sized ranges
+            return std::ranges::distance(std::ranges::begin(range), std::ranges::end(range));  // O(N)
+        }
+    }
+
+    template<std::ranges::range T>
+    void Serialize(const T& p_container) {
+        const size_t len = std::ranges::size(p_container);
+        BeginArray(len < 4);
+        for (const auto& val : p_container) {
+            Value(val);
         }
         EndArray();
     }
@@ -150,6 +195,10 @@ public:
     }
 #endif
 
+    YAML::Emitter& GetEmitter() {
+        return m_out;
+    }
+
 public:
     FieldFlag flags;
     uint32_t version;
@@ -159,7 +208,7 @@ public:
 
     void PushError(std::string&& p_error);
 
-    YAML::Emitter& m_out;
+    YAML::Emitter m_out;
 
 private:
     std::vector<std::string> m_errors;
@@ -476,9 +525,6 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, std::vector<T>& p_object,
 }  // namespace cave
 
 namespace cave {
-
-// @TODO: write to .tmp then rename, because renaming it atomic
-auto SaveYaml(std::string_view p_path, YAML::Emitter& p_out) -> Result<void>;
 
 auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void>;
 

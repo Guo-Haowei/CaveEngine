@@ -132,10 +132,13 @@ template<Serializable T>
                                               const Scene& p_scene,
                                               FileAccess* p_binary) {
 
+    CRASH_NOW();
+    unused(p_out);
+
     const T* component = p_scene.GetComponent<T>(p_entity);
     if (component) {
         p_out << DUMP_KEY(p_name);
-        YamlSerializer context(p_out);
+        YamlSerializer context;
         context.file = p_binary;
         context.Serialize(*component);
     }
