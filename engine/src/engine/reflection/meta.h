@@ -38,6 +38,11 @@ enum FieldFlag : uint32_t;
 struct SerializeYamlContext;
 
 struct FieldMetaBase {
+    const char* const name;
+    const char* const type;
+    const size_t offset;
+    const FieldFlag flags;
+
     FieldMetaBase(const char* p_name,
                   const char* p_type,
                   size_t p_offset,
@@ -46,11 +51,6 @@ struct FieldMetaBase {
     }
 
     virtual ~FieldMetaBase() = default;
-
-    const char* const name;
-    const char* const type;
-    const size_t offset;
-    const FieldFlag flags;
 
     template<typename T>
     const T& GetData(const void* p_object) const {

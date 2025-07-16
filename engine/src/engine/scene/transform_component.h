@@ -23,7 +23,7 @@ class TransformComponent : public ComponentFlagBase {
     Vector4f m_rotation;
 
     // Non-serialized attributes
-    Matrix4x4f m_world_matrix{ 1 };
+    Matrix4x4f m_world_matrix;
 
 public:
     TransformComponent();
