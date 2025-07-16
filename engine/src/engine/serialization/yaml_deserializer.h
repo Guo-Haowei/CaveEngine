@@ -13,103 +13,39 @@ namespace cave {
 
 class YamlDeserializer {
 public:
-};
+    bool Deserialize(const YAML::Node& p_node, ecs::Entity& p_object);
 
-template<typename T>
-Result<void> DeserializeYamlVec(const YAML::Node& p_node, std::vector<T>& p_object, YamlSerializer& p_serializer) {
-    DEV_ASSERT(!(p_serializer.flags & FieldFlag::BINARY));
-    if (!p_node || !p_node.IsSequence()) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid sequence");
-    }
+    bool Deserialize(const YAML::Node& p_node, Degree& p_object);
 
-    const size_t count = p_node.size();
-    p_object.resize(count);
-    for (size_t i = 0; i < count; ++i) {
-        if (auto res = DeserializeYaml(p_node[i], p_object[i], p_serializer); !res) {
-            return CAVE_ERROR(res.error());
+    bool Deserialize(const YAML::Node& p_node, std::string& p_object);
+
+    bool Deserialize(const YAML::Node& p_node, Guid& p_object);
+
+    bool Deserialize(const YAML::Node& p_node, Matrix4x4f& p_object) {
+        if (!p_node || !p_node.IsSequence() || p_node.size() != 16) {
+            return false;
         }
-    }
-    return Result<void>();
-}
 
-template<typename T>
-Result<void> DeserializeYamlVecBinary(const YAML::Node& p_node, std::vector<T>& p_object, YamlSerializer& p_serializer) {
-    DEV_ASSERT(p_serializer.flags & FieldFlag::BINARY);
-    constexpr size_t element_size = sizeof(p_object[0]);
-    constexpr size_t internal_offset = sizeof(BIN_GUARD_MAGIC) + sizeof(size_t);
-    if (!p_node || !p_node.IsMap()) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid buffer, expect (length, offset)");
+        float* ptr = &p_object[0].x;
+        for (int i = 0; i < 16; ++i) {
+            ptr[i] = p_node[i].as<float>();
+        }
+
+        return true;
     }
 
-    auto& file = p_serializer.file;
-    DEV_ASSERT(file);
+public:
+    YAML::Node m_node;
 
-    size_t offset = 0;
-    size_t size_in_byte = 0;
-    if (auto res = DeserializeYaml(p_node["offset"], offset, p_serializer); !res) {
-        return CAVE_ERROR(res.error());
-    }
-    if (auto res = DeserializeYaml(p_node["buffer_size"], size_in_byte, p_serializer); !res) {
-        return CAVE_ERROR(res.error());
-    }
-    if (size_in_byte == 0) {
-        return Result<void>();
-    }
-    DEV_ASSERT(size_in_byte % element_size == 0);
-    DEV_ASSERT(offset >= internal_offset);
+private:
+    void EmitWarning(std::string&& p_warning);
+    void EmitError(std::string&& p_error);
+    void EmitUndefinedWarning();
+    void EmitNotScalarWarning();
 
-    const size_t element_count = size_in_byte / element_size;
-
-    if (auto seek = file->Seek((long)(offset - internal_offset)); seek != 0) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "Seek failed");
-    }
-
-    char magic[sizeof(BIN_GUARD_MAGIC)];
-    if (auto res = FileRead(file, magic); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    if (!StringUtils::StringEqual(magic, BIN_GUARD_MAGIC)) {
-        magic[sizeof(BIN_GUARD_MAGIC) - 1] = 0;
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "wrong magic {}", magic);
-    }
-
-    size_t stored_length = 0;
-    if (auto res = FileRead(file, stored_length); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    if (stored_length != size_in_byte) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "wrong size (cache: {})", stored_length);
-    }
-
-    p_object.resize(element_count);
-    if (auto res = FileRead(file, p_object.data(), size_in_byte); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    return Result<void>();
-}
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, YamlSerializer&);
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, YamlSerializer&);
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, YamlSerializer&);
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, YamlSerializer&);
-
-inline Result<void> DeserializeYaml(const YAML::Node& p_node, Matrix4x4f& p_object, YamlSerializer&) {
-    if (!p_node || !p_node.IsSequence() || p_node.size() != 16) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a Matrix4x4f");
-    }
-
-    float* ptr = &p_object[0].x;
-    for (int i = 0; i < 16; ++i) {
-        ptr[i] = p_node[i].as<float>();
-    }
-    return Result<void>();
-}
+    std::vector<std::string> m_errors;
+    std::vector<std::string> m_warnings;
+};
 
 template<IsArithmetic T>
 Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, YamlSerializer&) {
@@ -235,4 +171,83 @@ template<typename T>
 Result<void> DeserializeYaml(const YAML::Node& p_node, std::vector<T>& p_object, YamlSerializer& p_serializer) {
     return (p_serializer.flags & FieldFlag::BINARY) ? DeserializeYamlVecBinary(p_node, p_object, p_serializer) : DeserializeYamlVec(p_node, p_object, p_serializer);
 }
+
+#if 0
+template<typename T>
+Result<void> DeserializeYamlVec(const YAML::Node& p_node, std::vector<T>& p_object, YamlSerializer& p_serializer) {
+    DEV_ASSERT(!(p_serializer.flags & FieldFlag::BINARY));
+    if (!p_node || !p_node.IsSequence()) {
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid sequence");
+    }
+
+    const size_t count = p_node.size();
+    p_object.resize(count);
+    for (size_t i = 0; i < count; ++i) {
+        if (auto res = DeserializeYaml(p_node[i], p_object[i], p_serializer); !res) {
+            return CAVE_ERROR(res.error());
+        }
+    }
+    return Result<void>();
+}
+
+template<typename T>
+Result<void> DeserializeYamlVecBinary(const YAML::Node& p_node, std::vector<T>& p_object, YamlSerializer& p_serializer) {
+    DEV_ASSERT(p_serializer.flags & FieldFlag::BINARY);
+    constexpr size_t element_size = sizeof(p_object[0]);
+    constexpr size_t internal_offset = sizeof(BIN_GUARD_MAGIC) + sizeof(size_t);
+    if (!p_node || !p_node.IsMap()) {
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a valid buffer, expect (length, offset)");
+    }
+
+    auto& file = p_serializer.file;
+    DEV_ASSERT(file);
+
+    size_t offset = 0;
+    size_t size_in_byte = 0;
+    if (auto res = DeserializeYaml(p_node["offset"], offset, p_serializer); !res) {
+        return CAVE_ERROR(res.error());
+    }
+    if (auto res = DeserializeYaml(p_node["buffer_size"], size_in_byte, p_serializer); !res) {
+        return CAVE_ERROR(res.error());
+    }
+    if (size_in_byte == 0) {
+        return Result<void>();
+    }
+    DEV_ASSERT(size_in_byte % element_size == 0);
+    DEV_ASSERT(offset >= internal_offset);
+
+    const size_t element_count = size_in_byte / element_size;
+
+    if (auto seek = file->Seek((long)(offset - internal_offset)); seek != 0) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "Seek failed");
+    }
+
+    char magic[sizeof(BIN_GUARD_MAGIC)];
+    if (auto res = FileRead(file, magic); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    if (!StringUtils::StringEqual(magic, BIN_GUARD_MAGIC)) {
+        magic[sizeof(BIN_GUARD_MAGIC) - 1] = 0;
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "wrong magic {}", magic);
+    }
+
+    size_t stored_length = 0;
+    if (auto res = FileRead(file, stored_length); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    if (stored_length != size_in_byte) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "wrong size (cache: {})", stored_length);
+    }
+
+    p_object.resize(element_count);
+    if (auto res = FileRead(file, p_object.data(), size_in_byte); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    return Result<void>();
+}
+#endif
+
 }  // namespace cave

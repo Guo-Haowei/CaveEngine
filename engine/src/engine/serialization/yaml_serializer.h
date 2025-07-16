@@ -204,15 +204,7 @@ public:
     uint32_t version;
     FileAccess* file;
 
-    void PushWarning(std::string&& p_warning);
-
-    void PushError(std::string&& p_error);
-
     YAML::Emitter m_out;
-
-private:
-    std::vector<std::string> m_errors;
-    std::vector<std::string> m_warnings;
 };
 
 }  // namespace cave

@@ -31,14 +31,6 @@ ISerializer& YamlSerializer::Key(std::string_view p_key) {
     return *this;
 }
 
-void YamlSerializer::PushWarning(std::string&& p_warning) {
-    m_warnings.push_back(std::move(p_warning));
-}
-
-void YamlSerializer::PushError(std::string&& p_error) {
-    m_warnings.push_back(std::move(p_error));
-}
-
 void YamlSerializer::Serialize(const Guid& p_object) {
     m_out << p_object.ToString();
 }
@@ -87,81 +79,6 @@ auto SaveYaml(std::string_view p_path, YamlSerializer& p_serializer) -> Result<v
     const size_t written = file->WriteBuffer(string, len);
     DEV_ASSERT(written == len);
 
-    return Result<void>();
-}
-
-/// <summary>
-/// MOVE THE FOLLOWING OT DESERIALIZER
-/// <returns></returns>
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, YamlSerializer&) {
-    if (!p_node) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
-    }
-
-    if (!p_node.IsScalar()) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
-    }
-
-    p_object = ecs::Entity(p_node.as<uint32_t>());
-    return Result<void>();
-}
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, YamlSerializer&) {
-    if (!p_node) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
-    }
-
-    if (!p_node.IsScalar()) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
-    }
-
-    p_object = Degree(p_node.as<float>());
-    return Result<void>();
-}
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, YamlSerializer&) {
-    if (!p_node) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
-    }
-
-    if (!p_node.IsScalar()) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
-    }
-
-    p_object = p_node.as<std::string>();
-    return Result<void>();
-}
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, YamlSerializer&) {
-    if (!p_node) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
-    }
-
-    auto res = Guid::Parse(p_node.as<std::string>());
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    p_object = *res;
-    return Result<void>();
-}
-
-auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void> {
-    auto res = FileAccess::Open(p_path, FileAccess::READ);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    auto file = *res;
-
-    const size_t size = file->GetLength();
-    std::vector<char> buffer;
-    buffer.resize(size);
-    file->ReadBuffer(buffer.data(), size);
-    buffer.push_back('\0');
-
-    p_node = YAML::Load(buffer.data());
     return Result<void>();
 }
 
