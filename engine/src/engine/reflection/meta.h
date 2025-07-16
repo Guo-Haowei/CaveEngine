@@ -24,7 +24,7 @@ namespace cave {
 #define REGISTER_FIELD_2(TYPE, FIELD, ...) \
     ::cave::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD, #FIELD, typeid(FIELD).name(), offsetof(TYPE, FIELD), ##__VA_ARGS__)
 
-#define DEFINE_FILED(TYPE, DISPLAY_NAME, FIELD)                                                                     \
+#define DEFINE_FILED(TYPE, DISPLAY_NAME, FIELD)                                                                    \
     std::move(std::shared_ptr<FieldMetaBase>(new FieldMeta<TYPE>(DISPLAY_NAME,                                     \
                                                                  typeid(decltype(((TYPE*)nullptr)->FIELD)).name(), \
                                                                  offsetof(TYPE, FIELD),                            \

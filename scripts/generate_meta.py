@@ -55,8 +55,8 @@ def extract_field_name(line: str) -> str:
 
     return type_name, name
 
-def filed_meta():
-    pass
+def remove_prefix(name: str) -> str:
+    return name[2:] if name.startswith("m_") else name
 
 def parse_file(file_path):
     results = []
@@ -117,7 +117,8 @@ def generate_meta_file(base_path, file_path, class_name, fields):
         f.write("    static MetaTableFields s_table = {\n")
         for field in fields:
             field_name = field['name']
-            f.write(f'        DEFINE_FILED({class_name}, "{field_name}", {field_name}),\n')
+            display_name = remove_prefix(field_name)
+            f.write(f'        DEFINE_FILED({class_name}, "{display_name}", {field_name}),\n')
             continue
         f.write("    };\n\n")
         f.write("    return s_table;\n")

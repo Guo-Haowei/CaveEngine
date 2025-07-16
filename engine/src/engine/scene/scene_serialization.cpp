@@ -158,6 +158,7 @@ void RegisterClasses() {
         EnvironmentComponent::Ambient::RegisterClass();
         EnvironmentComponent::Sky::RegisterClass();
 
+        // trigger initialization
         MetaDataTable<TransformComponent>::GetFields();
 
         s_initialized = true;
