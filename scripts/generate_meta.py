@@ -123,7 +123,12 @@ def generate_meta_file(base_path, file_path, class_name, fields):
         f.write("    };\n\n")
         f.write("    return s_table;\n")
         f.write("}\n\n")
+        f.write(f"// Register the class\n")
+        f.write(f"[[maybe_unused]] static const auto& s_instantiate = GetMetaTableFields<{class_name}>();\n\n")
         f.write("}  // namespace cave\n")
+
+
+
 
     print(f"Generated: {output_file}")
 
