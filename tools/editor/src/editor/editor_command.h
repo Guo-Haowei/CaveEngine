@@ -25,6 +25,7 @@ protected:
     friend class EditorLayer;
 };
 
+// @TODO: change to memento
 class EditorUndoCommandBase : public EditorCommandBase, public UndoCommand {
 public:
     EditorUndoCommandBase()
@@ -86,10 +87,10 @@ protected:
     friend class EditorLayer;
 };
 
-#if 0
 class OpenProjectCommand : public EditorCommandBase {
 public:
-    OpenProjectCommand(bool p_open_dialog) : EditorCommandBase(COMMAND_TYPE_OPEN_PROJECT), m_openDialog(p_open_dialog) {}
+    OpenProjectCommand(bool p_open_dialog)
+        : m_openDialog(p_open_dialog) {}
 
     virtual void Execute(Scene& p_scene) override;
 
@@ -99,14 +100,14 @@ protected:
 
 class SaveProjectCommand : public EditorCommandBase {
 public:
-    SaveProjectCommand(bool p_open_dialog) : EditorCommandBase(COMMAND_TYPE_SAVE_PROJECT), m_openDialog(p_open_dialog) {}
+    SaveProjectCommand(bool p_open_dialog)
+        : m_openDialog(p_open_dialog) {}
 
     virtual void Execute(Scene& p_scene) override;
 
 protected:
     bool m_openDialog;
 };
-#endif
 
 // @TODO: move it to gizmo
 class EntityTransformCommand : public EditorUndoCommandBase {

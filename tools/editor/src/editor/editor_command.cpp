@@ -82,7 +82,6 @@ void EditorCommandRemoveEntity::Execute(Scene& p_scene) {
     p_scene.RemoveEntity(entity);
 }
 
-#if 0
 /// OpenProjectCommand
 void OpenProjectCommand::Execute(Scene&) {
     std::string path;
@@ -106,7 +105,6 @@ void OpenProjectCommand::Execute(Scene&) {
 
 /// SaveProjectCommand
 void SaveProjectCommand::Execute(Scene& p_scene) {
-
     // Check dirty commands
 
     const std::string& scene = DVAR_GET_STRING(scene);
@@ -139,7 +137,6 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
 
     LOG_OK("scene saved to '{}'", path.string());
 }
-#endif
 
 /// TransformCommand
 EntityTransformCommand::EntityTransformCommand(GizmoAction p_action,

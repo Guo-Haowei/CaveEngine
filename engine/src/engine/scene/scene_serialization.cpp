@@ -144,23 +144,7 @@ template<Serializable T>
     return Result<void>();
 }
 
-void RegisterClasses() {
-    static bool s_initialized = false;
-    if (DEV_VERIFY(!s_initialized)) {
-#define REGISTER_COMPONENT(a, ...) a::RegisterClass();
-        REGISTER_COMPONENT_LIST
-#undef REGISTER_COMPONENT
-        MeshComponent::MeshSubset::RegisterClass();
-        MaterialComponent::TextureMap::RegisterClass();
-        AnimationComponent::Sampler::RegisterClass();
-        AnimationComponent::Channel::RegisterClass();
-        LightComponent::Attenuation::RegisterClass();
-        EnvironmentComponent::Ambient::RegisterClass();
-        EnvironmentComponent::Sky::RegisterClass();
-
-        s_initialized = true;
-    }
-}
+void RegisterClasses() {}
 
 Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
     std::unordered_set<uint32_t> entity_set;
@@ -212,7 +196,7 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
     if (auto res = SerializeComponent<a>(out, #a, entity, p_scene, archive.GetFileAccess().get()); !res) { \
         return CAVE_ERROR(res.error());                                                                    \
     }
-        REGISTER_COMPONENT_LIST
+        REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
         out.SetSeqFormat(YAML::Block);
@@ -324,7 +308,7 @@ Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
         auto res2 = DeserializeComponent<a>(entity, #a, id, version, p_scene, file.get()); \
         if (!res2) { return CAVE_ERROR(res2.error()); }                                    \
     } while (0);
-        REGISTER_COMPONENT_LIST
+        REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
     }
 
