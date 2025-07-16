@@ -13,7 +13,9 @@ if platform.system() == 'Darwin':
 
 skip_patterns = [
     'stb_image.h',
-    'imgui_impl_*'
+    'imgui_impl_',
+    '.meta.cpp',
+    'glsl_generated',
 ]
 
 def need_format(file):
@@ -23,9 +25,9 @@ def need_format(file):
         return False
 
     # white list
-    file_name_with_ext = os.path.basename(file)
+    # file_name_with_ext = os.path.basename(file)
     for pattern in skip_patterns:
-        if re.search(pattern, file_name_with_ext):
+        if pattern in file:
             return False
     return True
 

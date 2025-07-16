@@ -59,7 +59,8 @@ public:
 
     uint32_t GetRevision() const { return m_revision; }
 #endif
-    void BumpRevision() { ++m_revision; }
+
+    void BumpRevision() override { ++m_revision; }
 
     virtual Scene* CreateDefaultScene();
 

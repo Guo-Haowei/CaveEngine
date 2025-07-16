@@ -56,7 +56,7 @@ protected:
     void UndoableSetTile(TileMapAsset& p_layer,
                          int p_layer_id,
                          TileIndex p_index,
-                         Option<TileData> p_new_tile);
+                         Option<TileId> p_new_tile);
 
     void Reset() {
         m_tile_map_guid = Guid();

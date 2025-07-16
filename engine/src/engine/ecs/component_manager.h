@@ -14,7 +14,6 @@ class FileAccess;
 template<typename T>
 concept Serializable = requires(T& t, Archive& p_archive, uint32_t p_version) {
     { t.Serialize(p_archive, p_version) } -> std::same_as<void>;
-    { T::RegisterClass() } -> std::same_as<void>;
 };
 
 }  // namespace cave

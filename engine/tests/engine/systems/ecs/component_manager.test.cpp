@@ -25,8 +25,6 @@ struct A {
     int a;
 
     void Serialize(Archive&, uint32_t) {}
-    static void RegisterClass() {
-    }
 };
 
 TEST(serializable, test_serializable) {

@@ -17,8 +17,6 @@ protected:
 
     void ListFile(const std::filesystem::path& p_path, const char* p_name_override = nullptr);
 
-    void ShowResourceToolTip(const AssetMetaData& p_meta, const IAsset& p_asset);
-
     void FolderPopup(const std::filesystem::path& p_path, bool p_is_dir);
 
     std::filesystem::path m_root;

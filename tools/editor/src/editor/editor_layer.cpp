@@ -55,13 +55,15 @@ EditorLayer::EditorLayer()
         "Save As..",
         "Ctrl+Shift+S",
         [&]() {
-            // this->BufferCommand(std::make_shared<SaveProjectCommand>(true));
+            this->BufferCommand(std::make_shared<SaveProjectCommand>(true));
         },
     };
     m_shortcuts[SHORT_CUT_SAVE] = {
         "Save",
         "Ctrl+S",
-        //[&]() { this->BufferCommand(std::make_shared<SaveProjectCommand>(false)); },
+        [&]() {
+            this->BufferCommand(std::make_shared<SaveProjectCommand>(false));
+        },
     };
     m_shortcuts[SHORT_CUT_OPEN] = {
         "Open",

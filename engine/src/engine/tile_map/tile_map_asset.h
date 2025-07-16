@@ -3,6 +3,7 @@
 
 #include "engine/assets/asset_handle.h"
 #include "engine/assets/asset_interface.h"
+#include "engine/reflection/reflection.h"
 
 namespace cave {
 
@@ -29,25 +30,33 @@ struct hash<::cave::TileIndex> {
 
 namespace cave {
 
-using TileData = uint32_t;
+using TileId = uint32_t;
 
-// @TODO: remove this to TileBrush logic
-enum class TileResult : uint8_t {
-    Removed,
-    Replaced,
-    Added,
-    Noop,
-};
+using TileData = std::unordered_map<TileIndex, TileId>;
 
 class TileMapAsset : public IAsset {
-    DECLARE_ASSET(TileMapAsset, AssetType::TileMap)
+    CAVE_ASSET(TileMapAsset, AssetType::TileMap)
+
+    CAVE_META(TileMapAsset)
+
+    CAVE_PROP(type = string, hint = name)
+    std::string m_name;
+
+    CAVE_PROP(type = guid, tooltip = "tileset id")
+    Guid m_sprite_guid;
+
+    CAVE_PROP(type = boolean, hint = visibility, tooltip = "toggle layer visibility")
+    bool m_is_visible = true;
+
+    CAVE_PROP(type = tile_data)
+    TileData m_tiles;
+
 public:
-    // promote TileMapLayer to TileMapAsset
     static constexpr const int VERSION = 1;
 
-    Option<TileData> GetTile(TileIndex p_index) const;
+    Option<TileId> GetTile(TileIndex p_index) const;
 
-    bool AddTile(TileIndex p_index, TileData p_data);
+    bool AddTile(TileIndex p_index, TileId p_data);
 
     bool RemoveTile(TileIndex p_index);
 
@@ -61,13 +70,13 @@ public:
     void SetSpriteGuid(const Guid& p_guid);
 
     const auto& GetTiles() const { return m_tiles; }
-    void SetTiles(std::unordered_map<TileIndex, TileData>&& p_tiles);
+    void SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles);
 
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }
 
-    bool IsVisible() const { return m_visible; }
-    void SetVisible(bool p_visible) { m_visible = p_visible; }
+    bool IsVisible() const { return m_is_visible; }
+    void SetVisible(bool p_visible) { m_is_visible = p_visible; }
 
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
@@ -77,12 +86,6 @@ public:
 private:
     void LoadFromDiskVersion0(const nlohmann::json& j);
     void LoadFromDiskVersion1(const nlohmann::json& j);
-
-    std::string m_name;
-    Guid m_sprite_guid;
-    std::unordered_map<TileIndex, TileData> m_tiles;
-
-    bool m_visible = true;
 
     // Non serialized
     Handle<SpriteAsset> m_sprite_handle;

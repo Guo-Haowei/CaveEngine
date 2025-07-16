@@ -2,8 +2,8 @@
 
 namespace cave {
 
-std::shared_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileData p_tile) {
-    Option<TileData> old_tile = p_tile_map.GetTile(p_index);
+std::shared_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileId p_tile) {
+    Option<TileId> old_tile = p_tile_map.GetTile(p_index);
 
     if (!p_tile_map.AddTile(p_index, p_tile)) {
         return nullptr;
@@ -19,7 +19,7 @@ std::shared_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map
 }
 
 std::shared_ptr<SetTileCommand> SetTileCommand::RemoveTile(TileMapAsset& p_tile_map, TileIndex p_index) {
-    Option<TileData> old_tile = p_tile_map.GetTile(p_index);
+    Option<TileId> old_tile = p_tile_map.GetTile(p_index);
 
     if (!p_tile_map.RemoveTile(p_index)) {
         return nullptr;
@@ -29,7 +29,7 @@ std::shared_ptr<SetTileCommand> SetTileCommand::RemoveTile(TileMapAsset& p_tile_
 
     auto cmd = std::make_shared<SetTileCommand>();
     cmd->m_old_tile = old_tile;
-    cmd->m_new_tile = Option<TileData>::None();
+    cmd->m_new_tile = Option<TileId>::None();
     cmd->m_index = p_index;
     return cmd;
 }
@@ -44,7 +44,7 @@ bool SetTileCommand::MergeCommand(const UndoCommand* p_other) {
     return false;
 }
 
-bool SetTileCommand::SetTile(Option<TileData> p_new_tile) {
+bool SetTileCommand::SetTile(Option<TileId> p_new_tile) {
     TileMapAsset* tile_map = m_handle.Get();
     if (!tile_map) {
         return false;

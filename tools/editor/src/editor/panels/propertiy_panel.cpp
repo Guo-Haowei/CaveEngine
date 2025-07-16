@@ -97,16 +97,18 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         if (ImGui::MenuItem("Script")) {
             m_editor.CommandAddComponent(ComponentType::Script, id);
         }
+        if (ImGui::MenuItem("TileMap")) {
+            m_editor.CommandAddComponent(ComponentType::TileMap, id);
+        }
         ImGui::EndPopup();
     }
 
+    MeshRenderer* mesh_renderer = scene.GetComponent<MeshRenderer>(id);
+    TileMapRenderer* tile_map_renderer = scene.GetComponent<TileMapRenderer>(id);
+
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
     LightComponent* light_component = scene.GetComponent<LightComponent>(id);
-    MeshRenderer* object_component = scene.GetComponent<MeshRenderer>(id);
-    MeshComponent* mesh_component = object_component ? scene.GetComponent<MeshComponent>(object_component->meshId) : nullptr;
-    MaterialComponent* material_component = scene.GetComponent<MaterialComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
-    AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
     ParticleEmitterComponent* particle_emitter_component = scene.GetComponent<ParticleEmitterComponent>(id);
     MeshEmitterComponent* mesh_emitter_component = scene.GetComponent<MeshEmitterComponent>(id);
     ForceFieldComponent* force_field_component = scene.GetComponent<ForceFieldComponent>(id);
@@ -114,6 +116,11 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     CameraComponent* camera_component = scene.GetComponent<CameraComponent>(id);
     EnvironmentComponent* environment_component = scene.GetComponent<EnvironmentComponent>(id);
     VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
+    AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
+
+    // change to asset
+    MaterialComponent* material_component = scene.GetComponent<MaterialComponent>(id);
+    MeshComponent* mesh_component = mesh_renderer ? scene.GetComponent<MeshComponent>(mesh_renderer->meshId) : nullptr;
 
     bool disable_translation = false;
     bool disable_rotation = false;
@@ -242,6 +249,17 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
+    DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRenderer& p_tile_map_renderer) {
+        ImGui::Text("tile map: %s", p_tile_map_renderer.GetGuid().ToString().c_str());
+        const bool hovered = ImGui::IsItemHovered();
+        DragDropTarget(AssetType::TileMap, [&](AssetHandle& p_handle) {
+            p_tile_map_renderer.SetTileMap(p_handle.GetGuid());
+        });
+        if (hovered) {
+            ShowAssetToolTip(p_tile_map_renderer.GetGuid());
+        }
+    });
+
     DrawComponent("Material", material_component, [](MaterialComponent& p_material) {
         DrawColorPicker3("base color", &p_material.baseColor.x);
         DrawDragFloat("metallic", p_material.metallic, 0.01f, 0.0f, 1.0f);
@@ -294,7 +312,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
-    DrawComponent("Object", object_component, [&](MeshRenderer& p_object) {
+    DrawComponent("Object", mesh_renderer, [&](MeshRenderer& p_object) {
         bool hide = !(p_object.flags & MeshRenderer::FLAG_RENDERABLE);
         bool cast_shadow = p_object.flags & MeshRenderer::FLAG_CAST_SHADOW;
         ImGui::Checkbox("Hide", &hide);

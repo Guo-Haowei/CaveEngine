@@ -4,8 +4,9 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
+#include "engine/runtime/scene_manager_interface.h"
 #include "engine/drivers/windows/dialog.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 #include "engine/scene/scene_serialization.h"
 
 namespace cave {
@@ -41,9 +42,9 @@ void EditorInspectAssetCommand::Execute(Scene&) {
 void EditorCommandAddEntity::Execute(Scene& p_scene) {
     ecs::Entity id;
     switch (m_entityType) {
-#define ENTITY_TYPE(ENUM, NAME, ...)                            \
-    case EntityType::ENUM: {                                    \
-        id = p_scene.Create##NAME##Entity(GenerateName(#NAME)); \
+#define ENTITY_TYPE(ENUM, NAME, ...)                                            \
+    case EntityType::ENUM: {                                                    \
+        id = EntityFactory::Create##NAME##Entity(p_scene, GenerateName(#NAME)); \
     } break;
         ENTITY_TYPE_LIST
 #undef ENTITY_TYPE
@@ -55,7 +56,7 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
     p_scene.AttachChild(id, m_parent.IsValid() ? m_parent : p_scene.m_root);
     m_editor->SelectEntity(id);
 
-    // SceneManager::GetSingleton().BumpRevision();
+    ISceneManager::GetSingleton().BumpRevision();
 }
 
 /// EditorCommandAddComponent
@@ -64,6 +65,9 @@ void EditorCommandAddComponent::Execute(Scene& p_scene) {
     switch (m_componentType) {
         case ComponentType::Script: {
             p_scene.Create<LuaScriptComponent>(target);
+        } break;
+        case ComponentType::TileMap: {
+            p_scene.Create<TileMapRenderer>(target);
         } break;
         default: {
             CRASH_NOW();
@@ -78,7 +82,6 @@ void EditorCommandRemoveEntity::Execute(Scene& p_scene) {
     p_scene.RemoveEntity(entity);
 }
 
-#if 0
 /// OpenProjectCommand
 void OpenProjectCommand::Execute(Scene&) {
     std::string path;
@@ -97,12 +100,11 @@ void OpenProjectCommand::Execute(Scene&) {
     DVAR_SET_STRING(scene, path);
 
     CRASH_NOW();
-    //SceneManager::GetSingleton().RequestScene(path);
+    // SceneManager::GetSingleton().RequestScene(path);
 }
 
 /// SaveProjectCommand
 void SaveProjectCommand::Execute(Scene& p_scene) {
-
     // Check dirty commands
 
     const std::string& scene = DVAR_GET_STRING(scene);
@@ -135,7 +137,6 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
 
     LOG_OK("scene saved to '{}'", path.string());
 }
-#endif
 
 /// TransformCommand
 EntityTransformCommand::EntityTransformCommand(GizmoAction p_action,

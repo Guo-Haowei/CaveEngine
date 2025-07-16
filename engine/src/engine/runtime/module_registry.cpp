@@ -191,6 +191,8 @@ public:
     Scene* GetActiveScene() const override { return nullptr; }
 
     void Update() override {}
+
+    void BumpRevision() override {}
 };
 
 DisplayManager* CreateDisplayManager() {
