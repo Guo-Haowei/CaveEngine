@@ -6,7 +6,7 @@
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/drivers/windows/dialog.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 #include "engine/scene/scene_serialization.h"
 
 namespace cave {
@@ -42,9 +42,9 @@ void EditorInspectAssetCommand::Execute(Scene&) {
 void EditorCommandAddEntity::Execute(Scene& p_scene) {
     ecs::Entity id;
     switch (m_entityType) {
-#define ENTITY_TYPE(ENUM, NAME, ...)                            \
-    case EntityType::ENUM: {                                    \
-        id = p_scene.Create##NAME##Entity(GenerateName(#NAME)); \
+#define ENTITY_TYPE(ENUM, NAME, ...)                                            \
+    case EntityType::ENUM: {                                                    \
+        id = EntityFactory::Create##NAME##Entity(p_scene, GenerateName(#NAME)); \
     } break;
         ENTITY_TYPE_LIST
 #undef ENTITY_TYPE

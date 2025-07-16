@@ -1,7 +1,7 @@
 #include "engine/core/base/random.h"
 #include "engine/math/matrix_transform.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 
 /*
 @TODO
@@ -17,13 +17,13 @@ Scene* CreateBoxScene() {
     Scene* scene = new Scene;
     scene->m_physicsMode = PhysicsMode::SIMULATION;
 
-    auto root = scene->CreateTransformEntity("root");
+    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
     Vector2i frame_size = DVAR_GET_IVEC2(resolution);
     // editor camera
     {
-        auto editor_camera = scene->CreatePerspectiveCameraEntity("editor_camera", frame_size.x, frame_size.y);
+        auto editor_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "editor_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(editor_camera);
         DEV_ASSERT(camera);
         camera->SetPosition(Vector3f(0, 4, 15));
@@ -32,7 +32,7 @@ Scene* CreateBoxScene() {
     }
     // main camera
     {
-        auto main_camera = scene->CreatePerspectiveCameraEntity("main_camera", frame_size.x, frame_size.y);
+        auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(main_camera);
         DEV_ASSERT(camera);
         camera->SetPosition(Vector3f(0, 4, 15));
@@ -41,18 +41,18 @@ Scene* CreateBoxScene() {
     }
     // add a light
     if constexpr (0) {
-        auto id = scene->CreatePointLightEntity("point_light", Vector3f(0, 0, 0));
+        auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vector3f(0, 0, 0));
         scene->AttachChild(id, root);
         LightComponent* light = scene->GetComponent<LightComponent>(id);
         light->SetCastShadow();
     }
 
-    auto world = scene->CreateTransformEntity("world");
+    auto world = EntityFactory::CreateTransformEntity(*scene, "world");
     scene->AttachChild(world, root);
 
     int mat_counter = 0;
     auto create_material = [&](const std::string& p_name) {
-        auto id = scene->CreateMaterialEntity(std::format("{}_{}", "p_name", mat_counter++));
+        auto id = EntityFactory::CreateMaterialEntity(*scene, std::format("{}_{}", "p_name", mat_counter++));
         MaterialComponent* mat = scene->GetComponent<MaterialComponent>(id);
         if (p_name == "white") {
             mat->metallic = 0.3f;
@@ -85,7 +85,7 @@ Scene* CreateBoxScene() {
 
         for (int i = 0; i < array_length(wall_info); ++i) {
             const auto& info = wall_info[i];
-            auto wall = scene->CreateCubeEntity(info.name, info.material, Vector3f(s, 0.2f, s), info.transform);
+            auto wall = EntityFactory::CreateCubeEntity(*scene, info.name, info.material, Vector3f(s, 0.2f, s), info.transform);
             scene->AttachChild(wall, world);
         }
     }
@@ -99,13 +99,13 @@ Scene* CreatePhysicsTestScene() {
     Scene* scene = new Scene;
     scene->m_physicsMode = PhysicsMode::SIMULATION;
 
-    auto root = scene->CreateTransformEntity("root");
+    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
     Vector2i frame_size = DVAR_GET_IVEC2(resolution);
     // editor camera
     {
-        auto editor_camera = scene->CreatePerspectiveCameraEntity("editor_camera", frame_size.x, frame_size.y);
+        auto editor_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "editor_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(editor_camera);
         DEV_ASSERT(camera);
         camera->SetPosition(Vector3f(0, 5, 12));
@@ -114,7 +114,7 @@ Scene* CreatePhysicsTestScene() {
     }
     // main camera
     {
-        auto main_camera = scene->CreatePerspectiveCameraEntity("main_camera", frame_size.x, frame_size.y);
+        auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(main_camera);
         DEV_ASSERT(camera);
         camera->SetPosition(Vector3f(0, 5, 12));
@@ -123,20 +123,20 @@ Scene* CreatePhysicsTestScene() {
     }
     // add a light
     {
-        auto id = scene->CreatePointLightEntity("point_light", Vector3f(0, 5, 3));
+        auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vector3f(0, 5, 3));
         scene->AttachChild(id, root);
         LightComponent* light = scene->GetComponent<LightComponent>(id);
         light->SetCastShadow();
     }
 
-    auto world = scene->CreateTransformEntity("world");
+    auto world = EntityFactory::CreateTransformEntity(*scene, "world");
     scene->AttachChild(world, root);
 
-    ecs::Entity material_id = scene->CreateMaterialEntity("material");
+    ecs::Entity material_id = EntityFactory::CreateMaterialEntity(*scene, "material");
 
     {
         Vector3f ground_scale(5.0f, 0.1f, 5.0f);
-        auto ground = scene->CreateCubeEntity("ground_left", material_id, ground_scale);
+        auto ground = EntityFactory::CreateCubeEntity(*scene, "ground_left", material_id, ground_scale);
         scene->AttachChild(ground, world);
         scene->Create<RigidBodyComponent>(ground)
             .InitCube(ground_scale)
@@ -148,7 +148,7 @@ Scene* CreatePhysicsTestScene() {
     }
     {
         Vector3f ground_scale(5.0f, 0.1f, 5.0f);
-        auto ground = scene->CreateCubeEntity("ground_right", material_id, ground_scale);
+        auto ground = EntityFactory::CreateCubeEntity(*scene, "ground_right", material_id, ground_scale);
         scene->AttachChild(ground, world);
         scene->Create<RigidBodyComponent>(ground)
             .InitCube(ground_scale)
@@ -159,6 +159,7 @@ Scene* CreatePhysicsTestScene() {
         transform->RotateZ(Degree(45.0f));
     }
 
+#if 0
     {
         constexpr float s = 3.5f;
         constexpr float h = 2.0f;
@@ -167,14 +168,15 @@ Scene* CreatePhysicsTestScene() {
         Vector3f p2(+s, h, -s);  // bottom right
         Vector3f p3(-s, h, -s);  // bottom left
 
-        auto cloth = scene->CreateClothEntity("cloth",
-                                              material_id,
-                                              p0, p1, p2, p3,
-                                              Vector2i(30),
-                                              CLOTH_FIX_ALL);
+        auto cloth = EntityFactory::CreateClothEntity(*scene, "cloth",
+                                                      material_id,
+                                                      p0, p1, p2, p3,
+                                                      Vector2i(30),
+                                                      CLOTH_FIX_ALL);
 
         scene->AttachChild(cloth, root);
     }
+#endif
 
     for (int t = 1; t <= 21; ++t) {
         const int x = (t - 1) % 7;
@@ -187,11 +189,11 @@ Scene* CreatePhysicsTestScene() {
 
         ecs::Entity id;
         if (t % 2) {
-            id = scene->CreateCubeEntity(std::format("Cube_{}", t), material_id, scale, Translate(translate));
+            id = EntityFactory::CreateCubeEntity(*scene, std::format("Cube_{}", t), material_id, scale, Translate(translate));
             scene->Create<RigidBodyComponent>(id).InitCube(scale);
         } else {
             const float radius = 0.25f;
-            id = scene->CreateSphereEntity(std::format("Sphere_{}", t), material_id, radius, Translate(translate));
+            id = EntityFactory::CreateSphereEntity(*scene, std::format("Sphere_{}", t), material_id, radius, Translate(translate));
             scene->Create<RigidBodyComponent>(id).InitSphere(radius);
         }
         scene->AttachChild(id, world);
@@ -205,13 +207,13 @@ Scene* CreatePbrTestScene() {
 
     Scene* scene = new Scene;
 
-    auto root = scene->CreateTransformEntity("root");
+    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
     Vector2i frame_size = DVAR_GET_IVEC2(resolution);
     // editor camera
     {
-        auto editor_camera = scene->CreatePerspectiveCameraEntity("editor_camera", frame_size.x, frame_size.y);
+        auto editor_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "editor_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(editor_camera);
         DEV_ASSERT(camera);
         camera->SetPosition(Vector3f(0, 4, 10));
@@ -220,7 +222,7 @@ Scene* CreatePbrTestScene() {
     }
     // main camera
     {
-        auto main_camera = scene->CreatePerspectiveCameraEntity("main_camera", frame_size.x, frame_size.y);
+        auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(main_camera);
         DEV_ASSERT(camera);
         camera->SetPosition(Vector3f(0, 4, 10));
@@ -228,7 +230,7 @@ Scene* CreatePbrTestScene() {
         scene->AttachChild(main_camera, root);
     }
 
-    auto world = scene->CreateTransformEntity("world");
+    auto world = EntityFactory::CreateTransformEntity(*scene, "world");
     scene->AttachChild(world, root);
 
     const int num_row = 7;
@@ -241,7 +243,7 @@ Scene* CreatePbrTestScene() {
             const float y = (row - 0.5f * num_row) * spacing;
 
             auto name = std::format("sphere_{}_{}", row, col);
-            auto material_id = scene->CreateMaterialEntity(std::format("{}_mat", name));
+            auto material_id = EntityFactory::CreateMaterialEntity(*scene, std::format("{}_mat", name));
             MaterialComponent* material = scene->GetComponent<MaterialComponent>(material_id);
             material->metallic = (float)row / (num_row - 1);
             material->roughness = (float)col / (num_col - 1);
@@ -249,13 +251,13 @@ Scene* CreatePbrTestScene() {
             material->roughness = glm::clamp(material->roughness, 0.05f, 0.95f);
 
             auto transform = Translate(Vector3f(x, y, 0.0f));
-            auto sphere = scene->CreateSphereEntity(name, material_id, 0.5f, transform);
+            auto sphere = EntityFactory::CreateSphereEntity(*scene, name, material_id, 0.5f, transform);
             scene->AttachChild(sphere, world);
         }
     }
 
     {
-        auto id = scene->CreateEnvironmentEntity("environment");
+        auto id = EntityFactory::CreateEnvironmentEntity(*scene, "environment");
         scene->AttachChild(id, root);
 
         auto* env = scene->GetComponent<EnvironmentComponent>(id);

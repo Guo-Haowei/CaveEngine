@@ -1,7 +1,7 @@
 #include "editor_scene_manager.h"
 
 #include "editor_dvars.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 
 namespace cave {
 
@@ -28,7 +28,7 @@ Scene* EditorSceneManager::CreateDefaultScene() {
     ecs::Entity::SetSeed();
 
     Scene* scene = new Scene;
-    auto root = scene->CreateTransformEntity("root");
+    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
     return scene;

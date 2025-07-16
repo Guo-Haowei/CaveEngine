@@ -6,6 +6,7 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 
+#include "engine/scene/entity_factory.h"
 #include "engine/runtime/asset_registry.h"
 
 namespace cave {
@@ -44,7 +45,7 @@ auto AssimpAssetLoader::Load() -> Result<AssetRef> {
 }
 
 void AssimpAssetLoader::ProcessMaterial(aiMaterial& p_material) {
-    auto material_id = m_scene->CreateMaterialEntity(std::string("Material::") + p_material.GetName().C_Str());
+    auto material_id = EntityFactory::CreateMaterialEntity(*m_scene, std::string("Material::") + p_material.GetName().C_Str());
     MaterialComponent* materialComponent = m_scene->GetComponent<MaterialComponent>(material_id);
     DEV_ASSERT(materialComponent);
 
@@ -60,7 +61,7 @@ void AssimpAssetLoader::ProcessMaterial(aiMaterial& p_material) {
     if (!path.empty()) {
         materialComponent->textures[MaterialComponent::TEXTURE_BASE].path = path;
         DEV_ASSERT(0);
-        //AssetRegistry::GetSingleton().RequestAssetSync(path);
+        // AssetRegistry::GetSingleton().RequestAssetSync(path);
     }
 
     path = get_material_path(aiTextureType_NORMALS, 0);
@@ -70,7 +71,7 @@ void AssimpAssetLoader::ProcessMaterial(aiMaterial& p_material) {
     if (!path.empty()) {
         materialComponent->textures[MaterialComponent::TEXTURE_NORMAL].path = path;
         DEV_ASSERT(0);
-        //AssetRegistry::GetSingleton().RequestAssetSync(path);
+        // AssetRegistry::GetSingleton().RequestAssetSync(path);
     }
 
 #if 0
@@ -92,7 +93,7 @@ void AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
         LOG_WARN("mesh {} does not have texture coordinates", mesh_name);
     }
 
-    ecs::Entity mesh_id = m_scene->CreateMeshEntity("Mesh::" + mesh_name);
+    ecs::Entity mesh_id = EntityFactory::CreateMeshEntity(*m_scene, "Mesh::" + mesh_name);
     MeshComponent& mesh_component = *m_scene->GetComponent<MeshComponent>(mesh_id);
 
     for (uint32_t i = 0; i < p_mesh.mNumVertices; ++i) {
@@ -138,15 +139,15 @@ ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_p
     ecs::Entity entity;
 
     if (p_node->mNumMeshes == 1) {  // geometry node
-        entity = m_scene->CreateObjectEntity("Geometry::" + key);
+        entity = EntityFactory::CreateObjectEntity(*m_scene, "Geometry::" + key);
 
         MeshRenderer& objComponent = *m_scene->GetComponent<MeshRenderer>(entity);
         objComponent.meshId = m_meshes[p_node->mMeshes[0]];
     } else {  // else make it a transform/bone node
-        entity = m_scene->CreateTransformEntity("Node::" + key);
+        entity = EntityFactory::CreateTransformEntity(*m_scene, "Node::" + key);
 
         for (uint32_t i = 0; i < p_node->mNumMeshes; ++i) {
-            ecs::Entity child = m_scene->CreateObjectEntity("");
+            ecs::Entity child = EntityFactory::CreateObjectEntity(*m_scene, "");
             auto tagComponent = m_scene->GetComponent<NameComponent>(child);
             tagComponent->SetName("SubGeometry_" + std::to_string(child.GetId()));
             MeshRenderer& objComponent = *m_scene->GetComponent<MeshRenderer>(child);

@@ -4,13 +4,13 @@
 
 namespace cave {
 
-ecs::Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
-                                                         const std::string& p_name,
-                                                         int p_width,
-                                                         int p_height,
-                                                         float p_near_plane,
-                                                         float p_far_plane,
-                                                         Degree p_fovy) {
+Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
+                                                    const std::string& p_name,
+                                                    int p_width,
+                                                    int p_height,
+                                                    float p_near_plane,
+                                                    float p_far_plane,
+                                                    Degree p_fovy) {
     auto entity = CreateNameEntity(p_scene, p_name);
     CameraComponent& camera = p_scene.Create<CameraComponent>(entity);
 
@@ -25,47 +25,47 @@ ecs::Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateNameEntity(Scene& p_scene,
-                                            const std::string& p_name) {
-    auto entity = ecs::Entity::Create();
+Entity EntityFactory::CreateNameEntity(Scene& p_scene,
+                                       const std::string& p_name) {
+    auto entity = Entity::Create();
     p_scene.Create<NameComponent>(entity).SetName(p_name);
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateTransformEntity(Scene& p_scene,
-                                                 const std::string& p_name) {
+Entity EntityFactory::CreateTransformEntity(Scene& p_scene,
+                                            const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<TransformComponent>(entity);
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateObjectEntity(Scene& p_scene,
-                                              const std::string& p_name) {
+Entity EntityFactory::CreateObjectEntity(Scene& p_scene,
+                                         const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<MeshRenderer>(entity);
     p_scene.Create<TransformComponent>(entity);
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
-                                            const std::string& p_name) {
+Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
+                                       const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<MeshComponent>(entity);
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateMaterialEntity(Scene& p_scene,
-                                                const std::string& p_name) {
+Entity EntityFactory::CreateMaterialEntity(Scene& p_scene,
+                                           const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<MaterialComponent>(entity);
     return entity;
 }
 
-ecs::Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
-                                                  const std::string& p_name,
-                                                  const Vector3f& p_position,
-                                                  const Vector3f& p_color,
-                                                  const float p_emissive) {
+Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
+                                             const std::string& p_name,
+                                             const Vector3f& p_position,
+                                             const Vector3f& p_color,
+                                             const float p_emissive) {
     auto entity = CreateObjectEntity(p_scene, p_name);
 
     LightComponent& light = p_scene.Create<LightComponent>(entity);
@@ -93,10 +93,10 @@ ecs::Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
-                                                 const std::string& p_name,
-                                                 const Vector3f& p_color,
-                                                 const float p_emissive) {
+Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
+                                            const std::string& p_name,
+                                            const Vector3f& p_color,
+                                            const float p_emissive) {
     auto entity = CreateObjectEntity(p_scene, p_name);
 
     // light
@@ -123,10 +123,10 @@ ecs::Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
-                                                     const std::string& p_name,
-                                                     const Vector3f& p_color,
-                                                     const float p_emissive) {
+Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
+                                                const std::string& p_name,
+                                                const Vector3f& p_color,
+                                                const float p_emissive) {
     auto entity = CreateNameEntity(p_scene, p_name);
 
     p_scene.Create<TransformComponent>(entity);
@@ -143,34 +143,34 @@ ecs::Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateEnvironmentEntity(Scene& p_scene,
-                                                   const std::string& p_name) {
+Entity EntityFactory::CreateEnvironmentEntity(Scene& p_scene,
+                                              const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<EnvironmentComponent>(entity);
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateVoxelGiEntity(Scene& p_scene,
-                                               const std::string& p_name) {
+Entity EntityFactory::CreateVoxelGiEntity(Scene& p_scene,
+                                          const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<VoxelGiComponent>(entity);
     p_scene.Create<TransformComponent>(entity);
     return entity;
 }
 
-ecs::Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
-                                             const std::string& p_name,
-                                             const Vector3f& p_scale,
-                                             const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
+                                        const std::string& p_name,
+                                        const Vector3f& p_scale,
+                                        const Matrix4x4f& p_transform) {
     auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
     return CreatePlaneEntity(p_scene, p_name, material_id, p_scale, p_transform);
 }
 
-ecs::Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
-                                             const std::string& p_name,
-                                             ecs::Entity p_material_id,
-                                             const Vector3f& p_scale,
-                                             const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
+                                        const std::string& p_name,
+                                        Entity p_material_id,
+                                        const Vector3f& p_scale,
+                                        const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     TransformComponent& trans = *p_scene.GetComponent<TransformComponent>(entity);
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
@@ -186,19 +186,19 @@ ecs::Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
-                                            const std::string& p_name,
-                                            const Vector3f& p_scale,
-                                            const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
+                                       const std::string& p_name,
+                                       const Vector3f& p_scale,
+                                       const Matrix4x4f& p_transform) {
     auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
     return CreateCubeEntity(p_scene, p_name, material_id, p_scale, p_transform);
 }
 
-ecs::Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
-                                            const std::string& p_name,
-                                            ecs::Entity p_material_id,
-                                            const Vector3f& p_scale,
-                                            const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
+                                       const std::string& p_name,
+                                       Entity p_material_id,
+                                       const Vector3f& p_scale,
+                                       const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     TransformComponent& trans = *p_scene.GetComponent<TransformComponent>(entity);
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
@@ -214,10 +214,10 @@ ecs::Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
-                                            const std::string& p_name,
-                                            ecs::Entity p_material_id,
-                                            MeshComponent&& p_mesh) {
+Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
+                                       const std::string& p_name,
+                                       Entity p_material_id,
+                                       MeshComponent&& p_mesh) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
 
@@ -230,19 +230,19 @@ ecs::Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
-                                              const std::string& p_name,
-                                              float p_radius,
-                                              const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
+                                         const std::string& p_name,
+                                         float p_radius,
+                                         const Matrix4x4f& p_transform) {
     auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
     return CreateSphereEntity(p_scene, p_name, material_id, p_radius, p_transform);
 }
 
-ecs::Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
-                                              const std::string& p_name,
-                                              ecs::Entity p_material_id,
-                                              float p_radius,
-                                              const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
+                                         const std::string& p_name,
+                                         Entity p_material_id,
+                                         float p_radius,
+                                         const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
@@ -258,21 +258,21 @@ ecs::Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
-                                                const std::string& p_name,
-                                                float p_radius,
-                                                float p_height,
-                                                const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
+                                           const std::string& p_name,
+                                           float p_radius,
+                                           float p_height,
+                                           const Matrix4x4f& p_transform) {
     auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
     return CreateCylinderEntity(p_scene, p_name, material_id, p_radius, p_height, p_transform);
 }
 
-ecs::Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
-                                                const std::string& p_name,
-                                                ecs::Entity p_material_id,
-                                                float p_radius,
-                                                float p_height,
-                                                const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
+                                           const std::string& p_name,
+                                           Entity p_material_id,
+                                           float p_radius,
+                                           float p_height,
+                                           const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
@@ -288,21 +288,21 @@ ecs::Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
-                                             const std::string& p_name,
-                                             float p_radius,
-                                             float p_tube_radius,
-                                             const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
+                                        const std::string& p_name,
+                                        float p_radius,
+                                        float p_tube_radius,
+                                        const Matrix4x4f& p_transform) {
     auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
     return CreateTorusEntity(p_scene, p_name, material_id, p_radius, p_tube_radius, p_transform);
 }
 
-ecs::Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
-                                             const std::string& p_name,
-                                             ecs::Entity p_material_id,
-                                             float p_radius,
-                                             float p_tube_radius,
-                                             const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
+                                        const std::string& p_name,
+                                        Entity p_material_id,
+                                        float p_radius,
+                                        float p_tube_radius,
+                                        const Matrix4x4f& p_transform) {
     // @TODO: fix this
     p_radius = 0.4f;
     p_tube_radius = 0.1f;
@@ -322,9 +322,9 @@ ecs::Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
-                                               const std::string& p_name,
-                                               const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
+                                          const std::string& p_name,
+                                          const Matrix4x4f& p_transform) {
     auto entity = CreateNameEntity(p_scene, p_name);
 
     TransformComponent& transform = p_scene.Create<TransformComponent>(entity);
@@ -334,9 +334,9 @@ ecs::Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateEmitterEntity(Scene& p_scene,
-                                               const std::string& p_name,
-                                               const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateEmitterEntity(Scene& p_scene,
+                                          const std::string& p_name,
+                                          const Matrix4x4f& p_transform) {
     auto entity = CreateTransformEntity(p_scene, p_name);
     p_scene.Create<ParticleEmitterComponent>(entity);
 
@@ -345,18 +345,18 @@ ecs::Entity EntityFactory::CreateEmitterEntity(Scene& p_scene,
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateMeshEmitterEntity(Scene& p_scene,
-                                                   const std::string& p_name,
-                                                   const Vector3f& p_translation) {
+Entity EntityFactory::CreateMeshEmitterEntity(Scene& p_scene,
+                                              const std::string& p_name,
+                                              const Vector3f& p_translation) {
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<TransformComponent>(entity).SetTranslation(p_translation);
     p_scene.Create<MeshEmitterComponent>(entity);
     return entity;
 }
 
-ecs::Entity EntityFactory::CreateForceFieldEntity(Scene& p_scene,
-                                                  const std::string& p_name,
-                                                  const Matrix4x4f& p_transform) {
+Entity EntityFactory::CreateForceFieldEntity(Scene& p_scene,
+                                             const std::string& p_name,
+                                             const Matrix4x4f& p_transform) {
     auto entity = CreateTransformEntity(p_scene, p_name);
     p_scene.Create<ForceFieldComponent>(entity);
 

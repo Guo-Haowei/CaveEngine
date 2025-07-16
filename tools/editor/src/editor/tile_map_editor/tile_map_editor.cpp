@@ -4,7 +4,7 @@
 
 #include "engine/assets/assets.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widget.h"
@@ -152,11 +152,11 @@ void TileMapEditor::OnEnter(const Guid& p_guid) {
 
     scene_manager->OpenTemporaryScene(TEMP_SCENE_NAME, [&]() {
         auto scene = std::make_shared<Scene>();
-        auto root = scene->CreateTransformEntity(TEMP_SCENE_NAME);
+        auto root = EntityFactory::CreateTransformEntity(*scene, TEMP_SCENE_NAME);
         scene->m_root = root;
 
         // test code, remember to take out
-        auto id = scene->CreateTileMapEntity("tile_map");
+        auto id = EntityFactory::CreateTileMapEntity(*scene, "tile_map");
         scene->AttachChild(id);
 
         TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
