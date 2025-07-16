@@ -9,11 +9,11 @@
 
 #else
 
-#define CAVE_META(CLASS_NAME)                                       \
-public:                                                             \
-    friend const MetaTableFields& GetMetaTableFields<CLASS_NAME>(); \
-    static inline constexpr ::cave::MetaTag s_meta_tag{};           \
-                                                                    \
+#define CAVE_META(CLASS_NAME)                             \
+public:                                                   \
+    friend class MetaDataTable<CLASS_NAME>;               \
+    static inline constexpr ::cave::MetaTag s_meta_tag{}; \
+                                                          \
 private:
 
 #define CAVE_PROP(...)
@@ -31,10 +31,10 @@ concept HasMetaTag = requires {
 
 struct FieldMetaBase;
 
-using MetaTableFields = std::vector<FieldMetaBase*>;
-
 template<typename T>
-const MetaTableFields& GetMetaTableFields();
+class MetaDataTable;
+
+using MetaTableFields = std::vector<FieldMetaBase*>;
 
 }  // namespace cave
 

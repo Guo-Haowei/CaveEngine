@@ -135,11 +135,9 @@ template<Serializable T>
     const T* component = p_scene.GetComponent<T>(p_entity);
     if (component) {
         p_out << DUMP_KEY(p_name);
-        YamlSerializer context;
+        YamlSerializer context(p_out);
         context.file = p_binary;
-        if (auto res = SerializeYaml(p_out, *component, context); !res) {
-            return CAVE_ERROR(res.error());
-        }
+        context.Serialize(*component);
     }
     return Result<void>();
 }
@@ -234,7 +232,13 @@ static Result<void> DeserializeComponent(const YAML::Node& p_node,
         return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "entity {} has invalid '{}'", p_id.GetId(), p_key);
     }
 
+    unused(p_scene);
+    unused(p_version);
+    unused(p_binary);
+    unused(p_id);
+
     // @TODO: reserve component manager
+#if 0
     T& component = p_scene.Create<T>(p_id);
     YamlSerializer context;
     context.file = p_binary;
@@ -244,6 +248,7 @@ static Result<void> DeserializeComponent(const YAML::Node& p_node,
     }
 
     component.OnDeserialized();
+#endif
     return Result<void>();
 }
 

@@ -100,7 +100,7 @@ void OpenProjectCommand::Execute(Scene&) {
     DVAR_SET_STRING(scene, path);
 
     CRASH_NOW();
-    //SceneManager::GetSingleton().RequestScene(path);
+    // SceneManager::GetSingleton().RequestScene(path);
 }
 
 /// SaveProjectCommand

@@ -4,32 +4,72 @@
 
 namespace cave {
 
-YamlSerializer& YamlSerializer::BeginArray(bool p_one_line) {
-    m_out.SetSeqFormat(p_one_line ? YAML::Flow : YAML::Block);
+YamlSerializer& YamlSerializer::BeginArray(bool p_single_line) {
+    m_out.SetSeqFormat(p_single_line ? YAML::Flow : YAML::Block);
     m_out << YAML::BeginSeq;
     return *this;
 }
 
-YamlSerializer& YamlSerializer::BeginArray() {
+YamlSerializer& YamlSerializer::EndArray() {
     m_out << YAML::EndSeq;
     return *this;
 }
 
-YamlSerializer& YamlSerializer::BeginObject(bool p_one_line) {
-    m_out.SetSeqFormat(p_one_line ? YAML::Flow : YAML::Block);
+YamlSerializer& YamlSerializer::BeginMap(bool p_single_line) {
+    m_out.SetSeqFormat(p_single_line ? YAML::Flow : YAML::Block);
     m_out << YAML::BeginMap;
     return *this;
 }
 
-YamlSerializer& YamlSerializer::EndObject() {
+YamlSerializer& YamlSerializer::EndMap() {
     m_out << YAML::EndMap;
     return *this;
 }
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const ecs::Entity& p_object, YamlSerializer&) {
-    p_out << p_object.GetId();
-    return Result<void>();
+void YamlSerializer::PushWarning(std::string&& p_warning) {
+    m_warnings.push_back(std::move(p_warning));
 }
+
+void YamlSerializer::PushError(std::string&& p_error) {
+    m_warnings.push_back(std::move(p_error));
+}
+
+void YamlSerializer::Serialize(const Guid& p_object) {
+    m_out << p_object.ToString();
+}
+
+void YamlSerializer::Serialize(const std::string& p_object) {
+    m_out << p_object;
+}
+
+void YamlSerializer::Serialize(const ecs::Entity& p_object) {
+    m_out << p_object.GetId();
+}
+
+void YamlSerializer::Serialize(const Degree& p_object) {
+    m_out << p_object.GetDegree();
+}
+
+void YamlSerializer::Serialize(const Matrix4x4f& p_object) {
+    BeginArray(true);
+    const float* ptr = &p_object[0].x;
+    for (int i = 0; i < 16; ++i) {
+        Value(ptr[i]);
+    }
+    EndArray();
+}
+
+void YamlSerializer::Serialize(const TileData& p_tile_data) {
+    unused(p_tile_data);
+    CRASH_NOW_MSG("TODO:");
+}
+
+/// <summary>
+/// </summary>
+/// <param name="p_out"></param>
+/// <param name="p_object"></param>
+/// <param name=""></param>
+/// <returns></returns>
 
 Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, YamlSerializer&) {
     if (!p_node) {
@@ -41,11 +81,6 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, Ya
     }
 
     p_object = ecs::Entity(p_node.as<uint32_t>());
-    return Result<void>();
-}
-
-Result<void> SerializeYaml(YAML::Emitter& p_out, const Degree& p_object, YamlSerializer&) {
-    p_out << p_object.GetDegree();
     return Result<void>();
 }
 
@@ -62,11 +97,6 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, YamlSer
     return Result<void>();
 }
 
-Result<void> SerializeYaml(YAML::Emitter& p_out, const std::string& p_object, YamlSerializer&) {
-    p_out << p_object;
-    return Result<void>();
-}
-
 Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, YamlSerializer&) {
     if (!p_node) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
@@ -77,11 +107,6 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, Ya
     }
 
     p_object = p_node.as<std::string>();
-    return Result<void>();
-}
-
-Result<void> SerializeYaml(YAML::Emitter& p_out, const Guid& p_object, YamlSerializer&) {
-    p_out << p_object.ToString();
     return Result<void>();
 }
 

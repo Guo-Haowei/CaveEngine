@@ -113,22 +113,19 @@ def generate_meta_file(base_path, file_path, class_name, fields):
         f.write("namespace cave {\n\n")
         # f.write(f"class {class_name};\n\n")
         f.write("template<>\n")
-        f.write(f"const MetaTableFields& GetMetaTableFields<{class_name}>() {{\n")
+        f.write(f"const MetaTableFields& MetaDataTable<{class_name}>::GetFields() {{\n")
         f.write("    static MetaTableFields s_table = {\n")
         for field in fields:
             field_name = field['name']
             display_name = remove_prefix(field_name)
-            f.write(f'        DEFINE_FILED({class_name}, "{display_name}", {field_name}),\n')
+            f.write(f'        REGISTER_FIELD({class_name}, "{display_name}", {field_name}),\n')
             continue
         f.write("    };\n\n")
         f.write("    return s_table;\n")
         f.write("}\n\n")
         f.write(f"// Register the class\n")
-        f.write(f"[[maybe_unused]] static const auto& s_instantiate = GetMetaTableFields<{class_name}>();\n\n")
+        f.write(f"[[maybe_unused]] static const auto& s_meta = MetaDataTable<{class_name}>::GetFields();\n\n")
         f.write("}  // namespace cave\n")
-
-
-
 
     print(f"Generated: {output_file}")
 

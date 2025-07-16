@@ -30,7 +30,9 @@ struct hash<::cave::TileIndex> {
 
 namespace cave {
 
-using TileData = uint32_t;
+using TileId = uint32_t;
+
+using TileData = std::unordered_map<TileIndex, TileId>;
 
 class TileMapAsset : public IAsset {
     CAVE_META(TileMapAsset)
@@ -45,7 +47,7 @@ class TileMapAsset : public IAsset {
     bool m_is_visible;
 
     CAVE_PROP(serialize)
-    std::unordered_map<TileIndex, TileData> m_tiles;
+    TileData m_tiles;
 
 public:
     static constexpr const int VERSION = 1;
@@ -58,9 +60,9 @@ public:
 
     // promote TileMapLayer to TileMapAsset
 
-    Option<TileData> GetTile(TileIndex p_index) const;
+    Option<TileId> GetTile(TileIndex p_index) const;
 
-    bool AddTile(TileIndex p_index, TileData p_data);
+    bool AddTile(TileIndex p_index, TileId p_data);
 
     bool RemoveTile(TileIndex p_index);
 
@@ -74,7 +76,7 @@ public:
     void SetSpriteGuid(const Guid& p_guid);
 
     const auto& GetTiles() const { return m_tiles; }
-    void SetTiles(std::unordered_map<TileIndex, TileData>&& p_tiles);
+    void SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles);
 
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }

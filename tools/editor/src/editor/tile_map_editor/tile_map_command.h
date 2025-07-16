@@ -15,7 +15,7 @@ public:
         return SetTile(m_new_tile);
     }
 
-    static std::shared_ptr<SetTileCommand> AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileData p_tile);
+    static std::shared_ptr<SetTileCommand> AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileId p_tile);
 
     static std::shared_ptr<SetTileCommand> RemoveTile(TileMapAsset& p_tile_map, TileIndex p_index);
 
@@ -26,13 +26,13 @@ public:
     }
 
 private:
-    bool SetTile(Option<TileData> p_new_tile);
+    bool SetTile(Option<TileId> p_new_tile);
 
     Handle<TileMapAsset> m_handle;
     TileIndex m_index;
 
-    Option<TileData> m_old_tile;
-    Option<TileData> m_new_tile;
+    Option<TileId> m_old_tile;
+    Option<TileId> m_new_tile;
 };
 
 }  // namespace cave

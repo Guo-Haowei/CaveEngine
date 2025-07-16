@@ -10,7 +10,7 @@ namespace cave {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
 
-Option<TileData> TileMapAsset::GetTile(TileIndex p_index) const {
+Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
     auto it = m_tiles.find(p_index);
     if (it == m_tiles.end()) {
         return std::nullopt;
@@ -19,7 +19,7 @@ Option<TileData> TileMapAsset::GetTile(TileIndex p_index) const {
     return it->second;
 }
 
-bool TileMapAsset::AddTile(TileIndex p_index, TileData p_data) {
+bool TileMapAsset::AddTile(TileIndex p_index, TileId p_data) {
     auto [it, inserted] = m_tiles.try_emplace(p_index, p_data);
     if (inserted) {
         return true;
@@ -44,7 +44,7 @@ bool TileMapAsset::RemoveTile(TileIndex p_index) {
     return true;
 }
 
-void TileMapAsset::SetTiles(std::unordered_map<TileIndex, TileData>&& p_tiles) {
+void TileMapAsset::SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles) {
     m_tiles = std::move(p_tiles);
 
     IncRevision();
@@ -89,7 +89,7 @@ void TileMapAsset::LoadFromDiskVersion1(const json& j) {
     SetName(std::move(name));
     SetSpriteGuid(j["sprite_guid"].get<Guid>());
 
-    auto tiles = j["tiles"].get<std::unordered_map<TileIndex, TileData>>();
+    auto tiles = j["tiles"].get<std::unordered_map<TileIndex, TileId>>();
 
     SetTiles(std::move(tiles));
 }

@@ -20,12 +20,11 @@ namespace cave {
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #endif
 
-#define DEFINE_FILED(TYPE, DISPLAY_NAME, FIELD)           \
-    (new FieldMeta<TYPE>(                                 \
-        DISPLAY_NAME,                                     \
-        typeid(decltype(((TYPE*)nullptr)->FIELD)).name(), \
-        offsetof(TYPE, FIELD),                            \
-        static_cast<FieldFlag>(0)))
+#define REGISTER_FIELD(TYPE, NAME, FIELD)                                              \
+    ::cave::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD,                \
+                                               NAME,                                   \
+                                               typeid(((const TYPE*)0)->FIELD).name(), \
+                                               offsetof(TYPE, FIELD))
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
@@ -77,8 +76,16 @@ class FieldMeta : public FieldMetaBase {
 template<typename T>
 class MetaDataTable {
 public:
-    static const MetaTableFields& GetFields() {
-        return GetMetaTableFields<T>();
+    static const MetaTableFields& GetFields();
+
+private:
+    template<typename U>
+    static FieldMetaBase* RegisterField(const U&,
+                                        const char* p_name,
+                                        const char* p_type,
+                                        size_t p_offset,
+                                        FieldFlag p_flag = FieldFlag::NONE) {
+        return new FieldMeta<U>(p_name, p_type, p_offset, p_flag);
     }
 };
 
