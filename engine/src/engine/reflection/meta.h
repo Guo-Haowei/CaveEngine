@@ -31,7 +31,9 @@ namespace cave {
 #endif
 
 enum FieldFlag : uint32_t;
+
 class YamlSerializer;
+class YamlDeserializer;
 
 struct FieldMetaBase {
     const char* const name;
@@ -60,17 +62,16 @@ struct FieldMetaBase {
         return *reinterpret_cast<T*>(ptr);
     }
 
-    [[nodiscard]] virtual Result<void> DumpYaml(YAML::Emitter& p_out, const void* p_object, YamlSerializer& p_context) const = 0;
-    [[nodiscard]] virtual Result<void> UndumpYaml(const YAML::Node& p_node, void* p_object, YamlSerializer& p_context) = 0;
+    virtual bool ToYaml(YamlSerializer& p_serializer, const void* p_object) const = 0;
+    virtual bool FromYaml(const YamlDeserializer& p_deserializer, void* p_object) = 0;
 };
 
 template<typename T>
 class FieldMeta : public FieldMetaBase {
     using FieldMetaBase::FieldMetaBase;
 
-    Result<void> DumpYaml(YAML::Emitter& p_out, const void* p_object, YamlSerializer& p_context) const override;
-
-    Result<void> UndumpYaml(const YAML::Node& p_node, void* p_object, YamlSerializer& p_context) override;
+    bool ToYaml(YamlSerializer& p_serializer, const void* p_object) const override;
+    bool FromYaml(const YamlDeserializer& p_deserializer, void* p_object) override;
 };
 
 template<typename T>

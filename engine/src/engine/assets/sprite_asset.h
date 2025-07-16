@@ -5,11 +5,37 @@
 #include "asset_interface.h"
 
 #include "engine/math/box.h"
+#include "engine/reflection/reflection.h"
 
 namespace cave {
 
 class SpriteAsset : public IAsset {
-    DECLARE_ASSET(SpriteAsset, AssetType::Sprite)
+    CAVE_ASSET(SpriteAsset, AssetType::Sprite)
+
+    CAVE_META(SpriteAsset)
+
+    CAVE_PROP(type = guid, tooltip = "image id")
+    Guid m_image_guid;
+
+    CAVE_PROP(type = f32, min = 0.1f, hint = input_float, editable, serialize)
+    float m_tile_scale = 1.0f;
+
+    CAVE_PROP(type = u32)
+    uint32_t m_width = 0;
+
+    CAVE_PROP(type = u32)
+    uint32_t m_height = 0;
+
+    CAVE_PROP(type = u32, min = 1, hint = input_int)
+    uint32_t m_row = 1;
+
+    CAVE_PROP(type = u32, min = 1, hint = input_int)
+    uint32_t m_column = 1;
+
+    /// Non serialized
+    std::vector<Rect> m_frames;  // frames are calculated
+    Handle<ImageAsset> m_image_handle;
+
 public:
     static constexpr const int VERSION = 0;
 
@@ -42,17 +68,6 @@ private:
 
     void SetHandle(Handle<ImageAsset>&& p_handle);
     void UpdateFrames();
-
-    Guid m_image_guid;
-    float m_tile_scale = 1.0f;
-    uint32_t m_width = 0;
-    uint32_t m_height = 0;
-    uint32_t m_row = 1;
-    uint32_t m_column = 1;
-
-    /// Non serialized
-    std::vector<Rect> m_frames;  // frames are calculated
-    Handle<ImageAsset> m_image_handle;
 };
 
 }  // namespace cave

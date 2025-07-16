@@ -35,30 +35,24 @@ using TileId = uint32_t;
 using TileData = std::unordered_map<TileIndex, TileId>;
 
 class TileMapAsset : public IAsset {
+    CAVE_ASSET(TileMapAsset, AssetType::TileMap)
+
     CAVE_META(TileMapAsset)
 
-    CAVE_PROP(type = name, editable, serialize)
+    CAVE_PROP(type = string, hint = name)
     std::string m_name;
 
-    CAVE_PROP(type = guid, editable, serialize, tooltip = "tileset id")
+    CAVE_PROP(type = guid, tooltip = "tileset id")
     Guid m_sprite_guid;
 
-    CAVE_PROP(type = boolean, editable, serialize, tooltip = "change layer visibility")
-    bool m_is_visible;
+    CAVE_PROP(type = boolean, hint = visibility, tooltip = "toggle layer visibility")
+    bool m_is_visible = true;
 
-    CAVE_PROP(serialize)
+    CAVE_PROP(type = tile_data)
     TileData m_tiles;
 
 public:
     static constexpr const int VERSION = 1;
-    static constexpr AssetType ASSET_TYPE = AssetType::TileMap;
-
-    TileMapAsset()
-        : IAsset(AssetType::TileMap)
-        , m_is_visible(true) {
-    }
-
-    // promote TileMapLayer to TileMapAsset
 
     Option<TileId> GetTile(TileIndex p_index) const;
 

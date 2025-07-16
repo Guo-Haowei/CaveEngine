@@ -26,6 +26,9 @@ DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
 
 class Guid;
 
+class YamlDeserializer {
+};
+
 template<typename T>
 concept IsArithmetic = std::is_arithmetic_v<T>;
 
@@ -140,9 +143,7 @@ public:
         BeginMap();
 
         for (const auto& field : meta) {
-            if (auto res = field->DumpYaml(m_out, &p_object, *this); !res) {
-                // return CAVE_ERROR(res.error());
-            }
+            field->ToYaml(*this, &p_object);
         }
 
         EndMap();
@@ -291,14 +292,18 @@ Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, YamlSerializ
 }
 
 template<typename T>
-Result<void> FieldMeta<T>::DumpYaml(YAML::Emitter&, const void* p_object, YamlSerializer& p_serializer) const {
+bool FieldMeta<T>::ToYaml(YamlSerializer& p_serializer, const void* p_object) const {
     const T& data = FieldMetaBase::GetData<T>(p_object);
     p_serializer.KeyValue(name, data);
-    return Result<void>();
+    return true;
 }
 
 template<typename T>
-Result<void> FieldMeta<T>::UndumpYaml(const YAML::Node& p_node, void* p_object, YamlSerializer&) {
+bool FieldMeta<T>::FromYaml(const YamlDeserializer& p_deserializer, void* p_object) {
+    CRASH_NOW_MSG("TODO");
+    unused(p_deserializer);
+    unused(p_object);
+#if 0
     const auto& field = p_node[name];
     const bool nuallable = flags & FieldFlag::NUALLABLE;
     if (!field && !nuallable) {
@@ -312,9 +317,11 @@ Result<void> FieldMeta<T>::UndumpYaml(const YAML::Node& p_node, void* p_object, 
 
     //T& data = FieldMetaBase::GetData<T>(p_object);
     //return DeserializeYaml(field, data, p_serializer);
-    return Result<void>();
+#endif
+    return true;
 }
 
+// @TODO:
 static constexpr char BIN_GUARD_MAGIC[] = "SEETHIS";
 
 static inline Result<void> FileWrite(FileAccess* p_file, const void* p_data, size_t p_length) {

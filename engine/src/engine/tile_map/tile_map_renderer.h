@@ -15,7 +15,7 @@ class TileMapAsset;
 class TileMapRenderer {
     CAVE_META(TileMapRenderer)
 
-    CAVE_PROP(type = guid, editable, serialize, tooltip = true)
+    CAVE_PROP(type = guid, tooltip = "tile map")
     Guid m_tile_map;
 
 private:

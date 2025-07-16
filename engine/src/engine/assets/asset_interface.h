@@ -15,7 +15,7 @@ using AssetRef = std::shared_ptr<IAsset>;
 using AssetLoadSuccessCallback = void (*)(AssetRef p_asset, void* p_userdata);
 using AssetLoadFailureCallback = void (*)(void* p_userdata);
 
-#define DECLARE_ASSET(NAME, TYPE)                 \
+#define CAVE_ASSET(NAME, TYPE)                    \
 public:                                           \
     static constexpr AssetType ASSET_TYPE = TYPE; \
     NAME() : IAsset(NAME::ASSET_TYPE) {}

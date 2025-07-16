@@ -16,6 +16,7 @@ FILES = [
     "tile_map/tile_map_asset.h",
     "tile_map/tile_map_renderer.h",
     "scene/transform_component.h",
+    "assets/sprite_asset.h",
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), "reflection/generated")
@@ -36,24 +37,12 @@ def extract_field_name(line: str) -> str:
 
     parts = line.split()
 
-    if not parts:
-        return ""
+    if '=' in parts:
+        index = parts.index('=')
+        parts = parts[:index]
 
-    # The last part may contain '= something' or just the name
-    last_part = parts[-1]
-
-    # Check if '=' exists in last_part (like: name=val)
-    if '=' in last_part:
-        name = last_part.split('=')[0].strip()
-    else:
-        name = last_part.strip()
-
-    type_tokens = parts[:-1]
-    # But if last_part contained '=', it might split name and type incorrectly
-    # So safer to re-join all except last token, then remove possible trailing = in name
-    type_name = " ".join(type_tokens)
-
-    return type_name, name
+    token = parts[-1]
+    return token
 
 def remove_prefix(name: str) -> str:
     return name[2:] if name.startswith("m_") else name
@@ -83,11 +72,11 @@ def parse_file(file_path):
                 i += 1
             if i < len(lines):
                 next_line = lines[i].strip()
-                type_name, field_name = extract_field_name(next_line)
-                if field_name:
+                token = extract_field_name(next_line)
+                if token:
                     results.append({
-                        "type": type_name,
-                        "name": field_name,
+                        "type": token,
+                        "name": token,
                         "meta": metadata
                     })
 
@@ -135,7 +124,7 @@ def main():
         file_path = os.path.join(get_engine_src_folder(), base_path)
         if not os.path.isfile(file_path):
             print(f"File not found: {file_path}")
-            continue
+            raise FileNotFoundError(f"File not found: {file_path}")
 
         class_name, fields = parse_file(file_path)
         assert class_name is not None, "class must not be None"

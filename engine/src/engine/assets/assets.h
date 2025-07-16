@@ -13,19 +13,19 @@ namespace YAML { class Node; }
 namespace cave {
 
 struct BufferAsset : IAsset {
-    DECLARE_ASSET(BufferAsset, AssetType::Binary)
+    CAVE_ASSET(BufferAsset, AssetType::Binary)
 
     std::vector<char> buffer;
 };
 
 struct TextAsset : IAsset {
-    DECLARE_ASSET(TextAsset, AssetType::Text)
+    CAVE_ASSET(TextAsset, AssetType::Text)
 
     std::string source;
 };
 
 struct ImageAsset : IAsset {
-    DECLARE_ASSET(ImageAsset, AssetType::Image)
+    CAVE_ASSET(ImageAsset, AssetType::Image)
 
     PixelFormat format = PixelFormat::UNKNOWN;
     int width = 0;
