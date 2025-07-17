@@ -206,16 +206,21 @@ void AssetInspector::InspectSprite(IAsset* p_asset) {
 }
 
 void AssetInspector::InspectTileMap(IAsset* p_asset) {
+    // it's possible it's changed by tab manager
+    // need a better way to sync
+    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
+    if (!tool) {
+        return;
+    }
+
     auto tile_map = dynamic_cast<TileMapAsset*>(p_asset);
     if (!tile_map) {
         return;
     }
 
     SpriteAsset* sprite = nullptr;
-    if (auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab()); tool) {
-        if (auto layer = tool->GetActiveLayer(); layer) {
-            sprite = layer->GetSpriteHandle().Get();
-        }
+    if (auto layer = tool->GetActiveLayer(); layer) {
+        sprite = layer->GetSpriteHandle().Get();
     }
 
     std::vector<AssetChildPanel> descs = {
