@@ -1,6 +1,8 @@
-image_guid: A1130333-79C5-9E43-A95F006D4AA71D4F
-tile_scale: 1
-width: 128
-height: 64
-row: 1
-column: 2
+version: 0
+content:
+  image_guid: A1130333-79C5-9E43-A95F006D4AA71D4F
+  tile_scale: 1
+  width: 128
+  height: 64
+  row: 1
+  column: 2

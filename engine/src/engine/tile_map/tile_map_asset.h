@@ -78,7 +78,7 @@ public:
     void SetName(std::string&& p_name) { m_name = std::move(p_name); }
 
     const Guid& GetSpriteGuid() const { return m_sprite_guid; }
-    void SetSpriteGuid(const Guid& p_guid);
+    void SetSpriteGuid(const Guid& p_guid, bool p_force = false);
 
     const auto& GetTiles() const { return m_tiles.tiles; }
     void SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles);
@@ -95,8 +95,7 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    void LoadFromDiskVersion0(const nlohmann::json& j);
-    void LoadFromDiskVersion1(const nlohmann::json& j);
+    void LoadFromDiskVersion1(YamlDeserializer& p_deserializer);
 
     // Non serialized
     Handle<SpriteAsset> m_sprite_handle;

@@ -50,8 +50,9 @@ void TileMapAsset::SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles) {
     IncRevision();
 }
 
-void TileMapAsset::SetSpriteGuid(const Guid& p_guid) {
-    if (m_sprite_guid != p_guid) {
+void TileMapAsset::SetSpriteGuid(const Guid& p_guid, bool p_force) {
+    const bool should_update = p_force || m_sprite_guid != p_guid;
+    if (should_update) {
         if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAsset>(p_guid); handle) {
             m_sprite_guid = p_guid;
             m_sprite_handle = std::move(*handle);
@@ -82,10 +83,23 @@ ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data)
 }
 
 bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data) {
-    CRASH_NOW();
-    unused(p_deserializer);
-    unused(p_tile_data);
-    return false;
+    auto& deserializer = static_cast<YamlDeserializer&>(p_deserializer);
+
+    const auto& node = deserializer.Current();
+    ERR_FAIL_COND_V_MSG(!node || !node.IsSequence(), false, "invalid tile map");
+
+    for (size_t idx = 0; idx < node.size(); ++idx) {
+        const auto& tile = node[idx];
+        if (tile && tile.IsSequence() && tile.size() == 3) {
+            auto x = tile[0].as<int16_t>();
+            auto y = tile[1].as<int16_t>();
+            auto id = tile[2].as<uint32_t>();
+            auto [_, ok] = p_tile_data.tiles.try_emplace({ x, y }, id);
+            DEV_ASSERT_MSG(ok, "duplicate tile");
+        }
+    }
+
+    return true;
 }
 
 auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
@@ -96,50 +110,44 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
     }
 
     YamlSerializer yaml;
-    yaml.Write(*this);
+    yaml.BeginMap()
+        .Key("version")
+        .Write(VERSION)
+        .Key("content")
+        .Write(*this)
+        .EndMap();
     return SaveYaml(p_meta.path, yaml);
 }
 
-void TileMapAsset::LoadFromDiskVersion1(const json& j) {
-    auto name = j["name"].get<std::string>();
-    SetName(std::move(name));
-    SetSpriteGuid(j["sprite_guid"].get<Guid>());
-
-    auto tiles = j["tiles"].get<std::unordered_map<TileIndex, TileId>>();
-
-    SetTiles(std::move(tiles));
-}
-
-void TileMapAsset::LoadFromDiskVersion0(const json& j) {
-    auto layers = j["layers"];
-    if (layers.is_array() && !layers.empty()) {
-        const json& first_layer = layers.front();
-        LoadFromDiskVersion1(first_layer);
-    }
+void TileMapAsset::LoadFromDiskVersion1(YamlDeserializer& p_deserializer) {
+    p_deserializer.Read(*this);
 }
 
 auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
-    json j;
+    YAML::Node root;
 
-    if (auto res = Deserialize(p_meta.path, j); !res) {
+    if (auto res = LoadYaml(p_meta.path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    const int version = j["version"];
+    YamlDeserializer deserializer;
+    deserializer.Initialize(root);
 
-    try {
+    const int version = deserializer.GetVersion();
+
+    if (deserializer.TryEnterKey("content")) {
         switch (version) {
-            case 0:
-                LoadFromDiskVersion0(j);
-                break;
+            case 1:
+                [[fallthrough]];
             default:
-                LoadFromDiskVersion1(j);
+                LoadFromDiskVersion1(deserializer);
                 break;
         }
-    } catch (const json::exception& e) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "{}", e.what());
+
+        deserializer.LeaveKey();
     }
 
+    SetSpriteGuid(m_sprite_guid, true);
     return Result<void>();
 }
 

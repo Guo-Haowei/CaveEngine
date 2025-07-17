@@ -1,6 +1,8 @@
-image_guid: 072AA41E-00C5-434B-900A84486CD248AE
-tile_scale: 1.5
-width: 192
-height: 96
-row: 2
-column: 4
+version: 0
+content:
+  image_guid: 072AA41E-00C5-434B-900A84486CD248AE
+  tile_scale: 1.5
+  width: 192
+  height: 96
+  row: 2
+  column: 4

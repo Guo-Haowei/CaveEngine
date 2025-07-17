@@ -85,13 +85,17 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
     }
 
     YamlSerializer yaml;
-    yaml.Write(*this);
+    yaml.BeginMap()
+        .Key("version")
+        .Write(VERSION)
+        .Key("content")
+        .Write(*this)
+        .EndMap();
     return SaveYaml(p_meta.path, yaml);
 }
 
 void SpriteAsset::LoadFromDiskCurrent(YamlDeserializer& p_deserializer) {
     p_deserializer.Read(*this);
-    // @TODO: check error?
 }
 
 auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
@@ -104,16 +108,21 @@ auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     YamlDeserializer deserializer;
     deserializer.Initialize(root);
 
-    int version = deserializer.GetVersion();
+    const int version = deserializer.GetVersion();
 
-    switch (version) {
-        case 1:
-            [[fallthrough]];
-        default:
-            LoadFromDiskCurrent(deserializer);
-            break;
+    if (deserializer.TryEnterKey("content")) {
+        switch (version) {
+            case 1:
+                [[fallthrough]];
+            default:
+                LoadFromDiskCurrent(deserializer);
+                break;
+        }
+
+        deserializer.LeaveKey();
     }
 
+    // @TODO: post load?
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
     if (handle) {
         SetHandle(std::move(*handle));

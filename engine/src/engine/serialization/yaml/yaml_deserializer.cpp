@@ -85,12 +85,6 @@ bool YamlDeserializer::Read(Matrix4x4f& p_object) {
     return true;
 }
 
-bool YamlDeserializer::Read(const TileData& p_tile_data) {
-    CRASH_NOW();
-    unused(p_tile_data);
-    return true;
-}
-
 auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void> {
     auto res = FileAccess::Open(p_path, FileAccess::READ);
     if (!res) {

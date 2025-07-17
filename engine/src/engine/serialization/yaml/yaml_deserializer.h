@@ -22,10 +22,17 @@ public:
     virtual ~IDeserializer() = default;
 
     virtual int GetVersion() const = 0;
+
+    template<IsSerializable T>
+    bool Read(T& p_value) {
+        return ReadObject(*this, p_value);
+    }
 };
 
 class YamlDeserializer : public IDeserializer {
 public:
+    using IDeserializer::Read;
+
     // @TODO: make it private
     bool Initialize(const YAML::Node& p_node);
 
@@ -46,8 +53,6 @@ public:
     bool Read(Guid& p_object);
 
     bool Read(Matrix4x4f& p_object);
-
-    bool Read(const TileData& p_tile_data);
 
     template<IsArithmetic T>
     bool Read(T& p_object) {
@@ -122,12 +127,12 @@ public:
     }
 #endif
 
-private:
     const YAML::Node& Current() {
         DEV_ASSERT(!m_stack.empty());
         return m_stack.back();
     }
 
+private:
     std::vector<YAML::Node> m_stack;
     int m_version{ -1 };
     bool m_initialized{ false };
