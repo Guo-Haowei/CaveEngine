@@ -1,5 +1,5 @@
 #pragma once
-#include "tool.h"
+#include "viewer_tab.h"
 
 #include "engine/input/input_event.h"
 #include "engine/scene/scene.h"
@@ -8,10 +8,10 @@ namespace cave {
 
 class Viewer;
 
-class EditorTool : public ITool {
+class EditorTool : public ViewerTab {
 public:
     EditorTool(EditorLayer& p_editor, Viewer* p_viewer)
-        : ITool(p_editor), m_viewer(p_viewer) {}
+        : ViewerTab(p_editor), m_viewer(p_viewer) {}
 
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
 

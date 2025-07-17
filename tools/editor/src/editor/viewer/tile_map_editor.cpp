@@ -1,6 +1,6 @@
 #include "tile_map_editor.h"
 
-#include "tile_map_command.h"
+#include "tile_map_editor_command.h"
 
 #include "engine/assets/assets.h"
 #include "engine/runtime/asset_registry.h"
@@ -8,7 +8,7 @@
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widget.h"
-#include "editor/panels/viewer.h"
+#include "editor/viewer/viewer_tab_manager.h"
 #include "editor/utility/imguizmo.h"
 
 // @TODO: refactor
@@ -20,7 +20,7 @@ namespace cave {
 #define TEMP_SCENE_NAME "tile_map_scene"
 
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
-    : ITool(p_editor), m_viewer(p_viewer) {
+    : ViewerTab(p_editor), m_viewer(p_viewer) {
     m_policy = ToolCameraPolicy::Only2D;
 }
 

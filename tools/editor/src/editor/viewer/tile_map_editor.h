@@ -1,7 +1,7 @@
 #pragma once
 #include <variant>
 
-#include "editor/tools/tool.h"
+#include "editor/viewer/viewer_tab.h"
 
 #include "engine/assets/asset_handle.h"
 #include "engine/input/input_event.h"
@@ -14,7 +14,7 @@ class AssetRegistry;
 class TileMapAsset;
 class Viewer;
 
-class TileMapEditor : public ITool {
+class TileMapEditor : public ViewerTab {
 public:
     struct CommandAddTile {
         Vector2f cursor;

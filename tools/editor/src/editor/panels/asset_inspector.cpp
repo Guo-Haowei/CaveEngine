@@ -7,7 +7,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
-#include "editor/tile_map_editor/tile_map_editor.h"
+#include "editor/viewer/tile_map_editor.h"
 
 namespace cave {
 

@@ -1,9 +1,9 @@
-#include "editor_tool.h"
+#include "scene_editor.h"
 
 #include "engine/scene/scene.h"
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
-#include "editor/panels/viewer.h"
+#include "editor/viewer/viewer_tab_manager.h"
 #include "editor/utility/imguizmo.h"
 
 // @TODO: refactor

@@ -10,12 +10,12 @@ class Guid;
 class InputEvent;
 class Scene;
 
-class ITool {
+class ViewerTab {
 public:
-    ITool(EditorLayer& p_editor)
+    ViewerTab(EditorLayer& p_editor)
         : m_editor(p_editor) {}
 
-    virtual ~ITool() = default;
+    virtual ~ViewerTab() = default;
 
     virtual const char* GetName() const = 0;
     virtual const std::string& GetTile() const = 0;

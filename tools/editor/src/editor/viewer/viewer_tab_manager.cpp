@@ -1,4 +1,4 @@
-#include "viewer.h"
+#include "viewer_tab_manager.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui_internal.h>
@@ -116,7 +116,7 @@ void Viewer::DrawToolBar() {
     auto app = m_editor.GetApplication();
     auto app_state = app->GetState();
 
-    ITool* tool = m_editor.GetActiveTool();
+    ViewerTab* tool = m_editor.GetActiveTool();
     const bool only_2d = tool->GetCameraPolicy() == ToolCameraPolicy::Only2D;
 
     static const ToolBarButtonDesc s_buttons[] = {
@@ -142,6 +142,10 @@ void Viewer::DrawToolBar() {
         const auto& desc = s_buttons[i];
         const bool enabled = desc.enabledFunc ? desc.enabledFunc() : true;
 
+        if (i != 0) {
+            ImGui::SameLine();
+        }
+
         if (!enabled) {
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
         }
@@ -159,8 +163,6 @@ void Viewer::DrawToolBar() {
             ImGui::Text(desc.tooltip);
             ImGui::EndTooltip();
         }
-
-        ImGui::SameLine();
     }
 
     // ImGui::PopStyleVar(2);
@@ -245,7 +247,7 @@ HandleInputResult Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_
 }
 
 void Viewer::UpdateCamera() {
-    ITool* tool = m_editor.GetActiveTool();
+    ViewerTab* tool = m_editor.GetActiveTool();
 
     CameraComponent& camera = GetActiveCamera();
 
@@ -278,15 +280,12 @@ void Viewer::UpdateCamera() {
     camera.Update();
 }
 
-void Viewer::UpdateInternal(Scene* p_scene) {
-    ITool* tool = m_editor.GetActiveTool();
+void Viewer::UpdateTab(Scene* p_scene) {
+    ViewerTab* tool = m_editor.GetActiveTool();
     DEV_ASSERT(tool);
 
     // update name
     m_name = std::format("{}" VIEWER_WINDOW_ID, tool->GetTile());
-
-    // @TODO: tool bar policy
-    DrawToolBar();
 
     UpdateFrameSize();
 
@@ -300,6 +299,23 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     tool->Update(p_scene);
 
     m_input_state.Reset();
+}
+
+void Viewer::UpdateInternal(Scene* p_scene) {
+    // @TODO: tool bar policy
+    DrawToolBar();
+
+    if (ImGui::BeginTabBar("MyTabs", ImGuiTabBarFlags_Reorderable)) {
+        {
+            static bool tab_open = true;
+            if (ImGui::BeginTabItem("mymymy", &tab_open)) {
+                UpdateTab(p_scene);
+                ImGui::EndTabItem();
+            }
+        }
+
+        ImGui::EndTabBar();
+    }
 }
 
 }  // namespace cave

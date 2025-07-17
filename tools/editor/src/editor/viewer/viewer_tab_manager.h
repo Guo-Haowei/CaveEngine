@@ -22,6 +22,7 @@ public:
 
 protected:
     void UpdateInternal(Scene* p_scene) override;
+    void UpdateTab(Scene* p_scene);
 
     void UpdateCamera();
 

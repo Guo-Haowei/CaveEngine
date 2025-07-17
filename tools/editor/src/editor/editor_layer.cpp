@@ -4,8 +4,8 @@
 #include <imnodes/imnodes.h>
 
 #include "editor/editor_command.h"
-#include "editor/tile_map_editor/tile_map_editor.h"
-#include "editor/tools/editor_tool.h"
+#include "editor/viewer/tile_map_editor.h"
+#include "editor/viewer/scene_editor.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/panels/file_system_panel.h"
 #include "editor/panels/hierarchy_panel.h"
@@ -14,7 +14,7 @@
 #include "editor/panels/propertiy_panel.h"
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
-#include "editor/panels/viewer.h"
+#include "editor/viewer/viewer_tab_manager.h"
 #include "editor/widget.h"
 #include "engine/input/input_event.h"
 #include "engine/core/string/string_utils.h"
@@ -350,10 +350,10 @@ void EditorLayer::OpenTool(ToolType p_type, const Guid& p_guid) {
     if (m_current_tool == p_type) {
         return;
     }
-    ITool* new_tool = m_tools[std::to_underlying(p_type)].get();
+    ViewerTab* new_tool = m_tools[std::to_underlying(p_type)].get();
 
     if (DEV_VERIFY(new_tool)) {
-        ITool* old_tool = m_tools[std::to_underlying(m_current_tool)].get();
+        ViewerTab* old_tool = m_tools[std::to_underlying(m_current_tool)].get();
 
         if (old_tool) {
             old_tool->OnExit();
@@ -366,7 +366,7 @@ void EditorLayer::OpenTool(ToolType p_type, const Guid& p_guid) {
 }
 
 // @NOTE: do not hold the pointer
-ITool* EditorLayer::GetActiveTool() {
+ViewerTab* EditorLayer::GetActiveTool() {
     DEV_ASSERT_INDEX(m_current_tool, ToolType::Count);
     return m_tools[std::to_underlying(m_current_tool)].get();
 }
