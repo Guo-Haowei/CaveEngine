@@ -1,10 +1,14 @@
 version: 19
-seed: 2
+seed: 3
 root: 1
-binary: D:\workspace\GameEngine\tools\editor\vxgi.yaml.bin
 physics_mode: 0
 entities:
   - id: 1
+    TransformComponent:
+      scale: [1, 1, 1]
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+  - id: 2
     TransformComponent:
       scale: [1, 1, 1]
       translation: [0, 0, 0]
