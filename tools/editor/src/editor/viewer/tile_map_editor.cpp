@@ -17,12 +17,16 @@
 
 namespace cave {
 
-#define TEMP_SCENE_NAME "tile_map_scene"
-
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
     m_policy = ToolCameraPolicy::Only2D;
+
     m_title = "TileMapEditor";
+
+    m_commands.clear();
+    m_current_layer_id = -1;
+    m_tile_map_handle = Handle<TileMapAsset>();
+    m_undo_stack.Clear();
 }
 
 TileMapAsset* TileMapEditor::GetActiveLayer() {
@@ -54,7 +58,7 @@ void TileMapEditor::Update(Scene*) {
     ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XY);
 
     do {
-        auto res = m_editor.GetApplication()->GetAssetRegistry()->FindByGuid(m_tile_map_guid);
+        auto res = m_editor.GetApplication()->GetAssetRegistry()->FindByGuid(m_guid);
         if (!res) {
             break;
         }
@@ -137,11 +141,9 @@ bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event
 }
 
 void TileMapEditor::OnCreate(const Guid& p_guid) {
-    Reset();
-
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-    m_tile_map_guid = p_guid;
-    m_tile_map_handle = m_asset_registry->FindByGuid(m_tile_map_guid).value();
+    m_guid = p_guid;
+    m_tile_map_handle = m_asset_registry->FindByGuid(m_guid).value();
 
     [[maybe_unused]] auto asset = m_tile_map_handle.Get();
     [[maybe_unused]] auto meta = m_tile_map_handle.GetMeta();
@@ -151,7 +153,8 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
 
-    scene_manager->OpenTemporaryScene(TEMP_SCENE_NAME, [&]() {
+#define TEMP_SCENE_NAME "tile_map_scene"
+    m_tmp_scene = scene_manager->OpenTemporaryScene(m_guid, [&]() {
         auto scene = std::make_shared<Scene>();
         auto root = EntityFactory::CreateTransformEntity(*scene, TEMP_SCENE_NAME);
         scene->m_root = root;
@@ -167,10 +170,13 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
 }
 
 void TileMapEditor::OnDestroy() {
+    m_tmp_scene = nullptr;  // decrease ref count
+}
+
+void TileMapEditor::OnActivate() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
-
-    scene_manager->DeleteTemporaryScene(TEMP_SCENE_NAME);
+    scene_manager->SetTmpScene(m_tmp_scene);
 }
 
 }  // namespace cave

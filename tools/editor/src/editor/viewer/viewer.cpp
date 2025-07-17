@@ -21,6 +21,112 @@ namespace cave {
 
 static constexpr float TOOL_BAR_OFFSET = 80.0f;
 
+Option<ViewerTab*> TabManager::FindTabById(const TabId& p_id) {
+    auto it = m_tabs.find(p_id);
+    if (it != m_tabs.end()) {
+        return it->second.get();
+    }
+    return Option<ViewerTab*>::None();
+}
+
+Option<ViewerTab*> TabManager::FindTabByGuid(const Guid& p_guid) {
+    for (const auto& [id, tab] : m_tabs) {
+        if (tab->GetGuid() == p_guid) {
+            return tab.get();
+        }
+    }
+    return Option<ViewerTab*>::None();
+}
+
+Option<ViewerTab*> TabManager::GetActiveTab() {
+    if (m_active_tab.is_none()) {
+        return Option<ViewerTab*>::None();
+    }
+    return FindTabById(m_active_tab.unwrap());
+}
+
+void TabManager::SwitchTab(std::shared_ptr<ViewerTab>&& p_tab) {
+    const auto& id = p_tab->GetId();
+    auto [it, ok] = m_tabs.try_emplace(p_tab->GetId(), std::move(p_tab));
+    DEV_ASSERT(ok);
+
+    SwitchTab(id);
+}
+
+void TabManager::SwitchTab(const TabId& p_id) {
+    if (m_active_tab == p_id) {
+        return;
+    }
+
+    auto new_tab = FindTabById(p_id).unwrap();
+    auto old_tab = GetActiveTab();
+
+    if (old_tab.is_some()) {
+        old_tab.unwrap()->OnDeactivate();
+    }
+
+    m_active_tab = p_id;
+    m_focus_request = p_id;
+
+    new_tab->OnActivate();
+
+    LOG("Tool [{}] -> [{}]", old_tab.is_some() ? old_tab.unwrap()->GetTitle() : "(null)", new_tab->GetTitle());
+}
+
+void TabManager::HandleTabClose() {
+    if (m_close_request.is_none()) {
+        return;
+    }
+
+    std::shared_ptr<ViewerTab> to_close;
+
+    RequestSaveDialog([&](SaveDialogResponse p_response) {
+        switch (p_response) {
+            case SaveDialogResponse::Save:
+                // @TODO: save
+                [[fallthrough]];
+            case SaveDialogResponse::Discard: {
+                // remove the tab
+                auto it = m_tabs.find(m_close_request.unwrap());
+                DEV_ASSERT(it != m_tabs.end());
+                to_close = it->second;
+                m_tabs.erase(it);
+            } break;
+            case SaveDialogResponse::Cancel:
+                break;
+        }
+
+        m_close_request = Option<TabId>::None();
+    });
+
+    if (to_close) {
+        to_close->OnDeactivate();
+        to_close->OnDestroy();
+    }
+}
+
+void TabManager::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
+    ImGui::OpenPopup("Save changes to");
+    if (ImGui::BeginPopupModal("Save changes to")) {
+        ImGui::Text("Save changes before closing?");
+        if (ImGui::Button("Save")) {
+            ImGui::CloseCurrentPopup();
+            p_on_close(SaveDialogResponse::Save);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Discard")) {
+            ImGui::CloseCurrentPopup();
+            p_on_close(SaveDialogResponse::Discard);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel")) {
+            ImGui::CloseCurrentPopup();
+            p_on_close(SaveDialogResponse::Cancel);
+        }
+        ImGui::EndPopup();
+    }
+}
+
 Viewer::Viewer(EditorLayer& p_editor)
     : EditorWindow(p_editor) {
     const auto res = DVAR_GET_IVEC2(resolution);
@@ -47,13 +153,6 @@ Viewer::Viewer(EditorLayer& p_editor)
 
         m_controller.cameras[CAM2D] = camera;
     }
-
-    m_tabs = {
-        std::make_shared<ViewerTab>(m_editor, *this),
-        std::make_shared<ViewerTab>(m_editor, *this),
-        std::make_shared<ViewerTab>(m_editor, *this),
-        std::make_shared<ViewerTab>(m_editor, *this),
-    };
 }
 
 void Viewer::UpdateFrameSize() {
@@ -308,79 +407,16 @@ void Viewer::UpdateTab(Scene* p_scene) {
     m_input_state.Reset();
 }
 
-void Viewer::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
-    ImGui::OpenPopup("Save changes to");
-    if (ImGui::BeginPopupModal("Save changes to")) {
-        ImGui::Text("Save changes before closing?");
-        if (ImGui::Button("Save")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Save);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Discard")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Discard);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Cancel);
-        }
-        ImGui::EndPopup();
-    }
-}
-
-void Viewer::HandleTabClose() {
-    std::shared_ptr<ViewerTab> to_close;
-
-    RequestSaveDialog([&](SaveDialogResponse p_response) {
-        switch (p_response) {
-            case Viewer::SaveDialogResponse::Save:
-                // @TODO: save
-                [[fallthrough]];
-            case Viewer::SaveDialogResponse::Discard: {
-                // remove the tab
-
-                m_tabs.erase(
-                    std::remove_if(m_tabs.begin(), m_tabs.end(), [&](std::shared_ptr<ViewerTab>& p_tab) {
-                        if (p_tab->GetId() == m_close_request.unwrap()) {
-                            to_close = p_tab;
-                            return true;
-                        }
-                        return false;
-                    }),
-                    m_tabs.end());
-            } break;
-            case Viewer::SaveDialogResponse::Cancel:
-                break;
-        }
-
-        m_close_request = Option<int>::None();
-    });
-
-    // @TODO: on tab leave, on destroy, etc
-    if (to_close) {
-        LOG_WARN("TODO: handle close ");
-    }
-}
-
 void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     // check if tab already exists
-    int tab_index = -1;
-    for (size_t i = 0; i < m_tabs.size(); ++i) {
-        if (m_tabs[i]->GetGuid() == p_guid) {
-            tab_index = static_cast<int>(i);
-            break;
-        }
-    }
+    auto cached_tab = m_tab_manager.FindTabByGuid(p_guid);
 
-    // if so, switch to it
-    if (tab_index != -1) {
-        SwitchTab(tab_index);
+    if (cached_tab.is_some()) {
+        m_tab_manager.SwitchTab(cached_tab.unwrap()->GetId());
         return;
     }
 
-    DEV_ASSERT(p_guid.IsValid());
+    DEV_ASSERT(!p_guid.IsNull());
 
     // else, create a new tab
 
@@ -399,83 +435,65 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     }
 
     tab->OnCreate(p_guid);
-    m_tabs.emplace_back(std::move(tab));
-
-    tab_index = static_cast<int>(m_tabs.size());
-
-    SwitchTab(tab_index);
-}
-
-void Viewer::SwitchTab(int p_index) {
-    DEV_ASSERT_INDEX(p_index, m_tabs.size());
-
-    ViewerTab* new_tab = m_tabs[p_index].get();
-
-    if (DEV_VERIFY(new_tab)) {
-        ViewerTab* old_tab = GetActiveTab();
-
-        if (old_tab) {
-            old_tab->OnDeactivate();
-        }
-
-        m_active_tab = p_index;
-        new_tab->OnActivate();
-
-        LOG("Tool [{}] -> [{}]", old_tab ? old_tab->GetId() : -1, new_tab->GetId());
-    }
+    m_tab_manager.SwitchTab(std::move(tab));
 }
 
 void Viewer::UpdateInternal(Scene* p_scene) {
     // @TODO: tool bar policy
     DrawToolBar();
 
-    if (!ImGui::BeginTabBar("MyTabs", ImGuiTabBarFlags_Reorderable)) {
+    int flag = 0;
+#if 1
+    flag |= ImGuiTabBarFlags_Reorderable;
+#endif
+    if (!ImGui::BeginTabBar("MyTabs", flag)) {
         return;
     }
-    const int tab_count = static_cast<int>(m_tabs.size());
 
     // go through all tabs
-    for (int i = 0; i < tab_count; ++i) {
-        ViewerTab* tab = m_tabs[i].get();
+    // see if there's a focus request
+
+    ImGuiTabItemFlags_UnsavedDocument;
+    ImGuiTabItemFlags_SetSelected;
+
+    TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
+    for (auto& [id, tab] : m_tab_manager.GetTabs()) {
+        int flags = ImGuiTabItemFlags_UnsavedDocument;
+
+        if (tab->GetId() == focus_tab_id) {
+            flags |= ImGuiTabItemFlags_SetSelected;
+        }
 
         bool tab_open = true;
-        if (ImGui::BeginTabItem(tab->GetTitle().c_str(), &tab_open)) {
-            if (m_active_tab != i) {
-                SwitchTab(i);
+        if (ImGui::BeginTabItem(tab->GetTitle().c_str(), &tab_open, flags)) {
+            if (focus_tab_id == TabId::Null()) {
+                m_tab_manager.SwitchTab(tab->GetId());
             }
 
+            UpdateTab(p_scene);
             tab->Draw(p_scene);
             ImGui::EndTabItem();
         }
 
         if (!tab_open) {
-            m_close_request = tab->GetId();
+            m_tab_manager.RequestClose(tab->GetId());
         }
     }
 
-    // handle close
-    if (m_close_request.is_some()) {
-        HandleTabClose();
-    }
-
-    if constexpr (false) {
-        static bool tab_open = true;
-        if (ImGui::BeginTabItem("mymymy", &tab_open)) {
-            UpdateTab(p_scene);
-            ImGui::EndTabItem();
-        }
-    }
+    m_tab_manager.HandleTabClose();
 
     ImGui::EndTabBar();
 }
 
 // @NOTE: do not hold the pointer
 ViewerTab* Viewer::GetActiveTab() {
-    if (m_active_tab == -1 || m_active_tab >= static_cast<int>(m_tabs.size())) {
+    auto active = m_tab_manager.GetActiveTab();
+
+    if (active.is_none()) {
         return nullptr;
     }
 
-    return m_tabs[m_active_tab].get();
+    return active.unwrap();
 }
 
 }  // namespace cave

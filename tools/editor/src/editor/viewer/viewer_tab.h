@@ -1,15 +1,13 @@
 #pragma once
+#include "tab_id.h"
+
 #include "engine/assets/guid.h"
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
 
 namespace cave {
 
-class CameraComponent;
-class EditorLayer;
-class InputEvent;
-class Scene;
-class Viewer;
+class TabId;
 
 class ViewerTab {
 public:
@@ -33,7 +31,7 @@ public:
 
     UndoStack& GetUndoStack() { return m_undo_stack; }
 
-    int GetId() const { return m_id; }
+    const TabId& GetId() const { return m_id; }
 
     const std::string& GetTitle() const {
         return m_title;
@@ -42,7 +40,7 @@ public:
     const Guid& GetGuid() const { return m_guid; }
 
 protected:
-    const int m_id;
+    const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
     std::string m_title;

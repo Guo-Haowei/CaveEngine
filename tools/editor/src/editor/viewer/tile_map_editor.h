@@ -32,11 +32,14 @@ public:
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
 
     void OnCreate(const Guid& p_guid) override;
+
     void OnDestroy() override;
+
+    void OnActivate() override;
 
     void Update(Scene* p_scene) override;
 
-    const Guid& GetTileMapGuid() const { return m_tile_map_guid; }
+    const Guid& GetTileMapGuid() const { return m_guid; }
 
     int GetActiveLayerIndex() const { return m_current_layer_id; }
 
@@ -52,20 +55,11 @@ protected:
                          TileIndex p_index,
                          Option<TileId> p_new_tile);
 
-    void Reset() {
-        m_tile_map_guid = Guid();
-        m_commands.clear();
-        m_current_layer_id = -1;
-        m_tile_map_handle = Handle<TileMapAsset>();
-        m_undo_stack.Clear();
-    }
-
-    std::string m_title;
     AssetRegistry* m_asset_registry;
 
-    Guid m_tile_map_guid;
     Handle<TileMapAsset> m_tile_map_handle;
 
+    std::shared_ptr<Scene> m_tmp_scene;
     std::vector<Command> m_commands;
     int m_current_layer_id;
 };

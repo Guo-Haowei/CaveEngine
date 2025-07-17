@@ -34,31 +34,31 @@ Scene* EditorSceneManager::CreateDefaultScene() {
     return scene;
 }
 
+void EditorSceneManager::SetTmpScene(const std::shared_ptr<Scene>& p_scene) {
+    m_tmp_scene = p_scene;
+}
+
 void EditorSceneManager::Update() {
     SceneManager::Update();
 
-    for (auto& stale_scene : m_stale_scenes) {
-        --stale_scene.frame_left;
+    auto it = m_caches.begin();
+    for (; it != m_caches.end(); ++it) {
+        if (it->second.use_count() == 1) {
+            break;
+        }
     }
 
-    std::erase_if(m_stale_scenes, [](const StaleScene& p_stale) {
-        return p_stale.frame_left <= 0;
-    });
+    if (it != m_caches.end()) {
+        m_caches.erase(it);
+    }
 }
 
-void EditorSceneManager::OpenTemporaryScene(std::string_view p_name, const CreateSceneFunc& p_func) {
+std::shared_ptr<Scene> EditorSceneManager::OpenTemporaryScene(const Guid& p_guid,
+                                                              const CreateSceneFunc& p_func) {
     auto scene = p_func();
 
-    m_tmp_scene = scene;
-
-    m_caches.insert({ std::string(p_name), std::move(scene) });
-}
-
-void EditorSceneManager::DeleteTemporaryScene(const std::string& p_name) {
-    auto it = m_caches.find(p_name);
-    constexpr int FRAME_TO_KEEP = 1;
-    m_stale_scenes.push_back({ it->second, FRAME_TO_KEEP });
-    m_caches.erase(it);
+    m_caches.insert({ p_guid, scene });
+    return scene;
 }
 
 Scene* EditorSceneManager::GetActiveScene() const {
