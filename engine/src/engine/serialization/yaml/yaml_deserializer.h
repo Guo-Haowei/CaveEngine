@@ -135,16 +135,9 @@ private:
 
 template<typename T>
 bool FieldMeta<T>::Read(IDeserializer& p_deserializer, void* p_object) {
-    unused(p_deserializer);
-    unused(p_object);
-#if 0
-    const auto& field = node[name];
-    ERR_FAIL_COND_V_MSG(!field, false, "field missing");
-
     T& data = FieldMetaBase::GetData<T>(p_object);
-    return p_deserializer.Deserialize(field, data);
-#endif
-    return false;
+
+    return static_cast<YamlDeserializer&>(p_deserializer).Read(data);
 }
 
 #if 0

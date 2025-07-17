@@ -82,7 +82,6 @@ ISerializer& WriteObject(ISerializer& p_serializer, TileData& p_tile_data) {
 }
 
 auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
-    CRASH_NOW();
     // meta
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
@@ -93,7 +92,7 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
     j["version"] = VERSION;
     j["name"] = m_name;
     j["sprite_guid"] = m_sprite_guid;
-    // j["tiles"] = m_tiles;
+    j["tiles"] = m_tiles.tiles;
 
     return Serialize(p_meta.path, j);
 }
