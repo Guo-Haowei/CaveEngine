@@ -23,8 +23,12 @@ public:
 
     auto& GetInputState() { return m_input_state; }
 
-    void OpenTool(AssetEditorType p_type, const Guid& p_guid);
-    ViewerTab* GetActiveTool();
+    void OpenTab(AssetEditorType p_type, const Guid& p_guid);
+    ViewerTab* GetActiveTab();
+
+    const char* GetTitle() const override {
+        return "Viewer";
+    }
 
 protected:
     void UpdateInternal(Scene* p_scene) override;
@@ -37,6 +41,14 @@ protected:
 
     void UpdateFrameSize();
     HandleInputResult HandleInputCamera(std::shared_ptr<InputEvent> p_input_event);
+
+    enum class SaveDialogResponse {
+        Save,
+        Discard,
+        Cancel,
+    };
+
+    void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
 
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;
@@ -65,6 +77,8 @@ protected:
         CAM2D,
         CAM3D,
     };
+
+    // @TODO: refactor
     struct EditorCameraController {
         CameraControllerFPS controller_3d;
         CameraController2DEditor controller_2d;
@@ -89,8 +103,9 @@ protected:
         }
     } m_controller;
 
-    std::array<std::unique_ptr<ViewerTab>, std::to_underlying(AssetEditorType::Count)> m_tools;
-    AssetEditorType m_current_tool{ AssetEditorType ::None };
+    std::vector<std::shared_ptr<ViewerTab>> m_tabs;
+    int m_active_tab = -1;
+    Option<int> m_close_request;
 };
 
 }  // namespace cave

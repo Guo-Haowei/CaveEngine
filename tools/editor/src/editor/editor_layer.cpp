@@ -66,21 +66,21 @@ EditorLayer::EditorLayer()
         //[&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
     };
 
-    auto active_undo_stack = [&]() {
-        return m_viewer->GetActiveTool()->GetUndoStack();
+    auto active_undo_stack = [&]() -> UndoStack* {
+        return m_viewer->GetActiveTab() ? &m_viewer->GetActiveTab()->GetUndoStack() : nullptr;
     };
 
     m_shortcuts[SHORT_CUT_REDO] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [&]() { active_undo_stack().Redo(); },
-        [&]() { return active_undo_stack().CanRedo(); }
+        [&]() { auto undo_stack = active_undo_stack(); if (undo_stack) undo_stack->Redo(); },
+        [&]() { auto undo_stack = active_undo_stack(); return undo_stack ? undo_stack ->CanRedo() : false; }
     };
     m_shortcuts[SHORT_CUT_UNDO] = {
         "Undo",
         "Ctrl+Z",
-        [&]() { active_undo_stack().Undo(); },
-        [&]() { return active_undo_stack().CanUndo(); }
+        [&]() { auto undo_stack = active_undo_stack(); if (undo_stack) undo_stack->Undo(); },
+        [&]() { auto undo_stack = active_undo_stack(); return undo_stack ? undo_stack ->CanUndo() : false; }
     };
 
     // @TODO: proper key mapping
@@ -140,7 +140,7 @@ void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
     Guid dummy;
-    m_viewer->OpenTool(AssetEditorType::Scene, dummy);
+    m_viewer->OpenTab(AssetEditorType::Scene, dummy);
 
     m_app->GetInputManager()->PushInputHandler(this);
     m_app->GetInputManager()->PushInputHandler(m_viewer.get());

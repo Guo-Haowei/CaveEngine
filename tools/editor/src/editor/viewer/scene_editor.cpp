@@ -13,13 +13,13 @@
 namespace cave {
 
 void SceneEditor::Update(Scene* p_scene) {
-    const auto& cam = m_viewer->GetActiveCamera();
+    const auto& cam = m_viewer.GetActiveCamera();
     const Matrix4x4f& view_matrix = cam.GetViewMatrix();
     const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
     const Matrix4x4f& proj_view = cam.GetProjectionViewMatrix();
 
-    const Vector2f& canvas_min = m_viewer->GetCanvasMin();
-    const Vector2f& canvas_size = m_viewer->GetCanvasSize();
+    const Vector2f& canvas_min = m_viewer.GetCanvasMin();
+    const Vector2f& canvas_size = m_viewer.GetCanvasSize();
 
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();
@@ -78,7 +78,7 @@ void SceneEditor::Update(Scene* p_scene) {
         ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XZ);
 
         const float size = 120.f;
-        const auto& min = m_viewer->GetCanvasMin();
+        const auto& min = m_viewer.GetCanvasMin();
         ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
                                  10.0f,
                                  ImVec2(min.x, min.y),
@@ -115,7 +115,7 @@ bool SceneEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) 
     if (auto e = dynamic_cast<InputEventMouse*>(event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
             Vector2f clicked = e->GetPos();
-            m_viewer->GetInputState().ndc = m_viewer->CursorToNDC(clicked);
+            m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);
             return true;
         }
     }

@@ -13,6 +13,10 @@ class RenderGraphViewer : public EditorWindow {
 public:
     RenderGraphViewer(EditorLayer& p_editor);
 
+    const char* GetTitle() const override {
+        return "Render Graph";
+    }
+
 protected:
     void UpdateInternal(Scene* p_scene) override;
     void DrawNodes(const RenderGraph& p_graph);

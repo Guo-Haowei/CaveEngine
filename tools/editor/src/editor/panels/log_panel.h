@@ -6,7 +6,11 @@ namespace cave {
 class LogPanel : public EditorWindow {
 public:
     LogPanel(EditorLayer& editor)
-        : EditorWindow("Console", editor) {}
+        : EditorWindow(editor) {}
+
+    const char* GetTitle() const override {
+        return "Console";
+    }
 
 protected:
     void UpdateInternal(Scene* scene) override;

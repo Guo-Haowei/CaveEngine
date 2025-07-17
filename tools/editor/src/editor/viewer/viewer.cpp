@@ -20,10 +20,10 @@ namespace cave {
 
 #define VIEWER_WINDOW_ID "###Viewer"
 
-static constexpr float TOOL_BAR_OFFSET = 40.0f;
+static constexpr float TOOL_BAR_OFFSET = 80.0f;
 
 Viewer::Viewer(EditorLayer& p_editor)
-    : EditorWindow("Viewer" VIEWER_WINDOW_ID, p_editor) {
+    : EditorWindow(p_editor) {
     const auto res = DVAR_GET_IVEC2(resolution);
     {
         CameraComponent camera;
@@ -49,8 +49,12 @@ Viewer::Viewer(EditorLayer& p_editor)
         m_controller.cameras[CAM2D] = camera;
     }
 
-    m_tools[std::to_underlying(AssetEditorType::Scene)].reset(new SceneEditor(m_editor, this));
-    m_tools[std::to_underlying(AssetEditorType::TileMap)].reset(new TileMapEditor(m_editor, this));
+    m_tabs = {
+        std::make_shared<ViewerTab>(m_editor, *this),
+        std::make_shared<ViewerTab>(m_editor, *this),
+        std::make_shared<ViewerTab>(m_editor, *this),
+        std::make_shared<ViewerTab>(m_editor, *this),
+    };
 }
 
 void Viewer::UpdateFrameSize() {
@@ -66,7 +70,7 @@ void Viewer::UpdateFrameSize() {
         m_canvas_size.x = m_canvas_size.y * ratio;
     }
 
-    ImGuiWindow* window = ImGui::FindWindowByName(m_name.c_str());
+    ImGuiWindow* window = ImGui::FindWindowByName(GetTitle());
     DEV_ASSERT(window);
     m_canvas_min.x = window->ContentRegionRect.Min.x;
     m_canvas_min.y = TOOL_BAR_OFFSET + window->ContentRegionRect.Min.y;
@@ -122,8 +126,8 @@ void Viewer::DrawToolBar() {
     auto app = m_editor.GetApplication();
     auto app_state = app->GetState();
 
-    ViewerTab* tool = GetActiveTool();
-    const bool only_2d = tool->GetCameraPolicy() == ToolCameraPolicy::Only2D;
+    ViewerTab* tool = GetActiveTab();
+    const bool only_2d = tool ? tool->GetCameraPolicy() == ToolCameraPolicy::Only2D : false;
 
     static const ToolBarButtonDesc s_buttons[] = {
         { ICON_FA_PLAY, "Run Project",
@@ -180,7 +184,8 @@ HandleInputResult Viewer::HandleInput(std::shared_ptr<InputEvent> p_input_event)
         return HandleInputResult::NotHandled;
     }
 
-    if (GetActiveTool()->HandleInput(p_input_event)) {
+    auto active_tab = GetActiveTab();
+    if (active_tab && active_tab->HandleInput(p_input_event)) {
         return HandleInputResult::Handled;
     }
 
@@ -253,7 +258,7 @@ HandleInputResult Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_
 }
 
 void Viewer::UpdateCamera() {
-    ViewerTab* tool = GetActiveTool();
+    ViewerTab* tool = GetActiveTab();
 
     CameraComponent& camera = GetActiveCamera();
 
@@ -287,11 +292,8 @@ void Viewer::UpdateCamera() {
 }
 
 void Viewer::UpdateTab(Scene* p_scene) {
-    ViewerTab* tool = GetActiveTool();
+    ViewerTab* tool = GetActiveTab();
     DEV_ASSERT(tool);
-
-    // update name
-    m_name = std::format("{}" VIEWER_WINDOW_ID, tool->GetTile());
 
     UpdateFrameSize();
 
@@ -307,25 +309,109 @@ void Viewer::UpdateTab(Scene* p_scene) {
     m_input_state.Reset();
 }
 
+void Viewer::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
+    ImGui::OpenPopup("Save changes to");
+    if (ImGui::BeginPopupModal("Save changes to")) {
+        ImGui::Text("Save changes before closing?");
+        if (ImGui::Button("Save")) {
+            ImGui::CloseCurrentPopup();
+            p_on_close(SaveDialogResponse::Save);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Discard")) {
+            ImGui::CloseCurrentPopup();
+            p_on_close(SaveDialogResponse::Discard);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel")) {
+            ImGui::CloseCurrentPopup();
+            p_on_close(SaveDialogResponse::Cancel);
+        }
+        ImGui::EndPopup();
+    }
+}
+
 void Viewer::UpdateInternal(Scene* p_scene) {
     // @TODO: tool bar policy
     DrawToolBar();
 
-    if (ImGui::BeginTabBar("MyTabs", ImGuiTabBarFlags_Reorderable)) {
-        {
-            static bool tab_open = true;
-            if (ImGui::BeginTabItem("mymymy", &tab_open)) {
-                UpdateTab(p_scene);
-                ImGui::EndTabItem();
+    if (!ImGui::BeginTabBar("MyTabs", ImGuiTabBarFlags_Reorderable)) {
+        return;
+    }
+    const int tab_count = static_cast<int>(m_tabs.size());
+
+    for (int i = 0; i < tab_count; /*manual*/) {
+        ViewerTab* tab = m_tabs[i].get();
+
+        bool tab_open = true;
+        if (ImGui::BeginTabItem(tab->GetTitle().c_str(), &tab_open)) {
+            if (m_active_tab != i) {
+                if (m_active_tab != -1) {
+                }
+                m_active_tab = i;
+                // tabs[activeTab]->OnActivate();
             }
+
+            tab->Draw(p_scene);
+            ImGui::EndTabItem();
         }
 
-        ImGui::EndTabBar();
+        if (!tab_open) {
+            m_close_request = tab->GetId();
+        } else {
+            ++i;
+        }
     }
+
+    if (m_close_request.is_some()) {
+        std::shared_ptr<ViewerTab> to_close;
+
+        RequestSaveDialog([&](SaveDialogResponse p_response) {
+            switch (p_response) {
+                case Viewer::SaveDialogResponse::Save:
+                    // @TODO: save
+                    [[fallthrough]];
+                case Viewer::SaveDialogResponse::Discard: {
+                    // remove the tab
+
+                    m_tabs.erase(
+                        std::remove_if(m_tabs.begin(), m_tabs.end(), [&](std::shared_ptr<ViewerTab>& p_tab) {
+                            if (p_tab->GetId() == m_close_request.unwrap()) {
+                                to_close = p_tab;
+                                return true;
+                            }
+                            return false;
+                        }),
+                        m_tabs.end());
+                } break;
+                case Viewer::SaveDialogResponse::Cancel:
+                    break;
+            }
+
+            m_close_request = Option<int>::None();
+        });
+
+        // @TODO: on tab leave, on destroy, etc
+        if (to_close) {
+            LOG_WARN("TODO: handle close ");
+        }
+    }
+
+    if constexpr (false) {
+        static bool tab_open = true;
+        if (ImGui::BeginTabItem("mymymy", &tab_open)) {
+            UpdateTab(p_scene);
+            ImGui::EndTabItem();
+        }
+    }
+
+    ImGui::EndTabBar();
 }
 
-void Viewer::OpenTool(AssetEditorType p_type, const Guid& p_guid) {
+void Viewer::OpenTab(AssetEditorType p_type, const Guid& p_guid) {
     unused(p_guid);
+    unused(p_type);
+#if 0
 
     if (m_current_tool == p_type) {
         return;
@@ -343,11 +429,16 @@ void Viewer::OpenTool(AssetEditorType p_type, const Guid& p_guid) {
 
         LOG("Tool [{}] -> [{}]", old_tool ? old_tool->GetName() : "(null)", new_tool->GetName());
     }
+#endif
 }
 
 // @NOTE: do not hold the pointer
-ViewerTab* Viewer::GetActiveTool() {
-    DEV_ASSERT_INDEX(m_current_tool, AssetEditorType::Count);
-    return m_tools[std::to_underlying(m_current_tool)].get();
+ViewerTab* Viewer::GetActiveTab() {
+    if (m_active_tab == -1 || m_active_tab >= static_cast<int>(m_tabs.size())) {
+        return nullptr;
+    }
+
+    return m_tabs[m_active_tab].get();
 }
+
 }  // namespace cave

@@ -19,9 +19,10 @@ namespace cave {
 
 #define TEMP_SCENE_NAME "tile_map_scene"
 
-TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer)
-    : ViewerTab(p_editor), m_viewer(p_viewer) {
+TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
+    : ViewerTab(p_editor, p_viewer) {
     m_policy = ToolCameraPolicy::Only2D;
+    m_title = "TileMapEditor";
 }
 
 TileMapAsset* TileMapEditor::GetActiveLayer() {
@@ -37,11 +38,11 @@ bool TileMapEditor::SetActiveLayer(int p_index) {
 }
 
 void TileMapEditor::Update(Scene*) {
-    const CameraComponent& camera = m_viewer->GetActiveCamera();
+    const CameraComponent& camera = m_viewer.GetActiveCamera();
     const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
 
-    const Vector2f& canvas_min = m_viewer->GetCanvasMin();
-    const Vector2f& canvas_size = m_viewer->GetCanvasSize();
+    const Vector2f& canvas_min = m_viewer.GetCanvasMin();
+    const Vector2f& canvas_size = m_viewer.GetCanvasSize();
 
     ImGuizmo::SetOrthographic(true);
     ImGuizmo::BeginFrame();
@@ -69,7 +70,7 @@ void TileMapEditor::Update(Scene*) {
             std::visit([&](auto&& p_cmd) {
                 using T = std::decay_t<decltype(p_cmd)>;
                 if constexpr (std::is_same_v<T, CommandAddTile>) {
-                    auto ndc = m_viewer->CursorToNDC(p_cmd.cursor);
+                    auto ndc = m_viewer.CursorToNDC(p_cmd.cursor);
                     TileIndex tile;
                     if (CursorToTile(p_cmd.cursor, tile)) {
                         if (auto cmd = SetTileCommand::AddTile(*tile_map, tile, 1); cmd) {
@@ -78,7 +79,7 @@ void TileMapEditor::Update(Scene*) {
                         }
                     }
                 } else if constexpr (std::is_same_v<T, CommandEraseTile>) {
-                    auto ndc = m_viewer->CursorToNDC(p_cmd.cursor);
+                    auto ndc = m_viewer.CursorToNDC(p_cmd.cursor);
                     TileIndex tile;
                     if (CursorToTile(p_cmd.cursor, tile)) {
                         if (auto cmd = SetTileCommand::RemoveTile(*tile_map, tile); cmd) {
@@ -96,14 +97,14 @@ void TileMapEditor::Update(Scene*) {
 }
 
 bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
-    auto res = m_viewer->CursorToNDC(p_in);
+    auto res = m_viewer.CursorToNDC(p_in);
     if (!res) {
         return false;
     }
     auto ndc_2 = *res;
     Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
 
-    CameraComponent& cam = m_viewer->GetActiveCamera();
+    CameraComponent& cam = m_viewer.GetActiveCamera();
     const auto inv_proj_view = glm::inverse(cam.GetProjectionViewMatrix());
 
     Vector4f position = inv_proj_view * ndc;

@@ -9,36 +9,44 @@ class EditorLayer;
 class Guid;
 class InputEvent;
 class Scene;
+class Viewer;
 
 class ViewerTab {
 public:
-    ViewerTab(EditorLayer& p_editor)
-        : m_editor(p_editor) {}
+    ViewerTab(EditorLayer& p_editor, Viewer& p_viewer);
 
     virtual ~ViewerTab() = default;
 
-    virtual const char* GetName() const = 0;
-    virtual const std::string& GetTile() const = 0;
+    virtual bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event);
 
-    virtual bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) = 0;
-
-    virtual void OnEnter(const Guid&) {
-        m_undo_stack.Clear();
-    }
+    virtual void OnEnter(const Guid&);
 
     virtual void OnExit() {}
 
-    virtual void Update(Scene* p_scene) = 0;
+    virtual void Draw(Scene*);
 
-    virtual bool Is2D() const = 0;
+    virtual void Update(Scene*) {}
+
+    virtual bool Is2D() const { return false; }
 
     ToolCameraPolicy GetCameraPolicy() const { return m_policy; }
 
-    auto& GetUndoStack() { return m_undo_stack; }
+    UndoStack& GetUndoStack() { return m_undo_stack; }
+
+    int GetId() const { return m_id; }
+
+    const std::string& GetTitle() const {
+        return m_title;
+    }
 
 protected:
-    ToolCameraPolicy m_policy{ ToolCameraPolicy::Any };
+    const int m_id;
     EditorLayer& m_editor;
+    Viewer& m_viewer;
+    std::string m_title;
+
+    // @TODO: actually own the camera and controller
+    ToolCameraPolicy m_policy{ ToolCameraPolicy::Any };
 
     UndoStack m_undo_stack;
 };

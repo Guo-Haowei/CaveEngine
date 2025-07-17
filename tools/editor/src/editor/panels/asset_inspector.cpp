@@ -13,7 +13,7 @@
 namespace cave {
 
 AssetInspector::AssetInspector(EditorLayer& p_editor)
-    : EditorWindow("Asset Inspector", p_editor) {
+    : EditorWindow(p_editor) {
 }
 
 void AssetInspector::OnAttach() {
@@ -212,7 +212,7 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
     }
 
     SpriteAsset* sprite = nullptr;
-    if (auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTool()); tool) {
+    if (auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab()); tool) {
         if (auto layer = tool->GetActiveLayer(); layer) {
             sprite = layer->GetSpriteHandle().Get();
         }
@@ -266,7 +266,7 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     auto checkerboard = m_checkerboard_handle.Get();
     DEV_ASSERT(checkerboard);
 
-    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTool());
+    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
     DEV_ASSERT(tool);
 
     const int current_layer = tool->GetActiveLayerIndex();

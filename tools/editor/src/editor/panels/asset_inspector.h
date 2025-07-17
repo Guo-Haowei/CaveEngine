@@ -16,6 +16,10 @@ public:
 
     void OnAttach() override;
 
+    const char* GetTitle() const override {
+        return "Asset Inspector";
+    }
+
 protected:
     void UpdateInternal(Scene*) override;
 

@@ -15,7 +15,7 @@ namespace cave {
 namespace fs = std::filesystem;
 
 FileSystemPanel::FileSystemPanel(EditorLayer& p_editor)
-    : EditorWindow("FileSystem", p_editor) {
+    : EditorWindow(p_editor) {
 }
 
 void FileSystemPanel::OnAttach() {

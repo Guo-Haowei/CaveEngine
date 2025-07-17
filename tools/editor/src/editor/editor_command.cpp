@@ -28,10 +28,10 @@ void EditorInspectAssetCommand::Execute(Scene&) {
             LOG_OK("Asset {} selected", meta->path);
             switch (meta->type) {
                 case AssetType::TileMap: {
-                    m_editor->GetViewer().OpenTool(AssetEditorType::TileMap, m_guid);
+                    m_editor->GetViewer().OpenTab(AssetEditorType::TileMap, m_guid);
                 } break;
                 default: {
-                    m_editor->GetViewer().OpenTool(AssetEditorType::Scene, m_guid);
+                    m_editor->GetViewer().OpenTab(AssetEditorType::Scene, m_guid);
                 } break;
             }
 

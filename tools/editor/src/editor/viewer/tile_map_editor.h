@@ -27,7 +27,7 @@ public:
 
     using Command = std::variant<CommandAddTile, CommandEraseTile>;
 
-    TileMapEditor(EditorLayer& p_editor, Viewer* p_viewer);
+    TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer);
 
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
 
@@ -37,10 +37,6 @@ public:
     void Update(Scene* p_scene) override;
 
     bool Is2D() const override { return true; }
-
-    const char* GetName() const override { return "TileMapEditor"; }
-
-    const std::string& GetTile() const override { return m_title; }
 
     const Guid& GetTileMapGuid() const { return m_tile_map_guid; }
 
@@ -67,7 +63,6 @@ protected:
     }
 
     std::string m_title;
-    Viewer* m_viewer;
     AssetRegistry* m_asset_registry;
 
     Guid m_tile_map_guid;
