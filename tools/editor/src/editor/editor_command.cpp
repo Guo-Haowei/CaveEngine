@@ -63,10 +63,10 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
 void EditorCommandAddComponent::Execute(Scene& p_scene) {
     DEV_ASSERT(target.IsValid());
     switch (m_componentType) {
-        case ComponentType::Script: {
+        case ComponentName::Script: {
             p_scene.Create<LuaScriptComponent>(target);
         } break;
-        case ComponentType::TileMap: {
+        case ComponentName::TileMap: {
             p_scene.Create<TileMapRenderer>(target);
         } break;
         default: {

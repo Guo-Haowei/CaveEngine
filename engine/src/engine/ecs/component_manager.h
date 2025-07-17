@@ -1,18 +1,14 @@
 #pragma once
 #include "entity.h"
 
-namespace YAML {
-class Node;
-class Emitter;
-}  // namespace YAML
-
 namespace cave {
+
 class Scene;
 class Archive;
 class FileAccess;
 
 template<typename T>
-concept Serializable = requires(T& t, Archive& p_archive, uint32_t p_version) {
+concept ComponentType = requires(T& t, Archive& p_archive, uint32_t p_version) {
     { t.Serialize(p_archive, p_version) } -> std::same_as<void>;
 };
 
@@ -20,7 +16,7 @@ concept Serializable = requires(T& t, Archive& p_archive, uint32_t p_version) {
 
 namespace cave::ecs {
 
-template<Serializable T>
+template<ComponentType T>
 class View;
 
 // @TODO: remove this iterator, use view iterator instead
@@ -48,7 +44,7 @@ public:                                                                         
     bool operator!=(const self_type& p_rhs) const { return m_index != p_rhs.m_index; } \
     using _dummy_force_semi_colon = int
 
-template<Serializable T>
+template<ComponentType T>
 class ComponentManagerIterator {
     using self_type = ComponentManagerIterator<T>;
 
@@ -69,7 +65,7 @@ private:
     size_t m_index;
 };
 
-template<Serializable T>
+template<ComponentType T>
 class ComponentManagerConstIterator {
     using self_type = ComponentManagerConstIterator<T>;
 
@@ -110,7 +106,7 @@ public:
     virtual bool Serialize(Archive& p_archive, uint32_t p_version) = 0;
 };
 
-template<Serializable T>
+template<ComponentType T>
 class ComponentManager final : public IComponentManager {
     using iter = ComponentManagerIterator<T>;
     using const_iter = ComponentManagerConstIterator<T>;
@@ -173,7 +169,7 @@ public:
         uint64_t m_version = 0;
     };
 
-    template<Serializable T>
+    template<ComponentType T>
     inline ComponentManager<T>& RegisterManager(const std::string& p_name, uint64_t p_version = 0) {
         DEV_ASSERT(m_entries.find(p_name) == m_entries.end());
         m_entries[p_name].m_manager = std::make_unique<ComponentManager<T>>();

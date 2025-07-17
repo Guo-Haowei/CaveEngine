@@ -62,13 +62,13 @@ protected:
 
 class EditorCommandAddComponent : public EditorCommandBase {
 public:
-    EditorCommandAddComponent(ComponentType p_component_type)
+    EditorCommandAddComponent(ComponentName p_component_type)
         : m_componentType(p_component_type) {}
 
     virtual void Execute(Scene& p_scene) override;
 
 protected:
-    ComponentType m_componentType;
+    ComponentName m_componentType;
     ecs::Entity target;
 
     friend class EditorLayer;

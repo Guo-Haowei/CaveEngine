@@ -55,7 +55,7 @@ public:
     ISerializer& Write(const Degree& p_object);
     ISerializer& Write(const Matrix4x4f& p_object);
 
-    template<SerializableType T>
+    template<IsSerializable T>
     ISerializer& Write(const T& p_value) {
         return WriteObject(*this, p_value);
     }

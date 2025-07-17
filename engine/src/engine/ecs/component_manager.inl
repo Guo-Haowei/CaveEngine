@@ -5,7 +5,7 @@
 
 namespace cave::ecs {
 
-template<Serializable T>
+template<ComponentType T>
 void ComponentManager<T>::Reserve(size_t p_capacity) {
     if (p_capacity) {
         m_componentArray.reserve(p_capacity);
@@ -14,14 +14,14 @@ void ComponentManager<T>::Reserve(size_t p_capacity) {
     }
 }
 
-template<Serializable T>
+template<ComponentType T>
 void ComponentManager<T>::Clear() {
     m_componentArray.clear();
     m_entityArray.clear();
     m_lookup.clear();
 }
 
-template<Serializable T>
+template<ComponentType T>
 void ComponentManager<T>::Copy(const ComponentManager<T>& p_other) {
     Clear();
     m_componentArray = p_other.m_componentArray;
@@ -29,12 +29,12 @@ void ComponentManager<T>::Copy(const ComponentManager<T>& p_other) {
     m_lookup = p_other.m_lookup;
 }
 
-template<Serializable T>
+template<ComponentType T>
 void ComponentManager<T>::Copy(const IComponentManager& p_other) {
     Copy((ComponentManager<T>&)p_other);
 }
 
-template<Serializable T>
+template<ComponentType T>
 void ComponentManager<T>::Merge(ComponentManager<T>& p_other) {
     const size_t reserved = GetCount() + p_other.GetCount();
     m_componentArray.reserve(reserved);
@@ -52,12 +52,12 @@ void ComponentManager<T>::Merge(ComponentManager<T>& p_other) {
     p_other.Clear();
 }
 
-template<Serializable T>
+template<ComponentType T>
 void ComponentManager<T>::Merge(IComponentManager& p_other) {
     Merge((ComponentManager<T>&)p_other);
 }
 
-template<Serializable T>
+template<ComponentType T>
 void ComponentManager<T>::Remove(const Entity& p_entity) {
     auto it = m_lookup.find(p_entity);
     if (it == m_lookup.end()) {
@@ -77,7 +77,7 @@ void ComponentManager<T>::Remove(const Entity& p_entity) {
     }
 }
 
-template<Serializable T>
+template<ComponentType T>
 bool ComponentManager<T>::Contains(const Entity& p_entity) const {
     if (m_lookup.empty()) {
         return false;
@@ -85,19 +85,19 @@ bool ComponentManager<T>::Contains(const Entity& p_entity) const {
     return m_lookup.find(p_entity) != m_lookup.end();
 }
 
-template<Serializable T>
+template<ComponentType T>
 T& ComponentManager<T>::GetComponentByIndex(size_t p_index) {
     DEV_ASSERT(p_index < m_componentArray.size());
     return m_componentArray[p_index];
 }
 
-template<Serializable T>
+template<ComponentType T>
 const T& ComponentManager<T>::GetComponentByIndex(size_t p_index) const {
     DEV_ASSERT(p_index < m_componentArray.size());
     return m_componentArray[p_index];
 }
 
-template<Serializable T>
+template<ComponentType T>
 T* ComponentManager<T>::GetComponent(const Entity& p_entity) {
     if (!p_entity.IsValid() || m_lookup.empty()) {
         return nullptr;
@@ -112,13 +112,13 @@ T* ComponentManager<T>::GetComponent(const Entity& p_entity) {
     return &m_componentArray[it->second];
 }
 
-template<Serializable T>
+template<ComponentType T>
 Entity ComponentManager<T>::GetEntity(size_t p_index) const {
     DEV_ASSERT(p_index < m_entityArray.size());
     return m_entityArray[p_index];
 }
 
-template<Serializable T>
+template<ComponentType T>
 T& ComponentManager<T>::Create(const Entity& p_entity) {
     DEV_ASSERT(p_entity.IsValid());
 
@@ -133,7 +133,7 @@ T& ComponentManager<T>::Create(const Entity& p_entity) {
     return m_componentArray.back();
 }
 
-template<Serializable T>
+template<ComponentType T>
 bool ComponentManager<T>::Serialize(Archive& p_archive, uint32_t p_version) {
     constexpr uint64_t magic = 7165065861825654388llu;
     size_t count;
