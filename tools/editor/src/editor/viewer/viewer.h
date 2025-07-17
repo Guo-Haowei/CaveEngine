@@ -23,7 +23,7 @@ public:
 
     auto& GetInputState() { return m_input_state; }
 
-    void OpenTab(AssetEditorType p_type, const Guid& p_guid);
+    void OpenTab(AssetType p_type, const Guid& p_guid);
     ViewerTab* GetActiveTab();
 
     const char* GetTitle() const override {
@@ -48,7 +48,10 @@ protected:
         Cancel,
     };
 
+    void HandleTabClose();
     void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
+
+    void SwitchTab(int p_index);
 
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;

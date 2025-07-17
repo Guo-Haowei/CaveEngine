@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/guid.h"
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
 
@@ -6,7 +7,6 @@ namespace cave {
 
 class CameraComponent;
 class EditorLayer;
-class Guid;
 class InputEvent;
 class Scene;
 class Viewer;
@@ -19,15 +19,15 @@ public:
 
     virtual bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event);
 
-    virtual void OnEnter(const Guid&);
+    virtual void OnCreate(const Guid&) {}
+    virtual void OnDestroy() {}
 
-    virtual void OnExit() {}
+    virtual void OnActivate() {}
+    virtual void OnDeactivate() {}
 
     virtual void Draw(Scene*);
 
     virtual void Update(Scene*) {}
-
-    virtual bool Is2D() const { return false; }
 
     ToolCameraPolicy GetCameraPolicy() const { return m_policy; }
 
@@ -39,14 +39,24 @@ public:
         return m_title;
     }
 
+    const Guid& GetGuid() const { return m_guid; }
+
 protected:
     const int m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
     std::string m_title;
+    Guid m_guid;
 
     // @TODO: actually own the camera and controller
     ToolCameraPolicy m_policy{ ToolCameraPolicy::Any };
+
+    // @NOTE: each tab should has its own
+    // * Undo Stack
+    // * Camera
+    // * Scene Ref
+    // * Associated Asset
+    // * Render Target (optional)
 
     UndoStack m_undo_stack;
 };

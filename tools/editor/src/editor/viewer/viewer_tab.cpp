@@ -15,10 +15,6 @@ ViewerTab::ViewerTab(EditorLayer& p_editor, Viewer& p_viewer)
     m_title = std::format("Dummy_{}", m_id);
 }
 
-void ViewerTab::OnEnter(const Guid&) {
-    m_undo_stack.Clear();
-}
-
 bool ViewerTab::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
     unused(p_input_event);
     return false;

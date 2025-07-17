@@ -12,7 +12,6 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
-//
 #include "editor/viewer/tile_map_editor.h"
 #include "editor/viewer/scene_editor.h"
 
@@ -331,6 +330,101 @@ void Viewer::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_clos
     }
 }
 
+void Viewer::HandleTabClose() {
+    std::shared_ptr<ViewerTab> to_close;
+
+    RequestSaveDialog([&](SaveDialogResponse p_response) {
+        switch (p_response) {
+            case Viewer::SaveDialogResponse::Save:
+                // @TODO: save
+                [[fallthrough]];
+            case Viewer::SaveDialogResponse::Discard: {
+                // remove the tab
+
+                m_tabs.erase(
+                    std::remove_if(m_tabs.begin(), m_tabs.end(), [&](std::shared_ptr<ViewerTab>& p_tab) {
+                        if (p_tab->GetId() == m_close_request.unwrap()) {
+                            to_close = p_tab;
+                            return true;
+                        }
+                        return false;
+                    }),
+                    m_tabs.end());
+            } break;
+            case Viewer::SaveDialogResponse::Cancel:
+                break;
+        }
+
+        m_close_request = Option<int>::None();
+    });
+
+    // @TODO: on tab leave, on destroy, etc
+    if (to_close) {
+        LOG_WARN("TODO: handle close ");
+    }
+}
+
+void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
+    // check if tab already exists
+    int tab_index = -1;
+    for (size_t i = 0; i < m_tabs.size(); ++i) {
+        if (m_tabs[i]->GetGuid() == p_guid) {
+            tab_index = static_cast<int>(i);
+            break;
+        }
+    }
+
+    // if so, switch to it
+    if (tab_index != -1) {
+        SwitchTab(tab_index);
+        return;
+    }
+
+    DEV_ASSERT(p_guid.IsValid());
+
+    // else, create a new tab
+
+    std::shared_ptr<ViewerTab> tab;
+
+    switch (p_type) {
+        case AssetType::Scene:
+            tab.reset(new SceneEditor(m_editor, *this));
+            break;
+        case AssetType::TileMap:
+            tab.reset(new TileMapEditor(m_editor, *this));
+            break;
+        default:
+            LOG_WARN("Can't open tab {}", ToString(p_type));
+            return;
+    }
+
+    tab->OnCreate(p_guid);
+    m_tabs.emplace_back(std::move(tab));
+
+    tab_index = static_cast<int>(m_tabs.size());
+
+    SwitchTab(tab_index);
+}
+
+void Viewer::SwitchTab(int p_index) {
+    DEV_ASSERT_INDEX(p_index, m_tabs.size());
+
+    ViewerTab* new_tab = m_tabs[p_index].get();
+
+    if (DEV_VERIFY(new_tab)) {
+        ViewerTab* old_tab = GetActiveTab();
+
+        if (old_tab) {
+            old_tab->OnDeactivate();
+        }
+
+        m_active_tab = p_index;
+        new_tab->OnActivate();
+
+        LOG("Tool [{}] -> [{}]", old_tab ? old_tab->GetId() : -1, new_tab->GetId());
+    }
+}
+
 void Viewer::UpdateInternal(Scene* p_scene) {
     // @TODO: tool bar policy
     DrawToolBar();
@@ -340,16 +434,14 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     }
     const int tab_count = static_cast<int>(m_tabs.size());
 
-    for (int i = 0; i < tab_count; /*manual*/) {
+    // go through all tabs
+    for (int i = 0; i < tab_count; ++i) {
         ViewerTab* tab = m_tabs[i].get();
 
         bool tab_open = true;
         if (ImGui::BeginTabItem(tab->GetTitle().c_str(), &tab_open)) {
             if (m_active_tab != i) {
-                if (m_active_tab != -1) {
-                }
-                m_active_tab = i;
-                // tabs[activeTab]->OnActivate();
+                SwitchTab(i);
             }
 
             tab->Draw(p_scene);
@@ -358,43 +450,12 @@ void Viewer::UpdateInternal(Scene* p_scene) {
 
         if (!tab_open) {
             m_close_request = tab->GetId();
-        } else {
-            ++i;
         }
     }
 
+    // handle close
     if (m_close_request.is_some()) {
-        std::shared_ptr<ViewerTab> to_close;
-
-        RequestSaveDialog([&](SaveDialogResponse p_response) {
-            switch (p_response) {
-                case Viewer::SaveDialogResponse::Save:
-                    // @TODO: save
-                    [[fallthrough]];
-                case Viewer::SaveDialogResponse::Discard: {
-                    // remove the tab
-
-                    m_tabs.erase(
-                        std::remove_if(m_tabs.begin(), m_tabs.end(), [&](std::shared_ptr<ViewerTab>& p_tab) {
-                            if (p_tab->GetId() == m_close_request.unwrap()) {
-                                to_close = p_tab;
-                                return true;
-                            }
-                            return false;
-                        }),
-                        m_tabs.end());
-                } break;
-                case Viewer::SaveDialogResponse::Cancel:
-                    break;
-            }
-
-            m_close_request = Option<int>::None();
-        });
-
-        // @TODO: on tab leave, on destroy, etc
-        if (to_close) {
-            LOG_WARN("TODO: handle close ");
-        }
+        HandleTabClose();
     }
 
     if constexpr (false) {
@@ -406,30 +467,6 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     }
 
     ImGui::EndTabBar();
-}
-
-void Viewer::OpenTab(AssetEditorType p_type, const Guid& p_guid) {
-    unused(p_guid);
-    unused(p_type);
-#if 0
-
-    if (m_current_tool == p_type) {
-        return;
-    }
-    ViewerTab* new_tool = m_tools[std::to_underlying(p_type)].get();
-
-    if (DEV_VERIFY(new_tool)) {
-        ViewerTab* old_tool = m_tools[std::to_underlying(m_current_tool)].get();
-
-        if (old_tool) {
-            old_tool->OnExit();
-        }
-        m_current_tool = p_type;
-        new_tool->OnEnter(p_guid);
-
-        LOG("Tool [{}] -> [{}]", old_tool ? old_tool->GetName() : "(null)", new_tool->GetName());
-    }
-#endif
 }
 
 // @NOTE: do not hold the pointer

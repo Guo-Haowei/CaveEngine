@@ -26,14 +26,7 @@ void EditorInspectAssetCommand::Execute(Scene&) {
         if (handle.IsReady()) {
             const auto meta = handle.GetMeta();
             LOG_OK("Asset {} selected", meta->path);
-            switch (meta->type) {
-                case AssetType::TileMap: {
-                    m_editor->GetViewer().OpenTab(AssetEditorType::TileMap, m_guid);
-                } break;
-                default: {
-                    m_editor->GetViewer().OpenTab(AssetEditorType::Scene, m_guid);
-                } break;
-            }
+            m_editor->GetViewer().OpenTab(meta->type, m_guid);
 
             m_editor->SetSelectedAsset(std::move(handle));
         }

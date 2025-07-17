@@ -139,9 +139,6 @@ EditorLayer::EditorLayer()
 void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
-    Guid dummy;
-    m_viewer->OpenTab(AssetEditorType::Scene, dummy);
-
     m_app->GetInputManager()->PushInputHandler(this);
     m_app->GetInputManager()->PushInputHandler(m_viewer.get());
 

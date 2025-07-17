@@ -2,14 +2,6 @@
 
 namespace cave {
 
-enum class AssetEditorType {
-    None,
-    Scene,
-    TileMap,
-    SpriteAnimation,
-    Count,
-};
-
 enum class ToolCameraPolicy {
     Any,
     Only2D,

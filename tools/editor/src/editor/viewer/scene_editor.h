@@ -19,8 +19,6 @@ public:
 
     void Update(Scene* p_scene) override;
 
-    bool Is2D() const override { return false; }
-
 protected:
     GizmoAction m_state{ GizmoAction::Translate };
 };

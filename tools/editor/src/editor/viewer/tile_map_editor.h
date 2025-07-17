@@ -31,12 +31,10 @@ public:
 
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
 
-    void OnEnter(const Guid& p_guid) override;
-    void OnExit() override;
+    void OnCreate(const Guid& p_guid) override;
+    void OnDestroy() override;
 
     void Update(Scene* p_scene) override;
-
-    bool Is2D() const override { return true; }
 
     const Guid& GetTileMapGuid() const { return m_tile_map_guid; }
 
