@@ -4,8 +4,6 @@
 #include <imnodes/imnodes.h>
 
 #include "editor/editor_command.h"
-#include "editor/viewer/tile_map_editor.h"
-#include "editor/viewer/scene_editor.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/panels/file_system_panel.h"
 #include "editor/panels/hierarchy_panel.h"
@@ -14,7 +12,7 @@
 #include "editor/panels/propertiy_panel.h"
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
-#include "editor/viewer/viewer_tab_manager.h"
+#include "editor/viewer/viewer.h"
 #include "editor/widget.h"
 #include "engine/input/input_event.h"
 #include "engine/core/string/string_utils.h"
@@ -47,9 +45,6 @@ EditorLayer::EditorLayer()
     AddPanel(std::make_shared<FileSystemPanel>(*this));
 #endif
 
-    m_tools[std::to_underlying(ToolType::Edit)].reset(new EditorTool(*this, m_viewer.get()));
-    m_tools[std::to_underlying(ToolType::TileMap)].reset(new TileMapEditor(*this, m_viewer.get()));
-
     // @TODO: refactor this at some point
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
         "Save As..",
@@ -70,17 +65,22 @@ EditorLayer::EditorLayer()
         "Ctrl+O",
         //[&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
     };
+
+    auto active_undo_stack = [&]() {
+        return m_viewer->GetActiveTool()->GetUndoStack();
+    };
+
     m_shortcuts[SHORT_CUT_REDO] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [&]() { GetActiveTool()->GetUndoStack().Redo(); },
-        [&]() { return GetActiveTool()->GetUndoStack().CanRedo(); }
+        [&]() { active_undo_stack().Redo(); },
+        [&]() { return active_undo_stack().CanRedo(); }
     };
     m_shortcuts[SHORT_CUT_UNDO] = {
         "Undo",
         "Ctrl+Z",
-        [&]() { GetActiveTool()->GetUndoStack().Undo(); },
-        [&]() { return GetActiveTool()->GetUndoStack().CanUndo(); }
+        [&]() { active_undo_stack().Undo(); },
+        [&]() { return active_undo_stack().CanUndo(); }
     };
 
     // @TODO: proper key mapping
@@ -140,7 +140,7 @@ void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
     Guid dummy;
-    OpenTool(ToolType::Edit, dummy);
+    m_viewer->OpenTool(AssetEditorType::Scene, dummy);
 
     m_app->GetInputManager()->PushInputHandler(this);
     m_app->GetInputManager()->PushInputHandler(m_viewer.get());
@@ -342,33 +342,6 @@ void EditorLayer::FlushCommand(Scene* p_scene) {
 
 CameraComponent& EditorLayer::GetActiveCamera() {
     return m_viewer->GetActiveCamera();
-}
-
-void EditorLayer::OpenTool(ToolType p_type, const Guid& p_guid) {
-    unused(p_guid);
-
-    if (m_current_tool == p_type) {
-        return;
-    }
-    ViewerTab* new_tool = m_tools[std::to_underlying(p_type)].get();
-
-    if (DEV_VERIFY(new_tool)) {
-        ViewerTab* old_tool = m_tools[std::to_underlying(m_current_tool)].get();
-
-        if (old_tool) {
-            old_tool->OnExit();
-        }
-        m_current_tool = p_type;
-        new_tool->OnEnter(p_guid);
-
-        LOG("Tool [{}] -> [{}]", old_tool ? old_tool->GetName() : "(null)", new_tool->GetName());
-    }
-}
-
-// @NOTE: do not hold the pointer
-ViewerTab* EditorLayer::GetActiveTool() {
-    DEV_ASSERT_INDEX(m_current_tool, ToolType::Count);
-    return m_tools[std::to_underlying(m_current_tool)].get();
 }
 
 }  // namespace cave

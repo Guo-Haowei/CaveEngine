@@ -2,8 +2,11 @@
 #include "engine/input/input_router.h"
 #include "engine/scene/camera_controller.h"
 #include "editor/editor_window.h"
+#include "editor/enums.h"
 
 namespace cave {
+
+class ViewerTab;
 
 class Viewer : public EditorWindow, public IInputHandler {
 public:
@@ -19,6 +22,9 @@ public:
     CameraComponent& GetActiveCamera() { return m_controller.cameras[m_controller.current]; }
 
     auto& GetInputState() { return m_input_state; }
+
+    void OpenTool(AssetEditorType p_type, const Guid& p_guid);
+    ViewerTab* GetActiveTool();
 
 protected:
     void UpdateInternal(Scene* p_scene) override;
@@ -82,6 +88,9 @@ protected:
             }
         }
     } m_controller;
+
+    std::array<std::unique_ptr<ViewerTab>, std::to_underlying(AssetEditorType::Count)> m_tools;
+    AssetEditorType m_current_tool{ AssetEditorType ::None };
 };
 
 }  // namespace cave

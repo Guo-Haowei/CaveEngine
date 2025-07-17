@@ -7,6 +7,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
+#include "editor/viewer/viewer.h"
 #include "editor/viewer/tile_map_editor.h"
 
 namespace cave {
@@ -211,7 +212,7 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
     }
 
     SpriteAsset* sprite = nullptr;
-    if (auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool()); tool) {
+    if (auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTool()); tool) {
         if (auto layer = tool->GetActiveLayer(); layer) {
             sprite = layer->GetSpriteHandle().Get();
         }
@@ -265,7 +266,7 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     auto checkerboard = m_checkerboard_handle.Get();
     DEV_ASSERT(checkerboard);
 
-    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool());
+    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTool());
     DEV_ASSERT(tool);
 
     const int current_layer = tool->GetActiveLayerIndex();

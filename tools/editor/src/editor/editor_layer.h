@@ -61,14 +61,13 @@ public:
 
     EditorContext context;
 
-    void OpenTool(ToolType p_type, const Guid& p_guid);
-    ViewerTab* GetActiveTool();
-
     void SetSelectedAsset(AssetHandle&& p_asset_handle) {
         m_selected_asset = std::move(p_asset_handle);
     }
 
     const AssetHandle& GetSelectedAsset() const { return m_selected_asset; }
+
+    Viewer& GetViewer() { return *m_viewer.get(); }
 
 private:
     void DockSpace(Scene* p_scene);
@@ -101,9 +100,6 @@ private:
     std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
 
     AssetHandle m_selected_asset;
-
-    std::array<std::unique_ptr<ViewerTab>, std::to_underlying(ToolType::Count)> m_tools;
-    ToolType m_current_tool{ ToolType ::None };
 };
 
 }  // namespace cave

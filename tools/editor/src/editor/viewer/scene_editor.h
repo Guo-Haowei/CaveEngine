@@ -8,9 +8,9 @@ namespace cave {
 
 class Viewer;
 
-class EditorTool : public ViewerTab {
+class SceneEditor : public ViewerTab {
 public:
-    EditorTool(EditorLayer& p_editor, Viewer* p_viewer)
+    SceneEditor(EditorLayer& p_editor, Viewer* p_viewer)
         : ViewerTab(p_editor), m_viewer(p_viewer) {}
 
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;

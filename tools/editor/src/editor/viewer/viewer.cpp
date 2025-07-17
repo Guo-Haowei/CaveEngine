@@ -1,4 +1,4 @@
-#include "viewer_tab_manager.h"
+#include "viewer.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui_internal.h>
@@ -12,6 +12,9 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
+//
+#include "editor/viewer/tile_map_editor.h"
+#include "editor/viewer/scene_editor.h"
 
 namespace cave {
 
@@ -45,6 +48,9 @@ Viewer::Viewer(EditorLayer& p_editor)
 
         m_controller.cameras[CAM2D] = camera;
     }
+
+    m_tools[std::to_underlying(AssetEditorType::Scene)].reset(new SceneEditor(m_editor, this));
+    m_tools[std::to_underlying(AssetEditorType::TileMap)].reset(new TileMapEditor(m_editor, this));
 }
 
 void Viewer::UpdateFrameSize() {
@@ -116,7 +122,7 @@ void Viewer::DrawToolBar() {
     auto app = m_editor.GetApplication();
     auto app_state = app->GetState();
 
-    ViewerTab* tool = m_editor.GetActiveTool();
+    ViewerTab* tool = GetActiveTool();
     const bool only_2d = tool->GetCameraPolicy() == ToolCameraPolicy::Only2D;
 
     static const ToolBarButtonDesc s_buttons[] = {
@@ -174,7 +180,7 @@ HandleInputResult Viewer::HandleInput(std::shared_ptr<InputEvent> p_input_event)
         return HandleInputResult::NotHandled;
     }
 
-    if (m_editor.GetActiveTool()->HandleInput(p_input_event)) {
+    if (GetActiveTool()->HandleInput(p_input_event)) {
         return HandleInputResult::Handled;
     }
 
@@ -247,7 +253,7 @@ HandleInputResult Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_
 }
 
 void Viewer::UpdateCamera() {
-    ViewerTab* tool = m_editor.GetActiveTool();
+    ViewerTab* tool = GetActiveTool();
 
     CameraComponent& camera = GetActiveCamera();
 
@@ -281,7 +287,7 @@ void Viewer::UpdateCamera() {
 }
 
 void Viewer::UpdateTab(Scene* p_scene) {
-    ViewerTab* tool = m_editor.GetActiveTool();
+    ViewerTab* tool = GetActiveTool();
     DEV_ASSERT(tool);
 
     // update name
@@ -318,4 +324,30 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     }
 }
 
+void Viewer::OpenTool(AssetEditorType p_type, const Guid& p_guid) {
+    unused(p_guid);
+
+    if (m_current_tool == p_type) {
+        return;
+    }
+    ViewerTab* new_tool = m_tools[std::to_underlying(p_type)].get();
+
+    if (DEV_VERIFY(new_tool)) {
+        ViewerTab* old_tool = m_tools[std::to_underlying(m_current_tool)].get();
+
+        if (old_tool) {
+            old_tool->OnExit();
+        }
+        m_current_tool = p_type;
+        new_tool->OnEnter(p_guid);
+
+        LOG("Tool [{}] -> [{}]", old_tool ? old_tool->GetName() : "(null)", new_tool->GetName());
+    }
+}
+
+// @NOTE: do not hold the pointer
+ViewerTab* Viewer::GetActiveTool() {
+    DEV_ASSERT_INDEX(m_current_tool, AssetEditorType::Count);
+    return m_tools[std::to_underlying(m_current_tool)].get();
+}
 }  // namespace cave

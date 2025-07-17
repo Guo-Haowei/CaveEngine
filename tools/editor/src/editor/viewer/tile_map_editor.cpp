@@ -8,7 +8,7 @@
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widget.h"
-#include "editor/viewer/viewer_tab_manager.h"
+#include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
 // @TODO: refactor

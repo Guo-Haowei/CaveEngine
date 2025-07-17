@@ -3,7 +3,7 @@
 #include "engine/scene/scene.h"
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
-#include "editor/viewer/viewer_tab_manager.h"
+#include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
 // @TODO: refactor
@@ -12,7 +12,7 @@
 
 namespace cave {
 
-void EditorTool::Update(Scene* p_scene) {
+void SceneEditor::Update(Scene* p_scene) {
     const auto& cam = m_viewer->GetActiveCamera();
     const Matrix4x4f& view_matrix = cam.GetViewMatrix();
     const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
@@ -87,7 +87,7 @@ void EditorTool::Update(Scene* p_scene) {
     }
 }
 
-bool EditorTool::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
+bool SceneEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
     // change gizmo state
     InputEvent* event = p_input_event.get();
     if (auto e = dynamic_cast<InputEventKey*>(event); e) {

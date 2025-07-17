@@ -2,9 +2,9 @@
 
 namespace cave {
 
-enum class ToolType {
+enum class AssetEditorType {
     None,
-    Edit,
+    Scene,
     TileMap,
     SpriteAnimation,
     Count,

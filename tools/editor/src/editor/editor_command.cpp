@@ -1,6 +1,8 @@
 #include "editor_command.h"
 
-#include "editor_layer.h"
+#include "editor/editor_layer.h"
+#include "editor/viewer/viewer.h"
+
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
@@ -26,10 +28,10 @@ void EditorInspectAssetCommand::Execute(Scene&) {
             LOG_OK("Asset {} selected", meta->path);
             switch (meta->type) {
                 case AssetType::TileMap: {
-                    m_editor->OpenTool(ToolType::TileMap, m_guid);
+                    m_editor->GetViewer().OpenTool(AssetEditorType::TileMap, m_guid);
                 } break;
                 default: {
-                    m_editor->OpenTool(ToolType::Edit, m_guid);
+                    m_editor->GetViewer().OpenTool(AssetEditorType::Scene, m_guid);
                 } break;
             }
 
