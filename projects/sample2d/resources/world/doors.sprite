@@ -1,1 +1,6 @@
-{"column":2,"height":96,"image":"072AA41E-00C5-434B-900A84486CD248AE","row":1,"tile_scale":1.5,"version":0,"width":192}
+image_guid: 072AA41E-00C5-434B-900A84486CD248AE
+tile_scale: 1.5
+width: 192
+height: 96
+row: 2
+column: 4

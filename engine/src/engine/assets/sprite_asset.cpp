@@ -3,8 +3,7 @@
 #include "engine/assets/assets.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/serialization/serialization.h"
-#include "engine/serialization/yaml_serializer.h"
+#include "engine/serialization/yaml_include.h"
 
 namespace cave {
 
@@ -90,34 +89,29 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
     return SaveYaml(p_meta.path, serializer);
 }
 
-void SpriteAsset::LoadFromDiskCurrent(const nlohmann::json& j) {
-    m_image_guid = j["image"];
-    m_width = j["width"];
-    m_height = j["height"];
-    m_column = j["column"];
-    m_row = j["row"];
-    m_tile_scale = j["tile_scale"];
+void SpriteAsset::LoadFromDiskCurrent(YamlDeserializer& p_deserializer) {
+    p_deserializer.Deserialize(p_deserializer.m_node, *this);
+    // @TODO: check error?
 }
 
 auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
-    json j;
+    YamlDeserializer deserializer;
 
-    if (auto res = Deserialize(p_meta.path, j); !res) {
+    // @TODO: fix this
+    LoadYaml(p_meta.path, deserializer.m_node);
+
+    if (auto res = LoadYaml(p_meta.path, deserializer.m_node); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    const int version = j["version"];
+    int version = deserializer.GetVersion().unwrap_or(-1);
 
-    try {
-        switch (version) {
-            case 1:
-                [[fallthrough]];
-            default:
-                LoadFromDiskCurrent(j);
-                break;
-        }
-    } catch (const json::exception& e) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "{}", e.what());
+    switch (version) {
+        case 1:
+            [[fallthrough]];
+        default:
+            LoadFromDiskCurrent(deserializer);
+            break;
     }
 
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);

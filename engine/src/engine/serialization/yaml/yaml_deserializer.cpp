@@ -5,51 +5,38 @@
 
 namespace cave {
 
-void YamlDeserializer::EmitWarning(std::string&& p_warning) {
-    m_warnings.push_back(std::move(p_warning));
-}
-
-void YamlDeserializer::EmitError(std::string&& p_error) {
-    m_errors.push_back(std::move(p_error));
-}
-
-void YamlDeserializer::EmitUndefinedWarning() {
-    CRASH_NOW();
-}
-
-void YamlDeserializer::EmitNotScalarWarning() {
-    CRASH_NOW();
-}
-
-#define EXPECT_SCALAR(NODE)                 \
-    if (!(!(NODE) || !(NODE).IsScalar())) { \
-        EmitNotScalarWarning();             \
-        return false;                       \
+Option<int> YamlDeserializer::GetVersion() const {
+    const auto& version_node = m_node["version"];
+    if (version_node && version_node.IsScalar()) {
+        return version_node.as<int>();
     }
 
+    return Option<int>::None();
+}
+
 bool YamlDeserializer::Deserialize(const YAML::Node& p_node, ecs::Entity& p_object) {
-    EXPECT_SCALAR(p_node);
+    ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
 
     p_object = ecs::Entity(p_node.as<uint32_t>());
     return true;
 }
 
 bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Degree& p_object) {
-    EXPECT_SCALAR(p_node);
+    ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
 
     p_object = Degree(p_node.as<float>());
     return true;
 }
 
 bool YamlDeserializer::Deserialize(const YAML::Node& p_node, std::string& p_object) {
-    EXPECT_SCALAR(p_node);
+    ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
 
     p_object = p_node.as<std::string>();
     return true;
 }
 
 bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Guid& p_object) {
-    EXPECT_SCALAR(p_node);
+    ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
 
     auto res = Guid::Parse(p_node.as<std::string>());
     if (!res) {
@@ -61,15 +48,20 @@ bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Guid& p_object) {
 }
 
 bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Matrix4x4f& p_object) {
-    if (!p_node || !p_node.IsSequence() || p_node.size() != 16) {
-        return false;
-    }
+    ERR_FAIL_COND_V_MSG(!p_node.IsSequence() || p_node.size() != 16, false, "expect matrix4x4");
 
     float* ptr = &p_object[0].x;
     for (int i = 0; i < 16; ++i) {
         ptr[i] = p_node[i].as<float>();
     }
 
+    return true;
+}
+
+bool YamlDeserializer::Deserialize(const YAML::Node& p_node, const TileData& p_tile_data) {
+    CRASH_NOW();
+    unused(p_node);
+    unused(p_tile_data);
     return true;
 }
 
@@ -90,4 +82,5 @@ auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void> {
     p_node = YAML::Load(buffer.data());
     return Result<void>();
 }
+
 }  // namespace cave

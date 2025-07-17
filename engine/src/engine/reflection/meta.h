@@ -2,6 +2,7 @@
 #include "reflection.h"
 
 #if USING(USE_REFLECTION)
+#include "engine/serialization/yaml_forward.h"
 
 namespace YAML {
 class Node;
@@ -32,9 +33,6 @@ namespace cave {
 
 enum FieldFlag : uint32_t;
 
-class YamlSerializer;
-class YamlDeserializer;
-
 struct FieldMetaBase {
     const char* const name;
     const char* const type;
@@ -63,15 +61,15 @@ struct FieldMetaBase {
     }
 
     virtual bool ToYaml(YamlSerializer& p_serializer, const void* p_object) const = 0;
-    virtual bool FromYaml(const YamlDeserializer& p_deserializer, void* p_object) = 0;
+    virtual bool FromYaml(YamlDeserializer& p_deserializer, const YAML::Node& p_node, void* p_object) = 0;
 };
 
 template<typename T>
-class FieldMeta : public FieldMetaBase {
+struct FieldMeta : FieldMetaBase {
     using FieldMetaBase::FieldMetaBase;
 
     bool ToYaml(YamlSerializer& p_serializer, const void* p_object) const override;
-    bool FromYaml(const YamlDeserializer& p_deserializer, void* p_object) override;
+    bool FromYaml(YamlDeserializer& p_deserializer, const YAML::Node& p_node, void* p_object) override;
 };
 
 template<typename T>

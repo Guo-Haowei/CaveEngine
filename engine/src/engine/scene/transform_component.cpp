@@ -4,9 +4,6 @@
 #include "engine/math/matrix_transform.h"
 #include "engine/core/io/archive.h"
 
-// @TODO: remove
-#include "engine/serialization/yaml_serializer.h"
-
 namespace cave {
 
 TransformComponent::TransformComponent()
