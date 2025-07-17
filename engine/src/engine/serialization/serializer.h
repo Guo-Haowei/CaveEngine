@@ -43,12 +43,18 @@ public:
 
     virtual ISerializer& Write(const bool& p_value) = 0;
     virtual ISerializer& Write(const float& p_value) = 0;
-    virtual ISerializer& Write(const int& p_value) = 0;
+    virtual ISerializer& Write(const char* p_value) = 0;
+    virtual ISerializer& Write(const std::string& p_value) = 0;
+
+    virtual ISerializer& Write(const int8_t& p_value) = 0;
+    virtual ISerializer& Write(const uint8_t& p_value) = 0;
+    virtual ISerializer& Write(const int16_t& p_value) = 0;
+    virtual ISerializer& Write(const uint16_t& p_value) = 0;
+    virtual ISerializer& Write(const int32_t& p_value) = 0;
     virtual ISerializer& Write(const uint32_t& p_value) = 0;
     virtual ISerializer& Write(const int64_t& p_value) = 0;
     virtual ISerializer& Write(const uint64_t& p_value) = 0;
-    virtual ISerializer& Write(const char* p_value) = 0;
-    virtual ISerializer& Write(const std::string& p_value) = 0;
+
     virtual ISerializer& Write(const Guid& p_object) = 0;
 
     ISerializer& Write(const ecs::Entity& p_object);

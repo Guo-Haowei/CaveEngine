@@ -28,13 +28,19 @@ public:
     ISerializer& Key(std::string_view p_key) override;
 
     ISerializer& Write(const bool& p_value) override;
-    ISerializer& Write(const int& p_value) override;
-    ISerializer& Write(const uint32_t& p_value) override;
-    ISerializer& Write(const int64_t& p_value) override;
-    ISerializer& Write(const uint64_t& p_value) override;
     ISerializer& Write(const float& p_value) override;
     ISerializer& Write(const char* p_value) override;
     ISerializer& Write(const std::string& p_value) override;
+
+    ISerializer& Write(const int8_t& p_value) override;
+    ISerializer& Write(const uint8_t& p_value) override;
+    ISerializer& Write(const int16_t& p_value) override;
+    ISerializer& Write(const uint16_t& p_value) override;
+    ISerializer& Write(const int32_t& p_value) override;
+    ISerializer& Write(const uint32_t& p_value) override;
+    ISerializer& Write(const int64_t& p_value) override;
+    ISerializer& Write(const uint64_t& p_value) override;
+
     ISerializer& Write(const Guid& p_object) override;
 
     YAML::Emitter& GetEmitter() {

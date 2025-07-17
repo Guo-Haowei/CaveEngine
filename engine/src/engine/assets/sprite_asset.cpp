@@ -84,9 +84,9 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
         return CAVE_ERROR(res.error());
     }
 
-    YamlSerializer serializer;
-    serializer.Write(*this);
-    return SaveYaml(p_meta.path, serializer);
+    YamlSerializer yaml;
+    yaml.Write(*this);
+    return SaveYaml(p_meta.path, yaml);
 }
 
 void SpriteAsset::LoadFromDiskCurrent(YamlDeserializer& p_deserializer) {

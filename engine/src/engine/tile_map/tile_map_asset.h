@@ -43,7 +43,7 @@ ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data)
 
 bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data);
 
-static_assert(SerializableType<TileData>);
+static_assert(Serializable<TileData>);
 
 class TileMapAsset : public IAsset {
     CAVE_ASSET(TileMapAsset, AssetType::TileMap)

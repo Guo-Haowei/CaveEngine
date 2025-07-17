@@ -1,6 +1,4 @@
 #pragma once
-#include <yaml-cpp/yaml.h>
-
 #include "component_manager.h"
 
 namespace cave::ecs {

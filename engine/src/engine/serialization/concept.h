@@ -30,6 +30,6 @@ concept IsDeserializable = requires(IDeserializer& d, T& obj) {
 };
 
 template<typename T>
-concept SerializableType = IsSerializable<T> && IsDeserializable<T>;
+concept Serializable = IsSerializable<T> && IsDeserializable<T>;
 
 }  // namespace cave

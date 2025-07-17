@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <latch>
-#include <yaml-cpp/yaml.h>
 
 #include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"

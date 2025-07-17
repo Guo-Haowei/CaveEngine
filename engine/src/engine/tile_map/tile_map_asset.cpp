@@ -68,17 +68,24 @@ std::vector<Guid> TileMapAsset::GetDependencies() const {
     return { m_sprite_guid };
 }
 
-bool ReadObject(IDeserializer& p_deserializer, const TileData& p_tile_data) {
+ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data) {
+    p_serializer.BeginArray();
+    for (const auto& [index, id] : p_tile_data.tiles) {
+        p_serializer
+            .BeginArray(true)
+            .Write(index.x)
+            .Write(index.y)
+            .Write(id)
+            .EndArray();
+    }
+    return p_serializer.EndArray();
+}
+
+bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data) {
     CRASH_NOW();
     unused(p_deserializer);
     unused(p_tile_data);
     return false;
-}
-
-ISerializer& WriteObject(ISerializer& p_serializer, TileData& p_tile_data) {
-    CRASH_NOW();
-    unused(p_tile_data);
-    return p_serializer;
 }
 
 auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
@@ -88,13 +95,9 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
         return CAVE_ERROR(res.error());
     }
 
-    json j;
-    j["version"] = VERSION;
-    j["name"] = m_name;
-    j["sprite_guid"] = m_sprite_guid;
-    j["tiles"] = m_tiles.tiles;
-
-    return Serialize(p_meta.path, j);
+    YamlSerializer yaml;
+    yaml.Write(*this);
+    return SaveYaml(p_meta.path, yaml);
 }
 
 void TileMapAsset::LoadFromDiskVersion1(const json& j) {

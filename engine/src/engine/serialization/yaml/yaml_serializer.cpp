@@ -4,10 +4,6 @@
 
 namespace cave {
 
-/// <summary>
-/// @TODO: fix
-/// <returns></returns>
-
 ISerializer& YamlSerializer::BeginArray(bool p_single_line) {
     m_out.SetSeqFormat(p_single_line ? YAML::Flow : YAML::Block);
     m_out << YAML::BeginSeq;
@@ -35,7 +31,27 @@ ISerializer& YamlSerializer::Key(std::string_view p_key) {
     return *this;
 }
 
-ISerializer& YamlSerializer::Write(const int& p_value) {
+ISerializer& YamlSerializer::Write(const int8_t& p_value) {
+    m_out << p_value;
+    return *this;
+}
+
+ISerializer& YamlSerializer::Write(const uint8_t& p_value) {
+    m_out << p_value;
+    return *this;
+}
+
+ISerializer& YamlSerializer::Write(const int16_t& p_value) {
+    m_out << p_value;
+    return *this;
+}
+
+ISerializer& YamlSerializer::Write(const uint16_t& p_value) {
+    m_out << p_value;
+    return *this;
+}
+
+ISerializer& YamlSerializer::Write(const int32_t& p_value) {
     m_out << p_value;
     return *this;
 }

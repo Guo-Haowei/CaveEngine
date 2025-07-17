@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <imgui/imgui.h>
-#include <yaml-cpp/yaml.h>
 
 #include "engine/core/debugger/profiler.h"
 #include "engine/core/dynamic_variable/dynamic_variable_manager.h"
@@ -171,7 +170,7 @@ auto Application::Initialize(int p_argc, const char** p_argv) -> Result<void> {
     DynamicVariableManager::Parse(m_commandLine);
 #endif
 
-    // @TODO: initialize stuff
+    // @TODO: refactor this part
     {
         m_projectFolder = DVAR_GET_STRING(project);
         fs::path resource_folder = fs::path(m_projectFolder) / "resources";
@@ -183,8 +182,6 @@ auto Application::Initialize(int p_argc, const char** p_argv) -> Result<void> {
 
         std::ifstream file(project_setting.string());
         if (file.is_open()) {
-            // return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "failed to open project '{}'", project_setting.string());
-            // YAML::Node node = YAML::Load(file);
         }
     }
 
