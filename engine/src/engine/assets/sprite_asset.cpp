@@ -85,7 +85,7 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
     }
 
     YamlSerializer serializer;
-    serializer.Serialize(*this);
+    serializer.Write(*this);
     return SaveYaml(p_meta.path, serializer);
 }
 

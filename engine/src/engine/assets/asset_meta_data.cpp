@@ -63,14 +63,19 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
     YamlSerializer serializer;
 
     // @TODO: fix this
-    serializer.BeginMap();
     serializer
-        .KeyValue("guid", guid)
-        .KeyValue("type", ToString(type))
-        .KeyValue("path", path);
+        .BeginMap()
+        .Key("guid")
+        .Write(guid)
+        .Key("type")
+        .Write(ToString(type))
+        .Key("path")
+        .Write(path);
 
     if (p_asset) {
-        serializer.KeyValue("dependencies", p_asset->GetDependencies());
+        serializer
+            .Key("dependencies")
+            .Write(p_asset->GetDependencies());
     }
 
     serializer.EndMap();

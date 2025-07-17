@@ -1,61 +1,24 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 
-// @TODO: move it to core
-#include "engine/serialization/concept.h"
+#include "engine/serialization/serializer.h"
 
 #include "engine/core/io/file_access.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/ecs/entity.h"
-#include "engine/math/angle.h"
-#include "engine/math/box.h"
-#include "engine/math/matrix.h"
-#include "engine/reflection/meta.h"
-
-// @TODO: should fix this
-#include "engine/tile_map/tile_map_asset.h"
 
 namespace cave {
-
-class FileAccess;
-
-enum FieldFlag : uint32_t {
-    NONE = BIT(0),
-};
-
-DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
-
-class Guid;
 
 // @TODO: move general logic from YamlSerializer to ISerializer
 auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void>;
 
-class ISerializer {
-public:
-    virtual ~ISerializer() = default;
-
-    // virtual bool IsGood() const = 0;
-
-    // virtual auto WriteToFile() -> Result<void> = 0;
-
-    // virtual const std::string& GetError() const = 0;
-
-    // virtual const std::string& GetWarning() const = 0;
-
-    virtual ISerializer& BeginArray(bool p_single_line = false) = 0;
-    virtual ISerializer& EndArray() = 0;
-
-    virtual ISerializer& BeginMap(bool p_single_line = false) = 0;
-    virtual ISerializer& EndMap() = 0;
-
-    virtual ISerializer& Key(std::string_view p_key) = 0;
-};
+class YamlSerializer;
 
 // @TODO: refactor
 auto SaveYaml(std::string_view p_path, YamlSerializer& p_serializer) -> Result<void>;
 
 class YamlSerializer : public ISerializer {
 public:
+    using ISerializer::Write;
+
     ISerializer& BeginArray(bool p_single_line = false) override;
     ISerializer& EndArray() override;
 
@@ -64,129 +27,15 @@ public:
 
     ISerializer& Key(std::string_view p_key) override;
 
-    template<typename T>
-    YamlSerializer& Value(const T& p_value) {
-        Serialize(p_value);
-        return *this;
-    }
-
-    template<typename T>
-    YamlSerializer& KeyValue(std::string_view p_key, const T& p_value) {
-        Key(p_key);
-        Serialize(p_value);
-        return *this;
-    }
-
-    void Serialize(const Guid& p_object);
-    void Serialize(const std::string& p_object);
-    void Serialize(const ecs::Entity& p_object);
-    void Serialize(const Degree& p_object);
-
-    void Serialize(const Matrix4x4f& p_object);
-
-    void Serialize(const TileData& p_tile_data);
-
-    template<IsArithmetic T>
-    void Serialize(const T& p_object) {
-        m_out << p_object;
-    }
-
-    template<IsEnum T>
-    void Serialize(const T& p_object) {
-        m_out << std::to_underlying(p_object);
-    }
-
-    template<typename T, int N>
-    void Serialize(const T (&p_object)[N]) {
-        BeginArray();
-        for (int i = 0; i < N; ++i) {
-            Serialize(p_object[i]);
-        }
-        EndArray();
-    }
-
-    // @TODO: for iterable
-    template<typename T, int N>
-    void Serialize(const Vector<T, N>& p_object) {
-        BeginArray(true);
-        Value(p_object.x);
-        Value(p_object.y);
-        if constexpr (N > 2) {
-            Value(p_object.z);
-        }
-        if constexpr (N > 3) {
-            Value(p_object.w);
-        }
-        EndArray();
-    }
-
-    template<std::ranges::range R>
-    auto get_range_size(const R& range) {
-        if constexpr (std::ranges::sized_range<R>) {
-            return std::ranges::size(range);  // O(1)
-        } else {
-            // fallback for non-sized ranges
-            return std::ranges::distance(std::ranges::begin(range), std::ranges::end(range));  // O(N)
-        }
-    }
-
-    template<std::ranges::range T>
-    void Serialize(const T& p_container) {
-        const size_t len = std::ranges::size(p_container);
-        BeginArray(len < 4);
-        for (const auto& val : p_container) {
-            Value(val);
-        }
-        EndArray();
-    }
-
-#if 0
-    template<typename T>
-    Result<void> SerializaYamlVec(YAML::Emitter& p_out, const std::vector<T>& p_object, YamlSerializer& p_serializer) {
-        DEV_ASSERT(!(p_serializer.flags & FieldFlag::BINARY));
-        const size_t count = p_object.size();
-        if (count < 4) {
-            p_out.SetSeqFormat(YAML::Flow);
-        }
-        p_out << YAML::BeginSeq;
-        for (size_t i = 0; i < count; ++i) {
-            if (auto res = SerializeYaml(p_out, p_object[i], p_serializer); !res) {
-                return CAVE_ERROR(res.error());
-            }
-        }
-        p_out << YAML::EndSeq;
-        p_out.SetSeqFormat(YAML::Block);
-        return Result<void>();
-    }
-#endif
-
-    template<int N>
-    void Serialize(const Box<N>& p_object) {
-        if (!p_object.IsValid()) {
-            m_out << YAML::Null;
-            return;
-        }
-
-        BeginMap(true)
-            .KeyValue("min", p_object.GetMin())
-            .KeyValue("max", p_object.GetMax());
-        EndMap();
-    }
-
-#if USING(USE_REFLECTION)
-    template<HasMetaTag T>
-    void Serialize(const T& p_object) {
-        const auto& meta = MetaDataTable<T>::GetFields();
-
-        BeginMap();
-
-        for (const auto& field : meta) {
-            field->ToYaml(*this, &p_object);
-        }
-
-        EndMap();
-    }
-#endif
+    ISerializer& Write(const bool& p_value) override;
+    ISerializer& Write(const int& p_value) override;
+    ISerializer& Write(const uint32_t& p_value) override;
+    ISerializer& Write(const int64_t& p_value) override;
+    ISerializer& Write(const uint64_t& p_value) override;
+    ISerializer& Write(const float& p_value) override;
+    ISerializer& Write(const char* p_value) override;
+    ISerializer& Write(const std::string& p_value) override;
+    ISerializer& Write(const Guid& p_object) override;
 
     YAML::Emitter& GetEmitter() {
         return m_out;
@@ -202,135 +51,7 @@ public:
 
 }  // namespace cave
 
-#define DUMP_KEY(a) ::YAML::Key << (a) << ::YAML::Value
-
 namespace cave {
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, ecs::Entity& p_object, YamlSerializer&);
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, Degree& p_object, YamlSerializer&);
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, std::string& p_object, YamlSerializer&);
-
-Result<void> DeserializeYaml(const YAML::Node& p_node, Guid& p_object, YamlSerializer&);
-
-inline Result<void> DeserializeYaml(const YAML::Node& p_node, Matrix4x4f& p_object, YamlSerializer&) {
-    if (!p_node || !p_node.IsSequence() || p_node.size() != 16) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "not a Matrix4x4f");
-    }
-
-    float* ptr = &p_object[0].x;
-    for (int i = 0; i < 16; ++i) {
-        ptr[i] = p_node[i].as<float>();
-    }
-    return Result<void>();
-}
-
-template<IsArithmetic T>
-Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, YamlSerializer&) {
-    if (!p_node) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
-    }
-
-    if (!p_node.IsScalar()) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
-    }
-
-    p_object = p_node.as<T>();
-    return Result<void>();
-}
-
-template<IsEnum T>
-Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, YamlSerializer&) {
-    if (!p_node) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
-    }
-
-    if (!p_node.IsScalar()) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect scalar");
-    }
-
-    p_object = static_cast<T>(p_node.as<uint64_t>());
-    return Result<void>();
-}
-
-template<typename T, int N>
-Result<void> DeserializeYaml(const YAML::Node& p_node, T (&p_object)[N], YamlSerializer& p_serializer) {
-    if (!p_node) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
-    }
-
-    if (!p_node.IsSequence() || p_node.size() != N) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect sequence of {}", N);
-    }
-
-    for (int i = 0; i < N; ++i) {
-        if (auto res = DeserializeYaml(p_node[i], p_object[i], p_serializer); !res) {
-            return CAVE_ERROR(res.error());
-        }
-    }
-
-    return Result<void>();
-}
-
-template<typename T, int N>
-Result<void> DeserializeYaml(const YAML::Node& p_node, Vector<T, N>& p_object, YamlSerializer&) {
-    if (!p_node) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Not defined");
-    }
-
-    if (!p_node.IsSequence() || p_node.size() != N) {
-        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Expect sequence of {}", N);
-    }
-
-    p_object.x = p_node[0].as<T>();
-    p_object.y = p_node[1].as<T>();
-    if constexpr (N > 2) {
-        p_object.z = p_node[2].as<T>();
-    }
-    if constexpr (N > 3) {
-        p_object.w = p_node[3].as<T>();
-    }
-    return Result<void>();
-}
-
-template<int N>
-Result<void> DeserializeYaml(const YAML::Node& p_node, Box<N>& p_object, YamlSerializer& p_serializer) {
-    if (!p_node || p_node.IsNull()) {
-        p_object.MakeInvalid();
-        return Result<void>();
-    }
-
-    Vector<float, N> min, max;
-    if (auto res = DeserializeYaml(p_node["min"], min, p_serializer); !res) {
-        return CAVE_ERROR(res.error());
-    }
-    if (auto res = DeserializeYaml(p_node["max"], max, p_serializer); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    p_object = AABB(min, max);
-    return Result<void>();
-}
-
-template<HasMetaTag T>
-Result<void> DeserializeYaml(const YAML::Node& p_node, T& p_object, YamlSerializer& p_serializer) {
-    const auto& meta = MetaDataTable<T>::GetFields();
-
-    for (const auto& field : meta) {
-        if (auto res = field->UndumpYaml(p_node, &p_object, p_serializer); !res) {
-            return CAVE_ERROR(res.error());
-        }
-    }
-    return Result<void>();
-}
-
-template<typename T>
-bool FieldMeta<T>::ToYaml(YamlSerializer& p_serializer, const void* p_object) const {
-    const T& data = FieldMetaBase::GetData<T>(p_object);
-    p_serializer.KeyValue(name, data);
-    return true;
-}
 
 // @TODO:
 static constexpr char BIN_GUARD_MAGIC[] = "SEETHIS";

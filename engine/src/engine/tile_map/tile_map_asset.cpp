@@ -11,8 +11,8 @@ namespace cave {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
 
 Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
-    auto it = m_tiles.find(p_index);
-    if (it == m_tiles.end()) {
+    auto it = m_tiles.tiles.find(p_index);
+    if (it == m_tiles.tiles.end()) {
         return std::nullopt;
     }
 
@@ -20,7 +20,7 @@ Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
 }
 
 bool TileMapAsset::AddTile(TileIndex p_index, TileId p_data) {
-    auto [it, inserted] = m_tiles.try_emplace(p_index, p_data);
+    auto [it, inserted] = m_tiles.tiles.try_emplace(p_index, p_data);
     if (inserted) {
         return true;
     }
@@ -35,17 +35,17 @@ bool TileMapAsset::AddTile(TileIndex p_index, TileId p_data) {
 }
 
 bool TileMapAsset::RemoveTile(TileIndex p_index) {
-    auto it = m_tiles.find(p_index);
-    if (it == m_tiles.end()) {
+    auto it = m_tiles.tiles.find(p_index);
+    if (it == m_tiles.tiles.end()) {
         return false;
     }
 
-    m_tiles.erase(it);
+    m_tiles.tiles.erase(it);
     return true;
 }
 
 void TileMapAsset::SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles) {
-    m_tiles = std::move(p_tiles);
+    m_tiles.tiles = std::move(p_tiles);
 
     IncRevision();
 }
@@ -68,7 +68,21 @@ std::vector<Guid> TileMapAsset::GetDependencies() const {
     return { m_sprite_guid };
 }
 
+bool ReadObject(IDeserializer& p_deserializer, const TileData& p_tile_data) {
+    CRASH_NOW();
+    unused(p_deserializer);
+    unused(p_tile_data);
+    return false;
+}
+
+ISerializer& WriteObject(ISerializer& p_serializer, TileData& p_tile_data) {
+    CRASH_NOW();
+    unused(p_tile_data);
+    return p_serializer;
+}
+
 auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
+    CRASH_NOW();
     // meta
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
@@ -79,7 +93,7 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
     j["version"] = VERSION;
     j["name"] = m_name;
     j["sprite_guid"] = m_sprite_guid;
-    j["tiles"] = m_tiles;
+    // j["tiles"] = m_tiles;
 
     return Serialize(p_meta.path, j);
 }

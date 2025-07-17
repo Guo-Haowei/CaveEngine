@@ -4,6 +4,10 @@
 
 namespace cave {
 
+/// <summary>
+/// @TODO: fix
+/// <returns></returns>
+
 ISerializer& YamlSerializer::BeginArray(bool p_single_line) {
     m_out.SetSeqFormat(p_single_line ? YAML::Flow : YAML::Block);
     m_out << YAML::BeginSeq;
@@ -31,34 +35,48 @@ ISerializer& YamlSerializer::Key(std::string_view p_key) {
     return *this;
 }
 
-void YamlSerializer::Serialize(const Guid& p_object) {
-    m_out << p_object.ToString();
+ISerializer& YamlSerializer::Write(const int& p_value) {
+    m_out << p_value;
+    return *this;
 }
 
-void YamlSerializer::Serialize(const std::string& p_object) {
-    m_out << p_object;
+ISerializer& YamlSerializer::Write(const uint32_t& p_value) {
+    m_out << p_value;
+    return *this;
 }
 
-void YamlSerializer::Serialize(const ecs::Entity& p_object) {
-    m_out << p_object.GetId();
+ISerializer& YamlSerializer::Write(const int64_t& p_value) {
+    m_out << p_value;
+    return *this;
 }
 
-void YamlSerializer::Serialize(const Degree& p_object) {
-    m_out << p_object.GetDegree();
+ISerializer& YamlSerializer::Write(const uint64_t& p_value) {
+    m_out << p_value;
+    return *this;
 }
 
-void YamlSerializer::Serialize(const Matrix4x4f& p_object) {
-    BeginArray(true);
-    const float* ptr = &p_object[0].x;
-    for (int i = 0; i < 16; ++i) {
-        Value(ptr[i]);
-    }
-    EndArray();
+ISerializer& YamlSerializer::Write(const bool& p_value) {
+    m_out << p_value;
+    return *this;
 }
 
-void YamlSerializer::Serialize(const TileData& p_tile_data) {
-    unused(p_tile_data);
-    CRASH_NOW_MSG("TODO:");
+ISerializer& YamlSerializer::Write(const float& p_value) {
+    m_out << p_value;
+    return *this;
+}
+
+ISerializer& YamlSerializer::Write(const char* p_value) {
+    m_out << p_value;
+    return *this;
+}
+
+ISerializer& YamlSerializer::Write(const std::string& p_value) {
+    m_out << p_value;
+    return *this;
+}
+
+ISerializer& YamlSerializer::Write(const Guid& p_object) {
+    return Write(p_object.ToString());
 }
 
 auto SaveYaml(std::string_view p_path, YamlSerializer& p_serializer) -> Result<void> {

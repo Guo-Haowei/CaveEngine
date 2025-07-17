@@ -10,12 +10,10 @@
 #include "engine/math/matrix.h"
 #include "engine/reflection/meta.h"
 
-// @TODO: should fix this
-#include "engine/tile_map/tile_map_asset.h"
-
 namespace cave {
 
 class Guid;
+struct TileData;
 
 auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void>;
 
@@ -93,7 +91,7 @@ public:
         const auto& meta = MetaDataTable<T>::GetFields();
 
         for (const auto& field : meta) {
-            const bool field_ok = field->FromYaml(*this, p_node, &p_object);
+            const bool field_ok = field->Read(*this, p_node, &p_object);
             ERR_FAIL_COND_V_MSG(!field_ok, false, field->name);
         }
 
@@ -106,12 +104,18 @@ public:
 };
 
 template<typename T>
-bool FieldMeta<T>::FromYaml(YamlDeserializer& p_deserializer, const YAML::Node& p_node, void* p_object) {
+bool FieldMeta<T>::Read(IDeserializer& p_deserializer, const YAML::Node& p_node, void* p_object) {
+    unused(p_deserializer);
+    unused(p_node);
+    unused(p_object);
+#if 0
     const auto& field = p_node[name];
     ERR_FAIL_COND_V_MSG(!field, false, "field missing");
 
     T& data = FieldMetaBase::GetData<T>(p_object);
     return p_deserializer.Deserialize(field, data);
+#endif
+    return false;
 }
 
 #if 0

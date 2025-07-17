@@ -5,6 +5,9 @@
 #include "engine/assets/asset_interface.h"
 #include "engine/reflection/reflection.h"
 
+// @TODO: make it iserializer
+#include "engine/serialization/yaml_include.h"
+
 namespace cave {
 
 struct TileIndex {
@@ -32,7 +35,15 @@ namespace cave {
 
 using TileId = uint32_t;
 
-using TileData = std::unordered_map<TileIndex, TileId>;
+struct TileData {
+    std::unordered_map<TileIndex, TileId> tiles;
+};
+
+ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data);
+
+bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data);
+
+static_assert(SerializableType<TileData>);
 
 class TileMapAsset : public IAsset {
     CAVE_ASSET(TileMapAsset, AssetType::TileMap)
@@ -69,7 +80,7 @@ public:
     const Guid& GetSpriteGuid() const { return m_sprite_guid; }
     void SetSpriteGuid(const Guid& p_guid);
 
-    const auto& GetTiles() const { return m_tiles; }
+    const auto& GetTiles() const { return m_tiles.tiles; }
     void SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles);
 
     uint32_t GetRevision() const { return m_revision; }
