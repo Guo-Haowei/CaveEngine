@@ -3,8 +3,7 @@
 #include "engine/assets/assets.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/serialization/serialization.h"
-#include "engine/serialization/yaml_serializer.h"
+#include "engine/serialization/yaml_include.h"
 
 namespace cave {
 
@@ -85,41 +84,45 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
         return CAVE_ERROR(res.error());
     }
 
-    YamlSerializer serializer;
-    serializer.Serialize(*this);
-    return SaveYaml(p_meta.path, serializer);
+    YamlSerializer yaml;
+    yaml.BeginMap()
+        .Key("version")
+        .Write(VERSION)
+        .Key("content")
+        .Write(*this)
+        .EndMap();
+    return SaveYaml(p_meta.path, yaml);
 }
 
-void SpriteAsset::LoadFromDiskCurrent(const nlohmann::json& j) {
-    m_image_guid = j["image"];
-    m_width = j["width"];
-    m_height = j["height"];
-    m_column = j["column"];
-    m_row = j["row"];
-    m_tile_scale = j["tile_scale"];
+void SpriteAsset::LoadFromDiskCurrent(YamlDeserializer& p_deserializer) {
+    p_deserializer.Read(*this);
 }
 
 auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
-    json j;
+    YAML::Node root;
 
-    if (auto res = Deserialize(p_meta.path, j); !res) {
+    if (auto res = LoadYaml(p_meta.path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    const int version = j["version"];
+    YamlDeserializer deserializer;
+    deserializer.Initialize(root);
 
-    try {
+    const int version = deserializer.GetVersion();
+
+    if (deserializer.TryEnterKey("content")) {
         switch (version) {
             case 1:
                 [[fallthrough]];
             default:
-                LoadFromDiskCurrent(j);
+                LoadFromDiskCurrent(deserializer);
                 break;
         }
-    } catch (const json::exception& e) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "{}", e.what());
+
+        deserializer.LeaveKey();
     }
 
+    // @TODO: post load?
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
     if (handle) {
         SetHandle(std::move(*handle));

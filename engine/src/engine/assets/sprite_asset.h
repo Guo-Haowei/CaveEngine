@@ -1,11 +1,10 @@
 #pragma once
-#include <nlohmann/json_fwd.hpp>
-
 #include "asset_handle.h"
 #include "asset_interface.h"
 
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"
+#include "engine/serialization/yaml_forward.h"
 
 namespace cave {
 
@@ -64,7 +63,7 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    void LoadFromDiskCurrent(const nlohmann::json& j);
+    void LoadFromDiskCurrent(YamlDeserializer& p_deserializer);
 
     void SetHandle(Handle<ImageAsset>&& p_handle);
     void UpdateFrames();

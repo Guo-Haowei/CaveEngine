@@ -1,7 +1,6 @@
 version: 19
-seed: 2
+seed: 9
 root: 1
-binary: D:\workspace\GameEngine\tools\editor\vxgi.yaml.bin
 physics_mode: 0
 entities:
   - id: 1
@@ -9,3 +8,10 @@ entities:
       scale: [1, 1, 1]
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
+  - id: 8
+    TransformComponent:
+      scale: [1, 1, 1]
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+    TileMapRenderer:
+      tile_map: 23F9B311-40AA-B54A-ABA5E62A4AE9C360

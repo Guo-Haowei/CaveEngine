@@ -49,7 +49,7 @@ public:
 
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
     void CommandInspectAsset(const Guid& p_guid);
-    void CommandAddComponent(ComponentType p_type, ecs::Entity p_target);
+    void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
     void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
     void CommandRemoveEntity(ecs::Entity p_target);
 

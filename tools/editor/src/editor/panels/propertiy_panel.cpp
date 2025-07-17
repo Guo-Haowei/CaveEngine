@@ -95,10 +95,10 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             ImGui::CloseCurrentPopup();
         }
         if (ImGui::MenuItem("Script")) {
-            m_editor.CommandAddComponent(ComponentType::Script, id);
+            m_editor.CommandAddComponent(ComponentName::Script, id);
         }
         if (ImGui::MenuItem("TileMap")) {
-            m_editor.CommandAddComponent(ComponentType::TileMap, id);
+            m_editor.CommandAddComponent(ComponentName::TileMap, id);
         }
         ImGui::EndPopup();
     }

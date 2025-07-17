@@ -46,7 +46,8 @@ enum class EntityType : uint8_t {
         COUNT,
 };
 
-enum class ComponentType : uint8_t {
+// @TODO: auto register
+enum class ComponentName : uint8_t {
     Script,
     TileMap,
     Count,

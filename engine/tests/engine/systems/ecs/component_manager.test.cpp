@@ -2,7 +2,7 @@
 
 namespace cave::ecs {
 
-template<Serializable T>
+template<ComponentType T>
 struct dummy2 {
     using iter = ComponentManagerIterator<T>;
     using const_iter = ComponentManagerConstIterator<T>;
@@ -17,7 +17,7 @@ public:
     std::vector<T> m_componentArray;
 };
 
-template<Serializable T>
+template<ComponentType T>
 struct DummyTest {
 };
 

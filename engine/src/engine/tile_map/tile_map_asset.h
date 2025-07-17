@@ -5,6 +5,9 @@
 #include "engine/assets/asset_interface.h"
 #include "engine/reflection/reflection.h"
 
+// @TODO: make it iserializer
+#include "engine/serialization/yaml_include.h"
+
 namespace cave {
 
 struct TileIndex {
@@ -32,7 +35,15 @@ namespace cave {
 
 using TileId = uint32_t;
 
-using TileData = std::unordered_map<TileIndex, TileId>;
+struct TileData {
+    std::unordered_map<TileIndex, TileId> tiles;
+};
+
+ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data);
+
+bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data);
+
+static_assert(Serializable<TileData>);
 
 class TileMapAsset : public IAsset {
     CAVE_ASSET(TileMapAsset, AssetType::TileMap)
@@ -67,9 +78,9 @@ public:
     void SetName(std::string&& p_name) { m_name = std::move(p_name); }
 
     const Guid& GetSpriteGuid() const { return m_sprite_guid; }
-    void SetSpriteGuid(const Guid& p_guid);
+    void SetSpriteGuid(const Guid& p_guid, bool p_force = false);
 
-    const auto& GetTiles() const { return m_tiles; }
+    const auto& GetTiles() const { return m_tiles.tiles; }
     void SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles);
 
     uint32_t GetRevision() const { return m_revision; }
@@ -84,8 +95,7 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    void LoadFromDiskVersion0(const nlohmann::json& j);
-    void LoadFromDiskVersion1(const nlohmann::json& j);
+    void LoadFromDiskVersion1(YamlDeserializer& p_deserializer);
 
     // Non serialized
     Handle<SpriteAsset> m_sprite_handle;

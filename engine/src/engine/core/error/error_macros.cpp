@@ -65,6 +65,8 @@ void ReportErrorImpl(std::string_view p_function,
     }
 
     GlobalUnlock();
+
+    GENERATE_TRAP();
 }
 
 void ReportErrorIndexImpl(std::string_view p_function,

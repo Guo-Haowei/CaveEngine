@@ -7,7 +7,7 @@ namespace cave::ecs {
 // so when removing a component, we don't need to remove it from the array,
 // but we can invalidate it, and when creating View, View can skip it
 
-template<Serializable T>
+template<ComponentType T>
 class View {
     using ViewContainer = std::vector<std::pair<Entity, int>>;
 

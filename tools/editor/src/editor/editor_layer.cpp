@@ -311,7 +311,7 @@ void EditorLayer::CommandInspectAsset(const Guid& p_guid) {
     BufferCommand(command);
 }
 
-void EditorLayer::CommandAddComponent(ComponentType p_type, ecs::Entity p_target) {
+void EditorLayer::CommandAddComponent(ComponentName p_type, ecs::Entity p_target) {
     auto command = std::make_shared<EditorCommandAddComponent>(p_type);
     command->target = p_target;
     BufferCommand(command);

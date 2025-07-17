@@ -7,7 +7,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/scene.h"
-#include "engine/serialization/yaml_serializer.h"
+#include "engine/serialization/yaml_include.h"
 
 namespace cave {
 
@@ -125,24 +125,18 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
     }
 }
 
-template<Serializable T>
-[[nodiscard]] Result<void> SerializeComponent(YAML::Emitter& p_out,
-                                              const char* p_name,
-                                              ecs::Entity p_entity,
-                                              const Scene& p_scene,
-                                              FileAccess* p_binary) {
-
-    CRASH_NOW();
-    unused(p_out);
+template<ComponentType T>
+bool SerializeComponent(ISerializer& p_serializer,
+                        const char* p_name,
+                        ecs::Entity p_entity,
+                        const Scene& p_scene) {
 
     const T* component = p_scene.GetComponent<T>(p_entity);
     if (component) {
-        p_out << DUMP_KEY(p_name);
-        YamlSerializer context;
-        context.file = p_binary;
-        context.Serialize(*component);
+        p_serializer.Key(p_name);
+        p_serializer.Write(*component);
     }
-    return Result<void>();
+    return true;
 }
 
 void RegisterClasses() {}
@@ -166,16 +160,20 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
         return CAVE_ERROR(res.error());
     }
 
-    YAML::Emitter out;
-    out << YAML::BeginMap;
-    out << DUMP_KEY("version") << LATEST_SCENE_VERSION;
-    out << DUMP_KEY("seed") << ecs::Entity::GetSeed();
-    out << DUMP_KEY("root") << p_scene.m_root.GetId();
-    out << DUMP_KEY("binary") << binary_path;
-    out << DUMP_KEY("physics_mode") << static_cast<uint32_t>(p_scene.m_physicsMode);
+    YamlSerializer serializer;
 
-    out << DUMP_KEY("entities");
-    out << YAML::BeginSeq;
+    serializer.BeginMap()
+        .Key("version")
+        .Write(LATEST_SCENE_VERSION)
+        .Key("seed")
+        .Write(ecs::Entity::GetSeed())
+        .Key("root")
+        .Write(p_scene.m_root.GetId())
+        .Key("physics_mode")
+        .Write(static_cast<uint32_t>(p_scene.m_physicsMode))
+        .Key("entities");
+
+    serializer.BeginArray();
 
     bool ok = true;
     ok = ok && archive.Write(SCENE_MAGIC);
@@ -188,38 +186,35 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
     for (auto id : entity_array) {
         ecs::Entity entity{ id };
 
-        out << YAML::BeginMap;
-        out << DUMP_KEY("id") << id;
+        serializer.BeginMap()
+            .Key("id")
+            .Write(id);
 
-        out.SetSeqFormat(YAML::Flow);
+#define REGISTER_COMPONENT(COMPONENT, ...) \
+    SerializeComponent<COMPONENT>(serializer, #COMPONENT, entity, p_scene);
 
-#define REGISTER_COMPONENT(a, ...)                                                                         \
-    if (auto res = SerializeComponent<a>(out, #a, entity, p_scene, archive.GetFileAccess().get()); !res) { \
-        return CAVE_ERROR(res.error());                                                                    \
-    }
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
-        out.SetSeqFormat(YAML::Block);
-
-        out << YAML::EndMap;
+        serializer.EndMap();
     }
 
-    out << YAML::EndSeq;
-    out << YAML::EndMap;
+    serializer.EndArray();
+    serializer.EndMap();
 
     auto res = FileAccess::Open(p_path, FileAccess::WRITE);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
 
+    // @TODO: generalize
     auto yaml_file = *res;
-    const char* result = out.c_str();
+    const char* result = serializer.m_out.c_str();
     yaml_file->WriteBuffer(result, strlen(result));
     return Result<void>();
 }
 
-template<Serializable T>
+template<ComponentType T>
 static Result<void> DeserializeComponent(const YAML::Node& p_node,
                                          const char* p_key,
                                          ecs::Entity p_id,

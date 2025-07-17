@@ -71,22 +71,22 @@ public:
     static constexpr const char* EXTENSION = ".scene";
 
 public:
-    template<Serializable T>
+    template<ComponentType T>
     const T* GetComponent(const ecs::Entity&) const { return nullptr; }
-    template<Serializable T>
+    template<ComponentType T>
     T* GetComponent(const ecs::Entity&) { return nullptr; }
-    template<Serializable T>
+    template<ComponentType T>
     bool Contains(const ecs::Entity&) const { return false; }
-    template<Serializable T>
+    template<ComponentType T>
     size_t GetCount() const { return 0; }
-    template<Serializable T>
+    template<ComponentType T>
     ecs::Entity GetEntity(size_t) const { return ecs::Entity::INVALID; }
-    template<Serializable T>
+    template<ComponentType T>
     T& Create(const ecs::Entity&) { return *(T*)(nullptr); }
 
-    template<Serializable T>
+    template<ComponentType T>
     inline T& GetComponentByIndex(size_t) { return *(T*)0; }
-    template<Serializable T>
+    template<ComponentType T>
     inline ecs::Entity GetEntityByIndex(size_t) { return ecs::Entity::INVALID; }
 
     // @TODO: support View<A, B, ...>
