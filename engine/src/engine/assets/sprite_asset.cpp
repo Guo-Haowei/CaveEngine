@@ -90,21 +90,21 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
 }
 
 void SpriteAsset::LoadFromDiskCurrent(YamlDeserializer& p_deserializer) {
-    p_deserializer.Deserialize(p_deserializer.m_node, *this);
+    p_deserializer.Read(*this);
     // @TODO: check error?
 }
 
 auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
-    YamlDeserializer deserializer;
+    YAML::Node root;
 
-    // @TODO: fix this
-    LoadYaml(p_meta.path, deserializer.m_node);
-
-    if (auto res = LoadYaml(p_meta.path, deserializer.m_node); !res) {
+    if (auto res = LoadYaml(p_meta.path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    int version = deserializer.GetVersion().unwrap_or(-1);
+    YamlDeserializer deserializer;
+    deserializer.Initialize(root);
+
+    int version = deserializer.GetVersion();
 
     switch (version) {
         case 1:

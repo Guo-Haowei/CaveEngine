@@ -62,7 +62,7 @@ struct FieldMetaBase {
     }
 
     virtual ISerializer& Write(ISerializer& p_serializer, const void* p_object) const = 0;
-    virtual bool Read(IDeserializer& p_deserializer, const YAML::Node& p_node, void* p_object) = 0;
+    virtual bool Read(IDeserializer& p_deserializer, void* p_object) = 0;
 };
 
 template<typename T>
@@ -70,7 +70,7 @@ struct FieldMeta : FieldMetaBase {
     using FieldMetaBase::FieldMetaBase;
 
     ISerializer& Write(ISerializer& p_serializer, const void* p_object) const override;
-    bool Read(IDeserializer& p_deserializer, const YAML::Node& p_node, void* p_object) override;
+    bool Read(IDeserializer& p_deserializer, void* p_object) override;
 };
 
 template<typename T>

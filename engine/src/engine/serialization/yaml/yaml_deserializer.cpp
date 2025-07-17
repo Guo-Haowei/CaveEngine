@@ -5,37 +5,62 @@
 
 namespace cave {
 
-Option<int> YamlDeserializer::GetVersion() const {
-    const auto& version_node = m_node["version"];
+bool YamlDeserializer::Initialize(const YAML::Node& p_node) {
+    const auto& version_node = p_node["version"];
+
     if (version_node && version_node.IsScalar()) {
-        return version_node.as<int>();
+        m_version = version_node.as<int>();
     }
 
-    return Option<int>::None();
-}
-
-bool YamlDeserializer::Deserialize(const YAML::Node& p_node, ecs::Entity& p_object) {
-    ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
-
-    p_object = ecs::Entity(p_node.as<uint32_t>());
+    m_stack.emplace_back(p_node);
+    m_initialized = true;
     return true;
 }
 
-bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Degree& p_object) {
+bool YamlDeserializer::TryEnterKey(const char* p_key) {
+    auto node = Current()[p_key];
+    ERR_FAIL_COND_V_MSG(!node, false, "key not found");
+
+    m_stack.push_back(node);
+    return true;
+}
+
+void YamlDeserializer::LeaveKey() {
+    DEV_ASSERT(!m_stack.empty());
+
+    m_stack.pop_back();
+}
+
+bool YamlDeserializer::Read(ecs::Entity& p_object) {
+    auto& node = Current();
+
+    ERR_FAIL_COND_V_MSG(!node.IsScalar(), false, "expect scalar");
+
+    p_object = ecs::Entity(node.as<uint32_t>());
+    return true;
+}
+
+bool YamlDeserializer::Read(Degree& p_object) {
+    auto& p_node = Current();
+
     ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
 
     p_object = Degree(p_node.as<float>());
     return true;
 }
 
-bool YamlDeserializer::Deserialize(const YAML::Node& p_node, std::string& p_object) {
+bool YamlDeserializer::Read(std::string& p_object) {
+    auto& p_node = Current();
+
     ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
 
     p_object = p_node.as<std::string>();
     return true;
 }
 
-bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Guid& p_object) {
+bool YamlDeserializer::Read(Guid& p_object) {
+    auto& p_node = Current();
+
     ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
 
     auto res = Guid::Parse(p_node.as<std::string>());
@@ -47,7 +72,9 @@ bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Guid& p_object) {
     return true;
 }
 
-bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Matrix4x4f& p_object) {
+bool YamlDeserializer::Read(Matrix4x4f& p_object) {
+    auto& p_node = Current();
+
     ERR_FAIL_COND_V_MSG(!p_node.IsSequence() || p_node.size() != 16, false, "expect matrix4x4");
 
     float* ptr = &p_object[0].x;
@@ -58,9 +85,8 @@ bool YamlDeserializer::Deserialize(const YAML::Node& p_node, Matrix4x4f& p_objec
     return true;
 }
 
-bool YamlDeserializer::Deserialize(const YAML::Node& p_node, const TileData& p_tile_data) {
+bool YamlDeserializer::Read(const TileData& p_tile_data) {
     CRASH_NOW();
-    unused(p_node);
     unused(p_tile_data);
     return true;
 }
