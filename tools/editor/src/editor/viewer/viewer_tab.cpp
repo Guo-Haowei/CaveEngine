@@ -4,39 +4,15 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/scene/scene.h"
 
+#include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/viewer/viewer.h"
 
 namespace cave {
 
-// @TODO: refactor
-enum {
-    CAM_2D,
-    CAM_3D,
-};
-
-// @TODO: refactor
-class EditorCameraController {
-public:
-    CameraComponent& GetCamera(int p_idx) { return cameras[p_idx]; }
-
-    std::array<CameraComponent, 2> cameras;
-    int current = CAM_3D;
-
-    void Check(bool p_only_2d) {
-        if (p_only_2d) {
-            current = CAM_2D;
-        }
-    }
-
-    void Toggle(bool p_only_2d) {
-        if (p_only_2d) {
-            current = CAM_2D;
-        } else {
-            current ^= 1;
-        }
-    }
-};
+const Guid& ViewerTab::GetGuid() const {
+    return GetDocument().GetGuid();
+}
 
 ViewerTab::ViewerTab(EditorLayer& p_editor, Viewer& p_viewer)
     : m_id(TabId::Next())

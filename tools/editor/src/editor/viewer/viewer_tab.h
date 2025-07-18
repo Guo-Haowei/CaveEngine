@@ -8,6 +8,7 @@
 namespace cave {
 
 class CameraComponent;
+class Document;
 class TabId;
 
 class ViewerTab {
@@ -24,21 +25,19 @@ public:
     virtual void OnActivate() {}
     virtual void OnDeactivate() {}
 
-    virtual bool IsDirty() { return false; }
-
     virtual void Draw();
 
     virtual void Update() {}
 
-    UndoStack& GetUndoStack() { return m_undo_stack; }
+    virtual Document& GetDocument() const = 0;
 
     const TabId& GetId() const { return m_id; }
+
+    const Guid& GetGuid() const;
 
     const std::string& GetTitle() const {
         return m_title;
     }
-
-    const Guid& GetGuid() const { return m_guid; }
 
     const CameraComponent& GetActiveCamera() const {
         return GetActiveCameraInternal();
@@ -59,16 +58,6 @@ protected:
     EditorLayer& m_editor;
     Viewer& m_viewer;
     std::string m_title;
-    Guid m_guid;
-
-    // @NOTE: each tab should has its own
-    // * Undo Stack
-    // * Camera
-    // * Scene Ref
-    // * Associated Asset
-    // * Render Target (optional)
-
-    UndoStack m_undo_stack;
 };
 
 }  // namespace cave

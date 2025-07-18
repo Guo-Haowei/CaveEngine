@@ -5,6 +5,7 @@
 #include "engine/assets/assets.h"
 #include "engine/assets/sprite_asset.h"
 #include "engine/runtime/asset_registry.h"
+#include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
 #include "editor/viewer/viewer.h"
@@ -219,8 +220,8 @@ void AssetInspector::InspectTileMap(IAsset* p_asset) {
     }
 
     SpriteAsset* sprite = nullptr;
-    if (auto layer = tool->GetActiveLayer(); layer) {
-        sprite = layer->GetSpriteHandle().Get();
+    if (TileMapAsset* asset = tool->GetDocument().GetHandle<TileMapAsset>().Get(); asset) {
+        sprite = asset->GetSpriteHandle().Get();
     }
 
     std::vector<AssetChildPanel> descs = {
@@ -274,11 +275,9 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
     DEV_ASSERT(tool);
 
-    const int current_layer = tool->GetActiveLayerIndex();
-
     for (int layer_id = 0; layer_id < 1; ++layer_id) {
         TileMapAsset& layer = p_tile_map;
-        const bool is_layer_selected = current_layer == layer_id;
+        const bool is_layer_selected = true;
 
         ImGui::PushID(layer_id);
 
@@ -336,7 +335,7 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
         CenteredImage(image_handle, image_size, region_size);
 
         if (ImGui::IsItemClicked()) {
-            tool->SetActiveLayer(layer_id);
+            // tool->SetActiveLayer(layer_id);
         }
 
         DragDropTarget(AssetType::Sprite, [&](AssetHandle& p_handle) {

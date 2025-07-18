@@ -3,6 +3,7 @@
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
+#include "editor/document/document.h"
 #include "editor/editor_command.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/panels/file_system_panel.h"
@@ -13,6 +14,7 @@
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
 #include "editor/viewer/viewer.h"
+#include "editor/viewer/viewer_tab.h"
 #include "editor/widget.h"
 #include "engine/input/input_event.h"
 #include "engine/core/string/string_utils.h"
@@ -66,21 +68,24 @@ EditorLayer::EditorLayer()
         //[&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
     };
 
-    auto active_undo_stack = [&]() -> UndoStack* {
-        return m_viewer->GetActiveTab() ? &m_viewer->GetActiveTab()->GetUndoStack() : nullptr;
+    auto active_document = [this]() -> Document* {
+        if (auto tab = m_viewer->GetActiveTab(); tab) {
+            return &tab->GetDocument();
+        }
+        return nullptr;
     };
 
     m_shortcuts[SHORT_CUT_REDO] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [&]() { auto undo_stack = active_undo_stack(); if (undo_stack) undo_stack->Redo(); },
-        [&]() { auto undo_stack = active_undo_stack(); return undo_stack ? undo_stack ->CanRedo() : false; }
+        [active_document]() { auto doc = active_document(); if (doc) doc->Redo(); },
+        [active_document]() { auto doc = active_document(); return doc ? doc ->CanRedo() : false; }
     };
     m_shortcuts[SHORT_CUT_UNDO] = {
         "Undo",
         "Ctrl+Z",
-        [&]() { auto undo_stack = active_undo_stack(); if (undo_stack) undo_stack->Undo(); },
-        [&]() { auto undo_stack = active_undo_stack(); return undo_stack ? undo_stack ->CanUndo() : false; }
+        [active_document]() { auto doc = active_document(); if (doc) doc->Undo(); },
+        [active_document]() { auto doc = active_document(); return doc ? doc ->CanUndo() : false; }
     };
 
     // @TODO: proper key mapping
@@ -307,6 +312,7 @@ HandleInputResult EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_e
     return HandleInputResult::NotHandled;
 }
 
+// @TODO: these are associated with scene editor, move to scene editor
 void EditorLayer::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {
     p_command->m_editor = this;
     m_commandBuffer.emplace_back(std::move(p_command));
@@ -338,10 +344,6 @@ void EditorLayer::FlushCommand(Scene* p_scene) {
     while (!m_commandBuffer.empty()) {
         auto task = m_commandBuffer.front();
         m_commandBuffer.pop_front();
-        // if (auto undo_command = std::dynamic_pointer_cast<UndoCommand>(task); undo_command) {
-        //     m_undoStack.PushCommand(std::move(undo_command));
-        //     continue;
-        // }
         task->Execute(*p_scene);
     }
 }

@@ -33,7 +33,7 @@ public:
 
     void MoveAsset(std::string&& p_old, std::string&& p_new);
 
-    void SaveAssets();
+    bool SaveAsset(const Guid& p_guid);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

@@ -16,6 +16,8 @@ public:
 
     void Update() override;
 
+    Document& GetDocument() const override;
+
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 

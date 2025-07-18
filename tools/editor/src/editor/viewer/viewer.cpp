@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui_internal.h>
 
+#include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/imguizmo.h"
 #include "editor/widget.h"
@@ -224,7 +225,7 @@ void Viewer::UpdateInternal(Scene*) {
     UpdateFrameSize();
 
     int flag = 0;
-#if 1
+#if 0
     flag |= ImGuiTabBarFlags_Reorderable;
 #endif
     if (!ImGui::BeginTabBar("MyTabs", flag)) {
@@ -263,7 +264,7 @@ void Viewer::UpdateInternal(Scene*) {
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
         int flags = 0;
-        if (tab->IsDirty()) {
+        if (tab->GetDocument().IsDirty()) {
             flags |= ImGuiTabItemFlags_UnsavedDocument;
         }
 

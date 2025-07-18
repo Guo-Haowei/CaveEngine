@@ -18,6 +18,11 @@ SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
     m_camera = ViewerTab::CreateDefaultCamera3D();
 }
 
+Document& SceneEditor::GetDocument() const {
+    CRASH_NOW();
+    return *(Document*)0;
+}
+
 void SceneEditor::Update() {
     Scene* p_scene = nullptr;
 

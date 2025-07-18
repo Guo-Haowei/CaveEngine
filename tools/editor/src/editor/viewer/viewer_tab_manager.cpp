@@ -1,6 +1,7 @@
 #include "viewer_tab_manager.h"
 
-#include "viewer_tab.h"
+#include "editor/document/document.h"
+#include "editor/viewer/viewer_tab.h"
 
 namespace cave {
 
@@ -64,15 +65,16 @@ void ViewerTabManager::HandleCloseRequest() {
     std::shared_ptr<ViewerTab> to_close;
 
     RequestSaveDialog([&](SaveDialogResponse p_response) {
+        auto it = m_tabs.find(m_close_request.unwrap());
+        DEV_ASSERT(it != m_tabs.end());
+        to_close = it->second;
         switch (p_response) {
             case SaveDialogResponse::Save:
+                to_close->GetDocument().Save();
                 // @TODO: save
                 [[fallthrough]];
             case SaveDialogResponse::Discard: {
                 // remove the tab
-                auto it = m_tabs.find(m_close_request.unwrap());
-                DEV_ASSERT(it != m_tabs.end());
-                to_close = it->second;
                 m_tabs.erase(it);
             } break;
             case SaveDialogResponse::Cancel:
