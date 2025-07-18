@@ -17,7 +17,7 @@ public:
 
     bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
 
-    void Update(Scene* p_scene) override;
+    void Update() override;
 
 protected:
     GizmoAction m_state{ GizmoAction::Translate };

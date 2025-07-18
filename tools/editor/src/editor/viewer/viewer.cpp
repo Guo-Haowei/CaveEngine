@@ -260,9 +260,7 @@ void Viewer::UpdateInternal(Scene*) {
                 m_tab_manager.SwitchTab(tab->GetId());
             }
 
-            ImVec2 top_left(m_canvas_min.x, m_canvas_min.y);
-            ImVec2 bottom_right(top_left.x + m_canvas_size.x, top_left.y + m_canvas_size.y);
-            tab->Draw(top_left, bottom_right);
+            tab->Draw();
 
             ImGui::EndTabItem();
         }

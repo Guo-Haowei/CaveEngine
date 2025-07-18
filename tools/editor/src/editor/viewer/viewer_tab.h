@@ -24,8 +24,7 @@ public:
     virtual void OnActivate() {}
     virtual void OnDeactivate() {}
 
-    // @TODO: change to rect?
-    virtual void Draw(const ImVec2& p_top_left, const ImVec2& p_bottom_right);
+    virtual void Draw();
 
     virtual void Update() {}
 
@@ -53,7 +52,7 @@ public:
 
 protected:
     const CameraComponent& GetActiveCameraInternal() const;
-    void DrawGui(const ImVec2& p_top_left, const ImVec2& p_bottom_right);
+    void DrawGui();
 
     const TabId m_id;
     EditorLayer& m_editor;

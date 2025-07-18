@@ -120,7 +120,13 @@ bool ViewerTab::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
     return false;
 }
 
-void ViewerTab::DrawGui(const ImVec2& p_top_left, const ImVec2& p_bottom_right) {
+void ViewerTab::DrawGui() {
+    const auto canvas_min = m_viewer.GetCanvasMin();
+    const auto canvas_max = canvas_min + m_viewer.GetCanvasSize();
+
+    ImVec2 top_left(canvas_min.x, canvas_min.y);
+    ImVec2 bottom_right(canvas_max.x, canvas_max.y);
+
     // @TODO: fix this
     const auto& gm = IGraphicsManager::GetSingleton();
     uint64_t handle = gm.GetFinalImage();
@@ -128,7 +134,7 @@ void ViewerTab::DrawGui(const ImVec2& p_top_left, const ImVec2& p_bottom_right) 
     switch (gm.GetBackend()) {
         case Backend::D3D11:
         case Backend::D3D12: {
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, p_top_left, p_bottom_right);
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right);
         } break;
         case Backend::OPENGL: {
             ImVec2 uv_min = ImVec2(0, 1);
@@ -137,7 +143,7 @@ void ViewerTab::DrawGui(const ImVec2& p_top_left, const ImVec2& p_bottom_right) 
                 uv_min = ImVec2(0, 0);
                 uv_max = ImVec2(1, 1);
             }
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, p_top_left, p_bottom_right, uv_min, uv_max);
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right, uv_min, uv_max);
         } break;
         case Backend::VULKAN:
         case Backend::METAL: {
@@ -148,9 +154,11 @@ void ViewerTab::DrawGui(const ImVec2& p_top_left, const ImVec2& p_bottom_right) 
     }
 }
 
-void ViewerTab::Draw(const ImVec2& p_top_left, const ImVec2& p_bottom_right) {
+void ViewerTab::Draw() {
+    // @TODO: remove this
     UpdateCamera();
-    DrawGui(p_top_left, p_bottom_right);
+
+    DrawGui();
 }
 
 }  // namespace cave
