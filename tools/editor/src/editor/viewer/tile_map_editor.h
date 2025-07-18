@@ -55,6 +55,8 @@ protected:
                          TileIndex p_index,
                          Option<TileId> p_new_tile);
 
+    const CameraComponent& GetActiveCameraInternal() const override;
+
     AssetRegistry* m_asset_registry;
 
     Handle<TileMapAsset> m_tile_map_handle;
@@ -62,6 +64,8 @@ protected:
     std::shared_ptr<Scene> m_tmp_scene;
     std::vector<Command> m_commands;
     int m_current_layer_id;
+
+    std::shared_ptr<CameraComponent> m_camera;
 };
 
 }  // namespace cave

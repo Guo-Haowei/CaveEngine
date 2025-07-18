@@ -19,7 +19,6 @@ namespace cave {
 
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
-    m_policy = ToolCameraPolicy::Only2D;
 
     m_title = "TileMapEditor";
 
@@ -27,6 +26,8 @@ TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
     m_current_layer_id = -1;
     m_tile_map_handle = Handle<TileMapAsset>();
     m_undo_stack.Clear();
+
+    m_camera = ViewerTab::CreateDefaultCamera2D();
 }
 
 TileMapAsset* TileMapEditor::GetActiveLayer() {
@@ -82,6 +83,7 @@ void TileMapEditor::Draw() {
                         if (auto cmd = SetTileCommand::AddTile(*tile_map, tile, 1); cmd) {
                             cmd->SetHandle(std::move(handle));
                             m_undo_stack.Submit(cmd);
+    //std::shared_ptr<CameraComponent> m_camera;
                         }
                     }
                 } else if constexpr (std::is_same_v<T, CommandEraseTile>) {
@@ -178,6 +180,11 @@ void TileMapEditor::OnActivate() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
     scene_manager->SetTmpScene(m_tmp_scene);
+}
+
+const CameraComponent& TileMapEditor::GetActiveCameraInternal() const {
+    DEV_ASSERT(m_camera);
+    return *m_camera.get();
 }
 
 }  // namespace cave

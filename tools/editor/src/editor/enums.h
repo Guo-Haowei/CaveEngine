@@ -2,11 +2,6 @@
 
 namespace cave {
 
-enum class ToolCameraPolicy {
-    Any,
-    Only2D,
-};
-
 enum class GizmoAction : uint8_t {
     Translate,
     Rotate,

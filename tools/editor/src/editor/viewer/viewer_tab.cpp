@@ -7,8 +7,6 @@
 #include "editor/editor_layer.h"
 #include "editor/viewer/viewer.h"
 
-#include "engine/scene/camera_controller.h"
-
 namespace cave {
 
 // @TODO: refactor
@@ -20,9 +18,6 @@ enum {
 // @TODO: refactor
 class EditorCameraController {
 public:
-    CameraControllerFPS controller_3d;
-    CameraController2DEditor controller_2d;
-
     CameraComponent& GetCamera(int p_idx) { return cameras[p_idx]; }
 
     std::array<CameraComponent, 2> cameras;
@@ -47,72 +42,32 @@ ViewerTab::ViewerTab(EditorLayer& p_editor, Viewer& p_viewer)
     : m_id(TabId::Next())
     , m_editor(p_editor)
     , m_viewer(p_viewer) {
+}
 
-    m_controller = std::make_shared<EditorCameraController>();
-
+std::shared_ptr<CameraComponent> ViewerTab::CreateDefaultCamera2D() {
     const auto res = DVAR_GET_IVEC2(resolution);
-    {
-        CameraComponent camera;
-        camera.SetDimension(res.x, res.y);
-        camera.SetNear(1.0f);
-        camera.SetFar(1000.0f);
-        camera.SetPosition(Vector3f(0, 4, 10));
-        camera.SetDirty();
-        camera.Update();
-
-        m_controller->cameras[CAM_3D] = camera;
-    }
-    {
-        CameraComponent camera;
-        camera.SetOrtho();
-        camera.SetDimension(res.x, res.y);
-        camera.SetNear(1.0f);
-        camera.SetFar(1000.0f);
-        camera.SetPosition(Vector3f(0, 0, 10));
-        camera.SetDirty();
-        camera.Update();
-
-        m_controller->cameras[CAM_2D] = camera;
-    }
+    auto camera = std::make_shared<CameraComponent>();
+    camera->SetOrtho();
+    camera->SetDimension(res.x, res.y);
+    camera->SetNear(1.0f);
+    camera->SetFar(1000.0f);
+    camera->SetPosition(Vector3f(0, 0, 10));
+    camera->SetDirty();
+    camera->Update();
+    return camera;
 }
 
-const CameraComponent& ViewerTab::GetActiveCameraInternal() const {
-    return m_controller->cameras[m_controller->current];
-}
-
-void ViewerTab::UpdateCamera() {
-    // this is for internal update, so const cast is fine
-    CameraComponent& camera = GetActiveCamera();
-
-    const auto& input_state = m_viewer.GetInputState();
-
-    const float dt = m_editor.context.timestep;
-    const auto& move = input_state.mouse_move;
-    const auto& scroll = input_state.scroll;
-
-    const bool only_2d = GetCameraPolicy() == ToolCameraPolicy::Only2D;
-    m_controller->Check(only_2d);
-
-    // @TODO: still need to figure out a better way to do it
-    switch (m_controller->current) {
-        case CAM_2D: {
-            CameraInputState state{
-                .move = dt * Vector3f(-move.x, move.y, 0.0f),
-                .zoomDelta = -dt * scroll,
-            };
-            m_controller->controller_2d.Update(camera, state);
-        } break;
-        case CAM_3D: {
-            CameraInputState state{
-                .move = dt * Vector3f(input_state.dx, input_state.dy, input_state.dz),
-                .zoomDelta = dt * scroll,
-                .rotation = dt * move,
-            };
-            m_controller->controller_3d.Update(camera, state);
-        } break;
-    }
-
-    camera.Update();
+// @TODO: ad 2d 3d flag to camera
+std::shared_ptr<CameraComponent> ViewerTab::CreateDefaultCamera3D() {
+    const auto res = DVAR_GET_IVEC2(resolution);
+    auto camera = std::make_shared<CameraComponent>();
+    camera->SetDimension(res.x, res.y);
+    camera->SetNear(1.0f);
+    camera->SetFar(1000.0f);
+    camera->SetPosition(Vector3f(0, 4, 10));
+    camera->SetDirty();
+    camera->Update();
+    return camera;
 }
 
 bool ViewerTab::HandleInput(const InputEvent* p_input_event) {
@@ -156,8 +111,6 @@ void ViewerTab::DrawMainView() {
 
 void ViewerTab::Draw() {
     // @TODO: remove this
-    UpdateCamera();
-
     DrawMainView();
 }
 

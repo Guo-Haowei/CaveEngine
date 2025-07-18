@@ -120,7 +120,7 @@ bool Viewer::HandleInput(const InputEvent* p_input_event) {
         return true;
     }
 
-    return HandleInputCamera(p_input_event);
+    return CacheCameraInput(p_input_event);
 }
 
 std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
@@ -138,28 +138,28 @@ std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     return std::nullopt;
 }
 
-bool Viewer::HandleInputCamera(const InputEvent* p_input_event) {
+bool Viewer::CacheCameraInput(const InputEvent* p_input_event) {
     if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
         if (e->IsHolding() && !e->IsModiferPressed()) {
             bool handled = true;
             switch (e->GetKey()) {
                 case KeyCode::KEY_D:
-                    ++m_input_state.dx;
+                    ++m_camera_input.dx;
                     break;
                 case KeyCode::KEY_A:
-                    --m_input_state.dx;
+                    --m_camera_input.dx;
                     break;
                 case KeyCode::KEY_E:
-                    ++m_input_state.dy;
+                    ++m_camera_input.dy;
                     break;
                 case KeyCode::KEY_Q:
-                    --m_input_state.dy;
+                    --m_camera_input.dy;
                     break;
                 case KeyCode::KEY_W:
-                    ++m_input_state.dz;
+                    ++m_camera_input.dz;
                     break;
                 case KeyCode::KEY_S:
-                    --m_input_state.dz;
+                    --m_camera_input.dz;
                     break;
                 default:
                     handled = false;
@@ -171,14 +171,14 @@ bool Viewer::HandleInputCamera(const InputEvent* p_input_event) {
 
     if (auto e = dynamic_cast<const InputEventMouseWheel*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
-            m_input_state.scroll += 3.0f * e->GetWheelY();
+            m_camera_input.scroll += 3.0f * e->GetWheelY();
             return true;
         }
     }
 
     if (auto e = dynamic_cast<const InputEventMouseMove*>(p_input_event); e) {
         if (!e->IsModiferPressed() && e->IsButtonDown(MouseButton::MIDDLE)) {
-            m_input_state.mouse_move += e->GetDelta();
+            m_camera_input.mouse_move += e->GetDelta();
             return true;
         }
     }
@@ -231,10 +231,33 @@ void Viewer::UpdateInternal(Scene*) {
         return;
     }
 
-    // go through all tabs
-    // see if there's a focus request
+    // update camera
+    if (auto tab = m_tab_manager.GetActiveTab(); tab.is_some()) {
+        const float dt = m_editor.context.timestep;
+        auto& camera = tab.unwrap()->GetActiveCamera();
+        const bool is_2d = true;
+        if (is_2d) {
+            const float speed = dt * 0.5f;
+            const float dx = speed * -m_camera_input.mouse_move.x;
+            const float dy = speed * m_camera_input.mouse_move.y;
+            CameraInputState state = {
+                .move = Vector3f(dx, dy, 0.0f),
+                .zoomDelta = -dt * m_camera_input.scroll,
+                .rotation = Vector2f::Zero,
+            };
+            m_controller_2d.Update(camera, state);
+            camera.Update();
+        } else {
+            // m_controller_3d.Update(camera, m_camera_input);
+            // CameraInputState state{
+            //    .move = dt * Vector3f(input_state.dx, input_state.dy, input_state.dz),
+            //    .zoomDelta = dt * scroll,
+            //    .rotation = dt * move,
+            //};
+        }
 
-    // dispatch events
+        m_camera_input.Reset();
+    }
 
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
@@ -262,7 +285,6 @@ void Viewer::UpdateInternal(Scene*) {
     }
 
     m_tab_manager.HandleCloseRequest();
-    m_input_state.Reset();
 
     ImGui::EndTabBar();
 }

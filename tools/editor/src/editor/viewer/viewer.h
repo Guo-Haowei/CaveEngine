@@ -2,25 +2,24 @@
 #include "viewer_tab_manager.h"
 
 #include "engine/input/input_router.h"
+#include "engine/scene/camera_controller.h"
 #include "editor/editor_window.h"
 #include "editor/enums.h"
 
 namespace cave {
 
-struct OldInputState {
+struct InputCache {
     int dx, dy, dz;
     float scroll;
     Vector2f mouse_move;
-    std::optional<Vector2f> ndc;
     std::array<bool, 3> buttons;
 
-    OldInputState() { Reset(); }
+    InputCache() { Reset(); }
 
     void Reset() {
         dx = dy = dz = 0;
         scroll = 0.0f;
         mouse_move = Vector2f{ 0, 0 };
-        ndc = std::nullopt;
         buttons.fill(0);
     }
 };
@@ -36,8 +35,8 @@ public:
     const Vector2f& GetCanvasMin() const { return m_canvas_min; }
     const Vector2f& GetCanvasSize() const { return m_canvas_size; }
 
-    auto& GetInputState() { return m_input_state; }
-    const auto& GetInputState() const { return m_input_state; }
+    InputCache& GetInputCache() { return m_camera_input; }
+    const InputCache& GetInputCache() const { return m_camera_input; }
 
     void OpenTab(AssetType p_type, const Guid& p_guid);
     ViewerTab* GetActiveTab();
@@ -52,13 +51,16 @@ protected:
     void DrawToolBar();
 
     void UpdateFrameSize();
-    bool HandleInputCamera(const InputEvent* p_input_event);
+    bool CacheCameraInput(const InputEvent* p_input_event);
 
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;
 
     ViewerTabManager m_tab_manager;
-    OldInputState m_input_state;
+    InputCache m_camera_input;
+
+    CameraControllerFPS m_controller_3d;
+    CameraController2DEditor m_controller_2d;
 };
 
 }  // namespace cave

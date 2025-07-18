@@ -12,6 +12,12 @@
 
 namespace cave {
 
+SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
+    : ViewerTab(p_editor, p_viewer) {
+    m_title = "Scene Editor";
+    m_camera = ViewerTab::CreateDefaultCamera3D();
+}
+
 void SceneEditor::Update() {
     Scene* p_scene = nullptr;
 
@@ -89,6 +95,11 @@ void SceneEditor::Update() {
     }
 }
 
+const CameraComponent& SceneEditor::GetActiveCameraInternal() const {
+    DEV_ASSERT(m_camera);
+    return *m_camera.get();
+}
+
 bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     // change gizmo state
     if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
@@ -116,7 +127,8 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
             Vector2f clicked = e->GetPos();
-            m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);
+            DEV_ASSERT(0);
+            //m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);
             return true;
         }
     }
