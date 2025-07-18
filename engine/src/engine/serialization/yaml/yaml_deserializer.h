@@ -65,7 +65,7 @@ template<typename T>
 bool FieldMeta<T>::Read(IDeserializer& p_deserializer, void* p_object) {
     T& data = FieldMetaBase::GetData<T>(p_object);
 
-    return static_cast<YamlDeserializer&>(p_deserializer).Read(data);
+    return p_deserializer.Read(data);
 }
 
 #if 0

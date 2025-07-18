@@ -94,10 +94,6 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
     return SaveYaml(p_meta.path, yaml);
 }
 
-void SpriteAsset::LoadFromDiskCurrent(YamlDeserializer& p_deserializer) {
-    p_deserializer.Read(*this);
-}
-
 auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     YAML::Node root;
 
@@ -115,7 +111,7 @@ auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
             case 1:
                 [[fallthrough]];
             default:
-                LoadFromDiskCurrent(deserializer);
+                deserializer.Read(*this);
                 break;
         }
 

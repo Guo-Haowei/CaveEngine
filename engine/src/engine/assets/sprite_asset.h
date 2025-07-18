@@ -7,8 +7,6 @@
 
 namespace cave {
 
-class YamlDeserializer;
-
 class SpriteAsset : public IAsset {
     CAVE_ASSET(SpriteAsset, AssetType::Sprite, 0)
 
@@ -62,8 +60,6 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    void LoadFromDiskCurrent(YamlDeserializer& p_deserializer);
-
     void SetHandle(Handle<ImageAsset>&& p_handle);
     void UpdateFrames();
 };
