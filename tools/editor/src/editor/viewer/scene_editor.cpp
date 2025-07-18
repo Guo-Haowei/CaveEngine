@@ -128,7 +128,7 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
             Vector2f clicked = e->GetPos();
             DEV_ASSERT(0);
-            //m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);
+            // m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);
             return true;
         }
     }

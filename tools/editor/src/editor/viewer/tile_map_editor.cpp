@@ -83,7 +83,6 @@ void TileMapEditor::Draw() {
                         if (auto cmd = SetTileCommand::AddTile(*tile_map, tile, 1); cmd) {
                             cmd->SetHandle(std::move(handle));
                             m_undo_stack.Submit(cmd);
-    //std::shared_ptr<CameraComponent> m_camera;
                         }
                     }
                 } else if constexpr (std::is_same_v<T, CommandEraseTile>) {
