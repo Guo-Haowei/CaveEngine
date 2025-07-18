@@ -26,7 +26,7 @@ public:
 
     void OnActivate() override;
 
-    void Draw() override;
+    void DrawMainView() override;
 
     Document& GetDocument() const override;
 

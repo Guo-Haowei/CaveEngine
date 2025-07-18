@@ -28,19 +28,34 @@ public:
 
     void OnActivate() override;
 
-    void Draw() override;
+    void DrawMainView() override;
+
+    void DrawAssetInspector() override;
 
     Document& GetDocument() const override;
 
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
 protected:
+    const CameraComponent& GetActiveCameraInternal() const override;
+
     void UndoableSetTile(TileMapAsset& p_layer,
                          int p_layer_id,
                          TileIndex p_index,
                          Option<TileId> p_new_tile);
 
-    const CameraComponent& GetActiveCameraInternal() const override;
+    // @TODO: refactor
+    void TileMapLayerOverview(TileMapAsset& p_tile_map);
+
+    // SpriteSheet
+    void EditSprite(SpriteAsset& p_sprite);
+    void TilePaint(SpriteAsset& p_sprite);
+
+    Handle<ImageAsset> m_checkerboard_handle;
+
+    int m_selected_x = -1;
+    int m_selected_y = -1;
+    // @TODO: refactor
 
     AssetRegistry* m_asset_registry;
 

@@ -53,8 +53,8 @@ void SpriteAnimationEditor::OnActivate() {
     scene_manager->SetTmpScene(m_tmp_scene);
 }
 
-void SpriteAnimationEditor::Draw() {
-    ViewerTab::Draw();
+void SpriteAnimationEditor::DrawMainView() {
+    ViewerTab::DrawMainView();
 
     const CameraComponent& camera = GetActiveCamera();
     const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();

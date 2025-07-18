@@ -65,4 +65,13 @@ void ShowAssetToolTip(const Guid& p_guid);
 
 void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset);
 
+/// asset inspector
+struct AssetChildPanel {
+    const char* name;
+    float width;
+    std::function<void()> func;
+};
+
+void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_descs);
+
 }  // namespace cave

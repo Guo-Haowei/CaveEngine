@@ -285,7 +285,7 @@ void Viewer::UpdateInternal(Scene*) {
                 m_tab_manager.SwitchTab(tab->GetId());
             }
 
-            tab->Draw();
+            tab->DrawMainView();
 
             ImGui::EndTabItem();
         }

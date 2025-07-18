@@ -96,9 +96,7 @@ void ViewerTab::DrawMainView() {
     }
 }
 
-void ViewerTab::Draw() {
-    // @TODO: remove this
-    DrawMainView();
+void ViewerTab::DrawAssetInspector() {
 }
 
 }  // namespace cave
