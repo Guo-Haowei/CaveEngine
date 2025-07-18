@@ -35,6 +35,7 @@ namespace cave {
 
 using TileId = uint32_t;
 
+// @TODO: change it to sparsed chunck
 struct TileData {
     std::unordered_map<TileIndex, TileId> tiles;
 };

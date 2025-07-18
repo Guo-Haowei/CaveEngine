@@ -6,7 +6,7 @@
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_component.h"
 #include "editor/editor_window.h"
-#include "editor/tools/tool.h"
+#include "editor/viewer/viewer_tab.h"
 
 namespace cave {
 
@@ -57,12 +57,9 @@ public:
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 
-    CameraComponent& GetActiveCamera();
+    CameraComponent* GetActiveCamera();
 
     EditorContext context;
-
-    void OpenTool(ToolType p_type, const Guid& p_guid);
-    ITool* GetActiveTool();
 
     void SetSelectedAsset(AssetHandle&& p_asset_handle) {
         m_selected_asset = std::move(p_asset_handle);
@@ -70,10 +67,13 @@ public:
 
     const AssetHandle& GetSelectedAsset() const { return m_selected_asset; }
 
+    Viewer& GetViewer() { return *m_viewer.get(); }
+
 private:
     void DockSpace(Scene* p_scene);
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
 
+    void FlushInputEvents();
     void FlushCommand(Scene* p_scene);
 
     std::shared_ptr<MenuBar> m_menuBar;
@@ -102,8 +102,7 @@ private:
 
     AssetHandle m_selected_asset;
 
-    std::array<std::unique_ptr<ITool>, std::to_underlying(ToolType::Count)> m_tools;
-    ToolType m_current_tool{ ToolType ::None };
+    std::vector<std::shared_ptr<InputEvent>> m_buffered_events;
 };
 
 }  // namespace cave

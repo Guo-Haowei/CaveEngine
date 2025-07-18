@@ -133,12 +133,11 @@ void AssetManager::CreateAsset(AssetType p_type,
 
     auto short_path = ResolvePath(new_file);
     auto _meta = AssetMetaData::CreateMeta(short_path);
-    DEV_ASSERT(_meta);
-    if (!_meta) {
+    if (_meta.is_none()) {
         return;
     }
 
-    auto meta = std::move(_meta.value());
+    auto meta = std::move(_meta.unwrap());
     // @TODO: handle error
     [[maybe_unused]] auto res = asset->SaveToDisk(meta);
 

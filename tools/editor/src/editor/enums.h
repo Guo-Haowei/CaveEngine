@@ -2,19 +2,6 @@
 
 namespace cave {
 
-enum class ToolType {
-    None,
-    Edit,
-    TileMap,
-    SpriteAnimation,
-    Count,
-};
-
-enum class ToolCameraPolicy {
-    Any,
-    Only2D,
-};
-
 enum class GizmoAction : uint8_t {
     Translate,
     Rotate,

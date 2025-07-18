@@ -5,19 +5,21 @@
 #include "engine/assets/assets.h"
 #include "engine/assets/sprite_asset.h"
 #include "engine/runtime/asset_registry.h"
+#include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
-#include "editor/tile_map_editor/tile_map_editor.h"
+#include "editor/viewer/viewer.h"
+#include "editor/viewer/tile_map_editor.h"
 
 namespace cave {
 
 AssetInspector::AssetInspector(EditorLayer& p_editor)
-    : EditorWindow("Asset Inspector", p_editor) {
+    : EditorWindow(p_editor) {
 }
 
 void AssetInspector::OnAttach() {
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
+    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").unwrap();
 }
 
 void AssetInspector::TilePaint(SpriteAsset& p_sprite) {
@@ -205,16 +207,21 @@ void AssetInspector::InspectSprite(IAsset* p_asset) {
 }
 
 void AssetInspector::InspectTileMap(IAsset* p_asset) {
+    // it's possible it's changed by tab manager
+    // need a better way to sync
+    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
+    if (!tool) {
+        return;
+    }
+
     auto tile_map = dynamic_cast<TileMapAsset*>(p_asset);
     if (!tile_map) {
         return;
     }
 
     SpriteAsset* sprite = nullptr;
-    if (auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool()); tool) {
-        if (auto layer = tool->GetActiveLayer(); layer) {
-            sprite = layer->GetSpriteHandle().Get();
-        }
+    if (TileMapAsset* asset = tool->GetDocument().GetHandle<TileMapAsset>().Get(); asset) {
+        sprite = asset->GetSpriteHandle().Get();
     }
 
     std::vector<AssetChildPanel> descs = {
@@ -265,14 +272,12 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     auto checkerboard = m_checkerboard_handle.Get();
     DEV_ASSERT(checkerboard);
 
-    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetActiveTool());
+    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
     DEV_ASSERT(tool);
-
-    const int current_layer = tool->GetActiveLayerIndex();
 
     for (int layer_id = 0; layer_id < 1; ++layer_id) {
         TileMapAsset& layer = p_tile_map;
-        const bool is_layer_selected = current_layer == layer_id;
+        const bool is_layer_selected = true;
 
         ImGui::PushID(layer_id);
 
@@ -330,7 +335,7 @@ void AssetInspector::TileMapLayerOverview(TileMapAsset& p_tile_map) {
         CenteredImage(image_handle, image_size, region_size);
 
         if (ImGui::IsItemClicked()) {
-            tool->SetActiveLayer(layer_id);
+            // tool->SetActiveLayer(layer_id);
         }
 
         DragDropTarget(AssetType::Sprite, [&](AssetHandle& p_handle) {

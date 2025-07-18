@@ -10,17 +10,16 @@ void CameraController2DEditor::Update(CameraComponent& p_camera,
                                       const CameraInputState& p_state) {
     const bool moved = p_state.move.x || p_state.move.y;
     if (moved) {
-        p_camera.m_position.x += p_state.move.x;
-        p_camera.m_position.y += p_state.move.y;
-
-        p_camera.SetDirty();
+        Vector3f pos = p_camera.GetPosition();
+        pos.x += p_state.move.x;
+        pos.y += p_state.move.y;
+        p_camera.SetPosition(pos);
     }
 
     if (p_state.zoomDelta != 0.0f) {
-        p_camera.m_orthoHeight += p_state.zoomDelta * 4.0f;
-
-        p_camera.m_orthoHeight = glm::clamp(p_camera.m_orthoHeight, 0.1f, 100.0f);
-        p_camera.SetDirty();
+        float ortho_height = p_camera.GetOrthoHeight() + 4.0f * p_state.zoomDelta;
+        glm::clamp(ortho_height, 0.1f, 100.0f);
+        p_camera.SetOrthoHeight(ortho_height);
     }
 }
 

@@ -12,6 +12,10 @@ public:
 
     void OnAttach() override;
 
+    const char* GetTitle() const override {
+        return "File System";
+    }
+
 protected:
     void UpdateInternal(Scene*) override;
 

@@ -3,9 +3,8 @@
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
+#include "editor/document/document.h"
 #include "editor/editor_command.h"
-#include "editor/tile_map_editor/tile_map_editor.h"
-#include "editor/tools/editor_tool.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/panels/file_system_panel.h"
 #include "editor/panels/hierarchy_panel.h"
@@ -14,7 +13,8 @@
 #include "editor/panels/propertiy_panel.h"
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
-#include "editor/panels/viewer.h"
+#include "editor/viewer/viewer.h"
+#include "editor/viewer/viewer_tab.h"
 #include "editor/widget.h"
 #include "engine/input/input_event.h"
 #include "engine/core/string/string_utils.h"
@@ -47,9 +47,6 @@ EditorLayer::EditorLayer()
     AddPanel(std::make_shared<FileSystemPanel>(*this));
 #endif
 
-    m_tools[std::to_underlying(ToolType::Edit)].reset(new EditorTool(*this, m_viewer.get()));
-    m_tools[std::to_underlying(ToolType::TileMap)].reset(new TileMapEditor(*this, m_viewer.get()));
-
     // @TODO: refactor this at some point
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
         "Save As..",
@@ -70,17 +67,25 @@ EditorLayer::EditorLayer()
         "Ctrl+O",
         //[&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
     };
+
+    auto active_document = [this]() -> Document* {
+        if (auto tab = m_viewer->GetActiveTab(); tab) {
+            return &tab->GetDocument();
+        }
+        return nullptr;
+    };
+
     m_shortcuts[SHORT_CUT_REDO] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [&]() { GetActiveTool()->GetUndoStack().Redo(); },
-        [&]() { return GetActiveTool()->GetUndoStack().CanRedo(); }
+        [active_document]() { auto doc = active_document(); if (doc) doc->Redo(); },
+        [active_document]() { auto doc = active_document(); return doc ? doc ->CanRedo() : false; }
     };
     m_shortcuts[SHORT_CUT_UNDO] = {
         "Undo",
         "Ctrl+Z",
-        [&]() { GetActiveTool()->GetUndoStack().Undo(); },
-        [&]() { return GetActiveTool()->GetUndoStack().CanUndo(); }
+        [active_document]() { auto doc = active_document(); if (doc) doc->Undo(); },
+        [active_document]() { auto doc = active_document(); return doc ? doc ->CanUndo() : false; }
     };
 
     // @TODO: proper key mapping
@@ -139,11 +144,7 @@ EditorLayer::EditorLayer()
 void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
-    Guid dummy;
-    OpenTool(ToolType::Edit, dummy);
-
     m_app->GetInputManager()->PushInputHandler(this);
-    m_app->GetInputManager()->PushInputHandler(m_viewer.get());
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
@@ -151,9 +152,7 @@ void EditorLayer::OnAttach() {
 }
 
 void EditorLayer::OnDetach() {
-    auto handler = m_app->GetInputManager()->PopInputHandler();
-    DEV_ASSERT(handler == m_viewer.get());
-    handler = m_app->GetInputManager()->PopInputHandler();
+    [[maybe_unused]] auto handler = m_app->GetInputManager()->PopInputHandler();
     DEV_ASSERT(handler == this);
 
     ImNodes::DestroyContext();
@@ -259,6 +258,8 @@ void EditorLayer::OnUpdate(float p_timestep) {
 void EditorLayer::OnImGuiRender() {
     Scene* scene = m_app->GetSceneManager()->GetActiveScene();
 
+    FlushInputEvents();
+
     DockSpace(scene);
     for (auto& it : m_panels) {
         it->Update(scene);
@@ -266,41 +267,52 @@ void EditorLayer::OnImGuiRender() {
     FlushCommand(scene);
 }
 
-HandleInputResult EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
-    HandleInputResult result = HandleInputResult::NotHandled;
-    InputEvent* event = p_input_event.get();
-    if (auto e = dynamic_cast<InputEventKey*>(event); e) {
-        for (auto shortcut : m_shortcuts) {
-            // @TODO: refactor this
-            auto is_key_handled = [&]() {
-                if (!e->IsPressed()) {
-                    return false;
+void EditorLayer::FlushInputEvents() {
+    for (auto& event : m_buffered_events) {
+        if (m_viewer->IsFocused() || m_viewer->IsHovered()) {
+            if (m_viewer->HandleInput(event.get())) {
+                continue;
+            }
+        }
+
+        if (auto e = dynamic_cast<InputEventKey*>(event.get()); e) {
+            for (auto shortcut : m_shortcuts) {
+                // @TODO: refactor this
+                auto is_key_handled = [&]() {
+                    if (!e->IsPressed()) {
+                        return false;
+                    }
+                    if (e->GetKey() != shortcut.key) {
+                        return false;
+                    }
+                    if (e->IsAltPressed() != shortcut.alt) {
+                        return false;
+                    }
+                    if (e->IsShiftPressed() != shortcut.shift) {
+                        return false;
+                    }
+                    if (e->IsCtrlPressed() != shortcut.ctrl) {
+                        return false;
+                    }
+                    return true;
+                };
+                if (is_key_handled()) {
+                    shortcut.executeFunc();
+                    break;
                 }
-                if (e->GetKey() != shortcut.key) {
-                    return false;
-                }
-                if (e->IsAltPressed() != shortcut.alt) {
-                    return false;
-                }
-                if (e->IsShiftPressed() != shortcut.shift) {
-                    return false;
-                }
-                if (e->IsCtrlPressed() != shortcut.ctrl) {
-                    return false;
-                }
-                return true;
-            };
-            if (is_key_handled()) {
-                shortcut.executeFunc();
-                result = HandleInputResult::Handled;
-                break;
             }
         }
     }
 
-    return result;
+    m_buffered_events.clear();
 }
 
+HandleInputResult EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
+    m_buffered_events.emplace_back(std::move(p_input_event));
+    return HandleInputResult::NotHandled;
+}
+
+// @TODO: these are associated with scene editor, move to scene editor
 void EditorLayer::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {
     p_command->m_editor = this;
     m_commandBuffer.emplace_back(std::move(p_command));
@@ -332,43 +344,16 @@ void EditorLayer::FlushCommand(Scene* p_scene) {
     while (!m_commandBuffer.empty()) {
         auto task = m_commandBuffer.front();
         m_commandBuffer.pop_front();
-        // if (auto undo_command = std::dynamic_pointer_cast<UndoCommand>(task); undo_command) {
-        //     m_undoStack.PushCommand(std::move(undo_command));
-        //     continue;
-        // }
         task->Execute(*p_scene);
     }
 }
 
-CameraComponent& EditorLayer::GetActiveCamera() {
-    return m_viewer->GetActiveCamera();
-}
-
-void EditorLayer::OpenTool(ToolType p_type, const Guid& p_guid) {
-    unused(p_guid);
-
-    if (m_current_tool == p_type) {
-        return;
+CameraComponent* EditorLayer::GetActiveCamera() {
+    if (auto tab = m_viewer->GetActiveTab(); tab) {
+        return &(tab->GetActiveCamera());
     }
-    ITool* new_tool = m_tools[std::to_underlying(p_type)].get();
 
-    if (DEV_VERIFY(new_tool)) {
-        ITool* old_tool = m_tools[std::to_underlying(m_current_tool)].get();
-
-        if (old_tool) {
-            old_tool->OnExit();
-        }
-        m_current_tool = p_type;
-        new_tool->OnEnter(p_guid);
-
-        LOG("Tool [{}] -> [{}]", old_tool ? old_tool->GetName() : "(null)", new_tool->GetName());
-    }
-}
-
-// @NOTE: do not hold the pointer
-ITool* EditorLayer::GetActiveTool() {
-    DEV_ASSERT_INDEX(m_current_tool, ToolType::Count);
-    return m_tools[std::to_underlying(m_current_tool)].get();
+    return nullptr;
 }
 
 }  // namespace cave

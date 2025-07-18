@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/guid.h"
 #include "engine/scene/scene_manager.h"
 
 namespace cave {
@@ -9,25 +10,21 @@ class EditorSceneManager : public SceneManager {
 public:
     virtual Scene* CreateDefaultScene() override;
 
-    void OpenTemporaryScene(std::string_view p_name, const CreateSceneFunc& p_func);
-
-    void DeleteTemporaryScene(const std::string& p_name);
+    [[nodiscard]]
+    std::shared_ptr<Scene> OpenTemporaryScene(const Guid& p_guid,
+                                              const CreateSceneFunc& p_func);
 
     // @TODO: do not pass raw pointers around
     Scene* GetActiveScene() const override;
 
+    void SetTmpScene(const std::shared_ptr<Scene>& p_scene);
+
     void Update() override;
 
 protected:
-    struct StaleScene {
-        std::shared_ptr<Scene> scene;
-        int frame_left;
-    };
-
-    std::unordered_map<std::string, std::shared_ptr<Scene>> m_caches;
+    std::unordered_map<Guid, std::shared_ptr<Scene>> m_caches;
 
     std::weak_ptr<Scene> m_tmp_scene;
-    std::vector<StaleScene> m_stale_scenes;
 };
 
 }  // namespace cave

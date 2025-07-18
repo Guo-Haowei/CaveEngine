@@ -15,7 +15,7 @@ namespace cave {
 namespace fs = std::filesystem;
 
 FileSystemPanel::FileSystemPanel(EditorLayer& p_editor)
-    : EditorWindow("FileSystem", p_editor) {
+    : EditorWindow(p_editor) {
 }
 
 void FileSystemPanel::OnAttach() {
@@ -107,8 +107,8 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
         if (hovered) {
             auto asset_registry = m_editor.GetApplication()->GetAssetRegistry();
             auto _handle = asset_registry->FindByPath(short_path);
-            if (_handle) {
-                auto handle = std::move(*_handle);
+            if (_handle.is_some()) {
+                auto handle = std::move(_handle.unwrap());
                 IAsset* asset = handle.Get();
                 if (DEV_VERIFY(asset)) {
                     if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {

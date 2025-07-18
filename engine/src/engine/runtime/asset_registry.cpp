@@ -62,12 +62,12 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 
         DEV_ASSERT(value.has_source);
         auto meta = AssetMetaData::CreateMeta(key);
-        if (!meta) {
+        if (meta.is_none()) {
             LOG_WARN("file '{}' not supported", key);
             continue;
         }
 
-        auto meta2 = std::move(meta.value());
+        auto meta2 = std::move(meta.unwrap());
         auto res = meta2.SaveToDisk(nullptr);
         if (!res) {
             return CAVE_ERROR(res.error());
@@ -93,8 +93,6 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 }
 
 void AssetRegistry::FinalizeImpl() {
-    // @TODO: clean up all the stuff
-    SaveAssets();
 }
 
 bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
@@ -118,7 +116,15 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
     return ok;
 }
 
-std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_type) {
+// @TODO: use this for string look up
+struct TransparentCompare {
+    using is_transparent = void;
+    bool operator()(const std::string& lhs, const std::string& rhs) const { return lhs < rhs; }
+    bool operator()(const std::string& lhs, const char* rhs) const { return lhs < rhs; }
+    bool operator()(const char* lhs, const std::string& rhs) const { return lhs < rhs; }
+};
+
+Option<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_type) {
     std::lock_guard lock(registry_mutex);
     auto it = m_guid_map.find(p_guid);
     if (it != m_guid_map.end()) {
@@ -128,18 +134,10 @@ std::optional<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetTy
         }
     }
 
-    return std::nullopt;
+    return Option<AssetHandle>::None();
 }
 
-// @TODO: use this for string look up
-struct TransparentCompare {
-    using is_transparent = void;
-    bool operator()(const std::string& lhs, const std::string& rhs) const { return lhs < rhs; }
-    bool operator()(const std::string& lhs, const char* rhs) const { return lhs < rhs; }
-    bool operator()(const char* lhs, const std::string& rhs) const { return lhs < rhs; }
-};
-
-std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetType p_type) {
+Option<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetType p_type) {
     std::lock_guard lock(registry_mutex);
     auto it = m_path_map.find(p_path);
     if (it != m_path_map.end()) {
@@ -153,7 +151,7 @@ std::optional<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, 
         }
     }
 
-    return std::nullopt;
+    return Option<AssetHandle>::None();
 }
 
 void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
@@ -169,19 +167,31 @@ void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
     it2->second->metadata.path = std::move(p_new);
 }
 
-void AssetRegistry::SaveAssets() {
+bool AssetRegistry::SaveAsset(const Guid& p_guid) {
     std::lock_guard lock(registry_mutex);
 
-    for (const auto& [guid, entry] : m_guid_map) {
-        if (entry->asset) {
-            auto res = entry->asset->SaveToDisk(entry->metadata);
-            if (!res) {
-                StringStreamBuilder builder;
-                builder << res.error();
-                LOG_ERROR("{}", builder.ToString());
-            }
-        }
+    auto it = m_guid_map.find(p_guid);
+    if (it == m_guid_map.end()) {
+        LOG_ERROR("Asset '{}' not found", p_guid.ToString());
+        return false;
     }
+
+    auto entry = it->second;
+    if (!entry->asset) {
+        LOG_ERROR("Asset not loaded {}", entry->metadata.path);
+        return false;
+    }
+
+    auto res = entry->asset->SaveToDisk(entry->metadata);
+    if (!res) {
+        StringStreamBuilder builder;
+        builder << res.error();
+        LOG_ERROR("{}", builder.ToString());
+        return false;
+    }
+
+    LOG_OK("Asset '{}' saved!", entry->metadata.path);
+    return true;
 }
 
 std::shared_ptr<AssetEntry> AssetRegistry::GetEntry(const Guid& p_guid) {

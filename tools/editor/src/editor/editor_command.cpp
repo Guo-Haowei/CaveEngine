@@ -1,6 +1,8 @@
 #include "editor_command.h"
 
-#include "editor_layer.h"
+#include "editor/editor_layer.h"
+#include "editor/viewer/viewer.h"
+
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
@@ -19,19 +21,12 @@ static std::string GenerateName(std::string_view p_name) {
 /// EditorInspectAssetCommand
 void EditorInspectAssetCommand::Execute(Scene&) {
     auto asset_registry = m_editor->GetApplication()->GetAssetRegistry();
-    if (auto res = asset_registry->FindByGuid(m_guid); res) {
-        auto handle = *res;
+    if (auto res = asset_registry->FindByGuid(m_guid); res.is_some()) {
+        auto handle = res.unwrap();
         if (handle.IsReady()) {
             const auto meta = handle.GetMeta();
             LOG_OK("Asset {} selected", meta->path);
-            switch (meta->type) {
-                case AssetType::TileMap: {
-                    m_editor->OpenTool(ToolType::TileMap, m_guid);
-                } break;
-                default: {
-                    m_editor->OpenTool(ToolType::Edit, m_guid);
-                } break;
-            }
+            m_editor->GetViewer().OpenTab(meta->type, m_guid);
 
             m_editor->SetSelectedAsset(std::move(handle));
         }

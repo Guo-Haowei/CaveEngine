@@ -1,9 +1,9 @@
-#include "editor_tool.h"
+#include "scene_editor.h"
 
 #include "engine/scene/scene.h"
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
-#include "editor/panels/viewer.h"
+#include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
 // @TODO: refactor
@@ -12,14 +12,27 @@
 
 namespace cave {
 
-void EditorTool::Update(Scene* p_scene) {
-    const auto& cam = m_viewer->GetActiveCamera();
+SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
+    : ViewerTab(p_editor, p_viewer) {
+    m_title = "Scene Editor";
+    m_camera = ViewerTab::CreateDefaultCamera3D();
+}
+
+Document& SceneEditor::GetDocument() const {
+    CRASH_NOW();
+    return *(Document*)0;
+}
+
+void SceneEditor::Update() {
+    Scene* p_scene = nullptr;
+
+    const auto& cam = GetActiveCamera();
     const Matrix4x4f& view_matrix = cam.GetViewMatrix();
     const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
     const Matrix4x4f& proj_view = cam.GetProjectionViewMatrix();
 
-    const Vector2f& canvas_min = m_viewer->GetCanvasMin();
-    const Vector2f& canvas_size = m_viewer->GetCanvasSize();
+    const Vector2f& canvas_min = m_viewer.GetCanvasMin();
+    const Vector2f& canvas_size = m_viewer.GetCanvasSize();
 
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();
@@ -78,7 +91,7 @@ void EditorTool::Update(Scene* p_scene) {
         ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XZ);
 
         const float size = 120.f;
-        const auto& min = m_viewer->GetCanvasMin();
+        const auto& min = m_viewer.GetCanvasMin();
         ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
                                  10.0f,
                                  ImVec2(min.x, min.y),
@@ -87,10 +100,14 @@ void EditorTool::Update(Scene* p_scene) {
     }
 }
 
-bool EditorTool::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
+const CameraComponent& SceneEditor::GetActiveCameraInternal() const {
+    DEV_ASSERT(m_camera);
+    return *m_camera.get();
+}
+
+bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     // change gizmo state
-    InputEvent* event = p_input_event.get();
-    if (auto e = dynamic_cast<InputEventKey*>(event); e) {
+    if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
         if (e->IsPressed() && !e->IsModiferPressed()) {
             bool handled = true;
             switch (e->GetKey()) {
@@ -112,10 +129,11 @@ bool EditorTool::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
     }
 
     // select
-    if (auto e = dynamic_cast<InputEventMouse*>(event); e) {
+    if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
             Vector2f clicked = e->GetPos();
-            m_viewer->GetInputState().ndc = m_viewer->CursorToNDC(clicked);
+            DEV_ASSERT(0);
+            // m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);
             return true;
         }
     }

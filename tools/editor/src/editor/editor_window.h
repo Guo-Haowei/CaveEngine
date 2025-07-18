@@ -7,15 +7,22 @@ inline constexpr const char* ASSET_DRAG_DROP_PAYLOAD = "ASSET_DRAG_DROP_PAYLOAD"
 
 class EditorWindow : public EditorItem {
 public:
-    EditorWindow(const std::string& p_name, EditorLayer& p_editor)
-        : EditorItem(p_editor), m_name(p_name) {}
+    EditorWindow(EditorLayer& p_editor)
+        : EditorItem(p_editor) {}
 
     void Update(Scene*) override;
+
+    virtual const char* GetTitle() const = 0;
+
+    bool IsFocused() const { return m_is_focused; }
+    bool IsHovered() const { return m_is_hovered; }
 
 protected:
     virtual void UpdateInternal(Scene*) = 0;
 
-    std::string m_name;
+    bool m_is_focused = false;
+    bool m_is_hovered = false;
+
     int m_flags{ 0 };
 };
 

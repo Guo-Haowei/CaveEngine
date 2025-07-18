@@ -285,17 +285,15 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
-        const bool is_editor = p_camera.IsEditorCamera();
         bool is_main = p_camera.IsPrimary();
-        ImGui::BeginDisabled(is_editor);
         if (ImGui::Checkbox("main camera", &is_main)) {
             p_camera.SetPrimary(is_main);
         }
-        ImGui::EndDisabled();
 
         bool is_ortho = p_camera.IsOrtho();
         if (ToggleButton("ortho", &is_ortho)) {
             p_camera.SetOrtho(is_ortho);
+            p_camera.SetDirty();
         }
 
         float near = p_camera.GetNear();

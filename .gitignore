@@ -21,7 +21,6 @@ generated/
 *.ini
 *.hdr
 user/
-scenes/
 project/
 
 # MacOS

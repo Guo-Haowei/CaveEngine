@@ -6,7 +6,11 @@ namespace cave {
 class HierarchyPanel : public EditorWindow {
 public:
     HierarchyPanel(EditorLayer& editor)
-        : EditorWindow("Scene", editor) {}
+        : EditorWindow(editor) {}
+
+    const char* GetTitle() const override {
+        return "Hierarchy";
+    }
 
 protected:
     void UpdateInternal(Scene* scene) override;

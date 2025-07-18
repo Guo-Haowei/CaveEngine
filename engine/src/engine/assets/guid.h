@@ -19,7 +19,7 @@ public:
         return Parse(p_string.c_str(), p_string.length());
     }
 
-    bool IsValid() const { return *this == Guid{}; }
+    bool IsNull() const { return *this == Guid{}; }
 
     bool operator==(const Guid& p_rhs) const {
         for (int i = 0; i < array_length(m_data); ++i) {

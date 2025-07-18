@@ -13,7 +13,7 @@ namespace cave {
 // @TODO: find longese path, and arrange nodes
 
 RenderGraphViewer::RenderGraphViewer(EditorLayer& p_editor)
-    : EditorWindow("RenderGraph", p_editor) {
+    : EditorWindow(p_editor) {
 }
 
 void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {
