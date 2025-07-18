@@ -11,7 +11,7 @@ auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Resu
     }
 
     YamlSerializer yaml;
-    yaml.BeginMap()
+    yaml.BeginMap(false)
         .Key("version")
         .Write(VERSION)
         .Key("content")

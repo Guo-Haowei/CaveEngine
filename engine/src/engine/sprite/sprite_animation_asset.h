@@ -36,7 +36,6 @@ class SpriteAnimationAsset : public IAsset {
     std::unordered_map<std::string, SpriteAnimationClip> clips;
 
 private:
-
     // Non serialized
     Handle<ImageAsset> m_image_handle;
 

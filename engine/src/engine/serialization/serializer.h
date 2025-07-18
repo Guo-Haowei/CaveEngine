@@ -1,6 +1,5 @@
 #pragma once
-// @TODO: move it to core
-#include "engine/serialization/concept.h"
+#include "defines.h"
 
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
@@ -9,10 +8,9 @@
 #include "engine/math/box.h"
 #include "engine/math/matrix.h"
 
-#include "engine/reflection/meta.h"
-
 namespace cave {
 
+// @TODO: get rid of this
 enum FieldFlag : uint32_t {
     NONE = BIT(0),
 };
@@ -20,6 +18,13 @@ enum FieldFlag : uint32_t {
 DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
 
 class Guid;
+
+#if USING(VALIDATE_SERIALIZER)
+#define IF_VALIDATE_SERIALIZER(x) \
+    do { x; } while (0)
+#else
+#define IF_VALIDATE_SERIALIZER(x) (void)0
+#endif
 
 class ISerializer {
     static inline constexpr const int SINGLE_LINE_MAX_ELEMENT = 4;
@@ -35,10 +40,10 @@ public:
 
     // virtual const std::string& GetWarning() const = 0;
 
-    virtual ISerializer& BeginArray(bool p_single_line = false) = 0;
+    virtual ISerializer& BeginArray(bool p_single_line) = 0;
     virtual ISerializer& EndArray() = 0;
 
-    virtual ISerializer& BeginMap(bool p_single_line = false) = 0;
+    virtual ISerializer& BeginMap(bool p_single_line) = 0;
     virtual ISerializer& EndMap() = 0;
 
     virtual ISerializer& Key(std::string_view p_key) = 0;
@@ -90,18 +95,6 @@ public:
         return WriteObject(*this, p_value);
     }
 
-    // @TODO: remove this
-    //template<std::ranges::range T>
-    //ISerializer& Write(const T& p_container) {
-    //    const size_t len = std::ranges::size(p_container);
-    //    BeginArray(len < SINGLE_LINE_MAX_ELEMENT);
-    //    for (const auto& val : p_container) {
-    //        Write(val);
-    //    }
-    //    EndArray();
-    //    return *this;
-    //}
-
     template<IsEnum T>
     ISerializer& Write(const T& p_object) {
         return Write(static_cast<uint64_t>(std::to_underlying(p_object)));
@@ -148,7 +141,7 @@ public:
     ISerializer& Write(const T& p_object) {
         const auto& meta = MetaDataTable<T>::GetFields();
 
-        BeginMap();
+        BeginMap(false);
 
         for (const auto& field : meta) {
             field->Write(*this, &p_object);
@@ -158,6 +151,14 @@ public:
 
         return *this;
     }
+#endif
+
+protected:
+#if USING(VALIDATE_SERIALIZER)
+    void CheckEnter(SerializerState p_state);
+    void CheckExit(SerializerState p_state);
+
+    std::vector<SerializerState> m_stack;
 #endif
 };
 

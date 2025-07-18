@@ -37,7 +37,6 @@ class SpriteAsset : public IAsset {
     Handle<ImageAsset> m_image_handle;
 
 public:
-
     uint32_t GetRow() const { return m_row; }
     void SetRow(uint32_t p_row);
 

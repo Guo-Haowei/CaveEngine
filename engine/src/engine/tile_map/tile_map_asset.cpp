@@ -64,7 +64,7 @@ void TileMapAsset::SetSpriteGuid(const Guid& p_guid, bool p_force) {
 }
 
 ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data) {
-    p_serializer.BeginArray();
+    p_serializer.BeginArray(false);
     for (const auto& [index, id] : p_tile_data.tiles) {
         p_serializer
             .BeginArray(true)
@@ -103,7 +103,7 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
     }
 
     YamlSerializer yaml;
-    yaml.BeginMap()
+    yaml.BeginMap(false)
         .Key("version")
         .Write(VERSION)
         .Key("content")

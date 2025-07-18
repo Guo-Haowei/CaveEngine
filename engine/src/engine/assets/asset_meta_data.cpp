@@ -66,7 +66,7 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
 
     // @TODO: fix this
     serializer
-        .BeginMap()
+        .BeginMap(false)
         .Key("guid")
         .Write(guid)
         .Key("type")

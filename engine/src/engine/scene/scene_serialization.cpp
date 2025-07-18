@@ -162,7 +162,7 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
 
     YamlSerializer serializer;
 
-    serializer.BeginMap()
+    serializer.BeginMap(false)
         .Key("version")
         .Write(LATEST_SCENE_VERSION)
         .Key("seed")
@@ -173,7 +173,7 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
         .Write(static_cast<uint32_t>(p_scene.m_physicsMode))
         .Key("entities");
 
-    serializer.BeginArray();
+    serializer.BeginArray(false);
 
     bool ok = true;
     ok = ok && archive.Write(SCENE_MAGIC);
@@ -186,7 +186,7 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
     for (auto id : entity_array) {
         ecs::Entity entity{ id };
 
-        serializer.BeginMap()
+        serializer.BeginMap(false)
             .Key("id")
             .Write(id);
 
