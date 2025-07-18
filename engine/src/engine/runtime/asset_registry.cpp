@@ -172,21 +172,26 @@ bool AssetRegistry::SaveAsset(const Guid& p_guid) {
 
     auto it = m_guid_map.find(p_guid);
     if (it == m_guid_map.end()) {
-        LOG_WARN("Asset '{}' not found", p_guid.ToString());
+        LOG_ERROR("Asset '{}' not found", p_guid.ToString());
         return false;
     }
 
-    if (auto entry = it->second; entry->asset) {
-        auto res = entry->asset->SaveToDisk(entry->metadata);
-        if (!res) {
-            StringStreamBuilder builder;
-            builder << res.error();
-            LOG_ERROR("{}", builder.ToString());
-            return false;
-        }
-
-        LOG_OK("Asset '{}' saved!", entry->metadata.path);
+    auto entry = it->second;
+    if (!entry->asset) {
+        LOG_ERROR("Asset not loaded {}", entry->metadata.path);
+        return false;
     }
+
+    auto res = entry->asset->SaveToDisk(entry->metadata);
+    if (!res) {
+        StringStreamBuilder builder;
+        builder << res.error();
+        LOG_ERROR("{}", builder.ToString());
+        return false;
+    }
+
+    LOG_OK("Asset '{}' saved!", entry->metadata.path);
+    return true;
 }
 
 std::shared_ptr<AssetEntry> AssetRegistry::GetEntry(const Guid& p_guid) {

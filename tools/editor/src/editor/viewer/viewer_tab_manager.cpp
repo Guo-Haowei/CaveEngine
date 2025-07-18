@@ -62,12 +62,10 @@ void ViewerTabManager::HandleCloseRequest() {
         return;
     }
 
-    std::shared_ptr<ViewerTab> to_close;
-
     RequestSaveDialog([&](SaveDialogResponse p_response) {
         auto it = m_tabs.find(m_close_request.unwrap());
+        std::shared_ptr<ViewerTab> to_close = it->second;
         DEV_ASSERT(it != m_tabs.end());
-        to_close = it->second;
         switch (p_response) {
             case SaveDialogResponse::Save:
                 to_close->GetDocument().Save();
@@ -76,6 +74,8 @@ void ViewerTabManager::HandleCloseRequest() {
             case SaveDialogResponse::Discard: {
                 // remove the tab
                 m_tabs.erase(it);
+                to_close->OnDeactivate();
+                to_close->OnDestroy();
             } break;
             case SaveDialogResponse::Cancel:
                 break;
@@ -83,11 +83,6 @@ void ViewerTabManager::HandleCloseRequest() {
 
         m_close_request = Option<TabId>::None();
     });
-
-    if (to_close) {
-        to_close->OnDeactivate();
-        to_close->OnDestroy();
-    }
 }
 
 void ViewerTabManager::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
