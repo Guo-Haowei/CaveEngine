@@ -11,10 +11,10 @@ namespace cave {
 Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
     auto it = m_tiles.tiles.find(p_index);
     if (it == m_tiles.tiles.end()) {
-        return std::nullopt;
+        return None();
     }
 
-    return it->second;
+    return Some(it->second);
 }
 
 bool TileMapAsset::AddTile(TileIndex p_index, TileId p_data) {

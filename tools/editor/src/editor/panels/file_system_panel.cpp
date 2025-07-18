@@ -53,7 +53,7 @@ void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, const std
         return;
     }
 
-    auto handle = _handle.unwrap();
+    auto handle = _handle.unwrap_unchecked();
 
     if (ImGui::MenuItem("Edit")) {
         m_editor.CommandInspectAsset(handle.GetGuid());
@@ -128,7 +128,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
             auto asset_registry = m_editor.GetApplication()->GetAssetRegistry();
             auto _handle = asset_registry->FindByPath(short_path);
             if (_handle.is_some()) {
-                auto handle = std::move(_handle.unwrap());
+                auto handle = std::move(_handle.unwrap_unchecked());
                 IAsset* asset = handle.Get();
                 if (DEV_VERIFY(asset)) {
                     if (is_file) {

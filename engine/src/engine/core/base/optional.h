@@ -1,24 +1,40 @@
 #pragma once
+#include <optional>
 
 namespace cave {
 
-#include <optional>
-#include <functional>
-#include <stdexcept>
+template<typename T>
+struct SomeWrapper {
+    T value;
+
+    template<typename U>
+    explicit SomeWrapper(U&& v)
+        : value(std::forward<U>(v)) {}
+};
+
+template<typename T>
+auto Some(T&& value) {
+    return SomeWrapper<std::decay_t<T>>(std::forward<T>(value));
+}
+
+struct NoneWrapper {};
+
+inline NoneWrapper None() {
+    return {};
+}
 
 template<typename T>
 class Option {
 public:
-    Option() = default;
-    Option(std::nullopt_t)
+    explicit Option()
         : m_opt(std::nullopt) {}
-    Option(const T& value)
-        : m_opt(value) {}
-    Option(T&& value)
-        : m_opt(std::move(value)) {}
 
-    static Option Some(T value) { return Option(std::move(value)); }
-    static Option None() { return Option(std::nullopt); }
+    template<typename U>
+    Option(SomeWrapper<U>&& some)
+        : m_opt(std::forward<U>(some.value)) {}
+
+    Option(NoneWrapper)
+        : m_opt(std::nullopt) {}
 
     bool is_some() const { return m_opt.has_value(); }
     bool is_none() const { return !m_opt.has_value(); }
@@ -33,19 +49,17 @@ public:
         return *m_opt;
     }
 
+    T& unwrap_unchecked() {
+        return *m_opt;
+    }
+
+    const T& unwrap_unchecked() const {
+        return *m_opt;
+    }
+
     T unwrap_or(T default_value) const {
         return m_opt.value_or(std::move(default_value));
     }
-
-    template<typename F>
-    auto map(F func) const -> Option<decltype(func(std::declval<T>()))> {
-        if (m_opt)
-            return Option<decltype(func(*m_opt))>::Some(func(*m_opt));
-        else
-            return Option<decltype(func(std::declval<T>()))>::None();
-    }
-
-    const std::optional<T>& as_std() const { return m_opt; }
 
     bool operator==(const Option& rhs) const {
         return m_opt == rhs.m_opt;

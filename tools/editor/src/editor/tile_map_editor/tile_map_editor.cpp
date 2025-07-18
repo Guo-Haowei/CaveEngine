@@ -127,10 +127,11 @@ void TileMapEditor::DrawAssetInspector() {
 
 bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     auto res = m_viewer.CursorToNDC(p_in);
-    if (!res) {
+    if (res.is_none()) {
         return false;
     }
-    auto ndc_2 = *res;
+
+    auto ndc_2 = res.unwrap_unchecked();
     Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
 
     const CameraComponent& cam = GetActiveCamera();

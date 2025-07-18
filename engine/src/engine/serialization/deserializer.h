@@ -75,7 +75,7 @@ public:
     template<StringMap T>
     bool Read(T& p_map) {
         if (auto _keys = GetKeys(); _keys.is_some()) {
-            for (const auto& key : _keys.unwrap()) {
+            for (const auto& key : _keys.unwrap_unchecked()) {
                 TryEnterKey(key.c_str());
                 Read(p_map[key]);
                 LeaveKey();

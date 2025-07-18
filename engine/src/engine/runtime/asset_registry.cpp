@@ -67,7 +67,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
             continue;
         }
 
-        auto meta2 = std::move(meta.unwrap());
+        auto meta2 = std::move(meta.unwrap_unchecked());
         auto res = meta2.SaveToDisk(nullptr);
         if (!res) {
             return CAVE_ERROR(res.error());
@@ -130,11 +130,11 @@ Option<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_ty
     if (it != m_guid_map.end()) {
         auto ok = p_type & it->second->metadata.type;
         if (static_cast<bool>(ok)) {
-            return AssetHandle(p_guid, it->second);
+            return Some(AssetHandle(p_guid, it->second));
         }
     }
 
-    return Option<AssetHandle>::None();
+    return None();
 }
 
 Option<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetType p_type) {
@@ -146,12 +146,12 @@ Option<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetTy
         if (it2 != m_guid_map.end()) {
             auto ok = p_type & it2->second->metadata.type;
             if (static_cast<bool>(ok)) {
-                return AssetHandle(guid, it2->second);
+                return Some(AssetHandle(guid, it2->second));
             }
         }
     }
 
-    return Option<AssetHandle>::None();
+    return None();
 }
 
 void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {

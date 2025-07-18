@@ -48,9 +48,9 @@ void YamlDeserializer::LeaveIndex() {
 Option<int> YamlDeserializer::ArraySize() {
     const auto& top = Current();
     if (top && top.IsSequence()) {
-        return static_cast<int>(top.size());
+        return Some(static_cast<int>(top.size()));
     }
-    return Option<int>::None();
+    return None();
 }
 
 Option<std::vector<std::string>> YamlDeserializer::GetKeys() {
@@ -61,9 +61,9 @@ Option<std::vector<std::string>> YamlDeserializer::GetKeys() {
         for (const auto& kv : top) {
             keys.push_back(kv.first.as<std::string>());
         }
-        return keys;
+        return Some(keys);
     }
-    return Option<std::vector<std::string>>::None();
+    return None();
 }
 
 template<typename T>

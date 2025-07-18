@@ -141,7 +141,7 @@ void AssetManager::CreateAsset(AssetType p_type,
         return;
     }
 
-    auto meta = std::move(_meta.unwrap());
+    auto meta = std::move(_meta.unwrap_unchecked());
     // @TODO: handle error
     [[maybe_unused]] auto res = asset->SaveToDisk(meta);
 

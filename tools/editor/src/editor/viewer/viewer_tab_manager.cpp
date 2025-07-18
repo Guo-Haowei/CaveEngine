@@ -8,25 +8,25 @@ namespace cave {
 Option<ViewerTab*> ViewerTabManager::FindTabById(const TabId& p_id) {
     auto it = m_tabs.find(p_id);
     if (it != m_tabs.end()) {
-        return it->second.get();
+        return Some(it->second.get());
     }
-    return Option<ViewerTab*>::None();
+    return None();
 }
 
 Option<ViewerTab*> ViewerTabManager::FindTabByGuid(const Guid& p_guid) {
     for (const auto& [id, tab] : m_tabs) {
         if (tab->GetGuid() == p_guid) {
-            return tab.get();
+            return Some(tab.get());
         }
     }
-    return Option<ViewerTab*>::None();
+    return None();
 }
 
 Option<ViewerTab*> ViewerTabManager::GetActiveTab() {
     if (m_active_tab.is_none()) {
-        return Option<ViewerTab*>::None();
+        return None();
     }
-    return FindTabById(m_active_tab.unwrap());
+    return FindTabById(m_active_tab.unwrap_unchecked());
 }
 
 void ViewerTabManager::SwitchTab(std::shared_ptr<ViewerTab>&& p_tab) {
@@ -46,15 +46,15 @@ void ViewerTabManager::SwitchTab(const TabId& p_id) {
     auto old_tab = GetActiveTab();
 
     if (old_tab.is_some()) {
-        old_tab.unwrap()->OnDeactivate();
+        old_tab.unwrap_unchecked()->OnDeactivate();
     }
 
-    m_active_tab = p_id;
-    m_focus_request = p_id;
+    m_active_tab = Some(p_id);
+    m_focus_request = Some(p_id);
 
     new_tab->OnActivate();
 
-    LOG("Tool [{}] -> [{}]", old_tab.is_some() ? old_tab.unwrap()->GetTitle() : "(null)", new_tab->GetTitle());
+    LOG("Tool [{}] -> [{}]", old_tab.is_some() ? old_tab.unwrap_unchecked()->GetTitle() : "(null)", new_tab->GetTitle());
 }
 
 void ViewerTabManager::HandleCloseRequest() {
@@ -81,7 +81,7 @@ void ViewerTabManager::HandleCloseRequest() {
                 break;
         }
 
-        m_close_request = Option<TabId>::None();
+        m_close_request = None();
     });
 }
 

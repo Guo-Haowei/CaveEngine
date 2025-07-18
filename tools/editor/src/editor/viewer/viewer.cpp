@@ -127,7 +127,7 @@ bool Viewer::HandleInput(const InputEvent* p_input_event) {
     return CacheCameraInput(p_input_event);
 }
 
-std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
+Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     auto [window_x, window_y] = m_editor.GetApplication()->GetDisplayServer()->GetWindowPos();
     p_point.x = (p_point.x + window_x - m_canvas_min.x) / m_canvas_size.x;
     p_point.y = (p_point.y + window_y - m_canvas_min.y) / m_canvas_size.y;
@@ -136,10 +136,10 @@ std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
         p_point *= 2.0f;
         p_point -= 1.0f;
         p_point.y = -p_point.y;
-        return p_point;
+        return Some(p_point);
     }
 
-    return std::nullopt;
+    return None();
 }
 
 bool Viewer::CacheCameraInput(const InputEvent* p_input_event) {
@@ -195,7 +195,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     auto cached_tab = m_tab_manager.FindTabByGuid(p_guid);
 
     if (cached_tab.is_some()) {
-        m_tab_manager.SwitchTab(cached_tab.unwrap()->GetId());
+        m_tab_manager.SwitchTab(cached_tab.unwrap_unchecked()->GetId());
         return;
     }
 
@@ -241,7 +241,7 @@ void Viewer::UpdateInternal(Scene*) {
     // update camera
     if (auto tab = m_tab_manager.GetActiveTab(); tab.is_some()) {
         const float dt = m_editor.context.timestep;
-        auto& camera = tab.unwrap()->GetActiveCamera();
+        auto& camera = tab.unwrap_unchecked()->GetActiveCamera();
         const bool is_2d = camera.IsView2D();
         if (is_2d) {
             const float speed = dt * 0.5f;

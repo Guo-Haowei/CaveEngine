@@ -20,7 +20,7 @@ bool TileMapRenderer::SetTileMap(const Guid& p_guid) {
         return false;
     }
 
-    auto handle = std::move(res.unwrap());
+    auto handle = std::move(res.unwrap_unchecked());
     return true;
 }
 
@@ -44,7 +44,7 @@ void TileMapRenderer::CreateRenderData() {
     if (m_cache.sprite.GetGuid() == Guid::Null()) {
         auto sprite_handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAsset>(tile_map->GetSpriteGuid());
         if (sprite_handle.is_some()) {
-            m_cache.sprite = std::move(sprite_handle.unwrap());
+            m_cache.sprite = std::move(sprite_handle.unwrap_unchecked());
         }
     }
 

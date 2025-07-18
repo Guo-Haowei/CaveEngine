@@ -30,7 +30,7 @@ public:
 
     bool HandleInput(const InputEvent* p_input_event);
 
-    std::optional<Vector2f> CursorToNDC(Vector2f p_point) const;
+    Option<Vector2f> CursorToNDC(Vector2f p_point) const;
 
     const Vector2f& GetCanvasMin() const { return m_canvas_min; }
     const Vector2f& GetCanvasSize() const { return m_canvas_size; }
