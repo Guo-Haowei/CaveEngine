@@ -11,6 +11,10 @@ namespace cave {
 
 static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
+    if (p_ctx.frameData.tile_maps.empty()) {
+        return;
+    }
+
     auto& cmd = p_ctx.cmd;
     Framebuffer* fb = p_ctx.framebuffer;
     const uint32_t width = fb->desc.depthAttachment->desc.width;

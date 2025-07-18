@@ -42,7 +42,7 @@ bool TileMapEditor::SetActiveLayer(int p_index) {
 }
 
 void TileMapEditor::Update(Scene*) {
-    const CameraComponent& camera = m_viewer.GetActiveCamera();
+    const CameraComponent& camera = GetActiveCamera();
     const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
@@ -108,7 +108,7 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     auto ndc_2 = *res;
     Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
 
-    CameraComponent& cam = m_viewer.GetActiveCamera();
+    const CameraComponent& cam = GetActiveCamera();
     const auto inv_proj_view = glm::inverse(cam.GetProjectionViewMatrix());
 
     Vector4f position = inv_proj_view * ndc;

@@ -2,7 +2,6 @@
 #include "tab_id.h"
 
 #include "engine/input/input_router.h"
-#include "engine/scene/camera_controller.h"
 #include "editor/editor_window.h"
 #include "editor/enums.h"
 
@@ -43,6 +42,24 @@ private:
     std::unordered_map<TabId, std::shared_ptr<ViewerTab>> m_tabs;
 };
 
+struct OldInputState {
+    int dx, dy, dz;
+    float scroll;
+    Vector2f mouse_move;
+    std::optional<Vector2f> ndc;
+    std::array<bool, 3> buttons;
+
+    OldInputState() { Reset(); }
+
+    void Reset() {
+        dx = dy = dz = 0;
+        scroll = 0.0f;
+        mouse_move = Vector2f{ 0, 0 };
+        ndc = std::nullopt;
+        buttons.fill(0);
+    }
+};
+
 class Viewer : public EditorWindow, public IInputHandler {
 public:
     Viewer(EditorLayer& p_editor);
@@ -54,9 +71,8 @@ public:
     const Vector2f& GetCanvasMin() const { return m_canvas_min; }
     const Vector2f& GetCanvasSize() const { return m_canvas_size; }
 
-    CameraComponent& GetActiveCamera() { return m_controller.cameras[m_controller.current]; }
-
     auto& GetInputState() { return m_input_state; }
+    const auto& GetInputState() const { return m_input_state; }
 
     void OpenTab(AssetType p_type, const Guid& p_guid);
     ViewerTab* GetActiveTab();
@@ -69,8 +85,6 @@ protected:
     void UpdateInternal(Scene* p_scene) override;
     void UpdateTab(Scene* p_scene);
 
-    void UpdateCamera();
-
     void DrawToolBar();
     void DrawGui(Scene* p_scene);
 
@@ -81,56 +95,8 @@ protected:
     Vector2f m_canvas_size;
     bool m_focused;
 
-    struct InputState {
-        int dx, dy, dz;
-        float scroll;
-        Vector2f mouse_move;
-        std::optional<Vector2f> ndc;
-        std::array<bool, 3> buttons;
-
-        InputState() { Reset(); }
-
-        void Reset() {
-            dx = dy = dz = 0;
-            scroll = 0.0f;
-            mouse_move = Vector2f{ 0, 0 };
-            ndc = std::nullopt;
-            buttons.fill(0);
-        }
-    } m_input_state;
-
-    // @TODO: refactor
-    enum {
-        CAM2D,
-        CAM3D,
-    };
-
-    // @TODO: refactor
-    struct EditorCameraController {
-        CameraControllerFPS controller_3d;
-        CameraController2DEditor controller_2d;
-
-        CameraComponent& GetCamera(int p_idx) { return cameras[p_idx]; }
-
-        std::array<CameraComponent, 2> cameras;
-        int current = CAM3D;
-
-        void Check(bool p_only_2d) {
-            if (p_only_2d) {
-                current = CAM2D;
-            }
-        }
-
-        void Toggle(bool p_only_2d) {
-            if (p_only_2d) {
-                current = CAM2D;
-            } else {
-                current ^= 1;
-            }
-        }
-    } m_controller;
-
     TabManager m_tab_manager;
+    OldInputState m_input_state;
 };
 
 }  // namespace cave

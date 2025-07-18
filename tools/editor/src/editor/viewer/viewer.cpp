@@ -129,30 +129,6 @@ void TabManager::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_
 
 Viewer::Viewer(EditorLayer& p_editor)
     : EditorWindow(p_editor) {
-    const auto res = DVAR_GET_IVEC2(resolution);
-    {
-        CameraComponent camera;
-        camera.SetDimension(res.x, res.y);
-        camera.SetNear(1.0f);
-        camera.SetFar(1000.0f);
-        camera.SetPosition(Vector3f(0, 4, 10));
-        camera.SetDirty();
-        camera.Update();
-
-        m_controller.cameras[CAM3D] = camera;
-    }
-    {
-        CameraComponent camera;
-        camera.SetOrtho();
-        camera.SetDimension(res.x, res.y);
-        camera.SetNear(1.0f);
-        camera.SetFar(1000.0f);
-        camera.SetPosition(Vector3f(0, 0, 10));
-        camera.SetDirty();
-        camera.Update();
-
-        m_controller.cameras[CAM2D] = camera;
-    }
 }
 
 void Viewer::UpdateFrameSize() {
@@ -224,8 +200,8 @@ void Viewer::DrawToolBar() {
     auto app = m_editor.GetApplication();
     auto app_state = app->GetState();
 
-    ViewerTab* tool = GetActiveTab();
-    const bool only_2d = tool ? tool->GetCameraPolicy() == ToolCameraPolicy::Only2D : false;
+    // ViewerTab* tool = GetActiveTab();
+    // const bool only_2d = tool ? tool->GetCameraPolicy() == ToolCameraPolicy::Only2D : false;
 
     static const ToolBarButtonDesc s_buttons[] = {
         { ICON_FA_PLAY, "Run Project",
@@ -239,7 +215,7 @@ void Viewer::DrawToolBar() {
           } },
         { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
           [&]() {
-              m_controller.Toggle(only_2d);
+              // m_controller.Toggle(only_2d);
           } },
         { ICON_FA_BRUSH, "TileMap editor mode",
           [&]() {
@@ -278,6 +254,8 @@ void Viewer::DrawToolBar() {
 }
 
 HandleInputResult Viewer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
+    // @TODO: cache input and redirect to tabs
+
     if (!m_focused) {
         return HandleInputResult::NotHandled;
     }
@@ -355,56 +333,19 @@ HandleInputResult Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_
     return HandleInputResult::NotHandled;
 }
 
-void Viewer::UpdateCamera() {
-    ViewerTab* tool = GetActiveTab();
-
-    CameraComponent& camera = GetActiveCamera();
-
-    const float dt = m_editor.context.timestep;
-    const auto& move = m_input_state.mouse_move;
-    const auto& scroll = m_input_state.scroll;
-
-    const bool only_2d = tool->GetCameraPolicy() == ToolCameraPolicy::Only2D;
-    m_controller.Check(only_2d);
-
-    // @TODO: still need to figure out a better way to do it
-    switch (m_controller.current) {
-        case CAM2D: {
-            CameraInputState state{
-                .move = dt * Vector3f(-move.x, move.y, 0.0f),
-                .zoomDelta = -dt * scroll,
-            };
-            m_controller.controller_2d.Update(camera, state);
-        } break;
-        case CAM3D: {
-            CameraInputState state{
-                .move = dt * Vector3f(m_input_state.dx, m_input_state.dy, m_input_state.dz),
-                .zoomDelta = dt * scroll,
-                .rotation = dt * move,
-            };
-            m_controller.controller_3d.Update(camera, state);
-        } break;
-    }
-
-    camera.Update();
-}
-
+// @TODO: move it inside?
 void Viewer::UpdateTab(Scene* p_scene) {
     ViewerTab* tool = GetActiveTab();
     DEV_ASSERT(tool);
 
-    UpdateFrameSize();
-
     if (m_focused) {
-        UpdateCamera();
+        tool->UpdateCamera();
     }
 
     DrawGui(p_scene);
 
     // @TODO: should we update tool when it's not focused?
     tool->Update(p_scene);
-
-    m_input_state.Reset();
 }
 
 void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
@@ -442,6 +383,8 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     // @TODO: tool bar policy
     DrawToolBar();
 
+    UpdateFrameSize();
+
     int flag = 0;
 #if 1
     flag |= ImGuiTabBarFlags_Reorderable;
@@ -452,9 +395,6 @@ void Viewer::UpdateInternal(Scene* p_scene) {
 
     // go through all tabs
     // see if there's a focus request
-
-    ImGuiTabItemFlags_UnsavedDocument;
-    ImGuiTabItemFlags_SetSelected;
 
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
@@ -481,6 +421,7 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     }
 
     m_tab_manager.HandleTabClose();
+    m_input_state.Reset();
 
     ImGui::EndTabBar();
 }

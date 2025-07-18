@@ -7,6 +7,7 @@
 
 namespace cave {
 
+class EditorCameraController;
 class TabId;
 
 class ViewerTab {
@@ -27,6 +28,8 @@ public:
 
     virtual void Update(Scene*) {}
 
+    virtual void UpdateCamera();
+
     ToolCameraPolicy GetCameraPolicy() const { return m_policy; }
 
     UndoStack& GetUndoStack() { return m_undo_stack; }
@@ -39,7 +42,17 @@ public:
 
     const Guid& GetGuid() const { return m_guid; }
 
+    const CameraComponent& GetActiveCamera() const {
+        return GetActiveCameraInternal();
+    }
+
+    CameraComponent& GetActiveCamera() {
+        return const_cast<CameraComponent&>(GetActiveCameraInternal());
+    }
+
 protected:
+    const CameraComponent& GetActiveCameraInternal() const;
+
     const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
@@ -57,6 +70,8 @@ protected:
     // * Render Target (optional)
 
     UndoStack m_undo_stack;
+
+    std::shared_ptr<EditorCameraController> m_controller;
 };
 
 }  // namespace cave

@@ -57,7 +57,7 @@ public:
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 
-    CameraComponent& GetActiveCamera();
+    CameraComponent* GetActiveCamera();
 
     EditorContext context;
 

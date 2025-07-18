@@ -13,7 +13,7 @@
 namespace cave {
 
 void SceneEditor::Update(Scene* p_scene) {
-    const auto& cam = m_viewer.GetActiveCamera();
+    const auto& cam = GetActiveCamera();
     const Matrix4x4f& view_matrix = cam.GetViewMatrix();
     const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
     const Matrix4x4f& proj_view = cam.GetProjectionViewMatrix();

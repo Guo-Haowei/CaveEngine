@@ -30,7 +30,7 @@ public:
     }
 
     CameraComponent* GetActiveCamera() override {
-        return &m_editorLayer->GetActiveCamera();
+        return m_editorLayer->GetActiveCamera();
     }
 
 private:

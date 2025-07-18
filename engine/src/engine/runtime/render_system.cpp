@@ -189,12 +189,15 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     }
 
     CAVE_PROFILE_EVENT();
-    CameraComponent& camera = *m_app->GetActiveCamera();
+    CameraComponent* camera = m_app->GetActiveCamera();
 
     DEV_ASSERT(m_frameData);
     FrameData& framedata = *m_frameData;
 
-    FillCameraData(camera, framedata);
+    if (!camera) {
+        return;
+    }
+    FillCameraData(*camera, framedata);
     FillConstantBuffer(p_scene, framedata);
 
     RunMeshRenderSystem(p_scene, framedata);
@@ -211,7 +214,7 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     FillEnvConstants(framedata);
 
     if (p_scene) {
-        RequestPathTracerUpdate(camera, *p_scene);
+        RequestPathTracerUpdate(*camera, *p_scene);
     }
 
     auto& context = m_frameData->drawDebugContext;
