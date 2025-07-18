@@ -16,6 +16,7 @@ FILES = [
     "tile_map/tile_map_asset.h",
     "tile_map/tile_map_renderer.h",
     "scene/transform_component.h",
+    "scene/camera_component.h",
     "assets/sprite_asset.h",
 ]
 

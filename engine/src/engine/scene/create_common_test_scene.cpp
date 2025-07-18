@@ -21,15 +21,6 @@ Scene* CreateBoxScene() {
     scene->m_root = root;
 
     Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    // editor camera
-    {
-        auto editor_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "editor_camera", frame_size.x, frame_size.y);
-        auto camera = scene->GetComponent<CameraComponent>(editor_camera);
-        DEV_ASSERT(camera);
-        camera->SetPosition(Vector3f(0, 4, 15));
-        camera->SetEditorCamera();
-        scene->AttachChild(editor_camera, root);
-    }
     // main camera
     {
         auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);
@@ -103,15 +94,6 @@ Scene* CreatePhysicsTestScene() {
     scene->m_root = root;
 
     Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    // editor camera
-    {
-        auto editor_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "editor_camera", frame_size.x, frame_size.y);
-        auto camera = scene->GetComponent<CameraComponent>(editor_camera);
-        DEV_ASSERT(camera);
-        camera->SetPosition(Vector3f(0, 5, 12));
-        camera->SetEditorCamera();
-        scene->AttachChild(editor_camera, root);
-    }
     // main camera
     {
         auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);
@@ -211,15 +193,6 @@ Scene* CreatePbrTestScene() {
     scene->m_root = root;
 
     Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    // editor camera
-    {
-        auto editor_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "editor_camera", frame_size.x, frame_size.y);
-        auto camera = scene->GetComponent<CameraComponent>(editor_camera);
-        DEV_ASSERT(camera);
-        camera->SetPosition(Vector3f(0, 4, 10));
-        camera->SetEditorCamera();
-        scene->AttachChild(editor_camera, root);
-    }
     // main camera
     {
         auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);

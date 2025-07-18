@@ -48,6 +48,7 @@ std::shared_ptr<CameraComponent> ViewerTab::CreateDefaultCamera2D() {
     const auto res = DVAR_GET_IVEC2(resolution);
     auto camera = std::make_shared<CameraComponent>();
     camera->SetOrtho();
+    camera->SetView2D();
     camera->SetDimension(res.x, res.y);
     camera->SetNear(1.0f);
     camera->SetFar(1000.0f);

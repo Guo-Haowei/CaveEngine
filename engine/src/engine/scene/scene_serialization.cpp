@@ -585,7 +585,7 @@ void NativeScriptComponent::RegisterClass() {
 #endif
 
 void CameraComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(flags);
+    p_archive.ArchiveValue(m_flags);
     p_archive.ArchiveValue(m_near);
     p_archive.ArchiveValue(m_far);
     p_archive.ArchiveValue(m_fovy);
@@ -594,7 +594,7 @@ void CameraComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(m_pitch);
     p_archive.ArchiveValue(m_yaw);
     p_archive.ArchiveValue(m_position);
-    p_archive.ArchiveValue(m_orthoHeight);
+    p_archive.ArchiveValue(m_ortho_height);
 }
 
 void LuaScriptComponent::Serialize(Archive& p_archive, uint32_t) {

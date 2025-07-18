@@ -4,7 +4,11 @@
 #include "engine/ecs/component_manager.h"
 #include "engine/ecs/view.h"
 #include "engine/math/ray.h"
+
+// components
 #include "engine/scene/scene_component.h"
+#include "engine/scene/camera_component.h"
+#include "engine/scene/transform_component.h"
 
 #include "engine/tile_map/tile_map_renderer.h"
 

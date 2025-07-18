@@ -235,7 +235,7 @@ void Viewer::UpdateInternal(Scene*) {
     if (auto tab = m_tab_manager.GetActiveTab(); tab.is_some()) {
         const float dt = m_editor.context.timestep;
         auto& camera = tab.unwrap()->GetActiveCamera();
-        const bool is_2d = true;
+        const bool is_2d = camera.IsView2D();
         if (is_2d) {
             const float speed = dt * 0.5f;
             const float dx = speed * -m_camera_input.mouse_move.x;
@@ -248,6 +248,7 @@ void Viewer::UpdateInternal(Scene*) {
             m_controller_2d.Update(camera, state);
             camera.Update();
         } else {
+            CRASH_NOW();
             // m_controller_3d.Update(camera, m_camera_input);
             // CameraInputState state{
             //    .move = dt * Vector3f(input_state.dx, input_state.dy, input_state.dz),
