@@ -12,7 +12,7 @@ bool YamlDeserializer::Initialize(const YAML::Node& p_node) {
         m_version = version_node.as<int>();
     }
 
-    m_stack.emplace_back(p_node);
+    m_node_stack.emplace_back(p_node);
     m_initialized = true;
     return true;
 }
@@ -21,68 +21,101 @@ bool YamlDeserializer::TryEnterKey(const char* p_key) {
     auto node = Current()[p_key];
     ERR_FAIL_COND_V_MSG(!node, false, "key not found");
 
-    m_stack.push_back(node);
+    m_node_stack.push_back(node);
     return true;
 }
 
 void YamlDeserializer::LeaveKey() {
-    DEV_ASSERT(!m_stack.empty());
+    DEV_ASSERT(!m_node_stack.empty());
 
-    m_stack.pop_back();
+    m_node_stack.pop_back();
 }
 
-bool YamlDeserializer::Read(ecs::Entity& p_object) {
+bool YamlDeserializer::TryEnterIndex(int p_index) {
+    auto node = Current()[p_index];
+    ERR_FAIL_COND_V_MSG(!node, false, "index not found");
+
+    m_node_stack.push_back(node);
+    return true;
+}
+
+void YamlDeserializer::LeaveIndex() {
+    DEV_ASSERT(!m_node_stack.empty());
+
+    m_node_stack.pop_back();
+}
+
+Option<int> YamlDeserializer::ArraySize() {
+    const auto& top = Current();
+    if (top && top.IsSequence()) {
+        return static_cast<int>(top.size());
+    }
+    return Option<int>::None();
+}
+
+Option<std::vector<std::string>> YamlDeserializer::GetKeys() {
+    const auto& top = Current();
+    if (DEV_VERIFY(top.IsMap())) {
+        std::vector<std::string> keys;
+        keys.reserve(top.size());
+        for (const auto& kv : top) {
+            keys.push_back(kv.first.as<std::string>());
+        }
+        return keys;
+    }
+    return Option<std::vector<std::string>>::None();
+}
+
+template<typename T>
+bool YamlDeserializer::ReadScalar(T& p_out) {
     auto& node = Current();
-
     ERR_FAIL_COND_V_MSG(!node.IsScalar(), false, "expect scalar");
-
-    p_object = ecs::Entity(node.as<uint32_t>());
+    p_out = node.as<T>();
     return true;
 }
 
-bool YamlDeserializer::Read(Degree& p_object) {
-    auto& p_node = Current();
-
-    ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
-
-    p_object = Degree(p_node.as<float>());
-    return true;
+bool YamlDeserializer::Read(bool& p_value) {
+    return ReadScalar(p_value);
 }
 
-bool YamlDeserializer::Read(std::string& p_object) {
-    auto& p_node = Current();
-
-    ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
-
-    p_object = p_node.as<std::string>();
-    return true;
+bool YamlDeserializer::Read(float& p_value) {
+    return ReadScalar(p_value);
 }
 
-bool YamlDeserializer::Read(Guid& p_object) {
-    auto& p_node = Current();
-
-    ERR_FAIL_COND_V_MSG(!p_node.IsScalar(), false, "expect scalar");
-
-    auto res = Guid::Parse(p_node.as<std::string>());
-    if (!res) {
-        return false;
-    }
-
-    p_object = *res;
-    return true;
+bool YamlDeserializer::Read(std::string& p_value) {
+    return ReadScalar(p_value);
 }
 
-bool YamlDeserializer::Read(Matrix4x4f& p_object) {
-    auto& p_node = Current();
+bool YamlDeserializer::Read(int8_t& p_value) {
+    return ReadScalar(p_value);
+}
 
-    ERR_FAIL_COND_V_MSG(!p_node.IsSequence() || p_node.size() != 16, false, "expect matrix4x4");
+bool YamlDeserializer::Read(uint8_t& p_value) {
+    return ReadScalar(p_value);
+}
 
-    float* ptr = &p_object[0].x;
-    for (int i = 0; i < 16; ++i) {
-        ptr[i] = p_node[i].as<float>();
-    }
+bool YamlDeserializer::Read(int16_t& p_value) {
+    return ReadScalar(p_value);
+}
 
-    return true;
+bool YamlDeserializer::Read(uint16_t& p_value) {
+    return ReadScalar(p_value);
+}
+
+bool YamlDeserializer::Read(int32_t& p_value) {
+    return ReadScalar(p_value);
+}
+
+bool YamlDeserializer::Read(uint32_t& p_value) {
+    return ReadScalar(p_value);
+}
+
+bool YamlDeserializer::Read(int64_t& p_value) {
+    return ReadScalar(p_value);
+}
+
+bool YamlDeserializer::Read(uint64_t& p_value) {
+    return ReadScalar(p_value);
 }
 
 auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void> {

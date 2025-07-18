@@ -51,8 +51,8 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
             auto meta = std::move(*res);
 
             if (meta.path != key) {
+                LOG_WARN("path of asset '{}' is outdated expect: '{}', actual: '{}'", meta.guid.ToString(), meta.path, key);
                 meta.path = key;
-                LOG_WARN("asset '{}'({}) has been moved", meta.path, meta.guid.ToString());
             }
 
             LOG_VERBOSE("'{}' detected, loading...", meta_path);
