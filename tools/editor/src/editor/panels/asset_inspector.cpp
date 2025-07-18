@@ -18,7 +18,7 @@ AssetInspector::AssetInspector(EditorLayer& p_editor)
 
 void AssetInspector::OnAttach() {
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").value();
+    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").unwrap();
 }
 
 void AssetInspector::TilePaint(SpriteAsset& p_sprite) {

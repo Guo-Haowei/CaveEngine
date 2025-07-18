@@ -255,8 +255,8 @@ bool DragDropTarget(AssetType p_mask,
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ASSET_DRAG_DROP_PAYLOAD)) {
             const char* path = reinterpret_cast<const char*>(payload->Data);
             auto handle = AssetRegistry::GetSingleton().FindByPath(path, p_mask);
-            if (handle) {
-                p_callback(*handle);
+            if (handle.is_some()) {
+                p_callback(handle.unwrap());
             }
         }
         ImGui::EndDragDropTarget();
@@ -293,8 +293,8 @@ void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_re
 }
 
 void ShowAssetToolTip(const Guid& p_guid) {
-    if (auto res = AssetRegistry::GetSingleton().FindByGuid(p_guid); res) {
-        AssetHandle handle = std::move(*res);
+    if (auto res = AssetRegistry::GetSingleton().FindByGuid(p_guid); res.is_some()) {
+        AssetHandle handle = std::move(res.unwrap());
         if (auto asset = handle.Get(); asset) {
             ShowAssetToolTip(*handle.GetMeta(), asset);
         }

@@ -46,8 +46,8 @@ void SpriteAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
 
 void SpriteAsset::SetImage(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(p_guid);
-    if (handle) {
-        SetHandle(std::move(*handle));
+    if (handle.is_some()) {
+        SetHandle(std::move(handle.unwrap()));
     }
 
     UpdateFrames();
@@ -124,8 +124,8 @@ auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 
     // @TODO: post load?
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
-    if (handle) {
-        SetHandle(std::move(*handle));
+    if (handle.is_some()) {
+        SetHandle(std::move(handle.unwrap()));
     }
     UpdateFrames();
 

@@ -24,6 +24,8 @@ public:
     virtual void OnActivate() {}
     virtual void OnDeactivate() {}
 
+    virtual bool IsDirty() { return false; }
+
     virtual void Draw();
 
     virtual void Update() {}

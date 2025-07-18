@@ -12,23 +12,23 @@ public:
     AssetRegistry()
         : Module("AssetRegistry") {}
 
-    std::optional<AssetHandle> FindByGuid(const Guid& p_guid, AssetType p_type = AssetType::All);
-    std::optional<AssetHandle> FindByPath(const std::string& p_path, AssetType p_type = AssetType::All);
+    Option<AssetHandle> FindByGuid(const Guid& p_guid, AssetType p_type = AssetType::All);
+    Option<AssetHandle> FindByPath(const std::string& p_path, AssetType p_type = AssetType::All);
 
     template<typename T>
-    std::optional<Handle<T>> FindByPath(const std::string& p_path) {
+    Option<Handle<T>> FindByPath(const std::string& p_path) {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
         auto handle = FindByPath(p_path, T::ASSET_TYPE);
-        if (!handle) return std::nullopt;
-        return Handle<T>(std::move(*handle));
+        if (handle.is_none()) return Option<Handle<T>>::None();
+        return Handle<T>(std::move(handle.unwrap()));
     }
 
     template<typename T>
-    std::optional<Handle<T>> FindByGuid(const Guid& p_guid) {
+    Option<Handle<T>> FindByGuid(const Guid& p_guid) {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
         auto handle = FindByGuid(p_guid, T::ASSET_TYPE);
-        if (!handle) return std::nullopt;
-        return Handle<T>(*std::move(handle));
+        if (handle.is_none()) return Option<Handle<T>>::None();
+        return Handle<T>(std::move(handle.unwrap()));
     }
 
     void MoveAsset(std::string&& p_old, std::string&& p_new);

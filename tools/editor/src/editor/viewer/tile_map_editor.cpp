@@ -62,11 +62,11 @@ void TileMapEditor::Draw() {
 
     do {
         auto res = m_editor.GetApplication()->GetAssetRegistry()->FindByGuid(m_guid);
-        if (!res) {
+        if (res.is_none()) {
             break;
         }
 
-        auto handle = *res;
+        auto handle = res.unwrap();
         TileMapAsset* tile_map = handle.Get<TileMapAsset>();
         if (!tile_map) {
             break;
@@ -145,7 +145,7 @@ bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
 void TileMapEditor::OnCreate(const Guid& p_guid) {
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
     m_guid = p_guid;
-    m_tile_map_handle = m_asset_registry->FindByGuid(m_guid).value();
+    m_tile_map_handle = m_asset_registry->FindByGuid<TileMapAsset>(m_guid).unwrap();
 
     [[maybe_unused]] auto asset = m_tile_map_handle.Get();
     [[maybe_unused]] auto meta = m_tile_map_handle.GetMeta();

@@ -35,7 +35,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     return meta;
 }
 
-auto AssetMetaData::CreateMeta(std::string_view p_path) -> std::optional<AssetMetaData> {
+auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData> {
     auto extension = StringUtils::Extension(p_path);
 
     AssetType type = AssetType::Binary;
@@ -48,7 +48,7 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> std::optional<AssetMe
     } else if (extension == ".tilemap") {
         type = AssetType::TileMap;
     } else {
-        return std::nullopt;
+        return Option<AssetMetaData>::None();
     }
 
     AssetMetaData meta;

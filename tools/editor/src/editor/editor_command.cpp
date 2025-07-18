@@ -21,8 +21,8 @@ static std::string GenerateName(std::string_view p_name) {
 /// EditorInspectAssetCommand
 void EditorInspectAssetCommand::Execute(Scene&) {
     auto asset_registry = m_editor->GetApplication()->GetAssetRegistry();
-    if (auto res = asset_registry->FindByGuid(m_guid); res) {
-        auto handle = *res;
+    if (auto res = asset_registry->FindByGuid(m_guid); res.is_some()) {
+        auto handle = res.unwrap();
         if (handle.IsReady()) {
             const auto meta = handle.GetMeta();
             LOG_OK("Asset {} selected", meta->path);

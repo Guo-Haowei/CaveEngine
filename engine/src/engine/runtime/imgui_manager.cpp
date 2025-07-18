@@ -33,7 +33,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
 
     {
         const std::string path = "@res://fonts/DroidSans.ttf";
-        auto res = m_app->GetAssetRegistry()->FindByPath<BufferAsset>(path).value();
+        auto res = m_app->GetAssetRegistry()->FindByPath<BufferAsset>(path).unwrap();
         auto font = res.Wait();
 
         if (DEV_VERIFY(font)) {
@@ -49,7 +49,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
 
     {
         const std::string path = "@res://fonts/" FONT_ICON_FILE_NAME_FAS;
-        auto res = m_app->GetAssetRegistry()->FindByPath<BufferAsset>(path).value();
+        auto res = m_app->GetAssetRegistry()->FindByPath<BufferAsset>(path).unwrap();
         auto font = res.Wait();
 
         if (DEV_VERIFY(font)) {

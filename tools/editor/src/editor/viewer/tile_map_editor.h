@@ -37,6 +37,8 @@ public:
 
     void OnActivate() override;
 
+    bool IsDirty() override { return true; }
+
     void Draw() override;
 
     const Guid& GetTileMapGuid() const { return m_guid; }
