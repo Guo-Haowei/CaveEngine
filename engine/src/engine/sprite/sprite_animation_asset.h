@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/asset_handle.h"
 #include "engine/assets/asset_interface.h"
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"
@@ -24,7 +25,7 @@ struct SpriteAnimationClip {
 };
 
 class SpriteAnimationAsset : public IAsset {
-    CAVE_ASSET(SpriteAnimationAsset, AssetType::SpriteAnimation)
+    CAVE_ASSET(SpriteAnimationAsset, AssetType::SpriteAnimation, 0)
 
     CAVE_META(SpriteAnimationAsset)
 
@@ -34,7 +35,19 @@ class SpriteAnimationAsset : public IAsset {
     CAVE_PROP()
     std::unordered_map<std::string, SpriteAnimationClip> clips;
 
+private:
+
+    // Non serialized
+    Handle<ImageAsset> m_image_handle;
+
 public:
+    auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
+
+    auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
+
+    std::vector<Guid> GetDependencies() const {
+        return { m_image_guid };
+    }
 };
 
 }  // namespace cave

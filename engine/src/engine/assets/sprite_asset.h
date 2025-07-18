@@ -4,12 +4,13 @@
 
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"
-#include "engine/serialization/yaml_forward.h"
 
 namespace cave {
 
+class YamlDeserializer;
+
 class SpriteAsset : public IAsset {
-    CAVE_ASSET(SpriteAsset, AssetType::Sprite)
+    CAVE_ASSET(SpriteAsset, AssetType::Sprite, 0)
 
     CAVE_META(SpriteAsset)
 
@@ -36,7 +37,6 @@ class SpriteAsset : public IAsset {
     Handle<ImageAsset> m_image_handle;
 
 public:
-    static constexpr const int VERSION = 0;
 
     uint32_t GetRow() const { return m_row; }
     void SetRow(uint32_t p_row);

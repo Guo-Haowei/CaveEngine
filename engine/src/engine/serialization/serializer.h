@@ -22,6 +22,8 @@ DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
 class Guid;
 
 class ISerializer {
+    static inline constexpr const int SINGLE_LINE_MAX_ELEMENT = 4;
+
 public:
     virtual ~ISerializer() = default;
 
@@ -61,21 +63,44 @@ public:
     ISerializer& Write(const Degree& p_object);
     ISerializer& Write(const Matrix4x4f& p_object);
 
-    template<IsSerializable T>
-    ISerializer& Write(const T& p_value) {
-        return WriteObject(*this, p_value);
-    }
-
-    template<std::ranges::range T>
-    ISerializer& Write(const T& p_container) {
-        const size_t len = std::ranges::size(p_container);
-        BeginArray(len < 4);
-        for (const auto& val : p_container) {
+    template<ArrayLike T>
+    ISerializer& Write(const T& p_array) {
+        const size_t len = std::ranges::size(p_array);
+        BeginArray(len < SINGLE_LINE_MAX_ELEMENT);
+        for (const auto& val : p_array) {
             Write(val);
         }
         EndArray();
         return *this;
     }
+
+    template<StringMap T>
+    ISerializer& Write(const T& p_map) {
+        const size_t len = std::ranges::size(p_map);
+        BeginMap(len < SINGLE_LINE_MAX_ELEMENT);
+        for (const auto& [key, value] : p_map) {
+            Key(key).Write(value);
+        }
+        EndMap();
+        return *this;
+    }
+
+    template<IsSerializable T>
+    ISerializer& Write(const T& p_value) {
+        return WriteObject(*this, p_value);
+    }
+
+    // @TODO: remove this
+    //template<std::ranges::range T>
+    //ISerializer& Write(const T& p_container) {
+    //    const size_t len = std::ranges::size(p_container);
+    //    BeginArray(len < SINGLE_LINE_MAX_ELEMENT);
+    //    for (const auto& val : p_container) {
+    //        Write(val);
+    //    }
+    //    EndArray();
+    //    return *this;
+    //}
 
     template<IsEnum T>
     ISerializer& Write(const T& p_object) {

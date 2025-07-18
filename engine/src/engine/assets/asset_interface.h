@@ -15,9 +15,10 @@ using AssetRef = std::shared_ptr<IAsset>;
 using AssetLoadSuccessCallback = void (*)(AssetRef p_asset, void* p_userdata);
 using AssetLoadFailureCallback = void (*)(void* p_userdata);
 
-#define CAVE_ASSET(NAME, TYPE)                    \
-public:                                           \
-    static constexpr AssetType ASSET_TYPE = TYPE; \
+#define CAVE_ASSET(NAME, TYPE, VER)                      \
+public:                                                  \
+    static inline constexpr AssetType ASSET_TYPE = TYPE; \
+    static inline constexpr const int VERSION = VER;     \
     NAME() : IAsset(NAME::ASSET_TYPE) {}
 
 // @TODO: make it a class

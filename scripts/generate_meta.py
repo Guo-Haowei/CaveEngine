@@ -87,7 +87,7 @@ def parse_file(file_path):
 
     return metas
 
-def generate_meta_for_class(class_name, fields):
+def generate_meta_for_class(f, class_name, fields):
     for field in fields:
         f.write(f"// {field['type']} {field['name']} ({field['meta']})\n")
 
@@ -122,7 +122,7 @@ def generate_meta_file(base_path, file_path, metas):
         f.write("namespace cave {\n\n")
 
         for class_name, fields in metas.items():
-            generate_meta_for_class(class_name, fields)
+            generate_meta_for_class(f, class_name, fields)
 
         f.write("}  // namespace cave\n")
 
@@ -137,13 +137,11 @@ def main():
             raise FileNotFoundError(f"File not found: {file_path}")
 
         metas = parse_file(file_path)
-        assert len(metas) != 0, "must contain at least one meta"
 
-        if fields:
+        if len(metas) > 0:
             generate_meta_file(base_path, file_path, metas)
         else:
             print(f"No CAVE_PROP found in: {file_path}")
-
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@
 #include "engine/assets/sprite_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/serialization/serialization.h"
+#include "engine/serialization/yaml_include.h"
 
 namespace cave {
 
@@ -42,7 +42,7 @@ bool TileMapAsset::RemoveTile(TileIndex p_index) {
     return true;
 }
 
-void TileMapAsset::SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles) {
+void TileMapAsset::SetTiles(TileChunk&& p_tiles) {
     m_tiles.tiles = std::move(p_tiles);
 
     IncRevision();
@@ -61,10 +61,6 @@ void TileMapAsset::SetSpriteGuid(const Guid& p_guid, bool p_force) {
 
         IncRevision();
     }
-}
-
-std::vector<Guid> TileMapAsset::GetDependencies() const {
-    return { m_sprite_guid };
 }
 
 ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data) {
@@ -101,7 +97,6 @@ bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data) {
 }
 
 auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
-    // meta
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
@@ -115,10 +110,6 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
         .Write(*this)
         .EndMap();
     return SaveYaml(p_meta.path, yaml);
-}
-
-void TileMapAsset::LoadFromDiskVersion1(YamlDeserializer& p_deserializer) {
-    p_deserializer.Read(*this);
 }
 
 auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
@@ -138,7 +129,7 @@ auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
             case 1:
                 [[fallthrough]];
             default:
-                LoadFromDiskVersion1(deserializer);
+                deserializer.Read(*this);
                 break;
         }
 

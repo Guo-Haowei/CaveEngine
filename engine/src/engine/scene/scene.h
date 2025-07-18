@@ -70,7 +70,7 @@ DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 class Scene : public NonCopyable, public IAsset {
     ecs::ComponentLibrary m_componentLib;
 
-    CAVE_ASSET(Scene, AssetType::Scene)
+    CAVE_ASSET(Scene, AssetType::Scene, 0)
 public:
     static constexpr const char* EXTENSION = ".scene";
 

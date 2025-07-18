@@ -23,7 +23,7 @@ void FileSystemPanel::OnAttach() {
     m_root = fs::path{ path };
 }
 
-void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, bool p_is_dir) {
+void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, const std::string& p_short_path, bool p_is_dir) {
     if (ImGui::MenuItem("Rename")) {
         m_renaming = p_path;
     }
@@ -33,6 +33,9 @@ void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, bool p_is
             if (ImGui::MenuItem("Sprite")) {
                 asset_manager->CreateAsset(AssetType::Sprite, p_path);
             }
+            if (ImGui::MenuItem("SpriteAnimation")) {
+                asset_manager->CreateAsset(AssetType::SpriteAnimation, p_path);
+            }
             if (ImGui::MenuItem("TileMap")) {
                 asset_manager->CreateAsset(AssetType::TileMap, p_path);
             }
@@ -41,6 +44,23 @@ void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, bool p_is
         if (ImGui::MenuItem("Delete")) {
             LOG_ERROR("{}", p_path.string());
         }
+        return;
+    }
+
+    auto asset_registry = m_editor.GetApplication()->GetAssetRegistry();
+    auto _handle = asset_registry->FindByPath(p_short_path);
+    if (_handle.is_none()) {
+        return;
+    }
+
+    auto handle = _handle.unwrap();
+
+    if (ImGui::MenuItem("Edit")) {
+        m_editor.CommandInspectAsset(handle.GetGuid());
+    }
+
+    if (ImGui::MenuItem("Save")) {
+        asset_registry->SaveAsset(handle.GetGuid());
     }
 }
 
@@ -71,7 +91,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
     std::string short_path = m_editor.GetApplication()->GetAssetManager()->ResolvePath(p_path);
 
     if (ImGui::BeginPopupContextItem()) {
-        FolderPopup(p_path, is_dir);
+        FolderPopup(p_path, short_path, is_dir);
         ImGui::EndPopup();
     }
 
@@ -111,9 +131,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
                 auto handle = std::move(_handle.unwrap());
                 IAsset* asset = handle.Get();
                 if (DEV_VERIFY(asset)) {
-                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-                        m_editor.CommandInspectAsset(handle.GetGuid());
-                    } else if (is_file) {
+                    if (is_file) {
                         ShowAssetToolTip(*handle.GetMeta(), asset);
                     }
                 }

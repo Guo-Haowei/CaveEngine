@@ -74,6 +74,20 @@ public:
         return true;
     }
 
+    template<ArrayLike T>
+    bool Read(T& p_array) {
+        unused(p_array);
+        CRASH_NOW();
+        return false;
+    }
+
+    template<StringMap T>
+    bool Read(T& p_map) {
+        unused(p_map);
+        CRASH_NOW();
+        return false;
+    }
+
     template<typename T, int N>
     bool Read(Vector<T, N>& p_object) {
         auto& node = Current();

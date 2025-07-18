@@ -47,6 +47,8 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
         type = AssetType::Sprite;
     } else if (extension == ".tilemap") {
         type = AssetType::TileMap;
+    } else if (extension == ".sprite_anim") {
+        type = AssetType::SpriteAnimation;
     } else {
         return Option<AssetMetaData>::None();
     }
