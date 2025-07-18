@@ -1,6 +1,4 @@
 #pragma once
-#include <nlohmann/json_fwd.hpp>
-
 #include "engine/assets/asset_handle.h"
 #include "engine/assets/asset_interface.h"
 #include "engine/reflection/reflection.h"

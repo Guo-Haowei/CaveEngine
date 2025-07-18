@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 #include <nlohmann/json.hpp>
 
@@ -22,3 +23,4 @@ auto Serialize(std::string_view p_path, const json& j) -> Result<void>;
 auto Deserialize(std::string_view p_path, json& j) -> Result<void>;
 
 }  // namespace cave
+#endif

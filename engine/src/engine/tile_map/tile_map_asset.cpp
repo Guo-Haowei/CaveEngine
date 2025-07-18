@@ -8,8 +8,6 @@
 
 namespace cave {
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
-
 Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
     auto it = m_tiles.tiles.find(p_index);
     if (it == m_tiles.tiles.end()) {

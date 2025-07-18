@@ -1,3 +1,4 @@
+#if 0
 #include "serialization.h"
 
 #include "engine/assets/guid.h"
@@ -55,3 +56,4 @@ auto Deserialize(std::string_view p_path, json& j) -> Result<void> {
 }
 
 }  // namespace cave
+#endif
