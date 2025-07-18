@@ -19,7 +19,7 @@ public:
 
     virtual bool HandleInput(const InputEvent* p_input_event);
 
-    virtual void OnCreate(const Guid&) {}
+    virtual void OnCreate(const Guid&);
     virtual void OnDestroy() {}
 
     virtual void OnActivate() {}
@@ -57,6 +57,8 @@ protected:
     const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
+
+private:
     std::string m_title;
 };
 

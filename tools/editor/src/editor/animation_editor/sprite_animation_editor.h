@@ -1,24 +1,22 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
-#include "engine/math/geomath.h"
-#include "engine/tile_map/tile_map_asset.h"
-
+#include "engine/sprite/sprite_animation_asset.h"
 #include "editor/viewer/viewer_tab.h"
 
 namespace cave {
 
 class AssetRegistry;
-class CameraComponent;
 class Document;
 class InputEvent;
-class Scene;
 class TileMapAsset;
 class TileMapDocument;
 class Viewer;
 
-class TileMapEditor : public ViewerTab {
+using SpriteAnimationDocument = Document;
+
+class SpriteAnimationEditor : public ViewerTab {
 public:
-    TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer);
+    SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_viewer);
 
     bool HandleInput(const InputEvent* p_input_event) override;
 
@@ -32,14 +30,7 @@ public:
 
     Document& GetDocument() const override;
 
-    bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
-
 protected:
-    void UndoableSetTile(TileMapAsset& p_layer,
-                         int p_layer_id,
-                         TileIndex p_index,
-                         Option<TileId> p_new_tile);
-
     const CameraComponent& GetActiveCameraInternal() const override;
 
     AssetRegistry* m_asset_registry;
@@ -48,7 +39,7 @@ protected:
 
     std::shared_ptr<CameraComponent> m_camera;
 
-    std::shared_ptr<TileMapDocument> m_document;
+    std::shared_ptr<SpriteAnimationDocument> m_document;
 };
 
 }  // namespace cave

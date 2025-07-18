@@ -1,57 +1,59 @@
-#include "tile_map_editor.h"
+#include "sprite_animation_editor.h"
 
 #include "engine/assets/assets.h"
 #include "engine/input/input_event.h"
-#include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
+#include "engine/runtime/asset_registry.h"
+
+#include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widget.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
-#include "editor/tile_map_editor/tile_map_document.h"
 
 namespace cave {
 
-TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
+SpriteAnimationEditor::SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
 
     m_camera = ViewerTab::CreateDefaultCamera2D();
 }
 
-void TileMapEditor::OnCreate(const Guid& p_guid) {
+void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
     ViewerTab::OnCreate(p_guid);
-
-    m_document = std::make_shared<TileMapDocument>(p_guid, *this);
+    m_document = std::make_shared<SpriteAnimationDocument>(p_guid);
 
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
 
     m_tmp_scene = scene_manager->OpenTemporaryScene(p_guid, [&]() {
         auto scene = std::make_shared<Scene>();
-        auto root = EntityFactory::CreateTransformEntity(*scene, "tile_map_test_scene");
+        auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
         scene->m_root = root;
 
+#if 0
         auto id = EntityFactory::CreateTileMapEntity(*scene, "tile_map");
         scene->AttachChild(id);
 
         TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
         tile_map_renderer->SetTileMap(p_guid);
+#endif
         return scene;
     });
 }
 
-void TileMapEditor::OnDestroy() {
+void SpriteAnimationEditor::OnDestroy() {
     m_tmp_scene = nullptr;  // decrease ref count
 }
 
-void TileMapEditor::OnActivate() {
+void SpriteAnimationEditor::OnActivate() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
     scene_manager->SetTmpScene(m_tmp_scene);
 }
 
-void TileMapEditor::Draw() {
+void SpriteAnimationEditor::Draw() {
     ViewerTab::Draw();
 
     const CameraComponent& camera = GetActiveCamera();
@@ -69,53 +71,19 @@ void TileMapEditor::Draw() {
     Matrix4x4f identity(1.0f);
     ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XY);
 
-    // @NOTE: shouldn't do it here,
-    // move it do somewhere else
-    m_document->FlushCommands();
+    // m_document->FlushCommands();
 }
 
-bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
-    auto res = m_viewer.CursorToNDC(p_in);
-    if (!res) {
-        return false;
-    }
-    auto ndc_2 = *res;
-    Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
-
-    const CameraComponent& cam = GetActiveCamera();
-    const auto inv_proj_view = glm::inverse(cam.GetProjectionViewMatrix());
-
-    Vector4f position = inv_proj_view * ndc;
-    position /= position.w;
-
-    p_out.x = static_cast<int16_t>(std::floor(position.x));
-    p_out.y = static_cast<int16_t>(std::floor(position.y));
-
-    return true;
-}
-
-Document& TileMapEditor::GetDocument() const {
+Document& SpriteAnimationEditor::GetDocument() const {
     return *m_document.get();
 }
 
-bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
-    if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
-        if (!e->IsModiferPressed()) {
-            if (e->IsButtonDown(MouseButton::LEFT)) {
-                m_document->RequestAdd(e->GetPos(), TileId(1));
-                return true;
-            }
-            if (e->IsButtonDown(MouseButton::RIGHT)) {
-                m_document->RequestErase(e->GetPos());
-                return true;
-            }
-        }
-    }
-
+bool SpriteAnimationEditor::HandleInput(const InputEvent* p_input_event) {
+    unused(p_input_event);
     return false;
 }
 
-const CameraComponent& TileMapEditor::GetActiveCameraInternal() const {
+const CameraComponent& SpriteAnimationEditor::GetActiveCameraInternal() const {
     DEV_ASSERT(m_camera);
     return *m_camera.get();
 }

@@ -12,6 +12,9 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
+
+// asset editors
+#include "editor/animation_editor/sprite_animation_editor.h"
 #include "editor/tile_map_editor/tile_map_editor.h"
 #include "editor/viewer/scene_editor.h"
 
@@ -208,6 +211,9 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
             break;
         case AssetType::TileMap:
             tab.reset(new TileMapEditor(m_editor, *this));
+            break;
+        case AssetType::SpriteAnimation:
+            tab.reset(new SpriteAnimationEditor(m_editor, *this));
             break;
         default:
             LOG_WARN("Can't open tab {}", ToString(p_type));
