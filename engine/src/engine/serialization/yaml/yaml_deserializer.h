@@ -112,7 +112,7 @@ public:
     }
 
 #if USING(USE_REFLECTION)
-    template<HasMetaTag T>
+    template<IsReflectable T>
     bool Read(T& p_object) {
         const auto& meta = MetaDataTable<T>::GetFields();
 

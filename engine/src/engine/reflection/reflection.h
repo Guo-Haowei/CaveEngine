@@ -25,7 +25,7 @@ struct MetaTag {
 };
 
 template<typename T>
-concept HasMetaTag = requires {
+concept IsReflectable = requires {
     { T::s_meta_tag } -> std::same_as<const ::cave::MetaTag&>;
 };
 

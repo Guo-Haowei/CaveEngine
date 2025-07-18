@@ -16,7 +16,7 @@ class SpriteAsset : public IAsset {
     CAVE_PROP(type = guid, tooltip = "image id")
     Guid m_image_guid;
 
-    CAVE_PROP(type = f32, min = 0.1f, hint = input_float, editable, serialize)
+    CAVE_PROP(type = f32, min = 0.1f, hint = input_float)
     float m_tile_scale = 1.0f;
 
     CAVE_PROP(type = u32)
