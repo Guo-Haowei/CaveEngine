@@ -8,7 +8,7 @@
 #include "editor/widget.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
-#include "editor/viewer/tile_map_document.h"
+#include "editor/tile_map_editor/tile_map_document.h"
 
 // @TODO: refactor
 #include "engine/renderer/graphics_dvars.h"

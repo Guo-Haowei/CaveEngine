@@ -9,7 +9,7 @@
 #include "editor/editor_layer.h"
 #include "editor/widget.h"
 #include "editor/viewer/viewer.h"
-#include "editor/viewer/tile_map_editor.h"
+#include "editor/tile_map_editor/tile_map_editor.h"
 
 namespace cave {
 

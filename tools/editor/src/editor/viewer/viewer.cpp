@@ -12,7 +12,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
-#include "editor/viewer/tile_map_editor.h"
+#include "editor/tile_map_editor/tile_map_editor.h"
 #include "editor/viewer/scene_editor.h"
 
 namespace cave {
