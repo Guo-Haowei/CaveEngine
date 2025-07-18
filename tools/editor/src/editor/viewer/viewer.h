@@ -25,11 +25,11 @@ struct OldInputState {
     }
 };
 
-class Viewer : public EditorWindow, public IInputHandler {
+class Viewer : public EditorWindow {
 public:
     Viewer(EditorLayer& p_editor);
 
-    HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event);
 
     std::optional<Vector2f> CursorToNDC(Vector2f p_point) const;
 
@@ -52,11 +52,10 @@ protected:
     void DrawToolBar();
 
     void UpdateFrameSize();
-    HandleInputResult HandleInputCamera(std::shared_ptr<InputEvent> p_input_event);
+    bool HandleInputCamera(const InputEvent* p_input_event);
 
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;
-    bool m_focused;
 
     ViewerTabManager m_tab_manager;
     OldInputState m_input_state;

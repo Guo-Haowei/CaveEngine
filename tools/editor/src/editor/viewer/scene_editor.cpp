@@ -89,10 +89,9 @@ void SceneEditor::Update() {
     }
 }
 
-bool SceneEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
+bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     // change gizmo state
-    InputEvent* event = p_input_event.get();
-    if (auto e = dynamic_cast<InputEventKey*>(event); e) {
+    if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
         if (e->IsPressed() && !e->IsModiferPressed()) {
             bool handled = true;
             switch (e->GetKey()) {
@@ -114,7 +113,7 @@ bool SceneEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) 
     }
 
     // select
-    if (auto e = dynamic_cast<InputEventMouse*>(event); e) {
+    if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
             Vector2f clicked = e->GetPos();
             m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);

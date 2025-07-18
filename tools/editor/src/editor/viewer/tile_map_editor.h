@@ -29,7 +29,7 @@ public:
 
     TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer);
 
-    bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event) override;
 
     void OnCreate(const Guid& p_guid) override;
 

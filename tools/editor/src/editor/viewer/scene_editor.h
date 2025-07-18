@@ -15,7 +15,7 @@ public:
         m_title = "Scene Editor";
     }
 
-    bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event) override;
 
     void Update() override;
 

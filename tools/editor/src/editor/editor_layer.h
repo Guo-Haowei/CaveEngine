@@ -73,6 +73,7 @@ private:
     void DockSpace(Scene* p_scene);
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
 
+    void FlushInputEvents();
     void FlushCommand(Scene* p_scene);
 
     std::shared_ptr<MenuBar> m_menuBar;
@@ -100,6 +101,8 @@ private:
     std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
 
     AssetHandle m_selected_asset;
+
+    std::vector<std::shared_ptr<InputEvent>> m_buffered_events;
 };
 
 }  // namespace cave

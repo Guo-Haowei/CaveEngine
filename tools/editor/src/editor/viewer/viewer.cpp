@@ -41,8 +41,6 @@ void Viewer::UpdateFrameSize() {
     DEV_ASSERT(window);
     m_canvas_min.x = window->ContentRegionRect.Min.x;
     m_canvas_min.y = TOOL_BAR_OFFSET + window->ContentRegionRect.Min.y;
-
-    m_focused = ImGui::IsWindowHovered();
 }
 
 void Viewer::DrawToolBar() {
@@ -116,16 +114,10 @@ void Viewer::DrawToolBar() {
     ImGui::PopStyleColor(3);
 }
 
-HandleInputResult Viewer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
-    // @TODO: cache input and redirect to tabs
-
-    if (!m_focused) {
-        return HandleInputResult::NotHandled;
-    }
-
+bool Viewer::HandleInput(const InputEvent* p_input_event) {
     auto active_tab = GetActiveTab();
     if (active_tab && active_tab->HandleInput(p_input_event)) {
-        return HandleInputResult::Handled;
+        return true;
     }
 
     return HandleInputCamera(p_input_event);
@@ -146,12 +138,10 @@ std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     return std::nullopt;
 }
 
-HandleInputResult Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_event) {
-    InputEvent* event = p_input_event.get();
-
-    if (auto e = dynamic_cast<InputEventKey*>(event); e) {
+bool Viewer::HandleInputCamera(const InputEvent* p_input_event) {
+    if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
         if (e->IsHolding() && !e->IsModiferPressed()) {
-            HandleInputResult handled = HandleInputResult::Handled;
+            bool handled = true;
             switch (e->GetKey()) {
                 case KeyCode::KEY_D:
                     ++m_input_state.dx;
@@ -172,28 +162,28 @@ HandleInputResult Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_
                     --m_input_state.dz;
                     break;
                 default:
-                    handled = HandleInputResult::NotHandled;
+                    handled = false;
                     break;
             }
             return handled;
         }
     }
 
-    if (auto e = dynamic_cast<InputEventMouseWheel*>(event); e) {
+    if (auto e = dynamic_cast<const InputEventMouseWheel*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
             m_input_state.scroll += 3.0f * e->GetWheelY();
-            return HandleInputResult::Handled;
+            return true;
         }
     }
 
-    if (auto e = dynamic_cast<InputEventMouseMove*>(event); e) {
+    if (auto e = dynamic_cast<const InputEventMouseMove*>(p_input_event); e) {
         if (!e->IsModiferPressed() && e->IsButtonDown(MouseButton::MIDDLE)) {
             m_input_state.mouse_move += e->GetDelta();
-            return HandleInputResult::Handled;
+            return true;
         }
     }
 
-    return HandleInputResult::NotHandled;
+    return false;
 }
 
 void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {

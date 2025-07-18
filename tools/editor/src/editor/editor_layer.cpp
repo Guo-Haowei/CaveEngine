@@ -140,7 +140,6 @@ void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
     m_app->GetInputManager()->PushInputHandler(this);
-    m_app->GetInputManager()->PushInputHandler(m_viewer.get());
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
@@ -148,9 +147,7 @@ void EditorLayer::OnAttach() {
 }
 
 void EditorLayer::OnDetach() {
-    auto handler = m_app->GetInputManager()->PopInputHandler();
-    DEV_ASSERT(handler == m_viewer.get());
-    handler = m_app->GetInputManager()->PopInputHandler();
+    [[maybe_unused]] auto handler = m_app->GetInputManager()->PopInputHandler();
     DEV_ASSERT(handler == this);
 
     ImNodes::DestroyContext();
@@ -256,6 +253,8 @@ void EditorLayer::OnUpdate(float p_timestep) {
 void EditorLayer::OnImGuiRender() {
     Scene* scene = m_app->GetSceneManager()->GetActiveScene();
 
+    FlushInputEvents();
+
     DockSpace(scene);
     for (auto& it : m_panels) {
         it->Update(scene);
@@ -263,39 +262,49 @@ void EditorLayer::OnImGuiRender() {
     FlushCommand(scene);
 }
 
-HandleInputResult EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
-    HandleInputResult result = HandleInputResult::NotHandled;
-    InputEvent* event = p_input_event.get();
-    if (auto e = dynamic_cast<InputEventKey*>(event); e) {
-        for (auto shortcut : m_shortcuts) {
-            // @TODO: refactor this
-            auto is_key_handled = [&]() {
-                if (!e->IsPressed()) {
-                    return false;
+void EditorLayer::FlushInputEvents() {
+    for (auto& event : m_buffered_events) {
+        if (m_viewer->IsFocused() || m_viewer->IsHovered()) {
+            if (m_viewer->HandleInput(event.get())) {
+                continue;
+            }
+        }
+
+        if (auto e = dynamic_cast<InputEventKey*>(event.get()); e) {
+            for (auto shortcut : m_shortcuts) {
+                // @TODO: refactor this
+                auto is_key_handled = [&]() {
+                    if (!e->IsPressed()) {
+                        return false;
+                    }
+                    if (e->GetKey() != shortcut.key) {
+                        return false;
+                    }
+                    if (e->IsAltPressed() != shortcut.alt) {
+                        return false;
+                    }
+                    if (e->IsShiftPressed() != shortcut.shift) {
+                        return false;
+                    }
+                    if (e->IsCtrlPressed() != shortcut.ctrl) {
+                        return false;
+                    }
+                    return true;
+                };
+                if (is_key_handled()) {
+                    shortcut.executeFunc();
+                    break;
                 }
-                if (e->GetKey() != shortcut.key) {
-                    return false;
-                }
-                if (e->IsAltPressed() != shortcut.alt) {
-                    return false;
-                }
-                if (e->IsShiftPressed() != shortcut.shift) {
-                    return false;
-                }
-                if (e->IsCtrlPressed() != shortcut.ctrl) {
-                    return false;
-                }
-                return true;
-            };
-            if (is_key_handled()) {
-                shortcut.executeFunc();
-                result = HandleInputResult::Handled;
-                break;
             }
         }
     }
 
-    return result;
+    m_buffered_events.clear();
+}
+
+HandleInputResult EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
+    m_buffered_events.emplace_back(std::move(p_input_event));
+    return HandleInputResult::NotHandled;
 }
 
 void EditorLayer::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {

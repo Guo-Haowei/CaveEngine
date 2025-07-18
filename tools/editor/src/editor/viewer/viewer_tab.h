@@ -16,7 +16,7 @@ public:
 
     virtual ~ViewerTab() = default;
 
-    virtual bool HandleInput(const std::shared_ptr<InputEvent>& p_input_event);
+    virtual bool HandleInput(const InputEvent* p_input_event);
 
     virtual void OnCreate(const Guid&) {}
     virtual void OnDestroy() {}

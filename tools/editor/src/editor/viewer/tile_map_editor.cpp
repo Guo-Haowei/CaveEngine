@@ -122,9 +122,8 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     return true;
 }
 
-bool TileMapEditor::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
-    InputEvent* event = p_input_event.get();
-    if (auto e = dynamic_cast<InputEventMouse*>(event); e) {
+bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
+    if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
             if (e->IsButtonDown(MouseButton::LEFT)) {
                 CommandAddTile command{ e->GetPos(), 1 };

@@ -115,7 +115,7 @@ void ViewerTab::UpdateCamera() {
     camera.Update();
 }
 
-bool ViewerTab::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
+bool ViewerTab::HandleInput(const InputEvent* p_input_event) {
     unused(p_input_event);
     return false;
 }

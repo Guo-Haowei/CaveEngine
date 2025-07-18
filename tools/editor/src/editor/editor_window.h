@@ -14,8 +14,14 @@ public:
 
     virtual const char* GetTitle() const = 0;
 
+    bool IsFocused() const { return m_is_focused; }
+    bool IsHovered() const { return m_is_hovered; }
+
 protected:
     virtual void UpdateInternal(Scene*) = 0;
+
+    bool m_is_focused = false;
+    bool m_is_hovered = false;
 
     int m_flags{ 0 };
 };
