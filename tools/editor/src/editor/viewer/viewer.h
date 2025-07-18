@@ -50,7 +50,6 @@ protected:
     void UpdateInternal(Scene* p_scene) override;
 
     void DrawToolBar();
-    void DrawGui(Scene* p_scene);
 
     void UpdateFrameSize();
     HandleInputResult HandleInputCamera(std::shared_ptr<InputEvent> p_input_event);

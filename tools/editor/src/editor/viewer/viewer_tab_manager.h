@@ -6,6 +6,12 @@ namespace cave {
 class Guid;
 class ViewerTab;
 
+enum class SaveDialogResponse {
+    Save,
+    Discard,
+    Cancel,
+};
+
 class ViewerTabManager {
 public:
     void SwitchTab(const TabId& p_id);
@@ -15,18 +21,13 @@ public:
     Option<ViewerTab*> FindTabByGuid(const Guid& p_guid);
     Option<ViewerTab*> GetActiveTab();
 
-    void RequestClose(const TabId& p_id) { m_close_request = p_id; }
-    void HandleTabClose();
-
-    enum class SaveDialogResponse {
-        Save,
-        Discard,
-        Cancel,
-    };
-
     void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
 
+    void SetCloseRequest(const TabId& p_id) { m_close_request = p_id; }
+    void HandleCloseRequest();
+
     const Option<TabId>& GetFocusRequest() const { return m_focus_request; }
+    void ClearFocusRequest() { m_focus_request = Option<TabId>::None(); }
 
     auto& GetTabs() { return m_tabs; }
 

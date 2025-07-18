@@ -252,6 +252,7 @@ void Viewer::UpdateInternal(Scene*) {
 
         if (tab->GetId() == focus_tab_id) {
             flags |= ImGuiTabItemFlags_SetSelected;
+            m_tab_manager.ClearFocusRequest();
         }
 
         bool tab_open = true;
@@ -266,11 +267,11 @@ void Viewer::UpdateInternal(Scene*) {
         }
 
         if (!tab_open) {
-            m_tab_manager.RequestClose(tab->GetId());
+            m_tab_manager.SetCloseRequest(tab->GetId());
         }
     }
 
-    m_tab_manager.HandleTabClose();
+    m_tab_manager.HandleCloseRequest();
     m_input_state.Reset();
 
     ImGui::EndTabBar();

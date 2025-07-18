@@ -56,7 +56,7 @@ void ViewerTabManager::SwitchTab(const TabId& p_id) {
     LOG("Tool [{}] -> [{}]", old_tab.is_some() ? old_tab.unwrap()->GetTitle() : "(null)", new_tab->GetTitle());
 }
 
-void ViewerTabManager::HandleTabClose() {
+void ViewerTabManager::HandleCloseRequest() {
     if (m_close_request.is_none()) {
         return;
     }

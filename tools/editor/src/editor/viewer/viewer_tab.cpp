@@ -120,7 +120,7 @@ bool ViewerTab::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
     return false;
 }
 
-void ViewerTab::DrawGui() {
+void ViewerTab::DrawMainView() {
     const auto canvas_min = m_viewer.GetCanvasMin();
     const auto canvas_max = canvas_min + m_viewer.GetCanvasSize();
 
@@ -158,7 +158,7 @@ void ViewerTab::Draw() {
     // @TODO: remove this
     UpdateCamera();
 
-    DrawGui();
+    DrawMainView();
 }
 
 }  // namespace cave

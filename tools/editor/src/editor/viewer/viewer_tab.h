@@ -52,7 +52,7 @@ public:
 
 protected:
     const CameraComponent& GetActiveCameraInternal() const;
-    void DrawGui();
+    void DrawMainView();
 
     const TabId m_id;
     EditorLayer& m_editor;
