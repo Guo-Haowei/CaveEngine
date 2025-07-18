@@ -41,7 +41,9 @@ bool TileMapEditor::SetActiveLayer(int p_index) {
     return true;
 }
 
-void TileMapEditor::Update(Scene*) {
+void TileMapEditor::Draw(const ImVec2& p_top_left, const ImVec2& p_bottom_right) {
+    ViewerTab::Draw(p_top_left, p_bottom_right);
+
     const CameraComponent& camera = GetActiveCamera();
     const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
 

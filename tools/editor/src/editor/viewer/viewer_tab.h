@@ -1,5 +1,5 @@
 #pragma once
-#include "tab_id.h"
+#include "viewer_tab_id.h"
 
 #include "engine/assets/guid.h"
 #include "editor/enums.h"
@@ -24,9 +24,10 @@ public:
     virtual void OnActivate() {}
     virtual void OnDeactivate() {}
 
-    virtual void Draw(Scene*);
+    // @TODO: change to rect?
+    virtual void Draw(const ImVec2& p_top_left, const ImVec2& p_bottom_right);
 
-    virtual void Update(Scene*) {}
+    virtual void Update() {}
 
     virtual void UpdateCamera();
 
@@ -52,6 +53,7 @@ public:
 
 protected:
     const CameraComponent& GetActiveCameraInternal() const;
+    void DrawGui(const ImVec2& p_top_left, const ImVec2& p_bottom_right);
 
     const TabId m_id;
     EditorLayer& m_editor;

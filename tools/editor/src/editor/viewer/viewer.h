@@ -1,46 +1,11 @@
 #pragma once
-#include "tab_id.h"
+#include "viewer_tab_manager.h"
 
 #include "engine/input/input_router.h"
 #include "editor/editor_window.h"
 #include "editor/enums.h"
 
 namespace cave {
-
-class TabId;
-class ViewerTab;
-
-class TabManager {
-public:
-    void SwitchTab(const TabId& p_id);
-    void SwitchTab(std::shared_ptr<ViewerTab>&& p_tab);
-
-    Option<ViewerTab*> FindTabById(const TabId& p_id);
-    Option<ViewerTab*> FindTabByGuid(const Guid& p_guid);
-    Option<ViewerTab*> GetActiveTab();
-
-    void RequestClose(const TabId& p_id) { m_close_request = p_id; }
-    void HandleTabClose();
-
-    enum class SaveDialogResponse {
-        Save,
-        Discard,
-        Cancel,
-    };
-
-    void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
-
-    const Option<TabId>& GetFocusRequest() const { return m_focus_request; }
-
-    auto& GetTabs() { return m_tabs; }
-
-private:
-    Option<TabId> m_focus_request;
-    Option<TabId> m_close_request;
-
-    Option<TabId> m_active_tab;
-    std::unordered_map<TabId, std::shared_ptr<ViewerTab>> m_tabs;
-};
 
 struct OldInputState {
     int dx, dy, dz;
@@ -83,7 +48,6 @@ public:
 
 protected:
     void UpdateInternal(Scene* p_scene) override;
-    void UpdateTab(Scene* p_scene);
 
     void DrawToolBar();
     void DrawGui(Scene* p_scene);
@@ -95,7 +59,7 @@ protected:
     Vector2f m_canvas_size;
     bool m_focused;
 
-    TabManager m_tab_manager;
+    ViewerTabManager m_tab_manager;
     OldInputState m_input_state;
 };
 

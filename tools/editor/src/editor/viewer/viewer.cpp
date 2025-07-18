@@ -9,7 +9,6 @@
 #include "engine/input/input_event.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
 #include "editor/viewer/tile_map_editor.h"
@@ -20,112 +19,6 @@ namespace cave {
 #define VIEWER_WINDOW_ID "###Viewer"
 
 static constexpr float TOOL_BAR_OFFSET = 80.0f;
-
-Option<ViewerTab*> TabManager::FindTabById(const TabId& p_id) {
-    auto it = m_tabs.find(p_id);
-    if (it != m_tabs.end()) {
-        return it->second.get();
-    }
-    return Option<ViewerTab*>::None();
-}
-
-Option<ViewerTab*> TabManager::FindTabByGuid(const Guid& p_guid) {
-    for (const auto& [id, tab] : m_tabs) {
-        if (tab->GetGuid() == p_guid) {
-            return tab.get();
-        }
-    }
-    return Option<ViewerTab*>::None();
-}
-
-Option<ViewerTab*> TabManager::GetActiveTab() {
-    if (m_active_tab.is_none()) {
-        return Option<ViewerTab*>::None();
-    }
-    return FindTabById(m_active_tab.unwrap());
-}
-
-void TabManager::SwitchTab(std::shared_ptr<ViewerTab>&& p_tab) {
-    const auto& id = p_tab->GetId();
-    auto [it, ok] = m_tabs.try_emplace(p_tab->GetId(), std::move(p_tab));
-    DEV_ASSERT(ok);
-
-    SwitchTab(id);
-}
-
-void TabManager::SwitchTab(const TabId& p_id) {
-    if (m_active_tab == p_id) {
-        return;
-    }
-
-    auto new_tab = FindTabById(p_id).unwrap();
-    auto old_tab = GetActiveTab();
-
-    if (old_tab.is_some()) {
-        old_tab.unwrap()->OnDeactivate();
-    }
-
-    m_active_tab = p_id;
-    m_focus_request = p_id;
-
-    new_tab->OnActivate();
-
-    LOG("Tool [{}] -> [{}]", old_tab.is_some() ? old_tab.unwrap()->GetTitle() : "(null)", new_tab->GetTitle());
-}
-
-void TabManager::HandleTabClose() {
-    if (m_close_request.is_none()) {
-        return;
-    }
-
-    std::shared_ptr<ViewerTab> to_close;
-
-    RequestSaveDialog([&](SaveDialogResponse p_response) {
-        switch (p_response) {
-            case SaveDialogResponse::Save:
-                // @TODO: save
-                [[fallthrough]];
-            case SaveDialogResponse::Discard: {
-                // remove the tab
-                auto it = m_tabs.find(m_close_request.unwrap());
-                DEV_ASSERT(it != m_tabs.end());
-                to_close = it->second;
-                m_tabs.erase(it);
-            } break;
-            case SaveDialogResponse::Cancel:
-                break;
-        }
-
-        m_close_request = Option<TabId>::None();
-    });
-
-    if (to_close) {
-        to_close->OnDeactivate();
-        to_close->OnDestroy();
-    }
-}
-
-void TabManager::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
-    ImGui::OpenPopup("Save changes to");
-    if (ImGui::BeginPopupModal("Save changes to")) {
-        ImGui::Text("Save changes before closing?");
-        if (ImGui::Button("Save")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Save);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Discard")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Discard);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Cancel);
-        }
-        ImGui::EndPopup();
-    }
-}
 
 Viewer::Viewer(EditorLayer& p_editor)
     : EditorWindow(p_editor) {
@@ -150,36 +43,6 @@ void Viewer::UpdateFrameSize() {
     m_canvas_min.y = TOOL_BAR_OFFSET + window->ContentRegionRect.Min.y;
 
     m_focused = ImGui::IsWindowHovered();
-}
-
-void Viewer::DrawGui(Scene*) {
-    // @TODO: fix this
-    const auto& gm = IGraphicsManager::GetSingleton();
-    uint64_t handle = gm.GetFinalImage();
-    // add image for drawing
-    ImVec2 top_left(m_canvas_min.x, m_canvas_min.y);
-    ImVec2 bottom_right(top_left.x + m_canvas_size.x, top_left.y + m_canvas_size.y);
-    switch (gm.GetBackend()) {
-        case Backend::D3D11:
-        case Backend::D3D12: {
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right);
-        } break;
-        case Backend::OPENGL: {
-            ImVec2 uv_min = ImVec2(0, 1);
-            ImVec2 uv_max = ImVec2(1, 0);
-            if (gm.GetActiveRenderGraphName() == RenderGraphName::PATHTRACER) {
-                uv_min = ImVec2(0, 0);
-                uv_max = ImVec2(1, 1);
-            }
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right, uv_min, uv_max);
-        } break;
-        case Backend::VULKAN:
-        case Backend::METAL: {
-        } break;
-        default:
-            CRASH_NOW();
-            break;
-    }
 }
 
 void Viewer::DrawToolBar() {
@@ -333,21 +196,6 @@ HandleInputResult Viewer::HandleInputCamera(std::shared_ptr<InputEvent> p_input_
     return HandleInputResult::NotHandled;
 }
 
-// @TODO: move it inside?
-void Viewer::UpdateTab(Scene* p_scene) {
-    ViewerTab* tool = GetActiveTab();
-    DEV_ASSERT(tool);
-
-    if (m_focused) {
-        tool->UpdateCamera();
-    }
-
-    DrawGui(p_scene);
-
-    // @TODO: should we update tool when it's not focused?
-    tool->Update(p_scene);
-}
-
 void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     // check if tab already exists
     auto cached_tab = m_tab_manager.FindTabByGuid(p_guid);
@@ -379,7 +227,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     m_tab_manager.SwitchTab(std::move(tab));
 }
 
-void Viewer::UpdateInternal(Scene* p_scene) {
+void Viewer::UpdateInternal(Scene*) {
     // @TODO: tool bar policy
     DrawToolBar();
 
@@ -396,6 +244,8 @@ void Viewer::UpdateInternal(Scene* p_scene) {
     // go through all tabs
     // see if there's a focus request
 
+    // dispatch events
+
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
         int flags = ImGuiTabItemFlags_UnsavedDocument;
@@ -410,8 +260,10 @@ void Viewer::UpdateInternal(Scene* p_scene) {
                 m_tab_manager.SwitchTab(tab->GetId());
             }
 
-            UpdateTab(p_scene);
-            tab->Draw(p_scene);
+            ImVec2 top_left(m_canvas_min.x, m_canvas_min.y);
+            ImVec2 bottom_right(top_left.x + m_canvas_size.x, top_left.y + m_canvas_size.y);
+            tab->Draw(top_left, bottom_right);
+
             ImGui::EndTabItem();
         }
 

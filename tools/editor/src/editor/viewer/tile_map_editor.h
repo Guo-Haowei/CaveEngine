@@ -37,7 +37,8 @@ public:
 
     void OnActivate() override;
 
-    void Update(Scene* p_scene) override;
+    void Update() override;
+    void Draw(const ImVec2& p_top_left, const ImVec2& p_bottom_right) override;
 
     const Guid& GetTileMapGuid() const { return m_guid; }
 

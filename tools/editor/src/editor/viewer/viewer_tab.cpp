@@ -1,6 +1,7 @@
 #include "viewer_tab.h"
 
 #include "engine/renderer/graphics_dvars.h"
+#include "engine/renderer/graphics_manager.h"
 #include "engine/scene/scene.h"
 
 #include "editor/editor_layer.h"
@@ -119,7 +120,37 @@ bool ViewerTab::HandleInput(const std::shared_ptr<InputEvent>& p_input_event) {
     return false;
 }
 
-void ViewerTab::Draw(Scene*) {
+void ViewerTab::DrawGui(const ImVec2& p_top_left, const ImVec2& p_bottom_right) {
+    // @TODO: fix this
+    const auto& gm = IGraphicsManager::GetSingleton();
+    uint64_t handle = gm.GetFinalImage();
+    // add image for drawing
+    switch (gm.GetBackend()) {
+        case Backend::D3D11:
+        case Backend::D3D12: {
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, p_top_left, p_bottom_right);
+        } break;
+        case Backend::OPENGL: {
+            ImVec2 uv_min = ImVec2(0, 1);
+            ImVec2 uv_max = ImVec2(1, 0);
+            if (gm.GetActiveRenderGraphName() == RenderGraphName::PATHTRACER) {
+                uv_min = ImVec2(0, 0);
+                uv_max = ImVec2(1, 1);
+            }
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, p_top_left, p_bottom_right, uv_min, uv_max);
+        } break;
+        case Backend::VULKAN:
+        case Backend::METAL: {
+        } break;
+        default:
+            CRASH_NOW();
+            break;
+    }
+}
+
+void ViewerTab::Draw(const ImVec2& p_top_left, const ImVec2& p_bottom_right) {
+    UpdateCamera();
+    DrawGui(p_top_left, p_bottom_right);
 }
 
 }  // namespace cave
