@@ -13,33 +13,7 @@ namespace cave {
 
 #define SCENE_DBG_LOG(...) LOG_VERBOSE(__VA_ARGS__)
 
-#pragma region VERSION_HISTORY
-// LATEST_SCENE_VERSION history
-// version 1: initial version
-// version 2: don't serialize scene.m_bound
-// version 3: light component atten
-// version 4: light component flags
-// version 5: add validation
-// version 6: add collider component
-// version 7: add enabled to material
-// version 8: add particle emitter
-// version 9: add ParticleEmitterComponent.gravity
-// version 10: add ForceFieldComponent
-// version 11: add ScriptFieldComponent
-// version 12: add CameraComponent
-// version 13: add SoftBodyComponent
-// version 14: modify RigidBodyComponent
-// version 15: add predefined shadow region to lights
-// version 16: change scene binary representation
-// version 17: remove armature.flags
-// version 18: change RigidBodyComponent
-// version 19: serialize scene.m_physicsMode
-#pragma endregion VERSION_HISTORY
-static constexpr uint32_t LATEST_SCENE_VERSION = 19;
-static constexpr char SCENE_MAGIC[] = "xBScene";
-static constexpr char SCENE_GUARD_MESSAGE[] = "Should see this message";
-static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
-
+#if 0
 Result<void> SaveSceneBinary(const std::string& p_path, Scene& p_scene) {
     Archive archive;
     if (auto res = archive.OpenWrite(p_path); !res) {
@@ -88,8 +62,6 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "failed to read seed");
     }
 
-    ecs::Entity::SetSeed(seed);
-
     archive >> p_scene.m_root;
 
     p_scene.m_physicsMode = PhysicsMode::NONE;
@@ -124,199 +96,7 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
         }
     }
 }
-
-template<ComponentType T>
-bool SerializeComponent(ISerializer& p_serializer,
-                        const char* p_name,
-                        ecs::Entity p_entity,
-                        const Scene& p_scene) {
-
-    const T* component = p_scene.GetComponent<T>(p_entity);
-    if (component) {
-        p_serializer.Key(p_name);
-        p_serializer.Write(*component);
-    }
-    return true;
-}
-
-void RegisterClasses() {}
-
-Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
-    std::unordered_set<uint32_t> entity_set;
-
-    for (const auto& it : p_scene.GetLibraryEntries()) {
-        auto& manager = it.second.m_manager;
-        for (auto entity : manager->GetEntityArray()) {
-            entity_set.insert(entity.GetId());
-        }
-    }
-
-    std::vector<uint32_t> entity_array(entity_set.begin(), entity_set.end());
-    std::sort(entity_array.begin(), entity_array.end());
-
-    auto binary_path = std::format("{}{}", p_path, ".bin");
-    Archive archive;
-    if (auto res = archive.OpenWrite(binary_path); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    YamlSerializer serializer;
-
-    serializer.BeginMap(false)
-        .Key("version")
-        .Write(LATEST_SCENE_VERSION)
-        .Key("seed")
-        .Write(ecs::Entity::GetSeed())
-        .Key("root")
-        .Write(p_scene.m_root.GetId())
-        .Key("physics_mode")
-        .Write(static_cast<uint32_t>(p_scene.m_physicsMode))
-        .Key("entities");
-
-    serializer.BeginArray(false);
-
-    bool ok = true;
-    ok = ok && archive.Write(SCENE_MAGIC);
-    ok = ok && archive.Write(LATEST_SCENE_VERSION);
-    ok = ok && archive.Write(SCENE_GUARD_MESSAGE);
-    if (!ok) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to save file '{}'", p_path);
-    }
-
-    for (auto id : entity_array) {
-        ecs::Entity entity{ id };
-
-        serializer.BeginMap(false)
-            .Key("id")
-            .Write(id);
-
-#define REGISTER_COMPONENT(COMPONENT, ...) \
-    SerializeComponent<COMPONENT>(serializer, #COMPONENT, entity, p_scene);
-
-        REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-
-        serializer.EndMap();
-    }
-
-    serializer.EndArray();
-    serializer.EndMap();
-
-    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    // @TODO: generalize
-    auto yaml_file = *res;
-    const char* result = serializer.m_out.c_str();
-    yaml_file->WriteBuffer(result, strlen(result));
-    return Result<void>();
-}
-
-template<ComponentType T>
-static Result<void> DeserializeComponent(const YAML::Node& p_node,
-                                         const char* p_key,
-                                         ecs::Entity p_id,
-                                         uint32_t p_version,
-                                         Scene& p_scene,
-                                         FileAccess* p_binary) {
-    const auto& node = p_node[p_key];
-    if (!node.IsDefined()) {
-        return Result<void>();
-    }
-
-    if (!node.IsMap()) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "entity {} has invalid '{}'", p_id.GetId(), p_key);
-    }
-
-    unused(p_scene);
-    unused(p_version);
-    unused(p_binary);
-    unused(p_id);
-
-    // @TODO: reserve component manager
-#if 0
-    T& component = p_scene.Create<T>(p_id);
-    YamlSerializer context;
-    context.file = p_binary;
-    context.version = p_version;
-    if (auto res = DeserializeYaml(node, component, context); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    component.OnDeserialized();
 #endif
-    return Result<void>();
-}
-
-Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
-    unused(p_scene);
-
-    auto res = FileAccess::Open(p_path, FileAccess::READ);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    auto file = *res;
-    const size_t size = file->GetLength();
-
-    std::string buffer;
-    buffer.resize(size);
-    if (auto read = file->ReadBuffer(buffer.data(), size); read != size) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "failed to read {} bytes from '{}'", size, p_path);
-    }
-
-    file->Close();
-    const auto node = YAML::Load(buffer);
-
-    YAML::Emitter out;
-    auto version = node["version"].as<uint32_t>();
-    if (version > LATEST_SCENE_VERSION) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "incorrect version {}", version);
-    }
-    auto seed = node["seed"].as<uint32_t>();
-    ecs::Entity::SetSeed(seed);
-
-    ecs::Entity root(node["root"].as<uint32_t>());
-    p_scene.m_root = root;
-
-    const auto physics_mode = node["physics_mode"];
-    if (physics_mode) {
-        auto mode = physics_mode.as<uint32_t>();
-        p_scene.m_physicsMode = static_cast<PhysicsMode>(mode);
-    }
-
-    auto binary_file = node["binary"].as<std::string>();
-    res = FileAccess::Open(binary_file, FileAccess::READ);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    file = *res;
-    const auto& entities = node["entities"];
-    if (!entities.IsSequence()) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
-    }
-
-    for (const auto& entity : entities) {
-        if (!entity.IsMap()) {
-            return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
-        }
-
-        ecs::Entity id(entity["id"].as<uint32_t>());
-
-#define REGISTER_COMPONENT(a, ...)                                                         \
-    do {                                                                                   \
-        auto res2 = DeserializeComponent<a>(entity, #a, id, version, p_scene, file.get()); \
-        if (!res2) { return CAVE_ERROR(res2.error()); }                                    \
-    } while (0);
-        REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-    }
-
-    return Result<void>();
-}
 
 #pragma region SCENE_COMPONENT_SERIALIZATION
 
@@ -332,7 +112,7 @@ void NameComponent::Serialize(Archive& p_archive, uint32_t p_version) {
 }
 
 void HierarchyComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_parentId);
+    p_archive.ArchiveValue(m_parent_id);
 }
 
 void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {
@@ -447,16 +227,9 @@ void MeshComponent::RegisterClass() {
 
 #endif
 
-void ArmatureComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    if (p_version > 16 && p_version <= LATEST_SCENE_VERSION) {
-        p_archive.ArchiveValue(boneCollection);
-        p_archive.ArchiveValue(inverseBindMatrices);
-    } else {
-        uint32_t dummy_flag;
-        p_archive.ArchiveValue(dummy_flag);
-        p_archive.ArchiveValue(boneCollection);
-        p_archive.ArchiveValue(inverseBindMatrices);
-    }
+void ArmatureComponent::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(boneCollection);
+    p_archive.ArchiveValue(inverseBindMatrices);
 }
 
 void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
@@ -731,13 +504,6 @@ void VoxelGiComponent::RegisterClass() {
     REGISTER_FIELD_2(VoxelGiComponent, flags);
     END_REGISTRY(VoxelGiComponent);
 }
-
-void TileMapRenderer::RegisterClass() {
-    // @TODO: serialization
-    BEGIN_REGISTRY(TileMapRenderer);
-    END_REGISTRY(TileMapRenderer);
-}
-
 void EnvironmentComponent::RegisterClass() {
     BEGIN_REGISTRY(EnvironmentComponent);
     REGISTER_FIELD_2(EnvironmentComponent, sky);
@@ -748,12 +514,6 @@ void EnvironmentComponent::RegisterClass() {
 
 void VoxelGiComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);
-}
-
-void TileMapRenderer::Serialize(Archive& p_archive, uint32_t p_version) {
-    unused(p_archive);
-    unused(p_version);
-    CRASH_NOW();
 }
 
 #pragma endregion SCENE_COMPONENT_SERIALIZATION

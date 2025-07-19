@@ -13,28 +13,21 @@
 
 namespace cave {
 
-extern Scene* CreateTheAviatorScene();
-
 using ecs::Entity;
 namespace fs = std::filesystem;
 
 Scene* SceneManager::CreateDefaultScene() {
-    return CreateTheAviatorScene();
+    return nullptr;
 }
 
 auto SceneManager::InitializeImpl() -> Result<void> {
-    ecs::Entity::SetSeed();
-
-    m_active_scene = CreateDefaultScene();
-
-    BumpRevision();
-
     return Result<void>();
 }
 
 void SceneManager::FinalizeImpl() {}
 
 bool SceneManager::TrySwapScene() {
+#if 0
     auto queued_scene = m_loadingQueue.pop_all();
 
     if (queued_scene.empty()) {
@@ -53,6 +46,7 @@ bool SceneManager::TrySwapScene() {
         }
         ++m_revision;
     }
+#endif
 
     return true;
 }
@@ -62,10 +56,12 @@ void SceneManager::Update() {
 
     TrySwapScene();
 
+    auto scene = GetActiveScene();
+
     if (m_lastRevision < m_revision) {
-        if (m_active_scene) {
+        if (scene) {
             Timer timer;
-            auto event = std::make_shared<SceneChangeEvent>(m_active_scene);
+            auto event = std::make_shared<SceneChangeEvent>(scene);
             LOG_WARN("offload p_scene properly");
             m_app->GetEventQueue().DispatchEvent(event);
             LOG("[SceneManager] Detected p_scene changed from m_revision {} to m_revision {}, took {}", m_lastRevision, m_revision, timer.GetDurationString());
@@ -73,39 +69,9 @@ void SceneManager::Update() {
         }
     }
 }
-//
-// void SceneManager::EnqueueSceneLoadingTask(Scene* p_scene, bool p_replace) {
-//    m_loadingQueue.push({ p_replace, p_scene });
-//}
 
 Scene* SceneManager::GetActiveScene() const {
-    return m_active_scene;
+    return nullptr;
 }
-
-#if 0
-void SceneManager::RequestScene(std::string_view p_path) {
-    fs::path path{ p_path };
-
-    auto ext = StringUtils::Extension(p_path);
-
-    if (ext == ".yaml" || ext == ".scene") {
-        // m_app->GetAssetRegistry()->Request(p_path);
-        // m_app->GetAssetManager()->
-        // AssetRegistry::GetSingleton().RequestAssetAsync(path.String(), [](IAsset* p_scene, void*) {
-        //     DEV_ASSERT(p_scene);
-        //     Scene* new_scene = dynamic_cast<Scene*>(p_scene);
-        //     new_scene->Update(0.0f);
-        //     SceneManager::GetSingleton().EnqueueSceneLoadingTask(new_scene, true);
-        // });
-    } else {
-        // AssetRegistry::GetSingleton().RequestAssetAsync(path.String(), [](IAsset* p_scene, void*) {
-        //     DEV_ASSERT(p_scene);
-        //     Scene* new_scene = dynamic_cast<Scene*>(p_scene);
-        //     new_scene->Update(0.0f);
-        //     SceneManager::GetSingleton().EnqueueSceneLoadingTask(new_scene, false);
-        // });
-    }
-}
-#endif
 
 }  // namespace cave

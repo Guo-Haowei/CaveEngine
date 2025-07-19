@@ -12,8 +12,6 @@
 namespace cave {
 
 Scene* CreateBoxScene() {
-    ecs::Entity::SetSeed();
-
     Scene* scene = new Scene;
     scene->m_physicsMode = PhysicsMode::SIMULATION;
 
@@ -85,8 +83,6 @@ Scene* CreateBoxScene() {
 }
 
 Scene* CreatePhysicsTestScene() {
-    ecs::Entity::SetSeed();
-
     Scene* scene = new Scene;
     scene->m_physicsMode = PhysicsMode::SIMULATION;
 
@@ -185,8 +181,6 @@ Scene* CreatePhysicsTestScene() {
 }
 
 Scene* CreatePbrTestScene() {
-    ecs::Entity::SetSeed();
-
     Scene* scene = new Scene;
 
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");

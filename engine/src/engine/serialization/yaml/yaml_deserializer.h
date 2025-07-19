@@ -17,6 +17,8 @@ public:
     // @TODO: make it private
     bool Initialize(const YAML::Node& p_node);
 
+    ~YamlDeserializer();
+
     int GetVersion() const override {
         DEV_ASSERT(m_initialized);
         return m_version;
@@ -55,6 +57,10 @@ public:
 private:
     template<typename T>
     bool ReadScalar(T& p_out);
+
+#if USING(VALIDATE_SERIALIZER)
+    std::vector<SerializerState> m_type_stack;
+#endif
 
     std::vector<YAML::Node> m_node_stack;
     int m_version{ -1 };

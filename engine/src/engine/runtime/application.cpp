@@ -149,18 +149,12 @@ auto Application::SetupModules() -> Result<void> {
     return Result<void>();
 }
 
-// @TODO: refactor this
-extern void RegisterClasses();
-
 void Application::RegisterDvars() {
     RegisterCommonDvars();
     RegisterRenderDvars();
 }
 
 auto Application::Initialize(int p_argc, const char** p_argv) -> Result<void> {
-    // @TODO: fix
-    RegisterClasses();
-
     SaveCommandLine(p_argc, p_argv);
 
     RegisterDvars();

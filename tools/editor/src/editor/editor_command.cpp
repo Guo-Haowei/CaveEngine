@@ -48,7 +48,12 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
             break;
     }
 
-    p_scene.AttachChild(id, m_parent.IsValid() ? m_parent : p_scene.m_root);
+    if (p_scene.m_root.IsValid()) {
+        p_scene.AttachChild(id, m_parent.IsValid() ? m_parent : p_scene.m_root);
+    } else {
+        p_scene.m_root = id;
+    }
+
     m_editor->SelectEntity(id);
 
     ISceneManager::GetSingleton().BumpRevision();
@@ -100,7 +105,7 @@ void OpenProjectCommand::Execute(Scene&) {
 
 /// SaveProjectCommand
 void SaveProjectCommand::Execute(Scene& p_scene) {
-    // Check dirty commands
+    unused(p_scene);
 
     const std::string& scene = DVAR_GET_STRING(scene);
 
@@ -119,17 +124,7 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
     auto path_string = path.string();
     DVAR_SET_STRING(scene, path_string);
 
-    const auto extension = StringUtils::Extension(path_string);
-    if (extension == ".scene") {
-        if (auto res = SaveSceneBinary(path_string, p_scene); !res) {
-            CRASH_NOW();
-        }
-    } else if (extension == ".yaml") {
-        if (auto res = SaveSceneText(path_string, p_scene); !res) {
-            CRASH_NOW();
-        }
-    }
-
+    [[maybe_unused]] const auto extension = StringUtils::Extension(path_string);
     LOG_OK("scene saved to '{}'", path.string());
 }
 

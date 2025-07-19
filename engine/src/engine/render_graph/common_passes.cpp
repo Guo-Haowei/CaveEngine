@@ -130,6 +130,10 @@ static void EarlyZPassFunc(RenderPassExcutionContext& p_ctx) {
     const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     cmd.Clear(fb, CLEAR_DEPTH_BIT | CLEAR_STENCIL_BIT, clear_color, 0.0f, STENCIL_FLAG_SKY);
 
+    if (p_ctx.frameData.prepass_commands.empty()) {
+        return;
+    }
+
     const PassContext& pass = p_ctx.frameData.mainPass;
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
@@ -162,6 +166,10 @@ static void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
 
     const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     cmd.Clear(fb, CLEAR_COLOR_BIT, clear_color);
+
+    if (p_ctx.frameData.gbuffer_commands.empty()) {
+        return;
+    }
 
     const PassContext& pass = p_ctx.frameData.mainPass;
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
@@ -324,7 +332,6 @@ void RenderGraphBuilderExt::AddHighlightPass() {
 
 static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     RENDER_PASS_FUNC();
-
     auto& cmd = p_ctx.cmd;
 
     const Framebuffer* framebuffer = p_ctx.framebuffer;
@@ -334,6 +341,10 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     const auto [width, height] = framebuffer->GetBufferSize();
 
     cmd.Clear(framebuffer, CLEAR_DEPTH_BIT);
+
+    if (p_ctx.frameData.shadow_pass_commands.empty()) {
+        return;
+    }
 
     cmd.SetViewport(Viewport(width, height));
 
@@ -575,6 +586,10 @@ void RenderGraphBuilderExt::AddLightingPass() {
 
 /// Sky
 static void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
+    if (p_ctx.frameData.transparent_commands.empty()) {
+        return;
+    }
+
     RENDER_PASS_FUNC();
 
     auto& gm = p_ctx.cmd;

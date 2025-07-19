@@ -8,7 +8,6 @@ static inline void CheckConst(T&&) {
 }
 
 TEST(view, iterator) {
-    Entity::SetSeed();
     Scene scene;
     const Scene& const_scene = scene;
     for (int i = 0; i < 4; ++i) {

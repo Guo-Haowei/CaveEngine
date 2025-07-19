@@ -105,9 +105,6 @@ private:
 };
 
 Scene* SceneCreator::CreateScene() {
-
-    ecs::Entity::SetSeed();
-
     Scene* scene = new Scene;
     scene->m_physicsMode = PhysicsMode::COLLISION_DETECTION;
 
@@ -319,7 +316,7 @@ void SceneCreator::CreateMaterials(Scene* p_scene) {
     };
     // clang-format on
     for (int i = 0; i < array_length(info); ++i) {
-        DEV_ASSERT(*info[i].entity == ecs::Entity::INVALID);
+        DEV_ASSERT(*info[i].entity == ecs::Entity::Null());
         auto entity = EntityFactory::CreateMaterialEntity(*p_scene, info[i].name);
         MaterialComponent* material = p_scene->GetComponent<MaterialComponent>(entity);
         material->baseColor = info[i].color.ToVector4f();

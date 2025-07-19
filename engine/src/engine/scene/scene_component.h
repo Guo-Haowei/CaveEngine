@@ -2,6 +2,9 @@
 #include "engine/ecs/entity.h"
 #include "engine/math/aabb.h"
 #include "engine/math/angle.h"
+#include "engine/reflection/reflection.h"
+
+// @TODO: get rid of this
 #include "scene_component_base.h"
 
 #include "transform_component.h"
@@ -29,6 +32,11 @@ class ScriptableEntity;
 
 #pragma region NAME_COMPONENT
 class NameComponent {
+    CAVE_META(NameComponent)
+
+    CAVE_PROP(type = name)
+    std::string m_name;
+
 public:
     NameComponent() = default;
 
@@ -42,27 +50,27 @@ public:
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-private:
-    std::string m_name;
 };
 #pragma endregion NAME_COMPONENT
 
 #pragma region HIERARCHY_COMPONENT
 class HierarchyComponent {
+    CAVE_META(HierarchyComponent)
+
+    CAVE_PROP(type = id)
+    ecs::Entity m_parent_id;
+
+    friend class Scene;
+
 public:
-    ecs::Entity GetParent() const { return m_parentId; }
+    ecs::Entity GetParent() const { return m_parent_id; }
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
-
-private:
-    ecs::Entity m_parentId;
-
-    friend class Scene;
 };
 #pragma endregion HIERARCHY_COMPONENT
 
+// @TODO: make it asset
 #pragma region MESH_COMPONENT
 enum class VertexAttributeName : uint8_t {
     POSITION = 0,
@@ -130,6 +138,7 @@ struct MeshComponent {
 };
 #pragma endregion MESH_COMPONENT
 
+// @TODO: make it asset
 #pragma region MATERIAL_COMPONENT
 struct MaterialComponent {
     enum {
@@ -155,6 +164,7 @@ struct MaterialComponent {
 };
 #pragma endregion MATERIAL_COMPONENT
 
+// @TODO: make it asset
 #pragma region ANIMATION_COMPONENT
 struct AnimationComponent {
     enum : uint32_t {
@@ -202,6 +212,7 @@ struct AnimationComponent {
 };
 #pragma endregion ANIMATION_COMPONENT
 
+// @TODO: make it asset
 #pragma region ARMATURE_COMPONENT
 struct ArmatureComponent {
     std::vector<ecs::Entity> boneCollection;
@@ -215,7 +226,6 @@ struct ArmatureComponent {
 };
 #pragma endregion ARMATURE_COMPONENT
 
-// @TODO: rename it to MeshRenderer?
 #pragma region MESH_RENDERER_COMPONENT
 struct MeshRenderer : public ComponentFlagBase {
     enum : uint32_t {
@@ -298,6 +308,7 @@ struct NativeScriptComponent {
 };
 #pragma endregion NATIVE_SCRIPT_COMPONENT
 
+// @TODO: move the following to scripts
 #pragma region COLLISION_OBJECT_COMPONENT
 
 /*

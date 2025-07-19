@@ -37,7 +37,7 @@ auto AssimpAssetLoader::Load() -> Result<AssetRef> {
         ProcessMesh(*aiscene->mMeshes[i]);
     }
 
-    ecs::Entity root = ProcessNode(aiscene->mRootNode, ecs::Entity::INVALID);
+    ecs::Entity root = ProcessNode(aiscene->mRootNode, ecs::Entity::Null());
     m_scene->GetComponent<NameComponent>(root)->SetName(m_meta.path);
 
     m_scene->m_root = root;

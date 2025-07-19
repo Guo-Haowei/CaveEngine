@@ -111,11 +111,11 @@ static void FillPass(const Scene& p_scene,
         }
 
         draw.mesh_data = mesh.gpuResource.get();
-        draw.mat_idx = -1;
-        DEV_ASSERT(draw.mesh_data);
-
-        draw.indexCount = static_cast<uint32_t>(mesh.indices.size());
-        p_commands.emplace_back(RenderCommand::From(draw));
+        if (draw.mesh_data) {
+            draw.mat_idx = -1;
+            draw.indexCount = static_cast<uint32_t>(mesh.indices.size());
+            p_commands.emplace_back(RenderCommand::From(draw));
+        }
     }
 }
 
@@ -382,7 +382,9 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(entity, batch_buffer);
         draw.indexCount = static_cast<uint32_t>(mesh.indices.size());
         draw.mesh_data = (GpuMesh*)mesh.gpuResource.get();
-        DEV_ASSERT(draw.mesh_data);
+        if (!draw.mesh_data) {
+            continue;
+        }
 
         auto add_to_pass = [&](std::vector<RenderCommand>& p_commands, FilterFunc& p_filter, bool p_model_only) {
             if (!p_filter(aabb)) {

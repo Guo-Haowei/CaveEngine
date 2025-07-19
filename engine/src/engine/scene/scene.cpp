@@ -10,6 +10,7 @@
 // @TODO: refactor
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/path_tracer/bvh_accel.h"
+#include "engine/serialization/yaml_include.h"
 
 namespace cave::ecs {
 
@@ -108,7 +109,7 @@ ecs::Entity Scene::GetMainCamera() {
         }
     }
 
-    return ecs::Entity::INVALID;
+    return ecs::Entity::Null();
 }
 
 ecs::Entity Scene::FindEntityByName(const char* p_name) {
@@ -117,7 +118,7 @@ ecs::Entity Scene::FindEntityByName(const char* p_name) {
             return entity;
         }
     }
-    return ecs::Entity::INVALID;
+    return ecs::Entity::Null();
 }
 
 void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
@@ -130,7 +131,7 @@ void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
     }
 
     HierarchyComponent& hier = Create<HierarchyComponent>(p_child);
-    hier.m_parentId = p_parent;
+    hier.m_parent_id = p_parent;
 }
 
 void Scene::RemoveEntity(ecs::Entity p_entity) {
@@ -206,12 +207,165 @@ Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     return result;
 }
 
-auto Scene::LoadFromDisk(const AssetMetaData&) -> Result<void> {
+// LATEST_SCENE_VERSION history
+// version 1: initial version
+// version 2: don't serialize scene.m_bound
+// version 3: light component atten
+// version 4: light component flags
+// version 5: add validation
+// version 6: add collider component
+// version 7: add enabled to material
+// version 8: add particle emitter
+// version 9: add ParticleEmitterComponent.gravity
+// version 10: add ForceFieldComponent
+// version 11: add ScriptFieldComponent
+// version 12: add CameraComponent
+// version 13: add SoftBodyComponent
+// version 14: modify RigidBodyComponent
+// version 15: add predefined shadow region to lights
+// version 16: change scene binary representation
+// version 17: remove armature.flags
+// version 18: change RigidBodyComponent
+// version 19: serialize scene.m_physicsMode
+static constexpr uint32_t LATEST_SCENE_VERSION = 19;
+static constexpr char SCENE_MAGIC[] = "xBScene";
+static constexpr char SCENE_GUARD_MESSAGE[] = "Should see this message";
+static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
+
+template<ComponentType T>
+static void DeserializeComponent(IDeserializer& d,
+                                 const char* p_key,
+                                 ecs::Entity p_id,
+                                 Scene& p_scene) {
+    if (d.TryEnterKey(p_key)) {
+        T& component = p_scene.Create<T>(p_id);
+        d.Read(component);
+        d.LeaveKey();
+        component.OnDeserialized();
+    }
+}
+
+auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+    YAML::Node root;
+
+    if (auto res = LoadYaml(p_meta.path, root); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    YamlDeserializer yaml;
+    yaml.Initialize(root);
+
+    IDeserializer& d = yaml;
+
+    const int version = d.GetVersion();
+    DEV_ASSERT(version);
+
+    if (d.TryEnterKey("seed")) {
+        d.Read(m_entity_seed);
+        d.LeaveKey();
+    }
+    if (d.TryEnterKey("root")) {
+        d.Read(m_root);
+        d.LeaveKey();
+    }
+    if (d.TryEnterKey("physics_mode")) {
+        d.Read(m_physicsMode);
+        d.LeaveKey();
+    }
+
+    const bool ok = d.TryEnterKey("entities");
+    DEV_ASSERT(ok);
+
+    const int entity_count = d.ArraySize().unwrap_or(0);
+    for (int i = 0; i < entity_count; ++i) {
+        DEV_ASSERT(d.TryEnterIndex(i));
+        auto keys = d.GetKeys().unwrap();
+        ecs::Entity id;
+        DEV_ASSERT(d.TryEnterKey("id"));
+        d.Read((uint32_t&)id);
+        d.LeaveKey();
+
+#define REGISTER_COMPONENT(a, ...)                 \
+    do {                                           \
+        DeserializeComponent<a>(d, #a, id, *this); \
+    } while (0);
+        REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+
+        d.LeaveIndex();
+    }
+
+    d.LeaveKey();
     return Result<void>();
 }
 
-auto Scene::SaveToDisk(const AssetMetaData&) const -> Result<void> {
-    return Result<void>();
+template<ComponentType T>
+static bool SerializeComponent(ISerializer& p_serializer,
+                               const char* p_name,
+                               ecs::Entity p_entity,
+                               const Scene& p_scene) {
+
+    const T* component = p_scene.GetComponent<T>(p_entity);
+    if (component) {
+        p_serializer.Key(p_name);
+        p_serializer.Write(*component);
+    }
+    return true;
+}
+
+auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
+    auto res = p_meta.SaveToDisk(this);
+    if (!res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    // @TODO: maybe pass ISerializer next
+    YamlSerializer yaml;
+
+    std::unordered_set<uint32_t> entity_set;
+
+    for (const auto& it : m_componentLib.m_entries) {
+        auto& manager = it.second.m_manager;
+        for (auto entity : manager->GetEntityArray()) {
+            entity_set.insert(entity.GetId());
+        }
+    }
+
+    std::vector<uint32_t> entity_array(entity_set.begin(), entity_set.end());
+    std::sort(entity_array.begin(), entity_array.end());
+
+    yaml.BeginMap(false)
+        .Key("version")
+        .Write(LATEST_SCENE_VERSION)
+        .Key("seed")
+        .Write(m_entity_seed)
+        .Key("root")
+        .Write(m_root.GetId())
+        .Key("physics_mode")
+        .Write(static_cast<uint32_t>(m_physicsMode))
+        .Key("entities");
+
+    yaml.BeginArray(false);
+
+    for (auto id : entity_array) {
+        ecs::Entity entity{ id };
+
+        yaml.BeginMap(false)
+            .Key("id")
+            .Write(id);
+
+#define REGISTER_COMPONENT(COMPONENT, ...) \
+    SerializeComponent<COMPONENT>(yaml, #COMPONENT, entity, *this);
+
+        REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+
+        yaml.EndMap();
+    }
+
+    yaml.EndArray();
+    yaml.EndMap();
+    return SaveYaml(p_meta.path, yaml);
 }
 
 }  // namespace cave

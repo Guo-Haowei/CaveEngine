@@ -62,7 +62,6 @@ protected:
     std::shared_ptr<Scene> m_tmp_scene;
 
     std::shared_ptr<CameraComponent> m_camera;
-
     std::shared_ptr<TileMapDocument> m_document;
 };
 

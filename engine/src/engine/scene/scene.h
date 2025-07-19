@@ -24,6 +24,8 @@ namespace cave {
 // @TODO: save all components
 
 #define REGISTER_COMPONENT_SERIALIZED_LIST                                 \
+    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)           \
+    REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0) \
     REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0) \
     REGISTER_COMPONENT(SpriteRenderer, "World::SpriteRenderer", 0)         \
     REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)
@@ -86,14 +88,14 @@ public:
     template<ComponentType T>
     size_t GetCount() const { return 0; }
     template<ComponentType T>
-    ecs::Entity GetEntity(size_t) const { return ecs::Entity::INVALID; }
+    ecs::Entity GetEntity(size_t) const { return ecs::Entity::Null(); }
     template<ComponentType T>
     T& Create(const ecs::Entity&) { return *(T*)(nullptr); }
 
     template<ComponentType T>
     inline T& GetComponentByIndex(size_t) { return *(T*)0; }
     template<ComponentType T>
-    inline ecs::Entity GetEntityByIndex(size_t) { return ecs::Entity::INVALID; }
+    inline ecs::Entity GetEntityByIndex(size_t) { return ecs::Entity::Null(); }
 
     // @TODO: support View<A, B, ...>
     template<typename T>
@@ -190,6 +192,11 @@ public:
 
     const auto& GetLibraryEntries() const { return m_componentLib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
+
+    ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
+
+private:
+    uint32_t m_entity_seed{ 0 };
 
     friend class EntityFactory;
 };

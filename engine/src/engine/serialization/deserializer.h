@@ -93,7 +93,9 @@ public:
         ERR_FAIL_COND_V_MSG(size != N, false, "expect vector");
 
         for (int i = 0; i < size; ++i) {
+            DEV_ASSERT(TryEnterIndex(i));
             Read(p_object[i]);
+            LeaveIndex();
         }
 
         return true;

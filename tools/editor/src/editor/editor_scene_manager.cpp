@@ -25,8 +25,6 @@ Scene* EditorSceneManager::CreateDefaultScene() {
         return CreateBoxScene();
     }
 
-    ecs::Entity::SetSeed();
-
     Scene* scene = new Scene;
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
@@ -53,11 +51,20 @@ void EditorSceneManager::Update() {
     }
 }
 
+void EditorSceneManager::OpenScene(const Guid& p_guid, std::shared_ptr<Scene>& p_scene) {
+    auto [_, ok] = m_caches.try_emplace(p_guid, p_scene);
+    DEV_ASSERT(ok);
+
+    return;
+}
+
 std::shared_ptr<Scene> EditorSceneManager::OpenTemporaryScene(const Guid& p_guid,
                                                               const CreateSceneFunc& p_func) {
     auto scene = p_func();
 
-    m_caches.insert({ p_guid, scene });
+    auto [_, ok] = m_caches.try_emplace(p_guid, scene);
+    DEV_ASSERT(ok);
+
     return scene;
 }
 
@@ -67,7 +74,7 @@ Scene* EditorSceneManager::GetActiveScene() const {
         return lock.get();
     }
 
-    return m_active_scene;
+    return nullptr;
 }
 
 }  // namespace cave

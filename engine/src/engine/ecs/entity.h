@@ -17,6 +17,8 @@ public:
     explicit constexpr Entity(uint32_t p_handle)
         : m_id(p_handle) {}
 
+    static constexpr Entity Null() { return Entity(); }
+
     ~Entity() = default;
 
     bool operator==(const Entity& p_rhs) const { return m_id == p_rhs.m_id; }
@@ -29,16 +31,8 @@ public:
 
     constexpr uint32_t GetId() const { return m_id; }
 
-    static Entity Create();
-    static uint32_t GetSeed();
-    static void SetSeed(uint32_t p_seed = INVALID_ID + 1);
-
-    static const Entity INVALID;
-
 private:
     uint32_t m_id;
-
-    inline static std::atomic<uint32_t> s_id = MAX_ID;
 };
 
 }  // namespace cave::ecs

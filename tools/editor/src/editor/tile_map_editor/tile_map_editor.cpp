@@ -373,4 +373,5 @@ void TileMapEditor::EditSprite(SpriteAsset& p_sprite) {
         ImGui::EndTabBar();
     }
 }
+
 }  // namespace cave

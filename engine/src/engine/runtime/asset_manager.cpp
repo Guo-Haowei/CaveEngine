@@ -17,7 +17,7 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 
 #if USING(PLATFORM_WINDOWS)
 #define USE_TINYGLTF_LOADER IN_USE
@@ -63,6 +63,10 @@ static struct {
 
 static AssetRef CreateAssetInstance(AssetType p_type) {
     switch (p_type) {
+        case AssetType::Scene: {
+            auto scene = std::make_shared<Scene>();
+            return scene;
+        }
         case AssetType::Sprite:
             return std::make_shared<SpriteAsset>();
         case AssetType::SpriteAnimation:
@@ -89,9 +93,6 @@ static auto LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) -> Result<Asse
 
 auto AssetManager::InitializeImpl() -> Result<void> {
     m_assets_root = fs::path{ m_app->GetResourceFolder() };
-
-    IAssetLoader::RegisterLoader(".scene", SceneLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".yaml", TextSceneLoader::CreateLoader);
 
 #if USING(USE_TINYGLTF_LOADER)
     // IAssetLoader::RegisterLoader(".gltf", TinyGLTFLoader::CreateLoader);

@@ -10,9 +10,10 @@ class EditorSceneManager : public SceneManager {
 public:
     virtual Scene* CreateDefaultScene() override;
 
-    [[nodiscard]]
     std::shared_ptr<Scene> OpenTemporaryScene(const Guid& p_guid,
                                               const CreateSceneFunc& p_func);
+
+    void OpenScene(const Guid& p_guid, std::shared_ptr<Scene>& p_scene);
 
     // @TODO: do not pass raw pointers around
     Scene* GetActiveScene() const override;
