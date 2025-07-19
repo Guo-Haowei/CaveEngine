@@ -358,7 +358,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
 
     std::unordered_set<uint32_t> entity_set;
 
-    for (const auto& it : GetLibraryEntries()) {
+    for (const auto& it : m_componentLib.m_entries) {
         auto& manager = it.second.m_manager;
         for (auto entity : manager->GetEntityArray()) {
             entity_set.insert(entity.GetId());

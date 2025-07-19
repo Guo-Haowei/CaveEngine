@@ -17,7 +17,7 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 
 #if USING(PLATFORM_WINDOWS)
 #define USE_TINYGLTF_LOADER IN_USE
@@ -63,8 +63,12 @@ static struct {
 
 static AssetRef CreateAssetInstance(AssetType p_type) {
     switch (p_type) {
-        case AssetType::Scene:
-            return std::make_shared<Scene>();
+        case AssetType::Scene: {
+            auto scene = std::make_shared<Scene>();
+            auto root = EntityFactory::CreateTransformEntity(*scene.get(), "root");
+            scene->m_root = root;
+            return scene;
+        }
         case AssetType::Sprite:
             return std::make_shared<SpriteAsset>();
         case AssetType::SpriteAnimation:

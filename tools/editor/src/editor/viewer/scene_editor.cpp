@@ -1,16 +1,33 @@
 #include "scene_editor.h"
 
-#include "engine/scene/scene.h"
+#include "engine/runtime/asset_registry.h"
+#include "engine/scene/entity_factory.h"
+
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
+#include "editor/editor_scene_manager.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
 // @TODO: refactor
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
+#include "editor/document/document.h"
 
 namespace cave {
+
+class SceneDocument : public Document {
+public:
+    SceneDocument(const Guid& p_guid)
+        : Document(p_guid) {
+        m_scene = m_handle.Wait<Scene>();
+    }
+
+private:
+    std::shared_ptr<Scene> m_scene;
+
+    friend class SceneEditor;
+};
 
 SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
@@ -18,13 +35,30 @@ SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
 }
 
 Document& SceneEditor::GetDocument() const {
-    CRASH_NOW();
-    return *(Document*)0;
+    return *m_document.get();
 }
 
-void SceneEditor::Update() {
-    Scene* p_scene = nullptr;
+void SceneEditor::OnCreate(const Guid& p_guid) {
+    ViewerTab::OnCreate(p_guid);
 
+    m_document = std::make_shared<SceneDocument>(p_guid);
+
+    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
+    DEV_ASSERT(scene_manager);
+
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<Scene>(p_guid).unwrap();
+}
+
+void SceneEditor::OnDestroy() {
+}
+
+void SceneEditor::OnActivate() {
+    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
+    DEV_ASSERT(scene_manager);
+    scene_manager->SetTmpScene(m_document->m_scene);
+}
+
+void SceneEditor::DrawMainView() {
     const auto& cam = GetActiveCamera();
     const Matrix4x4f& view_matrix = cam.GetViewMatrix();
     const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
@@ -39,48 +73,50 @@ void SceneEditor::Update() {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
-    if (p_scene) {
-        ecs::Entity id = m_editor.GetSelectedEntity();
-        TransformComponent* transform_component = p_scene->GetComponent<TransformComponent>(id);
+    Scene& scene = *m_document->m_scene.get();
+    ecs::Entity id = m_editor.GetSelectedEntity();
+    TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
+
+#if 0
+    if (transform_component) {
+        LightComponent* light = scene.GetComponent<LightComponent>(id);
+        if (light && light->GetType() == LIGHT_TYPE_INFINITE) {
+            const auto& matrix = transform_component->GetWorldMatrix();
+            ImGuizmo::DrawCone(proj_view, matrix);
+        }
+    }
+#endif
+
+    auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation, GizmoAction p_action) {
         if (transform_component) {
-            LightComponent* light = p_scene->GetComponent<LightComponent>(id);
-            if (light && light->GetType() == LIGHT_TYPE_INFINITE) {
-                const auto& matrix = transform_component->GetWorldMatrix();
-                ImGuizmo::DrawCone(proj_view, matrix);
+            const Matrix4x4f before = transform_component->GetLocalMatrix();
+            Matrix4x4f after = before;
+            if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
+                                     glm::value_ptr(proj_matrix),
+                                     p_operation,
+                                     ImGuizmo::LOCAL,
+                                     // ImGuizmo::WORLD,
+                                     glm::value_ptr(after),
+                                     nullptr, nullptr, nullptr, nullptr)) {
+
+                auto command = std::make_shared<EntityTransformCommand>(p_action, scene, id, before, after);
+                m_editor.BufferCommand(command);
             }
         }
+    };
 
-        auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation, GizmoAction p_action) {
-            if (transform_component) {
-                const Matrix4x4f before = transform_component->GetLocalMatrix();
-                Matrix4x4f after = before;
-                if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
-                                         glm::value_ptr(proj_matrix),
-                                         p_operation,
-                                         ImGuizmo::LOCAL,
-                                         // ImGuizmo::WORLD,
-                                         glm::value_ptr(after),
-                                         nullptr, nullptr, nullptr, nullptr)) {
-
-                    auto command = std::make_shared<EntityTransformCommand>(p_action, *p_scene, id, before, after);
-                    m_editor.BufferCommand(command);
-                }
-            }
-        };
-
-        switch (m_state) {
-            case GizmoAction::Translate:
-                draw_gizmo(ImGuizmo::TRANSLATE, m_state);
-                break;
-            case GizmoAction::Rotate:
-                draw_gizmo(ImGuizmo::ROTATE, m_state);
-                break;
-            case GizmoAction::Scale:
-                draw_gizmo(ImGuizmo::SCALE, m_state);
-                break;
-            default:
-                break;
-        }
+    switch (m_state) {
+        case GizmoAction::Translate:
+            draw_gizmo(ImGuizmo::TRANSLATE, m_state);
+            break;
+        case GizmoAction::Rotate:
+            draw_gizmo(ImGuizmo::ROTATE, m_state);
+            break;
+        case GizmoAction::Scale:
+            draw_gizmo(ImGuizmo::SCALE, m_state);
+            break;
+        default:
+            break;
     }
 
     // @TODO: move show_editor as viewer attribute
@@ -97,6 +133,10 @@ void SceneEditor::Update() {
                                  ImVec2(size, size),
                                  IM_COL32(64, 64, 64, 96));
     }
+}
+
+void SceneEditor::DrawAssetInspector() {
+    // @TODO:
 }
 
 const CameraComponent& SceneEditor::GetActiveCameraInternal() const {

@@ -28,8 +28,6 @@ public:
     virtual void DrawMainView();
     virtual void DrawAssetInspector();
 
-    virtual void Update() {}
-
     virtual Document& GetDocument() const = 0;
 
     const TabId& GetId() const { return m_id; }
