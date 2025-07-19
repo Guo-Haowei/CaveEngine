@@ -2,7 +2,7 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "engine/assets/assets.h"
+#include "engine/assets/image_asset.h"
 #include "engine/input/input_event.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"

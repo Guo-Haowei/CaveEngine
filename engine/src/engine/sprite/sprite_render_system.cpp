@@ -1,11 +1,9 @@
 #include "sprite_render_system.h"
 
+#include "engine/assets/image_asset.h"
 #include "engine/renderer/frame_data.h"
 #include "engine/scene/scene.h"
 #include "engine/sprite/sprite_renderer.h"
-
-// @TODO: move image asset out
-#include "engine/assets/assets.h"
 
 namespace cave {
 

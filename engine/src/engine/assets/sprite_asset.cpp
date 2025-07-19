@@ -1,6 +1,6 @@
 #include "sprite_asset.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/image_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/serialization/yaml_include.h"

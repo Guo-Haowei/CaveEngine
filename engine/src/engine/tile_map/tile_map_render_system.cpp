@@ -1,7 +1,6 @@
 #include "tile_map_render_system.h"
 
-// @TODO: extract ImageAsset
-#include "engine/assets/assets.h"
+#include "engine/assets/image_asset.h"
 #include "engine/renderer/frame_data.h"
 #include "engine/scene/scene.h"
 

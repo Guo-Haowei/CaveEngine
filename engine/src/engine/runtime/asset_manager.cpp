@@ -5,8 +5,9 @@
 
 // @TODO: get rid of this file
 #include "engine/assets/assets.h"
-#include "engine/assets/sprite_asset.h"
 #include "engine/assets/asset_loader.h"
+#include "engine/assets/image_asset.h"
+#include "engine/assets/sprite_asset.h"  // @TODO: deprecate sprite asset
 #include "engine/sprite/sprite_animation_asset.h"
 #include "engine/tile_map/tile_map_asset.h"
 #include "engine/core/io/file_access.h"

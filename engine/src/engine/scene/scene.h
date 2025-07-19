@@ -158,6 +158,14 @@ public:
 
     void RemoveEntity(ecs::Entity p_entity);
 
+    auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
+
+    auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
+
+    [[nodiscard]] virtual std::vector<Guid> GetDependencies() const {
+        return {};
+    }
+
     struct RayIntersectionResult {
         ecs::Entity entity;
     };

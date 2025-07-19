@@ -1,6 +1,6 @@
 #include "widget.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/image_asset.h"
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_window.h"
 
