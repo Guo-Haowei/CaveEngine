@@ -105,9 +105,6 @@ private:
 };
 
 Scene* SceneCreator::CreateScene() {
-
-    ecs::Entity::SetSeed();
-
     Scene* scene = new Scene;
     scene->m_physicsMode = PhysicsMode::COLLISION_DETECTION;
 

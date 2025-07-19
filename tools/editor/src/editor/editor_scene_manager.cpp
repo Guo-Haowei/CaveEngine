@@ -25,8 +25,6 @@ Scene* EditorSceneManager::CreateDefaultScene() {
         return CreateBoxScene();
     }
 
-    ecs::Entity::SetSeed();
-
     Scene* scene = new Scene;
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;

@@ -1,24 +1,36 @@
 version: 19
-seed: 4
-root: 2
+seed: 3
+root: 1
 physics_mode: 0
 entities:
-  - id: 2
+  - id: 1
     NameComponent:
       name: world
     TransformComponent:
       scale: [1, 1, 1]
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
-  - id: 3
+  - id: 2
     NameComponent:
-      name: map
+      name: front
     HierarchyComponent:
-      parent_id: 2
+      parent_id: 1
     TransformComponent:
       scale: [1, 1, 1]
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
     TileMapRenderer:
       tile_map: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
+      tint_color: [1, 1, 1, 1]
+  - id: 3
+    NameComponent:
+      name: back
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      scale: [1, 1, 1]
+      translation: [0, 0, 1.9211819]
+      rotation: [0, 0, 0, 1]
+    TileMapRenderer:
+      tile_map: 9FE5F444-57A6-0047-801BB379815BDC96
       tint_color: [1, 1, 1, 1]

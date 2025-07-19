@@ -62,8 +62,6 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "failed to read seed");
     }
 
-    ecs::Entity::SetSeed(seed);
-
     archive >> p_scene.m_root;
 
     p_scene.m_physicsMode = PhysicsMode::NONE;

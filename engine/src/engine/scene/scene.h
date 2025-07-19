@@ -193,6 +193,11 @@ public:
     const auto& GetLibraryEntries() const { return m_componentLib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 
+    ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
+
+private:
+    uint32_t m_entity_seed{ 0 };
+
     friend class EntityFactory;
 };
 

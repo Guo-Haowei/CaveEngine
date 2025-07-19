@@ -86,7 +86,7 @@ void TinyGLTFLoader::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 
     // transform
     if (!entity.IsValid()) {
-        entity = ecs::Entity::Create();
+        entity = m_scene->CreateEntity();
         m_scene->Create<TransformComponent>(entity);
         m_scene->Create<NameComponent>(entity).SetName("Transform::" + node.name);
     }
@@ -167,7 +167,7 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
         return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'", m_filePath);
     }
 
-    ecs::Entity root = ecs::Entity::Create();
+    ecs::Entity root = m_scene->CreateEntity();
     m_scene->Create<TransformComponent>(root);
     m_scene->Create<NameComponent>(root).SetName(m_fileName);
     m_scene->m_root = root;
@@ -273,7 +273,7 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
     }
     // Create armatures
     for (const auto& skin : m_model->skins) {
-        ecs::Entity armature_id = ecs::Entity::Create();
+        ecs::Entity armature_id = m_scene->CreateEntity();
         m_scene->Create<NameComponent>(armature_id).SetName(skin.name);
         m_scene->Create<TransformComponent>(armature_id);
         ArmatureComponent& armature = m_scene->Create<ArmatureComponent>(armature_id);

@@ -23,8 +23,6 @@ Scene* SceneManager::CreateDefaultScene() {
 }
 
 auto SceneManager::InitializeImpl() -> Result<void> {
-    ecs::Entity::SetSeed();
-
     m_active_scene = CreateDefaultScene();
 
     BumpRevision();

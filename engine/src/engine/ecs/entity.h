@@ -29,16 +29,10 @@ public:
 
     constexpr uint32_t GetId() const { return m_id; }
 
-    static Entity Create();
-    static uint32_t GetSeed();
-    static void SetSeed(uint32_t p_seed = INVALID_ID + 1);
-
     static const Entity INVALID;
 
 private:
     uint32_t m_id;
-
-    inline static std::atomic<uint32_t> s_id = MAX_ID;
 };
 
 }  // namespace cave::ecs

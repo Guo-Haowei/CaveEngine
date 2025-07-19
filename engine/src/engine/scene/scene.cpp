@@ -261,9 +261,7 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     DEV_ASSERT(version);
 
     if (d.TryEnterKey("seed")) {
-        uint32_t seed;
-        d.Read(seed);
-        ecs::Entity::SetSeed(seed);
+        d.Read(m_entity_seed);
         d.LeaveKey();
     }
     if (d.TryEnterKey("root")) {
@@ -340,7 +338,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
         .Key("version")
         .Write(LATEST_SCENE_VERSION)
         .Key("seed")
-        .Write(ecs::Entity::GetSeed())
+        .Write(m_entity_seed)
         .Key("root")
         .Write(m_root.GetId())
         .Key("physics_mode")

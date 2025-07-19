@@ -27,7 +27,7 @@ Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
 
 Entity EntityFactory::CreateNameEntity(Scene& p_scene,
                                        const std::string& p_name) {
-    auto entity = Entity::Create();
+    auto entity = p_scene.CreateEntity();
     p_scene.Create<NameComponent>(entity).SetName(p_name);
     return entity;
 }
