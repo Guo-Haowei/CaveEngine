@@ -17,6 +17,8 @@ public:
     explicit constexpr Entity(uint32_t p_handle)
         : m_id(p_handle) {}
 
+    static constexpr Entity Null() { return Entity(); }
+
     ~Entity() = default;
 
     bool operator==(const Entity& p_rhs) const { return m_id == p_rhs.m_id; }
@@ -28,8 +30,6 @@ public:
     void MakeInvalid() { m_id = INVALID_ID; }
 
     constexpr uint32_t GetId() const { return m_id; }
-
-    static const Entity INVALID;
 
 private:
     uint32_t m_id;

@@ -109,7 +109,7 @@ ecs::Entity Scene::GetMainCamera() {
         }
     }
 
-    return ecs::Entity::INVALID;
+    return ecs::Entity::Null();
 }
 
 ecs::Entity Scene::FindEntityByName(const char* p_name) {
@@ -118,7 +118,7 @@ ecs::Entity Scene::FindEntityByName(const char* p_name) {
             return entity;
         }
     }
-    return ecs::Entity::INVALID;
+    return ecs::Entity::Null();
 }
 
 void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {

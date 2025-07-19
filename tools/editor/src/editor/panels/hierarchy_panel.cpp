@@ -198,7 +198,7 @@ void HierarchyPanel::DrawPopup(Scene&) {
         OpenAddEntityPopup(selected);
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
-                m_editor.SelectEntity(Entity::INVALID);
+                m_editor.SelectEntity(Entity::Null());
                 m_editor.CommandRemoveEntity(selected);
             }
         }

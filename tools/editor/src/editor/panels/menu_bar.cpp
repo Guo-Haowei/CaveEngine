@@ -39,7 +39,7 @@ void MenuBar::MainMenuBar() {
         ImGui::EndMenu();
     }
     ImGui::Separator();
-    EditorItem::OpenAddEntityPopup(ecs::Entity::INVALID);
+    EditorItem::OpenAddEntityPopup(ecs::Entity::Null());
 }
 
 void MenuBar::Update(Scene*) {

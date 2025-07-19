@@ -88,14 +88,14 @@ public:
     template<ComponentType T>
     size_t GetCount() const { return 0; }
     template<ComponentType T>
-    ecs::Entity GetEntity(size_t) const { return ecs::Entity::INVALID; }
+    ecs::Entity GetEntity(size_t) const { return ecs::Entity::Null(); }
     template<ComponentType T>
     T& Create(const ecs::Entity&) { return *(T*)(nullptr); }
 
     template<ComponentType T>
     inline T& GetComponentByIndex(size_t) { return *(T*)0; }
     template<ComponentType T>
-    inline ecs::Entity GetEntityByIndex(size_t) { return ecs::Entity::INVALID; }
+    inline ecs::Entity GetEntityByIndex(size_t) { return ecs::Entity::Null(); }
 
     // @TODO: support View<A, B, ...>
     template<typename T>
