@@ -74,15 +74,4 @@ protected:
     const uint32_t m_size;
 };
 
-class SceneLoader : public IAssetLoader {
-public:
-    using IAssetLoader::IAssetLoader;
-
-    static std::unique_ptr<IAssetLoader> CreateLoader(const AssetMetaData& p_meta) {
-        return std::make_unique<SceneLoader>(p_meta);
-    }
-
-    auto Load() -> Result<AssetRef> override;
-};
-
 }  // namespace cave

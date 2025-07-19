@@ -13,33 +13,7 @@ namespace cave {
 
 #define SCENE_DBG_LOG(...) LOG_VERBOSE(__VA_ARGS__)
 
-#pragma region VERSION_HISTORY
-// LATEST_SCENE_VERSION history
-// version 1: initial version
-// version 2: don't serialize scene.m_bound
-// version 3: light component atten
-// version 4: light component flags
-// version 5: add validation
-// version 6: add collider component
-// version 7: add enabled to material
-// version 8: add particle emitter
-// version 9: add ParticleEmitterComponent.gravity
-// version 10: add ForceFieldComponent
-// version 11: add ScriptFieldComponent
-// version 12: add CameraComponent
-// version 13: add SoftBodyComponent
-// version 14: modify RigidBodyComponent
-// version 15: add predefined shadow region to lights
-// version 16: change scene binary representation
-// version 17: remove armature.flags
-// version 18: change RigidBodyComponent
-// version 19: serialize scene.m_physicsMode
-#pragma endregion VERSION_HISTORY
-static constexpr uint32_t LATEST_SCENE_VERSION = 19;
-static constexpr char SCENE_MAGIC[] = "xBScene";
-static constexpr char SCENE_GUARD_MESSAGE[] = "Should see this message";
-static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
-
+#if 0
 Result<void> SaveSceneBinary(const std::string& p_path, Scene& p_scene) {
     Archive archive;
     if (auto res = archive.OpenWrite(p_path); !res) {
@@ -126,20 +100,6 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
 }
 
 template<ComponentType T>
-bool SerializeComponent(ISerializer& p_serializer,
-                        const char* p_name,
-                        ecs::Entity p_entity,
-                        const Scene& p_scene) {
-
-    const T* component = p_scene.GetComponent<T>(p_entity);
-    if (component) {
-        p_serializer.Key(p_name);
-        p_serializer.Write(*component);
-    }
-    return true;
-}
-
-template<ComponentType T>
 static Result<void> DeserializeComponent(const YAML::Node& p_node,
                                          const char* p_key,
                                          ecs::Entity p_id,
@@ -174,7 +134,7 @@ static Result<void> DeserializeComponent(const YAML::Node& p_node,
 #endif
     return Result<void>();
 }
-
+#endif
 
 #pragma region SCENE_COMPONENT_SERIALIZATION
 
@@ -305,16 +265,9 @@ void MeshComponent::RegisterClass() {
 
 #endif
 
-void ArmatureComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    if (p_version > 16 && p_version <= LATEST_SCENE_VERSION) {
-        p_archive.ArchiveValue(boneCollection);
-        p_archive.ArchiveValue(inverseBindMatrices);
-    } else {
-        uint32_t dummy_flag;
-        p_archive.ArchiveValue(dummy_flag);
-        p_archive.ArchiveValue(boneCollection);
-        p_archive.ArchiveValue(inverseBindMatrices);
-    }
+void ArmatureComponent::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(boneCollection);
+    p_archive.ArchiveValue(inverseBindMatrices);
 }
 
 void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
@@ -589,13 +542,6 @@ void VoxelGiComponent::RegisterClass() {
     REGISTER_FIELD_2(VoxelGiComponent, flags);
     END_REGISTRY(VoxelGiComponent);
 }
-
-void TileMapRenderer::RegisterClass() {
-    // @TODO: serialization
-    BEGIN_REGISTRY(TileMapRenderer);
-    END_REGISTRY(TileMapRenderer);
-}
-
 void EnvironmentComponent::RegisterClass() {
     BEGIN_REGISTRY(EnvironmentComponent);
     REGISTER_FIELD_2(EnvironmentComponent, sky);
@@ -606,12 +552,6 @@ void EnvironmentComponent::RegisterClass() {
 
 void VoxelGiComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);
-}
-
-void TileMapRenderer::Serialize(Archive& p_archive, uint32_t p_version) {
-    unused(p_archive);
-    unused(p_version);
-    CRASH_NOW();
 }
 
 #pragma endregion SCENE_COMPONENT_SERIALIZATION

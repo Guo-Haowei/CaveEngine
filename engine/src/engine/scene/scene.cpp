@@ -10,6 +10,7 @@
 // @TODO: refactor
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/path_tracer/bvh_accel.h"
+#include "engine/serialization/yaml_include.h"
 
 namespace cave::ecs {
 
@@ -206,19 +207,63 @@ Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     return result;
 }
 
-auto Scene::LoadFromDisk(const AssetMetaData&) -> Result<void> {
+// LATEST_SCENE_VERSION history
+// version 1: initial version
+// version 2: don't serialize scene.m_bound
+// version 3: light component atten
+// version 4: light component flags
+// version 5: add validation
+// version 6: add collider component
+// version 7: add enabled to material
+// version 8: add particle emitter
+// version 9: add ParticleEmitterComponent.gravity
+// version 10: add ForceFieldComponent
+// version 11: add ScriptFieldComponent
+// version 12: add CameraComponent
+// version 13: add SoftBodyComponent
+// version 14: modify RigidBodyComponent
+// version 15: add predefined shadow region to lights
+// version 16: change scene binary representation
+// version 17: remove armature.flags
+// version 18: change RigidBodyComponent
+// version 19: serialize scene.m_physicsMode
+static constexpr uint32_t LATEST_SCENE_VERSION = 19;
+static constexpr char SCENE_MAGIC[] = "xBScene";
+static constexpr char SCENE_GUARD_MESSAGE[] = "Should see this message";
+static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
+
+auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+    unused(p_meta);
+
     return Result<void>();
 }
 
-auto Scene::SaveToDisk(const AssetMetaData&) const -> Result<void> {
-    return Result<void>();
+template<ComponentType T>
+static bool SerializeComponent(ISerializer& p_serializer,
+                               const char* p_name,
+                               ecs::Entity p_entity,
+                               const Scene& p_scene) {
+
+    const T* component = p_scene.GetComponent<T>(p_entity);
+    if (component) {
+        p_serializer.Key(p_name);
+        p_serializer.Write(*component);
+    }
+    return true;
 }
 
-#if 0
-Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
+auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
+    auto res = p_meta.SaveToDisk(this);
+    if (!res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    // @TODO: maybe pass ISerializer next
+    YamlSerializer yaml;
+
     std::unordered_set<uint32_t> entity_set;
 
-    for (const auto& it : p_scene.GetLibraryEntries()) {
+    for (const auto& it : GetLibraryEntries()) {
         auto& manager = it.second.m_manager;
         for (auto entity : manager->GetEntityArray()) {
             entity_set.insert(entity.GetId());
@@ -228,67 +273,49 @@ Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
     std::vector<uint32_t> entity_array(entity_set.begin(), entity_set.end());
     std::sort(entity_array.begin(), entity_array.end());
 
-    auto binary_path = std::format("{}{}", p_path, ".bin");
-    Archive archive;
-    if (auto res = archive.OpenWrite(binary_path); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    YamlSerializer serializer;
-
-    serializer.BeginMap(false)
+    yaml.BeginMap(false)
         .Key("version")
         .Write(LATEST_SCENE_VERSION)
         .Key("seed")
         .Write(ecs::Entity::GetSeed())
         .Key("root")
-        .Write(p_scene.m_root.GetId())
+        .Write(m_root.GetId())
         .Key("physics_mode")
-        .Write(static_cast<uint32_t>(p_scene.m_physicsMode))
+        .Write(static_cast<uint32_t>(m_physicsMode))
         .Key("entities");
 
-    serializer.BeginArray(false);
+    yaml.BeginArray(false);
 
-    bool ok = true;
-    ok = ok && archive.Write(SCENE_MAGIC);
-    ok = ok && archive.Write(LATEST_SCENE_VERSION);
-    ok = ok && archive.Write(SCENE_GUARD_MESSAGE);
-    if (!ok) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to save file '{}'", p_path);
-    }
+    // bool ok = true;
+    // ok = ok && archive.Write(SCENE_MAGIC);
+    // ok = ok && archive.Write(LATEST_SCENE_VERSION);
+    // ok = ok && archive.Write(SCENE_GUARD_MESSAGE);
+    // if (!ok) {
+    //     return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to save file '{}'", p_path);
+    // }
 
     for (auto id : entity_array) {
         ecs::Entity entity{ id };
 
-        serializer.BeginMap(false)
+        yaml.BeginMap(false)
             .Key("id")
             .Write(id);
 
 #define REGISTER_COMPONENT(COMPONENT, ...) \
-    SerializeComponent<COMPONENT>(serializer, #COMPONENT, entity, p_scene);
+    SerializeComponent<COMPONENT>(yaml, #COMPONENT, entity, *this);
 
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
-        serializer.EndMap();
+        yaml.EndMap();
     }
 
-    serializer.EndArray();
-    serializer.EndMap();
-
-    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    // @TODO: generalize
-    auto yaml_file = *res;
-    const char* result = serializer.m_out.c_str();
-    yaml_file->WriteBuffer(result, strlen(result));
-    return Result<void>();
+    yaml.EndArray();
+    yaml.EndMap();
+    return SaveYaml(p_meta.path, yaml);
 }
 
-
+#if 0
 Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
     unused(p_scene);
 
