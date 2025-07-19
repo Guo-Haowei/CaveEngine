@@ -206,4 +206,12 @@ Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     return result;
 }
 
+auto Scene::LoadFromDisk(const AssetMetaData&) -> Result<void> {
+    return Result<void>();
+}
+
+auto Scene::SaveToDisk(const AssetMetaData&) const -> Result<void> {
+    return Result<void>();
+}
+
 }  // namespace cave

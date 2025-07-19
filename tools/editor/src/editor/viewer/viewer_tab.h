@@ -19,13 +19,14 @@ public:
 
     virtual bool HandleInput(const InputEvent* p_input_event);
 
-    virtual void OnCreate(const Guid&) {}
+    virtual void OnCreate(const Guid&);
     virtual void OnDestroy() {}
 
     virtual void OnActivate() {}
     virtual void OnDeactivate() {}
 
-    virtual void Draw();
+    virtual void DrawMainView();
+    virtual void DrawAssetInspector();
 
     virtual void Update() {}
 
@@ -49,7 +50,6 @@ public:
 
 protected:
     virtual const CameraComponent& GetActiveCameraInternal() const = 0;
-    void DrawMainView();
 
     static std::shared_ptr<CameraComponent> CreateDefaultCamera2D();
     static std::shared_ptr<CameraComponent> CreateDefaultCamera3D();
@@ -57,6 +57,8 @@ protected:
     const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
+
+private:
     std::string m_title;
 };
 

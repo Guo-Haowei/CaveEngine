@@ -82,9 +82,21 @@ auto PipelineStateManager::Initialize() -> Result<void> {
                {
                    .vs = "sprite.vs",
                    .ps = "sprite.ps",
-                   .rasterizerDesc = &s_rasterizerFrontFace,
+                   .rasterizerDesc = &s_rasterizerDoubleSided,
                    .depthStencilDesc = &s_depthReversedStencilEnabled,
                    .inputLayoutDesc = &s_inputLayoutSprite,
+                   .blendDesc = &s_transparent,
+                   .numRenderTargets = 1,
+                   .rtvFormats = { RT_FMT_TONE },
+                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
+               });
+
+    CREATE_PSO(PSO_SPRITE_NO_VERT,
+               {
+                   .vs = "sprite_no_vert.vs",
+                   .ps = "sprite.ps",
+                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .depthStencilDesc = &s_depthReversedStencilEnabled,
                    .blendDesc = &s_transparent,
                    .numRenderTargets = 1,
                    .rtvFormats = { RT_FMT_TONE },

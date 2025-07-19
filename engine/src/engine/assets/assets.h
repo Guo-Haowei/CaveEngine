@@ -4,7 +4,6 @@
 #include "asset_meta_data.h"
 
 #include "engine/math/geomath.h"
-#include "engine/renderer/gpu_resource.h"
 
 // clang-format off
 namespace YAML { class Node; }
@@ -13,29 +12,15 @@ namespace YAML { class Node; }
 namespace cave {
 
 struct BufferAsset : IAsset {
-    CAVE_ASSET(BufferAsset, AssetType::Binary)
+    CAVE_ASSET(BufferAsset, AssetType::Binary, 0)
 
     std::vector<char> buffer;
 };
 
 struct TextAsset : IAsset {
-    CAVE_ASSET(TextAsset, AssetType::Text)
+    CAVE_ASSET(TextAsset, AssetType::Text, 0)
 
     std::string source;
-};
-
-struct ImageAsset : IAsset {
-    CAVE_ASSET(ImageAsset, AssetType::Image)
-
-    PixelFormat format = PixelFormat::UNKNOWN;
-    int width = 0;
-    int height = 0;
-    int num_channels = 0;
-    std::vector<uint8_t> buffer;
-
-    // @TODO: write data to meta
-    // @TODO: refactor
-    std::shared_ptr<GpuTexture> gpu_texture;
 };
 
 }  // namespace cave

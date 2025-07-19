@@ -106,6 +106,7 @@ struct FrameData {
     std::vector<RenderCommand> transparent_commands;
     std::vector<RenderCommand> voxelization_commands;
     std::vector<RenderCommand> tile_maps;
+    std::vector<RenderCommand> sprites;
 
     // std::vector<InstanceContext> instances;
 

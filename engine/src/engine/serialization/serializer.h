@@ -1,6 +1,5 @@
 #pragma once
-// @TODO: move it to core
-#include "engine/serialization/concept.h"
+#include "defines.h"
 
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
@@ -9,10 +8,9 @@
 #include "engine/math/box.h"
 #include "engine/math/matrix.h"
 
-#include "engine/reflection/meta.h"
-
 namespace cave {
 
+// @TODO: get rid of this
 enum FieldFlag : uint32_t {
     NONE = BIT(0),
 };
@@ -21,7 +19,16 @@ DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
 
 class Guid;
 
+#if USING(VALIDATE_SERIALIZER)
+#define IF_VALIDATE_SERIALIZER(x) \
+    do { x; } while (0)
+#else
+#define IF_VALIDATE_SERIALIZER(x) (void)0
+#endif
+
 class ISerializer {
+    static inline constexpr const int SINGLE_LINE_MAX_ELEMENT = 4;
+
 public:
     virtual ~ISerializer() = default;
 
@@ -33,10 +40,10 @@ public:
 
     // virtual const std::string& GetWarning() const = 0;
 
-    virtual ISerializer& BeginArray(bool p_single_line = false) = 0;
+    virtual ISerializer& BeginArray(bool p_single_line) = 0;
     virtual ISerializer& EndArray() = 0;
 
-    virtual ISerializer& BeginMap(bool p_single_line = false) = 0;
+    virtual ISerializer& BeginMap(bool p_single_line) = 0;
     virtual ISerializer& EndMap() = 0;
 
     virtual ISerializer& Key(std::string_view p_key) = 0;
@@ -61,20 +68,31 @@ public:
     ISerializer& Write(const Degree& p_object);
     ISerializer& Write(const Matrix4x4f& p_object);
 
-    template<IsSerializable T>
-    ISerializer& Write(const T& p_value) {
-        return WriteObject(*this, p_value);
-    }
-
-    template<std::ranges::range T>
-    ISerializer& Write(const T& p_container) {
-        const size_t len = std::ranges::size(p_container);
-        BeginArray(len < 4);
-        for (const auto& val : p_container) {
+    template<ArrayLike T>
+    ISerializer& Write(const T& p_array) {
+        const size_t len = std::ranges::size(p_array);
+        BeginArray(len < SINGLE_LINE_MAX_ELEMENT);
+        for (const auto& val : p_array) {
             Write(val);
         }
         EndArray();
         return *this;
+    }
+
+    template<StringMap T>
+    ISerializer& Write(const T& p_map) {
+        const size_t len = std::ranges::size(p_map);
+        BeginMap(len < SINGLE_LINE_MAX_ELEMENT);
+        for (const auto& [key, value] : p_map) {
+            Key(key).Write(value);
+        }
+        EndMap();
+        return *this;
+    }
+
+    template<IsSerializable T>
+    ISerializer& Write(const T& p_value) {
+        return WriteObject(*this, p_value);
     }
 
     template<IsEnum T>
@@ -119,11 +137,11 @@ public:
     }
 
 #if USING(USE_REFLECTION)
-    template<HasMetaTag T>
+    template<IsReflectable T>
     ISerializer& Write(const T& p_object) {
         const auto& meta = MetaDataTable<T>::GetFields();
 
-        BeginMap();
+        BeginMap(false);
 
         for (const auto& field : meta) {
             field->Write(*this, &p_object);
@@ -133,6 +151,14 @@ public:
 
         return *this;
     }
+#endif
+
+protected:
+#if USING(VALIDATE_SERIALIZER)
+    void CheckEnter(SerializerState p_state);
+    void CheckExit(SerializerState p_state);
+
+    std::vector<SerializerState> m_stack;
 #endif
 };
 

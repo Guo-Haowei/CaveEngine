@@ -46,6 +46,11 @@ public:
 
     const AssetMetaData* GetMeta() const;
 
+    static bool ReplaceGuidAndHandle(AssetType p_type,
+                                     const Guid& p_guid,
+                                     Guid& p_out_id,
+                                     AssetHandle& p_out_handle);
+
 private:
     Guid m_guid;
     std::weak_ptr<AssetEntry> m_entry;
@@ -70,6 +75,9 @@ public:
     T* Get() const {
         return AssetHandle::Get<T>();
     }
+
+    AssetHandle& RawHandle() { return *this; }
+    const AssetHandle& RawHandle() const { return *this; }
 };
 
 }  // namespace cave

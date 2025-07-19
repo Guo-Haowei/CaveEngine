@@ -11,7 +11,8 @@ namespace cave {
 
 static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
-    if (p_ctx.frameData.tile_maps.empty()) {
+    const bool nothing_to_draw = p_ctx.frameData.tile_maps.empty() && p_ctx.frameData.sprites.empty();
+    if (nothing_to_draw) {
         return;
     }
 
@@ -30,7 +31,6 @@ static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_SPRITE);
-
     for (const RenderCommand& render_cmd : p_ctx.frameData.tile_maps) {
         const DrawCommand& draw = render_cmd.draw;
         const auto tile = draw.mesh_data;
@@ -40,6 +40,18 @@ static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
         cmd.SetMesh(tile);
         cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
         cmd.DrawElementsInstanced(1, draw.indexCount);
+    }
+
+    cmd.SetMesh(nullptr);
+    cmd.SetPipelineState(PSO_SPRITE_NO_VERT);
+    for (const RenderCommand& render_cmd : p_ctx.frameData.sprites) {
+        const DrawCommand& draw = render_cmd.draw;
+        DEV_ASSERT(draw.mesh_data == nullptr);
+        if (draw.texture) {
+            cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
+        }
+        cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
+        cmd.DrawArrays(draw.indexCount);
     }
 }
 

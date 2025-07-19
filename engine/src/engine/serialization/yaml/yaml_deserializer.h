@@ -1,14 +1,7 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 
-// @TODO: move it to core
-#include "engine/serialization/concept.h"
-
-#include "engine/ecs/entity.h"
-#include "engine/math/angle.h"
-#include "engine/math/box.h"
-#include "engine/math/matrix.h"
-#include "engine/reflection/meta.h"
+#include "engine/serialization/deserializer.h"
 
 namespace cave {
 
@@ -16,18 +9,6 @@ class Guid;
 struct TileData;
 
 auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void>;
-
-class IDeserializer {
-public:
-    virtual ~IDeserializer() = default;
-
-    virtual int GetVersion() const = 0;
-
-    template<IsSerializable T>
-    bool Read(T& p_value) {
-        return ReadObject(*this, p_value);
-    }
-};
 
 class YamlDeserializer : public IDeserializer {
 public:
@@ -41,99 +22,41 @@ public:
         return m_version;
     }
 
-    bool TryEnterKey(const char* p_key);
-    void LeaveKey();
+    bool TryEnterKey(const char* p_key) override;
 
-    bool Read(ecs::Entity& p_object);
+    void LeaveKey() override;
 
-    bool Read(Degree& p_object);
+    bool TryEnterIndex(int p_index) override;
 
-    bool Read(std::string& p_object);
+    void LeaveIndex() override;
 
-    bool Read(Guid& p_object);
+    Option<int> ArraySize() override;
 
-    bool Read(Matrix4x4f& p_object);
+    Option<std::vector<std::string>> GetKeys() override;
 
-    template<IsArithmetic T>
-    bool Read(T& p_object) {
-        auto& node = Current();
+    bool Read(bool& p_value) override;
+    bool Read(float& p_value) override;
+    bool Read(std::string& p_value) override;
 
-        ERR_FAIL_COND_V_MSG(!node.IsScalar(), false, "expect scalar");
-
-        p_object = node.as<T>();
-        return true;
-    }
-
-    template<IsEnum T>
-    bool Read(T& p_object) {
-        auto& node = Current();
-
-        ERR_FAIL_COND_V_MSG(!node.IsScalar(), false, "expect scalar");
-
-        p_object = static_cast<T>(node.as<uint64_t>());
-        return true;
-    }
-
-    template<typename T, int N>
-    bool Read(Vector<T, N>& p_object) {
-        auto& node = Current();
-
-        ERR_FAIL_COND_V_MSG(!node.IsSequence() || node.size() != N, false, "expect Vector");
-
-        p_object.x = node[0].as<T>();
-        p_object.y = node[1].as<T>();
-        if constexpr (N > 2) {
-            p_object.z = node[2].as<T>();
-        }
-        if constexpr (N > 3) {
-            p_object.w = node[3].as<T>();
-        }
-        return true;
-    }
-
-    template<int N>
-    bool Read(Box<N>& p_object) {
-        ERR_FAIL_COND_V_MSG(!Current().IsMap(), false, "expect Box<N>");
-
-        auto min = Vector<float, N>(std::numeric_limits<float>::infinity());
-        if (TryEnterKey("min")) {
-            Read(min);
-            LeaveKey();
-        }
-
-        auto max = Vector<float, N>(-std::numeric_limits<float>::infinity());
-        if (TryEnterKey("max")) {
-            Read(max);
-            LeaveKey();
-        }
-
-        p_object = Box<N>(min, max);
-        return true;
-    }
-
-#if USING(USE_REFLECTION)
-    template<HasMetaTag T>
-    bool Read(T& p_object) {
-        const auto& meta = MetaDataTable<T>::GetFields();
-
-        for (const auto& field : meta) {
-            if (TryEnterKey(field->name)) {
-                field->Read(*this, &p_object);
-                LeaveKey();
-            }
-        }
-
-        return true;
-    }
-#endif
+    bool Read(int8_t& p_value) override;
+    bool Read(uint8_t& p_value) override;
+    bool Read(int16_t& p_value) override;
+    bool Read(uint16_t& p_value) override;
+    bool Read(int32_t& p_value) override;
+    bool Read(uint32_t& p_value) override;
+    bool Read(int64_t& p_value) override;
+    bool Read(uint64_t& p_value) override;
 
     const YAML::Node& Current() {
-        DEV_ASSERT(!m_stack.empty());
-        return m_stack.back();
+        DEV_ASSERT(!m_node_stack.empty());
+        return m_node_stack.back();
     }
 
 private:
-    std::vector<YAML::Node> m_stack;
+    template<typename T>
+    bool ReadScalar(T& p_out);
+
+    std::vector<YAML::Node> m_node_stack;
     int m_version{ -1 };
     bool m_initialized{ false };
 };
@@ -142,7 +65,7 @@ template<typename T>
 bool FieldMeta<T>::Read(IDeserializer& p_deserializer, void* p_object) {
     T& data = FieldMetaBase::GetData<T>(p_object);
 
-    return static_cast<YamlDeserializer&>(p_deserializer).Read(data);
+    return p_deserializer.Read(data);
 }
 
 #if 0

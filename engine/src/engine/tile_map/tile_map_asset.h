@@ -1,14 +1,18 @@
 #pragma once
-#include <nlohmann/json_fwd.hpp>
-
 #include "engine/assets/asset_handle.h"
 #include "engine/assets/asset_interface.h"
 #include "engine/reflection/reflection.h"
+#include "engine/serialization/concept.h"
 
-// @TODO: make it iserializer
-#include "engine/serialization/yaml_include.h"
+// @TODO: change tile data to sparsed chunck
+// @TODO: change m_sprite_guid to m_tile_set_guid (make tile set asset)
 
 namespace cave {
+
+class ISerializer;
+class IDeserializer;
+
+using TileId = uint32_t;
 
 struct TileIndex {
     int16_t x, y;
@@ -18,26 +22,17 @@ struct TileIndex {
     }
 };
 
-}  // namespace cave
-
-namespace std {
-template<>
-struct hash<::cave::TileIndex> {
-    std::size_t operator()(const ::cave::TileIndex& p_key) const noexcept {
-        const uint32_t packed = std::bit_cast<uint32_t>(p_key);
+struct TileIndexHasher {
+    std::size_t operator()(const cave::TileIndex& key) const noexcept {
+        const uint32_t packed = std::bit_cast<uint32_t>(key);
         return std::hash<uint32_t>{}(packed);
     }
 };
 
-}  // namespace std
+using TileChunk = std::unordered_map<TileIndex, TileId, TileIndexHasher>;
 
-namespace cave {
-
-using TileId = uint32_t;
-
-// @TODO: change it to sparsed chunck
 struct TileData {
-    std::unordered_map<TileIndex, TileId> tiles;
+    TileChunk tiles;
 };
 
 ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data);
@@ -47,7 +42,7 @@ bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data);
 static_assert(Serializable<TileData>);
 
 class TileMapAsset : public IAsset {
-    CAVE_ASSET(TileMapAsset, AssetType::TileMap)
+    CAVE_ASSET(TileMapAsset, AssetType::TileMap, 1)
 
     CAVE_META(TileMapAsset)
 
@@ -63,9 +58,12 @@ class TileMapAsset : public IAsset {
     CAVE_PROP(type = tile_data)
     TileData m_tiles;
 
-public:
-    static constexpr const int VERSION = 1;
+private:
+    // Non serialized
+    Handle<SpriteAsset> m_sprite_handle;
+    uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
 
+public:
     Option<TileId> GetTile(TileIndex p_index) const;
 
     bool AddTile(TileIndex p_index, TileId p_data);
@@ -82,7 +80,7 @@ public:
     void SetSpriteGuid(const Guid& p_guid, bool p_force = false);
 
     const auto& GetTiles() const { return m_tiles.tiles; }
-    void SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles);
+    void SetTiles(TileChunk&& p_tiles);
 
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }
@@ -93,14 +91,9 @@ public:
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
 
-    std::vector<Guid> GetDependencies() const override;
-
-private:
-    void LoadFromDiskVersion1(YamlDeserializer& p_deserializer);
-
-    // Non serialized
-    Handle<SpriteAsset> m_sprite_handle;
-    uint32_t m_revision{ 1 };  // make sure revision is ahead the first frame
+    std::vector<Guid> GetDependencies() const override {
+        return { m_sprite_guid };
+    }
 };
 
 }  // namespace cave

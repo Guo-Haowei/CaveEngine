@@ -12,7 +12,10 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
-#include "editor/viewer/tile_map_editor.h"
+
+// asset editors
+#include "editor/animation_editor/sprite_animation_editor.h"
+#include "editor/tile_map_editor/tile_map_editor.h"
 #include "editor/viewer/scene_editor.h"
 
 namespace cave {
@@ -124,7 +127,7 @@ bool Viewer::HandleInput(const InputEvent* p_input_event) {
     return CacheCameraInput(p_input_event);
 }
 
-std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
+Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     auto [window_x, window_y] = m_editor.GetApplication()->GetDisplayServer()->GetWindowPos();
     p_point.x = (p_point.x + window_x - m_canvas_min.x) / m_canvas_size.x;
     p_point.y = (p_point.y + window_y - m_canvas_min.y) / m_canvas_size.y;
@@ -133,10 +136,10 @@ std::optional<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
         p_point *= 2.0f;
         p_point -= 1.0f;
         p_point.y = -p_point.y;
-        return p_point;
+        return Some(p_point);
     }
 
-    return std::nullopt;
+    return None();
 }
 
 bool Viewer::CacheCameraInput(const InputEvent* p_input_event) {
@@ -192,7 +195,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     auto cached_tab = m_tab_manager.FindTabByGuid(p_guid);
 
     if (cached_tab.is_some()) {
-        m_tab_manager.SwitchTab(cached_tab.unwrap()->GetId());
+        m_tab_manager.SwitchTab(cached_tab.unwrap_unchecked()->GetId());
         return;
     }
 
@@ -208,6 +211,9 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
             break;
         case AssetType::TileMap:
             tab.reset(new TileMapEditor(m_editor, *this));
+            break;
+        case AssetType::SpriteAnimation:
+            tab.reset(new SpriteAnimationEditor(m_editor, *this));
             break;
         default:
             LOG_WARN("Can't open tab {}", ToString(p_type));
@@ -235,7 +241,7 @@ void Viewer::UpdateInternal(Scene*) {
     // update camera
     if (auto tab = m_tab_manager.GetActiveTab(); tab.is_some()) {
         const float dt = m_editor.context.timestep;
-        auto& camera = tab.unwrap()->GetActiveCamera();
+        auto& camera = tab.unwrap_unchecked()->GetActiveCamera();
         const bool is_2d = camera.IsView2D();
         if (is_2d) {
             const float speed = dt * 0.5f;
@@ -279,7 +285,7 @@ void Viewer::UpdateInternal(Scene*) {
                 m_tab_manager.SwitchTab(tab->GetId());
             }
 
-            tab->Draw();
+            tab->DrawMainView();
 
             ImGui::EndTabItem();
         }

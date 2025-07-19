@@ -22,25 +22,6 @@ public:
 
 protected:
     void UpdateInternal(Scene*) override;
-
-    // SpriteSheet
-    void InspectSprite(IAsset* p_asset);
-    void EditSprite(SpriteAsset& p_sprite);
-    void TilePaint(SpriteAsset& p_sprite);
-
-    // TileMap
-    void InspectTileMap(IAsset* p_asset);
-    void TileMapLayerOverview(TileMapAsset& p_tile_map);
-
-    // @TODO: refactor
-
-    int m_selected_x = -1;
-    int m_selected_y = -1;
-    // @TODO: refactor
-
-    AssetRegistry* m_asset_registry;
-
-    Handle<ImageAsset> m_checkerboard_handle;
 };
 
 }  // namespace cave

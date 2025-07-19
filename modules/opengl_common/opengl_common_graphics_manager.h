@@ -96,6 +96,9 @@ protected:
         ComparisonFunc stencilFunc;
         gl::TOPOLOGY topology;
     } m_stateCache;
+
+private:
+    uint32_t m_dummy_vao;  // for drawing with gl_VertexID
 };
 
 }  // namespace cave

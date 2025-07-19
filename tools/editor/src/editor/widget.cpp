@@ -1,6 +1,6 @@
 #include "widget.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/image_asset.h"
 #include "engine/runtime/asset_registry.h"
 #include "editor/editor_window.h"
 
@@ -256,7 +256,7 @@ bool DragDropTarget(AssetType p_mask,
             const char* path = reinterpret_cast<const char*>(payload->Data);
             auto handle = AssetRegistry::GetSingleton().FindByPath(path, p_mask);
             if (handle.is_some()) {
-                p_callback(handle.unwrap());
+                p_callback(handle.unwrap_unchecked());
             }
         }
         ImGui::EndDragDropTarget();
@@ -294,7 +294,7 @@ void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_re
 
 void ShowAssetToolTip(const Guid& p_guid) {
     if (auto res = AssetRegistry::GetSingleton().FindByGuid(p_guid); res.is_some()) {
-        AssetHandle handle = std::move(res.unwrap());
+        AssetHandle handle = std::move(res.unwrap_unchecked());
         if (auto asset = handle.Get(); asset) {
             ShowAssetToolTip(*handle.GetMeta(), asset);
         }
@@ -322,6 +322,26 @@ void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset) {
         }
 
         ImGui::EndTooltip();
+    }
+}
+
+void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_descs) {
+    const int size = static_cast<int>(p_descs.size());
+    float width_so_far = 0.0f;
+    for (int i = 0; i < size; ++i) {
+        const auto& desc = p_descs[i];
+        const bool is_last = i + 1 == size;
+
+        const float width = is_last ? p_full_width - width_so_far : desc.width;
+        width_so_far += width;
+
+        ImGui::BeginChild(desc.name, ImVec2(width, 0), true);
+        desc.func();
+        ImGui::EndChild();
+
+        if (!is_last) {
+            ImGui::SameLine();
+        }
     }
 }
 

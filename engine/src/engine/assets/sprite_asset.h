@@ -4,19 +4,18 @@
 
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"
-#include "engine/serialization/yaml_forward.h"
 
 namespace cave {
 
 class SpriteAsset : public IAsset {
-    CAVE_ASSET(SpriteAsset, AssetType::Sprite)
+    CAVE_ASSET(SpriteAsset, AssetType::Sprite, 0)
 
     CAVE_META(SpriteAsset)
 
     CAVE_PROP(type = guid, tooltip = "image id")
     Guid m_image_guid;
 
-    CAVE_PROP(type = f32, min = 0.1f, hint = input_float, editable, serialize)
+    CAVE_PROP(type = f32, min = 0.1f, hint = input_float)
     float m_tile_scale = 1.0f;
 
     CAVE_PROP(type = u32)
@@ -36,8 +35,6 @@ class SpriteAsset : public IAsset {
     Handle<ImageAsset> m_image_handle;
 
 public:
-    static constexpr const int VERSION = 0;
-
     uint32_t GetRow() const { return m_row; }
     void SetRow(uint32_t p_row);
 
@@ -63,8 +60,6 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    void LoadFromDiskCurrent(YamlDeserializer& p_deserializer);
-
     void SetHandle(Handle<ImageAsset>&& p_handle);
     void UpdateFrames();
 };

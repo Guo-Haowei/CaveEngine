@@ -47,8 +47,10 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
         type = AssetType::Sprite;
     } else if (extension == ".tilemap") {
         type = AssetType::TileMap;
+    } else if (extension == ".sprite_anim") {
+        type = AssetType::SpriteAnimation;
     } else {
-        return Option<AssetMetaData>::None();
+        return None();
     }
 
     AssetMetaData meta;
@@ -56,7 +58,7 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     meta.type = type;
     meta.path = p_path;
 
-    return meta;
+    return Some(meta);
 }
 
 auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
@@ -64,7 +66,7 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
 
     // @TODO: fix this
     serializer
-        .BeginMap()
+        .BeginMap(false)
         .Key("guid")
         .Write(guid)
         .Key("type")

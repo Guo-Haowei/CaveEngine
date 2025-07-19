@@ -51,8 +51,8 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
             auto meta = std::move(*res);
 
             if (meta.path != key) {
+                LOG_WARN("path of asset '{}' is outdated expect: '{}', actual: '{}'", meta.guid.ToString(), meta.path, key);
                 meta.path = key;
-                LOG_WARN("asset '{}'({}) has been moved", meta.path, meta.guid.ToString());
             }
 
             LOG_VERBOSE("'{}' detected, loading...", meta_path);
@@ -67,7 +67,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
             continue;
         }
 
-        auto meta2 = std::move(meta.unwrap());
+        auto meta2 = std::move(meta.unwrap_unchecked());
         auto res = meta2.SaveToDisk(nullptr);
         if (!res) {
             return CAVE_ERROR(res.error());
@@ -130,11 +130,11 @@ Option<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_ty
     if (it != m_guid_map.end()) {
         auto ok = p_type & it->second->metadata.type;
         if (static_cast<bool>(ok)) {
-            return AssetHandle(p_guid, it->second);
+            return Some(AssetHandle(p_guid, it->second));
         }
     }
 
-    return Option<AssetHandle>::None();
+    return None();
 }
 
 Option<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetType p_type) {
@@ -146,12 +146,12 @@ Option<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetTy
         if (it2 != m_guid_map.end()) {
             auto ok = p_type & it2->second->metadata.type;
             if (static_cast<bool>(ok)) {
-                return AssetHandle(guid, it2->second);
+                return Some(AssetHandle(guid, it2->second));
             }
         }
     }
 
-    return Option<AssetHandle>::None();
+    return None();
 }
 
 void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
@@ -167,7 +167,34 @@ void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
     it2->second->metadata.path = std::move(p_new);
 }
 
-bool AssetRegistry::SaveAsset(const Guid& p_guid) {
+bool AssetRegistry::SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const {
+    if (!p_entry->asset) {
+        LOG_ERROR("Asset not loaded {}", p_entry->metadata.path);
+        return false;
+    }
+
+    auto res = p_entry->asset->SaveToDisk(p_entry->metadata);
+    if (!res) {
+        StringStreamBuilder builder;
+        builder << res.error();
+        LOG_ERROR("{}", builder.ToString());
+        return false;
+    }
+
+    LOG_OK("Asset '{}' saved!", p_entry->metadata.path);
+    return true;
+}
+
+bool AssetRegistry::SaveAllAssets() const {
+    std::lock_guard lock(registry_mutex);
+    for (const auto& it : m_guid_map) {
+        SaveAssetHelper(it.second);
+    }
+
+    return true;
+}
+
+bool AssetRegistry::SaveAsset(const Guid& p_guid) const {
     std::lock_guard lock(registry_mutex);
 
     auto it = m_guid_map.find(p_guid);
@@ -176,22 +203,7 @@ bool AssetRegistry::SaveAsset(const Guid& p_guid) {
         return false;
     }
 
-    auto entry = it->second;
-    if (!entry->asset) {
-        LOG_ERROR("Asset not loaded {}", entry->metadata.path);
-        return false;
-    }
-
-    auto res = entry->asset->SaveToDisk(entry->metadata);
-    if (!res) {
-        StringStreamBuilder builder;
-        builder << res.error();
-        LOG_ERROR("{}", builder.ToString());
-        return false;
-    }
-
-    LOG_OK("Asset '{}' saved!", entry->metadata.path);
-    return true;
+    return SaveAssetHelper(it->second);
 }
 
 std::shared_ptr<AssetEntry> AssetRegistry::GetEntry(const Guid& p_guid) {
@@ -202,33 +214,5 @@ std::shared_ptr<AssetEntry> AssetRegistry::GetEntry(const Guid& p_guid) {
     }
     return it->second;
 }
-
-#if 0
-void AssetRegistry::GetAssetByType(AssetType p_type, std::vector<IAsset*>& p_out) {
-    std::lock_guard gurad(m_lock);
-    for (auto& it : m_handles) {
-        if (it->asset && it->asset->type == p_type) {
-            p_out.emplace_back(it->asset.get());
-        }
-    }
-}
-
-void AssetRegistry::RemoveAsset(const std::string& p_path) {
-    std::lock_guard gurad(m_lock);
-    auto it = m_lookup.find(p_path);
-    if (it == m_lookup.end()) {
-        return;
-    }
-
-    auto val = it->second;
-    m_lookup.erase(it);
-    for (auto it2 = m_handles.begin(); it2 != m_handles.end(); ++it2) {
-        if (it2->get() == val) {
-            m_handles.erase(it2);
-            break;
-        }
-    }
-}
-#endif
 
 }  // namespace cave

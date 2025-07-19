@@ -19,25 +19,29 @@ public:
     Option<Handle<T>> FindByPath(const std::string& p_path) {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
         auto handle = FindByPath(p_path, T::ASSET_TYPE);
-        if (handle.is_none()) return Option<Handle<T>>::None();
-        return Handle<T>(std::move(handle.unwrap()));
+        if (handle.is_none()) return None();
+        return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }
 
     template<typename T>
     Option<Handle<T>> FindByGuid(const Guid& p_guid) {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
         auto handle = FindByGuid(p_guid, T::ASSET_TYPE);
-        if (handle.is_none()) return Option<Handle<T>>::None();
-        return Handle<T>(std::move(handle.unwrap()));
+        if (handle.is_none()) return None();
+        return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }
 
     void MoveAsset(std::string&& p_old, std::string&& p_new);
 
-    bool SaveAsset(const Guid& p_guid);
+    bool SaveAsset(const Guid& p_guid) const;
+
+    bool SaveAllAssets() const;
 
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
+
+    bool SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const;
 
     bool StartAsyncLoad(AssetMetaData&& p_meta,
                         AssetLoadSuccessCallback&& p_on_success,

@@ -1,7 +1,9 @@
 #include "viewer_tab.h"
 
+#include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
+#include "engine/runtime/asset_registry.h"
 #include "engine/scene/scene.h"
 
 #include "editor/document/document.h"
@@ -18,6 +20,17 @@ ViewerTab::ViewerTab(EditorLayer& p_editor, Viewer& p_viewer)
     : m_id(TabId::Next())
     , m_editor(p_editor)
     , m_viewer(p_viewer) {
+}
+
+void ViewerTab::OnCreate(const Guid& p_guid) {
+    auto handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
+    auto meta = handle.GetMeta();
+    DEV_ASSERT(meta);
+
+    std::string_view base_path = StringUtils::FileName(meta->path.c_str(), '/');
+    m_title = std::format("{}###{}", base_path, handle.GetGuid().ToString());
+
+    LOG_OK("ViewerTab '{}' created", m_title);
 }
 
 std::shared_ptr<CameraComponent> ViewerTab::CreateDefaultCamera2D() {
@@ -86,9 +99,7 @@ void ViewerTab::DrawMainView() {
     }
 }
 
-void ViewerTab::Draw() {
-    // @TODO: remove this
-    DrawMainView();
+void ViewerTab::DrawAssetInspector() {
 }
 
 }  // namespace cave

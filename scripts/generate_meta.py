@@ -7,22 +7,26 @@ def get_engine_src_folder():
     project_dir = os.path.dirname(source_folder)
     return os.path.join(project_dir, 'engine', 'src', 'engine')
 
-print("Project root folder:", get_engine_src_folder())
+print('Project root folder:', get_engine_src_folder())
 
-# throw "Source folder not found"
+# throw 'Source folder not found'
 
 # ========= CONFIG ==========
 FILES = [
-    "tile_map/tile_map_asset.h",
-    "tile_map/tile_map_renderer.h",
-    "scene/transform_component.h",
-    "scene/camera_component.h",
-    "assets/sprite_asset.h",
+    'tile_map/tile_map_asset.h',
+    'tile_map/tile_map_renderer.h',
+    'scene/transform_component.h',
+    'scene/camera_component.h',
+    'assets/sprite_asset.h', # TODO: make it tile set
+    'sprite/sprite_animation_asset.h',
+    'sprite/sprite_renderer.h',
 ]
 
-OUTPUT_DIR = os.path.join(get_engine_src_folder(), "reflection/generated")
+OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'reflection/generated')
+SCRIPT_NAME = os.path.basename(__file__)
 
-META_CPP_SUFFIX = ".meta.cpp"
+META_CPP_SUFFIX = '.generated.cpp'
+META_CPP_ALL = 'meta_all.cpp'
 
 # ========= REGEX ==========
 
@@ -31,7 +35,7 @@ prop_regex = re.compile(r"CAVE_PROP\s*\((.*?)\)")
 field_regex = re.compile(r"([a-zA-Z_][\w:]*)\s+([a-zA-Z_]\w*)\s*;")
 
 # ========= PARSING & GENERATION ==========
-def extract_field_name(line: str) -> str:
+def extract_field_name_and_type(line: str) -> str:
     line = line.strip()
     if line.endswith(';'):
         line = line[:-1].strip()
@@ -43,17 +47,17 @@ def extract_field_name(line: str) -> str:
         parts = parts[:index]
 
     token = parts[-1]
-    return token
+    type_name = ' '.join(parts[:-1])
+    return token, type_name
 
 def remove_prefix(name: str) -> str:
-    return name[2:] if name.startswith("m_") else name
+    return name[2:] if name.startswith('m_') else name
 
 def parse_file(file_path):
-    results = []
+    metas = {}
+    last_class_fields = None
 
-    class_name = None
-
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
     i = 0
@@ -61,32 +65,52 @@ def parse_file(file_path):
         line = lines[i].strip()
 
         if meta_match := meta_regex.match(line):
-            assert class_name is None, "class_name must be None"
             class_name = meta_match.group(1)
+            if class_name in metas:
+                raise RuntimeError(f'Duplicate CAVE_META found for class: {class_name}')
+            last_class_fields = metas[class_name] = []
 
         if prop_match := prop_regex.match(line):
-            assert class_name is not None, "class_name must not be None"
+            assert class_name is not None, 'class_name must not be None'
 
             metadata = prop_match.group(1).strip()
             i += 1
-            while i < len(lines) and lines[i].strip() == "":
+            while i < len(lines) and lines[i].strip() == '':
                 i += 1
             if i < len(lines):
                 next_line = lines[i].strip()
-                token = extract_field_name(next_line)
+                token, type_name = extract_field_name_and_type(next_line)
                 if token:
-                    results.append({
-                        "type": token,
-                        "name": token,
-                        "meta": metadata
+                    last_class_fields.append({
+                        'type': type_name,
+                        'name': token,
+                        'meta': metadata
                     })
 
         i += 1
 
-    return class_name, results
+    return metas
 
+def generate_meta_for_class(f, class_name, fields):
+    for field in fields:
+        f.write(f"// {field['type']} {field['name']} ({field['meta']})\n")
 
-def generate_meta_file(base_path, file_path, class_name, fields):
+    f.write("\ntemplate<>\n")
+    f.write(f"const MetaTableFields& MetaDataTable<{class_name}>::GetFields() {{\n")
+    f.write("    static MetaTableFields s_table = {\n")
+    for field in fields:
+        field_name = field['name']
+        display_name = remove_prefix(field_name)
+        f.write(f'        REGISTER_FIELD({class_name}, "{display_name}", {field_name}),\n')
+        continue
+    f.write("    };\n\n")
+    f.write("    return s_table;\n")
+    f.write("}\n\n")
+    f.write(f"// Avoid lazy init\n")
+    f.write(f"[[maybe_unused]] static const auto& s_{class_name}_meta = MetaDataTable<{class_name}>::GetFields();\n\n")
+    return
+
+def generate_meta_file(base_path, file_path, metas):
     filename = os.path.basename(file_path)
     base = os.path.splitext(filename)[0]
     output_file = os.path.join(OUTPUT_DIR, base + META_CPP_SUFFIX)
@@ -94,47 +118,48 @@ def generate_meta_file(base_path, file_path, class_name, fields):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     with open(output_file, "w", encoding="utf-8") as f:
-        f.write(f"// Auto-generated metadata for {filename}\n\n")
-        for field in fields:
-            f.write(f"// {field['type']} {field['name']} ({field['meta']})\n")
+        f.write(f"// DO NOT EDIT THIS FILE\n")
+        f.write(f"// Auto-generated metadata for {filename}\n")
+        f.write(f"// Check {SCRIPT_NAME} for more details\n\n")
 
-        f.write('\n#include "engine/serialization/yaml_include.h"\n')
+        f.write('#include "engine/serialization/yaml_include.h"\n')
         f.write(f'#include "engine/{base_path}"\n\n')
-        f.write("namespace cave {\n\n")
-        # f.write(f"class {class_name};\n\n")
-        f.write("template<>\n")
-        f.write(f"const MetaTableFields& MetaDataTable<{class_name}>::GetFields() {{\n")
-        f.write("    static MetaTableFields s_table = {\n")
-        for field in fields:
-            field_name = field['name']
-            display_name = remove_prefix(field_name)
-            f.write(f'        REGISTER_FIELD({class_name}, "{display_name}", {field_name}),\n')
-            continue
-        f.write("    };\n\n")
-        f.write("    return s_table;\n")
-        f.write("}\n\n")
-        f.write(f"// Register the class\n")
-        f.write(f"[[maybe_unused]] static const auto& s_meta = MetaDataTable<{class_name}>::GetFields();\n\n")
-        f.write("}  // namespace cave\n")
+        f.write('namespace cave {\n\n')
 
-    print(f"Generated: {output_file}")
+        for class_name, fields in metas.items():
+            generate_meta_for_class(f, class_name, fields)
 
+        f.write('}  // namespace cave\n')
+
+    print(f'Generated: {output_file}')
+    return os.path.basename(output_file)
 
 def main():
+    generated_files = []
+
     for base_path in FILES:
         file_path = os.path.join(get_engine_src_folder(), base_path)
         if not os.path.isfile(file_path):
-            print(f"File not found: {file_path}")
-            raise FileNotFoundError(f"File not found: {file_path}")
+            print(f'File not found: {file_path}')
+            raise FileNotFoundError(f'File not found: {file_path}')
 
-        class_name, fields = parse_file(file_path)
-        assert class_name is not None, "class must not be None"
+        metas = parse_file(file_path)
 
-        if fields:
-            generate_meta_file(base_path, file_path, class_name, fields)
+        if len(metas) > 0:
+            generated_file_name = generate_meta_file(base_path, file_path, metas)
+            generated_files.append(generated_file_name)
         else:
-            print(f"No CAVE_PROP found in: {file_path}")
+            print(f'No CAVE_PROP found in: {file_path}')
 
+    output_file = os.path.join(OUTPUT_DIR, '..', META_CPP_ALL)
+    print(output_file)
 
-if __name__ == "__main__":
+    with open(output_file, 'w') as f:
+        f.write('// DO NOT EDIT THIS FILE\n')
+        f.write(f'// run {SCRIPT_NAME} to generate the meta files\n\n')
+        for cpp_file in generated_files:
+            filename = os.path.basename(cpp_file)
+            f.write(f'#include "generated/{filename}"\n')
+
+if __name__ == '__main__':
     main()

@@ -19,10 +19,10 @@ class YamlSerializer : public ISerializer {
 public:
     using ISerializer::Write;
 
-    ISerializer& BeginArray(bool p_single_line = false) override;
+    ISerializer& BeginArray(bool p_single_line) override;
     ISerializer& EndArray() override;
 
-    ISerializer& BeginMap(bool p_single_line = false) override;
+    ISerializer& BeginMap(bool p_single_line) override;
     ISerializer& EndMap() override;
 
     ISerializer& Key(std::string_view p_key) override;

@@ -21,7 +21,7 @@ protected:
 
     void ListFile(const std::filesystem::path& p_path, const char* p_name_override = nullptr);
 
-    void FolderPopup(const std::filesystem::path& p_path, bool p_is_dir);
+    void FolderPopup(const std::filesystem::path& p_path, const std::string& p_short_path, bool p_is_dir);
 
     std::filesystem::path m_root;
     std::filesystem::path m_renaming;

@@ -31,8 +31,8 @@ private:
     Handle<TileMapAsset> m_handle;
     TileIndex m_index;
 
-    Option<TileId> m_old_tile;
-    Option<TileId> m_new_tile;
+    Option<TileId> m_old_tile{ None() };
+    Option<TileId> m_new_tile{ None() };
 };
 
 std::shared_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileId p_tile) {
@@ -46,7 +46,7 @@ std::shared_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map
 
     auto cmd = std::make_shared<SetTileCommand>();
     cmd->m_old_tile = old_tile;
-    cmd->m_new_tile = p_tile;
+    cmd->m_new_tile = Some(p_tile);
     cmd->m_index = p_index;
     return cmd;
 }
@@ -62,7 +62,7 @@ std::shared_ptr<SetTileCommand> SetTileCommand::RemoveTile(TileMapAsset& p_tile_
 
     auto cmd = std::make_shared<SetTileCommand>();
     cmd->m_old_tile = old_tile;
-    cmd->m_new_tile = Option<TileId>::None();
+    cmd->m_new_tile = None();
     cmd->m_index = p_index;
     return cmd;
 }
@@ -82,7 +82,7 @@ bool SetTileCommand::SetTile(Option<TileId> p_new_tile) {
     if (!tile_map) {
         return false;
     }
-    const bool ok = p_new_tile.is_none() ? tile_map->RemoveTile(m_index) : tile_map->AddTile(m_index, p_new_tile.unwrap());
+    const bool ok = p_new_tile.is_none() ? tile_map->RemoveTile(m_index) : tile_map->AddTile(m_index, p_new_tile.unwrap_unchecked());
     DEV_ASSERT(ok);
     tile_map->IncRevision();
     return ok;

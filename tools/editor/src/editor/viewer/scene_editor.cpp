@@ -14,7 +14,6 @@ namespace cave {
 
 SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
-    m_title = "Scene Editor";
     m_camera = ViewerTab::CreateDefaultCamera3D();
 }
 

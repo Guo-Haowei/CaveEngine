@@ -5,9 +5,11 @@
 
 // @TODO: get rid of this file
 #include "engine/assets/assets.h"
-#include "engine/assets/sprite_asset.h"
-#include "engine/tile_map/tile_map_asset.h"
 #include "engine/assets/asset_loader.h"
+#include "engine/assets/image_asset.h"
+#include "engine/assets/sprite_asset.h"  // @TODO: deprecate sprite asset
+#include "engine/sprite/sprite_animation_asset.h"
+#include "engine/tile_map/tile_map_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/os/threads.h"
 #include "engine/core/os/timer.h"
@@ -63,6 +65,8 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
     switch (p_type) {
         case AssetType::Sprite:
             return std::make_shared<SpriteAsset>();
+        case AssetType::SpriteAnimation:
+            return std::make_shared<SpriteAnimationAsset>();
         case AssetType::TileMap:
             return std::make_shared<TileMapAsset>();
         default:
@@ -134,10 +138,11 @@ void AssetManager::CreateAsset(AssetType p_type,
     auto short_path = ResolvePath(new_file);
     auto _meta = AssetMetaData::CreateMeta(short_path);
     if (_meta.is_none()) {
+        LOG_ERROR("can't create asset '{}'", short_path);
         return;
     }
 
-    auto meta = std::move(_meta.unwrap());
+    auto meta = std::move(_meta.unwrap_unchecked());
     // @TODO: handle error
     [[maybe_unused]] auto res = asset->SaveToDisk(meta);
 

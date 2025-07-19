@@ -87,8 +87,8 @@ CBUFFER(PerBatchConstantBuffer, 0) {
     float c_envPassRoughness;  // for environment map
     int c_meshFlag;
 
-    Vector4f _per_batch_padding_1;
-    Vector4f _per_batch_padding_2;
+    Vector4f c_tint_color;
+    Vector4f c_uv_rect;
 
     Matrix4x4f c_cubeProjectionViewMatrix;
     Matrix4x4f _per_batch_padding_5;

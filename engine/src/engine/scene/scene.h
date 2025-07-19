@@ -9,7 +9,7 @@
 #include "engine/scene/scene_component.h"
 #include "engine/scene/camera_component.h"
 #include "engine/scene/transform_component.h"
-
+#include "engine/sprite/sprite_renderer.h"
 #include "engine/tile_map/tile_map_renderer.h"
 
 struct lua_State;
@@ -25,6 +25,7 @@ namespace cave {
 
 #define REGISTER_COMPONENT_SERIALIZED_LIST                                 \
     REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0) \
+    REGISTER_COMPONENT(SpriteRenderer, "World::SpriteRenderer", 0)         \
     REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)
 
 #define REGISTER_COMPONENT_LIST                                                        \
@@ -47,6 +48,7 @@ namespace cave {
     REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)                 \
     REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)         \
     REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)                         \
+    REGISTER_COMPONENT(SpriteRenderer, "World::SpriteRenderer", 0)                     \
     REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)
 
 // @TODO: refactor
@@ -70,7 +72,7 @@ DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 class Scene : public NonCopyable, public IAsset {
     ecs::ComponentLibrary m_componentLib;
 
-    CAVE_ASSET(Scene, AssetType::Scene)
+    CAVE_ASSET(Scene, AssetType::Scene, 0)
 public:
     static constexpr const char* EXTENSION = ".scene";
 
@@ -155,6 +157,14 @@ public:
     void AttachChild(ecs::Entity p_entity) { AttachChild(p_entity, m_root); }
 
     void RemoveEntity(ecs::Entity p_entity);
+
+    auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
+
+    auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
+
+    [[nodiscard]] virtual std::vector<Guid> GetDependencies() const {
+        return {};
+    }
 
     struct RayIntersectionResult {
         ecs::Entity entity;

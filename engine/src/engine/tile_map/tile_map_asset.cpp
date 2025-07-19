@@ -4,19 +4,17 @@
 #include "engine/assets/sprite_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/serialization/serialization.h"
+#include "engine/serialization/yaml_include.h"
 
 namespace cave {
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TileIndex, x, y);
 
 Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
     auto it = m_tiles.tiles.find(p_index);
     if (it == m_tiles.tiles.end()) {
-        return std::nullopt;
+        return None();
     }
 
-    return it->second;
+    return Some(it->second);
 }
 
 bool TileMapAsset::AddTile(TileIndex p_index, TileId p_data) {
@@ -44,7 +42,7 @@ bool TileMapAsset::RemoveTile(TileIndex p_index) {
     return true;
 }
 
-void TileMapAsset::SetTiles(std::unordered_map<TileIndex, TileId>&& p_tiles) {
+void TileMapAsset::SetTiles(TileChunk&& p_tiles) {
     m_tiles.tiles = std::move(p_tiles);
 
     IncRevision();
@@ -65,12 +63,8 @@ void TileMapAsset::SetSpriteGuid(const Guid& p_guid, bool p_force) {
     }
 }
 
-std::vector<Guid> TileMapAsset::GetDependencies() const {
-    return { m_sprite_guid };
-}
-
 ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data) {
-    p_serializer.BeginArray();
+    p_serializer.BeginArray(false);
     for (const auto& [index, id] : p_tile_data.tiles) {
         p_serializer
             .BeginArray(true)
@@ -103,24 +97,19 @@ bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data) {
 }
 
 auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
-    // meta
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
 
     YamlSerializer yaml;
-    yaml.BeginMap()
+    yaml.BeginMap(false)
         .Key("version")
         .Write(VERSION)
         .Key("content")
         .Write(*this)
         .EndMap();
     return SaveYaml(p_meta.path, yaml);
-}
-
-void TileMapAsset::LoadFromDiskVersion1(YamlDeserializer& p_deserializer) {
-    p_deserializer.Read(*this);
 }
 
 auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
@@ -140,7 +129,7 @@ auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
             case 1:
                 [[fallthrough]];
             default:
-                LoadFromDiskVersion1(deserializer);
+                deserializer.Read(*this);
                 break;
         }
 

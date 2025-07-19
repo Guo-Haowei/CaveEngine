@@ -1,6 +1,6 @@
 #include "sprite_asset.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/image_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/serialization/yaml_include.h"
@@ -47,7 +47,7 @@ void SpriteAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
 void SpriteAsset::SetImage(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(p_guid);
     if (handle.is_some()) {
-        SetHandle(std::move(handle.unwrap()));
+        SetHandle(std::move(handle.unwrap_unchecked()));
     }
 
     UpdateFrames();
@@ -85,17 +85,13 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
     }
 
     YamlSerializer yaml;
-    yaml.BeginMap()
+    yaml.BeginMap(false)
         .Key("version")
         .Write(VERSION)
         .Key("content")
         .Write(*this)
         .EndMap();
     return SaveYaml(p_meta.path, yaml);
-}
-
-void SpriteAsset::LoadFromDiskCurrent(YamlDeserializer& p_deserializer) {
-    p_deserializer.Read(*this);
 }
 
 auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
@@ -115,7 +111,7 @@ auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
             case 1:
                 [[fallthrough]];
             default:
-                LoadFromDiskCurrent(deserializer);
+                deserializer.Read(*this);
                 break;
         }
 
@@ -125,7 +121,7 @@ auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     // @TODO: post load?
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
     if (handle.is_some()) {
-        SetHandle(std::move(handle.unwrap()));
+        SetHandle(std::move(handle.unwrap_unchecked()));
     }
     UpdateFrames();
 
