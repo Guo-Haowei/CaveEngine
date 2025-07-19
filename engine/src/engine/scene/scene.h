@@ -24,6 +24,8 @@ namespace cave {
 // @TODO: save all components
 
 #define REGISTER_COMPONENT_SERIALIZED_LIST                                 \
+    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)           \
+    REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0) \
     REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0) \
     REGISTER_COMPONENT(SpriteRenderer, "World::SpriteRenderer", 0)         \
     REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)

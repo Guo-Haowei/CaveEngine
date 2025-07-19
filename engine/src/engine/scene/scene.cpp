@@ -131,7 +131,7 @@ void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
     }
 
     HierarchyComponent& hier = Create<HierarchyComponent>(p_child);
-    hier.m_parentId = p_parent;
+    hier.m_parent_id = p_parent;
 }
 
 void Scene::RemoveEntity(ecs::Entity p_entity) {
@@ -305,7 +305,6 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     for (int i = 0; i < entity_count; ++i) {
         if (d.TryEnterIndex(i)) {
 
-#if 0
     for (const auto& entity : entities) {
         if (!entity.IsMap()) {
             return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
@@ -321,7 +320,6 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
     }
-#endif
 
             // @TODO: read components
             d.LeaveIndex();

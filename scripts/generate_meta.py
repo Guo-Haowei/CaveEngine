@@ -13,13 +13,14 @@ print('Project root folder:', get_engine_src_folder())
 
 # ========= CONFIG ==========
 FILES = [
-    'tile_map/tile_map_asset.h',
-    'tile_map/tile_map_renderer.h',
-    'scene/transform_component.h',
-    'scene/camera_component.h',
     'assets/sprite_asset.h', # TODO: make it tile set
+    'scene/camera_component.h',
+    'scene/scene_component.h',
+    'scene/transform_component.h',
     'sprite/sprite_animation_asset.h',
     'sprite/sprite_renderer.h',
+    'tile_map/tile_map_asset.h',
+    'tile_map/tile_map_renderer.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'reflection/generated')

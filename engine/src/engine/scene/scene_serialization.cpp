@@ -114,7 +114,7 @@ void NameComponent::Serialize(Archive& p_archive, uint32_t p_version) {
 }
 
 void HierarchyComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_parentId);
+    p_archive.ArchiveValue(m_parent_id);
 }
 
 void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {

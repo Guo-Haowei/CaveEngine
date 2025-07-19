@@ -65,8 +65,6 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
     switch (p_type) {
         case AssetType::Scene: {
             auto scene = std::make_shared<Scene>();
-            auto root = EntityFactory::CreateTransformEntity(*scene.get(), "root");
-            scene->m_root = root;
             return scene;
         }
         case AssetType::Sprite:

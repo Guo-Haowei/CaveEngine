@@ -1,10 +1,24 @@
 version: 19
-seed: 3
+seed: 4
 root: 2
 physics_mode: 0
 entities:
-  - id: 3
+  - id: 2
+    NameComponent:
+      name: world
     TransformComponent:
       scale: [1, 1, 1]
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
+  - id: 3
+    NameComponent:
+      name: map
+    HierarchyComponent:
+      parent_id: 2
+    TransformComponent:
+      scale: [1, 1, 1]
+      translation: [0, 0.23683167, 0]
+      rotation: [0, 0, 0, 1]
+    TileMapRenderer:
+      tile_map: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
+      tint_color: [1, 1, 1, 1]

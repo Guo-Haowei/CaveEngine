@@ -48,7 +48,12 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
             break;
     }
 
-    p_scene.AttachChild(id, m_parent.IsValid() ? m_parent : p_scene.m_root);
+    if (p_scene.m_root.IsValid()) {
+        p_scene.AttachChild(id, m_parent.IsValid() ? m_parent : p_scene.m_root);
+    } else {
+        p_scene.m_root = id; 
+    }
+
     m_editor->SelectEntity(id);
 
     ISceneManager::GetSingleton().BumpRevision();
