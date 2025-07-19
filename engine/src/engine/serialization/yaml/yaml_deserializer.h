@@ -17,6 +17,8 @@ public:
     // @TODO: make it private
     bool Initialize(const YAML::Node& p_node);
 
+    ~YamlDeserializer();
+
     int GetVersion() const override {
         DEV_ASSERT(m_initialized);
         return m_version;

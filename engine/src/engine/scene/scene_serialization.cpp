@@ -98,42 +98,6 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
         }
     }
 }
-
-template<ComponentType T>
-static Result<void> DeserializeComponent(const YAML::Node& p_node,
-                                         const char* p_key,
-                                         ecs::Entity p_id,
-                                         uint32_t p_version,
-                                         Scene& p_scene,
-                                         FileAccess* p_binary) {
-    const auto& node = p_node[p_key];
-    if (!node.IsDefined()) {
-        return Result<void>();
-    }
-
-    if (!node.IsMap()) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "entity {} has invalid '{}'", p_id.GetId(), p_key);
-    }
-
-    unused(p_scene);
-    unused(p_version);
-    unused(p_binary);
-    unused(p_id);
-
-    // @TODO: reserve component manager
-#if 0
-    T& component = p_scene.Create<T>(p_id);
-    YamlSerializer context;
-    context.file = p_binary;
-    context.version = p_version;
-    if (auto res = DeserializeYaml(node, component, context); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    component.OnDeserialized();
-#endif
-    return Result<void>();
-}
 #endif
 
 #pragma region SCENE_COMPONENT_SERIALIZATION

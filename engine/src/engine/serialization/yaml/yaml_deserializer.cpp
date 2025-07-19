@@ -5,6 +5,10 @@
 
 namespace cave {
 
+YamlDeserializer::~YamlDeserializer() {
+    DEV_ASSERT(m_node_stack.size() == 1);  // only root node is left
+}
+
 bool YamlDeserializer::Initialize(const YAML::Node& p_node) {
     const auto& version_node = p_node["version"];
 
