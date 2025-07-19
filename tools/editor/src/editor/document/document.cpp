@@ -34,6 +34,9 @@ void Document::Redo() {
 }
 
 bool Document::Save() {
+    // @TODO: instead of write directly to the asset,
+    // create a tmp asset and writes to it,
+    // replace the original asset content with tmp asset on save
     if (m_dirty) {
         AssetRegistry::GetSingleton().SaveAsset(m_guid);
         m_dirty = false;

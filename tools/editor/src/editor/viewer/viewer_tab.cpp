@@ -1,5 +1,6 @@
 #include "viewer_tab.h"
 
+#include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_registry.h"
@@ -25,7 +26,9 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
     auto meta = handle.GetMeta();
     DEV_ASSERT(meta);
-    m_title = std::format("{}###{}", meta->path, handle.GetGuid().ToString());
+
+    std::string_view base_path = StringUtils::FileName(meta->path.c_str(), '/');
+    m_title = std::format("{}###{}", base_path, handle.GetGuid().ToString());
 
     LOG_OK("ViewerTab '{}' created", m_title);
 }

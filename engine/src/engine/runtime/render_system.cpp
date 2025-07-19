@@ -11,7 +11,9 @@
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/scene/scene.h"
 
+// render systems
 #include "engine/tile_map/tile_map_render_system.h"
+#include "engine/sprite/sprite_render_system.h"
 
 namespace cave {
 
@@ -203,6 +205,7 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     RunMeshRenderSystem(p_scene, framedata);
 
     RunTileMapRenderSystem(p_scene, framedata);
+    RunSpriteRenderSystem(p_scene, framedata);
 
     // @TODO: RunSprite
     // @TODO: RunTileMap

@@ -10,26 +10,29 @@ file(GLOB_RECURSE SRC
 set(FILTERED_SRC "")
 
 foreach(file ${SRC})
-    if(WIN32)
-        if(file MATCHES "apple" OR file MATCHES "metal" )
-            # filtered
+    string(REGEX MATCH "\\.generated\\.cpp$" is_generated ${file})
+    if(NOT is_generated)
+        if(WIN32)
+            if(file MATCHES "apple" OR file MATCHES "metal" )
+                # filtered
+            else()
+                list(APPEND FILTERED_SRC ${file})
+            endif()
+        elseif(APPLE)
+            if(file MATCHES "d3d" OR file MATCHES "windows" OR file MATCHES "vk")
+                # filtered
+            else()
+                list(APPEND FILTERED_SRC ${file})
+            endif()
+        elseif(EMSCRIPTEN)
+            if(file MATCHES "d3d" OR file MATCHES "windows" OR file MATCHES "vk" OR file MATCHES "metal")
+                # filtered
+            else()
+                list(APPEND FILTERED_SRC ${file})
+            endif()
         else()
-            list(APPEND FILTERED_SRC ${file})
+            message(FATAL_ERROR "Platform not supported")
         endif()
-    elseif(APPLE)
-        if(file MATCHES "d3d" OR file MATCHES "windows" OR file MATCHES "vk")
-            # filtered
-        else()
-            list(APPEND FILTERED_SRC ${file})
-        endif()
-    elseif(EMSCRIPTEN)
-        if(file MATCHES "d3d" OR file MATCHES "windows" OR file MATCHES "vk" OR file MATCHES "metal")
-            # filtered
-        else()
-            list(APPEND FILTERED_SRC ${file})
-        endif()
-    else()
-        message(FATAL_ERROR "Platform not supported")
     endif()
 endforeach()
 

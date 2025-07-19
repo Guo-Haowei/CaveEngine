@@ -43,8 +43,8 @@ public:
     const Guid& GetGuid() const { return m_tile_map; }
 
     // @TODO: get rid of old serailization code
-    void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
+    void Serialize(Archive& p_archive, uint32_t p_version);
 };
 
 }  // namespace cave
