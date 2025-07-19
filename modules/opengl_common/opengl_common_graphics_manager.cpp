@@ -23,7 +23,8 @@
 // @TODO: remove the following
 #include "engine/render_graph/render_graph_builder.h"
 
-#define RESIDENT_TEXTURE USE_IF(USING(PLATFORM_WINDOWS))
+// #define RESIDENT_TEXTURE USE_IF(USING(PLATFORM_WINDOWS))
+#define RESIDENT_TEXTURE NOT_IN_USE
 
 //-----------------------------------------------------------------------------------------------------------------
 
@@ -41,6 +42,8 @@ namespace cave {
 
 CommonOpenGLGraphicsManager::CommonOpenGLGraphicsManager()
     : GraphicsManager("CommonOpenGLGraphicsManager", Backend::OPENGL, 1) {
+    m_dummy_vao = 0;
+    m_window = nullptr;
     m_pipelineStateManager = std::make_shared<OpenGlPipelineStateManager>();
 }
 
@@ -250,8 +253,14 @@ auto CommonOpenGLGraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
 }
 
 void CommonOpenGLGraphicsManager::SetMesh(const GpuMesh* p_mesh) {
+    if (!p_mesh) {
+        if (!m_dummy_vao) {
+            glGenVertexArrays(1, &m_dummy_vao);
+        }
+        glBindVertexArray(m_dummy_vao);
+        return;
+    }
     auto mesh = reinterpret_cast<const OpenGlMeshBuffers*>(p_mesh);
-    DEV_ASSERT(mesh && mesh->vao);
     glBindVertexArray(mesh->vao);
 }
 

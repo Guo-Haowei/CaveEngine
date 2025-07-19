@@ -82,7 +82,7 @@ auto PipelineStateManager::Initialize() -> Result<void> {
                {
                    .vs = "sprite.vs",
                    .ps = "sprite.ps",
-                   .rasterizerDesc = &s_rasterizerFrontFace,
+                   .rasterizerDesc = &s_rasterizerDoubleSided,
                    .depthStencilDesc = &s_depthReversedStencilEnabled,
                    .inputLayoutDesc = &s_inputLayoutSprite,
                    .blendDesc = &s_transparent,
@@ -95,7 +95,7 @@ auto PipelineStateManager::Initialize() -> Result<void> {
                {
                    .vs = "sprite_no_vert.vs",
                    .ps = "sprite.ps",
-                   .rasterizerDesc = &s_rasterizerFrontFace,
+                   .rasterizerDesc = &s_rasterizerDoubleSided,
                    .depthStencilDesc = &s_depthReversedStencilEnabled,
                    .blendDesc = &s_transparent,
                    .numRenderTargets = 1,
