@@ -214,4 +214,149 @@ auto Scene::SaveToDisk(const AssetMetaData&) const -> Result<void> {
     return Result<void>();
 }
 
+#if 0
+Result<void> SaveSceneText(const std::string& p_path, const Scene& p_scene) {
+    std::unordered_set<uint32_t> entity_set;
+
+    for (const auto& it : p_scene.GetLibraryEntries()) {
+        auto& manager = it.second.m_manager;
+        for (auto entity : manager->GetEntityArray()) {
+            entity_set.insert(entity.GetId());
+        }
+    }
+
+    std::vector<uint32_t> entity_array(entity_set.begin(), entity_set.end());
+    std::sort(entity_array.begin(), entity_array.end());
+
+    auto binary_path = std::format("{}{}", p_path, ".bin");
+    Archive archive;
+    if (auto res = archive.OpenWrite(binary_path); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    YamlSerializer serializer;
+
+    serializer.BeginMap(false)
+        .Key("version")
+        .Write(LATEST_SCENE_VERSION)
+        .Key("seed")
+        .Write(ecs::Entity::GetSeed())
+        .Key("root")
+        .Write(p_scene.m_root.GetId())
+        .Key("physics_mode")
+        .Write(static_cast<uint32_t>(p_scene.m_physicsMode))
+        .Key("entities");
+
+    serializer.BeginArray(false);
+
+    bool ok = true;
+    ok = ok && archive.Write(SCENE_MAGIC);
+    ok = ok && archive.Write(LATEST_SCENE_VERSION);
+    ok = ok && archive.Write(SCENE_GUARD_MESSAGE);
+    if (!ok) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to save file '{}'", p_path);
+    }
+
+    for (auto id : entity_array) {
+        ecs::Entity entity{ id };
+
+        serializer.BeginMap(false)
+            .Key("id")
+            .Write(id);
+
+#define REGISTER_COMPONENT(COMPONENT, ...) \
+    SerializeComponent<COMPONENT>(serializer, #COMPONENT, entity, p_scene);
+
+        REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+
+        serializer.EndMap();
+    }
+
+    serializer.EndArray();
+    serializer.EndMap();
+
+    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
+    if (!res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    // @TODO: generalize
+    auto yaml_file = *res;
+    const char* result = serializer.m_out.c_str();
+    yaml_file->WriteBuffer(result, strlen(result));
+    return Result<void>();
+}
+
+
+Result<void> LoadSceneText(const std::string& p_path, Scene& p_scene) {
+    unused(p_scene);
+
+    auto res = FileAccess::Open(p_path, FileAccess::READ);
+    if (!res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    auto file = *res;
+    const size_t size = file->GetLength();
+
+    std::string buffer;
+    buffer.resize(size);
+    if (auto read = file->ReadBuffer(buffer.data(), size); read != size) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "failed to read {} bytes from '{}'", size, p_path);
+    }
+
+    file->Close();
+    const auto node = YAML::Load(buffer);
+
+    YAML::Emitter out;
+    auto version = node["version"].as<uint32_t>();
+    if (version > LATEST_SCENE_VERSION) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "incorrect version {}", version);
+    }
+    auto seed = node["seed"].as<uint32_t>();
+    ecs::Entity::SetSeed(seed);
+
+    ecs::Entity root(node["root"].as<uint32_t>());
+    p_scene.m_root = root;
+
+    const auto physics_mode = node["physics_mode"];
+    if (physics_mode) {
+        auto mode = physics_mode.as<uint32_t>();
+        p_scene.m_physicsMode = static_cast<PhysicsMode>(mode);
+    }
+
+    auto binary_file = node["binary"].as<std::string>();
+    res = FileAccess::Open(binary_file, FileAccess::READ);
+    if (!res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    file = *res;
+    const auto& entities = node["entities"];
+    if (!entities.IsSequence()) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
+    }
+
+    for (const auto& entity : entities) {
+        if (!entity.IsMap()) {
+            return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
+        }
+
+        ecs::Entity id(entity["id"].as<uint32_t>());
+
+#define REGISTER_COMPONENT(a, ...)                                                         \
+    do {                                                                                   \
+        auto res2 = DeserializeComponent<a>(entity, #a, id, version, p_scene, file.get()); \
+        if (!res2) { return CAVE_ERROR(res2.error()); }                                    \
+    } while (0);
+        REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+    }
+
+    return Result<void>();
+}
+
+#endif
+
 }  // namespace cave

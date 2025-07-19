@@ -171,17 +171,4 @@ auto SceneLoader::Load() -> Result<AssetRef> {
     return AssetRef(scene);
 }
 
-// @TODO: use same loader for both
-auto TextSceneLoader::Load() -> Result<AssetRef> {
-    Scene* scene = new Scene;
-    auto res = LoadSceneText(m_filePath, *scene);
-    if (!res) {
-        delete scene;
-        return CAVE_ERROR(res.error());
-    }
-
-    scene->m_replace = true;
-    return AssetRef(scene);
-}
-
 }  // namespace cave

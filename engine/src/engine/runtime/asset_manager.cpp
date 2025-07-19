@@ -63,6 +63,8 @@ static struct {
 
 static AssetRef CreateAssetInstance(AssetType p_type) {
     switch (p_type) {
+        case AssetType::Scene:
+            return std::make_shared<Scene>();
         case AssetType::Sprite:
             return std::make_shared<SpriteAsset>();
         case AssetType::SpriteAnimation:
@@ -91,7 +93,6 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     m_assets_root = fs::path{ m_app->GetResourceFolder() };
 
     IAssetLoader::RegisterLoader(".scene", SceneLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".yaml", TextSceneLoader::CreateLoader);
 
 #if USING(USE_TINYGLTF_LOADER)
     // IAssetLoader::RegisterLoader(".gltf", TinyGLTFLoader::CreateLoader);
