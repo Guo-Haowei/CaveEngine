@@ -69,8 +69,6 @@ public:
 protected:
     bool TrySwapScene();
 
-    Scene* m_active_scene = nullptr;
-
     uint32_t m_revision = 0;
     uint32_t m_lastRevision = 0;
 

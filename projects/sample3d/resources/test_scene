@@ -1,0 +1,12 @@
+version: 19
+seed: 1
+root: 1
+physics_mode: 0
+entities:
+  - id: 1
+    NameComponent:
+      name: world
+    TransformComponent:
+      scale: [1, 1, 1]
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]

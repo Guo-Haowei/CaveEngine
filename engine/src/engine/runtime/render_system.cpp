@@ -175,6 +175,7 @@ void RenderSystem::BeginFrame() {
     m_frameData = new FrameData(options);
     static bool s_firstFrame = true;
     m_frameData->bakeIbl = s_firstFrame;
+    m_frameData->bakeIbl = false;
     s_firstFrame = false;
 }
 
@@ -192,6 +193,10 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
 
     CAVE_PROFILE_EVENT();
     CameraComponent* camera = m_app->GetActiveCamera();
+    if (!camera && p_scene) {
+        auto cam = p_scene->GetMainCamera();
+        camera = p_scene->GetComponent<CameraComponent>(cam);
+    }
 
     DEV_ASSERT(m_frameData);
     FrameData& framedata = *m_frameData;

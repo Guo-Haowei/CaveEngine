@@ -74,7 +74,7 @@ Scene* EditorSceneManager::GetActiveScene() const {
         return lock.get();
     }
 
-    return m_active_scene;
+    return nullptr;
 }
 
 }  // namespace cave
