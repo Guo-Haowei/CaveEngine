@@ -232,41 +232,18 @@ static constexpr char SCENE_MAGIC[] = "xBScene";
 static constexpr char SCENE_GUARD_MESSAGE[] = "Should see this message";
 static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
 
-#if 0
 template<ComponentType T>
-static Result<void> DeserializeComponent(const YAML::Node& p_node,
-                                         const char* p_key,
-                                         ecs::Entity p_id,
-                                         uint32_t p_version,
-                                         Scene& p_scene,
-                                         FileAccess* p_binary) {
-    const auto& node = p_node[p_key];
-    if (!node.IsDefined()) {
-        return Result<void>();
+static void DeserializeComponent(IDeserializer& d,
+                                 const char* p_key,
+                                 ecs::Entity p_id,
+                                 Scene& p_scene) {
+    if (d.TryEnterKey(p_key)) {
+        T& component = p_scene.Create<T>(p_id);
+        d.Read(component);
+        d.LeaveKey();
+        component.OnDeserialized();
     }
-
-    if (!node.IsMap()) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "entity {} has invalid '{}'", p_id.GetId(), p_key);
-    }
-
-    unused(p_scene);
-    unused(p_version);
-    unused(p_binary);
-    unused(p_id);
-
-    // @TODO: reserve component manager
-    T& component = p_scene.Create<T>(p_id);
-    YamlSerializer context;
-    context.file = p_binary;
-    context.version = p_version;
-    if (auto res = DeserializeYaml(node, component, context); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    component.OnDeserialized();
-    return Result<void>();
 }
-#endif
 
 auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     YAML::Node root;
@@ -303,31 +280,24 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 
     const int entity_count = d.ArraySize().unwrap_or(0);
     for (int i = 0; i < entity_count; ++i) {
-        if (d.TryEnterIndex(i)) {
+        DEV_ASSERT(d.TryEnterIndex(i));
+        auto keys = d.GetKeys().unwrap();
+        ecs::Entity id;
+        DEV_ASSERT(d.TryEnterKey("id"));
+        d.Read((uint32_t&)id);
+        d.LeaveKey();
 
-    for (const auto& entity : entities) {
-        if (!entity.IsMap()) {
-            return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "invalid format");
-        }
-
-        ecs::Entity id(entity["id"].as<uint32_t>());
-
-#define REGISTER_COMPONENT(a, ...)                                                         \
-    do {                                                                                   \
-        auto res2 = DeserializeComponent<a>(entity, #a, id, version, p_scene, file.get()); \
-        if (!res2) { return CAVE_ERROR(res2.error()); }                                    \
+#define REGISTER_COMPONENT(a, ...)                 \
+    do {                                           \
+        DeserializeComponent<a>(d, #a, id, *this); \
     } while (0);
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
-    }
 
-            // @TODO: read components
-            d.LeaveIndex();
-        }
+        d.LeaveIndex();
     }
 
     d.LeaveKey();
-
     return Result<void>();
 }
 
@@ -378,14 +348,6 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
         .Key("entities");
 
     yaml.BeginArray(false);
-
-    // bool ok = true;
-    // ok = ok && archive.Write(SCENE_MAGIC);
-    // ok = ok && archive.Write(LATEST_SCENE_VERSION);
-    // ok = ok && archive.Write(SCENE_GUARD_MESSAGE);
-    // if (!ok) {
-    //     return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to save file '{}'", p_path);
-    // }
 
     for (auto id : entity_array) {
         ecs::Entity entity{ id };

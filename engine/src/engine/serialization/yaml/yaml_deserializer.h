@@ -58,6 +58,10 @@ private:
     template<typename T>
     bool ReadScalar(T& p_out);
 
+#if USING(VALIDATE_SERIALIZER)
+    std::vector<SerializerState> m_type_stack;
+#endif
+
     std::vector<YAML::Node> m_node_stack;
     int m_version{ -1 };
     bool m_initialized{ false };

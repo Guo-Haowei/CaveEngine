@@ -23,7 +23,13 @@ bool YamlDeserializer::Initialize(const YAML::Node& p_node) {
 
 bool YamlDeserializer::TryEnterKey(const char* p_key) {
     auto node = Current()[p_key];
-    ERR_FAIL_COND_V_MSG(!node, false, "key not found");
+    if (!node) {
+        return false;
+    }
+
+#if USING(VALIDATE_SERIALIZER)
+    m_type_stack.push_back(SerializerState::Map);
+#endif
 
     m_node_stack.push_back(node);
     return true;
@@ -32,6 +38,11 @@ bool YamlDeserializer::TryEnterKey(const char* p_key) {
 void YamlDeserializer::LeaveKey() {
     DEV_ASSERT(!m_node_stack.empty());
 
+#if USING(VALIDATE_SERIALIZER)
+    DEV_ASSERT(m_type_stack.back() == SerializerState::Map);
+    m_type_stack.pop_back();
+#endif
+
     m_node_stack.pop_back();
 }
 
@@ -39,12 +50,21 @@ bool YamlDeserializer::TryEnterIndex(int p_index) {
     auto node = Current()[p_index];
     ERR_FAIL_COND_V_MSG(!node, false, "index not found");
 
+#if USING(VALIDATE_SERIALIZER)
+    m_type_stack.push_back(SerializerState::Array);
+#endif
+
     m_node_stack.push_back(node);
     return true;
 }
 
 void YamlDeserializer::LeaveIndex() {
     DEV_ASSERT(!m_node_stack.empty());
+
+#if USING(VALIDATE_SERIALIZER)
+    DEV_ASSERT(m_type_stack.back() == SerializerState::Array);
+    m_type_stack.pop_back();
+#endif
 
     m_node_stack.pop_back();
 }
