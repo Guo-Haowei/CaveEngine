@@ -17,7 +17,7 @@ entities:
       parent_id: 2
     TransformComponent:
       scale: [1, 1, 1]
-      translation: [0, 0.23683167, 0]
+      translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
     TileMapRenderer:
       tile_map: 23F9B311-40AA-B54A-ABA5E62A4AE9C360

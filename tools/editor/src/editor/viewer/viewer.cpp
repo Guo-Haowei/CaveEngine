@@ -262,6 +262,7 @@ void Viewer::UpdateInternal(Scene*) {
                 .rotation = dt * c.mouse_move,
             };
             m_controller_3d.Update(camera, state);
+            camera.Update();
         }
 
         m_camera_input.Reset();
