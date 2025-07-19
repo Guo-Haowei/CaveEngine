@@ -32,13 +32,13 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
         auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
         scene->m_root = root;
 
-#if 0
-        auto id = EntityFactory::CreateTileMapEntity(*scene, "tile_map");
+        auto id = EntityFactory::CreateTransformEntity(*scene, "test_sprite");
         scene->AttachChild(id);
 
-        TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
-        tile_map_renderer->SetTileMap(p_guid);
-#endif
+        auto test_image = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://player/player.png").unwrap();
+
+        SpriteRenderer& sprite_renderer = scene->Create<SpriteRenderer>(id);
+        sprite_renderer.SetImage(test_image.GetGuid());
         return scene;
     });
 }

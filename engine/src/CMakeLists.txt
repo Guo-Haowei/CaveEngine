@@ -10,6 +10,7 @@ file(GLOB_RECURSE SRC
 set(FILTERED_SRC "")
 
 foreach(file ${SRC})
+    # ignore generated files
     string(REGEX MATCH "\\.generated\\.cpp$" is_generated ${file})
     if(NOT is_generated)
         if(WIN32)

@@ -819,6 +819,11 @@ auto D3d11GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
 }
 
 void D3d11GraphicsManager::SetMesh(const GpuMesh* p_mesh) {
+    if (!p_mesh) {
+        m_deviceContext->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+        m_deviceContext->IASetInputLayout(nullptr);
+        return;
+    }
     auto mesh = reinterpret_cast<const D3d11MeshBuffers*>(p_mesh);
 
     std::array<ID3D11Buffer*, MESH_MAX_VERTEX_BUFFER_COUNT> buffers{ nullptr };

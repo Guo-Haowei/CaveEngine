@@ -121,6 +121,7 @@ struct PipelineState {
     PSO_NAME(PSO_PARTICLE_SIM)           \
     PSO_NAME(PSO_PARTICLE_RENDERING)     \
     PSO_NAME(PSO_SPRITE)                 \
+    PSO_NAME(PSO_SPRITE_NO_VERT)         \
     PSO_NAME(PSO_DEBUG_DRAW)
 
 enum PipelineStateName : uint8_t {

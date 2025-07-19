@@ -5,13 +5,18 @@
 Texture2D t_Sprite : register(t0);
 
 float4 main(VS_OUTPUT_UV input)
-    : SV_TARGET {
-#if 0
-    return float4(1.0f, 1.0f, 0.0f, 1.0f);
-#else
-    float4 color = t_Sprite.Sample(s_pointClampSampler, input.uv);
+    : SV_TARGET
+{
 
-    if (color.a < 0.01f) {
+    float4 sprite_color = t_Sprite.Sample(s_pointClampSampler, input.uv);
+    float4 tint_color = float4(1.0, 1.0, 1.0, 1.0);
+
+#if 0
+    return tint_color;
+#else
+    float4 color = sprite_color * tint_color;
+    if (color.a < 0.01f)
+    {
         discard;
     }
 

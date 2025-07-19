@@ -91,6 +91,18 @@ auto PipelineStateManager::Initialize() -> Result<void> {
                    .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                });
 
+    CREATE_PSO(PSO_SPRITE_NO_VERT,
+               {
+                   .vs = "sprite_no_vert.vs",
+                   .ps = "sprite.ps",
+                   .rasterizerDesc = &s_rasterizerFrontFace,
+                   .depthStencilDesc = &s_depthReversedStencilEnabled,
+                   .blendDesc = &s_transparent,
+                   .numRenderTargets = 1,
+                   .rtvFormats = { RT_FMT_TONE },
+                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
+               });
+
     CREATE_PSO(PSO_PREPASS,
                {
                    .vs = "mesh.vs",

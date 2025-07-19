@@ -52,23 +52,25 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
         D3D_FAIL_V_MSG(hr, nullptr, "failed to create vertex buffer");
     }
 
-    std::vector<D3D11_INPUT_ELEMENT_DESC> elements;
-    elements.reserve(p_desc.inputLayoutDesc->elements.size());
-    for (const auto& ele : p_desc.inputLayoutDesc->elements) {
-        D3D11_INPUT_ELEMENT_DESC desc;
-        desc.SemanticName = ele.semanticName.c_str();
-        desc.SemanticIndex = ele.semanticIndex;
-        desc.Format = d3d::Convert(ele.format);
-        desc.InputSlot = ele.inputSlot;
-        desc.AlignedByteOffset = ele.alignedByteOffset;
-        desc.InputSlotClass = d3d::Convert(ele.inputSlotClass);
-        desc.InstanceDataStepRate = ele.instanceDataStepRate;
-        elements.emplace_back(desc);
-    }
-    DEV_ASSERT(elements.size());
+    if (p_desc.inputLayoutDesc) {
+        std::vector<D3D11_INPUT_ELEMENT_DESC> elements;
+        elements.reserve(p_desc.inputLayoutDesc->elements.size());
+        for (const auto& ele : p_desc.inputLayoutDesc->elements) {
+            D3D11_INPUT_ELEMENT_DESC desc;
+            desc.SemanticName = ele.semanticName.c_str();
+            desc.SemanticIndex = ele.semanticIndex;
+            desc.Format = d3d::Convert(ele.format);
+            desc.InputSlot = ele.inputSlot;
+            desc.AlignedByteOffset = ele.alignedByteOffset;
+            desc.InputSlotClass = d3d::Convert(ele.inputSlotClass);
+            desc.InstanceDataStepRate = ele.instanceDataStepRate;
+            elements.emplace_back(desc);
+        }
+        DEV_ASSERT(elements.size());
 
-    hr = device->CreateInputLayout(elements.data(), (UINT)elements.size(), vsblob->GetBufferPointer(), vsblob->GetBufferSize(), pipeline_state->inputLayout.GetAddressOf());
-    D3D_FAIL_V_MSG(hr, nullptr, "failed to create input layout");
+        hr = device->CreateInputLayout(elements.data(), (UINT)elements.size(), vsblob->GetBufferPointer(), vsblob->GetBufferSize(), pipeline_state->inputLayout.GetAddressOf());
+        D3D_FAIL_V_MSG(hr, nullptr, "failed to create input layout");
+    }
 
     if (DEV_VERIFY(p_desc.rasterizerDesc)) {
         ComPtr<ID3D11RasterizerState> state;

@@ -104,6 +104,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     }
 
     MeshRenderer* mesh_renderer = scene.GetComponent<MeshRenderer>(id);
+    SpriteRenderer* sprite_renderer = scene.GetComponent<SpriteRenderer>(id);
     TileMapRenderer* tile_map_renderer = scene.GetComponent<TileMapRenderer>(id);
 
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
@@ -246,6 +247,17 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             } break;
             default:
                 break;
+        }
+    });
+
+    DrawComponent("SpriteRenderer", sprite_renderer, [](SpriteRenderer& p_sprite_renderer) {
+        ImGui::Text("image: %s", p_sprite_renderer.GetGuid().ToString().c_str());
+        const bool hovered = ImGui::IsItemHovered();
+        DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
+            p_sprite_renderer.SetImage(p_handle.GetGuid());
+        });
+        if (hovered) {
+            ShowAssetToolTip(p_sprite_renderer.GetGuid());
         }
     });
 

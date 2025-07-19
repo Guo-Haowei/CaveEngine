@@ -9,25 +9,25 @@
 
 namespace cave {
 
+void TileMapRenderer::SetTintColor(const Vector4f& p_tint_color) {
+    m_tint_color = p_tint_color;
+}
+
 bool TileMapRenderer::SetTileMap(const Guid& p_guid) {
-    if (p_guid == m_tile_map) {
-        return false;
-    }
+    return AssetHandle::ReplaceGuidAndHandle(AssetType::TileMap,
+                                             p_guid,
+                                             m_tile_map,
+                                             m_handle.RawHandle());
+}
 
-    m_tile_map = p_guid;
-    auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(p_guid);
-    if (res.is_none()) {
-        return false;
-    }
-
-    auto handle = std::move(res.unwrap_unchecked());
-    return true;
+void TileMapRenderer::OnDeserialized() {
+    auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_tile_map);
+    m_handle = std::move(res.unwrap());
 }
 
 void TileMapRenderer::CreateRenderData() {
     if (m_tile_map != m_handle.GetGuid()) {
-        auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_tile_map);
-        m_handle = std::move(res.unwrap());
+        OnDeserialized();
     }
 
     auto tile_map = m_handle.Get();

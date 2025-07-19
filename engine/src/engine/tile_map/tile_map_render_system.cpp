@@ -1,7 +1,8 @@
 #include "tile_map_render_system.h"
 
-#include "engine/renderer/frame_data.h"
+// @TODO: extract ImageAsset
 #include "engine/assets/assets.h"
+#include "engine/renderer/frame_data.h"
 #include "engine/scene/scene.h"
 
 namespace cave {
@@ -13,7 +14,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
 
     Scene& scene = *p_scene;
     auto view = scene.View<TileMapRenderer>();
-    for (const auto [id, tile_map_renderer] : view) {
+    for (const auto& [id, tile_map_renderer] : view) {
         tile_map_renderer.CreateRenderData();
 
         const auto& cache = tile_map_renderer.GetCache();
@@ -30,6 +31,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
+        batch_buffer.c_tint_color = tile_map_renderer.GetTintColor();
 
         DrawCommand draw;
         draw.indexCount = cache.mesh->desc.drawCount;

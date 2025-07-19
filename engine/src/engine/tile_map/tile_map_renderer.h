@@ -18,6 +18,9 @@ class TileMapRenderer {
     CAVE_PROP(type = guid, tooltip = "tile map")
     Guid m_tile_map;
 
+    CAVE_PROP(type = color)
+    Vector4f m_tint_color = Vector4f::One;
+
 private:
     struct Cache {
         Handle<ImageAsset> image;
@@ -32,7 +35,7 @@ private:
     uint32_t m_revision{ 0 };
 
 public:
-    // @TODO: better way
+    // @TODO: better way to create data
     void CreateRenderData();
 
     bool SetTileMap(const Guid& p_guid);
@@ -42,8 +45,10 @@ public:
 
     const Guid& GetGuid() const { return m_tile_map; }
 
-    // @TODO: get rid of old serailization code
-    void OnDeserialized() {}
+    const Vector4f& GetTintColor() const { return m_tint_color; }
+    void SetTintColor(const Vector4f& p_tint_color);
+
+    void OnDeserialized();
     void Serialize(Archive& p_archive, uint32_t p_version);
 };
 
