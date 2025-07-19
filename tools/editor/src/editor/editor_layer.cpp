@@ -19,6 +19,7 @@
 #include "engine/input/input_event.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_manager.h"
+#include "engine/runtime/asset_registry.h"
 #include "engine/runtime/input_manager.h"
 #include "engine/runtime/layer.h"
 #include "engine/runtime/physics_manager.h"
@@ -59,7 +60,8 @@ EditorLayer::EditorLayer()
         "Save",
         "Ctrl+S",
         [&]() {
-            this->BufferCommand(std::make_shared<SaveProjectCommand>(false));
+            AssetRegistry::GetSingleton().SaveAllAssets();
+            // this->BufferCommand(std::make_shared<SaveProjectCommand>(false));
         },
     };
     m_shortcuts[SHORT_CUT_OPEN] = {

@@ -33,11 +33,15 @@ public:
 
     void MoveAsset(std::string&& p_old, std::string&& p_new);
 
-    bool SaveAsset(const Guid& p_guid);
+    bool SaveAsset(const Guid& p_guid) const;
+
+    bool SaveAllAssets() const;
 
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
+
+    bool SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const;
 
     bool StartAsyncLoad(AssetMetaData&& p_meta,
                         AssetLoadSuccessCallback&& p_on_success,
