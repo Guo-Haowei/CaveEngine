@@ -11,7 +11,9 @@ namespace cave {
 class ISerializer;
 class IDeserializer;
 
-using TileId = uint32_t;
+using TileId = uint16_t;
+constexpr TileId TILE_ID_EMPTY = 0xFFFF;
+constexpr int16_t TILE_CHUNK_SIZE = 32;  // 32x32 tiles per chunk
 
 struct TileIndex {
     int16_t x, y;
@@ -21,6 +23,10 @@ struct TileIndex {
     }
 };
 
+struct TileChunk {
+    TileId tiles[TILE_CHUNK_SIZE][TILE_CHUNK_SIZE];
+};
+
 struct TileIndexHasher {
     std::size_t operator()(const cave::TileIndex& key) const noexcept {
         const uint32_t packed = std::bit_cast<uint32_t>(key);
@@ -28,10 +34,12 @@ struct TileIndexHasher {
     }
 };
 
-using TileChunk = std::unordered_map<TileIndex, TileId, TileIndexHasher>;
-
 struct TileData {
-    TileChunk tiles;
+    std::unordered_map<
+        TileIndex,
+        std::unique_ptr<TileChunk>,
+        TileIndexHasher>
+        chunks;
 };
 
 ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data);
@@ -65,7 +73,7 @@ private:
 public:
     Option<TileId> GetTile(TileIndex p_index) const;
 
-    bool AddTile(TileIndex p_index, TileId p_data);
+    bool AddTile(TileIndex p_index, TileId p_id);
 
     bool RemoveTile(TileIndex p_index);
 
@@ -78,8 +86,7 @@ public:
     const Guid& GetTileSetGuid() const { return m_tile_set_id; }
     void SetTileSetGuid(const Guid& p_guid, bool p_force = false);
 
-    const auto& GetTiles() const { return m_tiles.tiles; }
-    void SetTiles(TileChunk&& p_tiles);
+    const auto& GetTiles() const { return m_tiles; }
 
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }
@@ -91,6 +98,9 @@ public:
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
 
     std::vector<Guid> GetDependencies() const override;
+
+private:
+    TileIndex ConvertIndex(TileIndex p_index) const;
 };
 
 }  // namespace cave

@@ -8,44 +8,71 @@
 
 namespace cave {
 
+static int16_t DivFloor(int16_t a, int16_t b = TILE_CHUNK_SIZE) {
+    return (a >= 0) ? (a / b) : ((a - b + 1) / b);
+}
+
+TileIndex TileMapAsset::ConvertIndex(TileIndex p_index) const {
+    return TileIndex{ DivFloor(p_index.x), DivFloor(p_index.y) };
+}
+
 Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
-    auto it = m_tiles.tiles.find(p_index);
-    if (it == m_tiles.tiles.end()) {
+    TileIndex index = ConvertIndex(p_index);
+
+    auto it = m_tiles.chunks.find(index);
+    if (it == m_tiles.chunks.end()) {
         return None();
     }
 
-    return Some(it->second);
+    const int16_t x = p_index.x - index.x * TILE_CHUNK_SIZE;
+    const int16_t y = p_index.y - index.y * TILE_CHUNK_SIZE;
+    DEV_ASSERT_INDEX(x, TILE_CHUNK_SIZE);
+    DEV_ASSERT_INDEX(y, TILE_CHUNK_SIZE);
+
+    return Some(it->second->tiles[y][x]);
 }
 
-bool TileMapAsset::AddTile(TileIndex p_index, TileId p_data) {
-    auto [it, inserted] = m_tiles.tiles.try_emplace(p_index, p_data);
-    if (inserted) {
-        return true;
+bool TileMapAsset::AddTile(TileIndex p_index, TileId p_id) {
+    TileIndex index = ConvertIndex(p_index);
+
+    auto it = m_tiles.chunks.find(index);
+
+    auto& chunk = m_tiles.chunks[index];
+    if (chunk == nullptr) {
+        chunk = std::make_unique<TileChunk>();
+        std::memset(chunk.get(), 0xFFFFFFFF, sizeof(TileChunk));
     }
 
-    // same tile, nothing changed
-    if (it->second == p_data) {
+    const int16_t x = p_index.x - index.x * TILE_CHUNK_SIZE;
+    const int16_t y = p_index.y - index.y * TILE_CHUNK_SIZE;
+
+    TileId& tile_id = chunk->tiles[y][x];
+    if (tile_id == p_id) {
         return false;
     }
 
-    it->second = p_data;
+    tile_id = p_id;
     return true;
 }
 
 bool TileMapAsset::RemoveTile(TileIndex p_index) {
-    auto it = m_tiles.tiles.find(p_index);
-    if (it == m_tiles.tiles.end()) {
+    TileIndex index = ConvertIndex(p_index);
+
+    auto it = m_tiles.chunks.find(index);
+    if (it == m_tiles.chunks.end()) {
         return false;
     }
 
-    m_tiles.tiles.erase(it);
+    const int16_t x = p_index.x - index.x * TILE_CHUNK_SIZE;
+    const int16_t y = p_index.y - index.y * TILE_CHUNK_SIZE;
+
+    TileId& tile = it->second->tiles[y][x];
+    if (tile == TILE_ID_EMPTY) {
+        return false;
+    }
+
+    tile = TILE_ID_EMPTY;
     return true;
-}
-
-void TileMapAsset::SetTiles(TileChunk&& p_tiles) {
-    m_tiles.tiles = std::move(p_tiles);
-
-    IncRevision();
 }
 
 void TileMapAsset::SetTileSetGuid(const Guid& p_guid, bool p_force) {
@@ -67,35 +94,88 @@ std::vector<Guid> TileMapAsset::GetDependencies() const {
     return { m_tile_set_id };
 }
 
-ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data) {
-    p_serializer.BeginArray(false);
-    for (const auto& [index, id] : p_tile_data.tiles) {
-        p_serializer
-            .BeginArray(true)
+ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data) {
+    s.BeginArray(false);
+
+    auto chunk_empty = [](const TileChunk& p_chunk) {
+        for (int y = 0; y < TILE_CHUNK_SIZE; ++y) {
+            for (int x = 0; x < TILE_CHUNK_SIZE; ++x) {
+                if (p_chunk.tiles[y][x] != TILE_ID_EMPTY) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    for (const auto& [index, chunk] : p_tile_data.chunks) {
+        if (chunk_empty(*chunk.get())) {
+            continue;
+        }
+
+        s.BeginMap(false)
+            .Key("x")
             .Write(index.x)
+            .Key("y")
             .Write(index.y)
-            .Write(id)
-            .EndArray();
+            .Key("tiles")
+            .BeginArray(true);
+
+        for (int y = 0; y < TILE_CHUNK_SIZE; ++y) {
+            for (int x = 0; x < TILE_CHUNK_SIZE; ++x) {
+                s.Write(chunk->tiles[y][x]);
+            }
+        }
+
+        s.EndArray()
+            .EndMap();
     }
-    return p_serializer.EndArray();
+
+    return s.EndArray();
 }
 
-bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data) {
-    auto& deserializer = static_cast<YamlDeserializer&>(p_deserializer);
-
-    const auto& node = deserializer.Current();
-    ERR_FAIL_COND_V_MSG(!node || !node.IsSequence(), false, "invalid tile map");
-
-    for (size_t idx = 0; idx < node.size(); ++idx) {
-        const auto& tile = node[idx];
-        if (tile && tile.IsSequence() && tile.size() == 3) {
-            auto x = tile[0].as<int16_t>();
-            auto y = tile[1].as<int16_t>();
-            auto id = tile[2].as<uint32_t>();
-            auto [_, ok] = p_tile_data.tiles.try_emplace({ x, y }, id);
-            DEV_ASSERT_MSG(ok, "duplicate tile");
-        }
+bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
+    unused(d);
+    unused(p_tile_data);
+#if 1
+    const int chunk_size = d.ArraySize().unwrap_or(-1);
+    if (chunk_size < 0) {
+        return false;
     }
+
+    for (int chunk_idx = 0; chunk_idx < chunk_size; ++chunk_idx) {
+        DEV_ASSERT(d.TryEnterIndex(chunk_idx));
+        int16_t x = INT16_MAX;
+        int16_t y = INT16_MAX;
+        if (DEV_VERIFY(d.TryEnterKey("x"))) {
+            d.Read(x);
+            d.LeaveKey();
+        }
+        if (DEV_VERIFY(d.TryEnterKey("y"))) {
+            d.Read(y);
+            d.LeaveKey();
+        }
+
+        if (x != INT16_MAX && y != INT16_MAX) {
+            if (d.TryEnterKey("tiles")) {
+                auto chunk = std::make_unique<TileChunk>();
+                auto& tiles = chunk->tiles;
+                p_tile_data.chunks[TileIndex(x, y)] = std::move(chunk);
+
+                constexpr int TILE_COUNT = TILE_CHUNK_SIZE * TILE_CHUNK_SIZE;
+                DEV_ASSERT(d.ArraySize().unwrap_or(0) == TILE_COUNT);
+                for (int tile_idx = 0; tile_idx < TILE_COUNT; ++tile_idx) {
+                    DEV_ASSERT(d.TryEnterIndex(tile_idx));
+                    d.Read(tiles[tile_idx / TILE_CHUNK_SIZE][tile_idx % TILE_CHUNK_SIZE]);
+                    d.LeaveIndex();
+                }
+                d.LeaveKey();
+            }
+        }
+
+        d.LeaveIndex();
+    }
+#endif
 
     return true;
 }
