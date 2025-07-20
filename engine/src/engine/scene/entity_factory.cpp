@@ -106,25 +106,28 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
                                             const std::string& p_name,
                                             const Vector3f& p_color,
                                             const float p_emissive) {
-    auto entity = CreateObjectEntity(p_scene, p_name);
-
-    // light
-    LightComponent& light = p_scene.Create<LightComponent>(entity);
-    light.SetType(LIGHT_TYPE_AREA);
-    // light.m_atten.constant = 1.0f;
-    // light.m_atten.linear = 0.09f;
-    // light.m_atten.quadratic = 0.032f;
-
     auto res = AssetManager::GetSingleton().CreateAsset(AssetType::Material,
                                                         std::format("@res://materials/{}.mat", p_name));
     if (!res) {
         CRASH_NOW();  // @TODO: error handling
     }
+    Guid guid = res.value();
 
-    Handle<MaterialAsset> mat_handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(res.value()).unwrap();
+    Handle<MaterialAsset> mat_handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(guid).unwrap();
     const std::shared_ptr<MaterialAsset>& mat = mat_handle.Wait();
     mat->base_color = Vector4f(p_color, 1.0f);
     mat->emissive = p_emissive;
+
+    auto entity = CreateObjectEntity(p_scene, p_name);
+
+    // light
+    LightComponent& light = p_scene.Create<LightComponent>(entity);
+    light.SetType(LIGHT_TYPE_AREA);
+    light.m_material_handle = mat_handle;
+    light.m_material_id = guid;
+    // light.m_atten.constant = 1.0f;
+    // light.m_atten.linear = 0.09f;
+    // light.m_atten.quadratic = 0.032f;
 
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
 
@@ -143,26 +146,30 @@ Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
                                                 const std::string& p_name,
                                                 const Vector3f& p_color,
                                                 const float p_emissive) {
-    auto entity = CreateNameEntity(p_scene, p_name);
-
-    p_scene.Create<TransformComponent>(entity);
-
-    LightComponent& light = p_scene.Create<LightComponent>(entity);
-    light.SetType(LIGHT_TYPE_INFINITE);
-    light.m_atten.constant = 1.0f;
-    light.m_atten.linear = 0.0f;
-    light.m_atten.quadratic = 0.0f;
 
     auto res = AssetManager::GetSingleton().CreateAsset(AssetType::Material, std::format("@res://materials/{}.mat", p_name));
     if (!res) {
         CRASH_NOW();  // @TODO: error handling
     }
 
-    auto mat_handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(res.value()).unwrap();
-    auto mat = mat_handle.Wait();
+    Guid guid = res.value();
+    Handle<MaterialAsset> mat_handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(guid).unwrap();
+    const std::shared_ptr<MaterialAsset>& mat = mat_handle.Wait();
 
     mat->base_color = Vector4f(p_color, 1.0f);
     mat->emissive = p_emissive;
+
+    auto entity = CreateNameEntity(p_scene, p_name);
+    p_scene.Create<TransformComponent>(entity);
+    LightComponent& light = p_scene.Create<LightComponent>(entity);
+    light.SetType(LIGHT_TYPE_INFINITE);
+    light.m_atten.constant = 1.0f;
+    light.m_atten.linear = 0.0f;
+    light.m_atten.quadratic = 0.0f;
+
+    light.m_material_handle = mat_handle;
+    light.m_material_id = guid;
+
     return entity;
 }
 

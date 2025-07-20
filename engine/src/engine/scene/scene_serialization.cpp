@@ -1,5 +1,6 @@
 #include <fstream>
 
+#include "engine/assets/material_asset.h"
 #include "engine/core/io/archive.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
