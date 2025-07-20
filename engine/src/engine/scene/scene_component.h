@@ -114,7 +114,7 @@ struct MeshComponent {
         AABB local_bound;
 
         // Non-serialized
-        Handle<MaterialAsset> mat_handle;
+        Handle<MaterialAsset> material_handle;
     };
     std::vector<MeshSubset> subsets;
 

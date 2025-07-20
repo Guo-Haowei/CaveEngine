@@ -115,14 +115,16 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
     // light.m_atten.linear = 0.09f;
     // light.m_atten.quadratic = 0.032f;
 
-    CRASH_NOW();
-    unused(p_emissive);
-    unused(p_color);
-#if 0
-    // material
-    MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
-    material.baseColor = Vector4f(p_color, 1.0f);
-    material.emissive = p_emissive;
+    auto res = AssetManager::GetSingleton().CreateAsset(AssetType::Material,
+                                                        std::format("@res://materials/{}.mat", p_name));
+    if (!res) {
+        CRASH_NOW();  // @TODO: error handling
+    }
+
+    Handle<MaterialAsset> mat_handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(res.value()).unwrap();
+    const std::shared_ptr<MaterialAsset>& mat = mat_handle.Wait();
+    mat->base_color = Vector4f(p_color, 1.0f);
+    mat->emissive = p_emissive;
 
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
 
@@ -132,8 +134,8 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
 
     MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
     mesh = MakePlaneMesh();
-    mesh.subsets[0].material_id = entity;
-#endif
+    mesh.subsets[0].material_id = mat_handle.GetGuid();
+    mesh.subsets[0].material_handle = mat_handle;
     return entity;
 }
 

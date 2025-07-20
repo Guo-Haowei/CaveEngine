@@ -424,13 +424,9 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
                 // @TODO: [SCRUM-210] fix material
                 MaterialConstantBuffer material_buffer;
-                const MaterialAsset* material = nullptr;
-                auto handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(subset.material_id);
-                if (handle.is_some()) {
-                    material = handle.unwrap_unchecked().Get();
-                } else {
-                    // fall back to default material
-                    material = MaterialAsset::Default();
+                const MaterialAsset* material = subset.material_handle.Get();
+                if (!material) {
+                    material = MaterialAsset::Default();  // fall back to default material
                 }
 
                 FillMaterialConstantBuffer(is_opengl, material, material_buffer);

@@ -231,6 +231,15 @@ void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
 
 void MeshComponent::OnDeserialized() {
     CreateRenderData();
+
+    for (auto& it : subsets) {
+        if (!it.material_id.IsNull()) {
+            auto handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(it.material_id);
+            if (handle.is_some()) {
+                it.material_handle = handle.unwrap_unchecked();
+            }
+        }
+    }
 }
 
 void LightComponent::Serialize(Archive& p_archive, uint32_t p_version) {
