@@ -21,7 +21,8 @@ namespace cave {
 
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
-    m_camera = ViewerTab::CreateDefaultCamera2D();
+    m_camera = std::make_unique<CameraComponent>();
+    ViewerTab::CreateDefaultCamera2D(*m_camera.get());
 
     m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
     m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").unwrap();
@@ -59,11 +60,10 @@ void TileMapEditor::OnActivate() {
     scene_manager->SetTmpScene(m_tmp_scene);
 }
 
-void TileMapEditor::DrawMainView() {
-    ViewerTab::DrawMainView();
+void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {
+    ViewerTab::DrawMainView(p_camera);
 
-    const CameraComponent& camera = GetActiveCamera();
-    const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
+    const Matrix4x4f proj_view = p_camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -372,6 +372,17 @@ void TileMapEditor::EditSprite(SpriteAsset& p_sprite) {
         }
         ImGui::EndTabBar();
     }
+}
+
+const std::vector<ViewerTab::ToolBarButtonDesc>& TileMapEditor::GetToolBarButtons() const {
+    static std::vector<ToolBarButtonDesc> s_buttons = {
+        { ICON_FA_BRUSH, "TileMap editor mode",
+          [&]() {
+              LOG_WARN("TODO");
+          } },
+    };
+
+    return s_buttons;
 }
 
 }  // namespace cave

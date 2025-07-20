@@ -28,7 +28,7 @@ public:
 
     void OnActivate() override;
 
-    void DrawMainView() override;
+    void DrawMainView(const CameraComponent& p_camera) override;
 
     void DrawAssetInspector() override;
 
@@ -38,6 +38,8 @@ public:
 
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
+
+    const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const override;
 
     void UndoableSetTile(TileMapAsset& p_layer,
                          int p_layer_id,
@@ -61,7 +63,7 @@ protected:
 
     std::shared_ptr<Scene> m_tmp_scene;
 
-    std::shared_ptr<CameraComponent> m_camera;
+    std::unique_ptr<CameraComponent> m_camera;
     std::shared_ptr<TileMapDocument> m_document;
 };
 

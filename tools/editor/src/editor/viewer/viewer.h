@@ -48,8 +48,6 @@ public:
 protected:
     void UpdateInternal(Scene* p_scene) override;
 
-    void DrawToolBar();
-
     void UpdateFrameSize();
     bool CacheCameraInput(const InputEvent* p_input_event);
 

@@ -17,7 +17,8 @@ namespace cave {
 SpriteAnimationEditor::SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
 
-    m_camera = ViewerTab::CreateDefaultCamera2D();
+    m_camera = std::make_unique<CameraComponent>();
+    ViewerTab::CreateDefaultCamera2D(*m_camera.get());
 }
 
 void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
@@ -53,11 +54,10 @@ void SpriteAnimationEditor::OnActivate() {
     scene_manager->SetTmpScene(m_tmp_scene);
 }
 
-void SpriteAnimationEditor::DrawMainView() {
-    ViewerTab::DrawMainView();
+void SpriteAnimationEditor::DrawMainView(const CameraComponent& p_camera) {
+    ViewerTab::DrawMainView(p_camera);
 
-    const CameraComponent& camera = GetActiveCamera();
-    const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
+    const Matrix4x4f proj_view = p_camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();

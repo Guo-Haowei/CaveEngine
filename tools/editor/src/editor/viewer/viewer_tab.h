@@ -17,7 +17,7 @@ public:
 
     virtual ~ViewerTab() = default;
 
-    virtual bool HandleInput(const InputEvent* p_input_event);
+    virtual bool HandleInput(const InputEvent* p_input_event) = 0;
 
     virtual void OnCreate(const Guid&);
     virtual void OnDestroy() {}
@@ -25,7 +25,8 @@ public:
     virtual void OnActivate() {}
     virtual void OnDeactivate() {}
 
-    virtual void DrawMainView();
+    void DrawToolBar();
+    virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
 
     virtual Document& GetDocument() const = 0;
@@ -47,10 +48,19 @@ public:
     }
 
 protected:
+    struct ToolBarButtonDesc {
+        const char* display{ nullptr };
+        const char* tooltip{ nullptr };
+        std::function<void()> execute_func;
+        std::function<bool()> is_enabled_func;
+    };
+
+    virtual const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const;
+
     virtual const CameraComponent& GetActiveCameraInternal() const = 0;
 
-    static std::shared_ptr<CameraComponent> CreateDefaultCamera2D();
-    static std::shared_ptr<CameraComponent> CreateDefaultCamera3D();
+    static void CreateDefaultCamera2D(CameraComponent& p_out);
+    static void CreateDefaultCamera3D(CameraComponent& p_out);
 
     const TabId m_id;
     EditorLayer& m_editor;

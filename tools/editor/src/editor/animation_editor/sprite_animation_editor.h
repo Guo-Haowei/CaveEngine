@@ -26,18 +26,18 @@ public:
 
     void OnActivate() override;
 
-    void DrawMainView() override;
+    void DrawMainView(const CameraComponent& p_camera) override;
 
     Document& GetDocument() const override;
 
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
-    AssetRegistry* m_asset_registry;
+    AssetRegistry* m_asset_registry = nullptr;
 
     std::shared_ptr<Scene> m_tmp_scene;
 
-    std::shared_ptr<CameraComponent> m_camera;
+    std::unique_ptr<CameraComponent> m_camera;
 
     std::shared_ptr<SpriteAnimationDocument> m_document;
 };
