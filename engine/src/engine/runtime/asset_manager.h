@@ -1,5 +1,6 @@
 #pragma once
 #include "engine/assets/asset_interface.h"
+#include "engine/assets/guid.h"
 #include "engine/core/base/concurrent_queue.h"
 #include "engine/core/base/singleton.h"
 #include "engine/runtime/module.h"
@@ -20,7 +21,8 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    void CreateAsset(AssetType p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr);
+    Result<Guid> CreateAsset(AssetType p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr);
+    Result<Guid> CreateAsset(AssetType p_type, const std::string& p_short_path);
 
     auto MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) -> Result<void>;
 

@@ -43,6 +43,9 @@ void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, const std
             if (ImGui::MenuItem("TileMap")) {
                 asset_manager->CreateAsset(AssetType::TileMap, p_path);
             }
+            if (ImGui::MenuItem("Material")) {
+                asset_manager->CreateAsset(AssetType::Material, p_path);
+            }
             ImGui::EndMenu();
         }
         if (ImGui::MenuItem("Delete")) {

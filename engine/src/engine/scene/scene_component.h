@@ -13,11 +13,6 @@ namespace cave {
 #include "shader_defines.hlsl.h"
 }  // namespace cave
 
-namespace YAML {
-class Node;
-class Emitter;
-}  // namespace YAML
-
 namespace cave {
 
 struct BvhAccel;
@@ -137,32 +132,6 @@ struct MeshComponent {
     void OnDeserialized();
 };
 #pragma endregion MESH_COMPONENT
-
-// @TODO: make it asset
-#pragma region MATERIAL_COMPONENT
-struct MaterialComponent {
-    enum {
-        TEXTURE_BASE,
-        TEXTURE_NORMAL,
-        TEXTURE_METALLIC_ROUGHNESS,
-        TEXTURE_MAX,
-    };
-
-    struct TextureMap {
-        std::string path;
-        bool enabled = true;
-    };
-
-    float metallic = 0.0f;
-    float roughness = 1.0f;
-    float emissive = 0.0f;
-    Vector4f baseColor = Vector4f(1);
-    TextureMap textures[TEXTURE_MAX];
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized();
-};
-#pragma endregion MATERIAL_COMPONENT
 
 // @TODO: make it asset
 #pragma region ANIMATION_COMPONENT

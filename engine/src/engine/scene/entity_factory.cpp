@@ -1,6 +1,9 @@
 #include "entity_factory.h"
 
+#include "engine/assets/material_asset.h"
 #include "engine/math/geometry.h"
+#include "engine/runtime/asset_manager.h"
+#include "engine/runtime/asset_registry.h"
 
 namespace cave {
 
@@ -56,8 +59,9 @@ Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
 
 Entity EntityFactory::CreateMaterialEntity(Scene& p_scene,
                                            const std::string& p_name) {
+    CRASH_NOW();
     auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<MaterialComponent>(entity);
+    // p_scene.Create<MaterialComponent>(entity);
     return entity;
 }
 
@@ -74,9 +78,15 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     light.m_atten.linear = 0.2f;
     light.m_atten.quadratic = 0.05f;
 
+    DEV_ASSERT(0);
+    unused(p_position);
+    unused(p_color);
+    unused(p_emissive);
+#if 0
     MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
     material.baseColor = Vector4f(p_color, 1.0f);
     material.emissive = p_emissive;
+#endif
 
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
@@ -106,10 +116,15 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
     // light.m_atten.linear = 0.09f;
     // light.m_atten.quadratic = 0.032f;
 
+    CRASH_NOW();
+    unused(p_emissive);
+    unused(p_color);
+#if 0
     // material
     MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
     material.baseColor = Vector4f(p_color, 1.0f);
     material.emissive = p_emissive;
+#endif
 
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
 
@@ -137,9 +152,20 @@ Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
     light.m_atten.linear = 0.0f;
     light.m_atten.quadratic = 0.0f;
 
+    auto res = AssetManager::GetSingleton().CreateAsset(AssetType::Material, std::format("@res://materials/{}.mat", p_name));
+    if (!res) {
+        CRASH_NOW();  // @TODO: error handling
+    }
+
+    AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(res.value());
+
+    unused(p_color);
+    unused(p_emissive);
+#if 0
     MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
     material.baseColor = Vector4f(p_color, 1.0f);
     material.emissive = p_emissive;
+#endif
     return entity;
 }
 

@@ -41,7 +41,9 @@ Scene* CreateBoxScene() {
 
     int mat_counter = 0;
     auto create_material = [&](const std::string& p_name) {
+        unused(p_name);
         auto id = EntityFactory::CreateMaterialEntity(*scene, std::format("{}_{}", "p_name", mat_counter++));
+#if 0
         MaterialComponent* mat = scene->GetComponent<MaterialComponent>(id);
         if (p_name == "white") {
             mat->metallic = 0.3f;
@@ -55,6 +57,7 @@ Scene* CreateBoxScene() {
             mat->metallic = 0.3f;
             mat->roughness = 0.7f;
         }
+#endif
         return id;
     };
 
@@ -202,10 +205,11 @@ Scene* CreatePbrTestScene() {
 
     const int num_row = 7;
     const int num_col = 7;
-    const float spacing = 1.2f;
 
     for (int row = 0; row < num_row; ++row) {
         for (int col = 0; col < num_col; ++col) {
+#if 0
+            constexpr float spacing = 1.2f;
             const float x = (col - 0.5f * num_col) * spacing;
             const float y = (row - 0.5f * num_row) * spacing;
 
@@ -220,6 +224,7 @@ Scene* CreatePbrTestScene() {
             auto transform = Translate(Vector3f(x, y, 0.0f));
             auto sphere = EntityFactory::CreateSphereEntity(*scene, name, material_id, 0.5f, transform);
             scene->AttachChild(sphere, world);
+#endif
         }
     }
 

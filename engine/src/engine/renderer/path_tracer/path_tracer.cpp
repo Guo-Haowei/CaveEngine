@@ -136,6 +136,8 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
                 continue;
             }
 
+            DEV_ASSERT(0);
+#if 0
             const auto material = p_scene.GetComponent<MaterialComponent>(material_id);
             DEV_ASSERT(material);
 
@@ -147,6 +149,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
             gpu_mat.roughness = material->roughness;
             gpu_mat.metallic = material->metallic;
             materials.emplace_back(gpu_mat);
+#endif
         }
 
         GpuBufferDesc desc{

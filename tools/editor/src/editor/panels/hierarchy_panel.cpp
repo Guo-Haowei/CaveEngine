@@ -106,18 +106,6 @@ void HierarchyCreator::DrawNode(const Scene& p_scene, HierarchyNode* p_hier, ImG
         ImGui::Indent(indentWidth);
 
         if (mesh_component) {
-            for (const auto& subset : mesh_component->subsets) {
-                const MaterialComponent* material = p_scene.GetComponent<MaterialComponent>(subset.material_id);
-                if (material) {
-                    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;
-                    TreeNodeHelper(
-                        p_scene, subset.material_id, flags,
-                        [&]() {
-                            m_editorLayer.SelectEntity(subset.material_id);
-                        },
-                        nullptr);
-                }
-            }
             Entity armature_id = mesh_component->armatureId;
             if (armature_id.IsValid()) {
                 ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;

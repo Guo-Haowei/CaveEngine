@@ -9,7 +9,6 @@
 
 // @TODO: remove
 #include "engine/math/matrix_transform.h"
-#include "engine/scene/scene_serialization.h"
 
 namespace std {
 
@@ -179,12 +178,14 @@ Scene* SceneCreator::CreateScene() {
     auto rock_material = EntityFactory::CreateMaterialEntity(*scene, "material::rock");
     auto battery_material = EntityFactory::CreateMaterialEntity(*scene, "material::battery");
     {
+#if 0
         MeshComponent* mesh = scene->GetComponent<MeshComponent>(mesh_battery);
         *mesh = MakeTetrahedronMesh(BATTERY_SIZE);
 
         MaterialComponent* material = scene->GetComponent<MaterialComponent>(battery_material);
         material->baseColor = Vector4f(BLUE_COLOR.r, BLUE_COLOR.g, BLUE_COLOR.b, 1.0f);
         mesh->subsets[0].material_id = battery_material;
+#endif
     }
     {
         MeshComponent* mesh = scene->GetComponent<MeshComponent>(mesh_battery_particle);
@@ -193,12 +194,14 @@ Scene* SceneCreator::CreateScene() {
     }
     // rock
     {
+#if 0
         MeshComponent* mesh = scene->GetComponent<MeshComponent>(mesh_rock);
         *mesh = MakeSphereMesh(ROCK_SIZE, 6, 6);
 
         MaterialComponent* material = scene->GetComponent<MaterialComponent>(rock_material);
         material->baseColor = Vector4f(RED_COLOR.r, RED_COLOR.g, RED_COLOR.b, 1.0f);
         mesh->subsets[0].material_id = rock_material;
+#endif
     }
     {
         MeshComponent* mesh = scene->GetComponent<MeshComponent>(mesh_rock_patricle);
@@ -295,6 +298,10 @@ Scene* SceneCreator::CreateScene() {
 }
 
 void SceneCreator::CreateMaterials(Scene* p_scene) {
+    unused(p_scene);
+    CRASH_NOW();
+#if 0
+
     constexpr float default_roughness = 0.8f;
     constexpr float default_metallic = 0.2f;
     struct {
@@ -324,6 +331,7 @@ void SceneCreator::CreateMaterials(Scene* p_scene) {
         material->metallic = default_metallic;
         *(info[i].entity) = entity;
     }
+#endif
 }
 
 MeshComponent SceneCreator::MakeOceanMesh(float p_radius,
