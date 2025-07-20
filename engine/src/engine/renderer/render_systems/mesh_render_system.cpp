@@ -142,15 +142,12 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
     int idx = 0;
     for (auto [light_entity, light_component] : p_scene.View<LightComponent>()) {
         const TransformComponent* light_transform = p_scene.GetComponent<TransformComponent>(light_entity);
+        DEV_ASSERT(light_transform);
 
         const MaterialAsset* material = light_component.m_material_handle.Get();
         if (!material) {
             continue;
         }
-
-        // const MaterialComponent* material = p_scene.GetComponent<MaterialComponent>(light_entity);
-
-        // DEV_ASSERT(light_transform && material);
 
         // SHOULD BE THIS INDEX
         Light& light = cache.c_lights[idx];
