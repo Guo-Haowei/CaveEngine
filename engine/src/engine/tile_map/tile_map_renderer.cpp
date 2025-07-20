@@ -52,7 +52,7 @@ void TileMapRenderer::CreateRenderData() {
     bool need_update = false;
     if (tile_set->IsDirty()) {
         tile_set->SetDirty(false);
-        need_update = true; 
+        need_update = true;
     }
 
     if (tile_map->GetRevision() != m_revision) {
@@ -76,8 +76,14 @@ void TileMapRenderer::CreateRenderData() {
     }
     m_visibility = tile_map->IsVisible();
 
+    const auto& frames = tile_set->GetFrames();
+
     vertices.reserve(tiles.size() * 4);
-    for (const auto& [key, tile] : tiles) {
+    for (const auto& [key, tile_id] : tiles) {
+        if ((int)frames.size() <= tile_id) {
+            continue;
+        }
+
         const int16_t x = key.x;
         const int16_t y = key.y;
 
@@ -90,15 +96,8 @@ void TileMapRenderer::CreateRenderData() {
         Vector2f bottom_right{ x1, y0 };
         Vector2f top_left{ x0, y1 };
         Vector2f top_right{ x1, y1 };
-#if 1
-        const auto& frames = tile_set->GetFrames();
-        DEV_ASSERT((int)frames.size() > tile);
-        Vector2f uv_min = frames[tile - 1].GetMin();
-        Vector2f uv_max = frames[tile - 1].GetMax();
-#else
-        Vector2f uv_min = Vector2f::Zero;
-        Vector2f uv_max = Vector2f::One;
-#endif
+        Vector2f uv_min = frames[tile_id].GetMin();
+        Vector2f uv_max = frames[tile_id].GetMax();
         Vector2f uv0 = uv_min;
         Vector2f uv1 = { uv_max.x, uv_min.y };
         Vector2f uv2 = { uv_min.x, uv_max.y };

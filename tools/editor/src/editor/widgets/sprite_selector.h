@@ -10,6 +10,10 @@ public:
                       const int* p_colomn,
                       const int* p_row);
 
+    std::pair<int, int> GetSelected() {
+        return { m_selected_x, m_selected_y };
+    }
+
 private:
     int m_column = 1;
     int m_row = 1;

@@ -159,7 +159,13 @@ bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
             if (e->IsButtonDown(MouseButton::LEFT)) {
-                m_document->RequestAdd(e->GetPos(), TileId(1));
+                auto [x, y] = m_sprite_selector.GetSelected();
+                if (x >= 0 && y >= 0) {
+                    TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
+                    TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+                    uint32_t idx = y * tile_set->GetCol() + x;
+                    m_document->RequestAdd(e->GetPos(), TileId(idx));
+                }
                 return true;
             }
             if (e->IsButtonDown(MouseButton::RIGHT)) {
