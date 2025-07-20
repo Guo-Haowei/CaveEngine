@@ -1,6 +1,0 @@
-version: 0
-content:
-  base_color: [1, 1, 1, 1]
-  metallic: 0
-  roughness: 1
-  emissive: 0
