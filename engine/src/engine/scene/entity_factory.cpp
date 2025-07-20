@@ -78,8 +78,12 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     light.m_atten.linear = 0.2f;
     light.m_atten.quadratic = 0.05f;
 
-    DEV_ASSERT(0);
-    unused(p_position);
+    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
+    transform.SetTranslation(p_position);
+    transform.SetDirty();
+
+    CRASH_NOW();
     unused(p_color);
     unused(p_emissive);
 #if 0
@@ -88,18 +92,13 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     material.emissive = p_emissive;
 #endif
 
-    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
-    transform.SetTranslation(p_position);
-    transform.SetDirty();
-
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
     object.meshId = mesh_id;
     object.flags = MeshRenderer::FLAG_RENDERABLE;
 
     MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
     mesh = MakeSphereMesh(0.1f, 40, 40);
-    mesh.subsets[0].material_id = entity;
+    mesh.subsets[0].material_id = Guid();
     return entity;
 }
 
@@ -124,7 +123,6 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
     MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
     material.baseColor = Vector4f(p_color, 1.0f);
     material.emissive = p_emissive;
-#endif
 
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
 
@@ -135,6 +133,7 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
     MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
     mesh = MakePlaneMesh();
     mesh.subsets[0].material_id = entity;
+#endif
     return entity;
 }
 
@@ -157,15 +156,11 @@ Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
         CRASH_NOW();  // @TODO: error handling
     }
 
-    AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(res.value());
+    auto mat_handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(res.value()).unwrap();
+    auto mat = mat_handle.Wait();
 
-    unused(p_color);
-    unused(p_emissive);
-#if 0
-    MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
-    material.baseColor = Vector4f(p_color, 1.0f);
-    material.emissive = p_emissive;
-#endif
+    mat->base_color = Vector4f(p_color, 1.0f);
+    mat->emissive = p_emissive;
     return entity;
 }
 
@@ -188,13 +183,13 @@ Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
                                         const std::string& p_name,
                                         const Vector3f& p_scale,
                                         const Matrix4x4f& p_transform) {
-    auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
+    Guid material_id;
     return CreatePlaneEntity(p_scene, p_name, material_id, p_scale, p_transform);
 }
 
 Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
                                         const std::string& p_name,
-                                        Entity p_material_id,
+                                        const Guid& p_material_id,
                                         const Vector3f& p_scale,
                                         const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
@@ -216,13 +211,13 @@ Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
                                        const std::string& p_name,
                                        const Vector3f& p_scale,
                                        const Matrix4x4f& p_transform) {
-    auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
+    Guid material_id;
     return CreateCubeEntity(p_scene, p_name, material_id, p_scale, p_transform);
 }
 
 Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
                                        const std::string& p_name,
-                                       Entity p_material_id,
+                                       const Guid& p_material_id,
                                        const Vector3f& p_scale,
                                        const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
@@ -242,7 +237,7 @@ Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
 
 Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
                                        const std::string& p_name,
-                                       Entity p_material_id,
+                                       const Guid& p_material_id,
                                        MeshComponent&& p_mesh) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
@@ -260,13 +255,13 @@ Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
                                          const std::string& p_name,
                                          float p_radius,
                                          const Matrix4x4f& p_transform) {
-    auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
+    Guid material_id;
     return CreateSphereEntity(p_scene, p_name, material_id, p_radius, p_transform);
 }
 
 Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
                                          const std::string& p_name,
-                                         Entity p_material_id,
+                                         const Guid& p_material_id,
                                          float p_radius,
                                          const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
@@ -289,13 +284,13 @@ Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
                                            float p_radius,
                                            float p_height,
                                            const Matrix4x4f& p_transform) {
-    auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
+    Guid material_id;
     return CreateCylinderEntity(p_scene, p_name, material_id, p_radius, p_height, p_transform);
 }
 
 Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
                                            const std::string& p_name,
-                                           Entity p_material_id,
+                                           const Guid& p_material_id,
                                            float p_radius,
                                            float p_height,
                                            const Matrix4x4f& p_transform) {
@@ -319,13 +314,13 @@ Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
                                         float p_radius,
                                         float p_tube_radius,
                                         const Matrix4x4f& p_transform) {
-    auto material_id = CreateMaterialEntity(p_scene, p_name + ":mat");
+    Guid material_id;
     return CreateTorusEntity(p_scene, p_name, material_id, p_radius, p_tube_radius, p_transform);
 }
 
 Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
                                         const std::string& p_name,
-                                        Entity p_material_id,
+                                        const Guid& p_material_id,
                                         float p_radius,
                                         float p_tube_radius,
                                         const Matrix4x4f& p_transform) {

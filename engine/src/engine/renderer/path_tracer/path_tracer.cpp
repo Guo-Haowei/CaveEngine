@@ -231,8 +231,10 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
 
             MeshData meta{
                 .rootBvhId = bvh_count,
-                .materialId = mesh->subsets[0].material_id
+                .materialId = ecs::Entity::Null(),
+                //.materialId = mesh->subsets[0].material_id
             };
+            CRASH_NOW();
             m_meshs[object.meshId] = meta;
 
             GpuScene tmp_scene;

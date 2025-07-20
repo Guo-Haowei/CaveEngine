@@ -1,3 +1,4 @@
+#include "engine/assets/material_asset.h"
 #include "engine/math/frustum.h"
 #include "engine/math/geometry.h"
 #include "engine/math/matrix_transform.h"
@@ -10,29 +11,27 @@ namespace cave {
 using FilterObjectFunc1 = std::function<bool(const MeshRenderer& p_object)>;
 using FilterObjectFunc2 = std::function<bool(const AABB& p_object_aabb)>;
 
-class MaterialAsset;
-
 // @TODO: fix this function OMG
 static void FillMaterialConstantBuffer(bool p_is_opengl, const MaterialAsset* p_material, MaterialConstantBuffer& cb) {
-    unused(p_is_opengl);
-    unused(p_material);
-
     cb.c_hasBaseColorMap = false;
     cb.c_hasNormalMap = false;
     cb.c_hasMaterialMap = false;
+    cb.c_hasHeightMap = false;
 
-    cb.c_baseColor = Vector4f::One;
-    cb.c_metallic = 0.1f;
-    cb.c_roughness = 0.9f;
-    cb.c_emissivePower = 0.0f;
-
-    // @TODO: [SCRUM-210] fix material
-#if 0
-    cb.c_baseColor = p_material->baseColor;
+    cb.c_baseColor = p_material->base_color;
     cb.c_metallic = p_material->metallic;
     cb.c_roughness = p_material->roughness;
     cb.c_emissivePower = p_material->emissive;
+    cb.c_reflectPower = 0.0f;
 
+    cb.c_baseColorMapHandle = 0;
+    cb.c_normalMapHandle = 0;
+    cb.c_materialMapHandle = 0;
+    cb.c_heightMapHandle = 0;
+
+    // @TODO: [SCRUM-210] fix material
+    unused(p_is_opengl);
+#if 0
     auto set_texture = [&](int p_idx,
                            TextureHandle& p_out_handle,
                            sampler_t& p_out_resident_handle) {
@@ -410,9 +409,9 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
                 return;
             }
 
-            DrawCommand drawCmd = draw;
+            DrawCommand draw_cmd = draw;
             if (p_model_only) {
-                p_commands.emplace_back(RenderCommand::From(drawCmd));
+                p_commands.emplace_back(RenderCommand::From(draw_cmd));
                 return;
             }
 
@@ -424,18 +423,23 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
                 }
 
                 // @TODO: [SCRUM-210] fix material
-#if 0
-                const MaterialComponent* material = scene.GetComponent<MaterialComponent>(subset.material_id);
-#endif
                 MaterialConstantBuffer material_buffer;
                 const MaterialAsset* material = nullptr;
+                auto handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(subset.material_id);
+                if (handle.is_some()) {
+                    material = handle.unwrap_unchecked().Get();
+                } else {
+                    // fall back to default material
+                    material = MaterialAsset::Default();
+                }
+
                 FillMaterialConstantBuffer(is_opengl, material, material_buffer);
 
-                drawCmd.indexCount = subset.index_count;
-                drawCmd.indexOffset = subset.index_offset;
-                drawCmd.mat_idx = p_framedata.materialCache.FindOrAdd(subset.material_id, material_buffer);
+                draw_cmd.indexCount = subset.index_count;
+                draw_cmd.indexOffset = subset.index_offset;
+                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(subset.material_id, material_buffer);
 
-                p_commands.emplace_back(RenderCommand::From(drawCmd));
+                p_commands.emplace_back(RenderCommand::From(draw_cmd));
             }
         };
 

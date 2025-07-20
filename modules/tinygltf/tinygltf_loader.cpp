@@ -336,13 +336,13 @@ void TinyGLTFLoader::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
 
     for (const auto& prim : p_gltf_mesh.primitives) {
         MeshComponent::MeshSubset subset;
+        CRASH_NOW();
 #if 0
         if (m_scene->GetCount<MaterialComponent>() == 0) {
             LOG_FATAL("No material! Consider use default");
         }
         subset.material_id = m_scene->GetEntity<MaterialComponent>(max(0, prim.material));
 #endif
-        subset.material_id = ecs::Entity::Null();
 
         //        const size_t index_remap[] = { 0, 1, 2 };
         uint32_t vertexOffset = (uint32_t)mesh.normals.size();

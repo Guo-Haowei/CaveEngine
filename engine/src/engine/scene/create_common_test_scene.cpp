@@ -13,6 +13,8 @@ namespace cave {
 
 Scene* CreateBoxScene() {
     Scene* scene = new Scene;
+    CRASH_NOW();
+#if 0
     scene->m_physicsMode = PhysicsMode::SIMULATION;
 
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
@@ -43,7 +45,6 @@ Scene* CreateBoxScene() {
     auto create_material = [&](const std::string& p_name) {
         unused(p_name);
         auto id = EntityFactory::CreateMaterialEntity(*scene, std::format("{}_{}", "p_name", mat_counter++));
-#if 0
         MaterialComponent* mat = scene->GetComponent<MaterialComponent>(id);
         if (p_name == "white") {
             mat->metallic = 0.3f;
@@ -57,7 +58,6 @@ Scene* CreateBoxScene() {
             mat->metallic = 0.3f;
             mat->roughness = 0.7f;
         }
-#endif
         return id;
     };
 
@@ -82,11 +82,13 @@ Scene* CreateBoxScene() {
         }
     }
 
+#endif
     return scene;
 }
 
 Scene* CreatePhysicsTestScene() {
     Scene* scene = new Scene;
+#if 0
     scene->m_physicsMode = PhysicsMode::SIMULATION;
 
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
@@ -140,7 +142,6 @@ Scene* CreatePhysicsTestScene() {
         transform->RotateZ(Degree(45.0f));
     }
 
-#if 0
     {
         constexpr float s = 3.5f;
         constexpr float h = 2.0f;
@@ -157,7 +158,6 @@ Scene* CreatePhysicsTestScene() {
 
         scene->AttachChild(cloth, root);
     }
-#endif
 
     for (int t = 1; t <= 21; ++t) {
         const int x = (t - 1) % 7;
@@ -179,13 +179,14 @@ Scene* CreatePhysicsTestScene() {
         }
         scene->AttachChild(id, world);
     }
+#endif
 
     return scene;
 }
 
 Scene* CreatePbrTestScene() {
     Scene* scene = new Scene;
-
+#if 0
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
@@ -208,7 +209,6 @@ Scene* CreatePbrTestScene() {
 
     for (int row = 0; row < num_row; ++row) {
         for (int col = 0; col < num_col; ++col) {
-#if 0
             constexpr float spacing = 1.2f;
             const float x = (col - 0.5f * num_col) * spacing;
             const float y = (row - 0.5f * num_row) * spacing;
@@ -224,7 +224,6 @@ Scene* CreatePbrTestScene() {
             auto transform = Translate(Vector3f(x, y, 0.0f));
             auto sphere = EntityFactory::CreateSphereEntity(*scene, name, material_id, 0.5f, transform);
             scene->AttachChild(sphere, world);
-#endif
         }
     }
 
@@ -236,6 +235,7 @@ Scene* CreatePbrTestScene() {
         env->sky.texturePath = "@res://images/ibl/circus.hdr";
     }
 
+#endif
     return scene;
 }
 

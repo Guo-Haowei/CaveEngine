@@ -9,10 +9,6 @@
 
 namespace cave {
 
-Guid::Guid(const uint8_t* p_buffer) {
-    memcpy(m_data, p_buffer, sizeof(Guid));
-}
-
 Guid Guid::Create() {
     Guid result;
 #if USING(PLATFORM_WINDOWS)

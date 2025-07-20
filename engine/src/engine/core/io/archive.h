@@ -3,6 +3,8 @@
 
 namespace cave {
 
+class Guid;
+
 class Archive {
 public:
     ~Archive() {

@@ -126,7 +126,8 @@ void AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
     MeshComponent::MeshSubset subset;
     subset.index_count = (uint32_t)mesh_component.indices.size();
     subset.index_offset = 0;
-    subset.material_id = m_materials.at(p_mesh.mMaterialIndex);
+    CRASH_NOW();
+    // subset.material_id = m_materials.at(p_mesh.mMaterialIndex);
     mesh_component.subsets.emplace_back(subset);
 
     mesh_component.CreateRenderData();

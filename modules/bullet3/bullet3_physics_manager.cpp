@@ -351,6 +351,7 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
         }
     }
 
+#if 0
     for (auto [id, component] : p_scene.m_ClothComponents) {
         if (component.physicsObject) {
             continue;
@@ -425,6 +426,7 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
             component.physicsObject = cloth;
         }
     }
+#endif
 }
 
 void Bullet3PhysicsManager::OnSimEnd(Scene&) {

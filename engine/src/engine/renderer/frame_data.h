@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
 #include "engine/math/aabb.h"
 #include "engine/math/angle.h"
@@ -35,12 +36,12 @@ struct PassContext {
 };
 
 // @TODO: refactor this
-template<typename BUFFER>
+template<typename BUFFER, typename ID = ::cave::ecs::Entity>
 struct BufferCache {
     std::vector<BUFFER> buffer;
-    std::unordered_map<ecs::Entity, uint32_t> lookup;
+    std::unordered_map<ID, uint32_t> lookup;
 
-    uint32_t FindOrAdd(ecs::Entity p_entity, const BUFFER& p_buffer) {
+    uint32_t FindOrAdd(ID p_entity, const BUFFER& p_buffer) {
         auto it = lookup.find(p_entity);
         if (it != lookup.end()) {
             return it->second;
@@ -87,7 +88,7 @@ struct FrameData {
 
     PerFrameConstantBuffer perFrameCache;
     BufferCache<PerBatchConstantBuffer> batchCache;
-    BufferCache<MaterialConstantBuffer> materialCache;
+    BufferCache<MaterialConstantBuffer, Guid> materialCache;
     std::vector<PerPassConstantBuffer> passCache;
     std::array<PointShadowConstantBuffer, MAX_POINT_LIGHT_SHADOW_COUNT * 6> pointShadowCache;
     BufferCache<BoneConstantBuffer> boneCache;

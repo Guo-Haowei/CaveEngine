@@ -224,7 +224,8 @@ void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(joints_0);
     p_archive.ArchiveValue(weights_0);
     p_archive.ArchiveValue(color_0);
-    p_archive.ArchiveValue(subsets);
+    CRASH_NOW();
+    // p_archive.ArchiveValue(subsets);
     p_archive.ArchiveValue(armatureId);
 }
 

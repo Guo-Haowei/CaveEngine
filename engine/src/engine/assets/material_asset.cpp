@@ -4,6 +4,12 @@
 
 namespace cave {
 
+static MaterialAsset s_default = {};
+
+const MaterialAsset* MaterialAsset::Default() {
+    return &s_default;
+}
+
 std::vector<Guid> MaterialAsset::GetDependencies() const {
     std::vector<Guid> dependencies;
     dependencies.reserve(textures.size());

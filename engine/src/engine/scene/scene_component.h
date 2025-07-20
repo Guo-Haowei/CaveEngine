@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/asset_handle.h"
 #include "engine/ecs/entity.h"
 #include "engine/math/aabb.h"
 #include "engine/math/angle.h"
@@ -107,10 +108,13 @@ struct MeshComponent {
     std::vector<Vector4f> color_0;
 
     struct MeshSubset {
-        ecs::Entity material_id;
+        Guid material_id;
         uint32_t index_offset = 0;
         uint32_t index_count = 0;
         AABB local_bound;
+
+        // Non-serialized
+        Handle<MaterialAsset> mat_handle;
     };
     std::vector<MeshSubset> subsets;
 
@@ -539,11 +543,14 @@ public:
     uint32_t m_flags = DIRTY;
     int m_type = LIGHT_TYPE_INFINITE;
 
+    Guid m_material_id;
+
     // Non-serialized
     float m_maxDistance;
     Vector3f m_position;
     int m_shadowMapIndex = -1;
     std::array<Matrix4x4f, 6> m_lightSpaceMatrices;
+    Handle<MaterialAsset> m_material_handle;
 };
 #pragma endregion LIGHT_COMPONENT
 
