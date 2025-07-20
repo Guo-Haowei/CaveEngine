@@ -11,6 +11,8 @@ struct IAsset;
 // asset forward declaration
 struct BufferAsset;
 struct ImageAsset;
+struct MaterialAsset;
+struct MeshAsset;
 struct TextAsset;
 class TileSetAsset;
 class TileMapAsset;

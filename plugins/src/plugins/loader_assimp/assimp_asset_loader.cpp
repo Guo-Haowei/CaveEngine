@@ -46,6 +46,8 @@ auto AssimpAssetLoader::Load() -> Result<AssetRef> {
 
 void AssimpAssetLoader::ProcessMaterial(aiMaterial& p_material) {
     auto material_id = EntityFactory::CreateMaterialEntity(*m_scene, std::string("Material::") + p_material.GetName().C_Str());
+    CRASH_NOW();
+#if 0
     MaterialComponent* materialComponent = m_scene->GetComponent<MaterialComponent>(material_id);
     DEV_ASSERT(materialComponent);
 
@@ -74,15 +76,14 @@ void AssimpAssetLoader::ProcessMaterial(aiMaterial& p_material) {
         // AssetRegistry::GetSingleton().RequestAssetSync(path);
     }
 
-#if 0
     path = get_material_path(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE);
     if (!path.empty()) {
         materialComponent->textures[MaterialComponent::TEXTURE_METALLIC_ROUGHNESS].path = path;
         AssetRegistry::GetSingleton().RequestAssetSync(path);
     }
-#endif
 
     m_materials.emplace_back(material_id);
+#endif
 }
 
 void AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
@@ -125,7 +126,8 @@ void AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
     MeshComponent::MeshSubset subset;
     subset.index_count = (uint32_t)mesh_component.indices.size();
     subset.index_offset = 0;
-    subset.material_id = m_materials.at(p_mesh.mMaterialIndex);
+    CRASH_NOW();
+    // subset.material_id = m_materials.at(p_mesh.mMaterialIndex);
     mesh_component.subsets.emplace_back(subset);
 
     mesh_component.CreateRenderData();

@@ -7,6 +7,8 @@
 #include "engine/assets/assets.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/assets/image_asset.h"
+#include "engine/assets/material_asset.h"
+#include "engine/assets/mesh_asset.h"
 #include "engine/tile_map/tile_set_asset.h"
 #include "engine/sprite/sprite_animation_asset.h"
 #include "engine/tile_map/tile_map_asset.h"
@@ -72,6 +74,8 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
             return std::make_shared<SpriteAnimationAsset>();
         case AssetType::TileMap:
             return std::make_shared<TileMapAsset>();
+        case AssetType::Material:
+            return std::make_shared<MaterialAsset>();
         default:
             return nullptr;
     }
@@ -117,14 +121,32 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void AssetManager::CreateAsset(AssetType p_type,
-                               const fs::path& p_folder,
-                               const char* p_name) {
+Result<Guid> AssetManager::CreateAsset(AssetType p_type,
+                                       const std::string& p_short_path) {
     AssetRef asset = CreateAssetInstance(p_type);
     DEV_ASSERT(asset);
     if (!asset) {
-        return;
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create instance '{}'", p_short_path);
     }
+
+    auto _meta = AssetMetaData::CreateMeta(p_short_path);
+    if (_meta.is_none()) {
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create meta '{}'", p_short_path);
+    }
+
+    auto meta = std::move(_meta.unwrap_unchecked());
+    if (auto res = asset->SaveToDisk(meta); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    Guid guid = meta.guid;
+    m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta), nullptr, nullptr, nullptr);
+    return guid;
+}
+
+Result<Guid> AssetManager::CreateAsset(AssetType p_type,
+                                       const fs::path& p_folder,
+                                       const char* p_name) {
 
     // 1. Creates both meta and file
     fs::path new_file = p_folder;
@@ -136,18 +158,8 @@ void AssetManager::CreateAsset(AssetType p_type,
     meta_file.append(".meta");
 
     auto short_path = ResolvePath(new_file);
-    auto _meta = AssetMetaData::CreateMeta(short_path);
-    if (_meta.is_none()) {
-        LOG_ERROR("can't create asset '{}'", short_path);
-        return;
-    }
 
-    auto meta = std::move(_meta.unwrap_unchecked());
-    // @TODO: handle error
-    [[maybe_unused]] auto res = asset->SaveToDisk(meta);
-
-    // 2. Update AssetRegistry when done
-    m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta), nullptr, nullptr, nullptr);
+    return CreateAsset(p_type, short_path);
 }
 
 auto AssetManager::MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) -> Result<void> {

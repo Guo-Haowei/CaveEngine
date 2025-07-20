@@ -9,6 +9,8 @@ namespace cave {
     ASSET_TYPE(SpriteAnimation, "sprite_anim") \
     ASSET_TYPE(TileSet, "tileset")             \
     ASSET_TYPE(TileMap, "tilemap")             \
+    ASSET_TYPE(Material, "mat")                \
+    ASSET_TYPE(Mesh, "mesh")                   \
     ASSET_TYPE(Scene, "scene")
 
 enum _AssetTypeHelper : uint32_t {

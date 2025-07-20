@@ -4,8 +4,6 @@
 #include "engine/reflection/reflection.h"
 #include "engine/serialization/concept.h"
 
-// @TODO: change tile data to sparsed chunck
-
 namespace cave {
 
 class ISerializer;

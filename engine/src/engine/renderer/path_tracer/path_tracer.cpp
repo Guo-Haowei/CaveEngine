@@ -136,6 +136,8 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
                 continue;
             }
 
+            DEV_ASSERT(0);
+#if 0
             const auto material = p_scene.GetComponent<MaterialComponent>(material_id);
             DEV_ASSERT(material);
 
@@ -147,6 +149,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
             gpu_mat.roughness = material->roughness;
             gpu_mat.metallic = material->metallic;
             materials.emplace_back(gpu_mat);
+#endif
         }
 
         GpuBufferDesc desc{
@@ -228,8 +231,10 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
 
             MeshData meta{
                 .rootBvhId = bvh_count,
-                .materialId = mesh->subsets[0].material_id
+                .materialId = ecs::Entity::Null(),
+                //.materialId = mesh->subsets[0].material_id
             };
+            CRASH_NOW();
             m_meshs[object.meshId] = meta;
 
             GpuScene tmp_scene;

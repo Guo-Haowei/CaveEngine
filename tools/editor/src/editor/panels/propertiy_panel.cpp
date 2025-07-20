@@ -120,7 +120,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
 
     // change to asset
-    MaterialComponent* material_component = scene.GetComponent<MaterialComponent>(id);
     MeshComponent* mesh_component = mesh_renderer ? scene.GetComponent<MeshComponent>(mesh_renderer->meshId) : nullptr;
 
     bool disable_translation = false;
@@ -269,30 +268,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         });
         if (hovered) {
             ShowAssetToolTip(p_tile_map_renderer.GetGuid());
-        }
-    });
-
-    DrawComponent("Material", material_component, [](MaterialComponent& p_material) {
-        DrawColorPicker3("base color", &p_material.baseColor.x);
-        DrawDragFloat("metallic", p_material.metallic, 0.01f, 0.0f, 1.0f);
-        DrawDragFloat("roughness", p_material.roughness, 0.01f, 0.0f, 1.0f);
-        DrawDragFloat("emissive:", p_material.emissive, 0.1f, 0.0f, 100.0f);
-        for (int i = 0; i < MaterialComponent::TEXTURE_MAX; ++i) {
-            auto& texture = p_material.textures[i];
-            if (texture.path.empty()) {
-                continue;
-            }
-            ImGui::Text("path: %s", texture.path.c_str());
-            // @TODO: safer
-            auto check_box_id = std::format("Enabled##{}", i);
-            ImGui::Checkbox(check_box_id.c_str(), &texture.enabled);
-
-            // auto image = AssetRegistry::GetSingleton().Request(texture.path);
-            //     //<ImageAsset>(texture.path);
-            // auto gpu_texture = image ? image->gpu_texture : nullptr;
-            // if (gpu_texture) {
-            //     ImGui::Image((ImTextureID)gpu_texture->GetHandle(), ImVec2(128, 128));
-            // }
         }
     });
 

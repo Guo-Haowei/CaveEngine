@@ -1,7 +1,6 @@
-#include "scene_serialization.h"
-
 #include <fstream>
 
+#include "engine/assets/material_asset.h"
 #include "engine/core/io/archive.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
@@ -190,23 +189,6 @@ void ArmatureComponent::RegisterClass() {
     END_REGISTRY(ArmatureComponent);
 }
 
-void MaterialComponent::TextureMap::RegisterClass() {
-    BEGIN_REGISTRY(MaterialComponent::TextureMap);
-    REGISTER_FIELD_2(MaterialComponent::TextureMap, path);
-    REGISTER_FIELD_2(MaterialComponent::TextureMap, enabled);
-    END_REGISTRY(MaterialComponent::TextureMap);
-}
-
-void MaterialComponent::RegisterClass() {
-    BEGIN_REGISTRY(MaterialComponent);
-    REGISTER_FIELD(MaterialComponent, "base_color", baseColor);
-    REGISTER_FIELD_2(MaterialComponent, roughness);
-    REGISTER_FIELD_2(MaterialComponent, metallic);
-    REGISTER_FIELD_2(MaterialComponent, emissive);
-    REGISTER_FIELD_2(MaterialComponent, textures);
-    END_REGISTRY(MaterialComponent);
-}
-
 void MeshComponent::RegisterClass() {
     BEGIN_REGISTRY(MeshComponent);
     REGISTER_FIELD_2(MeshComponent, flags);
@@ -243,43 +225,20 @@ void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(joints_0);
     p_archive.ArchiveValue(weights_0);
     p_archive.ArchiveValue(color_0);
-    p_archive.ArchiveValue(subsets);
+    CRASH_NOW();
+    // p_archive.ArchiveValue(subsets);
     p_archive.ArchiveValue(armatureId);
 }
 
 void MeshComponent::OnDeserialized() {
     CreateRenderData();
-}
 
-void MaterialComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    unused(p_version);
-
-    p_archive.ArchiveValue(metallic);
-    p_archive.ArchiveValue(roughness);
-    p_archive.ArchiveValue(emissive);
-    p_archive.ArchiveValue(baseColor);
-
-    // @TODO: refactor this
-    if (p_archive.IsWriteMode()) {
-        for (int i = 0; i < TEXTURE_MAX; ++i) {
-            p_archive << textures[i].enabled;
-            p_archive << textures[i].path;
-        }
-    } else {
-        for (int i = 0; i < TEXTURE_MAX; ++i) {
-            p_archive >> textures[i].enabled;
-            std::string& path = textures[i].path;
-            p_archive >> path;
-        }
-    }
-}
-
-void MaterialComponent::OnDeserialized() {
-    for (int i = 0; i < TEXTURE_MAX; ++i) {
-        const auto& path = textures[i].path;
-        if (!path.empty()) {
-            DEV_ASSERT(0);
-            // AssetRegistry::GetSingleton().RequestAssetAsync(path);
+    for (auto& it : subsets) {
+        if (!it.material_id.IsNull()) {
+            auto handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(it.material_id);
+            if (handle.is_some()) {
+                it.material_handle = handle.unwrap_unchecked();
+            }
         }
     }
 }

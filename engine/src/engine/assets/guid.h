@@ -6,8 +6,6 @@ class Guid {
 public:
     Guid() = default;
 
-    explicit Guid(const uint8_t* p_buffer);
-
     static Guid Null() {
         return Guid{};
     }

@@ -13,7 +13,7 @@ public:
     // @TODO: mesh should be an asset
     static Entity CreateMeshEntity(Scene& p_scene,
                                    const std::string& p_name,
-                                   Entity p_material_id,
+                                   const Guid& p_material_id,
                                    MeshComponent&& p_mesh);
 
     // @TODO: material should be an asset
@@ -66,7 +66,7 @@ public:
 
     static Entity CreatePlaneEntity(Scene& p_scene,
                                     const std::string& p_name,
-                                    Entity p_material_id,
+                                    const Guid& p_material_id,
                                     const Vector3f& p_scale = Vector3f(0.5f),
                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
@@ -77,7 +77,7 @@ public:
 
     static Entity CreateCubeEntity(Scene& p_scene,
                                    const std::string& p_name,
-                                   Entity p_material_id,
+                                   const Guid& p_material_id,
                                    const Vector3f& p_scale = Vector3f(0.5f),
                                    const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
@@ -88,7 +88,7 @@ public:
 
     static Entity CreateSphereEntity(Scene& p_scene,
                                      const std::string& p_name,
-                                     Entity p_material_id,
+                                     const Guid& p_material_id,
                                      float p_radius = 0.5f,
                                      const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
@@ -100,7 +100,7 @@ public:
 
     static Entity CreateCylinderEntity(Scene& p_scene,
                                        const std::string& p_name,
-                                       Entity p_material_id,
+                                       const Guid& p_material_id,
                                        float p_radius = 0.5f,
                                        float p_height = 1.0f,
                                        const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
@@ -113,22 +113,26 @@ public:
 
     static Entity CreateTorusEntity(Scene& p_scene,
                                     const std::string& p_name,
-                                    Entity p_material_id,
+                                    const Guid& p_material_id,
                                     float p_radius = 0.5f,
                                     float p_tube_radius = 0.2f,
                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
-    static Entity CreateTileMapEntity(Scene& p_scene,
-                                      const std::string& p_name, const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
     static Entity CreateEmitterEntity(Scene& p_scene,
-                                      const std::string& p_name, const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
+                                      const std::string& p_name,
+                                      const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
     static Entity CreateMeshEmitterEntity(Scene& p_scene,
-                                          const std::string& p_name, const Vector3f& p_translation = Vector3f::Zero);
+                                          const std::string& p_name,
+                                          const Vector3f& p_translation = Vector3f::Zero);
 
     static Entity CreateForceFieldEntity(Scene& p_scene,
-                                         const std::string& p_name, const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
+                                         const std::string& p_name,
+                                         const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
+
+    static Entity CreateTileMapEntity(Scene& p_scene,
+                                      const std::string& p_name,
+                                      const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 };
 
 }  // namespace cave

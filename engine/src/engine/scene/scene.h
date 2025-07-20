@@ -34,7 +34,6 @@ namespace cave {
     REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                       \
     REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0)             \
     REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)             \
-    REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)               \
     REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)                       \
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                     \
     REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)               \

@@ -2,4 +2,4 @@
 
 namespace cave {
 
-}  // namespace cave
+}

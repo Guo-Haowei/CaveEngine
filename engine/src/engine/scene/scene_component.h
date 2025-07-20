@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/asset_handle.h"
 #include "engine/ecs/entity.h"
 #include "engine/math/aabb.h"
 #include "engine/math/angle.h"
@@ -12,11 +13,6 @@
 namespace cave {
 #include "shader_defines.hlsl.h"
 }  // namespace cave
-
-namespace YAML {
-class Node;
-class Emitter;
-}  // namespace YAML
 
 namespace cave {
 
@@ -112,10 +108,13 @@ struct MeshComponent {
     std::vector<Vector4f> color_0;
 
     struct MeshSubset {
-        ecs::Entity material_id;
+        Guid material_id;
         uint32_t index_offset = 0;
         uint32_t index_count = 0;
         AABB local_bound;
+
+        // Non-serialized
+        Handle<MaterialAsset> material_handle;
     };
     std::vector<MeshSubset> subsets;
 
@@ -137,32 +136,6 @@ struct MeshComponent {
     void OnDeserialized();
 };
 #pragma endregion MESH_COMPONENT
-
-// @TODO: make it asset
-#pragma region MATERIAL_COMPONENT
-struct MaterialComponent {
-    enum {
-        TEXTURE_BASE,
-        TEXTURE_NORMAL,
-        TEXTURE_METALLIC_ROUGHNESS,
-        TEXTURE_MAX,
-    };
-
-    struct TextureMap {
-        std::string path;
-        bool enabled = true;
-    };
-
-    float metallic = 0.0f;
-    float roughness = 1.0f;
-    float emissive = 0.0f;
-    Vector4f baseColor = Vector4f(1);
-    TextureMap textures[TEXTURE_MAX];
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized();
-};
-#pragma endregion MATERIAL_COMPONENT
 
 // @TODO: make it asset
 #pragma region ANIMATION_COMPONENT
@@ -570,11 +543,14 @@ public:
     uint32_t m_flags = DIRTY;
     int m_type = LIGHT_TYPE_INFINITE;
 
+    Guid m_material_id;
+
     // Non-serialized
     float m_maxDistance;
     Vector3f m_position;
     int m_shadowMapIndex = -1;
     std::array<Matrix4x4f, 6> m_lightSpaceMatrices;
+    Handle<MaterialAsset> m_material_handle;
 };
 #pragma endregion LIGHT_COMPONENT
 

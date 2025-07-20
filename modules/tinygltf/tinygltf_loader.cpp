@@ -175,7 +175,6 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
     // Create materials
     for (const auto& x : m_model->materials) {
         ecs::Entity materialEntity = EntityFactory::CreateMaterialEntity(*m_scene, x.name);
-        MaterialComponent& material = *m_scene->GetComponent<MaterialComponent>(materialEntity);
 
         // metallic-roughness workflow:
         auto baseColorTexture = x.values.find("baseColorTexture");
@@ -191,6 +190,11 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
         // auto emissiveFactor = x.additionalValues.find("emissiveFactor");
         // auto alphaCutoff = x.additionalValues.find("alphaCutoff");
         // auto alphaMode = x.additionalValues.find("alphaMode");
+
+        CRASH_NOW();
+#if 0
+        MaterialComponent& material = *m_scene->GetComponent<MaterialComponent>(materialEntity);
+
 
         if (baseColorFactor != x.values.end()) {
             const auto& number_array = baseColorFactor->second.number_array;
@@ -264,6 +268,7 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
 			material.SetOcclusionEnabled_Secondary(true);
 		}
 #endif
+#endif
     }
 
     // Create meshes:
@@ -331,10 +336,13 @@ void TinyGLTFLoader::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
 
     for (const auto& prim : p_gltf_mesh.primitives) {
         MeshComponent::MeshSubset subset;
+        CRASH_NOW();
+#if 0
         if (m_scene->GetCount<MaterialComponent>() == 0) {
             LOG_FATAL("No material! Consider use default");
         }
         subset.material_id = m_scene->GetEntity<MaterialComponent>(max(0, prim.material));
+#endif
 
         //        const size_t index_remap[] = { 0, 1, 2 };
         uint32_t vertexOffset = (uint32_t)mesh.normals.size();

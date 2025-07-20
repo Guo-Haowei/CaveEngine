@@ -5,10 +5,6 @@
 
 #include "engine/math/geomath.h"
 
-// clang-format off
-namespace YAML { class Node; }
-// clang-format on
-
 namespace cave {
 
 struct BufferAsset : IAsset {

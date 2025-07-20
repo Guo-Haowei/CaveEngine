@@ -9,8 +9,8 @@
 
 // @TODO: remove
 #include "engine/math/matrix_transform.h"
-#include "engine/scene/scene_serialization.h"
 
+#if 0
 namespace std {
 
 template<>
@@ -32,7 +32,10 @@ struct hash<cave::Vector3f> {
 
 }  // namespace std
 
+#endif
 namespace cave {
+
+#if 0
 
 // @TODO:
 // * cascaded shadow map
@@ -295,6 +298,9 @@ Scene* SceneCreator::CreateScene() {
 }
 
 void SceneCreator::CreateMaterials(Scene* p_scene) {
+    unused(p_scene);
+    CRASH_NOW();
+
     constexpr float default_roughness = 0.8f;
     constexpr float default_metallic = 0.2f;
     struct {
@@ -541,6 +547,7 @@ void SceneCreator::CreateOcean(Scene* p_scene, ecs::Entity p_earth) {
 }
 
 void SceneCreator::CreatePlane(Scene* p_scene) {
+    unused(p_scene);
     auto root = p_scene->m_root;
     auto plane = EntityFactory::CreateTransformEntity(*p_scene, "plane");
     {
@@ -714,10 +721,13 @@ void SceneCreator::CreatePlane(Scene* p_scene) {
         p_scene->AttachChild(blade2, propeller);
     }
 }
+#endif
 
 Scene* CreateTheAviatorScene() {
-    SceneCreator creator;
-    return creator.CreateScene();
+    DEV_ASSERT(0);
+    return nullptr;
+    //SceneCreator creator;
+    //return creator.CreateScene();
 }
 
 }  // namespace cave

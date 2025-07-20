@@ -9,7 +9,6 @@
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/drivers/windows/dialog.h"
 #include "engine/scene/entity_factory.h"
-#include "engine/scene/scene_serialization.h"
 
 namespace cave {
 

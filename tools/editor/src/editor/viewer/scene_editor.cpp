@@ -172,8 +172,8 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     // select
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
-            Vector2f clicked = e->GetPos();
-            DEV_ASSERT(0);
+            LOG_ERROR("TODO: implement select");
+            // Vector2f clicked = e->GetPos();
             // m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);
             return true;
         }

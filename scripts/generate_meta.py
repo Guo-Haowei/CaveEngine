@@ -13,6 +13,8 @@ print('Project root folder:', get_engine_src_folder())
 
 # ========= CONFIG ==========
 FILES = [
+    'assets/material_asset.h',
+    # 'assets/mesh_asset.h',
     'scene/camera_component.h',
     'scene/scene_component.h',
     'scene/transform_component.h',

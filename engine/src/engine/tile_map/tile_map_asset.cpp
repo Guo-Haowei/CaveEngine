@@ -135,9 +135,6 @@ ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data) {
 }
 
 bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
-    unused(d);
-    unused(p_tile_data);
-#if 1
     const int chunk_size = d.ArraySize().unwrap_or(-1);
     if (chunk_size < 0) {
         return false;
@@ -175,7 +172,6 @@ bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
 
         d.LeaveIndex();
     }
-#endif
 
     return true;
 }
