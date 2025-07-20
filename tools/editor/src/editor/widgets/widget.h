@@ -45,7 +45,8 @@ bool DrawColorControl(const char* p_label,
 
 bool DrawInputText(const char* p_label,
                    std::string& p_string,
-                   float p_column_width = DEFAULT_COLUMN_WIDTH);
+                   float p_text_width = DEFAULT_COLUMN_WIDTH,
+                   float p_text_box_width = 0);
 
 bool DrawColorPicker3(const char* p_label,
                       float* p_out,

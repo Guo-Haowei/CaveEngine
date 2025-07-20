@@ -36,6 +36,8 @@ public:
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
+    void DrawFrameSelector(ImageAsset& p_image_asset);
+    void DrawTimeLine();
     void ImageSourceDropTarget();
 
     AssetRegistry* m_asset_registry = nullptr;

@@ -1,5 +1,7 @@
 #include "sprite_animation_editor.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
 #include "engine/assets/image_asset.h"
 #include "engine/input/input_event.h"
 #include "engine/runtime/asset_registry.h"
@@ -95,6 +97,83 @@ void SpriteAnimationEditor::ImageSourceDropTarget() {
     });
 }
 
+void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
+    // @TODO: refactor this, this is the same as ViewerTab::DrawToolBar
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+    auto& colors = ImGui::GetStyle().Colors;
+    const auto& button_hovered = colors[ImGuiCol_ButtonHovered];
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(button_hovered.x, button_hovered.y, button_hovered.z, 0.5f));
+    const auto& button_active = colors[ImGuiCol_ButtonActive];
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
+
+    std::string output;
+    DrawInputText("name", output, 80, 160);
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS "  Add Animation")) {
+    }
+
+    ImGui::PopStyleColor(3);
+    // -------------
+
+    ImGui::BeginGroup();
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
+
+    m_sprite_selector.SelectSprite(p_image_asset, nullptr, nullptr);
+
+    ImGui::PopStyleVar(2);
+
+    ImGui::EndGroup();
+}
+
+void SpriteAnimationEditor::DrawTimeLine() {
+    constexpr int width = 300;
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, width);
+    ImGui::SetColumnWidth(1, width);
+    {
+        std::vector<const char*> clips = { "idle", "walk", "jump" };
+        static int current_clip = 0;
+        const int clip_count = static_cast<int>(clips.size());
+        if (ImGui::BeginCombo("Clips", clips[current_clip])) {
+            for (int n = 0; n < clip_count; ++n) {
+                const bool is_selected = (current_clip == n);
+                if (ImGui::Selectable(clips[n], is_selected)) {
+                    current_clip = n;
+                }
+
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+    }
+
+    ImGui::NextColumn();
+
+    {
+        std::vector<const char*> fps = { "1fps", "2fps", "3fps" };
+        static int current = 0;
+        const int count = static_cast<int>(fps.size());
+        if (ImGui::BeginCombo("FPS", fps[current])) {
+            for (int n = 0; n < count; ++n) {
+                const bool is_selected = (current == n);
+                if (ImGui::Selectable(fps[n], is_selected)) {
+                    current = n;
+                }
+
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+    }
+    ImGui::Columns(2);
+}
+
 void SpriteAnimationEditor::DrawAssetInspector() {
     auto sprite_animation = m_document->GetHandle<SpriteAnimationAsset>().Get();
     DEV_ASSERT(sprite_animation);
@@ -124,14 +203,21 @@ void SpriteAnimationEditor::DrawAssetInspector() {
         },
         {
             "PaintTab",
-            0,
+            600,
             [&]() {
                 ImageAsset* image = image_handle.Get();
                 if (image) {
-                    m_sprite_selector.SelectSprite(*image, nullptr, nullptr);
+                    DrawFrameSelector(*image);
                 }
             },
-        }
+        },
+        {
+            "TileLine",
+            0,
+            [&]() {
+                DrawTimeLine();
+            },
+        },
     };
 
     const float full_width = ImGui::GetContentRegionAvail().x;

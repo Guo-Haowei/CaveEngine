@@ -19,6 +19,7 @@ private:
     float m_zoom = 1.0f;
 
     std::set<uint32_t> m_selections;
+    bool m_is_selection_mode;
 };
 
 }  // namespace cave

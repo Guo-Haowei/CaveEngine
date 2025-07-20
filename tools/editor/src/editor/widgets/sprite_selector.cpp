@@ -58,8 +58,9 @@ std::vector<std::pair<uint16_t, uint16_t>> SpriteSelector::GetSelections() const
 void SpriteSelector::SelectSprite(const ImageAsset& p_image,
                                   const int* p_colomn,
                                   const int* p_row) {
-    ImGui::Text("Sprite");
-    DrawDragFloat("scale", m_zoom, 0.01f, 0.1f, 5.0f);
+    ImGui::Text("Left click to select a square, right click to deselect a square");
+
+    // DrawDragFloat("scale", m_zoom, 0.01f, 0.1f, 5.0f);
 
     const float width = m_zoom * p_image.width;
     const float height = m_zoom * p_image.height;
