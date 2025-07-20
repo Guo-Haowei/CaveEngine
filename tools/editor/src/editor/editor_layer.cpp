@@ -15,7 +15,7 @@
 #include "editor/panels/renderer_panel.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
-#include "editor/widget.h"
+#include "editor/widgets/widget.h"
 #include "engine/input/input_event.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_manager.h"

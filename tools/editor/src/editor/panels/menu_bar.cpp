@@ -1,7 +1,7 @@
 #include "menu_bar.h"
 
 #include "editor/editor_layer.h"
-#include "editor/widget.h"
+#include "editor/widgets/widget.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/input_manager.h"
 

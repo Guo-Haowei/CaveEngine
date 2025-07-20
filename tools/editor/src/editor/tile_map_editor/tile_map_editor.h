@@ -4,6 +4,7 @@
 #include "engine/tile_map/tile_map_asset.h"
 
 #include "editor/viewer/viewer_tab.h"
+#include "editor/widgets/sprite_selector.h"
 
 namespace cave {
 
@@ -49,15 +50,7 @@ protected:
     // @TODO: refactor
     void TileMapLayerOverview(TileMapAsset& p_tile_map);
 
-    // SpriteSheet
-    void EditSprite(SpriteAsset& p_sprite);
-    void TilePaint(SpriteAsset& p_sprite);
-
     Handle<ImageAsset> m_checkerboard_handle;
-
-    int m_selected_x = -1;
-    int m_selected_y = -1;
-    // @TODO: refactor
 
     AssetRegistry* m_asset_registry;
 
@@ -65,6 +58,8 @@ protected:
 
     std::unique_ptr<CameraComponent> m_camera;
     std::shared_ptr<TileMapDocument> m_document;
+
+    SpriteSelector m_sprite_selector;
 };
 
 }  // namespace cave

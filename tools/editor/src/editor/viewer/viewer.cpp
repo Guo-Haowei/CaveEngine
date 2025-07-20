@@ -5,7 +5,7 @@
 #include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/imguizmo.h"
-#include "editor/widget.h"
+#include "editor/widgets/widget.h"
 #include "engine/input/input_event.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
