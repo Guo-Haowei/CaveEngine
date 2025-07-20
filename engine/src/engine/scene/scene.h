@@ -25,8 +25,7 @@ class Context;
 }
 
 namespace cave {
-// @TODO: add light
-// REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)
+
 #define REGISTER_COMPONENT_SERIALIZED_LIST                                 \
     REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)           \
     REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0) \
@@ -37,6 +36,7 @@ namespace cave {
     REGISTER_COMPONENT(SpriteRenderer, "World::SpriteRenderer", 0)         \
     REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)
 
+// @TODO: use meta table for all components
 #define REGISTER_COMPONENT_LIST                                                  \
     REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                 \
     REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)             \

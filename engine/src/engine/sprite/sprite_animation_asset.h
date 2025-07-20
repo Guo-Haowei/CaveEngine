@@ -12,7 +12,7 @@ struct SpriteAnimationClip {
     CAVE_PROP(type = name)
     std::string name;
 
-    CAVE_PROP(type = rect[])
+    CAVE_PROP(type = box2[])
     std::vector<Rect> frames;
 
     CAVE_PROP(type = f32[])

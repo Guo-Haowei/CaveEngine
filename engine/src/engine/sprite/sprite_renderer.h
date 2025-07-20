@@ -19,7 +19,7 @@ public:
     CAVE_PROP(type = color)
     Vector4f tint_color = Vector4f::One;
 
-    CAVE_PROP(type = bound2d)
+    CAVE_PROP(type = box2)
     Rect rect = { Vector2f::Zero, Vector2f::One };
 
     CAVE_PROP(type = boolean, ui = toggle)

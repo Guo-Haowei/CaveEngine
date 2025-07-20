@@ -6,6 +6,17 @@
 
 namespace cave {
 
+static uint32_t Pack(uint16_t x, uint16_t y) {
+    return x << 16 | y;
+}
+
+static std::pair<uint16_t, uint16_t> Unpack(uint32_t p_key) {
+    return {
+        static_cast<uint16_t>(p_key >> 16),
+        static_cast<uint16_t>(p_key & 0xFFFF),
+    };
+}
+
 bool SpriteSelector::EditSprite(int* p_colomn, int* p_row) {
     bool dirty = false;
     if (ImGui::BeginTabBar("TileSetModes")) {
@@ -35,6 +46,15 @@ bool SpriteSelector::EditSprite(int* p_colomn, int* p_row) {
     return dirty;
 }
 
+std::vector<std::pair<uint16_t, uint16_t>> SpriteSelector::GetSelections() const {
+    std::vector<std::pair<uint16_t, uint16_t>> selections;
+    selections.reserve(m_selections.size());
+    for (uint32_t key : m_selections) {
+        selections.push_back(Unpack(key));
+    }
+    return selections;
+}
+
 void SpriteSelector::SelectSprite(const ImageAsset& p_image,
                                   const int* p_colomn,
                                   const int* p_row) {
@@ -49,10 +69,12 @@ void SpriteSelector::SelectSprite(const ImageAsset& p_image,
     ImVec2 tile_size(width, height);
 
     ImGui::InvisibleButton("TileClickable", tile_size);  // enables interaction
-    bool hovered = ImGui::IsItemHovered();
-    bool clicked = ImGui::IsItemClicked();
+    const bool hovered = ImGui::IsItemHovered();
+    const bool left_clicked = ImGui::IsItemClicked(ImGuiMouseButton_Left);
+    const bool right_clicked = ImGui::IsItemClicked(ImGuiMouseButton_Right);
+    const bool clicked = left_clicked || right_clicked;
 
-    // Draw tileset
+    // Draw image
     draw_list->AddImage(
         p_image.gpu_texture ? p_image.gpu_texture->GetHandle() : 0,
         cursor,
@@ -68,19 +90,7 @@ void SpriteSelector::SelectSprite(const ImageAsset& p_image,
     const float cell_w = width / num_col;
     const float cell_h = height / num_row;
 
-    if (hovered && clicked) {
-        ImVec2 mouse_pos = ImGui::GetMousePos();
-
-        int local_x = (int)((mouse_pos.x - cursor.x) / cell_w);
-        int local_y = (int)((mouse_pos.y - cursor.y) / cell_h);
-
-        // Clamp to valid range
-        if (local_x >= 0 && local_x < num_col && local_y >= 0 && local_y < num_row) {
-            m_selected_x = local_x;
-            m_selected_y = local_y;
-        }
-    }
-
+    // Draw lines
     for (float dx = cell_w; dx < tile_size.x; dx += cell_w) {
         draw_list->AddLine(ImVec2(cursor.x + dx, cursor.y),
                            ImVec2(cursor.x + dx, cursor.y + tile_size.y),
@@ -93,12 +103,28 @@ void SpriteSelector::SelectSprite(const ImageAsset& p_image,
                            IM_COL32(255, 255, 255, 255));
     }
 
-    if (m_selected_x >= 0 && m_selected_y >= 0) {
-        float cellW = tile_size.x / num_col;
-        float cellH = tile_size.y / num_row;
+    if (hovered && clicked) {
+        ImVec2 mouse_pos = ImGui::GetMousePos();
 
-        ImVec2 pMin = ImVec2(cursor.x + m_selected_x * cellW, cursor.y + m_selected_y * cellH);
-        ImVec2 pMax = ImVec2(pMin.x + cellW, pMin.y + cellH);
+        int local_x = (int)((mouse_pos.x - cursor.x) / cell_w);
+        int local_y = (int)((mouse_pos.y - cursor.y) / cell_h);
+
+        // Clamp to valid range
+        if (local_x >= 0 && local_x < num_col && local_y >= 0 && local_y < num_row) {
+            uint32_t key = Pack(static_cast<uint16_t>(local_x), static_cast<uint16_t>(local_y));
+            if (left_clicked) {
+                m_selections.insert(key);
+            } else if (right_clicked) {
+                m_selections.erase(key);
+            }
+        }
+    }
+
+    for (uint32_t key : m_selections) {
+        const auto [x, y] = Unpack(key);
+
+        ImVec2 pMin = ImVec2(cursor.x + x * cell_w, cursor.y + y * cell_h);
+        ImVec2 pMax = ImVec2(pMin.x + cell_w, pMin.y + cell_h);
 
         draw_list->AddRectFilled(pMin, pMax, IM_COL32(0, 255, 0, 100));  // green transparent overlay
         draw_list->AddRect(pMin, pMax, IM_COL32(0, 255, 0, 255));        // solid border

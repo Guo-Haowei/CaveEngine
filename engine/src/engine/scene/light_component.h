@@ -41,14 +41,17 @@ public:
     const auto& GetMatrices() const { return m_lightSpaceMatrices; }
     const Vector3f& GetPosition() const { return m_position; }
 
+    // @TODO: refactor this part
     struct Attenuation {
         float constant;
         float linear;
         float quadratic;
     } m_atten;
 
+    CAVE_PROP(type = box3)
     AABB m_shadowRegion;
 
+    CAVE_PROP(type = u32)
     uint32_t m_flags = DIRTY;
 
     // @TODO: make light type enum
