@@ -6,8 +6,6 @@
 
 namespace cave {
 
-using Sprite = Rect;
-
 struct SpriteAnimationClip {
     CAVE_META(SpriteAnimationClip)
 
@@ -40,6 +38,12 @@ private:
     Handle<ImageAsset> m_image_handle;
 
 public:
+    void SetGuid(const Guid& p_guid);
+
+    const Guid& GetImageGuid() const { return m_image_guid; }
+
+    Handle<ImageAsset> GetImageHandle() const { return m_image_handle; }
+
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
 
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;

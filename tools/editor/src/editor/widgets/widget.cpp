@@ -2,6 +2,8 @@
 
 #include "engine/assets/image_asset.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/scene/scene.h"
+
 #include "editor/editor_window.h"
 
 namespace cave {
@@ -266,28 +268,55 @@ bool DragDropTarget(AssetType p_mask,
     return false;
 }
 
-void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_region) {
-    DEV_ASSERT(p_image_id);
+void CenteredImage(const ImageAsset* p_image,
+                   const ImVec2& p_background_region,
+                   uint64_t p_background) {
 
-    const float ratio = p_image_size.x / p_image_size.y;
-    if (p_image_size.x > p_image_size.y) {
-        p_image_size.x = p_region.x;
-        p_image_size.y = p_image_size.x / ratio;
-    } else {
-        p_image_size.y = p_region.y;
-        p_image_size.x = p_image_size.y * ratio;
+    ImVec2 image_region = p_background_region;
+    uint64_t texture_handle = 0;
+    if (p_image) {
+        image_region.x = static_cast<float>(p_image->width);
+        image_region.y = static_cast<float>(p_image->height);
+        if (p_image->gpu_texture) {
+            texture_handle = p_image->gpu_texture->GetHandle();
+        }
     }
 
-    ImVec2 offset = {
-        (p_region.x - p_image_size.x) * 0.5f,
-        (p_region.y - p_image_size.y) * 0.5f
-    };
+    ImGui::Dummy(ImVec2(8, 8));
 
-    ImGui::BeginChild("CenteredImageRegion", p_region, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    ImGui::BeginChild("CenteredImageRegion", p_background_region, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-    ImGui::SetCursorPos(offset);
+    ImVec2 pos = ImGui::GetCursorScreenPos();
 
-    ImGui::Image((ImTextureID)p_image_id, p_image_size);
+    ImGui::GetWindowDrawList()->AddImage(
+        p_background,
+        pos,
+        ImVec2(pos.x + p_background_region.x, pos.y + p_background_region.y));
+
+    if (texture_handle) {
+        const float ratio = image_region.x / image_region.y;
+        if (image_region.x > image_region.y) {
+            image_region.x = p_background_region.x;
+            image_region.y = image_region.x / ratio;
+        } else {
+            image_region.y = p_background_region.y;
+            image_region.x = image_region.y * ratio;
+        }
+
+        ImVec2 offset = {
+            (p_background_region.x - image_region.x) * 0.5f,
+            (p_background_region.y - image_region.y) * 0.5f
+        };
+
+        pos.x += offset.x;
+        pos.y += offset.y;
+        ImGui::GetWindowDrawList()->AddImage(
+            texture_handle,
+            pos,
+            ImVec2(pos.x + image_region.x, pos.y + image_region.y));
+    }
+
+    ImGui::Dummy(p_background_region);
 
     ImGui::EndChild();
 }

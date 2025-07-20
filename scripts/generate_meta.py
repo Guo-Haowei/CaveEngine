@@ -13,7 +13,6 @@ print('Project root folder:', get_engine_src_folder())
 
 # ========= CONFIG ==========
 FILES = [
-    'assets/sprite_asset.h', # TODO: make it tile set
     'scene/camera_component.h',
     'scene/scene_component.h',
     'scene/transform_component.h',
@@ -21,6 +20,7 @@ FILES = [
     'sprite/sprite_renderer.h',
     'tile_map/tile_map_asset.h',
     'tile_map/tile_map_renderer.h',
+    'tile_map/tile_set_asset.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'reflection/generated')

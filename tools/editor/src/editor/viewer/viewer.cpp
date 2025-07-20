@@ -1,12 +1,11 @@
 #include "viewer.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui_internal.h>
 
 #include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/imguizmo.h"
-#include "editor/widget.h"
+#include "editor/widgets/widget.h"
 #include "engine/input/input_event.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -45,77 +44,6 @@ void Viewer::UpdateFrameSize() {
     DEV_ASSERT(window);
     m_canvas_min.x = window->ContentRegionRect.Min.x;
     m_canvas_min.y = TOOL_BAR_OFFSET + window->ContentRegionRect.Min.y;
-}
-
-void Viewer::DrawToolBar() {
-    struct ToolBarButtonDesc {
-        const char* display{ nullptr };
-        const char* tooltip{ nullptr };
-        std::function<void()> func;
-        std::function<bool()> enabledFunc;
-    };
-
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-    auto& colors = ImGui::GetStyle().Colors;
-    const auto& button_hovered = colors[ImGuiCol_ButtonHovered];
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(button_hovered.x, button_hovered.y, button_hovered.z, 0.5f));
-    const auto& button_active = colors[ImGuiCol_ButtonActive];
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
-
-    auto app = m_editor.GetApplication();
-    auto app_state = app->GetState();
-
-    // ViewerTab* tool = GetActiveTab();
-    // const bool only_2d = tool ? tool->GetCameraPolicy() == ToolCameraPolicy::Only2D : false;
-
-    static const ToolBarButtonDesc s_buttons[] = {
-        { ICON_FA_PLAY, "Run Project",
-          [&]() { app->SetState(Application::State::BEGIN_SIM); },
-          [&]() { return app_state != Application::State::SIM; } },
-        { ICON_FA_PAUSE, "Pause Running Project",
-          [&]() { app->SetState(Application::State::END_SIM); },
-          [&]() { return app_state != Application::State::EDITING; } },
-        { ICON_FA_HAND, "Enter gizmo mode",
-          [&]() {
-          } },
-        { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
-          [&]() {
-              // m_controller.Toggle(only_2d);
-          } },
-        { ICON_FA_BRUSH, "TileMap editor mode",
-          [&]() {
-          } },
-    };
-
-    for (int i = 0; i < array_length(s_buttons); ++i) {
-        const auto& desc = s_buttons[i];
-        const bool enabled = desc.enabledFunc ? desc.enabledFunc() : true;
-
-        if (i != 0) {
-            ImGui::SameLine();
-        }
-
-        if (!enabled) {
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-        }
-
-        if (ImGui::Button(desc.display) && enabled) {
-            desc.func();
-        }
-
-        if (!enabled) {
-            ImGui::PopStyleVar();
-        }
-
-        if (ImGui::IsItemHovered()) {
-            ImGui::BeginTooltip();
-            ImGui::Text(desc.tooltip);
-            ImGui::EndTooltip();
-        }
-    }
-
-    // ImGui::PopStyleVar(2);
-    ImGui::PopStyleColor(3);
 }
 
 bool Viewer::HandleInput(const InputEvent* p_input_event) {
@@ -225,10 +153,14 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
 }
 
 void Viewer::UpdateInternal(Scene*) {
-    // @TODO: tool bar policy
-    DrawToolBar();
-
     UpdateFrameSize();
+
+    auto _tab = m_tab_manager.GetActiveTab();
+    if (_tab.is_none()) {
+        return;
+    }
+
+    ViewerTab* active_tab = _tab.unwrap_unchecked();
 
     int flag = 0;
 #if 0
@@ -239,34 +171,32 @@ void Viewer::UpdateInternal(Scene*) {
     }
 
     // update camera
-    if (auto tab = m_tab_manager.GetActiveTab(); tab.is_some()) {
-        const float dt = m_editor.context.timestep;
-        auto& camera = tab.unwrap_unchecked()->GetActiveCamera();
-        const auto& c = m_camera_input;
-        const bool is_2d = camera.IsView2D();
-        if (is_2d) {
-            const float speed = dt * 0.5f;
-            const float dx = speed * -c.mouse_move.x;
-            const float dy = speed * c.mouse_move.y;
-            CameraInputState state = {
-                .move = Vector3f(dx, dy, 0.0f),
-                .zoomDelta = -dt * c.scroll,
-                .rotation = Vector2f::Zero,
-            };
-            m_controller_2d.Update(camera, state);
-            camera.Update();
-        } else {
-            CameraInputState state{
-                .move = dt * Vector3f(c.dx, c.dy, c.dz),
-                .zoomDelta = dt * c.scroll,
-                .rotation = dt * c.mouse_move,
-            };
-            m_controller_3d.Update(camera, state);
-            camera.Update();
-        }
-
-        m_camera_input.Reset();
+    const float dt = m_editor.context.timestep;
+    auto& camera = active_tab->GetActiveCamera();
+    const auto& c = m_camera_input;
+    const bool is_2d = camera.IsView2D();
+    if (is_2d) {
+        const float speed = dt * 0.5f;
+        const float dx = speed * -c.mouse_move.x;
+        const float dy = speed * c.mouse_move.y;
+        CameraInputState state = {
+            .move = Vector3f(dx, dy, 0.0f),
+            .zoomDelta = -dt * c.scroll,
+            .rotation = Vector2f::Zero,
+        };
+        m_controller_2d.Update(camera, state);
+        camera.Update();
+    } else {
+        CameraInputState state{
+            .move = dt * Vector3f(c.dx, c.dy, c.dz),
+            .zoomDelta = dt * c.scroll,
+            .rotation = dt * c.mouse_move,
+        };
+        m_controller_3d.Update(camera, state);
+        camera.Update();
     }
+
+    m_camera_input.Reset();
 
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
@@ -286,7 +216,8 @@ void Viewer::UpdateInternal(Scene*) {
                 m_tab_manager.SwitchTab(tab->GetId());
             }
 
-            tab->DrawMainView();
+            tab->DrawToolBar();
+            tab->DrawMainView(camera);
 
             ImGui::EndTabItem();
         }

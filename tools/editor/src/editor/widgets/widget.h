@@ -1,6 +1,5 @@
 #pragma once
 #include "engine/math/geomath.h"
-#include "engine/scene/scene.h"
 
 struct ImVec2;
 
@@ -9,8 +8,9 @@ namespace cave {
 enum class AssetType : uint32_t;
 class AssetHandle;
 struct AssetMetaData;
-struct IAsset;
 class Guid;
+struct IAsset;
+struct ImageAsset;
 
 constexpr float DEFAULT_COLUMN_WIDTH = 80.0f;
 
@@ -58,7 +58,9 @@ using DragDropFunc = std::function<void(AssetHandle&)>;
 bool DragDropTarget(AssetType p_mask, const DragDropFunc& p_callback);
 
 /// image
-void CenteredImage(uint64_t p_image_id, ImVec2& p_image_size, const ImVec2& p_region);
+void CenteredImage(const ImageAsset* p_image,
+                   const ImVec2& p_background_region,
+                   uint64_t p_background);
 
 /// tool tip
 void ShowAssetToolTip(const Guid& p_guid);

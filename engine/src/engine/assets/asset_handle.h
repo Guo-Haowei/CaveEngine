@@ -8,6 +8,13 @@ class AssetEntry;
 struct AssetMetaData;
 struct IAsset;
 
+// asset forward declaration
+struct BufferAsset;
+struct ImageAsset;
+struct TextAsset;
+class TileSetAsset;
+class TileMapAsset;
+
 class AssetHandle {
 public:
     AssetHandle() {}

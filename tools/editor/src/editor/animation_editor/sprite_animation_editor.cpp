@@ -8,7 +8,7 @@
 #include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
-#include "editor/widget.h"
+#include "editor/widgets/widget.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
@@ -17,7 +17,8 @@ namespace cave {
 SpriteAnimationEditor::SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
 
-    m_camera = ViewerTab::CreateDefaultCamera2D();
+    m_camera = std::make_unique<CameraComponent>();
+    ViewerTab::CreateDefaultCamera2D(*m_camera.get());
 }
 
 void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
@@ -53,11 +54,10 @@ void SpriteAnimationEditor::OnActivate() {
     scene_manager->SetTmpScene(m_tmp_scene);
 }
 
-void SpriteAnimationEditor::DrawMainView() {
-    ViewerTab::DrawMainView();
+void SpriteAnimationEditor::DrawMainView(const CameraComponent& p_camera) {
+    ViewerTab::DrawMainView(p_camera);
 
-    const CameraComponent& camera = GetActiveCamera();
-    const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
+    const Matrix4x4f proj_view = p_camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -68,10 +68,75 @@ void SpriteAnimationEditor::DrawMainView() {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
-    Matrix4x4f identity(1.0f);
-    ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XY);
+    ImGuizmo::DrawAxes(proj_view);
 
     // m_document->FlushCommands();
+}
+
+void SpriteAnimationEditor::ImageSourceDropTarget() {
+    auto asset = m_document->GetHandle<SpriteAnimationAsset>().Get();
+    DEV_ASSERT(asset);
+
+    ImGui::Text("Source Image");
+
+    ImVec2 region_size(128, 128);
+
+    auto image_handle = asset->GetImageHandle();
+    ImageAsset* image = image_handle.Get();
+
+    auto checkerboard = m_editor.context.checkerboard_handle.Get();
+
+    CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
+
+    DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
+        DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
+
+        asset->SetGuid(p_handle.GetGuid());
+    });
+}
+
+void SpriteAnimationEditor::DrawAssetInspector() {
+    auto sprite_animation = m_document->GetHandle<SpriteAnimationAsset>().Get();
+    DEV_ASSERT(sprite_animation);
+
+    auto image_handle = sprite_animation->GetImageHandle();
+
+    std::vector<AssetChildPanel> descs = {
+        {
+            "LayerOverview",
+            360,
+            [&]() {
+                if (ImGui::BeginTabBar("##MyTabs1")) {
+                    if (ImGui::BeginTabItem("Animation")) {
+                        ImageSourceDropTarget();
+                        ImGui::EndTabItem();
+                    }
+                    ImGui::EndTabBar();
+                }
+            },
+        },
+        {
+            "SpriteTab",
+            360,
+            [&]() {
+                m_sprite_selector.EditSprite(nullptr, nullptr);
+            },
+        },
+        {
+            "PaintTab",
+            0,
+            [&]() {
+                ImageAsset* image = image_handle.Get();
+                if (image) {
+                    m_sprite_selector.SelectSprite(*image, nullptr, nullptr);
+                }
+            },
+        }
+    };
+
+    const float full_width = ImGui::GetContentRegionAvail().x;
+
+    DrawContents(full_width, descs);
 }
 
 Document& SpriteAnimationEditor::GetDocument() const {
@@ -84,7 +149,6 @@ bool SpriteAnimationEditor::HandleInput(const InputEvent* p_input_event) {
 }
 
 const CameraComponent& SpriteAnimationEditor::GetActiveCameraInternal() const {
-    DEV_ASSERT(m_camera);
     return *m_camera.get();
 }
 

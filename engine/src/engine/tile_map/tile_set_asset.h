@@ -1,16 +1,16 @@
 #pragma once
-#include "asset_handle.h"
-#include "asset_interface.h"
+#include "engine/assets/asset_handle.h"
+#include "engine/assets/asset_interface.h"
 
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"
 
 namespace cave {
 
-class SpriteAsset : public IAsset {
-    CAVE_ASSET(SpriteAsset, AssetType::Sprite, 0)
+class TileSetAsset : public IAsset {
+    CAVE_ASSET(TileSetAsset, AssetType::TileSet, 0)
 
-    CAVE_META(SpriteAsset)
+    CAVE_META(TileSetAsset)
 
     CAVE_PROP(type = guid, tooltip = "image id")
     Guid m_image_guid;
@@ -33,6 +33,7 @@ class SpriteAsset : public IAsset {
     /// Non serialized
     std::vector<Rect> m_frames;  // frames are calculated
     Handle<ImageAsset> m_image_handle;
+    bool m_dirty;
 
 public:
     uint32_t GetRow() const { return m_row; }
@@ -56,6 +57,9 @@ public:
     const Guid& GetImageGuid() const { return m_image_guid; }
 
     const auto& GetFrames() const { return m_frames; }
+
+    bool IsDirty() const { return m_dirty; }
+    void SetDirty(bool p_dirty = true) { m_dirty = p_dirty; }
 
     std::vector<Guid> GetDependencies() const override;
 

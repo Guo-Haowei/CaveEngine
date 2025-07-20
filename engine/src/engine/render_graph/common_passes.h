@@ -10,8 +10,6 @@ public:
     [[nodiscard]] static auto CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
 
 private:
-    void AddSprite();
-
     void AddEarlyZPass();
     void AddGbufferPass();
     void AddHighlightPass();

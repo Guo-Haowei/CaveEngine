@@ -1,5 +1,7 @@
 #include "scene_editor.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h>
+
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
@@ -31,7 +33,8 @@ private:
 
 SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
-    m_camera = ViewerTab::CreateDefaultCamera3D();
+    ViewerTab::CreateDefaultCamera3D(m_cameras[0]);
+    ViewerTab::CreateDefaultCamera2D(m_cameras[1]);
 }
 
 Document& SceneEditor::GetDocument() const {
@@ -58,13 +61,12 @@ void SceneEditor::OnActivate() {
     scene_manager->SetTmpScene(m_document->m_scene);
 }
 
-void SceneEditor::DrawMainView() {
-    ViewerTab::DrawMainView();
+void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
+    ViewerTab::DrawMainView(p_camera);
 
-    const auto& cam = GetActiveCamera();
-    const Matrix4x4f& view_matrix = cam.GetViewMatrix();
-    const Matrix4x4f& proj_matrix = cam.GetProjectionMatrix();
-    const Matrix4x4f& proj_view = cam.GetProjectionViewMatrix();
+    const Matrix4x4f& view_matrix = p_camera.GetViewMatrix();
+    const Matrix4x4f& proj_matrix = p_camera.GetProjectionMatrix();
+    const Matrix4x4f& proj_view = p_camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -124,8 +126,7 @@ void SceneEditor::DrawMainView() {
     // @TODO: move show_editor as viewer attribute
     const bool show_editor = DVAR_GET_BOOL(show_editor);
     if (show_editor) {
-        Matrix4x4f identity(1.0f);
-        ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XZ);
+        ImGuizmo::DrawAxes(proj_view);
 
         const float size = 120.f;
         const auto& min = m_viewer.GetCanvasMin();
@@ -142,8 +143,7 @@ void SceneEditor::DrawAssetInspector() {
 }
 
 const CameraComponent& SceneEditor::GetActiveCameraInternal() const {
-    DEV_ASSERT(m_camera);
-    return *m_camera.get();
+    return m_cameras[m_camera_idx];
 }
 
 bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
@@ -180,6 +180,27 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     }
 
     return false;
+}
+
+const std::vector<ViewerTab::ToolBarButtonDesc>& SceneEditor::GetToolBarButtons() const {
+    auto app = m_editor.GetApplication();
+    auto app_state = app->GetState();
+
+    static std::vector<ToolBarButtonDesc> s_buttons = {
+        { ICON_FA_PLAY, "Run Project",
+          [&]() { app->SetState(Application::State::BEGIN_SIM); },
+          [&]() { return app_state != Application::State::SIM; } },
+        { ICON_FA_PAUSE,
+          "Pause Running Project",
+          [&]() { app->SetState(Application::State::END_SIM); },
+          [&]() { return app_state != Application::State::EDITING; } },
+        { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
+          [&]() {
+              m_camera_idx ^= 1;
+          } },
+    };
+
+    return s_buttons;
 }
 
 #if 0

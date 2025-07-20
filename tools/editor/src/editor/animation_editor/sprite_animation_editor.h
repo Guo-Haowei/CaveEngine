@@ -1,14 +1,15 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
 #include "engine/sprite/sprite_animation_asset.h"
+
 #include "editor/viewer/viewer_tab.h"
+#include "editor/widgets/sprite_selector.h"
 
 namespace cave {
 
 class AssetRegistry;
 class Document;
 class InputEvent;
-class TileMapAsset;
 class TileMapDocument;
 class Viewer;
 
@@ -26,20 +27,26 @@ public:
 
     void OnActivate() override;
 
-    void DrawMainView() override;
+    void DrawMainView(const CameraComponent& p_camera) override;
+
+    void DrawAssetInspector() override;
 
     Document& GetDocument() const override;
 
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
-    AssetRegistry* m_asset_registry;
+    void ImageSourceDropTarget();
+
+    AssetRegistry* m_asset_registry = nullptr;
 
     std::shared_ptr<Scene> m_tmp_scene;
 
-    std::shared_ptr<CameraComponent> m_camera;
+    std::unique_ptr<CameraComponent> m_camera;
 
     std::shared_ptr<SpriteAnimationDocument> m_document;
+
+    SpriteSelector m_sprite_selector;
 };
 
 }  // namespace cave

@@ -4,6 +4,7 @@
 #include "engine/tile_map/tile_map_asset.h"
 
 #include "editor/viewer/viewer_tab.h"
+#include "editor/widgets/sprite_selector.h"
 
 namespace cave {
 
@@ -12,7 +13,6 @@ class CameraComponent;
 class Document;
 class InputEvent;
 class Scene;
-class TileMapAsset;
 class TileMapDocument;
 class Viewer;
 
@@ -28,7 +28,7 @@ public:
 
     void OnActivate() override;
 
-    void DrawMainView() override;
+    void DrawMainView(const CameraComponent& p_camera) override;
 
     void DrawAssetInspector() override;
 
@@ -39,6 +39,8 @@ public:
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
+    const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const override;
+
     void UndoableSetTile(TileMapAsset& p_layer,
                          int p_layer_id,
                          TileIndex p_index,
@@ -47,22 +49,12 @@ protected:
     // @TODO: refactor
     void TileMapLayerOverview(TileMapAsset& p_tile_map);
 
-    // SpriteSheet
-    void EditSprite(SpriteAsset& p_sprite);
-    void TilePaint(SpriteAsset& p_sprite);
-
-    Handle<ImageAsset> m_checkerboard_handle;
-
-    int m_selected_x = -1;
-    int m_selected_y = -1;
-    // @TODO: refactor
-
-    AssetRegistry* m_asset_registry;
-
     std::shared_ptr<Scene> m_tmp_scene;
 
-    std::shared_ptr<CameraComponent> m_camera;
+    std::unique_ptr<CameraComponent> m_camera;
     std::shared_ptr<TileMapDocument> m_document;
+
+    SpriteSelector m_sprite_selector;
 };
 
 }  // namespace cave

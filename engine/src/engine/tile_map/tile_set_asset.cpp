@@ -1,4 +1,4 @@
-#include "sprite_asset.h"
+#include "tile_set_asset.h"
 
 #include "engine/assets/image_asset.h"
 #include "engine/core/io/file_access.h"
@@ -7,21 +7,21 @@
 
 namespace cave {
 
-void SpriteAsset::SetRow(uint32_t p_row) {
+void TileSetAsset::SetRow(uint32_t p_row) {
     if (p_row == 0) return;
     if (p_row == m_row) return;
     m_row = p_row;
     UpdateFrames();
 }
 
-void SpriteAsset::SetCol(uint32_t p_col) {
+void TileSetAsset::SetCol(uint32_t p_col) {
     if (p_col == 0) return;
     if (p_col == m_column) return;
     m_column = p_col;
     UpdateFrames();
 }
 
-void SpriteAsset::SetScale(float p_scale) {
+void TileSetAsset::SetScale(float p_scale) {
     p_scale = glm::max(p_scale, 0.1f);
     if (p_scale != m_tile_scale) {
         m_tile_scale = p_scale;
@@ -29,13 +29,13 @@ void SpriteAsset::SetScale(float p_scale) {
     }
 }
 
-void SpriteAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
+void TileSetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     m_image_handle = std::move(p_handle);
     const ImageAsset* image = m_image_handle.Get();
     if (image) {
         Guid guid = m_image_handle.GetGuid();
         if (guid != m_image_guid) {
-            LOG("SpriteAsset: GUID changed from {} to {}", m_image_guid.ToString(), guid.ToString());
+            LOG("TileSetAsset: GUID changed from {} to {}", m_image_guid.ToString(), guid.ToString());
             m_image_guid = guid;
         }
 
@@ -44,7 +44,7 @@ void SpriteAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     }
 }
 
-void SpriteAsset::SetImage(const Guid& p_guid) {
+void TileSetAsset::SetImage(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(p_guid);
     if (handle.is_some()) {
         SetHandle(std::move(handle.unwrap_unchecked()));
@@ -53,11 +53,11 @@ void SpriteAsset::SetImage(const Guid& p_guid) {
     UpdateFrames();
 }
 
-std::vector<Guid> SpriteAsset::GetDependencies() const {
+std::vector<Guid> TileSetAsset::GetDependencies() const {
     return { m_image_guid };
 }
 
-void SpriteAsset::UpdateFrames() {
+void TileSetAsset::UpdateFrames() {
     DEV_ASSERT(m_row > 0 && m_column > 0);
     m_frames.clear();
     m_frames.reserve(m_row * m_column);
@@ -75,9 +75,11 @@ void SpriteAsset::UpdateFrames() {
             m_frames.push_back(Rect({ u0, v0 }, { u1, v1 }));
         }
     }
+
+    m_dirty = true;
 }
 
-auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
+auto TileSetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     // meta
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
@@ -94,7 +96,7 @@ auto SpriteAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> 
     return SaveYaml(p_meta.path, yaml);
 }
 
-auto SpriteAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+auto TileSetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     YAML::Node root;
 
     if (auto res = LoadYaml(p_meta.path, root); !res) {

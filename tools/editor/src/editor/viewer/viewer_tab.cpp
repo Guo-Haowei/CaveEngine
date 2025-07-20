@@ -33,39 +33,76 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
     LOG_OK("ViewerTab '{}' created", m_title);
 }
 
-std::shared_ptr<CameraComponent> ViewerTab::CreateDefaultCamera2D() {
+void ViewerTab::CreateDefaultCamera2D(CameraComponent& p_out) {
+    const auto res = DVAR_GET_IVEC2(resolution);
+    p_out.SetOrtho();
+    p_out.SetView2D();
+    p_out.SetDimension(res.x, res.y);
+    p_out.SetNear(1.0f);
+    p_out.SetFar(1000.0f);
+    p_out.SetPosition(Vector3f(0, 0, 10));
+    p_out.SetDirty();
+    p_out.Update();
+}
+
+void ViewerTab::CreateDefaultCamera3D(CameraComponent& p_out) {
     const auto res = DVAR_GET_IVEC2(resolution);
     auto camera = std::make_shared<CameraComponent>();
-    camera->SetOrtho();
-    camera->SetView2D();
-    camera->SetDimension(res.x, res.y);
-    camera->SetNear(1.0f);
-    camera->SetFar(1000.0f);
-    camera->SetPosition(Vector3f(0, 0, 10));
-    camera->SetDirty();
-    camera->Update();
-    return camera;
+    p_out.SetDimension(res.x, res.y);
+    p_out.SetNear(1.0f);
+    p_out.SetFar(1000.0f);
+    p_out.SetPosition(Vector3f(0, 4, 10));
+    p_out.SetDirty();
+    p_out.Update();
 }
 
-// @TODO: ad 2d 3d flag to camera
-std::shared_ptr<CameraComponent> ViewerTab::CreateDefaultCamera3D() {
-    const auto res = DVAR_GET_IVEC2(resolution);
-    auto camera = std::make_shared<CameraComponent>();
-    camera->SetDimension(res.x, res.y);
-    camera->SetNear(1.0f);
-    camera->SetFar(1000.0f);
-    camera->SetPosition(Vector3f(0, 4, 10));
-    camera->SetDirty();
-    camera->Update();
-    return camera;
+const std::vector<ViewerTab::ToolBarButtonDesc>& ViewerTab::GetToolBarButtons() const {
+    static std::vector<ViewerTab::ToolBarButtonDesc> s_buttons;
+    return s_buttons;
 }
 
-bool ViewerTab::HandleInput(const InputEvent* p_input_event) {
-    unused(p_input_event);
-    return false;
+void ViewerTab::DrawToolBar() {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+    auto& colors = ImGui::GetStyle().Colors;
+    const auto& button_hovered = colors[ImGuiCol_ButtonHovered];
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(button_hovered.x, button_hovered.y, button_hovered.z, 0.5f));
+    const auto& button_active = colors[ImGuiCol_ButtonActive];
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
+
+    const auto buttons = GetToolBarButtons();
+
+    for (size_t i = 0; i < buttons.size(); ++i) {
+        const auto& desc = buttons[i];
+        const bool enabled = desc.is_enabled_func ? desc.is_enabled_func() : true;
+
+        if (i != 0) {
+            ImGui::SameLine();
+        }
+
+        if (!enabled) {
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
+        }
+
+        if (ImGui::Button(desc.display) && enabled) {
+            desc.execute_func();
+        }
+
+        if (!enabled) {
+            ImGui::PopStyleVar();
+        }
+
+        if (ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+            ImGui::Text(desc.tooltip);
+            ImGui::EndTooltip();
+        }
+    }
+
+    // ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(3);
 }
 
-void ViewerTab::DrawMainView() {
+void ViewerTab::DrawMainView(const CameraComponent&) {
     const auto canvas_min = m_viewer.GetCanvasMin();
     const auto canvas_max = canvas_min + m_viewer.GetCanvasSize();
 
@@ -97,9 +134,6 @@ void ViewerTab::DrawMainView() {
             CRASH_NOW();
             break;
     }
-}
-
-void ViewerTab::DrawAssetInspector() {
 }
 
 }  // namespace cave

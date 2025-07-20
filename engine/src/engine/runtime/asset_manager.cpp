@@ -7,7 +7,7 @@
 #include "engine/assets/assets.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/assets/image_asset.h"
-#include "engine/assets/sprite_asset.h"  // @TODO: deprecate sprite asset
+#include "engine/tile_map/tile_set_asset.h"
 #include "engine/sprite/sprite_animation_asset.h"
 #include "engine/tile_map/tile_map_asset.h"
 #include "engine/core/io/file_access.h"
@@ -62,13 +62,12 @@ static struct {
 } s_assetManagerGlob;
 
 static AssetRef CreateAssetInstance(AssetType p_type) {
+    // @TODO: [SCRUM-222] refactor this part
     switch (p_type) {
-        case AssetType::Scene: {
-            auto scene = std::make_shared<Scene>();
-            return scene;
-        }
-        case AssetType::Sprite:
-            return std::make_shared<SpriteAsset>();
+        case AssetType::Scene:
+            return std::make_shared<Scene>();
+        case AssetType::TileSet:
+            return std::make_shared<TileSetAsset>();
         case AssetType::SpriteAnimation:
             return std::make_shared<SpriteAnimationAsset>();
         case AssetType::TileMap:

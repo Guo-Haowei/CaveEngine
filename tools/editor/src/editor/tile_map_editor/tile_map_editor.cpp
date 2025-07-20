@@ -4,27 +4,25 @@
 
 #include "engine/assets/image_asset.h"
 #include "engine/input/input_event.h"
-#include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
-#include "editor/widget.h"
+#include "editor/widgets/widget.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 #include "editor/tile_map_editor/tile_map_document.h"
 
 // @TODO: refactor
 #include "engine/assets/assets.h"
-#include "engine/assets/sprite_asset.h"
+#include "engine/tile_map/tile_set_asset.h"
 
 namespace cave {
 
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
-    m_camera = ViewerTab::CreateDefaultCamera2D();
 
-    m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").unwrap();
+    m_camera = std::make_unique<CameraComponent>();
+    ViewerTab::CreateDefaultCamera2D(*m_camera.get());
 }
 
 void TileMapEditor::OnCreate(const Guid& p_guid) {
@@ -50,7 +48,7 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
 }
 
 void TileMapEditor::OnDestroy() {
-    m_tmp_scene = nullptr;  // decrease ref count
+    m_tmp_scene.reset();
 }
 
 void TileMapEditor::OnActivate() {
@@ -59,11 +57,10 @@ void TileMapEditor::OnActivate() {
     scene_manager->SetTmpScene(m_tmp_scene);
 }
 
-void TileMapEditor::DrawMainView() {
-    ViewerTab::DrawMainView();
+void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {
+    ViewerTab::DrawMainView(p_camera);
 
-    const CameraComponent& camera = GetActiveCamera();
-    const Matrix4x4f proj_view = camera.GetProjectionViewMatrix();
+    const Matrix4x4f proj_view = p_camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -84,7 +81,7 @@ void TileMapEditor::DrawMainView() {
 
 void TileMapEditor::DrawAssetInspector() {
     TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-    SpriteAsset* sprite = tile_map->GetSpriteHandle().Get();
+    TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
 
     std::vector<AssetChildPanel> descs = {
         {
@@ -104,8 +101,11 @@ void TileMapEditor::DrawAssetInspector() {
             "SpriteTab",
             360,
             [&]() {
-                if (sprite) {
-                    EditSprite(*sprite);
+                int column = tile_set->GetCol();
+                int row = tile_set->GetRow();
+                if (m_sprite_selector.EditSprite(&column, &row)) {
+                    tile_set->SetCol(column);
+                    tile_set->SetRow(row);
                 }
             },
         },
@@ -113,8 +113,13 @@ void TileMapEditor::DrawAssetInspector() {
             "PaintTab",
             0,
             [&]() {
-                if (sprite) {
-                    TilePaint(*sprite);
+                if (tile_set) {
+                    auto handle = tile_set->GetHandle();
+                    const int column = tile_set->GetCol();
+                    const int row = tile_set->GetRow();
+                    if (auto image = handle.Get(); image) {
+                        m_sprite_selector.SelectSprite(*image, &column, &row);
+                    }
                 }
             },
         }
@@ -154,7 +159,13 @@ bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
             if (e->IsButtonDown(MouseButton::LEFT)) {
-                m_document->RequestAdd(e->GetPos(), TileId(1));
+                auto [x, y] = m_sprite_selector.GetSelected();
+                if (x >= 0 && y >= 0) {
+                    TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
+                    TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+                    uint32_t idx = y * tile_set->GetCol() + x;
+                    m_document->RequestAdd(e->GetPos(), TileId(idx));
+                }
                 return true;
             }
             if (e->IsButtonDown(MouseButton::RIGHT)) {
@@ -177,9 +188,6 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
         // p_tile_map.AddLayer("untitled layer");
     }
     ImGui::Separator();
-
-    auto checkerboard = m_checkerboard_handle.Get();
-    DEV_ASSERT(checkerboard);
 
     auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
     DEV_ASSERT(tool);
@@ -225,32 +233,30 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         // next line
 
-        ImVec2 region_size(128, 128);
-        ImVec2 image_size = region_size;
+        {
+            ImVec2 region_size(128, 128);
 
-        uint64_t image_handle = 0;
-
-        if (auto sprite = layer.GetSpriteHandle().Get(); sprite) {
-            if (auto image = sprite->GetHandle().Get(); image) {
-                image_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
-                image_size = ImVec2(static_cast<float>(image->width),
-                                    static_cast<float>(image->height));
+            const ImageAsset* image = nullptr;
+            if (auto image_handle = layer.GetTileSetHandle().Get(); image_handle) {
+                image = image_handle->GetHandle().Get();
             }
-        }
-        if (image_handle == 0) {
-            image_handle = checkerboard->gpu_texture->GetHandle();
-        }
 
-        CenteredImage(image_handle, image_size, region_size);
+            auto checkerboard = m_editor.context.checkerboard_handle.Get();
+            DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
 
-        if (ImGui::IsItemClicked()) {
-            // tool->SetActiveLayer(layer_id);
+            CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
+
+            if (ImGui::IsItemClicked()) {
+                // tool->SetActiveLayer(layer_id);
+            }
+
+            // @TODO: make an asset drop region
+            // accept same type of assets, show tooltips, etc
+            DragDropTarget(AssetType::TileSet, [&](AssetHandle& p_handle) {
+                DEV_ASSERT(p_handle.GetMeta()->type == AssetType::TileSet);
+                layer.SetTileSetGuid(p_handle.GetGuid());
+            });
         }
-
-        DragDropTarget(AssetType::Sprite, [&](AssetHandle& p_handle) {
-            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Sprite);
-            layer.SetSpriteGuid(p_handle.GetGuid());
-        });
 
         ImGui::Dummy(ImVec2(8, 8));
 
@@ -267,111 +273,15 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     }
 }
 
-void TileMapEditor::TilePaint(SpriteAsset& p_sprite) {
-    ImGui::Text("TileSet");
+const std::vector<ViewerTab::ToolBarButtonDesc>& TileMapEditor::GetToolBarButtons() const {
+    static std::vector<ToolBarButtonDesc> s_buttons = {
+        { ICON_FA_BRUSH, "TileMap editor mode",
+          [&]() {
+              LOG_WARN("TODO");
+          } },
+    };
 
-    auto& handle = p_sprite.GetHandle();
-    if (!handle.IsReady()) {
-        return;
-    }
-
-    const ImageAsset* image = handle.Get();
-    DEV_ASSERT(image);
-
-    const uint32_t width = p_sprite.GetWidth();
-    const uint32_t height = p_sprite.GetHeight();
-    if (!width || !height) {
-        return;
-    }
-
-    ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    ImVec2 cursor = ImGui::GetCursorScreenPos();
-    ImVec2 tile_size((float)width, (float)height);
-
-    ImGui::InvisibleButton("TileClickable", tile_size);  // enables interaction
-    bool hovered = ImGui::IsItemHovered();
-    bool clicked = ImGui::IsItemClicked();
-    unused(hovered);
-    unused(clicked);
-
-    // Draw tileset
-    draw_list->AddImage(
-        image->gpu_texture->GetHandle(),
-        cursor,
-        cursor + tile_size,
-        ImVec2(0, 0), ImVec2(1, 1),
-        IM_COL32(255, 255, 255, 255));
-
-    const int num_col = p_sprite.GetCol();
-    const int num_row = p_sprite.GetRow();
-
-    const float cell_w = static_cast<float>(width) / num_col;
-    const float cell_h = static_cast<float>(height) / num_row;
-
-    if (hovered && clicked) {
-        ImVec2 mouse_pos = ImGui::GetMousePos();
-
-        int local_x = (int)((mouse_pos.x - cursor.x) / cell_w);
-        int local_y = (int)((mouse_pos.y - cursor.y) / cell_h);
-
-        // Clamp to valid range
-        if (local_x >= 0 && local_x < num_col && local_y >= 0 && local_y < num_row) {
-            m_selected_x = local_x;
-            m_selected_y = local_y;
-        }
-    }
-
-    for (float dx = cell_w; dx < tile_size.x; dx += cell_w) {
-        draw_list->AddLine(ImVec2(cursor.x + dx, cursor.y),
-                           ImVec2(cursor.x + dx, cursor.y + tile_size.y),
-                           IM_COL32(255, 255, 255, 255));
-    }
-
-    for (float dy = cell_h; dy < tile_size.y; dy += cell_h) {
-        draw_list->AddLine(ImVec2(cursor.x, cursor.y + dy),
-                           ImVec2(cursor.x + tile_size.x, cursor.y + dy),
-                           IM_COL32(255, 255, 255, 255));
-    }
-
-    if (m_selected_x >= 0 && m_selected_y >= 0) {
-        float cellW = tile_size.x / num_col;
-        float cellH = tile_size.y / num_row;
-
-        ImVec2 pMin = ImVec2(cursor.x + m_selected_x * cellW, cursor.y + m_selected_y * cellH);
-        ImVec2 pMax = ImVec2(pMin.x + cellW, pMin.y + cellH);
-
-        draw_list->AddRectFilled(pMin, pMax, IM_COL32(0, 255, 0, 100));  // green transparent overlay
-        draw_list->AddRect(pMin, pMax, IM_COL32(0, 255, 0, 255));        // solid border
-
-    } else {
-    }
-}
-
-void TileMapEditor::EditSprite(SpriteAsset& p_sprite) {
-    if (ImGui::BeginTabBar("TileSetModes")) {
-        if (ImGui::BeginTabItem("Setup")) {
-            int column = p_sprite.GetCol();
-            if (ImGui::InputInt("column", &column)) {
-                p_sprite.SetCol(column);
-            }
-            int row = p_sprite.GetRow();
-            if (ImGui::InputInt("row", &row)) {
-                p_sprite.SetRow(row);
-            }
-
-            float scale = p_sprite.GetScale();
-            if (ImGui::InputFloat("scale", &scale)) {
-                p_sprite.SetScale(scale);
-            }
-
-            // ImGui::Checkbox("Use Texture Region", &use_region);
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Select")) {
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
+    return s_buttons;
 }
 
 }  // namespace cave

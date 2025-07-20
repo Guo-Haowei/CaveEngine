@@ -38,13 +38,14 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
 auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData> {
     auto extension = StringUtils::Extension(p_path);
 
+    // @TODO: [SCRUM-222] refactor this part
     AssetType type = AssetType::Binary;
     if (extension == ".png" || extension == ".jpg" || extension == ".hdr") {
         type = AssetType::Image;
     } else if (extension == ".ttf") {
         type = AssetType::Binary;
-    } else if (extension == ".sprite") {
-        type = AssetType::Sprite;
+    } else if (extension == ".tileset") {
+        type = AssetType::TileSet;
     } else if (extension == ".tilemap") {
         type = AssetType::TileMap;
     } else if (extension == ".sprite_anim") {

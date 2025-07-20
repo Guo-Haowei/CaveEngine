@@ -2,7 +2,7 @@
 
 #include "tile_map_asset.h"
 
-#include "engine/assets/sprite_asset.h"
+#include "engine/tile_map/tile_set_asset.h"
 #include "engine/renderer/gpu_resource.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/graphics_manager_interface.h"
@@ -36,24 +36,34 @@ void TileMapRenderer::CreateRenderData() {
         return;
     }
 
-    if (tile_map->GetRevision() == m_revision) {
-        return;
-    }
-
     // @TODO: update guid
-    if (m_cache.sprite.GetGuid() == Guid::Null()) {
-        auto sprite_handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAsset>(tile_map->GetSpriteGuid());
-        if (sprite_handle.is_some()) {
-            m_cache.sprite = std::move(sprite_handle.unwrap_unchecked());
+    if (m_cache.tile_set_handle.GetGuid() == Guid::Null()) {
+        auto tile_set_handle = AssetRegistry::GetSingleton().FindByGuid<TileSetAsset>(tile_map->GetTileSetGuid());
+        if (tile_set_handle.is_some()) {
+            m_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
         }
     }
 
-    SpriteAsset* sprite = m_cache.sprite.Get();
-    if (!sprite) {
+    TileSetAsset* tile_set = m_cache.tile_set_handle.Get();
+    if (!tile_set) {
         return;
     }
 
-    m_cache.image = sprite->GetHandle();
+    bool need_update = false;
+    if (tile_set->IsDirty()) {
+        tile_set->SetDirty(false);
+        need_update = true;
+    }
+
+    if (tile_map->GetRevision() != m_revision) {
+        need_update = true;
+    }
+
+    if (!need_update) {
+        return;
+    }
+
+    m_cache.image = tile_set->GetHandle();
 
     std::vector<Vector2f> vertices;
     std::vector<Vector2f> uvs;
@@ -66,8 +76,14 @@ void TileMapRenderer::CreateRenderData() {
     }
     m_visibility = tile_map->IsVisible();
 
+    const auto& frames = tile_set->GetFrames();
+
     vertices.reserve(tiles.size() * 4);
-    for (const auto& [key, tile] : tiles) {
+    for (const auto& [key, tile_id] : tiles) {
+        if ((int)frames.size() <= tile_id) {
+            continue;
+        }
+
         const int16_t x = key.x;
         const int16_t y = key.y;
 
@@ -80,15 +96,8 @@ void TileMapRenderer::CreateRenderData() {
         Vector2f bottom_right{ x1, y0 };
         Vector2f top_left{ x0, y1 };
         Vector2f top_right{ x1, y1 };
-#if 1
-        const auto& frames = sprite->GetFrames();
-        DEV_ASSERT((int)frames.size() > tile);
-        Vector2f uv_min = frames[tile - 1].GetMin();
-        Vector2f uv_max = frames[tile - 1].GetMax();
-#else
-        Vector2f uv_min = Vector2f::Zero;
-        Vector2f uv_max = Vector2f::One;
-#endif
+        Vector2f uv_min = frames[tile_id].GetMin();
+        Vector2f uv_max = frames[tile_id].GetMax();
         Vector2f uv0 = uv_min;
         Vector2f uv1 = { uv_max.x, uv_min.y };
         Vector2f uv2 = { uv_min.x, uv_max.y };

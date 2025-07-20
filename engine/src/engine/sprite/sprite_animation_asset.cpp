@@ -1,8 +1,17 @@
 #include "sprite_animation_asset.h"
 
+#include "engine/assets/image_asset.h"
+#include "engine/runtime/asset_registry.h"
 #include "engine/serialization/yaml_include.h"
 
 namespace cave {
+
+void SpriteAnimationAsset::SetGuid(const Guid& p_guid) {
+    AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
+                                      p_guid,
+                                      m_image_guid,
+                                      m_image_handle.RawHandle());
+}
 
 auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     auto res = p_meta.SaveToDisk(this);
@@ -44,7 +53,10 @@ auto SpriteAnimationAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<v
         deserializer.LeaveKey();
     }
 
-    // SetSpriteGuid(m_sprite_guid, true);
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
+    if (handle.is_some()) {
+        m_image_handle = handle.unwrap_unchecked();
+    }
     return Result<void>();
 }
 
