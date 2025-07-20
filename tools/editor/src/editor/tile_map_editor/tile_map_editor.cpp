@@ -81,7 +81,7 @@ void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {
 
 void TileMapEditor::DrawAssetInspector() {
     TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-    TileSetAsset* sprite = tile_map->GetSpriteHandle().Get();
+    TileSetAsset* sprite = tile_map->GetTileSetHandle().Get();
 
     std::vector<AssetChildPanel> descs = {
         {
@@ -226,7 +226,7 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         uint64_t texture_handle = 0;
 
-        if (auto sprite = layer.GetSpriteHandle().Get(); sprite) {
+        if (auto sprite = layer.GetTileSetHandle().Get(); sprite) {
             if (auto image = sprite->GetHandle().Get(); image) {
                 texture_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
                 image_size = ImVec2(static_cast<float>(image->width),
@@ -247,7 +247,7 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         DragDropTarget(AssetType::TileSet, [&](AssetHandle& p_handle) {
             DEV_ASSERT(p_handle.GetMeta()->type == AssetType::TileSet);
-            layer.SetSpriteGuid(p_handle.GetGuid());
+            layer.SetTileSetGuid(p_handle.GetGuid());
         });
         /// @TODO: generalize
 

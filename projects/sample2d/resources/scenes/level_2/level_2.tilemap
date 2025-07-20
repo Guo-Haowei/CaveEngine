@@ -1,7 +1,7 @@
 version: 1
 content:
   name: test
-  sprite_guid: 26782B94-FC05-B140-B2E58BA0FF24B594
+  tile_set_id: 26782B94-FC05-B140-B2E58BA0FF24B594
   is_visible: true
   tiles:
     - [-3, -2, 1]

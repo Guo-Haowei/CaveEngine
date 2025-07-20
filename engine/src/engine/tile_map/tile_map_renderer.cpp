@@ -41,19 +41,19 @@ void TileMapRenderer::CreateRenderData() {
     }
 
     // @TODO: update guid
-    if (m_cache.sprite.GetGuid() == Guid::Null()) {
-        auto sprite_handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAsset>(tile_map->GetSpriteGuid());
-        if (sprite_handle.is_some()) {
-            m_cache.sprite = std::move(sprite_handle.unwrap_unchecked());
+    if (m_cache.tile_set_handle.GetGuid() == Guid::Null()) {
+        auto tile_set_handle = AssetRegistry::GetSingleton().FindByGuid<TileSetAsset>(tile_map->GetTileSetGuid());
+        if (tile_set_handle.is_some()) {
+            m_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
         }
     }
 
-    SpriteAsset* sprite = m_cache.sprite.Get();
-    if (!sprite) {
+    TileSetAsset* tile_set = m_cache.tile_set_handle.Get();
+    if (!tile_set) {
         return;
     }
 
-    m_cache.image = sprite->GetHandle();
+    m_cache.image = tile_set->GetHandle();
 
     std::vector<Vector2f> vertices;
     std::vector<Vector2f> uvs;
@@ -81,7 +81,7 @@ void TileMapRenderer::CreateRenderData() {
         Vector2f top_left{ x0, y1 };
         Vector2f top_right{ x1, y1 };
 #if 1
-        const auto& frames = sprite->GetFrames();
+        const auto& frames = tile_set->GetFrames();
         DEV_ASSERT((int)frames.size() > tile);
         Vector2f uv_min = frames[tile - 1].GetMin();
         Vector2f uv_max = frames[tile - 1].GetMax();

@@ -5,7 +5,6 @@
 #include "engine/serialization/concept.h"
 
 // @TODO: change tile data to sparsed chunck
-// @TODO: change m_sprite_guid to m_tile_set_guid (make tile set asset)
 
 namespace cave {
 
@@ -41,8 +40,6 @@ bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data);
 
 static_assert(Serializable<TileData>);
 
-// @TODO: rename sprite to tileset
-
 class TileMapAsset : public IAsset {
     CAVE_ASSET(TileMapAsset, AssetType::TileMap, 1)
 
@@ -52,7 +49,7 @@ class TileMapAsset : public IAsset {
     std::string m_name;
 
     CAVE_PROP(type = guid, tooltip = "tileset id")
-    Guid m_sprite_guid;
+    Guid m_tile_set_id;
 
     CAVE_PROP(type = boolean, hint = visibility, tooltip = "toggle layer visibility")
     bool m_is_visible = true;
@@ -62,7 +59,7 @@ class TileMapAsset : public IAsset {
 
 private:
     // Non serialized
-    Handle<TileSetAsset> m_sprite_handle;
+    Handle<TileSetAsset> m_tile_set_handle;
     uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
@@ -72,14 +69,14 @@ public:
 
     bool RemoveTile(TileIndex p_index);
 
-    const Handle<TileSetAsset>& GetSpriteHandle() const { return m_sprite_handle; }
+    const Handle<TileSetAsset>& GetTileSetHandle() const { return m_tile_set_handle; }
 
     std::string& GetName() { return m_name; }
     const std::string& GetName() const { return m_name; }
     void SetName(std::string&& p_name) { m_name = std::move(p_name); }
 
-    const Guid& GetSpriteGuid() const { return m_sprite_guid; }
-    void SetSpriteGuid(const Guid& p_guid, bool p_force = false);
+    const Guid& GetTileSetGuid() const { return m_tile_set_id; }
+    void SetTileSetGuid(const Guid& p_guid, bool p_force = false);
 
     const auto& GetTiles() const { return m_tiles.tiles; }
     void SetTiles(TileChunk&& p_tiles);
@@ -93,9 +90,7 @@ public:
     auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
 
-    std::vector<Guid> GetDependencies() const override {
-        return { m_sprite_guid };
-    }
+    std::vector<Guid> GetDependencies() const override;
 };
 
 }  // namespace cave

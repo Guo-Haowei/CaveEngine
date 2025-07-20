@@ -6,9 +6,6 @@
 namespace cave {
 
 class AssetRegistry;
-struct IAsset;
-struct ImageAsset;
-class TileMapAsset;
 
 class AssetInspector : public EditorWindow {
 public:

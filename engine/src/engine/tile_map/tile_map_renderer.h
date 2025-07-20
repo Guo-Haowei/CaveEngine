@@ -8,9 +8,6 @@ namespace cave {
 
 class Archive;
 struct GpuMesh;
-struct ImageAsset;
-class SpriteAsset;
-class TileMapAsset;
 
 class TileMapRenderer {
     CAVE_META(TileMapRenderer)
@@ -24,7 +21,7 @@ class TileMapRenderer {
 private:
     struct Cache {
         Handle<ImageAsset> image;
-        Handle<SpriteAsset> sprite;
+        Handle<TileSetAsset> tile_set_handle;
         mutable std::shared_ptr<GpuMesh> mesh;
     };
 

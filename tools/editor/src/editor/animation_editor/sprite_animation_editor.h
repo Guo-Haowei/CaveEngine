@@ -10,7 +10,6 @@ namespace cave {
 class AssetRegistry;
 class Document;
 class InputEvent;
-class TileMapAsset;
 class TileMapDocument;
 class Viewer;
 

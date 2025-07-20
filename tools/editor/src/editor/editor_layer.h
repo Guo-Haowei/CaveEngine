@@ -12,7 +12,6 @@ namespace cave {
 
 enum class HandleInput : uint8_t;
 enum class KeyCode : uint16_t;
-struct ImageAsset;
 class EditorCommandBase;
 class MenuBar;
 class Viewer;

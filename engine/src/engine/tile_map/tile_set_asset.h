@@ -1,6 +1,6 @@
 #pragma once
-#include "asset_handle.h"
-#include "asset_interface.h"
+#include "engine/assets/asset_handle.h"
+#include "engine/assets/asset_interface.h"
 
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"

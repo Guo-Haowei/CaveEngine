@@ -48,19 +48,23 @@ void TileMapAsset::SetTiles(TileChunk&& p_tiles) {
     IncRevision();
 }
 
-void TileMapAsset::SetSpriteGuid(const Guid& p_guid, bool p_force) {
-    const bool should_update = p_force || m_sprite_guid != p_guid;
+void TileMapAsset::SetTileSetGuid(const Guid& p_guid, bool p_force) {
+    const bool should_update = p_force || m_tile_set_id != p_guid;
     if (should_update) {
-        if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAsset>(p_guid); handle.is_some()) {
-            m_sprite_guid = p_guid;
-            m_sprite_handle = std::move(handle.unwrap());
+        if (auto handle = AssetRegistry::GetSingleton().FindByGuid<TileSetAsset>(p_guid); handle.is_some()) {
+            m_tile_set_id = p_guid;
+            m_tile_set_handle = std::move(handle.unwrap());
         } else {
-            m_sprite_guid = Guid::Null();
-            m_sprite_handle.Invalidate();
+            m_tile_set_id = Guid::Null();
+            m_tile_set_handle.Invalidate();
         }
 
         IncRevision();
     }
+}
+
+std::vector<Guid> TileMapAsset::GetDependencies() const {
+    return { m_tile_set_id };
 }
 
 ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data) {
@@ -136,7 +140,7 @@ auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
         deserializer.LeaveKey();
     }
 
-    SetSpriteGuid(m_sprite_guid, true);
+    SetTileSetGuid(m_tile_set_id, true);
     return Result<void>();
 }
 

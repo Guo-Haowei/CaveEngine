@@ -13,7 +13,6 @@ class CameraComponent;
 class Document;
 class InputEvent;
 class Scene;
-class TileMapAsset;
 class TileMapDocument;
 class Viewer;
 
