@@ -14,7 +14,7 @@
 
 // @TODO: refactor
 #include "engine/assets/assets.h"
-#include "engine/assets/sprite_asset.h"
+#include "engine/tile_map/tile_set_asset.h"
 
 namespace cave {
 
@@ -81,7 +81,7 @@ void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {
 
 void TileMapEditor::DrawAssetInspector() {
     TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-    SpriteAsset* sprite = tile_map->GetSpriteHandle().Get();
+    TileSetAsset* sprite = tile_map->GetSpriteHandle().Get();
 
     std::vector<AssetChildPanel> descs = {
         {
@@ -245,8 +245,8 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
             // tool->SetActiveLayer(layer_id);
         }
 
-        DragDropTarget(AssetType::Sprite, [&](AssetHandle& p_handle) {
-            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Sprite);
+        DragDropTarget(AssetType::TileSet, [&](AssetHandle& p_handle) {
+            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::TileSet);
             layer.SetSpriteGuid(p_handle.GetGuid());
         });
         /// @TODO: generalize

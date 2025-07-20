@@ -1,4 +1,4 @@
-#include "sprite_asset.h"
+#include "tile_set_asset.h"
 
 #include "engine/assets/image_asset.h"
 #include "engine/core/io/file_access.h"

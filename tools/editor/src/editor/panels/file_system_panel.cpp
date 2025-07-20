@@ -29,12 +29,13 @@ void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, const std
     }
     if (p_is_dir) {
         auto asset_manager = m_editor.GetApplication()->GetAssetManager();
+        // @TODO: [SCRUM-222] refactor this
         if (ImGui::BeginMenu("Add")) {
             if (ImGui::MenuItem("Scene")) {
                 asset_manager->CreateAsset(AssetType::Scene, p_path);
             }
-            if (ImGui::MenuItem("Sprite")) {
-                asset_manager->CreateAsset(AssetType::Sprite, p_path);
+            if (ImGui::MenuItem("TileSet")) {
+                asset_manager->CreateAsset(AssetType::TileSet, p_path);
             }
             if (ImGui::MenuItem("SpriteAnimation")) {
                 asset_manager->CreateAsset(AssetType::SpriteAnimation, p_path);

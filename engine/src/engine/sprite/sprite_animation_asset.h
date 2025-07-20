@@ -6,8 +6,6 @@
 
 namespace cave {
 
-using Sprite = Rect;
-
 struct SpriteAnimationClip {
     CAVE_META(SpriteAnimationClip)
 

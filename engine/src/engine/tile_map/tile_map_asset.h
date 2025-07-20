@@ -41,6 +41,8 @@ bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data);
 
 static_assert(Serializable<TileData>);
 
+// @TODO: rename sprite to tileset
+
 class TileMapAsset : public IAsset {
     CAVE_ASSET(TileMapAsset, AssetType::TileMap, 1)
 
@@ -60,7 +62,7 @@ class TileMapAsset : public IAsset {
 
 private:
     // Non serialized
-    Handle<SpriteAsset> m_sprite_handle;
+    Handle<TileSetAsset> m_sprite_handle;
     uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
@@ -70,7 +72,7 @@ public:
 
     bool RemoveTile(TileIndex p_index);
 
-    const Handle<SpriteAsset>& GetSpriteHandle() const { return m_sprite_handle; }
+    const Handle<TileSetAsset>& GetSpriteHandle() const { return m_sprite_handle; }
 
     std::string& GetName() { return m_name; }
     const std::string& GetName() const { return m_name; }

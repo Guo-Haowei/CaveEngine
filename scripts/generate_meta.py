@@ -13,7 +13,7 @@ print('Project root folder:', get_engine_src_folder())
 
 # ========= CONFIG ==========
 FILES = [
-    'assets/sprite_asset.h', # TODO: make it tile set
+    'tile_map/tile_set_asset.h', # TODO: make it tile set
     'scene/camera_component.h',
     'scene/scene_component.h',
     'scene/transform_component.h',

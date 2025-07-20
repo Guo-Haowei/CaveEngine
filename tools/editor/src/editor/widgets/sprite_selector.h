@@ -13,7 +13,6 @@ public:
 
     int m_selected_x = -1;
     int m_selected_y = -1;
-
 };
 
 }  // namespace cave

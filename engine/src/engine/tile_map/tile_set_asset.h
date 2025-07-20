@@ -7,10 +7,10 @@
 
 namespace cave {
 
-class SpriteAsset : public IAsset {
-    CAVE_ASSET(SpriteAsset, AssetType::Sprite, 0)
+class TileSetAsset : public IAsset {
+    CAVE_ASSET(TileSetAsset, AssetType::TileSet, 0)
 
-    CAVE_META(SpriteAsset)
+    CAVE_META(TileSetAsset)
 
     CAVE_PROP(type = guid, tooltip = "image id")
     Guid m_image_guid;
