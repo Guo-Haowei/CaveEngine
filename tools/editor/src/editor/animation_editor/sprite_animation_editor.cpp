@@ -79,32 +79,20 @@ void SpriteAnimationEditor::ImageSourceDropTarget() {
 
     ImGui::Text("Source Image");
 
-    /// @TODO: generalize
     ImVec2 region_size(128, 128);
-    ImVec2 image_size = region_size;
 
-    uint64_t texture_handle = 0;
     auto image_handle = asset->GetImageHandle();
-    if (auto image = image_handle.Get(); image) {
-        texture_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
-        image_size = ImVec2(static_cast<float>(image->width),
-                            static_cast<float>(image->height));
-    }
+    ImageAsset* image = image_handle.Get();
 
-    if (texture_handle == 0) {
-        auto checkerboard = m_editor.context.checkerboard_handle.Get();
-        DEV_ASSERT(checkerboard);
-        texture_handle = checkerboard->gpu_texture->GetHandle();
-    }
+    auto checkerboard = m_editor.context.checkerboard_handle.Get();
 
-    CenteredImage(texture_handle, image_size, region_size);
+    CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
 
     DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
         DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
 
         asset->SetGuid(p_handle.GetGuid());
     });
-    /// @TODO: generalize
 }
 
 void SpriteAnimationEditor::DrawAssetInspector() {

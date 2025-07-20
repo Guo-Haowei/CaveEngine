@@ -220,36 +220,30 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         // next line
 
-        /// @TODO: generalize
-        ImVec2 region_size(128, 128);
-        ImVec2 image_size = region_size;
+        {
+            ImVec2 region_size(128, 128);
 
-        uint64_t texture_handle = 0;
-
-        if (auto sprite = layer.GetTileSetHandle().Get(); sprite) {
-            if (auto image = sprite->GetHandle().Get(); image) {
-                texture_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
-                image_size = ImVec2(static_cast<float>(image->width),
-                                    static_cast<float>(image->height));
+            const ImageAsset* image = nullptr;
+            if (auto image_handle = layer.GetTileSetHandle().Get(); image_handle) {
+                image = image_handle->GetHandle().Get();
             }
-        }
-        if (texture_handle == 0) {
+
             auto checkerboard = m_editor.context.checkerboard_handle.Get();
-            DEV_ASSERT(checkerboard);
-            texture_handle = checkerboard->gpu_texture->GetHandle();
+            DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
+
+            CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
+
+            if (ImGui::IsItemClicked()) {
+                // tool->SetActiveLayer(layer_id);
+            }
+
+            // @TODO: make an asset drop region
+            // accept same type of assets, show tooltips, etc
+            DragDropTarget(AssetType::TileSet, [&](AssetHandle& p_handle) {
+                DEV_ASSERT(p_handle.GetMeta()->type == AssetType::TileSet);
+                layer.SetTileSetGuid(p_handle.GetGuid());
+            });
         }
-
-        CenteredImage(texture_handle, image_size, region_size);
-
-        if (ImGui::IsItemClicked()) {
-            // tool->SetActiveLayer(layer_id);
-        }
-
-        DragDropTarget(AssetType::TileSet, [&](AssetHandle& p_handle) {
-            DEV_ASSERT(p_handle.GetMeta()->type == AssetType::TileSet);
-            layer.SetTileSetGuid(p_handle.GetGuid());
-        });
-        /// @TODO: generalize
 
         ImGui::Dummy(ImVec2(8, 8));
 
