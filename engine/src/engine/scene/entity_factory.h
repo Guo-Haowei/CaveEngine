@@ -118,6 +118,7 @@ public:
                                     float p_tube_radius = 0.2f,
                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
+#if 0
     static Entity CreateEmitterEntity(Scene& p_scene,
                                       const std::string& p_name,
                                       const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
@@ -129,6 +130,7 @@ public:
     static Entity CreateForceFieldEntity(Scene& p_scene,
                                          const std::string& p_name,
                                          const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
+#endif
 
     static Entity CreateTileMapEntity(Scene& p_scene,
                                       const std::string& p_name,

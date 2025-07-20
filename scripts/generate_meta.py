@@ -16,6 +16,8 @@ FILES = [
     'assets/material_asset.h',
     # 'assets/mesh_asset.h',
     'scene/camera_component.h',
+    'scene/light_component.h',
+    'scene/mesh_renderer.h',
     'scene/scene_component.h',
     'scene/transform_component.h',
     'sprite/sprite_animation_asset.h',

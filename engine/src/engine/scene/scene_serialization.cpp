@@ -214,42 +214,7 @@ void ArmatureComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(inverseBindMatrices);
 }
 
-void LightComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    DEV_ASSERT(p_version > 14);
-
-    p_archive.ArchiveValue(m_flags);
-    p_archive.ArchiveValue(m_type);
-    p_archive.ArchiveValue(m_atten);
-    p_archive.ArchiveValue(m_shadowRegion);
-}
-
-void LightComponent::OnDeserialized() {
-    // @TODO: use common base
-    m_flags |= DIRTY;
-}
-
-void MeshRenderer::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(flags);
-    p_archive.ArchiveValue(meshId);
-}
-
 #if 0
-void LightComponent::Attenuation::RegisterClass() {
-    BEGIN_REGISTRY(LightComponent::Attenuation);
-    REGISTER_FIELD(LightComponent::Attenuation, "constant", constant);
-    REGISTER_FIELD(LightComponent::Attenuation, "linear", linear);
-    REGISTER_FIELD(LightComponent::Attenuation, "quadratic", quadratic);
-    END_REGISTRY(LightComponent::Attenuation);
-}
-
-void LightComponent::RegisterClass() {
-    BEGIN_REGISTRY(LightComponent);
-    REGISTER_FIELD(LightComponent, "flags", m_flags);
-    REGISTER_FIELD(LightComponent, "type", m_type);
-    REGISTER_FIELD(LightComponent, "shadow_region", m_shadowRegion, FieldFlag::NUALLABLE);
-    REGISTER_FIELD(LightComponent, "attenuation", m_atten, FieldFlag::NUALLABLE);
-    END_REGISTRY(LightComponent);
-}
 
 void MeshRenderer::RegisterClass() {
     BEGIN_REGISTRY(MeshRenderer);
@@ -326,6 +291,7 @@ void RigidBodyComponent::Serialize(Archive& p_archive, uint32_t p_version) {
     p_archive.ArchiveValue(mass);
 }
 
+#if 0
 void ParticleEmitterComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(maxParticleCount);
     p_archive.ArchiveValue(particlesPerFrame);
@@ -341,8 +307,6 @@ void MeshEmitterComponent::Serialize(Archive& p_archive, uint32_t) {
     unused(p_archive);
     CRASH_NOW();
 }
-
-#if 0
 
 void MeshComponent::MeshSubset::RegisterClass() {
     BEGIN_REGISTRY(MeshComponent::MeshSubset);
@@ -396,12 +360,12 @@ void ClothComponent::RegisterClass() {
     REGISTER_FIELD_2(ClothComponent, point_3);
     END_REGISTRY(ClothComponent);
 }
-#endif
 
 void ForceFieldComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(strength);
     p_archive.ArchiveValue(radius);
 }
+#endif
 
 void ClothComponent::Serialize(Archive& p_archive, uint32_t p_version) {
     CollisionObjectBase::Serialize(p_archive, p_version);

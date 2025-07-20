@@ -110,9 +110,11 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
     LightComponent* light_component = scene.GetComponent<LightComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
+#if 0
     ParticleEmitterComponent* particle_emitter_component = scene.GetComponent<ParticleEmitterComponent>(id);
     MeshEmitterComponent* mesh_emitter_component = scene.GetComponent<MeshEmitterComponent>(id);
     ForceFieldComponent* force_field_component = scene.GetComponent<ForceFieldComponent>(id);
+#endif
     LuaScriptComponent* script_component = scene.GetComponent<LuaScriptComponent>(id);
     CameraComponent* camera_component = scene.GetComponent<CameraComponent>(id);
     EnvironmentComponent* environment_component = scene.GetComponent<EnvironmentComponent>(id);
@@ -328,6 +330,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         ImGui::Separator();
     });
 
+#if 0
     DrawComponent("ParticleEmitter", particle_emitter_component, [](ParticleEmitterComponent& p_emitter) {
         const float width = 100.0f;
         ImGui::Checkbox("Gravity", &p_emitter.gravity);
@@ -356,6 +359,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         DrawDragFloat("Strength", p_force_field.strength, 0.1f, -10.0f, 10.0f, width);
         DrawDragFloat("Radius", p_force_field.radius, 0.1f, 0.1f, 100.0f, width);
     });
+#endif
 }
 
 }  // namespace cave

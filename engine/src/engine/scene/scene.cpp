@@ -40,9 +40,9 @@ void Scene::Update(float p_timestep) {
     RunHierarchyUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
     // mesh particles
-    RunMeshEmitterUpdateSystem(*this, ctx, p_timestep);
+    // RunMeshEmitterUpdateSystem(*this, ctx, p_timestep);
     // particle
-    RunParticleEmitterUpdateSystem(*this, ctx, p_timestep);
+    // RunParticleEmitterUpdateSystem(*this, ctx, p_timestep);
     // armature
     RunArmatureUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
@@ -153,8 +153,8 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
     m_HierarchyComponents.Remove(p_entity);
     m_TransformComponents.Remove(p_entity);
     m_MeshRenderers.Remove(p_entity);
-    m_ParticleEmitterComponents.Remove(p_entity);
-    m_ForceFieldComponents.Remove(p_entity);
+    // m_ParticleEmitterComponents.Remove(p_entity);
+    // m_ForceFieldComponents.Remove(p_entity);
     m_NameComponents.Remove(p_entity);
 }
 

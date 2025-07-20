@@ -502,6 +502,8 @@ uint64_t GraphicsManager::GetFinalImage() const {
 }
 
 void GraphicsManager::UpdateEmitters(const Scene& p_scene) {
+    unused(p_scene);
+#if 0
     for (auto [id, emitter] : p_scene.m_ParticleEmitterComponents) {
         if (!emitter.particleBuffer) {
             // create buffer
@@ -535,6 +537,7 @@ void GraphicsManager::UpdateEmitters(const Scene& p_scene) {
             UnbindStructuredBuffer(GetGlobalDeadIndicesSlot());
         }
     }
+#endif
 }
 
 // @TODO: embed draw buffer in shader

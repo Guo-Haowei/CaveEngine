@@ -3,6 +3,8 @@
 
 #include "generated/material_asset.generated.cpp"
 #include "generated/camera_component.generated.cpp"
+#include "generated/light_component.generated.cpp"
+#include "generated/mesh_renderer.generated.cpp"
 #include "generated/scene_component.generated.cpp"
 #include "generated/transform_component.generated.cpp"
 #include "generated/sprite_animation_asset.generated.cpp"

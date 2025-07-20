@@ -128,25 +128,6 @@ struct ArmatureComponent {
 };
 #pragma endregion ARMATURE_COMPONENT
 
-#pragma region MESH_RENDERER_COMPONENT
-struct MeshRenderer : public ComponentFlagBase {
-    enum : uint32_t {
-        FLAG_RENDERABLE = BIT(1),
-        FLAG_CAST_SHADOW = BIT(2),
-        FLAG_TRANSPARENT = BIT(3),
-    };
-
-    ecs::Entity meshId;
-
-    MeshRenderer() {
-        flags |= FLAG_RENDERABLE | FLAG_CAST_SHADOW;
-    }
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
-};
-#pragma endregion MESH_RENDERER_COMPONENT
-
 #pragma region LUA_SCRIPT_COMPONENT
 class LuaScriptComponent {
 public:
@@ -332,6 +313,7 @@ struct VoxelGiComponent {
 #pragma endregion ENVIRONMENT_COMPONENT
 
 #pragma region PARTICLE_EMITTER_COMPONENT
+#if 0
 struct ParticleEmitterComponent {
     bool gravity{ false };  // @TODO: force instead of gravity
     int maxParticleCount{ 1000 };
@@ -356,9 +338,11 @@ struct ParticleEmitterComponent {
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
 };
+#endif
 #pragma endregion PARTICLE_EMITTER_COMPONENT
 
 #pragma region MESH_EMITTER_COMPONENT
+#if 0
 struct MeshEmitterComponent {
     enum : uint32_t {
         NONE = BIT(0),
@@ -418,9 +402,11 @@ struct MeshEmitterComponent {
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() { Reset(); }
 };
+#endif
 #pragma endregion MESH_EMITTER_COMPONENT
 
 #pragma region FORCE_FIELD_COMPONENT
+#if 0
 struct ForceFieldComponent {
     float strength{ 1.0f };
     float radius{ 0.01f };
@@ -428,60 +414,8 @@ struct ForceFieldComponent {
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
 };
+#endif
 #pragma endregion FORCE_FIELD_COMPONENT
-
-#pragma region LIGHT_COMPONENT
-class LightComponent {
-public:
-    enum : uint32_t {
-        NONE = BIT(0),
-        DIRTY = BIT(1),
-        CAST_SHADOW = BIT(2),
-        SHADOW_REGION = BIT(3),
-    };
-
-    bool IsDirty() const { return m_flags & DIRTY; }
-    void SetDirty(bool p_dirty = true) { p_dirty ? m_flags |= DIRTY : m_flags &= ~DIRTY; }
-
-    bool CastShadow() const { return m_flags & CAST_SHADOW; }
-    void SetCastShadow(bool p_cast = true) { p_cast ? m_flags |= CAST_SHADOW : m_flags &= ~CAST_SHADOW; }
-
-    bool HasShadowRegion() const { return m_flags & SHADOW_REGION; }
-    void SetShadowRegion(bool p_region = true) { p_region ? m_flags |= SHADOW_REGION : m_flags &= ~SHADOW_REGION; }
-
-    int GetType() const { return m_type; }
-    void SetType(int p_type) { m_type = p_type; }
-
-    float GetMaxDistance() const { return m_maxDistance; }
-    int GetShadowMapIndex() const { return m_shadowMapIndex; }
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized();
-
-    const auto& GetMatrices() const { return m_lightSpaceMatrices; }
-    const Vector3f& GetPosition() const { return m_position; }
-
-    struct Attenuation {
-        float constant;
-        float linear;
-        float quadratic;
-    } m_atten;
-
-    AABB m_shadowRegion;
-
-    uint32_t m_flags = DIRTY;
-    int m_type = LIGHT_TYPE_INFINITE;
-
-    Guid m_material_id;
-
-    // Non-serialized
-    float m_maxDistance;
-    Vector3f m_position;
-    int m_shadowMapIndex = -1;
-    std::array<Matrix4x4f, 6> m_lightSpaceMatrices;
-    Handle<MaterialAsset> m_material_handle;
-};
-#pragma endregion LIGHT_COMPONENT
 
 // #pragma region _COMPONENT
 // #pragma endregion _COMPONENT

@@ -217,7 +217,8 @@ bool OpenSceneLib(lua_State* L) {
         })
         .endClass();
 
-    // MeshEmitterComponent
+// MeshEmitterComponent
+#if 0
     luabridge::getGlobalNamespace(L)
         .beginClass<MeshEmitterComponent>("MeshEmitterComponent")
         .addFunction("Reset", [](MeshEmitterComponent* p_component) {
@@ -233,6 +234,7 @@ bool OpenSceneLib(lua_State* L) {
             return p_component->IsRunning();
         })
         .endClass();
+#endif
 
     luabridge::getGlobalNamespace(L)
         .beginClass<Scene>("Scene")
@@ -249,9 +251,9 @@ bool OpenSceneLib(lua_State* L) {
         .addFunction("GetRigidBody", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<RigidBodyComponent>(ecs::Entity(p_entity));
         })
-        .addFunction("GetMeshEmitter", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<MeshEmitterComponent>(ecs::Entity(p_entity));
-        })
+        //.addFunction("GetMeshEmitter", [](Scene* p_scene, uint32_t p_entity) {
+        //    return p_scene->GetComponent<MeshEmitterComponent>(ecs::Entity(p_entity));
+        //})
         .addFunction("GetScript", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<LuaScriptComponent>(ecs::Entity(p_entity));
         })

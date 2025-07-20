@@ -64,7 +64,7 @@ RigidBodyComponent& RigidBodyComponent::InitGhost() {
 }
 #pragma endregion RIGID_BODY_COMPONENT
 
-#pragma region MESH_EMITTER_COMPONENT
+#if 0
 void MeshEmitterComponent::Reset() {
     if ((int)particles.size() != maxMeshCount) {
         particles.resize(maxMeshCount);
@@ -92,13 +92,6 @@ void MeshEmitterComponent::UpdateParticle(Index p_index, float p_timestep) {
 
     p.position += p_timestep * p.velocity;
 }
-
-#pragma endregion MESH_EMITTER_COMPONENT
-
-#pragma region SOFT_BODY_COMPONENT
-#pragma endregion SOFT_BODY_COMPONENT
-
-#pragma region ENVIRONMENT_COMPONENT
-#pragma endregion ENVIRONMENT_COMPONENT
+#endif
 
 }  // namespace cave
