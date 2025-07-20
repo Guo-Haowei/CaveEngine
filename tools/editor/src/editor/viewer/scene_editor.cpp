@@ -126,8 +126,7 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     // @TODO: move show_editor as viewer attribute
     const bool show_editor = DVAR_GET_BOOL(show_editor);
     if (show_editor) {
-        Matrix4x4f identity(1.0f);
-        ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XZ);
+        ImGuizmo::DrawAxes(proj_view);
 
         const float size = 120.f;
         const auto& min = m_viewer.GetCanvasMin();
@@ -197,7 +196,7 @@ const std::vector<ViewerTab::ToolBarButtonDesc>& SceneEditor::GetToolBarButtons(
           [&]() { return app_state != Application::State::EDITING; } },
         { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
           [&]() {
-              LOG_WARN("TODO");
+              m_camera_idx ^= 1;
           } },
     };
 

@@ -21,6 +21,7 @@ namespace cave {
 
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
+
     m_camera = std::make_unique<CameraComponent>();
     ViewerTab::CreateDefaultCamera2D(*m_camera.get());
 
@@ -51,7 +52,7 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
 }
 
 void TileMapEditor::OnDestroy() {
-    m_tmp_scene = nullptr;  // decrease ref count
+    m_tmp_scene.reset();
 }
 
 void TileMapEditor::OnActivate() {

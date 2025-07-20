@@ -2494,12 +2494,32 @@ static bool ClipLine(vec_t& a, vec_t& b, vec_t frustum[6]) {
     return true;
 }
 
-void DrawGrid(const glm::mat4& p_projection_view_matrix, const glm::mat4& p_matrix, const float p_grid_size, GridPlane p_plane) {
+void DrawAxes(const glm::mat4& p_projection_view_matrix, const float p_length) {
     matrix_t view_projection = *(matrix_t*)glm::value_ptr(p_projection_view_matrix);
 
     vec_t frustum[6];
     ComputeFrustumPlanes(frustum, view_projection.m16);
     matrix_t res = view_projection;
+
+    auto draw_line = [&](vec_t a, vec_t b, ImU32 color) {
+        if (!ClipLine(a, b, frustum)) {
+            return;
+        }
+        float thickness = 2.f;
+
+        gContext.mDrawList->AddLine(worldToPos(a, view_projection), worldToPos(b, view_projection), color, thickness);
+    };
+
+    draw_line(makeVect(-p_length, 0, 0), makeVect(p_length, 0, 0), IM_COL32(0x90, 0x30, 0x30, 0xFF));
+    draw_line(makeVect(0, -p_length, 0), makeVect(0, p_length, 0), IM_COL32(0x30, 0x90, 0x30, 0xFF));
+    draw_line(makeVect(0, 0, -p_length), makeVect(0, 0, p_length), IM_COL32(0x30, 0x30, 0x90, 0xFF));
+}
+
+void DrawGrid(const glm::mat4& p_projection_view_matrix, const glm::mat4& p_matrix, const float p_grid_size, GridPlane p_plane) {
+    matrix_t view_projection = *(matrix_t*)glm::value_ptr(p_projection_view_matrix);
+
+    vec_t frustum[6];
+    ComputeFrustumPlanes(frustum, view_projection.m16);
 
     enum Dir : uint8_t {
         X = 1,
@@ -2555,7 +2575,7 @@ void DrawGrid(const glm::mat4& p_projection_view_matrix, const glm::mat4& p_matr
             thickness = (fmodf(fabsf(f), 10.f) < FLT_EPSILON) ? 1.5f : thickness;
             thickness = (fabsf(f) < FLT_EPSILON) ? 2.3f : thickness;
 
-            gContext.mDrawList->AddLine(worldToPos(point_a, res), worldToPos(point_b, res), color, thickness);
+            gContext.mDrawList->AddLine(worldToPos(point_a, view_projection), worldToPos(point_b, view_projection), color, thickness);
         }
     };
 

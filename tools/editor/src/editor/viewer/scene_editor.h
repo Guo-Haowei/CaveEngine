@@ -37,7 +37,7 @@ protected:
     std::shared_ptr<SceneDocument> m_document;
 
     std::array<CameraComponent, 2> m_cameras;
-    int m_camera_idx = 0;
+    mutable int m_camera_idx = 0;
 };
 
 }  // namespace cave

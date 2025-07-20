@@ -68,8 +68,7 @@ void SpriteAnimationEditor::DrawMainView(const CameraComponent& p_camera) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
-    Matrix4x4f identity(1.0f);
-    ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XY);
+    ImGuizmo::DrawAxes(proj_view);
 
     // m_document->FlushCommands();
 }
