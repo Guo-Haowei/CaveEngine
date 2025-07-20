@@ -69,8 +69,8 @@ void TileMapRenderer::CreateRenderData() {
     std::vector<Vector2f> uvs;
     std::vector<uint32_t> indices;
 
-    const auto& tiles = tile_map->GetTiles();
-    if (tiles.empty()) {
+    const auto& chunks = tile_map->GetTiles().chunks;
+    if (chunks.empty()) {
         m_visibility = false;
         return;
     }
@@ -78,49 +78,55 @@ void TileMapRenderer::CreateRenderData() {
 
     const auto& frames = tile_set->GetFrames();
 
-    vertices.reserve(tiles.size() * 4);
-    for (const auto& [key, tile_id] : tiles) {
-        if ((int)frames.size() <= tile_id) {
-            continue;
+    vertices.reserve((TILE_CHUNK_SIZE * TILE_CHUNK_SIZE));
+    for (const auto& [key, chunk_ptr] : chunks) {
+        const int16_t offset_x = key.x * TILE_CHUNK_SIZE;
+        const int16_t offset_y = key.y * TILE_CHUNK_SIZE;
+
+        const auto& chunk = chunk_ptr->tiles;
+        for (int16_t y = offset_y; y < offset_y + TILE_CHUNK_SIZE; ++y) {
+            for (int16_t x = offset_x; x < offset_x + TILE_CHUNK_SIZE; ++x) {
+                const TileId& tile_id = chunk[y - offset_y][x - offset_x];
+                if ((int)frames.size() <= tile_id) {
+                    continue;
+                }
+
+                const float s = 1.0f;
+                float x0 = s * x;
+                float y0 = s * y;
+                float x1 = s * (x + 1);
+                float y1 = s * (y + 1);
+                Vector2f bottom_left{ x0, y0 };
+                Vector2f bottom_right{ x1, y0 };
+                Vector2f top_left{ x0, y1 };
+                Vector2f top_right{ x1, y1 };
+                Vector2f uv_min = frames[tile_id].GetMin();
+                Vector2f uv_max = frames[tile_id].GetMax();
+                Vector2f uv0 = uv_min;
+                Vector2f uv1 = { uv_max.x, uv_min.y };
+                Vector2f uv2 = { uv_min.x, uv_max.y };
+                Vector2f uv3 = uv_max;
+
+                const uint32_t offset = (uint32_t)vertices.size();
+                vertices.push_back(bottom_left);
+                vertices.push_back(bottom_right);
+                vertices.push_back(top_left);
+                vertices.push_back(top_right);
+
+                uvs.push_back(uv0);
+                uvs.push_back(uv1);
+                uvs.push_back(uv2);
+                uvs.push_back(uv3);
+
+                indices.push_back(0 + offset);
+                indices.push_back(1 + offset);
+                indices.push_back(3 + offset);
+
+                indices.push_back(0 + offset);
+                indices.push_back(3 + offset);
+                indices.push_back(2 + offset);
+            }
         }
-
-        const int16_t x = key.x;
-        const int16_t y = key.y;
-
-        const float s = 1.0f;
-        float x0 = s * x;
-        float y0 = s * y;
-        float x1 = s * (x + 1);
-        float y1 = s * (y + 1);
-        Vector2f bottom_left{ x0, y0 };
-        Vector2f bottom_right{ x1, y0 };
-        Vector2f top_left{ x0, y1 };
-        Vector2f top_right{ x1, y1 };
-        Vector2f uv_min = frames[tile_id].GetMin();
-        Vector2f uv_max = frames[tile_id].GetMax();
-        Vector2f uv0 = uv_min;
-        Vector2f uv1 = { uv_max.x, uv_min.y };
-        Vector2f uv2 = { uv_min.x, uv_max.y };
-        Vector2f uv3 = uv_max;
-
-        const uint32_t offset = (uint32_t)vertices.size();
-        vertices.push_back(bottom_left);
-        vertices.push_back(bottom_right);
-        vertices.push_back(top_left);
-        vertices.push_back(top_right);
-
-        uvs.push_back(uv0);
-        uvs.push_back(uv1);
-        uvs.push_back(uv2);
-        uvs.push_back(uv3);
-
-        indices.push_back(0 + offset);
-        indices.push_back(1 + offset);
-        indices.push_back(3 + offset);
-
-        indices.push_back(0 + offset);
-        indices.push_back(3 + offset);
-        indices.push_back(2 + offset);
     }
 
     uint32_t count = (uint32_t)indices.size();
