@@ -1,9 +1,5 @@
 #pragma once
 
-namespace cave {
-class Archive;
-}
-
 namespace cave::ecs {
 
 class Entity {

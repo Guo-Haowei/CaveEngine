@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/scene/scene_component.h"
+#include "engine/assets/mesh_asset.h"
 
 namespace cave {
 

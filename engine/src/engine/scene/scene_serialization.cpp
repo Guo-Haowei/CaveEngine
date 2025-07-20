@@ -214,35 +214,6 @@ void ArmatureComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(inverseBindMatrices);
 }
 
-void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(flags);
-    p_archive.ArchiveValue(indices);
-    p_archive.ArchiveValue(positions);
-    p_archive.ArchiveValue(normals);
-    p_archive.ArchiveValue(tangents);
-    p_archive.ArchiveValue(texcoords_0);
-    p_archive.ArchiveValue(texcoords_1);
-    p_archive.ArchiveValue(joints_0);
-    p_archive.ArchiveValue(weights_0);
-    p_archive.ArchiveValue(color_0);
-    CRASH_NOW();
-    // p_archive.ArchiveValue(subsets);
-    p_archive.ArchiveValue(armatureId);
-}
-
-void MeshComponent::OnDeserialized() {
-    CreateRenderData();
-
-    for (auto& it : subsets) {
-        if (!it.material_id.IsNull()) {
-            auto handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(it.material_id);
-            if (handle.is_some()) {
-                it.material_handle = handle.unwrap_unchecked();
-            }
-        }
-    }
-}
-
 void LightComponent::Serialize(Archive& p_archive, uint32_t p_version) {
     DEV_ASSERT(p_version > 14);
 
