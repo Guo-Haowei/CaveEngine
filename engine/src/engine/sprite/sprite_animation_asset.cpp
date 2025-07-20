@@ -4,6 +4,13 @@
 
 namespace cave {
 
+void SpriteAnimationAsset::SetGuid(const Guid& p_guid) {
+    AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
+                                      p_guid,
+                                      m_image_guid,
+                                      m_image_handle.RawHandle());
+}
+
 auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     auto res = p_meta.SaveToDisk(this);
     if (!res) {

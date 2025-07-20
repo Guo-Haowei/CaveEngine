@@ -1,7 +1,9 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
 #include "engine/sprite/sprite_animation_asset.h"
+
 #include "editor/viewer/viewer_tab.h"
+#include "editor/widgets/sprite_selector.h"
 
 namespace cave {
 
@@ -28,10 +30,14 @@ public:
 
     void DrawMainView(const CameraComponent& p_camera) override;
 
+    void DrawAssetInspector() override;
+
     Document& GetDocument() const override;
 
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
+
+    void ImageSourceDropTarget();
 
     AssetRegistry* m_asset_registry = nullptr;
 
@@ -40,6 +46,8 @@ protected:
     std::unique_ptr<CameraComponent> m_camera;
 
     std::shared_ptr<SpriteAnimationDocument> m_document;
+
+    SpriteSelector m_sprite_selector;
 };
 
 }  // namespace cave

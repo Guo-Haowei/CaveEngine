@@ -20,18 +20,11 @@ void SpriteSelector::EditSprite() {
     }
 }
 
-void SpriteSelector::TilePaint() {
+void SpriteSelector::SelectSprite(const ImageAsset& p_image) {
     ImGui::Text("TileSet");
 
-    if (!m_handle.IsReady()) {
-        return;
-    }
-
-    const ImageAsset* image = m_handle.Get();
-    DEV_ASSERT(image);
-
-    const uint32_t width = image->width;
-    const uint32_t height = image->height;
+    const uint32_t width = p_image.width;
+    const uint32_t height = p_image.height;
     if (!width || !height) {
         return;
     }
@@ -46,7 +39,7 @@ void SpriteSelector::TilePaint() {
 
     // Draw tileset
     draw_list->AddImage(
-        image->gpu_texture->GetHandle(),
+        p_image.gpu_texture ? p_image.gpu_texture->GetHandle() : 0,
         cursor,
         cursor + tile_size,
         ImVec2(0, 0), ImVec2(1, 1),

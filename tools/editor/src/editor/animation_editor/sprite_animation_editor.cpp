@@ -73,6 +73,84 @@ void SpriteAnimationEditor::DrawMainView(const CameraComponent& p_camera) {
     // m_document->FlushCommands();
 }
 
+void SpriteAnimationEditor::ImageSourceDropTarget() {
+    auto asset = m_document->GetHandle<SpriteAnimationAsset>().Get();
+    DEV_ASSERT(asset);
+
+    ImGui::Text("Source Image");
+
+    /// @TODO: generalize
+    ImVec2 region_size(128, 128);
+    ImVec2 image_size = region_size;
+
+    uint64_t texture_handle = 0;
+    auto image_handle = asset->GetImageHandle();
+    if (auto image = image_handle.Get(); image) {
+        texture_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
+        image_size = ImVec2(static_cast<float>(image->width),
+                            static_cast<float>(image->height));
+    }
+
+    if (texture_handle == 0) {
+        auto checkerboard = m_editor.context.checkerboard_handle.Get();
+        DEV_ASSERT(checkerboard);
+        texture_handle = checkerboard->gpu_texture->GetHandle();
+    }
+
+    CenteredImage(texture_handle, image_size, region_size);
+
+    DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
+        DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
+
+        asset->SetGuid(p_handle.GetGuid());
+    });
+    /// @TODO: generalize
+}
+
+void SpriteAnimationEditor::DrawAssetInspector() {
+    auto handle = m_document->GetHandle<SpriteAnimationAsset>().Get();
+    DEV_ASSERT(handle);
+
+    auto image_handle = handle->GetImageHandle();
+
+    std::vector<AssetChildPanel> descs = {
+        {
+            "LayerOverview",
+            360,
+            [&]() {
+                if (ImGui::BeginTabBar("##MyTabs1")) {
+                    if (ImGui::BeginTabItem("Animation")) {
+                        ImageSourceDropTarget();
+                        ImGui::EndTabItem();
+                    }
+                    ImGui::EndTabBar();
+                }
+            },
+        },
+        {
+            "SpriteTab",
+            360,
+            [&]() {
+                m_sprite_selector.EditSprite();
+            },
+        },
+        {
+            "PaintTab",
+            0,
+            [&]() {
+                ImageAsset* image = image_handle.Get();
+                if (image) {
+                    m_sprite_selector.SelectSprite(*image);
+                }
+            },
+        }
+    };
+
+    const float full_width = ImGui::GetContentRegionAvail().x;
+
+    DrawContents(full_width, descs);
+}
+
 Document& SpriteAnimationEditor::GetDocument() const {
     return *m_document.get();
 }
@@ -83,7 +161,6 @@ bool SpriteAnimationEditor::HandleInput(const InputEvent* p_input_event) {
 }
 
 const CameraComponent& SpriteAnimationEditor::GetActiveCameraInternal() const {
-    DEV_ASSERT(m_camera);
     return *m_camera.get();
 }
 

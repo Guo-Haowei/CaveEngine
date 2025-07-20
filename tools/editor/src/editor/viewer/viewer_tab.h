@@ -27,7 +27,7 @@ public:
 
     void DrawToolBar();
     virtual void DrawMainView(const CameraComponent& p_camera);
-    virtual void DrawAssetInspector();
+    virtual void DrawAssetInspector() = 0;
 
     virtual Document& GetDocument() const = 0;
 

@@ -28,6 +28,7 @@ enum {
 
 struct EditorContext {
     float timestep{ 0 };
+    Handle<ImageAsset> checkerboard_handle;
 };
 
 class EditorLayer : public Layer, public IInputHandler {

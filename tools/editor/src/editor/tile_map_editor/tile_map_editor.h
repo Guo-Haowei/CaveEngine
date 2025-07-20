@@ -50,10 +50,6 @@ protected:
     // @TODO: refactor
     void TileMapLayerOverview(TileMapAsset& p_tile_map);
 
-    Handle<ImageAsset> m_checkerboard_handle;
-
-    AssetRegistry* m_asset_registry;
-
     std::shared_ptr<Scene> m_tmp_scene;
 
     std::unique_ptr<CameraComponent> m_camera;

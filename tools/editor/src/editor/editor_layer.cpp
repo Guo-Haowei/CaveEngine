@@ -3,6 +3,17 @@
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
+#include "engine/assets/image_asset.h"
+#include "engine/core/string/string_utils.h"
+#include "engine/input/input_event.h"
+#include "engine/renderer/graphics_manager.h"
+#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/input_manager.h"
+#include "engine/runtime/layer.h"
+#include "engine/runtime/physics_manager.h"
+#include "engine/runtime/scene_manager_interface.h"
+#include "engine/runtime/script_manager.h"
+
 #include "editor/document/document.h"
 #include "editor/editor_command.h"
 #include "editor/panels/asset_inspector.h"
@@ -16,15 +27,6 @@
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"
-#include "engine/input/input_event.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/input_manager.h"
-#include "engine/runtime/layer.h"
-#include "engine/runtime/physics_manager.h"
-#include "engine/runtime/scene_manager_interface.h"
-#include "engine/runtime/script_manager.h"
 
 // @NOTE: include dvars at last
 #include "engine/renderer/graphics_dvars.h"
@@ -145,6 +147,9 @@ EditorLayer::EditorLayer()
 
 void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
+
+    context.checkerboard_handle =
+        m_app->GetAssetRegistry()->FindByPath<ImageAsset>("@res://images/checkerboard.png").unwrap();
 
     m_app->GetInputManager()->PushInputHandler(this);
 

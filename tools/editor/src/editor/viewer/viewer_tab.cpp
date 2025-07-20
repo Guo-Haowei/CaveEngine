@@ -136,7 +136,4 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     }
 }
 
-void ViewerTab::DrawAssetInspector() {
-}
-
 }  // namespace cave

@@ -4,7 +4,6 @@
 
 #include "engine/assets/image_asset.h"
 #include "engine/input/input_event.h"
-#include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
@@ -24,9 +23,6 @@ TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
 
     m_camera = std::make_unique<CameraComponent>();
     ViewerTab::CreateDefaultCamera2D(*m_camera.get());
-
-    m_asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-    m_checkerboard_handle = m_asset_registry->FindByPath<ImageAsset>("@res://images/checkerboard.png").unwrap();
 }
 
 void TileMapEditor::OnCreate(const Guid& p_guid) {
@@ -113,8 +109,10 @@ void TileMapEditor::DrawAssetInspector() {
             0,
             [&]() {
                 if (sprite) {
-                    m_sprite_selector.m_handle = sprite->GetHandle();
-                    m_sprite_selector.TilePaint();
+                    auto handle = sprite->GetHandle();
+                    if (auto image = handle.Get(); image) {
+                        m_sprite_selector.SelectSprite(*image);
+                    }
                 }
             },
         }
@@ -178,9 +176,6 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     }
     ImGui::Separator();
 
-    auto checkerboard = m_checkerboard_handle.Get();
-    DEV_ASSERT(checkerboard);
-
     auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
     DEV_ASSERT(tool);
 
@@ -225,23 +220,26 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         // next line
 
+        /// @TODO: generalize
         ImVec2 region_size(128, 128);
         ImVec2 image_size = region_size;
 
-        uint64_t image_handle = 0;
+        uint64_t texture_handle = 0;
 
         if (auto sprite = layer.GetSpriteHandle().Get(); sprite) {
             if (auto image = sprite->GetHandle().Get(); image) {
-                image_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
+                texture_handle = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
                 image_size = ImVec2(static_cast<float>(image->width),
                                     static_cast<float>(image->height));
             }
         }
-        if (image_handle == 0) {
-            image_handle = checkerboard->gpu_texture->GetHandle();
+        if (texture_handle == 0) {
+            auto checkerboard = m_editor.context.checkerboard_handle.Get();
+            DEV_ASSERT(checkerboard);
+            texture_handle = checkerboard->gpu_texture->GetHandle();
         }
 
-        CenteredImage(image_handle, image_size, region_size);
+        CenteredImage(texture_handle, image_size, region_size);
 
         if (ImGui::IsItemClicked()) {
             // tool->SetActiveLayer(layer_id);
@@ -251,6 +249,7 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
             DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Sprite);
             layer.SetSpriteGuid(p_handle.GetGuid());
         });
+        /// @TODO: generalize
 
         ImGui::Dummy(ImVec2(8, 8));
 
