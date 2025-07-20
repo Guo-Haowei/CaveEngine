@@ -75,6 +75,8 @@ void TileSetAsset::UpdateFrames() {
             m_frames.push_back(Rect({ u0, v0 }, { u1, v1 }));
         }
     }
+
+    m_dirty = true;
 }
 
 auto TileSetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {

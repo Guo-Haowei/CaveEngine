@@ -96,10 +96,10 @@ void SpriteAnimationEditor::ImageSourceDropTarget() {
 }
 
 void SpriteAnimationEditor::DrawAssetInspector() {
-    auto handle = m_document->GetHandle<SpriteAnimationAsset>().Get();
-    DEV_ASSERT(handle);
+    auto sprite_animation = m_document->GetHandle<SpriteAnimationAsset>().Get();
+    DEV_ASSERT(sprite_animation);
 
-    auto image_handle = handle->GetImageHandle();
+    auto image_handle = sprite_animation->GetImageHandle();
 
     std::vector<AssetChildPanel> descs = {
         {
@@ -119,7 +119,7 @@ void SpriteAnimationEditor::DrawAssetInspector() {
             "SpriteTab",
             360,
             [&]() {
-                m_sprite_selector.EditSprite();
+                m_sprite_selector.EditSprite(nullptr, nullptr);
             },
         },
         {
@@ -128,7 +128,7 @@ void SpriteAnimationEditor::DrawAssetInspector() {
             [&]() {
                 ImageAsset* image = image_handle.Get();
                 if (image) {
-                    m_sprite_selector.SelectSprite(*image);
+                    m_sprite_selector.SelectSprite(*image, nullptr, nullptr);
                 }
             },
         }

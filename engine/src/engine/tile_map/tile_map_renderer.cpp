@@ -36,10 +36,6 @@ void TileMapRenderer::CreateRenderData() {
         return;
     }
 
-    if (tile_map->GetRevision() == m_revision) {
-        return;
-    }
-
     // @TODO: update guid
     if (m_cache.tile_set_handle.GetGuid() == Guid::Null()) {
         auto tile_set_handle = AssetRegistry::GetSingleton().FindByGuid<TileSetAsset>(tile_map->GetTileSetGuid());
@@ -50,6 +46,20 @@ void TileMapRenderer::CreateRenderData() {
 
     TileSetAsset* tile_set = m_cache.tile_set_handle.Get();
     if (!tile_set) {
+        return;
+    }
+
+    bool need_update = false;
+    if (tile_set->IsDirty()) {
+        tile_set->SetDirty(false);
+        need_update = true; 
+    }
+
+    if (tile_map->GetRevision() != m_revision) {
+        need_update = true;
+    }
+
+    if (!need_update) {
         return;
     }
 

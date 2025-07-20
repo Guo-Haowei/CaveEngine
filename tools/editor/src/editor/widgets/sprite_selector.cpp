@@ -2,36 +2,51 @@
 
 #include "engine/assets/image_asset.h"
 
+#include "editor/widgets/widget.h"
+
 namespace cave {
 
-void SpriteSelector::EditSprite() {
+bool SpriteSelector::EditSprite(int* p_colomn, int* p_row) {
+    bool dirty = false;
     if (ImGui::BeginTabBar("TileSetModes")) {
         if (ImGui::BeginTabItem("Setup")) {
-            if (ImGui::InputInt("column", &m_column)) {
-                m_column = std::max(m_column, 1);
+            if (!p_colomn) {
+                p_colomn = &m_column;
             }
-            if (ImGui::InputInt("row", &m_row)) {
-                m_row = std::max(m_row, 1);
+            if (!p_row) {
+                p_row = &m_row;
+            }
+            if (ImGui::InputInt("column", p_colomn)) {
+                *p_colomn = std::max(*p_colomn, 1);
+                dirty = true;
+            }
+            if (ImGui::InputInt("row", p_row)) {
+                *p_row = std::max(*p_row, 1);
+                dirty = true;
             }
 
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
     }
+
+    m_column = *p_colomn;
+    m_row = *p_row;
+    return dirty;
 }
 
-void SpriteSelector::SelectSprite(const ImageAsset& p_image) {
-    ImGui::Text("TileSet");
+void SpriteSelector::SelectSprite(const ImageAsset& p_image,
+                                  const int* p_colomn,
+                                  const int* p_row) {
+    ImGui::Text("Sprite");
+    DrawDragFloat("scale", m_zoom, 0.01f, 0.1f, 5.0f);
 
-    const uint32_t width = p_image.width;
-    const uint32_t height = p_image.height;
-    if (!width || !height) {
-        return;
-    }
+    const float width = m_zoom * p_image.width;
+    const float height = m_zoom * p_image.height;
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     ImVec2 cursor = ImGui::GetCursorScreenPos();
-    ImVec2 tile_size((float)width, (float)height);
+    ImVec2 tile_size(width, height);
 
     ImGui::InvisibleButton("TileClickable", tile_size);  // enables interaction
     bool hovered = ImGui::IsItemHovered();
@@ -45,11 +60,13 @@ void SpriteSelector::SelectSprite(const ImageAsset& p_image) {
         ImVec2(0, 0), ImVec2(1, 1),
         IM_COL32(255, 255, 255, 255));
 
-    const int num_col = m_column;
-    const int num_row = m_row;
+    const int num_col = p_colomn ? *p_colomn : m_column;
+    const int num_row = p_row ? *p_row : m_row;
+    m_column = num_col;
+    m_row = num_row;
 
-    const float cell_w = static_cast<float>(width) / num_col;
-    const float cell_h = static_cast<float>(height) / num_row;
+    const float cell_w = width / num_col;
+    const float cell_h = height / num_row;
 
     if (hovered && clicked) {
         ImVec2 mouse_pos = ImGui::GetMousePos();

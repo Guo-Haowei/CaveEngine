@@ -81,7 +81,7 @@ void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {
 
 void TileMapEditor::DrawAssetInspector() {
     TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-    TileSetAsset* sprite = tile_map->GetTileSetHandle().Get();
+    TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
 
     std::vector<AssetChildPanel> descs = {
         {
@@ -101,17 +101,24 @@ void TileMapEditor::DrawAssetInspector() {
             "SpriteTab",
             360,
             [&]() {
-                m_sprite_selector.EditSprite();
+                int column = tile_set->GetCol();
+                int row = tile_set->GetRow();
+                if (m_sprite_selector.EditSprite(&column, &row)) {
+                    tile_set->SetCol(column);
+                    tile_set->SetRow(row);
+                }
             },
         },
         {
             "PaintTab",
             0,
             [&]() {
-                if (sprite) {
-                    auto handle = sprite->GetHandle();
+                if (tile_set) {
+                    auto handle = tile_set->GetHandle();
+                    const int column = tile_set->GetCol();
+                    const int row = tile_set->GetRow();
                     if (auto image = handle.Get(); image) {
-                        m_sprite_selector.SelectSprite(*image);
+                        m_sprite_selector.SelectSprite(*image, &column, &row);
                     }
                 }
             },

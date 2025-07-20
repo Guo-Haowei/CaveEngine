@@ -286,8 +286,6 @@ void CenteredImage(const ImageAsset* p_image,
 
     ImGui::BeginChild("CenteredImageRegion", p_background_region, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-    // ImGui::SetCursorPos(offset);
-
     ImVec2 pos = ImGui::GetCursorScreenPos();
 
     ImGui::GetWindowDrawList()->AddImage(

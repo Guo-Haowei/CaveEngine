@@ -33,6 +33,7 @@ class TileSetAsset : public IAsset {
     /// Non serialized
     std::vector<Rect> m_frames;  // frames are calculated
     Handle<ImageAsset> m_image_handle;
+    bool m_dirty;
 
 public:
     uint32_t GetRow() const { return m_row; }
@@ -56,6 +57,9 @@ public:
     const Guid& GetImageGuid() const { return m_image_guid; }
 
     const auto& GetFrames() const { return m_frames; }
+
+    bool IsDirty() const { return m_dirty; }
+    void SetDirty(bool p_dirty = true) { m_dirty = p_dirty; }
 
     std::vector<Guid> GetDependencies() const override;
 
