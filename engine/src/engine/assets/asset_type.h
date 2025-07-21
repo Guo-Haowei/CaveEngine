@@ -4,8 +4,7 @@ namespace cave {
 
 #define ASSET_TYPE_LIST                        \
     ASSET_TYPE(Image, "image")                 \
-    ASSET_TYPE(Binary, "binary")               \
-    ASSET_TYPE(Text, "text")                   \
+    ASSET_TYPE(Blob, "blob")                   \
     ASSET_TYPE(SpriteAnimation, "sprite_anim") \
     ASSET_TYPE(TileSet, "tileset")             \
     ASSET_TYPE(TileMap, "tilemap")             \
@@ -33,24 +32,5 @@ DEFINE_ENUM_BITWISE_OPERATIONS(AssetType);
 const char* ToString(AssetType p_type);
 
 AssetType AssetTypeFromString(std::string_view p_string);
-
-// class AssetType {
-// public:
-//
-//     AssetType(Type type)
-//         : m_type(type) {
-//     }
-//
-//     const char* ToString() const;
-//
-//     bool operator==(const AssetType& p_rhs) const {
-//         return m_type == p_rhs.m_type;
-//     }
-//
-//     uint8_t GetData() const { return m_type; }
-//
-// private:
-//     Type m_type;
-// };
 
 }  // namespace cave

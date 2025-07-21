@@ -1,6 +1,6 @@
 #include "tile_map_asset.h"
 
-#include "engine/assets/assets.h"
+// #include "engine/assets/blob_asset.h"
 #include "engine/assets/tile_set_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/runtime/asset_registry.h"

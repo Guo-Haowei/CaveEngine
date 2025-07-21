@@ -13,7 +13,7 @@
 #include "editor/tile_map_editor/tile_map_document.h"
 
 // @TODO: refactor
-#include "engine/assets/assets.h"
+// #include "engine/assets/blob_asset.h"
 #include "engine/assets/tile_set_asset.h"
 
 namespace cave {

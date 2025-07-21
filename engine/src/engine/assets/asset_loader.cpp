@@ -1,6 +1,6 @@
 #include "asset_loader.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/blob_asset.h"
 #include "engine/assets/image_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
@@ -53,26 +53,8 @@ auto BufferAssetLoader::Load() -> Result<AssetRef> {
     std::vector<char> buffer;
     buffer.resize(size);
     file_access->ReadBuffer(buffer.data(), size);
-    auto file = new BufferAsset;
-    file->buffer = std::move(buffer);
-    return AssetRef(file);
-}
-
-auto TextAssetLoader::Load() -> Result<AssetRef> {
-    auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    std::shared_ptr<FileAccess> file_access = *res;
-
-    const size_t size = file_access->GetLength();
-    std::vector<char> buffer;
-    buffer.resize(size);
-    file_access->ReadBuffer(buffer.data(), size);
-
-    auto file = new TextAsset;
-    file->source = std::string(buffer.begin(), buffer.end());
+    auto file = new BlobAsset;
+    file->SetBlob(std::move(buffer));
     return AssetRef(file);
 }
 

@@ -1,6 +1,6 @@
 #include "asset_meta_data.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/asset_interface.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/serialization/yaml_include.h"
@@ -39,11 +39,13 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     auto extension = StringUtils::Extension(p_path);
 
     // @TODO: [SCRUM-222] refactor this part
-    AssetType type = AssetType::Binary;
+    AssetType type = AssetType::Blob;
     if (extension == ".png" || extension == ".jpg" || extension == ".hdr") {
         type = AssetType::Image;
     } else if (extension == ".ttf") {
-        type = AssetType::Binary;
+        type = AssetType::Blob;
+    } else if (extension == ".lua") {
+        type = AssetType::Blob;
     } else if (extension == ".tileset") {
         type = AssetType::TileSet;
     } else if (extension == ".tilemap") {

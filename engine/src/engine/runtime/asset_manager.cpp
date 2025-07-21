@@ -4,7 +4,7 @@
 #include <fstream>
 
 // @TODO: get rid of this file
-#include "engine/assets/assets.h"
+// #include "engine/assets/blob_asset.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/assets/image_asset.h"
 #include "engine/assets/material_asset.h"
@@ -87,7 +87,6 @@ static auto LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) -> Result<Asse
         return nullptr;  // not an error
     }
 
-    asset->m_entry = p_entry;
     if (auto res = asset->LoadFromDisk(p_entry->metadata); !res) {
         return CAVE_ERROR(res.error());
     }
@@ -107,12 +106,14 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     IAssetLoader::RegisterLoader(".obj", AssimpAssetLoader::CreateLoader);
 #endif
 
-    IAssetLoader::RegisterLoader(".lua", TextAssetLoader::CreateLoader);
+    IAssetLoader::RegisterLoader(".lua", BufferAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".ttf", BufferAssetLoader::CreateLoader);
 
+#if 0
     IAssetLoader::RegisterLoader(".h", BufferAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".hlsl", BufferAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".glsl", BufferAssetLoader::CreateLoader);
+#endif
 
     IAssetLoader::RegisterLoader(".png", ImageAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".jpg", ImageAssetLoader::CreateLoader);

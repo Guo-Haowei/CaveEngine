@@ -20,26 +20,17 @@ public:                                                  \
 // @TODO: make it a class
 struct IAsset {
     const AssetType type;
-    std::weak_ptr<AssetEntry> m_entry;
 
     IAsset(AssetType p_type)
         : type(p_type) {}
 
     virtual ~IAsset() = default;
 
-    [[nodiscard]] virtual auto LoadFromDisk(const AssetMetaData&) -> Result<void> {
-        // CRASH_NOW_MSG("TODO: implmenet");
-        return Result<void>();
-    }
+    virtual Result<void> LoadFromDisk(const AssetMetaData&) = 0;
 
-    [[nodiscard]] virtual auto SaveToDisk(const AssetMetaData&) const -> Result<void> {
-        // CRASH_NOW_MSG("TODO: implmenet");
-        return Result<void>();
-    }
+    virtual Result<void> SaveToDisk(const AssetMetaData&) const = 0;
 
-    [[nodiscard]] virtual std::vector<Guid> GetDependencies() const {
-        return {};
-    }
+    virtual std::vector<Guid> GetDependencies() const = 0;
 };
 
 }  // namespace cave

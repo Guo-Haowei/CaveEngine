@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-#include "engine/assets/assets.h"
+#include "engine/assets/blob_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager.h"
@@ -33,15 +33,15 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
 
     {
         const std::string path = "@res://fonts/DroidSans.ttf";
-        auto res = m_app->GetAssetRegistry()->FindByPath<BufferAsset>(path).unwrap();
+        auto res = m_app->GetAssetRegistry()->FindByPath<BlobAsset>(path).unwrap();
         auto font = res.Wait();
 
         if (DEV_VERIFY(font)) {
             ImFontConfig font_cfg;
             font_cfg.FontDataOwnedByAtlas = false;
 
-            void* data = font->buffer.data();
-            if (!io.Fonts->AddFontFromMemoryTTF(data, (int)font->buffer.size(), base_font_size, &font_cfg)) {
+            void* data = const_cast<char*>(font->GetBufferPoiner());
+            if (!io.Fonts->AddFontFromMemoryTTF(data, (int)font->GetBufferLength(), base_font_size, &font_cfg)) {
                 return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create font '{}'", path);
             }
         }
@@ -49,7 +49,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
 
     {
         const std::string path = "@res://fonts/" FONT_ICON_FILE_NAME_FAS;
-        auto res = m_app->GetAssetRegistry()->FindByPath<BufferAsset>(path).unwrap();
+        auto res = m_app->GetAssetRegistry()->FindByPath<BlobAsset>(path).unwrap();
         auto font = res.Wait();
 
         if (DEV_VERIFY(font)) {
@@ -61,8 +61,8 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
             icons_config.GlyphMinAdvanceX = icon_font_size;
             icons_config.FontDataOwnedByAtlas = false;
 
-            void* data = (void*)font->buffer.data();
-            if (!io.Fonts->AddFontFromMemoryTTF(data, (int)font->buffer.size(), base_font_size, &icons_config, icons_ranges)) {
+            void* data = const_cast<char*>(font->GetBufferPoiner());
+            if (!io.Fonts->AddFontFromMemoryTTF(data, (int)font->GetBufferLength(), base_font_size, &icons_config, icons_ranges)) {
                 return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create font '{}'", path);
             }
         }
