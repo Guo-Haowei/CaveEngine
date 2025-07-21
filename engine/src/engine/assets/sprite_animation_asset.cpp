@@ -60,6 +60,21 @@ auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Resu
     return SaveYaml(p_meta.path, yaml);
 }
 
+void SpriteAnimationAsset::OnDeserialized() {
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
+    if (handle.is_some()) {
+        m_image_handle = handle.unwrap_unchecked();
+    }
+
+    for (auto& it : m_clips) {
+        float& total = it.second.m_total_duration;
+        total = 0.0f;
+        for (float duration : it.second.m_durations) {
+            total += duration;
+        }
+    }
+}
+
 auto SpriteAnimationAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     YAML::Node root;
 
@@ -84,10 +99,7 @@ auto SpriteAnimationAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<v
         deserializer.LeaveKey();
     }
 
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
-    if (handle.is_some()) {
-        m_image_handle = handle.unwrap_unchecked();
-    }
+    OnDeserialized();
     return Result<void>();
 }
 

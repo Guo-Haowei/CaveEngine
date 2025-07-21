@@ -38,13 +38,11 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
         auto id = EntityFactory::CreateTransformEntity(*scene, "test_sprite");
         scene->AttachChild(id);
 
-        auto test_image = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://player/player.png").unwrap();
-
-        SpriteRenderer& sprite_renderer = scene->Create<SpriteRenderer>(id);
-        sprite_renderer.SetImage(test_image.GetGuid());
+        scene->Create<SpriteRenderer>(id);
 
         AnimatorComponent& animator = scene->Create<AnimatorComponent>(id);
         animator.SetAnimGuid(p_guid);
+        animator.SetClip("walk", true, 1.0f);
 
         return scene;
     });

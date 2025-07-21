@@ -30,8 +30,10 @@ VS_OUTPUT_UV main(uint vert_id : SV_VertexID) {
 
     VS_OUTPUT_UV output;
     output.position = position;
-    output.uv = 0.5f * pos + float2(0.5f, 0.5f);
-    // flip y
-    output.uv.y = 1.0f - output.uv.y;
+    float2 local_uv = 0.5f * pos + float2(0.5f, 0.5f);
+    // output.uv.y = 1.0f - output.uv.y;
+
+    // apply sprite uv
+    output.uv = c_uv_rect.xy + local_uv * (c_uv_rect.zw - c_uv_rect.xy);
     return output;
 }

@@ -42,6 +42,8 @@ public:
     void SetAnimGuid(const Guid& p_guid);
     const Guid& GetAnimGuid() const { return m_anim_id; }
 
+    const Handle<SpriteAnimationAsset>& GetAnimHandle() { return m_anim_handle; }
+
     void SetPlaying(bool p_playing = true) { m_playing = p_playing; }
     bool IsPlaying() const { return m_playing; }
 

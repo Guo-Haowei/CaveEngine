@@ -17,6 +17,8 @@ class SpriteAnimationClip {
     CAVE_PROP(type = boolean, hint = toggle)
     bool m_loop = true;
 
+    float m_total_duration = 1.0f;
+
 public:
     SpriteAnimationClip() = default;
 
@@ -26,9 +28,13 @@ public:
 
     void SetAnimationLength(float p_length);
 
+    float GetTotalDuration() const { return m_total_duration; }
+
     const std::vector<Rect>& GetFrames() const { return m_frames; }
 
     const std::vector<float>& GetDurations() const { return m_durations; }
+
+    friend class SpriteAnimationAsset;
 };
 
 class SpriteAnimationAsset : public IAsset {
@@ -63,6 +69,8 @@ public:
     std::vector<Guid> GetDependencies() const {
         return { m_image_guid };
     }
+
+    void OnDeserialized();
 };
 
 }  // namespace cave
