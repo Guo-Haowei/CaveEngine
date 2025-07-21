@@ -1,8 +1,7 @@
 #include "tile_map_renderer.h"
 
-#include "tile_map_asset.h"
-
-#include "engine/tile_map/tile_set_asset.h"
+#include "engine/assets/tile_map_asset.h"
+#include "engine/assets/tile_set_asset.h"
 #include "engine/renderer/gpu_resource.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/graphics_manager_interface.h"
@@ -102,10 +101,12 @@ void TileMapRenderer::CreateRenderData() {
                 Vector2f top_right{ x1, y1 };
                 Vector2f uv_min = frames[tile_id].GetMin();
                 Vector2f uv_max = frames[tile_id].GetMax();
-                Vector2f uv0 = uv_min;
-                Vector2f uv1 = { uv_max.x, uv_min.y };
-                Vector2f uv2 = { uv_min.x, uv_max.y };
-                Vector2f uv3 = uv_max;
+
+                // manually flip y here
+                Vector2f uv0 = { uv_min.x, uv_max.y };
+                Vector2f uv1 = { uv_max.x, uv_max.y };
+                Vector2f uv2 = { uv_min.x, uv_min.y };
+                Vector2f uv3 = { uv_max.x, uv_min.y };
 
                 const uint32_t offset = (uint32_t)vertices.size();
                 vertices.push_back(bottom_left);

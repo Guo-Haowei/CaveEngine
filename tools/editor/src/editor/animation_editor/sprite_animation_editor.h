@@ -1,6 +1,7 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
-#include "engine/sprite/sprite_animation_asset.h"
+#include "engine/assets/sprite_animation_asset.h"
+#include "engine/ecs/entity.h"
 
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/sprite_selector.h"
@@ -36,6 +37,8 @@ public:
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
+    void DrawFrameSelector(ImageAsset& p_image_asset);
+    void DrawTimeLine();
     void ImageSourceDropTarget();
 
     AssetRegistry* m_asset_registry = nullptr;
@@ -47,6 +50,10 @@ protected:
     std::shared_ptr<SpriteAnimationDocument> m_document;
 
     SpriteSelector m_sprite_selector;
+
+    std::string m_clip_name;
+
+    ecs::Entity m_animator_id;
 };
 
 }  // namespace cave

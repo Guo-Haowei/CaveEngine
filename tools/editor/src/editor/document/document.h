@@ -18,13 +18,15 @@ public:
 
     const Guid& GetGuid() const { return m_guid; }
 
-    bool IsDirty() const { return m_dirty; }
     bool Save();
 
     void Undo();
     void Redo();
     bool CanUndo() const;
     bool CanRedo() const;
+
+    bool IsDirty() const { return m_dirty; }
+    void SetDirty(float p_dirty = true) { m_dirty = p_dirty; }
 
 protected:
     Guid m_guid;

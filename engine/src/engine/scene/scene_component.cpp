@@ -7,46 +7,6 @@
 
 namespace cave {
 
-#pragma region MESH_COMPONENT
-template<typename T>
-static void InitVertexAttrib(MeshComponent::VertexAttribute& p_attrib, const std::vector<T>& p_buffer) {
-    p_attrib.offsetInByte = 0;
-    p_attrib.strideInByte = sizeof(p_buffer[0]);
-    p_attrib.elementCount = static_cast<uint32_t>(p_buffer.size());
-}
-
-void MeshComponent::CreateRenderData() {
-    // AABB
-    localBound.MakeInvalid();
-    for (MeshSubset& subset : subsets) {
-        subset.local_bound.MakeInvalid();
-        for (uint32_t i = 0; i < subset.index_count; ++i) {
-            const Vector3f& point = positions[indices[i + subset.index_offset]];
-            subset.local_bound.ExpandPoint(reinterpret_cast<const Vector3f&>(point));
-        }
-        subset.local_bound.MakeValid();
-        localBound.UnionBox(subset.local_bound);
-    }
-    // Attributes
-    for (int i = 0; i < std::to_underlying(VertexAttributeName::COUNT); ++i) {
-        attributes[i].attribName = static_cast<VertexAttributeName>(i);
-    }
-
-    InitVertexAttrib(attributes[std::to_underlying(VertexAttributeName::POSITION)], positions);
-    InitVertexAttrib(attributes[std::to_underlying(VertexAttributeName::NORMAL)], normals);
-    InitVertexAttrib(attributes[std::to_underlying(VertexAttributeName::TEXCOORD_0)], texcoords_0);
-    InitVertexAttrib(attributes[std::to_underlying(VertexAttributeName::TEXCOORD_1)], texcoords_1);
-    InitVertexAttrib(attributes[std::to_underlying(VertexAttributeName::TANGENT)], tangents);
-    InitVertexAttrib(attributes[std::to_underlying(VertexAttributeName::JOINTS_0)], joints_0);
-    InitVertexAttrib(attributes[std::to_underlying(VertexAttributeName::WEIGHTS_0)], weights_0);
-    InitVertexAttrib(attributes[std::to_underlying(VertexAttributeName::COLOR_0)], color_0);
-    return;
-}
-#pragma endregion MESH_COMPONENT
-
-#pragma region MATERIAL_COMPONENT
-#pragma endregion MATERIAL_COMPONENT
-
 #pragma region LUA_SCRIPT_COMPONENT
 LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view p_class_name) {
     if (DEV_VERIFY(!p_class_name.empty())) {
@@ -104,7 +64,7 @@ RigidBodyComponent& RigidBodyComponent::InitGhost() {
 }
 #pragma endregion RIGID_BODY_COMPONENT
 
-#pragma region MESH_EMITTER_COMPONENT
+#if 0
 void MeshEmitterComponent::Reset() {
     if ((int)particles.size() != maxMeshCount) {
         particles.resize(maxMeshCount);
@@ -132,13 +92,6 @@ void MeshEmitterComponent::UpdateParticle(Index p_index, float p_timestep) {
 
     p.position += p_timestep * p.velocity;
 }
-
-#pragma endregion MESH_EMITTER_COMPONENT
-
-#pragma region SOFT_BODY_COMPONENT
-#pragma endregion SOFT_BODY_COMPONENT
-
-#pragma region ENVIRONMENT_COMPONENT
-#pragma endregion ENVIRONMENT_COMPONENT
+#endif
 
 }  // namespace cave

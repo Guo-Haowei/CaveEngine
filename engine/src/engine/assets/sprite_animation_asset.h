@@ -1,25 +1,40 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
-#include "engine/assets/asset_interface.h"
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"
 
 namespace cave {
 
-struct SpriteAnimationClip {
+class SpriteAnimationClip {
     CAVE_META(SpriteAnimationClip)
 
-    CAVE_PROP(type = name)
-    std::string name;
-
-    CAVE_PROP(type = rect[])
-    std::vector<Rect> frames;
+    CAVE_PROP(type = box2[])
+    std::vector<Rect> m_frames;
 
     CAVE_PROP(type = f32[])
-    std::vector<float> durations;
+    std::vector<float> m_durations;
 
-    CAVE_PROP(type = boolean)
-    bool loop = true;
+    CAVE_PROP(type = boolean, hint = toggle)
+    bool m_loop = true;
+
+    float m_total_duration = 1.0f;
+
+public:
+    SpriteAnimationClip() = default;
+
+    SpriteAnimationClip(std::vector<Rect>&& p_frames, float p_length = 1.0f);
+
+    void SetFrames(std::vector<Rect>&& frames);
+
+    void SetAnimationLength(float p_length);
+
+    float GetTotalDuration() const { return m_total_duration; }
+
+    const std::vector<Rect>& GetFrames() const { return m_frames; }
+
+    const std::vector<float>& GetDurations() const { return m_durations; }
+
+    friend class SpriteAnimationAsset;
 };
 
 class SpriteAnimationAsset : public IAsset {
@@ -31,13 +46,16 @@ class SpriteAnimationAsset : public IAsset {
     Guid m_image_guid;
 
     CAVE_PROP()
-    std::unordered_map<std::string, SpriteAnimationClip> clips;
+    std::map<std::string, SpriteAnimationClip> m_clips;
 
-private:
     // Non serialized
     Handle<ImageAsset> m_image_handle;
 
 public:
+    bool AddClip(std::string&& p_name, std::vector<Rect>&& p_frames);
+
+    const auto& GetClips() const { return m_clips; }
+
     void SetGuid(const Guid& p_guid);
 
     const Guid& GetImageGuid() const { return m_image_guid; }
@@ -51,28 +69,8 @@ public:
     std::vector<Guid> GetDependencies() const {
         return { m_image_guid };
     }
+
+    void OnDeserialized();
 };
 
 }  // namespace cave
-
-#if 0
-
-struct SpriteAnimatorComponent {
-    Handle<SpriteAnimationAsset> asset;
-    std::string currentClip;
-    float timeInClip = 0.0f;
-    int currentFrameIndex = 0;
-    bool playing = true;
-};
-
-struct SpriteRendererComponent {
-    Color tint = Color::White;
-    bool flipX = false;
-    bool flipY = false;
-
-    Handle<Texture> overrideTexture; // optional, usually from animation asset
-    Rect uv;
-    Vec2 pivot;
-};
-
-#endif

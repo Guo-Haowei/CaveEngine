@@ -62,15 +62,24 @@ void TileSetAsset::UpdateFrames() {
     m_frames.clear();
     m_frames.reserve(m_row * m_column);
 
-    const float dx = static_cast<float>(m_width) / m_column;
-    const float dy = static_cast<float>(m_height) / m_row;
+    const float inv_w = 1.0f / m_column;
+    const float inv_h = 1.0f / m_row;
 
     for (uint32_t y = 0; y < m_row; ++y) {
         for (uint32_t x = 0; x < m_column; ++x) {
-            const float u0 = (x + 0) * dx / m_width;
-            const float v0 = (y + 1) * dy / m_height;
-            const float u1 = (x + 1) * dx / m_width;
-            const float v1 = (y + 0) * dy / m_height;
+            // flip y here because in ndc it's up is +y, down -y
+            // but in uv space, up is 0, down is 1
+#if 1
+            const float u0 = (x + 0) * inv_w;
+            const float v0 = (y + 0) * inv_h;
+            const float u1 = (x + 1) * inv_w;
+            const float v1 = (y + 1) * inv_h;
+#else
+            const float u0 = (x + 0) * inv_w;
+            const float v0 = (y + 1) * inv_h;
+            const float u1 = (x + 1) * inv_w;
+            const float v1 = (y + 0) * inv_h;
+#endif
 
             m_frames.push_back(Rect({ u0, v0 }, { u1, v1 }));
         }

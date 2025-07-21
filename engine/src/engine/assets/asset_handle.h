@@ -13,6 +13,7 @@ struct BufferAsset;
 struct ImageAsset;
 struct MaterialAsset;
 struct MeshAsset;
+class SpriteAnimationAsset;
 struct TextAsset;
 class TileSetAsset;
 class TileMapAsset;

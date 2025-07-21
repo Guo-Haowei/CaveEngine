@@ -364,9 +364,11 @@ Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
     return entity;
 }
 
+#if 0
 Entity EntityFactory::CreateEmitterEntity(Scene& p_scene,
                                           const std::string& p_name,
                                           const Matrix4x4f& p_transform) {
+    LOG_WARN("TODO: fix");
     auto entity = CreateTransformEntity(p_scene, p_name);
     p_scene.Create<ParticleEmitterComponent>(entity);
 
@@ -374,26 +376,32 @@ Entity EntityFactory::CreateEmitterEntity(Scene& p_scene,
     transform.MatrixTransform(p_transform);
     return entity;
 }
+#endif
 
+#if 0
 Entity EntityFactory::CreateMeshEmitterEntity(Scene& p_scene,
                                               const std::string& p_name,
                                               const Vector3f& p_translation) {
+    LOG_WARN("TODO: fix");
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<TransformComponent>(entity).SetTranslation(p_translation);
     p_scene.Create<MeshEmitterComponent>(entity);
     return entity;
 }
+#endif
 
+#if 0
 Entity EntityFactory::CreateForceFieldEntity(Scene& p_scene,
                                              const std::string& p_name,
                                              const Matrix4x4f& p_transform) {
+    LOG_WARN("TODO: fix");
     auto entity = CreateTransformEntity(p_scene, p_name);
     p_scene.Create<ForceFieldComponent>(entity);
 
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
-
     return entity;
 }
+#endif
 
 }  // namespace cave

@@ -418,7 +418,7 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
                 mesh.subsets.emplace_back(subset);
 
                 mesh.CreateRenderData();
-                mesh.flags |= MeshComponent::DYNAMIC | MeshComponent::DOUBLE_SIDED;
+                mesh.flags |= MeshComponent::DYNAMIC;
                 mesh.gpuResource = *IGraphicsManager::GetSingleton().CreateMesh(mesh);
             }
 

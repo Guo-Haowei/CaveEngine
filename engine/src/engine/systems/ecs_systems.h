@@ -21,8 +21,10 @@ void RunArmatureUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, floa
 
 void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 
+#if 0
 void RunParticleEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 
 void RunMeshEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+#endif
 
 }  // namespace cave

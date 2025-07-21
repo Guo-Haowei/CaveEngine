@@ -325,6 +325,7 @@ void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float)
     p_scene.m_bound = bound;
 }
 
+#if 0
 void RunParticleEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float) {
     CAVE_PROFILE_EVENT();
     unused(p_context);
@@ -411,5 +412,6 @@ void RunMeshEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, f
         }
     }
 }
+#endif
 
 }  // namespace cave

@@ -6,12 +6,19 @@ namespace cave {
 class SpriteSelector {
 public:
     bool EditSprite(int* p_colomn, int* p_row);
+
     void SelectSprite(const ImageAsset& p_handle,
                       const int* p_colomn,
                       const int* p_row);
 
-    std::pair<int, int> GetSelected() {
-        return { m_selected_x, m_selected_y };
+    std::vector<std::pair<uint16_t, uint16_t>> GetSelections() const;
+
+    void ClearSelections() {
+        m_selections.clear();
+    }
+
+    std::pair<int, int> GetDim() const {
+        return std::make_pair(m_column, m_row);
     }
 
 private:
@@ -19,8 +26,8 @@ private:
     int m_row = 1;
     float m_zoom = 1.0f;
 
-    int m_selected_x = -1;
-    int m_selected_y = -1;
+    std::set<uint32_t> m_selections;
+    bool m_is_selection_mode;
 };
 
 }  // namespace cave

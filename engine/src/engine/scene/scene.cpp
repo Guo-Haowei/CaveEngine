@@ -4,6 +4,7 @@
 #include "engine/core/io/archive.h"
 #include "engine/ecs/component_manager.inl"
 #include "engine/runtime/asset_registry.h"
+#include "engine/systems/animation_system.h"
 #include "engine/systems/ecs_systems.h"
 #include "engine/systems/job_system/job_system.h"
 
@@ -30,6 +31,7 @@ void Scene::Update(float p_timestep) {
 
     jobsystem::Context ctx;
     // animation
+    RunSpriteAnimationSystem(*this, ctx, p_timestep);
     RunLightUpdateSystem(*this, ctx, p_timestep);
     RunAnimationUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
@@ -39,11 +41,13 @@ void Scene::Update(float p_timestep) {
     // hierarchy, update world matrix based on hierarchy
     RunHierarchyUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
+
     // mesh particles
-    RunMeshEmitterUpdateSystem(*this, ctx, p_timestep);
+    // RunMeshEmitterUpdateSystem(*this, ctx, p_timestep);
     // particle
-    RunParticleEmitterUpdateSystem(*this, ctx, p_timestep);
+    // RunParticleEmitterUpdateSystem(*this, ctx, p_timestep);
     // armature
+
     RunArmatureUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
 
@@ -153,8 +157,8 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
     m_HierarchyComponents.Remove(p_entity);
     m_TransformComponents.Remove(p_entity);
     m_MeshRenderers.Remove(p_entity);
-    m_ParticleEmitterComponents.Remove(p_entity);
-    m_ForceFieldComponents.Remove(p_entity);
+    // m_ParticleEmitterComponents.Remove(p_entity);
+    // m_ForceFieldComponents.Remove(p_entity);
     m_NameComponents.Remove(p_entity);
 }
 

@@ -14,7 +14,7 @@
 
 // @TODO: refactor
 #include "engine/assets/assets.h"
-#include "engine/tile_map/tile_set_asset.h"
+#include "engine/assets/tile_set_asset.h"
 
 namespace cave {
 
@@ -159,12 +159,16 @@ bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
             if (e->IsButtonDown(MouseButton::LEFT)) {
-                auto [x, y] = m_sprite_selector.GetSelected();
-                if (x >= 0 && y >= 0) {
-                    TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-                    TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-                    uint32_t idx = y * tile_set->GetCol() + x;
-                    m_document->RequestAdd(e->GetPos(), TileId(idx));
+                auto selections = m_sprite_selector.GetSelections();
+                if (!selections.empty()) {
+                    // @TODO: support multi tile editing
+                    auto [x, y] = selections[0];
+                    if (x >= 0 && y >= 0) {
+                        TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
+                        TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+                        uint32_t idx = y * tile_set->GetCol() + x;
+                        m_document->RequestAdd(e->GetPos(), TileId(idx));
+                    }
                 }
                 return true;
             }

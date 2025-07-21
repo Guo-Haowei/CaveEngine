@@ -1,5 +1,7 @@
 #include "sprite_animation_editor.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
 #include "engine/assets/image_asset.h"
 #include "engine/input/input_event.h"
 #include "engine/runtime/asset_registry.h"
@@ -36,12 +38,22 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
         auto id = EntityFactory::CreateTransformEntity(*scene, "test_sprite");
         scene->AttachChild(id);
 
-        auto test_image = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://player/player.png").unwrap();
+        scene->Create<SpriteRenderer>(id);
 
-        SpriteRenderer& sprite_renderer = scene->Create<SpriteRenderer>(id);
-        sprite_renderer.SetImage(test_image.GetGuid());
+        AnimatorComponent& animator = scene->Create<AnimatorComponent>(id);
+        animator.SetAnimGuid(p_guid);
+        animator.SetClip("walk", true, 1.0f);
+
         return scene;
     });
+
+    // cache the id
+
+    auto view = m_tmp_scene->View<AnimatorComponent>();
+    for (const auto [id, _] : view) {
+        DEV_ASSERT(!m_animator_id.IsValid());
+        m_animator_id = id;
+    }
 }
 
 void SpriteAnimationEditor::OnDestroy() {
@@ -95,6 +107,127 @@ void SpriteAnimationEditor::ImageSourceDropTarget() {
     });
 }
 
+void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
+    // @TODO: refactor this, this is the same as ViewerTab::DrawToolBar
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+    auto& colors = ImGui::GetStyle().Colors;
+    const auto& button_hovered = colors[ImGuiCol_ButtonHovered];
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(button_hovered.x, button_hovered.y, button_hovered.z, 0.5f));
+    const auto& button_active = colors[ImGuiCol_ButtonActive];
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
+
+    DrawInputText("name", m_clip_name, 80, 160, false);
+
+    ImGui::SameLine();
+
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS "  Add Animation")) {
+        Handle<SpriteAnimationAsset> handle = m_document->GetHandle<SpriteAnimationAsset>();
+        if (auto anim = handle.Get(); anim) {
+            Handle<ImageAsset> image_handle = anim->GetImageHandle();
+            if (auto image = image_handle.Get()) {
+                const auto [w, h] = m_sprite_selector.GetDim();
+                const float inv_w = 1.0f / w;
+                const float inv_h = 1.0f / h;
+                const auto& frame_indices = m_sprite_selector.GetSelections();
+                std::vector<Rect> frames;
+                frames.reserve(frame_indices.size());
+                for (const auto [x, y] : frame_indices) {
+#if 0
+                    const float u0 = (x + 0) * inv_w;
+                    const float v0 = (y + 0) * inv_h;
+                    const float u1 = (x + 1) * inv_w;
+                    const float v1 = (y + 1) * inv_h;
+#else
+                    const float u0 = (x + 0) * inv_w;
+                    const float v0 = (y + 1) * inv_h;
+                    const float u1 = (x + 1) * inv_w;
+                    const float v1 = (y + 0) * inv_h;
+#endif
+
+                    frames.push_back({ { u0, v0 }, { u1, v1 } });
+                }
+
+                if (!m_clip_name.empty() && !frames.empty()) {
+                    anim->AddClip(std::move(m_clip_name), std::move(frames));
+                    m_clip_name.clear();
+                    m_sprite_selector.ClearSelections();
+
+                    m_document->SetDirty();
+                }
+            }
+        }
+    }
+
+    ImGui::PopStyleColor(3);
+    // -------------
+
+    ImGui::BeginGroup();
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
+
+    ImGui::Dummy(ImVec2(8, 8));
+
+    m_sprite_selector.SelectSprite(p_image_asset, nullptr, nullptr);
+
+    ImGui::PopStyleVar(2);
+
+    ImGui::EndGroup();
+}
+
+void SpriteAnimationEditor::DrawTimeLine() {
+    constexpr int width = 300;
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, width);
+    ImGui::SetColumnWidth(1, width);
+    {
+        AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+        DEV_ASSERT(animator);
+
+        int current_clip = -1;
+        std::vector<const char*> clips;
+        Handle<SpriteAnimationAsset> handle = m_document->GetHandle<SpriteAnimationAsset>();
+        if (auto anim = handle.Get(); anim) {
+            for (const auto& [key, value] : anim->GetClips()) {
+                if (key == animator->GetCurrentClip()) {
+                    current_clip = static_cast<int>(clips.size());
+                }
+                clips.push_back(key.c_str());
+            }
+        }
+
+        const int old_clip = current_clip;
+
+        const char* current_item = current_clip == -1 ? "select clip ..." : clips[current_clip];
+        const int clip_count = static_cast<int>(clips.size());
+        if (ImGui::BeginCombo("Clips", current_item)) {
+            for (int n = 0; n < clip_count; ++n) {
+                const bool is_selected = (current_clip == n);
+                if (ImGui::Selectable(clips[n], is_selected)) {
+                    current_clip = n;
+                }
+
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        if (old_clip != current_clip) {
+            LOG_OK("Set clip to {}", clips[current_clip]);
+            animator->SetClip(clips[current_clip], true, 1.0f);
+        }
+    }
+
+    ImGui::NextColumn();
+
+    {
+        ImGui::Text("TODO: timeline");
+    }
+    ImGui::Columns(2);
+}
+
 void SpriteAnimationEditor::DrawAssetInspector() {
     auto sprite_animation = m_document->GetHandle<SpriteAnimationAsset>().Get();
     DEV_ASSERT(sprite_animation);
@@ -124,14 +257,21 @@ void SpriteAnimationEditor::DrawAssetInspector() {
         },
         {
             "PaintTab",
-            0,
+            600,
             [&]() {
                 ImageAsset* image = image_handle.Get();
                 if (image) {
-                    m_sprite_selector.SelectSprite(*image, nullptr, nullptr);
+                    DrawFrameSelector(*image);
                 }
             },
-        }
+        },
+        {
+            "TileLine",
+            0,
+            [&]() {
+                DrawTimeLine();
+            },
+        },
     };
 
     const float full_width = ImGui::GetContentRegionAvail().x;

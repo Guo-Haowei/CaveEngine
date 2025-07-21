@@ -103,16 +103,21 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         ImGui::EndPopup();
     }
 
+    // @TODO: see how much this can be done with meta table
+
     MeshRenderer* mesh_renderer = scene.GetComponent<MeshRenderer>(id);
     SpriteRenderer* sprite_renderer = scene.GetComponent<SpriteRenderer>(id);
     TileMapRenderer* tile_map_renderer = scene.GetComponent<TileMapRenderer>(id);
+    AnimatorComponent* animator_component = scene.GetComponent<AnimatorComponent>(id);
 
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
     LightComponent* light_component = scene.GetComponent<LightComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
+#if 0
     ParticleEmitterComponent* particle_emitter_component = scene.GetComponent<ParticleEmitterComponent>(id);
     MeshEmitterComponent* mesh_emitter_component = scene.GetComponent<MeshEmitterComponent>(id);
     ForceFieldComponent* force_field_component = scene.GetComponent<ForceFieldComponent>(id);
+#endif
     LuaScriptComponent* script_component = scene.GetComponent<LuaScriptComponent>(id);
     CameraComponent* camera_component = scene.GetComponent<CameraComponent>(id);
     EnvironmentComponent* environment_component = scene.GetComponent<EnvironmentComponent>(id);
@@ -261,13 +266,26 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRenderer& p_tile_map_renderer) {
-        ImGui::Text("tile map: %s", p_tile_map_renderer.GetGuid().ToString().c_str());
+        const Guid& guid = p_tile_map_renderer.GetGuid();
+        ImGui::Text("tile map: %s", guid.ToString().c_str());
         const bool hovered = ImGui::IsItemHovered();
         DragDropTarget(AssetType::TileMap, [&](AssetHandle& p_handle) {
             p_tile_map_renderer.SetTileMap(p_handle.GetGuid());
         });
         if (hovered) {
-            ShowAssetToolTip(p_tile_map_renderer.GetGuid());
+            ShowAssetToolTip(guid);
+        }
+    });
+
+    DrawComponent("Animator", animator_component, [](AnimatorComponent& p_animator) {
+        const Guid& guid = p_animator.GetAnimGuid();
+        ImGui::Text("animator: %s", guid.ToString().c_str());
+        const bool hovered = ImGui::IsItemHovered();
+        DragDropTarget(AssetType::SpriteAnimation, [&](AssetHandle& p_handle) {
+            p_animator.SetAnimGuid(p_handle.GetGuid());
+        });
+        if (hovered) {
+            ShowAssetToolTip(guid);
         }
     });
 
@@ -328,6 +346,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         ImGui::Separator();
     });
 
+#if 0
     DrawComponent("ParticleEmitter", particle_emitter_component, [](ParticleEmitterComponent& p_emitter) {
         const float width = 100.0f;
         ImGui::Checkbox("Gravity", &p_emitter.gravity);
@@ -356,6 +375,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         DrawDragFloat("Strength", p_force_field.strength, 0.1f, -10.0f, 10.0f, width);
         DrawDragFloat("Radius", p_force_field.radius, 0.1f, 0.1f, 100.0f, width);
     });
+#endif
 }
 
 }  // namespace cave

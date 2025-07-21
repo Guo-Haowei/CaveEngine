@@ -6,6 +6,37 @@
 
 namespace cave {
 
+SpriteAnimationClip::SpriteAnimationClip(std::vector<Rect>&& p_frames, float p_length) {
+    m_frames = std::move(p_frames);
+    SetAnimationLength(p_length);
+}
+
+void SpriteAnimationClip::SetFrames(std::vector<Rect>&& frames) {
+    m_frames = std::move(frames);
+}
+
+void SpriteAnimationClip::SetAnimationLength(float p_length) {
+    DEV_ASSERT(p_length > 0.0f);
+    const float frame_duration = p_length / std::max(1, static_cast<int>(m_frames.size()));  // avoid divide by 0
+    m_durations.resize(m_frames.size());
+    for (float& duration : m_durations) {
+        duration = frame_duration;
+    }
+}
+
+bool SpriteAnimationAsset::AddClip(std::string&& p_name, std::vector<Rect>&& p_frames) {
+    auto it = m_clips.find(p_name);
+    if (it != m_clips.end()) {
+        LOG_WARN("clip '{}' already exists", p_name);
+        return false;
+    }
+
+    m_clips.insert(std::make_pair(std::move(p_name),
+                                  SpriteAnimationClip(std::move(p_frames))));
+
+    return true;
+}
+
 void SpriteAnimationAsset::SetGuid(const Guid& p_guid) {
     AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
                                       p_guid,
@@ -27,6 +58,21 @@ auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Resu
         .Write(*this)
         .EndMap();
     return SaveYaml(p_meta.path, yaml);
+}
+
+void SpriteAnimationAsset::OnDeserialized() {
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
+    if (handle.is_some()) {
+        m_image_handle = handle.unwrap_unchecked();
+    }
+
+    for (auto& it : m_clips) {
+        float& total = it.second.m_total_duration;
+        total = 0.0f;
+        for (float duration : it.second.m_durations) {
+            total += duration;
+        }
+    }
 }
 
 auto SpriteAnimationAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
@@ -53,10 +99,7 @@ auto SpriteAnimationAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<v
         deserializer.LeaveKey();
     }
 
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
-    if (handle.is_some()) {
-        m_image_handle = handle.unwrap_unchecked();
-    }
+    OnDeserialized();
     return Result<void>();
 }
 
