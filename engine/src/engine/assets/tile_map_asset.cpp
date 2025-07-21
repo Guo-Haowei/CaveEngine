@@ -176,7 +176,7 @@ bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
     return true;
 }
 
-auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
+Result<void> TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const {
     auto res = p_meta.SaveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
@@ -192,28 +192,28 @@ auto TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
     return SaveYaml(p_meta.path, yaml);
 }
 
-auto TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+Result<void> TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) {
     YAML::Node root;
 
     if (auto res = LoadYaml(p_meta.path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    YamlDeserializer deserializer;
-    deserializer.Initialize(root);
+    YamlDeserializer d;
+    d.Initialize(root);
 
-    const int version = deserializer.GetVersion();
+    const int version = d.GetVersion();
 
-    if (deserializer.TryEnterKey("content")) {
+    if (d.TryEnterKey("content")) {
         switch (version) {
             case 1:
                 [[fallthrough]];
             default:
-                deserializer.Read(*this);
+                d.Read(*this);
                 break;
         }
 
-        deserializer.LeaveKey();
+        d.LeaveKey();
     }
 
     SetTileSetGuid(m_tile_set_id, true);

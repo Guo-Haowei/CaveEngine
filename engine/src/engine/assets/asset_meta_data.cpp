@@ -10,28 +10,31 @@ namespace cave {
 namespace fs = std::filesystem;
 
 auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
-    YAML::Node node;
-    if (auto res = LoadYaml(p_path, node); !res) {
+    YAML::Node root;
+    if (auto res = LoadYaml(p_path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
     AssetMetaData meta;
-    {
-        auto guid = node["guid"].as<std::string>();
-        auto res = Guid::Parse(guid);
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        meta.guid = *res;
+
+    YamlDeserializer d;
+    d.Initialize(root);
+    if (d.TryEnterKey("guid")) {
+        d.Read(meta.guid);
+        d.LeaveKey();
     }
-    {
-        auto type = node["type"].as<std::string>();
+    if (d.TryEnterKey("type")) {
+        std::string type;
+        d.Read(type);
+        // @TODO: enum serialization
         meta.type = AssetTypeFromString(type);
-        if (meta.type == AssetType::Unknown) {
-            return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "unknown asset type '{}'", type);
-        }
+        DEV_ASSERT(meta.type != AssetType::Unknown);
+        d.LeaveKey();
     }
-    meta.path = node["path"].as<std::string>();
+    if (d.TryEnterKey("path")) {
+        d.Read(meta.path);
+        d.LeaveKey();
+    }
     return meta;
 }
 
@@ -69,11 +72,9 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
 }
 
 auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
-    YamlSerializer serializer;
+    YamlSerializer yaml;
 
-    // @TODO: fix this
-    serializer
-        .BeginMap(false)
+    yaml.BeginMap(false)
         .Key("guid")
         .Write(guid)
         .Key("type")
@@ -82,15 +83,14 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
         .Write(path);
 
     if (p_asset) {
-        serializer
-            .Key("dependencies")
+        yaml.Key("dependencies")
             .Write(p_asset->GetDependencies());
     }
 
-    serializer.EndMap();
+    yaml.EndMap();
 
     auto meta_path = std::format("{}.meta", path);
-    return SaveYaml(meta_path, serializer);
+    return SaveYaml(meta_path, yaml);
 }
 
 }  // namespace cave

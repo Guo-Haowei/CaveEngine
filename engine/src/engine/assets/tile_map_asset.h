@@ -92,8 +92,8 @@ public:
     bool IsVisible() const { return m_is_visible; }
     void SetVisible(bool p_visible) { m_is_visible = p_visible; }
 
-    auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
-    auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
+    Result<void> SaveToDisk(const AssetMetaData& p_meta) const override;
+    Result<void> LoadFromDisk(const AssetMetaData& p_meta) override;
 
     std::vector<Guid> GetDependencies() const override;
 
