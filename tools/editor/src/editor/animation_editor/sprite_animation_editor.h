@@ -49,6 +49,8 @@ protected:
     std::shared_ptr<SpriteAnimationDocument> m_document;
 
     SpriteSelector m_sprite_selector;
+
+    std::string m_clip_name;
 };
 
 }  // namespace cave

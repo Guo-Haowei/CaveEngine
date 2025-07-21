@@ -6,6 +6,36 @@
 
 namespace cave {
 
+SpriteAnimationClip::SpriteAnimationClip(std::vector<Rect>&& p_frames, float p_length) {
+    m_frames = std::move(p_frames);
+    SetAnimationLength(p_length);
+}
+
+void SpriteAnimationClip::SetFrames(std::vector<Rect>&& frames) {
+    m_frames = std::move(frames);
+}
+
+void SpriteAnimationClip::SetAnimationLength(float p_length) {
+    DEV_ASSERT(p_length > 0.0f);
+    const float frame_duration = p_length / std::max(1, static_cast<int>(m_frames.size())); // avoid divide by 0
+    for (float& duration : m_durations) {
+        duration = frame_duration;
+    }
+}
+
+bool SpriteAnimationAsset::AddClip(std::string&& p_name, std::vector<Rect>&& p_frames) {
+    auto it = m_clips.find(p_name);
+    if (it != m_clips.end()) {
+        LOG_WARN("clip '{}' already exists", p_name);
+        return false;
+    }
+
+    m_clips.insert(std::make_pair(std::move(p_name),
+                                  SpriteAnimationClip(std::move(p_frames))));
+
+    return true;
+}
+
 void SpriteAnimationAsset::SetGuid(const Guid& p_guid) {
     AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
                                       p_guid,

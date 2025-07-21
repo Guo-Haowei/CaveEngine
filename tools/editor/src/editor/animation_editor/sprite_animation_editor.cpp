@@ -106,10 +106,39 @@ void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
     const auto& button_active = colors[ImGuiCol_ButtonActive];
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
-    std::string output;
-    DrawInputText("name", output, 80, 160);
+    DrawInputText("name", m_clip_name, 80, 160, false);
+
     ImGui::SameLine();
+
     if (ImGui::Button(ICON_FA_SQUARE_PLUS "  Add Animation")) {
+        Handle<SpriteAnimationAsset> handle = m_document->GetHandle<SpriteAnimationAsset>();
+        if (auto anim = handle.Get(); anim) {
+            Handle<ImageAsset> image_handle = anim->GetImageHandle();
+            if (auto image = image_handle.Get()) {
+                const auto [w, h] = m_sprite_selector.GetDim();
+                const float w_inv = 1.0f / w;
+                const float h_inv = 1.0f / h;
+                const auto& frame_indices = m_sprite_selector.GetSelections();
+                std::vector<Rect> frames;
+                frames.reserve(frame_indices.size());
+                for (const auto [x, y] : frame_indices) {
+                    const float u0 = (x + 0) * w_inv;
+                    const float v0 = (y + 0) * h_inv;
+                    const float u1 = (x + 1) * w_inv;
+                    const float v1 = (y + 1) * h_inv;
+
+                    frames.push_back({ { u0, v0 }, { u1, v1 } });
+                }
+
+                if (!m_clip_name.empty() && !frames.empty()) {
+                    anim->AddClip(std::move(m_clip_name), std::move(frames));
+                    m_clip_name.clear();
+                    m_sprite_selector.ClearSelections();
+
+                    m_document->SetDirty();
+                }
+            }
+        }
     }
 
     ImGui::PopStyleColor(3);

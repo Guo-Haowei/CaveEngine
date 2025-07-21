@@ -6,20 +6,30 @@
 
 namespace cave {
 
-struct SpriteAnimationClip {
+class SpriteAnimationClip {
     CAVE_META(SpriteAnimationClip)
 
-    CAVE_PROP(type = name)
-    std::string name;
-
     CAVE_PROP(type = box2[])
-    std::vector<Rect> frames;
+    std::vector<Rect> m_frames;
 
     CAVE_PROP(type = f32[])
-    std::vector<float> durations;
+    std::vector<float> m_durations;
 
-    CAVE_PROP(type = boolean)
-    bool loop = true;
+    CAVE_PROP(type = boolean, hint = toggle)
+    bool m_loop = true;
+
+public:
+    SpriteAnimationClip() = default;
+
+    SpriteAnimationClip(std::vector<Rect>&& p_frames, float p_length = 1.0f);
+
+    void SetFrames(std::vector<Rect>&& frames);
+
+    void SetAnimationLength(float p_length);
+
+    const std::vector<Rect>& GetFrames() const { return m_frames; }
+
+    const std::vector<float>& GetDurations() const { return m_durations; }
 };
 
 class SpriteAnimationAsset : public IAsset {
@@ -31,13 +41,14 @@ class SpriteAnimationAsset : public IAsset {
     Guid m_image_guid;
 
     CAVE_PROP()
-    std::unordered_map<std::string, SpriteAnimationClip> clips;
+    std::map<std::string, SpriteAnimationClip> m_clips;
 
-private:
     // Non serialized
     Handle<ImageAsset> m_image_handle;
 
 public:
+    bool AddClip(std::string&& p_name, std::vector<Rect>&& p_frames);
+
     void SetGuid(const Guid& p_guid);
 
     const Guid& GetImageGuid() const { return m_image_guid; }

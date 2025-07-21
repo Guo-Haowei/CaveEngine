@@ -175,7 +175,8 @@ bool DrawColorControl(const char* p_label,
 bool DrawInputText(const char* p_label,
                    std::string& p_string,
                    float p_text_width,
-                   float p_text_box_width) {
+                   float p_text_box_width,
+                   bool p_enter_returns_true) {
 
     if (p_label) {
         ImGui::Columns(2);
@@ -187,13 +188,18 @@ bool DrawInputText(const char* p_label,
         ImGui::NextColumn();
     }
 
+    int flags = 0;
+    if (p_enter_returns_true) {
+        flags |= ImGuiInputTextFlags_EnterReturnsTrue;
+    }
+
     char buffer[256];
     strncpy(buffer, p_string.c_str(), sizeof(buffer));
     auto tag = std::format("##{}", p_label ? p_label : "dummy");
     bool dirty = ImGui::InputText(tag.c_str(),
                                   buffer,
                                   sizeof(buffer),
-                                  ImGuiInputTextFlags_EnterReturnsTrue);
+                                  flags);
 
     if (dirty) {
         p_string = buffer;

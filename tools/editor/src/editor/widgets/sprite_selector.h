@@ -13,6 +13,14 @@ public:
 
     std::vector<std::pair<uint16_t, uint16_t>> GetSelections() const;
 
+    void ClearSelections() {
+        m_selections.clear();
+    }
+
+    std::pair<int, int> GetDim() const {
+        return std::make_pair(m_column, m_row);
+    }
+
 private:
     int m_column = 1;
     int m_row = 1;
