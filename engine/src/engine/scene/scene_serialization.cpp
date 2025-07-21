@@ -158,7 +158,7 @@ void CameraComponent::Serialize(Archive& p_archive, uint32_t) {
 }
 
 void LuaScriptComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_className);
+    p_archive.ArchiveValue(m_class_name);
     p_archive.ArchiveValue(m_path);
 }
 

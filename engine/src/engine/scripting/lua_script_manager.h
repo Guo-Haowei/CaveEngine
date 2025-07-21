@@ -14,7 +14,8 @@ struct ObjectFunctions {
 class LuaScriptManager : public ScriptManager {
 
 public:
-    LuaScriptManager() : ScriptManager("LuaScriptManager") {}
+    LuaScriptManager()
+        : ScriptManager("LuaScriptManager") {}
 
     void Update(Scene& p_scene, float p_timestep) override;
     void OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) override;
@@ -23,7 +24,6 @@ public:
     void OnSimEnd(Scene& p_scene) override;
 
 protected:
-
     auto InitializeImpl() -> Result<void> final;
     void FinalizeImpl() final;
 

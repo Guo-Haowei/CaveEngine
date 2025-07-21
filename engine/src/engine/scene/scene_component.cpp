@@ -10,7 +10,7 @@ namespace cave {
 #pragma region LUA_SCRIPT_COMPONENT
 LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view p_class_name) {
     if (DEV_VERIFY(!p_class_name.empty())) {
-        m_className = p_class_name;
+        m_class_name = p_class_name;
     }
 
     return *this;

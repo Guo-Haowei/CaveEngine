@@ -130,27 +130,32 @@ struct ArmatureComponent {
 
 #pragma region LUA_SCRIPT_COMPONENT
 class LuaScriptComponent {
-public:
-    LuaScriptComponent& SetClassName(std::string_view p_class_name);
-    LuaScriptComponent& SetPath(std::string_view p_path);
+    CAVE_META(LuaScriptComponent)
 
-    const std::string& GetPath() const { return m_path; }
-    const std::string& GetClassName() const { return m_className; }
-    int GetInstance() const { return m_instance; }
+    CAVE_PROP()
+    std::string m_class_name;
 
-    std::string& GetPathRef() { return m_path; }
-    std::string& GetClassNameRef() { return m_className; }
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized();
-
-private:
-    std::string m_className;
+    CAVE_PROP()
     std::string m_path;
 
     // Non-Serialized
     int m_instance{ 0 };
 
+public:
+    LuaScriptComponent& SetClassName(std::string_view p_class_name);
+    LuaScriptComponent& SetPath(std::string_view p_path);
+
+    const std::string& GetPath() const { return m_path; }
+    const std::string& GetClassName() const { return m_class_name; }
+    int GetInstance() const { return m_instance; }
+
+    std::string& GetPathRef() { return m_path; }
+    std::string& GetClassNameRef() { return m_class_name; }
+
+    void Serialize(Archive& p_archive, uint32_t p_version);
+    void OnDeserialized();
+
+private:
     friend class LuaScriptManager;
 };
 #pragma endregion LUA_SCRIPT_COMPONENT

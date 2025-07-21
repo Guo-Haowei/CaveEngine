@@ -34,6 +34,7 @@ namespace cave {
     REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)                 \
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                   \
     REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)             \
+    REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
     REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)                       \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0) \
     REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
@@ -41,7 +42,6 @@ namespace cave {
 // @TODO: use meta table for all components
 #define REGISTER_COMPONENT_LIST                                                  \
     REGISTER_COMPONENT_SERIALIZED_LIST                                           \
-    REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)       \
     REGISTER_COMPONENT(NativeScriptComponent, "World::NativeScriptComponent", 0) \
     REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)                 \
     REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)         \

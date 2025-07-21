@@ -129,13 +129,11 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
 }
 
 /// TransformCommand
-EntityTransformCommand::EntityTransformCommand(GizmoAction p_action,
-                                               Scene& p_scene,
+EntityTransformCommand::EntityTransformCommand(Scene& p_scene,
                                                ecs::Entity p_entity,
                                                const Matrix4x4f& p_before,
                                                const Matrix4x4f& p_after)
-    : m_action(p_action)
-    , m_scene(p_scene)
+    : m_scene(p_scene)
     , m_entity(p_entity)
     , m_before(p_before)
     , m_after(p_after) {
@@ -166,10 +164,6 @@ bool EntityTransformCommand::MergeCommand(const UndoCommand* p_command) {
     }
 
     if (command->m_entity != m_entity) {
-        return false;
-    }
-
-    if (command->m_action != m_action) {
         return false;
     }
 

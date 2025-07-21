@@ -42,6 +42,8 @@ add_library(${TARGET_NAME} STATIC ${FILTERED_SRC})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/engine FILES ${FILTERED_SRC})
 
 target_include_directories(${TARGET_NAME} PUBLIC
+    ${PROJECT_SOURCE_DIR}/thirdparty/lua
+    ${PROJECT_SOURCE_DIR}/thirdparty/LuaBridge3/Source
     ${PROJECT_SOURCE_DIR}/thirdparty/imgui
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
@@ -60,8 +62,8 @@ target_compile_definitions(${TARGET_NAME} PUBLIC
 set(TARGET_LIBS
     imgui
     glm::glm
+    lua
     yaml-cpp::yaml-cpp
-    lua_script
 )
 
 if(WIN32)

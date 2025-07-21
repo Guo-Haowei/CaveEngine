@@ -80,9 +80,10 @@ void DrawAsset(const Guid& p_guid, const DragDropFunc& p_callback) {
     }
 };
 
+constexpr float COMPONENT_FIELD_NAME_WIDTH = 120.f;
+
 template<typename T>
 bool DrawComponentAuto(T* p_component) {
-    constexpr float WIDTH = 120.f;
 
     bool dirty = false;
 
@@ -98,7 +99,7 @@ bool DrawComponentAuto(T* p_component) {
             } break;
             case EditorHint::Color: {
                 Vector4f& color = field->GetData<Vector4f>(p_component);
-                if (DrawColorPicker4(field->name, &color.r, WIDTH)) {
+                if (DrawColorPicker4(field->name, &color.r, COMPONENT_FIELD_NAME_WIDTH)) {
                     dirty = true;
                     // @TODO: callback
                 }
@@ -219,18 +220,26 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
                                               &scale.x);
 
         bool dirty = false;
-        GizmoAction action;
-        if (DrawVec3ControlDisabled(disable_translation, "translation", translation)) {
+        if (DrawVec3ControlDisabled(disable_translation,
+                                    "translation",
+                                    translation,
+                                    0.0f,
+                                    COMPONENT_FIELD_NAME_WIDTH)) {
             dirty = true;
-            action = GizmoAction::Translate;
         }
-        if (DrawVec3ControlDisabled(disable_rotation, "rotation", rotation)) {
+        if (DrawVec3ControlDisabled(disable_rotation,
+                                    "rotation",
+                                    rotation,
+                                    0.0f,
+                                    COMPONENT_FIELD_NAME_WIDTH)) {
             dirty = true;
-            action = GizmoAction::Rotate;
         }
-        if (DrawVec3ControlDisabled(disable_scale, "scale", scale, 1.0f)) {
+        if (DrawVec3ControlDisabled(disable_scale,
+                                    "scale",
+                                    scale,
+                                    1.0f,
+                                    COMPONENT_FIELD_NAME_WIDTH)) {
             dirty = true;
-            action = GizmoAction::Scale;
         }
         if (dirty) {
             Matrix4x4f new_transform;
@@ -239,7 +248,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
                                                     &scale.x,
                                                     glm::value_ptr(new_transform));
 
-            auto command = std::make_shared<EntityTransformCommand>(action, scene, id, old_transform, new_transform);
+            auto command = std::make_shared<EntityTransformCommand>(scene, id, old_transform, new_transform);
             m_editor.BufferCommand(command);
         }
     });

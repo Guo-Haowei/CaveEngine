@@ -50,7 +50,7 @@ static int PushArg(lua_State* L, T&& p_value, Args&&... p_args) {
     return 1 + sizeof...(p_args);
 }
 
-template<typename ...Args>
+template<typename... Args>
 static void EntityCall(lua_State* L, int p_ref, const char* p_method, Args&&... p_args) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, p_ref);
     lua_getfield(L, -1, p_method);
@@ -117,7 +117,7 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
             continue;
         }
 
-        const auto& meta = FindOrAdd(L, script.m_path, script.m_className.c_str());
+        const auto& meta = FindOrAdd(L, script.m_path, script.m_class_name.c_str());
         if (script.m_instance == 0) {
             const auto instance = CreateInstance(meta, L, entity.GetId());
             script.m_instance = instance;

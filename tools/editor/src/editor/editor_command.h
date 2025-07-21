@@ -112,8 +112,7 @@ protected:
 // @TODO: move it to gizmo
 class EntityTransformCommand : public EditorUndoCommandBase {
 public:
-    EntityTransformCommand(GizmoAction p_action,
-                           Scene& p_scene,
+    EntityTransformCommand(Scene& p_scene,
                            ecs::Entity p_entity,
                            const Matrix4x4f& p_before,
                            const Matrix4x4f& p_after);
@@ -124,7 +123,6 @@ public:
     bool MergeCommand(const UndoCommand* p_command) override;
 
 protected:
-    GizmoAction m_action;
     Scene& m_scene;
     ecs::Entity m_entity;
 

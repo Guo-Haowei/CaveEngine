@@ -2,7 +2,7 @@
 
 #include "engine/scene/scene.h"
 #include "engine/scene/scriptable_entity.h"
-#include "plugins/lua_script/lua_script_manager.h"
+#include "engine/scripting/lua_script_manager.h"
 
 namespace cave {
 
