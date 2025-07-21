@@ -3,11 +3,11 @@
 #include "editor/editor_layer.h"
 #include "editor/viewer/viewer.h"
 
+#include "engine/core/os/platform_io.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/scene_manager_interface.h"
-#include "engine/drivers/windows/dialog.h"
 #include "engine/scene/entity_factory.h"
 
 namespace cave {
@@ -83,13 +83,14 @@ void EditorCommandRemoveEntity::Execute(Scene& p_scene) {
 
 /// OpenProjectCommand
 void OpenProjectCommand::Execute(Scene&) {
+    CRASH_NOW();
     std::string path;
     // std::filesystem::path path{ project.empty() ? "untitled.scene" : project.c_str() };
     if (m_openDialog) {
 // @TODO: implement
 #if USING(PLATFORM_WINDOWS)
-        path = OpenFileDialog({});
         // @TODO: validate string
+        path = os::OpenFileDialog({});
 #else
         LOG_WARN("OpenSaveDialog not implemented");
 #endif
@@ -98,7 +99,6 @@ void OpenProjectCommand::Execute(Scene&) {
     // @TODO: validate
     DVAR_SET_STRING(scene, path);
 
-    CRASH_NOW();
     // SceneManager::GetSingleton().RequestScene(path);
 }
 
@@ -112,7 +112,7 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
     if (m_openDialog || scene.empty()) {
 // @TODO: implement
 #if USING(PLATFORM_WINDOWS)
-        if (!OpenSaveDialog(path)) {
+        if (!os::OpenSaveDialog(path)) {
             return;
         }
 #else

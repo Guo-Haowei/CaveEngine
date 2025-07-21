@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/assets/assets.h"
+#include "engine/core/os/platform_io.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_manager.h"
 #include "engine/runtime/asset_registry.h"
@@ -26,6 +27,9 @@ void FileSystemPanel::OnAttach() {
 void FileSystemPanel::FolderPopup(const std::filesystem::path& p_path, const std::string& p_short_path, bool p_is_dir) {
     if (ImGui::MenuItem("Rename")) {
         m_renaming = p_path;
+    }
+    if (ImGui::MenuItem("Reveal In File Explorer")) {
+        cave::os::RevealInFolder(p_path);
     }
     if (p_is_dir) {
         auto asset_manager = m_editor.GetApplication()->GetAssetManager();

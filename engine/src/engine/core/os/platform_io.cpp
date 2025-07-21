@@ -1,9 +1,24 @@
-#include "dialog.h"
+#include "platform_io.h"
 
 #include "engine/core/string/string_utils.h"
-#include "engine/drivers/windows/win32_prerequisites.h"
 
-namespace cave {
+#if USING(PLATFORM_WINDOWS)
+#include "engine/drivers/windows/win32_prerequisites.h"
+#include <shellapi.h>
+#endif
+
+namespace cave::os {
+namespace fs = std::filesystem;
+
+#if USING(PLATFORM_WINDOWS)
+
+void RevealInFolder(const fs::path& p_path) {
+    const bool is_dir = fs::is_directory(p_path);
+    fs::path folder = is_dir ? p_path : p_path.parent_path();
+    std::string path = folder.string();
+    std::replace(path.begin(), path.end(), '/', '\\');
+    ::ShellExecuteA(NULL, "open", "explorer.exe", path.c_str(), NULL, SW_SHOWNORMAL);
+}
 
 std::string OpenFileDialog(const std::vector<const char*>& p_filters) {
     std::string filter_str;
@@ -71,5 +86,8 @@ bool OpenSaveDialog(std::filesystem::path& p_inout_path) {
 
     return false;
 }
+#else
+#error NOT IMPLEMENTED
+#endif
 
-}  // namespace cave
+}  // namespace cave::os

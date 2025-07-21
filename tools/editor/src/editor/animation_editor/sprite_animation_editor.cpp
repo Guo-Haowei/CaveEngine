@@ -120,6 +120,8 @@ void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
 
+    ImGui::Dummy(ImVec2(8, 8));
+
     m_sprite_selector.SelectSprite(p_image_asset, nullptr, nullptr);
 
     ImGui::PopStyleVar(2);
