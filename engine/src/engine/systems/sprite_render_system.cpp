@@ -18,12 +18,12 @@ void RunSpriteRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_tint_color = sprite_renderer.tint_color;
-        const auto& rect = sprite_renderer.rect;
+        batch_buffer.c_tint_color = sprite_renderer.GetTintColor();
+        const auto& rect = sprite_renderer.GetRect();
         batch_buffer.c_uv_rect = Vector4f(rect.GetMin(), rect.GetMax());
 
         DrawCommand draw;
-        draw.indexCount = 6;
+        draw.index_count = 6;
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
         ImageAsset* image = sprite_renderer.GetHandle().Get();

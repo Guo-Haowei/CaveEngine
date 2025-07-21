@@ -14,20 +14,18 @@ enum class RenderCommandType {
 };
 
 struct DrawCommand {
-    uint32_t indexCount = 0;
-    uint32_t vertexOffset = 0;
-    uint32_t indexOffset = 0;
+    uint32_t index_count = 0;
+    uint32_t index_offset = 0;
 
-    uint32_t instanceCount = 1;
-    uint32_t instanceOffset = 0;
-
-    int batch_idx = -1;
+    uint32_t instance_count = 1;
+    uint32_t instance_offset = 0;
 
     const GpuMesh* mesh_data = nullptr;
     const GpuTexture* texture = nullptr;
 
     int bone_idx = -1;
     int mat_idx = -1;
+    int batch_idx = -1;
 
     uint8_t sortKey = 0;
     StencilFlags flags{ 0 };

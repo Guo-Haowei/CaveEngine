@@ -61,7 +61,7 @@ public:
                                        clip.GetDurations());
 
         DEV_ASSERT_INDEX(frame_idx, clip.GetFrames().size());
-        p_renderer.rect = clip.GetFrames()[frame_idx];
+        p_renderer.SetRect(clip.GetFrames()[frame_idx]);
     }
 };
 

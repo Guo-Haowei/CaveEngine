@@ -90,7 +90,7 @@ static void ExecuteDrawCommands(const FrameData& p_data, const std::vector<Rende
 
             gm.BindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
         }
-        gm.DrawElements(draw.indexCount, draw.indexOffset);
+        gm.DrawElements(draw.index_count, draw.index_offset);
 
         if (p_is_prepass && draw.flags) {
             gm.SetStencilRef(0);

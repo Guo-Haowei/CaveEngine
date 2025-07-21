@@ -31,7 +31,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         batch_buffer.c_tint_color = tile_map_renderer.GetTintColor();
 
         DrawCommand draw;
-        draw.indexCount = cache.mesh->desc.drawCount;
+        draw.index_count = cache.mesh->desc.drawCount;
         draw.mesh_data = cache.mesh.get();
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
