@@ -2,7 +2,7 @@
 #include <variant>
 
 #include "engine/math/geomath.h"
-#include "engine/tile_map/tile_map_asset.h"
+#include "engine/assets/tile_map_asset.h"
 #include "editor/undo_redo/undo_command.h"
 #include "editor/document/document.h"
 

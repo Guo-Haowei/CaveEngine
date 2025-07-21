@@ -14,7 +14,7 @@
 
 // @TODO: refactor
 #include "engine/assets/assets.h"
-#include "engine/tile_map/tile_set_asset.h"
+#include "engine/assets/tile_set_asset.h"
 
 namespace cave {
 

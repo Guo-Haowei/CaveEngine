@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
-#include "engine/sprite/sprite_animation_asset.h"
+#include "engine/assets/sprite_animation_asset.h"
 
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/sprite_selector.h"

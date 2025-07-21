@@ -20,11 +20,11 @@ FILES = [
     'scene/mesh_renderer.h',
     'scene/scene_component.h',
     'scene/transform_component.h',
-    'sprite/sprite_animation_asset.h',
+    'assets/sprite_animation_asset.h',
     'sprite/sprite_renderer.h',
-    'tile_map/tile_map_asset.h',
+    'assets/tile_map_asset.h',
     'tile_map/tile_map_renderer.h',
-    'tile_map/tile_set_asset.h',
+    'assets/tile_set_asset.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'reflection/generated')
