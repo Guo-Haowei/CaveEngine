@@ -289,6 +289,7 @@ bool Application::MainLoop() {
     // 4. script manager updates logic
     // 5. phyiscs manager updates physics
     // 6. graphcs manager renders (optional: on another thread)
+
     m_sceneManager->Update();
 
     // layer should set active scene
@@ -296,12 +297,6 @@ bool Application::MainLoop() {
     for (int i = (int)m_layers.size() - 1; i >= 0; --i) {
         m_layers[i]->OnUpdate(timestep);
     }
-
-    Scene* scene = m_sceneManager->GetActiveScene();
-    if (scene) {
-        scene->Update(timestep);
-    }
-    m_renderSystem->RenderFrame(scene);
 
     // @TODO: refactor this
     if (m_imguiManager) {
@@ -314,6 +309,12 @@ bool Application::MainLoop() {
 
         ImGui::Render();
     }
+
+    Scene* scene = m_sceneManager->GetActiveScene();
+    if (scene) {
+        scene->Update(timestep);
+    }
+    m_renderSystem->RenderFrame(scene);
 
     if (scene && m_state == State::SIM) {
         m_scriptManager->Update(*scene, timestep);

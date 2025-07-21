@@ -1,5 +1,6 @@
 #include "property_panel.h"
 
+#include <glm/gtc/quaternion.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
@@ -84,7 +85,6 @@ constexpr float COMPONENT_FIELD_NAME_WIDTH = 120.f;
 
 template<typename T>
 bool DrawComponentAuto(T* p_component) {
-
     bool dirty = false;
 
     const auto& meta_table = MetaDataTable<T>::GetFields();
@@ -207,17 +207,20 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     }
 
-    DrawComponent("Transform", transform_component, [&](TransformComponent& transform) {
-        const Matrix4x4f old_transform = transform.GetLocalMatrix();
-        Vector3f translation;
-        Vector3f rotation;
-        Vector3f scale;
+    DrawComponent("Transform", transform_component, [&](TransformComponent& p_transform) {
+        Vector3f& translation = const_cast<Vector3f&>(p_transform.GetTranslation());
+        Vector4f q = p_transform.GetRotation();
+        Vector3f& scale = const_cast<Vector3f&>(p_transform.GetScale());
+
+        glm::vec3 e = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
+        Vector3f& euler = reinterpret_cast<Vector3f&>(e);
 
         // @TODO: fix
         // DO NOT USE IMGUIZMO
-        ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(old_transform), &translation.x,
-                                              &rotation.x,
-                                              &scale.x);
+        // const Matrix4x4f old_transform = transform.GetLocalMatrix();
+        // ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(old_transform), &translation.x,
+        //                                      &rotation.x,
+        //                                      &scale.x);
 
         bool dirty = false;
         if (DrawVec3ControlDisabled(disable_translation,
@@ -225,13 +228,18 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
                                     translation,
                                     0.0f,
                                     COMPONENT_FIELD_NAME_WIDTH)) {
+            p_transform.SetTranslation(translation);
             dirty = true;
         }
         if (DrawVec3ControlDisabled(disable_rotation,
                                     "rotation",
-                                    rotation,
+                                    euler,
                                     0.0f,
                                     COMPONENT_FIELD_NAME_WIDTH)) {
+            // p_transform.SetTranslation(rotation);
+
+            glm::quat _q = glm::quat(reinterpret_cast<glm::vec3&>(euler));
+            p_transform.SetRotation(Vector4f(_q.x, _q.y, _q.z, _q.w));
             dirty = true;
         }
         if (DrawVec3ControlDisabled(disable_scale,
@@ -239,17 +247,18 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
                                     scale,
                                     1.0f,
                                     COMPONENT_FIELD_NAME_WIDTH)) {
+            p_transform.SetScale(scale);
             dirty = true;
         }
         if (dirty) {
-            Matrix4x4f new_transform;
-            ImGuizmo::RecomposeMatrixFromComponents(&translation.x,
-                                                    &rotation.x,
-                                                    &scale.x,
-                                                    glm::value_ptr(new_transform));
+            Matrix4x4f new_transform = p_transform.GetLocalMatrix();
+            // ImGuizmo::RecomposeMatrixFromComponents(&translation.x,
+            //                                         &rotation.x,
+            //                                         &scale.x,
+            //                                         glm::value_ptr(new_transform));
 
-            auto command = std::make_shared<EntityTransformCommand>(scene, id, old_transform, new_transform);
-            m_editor.BufferCommand(command);
+            // auto command = std::make_shared<EntityTransformCommand>(scene, id, old_transform, new_transform);
+            // m_editor.BufferCommand(command);
         }
     });
 
