@@ -36,6 +36,8 @@ enum class EntityType : uint8_t {
 
 // @TODO: auto register
 enum class ComponentName : uint8_t {
+    SpriteRenderer,
+    Animator,
     Script,
     TileMap,
     Count,

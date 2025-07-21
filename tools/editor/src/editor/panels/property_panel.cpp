@@ -97,6 +97,12 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         if (ImGui::MenuItem("Script")) {
             m_editor.CommandAddComponent(ComponentName::Script, id);
         }
+        if (ImGui::MenuItem("SpriteRenderer")) {
+            m_editor.CommandAddComponent(ComponentName::SpriteRenderer, id);
+        }
+        if (ImGui::MenuItem("Animator")) {
+            m_editor.CommandAddComponent(ComponentName::Animator, id);
+        }
         if (ImGui::MenuItem("TileMap")) {
             m_editor.CommandAddComponent(ComponentName::TileMap, id);
         }

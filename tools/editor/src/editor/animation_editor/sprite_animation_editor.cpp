@@ -42,7 +42,6 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
 
         AnimatorComponent& animator = scene->Create<AnimatorComponent>(id);
         animator.SetAnimGuid(p_guid);
-        animator.SetClip("walk", true, 1.0f);
 
         return scene;
     });

@@ -13,8 +13,9 @@ class AnimatorComponent {
     CAVE_PROP(type = guid)
     Guid m_anim_id;
 
+    // fall back to idle by default
     CAVE_PROP(type = name)
-    std::string m_current_clip;
+    std::string m_current_clip = "idle";
 
     CAVE_PROP(type = boolean)
     bool m_looping = true;

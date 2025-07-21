@@ -68,6 +68,12 @@ void EditorCommandAddComponent::Execute(Scene& p_scene) {
         case ComponentName::TileMap: {
             p_scene.Create<TileMapRenderer>(target);
         } break;
+        case ComponentName::Animator: {
+            p_scene.Create<AnimatorComponent>(target);
+        } break;
+        case ComponentName::SpriteRenderer: {
+            p_scene.Create<SpriteRenderer>(target);
+        } break;
         default: {
             CRASH_NOW();
         } break;

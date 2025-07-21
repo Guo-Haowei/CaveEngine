@@ -6,10 +6,10 @@ struct VS_OUTPUT_UV {
     float2 uv : TEXCOORD;
 };
 
-static const float2 TOP_LEFT = float2(-1, +1);
-static const float2 TOP_RIGHT = float2(1, +1);
-static const float2 BOTTOM_LEFT = float2(-1, -1);
-static const float2 BOTTOM_RIGHT = float2(1, -1);
+static const float2 TOP_LEFT = float2(-0.5f, +0.5f);
+static const float2 TOP_RIGHT = float2(0.5f, +0.5f);
+static const float2 BOTTOM_LEFT = float2(-0.5f, -0.5f);
+static const float2 BOTTOM_RIGHT = float2(0.5f, -0.5f);
 
 VS_OUTPUT_UV main(uint vert_id : SV_VertexID) {
     float2 positions[6] = {
@@ -30,8 +30,7 @@ VS_OUTPUT_UV main(uint vert_id : SV_VertexID) {
 
     VS_OUTPUT_UV output;
     output.position = position;
-    float2 local_uv = 0.5f * pos + float2(0.5f, 0.5f);
-    // output.uv.y = 1.0f - output.uv.y;
+    float2 local_uv = pos + float2(0.5f, 0.5f);
 
     // apply sprite uv
     output.uv = c_uv_rect.xy + local_uv * (c_uv_rect.zw - c_uv_rect.xy);

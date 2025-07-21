@@ -1,5 +1,5 @@
 version: 19
-seed: 3
+seed: 4
 root: 1
 physics_mode: 0
 entities:
@@ -17,7 +17,7 @@ entities:
       parent_id: 1
     TransformComponent:
       scale: [1, 1, 1]
-      translation: [0, 0, 0]
+      translation: [0, 0, -4.409759]
       rotation: [0, 0, 0, 1]
     TileMapRenderer:
       tile_map: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
@@ -29,8 +29,32 @@ entities:
       parent_id: 1
     TransformComponent:
       scale: [1, 1, 1]
-      translation: [0, 0, 1.9211819]
+      translation: [0, 0, -2.88]
       rotation: [0, 0, 0, 1]
     TileMapRenderer:
       tile_map: 9FE5F444-57A6-0047-801BB379815BDC96
       tint_color: [1, 1, 1, 1]
+  - id: 4
+    NameComponent:
+      name: player
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      scale: [1, 1, 1]
+      translation: [1.6, 4.4672437, -2.6784801]
+      rotation: [0, 0, 0, 1]
+    AnimatorComponent:
+      anim_id: A19D178A-EFC6-A346-815793EC6AB97322
+      current_clip: idle
+      looping: true
+      playing: true
+      speed: 1
+    SpriteRenderer:
+      image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
+      tint_color: [1, 1, 1, 1]
+      rect:
+        min: [0.625, 1]
+        max: [0.75, 0.5]
+      flip_x: false
+      flip_y: false
+      is_billboard: false
