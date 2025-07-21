@@ -12,8 +12,8 @@
 #include "engine/scene/light_component.h"
 #include "engine/scene/mesh_renderer.h"
 #include "engine/scene/transform_component.h"
-#include "engine/sprite/sprite_renderer.h"
-#include "engine/tile_map/tile_map_renderer.h"
+#include "engine/scene/sprite_renderer.h"
+#include "engine/scene/tile_map_renderer.h"
 
 // @TODO: remove
 #include "engine/assets/mesh_asset.h"

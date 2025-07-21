@@ -1,7 +1,7 @@
 #include "engine/assets/image_asset.h"
 #include "engine/renderer/frame_data.h"
 #include "engine/scene/scene.h"
-#include "engine/sprite/sprite_renderer.h"
+#include "engine/scene/sprite_renderer.h"
 
 namespace cave {
 
