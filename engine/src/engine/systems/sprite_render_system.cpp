@@ -1,7 +1,7 @@
 #include "engine/assets/image_asset.h"
 #include "engine/renderer/frame_data.h"
 #include "engine/scene/scene.h"
-#include "engine/scene/sprite_renderer.h"
+#include "engine/scene/sprite_renderer_component.h"
 
 namespace cave {
 
@@ -11,7 +11,7 @@ void RunSpriteRenderSystem(Scene* p_scene, FrameData& p_framedata) {
     }
 
     Scene& scene = *p_scene;
-    auto view = p_scene->View<SpriteRenderer>();
+    auto view = p_scene->View<SpriteRendererComponent>();
     for (const auto& [id, sprite_renderer] : view) {
         const TransformComponent& transform = *scene.GetComponent<TransformComponent>(id);
 

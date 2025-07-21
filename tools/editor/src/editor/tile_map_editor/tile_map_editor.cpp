@@ -41,7 +41,7 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
         auto id = EntityFactory::CreateTileMapEntity(*scene, "tile_map");
         scene->AttachChild(id);
 
-        TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
+        TileMapRendererComponent* tile_map_renderer = scene->GetComponent<TileMapRendererComponent>(id);
         tile_map_renderer->SetResourceGuid(p_guid);
         return scene;
     });

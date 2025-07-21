@@ -13,7 +13,6 @@ public:
 
 private:
     void MainMenuBar();
-    void ViewerBar();
 };
 
 }  // namespace cave

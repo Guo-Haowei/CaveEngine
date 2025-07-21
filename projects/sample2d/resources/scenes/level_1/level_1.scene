@@ -19,7 +19,7 @@ entities:
       scale: [1, 1, 1]
       translation: [0, 0, -5]
       rotation: [0, 0, 0, 1]
-    TileMapRenderer:
+    TileMapRendererComponent:
       tile_map_id: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
       tint_color: [1, 1, 1, 1]
   - id: 3
@@ -31,7 +31,7 @@ entities:
       scale: [1, 1, 1]
       translation: [10, 0, -2]
       rotation: [0, 0, 0, 1]
-    TileMapRenderer:
+    TileMapRendererComponent:
       tile_map_id: 9FE5F444-57A6-0047-801BB379815BDC96
       tint_color: [1, 1, 1, 1]
   - id: 4
@@ -49,7 +49,7 @@ entities:
       looping: true
       playing: true
       speed: 1
-    SpriteRenderer:
+    SpriteRendererComponent:
       image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
       tint_color: [1, 1, 1, 1]
       rect:

@@ -34,12 +34,16 @@ enum class EntityType : uint8_t {
         COUNT,
 };
 
-// @TODO: use enum to automate it
+#define COMPONENT_LIST              \
+    COMPONENT_DECL(SpriteRenderer)  \
+    COMPONENT_DECL(TileMapRenderer) \
+    COMPONENT_DECL(LuaScript)       \
+    COMPONENT_DECL(Animator)
+
 enum class ComponentName : uint8_t {
-    SpriteRenderer,
-    Animator,
-    Script,
-    TileMap,
+#define COMPONENT_DECL(NAME) NAME,
+    COMPONENT_LIST
+#undef COMPONENT_DECL
 };
 
 }  // namespace cave

@@ -151,26 +151,21 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             LOG_ERROR("TODO: implement add component");
             ImGui::CloseCurrentPopup();
         }
-        if (ImGui::MenuItem("Script")) {
-            m_editor.CommandAddComponent(ComponentName::Script, id);
-        }
-        if (ImGui::MenuItem("SpriteRenderer")) {
-            m_editor.CommandAddComponent(ComponentName::SpriteRenderer, id);
-        }
-        if (ImGui::MenuItem("Animator")) {
-            m_editor.CommandAddComponent(ComponentName::Animator, id);
-        }
-        if (ImGui::MenuItem("TileMap")) {
-            m_editor.CommandAddComponent(ComponentName::TileMap, id);
-        }
+#define COMPONENT_DECL(NAME)                                   \
+    if (ImGui::MenuItem(#NAME)) {                              \
+        m_editor.CommandAddComponent(ComponentName::NAME, id); \
+    }
+        COMPONENT_LIST
+#undef COMPONENT_DECL
+
         ImGui::EndPopup();
     }
 
     // @TODO: see how much this can be done with meta table
 
     MeshRenderer* mesh_renderer = scene.GetComponent<MeshRenderer>(id);
-    SpriteRenderer* sprite_renderer = scene.GetComponent<SpriteRenderer>(id);
-    TileMapRenderer* tile_map_renderer = scene.GetComponent<TileMapRenderer>(id);
+    SpriteRendererComponent* sprite_renderer = scene.GetComponent<SpriteRendererComponent>(id);
+    TileMapRendererComponent* tile_map_renderer = scene.GetComponent<TileMapRendererComponent>(id);
     AnimatorComponent* animator_component = scene.GetComponent<AnimatorComponent>(id);
 
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
@@ -317,17 +312,16 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
-    // @TODO: refactor asset guid display,
-    // don't just show a guid string
-    DrawComponent("SpriteRenderer", sprite_renderer, [](SpriteRenderer& p_sprite_renderer) {
-        DrawComponentAuto<SpriteRenderer>(&p_sprite_renderer);
+    DrawComponent("SpriteRendererComponent", sprite_renderer, [](SpriteRendererComponent& p_sprite_renderer) {
+        DrawComponentAuto<SpriteRendererComponent>(&p_sprite_renderer);
     });
 
-    DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRenderer& p_tile_map_renderer) {
-        DrawComponentAuto<TileMapRenderer>(&p_tile_map_renderer);
+    DrawComponent("TileMapRendererComponent", tile_map_renderer, [](TileMapRendererComponent& p_tile_map_renderer) {
+        DrawComponentAuto<TileMapRendererComponent>(&p_tile_map_renderer);
     });
 
-    DrawComponent("Animator", animator_component, [](AnimatorComponent& p_animator) {
+    DrawComponent("AnimatorComponent", animator_component, [](AnimatorComponent& p_animator) {
+        // @TODO: refactor this
         const Guid& guid = p_animator.GetResourceGuid();
         if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
             handle.is_some()) {

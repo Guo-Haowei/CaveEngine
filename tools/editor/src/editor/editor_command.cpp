@@ -62,18 +62,13 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
 void EditorCommandAddComponent::Execute(Scene& p_scene) {
     DEV_ASSERT(target.IsValid());
     switch (m_componentType) {
-        case ComponentName::Script: {
-            p_scene.Create<LuaScriptComponent>(target);
-        } break;
-        case ComponentName::TileMap: {
-            p_scene.Create<TileMapRenderer>(target);
-        } break;
-        case ComponentName::Animator: {
-            p_scene.Create<AnimatorComponent>(target);
-        } break;
-        case ComponentName::SpriteRenderer: {
-            p_scene.Create<SpriteRenderer>(target);
-        } break;
+#define COMPONENT_DECL(NAME)                     \
+    case ComponentName::NAME: {                  \
+        p_scene.Create<NAME##Component>(target); \
+    } break;
+        COMPONENT_LIST
+#undef COMPONENT_DECL
+
         default: {
             CRASH_NOW();
         } break;

@@ -360,7 +360,7 @@ Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
     TransformComponent& transform = p_scene.Create<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
 
-    p_scene.Create<TileMapRenderer>(entity);
+    p_scene.Create<TileMapRendererComponent>(entity);
     return entity;
 }
 

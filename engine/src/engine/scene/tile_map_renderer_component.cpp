@@ -1,4 +1,4 @@
-#include "tile_map_renderer.h"
+#include "tile_map_renderer_component.h"
 
 #include "engine/assets/tile_map_asset.h"
 #include "engine/assets/tile_set_asset.h"
@@ -8,23 +8,23 @@
 
 namespace cave {
 
-void TileMapRenderer::SetTintColor(const Vector4f& p_tint_color) {
+void TileMapRendererComponent::SetTintColor(const Vector4f& p_tint_color) {
     m_tint_color = p_tint_color;
 }
 
-bool TileMapRenderer::SetResourceGuid(const Guid& p_guid) {
+bool TileMapRendererComponent::SetResourceGuid(const Guid& p_guid) {
     return AssetHandle::ReplaceGuidAndHandle(AssetType::TileMap,
                                              p_guid,
                                              m_tile_map_id,
                                              m_handle.RawHandle());
 }
 
-void TileMapRenderer::OnDeserialized() {
+void TileMapRendererComponent::OnDeserialized() {
     auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_tile_map_id);
     m_handle = std::move(res.unwrap());
 }
 
-void TileMapRenderer::CreateRenderData() {
+void TileMapRendererComponent::CreateRenderData() {
     if (m_tile_map_id != m_handle.GetGuid()) {
         OnDeserialized();
     }
@@ -164,7 +164,7 @@ void TileMapRenderer::CreateRenderData() {
     m_revision = tile_map->GetRevision();
 }
 
-void TileMapRenderer::Serialize(Archive& p_archive, uint32_t p_version) {
+void TileMapRendererComponent::Serialize(Archive& p_archive, uint32_t p_version) {
     unused(p_archive);
     unused(p_version);
     CRASH_NOW();
