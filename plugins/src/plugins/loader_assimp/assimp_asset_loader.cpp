@@ -17,7 +17,7 @@ auto AssimpAssetLoader::Load() -> Result<AssetRef> {
 
     const uint32_t flag = aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_FlipUVs;
 
-    const aiScene* aiscene = importer.ReadFile(m_meta.path, flag);
+    const aiScene* aiscene = importer.ReadFile(m_meta.import_path, flag);
 
     // check for errors
     if (!aiscene || aiscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aiscene->mRootNode) {
@@ -38,7 +38,7 @@ auto AssimpAssetLoader::Load() -> Result<AssetRef> {
     }
 
     ecs::Entity root = ProcessNode(aiscene->mRootNode, ecs::Entity::Null());
-    m_scene->GetComponent<NameComponent>(root)->SetName(m_meta.path);
+    m_scene->GetComponent<NameComponent>(root)->SetName(m_meta.import_path);
 
     m_scene->m_root = root;
     return AssetRef(m_scene);

@@ -24,7 +24,7 @@ void EditorInspectAssetCommand::Execute(Scene&) {
         auto handle = res.unwrap_unchecked();
         if (handle.IsReady()) {
             const auto meta = handle.GetMeta();
-            LOG_OK("Asset {} selected", meta->path);
+            LOG_OK("Asset {} selected", meta->name);
             m_editor->GetViewer().OpenTab(meta->type, m_guid);
 
             m_editor->SetSelectedAsset(std::move(handle));

@@ -42,7 +42,7 @@ entities:
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
+      scale: [1, 1.2, 1]
     AnimatorComponent:
       anim_id: A19D178A-EFC6-A346-815793EC6AB97322
       current_clip: walk
@@ -53,8 +53,8 @@ entities:
       image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0.625, 0.5]
-        max: [0.75, 0]
+        min: [0.5, 0.5]
+        max: [0.625, 0]
       flip_x: false
       flip_y: false
       is_billboard: false

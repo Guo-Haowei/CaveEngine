@@ -38,7 +38,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
         d.LeaveKey();
     }
     if (d.TryEnterKey("import_path")) {
-        d.Read(meta.path);
+        d.Read(meta.import_path);
         d.LeaveKey();
     }
     return meta;
@@ -72,7 +72,7 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     AssetMetaData meta;
     meta.guid = Guid::Create();
     meta.type = type;
-    meta.path = p_path;
+    meta.import_path = p_path;
 
     return Some(meta);
 }
@@ -82,7 +82,7 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
 
     std::string asset_name = name;
     if (asset_name.empty()) {
-        asset_name = StringUtils::FileName(path.c_str(), '/');
+        asset_name = StringUtils::FileName(import_path.c_str(), '/');
     }
 
     yaml.BeginMap(false)
@@ -93,7 +93,7 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
         .Key("name")
         .Write(asset_name)
         .Key("import_path")
-        .Write(path);
+        .Write(import_path);
 
     if (p_asset) {
         yaml.Key("dependencies")
@@ -102,7 +102,7 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
 
     yaml.EndMap();
 
-    auto meta_path = std::format("{}.meta", path);
+    auto meta_path = std::format("{}.meta", import_path);
     return SaveYaml(meta_path, yaml);
 }
 

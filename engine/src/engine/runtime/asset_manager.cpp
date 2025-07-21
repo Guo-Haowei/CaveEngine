@@ -212,7 +212,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
 
                 StringStreamBuilder builder;
                 builder << res.error();
-                LOG_ERROR("Failed to load asset '{}', reason {}", entry->metadata.path, builder.ToString());
+                LOG_ERROR("Failed to load asset '{}', reason {}", entry->metadata.import_path, builder.ToString());
                 return nullptr;
             }
 
@@ -225,14 +225,14 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
 
         auto loader = IAssetLoader::Create(entry->metadata);
         if (!loader) {
-            LOG_ERROR("No suitable loader found for asset '{}'", entry->metadata.path);
+            LOG_ERROR("No suitable loader found for asset '{}'", entry->metadata.import_path);
             entry->MarkFailed();
             break;
         }
 
         auto res = loader->Load();
         if (!res) {
-            LOG_ERROR("Failed to load '{}'", entry->metadata.path);
+            LOG_ERROR("Failed to load '{}'", entry->metadata.import_path);
             entry->MarkFailed();
             return nullptr;
         }
@@ -248,7 +248,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
         // @TODO: based on render, create asset on work threads
         m_app->GetGraphicsManager()->RequestTexture(image.get());
     }
-    LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.path, timer.GetDurationString());
+    LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.import_path, timer.GetDurationString());
 
     entry->MarkLoaded(asset);
     return asset;

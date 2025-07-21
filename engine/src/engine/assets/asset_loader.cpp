@@ -12,7 +12,7 @@ namespace cave {
 
 IAssetLoader::IAssetLoader(const AssetMetaData& p_meta)
     : m_meta(p_meta) {
-    m_filePath = m_meta.path;
+    m_filePath = m_meta.import_path;
     std::filesystem::path system_path{ m_filePath };
     m_fileName = system_path.filename().string();
     m_basePath = system_path.remove_filename().string();
@@ -32,7 +32,7 @@ bool IAssetLoader::RegisterLoader(const std::string& p_extension, CreateLoaderFu
 }
 
 std::unique_ptr<IAssetLoader> IAssetLoader::Create(const AssetMetaData& p_meta) {
-    std::string_view extension = StringUtils::Extension(p_meta.path);
+    std::string_view extension = StringUtils::Extension(p_meta.import_path);
     auto it = s_loaderCreator.find(std::string(extension));
     if (it == s_loaderCreator.end()) {
         return nullptr;
@@ -41,7 +41,7 @@ std::unique_ptr<IAssetLoader> IAssetLoader::Create(const AssetMetaData& p_meta) 
 }
 
 auto BufferAssetLoader::Load() -> Result<AssetRef> {
-    auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
+    auto res = FileAccess::Open(m_meta.import_path, FileAccess::READ);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -75,7 +75,7 @@ static PixelFormat ChannelToFormat(int p_channel, bool p_is_float) {
 }
 
 auto ImageAssetLoader::Load() -> Result<AssetRef> {
-    auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
+    auto res = FileAccess::Open(m_meta.import_path, FileAccess::READ);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -113,7 +113,7 @@ auto ImageAssetLoader::Load() -> Result<AssetRef> {
     }
 
     if (!pixels) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", m_meta.path);
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", m_meta.import_path);
     }
 
     if (req_channel > num_channels) {

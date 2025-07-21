@@ -60,7 +60,7 @@ void DrawAsset(const Guid& p_guid, const DragDropFunc& p_callback) {
     DEV_ASSERT(meta);
     const IAsset* asset = handle.Get();
 
-    ImGui::Text(ICON_FA_CUBE "  %s", meta->path.c_str());
+    ImGui::Text(ICON_FA_CUBE "  %s", meta->name.c_str());
 
     const bool hovered = ImGui::IsItemHovered();
     DragDropTarget(meta->type, p_callback);

@@ -353,7 +353,7 @@ void ShowAssetToolTip(const Guid& p_guid) {
 
 void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset) {
     if (ImGui::BeginTooltip()) {
-        ImGui::Text("%s", p_meta.path.c_str());
+        ImGui::Text("%s", p_meta.name.c_str());
         ImGui::Text("type: %s", ToString(p_meta.type));
 
         if (p_asset) {

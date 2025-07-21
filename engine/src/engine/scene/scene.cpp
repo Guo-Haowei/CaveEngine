@@ -263,7 +263,7 @@ static void DeserializeComponent(IDeserializer& d,
 auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     YAML::Node root;
 
-    if (auto res = LoadYaml(p_meta.path, root); !res) {
+    if (auto res = LoadYaml(p_meta.import_path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -380,7 +380,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
 
     yaml.EndArray();
     yaml.EndMap();
-    return SaveYaml(p_meta.path, yaml);
+    return SaveYaml(p_meta.import_path, yaml);
 }
 
 }  // namespace cave

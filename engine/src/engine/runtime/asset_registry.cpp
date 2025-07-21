@@ -50,9 +50,9 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 
             auto meta = std::move(*res);
 
-            if (meta.path != key) {
-                LOG_WARN("path of asset '{}' is outdated expect: '{}', actual: '{}'", meta.guid.ToString(), meta.path, key);
-                meta.path = key;
+            if (meta.import_path != key) {
+                LOG_WARN("path of asset '{}' is outdated expect: '{}', actual: '{}'", meta.guid.ToString(), meta.import_path, key);
+                meta.import_path = key;
             }
 
             LOG_VERBOSE("'{}' detected, loading...", meta_path);
@@ -105,7 +105,7 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
     {
         std::lock_guard<std::mutex> lock(registry_mutex);
         ok = ok && m_guid_map.try_emplace(entry->metadata.guid, entry).second;
-        ok = ok && m_path_map.try_emplace(entry->metadata.path, entry->metadata.guid).second;
+        ok = ok && m_path_map.try_emplace(entry->metadata.import_path, entry->metadata.guid).second;
     }
     if (ok) {
         m_app->GetAssetManager()->LoadAssetAsync(entry->metadata.guid,
@@ -164,12 +164,12 @@ void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
     DEV_ASSERT(it2 != m_guid_map.end());
 
     m_path_map[p_new] = guid;
-    it2->second->metadata.path = std::move(p_new);
+    it2->second->metadata.import_path = std::move(p_new);
 }
 
 bool AssetRegistry::SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const {
     if (!p_entry->asset) {
-        LOG_ERROR("Asset not loaded {}", p_entry->metadata.path);
+        LOG_ERROR("Asset not loaded {}", p_entry->metadata.import_path);
         return false;
     }
 
@@ -181,7 +181,7 @@ bool AssetRegistry::SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) 
         return false;
     }
 
-    LOG_OK("Asset '{}' saved!", p_entry->metadata.path);
+    LOG_OK("Asset '{}' saved!", p_entry->metadata.import_path);
     return true;
 }
 
