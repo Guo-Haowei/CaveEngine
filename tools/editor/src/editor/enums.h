@@ -34,13 +34,12 @@ enum class EntityType : uint8_t {
         COUNT,
 };
 
-// @TODO: auto register
+// @TODO: use enum to automate it
 enum class ComponentName : uint8_t {
     SpriteRenderer,
     Animator,
     Script,
     TileMap,
-    Count,
 };
 
 }  // namespace cave

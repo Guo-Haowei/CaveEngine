@@ -41,11 +41,11 @@ entities:
       parent_id: 1
     TransformComponent:
       scale: [1, 1, 1]
-      translation: [1.6, 4.4672437, -2.6784801]
+      translation: [5.7, 4.4672437, -2.6784801]
       rotation: [0, 0, 0, 1]
     AnimatorComponent:
       anim_id: A19D178A-EFC6-A346-815793EC6AB97322
-      current_clip: idle
+      current_clip: walk
       looping: true
       playing: true
       speed: 1
@@ -53,8 +53,8 @@ entities:
       image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0.625, 1]
-        max: [0.75, 0.5]
+        min: [0, 0.5]
+        max: [0.125, 0]
       flip_x: false
       flip_y: false
       is_billboard: false

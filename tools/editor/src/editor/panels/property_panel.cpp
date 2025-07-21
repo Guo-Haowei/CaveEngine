@@ -2,12 +2,14 @@
 
 #include <ImGuizmo/ImGuizmo.h>
 
-#include "editor/editor_command.h"
-#include "editor/editor_layer.h"
-#include "editor/widgets/widget.h"
+#include "engine/assets/sprite_animation_asset.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
+
+#include "editor/editor_command.h"
+#include "editor/editor_layer.h"
+#include "editor/widgets/widget.h"
 
 namespace cave {
 
@@ -292,6 +294,19 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         });
         if (hovered) {
             ShowAssetToolTip(guid);
+        }
+
+        if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
+            handle.is_some()) {
+            SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
+            // @TODO: drop down
+            std::string clip_name = p_animator.GetCurrentClip();
+            if (DrawInputText("clip", clip_name)) {
+                const SpriteAnimationClip* clip = asset->GetClip(clip_name);
+                if (clip) {
+                    p_animator.SetClip(clip_name, clip->IsLooping(), clip->GetTotalDuration());
+                }
+            }
         }
     });
 
