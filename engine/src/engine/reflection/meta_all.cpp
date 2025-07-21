@@ -5,6 +5,7 @@
 #include "generated/sprite_animation_asset.generated.cpp"
 #include "generated/tile_map_asset.generated.cpp"
 #include "generated/tile_set_asset.generated.cpp"
+#include "generated/animator_component.generated.cpp"
 #include "generated/camera_component.generated.cpp"
 #include "generated/light_component.generated.cpp"
 #include "generated/mesh_renderer.generated.cpp"

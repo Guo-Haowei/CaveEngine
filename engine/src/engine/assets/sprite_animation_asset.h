@@ -1,32 +1,9 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
-#include "engine/assets/asset_interface.h"
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"
 
 namespace cave {
-
-#if 0
-
-struct SpriteAnimatorComponent {
-    Handle<SpriteAnimationAsset> asset;
-    std::string currentClip;
-    float timeInClip = 0.0f;
-    int currentFrameIndex = 0;
-    bool playing = true;
-};
-
-struct SpriteRendererComponent {
-    Color tint = Color::White;
-    bool flipX = false;
-    bool flipY = false;
-
-    Handle<Texture> overrideTexture; // optional, usually from animation asset
-    Rect uv;
-    Vec2 pivot;
-};
-
-#endif
 
 class SpriteAnimationClip {
     CAVE_META(SpriteAnimationClip)

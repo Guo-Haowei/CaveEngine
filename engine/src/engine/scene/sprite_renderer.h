@@ -8,10 +8,10 @@ namespace cave {
 
 class Archive;
 
-struct SpriteRenderer {
+class SpriteRenderer {
     CAVE_META(SpriteRenderer)
 
-    // @TODO: make property private for safety
+    // @TODO: make property private
 public:
     CAVE_PROP(type = guid)
     Guid image_id;
@@ -42,7 +42,8 @@ public:
 
     const Handle<ImageAsset> GetHandle() const { return m_image_handle; }
 
-    void OnDeserialized() {}
+    void OnDeserialized();
+
     void Serialize(Archive& p_archive, uint32_t p_version);
 };
 

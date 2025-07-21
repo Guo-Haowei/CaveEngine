@@ -103,9 +103,12 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         ImGui::EndPopup();
     }
 
+    // @TODO: see how much this can be done with meta table
+
     MeshRenderer* mesh_renderer = scene.GetComponent<MeshRenderer>(id);
     SpriteRenderer* sprite_renderer = scene.GetComponent<SpriteRenderer>(id);
     TileMapRenderer* tile_map_renderer = scene.GetComponent<TileMapRenderer>(id);
+    AnimatorComponent* animator_component = scene.GetComponent<AnimatorComponent>(id);
 
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
     LightComponent* light_component = scene.GetComponent<LightComponent>(id);
@@ -263,13 +266,26 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRenderer& p_tile_map_renderer) {
-        ImGui::Text("tile map: %s", p_tile_map_renderer.GetGuid().ToString().c_str());
+        const Guid& guid = p_tile_map_renderer.GetGuid();
+        ImGui::Text("tile map: %s", guid.ToString().c_str());
         const bool hovered = ImGui::IsItemHovered();
         DragDropTarget(AssetType::TileMap, [&](AssetHandle& p_handle) {
             p_tile_map_renderer.SetTileMap(p_handle.GetGuid());
         });
         if (hovered) {
-            ShowAssetToolTip(p_tile_map_renderer.GetGuid());
+            ShowAssetToolTip(guid);
+        }
+    });
+
+    DrawComponent("Animator", animator_component, [](AnimatorComponent& p_animator) {
+        const Guid& guid = p_animator.GetAnimGuid();
+        ImGui::Text("animator: %s", guid.ToString().c_str());
+        const bool hovered = ImGui::IsItemHovered();
+        DragDropTarget(AssetType::SpriteAnimation, [&](AssetHandle& p_handle) {
+            p_animator.SetAnimGuid(p_handle.GetGuid());
+        });
+        if (hovered) {
+            ShowAssetToolTip(guid);
         }
     });
 

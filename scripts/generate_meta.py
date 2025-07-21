@@ -18,6 +18,7 @@ FILES = [
     'assets/sprite_animation_asset.h',
     'assets/tile_map_asset.h',
     'assets/tile_set_asset.h',
+    'scene/animator_component.h',
     'scene/camera_component.h',
     'scene/light_component.h',
     'scene/mesh_renderer.h',

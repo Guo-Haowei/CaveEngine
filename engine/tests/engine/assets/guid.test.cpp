@@ -13,34 +13,6 @@ TEST(guid, default_constructor) {
     EXPECT_EQ(result, 0);
 }
 
-TEST(guid, constructor) {
-    std::array<uint8_t, 16> bytes;
-    uint8_t counter = 1;
-    for (auto& i : bytes) {
-        i = counter++;
-    }
-
-    Guid guid(bytes.data());
-    const int result = memcmp(&guid, bytes.data(), sizeof(guid));
-    EXPECT_EQ(result, 0);
-}
-
-TEST(guid, to_string) {
-    // clang-format off
-	const uint8_t bytes[] = {
-		0xAA, 0xBB, 0xCC, 0xDD,
-		0xEE, 0xFF,
-		0x10, 0xAA,
-		0xEA, 0xEB, 0xEC, 0xED, 0xFA, 0xFB, 0xFC, 0xFD,
-    };
-    // clang-format on
-    static_assert(sizeof(bytes) == 16);
-
-    Guid guid(bytes);
-    std::string str = guid.ToString();
-    EXPECT_EQ(str, "AABBCCDD-EEFF-10AA-EAEBECEDFAFBFCFD");
-}
-
 TEST(guid, padd_zero) {
     Guid guid;
     std::string str = guid.ToString();

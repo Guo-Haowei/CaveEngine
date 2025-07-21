@@ -42,8 +42,20 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
 
         SpriteRenderer& sprite_renderer = scene->Create<SpriteRenderer>(id);
         sprite_renderer.SetImage(test_image.GetGuid());
+
+        AnimatorComponent& animator = scene->Create<AnimatorComponent>(id);
+        animator.SetAnimGuid(p_guid);
+
         return scene;
     });
+
+    // cache the id
+
+    auto view = m_tmp_scene->View<AnimatorComponent>();
+    for (const auto [id, _] : view) {
+        DEV_ASSERT(!m_animator_id.IsValid());
+        m_animator_id = id;
+    }
 }
 
 void SpriteAnimationEditor::OnDestroy() {
@@ -171,16 +183,26 @@ void SpriteAnimationEditor::DrawTimeLine() {
     ImGui::SetColumnWidth(0, width);
     ImGui::SetColumnWidth(1, width);
     {
+        AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+        DEV_ASSERT(animator);
+
+        int current_clip = -1;
         std::vector<const char*> clips;
         Handle<SpriteAnimationAsset> handle = m_document->GetHandle<SpriteAnimationAsset>();
         if (auto anim = handle.Get(); anim) {
             for (const auto& [key, value] : anim->GetClips()) {
+                if (key == animator->GetCurrentClip()) {
+                    current_clip = static_cast<int>(clips.size());
+                }
                 clips.push_back(key.c_str());
             }
         }
-        static int current_clip = 0;
+
+        const int old_clip = current_clip;
+
+        const char* current_item = current_clip == -1 ? "select clip ..." : clips[current_clip];
         const int clip_count = static_cast<int>(clips.size());
-        if (ImGui::BeginCombo("Clips", clips.empty() ? nullptr : clips[current_clip])) {
+        if (ImGui::BeginCombo("Clips", current_item)) {
             for (int n = 0; n < clip_count; ++n) {
                 const bool is_selected = (current_clip == n);
                 if (ImGui::Selectable(clips[n], is_selected)) {
@@ -193,27 +215,17 @@ void SpriteAnimationEditor::DrawTimeLine() {
             }
             ImGui::EndCombo();
         }
+
+        if (old_clip != current_clip) {
+            LOG_OK("Set clip to {}", clips[current_clip]);
+            animator->SetClip(clips[current_clip], true, 1.0f);
+        }
     }
 
     ImGui::NextColumn();
 
     {
-        std::vector<const char*> fps = { "1fps", "2fps", "3fps" };
-        static int current = 0;
-        const int count = static_cast<int>(fps.size());
-        if (ImGui::BeginCombo("FPS", fps[current])) {
-            for (int n = 0; n < count; ++n) {
-                const bool is_selected = (current == n);
-                if (ImGui::Selectable(fps[n], is_selected)) {
-                    current = n;
-                }
-
-                if (is_selected) {
-                    ImGui::SetItemDefaultFocus();
-                }
-            }
-            ImGui::EndCombo();
-        }
+        ImGui::Text("TODO: timeline");
     }
     ImGui::Columns(2);
 }

@@ -8,6 +8,7 @@
 // components
 #include "engine/scene/scene_component.h"  // @TODO: split this
 
+#include "engine/scene/animator_component.h"
 #include "engine/scene/camera_component.h"
 #include "engine/scene/light_component.h"
 #include "engine/scene/mesh_renderer.h"
@@ -32,20 +33,14 @@ namespace cave {
     REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0) \
     REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)       \
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)         \
+    REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)   \
     REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)             \
     REGISTER_COMPONENT(SpriteRenderer, "World::SpriteRenderer", 0)         \
     REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)
 
 // @TODO: use meta table for all components
 #define REGISTER_COMPONENT_LIST                                                  \
-    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                 \
-    REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)             \
-    REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)       \
-    REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0)       \
-    REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)               \
-    REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)                   \
-    REGISTER_COMPONENT(SpriteRenderer, "World::SpriteRenderer", 0)               \
-    REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)             \
+    REGISTER_COMPONENT_SERIALIZED_LIST                                           \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)       \
     REGISTER_COMPONENT(NativeScriptComponent, "World::NativeScriptComponent", 0) \
     REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)                 \

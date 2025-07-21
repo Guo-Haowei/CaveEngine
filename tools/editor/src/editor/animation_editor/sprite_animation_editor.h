@@ -1,6 +1,7 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
 #include "engine/assets/sprite_animation_asset.h"
+#include "engine/ecs/entity.h"
 
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/sprite_selector.h"
@@ -51,6 +52,8 @@ protected:
     SpriteSelector m_sprite_selector;
 
     std::string m_clip_name;
+
+    ecs::Entity m_animator_id;
 };
 
 }  // namespace cave
