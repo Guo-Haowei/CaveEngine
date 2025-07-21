@@ -89,7 +89,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
         return;
     }
 
-    const char* icon = is_dir ? ICON_FA_FOLDER : ICON_FA_FILE;
+    const char* icon = is_dir ? ICON_FA_FOLDER : ICON_FA_CUBE;
 
     int flags = 0;
     flags |= ImGuiTreeNodeFlags_DefaultOpen;

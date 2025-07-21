@@ -53,7 +53,11 @@ bool DrawColorPicker3(const char* p_label,
                       float* p_out,
                       float p_column_width = DEFAULT_COLUMN_WIDTH);
 
-bool ToggleButton(const char* p_str_id, bool* p_value);
+bool DrawColorPicker4(const char* p_label,
+                      float* p_out,
+                      float p_column_width = DEFAULT_COLUMN_WIDTH);
+
+bool ToggleButton(const char* p_str_id, bool& p_value);
 
 using DragDropFunc = std::function<void(AssetHandle&)>;
 
@@ -77,5 +81,15 @@ struct AssetChildPanel {
 };
 
 void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_descs);
+
+/// image button
+struct ToolBarButtonDesc {
+    const char* display{ nullptr };
+    const char* tooltip{ nullptr };
+    std::function<void()> execute_func;
+    std::function<bool()> is_enabled_func;
+};
+
+void DrawToolBarButton(const ToolBarButtonDesc& p_button);
 
 }  // namespace cave

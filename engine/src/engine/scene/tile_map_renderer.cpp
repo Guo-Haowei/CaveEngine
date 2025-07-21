@@ -12,20 +12,20 @@ void TileMapRenderer::SetTintColor(const Vector4f& p_tint_color) {
     m_tint_color = p_tint_color;
 }
 
-bool TileMapRenderer::SetTileMap(const Guid& p_guid) {
+bool TileMapRenderer::SetResourceGuid(const Guid& p_guid) {
     return AssetHandle::ReplaceGuidAndHandle(AssetType::TileMap,
                                              p_guid,
-                                             m_tile_map,
+                                             m_tile_map_id,
                                              m_handle.RawHandle());
 }
 
 void TileMapRenderer::OnDeserialized() {
-    auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_tile_map);
+    auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_tile_map_id);
     m_handle = std::move(res.unwrap());
 }
 
 void TileMapRenderer::CreateRenderData() {
-    if (m_tile_map != m_handle.GetGuid()) {
+    if (m_tile_map_id != m_handle.GetGuid()) {
         OnDeserialized();
     }
 

@@ -1,13 +1,17 @@
-#include "propertiy_panel.h"
+#include "property_panel.h"
 
 #include <ImGuizmo/ImGuizmo.h>
+#include <IconsFontAwesome/IconsFontAwesome6.h>
+
+#include "engine/assets/sprite_animation_asset.h"
+#include "engine/core/string/string_utils.h"
+#include "engine/reflection/meta.h"
+#include "engine/renderer/graphics_dvars.h"
+#include "engine/runtime/asset_registry.h"
 
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
 #include "editor/widgets/widget.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/renderer/graphics_dvars.h"
 
 namespace cave {
 
@@ -61,6 +65,59 @@ static bool DrawVec3ControlDisabled(bool disabled, Args&&... args) {
     return dirty;
 };
 
+void DrawAsset(const Guid& p_guid, const DragDropFunc& p_callback) {
+    AssetHandle handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
+    const AssetMetaData* meta = handle.GetMeta();
+    DEV_ASSERT(meta);
+    const IAsset* asset = handle.Get();
+
+    ImGui::Text(ICON_FA_CUBE "  %s", meta->path.c_str());
+
+    const bool hovered = ImGui::IsItemHovered();
+    DragDropTarget(meta->type, p_callback);
+    if (hovered) {
+        ShowAssetToolTip(*meta, asset);
+    }
+};
+
+template<typename T>
+bool DrawComponentAuto(T* p_component) {
+    constexpr float WIDTH = 120.f;
+
+    bool dirty = false;
+
+    const auto& meta_table = MetaDataTable<T>::GetFields();
+    for (const auto& field : meta_table) {
+        switch (field->editor_hint) {
+            case EditorHint::Toggle: {
+                bool& toggle = field->GetData<bool>(p_component);
+                if (ImGui::Checkbox(field->name, &toggle)) {
+                    dirty = true;
+                    // @TODO: callback
+                }
+            } break;
+            case EditorHint::Color: {
+                Vector4f& color = field->GetData<Vector4f>(p_component);
+                if (DrawColorPicker4(field->name, &color.r, WIDTH)) {
+                    dirty = true;
+                    // @TODO: callback
+                }
+            } break;
+            case EditorHint::Asset: {
+                const Guid& guid = field->GetData<Guid>(p_component);
+                DrawAsset(guid,
+                          [&](AssetHandle& p_handle) {
+                              p_component->SetResourceGuid(p_handle.GetGuid());
+                          });
+            } break;
+            default:
+                break;
+        }
+    }
+
+    return dirty;
+}
+
 void PropertyPanel::UpdateInternal(Scene* p_scene) {
     if (!p_scene) {
         return;
@@ -96,6 +153,12 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
         if (ImGui::MenuItem("Script")) {
             m_editor.CommandAddComponent(ComponentName::Script, id);
+        }
+        if (ImGui::MenuItem("SpriteRenderer")) {
+            m_editor.CommandAddComponent(ComponentName::SpriteRenderer, id);
+        }
+        if (ImGui::MenuItem("Animator")) {
+            m_editor.CommandAddComponent(ComponentName::Animator, id);
         }
         if (ImGui::MenuItem("TileMap")) {
             m_editor.CommandAddComponent(ComponentName::TileMap, id);
@@ -254,39 +317,32 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
+    // @TODO: refactor asset guid display,
+    // don't just show a guid string
     DrawComponent("SpriteRenderer", sprite_renderer, [](SpriteRenderer& p_sprite_renderer) {
-        ImGui::Text("image: %s", p_sprite_renderer.GetGuid().ToString().c_str());
-        const bool hovered = ImGui::IsItemHovered();
-        DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
-            p_sprite_renderer.SetImage(p_handle.GetGuid());
-        });
-        if (hovered) {
-            ShowAssetToolTip(p_sprite_renderer.GetGuid());
-        }
+        DrawComponentAuto<SpriteRenderer>(&p_sprite_renderer);
     });
 
     DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRenderer& p_tile_map_renderer) {
-        const Guid& guid = p_tile_map_renderer.GetGuid();
-        ImGui::Text("tile map: %s", guid.ToString().c_str());
-        const bool hovered = ImGui::IsItemHovered();
-        DragDropTarget(AssetType::TileMap, [&](AssetHandle& p_handle) {
-            p_tile_map_renderer.SetTileMap(p_handle.GetGuid());
-        });
-        if (hovered) {
-            ShowAssetToolTip(guid);
-        }
+        DrawComponentAuto<TileMapRenderer>(&p_tile_map_renderer);
     });
 
     DrawComponent("Animator", animator_component, [](AnimatorComponent& p_animator) {
-        const Guid& guid = p_animator.GetAnimGuid();
-        ImGui::Text("animator: %s", guid.ToString().c_str());
-        const bool hovered = ImGui::IsItemHovered();
-        DragDropTarget(AssetType::SpriteAnimation, [&](AssetHandle& p_handle) {
-            p_animator.SetAnimGuid(p_handle.GetGuid());
-        });
-        if (hovered) {
-            ShowAssetToolTip(guid);
+        const Guid& guid = p_animator.GetResourceGuid();
+        if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
+            handle.is_some()) {
+            SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
+            // @TODO: drop down
+            std::string clip_name = p_animator.GetCurrentClip();
+            if (DrawInputText("clip", clip_name)) {
+                const SpriteAnimationClip* clip = asset->GetClip(clip_name);
+                if (clip) {
+                    p_animator.SetClip(clip_name, clip->IsLooping(), clip->GetTotalDuration());
+                }
+            }
         }
+
+        DrawComponentAuto<AnimatorComponent>(&p_animator);
     });
 
     DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
@@ -296,7 +352,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
 
         bool is_ortho = p_camera.IsOrtho();
-        if (ToggleButton("ortho", &is_ortho)) {
+        if (ToggleButton("ortho", is_ortho)) {
             p_camera.SetOrtho(is_ortho);
             p_camera.SetDirty();
         }

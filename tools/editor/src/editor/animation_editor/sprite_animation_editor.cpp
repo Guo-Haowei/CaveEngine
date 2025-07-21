@@ -35,14 +35,13 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
         auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
         scene->m_root = root;
 
-        auto id = EntityFactory::CreateTransformEntity(*scene, "test_sprite");
+        auto id = EntityFactory::CreateTransformEntity(*scene, "animation_test");
         scene->AttachChild(id);
 
         scene->Create<SpriteRenderer>(id);
 
         AnimatorComponent& animator = scene->Create<AnimatorComponent>(id);
-        animator.SetAnimGuid(p_guid);
-        animator.SetClip("walk", true, 1.0f);
+        animator.SetResourceGuid(p_guid);
 
         return scene;
     });
@@ -64,6 +63,29 @@ void SpriteAnimationEditor::OnActivate() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
     scene_manager->SetTmpScene(m_tmp_scene);
+}
+
+const std::vector<ToolBarButtonDesc>& SpriteAnimationEditor::GetToolBarButtons() const {
+    // ICON_FA_FORWARD;
+    // ICON_FA_BACKWARD;
+    static std::vector<ToolBarButtonDesc> s_buttons = {
+        { ICON_FA_PLAY, "Play animation",
+          [&]() {
+              AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+              if (DEV_VERIFY(animator)) {
+                  animator->SetPlaying(true);
+              }
+          } },
+        { ICON_FA_PAUSE, "Pause animation",
+          [&]() {
+              AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+              if (DEV_VERIFY(animator)) {
+                  animator->SetPlaying(false);
+              }
+          } },
+    };
+
+    return s_buttons;
 }
 
 void SpriteAnimationEditor::DrawMainView(const CameraComponent& p_camera) {
@@ -177,9 +199,9 @@ void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
 
 void SpriteAnimationEditor::DrawTimeLine() {
     constexpr int width = 300;
+
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, width);
-    ImGui::SetColumnWidth(1, width);
     {
         AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
         DEV_ASSERT(animator);
@@ -221,11 +243,29 @@ void SpriteAnimationEditor::DrawTimeLine() {
     }
 
     ImGui::NextColumn();
+    AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+    DEV_ASSERT(animator);
 
-    {
-        ImGui::Text("TODO: timeline");
+    ToolBarButtonDesc s_play_button = { ICON_FA_PLAY, "Play animation",
+                                        [&]() {
+                                            animator->SetPlaying(true);
+                                        } };
+    ToolBarButtonDesc s_pause_button = { ICON_FA_PAUSE, "Pause animation",
+                                         [&]() {
+                                             animator->SetPlaying(false);
+                                         } };
+
+    DrawToolBarButton(s_play_button);
+    ImGui::SameLine();
+    DrawToolBarButton(s_pause_button);
+
+    ImGui::Columns(1);
+
+    // time line
+    auto& playback = animator->GetPlaybackTimer();
+    if (ImGui::SliderFloat("timeline", &playback.timer, playback.start, playback.end)) {
+        animator->SetPlaying(true);
     }
-    ImGui::Columns(2);
 }
 
 void SpriteAnimationEditor::DrawAssetInspector() {

@@ -37,6 +37,15 @@ bool SpriteAnimationAsset::AddClip(std::string&& p_name, std::vector<Rect>&& p_f
     return true;
 }
 
+const SpriteAnimationClip* SpriteAnimationAsset::GetClip(const std::string& p_name) {
+    auto it = m_clips.find(p_name);
+    if (it == m_clips.end()) {
+        return nullptr;
+    }
+
+    return &(it->second);
+}
+
 void SpriteAnimationAsset::SetGuid(const Guid& p_guid) {
     AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
                                       p_guid,

@@ -7,19 +7,17 @@ namespace cave {
 
 class AnimationSystem {
 public:
-    static int GetFrame(float p_current,
+    static int GetFrame(float p_timer,
                         float p_total,
-                        const std::vector<float>& p_durations,
-                        bool p_looping) {
+                        const std::vector<float>& p_durations) {
         const int frame_count = static_cast<int>(p_durations.size());
-        if (p_current >= p_total && !p_looping) {
+        if (p_timer >= p_total) {
             return frame_count - 1;
         }
-        const float timer = std::fmod(p_current, p_total);
         float time_so_far = 0.0f;
         for (int i = 0; i < frame_count; ++i) {
             time_so_far += p_durations[i];
-            if (timer <= time_so_far) {
+            if (p_timer <= time_so_far) {
                 return i;
             }
         }
@@ -35,7 +33,7 @@ public:
             return;
         }
 
-        p_renderer.SetImage(asset->GetImageGuid());
+        p_renderer.SetResourceGuid(asset->GetImageGuid());
 
         const auto& clip_name = p_animator.GetCurrentClip();
         const auto& clips = asset->GetClips();
@@ -43,21 +41,27 @@ public:
         if (it == clips.end()) {
             return;
         }
+        const SpriteAnimationClip& clip = it->second;
 
         const auto& timer = p_animator.GetPlaybackTimer();
+
         if (p_animator.IsPlaying()) {
             timer.timer += p_timestep;
         }
 
-        const SpriteAnimationClip& clip = it->second;
+        const float duration = clip.GetTotalDuration();
+        if (p_animator.IsLooping()) {
+            timer.timer = std::fmod(timer.timer, duration);
+        } else {
+            timer.timer = std::min(timer.timer, duration);
+        }
 
         const int frame_idx = GetFrame(timer.timer,
-                                       clip.GetTotalDuration(),
-                                       clip.GetDurations(),
-                                       p_animator.IsLooping());
+                                       duration,
+                                       clip.GetDurations());
 
         DEV_ASSERT_INDEX(frame_idx, clip.GetFrames().size());
-        p_renderer.rect = clip.GetFrames()[frame_idx];
+        p_renderer.SetRect(clip.GetFrames()[frame_idx]);
     }
 };
 

@@ -42,7 +42,7 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
         scene->AttachChild(id);
 
         TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
-        tile_map_renderer->SetTileMap(p_guid);
+        tile_map_renderer->SetResourceGuid(p_guid);
         return scene;
     });
 }
@@ -277,7 +277,7 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     }
 }
 
-const std::vector<ViewerTab::ToolBarButtonDesc>& TileMapEditor::GetToolBarButtons() const {
+const std::vector<ToolBarButtonDesc>& TileMapEditor::GetToolBarButtons() const {
     static std::vector<ToolBarButtonDesc> s_buttons = {
         { ICON_FA_BRUSH, "TileMap editor mode",
           [&]() {

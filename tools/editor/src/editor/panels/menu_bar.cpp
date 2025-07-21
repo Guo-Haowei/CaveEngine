@@ -79,7 +79,7 @@ void MenuBar::ViewerBar() {
     ImGui::Button("Click Me");
 
     static bool ok = true;
-    ToggleButton("dummy", &ok);
+    ToggleButton("dummy", ok);
     ImGui::EndGroup();
 }
 

@@ -11,36 +11,38 @@ class Archive;
 class SpriteRenderer {
     CAVE_META(SpriteRenderer)
 
-    // @TODO: make property private
-public:
-    CAVE_PROP(type = guid)
-    Guid image_id;
+    CAVE_PROP(editor = Asset)
+    Guid m_image_id;
 
-    CAVE_PROP(type = color)
-    Vector4f tint_color = Vector4f::One;
+    CAVE_PROP(editor = Color)
+    Vector4f m_tint_color = Vector4f::One;
 
-    CAVE_PROP(type = box2)
-    Rect rect = { Vector2f::Zero, Vector2f::One };
+    CAVE_PROP()
+    Rect m_rect = { Vector2f::Zero, Vector2f::One };
 
-    CAVE_PROP(type = boolean, ui = toggle)
-    bool flip_x = false;
+    CAVE_PROP(editor = Toggle)
+    bool m_flip_x = false;
 
-    CAVE_PROP(type = boolean, ui = toggle)
-    bool flip_y = false;
+    CAVE_PROP(editor = Toggle)
+    bool m_flip_y = false;
 
-    CAVE_PROP(type = boolean)
-    bool is_billboard = false;
+    CAVE_PROP(editor = Toggle)
+    bool m_is_billboard = false;
 
-private:
     // Non serialized
     Handle<ImageAsset> m_image_handle;
 
 public:
-    bool SetImage(const Guid& p_guid);
-
-    const Guid& GetGuid() const { return image_id; }
+    bool SetResourceGuid(const Guid& p_guid);
+    const Guid& GetResourceGuid() const { return m_image_id; }
 
     const Handle<ImageAsset> GetHandle() const { return m_image_handle; }
+
+    void SetTintColor(const Vector4f& p_tint_color) { m_tint_color = p_tint_color; }
+    const Vector4f& GetTintColor() const { return m_tint_color; }
+
+    void SetRect(const Rect& p_rect) { m_rect = p_rect; }
+    const Rect& GetRect() const { return m_rect; }
 
     void OnDeserialized();
 

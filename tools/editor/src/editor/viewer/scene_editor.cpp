@@ -182,7 +182,7 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     return false;
 }
 
-const std::vector<ViewerTab::ToolBarButtonDesc>& SceneEditor::GetToolBarButtons() const {
+const std::vector<ToolBarButtonDesc>& SceneEditor::GetToolBarButtons() const {
     auto app = m_editor.GetApplication();
     auto app_state = app->GetState();
 

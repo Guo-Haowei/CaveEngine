@@ -10,13 +10,6 @@
 
 namespace cave {
 
-// @TODO: get rid of this
-enum FieldFlag : uint32_t {
-    NONE = BIT(0),
-};
-
-DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
-
 class Guid;
 
 #if USING(VALIDATE_SERIALIZER)

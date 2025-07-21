@@ -5,17 +5,17 @@
 
 namespace cave {
 
-bool SpriteRenderer::SetImage(const Guid& p_guid) {
+bool SpriteRenderer::SetResourceGuid(const Guid& p_guid) {
     return AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
                                              p_guid,
-                                             image_id,
+                                             m_image_id,
                                              m_image_handle.RawHandle());
 }
 
 void SpriteRenderer::OnDeserialized() {
-    if (!image_id.IsNull()) {
+    if (!m_image_id.IsNull()) {
         m_image_handle =
-            AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(image_id).unwrap();
+            AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_id).unwrap();
     }
 }
 

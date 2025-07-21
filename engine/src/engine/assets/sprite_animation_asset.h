@@ -24,6 +24,8 @@ public:
 
     SpriteAnimationClip(std::vector<Rect>&& p_frames, float p_length = 1.0f);
 
+    bool IsLooping() const { return m_loop; }
+
     void SetFrames(std::vector<Rect>&& frames);
 
     void SetAnimationLength(float p_length);
@@ -53,6 +55,8 @@ class SpriteAnimationAsset : public IAsset {
 
 public:
     bool AddClip(std::string&& p_name, std::vector<Rect>&& p_frames);
+
+    const SpriteAnimationClip* GetClip(const std::string& p_name);
 
     const auto& GetClips() const { return m_clips; }
 

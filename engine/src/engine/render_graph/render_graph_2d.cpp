@@ -39,7 +39,7 @@ static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
         }
         cmd.SetMesh(tile);
         cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
-        cmd.DrawElementsInstanced(1, draw.indexCount);
+        cmd.DrawElementsInstanced(1, draw.index_count);
     }
 
     cmd.SetMesh(nullptr);
@@ -51,7 +51,7 @@ static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
             cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
         }
         cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
-        cmd.DrawArrays(draw.indexCount);
+        cmd.DrawArrays(draw.index_count);
     }
 }
 

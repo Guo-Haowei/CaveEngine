@@ -12,10 +12,10 @@ struct GpuMesh;
 class TileMapRenderer {
     CAVE_META(TileMapRenderer)
 
-    CAVE_PROP(type = guid, tooltip = "tile map")
-    Guid m_tile_map;
+    CAVE_PROP(editor = Asset, tooltip = "tile map")
+    Guid m_tile_map_id;
 
-    CAVE_PROP(type = color)
+    CAVE_PROP(editor = Color)
     Vector4f m_tint_color = Vector4f::One;
 
 private:
@@ -35,15 +35,14 @@ public:
     // @TODO: better way to create data
     void CreateRenderData();
 
-    bool SetTileMap(const Guid& p_guid);
-
     bool GetVisibility() const { return m_visibility; }
     const auto& GetCache() const { return m_cache; }
 
-    const Guid& GetGuid() const { return m_tile_map; }
+    bool SetResourceGuid(const Guid& p_guid);
+    const Guid& GetResourceGuid() const { return m_tile_map_id; }
 
-    const Vector4f& GetTintColor() const { return m_tint_color; }
     void SetTintColor(const Vector4f& p_tint_color);
+    const Vector4f& GetTintColor() const { return m_tint_color; }
 
     void OnDeserialized();
     void Serialize(Archive& p_archive, uint32_t p_version);

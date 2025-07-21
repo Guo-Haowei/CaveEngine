@@ -125,7 +125,7 @@ static void FillPass(const Scene& p_scene,
         draw.mesh_data = mesh.gpuResource.get();
         if (draw.mesh_data) {
             draw.mat_idx = -1;
-            draw.indexCount = static_cast<uint32_t>(mesh.indices.size());
+            draw.index_count = static_cast<uint32_t>(mesh.indices.size());
             p_commands.emplace_back(RenderCommand::From(draw));
         }
     }
@@ -396,7 +396,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
         draw.mat_idx = -1;
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(entity, batch_buffer);
-        draw.indexCount = static_cast<uint32_t>(mesh.indices.size());
+        draw.index_count = static_cast<uint32_t>(mesh.indices.size());
         draw.mesh_data = (GpuMesh*)mesh.gpuResource.get();
         if (!draw.mesh_data) {
             continue;
@@ -429,8 +429,8 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
                 FillMaterialConstantBuffer(is_opengl, material, material_buffer);
 
-                draw_cmd.indexCount = subset.index_count;
-                draw_cmd.indexOffset = subset.index_offset;
+                draw_cmd.index_count = subset.index_count;
+                draw_cmd.index_offset = subset.index_offset;
                 draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(subset.material_id, material_buffer);
 
                 p_commands.emplace_back(RenderCommand::From(draw_cmd));
