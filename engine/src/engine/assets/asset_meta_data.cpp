@@ -9,6 +9,9 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+// @TODO: use meta table to auto load
+// @TODO: enum serialization
+
 auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     YAML::Node root;
     if (auto res = LoadYaml(p_path, root); !res) {
@@ -16,8 +19,6 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     }
 
     AssetMetaData meta;
-
-    // @TODO: use meta table to auto load
 
     YamlDeserializer d;
     d.Initialize(root);
@@ -28,12 +29,15 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     if (d.TryEnterKey("type")) {
         std::string type;
         d.Read(type);
-        // @TODO: enum serialization
         meta.type = AssetTypeFromString(type);
         DEV_ASSERT(meta.type != AssetType::Unknown);
         d.LeaveKey();
     }
-    if (d.TryEnterKey("path")) {
+    if (d.TryEnterKey("name")) {
+        d.Read(meta.name);
+        d.LeaveKey();
+    }
+    if (d.TryEnterKey("import_path")) {
         d.Read(meta.path);
         d.LeaveKey();
     }

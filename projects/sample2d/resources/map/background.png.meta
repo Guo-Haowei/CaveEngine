@@ -1,3 +1,4 @@
 guid: A1130333-79C5-9E43-A95F006D4AA71D4F
 type: image
-path: "@res://images/background.png"
+name: background.png
+import_path: "@res://images/background.png"

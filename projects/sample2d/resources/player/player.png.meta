@@ -1,3 +1,4 @@
 guid: 7AA74195-1D78-4841-9920E8650E8DE22A
 type: image
-path: "@res://player/player.png"
+name: player.png
+import_path: "@res://player/player.png"
