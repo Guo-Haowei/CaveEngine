@@ -48,7 +48,6 @@ public:
     }
 
 public:
-    FieldFlag flags;
     uint32_t version;
     FileAccess* file;
 
@@ -87,47 +86,5 @@ template<TriviallyCopyable T>
 static inline Result<void> FileRead(FileAccess* p_file, T& p_data) {
     return FileRead(p_file, &p_data, sizeof(T));
 }
-
-#if 0
-template<typename T>
-Result<void> SerializaYamlVecBinary(YAML::Emitter& p_out, const std::vector<T>& p_object, YamlSerializer& p_serializer) {
-    DEV_ASSERT(p_serializer.flags & FieldFlag::BINARY);
-    auto& file = p_serializer.file;
-    DEV_ASSERT(file);
-
-    const size_t count = p_object.size();
-    const size_t size_in_byte = sizeof(p_object[0]) * count;
-
-    long offset = 0;
-    if (size_in_byte > 0) {
-        if (auto res = FileWrite(file, BIN_GUARD_MAGIC); !res) {
-            return CAVE_ERROR(res.error());
-        }
-        if (auto res = FileWrite(file, size_in_byte); !res) {
-            return CAVE_ERROR(res.error());
-        }
-        // @TODO: better file API
-        offset = file->Tell();
-        DEV_ASSERT(offset > 0);
-        if (auto res = FileWrite(file, p_object.data(), size_in_byte); !res) {
-            return CAVE_ERROR(res.error());
-        }
-    }
-
-    p_out.SetMapFormat(YAML::Flow);
-    p_out << YAML::BeginMap;
-    p_out << YAML::Key << "offset" << YAML::Value << offset;
-    p_out << YAML::Key << "buffer_size" << YAML::Value << size_in_byte;
-    p_out << YAML::EndMap;
-    p_out.SetMapFormat(YAML::Block);
-    return Result<void>();
-}
-
-template<typename T>
-Result<void> SerializeYaml(YAML::Emitter& p_out, const std::vector<T>& p_object, YamlSerializer& p_serializer) {
-    return (p_serializer.flags & FieldFlag::BINARY) ? SerializaYamlVecBinary(p_out, p_object, p_serializer) : SerializaYamlVec(p_out, p_object, p_serializer);
-}
-
-#endif
 
 }  // namespace cave

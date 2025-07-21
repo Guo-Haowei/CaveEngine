@@ -13,19 +13,24 @@ print('Project root folder:', get_engine_src_folder())
 
 # ========= CONFIG ==========
 FILES = [
+    # assets
     'assets/material_asset.h',
     # 'assets/mesh_asset.h',
     'assets/sprite_animation_asset.h',
     'assets/tile_map_asset.h',
     'assets/tile_set_asset.h',
+
+    # components
     'scene/animator_component.h',
     'scene/camera_component.h',
     'scene/light_component.h',
-    'scene/mesh_renderer.h',
-    'scene/tile_map_renderer.h',
     'scene/transform_component.h',
     'scene/scene_component.h',
+
+    # renderers
+    'scene/mesh_renderer.h',
     'scene/sprite_renderer.h',
+    'scene/tile_map_renderer.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'reflection/generated')

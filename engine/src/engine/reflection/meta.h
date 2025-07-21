@@ -30,7 +30,15 @@ namespace cave {
 #pragma clang diagnostic pop
 #endif
 
-enum FieldFlag : uint32_t;
+enum class EditorHint {
+    None = 0,
+    Toggle,
+    Color,
+    Position,
+    Rotation,
+    Scale,
+};
+
 class ISerializer;
 class IDeserializer;
 
@@ -38,13 +46,13 @@ struct FieldMetaBase {
     const char* const name;
     const char* const type;
     const size_t offset;
-    const FieldFlag flags;
+    const EditorHint editor_hint;
 
     FieldMetaBase(const char* p_name,
                   const char* p_type,
                   size_t p_offset,
-                  FieldFlag p_flags)
-        : name(p_name), type(p_type), offset(p_offset), flags(p_flags) {
+                  EditorHint p_hint)
+        : name(p_name), type(p_type), offset(p_offset), editor_hint(p_hint) {
     }
 
     virtual ~FieldMetaBase() = default;
@@ -84,8 +92,8 @@ private:
                                         const char* p_name,
                                         const char* p_type,
                                         size_t p_offset,
-                                        FieldFlag p_flag = FieldFlag::NONE) {
-        return new FieldMeta<U>(p_name, p_type, p_offset, p_flag);
+                                        EditorHint p_hint = EditorHint::None) {
+        return new FieldMeta<U>(p_name, p_type, p_offset, p_hint);
     }
 };
 

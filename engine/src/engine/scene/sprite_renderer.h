@@ -13,22 +13,22 @@ class SpriteRenderer {
 
     // @TODO: make property private
 public:
-    CAVE_PROP(type = guid)
+    CAVE_PROP(editor = Guid)
     Guid image_id;
 
-    CAVE_PROP(type = color)
+    CAVE_PROP(editor = Color)
     Vector4f tint_color = Vector4f::One;
 
-    CAVE_PROP(type = box2)
+    CAVE_PROP()
     Rect rect = { Vector2f::Zero, Vector2f::One };
 
-    CAVE_PROP(type = boolean, ui = toggle)
+    CAVE_PROP(editor = Toggle)
     bool flip_x = false;
 
-    CAVE_PROP(type = boolean, ui = toggle)
+    CAVE_PROP(editor = Toggle)
     bool flip_y = false;
 
-    CAVE_PROP(type = boolean)
+    CAVE_PROP(editor = Toggle)
     bool is_billboard = false;
 
 private:

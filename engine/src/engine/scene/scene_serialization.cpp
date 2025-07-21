@@ -97,8 +97,6 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
 }
 #endif
 
-#pragma region SCENE_COMPONENT_SERIALIZATION
-
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
@@ -141,19 +139,67 @@ void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {
     }
 }
 
+void ArmatureComponent::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(boneCollection);
+    p_archive.ArchiveValue(inverseBindMatrices);
+}
+
+void CameraComponent::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(m_flags);
+    p_archive.ArchiveValue(m_near);
+    p_archive.ArchiveValue(m_far);
+    p_archive.ArchiveValue(m_fovy);
+    p_archive.ArchiveValue(m_width);
+    p_archive.ArchiveValue(m_height);
+    p_archive.ArchiveValue(m_pitch);
+    p_archive.ArchiveValue(m_yaw);
+    p_archive.ArchiveValue(m_position);
+    p_archive.ArchiveValue(m_ortho_height);
+}
+
+void LuaScriptComponent::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(m_className);
+    p_archive.ArchiveValue(m_path);
+}
+
+void LuaScriptComponent::OnDeserialized() {
+}
+
+void NativeScriptComponent::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(scriptName);
+}
+
+void CollisionObjectBase::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(collisionType);
+    p_archive.ArchiveValue(collisionMask);
+}
+
+void RigidBodyComponent::Serialize(Archive& p_archive, uint32_t p_version) {
+    CollisionObjectBase::Serialize(p_archive, p_version);
+
+    p_archive.ArchiveValue(shape);
+    p_archive.ArchiveValue(objectType);
+    p_archive.ArchiveValue(size);
+    p_archive.ArchiveValue(mass);
+}
+
+void ClothComponent::Serialize(Archive& p_archive, uint32_t p_version) {
+    CollisionObjectBase::Serialize(p_archive, p_version);
+
+    CRASH_NOW_MSG("@TODO: implement");
+}
+
+void EnvironmentComponent::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(sky.type);
+    p_archive.ArchiveValue(sky.texturePath);
+    p_archive.ArchiveValue(ambient.color);
+}
+
+void VoxelGiComponent::Serialize(Archive& p_archive, uint32_t) {
+    p_archive.ArchiveValue(flags);
+}
+
 #if 0
-void NameComponent::RegisterClass() {
-    BEGIN_REGISTRY(NameComponent);
-    REGISTER_FIELD(NameComponent, "name", m_name);
-    END_REGISTRY(NameComponent);
-}
-
-void HierarchyComponent::RegisterClass() {
-    BEGIN_REGISTRY(HierarchyComponent);
-    REGISTER_FIELD(HierarchyComponent, "parent_id", m_parentId);
-    END_REGISTRY(HierarchyComponent);
-}
-
 void AnimationComponent::Sampler::RegisterClass() {
     BEGIN_REGISTRY(AnimationComponent::Sampler);
     REGISTER_FIELD(AnimationComponent::Sampler, "key_frames.data", keyframeData);
@@ -207,37 +253,6 @@ void MeshComponent::RegisterClass() {
     END_REGISTRY(MeshComponent);
 }
 
-#endif
-
-void ArmatureComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(boneCollection);
-    p_archive.ArchiveValue(inverseBindMatrices);
-}
-
-#if 0
-
-void MeshRenderer::RegisterClass() {
-    BEGIN_REGISTRY(MeshRenderer);
-    REGISTER_FIELD(MeshRenderer, "flags", flags);
-    REGISTER_FIELD(MeshRenderer, "mesh_id", meshId);
-    END_REGISTRY(MeshRenderer);
-}
-
-void CameraComponent::RegisterClass() {
-    BEGIN_REGISTRY(CameraComponent);
-    REGISTER_FIELD(CameraComponent, "flags", flags);
-    REGISTER_FIELD(CameraComponent, "fovy", m_fovy);
-    REGISTER_FIELD(CameraComponent, "near", m_near);
-    REGISTER_FIELD(CameraComponent, "far", m_far);
-    REGISTER_FIELD(CameraComponent, "width", m_width);
-    REGISTER_FIELD(CameraComponent, "height", m_height);
-    REGISTER_FIELD(CameraComponent, "pitch", m_pitch);
-    REGISTER_FIELD(CameraComponent, "yaw", m_yaw);
-    REGISTER_FIELD(CameraComponent, "position", m_position);
-    REGISTER_FIELD(CameraComponent, "ortho_height", m_orthoHeight);
-    END_REGISTRY(CameraComponent);
-}
-
 void LuaScriptComponent::RegisterClass() {
     BEGIN_REGISTRY(LuaScriptComponent);
     REGISTER_FIELD(LuaScriptComponent, "class_name", m_className);
@@ -250,48 +265,7 @@ void NativeScriptComponent::RegisterClass() {
     REGISTER_FIELD(NativeScriptComponent, "script_name", scriptName);
     END_REGISTRY(NativeScriptComponent);
 }
-#endif
 
-void CameraComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_flags);
-    p_archive.ArchiveValue(m_near);
-    p_archive.ArchiveValue(m_far);
-    p_archive.ArchiveValue(m_fovy);
-    p_archive.ArchiveValue(m_width);
-    p_archive.ArchiveValue(m_height);
-    p_archive.ArchiveValue(m_pitch);
-    p_archive.ArchiveValue(m_yaw);
-    p_archive.ArchiveValue(m_position);
-    p_archive.ArchiveValue(m_ortho_height);
-}
-
-void LuaScriptComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_className);
-    p_archive.ArchiveValue(m_path);
-}
-
-void LuaScriptComponent::OnDeserialized() {
-}
-
-void NativeScriptComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(scriptName);
-}
-
-void CollisionObjectBase::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(collisionType);
-    p_archive.ArchiveValue(collisionMask);
-}
-
-void RigidBodyComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    CollisionObjectBase::Serialize(p_archive, p_version);
-
-    p_archive.ArchiveValue(shape);
-    p_archive.ArchiveValue(objectType);
-    p_archive.ArchiveValue(size);
-    p_archive.ArchiveValue(mass);
-}
-
-#if 0
 void ParticleEmitterComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(maxParticleCount);
     p_archive.ArchiveValue(particlesPerFrame);
@@ -365,21 +339,7 @@ void ForceFieldComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(strength);
     p_archive.ArchiveValue(radius);
 }
-#endif
 
-void ClothComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    CollisionObjectBase::Serialize(p_archive, p_version);
-
-    CRASH_NOW_MSG("@TODO: implement");
-}
-
-void EnvironmentComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(sky.type);
-    p_archive.ArchiveValue(sky.texturePath);
-    p_archive.ArchiveValue(ambient.color);
-}
-
-#if 0
 void EnvironmentComponent::Sky::RegisterClass() {
     BEGIN_REGISTRY(EnvironmentComponent::Sky);
     REGISTER_FIELD(EnvironmentComponent::Sky, "type", type);
@@ -405,11 +365,5 @@ void EnvironmentComponent::RegisterClass() {
     END_REGISTRY(EnvironmentComponent);
 }
 #endif
-
-void VoxelGiComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(flags);
-}
-
-#pragma endregion SCENE_COMPONENT_SERIALIZATION
 
 }  // namespace cave
