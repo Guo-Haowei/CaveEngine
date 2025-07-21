@@ -53,7 +53,11 @@ bool DrawColorPicker3(const char* p_label,
                       float* p_out,
                       float p_column_width = DEFAULT_COLUMN_WIDTH);
 
-bool ToggleButton(const char* p_str_id, bool* p_value);
+bool DrawColorPicker4(const char* p_label,
+                      float* p_out,
+                      float p_column_width = DEFAULT_COLUMN_WIDTH);
+
+bool ToggleButton(const char* p_str_id, bool& p_value);
 
 using DragDropFunc = std::function<void(AssetHandle&)>;
 

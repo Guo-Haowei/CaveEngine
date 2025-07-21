@@ -17,10 +17,10 @@ entities:
       parent_id: 1
     TransformComponent:
       scale: [1, 1, 1]
-      translation: [0, 0, -4.61]
+      translation: [0, 0, -5]
       rotation: [0, 0, 0, 1]
     TileMapRenderer:
-      tile_map: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
+      tile_map_id: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
       tint_color: [1, 1, 1, 1]
   - id: 3
     NameComponent:
@@ -29,10 +29,10 @@ entities:
       parent_id: 1
     TransformComponent:
       scale: [1, 1, 1]
-      translation: [0, 0, -2.88]
+      translation: [10, 0, -2]
       rotation: [0, 0, 0, 1]
     TileMapRenderer:
-      tile_map: 9FE5F444-57A6-0047-801BB379815BDC96
+      tile_map_id: 9FE5F444-57A6-0047-801BB379815BDC96
       tint_color: [1, 1, 1, 1]
   - id: 4
     NameComponent:
@@ -41,7 +41,7 @@ entities:
       parent_id: 1
     TransformComponent:
       scale: [1, 1, 1]
-      translation: [5.7, 4.4672437, -2.6784801]
+      translation: [4, 4.4672437, -1]
       rotation: [0, 0, 0, 1]
     AnimatorComponent:
       anim_id: A19D178A-EFC6-A346-815793EC6AB97322
@@ -53,8 +53,8 @@ entities:
       image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0.125, 0.5]
-        max: [0.25, 0]
+        min: [0, 0.5]
+        max: [0.125, 0]
       flip_x: false
       flip_y: false
       is_billboard: false

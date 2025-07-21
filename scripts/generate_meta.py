@@ -64,6 +64,15 @@ def extract_field_name_and_type(line: str) -> str:
 def remove_prefix(name: str) -> str:
     return name[2:] if name.startswith('m_') else name
 
+def parse_extra(meta_data: str):
+    extra = {}
+    for meta in meta_data.split(','):
+        meta = meta.strip()
+        if meta.startswith('editor = '):
+            extra['editor'] = meta[len('editor = '):].strip()
+
+    return extra
+
 def parse_file(file_path):
     metas = {}
     last_class_fields = None
@@ -85,6 +94,8 @@ def parse_file(file_path):
             assert class_name is not None, 'class_name must not be None'
 
             metadata = prop_match.group(1).strip()
+            extra = parse_extra(metadata)
+
             i += 1
             while i < len(lines) and lines[i].strip() == '':
                 i += 1
@@ -95,7 +106,8 @@ def parse_file(file_path):
                     last_class_fields.append({
                         'type': type_name,
                         'name': token,
-                        'meta': metadata
+                        'meta': metadata,
+                        'extra': extra,
                     })
 
         i += 1
@@ -110,9 +122,10 @@ def generate_meta_for_class(f, class_name, fields):
     f.write(f"const MetaTableFields& MetaDataTable<{class_name}>::GetFields() {{\n")
     f.write("    static MetaTableFields s_table = {\n")
     for field in fields:
+        editor_hint = field['extra'].get('editor', 'None')
         field_name = field['name']
         display_name = remove_prefix(field_name)
-        f.write(f'        REGISTER_FIELD({class_name}, "{display_name}", {field_name}),\n')
+        f.write(f'        REGISTER_FIELD({class_name}, "{display_name}", {field_name}, EditorHint::{editor_hint}),\n')
         continue
     f.write("    };\n\n")
     f.write("    return s_table;\n")

@@ -42,7 +42,7 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
         scene->AttachChild(id);
 
         TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
-        tile_map_renderer->SetTileMap(p_guid);
+        tile_map_renderer->SetResourceGuid(p_guid);
         return scene;
     });
 }

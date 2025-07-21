@@ -11,11 +11,11 @@ class Archive;
 class SpriteRenderer {
     CAVE_META(SpriteRenderer)
 
+    CAVE_PROP(editor = Asset)
+    Guid m_image_id;
+
     // @TODO: make property private
 public:
-    CAVE_PROP(editor = Guid)
-    Guid image_id;
-
     CAVE_PROP(editor = Color)
     Vector4f tint_color = Vector4f::One;
 
@@ -36,9 +36,9 @@ private:
     Handle<ImageAsset> m_image_handle;
 
 public:
-    bool SetImage(const Guid& p_guid);
+    bool SetResourceGuid(const Guid& p_guid);
 
-    const Guid& GetGuid() const { return image_id; }
+    const Guid& GetResourceGuid() const { return m_image_id; }
 
     const Handle<ImageAsset> GetHandle() const { return m_image_handle; }
 

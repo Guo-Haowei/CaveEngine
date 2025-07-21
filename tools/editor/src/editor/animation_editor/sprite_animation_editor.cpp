@@ -41,7 +41,7 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
         scene->Create<SpriteRenderer>(id);
 
         AnimatorComponent& animator = scene->Create<AnimatorComponent>(id);
-        animator.SetAnimGuid(p_guid);
+        animator.SetResourceGuid(p_guid);
 
         return scene;
     });

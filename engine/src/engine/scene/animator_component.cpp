@@ -15,7 +15,7 @@ void AnimatorComponent::SetClip(const std::string& p_name, bool p_looping, float
     m_playback_timer.timer = 0.0f;
 }
 
-void AnimatorComponent::SetAnimGuid(const Guid& p_guid) {
+void AnimatorComponent::SetResourceGuid(const Guid& p_guid) {
     AssetHandle::ReplaceGuidAndHandle(AssetType::SpriteAnimation, p_guid, m_anim_id, m_anim_handle.RawHandle());
 }
 

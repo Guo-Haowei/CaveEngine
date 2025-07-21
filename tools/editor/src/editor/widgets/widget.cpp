@@ -221,7 +221,19 @@ bool DrawColorPicker3(const char* p_label,
     return dirty;
 }
 
-bool ToggleButton(const char* p_str_id, bool* p_value) {
+bool DrawColorPicker4(const char* p_label,
+                      float* p_out,
+                      float p_column_width) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_column_width);
+    ImGui::Text("%s", p_label);
+    ImGui::NextColumn();
+    const bool dirty = ImGui::ColorPicker4(p_label, p_out);
+    ImGui::Columns(1);
+    return dirty;
+}
+
+bool ToggleButton(const char* p_str_id, bool& p_value) {
     ImVec2 p = ImGui::GetCursorScreenPos();
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -233,18 +245,17 @@ bool ToggleButton(const char* p_str_id, bool* p_value) {
 
     ImGui::InvisibleButton(p_str_id, ImVec2(width, height));
     if (ImGui::IsItemClicked()) {
-        *p_value = !*p_value;
+        p_value = !p_value;
         toggled = true;
     }
 
-    float t = *p_value ? 1.0f : 0.0f;
+    float t = p_value ? 1.0f : 0.0f;
 
     ImGuiContext& g = *GImGui;
     float ANIM_SPEED = 0.08f;
-    if (g.LastActiveId == g.CurrentWindow->GetID(p_str_id))  // && g.LastActiveIdTimer < ANIM_SPEED)
-    {
+    if (g.LastActiveId == g.CurrentWindow->GetID(p_str_id)) {
         float t_anim = ImSaturate(g.LastActiveIdTimer / ANIM_SPEED);
-        t = *p_value ? (t_anim) : (1.0f - t_anim);
+        t = p_value ? (t_anim) : (1.0f - t_anim);
     }
 
     ImU32 col_bg;

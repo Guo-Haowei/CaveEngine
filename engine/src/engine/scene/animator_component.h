@@ -10,20 +10,21 @@ class Archive;
 class AnimatorComponent {
     CAVE_META(AnimatorComponent)
 
-    CAVE_PROP(type = guid)
+    CAVE_PROP(editor = Asset)
     Guid m_anim_id;
 
-    // fall back to idle by default
-    CAVE_PROP(type = name)
+    // @TODO: drop down?
+    CAVE_PROP()
     std::string m_current_clip = "idle";
 
-    CAVE_PROP(type = boolean)
+    CAVE_PROP(editor = Toggle)
     bool m_looping = true;
 
-    CAVE_PROP(type = boolean)
+    CAVE_PROP(editor = Toggle)
     bool m_playing = true;
 
-    CAVE_PROP(type = f32)
+    // @TODO: add play speed
+    CAVE_PROP()
     float m_speed = 1.0f;
 
     // Non-serialized
@@ -40,8 +41,8 @@ public:
     void SetClip(const std::string& p_name, bool p_looping, float p_duration);
     const std::string& GetCurrentClip() const { return m_current_clip; }
 
-    void SetAnimGuid(const Guid& p_guid);
-    const Guid& GetAnimGuid() const { return m_anim_id; }
+    void SetResourceGuid(const Guid& p_guid);
+    const Guid& GetResourceGuid() const { return m_anim_id; }
 
     const Handle<SpriteAnimationAsset>& GetAnimHandle() { return m_anim_handle; }
 

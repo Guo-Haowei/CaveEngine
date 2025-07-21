@@ -24,6 +24,17 @@ REGISTER_COMPONENT_LIST
 
 namespace cave {
 
+/* @TODO: refactor this to update in the following order
+1. Input System            (poll input, dispatch events)
+2. Script System           (Lua or custom scripts modify components)
+3. Animation System        (update animation timers & apply output to transforms, visuals)
+4. Transformation System   (update local-to-world matrices, resolve hierarchy)
+5. Physics System          (simulate rigidbodies, detect collisions)
+6. Late Script Callbacks   (optional — scripts react to post-physics state)
+7. Rendering Prep          (culling, batching, sorting)
+8. Render System           (submit to GPU)
+*/
+
 void Scene::Update(float p_timestep) {
     CAVE_PROFILE_EVENT();
 

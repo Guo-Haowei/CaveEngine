@@ -33,7 +33,7 @@ public:
             return;
         }
 
-        p_renderer.SetImage(asset->GetImageGuid());
+        p_renderer.SetResourceGuid(asset->GetImageGuid());
 
         const auto& clip_name = p_animator.GetCurrentClip();
         const auto& clips = asset->GetClips();

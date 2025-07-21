@@ -20,11 +20,12 @@ namespace cave {
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #endif
 
-#define REGISTER_FIELD(TYPE, NAME, FIELD)                                              \
+#define REGISTER_FIELD(TYPE, NAME, FIELD, HINT)                                        \
     ::cave::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD,                \
                                                NAME,                                   \
                                                typeid(((const TYPE*)0)->FIELD).name(), \
-                                               offsetof(TYPE, FIELD))
+                                               offsetof(TYPE, FIELD),                  \
+                                               HINT)
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
@@ -32,6 +33,7 @@ namespace cave {
 
 enum class EditorHint {
     None = 0,
+    Asset,
     Toggle,
     Color,
     Position,
@@ -92,7 +94,7 @@ private:
                                         const char* p_name,
                                         const char* p_type,
                                         size_t p_offset,
-                                        EditorHint p_hint = EditorHint::None) {
+                                        EditorHint p_hint) {
         return new FieldMeta<U>(p_name, p_type, p_offset, p_hint);
     }
 };
