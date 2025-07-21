@@ -37,6 +37,8 @@ public:
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
+    const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const override;
+
     void DrawFrameSelector(ImageAsset& p_image_asset);
     void DrawTimeLine();
     void ImageSourceDropTarget();

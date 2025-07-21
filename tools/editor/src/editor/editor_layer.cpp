@@ -21,7 +21,7 @@
 #include "editor/panels/hierarchy_panel.h"
 #include "editor/panels/log_panel.h"
 #include "editor/panels/menu_bar.h"
-#include "editor/panels/propertiy_panel.h"
+#include "editor/panels/property_panel.h"
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
 #include "editor/viewer/viewer.h"

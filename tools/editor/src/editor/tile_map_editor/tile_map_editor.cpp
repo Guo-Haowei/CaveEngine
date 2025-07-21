@@ -277,7 +277,7 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     }
 }
 
-const std::vector<ViewerTab::ToolBarButtonDesc>& TileMapEditor::GetToolBarButtons() const {
+const std::vector<ToolBarButtonDesc>& TileMapEditor::GetToolBarButtons() const {
     static std::vector<ToolBarButtonDesc> s_buttons = {
         { ICON_FA_BRUSH, "TileMap editor mode",
           [&]() {

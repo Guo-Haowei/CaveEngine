@@ -56,11 +56,6 @@ void ViewerTab::CreateDefaultCamera3D(CameraComponent& p_out) {
     p_out.Update();
 }
 
-const std::vector<ViewerTab::ToolBarButtonDesc>& ViewerTab::GetToolBarButtons() const {
-    static std::vector<ViewerTab::ToolBarButtonDesc> s_buttons;
-    return s_buttons;
-}
-
 void ViewerTab::DrawToolBar() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
     auto& colors = ImGui::GetStyle().Colors;
@@ -72,30 +67,9 @@ void ViewerTab::DrawToolBar() {
     const auto buttons = GetToolBarButtons();
 
     for (size_t i = 0; i < buttons.size(); ++i) {
-        const auto& desc = buttons[i];
-        const bool enabled = desc.is_enabled_func ? desc.is_enabled_func() : true;
-
-        if (i != 0) {
-            ImGui::SameLine();
-        }
-
-        if (!enabled) {
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-        }
-
-        if (ImGui::Button(desc.display) && enabled) {
-            desc.execute_func();
-        }
-
-        if (!enabled) {
-            ImGui::PopStyleVar();
-        }
-
-        if (ImGui::IsItemHovered()) {
-            ImGui::BeginTooltip();
-            ImGui::Text(desc.tooltip);
-            ImGui::EndTooltip();
-        }
+        const ToolBarButtonDesc& desc = buttons[i];
+        if (i != 0) ImGui::SameLine();
+        DrawToolBarButton(desc);
     }
 
     // ImGui::PopStyleVar(2);
