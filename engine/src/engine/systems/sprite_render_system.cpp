@@ -1,5 +1,3 @@
-#include "sprite_render_system.h"
-
 #include "engine/assets/image_asset.h"
 #include "engine/renderer/frame_data.h"
 #include "engine/scene/scene.h"

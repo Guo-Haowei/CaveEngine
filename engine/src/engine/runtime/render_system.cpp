@@ -12,12 +12,14 @@
 #include "engine/scene/scene.h"
 
 // render systems
-#include "engine/tile_map/tile_map_render_system.h"
-#include "engine/sprite/sprite_render_system.h"
+#include "engine/systems/tile_map_render_system.h"
+#include "engine/systems/sprite_render_system.h"
 
 namespace cave {
 
 extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
+extern void RunSpriteRenderSystem(Scene* p_scene, FrameData& p_framedata);
+extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
 auto RenderSystem::InitializeImpl() -> Result<void> {
     return Result<void>();
