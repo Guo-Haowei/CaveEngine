@@ -116,16 +116,23 @@ void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
             Handle<ImageAsset> image_handle = anim->GetImageHandle();
             if (auto image = image_handle.Get()) {
                 const auto [w, h] = m_sprite_selector.GetDim();
-                const float w_inv = 1.0f / w;
-                const float h_inv = 1.0f / h;
+                const float inv_w = 1.0f / w;
+                const float inv_h = 1.0f / h;
                 const auto& frame_indices = m_sprite_selector.GetSelections();
                 std::vector<Rect> frames;
                 frames.reserve(frame_indices.size());
                 for (const auto [x, y] : frame_indices) {
-                    const float u0 = (x + 0) * w_inv;
-                    const float v0 = (y + 0) * h_inv;
-                    const float u1 = (x + 1) * w_inv;
-                    const float v1 = (y + 1) * h_inv;
+#if 0
+                    const float u0 = (x + 0) * inv_w;
+                    const float v0 = (y + 0) * inv_h;
+                    const float u1 = (x + 1) * inv_w;
+                    const float v1 = (y + 1) * inv_h;
+#else
+                    const float u0 = (x + 0) * inv_w;
+                    const float v0 = (y + 1) * inv_h;
+                    const float u1 = (x + 1) * inv_w;
+                    const float v1 = (y + 0) * inv_h;
+#endif
 
                     frames.push_back({ { u0, v0 }, { u1, v1 } });
                 }
@@ -173,7 +180,7 @@ void SpriteAnimationEditor::DrawTimeLine() {
         }
         static int current_clip = 0;
         const int clip_count = static_cast<int>(clips.size());
-        if (ImGui::BeginCombo("Clips", clips[current_clip])) {
+        if (ImGui::BeginCombo("Clips", clips.empty() ? nullptr : clips[current_clip])) {
             for (int n = 0; n < clip_count; ++n) {
                 const bool is_selected = (current_clip == n);
                 if (ImGui::Selectable(clips[n], is_selected)) {
