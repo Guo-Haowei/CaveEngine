@@ -78,4 +78,14 @@ struct AssetChildPanel {
 
 void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_descs);
 
+/// image button
+struct ToolBarButtonDesc {
+    const char* display{ nullptr };
+    const char* tooltip{ nullptr };
+    std::function<void()> execute_func;
+    std::function<bool()> is_enabled_func;
+};
+
+void DrawToolBarButton(const ToolBarButtonDesc& p_button);
+
 }  // namespace cave

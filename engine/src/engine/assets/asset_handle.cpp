@@ -36,7 +36,6 @@ bool AssetHandle::ReplaceGuidAndHandle(AssetType p_type,
                                        Guid& p_out_id,
                                        AssetHandle& p_out_handle) {
     if (p_guid == p_out_id) {
-        LOG_WARN("request same guid '{}' ", p_guid.ToString());
         return false;
     }
 

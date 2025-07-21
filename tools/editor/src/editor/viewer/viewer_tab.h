@@ -4,6 +4,7 @@
 #include "engine/assets/guid.h"
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
+#include "editor/widgets/widget.h"
 
 namespace cave {
 
@@ -48,14 +49,7 @@ public:
     }
 
 protected:
-    struct ToolBarButtonDesc {
-        const char* display{ nullptr };
-        const char* tooltip{ nullptr };
-        std::function<void()> execute_func;
-        std::function<bool()> is_enabled_func;
-    };
-
-    virtual const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const;
+    virtual const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const = 0;
 
     virtual const CameraComponent& GetActiveCameraInternal() const = 0;
 
