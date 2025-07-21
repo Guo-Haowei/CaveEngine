@@ -49,6 +49,8 @@ class SpriteAnimationAsset : public IAsset {
 public:
     bool AddClip(std::string&& p_name, std::vector<Rect>&& p_frames);
 
+    const auto& GetClips() const { return m_clips; }
+
     void SetGuid(const Guid& p_guid);
 
     const Guid& GetImageGuid() const { return m_image_guid; }

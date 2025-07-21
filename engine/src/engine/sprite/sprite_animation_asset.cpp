@@ -18,6 +18,7 @@ void SpriteAnimationClip::SetFrames(std::vector<Rect>&& frames) {
 void SpriteAnimationClip::SetAnimationLength(float p_length) {
     DEV_ASSERT(p_length > 0.0f);
     const float frame_duration = p_length / std::max(1, static_cast<int>(m_frames.size())); // avoid divide by 0
+    m_durations.resize(m_frames.size());
     for (float& duration : m_durations) {
         duration = frame_duration;
     }

@@ -164,7 +164,13 @@ void SpriteAnimationEditor::DrawTimeLine() {
     ImGui::SetColumnWidth(0, width);
     ImGui::SetColumnWidth(1, width);
     {
-        std::vector<const char*> clips = { "idle", "walk", "jump" };
+        std::vector<const char*> clips;
+        Handle<SpriteAnimationAsset> handle = m_document->GetHandle<SpriteAnimationAsset>();
+        if (auto anim = handle.Get(); anim) {
+            for (const auto& [key, value] : anim->GetClips()) {
+                clips.push_back(key.c_str());
+            }
+        }
         static int current_clip = 0;
         const int clip_count = static_cast<int>(clips.size());
         if (ImGui::BeginCombo("Clips", clips[current_clip])) {
