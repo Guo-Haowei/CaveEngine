@@ -13,14 +13,14 @@ class Degree;
 class TransformComponent : public ComponentFlagBase {
     CAVE_META(TransformComponent)
 
-    CAVE_PROP(editor = Scale)
-    Vector3f m_scale;
-
     CAVE_PROP(editor = Translation)
     Vector3f m_translation;
 
     CAVE_PROP(editor = Rotation)
     Vector4f m_rotation;
+
+    CAVE_PROP(editor = Scale)
+    Vector3f m_scale;
 
 private:
     // Non-serialized attributes
