@@ -17,6 +17,8 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
 
     AssetMetaData meta;
 
+    // @TODO: use meta table to auto load
+
     YamlDeserializer d;
     d.Initialize(root);
     if (d.TryEnterKey("guid")) {
@@ -74,12 +76,19 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
 auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
     YamlSerializer yaml;
 
+    std::string asset_name = name;
+    if (asset_name.empty()) {
+        asset_name = StringUtils::FileName(path.c_str(), '/');
+    }
+
     yaml.BeginMap(false)
         .Key("guid")
         .Write(guid)
         .Key("type")
         .Write(ToString(type))
-        .Key("path")
+        .Key("name")
+        .Write(asset_name)
+        .Key("import_path")
         .Write(path);
 
     if (p_asset) {
