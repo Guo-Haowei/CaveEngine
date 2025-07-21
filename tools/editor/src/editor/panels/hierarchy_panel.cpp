@@ -53,7 +53,7 @@ static bool TreeNodeHelper(const Scene& p_scene,
 
     const char* icon = ICON_FA_FOLDER;
     if (p_flags & ImGuiTreeNodeFlags_Leaf) {
-        icon = ICON_FA_CUBE;
+        icon = ICON_FA_SQUARE_SHARE_NODES;
     }
     auto node_name = std::format("##{}", p_id.GetId());
     auto tag = std::format("{} {}{}", icon, name, node_name);

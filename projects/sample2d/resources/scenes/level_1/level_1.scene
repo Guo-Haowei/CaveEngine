@@ -12,12 +12,12 @@ entities:
       rotation: [0, 0, 0, 1]
   - id: 2
     NameComponent:
-      name: front
+      name: cave
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
       scale: [1, 1, 1]
-      translation: [0, 0, -4.409759]
+      translation: [0, 0, -4.61]
       rotation: [0, 0, 0, 1]
     TileMapRenderer:
       tile_map: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
@@ -53,8 +53,8 @@ entities:
       image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0, 0.5]
-        max: [0.125, 0]
+        min: [0.125, 0.5]
+        max: [0.25, 0]
       flip_x: false
       flip_y: false
       is_billboard: false

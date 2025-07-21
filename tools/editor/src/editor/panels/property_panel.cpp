@@ -1,6 +1,7 @@
 #include "property_panel.h"
 
 #include <ImGuizmo/ImGuizmo.h>
+#include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/assets/sprite_animation_asset.h"
 #include "engine/runtime/asset_registry.h"
@@ -61,6 +62,21 @@ static bool DrawVec3ControlDisabled(bool disabled, Args&&... args) {
         PopDisabled();
     }
     return dirty;
+};
+
+void DrawAsset(const Guid& p_guid, AssetType p_type, const DragDropFunc& p_callback) {
+    AssetHandle handle = AssetRegistry::GetSingleton().FindByGuid(p_guid, p_type).unwrap();
+    const AssetMetaData* meta = handle.GetMeta();
+    DEV_ASSERT(meta);
+    const IAsset* asset = handle.Get();
+
+    ImGui::Text(ICON_FA_CUBE "  %s", meta->path.c_str());
+
+    const bool hovered = ImGui::IsItemHovered();
+    DragDropTarget(p_type, p_callback);
+    if (hovered) {
+        ShowAssetToolTip(*meta, asset);
+    }
 };
 
 void PropertyPanel::UpdateInternal(Scene* p_scene) {
@@ -262,40 +278,32 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
+    // @TODO: refactor asset guid display,
+    // don't just show a guid string
     DrawComponent("SpriteRenderer", sprite_renderer, [](SpriteRenderer& p_sprite_renderer) {
-        ImGui::Text("image: %s", p_sprite_renderer.GetGuid().ToString().c_str());
-        const bool hovered = ImGui::IsItemHovered();
-        DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
-            p_sprite_renderer.SetImage(p_handle.GetGuid());
-        });
-        if (hovered) {
-            ShowAssetToolTip(p_sprite_renderer.GetGuid());
-        }
+        DrawAsset(p_sprite_renderer.GetGuid(),
+                  AssetType::Image,
+                  [&](AssetHandle& p_handle) {
+                      p_sprite_renderer.SetImage(p_handle.GetGuid());
+                  });
     });
 
     DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRenderer& p_tile_map_renderer) {
-        const Guid& guid = p_tile_map_renderer.GetGuid();
-        ImGui::Text("tile map: %s", guid.ToString().c_str());
-        const bool hovered = ImGui::IsItemHovered();
-        DragDropTarget(AssetType::TileMap, [&](AssetHandle& p_handle) {
-            p_tile_map_renderer.SetTileMap(p_handle.GetGuid());
-        });
-        if (hovered) {
-            ShowAssetToolTip(guid);
-        }
+        DrawAsset(p_tile_map_renderer.GetGuid(),
+                  AssetType::TileMap,
+                  [&](AssetHandle& p_handle) {
+                      p_tile_map_renderer.SetTileMap(p_handle.GetGuid());
+                  });
     });
 
     DrawComponent("Animator", animator_component, [](AnimatorComponent& p_animator) {
-        const Guid& guid = p_animator.GetAnimGuid();
-        ImGui::Text("animator: %s", guid.ToString().c_str());
-        const bool hovered = ImGui::IsItemHovered();
-        DragDropTarget(AssetType::SpriteAnimation, [&](AssetHandle& p_handle) {
-            p_animator.SetAnimGuid(p_handle.GetGuid());
-        });
-        if (hovered) {
-            ShowAssetToolTip(guid);
-        }
+        DrawAsset(p_animator.GetAnimGuid(),
+                  AssetType::SpriteAnimation,
+                  [&](AssetHandle& p_handle) {
+                      p_animator.SetAnimGuid(p_handle.GetGuid());
+                  });
 
+        const Guid& guid = p_animator.GetAnimGuid();
         if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
             handle.is_some()) {
             SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
