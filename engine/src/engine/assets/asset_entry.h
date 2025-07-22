@@ -4,8 +4,6 @@
 
 namespace cave {
 
-struct IAsset;
-
 enum class AssetStatus : uint8_t {
     Unloaded,
     Loading,

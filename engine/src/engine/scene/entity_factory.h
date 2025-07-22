@@ -6,20 +6,6 @@ using ecs::Entity;
 
 class EntityFactory {
 public:
-    // @TODO: mesh should be an asset
-    static Entity CreateMeshEntity(Scene& p_scene,
-                                   const std::string& p_name);
-
-    // @TODO: mesh should be an asset
-    static Entity CreateMeshEntity(Scene& p_scene,
-                                   const std::string& p_name,
-                                   const Guid& p_material_id,
-                                   MeshAsset&& p_mesh);
-
-    // @TODO: material should be an asset
-    static Entity CreateMaterialEntity(Scene& p_scene,
-                                       const std::string& p_name);
-
     static Entity CreatePerspectiveCameraEntity(Scene& p_scene,
                                                 const std::string& p_name,
                                                 int p_width,

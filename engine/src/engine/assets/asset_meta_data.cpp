@@ -65,6 +65,8 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
         type = AssetType::Scene;
     } else if (extension == ".mat") {
         type = AssetType::Material;
+    } else if (extension == ".obj") {
+        type = AssetType::Mesh;
     } else {
         return None();
     }

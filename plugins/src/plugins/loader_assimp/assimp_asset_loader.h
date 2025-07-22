@@ -29,7 +29,7 @@ public:
 
 protected:
     void ProcessMaterial(aiMaterial& p_material);
-    void ProcessMesh(const aiMesh& p_mesh);
+    std::shared_ptr<MeshAsset> ProcessMesh(const aiMesh& p_mesh);
 
     ecs::Entity ProcessNode(const aiNode* p_node, ecs::Entity p_parent);
 

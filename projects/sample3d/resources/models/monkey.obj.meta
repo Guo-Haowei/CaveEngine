@@ -1,0 +1,4 @@
+guid: 6E495C25-1867-E04E-9DD43BF405E2F7F0
+type: mesh
+name: monkey.obj
+import_path: "@res://models/monkey.obj"

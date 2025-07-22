@@ -4,7 +4,7 @@
 
 namespace cave {
 
-auto Archive::OpenMode(const std::string& p_path, bool p_write_mode) -> Result<void> {
+Result<void> Archive::OpenMode(const std::string& p_path, bool p_write_mode) {
     m_path = p_path;
     m_isWriteMode = p_write_mode;
     if (m_isWriteMode) {

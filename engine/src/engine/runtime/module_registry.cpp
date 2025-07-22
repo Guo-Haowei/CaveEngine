@@ -128,6 +128,7 @@ public:
     void GenerateMipmap(const GpuTexture* p_texture) override {}
 
     void RequestTexture(ImageAsset* p_image) override {}
+    void RequestMesh(MeshAsset* p_mesh) override {}
 
     uint64_t GetFinalImage() const override { return 0; }
 
@@ -159,7 +160,6 @@ protected:
     void MoveToNextFrame() override {}
     std::shared_ptr<FrameContext> CreateFrameContext() override { return nullptr; }
 
-    void OnSceneChange(const Scene& p_scene) override {}
     void OnWindowResize(int p_width, int p_height) override {}
     void SetPipelineStateImpl(PipelineStateName p_name) override {}
     void UpdateEmitters(const Scene& p_scene) override {}

@@ -19,7 +19,6 @@ enum class RenderGraphName : uint8_t;
 enum PipelineStateName : uint8_t;
 
 class Scene;
-struct MeshAsset;
 
 struct BlendDesc;
 struct Framebuffer;
@@ -33,6 +32,7 @@ struct GpuStructuredBuffer;
 struct GpuTexture;
 struct GpuTextureDesc;
 struct ImageAsset;
+class MeshAsset;
 struct SamplerDesc;
 struct Viewport;
 
@@ -133,6 +133,7 @@ public:
     virtual void EndEvent() = 0;
 
     virtual void RequestTexture(ImageAsset* p_image) = 0;
+    virtual void RequestMesh(MeshAsset* p_mesh) = 0;
 
     // @TODO: move to renderer
     virtual uint64_t GetFinalImage() const = 0;
@@ -165,7 +166,6 @@ protected:
     virtual void MoveToNextFrame() = 0;
     virtual std::shared_ptr<FrameContext> CreateFrameContext() = 0;
 
-    virtual void OnSceneChange(const Scene& p_scene) = 0;
     virtual void OnWindowResize(int p_width, int p_height) = 0;
     virtual void SetPipelineStateImpl(PipelineStateName p_name) = 0;
 

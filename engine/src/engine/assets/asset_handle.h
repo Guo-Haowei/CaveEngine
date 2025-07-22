@@ -6,13 +6,12 @@ namespace cave {
 
 class AssetEntry;
 struct AssetMetaData;
-struct IAsset;
 
 // asset forward declaration
 class BlobAsset;
 struct ImageAsset;
 struct MaterialAsset;
-struct MeshAsset;
+class MeshAsset;
 class SpriteAnimationAsset;
 class TileSetAsset;
 class TileMapAsset;

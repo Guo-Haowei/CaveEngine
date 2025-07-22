@@ -3,13 +3,8 @@
 
 namespace cave {
 
-struct IAsset;
 class AssetEntry;
 struct AssetMetaData;
-
-using AssetRef = std::shared_ptr<IAsset>;
-using AssetLoadSuccessCallback = void (*)(AssetRef p_asset, void* p_userdata);
-using AssetLoadFailureCallback = void (*)(void* p_userdata);
 
 #define CAVE_ASSET(NAME, TYPE, VER)                      \
 public:                                                  \
@@ -17,12 +12,10 @@ public:                                                  \
     static inline constexpr const int VERSION = VER;     \
     NAME() : IAsset(NAME::ASSET_TYPE) {}
 
-// @TODO: make it a class
-struct IAsset {
-    const AssetType type;
-
+class IAsset {
+public:
     IAsset(AssetType p_type)
-        : type(p_type) {}
+        : m_type(p_type) {}
 
     virtual ~IAsset() = default;
 
@@ -31,6 +24,16 @@ struct IAsset {
     virtual Result<void> SaveToDisk(const AssetMetaData&) const = 0;
 
     virtual std::vector<Guid> GetDependencies() const = 0;
+
+    AssetType GetType() const { return m_type; }
+
+private:
+    AssetType m_type;
 };
+
+using AssetRef = std::shared_ptr<IAsset>;
+using AssetLoadSuccessCallback = void (*)(AssetRef p_asset, void* p_userdata);
+using AssetLoadFailureCallback = void (*)(void* p_userdata);
+
 
 }  // namespace cave

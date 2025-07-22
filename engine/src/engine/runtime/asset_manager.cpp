@@ -239,15 +239,22 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
 
     } while (0);
 
+    // @TODO: based on render, create asset on work threads
     DEV_ASSERT(asset);
-    if (asset->type == AssetType::Image) {
-        auto image = std::dynamic_pointer_cast<ImageAsset>(asset);
-
-        // @TODO: based on render, create asset on work threads
-        m_app->GetGraphicsManager()->RequestTexture(image.get());
+    switch (asset->GetType()) {
+        case AssetType::Image: {
+            auto image = std::dynamic_pointer_cast<ImageAsset>(asset);
+            m_app->GetGraphicsManager()->RequestTexture(image.get());
+        } break;
+        case AssetType::Mesh: {
+            auto mesh = std::dynamic_pointer_cast<MeshAsset>(asset);
+            m_app->GetGraphicsManager()->RequestMesh(mesh.get());
+        } break;
+        default:
+            break;
     }
-    LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.import_path, timer.GetDurationString());
 
+    LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.import_path, timer.GetDurationString());
     entry->MarkLoaded(asset);
     return asset;
 }

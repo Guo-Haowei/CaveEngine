@@ -22,8 +22,10 @@ enum class VertexAttributeName : uint8_t {
     COUNT,
 };
 
-struct MeshAsset : public IAsset {
+class MeshAsset : public IAsset {
     CAVE_ASSET(MeshAsset, AssetType::Mesh, 0)
+
+public:
 
     enum : uint32_t {
         NONE = BIT(0),
@@ -82,7 +84,7 @@ struct MeshAsset : public IAsset {
 
     void CreateRenderData();
 
-    void Serialize(Archive& p_archive, uint32_t p_version);
+    void SerializeBinary(Archive& p_archive, uint32_t p_version);
 
     void OnDeserialized();
 };

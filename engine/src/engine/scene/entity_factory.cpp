@@ -12,6 +12,15 @@
 
 namespace cave {
 
+static Handle<MeshAsset> CreateMeshEntity(Scene& p_scene, const std::string& p_name) {
+    auto res = AssetManager::GetSingleton().CreateAsset(AssetType::Mesh, p_name);
+    if (!res) {
+        CRASH_NOW();
+    }
+
+    return AssetRegistry::GetSingleton().FindByGuid<MeshAsset>(res.value()).unwrap();
+}
+
 Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
                                                     const std::string& p_name,
                                                     int p_width,
@@ -52,21 +61,6 @@ Entity EntityFactory::CreateObjectEntity(Scene& p_scene,
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<MeshRenderer>(entity);
     p_scene.Create<TransformComponent>(entity);
-    return entity;
-}
-
-Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
-                                       const std::string& p_name) {
-    auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<MeshAsset>(entity);
-    return entity;
-}
-
-Entity EntityFactory::CreateMaterialEntity(Scene& p_scene,
-                                           const std::string& p_name) {
-    CRASH_NOW();
-    auto entity = CreateNameEntity(p_scene, p_name);
-    // p_scene.Create<MaterialComponent>(entity);
     return entity;
 }
 
@@ -243,33 +237,15 @@ Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
     trans.MatrixTransform(p_transform);
 
-#if 0
-    auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    object.meshId = mesh_id;
+    auto handle = CreateMeshEntity(p_scene, "@res://models/" + p_name + ".mesh");
+    object.m_mesh_id = handle.GetGuid();
+    object.m_mesh_handle = handle;
 
-    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
-    mesh = MakeCubeMesh(p_scale);
-    mesh.subsets[0].material_id = p_material_id;
-#endif
+    std::shared_ptr<MeshAsset> mesh = handle.Wait();
+    *mesh = MakeCubeMesh(p_scale);
+    mesh->subsets[0].material_id = p_material_id;
+    mesh->OnDeserialized();
 
-    return entity;
-}
-
-Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
-                                       const std::string& p_name,
-                                       const Guid& p_material_id,
-                                       MeshAsset&& p_mesh) {
-    auto entity = CreateObjectEntity(p_scene, p_name);
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
-
-#if 0
-    auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    object.meshId = mesh_id;
-
-    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
-    mesh = std::move(p_mesh);
-    mesh.subsets[0].material_id = p_material_id;
-#endif
     return entity;
 }
 

@@ -9,7 +9,7 @@ enum class AssetType : uint32_t;
 class AssetHandle;
 struct AssetMetaData;
 class Guid;
-struct IAsset;
+class IAsset;
 struct ImageAsset;
 
 constexpr float DEFAULT_COLUMN_WIDTH = 80.0f;
