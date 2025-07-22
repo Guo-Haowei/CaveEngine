@@ -61,6 +61,8 @@ concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
 
 static_assert(HasSetResourceGuid<LuaScriptComponent>);
 
+constexpr float COMPONENT_FIELD_NAME_WIDTH = 150.f;
+
 template<typename T>
 void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     auto handle_ = AssetRegistry::GetSingleton().FindByGuid(p_guid);
@@ -69,17 +71,20 @@ void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     const AssetMetaData* meta = nullptr;
     const IAsset* asset = nullptr;
 
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, COMPONENT_FIELD_NAME_WIDTH);
+    ImGui::Text(ICON_FA_CUBE "  %s", p_name);
+    ImGui::NextColumn();
+
     if (handle_.is_some()) {
         AssetHandle handle = handle_.unwrap_unchecked();
         meta = handle.GetMeta();
         DEV_ASSERT(meta);
         asset = handle.Get();
         type = meta->type;
-
-        ImGui::Text("%s: " ICON_FA_CUBE " %s", p_name, meta->name.c_str());
-    } else {
-        ImGui::Text("%s: " ICON_FA_CUBE " not set ", p_name);
     }
+
+    ImGui::Text(" %s ", meta ? meta->name.c_str() : "not set");
 
     const bool hovered = ImGui::IsItemHovered();
     if (auto _handle = DragDropTarget(type); _handle.is_some()) {
@@ -87,6 +92,8 @@ void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
             p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
         }
     }
+
+    ImGui::Columns(1);
     if (hovered && meta) {
         ShowAssetToolTip(*meta, asset);
     }
@@ -94,7 +101,6 @@ void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
 
 template<typename T>
 bool DrawComponentAuto(T* p_component) {
-    constexpr float COMPONENT_FIELD_NAME_WIDTH = 120.f;
     const auto& meta_table = MetaDataTable<T>::GetFields();
 
     bool dirty = false;
@@ -113,8 +119,8 @@ bool DrawComponentAuto(T* p_component) {
                     dirty = true;
                     // @TODO: callback
                 }
+                ImGui::Dummy(ImVec2(8, 8));
             } break;
-
             case EditorHint::Asset: {
                 const Guid& guid = field->GetData<Guid>(p_component);
                 DrawAsset(field->name,
@@ -329,7 +335,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("Script", script_component, [](LuaScriptComponent& p_script) {
-        DrawInputText("class_name", p_script.GetClassNameRef());
+        DrawInputText("class_name", p_script.GetClassNameRef(), COMPONENT_FIELD_NAME_WIDTH);
 
         DrawComponentAuto<LuaScriptComponent>(&p_script);
     });
@@ -342,7 +348,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
             // @TODO: drop down
             std::string clip_name = p_animator.GetCurrentClip();
-            if (DrawInputText("clip", clip_name)) {
+            if (DrawInputText("clip", clip_name, COMPONENT_FIELD_NAME_WIDTH)) {
                 const SpriteAnimationClip* clip = asset->GetClip(clip_name);
                 if (clip) {
                     p_animator.SetClip(clip_name, clip->IsLooping(), clip->GetTotalDuration());

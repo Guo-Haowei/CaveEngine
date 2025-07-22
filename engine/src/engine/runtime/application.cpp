@@ -277,6 +277,18 @@ bool Application::MainLoop() {
     // 5. phyiscs manager updates physics
     // 6. graphcs manager renders (optional: on another thread)
 
+    /*
+    @TODO: refactor this to update in the following order
+    1. Input System            (poll input, dispatch events)
+    2. Script System           (Lua or custom scripts modify components)
+    3. Animation System        (update animation timers & apply output to transforms, visuals)
+    4. Transformation System   (update local-to-world matrices, resolve hierarchy)
+    5. Physics System          (simulate rigidbodies, detect collisions)
+    6. Late Script Callbacks   (optional scripts react to post-physics state)
+    7. Rendering Prep          (culling, batching, sorting)
+    8. Render System           (submit to GPU)
+    */
+
     m_scene_manager->Update();
 
     // layer should set active scene
@@ -298,13 +310,15 @@ bool Application::MainLoop() {
     }
 
     Scene* scene = m_scene_manager->GetActiveScene();
+
     if (scene) {
+        m_script_manager->Update(*scene, timestep);
         scene->Update(timestep);
     }
+
     m_render_system->RenderFrame(scene);
 
     if (scene && m_state == State::SIM) {
-        m_script_manager->Update(*scene, timestep);
         m_physics_manager->Update(*scene, timestep);
     }
 
