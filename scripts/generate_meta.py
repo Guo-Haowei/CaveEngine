@@ -30,7 +30,7 @@ FILES = [
     'scene/scene_component.h',
 
     # renderers
-    'scene/mesh_renderer.h',
+    'scene/mesh_renderer_component.h',
     'scene/sprite_renderer_component.h',
     'scene/tile_map_renderer_component.h',
 ]

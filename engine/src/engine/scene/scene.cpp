@@ -166,10 +166,10 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
     m_NameComponents.Remove(p_entity);
 }
 
-bool Scene::RayObjectIntersect(ecs::Entity p_object_id, Ray& p_ray) {
-    MeshRendererComponent* object = GetComponent<MeshRendererComponent>(p_object_id);
-    MeshAsset* mesh = object->m_mesh_handle.Get();
-    TransformComponent* transform = GetComponent<TransformComponent>(p_object_id);
+bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) {
+    MeshRendererComponent* renderer = GetComponent<MeshRendererComponent>(p_id);
+    MeshAsset* mesh = renderer->GetMeshHandle().Get();
+    TransformComponent* transform = GetComponent<TransformComponent>(p_id);
     DEV_ASSERT(mesh && transform);
 
     if (!transform || !mesh) {

@@ -1,6 +1,8 @@
-#include "mesh_renderer.h"
+#include "mesh_renderer_component.h"
 
+#include "engine/assets/mesh_asset.h"
 #include "engine/core/io/archive.h"
+#include "engine/runtime/asset_registry.h"
 
 namespace cave {
 
@@ -12,7 +14,15 @@ void MeshRendererComponent::SetResourceGuid(const Guid& p_guid) {
 }
 
 void MeshRendererComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(flags);
+    unused(p_archive);
+    // p_archive.ArchiveValue(flags);
+}
+
+void MeshRendererComponent::OnDeserialized() {
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<MeshAsset>(m_mesh_id);
+    if (handle.is_some()) {
+        m_mesh_handle = handle.unwrap_unchecked();
+    }
 }
 
 }  // namespace cave

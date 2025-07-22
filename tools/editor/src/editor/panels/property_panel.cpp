@@ -164,6 +164,17 @@ bool DrawComponentAuto(T* p_component) {
                     q = Vector4f(q2.x, q2.y, q2.z, q2.w);
                 }
             } break;
+            case EditorHint::DragFloat: {
+                float& f = field->GetData<float>(p_component);
+                if (DrawDragFloat(field->name,
+                                  f,
+                                  0.1f,  // speed
+                                  0.0f,  // min
+                                  1.0f,  // max
+                                  COMPONENT_FIELD_NAME_WIDTH)) {
+                    dirty = true;
+                }
+            } break;
             default:
                 break;
         }
@@ -269,9 +280,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("Light", light_component, [&](LightComponent& p_light) {
-        bool dirty = false;
-        unused(dirty);
-
+        // @TODO: refactor
         switch (p_light.GetType()) {
             case LIGHT_TYPE_INFINITE:
                 ImGui::Text("infinite light");
@@ -283,18 +292,10 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
                 break;
         }
 
-        bool cast_shadow = p_light.CastShadow();
-        ImGui::Checkbox("Cast shadow", &cast_shadow);
-        if (cast_shadow != p_light.CastShadow()) {
-            p_light.SetCastShadow(cast_shadow);
+        bool dirty = DrawComponentAuto<LightComponent>(&p_light);
+        if (dirty) {
             p_light.SetDirty();
         }
-
-#if 0
-        dirty |= DrawDragFloat("constant", p_light.m_atten.constant, 0.1f, 0.0f, 1.0f);
-        dirty |= DrawDragFloat("linear", p_light.m_atten.linear, 0.1f, 0.0f, 1.0f);
-        dirty |= DrawDragFloat("quadratic", p_light.m_atten.quadratic, 0.1f, 0.0f, 1.0f);
-#endif
         ImGui::Text("max distance: %0.3f", p_light.GetMaxDistance());
     });
 
@@ -388,13 +389,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("MeshRendererComponent", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
-        bool hide = !(p_mesh_renderer.flags & MeshRendererComponent::FLAG_RENDERABLE);
-        bool cast_shadow = p_mesh_renderer.flags & MeshRendererComponent::FLAG_CAST_SHADOW;
-        ImGui::Checkbox("Hide", &hide);
-        ImGui::Checkbox("Cast shadow", &cast_shadow);
-        p_mesh_renderer.flags = (hide ? 0 : MeshRendererComponent::FLAG_RENDERABLE);
-        p_mesh_renderer.flags |= (cast_shadow ? MeshRendererComponent::FLAG_CAST_SHADOW : 0);
-
         DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
     });
 

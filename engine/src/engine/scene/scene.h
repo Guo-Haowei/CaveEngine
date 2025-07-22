@@ -12,7 +12,7 @@
 #include "engine/scene/camera_component.h"
 #include "engine/scene/light_component.h"
 #include "engine/scene/lua_script_component.h"
-#include "engine/scene/mesh_renderer.h"
+#include "engine/scene/mesh_renderer_component.h"
 #include "engine/scene/transform_component.h"
 #include "engine/scene/sprite_renderer_component.h"
 #include "engine/scene/tile_map_renderer_component.h"

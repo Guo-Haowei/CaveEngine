@@ -78,19 +78,19 @@ static void FillPass(const Scene& p_scene,
                      std::vector<RenderCommand>& p_commands,
                      FrameData& p_framedata) {
 
-    for (auto [entity, obj] : p_scene.View<MeshRendererComponent>()) {
+    for (auto [entity, renderer] : p_scene.View<MeshRendererComponent>()) {
         if (!p_scene.Contains<TransformComponent>(entity)) {
             continue;
         }
 
-        if (!p_filter1(obj)) {
-            continue;
-        }
+        const MeshAsset* _mesh = renderer.GetMeshHandle().Get();
+        if (!_mesh) continue;
+
+        if (!p_filter1(renderer)) continue;
 
         const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
 
-        const MeshAsset& mesh = *obj.m_mesh_handle.Get();
-
+        const MeshAsset& mesh = *_mesh;
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         AABB aabb = mesh.localBound;
         aabb.ApplyMatrix(world_matrix);
@@ -192,7 +192,7 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
                 FillPass(
                     p_scene,
                     [](const MeshRendererComponent& p_object) {
-                        return p_object.flags & MeshRendererComponent::FLAG_CAST_SHADOW;
+                        return p_object.CastShadow();
                     },
                     [&](const AABB& p_aabb) {
                         return light_frustum.Intersects(p_aabb);
@@ -354,11 +354,12 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
     const bool is_opengl = p_framedata.options.isOpengl;
     for (auto [entity, obj] : scene.View<MeshRendererComponent>()) {
-        if (obj.m_mesh_handle.Get() == nullptr) continue;
+        const MeshAsset* _mesh = obj.GetMeshHandle().Get();
+        if (_mesh == nullptr) continue;
+        const MeshAsset& mesh = *_mesh;
 
-        const MeshAsset& mesh = *obj.m_mesh_handle.Get();
-        const bool is_renderable = obj.flags & MeshRendererComponent::FLAG_RENDERABLE;
-        const bool is_transparent = obj.flags & MeshRendererComponent::FLAG_TRANSPARENT;
+        const bool is_renderable = obj.IsVisible();
+        const bool is_transparent = obj.Transparency();
         const bool is_opaque = is_renderable && !is_transparent;
 
         // @TODO: cast shadow

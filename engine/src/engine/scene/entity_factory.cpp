@@ -12,15 +12,6 @@
 
 namespace cave {
 
-static Handle<MeshAsset> CreateMeshEntity(Scene& p_scene, const std::string& p_name) {
-    auto res = AssetManager::GetSingleton().CreateAsset(AssetType::Mesh, p_name);
-    if (!res) {
-        CRASH_NOW();
-    }
-
-    return AssetRegistry::GetSingleton().FindByGuid<MeshAsset>(res.value()).unwrap();
-}
-
 Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
                                                     const std::string& p_name,
                                                     int p_width,
@@ -227,6 +218,7 @@ Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
     MeshRendererComponent& object = *p_scene.GetComponent<MeshRendererComponent>(entity);
     trans.MatrixTransform(p_transform);
 
+#if 0
     auto handle = CreateMeshEntity(p_scene, "@res://models/" + p_name + ".mesh");
     object.m_mesh_id = handle.GetGuid();
     object.m_mesh_handle = handle;
@@ -235,6 +227,7 @@ Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
     *mesh = MakeCubeMesh(p_scale);
     mesh->subsets[0].material_id = p_material_id;
     mesh->OnDeserialized();
+#endif
 
     return entity;
 }
