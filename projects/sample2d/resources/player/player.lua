@@ -8,10 +8,16 @@ function Player.new(id)
     setmetatable(self, Player)
     -- self.speed = Vector2(0, 0)
     -- self.displacement = Vector2(0, 0)
+    engine.log_ok('hello from player.lua')
     return self
 end
 
 function Player:OnUpdate(timestep)
+    local transform = g_scene:GetTransform(self.id)
+    local translate = transform:GetTranslation()
+    translate.x = translate.x + 0.1 * timestep
+    translate.y = translate.y + 0.1 * timestep
+    transform:SetTranslation(translate)
 
     -- local cursor = input.GetCursor()
     -- local display_size = display:GetWindowSize()
@@ -20,8 +26,6 @@ function Player:OnUpdate(timestep)
     -- cursor = cursor - Vector2(1, 1)
     -- cursor.y = -cursor.y
 
-    -- local transform = g_scene:GetTransform(self.id)
-    -- local translate = transform:GetTranslation()
     -- self.displacement = self.displacement + self.speed
 
     -- local target_x = normalize(cursor.x, -1, 1, -g.AMP_WIDTH, -0.7 * g.AMP_WIDTH) + self.displacement.x

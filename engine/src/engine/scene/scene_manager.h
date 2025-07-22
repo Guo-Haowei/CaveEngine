@@ -52,6 +52,7 @@ public:
     void FinalizeImpl() override;
     void Update() override;
 
+    void SetActiveScene(Scene* p_scene) override;
     Scene* GetActiveScene() const override;
 #if 0
     void RequestScene(std::string_view p_path);

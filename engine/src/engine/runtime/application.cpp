@@ -17,6 +17,7 @@
 #include "engine/runtime/imgui_manager.h"
 #include "engine/runtime/input_manager.h"
 #include "engine/runtime/layer.h"
+#include "engine/runtime/mode_manager.h"
 #include "engine/runtime/module_registry.h"
 #include "engine/runtime/render_system.h"
 #include "engine/runtime/scene_manager_interface.h"
@@ -59,6 +60,10 @@ Application::Application(const ApplicationSpec& p_spec, Type p_type)
     m_userFolder = std::string{ m_specification.userFolder };
 
     FileAccess::SetUserFolderCallback([&]() { return m_userFolder.c_str(); });
+}
+
+ModeManager& Application::GetModeManager() {
+    return *m_mode_manager.get();
 }
 
 void Application::AttachLayer(Layer* p_layer) {
@@ -270,13 +275,6 @@ bool Application::MainLoop() {
     // === Update Phase ===
     const float timestep = UpdateTime();
 
-    // 1. scene manager checks for update, and if it's necessary to swap scene
-    // 2. renderer builds render data
-    // 3. editor modifies scene
-    // 4. script manager updates logic
-    // 5. phyiscs manager updates physics
-    // 6. graphcs manager renders (optional: on another thread)
-
     /*
     @TODO: refactor this to update in the following order
     1. Input System            (poll input, dispatch events)
@@ -309,18 +307,27 @@ bool Application::MainLoop() {
         ImGui::Render();
     }
 
+    const GameMode game_mode = m_mode_manager->GetMode();
+    // change game mode from here
+
+    // @TODO: set mode here
+
     Scene* scene = m_scene_manager->GetActiveScene();
 
-    if (scene) {
+    if (scene && game_mode == GameMode::Gameplay) {
         m_script_manager->Update(*scene, timestep);
+    }
+
+    if (scene) {
         scene->Update(timestep);
     }
 
-    m_render_system->RenderFrame(scene);
-
-    if (scene && m_state == State::SIM) {
+    // @TODO: register system instead of if else
+    if (scene && game_mode == GameMode::Gameplay) {
         m_physics_manager->Update(*scene, timestep);
     }
+
+    m_render_system->RenderFrame(scene);
 
     // === Rendering Phase ===
     m_graphics_manager->Update(scene);
@@ -359,35 +366,6 @@ void Application::AttachGameLayer() {
 void Application::DetachGameLayer() {
     if (m_gameLayer) {
         DetachLayer(m_gameLayer.get());
-    }
-}
-
-// @TODO: refactor this
-void Application::SetState(State p_state) {
-    switch (p_state) {
-        case State::BEGIN_SIM: {
-            if (DEV_VERIFY(m_state == State::EDITING)) {
-                m_state = p_state;
-            }
-        } break;
-        case State::END_SIM: {
-            if (DEV_VERIFY(m_state == State::SIM)) {
-                m_state = p_state;
-            }
-        } break;
-        case State::SIM: {
-            if (DEV_VERIFY(m_state == State::BEGIN_SIM)) {
-                m_state = p_state;
-            }
-        } break;
-        case State::EDITING: {
-            if (DEV_VERIFY(m_state == State::END_SIM)) {
-                m_state = p_state;
-            }
-        } break;
-        default:
-            CRASH_NOW();
-            break;
     }
 }
 

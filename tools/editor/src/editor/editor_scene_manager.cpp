@@ -68,7 +68,15 @@ std::shared_ptr<Scene> EditorSceneManager::OpenTemporaryScene(const Guid& p_guid
     return scene;
 }
 
+void EditorSceneManager::SetActiveScene(Scene* p_scene) {
+    m_sim_scene.reset(p_scene);
+}
+
 Scene* EditorSceneManager::GetActiveScene() const {
+    if (m_sim_scene) {
+        return m_sim_scene.get();
+    }
+
     auto lock = m_tmp_scene.lock();
     if (lock) {
         return lock.get();

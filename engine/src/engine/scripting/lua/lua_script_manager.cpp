@@ -147,7 +147,7 @@ void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
         lua_State* L = p_scene.L;
         const lua_Number timestep = p_timestep;
 
-        EntityCall(L, m_gameRef, "OnUpdate", timestep);
+        // EntityCall(L, m_gameRef, "OnUpdate", timestep);
 
         for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
             if (script.m_source_id.IsNull()) {
@@ -180,21 +180,20 @@ void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::
 
 Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const Guid& p_guid, const char* p_class_name, ObjectFunctions& p_meta) {
     auto asset_registry = m_app->GetAssetRegistry();
-    [[maybe_unused]]
-    auto handle = asset_registry->FindByGuid<BlobAsset>(p_guid);
-    DEV_ASSERT(0);
-
-#if 0
-    auto source = dynamic_cast<const TextAsset*>(handle.Wait().get());
-    if (!source) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "file {} not found", p_path);
+    auto _handle = asset_registry->FindByGuid<BlobAsset>(p_guid);
+    if (_handle.is_none()) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", p_guid.ToString());
     }
 
-    if (luaL_dostring(L, source->source.c_str()) != LUA_OK) {
-        LOG_ERROR("failed to execute script '{}', error: '{}'", source->source, lua_tostring(L, -1));
+    const BlobAsset* blob = _handle.unwrap_unchecked().Get();
+    if (!blob) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not loaded", p_guid.ToString());
+    }
+
+    if (luaL_dostring(L, blob->c_str()) != LUA_OK) {
+        LOG_ERROR("failed to execute script '{}', error: '{}'", blob->c_str(), lua_tostring(L, -1));
         return CAVE_ERROR(ErrorCode::ERR_SCRIPT_FAILED);
     }
-#endif
 
     // check if function exists
     lua_getglobal(L, p_class_name);
@@ -207,6 +206,7 @@ Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const Guid& p_guid, c
     if (ref == LUA_REFNIL) {
         CRASH_NOW();
     }
+
     p_meta.funcNew = ref;
     return Result<void>();
 }

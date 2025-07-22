@@ -5,6 +5,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
+#include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
@@ -19,7 +20,9 @@ namespace fs = std::filesystem;
 class Editor : public Application {
 public:
     Editor(const ApplicationSpec& p_spec)
-        : Application(p_spec, Application::Type::EDITOR) {}
+        : Application(p_spec, Application::Type::Editor) {
+        m_mode_manager = std::make_unique<ModeManager>(GameMode::Editor, *this);
+    }
 
     void InitLayers() override {
         m_editorLayer = std::make_unique<EditorLayer>();

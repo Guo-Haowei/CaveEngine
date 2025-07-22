@@ -51,6 +51,10 @@ bool SceneManager::TrySwapScene() {
     return true;
 }
 
+void SceneManager::SetActiveScene(Scene* p_scene) {
+    unused(p_scene);
+}
+
 void SceneManager::Update() {
     CAVE_PROFILE_EVENT();
 

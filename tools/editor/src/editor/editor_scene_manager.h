@@ -16,6 +16,7 @@ public:
     void OpenScene(const Guid& p_guid, std::shared_ptr<Scene>& p_scene);
 
     // @TODO: do not pass raw pointers around
+    void SetActiveScene(Scene* p_scene);
     Scene* GetActiveScene() const override;
 
     void SetTmpScene(const std::shared_ptr<Scene>& p_scene);
@@ -26,6 +27,7 @@ protected:
     std::unordered_map<Guid, std::shared_ptr<Scene>> m_caches;
 
     std::weak_ptr<Scene> m_tmp_scene;
+    std::shared_ptr<Scene> m_sim_scene;
 };
 
 }  // namespace cave
