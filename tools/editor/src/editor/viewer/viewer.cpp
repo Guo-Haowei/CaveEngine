@@ -2,15 +2,17 @@
 
 #include <imgui/imgui_internal.h>
 
-#include "editor/document/document.h"
-#include "editor/editor_layer.h"
-#include "editor/utility/imguizmo.h"
-#include "editor/widgets/widget.h"
 #include "engine/input/input_event.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
+#include "engine/runtime/mode_manager.h"
+
+#include "editor/document/document.h"
+#include "editor/editor_layer.h"
+#include "editor/utility/imguizmo.h"
+#include "editor/widgets/widget.h"
 
 // asset editors
 #include "editor/animation_editor/sprite_animation_editor.h"
@@ -47,6 +49,11 @@ void Viewer::UpdateFrameSize() {
 }
 
 bool Viewer::HandleInput(const InputEvent* p_input_event) {
+    const GameMode mode = m_editor.GetApplication()->GetModeManager().GetMode();
+    if (mode != GameMode::Editor) {
+        return true;
+    }
+
     auto active_tab = GetActiveTab();
     if (active_tab && active_tab->HandleInput(p_input_event)) {
         return true;

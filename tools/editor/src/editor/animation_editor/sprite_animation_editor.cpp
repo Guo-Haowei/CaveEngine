@@ -236,7 +236,7 @@ void SpriteAnimationEditor::DrawTimeLine() {
 
         if (old_clip != current_clip) {
             LOG_OK("Set clip to {}", clips[current_clip]);
-            animator->SetClip(clips[current_clip], true, 1.0f);
+            animator->SetClip(clips[current_clip]);
         }
     }
 
@@ -259,11 +259,13 @@ void SpriteAnimationEditor::DrawTimeLine() {
 
     ImGui::Columns(1);
 
+#if 0
     // time line
-    auto& playback = animator->GetPlaybackTimer();
+    float& playback = animator->GetPlaybackTimer();
     if (ImGui::SliderFloat("timeline", &playback.timer, playback.start, playback.end)) {
         animator->SetPlaying(true);
     }
+#endif
 }
 
 void SpriteAnimationEditor::DrawAssetInspector() {

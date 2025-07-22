@@ -351,7 +351,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             if (DrawInputText("clip", clip_name, COMPONENT_FIELD_NAME_WIDTH)) {
                 const SpriteAnimationClip* clip = asset->GetClip(clip_name);
                 if (clip) {
-                    p_animator.SetClip(clip_name, clip->IsLooping(), clip->GetTotalDuration());
+                    p_animator.SetClip(clip_name);
                 }
             }
         }

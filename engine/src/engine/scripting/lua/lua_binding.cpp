@@ -195,6 +195,12 @@ bool OpenSceneLib(lua_State* L) {
         .addFunction("set_scale", &TransformComponent::SetScale)
         .endClass();
 
+    // Animator
+    luabridge::getGlobalNamespace(L)
+        .beginClass<AnimatorComponent>("AnimatorComponent")
+        .addFunction("set_clip", &AnimatorComponent::SetClip)
+        .endClass();
+
     // CameraComponent
     luabridge::getGlobalNamespace(L)
         .beginClass<CameraComponent>("CameraComponent")
@@ -250,6 +256,9 @@ bool OpenSceneLib(lua_State* L) {
         })
         .addFunction("get_transform", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<TransformComponent>(ecs::Entity(p_entity));
+        })
+        .addFunction("get_animator", [](Scene* p_scene, uint32_t p_entity) {
+            return p_scene->GetComponent<AnimatorComponent>(ecs::Entity(p_entity));
         })
         .addFunction("get_camera", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<CameraComponent>(ecs::Entity(p_entity));

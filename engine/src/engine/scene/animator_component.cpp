@@ -5,14 +5,11 @@
 
 namespace cave {
 
-void AnimatorComponent::SetClip(const std::string& p_name, bool p_looping, float p_duration) {
-    m_current_clip = p_name;
-    m_looping = p_looping;
-    m_playing = true;
-
-    m_playback_timer.start = 0.0f;
-    m_playback_timer.end = p_duration;
-    m_playback_timer.timer = 0.0f;
+void AnimatorComponent::SetClip(const std::string& p_name) {
+    if (m_current_clip != p_name) {
+        m_current_clip = p_name;
+        m_playback_timer = 0.0f;
+    }
 }
 
 void AnimatorComponent::SetResourceGuid(const Guid& p_guid) {

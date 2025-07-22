@@ -149,7 +149,7 @@ void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
             }
 
             if (DEV_VERIFY(script.m_instance)) {
-                EntityCall(L, script.m_instance, "OnUpdate", timestep);
+                EntityCall(L, script.m_instance, "_process", timestep);
             }
         }
     }
@@ -162,11 +162,11 @@ void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::
         LuaScriptComponent* script_2 = p_scene.GetComponent<LuaScriptComponent>(p_entity_2);
 
         if (script_1 && script_1->m_instance) {
-            EntityCall(L, script_1->m_instance, "OnCollision", p_entity_2.GetId());
+            EntityCall(L, script_1->m_instance, "_on_collision", p_entity_2.GetId());
         }
 
         if (script_2 && script_2->m_instance) {
-            EntityCall(L, script_2->m_instance, "OnCollision", p_entity_1.GetId());
+            EntityCall(L, script_2->m_instance, "_on_collision", p_entity_1.GetId());
         }
     }
 }

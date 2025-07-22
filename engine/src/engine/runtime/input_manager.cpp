@@ -5,10 +5,10 @@
 namespace cave {
 
 auto InputManager::InitializeImpl() -> Result<void> {
-    m_input_binding[STR_ID("ui_left")] = std::to_underlying(KeyCode::KEY_LEFT);
-    m_input_binding[STR_ID("ui_right")] = std::to_underlying(KeyCode::KEY_RIGHT);
-    m_input_binding[STR_ID("ui_up")] = std::to_underlying(KeyCode::KEY_UP);
-    m_input_binding[STR_ID("ui_down")] = std::to_underlying(KeyCode::KEY_DOWN);
+    m_input_binding[STR_ID("ui_left")] = std::to_underlying(KeyCode::KEY_A);
+    m_input_binding[STR_ID("ui_right")] = std::to_underlying(KeyCode::KEY_D);
+    m_input_binding[STR_ID("ui_up")] = std::to_underlying(KeyCode::KEY_W);
+    m_input_binding[STR_ID("ui_down")] = std::to_underlying(KeyCode::KEY_S);
     return Result<void>();
 }
 
