@@ -16,6 +16,7 @@ skip_patterns = [
     'imgui_impl_',
     '.generated.cpp',
     'glsl_generated',
+    'raw',
 ]
 
 def need_format(file):
