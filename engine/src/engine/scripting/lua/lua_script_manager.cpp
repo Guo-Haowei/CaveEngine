@@ -86,7 +86,7 @@ static int CreateInstance(const ObjectFunctions& p_meta, lua_State* L, Args&&...
 }
 
 void LuaScriptManager::OnSimBegin(Scene& p_scene) {
-    p_scene.L = nullptr;
+    m_state = nullptr;
 
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -105,11 +105,10 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
 
     if (auto res = luabridge::push(L, &p_scene); !res) {
         LOG_ERROR("failed to push scene, error: {}", res.message());
+        lua_close(L);
         return;
     }
     lua_setglobal(L, LUA_GLOBAL_SCENE);
-
-    p_scene.L = L;
 
     for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
         if (script.m_source_id.IsNull()) {
@@ -122,28 +121,29 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
             script.m_instance = instance;
         }
     }
+
+    m_state = L;
     return;
 }
 
-void LuaScriptManager::OnSimEnd(Scene& p_scene) {
-    m_objectsMeta.clear();
+void LuaScriptManager::OnSimEnd() {
+    m_objects_meta.clear();
 
-    // @TODO: really shouldn't attach state to scene
-    if (p_scene.L) {
-        lua_close(p_scene.L);
-        p_scene.L = nullptr;
+    if (m_state) {
+        lua_close(m_state);
+        m_state = nullptr;
     }
-    m_gameRef = 0;
 }
 
 void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
     CAVE_PROFILE_EVENT();
 
-    if (DEV_VERIFY(p_scene.L)) {
-        lua_State* L = p_scene.L;
+    lua_State* L = m_state;
+
+    if (DEV_VERIFY(L)) {
         const lua_Number timestep = p_timestep;
 
-        for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
+        for (auto [entity, script] : p_scene.View<LuaScriptComponent>()) {
             if (script.m_source_id.IsNull()) {
                 continue;
             }
@@ -156,8 +156,7 @@ void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
 }
 
 void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) {
-
-    lua_State* L = p_scene.L;
+    lua_State* L = m_state;
     if (DEV_VERIFY(L)) {
         LuaScriptComponent* script_1 = p_scene.GetComponent<LuaScriptComponent>(p_entity_1);
         LuaScriptComponent* script_2 = p_scene.GetComponent<LuaScriptComponent>(p_entity_2);
@@ -206,8 +205,8 @@ Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const Guid& p_guid, c
 }
 
 ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
-    auto it = m_objectsMeta.find(p_guid);
-    if (it != m_objectsMeta.end()) {
+    auto it = m_objects_meta.find(p_guid);
+    if (it != m_objects_meta.end()) {
         return it->second;
     }
 
@@ -217,7 +216,7 @@ ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const Guid& p_guid, co
         builder << res.error();
         LOG_ERROR("{}", builder.ToString());
     } else {
-        m_objectsMeta[p_guid] = meta;
+        m_objects_meta[p_guid] = meta;
     }
 
     return meta;

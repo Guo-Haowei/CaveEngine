@@ -27,5 +27,4 @@ namespace cave {
     }
 #endif
 
-
 }  // namespace cave

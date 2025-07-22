@@ -25,10 +25,8 @@ void GameLayer::OnAttach() {
 void GameLayer::OnDetach() {
     LOG("GameLayer '{}' detached", m_name);
 
-    if (DEV_VERIFY(m_scene)) {
-        m_app->GetPhysicsManager()->OnSimEnd(*m_scene);
-        m_app->GetScriptManager()->OnSimEnd(*m_scene);
-    }
+    m_app->GetPhysicsManager()->OnSimEnd();
+    m_app->GetScriptManager()->OnSimEnd();
 
     OnDetachInternal();
 }

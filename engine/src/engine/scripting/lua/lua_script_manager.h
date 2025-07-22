@@ -22,7 +22,7 @@ public:
     void OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) override;
 
     void OnSimBegin(Scene& p_scene) override;
-    void OnSimEnd(Scene& p_scene) override;
+    void OnSimEnd() override;
 
 protected:
     auto InitializeImpl() -> Result<void> final;
@@ -31,8 +31,8 @@ protected:
     ObjectFunctions FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name);
     Result<void> LoadMetaTable(lua_State* L, const Guid& p_guid, const char* p_class_name, ObjectFunctions& p_meta);
 
-    std::map<Guid, ObjectFunctions> m_objectsMeta;
-    int m_gameRef{ 0 };
+    std::map<Guid, ObjectFunctions> m_objects_meta;
+    lua_State* m_state{ nullptr };
 };
 
 }  // namespace cave

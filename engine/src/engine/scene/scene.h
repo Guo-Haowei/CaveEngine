@@ -20,8 +20,6 @@
 // @TODO: remove
 #include "engine/assets/mesh_asset.h"
 
-struct lua_State;
-
 namespace cave::jobsystem {
 class Context;
 }
@@ -186,7 +184,6 @@ public:
 
     PhysicsMode m_physicsMode{ PhysicsMode::NONE };
     mutable PhysicsWorldContext* m_physicsWorld{ nullptr };
-    mutable lua_State* L{ nullptr };
 
     const auto& GetLibraryEntries() const { return m_componentLib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }

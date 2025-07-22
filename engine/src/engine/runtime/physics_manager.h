@@ -16,7 +16,7 @@ public:
     virtual void Update(Scene& p_scene, float p_timestep) = 0;
 
     virtual void OnSimBegin(Scene& p_scene) = 0;
-    virtual void OnSimEnd(Scene& p_scene) = 0;
+    virtual void OnSimEnd() = 0;
 };
 
 }  // namespace cave

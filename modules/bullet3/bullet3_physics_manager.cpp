@@ -418,7 +418,7 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
 #endif
 }
 
-void Bullet3PhysicsManager::OnSimEnd(Scene&) {
+void Bullet3PhysicsManager::OnSimEnd() {
     // @TODO: delete everything
 }
 

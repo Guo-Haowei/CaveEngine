@@ -230,7 +230,7 @@ void EditorLayer::OnUpdate(float p_timestep) {
 }
 
 void EditorLayer::OnImGuiRender() {
-    // @TODO: DO NOT Request SCENE here 
+    // @TODO: DO NOT Request SCENE here
     Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();
 
     FlushInputEvents();
