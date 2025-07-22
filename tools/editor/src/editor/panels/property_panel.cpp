@@ -217,7 +217,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
 
     // @TODO: see how much this can be done with meta table
 
-    MeshRenderer* mesh_renderer = scene.GetComponent<MeshRenderer>(id);
+    MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
     SpriteRendererComponent* sprite_renderer = scene.GetComponent<SpriteRendererComponent>(id);
     TileMapRendererComponent* tile_map_renderer = scene.GetComponent<TileMapRendererComponent>(id);
     AnimatorComponent* animator_component = scene.GetComponent<AnimatorComponent>(id);
@@ -385,13 +385,15 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
-    DrawComponent("MeshRenderer", mesh_renderer, [&](MeshRenderer& p_object) {
-        bool hide = !(p_object.flags & MeshRenderer::FLAG_RENDERABLE);
-        bool cast_shadow = p_object.flags & MeshRenderer::FLAG_CAST_SHADOW;
+    DrawComponent("MeshRendererComponent", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
+        bool hide = !(p_mesh_renderer.flags & MeshRendererComponent::FLAG_RENDERABLE);
+        bool cast_shadow = p_mesh_renderer.flags & MeshRendererComponent::FLAG_CAST_SHADOW;
         ImGui::Checkbox("Hide", &hide);
         ImGui::Checkbox("Cast shadow", &cast_shadow);
-        p_object.flags = (hide ? 0 : MeshRenderer::FLAG_RENDERABLE);
-        p_object.flags |= (cast_shadow ? MeshRenderer::FLAG_CAST_SHADOW : 0);
+        p_mesh_renderer.flags = (hide ? 0 : MeshRendererComponent::FLAG_RENDERABLE);
+        p_mesh_renderer.flags |= (cast_shadow ? MeshRendererComponent::FLAG_CAST_SHADOW : 0);
+
+        DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
     });
 
     DrawComponent("Animation", animation_component, [&](AnimationComponent& p_animation) {

@@ -222,7 +222,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     GpuScene gpu_scene;
 
     // meshes
-    for (auto [id, object] : p_scene.View<MeshRenderer>()) {
+    for (auto [id, object] : p_scene.View<MeshRendererComponent>()) {
 #if 0
         auto transform = p_scene.GetComponent<TransformComponent>(id);
         auto mesh = p_scene.GetComponent<MeshAsset>(object.meshId);

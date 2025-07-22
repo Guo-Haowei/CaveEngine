@@ -53,7 +53,7 @@ void Scene::Update(float p_timestep) {
     ctx.Wait();
 
     // update bounding box
-    RunObjectUpdateSystem(*this, ctx, p_timestep);
+    RunMeshAABBUpdateSystem(*this, ctx, p_timestep);
 
     // @TODO: refactor
     for (auto [entity, camera] : m_CameraComponents) {
@@ -160,14 +160,14 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
     }
     m_HierarchyComponents.Remove(p_entity);
     m_TransformComponents.Remove(p_entity);
-    m_MeshRenderers.Remove(p_entity);
+    m_MeshRendererComponents.Remove(p_entity);
     // m_ParticleEmitterComponents.Remove(p_entity);
     // m_ForceFieldComponents.Remove(p_entity);
     m_NameComponents.Remove(p_entity);
 }
 
 bool Scene::RayObjectIntersect(ecs::Entity p_object_id, Ray& p_ray) {
-    MeshRenderer* object = GetComponent<MeshRenderer>(p_object_id);
+    MeshRendererComponent* object = GetComponent<MeshRendererComponent>(p_object_id);
     MeshAsset* mesh = object->m_mesh_handle.Get();
     TransformComponent* transform = GetComponent<TransformComponent>(p_object_id);
     DEV_ASSERT(mesh && transform);
@@ -205,8 +205,8 @@ Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     RayIntersectionResult result;
 
     // @TODO: box collider
-    for (size_t object_idx = 0; object_idx < GetCount<MeshRenderer>(); ++object_idx) {
-        ecs::Entity entity = GetEntity<MeshRenderer>(object_idx);
+    for (size_t object_idx = 0; object_idx < GetCount<MeshRendererComponent>(); ++object_idx) {
+        ecs::Entity entity = GetEntity<MeshRendererComponent>(object_idx);
         if (RayObjectIntersect(entity, p_ray)) {
             result.entity = entity;
         }

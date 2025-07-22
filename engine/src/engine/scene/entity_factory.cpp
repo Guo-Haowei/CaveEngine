@@ -59,7 +59,7 @@ Entity EntityFactory::CreateTransformEntity(Scene& p_scene,
 Entity EntityFactory::CreateObjectEntity(Scene& p_scene,
                                          const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<MeshRenderer>(entity);
+    p_scene.Create<MeshRendererComponent>(entity);
     p_scene.Create<TransformComponent>(entity);
     return entity;
 }
@@ -78,7 +78,7 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     light.m_atten.quadratic = 0.05f;
 
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
+    MeshRendererComponent& object = *p_scene.GetComponent<MeshRendererComponent>(entity);
     transform.SetTranslation(p_position);
     transform.SetDirty();
 
@@ -204,7 +204,7 @@ Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
                                         const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     TransformComponent& trans = *p_scene.GetComponent<TransformComponent>(entity);
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
+    MeshRendererComponent& object = *p_scene.GetComponent<MeshRendererComponent>(entity);
     trans.MatrixTransform(p_transform);
 
 #if 0
@@ -234,7 +234,7 @@ Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
                                        const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     TransformComponent& trans = *p_scene.GetComponent<TransformComponent>(entity);
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
+    MeshRendererComponent& object = *p_scene.GetComponent<MeshRendererComponent>(entity);
     trans.MatrixTransform(p_transform);
 
     auto handle = CreateMeshEntity(p_scene, "@res://models/" + p_name + ".mesh");

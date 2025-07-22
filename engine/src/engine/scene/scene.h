@@ -31,7 +31,7 @@ namespace cave {
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                   \
     REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)             \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
-    REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)                       \
+    REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)                       \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0) \
     REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
 

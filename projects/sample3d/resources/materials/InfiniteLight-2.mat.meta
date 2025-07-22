@@ -1,0 +1,5 @@
+guid: 593B7351-2040-2040-965EBA2CD652C61D
+type: mat
+name: InfiniteLight-2.mat
+import_path: "@res://materials/InfiniteLight-2.mat"
+dependencies: []

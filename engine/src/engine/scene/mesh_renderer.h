@@ -7,8 +7,8 @@ namespace cave {
 
 class Archive;
 
-struct MeshRenderer {
-    CAVE_META(MeshRenderer)
+struct MeshRendererComponent {
+    CAVE_META(MeshRendererComponent)
 
 public:
     enum : uint32_t {
@@ -18,9 +18,10 @@ public:
     };
 
     // @TODO: make flag bools so it's esier to set in editor
-    CAVE_PROP(type = u32)
+    CAVE_PROP(editor = None)
     uint32_t flags = FLAG_RENDERABLE | FLAG_CAST_SHADOW;
 
+    CAVE_PROP(editor = Asset)
     Guid m_mesh_id;
 
     // Non-serialized

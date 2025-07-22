@@ -302,19 +302,21 @@ void RunHierarchyUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, flo
     JS_PARALLEL_FOR(HierarchyComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, UpdateHierarchy(p_scene, index, p_timestep));
 }
 
-void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float) {
+void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context&, float) {
     CAVE_PROFILE_EVENT();
-    unused(p_context);
 
     AABB bound;
 
-    for (auto [entity, obj] : p_scene.View<MeshRenderer>()) {
-        if (!p_scene.Contains<TransformComponent>(entity)) {
+    for (auto [id, mesh_renderer] : p_scene.View<MeshRendererComponent>()) {
+        if (!p_scene.Contains<TransformComponent>(id)) {
             continue;
         }
 
-        const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-        const MeshAsset* mesh = obj.m_mesh_handle.Get();
+        const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
+        const MeshAsset* mesh = mesh_renderer.m_mesh_handle.Get();
+        if (!mesh) {
+            continue;
+        }
 
         Matrix4x4f M = transform.GetWorldMatrix();
         AABB aabb = mesh->localBound;

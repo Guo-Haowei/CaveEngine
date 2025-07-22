@@ -164,7 +164,8 @@ static void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetRenderTarget(fb);
     cmd.SetViewport(Viewport(width, height));
 
-    const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    const float clear_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    // const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     cmd.Clear(fb, CLEAR_COLOR_BIT, clear_color);
 
     if (p_ctx.frameData.gbuffer_commands.empty()) {
@@ -520,6 +521,7 @@ static void LightingPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetRenderTarget(fb);
 
     cmd.SetViewport(Viewport(width, height));
+    const float clear_color[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.SetPipelineState(PSO_LIGHTING);
 

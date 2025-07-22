@@ -4,12 +4,14 @@
 
 namespace cave {
 
-void MeshRenderer::SetResourceGuid(const Guid& p_guid) {
-    unused(p_guid);
-    CRASH_NOW();
+void MeshRendererComponent::SetResourceGuid(const Guid& p_guid) {
+    AssetHandle::ReplaceGuidAndHandle(AssetType::Mesh,
+                                      p_guid,
+                                      m_mesh_id,
+                                      m_mesh_handle.RawHandle());
 }
 
-void MeshRenderer::Serialize(Archive& p_archive, uint32_t) {
+void MeshRendererComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);
 }
 
