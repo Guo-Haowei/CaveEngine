@@ -23,7 +23,7 @@ VS_OUTPUT_UV main(uint vert_id : SV_VertexID) {
     };
 
     float2 pos = positions[vert_id];
-    float4 position = float4(pos, -1.0f, 1.0f);
+    float4 position = float4(pos, 0.0f, 1.0f);
     position = mul(c_worldMatrix, position);
     position = mul(c_viewMatrix, position);
     position = mul(c_projectionMatrix, position);

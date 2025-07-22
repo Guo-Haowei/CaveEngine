@@ -36,10 +36,11 @@ namespace cave {
 EditorLayer::EditorLayer()
     : Layer("EditorLayer") {
 
-    m_menuBar = std::make_shared<MenuBar>(*this);
+    m_menu_bar = std::make_shared<MenuBar>(*this);
     m_viewer = std::make_shared<Viewer>(*this);
+    m_log_panel = std::make_shared<LogPanel>(*this);
 
-    AddPanel(std::make_shared<LogPanel>(*this));
+    AddPanel(m_log_panel);
     AddPanel(std::make_shared<RendererPanel>(*this));
     AddPanel(std::make_shared<HierarchyPanel>(*this));
     AddPanel(std::make_shared<PropertyPanel>(*this));
@@ -214,7 +215,7 @@ void EditorLayer::DockSpace(Scene* p_scene) {
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
-    m_menuBar->Update(p_scene);
+    m_menu_bar->Update(p_scene);
 
     ImGui::End();
     return;
@@ -324,7 +325,7 @@ HandleInputResult EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_e
 // @TODO: these are associated with scene editor, move to scene editor
 void EditorLayer::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {
     p_command->m_editor = this;
-    m_commandBuffer.emplace_back(std::move(p_command));
+    m_command_buffer.emplace_back(std::move(p_command));
 }
 
 void EditorLayer::CommandInspectAsset(const Guid& p_guid) {
@@ -350,9 +351,9 @@ void EditorLayer::CommandRemoveEntity(ecs::Entity p_target) {
 }
 
 void EditorLayer::FlushCommand(Scene* p_scene) {
-    while (!m_commandBuffer.empty()) {
-        auto task = m_commandBuffer.front();
-        m_commandBuffer.pop_front();
+    while (!m_command_buffer.empty()) {
+        auto task = m_command_buffer.front();
+        m_command_buffer.pop_front();
         task->Execute(*p_scene);
     }
 }

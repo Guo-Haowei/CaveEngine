@@ -9,8 +9,8 @@ namespace cave {
 class Archive;
 struct GpuMesh;
 
-class TileMapRenderer {
-    CAVE_META(TileMapRenderer)
+class TileMapRendererComponent {
+    CAVE_META(TileMapRendererComponent)
 
     CAVE_PROP(editor = Asset, tooltip = "tile map")
     Guid m_tile_map_id;

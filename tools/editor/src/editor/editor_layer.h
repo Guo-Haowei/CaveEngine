@@ -13,6 +13,7 @@ namespace cave {
 enum class HandleInput : uint8_t;
 enum class KeyCode : uint16_t;
 class EditorCommandBase;
+class LogPanel;
 class MenuBar;
 class Viewer;
 
@@ -44,9 +45,6 @@ public:
     void SelectEntity(ecs::Entity p_selected);
     ecs::Entity GetSelectedEntity() const { return m_selected; }
 
-    uint64_t GetDisplayedImage() const { return m_displayedImage; }
-    void SetDisplayedImage(uint64_t p_image) { m_displayedImage = p_image; }
-
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
     void CommandInspectAsset(const Guid& p_guid);
     void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
@@ -67,6 +65,7 @@ public:
 
     const AssetHandle& GetSelectedAsset() const { return m_selected_asset; }
 
+    LogPanel& GetLogPanel() { return *m_log_panel.get(); }
     Viewer& GetViewer() { return *m_viewer.get(); }
 
 private:
@@ -76,14 +75,14 @@ private:
     void FlushInputEvents();
     void FlushCommand(Scene* p_scene);
 
-    std::shared_ptr<MenuBar> m_menuBar;
+    std::shared_ptr<MenuBar> m_menu_bar;
     std::shared_ptr<Viewer> m_viewer;
+    std::shared_ptr<LogPanel> m_log_panel;
 
     std::vector<std::shared_ptr<EditorItem>> m_panels;
     ecs::Entity m_selected;
 
-    uint64_t m_displayedImage = 0;
-    std::list<std::shared_ptr<EditorCommandBase>> m_commandBuffer;
+    std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
 
     struct ShortcutDesc {
         const char* name{ nullptr };

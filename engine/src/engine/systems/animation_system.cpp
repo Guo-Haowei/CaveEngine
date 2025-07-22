@@ -27,7 +27,7 @@ public:
 
     static void UpdateSpriteAnimation(float p_timestep,
                                       AnimatorComponent& p_animator,
-                                      SpriteRenderer& p_renderer) {
+                                      SpriteRendererComponent& p_renderer) {
         SpriteAnimationAsset* asset = p_animator.GetAnimHandle().Get();
         if (!asset) {
             return;
@@ -70,7 +70,7 @@ void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, flo
     unused(p_context);
 
     for (auto [id, animator] : p_scene.View<AnimatorComponent>()) {
-        SpriteRenderer* renderer = p_scene.GetComponent<SpriteRenderer>(id);
+        SpriteRendererComponent* renderer = p_scene.GetComponent<SpriteRendererComponent>(id);
         DEV_ASSERT(renderer);
         if (!renderer) continue;
 

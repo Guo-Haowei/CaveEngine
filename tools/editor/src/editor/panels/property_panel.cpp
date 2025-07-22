@@ -1,5 +1,6 @@
 #include "property_panel.h"
 
+#include <glm/gtc/quaternion.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
@@ -53,25 +54,13 @@ static void DrawComponent(const std::string& p_name, T* p_component, UIFunction 
     }
 }
 
-template<typename... Args>
-static bool DrawVec3ControlDisabled(bool disabled, Args&&... args) {
-    if (disabled) {
-        PushDisabled();
-    }
-    bool dirty = DrawVec3Control(std::forward<Args>(args)...);
-    if (disabled) {
-        PopDisabled();
-    }
-    return dirty;
-};
-
 void DrawAsset(const Guid& p_guid, const DragDropFunc& p_callback) {
     AssetHandle handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
     const AssetMetaData* meta = handle.GetMeta();
     DEV_ASSERT(meta);
     const IAsset* asset = handle.Get();
 
-    ImGui::Text(ICON_FA_CUBE "  %s", meta->path.c_str());
+    ImGui::Text(ICON_FA_CUBE "  %s", meta->name.c_str());
 
     const bool hovered = ImGui::IsItemHovered();
     DragDropTarget(meta->type, p_callback);
@@ -81,12 +70,16 @@ void DrawAsset(const Guid& p_guid, const DragDropFunc& p_callback) {
 };
 
 template<typename T>
+concept HasSetResourceGuid = requires(T t) {
+    { t.SetResourceGuid() };
+};
+
+template<typename T>
 bool DrawComponentAuto(T* p_component) {
-    constexpr float WIDTH = 120.f;
+    constexpr float COMPONENT_FIELD_NAME_WIDTH = 120.f;
+    const auto& meta_table = MetaDataTable<T>::GetFields();
 
     bool dirty = false;
-
-    const auto& meta_table = MetaDataTable<T>::GetFields();
     for (const auto& field : meta_table) {
         switch (field->editor_hint) {
             case EditorHint::Toggle: {
@@ -98,17 +91,58 @@ bool DrawComponentAuto(T* p_component) {
             } break;
             case EditorHint::Color: {
                 Vector4f& color = field->GetData<Vector4f>(p_component);
-                if (DrawColorPicker4(field->name, &color.r, WIDTH)) {
+                if (DrawColorPicker4(field->name, &color.r, COMPONENT_FIELD_NAME_WIDTH)) {
                     dirty = true;
                     // @TODO: callback
                 }
             } break;
+
             case EditorHint::Asset: {
                 const Guid& guid = field->GetData<Guid>(p_component);
                 DrawAsset(guid,
                           [&](AssetHandle& p_handle) {
-                              p_component->SetResourceGuid(p_handle.GetGuid());
+                              unused(p_handle);
+                              if constexpr (HasSetResourceGuid<T>) {
+                                  p_component->SetResourceGuid(p_handle.GetGuid());
+                              }
                           });
+            } break;
+            case EditorHint::Translation: {
+                Vector3f& translation = field->GetData<Vector3f>(p_component);
+                if (DrawVec3Control(
+                        field->name,
+                        translation,
+                        0.0f,
+                        COMPONENT_FIELD_NAME_WIDTH)) {
+                    dirty = true;
+                }
+            } break;
+            case EditorHint::Scale: {
+                Vector3f& scale = field->GetData<Vector3f>(p_component);
+                if (DrawVec3Control(field->name,
+                                    scale,
+                                    1.0f,
+                                    COMPONENT_FIELD_NAME_WIDTH)) {
+                    dirty = true;
+                }
+            } break;
+            case EditorHint::Rotation: {
+                Vector4f& q = field->GetData<Vector4f>(p_component);
+                glm::vec3 euler_ = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
+                Vector3f euler = *reinterpret_cast<Vector3f*>(&euler_);
+                constexpr float RAD_TO_DEG = 180.0f / glm::pi<float>();
+                constexpr float DEG_TO_RAD = glm::pi<float>() / 180.0f;
+                euler *= RAD_TO_DEG;
+
+                if (DrawVec3Control(field->name,
+                                    euler,
+                                    0.0f,
+                                    COMPONENT_FIELD_NAME_WIDTH)) {
+                    dirty = true;
+                    euler *= DEG_TO_RAD;
+                    glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
+                    q = Vector4f(q2.x, q2.y, q2.z, q2.w);
+                }
             } break;
             default:
                 break;
@@ -151,26 +185,21 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             LOG_ERROR("TODO: implement add component");
             ImGui::CloseCurrentPopup();
         }
-        if (ImGui::MenuItem("Script")) {
-            m_editor.CommandAddComponent(ComponentName::Script, id);
-        }
-        if (ImGui::MenuItem("SpriteRenderer")) {
-            m_editor.CommandAddComponent(ComponentName::SpriteRenderer, id);
-        }
-        if (ImGui::MenuItem("Animator")) {
-            m_editor.CommandAddComponent(ComponentName::Animator, id);
-        }
-        if (ImGui::MenuItem("TileMap")) {
-            m_editor.CommandAddComponent(ComponentName::TileMap, id);
-        }
+#define COMPONENT_DECL(NAME)                                   \
+    if (ImGui::MenuItem(#NAME)) {                              \
+        m_editor.CommandAddComponent(ComponentName::NAME, id); \
+    }
+        COMPONENT_LIST
+#undef COMPONENT_DECL
+
         ImGui::EndPopup();
     }
 
     // @TODO: see how much this can be done with meta table
 
     MeshRenderer* mesh_renderer = scene.GetComponent<MeshRenderer>(id);
-    SpriteRenderer* sprite_renderer = scene.GetComponent<SpriteRenderer>(id);
-    TileMapRenderer* tile_map_renderer = scene.GetComponent<TileMapRenderer>(id);
+    SpriteRendererComponent* sprite_renderer = scene.GetComponent<SpriteRendererComponent>(id);
+    TileMapRendererComponent* tile_map_renderer = scene.GetComponent<TileMapRendererComponent>(id);
     AnimatorComponent* animator_component = scene.GetComponent<AnimatorComponent>(id);
 
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
@@ -211,40 +240,13 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     }
 
-    DrawComponent("Transform", transform_component, [&](TransformComponent& transform) {
-        const Matrix4x4f old_transform = transform.GetLocalMatrix();
-        Vector3f translation;
-        Vector3f rotation;
-        Vector3f scale;
-
-        // @TODO: fix
-        // DO NOT USE IMGUIZMO
-        ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(old_transform), &translation.x,
-                                              &rotation.x,
-                                              &scale.x);
-
-        bool dirty = false;
-        GizmoAction action;
-        if (DrawVec3ControlDisabled(disable_translation, "translation", translation)) {
-            dirty = true;
-            action = GizmoAction::Translate;
-        }
-        if (DrawVec3ControlDisabled(disable_rotation, "rotation", rotation)) {
-            dirty = true;
-            action = GizmoAction::Rotate;
-        }
-        if (DrawVec3ControlDisabled(disable_scale, "scale", scale, 1.0f)) {
-            dirty = true;
-            action = GizmoAction::Scale;
-        }
+    DrawComponent("Transform", transform_component, [&](TransformComponent& p_transform) {
+        const Matrix4x4f old_transform = p_transform.GetLocalMatrix();
+        const bool dirty = DrawComponentAuto<TransformComponent>(&p_transform);
         if (dirty) {
-            Matrix4x4f new_transform;
-            ImGuizmo::RecomposeMatrixFromComponents(&translation.x,
-                                                    &rotation.x,
-                                                    &scale.x,
-                                                    glm::value_ptr(new_transform));
+            Matrix4x4f new_transform = p_transform.GetLocalMatrix();
 
-            auto command = std::make_shared<EntityTransformCommand>(action, scene, id, old_transform, new_transform);
+            auto command = std::make_shared<EntityTransformCommand>(scene, id, old_transform, new_transform);
             m_editor.BufferCommand(command);
         }
     });
@@ -284,11 +286,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         DrawColorPicker3("ambient", &p_environment.ambient.color.x);
     });
 
-    DrawComponent("Script", script_component, [](LuaScriptComponent& p_script) {
-        DrawInputText("class_name", p_script.GetClassNameRef());
-        DrawInputText("path", p_script.GetPathRef());
-    });
-
     DrawComponent("VoxelGi", voxel_gi_component, [](VoxelGiComponent& p_voxel_gi) {
         DrawCheckBoxBitflag("enabled", p_voxel_gi.flags, VoxelGiComponent::ENABLED);
         DrawCheckBoxBitflag("show_debug_box", p_voxel_gi.flags, VoxelGiComponent::SHOW_DEBUG_BOX);
@@ -317,17 +314,13 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
-    // @TODO: refactor asset guid display,
-    // don't just show a guid string
-    DrawComponent("SpriteRenderer", sprite_renderer, [](SpriteRenderer& p_sprite_renderer) {
-        DrawComponentAuto<SpriteRenderer>(&p_sprite_renderer);
+    DrawComponent("Script", script_component, [](LuaScriptComponent& p_script) {
+        DrawInputText("class_name", p_script.GetClassNameRef());
+        DrawInputText("path", p_script.GetPathRef());
     });
 
-    DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRenderer& p_tile_map_renderer) {
-        DrawComponentAuto<TileMapRenderer>(&p_tile_map_renderer);
-    });
-
-    DrawComponent("Animator", animator_component, [](AnimatorComponent& p_animator) {
+    DrawComponent("AnimatorComponent", animator_component, [](AnimatorComponent& p_animator) {
+        // @TODO: refactor this
         const Guid& guid = p_animator.GetResourceGuid();
         if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
             handle.is_some()) {
@@ -345,12 +338,15 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         DrawComponentAuto<AnimatorComponent>(&p_animator);
     });
 
-    DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
-        bool is_main = p_camera.IsPrimary();
-        if (ImGui::Checkbox("main camera", &is_main)) {
-            p_camera.SetPrimary(is_main);
-        }
+    DrawComponent("SpriteRendererComponent", sprite_renderer, [](SpriteRendererComponent& p_sprite_renderer) {
+        DrawComponentAuto<SpriteRendererComponent>(&p_sprite_renderer);
+    });
 
+    DrawComponent("TileMapRendererComponent", tile_map_renderer, [](TileMapRendererComponent& p_tile_map_renderer) {
+        DrawComponentAuto<TileMapRendererComponent>(&p_tile_map_renderer);
+    });
+
+    DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
         bool is_ortho = p_camera.IsOrtho();
         if (ToggleButton("ortho", is_ortho)) {
             p_camera.SetOrtho(is_ortho);
@@ -371,7 +367,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
-    DrawComponent("Object", mesh_renderer, [&](MeshRenderer& p_object) {
+    DrawComponent("MeshRenderer", mesh_renderer, [&](MeshRenderer& p_object) {
         bool hide = !(p_object.flags & MeshRenderer::FLAG_RENDERABLE);
         bool cast_shadow = p_object.flags & MeshRenderer::FLAG_CAST_SHADOW;
         ImGui::Checkbox("Hide", &hide);

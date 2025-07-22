@@ -38,7 +38,7 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
         auto id = EntityFactory::CreateTransformEntity(*scene, "animation_test");
         scene->AttachChild(id);
 
-        scene->Create<SpriteRenderer>(id);
+        scene->Create<SpriteRendererComponent>(id);
 
         AnimatorComponent& animator = scene->Create<AnimatorComponent>(id);
         animator.SetResourceGuid(p_guid);

@@ -17,9 +17,11 @@ struct ImageAsset : IAsset {
     // @TODO: refactor
     std::shared_ptr<GpuTexture> gpu_texture;
 
-    auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
+    Result<void> LoadFromDisk(const AssetMetaData&) override;
 
-    auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
+    Result<void> SaveToDisk(const AssetMetaData&) const override;
+
+    std::vector<Guid> GetDependencies() const override;
 };
 
 }  // namespace cave

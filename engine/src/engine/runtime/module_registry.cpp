@@ -12,6 +12,7 @@
 #endif
 
 #include "engine/renderer/graphics_dvars.h"
+#include "engine/scripting/lua/lua_script_manager.h"
 
 namespace cave {
 
@@ -195,6 +196,25 @@ public:
     void BumpRevision() override {}
 };
 
+class NullScriptManager : public IScriptManager {
+public:
+    NullScriptManager()
+        : IScriptManager("NullScriptManager") {}
+
+    virtual void OnSimBegin(Scene&) {}
+    virtual void OnSimEnd(Scene&) {}
+
+    virtual void Update(Scene&, float) {}
+    virtual void OnCollision(Scene&, ecs::Entity, ecs::Entity) {}
+
+protected:
+    virtual Result<void> InitializeImpl() {
+        return Result<void>();
+    }
+
+    virtual void FinalizeImpl() {}
+};
+
 DisplayManager* CreateDisplayManager() {
     return CreateModule<DisplayManager, NullDisplayManager>();
 }
@@ -207,7 +227,9 @@ ISceneManager* CreateSceneManager() {
     return CreateModule<ISceneManager, NullSceneManager>();
 }
 
-// ISceneManager*
+IScriptManager* CreateScriptManager() {
+    return CreateModule<IScriptManager, LuaScriptManager>();
+}
 
 static IGraphicsManager* SelectGraphicsManager(const std::string& p_backend) {
     if (p_backend == "d3d11") {

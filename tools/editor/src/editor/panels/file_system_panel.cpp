@@ -2,7 +2,6 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/assets/assets.h"
 #include "engine/core/os/platform_io.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_manager.h"

@@ -27,8 +27,7 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
     auto meta = handle.GetMeta();
     DEV_ASSERT(meta);
 
-    std::string_view base_path = StringUtils::FileName(meta->path.c_str(), '/');
-    m_title = std::format("{}###{}", base_path, handle.GetGuid().ToString());
+    m_title = std::format("{}###{}", meta->name, handle.GetGuid().ToString());
 
     LOG_OK("ViewerTab '{}' created", m_title);
 }

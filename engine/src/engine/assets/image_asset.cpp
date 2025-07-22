@@ -2,14 +2,20 @@
 
 namespace cave {
 
-auto ImageAsset::LoadFromDisk(const AssetMetaData&) -> Result<void> {
+Result<void> ImageAsset::LoadFromDisk(const AssetMetaData&) {
+    // @TODO: get sampler from meta
     // @TODO: load with xxx
     return Result<void>();
 }
 
-auto ImageAsset::SaveToDisk(const AssetMetaData&) const -> Result<void> {
+Result<void> ImageAsset::SaveToDisk(const AssetMetaData&) const {
+    // @TODO: get sampler from meta
     // @TODO: load with xxx
     return Result<void>();
+}
+
+std::vector<Guid> ImageAsset::GetDependencies() const {
+    return {};
 }
 
 }  // namespace cave

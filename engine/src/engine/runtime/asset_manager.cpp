@@ -3,8 +3,6 @@
 #include <filesystem>
 #include <fstream>
 
-// @TODO: get rid of this file
-#include "engine/assets/assets.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/assets/image_asset.h"
 #include "engine/assets/material_asset.h"
@@ -87,7 +85,6 @@ static auto LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) -> Result<Asse
         return nullptr;  // not an error
     }
 
-    asset->m_entry = p_entry;
     if (auto res = asset->LoadFromDisk(p_entry->metadata); !res) {
         return CAVE_ERROR(res.error());
     }
@@ -107,12 +104,14 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     IAssetLoader::RegisterLoader(".obj", AssimpAssetLoader::CreateLoader);
 #endif
 
-    IAssetLoader::RegisterLoader(".lua", TextAssetLoader::CreateLoader);
+    IAssetLoader::RegisterLoader(".lua", BufferAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".ttf", BufferAssetLoader::CreateLoader);
 
+#if 0
     IAssetLoader::RegisterLoader(".h", BufferAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".hlsl", BufferAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".glsl", BufferAssetLoader::CreateLoader);
+#endif
 
     IAssetLoader::RegisterLoader(".png", ImageAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".jpg", ImageAssetLoader::CreateLoader);
@@ -211,7 +210,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
 
                 StringStreamBuilder builder;
                 builder << res.error();
-                LOG_ERROR("Failed to load asset '{}', reason {}", entry->metadata.path, builder.ToString());
+                LOG_ERROR("Failed to load asset '{}', reason {}", entry->metadata.import_path, builder.ToString());
                 return nullptr;
             }
 
@@ -224,14 +223,14 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
 
         auto loader = IAssetLoader::Create(entry->metadata);
         if (!loader) {
-            LOG_ERROR("No suitable loader found for asset '{}'", entry->metadata.path);
+            LOG_ERROR("No suitable loader found for asset '{}'", entry->metadata.import_path);
             entry->MarkFailed();
             break;
         }
 
         auto res = loader->Load();
         if (!res) {
-            LOG_ERROR("Failed to load '{}'", entry->metadata.path);
+            LOG_ERROR("Failed to load '{}'", entry->metadata.import_path);
             entry->MarkFailed();
             return nullptr;
         }
@@ -247,7 +246,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
         // @TODO: based on render, create asset on work threads
         m_app->GetGraphicsManager()->RequestTexture(image.get());
     }
-    LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.path, timer.GetDurationString());
+    LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.import_path, timer.GetDurationString());
 
     entry->MarkLoaded(asset);
     return asset;

@@ -1,6 +1,6 @@
 #include "asset_meta_data.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/asset_interface.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/serialization/yaml_include.h"
@@ -9,29 +9,38 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+// @TODO: use meta table to auto load
+// @TODO: enum serialization
+
 auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
-    YAML::Node node;
-    if (auto res = LoadYaml(p_path, node); !res) {
+    YAML::Node root;
+    if (auto res = LoadYaml(p_path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
     AssetMetaData meta;
-    {
-        auto guid = node["guid"].as<std::string>();
-        auto res = Guid::Parse(guid);
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        meta.guid = *res;
+
+    YamlDeserializer d;
+    d.Initialize(root);
+    if (d.TryEnterKey("guid")) {
+        d.Read(meta.guid);
+        d.LeaveKey();
     }
-    {
-        auto type = node["type"].as<std::string>();
+    if (d.TryEnterKey("type")) {
+        std::string type;
+        d.Read(type);
         meta.type = AssetTypeFromString(type);
-        if (meta.type == AssetType::Unknown) {
-            return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "unknown asset type '{}'", type);
-        }
+        DEV_ASSERT(meta.type != AssetType::Unknown);
+        d.LeaveKey();
     }
-    meta.path = node["path"].as<std::string>();
+    if (d.TryEnterKey("name")) {
+        d.Read(meta.name);
+        d.LeaveKey();
+    }
+    if (d.TryEnterKey("import_path")) {
+        d.Read(meta.import_path);
+        d.LeaveKey();
+    }
     return meta;
 }
 
@@ -39,11 +48,13 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     auto extension = StringUtils::Extension(p_path);
 
     // @TODO: [SCRUM-222] refactor this part
-    AssetType type = AssetType::Binary;
+    AssetType type = AssetType::Blob;
     if (extension == ".png" || extension == ".jpg" || extension == ".hdr") {
         type = AssetType::Image;
     } else if (extension == ".ttf") {
-        type = AssetType::Binary;
+        type = AssetType::Blob;
+    } else if (extension == ".lua") {
+        type = AssetType::Blob;
     } else if (extension == ".tileset") {
         type = AssetType::TileSet;
     } else if (extension == ".tilemap") {
@@ -61,34 +72,38 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     AssetMetaData meta;
     meta.guid = Guid::Create();
     meta.type = type;
-    meta.path = p_path;
+    meta.import_path = p_path;
 
     return Some(meta);
 }
 
 auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
-    YamlSerializer serializer;
+    YamlSerializer yaml;
 
-    // @TODO: fix this
-    serializer
-        .BeginMap(false)
+    std::string asset_name = name;
+    if (asset_name.empty()) {
+        asset_name = StringUtils::FileName(import_path.c_str(), '/');
+    }
+
+    yaml.BeginMap(false)
         .Key("guid")
         .Write(guid)
         .Key("type")
         .Write(ToString(type))
-        .Key("path")
-        .Write(path);
+        .Key("name")
+        .Write(asset_name)
+        .Key("import_path")
+        .Write(import_path);
 
     if (p_asset) {
-        serializer
-            .Key("dependencies")
+        yaml.Key("dependencies")
             .Write(p_asset->GetDependencies());
     }
 
-    serializer.EndMap();
+    yaml.EndMap();
 
-    auto meta_path = std::format("{}.meta", path);
-    return SaveYaml(meta_path, serializer);
+    auto meta_path = std::format("{}.meta", import_path);
+    return SaveYaml(meta_path, yaml);
 }
 
 }  // namespace cave

@@ -91,7 +91,7 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     }
 #endif
 
-    auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation, GizmoAction p_action) {
+    auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {
             const Matrix4x4f before = transform_component->GetLocalMatrix();
             Matrix4x4f after = before;
@@ -103,7 +103,7 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
 
-                auto command = std::make_shared<EntityTransformCommand>(p_action, scene, id, before, after);
+                auto command = std::make_shared<EntityTransformCommand>(scene, id, before, after);
                 m_editor.BufferCommand(command);
             }
         }
@@ -111,13 +111,13 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
 
     switch (m_state) {
         case GizmoAction::Translate:
-            draw_gizmo(ImGuizmo::TRANSLATE, m_state);
+            draw_gizmo(ImGuizmo::TRANSLATE);
             break;
         case GizmoAction::Rotate:
-            draw_gizmo(ImGuizmo::ROTATE, m_state);
+            draw_gizmo(ImGuizmo::ROTATE);
             break;
         case GizmoAction::Scale:
-            draw_gizmo(ImGuizmo::SCALE, m_state);
+            draw_gizmo(ImGuizmo::SCALE);
             break;
         default:
             break;

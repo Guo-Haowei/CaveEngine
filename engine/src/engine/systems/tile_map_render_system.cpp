@@ -10,7 +10,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
     }
 
     Scene& scene = *p_scene;
-    auto view = scene.View<TileMapRenderer>();
+    auto view = scene.View<TileMapRendererComponent>();
     for (const auto& [id, tile_map_renderer] : view) {
         tile_map_renderer.CreateRenderData();
 

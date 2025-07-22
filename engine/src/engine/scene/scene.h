@@ -13,8 +13,8 @@
 #include "engine/scene/light_component.h"
 #include "engine/scene/mesh_renderer.h"
 #include "engine/scene/transform_component.h"
-#include "engine/scene/sprite_renderer.h"
-#include "engine/scene/tile_map_renderer.h"
+#include "engine/scene/sprite_renderer_component.h"
+#include "engine/scene/tile_map_renderer_component.h"
 
 // @TODO: remove
 #include "engine/assets/mesh_asset.h"
@@ -27,28 +27,27 @@ class Context;
 
 namespace cave {
 
-#define REGISTER_COMPONENT_SERIALIZED_LIST                                 \
-    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)           \
-    REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0) \
-    REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0) \
-    REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)       \
-    REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)         \
-    REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)   \
-    REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)             \
-    REGISTER_COMPONENT(SpriteRenderer, "World::SpriteRenderer", 0)         \
-    REGISTER_COMPONENT(TileMapRenderer, "World::TileMapRenderer", 0)
+#define REGISTER_COMPONENT_SERIALIZED_LIST                                           \
+    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                     \
+    REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)           \
+    REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0)           \
+    REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)                 \
+    REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                   \
+    REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)             \
+    REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
+    REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)                       \
+    REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0) \
+    REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
 
 // @TODO: use meta table for all components
-#define REGISTER_COMPONENT_LIST                                                  \
-    REGISTER_COMPONENT_SERIALIZED_LIST                                           \
-    REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)       \
-    REGISTER_COMPONENT(NativeScriptComponent, "World::NativeScriptComponent", 0) \
-    REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)                 \
-    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)         \
-    REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0)       \
-    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0)       \
-    REGISTER_COMPONENT(ClothComponent, "World::ClothComponent", 0)               \
-    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)           \
+#define REGISTER_COMPONENT_LIST                                            \
+    REGISTER_COMPONENT_SERIALIZED_LIST                                     \
+    REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)           \
+    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)   \
+    REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0) \
+    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0) \
+    REGISTER_COMPONENT(ClothComponent, "World::ClothComponent", 0)         \
+    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)     \
     REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)
 
 // @TODO: refactor

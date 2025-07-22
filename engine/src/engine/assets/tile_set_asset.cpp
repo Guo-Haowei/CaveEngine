@@ -102,13 +102,13 @@ auto TileSetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
         .Key("content")
         .Write(*this)
         .EndMap();
-    return SaveYaml(p_meta.path, yaml);
+    return SaveYaml(p_meta.import_path, yaml);
 }
 
 auto TileSetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     YAML::Node root;
 
-    if (auto res = LoadYaml(p_meta.path, root); !res) {
+    if (auto res = LoadYaml(p_meta.import_path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 

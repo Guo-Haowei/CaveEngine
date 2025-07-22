@@ -10,7 +10,7 @@ struct AssetMetaData {
     AssetType type{ AssetType::Unknown };
     Guid guid;
     std::string name;
-    std::string path;
+    std::string import_path;
     std::vector<Guid> dependencies;
 
     // @TODO: import settings

@@ -14,7 +14,7 @@ if platform.system() == 'Darwin':
 skip_patterns = [
     'stb_image.h',
     'imgui_impl_',
-    '.meta.cpp',
+    '.generated.cpp',
     'glsl_generated',
 ]
 

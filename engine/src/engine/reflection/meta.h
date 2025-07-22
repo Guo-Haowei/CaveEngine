@@ -36,7 +36,7 @@ enum class EditorHint {
     Asset,
     Toggle,
     Color,
-    Position,
+    Translation,
     Rotation,
     Scale,
 };

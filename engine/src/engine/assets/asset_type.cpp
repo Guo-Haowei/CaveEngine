@@ -3,8 +3,7 @@
 namespace cave {
 
 static_assert(std::to_underlying(AssetType::Image) == 1);
-static_assert(std::to_underlying(AssetType::Binary) == 2);
-static_assert(std::to_underlying(AssetType::Text) == 4);
+static_assert(std::to_underlying(AssetType::Blob) == 2);
 
 const char* ToString(AssetType p_type) {
     switch (p_type) {

@@ -1,4 +1,5 @@
 guid: 94FB5794-CF41-1E46-8D6DB1E633C35D85
 type: tileset
-path: "@res://map/background.tileset"
+name: background.tileset
+import_path: "@res://map/background.tileset"
 dependencies: [A1130333-79C5-9E43-A95F006D4AA71D4F]

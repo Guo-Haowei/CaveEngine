@@ -1,6 +1,6 @@
 #include "lua_script_manager.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/blob_asset.h"
 #include "engine/core/debugger/profiler.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
@@ -8,7 +8,6 @@
 #include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/scene/scene.h"
-#include "engine/scene/scriptable_entity.h"
 
 // lua include
 #include "lua_binding.h"
@@ -50,7 +49,7 @@ static int PushArg(lua_State* L, T&& p_value, Args&&... p_args) {
     return 1 + sizeof...(p_args);
 }
 
-template<typename ...Args>
+template<typename... Args>
 static void EntityCall(lua_State* L, int p_ref, const char* p_method, Args&&... p_args) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, p_ref);
     lua_getfield(L, -1, p_method);
@@ -117,7 +116,7 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
             continue;
         }
 
-        const auto& meta = FindOrAdd(L, script.m_path, script.m_className.c_str());
+        const auto& meta = FindOrAdd(L, script.m_path, script.m_class_name.c_str());
         if (script.m_instance == 0) {
             const auto instance = CreateInstance(meta, L, entity.GetId());
             script.m_instance = instance;
@@ -160,12 +159,9 @@ void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
             }
         }
     }
-
-    ScriptManager::Update(p_scene, p_timestep);
 }
 
 void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) {
-    ScriptManager::OnCollision(p_scene, p_entity_1, p_entity_2);
 
     lua_State* L = p_scene.L;
     if (DEV_VERIFY(L)) {
@@ -185,7 +181,7 @@ void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::
 Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const std::string& p_path, const char* p_class_name, ObjectFunctions& p_meta) {
     auto asset_registry = m_app->GetAssetRegistry();
     [[maybe_unused]]
-    auto handle = asset_registry->FindByPath<TextAsset>(p_path);
+    auto handle = asset_registry->FindByPath<BlobAsset>(p_path);
     DEV_ASSERT(0);
 
 #if 0

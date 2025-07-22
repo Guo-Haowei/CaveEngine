@@ -10,7 +10,7 @@ namespace cave {
 #pragma region LUA_SCRIPT_COMPONENT
 LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view p_class_name) {
     if (DEV_VERIFY(!p_class_name.empty())) {
-        m_className = p_class_name;
+        m_class_name = p_class_name;
     }
 
     return *this;
@@ -25,24 +25,6 @@ LuaScriptComponent& LuaScriptComponent::SetPath(std::string_view p_path) {
     return *this;
 }
 #pragma endregion LUA_SCRIPT_COMPONENT
-
-#pragma region NATIVE_SCRIPT_COMPONENT
-NativeScriptComponent::~NativeScriptComponent() {
-    // DON'T DELETE instance, because it could be copied from other script
-    // Memory leak!!!
-}
-
-NativeScriptComponent::NativeScriptComponent(const NativeScriptComponent& p_rhs) {
-    *this = p_rhs;
-}
-
-NativeScriptComponent& NativeScriptComponent::operator=(const NativeScriptComponent& p_rhs) {
-    instantiateFunc = p_rhs.instantiateFunc;
-    destroyFunc = p_rhs.destroyFunc;
-    instance = p_rhs.instance;
-    return *this;
-}
-#pragma endregion NATIVE_SCRIPT_COMPONENT
 
 #pragma region RIGID_BODY_COMPONENT
 RigidBodyComponent& RigidBodyComponent::InitCube(const Vector3f& p_half_size) {

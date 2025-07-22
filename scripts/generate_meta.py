@@ -29,8 +29,8 @@ FILES = [
 
     # renderers
     'scene/mesh_renderer.h',
-    'scene/sprite_renderer.h',
-    'scene/tile_map_renderer.h',
+    'scene/sprite_renderer_component.h',
+    'scene/tile_map_renderer_component.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'reflection/generated')

@@ -1,4 +1,5 @@
 guid: 1753AE53-3873-1140-B148E89E52FE7489
 type: scene
-path: "@res://scenes/level_1/level_1.scene"
+name: level_1.scene
+import_path: "@res://scenes/level_1/level_1.scene"
 dependencies: []

@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/assets/image_asset.h"
+#include "engine/assets/tile_set_asset.h"
 #include "engine/input/input_event.h"
 #include "engine/scene/entity_factory.h"
 #include "editor/editor_layer.h"
@@ -11,10 +12,6 @@
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 #include "editor/tile_map_editor/tile_map_document.h"
-
-// @TODO: refactor
-#include "engine/assets/assets.h"
-#include "engine/assets/tile_set_asset.h"
 
 namespace cave {
 
@@ -41,7 +38,7 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
         auto id = EntityFactory::CreateTileMapEntity(*scene, "tile_map");
         scene->AttachChild(id);
 
-        TileMapRenderer* tile_map_renderer = scene->GetComponent<TileMapRenderer>(id);
+        TileMapRendererComponent* tile_map_renderer = scene->GetComponent<TileMapRendererComponent>(id);
         tile_map_renderer->SetResourceGuid(p_guid);
         return scene;
     });

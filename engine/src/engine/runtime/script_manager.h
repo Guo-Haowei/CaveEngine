@@ -6,37 +6,17 @@ namespace cave {
 
 class Scene;
 
-// enum class ScriptType {
-//     Native,
-//     Lua,
-//     Python,
-//     // etc.
-// };
-//
-// struct IScriptManager {
-//     virtual bool CanHandle(ScriptType type) const = 0;
-//     virtual void ExecuteScript(const std::string& code) = 0;
-//     virtual ~IScriptManager() = default;
-// };
-
-class ScriptManager : public Module {
+class IScriptManager : public Module,
+                       public ModuleCreateRegistry<IScriptManager> {
 public:
-    ScriptManager()
-        : Module("ScriptManager") {}
-    ScriptManager(std::string_view name)
-        : Module(name) {}
+    IScriptManager(std::string_view p_name)
+        : Module(p_name) {}
 
-    virtual void OnSimBegin(Scene&) {}
-    virtual void OnSimEnd(Scene&) {}
+    virtual void OnSimBegin(Scene& p_scene) = 0;
+    virtual void OnSimEnd(Scene& p_scene) = 0;
 
-    virtual void Update(Scene& p_scene, float p_timestep);
-    virtual void OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2);
-
-    static Result<ScriptManager*> Create();
-
-protected:
-    virtual auto InitializeImpl() -> Result<void> override;
-    virtual void FinalizeImpl() override;
+    virtual void Update(Scene& p_scene, float p_timestep) = 0;
+    virtual void OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) = 0;
 };
 
 }  // namespace cave

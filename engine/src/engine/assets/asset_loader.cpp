@@ -1,6 +1,6 @@
 #include "asset_loader.h"
 
-#include "engine/assets/assets.h"
+#include "engine/assets/blob_asset.h"
 #include "engine/assets/image_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
@@ -12,7 +12,7 @@ namespace cave {
 
 IAssetLoader::IAssetLoader(const AssetMetaData& p_meta)
     : m_meta(p_meta) {
-    m_filePath = m_meta.path;
+    m_filePath = m_meta.import_path;
     std::filesystem::path system_path{ m_filePath };
     m_fileName = system_path.filename().string();
     m_basePath = system_path.remove_filename().string();
@@ -32,7 +32,7 @@ bool IAssetLoader::RegisterLoader(const std::string& p_extension, CreateLoaderFu
 }
 
 std::unique_ptr<IAssetLoader> IAssetLoader::Create(const AssetMetaData& p_meta) {
-    std::string_view extension = StringUtils::Extension(p_meta.path);
+    std::string_view extension = StringUtils::Extension(p_meta.import_path);
     auto it = s_loaderCreator.find(std::string(extension));
     if (it == s_loaderCreator.end()) {
         return nullptr;
@@ -41,7 +41,7 @@ std::unique_ptr<IAssetLoader> IAssetLoader::Create(const AssetMetaData& p_meta) 
 }
 
 auto BufferAssetLoader::Load() -> Result<AssetRef> {
-    auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
+    auto res = FileAccess::Open(m_meta.import_path, FileAccess::READ);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -53,26 +53,8 @@ auto BufferAssetLoader::Load() -> Result<AssetRef> {
     std::vector<char> buffer;
     buffer.resize(size);
     file_access->ReadBuffer(buffer.data(), size);
-    auto file = new BufferAsset;
-    file->buffer = std::move(buffer);
-    return AssetRef(file);
-}
-
-auto TextAssetLoader::Load() -> Result<AssetRef> {
-    auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    std::shared_ptr<FileAccess> file_access = *res;
-
-    const size_t size = file_access->GetLength();
-    std::vector<char> buffer;
-    buffer.resize(size);
-    file_access->ReadBuffer(buffer.data(), size);
-
-    auto file = new TextAsset;
-    file->source = std::string(buffer.begin(), buffer.end());
+    auto file = new BlobAsset;
+    file->SetBlob(std::move(buffer));
     return AssetRef(file);
 }
 
@@ -93,7 +75,7 @@ static PixelFormat ChannelToFormat(int p_channel, bool p_is_float) {
 }
 
 auto ImageAssetLoader::Load() -> Result<AssetRef> {
-    auto res = FileAccess::Open(m_meta.path, FileAccess::READ);
+    auto res = FileAccess::Open(m_meta.import_path, FileAccess::READ);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -131,7 +113,7 @@ auto ImageAssetLoader::Load() -> Result<AssetRef> {
     }
 
     if (!pixels) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", m_meta.path);
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", m_meta.import_path);
     }
 
     if (req_channel > num_channels) {
