@@ -236,9 +236,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
     AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
 
-    // change to asset
-    MeshComponent* mesh_component = mesh_renderer ? scene.GetComponent<MeshComponent>(mesh_renderer->meshId) : nullptr;
-
     bool disable_translation = false;
     bool disable_rotation = false;
     bool disable_scale = false;
@@ -395,12 +392,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         ImGui::Checkbox("Cast shadow", &cast_shadow);
         p_object.flags = (hide ? 0 : MeshRenderer::FLAG_RENDERABLE);
         p_object.flags |= (cast_shadow ? MeshRenderer::FLAG_CAST_SHADOW : 0);
-    });
-
-    DrawComponent("Mesh", mesh_component, [&](MeshComponent& mesh) {
-        ImGui::Text("%zu triangles", mesh.indices.size() / 3);
-        ImGui::Text("v:%zu, n:%zu, u:%zu, b:%zu", mesh.positions.size(), mesh.normals.size(),
-                    mesh.texcoords_0.size(), mesh.weights_0.size());
     });
 
     DrawComponent("Animation", animation_component, [&](AnimationComponent& p_animation) {

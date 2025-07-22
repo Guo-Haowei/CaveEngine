@@ -22,7 +22,9 @@ enum class VertexAttributeName : uint8_t {
     COUNT,
 };
 
-struct MeshComponent {
+struct MeshAsset : public IAsset {
+    CAVE_ASSET(MeshAsset, AssetType::Mesh, 0)
+
     enum : uint32_t {
         NONE = BIT(0),
         RENDERABLE = BIT(1),
@@ -72,9 +74,16 @@ struct MeshComponent {
 
     VertexAttribute attributes[std::to_underlying(VertexAttributeName::COUNT)];
 
+    std::vector<Guid> GetDependencies() const override;
+
+    Result<void> SaveToDisk(const AssetMetaData& p_meta) const override;
+
+    Result<void> LoadFromDisk(const AssetMetaData& p_meta) override;
+
     void CreateRenderData();
 
     void Serialize(Archive& p_archive, uint32_t p_version);
+
     void OnDeserialized();
 };
 

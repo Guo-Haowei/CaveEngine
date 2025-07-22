@@ -7,13 +7,13 @@
 namespace cave {
 
 template<typename T>
-static void InitVertexAttrib(MeshComponent::VertexAttribute& p_attrib, const std::vector<T>& p_buffer) {
+static void InitVertexAttrib(MeshAsset::VertexAttribute& p_attrib, const std::vector<T>& p_buffer) {
     p_attrib.offsetInByte = 0;
     p_attrib.strideInByte = sizeof(p_buffer[0]);
     p_attrib.elementCount = static_cast<uint32_t>(p_buffer.size());
 }
 
-void MeshComponent::CreateRenderData() {
+void MeshAsset::CreateRenderData() {
     // AABB
     localBound.MakeInvalid();
     for (MeshSubset& subset : subsets) {
@@ -41,7 +41,7 @@ void MeshComponent::CreateRenderData() {
     return;
 }
 
-void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
+void MeshAsset::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);
     p_archive.ArchiveValue(indices);
     p_archive.ArchiveValue(positions);
@@ -57,7 +57,7 @@ void MeshComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(armatureId);
 }
 
-void MeshComponent::OnDeserialized() {
+void MeshAsset::OnDeserialized() {
     CreateRenderData();
 
     for (auto& it : subsets) {
@@ -68,6 +68,25 @@ void MeshComponent::OnDeserialized() {
             }
         }
     }
+}
+
+std::vector<Guid> MeshAsset::GetDependencies() const {
+    std::vector<Guid> dependencies;
+    dependencies.reserve(subsets.size());
+    for (const auto& subset : subsets) {
+        dependencies.push_back(subset.material_id);
+    }
+    return dependencies;
+}
+
+Result<void> MeshAsset::SaveToDisk(const AssetMetaData& p_meta) const {
+    unused(p_meta);
+    return Result<void>();
+}
+
+Result<void> MeshAsset::LoadFromDisk(const AssetMetaData& p_meta) {
+    unused(p_meta);
+    return Result<void>();
 }
 
 }  // namespace cave

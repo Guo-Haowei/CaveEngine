@@ -19,7 +19,7 @@ enum class RenderGraphName : uint8_t;
 enum PipelineStateName : uint8_t;
 
 class Scene;
-struct MeshComponent;
+struct MeshAsset;
 
 struct BlendDesc;
 struct Framebuffer;
@@ -75,7 +75,7 @@ public:
     virtual auto CreateBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> = 0;
     virtual void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) = 0;
 
-    virtual auto CreateMesh(const MeshComponent& p_mesh) -> Result<std::shared_ptr<GpuMesh>> = 0;
+    virtual auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> = 0;
 
     virtual auto CreateMeshImpl(const GpuMeshDesc& p_desc,
                                 uint32_t p_count,

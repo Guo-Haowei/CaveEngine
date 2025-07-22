@@ -141,6 +141,9 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
             continue;
         }
 
+        CRASH_NOW();
+
+#if 0
         if (btSoftBody* body = btSoftBody::upcast(collision_object); body) {
             if (id.IsValid()) {
                 // hack: wind
@@ -148,7 +151,7 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
                     body->m_nodes[node_idx].m_f = btVector3(0.0f, 0.2f, 0.1f);
                 }
 
-                MeshComponent* mesh = p_scene.GetComponent<MeshComponent>(id);
+                MeshAsset* mesh = p_scene.GetComponent<MeshAsset>(id);
                 DEV_ASSERT(mesh);
 
                 auto& positions = mesh->updatePositions;
@@ -167,8 +170,7 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
             }
             continue;
         }
-
-        CRASH_NOW();
+#endif
     }
 }
 

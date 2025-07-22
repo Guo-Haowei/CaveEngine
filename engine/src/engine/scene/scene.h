@@ -17,9 +17,6 @@
 #include "engine/scene/sprite_renderer_component.h"
 #include "engine/scene/tile_map_renderer_component.h"
 
-// @TODO: remove
-#include "engine/assets/mesh_asset.h"
-
 namespace cave::jobsystem {
 class Context;
 }
@@ -41,7 +38,6 @@ namespace cave {
 // @TODO: use meta table for all components
 #define REGISTER_COMPONENT_LIST                                            \
     REGISTER_COMPONENT_SERIALIZED_LIST                                     \
-    REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)           \
     REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)   \
     REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0) \
     REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0) \

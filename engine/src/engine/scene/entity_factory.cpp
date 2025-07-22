@@ -5,6 +5,11 @@
 #include "engine/runtime/asset_manager.h"
 #include "engine/runtime/asset_registry.h"
 
+// @TODO: refactor
+#pragma warning(push)
+#pragma warning(disable : 4100)  // unreferenced formal parameter
+#pragma warning(disable : 4189)  // local variable is initialized but not referenced
+
 namespace cave {
 
 Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
@@ -53,7 +58,7 @@ Entity EntityFactory::CreateObjectEntity(Scene& p_scene,
 Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
                                        const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<MeshComponent>(entity);
+    p_scene.Create<MeshAsset>(entity);
     return entity;
 }
 
@@ -90,15 +95,15 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
     material.baseColor = Vector4f(p_color, 1.0f);
     material.emissive = p_emissive;
-#endif
 
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    object.meshId = mesh_id;
+    //object.meshId = mesh_id;
     object.flags = MeshRenderer::FLAG_RENDERABLE;
 
-    MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
     mesh = MakeSphereMesh(0.1f, 40, 40);
     mesh.subsets[0].material_id = Guid();
+#endif
     return entity;
 }
 
@@ -129,16 +134,18 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
     // light.m_atten.linear = 0.09f;
     // light.m_atten.quadratic = 0.032f;
 
+#if 0
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
 
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
     object.meshId = mesh_id;
     object.flags = MeshRenderer::FLAG_RENDERABLE;
 
-    MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
     mesh = MakePlaneMesh();
     mesh.subsets[0].material_id = mat_handle.GetGuid();
     mesh.subsets[0].material_handle = mat_handle;
+#endif
     return entity;
 }
 
@@ -206,13 +213,15 @@ Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
     trans.MatrixTransform(p_transform);
 
+#if 0
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
     object.meshId = mesh_id;
 
-    MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
     mesh = MakePlaneMesh(p_scale);
     mesh.subsets[0].material_id = p_material_id;
 
+#endif
     return entity;
 }
 
@@ -234,12 +243,14 @@ Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
     trans.MatrixTransform(p_transform);
 
+#if 0
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
     object.meshId = mesh_id;
 
-    MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
     mesh = MakeCubeMesh(p_scale);
     mesh.subsets[0].material_id = p_material_id;
+#endif
 
     return entity;
 }
@@ -247,16 +258,18 @@ Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
 Entity EntityFactory::CreateMeshEntity(Scene& p_scene,
                                        const std::string& p_name,
                                        const Guid& p_material_id,
-                                       MeshComponent&& p_mesh) {
+                                       MeshAsset&& p_mesh) {
     auto entity = CreateObjectEntity(p_scene, p_name);
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
 
+#if 0
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
     object.meshId = mesh_id;
 
-    MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
     mesh = std::move(p_mesh);
     mesh.subsets[0].material_id = p_material_id;
+#endif
     return entity;
 }
 
@@ -277,13 +290,15 @@ Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
 
+#if 0
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
     object.meshId = mesh_id;
 
-    MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
     mesh = MakeSphereMesh(p_radius);
     mesh.subsets[0].material_id = p_material_id;
+#endif
 
     return entity;
 }
@@ -307,13 +322,15 @@ Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
 
+#if 0
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
     object.meshId = mesh_id;
 
-    MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
     mesh = MakeCylinderMesh(p_radius, p_height);
     mesh.subsets[0].material_id = p_material_id;
+#endif
 
     return entity;
 }
@@ -341,13 +358,15 @@ Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
 
+#if 0
     MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
     auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
     object.meshId = mesh_id;
 
-    MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
     mesh = MakeTorusMesh(p_radius, p_tube_radius);
     mesh.subsets[0].material_id = p_material_id;
+#endif
 
     return entity;
 }

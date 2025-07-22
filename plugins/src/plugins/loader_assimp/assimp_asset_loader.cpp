@@ -87,6 +87,10 @@ void AssimpAssetLoader::ProcessMaterial(aiMaterial& p_material) {
 }
 
 void AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
+    CRASH_NOW();
+    unused(p_mesh);
+
+#if 0
     DEV_ASSERT(p_mesh.mNumVertices);
     const std::string mesh_name(p_mesh.mName.C_Str());
     const bool has_uv = p_mesh.mTextureCoords[0];
@@ -95,7 +99,7 @@ void AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
     }
 
     ecs::Entity mesh_id = EntityFactory::CreateMeshEntity(*m_scene, "Mesh::" + mesh_name);
-    MeshComponent& mesh_component = *m_scene->GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh_component = *m_scene->GetComponent<MeshAsset>(mesh_id);
 
     for (uint32_t i = 0; i < p_mesh.mNumVertices; ++i) {
         auto& position = p_mesh.mVertices[i];
@@ -123,7 +127,7 @@ void AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
     }
 
     DEV_ASSERT(m_materials.size());
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = (uint32_t)mesh_component.indices.size();
     subset.index_offset = 0;
     CRASH_NOW();
@@ -133,6 +137,7 @@ void AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
     mesh_component.CreateRenderData();
 
     m_meshes.push_back(mesh_id);
+#endif
 }
 
 ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_parent) {
@@ -144,7 +149,8 @@ ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_p
         entity = EntityFactory::CreateObjectEntity(*m_scene, "Geometry::" + key);
 
         MeshRenderer& objComponent = *m_scene->GetComponent<MeshRenderer>(entity);
-        objComponent.meshId = m_meshes[p_node->mMeshes[0]];
+        objComponent.SetResourceGuid(Guid());
+        //objComponent.meshId = m_meshes[p_node->mMeshes[0]];
     } else {  // else make it a transform/bone node
         entity = EntityFactory::CreateTransformEntity(*m_scene, "Node::" + key);
 
@@ -153,7 +159,8 @@ ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_p
             auto tagComponent = m_scene->GetComponent<NameComponent>(child);
             tagComponent->SetName("SubGeometry_" + std::to_string(child.GetId()));
             MeshRenderer& objComponent = *m_scene->GetComponent<MeshRenderer>(child);
-            objComponent.meshId = m_meshes[p_node->mMeshes[i]];
+            objComponent.SetResourceGuid(Guid());
+            //= m_meshes[p_node->mMeshes[i]];
             m_scene->AttachChild(child, entity);
         }
     }

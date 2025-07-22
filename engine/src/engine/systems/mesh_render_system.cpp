@@ -88,9 +88,8 @@ static void FillPass(const Scene& p_scene,
         }
 
         const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-        DEV_ASSERT(p_scene.Contains<MeshComponent>(obj.meshId));
 
-        const MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(obj.meshId);
+        const MeshAsset& mesh = *obj.m_mesh_handle.Get();
 
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         AABB aabb = mesh.localBound;
@@ -364,8 +363,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
         const TransformComponent& transform = *scene.GetComponent<TransformComponent>(entity);
         DEV_ASSERT(scene.Contains<TransformComponent>(entity));
-        const MeshComponent& mesh = *scene.GetComponent<MeshComponent>(obj.meshId);
-        DEV_ASSERT(scene.Contains<MeshComponent>(obj.meshId));
+        const MeshAsset& mesh = *obj.m_mesh_handle.Get();
 
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         AABB aabb = mesh.localBound;

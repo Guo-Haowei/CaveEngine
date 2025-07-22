@@ -24,7 +24,7 @@ namespace cave { class RenderGraph; }
 namespace cave {
 
 struct ImageAsset;
-struct MeshComponent;
+struct MeshAsset;
 struct SamplerDesc;
 class Scene;
 struct GpuConstantBuffer;
@@ -59,7 +59,7 @@ public:
 
     void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) override;
 
-    auto CreateMesh(const MeshComponent& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override;
+    auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override;
 
     void SetPipelineState(PipelineStateName p_name) override;
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/asset_handle.h"
 #include "engine/ecs/entity.h"
 #include "engine/reflection/reflection.h"
 
@@ -16,11 +17,16 @@ public:
         FLAG_TRANSPARENT = BIT(3),
     };
 
+    // @TODO: make flag bools so it's esier to set in editor
     CAVE_PROP(type = u32)
     uint32_t flags = FLAG_RENDERABLE | FLAG_CAST_SHADOW;
 
-    // @TODO: make flag bools so it's esier to set in editor
-    ecs::Entity meshId;
+    Guid m_mesh_id;
+
+    // Non-serialized
+    Handle<MeshAsset> m_mesh_handle;
+
+    void SetResourceGuid(const Guid& p_guid);
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}

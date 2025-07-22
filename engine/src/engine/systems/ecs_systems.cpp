@@ -1,5 +1,6 @@
 #include "ecs_systems.h"
 
+#include "engine/assets/mesh_asset.h"
 #include "engine/core/base/random.h"
 #include "engine/core/debugger/profiler.h"
 #include "engine/scene/scene.h"
@@ -313,11 +314,10 @@ void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float)
         }
 
         const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-        DEV_ASSERT(p_scene.Contains<MeshComponent>(obj.meshId));
-        const MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(obj.meshId);
+        const MeshAsset* mesh = obj.m_mesh_handle.Get();
 
         Matrix4x4f M = transform.GetWorldMatrix();
-        AABB aabb = mesh.localBound;
+        AABB aabb = mesh->localBound;
         aabb.ApplyMatrix(M);
         bound.UnionBox(aabb);
     }

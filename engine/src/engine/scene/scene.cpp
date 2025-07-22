@@ -1,5 +1,6 @@
 #include "scene.h"
 
+#include "engine/assets/mesh_asset.h"
 #include "engine/core/debugger/profiler.h"
 #include "engine/core/io/archive.h"
 #include "engine/ecs/component_manager.inl"
@@ -74,12 +75,15 @@ void Scene::Update(float p_timestep) {
 
     // @TODO: refactor
     if (DVAR_GET_BOOL(gfx_bvh_generate)) {
+        CRASH_NOW();
+#if 0
         for (auto [entity, mesh] : m_MeshComponents) {
             if (!mesh.bvh) {
                 mesh.bvh = BvhAccel::Construct(mesh.indices, mesh.positions);
             }
         }
         DVAR_SET_BOOL(gfx_bvh_generate, false);
+#endif
     }
 }
 
@@ -164,7 +168,7 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
 
 bool Scene::RayObjectIntersect(ecs::Entity p_object_id, Ray& p_ray) {
     MeshRenderer* object = GetComponent<MeshRenderer>(p_object_id);
-    MeshComponent* mesh = GetComponent<MeshComponent>(object->meshId);
+    MeshAsset* mesh = object->m_mesh_handle.Get();
     TransformComponent* transform = GetComponent<TransformComponent>(p_object_id);
     DEV_ASSERT(mesh && transform);
 

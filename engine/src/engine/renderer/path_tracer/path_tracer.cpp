@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "engine/assets/mesh_asset.h"
 #include "engine/core/os/timer.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/renderer/path_tracer/bvh_accel.h"
@@ -10,6 +11,9 @@
 
 // @TODO: refactor
 #include "engine/renderer/graphics_manager.h"
+#pragma warning(push)
+#pragma warning(disable : 4100)  // unreferenced formal parameter
+#pragma warning(disable : 4189)  // local variable is initialized but not referenced
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"
@@ -29,7 +33,7 @@ static auto CreateBuffer(IGraphicsManager* p_gm, uint32_t p_slot, const std::vec
     return p_gm->CreateStructuredBuffer(desc);
 }
 
-static void ConstructMesh(const MeshComponent& p_mesh, GpuScene& p_gpu_scene) {
+[[maybe_unused]] static void ConstructMesh(const MeshAsset& p_mesh, GpuScene& p_gpu_scene) {
     if (!p_mesh.bvh) {
         p_mesh.bvh = BvhAccel::Construct(p_mesh.indices, p_mesh.positions);
     }
@@ -74,7 +78,7 @@ void PathTracer::Update(const Scene& p_scene) {
     // @TODO: update mesh buffers
 }
 
-static void AppendVertices(const std::vector<GpuPtVertex>& p_source, std::vector<GpuPtVertex>& p_dest) {
+[[maybe_unused]] static void AppendVertices(const std::vector<GpuPtVertex>& p_source, std::vector<GpuPtVertex>& p_dest) {
 #if USING(ENABLE_ASSERT)
     const int offset = (int)p_dest.size();
     const int count = (int)p_source.size();
@@ -85,7 +89,7 @@ static void AppendVertices(const std::vector<GpuPtVertex>& p_source, std::vector
     DEV_ASSERT((int)p_dest.size() == offset + count);
 }
 
-static void AppendIndices(const std::vector<GpuPtIndex>& p_source, std::vector<GpuPtIndex>& p_dest, int p_vertex_count) {
+[[maybe_unused]] static void AppendIndices(const std::vector<GpuPtIndex>& p_source, std::vector<GpuPtIndex>& p_dest, int p_vertex_count) {
     const int offset = (int)p_dest.size();
     const int count = (int)p_source.size();
     p_dest.resize(offset + count);
@@ -96,7 +100,7 @@ static void AppendIndices(const std::vector<GpuPtIndex>& p_source, std::vector<G
     }
 }
 
-static void AppendBvhs(const std::vector<GpuPtBvh>& p_source, std::vector<GpuPtBvh>& p_dest, int p_index_offset) {
+[[maybe_unused]] static void AppendBvhs(const std::vector<GpuPtBvh>& p_source, std::vector<GpuPtBvh>& p_dest, int p_index_offset) {
     const int offset = (int)p_dest.size();
     auto adjust_index = [offset](int& p_index) {
         if (p_index < 0) {
@@ -165,6 +169,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
         }
     }
 
+#if 0
     {
         const auto view = p_scene.View<MeshRenderer>();
 
@@ -172,7 +177,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
         meshes.reserve(view.GetSize());
         for (auto [id, object] : view) {
             auto transform = p_scene.GetComponent<TransformComponent>(id);
-            auto mesh = p_scene.GetComponent<MeshComponent>(object.meshId);
+            auto mesh = p_scene.GetComponent<MeshAsset>(object.meshId);
             if (DEV_VERIFY(transform && mesh)) {
                 auto mesh_it = m_meshs.find(object.meshId);
                 if (mesh_it == m_meshs.end()) {
@@ -205,6 +210,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
             m_ptMeshBuffer = *gm->CreateStructuredBuffer(desc);
         }
     }
+#endif
 }
 
 bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
@@ -217,8 +223,9 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
 
     // meshes
     for (auto [id, object] : p_scene.View<MeshRenderer>()) {
+#if 0
         auto transform = p_scene.GetComponent<TransformComponent>(id);
-        auto mesh = p_scene.GetComponent<MeshComponent>(object.meshId);
+        auto mesh = p_scene.GetComponent<MeshAsset>(object.meshId);
         if (DEV_VERIFY(transform && mesh)) {
             auto it = m_meshs.find(object.meshId);
             if (it != m_meshs.end()) {
@@ -244,6 +251,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
             AppendIndices(tmp_scene.indices, gpu_scene.indices, vertex_count);
             AppendBvhs(tmp_scene.bvhs, gpu_scene.bvhs, index_count);
         }
+#endif
     }
 
     const uint32_t triangle_count = (uint32_t)gpu_scene.indices.size();

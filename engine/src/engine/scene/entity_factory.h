@@ -14,7 +14,7 @@ public:
     static Entity CreateMeshEntity(Scene& p_scene,
                                    const std::string& p_name,
                                    const Guid& p_material_id,
-                                   MeshComponent&& p_mesh);
+                                   MeshAsset&& p_mesh);
 
     // @TODO: material should be an asset
     static Entity CreateMaterialEntity(Scene& p_scene,

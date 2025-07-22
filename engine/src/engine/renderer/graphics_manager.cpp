@@ -115,8 +115,8 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
     // for debug buffer?
     {
         constexpr int max_count = 4096 * 128;
-        MeshComponent mesh;
-        mesh.flags |= MeshComponent::DYNAMIC;
+        MeshAsset mesh;
+        mesh.flags |= MeshAsset::DYNAMIC;
         mesh.positions.resize(max_count);
         mesh.color_0.resize(max_count);
         mesh.CreateRenderData();
@@ -155,7 +155,7 @@ void GraphicsManager::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buf
     CRASH_NOW();
 }
 
-auto GraphicsManager::CreateMesh(const MeshComponent& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
+auto GraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
     constexpr uint32_t count = std::to_underlying(VertexAttributeName::COUNT);
     std::array<VertexAttributeName, count> attribs = {
         VertexAttributeName::POSITION,
@@ -181,7 +181,7 @@ auto GraphicsManager::CreateMesh(const MeshComponent& p_mesh) -> Result<std::sha
 
     std::array<GpuBufferDesc, count> vb_descs;
 
-    const bool is_dynamic = p_mesh.flags & MeshComponent::DYNAMIC;
+    const bool is_dynamic = p_mesh.flags & MeshAsset::DYNAMIC;
 
     GpuMeshDesc desc;
     desc.enabledVertexCount = count;
@@ -557,6 +557,9 @@ void GraphicsManager::DrawSkybox() {
 }
 
 void GraphicsManager::OnSceneChange(const Scene& p_scene) {
+    unused(p_scene);
+    CRASH_NOW();
+#if 0
     for (auto [entity, mesh] : p_scene.m_MeshComponents) {
         if (mesh.gpuResource != nullptr) {
             const NameComponent& name = *p_scene.GetComponent<NameComponent>(entity);
@@ -566,6 +569,7 @@ void GraphicsManager::OnSceneChange(const Scene& p_scene) {
 
         CreateMesh(mesh);
     }
+#endif
 }
 
 }  // namespace cave
