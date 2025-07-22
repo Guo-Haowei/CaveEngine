@@ -73,10 +73,11 @@ public:
 
     ModeManager& GetModeManager();
 
+    GameLayer* GetGameLayer();
+    virtual CameraComponent* GetActiveCamera() = 0;
+
     bool IsRuntime() const { return m_type == Type::Runtime; }
     bool IsEditor() const { return m_type == Type::Editor; }
-
-    virtual CameraComponent* GetActiveCamera() = 0;
 
 protected:
     [[nodiscard]] auto SetupModules() -> Result<void>;
@@ -96,7 +97,7 @@ protected:
     const Type m_type;
     std::unique_ptr<ModeManager> m_mode_manager;
 
-    std::unique_ptr<GameLayer> m_gameLayer;
+    std::unique_ptr<GameLayer> m_game_layer;
     std::vector<Layer*> m_layers;
 
     std::vector<std::string> m_commandLine;

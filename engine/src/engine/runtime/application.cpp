@@ -311,8 +311,7 @@ bool Application::MainLoop() {
     // change game mode from here
 
     // @TODO: set mode here
-
-    Scene* scene = m_scene_manager->GetActiveScene();
+    std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
 
     if (scene && game_mode == GameMode::Gameplay) {
         m_script_manager->Update(*scene, timestep);
@@ -327,10 +326,10 @@ bool Application::MainLoop() {
         m_physics_manager->Update(*scene, timestep);
     }
 
-    m_render_system->RenderFrame(scene);
+    m_render_system->RenderFrame(scene.get());
 
     // === Rendering Phase ===
-    m_graphics_manager->Update(scene);
+    m_graphics_manager->Update(scene.get());
 
     // === End Frame ===
     m_input_manager->EndFrame();
@@ -357,15 +356,19 @@ void Application::Run(Application* p_app) {
         "\n********************************************************************************");
 }
 
+GameLayer* Application::GetGameLayer() {
+    return m_game_layer.get();
+}
+
 void Application::AttachGameLayer() {
-    if (m_gameLayer) {
-        AttachLayer(m_gameLayer.get());
+    if (m_game_layer) {
+        AttachLayer(m_game_layer.get());
     }
 }
 
 void Application::DetachGameLayer() {
-    if (m_gameLayer) {
-        DetachLayer(m_gameLayer.get());
+    if (m_game_layer) {
+        DetachLayer(m_game_layer.get());
     }
 }
 

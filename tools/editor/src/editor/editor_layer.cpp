@@ -174,7 +174,8 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 
 void EditorLayer::SelectEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
-    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
+    // @TODO: fix this part
+    auto scene = m_app->GetSceneManager()->GetActiveScene();
     scene->m_selected = m_selected;
 }
 
@@ -229,7 +230,8 @@ void EditorLayer::OnUpdate(float p_timestep) {
 }
 
 void EditorLayer::OnImGuiRender() {
-    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
+    // @TODO: DO NOT Request SCENE here 
+    Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();
 
     FlushInputEvents();
 

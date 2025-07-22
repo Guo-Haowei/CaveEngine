@@ -30,7 +30,7 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
 
-    m_tmp_scene = scene_manager->OpenTemporaryScene(p_guid, [&]() {
+    m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
         auto scene = std::make_shared<Scene>();
         auto root = EntityFactory::CreateTransformEntity(*scene, "tile_map_test_scene");
         scene->m_root = root;
@@ -51,7 +51,7 @@ void TileMapEditor::OnDestroy() {
 void TileMapEditor::OnActivate() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
-    scene_manager->SetTmpScene(m_tmp_scene);
+    scene_manager->OpenTempScene(m_tmp_scene);
 }
 
 void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {

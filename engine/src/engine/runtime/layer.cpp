@@ -7,25 +7,27 @@
 
 namespace cave {
 
+void GameLayer::SetActiveScene(std::shared_ptr<Scene>&& p_scene) {
+    m_scene = std::move(p_scene);
+}
+
 void GameLayer::OnAttach() {
     LOG("GameLayer '{}' attached", m_name);
 
     OnAttachInternal();
 
-    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
-    if (DEV_VERIFY(scene)) {
-        m_app->GetScriptManager()->OnSimBegin(*scene);
-        m_app->GetPhysicsManager()->OnSimBegin(*scene);
+    if (DEV_VERIFY(m_scene)) {
+        m_app->GetScriptManager()->OnSimBegin(*m_scene);
+        m_app->GetPhysicsManager()->OnSimBegin(*m_scene);
     }
 }
 
 void GameLayer::OnDetach() {
     LOG("GameLayer '{}' detached", m_name);
 
-    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
-    if (DEV_VERIFY(scene)) {
-        m_app->GetPhysicsManager()->OnSimEnd(*scene);
-        m_app->GetScriptManager()->OnSimEnd(*scene);
+    if (DEV_VERIFY(m_scene)) {
+        m_app->GetPhysicsManager()->OnSimEnd(*m_scene);
+        m_app->GetScriptManager()->OnSimEnd(*m_scene);
     }
 
     OnDetachInternal();

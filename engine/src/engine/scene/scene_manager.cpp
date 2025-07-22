@@ -51,16 +51,12 @@ bool SceneManager::TrySwapScene() {
     return true;
 }
 
-void SceneManager::SetActiveScene(Scene* p_scene) {
-    unused(p_scene);
-}
-
 void SceneManager::Update() {
     CAVE_PROFILE_EVENT();
 
     TrySwapScene();
 
-    auto scene = GetActiveScene();
+    auto scene = GetActiveScene().get();
 
     if (m_lastRevision < m_revision) {
         if (scene) {
@@ -74,7 +70,7 @@ void SceneManager::Update() {
     }
 }
 
-Scene* SceneManager::GetActiveScene() const {
+std::shared_ptr<Scene> SceneManager::GetActiveScene() const {
     return nullptr;
 }
 

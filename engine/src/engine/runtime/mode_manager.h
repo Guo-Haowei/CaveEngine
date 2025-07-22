@@ -20,9 +20,9 @@ public:
 
     GameMode GetMode() const { return m_mode; }
 
-    void SetMode(GameMode p_mode);
+    virtual void SetMode(GameMode) {}
 
-private:
+protected:
     GameMode m_mode;
     Application& m_app;
 };

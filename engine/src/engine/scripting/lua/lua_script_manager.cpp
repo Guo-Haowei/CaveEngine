@@ -122,17 +122,13 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
             script.m_instance = instance;
         }
     }
-
-    // @TODO: call Game.new
-    // @TODO: do not call it
-    // const auto& meta = FindOrAdd(L, "@res://scripts/game.lua", "Game");
-    // m_gameRef = CreateInstance(meta, L);
     return;
 }
 
 void LuaScriptManager::OnSimEnd(Scene& p_scene) {
     m_objectsMeta.clear();
 
+    // @TODO: really shouldn't attach state to scene
     if (p_scene.L) {
         lua_close(p_scene.L);
         p_scene.L = nullptr;
@@ -146,8 +142,6 @@ void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
     if (DEV_VERIFY(p_scene.L)) {
         lua_State* L = p_scene.L;
         const lua_Number timestep = p_timestep;
-
-        // EntityCall(L, m_gameRef, "OnUpdate", timestep);
 
         for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
             if (script.m_source_id.IsNull()) {

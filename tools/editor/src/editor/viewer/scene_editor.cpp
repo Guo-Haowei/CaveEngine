@@ -59,7 +59,7 @@ void SceneEditor::OnDestroy() {
 void SceneEditor::OnActivate() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
-    scene_manager->SetTmpScene(m_document->m_scene);
+    scene_manager->OpenTempScene(m_document->m_scene);
 }
 
 void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
