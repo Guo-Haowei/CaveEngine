@@ -157,14 +157,6 @@ void CameraComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(m_ortho_height);
 }
 
-void LuaScriptComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_class_name);
-    p_archive.ArchiveValue(m_path);
-}
-
-void LuaScriptComponent::OnDeserialized() {
-}
-
 void CollisionObjectBase::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(collisionType);
     p_archive.ArchiveValue(collisionMask);
@@ -247,13 +239,6 @@ void MeshComponent::RegisterClass() {
     REGISTER_FIELD_2(MeshComponent, weights_0, FieldFlag::BINARY);
     REGISTER_FIELD_2(MeshComponent, color_0, FieldFlag::BINARY);
     END_REGISTRY(MeshComponent);
-}
-
-void LuaScriptComponent::RegisterClass() {
-    BEGIN_REGISTRY(LuaScriptComponent);
-    REGISTER_FIELD(LuaScriptComponent, "class_name", m_className);
-    REGISTER_FIELD(LuaScriptComponent, "path", m_path);
-    END_REGISTRY(LuaScriptComponent);
 }
 
 void ParticleEmitterComponent::Serialize(Archive& p_archive, uint32_t) {

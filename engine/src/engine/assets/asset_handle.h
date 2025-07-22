@@ -9,12 +9,11 @@ struct AssetMetaData;
 struct IAsset;
 
 // asset forward declaration
-struct BufferAsset;
+class BlobAsset;
 struct ImageAsset;
 struct MaterialAsset;
 struct MeshAsset;
 class SpriteAnimationAsset;
-struct TextAsset;
 class TileSetAsset;
 class TileMapAsset;
 

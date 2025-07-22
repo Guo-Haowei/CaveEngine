@@ -271,22 +271,19 @@ bool ToggleButton(const char* p_str_id, bool& p_value) {
     return toggled;
 }
 
-bool DragDropTarget(AssetType p_mask,
-                    const DragDropFunc& p_callback) {
-
+Option<AssetHandle> DragDropTarget(AssetType p_mask) {
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ASSET_DRAG_DROP_PAYLOAD)) {
             const char* path = reinterpret_cast<const char*>(payload->Data);
             auto handle = AssetRegistry::GetSingleton().FindByPath(path, p_mask);
             if (handle.is_some()) {
-                p_callback(handle.unwrap_unchecked());
+                return Some(handle.unwrap_unchecked());
             }
         }
         ImGui::EndDragDropTarget();
-        return true;
     }
 
-    return false;
+    return None();
 }
 
 void CenteredImage(const ImageAsset* p_image,

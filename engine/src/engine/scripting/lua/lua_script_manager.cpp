@@ -112,11 +112,11 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
     p_scene.L = L;
 
     for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
-        if (script.m_path.empty()) {
+        if (script.m_source_id.IsNull()) {
             continue;
         }
 
-        const auto& meta = FindOrAdd(L, script.m_path, script.m_class_name.c_str());
+        const auto& meta = FindOrAdd(L, script.m_source_id, script.m_class_name.c_str());
         if (script.m_instance == 0) {
             const auto instance = CreateInstance(meta, L, entity.GetId());
             script.m_instance = instance;
@@ -125,8 +125,8 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
 
     // @TODO: call Game.new
     // @TODO: do not call it
-    const auto& meta = FindOrAdd(L, "@res://scripts/game.lua", "Game");
-    m_gameRef = CreateInstance(meta, L);
+    // const auto& meta = FindOrAdd(L, "@res://scripts/game.lua", "Game");
+    // m_gameRef = CreateInstance(meta, L);
     return;
 }
 
@@ -150,7 +150,7 @@ void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
         EntityCall(L, m_gameRef, "OnUpdate", timestep);
 
         for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
-            if (script.m_path.empty()) {
+            if (script.m_source_id.IsNull()) {
                 continue;
             }
 
@@ -178,10 +178,10 @@ void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::
     }
 }
 
-Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const std::string& p_path, const char* p_class_name, ObjectFunctions& p_meta) {
+Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const Guid& p_guid, const char* p_class_name, ObjectFunctions& p_meta) {
     auto asset_registry = m_app->GetAssetRegistry();
     [[maybe_unused]]
-    auto handle = asset_registry->FindByPath<BlobAsset>(p_path);
+    auto handle = asset_registry->FindByGuid<BlobAsset>(p_guid);
     DEV_ASSERT(0);
 
 #if 0
@@ -211,19 +211,19 @@ Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const std::string& p_
     return Result<void>();
 }
 
-ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const std::string& p_path, const char* p_class_name) {
-    auto it = m_objectsMeta.find(p_path);
+ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
+    auto it = m_objectsMeta.find(p_guid);
     if (it != m_objectsMeta.end()) {
         return it->second;
     }
 
     ObjectFunctions meta;
-    if (auto res = LoadMetaTable(L, p_path, p_class_name, meta); !res) {
+    if (auto res = LoadMetaTable(L, p_guid, p_class_name, meta); !res) {
         StringStreamBuilder builder;
         builder << res.error();
         LOG_ERROR("{}", builder.ToString());
     } else {
-        m_objectsMeta[p_path] = meta;
+        m_objectsMeta[p_guid] = meta;
     }
 
     return meta;

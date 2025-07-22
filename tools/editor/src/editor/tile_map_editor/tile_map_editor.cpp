@@ -253,10 +253,9 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
             // @TODO: make an asset drop region
             // accept same type of assets, show tooltips, etc
-            DragDropTarget(AssetType::TileSet, [&](AssetHandle& p_handle) {
-                DEV_ASSERT(p_handle.GetMeta()->type == AssetType::TileSet);
-                layer.SetTileSetGuid(p_handle.GetGuid());
-            });
+            if (auto _handle = DragDropTarget(AssetType::TileSet); _handle.is_some()) {
+                layer.SetTileSetGuid(_handle.unwrap_unchecked().GetGuid());
+            }
         }
 
         ImGui::Dummy(ImVec2(8, 8));

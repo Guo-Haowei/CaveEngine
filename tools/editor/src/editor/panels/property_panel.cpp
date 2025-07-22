@@ -54,24 +54,42 @@ static void DrawComponent(const std::string& p_name, T* p_component, UIFunction 
     }
 }
 
-void DrawAsset(const Guid& p_guid, const DragDropFunc& p_callback) {
-    AssetHandle handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
-    const AssetMetaData* meta = handle.GetMeta();
-    DEV_ASSERT(meta);
-    const IAsset* asset = handle.Get();
-
-    ImGui::Text(ICON_FA_CUBE "  %s", meta->name.c_str());
-
-    const bool hovered = ImGui::IsItemHovered();
-    DragDropTarget(meta->type, p_callback);
-    if (hovered) {
-        ShowAssetToolTip(*meta, asset);
-    }
+template<typename T>
+concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
+    { t.SetResourceGuid(guid) } -> std::same_as<void>;
 };
 
+static_assert(HasSetResourceGuid<LuaScriptComponent>);
+
 template<typename T>
-concept HasSetResourceGuid = requires(T t) {
-    { t.SetResourceGuid() };
+void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
+    auto handle_ = AssetRegistry::GetSingleton().FindByGuid(p_guid);
+
+    AssetType type = AssetType::All;
+    const AssetMetaData* meta = nullptr;
+    const IAsset* asset = nullptr;
+
+    if (handle_.is_some()) {
+        AssetHandle handle = handle_.unwrap_unchecked();
+        meta = handle.GetMeta();
+        DEV_ASSERT(meta);
+        asset = handle.Get();
+        type = meta->type;
+
+        ImGui::Text("%s: " ICON_FA_CUBE " %s", p_name, meta->name.c_str());
+    } else {
+        ImGui::Text("%s: " ICON_FA_CUBE " not set ", p_name);
+    }
+
+    const bool hovered = ImGui::IsItemHovered();
+    if (auto _handle = DragDropTarget(type); _handle.is_some()) {
+        if constexpr (HasSetResourceGuid<T>) {
+            p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
+        }
+    }
+    if (hovered && meta) {
+        ShowAssetToolTip(*meta, asset);
+    }
 };
 
 template<typename T>
@@ -99,13 +117,9 @@ bool DrawComponentAuto(T* p_component) {
 
             case EditorHint::Asset: {
                 const Guid& guid = field->GetData<Guid>(p_component);
-                DrawAsset(guid,
-                          [&](AssetHandle& p_handle) {
-                              unused(p_handle);
-                              if constexpr (HasSetResourceGuid<T>) {
-                                  p_component->SetResourceGuid(p_handle.GetGuid());
-                              }
-                          });
+                DrawAsset(field->name,
+                          guid,
+                          p_component);
             } break;
             case EditorHint::Translation: {
                 Vector3f& translation = field->GetData<Vector3f>(p_component);
@@ -316,7 +330,8 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
 
     DrawComponent("Script", script_component, [](LuaScriptComponent& p_script) {
         DrawInputText("class_name", p_script.GetClassNameRef());
-        DrawInputText("path", p_script.GetPathRef());
+
+        DrawComponentAuto<LuaScriptComponent>(&p_script);
     });
 
     DrawComponent("AnimatorComponent", animator_component, [](AnimatorComponent& p_animator) {

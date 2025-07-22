@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/guid.h"
 #include "engine/runtime/script_manager.h"
 
 struct lua_State;
@@ -27,10 +28,10 @@ protected:
     auto InitializeImpl() -> Result<void> final;
     void FinalizeImpl() final;
 
-    ObjectFunctions FindOrAdd(lua_State* L, const std::string& p_path, const char* p_class_name);
-    Result<void> LoadMetaTable(lua_State* L, const std::string& p_path, const char* p_class_name, ObjectFunctions& p_meta);
+    ObjectFunctions FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name);
+    Result<void> LoadMetaTable(lua_State* L, const Guid& p_guid, const char* p_class_name, ObjectFunctions& p_meta);
 
-    std::map<std::string, ObjectFunctions> m_objectsMeta;
+    std::map<Guid, ObjectFunctions> m_objectsMeta;
     int m_gameRef{ 0 };
 };
 

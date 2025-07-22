@@ -33,7 +33,7 @@ class SpriteRendererComponent {
     Handle<ImageAsset> m_image_handle;
 
 public:
-    bool SetResourceGuid(const Guid& p_guid);
+    void SetResourceGuid(const Guid& p_guid);
     const Guid& GetResourceGuid() const { return m_image_id; }
 
     const Handle<ImageAsset> GetHandle() const { return m_image_handle; }

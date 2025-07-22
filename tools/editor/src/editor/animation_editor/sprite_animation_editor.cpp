@@ -122,11 +122,9 @@ void SpriteAnimationEditor::ImageSourceDropTarget() {
 
     CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
 
-    DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
-        DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
-
-        asset->SetGuid(p_handle.GetGuid());
-    });
+    if (auto _handle = DragDropTarget(AssetType::Image); _handle.is_some()) {
+        asset->SetGuid(_handle.unwrap_unchecked().GetGuid());
+    }
 }
 
 void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
