@@ -6,7 +6,6 @@
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 #include "engine/scene/scene.h"
-#include "engine/scripting/scriptable_entity.h"
 
 #pragma warning(push, 0)
 #include <BulletCollision/CollisionDispatch/btCollisionDispatcher.h>
@@ -42,7 +41,7 @@ static btTransform ConvertTransform(const TransformComponent& p_transform) {
 
 struct CustomContactResultCallback : btCollisionWorld::ContactResultCallback {
     CustomContactResultCallback(Scene& p_scene,
-                                ScriptManager& p_scriptManager)
+                                IScriptManager& p_scriptManager)
         : m_scene(p_scene), m_scriptManager(p_scriptManager) {
     }
 
@@ -58,7 +57,7 @@ struct CustomContactResultCallback : btCollisionWorld::ContactResultCallback {
     }
 
     Scene& m_scene;
-    ScriptManager& m_scriptManager;
+    IScriptManager& m_scriptManager;
 };
 
 class CustomCollisionDispatcher : public btCollisionDispatcher {
@@ -78,16 +77,6 @@ public:
 
             ecs::Entity entity_1{ (uint32_t)(uintptr_t)object_1->getUserPointer() };
             ecs::Entity entity_2{ (uint32_t)(uintptr_t)object_2->getUserPointer() };
-
-            NativeScriptComponent* script_1 = m_scene.GetComponent<NativeScriptComponent>(entity_1);
-            NativeScriptComponent* script_2 = m_scene.GetComponent<NativeScriptComponent>(entity_2);
-
-            if (script_1 && script_1->instance) {
-                script_1->instance->OnCollision(entity_2);
-            }
-            if (script_2 && script_2->instance) {
-                script_2->instance->OnCollision(entity_1);
-            }
         }
 #endif
     }

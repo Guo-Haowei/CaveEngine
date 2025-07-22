@@ -103,48 +103,38 @@ Result<ImguiManager*> Application::CreateImguiManager() {
     return new ImguiManager();
 }
 
-Result<ScriptManager*> Application::CreateScriptManager() {
-    return ScriptManager::Create();
-}
-
 auto Application::SetupModules() -> Result<void> {
     // @TODO: configure so it's easier for user to override
-    m_assetManager = new AssetManager();
-    m_assetRegistry = new AssetRegistry();
-    {
-        auto res = CreateScriptManager();
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        m_scriptManager = *res;
-    }
-    m_sceneManager = CreateSceneManager();
-    m_physicsManager = CreatePhysicsManager();
-    m_graphicsManager = CreateGraphicsManager();
-    m_displayServer = DisplayManager::Create();
-    m_inputManager = new InputManager();
-    m_renderSystem = new RenderSystem();
+    m_asset_manager = new AssetManager();
+    m_asset_registry = new AssetRegistry();
+    m_script_manager = CreateScriptManager();
+    m_scene_manager = CreateSceneManager();
+    m_physics_manager = CreatePhysicsManager();
+    m_graphics_manager = CreateGraphicsManager();
+    m_display_server = DisplayManager::Create();
+    m_input_manager = new InputManager();
+    m_render_system = new RenderSystem();
 
-    RegisterModule(m_assetManager);
-    RegisterModule(m_assetRegistry);
-    RegisterModule(m_sceneManager);
-    RegisterModule(m_scriptManager);
-    RegisterModule(m_physicsManager);
-    RegisterModule(m_displayServer);
-    RegisterModule(m_graphicsManager);
-    RegisterModule(m_renderSystem);
-    RegisterModule(m_inputManager);
+    RegisterModule(m_asset_manager);
+    RegisterModule(m_asset_registry);
+    RegisterModule(m_scene_manager);
+    RegisterModule(m_script_manager);
+    RegisterModule(m_physics_manager);
+    RegisterModule(m_display_server);
+    RegisterModule(m_graphics_manager);
+    RegisterModule(m_render_system);
+    RegisterModule(m_input_manager);
 
     if (m_specification.enableImgui) {
         auto res = CreateImguiManager();
         if (!res) {
             return CAVE_ERROR(res.error());
         }
-        m_imguiManager = *res;
-        RegisterModule(m_imguiManager);
+        m_imgui_manager = *res;
+        RegisterModule(m_imgui_manager);
     }
 
-    m_eventQueue.RegisterListener(m_graphicsManager);
+    m_event_queue.RegisterListener(m_graphics_manager);
 
     return Result<void>();
 }
@@ -237,8 +227,8 @@ auto Application::Initialize(int p_argc, const char** p_argv) -> Result<void> {
 
 void Application::Finalize() {
     // @TODO: fix
-    if (m_displayServer) {
-        auto [w, h] = m_displayServer->GetWindowSize();
+    if (m_display_server) {
+        auto [w, h] = m_display_server->GetWindowSize();
         DVAR_SET_IVEC2(window_resolution, w, h);
     }
 
@@ -272,13 +262,13 @@ bool Application::MainLoop() {
     CAVE_PROFILE_FRAME("MainThread");
 
     // === Begin Frame ===
-    m_displayServer->BeginFrame();
-    if (m_displayServer->ShouldClose()) {
+    m_display_server->BeginFrame();
+    if (m_display_server->ShouldClose()) {
         return false;
     }
 
-    m_renderSystem->BeginFrame();
-    m_inputManager->BeginFrame();
+    m_render_system->BeginFrame();
+    m_input_manager->BeginFrame();
 
     // === Update Phase ===
     const float timestep = UpdateTime();
@@ -290,7 +280,7 @@ bool Application::MainLoop() {
     // 5. phyiscs manager updates physics
     // 6. graphcs manager renders (optional: on another thread)
 
-    m_sceneManager->Update();
+    m_scene_manager->Update();
 
     // layer should set active scene
     // update layers from back to front
@@ -299,9 +289,9 @@ bool Application::MainLoop() {
     }
 
     // @TODO: refactor this
-    if (m_imguiManager) {
+    if (m_imgui_manager) {
         CAVE_PROFILE_EVENT("Application::ImGui");
-        m_imguiManager->BeginFrame();
+        m_imgui_manager->BeginFrame();
 
         for (int i = (int)m_layers.size() - 1; i >= 0; --i) {
             m_layers[i]->OnImGuiRender();
@@ -310,22 +300,22 @@ bool Application::MainLoop() {
         ImGui::Render();
     }
 
-    Scene* scene = m_sceneManager->GetActiveScene();
+    Scene* scene = m_scene_manager->GetActiveScene();
     if (scene) {
         scene->Update(timestep);
     }
-    m_renderSystem->RenderFrame(scene);
+    m_render_system->RenderFrame(scene);
 
     if (scene && m_state == State::SIM) {
-        m_scriptManager->Update(*scene, timestep);
-        m_physicsManager->Update(*scene, timestep);
+        m_script_manager->Update(*scene, timestep);
+        m_physics_manager->Update(*scene, timestep);
     }
 
     // === Rendering Phase ===
-    m_graphicsManager->Update(scene);
+    m_graphics_manager->Update(scene);
 
     // === End Frame ===
-    m_inputManager->EndFrame();
+    m_input_manager->EndFrame();
     return true;
 }
 

@@ -24,7 +24,6 @@ struct TextAsset;
 class Archive;
 class FileAccess;
 class Scene;
-class ScriptableEntity;
 
 #pragma region NAME_COMPONENT
 class NameComponent {
@@ -159,42 +158,6 @@ private:
     friend class LuaScriptManager;
 };
 #pragma endregion LUA_SCRIPT_COMPONENT
-
-#pragma region NATIVE_SCRIPT_COMPONENT
-struct NativeScriptComponent {
-    using InstantiateFunc = ScriptableEntity* (*)(void);
-    using DestroyFunc = void (*)(NativeScriptComponent*);
-
-    std::string scriptName = typeid(this).name();
-    ScriptableEntity* instance{ nullptr };
-    InstantiateFunc instantiateFunc{ nullptr };
-    DestroyFunc destroyFunc{ nullptr };
-
-    NativeScriptComponent() = default;
-
-    ~NativeScriptComponent();
-
-    NativeScriptComponent(const NativeScriptComponent& p_rhs);
-
-    NativeScriptComponent& operator=(const NativeScriptComponent& p_rhs);
-
-    template<typename T>
-    NativeScriptComponent& Bind() {
-        instantiateFunc = []() -> ScriptableEntity* {
-            return new T();
-        };
-        destroyFunc = [](NativeScriptComponent* p_script) {
-            delete (T*)p_script->instance;
-            p_script->instance = nullptr;
-        };
-
-        return *this;
-    }
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
-};
-#pragma endregion NATIVE_SCRIPT_COMPONENT
 
 // @TODO: move the following to scripts
 #pragma region COLLISION_OBJECT_COMPONENT

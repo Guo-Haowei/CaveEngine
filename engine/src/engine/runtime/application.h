@@ -16,10 +16,10 @@ class IGraphicsManager;
 class ImguiManager;
 class InputManager;
 class IPhysicsManager;
+class ISceneManager;
+class IScriptManager;
 class RenderSystem;
 class Scene;
-class ISceneManager;
-class ScriptManager;
 
 struct ApplicationSpec {
     std::string_view userFolder;
@@ -60,18 +60,18 @@ public:
     void AttachGameLayer();
     void DetachGameLayer();
 
-    EventQueue& GetEventQueue() { return m_eventQueue; }
+    EventQueue& GetEventQueue() { return m_event_queue; }
 
-    AssetRegistry* GetAssetRegistry() { return m_assetRegistry; }
-    AssetManager* GetAssetManager() { return m_assetManager; }
-    InputManager* GetInputManager() { return m_inputManager; }
-    ISceneManager* GetSceneManager() { return m_sceneManager; }
-    IPhysicsManager* GetPhysicsManager() { return m_physicsManager; }
-    ScriptManager* GetScriptManager() { return m_scriptManager; }
-    DisplayManager* GetDisplayServer() { return m_displayServer; }
-    IGraphicsManager* GetGraphicsManager() { return m_graphicsManager; }
-    ImguiManager* GetImguiManager() { return m_imguiManager; }
-    RenderSystem* GetRenderSystem() { return m_renderSystem; }
+    AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
+    AssetManager* GetAssetManager() { return m_asset_manager; }
+    InputManager* GetInputManager() { return m_input_manager; }
+    ISceneManager* GetSceneManager() { return m_scene_manager; }
+    IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
+    IScriptManager* GetScriptManager() { return m_script_manager; }
+    DisplayManager* GetDisplayServer() { return m_display_server; }
+    IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
+    ImguiManager* GetImguiManager() { return m_imgui_manager; }
+    RenderSystem* GetRenderSystem() { return m_render_system; }
 
     const ApplicationSpec& GetSpecification() const { return m_specification; }
     const std::string& GetUserFolder() const { return m_userFolder; }
@@ -96,7 +96,6 @@ protected:
     virtual void InitLayers() {}
     // @TODO: add CreateXXXManager for all managers
     virtual Result<ImguiManager*> CreateImguiManager();
-    virtual Result<ScriptManager*> CreateScriptManager();
 
     void SaveCommandLine(int p_argc, const char** p_argv);
     void RegisterModule(Module* p_module);
@@ -111,18 +110,18 @@ protected:
     std::string m_projectFolder;
     ApplicationSpec m_specification;
 
-    EventQueue m_eventQueue;
+    EventQueue m_event_queue;
 
-    AssetRegistry* m_assetRegistry{ nullptr };
-    AssetManager* m_assetManager{ nullptr };
-    ISceneManager* m_sceneManager{ nullptr };
-    IPhysicsManager* m_physicsManager{ nullptr };
-    DisplayManager* m_displayServer{ nullptr };
-    IGraphicsManager* m_graphicsManager{ nullptr };
-    ImguiManager* m_imguiManager{ nullptr };
-    ScriptManager* m_scriptManager{ nullptr };
-    RenderSystem* m_renderSystem{ nullptr };
-    InputManager* m_inputManager{ nullptr };
+    AssetRegistry* m_asset_registry{ nullptr };
+    AssetManager* m_asset_manager{ nullptr };
+    ISceneManager* m_scene_manager{ nullptr };
+    IPhysicsManager* m_physics_manager{ nullptr };
+    DisplayManager* m_display_server{ nullptr };
+    IGraphicsManager* m_graphics_manager{ nullptr };
+    ImguiManager* m_imgui_manager{ nullptr };
+    IScriptManager* m_script_manager{ nullptr };
+    RenderSystem* m_render_system{ nullptr };
+    InputManager* m_input_manager{ nullptr };
 
     std::vector<Module*> m_modules;
 

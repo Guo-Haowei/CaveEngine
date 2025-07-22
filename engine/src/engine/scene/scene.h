@@ -40,15 +40,14 @@ namespace cave {
     REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
 
 // @TODO: use meta table for all components
-#define REGISTER_COMPONENT_LIST                                                  \
-    REGISTER_COMPONENT_SERIALIZED_LIST                                           \
-    REGISTER_COMPONENT(NativeScriptComponent, "World::NativeScriptComponent", 0) \
-    REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)                 \
-    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)         \
-    REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0)       \
-    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0)       \
-    REGISTER_COMPONENT(ClothComponent, "World::ClothComponent", 0)               \
-    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)           \
+#define REGISTER_COMPONENT_LIST                                            \
+    REGISTER_COMPONENT_SERIALIZED_LIST                                     \
+    REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)           \
+    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)   \
+    REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0) \
+    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0) \
+    REGISTER_COMPONENT(ClothComponent, "World::ClothComponent", 0)         \
+    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)     \
     REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)
 
 // @TODO: refactor

@@ -11,11 +11,11 @@ struct ObjectFunctions {
     int funcNew{ 0 };
 };
 
-class LuaScriptManager : public ScriptManager {
+class LuaScriptManager : public IScriptManager {
 
 public:
     LuaScriptManager()
-        : ScriptManager("LuaScriptManager") {}
+        : IScriptManager("LuaScriptManager") {}
 
     void Update(Scene& p_scene, float p_timestep) override;
     void OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) override;

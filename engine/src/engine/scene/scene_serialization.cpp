@@ -165,10 +165,6 @@ void LuaScriptComponent::Serialize(Archive& p_archive, uint32_t) {
 void LuaScriptComponent::OnDeserialized() {
 }
 
-void NativeScriptComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(scriptName);
-}
-
 void CollisionObjectBase::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(collisionType);
     p_archive.ArchiveValue(collisionMask);
@@ -258,12 +254,6 @@ void LuaScriptComponent::RegisterClass() {
     REGISTER_FIELD(LuaScriptComponent, "class_name", m_className);
     REGISTER_FIELD(LuaScriptComponent, "path", m_path);
     END_REGISTRY(LuaScriptComponent);
-}
-
-void NativeScriptComponent::RegisterClass() {
-    BEGIN_REGISTRY(NativeScriptComponent);
-    REGISTER_FIELD(NativeScriptComponent, "script_name", scriptName);
-    END_REGISTRY(NativeScriptComponent);
 }
 
 void ParticleEmitterComponent::Serialize(Archive& p_archive, uint32_t) {

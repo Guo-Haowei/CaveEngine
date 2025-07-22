@@ -8,7 +8,6 @@
 #include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/scene/scene.h"
-#include "engine/scripting/scriptable_entity.h"
 
 // lua include
 #include "lua_binding.h"
@@ -160,12 +159,9 @@ void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
             }
         }
     }
-
-    ScriptManager::Update(p_scene, p_timestep);
 }
 
 void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) {
-    ScriptManager::OnCollision(p_scene, p_entity_1, p_entity_2);
 
     lua_State* L = p_scene.L;
     if (DEV_VERIFY(L)) {
