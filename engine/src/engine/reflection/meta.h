@@ -20,12 +20,12 @@ namespace cave {
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #endif
 
-#define REGISTER_FIELD(TYPE, NAME, FIELD, HINT)                                        \
+#define REGISTER_FIELD(TYPE, NAME, FIELD, ...)                                         \
     ::cave::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD,                \
                                                NAME,                                   \
                                                typeid(((const TYPE*)0)->FIELD).name(), \
                                                offsetof(TYPE, FIELD),                  \
-                                               HINT)
+                                               __VA_ARGS__)
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
@@ -52,15 +52,15 @@ struct FieldMetaBase {
     const char* const type;
     const size_t offset;
     const EditorHint editor_hint;
-    const int v_min;
-    const int v_max;
+    const float v_min;
+    const float v_max;
 
     FieldMetaBase(const char* p_name,
                   const char* p_type,
                   size_t p_offset,
                   EditorHint p_hint,
-                  int p_min = INT_MIN,
-                  int p_max = INT_MAX)
+                  float p_min,
+                  float p_max)
         : name(p_name)
         , type(p_type)
         , offset(p_offset)
@@ -106,8 +106,10 @@ private:
                                         const char* p_name,
                                         const char* p_type,
                                         size_t p_offset,
-                                        EditorHint p_hint) {
-        return new FieldMeta<U>(p_name, p_type, p_offset, p_hint);
+                                        EditorHint p_hint,
+                                        float p_min = INT_MIN,
+                                        float p_max = INT_MAX) {
+        return new FieldMeta<U>(p_name, p_type, p_offset, p_hint, p_min, p_max);
     }
 };
 

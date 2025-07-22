@@ -72,6 +72,10 @@ def parse_extra(meta_data: str):
         meta = meta.strip()
         if meta.startswith('editor = '):
             extra['editor'] = meta[len('editor = '):].strip()
+        if meta.startswith('min = '):
+            extra['min'] = meta[len('min = '):].strip()
+        if meta.startswith('max = '):
+            extra['max'] = meta[len('max = '):].strip()
 
     return extra
 
@@ -125,9 +129,16 @@ def generate_meta_for_class(f, class_name, fields):
     f.write("    static MetaTableFields s_table = {\n")
     for field in fields:
         editor_hint = field['extra'].get('editor', 'None')
+        num_min = field['extra'].get('min', None)
+        num_max = field['extra'].get('max', None)
         field_name = field['name']
         display_name = remove_prefix(field_name)
-        f.write(f'        REGISTER_FIELD({class_name}, "{display_name}", {field_name}, EditorHint::{editor_hint}),\n')
+        register_field = f'REGISTER_FIELD({class_name}, "{display_name}", {field_name}, EditorHint::{editor_hint}'
+        if num_min is not None:
+            register_field += f', {num_min}'
+        if num_max is not None:
+            register_field += f', {num_max}'
+        f.write(f'        {register_field}),\n')
         continue
     f.write("    };\n\n")
     f.write("    return s_table;\n")

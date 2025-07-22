@@ -164,8 +164,11 @@ static void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetRenderTarget(fb);
     cmd.SetViewport(Viewport(width, height));
 
+#if 0
     const float clear_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    // const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+#else
+    const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+#endif
     cmd.Clear(fb, CLEAR_COLOR_BIT, clear_color);
 
     if (p_ctx.frameData.gbuffer_commands.empty()) {

@@ -31,12 +31,12 @@ entities:
       parent_id: 1
     TransformComponent:
       translation: [0, 0, 0]
-      rotation: [0.08225595, 0.28963777, 0.056406613, 0.9519256]
-      scale: [0.9999996, 0.99999964, 0.9999999]
+      rotation: [0.021884486, -0.09457997, 0.013820707, 0.9951807]
+      scale: [0.9999995, 1, 0.99999964]
     LightComponent:
       type: 0
       base_color: [1, 1, 1, 1]
-      emissive: 1
+      emissive: 3.1
       atten_constant: 1
       atten_linear: 0
       atten_quadratic: 0

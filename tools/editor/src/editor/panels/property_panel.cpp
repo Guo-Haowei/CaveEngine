@@ -168,9 +168,9 @@ bool DrawComponentAuto(T* p_component) {
                 float& f = field->GetData<float>(p_component);
                 if (DrawDragFloat(field->name,
                                   f,
-                                  0.1f,  // speed
-                                  0.0f,  // min
-                                  1.0f,  // max
+                                  0.1f,          // speed
+                                  field->v_min,  // min
+                                  field->v_max,  // max
                                   COMPONENT_FIELD_NAME_WIDTH)) {
                     dirty = true;
                 }
