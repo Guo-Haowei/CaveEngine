@@ -11,6 +11,6 @@
 #include "generated/lua_script_component.generated.cpp"
 #include "generated/transform_component.generated.cpp"
 #include "generated/scene_component.generated.cpp"
-#include "generated/mesh_renderer.generated.cpp"
+#include "generated/mesh_renderer_component.generated.cpp"
 #include "generated/sprite_renderer_component.generated.cpp"
 #include "generated/tile_map_renderer_component.generated.cpp"

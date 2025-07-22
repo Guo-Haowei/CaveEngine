@@ -24,7 +24,7 @@ namespace cave {
 enum { A = 0, B = 1, C = 2, D = 3, E = 4, F = 5, G = 6, H = 7 };
 // clang-format on
 
-MeshComponent MakePlaneMesh(const Vector3f& p_scale) {
+MeshAsset MakePlaneMesh(const Vector3f& p_scale) {
     const float x = p_scale.x;
     const float y = p_scale.y;
     Vector3f a(-x, +y, 0.0f);  // A
@@ -34,11 +34,11 @@ MeshComponent MakePlaneMesh(const Vector3f& p_scale) {
     return MakePlaneMesh(a, b, c, d);
 }
 
-MeshComponent MakePlaneMesh(const Vector3f& p_point_0,
-                            const Vector3f& p_point_1,
-                            const Vector3f& p_point_2,
-                            const Vector3f& p_point_3) {
-    MeshComponent mesh;
+MeshAsset MakePlaneMesh(const Vector3f& p_point_0,
+                        const Vector3f& p_point_1,
+                        const Vector3f& p_point_2,
+                        const Vector3f& p_point_3) {
+    MeshAsset mesh;
     mesh.positions = {
         p_point_0,
         p_point_1,
@@ -73,7 +73,7 @@ MeshComponent MakePlaneMesh(const Vector3f& p_point_0,
     };
     // clang-format on
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(mesh.indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -82,8 +82,8 @@ MeshComponent MakePlaneMesh(const Vector3f& p_point_0,
     return mesh;
 }
 
-MeshComponent MakeCubeMesh(const Vector3f& p_scale) {
-    MeshComponent mesh;
+MeshAsset MakeCubeMesh(const Vector3f& p_scale) {
+    MeshAsset mesh;
     // clang-format off
     constexpr uint32_t indices[] = {
         0,          1,          2,          0,          2,          3,
@@ -204,7 +204,7 @@ MeshComponent MakeCubeMesh(const Vector3f& p_scale) {
         mesh.indices.emplace_back(indices[i + 1]);
     }
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = array_length(indices);
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -213,8 +213,8 @@ MeshComponent MakeCubeMesh(const Vector3f& p_scale) {
     return mesh;
 }
 
-MeshComponent MakeCubeMesh(const std::array<Vector3f, 8>& p_points) {
-    MeshComponent mesh;
+MeshAsset MakeCubeMesh(const std::array<Vector3f, 8>& p_points) {
+    MeshAsset mesh;
 
     const Vector3f& a = p_points[A];
     const Vector3f& b = p_points[B];
@@ -272,7 +272,7 @@ MeshComponent MakeCubeMesh(const std::array<Vector3f, 8>& p_points) {
         mesh.texcoords_0.push_back(Vector2f::Zero);
     }
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(mesh.indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -281,7 +281,7 @@ MeshComponent MakeCubeMesh(const std::array<Vector3f, 8>& p_points) {
     return mesh;
 }
 
-MeshComponent MakeTetrahedronMesh(float p_size) {
+MeshAsset MakeTetrahedronMesh(float p_size) {
     // Vertex data for a tetrahedron (4 vertices, each with x, y, z coordinates)
     constexpr float h = 2.0f / 2.449f;
     Vector3f vertices[] = {
@@ -298,7 +298,7 @@ MeshComponent MakeTetrahedronMesh(float p_size) {
         1, 3, 2,  // face 4
     };
 
-    MeshComponent mesh;
+    MeshAsset mesh;
 
     for (int i = 0; i < array_length(indices); i += 3) {
         Vector3f A = vertices[indices[i]];
@@ -324,7 +324,7 @@ MeshComponent MakeTetrahedronMesh(float p_size) {
         mesh.texcoords_0.emplace_back(Vector2f());
     }
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(mesh.indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -333,8 +333,8 @@ MeshComponent MakeTetrahedronMesh(float p_size) {
     return mesh;
 }
 
-MeshComponent MakeSphereMesh(float p_radius, int p_rings, int p_sectors) {
-    MeshComponent mesh;
+MeshAsset MakeSphereMesh(float p_radius, int p_rings, int p_sectors) {
+    MeshAsset mesh;
 
     auto& indices = mesh.indices;
     constexpr float pi = glm::pi<float>();
@@ -374,7 +374,7 @@ MeshComponent MakeSphereMesh(float p_radius, int p_rings, int p_sectors) {
         }
     }
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -383,11 +383,11 @@ MeshComponent MakeSphereMesh(float p_radius, int p_rings, int p_sectors) {
     return mesh;
 }
 
-MeshComponent MakeCylinderMesh(float p_radius,
-                               float p_height,
-                               int p_sectors,
-                               int p_height_sector) {
-    MeshComponent mesh;
+MeshAsset MakeCylinderMesh(float p_radius,
+                           float p_height,
+                           int p_sectors,
+                           int p_height_sector) {
+    MeshAsset mesh;
 
     auto& indices = mesh.indices;
     constexpr float pi = glm::pi<float>();
@@ -482,7 +482,7 @@ MeshComponent MakeCylinderMesh(float p_radius,
         }
     }
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -491,10 +491,10 @@ MeshComponent MakeCylinderMesh(float p_radius,
     return mesh;
 }
 
-MeshComponent MakeConeMesh(float p_radius,
-                           float p_height,
-                           int p_sectors) {
-    MeshComponent mesh;
+MeshAsset MakeConeMesh(float p_radius,
+                       float p_height,
+                       int p_sectors) {
+    MeshAsset mesh;
 
     auto& indices = mesh.indices;
     constexpr float pi = glm::pi<float>();
@@ -589,7 +589,7 @@ MeshComponent MakeConeMesh(float p_radius,
         }
     }
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -598,11 +598,11 @@ MeshComponent MakeConeMesh(float p_radius,
     return mesh;
 }
 
-MeshComponent MakeTorusMesh(float p_radius,
-                            float p_tube_radius,
-                            int p_sectors,
-                            int p_tube_sectors) {
-    MeshComponent mesh;
+MeshAsset MakeTorusMesh(float p_radius,
+                        float p_tube_radius,
+                        int p_sectors,
+                        int p_tube_sectors) {
+    MeshAsset mesh;
 
     constexpr float two_pi = 2.0f * glm::pi<float>();
     for (int index_1 = 0; index_1 <= p_sectors; ++index_1) {
@@ -644,7 +644,7 @@ MeshComponent MakeTorusMesh(float p_radius,
         }
     }
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -684,8 +684,8 @@ void BoxWireFrameHelper(const Vector3f& p_min,
     };
 }
 
-MeshComponent MakeBoxMesh(float size) {
-    MeshComponent mesh;
+MeshAsset MakeBoxMesh(float size) {
+    MeshAsset mesh;
     Vector3f min(-size);
     Vector3f max(+size);
     BoxWireFrameHelper(min, max, mesh.positions, mesh.indices);
@@ -693,8 +693,8 @@ MeshComponent MakeBoxMesh(float size) {
     return mesh;
 }
 
-MeshComponent MakeGrassBillboard(const Vector3f& p_scale) {
-    MeshComponent mesh;
+MeshAsset MakeGrassBillboard(const Vector3f& p_scale) {
+    MeshAsset mesh;
 
     const float x = p_scale.x;
     const float y = p_scale.y;
@@ -743,7 +743,7 @@ MeshComponent MakeGrassBillboard(const Vector3f& p_scale) {
         uv.y = 1.0f - uv.y;
     }
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(mesh.indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -752,9 +752,9 @@ MeshComponent MakeGrassBillboard(const Vector3f& p_scale) {
     return mesh;
 }
 
-MeshComponent MakeSkyBoxMesh() {
+MeshAsset MakeSkyBoxMesh() {
     float size = 1.0f;
-    MeshComponent mesh;
+    MeshAsset mesh;
     mesh.positions = {
         Vector3f(-size, +size, +size),  // A
         Vector3f(-size, -size, +size),  // B
@@ -793,7 +793,7 @@ MeshComponent MakeSkyBoxMesh() {
         // B, G, C,  // BGC
     };
 
-    MeshComponent::MeshSubset subset;
+    MeshAsset::MeshSubset subset;
     subset.index_count = static_cast<uint32_t>(mesh.indices.size());
     subset.index_offset = 0;
     mesh.subsets.emplace_back(subset);
@@ -803,8 +803,8 @@ MeshComponent MakeSkyBoxMesh() {
 }
 
 // load scene
-MeshComponent MakeBoxWireframeMesh(float size) {
-    MeshComponent mesh;
+MeshAsset MakeBoxWireframeMesh(float size) {
+    MeshAsset mesh;
     mesh.positions = {
         Vector3f(-size, +size, +size),  // A
         Vector3f(-size, -size, +size),  // B

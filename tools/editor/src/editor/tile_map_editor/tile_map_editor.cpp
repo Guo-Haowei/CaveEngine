@@ -242,7 +242,7 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
                 image = image_handle->GetHandle().Get();
             }
 
-            auto checkerboard = m_editor.context.checkerboard_handle.Get();
+            auto checkerboard = m_editor.context.checkerboard;
             DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
 
             CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());

@@ -11,8 +11,13 @@ public:
         Close();
     }
 
-    [[nodiscard]] auto OpenRead(const std::string& p_path) -> Result<void> { return OpenMode(p_path.c_str(), false); }
-    [[nodiscard]] auto OpenWrite(const std::string& p_path) -> Result<void> { return OpenMode(p_path.c_str(), true); }
+    [[nodiscard]] Result<void> OpenRead(const std::string& p_path) {
+        return OpenMode(p_path.c_str(), false);
+    }
+
+    [[nodiscard]] Result<void> OpenWrite(const std::string& p_path) {
+        return OpenMode(p_path.c_str(), true);
+    }
 
     void Close();
     bool IsWriteMode() const;
@@ -101,7 +106,7 @@ public:
     }
 
 private:
-    [[nodiscard]] auto OpenMode(const std::string& p_path, bool p_write_mode) -> Result<void>;
+    [[nodiscard]] Result<void> OpenMode(const std::string& p_path, bool p_write_mode);
 
     bool WriteString(const char* p_data, size_t p_length);
 

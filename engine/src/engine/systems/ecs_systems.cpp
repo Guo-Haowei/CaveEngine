@@ -1,5 +1,6 @@
 #include "ecs_systems.h"
 
+#include "engine/assets/mesh_asset.h"
 #include "engine/core/base/random.h"
 #include "engine/core/debugger/profiler.h"
 #include "engine/scene/scene.h"
@@ -206,19 +207,22 @@ static void UpdateLight(float p_timestep,
                         LightComponent& p_light) {
     unused(p_timestep);
 
-    p_light.m_position = p_transform.GetTranslation();
+    p_light.SetPosition(p_transform.GetTranslation());
 
     if (p_light.IsDirty() || p_transform.IsDirty()) {
+        const float constant = p_light.GetAttenConstant();
+        const float linear = p_light.GetAttenLinear();
+        const float quadratic = p_light.GetAttenQuadratic();
         // update max distance
         constexpr float atten_factor_inv = 1.0f / 0.03f;
-        if (p_light.m_atten.linear == 0.0f && p_light.m_atten.quadratic == 0.0f) {
-            p_light.m_maxDistance = 1000.0f;
+        if (linear == 0.0f && quadratic == 0.0f) {
+            p_light.SetMaxDistance(1000.0f);
         } else {
             // (constant + linear * x + quad * x^2) * atten_factor = 1
             // quad * x^2 + linear * x + constant - 1.0 / atten_factor = 0
-            const float a = p_light.m_atten.quadratic;
-            const float b = p_light.m_atten.linear;
-            const float c = p_light.m_atten.constant - atten_factor_inv;
+            const float a = quadratic;
+            const float b = linear;
+            const float c = constant - atten_factor_inv;
 
             float discriminant = b * b - 4 * a * c;
             if (discriminant < 0.0f) {
@@ -228,8 +232,9 @@ static void UpdateLight(float p_timestep,
             float sqrt_d = glm::sqrt(discriminant);
             float root1 = (-b + sqrt_d) / (2 * a);
             float root2 = (-b - sqrt_d) / (2 * a);
-            p_light.m_maxDistance = root1 > 0.0f ? root1 : root2;
-            p_light.m_maxDistance = glm::max(LIGHT_SHADOW_MIN_DISTANCE + 1.0f, p_light.m_maxDistance);
+            float max_distance = root1 > 0.0f ? root1 : root2;
+            max_distance = glm::max(LIGHT_SHADOW_MIN_DISTANCE + 1.0f, max_distance);
+            p_light.SetMaxDistance(max_distance);
         }
 
         // update shadow map
@@ -239,7 +244,7 @@ static void UpdateLight(float p_timestep,
 
         // update light space matrices
         if (p_light.CastShadow()) {
-            switch (p_light.m_type) {
+            switch (p_light.GetType()) {
                 case LIGHT_TYPE_POINT: {
                     CRASH_NOW();
 #if 0
@@ -259,7 +264,7 @@ static void UpdateLight(float p_timestep,
             }
         }
 
-        // @TODO: query if transformation is dirty, so don't update shadow map unless necessary
+        // @TODO: don't update shadow map unless necessary
         p_light.SetDirty(false);
     }
 }
@@ -301,23 +306,24 @@ void RunHierarchyUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, flo
     JS_PARALLEL_FOR(HierarchyComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, UpdateHierarchy(p_scene, index, p_timestep));
 }
 
-void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float) {
+void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context&, float) {
     CAVE_PROFILE_EVENT();
-    unused(p_context);
 
     AABB bound;
 
-    for (auto [entity, obj] : p_scene.View<MeshRenderer>()) {
-        if (!p_scene.Contains<TransformComponent>(entity)) {
+    for (auto [id, mesh_renderer] : p_scene.View<MeshRendererComponent>()) {
+        if (!p_scene.Contains<TransformComponent>(id)) {
             continue;
         }
 
-        const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-        DEV_ASSERT(p_scene.Contains<MeshComponent>(obj.meshId));
-        const MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(obj.meshId);
+        const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
+        const MeshAsset* mesh = mesh_renderer.GetMeshHandle().Get();
+        if (!mesh) {
+            continue;
+        }
 
         Matrix4x4f M = transform.GetWorldMatrix();
-        AABB aabb = mesh.localBound;
+        AABB aabb = mesh->localBound;
         aabb.ApplyMatrix(M);
         bound.UnionBox(aabb);
     }

@@ -1,0 +1,46 @@
+version: 19
+seed: 3
+root: 1
+physics_mode: 0
+entities:
+  - id: 1
+    NameComponent:
+      name: world
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 2
+    NameComponent:
+      name: monkey
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      mesh_id: 6E495C25-1867-E04E-9DD43BF405E2F7F0
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+  - id: 3
+    NameComponent:
+      name: light
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0.08225595, 0.28963777, 0.056406613, 0.9519256]
+      scale: [0.9999996, 0.99999964, 0.9999999]
+    LightComponent:
+      type: 0
+      base_color: [1, 1, 1, 1]
+      emissive: 1
+      atten_constant: 1
+      atten_linear: 0
+      atten_quadratic: 0
+      shadow_region:
+        min: [.inf, .inf, .inf]
+        max: [-.inf, -.inf, -.inf]
+      cast_shadow: true

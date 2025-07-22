@@ -12,13 +12,10 @@
 #include "engine/scene/camera_component.h"
 #include "engine/scene/light_component.h"
 #include "engine/scene/lua_script_component.h"
-#include "engine/scene/mesh_renderer.h"
+#include "engine/scene/mesh_renderer_component.h"
 #include "engine/scene/transform_component.h"
 #include "engine/scene/sprite_renderer_component.h"
 #include "engine/scene/tile_map_renderer_component.h"
-
-// @TODO: remove
-#include "engine/assets/mesh_asset.h"
 
 namespace cave::jobsystem {
 class Context;
@@ -34,14 +31,13 @@ namespace cave {
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                   \
     REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)             \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
-    REGISTER_COMPONENT(MeshRenderer, "World::MeshRenderer", 0)                       \
+    REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)     \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0) \
     REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
 
 // @TODO: use meta table for all components
 #define REGISTER_COMPONENT_LIST                                            \
     REGISTER_COMPONENT_SERIALIZED_LIST                                     \
-    REGISTER_COMPONENT(MeshComponent, "World::MeshComponent", 0)           \
     REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)   \
     REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0) \
     REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0) \

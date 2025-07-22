@@ -12,61 +12,68 @@ class Archive;
 class LightComponent {
     CAVE_META(LightComponent)
 
+    CAVE_PROP()
+    LightType m_type = LIGHT_TYPE_INFINITE;
+
+    CAVE_PROP(editor = Color)
+    Vector4f m_base_color = Vector4f::One;
+
+    CAVE_PROP(editor = DragFloat, min = 0, max = 1000)
+    float m_emissive = 4.0f;
+
+    CAVE_PROP(editor = DragFloat, min = 0, max = 1)
+    float m_atten_constant;
+
+    CAVE_PROP(editor = DragFloat, min = 0, max = 1)
+    float m_atten_linear;
+
+    CAVE_PROP(editor = DragFloat, min = 0, max = 1)
+    float m_atten_quadratic;
+
+    CAVE_PROP()
+    AABB m_shadow_region;
+
+    CAVE_PROP(editor = Toggle)
+    bool m_cast_shadow = false;
+
+    // Non-serialized
+    bool m_dirty = true;
+    Vector3f m_position;
+    float m_max_distance;
+    std::array<Matrix4x4f, 6> m_light_space_matrices;
+
 public:
-    enum : uint32_t {
-        NONE = BIT(0),
-        DIRTY = BIT(1),
-        CAST_SHADOW = BIT(2),
-        SHADOW_REGION = BIT(3),
-    };
+    bool IsDirty() const { return m_dirty; }
+    void SetDirty(bool p_dirty = true) { m_dirty = p_dirty; }
 
-    bool IsDirty() const { return m_flags & DIRTY; }
-    void SetDirty(bool p_dirty = true) { p_dirty ? m_flags |= DIRTY : m_flags &= ~DIRTY; }
+    bool CastShadow() const { return m_cast_shadow; }
+    void SetCastShadow(bool p_cast_shadow = true) { m_cast_shadow = p_cast_shadow; }
 
-    bool CastShadow() const { return m_flags & CAST_SHADOW; }
-    void SetCastShadow(bool p_cast = true) { p_cast ? m_flags |= CAST_SHADOW : m_flags &= ~CAST_SHADOW; }
-
-    bool HasShadowRegion() const { return m_flags & SHADOW_REGION; }
-    void SetShadowRegion(bool p_region = true) { p_region ? m_flags |= SHADOW_REGION : m_flags &= ~SHADOW_REGION; }
+    const AABB& GetShadowRegion() const { return m_shadow_region; }
 
     int GetType() const { return m_type; }
-    void SetType(int p_type) { m_type = p_type; }
+    void SetType(LightType p_type) { m_type = p_type; }
 
-    float GetMaxDistance() const { return m_maxDistance; }
-    int GetShadowMapIndex() const { return m_shadowMapIndex; }
+    void SetMaxDistance(float p_max_distance) { m_max_distance = p_max_distance; }
+    float GetMaxDistance() const { return m_max_distance; }
+
+    float GetAttenConstant() const { return m_atten_constant; }
+    float GetAttenLinear() const { return m_atten_linear; }
+    float GetAttenQuadratic() const { return m_atten_quadratic; }
+
+    void SetPosition(const Vector3f& p_position) { m_position = p_position; }
+    const Vector3f& GetPosition() const { return m_position; }
+
+    auto& GetMatrices() { return m_light_space_matrices; }
+    const auto& GetMatrices() const { return m_light_space_matrices; }
+
+    const Vector4f& GetBaseColor() const { return m_base_color; }
+    float GetEmissive() const { return m_emissive; }
 
     void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized();
 
-    const auto& GetMatrices() const { return m_lightSpaceMatrices; }
-    const Vector3f& GetPosition() const { return m_position; }
-
-    // @TODO: refactor this part
-    struct Attenuation {
-        float constant;
-        float linear;
-        float quadratic;
-    } m_atten;
-
-    CAVE_PROP(type = box3)
-    AABB m_shadowRegion;
-
-    CAVE_PROP(type = u32)
-    uint32_t m_flags = DIRTY;
-
-    // @TODO: make light type enum
-    CAVE_PROP(type = i32)
-    int m_type = LIGHT_TYPE_INFINITE;
-
-    CAVE_PROP(type = guid)
-    Guid m_material_id;
-
-    // Non-serialized
-    float m_maxDistance;
-    Vector3f m_position;
-    int m_shadowMapIndex = -1;
-    std::array<Matrix4x4f, 6> m_lightSpaceMatrices;
-    Handle<MaterialAsset> m_material_handle;
+    friend class EntityFactory;
 };
 
 }  // namespace cave

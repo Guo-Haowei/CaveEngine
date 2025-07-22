@@ -28,7 +28,7 @@ enum {
 
 struct EditorContext {
     float timestep{ 0 };
-    Handle<ImageAsset> checkerboard_handle;
+    std::shared_ptr<ImageAsset> checkerboard;
 };
 
 class EditorLayer : public Layer, public IInputHandler {

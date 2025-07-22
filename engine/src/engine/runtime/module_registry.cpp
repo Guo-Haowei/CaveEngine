@@ -82,7 +82,7 @@ public:
     auto CreateBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> override { return nullptr; }
     void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) override {}
 
-    auto CreateMesh(const MeshComponent& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override { return nullptr; }
+    auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override { return nullptr; }
 
     auto CreateMeshImpl(const GpuMeshDesc& p_desc,
                         uint32_t p_count,
@@ -128,6 +128,7 @@ public:
     void GenerateMipmap(const GpuTexture* p_texture) override {}
 
     void RequestTexture(ImageAsset* p_image) override {}
+    void RequestMesh(MeshAsset* p_mesh) override {}
 
     uint64_t GetFinalImage() const override { return 0; }
 
@@ -159,7 +160,6 @@ protected:
     void MoveToNextFrame() override {}
     std::shared_ptr<FrameContext> CreateFrameContext() override { return nullptr; }
 
-    void OnSceneChange(const Scene& p_scene) override {}
     void OnWindowResize(int p_width, int p_height) override {}
     void SetPipelineStateImpl(PipelineStateName p_name) override {}
     void UpdateEmitters(const Scene& p_scene) override {}

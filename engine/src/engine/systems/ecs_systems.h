@@ -19,7 +19,7 @@ void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, flo
 
 void RunArmatureUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 
-void RunObjectUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 
 #if 0
 void RunParticleEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);

@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui_internal.h>
 
+#include "engine/assets/mesh_asset.h"
 #include "editor/editor_layer.h"
 
 namespace cave {
@@ -85,10 +86,10 @@ static bool TreeNodeHelper(const Scene& p_scene,
 void HierarchyCreator::DrawNode(const Scene& p_scene, HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flags) {
     DEV_ASSERT(p_hier);
     Entity id = p_hier->entity;
-    const MeshRenderer* object_component = p_scene.GetComponent<MeshRenderer>(id);
-    const MeshComponent* mesh_component = object_component ? p_scene.GetComponent<MeshComponent>(object_component->meshId) : nullptr;
+    const MeshRendererComponent* renderer = p_scene.GetComponent<MeshRendererComponent>(id);
+    const MeshAsset* mesh_asset = renderer ? renderer->GetMeshHandle().Get() : nullptr;
 
-    p_flags |= (p_hier->children.empty() && !mesh_component) ? ImGuiTreeNodeFlags_Leaf : 0;
+    p_flags |= (p_hier->children.empty() && !mesh_asset) ? ImGuiTreeNodeFlags_Leaf : 0;
     p_flags |= m_editorLayer.GetSelectedEntity() == id ? ImGuiTreeNodeFlags_Selected : 0;
 
     const bool expanded = TreeNodeHelper(
@@ -105,8 +106,8 @@ void HierarchyCreator::DrawNode(const Scene& p_scene, HierarchyNode* p_hier, ImG
         float indentWidth = 8.f;
         ImGui::Indent(indentWidth);
 
-        if (mesh_component) {
-            Entity armature_id = mesh_component->armatureId;
+        if (mesh_asset) {
+            Entity armature_id = mesh_asset->armatureId;
             if (armature_id.IsValid()) {
                 ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;
                 TreeNodeHelper(

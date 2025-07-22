@@ -4,7 +4,7 @@
 
 namespace cave {
 
-struct IAsset;
+class IAsset;
 
 struct AssetMetaData {
     AssetType type{ AssetType::Unknown };

@@ -1,0 +1,5 @@
+guid: AF09BC0E-2DCA-9844-84D9B9897DE94F6E
+type: scene
+name: sandbox
+import_path: "@res://sandbox.scene"
+dependencies: []

@@ -115,8 +115,8 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
     // for debug buffer?
     {
         constexpr int max_count = 4096 * 128;
-        MeshComponent mesh;
-        mesh.flags |= MeshComponent::DYNAMIC;
+        MeshAsset mesh;
+        mesh.flags |= MeshAsset::DYNAMIC;
         mesh.positions.resize(max_count);
         mesh.color_0.resize(max_count);
         mesh.CreateRenderData();
@@ -133,9 +133,6 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
 }
 
 void GraphicsManager::EventReceived(std::shared_ptr<IEvent> p_event) {
-    if (SceneChangeEvent* e = dynamic_cast<SceneChangeEvent*>(p_event.get()); e) {
-        OnSceneChange(*e->GetScene());
-    }
     if (ResizeEvent* e = dynamic_cast<ResizeEvent*>(p_event.get()); e) {
         OnWindowResize(e->GetWidth(), e->GetHeight());
     }
@@ -149,13 +146,17 @@ void GraphicsManager::RequestTexture(ImageAsset* p_image) {
     m_loadedImages.push(p_image);
 }
 
+void GraphicsManager::RequestMesh(MeshAsset* p_mesh) {
+    m_loadedMeshes.push(p_mesh);
+}
+
 void GraphicsManager::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     unused(p_desc);
     unused(p_buffer);
     CRASH_NOW();
 }
 
-auto GraphicsManager::CreateMesh(const MeshComponent& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
+auto GraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
     constexpr uint32_t count = std::to_underlying(VertexAttributeName::COUNT);
     std::array<VertexAttributeName, count> attribs = {
         VertexAttributeName::POSITION,
@@ -181,7 +182,7 @@ auto GraphicsManager::CreateMesh(const MeshComponent& p_mesh) -> Result<std::sha
 
     std::array<GpuBufferDesc, count> vb_descs;
 
-    const bool is_dynamic = p_mesh.flags & MeshComponent::DYNAMIC;
+    const bool is_dynamic = p_mesh.flags & MeshAsset::DYNAMIC;
 
     GpuMeshDesc desc;
     desc.enabledVertexCount = count;
@@ -279,13 +280,22 @@ void GraphicsManager::Update(Scene* p_scene) {
     // @TODO: make it a function
     auto loaded_images = m_loadedImages.pop_all();
     while (!loaded_images.empty()) {
-        auto task = loaded_images.front();
-        loaded_images.pop();
-        ImageAsset* image = task;
+        ImageAsset* image = loaded_images.front();
         DEV_ASSERT(image);
+        loaded_images.pop();
 
         if (!image->gpu_texture) {
             CreateTexture(image);
+        }
+    }
+    auto loaded_meshes = m_loadedMeshes.pop_all();
+    while (!loaded_meshes.empty()) {
+        MeshAsset* mesh = loaded_meshes.front();
+        DEV_ASSERT(mesh);
+        loaded_meshes.pop();
+
+        if (!mesh->gpuResource) {
+            CreateMesh(*mesh);
         }
     }
 
@@ -554,18 +564,6 @@ void GraphicsManager::DrawQuadInstanced(uint32_t p_instance_count) {
 void GraphicsManager::DrawSkybox() {
     SetMesh(m_skyboxBuffers.get());
     DrawElements(m_skyboxBuffers->desc.drawCount);
-}
-
-void GraphicsManager::OnSceneChange(const Scene& p_scene) {
-    for (auto [entity, mesh] : p_scene.m_MeshComponents) {
-        if (mesh.gpuResource != nullptr) {
-            const NameComponent& name = *p_scene.GetComponent<NameComponent>(entity);
-            LOG_WARN("[begin_scene] mesh '{}' () already has gpu resource", name.GetName());
-            continue;
-        }
-
-        CreateMesh(mesh);
-    }
 }
 
 }  // namespace cave

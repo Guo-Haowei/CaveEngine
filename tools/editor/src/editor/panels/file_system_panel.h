@@ -3,9 +3,6 @@
 
 namespace cave {
 
-struct IAsset;
-struct AssetMetaData;
-
 class FileSystemPanel : public EditorWindow {
 public:
     FileSystemPanel(EditorLayer& p_editor);

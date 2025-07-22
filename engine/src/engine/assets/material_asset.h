@@ -8,10 +8,10 @@ namespace cave {
 class Archive;
 
 struct MaterialAsset : public IAsset {
-    CAVE_META(MaterialAsset)
-
     CAVE_ASSET(MaterialAsset, AssetType::Material, 0)
 
+    CAVE_META(MaterialAsset)
+public:
     CAVE_PROP(type = color)
     Vector4f base_color = Vector4f::One;
 
@@ -46,6 +46,7 @@ struct MaterialAsset : public IAsset {
 
     Result<void> LoadFromDisk(const AssetMetaData& p_meta) override;
 
+    // @TODO: fix
     static const MaterialAsset* Default();
 
     void OnDeserialized();

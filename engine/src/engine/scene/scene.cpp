@@ -1,5 +1,6 @@
 #include "scene.h"
 
+#include "engine/assets/mesh_asset.h"
 #include "engine/core/debugger/profiler.h"
 #include "engine/core/io/archive.h"
 #include "engine/ecs/component_manager.inl"
@@ -52,7 +53,7 @@ void Scene::Update(float p_timestep) {
     ctx.Wait();
 
     // update bounding box
-    RunObjectUpdateSystem(*this, ctx, p_timestep);
+    RunMeshAABBUpdateSystem(*this, ctx, p_timestep);
 
     // @TODO: refactor
     for (auto [entity, camera] : m_CameraComponents) {
@@ -74,12 +75,15 @@ void Scene::Update(float p_timestep) {
 
     // @TODO: refactor
     if (DVAR_GET_BOOL(gfx_bvh_generate)) {
+        CRASH_NOW();
+#if 0
         for (auto [entity, mesh] : m_MeshComponents) {
             if (!mesh.bvh) {
                 mesh.bvh = BvhAccel::Construct(mesh.indices, mesh.positions);
             }
         }
         DVAR_SET_BOOL(gfx_bvh_generate, false);
+#endif
     }
 }
 
@@ -156,16 +160,16 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
     }
     m_HierarchyComponents.Remove(p_entity);
     m_TransformComponents.Remove(p_entity);
-    m_MeshRenderers.Remove(p_entity);
+    m_MeshRendererComponents.Remove(p_entity);
     // m_ParticleEmitterComponents.Remove(p_entity);
     // m_ForceFieldComponents.Remove(p_entity);
     m_NameComponents.Remove(p_entity);
 }
 
-bool Scene::RayObjectIntersect(ecs::Entity p_object_id, Ray& p_ray) {
-    MeshRenderer* object = GetComponent<MeshRenderer>(p_object_id);
-    MeshComponent* mesh = GetComponent<MeshComponent>(object->meshId);
-    TransformComponent* transform = GetComponent<TransformComponent>(p_object_id);
+bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) {
+    MeshRendererComponent* renderer = GetComponent<MeshRendererComponent>(p_id);
+    MeshAsset* mesh = renderer->GetMeshHandle().Get();
+    TransformComponent* transform = GetComponent<TransformComponent>(p_id);
     DEV_ASSERT(mesh && transform);
 
     if (!transform || !mesh) {
@@ -201,8 +205,8 @@ Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     RayIntersectionResult result;
 
     // @TODO: box collider
-    for (size_t object_idx = 0; object_idx < GetCount<MeshRenderer>(); ++object_idx) {
-        ecs::Entity entity = GetEntity<MeshRenderer>(object_idx);
+    for (size_t object_idx = 0; object_idx < GetCount<MeshRendererComponent>(); ++object_idx) {
+        ecs::Entity entity = GetEntity<MeshRendererComponent>(object_idx);
         if (RayObjectIntersect(entity, p_ray)) {
             result.entity = entity;
         }

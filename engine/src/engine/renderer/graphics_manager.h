@@ -23,8 +23,6 @@ namespace cave { class RenderGraph; }
 
 namespace cave {
 
-struct ImageAsset;
-struct MeshComponent;
 struct SamplerDesc;
 class Scene;
 struct GpuConstantBuffer;
@@ -59,7 +57,7 @@ public:
 
     void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) override;
 
-    auto CreateMesh(const MeshComponent& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override;
+    auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override;
 
     void SetPipelineState(PipelineStateName p_name) override;
 
@@ -68,6 +66,7 @@ public:
     std::shared_ptr<GpuTexture> FindTexture(std::string_view p_name) const override;
 
     void RequestTexture(ImageAsset* p_image) override;
+    void RequestMesh(MeshAsset* p_mesh) override;
 
     void BeginEvent(std::string_view p_event) override { unused(p_event); }
     void EndEvent() override {}
@@ -96,8 +95,6 @@ protected:
     void MoveToNextFrame() override;
     std::shared_ptr<FrameContext> CreateFrameContext() override;
 
-    void OnSceneChange(const Scene& p_scene) override;
-
     const Backend m_backend;
     RenderGraphName m_activeRenderGraphName{ RenderGraphName::SCENE3D };
     bool m_enableValidationLayer;
@@ -107,6 +104,7 @@ protected:
     std::unordered_map<std::string_view, std::shared_ptr<GpuTexture>> m_resourceLookup;
 
     ConcurrentQueue<ImageAsset*> m_loadedImages;
+    ConcurrentQueue<MeshAsset*> m_loadedMeshes;
 
     std::shared_ptr<PipelineStateManager> m_pipelineStateManager;
     std::vector<std::shared_ptr<FrameContext>> m_frameContexts;

@@ -2,6 +2,8 @@
 #include "engine/assets/asset_loader.h"
 #include "engine/ecs/entity.h"
 
+#if 0
+
 namespace tinygltf {
 class Model;
 struct Animation;
@@ -33,3 +35,4 @@ protected:
 };
 
 }  // namespace cave
+#endif

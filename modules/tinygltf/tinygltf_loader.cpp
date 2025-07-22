@@ -1,5 +1,7 @@
 #include "tinygltf_loader.h"
 
+#if 0
+
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
@@ -52,17 +54,17 @@ void TinyGLTFLoader::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     auto& node = m_model->nodes[p_node_index];
 
     if (node.mesh >= 0) {
-        DEV_ASSERT(node.mesh < (int)m_scene->GetCount<MeshComponent>());
+        DEV_ASSERT(node.mesh < (int)m_scene->GetCount<MeshAsset>());
         if (node.skin >= 0) {  // this node is an armature
             entity = m_scene->GetEntity<ArmatureComponent>(node.skin);
-            MeshComponent& mesh = m_scene->m_MeshComponents.GetComponentByIndex(node.mesh);
-            ecs::Entity mesh_id = m_scene->GetEntity<MeshComponent>(node.mesh);
+            MeshAsset& mesh = m_scene->m_MeshComponents.GetComponentByIndex(node.mesh);
+            ecs::Entity mesh_id = m_scene->GetEntity<MeshAsset>(node.mesh);
             DEV_ASSERT(!mesh.joints_0.empty());
             if (mesh.armatureId.IsValid()) {
                 // Reuse mesh with different skin is not possible currently, so we create a new one:
                 LOG_WARN("Re-use mesh for different skin!");
                 mesh_id = entity;
-                MeshComponent& newMesh = m_scene->Create<MeshComponent>(mesh_id);
+                MeshAsset& newMesh = m_scene->Create<MeshAsset>(mesh_id);
                 newMesh = m_scene->m_MeshComponents.GetComponentByIndex(node.mesh);
                 mesh = newMesh;
             }
@@ -76,7 +78,7 @@ void TinyGLTFLoader::ProcessNode(int p_node_index, ecs::Entity p_parent) {
         } else {  // this node is a mesh instance
             entity = EntityFactory::CreateObjectEntity(*m_scene, "Object::" + node.name);
             MeshRenderer& object = *m_scene->GetComponent<MeshRenderer>(entity);
-            object.meshId = m_scene->GetEntity<MeshComponent>(node.mesh);
+            object.meshId = m_scene->GetEntity<MeshAsset>(node.mesh);
         }
     } else if (node.camera >= 0) {
         LOG_WARN("@TODO: camera");
@@ -332,10 +334,10 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
 void TinyGLTFLoader::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
     ecs::Entity mesh_id = EntityFactory::CreateMeshEntity(*m_scene, "Mesh::" + p_gltf_mesh.name);
     // m_scene->Component_Attach(mesh_id, state.rootEntity);
-    MeshComponent& mesh = *m_scene->GetComponent<MeshComponent>(mesh_id);
+    MeshAsset& mesh = *m_scene->GetComponent<MeshAsset>(mesh_id);
 
     for (const auto& prim : p_gltf_mesh.primitives) {
-        MeshComponent::MeshSubset subset;
+        MeshAsset::MeshSubset subset;
         CRASH_NOW();
 #if 0
         if (m_scene->GetCount<MaterialComponent>() == 0) {
@@ -693,3 +695,4 @@ void TinyGLTFLoader::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, in
 }
 
 }  // namespace cave
+#endif

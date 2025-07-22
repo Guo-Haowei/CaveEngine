@@ -8,7 +8,7 @@
 
 namespace cave {
 
-using FilterObjectFunc1 = std::function<bool(const MeshRenderer& p_object)>;
+using FilterObjectFunc1 = std::function<bool(const MeshRendererComponent& p_object)>;
 using FilterObjectFunc2 = std::function<bool(const AABB& p_object_aabb)>;
 
 // @TODO: fix this function OMG
@@ -78,20 +78,19 @@ static void FillPass(const Scene& p_scene,
                      std::vector<RenderCommand>& p_commands,
                      FrameData& p_framedata) {
 
-    for (auto [entity, obj] : p_scene.View<MeshRenderer>()) {
+    for (auto [entity, renderer] : p_scene.View<MeshRendererComponent>()) {
         if (!p_scene.Contains<TransformComponent>(entity)) {
             continue;
         }
 
-        if (!p_filter1(obj)) {
-            continue;
-        }
+        const MeshAsset* _mesh = renderer.GetMeshHandle().Get();
+        if (!_mesh) continue;
+
+        if (!p_filter1(renderer)) continue;
 
         const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-        DEV_ASSERT(p_scene.Contains<MeshComponent>(obj.meshId));
 
-        const MeshComponent& mesh = *p_scene.GetComponent<MeshComponent>(obj.meshId);
-
+        const MeshAsset& mesh = *_mesh;
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         AABB aabb = mesh.localBound;
         aabb.ApplyMatrix(world_matrix);
@@ -144,19 +143,14 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
         const TransformComponent* light_transform = p_scene.GetComponent<TransformComponent>(light_entity);
         DEV_ASSERT(light_transform);
 
-        const MaterialAsset* material = light_component.m_material_handle.Get();
-        if (!material) {
-            continue;
-        }
-
         // SHOULD BE THIS INDEX
         Light& light = cache.c_lights[idx];
         bool cast_shadow = light_component.CastShadow();
         light.cast_shadow = cast_shadow;
         light.type = light_component.GetType();
         // @TODO: [SCRUM-210] fix material
-        light.color = material->base_color.xyz;
-        light.color *= material->emissive;
+        light.color = light_component.GetBaseColor().xyz;
+        light.color *= light_component.GetEmissive();
         switch (light_component.GetType()) {
             case LIGHT_TYPE_INFINITE: {
                 Matrix4x4f light_local_matrix = light_transform->GetLocalMatrix();
@@ -168,7 +162,10 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
 
                 // @TODO: add option to specify extent
                 // @would be nice if can add debug draw
-                const AABB& world_bound = (light_component.HasShadowRegion()) ? light_component.m_shadowRegion : p_scene.GetBound();
+                AABB world_bound = light_component.GetShadowRegion();
+                if (!world_bound.IsValid()) {
+                    world_bound = p_scene.GetBound();
+                }
                 Vector3f center = world_bound.Center();
                 Vector3f extents = world_bound.Size();
 
@@ -194,8 +191,8 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
                 Frustum light_frustum(light.projection_matrix * light.view_matrix);
                 FillPass(
                     p_scene,
-                    [](const MeshRenderer& p_object) {
-                        return p_object.flags & MeshRenderer::FLAG_CAST_SHADOW;
+                    [](const MeshRendererComponent& p_object) {
+                        return p_object.CastShadow();
                     },
                     [&](const AABB& p_aabb) {
                         return light_frustum.Intersects(p_aabb);
@@ -204,16 +201,17 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
                     p_framedata);
             } break;
             case LIGHT_TYPE_POINT: {
-                [[maybe_unused]] const int shadow_map_index = light_component.GetShadowMapIndex();
                 // @TODO: there's a bug in shadow map allocation
-                light.atten_constant = light_component.m_atten.constant;
-                light.atten_linear = light_component.m_atten.linear;
-                light.atten_quadratic = light_component.m_atten.quadratic;
+                light.atten_constant = light_component.GetAttenConstant();
+                light.atten_linear = light_component.GetAttenLinear();
+                light.atten_quadratic = light_component.GetAttenQuadratic();
                 light.position = light_component.GetPosition();
                 light.cast_shadow = cast_shadow;
                 light.max_distance = light_component.GetMaxDistance();
                 LOG_WARN("TODO: fix light");
+                CRASH_NOW();
 #if 0
+                [[maybe_unused]] const int shadow_map_index = light_component.GetShadowMapIndex();
                 if (cast_shadow && shadow_map_index != -1) {
                     light.shadow_map_index = shadow_map_index;
 
@@ -355,17 +353,19 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     FilterFunc filter_main = [&](const AABB& p_aabb) -> bool { return camera_frustum.Intersects(p_aabb); };
 
     const bool is_opengl = p_framedata.options.isOpengl;
-    for (auto [entity, obj] : scene.View<MeshRenderer>()) {
-        const bool is_renderable = obj.flags & MeshRenderer::FLAG_RENDERABLE;
-        const bool is_transparent = obj.flags & MeshRenderer::FLAG_TRANSPARENT;
+    for (auto [entity, obj] : scene.View<MeshRendererComponent>()) {
+        const MeshAsset* _mesh = obj.GetMeshHandle().Get();
+        if (_mesh == nullptr) continue;
+        const MeshAsset& mesh = *_mesh;
+
+        const bool is_renderable = obj.IsVisible();
+        const bool is_transparent = obj.Transparency();
         const bool is_opaque = is_renderable && !is_transparent;
 
         // @TODO: cast shadow
 
         const TransformComponent& transform = *scene.GetComponent<TransformComponent>(entity);
         DEV_ASSERT(scene.Contains<TransformComponent>(entity));
-        const MeshComponent& mesh = *scene.GetComponent<MeshComponent>(obj.meshId);
-        DEV_ASSERT(scene.Contains<MeshComponent>(obj.meshId));
 
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         AABB aabb = mesh.localBound;

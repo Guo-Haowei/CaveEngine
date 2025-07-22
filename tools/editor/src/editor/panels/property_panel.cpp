@@ -164,6 +164,17 @@ bool DrawComponentAuto(T* p_component) {
                     q = Vector4f(q2.x, q2.y, q2.z, q2.w);
                 }
             } break;
+            case EditorHint::DragFloat: {
+                float& f = field->GetData<float>(p_component);
+                if (DrawDragFloat(field->name,
+                                  f,
+                                  0.1f,  // speed
+                                  0.0f,  // min
+                                  1.0f,  // max
+                                  COMPONENT_FIELD_NAME_WIDTH)) {
+                    dirty = true;
+                }
+            } break;
             default:
                 break;
         }
@@ -217,7 +228,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
 
     // @TODO: see how much this can be done with meta table
 
-    MeshRenderer* mesh_renderer = scene.GetComponent<MeshRenderer>(id);
+    MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
     SpriteRendererComponent* sprite_renderer = scene.GetComponent<SpriteRendererComponent>(id);
     TileMapRendererComponent* tile_map_renderer = scene.GetComponent<TileMapRendererComponent>(id);
     AnimatorComponent* animator_component = scene.GetComponent<AnimatorComponent>(id);
@@ -235,9 +246,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     EnvironmentComponent* environment_component = scene.GetComponent<EnvironmentComponent>(id);
     VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
     AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
-
-    // change to asset
-    MeshComponent* mesh_component = mesh_renderer ? scene.GetComponent<MeshComponent>(mesh_renderer->meshId) : nullptr;
 
     bool disable_translation = false;
     bool disable_rotation = false;
@@ -272,9 +280,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("Light", light_component, [&](LightComponent& p_light) {
-        bool dirty = false;
-        unused(dirty);
-
+        // @TODO: refactor
         switch (p_light.GetType()) {
             case LIGHT_TYPE_INFINITE:
                 ImGui::Text("infinite light");
@@ -286,16 +292,10 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
                 break;
         }
 
-        bool cast_shadow = p_light.CastShadow();
-        ImGui::Checkbox("Cast shadow", &cast_shadow);
-        if (cast_shadow != p_light.CastShadow()) {
-            p_light.SetCastShadow(cast_shadow);
+        bool dirty = DrawComponentAuto<LightComponent>(&p_light);
+        if (dirty) {
             p_light.SetDirty();
         }
-
-        dirty |= DrawDragFloat("constant", p_light.m_atten.constant, 0.1f, 0.0f, 1.0f);
-        dirty |= DrawDragFloat("linear", p_light.m_atten.linear, 0.1f, 0.0f, 1.0f);
-        dirty |= DrawDragFloat("quadratic", p_light.m_atten.quadratic, 0.1f, 0.0f, 1.0f);
         ImGui::Text("max distance: %0.3f", p_light.GetMaxDistance());
     });
 
@@ -388,19 +388,8 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
-    DrawComponent("MeshRenderer", mesh_renderer, [&](MeshRenderer& p_object) {
-        bool hide = !(p_object.flags & MeshRenderer::FLAG_RENDERABLE);
-        bool cast_shadow = p_object.flags & MeshRenderer::FLAG_CAST_SHADOW;
-        ImGui::Checkbox("Hide", &hide);
-        ImGui::Checkbox("Cast shadow", &cast_shadow);
-        p_object.flags = (hide ? 0 : MeshRenderer::FLAG_RENDERABLE);
-        p_object.flags |= (cast_shadow ? MeshRenderer::FLAG_CAST_SHADOW : 0);
-    });
-
-    DrawComponent("Mesh", mesh_component, [&](MeshComponent& mesh) {
-        ImGui::Text("%zu triangles", mesh.indices.size() / 3);
-        ImGui::Text("v:%zu, n:%zu, u:%zu, b:%zu", mesh.positions.size(), mesh.normals.size(),
-                    mesh.texcoords_0.size(), mesh.weights_0.size());
+    DrawComponent("MeshRendererComponent", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
+        DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
     });
 
     DrawComponent("Animation", animation_component, [&](AnimationComponent& p_animation) {
