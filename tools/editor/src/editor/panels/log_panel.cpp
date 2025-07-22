@@ -41,7 +41,16 @@ void LogPanel::UpdateInternal(Scene*) {
     auto& logger = CompositeLogger::GetSingleton();
     std::vector<cave::CompositeLogger::Log> logs;
     logger.RetrieveLog(logs);
+
+    m_warning_count = m_error_count = 0;
+
     for (const auto& log : logs) {
+        if (log.level & LogLevel::LOG_LEVEL_ERROR) {
+            ++m_error_count;
+        } else if (log.level & LogLevel::LOG_LEVEL_WARN) {
+            ++m_warning_count;
+        }
+
         if (log.level & m_filter) {
             ImGui::PushStyleColor(ImGuiCol_Text, GetLogLevelColor(log.level));
             ImGui::TextUnformatted(log.buffer);
@@ -49,10 +58,10 @@ void LogPanel::UpdateInternal(Scene*) {
         }
     }
 
-    if (m_scrollToBottom || (m_autoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
+    if (m_scroll_to_bottom || (m_auto_scroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
         ImGui::SetScrollHereY(1.0f);
     }
-    m_scrollToBottom = false;
+    m_scroll_to_bottom = false;
 
     ImGui::PopStyleVar();
     ImGui::EndChild();

@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/assets/image_asset.h"
+#include "engine/assets/tile_set_asset.h"
 #include "engine/input/input_event.h"
 #include "engine/scene/entity_factory.h"
 #include "editor/editor_layer.h"
@@ -11,10 +12,6 @@
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 #include "editor/tile_map_editor/tile_map_document.h"
-
-// @TODO: refactor
-// #include "engine/assets/blob_asset.h"
-#include "engine/assets/tile_set_asset.h"
 
 namespace cave {
 

@@ -12,6 +12,7 @@
 #endif
 
 #include "engine/renderer/graphics_dvars.h"
+#include "engine/scripting/lua/lua_script_manager.h"
 
 namespace cave {
 
@@ -227,10 +228,8 @@ ISceneManager* CreateSceneManager() {
 }
 
 IScriptManager* CreateScriptManager() {
-    return CreateModule<IScriptManager, NullScriptManager>();
+    return CreateModule<IScriptManager, LuaScriptManager>();
 }
-
-// ISceneManager*
 
 static IGraphicsManager* SelectGraphicsManager(const std::string& p_backend) {
     if (p_backend == "d3d11") {

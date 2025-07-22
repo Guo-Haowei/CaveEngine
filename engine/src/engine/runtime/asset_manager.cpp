@@ -3,8 +3,6 @@
 #include <filesystem>
 #include <fstream>
 
-// @TODO: get rid of this file
-// #include "engine/assets/blob_asset.h"
 #include "engine/assets/asset_loader.h"
 #include "engine/assets/image_asset.h"
 #include "engine/assets/material_asset.h"
