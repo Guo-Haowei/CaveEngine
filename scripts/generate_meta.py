@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import sys
 
 def get_engine_src_folder():
@@ -24,6 +25,7 @@ FILES = [
     'scene/animator_component.h',
     'scene/camera_component.h',
     'scene/light_component.h',
+    'scene/lua_script_component.h',
     'scene/transform_component.h',
     'scene/scene_component.h',
 
@@ -159,6 +161,11 @@ def generate_meta_file(base_path, file_path, metas):
     return os.path.basename(output_file)
 
 def main():
+    if os.path.exists(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
+
+    os.makedirs(OUTPUT_DIR)
+
     generated_files = []
 
     for base_path in FILES:

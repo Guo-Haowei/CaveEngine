@@ -32,46 +32,59 @@ Scene* EditorSceneManager::CreateDefaultScene() {
     return scene;
 }
 
-void EditorSceneManager::SetTmpScene(const std::shared_ptr<Scene>& p_scene) {
-    m_tmp_scene = p_scene;
-}
-
 void EditorSceneManager::Update() {
     SceneManager::Update();
 
-    auto it = m_caches.begin();
-    for (; it != m_caches.end(); ++it) {
-        if (it->second.use_count() == 1) {
+    auto it = m_scenes.begin();
+    for (; it != m_scenes.end(); ++it) {
+        if (it->second.scene.use_count() == 1) {
             break;
         }
     }
 
-    if (it != m_caches.end()) {
-        m_caches.erase(it);
+    if (it != m_scenes.end()) {
+        LOG_VERBOSE("Unloading scene '{}'...", it->first);
+        m_scenes.erase(it);
     }
 }
 
 void EditorSceneManager::OpenScene(const Guid& p_guid, std::shared_ptr<Scene>& p_scene) {
-    auto [_, ok] = m_caches.try_emplace(p_guid, p_scene);
+    std::string id = p_guid.ToString();
+    auto [_, ok] = m_scenes.try_emplace(id, SceneHandle{ SceneType::Disk, p_scene });
     DEV_ASSERT(ok);
-
     return;
 }
 
-std::shared_ptr<Scene> EditorSceneManager::OpenTemporaryScene(const Guid& p_guid,
-                                                              const CreateSceneFunc& p_func) {
+void EditorSceneManager::OpenSimScene(const std::shared_ptr<Scene>& p_scene) {
+    m_sim_scene = p_scene;
+}
+
+void EditorSceneManager::CloseSimScene() {
+    m_sim_scene.reset();
+}
+
+void EditorSceneManager::OpenTempScene(const std::shared_ptr<Scene>& p_scene) {
+    m_tmp_scene = p_scene;
+}
+
+std::shared_ptr<Scene> EditorSceneManager::CreateTempScene(const Guid& p_guid,
+                                                           const CreateSceneFunc& p_func) {
+    std::string id = p_guid.ToString();
+    DEV_ASSERT(m_scenes.find(id) == m_scenes.end());
+
     auto scene = p_func();
 
-    auto [_, ok] = m_caches.try_emplace(p_guid, scene);
-    DEV_ASSERT(ok);
-
+    m_scenes.insert({ std::move(id), { SceneType::Temp, scene } });
     return scene;
 }
 
-Scene* EditorSceneManager::GetActiveScene() const {
-    auto lock = m_tmp_scene.lock();
-    if (lock) {
-        return lock.get();
+std::shared_ptr<Scene> EditorSceneManager::GetActiveScene() const {
+    if (auto lock = m_sim_scene.lock(); lock) {
+        return lock;
+    }
+
+    if (auto lock = m_tmp_scene.lock(); lock) {
+        return lock;
     }
 
     return nullptr;

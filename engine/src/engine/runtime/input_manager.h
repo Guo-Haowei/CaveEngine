@@ -6,6 +6,9 @@
 
 namespace cave {
 
+using StringId = std::string;
+#define STR_ID(x) (x)
+
 class InputManager : public Singleton<InputManager>,
                      public Module,
                      public MouseButtonBase {
@@ -24,14 +27,20 @@ public:
     void PushInputHandler(IInputHandler* p_input_handler);
     IInputHandler* PopInputHandler();
 
-protected:
+    // Should only use for lua binding
+    bool IsActionPressed(StringId p_name);
+    bool IsActionJustPressed(StringId p_name);
+    bool IsActionJustReleased(StringId p_name);
+
     Vector2f MouseMove();
+    const Vector2f& GetCursor() const { return m_cursor; }
+
+protected:
     bool IsKeyDown(KeyCode p_key);
     bool IsKeyPressed(KeyCode p_key);
     bool IsKeyReleased(KeyCode p_key);
     Vector2f GetWheel() const;
 
-    const Vector2f& GetCursor() const { return m_cursor; }
     void SetKey(KeyCode p_key, bool p_pressed);
     void SetCursor(float p_x, float p_y);
     void SetWheel(double p_x, double p_y);
@@ -48,6 +57,8 @@ protected:
     bool m_mouseMoved{ false };
 
     InputRouter m_router;
+
+    std::unordered_map<StringId, uint16_t> m_input_binding;
 
     friend class GlfwDisplayManager;
     friend class Win32DisplayManager;

@@ -17,6 +17,7 @@
 #include "engine/runtime/imgui_manager.h"
 #include "engine/runtime/input_manager.h"
 #include "engine/runtime/layer.h"
+#include "engine/runtime/mode_manager.h"
 #include "engine/runtime/module_registry.h"
 #include "engine/runtime/render_system.h"
 #include "engine/runtime/scene_manager_interface.h"
@@ -59,6 +60,10 @@ Application::Application(const ApplicationSpec& p_spec, Type p_type)
     m_userFolder = std::string{ m_specification.userFolder };
 
     FileAccess::SetUserFolderCallback([&]() { return m_userFolder.c_str(); });
+}
+
+ModeManager& Application::GetModeManager() {
+    return *m_mode_manager.get();
 }
 
 void Application::AttachLayer(Layer* p_layer) {
@@ -270,12 +275,17 @@ bool Application::MainLoop() {
     // === Update Phase ===
     const float timestep = UpdateTime();
 
-    // 1. scene manager checks for update, and if it's necessary to swap scene
-    // 2. renderer builds render data
-    // 3. editor modifies scene
-    // 4. script manager updates logic
-    // 5. phyiscs manager updates physics
-    // 6. graphcs manager renders (optional: on another thread)
+    /*
+    @TODO: refactor this to update in the following order
+    1. Input System            (poll input, dispatch events)
+    2. Script System           (Lua or custom scripts modify components)
+    3. Animation System        (update animation timers & apply output to transforms, visuals)
+    4. Transformation System   (update local-to-world matrices, resolve hierarchy)
+    5. Physics System          (simulate rigidbodies, detect collisions)
+    6. Late Script Callbacks   (optional scripts react to post-physics state)
+    7. Rendering Prep          (culling, batching, sorting)
+    8. Render System           (submit to GPU)
+    */
 
     m_scene_manager->Update();
 
@@ -297,19 +307,29 @@ bool Application::MainLoop() {
         ImGui::Render();
     }
 
-    Scene* scene = m_scene_manager->GetActiveScene();
+    const GameMode game_mode = m_mode_manager->GetMode();
+    // change game mode from here
+
+    // @TODO: set mode here
+    std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
+
+    if (scene && game_mode == GameMode::Gameplay) {
+        m_script_manager->Update(*scene, timestep);
+    }
+
     if (scene) {
         scene->Update(timestep);
     }
-    m_render_system->RenderFrame(scene);
 
-    if (scene && m_state == State::SIM) {
-        m_script_manager->Update(*scene, timestep);
+    // @TODO: register system instead of if else
+    if (scene && game_mode == GameMode::Gameplay) {
         m_physics_manager->Update(*scene, timestep);
     }
 
+    m_render_system->RenderFrame(scene.get());
+
     // === Rendering Phase ===
-    m_graphics_manager->Update(scene);
+    m_graphics_manager->Update(scene.get());
 
     // === End Frame ===
     m_input_manager->EndFrame();
@@ -336,44 +356,19 @@ void Application::Run(Application* p_app) {
         "\n********************************************************************************");
 }
 
+GameLayer* Application::GetGameLayer() {
+    return m_game_layer.get();
+}
+
 void Application::AttachGameLayer() {
-    if (m_gameLayer) {
-        AttachLayer(m_gameLayer.get());
+    if (m_game_layer) {
+        AttachLayer(m_game_layer.get());
     }
 }
 
 void Application::DetachGameLayer() {
-    if (m_gameLayer) {
-        DetachLayer(m_gameLayer.get());
-    }
-}
-
-// @TODO: refactor this
-void Application::SetState(State p_state) {
-    switch (p_state) {
-        case State::BEGIN_SIM: {
-            if (DEV_VERIFY(m_state == State::EDITING)) {
-                m_state = p_state;
-            }
-        } break;
-        case State::END_SIM: {
-            if (DEV_VERIFY(m_state == State::SIM)) {
-                m_state = p_state;
-            }
-        } break;
-        case State::SIM: {
-            if (DEV_VERIFY(m_state == State::BEGIN_SIM)) {
-                m_state = p_state;
-            }
-        } break;
-        case State::EDITING: {
-            if (DEV_VERIFY(m_state == State::END_SIM)) {
-                m_state = p_state;
-            }
-        } break;
-        default:
-            CRASH_NOW();
-            break;
+    if (m_game_layer) {
+        DetachLayer(m_game_layer.get());
     }
 }
 

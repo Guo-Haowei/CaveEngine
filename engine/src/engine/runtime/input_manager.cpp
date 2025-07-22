@@ -5,6 +5,10 @@
 namespace cave {
 
 auto InputManager::InitializeImpl() -> Result<void> {
+    m_input_binding[STR_ID("ui_left")] = std::to_underlying(KeyCode::KEY_A);
+    m_input_binding[STR_ID("ui_right")] = std::to_underlying(KeyCode::KEY_D);
+    m_input_binding[STR_ID("ui_up")] = std::to_underlying(KeyCode::KEY_W);
+    m_input_binding[STR_ID("ui_down")] = std::to_underlying(KeyCode::KEY_S);
     return Result<void>();
 }
 
@@ -98,16 +102,30 @@ bool InputManager::IsKeyDown(KeyCode p_key) {
 
 bool InputManager::IsKeyPressed(KeyCode p_key) {
     unused(p_key);
-    CRASH_NOW();
-    return false;
-    // return InputHasChanged(m_keys, m_prevKeys, std::to_underlying(p_key));
+    return InputHasChanged(m_keys, m_prevKeys, std::to_underlying(p_key));
 }
 
 bool InputManager::IsKeyReleased(KeyCode p_key) {
-    unused(p_key);
-    CRASH_NOW();
-    return false;
-    // return InputHasChanged(m_prevKeys, m_keys, std::to_underlying(p_key));
+    return InputHasChanged(m_prevKeys, m_keys, std::to_underlying(p_key));
+}
+
+// @TODO: support controller, touch screen, etc
+bool InputManager::IsActionPressed(StringId p_name) {
+    auto it = m_input_binding.find(p_name);
+    if (it == m_input_binding.end()) return false;
+    return IsKeyDown(static_cast<KeyCode>(it->second));
+}
+
+bool InputManager::IsActionJustPressed(StringId p_name) {
+    auto it = m_input_binding.find(p_name);
+    if (it == m_input_binding.end()) return false;
+    return IsKeyReleased(static_cast<KeyCode>(it->second));
+}
+
+bool InputManager::IsActionJustReleased(StringId p_name) {
+    auto it = m_input_binding.find(p_name);
+    if (it == m_input_binding.end()) return false;
+    return IsKeyReleased(static_cast<KeyCode>(it->second));
 }
 
 Vector2f InputManager::MouseMove() {

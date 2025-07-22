@@ -49,12 +49,15 @@ entities:
       looping: true
       playing: true
       speed: 1
+    LuaScriptComponent:
+      class_name: "Player"
+      source_id: 133E5416-E5D5-BA4A-9F13460A05C8D6EA
     SpriteRendererComponent:
       image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0.5, 0.5]
-        max: [0.625, 0]
+        min: [0.875, 0.5]
+        max: [1, 0]
       flip_x: false
       flip_y: false
       is_billboard: false

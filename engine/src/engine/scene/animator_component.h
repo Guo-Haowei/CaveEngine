@@ -28,17 +28,12 @@ class AnimatorComponent {
     float m_speed = 1.0f;
 
     // Non-serialized
-
-    struct {
-        mutable float timer{ 0 };
-        float start{ 0 };
-        float end{ 0 };
-    } m_playback_timer{};
+    float m_playback_timer{ 0 };
 
     Handle<SpriteAnimationAsset> m_anim_handle;
 
 public:
-    void SetClip(const std::string& p_name, bool p_looping, float p_duration);
+    void SetClip(const std::string& p_name);
     const std::string& GetCurrentClip() const { return m_current_clip; }
 
     void SetResourceGuid(const Guid& p_guid);
@@ -52,7 +47,7 @@ public:
     void SetLooping(bool p_looping = true) { m_looping = p_looping; }
     bool IsLooping() const { return m_looping; }
 
-    const auto& GetPlaybackTimer() const { return m_playback_timer; }
+    float& GetPlaybackTimerRef() { return m_playback_timer; }
 
     void OnDeserialized();
 

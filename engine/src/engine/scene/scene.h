@@ -11,6 +11,7 @@
 #include "engine/scene/animator_component.h"
 #include "engine/scene/camera_component.h"
 #include "engine/scene/light_component.h"
+#include "engine/scene/lua_script_component.h"
 #include "engine/scene/mesh_renderer.h"
 #include "engine/scene/transform_component.h"
 #include "engine/scene/sprite_renderer_component.h"
@@ -18,8 +19,6 @@
 
 // @TODO: remove
 #include "engine/assets/mesh_asset.h"
-
-struct lua_State;
 
 namespace cave::jobsystem {
 class Context;
@@ -185,7 +184,6 @@ public:
 
     PhysicsMode m_physicsMode{ PhysicsMode::NONE };
     mutable PhysicsWorldContext* m_physicsWorld{ nullptr };
-    mutable lua_State* L{ nullptr };
 
     const auto& GetLibraryEntries() const { return m_componentLib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }

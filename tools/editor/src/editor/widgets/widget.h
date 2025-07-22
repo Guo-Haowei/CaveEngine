@@ -59,9 +59,7 @@ bool DrawColorPicker4(const char* p_label,
 
 bool ToggleButton(const char* p_str_id, bool& p_value);
 
-using DragDropFunc = std::function<void(AssetHandle&)>;
-
-bool DragDropTarget(AssetType p_mask, const DragDropFunc& p_callback);
+Option<AssetHandle> DragDropTarget(AssetType p_mask);
 
 /// image
 void CenteredImage(const ImageAsset* p_image,

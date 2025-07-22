@@ -33,22 +33,16 @@ struct ApplicationSpec {
     bool enableImgui;
 };
 
+class ModeManager;
+
 class Application : public NonCopyable {
 public:
-    enum class State : uint8_t {
-        EDITING,
-        SIM,
-        BEGIN_SIM,
-        END_SIM,
-        COUNT,
-    };
-
     enum class Type : uint32_t {
-        RUNTIME,
-        EDITOR,
+        Runtime,
+        Editor,
     };
 
-    Application(const ApplicationSpec& p_spec, Type p_type = Type::RUNTIME);
+    Application(const ApplicationSpec& p_spec, Type p_type = Type::Runtime);
     virtual ~Application() = default;
 
     auto Initialize(int p_argc, const char** p_argv) -> Result<void>;
@@ -77,13 +71,13 @@ public:
     const std::string& GetUserFolder() const { return m_userFolder; }
     const std::string& GetResourceFolder() const { return m_resourceFolder; }
 
-    State GetState() const { return m_state; }
-    void SetState(State p_state);
+    ModeManager& GetModeManager();
 
-    bool IsRuntime() const { return m_type == Type::RUNTIME; }
-    bool IsEditor() const { return m_type == Type::EDITOR; }
-
+    GameLayer* GetGameLayer();
     virtual CameraComponent* GetActiveCamera() = 0;
+
+    bool IsRuntime() const { return m_type == Type::Runtime; }
+    bool IsEditor() const { return m_type == Type::Editor; }
 
 protected:
     [[nodiscard]] auto SetupModules() -> Result<void>;
@@ -100,7 +94,10 @@ protected:
     void SaveCommandLine(int p_argc, const char** p_argv);
     void RegisterModule(Module* p_module);
 
-    std::unique_ptr<GameLayer> m_gameLayer;
+    const Type m_type;
+    std::unique_ptr<ModeManager> m_mode_manager;
+
+    std::unique_ptr<GameLayer> m_game_layer;
     std::vector<Layer*> m_layers;
 
     std::vector<std::string> m_commandLine;
@@ -124,9 +121,6 @@ protected:
     InputManager* m_input_manager{ nullptr };
 
     std::vector<Module*> m_modules;
-
-    const Type m_type;
-    State m_state{ State::EDITING };
 
     Timer m_timer;
 };

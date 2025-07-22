@@ -178,7 +178,7 @@ public:
     void Update(Scene&, float) override {}
 
     void OnSimBegin(Scene&) override {}
-    void OnSimEnd(Scene&) override {}
+    void OnSimEnd() override {}
 };
 
 class NullSceneManager : public ISceneManager {
@@ -189,7 +189,7 @@ public:
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}
 
-    Scene* GetActiveScene() const override { return nullptr; }
+    std::shared_ptr<Scene> GetActiveScene() const override { return nullptr; }
 
     void Update() override {}
 
@@ -202,7 +202,7 @@ public:
         : IScriptManager("NullScriptManager") {}
 
     virtual void OnSimBegin(Scene&) {}
-    virtual void OnSimEnd(Scene&) {}
+    virtual void OnSimEnd() {}
 
     virtual void Update(Scene&, float) {}
     virtual void OnCollision(Scene&, ecs::Entity, ecs::Entity) {}

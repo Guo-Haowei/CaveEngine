@@ -174,7 +174,8 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 
 void EditorLayer::SelectEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
-    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
+    // @TODO: fix this part
+    auto scene = m_app->GetSceneManager()->GetActiveScene();
     scene->m_selected = m_selected;
 }
 
@@ -226,47 +227,11 @@ void EditorLayer::OnUpdate(float p_timestep) {
 
     // Scene* scene = SceneManager::GetSingleton().GetScenePtr();
     // Scene* scene = nullptr;
-#if 0
-    switch (m_app->GetState()) {
-        case Application::State::EDITING: {
-            m_app->SetActiveScene(scene);
-        } break;
-        case Application::State::BEGIN_SIM: {
-            DEV_ASSERT(m_simScene == nullptr);
-
-            m_simScene = new Scene;
-            m_simScene->Copy(*scene);
-            m_simScene->Update(0.0f);
-
-            m_app->SetActiveScene(m_simScene);
-            m_app->SetState(Application::State::SIM);
-
-            m_app->AttachGameLayer();
-        } break;
-        case Application::State::END_SIM: {
-            m_app->DetachGameLayer();
-
-            m_app->SetActiveScene(scene);
-            m_app->SetState(Application::State::EDITING);
-
-            if (DEV_VERIFY(m_simScene)) {
-                delete m_simScene;
-                m_simScene = nullptr;
-            }
-        } break;
-        case Application::State::SIM: {
-            DEV_ASSERT(m_simScene);
-            m_app->SetActiveScene(m_simScene);
-        } break;
-        default:
-            CRASH_NOW();
-            break;
-    }
-#endif
 }
 
 void EditorLayer::OnImGuiRender() {
-    Scene* scene = m_app->GetSceneManager()->GetActiveScene();
+    // @TODO: DO NOT Request SCENE here
+    Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();
 
     FlushInputEvents();
 

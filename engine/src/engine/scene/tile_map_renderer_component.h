@@ -38,7 +38,7 @@ public:
     bool GetVisibility() const { return m_visibility; }
     const auto& GetCache() const { return m_cache; }
 
-    bool SetResourceGuid(const Guid& p_guid);
+    void SetResourceGuid(const Guid& p_guid);
     const Guid& GetResourceGuid() const { return m_tile_map_id; }
 
     void SetTintColor(const Vector4f& p_tint_color);

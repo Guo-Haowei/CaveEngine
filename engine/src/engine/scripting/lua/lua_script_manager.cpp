@@ -86,7 +86,7 @@ static int CreateInstance(const ObjectFunctions& p_meta, lua_State* L, Args&&...
 }
 
 void LuaScriptManager::OnSimBegin(Scene& p_scene) {
-    p_scene.L = nullptr;
+    m_state = nullptr;
 
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -105,96 +105,88 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
 
     if (auto res = luabridge::push(L, &p_scene); !res) {
         LOG_ERROR("failed to push scene, error: {}", res.message());
+        lua_close(L);
         return;
     }
     lua_setglobal(L, LUA_GLOBAL_SCENE);
 
-    p_scene.L = L;
-
     for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
-        if (script.m_path.empty()) {
+        if (script.m_source_id.IsNull()) {
             continue;
         }
 
-        const auto& meta = FindOrAdd(L, script.m_path, script.m_class_name.c_str());
+        const auto& meta = FindOrAdd(L, script.m_source_id, script.m_class_name.c_str());
         if (script.m_instance == 0) {
             const auto instance = CreateInstance(meta, L, entity.GetId());
             script.m_instance = instance;
         }
     }
 
-    // @TODO: call Game.new
-    // @TODO: do not call it
-    const auto& meta = FindOrAdd(L, "@res://scripts/game.lua", "Game");
-    m_gameRef = CreateInstance(meta, L);
+    m_state = L;
     return;
 }
 
-void LuaScriptManager::OnSimEnd(Scene& p_scene) {
-    m_objectsMeta.clear();
+void LuaScriptManager::OnSimEnd() {
+    m_objects_meta.clear();
 
-    if (p_scene.L) {
-        lua_close(p_scene.L);
-        p_scene.L = nullptr;
+    if (m_state) {
+        lua_close(m_state);
+        m_state = nullptr;
     }
-    m_gameRef = 0;
 }
 
 void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
     CAVE_PROFILE_EVENT();
 
-    if (DEV_VERIFY(p_scene.L)) {
-        lua_State* L = p_scene.L;
+    lua_State* L = m_state;
+
+    if (DEV_VERIFY(L)) {
         const lua_Number timestep = p_timestep;
 
-        EntityCall(L, m_gameRef, "OnUpdate", timestep);
-
-        for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
-            if (script.m_path.empty()) {
+        for (auto [entity, script] : p_scene.View<LuaScriptComponent>()) {
+            if (script.m_source_id.IsNull()) {
                 continue;
             }
 
             if (DEV_VERIFY(script.m_instance)) {
-                EntityCall(L, script.m_instance, "OnUpdate", timestep);
+                EntityCall(L, script.m_instance, "_process", timestep);
             }
         }
     }
 }
 
 void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) {
-
-    lua_State* L = p_scene.L;
+    lua_State* L = m_state;
     if (DEV_VERIFY(L)) {
         LuaScriptComponent* script_1 = p_scene.GetComponent<LuaScriptComponent>(p_entity_1);
         LuaScriptComponent* script_2 = p_scene.GetComponent<LuaScriptComponent>(p_entity_2);
 
         if (script_1 && script_1->m_instance) {
-            EntityCall(L, script_1->m_instance, "OnCollision", p_entity_2.GetId());
+            EntityCall(L, script_1->m_instance, "_on_collision", p_entity_2.GetId());
         }
 
         if (script_2 && script_2->m_instance) {
-            EntityCall(L, script_2->m_instance, "OnCollision", p_entity_1.GetId());
+            EntityCall(L, script_2->m_instance, "_on_collision", p_entity_1.GetId());
         }
     }
 }
 
-Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const std::string& p_path, const char* p_class_name, ObjectFunctions& p_meta) {
+Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const Guid& p_guid, const char* p_class_name, ObjectFunctions& p_meta) {
     auto asset_registry = m_app->GetAssetRegistry();
-    [[maybe_unused]]
-    auto handle = asset_registry->FindByPath<BlobAsset>(p_path);
-    DEV_ASSERT(0);
-
-#if 0
-    auto source = dynamic_cast<const TextAsset*>(handle.Wait().get());
-    if (!source) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "file {} not found", p_path);
+    auto _handle = asset_registry->FindByGuid<BlobAsset>(p_guid);
+    if (_handle.is_none()) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", p_guid.ToString());
     }
 
-    if (luaL_dostring(L, source->source.c_str()) != LUA_OK) {
-        LOG_ERROR("failed to execute script '{}', error: '{}'", source->source, lua_tostring(L, -1));
+    const BlobAsset* blob = _handle.unwrap_unchecked().Get();
+    if (!blob) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not loaded", p_guid.ToString());
+    }
+
+    if (luaL_dostring(L, blob->c_str()) != LUA_OK) {
+        LOG_ERROR("failed to execute script '{}', error: '{}'", blob->c_str(), lua_tostring(L, -1));
         return CAVE_ERROR(ErrorCode::ERR_SCRIPT_FAILED);
     }
-#endif
 
     // check if function exists
     lua_getglobal(L, p_class_name);
@@ -207,23 +199,24 @@ Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const std::string& p_
     if (ref == LUA_REFNIL) {
         CRASH_NOW();
     }
+
     p_meta.funcNew = ref;
     return Result<void>();
 }
 
-ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const std::string& p_path, const char* p_class_name) {
-    auto it = m_objectsMeta.find(p_path);
-    if (it != m_objectsMeta.end()) {
+ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
+    auto it = m_objects_meta.find(p_guid);
+    if (it != m_objects_meta.end()) {
         return it->second;
     }
 
     ObjectFunctions meta;
-    if (auto res = LoadMetaTable(L, p_path, p_class_name, meta); !res) {
+    if (auto res = LoadMetaTable(L, p_guid, p_class_name, meta); !res) {
         StringStreamBuilder builder;
         builder << res.error();
         LOG_ERROR("{}", builder.ToString());
     } else {
-        m_objectsMeta[p_path] = meta;
+        m_objects_meta[p_guid] = meta;
     }
 
     return meta;

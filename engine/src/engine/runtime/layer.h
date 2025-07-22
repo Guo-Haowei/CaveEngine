@@ -4,6 +4,7 @@
 namespace cave {
 
 class Application;
+class Scene;
 
 class Layer : public NonCopyable {
 public:
@@ -37,9 +38,13 @@ public:
 
     void OnUpdate(float) override {}
 
+    void SetActiveScene(std::shared_ptr<Scene>&& p_scene);
+
 protected:
     virtual void OnAttachInternal() {}
     virtual void OnDetachInternal() {}
+
+    std::shared_ptr<Scene> m_scene;
 };
 
 }  // namespace cave

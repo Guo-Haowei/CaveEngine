@@ -5,6 +5,8 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
+#include "engine/runtime/layer.h"
+#include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
@@ -16,17 +18,63 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+class EditorModeManager : public ModeManager {
+public:
+    EditorModeManager(Application& p_app)
+        : ModeManager(GameMode::Editor, p_app) {}
+
+    void SetMode(GameMode p_mode) {
+        LOG("attempt to transit from mode {} to {}", (int)m_mode, (int)p_mode);
+        if (p_mode == m_mode) {
+            return;
+        }
+
+        auto& scene_manager = reinterpret_cast<EditorSceneManager&>(ISceneManager::GetSingleton());
+        GameLayer* game_layer = m_app.GetGameLayer();
+        DEV_ASSERT(game_layer);
+        switch (p_mode) {
+            case GameMode::Editor: {
+                m_app.DetachGameLayer();
+                game_layer->SetActiveScene(nullptr);
+                scene_manager.CloseSimScene();
+            } break;
+            case GameMode::Gameplay: {
+                std::shared_ptr<Scene> sim_scene = std::make_shared<Scene>();
+                {
+                    std::shared_ptr<Scene> current_scene = scene_manager.GetActiveScene();
+                    sim_scene->Copy(*current_scene);
+                    sim_scene->Update(0.0f);
+                }
+
+                scene_manager.OpenSimScene(sim_scene);
+                game_layer->SetActiveScene(std::move(sim_scene));
+                m_app.AttachGameLayer();
+            } break;
+            case GameMode::CutScene:
+            case GameMode::Loading:
+            case GameMode::Paused:
+            default:
+                CRASH_NOW_MSG("mode not supported");
+                break;
+        }
+
+        m_mode = p_mode;
+    }
+};
+
 class Editor : public Application {
 public:
     Editor(const ApplicationSpec& p_spec)
-        : Application(p_spec, Application::Type::EDITOR) {}
+        : Application(p_spec, Application::Type::Editor) {
+        m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
+    }
 
     void InitLayers() override {
         m_editorLayer = std::make_unique<EditorLayer>();
         AttachLayer(m_editorLayer.get());
 
         // Only creates game layer, don't attach yet
-        m_gameLayer = std::make_unique<GameLayer>("GameLayer");
+        m_game_layer = std::make_unique<GameLayer>("GameLayer");
     }
 
     CameraComponent* GetActiveCamera() override {

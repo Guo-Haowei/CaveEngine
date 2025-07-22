@@ -54,29 +54,53 @@ static void DrawComponent(const std::string& p_name, T* p_component, UIFunction 
     }
 }
 
-void DrawAsset(const Guid& p_guid, const DragDropFunc& p_callback) {
-    AssetHandle handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
-    const AssetMetaData* meta = handle.GetMeta();
-    DEV_ASSERT(meta);
-    const IAsset* asset = handle.Get();
+template<typename T>
+concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
+    { t.SetResourceGuid(guid) } -> std::same_as<void>;
+};
 
-    ImGui::Text(ICON_FA_CUBE "  %s", meta->name.c_str());
+static_assert(HasSetResourceGuid<LuaScriptComponent>);
+
+constexpr float COMPONENT_FIELD_NAME_WIDTH = 150.f;
+
+template<typename T>
+void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
+    auto handle_ = AssetRegistry::GetSingleton().FindByGuid(p_guid);
+
+    AssetType type = AssetType::All;
+    const AssetMetaData* meta = nullptr;
+    const IAsset* asset = nullptr;
+
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, COMPONENT_FIELD_NAME_WIDTH);
+    ImGui::Text(ICON_FA_CUBE "  %s", p_name);
+    ImGui::NextColumn();
+
+    if (handle_.is_some()) {
+        AssetHandle handle = handle_.unwrap_unchecked();
+        meta = handle.GetMeta();
+        DEV_ASSERT(meta);
+        asset = handle.Get();
+        type = meta->type;
+    }
+
+    ImGui::Text(" %s ", meta ? meta->name.c_str() : "not set");
 
     const bool hovered = ImGui::IsItemHovered();
-    DragDropTarget(meta->type, p_callback);
-    if (hovered) {
+    if (auto _handle = DragDropTarget(type); _handle.is_some()) {
+        if constexpr (HasSetResourceGuid<T>) {
+            p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
+        }
+    }
+
+    ImGui::Columns(1);
+    if (hovered && meta) {
         ShowAssetToolTip(*meta, asset);
     }
 };
 
 template<typename T>
-concept HasSetResourceGuid = requires(T t) {
-    { t.SetResourceGuid() };
-};
-
-template<typename T>
 bool DrawComponentAuto(T* p_component) {
-    constexpr float COMPONENT_FIELD_NAME_WIDTH = 120.f;
     const auto& meta_table = MetaDataTable<T>::GetFields();
 
     bool dirty = false;
@@ -95,17 +119,13 @@ bool DrawComponentAuto(T* p_component) {
                     dirty = true;
                     // @TODO: callback
                 }
+                ImGui::Dummy(ImVec2(8, 8));
             } break;
-
             case EditorHint::Asset: {
                 const Guid& guid = field->GetData<Guid>(p_component);
-                DrawAsset(guid,
-                          [&](AssetHandle& p_handle) {
-                              unused(p_handle);
-                              if constexpr (HasSetResourceGuid<T>) {
-                                  p_component->SetResourceGuid(p_handle.GetGuid());
-                              }
-                          });
+                DrawAsset(field->name,
+                          guid,
+                          p_component);
             } break;
             case EditorHint::Translation: {
                 Vector3f& translation = field->GetData<Vector3f>(p_component);
@@ -315,8 +335,9 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("Script", script_component, [](LuaScriptComponent& p_script) {
-        DrawInputText("class_name", p_script.GetClassNameRef());
-        DrawInputText("path", p_script.GetPathRef());
+        DrawInputText("class_name", p_script.GetClassNameRef(), COMPONENT_FIELD_NAME_WIDTH);
+
+        DrawComponentAuto<LuaScriptComponent>(&p_script);
     });
 
     DrawComponent("AnimatorComponent", animator_component, [](AnimatorComponent& p_animator) {
@@ -327,10 +348,10 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
             // @TODO: drop down
             std::string clip_name = p_animator.GetCurrentClip();
-            if (DrawInputText("clip", clip_name)) {
+            if (DrawInputText("clip", clip_name, COMPONENT_FIELD_NAME_WIDTH)) {
                 const SpriteAnimationClip* clip = asset->GetClip(clip_name);
                 if (clip) {
-                    p_animator.SetClip(clip_name, clip->IsLooping(), clip->GetTotalDuration());
+                    p_animator.SetClip(clip_name);
                 }
             }
         }

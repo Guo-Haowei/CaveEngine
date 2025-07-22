@@ -3,8 +3,10 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/mode_manager.h"
 #include "engine/scene/entity_factory.h"
 
+#include "editor/document/document.h"
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
@@ -14,7 +16,6 @@
 // @TODO: refactor
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
-#include "editor/document/document.h"
 
 namespace cave {
 
@@ -58,7 +59,7 @@ void SceneEditor::OnDestroy() {
 void SceneEditor::OnActivate() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
-    scene_manager->SetTmpScene(m_document->m_scene);
+    scene_manager->OpenTempScene(m_document->m_scene);
 }
 
 void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
@@ -183,17 +184,27 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
 }
 
 const std::vector<ToolBarButtonDesc>& SceneEditor::GetToolBarButtons() const {
-    auto app = m_editor.GetApplication();
-    auto app_state = app->GetState();
-
     static std::vector<ToolBarButtonDesc> s_buttons = {
-        { ICON_FA_PLAY, "Run Project",
-          [&]() { app->SetState(Application::State::BEGIN_SIM); },
-          [&]() { return app_state != Application::State::SIM; } },
-        { ICON_FA_PAUSE,
-          "Pause Running Project",
-          [&]() { app->SetState(Application::State::END_SIM); },
-          [&]() { return app_state != Application::State::EDITING; } },
+        {
+            ICON_FA_PLAY,
+            "Run Project",
+            [&]() {
+                Application* app = m_editor.GetApplication();
+                ModeManager& mode_manager = app->GetModeManager();
+                mode_manager.SetMode(GameMode::Gameplay);
+            }
+            //[&]() { return app_state != Application::State::SIM; },
+        },
+        {
+            ICON_FA_PAUSE,
+            "Pause Running Project",
+            [&]() {
+                Application* app = m_editor.GetApplication();
+                ModeManager& mode_manager = app->GetModeManager();
+                mode_manager.SetMode(GameMode::Editor);
+            },
+            //[&]() { return app_state != Application::State::EDITING; },
+        },
         { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
           [&]() {
               m_camera_idx ^= 1;

@@ -7,25 +7,6 @@
 
 namespace cave {
 
-#pragma region LUA_SCRIPT_COMPONENT
-LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view p_class_name) {
-    if (DEV_VERIFY(!p_class_name.empty())) {
-        m_class_name = p_class_name;
-    }
-
-    return *this;
-}
-
-LuaScriptComponent& LuaScriptComponent::SetPath(std::string_view p_path) {
-    if (p_path != m_path) {
-        // LOG_VERBOSE("changing script '{}' to '{}'", m_path, p_path);
-        m_path = p_path;
-    }
-
-    return *this;
-}
-#pragma endregion LUA_SCRIPT_COMPONENT
-
 #pragma region RIGID_BODY_COMPONENT
 RigidBodyComponent& RigidBodyComponent::InitCube(const Vector3f& p_half_size) {
     shape = SHAPE_CUBE;

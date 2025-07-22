@@ -30,7 +30,7 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
 
-    m_tmp_scene = scene_manager->OpenTemporaryScene(p_guid, [&]() {
+    m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
         auto scene = std::make_shared<Scene>();
         auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
         scene->m_root = root;
@@ -62,7 +62,7 @@ void SpriteAnimationEditor::OnDestroy() {
 void SpriteAnimationEditor::OnActivate() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
-    scene_manager->SetTmpScene(m_tmp_scene);
+    scene_manager->OpenTempScene(m_tmp_scene);
 }
 
 const std::vector<ToolBarButtonDesc>& SpriteAnimationEditor::GetToolBarButtons() const {
@@ -122,11 +122,9 @@ void SpriteAnimationEditor::ImageSourceDropTarget() {
 
     CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
 
-    DragDropTarget(AssetType::Image, [&](AssetHandle& p_handle) {
-        DEV_ASSERT(p_handle.GetMeta()->type == AssetType::Image);
-
-        asset->SetGuid(p_handle.GetGuid());
-    });
+    if (auto _handle = DragDropTarget(AssetType::Image); _handle.is_some()) {
+        asset->SetGuid(_handle.unwrap_unchecked().GetGuid());
+    }
 }
 
 void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
@@ -238,7 +236,7 @@ void SpriteAnimationEditor::DrawTimeLine() {
 
         if (old_clip != current_clip) {
             LOG_OK("Set clip to {}", clips[current_clip]);
-            animator->SetClip(clips[current_clip], true, 1.0f);
+            animator->SetClip(clips[current_clip]);
         }
     }
 
@@ -261,11 +259,13 @@ void SpriteAnimationEditor::DrawTimeLine() {
 
     ImGui::Columns(1);
 
+#if 0
     // time line
-    auto& playback = animator->GetPlaybackTimer();
+    float& playback = animator->GetPlaybackTimer();
     if (ImGui::SliderFloat("timeline", &playback.timer, playback.start, playback.end)) {
         animator->SetPlaying(true);
     }
+#endif
 }
 
 void SpriteAnimationEditor::DrawAssetInspector() {

@@ -43,20 +43,19 @@ public:
         }
         const SpriteAnimationClip& clip = it->second;
 
-        const auto& timer = p_animator.GetPlaybackTimer();
-
+        auto& timer = p_animator.GetPlaybackTimerRef();
         if (p_animator.IsPlaying()) {
-            timer.timer += p_timestep;
+            timer += p_timestep;
         }
 
         const float duration = clip.GetTotalDuration();
         if (p_animator.IsLooping()) {
-            timer.timer = std::fmod(timer.timer, duration);
+            timer = std::fmod(timer, duration);
         } else {
-            timer.timer = std::min(timer.timer, duration);
+            timer = std::min(timer, duration);
         }
 
-        const int frame_idx = GetFrame(timer.timer,
+        const int frame_idx = GetFrame(timer,
                                        duration,
                                        clip.GetDurations());
 

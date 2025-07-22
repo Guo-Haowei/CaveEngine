@@ -13,7 +13,7 @@ public:
     void Update(Scene& p_scene, float p_timestep) override;
 
     void OnSimBegin(Scene& p_scene) override;
-    void OnSimEnd(Scene& p_scene) override;
+    void OnSimEnd() override;
 
 protected:
     auto InitializeImpl() -> Result<void> override;

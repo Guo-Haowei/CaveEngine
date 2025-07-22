@@ -8,6 +8,7 @@
 #include "generated/animator_component.generated.cpp"
 #include "generated/camera_component.generated.cpp"
 #include "generated/light_component.generated.cpp"
+#include "generated/lua_script_component.generated.cpp"
 #include "generated/transform_component.generated.cpp"
 #include "generated/scene_component.generated.cpp"
 #include "generated/mesh_renderer.generated.cpp"
