@@ -6,7 +6,7 @@
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 #include "engine/scene/scene.h"
-#include "engine/scene/scriptable_entity.h"
+#include "engine/scripting/scriptable_entity.h"
 
 #pragma warning(push, 0)
 #include <BulletCollision/CollisionDispatch/btCollisionDispatcher.h>

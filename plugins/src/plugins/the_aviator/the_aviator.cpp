@@ -5,7 +5,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/scene/camera_controller.h"
 #include "engine/scene/entity_factory.h"
-#include "engine/scene/scriptable_entity.h"
+#include "engine/scripting/scriptable_entity.h"
 
 // @TODO: remove
 #include "engine/math/matrix_transform.h"

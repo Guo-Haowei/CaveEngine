@@ -8,7 +8,7 @@
 #include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/scene/scene.h"
-#include "engine/scene/scriptable_entity.h"
+#include "engine/scripting/scriptable_entity.h"
 
 // lua include
 #include "lua_binding.h"

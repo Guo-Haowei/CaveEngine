@@ -2,7 +2,7 @@
 
 #include "engine/math/angle.h"
 #include "engine/runtime/input_manager.h"
-#include "engine/scene/scene_component.h"
+#include "engine/scene/camera_component.h"
 
 namespace cave {
 

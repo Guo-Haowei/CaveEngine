@@ -1,6 +1,5 @@
 #pragma once
 #include "engine/math/geomath.h"
-#include "engine/scene/scriptable_entity.h"
 
 namespace cave {
 

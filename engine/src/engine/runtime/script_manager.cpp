@@ -1,8 +1,8 @@
 #include "script_manager.h"
 
 #include "engine/scene/scene.h"
-#include "engine/scene/scriptable_entity.h"
-#include "engine/scripting/lua_script_manager.h"
+#include "engine/scripting/scriptable_entity.h"
+#include "engine/scripting/lua/lua_script_manager.h"
 
 namespace cave {
 
