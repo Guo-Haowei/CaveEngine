@@ -143,19 +143,14 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
         const TransformComponent* light_transform = p_scene.GetComponent<TransformComponent>(light_entity);
         DEV_ASSERT(light_transform);
 
-        const MaterialAsset* material = light_component.m_material_handle.Get();
-        if (!material) {
-            continue;
-        }
-
         // SHOULD BE THIS INDEX
         Light& light = cache.c_lights[idx];
         bool cast_shadow = light_component.CastShadow();
         light.cast_shadow = cast_shadow;
         light.type = light_component.GetType();
         // @TODO: [SCRUM-210] fix material
-        light.color = material->base_color.xyz;
-        light.color *= material->emissive;
+        light.color = light_component.GetBaseColor().xyz;
+        light.color *= light_component.GetEmissive();
         switch (light_component.GetType()) {
             case LIGHT_TYPE_INFINITE: {
                 Matrix4x4f light_local_matrix = light_transform->GetLocalMatrix();
@@ -167,7 +162,10 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
 
                 // @TODO: add option to specify extent
                 // @would be nice if can add debug draw
-                const AABB& world_bound = (light_component.HasShadowRegion()) ? light_component.m_shadowRegion : p_scene.GetBound();
+                AABB world_bound = light_component.GetShadowRegion();
+                if (!world_bound.IsValid()) {
+                    world_bound = p_scene.GetBound();
+                }
                 Vector3f center = world_bound.Center();
                 Vector3f extents = world_bound.Size();
 
@@ -203,16 +201,17 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
                     p_framedata);
             } break;
             case LIGHT_TYPE_POINT: {
-                [[maybe_unused]] const int shadow_map_index = light_component.GetShadowMapIndex();
                 // @TODO: there's a bug in shadow map allocation
-                light.atten_constant = light_component.m_atten.constant;
-                light.atten_linear = light_component.m_atten.linear;
-                light.atten_quadratic = light_component.m_atten.quadratic;
+                light.atten_constant = light_component.GetAttenConstant();
+                light.atten_linear = light_component.GetAttenLinear();
+                light.atten_quadratic = light_component.GetAttenQuadratic();
                 light.position = light_component.GetPosition();
                 light.cast_shadow = cast_shadow;
                 light.max_distance = light_component.GetMaxDistance();
                 LOG_WARN("TODO: fix light");
+                CRASH_NOW();
 #if 0
+                [[maybe_unused]] const int shadow_map_index = light_component.GetShadowMapIndex();
                 if (cast_shadow && shadow_map_index != -1) {
                     light.shadow_map_index = shadow_map_index;
 

@@ -35,6 +35,8 @@ enum class EditorHint {
     None = 0,
     Asset,
     Toggle,
+    DragFloat,
+    DragInt,
     Color,
     Translation,
     Rotation,
@@ -49,12 +51,21 @@ struct FieldMetaBase {
     const char* const type;
     const size_t offset;
     const EditorHint editor_hint;
+    const int v_min;
+    const int v_max;
 
     FieldMetaBase(const char* p_name,
                   const char* p_type,
                   size_t p_offset,
-                  EditorHint p_hint)
-        : name(p_name), type(p_type), offset(p_offset), editor_hint(p_hint) {
+                  EditorHint p_hint,
+                  int p_min = INT_MIN,
+                  int p_max = INT_MAX)
+        : name(p_name)
+        , type(p_type)
+        , offset(p_offset)
+        , editor_hint(p_hint)
+        , v_min(p_min)
+        , v_max(p_max) {
     }
 
     virtual ~FieldMetaBase() = default;

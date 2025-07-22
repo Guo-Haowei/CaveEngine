@@ -290,9 +290,11 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
             p_light.SetDirty();
         }
 
+#if 0
         dirty |= DrawDragFloat("constant", p_light.m_atten.constant, 0.1f, 0.0f, 1.0f);
         dirty |= DrawDragFloat("linear", p_light.m_atten.linear, 0.1f, 0.0f, 1.0f);
         dirty |= DrawDragFloat("quadratic", p_light.m_atten.quadratic, 0.1f, 0.0f, 1.0f);
+#endif
         ImGui::Text("max distance: %0.3f", p_light.GetMaxDistance());
     });
 
