@@ -26,7 +26,6 @@ class MeshAsset : public IAsset {
     CAVE_ASSET(MeshAsset, AssetType::Mesh, 0)
 
 public:
-
     enum : uint32_t {
         NONE = BIT(0),
         RENDERABLE = BIT(1),

@@ -37,6 +37,10 @@ public:
 
     bool SaveAllAssets() const;
 
+    void RegisterPersistentAsset(const std::string& p_name,
+                                 const Guid& p_guid,
+                                 AssetRef p_asset);
+
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;

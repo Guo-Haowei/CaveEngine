@@ -35,5 +35,4 @@ using AssetRef = std::shared_ptr<IAsset>;
 using AssetLoadSuccessCallback = void (*)(AssetRef p_asset, void* p_userdata);
 using AssetLoadFailureCallback = void (*)(void* p_userdata);
 
-
 }  // namespace cave

@@ -12,7 +12,11 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+extern void RegisterAllPersistentAssets();
+
 auto AssetRegistry::InitializeImpl() -> Result<void> {
+    RegisterAllPersistentAssets();
+
     fs::path assets_root = fs::path{ m_app->GetResourceFolder() };
 
     struct Pair {
@@ -123,6 +127,31 @@ struct TransparentCompare {
     bool operator()(const std::string& lhs, const char* rhs) const { return lhs < rhs; }
     bool operator()(const char* lhs, const std::string& rhs) const { return lhs < rhs; }
 };
+
+void AssetRegistry::RegisterPersistentAsset(const std::string& p_name,
+                                            const Guid& p_guid,
+                                            AssetRef p_asset) {
+    AssetMetaData meta;
+    meta.guid = p_guid;
+    meta.type = p_asset->GetType();
+    meta.name = p_name;
+    meta.import_path = std::format("@persist://{}", p_name);
+
+    std::lock_guard lock(registry_mutex);
+
+    {
+        auto [_, ok] = m_path_map.try_emplace(meta.import_path, p_guid);
+        DEV_ASSERT(ok);
+    }
+
+    {
+        std::shared_ptr<AssetEntry> entry = std::make_shared<AssetEntry>(std::move(meta));
+        entry->status = AssetStatus::Loaded;
+        entry->asset = p_asset;
+        auto [_, ok] = m_guid_map.try_emplace(p_guid, std::move(entry));
+        DEV_ASSERT(ok);
+    }
+}
 
 Option<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_type) {
     std::lock_guard lock(registry_mutex);

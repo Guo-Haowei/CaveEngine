@@ -118,7 +118,7 @@ void SpriteAnimationEditor::ImageSourceDropTarget() {
     auto image_handle = asset->GetImageHandle();
     ImageAsset* image = image_handle.Get();
 
-    auto checkerboard = m_editor.context.checkerboard_handle.Get();
+    auto checkerboard = m_editor.context.checkerboard;
 
     CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
 
