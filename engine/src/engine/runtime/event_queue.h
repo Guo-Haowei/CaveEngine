@@ -12,17 +12,6 @@ public:
     virtual ~IEvent() = default;
 };
 
-class SceneChangeEvent : public IEvent {
-public:
-    SceneChangeEvent(Scene* scene)
-        : m_scene(scene) {}
-
-    const Scene* GetScene() const { return m_scene; }
-
-protected:
-    Scene* m_scene;
-};
-
 class ResizeEvent : public IEvent {
 public:
     ResizeEvent(int width, int height)
