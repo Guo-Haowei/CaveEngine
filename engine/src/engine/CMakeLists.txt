@@ -1,5 +1,24 @@
 include(FetchContent)
 
+FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+    GIT_TAG        0.8.0
+)
+
+FetchContent_MakeAvailable(yaml-cpp)
+
+FetchContent_Declare(
+    LuaBridge3
+    GIT_REPOSITORY https://github.com/kunitoki/LuaBridge3.git
+    GIT_TAG        3.0-rc3
+)
+
+FetchContent_MakeAvailable(LuaBridge3)
+
+set_target_properties(yaml-cpp PROPERTIES FOLDER thirdparty)
+# set_target_properties(LuaBridge3 PROPERTIES FOLDER thirdparty)
+
 set(TARGET_NAME engine)
 
 file(GLOB_RECURSE SRC
@@ -44,8 +63,8 @@ add_library(${TARGET_NAME} STATIC ${FILTERED_SRC})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/ FILES ${FILTERED_SRC})
 
 target_include_directories(${TARGET_NAME} PUBLIC
+    ${luabridge3_SOURCE_DIR}/Source
     ${PROJECT_SOURCE_DIR}/thirdparty/lua
-    ${PROJECT_SOURCE_DIR}/thirdparty/LuaBridge3/Source
     ${PROJECT_SOURCE_DIR}/thirdparty/imgui
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
@@ -60,15 +79,6 @@ target_compile_definitions(${TARGET_NAME} PUBLIC
     -D_CRT_SECURE_NO_WARNINGS
     -DROOT_FOLDER="${PROJECT_SOURCE_DIR}/"
 )
-
-FetchContent_Declare(
-    yaml-cpp
-    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-    GIT_TAG        0.8.0
-)
-
-FetchContent_MakeAvailable(yaml-cpp)
-set_target_properties(yaml-cpp PROPERTIES FOLDER thirdparty)
 
 set(TARGET_LIBS
     engine_assets
