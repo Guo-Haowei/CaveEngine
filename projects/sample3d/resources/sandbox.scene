@@ -1,5 +1,5 @@
 version: 19
-seed: 9
+seed: 10
 root: 1
 physics_mode: 0
 entities:
@@ -31,13 +31,13 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0.021884486, -0.09457997, 0.013820707, 0.9951807]
-      scale: [0.9999995, 1, 0.99999964]
+      translation: [0, 0.003123321, 0]
+      rotation: [-0.3646183, 0.031034596, -0.07353314, 0.92773014]
+      scale: [1, 0.9999963, 1]
     LightComponent:
       type: 0
       base_color: [1, 1, 1, 1]
-      emissive: 3.1
+      emissive: 5.5
       atten_constant: 1
       atten_linear: 0
       atten_quadratic: 0
@@ -122,13 +122,28 @@ entities:
       material_ids: []
   - id: 9
     NameComponent:
-      name: Plane-4
+      name: plane-back
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0.99709415, -3.176525]
+      translation: [0, 3, -3.3730812]
       rotation: [0, 0, 0, 1]
-      scale: [10.46, 10.46, 10.46]
+      scale: [8, 8, 8]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000004
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []
+  - id: 10
+    NameComponent:
+      name: plane-down
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, -1.0214083, -1.5701207e-06]
+      rotation: [-0.70710665, 0, 0, 0.7071069]
+      scale: [8, 7.999338, 7.999338]
     MeshRendererComponent:
       mesh_id: 00000000-0000-0000-0000000000000004
       is_visible: true
