@@ -45,7 +45,7 @@ public:
     Application(const ApplicationSpec& p_spec, Type p_type = Type::Runtime);
     virtual ~Application();
 
-    auto Initialize(int p_argc, const char** p_argv) -> Result<void>;
+    Result<void> Initialize();
     void Finalize();
     static void Run(Application* p_app);
 
@@ -68,8 +68,8 @@ public:
     RenderSystem* GetRenderSystem() { return m_render_system; }
 
     const ApplicationSpec& GetSpecification() const { return m_specification; }
-    const std::string& GetUserFolder() const { return m_userFolder; }
-    const std::string& GetResourceFolder() const { return m_resourceFolder; }
+    const std::string& GetUserFolder() const { return m_user_folder; }
+    const std::string& GetResourceFolder() const { return m_resource_folder; }
 
     ModeManager& GetModeManager();
 
@@ -86,12 +86,10 @@ protected:
 
     float UpdateTime();
 
-    virtual void RegisterDvars();
     virtual void InitLayers() {}
     // @TODO: add CreateXXXManager for all managers
     virtual Result<ImguiManager*> CreateImguiManager();
 
-    void SaveCommandLine(int p_argc, const char** p_argv);
     void RegisterModule(Module* p_module);
 
     const Type m_type;
@@ -100,11 +98,9 @@ protected:
     std::unique_ptr<GameLayer> m_game_layer;
     std::vector<Layer*> m_layers;
 
-    std::vector<std::string> m_commandLine;
-    std::string m_appName;
-    std::string m_userFolder;
-    std::string m_resourceFolder;
-    std::string m_projectFolder;
+    std::string m_user_folder;
+    std::string m_resource_folder;
+    std::string m_project_folder;
     ApplicationSpec m_specification;
 
     EventQueue m_event_queue;

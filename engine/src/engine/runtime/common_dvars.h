@@ -10,7 +10,4 @@ DVAR_STRING(scene, DVAR_FLAG_NONE, "Open scene at start", "");
 // IO
 DVAR_BOOL(verbose, DVAR_FLAG_NONE, "Print verbose log", true);
 
-// gui
-DVAR_BOOL(show_editor, DVAR_FLAG_CACHE, "Show editor", true);
-
 #include "engine/core/dynamic_variable/dynamic_variable_end.h"

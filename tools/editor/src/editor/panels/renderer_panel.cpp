@@ -6,8 +6,10 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/renderer/path_tracer_render_system.h"
-#include "engine/runtime/common_dvars.h"
 #include "engine/scene/scene.h"
+
+#include "engine/runtime/common_dvars.h"
+#include "editor/editor_dvars.h"
 
 namespace cave {
 

@@ -16,6 +16,7 @@
 // @TODO: refactor
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/common_dvars.h"
+#include "editor/editor_dvars.h"
 
 namespace cave {
 

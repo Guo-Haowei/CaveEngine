@@ -19,6 +19,12 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+void RegisterExtraDvars() {
+#define REGISTER_DVAR
+#include "editor_dvars.h"
+#undef REGISTER_DVAR
+}
+
 class EditorModeManager : public ModeManager {
 public:
     EditorModeManager(Application& p_app)
@@ -83,17 +89,8 @@ public:
     }
 
 private:
-    void RegisterDvars() override;
-
     std::unique_ptr<EditorLayer> m_editorLayer;
 };
-
-void Editor::RegisterDvars() {
-    Application::RegisterDvars();
-#define REGISTER_DVAR
-#include "editor_dvars.h"
-#undef REGISTER_DVAR
-}
 
 Application* CreateApplication() {
     std::string_view root = StringUtils::BasePath(__FILE__);
