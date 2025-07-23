@@ -251,7 +251,8 @@ static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Clear(fb, CLEAR_COLOR_BIT);
 
     cmd.SetPipelineState(PSO_SSAO);
-    cmd.DrawQuad();
+    cmd.SetMesh(nullptr);
+    cmd.DrawArrays(6);
 }
 
 void RenderGraphBuilderExt::AddSsaoPass() {
@@ -283,7 +284,8 @@ static void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetPipelineState(PSO_HIGHLIGHT);
     cmd.SetStencilRef(STENCIL_FLAG_SELECTED);
     cmd.Clear(fb, CLEAR_COLOR_BIT);
-    cmd.DrawQuad();
+    cmd.SetMesh(nullptr);
+    cmd.DrawArrays(6);
     cmd.SetStencilRef(0);
 }
 
@@ -528,7 +530,8 @@ static void LightingPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.SetPipelineState(PSO_LIGHTING);
 
-    cmd.DrawQuad();
+    cmd.SetMesh(nullptr);
+    cmd.DrawArrays(6);
 }
 
 static std::shared_ptr<GpuTexture> GenerateLTC(std::string_view p_name, const float* p_matrix_table) {
@@ -827,7 +830,8 @@ static void TonePassFunc(RenderPassExcutionContext& p_ctx) {
         cmd.Clear(fb, CLEAR_COLOR_BIT);
 
         cmd.SetPipelineState(PSO_POST_PROCESS);
-        cmd.DrawQuad();
+        cmd.SetMesh(nullptr);
+        cmd.DrawArrays(6);
     }
 }
 
@@ -1032,7 +1036,8 @@ static void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Clear(fb, CLEAR_COLOR_BIT);
 
     cmd.SetPipelineState(PSO_POST_PROCESS);
-    cmd.DrawQuad();
+    cmd.SetMesh(nullptr);
+    cmd.DrawArrays(6);
 }
 
 void RenderGraphBuilderExt::AddPathTracerTonePass() {

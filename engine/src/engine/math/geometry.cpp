@@ -24,64 +24,6 @@ namespace cave {
 enum { A = 0, B = 1, C = 2, D = 3, E = 4, F = 5, G = 6, H = 7 };
 // clang-format on
 
-MeshAsset MakePlaneMesh(const Vector3f& p_scale) {
-    const float x = p_scale.x;
-    const float y = p_scale.y;
-    Vector3f a(-x, +y, 0.0f);  // A
-    Vector3f b(-x, -y, 0.0f);  // B
-    Vector3f c(+x, -y, 0.0f);  // C
-    Vector3f d(+x, +y, 0.0f);  // D
-    return MakePlaneMesh(a, b, c, d);
-}
-
-MeshAsset MakePlaneMesh(const Vector3f& p_point_0,
-                        const Vector3f& p_point_1,
-                        const Vector3f& p_point_2,
-                        const Vector3f& p_point_3) {
-    MeshAsset mesh;
-    mesh.positions = {
-        p_point_0,
-        p_point_1,
-        p_point_2,
-        p_point_3,
-    };
-
-    const Vector3f normal = normalize(cross(p_point_0 - p_point_1, p_point_0 - p_point_2));
-    mesh.normals = {
-        normal,
-        normal,
-        normal,
-        normal,
-    };
-
-    mesh.texcoords_0 = {
-        Vector2f(0, 1),  // top-left
-        Vector2f(0, 0),  // bottom-left
-        Vector2f(1, 0),  // bottom-right
-        Vector2f(1, 1),  // top-right
-    };
-
-    // clang-format off
-    mesh.indices = {
-#if 1
-        A, B, D,  // ABD
-        D, B, C,  // DBC
-#else
-        A, D, B, // ADB
-        D, C, B, // DBC
-#endif
-    };
-    // clang-format on
-
-    MeshAsset::MeshSubset subset;
-    subset.index_count = static_cast<uint32_t>(mesh.indices.size());
-    subset.index_offset = 0;
-    mesh.subsets.emplace_back(subset);
-
-    mesh.CreateRenderData();
-    return mesh;
-}
-
 MeshAsset MakeCubeMesh(const Vector3f& p_scale) {
     MeshAsset mesh;
     // clang-format off

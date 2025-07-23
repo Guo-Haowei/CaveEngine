@@ -167,15 +167,6 @@ Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
     MeshRendererComponent& object = *p_scene.GetComponent<MeshRendererComponent>(entity);
     trans.MatrixTransform(p_transform);
 
-#if 0
-    auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    object.meshId = mesh_id;
-
-    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
-    mesh = MakePlaneMesh(p_scale);
-    mesh.subsets[0].material_id = p_material_id;
-
-#endif
     auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
 
     // @TODO: create material

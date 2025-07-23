@@ -84,4 +84,135 @@ static std::shared_ptr<MeshAsset> CreatePlaneMesh(const Vector3f& p_scale) {
     return CreatePlaneMesh(a, b, c, d);
 }
 
+[[maybe_unused]] static std::shared_ptr<MeshAsset> CreateCubeMesh(const Vector3f& p_scale = Vector3f(0.5f)) {
+    auto mesh = std::make_shared<MeshAsset>();
+    // clang-format off
+    constexpr uint32_t indices[] = {
+        0,          1,          2,          0,          2,          3,
+        0 + 4,      2 + 4,      1 + 4,      0 + 4,      3 + 4,      2 + 4,  // swapped winding
+        0 + 4 * 2,  1 + 4 * 2,  2 + 4 * 2,  0 + 4 * 2,  2 + 4 * 2,  3 + 4 * 2,
+        0 + 4 * 3,  2 + 4 * 3,  1 + 4 * 3,  0 + 4 * 3,  3 + 4 * 3,  2 + 4 * 3, // swapped winding
+        0 + 4 * 4,  2 + 4 * 4,  1 + 4 * 4,  0 + 4 * 4,  3 + 4 * 4,  2 + 4 * 4, // swapped winding
+        0 + 4 * 5,  1 + 4 * 5,  2 + 4 * 5,  0 + 4 * 5,  2 + 4 * 5,  3 + 4 * 5,
+    };
+    // clang-format on
+
+    const Vector3f& s = p_scale;
+    mesh->positions = {
+        // -Z
+        Vector3f(-s.x, +s.y, -s.z),
+        Vector3f(-s.x, -s.y, -s.z),
+        Vector3f(+s.x, -s.y, -s.z),
+        Vector3f(+s.x, +s.y, -s.z),
+
+        // +Z
+        Vector3f(-s.x, +s.y, +s.z),
+        Vector3f(-s.x, -s.y, +s.z),
+        Vector3f(+s.x, -s.y, +s.z),
+        Vector3f(+s.x, +s.y, +s.z),
+
+        // -X
+        Vector3f(-s.x, -s.y, +s.z),
+        Vector3f(-s.x, -s.y, -s.z),
+        Vector3f(-s.x, +s.y, -s.z),
+        Vector3f(-s.x, +s.y, +s.z),
+
+        // +X
+        Vector3f(+s.x, -s.y, +s.z),
+        Vector3f(+s.x, -s.y, -s.z),
+        Vector3f(+s.x, +s.y, -s.z),
+        Vector3f(+s.x, +s.y, +s.z),
+
+        // -Y
+        Vector3f(-s.x, -s.y, +s.z),
+        Vector3f(-s.x, -s.y, -s.z),
+        Vector3f(+s.x, -s.y, -s.z),
+        Vector3f(+s.x, -s.y, +s.z),
+
+        // +Y
+        Vector3f(-s.x, +s.y, +s.z),
+        Vector3f(-s.x, +s.y, -s.z),
+        Vector3f(+s.x, +s.y, -s.z),
+        Vector3f(+s.x, +s.y, +s.z),
+    };
+
+    mesh->texcoords_0 = {
+        Vector2f(0, 0),
+        Vector2f(0, 1),
+        Vector2f(1, 1),
+        Vector2f(1, 0),
+
+        Vector2f(0, 0),
+        Vector2f(0, 1),
+        Vector2f(1, 1),
+        Vector2f(1, 0),
+
+        Vector2f(0, 0),
+        Vector2f(0, 1),
+        Vector2f(1, 1),
+        Vector2f(1, 0),
+
+        Vector2f(0, 0),
+        Vector2f(0, 1),
+        Vector2f(1, 1),
+        Vector2f(1, 0),
+
+        Vector2f(0, 0),
+        Vector2f(0, 1),
+        Vector2f(1, 1),
+        Vector2f(1, 0),
+
+        Vector2f(0, 0),
+        Vector2f(0, 1),
+        Vector2f(1, 1),
+        Vector2f(1, 0),
+    };
+
+    mesh->normals = {
+        Vector3f(0, 0, -1),
+        Vector3f(0, 0, -1),
+        Vector3f(0, 0, -1),
+        Vector3f(0, 0, -1),
+
+        Vector3f(0, 0, 1),
+        Vector3f(0, 0, 1),
+        Vector3f(0, 0, 1),
+        Vector3f(0, 0, 1),
+
+        Vector3f(-1, 0, 0),
+        Vector3f(-1, 0, 0),
+        Vector3f(-1, 0, 0),
+        Vector3f(-1, 0, 0),
+
+        Vector3f(1, 0, 0),
+        Vector3f(1, 0, 0),
+        Vector3f(1, 0, 0),
+        Vector3f(1, 0, 0),
+
+        Vector3f(0, -1, 0),
+        Vector3f(0, -1, 0),
+        Vector3f(0, -1, 0),
+        Vector3f(0, -1, 0),
+
+        Vector3f(0, 1, 0),
+        Vector3f(0, 1, 0),
+        Vector3f(0, 1, 0),
+        Vector3f(0, 1, 0),
+    };
+
+    for (int i = 0; i < array_length(indices); i += 3) {
+        mesh->indices.emplace_back(indices[i]);
+        mesh->indices.emplace_back(indices[i + 2]);
+        mesh->indices.emplace_back(indices[i + 1]);
+    }
+
+    MeshAsset::MeshSubset subset;
+    subset.index_count = array_length(indices);
+    subset.index_offset = 0;
+    mesh->subsets.emplace_back(subset);
+
+    mesh->CreateRenderData();
+    return mesh;
+}
+
 }  // namespace cave

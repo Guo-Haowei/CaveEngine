@@ -143,8 +143,6 @@ public:
         return *context;
     }
 
-    void DrawQuad() override {}
-    void DrawQuadInstanced(uint32_t p_instance_count) override {}
     void DrawSkybox() override {}
 
     void EventReceived(std::shared_ptr<IEvent> p_event) override {}
