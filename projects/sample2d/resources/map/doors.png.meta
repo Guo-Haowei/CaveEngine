@@ -1,4 +1,4 @@
 guid: 072AA41E-00C5-434B-900A84486CD248AE
 type: image
 name: doors.png
-import_path: "@res://images/doors.png"
+import_path: "@res://map/doors.png"
