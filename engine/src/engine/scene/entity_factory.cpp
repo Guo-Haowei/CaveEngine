@@ -96,44 +96,23 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
                                             const std::string& p_name,
                                             const Vector3f& p_color,
                                             const float p_emissive) {
-    auto res = AssetManager::GetSingleton().CreateAsset(AssetType::Material,
-                                                        std::format("@res://materials/{}.mat", p_name));
-    if (!res) {
-        CRASH_NOW();  // @TODO: error handling
-    }
-    Guid guid = res.value();
-
-    Handle<MaterialAsset> mat_handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(guid).unwrap();
-    const std::shared_ptr<MaterialAsset>& mat = mat_handle.Wait();
-    mat->base_color = Vector4f(p_color, 1.0f);
-    mat->emissive = p_emissive;
-
     auto entity = CreateObjectEntity(p_scene, p_name);
 
     // light
     LightComponent& light = p_scene.Create<LightComponent>(entity);
     light.SetType(LIGHT_TYPE_AREA);
-    light.m_base_color = mat->base_color;
+    light.m_base_color = Vector4f(p_color, 1.0f);
     light.m_emissive = p_emissive;
 
     light.m_atten_constant = 1.0f;
     light.m_atten_linear = 0.09f;
     light.m_atten_quadratic = 0.032f;
 
-    CRASH_NOW();
+    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
 
-#if 0
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
-
-    auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    object.meshId = mesh_id;
-    object.flags = MeshRenderer::FLAG_RENDERABLE;
-
-    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
-    mesh = MakePlaneMesh();
-    mesh.subsets[0].material_id = mat_handle.GetGuid();
-    mesh.subsets[0].material_handle = mat_handle;
-#endif
+    // @TODO: create material
+    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
+    renderer.SetResourceGuid(handle.GetGuid());
     return entity;
 }
 
@@ -197,6 +176,11 @@ Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
     mesh.subsets[0].material_id = p_material_id;
 
 #endif
+    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
+
+    // @TODO: create material
+    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
+    renderer.SetResourceGuid(handle.GetGuid());
     return entity;
 }
 

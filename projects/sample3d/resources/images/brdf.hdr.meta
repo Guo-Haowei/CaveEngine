@@ -1,3 +1,4 @@
-guid: B706F9CD-5466-334B-A0D55026FC2D5C03
+guid: 5F66A1DD-C6D1-D349-A83FACBF7D9A8228
 type: image
-path: "@res://images/brdf.hdr"
+name: brdf.hdr
+import_path: "@res://images/brdf.hdr"

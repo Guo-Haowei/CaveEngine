@@ -1,4 +1,5 @@
 #include "default_textures.h"
+#include "primitive_meshes.h"
 
 #include "engine/assets/blob_asset.h"
 #include "engine/runtime/graphics_manager_interface.h"
@@ -14,6 +15,11 @@ extern int fa_solid_900_ttf_len;
 static constexpr const char GUID1[] = "00000000-0000-0000-0000000000000001";
 static constexpr const char GUID2[] = "00000000-0000-0000-0000000000000002";
 static constexpr const char GUID3[] = "00000000-0000-0000-0000000000000003";
+static constexpr const char GUID4[] = "00000000-0000-0000-0000000000000004";
+static constexpr const char GUID5[] = "00000000-0000-0000-0000000000000005";
+static constexpr const char GUID6[] = "00000000-0000-0000-0000000000000006";
+static constexpr const char GUID7[] = "00000000-0000-0000-0000000000000007";
+static constexpr const char GUID8[] = "00000000-0000-0000-0000000000000008";
 
 #define TO_GUID(x) (Guid::Parse(x, sizeof(x) - 1).value())
 
@@ -54,9 +60,22 @@ static void RegisterPersistentImages() {
     }
 }
 
+static void RegisterPersistentMeshes() {
+    auto& asset_registry = AssetRegistry::GetSingleton();
+    auto& graphics_manager = IGraphicsManager::GetSingleton();
+    {
+        auto mesh = CreatePlaneMesh(Vector3f(0.5f));
+        asset_registry.RegisterPersistentAsset("meshes/plane",
+                                               TO_GUID(GUID4),
+                                               mesh);
+        graphics_manager.RequestMesh(mesh.get());
+    }
+}
+
 void RegisterAllPersistentAssets() {
     RegisterPersistentFonts();
     RegisterPersistentImages();
+    RegisterPersistentMeshes();
 }
 
 }  // namespace cave

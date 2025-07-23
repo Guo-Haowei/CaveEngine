@@ -24,6 +24,7 @@ entities:
       is_visible: true
       cast_shadow: true
       transparency: false
+      material_ids: []
   - id: 3
     NameComponent:
       name: light
