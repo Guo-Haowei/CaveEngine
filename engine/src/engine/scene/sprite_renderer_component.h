@@ -43,8 +43,6 @@ public:
     const Rect& GetRect() const { return m_rect; }
 
     void OnDeserialized();
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
 };
 
 }  // namespace cave
