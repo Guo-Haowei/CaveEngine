@@ -41,7 +41,6 @@ if (NOT EMSCRIPTEN)
 endif()
 
 include(cmake/build_glfw.cmake)
-include(cmake/build_bullet.cmake)
 include(cmake/build_lua.cmake)
 include(cmake/build_imgui.cmake)
 include(cmake/build_imnodes.cmake)

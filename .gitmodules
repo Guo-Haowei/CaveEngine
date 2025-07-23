@@ -28,6 +28,3 @@
 [submodule "thirdparty/lua"]
 	path = thirdparty/lua
 	url = https://github.com/lua/lua.git
-[submodule "thirdparty/bullet3"]
-	path = thirdparty/bullet3
-	url = https://github.com/bulletphysics/bullet3.git
