@@ -5,8 +5,6 @@
 
 namespace cave {
 
-class Archive;
-
 struct MaterialAsset : public IAsset {
     CAVE_ASSET(MaterialAsset, AssetType::Material, 0)
 

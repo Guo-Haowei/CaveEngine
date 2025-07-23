@@ -164,10 +164,4 @@ void TileMapRendererComponent::CreateRenderData() {
     m_revision = tile_map->GetRevision();
 }
 
-void TileMapRendererComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    unused(p_archive);
-    unused(p_version);
-    CRASH_NOW();
-}
-
 }  // namespace cave

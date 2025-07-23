@@ -6,8 +6,6 @@
 
 namespace cave {
 
-class Archive;
-
 class SpriteRendererComponent {
     CAVE_META(SpriteRendererComponent)
 

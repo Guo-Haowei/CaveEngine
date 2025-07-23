@@ -43,7 +43,6 @@ public:
     const std::string& GetName() const { return m_name; }
     std::string& GetNameRef() { return m_name; }
 
-    void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
 };
 #pragma endregion NAME_COMPONENT
@@ -60,7 +59,6 @@ class HierarchyComponent {
 public:
     ecs::Entity GetParent() const { return m_parent_id; }
 
-    void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized() {}
 };
 #pragma endregion HIERARCHY_COMPONENT

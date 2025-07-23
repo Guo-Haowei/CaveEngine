@@ -24,7 +24,7 @@ struct DummyTest {
 struct A {
     int a;
 
-    void Serialize(Archive&, uint32_t) {}
+    void OnDeserialized() {}
 };
 
 TEST(serializable, test_serializable) {

@@ -7,7 +7,6 @@
 
 namespace cave {
 
-class Archive;
 class Degree;
 
 class TransformComponent : public ComponentFlagBase {

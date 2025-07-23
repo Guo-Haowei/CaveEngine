@@ -56,6 +56,7 @@ void SceneManager::Update() {
 
     TrySwapScene();
 
+    // @TODO: update
     if (m_lastRevision < m_revision) {
     }
 }

@@ -2,7 +2,6 @@
 
 #include "engine/math/angle.h"
 #include "engine/math/matrix_transform.h"
-#include "engine/core/io/archive.h"
 
 namespace cave {
 
@@ -71,13 +70,6 @@ void TransformComponent::UpdateTransformParented(const TransformComponent& p_par
     Matrix4x4f worldMatrix = GetLocalMatrix();
     const Matrix4x4f& worldMatrixParent = p_parent.m_world_matrix;
     m_world_matrix = worldMatrixParent * worldMatrix;
-}
-
-void TransformComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(flags);
-    p_archive.ArchiveValue(m_scale);
-    p_archive.ArchiveValue(m_translation);
-    p_archive.ArchiveValue(m_rotation);
 }
 
 }  // namespace cave

@@ -5,8 +5,6 @@
 
 namespace cave {
 
-class Archive;
-
 struct MeshRendererComponent {
     CAVE_META(MeshRendererComponent)
 
@@ -52,7 +50,6 @@ public:
     void SetTransparency(bool p_value = true) { m_transparency = p_value; }
     bool Transparency() const { return m_transparency; }
 
-    void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized();
 };
 

@@ -102,16 +102,6 @@ Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #endif
 
-void NameComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    unused(p_version);
-
-    p_archive.ArchiveValue(m_name);
-}
-
-void HierarchyComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_parent_id);
-}
-
 void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);
     p_archive.ArchiveValue(start);
@@ -142,19 +132,6 @@ void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {
 void ArmatureComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(boneCollection);
     p_archive.ArchiveValue(inverseBindMatrices);
-}
-
-void CameraComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_flags);
-    p_archive.ArchiveValue(m_near);
-    p_archive.ArchiveValue(m_far);
-    p_archive.ArchiveValue(m_fovy);
-    p_archive.ArchiveValue(m_width);
-    p_archive.ArchiveValue(m_height);
-    p_archive.ArchiveValue(m_pitch);
-    p_archive.ArchiveValue(m_yaw);
-    p_archive.ArchiveValue(m_position);
-    p_archive.ArchiveValue(m_ortho_height);
 }
 
 void CollisionObjectBase::Serialize(Archive& p_archive, uint32_t) {

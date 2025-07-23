@@ -6,7 +6,6 @@
 
 namespace cave {
 
-class Archive;
 struct GpuMesh;
 
 class TileMapRendererComponent {
@@ -45,7 +44,6 @@ public:
     const Vector4f& GetTintColor() const { return m_tint_color; }
 
     void OnDeserialized();
-    void Serialize(Archive& p_archive, uint32_t p_version);
 };
 
 }  // namespace cave

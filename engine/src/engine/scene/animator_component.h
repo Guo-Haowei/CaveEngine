@@ -4,8 +4,6 @@
 
 namespace cave {
 
-class Archive;
-
 // @TODO: reuse AnimatorComponent for both sprite and skeleton
 class AnimatorComponent {
     CAVE_META(AnimatorComponent)
@@ -50,8 +48,6 @@ public:
     float& GetPlaybackTimerRef() { return m_playback_timer; }
 
     void OnDeserialized();
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
 };
 
 }  // namespace cave

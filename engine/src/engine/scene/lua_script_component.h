@@ -4,8 +4,6 @@
 
 namespace cave {
 
-class Archive;
-
 class LuaScriptComponent {
     CAVE_META(LuaScriptComponent)
 
@@ -30,7 +28,6 @@ public:
 
     int GetInstance() const { return m_instance; }
 
-    void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized();
 
 private:
