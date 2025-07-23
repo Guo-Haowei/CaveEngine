@@ -39,7 +39,7 @@ Result<void> Box2dPhysicsManager::InitializeImpl() {
         b2World_Step(worldId, timeStep, subStepCount);
         b2Vec2 position = b2Body_GetPosition(bodyId);
         b2Rot rotation = b2Body_GetRotation(bodyId);
-        printf("%4.2f %4.2f %4.2f\n", position.x, position.y, b2Rot_GetAngle(rotation));
+        LOG_OK("x: {}, y: {}, rotation: {}", position.x, position.y, b2Rot_GetAngle(rotation));
     }
 
     b2DestroyWorld(worldId);

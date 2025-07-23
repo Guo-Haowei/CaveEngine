@@ -390,6 +390,9 @@ auto GraphicsManager::SelectRenderGraph() -> Result<void> {
         RENDER_GRAPH_LIST
 #undef RENDER_GRAPH_DECLARE
     };
+    if (m_app->IsWorld2D()) {
+        method = "scene2d";
+    }
 
     if (!method.empty()) {
         auto it = lookup.find(method);

@@ -78,6 +78,7 @@ public:
 
     bool IsRuntime() const { return m_type == Type::Runtime; }
     bool IsEditor() const { return m_type == Type::Editor; }
+    virtual bool IsWorld2D() const = 0;
 
 protected:
     [[nodiscard]] auto SetupModules() -> Result<void>;

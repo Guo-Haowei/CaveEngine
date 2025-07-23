@@ -72,7 +72,8 @@ public:
 class Editor : public Application {
 public:
     Editor(const ApplicationSpec& p_spec)
-        : Application(p_spec, Application::Type::Editor) {
+        : Application(p_spec, Application::Type::Editor)
+        , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
         m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
     }
 
@@ -88,7 +89,12 @@ public:
         return m_editorLayer->GetActiveCamera();
     }
 
+    bool IsWorld2D() const override {
+        return m_is_world_2d;
+    }
+
 private:
+    const bool m_is_world_2d;
     std::unique_ptr<EditorLayer> m_editorLayer;
 };
 
@@ -121,15 +127,13 @@ int main(int p_argc, const char** p_argv) {
 
     // @TODO: figure out a way to create it cleanly
 #if !USING(PLATFORM_WASM)
-#if 0
     IPhysicsManager::RegisterCreateFunc([]() -> IPhysicsManager* {
-        return new Bullet3PhysicsManager();
+        if (DVAR_GET_BOOL(is_world_2d)) {
+            return new Box2dPhysicsManager();
+        } else {
+            return new Bullet3PhysicsManager();
+        }
     });
-#else
-    IPhysicsManager::RegisterCreateFunc([]() -> IPhysicsManager* {
-        return new Box2dPhysicsManager();
-    });
-#endif
 #endif
     ISceneManager::RegisterCreateFunc([]() -> ISceneManager* {
         return new EditorSceneManager();
