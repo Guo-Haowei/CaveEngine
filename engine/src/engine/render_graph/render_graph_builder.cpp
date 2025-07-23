@@ -32,7 +32,7 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
-    if constexpr (USING(DEBUG_BUILDER)) {
+#if USING(DEBUG_BUILDER)
         int id = 0;
         for (const auto& pass : m_passes) {
             DEBUG_PRINT("found pass: {} (id: {})", pass.GetName(), id++);
@@ -49,7 +49,7 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
                 DEBUG_PRINT("  -- {}", write.name);
             }
         }
-    }
+#endif
 
     std::unordered_map<std::string_view, int> lookup;
 

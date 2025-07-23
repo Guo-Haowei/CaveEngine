@@ -54,7 +54,7 @@ bool IDeserializer::Read(Matrix4x4f& p_object) {
     return true;
 }
 
-[[noreturn]] Option<std::vector<std::string>> IDeserializer::GetKeys() {
+Option<std::vector<std::string>> IDeserializer::GetKeys() {
     CRASH_NOW_MSG("GetKeys is very inefficient, try to avoid using it");
     std::exit(-1);
 }

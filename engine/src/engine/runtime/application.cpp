@@ -55,11 +55,15 @@ static void RegisterRenderDvars() {
 }
 
 Application::Application(const ApplicationSpec& p_spec, Type p_type)
-    : m_specification(p_spec), m_type(p_type) {
+    : m_type(p_type)
+    , m_specification(p_spec) {
     // select work directory
     m_userFolder = std::string{ m_specification.userFolder };
 
     FileAccess::SetUserFolderCallback([&]() { return m_userFolder.c_str(); });
+}
+
+Application::~Application() {
 }
 
 ModeManager& Application::GetModeManager() {
@@ -231,6 +235,8 @@ void Application::Finalize() {
     // @TODO: fix
     if (m_display_server) {
         auto [w, h] = m_display_server->GetWindowSize();
+        unused(w);
+        unused(h);
         DVAR_SET_IVEC2(window_resolution, w, h);
     }
 

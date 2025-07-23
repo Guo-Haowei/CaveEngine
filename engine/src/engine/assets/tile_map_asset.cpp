@@ -34,8 +34,6 @@ Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
 bool TileMapAsset::AddTile(TileIndex p_index, TileId p_id) {
     TileIndex index = ConvertIndex(p_index);
 
-    auto it = m_tiles.chunks.find(index);
-
     auto& chunk = m_tiles.chunks[index];
     if (chunk == nullptr) {
         chunk = std::make_unique<TileChunk>();

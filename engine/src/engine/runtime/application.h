@@ -43,7 +43,7 @@ public:
     };
 
     Application(const ApplicationSpec& p_spec, Type p_type = Type::Runtime);
-    virtual ~Application() = default;
+    virtual ~Application();
 
     auto Initialize(int p_argc, const char** p_argv) -> Result<void>;
     void Finalize();

@@ -18,6 +18,8 @@ public:
         : m_mode(p_mode)
         , m_app(p_app) {}
 
+    virtual ~ModeManager() = default;
+
     GameMode GetMode() const { return m_mode; }
 
     virtual void SetMode(GameMode) {}

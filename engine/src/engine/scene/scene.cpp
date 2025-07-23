@@ -215,6 +215,10 @@ Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     return result;
 }
 
+std::vector<Guid> Scene::GetDependencies() const {
+    return {};
+}
+
 // LATEST_SCENE_VERSION history
 // version 1: initial version
 // version 2: don't serialize scene.m_bound

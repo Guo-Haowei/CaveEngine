@@ -9,6 +9,8 @@ class Document {
 public:
     Document(const Guid& p_guid);
 
+    virtual ~Document();
+
     template<typename T>
     Handle<T> GetHandle() const {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
