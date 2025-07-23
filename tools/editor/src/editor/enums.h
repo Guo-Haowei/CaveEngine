@@ -41,7 +41,7 @@ enum class EntityType : uint8_t {
     COMPONENT_DECL(Collider)       \
     COMPONENT_DECL(MeshRenderer)   \
     COMPONENT_DECL(SpriteRenderer) \
-    COMPONENT_DECL(TileMapRenderer) 
+    COMPONENT_DECL(TileMapRenderer)
 
 enum class ComponentName : uint8_t {
 #define COMPONENT_DECL(NAME) NAME,

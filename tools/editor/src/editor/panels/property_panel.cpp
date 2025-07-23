@@ -16,10 +16,8 @@
 
 namespace cave {
 
-constexpr float COMPONENT_FIELD_NAME_WIDTH = 120.f;
-
 template<HasEnumTraits T>
-bool DrawEnumDropDown(std::string_view p_name, T& p_enum, float p_width = COMPONENT_FIELD_NAME_WIDTH) {
+bool DrawEnumDropDown(std::string_view p_name, T& p_enum, float p_width = DEFAULT_COLUMN_WIDTH) {
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, p_width);
     ImGui::Text("%s", p_name.data());
@@ -98,7 +96,7 @@ void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     const IAsset* asset = nullptr;
 
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, COMPONENT_FIELD_NAME_WIDTH);
+    ImGui::SetColumnWidth(0, DEFAULT_COLUMN_WIDTH);
     ImGui::Text(ICON_FA_CUBE "  %s", p_name);
     ImGui::NextColumn();
 
@@ -141,7 +139,7 @@ bool DrawComponentAuto(T* p_component) {
             } break;
             case EditorHint::Color: {
                 Vector4f& color = field->template GetData<Vector4f>(p_component);
-                if (DrawColorPicker4(field->name, &color.r, COMPONENT_FIELD_NAME_WIDTH)) {
+                if (DrawColorPicker4(field->name, &color.r)) {
                     dirty = true;
                     // @TODO: callback
                 }
@@ -158,8 +156,7 @@ bool DrawComponentAuto(T* p_component) {
                 if (DrawVec3Control(
                         field->name,
                         translation,
-                        0.0f,
-                        COMPONENT_FIELD_NAME_WIDTH)) {
+                        0.0f)) {
                     dirty = true;
                 }
             } break;
@@ -167,8 +164,7 @@ bool DrawComponentAuto(T* p_component) {
                 Vector3f& scale = field->template GetData<Vector3f>(p_component);
                 if (DrawVec3Control(field->name,
                                     scale,
-                                    1.0f,
-                                    COMPONENT_FIELD_NAME_WIDTH)) {
+                                    1.0f)) {
                     dirty = true;
                 }
             } break;
@@ -182,8 +178,7 @@ bool DrawComponentAuto(T* p_component) {
 
                 if (DrawVec3Control(field->name,
                                     euler,
-                                    0.0f,
-                                    COMPONENT_FIELD_NAME_WIDTH)) {
+                                    0.0f)) {
                     dirty = true;
                     euler *= DEG_TO_RAD;
                     glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
@@ -196,8 +191,8 @@ bool DrawComponentAuto(T* p_component) {
                                   f,
                                   0.1f,          // speed
                                   field->v_min,  // min
-                                  field->v_max,  // max
-                                  COMPONENT_FIELD_NAME_WIDTH)) {
+                                  field->v_max   // max
+                                  )) {
                     dirty = true;
                 }
             } break;
@@ -274,27 +269,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
     AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
 
-    bool disable_translation = false;
-    bool disable_rotation = false;
-    bool disable_scale = false;
-    if (light_component) {
-        switch (light_component->GetType()) {
-            case LIGHT_TYPE_INFINITE:
-                disable_translation = true;
-                disable_scale = true;
-                break;
-            case LIGHT_TYPE_POINT:
-                disable_rotation = true;
-                disable_scale = true;
-                break;
-            case LIGHT_TYPE_AREA:
-                break;
-            default:
-                CRASH_NOW();
-                break;
-        }
-    }
-
+    // @TODO: limit this in scene editor
     DrawComponent("Transform", transform_component, [&](TransformComponent& p_transform) {
         const Matrix4x4f old_transform = p_transform.GetLocalMatrix();
         const bool dirty = DrawComponentAuto<TransformComponent>(&p_transform);
@@ -306,6 +281,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
+    // @TODO: change this to dropdown
     DrawComponent("Light", light_component, [&](LightComponent& p_light) {
         // @TODO: refactor
         switch (p_light.GetType()) {
@@ -323,7 +299,109 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         if (dirty) {
             p_light.SetDirty();
         }
-        ImGui::Text("max distance: %0.3f", p_light.GetMaxDistance());
+        // ImGui::Text("max distance: %0.3f", p_light.GetMaxDistance());
+    });
+
+    DrawComponent("RigidBody", rigid_body_component, [](RigidBodyComponent& p_rigid_body) {
+        const auto& size = p_rigid_body.size;
+        switch (p_rigid_body.shape) {
+            case RigidBodyComponent::SHAPE_CUBE: {
+                ImGui::Text("shape: box");
+                ImGui::Text("half size: %.2f, %.2f, %.2f", size.x, size.y, size.z);
+            } break;
+            case RigidBodyComponent::SHAPE_SPHERE: {
+                ImGui::Text("shape: sphere");
+                ImGui::Text("radius: %.2f", size.x);
+            } break;
+            default:
+                break;
+        }
+    });
+
+    DrawComponent("LuaScript", script_component, [](LuaScriptComponent& p_script) {
+        DrawInputText("class_name", p_script.GetClassNameRef(), DEFAULT_COLUMN_WIDTH);
+
+        DrawComponentAuto<LuaScriptComponent>(&p_script);
+    });
+
+    const bool is_2d = m_editor.GetApplication()->IsWorld2D();
+
+    DrawComponent("Collider", collider, [&](ColliderComponent& p_collider) {
+        Shape& shape = p_collider.GetShape();
+        DrawEnumDropDown("shape", shape.type);
+        switch (shape.type) {
+            case ShapeType::Round: {
+                DrawVec1Control("radius", shape.data.radius, 0.5f);
+            } break;
+            case ShapeType::Box: {
+                if (is_2d) {
+                    DrawVec2Control("half", reinterpret_cast<Vector2f&>(shape.data.half), 0.5f);
+                } else {
+                    DrawVec3Control("half", shape.data.half, 0.5f);
+                }
+            } break;
+            default:
+                DrawVec3Control("placeholder", shape.data.half, 0.5f);
+                break;
+        }
+    });
+
+    DrawComponent("Animator", animator_component, [](AnimatorComponent& p_animator) {
+        // @TODO: refactor this
+        // @TODO: drop down
+        const Guid& guid = p_animator.GetResourceGuid();
+        if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
+            handle.is_some()) {
+            SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
+            std::string clip_name = p_animator.GetCurrentClip();
+            if (DrawInputText("clip", clip_name, DEFAULT_COLUMN_WIDTH)) {
+                const SpriteAnimationClip* clip = asset->GetClip(clip_name);
+                if (clip) {
+                    p_animator.SetClip(clip_name);
+                }
+            }
+        }
+
+        DrawComponentAuto<AnimatorComponent>(&p_animator);
+    });
+
+    DrawComponent("SpriteRenderer", sprite_renderer, [](SpriteRendererComponent& p_sprite_renderer) {
+        DrawComponentAuto<SpriteRendererComponent>(&p_sprite_renderer);
+    });
+
+    DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRendererComponent& p_tile_map_renderer) {
+        DrawComponentAuto<TileMapRendererComponent>(&p_tile_map_renderer);
+    });
+
+    DrawComponent("MeshRenderer", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
+        DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
+    });
+
+    DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
+        bool is_ortho = p_camera.HasOrthoFlag();
+        if (ToggleButton("ortho", is_ortho)) {
+            p_camera.SetOrthoFlag(is_ortho);
+            p_camera.SetDirtyFlag();
+        }
+
+        DrawComponentAuto<CameraComponent>(&p_camera);
+    });
+
+    // @TODO: refactor this
+    DrawComponent("Animation", animation_component, [&](AnimationComponent& p_animation) {
+        if (!p_animation.IsPlaying()) {
+            if (ImGui::Button("play")) {
+                p_animation.flags |= AnimationComponent::PLAYING;
+            }
+        } else {
+            if (ImGui::Button("stop")) {
+                p_animation.flags &= ~AnimationComponent::PLAYING;
+            }
+        }
+        if (ImGui::SliderFloat("Frame", &p_animation.timer, p_animation.start, p_animation.end)) {
+            p_animation.flags |= AnimationComponent::PLAYING;
+        }
+        ImGui::Separator();
     });
 
     DrawComponent("Environment", environment_component, [](EnvironmentComponent& p_environment) {
@@ -343,90 +421,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         ImGui::SameLine();
         ImGui::RadioButton("normal", &value, 1);
         DVAR_SET_INT(gfx_debug_vxgi_voxel, value);
-    });
-
-    DrawComponent("RigidBody", rigid_body_component, [](RigidBodyComponent& p_rigid_body) {
-        const auto& size = p_rigid_body.size;
-        switch (p_rigid_body.shape) {
-            case RigidBodyComponent::SHAPE_CUBE: {
-                ImGui::Text("shape: box");
-                ImGui::Text("half size: %.2f, %.2f, %.2f", size.x, size.y, size.z);
-            } break;
-            case RigidBodyComponent::SHAPE_SPHERE: {
-                ImGui::Text("shape: sphere");
-                ImGui::Text("radius: %.2f", size.x);
-            } break;
-            default:
-                break;
-        }
-    });
-
-    DrawComponent("LuaScriptComponent", script_component, [](LuaScriptComponent& p_script) {
-        DrawInputText("class_name", p_script.GetClassNameRef(), COMPONENT_FIELD_NAME_WIDTH);
-
-        DrawComponentAuto<LuaScriptComponent>(&p_script);
-    });
-
-    DrawComponent("ColliderComponent", collider, [](ColliderComponent& p_collider) {
-        Shape& shape = p_collider.GetShape();
-        DrawEnumDropDown("shape", shape.type);
-    });
-
-    DrawComponent("AnimatorComponent", animator_component, [](AnimatorComponent& p_animator) {
-        // @TODO: refactor this
-        const Guid& guid = p_animator.GetResourceGuid();
-        if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
-            handle.is_some()) {
-            SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
-            // @TODO: drop down
-            std::string clip_name = p_animator.GetCurrentClip();
-            if (DrawInputText("clip", clip_name, COMPONENT_FIELD_NAME_WIDTH)) {
-                const SpriteAnimationClip* clip = asset->GetClip(clip_name);
-                if (clip) {
-                    p_animator.SetClip(clip_name);
-                }
-            }
-        }
-
-        DrawComponentAuto<AnimatorComponent>(&p_animator);
-    });
-
-    DrawComponent("SpriteRendererComponent", sprite_renderer, [](SpriteRendererComponent& p_sprite_renderer) {
-        DrawComponentAuto<SpriteRendererComponent>(&p_sprite_renderer);
-    });
-
-    DrawComponent("TileMapRendererComponent", tile_map_renderer, [](TileMapRendererComponent& p_tile_map_renderer) {
-        DrawComponentAuto<TileMapRendererComponent>(&p_tile_map_renderer);
-    });
-
-    DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
-        bool is_ortho = p_camera.HasOrthoFlag();
-        if (ToggleButton("ortho", is_ortho)) {
-            p_camera.SetOrthoFlag(is_ortho);
-            p_camera.SetDirtyFlag();
-        }
-
-        DrawComponentAuto<CameraComponent>(&p_camera);
-    });
-
-    DrawComponent("MeshRendererComponent", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
-        DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
-    });
-
-    DrawComponent("Animation", animation_component, [&](AnimationComponent& p_animation) {
-        if (!p_animation.IsPlaying()) {
-            if (ImGui::Button("play")) {
-                p_animation.flags |= AnimationComponent::PLAYING;
-            }
-        } else {
-            if (ImGui::Button("stop")) {
-                p_animation.flags &= ~AnimationComponent::PLAYING;
-            }
-        }
-        if (ImGui::SliderFloat("Frame", &p_animation.timer, p_animation.start, p_animation.end)) {
-            p_animation.flags |= AnimationComponent::PLAYING;
-        }
-        ImGui::Separator();
     });
 
 #if 0

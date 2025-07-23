@@ -49,6 +49,12 @@ entities:
       looping: true
       playing: true
       speed: 1
+    ColliderComponent:
+      shape:
+        type: box
+      flags: 0
+      category: 0
+      mask: 0
     LuaScriptComponent:
       class_name: Player
       source_id: 133E5416-E5D5-BA4A-9F13460A05C8D6EA

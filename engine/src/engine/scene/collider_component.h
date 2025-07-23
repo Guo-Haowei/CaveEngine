@@ -3,6 +3,14 @@
 #include "engine/reflection/reflection.h"
 #include "engine/scene/scene_component_base.h"
 
+/*
+[Entity Root]
+    Collider (physics, movement)
+        Animator (decides poses, plays clips, blends layers)
+            SpriteRenderer (LowerBody)
+            SpriteRenderer (UpperBody)
+*/
+
 namespace cave {
 
 class ISerializer;
