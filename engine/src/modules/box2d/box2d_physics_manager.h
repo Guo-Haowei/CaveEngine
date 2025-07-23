@@ -3,12 +3,10 @@
 
 namespace cave {
 
-class Scene;
-
-class Bullet3PhysicsManager : public IPhysicsManager {
+class Box2dPhysicsManager : public IPhysicsManager {
 public:
-    Bullet3PhysicsManager()
-        : IPhysicsManager("Bullet3PhysicsManager") {}
+    Box2dPhysicsManager()
+        : IPhysicsManager("Box2dPhysicsManager") {}
 
     void Update(Scene& p_scene, float p_timestep) override;
 
@@ -18,9 +16,6 @@ public:
 protected:
     Result<void> InitializeImpl() override;
     void FinalizeImpl() override;
-
-    void UpdateCollision(Scene& p_scene);
-    void UpdateSimulation(Scene& p_scene, float p_timestep);
 };
 
 }  // namespace cave

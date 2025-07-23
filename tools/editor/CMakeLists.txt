@@ -22,10 +22,11 @@ set(TARGET_LIBS
     engine
     the_aviator_lib
     imnodes
+    box2d_physics_manager
 )
 
 if (BUILD_BULLET3)
-    list(APPEND TARGET_LIBS bullet3)
+    list(APPEND TARGET_LIBS bullet3_physics_manager)
 endif()
 
 if (BUILD_TINYGLTF_LOADER)

@@ -153,6 +153,7 @@ void Application::RegisterDvars() {
 auto Application::Initialize(int p_argc, const char** p_argv) -> Result<void> {
     SaveCommandLine(p_argc, p_argv);
 
+    // @TODO: move this outside the loop
     RegisterDvars();
 #if USING(ENABLE_DVAR)
     DynamicVariableManager::Deserialize(DVAR_CACHE_FILE);

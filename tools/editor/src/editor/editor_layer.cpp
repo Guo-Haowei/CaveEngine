@@ -10,7 +10,6 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/input_manager.h"
 #include "engine/runtime/layer.h"
-#include "engine/runtime/physics_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 

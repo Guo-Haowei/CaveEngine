@@ -8,6 +8,7 @@
 #include "engine/runtime/layer.h"
 #include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
+#include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
 #define DEFINE_DVAR
@@ -121,10 +122,17 @@ Application* CreateApplication() {
 int main(int p_argc, const char** p_argv) {
     using namespace cave;
 
+    // @TODO: figure out a way to create it cleanly
 #if !USING(PLATFORM_WASM)
+#if 0
     IPhysicsManager::RegisterCreateFunc([]() -> IPhysicsManager* {
         return new Bullet3PhysicsManager();
     });
+#else
+    IPhysicsManager::RegisterCreateFunc([]() -> IPhysicsManager* {
+        return new Box2dPhysicsManager();
+    });
+#endif
 #endif
     ISceneManager::RegisterCreateFunc([]() -> ISceneManager* {
         return new EditorSceneManager();

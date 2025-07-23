@@ -43,7 +43,7 @@ foreach(target IN LISTS BULLET_TARGETS)
     endif()
 endforeach()
 
-set(TARGET_NAME bullet3)
+set(TARGET_NAME bullet3_physics_manager)
 
 file(GLOB_RECURSE SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.h"

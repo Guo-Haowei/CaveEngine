@@ -9,6 +9,7 @@ elseif (EMSCRIPTEN)
     add_subdirectory(opengles3)
 endif()
 
+add_subdirectory(box2d)
 if (USE_BULLET)
     add_subdirectory(bullet3)
 endif()

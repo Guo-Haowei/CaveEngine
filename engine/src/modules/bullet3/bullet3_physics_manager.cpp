@@ -84,7 +84,7 @@ public:
     Scene& m_scene;
 };
 
-auto Bullet3PhysicsManager::InitializeImpl() -> Result<void> {
+Result<void> Bullet3PhysicsManager::InitializeImpl() {
     return Result<void>();
 }
 
