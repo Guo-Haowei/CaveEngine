@@ -5,11 +5,6 @@
 #include "engine/runtime/asset_manager.h"
 #include "engine/runtime/asset_registry.h"
 
-// @TODO: refactor
-#pragma warning(push)
-#pragma warning(disable : 4100)  // unreferenced formal parameter
-#pragma warning(disable : 4189)  // local variable is initialized but not referenced
-
 namespace cave {
 
 Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
@@ -69,7 +64,6 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     light.m_atten_quadratic = 0.05f;
 
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-    MeshRendererComponent& object = *p_scene.GetComponent<MeshRendererComponent>(entity);
     transform.SetTranslation(p_position);
     transform.SetDirty();
 
@@ -77,6 +71,7 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     unused(p_color);
     unused(p_emissive);
 #if 0
+    MeshRendererComponent& mesh_renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
     MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
     material.baseColor = Vector4f(p_color, 1.0f);
     material.emissive = p_emissive;
@@ -151,21 +146,10 @@ Entity EntityFactory::CreateVoxelGiEntity(Scene& p_scene,
 
 Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
                                         const std::string& p_name,
-                                        const Vector3f& p_scale,
-                                        const Matrix4x4f& p_transform) {
-    Guid material_id;
-    return CreatePlaneEntity(p_scene, p_name, material_id, p_scale, p_transform);
-}
-
-Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
-                                        const std::string& p_name,
-                                        const Guid& p_material_id,
-                                        const Vector3f& p_scale,
                                         const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
-    TransformComponent& trans = *p_scene.GetComponent<TransformComponent>(entity);
-    MeshRendererComponent& object = *p_scene.GetComponent<MeshRendererComponent>(entity);
-    trans.MatrixTransform(p_transform);
+    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    transform.MatrixTransform(p_transform);
 
     auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
 
@@ -177,133 +161,116 @@ Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,
 
 Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
                                        const std::string& p_name,
-                                       const Vector3f& p_scale,
                                        const Matrix4x4f& p_transform) {
-    Guid material_id;
-    return CreateCubeEntity(p_scene, p_name, material_id, p_scale, p_transform);
+    auto entity = CreateObjectEntity(p_scene, p_name);
+    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    transform.MatrixTransform(p_transform);
+
+    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
+
+    // @TODO: create material
+    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap();
+    renderer.SetResourceGuid(handle.GetGuid());
+    return entity;
 }
 
-Entity EntityFactory::CreateCubeEntity(Scene& p_scene,
+Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
+                                         const std::string& p_name,
+                                         const Matrix4x4f& p_transform) {
+    auto entity = CreateObjectEntity(p_scene, p_name);
+    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    transform.MatrixTransform(p_transform);
+
+    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
+
+    // @TODO: create material
+    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap();
+    renderer.SetResourceGuid(handle.GetGuid());
+    return entity;
+}
+
+Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
+                                           const std::string& p_name,
+                                           const Matrix4x4f& p_transform) {
+    auto entity = CreateObjectEntity(p_scene, p_name);
+    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    transform.MatrixTransform(p_transform);
+
+    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
+
+    // @TODO: create material
+    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cylinder").unwrap();
+    renderer.SetResourceGuid(handle.GetGuid());
+    return entity;
+}
+
+Entity EntityFactory::CreateConeEntity(Scene& p_scene,
                                        const std::string& p_name,
-                                       const Guid& p_material_id,
-                                       const Vector3f& p_scale,
                                        const Matrix4x4f& p_transform) {
     auto entity = CreateObjectEntity(p_scene, p_name);
-    TransformComponent& trans = *p_scene.GetComponent<TransformComponent>(entity);
-    MeshRendererComponent& object = *p_scene.GetComponent<MeshRendererComponent>(entity);
-    trans.MatrixTransform(p_transform);
-
-#if 0
-    auto handle = CreateMeshEntity(p_scene, "@res://models/" + p_name + ".mesh");
-    object.m_mesh_id = handle.GetGuid();
-    object.m_mesh_handle = handle;
-
-    std::shared_ptr<MeshAsset> mesh = handle.Wait();
-    *mesh = MakeCubeMesh(p_scale);
-    mesh->subsets[0].material_id = p_material_id;
-    mesh->OnDeserialized();
-#endif
-
-    return entity;
-}
-
-Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
-                                         const std::string& p_name,
-                                         float p_radius,
-                                         const Matrix4x4f& p_transform) {
-    Guid material_id;
-    return CreateSphereEntity(p_scene, p_name, material_id, p_radius, p_transform);
-}
-
-Entity EntityFactory::CreateSphereEntity(Scene& p_scene,
-                                         const std::string& p_name,
-                                         const Guid& p_material_id,
-                                         float p_radius,
-                                         const Matrix4x4f& p_transform) {
-    auto entity = CreateObjectEntity(p_scene, p_name);
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
 
-#if 0
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
-    auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    object.meshId = mesh_id;
+    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
 
-    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
-    mesh = MakeSphereMesh(p_radius);
-    mesh.subsets[0].material_id = p_material_id;
-#endif
-
-    return entity;
-}
-
-Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
-                                           const std::string& p_name,
-                                           float p_radius,
-                                           float p_height,
-                                           const Matrix4x4f& p_transform) {
-    Guid material_id;
-    return CreateCylinderEntity(p_scene, p_name, material_id, p_radius, p_height, p_transform);
-}
-
-Entity EntityFactory::CreateCylinderEntity(Scene& p_scene,
-                                           const std::string& p_name,
-                                           const Guid& p_material_id,
-                                           float p_radius,
-                                           float p_height,
-                                           const Matrix4x4f& p_transform) {
-    auto entity = CreateObjectEntity(p_scene, p_name);
-    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-    transform.MatrixTransform(p_transform);
-
-#if 0
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
-    auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    object.meshId = mesh_id;
-
-    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
-    mesh = MakeCylinderMesh(p_radius, p_height);
-    mesh.subsets[0].material_id = p_material_id;
-#endif
-
+    // @TODO: create material
+    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cone").unwrap();
+    renderer.SetResourceGuid(handle.GetGuid());
     return entity;
 }
 
 Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
                                         const std::string& p_name,
-                                        float p_radius,
-                                        float p_tube_radius,
                                         const Matrix4x4f& p_transform) {
-    Guid material_id;
-    return CreateTorusEntity(p_scene, p_name, material_id, p_radius, p_tube_radius, p_transform);
-}
-
-Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
-                                        const std::string& p_name,
-                                        const Guid& p_material_id,
-                                        float p_radius,
-                                        float p_tube_radius,
-                                        const Matrix4x4f& p_transform) {
-    // @TODO: fix this
-    p_radius = 0.4f;
-    p_tube_radius = 0.1f;
-
     auto entity = CreateObjectEntity(p_scene, p_name);
     TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
 
-#if 0
-    MeshRenderer& object = *p_scene.GetComponent<MeshRenderer>(entity);
-    auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    object.meshId = mesh_id;
+    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
 
-    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
-    mesh = MakeTorusMesh(p_radius, p_tube_radius);
-    mesh.subsets[0].material_id = p_material_id;
-#endif
-
+    // @TODO: create material
+    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/torus").unwrap();
+    renderer.SetResourceGuid(handle.GetGuid());
     return entity;
 }
+
+#if 0
+
+Entity EntityFactory::CreateEmitterEntity(Scene& p_scene,
+                                          const std::string& p_name,
+                                          const Matrix4x4f& p_transform) {
+    LOG_WARN("TODO: fix");
+    auto entity = CreateTransformEntity(p_scene, p_name);
+    p_scene.Create<ParticleEmitterComponent>(entity);
+
+    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    transform.MatrixTransform(p_transform);
+    return entity;
+}
+
+Entity EntityFactory::CreateMeshEmitterEntity(Scene& p_scene,
+                                              const std::string& p_name,
+                                              const Vector3f& p_translation) {
+    LOG_WARN("TODO: fix");
+    auto entity = CreateNameEntity(p_scene, p_name);
+    p_scene.Create<TransformComponent>(entity).SetTranslation(p_translation);
+    p_scene.Create<MeshEmitterComponent>(entity);
+    return entity;
+}
+
+Entity EntityFactory::CreateForceFieldEntity(Scene& p_scene,
+                                             const std::string& p_name,
+                                             const Matrix4x4f& p_transform) {
+    LOG_WARN("TODO: fix");
+    auto entity = CreateTransformEntity(p_scene, p_name);
+    p_scene.Create<ForceFieldComponent>(entity);
+
+    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    transform.MatrixTransform(p_transform);
+    return entity;
+}
+
+#endif
 
 Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
                                           const std::string& p_name,
@@ -316,45 +283,5 @@ Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
     p_scene.Create<TileMapRendererComponent>(entity);
     return entity;
 }
-
-#if 0
-Entity EntityFactory::CreateEmitterEntity(Scene& p_scene,
-                                          const std::string& p_name,
-                                          const Matrix4x4f& p_transform) {
-    LOG_WARN("TODO: fix");
-    auto entity = CreateTransformEntity(p_scene, p_name);
-    p_scene.Create<ParticleEmitterComponent>(entity);
-
-    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-    transform.MatrixTransform(p_transform);
-    return entity;
-}
-#endif
-
-#if 0
-Entity EntityFactory::CreateMeshEmitterEntity(Scene& p_scene,
-                                              const std::string& p_name,
-                                              const Vector3f& p_translation) {
-    LOG_WARN("TODO: fix");
-    auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<TransformComponent>(entity).SetTranslation(p_translation);
-    p_scene.Create<MeshEmitterComponent>(entity);
-    return entity;
-}
-#endif
-
-#if 0
-Entity EntityFactory::CreateForceFieldEntity(Scene& p_scene,
-                                             const std::string& p_name,
-                                             const Matrix4x4f& p_transform) {
-    LOG_WARN("TODO: fix");
-    auto entity = CreateTransformEntity(p_scene, p_name);
-    p_scene.Create<ForceFieldComponent>(entity);
-
-    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-    transform.MatrixTransform(p_transform);
-    return entity;
-}
-#endif
 
 }  // namespace cave

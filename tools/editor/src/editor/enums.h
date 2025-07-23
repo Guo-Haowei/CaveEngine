@@ -9,29 +9,30 @@ enum class GizmoAction : uint8_t {
 };
 
 // clang-format off
-//------------ Enum,                Name,           Separator
-#define ENTITY_TYPE_LIST                                   \
-    ENTITY_TYPE(INFINITE_LIGHT,		InfiniteLight,  false) \
-    ENTITY_TYPE(POINT_LIGHT,		PointLight,     false) \
-    ENTITY_TYPE(ENVIRONMENT,        Environment,    false) \
-    ENTITY_TYPE(AREA_LIGHT,			AreaLight,      false) \
-    ENTITY_TYPE(VOXEL_GI,			VoxelGi,        true ) \
-    ENTITY_TYPE(TRANSFORM,			Transform,      false) \
-    ENTITY_TYPE(PLANE,				Plane,          false) \
-    ENTITY_TYPE(CUBE,				Cube,           false) \
-    ENTITY_TYPE(SPHERE,             Sphere,         false) \
-    ENTITY_TYPE(CYLINDER,           Cylinder,       false) \
-    ENTITY_TYPE(TORUS,              Torus,          true )
+//              Name,           Separator
+#define ENTITY_TYPE_LIST               \
+    ENTITY_TYPE(InfiniteLight,  false) \
+    ENTITY_TYPE(PointLight,     false) \
+    ENTITY_TYPE(Environment,    false) \
+    ENTITY_TYPE(AreaLight,      false) \
+    ENTITY_TYPE(VoxelGi,        true ) \
+    ENTITY_TYPE(Transform,      false) \
+    ENTITY_TYPE(Plane,          false) \
+    ENTITY_TYPE(Cube,           false) \
+    ENTITY_TYPE(Sphere,         false) \
+    ENTITY_TYPE(Cylinder,       false) \
+    ENTITY_TYPE(Cone,           false) \
+    ENTITY_TYPE(Torus,          true )
 // clang-format on
 
 // ENTITY_TYPE(PARTICLE_EMITTER,   Emitter,        false)
 // ENTITY_TYPE(FORCE_FIELD,        ForceField,     false)
 
 enum class EntityType : uint8_t {
-#define ENTITY_TYPE(ENUM, ...) ENUM,
+#define ENTITY_TYPE(NAME, ...) NAME,
     ENTITY_TYPE_LIST
 #undef ENTITY_TYPE
-        COUNT,
+        Count,
 };
 
 #define COMPONENT_LIST              \

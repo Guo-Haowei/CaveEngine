@@ -1,5 +1,5 @@
 version: 19
-seed: 3
+seed: 5
 root: 1
 physics_mode: 0
 entities:
@@ -45,3 +45,33 @@ entities:
         min: [.inf, .inf, .inf]
         max: [-.inf, -.inf, -.inf]
       cast_shadow: true
+  - id: 4
+    NameComponent:
+      name: Cube-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [2.8112564, 1.3738251, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000005
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []
+  - id: 5
+    NameComponent:
+      name: Sphere-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [-1.3886032, 1.8128128, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000006
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []

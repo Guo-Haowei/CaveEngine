@@ -47,61 +47,26 @@ public:
 
     static Entity CreatePlaneEntity(Scene& p_scene,
                                     const std::string& p_name,
-                                    const Vector3f& p_scale = Vector3f(0.5f),
-                                    const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    static Entity CreatePlaneEntity(Scene& p_scene,
-                                    const std::string& p_name,
-                                    const Guid& p_material_id,
-                                    const Vector3f& p_scale = Vector3f(0.5f),
                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
     static Entity CreateCubeEntity(Scene& p_scene,
                                    const std::string& p_name,
-                                   const Vector3f& p_scale = Vector3f(0.5f),
                                    const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
-    static Entity CreateCubeEntity(Scene& p_scene,
+    static Entity CreateSphereEntity(Scene& p_scene,
+                                     const std::string& p_name,
+                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
+
+    static Entity CreateCylinderEntity(Scene& p_scene,
+                                       const std::string& p_name,
+                                       const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
+
+    static Entity CreateConeEntity(Scene& p_scene,
                                    const std::string& p_name,
-                                   const Guid& p_material_id,
-                                   const Vector3f& p_scale = Vector3f(0.5f),
                                    const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
-    static Entity CreateSphereEntity(Scene& p_scene,
-                                     const std::string& p_name,
-                                     float p_radius = 0.5f,
-                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    static Entity CreateSphereEntity(Scene& p_scene,
-                                     const std::string& p_name,
-                                     const Guid& p_material_id,
-                                     float p_radius = 0.5f,
-                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    static Entity CreateCylinderEntity(Scene& p_scene,
-                                       const std::string& p_name,
-                                       float p_radius = 0.5f,
-                                       float p_height = 1.0f,
-                                       const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    static Entity CreateCylinderEntity(Scene& p_scene,
-                                       const std::string& p_name,
-                                       const Guid& p_material_id,
-                                       float p_radius = 0.5f,
-                                       float p_height = 1.0f,
-                                       const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
     static Entity CreateTorusEntity(Scene& p_scene,
                                     const std::string& p_name,
-                                    float p_radius = 0.5f,
-                                    float p_tube_radius = 0.2f,
-                                    const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    static Entity CreateTorusEntity(Scene& p_scene,
-                                    const std::string& p_name,
-                                    const Guid& p_material_id,
-                                    float p_radius = 0.5f,
-                                    float p_tube_radius = 0.2f,
                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
 
 #if 0
