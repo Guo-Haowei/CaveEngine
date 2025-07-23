@@ -17,6 +17,9 @@ TEST(file_access, make_default) {
     FileAccess::MakeDefault<FileAccessFoo>(FileAccess::ACCESS_USERDATA);
     FileAccess::MakeDefault<FileAccessFoo>(FileAccess::ACCESS_FILESYSTEM);
 
+    FileAccess::SetResFolderCallback([]() { return "dev"; });
+    FileAccess::SetUserFolderCallback([]() { return "user"; });
+
     {
         auto file = FileAccess::Open("a.txt", (FileAccess::ModeFlags)10);
     }
@@ -24,13 +27,16 @@ TEST(file_access, make_default) {
     {
         auto file = FileAccess::Open("@res://abc.txt", (FileAccess::ModeFlags)1);
     }
-    EXPECT_EQ(s_buffer, "[Open]f:@res://abc.txt,m:1,a:1;");
+    EXPECT_EQ(s_buffer, "[Open]f:dev/abc.txt,m:1,a:1;");
     {
         auto file = FileAccess::Open("@user://cache", (FileAccess::ModeFlags)7);
     }
-    EXPECT_EQ(s_buffer, "[Open]f:@user://cache,m:7,a:2;");
+    EXPECT_EQ(s_buffer, "[Open]f:user/cache,m:7,a:2;");
 
     s_buffer.clear();
+
+    FileAccess::ResetResFolderCallback();
+    FileAccess::ResetUserFolderCallback();
 }
 
 }  // namespace cave

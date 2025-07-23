@@ -74,14 +74,6 @@ public:
     AccessType GetAccessType() const { return m_accessType; }
     ModeFlags GetOpenMode() const { return m_openMode; }
 
-    static void SetUserFolderCallback(GetUserFolderFunc p_user_func) {
-        s_getUserFolderFunc = p_user_func;
-    }
-
-    static void SetResFolderCallback(GetResourceFolderFunc p_resource_func) {
-        s_getResourceFolderFunc = p_resource_func;
-    }
-
     static auto Create(AccessType p_access_type) -> std::shared_ptr<FileAccess>;
     static auto CreateForPath(std::string_view p_path) -> std::shared_ptr<FileAccess>;
 
@@ -93,6 +85,11 @@ public:
     }
 
     static std::string FixPath(AccessType p_access_type, std::string_view p_path);
+
+    static void SetUserFolderCallback(GetUserFolderFunc p_user_func) { s_getUserFolderFunc = p_user_func; }
+    static void ResetUserFolderCallback() { s_getUserFolderFunc = nullptr; }
+    static void SetResFolderCallback(GetResourceFolderFunc p_resource_func) { s_getResourceFolderFunc = p_resource_func; }
+    static void ResetResFolderCallback() { s_getResourceFolderFunc = nullptr; }
 
 protected:
     FileAccess() = default;
