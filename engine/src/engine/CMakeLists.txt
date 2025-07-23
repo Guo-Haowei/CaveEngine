@@ -1,3 +1,5 @@
+include(FetchContent)
+
 set(TARGET_NAME engine)
 
 file(GLOB_RECURSE SRC
@@ -59,12 +61,21 @@ target_compile_definitions(${TARGET_NAME} PUBLIC
     -DROOT_FOLDER="${PROJECT_SOURCE_DIR}/"
 )
 
+FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+    GIT_TAG        0.8.0
+)
+
+FetchContent_MakeAvailable(yaml-cpp)
+set_target_properties(yaml-cpp PROPERTIES FOLDER thirdparty)
+
 set(TARGET_LIBS
     engine_assets
     imgui
     glm::glm
     lua
-    yaml-cpp::yaml-cpp
+    yaml-cpp
 )
 
 if(WIN32)

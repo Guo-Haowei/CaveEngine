@@ -50,12 +50,6 @@ include(cmake/build_imnodes.cmake)
 add_subdirectory(thirdparty/glm)
 set_target_properties(glm PROPERTIES FOLDER thirdparty)
 
-# YAML-CPP
-set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-add_subdirectory(thirdparty/yaml-cpp)
-set_target_properties(yaml-cpp PROPERTIES FOLDER thirdparty)
-
 if(WIN32)
     message(STATUS "Configuring optick...")
     add_subdirectory(thirdparty/optick)
