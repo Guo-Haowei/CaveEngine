@@ -90,7 +90,11 @@ public:
 
     template<IsEnum T>
     ISerializer& Write(const T& p_object) {
-        return Write(static_cast<uint64_t>(std::to_underlying(p_object)));
+        if constexpr (HasEnumTraits<T>) {
+            return Write(EnumTraits<T>::ToString(p_object).data());
+        } else {
+            return Write(static_cast<uint64_t>(std::to_underlying(p_object)));
+        }
     }
 
     template<typename T, int N>

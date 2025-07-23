@@ -9,26 +9,34 @@ class ISerializer;
 class IDeserializer;
 
 enum class BodyType : uint8_t {
-    Static,
+    Static = 0,
     Kinematic,
     Dynamic,
+    Count,
 };
 
+DECLARE_ENUM_TRAITS(BodyType, "static", "kinematic", "dynamic");
+
+enum class ShapeType : uint8_t {
+    Null,
+    Box,
+    Round,
+    Capsule,
+    Count,
+};
+
+DECLARE_ENUM_TRAITS(ShapeType, "null", "box", "round", "capsule");
+
 struct Shape {
-    enum : uint8_t {
-        Null,
-        Box,
-        Round,
-        Capsule,
-        Count,
-    } type;
+    ShapeType type;
 
     union Data {
         Vector3f half;  // box
         float radius;   // sphere, circle
     } data;
 
-    static Shape MakeNull();
+    Shape();
+
     static Shape MakeBox(const Vector2f& p_half);
     static Shape MakeBox(const Vector3f& p_half);
     static Shape MakeRound(float p_half);
@@ -49,7 +57,7 @@ class ColliderComponent {
     CAVE_META(ColliderComponent)
 
     CAVE_PROP()
-    Shape m_shape = Shape::MakeNull();
+    Shape m_shape;
 
     CAVE_PROP()
     uint32_t m_flags = None;

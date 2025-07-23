@@ -10,6 +10,7 @@
 
 #include "engine/scene/animator_component.h"
 #include "engine/scene/camera_component.h"
+#include "engine/scene/collider_component.h"
 #include "engine/scene/light_component.h"
 #include "engine/scene/lua_script_component.h"
 #include "engine/scene/mesh_renderer_component.h"
@@ -30,6 +31,7 @@ namespace cave {
     REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)                 \
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                   \
     REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)             \
+    REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)             \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
     REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)     \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0) \

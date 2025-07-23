@@ -12,7 +12,7 @@ class Guid;
 class IAsset;
 struct ImageAsset;
 
-constexpr float DEFAULT_COLUMN_WIDTH = 80.0f;
+constexpr float DEFAULT_COLUMN_WIDTH = 120.0f;
 
 void PushDisabled();
 void PopDisabled();

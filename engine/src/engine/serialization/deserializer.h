@@ -52,9 +52,15 @@ public:
 
     template<IsEnum T>
     bool Read(T& p_object) {
-        uint64_t value = 0;
-        Read(value);
-        p_object = static_cast<T>(value);
+        if constexpr (HasEnumTraits<T>) {
+            std::string value;
+            Read(value);
+            p_object = EnumTraits<T>::FromString(value).unwrap_or(static_cast<T>(0));
+        } else {
+            uint64_t value = 0;
+            Read(value);
+            p_object = static_cast<T>(value);
+        }
         return true;
     }
 

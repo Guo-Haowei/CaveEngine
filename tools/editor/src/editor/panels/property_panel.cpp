@@ -16,6 +16,34 @@
 
 namespace cave {
 
+constexpr float COMPONENT_FIELD_NAME_WIDTH = 120.f;
+
+template<HasEnumTraits T>
+bool DrawEnumDropDown(std::string_view p_name, T& p_enum, float p_width = COMPONENT_FIELD_NAME_WIDTH) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_width);
+    ImGui::Text("%s", p_name.data());
+    ImGui::NextColumn();
+
+    constexpr int count = static_cast<int>(T::Count);
+    std::vector<const char*> items;
+    items.reserve(count);
+    for (int i = 0; i < count; ++i) {
+        items.push_back(EnumTraits<T>::s_mappings[i].data());
+    }
+
+    bool dirty = false;
+    int selected = static_cast<int>(p_enum);
+    std::string id = std::format("##{}{}", p_name, selected);
+    if (ImGui::Combo(id.c_str(), &selected, items.data(), count)) {
+        p_enum = static_cast<T>(selected);
+        dirty = true;
+    }
+
+    ImGui::Columns(1);
+    return dirty;
+}
+
 template<typename T, typename UIFunction>
 static void DrawComponent(const std::string& p_name, T* p_component, UIFunction p_function) {
     const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
@@ -60,8 +88,6 @@ concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
 };
 
 static_assert(HasSetResourceGuid<LuaScriptComponent>);
-
-constexpr float COMPONENT_FIELD_NAME_WIDTH = 150.f;
 
 template<typename T>
 void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
@@ -235,6 +261,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
 
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
     LightComponent* light_component = scene.GetComponent<LightComponent>(id);
+    ColliderComponent* collider = scene.GetComponent<ColliderComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 #if 0
     ParticleEmitterComponent* particle_emitter_component = scene.GetComponent<ParticleEmitterComponent>(id);
@@ -334,10 +361,15 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
     });
 
-    DrawComponent("Script", script_component, [](LuaScriptComponent& p_script) {
+    DrawComponent("LuaScriptComponent", script_component, [](LuaScriptComponent& p_script) {
         DrawInputText("class_name", p_script.GetClassNameRef(), COMPONENT_FIELD_NAME_WIDTH);
 
         DrawComponentAuto<LuaScriptComponent>(&p_script);
+    });
+
+    DrawComponent("ColliderComponent", collider, [](ColliderComponent& p_collider) {
+        Shape& shape = p_collider.GetShape();
+        DrawEnumDropDown("shape", shape.type);
     });
 
     DrawComponent("AnimatorComponent", animator_component, [](AnimatorComponent& p_animator) {
