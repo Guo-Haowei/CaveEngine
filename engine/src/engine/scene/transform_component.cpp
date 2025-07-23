@@ -7,9 +7,9 @@
 namespace cave {
 
 TransformComponent::TransformComponent()
-    : m_scale{ 1 }
-    , m_translation{ 0 }
+    : m_translation{ 0 }
     , m_rotation{ Vector4f::UnitW }
+    , m_scale{ 1 }
     , m_world_matrix{ 1 } {
     SetDirty();
 }

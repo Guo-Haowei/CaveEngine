@@ -1,5 +1,5 @@
 version: 19
-seed: 3
+seed: 10
 root: 1
 physics_mode: 0
 entities:
@@ -16,7 +16,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
+      translation: [-0.8753639, 3.8249893, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
@@ -24,19 +24,20 @@ entities:
       is_visible: true
       cast_shadow: true
       transparency: false
+      material_ids: []
   - id: 3
     NameComponent:
       name: light
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0.08225595, 0.28963777, 0.056406613, 0.9519256]
-      scale: [0.9999996, 0.99999964, 0.9999999]
+      translation: [0, 0.003123321, 0]
+      rotation: [-0.3646183, 0.031034596, -0.07353314, 0.92773014]
+      scale: [1, 0.9999963, 1]
     LightComponent:
       type: 0
       base_color: [1, 1, 1, 1]
-      emissive: 1
+      emissive: 5.5
       atten_constant: 1
       atten_linear: 0
       atten_quadratic: 0
@@ -44,3 +45,108 @@ entities:
         min: [.inf, .inf, .inf]
         max: [-.inf, -.inf, -.inf]
       cast_shadow: true
+  - id: 4
+    NameComponent:
+      name: Cube-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [2.5252137, 3.487526, 0.90992093]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000005
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []
+  - id: 5
+    NameComponent:
+      name: Sphere-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [-1.3886032, 1.8128128, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000006
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []
+  - id: 6
+    NameComponent:
+      name: Torus-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0.876015, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000009
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []
+  - id: 7
+    NameComponent:
+      name: Cone-2
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [2.005066, 1.2355917, 1.6981995]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000008
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []
+  - id: 8
+    NameComponent:
+      name: Cylinder-3
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [-2.2223282, 0.92528796, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000007
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []
+  - id: 9
+    NameComponent:
+      name: plane-back
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 3, -3.3730812]
+      rotation: [0, 0, 0, 1]
+      scale: [8, 8, 8]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000004
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []
+  - id: 10
+    NameComponent:
+      name: plane-down
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, -1.0214083, -1.5701207e-06]
+      rotation: [-0.70710665, 0, 0, 0.7071069]
+      scale: [8, 7.999338, 7.999338]
+    MeshRendererComponent:
+      mesh_id: 00000000-0000-0000-0000000000000004
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      material_ids: []

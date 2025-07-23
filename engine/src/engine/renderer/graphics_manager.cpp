@@ -107,7 +107,6 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
 
     // create meshes
     // @TODO: refactor
-    m_screenQuadBuffers = *CreateMesh(MakePlaneMesh(Vector3f(1)));
     m_skyboxBuffers = *CreateMesh(MakeSkyBoxMesh());
     m_boxBuffers = *CreateMesh(MakeBoxMesh());
 
@@ -548,17 +547,6 @@ void GraphicsManager::UpdateEmitters(const Scene& p_scene) {
         }
     }
 #endif
-}
-
-// @TODO: embed draw buffer in shader
-void GraphicsManager::DrawQuad() {
-    SetMesh(m_screenQuadBuffers.get());
-    DrawElements(m_screenQuadBuffers->desc.drawCount);
-}
-
-void GraphicsManager::DrawQuadInstanced(uint32_t p_instance_count) {
-    SetMesh(m_screenQuadBuffers.get());
-    DrawElementsInstanced(p_instance_count, m_screenQuadBuffers->desc.drawCount, 0);
 }
 
 void GraphicsManager::DrawSkybox() {

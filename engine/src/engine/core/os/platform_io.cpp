@@ -86,6 +86,20 @@ bool OpenSaveDialog(std::filesystem::path& p_inout_path) {
 
     return false;
 }
+#elif USING(PLATFORM_WASM)
+void RevealInFolder(const std::filesystem::path&) {
+    CRASH_NOW_MSG("not supported");
+}
+
+std::string OpenFileDialog(const std::vector<const char*>&) {
+    CRASH_NOW_MSG("not supported");
+    return "";
+}
+
+bool OpenSaveDialog(std::filesystem::path&) {
+    CRASH_NOW_MSG("not supported");
+    return false;
+}
 #else
 #error NOT IMPLEMENTED
 #endif

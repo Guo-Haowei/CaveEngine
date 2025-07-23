@@ -70,7 +70,7 @@ public:
 
     auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
 
-    std::vector<Guid> GetDependencies() const {
+    std::vector<Guid> GetDependencies() const override {
         return { m_image_guid };
     }
 

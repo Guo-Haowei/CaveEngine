@@ -45,15 +45,7 @@ void MeshAsset::CreateRenderData() {
 void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t) {
     size_t subset_count = subsets.size();
     p_archive.ArchiveValue(subset_count);
-    subsets.resize(subset_count);
-    for (size_t i = 0; i < subset_count; ++i) {
-        auto& subset = subsets[i];
-        p_archive.ArchiveValue(subset.material_id);
-        p_archive.ArchiveValue(subset.index_offset);
-        p_archive.ArchiveValue(subset.index_count);
-        p_archive.ArchiveValue(subset.local_bound);
-    }
-
+    p_archive.ArchiveValue(subsets);
     p_archive.ArchiveValue(flags);
     p_archive.ArchiveValue(indices);
     p_archive.ArchiveValue(positions);
@@ -72,25 +64,11 @@ void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t) {
 void MeshAsset::OnDeserialized() {
     CreateRenderData();
 
-    for (auto& it : subsets) {
-        if (!it.material_id.IsNull()) {
-            auto handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(it.material_id);
-            if (handle.is_some()) {
-                it.material_handle = handle.unwrap_unchecked();
-            }
-        }
-    }
-
     IGraphicsManager::GetSingleton().RequestMesh(this);
 }
 
 std::vector<Guid> MeshAsset::GetDependencies() const {
-    std::vector<Guid> dependencies;
-    dependencies.reserve(subsets.size());
-    for (const auto& subset : subsets) {
-        dependencies.push_back(subset.material_id);
-    }
-    return dependencies;
+    return {};
 }
 
 Result<void> MeshAsset::SaveToDisk(const AssetMetaData& p_meta) const {

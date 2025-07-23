@@ -52,13 +52,9 @@ public:
     std::vector<Vector4f> color_0;
 
     struct MeshSubset {
-        Guid material_id;
         uint32_t index_offset = 0;
         uint32_t index_count = 0;
         AABB local_bound;
-
-        // Non-serialized
-        Handle<MaterialAsset> material_handle;
     };
     std::vector<MeshSubset> subsets;
 

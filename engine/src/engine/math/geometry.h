@@ -8,36 +8,9 @@ void BoxWireFrameHelper(const Vector3f& p_min,
                         std::vector<Vector3f>& p_out_positions,
                         std::vector<uint32_t>& p_out_indices);
 
-MeshAsset MakePlaneMesh(const Vector3f& p_scale = Vector3f(0.5f));
-
-MeshAsset MakePlaneMesh(const Vector3f& p_point_0,
-                        const Vector3f& p_point_1,
-                        const Vector3f& p_point_2,
-                        const Vector3f& p_point_3);
-
-MeshAsset MakeCubeMesh(const Vector3f& p_scale = Vector3f(0.5f));
-
 MeshAsset MakeCubeMesh(const std::array<Vector3f, 8>& p_points);
 
 MeshAsset MakeTetrahedronMesh(float p_size = 0.5f);
-
-MeshAsset MakeSphereMesh(float p_radius,
-                         int p_rings = 60,
-                         int p_sectors = 60);
-
-MeshAsset MakeCylinderMesh(float p_radius,
-                           float p_height,
-                           int p_sectors = 60,
-                           int p_height_sector = 1);
-
-MeshAsset MakeConeMesh(float p_radius,
-                       float p_height,
-                       int p_sectors = 60);
-
-MeshAsset MakeTorusMesh(float p_radius,
-                        float p_tube_radius,
-                        int p_sectors = 60,
-                        int p_tube_sectors = 60);
 
 // @TODO: refactor the following
 MeshAsset MakeGrassBillboard(const Vector3f& p_scale = Vector3f(0.5f));

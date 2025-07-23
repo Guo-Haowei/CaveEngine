@@ -641,8 +641,10 @@ void CommonOpenGLGraphicsManager::Render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // @TODO: refactor this
-    const auto [width, height] = m_app->GetDisplayServer()->GetWindowSize();
     if (m_app->IsRuntime()) {
+        const auto [width, height] = m_app->GetDisplayServer()->GetWindowSize();
+        unused(width);
+        unused(height);
         CRASH_NOW();
         // RenderGraphBuilder::DrawDebugImages(*GetRenderData(),
         //                                               width,

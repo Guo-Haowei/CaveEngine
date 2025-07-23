@@ -107,14 +107,14 @@ bool DrawComponentAuto(T* p_component) {
     for (const auto& field : meta_table) {
         switch (field->editor_hint) {
             case EditorHint::Toggle: {
-                bool& toggle = field->GetData<bool>(p_component);
+                bool& toggle = field->template GetData<bool>(p_component);
                 if (ImGui::Checkbox(field->name, &toggle)) {
                     dirty = true;
                     // @TODO: callback
                 }
             } break;
             case EditorHint::Color: {
-                Vector4f& color = field->GetData<Vector4f>(p_component);
+                Vector4f& color = field->template GetData<Vector4f>(p_component);
                 if (DrawColorPicker4(field->name, &color.r, COMPONENT_FIELD_NAME_WIDTH)) {
                     dirty = true;
                     // @TODO: callback
@@ -122,13 +122,13 @@ bool DrawComponentAuto(T* p_component) {
                 ImGui::Dummy(ImVec2(8, 8));
             } break;
             case EditorHint::Asset: {
-                const Guid& guid = field->GetData<Guid>(p_component);
+                const Guid& guid = field->template GetData<Guid>(p_component);
                 DrawAsset(field->name,
                           guid,
                           p_component);
             } break;
             case EditorHint::Translation: {
-                Vector3f& translation = field->GetData<Vector3f>(p_component);
+                Vector3f& translation = field->template GetData<Vector3f>(p_component);
                 if (DrawVec3Control(
                         field->name,
                         translation,
@@ -138,7 +138,7 @@ bool DrawComponentAuto(T* p_component) {
                 }
             } break;
             case EditorHint::Scale: {
-                Vector3f& scale = field->GetData<Vector3f>(p_component);
+                Vector3f& scale = field->template GetData<Vector3f>(p_component);
                 if (DrawVec3Control(field->name,
                                     scale,
                                     1.0f,
@@ -147,7 +147,7 @@ bool DrawComponentAuto(T* p_component) {
                 }
             } break;
             case EditorHint::Rotation: {
-                Vector4f& q = field->GetData<Vector4f>(p_component);
+                Vector4f& q = field->template GetData<Vector4f>(p_component);
                 glm::vec3 euler_ = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
                 Vector3f euler = *reinterpret_cast<Vector3f*>(&euler_);
                 constexpr float RAD_TO_DEG = 180.0f / glm::pi<float>();
@@ -165,12 +165,12 @@ bool DrawComponentAuto(T* p_component) {
                 }
             } break;
             case EditorHint::DragFloat: {
-                float& f = field->GetData<float>(p_component);
+                float& f = field->template GetData<float>(p_component);
                 if (DrawDragFloat(field->name,
                                   f,
-                                  0.1f,  // speed
-                                  0.0f,  // min
-                                  1.0f,  // max
+                                  0.1f,          // speed
+                                  field->v_min,  // min
+                                  field->v_max,  // max
                                   COMPONENT_FIELD_NAME_WIDTH)) {
                     dirty = true;
                 }

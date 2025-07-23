@@ -13,6 +13,9 @@ Document::Document(const Guid& p_guid) {
     m_dirty = false;
 }
 
+Document::~Document() {
+}
+
 bool Document::CanUndo() const {
     return m_undo_stack->CanUndo();
 }

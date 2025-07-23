@@ -82,8 +82,6 @@ public:
     RenderGraph* GetActiveRenderGraph() override;
     FrameContext& GetCurrentFrame() override { return *(m_frameContexts[m_frameIndex].get()); }
 
-    void DrawQuad() override;
-    void DrawQuadInstanced(uint32_t p_instance_count) override;
     void DrawSkybox() override;
 
     void EventReceived(std::shared_ptr<IEvent> p_event) final;

@@ -156,9 +156,7 @@ public:
 
     auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
 
-    [[nodiscard]] virtual std::vector<Guid> GetDependencies() const {
-        return {};
-    }
+    virtual std::vector<Guid> GetDependencies() const override;
 
     struct RayIntersectionResult {
         ecs::Entity entity;

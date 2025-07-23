@@ -83,7 +83,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 
     std::latch latch(assets.size());
     for (auto& meta : assets) {
-        StartAsyncLoad(std::move(meta), [](AssetRef p_asset, void* p_userdata) {
+        StartAsyncLoad(std::move(meta), [](AssetRef, void* p_userdata) {
             DEV_ASSERT(p_userdata);
             std::latch& latch = *reinterpret_cast<std::latch*>(p_userdata);
             latch.count_down(); }, [](void* p_userdata) {

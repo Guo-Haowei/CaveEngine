@@ -36,8 +36,8 @@ void EditorInspectAssetCommand::Execute(Scene&) {
 void EditorCommandAddEntity::Execute(Scene& p_scene) {
     ecs::Entity id;
     switch (m_entityType) {
-#define ENTITY_TYPE(ENUM, NAME, ...)                                            \
-    case EntityType::ENUM: {                                                    \
+#define ENTITY_TYPE(NAME, ...)                                                  \
+    case EntityType::NAME: {                                                    \
         id = EntityFactory::Create##NAME##Entity(p_scene, GenerateName(#NAME)); \
     } break;
         ENTITY_TYPE_LIST

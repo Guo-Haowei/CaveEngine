@@ -14,7 +14,7 @@ std::vector<int> topological_sort(int N, const std::vector<std::pair<int, int>>&
     }
 
     std::list<int> queue;
-    for (int i = 0; i < indegree.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(indegree.size()); ++i) {
         if (indegree[i] == 0) queue.push_back(i);
     }
 
@@ -30,7 +30,7 @@ std::vector<int> topological_sort(int N, const std::vector<std::pair<int, int>>&
         }
     }
 
-    if (sorted.size() != N) {
+    if (static_cast<int>(sorted.size()) != N) {
         return {};
     }
 

@@ -151,8 +151,6 @@ public:
 
     virtual FrameContext& GetCurrentFrame() = 0;
 
-    virtual void DrawQuad() = 0;
-    virtual void DrawQuadInstanced(uint32_t p_instance_count) = 0;
     virtual void DrawSkybox() = 0;
 
 protected:

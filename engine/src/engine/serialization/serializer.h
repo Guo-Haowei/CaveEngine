@@ -110,7 +110,7 @@ public:
 
     template<typename T, int N>
     ISerializer& Write(const T (&p_object)[N]) {
-        BeginArray();
+        BeginArray(true);
         for (int i = 0; i < N; ++i) {
             Write(p_object[i]);
         }

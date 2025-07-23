@@ -37,6 +37,7 @@ input_shaders = [
     'skybox.vs',
     'skybox.ps',
     'shadow.vs',
+    'screenspace_quad.vs',
     'sprite_no_vert.vs',
     'sprite.vs',
     'sprite.ps',

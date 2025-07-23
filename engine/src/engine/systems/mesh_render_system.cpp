@@ -353,13 +353,13 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     FilterFunc filter_main = [&](const AABB& p_aabb) -> bool { return camera_frustum.Intersects(p_aabb); };
 
     const bool is_opengl = p_framedata.options.isOpengl;
-    for (auto [entity, obj] : scene.View<MeshRendererComponent>()) {
-        const MeshAsset* _mesh = obj.GetMeshHandle().Get();
+    for (auto [entity, renderer] : scene.View<MeshRendererComponent>()) {
+        const MeshAsset* _mesh = renderer.GetMeshHandle().Get();
         if (_mesh == nullptr) continue;
         const MeshAsset& mesh = *_mesh;
 
-        const bool is_renderable = obj.IsVisible();
-        const bool is_transparent = obj.Transparency();
+        const bool is_renderable = renderer.IsVisible();
+        const bool is_transparent = renderer.Transparency();
         const bool is_opaque = is_renderable && !is_transparent;
 
         // @TODO: cast shadow
@@ -413,7 +413,11 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
                 return;
             }
 
-            for (const auto& subset : mesh.subsets) {
+            const auto& mat_handles = renderer.GetMaterialHandles();
+            const auto& mat_ids = renderer.GetMaterialGuids();
+
+            for (size_t idx = 0; idx < mesh.subsets.size(); ++idx) {
+                const auto& subset = mesh.subsets[idx];
                 AABB aabb2 = subset.local_bound;
                 aabb2.ApplyMatrix(world_matrix);
                 if (!p_filter(aabb2)) {
@@ -422,16 +426,18 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
                 // @TODO: [SCRUM-210] fix material
                 MaterialConstantBuffer material_buffer;
-                const MaterialAsset* material = subset.material_handle.Get();
-                if (!material) {
-                    material = MaterialAsset::Default();  // fall back to default material
+                const MaterialAsset* material = MaterialAsset::Default();
+                Guid id = Guid::Null();
+                if (idx < mat_handles.size()) {
+                    material = mat_handles[idx].Get();
+                    id = mat_ids[idx];
                 }
 
                 FillMaterialConstantBuffer(is_opengl, material, material_buffer);
 
                 draw_cmd.index_count = subset.index_count;
                 draw_cmd.index_offset = subset.index_offset;
-                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(subset.material_id, material_buffer);
+                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(id, material_buffer);
 
                 p_commands.emplace_back(RenderCommand::From(draw_cmd));
             }

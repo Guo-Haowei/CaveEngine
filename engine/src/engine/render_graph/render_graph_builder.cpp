@@ -32,24 +32,24 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
-    if constexpr (USING(DEBUG_BUILDER)) {
-        int id = 0;
-        for (const auto& pass : m_passes) {
-            DEBUG_PRINT("found pass: {} (id: {})", pass.GetName(), id++);
-            DEBUG_PRINT("  it creates:");
-            for (const auto& create : pass.m_creates) {
-                DEBUG_PRINT("  -- {}", create.first);
-            }
-            DEBUG_PRINT("  it reads:");
-            for (const auto& read : pass.m_reads) {
-                DEBUG_PRINT("  -- {}", read.name);
-            }
-            DEBUG_PRINT("  it writes:");
-            for (const auto& write : pass.m_writes) {
-                DEBUG_PRINT("  -- {}", write.name);
-            }
+#if USING(DEBUG_BUILDER)
+    int id = 0;
+    for (const auto& pass : m_passes) {
+        DEBUG_PRINT("found pass: {} (id: {})", pass.GetName(), id++);
+        DEBUG_PRINT("  it creates:");
+        for (const auto& create : pass.m_creates) {
+            DEBUG_PRINT("  -- {}", create.first);
+        }
+        DEBUG_PRINT("  it reads:");
+        for (const auto& read : pass.m_reads) {
+            DEBUG_PRINT("  -- {}", read.name);
+        }
+        DEBUG_PRINT("  it writes:");
+        for (const auto& write : pass.m_writes) {
+            DEBUG_PRINT("  -- {}", write.name);
         }
     }
+#endif
 
     std::unordered_map<std::string_view, int> lookup;
 

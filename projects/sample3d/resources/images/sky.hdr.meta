@@ -1,3 +1,4 @@
-guid: CBF5D8DA-1AC3-7345-81FF2188B304261F
+guid: 04D15078-FC58-894D-8678CF872BB602A3
 type: image
-path: "@res://images/sky.hdr"
+name: sky.hdr
+import_path: "@res://images/sky.hdr"
