@@ -7,7 +7,6 @@
 
 namespace cave {
 
-class Archive;
 class Degree;
 
 class TransformComponent : public ComponentFlagBase {
@@ -57,8 +56,6 @@ public:
     void MatrixTransform(const Matrix4x4f& p_matrix);
 
     void UpdateTransformParented(const TransformComponent& p_parent);
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
 };
 
 }  // namespace cave

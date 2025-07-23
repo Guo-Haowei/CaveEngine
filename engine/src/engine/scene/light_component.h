@@ -7,8 +7,6 @@
 
 namespace cave {
 
-class Archive;
-
 class LightComponent {
     CAVE_META(LightComponent)
 
@@ -70,7 +68,6 @@ public:
     const Vector4f& GetBaseColor() const { return m_base_color; }
     float GetEmissive() const { return m_emissive; }
 
-    void Serialize(Archive& p_archive, uint32_t p_version);
     void OnDeserialized();
 
     friend class EntityFactory;

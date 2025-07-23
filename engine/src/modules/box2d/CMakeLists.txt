@@ -1,4 +1,19 @@
-set(TARGET_NAME bullet3)
+include(FetchContent)
+
+FetchContent_Declare(
+  box2d
+  GIT_REPOSITORY https://github.com/erincatto/box2d.git
+  GIT_TAG        v3.1.0
+)
+
+set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(box2d)
+
+set_target_properties(box2d PROPERTIES FOLDER thirdparty)
+
+set(TARGET_NAME box2d_physics_manager)
 
 file(GLOB_RECURSE SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
@@ -9,15 +24,16 @@ add_library(${TARGET_NAME} STATIC ${SRC})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 
-target_include_directories(${TARGET_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}/thirdparty/bullet3/src
+target_include_directories(${TARGET_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
     ${PROJECT_SOURCE_DIR}/engine/src
     ${PROJECT_SOURCE_DIR}/engine/shader
 )
 
-target_link_libraries(${TARGET_NAME} PRIVATE ${BULLET_LIBS})
+target_link_libraries(${TARGET_NAME} PRIVATE
+    box2d
+)
 
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER modules)
 

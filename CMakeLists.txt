@@ -41,7 +41,6 @@ if (NOT EMSCRIPTEN)
 endif()
 
 include(cmake/build_glfw.cmake)
-include(cmake/build_bullet.cmake)
 include(cmake/build_lua.cmake)
 include(cmake/build_imgui.cmake)
 include(cmake/build_imnodes.cmake)
@@ -49,12 +48,6 @@ include(cmake/build_imnodes.cmake)
 # GLM
 add_subdirectory(thirdparty/glm)
 set_target_properties(glm PROPERTIES FOLDER thirdparty)
-
-# YAML-CPP
-set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-add_subdirectory(thirdparty/yaml-cpp)
-set_target_properties(yaml-cpp PROPERTIES FOLDER thirdparty)
 
 if(WIN32)
     message(STATUS "Configuring optick...")
@@ -86,7 +79,6 @@ function(target_set_warning_level TARGET)
 endfunction()
 
 add_subdirectory(engine)
-add_subdirectory(modules)
 add_subdirectory(plugins)
 add_subdirectory(tools)
 add_subdirectory(applications)

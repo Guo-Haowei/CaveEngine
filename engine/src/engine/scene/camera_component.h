@@ -5,7 +5,6 @@
 
 namespace cave {
 
-class Archive;
 class Degree;
 
 #define CAMERA_FLAG_LIST \
@@ -123,7 +122,6 @@ public:
 #undef CAMERA_FLAG
 
     void OnDeserialized() { m_flags |= Dirty; }
-    void Serialize(Archive& p_archive, uint32_t p_version);
 
 private:
     friend class CameraControllerFPS;

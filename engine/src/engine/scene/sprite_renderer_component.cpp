@@ -19,9 +19,4 @@ void SpriteRendererComponent::OnDeserialized() {
     }
 }
 
-void SpriteRendererComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    unused(p_archive);
-    unused(p_version);
-}
-
 }  // namespace cave

@@ -1,7 +1,7 @@
 #include "layer.h"
 
 #include "engine/runtime/application.h"
-#include "engine/runtime/physics_manager.h"
+#include "engine/runtime/physics_manager_interface.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 

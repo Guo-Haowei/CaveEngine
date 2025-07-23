@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/runtime/physics_manager.h"
+#include "engine/runtime/physics_manager_interface.h"
 
 namespace cave {
 
@@ -16,14 +16,11 @@ public:
     void OnSimEnd() override;
 
 protected:
-    auto InitializeImpl() -> Result<void> override;
+    Result<void> InitializeImpl() override;
     void FinalizeImpl() override;
 
     void UpdateCollision(Scene& p_scene);
     void UpdateSimulation(Scene& p_scene, float p_timestep);
-
-    void CreateWorld(Scene& p_scene);
-    void CleanWorld();
 };
 
 }  // namespace cave

@@ -8,6 +8,7 @@
 #include "engine/runtime/layer.h"
 #include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
+#include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
 #define DEFINE_DVAR
@@ -17,6 +18,12 @@
 namespace cave {
 
 namespace fs = std::filesystem;
+
+void RegisterExtraDvars() {
+#define REGISTER_DVAR
+#include "editor_dvars.h"
+#undef REGISTER_DVAR
+}
 
 class EditorModeManager : public ModeManager {
 public:
@@ -65,7 +72,8 @@ public:
 class Editor : public Application {
 public:
     Editor(const ApplicationSpec& p_spec)
-        : Application(p_spec, Application::Type::Editor) {
+        : Application(p_spec, Application::Type::Editor)
+        , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
         m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
     }
 
@@ -81,18 +89,14 @@ public:
         return m_editorLayer->GetActiveCamera();
     }
 
-private:
-    void RegisterDvars() override;
+    bool IsWorld2D() const override {
+        return m_is_world_2d;
+    }
 
+private:
+    const bool m_is_world_2d;
     std::unique_ptr<EditorLayer> m_editorLayer;
 };
-
-void Editor::RegisterDvars() {
-    Application::RegisterDvars();
-#define REGISTER_DVAR
-#include "editor_dvars.h"
-#undef REGISTER_DVAR
-}
 
 Application* CreateApplication() {
     std::string_view root = StringUtils::BasePath(__FILE__);
@@ -121,9 +125,14 @@ Application* CreateApplication() {
 int main(int p_argc, const char** p_argv) {
     using namespace cave;
 
+    // @TODO: figure out a way to create it cleanly
 #if !USING(PLATFORM_WASM)
     IPhysicsManager::RegisterCreateFunc([]() -> IPhysicsManager* {
-        return new Bullet3PhysicsManager();
+        if (DVAR_GET_BOOL(is_world_2d)) {
+            return new Box2dPhysicsManager();
+        } else {
+            return new Bullet3PhysicsManager();
+        }
     });
 #endif
     ISceneManager::RegisterCreateFunc([]() -> ISceneManager* {

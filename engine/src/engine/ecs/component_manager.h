@@ -4,12 +4,11 @@
 namespace cave {
 
 class Scene;
-class Archive;
 class FileAccess;
 
 template<typename T>
-concept ComponentType = requires(T& t, Archive& p_archive, uint32_t p_version) {
-    { t.Serialize(p_archive, p_version) } -> std::same_as<void>;
+concept ComponentType = requires(T& t) {
+    { t.OnDeserialized() } -> std::same_as<void>;
 };
 
 }  // namespace cave
@@ -102,8 +101,6 @@ public:
     virtual Entity GetEntity(size_t p_index) const = 0;
 
     virtual const std::vector<Entity>& GetEntityArray() const = 0;
-
-    virtual bool Serialize(Archive& p_archive, uint32_t p_version) = 0;
 };
 
 template<ComponentType T>
@@ -150,8 +147,6 @@ public:
     const std::vector<Entity>& GetEntityArray() const override {
         return m_entityArray;
     }
-
-    bool Serialize(Archive& p_archive, uint32_t p_version) override;
 
 private:
     std::vector<T> m_componentArray;

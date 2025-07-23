@@ -31,7 +31,7 @@ ISerializer& YamlSerializer::EndMap() {
 }
 
 ISerializer& YamlSerializer::Key(std::string_view p_key) {
-    m_out << YAML::Key << p_key << YAML::Value;
+    m_out << YAML::Key << p_key.data() << YAML::Value;
     return *this;
 }
 

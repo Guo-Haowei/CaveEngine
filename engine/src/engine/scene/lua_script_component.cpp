@@ -21,11 +21,6 @@ LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view p_class_na
     return *this;
 }
 
-void LuaScriptComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(m_source_id);
-    p_archive.ArchiveValue(m_class_name);
-}
-
 void LuaScriptComponent::OnDeserialized() {
     auto res = AssetRegistry::GetSingleton().FindByGuid<BlobAsset>(m_source_id);
     m_source_handle = std::move(res.unwrap());

@@ -131,45 +131,4 @@ T& ComponentManager<T>::Create(const Entity& p_entity) {
     return m_componentArray.back();
 }
 
-template<ComponentType T>
-bool ComponentManager<T>::Serialize(Archive& p_archive, uint32_t p_version) {
-    constexpr uint64_t magic = 7165065861825654388llu;
-    size_t count;
-    if (p_archive.IsWriteMode()) {
-        count = static_cast<uint32_t>(m_componentArray.size());
-        if (count == 0) {
-            return true;
-        }
-        p_archive << magic;
-        p_archive << count;
-        for (auto& component : m_componentArray) {
-            component.Serialize(p_archive, p_version);
-        }
-        for (auto& entity : m_entityArray) {
-            p_archive << entity;
-        }
-    } else {
-        uint64_t read_magic;
-        p_archive >> read_magic;
-        if (read_magic != magic) {
-            return false;
-        }
-
-        Clear();
-        p_archive >> count;
-        m_componentArray.resize(count);
-        m_entityArray.resize(count);
-        for (size_t i = 0; i < count; ++i) {
-            m_componentArray[i].Serialize(p_archive, p_version);
-            m_componentArray[i].OnDeserialized();
-        }
-        for (size_t i = 0; i < count; ++i) {
-            p_archive >> m_entityArray[i];
-            m_lookup[m_entityArray[i]] = i;
-        }
-    }
-
-    return true;
-}
-
 }  // namespace cave::ecs

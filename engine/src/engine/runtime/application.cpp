@@ -4,7 +4,6 @@
 #include <imgui/imgui.h>
 
 #include "engine/core/debugger/profiler.h"
-#include "engine/core/dynamic_variable/dynamic_variable_manager.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/os/threads.h"
 #include "engine/core/string/string_utils.h"
@@ -24,13 +23,6 @@
 #include "engine/runtime/script_manager.h"
 #include "engine/scene/scene.h"
 
-#define DEFINE_DVAR
-#include "engine/renderer/graphics_dvars.h"
-#undef DEFINE_DVAR
-#define DEFINE_DVAR
-#include "engine/runtime/common_dvars.h"
-#undef DEFINE_DVAR
-
 #if USING(PLATFORM_WASM)
 static cave::Application* s_app = nullptr;
 #endif
@@ -39,28 +31,13 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-// @TODO: refactor
-[[maybe_unused]] static constexpr const char* DVAR_CACHE_FILE = "@user://dynamic_variables.cache";
-
-static void RegisterCommonDvars() {
-#define REGISTER_DVAR
-#include "engine/runtime/common_dvars.h"
-#undef REGISTER_DVAR
-}
-
-static void RegisterRenderDvars() {
-#define REGISTER_DVAR
-#include "engine/renderer/graphics_dvars.h"
-#undef REGISTER_DVAR
-}
-
 Application::Application(const ApplicationSpec& p_spec, Type p_type)
     : m_type(p_type)
     , m_specification(p_spec) {
     // select work directory
-    m_userFolder = std::string{ m_specification.userFolder };
+    m_user_folder = std::string{ m_specification.userFolder };
 
-    FileAccess::SetUserFolderCallback([&]() { return m_userFolder.c_str(); });
+    FileAccess::SetUserFolderCallback([&]() { return m_user_folder.c_str(); });
 }
 
 Application::~Application() {
@@ -90,13 +67,6 @@ void Application::DetachLayer(Layer* p_layer) {
     m_layers.erase(it);
     p_layer->OnDetach();
     p_layer->m_app = nullptr;
-}
-
-void Application::SaveCommandLine(int p_argc, const char** p_argv) {
-    m_appName = p_argv[0];
-    for (int i = 1; i < p_argc; ++i) {
-        m_commandLine.push_back(p_argv[i]);
-    }
 }
 
 void Application::RegisterModule(Module* p_module) {
@@ -145,30 +115,16 @@ auto Application::SetupModules() -> Result<void> {
     return Result<void>();
 }
 
-void Application::RegisterDvars() {
-    RegisterCommonDvars();
-    RegisterRenderDvars();
-}
-
-auto Application::Initialize(int p_argc, const char** p_argv) -> Result<void> {
-    SaveCommandLine(p_argc, p_argv);
-
-    RegisterDvars();
-#if USING(ENABLE_DVAR)
-    DynamicVariableManager::Deserialize(DVAR_CACHE_FILE);
-    // parse happens after deserialization, so command line will override cache
-    DynamicVariableManager::Parse(m_commandLine);
-#endif
-
+auto Application::Initialize() -> Result<void> {
     // @TODO: refactor this part
     {
-        m_projectFolder = DVAR_GET_STRING(project);
-        fs::path resource_folder = fs::path(m_projectFolder) / "resources";
-        m_resourceFolder = resource_folder.string();
+        m_project_folder = DVAR_GET_STRING(project);
+        fs::path resource_folder = fs::path(m_project_folder) / "resources";
+        m_resource_folder = resource_folder.string();
 
-        FileAccess::SetResFolderCallback([&]() { return m_resourceFolder.c_str(); });
+        FileAccess::SetResFolderCallback([&]() { return m_resource_folder.c_str(); });
 
-        fs::path project_setting = fs::path(m_projectFolder) / "project.yaml";
+        fs::path project_setting = fs::path(m_project_folder) / "project.yaml";
 
         std::ifstream file(project_setting.string());
         if (file.is_open()) {
@@ -254,10 +210,6 @@ void Application::Finalize() {
         module->Finalize();
         LOG_VERBOSE("module '{}' finalized", module->GetName());
     }
-
-#if USING(ENABLE_DVAR)
-    DynamicVariableManager::Serialize(DVAR_CACHE_FILE);
-#endif
 }
 
 float Application::UpdateTime() {
