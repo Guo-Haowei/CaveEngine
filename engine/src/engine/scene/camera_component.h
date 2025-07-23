@@ -2,65 +2,54 @@
 #include "engine/math/angle.h"
 #include "engine/math/geomath.h"
 #include "engine/reflection/reflection.h"
+#include "engine/scene/scene_component_base.h"
 
 namespace cave {
 
 class Degree;
 
-#define CAMERA_FLAG_LIST \
-    CAMERA_FLAG(Dirty)   \
-    CAMERA_FLAG(Ortho)   \
-    CAMERA_FLAG(Editor)  \
-    CAMERA_FLAG(Primary) \
-    CAMERA_FLAG(View2D)
-
 class CameraComponent {
     enum : uint32_t {
-#define CAMERA_FLAG(FLAG) _##FLAG##_BIT,
-        CAMERA_FLAG_LIST
-#undef CAMERA_FLAG
-            Count,
-    };
-
-    enum CameraFlags : uint32_t {
-#define CAMERA_FLAG(FLAG) FLAG = 1u << _##FLAG##_BIT,
-        CAMERA_FLAG_LIST
-#undef CAMERA_FLAG
+        None = BIT(0),
+        DirtyFlag = BIT(1),
+        OrthoFlag = BIT(2),
+        EditorFlag = BIT(3),
+        PrimaryFlag = BIT(4),
+        View2dFlag = BIT(5),
     };
 
     CAVE_META(CameraComponent)
 
     CAVE_PROP(type = flags)
-    uint32_t m_flags = Dirty;
+    uint32_t m_flags = DirtyFlag;
 
     CAVE_PROP(type = degree)
     Degree m_fovy = DEFAULT_FOVY;
 
-    CAVE_PROP(type = f32)
+    CAVE_PROP(editor = DragFloat, min = 0.1f, max = 9)
     float m_near = DEFAULT_NEAR;
 
-    CAVE_PROP(type = f32)
+    CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
     float m_far = DEFAULT_FAR;
 
-    CAVE_PROP(type = i32)
+    CAVE_PROP()
     int m_width = 0;
 
-    CAVE_PROP(type = i32)
+    CAVE_PROP()
     int m_height = 0;
 
-    CAVE_PROP(type = f32)
+    CAVE_PROP()
     float m_ortho_height = 10;
 
-    CAVE_PROP(type = degree)
+    CAVE_PROP()
     Degree m_pitch;
 
-    CAVE_PROP(type = degree)
+    CAVE_PROP()
     Degree m_yaw;
 
-    CAVE_PROP(type = position)
+    CAVE_PROP()
     Vector3f m_position = Vector3f::Zero;
 
-private:
     // Not serlialized
     Vector3f m_front;
     Vector3f m_right;
@@ -68,6 +57,9 @@ private:
     Matrix4x4f m_viewMatrix;
     Matrix4x4f m_projectionMatrix;
     Matrix4x4f m_projectionViewMatrix;
+
+    friend class CameraControllerFPS;
+    friend class EntityFactory;
 
 public:
     static constexpr float DEFAULT_NEAR = 0.1f;
@@ -81,19 +73,19 @@ public:
     Degree GetFovy() const { return m_fovy; }
     void SetFovy(Degree p_degree) {
         m_fovy = p_degree;
-        SetDirty();
+        SetDirtyFlag();
     }
 
     float GetNear() const { return m_near; }
     void SetNear(float p_near) {
         m_near = p_near;
-        SetDirty();
+        SetDirtyFlag();
     }
 
     float GetFar() const { return m_far; }
     void SetFar(float p_far) {
         m_far = p_far;
-        SetDirty();
+        SetDirtyFlag();
     }
 
     const Vector3f& GetPosition() const { return m_position; }
@@ -115,17 +107,13 @@ public:
     Matrix4x4f CalcProjection() const;
     Matrix4x4f CalcProjectionGL() const;
 
-#define CAMERA_FLAG(FLAG)                            \
-    bool Is##FLAG() const { return m_flags & FLAG; } \
-    void Set##FLAG(bool p_flag = true) { p_flag ? m_flags |= FLAG : m_flags &= ~FLAG; }
-    CAMERA_FLAG_LIST
-#undef CAMERA_FLAG
+    FLAG_GETTER_SETTER(DirtyFlag, m_flags)
+    FLAG_GETTER_SETTER(OrthoFlag, m_flags)
+    FLAG_GETTER_SETTER(EditorFlag, m_flags)
+    FLAG_GETTER_SETTER(PrimaryFlag, m_flags)
+    FLAG_GETTER_SETTER(View2dFlag, m_flags)
 
-    void OnDeserialized() { m_flags |= Dirty; }
-
-private:
-    friend class CameraControllerFPS;
-    friend class EntityFactory;
+    void OnDeserialized() { m_flags |= DirtyFlag; }
 };
 
 }  // namespace cave

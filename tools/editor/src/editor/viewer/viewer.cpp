@@ -181,7 +181,7 @@ void Viewer::UpdateInternal(Scene*) {
     const float dt = m_editor.context.timestep;
     auto& camera = active_tab->GetActiveCamera();
     const auto& c = m_camera_input;
-    const bool is_2d = camera.IsView2D();
+    const bool is_2d = camera.HasView2dFlag();
     if (is_2d) {
         const float speed = dt * 0.5f;
         const float dx = speed * -c.mouse_move.x;

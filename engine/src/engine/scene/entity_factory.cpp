@@ -24,7 +24,7 @@ Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
     camera.m_fovy = p_fovy;
     camera.m_pitch = Degree{ -10.0f };
     camera.m_yaw = Degree{ -90.0f };
-    camera.SetDirty();
+    camera.SetDirtyFlag();
     return entity;
 }
 

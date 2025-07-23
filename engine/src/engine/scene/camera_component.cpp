@@ -5,7 +5,7 @@
 namespace cave {
 
 Matrix4x4f CameraComponent::CalcProjection() const {
-    if (IsOrtho()) {
+    if (HasOrthoFlag()) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
         return BuildOrthoRH(-half_width,
@@ -19,7 +19,7 @@ Matrix4x4f CameraComponent::CalcProjection() const {
 }
 
 Matrix4x4f CameraComponent::CalcProjectionGL() const {
-    if (IsOrtho()) {
+    if (HasOrthoFlag()) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
         return BuildOpenGlOrthoRH(-half_width,
@@ -33,8 +33,8 @@ Matrix4x4f CameraComponent::CalcProjectionGL() const {
 }
 
 bool CameraComponent::Update() {
-    if (IsDirty()) {
-        SetDirty(false);
+    if (HasDirtyFlag()) {
+        SetDirtyFlag(false);
 
         m_front.x = m_yaw.Sin() * m_pitch.Cos();
         m_front.y = m_pitch.Sin();
@@ -58,21 +58,21 @@ void CameraComponent::SetDimension(int p_width, int p_height) {
     if (m_width != p_width || m_height != p_height) {
         m_width = p_width;
         m_height = p_height;
-        SetDirty();
+        SetDirtyFlag();
     }
 }
 
 void CameraComponent::SetOrthoHeight(float p_height) {
     if (p_height != m_ortho_height) {
         m_ortho_height = p_height;
-        SetDirty();
+        SetDirtyFlag();
     }
 }
 
 void CameraComponent::SetPosition(const Vector3f& p_position) {
     if (p_position != m_position) {
         m_position = p_position;
-        SetDirty();
+        SetDirtyFlag();
     }
 }
 

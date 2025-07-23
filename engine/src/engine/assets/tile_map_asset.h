@@ -40,9 +40,9 @@ struct TileData {
         chunks;
 };
 
-ISerializer& WriteObject(ISerializer& p_serializer, const TileData& p_tile_data);
+ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data);
 
-bool ReadObject(IDeserializer& p_deserializer, TileData& p_tile_data);
+bool ReadObject(IDeserializer& d, TileData& p_tile_data);
 
 static_assert(Serializable<TileData>);
 

@@ -23,6 +23,7 @@ FILES = [
 
     # components
     'scene/animator_component.h',
+    'scene/collider_component.h',
     'scene/camera_component.h',
     'scene/light_component.h',
     'scene/lua_script_component.h',

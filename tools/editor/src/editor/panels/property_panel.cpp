@@ -368,24 +368,13 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
-        bool is_ortho = p_camera.IsOrtho();
+        bool is_ortho = p_camera.HasOrthoFlag();
         if (ToggleButton("ortho", is_ortho)) {
-            p_camera.SetOrtho(is_ortho);
-            p_camera.SetDirty();
+            p_camera.SetOrthoFlag(is_ortho);
+            p_camera.SetDirtyFlag();
         }
 
-        float near = p_camera.GetNear();
-        if (DrawDragFloat("near", near, 0.1f, 0.1f, 9.0f)) {
-            p_camera.SetNear(near);
-        }
-        float far = p_camera.GetFar();
-        if (DrawDragFloat("far", far, 1.0f, 10.0f, 10000.0f)) {
-            p_camera.SetFar(far);
-        }
-        float fovy = p_camera.GetFovy().GetDegree();
-        if (DrawDragFloat("fov", fovy, 0.1f, 30.0f, 120.0f)) {
-            p_camera.SetFovy(Degree(fovy));
-        }
+        DrawComponentAuto<CameraComponent>(&p_camera);
     });
 
     DrawComponent("MeshRendererComponent", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {

@@ -112,7 +112,7 @@ void Scene::Merge(Scene& p_other) {
 
 ecs::Entity Scene::GetMainCamera() {
     for (auto [entity, camera] : m_CameraComponents) {
-        if (camera.IsPrimary()) {
+        if (camera.HasPrimaryFlag()) {
             return entity;
         }
     }
