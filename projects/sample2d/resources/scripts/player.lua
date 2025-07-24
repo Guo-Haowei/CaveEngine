@@ -22,6 +22,7 @@ function Player:_process(timestep)
 
     if move_x == 0 then
         self.animator:set_clip('idle')
+        self.velocity.linear.x = 0
     else
         self.animator:set_clip('walk')
 
