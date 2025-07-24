@@ -13,7 +13,7 @@ public:
     }
 
 protected:
-    void UpdateInternal(Scene* p_scene) override;
+    void UpdateInternal() override;
 };
 
 }  // namespace cave

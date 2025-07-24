@@ -5,6 +5,8 @@
 
 #include "engine/assets/mesh_asset.h"
 #include "editor/editor_layer.h"
+#include "editor/viewer/viewer.h"
+#include "editor/viewer/viewer_tab.h"
 
 namespace cave {
 using ecs::Entity;
@@ -168,18 +170,18 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
     return true;
 }
 
-void HierarchyPanel::UpdateInternal(Scene* p_scene) {
-    // @TODO: don't rebuild it every frame
-    if (p_scene) {
-        HierarchyCreator creator(m_editor);
-
-        DrawPopup(*p_scene);
-
-        creator.Update(*p_scene);
+void HierarchyPanel::UpdateInternal() {
+    if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
+        if (Scene* scene = tab->GetScene(); scene) {
+            HierarchyCreator creator(m_editor);
+            DrawPopup();
+            // @TODO: build scene tree somewhere else
+            creator.Update(*scene);
+        }
     }
 }
 
-void HierarchyPanel::DrawPopup(Scene&) {
+void HierarchyPanel::DrawPopup() {
     auto selected = m_editor.GetSelectedEntity();
     // @TODO: save commands for undo
 

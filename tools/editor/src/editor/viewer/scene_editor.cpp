@@ -63,6 +63,11 @@ void SceneEditor::OnActivate() {
     scene_manager->OpenTempScene(m_document->m_scene);
 }
 
+Scene* SceneEditor::GetScene() {
+    auto handle = m_document->GetHandle<Scene>();
+    return handle.Get();
+}
+
 void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     ViewerTab::DrawMainView(p_camera);
 

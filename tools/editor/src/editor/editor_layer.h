@@ -69,7 +69,7 @@ public:
     Viewer& GetViewer() { return *m_viewer.get(); }
 
 private:
-    void DockSpace(Scene* p_scene);
+    void DockSpace();
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
 
     void FlushInputEvents();

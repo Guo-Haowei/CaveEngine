@@ -46,7 +46,7 @@ void MenuBar::MainMenuBar() {
     EditorItem::OpenAddEntityPopup(ecs::Entity::Null());
 }
 
-void MenuBar::Update(Scene*) {
+void MenuBar::Update() {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetCurrentViewport(nullptr, (ImGuiViewportP*)viewport);  // Set viewport explicitly so GetFrameHeight reacts to DPI changes
 

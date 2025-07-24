@@ -28,7 +28,7 @@ static ImVec4 GetLogLevelColor(LogLevel level) {
     return ImVec4(color.r, color.g, color.b, 1.0f);
 }
 
-void LogPanel::UpdateInternal(Scene*) {
+void LogPanel::UpdateInternal() {
     ImGui::Separator();
 
     // reserve enough left-over height for 1 separator + 1 input text

@@ -32,6 +32,8 @@ public:
 
     virtual Document& GetDocument() const = 0;
 
+    virtual Scene* GetScene() = 0;
+
     const TabId& GetId() const { return m_id; }
 
     const Guid& GetGuid() const;

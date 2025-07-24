@@ -185,7 +185,7 @@ void EditorLayer::SelectEntity(ecs::Entity p_selected) {
     scene->m_selected = m_selected;
 }
 
-void EditorLayer::DockSpace(Scene* p_scene) {
+void EditorLayer::DockSpace() {
     ImGui::GetMainViewport();
 
     static bool opt_padding = false;
@@ -222,7 +222,7 @@ void EditorLayer::DockSpace(Scene* p_scene) {
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
-    m_menu_bar->Update(p_scene);
+    m_menu_bar->Update();
 
     ImGui::End();
     return;
@@ -241,10 +241,12 @@ void EditorLayer::OnImGuiRender() {
 
     FlushInputEvents();
 
-    DockSpace(scene);
+    DockSpace();
     for (auto& it : m_panels) {
-        it->Update(scene);
+        it->Update();
     }
+
+    // @TODO: fix this as well
     FlushCommand(scene);
 }
 

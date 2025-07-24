@@ -34,6 +34,8 @@ public:
 
     Document& GetDocument() const override;
 
+    Scene* GetScene() override { return m_tmp_scene.get(); }
+
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 

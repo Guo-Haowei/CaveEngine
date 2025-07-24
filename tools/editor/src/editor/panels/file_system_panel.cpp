@@ -159,7 +159,7 @@ void FileSystemPanel::ListFile(const std::filesystem::path& p_path, const char* 
     }
 }
 
-void FileSystemPanel::UpdateInternal(Scene*) {
+void FileSystemPanel::UpdateInternal() {
     ListFile(m_root, "@res://");
 }
 

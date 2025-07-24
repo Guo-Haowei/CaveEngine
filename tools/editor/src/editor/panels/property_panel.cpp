@@ -12,6 +12,8 @@
 
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
+#include "editor/viewer/viewer.h"
+#include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
@@ -161,8 +163,11 @@ bool DrawComponentAuto(T* p_component) {
     return (bool)dirty;
 }
 
-void PropertyPanel::UpdateInternal(Scene* p_scene) {
-    if (!p_scene) {
+void PropertyPanel::UpdateInternal() {
+    ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
+    Scene* _scene = tab ? tab->GetScene() : nullptr;
+
+    if (!_scene) {
         return;
     }
 
@@ -172,7 +177,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         return;
     }
 
-    Scene& scene = *p_scene;
+    Scene& scene = *_scene;
 
     NameComponent* name_component = scene.GetComponent<NameComponent>(id);
     // @NOTE: when loading another scene, the selected entity will expire, thus don't have name

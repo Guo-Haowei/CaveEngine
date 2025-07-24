@@ -16,7 +16,7 @@ public:
     uint32_t GetWarningCount() const { return m_warning_count; }
 
 protected:
-    void UpdateInternal(Scene* scene) override;
+    void UpdateInternal() override;
 
 private:
     uint32_t m_error_count{ 0 };

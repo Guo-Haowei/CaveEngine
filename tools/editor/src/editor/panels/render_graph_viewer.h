@@ -18,7 +18,7 @@ public:
     }
 
 protected:
-    void UpdateInternal(Scene* p_scene) override;
+    void UpdateInternal() override;
     void DrawNodes(const RenderGraph& p_graph);
 
     bool m_firstFrame{ true };

@@ -9,7 +9,7 @@ public:
     MenuBar(EditorLayer& p_editor)
         : EditorItem(p_editor) {}
 
-    void Update(Scene* p_scene) override;
+    void Update() override;
 
 private:
     void MainMenuBar();

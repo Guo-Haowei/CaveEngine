@@ -103,7 +103,7 @@ void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {
     // }
 }
 
-void RenderGraphViewer::UpdateInternal(Scene*) {
+void RenderGraphViewer::UpdateInternal() {
     auto graphics_manager = m_editor.GetApplication()->GetGraphicsManager();
     if (m_backend == Backend::COUNT) {
         m_backend = m_editor.GetApplication()->GetGraphicsManager()->GetBackend();

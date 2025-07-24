@@ -27,6 +27,8 @@ public:
 
     Document& GetDocument() const override;
 
+    Scene* GetScene() override;
+
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 

@@ -161,7 +161,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     m_tab_manager.SwitchTab(std::move(tab));
 }
 
-void Viewer::UpdateInternal(Scene*) {
+void Viewer::UpdateInternal() {
     UpdateFrameSize();
 
     auto _tab = m_tab_manager.GetActiveTab();

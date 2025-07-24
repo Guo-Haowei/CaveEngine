@@ -13,10 +13,10 @@ public:
     }
 
 protected:
-    void UpdateInternal(Scene* scene) override;
+    void UpdateInternal() override;
 
 private:
-    void DrawPopup(Scene& scene);
+    void DrawPopup();
 };
 
 }  // namespace cave

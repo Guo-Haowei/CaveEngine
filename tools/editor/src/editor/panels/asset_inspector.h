@@ -18,7 +18,8 @@ public:
     }
 
 protected:
-    void UpdateInternal(Scene*) override;
+    void UpdateInternal() override;
+    void DrawContentBrowser();
 };
 
 }  // namespace cave

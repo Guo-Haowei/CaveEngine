@@ -46,7 +46,7 @@ public:
     }
 
 protected:
-    void UpdateInternal(Scene* p_scene) override;
+    void UpdateInternal() override;
 
     void UpdateFrameSize();
     bool CacheCameraInput(const InputEvent* p_input_event);

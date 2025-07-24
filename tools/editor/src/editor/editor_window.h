@@ -10,7 +10,7 @@ public:
     EditorWindow(EditorLayer& p_editor)
         : EditorItem(p_editor) {}
 
-    void Update(Scene*) override;
+    void Update() override;
 
     virtual const char* GetTitle() const = 0;
 
@@ -18,7 +18,7 @@ public:
     bool IsHovered() const { return m_is_hovered; }
 
 protected:
-    virtual void UpdateInternal(Scene*) = 0;
+    virtual void UpdateInternal() = 0;
 
     bool m_is_focused = false;
     bool m_is_hovered = false;
