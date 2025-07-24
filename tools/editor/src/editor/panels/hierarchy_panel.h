@@ -3,6 +3,8 @@
 
 namespace cave {
 
+class ViewerTab;
+
 class HierarchyPanel : public EditorWindow {
 public:
     HierarchyPanel(EditorLayer& editor)
@@ -16,7 +18,7 @@ protected:
     void UpdateInternal() override;
 
 private:
-    void DrawPopup();
+    void DrawPopup(ViewerTab* p_tab);
 };
 
 }  // namespace cave

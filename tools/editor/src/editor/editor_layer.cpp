@@ -178,13 +178,6 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
     m_panels.emplace_back(p_panel);
 }
 
-void EditorLayer::SelectEntity(ecs::Entity p_selected) {
-    m_selected = p_selected;
-    // @TODO: fix this part
-    auto scene = m_app->GetSceneManager()->GetActiveScene();
-    scene->m_selected = m_selected;
-}
-
 void EditorLayer::DockSpace() {
     ImGui::GetMainViewport();
 

@@ -42,9 +42,6 @@ public:
     void OnUpdate(float p_timestep) override;
     void OnImGuiRender() override;
 
-    void SelectEntity(ecs::Entity p_selected);
-    ecs::Entity GetSelectedEntity() const { return m_selected; }
-
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
     void CommandInspectAsset(const Guid& p_guid);
     void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
@@ -80,7 +77,6 @@ private:
     std::shared_ptr<LogPanel> m_log_panel;
 
     std::vector<std::shared_ptr<EditorItem>> m_panels;
-    ecs::Entity m_selected;
 
     std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
 

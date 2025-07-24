@@ -85,7 +85,7 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
     Scene& scene = *m_document->m_scene.get();
-    ecs::Entity id = m_editor.GetSelectedEntity();
+    ecs::Entity id = GetSelectedEntity();
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
 
 #if 0

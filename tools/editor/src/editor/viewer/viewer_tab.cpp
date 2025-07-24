@@ -22,6 +22,13 @@ ViewerTab::ViewerTab(EditorLayer& p_editor, Viewer& p_viewer)
     , m_viewer(p_viewer) {
 }
 
+void ViewerTab::SelectEntity(ecs::Entity p_selected) {
+    m_selected = p_selected;
+    if (Scene* scene = GetScene(); scene) {
+        scene->m_selected = m_selected;
+    }
+}
+
 void ViewerTab::OnCreate(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
     auto meta = handle.GetMeta();

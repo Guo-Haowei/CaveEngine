@@ -33,6 +33,7 @@ void EditorInspectAssetCommand::Execute(Scene&) {
 }
 
 /// EditorCommandAddEntity
+// @TODO: move this to SceneEditor queue
 void EditorCommandAddEntity::Execute(Scene& p_scene) {
     ecs::Entity id;
     switch (m_entityType) {
@@ -53,7 +54,7 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
         p_scene.m_root = id;
     }
 
-    m_editor->SelectEntity(id);
+    // m_editor->SelectEntity(id);
 
     ISceneManager::GetSingleton().BumpRevision();
 }

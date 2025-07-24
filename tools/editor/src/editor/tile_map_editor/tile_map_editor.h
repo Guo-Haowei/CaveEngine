@@ -36,8 +36,6 @@ public:
 
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
-    Scene* GetScene() override { return m_tmp_scene.get(); }
-
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 

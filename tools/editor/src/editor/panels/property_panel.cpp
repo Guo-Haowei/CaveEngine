@@ -171,7 +171,7 @@ void PropertyPanel::UpdateInternal() {
         return;
     }
 
-    ecs::Entity id = m_editor.GetSelectedEntity();
+    ecs::Entity id = tab->GetSelectedEntity();
 
     if (!id.IsValid()) {
         return;

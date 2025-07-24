@@ -2,6 +2,7 @@
 #include "viewer_tab_id.h"
 
 #include "engine/assets/guid.h"
+#include "engine/ecs/entity.h"
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
 #include "editor/widgets/widget.h"
@@ -32,7 +33,10 @@ public:
 
     virtual Document& GetDocument() const = 0;
 
-    virtual Scene* GetScene() = 0;
+    virtual Scene* GetScene() { return nullptr; }
+
+    void SelectEntity(ecs::Entity p_selected);
+    ecs::Entity GetSelectedEntity() const { return m_selected; }
 
     const TabId& GetId() const { return m_id; }
 
@@ -61,6 +65,8 @@ protected:
     const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
+
+    ecs::Entity m_selected;
 
 private:
     std::string m_title;
