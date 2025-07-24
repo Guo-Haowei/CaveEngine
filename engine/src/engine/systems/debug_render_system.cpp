@@ -14,7 +14,9 @@ void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
         const Shape& shape = collider.GetShape();
         switch (shape.type) {
             case ShapeType::Box: {
-                debug_draw.AddBox2(Vector2f::Zero, shape.data.half.xy, Vector4f(0, 0, 1, 0.5), &m);
+                Vector2f min = Vector2f::Zero - Vector2f(shape.data.half.xy);
+                Vector2f max = Vector2f::Zero + Vector2f(shape.data.half.xy);
+                debug_draw.AddBox2Frame(min, max, Vector4f(0, 0, 1, 0.9f), &m);
             } break;
             default:
                 break;

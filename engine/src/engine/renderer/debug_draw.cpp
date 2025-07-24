@@ -34,14 +34,14 @@ static void AddDebugCube(FrameData& p_framedata,
 }
 #endif
 
-void DebugDraw::AddBox2(const Vector2f& p_center,
-                        const Vector2f& p_half,
+void DebugDraw::AddBox2(const Vector2f& p_min,
+                        const Vector2f& p_max,
                         const Vector4f& p_color,
                         const Matrix4x4f* p_transform) {
     Item item;
 
-    item.min = Vector3f(p_center - p_half, 0.0f);
-    item.max = Vector3f(p_center + p_half, 0.0f);
+    item.min = Vector3f(p_min, 0.0f);
+    item.max = Vector3f(p_max, 0.0f);
     item.tint_color = p_color;
     item.texture;
 
@@ -56,6 +56,23 @@ void DebugDraw::AddBox2(const Vector2f& p_center,
     }
 
     m_items.emplace_back(item);
+}
+
+void DebugDraw::AddBox2Frame(const Vector2f& p_min,
+                             const Vector2f& p_max,
+                             const Vector4f& p_color,
+                             const Matrix4x4f* p_transform,
+                             float p_thickness) {
+    const float t = p_thickness;
+
+    // Top
+    AddBox2({ p_min.x, p_max.y - t }, { p_max.x, p_max.y }, p_color, p_transform);
+    // Bottom
+    AddBox2({ p_min.x, p_min.y }, { p_max.x, p_min.y + t }, p_color, p_transform);
+    // Left
+    AddBox2({ p_min.x, p_min.y + t }, { p_min.x + t, p_max.y - t }, p_color, p_transform);
+    // Right
+    AddBox2({ p_max.x - t, p_min.y + t }, { p_max.x, p_max.y - t }, p_color, p_transform);
 }
 
 void DebugDraw::Batch() {

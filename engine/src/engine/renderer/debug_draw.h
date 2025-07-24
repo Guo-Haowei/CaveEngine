@@ -15,8 +15,14 @@ class DebugDraw {
     };
 
 public:
-    void AddBox2(const Vector2f& p_center,
-                 const Vector2f& p_half,
+    void AddBox2Frame(const Vector2f& p_min,
+                      const Vector2f& p_max,
+                      const Vector4f& p_color,
+                      const Matrix4x4f* p_transform = nullptr,
+                      float p_thickness = 0.1f);
+
+    void AddBox2(const Vector2f& p_min,
+                 const Vector2f& p_max,
                  const Vector4f& p_color,
                  const Matrix4x4f* p_transform = nullptr);
 

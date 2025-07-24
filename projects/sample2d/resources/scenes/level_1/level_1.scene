@@ -1,5 +1,5 @@
 version: 19
-seed: 4
+seed: 5
 root: 1
 physics_mode: 0
 entities:
@@ -67,3 +67,18 @@ entities:
       flip_x: false
       flip_y: false
       is_billboard: false
+  - id: 5
+    NameComponent:
+      name: floor
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0.47286731, -1.42782867, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    ColliderComponent:
+      shape:
+        type: box
+      flags: 0
+      category: 0
+      mask: 0
