@@ -240,17 +240,17 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
 
     // @TODO: change this to dropdown
     DrawComponent("Light", light_component, [&](LightComponent& p_light) {
-        // @TODO: refactor
-        switch (p_light.GetType()) {
-            case LIGHT_TYPE_INFINITE:
-                ImGui::Text("infinite light");
-                break;
-            case LIGHT_TYPE_POINT:
-                ImGui::Text("point light");
-                break;
-            default:
-                break;
-        }
+        //// @TODO: refactor
+        // switch (p_light.GetType()) {
+        //     case LIGHT_TYPE_INFINITE:
+        //         ImGui::Text("infinite light");
+        //         break;
+        //     case LIGHT_TYPE_POINT:
+        //         ImGui::Text("point light");
+        //         break;
+        //     default:
+        //         break;
+        // }
 
         bool dirty = DrawComponentAuto<LightComponent>(&p_light);
         if (dirty) {

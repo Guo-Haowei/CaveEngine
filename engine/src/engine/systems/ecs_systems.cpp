@@ -245,7 +245,7 @@ static void UpdateLight(float p_timestep,
         // update light space matrices
         if (p_light.CastShadow()) {
             switch (p_light.GetType()) {
-                case LIGHT_TYPE_POINT: {
+                case LightType::Point: {
                     CRASH_NOW();
 #if 0
                     constexpr float near_plane = LIGHT_SHADOW_MIN_DISTANCE;

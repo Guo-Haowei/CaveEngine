@@ -3,15 +3,24 @@
 #include "engine/math/aabb.h"
 #include "engine/reflection/reflection.h"
 
-#include "shader_defines.hlsl.h"
-
 namespace cave {
+
+// must be same order as "shader_defines.hlsl.h"
+enum class LightType : uint8_t {
+    Infinite = 0,
+    Point,
+    Spot,
+    Area,
+    Count,
+};
+
+DECLARE_ENUM_TRAITS(LightType, "infinite", "point", "spot", "area");
 
 class LightComponent {
     CAVE_META(LightComponent)
 
-    CAVE_PROP()
-    LightType m_type = LIGHT_TYPE_INFINITE;
+    CAVE_PROP(editor = EnumDropDown)
+    LightType m_type = LightType::Infinite;
 
     CAVE_PROP(editor = Color)
     Vector4f m_base_color = Vector4f::One;
@@ -49,7 +58,7 @@ public:
 
     const AABB& GetShadowRegion() const { return m_shadow_region; }
 
-    int GetType() const { return m_type; }
+    LightType GetType() const { return m_type; }
     void SetType(LightType p_type) { m_type = p_type; }
 
     void SetMaxDistance(float p_max_distance) { m_max_distance = p_max_distance; }

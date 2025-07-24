@@ -16,7 +16,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-0.8753639, 3.8249893, 0]
+      translation: [-0.875363886, 3.82498932, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
@@ -31,11 +31,11 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0.003123321, 0]
-      rotation: [-0.3646183, 0.031034596, -0.07353314, 0.92773014]
-      scale: [1, 0.9999963, 1]
+      translation: [0, 0.0031233211, 0]
+      rotation: [-0.364618301, 0.0310345963, -0.0735331401, 0.927730143]
+      scale: [1, 0.999996305, 1]
     LightComponent:
-      type: 0
+      type: infinite
       base_color: [1, 1, 1, 1]
       emissive: 5.5
       atten_constant: 1
@@ -51,7 +51,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [2.5252137, 3.487526, 0.90992093]
+      translation: [2.52521372, 3.48752594, 0.909920931]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
@@ -66,7 +66,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-1.3886032, 1.8128128, 0]
+      translation: [-1.38860321, 1.81281281, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
@@ -81,7 +81,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0.876015, 0]
+      translation: [0, 0.876015007, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
@@ -96,7 +96,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [2.005066, 1.2355917, 1.6981995]
+      translation: [2.00506592, 1.23559165, 1.69819951]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
@@ -111,7 +111,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-2.2223282, 0.92528796, 0]
+      translation: [-2.22232819, 0.925287962, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
@@ -126,7 +126,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 3, -3.3730812]
+      translation: [0, 3, -3.37308121]
       rotation: [0, 0, 0, 1]
       scale: [8, 8, 8]
     MeshRendererComponent:
@@ -141,9 +141,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, -1.0214083, -1.5701207e-06]
-      rotation: [-0.70710665, 0, 0, 0.7071069]
-      scale: [8, 7.999338, 7.999338]
+      translation: [0, -1.02140832, -1.57012073e-06]
+      rotation: [-0.70710665, 0, 0, 0.707106888]
+      scale: [8, 7.99933815, 7.99933815]
     MeshRendererComponent:
       mesh_id: 00000000-0000-0000-0000000000000004
       is_visible: true

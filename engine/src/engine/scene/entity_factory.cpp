@@ -58,7 +58,7 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     auto entity = CreateObjectEntity(p_scene, p_name);
 
     LightComponent& light = p_scene.Create<LightComponent>(entity);
-    light.SetType(LIGHT_TYPE_POINT);
+    light.SetType(LightType::Point);
     light.m_atten_constant = 1.0f;
     light.m_atten_linear = 0.2f;
     light.m_atten_quadratic = 0.05f;
@@ -95,7 +95,7 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
 
     // light
     LightComponent& light = p_scene.Create<LightComponent>(entity);
-    light.SetType(LIGHT_TYPE_AREA);
+    light.SetType(LightType::Area);
     light.m_base_color = Vector4f(p_color, 1.0f);
     light.m_emissive = p_emissive;
 
@@ -118,7 +118,7 @@ Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<TransformComponent>(entity);
     LightComponent& light = p_scene.Create<LightComponent>(entity);
-    light.SetType(LIGHT_TYPE_INFINITE);
+    light.SetType(LightType::Infinite);
     light.m_atten_constant = 1.0f;
     light.m_atten_linear = 0.0f;
     light.m_atten_quadratic = 0.0f;
