@@ -12,7 +12,7 @@ class Guid;
 class IAsset;
 struct ImageAsset;
 
-constexpr float DEFAULT_COLUMN_WIDTH = 80.0f;
+constexpr float DEFAULT_COLUMN_WIDTH = 150.0f;
 
 void PushDisabled();
 void PopDisabled();
@@ -32,6 +32,16 @@ bool DrawDragFloat(const char* p_label,
                    float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool DrawCheckBoxBitflag(const char* p_title, uint32_t& p_flags, const uint32_t p_bit);
+
+bool DrawVec1Control(const char* p_label,
+                     float& p_out,
+                     float p_reset_value = 0.0f,
+                     float p_column_width = DEFAULT_COLUMN_WIDTH);
+
+bool DrawVec2Control(const char* p_label,
+                     Vector2f& p_out,
+                     float p_reset_value = 0.0f,
+                     float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool DrawVec3Control(const char* p_label,
                      Vector3f& p_out,

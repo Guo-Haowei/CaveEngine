@@ -30,16 +30,6 @@ struct VS_OUTPUT_POSITION {
     float3 world_position : POSITION;
 };
 
-struct VS_INPUT_COLOR {
-    float3 position : POSITION;
-    float4 color : COLOR;
-};
-
-struct VS_OUTPUT_COLOR {
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
-};
-
 struct VS_OUTPUT_MESH {
     float4 position : SV_POSITION;
     float3 world_position : POSITION;

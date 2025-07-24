@@ -25,11 +25,10 @@ class Archive;
 class FileAccess;
 class Scene;
 
-#pragma region NAME_COMPONENT
 class NameComponent {
     CAVE_META(NameComponent)
 
-    CAVE_PROP(type = name)
+    CAVE_PROP()
     std::string m_name;
 
 public:
@@ -45,13 +44,11 @@ public:
 
     void OnDeserialized() {}
 };
-#pragma endregion NAME_COMPONENT
 
-#pragma region HIERARCHY_COMPONENT
 class HierarchyComponent {
     CAVE_META(HierarchyComponent)
 
-    CAVE_PROP(type = id)
+    CAVE_PROP()
     ecs::Entity m_parent_id;
 
     friend class Scene;
@@ -61,7 +58,15 @@ public:
 
     void OnDeserialized() {}
 };
-#pragma endregion HIERARCHY_COMPONENT
+
+class VelocityComponent {
+    CAVE_META(VelocityComponent)
+public:
+    CAVE_PROP(editor = Translation)
+    Vector3f linear = Vector3f::Zero;
+
+    void OnDeserialized() {}
+};
 
 // @TODO: make it asset
 #pragma region ANIMATION_COMPONENT

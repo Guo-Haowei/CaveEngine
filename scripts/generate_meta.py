@@ -23,6 +23,7 @@ FILES = [
 
     # components
     'scene/animator_component.h',
+    'scene/collider_component.h',
     'scene/camera_component.h',
     'scene/light_component.h',
     'scene/lua_script_component.h',
@@ -68,6 +69,7 @@ def remove_prefix(name: str) -> str:
 
 def parse_extra(meta_data: str):
     extra = {}
+    extra['serialize'] = True  # default to true
     for meta in meta_data.split(','):
         meta = meta.strip()
         if meta.startswith('editor = '):
@@ -76,6 +78,8 @@ def parse_extra(meta_data: str):
             extra['min'] = meta[len('min = '):].strip()
         if meta.startswith('max = '):
             extra['max'] = meta[len('max = '):].strip()
+        if meta.startswith('serialize = false'):
+            extra['serialize'] = False
 
     return extra
 
@@ -133,7 +137,10 @@ def generate_meta_for_class(f, class_name, fields):
         num_max = field['extra'].get('max', None)
         field_name = field['name']
         display_name = remove_prefix(field_name)
-        register_field = f'REGISTER_FIELD({class_name}, "{display_name}", {field_name}, EditorHint::{editor_hint}'
+        flags = 'FieldFlag::Serialize'
+        if field['extra'].get('serialize', True) is False:
+            flags = 'FieldFlag::None'
+        register_field = f'REGISTER_FIELD({class_name}, "{display_name}", {field_name}, {flags}, EditorHint::{editor_hint}'
         if num_min is not None:
             register_field += f', {num_min}'
         if num_max is not None:
@@ -159,6 +166,7 @@ def generate_meta_file(base_path, file_path, metas):
         f.write(f"// Auto-generated metadata for {filename}\n")
         f.write(f"// Check {SCRIPT_NAME} for more details\n\n")
 
+        f.write('#include "engine/reflection/meta_editor.h"\n')
         f.write('#include "engine/serialization/yaml_include.h"\n')
         f.write(f'#include "engine/{base_path}"\n\n')
         f.write('namespace cave {\n\n')

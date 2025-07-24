@@ -170,7 +170,6 @@ protected:
 public:
     // @TODO: make private
     std::shared_ptr<GpuMesh> m_boxBuffers;
-    std::shared_ptr<GpuMesh> m_debugBuffers;
 
 protected:
     virtual void UpdateEmitters(const Scene& p_scene) = 0;

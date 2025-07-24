@@ -5,7 +5,7 @@ namespace cave {
 
 // @TODO: make these class members
 /// input layouts
-static const InputLayoutDesc s_inputLayoutMesh = {
+static const InputLayoutDesc s_input_layout_mesh = {
     .elements = {
         { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
         { "NORMAL", 0, PixelFormat::R32G32B32_FLOAT, 1, 0, InputClassification::PER_VERTEX_DATA, 0 },
@@ -17,16 +17,24 @@ static const InputLayoutDesc s_inputLayoutMesh = {
     }
 };
 
-static const InputLayoutDesc s_inputLayoutSprite = {
+static const InputLayoutDesc s_input_layout_sprite = {
     .elements = {
         { "POSITION", 0, PixelFormat::R32G32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, PixelFormat::R32G32_FLOAT, 1, 0, InputClassification::PER_VERTEX_DATA, 0 },
     }
 };
 
-static const InputLayoutDesc s_inputLayoutPosition = {
+static const InputLayoutDesc s_input_layout_position = {
     .elements = {
         { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
+    }
+};
+
+static const InputLayoutDesc s_input_layout_debug = {
+    .elements = {
+        { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, PixelFormat::R32G32_FLOAT, 1, 0, InputClassification::PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, PixelFormat::R32G32B32A32_FLOAT, 2, 0, InputClassification::PER_VERTEX_DATA, 0 },
     }
 };
 

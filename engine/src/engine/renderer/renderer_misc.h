@@ -6,10 +6,10 @@ namespace cave {
 template<typename T>
 static GpuBufferDesc CreateDesc(const std::vector<T>& p_data) {
     GpuBufferDesc desc{
-        .elementSize = sizeof(T),
-        .elementCount = static_cast<uint32_t>(p_data.size()),
+        .element_size = sizeof(T),
+        .element_count = static_cast<uint32_t>(p_data.size()),
         .offset = 0,
-        .initialData = p_data.data(),
+        .initial_data = p_data.data(),
     };
     return desc;
 }

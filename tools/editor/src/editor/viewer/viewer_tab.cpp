@@ -34,13 +34,13 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
 
 void ViewerTab::CreateDefaultCamera2D(CameraComponent& p_out) {
     const auto res = DVAR_GET_IVEC2(resolution);
-    p_out.SetOrtho();
-    p_out.SetView2D();
+    p_out.SetOrthoFlag();
+    p_out.SetView2dFlag();
     p_out.SetDimension(res.x, res.y);
     p_out.SetNear(1.0f);
     p_out.SetFar(1000.0f);
     p_out.SetPosition(Vector3f(0, 0, 10));
-    p_out.SetDirty();
+    p_out.SetDirtyFlag();
     p_out.Update();
 }
 
@@ -51,7 +51,7 @@ void ViewerTab::CreateDefaultCamera3D(CameraComponent& p_out) {
     p_out.SetNear(1.0f);
     p_out.SetFar(1000.0f);
     p_out.SetPosition(Vector3f(0, 4, 10));
-    p_out.SetDirty();
+    p_out.SetDirtyFlag();
     p_out.Update();
 }
 

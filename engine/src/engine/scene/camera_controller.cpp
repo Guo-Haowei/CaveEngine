@@ -71,7 +71,7 @@ void CameraControllerFPS::Update(CameraComponent& p_camera,
     };
 
     if (moved || rotate_camera()) {
-        p_camera.SetDirty();
+        p_camera.SetDirtyFlag();
     }
 }
 

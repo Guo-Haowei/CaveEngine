@@ -5,9 +5,10 @@
 #include "engine/math/angle.h"
 #include "engine/math/color.h"
 #include "engine/math/geomath.h"
+#include "engine/renderer/debug_draw.h"
 #include "engine/renderer/gpu_resource.h"
 #include "engine/renderer/graphics_defines.h"
-#include "render_command.h"
+#include "engine/renderer/render_command.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"
@@ -16,8 +17,6 @@ namespace cave {
 namespace cave {
 
 class Scene;
-// @TODO: get rid of this
-class TileMapComponent;
 
 struct RenderOptions {
     bool isOpengl{ false };
@@ -122,13 +121,13 @@ struct FrameData {
         const void* id;
     };
 
-    struct DrawDebugContext {
-        std::vector<Vector3f> positions;
-        std::vector<Color> colors;
-        uint32_t drawCount;
-    } drawDebugContext;
-
     AABB voxel_gi_bound;
+
+    DebugDraw& GetDebugDraw() { return m_debug_draw; }
+    const DebugDraw& GetDebugDraw() const { return m_debug_draw; }
+
+private:
+    DebugDraw m_debug_draw;
 };
 
 }  // namespace cave

@@ -147,11 +147,11 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
         Light& light = cache.c_lights[idx];
         bool cast_shadow = light_component.CastShadow();
         light.cast_shadow = cast_shadow;
-        light.type = light_component.GetType();
+        light.type = static_cast<int>(light_component.GetType());
         // @TODO: [SCRUM-210] fix material
         light.color = light_component.GetBaseColor().xyz;
         light.color *= light_component.GetEmissive();
-        switch (light_component.GetType()) {
+        switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
                 Matrix4x4f light_local_matrix = light_transform->GetLocalMatrix();
                 Vector3f light_dir((light_local_matrix * Vector4f(0, 0, 1, 1)).xyz);
@@ -260,31 +260,6 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
     }
 }
 
-static void AddDebugCube(FrameData& p_framedata,
-                         const AABB& p_aabb,
-                         const Color& p_color,
-                         const Matrix4x4f* p_transform = nullptr) {
-
-    const auto& min = p_aabb.GetMin();
-    const auto& max = p_aabb.GetMax();
-
-    std::vector<Vector3f> positions;
-    std::vector<uint32_t> indices;
-    BoxWireFrameHelper(min, max, positions, indices);
-
-    auto& context = p_framedata.drawDebugContext;
-    for (const auto& i : indices) {
-        const Vector3f& pos = positions[i];
-        if (p_transform) {
-            const auto tmp = *p_transform * Vector4f(pos, 1.0f);
-            context.positions.emplace_back(Vector3f(tmp.xyz));
-        } else {
-            context.positions.emplace_back(Vector3f(pos));
-        }
-        context.colors.emplace_back(p_color);
-    }
-}
-
 static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
     bool enabled = false;
     bool show_debug = false;
@@ -301,9 +276,9 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
         DEV_ASSERT_MSG(counter++ == 0, "Only support one ");
     }
 
-    if (show_debug) {
-        AddDebugCube(p_framedata, p_framedata.voxel_gi_bound, Color(0.5f, 0.3f, 0.6f, 0.5f));
-    }
+    // if (show_debug) {
+    //     AddDebugCube(p_framedata, p_framedata.voxel_gi_bound, Color(0.5f, 0.3f, 0.6f, 0.5f));
+    // }
 
     auto& cache = p_framedata.perFrameCache;
     cache.c_enableVxgi = enabled;

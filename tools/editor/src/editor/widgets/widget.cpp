@@ -55,11 +55,13 @@ enum {
     TYPE_COLOR,
 };
 
+template<int N>
 static bool DrawVec3ControlImpl(int type,
                                 const char* p_label,
-                                Vector3f& p_out_vec3,
+                                float* p_data,
                                 float p_reset_value,
                                 float p_column_width) {
+    static_assert(N >= 1 && N <= 3);
     bool is_dirty = false;
 
     ImGuiIO& io = ImGui::GetIO();
@@ -84,6 +86,13 @@ static bool DrawVec3ControlImpl(int type,
 
     ImGui::PushID(p_label);
 
+    auto draw_button = [&](int idx) {
+        if (ImGui::Button(button_names[idx])) {
+            p_data[idx] = p_reset_value;
+            is_dirty = true;
+        }
+    };
+
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, p_column_width);
     ImGui::Text("%s", p_label);
@@ -92,59 +101,54 @@ static bool DrawVec3ControlImpl(int type,
     ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-    ImGui::PushFont(bold_font);
+    // x component
+    if constexpr (N >= 1) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+        ImGui::PushFont(bold_font);
+        draw_button(0);
+        ImGui::PopFont();
+        ImGui::PopStyleColor(3);
+        ImGui::SameLine();
+        is_dirty |= ImGui::DragFloat("##X", &p_data[0], speed, min, max, "%.2f");
+        ImGui::PopItemWidth();
+    }
 
-    auto draw_button = [&](int idx) {
-        if (ImGui::Button(button_names[idx])) {
-            p_out_vec3[idx] = p_reset_value;
-            is_dirty = true;
-        }
-    };
+    // y component
+    if constexpr (N >= 2) {
+        ImGui::SameLine();
 
-    draw_button(0);
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+        ImGui::PushFont(bold_font);
+        draw_button(1);
+        ImGui::PopFont();
+        ImGui::PopStyleColor(3);
+        ImGui::SameLine();
+        is_dirty |= ImGui::DragFloat("##Y", &p_data[1], speed, min, max, "%.2f");
+        ImGui::PopItemWidth();
+    }
 
-    ImGui::PopFont();
-    ImGui::PopStyleColor(3);
+    // z component
+    if constexpr (N >= 3) {
+        ImGui::SameLine();
 
-    ImGui::SameLine();
-    is_dirty |= ImGui::DragFloat("##X", &p_out_vec3.x, speed, min, max, "%.2f");
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-    ImGui::PushFont(bold_font);
-
-    draw_button(1);
-
-    ImGui::PopFont();
-    ImGui::PopStyleColor(3);
-
-    ImGui::SameLine();
-    is_dirty |= ImGui::DragFloat("##Y", &p_out_vec3.y, speed, min, max, "%.2f");
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-    ImGui::PushFont(bold_font);
-    draw_button(2);
-    ImGui::PopFont();
-    ImGui::PopStyleColor(3);
-
-    ImGui::SameLine();
-    is_dirty |= ImGui::DragFloat("##Z", &p_out_vec3.z, speed, min, max, "%.2f");
-    ImGui::PopItemWidth();
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+        ImGui::PushFont(bold_font);
+        draw_button(2);
+        ImGui::PopFont();
+        ImGui::PopStyleColor(3);
+        ImGui::SameLine();
+        is_dirty |= ImGui::DragFloat("##Z", &p_data[2], speed, min, max, "%.2f");
+        ImGui::PopItemWidth();
+    }
 
     ImGui::PopStyleVar();
-
     ImGui::Columns(1);
-
     ImGui::PopID();
     return is_dirty;
 }
@@ -158,18 +162,32 @@ bool DrawCheckBoxBitflag(const char* p_title, uint32_t& p_flags, const uint32_t 
     return false;
 }
 
+bool DrawVec1Control(const char* p_label,
+                     float& p_out,
+                     float p_reset_value,
+                     float p_column_width) {
+    return DrawVec3ControlImpl<1>(TYPE_TRANSFORM, p_label, &p_out, p_reset_value, p_column_width);
+}
+
+bool DrawVec2Control(const char* p_label,
+                     Vector2f& p_out,
+                     float p_reset_value,
+                     float p_column_width) {
+    return DrawVec3ControlImpl<2>(TYPE_TRANSFORM, p_label, &p_out.x, p_reset_value, p_column_width);
+}
+
 bool DrawVec3Control(const char* p_label,
                      Vector3f& p_out_vec3,
                      float p_reset_value,
                      float p_column_width) {
-    return DrawVec3ControlImpl(TYPE_TRANSFORM, p_label, p_out_vec3, p_reset_value, p_column_width);
+    return DrawVec3ControlImpl<3>(TYPE_TRANSFORM, p_label, &p_out_vec3.x, p_reset_value, p_column_width);
 }
 
 bool DrawColorControl(const char* p_label,
                       Vector3f& p_out_vec3,
                       float p_reset_value,
                       float p_column_width) {
-    return DrawVec3ControlImpl(TYPE_COLOR, p_label, p_out_vec3, p_reset_value, p_column_width);
+    return DrawVec3ControlImpl<3>(TYPE_COLOR, p_label, &p_out_vec3.x, p_reset_value, p_column_width);
 }
 
 bool DrawInputText(const char* p_label,
@@ -230,6 +248,7 @@ bool DrawColorPicker4(const char* p_label,
     ImGui::NextColumn();
     const bool dirty = ImGui::ColorPicker4(p_label, p_out);
     ImGui::Columns(1);
+    ImGui::Dummy(ImVec2(8, 8));
     return dirty;
 }
 

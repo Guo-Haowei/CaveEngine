@@ -78,6 +78,12 @@
 #error Platform not supported
 #endif
 
+#if defined(_GAME_BUILD)
+#define USE_EDITOR NOT_IN_USE
+#else
+#define USE_EDITOR IN_USE
+#endif
+
 /// String
 #ifdef _STR
 #undef _STR

@@ -74,17 +74,17 @@ void Scene::Update(float p_timestep) {
     }
 
     // @TODO: refactor
+#if 0
     if (DVAR_GET_BOOL(gfx_bvh_generate)) {
         CRASH_NOW();
-#if 0
         for (auto [entity, mesh] : m_MeshComponents) {
             if (!mesh.bvh) {
                 mesh.bvh = BvhAccel::Construct(mesh.indices, mesh.positions);
             }
         }
         DVAR_SET_BOOL(gfx_bvh_generate, false);
-#endif
     }
+#endif
 }
 
 void Scene::Copy(Scene& p_other) {
@@ -112,7 +112,7 @@ void Scene::Merge(Scene& p_other) {
 
 ecs::Entity Scene::GetMainCamera() {
     for (auto [entity, camera] : m_CameraComponents) {
-        if (camera.IsPrimary()) {
+        if (camera.HasPrimaryFlag()) {
             return entity;
         }
     }

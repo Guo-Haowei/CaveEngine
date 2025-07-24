@@ -6,6 +6,7 @@
 #include "generated/tile_map_asset.generated.cpp"
 #include "generated/tile_set_asset.generated.cpp"
 #include "generated/animator_component.generated.cpp"
+#include "generated/collider_component.generated.cpp"
 #include "generated/camera_component.generated.cpp"
 #include "generated/light_component.generated.cpp"
 #include "generated/lua_script_component.generated.cpp"

@@ -1,6 +1,11 @@
 #pragma once
 
+// @TODO: refactor this file
 namespace cave {
+
+#define FLAG_GETTER_SETTER(FLAG, DATA)             \
+    bool Has##FLAG() const { return DATA & FLAG; } \
+    void Set##FLAG(bool p_value = true) { p_value ? DATA |= FLAG : DATA &= ~FLAG; }
 
 struct ComponentFlagBase {
     enum : uint32_t {

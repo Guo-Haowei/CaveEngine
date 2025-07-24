@@ -119,7 +119,11 @@ bool InputManager::IsActionPressed(StringId p_name) {
 bool InputManager::IsActionJustPressed(StringId p_name) {
     auto it = m_input_binding.find(p_name);
     if (it == m_input_binding.end()) return false;
-    return IsKeyReleased(static_cast<KeyCode>(it->second));
+    const bool pressed = IsKeyPressed(static_cast<KeyCode>(it->second));
+    if (pressed) {
+        return true;
+    }
+    return false;
 }
 
 bool InputManager::IsActionJustReleased(StringId p_name) {

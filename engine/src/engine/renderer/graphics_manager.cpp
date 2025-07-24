@@ -53,8 +53,8 @@ static auto CreateUniformCheckSize(GraphicsManager& p_graphics_manager, uint32_t
     static_assert(sizeof(T) % 256 == 0);
     GpuBufferDesc buffer_desc{};
     buffer_desc.slot = T::GetUniformBufferSlot();
-    buffer_desc.elementCount = p_max_count;
-    buffer_desc.elementSize = sizeof(T);
+    buffer_desc.element_count = p_max_count;
+    buffer_desc.element_size = sizeof(T);
     return p_graphics_manager.CreateConstantBuffer(buffer_desc);
 }
 
@@ -63,8 +63,8 @@ template<typename T>
 static void CreateUniformBuffer(ConstantBuffer<T>& p_buffer) {
     GpuBufferDesc buffer_desc{};
     buffer_desc.slot = T::GetUniformBufferSlot();
-    buffer_desc.elementCount = 1;
-    buffer_desc.elementSize = sizeof(T);
+    buffer_desc.element_count = 1;
+    buffer_desc.element_size = sizeof(T);
     p_buffer.buffer = *IGraphicsManager::GetSingleton().CreateConstantBuffer(buffer_desc);
 }
 
@@ -109,23 +109,6 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
     // @TODO: refactor
     m_skyboxBuffers = *CreateMesh(MakeSkyBoxMesh());
     m_boxBuffers = *CreateMesh(MakeBoxMesh());
-
-    // @TODO: refactor
-    // for debug buffer?
-    {
-        constexpr int max_count = 4096 * 128;
-        MeshAsset mesh;
-        mesh.flags |= MeshAsset::DYNAMIC;
-        mesh.positions.resize(max_count);
-        mesh.color_0.resize(max_count);
-        mesh.CreateRenderData();
-
-        auto res = CreateMesh(mesh);
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        m_debugBuffers = *res;
-    }
 
     m_initialized = true;
     return Result<void>();
@@ -197,9 +180,9 @@ auto GraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_
         auto& buffer_desc = vb_descs[index];
         buffer_desc.slot = index;
         buffer_desc.type = GpuBufferType::VERTEX;
-        buffer_desc.elementCount = in.elementCount;
-        buffer_desc.elementSize = in.strideInByte;
-        buffer_desc.initialData = data[index];
+        buffer_desc.element_count = in.elementCount;
+        buffer_desc.element_size = in.strideInByte;
+        buffer_desc.initial_data = data[index];
         buffer_desc.dynamic = is_dynamic;
     }
 
@@ -208,9 +191,9 @@ auto GraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_
     if (!p_mesh.indices.empty()) {
         ib_desc = GpuBufferDesc{
             .type = GpuBufferType::INDEX,
-            .elementSize = sizeof(uint32_t),
-            .elementCount = (uint32_t)p_mesh.indices.size(),
-            .initialData = p_mesh.indices.data(),
+            .element_size = sizeof(uint32_t),
+            .element_count = (uint32_t)p_mesh.indices.size(),
+            .initial_data = p_mesh.indices.data(),
         };
         ib_desc_ptr = &ib_desc;
     }

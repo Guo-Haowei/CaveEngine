@@ -5,12 +5,12 @@
 
 namespace cave {
 
-void RunSpriteRenderSystem(Scene* p_scene, FrameData& p_framedata) {
+void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
     if (!p_scene) {
         return;
     }
 
-    Scene& scene = *p_scene;
+    const Scene& scene = *p_scene;
     auto view = p_scene->View<SpriteRendererComponent>();
     for (const auto& [id, sprite_renderer] : view) {
         const TransformComponent& transform = *scene.GetComponent<TransformComponent>(id);
