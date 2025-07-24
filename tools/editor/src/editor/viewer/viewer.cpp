@@ -142,7 +142,6 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
 
     switch (p_type) {
         case AssetType::Scene: {
-            DVAR_SET_STRING(last_open_scene, p_guid.ToString());
             tab.reset(new SceneEditor(m_editor, *this));
         } break;
         case AssetType::TileMap:
@@ -155,6 +154,8 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
             LOG_WARN("Can't open tab {}", ToString(p_type));
             return;
     }
+
+    DVAR_SET_STRING(last_open_asset, p_guid.ToString());
 
     tab->OnCreate(p_guid);
     m_tab_manager.SwitchTab(std::move(tab));

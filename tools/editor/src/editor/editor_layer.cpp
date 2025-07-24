@@ -159,10 +159,11 @@ void EditorLayer::OnAttach() {
         panel->OnAttach();
     }
 
-    auto last_scene = DVAR_GET_STRING(last_open_scene);
-    if (auto res = Guid::Parse(last_scene); res.is_some()) {
-        Guid guid = res.unwrap_unchecked();
-        CommandInspectAsset(guid);
+    if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
+        if (auto res = Guid::Parse(asset); res.is_some()) {
+            Guid guid = res.unwrap_unchecked();
+            CommandInspectAsset(guid);
+        }
     }
 }
 

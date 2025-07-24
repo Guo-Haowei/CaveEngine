@@ -98,6 +98,9 @@ void TileMapEditor::DrawAssetInspector() {
             "SpriteTab",
             360,
             [&]() {
+                if (!tile_set) {
+                    return;
+                }
                 int column = tile_set->GetCol();
                 int row = tile_set->GetRow();
                 if (m_sprite_selector.EditSprite(&column, &row)) {

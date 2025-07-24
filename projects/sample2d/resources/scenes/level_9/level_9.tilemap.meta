@@ -1,0 +1,5 @@
+guid: 8B4DBABB-43B4-3048-A8F93F43AD349908
+type: tilemap
+name: level_9.tilemap
+import_path: "@res://scenes/level_9/level_9.tilemap"
+dependencies: [94FB5794-CF41-1E46-8D6DB1E633C35D85]

@@ -1,6 +1,7 @@
 #include "engine/core/dynamic_variable/dynamic_variable_begin.h"
 
-DVAR_STRING(last_open_scene, DVAR_FLAG_CACHE, "Last scene opened", "");
+// @TODO: open all tabs
+DVAR_STRING(last_open_asset, DVAR_FLAG_CACHE, "Last asset opened", "");
 
 DVAR_BOOL(show_editor, DVAR_FLAG_CACHE, "Show editor", true);
 
