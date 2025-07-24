@@ -147,8 +147,7 @@ EditorLayer::EditorLayer()
 void EditorLayer::OnAttach() {
     ImNodes::CreateContext();
 
-    auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>(
-        "@persist://textures/checkerboard");
+    auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
     if (handle.is_some()) {
         context.checkerboard = handle.unwrap_unchecked().Wait();
     }

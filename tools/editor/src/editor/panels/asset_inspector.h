@@ -20,6 +20,7 @@ public:
 protected:
     void UpdateInternal() override;
     void DrawContentBrowser();
+    void DrawAssets();
 };
 
 }  // namespace cave
