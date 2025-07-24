@@ -55,7 +55,7 @@ public:
     }
 
 protected:
-    virtual const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const = 0;
+    virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const = 0;
 
     virtual const CameraComponent& GetActiveCameraInternal() const = 0;
 

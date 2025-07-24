@@ -21,6 +21,24 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_vi
 
     m_camera = std::make_unique<CameraComponent>();
     ViewerTab::CreateDefaultCamera2D(*m_camera.get());
+
+    // @TODO:
+    // ICON_FA_FORWARD;
+    // ICON_FA_BACKWARD;
+    m_play_button = { ICON_FA_PLAY, "Play animation",
+                      [&]() {
+                          AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+                          if (DEV_VERIFY(animator)) {
+                              animator->SetPlaying(true);
+                          }
+                      } };
+    m_pause_button = { ICON_FA_PAUSE, "Pause animation",
+                       [&]() {
+                           AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+                           if (DEV_VERIFY(animator)) {
+                               animator->SetPlaying(false);
+                           }
+                       } };
 }
 
 void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
@@ -65,27 +83,11 @@ void SpriteAnimationEditor::OnActivate() {
     scene_manager->OpenTempScene(m_tmp_scene);
 }
 
-const std::vector<ToolBarButtonDesc>& SpriteAnimationEditor::GetToolBarButtons() const {
-    // ICON_FA_FORWARD;
-    // ICON_FA_BACKWARD;
-    static std::vector<ToolBarButtonDesc> s_buttons = {
-        { ICON_FA_PLAY, "Play animation",
-          [&]() {
-              AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
-              if (DEV_VERIFY(animator)) {
-                  animator->SetPlaying(true);
-              }
-          } },
-        { ICON_FA_PAUSE, "Pause animation",
-          [&]() {
-              AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
-              if (DEV_VERIFY(animator)) {
-                  animator->SetPlaying(false);
-              }
-          } },
-    };
+const std::vector<const ToolBarButtonDesc*> SpriteAnimationEditor::GetToolBarButtons() const {
+    AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+    const bool is_playing = animator->IsPlaying();
 
-    return s_buttons;
+    return { is_playing ? &m_pause_button : &m_play_button };
 }
 
 void SpriteAnimationEditor::DrawMainView(const CameraComponent& p_camera) {

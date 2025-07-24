@@ -37,7 +37,7 @@ public:
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
-    const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const override;
+    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 
     void DrawFrameSelector(ImageAsset& p_image_asset);
     void DrawTimeLine();
@@ -56,6 +56,9 @@ protected:
     std::string m_clip_name;
 
     ecs::Entity m_animator_id;
+
+    ToolBarButtonDesc m_play_button;
+    ToolBarButtonDesc m_pause_button;
 };
 
 }  // namespace cave

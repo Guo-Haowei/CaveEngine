@@ -39,7 +39,7 @@ public:
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
-    const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const override;
+    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 
     // @TODO: refactor
     void TileMapLayerOverview(TileMapAsset& p_tile_map);
@@ -48,6 +48,7 @@ protected:
 
     std::unique_ptr<CameraComponent> m_camera;
     std::shared_ptr<TileMapDocument> m_document;
+    ToolBarButtonDesc m_brush_desc;
 
     SpriteSelector m_sprite_selector;
 };

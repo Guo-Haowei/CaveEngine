@@ -22,6 +22,31 @@ SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
     ViewerTab::CreateDefaultCamera3D(m_cameras[0]);
     ViewerTab::CreateDefaultCamera2D(m_cameras[1]);
+
+    m_play_button = {
+        ICON_FA_PLAY,
+        "Run Project",
+        [&]() {
+            Application* app = m_editor.GetApplication();
+            ModeManager& mode_manager = app->GetModeManager();
+            mode_manager.SetMode(GameMode::Gameplay);
+        }
+        //[&]() { return app_state != Application::State::SIM; },
+    };
+    m_pause_button = {
+        ICON_FA_PAUSE,
+        "Pause Running Project",
+        [&]() {
+            Application* app = m_editor.GetApplication();
+            ModeManager& mode_manager = app->GetModeManager();
+            mode_manager.SetMode(GameMode::Editor);
+        },
+        //[&]() { return app_state != Application::State::EDITING; },
+    };
+    m_toggle_view_button = { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
+                             [&]() {
+                                 m_camera_idx ^= 1;
+                             } };
 }
 
 Document& SceneEditor::GetDocument() const {
@@ -167,36 +192,11 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     return false;
 }
 
-const std::vector<ToolBarButtonDesc>& SceneEditor::GetToolBarButtons() const {
-    // @TODO: make it return ToolBarButtonDesc&
-    static std::vector<ToolBarButtonDesc> s_buttons = {
-        {
-            ICON_FA_PLAY,
-            "Run Project",
-            [&]() {
-                Application* app = m_editor.GetApplication();
-                ModeManager& mode_manager = app->GetModeManager();
-                mode_manager.SetMode(GameMode::Gameplay);
-            }
-            //[&]() { return app_state != Application::State::SIM; },
-        },
-        {
-            ICON_FA_PAUSE,
-            "Pause Running Project",
-            [&]() {
-                Application* app = m_editor.GetApplication();
-                ModeManager& mode_manager = app->GetModeManager();
-                mode_manager.SetMode(GameMode::Editor);
-            },
-            //[&]() { return app_state != Application::State::EDITING; },
-        },
-        { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
-          [&]() {
-              m_camera_idx ^= 1;
-          } },
-    };
+const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
+    Application* app = m_editor.GetApplication();
+    ModeManager& mode_manager = app->GetModeManager();
 
-    return s_buttons;
+    return { mode_manager.GetMode() == GameMode::Editor ? &m_play_button : &m_pause_button, &m_toggle_view_button };
 }
 
 void SceneEditor::Select(const Vector2f& p_cursor) {

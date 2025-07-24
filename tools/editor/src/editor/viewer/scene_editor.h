@@ -32,7 +32,7 @@ public:
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;
 
-    const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const override;
+    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 
     GizmoAction m_state{ GizmoAction::Translate };
 
@@ -42,6 +42,10 @@ protected:
 
     std::array<CameraComponent, 2> m_cameras;
     mutable int m_camera_idx = 0;
+
+    ToolBarButtonDesc m_play_button;
+    ToolBarButtonDesc m_pause_button;
+    ToolBarButtonDesc m_toggle_view_button;
 };
 
 }  // namespace cave

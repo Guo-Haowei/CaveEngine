@@ -73,9 +73,9 @@ void ViewerTab::DrawToolBar() {
     const auto buttons = GetToolBarButtons();
 
     for (size_t i = 0; i < buttons.size(); ++i) {
-        const ToolBarButtonDesc& desc = buttons[i];
+        const ToolBarButtonDesc* desc = buttons[i];
         if (i != 0) ImGui::SameLine();
-        DrawToolBarButton(desc);
+        DrawToolBarButton(*desc);
     }
 
     // ImGui::PopStyleVar(2);

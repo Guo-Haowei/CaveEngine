@@ -20,6 +20,11 @@ TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
 
     m_camera = std::make_unique<CameraComponent>();
     ViewerTab::CreateDefaultCamera2D(*m_camera.get());
+
+    m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
+                                      [&]() {
+                                          LOG_WARN("TODO");
+                                      } };
 }
 
 void TileMapEditor::OnCreate(const Guid& p_guid) {
@@ -276,15 +281,10 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     }
 }
 
-const std::vector<ToolBarButtonDesc>& TileMapEditor::GetToolBarButtons() const {
-    static std::vector<ToolBarButtonDesc> s_buttons = {
-        { ICON_FA_BRUSH, "TileMap editor mode",
-          [&]() {
-              LOG_WARN("TODO");
-          } },
-    };
+const std::vector<const ToolBarButtonDesc*> TileMapEditor::GetToolBarButtons() const {
+    std::vector<const ToolBarButtonDesc*> descs{ &m_brush_desc };
 
-    return s_buttons;
+    return { &m_brush_desc };
 }
 
 }  // namespace cave
