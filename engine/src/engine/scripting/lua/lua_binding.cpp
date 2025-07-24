@@ -212,13 +212,19 @@ bool OpenSceneLib(lua_State* L) {
         })
         .endClass();
 
+    // Velocity
+    luabridge::getGlobalNamespace(L)
+        .beginClass<VelocityComponent>("VelocityComponent")
+        .addProperty("linear", &VelocityComponent::linear)
+        .endClass();
+
+#if 0
     // RigidBodyComponent
     luabridge::getGlobalNamespace(L)
         .beginClass<RigidBodyComponent>("RigidBodyComponent")
         .addProperty("collision_type", &RigidBodyComponent::collisionType)
         .endClass();
 
-#if 0
     // LuaScriptComponent
     luabridge::getGlobalNamespace(L)
         .beginClass<LuaScriptComponent>("LuaScriptComponent")
@@ -259,6 +265,9 @@ bool OpenSceneLib(lua_State* L) {
         })
         .addFunction("get_animator", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<AnimatorComponent>(ecs::Entity(p_entity));
+        })
+        .addFunction("get_velocity", [](Scene* p_scene, uint32_t p_entity) {
+            return p_scene->GetComponent<VelocityComponent>(ecs::Entity(p_entity));
         })
         .addFunction("get_camera", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<CameraComponent>(ecs::Entity(p_entity));

@@ -1,5 +1,5 @@
 version: 19
-seed: 5
+seed: 6
 root: 1
 physics_mode: 0
 entities:
@@ -28,7 +28,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-5, -5, -1]
+      translation: [4.24632502, -12.8216181, -1]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapRendererComponent:
@@ -50,13 +50,15 @@ entities:
       playing: true
       speed: 1
     ColliderComponent:
-      body_type: kinematic
+      body_type: dynamic
       shape:
         type: box
-        data: [0.5, 0.5, 0.5]
+        data: [0.300000012, 0.400000006, 0.5]
       flags: 0
       category: 0
       mask: 0
+    VelocityComponent:
+      linear: [0, 0, 0]
     LuaScriptComponent:
       class_name: Player
       source_id: 133E5416-E5D5-BA4A-9F13460A05C8D6EA
@@ -75,14 +77,31 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0.47286731, -1.42782867, 0]
+      translation: [2, -5, -4]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     ColliderComponent:
       body_type: static
       shape:
         type: box
-        data: [7.4000001, 0.5, 0.5]
+        data: [8, 1, 0.5]
+      flags: 0
+      category: 0
+      mask: 0
+  - id: 6
+    NameComponent:
+      name: collider2
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [7, -3, -4]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    ColliderComponent:
+      body_type: static
+      shape:
+        type: box
+        data: [1, 3, 0.5]
       flags: 0
       category: 0
       mask: 0

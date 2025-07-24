@@ -39,6 +39,7 @@ enum class EntityType : uint8_t {
     COMPONENT_DECL(LuaScript)      \
     COMPONENT_DECL(Animator)       \
     COMPONENT_DECL(Collider)       \
+    COMPONENT_DECL(Velocity)       \
     COMPONENT_DECL(MeshRenderer)   \
     COMPONENT_DECL(SpriteRenderer) \
     COMPONENT_DECL(TileMapRenderer)

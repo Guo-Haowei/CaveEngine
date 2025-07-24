@@ -7,26 +7,30 @@ function Player.new(id)
     local self = GameObject.new(id)
     setmetatable(self, Player)
     Engine.log_ok('hello from player.lua')
-    self.transform = g_scene:get_transform(self.id)
+    self.velocity = g_scene:get_velocity(self.id)
     self.animator = g_scene:get_animator(self.id)
+    self.transform = g_scene:get_transform(self.id)
     return self
 end
 
 function Player:_process(timestep)
     local move_x = Input.is_action_pressed('ui_right') - Input.is_action_pressed('ui_left')
-    -- local move_y = Input.is_action_pressed('ui_up') - Input.is_action_pressed('ui_down')
+    local jump = Input.is_action_just_pressed('ui_up')
+    if jump ~= 0 then
+        self.velocity.linear.y = 10
+    end
+
     if move_x == 0 then
         self.animator:set_clip('idle')
     else
         self.animator:set_clip('walk')
+
+        -- @TODO: attach sprite as child to player
         local rotate_z = move_x < 0 and math.rad(180) or 0
         local euler = Vector3(0, rotate_z, 0)
         self.transform:set_rotation(Quaternion(euler))
 
-        local translate = self.transform:get_translation()
-        local speed = 4 * timestep
-        translate.x = translate.x + speed * move_x
-        self.transform:set_translation(translate)
+        self.velocity.linear.x = move_x * 3.5
     end
 end
 

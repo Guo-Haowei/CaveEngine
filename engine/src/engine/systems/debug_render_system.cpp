@@ -16,7 +16,7 @@ void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
             case ShapeType::Box: {
                 Vector2f min = Vector2f::Zero - Vector2f(shape.data.half.xy);
                 Vector2f max = Vector2f::Zero + Vector2f(shape.data.half.xy);
-                debug_draw.AddBox2Frame(min, max, Vector4f(0, 0, 1, 0.9f), &m);
+                debug_draw.AddBox2Frame(min, max, Vector4f(0, 0, 1, 0.9f), &m, 0.04f);
             } break;
             default:
                 break;

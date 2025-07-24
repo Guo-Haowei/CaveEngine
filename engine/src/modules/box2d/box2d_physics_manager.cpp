@@ -22,17 +22,28 @@ static b2WorldId GetWorldId(uint32_t p_raw_id) {
 }
 
 void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
+    constexpr int sub_step_count = 4;
+
     if (m_world_id.is_none()) {
         return;
     }
 
-    const int sub_step_count = 4;
-
     b2WorldId world_id = GetWorldId(m_world_id.unwrap_unchecked());
 
+    // 1. set speed
+    auto view = p_scene.View<ColliderComponent>();
+    for (auto [id, collider] : view) {
+        VelocityComponent* vel = p_scene.GetComponent<VelocityComponent>(id);
+        if (!vel) continue;
+        b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
+        b2Body_SetLinearVelocity(body_id, { vel->linear.x, vel->linear.y });
+    }
+
+    // 2. simulate
     b2World_Step(world_id, p_timestep, sub_step_count);
 
-    for (auto [id, collider] : p_scene.View<ColliderComponent>()) {
+    // 3. sync speed and position
+    for (auto [id, collider] : view) {
         TransformComponent* transform = p_scene.GetComponent<TransformComponent>(id);
         if (!transform) continue;
         b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
@@ -45,12 +56,18 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
         translation.y = position.y;
         transform->SetTranslation(translation);
         transform->SetDirty();
+
+        if (VelocityComponent* vel = p_scene.GetComponent<VelocityComponent>(id); vel) {
+            b2Vec2 linear = b2Body_GetLinearVelocity(body_id);
+            vel->linear.x = linear.x;
+            vel->linear.y = linear.y;
+        }
     }
 }
 
 void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
     b2WorldDef worldDef = b2DefaultWorldDef();
-    worldDef.gravity = { 0.0f, -10.0f };
+    worldDef.gravity = { 0.0f, -20.0f };
     b2WorldId world_id = b2CreateWorld(&worldDef);
 
     m_world_id = Some(std::bit_cast<uint32_t>(world_id));
@@ -78,11 +95,12 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
             } break;
             case BodyType::Kinematic: {
                 body_def.type = b2_kinematicBody;
-                shape_def.density = 1.0f;
-                shape_def.material.friction = 0.3f;
             } break;
             case BodyType::Dynamic: {
                 body_def.type = b2_dynamicBody;
+                shape_def.density = 1.0f;
+                // @TODO: editor support
+                shape_def.material.friction = 0.1f;
             } break;
         }
 
