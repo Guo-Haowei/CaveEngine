@@ -36,6 +36,8 @@ protected:
 
     GizmoAction m_state{ GizmoAction::Translate };
 
+    void Select(const Vector2f& p_cursor);
+
     std::shared_ptr<SceneDocument> m_document;
 
     std::array<CameraComponent, 2> m_cameras;

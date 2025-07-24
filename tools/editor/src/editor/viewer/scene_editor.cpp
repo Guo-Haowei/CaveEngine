@@ -14,8 +14,6 @@
 #include "editor/utility/imguizmo.h"
 
 // @TODO: refactor
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/common_dvars.h"
 #include "editor/editor_dvars.h"
 
 namespace cave {
@@ -160,9 +158,8 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     // select
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
-            LOG_ERROR("TODO: implement select");
-            // Vector2f clicked = e->GetPos();
-            // m_viewer.GetInputState().ndc = m_viewer.CursorToNDC(clicked);
+            Vector2f clicked = e->GetPos();
+            Select(clicked);
             return true;
         }
     }
@@ -202,26 +199,23 @@ const std::vector<ToolBarButtonDesc>& SceneEditor::GetToolBarButtons() const {
     return s_buttons;
 }
 
-#if 0
-    void Process(Scene& p_scene, const CameraComponent& p_camera) override {
-        if (!m_viewer.m_focused || !m_viewer.m_input_state.ndc) {
-            return;
-        }
+void SceneEditor::Select(const Vector2f& p_cursor) {
+    if (auto res = m_viewer.CursorToNDC(p_cursor); res.is_some()) {
+        Vector2f ndc_2 = res.unwrap_unchecked();
+        Vector4f ndc{ ndc_2.x, ndc_2.y, 1.0f, 1.0f };
 
-        Vector2f clicked = *m_viewer.m_input_state.ndc;
+        const CameraComponent& cam = GetActiveCamera();
 
-        const Matrix4x4f inversed_projection_view = glm::inverse(p_camera.GetProjectionViewMatrix());
+        const Matrix4x4f inv_pv = glm::inverse(cam.GetProjectionViewMatrix());
 
-        const Vector3f ray_start = p_camera.GetPosition();
-        const Vector3f direction = normalize(Vector3f((inversed_projection_view * Vector4f(clicked, 1.0f, 1.0f)).xyz));
-        const Vector3f ray_end = ray_start + direction * p_camera.GetFar();
+        const Vector3f ray_start = cam.GetPosition();
+        const Vector3f direction = normalize(Vector3f((inv_pv * ndc).xyz));
+        const Vector3f ray_end = ray_start + direction * cam.GetFar();
         Ray ray(ray_start, ray_end);
 
-        const auto result = p_scene.Intersects(ray);
-
-        m_viewer.m_editor.SelectEntity(result.entity);
+        const auto result = GetScene()->Intersects(ray);
+        SelectEntity(result.entity);
     }
-
-#endif
+}
 
 }  // namespace cave

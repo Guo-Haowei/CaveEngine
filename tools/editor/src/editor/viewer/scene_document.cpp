@@ -74,6 +74,7 @@ bool TransformCommand::MergeCommand(const UndoCommand* p_command) {
     m_after = command->m_after;
     return true;
 }
+
 void SceneDocument::RequestMove(ecs::Entity p_entity,
                                 const Matrix4x4f& p_before,
                                 const Matrix4x4f& p_after,
