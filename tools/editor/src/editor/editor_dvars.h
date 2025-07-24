@@ -1,6 +1,6 @@
 #include "engine/core/dynamic_variable/dynamic_variable_begin.h"
 
-DVAR_STRING(default_scene, DVAR_FLAG_NONE, "Default scene created with C++", "empty");
+DVAR_STRING(last_open_scene, DVAR_FLAG_CACHE, "Last scene opened", "");
 
 DVAR_BOOL(show_editor, DVAR_FLAG_CACHE, "Show editor", true);
 

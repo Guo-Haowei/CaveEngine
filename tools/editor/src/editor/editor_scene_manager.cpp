@@ -11,7 +11,8 @@ extern Scene* CreatePbrTestScene();
 extern Scene* CreatePhysicsTestScene();
 
 Scene* EditorSceneManager::CreateDefaultScene() {
-    auto scene_string = DVAR_GET_STRING(default_scene);
+    return nullptr;
+#if 0
     if (scene_string == "pbr_test") {
         return CreatePbrTestScene();
     }
@@ -30,6 +31,7 @@ Scene* EditorSceneManager::CreateDefaultScene() {
     scene->m_root = root;
 
     return scene;
+#endif
 }
 
 void EditorSceneManager::Update() {

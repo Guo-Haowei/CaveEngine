@@ -23,7 +23,7 @@ static constexpr const char GUID8[] = "00000000-0000-0000-0000000000000008";
 static constexpr const char GUID9[] = "00000000-0000-0000-0000000000000009";
 static constexpr const char GUID10[] = "00000000-0000-0000-0000000000000010";
 
-#define TO_GUID(x) (Guid::Parse(x, sizeof(x) - 1).value())
+#define TO_GUID(x) (Guid::Parse(x, sizeof(x) - 1).unwrap())
 
 static AssetRef LoadBlob(const unsigned char* p_data, unsigned int p_length) {
     auto blob = std::make_shared<BlobAsset>();

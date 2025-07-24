@@ -23,9 +23,9 @@ Guid Guid::Create() {
     return result;
 }
 
-Result<Guid> Guid::Parse(const char* p_start, size_t p_length) {
+Option<Guid> Guid::Parse(const char* p_start, size_t p_length) {
     if (p_length != 35 /* 16 x 2 + 3 */) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "invalid GUID {}", std::string(p_start, p_length));
+        return None();
     }
 
     Guid guid;
@@ -35,7 +35,7 @@ Result<Guid> Guid::Parse(const char* p_start, size_t p_length) {
         char c = p_start[i];
         if (buffer_index == 4 || buffer_index == 6 || buffer_index == 8) {
             if (c != '-') {
-                return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "invalid GUID {}", std::string(p_start, p_length));
+                return None();
             }
 
             ++i;  // skip '-'
@@ -44,14 +44,14 @@ Result<Guid> Guid::Parse(const char* p_start, size_t p_length) {
         const char high = StringUtils::HexToInt(p_start[i]);
         const char low = StringUtils::HexToInt(p_start[i + 1]);
         if (low < 0 || high < 0) {
-            return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "invalid GUID {}", std::string(p_start, p_length));
+            return None();
         }
 
         guid.m_data[buffer_index++] = (high << 4) | (low);
         i += 2;
     } while (i < p_length);
 
-    return guid;
+    return Some(guid);
 }
 
 std::string Guid::ToString() const {

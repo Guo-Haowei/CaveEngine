@@ -5,11 +5,11 @@
 #include "engine/input/input_event.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
 #include "engine/runtime/mode_manager.h"
 
 #include "editor/document/document.h"
+#include "editor/editor_dvars.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/imguizmo.h"
 #include "editor/widgets/widget.h"
@@ -141,9 +141,10 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     std::shared_ptr<ViewerTab> tab;
 
     switch (p_type) {
-        case AssetType::Scene:
+        case AssetType::Scene: {
+            DVAR_SET_STRING(last_open_scene, p_guid.ToString());
             tab.reset(new SceneEditor(m_editor, *this));
-            break;
+        } break;
         case AssetType::TileMap:
             tab.reset(new TileMapEditor(m_editor, *this));
             break;

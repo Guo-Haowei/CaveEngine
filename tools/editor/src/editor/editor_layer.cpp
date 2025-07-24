@@ -6,6 +6,7 @@
 #include "engine/assets/image_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/input/input_event.h"
+#include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/input_manager.h"
@@ -15,6 +16,7 @@
 
 #include "editor/document/document.h"
 #include "editor/editor_command.h"
+#include "editor/editor_dvars.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/panels/file_system_panel.h"
 #include "editor/panels/hierarchy_panel.h"
@@ -26,9 +28,6 @@
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"
-
-// @NOTE: include dvars at last
-#include "engine/renderer/graphics_dvars.h"
 
 namespace cave {
 
@@ -158,6 +157,12 @@ void EditorLayer::OnAttach() {
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
+    }
+
+    auto last_scene = DVAR_GET_STRING(last_open_scene);
+    if (auto res = Guid::Parse(last_scene); res.is_some()) {
+        Guid guid = res.unwrap_unchecked();
+        CommandInspectAsset(guid);
     }
 }
 

@@ -37,26 +37,26 @@ TEST(guid, generation) {
 TEST(guid, parse_wrong_length) {
     const std::string source = "578F-E7F234-E948-9EBCEF5BA35E854C";
     auto res = Guid::Parse(source);
-    EXPECT_FALSE(res.has_value());
+    EXPECT_FALSE(res.is_some());
 }
 
 TEST(guid, parse_wrong_dash) {
     const std::string source = "61578F-E7F234-E948-9EBCEF5BA35E854C";
     auto res = Guid::Parse(source);
-    EXPECT_FALSE(res.has_value());
+    EXPECT_FALSE(res.is_some());
 }
 
 TEST(guid, parse_wrong_value) {
     const std::string source = "61578X-E7G234-E948-9EBCEF5BA35E854C";
     auto res = Guid::Parse(source);
-    EXPECT_FALSE(res.has_value());
+    EXPECT_FALSE(res.is_some());
 }
 
 TEST(guid, parse_ok) {
     const std::string source = "61578FE7-F234-E948-9EBCEF5BA35E854C";
     auto res = Guid::Parse(source);
-    ASSERT_TRUE(res);
-    Guid guid = *res;
+    ASSERT_TRUE(res.is_some());
+    Guid guid = res.unwrap_unchecked();
     std::string dump = guid.ToString();
     EXPECT_EQ(source, dump);
 }
@@ -67,8 +67,8 @@ TEST(guid, compare) {
     const std::string source = guid.ToString();
 
     auto res = Guid::Parse(source);
-    ASSERT_TRUE(res);
-    Guid guid2 = *res;
+    ASSERT_TRUE(res.is_some());
+    Guid guid2 = res.unwrap_unchecked();
     EXPECT_EQ(guid, guid2);
 }
 
@@ -78,8 +78,8 @@ TEST(guid, hasing) {
     Guid guid = Guid::Create();
     const std::string source = guid.ToString();
     auto res = Guid::Parse(source);
-    ASSERT_TRUE(res);
-    Guid guid2 = *res;
+    ASSERT_TRUE(res.is_some());
+    Guid guid2 = res.unwrap_unchecked();
 
     guids.insert(guid);
 

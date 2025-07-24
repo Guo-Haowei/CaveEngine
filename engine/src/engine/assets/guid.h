@@ -11,9 +11,9 @@ public:
     }
 
     static Guid Create();
-    static Result<Guid> Parse(const char* p_start, size_t p_length);
+    static Option<Guid> Parse(const char* p_start, size_t p_length);
 
-    static Result<Guid> Parse(const std::string& p_string) {
+    static Option<Guid> Parse(const std::string& p_string) {
         return Parse(p_string.c_str(), p_string.length());
     }
 
