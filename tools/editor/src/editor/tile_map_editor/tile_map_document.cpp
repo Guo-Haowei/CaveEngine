@@ -1,6 +1,7 @@
 #include "tile_map_document.h"
 
 #include "tile_map_editor.h"
+#include "editor/undo_redo/undo_command.h"
 
 namespace cave {
 

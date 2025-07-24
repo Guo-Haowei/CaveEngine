@@ -41,11 +41,6 @@ protected:
 
     const std::vector<ToolBarButtonDesc>& GetToolBarButtons() const override;
 
-    void UndoableSetTile(TileMapAsset& p_layer,
-                         int p_layer_id,
-                         TileIndex p_index,
-                         Option<TileId> p_new_tile);
-
     // @TODO: refactor
     void TileMapLayerOverview(TileMapAsset& p_tile_map);
 

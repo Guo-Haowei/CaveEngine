@@ -12,6 +12,7 @@
 
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
+#include "editor/viewer/scene_document.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"
@@ -231,37 +232,24 @@ void PropertyPanel::UpdateInternal() {
     VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
     AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
 
+    SceneDocument& document = static_cast<SceneDocument&>(tab->GetDocument());
+
     // @TODO: limit this in scene editor
     DrawComponent("Transform", transform_component, [&](TransformComponent& p_transform) {
         const Matrix4x4f old_transform = p_transform.GetLocalMatrix();
         const bool dirty = DrawComponentAuto<TransformComponent>(&p_transform);
         if (dirty) {
             Matrix4x4f new_transform = p_transform.GetLocalMatrix();
-
-            auto command = std::make_shared<EntityTransformCommand>(scene, id, old_transform, new_transform);
-            m_editor.BufferCommand(command);
+            // already moved, no need to move again
+            document.RequestMove(id, old_transform, new_transform, false);
         }
     });
 
-    // @TODO: change this to dropdown
     DrawComponent("Light", light_component, [&](LightComponent& p_light) {
-        //// @TODO: refactor
-        // switch (p_light.GetType()) {
-        //     case LIGHT_TYPE_INFINITE:
-        //         ImGui::Text("infinite light");
-        //         break;
-        //     case LIGHT_TYPE_POINT:
-        //         ImGui::Text("point light");
-        //         break;
-        //     default:
-        //         break;
-        // }
-
         bool dirty = DrawComponentAuto<LightComponent>(&p_light);
         if (dirty) {
             p_light.SetDirty();
         }
-        // ImGui::Text("max distance: %0.3f", p_light.GetMaxDistance());
     });
 
     DrawComponent("LuaScript", script_component, [](LuaScriptComponent& p_script) {

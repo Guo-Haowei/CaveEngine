@@ -109,25 +109,4 @@ protected:
     bool m_openDialog;
 };
 
-// @TODO: move it to gizmo
-class EntityTransformCommand : public EditorUndoCommandBase {
-public:
-    EntityTransformCommand(Scene& p_scene,
-                           ecs::Entity p_entity,
-                           const Matrix4x4f& p_before,
-                           const Matrix4x4f& p_after);
-
-    bool Undo() override;
-    bool Redo() override;
-
-    bool MergeCommand(const UndoCommand* p_command) override;
-
-protected:
-    Scene& m_scene;
-    ecs::Entity m_entity;
-
-    Matrix4x4f m_before;
-    Matrix4x4f m_after;
-};
-
 }  // namespace cave

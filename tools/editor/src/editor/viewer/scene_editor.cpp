@@ -7,9 +7,9 @@
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
-#include "editor/editor_command.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
+#include "editor/viewer/scene_document.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
@@ -19,19 +19,6 @@
 #include "editor/editor_dvars.h"
 
 namespace cave {
-
-class SceneDocument : public Document {
-public:
-    SceneDocument(const Guid& p_guid)
-        : Document(p_guid) {
-        m_scene = m_handle.Wait<Scene>();
-    }
-
-private:
-    std::shared_ptr<Scene> m_scene;
-
-    friend class SceneEditor;
-};
 
 SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
@@ -47,11 +34,6 @@ void SceneEditor::OnCreate(const Guid& p_guid) {
     ViewerTab::OnCreate(p_guid);
 
     m_document = std::make_shared<SceneDocument>(p_guid);
-
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
-    DEV_ASSERT(scene_manager);
-
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<Scene>(p_guid).unwrap();
 }
 
 void SceneEditor::OnDestroy() {
@@ -109,9 +91,7 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
                                      // ImGuizmo::WORLD,
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
-
-                auto command = std::make_shared<EntityTransformCommand>(scene, id, before, after);
-                m_editor.BufferCommand(command);
+                m_document->RequestMove(id, before, after, true);
             }
         }
     };
@@ -130,7 +110,8 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
             break;
     }
 
-    // @TODO: move show_editor as viewer attribute
+    // @TODO: make show_editor as viewer attribute
+    // drag grid, grid size, snap, etc
     const bool show_editor = DVAR_GET_BOOL(show_editor);
     if (show_editor) {
         ImGuizmo::DrawAxes(proj_view);
@@ -190,6 +171,7 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
 }
 
 const std::vector<ToolBarButtonDesc>& SceneEditor::GetToolBarButtons() const {
+    // @TODO: make it return ToolBarButtonDesc&
     static std::vector<ToolBarButtonDesc> s_buttons = {
         {
             ICON_FA_PLAY,

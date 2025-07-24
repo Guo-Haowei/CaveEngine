@@ -129,47 +129,4 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
     LOG_OK("scene saved to '{}'", path.string());
 }
 
-/// TransformCommand
-EntityTransformCommand::EntityTransformCommand(Scene& p_scene,
-                                               ecs::Entity p_entity,
-                                               const Matrix4x4f& p_before,
-                                               const Matrix4x4f& p_after)
-    : m_scene(p_scene)
-    , m_entity(p_entity)
-    , m_before(p_before)
-    , m_after(p_after) {
-}
-
-bool EntityTransformCommand::Undo() {
-    TransformComponent* transform = m_scene.GetComponent<TransformComponent>(m_entity);
-    if (DEV_VERIFY(transform)) {
-        transform->SetLocalTransform(m_before);
-        return true;
-    }
-    return false;
-}
-
-bool EntityTransformCommand::Redo() {
-    TransformComponent* transform = m_scene.GetComponent<TransformComponent>(m_entity);
-    if (DEV_VERIFY(transform)) {
-        transform->SetLocalTransform(m_after);
-        return true;
-    }
-    return false;
-}
-
-bool EntityTransformCommand::MergeCommand(const UndoCommand* p_command) {
-    auto command = dynamic_cast<const EntityTransformCommand*>(p_command);
-    if (!command) {
-        return false;
-    }
-
-    if (command->m_entity != m_entity) {
-        return false;
-    }
-
-    m_after = command->m_after;
-    return true;
-}
-
 }  // namespace cave
