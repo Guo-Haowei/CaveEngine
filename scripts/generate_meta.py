@@ -160,6 +160,7 @@ def generate_meta_file(base_path, file_path, metas):
         f.write(f"// Auto-generated metadata for {filename}\n")
         f.write(f"// Check {SCRIPT_NAME} for more details\n\n")
 
+        f.write('#include "engine/reflection/meta_editor.h"\n')
         f.write('#include "engine/serialization/yaml_include.h"\n')
         f.write(f'#include "engine/{base_path}"\n\n')
         f.write('namespace cave {\n\n')

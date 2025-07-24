@@ -33,7 +33,9 @@ Shape Shape::MakeRound(float p_radius) {
 ISerializer& WriteObject(ISerializer& s, const Shape& p_shape) {
     s.BeginMap(false)
         .Key("type")
-        .Write(p_shape.type);
+        .Write(p_shape.type)
+        .Key("data")
+        .Write(p_shape.data.half);
     s.EndMap();
     return s;
 }
@@ -41,6 +43,10 @@ ISerializer& WriteObject(ISerializer& s, const Shape& p_shape) {
 bool ReadObject(IDeserializer& d, Shape& p_shape) {
     if (d.TryEnterKey("type")) {
         d.Read(p_shape.type);
+        d.LeaveKey();
+    }
+    if (d.TryEnterKey("data")) {
+        d.Read(p_shape.data.half);
         d.LeaveKey();
     }
     return true;

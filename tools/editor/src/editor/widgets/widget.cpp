@@ -248,6 +248,7 @@ bool DrawColorPicker4(const char* p_label,
     ImGui::NextColumn();
     const bool dirty = ImGui::ColorPicker4(p_label, p_out);
     ImGui::Columns(1);
+    ImGui::Dummy(ImVec2(8, 8));
     return dirty;
 }
 

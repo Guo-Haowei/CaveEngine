@@ -33,6 +33,7 @@ namespace cave {
 
 enum class EditorHint {
     None = 0,
+    EnumDropDown,
     Asset,
     Toggle,
     Visibility,
@@ -85,6 +86,10 @@ struct FieldMetaBase {
 
     virtual ISerializer& Write(ISerializer& p_serializer, const void* p_object) const = 0;
     virtual bool Read(IDeserializer& p_deserializer, void* p_object) = 0;
+
+#if USING(USE_EDITOR)
+    virtual bool DrawEditor(void*, float) = 0;
+#endif
 };
 
 template<typename T>
@@ -93,6 +98,10 @@ struct FieldMeta : FieldMetaBase {
 
     ISerializer& Write(ISerializer& p_serializer, const void* p_object) const override;
     bool Read(IDeserializer& p_deserializer, void* p_object) override;
+
+#if USING(USE_EDITOR)
+    bool DrawEditor(void* p_object, float p_column_width) override;
+#endif
 };
 
 template<typename T>

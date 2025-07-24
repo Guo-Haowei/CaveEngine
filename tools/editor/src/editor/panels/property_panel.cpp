@@ -6,7 +6,7 @@
 
 #include "engine/assets/sprite_animation_asset.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/reflection/meta.h"
+#include "engine/reflection/meta_editor.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/asset_registry.h"
 
@@ -15,32 +15,6 @@
 #include "editor/widgets/widget.h"
 
 namespace cave {
-
-template<HasEnumTraits T>
-bool DrawEnumDropDown(std::string_view p_name, T& p_enum, float p_width = DEFAULT_COLUMN_WIDTH) {
-    ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_width);
-    ImGui::Text("%s", p_name.data());
-    ImGui::NextColumn();
-
-    constexpr int count = static_cast<int>(T::Count);
-    std::vector<const char*> items;
-    items.reserve(count);
-    for (int i = 0; i < count; ++i) {
-        items.push_back(EnumTraits<T>::s_mappings[i].data());
-    }
-
-    bool dirty = false;
-    int selected = static_cast<int>(p_enum);
-    std::string id = std::format("##{}{}", p_name, selected);
-    if (ImGui::Combo(id.c_str(), &selected, items.data(), count)) {
-        p_enum = static_cast<T>(selected);
-        dirty = true;
-    }
-
-    ImGui::Columns(1);
-    return dirty;
-}
 
 template<typename T, typename UIFunction>
 static void DrawComponent(const std::string& p_name, T* p_component, UIFunction p_function) {
@@ -88,7 +62,7 @@ concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
 static_assert(HasSetResourceGuid<LuaScriptComponent>);
 
 template<typename T>
-void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
+bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     auto handle_ = AssetRegistry::GetSingleton().FindByGuid(p_guid);
 
     AssetType type = AssetType::All;
@@ -121,52 +95,38 @@ void DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     if (hovered && meta) {
         ShowAssetToolTip(*meta, asset);
     }
+    return true;
 };
 
 template<typename T>
 bool DrawComponentAuto(T* p_component) {
     const auto& meta_table = MetaDataTable<T>::GetFields();
 
-    bool dirty = false;
+    int dirty = 0;
     for (const auto& field : meta_table) {
         switch (field->editor_hint) {
+            case EditorHint::EnumDropDown: {
+                dirty |= (int)field->DrawEditor(p_component, DEFAULT_COLUMN_WIDTH);
+            } break;
             case EditorHint::Toggle: {
                 bool& toggle = field->template GetData<bool>(p_component);
-                if (ImGui::Checkbox(field->name, &toggle)) {
-                    dirty = true;
-                    // @TODO: callback
-                }
+                dirty |= (int)ImGui::Checkbox(field->name, &toggle);
             } break;
             case EditorHint::Color: {
                 Vector4f& color = field->template GetData<Vector4f>(p_component);
-                if (DrawColorPicker4(field->name, &color.r)) {
-                    dirty = true;
-                    // @TODO: callback
-                }
-                ImGui::Dummy(ImVec2(8, 8));
+                dirty |= (int)DrawColorPicker4(field->name, &color.r);
             } break;
             case EditorHint::Asset: {
                 const Guid& guid = field->template GetData<Guid>(p_component);
-                DrawAsset(field->name,
-                          guid,
-                          p_component);
+                dirty |= (int)DrawAsset(field->name, guid, p_component);
             } break;
             case EditorHint::Translation: {
                 Vector3f& translation = field->template GetData<Vector3f>(p_component);
-                if (DrawVec3Control(
-                        field->name,
-                        translation,
-                        0.0f)) {
-                    dirty = true;
-                }
+                dirty |= (int)DrawVec3Control(field->name, translation, 0.0f);
             } break;
             case EditorHint::Scale: {
                 Vector3f& scale = field->template GetData<Vector3f>(p_component);
-                if (DrawVec3Control(field->name,
-                                    scale,
-                                    1.0f)) {
-                    dirty = true;
-                }
+                dirty |= (int)DrawVec3Control(field->name, scale, 1.0f);
             } break;
             case EditorHint::Rotation: {
                 Vector4f& q = field->template GetData<Vector4f>(p_component);
@@ -179,29 +139,26 @@ bool DrawComponentAuto(T* p_component) {
                 if (DrawVec3Control(field->name,
                                     euler,
                                     0.0f)) {
-                    dirty = true;
                     euler *= DEG_TO_RAD;
                     glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
                     q = Vector4f(q2.x, q2.y, q2.z, q2.w);
+                    dirty |= 1;
                 }
             } break;
             case EditorHint::DragFloat: {
                 float& f = field->template GetData<float>(p_component);
-                if (DrawDragFloat(field->name,
-                                  f,
-                                  0.1f,          // speed
-                                  field->v_min,  // min
-                                  field->v_max   // max
-                                  )) {
-                    dirty = true;
-                }
+                dirty |= (int)DrawDragFloat(field->name,
+                                            f,
+                                            0.1f,          // speed
+                                            field->v_min,  // min
+                                            field->v_max   // max
+                );
             } break;
             default:
                 break;
         }
     }
-
-    return dirty;
+    return (bool)dirty;
 }
 
 void PropertyPanel::UpdateInternal(Scene* p_scene) {
@@ -302,22 +259,6 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         // ImGui::Text("max distance: %0.3f", p_light.GetMaxDistance());
     });
 
-    DrawComponent("RigidBody", rigid_body_component, [](RigidBodyComponent& p_rigid_body) {
-        const auto& size = p_rigid_body.size;
-        switch (p_rigid_body.shape) {
-            case RigidBodyComponent::SHAPE_CUBE: {
-                ImGui::Text("shape: box");
-                ImGui::Text("half size: %.2f, %.2f, %.2f", size.x, size.y, size.z);
-            } break;
-            case RigidBodyComponent::SHAPE_SPHERE: {
-                ImGui::Text("shape: sphere");
-                ImGui::Text("radius: %.2f", size.x);
-            } break;
-            default:
-                break;
-        }
-    });
-
     DrawComponent("LuaScript", script_component, [](LuaScriptComponent& p_script) {
         DrawInputText("class_name", p_script.GetClassNameRef(), DEFAULT_COLUMN_WIDTH);
 
@@ -327,8 +268,10 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     const bool is_2d = m_editor.GetApplication()->IsWorld2D();
 
     DrawComponent("Collider", collider, [&](ColliderComponent& p_collider) {
+        DrawComponentAuto<ColliderComponent>(&p_collider);
+
         Shape& shape = p_collider.GetShape();
-        DrawEnumDropDown("shape", shape.type);
+        DrawEnumDropDown("shape", shape.type, DEFAULT_COLUMN_WIDTH);
         switch (shape.type) {
             case ShapeType::Round: {
                 DrawVec1Control("radius", shape.data.radius, 0.5f);
@@ -378,6 +321,7 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
     });
 
     DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
+        // @TODO: need a better way to do this
         bool is_ortho = p_camera.HasOrthoFlag();
         if (ToggleButton("ortho", is_ortho)) {
             p_camera.SetOrthoFlag(is_ortho);
@@ -385,6 +329,22 @@ void PropertyPanel::UpdateInternal(Scene* p_scene) {
         }
 
         DrawComponentAuto<CameraComponent>(&p_camera);
+    });
+
+    DrawComponent("RigidBody", rigid_body_component, [](RigidBodyComponent& p_rigid_body) {
+        const auto& size = p_rigid_body.size;
+        switch (p_rigid_body.shape) {
+            case RigidBodyComponent::SHAPE_CUBE: {
+                ImGui::Text("shape: box");
+                ImGui::Text("half size: %.2f, %.2f, %.2f", size.x, size.y, size.z);
+            } break;
+            case RigidBodyComponent::SHAPE_SPHERE: {
+                ImGui::Text("shape: sphere");
+                ImGui::Text("radius: %.2f", size.x);
+            } break;
+            default:
+                break;
+        }
     });
 
     // @TODO: refactor this

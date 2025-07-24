@@ -64,6 +64,9 @@ class ColliderComponent {
 
     CAVE_META(ColliderComponent)
 
+    CAVE_PROP(editor = EnumDropDown)
+    BodyType m_body_type;
+
     CAVE_PROP()
     Shape m_shape;
 
@@ -88,6 +91,9 @@ public:
 
     Shape& GetShape() { return m_shape; }
     const Shape& GetShape() const { return m_shape; }
+
+    BodyType& GetBodyType() { return m_body_type; }
+    const BodyType& GetBodyType() const { return m_body_type; }
 
     void OnDeserialized() {}
 };

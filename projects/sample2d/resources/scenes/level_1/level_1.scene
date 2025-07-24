@@ -50,8 +50,10 @@ entities:
       playing: true
       speed: 1
     ColliderComponent:
+      body_type: kinematic
       shape:
         type: box
+        data: [0.5, 0.5, 0.5]
       flags: 0
       category: 0
       mask: 0
@@ -77,8 +79,10 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     ColliderComponent:
+      body_type: static
       shape:
         type: box
+        data: [7.4000001, 0.5, 0.5]
       flags: 0
       category: 0
       mask: 0
