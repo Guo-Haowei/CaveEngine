@@ -16,6 +16,8 @@ public:
 protected:
     Result<void> InitializeImpl() override;
     void FinalizeImpl() override;
+
+    Option<uint32_t> m_world_id;
 };
 
 }  // namespace cave

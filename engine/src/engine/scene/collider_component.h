@@ -80,9 +80,10 @@ class ColliderComponent {
     uint64_t m_mask = 0;
 
     // Non-serialized
-    void* m_user_data = nullptr;
+    mutable uint64_t m_user_data = 0;
 
     friend class Box2dPhysicsManager;
+    friend class Bullet3PhysicsManager;
 
 public:
     FLAG_GETTER_SETTER(FixedRotationFlag, m_flags)

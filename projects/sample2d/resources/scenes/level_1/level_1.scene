@@ -40,7 +40,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
+      translation: [0, 1.29999995, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1.20000005, 1]
     AnimatorComponent:

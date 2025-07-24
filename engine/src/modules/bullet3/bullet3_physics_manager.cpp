@@ -137,6 +137,7 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
                 // @TODO: this is wrong, setting local matrix with global matrix
                 transform_component.SetTranslation(Vector3f(origin.getX(), origin.getY(), origin.getZ()));
                 transform_component.SetRotation(Vector4f(rotation.getX(), rotation.getY(), rotation.getZ(), rotation.getW()));
+                transform_component.SetDirty();
             }
             continue;
         }
