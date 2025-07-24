@@ -25,9 +25,9 @@ template<typename T>
 static auto CreateBuffer(IGraphicsManager* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
     GpuBufferDesc desc{
         .slot = p_slot,
-        .elementSize = sizeof(T),
-        .elementCount = static_cast<uint32_t>(p_data.size()),
-        .initialData = p_data.data(),
+        .element_size = sizeof(T),
+        .element_count = static_cast<uint32_t>(p_data.size()),
+        .initial_data = p_data.data(),
     };
 
     return p_gm->CreateStructuredBuffer(desc);
@@ -158,9 +158,9 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
 
         GpuBufferDesc desc{
             .slot = GetGlobalPtMeshesSlot(),
-            .elementSize = sizeof(materials[0]),
-            .elementCount = static_cast<uint32_t>(materials.size()),
-            .initialData = materials.data(),
+            .element_size = sizeof(materials[0]),
+            .element_count = static_cast<uint32_t>(materials.size()),
+            .initial_data = materials.data(),
         };
 
         // @TODO: only change when material is dirty

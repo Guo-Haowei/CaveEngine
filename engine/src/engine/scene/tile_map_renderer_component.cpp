@@ -135,20 +135,20 @@ void TileMapRendererComponent::CreateRenderData() {
     GpuBufferDesc buffers[2];
     GpuBufferDesc buffer_desc;
     buffer_desc.type = GpuBufferType::VERTEX;
-    buffer_desc.elementSize = sizeof(Vector2f);
-    buffer_desc.elementCount = (uint32_t)vertices.size();
-    buffer_desc.initialData = vertices.data();
+    buffer_desc.element_size = sizeof(Vector2f);
+    buffer_desc.element_count = (uint32_t)vertices.size();
+    buffer_desc.initial_data = vertices.data();
 
     buffers[0] = buffer_desc;
 
-    buffer_desc.initialData = uvs.data();
+    buffer_desc.initial_data = uvs.data();
     buffers[1] = buffer_desc;
 
     GpuBufferDesc index_desc;
     index_desc.type = GpuBufferType::INDEX;
-    index_desc.elementSize = sizeof(uint32_t);
-    index_desc.elementCount = count;
-    index_desc.initialData = indices.data();
+    index_desc.element_size = sizeof(uint32_t);
+    index_desc.element_count = count;
+    index_desc.initial_data = indices.data();
 
     GpuMeshDesc desc;
     desc.drawCount = count;

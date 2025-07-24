@@ -189,7 +189,7 @@ auto CommonOpenGLGraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> R
     GLuint handle = 0;
     glGenBuffers(1, &handle);
     glBindBuffer(type, handle);
-    glBufferData(type, p_desc.elementCount * p_desc.elementSize, p_desc.initialData, usage);
+    glBufferData(type, p_desc.element_count * p_desc.element_size, p_desc.initial_data, usage);
     glBindBuffer(type, 0);
 
     // glNamedBufferStorage(handle, p_desc.elementCount * p_desc.elementSize, p_desc.initialData, usage);
@@ -225,7 +225,7 @@ auto CommonOpenGLGraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
     }
 
     for (uint32_t slot = 0; slot < p_count; ++slot) {
-        if (p_vb_descs[slot].elementCount == 0) {
+        if (p_vb_descs[slot].element_count == 0) {
             continue;
         }
 
@@ -265,12 +265,12 @@ void CommonOpenGLGraphicsManager::SetMesh(const GpuMesh* p_mesh) {
 }
 
 void CommonOpenGLGraphicsManager::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
-    DEV_ASSERT(p_desc.elementSize == p_buffer->desc.elementSize);
-    if (DEV_VERIFY(p_buffer->desc.elementCount >= p_desc.elementCount)) {
-        const uint32_t size_in_byte = p_desc.elementCount * p_desc.elementSize;
+    DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
+    if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {
+        const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
         const uint32_t vbo = p_buffer->GetHandle32();
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, size_in_byte, p_desc.initialData);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, size_in_byte, p_desc.initial_data);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
@@ -337,7 +337,7 @@ auto CommonOpenGLGraphicsManager::CreateConstantBuffer(const GpuBufferDesc& p_de
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, handle);
-    glBufferData(GL_UNIFORM_BUFFER, p_desc.elementCount * p_desc.elementSize, nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, p_desc.element_count * p_desc.element_size, nullptr, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferBase(GL_UNIFORM_BUFFER, p_desc.slot, handle);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);

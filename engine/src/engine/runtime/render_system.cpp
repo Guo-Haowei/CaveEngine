@@ -15,8 +15,10 @@ namespace cave {
 
 // render systems
 extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
-extern void RunSpriteRenderSystem(Scene* p_scene, FrameData& p_framedata);
 extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
+
+extern void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata);
+extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 
 auto RenderSystem::InitializeImpl() -> Result<void> {
     return Result<void>();
@@ -210,6 +212,8 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
 
     RunTileMapRenderSystem(p_scene, framedata);
     RunSpriteRenderSystem(p_scene, framedata);
+
+    RunDebugRenderSystem(p_scene, framedata);
 
     // @TODO: RunSprite
     // @TODO: RunTileMap

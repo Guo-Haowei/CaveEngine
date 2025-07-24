@@ -107,10 +107,10 @@ struct GpuBufferDesc {
     // @TODO: need better flags than this
     bool dynamic{ false };
     uint32_t slot{ 0 };  // remove this if possible
-    uint32_t elementSize{ 0 };
-    uint32_t elementCount{ 0 };
+    uint32_t element_size{ 0 };
+    uint32_t element_count{ 0 };
     uint32_t offset{ 0 };
-    const void* initialData{ nullptr };
+    const void* initial_data{ nullptr };
 };
 
 // @TODO: generalize buffers
@@ -128,7 +128,7 @@ struct GpuBuffer {
 
 struct GpuConstantBuffer {
     GpuConstantBuffer(const GpuBufferDesc& p_desc)
-        : desc(p_desc), capacity(desc.elementCount * desc.elementSize) {}
+        : desc(p_desc), capacity(desc.element_count * desc.element_size) {}
 
     virtual ~GpuConstantBuffer() = default;
 
