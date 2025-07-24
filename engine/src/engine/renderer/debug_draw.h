@@ -15,12 +15,14 @@ class DebugDraw {
     };
 
 public:
-    void AddRect(const Vector3f& p_center,
-                 const Vector3f& p_half,
+    void AddBox2(const Vector2f& p_center,
+                 const Vector2f& p_half,
                  const Vector4f& p_color,
                  const Matrix4x4f* p_transform = nullptr);
 
     void Batch();
+
+    const GpuMesh* GetGpuMesh() const { return m_mesh.get(); }
 
 private:
     std::shared_ptr<GpuMesh> m_mesh;

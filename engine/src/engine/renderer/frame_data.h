@@ -121,15 +121,10 @@ struct FrameData {
         const void* id;
     };
 
-    struct DrawDebugContext {
-        std::vector<Vector3f> positions;
-        std::vector<Color> colors;
-        uint32_t drawCount;
-    } drawDebugContext;
-
     AABB voxel_gi_bound;
 
     DebugDraw& GetDebugDraw() { return m_debug_draw; }
+    const DebugDraw& GetDebugDraw() const { return m_debug_draw; }
 
 private:
     DebugDraw m_debug_draw;

@@ -110,23 +110,6 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
     m_skyboxBuffers = *CreateMesh(MakeSkyBoxMesh());
     m_boxBuffers = *CreateMesh(MakeBoxMesh());
 
-    // @TODO: refactor
-    // for debug buffer?
-    {
-        constexpr int max_count = 4096 * 128;
-        MeshAsset mesh;
-        mesh.flags |= MeshAsset::DYNAMIC;
-        mesh.positions.resize(max_count);
-        mesh.color_0.resize(max_count);
-        mesh.CreateRenderData();
-
-        auto res = CreateMesh(mesh);
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        m_debugBuffers = *res;
-    }
-
     m_initialized = true;
     return Result<void>();
 }

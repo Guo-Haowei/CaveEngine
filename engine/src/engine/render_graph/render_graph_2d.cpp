@@ -53,6 +53,17 @@ static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
         cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
         cmd.DrawArrays(draw.index_count);
     }
+
+    // draw debug stuff
+    // @TODO: should probably make a new pass for it
+    const DebugDraw& debug_draw = p_ctx.frameData.GetDebugDraw();
+    const GpuMesh* mesh = debug_draw.GetGpuMesh();
+    if (mesh) {
+        cmd.SetMesh(mesh);
+        cmd.SetPipelineState(PSO_DEBUG_DRAW);
+        // @TODO: bind texture
+        cmd.DrawElements(mesh->desc.drawCount);
+    }
 }
 
 auto RenderGraph2D(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>> {

@@ -7,14 +7,41 @@ namespace cave {
 
 static constexpr float DEFAULT_Z = 0.0f;
 
-void DebugDraw::AddRect(const Vector3f& p_center,
-                        const Vector3f& p_half,
+#if 0
+static void AddDebugCube(FrameData& p_framedata,
+                         const AABB& p_aabb,
+                         const Color& p_color,
+                         const Matrix4x4f* p_transform = nullptr) {
+
+    const auto& min = p_aabb.GetMin();
+    const auto& max = p_aabb.GetMax();
+
+    std::vector<Vector3f> positions;
+    std::vector<uint32_t> indices;
+    BoxWireFrameHelper(min, max, positions, indices);
+
+    auto& context = p_framedata.drawDebugContext;
+    for (const auto& i : indices) {
+        const Vector3f& pos = positions[i];
+        if (p_transform) {
+            const auto tmp = *p_transform * Vector4f(pos, 1.0f);
+            context.positions.emplace_back(Vector3f(tmp.xyz));
+        } else {
+            context.positions.emplace_back(Vector3f(pos));
+        }
+        context.colors.emplace_back(p_color);
+    }
+}
+#endif
+
+void DebugDraw::AddBox2(const Vector2f& p_center,
+                        const Vector2f& p_half,
                         const Vector4f& p_color,
                         const Matrix4x4f* p_transform) {
     Item item;
 
-    item.min = p_center - p_half;
-    item.max = p_center + p_half;
+    item.min = Vector3f(p_center - p_half, 0.0f);
+    item.max = Vector3f(p_center + p_half, 0.0f);
     item.tint_color = p_color;
     item.texture;
 
@@ -22,7 +49,7 @@ void DebugDraw::AddRect(const Vector3f& p_center,
         const Matrix4x4f& m = *p_transform;
         Vector4f min4{ item.min, 1.0f };
         min4 = m * min4;
-        Vector4f max4{ item.min, 1.0f };
+        Vector4f max4{ item.max, 1.0f };
         max4 = m * max4;
         item.min = min4.xyz;
         item.max = max4.xyz;
@@ -50,10 +77,10 @@ void DebugDraw::Batch() {
     for (const auto& item : m_items) {
         const uint32_t offset = static_cast<uint32_t>(positions.size());
 
-        positions.push_back(item.min);
-        positions.push_back(Vector3f(item.min.x, item.max.y, item.min.z));
-        positions.push_back(Vector3f(item.max.x, item.min.y, item.min.z));
-        positions.push_back(item.max);
+        positions.push_back(item.min);                                      // bottom left
+        positions.push_back(Vector3f(item.max.x, item.min.y, item.min.z));  // bottom right
+        positions.push_back(Vector3f(item.min.x, item.max.y, item.min.z));  // top left
+        positions.push_back(item.max);                                      // top right
 
         colors.push_back(item.tint_color);
         colors.push_back(item.tint_color);
@@ -78,39 +105,30 @@ void DebugDraw::Batch() {
     GpuBufferDesc buffer_descs[3];
     buffer_descs[0] = {
         .type = GpuBufferType::VERTEX,
-        .dynamic = false,
         .slot = 0,
         .element_size = sizeof(Vector3f),
         .element_count = item_count * 4,
-        .offset = 0,
         .initial_data = positions.data(),
     };
     buffer_descs[1] = {
         .type = GpuBufferType::VERTEX,
-        .dynamic = false,
         .slot = 1,
         .element_size = sizeof(Vector2f),
         .element_count = item_count * 4,
-        .offset = 1,
         .initial_data = uvs.data(),
     };
-    buffer_descs[1] = {
+    buffer_descs[2] = {
         .type = GpuBufferType::VERTEX,
-        .dynamic = false,
-        .slot = 1,
+        .slot = 2,
         .element_size = sizeof(Vector4f),
         .element_count = item_count * 4,
-        .offset = 2,
         .initial_data = colors.data(),
     };
 
     GpuBufferDesc index_desc = {
         .type = GpuBufferType::INDEX,
-        .dynamic = false,
-        .slot = 0,
         .element_size = sizeof(uint32_t),
         .element_count = item_count * 6,
-        .offset = 0,
         .initial_data = indices.data(),
     };
 
@@ -118,8 +136,8 @@ void DebugDraw::Batch() {
     desc.drawCount = item_count * 6;
     desc.enabledVertexCount = 3;
     desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vector3f), 0 };
-    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vector2f), 0 };
-    desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vector4f), 0 };
+    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vector2f), 0 };
+    desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vector4f), 0 };
 
     auto mesh = IGraphicsManager::GetSingleton().CreateMeshImpl(desc, 3, buffer_descs, &index_desc);
     m_mesh = *mesh;

@@ -623,19 +623,6 @@ static void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
     gm.SetPipelineState(PSO_FORWARD_TRANSPARENT);
     ExecuteDrawCommands(p_ctx.frameData, p_ctx.frameData.transparent_commands);
 
-    auto& draw_context = p_ctx.frameData.drawDebugContext;
-    if (gm.m_debugBuffers && draw_context.drawCount) {
-        gm.BindConstantBufferSlot<PerPassConstantBuffer>(gm.GetCurrentFrame().passCb.get(), pass.pass_idx);
-        gm.SetPipelineState(PSO_DEBUG_DRAW);
-
-        gm.UpdateBuffer(CreateDesc(draw_context.positions),
-                        gm.m_debugBuffers->vertexBuffers[0].get());
-        gm.UpdateBuffer(CreateDesc(draw_context.colors),
-                        gm.m_debugBuffers->vertexBuffers[6].get());
-        gm.SetMesh(gm.m_debugBuffers.get());
-        gm.DrawArrays(draw_context.drawCount);
-    }
-
     EmitterPassFunc(p_ctx);
 }
 

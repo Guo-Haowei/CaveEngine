@@ -227,9 +227,6 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     if (p_scene) {
         RequestPathTracerUpdate(*camera, *p_scene);
     }
-
-    auto& context = m_frameData->drawDebugContext;
-    context.drawCount = (uint32_t)context.positions.size();
 }
 
 void RenderSystem::FillCameraData(const CameraComponent& p_camera, FrameData& p_framedata) {
