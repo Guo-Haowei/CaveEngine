@@ -67,6 +67,9 @@ class ColliderComponent {
     CAVE_PROP(editor = EnumDropDown)
     BodyType m_body_type;
 
+    CAVE_PROP(editor = Toggle, serialize = false)
+    bool m_debug_draw = true;
+
     CAVE_PROP()
     Shape m_shape;
 
@@ -95,6 +98,8 @@ public:
 
     BodyType& GetBodyType() { return m_body_type; }
     const BodyType& GetBodyType() const { return m_body_type; }
+
+    bool GetDebugDraw() const { return m_debug_draw; }
 
     void OnDeserialized() {}
 };

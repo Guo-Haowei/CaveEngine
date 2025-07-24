@@ -132,6 +132,7 @@ public:
         const auto& meta = MetaDataTable<T>::GetFields();
 
         for (const auto& field : meta) {
+            if ((field->flags & FieldFlag::Serialize) == FieldFlag::None) continue;
             if (TryEnterKey(field->name)) {
                 field->Read(*this, &p_object);
                 LeaveKey();

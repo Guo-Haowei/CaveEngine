@@ -141,6 +141,7 @@ public:
         BeginMap(false);
 
         for (const auto& field : meta) {
+            if ((field->flags & FieldFlag::Serialize) == FieldFlag::None) continue;
             field->Write(*this, &p_object);
         }
 
