@@ -12,12 +12,12 @@
                 "${workspaceRoot}/thirdparty/",
                 "${workspaceRoot}/engine/src/",
                 "${workspaceRoot}/engine/shader/",
-                "${workspaceRoot}/tools/editor/src/"
+                "${workspaceRoot}/engine/src/editor/src/"
             ],
             "forcedInclude": [
                 "${workspaceRoot}/engine/src/engine/pch.h",
-                "${workspaceRoot}/engine/tests/pch.h",
-                "${workspaceRoot}/tools/editor/src/editor/pch.h"
+                "${workspaceRoot}/engine/src/editor/src/editor/pch.h",
+                "${workspaceRoot}/engine/tests/pch.h"
             ],
             "defines": [
                 "DATA_DIR=\"\"",

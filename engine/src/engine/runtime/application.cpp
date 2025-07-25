@@ -119,6 +119,7 @@ auto Application::Initialize() -> Result<void> {
     // @TODO: refactor this part
     {
         m_project_folder = DVAR_GET_STRING(project);
+        DEV_ASSERT(!m_project_folder.empty());
         fs::path resource_folder = fs::path(m_project_folder) / "resources";
         m_resource_folder = resource_folder.string();
 
