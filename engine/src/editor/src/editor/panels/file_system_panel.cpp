@@ -3,7 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/core/os/platform_io.h"
-#include "engine/runtime/asset_manager.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
 #include "editor/editor_layer.h"

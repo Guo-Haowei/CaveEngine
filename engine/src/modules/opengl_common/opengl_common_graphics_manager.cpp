@@ -8,7 +8,7 @@
 #include "engine/render_graph/render_graph_defines.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/application.h"
-#include "engine/runtime/asset_manager.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/imgui_manager.h"
 #include "engine/scene/scene.h"
 #include "opengl_helpers.h"

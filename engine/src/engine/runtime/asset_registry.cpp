@@ -6,7 +6,7 @@
 #include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"
-#include "engine/runtime/asset_manager.h"
+#include "engine/runtime/asset_manager_interface.h"
 
 namespace cave {
 
