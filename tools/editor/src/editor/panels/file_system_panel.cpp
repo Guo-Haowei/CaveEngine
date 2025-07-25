@@ -92,11 +92,6 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
 
     const std::string& short_path = p_node.virtual_path;
 
-    if (ImGui::BeginPopupContextItem()) {
-        FolderPopup(p_node);
-        ImGui::EndPopup();
-    }
-
     ImGui::SameLine();
 
     if (m_renaming == p_node.sys_path) {
@@ -112,11 +107,20 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
             m_renaming = "";
         }
     } else {
-        const char* icon = is_dir ? ICON_FA_FOLDER : ICON_FA_CUBE;
+        const char* icon = ICON_FA_CUBE;
+        if (is_dir) {
+            icon = node_open ? ICON_FA_FOLDER_OPEN : ICON_FA_FOLDER_CLOSED;
+        }
+        auto text = std::format("{} {}", icon, p_node.file_name);
+        ImGui::Selectable(text.c_str());
+
+        if (ImGui::BeginPopupContextItem()) {
+            FolderPopup(p_node);
+            ImGui::EndPopup();
+        }
+
         const bool is_file = !p_node.is_dir;
-        ImGui::Text("%s %s", icon, p_node.file_name.data());
         if (is_file) {
-            // @TODO: refactor
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
                 const char* data = short_path.c_str();
                 ImGui::SetDragDropPayload(ASSET_DRAG_DROP_PAYLOAD,
