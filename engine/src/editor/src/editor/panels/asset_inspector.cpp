@@ -11,6 +11,7 @@
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/tool_bar.h"
+#include "editor/widgets/widget.h"
 
 namespace cave {
 
@@ -81,9 +82,9 @@ const FolderTreeNode* AssetInspector::Navigate(const FolderTreeNode* p_node,
     return nullptr;
 }
 
-static bool DrawAssetCard(ImTextureID p_texture_id,
-                          const char* name,
-                          ImVec2 p_image_size) {
+static auto DrawAssetCard(ImTextureID p_texture_id,
+                          const char* p_name,
+                          ImVec2 p_image_size) -> std::tuple<bool, bool> {
     ImDrawList* draw = ImGui::GetWindowDrawList();
     ImVec2 pos = ImGui::GetCursorScreenPos();
 
@@ -93,43 +94,39 @@ static bool DrawAssetCard(ImTextureID p_texture_id,
     const float shadow_offset = 5.0f;
 
     // Estimate text height: 2 lines + padding
-    float textHeight = ImGui::GetFontSize() * 2 + spacing * 2;
-    ImVec2 cardSize = ImVec2(p_image_size.x + padding * 2, p_image_size.y + textHeight);
+    float text_height = ImGui::GetFontSize() * 2 + spacing * 2;
+    ImVec2 card_size = ImVec2(p_image_size.x + padding * 2,
+                              p_image_size.y + text_height + 8);
 
     // Shadow behind card
     draw->AddRectFilled(pos + ImVec2(shadow_offset, shadow_offset),
-                        pos + cardSize + ImVec2(shadow_offset, shadow_offset),
+                        pos + card_size + ImVec2(shadow_offset, shadow_offset),
                         IM_COL32(10, 10, 10, 160),
                         rounding);
 
     // Card background (lighter than ImGui window)
-    ImU32 cardBg = IM_COL32(40, 40, 40, 255);
-    ImGui::PushStyleColor(ImGuiCol_Button, cardBg);  // just for convention
-    draw->AddRectFilled(pos, pos + cardSize, cardBg, rounding);
+    ImU32 card_bg = IM_COL32(40, 40, 40, 255);
+    ImGui::PushStyleColor(ImGuiCol_Button, card_bg);  // just for convention
+    draw->AddRectFilled(pos, pos + card_size, card_bg, rounding);
     ImGui::PopStyleColor();
 
-    // Input interaction zone
-    ImGui::InvisibleButton(name, cardSize);
+    ImGui::InvisibleButton(p_name, card_size);
     bool hovered = ImGui::IsItemHovered();
     bool clicked = ImGui::IsItemClicked();
 
     // Image (square)
-    ImVec2 imagePos = pos + ImVec2(padding, padding);
-    draw->AddImage(p_texture_id, imagePos, imagePos + p_image_size);
+    ImVec2 image_pos = pos + ImVec2(padding, padding);
+    draw->AddImage(p_texture_id, image_pos, image_pos + p_image_size);
 
-    // Text lines
-    ImVec2 textStart = imagePos + ImVec2(0, p_image_size.y + spacing);
-    draw->AddText(textStart, IM_COL32(180, 180, 180, 220), name);
+    // Text
+    ImVec2 textStart = image_pos + ImVec2(0, p_image_size.y + spacing);
+    draw->AddText(textStart, IM_COL32(180, 180, 180, 220), p_name);
 
-    // ImVec2 subTextPos = textStart + ImVec2(0, ImGui::GetFontSize() + 2);
-    // draw->AddText(subTextPos, IM_COL32(160, 160, 160, 220), subtext);
-
-    // Hover outline
     if (hovered) {
-        draw->AddRect(pos, pos + cardSize, IM_COL32(255, 255, 255, 100), rounding, 0, 1.5f);
+        // draw->AddRect(pos, pos + card_size, IM_COL32(255, 255, 255, 100), rounding, 0, 1.5f);
     }
 
-    return clicked;
+    return { hovered, clicked };
 }
 
 void AssetInspector::DrawContentBrowser() {
@@ -176,15 +173,24 @@ void AssetInspector::DrawContentBrowser() {
     ImVec2 thumbnail_size{ 196, 196 };
 
     for (const auto& node : current->children) {
-        const auto& path = node->file_name;
         ImageAsset* image = node->is_dir ? m_folder_iamge.get() : m_meta_image.get();
 
-        const bool clicked = DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
-                                           path.data(),
-                                           thumbnail_size);
+        auto [hovered, clicked] = DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
+                                                node->file_name.data(),
+                                                thumbnail_size);
 
-        if (clicked && node->is_dir) {
-            m_current_path.push_back(std::string(node->file_name));
+        if (node->is_dir) {
+            if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                m_current_path.push_back(std::string(node->file_name));
+            }
+        } else {
+            if (hovered) {
+                const IAsset* asset = node->handle.Get();
+                const AssetMetaData* meta = node->handle.GetMeta();
+                if (asset && meta) {
+                    ShowAssetToolTip(*meta, asset);
+                }
+            }
         }
 
         ImGui::TableNextColumn();
