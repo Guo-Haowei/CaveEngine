@@ -27,6 +27,22 @@ void AssetInspector::UpdateInternal() {
     }
 }
 
+static void DrawBreadcrumb(const std::vector<std::string>& pathParts, std::function<void(int)> onClick) {
+    for (size_t i = 0; i < pathParts.size(); ++i) {
+        // Clickable button for each segment
+        if (ImGui::Button(pathParts[i].c_str())) {
+            onClick(static_cast<int>(i));  // user-defined callback
+        }
+
+        // Draw separator " > " if not last
+        if (i + 1 < pathParts.size()) {
+            ImGui::SameLine(0.0f, 4.0f);  // small spacing
+            ImGui::TextUnformatted(">");
+            ImGui::SameLine(0.0f, 4.0f);
+        }
+    }
+}
+
 void AssetInspector::DrawContentBrowser() {
     std::vector<ToolBarButtonDesc> descs = {
         { ICON_FA_FOLDER, "Placeholder",
@@ -51,13 +67,19 @@ void AssetInspector::DrawContentBrowser() {
           []() {
           } },
     };
-    
+
     std::vector<const ToolBarButtonDesc*> d;
     for (const auto& it : descs) {
         d.push_back(&it);
     }
 
     DrawToolBar(d);
+
+    std::vector<std::string> paths = { "Assets", "Textures", "Brick" };
+    DrawBreadcrumb(paths, [](int) {
+        // Handle breadcrumb click — truncate to that level, navigate, etc.
+        // std::cout << "Clicked breadcrumb at level " << level << std::endl;
+    });
 
     ImVec2 window_size = ImGui::GetContentRegionAvail();
     constexpr float desired_icon_size = 150.f;
