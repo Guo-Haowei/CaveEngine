@@ -3,6 +3,8 @@
 
 namespace cave {
 
+struct FolderTreeNode;
+
 class FileSystemPanel : public EditorWindow {
 public:
     FileSystemPanel(EditorLayer& p_editor);
@@ -16,9 +18,9 @@ public:
 protected:
     void UpdateInternal() override;
 
-    void ListFile(const std::filesystem::path& p_path, const char* p_name_override = nullptr);
+    void DrawFolderTreeNode(const FolderTreeNode& p_node);
 
-    void FolderPopup(const std::filesystem::path& p_path, const std::string& p_short_path, bool p_is_dir);
+    void FolderPopup(const FolderTreeNode& p_node);
 
     std::filesystem::path m_root;
     std::filesystem::path m_renaming;
