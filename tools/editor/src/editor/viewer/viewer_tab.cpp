@@ -64,7 +64,7 @@ void ViewerTab::CreateDefaultCamera3D(CameraComponent& p_out) {
 }
 
 void ViewerTab::DrawAssetInspector() {
-    AssetInspector::DrawContentBrowser();
+    m_editor.GetAssetInspector().DrawContentBrowser();
 }
 
 void ViewerTab::DrawMainView(const CameraComponent&) {

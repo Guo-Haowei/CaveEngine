@@ -12,7 +12,10 @@ namespace cave {
 
 enum class HandleInput : uint8_t;
 enum class KeyCode : uint16_t;
+class AssetInspector;
 class EditorCommandBase;
+class FileSystemPanel;
+struct FolderTreeNode;
 class LogPanel;
 class MenuBar;
 class Viewer;
@@ -62,8 +65,12 @@ public:
 
     const AssetHandle& GetSelectedAsset() const { return m_selected_asset; }
 
+    AssetInspector& GetAssetInspector() { return *m_asset_inspector.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
     Viewer& GetViewer() { return *m_viewer.get(); }
+    FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
+
+    const auto& GetAssetRoot() const { return m_asset_root; }
 
 private:
     void DockSpace();
@@ -72,9 +79,11 @@ private:
     void FlushInputEvents();
     void FlushCommand(Scene* p_scene);
 
+    std::shared_ptr<AssetInspector> m_asset_inspector;
+    std::shared_ptr<FileSystemPanel> m_file_system_panel;
+    std::shared_ptr<LogPanel> m_log_panel;
     std::shared_ptr<MenuBar> m_menu_bar;
     std::shared_ptr<Viewer> m_viewer;
-    std::shared_ptr<LogPanel> m_log_panel;
 
     std::vector<std::shared_ptr<EditorItem>> m_panels;
 
@@ -98,6 +107,7 @@ private:
     AssetHandle m_selected_asset;
 
     std::vector<std::shared_ptr<InputEvent>> m_buffered_events;
+    std::unique_ptr<FolderTreeNode> m_asset_root;
 };
 
 }  // namespace cave

@@ -3,80 +3,24 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/core/os/platform_io.h"
-#include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_manager.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
 #include "editor/editor_layer.h"
+#include "editor/utility/folder_tree.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
 
 namespace fs = std::filesystem;
 
-struct FolderTreeNode {
-    AssetType type;
-    bool is_dir;
-    std::filesystem::path sys_path;
-    std::string virtual_path;
-    std::string_view file_name;
-    std::string_view extension;
+FileSystemPanel::FileSystemPanel(EditorLayer& p_editor)
+    : EditorWindow(p_editor) {
+}
 
-    FolderTreeNode* parent;
-    std::vector<std::unique_ptr<FolderTreeNode>> children;
-};
-
-std::unique_ptr<FolderTreeNode> BuildFolderTree(const fs::path& p_sys_path,
-                                                FolderTreeNode* p_parent) {
-    try {
-        if (!fs::exists(p_sys_path)) {
-            return nullptr;
-        }
-
-        const bool is_dir = fs::is_directory(p_sys_path);
-        const bool is_file = fs::is_regular_file(p_sys_path);
-        if (!is_dir && !is_file) {
-            return nullptr;
-        }
-
-        auto node = std::make_unique<FolderTreeNode>();
-        node->type = AssetType::Unknown;
-        node->extension = "";
-        node->is_dir = is_dir;
-        node->sys_path = p_sys_path;
-        node->parent = p_parent;
-        if (p_parent) {
-            node->virtual_path = AssetManager::GetSingleton().ResolvePath(p_sys_path);
-            node->file_name = StringUtils::FileName(node->virtual_path, '/');
-        } else {
-            node->virtual_path = "@res://";
-            node->file_name = node->virtual_path;
-        }
-
-        if (is_file) {
-            auto handle = AssetRegistry::GetSingleton().FindByPath(node->virtual_path);
-            if (handle.is_none()) {
-                return nullptr;
-            }
-
-            const AssetMetaData* meta = handle.unwrap_unchecked().GetMeta();
-            DEV_ASSERT(meta);
-            node->type = meta->type;
-            node->extension = StringUtils::Extension(node->file_name);
-        } else {
-            for (const auto& entry : fs::directory_iterator(p_sys_path)) {
-                auto child = BuildFolderTree(entry.path(), node.get());
-                if (child) {
-                    node->children.push_back(std::move(child));
-                }
-            }
-        }
-
-        return node;
-    } catch (const fs::filesystem_error& e) {
-        LOG_ERROR("Filesystem error: {}", e.what());
-        return nullptr;
-    }
+void FileSystemPanel::OnAttach() {
+    const auto& path = m_editor.GetApplication()->GetResourceFolder();
+    m_root = fs::path{ path };
 }
 
 void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
@@ -156,15 +100,7 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
     }
 }
 
-FileSystemPanel::FileSystemPanel(EditorLayer& p_editor)
-    : EditorWindow(p_editor) {
-}
-
-void FileSystemPanel::OnAttach() {
-    const auto& path = m_editor.GetApplication()->GetResourceFolder();
-    m_root = fs::path{ path };
-}
-
+// @TODO: refactor this to work for both content browser and file system
 void FileSystemPanel::FolderPopup(const FolderTreeNode& p_node) {
     if (ImGui::MenuItem("Rename")) {
         m_renaming = p_node.sys_path;
@@ -217,9 +153,7 @@ void FileSystemPanel::FolderPopup(const FolderTreeNode& p_node) {
 }
 
 void FileSystemPanel::UpdateInternal() {
-    auto root = BuildFolderTree(m_root, nullptr);
-
-    DrawFolderTreeNode(*root);
+    DrawFolderTreeNode(*m_editor.GetAssetRoot());
 }
 
 }  // namespace cave

@@ -6,6 +6,7 @@
 namespace cave {
 
 class AssetRegistry;
+struct FolderTreeNode;
 
 class AssetInspector : public EditorWindow {
 public:
@@ -17,10 +18,14 @@ public:
         return "Asset Inspector";
     }
 
-    static void DrawContentBrowser();
+    void DrawContentBrowser();
 
 protected:
     void UpdateInternal() override;
+
+    const FolderTreeNode* Navigate(const FolderTreeNode* p_node);
+
+    std::string m_current_path;
 };
 
 }  // namespace cave

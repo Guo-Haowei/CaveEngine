@@ -25,6 +25,7 @@
 #include "editor/panels/property_panel.h"
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
+#include "editor/utility/folder_tree.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"
@@ -34,20 +35,20 @@ namespace cave {
 EditorLayer::EditorLayer()
     : Layer("EditorLayer") {
 
+    m_asset_inspector = std::make_shared<AssetInspector>(*this);
     m_menu_bar = std::make_shared<MenuBar>(*this);
     m_viewer = std::make_shared<Viewer>(*this);
     m_log_panel = std::make_shared<LogPanel>(*this);
+    m_file_system_panel = std::make_shared<FileSystemPanel>(*this);
 
     AddPanel(m_log_panel);
     AddPanel(std::make_shared<RendererPanel>(*this));
     AddPanel(std::make_shared<HierarchyPanel>(*this));
     AddPanel(std::make_shared<PropertyPanel>(*this));
     AddPanel(m_viewer);
-    AddPanel(std::make_shared<AssetInspector>(*this));
+    AddPanel(m_asset_inspector);
     AddPanel(std::make_shared<RenderGraphViewer>(*this));
-#if !USING(PLATFORM_WASM)
-    AddPanel(std::make_shared<FileSystemPanel>(*this));
-#endif
+    AddPanel(m_file_system_panel);
 
     // @TODO: refactor this at some point
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
@@ -228,6 +229,9 @@ void EditorLayer::OnUpdate(float p_timestep) {
 }
 
 void EditorLayer::OnImGuiRender() {
+    const std::string& path = GetApplication()->GetResourceFolder();
+    m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
+
     // @TODO: DO NOT Request SCENE here
     Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();
 

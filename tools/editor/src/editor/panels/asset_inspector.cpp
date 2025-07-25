@@ -6,6 +6,7 @@
 #include "engine/runtime/asset_registry.h"
 
 #include "editor/editor_layer.h"
+#include "editor/utility/folder_tree.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/tool_bar.h"
@@ -14,6 +15,7 @@ namespace cave {
 
 AssetInspector::AssetInspector(EditorLayer& p_editor)
     : EditorWindow(p_editor) {
+    m_current_path = "@res://";
 }
 
 void AssetInspector::OnAttach() {
@@ -41,6 +43,27 @@ static void DrawBreadcrumb(const std::vector<std::string>& pathParts, std::funct
             ImGui::SameLine(0.0f, 4.0f);
         }
     }
+}
+
+const FolderTreeNode* AssetInspector::Navigate(const FolderTreeNode* p_node) {
+    if (!p_node) {
+        return nullptr;
+    }
+
+    if (p_node->virtual_path == m_current_path) {
+        return p_node;
+    }
+
+    if (m_current_path.starts_with(p_node->virtual_path)) {
+        for (const auto& child : p_node->children) {
+            const FolderTreeNode* match = Navigate(child.get());
+            if (match) {
+                return match;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 void AssetInspector::DrawContentBrowser() {
@@ -95,32 +118,24 @@ void AssetInspector::DrawContentBrowser() {
     auto handle = registry.FindByPath<ImageAsset>("@persist://textures/checkerboard").unwrap();
     ImageAsset* image = handle.Get();
 
-    std::vector<IAsset*> assets = {
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-    };
+    const auto& root = m_editor.GetAssetRoot();
+    const FolderTreeNode* current = Navigate(root.get());
+    current = current ? current : root.get();
+    DEV_ASSERT(current->is_dir);
 
-    for (const auto& asset : assets) {
-        unused(asset);
-        std::string path = "dummy/path";
+    for (const auto& node : current->children) {
+        const auto& path = node->file_name;
 
         bool clicked = false;
         if (image->gpu_texture) {
-            clicked = ImGui::ImageButton(path.c_str(),
+            clicked = ImGui::ImageButton(path.data(),
                                          (ImTextureID)image->gpu_texture->GetHandle(),
                                          thumbnail_size);
         } else {
-            clicked = ImGui::Button(path.c_str(), thumbnail_size);
+            clicked = ImGui::Button(path.data(), thumbnail_size);
         }
 
-        ImGui::Text("%s", path.c_str());
+        ImGui::Text("%s", path.data());
         ImGui::TableNextColumn();
     }
 
@@ -130,9 +145,6 @@ void AssetInspector::DrawContentBrowser() {
 }  // namespace cave
 
 #if 0
-ContentBrowser::ContentBrowser(EditorLayer& p_editor) : EditorWindow("Content Browser", p_editor) {
-}
-
 void ContentBrowser::OnAttach() {
     const auto& path = m_editor.GetApplication()->GetResourceFolder();
     m_rootPath = fs::path{ path };
