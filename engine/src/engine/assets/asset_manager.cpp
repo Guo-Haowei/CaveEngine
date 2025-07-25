@@ -161,7 +161,7 @@ Result<Guid> AssetManager::CreateAsset(AssetType p_type,
     return CreateAsset(p_type, short_path);
 }
 
-auto AssetManager::MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) -> Result<void> {
+Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) {
     if (fs::is_directory(p_old)) {
         LOG_WARN("don't support moving folder yet");
         return Result<void>();
@@ -221,7 +221,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
             break;
         }
 
-        auto loader = IAssetLoader::Create(entry->metadata);
+        auto loader = IAssetLoader::Create(entry->metadata.import_path);
         if (!loader) {
             LOG_ERROR("No suitable loader found for asset '{}'", entry->metadata.import_path);
             entry->MarkFailed();
@@ -297,7 +297,8 @@ void AssetManager::WorkerMain() {
 
         s_assetManagerGlob.runningWorkers.fetch_add(1);
 
-        auto asset = GetSingleton().LoadAssetSync(task.guid);
+        AssetManager& asset_manager = static_cast<AssetManager&>(IAssetManager::GetSingleton());
+        auto asset = asset_manager.LoadAssetSync(task.guid);
         if (asset) {
             task.on_success ? task.on_success(asset, task.userdata) : (void)0;
         } else {

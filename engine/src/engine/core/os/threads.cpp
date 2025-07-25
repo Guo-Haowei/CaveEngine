@@ -6,7 +6,8 @@
 #include "engine/core/debugger/profiler.h"
 #include "engine/core/io/print.h"
 #include "engine/drivers/windows/win32_prerequisites.h"
-#include "engine/runtime/asset_manager.h"
+// @TODO: use generic worker thread
+#include "engine/assets/asset_manager.h"
 
 namespace cave::thread {
 

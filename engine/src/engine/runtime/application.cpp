@@ -9,7 +9,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/asset_manager.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
@@ -81,7 +81,7 @@ Result<ImguiManager*> Application::CreateImguiManager() {
 
 auto Application::SetupModules() -> Result<void> {
     // @TODO: configure so it's easier for user to override
-    m_asset_manager = new AssetManager();
+    m_asset_manager = CreateAssetManager();
     m_asset_registry = new AssetRegistry();
     m_script_manager = CreateScriptManager();
     m_scene_manager = CreateSceneManager();

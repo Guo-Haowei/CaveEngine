@@ -19,7 +19,7 @@ auto AssimpAssetLoader::Load() -> Result<AssetRef> {
 
     const uint32_t flag = aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_FlipUVs;
 
-    std::string resolved_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, m_meta.import_path);
+    std::string resolved_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, m_import_path);
     const aiScene* aiscene = importer.ReadFile(resolved_path, flag);
 
     // check for errors

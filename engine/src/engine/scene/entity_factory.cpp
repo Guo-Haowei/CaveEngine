@@ -2,7 +2,7 @@
 
 #include "engine/assets/material_asset.h"
 #include "engine/math/geometry.h"
-#include "engine/runtime/asset_manager.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
 namespace cave {

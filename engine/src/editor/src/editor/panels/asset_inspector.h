@@ -7,6 +7,7 @@ namespace cave {
 
 class AssetRegistry;
 struct FolderTreeNode;
+struct ImageAsset;
 
 class AssetInspector : public EditorWindow {
 public:
@@ -23,9 +24,13 @@ public:
 protected:
     void UpdateInternal() override;
 
-    const FolderTreeNode* Navigate(const FolderTreeNode* p_node);
+    const FolderTreeNode* Navigate(const FolderTreeNode* p_node, int p_cur, int p_max);
+    void DrawBreadcrumb();
 
-    std::string m_current_path;
+    std::vector<std::string> m_current_path;
+
+    std::shared_ptr<ImageAsset> m_folder_iamge;
+    std::shared_ptr<ImageAsset> m_meta_image;
 };
 
 }  // namespace cave

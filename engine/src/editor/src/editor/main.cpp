@@ -1,15 +1,18 @@
 #include <filesystem>
 
-#include "editor/editor_layer.h"
-#include "editor/editor_scene_manager.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/layer.h"
 #include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
+
 #include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
+
+#include "editor/editor_asset_manager.h"
+#include "editor/editor_layer.h"
+#include "editor/editor_scene_manager.h"
 
 #define DEFINE_DVAR
 #include "editor_dvars.h"
@@ -125,6 +128,13 @@ Application* CreateApplication() {
 int main(int p_argc, const char** p_argv) {
     using namespace cave;
 
+    IAssetManager::RegisterCreateFunc([]() -> IAssetManager* {
+        return new EditorAssetManager();
+    });
+    ISceneManager::RegisterCreateFunc([]() -> ISceneManager* {
+        return new EditorSceneManager();
+    });
+
     // @TODO: figure out a way to create it cleanly
 #if !USING(PLATFORM_WASM)
     IPhysicsManager::RegisterCreateFunc([]() -> IPhysicsManager* {
@@ -135,9 +145,6 @@ int main(int p_argc, const char** p_argv) {
         }
     });
 #endif
-    ISceneManager::RegisterCreateFunc([]() -> ISceneManager* {
-        return new EditorSceneManager();
-    });
 
     return Main(p_argc, p_argv);
 }

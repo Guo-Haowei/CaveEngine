@@ -1,7 +1,7 @@
 #include "folder_tree.h"
 
 #include "engine/core/string/string_utils.h"
-#include "engine/runtime/asset_manager.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
 namespace cave {
@@ -28,7 +28,7 @@ std::unique_ptr<FolderTreeNode> BuildFolderTree(const fs::path& p_sys_path,
         node->sys_path = p_sys_path;
         node->parent = p_parent;
         if (p_parent) {
-            node->virtual_path = AssetManager::GetSingleton().ResolvePath(p_sys_path);
+            node->virtual_path = IAssetManager::GetSingleton().ResolvePath(p_sys_path);
             node->file_name = StringUtils::FileName(node->virtual_path, '/');
         } else {
             node->virtual_path = "@res://";

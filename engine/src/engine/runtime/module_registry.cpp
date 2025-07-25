@@ -1,5 +1,9 @@
 #include "module_registry.h"
 
+#include "engine/assets/asset_manager.h"
+#include "engine/renderer/graphics_dvars.h"
+#include "engine/scripting/lua/lua_script_manager.h"
+
 #if USING(PLATFORM_WINDOWS)
 #include "modules/d3d11/d3d11_graphics_manager.h"
 #include "modules/d3d12/d3d12_graphics_manager.h"
@@ -10,9 +14,6 @@
 #elif USING(PLATFORM_WASM)
 #include "modules/opengles3/opengles3_graphics_manager.h"
 #endif
-
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/scripting/lua/lua_script_manager.h"
 
 namespace cave {
 
@@ -212,6 +213,10 @@ protected:
 
     virtual void FinalizeImpl() {}
 };
+
+IAssetManager* CreateAssetManager() {
+    return CreateModule<IAssetManager, AssetManager>();
+}
 
 DisplayManager* CreateDisplayManager() {
     return CreateModule<DisplayManager, NullDisplayManager>();

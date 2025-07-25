@@ -5,13 +5,12 @@
 namespace cave {
 
 class IAsset;
-struct AssetMetaData;
 
 class IAssetLoader {
-    using CreateLoaderFunc = std::unique_ptr<IAssetLoader> (*)(const AssetMetaData& p_meta);
+    using CreateLoaderFunc = std::unique_ptr<IAssetLoader> (*)(const std::string& p_import_path);
 
 public:
-    IAssetLoader(const AssetMetaData& p_meta);
+    IAssetLoader(const std::string& p_import_path);
 
     virtual ~IAssetLoader() = default;
 
@@ -19,12 +18,12 @@ public:
 
     static bool RegisterLoader(const std::string& p_extension, CreateLoaderFunc p_func);
 
-    static std::unique_ptr<IAssetLoader> Create(const AssetMetaData& p_meta);
+    static std::unique_ptr<IAssetLoader> Create(const std::string& p_import_path);
 
     inline static std::map<std::string, CreateLoaderFunc> s_loaderCreator;
 
 protected:
-    const AssetMetaData& m_meta;
+    const std::string& m_import_path;
 
     std::string m_fileName;
     std::string m_filePath;
@@ -36,8 +35,8 @@ class BufferAssetLoader : public IAssetLoader {
 public:
     using IAssetLoader::IAssetLoader;
 
-    static std::unique_ptr<IAssetLoader> CreateLoader(const AssetMetaData& p_meta) {
-        return std::make_unique<BufferAssetLoader>(p_meta);
+    static std::unique_ptr<IAssetLoader> CreateLoader(const std::string& p_import_path) {
+        return std::make_unique<BufferAssetLoader>(p_import_path);
     }
 
     auto Load() -> Result<AssetRef> override;
@@ -45,15 +44,15 @@ public:
 
 class ImageAssetLoader : public IAssetLoader {
 public:
-    ImageAssetLoader(const AssetMetaData& p_meta, uint32_t p_size)
-        : IAssetLoader(p_meta), m_size(p_size) {}
+    ImageAssetLoader(const std::string& p_import_path, uint32_t p_size)
+        : IAssetLoader(p_import_path), m_size(p_size) {}
 
-    static std::unique_ptr<IAssetLoader> CreateLoader(const AssetMetaData& p_meta) {
-        return std::make_unique<ImageAssetLoader>(p_meta, 1);
+    static std::unique_ptr<IAssetLoader> CreateLoader(const std::string& p_import_path) {
+        return std::make_unique<ImageAssetLoader>(p_import_path, 1);
     }
 
-    static std::unique_ptr<IAssetLoader> CreateLoaderF(const AssetMetaData& p_meta) {
-        return std::make_unique<ImageAssetLoader>(p_meta, 4);
+    static std::unique_ptr<IAssetLoader> CreateLoaderF(const std::string& p_import_path) {
+        return std::make_unique<ImageAssetLoader>(p_import_path, 4);
     }
 
     auto Load() -> Result<AssetRef> override;

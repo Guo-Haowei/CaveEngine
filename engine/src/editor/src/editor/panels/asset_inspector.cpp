@@ -5,20 +5,27 @@
 #include "engine/assets/image_asset.h"
 #include "engine/runtime/asset_registry.h"
 
+#include "editor/editor_asset_manager.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/folder_tree.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/tool_bar.h"
+#include "editor/widgets/widget.h"
 
 namespace cave {
 
 AssetInspector::AssetInspector(EditorLayer& p_editor)
     : EditorWindow(p_editor) {
-    m_current_path = "@res://";
+    m_current_path = { "@res://" };
 }
 
 void AssetInspector::OnAttach() {
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+    m_folder_iamge = asset_manager.FindImage("folder_icon.png");
+    m_meta_image = asset_manager.FindImage("meta_icon.png");
+
+    DEV_ASSERT(m_folder_iamge && m_meta_image);
 }
 
 void AssetInspector::UpdateInternal() {
@@ -29,64 +36,108 @@ void AssetInspector::UpdateInternal() {
     }
 }
 
-static void DrawBreadcrumb(const std::vector<std::string>& pathParts, std::function<void(int)> onClick) {
-    for (size_t i = 0; i < pathParts.size(); ++i) {
-        // Clickable button for each segment
-        if (ImGui::Button(pathParts[i].c_str())) {
-            onClick(static_cast<int>(i));  // user-defined callback
-        }
+void AssetInspector::DrawBreadcrumb() {
+    int clicked = -1;
 
-        // Draw separator " > " if not last
-        if (i + 1 < pathParts.size()) {
-            ImGui::SameLine(0.0f, 4.0f);  // small spacing
-            ImGui::TextUnformatted(">");
+    const int len = static_cast<int>(m_current_path.size());
+    for (int i = 0; i < len; ++i) {
+        if (i != 0) {
             ImGui::SameLine(0.0f, 4.0f);
         }
+
+        if (ImGui::Button(m_current_path[i].c_str())) {
+            clicked = i;
+        }
+    }
+    if (clicked != -1) {
+        m_current_path.resize(clicked + 1);
     }
 }
 
-const FolderTreeNode* AssetInspector::Navigate(const FolderTreeNode* p_node) {
+const FolderTreeNode* AssetInspector::Navigate(const FolderTreeNode* p_node,
+                                               int p_cur,
+                                               int p_max) {
     if (!p_node) {
         return nullptr;
     }
 
-    if (p_node->virtual_path == m_current_path) {
+    DEV_ASSERT(p_cur <= p_max);
+
+    const auto& current = m_current_path[p_cur];
+    if (current != p_node->file_name) {
+        return nullptr;
+    }
+
+    if (p_cur == p_max) {
         return p_node;
     }
 
-    if (m_current_path.starts_with(p_node->virtual_path)) {
-        for (const auto& child : p_node->children) {
-            const FolderTreeNode* match = Navigate(child.get());
-            if (match) {
-                return match;
-            }
+    for (const auto& child : p_node->children) {
+        const FolderTreeNode* match = Navigate(child.get(), p_cur + 1, p_max);
+        if (match) {
+            return match;
         }
     }
 
     return nullptr;
 }
 
+static auto DrawAssetCard(ImTextureID p_texture_id,
+                          const char* p_name,
+                          ImVec2 p_image_size) -> std::tuple<bool, bool> {
+    ImDrawList* draw = ImGui::GetWindowDrawList();
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+
+    const float rounding = 6.0f;
+    const float padding = 6.0f;
+    const float spacing = 4.0f;
+    const float shadow_offset = 5.0f;
+
+    // Estimate text height: 2 lines + padding
+    float text_height = ImGui::GetFontSize() * 2 + spacing * 2;
+    ImVec2 card_size = ImVec2(p_image_size.x + padding * 2,
+                              p_image_size.y + text_height + 8);
+
+    // Shadow behind card
+    draw->AddRectFilled(pos + ImVec2(shadow_offset, shadow_offset),
+                        pos + card_size + ImVec2(shadow_offset, shadow_offset),
+                        IM_COL32(10, 10, 10, 160),
+                        rounding);
+
+    // Card background (lighter than ImGui window)
+    ImU32 card_bg = IM_COL32(40, 40, 40, 255);
+    ImGui::PushStyleColor(ImGuiCol_Button, card_bg);  // just for convention
+    draw->AddRectFilled(pos, pos + card_size, card_bg, rounding);
+    ImGui::PopStyleColor();
+
+    ImGui::InvisibleButton(p_name, card_size);
+    bool hovered = ImGui::IsItemHovered();
+    bool clicked = ImGui::IsItemClicked();
+
+    // Image (square)
+    ImVec2 image_pos = pos + ImVec2(padding, padding);
+    draw->AddImage(p_texture_id, image_pos, image_pos + p_image_size);
+
+    // Text
+    ImVec2 textStart = image_pos + ImVec2(0, p_image_size.y + spacing);
+    draw->AddText(textStart, IM_COL32(180, 180, 180, 220), p_name);
+
+    if (hovered) {
+        // draw->AddRect(pos, pos + card_size, IM_COL32(255, 255, 255, 100), rounding, 0, 1.5f);
+    }
+
+    return { hovered, clicked };
+}
+
 void AssetInspector::DrawContentBrowser() {
     std::vector<ToolBarButtonDesc> descs = {
-        { ICON_FA_FOLDER, "Placeholder",
-          []() {
-          } },
         { ICON_FA_FOLDER_CLOSED, "Placeholder",
-          []() {
-          } },
-        { ICON_FA_FOLDER_MINUS, "Placeholder",
           []() {
           } },
         { ICON_FA_FOLDER_OPEN, "Placeholder",
           []() {
           } },
-        { ICON_FA_FOLDER_PLUS, "Placeholder",
-          []() {
-          } },
         { ICON_FA_FOLDER_TREE, "Placeholder",
-          []() {
-          } },
-        { ICON_FA_BACKWARD, "Placeholder",
           []() {
           } },
     };
@@ -98,44 +149,50 @@ void AssetInspector::DrawContentBrowser() {
 
     DrawToolBar(d);
 
-    std::vector<std::string> paths = { "Assets", "Textures", "Brick" };
-    DrawBreadcrumb(paths, [](int) {
-        // Handle breadcrumb click — truncate to that level, navigate, etc.
-        // std::cout << "Clicked breadcrumb at level " << level << std::endl;
-    });
+    DrawBreadcrumb();
+
+    // thumbnails
 
     ImVec2 window_size = ImGui::GetContentRegionAvail();
-    constexpr float desired_icon_size = 150.f;
+    constexpr float desired_icon_size = 224.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
     num_col = glm::max(1, num_col);
 
     ImGui::BeginTable("Inner", num_col);
     ImGui::TableNextColumn();
 
-    AssetRegistry& registry = AssetRegistry::GetSingleton();
-    ImVec2 thumbnail_size{ 120, 120 };
-
-    auto handle = registry.FindByPath<ImageAsset>("@persist://textures/checkerboard").unwrap();
-    ImageAsset* image = handle.Get();
-
     const auto& root = m_editor.GetAssetRoot();
-    const FolderTreeNode* current = Navigate(root.get());
-    current = current ? current : root.get();
+    const int max = static_cast<int>(m_current_path.size()) - 1;
+    const FolderTreeNode* current = Navigate(root.get(), 0, max);
+    if (!current) {
+        m_current_path = { "@res://" };
+        current = root.get();
+    }
     DEV_ASSERT(current->is_dir);
 
-    for (const auto& node : current->children) {
-        const auto& path = node->file_name;
+    ImVec2 thumbnail_size{ 196, 196 };
 
-        bool clicked = false;
-        if (image->gpu_texture) {
-            clicked = ImGui::ImageButton(path.data(),
-                                         (ImTextureID)image->gpu_texture->GetHandle(),
-                                         thumbnail_size);
+    for (const auto& node : current->children) {
+        ImageAsset* image = node->is_dir ? m_folder_iamge.get() : m_meta_image.get();
+
+        auto [hovered, clicked] = DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
+                                                node->file_name.data(),
+                                                thumbnail_size);
+
+        if (node->is_dir) {
+            if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                m_current_path.push_back(std::string(node->file_name));
+            }
         } else {
-            clicked = ImGui::Button(path.data(), thumbnail_size);
+            if (hovered) {
+                const IAsset* asset = node->handle.Get();
+                const AssetMetaData* meta = node->handle.GetMeta();
+                if (asset && meta) {
+                    ShowAssetToolTip(*meta, asset);
+                }
+            }
         }
 
-        ImGui::Text("%s", path.data());
         ImGui::TableNextColumn();
     }
 

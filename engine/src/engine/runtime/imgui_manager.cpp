@@ -8,7 +8,7 @@
 #include "engine/assets/blob_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"
-#include "engine/runtime/asset_manager.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
 namespace cave {

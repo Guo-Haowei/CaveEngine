@@ -8,7 +8,7 @@
 
 namespace cave {
 
-class AssetManager;
+class IAssetManager;
 class AssetRegistry;
 class CameraComponent;
 class DisplayManager;
@@ -57,7 +57,7 @@ public:
     EventQueue& GetEventQueue() { return m_event_queue; }
 
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
-    AssetManager* GetAssetManager() { return m_asset_manager; }
+    IAssetManager* GetAssetManager() { return m_asset_manager; }
     InputManager* GetInputManager() { return m_input_manager; }
     ISceneManager* GetSceneManager() { return m_scene_manager; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
@@ -107,7 +107,7 @@ protected:
     EventQueue m_event_queue;
 
     AssetRegistry* m_asset_registry{ nullptr };
-    AssetManager* m_asset_manager{ nullptr };
+    IAssetManager* m_asset_manager{ nullptr };
     ISceneManager* m_scene_manager{ nullptr };
     IPhysicsManager* m_physics_manager{ nullptr };
     DisplayManager* m_display_server{ nullptr };
