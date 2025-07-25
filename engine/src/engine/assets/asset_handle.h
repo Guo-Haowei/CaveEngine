@@ -73,6 +73,9 @@ public:
     using AssetHandle::Invalidate;
     using AssetHandle::IsReady;
 
+    Handle(const AssetHandle& p_raw)
+        : AssetHandle(p_raw) {}
+
     Handle(AssetHandle&& p_raw)
         : AssetHandle(std::move(p_raw)) {}
 

@@ -98,9 +98,9 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
             } break;
             case BodyType::Dynamic: {
                 body_def.type = b2_dynamicBody;
-                shape_def.density = 1.0f;
                 // @TODO: editor support
-                shape_def.material.friction = 0.1f;
+                shape_def.density = 1.0f;
+                shape_def.material.friction = 0.0f;
             } break;
         }
 

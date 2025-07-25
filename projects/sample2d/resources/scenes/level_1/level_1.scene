@@ -20,7 +20,7 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapRendererComponent:
-      tile_map_id: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
+      tile_map_id: 8B4DBABB-43B4-3048-A8F93F43AD349908
       tint_color: [1, 1, 1, 1]
   - id: 3
     NameComponent:
@@ -53,7 +53,7 @@ entities:
       body_type: dynamic
       shape:
         type: box
-        data: [0.300000012, 0.400000006, 0.5]
+        data: [0.5, 0.5, 0.5]
       flags: 0
       category: 0
       mask: 0

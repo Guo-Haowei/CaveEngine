@@ -10,9 +10,7 @@ elseif (EMSCRIPTEN)
 endif()
 
 add_subdirectory(box2d)
-if (USE_BULLET)
-    add_subdirectory(bullet3)
-endif()
+add_subdirectory(bullet3)
 
 if (BUILD_TINYGLTF_LOADER)
     add_subdirectory(tinygltf)

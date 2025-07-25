@@ -1,0 +1,4 @@
+guid: 133E5416-E5D5-BA4A-9F13460A05C8D6EA
+type: blob
+name: player.lua
+import_path: "@res://scripts/player.lua"
