@@ -40,7 +40,7 @@ set_target_properties(${TARGET_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
-set_target_properties(${TARGET_NAME} PROPERTIES FOLDER tools)
+# set_target_properties(${TARGET_NAME} PROPERTIES FOLDER tools)
 
 target_precompile_headers(${TARGET_NAME} PRIVATE src/editor/pch.h)
 target_set_warning_level(${TARGET_NAME})
