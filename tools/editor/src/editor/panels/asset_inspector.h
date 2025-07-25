@@ -17,10 +17,10 @@ public:
         return "Asset Inspector";
     }
 
+    static void DrawContentBrowser();
+
 protected:
     void UpdateInternal() override;
-    void DrawContentBrowser();
-    void DrawAssets();
 };
 
 }  // namespace cave

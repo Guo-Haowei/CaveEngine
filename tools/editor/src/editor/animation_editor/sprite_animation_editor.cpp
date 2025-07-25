@@ -246,18 +246,11 @@ void SpriteAnimationEditor::DrawTimeLine() {
     AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
     DEV_ASSERT(animator);
 
-    ToolBarButtonDesc s_play_button = { ICON_FA_PLAY, "Play animation",
-                                        [&]() {
-                                            animator->SetPlaying(true);
-                                        } };
-    ToolBarButtonDesc s_pause_button = { ICON_FA_PAUSE, "Pause animation",
-                                         [&]() {
-                                             animator->SetPlaying(false);
-                                         } };
+    std::vector<const ToolBarButtonDesc*> buttons = {
+        animator->IsPlaying() ? &m_pause_button : &m_play_button
+    };
 
-    DrawToolBarButton(s_play_button);
-    ImGui::SameLine();
-    DrawToolBarButton(s_pause_button);
+    DrawToolBar(buttons);
 
     ImGui::Columns(1);
 

@@ -5,6 +5,7 @@
 
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/sprite_selector.h"
+#include "editor/widgets/tool_bar.h"
 
 namespace cave {
 

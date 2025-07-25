@@ -8,6 +8,7 @@
 
 #include "editor/document/document.h"
 #include "editor/editor_layer.h"
+#include "editor/panels/asset_inspector.h"
 #include "editor/viewer/viewer.h"
 
 namespace cave {
@@ -62,24 +63,8 @@ void ViewerTab::CreateDefaultCamera3D(CameraComponent& p_out) {
     p_out.Update();
 }
 
-void ViewerTab::DrawToolBar() {
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-    auto& colors = ImGui::GetStyle().Colors;
-    const auto& button_hovered = colors[ImGuiCol_ButtonHovered];
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(button_hovered.x, button_hovered.y, button_hovered.z, 0.5f));
-    const auto& button_active = colors[ImGuiCol_ButtonActive];
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
-
-    const auto buttons = GetToolBarButtons();
-
-    for (size_t i = 0; i < buttons.size(); ++i) {
-        const ToolBarButtonDesc* desc = buttons[i];
-        if (i != 0) ImGui::SameLine();
-        DrawToolBarButton(*desc);
-    }
-
-    // ImGui::PopStyleVar(2);
-    ImGui::PopStyleColor(3);
+void ViewerTab::DrawAssetInspector() {
+    AssetInspector::DrawContentBrowser();
 }
 
 void ViewerTab::DrawMainView(const CameraComponent&) {

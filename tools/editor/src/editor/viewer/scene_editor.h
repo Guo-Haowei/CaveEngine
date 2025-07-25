@@ -23,8 +23,6 @@ public:
 
     void DrawMainView(const CameraComponent& p_camera) override;
 
-    void DrawAssetInspector() override;
-
     Document& GetDocument() const override;
 
     Scene* GetScene() override;

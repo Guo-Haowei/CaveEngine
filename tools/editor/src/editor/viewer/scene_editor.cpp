@@ -149,10 +149,6 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     }
 }
 
-void SceneEditor::DrawAssetInspector() {
-    // @TODO:
-}
-
 const CameraComponent& SceneEditor::GetActiveCameraInternal() const {
     return m_cameras[m_camera_idx];
 }

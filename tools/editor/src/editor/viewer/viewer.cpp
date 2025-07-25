@@ -225,7 +225,8 @@ void Viewer::UpdateInternal() {
                 m_tab_manager.SwitchTab(tab->GetId());
             }
 
-            tab->DrawToolBar();
+            auto buttons = tab->GetToolBarButtons();
+            DrawToolBar(buttons);
             tab->DrawMainView(camera);
 
             ImGui::EndTabItem();

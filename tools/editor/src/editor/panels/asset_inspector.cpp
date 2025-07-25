@@ -1,11 +1,14 @@
 #include "asset_inspector.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
 #include "engine/assets/image_asset.h"
 #include "engine/runtime/asset_registry.h"
 
 #include "editor/editor_layer.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
+#include "editor/widgets/tool_bar.h"
 
 namespace cave {
 
@@ -17,27 +20,45 @@ void AssetInspector::OnAttach() {
 }
 
 void AssetInspector::UpdateInternal() {
-    // if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
-    //     tab->DrawAssetInspector();
-    // } else {
-    //     DrawContentBrowser();
-    // }
-    DrawContentBrowser();
+    if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
+        tab->DrawAssetInspector();
+    } else {
+        DrawContentBrowser();
+    }
 }
 
 void AssetInspector::DrawContentBrowser() {
-    DrawAssets();
-    // int flags = ImGuiTableFlags_Resizable;
-    // flags |= ImGuiTableFlags_NoBordersInBody;
-    // if (ImGui::BeginTable("Outter", 2, flags)) {
-    //     ImGui::TableNextColumn();
-    //     ImGui::Text("dummy side bar");
-    //     ImGui::TableNextColumn();
-    //     ImGui::EndTable();
-    // }
-}
+    std::vector<ToolBarButtonDesc> descs = {
+        { ICON_FA_FOLDER, "Placeholder",
+          []() {
+          } },
+        { ICON_FA_FOLDER_CLOSED, "Placeholder",
+          []() {
+          } },
+        { ICON_FA_FOLDER_MINUS, "Placeholder",
+          []() {
+          } },
+        { ICON_FA_FOLDER_OPEN, "Placeholder",
+          []() {
+          } },
+        { ICON_FA_FOLDER_PLUS, "Placeholder",
+          []() {
+          } },
+        { ICON_FA_FOLDER_TREE, "Placeholder",
+          []() {
+          } },
+        { ICON_FA_BACKWARD, "Placeholder",
+          []() {
+          } },
+    };
+    
+    std::vector<const ToolBarButtonDesc*> d;
+    for (const auto& it : descs) {
+        d.push_back(&it);
+    }
 
-void AssetInspector::DrawAssets() {
+    DrawToolBar(d);
+
     ImVec2 window_size = ImGui::GetContentRegionAvail();
     constexpr float desired_icon_size = 150.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
@@ -53,6 +74,9 @@ void AssetInspector::DrawAssets() {
     ImageAsset* image = handle.Get();
 
     std::vector<IAsset*> assets = {
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,
@@ -79,48 +103,6 @@ void AssetInspector::DrawAssets() {
     }
 
     ImGui::EndTable();
-
-#if 0
-    auto list_image_assets = [&]() {
-        std::vector<IAsset*> assets;
-        registry->GetAssetByType(AssetType::IMAGE, assets);
-
-        for (const auto& asset : assets) {
-            const ImageAsset* image = dynamic_cast<const ImageAsset*>(asset);
-            if (DEV_VERIFY(image)) {
-                std::string_view path{ image->meta.path };
-                path = StringUtils::FileName(path, '/');
-                std::string name{ path };
-
-                [[maybe_unused]] bool clicked = false;
-
-                if (image->gpu_texture) {
-                    clicked = ImGui::ImageButton(name.c_str(), (ImTextureID)image->gpu_texture->GetHandle(), thumbnail_size);
-                } else {
-                    clicked = ImGui::Button(name.c_str(), thumbnail_size);
-                }
-
-                if (true) {
-                    std::string full_path_string = name;
-                    char* dragged_data = StringUtils::Strdup(full_path_string.c_str());
-
-                    // if (action)
-                    {
-                        ImGuiDragDropFlags flags = ImGuiDragDropFlags_SourceNoDisableHover;
-                        if (ImGui::BeginDragDropSource(flags)) {
-                            ImGui::SetDragDropPayload("dummy", &dragged_data, sizeof(const char*));
-                            ImGui::Text("%s", name.c_str());
-                            ImGui::EndDragDropSource();
-                        }
-                    }
-                }
-
-                ImGui::Text("%s", name.c_str());
-                ImGui::TableNextColumn();
-            }
-        }
-    };
-#endif
 }
 
 }  // namespace cave

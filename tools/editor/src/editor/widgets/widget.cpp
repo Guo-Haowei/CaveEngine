@@ -412,26 +412,4 @@ void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_desc
     }
 }
 
-void DrawToolBarButton(const ToolBarButtonDesc& desc) {
-    const bool enabled = desc.is_enabled_func ? desc.is_enabled_func() : true;
-
-    if (!enabled) {
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-    }
-
-    if (ImGui::Button(desc.display) && enabled) {
-        desc.execute_func();
-    }
-
-    if (!enabled) {
-        ImGui::PopStyleVar();
-    }
-
-    if (ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", desc.tooltip);
-        ImGui::EndTooltip();
-    }
-}
-
 }  // namespace cave

@@ -3,15 +3,17 @@
 
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
+
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
-#include "editor/widgets/widget.h"
+#include "editor/widgets/tool_bar.h"
 
 namespace cave {
 
 class CameraComponent;
 class Document;
 class TabId;
+struct ToolBarButtonDesc;
 
 class ViewerTab {
 public:
@@ -27,9 +29,8 @@ public:
     virtual void OnActivate() {}
     virtual void OnDeactivate() {}
 
-    void DrawToolBar();
     virtual void DrawMainView(const CameraComponent& p_camera);
-    virtual void DrawAssetInspector() = 0;
+    virtual void DrawAssetInspector();
 
     virtual Document& GetDocument() const = 0;
 
@@ -54,9 +55,9 @@ public:
         return const_cast<CameraComponent&>(GetActiveCameraInternal());
     }
 
-protected:
     virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const = 0;
 
+protected:
     virtual const CameraComponent& GetActiveCameraInternal() const = 0;
 
     static void CreateDefaultCamera2D(CameraComponent& p_out);
