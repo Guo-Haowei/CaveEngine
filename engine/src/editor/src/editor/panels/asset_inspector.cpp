@@ -5,6 +5,7 @@
 #include "engine/assets/image_asset.h"
 #include "engine/runtime/asset_registry.h"
 
+#include "editor/editor_asset_manager.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/folder_tree.h"
 #include "editor/viewer/viewer.h"
@@ -19,6 +20,11 @@ AssetInspector::AssetInspector(EditorLayer& p_editor)
 }
 
 void AssetInspector::OnAttach() {
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+    m_folder_iamge = asset_manager.FindImage("folder_icon.png");
+    m_meta_image = asset_manager.FindImage("meta_icon.png");
+
+    DEV_ASSERT(m_folder_iamge && m_meta_image);
 }
 
 void AssetInspector::UpdateInternal() {
@@ -112,11 +118,7 @@ void AssetInspector::DrawContentBrowser() {
     ImGui::BeginTable("Inner", num_col);
     ImGui::TableNextColumn();
 
-    AssetRegistry& registry = AssetRegistry::GetSingleton();
     ImVec2 thumbnail_size{ 120, 120 };
-
-    auto handle = registry.FindByPath<ImageAsset>("@persist://textures/checkerboard").unwrap();
-    ImageAsset* image = handle.Get();
 
     const auto& root = m_editor.GetAssetRoot();
     const FolderTreeNode* current = Navigate(root.get());
@@ -125,6 +127,7 @@ void AssetInspector::DrawContentBrowser() {
 
     for (const auto& node : current->children) {
         const auto& path = node->file_name;
+        ImageAsset* image = node->is_dir ? m_folder_iamge.get() : m_meta_image.get();
 
         bool clicked = false;
         if (image->gpu_texture) {
