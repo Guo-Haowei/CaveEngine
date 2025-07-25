@@ -72,23 +72,24 @@ const FolderTreeNode* AssetInspector::Navigate(const FolderTreeNode* p_node) {
     return nullptr;
 }
 
-static void DrawAssetCard(ImTextureID texture, const char* name, const char* subtext, ImVec2 imageSize) {
+static void DrawAssetCard(ImTextureID texture, const char* name, ImVec2 imageSize) {
     ImDrawList* draw = ImGui::GetWindowDrawList();
     ImVec2 pos = ImGui::GetCursorScreenPos();
 
     const float rounding = 6.0f;
     const float padding = 6.0f;
     const float spacing = 4.0f;
-    const float shadowOffset = 6.0f;
+    const float shadow_offset = 5.0f;
 
     // Estimate text height: 2 lines + padding
     float textHeight = ImGui::GetFontSize() * 2 + spacing * 2;
     ImVec2 cardSize = ImVec2(imageSize.x + padding * 2, imageSize.y + textHeight);
 
     // Shadow behind card
-    draw->AddRectFilled(pos + ImVec2(shadowOffset, shadowOffset),
-                        pos + cardSize + ImVec2(shadowOffset, shadowOffset),
-                        IM_COL32(0, 0, 0, 160), rounding);
+    draw->AddRectFilled(pos + ImVec2(shadow_offset, shadow_offset),
+                        pos + cardSize + ImVec2(shadow_offset, shadow_offset),
+                        IM_COL32(10, 10, 10, 160),
+                        rounding);
 
     // Card background (lighter than ImGui window)
     ImU32 cardBg = IM_COL32(40, 40, 40, 255);
@@ -109,8 +110,8 @@ static void DrawAssetCard(ImTextureID texture, const char* name, const char* sub
     ImVec2 textStart = imagePos + ImVec2(0, imageSize.y + spacing);
     draw->AddText(textStart, IM_COL32_WHITE, name);
 
-    ImVec2 subTextPos = textStart + ImVec2(0, ImGui::GetFontSize() + 2);
-    draw->AddText(subTextPos, IM_COL32(160, 160, 160, 220), subtext);
+    // ImVec2 subTextPos = textStart + ImVec2(0, ImGui::GetFontSize() + 2);
+    // draw->AddText(subTextPos, IM_COL32(160, 160, 160, 220), subtext);
 
     // Hover outline
     if (hovered) {
@@ -181,7 +182,6 @@ void AssetInspector::DrawContentBrowser() {
 
         DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
                       path.data(),
-                      "dummy",
                       thumbnail_size);
 
 #if 0
