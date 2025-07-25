@@ -221,7 +221,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
             break;
         }
 
-        auto loader = IAssetLoader::Create(entry->metadata);
+        auto loader = IAssetLoader::Create(entry->metadata.import_path);
         if (!loader) {
             LOG_ERROR("No suitable loader found for asset '{}'", entry->metadata.import_path);
             entry->MarkFailed();
