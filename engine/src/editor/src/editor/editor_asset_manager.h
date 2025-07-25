@@ -12,6 +12,8 @@ public:
     std::shared_ptr<ImageAsset> FindImage(const std::string& p_name);
 
 protected:
+    Result<void> AddAlwaysLoadImages();
+
     std::unordered_map<std::string, std::shared_ptr<ImageAsset>> m_images;
 };
 

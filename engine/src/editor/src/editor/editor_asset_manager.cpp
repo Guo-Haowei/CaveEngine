@@ -10,26 +10,22 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-[[nodiscard]] static std::shared_ptr<ImageAsset> CreateImageAsset(const std::string& p_import_path) {
+[[nodiscard]] static auto CreateImageAsset(const std::string& p_import_path) -> Result<std::shared_ptr<ImageAsset>> {
     auto loader = IAssetLoader::Create(p_import_path);
     if (!loader) {
-        return nullptr;
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "no loader found for '{}'", p_import_path);
     }
 
     auto res = loader->Load();
     if (!res) {
-        LOG_ERROR("Failed to load {}", p_import_path);
-        return nullptr;
+        return CAVE_ERROR(res.error());
     }
 
     return std::dynamic_pointer_cast<ImageAsset>(*res);
 }
 
-Result<void> EditorAssetManager::InitializeImpl() {
-    if (auto res = AssetManager::InitializeImpl(); !res) {
-        return std::unexpected(res.error());
-    }
-
+Result<void> EditorAssetManager::AddAlwaysLoadImages() {
+    // @TODO: fix this path, it won't work if the file is moved
     std::string_view tmp = StringUtils::BasePath(__FILE__);
     tmp = StringUtils::BasePath(tmp);
     tmp = StringUtils::BasePath(tmp);
@@ -41,14 +37,25 @@ Result<void> EditorAssetManager::InitializeImpl() {
             fs::path path = entry.path();
             fs::path file_name = path.filename();
 
-            if (auto image = CreateImageAsset(path.string()); image) {
-                m_images[file_name.string()] = image;
-                m_app->GetGraphicsManager()->RequestTexture(image.get());
+            auto res = CreateImageAsset(path.string());
+            if (!res) {
+                return CAVE_ERROR(res.error());
             }
+            auto image = *res;
+            m_images[file_name.string()] = image;
+            m_app->GetGraphicsManager()->RequestTexture(image.get());
         }
     }
 
     return Result<void>();
+}
+
+Result<void> EditorAssetManager::InitializeImpl() {
+    if (auto res = AssetManager::InitializeImpl(); !res) {
+        return std::unexpected(res.error());
+    }
+
+    return AddAlwaysLoadImages();
 }
 
 std::shared_ptr<ImageAsset> EditorAssetManager::FindImage(const std::string& p_name) {
