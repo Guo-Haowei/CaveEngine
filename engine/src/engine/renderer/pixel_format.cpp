@@ -8,6 +8,8 @@ uint32_t ChannelSize(PixelFormat p_format) {
         case PixelFormat::R8G8_UINT:
         case PixelFormat::R8G8B8_UINT:
         case PixelFormat::R8G8B8A8_UINT:
+        case PixelFormat::R8G8B8A8_UNORM:
+        case PixelFormat::R8G8B8A8_UNORM_SRGB:
             return sizeof(uint8_t);
         case PixelFormat::R16_FLOAT:
         case PixelFormat::R16G16_FLOAT:
@@ -20,8 +22,6 @@ uint32_t ChannelSize(PixelFormat p_format) {
         case PixelFormat::R32G32B32A32_FLOAT:
         case PixelFormat::D32_FLOAT:
             return sizeof(float);
-        case PixelFormat::R8G8B8A8_UNORM:
-            return sizeof(uint8_t);
         default:
             CRASH_NOW();
             return 0;
@@ -47,6 +47,7 @@ uint32_t ChannelCount(PixelFormat p_format) {
         case PixelFormat::R16G16B16A16_FLOAT:
         case PixelFormat::R32G32B32A32_FLOAT:
         case PixelFormat::R8G8B8A8_UNORM:
+        case PixelFormat::R8G8B8A8_UNORM_SRGB:
             return 4;
         default:
             CRASH_NOW();

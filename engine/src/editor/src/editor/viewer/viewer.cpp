@@ -155,7 +155,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
             tab.reset(new MaterialEditor(m_editor, *this));
             break;
         default:
-            LOG_WARN("Can't open tab {}", ToString(p_type));
+            LOG_WARN("Can't open tab {}", EnumTraits<AssetType>::ToString(p_type));
             return;
     }
 

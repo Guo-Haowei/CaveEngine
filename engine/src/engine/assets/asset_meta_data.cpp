@@ -9,9 +9,6 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-// @TODO: use meta table to auto load
-// @TODO: enum serialization
-
 auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     YAML::Node root;
     if (auto res = LoadYaml(p_path, root); !res) {
@@ -22,26 +19,38 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
 
     YamlDeserializer d;
     d.Initialize(root);
-    if (d.TryEnterKey("guid")) {
-        d.Read(meta.guid);
-        d.LeaveKey();
+    d.Read(meta);
+
+    // meta sys path
+    std::string sys_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, p_path);
+    if (meta.source_created_time.empty()) {
+        meta.source_created_time = std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now());
     }
-    if (d.TryEnterKey("type")) {
-        std::string type;
-        d.Read(type);
-        meta.type = AssetTypeFromString(type);
-        DEV_ASSERT(meta.type != AssetType::Unknown);
-        d.LeaveKey();
+
+    // asset sys path
+    sys_path.resize(sys_path.size() - 5);  // remove '.meta'
+    if (fs::exists(sys_path)) {
+        auto ftime = fs::last_write_time(sys_path);
+        auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+        meta.source_last_modified = std::format("{:%Y-%m-%d %H:%M:%S}", sctp);
     }
-    if (d.TryEnterKey("name")) {
-        d.Read(meta.name);
-        d.LeaveKey();
-    }
-    if (d.TryEnterKey("import_path")) {
-        d.Read(meta.import_path);
-        d.LeaveKey();
-    }
+
     return meta;
+}
+
+Result<void> AssetMetaData::SaveToDisk(const IAsset* p_asset) const {
+    YamlSerializer yaml;
+
+    std::string asset_name = name;
+    if (asset_name.empty()) {
+        asset_name = StringUtils::FileName(import_path.c_str(), '/');
+    }
+
+    dependencies = p_asset->GetDependencies();
+
+    yaml.Write(*this);
+    auto meta_path = std::format("{}.meta", import_path);
+    return SaveYaml(meta_path, yaml);
 }
 
 auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData> {
@@ -51,9 +60,7 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     AssetType type = AssetType::Blob;
     if (extension == ".png" || extension == ".jpg" || extension == ".hdr") {
         type = AssetType::Image;
-    } else if (extension == ".ttf") {
-        type = AssetType::Blob;
-    } else if (extension == ".lua") {
+    } else if (extension == ".ttf" || extension == ".lua") {
         type = AssetType::Blob;
     } else if (extension == ".tileset") {
         type = AssetType::TileSet;
@@ -77,35 +84,6 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     meta.import_path = p_path;
 
     return Some(meta);
-}
-
-auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
-    YamlSerializer yaml;
-
-    std::string asset_name = name;
-    if (asset_name.empty()) {
-        asset_name = StringUtils::FileName(import_path.c_str(), '/');
-    }
-
-    yaml.BeginMap(false)
-        .Key("guid")
-        .Write(guid)
-        .Key("type")
-        .Write(ToString(type))
-        .Key("name")
-        .Write(asset_name)
-        .Key("import_path")
-        .Write(import_path);
-
-    if (p_asset) {
-        yaml.Key("dependencies")
-            .Write(p_asset->GetDependencies());
-    }
-
-    yaml.EndMap();
-
-    auto meta_path = std::format("{}.meta", import_path);
-    return SaveYaml(meta_path, yaml);
 }
 
 }  // namespace cave

@@ -55,17 +55,15 @@ Option<Guid> Guid::Parse(const char* p_start, size_t p_length) {
 }
 
 std::string Guid::ToString() const {
-    // @TODO: fixed string builder
-    StringStreamBuilder builder;
-    int i = 0;
-    while (i < array_length(m_data)) {
-        builder.Append(std::format("{:02X}", m_data[i++]));
-        if (i == 4 || i == 6 || i == 8) {
-            builder.Append('-');
-        }
-    }
-
-    return builder.ToString();
+    char buf[64];
+    const uint8_t* data = m_data;
+    std::snprintf(buf, sizeof(buf),
+                  "%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X%02X%02X",
+                  data[0], data[1], data[2], data[3],
+                  data[4], data[5], data[6], data[7],
+                  data[8], data[9], data[10], data[11],
+                  data[12], data[13], data[14], data[15]);
+    return buf;
 }
 
 }  // namespace cave

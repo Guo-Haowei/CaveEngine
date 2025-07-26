@@ -223,7 +223,18 @@ std::vector<Guid> Scene::GetDependencies() const {
     for (const auto& [id, mesh_renderer] : View<MeshRendererComponent>()) {
         dependencies.push_back(mesh_renderer.GetResourceGuid());
     }
-    return {};
+
+    dependencies.erase(
+        std::remove_if(dependencies.begin(), dependencies.end(),
+                       [](Guid p_guid) {
+                           // @HACK: replace the last two digits to see if guid is 0
+                           uint8_t* data = const_cast<uint8_t*>(p_guid.GetData());
+                           data[15] = 0;
+                           return p_guid.IsNull();
+                       }),
+        dependencies.end());
+
+    return dependencies;
 }
 
 // LATEST_SCENE_VERSION history

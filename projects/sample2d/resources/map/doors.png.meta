@@ -1,4 +1,10 @@
-guid: 072AA41E-00C5-434B-900A84486CD248AE
 type: image
+guid: 072AA41E-00C5-434B-900A84486CD248AE
 name: doors.png
 import_path: "@res://map/doors.png"
+dependencies: []
+source_created_time: 2025-07-26 13:51:57.6362162
+source_last_modified: 2025-07-20 07:55:21.5282602
+import_settings:
+  color_space: linear
+  sampler: point

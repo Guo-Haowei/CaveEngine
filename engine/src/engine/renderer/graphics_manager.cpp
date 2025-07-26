@@ -242,6 +242,12 @@ static void FillTextureAndSamplerDesc(const ImageAsset* p_image, GpuTextureDesc&
         p_sampler_desc.minFilter = MinFilter::LINEAR_MIPMAP_LINEAR;
         p_sampler_desc.magFilter = MagFilter::LINEAR;
     }
+
+    // override sampler
+    if (p_image->sampler == ImageAsset::Sampler::Point) {
+        p_sampler_desc.minFilter = MinFilter::POINT;
+        p_sampler_desc.magFilter = MagFilter::POINT;
+    }
 }
 
 std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) {

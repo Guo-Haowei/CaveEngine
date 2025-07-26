@@ -63,6 +63,8 @@ static struct {
 static AssetRef CreateAssetInstance(AssetType p_type) {
     // @TODO: [SCRUM-222] refactor this part
     switch (p_type) {
+        case AssetType::Image:
+            return std::make_shared<ImageAsset>();
         case AssetType::Scene:
             return std::make_shared<Scene>();
         case AssetType::TileSet:
@@ -112,10 +114,6 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     IAssetLoader::RegisterLoader(".glsl", BufferAssetLoader::CreateLoader);
 #endif
 
-    IAssetLoader::RegisterLoader(".png", ImageAssetLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".jpg", ImageAssetLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".hdr", ImageAssetLoader::CreateLoaderF);
-
     return Result<void>();
 }
 
@@ -148,7 +146,7 @@ Result<Guid> AssetManager::CreateAsset(AssetType p_type,
 
     // 1. Creates both meta and file
     fs::path new_file = p_folder;
-    const char* ext = ToString(p_type);
+    const char* ext = EnumTraits<AssetType>::ToString(p_type).data();
     auto name = std::format("{}_{}.{}", p_name ? p_name : "untitled", ++m_counter, ext);
     new_file = new_file / name;
 

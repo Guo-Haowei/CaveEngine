@@ -77,29 +77,4 @@ void MaterialAsset::OnDeserialized() {
 #endif
 }
 
-#if 0
-void MaterialAsset::Serialize(Archive& p_archive, uint32_t p_version) {
-    unused(p_version);
-
-    p_archive.ArchiveValue(metallic);
-    p_archive.ArchiveValue(roughness);
-    p_archive.ArchiveValue(emissive);
-    p_archive.ArchiveValue(baseColor);
-
-    // @TODO: refactor this
-    if (p_archive.IsWriteMode()) {
-        for (int i = 0; i < TEXTURE_MAX; ++i) {
-            p_archive << textures[i].enabled;
-            p_archive << textures[i].path;
-        }
-    } else {
-        for (int i = 0; i < TEXTURE_MAX; ++i) {
-            p_archive >> textures[i].enabled;
-            std::string& path = textures[i].path;
-            p_archive >> path;
-        }
-    }
-}
-#endif
-
 }  // namespace cave
