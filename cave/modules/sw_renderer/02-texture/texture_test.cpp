@@ -1,5 +1,5 @@
-#include "../loader/loader.h"
-#include "example_base.h"
+#include "../rasterizer/example_base.h"
+#include "../rasterizer/loader.h"
 
 #ifndef ASSET_DIR
 #define ASSET_DIR
@@ -87,7 +87,7 @@ void TextureTest::postInit() {
     PV = P * V;
 
     // texture
-    loadTexture(m_texture, ASSET_DIR "images/texture.jpg");
+    loadTexture(m_texture, SOURCE_DIR "/texture.jpg");
     m_fs.m_cubeTexture = &m_texture;
 }
 
