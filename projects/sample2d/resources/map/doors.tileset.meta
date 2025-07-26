@@ -4,6 +4,6 @@ name: doors.tileset
 import_path: "@res://map/doors.tileset"
 dependencies: [072AA41E-00C5-434B-900A84486CD248AE]
 source_created_time: 2025-07-26 13:51:57.6389953
-source_last_modified: 2025-07-26 13:52:02.2448811
+source_last_modified: 2025-07-26 13:55:14.6049485
 import_settings:
   {}
