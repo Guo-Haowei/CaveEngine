@@ -58,7 +58,6 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 #endif
 
 static void ExecuteDrawCommands(const FrameData& p_data, const std::vector<RenderCommand>& p_commands, bool p_is_prepass = false) {
-
     CAVE_PROFILE_EVENT();
 
     auto& gm = IGraphicsManager::GetSingleton();
@@ -594,10 +593,6 @@ void RenderGraphBuilderExt::AddLightingPass() {
 
 /// Sky
 static void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
-    if (p_ctx.frameData.transparent_commands.empty()) {
-        return;
-    }
-
     RENDER_PASS_FUNC();
 
     auto& gm = p_ctx.cmd;
@@ -612,7 +607,8 @@ static void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
     const PassContext& pass = p_ctx.frameData.mainPass;
     gm.BindConstantBufferSlot<PerPassConstantBuffer>(gm.GetCurrentFrame().passCb.get(), pass.pass_idx);
 
-    if (p_ctx.frameData.options.iblEnabled) {
+    // if (p_ctx.frameData.options.iblEnabled)
+    {
         gm.SetPipelineState(PSO_ENV_SKYBOX);
         gm.SetStencilRef(STENCIL_FLAG_SKY);
         gm.DrawSkybox();

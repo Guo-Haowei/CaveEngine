@@ -1,0 +1,9 @@
+type: mat
+guid: 7473C617-5597-D64F-B6D0ADD1A2195E0D
+name: ""
+import_path: "@res://materials/no_texture.mat"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

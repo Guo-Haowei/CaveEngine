@@ -176,7 +176,6 @@ void RenderSystem::BeginFrame() {
     m_frameData = new FrameData(options);
     static bool s_firstFrame = true;
     m_frameData->bakeIbl = s_firstFrame;
-    m_frameData->bakeIbl = false;
     s_firstFrame = false;
 }
 
