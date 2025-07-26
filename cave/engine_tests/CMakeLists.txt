@@ -1,4 +1,4 @@
-set(TARGET_NAME engine.tests)
+set(TARGET_NAME engine_tests)
 
 file(GLOB_RECURSE SRC
     "*.h"

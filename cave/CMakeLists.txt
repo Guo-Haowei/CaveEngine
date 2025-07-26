@@ -5,5 +5,5 @@ add_subdirectory(editor)
 add_subdirectory(shader)
 
 if (NOT EMSCRIPTEN)
-    # add_subdirectory(tests)
+    add_subdirectory(engine_tests)
 endif()
