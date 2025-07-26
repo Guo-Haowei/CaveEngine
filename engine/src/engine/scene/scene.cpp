@@ -226,7 +226,7 @@ std::vector<Guid> Scene::GetDependencies() const {
 
     dependencies.erase(
         std::remove_if(dependencies.begin(), dependencies.end(),
-                       [](Guid p_guid) {
+                       [](const Guid& p_guid) {
                            uint8_t* data = const_cast<uint8_t*>(p_guid.GetData());
                            data[15] = 0;
                            return p_guid.IsNull();
