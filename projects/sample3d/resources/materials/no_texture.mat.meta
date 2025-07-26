@@ -1,9 +1,9 @@
 type: mat
 guid: 7473C617-5597-D64F-B6D0ADD1A2195E0D
-name: ""
+name: no_texture
 import_path: "@res://materials/no_texture.mat"
 dependencies: []
-source_created_time: ""
-source_last_modified: ""
+source_created_time: 2025-07-26 14:42:06.5245126
+source_last_modified: 2025-07-26 14:41:48.4213052
 import_settings:
   {}

@@ -31,8 +31,7 @@ void MaterialEditor::OnCreate(const Guid& p_guid) {
         auto root = EntityFactory::CreateTransformEntity(*scene, "material_test");
         scene->m_root = root;
 
-        // add light
-        {
+        if constexpr (0) { // add light
             auto id = EntityFactory::CreateInfiniteLightEntity(*scene, "light");
             LightComponent& light = *scene->GetComponent<LightComponent>(id);
             light.SetCastShadow();
@@ -43,7 +42,17 @@ void MaterialEditor::OnCreate(const Guid& p_guid) {
             scene->AttachChild(id);
         }
 
-        // add sphere
+        if constexpr (0) // add plane
+        {
+            auto id = EntityFactory::CreatePlaneEntity(*scene, "plane");
+            TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
+            transform.SetScale(Vector3f(5));
+            transform.RotateX(Degree(-90.0f));
+
+            scene->AttachChild(id);
+        }
+
+        if constexpr (1)  // add sphere
         {
             auto id = EntityFactory::CreateSphereEntity(*scene, "sphere");
             MeshRendererComponent* renderer = scene->GetComponent<MeshRendererComponent>(id);
@@ -54,16 +63,6 @@ void MaterialEditor::OnCreate(const Guid& p_guid) {
 
             TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
             transform.SetTranslation(Vector3f(0.0f, 0.55f, 0.0f));
-
-            scene->AttachChild(id);
-        }
-
-        // add ground
-        {
-            auto id = EntityFactory::CreatePlaneEntity(*scene, "plane");
-            TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
-            transform.SetScale(Vector3f(5));
-            transform.RotateX(Degree(-90.0f));
 
             scene->AttachChild(id);
         }
