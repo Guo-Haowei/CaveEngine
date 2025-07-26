@@ -87,7 +87,7 @@ struct FrameData {
 
     PerFrameConstantBuffer perFrameCache;
     BufferCache<PerBatchConstantBuffer> batchCache;
-    BufferCache<MaterialConstantBuffer, Guid> materialCache;
+    BufferCache<MaterialConstantBuffer> materialCache;
     std::vector<PerPassConstantBuffer> passCache;
     std::array<PointShadowConstantBuffer, MAX_POINT_LIGHT_SHADOW_COUNT * 6> pointShadowCache;
     BufferCache<BoneConstantBuffer> boneCache;

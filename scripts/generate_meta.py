@@ -27,6 +27,7 @@ FILES = [
     'scene/camera_component.h',
     'scene/light_component.h',
     'scene/lua_script_component.h',
+    'scene/material_component.h',
     'scene/transform_component.h',
     'scene/scene_component.h',
 

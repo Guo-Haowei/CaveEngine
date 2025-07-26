@@ -1,17 +1,17 @@
 #pragma once
-#include "viewer_tab.h"
-
-#include "engine/input/input_event.h"
 #include "engine/scene/camera_component.h"
+
+#include "editor/viewer/viewer_tab.h"
 
 namespace cave {
 
-class SceneDocument;
-class Viewer;
+struct MaterialAsset;
 
-class SceneEditor : public ViewerTab {
+using MaterialDocument = Document;
+
+class MaterialEditor : public ViewerTab {
 public:
-    SceneEditor(EditorLayer& p_editor, Viewer& p_viewer);
+    MaterialEditor(EditorLayer& p_editor, Viewer& p_viewer);
 
     bool HandleInput(const InputEvent* p_input_event) override;
 
@@ -23,27 +23,22 @@ public:
 
     void DrawMainView(const CameraComponent& p_camera) override;
 
+    void DrawAssetInspector() override;
+
     Document& GetDocument() const override;
 
     Scene* GetScene() override;
 
 protected:
+    void DrawTextureSlots(MaterialAsset& p_material);
+
     const CameraComponent& GetActiveCameraInternal() const override;
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 
-    GizmoAction m_state{ GizmoAction::Translate };
-
-    void Select(const Vector2f& p_cursor);
-
-    std::shared_ptr<SceneDocument> m_document;
-
-    std::array<CameraComponent, 2> m_cameras;
-    mutable int m_camera_idx = 0;
-
-    ToolBarButtonDesc m_play_button;
-    ToolBarButtonDesc m_pause_button;
-    ToolBarButtonDesc m_toggle_view_button;
+    std::shared_ptr<Scene> m_tmp_scene;
+    std::shared_ptr<MaterialDocument> m_document;
+    CameraComponent m_camera;
 };
 
 }  // namespace cave

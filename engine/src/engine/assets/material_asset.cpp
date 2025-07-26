@@ -13,9 +13,9 @@ const MaterialAsset* MaterialAsset::Default() {
 std::vector<Guid> MaterialAsset::GetDependencies() const {
     std::vector<Guid> dependencies;
     dependencies.reserve(textures.size());
-    for (const auto& texture : textures) {
-        if (!texture.image_id.IsNull()) {
-            dependencies.push_back(texture.image_id);
+    for (const auto& guid : textures) {
+        if (!guid.IsNull()) {
+            dependencies.push_back(guid);
         }
     }
     return dependencies;

@@ -16,8 +16,9 @@
 
 // asset editors
 #include "editor/animation_editor/sprite_animation_editor.h"
+#include "editor/material_editor/material_editor.h"
+#include "editor/scene_editor/scene_editor.h"
 #include "editor/tile_map_editor/tile_map_editor.h"
-#include "editor/viewer/scene_editor.h"
 
 namespace cave {
 
@@ -149,6 +150,9 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
             break;
         case AssetType::SpriteAnimation:
             tab.reset(new SpriteAnimationEditor(m_editor, *this));
+            break;
+        case AssetType::Material:
+            tab.reset(new MaterialEditor(m_editor, *this));
             break;
         default:
             LOG_WARN("Can't open tab {}", ToString(p_type));

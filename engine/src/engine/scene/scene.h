@@ -13,10 +13,11 @@
 #include "engine/scene/collider_component.h"
 #include "engine/scene/light_component.h"
 #include "engine/scene/lua_script_component.h"
+#include "engine/scene/material_component.h"
 #include "engine/scene/mesh_renderer_component.h"
-#include "engine/scene/transform_component.h"
 #include "engine/scene/sprite_renderer_component.h"
 #include "engine/scene/tile_map_renderer_component.h"
+#include "engine/scene/transform_component.h"
 
 namespace cave::jobsystem {
 class Context;
@@ -35,6 +36,7 @@ namespace cave {
     REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)             \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
     REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)     \
+    REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)             \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0) \
     REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
 

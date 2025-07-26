@@ -303,17 +303,6 @@ auto PipelineStateManager::Initialize() -> Result<void> {
                               });
 #pragma endregion PSO_ENV
 
-    CREATE_PSO(PSO_RW_TEXTURE_2D, {
-                                      .vs = "debug_draw_texture.vs",
-                                      .ps = "debug_draw_texture.ps",
-                                      .rasterizerDesc = &s_rasterizerFrontFace,
-                                      .depthStencilDesc = &s_depthStencilDisabled,
-                                      .inputLayoutDesc = &s_input_layout_position,
-                                      .blendDesc = &s_blendStateDefault,
-                                      .numRenderTargets = 1,
-                                      .rtvFormats = { DEFAULT_SURFACE_FORMAT },
-                                  });
-
     // @HACK: only support this many shaders
     if (IGraphicsManager::GetSingleton().GetBackend() == Backend::D3D12) {
         return ok;

@@ -2,6 +2,7 @@
 #include "primitive_meshes.h"
 
 #include "engine/assets/blob_asset.h"
+#include "engine/assets/material_asset.h"
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
@@ -62,6 +63,9 @@ static void RegisterPersistentImages() {
     }
 }
 
+static void RegisterPersistentMaterials() {
+}
+
 static void RegisterPersistentMeshes() {
     auto& asset_registry = AssetRegistry::GetSingleton();
     auto& graphics_manager = IGraphicsManager::GetSingleton();
@@ -112,6 +116,7 @@ static void RegisterPersistentMeshes() {
 void RegisterAllPersistentAssets() {
     RegisterPersistentFonts();
     RegisterPersistentImages();
+    RegisterPersistentMaterials();
     RegisterPersistentMeshes();
 }
 

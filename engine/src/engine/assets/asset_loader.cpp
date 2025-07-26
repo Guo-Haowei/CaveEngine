@@ -66,7 +66,7 @@ static PixelFormat ChannelToFormat(int p_channel, bool p_is_float) {
         case 3:
             return p_is_float ? PixelFormat::R32G32B32_FLOAT : PixelFormat::R8G8B8_UINT;
         case 4:
-            return p_is_float ? PixelFormat::R32G32B32A32_FLOAT : PixelFormat::R8G8B8A8_UINT;
+            return p_is_float ? PixelFormat::R32G32B32A32_FLOAT : PixelFormat::R8G8B8A8_UNORM;
         default:
             CRASH_NOW();
             return PixelFormat::UNKNOWN;

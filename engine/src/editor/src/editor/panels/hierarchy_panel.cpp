@@ -93,10 +93,8 @@ void HierarchyCreator::DrawNode(ViewerTab* p_tab, HierarchyNode* p_hier, ImGuiTr
     const Scene& p_scene = *p_tab->GetScene();
     DEV_ASSERT(p_hier);
     Entity id = p_hier->entity;
-    const MeshRendererComponent* renderer = p_scene.GetComponent<MeshRendererComponent>(id);
-    const MeshAsset* mesh_asset = renderer ? renderer->GetMeshHandle().Get() : nullptr;
 
-    p_flags |= (p_hier->children.empty() && !mesh_asset) ? ImGuiTreeNodeFlags_Leaf : 0;
+    p_flags |= p_hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
     p_flags |= p_tab->GetSelectedEntity() == id ? ImGuiTreeNodeFlags_Selected : 0;
 
     const bool expanded = TreeNodeHelper(
@@ -112,18 +110,6 @@ void HierarchyCreator::DrawNode(ViewerTab* p_tab, HierarchyNode* p_hier, ImGuiTr
     if (expanded) {
         float indentWidth = 8.f;
         ImGui::Indent(indentWidth);
-
-        if (mesh_asset) {
-            Entity armature_id = mesh_asset->armatureId;
-            if (armature_id.IsValid()) {
-                ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;
-                TreeNodeHelper(
-                    p_scene, armature_id, flags, [&]() {
-                        p_tab->SelectEntity(armature_id);
-                    },
-                    nullptr);
-            }
-        }
 
         for (auto& child : p_hier->children) {
             DrawNode(p_tab, child);

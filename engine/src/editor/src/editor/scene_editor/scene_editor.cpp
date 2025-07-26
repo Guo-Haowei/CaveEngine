@@ -9,7 +9,7 @@
 #include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
-#include "editor/viewer/scene_document.h"
+#include "editor/scene_editor/scene_document.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
@@ -92,16 +92,6 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     Scene& scene = *m_document->m_scene.get();
     ecs::Entity id = GetSelectedEntity();
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
-
-#if 0
-    if (transform_component) {
-        LightComponent* light = scene.GetComponent<LightComponent>(id);
-        if (light && light->GetType() == LIGHT_TYPE_INFINITE) {
-            const auto& matrix = transform_component->GetWorldMatrix();
-            ImGuizmo::DrawCone(proj_view, matrix);
-        }
-    }
-#endif
 
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {

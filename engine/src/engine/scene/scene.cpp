@@ -216,6 +216,13 @@ Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
 }
 
 std::vector<Guid> Scene::GetDependencies() const {
+    std::vector<Guid> dependencies;
+    for (const auto& [id, material] : View<MaterialComponent>()) {
+        dependencies.push_back(material.m_material_id);
+    }
+    for (const auto& [id, mesh_renderer] : View<MeshRendererComponent>()) {
+        dependencies.push_back(mesh_renderer.GetResourceGuid());
+    }
     return {};
 }
 

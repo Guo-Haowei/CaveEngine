@@ -8,9 +8,6 @@ namespace cave {
 struct MeshRendererComponent {
     CAVE_META(MeshRendererComponent)
 
-    CAVE_PROP(editor = Asset)
-    Guid m_mesh_id;
-
     CAVE_PROP(editor = Visibility)
     bool m_is_visible = true;
 
@@ -20,12 +17,14 @@ struct MeshRendererComponent {
     CAVE_PROP(editor = Toggle)
     bool m_transparency = false;
 
+    CAVE_PROP(editor = Asset)
+    Guid m_mesh_id;
+
     CAVE_PROP()
-    std::vector<Guid> m_material_ids;
+    std::vector<ecs::Entity> m_materials;
 
     // Non-serialized
     Handle<MeshAsset> m_mesh_handle{};
-    std::vector<Handle<MaterialAsset>> m_material_handles{};
 
 public:
     MeshRendererComponent();
@@ -33,11 +32,10 @@ public:
     const Guid& GetResourceGuid() const { return m_mesh_id; }
     void SetResourceGuid(const Guid& p_guid);
 
-    auto& GetMaterialGuids() { return m_material_ids; }
-    const auto& GetMaterialGuids() const { return m_material_ids; }
+    auto& GetMaterialInstances() { return m_materials; }
+    const auto& GetMaterialInstances() const { return m_materials; }
 
-    auto& GetMaterialHandles() { return m_material_handles; }
-    const auto& GetMaterialHandles() const { return m_material_handles; }
+    void AddMaterial(ecs::Entity& p_material);
 
     const auto& GetMeshHandle() const { return m_mesh_handle; }
 

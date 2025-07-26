@@ -3,7 +3,6 @@
 #include <fstream>
 #include <latch>
 
-#include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager_interface.h"
@@ -79,6 +78,15 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 
         LOG_VERBOSE("'{}' not detected, creating", meta_path);
         assets.emplace_back(std::move(meta2));
+    }
+
+    // @HACK: load scene last
+    // @TODO: [SCRUM-245] need to figure out dependency
+    for (size_t i = 0; i < assets.size(); ++i) {
+        if (assets[i].type == AssetType::Scene) {
+            std::swap(assets[i], assets.back());
+            break;
+        }
     }
 
     std::latch latch(assets.size());
@@ -204,9 +212,7 @@ bool AssetRegistry::SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) 
 
     auto res = p_entry->asset->SaveToDisk(p_entry->metadata);
     if (!res) {
-        StringStreamBuilder builder;
-        builder << res.error();
-        LOG_ERROR("{}", builder.ToString());
+        LOG_ERROR("{}", ToString(res.error()));
         return false;
     }
 

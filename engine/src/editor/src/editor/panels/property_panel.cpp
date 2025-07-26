@@ -12,7 +12,7 @@
 
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
-#include "editor/viewer/scene_document.h"
+#include "editor/scene_editor/scene_document.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"
@@ -90,7 +90,9 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     const bool hovered = ImGui::IsItemHovered();
     if (auto _handle = DragDropTarget(type); _handle.is_some()) {
         if constexpr (HasSetResourceGuid<T>) {
-            p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
+            if (p_component) {
+                p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
+            }
         }
     }
 
@@ -100,6 +102,21 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     }
     return true;
 };
+
+static bool DrawCheckBox(const char* p_name,
+                         bool& p_val,
+                         float p_column_width = DEFAULT_COLUMN_WIDTH) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_column_width);
+    ImGui::Text("%s", p_name);
+    ImGui::NextColumn();
+
+    auto string_id = std::format("##{}", p_name);
+    const bool dirty = ImGui::Checkbox(string_id.c_str(), &p_val);
+
+    ImGui::Columns(1);
+    return dirty;
+}
 
 template<typename T>
 bool DrawComponentAuto(T* p_component) {
@@ -113,7 +130,7 @@ bool DrawComponentAuto(T* p_component) {
             } break;
             case EditorHint::Toggle: {
                 bool& toggle = field->template GetData<bool>(p_component);
-                dirty |= (int)ImGui::Checkbox(field->name, &toggle);
+                dirty |= (int)DrawCheckBox(field->name, toggle);
             } break;
             case EditorHint::Color: {
                 Vector4f& color = field->template GetData<Vector4f>(p_component);
@@ -219,6 +236,7 @@ void PropertyPanel::UpdateInternal() {
 
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
     LightComponent* light_component = scene.GetComponent<LightComponent>(id);
+    MaterialComponent* material_component = scene.GetComponent<MaterialComponent>(id);
     ColliderComponent* collider = scene.GetComponent<ColliderComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 #if 0
@@ -249,6 +267,9 @@ void PropertyPanel::UpdateInternal() {
         bool dirty = DrawComponentAuto<LightComponent>(&p_light);
         if (dirty) {
             p_light.SetDirty();
+        }
+        if (material_component) {
+            DrawComponentAuto<MaterialComponent>(material_component);
         }
     });
 
@@ -311,6 +332,12 @@ void PropertyPanel::UpdateInternal() {
 
     DrawComponent("MeshRenderer", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
         DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
+
+        for (ecs::Entity id : p_mesh_renderer.GetMaterialInstances()) {
+            if (MaterialComponent* material = scene.GetComponent<MaterialComponent>(id); material) {
+                DrawComponentAuto<MaterialComponent>(material);
+            }
+        }
     });
 
     DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {

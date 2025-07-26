@@ -44,19 +44,20 @@ float4 main(VS_OUTPUT_UV input)
         return float4(0.98, 0.64, 0.0, 1.0);
     }
 
-    float3 color = t_TextureLighting.Sample(s_linearClampSampler, uv).rgb;
+    float3 hdr_color = t_TextureLighting.Sample(s_linearClampSampler, uv).rgb;
 
     // Bloom
-
     if (c_enableBloom == 1) {
         float3 bloom = t_BloomInputTexture.Sample(s_linearClampSampler, uv).rgb;
-        color += bloom;
+        hdr_color += bloom;
     }
 
     // Gamma correction
-    // HDR tonemapping
-    color = color / (color + float3(1.0f, 1.0f, 1.0f));
+    const float exposure = 1.0f;
     const float gamma = 2.2f;
+
+    float3 color = hdr_color * exposure;
+    color = color / (color + float3(1.0f, 1.0f, 1.0f));
     color = pow(color, 1.0f / float3(gamma, gamma, gamma));
 
     return float4(color, 1.0);

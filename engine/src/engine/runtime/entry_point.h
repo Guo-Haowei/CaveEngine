@@ -1,6 +1,5 @@
 #pragma once
 #include "engine/core/dynamic_variable/dynamic_variable_manager.h"
-#include "engine/core/string/string_builder.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/engine.h"
 
@@ -57,9 +56,7 @@ int Main(int p_argc, const char** p_argv) {
         DEV_ASSERT(app);
 
         if (auto res = app->Initialize(); !res) {
-            StringStreamBuilder builder;
-            builder << res.error();
-            LOG_ERROR("{}", builder.ToString());
+            LOG_ERROR("{}", ToString(res.error()));
         } else {
             Application::Run(app);
         }

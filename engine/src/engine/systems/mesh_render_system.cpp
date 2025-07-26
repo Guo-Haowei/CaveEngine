@@ -1,3 +1,4 @@
+#include "engine/assets/image_asset.h"
 #include "engine/assets/material_asset.h"
 #include "engine/math/frustum.h"
 #include "engine/math/geometry.h"
@@ -12,39 +13,48 @@ using FilterObjectFunc1 = std::function<bool(const MeshRendererComponent& p_obje
 using FilterObjectFunc2 = std::function<bool(const AABB& p_object_aabb)>;
 
 // @TODO: fix this function OMG
-static void FillMaterialConstantBuffer(bool p_is_opengl, const MaterialAsset* p_material, MaterialConstantBuffer& cb) {
+static void FillMaterialConstantBuffer(bool p_is_opengl,
+                                       const MaterialComponent* p_material,
+                                       MaterialConstantBuffer& cb) {
     cb.c_hasBaseColorMap = false;
     cb.c_hasNormalMap = false;
     cb.c_hasMaterialMap = false;
     cb.c_hasHeightMap = false;
-
-    cb.c_baseColor = p_material->base_color;
-    cb.c_metallic = p_material->metallic;
-    cb.c_roughness = p_material->roughness;
-    cb.c_emissivePower = p_material->emissive;
-    cb.c_reflectPower = 0.0f;
 
     cb.c_baseColorMapHandle = 0;
     cb.c_normalMapHandle = 0;
     cb.c_materialMapHandle = 0;
     cb.c_heightMapHandle = 0;
 
-    // @TODO: [SCRUM-210] fix material
-    unused(p_is_opengl);
-#if 0
-    auto set_texture = [&](int p_idx,
-                           TextureHandle& p_out_handle,
-                           sampler_t& p_out_resident_handle) {
-        p_out_handle = 0;
-        p_out_resident_handle.Set64(0);
+    // @TODO: fix
+    if (p_material) {
+        cb.c_baseColor = p_material->base_color;
+        cb.c_metallic = p_material->metallic;
+        cb.c_roughness = p_material->roughness;
+        cb.c_emissivePower = p_material->emissive;
+        // cb.c_reflectPower = 0.0f;
+    } else {
+        cb.c_baseColor = Vector4f(1, 0, 1, 1);
+        cb.c_metallic = 0.5f;
+        cb.c_roughness = 0.5f;
+        cb.c_emissivePower = 0.0f;
+        // cb.c_reflectPower = 0.0f;
+    }
 
-        if (!p_material->textures[p_idx].enabled) {
+    // @TODO: [SCRUM-210] fix material
+    const auto& images = p_material->m_images;
+    unused(p_is_opengl);
+    auto set_texture = [&](TextureSlot p_idx,
+                           TextureHandle& p_out_handle) {
+        const int idx = std::to_underlying(p_idx);
+
+        p_out_handle = 0;
+
+        if ((int)images.size() <= idx) {
             return false;
         }
 
-        return false;
-// @TODO: at least fix this
-        const ImageAsset* image = AssetRegistry::GetSingleton().Request<ImageAsset>(p_material->textures[p_idx].path);
+        const ImageAsset* image = images[idx].Get();
         if (!image) {
             return false;
         }
@@ -54,21 +64,13 @@ static void FillMaterialConstantBuffer(bool p_is_opengl, const MaterialAsset* p_
             return false;
         }
 
-        const uint64_t resident_handle = texture->GetResidentHandle();
-
         p_out_handle = texture->GetHandle();
-        if (p_is_opengl) {
-            p_out_resident_handle.Set64(resident_handle);
-        } else {
-            p_out_resident_handle.Set32(static_cast<uint32_t>(resident_handle));
-        }
         return true;
     };
 
-    cb.c_hasBaseColorMap = set_texture(MaterialComponent::TEXTURE_BASE, cb.c_baseColorMapHandle, cb.c_BaseColorMapResidentHandle);
-    cb.c_hasNormalMap = set_texture(MaterialComponent::TEXTURE_NORMAL, cb.c_normalMapHandle, cb.c_NormalMapResidentHandle);
-    cb.c_hasMaterialMap = set_texture(MaterialComponent::TEXTURE_METALLIC_ROUGHNESS, cb.c_materialMapHandle, cb.c_MaterialMapResidentHandle);
-#endif
+    cb.c_hasBaseColorMap = set_texture(TextureSlot::Base, cb.c_baseColorMapHandle);
+    cb.c_hasNormalMap = set_texture(TextureSlot::Normal, cb.c_normalMapHandle);
+    cb.c_hasMaterialMap = set_texture(TextureSlot::MetallicRoughness, cb.c_materialMapHandle);
 };
 
 // @TODO: refactor this
@@ -148,9 +150,10 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
         bool cast_shadow = light_component.CastShadow();
         light.cast_shadow = cast_shadow;
         light.type = static_cast<int>(light_component.GetType());
+        const MaterialComponent& material = *p_scene.GetComponent<MaterialComponent>(light_entity);
         // @TODO: [SCRUM-210] fix material
-        light.color = light_component.GetBaseColor().xyz;
-        light.color *= light_component.GetEmissive();
+        light.color = material.base_color.xyz;
+        light.color *= material.emissive;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
                 Matrix4x4f light_local_matrix = light_transform->GetLocalMatrix();
@@ -388,8 +391,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
                 return;
             }
 
-            const auto& mat_handles = renderer.GetMaterialHandles();
-            const auto& mat_ids = renderer.GetMaterialGuids();
+            const auto& materials = renderer.GetMaterialInstances();
 
             for (size_t idx = 0; idx < mesh.subsets.size(); ++idx) {
                 const auto& subset = mesh.subsets[idx];
@@ -401,18 +403,16 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
                 // @TODO: [SCRUM-210] fix material
                 MaterialConstantBuffer material_buffer;
-                const MaterialAsset* material = MaterialAsset::Default();
-                Guid id = Guid::Null();
-                if (idx < mat_handles.size()) {
-                    material = mat_handles[idx].Get();
-                    id = mat_ids[idx];
-                }
+                ecs::Entity material_id =
+                    idx < materials.size() ? materials[idx] : ecs::Entity::Null();
+
+                const MaterialComponent* material = p_scene->GetComponent<MaterialComponent>(material_id);
 
                 FillMaterialConstantBuffer(is_opengl, material, material_buffer);
 
                 draw_cmd.index_count = subset.index_count;
                 draw_cmd.index_offset = subset.index_offset;
-                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(id, material_buffer);
+                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(material_id, material_buffer);
 
                 p_commands.emplace_back(RenderCommand::From(draw_cmd));
             }
