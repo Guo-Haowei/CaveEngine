@@ -45,12 +45,10 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
     const auto& images = p_material->m_images;
     unused(p_is_opengl);
     auto set_texture = [&](TextureSlot p_idx,
-                           TextureHandle& p_out_handle,
-                           sampler_t& p_out_resident_handle) {
+                           TextureHandle& p_out_handle) {
         const int idx = std::to_underlying(p_idx);
 
         p_out_handle = 0;
-        p_out_resident_handle.Set64(0);
 
         if ((int)images.size() <= idx) {
             return false;
@@ -66,20 +64,13 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
             return false;
         }
 
-        const uint64_t resident_handle = texture->GetResidentHandle();
-
         p_out_handle = texture->GetHandle();
-        if (p_is_opengl) {
-            p_out_resident_handle.Set64(resident_handle);
-        } else {
-            p_out_resident_handle.Set32(static_cast<uint32_t>(resident_handle));
-        }
         return true;
     };
 
-    cb.c_hasBaseColorMap = set_texture(TextureSlot::Base, cb.c_baseColorMapHandle, cb.c_BaseColorMapResidentHandle);
-    cb.c_hasNormalMap = set_texture(TextureSlot::Normal, cb.c_normalMapHandle, cb.c_NormalMapResidentHandle);
-    cb.c_hasMaterialMap = set_texture(TextureSlot::MetallicRoughness, cb.c_materialMapHandle, cb.c_MaterialMapResidentHandle);
+    cb.c_hasBaseColorMap = set_texture(TextureSlot::Base, cb.c_baseColorMapHandle);
+    cb.c_hasNormalMap = set_texture(TextureSlot::Normal, cb.c_normalMapHandle);
+    cb.c_hasMaterialMap = set_texture(TextureSlot::MetallicRoughness, cb.c_materialMapHandle);
 };
 
 // @TODO: refactor this

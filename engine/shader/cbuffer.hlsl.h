@@ -32,7 +32,6 @@ struct sampler_t {
 
 static_assert(sizeof(sampler_t) == sizeof(uint64_t));
 
-using sampler2D = sampler_t;
 using sampler3D = sampler_t;
 using samplerCube = sampler_t;
 
@@ -103,8 +102,11 @@ CBUFFER(PerPassConstantBuffer, 1) {
 };
 
 CBUFFER(MaterialConstantBuffer, 2) {
-    // 256
+    // 16 floats
     Vector4f c_baseColor;
+
+    Vector3f _material_padding_0;
+    int c_displayChannel;
 
     float c_metallic;
     float c_roughness;
@@ -116,28 +118,19 @@ CBUFFER(MaterialConstantBuffer, 2) {
     int c_hasNormalMap;
     int c_hasHeightMap;
 
-    Vector2f c_debugDrawPos;
-    Vector2f c_debugDrawSize;
-
-    // 256
-    Vector3f _material_padding_0;
-    int c_displayChannel;
-    Vector4f _material_padding_1;
-    Vector4f _material_padding_2;
-    Vector4f _material_padding_3;
-
-    // 256
+    // 16 floats
     TextureHandle c_baseColorMapHandle;
     TextureHandle c_normalMapHandle;
     TextureHandle c_materialMapHandle;
     TextureHandle c_heightMapHandle;
 
-    sampler2D c_BaseColorMapResidentHandle;
-    sampler2D c_NormalMapResidentHandle;
-    sampler2D c_MaterialMapResidentHandle;
-    sampler2D c_HeightMapResidentHandle;
+    Vector4f _material_padding_1;
+    Vector4f _material_padding_2;
 
-    // 256
+    // 16 floats
+    Matrix4x4f _material_padding_3;
+
+    // 16 floats
     Matrix4x4f _material_padding_4;
 };
 
