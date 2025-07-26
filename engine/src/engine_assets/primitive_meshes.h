@@ -350,7 +350,6 @@ static std::shared_ptr<MeshAsset> CreateCylinderMesh(float p_radius,
             Vector2f uv(0.5f + 0.5f * x / p_radius,
                         0.5f + 0.5f * z / p_radius);
 
-
             mesh->positions.emplace_back(point);
             mesh->normals.emplace_back(normal);
             mesh->texcoords_0.emplace_back(uv);
