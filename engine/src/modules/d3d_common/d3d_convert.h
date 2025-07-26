@@ -40,18 +40,20 @@
 namespace cave::d3d {
 
 static inline DXGI_FORMAT Convert(PixelFormat p_format) {
+    // @TODO: use macro
     switch (p_format) {
-        // @TODO: use macro
         case PixelFormat::UNKNOWN:
             return DXGI_FORMAT_UNKNOWN;
         case PixelFormat::R8_UINT:
             return DXGI_FORMAT_R8_UNORM;
         case PixelFormat::R8G8_UINT:
             return DXGI_FORMAT_R8G8_UNORM;
-        case PixelFormat::R8G8B8_UINT:
-            return DXGI_FORMAT_R8G8B8A8_UNORM;
         case PixelFormat::R8G8B8A8_UINT:
+            return DXGI_FORMAT_R8G8B8A8_UINT;
+        case PixelFormat::R8G8B8A8_UNORM:
             return DXGI_FORMAT_R8G8B8A8_UNORM;
+        case PixelFormat::R8G8B8A8_UNORM_SRGB:
+            return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
         case PixelFormat::R16_FLOAT:
             return DXGI_FORMAT_R16_FLOAT;
         case PixelFormat::R16G16_FLOAT:
@@ -90,8 +92,6 @@ static inline DXGI_FORMAT Convert(PixelFormat p_format) {
             return DXGI_FORMAT_R32G8X24_TYPELESS;
         case PixelFormat::D32_FLOAT_S8X24_UINT:
             return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-        case PixelFormat::R8G8B8A8_UNORM:
-            return DXGI_FORMAT_R8G8B8A8_UNORM;
         default:
             CRASH_NOW();
             return DXGI_FORMAT_UNKNOWN;

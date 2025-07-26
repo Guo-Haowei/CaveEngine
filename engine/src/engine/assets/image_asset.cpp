@@ -82,6 +82,9 @@ static Result<void> LoadImage(const AssetMetaData& p_meta, ImageAsset& p_image) 
     stbi_image_free(pixels);
 
     PixelFormat format = ChannelToFormat(num_channels, is_float);
+    if (format == PixelFormat::R8G8B8A8_UNORM && p_image.color_space == ImageAsset::ColorSpace::SRGB) {
+        format = PixelFormat::R8G8B8A8_UNORM_SRGB;
+    }
 
     p_image.format = format;
     p_image.width = width;
@@ -100,7 +103,6 @@ Result<void> ImageAsset::LoadFromDisk(const AssetMetaData& p_meta) {
 }
 
 Result<void> ImageAsset::SaveToDisk(const AssetMetaData& p_meta) const {
-    // @TODO:
     p_meta.import_settings["sampler"] = EnumTraits<Sampler>::ToString(sampler);
     p_meta.import_settings["color_space"] = EnumTraits<ColorSpace>::ToString(color_space);
 

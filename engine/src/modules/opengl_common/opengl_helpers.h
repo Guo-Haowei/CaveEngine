@@ -160,6 +160,7 @@ inline GLuint ConvertFormat(PixelFormat p_format) {
             return GL_RGB;
         case PixelFormat::R8G8B8A8_UINT:
         case PixelFormat::R8G8B8A8_UNORM:
+        case PixelFormat::R8G8B8A8_UNORM_SRGB:
         case PixelFormat::R10G10B10A2_UINT:
         case PixelFormat::R16G16B16A16_FLOAT:
         case PixelFormat::R32G32B32A32_FLOAT:
@@ -198,10 +199,14 @@ enum Format : uint32_t {
     RG16F = GL_RG16F,
     RGB16F = GL_RGB16F,
     RGBA16F = GL_RGBA16F,
+
     R32F = GL_R32F,
     RG32F = GL_RG32F,
     RGB32F = GL_RGB32F,
     RGBA32F = GL_RGBA32F,
+
+    SRGB8_ALPHA8 = GL_SRGB8_ALPHA8,
+
     R11F_G11F_B10F = GL_R11F_G11F_B10F,
     RGB10_A2 = GL_RGB10_A2,
     DEPTH_COMPONENT32F = GL_DEPTH_COMPONENT32F,
@@ -217,9 +222,11 @@ inline Format ConvertInternalFormat(PixelFormat p_format) {
             return RG8;
         case PixelFormat::R8G8B8_UINT:
             return RGB8;
-        case PixelFormat::R8G8B8A8_UNORM:
         case PixelFormat::R8G8B8A8_UINT:
+        case PixelFormat::R8G8B8A8_UNORM:
             return RGBA8;
+        case PixelFormat::R8G8B8A8_UNORM_SRGB:
+            return SRGB8_ALPHA8;
         case PixelFormat::R16_FLOAT:
             return R16F;
         case PixelFormat::R16G16_FLOAT:
@@ -263,6 +270,7 @@ inline GLuint ConvertDataType(PixelFormat p_format) {
         case PixelFormat::R8G8B8_UINT:
         case PixelFormat::R8G8B8A8_UINT:
         case PixelFormat::R8G8B8A8_UNORM:
+        case PixelFormat::R8G8B8A8_UNORM_SRGB:
         case PixelFormat::R10G10B10A2_UINT:
             return GL_UNSIGNED_BYTE;
         case PixelFormat::R16_FLOAT:

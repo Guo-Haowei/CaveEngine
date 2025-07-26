@@ -1,5 +1,5 @@
 version: 19
-seed: 9
+seed: 13
 root: 1
 physics_mode: 0
 entities:
@@ -41,8 +41,8 @@ entities:
       parent_id: 1
     TransformComponent:
       translation: [0, 0, 0]
-      rotation: [0.604845285, -0.333486676, -0.541005731, -0.479855865]
-      scale: [1.00000024, 1.00000095, 1.0000006]
+      rotation: [-0.50405097, 0.247044399, 0.635970175, 0.529569149]
+      scale: [1.00000012, 1.00000238, 1.00000131]
     LightComponent:
       type: infinite
       atten_constant: 1
@@ -112,9 +112,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 3.09961724, -3.35648735e-07]
-      rotation: [0.70710665, 0, 0, 0.707106888]
-      scale: [1.88, 1.87999618, 1.87999618]
+      translation: [0, 4.37411308, 5.70929766]
+      rotation: [0.961887181, 0, 0, 0.27344662]
+      scale: [2.50039983, 2.50038338, 2.50038338]
     LightComponent:
       type: area
       atten_constant: 1
@@ -136,3 +136,51 @@ entities:
       roughness: 1
       emissive: 5
       material_id: 00000000-0000-0000-0000000000000000
+  - id: 10
+    NameComponent:
+      name: Cube-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [-0.714364231, 0.835368872, 1.51475668]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 00000000-0000-0000-0000000000000005
+      materials: [11]
+  - id: 11
+    NameComponent:
+      name: Cube-1:mat
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 91E06F52-4206-8F43-9C35A6426BAFE568
+  - id: 12
+    NameComponent:
+      name: Cylinder-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, -1.63956034]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 00000000-0000-0000-0000000000000007
+      materials: [13]
+  - id: 13
+    NameComponent:
+      name: Cylinder-1:mat
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 91E06F52-4206-8F43-9C35A6426BAFE568

@@ -427,13 +427,6 @@ std::shared_ptr<GpuTexture> D3d11GraphicsManager::CreateTextureImpl(const GpuTex
             srv_format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
             gen_mip_map = false;
         } break;
-        case PixelFormat::R8G8B8A8_UNORM: {
-            // @HACK, the correct format should be specified in png.meta
-#if 0
-             texture_format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-             srv_format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-#endif
-        } break;
         default:
             break;
     }

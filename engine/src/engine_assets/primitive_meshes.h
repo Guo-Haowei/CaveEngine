@@ -234,7 +234,7 @@ static std::shared_ptr<MeshAsset> CreateSphereMesh(float p_radius,
 
             mesh->positions.emplace_back(p_radius * normal);
             mesh->normals.emplace_back(normal);
-            mesh->texcoords_0.emplace_back(Vector2f(x_seg, y_seg));
+            mesh->texcoords_0.emplace_back(Vector2f(1.0f - x_seg, y_seg));
         }
     }
 
@@ -310,10 +310,15 @@ static std::shared_ptr<MeshAsset> CreateCylinderMesh(float p_radius,
             mesh->normals.emplace_back(normal);
             mesh->normals.emplace_back(normal);
 
-            mesh->texcoords_0.emplace_back(Vector2f());
-            mesh->texcoords_0.emplace_back(Vector2f());
-            mesh->texcoords_0.emplace_back(Vector2f());
-            mesh->texcoords_0.emplace_back(Vector2f());
+            float u0 = 1.0f - static_cast<float>(index) / p_sectors;
+            float u1 = 1.0f - static_cast<float>(index + 1) / p_sectors;
+            float v0 = 1.0f - (y - heights[1]) / p_height;
+            float v1 = 1.0f - (y + height_step - heights[1]) / p_height;
+
+            mesh->texcoords_0.emplace_back(Vector2f(u0, v0));  // point_1
+            mesh->texcoords_0.emplace_back(Vector2f(u0, v1));  // point_2
+            mesh->texcoords_0.emplace_back(Vector2f(u1, v0));  // point_3
+            mesh->texcoords_0.emplace_back(Vector2f(u1, v1));  // point_4
 
             const uint32_t a = point_offset + 4 * index;
             const uint32_t c = point_offset + 4 * index + 1;
@@ -342,15 +347,18 @@ static std::shared_ptr<MeshAsset> CreateCylinderMesh(float p_radius,
             float z = p_radius * glm::sin(angle);
 
             Vector3f point(x, height, z);
+            Vector2f uv(0.5f + 0.5f * x / p_radius,
+                        0.5f + 0.5f * z / p_radius);
+
 
             mesh->positions.emplace_back(point);
             mesh->normals.emplace_back(normal);
-            mesh->texcoords_0.emplace_back(Vector2f());
+            mesh->texcoords_0.emplace_back(uv);
         }
 
         mesh->positions.emplace_back(Vector3f(0.0f, height, 0.0f));
         mesh->normals.emplace_back(normal);
-        mesh->texcoords_0.emplace_back(Vector2f());
+        mesh->texcoords_0.emplace_back(Vector2f(0.5f));
 
         uint32_t center_index = static_cast<uint32_t>(mesh->positions.size()) - 1;
         for (int index = 0; index < p_sectors; ++index) {
@@ -500,9 +508,12 @@ static std::shared_ptr<MeshAsset> CreateTorusMesh(float p_radius,
             const float ny = p_tube_radius * glm::sin(angle_2);
             const float nz = p_tube_radius * glm::cos(angle_2) * glm::sin(angle_1);
 
+            Vector2f uv(1.0f - static_cast<float>(index_1) / p_sectors,
+                        1.0f - static_cast<float>(index_2) / p_tube_sectors);
+
             mesh->positions.emplace_back(Vector3f(x, y, z));
             mesh->normals.emplace_back(normalize(Vector3f(nx, ny, nz)));
-            mesh->texcoords_0.emplace_back(Vector2f());
+            mesh->texcoords_0.emplace_back(uv);
         }
     }
 
