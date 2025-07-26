@@ -1,36 +1,49 @@
 #pragma once
+#include "engine/reflection/reflection.h"
 
 namespace cave {
 
-#define ASSET_TYPE_LIST                        \
-    ASSET_TYPE(Image, "image")                 \
-    ASSET_TYPE(Blob, "blob")                   \
-    ASSET_TYPE(SpriteAnimation, "sprite_anim") \
-    ASSET_TYPE(TileSet, "tileset")             \
-    ASSET_TYPE(TileMap, "tilemap")             \
-    ASSET_TYPE(Material, "mat")                \
-    ASSET_TYPE(Mesh, "mesh")                   \
-    ASSET_TYPE(Scene, "scene")
-
-enum _AssetTypeHelper : uint32_t {
-#define ASSET_TYPE(ENUM, ...) _##ENUM##_SHIFT,
-    ASSET_TYPE_LIST
-#undef ASSET_TYPE
-        Count,
-};
-
 enum class AssetType : uint32_t {
-    Unknown = 0,
-#define ASSET_TYPE(ENUM, ...) ENUM = 1 << _AssetTypeHelper::_##ENUM##_SHIFT,
-    ASSET_TYPE_LIST
-#undef ASSET_TYPE
-        All = 0xFFFFFFFF,
+    Unknown = BIT(0),
+    Image = BIT(1),
+    Blob = BIT(2),
+    SpriteAnimation = BIT(3),
+    TileSet = BIT(4),
+    TileMap = BIT(5),
+    Material = BIT(6),
+    Mesh = BIT(7),
+    Scene = BIT(8),
+    All = 0xFFFFFFFF,
 };
 
 DEFINE_ENUM_BITWISE_OPERATIONS(AssetType);
 
-const char* ToString(AssetType p_type);
+template<>
+struct EnumTraits<AssetType> {
+    inline static const std::pair<AssetType, std::string_view> s_mappings[] = {
+        { AssetType::Image, "image" },
+        { AssetType::Blob, "blob" },
+        { AssetType::SpriteAnimation, "sprite_anim" },
+        { AssetType::TileSet, "tileset" },
+        { AssetType::TileMap, "tilemap" },
+        { AssetType::Material, "mat" },
+        { AssetType::Mesh, "mesh" },
+        { AssetType::Scene, "scene" },
+    };
 
-AssetType AssetTypeFromString(std::string_view p_string);
+    static std::string_view ToString(AssetType p_type) {
+        for (int i = 0; i < array_length(s_mappings); ++i) {
+            if (p_type == s_mappings[i].first) return s_mappings[i].second;
+        }
+        return "unknown";
+    }
+
+    static Option<AssetType> FromString(std::string_view p_val) {
+        for (int i = 0; i < array_length(s_mappings); ++i) {
+            if (p_val == s_mappings[i].second) return Some(s_mappings[i].first);
+        }
+        return None();
+    }
+};
 
 }  // namespace cave

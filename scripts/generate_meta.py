@@ -15,6 +15,7 @@ print('Project root folder:', get_engine_src_folder())
 # ========= CONFIG ==========
 FILES = [
     # assets
+    'assets/asset_meta_data.h',
     'assets/material_asset.h',
     # 'assets/mesh_asset.h',
     'assets/sprite_animation_asset.h',

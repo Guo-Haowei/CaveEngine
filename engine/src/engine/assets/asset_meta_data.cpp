@@ -29,7 +29,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     if (d.TryEnterKey("type")) {
         std::string type;
         d.Read(type);
-        meta.type = AssetTypeFromString(type);
+        meta.type = EnumTraits<AssetType>::FromString(type).unwrap_or(AssetType::Unknown);
         DEV_ASSERT(meta.type != AssetType::Unknown);
         d.LeaveKey();
     }
@@ -42,6 +42,35 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
         d.LeaveKey();
     }
     return meta;
+}
+
+auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
+    YamlSerializer yaml;
+
+    std::string asset_name = name;
+    if (asset_name.empty()) {
+        asset_name = StringUtils::FileName(import_path.c_str(), '/');
+    }
+
+    yaml.BeginMap(false)
+        .Key("guid")
+        .Write(guid)
+        .Key("type")
+        .Write(EnumTraits<AssetType>::ToString(type).data())
+        .Key("name")
+        .Write(asset_name)
+        .Key("import_path")
+        .Write(import_path);
+
+    if (p_asset) {
+        yaml.Key("dependencies")
+            .Write(p_asset->GetDependencies());
+    }
+
+    yaml.EndMap();
+
+    auto meta_path = std::format("{}.meta", import_path);
+    return SaveYaml(meta_path, yaml);
 }
 
 auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData> {
@@ -77,35 +106,6 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     meta.import_path = p_path;
 
     return Some(meta);
-}
-
-auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
-    YamlSerializer yaml;
-
-    std::string asset_name = name;
-    if (asset_name.empty()) {
-        asset_name = StringUtils::FileName(import_path.c_str(), '/');
-    }
-
-    yaml.BeginMap(false)
-        .Key("guid")
-        .Write(guid)
-        .Key("type")
-        .Write(ToString(type))
-        .Key("name")
-        .Write(asset_name)
-        .Key("import_path")
-        .Write(import_path);
-
-    if (p_asset) {
-        yaml.Key("dependencies")
-            .Write(p_asset->GetDependencies());
-    }
-
-    yaml.EndMap();
-
-    auto meta_path = std::format("{}.meta", import_path);
-    return SaveYaml(meta_path, yaml);
 }
 
 }  // namespace cave

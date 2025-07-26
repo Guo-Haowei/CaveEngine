@@ -1,19 +1,43 @@
 #pragma once
-#include "asset_type.h"
-#include "guid.h"
+#include <chrono>
+
+#include "engine/assets/asset_type.h"
+#include "engine/assets/guid.h"
+#include "engine/reflection/meta.h"
 
 namespace cave {
 
 class IAsset;
 
+using TimePoint = std::chrono::system_clock::time_point;
+
 struct AssetMetaData {
-    AssetType type{ AssetType::Unknown };
+    CAVE_META(AssetMetaData)
+
+public:
+    CAVE_PROP()
+    AssetType type = AssetType::Unknown;
+
+    CAVE_PROP()
     Guid guid;
+
+    CAVE_PROP()
     std::string name;
+
+    CAVE_PROP()
     std::string import_path;
+
+    CAVE_PROP()
     std::vector<Guid> dependencies;
 
-    // @TODO: import settings
+    CAVE_PROP()
+    std::string source_last_modified;
+
+    CAVE_PROP()
+    std::string imported_at;
+
+    CAVE_PROP()
+    std::map<std::string, std::string> import_settings;
 
     /// Load meta from a .meta file
     [[nodiscard]] static auto LoadMeta(std::string_view p_path) -> Result<AssetMetaData>;
