@@ -6,7 +6,7 @@ import sys
 def get_engine_src_folder():
     source_folder = os.path.dirname(os.path.abspath(__file__))
     project_dir = os.path.dirname(source_folder)
-    return os.path.join(project_dir, 'engine', 'src', 'engine')
+    return os.path.join(project_dir, 'cave', 'engine')
 
 print('Project root folder:', get_engine_src_folder())
 

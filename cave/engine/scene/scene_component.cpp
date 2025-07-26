@@ -1,0 +1,60 @@
+#include "scene_component.h"
+
+#include "engine/core/io/archive.h"
+#include "engine/math/matrix_transform.h"
+#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/graphics_manager_interface.h"
+
+namespace cave {
+
+#pragma region RIGID_BODY_COMPONENT
+RigidBodyComponent& RigidBodyComponent::InitCube(const Vector3f& p_half_size) {
+    shape = SHAPE_CUBE;
+    size = p_half_size;
+    return *this;
+}
+
+RigidBodyComponent& RigidBodyComponent::InitSphere(float p_radius) {
+    shape = SHAPE_SPHERE;
+    size = Vector3f(p_radius);
+    return *this;
+}
+
+RigidBodyComponent& RigidBodyComponent::InitGhost() {
+    objectType = GHOST;
+    mass = 1.0f;
+    return *this;
+}
+#pragma endregion RIGID_BODY_COMPONENT
+
+#if 0
+void MeshEmitterComponent::Reset() {
+    if ((int)particles.size() != maxMeshCount) {
+        particles.resize(maxMeshCount);
+    }
+
+    aliveList.clear();
+    aliveList.reserve(maxMeshCount);
+    deadList.clear();
+    deadList.reserve(maxMeshCount);
+    for (int i = 0; i < maxMeshCount; ++i) {
+        deadList.emplace_back(i);
+    }
+}
+
+void MeshEmitterComponent::UpdateParticle(Index p_index, float p_timestep) {
+    DEV_ASSERT(p_index.v < particles.size());
+    auto& p = particles[p_index.v];
+    DEV_ASSERT(p.lifespan >= 0.0f);
+
+    p.scale *= (1.0f - p_timestep);
+    p.scale = max(p.scale, 0.1f);
+    p.velocity += p_timestep * gravity;
+    p.rotation += Vector3f(p_timestep);
+    p.lifespan -= p_timestep;
+
+    p.position += p_timestep * p.velocity;
+}
+#endif
+
+}  // namespace cave

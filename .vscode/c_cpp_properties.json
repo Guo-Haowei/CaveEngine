@@ -10,14 +10,14 @@
                 "${workspaceRoot}/thirdparty/glm/",
                 "${workspaceRoot}/thirdparty/optick/",
                 "${workspaceRoot}/thirdparty/",
-                "${workspaceRoot}/engine/src/",
-                "${workspaceRoot}/engine/shader/",
-                "${workspaceRoot}/engine/src/editor/src/"
+                "${workspaceRoot}/cave",
+                "${workspaceRoot}/cave/shader/",
+                "${workspaceRoot}/cave/editor/src/"
             ],
             "forcedInclude": [
-                "${workspaceRoot}/engine/src/engine/pch.h",
-                "${workspaceRoot}/engine/src/editor/src/editor/pch.h",
-                "${workspaceRoot}/engine/tests/pch.h"
+                "${workspaceRoot}/cave/engine/pch.h",
+                "${workspaceRoot}/cave/engine_tests/pch.h",
+                "${workspaceRoot}/cave/editor/src/editor/pch.h"
             ],
             "defines": [
                 "DATA_DIR=\"\"",

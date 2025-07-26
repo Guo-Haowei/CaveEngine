@@ -1,0 +1,71 @@
+#pragma once
+
+namespace cave {
+
+class Guid {
+public:
+    Guid() = default;
+
+    static Guid Null() {
+        return Guid{};
+    }
+
+    static Guid Create();
+    static Option<Guid> Parse(const char* p_start, size_t p_length);
+
+    static Option<Guid> Parse(const std::string& p_string) {
+        return Parse(p_string.c_str(), p_string.length());
+    }
+
+    bool IsNull() const { return *this == Guid{}; }
+
+    bool operator==(const Guid& p_rhs) const {
+        for (int i = 0; i < array_length(m_data); ++i) {
+            if (m_data[i] != p_rhs.m_data[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const Guid& p_rhs) const {
+        return !(*this == p_rhs);
+    }
+
+    std::string ToString() const;
+
+    const uint8_t* GetData() const {
+        return m_data;
+    };
+
+private:
+    uint8_t m_data[16]{};
+};
+
+}  // namespace cave
+
+namespace std {
+
+template<>
+struct hash<cave::Guid> {
+    std::size_t operator()(const cave::Guid& p_guid) const {
+        std::size_t hash = 0;
+
+        const uint8_t* data = p_guid.GetData();
+        // Combine hash for each byte in the buffer
+        for (std::size_t i = 0; i < sizeof(cave::Guid); ++i) {
+            hash ^= std::hash<uint8_t>{}(data[i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        }
+
+        return hash;
+    }
+};
+
+template<>
+struct less<cave::Guid> {
+    bool operator()(const cave::Guid& p_lhs, const cave::Guid& p_rhs) const {
+        return memcmp(p_lhs.GetData(), p_rhs.GetData(), sizeof(cave::Guid)) < 0;
+    }
+};
+
+}  // namespace std
