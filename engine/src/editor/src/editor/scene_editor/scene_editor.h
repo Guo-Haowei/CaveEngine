@@ -1,13 +1,12 @@
 #pragma once
-#include "viewer_tab.h"
-
 #include "engine/input/input_event.h"
 #include "engine/scene/camera_component.h"
+
+#include "editor/viewer/viewer_tab.h"
 
 namespace cave {
 
 class SceneDocument;
-class Viewer;
 
 class SceneEditor : public ViewerTab {
 public:

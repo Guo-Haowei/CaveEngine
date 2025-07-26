@@ -16,6 +16,7 @@
 
 // asset editors
 #include "editor/animation_editor/sprite_animation_editor.h"
+#include "editor/material_editor/material_editor.h"
 #include "editor/scene_editor/scene_editor.h"
 #include "editor/tile_map_editor/tile_map_editor.h"
 

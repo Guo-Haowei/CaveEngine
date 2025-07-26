@@ -93,16 +93,6 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     ecs::Entity id = GetSelectedEntity();
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
 
-#if 0
-    if (transform_component) {
-        LightComponent* light = scene.GetComponent<LightComponent>(id);
-        if (light && light->GetType() == LIGHT_TYPE_INFINITE) {
-            const auto& matrix = transform_component->GetWorldMatrix();
-            ImGuizmo::DrawCone(proj_view, matrix);
-        }
-    }
-#endif
-
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {
             const Matrix4x4f before = transform_component->GetLocalMatrix();

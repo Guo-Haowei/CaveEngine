@@ -32,7 +32,7 @@ void TileMapEditor::OnCreate(const Guid& p_guid) {
 
     m_document = std::make_shared<TileMapDocument>(p_guid, *this);
 
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
+    auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
     DEV_ASSERT(scene_manager);
 
     m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
@@ -54,8 +54,7 @@ void TileMapEditor::OnDestroy() {
 }
 
 void TileMapEditor::OnActivate() {
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
-    DEV_ASSERT(scene_manager);
+    auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
     scene_manager->OpenTempScene(m_tmp_scene);
 }
 

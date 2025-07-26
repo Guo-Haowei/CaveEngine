@@ -14,6 +14,7 @@ class CameraComponent;
 class Document;
 class TabId;
 struct ToolBarButtonDesc;
+class Viewer;
 
 class ViewerTab {
 public:
