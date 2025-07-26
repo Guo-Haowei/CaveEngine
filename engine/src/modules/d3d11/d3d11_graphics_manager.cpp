@@ -427,6 +427,13 @@ std::shared_ptr<GpuTexture> D3d11GraphicsManager::CreateTextureImpl(const GpuTex
             srv_format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
             gen_mip_map = false;
         } break;
+        case PixelFormat::R8G8B8A8_UNORM: {
+            // @HACK, the correct format should be specified in png.meta
+#if 0
+             texture_format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+             srv_format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+#endif
+        } break;
         default:
             break;
     }
@@ -509,7 +516,7 @@ std::shared_ptr<GpuTexture> D3d11GraphicsManager::CreateTextureImpl(const GpuTex
     SetDebugName(texture.Get(), p_texture_desc.name);
 
     if (p_texture_desc.initialData) {
-        uint32_t row_pitch = p_texture_desc.width * channel_count(format) * channel_size(format);
+        uint32_t row_pitch = p_texture_desc.width * ChannelCount(format) * ChannelSize(format);
         m_deviceContext->UpdateSubresource(texture.Get(), 0, nullptr, p_texture_desc.initialData, row_pitch, 0);
     }
 

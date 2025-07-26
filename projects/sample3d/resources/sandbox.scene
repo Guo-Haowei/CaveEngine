@@ -33,7 +33,7 @@ entities:
       metallic: 0
       roughness: 1
       emissive: 0
-      material_id: 00000000-0000-0000-0000000000000000
+      material_id: 91E06F52-4206-8F43-9C35A6426BAFE568
   - id: 4
     NameComponent:
       name: InfiniteLight-2

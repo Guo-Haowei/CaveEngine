@@ -236,6 +236,7 @@ void PropertyPanel::UpdateInternal() {
 
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
     LightComponent* light_component = scene.GetComponent<LightComponent>(id);
+    MaterialComponent* material_component = scene.GetComponent<MaterialComponent>(id);
     ColliderComponent* collider = scene.GetComponent<ColliderComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 #if 0
@@ -266,6 +267,9 @@ void PropertyPanel::UpdateInternal() {
         bool dirty = DrawComponentAuto<LightComponent>(&p_light);
         if (dirty) {
             p_light.SetDirty();
+        }
+        if (material_component) {
+            DrawComponentAuto<MaterialComponent>(material_component);
         }
     });
 

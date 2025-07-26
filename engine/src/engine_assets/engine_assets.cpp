@@ -64,11 +64,6 @@ static void RegisterPersistentImages() {
 }
 
 static void RegisterPersistentMaterials() {
-    // auto material = std::make_shared<MaterialAsset>();
-    // material->base_color = Vector4f::One;
-    // material->metallic = 0.3f;
-    // material->roughness = 0.7f;
-    // material->textures[TEXTURE_BASE] = TO_GUID(GUID3);
 }
 
 static void RegisterPersistentMeshes() {

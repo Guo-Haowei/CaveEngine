@@ -80,6 +80,15 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
         assets.emplace_back(std::move(meta2));
     }
 
+    // @HACK: load scene last
+    // @TODO: [SCRUM-245] need to figure out dependency
+    for (size_t i = 0; i < assets.size(); ++i) {
+        if (assets[i].type == AssetType::Scene) {
+            std::swap(assets[i], assets.back());
+            break;
+        }
+    }
+
     std::latch latch(assets.size());
     for (auto& meta : assets) {
         StartAsyncLoad(std::move(meta), [](AssetRef, void* p_userdata) {

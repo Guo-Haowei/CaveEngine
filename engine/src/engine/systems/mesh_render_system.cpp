@@ -1,3 +1,4 @@
+#include "engine/assets/image_asset.h"
 #include "engine/assets/material_asset.h"
 #include "engine/math/frustum.h"
 #include "engine/math/geometry.h"
@@ -41,21 +42,21 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
     }
 
     // @TODO: [SCRUM-210] fix material
+    const auto& images = p_material->m_images;
     unused(p_is_opengl);
-#if 0
-    auto set_texture = [&](int p_idx,
+    auto set_texture = [&](TextureSlot p_idx,
                            TextureHandle& p_out_handle,
                            sampler_t& p_out_resident_handle) {
+        const int idx = std::to_underlying(p_idx);
+
         p_out_handle = 0;
         p_out_resident_handle.Set64(0);
 
-        if (!p_material->textures[p_idx].enabled) {
+        if ((int)images.size() <= idx) {
             return false;
         }
 
-        return false;
-// @TODO: at least fix this
-        const ImageAsset* image = AssetRegistry::GetSingleton().Request<ImageAsset>(p_material->textures[p_idx].path);
+        const ImageAsset* image = images[idx].Get();
         if (!image) {
             return false;
         }
@@ -76,10 +77,9 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
         return true;
     };
 
-    cb.c_hasBaseColorMap = set_texture(MaterialComponent::TEXTURE_BASE, cb.c_baseColorMapHandle, cb.c_BaseColorMapResidentHandle);
-    cb.c_hasNormalMap = set_texture(MaterialComponent::TEXTURE_NORMAL, cb.c_normalMapHandle, cb.c_NormalMapResidentHandle);
-    cb.c_hasMaterialMap = set_texture(MaterialComponent::TEXTURE_METALLIC_ROUGHNESS, cb.c_materialMapHandle, cb.c_MaterialMapResidentHandle);
-#endif
+    cb.c_hasBaseColorMap = set_texture(TextureSlot::Base, cb.c_baseColorMapHandle, cb.c_BaseColorMapResidentHandle);
+    cb.c_hasNormalMap = set_texture(TextureSlot::Normal, cb.c_normalMapHandle, cb.c_NormalMapResidentHandle);
+    cb.c_hasMaterialMap = set_texture(TextureSlot::MetallicRoughness, cb.c_materialMapHandle, cb.c_MaterialMapResidentHandle);
 };
 
 // @TODO: refactor this
