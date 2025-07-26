@@ -49,7 +49,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
     DEV_ASSERT(m_window);
 
     glfwSetWindowUserPointer(m_window, this);
-    glfwSetWindowPos(m_window, 30, 30);
+    glfwSetWindowPos(m_window, 200, 200);
     glfwGetWindowSize(m_window, &m_frameSize.x, &m_frameSize.y);
 
     switch (m_backend) {

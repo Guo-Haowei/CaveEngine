@@ -327,9 +327,11 @@ void D3d11GraphicsManager::BindConstantBufferRange(const GpuConstantBuffer* p_bu
     DEV_ASSERT(p_size + p_offset <= buffer->capacity);
     D3D11_MAPPED_SUBRESOURCE mapped;
     ZeroMemory(&mapped, sizeof(D3D11_MAPPED_SUBRESOURCE));
-    m_deviceContext->Map(buffer->internalBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-    memcpy(mapped.pData, buffer->data + p_offset, p_size);
-    m_deviceContext->Unmap(buffer->internalBuffer.Get(), 0);
+    if (buffer->data) {
+        m_deviceContext->Map(buffer->internalBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+        memcpy(mapped.pData, buffer->data + p_offset, p_size);
+        m_deviceContext->Unmap(buffer->internalBuffer.Get(), 0);
+    }
 }
 
 void D3d11GraphicsManager::BindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) {
