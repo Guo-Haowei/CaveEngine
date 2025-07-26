@@ -9,7 +9,7 @@
 #include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
-#include "editor/viewer/scene_document.h"
+#include "editor/scene_editor/scene_document.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
