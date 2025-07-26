@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
 #include "engine/math/box.h"
 #include "engine/renderer/gpu_resource.h"
@@ -46,7 +47,7 @@ private:
     };
 
     // @TODO: rename
-    std::map<ecs::Entity, MeshData> m_meshs;
+    std::map<Guid, MeshData> m_meshs;
 
     PathTracerMode m_mode{ PathTracerMode::NONE };
 };

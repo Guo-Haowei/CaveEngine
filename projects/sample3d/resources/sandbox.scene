@@ -1,5 +1,5 @@
 version: 19
-seed: 13
+seed: 15
 root: 1
 physics_mode: 0
 entities:
@@ -16,9 +16,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-1.35000002, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
+      translation: [0.087155968, -0.408334136, 2.71955037]
+      rotation: [0.298842758, -0.0184840318, 0.00907245278, 0.954080224]
+      scale: [1, 1.00000036, 0.999999821]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -29,7 +29,7 @@ entities:
     NameComponent:
       name: Torus-1:mat
     MaterialComponent:
-      base_color: [1, 1, 1, 1]
+      base_color: [0.973544955, 0.200890213, 0.200890213, 1]
       metallic: 0
       roughness: 1
       emissive: 0
@@ -64,9 +64,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, -1.21776462, 0]
+      translation: [0, -1.1566509, 2.18559659e-08]
       rotation: [-0.70710665, 0, 0, 0.707106888]
-      scale: [6.5899992, 6.58999968, 6.58999968]
+      scale: [6.5899992, 6.5899601, 6.5899601]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -77,31 +77,16 @@ entities:
     NameComponent:
       name: Plane-3:mat
     MaterialComponent:
-      base_color: [1, 1, 1, 1]
-      metallic: 0
-      roughness: 1
+      base_color: [1, 0.986478567, 0.148148119, 1]
+      metallic: 0.889999986
+      roughness: 0.310000002
       emissive: 0
       material_id: 00000000-0000-0000-0000000000000000
-  - id: 7
-    NameComponent:
-      name: Cone-4
-    HierarchyComponent:
-      parent_id: 1
-    TransformComponent:
-      translation: [0.899999976, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-    MeshRendererComponent:
-      is_visible: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 00000000-0000-0000-0000000000000008
-      materials: [8]
   - id: 8
     NameComponent:
       name: Cone-4:mat
     MaterialComponent:
-      base_color: [1, 1, 1, 1]
+      base_color: [0.215559497, 0.740740776, 0.248904333, 1]
       metallic: 0
       roughness: 1
       emissive: 0
@@ -112,7 +97,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 4.37411308, 5.70929766]
+      translation: [0, 4.4407773, 5.66806173]
       rotation: [0.961887181, 0, 0, 0.27344662]
       scale: [2.50039983, 2.50038338, 2.50038338]
     LightComponent:
@@ -142,7 +127,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-0.714364231, 0.835368872, 1.51475668]
+      translation: [-1.71004605, -0.366723835, 1.78994989]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
@@ -155,9 +140,9 @@ entities:
     NameComponent:
       name: Cube-1:mat
     MaterialComponent:
-      base_color: [1, 1, 1, 1]
-      metallic: 0
-      roughness: 1
+      base_color: [0.199173227, 0.592592597, 0.10660398, 1]
+      metallic: 0.300000012
+      roughness: 0.899999976
       emissive: 0
       material_id: 91E06F52-4206-8F43-9C35A6426BAFE568
   - id: 12
@@ -166,9 +151,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, -1.63956034]
+      translation: [-0.809297085, -0.390560061, -1.63956034]
       rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
+      scale: [1.19000006, 1.19000006, 1.19000006]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -182,5 +167,29 @@ entities:
       base_color: [1, 1, 1, 1]
       metallic: 0
       roughness: 1
+      emissive: 0
+      material_id: 91E06F52-4206-8F43-9C35A6426BAFE568
+  - id: 14
+    NameComponent:
+      name: Sphere-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [1.55322409, -0.373219371, 0.400632918]
+      rotation: [0, 0, 0, 1]
+      scale: [1.16999996, 1.16999996, 1.16999996]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 00000000-0000-0000-0000000000000006
+      materials: [15]
+  - id: 15
+    NameComponent:
+      name: Sphere-1:mat
+    MaterialComponent:
+      base_color: [0.36773178, 0.285770297, 0.931216955, 1]
+      metallic: 0.200000003
+      roughness: 0.800000012
       emissive: 0
       material_id: 91E06F52-4206-8F43-9C35A6426BAFE568

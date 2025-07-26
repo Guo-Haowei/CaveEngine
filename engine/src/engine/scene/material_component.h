@@ -34,7 +34,7 @@ public:
     void OnDeserialized();
 
 private:
-    void OnDeserializedHelper(Handle<MaterialAsset>& p_handle);
+    void OnDeserializedHelper(Handle<MaterialAsset>& p_handle, bool p_override);
 };
 
 }  // namespace cave
