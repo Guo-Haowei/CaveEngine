@@ -64,9 +64,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, -1.1566509, 2.18559659e-08]
+      translation: [0, -1.14437366, 2.62466511e-08]
       rotation: [-0.70710665, 0, 0, 0.707106888]
-      scale: [6.5899992, 6.5899601, 6.5899601]
+      scale: [6.5899992, 6.58995485, 6.58995485]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -77,9 +77,9 @@ entities:
     NameComponent:
       name: Plane-3:mat
     MaterialComponent:
-      base_color: [1, 0.986478567, 0.148148119, 1]
+      base_color: [0.941176474, 0.941176474, 0.941176474, 1]
       metallic: 0.889999986
-      roughness: 0.310000002
+      roughness: 0.109999999
       emissive: 0
       material_id: 00000000-0000-0000-0000000000000000
   - id: 8
