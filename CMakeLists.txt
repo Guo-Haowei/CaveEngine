@@ -80,5 +80,4 @@ endfunction()
 
 add_subdirectory(cave)
 add_subdirectory(plugins)
-add_subdirectory(tools)
 add_subdirectory(applications)

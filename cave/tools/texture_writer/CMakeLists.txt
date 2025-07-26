@@ -1,19 +1,17 @@
 set(TARGET_NAME texture_writer)
 
 file(GLOB_RECURSE SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
 )
 
 add_executable(${TARGET_NAME} ${SRC})
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${SRC})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 
 target_include_directories(${TARGET_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/cave
     ${PROJECT_SOURCE_DIR}/cave/shader
-    ${PROJECT_SOURCE_DIR}/thirdparty/shader
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(${TARGET_NAME} PRIVATE
@@ -27,6 +25,6 @@ set_target_properties(${TARGET_NAME}
 
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER tools)
 
-target_precompile_headers(${TARGET_NAME} PRIVATE src/pch.h)
+target_precompile_headers(${TARGET_NAME} PRIVATE pch.h)
 
 target_set_warning_level(${TARGET_NAME})
