@@ -9,9 +9,6 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-// @TODO: use meta table to auto load
-// @TODO: enum serialization
-
 auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     YAML::Node root;
     if (auto res = LoadYaml(p_path, root); !res) {
@@ -22,29 +19,11 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
 
     YamlDeserializer d;
     d.Initialize(root);
-    if (d.TryEnterKey("guid")) {
-        d.Read(meta.guid);
-        d.LeaveKey();
-    }
-    if (d.TryEnterKey("type")) {
-        std::string type;
-        d.Read(type);
-        meta.type = EnumTraits<AssetType>::FromString(type).unwrap_or(AssetType::Unknown);
-        DEV_ASSERT(meta.type != AssetType::Unknown);
-        d.LeaveKey();
-    }
-    if (d.TryEnterKey("name")) {
-        d.Read(meta.name);
-        d.LeaveKey();
-    }
-    if (d.TryEnterKey("import_path")) {
-        d.Read(meta.import_path);
-        d.LeaveKey();
-    }
+    d.Read(meta);
     return meta;
 }
 
-auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
+Result<void> AssetMetaData::SaveToDisk(const IAsset* p_asset) const {
     YamlSerializer yaml;
 
     std::string asset_name = name;
@@ -52,23 +31,9 @@ auto AssetMetaData::SaveToDisk(const IAsset* p_asset) const -> Result<void> {
         asset_name = StringUtils::FileName(import_path.c_str(), '/');
     }
 
-    yaml.BeginMap(false)
-        .Key("guid")
-        .Write(guid)
-        .Key("type")
-        .Write(EnumTraits<AssetType>::ToString(type).data())
-        .Key("name")
-        .Write(asset_name)
-        .Key("import_path")
-        .Write(import_path);
+    this->dependencies = p_asset->GetDependencies();
 
-    if (p_asset) {
-        yaml.Key("dependencies")
-            .Write(p_asset->GetDependencies());
-    }
-
-    yaml.EndMap();
-
+    yaml.Write(*this);
     auto meta_path = std::format("{}.meta", import_path);
     return SaveYaml(meta_path, yaml);
 }

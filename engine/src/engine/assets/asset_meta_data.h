@@ -28,7 +28,7 @@ public:
     std::string import_path;
 
     CAVE_PROP()
-    std::vector<Guid> dependencies;
+    mutable std::vector<Guid> dependencies;
 
     CAVE_PROP()
     std::string source_last_modified;
@@ -45,7 +45,7 @@ public:
     /// Create meta based on asset file
     [[nodiscard]] static auto CreateMeta(std::string_view p_path) -> Option<AssetMetaData>;
 
-    [[nodiscard]] auto SaveToDisk(const IAsset* p_asset) const -> Result<void>;
+    [[nodiscard]] Result<void> SaveToDisk(const IAsset* p_asset) const;
 };
 
 }  // namespace cave

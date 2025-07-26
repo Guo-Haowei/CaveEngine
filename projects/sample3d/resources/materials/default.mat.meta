@@ -1,5 +1,9 @@
-guid: 91E06F52-4206-8F43-9C35A6426BAFE568
 type: mat
+guid: 91E06F52-4206-8F43-9C35A6426BAFE568
 name: default.mat
 import_path: "@res://materials/default.mat"
 dependencies: [0F649F8E-3F35-A045-B761123C65808B5B]
+source_last_modified: ""
+imported_at: ""
+import_settings:
+  {}

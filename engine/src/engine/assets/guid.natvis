@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <Type Name="cave::Guid">
-    <DisplayString>
-      {m_data[0]:X2}{m_data[1]:X2}{m_data[2]:X2}{m_data[3]:X2}-
-      {m_data[4]:X2}{m_data[5]:X2}-
-      {m_data[6]:X2}{m_data[7]:X2}-
-      {m_data[8]:X2}{m_data[9]:X2}-
-      {m_data[10]:X2}{m_data[11]:X2}{m_data[12]:X2}{m_data[13]:X2}{m_data[14]:X2}{m_data[15]:X2}
-    </DisplayString>
-    <Expand>
-      <ArrayItems>
-        <Size>16</Size>
-        <ValuePointer>m_data</ValuePointer>
-      </ArrayItems>
-    </Expand>
-  </Type>
+	<Type Name="Guid">
+		<DisplayString>{m_data[0]:X2}{m_data[1]:X2}{m_data[2]:X2}{m_data[3]:X2}-{m_data[4]:X2}{m_data[5]:X2}-{m_data[6]:X2}{m_data[7]:X2}-{m_data[8]:X2}{m_data[9]:X2}-{m_data[10]:X2}{m_data[11]:X2}{m_data[12]:X2}{m_data[13]:X2}{m_data[14]:X2}{m_data[15]:X2}</DisplayString>
+		<Expand>
+			<ArrayItems>
+				<Size>16</Size>
+				<ValuePointer>m_data</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
 </AutoVisualizer>
