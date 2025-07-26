@@ -1,4 +1,10 @@
-guid: A1130333-79C5-9E43-A95F006D4AA71D4F
 type: image
+guid: A1130333-79C5-9E43-A95F006D4AA71D4F
 name: background.png
 import_path: "@res://map/background.png"
+dependencies: []
+source_last_modified: ""
+imported_at: ""
+import_settings:
+  color_space: linear
+  sampler: point

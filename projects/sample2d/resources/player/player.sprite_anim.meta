@@ -1,5 +1,9 @@
-guid: A19D178A-EFC6-A346-815793EC6AB97322
 type: sprite_anim
+guid: A19D178A-EFC6-A346-815793EC6AB97322
 name: player.sprite_anim
 import_path: "@res://player/player.sprite_anim"
 dependencies: [7AA74195-1D78-4841-9920E8650E8DE22A]
+source_last_modified: ""
+imported_at: ""
+import_settings:
+  {}

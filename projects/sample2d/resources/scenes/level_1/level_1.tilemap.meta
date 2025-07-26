@@ -1,5 +1,9 @@
-guid: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
 type: tilemap
+guid: 23F9B311-40AA-B54A-ABA5E62A4AE9C360
 name: level_1.tilemap
 import_path: "@res://scenes/level_1/level_1.tilemap"
 dependencies: [94FB5794-CF41-1E46-8D6DB1E633C35D85]
+source_last_modified: ""
+imported_at: ""
+import_settings:
+  {}

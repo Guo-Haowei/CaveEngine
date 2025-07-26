@@ -1,4 +1,10 @@
-guid: 7AA74195-1D78-4841-9920E8650E8DE22A
 type: image
+guid: 7AA74195-1D78-4841-9920E8650E8DE22A
 name: player.png
 import_path: "@res://player/player.png"
+dependencies: []
+source_last_modified: ""
+imported_at: ""
+import_settings:
+  color_space: linear
+  sampler: point
