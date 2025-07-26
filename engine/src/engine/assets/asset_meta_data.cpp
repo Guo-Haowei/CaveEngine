@@ -20,13 +20,14 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     YamlDeserializer d;
     d.Initialize(root);
     d.Read(meta);
-    // @TODO: time serialization
-    {
-        auto now = std::chrono::system_clock::now();
-        meta.imported_at = std::format("{:%Y-%m-%d %H:%M:%S}", now);
+
+    // meta sys path
+    std::string sys_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, p_path);
+    if (meta.source_created_time.empty()) {
+        meta.source_created_time = std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now());
     }
 
-    std::string sys_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, p_path);
+    // asset sys path
     sys_path.resize(sys_path.size() - 5);  // remove '.meta'
     if (fs::exists(sys_path)) {
         auto ftime = fs::last_write_time(sys_path);

@@ -31,10 +31,10 @@ public:
     mutable std::vector<Guid> dependencies;
 
     CAVE_PROP()
-    std::string source_last_modified;
+    std::string source_created_time;
 
     CAVE_PROP()
-    std::string imported_at;
+    std::string source_last_modified;
 
     CAVE_PROP()
     mutable std::map<std::string, std::string> import_settings;

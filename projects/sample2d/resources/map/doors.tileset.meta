@@ -3,7 +3,7 @@ guid: 26782B94-FC05-B140-B2E58BA0FF24B594
 name: doors.tileset
 import_path: "@res://map/doors.tileset"
 dependencies: [072AA41E-00C5-434B-900A84486CD248AE]
-source_last_modified: 2025-07-26 12:32:42.8172399
-imported_at: 2025-07-26 13:40:20.0596185
+source_created_time: 2025-07-26 13:51:57.6389953
+source_last_modified: 2025-07-26 13:52:02.2448811
 import_settings:
   {}
