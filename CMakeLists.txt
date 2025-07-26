@@ -78,7 +78,7 @@ function(target_set_warning_level TARGET)
     endif()
 endfunction()
 
-add_subdirectory(engine)
+add_subdirectory(cave)
 add_subdirectory(plugins)
 add_subdirectory(tools)
 add_subdirectory(applications)

@@ -10,8 +10,8 @@ add_executable(${TARGET_NAME} ${SRC})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${SRC})
 
 target_include_directories(${TARGET_NAME} PRIVATE
-    ${PROJECT_SOURCE_DIR}/engine/src
-    ${PROJECT_SOURCE_DIR}/engine/shader
+    ${PROJECT_SOURCE_DIR}/cave
+    ${PROJECT_SOURCE_DIR}/cave/shader
     ${PROJECT_SOURCE_DIR}/thirdparty/shader
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

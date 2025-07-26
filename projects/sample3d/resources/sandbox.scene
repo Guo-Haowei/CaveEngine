@@ -77,9 +77,9 @@ entities:
     NameComponent:
       name: Plane-3:mat
     MaterialComponent:
-      base_color: [0.941176474, 0.941176474, 0.941176474, 1]
+      base_color: [0.87843138, 0.87843138, 0.87843138, 1]
       metallic: 0.889999986
-      roughness: 0.109999999
+      roughness: 0.209999993
       emissive: 0
       material_id: 00000000-0000-0000-0000000000000000
   - id: 8
