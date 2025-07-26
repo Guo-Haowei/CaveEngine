@@ -3,8 +3,8 @@ guid: E80CA6A7-92E8-9A41-8B944860C64DFBA5
 name: tiles.png
 import_path: "@res://images/tiles.png"
 dependencies: []
-source_last_modified: ""
-imported_at: ""
+source_last_modified: 2025-07-26 12:33:08.9438780
+imported_at: 2025-07-26 13:40:20.0390746
 import_settings:
   color_space: linear
   sampler: point

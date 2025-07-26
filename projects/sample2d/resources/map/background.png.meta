@@ -3,8 +3,8 @@ guid: A1130333-79C5-9E43-A95F006D4AA71D4F
 name: background.png
 import_path: "@res://map/background.png"
 dependencies: []
-source_last_modified: ""
-imported_at: ""
+source_last_modified: 2025-07-26 12:33:16.1371702
+imported_at: 2025-07-26 13:40:20.0525880
 import_settings:
   color_space: linear
   sampler: point

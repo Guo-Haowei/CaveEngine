@@ -3,7 +3,7 @@ guid: 94FB5794-CF41-1E46-8D6DB1E633C35D85
 name: background.tileset
 import_path: "@res://map/background.tileset"
 dependencies: [A1130333-79C5-9E43-A95F006D4AA71D4F]
-source_last_modified: ""
-imported_at: ""
+source_last_modified: 2025-07-26 12:32:41.0731453
+imported_at: 2025-07-26 13:40:20.0555560
 import_settings:
   {}

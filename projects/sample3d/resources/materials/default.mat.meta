@@ -3,7 +3,7 @@ guid: 91E06F52-4206-8F43-9C35A6426BAFE568
 name: default.mat
 import_path: "@res://materials/default.mat"
 dependencies: [0F649F8E-3F35-A045-B761123C65808B5B]
-source_last_modified: ""
-imported_at: ""
+source_last_modified: 2025-07-26 13:41:05.0373200
+imported_at: 2025-07-26 13:42:25.6504661
 import_settings:
   {}

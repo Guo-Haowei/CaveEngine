@@ -3,7 +3,7 @@ guid: 1753AE53-3873-1140-B148E89E52FE7489
 name: level_1.scene
 import_path: "@res://scenes/level_1/level_1.scene"
 dependencies: []
-source_last_modified: ""
-imported_at: ""
+source_last_modified: 2025-07-26 13:35:36.1171711
+imported_at: 2025-07-26 13:40:20.0631149
 import_settings:
   {}

@@ -3,8 +3,8 @@ guid: 04D15078-FC58-894D-8678CF872BB602A3
 name: sky.hdr
 import_path: "@res://images/sky.hdr"
 dependencies: []
-source_last_modified: ""
-imported_at: ""
+source_last_modified: 2025-07-12 16:47:42.6117021
+imported_at: 2025-07-26 13:42:25.6440032
 import_settings:
   color_space: linear
   sampler: linear
