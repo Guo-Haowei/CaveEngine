@@ -1,9 +1,15 @@
 #include "material_editor.h"
 
+#include "engine/assets/image_asset.h"
+#include "engine/assets/material_asset.h"
+#include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
+#include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/material_editor/material_document.h"
+#include "editor/panels/asset_inspector.h"
+#include "editor/widgets/widget.h"
 
 namespace cave {
 
@@ -83,6 +89,55 @@ void MaterialEditor::DrawMainView(const CameraComponent& p_camera) {
 }
 
 void MaterialEditor::DrawAssetInspector() {
+    MaterialAsset* material = m_document->GetHandle<MaterialAsset>().Get();
+
+    std::vector<AssetChildPanel> descs = {
+        {
+            "LayerOverview",
+            480,
+            [&]() {
+                if (material) {
+                    DrawTextureSlots(*material);
+                }
+            },
+        },
+        {
+            "PaintTab",
+            0,
+            [&]() {
+                m_editor.GetAssetInspector().DrawContentBrowser();
+            },
+        }
+    };
+
+    const float full_width = ImGui::GetContentRegionAvail().x;
+
+    DrawContents(full_width, descs);
+}
+
+void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
+    const ImVec2 region_size(128, 128);
+
+    for (size_t i = 0; i < p_material.textures.size(); ++i) {
+        Guid& material = p_material.textures[i];
+
+        auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(material).unwrap_or(Handle<ImageAsset>());
+
+        const ImageAsset* image = handle.Get();
+
+        auto checkerboard = m_editor.context.checkerboard;
+        DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
+
+        ImGui::Text("image slot %d", i);
+        CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
+
+        // if (ImGui::IsItemClicked()) {
+        // }
+
+        if (auto _handle = DragDropTarget(AssetType::Image); _handle.is_some()) {
+            material = _handle.unwrap_unchecked().GetGuid();
+        }
+    }
 }
 
 bool MaterialEditor::HandleInput(const InputEvent* p_input_event) {

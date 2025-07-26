@@ -5,11 +5,11 @@
 
 namespace cave {
 
-enum {
-    TEXTURE_BASE,
-    TEXTURE_NORMAL,
-    TEXTURE_METALLIC_ROUGHNESS,
-    TEXTURE_MAX,
+enum class TextureSlot {
+    Base,
+    Normal,
+    MetallicRoughness,
+    Count,
 };
 
 struct MaterialAsset : public IAsset {
@@ -30,7 +30,7 @@ public:
     float emissive = 0.0f;
 
     CAVE_PROP()
-    std::array<Guid, TEXTURE_MAX> textures;
+    std::array<Guid, std::to_underlying(TextureSlot::Count)> textures;
 
     std::vector<Guid> GetDependencies() const override;
 

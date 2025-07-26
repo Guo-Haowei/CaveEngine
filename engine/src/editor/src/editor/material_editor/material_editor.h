@@ -5,6 +5,8 @@
 
 namespace cave {
 
+struct MaterialAsset;
+
 using MaterialDocument = Document;
 
 class MaterialEditor : public ViewerTab {
@@ -28,6 +30,8 @@ public:
     Scene* GetScene() override;
 
 protected:
+    void DrawTextureSlots(MaterialAsset& p_material);
+
     const CameraComponent& GetActiveCameraInternal() const override;
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
