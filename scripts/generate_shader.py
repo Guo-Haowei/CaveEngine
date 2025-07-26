@@ -6,7 +6,7 @@ import sys
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.dirname(project_dir)
-shader_source_dir = 'engine/shader'
+shader_source_dir = 'cave/shader'
 generated_dir = os.path.join(project_dir, f'{shader_source_dir}/glsl_generated')
 
 dxc_path = os.path.join(project_dir, 'bin/dxc')
