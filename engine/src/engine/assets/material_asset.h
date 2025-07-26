@@ -12,6 +12,8 @@ enum class TextureSlot {
     Count,
 };
 
+DECLARE_ENUM_TRAITS(TextureSlot, "base", "normal", "material");
+
 struct MaterialAsset : public IAsset {
     CAVE_ASSET(MaterialAsset, AssetType::Material, 0)
 

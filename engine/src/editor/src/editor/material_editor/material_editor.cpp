@@ -128,7 +128,7 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
         auto checkerboard = m_editor.context.checkerboard;
         DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
 
-        ImGui::Text("image slot %d", i);
+        ImGui::Text("%s texture: ", EnumTraits<TextureSlot>::ToString(static_cast<TextureSlot>(i)).data());
         CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
 
         // if (ImGui::IsItemClicked()) {
