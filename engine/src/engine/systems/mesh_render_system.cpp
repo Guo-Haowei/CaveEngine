@@ -159,9 +159,10 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
         bool cast_shadow = light_component.CastShadow();
         light.cast_shadow = cast_shadow;
         light.type = static_cast<int>(light_component.GetType());
+        const MaterialComponent& material = *p_scene.GetComponent<MaterialComponent>(light_entity);
         // @TODO: [SCRUM-210] fix material
-        light.color = light_component.GetBaseColor().xyz;
-        light.color *= light_component.GetEmissive();
+        light.color = material.base_color.xyz;
+        light.color *= material.emissive;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
                 Matrix4x4f light_local_matrix = light_transform->GetLocalMatrix();

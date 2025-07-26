@@ -87,46 +87,51 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
     return entity;
 }
 
-Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
-                                            const std::string& p_name,
-                                            const Vector3f& p_color,
-                                            const float p_emissive) {
-    auto entity = CreateObjectEntity(p_scene, p_name);
-
-    // light
-    LightComponent& light = p_scene.Create<LightComponent>(entity);
-    light.SetType(LightType::Area);
-    light.m_base_color = Vector4f(p_color, 1.0f);
-    light.m_emissive = p_emissive;
-
-    light.m_atten_constant = 1.0f;
-    light.m_atten_linear = 0.09f;
-    light.m_atten_quadratic = 0.032f;
-
-    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
-
-    // @TODO: create material
-    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
-    renderer.SetResourceGuid(handle.GetGuid());
-    return entity;
-}
-
 Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
                                                 const std::string& p_name,
                                                 const Vector3f& p_color,
                                                 const float p_emissive) {
-    auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<TransformComponent>(entity);
-    LightComponent& light = p_scene.Create<LightComponent>(entity);
+    auto id = CreateNameEntity(p_scene, p_name);
+    p_scene.Create<TransformComponent>(id);
+    LightComponent& light = p_scene.Create<LightComponent>(id);
     light.SetType(LightType::Infinite);
     light.m_atten_constant = 1.0f;
     light.m_atten_linear = 0.0f;
     light.m_atten_quadratic = 0.0f;
 
-    light.m_base_color = Vector4f(p_color, 1.0f);
-    light.m_emissive = p_emissive;
+    MaterialComponent& mat = p_scene.Create<MaterialComponent>(id);
+    mat.base_color = Vector4f(p_color, 1.0f);
+    mat.emissive = p_emissive;
 
-    return entity;
+    return id;
+}
+
+Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
+                                            const std::string& p_name,
+                                            const Vector3f& p_color,
+                                            const float p_emissive) {
+    auto id = CreateObjectEntity(p_scene, p_name);
+
+    // light
+    LightComponent& light = p_scene.Create<LightComponent>(id);
+    light.SetType(LightType::Area);
+
+    light.m_atten_constant = 1.0f;
+    light.m_atten_linear = 0.09f;
+    light.m_atten_quadratic = 0.032f;
+
+    // material
+    MaterialComponent& mat = p_scene.Create<MaterialComponent>(id);
+    mat.base_color = Vector4f(p_color, 1.0f);
+    mat.emissive = p_emissive;
+
+    // mesh
+    MeshRendererComponent& renderer = *p_scene.GetComponent<MeshRendererComponent>(id);
+    renderer.AddMaterial(id);
+
+    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
+    renderer.SetResourceGuid(handle.GetGuid());
+    return id;
 }
 
 Entity EntityFactory::CreateEnvironmentEntity(Scene& p_scene,

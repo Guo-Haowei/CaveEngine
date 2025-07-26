@@ -22,12 +22,6 @@ class LightComponent {
     CAVE_PROP(editor = EnumDropDown)
     LightType m_type = LightType::Infinite;
 
-    CAVE_PROP(editor = Color)
-    Vector4f m_base_color = Vector4f::One;
-
-    CAVE_PROP(editor = DragFloat, min = 0, max = 1000)
-    float m_emissive = 4.0f;
-
     CAVE_PROP(editor = DragFloat, min = 0, max = 1)
     float m_atten_constant;
 
@@ -73,9 +67,6 @@ public:
 
     auto& GetMatrices() { return m_light_space_matrices; }
     const auto& GetMatrices() const { return m_light_space_matrices; }
-
-    const Vector4f& GetBaseColor() const { return m_base_color; }
-    float GetEmissive() const { return m_emissive; }
 
     void OnDeserialized();
 

@@ -30,8 +30,10 @@ void MaterialComponent::SetResourceGuid(const Guid& p_guid) {
 }
 
 void MaterialComponent::OnDeserialized() {
-    m_material_handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(m_material_id).unwrap();
-    OnDeserializedHelper(m_material_handle);
+    if (auto handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(m_material_id); handle.is_some()) {
+        m_material_handle = handle.unwrap_unchecked();
+        OnDeserializedHelper(m_material_handle);
+    }
 }
 
 }  // namespace cave
