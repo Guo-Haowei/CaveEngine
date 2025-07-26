@@ -1,4 +1,10 @@
-guid: 0F649F8E-3F35-A045-B761123C65808B5B
 type: image
+guid: 0F649F8E-3F35-A045-B761123C65808B5B
 name: uv.png
 import_path: "@res://images/uv.png"
+dependencies: []
+source_last_modified: ""
+imported_at: ""
+import_settings:
+  color_space: linear
+  sampler: linear

@@ -37,7 +37,7 @@ public:
     std::string imported_at;
 
     CAVE_PROP()
-    std::map<std::string, std::string> import_settings;
+    mutable std::map<std::string, std::string> import_settings;
 
     /// Load meta from a .meta file
     [[nodiscard]] static auto LoadMeta(std::string_view p_path) -> Result<AssetMetaData>;

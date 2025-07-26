@@ -22,8 +22,7 @@ static PixelFormat ChannelToFormat(int p_channel, bool p_is_float) {
             return PixelFormat::UNKNOWN;
     }
 }
-static Result<void> LoadImage(const AssetMetaData& p_meta,
-                              ImageAsset& p_image) {
+static Result<void> LoadImage(const AssetMetaData& p_meta, ImageAsset& p_image) {
     auto res = FileAccess::Open(p_meta.import_path, FileAccess::READ);
     if (!res) {
         return CAVE_ERROR(res.error());
@@ -33,6 +32,8 @@ static Result<void> LoadImage(const AssetMetaData& p_meta,
 
     // @TODO: improve this part
     const bool is_float = extension == ".hdr";
+
+    // @TODO: get options
 
     std::shared_ptr<FileAccess> file = *res;
     const size_t size = file->GetLength();
@@ -92,13 +93,18 @@ static Result<void> LoadImage(const AssetMetaData& p_meta,
 }
 
 Result<void> ImageAsset::LoadFromDisk(const AssetMetaData& p_meta) {
+    sampler = EnumTraits<Sampler>::FromString(p_meta.import_settings["sampler"]).unwrap_or(Sampler::Linear);
+    color_space = EnumTraits<ColorSpace>::FromString(p_meta.import_settings["color_space"]).unwrap_or(ColorSpace::Linear);
+
     return LoadImage(p_meta, *this);
 }
 
-Result<void> ImageAsset::SaveToDisk(const AssetMetaData&) const {
-    // @TODO: get sampler from meta
-    // @TODO: load with xxx
-    return Result<void>();
+Result<void> ImageAsset::SaveToDisk(const AssetMetaData& p_meta) const {
+    // @TODO:
+    p_meta.import_settings["sampler"] = EnumTraits<Sampler>::ToString(sampler);
+    p_meta.import_settings["color_space"] = EnumTraits<ColorSpace>::ToString(color_space);
+
+    return p_meta.SaveToDisk(this);
 }
 
 std::vector<Guid> ImageAsset::GetDependencies() const {
