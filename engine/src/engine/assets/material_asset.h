@@ -5,38 +5,32 @@
 
 namespace cave {
 
+enum {
+    TEXTURE_BASE,
+    TEXTURE_NORMAL,
+    TEXTURE_METALLIC_ROUGHNESS,
+    TEXTURE_MAX,
+};
+
 struct MaterialAsset : public IAsset {
     CAVE_ASSET(MaterialAsset, AssetType::Material, 0)
 
     CAVE_META(MaterialAsset)
 public:
-    CAVE_PROP(type = color)
+    CAVE_PROP(editor = Color)
     Vector4f base_color = Vector4f::One;
 
-    CAVE_PROP(type = float)
+    CAVE_PROP(editor = DragFloat, min = 0.00f, max = 0.99f)
     float metallic = 0.0f;
 
-    CAVE_PROP(type = float)
+    CAVE_PROP(editor = DragFloat, min = 0.01f, max = 0.1f)
     float roughness = 1.0f;
 
-    CAVE_PROP(type = float)
+    CAVE_PROP(editor = DragFloat, min = 0, max = 1000)
     float emissive = 0.0f;
 
-    // @TODO: do it later
-    enum {
-        TEXTURE_BASE,
-        TEXTURE_NORMAL,
-        TEXTURE_METALLIC_ROUGHNESS,
-        TEXTURE_MAX,
-    };
-
-    struct TextureMap {
-        Guid image_id;
-        Handle<ImageAsset> handle;
-        bool enabled = false;
-    };
-
-    std::array<TextureMap, TEXTURE_MAX> textures;
+    CAVE_PROP()
+    std::array<Guid, TEXTURE_MAX> textures;
 
     std::vector<Guid> GetDependencies() const override;
 

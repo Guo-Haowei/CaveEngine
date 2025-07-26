@@ -12,22 +12,33 @@ using FilterObjectFunc1 = std::function<bool(const MeshRendererComponent& p_obje
 using FilterObjectFunc2 = std::function<bool(const AABB& p_object_aabb)>;
 
 // @TODO: fix this function OMG
-static void FillMaterialConstantBuffer(bool p_is_opengl, const MaterialAsset* p_material, MaterialConstantBuffer& cb) {
+static void FillMaterialConstantBuffer(bool p_is_opengl,
+                                       const MaterialComponent* p_material,
+                                       MaterialConstantBuffer& cb) {
     cb.c_hasBaseColorMap = false;
     cb.c_hasNormalMap = false;
     cb.c_hasMaterialMap = false;
     cb.c_hasHeightMap = false;
 
-    cb.c_baseColor = p_material->base_color;
-    cb.c_metallic = p_material->metallic;
-    cb.c_roughness = p_material->roughness;
-    cb.c_emissivePower = p_material->emissive;
-    cb.c_reflectPower = 0.0f;
-
     cb.c_baseColorMapHandle = 0;
     cb.c_normalMapHandle = 0;
     cb.c_materialMapHandle = 0;
     cb.c_heightMapHandle = 0;
+
+    // @TODO: fix
+    if (p_material) {
+        cb.c_baseColor = p_material->base_color;
+        cb.c_metallic = p_material->metallic;
+        cb.c_roughness = p_material->roughness;
+        cb.c_emissivePower = p_material->emissive;
+        // cb.c_reflectPower = 0.0f;
+    } else {
+        cb.c_baseColor = Vector4f(1, 0, 1, 1);
+        cb.c_metallic = 0.5f;
+        cb.c_roughness = 0.5f;
+        cb.c_emissivePower = 0.0f;
+        // cb.c_reflectPower = 0.0f;
+    }
 
     // @TODO: [SCRUM-210] fix material
     unused(p_is_opengl);
@@ -388,8 +399,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
                 return;
             }
 
-            const auto& mat_handles = renderer.GetMaterialHandles();
-            const auto& mat_ids = renderer.GetMaterialGuids();
+            const auto& materials = renderer.GetMaterialInstances();
 
             for (size_t idx = 0; idx < mesh.subsets.size(); ++idx) {
                 const auto& subset = mesh.subsets[idx];
@@ -401,18 +411,16 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
                 // @TODO: [SCRUM-210] fix material
                 MaterialConstantBuffer material_buffer;
-                const MaterialAsset* material = MaterialAsset::Default();
-                Guid id = Guid::Null();
-                if (idx < mat_handles.size()) {
-                    material = mat_handles[idx].Get();
-                    id = mat_ids[idx];
-                }
+                ecs::Entity material_id =
+                    idx < materials.size() ? materials[idx] : ecs::Entity::Null();
+
+                const MaterialComponent* material = p_scene->GetComponent<MaterialComponent>(material_id);
 
                 FillMaterialConstantBuffer(is_opengl, material, material_buffer);
 
                 draw_cmd.index_count = subset.index_count;
                 draw_cmd.index_offset = subset.index_offset;
-                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(id, material_buffer);
+                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(material_id, material_buffer);
 
                 p_commands.emplace_back(RenderCommand::From(draw_cmd));
             }

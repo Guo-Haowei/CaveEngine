@@ -43,6 +43,11 @@ concept ArrayOfTrivial =
     ArrayLike<T> &&
     std::is_trivially_copyable_v<ElementType_t<T>>;
 
+template<typename T>
+concept HasResize = requires(T t, size_t n) {
+    t.resize(n);
+};
+
 static_assert(ArrayLike<std::vector<int>>);
 static_assert(ArrayLike<std::array<float, 4>>);
 static_assert(!ArrayLike<int>);

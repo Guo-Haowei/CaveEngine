@@ -2,6 +2,7 @@
 #include "primitive_meshes.h"
 
 #include "engine/assets/blob_asset.h"
+#include "engine/assets/material_asset.h"
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
@@ -62,6 +63,14 @@ static void RegisterPersistentImages() {
     }
 }
 
+static void RegisterPersistentMaterials() {
+    auto material = std::make_shared<MaterialAsset>();
+    material->base_color = Vector4f::One;
+    material->metallic = 0.3f;
+    material->roughness = 0.7f;
+    material->textures[TEXTURE_BASE] = TO_GUID(GUID3);
+}
+
 static void RegisterPersistentMeshes() {
     auto& asset_registry = AssetRegistry::GetSingleton();
     auto& graphics_manager = IGraphicsManager::GetSingleton();
@@ -112,6 +121,7 @@ static void RegisterPersistentMeshes() {
 void RegisterAllPersistentAssets() {
     RegisterPersistentFonts();
     RegisterPersistentImages();
+    RegisterPersistentMaterials();
     RegisterPersistentMeshes();
 }
 

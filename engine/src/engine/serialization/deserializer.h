@@ -69,7 +69,9 @@ public:
         const auto size = ArraySize().unwrap_or(-1);
         ERR_FAIL_COND_V_MSG(size < 0, false, "expect array[]");
 
-        p_array.resize(size);
+        if constexpr (HasResize<T>) {
+            p_array.resize(size);
+        }
         for (int i = 0; i < size; ++i) {
             TryEnterIndex(i);
             Read(p_array[i]);
