@@ -10,18 +10,13 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-[[nodiscard]] static auto CreateImageAsset(const std::string& p_import_path) -> Result<std::shared_ptr<ImageAsset>> {
-    auto loader = IAssetLoader::Create(p_import_path);
-    if (!loader) {
-        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "no loader found for '{}'", p_import_path);
-    }
-
-    auto res = loader->Load();
-    if (!res) {
+[[nodiscard]] static auto CreateImageAsset(const AssetMetaData& p_meta) -> Result<std::shared_ptr<ImageAsset>> {
+    auto image = std::make_shared<ImageAsset>();
+    if (auto res = image->LoadFromDisk(p_meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    return std::dynamic_pointer_cast<ImageAsset>(*res);
+    return image;
 }
 
 Result<void> EditorAssetManager::AddAlwaysLoadImages() {
@@ -36,8 +31,10 @@ Result<void> EditorAssetManager::AddAlwaysLoadImages() {
         if (entry.is_regular_file()) {
             fs::path path = entry.path();
             fs::path file_name = path.filename();
+            AssetMetaData meta;
+            meta.import_path = path.string();
 
-            auto res = CreateImageAsset(path.string());
+            auto res = CreateImageAsset(meta);
             if (!res) {
                 return CAVE_ERROR(res.error());
             }

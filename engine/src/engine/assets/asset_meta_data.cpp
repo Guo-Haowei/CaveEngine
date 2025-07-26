@@ -45,9 +45,7 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     AssetType type = AssetType::Blob;
     if (extension == ".png" || extension == ".jpg" || extension == ".hdr") {
         type = AssetType::Image;
-    } else if (extension == ".ttf") {
-        type = AssetType::Blob;
-    } else if (extension == ".lua") {
+    } else if (extension == ".ttf" || extension == ".lua") {
         type = AssetType::Blob;
     } else if (extension == ".tileset") {
         type = AssetType::TileSet;

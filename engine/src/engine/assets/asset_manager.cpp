@@ -63,6 +63,8 @@ static struct {
 static AssetRef CreateAssetInstance(AssetType p_type) {
     // @TODO: [SCRUM-222] refactor this part
     switch (p_type) {
+        case AssetType::Image:
+            return std::make_shared<ImageAsset>();
         case AssetType::Scene:
             return std::make_shared<Scene>();
         case AssetType::TileSet:
@@ -111,10 +113,6 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     IAssetLoader::RegisterLoader(".hlsl", BufferAssetLoader::CreateLoader);
     IAssetLoader::RegisterLoader(".glsl", BufferAssetLoader::CreateLoader);
 #endif
-
-    IAssetLoader::RegisterLoader(".png", ImageAssetLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".jpg", ImageAssetLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".hdr", ImageAssetLoader::CreateLoaderF);
 
     return Result<void>();
 }

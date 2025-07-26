@@ -42,23 +42,4 @@ public:
     auto Load() -> Result<AssetRef> override;
 };
 
-class ImageAssetLoader : public IAssetLoader {
-public:
-    ImageAssetLoader(const std::string& p_import_path, uint32_t p_size)
-        : IAssetLoader(p_import_path), m_size(p_size) {}
-
-    static std::unique_ptr<IAssetLoader> CreateLoader(const std::string& p_import_path) {
-        return std::make_unique<ImageAssetLoader>(p_import_path, 1);
-    }
-
-    static std::unique_ptr<IAssetLoader> CreateLoaderF(const std::string& p_import_path) {
-        return std::make_unique<ImageAssetLoader>(p_import_path, 4);
-    }
-
-    auto Load() -> Result<AssetRef> override;
-
-protected:
-    const uint32_t m_size;
-};
-
 }  // namespace cave

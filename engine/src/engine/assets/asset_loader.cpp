@@ -6,7 +6,6 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/pixel_format.h"
 #include "engine/scene/scene.h"
-#include "tinygltf/stb_image.h"
 
 namespace cave {
 
@@ -55,87 +54,6 @@ auto BufferAssetLoader::Load() -> Result<AssetRef> {
     auto file = new BlobAsset;
     file->SetBlob(std::move(buffer));
     return AssetRef(file);
-}
-
-static PixelFormat ChannelToFormat(int p_channel, bool p_is_float) {
-    switch (p_channel) {
-        case 1:
-            return p_is_float ? PixelFormat::R32_FLOAT : PixelFormat::R8_UINT;
-        case 2:
-            return p_is_float ? PixelFormat::R32G32_FLOAT : PixelFormat::R8G8_UINT;
-        case 3:
-            return p_is_float ? PixelFormat::R32G32B32_FLOAT : PixelFormat::R8G8B8_UINT;
-        case 4:
-            return p_is_float ? PixelFormat::R32G32B32A32_FLOAT : PixelFormat::R8G8B8A8_UNORM;
-        default:
-            CRASH_NOW();
-            return PixelFormat::UNKNOWN;
-    }
-}
-
-auto ImageAssetLoader::Load() -> Result<AssetRef> {
-    auto res = FileAccess::Open(m_import_path, FileAccess::READ);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    const bool is_float = m_size == 4;
-
-    std::shared_ptr<FileAccess> file = *res;
-    const size_t size = file->GetLength();
-    std::vector<uint8_t> file_buffer;
-    file_buffer.resize(size);
-    file->ReadBuffer(file_buffer.data(), size);
-
-    int width = 0;
-    int height = 0;
-    int num_channels = 0;
-    // const int req_channel = is_float ? 0 : 4;
-    // @TODO: fix this
-    const int req_channel = 4;
-
-    uint8_t* pixels = nullptr;
-    if (is_float) {
-        pixels = (uint8_t*)stbi_loadf_from_memory(file_buffer.data(),
-                                                  (uint32_t)size,
-                                                  &width,
-                                                  &height,
-                                                  &num_channels,
-                                                  req_channel);
-    } else {
-        pixels = (uint8_t*)stbi_load_from_memory(file_buffer.data(),
-                                                 (uint32_t)size,
-                                                 &width,
-                                                 &height,
-                                                 &num_channels,
-                                                 req_channel);
-    }
-
-    if (!pixels) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", m_import_path);
-    }
-
-    if (req_channel > num_channels) {
-        num_channels = req_channel;
-    }
-
-    const uint32_t pixel_size = is_float ? sizeof(float) : sizeof(uint8_t);
-
-    int num_pixels = width * height * num_channels;
-    std::vector<uint8_t> buffer;
-    buffer.resize(pixel_size * num_pixels);
-    memcpy(buffer.data(), pixels, pixel_size * num_pixels);
-    stbi_image_free(pixels);
-
-    PixelFormat format = ChannelToFormat(num_channels, is_float);
-
-    auto p_image = new ImageAsset;
-    p_image->format = format;
-    p_image->width = width;
-    p_image->height = height;
-    p_image->num_channels = num_channels;
-    p_image->buffer = std::move(buffer);
-    return AssetRef(p_image);
 }
 
 }  // namespace cave

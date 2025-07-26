@@ -17,9 +17,9 @@ struct ImageAsset : IAsset {
     // @TODO: refactor
     std::shared_ptr<GpuTexture> gpu_texture;
 
-    Result<void> LoadFromDisk(const AssetMetaData&) override;
+    Result<void> LoadFromDisk(const AssetMetaData& p_meta) override;
 
-    Result<void> SaveToDisk(const AssetMetaData&) const override;
+    Result<void> SaveToDisk(const AssetMetaData& p_meta) const override;
 
     std::vector<Guid> GetDependencies() const override;
 };
