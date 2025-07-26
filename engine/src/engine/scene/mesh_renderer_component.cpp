@@ -16,9 +16,8 @@ void MeshRendererComponent::SetResourceGuid(const Guid& p_guid) {
                                       m_mesh_handle.RawHandle());
 }
 
-void MeshRendererComponent::AddMaterial() {
-    const size_t old_size = m_materials.size();
-    m_materials.resize(old_size + 1);
+void MeshRendererComponent::AddMaterial(ecs::Entity& p_material) {
+    m_materials.push_back(p_material);
 }
 
 void MeshRendererComponent::OnDeserialized() {

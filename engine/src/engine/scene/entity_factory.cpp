@@ -148,16 +148,20 @@ static Entity CreateMeshEntity(const std::string& p_asset_path,
                                Scene& p_scene,
                                const std::string& p_name,
                                const Matrix4x4f& p_transform) {
-    auto entity = EntityFactory::CreateObjectEntity(p_scene, p_name);
-    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    auto id = EntityFactory::CreateNameEntity(p_scene, p_name);
+    TransformComponent& transform = p_scene.Create<TransformComponent>(id);
     transform.MatrixTransform(p_transform);
 
-    auto& renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
+    MeshRendererComponent& renderer = p_scene.Create<MeshRendererComponent>(id);
+
+    auto mat_id = EntityFactory::CreateNameEntity(p_scene, p_name + ":mat");
+    p_scene.Create<MaterialComponent>(mat_id);
+    renderer.AddMaterial(mat_id);
 
     // @TODO: create material
     auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>(p_asset_path).unwrap();
     renderer.SetResourceGuid(handle.GetGuid());
-    return entity;
+    return id;
 }
 
 Entity EntityFactory::CreatePlaneEntity(Scene& p_scene,

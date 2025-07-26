@@ -35,7 +35,7 @@ public:
     auto& GetMaterialInstances() { return m_materials; }
     const auto& GetMaterialInstances() const { return m_materials; }
 
-    void AddMaterial();
+    void AddMaterial(ecs::Entity& p_material);
 
     const auto& GetMeshHandle() const { return m_mesh_handle; }
 

@@ -15,7 +15,7 @@ public:
     CAVE_PROP(editor = DragFloat, min = 0.00f, max = 0.99f)
     float metallic = 0.0f;
 
-    CAVE_PROP(editor = DragFloat, min = 0.01f, max = 0.1f)
+    CAVE_PROP(editor = DragFloat, min = 0.01f, max = 1)
     float roughness = 1.0f;
 
     CAVE_PROP(editor = DragFloat, min = 0, max = 1000)

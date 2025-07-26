@@ -328,16 +328,12 @@ void PropertyPanel::UpdateInternal() {
 
     DrawComponent("MeshRenderer", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
         DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
-        // draw
-        if (ImGui::Button("+")) {
-            p_mesh_renderer.AddMaterial();
+
+        for (ecs::Entity id : p_mesh_renderer.GetMaterialInstances()) {
+            if (MaterialComponent* material = scene.GetComponent<MaterialComponent>(id); material) {
+                DrawComponentAuto<MaterialComponent>(material);
+            }
         }
-        // auto& materials = p_mesh_renderer.GetMaterialInstances();
-        // for (auto& guid : materials) {
-        //     if (DrawAsset<MeshRendererComponent>("xxx", guid, nullptr)) {
-        //         LOG("TODO");
-        //     }
-        // }
     });
 
     DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
