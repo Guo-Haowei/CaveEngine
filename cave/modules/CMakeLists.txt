@@ -1,3 +1,4 @@
+# @TODO: move backend to RHI
 add_subdirectory(opengl_common)
 if (WIN32)
     add_subdirectory(opengl4)
@@ -8,6 +9,8 @@ if (WIN32)
 elseif (EMSCRIPTEN)
     add_subdirectory(opengles3)
 endif()
+
+add_subdirectory(sw_renderer)
 
 if (NOT EMSCRIPTEN)
     add_subdirectory(box2d)

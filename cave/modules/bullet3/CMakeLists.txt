@@ -1,9 +1,10 @@
 include(FetchContent)
 
 FetchContent_Declare(
-  bullet
-  GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
-  GIT_TAG        master  # Or a stable release like 3.25
+    bullet
+    GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
+    GIT_TAG        3.25
+    GIT_SHALLOW    TRUE
 )
 
 set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)

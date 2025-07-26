@@ -4,6 +4,7 @@ FetchContent_Declare(
     yaml-cpp
     GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
     GIT_TAG        0.8.0
+    GIT_SHALLOW    TRUE
 )
 
 FetchContent_MakeAvailable(yaml-cpp)
@@ -12,6 +13,7 @@ FetchContent_Declare(
     LuaBridge3
     GIT_REPOSITORY https://github.com/kunitoki/LuaBridge3.git
     GIT_TAG        3.0-rc3
+    GIT_SHALLOW    TRUE
 )
 
 FetchContent_MakeAvailable(LuaBridge3)
