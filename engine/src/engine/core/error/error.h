@@ -157,4 +157,6 @@ using Result = std::expected<T, ErrorRef>;
 
 IStringBuilder& operator<<(IStringBuilder& p_stream, const ErrorRef& p_error);
 
+std::string ToString(const ErrorRef& p_error);
+
 }  // namespace cave

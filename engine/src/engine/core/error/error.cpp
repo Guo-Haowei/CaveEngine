@@ -46,4 +46,10 @@ IStringBuilder& operator<<(IStringBuilder& p_stream, const ErrorRef& p_error) {
     return p_stream;
 }
 
+std::string ToString(const ErrorRef& p_error) {
+    StringStreamBuilder builder;
+    builder << p_error;
+    return builder.ToString();
+}
+
 }  // namespace cave

@@ -112,21 +112,22 @@ void FileSystemPanel::FolderPopup(const FolderTreeNode& p_node) {
         auto asset_manager = m_editor.GetApplication()->GetAssetManager();
         // @TODO: [SCRUM-222] refactor this
         if (ImGui::BeginMenu("Add")) {
-            if (ImGui::MenuItem("Scene")) {
-                asset_manager->CreateAsset(AssetType::Scene, p_node.virtual_path);
-            }
-            if (ImGui::MenuItem("TileSet")) {
-                asset_manager->CreateAsset(AssetType::TileSet, p_node.virtual_path);
-            }
-            if (ImGui::MenuItem("SpriteAnimation")) {
-                asset_manager->CreateAsset(AssetType::SpriteAnimation, p_node.virtual_path);
-            }
-            if (ImGui::MenuItem("TileMap")) {
-                asset_manager->CreateAsset(AssetType::TileMap, p_node.virtual_path);
-            }
-            if (ImGui::MenuItem("Material")) {
-                asset_manager->CreateAsset(AssetType::Material, p_node.virtual_path);
-            }
+#define ADD_ASSET_MENU(TYPE)                                                         \
+    do {                                                                             \
+        if (ImGui::MenuItem(#TYPE)) {                                                \
+            auto res = asset_manager->CreateAsset(AssetType::TYPE, p_node.sys_path); \
+            if (!res) {                                                              \
+                LOG_ERROR("Failed to create asset: {}", ToString(res.error()));      \
+            }                                                                        \
+        }                                                                            \
+    } while (0)
+
+            ADD_ASSET_MENU(Scene);
+            ADD_ASSET_MENU(SpriteAnimation);
+            ADD_ASSET_MENU(Material);
+            ADD_ASSET_MENU(TileSet);
+            ADD_ASSET_MENU(TileMap);
+
             ImGui::EndMenu();
         }
         if (ImGui::MenuItem("Delete")) {

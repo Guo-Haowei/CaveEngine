@@ -5,7 +5,6 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/input_manager.h"
-#include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/scene/scene.h"
 
@@ -212,9 +211,7 @@ ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const Guid& p_guid, co
 
     ObjectFunctions meta;
     if (auto res = LoadMetaTable(L, p_guid, p_class_name, meta); !res) {
-        StringStreamBuilder builder;
-        builder << res.error();
-        LOG_ERROR("{}", builder.ToString());
+        LOG_ERROR("{}", ToString(res.error()));
     } else {
         m_objects_meta[p_guid] = meta;
     }

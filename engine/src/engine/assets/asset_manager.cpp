@@ -13,7 +13,6 @@
 #include "engine/core/io/file_access.h"
 #include "engine/core/os/threads.h"
 #include "engine/core/os/timer.h"
-#include "engine/core/string/string_builder.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
@@ -207,10 +206,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
             auto res = LoadAsset(entry);
             if (!res) {
                 entry->MarkFailed();
-
-                StringStreamBuilder builder;
-                builder << res.error();
-                LOG_ERROR("Failed to load asset '{}', reason {}", entry->metadata.import_path, builder.ToString());
+                LOG_ERROR("Failed to load asset '{}', reason {}", entry->metadata.import_path, ToString(res.error()));
                 return nullptr;
             }
 

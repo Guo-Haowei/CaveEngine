@@ -3,7 +3,6 @@
 #include <fstream>
 #include <latch>
 
-#include "engine/core/string/string_builder.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager_interface.h"
@@ -204,9 +203,7 @@ bool AssetRegistry::SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) 
 
     auto res = p_entry->asset->SaveToDisk(p_entry->metadata);
     if (!res) {
-        StringStreamBuilder builder;
-        builder << res.error();
-        LOG_ERROR("{}", builder.ToString());
+        LOG_ERROR("{}", ToString(res.error()));
         return false;
     }
 
