@@ -195,10 +195,10 @@ vec3 compute_lighting(sampler2D shadow_map,
                                light.atten_quadratic * (dist * dist));
                 atten = 1.0 / atten;
                 if (atten > 0.01) {
-#if 0
                     vec3 L = normalize(delta);
                     const vec3 H = normalize(V + L);
                     direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
+#if 0
                     if (light.cast_shadow == 1) {
                         shadow = point_shadow_calculation(light, world_position, c_cameraPosition);
                     }

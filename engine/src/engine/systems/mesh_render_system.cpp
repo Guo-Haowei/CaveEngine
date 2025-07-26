@@ -211,8 +211,8 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
                 light.position = light_component.GetPosition();
                 light.cast_shadow = cast_shadow;
                 light.max_distance = light_component.GetMaxDistance();
-                LOG_WARN("TODO: fix light");
-                CRASH_NOW();
+                light.shadow_map_index = -1;
+                // LOG_WARN("TODO: fix light");
 #if 0
                 [[maybe_unused]] const int shadow_map_index = light_component.GetShadowMapIndex();
                 if (cast_shadow && shadow_map_index != -1) {

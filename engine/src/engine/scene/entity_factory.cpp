@@ -55,36 +55,23 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
                                              const Vector3f& p_position,
                                              const Vector3f& p_color,
                                              const float p_emissive) {
-    auto entity = CreateObjectEntity(p_scene, p_name);
+    auto id = CreateObjectEntity(p_scene, p_name);
 
-    LightComponent& light = p_scene.Create<LightComponent>(entity);
+    LightComponent& light = p_scene.Create<LightComponent>(id);
     light.SetType(LightType::Point);
     light.m_atten_constant = 1.0f;
     light.m_atten_linear = 0.2f;
     light.m_atten_quadratic = 0.05f;
 
-    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
+    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
     transform.SetTranslation(p_position);
     transform.SetDirty();
 
-    CRASH_NOW();
-    unused(p_color);
-    unused(p_emissive);
-#if 0
-    MeshRendererComponent& mesh_renderer = *p_scene.GetComponent<MeshRendererComponent>(entity);
-    MaterialComponent& material = p_scene.Create<MaterialComponent>(entity);
-    material.baseColor = Vector4f(p_color, 1.0f);
-    material.emissive = p_emissive;
+    MaterialComponent& mat = p_scene.Create<MaterialComponent>(id);
+    mat.base_color = Vector4f(p_color, 1.0f);
+    mat.emissive = p_emissive;
 
-    auto mesh_id = CreateMeshEntity(p_scene, p_name + ":mesh");
-    //object.meshId = mesh_id;
-    object.flags = MeshRenderer::FLAG_RENDERABLE;
-
-    MeshAsset& mesh = *p_scene.GetComponent<MeshAsset>(mesh_id);
-    mesh = MakeSphereMesh(0.1f, 40, 40);
-    mesh.subsets[0].material_id = Guid();
-#endif
-    return entity;
+    return id;
 }
 
 Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,

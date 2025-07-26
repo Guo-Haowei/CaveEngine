@@ -10,8 +10,8 @@
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/scene_editor/scene_document.h"
-#include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
+#include "editor/viewer/viewer.h"
 
 // @TODO: refactor
 #include "editor/editor_dvars.h"

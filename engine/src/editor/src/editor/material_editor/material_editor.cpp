@@ -16,6 +16,8 @@ namespace cave {
 MaterialEditor::MaterialEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
     ViewerTab::CreateDefaultCamera3D(m_camera);
+
+    m_camera.SetPosition(Vector3f(0, 0, 2));
 }
 
 void MaterialEditor::OnCreate(const Guid& p_guid) {
@@ -31,23 +33,8 @@ void MaterialEditor::OnCreate(const Guid& p_guid) {
         auto root = EntityFactory::CreateTransformEntity(*scene, "material_test");
         scene->m_root = root;
 
-        if constexpr (0) { // add light
-            auto id = EntityFactory::CreateInfiniteLightEntity(*scene, "light");
-            LightComponent& light = *scene->GetComponent<LightComponent>(id);
-            light.SetCastShadow();
-
-            TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
-            transform.RotateX(Degree(-50.f));
-
-            scene->AttachChild(id);
-        }
-
-        if constexpr (0) // add plane
-        {
-            auto id = EntityFactory::CreatePlaneEntity(*scene, "plane");
-            TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
-            transform.SetScale(Vector3f(5));
-            transform.RotateX(Degree(-90.0f));
+        if constexpr (1) {  // add point light
+            auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vector3f(0, 3, 1));
 
             scene->AttachChild(id);
         }
@@ -62,7 +49,17 @@ void MaterialEditor::OnCreate(const Guid& p_guid) {
             material->SetResourceGuid(p_guid);
 
             TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
-            transform.SetTranslation(Vector3f(0.0f, 0.55f, 0.0f));
+            transform.SetTranslation(Vector3f(0.0f, 0.0f, 0.0f));
+
+            scene->AttachChild(id);
+        }
+
+        if constexpr (0)  // add plane
+        {
+            auto id = EntityFactory::CreatePlaneEntity(*scene, "plane");
+            TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
+            transform.SetScale(Vector3f(5));
+            transform.RotateX(Degree(-90.0f));
 
             scene->AttachChild(id);
         }

@@ -126,7 +126,6 @@ float3 compute_lighting(Texture2D shadowMap,
                 }
             } break;
             case LIGHT_TYPE_POINT: {
-#if 0
                 float3 delta = -world_position + light.position;
                 float dist = length(delta);
                 float atten = (light.atten_constant + light.atten_linear * dist +
@@ -137,11 +136,12 @@ float3 compute_lighting(Texture2D shadowMap,
                     float3 L = normalize(delta);
                     const float3 H = normalize(V + L);
                     direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
+#if 0
                     if (light.cast_shadow == 1) {
                         shadow = point_shadow_calculation(light, world_position, c_cameraPosition);
                     }
-                }
 #endif
+                }
             } break;
             default:
                 break;
