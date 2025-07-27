@@ -192,27 +192,23 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
     Vector2f max = triangleBox.GetMax();
     for (int y = min.y; y < max.y; ++y) {
         for (int x = min.x; x < max.x; ++x) {
-            // cross product
-            alignas(16) Vector3f a = { CA.x, CB.x, c.x - x };
-            alignas(16) Vector3f b = { CA.y, CB.y, c.y - y };
-            float cx = a.y * b.z - b.y * a.z;
-            float cy = a.z * b.x - b.z * a.x;
-            float cz = a.x * b.y - b.x * a.y;
-
-            if (cz == 0.0f) {
+            const Vector2f p(x, y);
+            const Vector2f PC = c - p;
+            Vector3f uvw = cross(Vector3f(CA.x, CB.x, PC.x), Vector3f(CA.y, CB.y, PC.y));
+            if (uvw.z == 0.0f) {
                 continue;
             }
+            uvw /= uvw.z;
+            uvw.z -= (uvw.x + uvw.y);
+            Vector3f bCoord = uvw;
 
-            const float cz_inv = 1.0f / cz;
-            cx *= cz_inv;
-            cy *= cz_inv;
-            cz = 1.0f - cx - cy;
-
-            const bool test = (cx >= 0.0f && cy >= 0.0f && cz >= 0.0f);
-            if (test) {
+            static const float epsilon = glm::epsilon<float>();
+            const float sum = bCoord.x + bCoord.y + bCoord.z;
+            bool test = (bCoord.x >= 0.0f && bCoord.y >= 0.0f && bCoord.z >= 0.0f && std::abs(sum - 1.0f) <= epsilon);
+            if (test == true) {
                 // depth test
                 VSOutput output;
-                output.position = cx * vs_out0.position + cy * vs_out1.position + cz * vs_out2.position;
+                output.position = bCoord.x * vs_out0.position + bCoord.y * vs_out1.position + bCoord.z * vs_out2.position;
                 output.position.z = 0.5f * output.position.z + 0.5f;  // normalize to [0, 1]
                 const size_t index = (height - y - 1) * width + x;
 
@@ -224,26 +220,26 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
 
                 depthBuffer.m_buffer[index] = depth;
                 // corrected barycentric coordinates
-                float x = cx * vs_out0.position.w;
-                float y = cy * vs_out1.position.w;
-                float z = cz * vs_out2.position.w;
+                float x = bCoord.x * vs_out0.position.w;
+                float y = bCoord.y * vs_out1.position.w;
+                float z = bCoord.z * vs_out2.position.w;
                 float xyzSum = x + y + z;
-                cx = x / xyzSum;
-                cy = y / xyzSum;
-                cz = z / xyzSum;
+                bCoord.x = x / xyzSum;
+                bCoord.y = y / xyzSum;
+                bCoord.z = z / xyzSum;
 
                 if (varyingFlags & VARYING_NORMAL) {
-                    output.normal = cx * vs_out0.normal + cy * vs_out1.normal + cz * vs_out2.normal;
+                    output.normal = bCoord.x * vs_out0.normal + bCoord.y * vs_out1.normal + bCoord.z * vs_out2.normal;
                 }
                 if (varyingFlags & VARYING_COLOR) {
-                    output.color = cx * vs_out0.color + cy * vs_out1.color + cz * vs_out2.color;
+                    output.color = bCoord.x * vs_out0.color + bCoord.y * vs_out1.color + bCoord.z * vs_out2.color;
                 }
                 if (varyingFlags & VARYING_UV) {
                     // NOTE: slow here! probably due to unaligned simd operation
-                    output.uv = cx * vs_out0.uv + cy * vs_out1.uv + cz * vs_out2.uv;
+                    output.uv = bCoord.x * vs_out0.uv + bCoord.y * vs_out1.uv + bCoord.z * vs_out2.uv;
                 }
                 if (varyingFlags & VARYING_WORLD_POSITION) {
-                    output.worldPosition = cx * vs_out0.worldPosition + cy * vs_out1.worldPosition + cz * vs_out2.worldPosition;
+                    output.worldPosition = bCoord.x * vs_out0.worldPosition + bCoord.y * vs_out1.worldPosition + bCoord.z * vs_out2.worldPosition;
                 }
 
                 // fragment shader

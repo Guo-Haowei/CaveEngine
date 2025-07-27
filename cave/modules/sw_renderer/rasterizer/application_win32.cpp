@@ -34,17 +34,18 @@ void initialize() {
 
     ::RegisterClassEx(&g_wc);
 
-    g_hWnd = ::CreateWindow(g_wc.lpszClassName,          // lpClassName
-                            g_config.title,              // lpWindowName
-                            WS_OVERLAPPED | WS_SYSMENU,  // dwStyle
-                            CW_USEDEFAULT,               // x
-                            CW_USEDEFAULT,               // y
-                            g_config.width,              // nWidth
-                            g_config.height,             // nHeight
-                            NULL,                        // hWndParent
-                            NULL,                        // hMenu
-                            g_wc.hInstance,              // hInstance
-                            NULL                         // lpParam
+    g_hWnd = ::CreateWindow(
+        g_wc.lpszClassName,     // lpClassName
+        g_config.title,         // lpWindowName (still needed internally)
+        WS_POPUP | WS_VISIBLE,  // Frameless + visible
+        CW_USEDEFAULT,          // x
+        CW_USEDEFAULT,          // y
+        g_config.width,         // nWidth
+        g_config.height,        // nHeight
+        NULL,                   // hWndParent
+        NULL,                   // hMenu
+        g_wc.hInstance,         // hInstance
+        NULL                    // lpParam
     );
 
     if (!g_hWnd) {
@@ -52,7 +53,6 @@ void initialize() {
     }
 
     ::ShowWindow(g_hWnd, SW_SHOWDEFAULT);
-    ::UpdateWindow(g_hWnd);
 
     g_hDC = GetDC(g_hWnd);
     // TODO: not sure why is there here..., figure it out!!

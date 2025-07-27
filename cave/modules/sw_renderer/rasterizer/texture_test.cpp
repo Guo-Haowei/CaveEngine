@@ -1,7 +1,8 @@
 #include "example_base.h"
-#include "loader.h"
 
 #include "engine/math/matrix_transform.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "tinygltf/stb_image.h"
 
 #ifndef ASSET_DIR
 #define ASSET_DIR
@@ -11,6 +12,30 @@ namespace cave {
 
 using namespace rs;
 
+static void loadTexture(Texture& texture, const char* path) {
+    int width, height, channel;
+    unsigned char* data = stbi_load(path, &width, &height, &channel, 0);
+    if (data) {
+        std::vector<Color> buffer(width * height);
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                int bufferIndex = y * width + x;
+                Color& c = buffer[bufferIndex];
+                int channelIndex = channel * bufferIndex;
+                // NOTE: bitmap is in bgra format
+                c.r = data[channelIndex + 2];
+                c.g = data[channelIndex + 1];
+                c.b = data[channelIndex + 0];
+                c.a = channel == 4 ? data[channelIndex + 3] : 255;
+            }
+        }
+
+        texture.create({ width, height, buffer.data() });
+        stbi_image_free(data);
+    } else {
+        printf("Failed to load texture '%s'\n", path);
+    }
+}
 class TextureVs : public IVertexShader {
 public:
     TextureVs()
@@ -84,9 +109,9 @@ void TextureTest::postInit() {
     rs::setIndexArray(g_indices);
 
     // constant buffer
-    const float fovy = 0.785398f;  // 45.0 degree
-    V = LookAtRh(Vector3f(0, -2, 2), Vector3f(0), Vector3f(0, 1, 0));
-    P = BuildPerspectiveRH(fovy, (float)m_width / (float)m_height, 0.1f, 10.0f);
+    constexpr float w = .5f;
+    V = LookAtRh(Vector3f(0, 0, 4), Vector3f::Zero, Vector3f::UnitY);
+    P = BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
     PV = P * V;
 
     // texture
@@ -95,17 +120,11 @@ void TextureTest::postInit() {
 }
 
 void TextureTest::update(double deltaTime) {
-    static const Matrix4x4f M0 = Translate(Vector3f(0.0f, 0.0f, 0.5f));
-    static const Matrix4x4f M1 = Translate(Vector3f(0.0f, 0.0f, -0.5f));
     rs::clear(COLOR_DEPTH_BUFFER_BIT);
-    m_vs.PVM = PV * M0;
-    rs::drawElements(0, 6);
-    m_vs.PVM = PV * Matrix4x4f(1);
-    rs::drawElements(0, 6);
-    m_vs.PVM = PV * M1;
+    m_vs.PVM = PV;
     rs::drawElements(0, 6);
 }
 
 ExampleBase *g_pExample = new TextureTest();
-Config g_config = { 900, 540, "Texture" };
+Config g_config = { 256, 256, "Texture" };
 }  // namespace cave
