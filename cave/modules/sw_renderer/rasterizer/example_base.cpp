@@ -1,16 +1,18 @@
-#include "example_base.h"
-#include "JobSystem.h"
-#include "application.h"
 #include <chrono>
 
+#include "example_base.h"
+#include "application.h"
+#include "engine/systems/job_system/job_system.h"
+
 using namespace std::chrono;
+using namespace cave;
 
 ExampleBase::ExampleBase(const Config& config)
     : m_width(config.width), m_height(config.height), m_title(config.title) {
 }
 
 int ExampleBase::run() {
-    jobsystem::initialize();
+    jobsystem::Initialize();
     rs::initialize();
 
     m_renderTarget.create({ m_width, m_height, true, true });
@@ -49,7 +51,7 @@ int ExampleBase::run() {
 
     app::finalize();
     rs::finalize();
-    jobsystem::finalize();
+    jobsystem::Finalize();
 
     return 0;
 }
