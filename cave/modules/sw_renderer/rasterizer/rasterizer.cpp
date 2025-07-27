@@ -10,7 +10,7 @@ namespace cave::rs {
 using namespace std;
 
 // config
-static constexpr int tileSize = 200;
+static constexpr int TILE_SIZE = 128;
 
 // barycentric
 // P = uA + vB + wC (where w = 1 - u - v)
@@ -134,21 +134,16 @@ static inline OutTriangle processTriangle(const VSInput& vs_in0, const VSInput& 
     return OutTriangle { vs_out0, vs_out1, vs_out2 };
 }
 
-static inline int tileNum(int tileSize, int length) {
-    int rem = (length % tileSize) != 0;
-    return (length / tileSize) + rem;
+static inline int tileNum(int p_tile_size, int p_length) {
+    int rem = (p_length % p_tile_size) != 0;
+    return (p_length / p_tile_size) + rem;
 }
 
 static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
-    constexpr float epsilon = glm::epsilon<float>();
     // prepare to go multi-threading
     RenderTarget* rt = g_state.rt;
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
-
-    // note
-    const int col = tileNum(tileSize, width);
-    const int row = tileNum(tileSize, height);
 
     const VSOutput& vs_out0 = vs_out.p0;
     const VSOutput& vs_out1 = vs_out.p1;
@@ -171,10 +166,10 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
     DepthBuffer& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = vs->getVaryingFlags();
 
-    const Vector2f _min(tx * tileSize, ty * tileSize);
+    const Vector2f _min(tx * TILE_SIZE, ty * TILE_SIZE);
     const Vector2f _max(
-        glm::min(width - 1, (tx + 1) * tileSize),
-        glm::min(height - 1, (ty + 1) * tileSize));
+        glm::min(width - 1, (tx + 1) * TILE_SIZE),
+        glm::min(height - 1, (ty + 1) * TILE_SIZE));
     const Rect screenBox(_min, _max);
     Rect triangleBox {};
     triangleBox.ExpandPoint(a);
@@ -190,11 +185,11 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
     // rasterization
     Vector2f min = triangleBox.GetMin();
     Vector2f max = triangleBox.GetMax();
-    for (int y = min.y; y < max.y; ++y) {
-        for (int x = min.x; x < max.x; ++x) {
-            const Vector2f p(x, y);
-            const Vector2f PC = c - p;
-            Vector3f uvw = cross(Vector3f(CA.x, CB.x, PC.x), Vector3f(CA.y, CB.y, PC.y));
+    for (int _y = (int)min.y; _y < (int)max.y; ++_y) {
+        for (int _x = (int)min.x; _x < (int)max.x; ++_x) {
+            Vector3f a_(CA.x, CB.x, c.x - _x);
+            Vector3f b_(CA.y, CB.y, c.y - _y);
+            Vector3f uvw = cross(a_, b_);
             if (uvw.z == 0.0f) {
                 continue;
             }
@@ -210,7 +205,7 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
                 VSOutput output;
                 output.position = bCoord.x * vs_out0.position + bCoord.y * vs_out1.position + bCoord.z * vs_out2.position;
                 output.position.z = 0.5f * output.position.z + 0.5f;  // normalize to [0, 1]
-                const size_t index = (height - y - 1) * width + x;
+                const size_t index = (height - _y - 1) * width + _x;
 
                 float depth = output.position.z;
 
@@ -260,8 +255,8 @@ static void drawArrayInternal(vector<OutTriangle>& trigs) {
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
 
-    const int col = tileNum(tileSize, width);
-    const int row = tileNum(tileSize, height);
+    const int col = tileNum(TILE_SIZE, width);
+    const int row = tileNum(TILE_SIZE, height);
 
     jobsystem::Context ctx;
     ctx.Dispatch(row, 1, [&](jobsystem::JobArgs args) {

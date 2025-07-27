@@ -1,4 +1,3 @@
-#include <cstdio>
 #include "application.h"
 #include "example_base.h"
 
@@ -36,12 +35,12 @@ void initialize() {
 
     g_hWnd = ::CreateWindow(
         g_wc.lpszClassName,     // lpClassName
-        g_config.title,         // lpWindowName (still needed internally)
+        "dummy",                // lpWindowName (still needed internally)
         WS_POPUP | WS_VISIBLE,  // Frameless + visible
         CW_USEDEFAULT,          // x
         CW_USEDEFAULT,          // y
-        g_config.width,         // nWidth
-        g_config.height,        // nHeight
+        256,                    // nWidth
+        256,                    // nHeight
         NULL,                   // hWndParent
         NULL,                   // hMenu
         g_wc.hInstance,         // hInstance
@@ -107,30 +106,11 @@ void pollEvents() {
     }
 }
 
-void setWindowTitle(const char* title) {
-    ::SetWindowTextA(g_hWnd, title);
-}
-
-static bool g_keyStatus[1024];
-
-bool getKey(enum KeyCode keycode) {
-    return g_keyStatus[keycode];
-}
-
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_DESTROY:
             ::PostQuitMessage(0);
             g_shouldQuit = true;
-            break;
-        case WM_KEYDOWN:
-            DEV_ASSERT(wParam >= 0 && wParam <= sizeof(g_keyStatus));
-            g_keyStatus[wParam] = true;
-            // printf("%d\n", wParam);
-            break;
-        case WM_KEYUP:
-            DEV_ASSERT(wParam >= 0 && wParam <= sizeof(g_keyStatus));
-            g_keyStatus[wParam] = false;
             break;
         default:
             break;

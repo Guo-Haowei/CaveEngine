@@ -12,6 +12,8 @@ namespace cave {
 
 using namespace rs;
 
+// @TODO: get rid of this function,
+// use asset system instead
 static void loadTexture(Texture& texture, const char* path) {
     int width, height, channel;
     unsigned char* data = stbi_load(path, &width, &height, &channel, 0);
@@ -78,7 +80,7 @@ public:
     TextureTest();
 
     virtual void postInit() override;
-    virtual void update(double deltaTime) override;
+    virtual void update() override;
 
 private:
     TextureVs m_vs;
@@ -92,7 +94,9 @@ private:
 };
 
 TextureTest::TextureTest()
-    : ExampleBase(g_config) {}
+    : ExampleBase() {
+    m_width = m_height = 256;
+}
 
 void TextureTest::postInit() {
     rs::setSize(m_width, m_height);
@@ -119,12 +123,11 @@ void TextureTest::postInit() {
     m_fs.m_cubeTexture = &m_texture;
 }
 
-void TextureTest::update(double deltaTime) {
+void TextureTest::update() {
     rs::clear(COLOR_DEPTH_BUFFER_BIT);
     m_vs.PVM = PV;
     rs::drawElements(0, 6);
 }
 
 ExampleBase *g_pExample = new TextureTest();
-Config g_config = { 256, 256, "Texture" };
 }  // namespace cave
