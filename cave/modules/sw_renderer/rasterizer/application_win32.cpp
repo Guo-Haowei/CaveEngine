@@ -1,6 +1,5 @@
 #include <cstdio>
 #include "application.h"
-#include "core_assert.h"
 #include "example_base.h"
 
 #ifdef UNICODE
@@ -49,7 +48,7 @@ void initialize() {
     );
 
     if (!g_hWnd) {
-        PANIC("CreateWindow() failed");
+        CRASH_NOW_MSG("CreateWindow() failed");
     }
 
     ::ShowWindow(g_hWnd, SW_SHOWDEFAULT);
@@ -125,12 +124,12 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             g_shouldQuit = true;
             break;
         case WM_KEYDOWN:
-            ASSERT(wParam >= 0 && wParam <= sizeof(g_keyStatus));
+            DEV_ASSERT(wParam >= 0 && wParam <= sizeof(g_keyStatus));
             g_keyStatus[wParam] = true;
             // printf("%d\n", wParam);
             break;
         case WM_KEYUP:
-            ASSERT(wParam >= 0 && wParam <= sizeof(g_keyStatus));
+            DEV_ASSERT(wParam >= 0 && wParam <= sizeof(g_keyStatus));
             g_keyStatus[wParam] = false;
             break;
         default:

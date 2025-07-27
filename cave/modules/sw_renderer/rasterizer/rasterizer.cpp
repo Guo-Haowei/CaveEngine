@@ -6,7 +6,6 @@
 #include <thread>
 #include <vector>
 #include "JobSystem.h"
-#include "core_assert.h"
 
 namespace rs {
 
@@ -45,7 +44,7 @@ void finalize() {
 }
 
 void setSize(int width, int height) {
-    ASSERT(width > 0 && height > 0);
+    DEV_ASSERT(width > 0 && height > 0);
     g_state.rt->resize(width, height);
     g_state.rt->m_colorBuffer.clear(g_state.clearColor);
     g_state.rt->m_depthBuffer.clear(g_state.clearDepth);
@@ -91,7 +90,7 @@ struct OutTriangle {
  * https://stackoverflow.com/questions/24441631/how-exactly-does-opengl-do-perspectively-correct-linear-interpolation
  */
 inline void ndcToViewport(vec4& position) {
-    ASSERT(position.w != 0.0f);
+    DEV_ASSERT(position.w != 0.0f);
     float invW = 1.0f / position.w;
     position.x *= invW;
     position.y *= invW;
@@ -274,8 +273,8 @@ static void drawArrayInternal(vector<OutTriangle>& trigs) {
 }
 
 void drawArrays(size_t start, size_t count) {
-    ASSERT(count % 3 == 0);
-    ASSERT(start % 3 == 0);
+    DEV_ASSERT(count % 3 == 0);
+    DEV_ASSERT(start % 3 == 0);
 
     const int triangleCnt = int(count) / 3;
     vector<OutTriangle> outTriangles(triangleCnt);
@@ -295,8 +294,8 @@ void drawArrays(size_t start, size_t count) {
 }
 
 void drawElements(size_t start, size_t count) {
-    ASSERT(count % 3 == 0);
-    ASSERT(start % 3 == 0);
+    DEV_ASSERT(count % 3 == 0);
+    DEV_ASSERT(start % 3 == 0);
 
     const int triangleCnt = int(count) / 3;
     vector<OutTriangle> outTriangles(triangleCnt);

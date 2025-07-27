@@ -6,7 +6,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include "core_assert.h"
 
 namespace gfx {
 
@@ -57,7 +56,6 @@ struct box_t {
     constexpr box_t(const vec_t& _min, const vec_t& _max)
         : min(_min)
         , max(_max) {
-        ASSERT(isValid());
     }
 
     void expandPoint(const vec_t& p) {

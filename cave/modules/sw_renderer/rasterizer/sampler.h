@@ -1,7 +1,6 @@
 #pragma once
 #include <algorithm>  // std::fill
 #include <vector>
-#include "core_assert.h"
 #include "linalg.h"
 
 namespace rs {
@@ -16,7 +15,7 @@ class TextureBase {
     };
 
     void create(const CreateInfo& info) {
-        ASSERT(info.width != 0 && info.height != 0);
+        DEV_ASSERT(info.width != 0 && info.height != 0);
         m_width = info.width;
         m_height = info.height;
         m_buffer.resize(m_width * m_height);

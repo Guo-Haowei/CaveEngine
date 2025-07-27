@@ -5,7 +5,6 @@
 #include <mutex>
 #include <string>
 #include <thread>
-#include "engine/pch.h"
 #include "engine/core/base/fixed_stack.h"
 #include "engine/core/base/thread_safe_ring_buffer.h"
 
