@@ -1,12 +1,9 @@
-#include <chrono>
-
 #include "example_base.h"
 #include "application.h"
 #include "engine/core/os/threads.h"
 #include "engine/runtime/engine.h"
 
 namespace cave {
-using namespace std::chrono;
 
 ExampleBase::ExampleBase() {}
 
@@ -33,7 +30,6 @@ int ExampleBase::run() {
         app::drawPixels(m_width,
                         m_height,
                         m_renderTarget.getColorBuffer().getData());
-
     }
 
     thread::RequestShutdown();

@@ -6,6 +6,7 @@
 #include "engine/runtime/layer.h"
 #include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
+#include "engine/scripting/lua/lua_script_manager.h"
 
 #include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
@@ -133,6 +134,9 @@ int main(int p_argc, const char** p_argv) {
     });
     ISceneManager::RegisterCreateFunc([]() -> ISceneManager* {
         return new EditorSceneManager();
+    });
+    IScriptManager::RegisterCreateFunc([]() -> IScriptManager* {
+        return new LuaScriptManager();
     });
 
     // @TODO: figure out a way to create it cleanly
