@@ -1,11 +1,13 @@
-#include "../rasterizer/example_base.h"
-#include "../rasterizer/loader.h"
+#include "example_base.h"
+#include "loader.h"
+
+#include "engine/math/matrix_transform.h"
 
 #ifndef ASSET_DIR
 #define ASSET_DIR
 #endif
 
-using namespace gfx;
+using namespace cave;
 using namespace rs;
 
 class TextureVs : public IVertexShader {
@@ -16,15 +18,15 @@ class TextureVs : public IVertexShader {
     virtual VSOutput processVertex(const VSInput &input) override {
         VSOutput vs_output;
         vs_output.position = input.position;
-        vs_output.uv = gfx::vec2(input.position);
+        vs_output.uv = input.position.xy;
         vs_output.uv += 0.5f;
         vs_output.uv.y = 1.0f - vs_output.uv.y;
         vs_output.position = PVM * vs_output.position;
         return vs_output;
     }
 
-   public:
-    gfx::mat4 PVM;
+public:
+    Matrix4x4f PVM;
 
    private:
     static const unsigned int sVaryingFlags = VARYING_UV;
@@ -32,8 +34,8 @@ class TextureVs : public IVertexShader {
 
 class TextureFs : public IFragmentShader {
    public:
-    virtual gfx::Color processFragment(const VSOutput &input) override {
-        gfx::Color color = m_cubeTexture->sample(input.uv);
+    virtual Color processFragment(const VSOutput &input) override {
+        Color color = m_cubeTexture->sample(input.uv);
         return color;
     }
 
@@ -58,9 +60,9 @@ class TextureTest : public ExampleBase {
 
     Texture m_texture;
 
-    mat4 P;
-    mat4 V;
-    mat4 PV;
+    Matrix4x4f P;
+    Matrix4x4f V;
+    Matrix4x4f PV;
 };
 
 TextureTest::TextureTest()
@@ -72,18 +74,18 @@ void TextureTest::postInit() {
     rs::setFragmentShader(&m_fs);
 
     // mesh
-    g_vertices[0].position = { -0.5f, +0.5f, 0.0f, 1.0f };  // top left
-    g_vertices[1].position = { -0.5f, -0.5f, 0.0f, 1.0f };  // bottom left
-    g_vertices[2].position = { +0.5f, -0.5f, 0.0f, 1.0f };  // bottom right
-    g_vertices[3].position = { +0.5f, +0.5f, 0.0f, 1.0f };  // top right
+    g_vertices[0].position = Vector4f{ -0.5f, +0.5f, 0.0f, 1.0f };  // top left
+    g_vertices[1].position = Vector4f{ -0.5f, -0.5f, 0.0f, 1.0f };  // bottom left
+    g_vertices[2].position = Vector4f{ +0.5f, -0.5f, 0.0f, 1.0f };  // bottom right
+    g_vertices[3].position = Vector4f{ +0.5f, +0.5f, 0.0f, 1.0f };  // top right
 
     rs::setVertexArray(g_vertices);
     rs::setIndexArray(g_indices);
 
     // constant buffer
     const float fovy = 0.785398f;  // 45.0 degree
-    V = lookAt(vec3(0, -2, 2), vec3(0), vec3(0, 1, 0));
-    P = perspectiveRH_NO(fovy, (float)m_width / (float)m_height, 0.1f, 10.0f);
+    V = LookAtRh(Vector3f(0, -2, 2), Vector3f(0), Vector3f(0, 1, 0));
+    P = BuildPerspectiveRH(fovy, (float)m_width / (float)m_height, 0.1f, 10.0f);
     PV = P * V;
 
     // texture
@@ -92,12 +94,12 @@ void TextureTest::postInit() {
 }
 
 void TextureTest::update(double deltaTime) {
-    static const mat4 M0 = translate(mat4(1), vec3(0.0f, 0.0f, 0.5f));
-    static const mat4 M1 = translate(mat4(1), vec3(0.0f, 0.0f, -0.5f));
+    static const Matrix4x4f M0 = Translate(Vector3f(0.0f, 0.0f, 0.5f));
+    static const Matrix4x4f M1 = Translate(Vector3f(0.0f, 0.0f, -0.5f));
     rs::clear(COLOR_DEPTH_BUFFER_BIT);
     m_vs.PVM = PV * M0;
     rs::drawElements(0, 6);
-    m_vs.PVM = PV * mat4(1);
+    m_vs.PVM = PV * Matrix4x4f(1);
     rs::drawElements(0, 6);
     m_vs.PVM = PV * M1;
     rs::drawElements(0, 6);

@@ -5,7 +5,7 @@ file(GLOB_RECURSE SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
 )
 
-add_library(${TARGET_NAME} STATIC ${SRC})
+add_executable(${TARGET_NAME} ${SRC})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 
@@ -16,6 +16,10 @@ target_include_directories(${TARGET_NAME} PUBLIC
 )
 
 target_precompile_headers(${TARGET_NAME} PRIVATE pch.h)
+
+target_link_libraries(${TARGET_NAME} PRIVATE
+    engine
+)
 
 # @TODO: remove this
 target_compile_definitions(${TARGET_NAME} PUBLIC

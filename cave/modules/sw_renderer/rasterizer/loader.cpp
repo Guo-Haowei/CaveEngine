@@ -4,8 +4,6 @@
 
 namespace rs {
 
-using namespace gfx;
-
 void loadTexture(Texture& texture, const char* path) {
     int width, height, channel;
     unsigned char* data = stbi_load(path, &width, &height, &channel, 0);

@@ -3,10 +3,10 @@
 #include <execution>
 
 #include "engine/systems/job_system/job_system.h"
+#include "engine/math/box.h"
 
 namespace rs {
 
-using namespace gfx;
 using namespace std;
 using namespace cave;
 
@@ -22,7 +22,7 @@ static constexpr int tileSize = 200;
 // [u v 1] is the cross product
 
 struct RenderState {
-    gfx::Color clearColor = gfx::Color { 0, 0, 0, 255 };
+    Color clearColor = Color { 0, 0, 0, 255 };
     float clearDepth = 1.0f;
     IVertexShader* vs = nullptr;
     IFragmentShader* fs = nullptr;
@@ -87,7 +87,7 @@ struct OutTriangle {
  * Perspective correct linear interpolation
  * https://stackoverflow.com/questions/24441631/how-exactly-does-opengl-do-perspectively-correct-linear-interpolation
  */
-inline void ndcToViewport(vec4& position) {
+inline void ndcToViewport(Vector4f& position) {
     DEV_ASSERT(position.w != 0.0f);
     float invW = 1.0f / position.w;
     position.x *= invW;
@@ -120,9 +120,9 @@ static inline OutTriangle processTriangle(const VSInput& vs_in0, const VSInput& 
     ndcToViewport(vs_out2.position);
 
     // face culling
-    vec3 ab3d(vs_out0.position.x - vs_out1.position.x, vs_out0.position.y - vs_out1.position.y, vs_out0.position.z - vs_out1.position.z);
-    vec3 ac3d(vs_out0.position.x - vs_out2.position.x, vs_out0.position.y - vs_out2.position.y, vs_out0.position.z - vs_out2.position.z);
-    vec3 normal = cross(ab3d, ac3d);
+    Vector3f ab3d(vs_out0.position.x - vs_out1.position.x, vs_out0.position.y - vs_out1.position.y, vs_out0.position.z - vs_out1.position.z);
+    Vector3f ac3d(vs_out0.position.x - vs_out2.position.x, vs_out0.position.y - vs_out2.position.y, vs_out0.position.z - vs_out2.position.z);
+    Vector3f normal = cross(ab3d, ac3d);
     if (normal.z * g_state.cullFace < 0.0f) {
         OutTriangle triangle;
         triangle.discarded = true;
@@ -152,14 +152,14 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
     const VSOutput& vs_out2 = vs_out.p2;
     IVertexShader* vs = g_state.vs;
     IFragmentShader* fs = g_state.fs;
-    const vec2 a(vs_out0.position.x * width, vs_out0.position.y * height);
-    const vec2 b(vs_out1.position.x * width, vs_out1.position.y * height);
-    const vec2 c(vs_out2.position.x * width, vs_out2.position.y * height);
+    const Vector2f a(vs_out0.position.x * width, vs_out0.position.y * height);
+    const Vector2f b(vs_out1.position.x * width, vs_out1.position.y * height);
+    const Vector2f c(vs_out2.position.x * width, vs_out2.position.y * height);
 
     // discard if A, B and C are on the same line
-    const vec2 BA = a - b;
-    const vec2 CA = a - c;
-    const vec2 CB = b - c;
+    const Vector2f BA = a - b;
+    const Vector2f CA = a - c;
+    const Vector2f CB = b - c;
     if (BA.x * CA.y == BA.y * CA.x) {
         return;
     }
@@ -168,34 +168,34 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
     DepthBuffer& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = vs->getVaryingFlags();
 
-    const vec2 _min(tx * tileSize, ty * tileSize);
-    const vec2 _max(
+    const Vector2f _min(tx * tileSize, ty * tileSize);
+    const Vector2f _max(
         glm::min(width - 1, (tx + 1) * tileSize),
         glm::min(height - 1, (ty + 1) * tileSize));
-    const Box2 screenBox(_min, _max);
-    Box2 triangleBox {};
-    triangleBox.expandPoint(a);
-    triangleBox.expandPoint(b);
-    triangleBox.expandPoint(c);
-    triangleBox.unionBox(screenBox);
-    bool intersect = triangleBox.isValid();
+    const Rect screenBox(_min, _max);
+    Rect triangleBox {};
+    triangleBox.ExpandPoint(a);
+    triangleBox.ExpandPoint(b);
+    triangleBox.ExpandPoint(c);
+    triangleBox.UnionBox(screenBox);
+    bool intersect = triangleBox.IsValid();
     // discard if not intersect
     if (!intersect) {
         return;
     }
 
     // rasterization
-    for (int y = int(triangleBox.min.y); y < triangleBox.max.y; ++y) {
-        for (int x = int(triangleBox.min.x); x < triangleBox.max.x; ++x) {
-            const vec2 p(x, y);
-            const vec2 PC = c - p;
-            vec3 uvw = cross(vec3(CA.x, CB.x, PC.x), vec3(CA.y, CB.y, PC.y));
+    for (int y = int(triangleBox.GetMin().y); y < triangleBox.GetMax().y; ++y) {
+        for (int x = int(triangleBox.GetMin().x); x < triangleBox.GetMax().x; ++x) {
+            const Vector2f p(x, y);
+            const Vector2f PC = c - p;
+            Vector3f uvw = cross(Vector3f(CA.x, CB.x, PC.x), Vector3f(CA.y, CB.y, PC.y));
             if (uvw.z == 0.0f) {
                 continue;
             }
             uvw /= uvw.z;
             uvw.z -= (uvw.x + uvw.y);
-            vec3 bCoord = uvw;
+            Vector3f bCoord = uvw;
 
             static const float epsilon = glm::epsilon<float>();
             const float sum = bCoord.x + bCoord.y + bCoord.z;

@@ -1,9 +1,9 @@
 #pragma once
-#include <algorithm>  // std::fill
-#include <vector>
 #include "linalg.h"
 
 namespace rs {
+
+using namespace cave;
 
 template <class T>
 class TextureBase {
@@ -22,7 +22,7 @@ class TextureBase {
         memcpy(&m_buffer[0], info.data, sizeof(T) * m_width * m_height);
     }
 
-    const T& sample(gfx::vec2 uv) const {
+    const T& sample(Vector2f uv) const {
         int x = static_cast<int>(uv.x * m_width);
         int y = static_cast<int>(uv.y * m_height);
         if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
@@ -52,7 +52,7 @@ class TextureBase {
     static const T sDefaultValue;
 };
 
-typedef TextureBase<gfx::Color> Texture;
+typedef TextureBase<Color> Texture;
 typedef TextureBase<float> DepthBuffer;
 typedef Texture ColorBuffer;
 
