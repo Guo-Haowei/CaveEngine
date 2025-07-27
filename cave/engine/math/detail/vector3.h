@@ -30,7 +30,7 @@ struct Vector<T, 3> : VectorBase<T, 3> {
         : x(p_v), y(p_v), z(p_v) {
     }
 
-    explicit constexpr Vector(T p_x, T p_y, T p_z)
+    constexpr Vector(T p_x, T p_y, T p_z)
         : x(p_x), y(p_y), z(p_z) {
     }
 
