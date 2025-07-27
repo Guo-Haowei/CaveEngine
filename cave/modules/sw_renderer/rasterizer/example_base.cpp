@@ -2,7 +2,7 @@
 
 #include "example_base.h"
 #include "application.h"
-#include "engine/systems/job_system/job_system.h"
+#include "engine/runtime/engine.h"
 
 using namespace std::chrono;
 using namespace cave;
@@ -12,7 +12,7 @@ ExampleBase::ExampleBase(const Config& config)
 }
 
 int ExampleBase::run() {
-    jobsystem::Initialize();
+    engine::InitializeCore();
     rs::initialize();
 
     m_renderTarget.create({ m_width, m_height, true, true });
@@ -51,7 +51,7 @@ int ExampleBase::run() {
 
     app::finalize();
     rs::finalize();
-    jobsystem::Finalize();
+    engine::FinalizeCore();
 
     return 0;
 }
