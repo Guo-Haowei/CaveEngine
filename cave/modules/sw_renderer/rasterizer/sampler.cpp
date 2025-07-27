@@ -1,11 +1,10 @@
 #include "Sampler.h"
 
-namespace rs {
+namespace cave::rs {
 
-using namespace gfx;
-template <>
-const Color TextureBase<Color>::sDefaultValue { 0, 0, 0, 255 };
-template <>
-const float TextureBase<float>::sDefaultValue { 1.0f };
+template<>
+const Color TextureBase<Color>::sDefaultValue{ 0, 0, 0, 255 };
+template<>
+const float TextureBase<float>::sDefaultValue{ 1.0f };
 
-}  // namespace rs
+}  // namespace cave::rs

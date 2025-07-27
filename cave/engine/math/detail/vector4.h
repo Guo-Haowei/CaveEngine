@@ -35,9 +35,19 @@ struct alignas(sizeof(T) * 4) Vector<T, 4> : VectorBase<T, 4> {
         : x(p_v), y(p_v), z(p_v), w(p_v) {
     }
 
-    explicit constexpr Vector(T p_x, T p_y, T p_z, T p_w)
+    constexpr Vector(T p_x, T p_y, T p_z, T p_w)
         : x(p_x), y(p_y), z(p_z), w(p_w) {
     }
+
+#if USING(MATH_ENABLE_SIMD_SSE)
+    constexpr Vector(__m128 p_simd)
+        : simd(p_simd) {
+    }
+#elif USING(MATH_ENABLE_SIMD_NEON)
+    constexpr Vector(float16x4_t p_simd)
+        : simd(p_simd) {
+    }
+#endif
 
     template<typename U>
         requires Arithmetic<U> && (!std::is_same<T, U>::value)

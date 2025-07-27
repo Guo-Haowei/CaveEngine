@@ -1,6 +1,4 @@
-#include <cstdio>
 #include "application.h"
-#include "core_assert.h"
 #include "example_base.h"
 
 #ifdef UNICODE
@@ -8,7 +6,7 @@
 #endif
 #include <Windows.h>
 
-namespace app {
+namespace cave::app {
 
 static WNDCLASSEX g_wc;
 static HWND g_hWnd;
@@ -35,25 +33,25 @@ void initialize() {
 
     ::RegisterClassEx(&g_wc);
 
-    g_hWnd = ::CreateWindow(g_wc.lpszClassName,          // lpClassName
-                            g_config.title,              // lpWindowName
-                            WS_OVERLAPPED | WS_SYSMENU,  // dwStyle
-                            CW_USEDEFAULT,               // x
-                            CW_USEDEFAULT,               // y
-                            g_config.width,              // nWidth
-                            g_config.height,             // nHeight
-                            NULL,                        // hWndParent
-                            NULL,                        // hMenu
-                            g_wc.hInstance,              // hInstance
-                            NULL                         // lpParam
+    g_hWnd = ::CreateWindow(
+        g_wc.lpszClassName,     // lpClassName
+        "dummy",                // lpWindowName (still needed internally)
+        WS_POPUP | WS_VISIBLE,  // Frameless + visible
+        CW_USEDEFAULT,          // x
+        CW_USEDEFAULT,          // y
+        256,                    // nWidth
+        256,                    // nHeight
+        NULL,                   // hWndParent
+        NULL,                   // hMenu
+        g_wc.hInstance,         // hInstance
+        NULL                    // lpParam
     );
 
     if (!g_hWnd) {
-        PANIC("CreateWindow() failed");
+        CRASH_NOW_MSG("CreateWindow() failed");
     }
 
     ::ShowWindow(g_hWnd, SW_SHOWDEFAULT);
-    ::UpdateWindow(g_hWnd);
 
     g_hDC = GetDC(g_hWnd);
     // TODO: not sure why is there here..., figure it out!!
@@ -108,30 +106,11 @@ void pollEvents() {
     }
 }
 
-void setWindowTitle(const char* title) {
-    ::SetWindowTextA(g_hWnd, title);
-}
-
-static bool g_keyStatus[1024];
-
-bool getKey(enum KeyCode keycode) {
-    return g_keyStatus[keycode];
-}
-
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_DESTROY:
             ::PostQuitMessage(0);
             g_shouldQuit = true;
-            break;
-        case WM_KEYDOWN:
-            ASSERT(wParam >= 0 && wParam <= sizeof(g_keyStatus));
-            g_keyStatus[wParam] = true;
-            // printf("%d\n", wParam);
-            break;
-        case WM_KEYUP:
-            ASSERT(wParam >= 0 && wParam <= sizeof(g_keyStatus));
-            g_keyStatus[wParam] = false;
             break;
         default:
             break;
@@ -139,4 +118,4 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-}  // namespace app
+}  // namespace cave::app

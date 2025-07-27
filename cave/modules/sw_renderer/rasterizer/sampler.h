@@ -1,14 +1,11 @@
 #pragma once
-#include <algorithm>  // std::fill
-#include <vector>
-#include "core_assert.h"
 #include "linalg.h"
 
-namespace rs {
+namespace cave::rs {
 
-template <class T>
+template<class T>
 class TextureBase {
-   public:
+public:
     struct CreateInfo {
         int width;
         int height;
@@ -16,14 +13,14 @@ class TextureBase {
     };
 
     void create(const CreateInfo& info) {
-        ASSERT(info.width != 0 && info.height != 0);
+        DEV_ASSERT(info.width != 0 && info.height != 0);
         m_width = info.width;
         m_height = info.height;
         m_buffer.resize(m_width * m_height);
         memcpy(&m_buffer[0], info.data, sizeof(T) * m_width * m_height);
     }
 
-    const T& sample(gfx::vec2 uv) const {
+    const T& sample(Vector2f uv) const {
         int x = static_cast<int>(uv.x * m_width);
         int y = static_cast<int>(uv.y * m_height);
         if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
@@ -45,7 +42,7 @@ class TextureBase {
 
     const void* getData() const { return m_buffer.data(); }
 
-   public:
+public:
     int m_width = 0;
     int m_height = 0;
     std::vector<T> m_buffer;
@@ -53,8 +50,8 @@ class TextureBase {
     static const T sDefaultValue;
 };
 
-typedef TextureBase<gfx::Color> Texture;
+typedef TextureBase<Color> Texture;
 typedef TextureBase<float> DepthBuffer;
 typedef Texture ColorBuffer;
 
-}  // namespace rs
+}  // namespace cave::rs

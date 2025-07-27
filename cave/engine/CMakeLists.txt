@@ -22,6 +22,7 @@ set_target_properties(yaml-cpp PROPERTIES FOLDER thirdparty)
 set_target_properties(yaml-cpp-parse PROPERTIES FOLDER thirdparty)
 set_target_properties(yaml-cpp-read PROPERTIES FOLDER thirdparty)
 set_target_properties(yaml-cpp-sandbox PROPERTIES FOLDER thirdparty)
+set_target_properties(Documentation PROPERTIES FOLDER thirdparty)
 
 set(TARGET_NAME engine)
 

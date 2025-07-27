@@ -1,6 +1,6 @@
 #include "render_target.h"
 
-namespace rs {
+namespace cave::rs {
 
 void RenderTarget::resize(int width, int height) {
     m_colorBuffer.resize(width, height);
@@ -13,4 +13,4 @@ void RenderTarget::create(const CreateInfo& info) {
     m_useDepth = info.useDepth;
 }
 
-}  // namespace rs
+}  // namespace cave::rs

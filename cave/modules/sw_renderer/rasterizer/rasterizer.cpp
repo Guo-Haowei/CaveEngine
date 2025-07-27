@@ -1,20 +1,16 @@
 #include "rasterizer.h"
-#include <algorithm>
+
 #include <execution>
-#include <iostream>
-#include <list>
-#include <thread>
-#include <vector>
-#include "JobSystem.h"
-#include "core_assert.h"
 
-namespace rs {
+#include "engine/systems/job_system/job_system.h"
+#include "engine/math/box.h"
 
-using namespace gfx;
+namespace cave::rs {
+
 using namespace std;
 
 // config
-static constexpr int tileSize = 200;
+static constexpr int TILE_SIZE = 128;
 
 // barycentric
 // P = uA + vB + wC (where w = 1 - u - v)
@@ -25,7 +21,7 @@ static constexpr int tileSize = 200;
 // [u v 1] is the cross product
 
 struct RenderState {
-    gfx::Color clearColor = gfx::Color { 0, 0, 0, 255 };
+    Color clearColor = Color { 0, 0, 0, 255 };
     float clearDepth = 1.0f;
     IVertexShader* vs = nullptr;
     IFragmentShader* fs = nullptr;
@@ -45,7 +41,7 @@ void finalize() {
 }
 
 void setSize(int width, int height) {
-    ASSERT(width > 0 && height > 0);
+    DEV_ASSERT(width > 0 && height > 0);
     g_state.rt->resize(width, height);
     g_state.rt->m_colorBuffer.clear(g_state.clearColor);
     g_state.rt->m_depthBuffer.clear(g_state.clearDepth);
@@ -86,12 +82,15 @@ struct OutTriangle {
     int discarded = false;
 };
 
+static_assert(sizeof(Vector3f) == 12, "Not 12 bytes!");
+static_assert(alignof(Vector3f) == alignof(float), "Not float-aligned!");
+
 /**
  * Perspective correct linear interpolation
  * https://stackoverflow.com/questions/24441631/how-exactly-does-opengl-do-perspectively-correct-linear-interpolation
  */
-inline void ndcToViewport(vec4& position) {
-    ASSERT(position.w != 0.0f);
+inline void ndcToViewport(Vector4f& position) {
+    DEV_ASSERT(position.w != 0.0f);
     float invW = 1.0f / position.w;
     position.x *= invW;
     position.y *= invW;
@@ -123,9 +122,9 @@ static inline OutTriangle processTriangle(const VSInput& vs_in0, const VSInput& 
     ndcToViewport(vs_out2.position);
 
     // face culling
-    vec3 ab3d(vs_out0.position.x - vs_out1.position.x, vs_out0.position.y - vs_out1.position.y, vs_out0.position.z - vs_out1.position.z);
-    vec3 ac3d(vs_out0.position.x - vs_out2.position.x, vs_out0.position.y - vs_out2.position.y, vs_out0.position.z - vs_out2.position.z);
-    vec3 normal = cross(ab3d, ac3d);
+    Vector3f ab3d(vs_out0.position.x - vs_out1.position.x, vs_out0.position.y - vs_out1.position.y, vs_out0.position.z - vs_out1.position.z);
+    Vector3f ac3d(vs_out0.position.x - vs_out2.position.x, vs_out0.position.y - vs_out2.position.y, vs_out0.position.z - vs_out2.position.z);
+    Vector3f normal = cross(ab3d, ac3d);
     if (normal.z * g_state.cullFace < 0.0f) {
         OutTriangle triangle;
         triangle.discarded = true;
@@ -135,9 +134,9 @@ static inline OutTriangle processTriangle(const VSInput& vs_in0, const VSInput& 
     return OutTriangle { vs_out0, vs_out1, vs_out2 };
 }
 
-static inline int tileNum(int tileSize, int length) {
-    int rem = (length % tileSize) != 0;
-    return (length / tileSize) + rem;
+static inline int tileNum(int p_tile_size, int p_length) {
+    int rem = (p_length % p_tile_size) != 0;
+    return (p_length / p_tile_size) + rem;
 }
 
 static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
@@ -146,23 +145,19 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
 
-    // note
-    const int col = tileNum(tileSize, width);
-    const int row = tileNum(tileSize, height);
-
     const VSOutput& vs_out0 = vs_out.p0;
     const VSOutput& vs_out1 = vs_out.p1;
     const VSOutput& vs_out2 = vs_out.p2;
     IVertexShader* vs = g_state.vs;
     IFragmentShader* fs = g_state.fs;
-    const vec2 a(vs_out0.position.x * width, vs_out0.position.y * height);
-    const vec2 b(vs_out1.position.x * width, vs_out1.position.y * height);
-    const vec2 c(vs_out2.position.x * width, vs_out2.position.y * height);
+    const Vector2f a(vs_out0.position.x * width, vs_out0.position.y * height);
+    const Vector2f b(vs_out1.position.x * width, vs_out1.position.y * height);
+    const Vector2f c(vs_out2.position.x * width, vs_out2.position.y * height);
 
     // discard if A, B and C are on the same line
-    const vec2 BA = a - b;
-    const vec2 CA = a - c;
-    const vec2 CB = b - c;
+    const Vector2f BA = a - b;
+    const Vector2f CA = a - c;
+    const Vector2f CB = b - c;
     if (BA.x * CA.y == BA.y * CA.x) {
         return;
     }
@@ -171,34 +166,36 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
     DepthBuffer& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = vs->getVaryingFlags();
 
-    const vec2 _min(tx * tileSize, ty * tileSize);
-    const vec2 _max(
-        glm::min(width - 1, (tx + 1) * tileSize),
-        glm::min(height - 1, (ty + 1) * tileSize));
-    const Box2 screenBox(_min, _max);
-    Box2 triangleBox {};
-    triangleBox.expandPoint(a);
-    triangleBox.expandPoint(b);
-    triangleBox.expandPoint(c);
-    triangleBox.unionBox(screenBox);
-    bool intersect = triangleBox.isValid();
+    const Vector2f _min(tx * TILE_SIZE, ty * TILE_SIZE);
+    const Vector2f _max(
+        glm::min(width - 1, (tx + 1) * TILE_SIZE),
+        glm::min(height - 1, (ty + 1) * TILE_SIZE));
+    const Rect screenBox(_min, _max);
+    Rect triangleBox {};
+    triangleBox.ExpandPoint(a);
+    triangleBox.ExpandPoint(b);
+    triangleBox.ExpandPoint(c);
+    triangleBox.UnionBox(screenBox);
+    bool intersect = triangleBox.IsValid();
     // discard if not intersect
     if (!intersect) {
         return;
     }
 
     // rasterization
-    for (int y = int(triangleBox.min.y); y < triangleBox.max.y; ++y) {
-        for (int x = int(triangleBox.min.x); x < triangleBox.max.x; ++x) {
-            const vec2 p(x, y);
-            const vec2 PC = c - p;
-            vec3 uvw = cross(vec3(CA.x, CB.x, PC.x), vec3(CA.y, CB.y, PC.y));
+    Vector2f min = triangleBox.GetMin();
+    Vector2f max = triangleBox.GetMax();
+    for (int _y = (int)min.y; _y < (int)max.y; ++_y) {
+        for (int _x = (int)min.x; _x < (int)max.x; ++_x) {
+            Vector3f a_(CA.x, CB.x, c.x - _x);
+            Vector3f b_(CA.y, CB.y, c.y - _y);
+            Vector3f uvw = cross(a_, b_);
             if (uvw.z == 0.0f) {
                 continue;
             }
             uvw /= uvw.z;
             uvw.z -= (uvw.x + uvw.y);
-            vec3 bCoord = uvw;
+            Vector3f bCoord = uvw;
 
             static const float epsilon = glm::epsilon<float>();
             const float sum = bCoord.x + bCoord.y + bCoord.z;
@@ -208,7 +205,7 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
                 VSOutput output;
                 output.position = bCoord.x * vs_out0.position + bCoord.y * vs_out1.position + bCoord.z * vs_out2.position;
                 output.position.z = 0.5f * output.position.z + 0.5f;  // normalize to [0, 1]
-                const size_t index = (height - y - 1) * width + x;
+                const size_t index = (height - _y - 1) * width + _x;
 
                 float depth = output.position.z;
 
@@ -258,8 +255,8 @@ static void drawArrayInternal(vector<OutTriangle>& trigs) {
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
 
-    const int col = tileNum(tileSize, width);
-    const int row = tileNum(tileSize, height);
+    const int col = tileNum(TILE_SIZE, width);
+    const int row = tileNum(TILE_SIZE, height);
 
     jobsystem::Context ctx;
     ctx.Dispatch(row, 1, [&](jobsystem::JobArgs args) {
@@ -274,8 +271,8 @@ static void drawArrayInternal(vector<OutTriangle>& trigs) {
 }
 
 void drawArrays(size_t start, size_t count) {
-    ASSERT(count % 3 == 0);
-    ASSERT(start % 3 == 0);
+    DEV_ASSERT(count % 3 == 0);
+    DEV_ASSERT(start % 3 == 0);
 
     const int triangleCnt = int(count) / 3;
     vector<OutTriangle> outTriangles(triangleCnt);
@@ -295,8 +292,8 @@ void drawArrays(size_t start, size_t count) {
 }
 
 void drawElements(size_t start, size_t count) {
-    ASSERT(count % 3 == 0);
-    ASSERT(start % 3 == 0);
+    DEV_ASSERT(count % 3 == 0);
+    DEV_ASSERT(start % 3 == 0);
 
     const int triangleCnt = int(count) / 3;
     vector<OutTriangle> outTriangles(triangleCnt);

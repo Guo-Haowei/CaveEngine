@@ -52,6 +52,14 @@
 #define ENABLE_OPTIMIZATION()  __pragma(optimize("", on))
 #endif
 
+#if defined(_MSC_VER)
+#define FORCE_INLINE __forceinline
+#elif defined(__clang__) || defined(__GNUC__)
+#define FORCE_INLINE inline __attribute__((always_inline))
+#else
+#define FORCE_INLINE inline
+#endif
+
 /// Warning
 #if defined(_MSC_VER)
 #define WARNING_PUSH()        __pragma(warning(push))

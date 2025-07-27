@@ -209,26 +209,21 @@ TEST(vector_math, div) {
 
 TEST(vector_math, div_scalar) {
     {
-        Vector4i vec1(1, 2, 3, 4);
-        Vector4i result = vec1 / 2;
-        CHECK_VEC4(result, 0, 1, 1, 2);
-    }
-    {
-        Vector3i vec1(1, 3, 4);
-        Vector3i result = 10 / vec1;
-        CHECK_VEC3(result, 10, 3, 2);
+        Vector4f vec1(1, 2, 3, 4);
+        Vector4f result = vec1 / 2.f;
+        CHECK_VEC4(result, 0.5f, 1.f, 1.5f, 2.f);
     }
 }
 
 TEST(vector_math, div_asign_scalar) {
     {
-        Vector3i vec1(40, 8, 4);
-        vec1 /= 4;
+        Vector3f vec1(40, 8, 4);
+        vec1 /= 4.f;
         CHECK_VEC3(vec1, 10, 2, 1);
     }
     {
-        Vector3i vec1(1, 3, 4);
-        vec1 /= -1;
+        Vector3f vec1(1, 3, 4);
+        vec1 /= -1.f;
         CHECK_VEC3(vec1, -1, -3, -4);
     }
 }

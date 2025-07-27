@@ -22,6 +22,7 @@ static PixelFormat ChannelToFormat(int p_channel, bool p_is_float) {
             return PixelFormat::UNKNOWN;
     }
 }
+
 static Result<void> LoadImage(const AssetMetaData& p_meta, ImageAsset& p_image) {
     auto res = FileAccess::Open(p_meta.import_path, FileAccess::READ);
     if (!res) {

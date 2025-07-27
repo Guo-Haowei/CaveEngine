@@ -2,7 +2,7 @@
 #include "linalg.h"
 #include "sampler.h"
 
-namespace rs {
+namespace cave::rs {
 
 enum VaryingFlag : unsigned int {
     VARYING_COLOR = 1u << 0,
@@ -12,28 +12,28 @@ enum VaryingFlag : unsigned int {
 };
 
 struct alignas(16) VSInput {
-    gfx::vec4 position;
-    gfx::vec4 normal;
-    gfx::ivec4 boneId;
-    gfx::vec4 weights;
-    gfx::vec2 uv;
+    Vector4f position;
+    Vector4f normal;
+    Vector4i boneId;
+    Vector4f weights;
+    Vector2f uv;
 };
 
 struct alignas(16) VSOutput {
-    gfx::vec4 position;
-    gfx::vec4 worldPosition;
-    gfx::vec4 normal;
-    gfx::vec4 color;
-    gfx::vec2 uv;
+    Vector4f position;
+    Vector4f worldPosition;
+    Vector4f normal;
+    Vector4f color;
+    Vector2f uv;
 };
 
 class IVertexShader {
-   public:
+public:
     virtual VSOutput processVertex(const VSInput& input) = 0;
 
     unsigned int getVaryingFlags() const { return m_varyingFlags; }
 
-   protected:
+protected:
     IVertexShader() {}
 
     IVertexShader(unsigned int varyingFlags)
@@ -43,8 +43,8 @@ class IVertexShader {
 };
 
 class IFragmentShader {
-   public:
-    virtual gfx::Color processFragment(const VSOutput& input) = 0;
+public:
+    virtual Color processFragment(const VSOutput& input) = 0;
 };
 
-}  // namespace rs
+}  // namespace cave::rs
