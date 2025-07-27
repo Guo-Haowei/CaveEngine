@@ -1,10 +1,10 @@
 #pragma once
 #include "sampler.h"
 
-namespace rs {
+namespace cave::rs {
 
 class RenderTarget {
-   public:
+public:
     struct CreateInfo {
         int width;
         int height;
@@ -20,7 +20,7 @@ class RenderTarget {
 
     inline const DepthBuffer& getDepthBuffer() const { return m_depthBuffer; }
 
-   public:
+public:
     ColorBuffer m_colorBuffer;
     DepthBuffer m_depthBuffer;
 
@@ -28,4 +28,4 @@ class RenderTarget {
     bool m_useDepth = true;
 };
 
-}  // namespace rs
+}  // namespace cave::rs

@@ -1,11 +1,9 @@
 #pragma once
-#include <cstdint>
-#include <vector>
 #include "linalg.h"
 #include "render_target.h"
 #include "shader_program.h"
 
-namespace rs {
+namespace cave::rs {
 
 enum ClearFlags : unsigned int {
     COLOR_BUFFER_BIT = 1 << 0,
@@ -41,4 +39,4 @@ void setFragmentShader(IFragmentShader* fs);
 
 void setRenderTarget(RenderTarget* renderTarget);
 
-}  // namespace rs
+}  // namespace cave::rs

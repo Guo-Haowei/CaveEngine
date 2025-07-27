@@ -2,7 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "tinygltf/stb_image.h"
 
-namespace rs {
+namespace cave::rs {
 
 void loadTexture(Texture& texture, const char* path) {
     int width, height, channel;
@@ -29,4 +29,4 @@ void loadTexture(Texture& texture, const char* path) {
     }
 }
 
-}  // namespace rs
+}  // namespace cave::rs

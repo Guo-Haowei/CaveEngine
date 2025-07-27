@@ -1,6 +1,7 @@
 #pragma once
-#include <string>
 #include "rasterizer.h"
+
+namespace cave {
 
 struct Config {
     int width;
@@ -9,12 +10,12 @@ struct Config {
 };
 
 class ExampleBase {
-   public:
+public:
     ExampleBase(const Config& config);
 
     int run();
 
-   protected:
+protected:
     void initialize();
     void finalize();
 
@@ -37,3 +38,5 @@ class ExampleBase {
 
 extern Config g_config;
 extern ExampleBase* g_pExample;
+
+}  // namespace cave

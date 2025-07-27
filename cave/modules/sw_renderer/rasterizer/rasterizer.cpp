@@ -5,10 +5,9 @@
 #include "engine/systems/job_system/job_system.h"
 #include "engine/math/box.h"
 
-namespace rs {
+namespace cave::rs {
 
 using namespace std;
-using namespace cave;
 
 // config
 static constexpr int tileSize = 200;

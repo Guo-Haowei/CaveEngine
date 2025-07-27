@@ -1,13 +1,11 @@
 #pragma once
 #include "linalg.h"
 
-namespace rs {
+namespace cave::rs {
 
-using namespace cave;
-
-template <class T>
+template<class T>
 class TextureBase {
-   public:
+public:
     struct CreateInfo {
         int width;
         int height;
@@ -44,7 +42,7 @@ class TextureBase {
 
     const void* getData() const { return m_buffer.data(); }
 
-   public:
+public:
     int m_width = 0;
     int m_height = 0;
     std::vector<T> m_buffer;
@@ -56,4 +54,4 @@ typedef TextureBase<Color> Texture;
 typedef TextureBase<float> DepthBuffer;
 typedef Texture ColorBuffer;
 
-}  // namespace rs
+}  // namespace cave::rs

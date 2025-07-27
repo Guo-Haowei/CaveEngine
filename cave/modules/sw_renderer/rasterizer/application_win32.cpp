@@ -7,7 +7,7 @@
 #endif
 #include <Windows.h>
 
-namespace app {
+namespace cave::app {
 
 static WNDCLASSEX g_wc;
 static HWND g_hWnd;
@@ -138,4 +138,4 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-}  // namespace app
+}  // namespace cave::app

@@ -7,11 +7,12 @@
 #define ASSET_DIR
 #endif
 
-using namespace cave;
+namespace cave {
+
 using namespace rs;
 
 class TextureVs : public IVertexShader {
-   public:
+public:
     TextureVs()
         : IVertexShader(sVaryingFlags) {}
 
@@ -28,18 +29,18 @@ class TextureVs : public IVertexShader {
 public:
     Matrix4x4f PVM;
 
-   private:
+private:
     static const unsigned int sVaryingFlags = VARYING_UV;
 };
 
 class TextureFs : public IFragmentShader {
-   public:
+public:
     virtual Color processFragment(const VSOutput &input) override {
         Color color = m_cubeTexture->sample(input.uv);
         return color;
     }
 
-   public:
+public:
     const Texture *m_cubeTexture;
 };
 
@@ -48,13 +49,13 @@ VSInput g_vertices[4];
 const unsigned int g_indices[6] = { 0, 1, 2, 0, 2, 3 };
 
 class TextureTest : public ExampleBase {
-   public:
+public:
     TextureTest();
 
     virtual void postInit() override;
     virtual void update(double deltaTime) override;
 
-   private:
+private:
     TextureVs m_vs;
     TextureFs m_fs;
 
@@ -107,3 +108,4 @@ void TextureTest::update(double deltaTime) {
 
 ExampleBase *g_pExample = new TextureTest();
 Config g_config = { 900, 540, "Texture" };
+}  // namespace cave

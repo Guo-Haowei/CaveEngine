@@ -1,6 +1,6 @@
 #pragma once
 
-namespace app {
+namespace cave::app {
 
 void initialize();
 void finalize();
@@ -11,4 +11,4 @@ bool shouldQuit();
 void setWindowTitle(const char* title);
 void drawPixels(int width, int height, const void* data);
 
-}  // namespace app
+}  // namespace cave::app

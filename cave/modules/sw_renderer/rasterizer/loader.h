@@ -7,8 +7,8 @@
 #include "linalg.h"
 #include "sampler.h"
 
-namespace rs {
+namespace cave::rs {
 
-extern void loadTexture(Texture& texture, const char* path);
+void loadTexture(Texture& texture, const char* path);
 
-}  // namespace rs
+}  // namespace cave::rs

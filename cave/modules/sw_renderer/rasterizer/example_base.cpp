@@ -2,10 +2,11 @@
 
 #include "example_base.h"
 #include "application.h"
+#include "engine/core/os/threads.h"
 #include "engine/runtime/engine.h"
 
+namespace cave {
 using namespace std::chrono;
-using namespace cave;
 
 ExampleBase::ExampleBase(const Config& config)
     : m_width(config.width), m_height(config.height), m_title(config.title) {
@@ -46,8 +47,9 @@ int ExampleBase::run() {
         char buf[256];
         snprintf(buf, sizeof(buf), "%s (FPS: %d)", g_config.title, int(1000.f / (nano * 1.0e-6)));
         app::setWindowTitle(buf);
-        // printf("frame %llu took %lfms\n", ++tick, nano * 1.0e-6);
     }
+
+    thread::RequestShutdown();
 
     app::finalize();
     rs::finalize();
@@ -55,3 +57,5 @@ int ExampleBase::run() {
 
     return 0;
 }
+
+}  // namespace cave

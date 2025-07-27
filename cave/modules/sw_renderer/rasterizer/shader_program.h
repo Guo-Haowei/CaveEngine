@@ -2,9 +2,7 @@
 #include "linalg.h"
 #include "sampler.h"
 
-namespace rs {
-
-using namespace cave;
+namespace cave::rs {
 
 enum VaryingFlag : unsigned int {
     VARYING_COLOR = 1u << 0,
@@ -49,4 +47,4 @@ public:
     virtual Color processFragment(const VSOutput& input) = 0;
 };
 
-}  // namespace rs
+}  // namespace cave::rs
