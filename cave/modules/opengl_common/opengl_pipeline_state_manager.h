@@ -12,7 +12,10 @@ struct OpenGlPipelineState : public PipelineState {
 };
 
 class OpenGlPipelineStateManager : public PipelineStateManager {
-protected:
+public:
+    OpenGlPipelineStateManager(IGraphicsManager* p_graphics_manager)
+        : PipelineStateManager(p_graphics_manager) {}
+
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
     auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
 

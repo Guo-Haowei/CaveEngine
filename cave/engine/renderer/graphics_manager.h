@@ -39,7 +39,8 @@ struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> perFrameCb;
 };
 
-class GraphicsManager : public IGraphicsManager {
+class GraphicsManager : public IGraphicsManager,
+                        public Singleton<GraphicsManager> {
 public:
     // @TODO: rename to RenderTarget
 
@@ -58,6 +59,11 @@ public:
     void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) override;
 
     auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override;
+
+    virtual auto CreateMeshImpl(const GpuMeshDesc& p_desc,
+                                uint32_t p_count,
+                                const GpuBufferDesc* p_vb_descs,
+                                const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> = 0;
 
     void SetPipelineState(PipelineStateName p_name) override;
 

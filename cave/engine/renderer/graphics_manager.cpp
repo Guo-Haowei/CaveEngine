@@ -58,16 +58,6 @@ static auto CreateUniformCheckSize(GraphicsManager& p_graphics_manager, uint32_t
     return p_graphics_manager.CreateConstantBuffer(buffer_desc);
 }
 
-// @TODO: refactor this
-template<typename T>
-static void CreateUniformBuffer(ConstantBuffer<T>& p_buffer) {
-    GpuBufferDesc buffer_desc{};
-    buffer_desc.slot = T::GetUniformBufferSlot();
-    buffer_desc.element_count = 1;
-    buffer_desc.element_size = sizeof(T);
-    p_buffer.buffer = *IGraphicsManager::GetSingleton().CreateConstantBuffer(buffer_desc);
-}
-
 auto GraphicsManager::InitializeImpl() -> Result<void> {
     m_enableValidationLayer = DVAR_GET_BOOL(gfx_gpu_validation);
 

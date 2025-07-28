@@ -7,8 +7,11 @@ namespace cave {
 
 enum class Backend : uint8_t;
 
-class GlfwDisplayManager : public DisplayManager {
+class GlfwDisplayManager : public IDisplayManager {
 public:
+    GlfwDisplayManager()
+        : IDisplayManager("GlfwDisplayManager") {}
+
     void FinalizeImpl() final;
 
     bool ShouldClose() final;

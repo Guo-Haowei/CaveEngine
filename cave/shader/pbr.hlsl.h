@@ -20,7 +20,6 @@ using ::cave::normalize;
 
 #define MAX_REFLECTION_LOD 4.0
 
-// @TODO: refactor the functions
 // NDF(n, h, alpha) = alpha^2 / (pi * ((n dot h)^2 * (alpha^2 - 1) + 1)^2)
 float DistributionGGX(float NdotH, float p_roughness) {
     float a = p_roughness * p_roughness;
@@ -142,6 +141,39 @@ Vector2f IntegrateBRDF(float NdotV, float roughness) {
     A /= float(SAMPLE_COUNT);
     B /= float(SAMPLE_COUNT);
     return Vector2f(A, B);
+}
+
+Vector3f lighting(Vector3f N,
+                  Vector3f L,
+                  Vector3f V,
+                  Vector3f radiance,
+                  Vector3f F0,
+                  float roughness,
+                  float metallic,
+                  Vector3f p_base_color) {
+
+    Vector3f Lo = Vector3f(0.0f, 0.0f, 0.0f);
+    const Vector3f H = normalize(V + L);
+    const float NdotL = max(dot(N, L), 0.0f);
+    const float NdotH = max(dot(N, H), 0.0f);
+    const float NdotV = max(dot(N, V), 0.0f);
+
+    // direct cook-torrance brdf
+    const float NDF = DistributionGGX(NdotH, roughness);
+    const float G = GeometrySmith(NdotV, NdotL, roughness);
+    const Vector3f F = FresnelSchlick(clamp(dot(H, V), 0.0f, 1.0f), F0);
+
+    const Vector3f nom = NDF * G * F;
+    float denom = 4 * NdotV * NdotL;
+
+    Vector3f specular = nom / max(denom, 0.001f);
+
+    const Vector3f kS = F;
+    const Vector3f kD = (1.0f - metallic) * (Vector3f(1.0f, 1.0f, 1.0f) - kS);
+
+    Vector3f direct_lighting = (kD * p_base_color / MY_PI + specular) * radiance * NdotL;
+
+    return direct_lighting;
 }
 
 #endif

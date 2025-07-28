@@ -1,5 +1,4 @@
 #pragma once
-#include "engine/core/base/singleton.h"
 #include "engine/runtime/event_queue.h"
 #include "engine/runtime/module.h"
 
@@ -38,8 +37,7 @@ struct Viewport;
 
 struct GpuMesh;
 
-class IGraphicsManager : public Singleton<IGraphicsManager>,
-                         public Module,
+class IGraphicsManager : public Module,
                          public EventListener,
                          public ModuleCreateRegistry<IGraphicsManager> {
 public:
@@ -76,11 +74,6 @@ public:
     virtual void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) = 0;
 
     virtual auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> = 0;
-
-    virtual auto CreateMeshImpl(const GpuMeshDesc& p_desc,
-                                uint32_t p_count,
-                                const GpuBufferDesc* p_vb_descs,
-                                const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> = 0;
 
     virtual void SetMesh(const GpuMesh* p_mesh) = 0;
 

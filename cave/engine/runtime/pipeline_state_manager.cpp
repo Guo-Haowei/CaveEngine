@@ -1,7 +1,8 @@
 #include "pipeline_state_manager.h"
 
-#include "engine/renderer/graphics_manager.h"
+#include "engine/runtime/graphics_manager_interface.h"
 #include "engine/renderer/pipeline_state_objects.h"
+#include "engine/render_graph/render_graph_defines.h"
 
 namespace cave {
 
@@ -59,23 +60,24 @@ auto PipelineStateManager::Create(PipelineStateName p_name, const PipelineStateD
     return Result<void>();
 }
 
-auto PipelineStateManager::Initialize() -> Result<void> {
-    auto ok = Result<void>();
+Result<void> PipelineStateManager::Initialize() {
+    const Backend backend = m_graphics_manager->GetBackend();
+
     if constexpr (USING(PLATFORM_WASM)) {
-        return ok;
+        return Result<void>();
     }
-    switch (IGraphicsManager::GetSingleton().GetBackend()) {
+    switch (backend) {
         case Backend::EMPTY:
         case Backend::METAL:
         case Backend::VULKAN:
-            return ok;
+            return Result<void>();
         default:
             break;
     }
 
-#define CREATE_PSO(...)                                       \
-    do {                                                      \
-        if (auto res = Create(__VA_ARGS__); !res) return res; \
+#define CREATE_PSO(...)                                                           \
+    do {                                                                          \
+        if (auto res = Create(__VA_ARGS__); !res) return CAVE_ERROR(res.error()); \
     } while (0)
 
     CREATE_PSO(PSO_SPRITE,
@@ -304,15 +306,15 @@ auto PipelineStateManager::Initialize() -> Result<void> {
 #pragma endregion PSO_ENV
 
     // @HACK: only support this many shaders
-    if (IGraphicsManager::GetSingleton().GetBackend() == Backend::D3D12) {
-        return ok;
+    if (backend == Backend::D3D12) {
+        return Result<void>();
     }
 
     CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
 
     // @HACK: only support this many shaders
-    if (IGraphicsManager::GetSingleton().GetBackend() != Backend::OPENGL) {
-        return ok;
+    if (backend != Backend::OPENGL) {
+        return Result<void>();
     }
 
 #pragma region PSO_VOXEL
@@ -350,7 +352,7 @@ auto PipelineStateManager::Initialize() -> Result<void> {
 
 #undef CREATE_PSO
 
-    return ok;
+    return Result<void>();
 }
 
 void PipelineStateManager::Finalize() {

@@ -87,7 +87,7 @@ auto Application::SetupModules() -> Result<void> {
     m_scene_manager = CreateSceneManager();
     m_physics_manager = CreatePhysicsManager();
     m_graphics_manager = CreateGraphicsManager();
-    m_display_server = DisplayManager::Create();
+    m_display_server = CreateDisplayManager();
     m_input_manager = new InputManager();
     m_render_system = new RenderSystem();
 
@@ -132,22 +132,6 @@ auto Application::Initialize() -> Result<void> {
         }
     }
 
-    // select window size
-    {
-        const Vector2i resolution{ DVAR_GET_IVEC2(window_resolution) };
-        const Vector2i max_size{ 3840, 2160 };  // 4K
-        const Vector2i min_size{ 480, 360 };    // 360P
-        Vector2i desired_size;
-        if (resolution.x > 0 && resolution.y > 0) {
-            desired_size = resolution;
-        } else {
-            desired_size = Vector2i(m_specification.width, m_specification.height);
-        }
-        desired_size = clamp(desired_size, min_size, max_size);
-        m_specification.width = desired_size.x;
-        m_specification.height = desired_size.y;
-    }
-
     // select backend
     {
         const std::string& backend = DVAR_GET_STRING(gfx_backend);
@@ -189,14 +173,6 @@ auto Application::Initialize() -> Result<void> {
 }
 
 void Application::Finalize() {
-    // @TODO: fix
-    if (m_display_server) {
-        auto [w, h] = m_display_server->GetWindowSize();
-        unused(w);
-        unused(h);
-        DVAR_SET_IVEC2(window_resolution, w, h);
-    }
-
     for (auto& layer : m_layers) {
         layer->OnDetach();
         LOG("[Runtime] layer '{}' detached!", layer->GetName());

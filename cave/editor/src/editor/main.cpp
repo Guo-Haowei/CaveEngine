@@ -1,11 +1,11 @@
-#include <filesystem>
-
 #include "engine/core/string/string_utils.h"
+#include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/layer.h"
 #include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
+#include "engine/scripting/lua/lua_script_manager.h"
 
 #include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
@@ -88,6 +88,15 @@ public:
         m_game_layer = std::make_unique<GameLayer>("GameLayer");
     }
 
+    void Finalize() override {
+        if (m_display_server) {
+            [[maybe_unused]] auto [w, h] = m_display_server->GetWindowSize();
+            DVAR_SET_IVEC2(window_resolution, w, h);
+        }
+
+        Application::Finalize();
+    }
+
     CameraComponent* GetActiveCamera() override {
         return m_editorLayer->GetActiveCamera();
     }
@@ -113,13 +122,28 @@ Application* CreateApplication() {
     ApplicationSpec spec{};
     spec.userFolder = user_string;
     spec.name = "Editor";
-    spec.width = 800;
-    spec.height = 600;
     spec.backend = Backend::EMPTY;
     spec.decorated = true;
     spec.fullscreen = false;
     spec.vsync = false;
     spec.enableImgui = true;
+
+    // window size
+    {
+        const Vector2i resolution{ DVAR_GET_IVEC2(window_resolution) };
+        const Vector2i max_size{ 3840, 2160 };  // 4K
+        const Vector2i min_size{ 480, 360 };    // 360p
+        Vector2i desired_size;
+        if (resolution.x > 0 && resolution.y > 0) {
+            desired_size = resolution;
+        } else {
+            desired_size = Vector2i(spec.width, spec.height);
+        }
+        desired_size = clamp(desired_size, min_size, max_size);
+        spec.width = desired_size.x;
+        spec.height = desired_size.y;
+    }
+
     return new Editor(spec);
 }
 
@@ -133,6 +157,12 @@ int main(int p_argc, const char** p_argv) {
     });
     ISceneManager::RegisterCreateFunc([]() -> ISceneManager* {
         return new EditorSceneManager();
+    });
+    IScriptManager::RegisterCreateFunc([]() -> IScriptManager* {
+        return new LuaScriptManager();
+    });
+    IDisplayManager::RegisterCreateFunc([]() -> IDisplayManager* {
+        return new GlfwDisplayManager();
     });
 
     // @TODO: figure out a way to create it cleanly

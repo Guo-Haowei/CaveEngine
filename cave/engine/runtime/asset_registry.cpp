@@ -11,10 +11,10 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-extern void RegisterAllPersistentAssets();
+extern void RegisterAllPersistentAssets(Application* p_app);
 
 auto AssetRegistry::InitializeImpl() -> Result<void> {
-    RegisterAllPersistentAssets();
+    RegisterAllPersistentAssets(m_app);
 
     fs::path assets_root = fs::path{ m_app->GetResourceFolder() };
 

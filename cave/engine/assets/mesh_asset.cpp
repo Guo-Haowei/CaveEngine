@@ -2,8 +2,8 @@
 
 #include "engine/assets/material_asset.h"
 #include "engine/core/io/archive.h"
+#include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/runtime/graphics_manager_interface.h"
 
 namespace cave {
 
@@ -64,7 +64,7 @@ void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t) {
 void MeshAsset::OnDeserialized() {
     CreateRenderData();
 
-    IGraphicsManager::GetSingleton().RequestMesh(this);
+    GraphicsManager::GetSingleton().RequestMesh(this);
 }
 
 std::vector<Guid> MeshAsset::GetDependencies() const {

@@ -1,9 +1,9 @@
 #pragma once
 #include "sampler.h"
 
-namespace cave::rs {
+namespace cave {
 
-class RenderTarget {
+class SwRenderTarget {
 public:
     struct CreateInfo {
         int width;
@@ -16,16 +16,16 @@ public:
 
     void resize(int width, int height);
 
-    inline const ColorBuffer& getColorBuffer() const { return m_colorBuffer; }
+    const auto& getColorBuffer() const { return m_colorBuffer; }
 
-    inline const DepthBuffer& getDepthBuffer() const { return m_depthBuffer; }
+    const auto& getDepthBuffer() const { return m_depthBuffer; }
 
 public:
-    ColorBuffer m_colorBuffer;
-    DepthBuffer m_depthBuffer;
+    SwTexture<Vector4f> m_colorBuffer;
+    SwTexture<float> m_depthBuffer;
 
     bool m_useColor = true;
     bool m_useDepth = true;
 };
 
-}  // namespace cave::rs
+}  // namespace cave

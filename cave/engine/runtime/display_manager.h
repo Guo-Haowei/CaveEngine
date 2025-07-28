@@ -20,14 +20,14 @@ struct WindowSpecfication {
     bool enableImgui;
 };
 
-class DisplayManager : public Singleton<DisplayManager>,
-                       public Module,
-                       public ModuleCreateRegistry<DisplayManager> {
+class IDisplayManager : public Singleton<IDisplayManager>,
+                        public Module,
+                        public ModuleCreateRegistry<IDisplayManager> {
 public:
-    DisplayManager()
-        : Module("DisplayManager") {}
+    IDisplayManager(std::string_view p_name)
+        : Module(p_name) {}
 
-    auto InitializeImpl() -> Result<void> final;
+    Result<void> InitializeImpl() final;
 
     virtual bool ShouldClose() = 0;
 
@@ -36,8 +36,6 @@ public:
     virtual void* GetNativeWindow() = 0;
 
     virtual void BeginFrame() = 0;
-
-    static DisplayManager* Create();
 
 protected:
     virtual auto InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> = 0;

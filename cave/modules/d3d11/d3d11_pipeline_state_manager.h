@@ -22,7 +22,7 @@ struct D3d11PipelineState : public PipelineState {
 
 class D3d11PipelineStateManager : public PipelineStateManager {
 public:
-    D3d11PipelineStateManager();
+    D3d11PipelineStateManager(IGraphicsManager* p_graphics_manager);
 
 protected:
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;

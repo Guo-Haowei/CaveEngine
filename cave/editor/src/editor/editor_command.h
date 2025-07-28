@@ -87,17 +87,6 @@ protected:
     friend class EditorLayer;
 };
 
-class OpenProjectCommand : public EditorCommandBase {
-public:
-    OpenProjectCommand(bool p_open_dialog)
-        : m_openDialog(p_open_dialog) {}
-
-    virtual void Execute(Scene& p_scene) override;
-
-protected:
-    bool m_openDialog;
-};
-
 class SaveProjectCommand : public EditorCommandBase {
 public:
     SaveProjectCommand(bool p_open_dialog)

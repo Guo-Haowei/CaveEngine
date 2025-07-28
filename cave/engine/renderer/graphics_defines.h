@@ -4,7 +4,7 @@ namespace cave {
 
 // clang-format off
 #define BACKEND_LIST                                \
-    BACKEND_DECLARE(EMPTY,  "None",         empty)  \
+    BACKEND_DECLARE(EMPTY,  "Empty",        empty)  \
     BACKEND_DECLARE(OPENGL, "OpenGL",       opengl) \
     BACKEND_DECLARE(D3D11,  "Direct3D 11",  d3d11)  \
     BACKEND_DECLARE(D3D12,  "Direct3D 12",  d3d12)  \

@@ -3,8 +3,11 @@
 
 namespace cave {
 
-class Win32DisplayManager : public DisplayManager {
+class Win32DisplayManager : public IDisplayManager {
 public:
+    Win32DisplayManager()
+        : IDisplayManager("Win32DisplayManager") {}
+
     void FinalizeImpl() final;
 
     bool ShouldClose() final;

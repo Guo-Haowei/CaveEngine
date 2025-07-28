@@ -4,8 +4,13 @@
 
 namespace cave {
 
+class IGraphicsManager;
+
 class PipelineStateManager {
 public:
+    PipelineStateManager(IGraphicsManager* p_graphics_manager)
+        : m_graphics_manager(p_graphics_manager) {}
+
     virtual ~PipelineStateManager() = default;
 
     auto Initialize() -> Result<void>;
@@ -19,6 +24,8 @@ public:
 protected:
     virtual auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> = 0;
     virtual auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> = 0;
+
+    IGraphicsManager* m_graphics_manager = nullptr;
 
 private:
     auto Create(PipelineStateName p_name, const PipelineStateDesc& p_desc) -> Result<void>;
