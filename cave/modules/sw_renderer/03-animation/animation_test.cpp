@@ -15,7 +15,7 @@ using namespace rs;
 using namespace gfx;
 
 class AnimatedModelVS : public IVertexShader {
-   public:
+public:
     AnimatedModelVS()
         : IVertexShader(sVaryingFlags) {}
 
@@ -33,20 +33,20 @@ class AnimatedModelVS : public IVertexShader {
         return vs_output;
     }
 
-   public:
+public:
     gfx::mat4 PV;
     gfx::mat4 M = mat4(1);
     std::vector<gfx::mat4> boneMatrices;
 
-   private:
+private:
     static const unsigned int sVaryingFlags =
         VARYING_NORMAL | VARYING_UV | VARYING_WORLD_POSITION;
 };
 
 class TexturePhongFS : public IFragmentShader {
-   public:
+public:
     virtual gfx::Color processFragment(const VSOutput &input) override {
-        const gfx::vec3 lightPosition { 0, 3, 3 };
+        const gfx::vec3 lightPosition{ 0, 3, 3 };
         const gfx::vec3 normal = gfx::normalize(gfx::vec3(input.normal));
         const gfx::vec3 worldPosition(input.worldPosition);
         const gfx::vec3 lightDirection =
@@ -62,18 +62,18 @@ class TexturePhongFS : public IFragmentShader {
         return finalColor;
     }
 
-   public:
+public:
     const Texture *m_texture = nullptr;
 };
 
 class AnimationTest : public ExampleBase {
-   public:
+public:
     AnimationTest();
 
     virtual void postInit() override;
     virtual void update(double deltaTime) override;
 
-   private:
+private:
     void updatePV();
 
     AnimatedModelVS m_vs;

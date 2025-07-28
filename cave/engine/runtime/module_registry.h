@@ -9,7 +9,7 @@ namespace cave {
 
 IAssetManager* CreateAssetManager();
 
-DisplayManager* CreateDisplayManager();
+IDisplayManager* CreateDisplayManager();
 
 IGraphicsManager* CreateGraphicsManager();
 

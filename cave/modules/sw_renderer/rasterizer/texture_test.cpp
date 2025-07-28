@@ -43,7 +43,7 @@ public:
     TextureVs()
         : IVertexShader(sVaryingFlags) {}
 
-    virtual VSOutput processVertex(const VSInput &input) override {
+    virtual VSOutput processVertex(const VSInput& input) override {
         VSOutput vs_output;
         vs_output.position = input.position;
         vs_output.uv = input.position.xy;
@@ -62,13 +62,13 @@ private:
 
 class TextureFs : public IFragmentShader {
 public:
-    virtual Color processFragment(const VSOutput &input) override {
+    virtual Color processFragment(const VSOutput& input) override {
         Color color = m_cubeTexture->sample(input.uv);
         return color;
     }
 
 public:
-    const Texture *m_cubeTexture;
+    const Texture* m_cubeTexture;
 };
 
 VSInput g_vertices[4];
@@ -129,5 +129,5 @@ void TextureTest::update() {
     rs::drawElements(0, 6);
 }
 
-ExampleBase *g_pExample = new TextureTest();
+ExampleBase* g_pExample = new TextureTest();
 }  // namespace cave

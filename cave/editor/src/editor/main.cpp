@@ -1,6 +1,5 @@
-#include <filesystem>
-
 #include "engine/core/string/string_utils.h"
+#include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/layer.h"
@@ -137,6 +136,9 @@ int main(int p_argc, const char** p_argv) {
     });
     IScriptManager::RegisterCreateFunc([]() -> IScriptManager* {
         return new LuaScriptManager();
+    });
+    IDisplayManager::RegisterCreateFunc([]() -> IDisplayManager* {
+        return new GlfwDisplayManager();
     });
 
     // @TODO: figure out a way to create it cleanly

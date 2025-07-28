@@ -10,6 +10,7 @@ enum class GameMode : uint8_t {
     CutScene,
     Loading,
     Paused,
+    Tool,
 };
 
 class ModeManager {

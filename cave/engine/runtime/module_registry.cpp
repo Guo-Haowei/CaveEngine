@@ -48,8 +48,8 @@ IAssetManager* CreateAssetManager() {
     return CreateModule<IAssetManager, AssetManager>();
 }
 
-DisplayManager* CreateDisplayManager() {
-    return CreateModule<DisplayManager, NullDisplayManager>();
+IDisplayManager* CreateDisplayManager() {
+    return CreateModule<IDisplayManager, NullDisplayManager>();
 }
 
 IPhysicsManager* CreatePhysicsManager() {

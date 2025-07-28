@@ -21,7 +21,7 @@ static constexpr int TILE_SIZE = 128;
 // [u v 1] is the cross product
 
 struct RenderState {
-    Color clearColor = Color { 0, 0, 0, 255 };
+    Color clearColor = Color{ 0, 0, 0, 255 };
     float clearDepth = 1.0f;
     IVertexShader* vs = nullptr;
     IFragmentShader* fs = nullptr;
@@ -131,7 +131,7 @@ static inline OutTriangle processTriangle(const VSInput& vs_in0, const VSInput& 
         return triangle;
     }
 
-    return OutTriangle { vs_out0, vs_out1, vs_out2 };
+    return OutTriangle{ vs_out0, vs_out1, vs_out2 };
 }
 
 static inline int tileNum(int p_tile_size, int p_length) {
@@ -171,7 +171,7 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
         glm::min(width - 1, (tx + 1) * TILE_SIZE),
         glm::min(height - 1, (ty + 1) * TILE_SIZE));
     const Rect screenBox(_min, _max);
-    Rect triangleBox {};
+    Rect triangleBox{};
     triangleBox.ExpandPoint(a);
     triangleBox.ExpandPoint(b);
     triangleBox.ExpandPoint(c);
@@ -313,4 +313,4 @@ void drawElements(size_t start, size_t count) {
     drawArrayInternal(outTriangles);
 }
 
-}  // namespace rs
+}  // namespace cave::rs

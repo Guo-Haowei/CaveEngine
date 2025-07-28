@@ -10,7 +10,7 @@
 
 namespace cave {
 
-auto DisplayManager::InitializeImpl() -> Result<void> {
+Result<void> IDisplayManager::InitializeImpl() {
     InitializeKeyMapping();
 
     const auto& spec = m_app->GetSpecification();
@@ -47,23 +47,6 @@ auto DisplayManager::InitializeImpl() -> Result<void> {
     };
 
     return InitializeWindow(info);
-}
-
-// @TODO: fix this
-DisplayManager* DisplayManager::Create() {
-    const std::string& backend = DVAR_GET_STRING(gfx_backend);
-    // @TODO: cocoa display
-    if (backend == "opengl" || backend == "vulkan" || backend == "metal") {
-        return new GlfwDisplayManager();
-    }
-
-#if USING(PLATFORM_WINDOWS)
-    return new GlfwDisplayManager();
-#elif USING(PLATFORM_WASM)
-    return new GlfwDisplayManager();
-#else
-    return new EmptyDisplayManager();
-#endif
 }
 
 }  // namespace cave

@@ -11,7 +11,7 @@ namespace cave {
 class IAssetManager;
 class AssetRegistry;
 class CameraComponent;
-class DisplayManager;
+class IDisplayManager;
 class IGraphicsManager;
 class ImguiManager;
 class InputManager;
@@ -40,6 +40,7 @@ public:
     enum class Type : uint32_t {
         Runtime,
         Editor,
+        Tool,
     };
 
     Application(const ApplicationSpec& p_spec, Type p_type = Type::Runtime);
@@ -62,7 +63,7 @@ public:
     ISceneManager* GetSceneManager() { return m_scene_manager; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptManager* GetScriptManager() { return m_script_manager; }
-    DisplayManager* GetDisplayServer() { return m_display_server; }
+    IDisplayManager* GetDisplayServer() { return m_display_server; }
     IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     RenderSystem* GetRenderSystem() { return m_render_system; }
@@ -83,7 +84,7 @@ public:
 protected:
     [[nodiscard]] auto SetupModules() -> Result<void>;
 
-    bool MainLoop();
+    virtual bool MainLoop();
 
     float UpdateTime();
 
@@ -110,7 +111,7 @@ protected:
     IAssetManager* m_asset_manager{ nullptr };
     ISceneManager* m_scene_manager{ nullptr };
     IPhysicsManager* m_physics_manager{ nullptr };
-    DisplayManager* m_display_server{ nullptr };
+    IDisplayManager* m_display_server{ nullptr };
     IGraphicsManager* m_graphics_manager{ nullptr };
     ImguiManager* m_imgui_manager{ nullptr };
     IScriptManager* m_script_manager{ nullptr };

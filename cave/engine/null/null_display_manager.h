@@ -3,8 +3,11 @@
 
 namespace cave {
 
-class NullDisplayManager : public DisplayManager {
+class NullDisplayManager : public IDisplayManager {
 public:
+    NullDisplayManager()
+        : IDisplayManager("NullDisplayManager") {}
+
     void FinalizeImpl() override {}
 
     bool ShouldClose() override { return true; }
