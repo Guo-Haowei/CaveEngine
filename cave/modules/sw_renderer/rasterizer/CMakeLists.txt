@@ -22,8 +22,3 @@ target_link_libraries(${TARGET_NAME} PRIVATE
 target_precompile_headers(${TARGET_NAME} PRIVATE pch.h)
 
 target_set_warning_level(${TARGET_NAME})
-
-# @TODO: remove this
-target_compile_definitions(${TARGET_NAME} PUBLIC
-    SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
-)

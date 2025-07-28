@@ -132,22 +132,6 @@ auto Application::Initialize() -> Result<void> {
         }
     }
 
-    // select window size
-    {
-        const Vector2i resolution{ DVAR_GET_IVEC2(window_resolution) };
-        const Vector2i max_size{ 3840, 2160 };  // 4K
-        const Vector2i min_size{ 128, 128 };
-        Vector2i desired_size;
-        if (resolution.x > 0 && resolution.y > 0) {
-            desired_size = resolution;
-        } else {
-            desired_size = Vector2i(m_specification.width, m_specification.height);
-        }
-        desired_size = clamp(desired_size, min_size, max_size);
-        m_specification.width = desired_size.x;
-        m_specification.height = desired_size.y;
-    }
-
     // select backend
     {
         const std::string& backend = DVAR_GET_STRING(gfx_backend);
@@ -189,12 +173,6 @@ auto Application::Initialize() -> Result<void> {
 }
 
 void Application::Finalize() {
-    // @TODO: fix
-    if (m_display_server) {
-        [[maybe_unused]] auto [w, h] = m_display_server->GetWindowSize();
-        DVAR_SET_IVEC2(window_resolution, w, h);
-    }
-
     for (auto& layer : m_layers) {
         layer->OnDetach();
         LOG("[Runtime] layer '{}' detached!", layer->GetName());

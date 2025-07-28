@@ -1,49 +1,25 @@
+#include "engine/assets/image_asset.h"
+#include "engine/assets/mesh_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/drivers/windows/win32_display_manager.h"
-#include "engine/math/matrix_transform.h"
 #include "engine/empty/empty_graphics_manager.h"
+#include "engine/math/matrix_transform.h"
 #include "engine/runtime/application.h"
+#include "engine/runtime/asset_registry.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/mode_manager.h"
 
 //---------------
 #include "rasterizer.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "tinygltf/stb_image.h"
 //---------------
 
 namespace cave {
 
-constexpr int DIM = 256;
+constexpr int DIM = 256 * 2;
 namespace fs = std::filesystem;
 using namespace rs;
 
 //---------------
-// @TODO: refactor this part
-static void loadTexture(Texture& texture, const char* path) {
-    int width, height, channel;
-    unsigned char* data = stbi_load(path, &width, &height, &channel, 0);
-    if (data) {
-        std::vector<Color> buffer(width * height);
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                int bufferIndex = y * width + x;
-                Color& c = buffer[bufferIndex];
-                int channelIndex = channel * bufferIndex;
-                // NOTE: bitmap is in bgra format
-                c.r = data[channelIndex + 2];
-                c.g = data[channelIndex + 1];
-                c.b = data[channelIndex + 0];
-                c.a = channel == 4 ? data[channelIndex + 3] : 255;
-            }
-        }
-
-        texture.create({ width, height, buffer.data() });
-        stbi_image_free(data);
-    } else {
-        printf("Failed to load texture '%s'\n", path);
-    }
-}
 
 class TextureVs : public IVertexShader {
 public:
@@ -53,9 +29,7 @@ public:
     virtual VSOutput processVertex(const VSInput& input) override {
         VSOutput vs_output;
         vs_output.position = input.position;
-        vs_output.uv = input.position.xy;
-        vs_output.uv += 0.5f;
-        vs_output.uv.y = 1.0f - vs_output.uv.y;
+        vs_output.uv = input.uv;
         vs_output.position = PVM * vs_output.position;
         return vs_output;
     }
@@ -78,9 +52,9 @@ public:
     const Texture* m_cubeTexture;
 };
 
-VSInput g_vertices[4];
+std::vector<VSInput> g_vertices;
 
-const unsigned int g_indices[6] = { 0, 1, 2, 0, 2, 3 };
+// const unsigned int g_indices[6] = { 0, 1, 2, 0, 2, 3 };
 
 //---------------
 
@@ -130,24 +104,32 @@ public:
         rs::setVertexShader(&m_vs);
         rs::setFragmentShader(&m_fs);
 
-        // mesh
-        g_vertices[0].position = Vector4f{ -0.5f, +0.5f, 0.0f, 1.0f };  // top left
-        g_vertices[1].position = Vector4f{ -0.5f, -0.5f, 0.0f, 1.0f };  // bottom left
-        g_vertices[2].position = Vector4f{ +0.5f, -0.5f, 0.0f, 1.0f };  // bottom right
-        g_vertices[3].position = Vector4f{ +0.5f, +0.5f, 0.0f, 1.0f };  // top right
+        // model
+        // MeshAsset* model = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
+        MeshAsset* model = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap().Get();
+        g_vertices.resize(model->positions.size());
+        for (size_t i = 0; i < g_vertices.size(); ++i) {
+            g_vertices[i].position = Vector4f(model->positions[i], 1.0f);
+            g_vertices[i].uv = model->texcoords_0[i];
+        }
+        m_index_count = static_cast<uint32_t>(model->indices.size());
 
-        rs::setVertexArray(g_vertices);
-        rs::setIndexArray(g_indices);
+        rs::setVertexArray(g_vertices.data());
+        rs::setIndexArray(model->indices.data());
+
+        // texture
+        ImageAsset* image = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/uv.png").unwrap().Get();
+        DEV_ASSERT(image);
+
+        m_texture.create({ image->width, image->height, image->buffer.data() });
+        m_fs.m_cubeTexture = &m_texture;
 
         // constant buffer
         constexpr float w = 1.0f;
         V = LookAtRh(Vector3f(0, 0, 4), Vector3f::Zero, Vector3f::UnitY);
         P = BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
+        P = BuildOpenGlPerspectiveRH(Degree(45.0f).GetRadians(), 1.0f, 0.1f, 100.0f);
         PV = P * V;
-
-        // texture
-        loadTexture(m_texture, SOURCE_DIR "/texture.jpg");
-        m_fs.m_cubeTexture = &m_texture;
 
         return Result<void>();
     }
@@ -180,11 +162,13 @@ protected:
             return false;
         }
 
-        IGraphicsManager::GetSingleton().Clear(nullptr,
-                                               ClearFlags::CLEAR_COLOR_BIT | ClearFlags::CLEAR_DEPTH_BIT);
-        m_vs.PVM = PV;
+        Matrix4x4f M = Rotate(Degree(45.0f), Vector3f::UnitY);
+        m_vs.PVM = PV * M;
 
-        IGraphicsManager::GetSingleton().DrawElements(6);
+        const auto clear_flag = ClearFlags::CLEAR_COLOR_BIT | ClearFlags::CLEAR_DEPTH_BIT;
+        // @TODO: viewport
+        m_renderer.Clear(nullptr, clear_flag);
+        m_renderer.DrawElements(m_index_count);
 
         DrawPixels(m_renderTarget.getColorBuffer().getData());
 
@@ -196,6 +180,7 @@ protected:
     TextureFs m_fs;
 
     Texture m_texture;
+    uint32_t m_index_count;
 
     Matrix4x4f P;
     Matrix4x4f V;
@@ -205,6 +190,8 @@ protected:
     HBITMAP m_map;
     HDC m_src;
     HDC m_hdc = NULL;
+
+    SoftwareRenderer m_renderer;
 };
 
 Application* CreateApplication() {
@@ -219,8 +206,8 @@ Application* CreateApplication() {
     ApplicationSpec spec{};
     spec.userFolder = user_string;
     spec.name = "SoftwareRenderer";
-    spec.width = 256;
-    spec.height = 256;
+    spec.width = DIM;
+    spec.height = DIM;
     spec.backend = Backend::EMPTY;
     spec.decorated = true;
     spec.fullscreen = false;
@@ -238,7 +225,7 @@ int main(int p_argc, const char** p_argv) {
         return new Win32DisplayManager();
     });
     IGraphicsManager::RegisterCreateFunc([]() -> IGraphicsManager* {
-        return new SoftwareRenderer();
+        return new EmptyGraphicsManager();
     });
 
     return Main(p_argc, p_argv);

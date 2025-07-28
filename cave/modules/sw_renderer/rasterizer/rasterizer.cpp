@@ -25,7 +25,6 @@ struct RenderState {
 
     const VSInput* vertices = nullptr;
     const uint32_t* indices = nullptr;
-    float cullFace = 0.0f;
 };
 
 static RenderState g_state;
@@ -33,10 +32,6 @@ static RenderState g_state;
 void setSize(int width, int height) {
     DEV_ASSERT(width > 0 && height > 0);
     g_state.rt->resize(width, height);
-}
-
-void setCullState(CullState cullState) {
-    g_state.cullFace = static_cast<float>(cullState);
 }
 
 void setVertexArray(const VSInput* vertices) { g_state.vertices = vertices; }
@@ -90,11 +85,15 @@ static inline OutTriangle ProcessTriangle(const VSInput& vs_in0, const VSInput& 
     Vector3f ab3d(vs_out0.position.x - vs_out1.position.x, vs_out0.position.y - vs_out1.position.y, vs_out0.position.z - vs_out1.position.z);
     Vector3f ac3d(vs_out0.position.x - vs_out2.position.x, vs_out0.position.y - vs_out2.position.y, vs_out0.position.z - vs_out2.position.z);
     Vector3f normal = cross(ab3d, ac3d);
+
+    // @TODO: cull face
+#if 0
     if (normal.z * g_state.cullFace < 0.0f) {
         OutTriangle triangle;
         triangle.discarded = true;
         return triangle;
     }
+#endif
 
     return OutTriangle{ vs_out0, vs_out1, vs_out2 };
 }

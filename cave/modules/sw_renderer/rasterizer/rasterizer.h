@@ -7,16 +7,9 @@
 
 namespace cave::rs {
 
-enum CullState : int {
-    NONE = 0,
-    BACK_FACE = 1,
-    FRONT_FACE = -1
-};
-
 void setSize(int width, int height);
 
 // pipeline state
-void setCullState(CullState cullState);
 void setVertexShader(IVertexShader* vs);
 void setFragmentShader(IFragmentShader* fs);
 
