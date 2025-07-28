@@ -19,6 +19,7 @@ namespace cave {
 
 auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> {
     m_backend = p_spec.backend;
+    m_title = p_spec.title;
 
     glfwSetErrorCallback([](int code, const char* desc) { LOG_FATAL("[glfw] error({}): {}", code, desc); });
 
@@ -118,6 +119,14 @@ bool GlfwDisplayManager::ShouldClose() {
 void GlfwDisplayManager::BeginFrame() {
     glfwPollEvents();
     glfwGetWindowPos(m_window, &m_windowPos.x, &m_windowPos.y);
+}
+
+std::string_view GlfwDisplayManager::GetTitle() {
+    return glfwGetWindowTitle(m_window);
+}
+
+void GlfwDisplayManager::SetTitle(std::string_view p_title) {
+    glfwSetWindowTitle(m_window, p_title.data());
 }
 
 void* GlfwDisplayManager::GetNativeWindow() {

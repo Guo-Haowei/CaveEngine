@@ -22,6 +22,9 @@ public:
     void BeginFrame() override {}
     void* GetNativeWindow() override { return nullptr; }
 
+    std::string_view GetTitle() override { return ""; }
+    void SetTitle(std::string_view) override {}
+
 protected:
     auto InitializeWindow(const WindowSpecfication&) -> Result<void> override {
         return Result<void>();

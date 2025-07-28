@@ -22,6 +22,9 @@ public:
     HWND GetHwnd() const { return m_hwnd; }
     void* GetNativeWindow() final { return m_hwnd; }
 
+    std::string_view GetTitle() override;
+    void SetTitle(std::string_view p_title) override;
+
 private:
     auto InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> final;
     void InitializeKeyMapping() final;
@@ -29,6 +32,7 @@ private:
     WNDCLASSEXW m_wndClass{};
     HWND m_hwnd{};
     bool m_shouldQuit{ false };
+    std::string m_title;
 };
 
 }  // namespace cave

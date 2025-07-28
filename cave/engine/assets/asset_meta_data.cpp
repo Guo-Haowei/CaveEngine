@@ -46,7 +46,9 @@ Result<void> AssetMetaData::SaveToDisk(const IAsset* p_asset) const {
         asset_name = StringUtils::FileName(import_path.c_str(), '/');
     }
 
-    dependencies = p_asset->GetDependencies();
+    if (p_asset) {
+        dependencies = p_asset->GetDependencies();
+    }
 
     yaml.Write(*this);
     auto meta_path = std::format("{}.meta", import_path);

@@ -92,7 +92,7 @@ public:
         sw->SetPipeline(&m_pipeline);
 
         // model
-#if 0
+#if 1
         m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
 #else
         m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap().Get();
@@ -108,9 +108,7 @@ public:
         m_pipeline.m_texture = &m_texture;
 #endif
 
-        // constant buffer
-        // BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
-
+        // @TODO: proper setup
         m_pipeline.per_batch_cb.c_worldMatrix = Rotate(Degree(30.0f), Vector3f::UnitY);
         m_pipeline.per_frame_cb.c_cameraPosition = CAM_POS;
         m_pipeline.per_frame_cb.c_camView = LookAtRh(CAM_POS, Vector3f::Zero, Vector3f::UnitY);
@@ -147,7 +145,7 @@ protected:
             return false;
         }
 
-        m_counter.Frame();
+        m_fps_counter.Frame();
 
         auto& sw = m_graphics_manager;
 
@@ -185,13 +183,11 @@ protected:
 
         DrawPixels(color.data());
 
-        LOG("fps: {}", m_counter.GetFPS());
+        std::string title = std::format("SwRenderer (fps: {})", m_fps_counter.GetFPS());
+        m_display_server->SetTitle(title);
 
         return true;
     }
-
-    // @TODO: refactor
-    SwTexture<Color> m_texture;
 
     SwRenderTarget m_render_target;
     PbrPipeline m_pipeline;
@@ -199,7 +195,7 @@ protected:
     MeshAsset* m_mesh;
     int m_dim;
 
-    FpsCounter m_counter;
+    FpsCounter m_fps_counter;
 
     BITMAP m_bitmap;
     HBITMAP m_map;

@@ -250,4 +250,16 @@ std::shared_ptr<AssetEntry> AssetRegistry::GetEntry(const Guid& p_guid) {
     return it->second;
 }
 
+std::vector<AssetHandle> AssetRegistry::GetAssetsOfType(AssetType p_type) const {
+    std::vector<AssetHandle> res;
+    std::lock_guard lock(registry_mutex);
+    for (const auto& [guid, entry] : m_guid_map) {
+        if (entry->metadata.type == p_type) {
+            res.emplace_back(AssetHandle(guid, entry));
+        }
+    }
+
+    return res;
+}
+
 }  // namespace cave
