@@ -61,7 +61,7 @@ ISceneManager* CreateSceneManager() {
 }
 
 IScriptManager* CreateScriptManager() {
-    return CreateModule<IScriptManager, NullScriptManager>();
+    return CreateModule<IScriptManager, EmptyScriptManager>();
 }
 
 // @TODO: move to RHI

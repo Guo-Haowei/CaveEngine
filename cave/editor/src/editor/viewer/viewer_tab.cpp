@@ -75,7 +75,7 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     ImVec2 bottom_right(canvas_max.x, canvas_max.y);
 
     // @TODO: fix this
-    const auto& gm = IGraphicsManager::GetSingleton();
+    const auto& gm = *m_editor.GetApplication()->GetGraphicsManager();
     uint64_t handle = gm.GetFinalImage();
     // add image for drawing
     switch (gm.GetBackend()) {

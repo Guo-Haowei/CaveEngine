@@ -44,7 +44,7 @@ CommonOpenGLGraphicsManager::CommonOpenGLGraphicsManager()
     : GraphicsManager("CommonOpenGLGraphicsManager", Backend::OPENGL, 1) {
     m_dummy_vao = 0;
     m_window = nullptr;
-    m_pipelineStateManager = std::make_shared<OpenGlPipelineStateManager>();
+    m_pipelineStateManager = std::make_shared<OpenGlPipelineStateManager>(this);
 }
 
 void CommonOpenGLGraphicsManager::FinalizeImpl() {

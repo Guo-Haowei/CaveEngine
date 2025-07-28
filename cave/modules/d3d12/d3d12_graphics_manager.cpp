@@ -103,7 +103,7 @@ struct D3d12FrameContext : FrameContext {
 
 D3d12GraphicsManager::D3d12GraphicsManager()
     : GraphicsManager("D3d12GraphicsManager", Backend::D3D12, NUM_FRAMES_IN_FLIGHT) {
-    m_pipelineStateManager = std::make_shared<D3d12PipelineStateManager>();
+    m_pipelineStateManager = std::make_shared<D3d12PipelineStateManager>(this);
 }
 
 auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {

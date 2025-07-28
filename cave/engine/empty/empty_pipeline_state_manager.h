@@ -5,6 +5,9 @@ namespace cave {
 
 class EmptyPipelineStateManager : public PipelineStateManager {
 public:
+    EmptyPipelineStateManager(IGraphicsManager* p_graphics_manager)
+        : PipelineStateManager(p_graphics_manager) {}
+
 protected:
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
         unused(p_desc);

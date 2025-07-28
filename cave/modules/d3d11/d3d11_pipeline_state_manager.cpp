@@ -1,5 +1,7 @@
 #include "d3d11_pipeline_state_manager.h"
 
+#include "engine/runtime/application.h"
+
 #include "../d3d_common/d3d_common.h"
 #include "d3d11_graphics_manager.h"
 #include "d3d11_helpers.h"
@@ -10,14 +12,15 @@ namespace cave {
 
 using Microsoft::WRL::ComPtr;
 
-D3d11PipelineStateManager::D3d11PipelineStateManager() {
+D3d11PipelineStateManager::D3d11PipelineStateManager(IGraphicsManager* p_graphics_manager)
+    : PipelineStateManager(p_graphics_manager) {
     m_defines.push_back({ "HLSL_LANG", "1" });
     m_defines.push_back({ "HLSL_LANG_D3D11", "1" });
     m_defines.push_back({ nullptr, nullptr });
 }
 
 auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(IGraphicsManager::GetSingletonPtr());
+    auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(m_graphics_manager);
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
     if (!device) {

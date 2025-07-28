@@ -6,10 +6,12 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/renderer/path_tracer_render_system.h"
+#include "engine/runtime/application.h"
+#include "engine/runtime/common_dvars.h"
 #include "engine/scene/scene.h"
 
-#include "engine/runtime/common_dvars.h"
 #include "editor/editor_dvars.h"
+#include "editor/editor_layer.h"
 
 namespace cave {
 
@@ -53,8 +55,8 @@ void RendererPanel::UpdateInternal() {
         ImGui::DragFloat("kernel radius", (float*)DVAR_GET_POINTER(gfx_ssao_radius), 0.01f, 0.0f, 5.0f);
     });
 
-    CollapseWindow("Path Tracer", []() {
-        auto& gm = IGraphicsManager::GetSingleton();
+    CollapseWindow("Path Tracer", [&]() {
+        auto& gm = *m_editor.GetApplication()->GetGraphicsManager();
         int selected = (int)gm.GetActiveRenderGraphName();
         const int prev_selected = selected;
         for (int i = 0; i < std::to_underlying(RenderGraphName::COUNT); ++i) {

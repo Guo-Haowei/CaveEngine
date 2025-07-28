@@ -1,5 +1,4 @@
 #pragma once
-#include "engine/core/base/singleton.h"
 #include "engine/runtime/event_queue.h"
 #include "engine/runtime/module.h"
 
@@ -38,8 +37,7 @@ struct Viewport;
 
 struct GpuMesh;
 
-class IGraphicsManager : public Singleton<IGraphicsManager>,
-                         public Module,
+class IGraphicsManager : public Module,
                          public EventListener,
                          public ModuleCreateRegistry<IGraphicsManager> {
 public:

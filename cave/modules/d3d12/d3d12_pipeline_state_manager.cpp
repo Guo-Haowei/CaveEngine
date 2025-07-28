@@ -9,7 +9,8 @@ namespace cave {
 
 using Microsoft::WRL::ComPtr;
 
-D3d12PipelineStateManager::D3d12PipelineStateManager() {
+D3d12PipelineStateManager::D3d12PipelineStateManager(IGraphicsManager* p_graphics_manager)
+    : PipelineStateManager(p_graphics_manager) {
     m_defines.push_back({ "HLSL_LANG", "1" });
     m_defines.push_back({ "HLSL_LANG_D3D12", "1" });
     m_defines.push_back({ nullptr, nullptr });

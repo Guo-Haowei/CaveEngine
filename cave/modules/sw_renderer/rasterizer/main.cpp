@@ -125,7 +125,6 @@ public:
         // @TODO: refactor
         m_renderTarget.create({ DIM, DIM, true, true });
         rs::setRenderTarget(&m_renderTarget);
-        rs::setSize(DIM, DIM);
 
         rs::setSize(DIM, DIM);
         rs::setVertexShader(&m_vs);
@@ -181,9 +180,11 @@ protected:
             return false;
         }
 
-        rs::clear(COLOR_DEPTH_BUFFER_BIT);
+        IGraphicsManager::GetSingleton().Clear(nullptr,
+                                               ClearFlags::CLEAR_COLOR_BIT | ClearFlags::CLEAR_DEPTH_BIT);
         m_vs.PVM = PV;
-        rs::drawElements(0, 6);
+
+        IGraphicsManager::GetSingleton().DrawElements(6);
 
         DrawPixels(m_renderTarget.getColorBuffer().getData());
 
@@ -237,7 +238,7 @@ int main(int p_argc, const char** p_argv) {
         return new Win32DisplayManager();
     });
     IGraphicsManager::RegisterCreateFunc([]() -> IGraphicsManager* {
-        return new EmptyGraphicsManager();
+        return new SoftwareRenderer();
     });
 
     return Main(p_argc, p_argv);

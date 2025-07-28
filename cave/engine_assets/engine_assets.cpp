@@ -3,8 +3,9 @@
 
 #include "engine/assets/blob_asset.h"
 #include "engine/assets/material_asset.h"
-#include "engine/runtime/graphics_manager_interface.h"
+#include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/graphics_manager_interface.h"
 
 namespace cave {
 
@@ -36,8 +37,8 @@ static AssetRef LoadBlob(const unsigned char* p_data, unsigned int p_length) {
     return blob;
 }
 
-static void RegisterPersistentFonts() {
-    auto& asset_registry = AssetRegistry::GetSingleton();
+static void RegisterPersistentFonts(Application* p_app) {
+    auto& asset_registry = *p_app->GetAssetRegistry();
 
     {
         asset_registry.RegisterPersistentAsset("fonts/DroidSans.ttf",
@@ -51,9 +52,9 @@ static void RegisterPersistentFonts() {
     }
 }
 
-static void RegisterPersistentImages() {
-    auto& asset_registry = AssetRegistry::GetSingleton();
-    auto& graphics_manager = IGraphicsManager::GetSingleton();
+static void RegisterPersistentImages(Application* p_app) {
+    auto& asset_registry = *p_app->GetAssetRegistry();
+    auto& graphics_manager = *p_app->GetGraphicsManager();
     {
         auto texture = CreateCheckerBoardImage();
         asset_registry.RegisterPersistentAsset("textures/checkerboard",
@@ -63,12 +64,12 @@ static void RegisterPersistentImages() {
     }
 }
 
-static void RegisterPersistentMaterials() {
+static void RegisterPersistentMaterials(Application*) {
 }
 
-static void RegisterPersistentMeshes() {
-    auto& asset_registry = AssetRegistry::GetSingleton();
-    auto& graphics_manager = IGraphicsManager::GetSingleton();
+static void RegisterPersistentMeshes(Application* p_app) {
+    auto& asset_registry = *p_app->GetAssetRegistry();
+    auto& graphics_manager = *p_app->GetGraphicsManager();
     {
         auto mesh = CreatePlaneMesh(Vector3f(0.5f));
         asset_registry.RegisterPersistentAsset("meshes/plane",
@@ -113,11 +114,11 @@ static void RegisterPersistentMeshes() {
     }
 }
 
-void RegisterAllPersistentAssets() {
-    RegisterPersistentFonts();
-    RegisterPersistentImages();
-    RegisterPersistentMaterials();
-    RegisterPersistentMeshes();
+void RegisterAllPersistentAssets(Application* p_app) {
+    RegisterPersistentFonts(p_app);
+    RegisterPersistentImages(p_app);
+    RegisterPersistentMaterials(p_app);
+    RegisterPersistentMeshes(p_app);
 }
 
 }  // namespace cave

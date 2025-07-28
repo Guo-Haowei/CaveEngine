@@ -39,7 +39,8 @@ struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> perFrameCb;
 };
 
-class GraphicsManager : public IGraphicsManager {
+class GraphicsManager : public IGraphicsManager,
+                        public Singleton<GraphicsManager> {
 public:
     // @TODO: rename to RenderTarget
 

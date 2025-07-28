@@ -3,10 +3,10 @@
 
 namespace cave {
 
-class NullScriptManager : public IScriptManager {
+class EmptyScriptManager : public IScriptManager {
 public:
-    NullScriptManager()
-        : IScriptManager("NullScriptManager") {}
+    EmptyScriptManager()
+        : IScriptManager("EmptyScriptManager") {}
 
     virtual void OnSimBegin(Scene&) {}
     virtual void OnSimEnd() {}

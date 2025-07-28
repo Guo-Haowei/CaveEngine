@@ -7,8 +7,6 @@
 
 namespace cave::rs {
 
-using namespace std;
-
 // config
 static constexpr int TILE_SIZE = 128;
 
@@ -21,8 +19,6 @@ static constexpr int TILE_SIZE = 128;
 // [u v 1] is the cross product
 
 struct RenderState {
-    Color clearColor = Color{ 0, 0, 0, 255 };
-    float clearDepth = 1.0f;
     IVertexShader* vs = nullptr;
     IFragmentShader* fs = nullptr;
     RenderTarget* rt = nullptr;
@@ -34,37 +30,9 @@ struct RenderState {
 
 static RenderState g_state;
 
-void initialize() {
-}
-
-void finalize() {
-}
-
 void setSize(int width, int height) {
     DEV_ASSERT(width > 0 && height > 0);
     g_state.rt->resize(width, height);
-    g_state.rt->m_colorBuffer.clear(g_state.clearColor);
-    g_state.rt->m_depthBuffer.clear(g_state.clearDepth);
-}
-
-void setClearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    g_state.clearColor.r = r;
-    g_state.clearColor.g = g;
-    g_state.clearColor.b = b;
-    g_state.clearColor.a = a;
-}
-
-void setClearDepth(float depth) {
-    g_state.clearDepth = depth;
-}
-
-void clear(ClearFlags flags) {
-    if (flags & ClearFlags::COLOR_BUFFER_BIT) {
-        g_state.rt->m_colorBuffer.clear(g_state.clearColor);
-    }
-    if (flags & ClearFlags::DEPTH_BUFFER_BIT) {
-        g_state.rt->m_depthBuffer.clear(g_state.clearDepth);
-    }
 }
 
 void setCullState(CullState cullState) {
@@ -82,26 +50,23 @@ struct OutTriangle {
     int discarded = false;
 };
 
-static_assert(sizeof(Vector3f) == 12, "Not 12 bytes!");
-static_assert(alignof(Vector3f) == alignof(float), "Not float-aligned!");
-
 /**
  * Perspective correct linear interpolation
  * https://stackoverflow.com/questions/24441631/how-exactly-does-opengl-do-perspectively-correct-linear-interpolation
  */
-inline void ndcToViewport(Vector4f& position) {
-    DEV_ASSERT(position.w != 0.0f);
-    float invW = 1.0f / position.w;
-    position.x *= invW;
-    position.y *= invW;
-    position.z *= invW;
-    position.w = invW;
+static void NdcToViewport(Vector4f& p_position) {
+    DEV_ASSERT(p_position.w != 0.0f);
+    float inv_w = 1.0f / p_position.w;
+    p_position.x *= inv_w;
+    p_position.y *= inv_w;
+    p_position.z *= inv_w;
+    p_position.w = inv_w;
 
-    position.x = 0.5f + 0.5f * position.x;
-    position.y = 0.5f + 0.5f * position.y;
+    p_position.x = 0.5f + 0.5f * p_position.x;
+    p_position.y = 0.5f + 0.5f * p_position.y;
 }
 
-static inline OutTriangle processTriangle(const VSInput& vs_in0, const VSInput& vs_in1, const VSInput& vs_in2) {
+static inline OutTriangle ProcessTriangle(const VSInput& vs_in0, const VSInput& vs_in1, const VSInput& vs_in2) {
     IVertexShader* vs = g_state.vs;
     VSOutput vs_out0 = vs->processVertex(vs_in0);
     VSOutput vs_out1 = vs->processVertex(vs_in1);
@@ -117,9 +82,9 @@ static inline OutTriangle processTriangle(const VSInput& vs_in0, const VSInput& 
         return triangle;
     }
 
-    ndcToViewport(vs_out0.position);
-    ndcToViewport(vs_out1.position);
-    ndcToViewport(vs_out2.position);
+    NdcToViewport(vs_out0.position);
+    NdcToViewport(vs_out1.position);
+    NdcToViewport(vs_out2.position);
 
     // face culling
     Vector3f ab3d(vs_out0.position.x - vs_out1.position.x, vs_out0.position.y - vs_out1.position.y, vs_out0.position.z - vs_out1.position.z);
@@ -134,12 +99,12 @@ static inline OutTriangle processTriangle(const VSInput& vs_in0, const VSInput& 
     return OutTriangle{ vs_out0, vs_out1, vs_out2 };
 }
 
-static inline int tileNum(int p_tile_size, int p_length) {
+static int TileNumber(int p_tile_size, int p_length) {
     int rem = (p_length % p_tile_size) != 0;
     return (p_length / p_tile_size) + rem;
 }
 
-static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
+static void ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
     // prepare to go multi-threading
     RenderTarget* rt = g_state.rt;
     const int width = rt->m_depthBuffer.m_width;
@@ -244,7 +209,7 @@ static void inline processFragment(OutTriangle& vs_out, int tx, int ty) {
     }
 }
 
-static void drawArrayInternal(vector<OutTriangle>& trigs) {
+static void DrawArrayInternal(std::vector<OutTriangle>& trigs) {
     // remove invalid triangles
     trigs.erase(remove_if(trigs.begin(),
                           trigs.end(),
@@ -255,14 +220,14 @@ static void drawArrayInternal(vector<OutTriangle>& trigs) {
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
 
-    const int col = tileNum(TILE_SIZE, width);
-    const int row = tileNum(TILE_SIZE, height);
+    const int col = TileNumber(TILE_SIZE, width);
+    const int row = TileNumber(TILE_SIZE, height);
 
     jobsystem::Context ctx;
     ctx.Dispatch(row, 1, [&](jobsystem::JobArgs args) {
         for (int c = 0; c < col; ++c) {
             for (OutTriangle& triangle : trigs) {
-                processFragment(triangle, c, args.jobIndex);
+                ProcessFragment(triangle, c, args.jobIndex);
             }
         }
     });
@@ -270,47 +235,73 @@ static void drawArrayInternal(vector<OutTriangle>& trigs) {
     ctx.Wait();
 }
 
-void drawArrays(size_t start, size_t count) {
-    DEV_ASSERT(count % 3 == 0);
-    DEV_ASSERT(start % 3 == 0);
-
-    const int triangleCnt = int(count) / 3;
-    vector<OutTriangle> outTriangles(triangleCnt);
-
-    jobsystem::Context ctx;
-    ctx.Dispatch(triangleCnt, 8, [&](jobsystem::JobArgs args) {
-        const uint32_t idx = args.jobIndex;
-        const VSInput* vertices = g_state.vertices;
-        const VSInput& p0 = vertices[idx * 3 + 0];
-        const VSInput& p1 = vertices[idx * 3 + 1];
-        const VSInput& p2 = vertices[idx * 3 + 2];
-        outTriangles[idx] = processTriangle(p0, p1, p2);
-    });
-    ctx.Wait();
-
-    drawArrayInternal(outTriangles);
+void SoftwareRenderer::SetPipelineStateImpl(PipelineStateName p_name) {
+    unused(p_name);
 }
 
-void drawElements(size_t start, size_t count) {
-    DEV_ASSERT(count % 3 == 0);
-    DEV_ASSERT(start % 3 == 0);
+void SoftwareRenderer::Clear(const Framebuffer* p_framebuffer,
+                             ClearFlags p_flags,
+                             const float* p_clear_color,
+                             float p_clear_depth,
+                             uint8_t,
+                             int) {
+    unused(p_framebuffer);
 
-    const int triangleCnt = int(count) / 3;
-    vector<OutTriangle> outTriangles(triangleCnt);
+    Color clear_color;
+    clear_color.r = static_cast<uint8_t>(p_clear_color[0] * 255.f);
+    clear_color.g = static_cast<uint8_t>(p_clear_color[1] * 255.f);
+    clear_color.b = static_cast<uint8_t>(p_clear_color[2] * 255.f);
+    clear_color.a = static_cast<uint8_t>(p_clear_color[3] * 255.f);
+
+    if (p_flags & ClearFlags::CLEAR_COLOR_BIT) {
+        g_state.rt->m_colorBuffer.clear(clear_color);
+    }
+    if (p_flags & ClearFlags::CLEAR_DEPTH_BIT) {
+        g_state.rt->m_depthBuffer.clear(p_clear_depth);
+    }
+}
+
+void SoftwareRenderer::DrawElements(uint32_t p_count, uint32_t p_offset) {
+    DEV_ASSERT(p_count % 3 == 0);
+    DEV_ASSERT(p_offset % 3 == 0);
+
+    const int triangle_count = static_cast<int>(p_count) / 3;
+    std::vector<OutTriangle> triangles(triangle_count);
 
     jobsystem::Context ctx;
-    ctx.Dispatch(triangleCnt, 8, [&](jobsystem::JobArgs args) {
+    ctx.Dispatch(triangle_count, 8, [&](jobsystem::JobArgs args) {
         const uint32_t idx = args.jobIndex;
         const VSInput* vertices = g_state.vertices;
         const uint32_t* indices = g_state.indices;
         const VSInput& p0 = vertices[indices[idx * 3 + 0]];
         const VSInput& p1 = vertices[indices[idx * 3 + 1]];
         const VSInput& p2 = vertices[indices[idx * 3 + 2]];
-        outTriangles[idx] = processTriangle(p0, p1, p2);
+        triangles[idx] = ProcessTriangle(p0, p1, p2);
     });
     ctx.Wait();
 
-    drawArrayInternal(outTriangles);
+    DrawArrayInternal(triangles);
+}
+
+void SoftwareRenderer::DrawArrays(uint32_t p_count, uint32_t p_offsest) {
+    DEV_ASSERT(p_count % 3 == 0);
+    DEV_ASSERT(p_offsest % 3 == 0);
+
+    const int triangle_count = static_cast<int>(p_count) / 3;
+    std::vector<OutTriangle> triangles(triangle_count);
+
+    jobsystem::Context ctx;
+    ctx.Dispatch(triangle_count, 8, [&](jobsystem::JobArgs args) {
+        const uint32_t idx = args.jobIndex;
+        const VSInput* vertices = g_state.vertices;
+        const VSInput& p0 = vertices[idx * 3 + 0];
+        const VSInput& p1 = vertices[idx * 3 + 1];
+        const VSInput& p2 = vertices[idx * 3 + 2];
+        triangles[idx] = ProcessTriangle(p0, p1, p2);
+    });
+    ctx.Wait();
+
+    DrawArrayInternal(triangles);
 }
 
 }  // namespace cave::rs

@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/renderer/graphics_defines.h"
 #include "engine/runtime/graphics_manager_interface.h"
 
 namespace cave {
@@ -8,8 +9,8 @@ WARNING_DISABLE(4100, "-Wunused-parameter")
 
 class EmptyGraphicsManager : public IGraphicsManager {
 public:
-    EmptyGraphicsManager()
-        : IGraphicsManager("EmptyGraphicsManager") {}
+    EmptyGraphicsManager(std::string_view p_name = "EmptyGraphicsManager")
+        : IGraphicsManager(p_name) {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}

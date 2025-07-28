@@ -57,10 +57,13 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 }
 #endif
 
-static void ExecuteDrawCommands(const FrameData& p_data, const std::vector<RenderCommand>& p_commands, bool p_is_prepass = false) {
+static void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
+                                const std::vector<RenderCommand>& p_commands,
+                                bool p_is_prepass = false) {
     CAVE_PROFILE_EVENT();
 
-    auto& gm = IGraphicsManager::GetSingleton();
+    // @TODO: remove
+    auto& gm = p_ctx.cmd;
     auto& frame = gm.GetCurrentFrame();
     for (const RenderCommand& cmd : p_commands) {
         if (cmd.type != RenderCommandType::Draw) continue;
@@ -82,7 +85,7 @@ static void ExecuteDrawCommands(const FrameData& p_data, const std::vector<Rende
         }
 
         if (draw.mat_idx != -1) {
-            const MaterialConstantBuffer& material = p_data.materialCache.buffer[draw.mat_idx];
+            const MaterialConstantBuffer& material = p_ctx.frameData.materialCache.buffer[draw.mat_idx];
             gm.BindTexture(Dimension::TEXTURE_2D, material.c_baseColorMapHandle, GetBaseColorMapSlot());
             gm.BindTexture(Dimension::TEXTURE_2D, material.c_normalMapHandle, GetNormalMapSlot());
             gm.BindTexture(Dimension::TEXTURE_2D, material.c_materialMapHandle, GetMaterialMapSlot());
@@ -137,7 +140,7 @@ static void EarlyZPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_PREPASS);
-    ExecuteDrawCommands(p_ctx.frameData, p_ctx.frameData.prepass_commands, true);
+    ExecuteDrawCommands(p_ctx, p_ctx.frameData.prepass_commands, true);
 }
 
 void RenderGraphBuilderExt::AddEarlyZPass() {
@@ -178,7 +181,7 @@ static void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_GBUFFER);
-    ExecuteDrawCommands(p_ctx.frameData, p_ctx.frameData.gbuffer_commands, false);
+    ExecuteDrawCommands(p_ctx, p_ctx.frameData.gbuffer_commands, false);
     // DrawInstacedGeometry(p_ctx.render_system, p_ctx.render_system.instances, false);
     cmd.SetPipelineState(PSO_GBUFFER_DOUBLE_SIDED);
 }
@@ -229,7 +232,7 @@ static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
         .name = RG_RES_SSAO,
     };
 
-    return IGraphicsManager::GetSingleton().CreateTexture(desc, PointWrapSampler());
+    return GraphicsManager::GetSingleton().CreateTexture(desc, PointWrapSampler());
 }
 
 static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
@@ -330,7 +333,7 @@ void RenderGraphBuilderExt::AddHighlightPass() {
             cmd.SetViewport(Viewport(width, height));
 
             cmd.SetPipelineState(PSO_POINT_SHADOW);
-            ExecuteDrawCommands(p_ctx.frameData, p_ctx.frameData.shadow_pass_commands, false);
+            ExecuteDrawCommands(p_ctx, p_ctx.frameData.shadow_pass_commands, false);
         }
     }
 }
@@ -357,7 +360,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_DPETH);
-    ExecuteDrawCommands(p_ctx.frameData, p_ctx.frameData.shadow_pass_commands);
+    ExecuteDrawCommands(p_ctx, p_ctx.frameData.shadow_pass_commands);
 }
 
 void RenderGraphBuilderExt::AddShadowPass() {
@@ -397,7 +400,7 @@ static void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
         cmd.SetViewport(Viewport(voxel_size, voxel_size));
         cmd.SetPipelineState(PSO_VOXELIZATION);
         cmd.SetBlendState(PipelineStateManager::GetBlendDescDisable(), nullptr, 0xFFFFFFFF);
-        ExecuteDrawCommands(p_ctx.frameData, p_ctx.frameData.voxelization_commands);
+        ExecuteDrawCommands(p_ctx, p_ctx.frameData.voxelization_commands);
 
         // glSubpixelPrecisionBiasNV(0, 0);
         cmd.SetBlendState(PipelineStateManager::GetBlendDescDefault(), nullptr, 0xFFFFFFFF);
@@ -416,7 +419,7 @@ static void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
 }
 
 void RenderGraphBuilderExt::AddVoxelizationPass() {
-    auto& manager = IGraphicsManager::GetSingleton();
+    auto& manager = m_graphicsManager;
     if (manager.GetBackend() != Backend::OPENGL) {
         return;
     }
@@ -550,7 +553,7 @@ static std::shared_ptr<GpuTexture> GenerateLTC(std::string_view p_name, const fl
         .name = std::string(p_name),
     };
 
-    return IGraphicsManager::GetSingleton().CreateTexture(desc, PointClampSampler());
+    return GraphicsManager::GetSingleton().CreateTexture(desc, PointClampSampler());
 }
 
 void RenderGraphBuilderExt::AddLightingPass() {
@@ -562,7 +565,7 @@ void RenderGraphBuilderExt::AddLightingPass() {
     pass.Import(RG_RES_BRDF, []() {
             auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/brdf.hdr");
             auto image = handle.unwrap().Wait();
-            return IGraphicsManager::GetSingleton().CreateTexture(image.get());
+            return GraphicsManager::GetSingleton().CreateTexture(image.get());
         })
         .Import(RG_RES_LTC1, []() {
             return GenerateLTC(RG_RES_LTC1, LTC1);
@@ -617,7 +620,7 @@ static void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
 
     // draw transparent objects
     gm.SetPipelineState(PSO_FORWARD_TRANSPARENT);
-    ExecuteDrawCommands(p_ctx.frameData, p_ctx.frameData.transparent_commands);
+    ExecuteDrawCommands(p_ctx, p_ctx.frameData.transparent_commands);
 
     EmitterPassFunc(p_ctx);
 }
@@ -781,7 +784,7 @@ static void DebugVoxels(RenderPassExcutionContext& p_ctx) {
     gm.SetViewport(Viewport(width, height));
     gm.Clear(p_framebuffer, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, IGraphicsManager::DEFAULT_CLEAR_COLOR, 0.0f);
 
-    IGraphicsManager::GetSingleton().SetPipelineState(PSO_DEBUG_VOXEL);
+    p_ctx.cmd.SetPipelineState(PSO_DEBUG_VOXEL);
 
     gm.SetMesh(gm.m_boxBuffers.get());
     const uint32_t size = DVAR_GET_INT(gfx_voxel_size);
@@ -932,7 +935,7 @@ void RenderGraphBuilderExt::AddGenerateSkylightPass() {
         pass.Import(RG_RES_IBL, []() {
                 auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/sky.hdr");
                 auto image = handle.unwrap().Wait();
-                return IGraphicsManager::GetSingleton().CreateTexture(image.get());
+                return GraphicsManager::GetSingleton().CreateTexture(image.get());
             })
             .Create(RG_RES_ENV_SKYBOX_CUBE, { desc, CubemapSampler() })
             .Read(ResourceAccess::SRV, RG_RES_IBL)
@@ -1027,7 +1030,7 @@ void RenderGraphBuilderExt::AddPathTracerTonePass() {
     auto& pass = AddPass(RG_PASS_PATHTRACER_PRESENT);
 
     pass.Import(RG_RES_POST_PROCESS, []() {
-            return IGraphicsManager::GetSingleton().FindTexture(RG_RES_POST_PROCESS);
+            return GraphicsManager::GetSingleton().FindTexture(RG_RES_POST_PROCESS);
         })
         .Read(ResourceAccess::SRV, RG_RES_PATHTRACER)
         .Write(ResourceAccess::RTV, RG_RES_POST_PROCESS)
@@ -1039,7 +1042,7 @@ void RenderGraphBuilderExt::AddPathTracerTonePass() {
 auto RenderGraphBuilderExt::Create3D(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>> {
     p_config.enableBloom = true;
     p_config.enableIbl = false;
-    p_config.enableVxgi = IGraphicsManager::GetSingleton().GetBackend() == Backend::OPENGL;
+    p_config.enableVxgi = GraphicsManager::GetSingleton().GetBackend() == Backend::OPENGL;
 
     RenderGraphBuilderExt builder(p_config);
 
