@@ -83,32 +83,12 @@ void EditorCommandRemoveEntity::Execute(Scene& p_scene) {
     p_scene.RemoveEntity(entity);
 }
 
-/// OpenProjectCommand
-void OpenProjectCommand::Execute(Scene&) {
-    CRASH_NOW();
-    std::string path;
-    // std::filesystem::path path{ project.empty() ? "untitled.scene" : project.c_str() };
-    if (m_openDialog) {
-// @TODO: implement
-#if USING(PLATFORM_WINDOWS)
-        // @TODO: validate string
-        path = os::OpenFileDialog({});
-#else
-        LOG_WARN("OpenSaveDialog not implemented");
-#endif
-    }
-
-    // @TODO: validate
-    DVAR_SET_STRING(scene, path);
-
-    // SceneManager::GetSingleton().RequestScene(path);
-}
-
 /// SaveProjectCommand
 void SaveProjectCommand::Execute(Scene& p_scene) {
     unused(p_scene);
 
-    const std::string& scene = DVAR_GET_STRING(scene);
+    CRASH_NOW();
+    std::string scene;
 
     std::filesystem::path path{ scene.empty() ? "untitled.scene" : scene.c_str() };
     if (m_openDialog || scene.empty()) {
@@ -123,7 +103,6 @@ void SaveProjectCommand::Execute(Scene& p_scene) {
     }
 
     auto path_string = path.string();
-    DVAR_SET_STRING(scene, path_string);
 
     [[maybe_unused]] const auto extension = StringUtils::Extension(path_string);
     LOG_OK("scene saved to '{}'", path.string());

@@ -5,7 +5,7 @@
 // @TODO: refactor
 #include "render_target.h"
 
-namespace cave::rs {
+namespace cave {
 
 enum VaryingFlag : uint8_t {
     VARYING_COLOR = 1u << 0,
@@ -105,4 +105,4 @@ public:
                                 const VSInput& vs_in2);
 };
 
-}  // namespace cave::rs
+}  // namespace cave

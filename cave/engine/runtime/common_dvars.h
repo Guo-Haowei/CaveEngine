@@ -2,7 +2,6 @@
 
 // project
 DVAR_STRING(project, DVAR_FLAG_NONE, "Open project at start", "");
-DVAR_STRING(scene, DVAR_FLAG_NONE, "Open scene at start", "");
 
 // IO
 DVAR_BOOL(verbose, DVAR_FLAG_NONE, "Print verbose log", true);

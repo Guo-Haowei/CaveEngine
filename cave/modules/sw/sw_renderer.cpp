@@ -4,7 +4,7 @@
 #include "engine/math/box.h"
 #include "engine/systems/job_system/job_system.h"
 
-namespace cave::rs {
+namespace cave {
 
 // config
 static constexpr int TILE_SIZE = 128;
@@ -292,4 +292,4 @@ void SwGraphicsManager::SetMesh(const GpuMesh* p_mesh) {
     m_state.indices = mesh->indices.data();
 }
 
-}  // namespace cave::rs
+}  // namespace cave
