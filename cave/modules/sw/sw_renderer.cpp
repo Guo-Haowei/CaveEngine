@@ -7,7 +7,7 @@
 namespace cave {
 
 // config
-static constexpr int TILE_SIZE = 128;
+static constexpr int TILE_SIZE = 32;
 
 // barycentric
 // P = uA + vB + wC (where w = 1 - u - v)
@@ -74,7 +74,7 @@ static int TileNumber(int p_tile_size, int p_length) {
     return (p_length / p_tile_size) + rem;
 }
 
-void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
+void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     SwRenderTarget* rt = m_state.rt;
     SwPipeline* pipeline = m_state.pipeline;
 
@@ -100,25 +100,25 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
     auto& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = pipeline->GetVaryingFlags();
 
-    const Vector2f _min(tx * TILE_SIZE, ty * TILE_SIZE);
-    const Vector2f _max(
-        glm::min(width - 1, (tx + 1) * TILE_SIZE),
-        glm::min(height - 1, (ty + 1) * TILE_SIZE));
-    const Rect screenBox(_min, _max);
-    Rect triangleBox{};
-    triangleBox.ExpandPoint(a);
-    triangleBox.ExpandPoint(b);
-    triangleBox.ExpandPoint(c);
-    triangleBox.UnionBox(screenBox);
-    bool intersect = triangleBox.IsValid();
+    const Rect screenBox(Vector2f::Zero, Vector2f(width, height));
+    Rect aabb{};
+    aabb.ExpandPoint(a);
+    aabb.ExpandPoint(b);
+    aabb.ExpandPoint(c);
+    aabb.IntersectBox(screenBox);
+    bool intersect = aabb.IsValid();
     // discard if not intersect
     if (!intersect) {
         return;
     }
 
     // rasterization
-    Vector2f min = triangleBox.GetMin();
-    Vector2f max = triangleBox.GetMax();
+    Vector2f min = aabb.GetMin();
+    min.x = std::floor(min.x);
+    min.y = std::floor(min.y);
+    Vector2f max = aabb.GetMax();
+    max.x = std::ceil(max.x);
+    max.y = std::ceil(max.y);
     for (int _y = (int)min.y; _y < (int)max.y; ++_y) {
         for (int _x = (int)min.x; _x < (int)max.x; ++_x) {
             Vector3f a_(CA.x, CB.x, c.x - _x);
@@ -133,8 +133,8 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
 
             static const float epsilon = glm::epsilon<float>();
             const float sum = bCoord.x + bCoord.y + bCoord.z;
-            bool test = (bCoord.x >= 0.0f && bCoord.y >= 0.0f && bCoord.z >= 0.0f && std::abs(sum - 1.0f) <= epsilon);
-            if (test == true) {
+            const bool test = (bCoord.x >= 0.0f && bCoord.y >= 0.0f && bCoord.z >= 0.0f && std::abs(sum - 1.0f) <= epsilon);
+            if (test) {
                 // depth test
                 VSOutput output;
                 output.position = bCoord.x * vs_out0.position + bCoord.y * vs_out1.position + bCoord.z * vs_out2.position;
@@ -194,10 +194,10 @@ void SwGraphicsManager::DrawArrayInternal(std::vector<OutTriangle>& trigs) {
     const int row = TileNumber(TILE_SIZE, height);
 
     jobsystem::Context ctx;
-    ctx.Dispatch(row, 1, [&](jobsystem::JobArgs args) {
+    ctx.Dispatch(row, 1, [&](jobsystem::JobArgs) {
         for (int c = 0; c < col; ++c) {
             for (OutTriangle& triangle : trigs) {
-                ProcessFragment(triangle, c, args.jobIndex);
+                ProcessFragment(triangle);
             }
         }
     });

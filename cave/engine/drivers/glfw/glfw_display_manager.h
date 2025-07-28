@@ -24,6 +24,9 @@ public:
     void* GetNativeWindow() final;
     GLFWwindow* GetGlfwWindow() const { return m_window; }
 
+    std::string_view GetTitle() override;
+    void SetTitle(std::string_view p_title) override;
+
 private:
     auto InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> final;
     void InitializeKeyMapping() final;
@@ -36,6 +39,7 @@ private:
 
     GLFWwindow* m_window{ nullptr };
     Backend m_backend;
+    std::string m_title;
 };
 
 }  // namespace cave

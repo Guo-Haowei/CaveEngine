@@ -5,10 +5,11 @@
 
 namespace cave {
 
+#include "cbuffer.hlsl.h"
+
 // @TODO: refactor
-constexpr Vector3f CAM_POS{ 0, 0, 2 };
-constexpr Vector3f LIGHT_POS{ 0, 4, 4 };
-constexpr Vector4f AMBIENT_COLOR{ 0.04f, 0.04f, 0.04f, 1.0f };
+constexpr Vector3f LIGHT_POS{ 5, 6, 3 };
+constexpr Vector4f AMBIENT_COLOR{ .06f, .06f, .06f, 1.0f };
 
 class PbrPipeline : public SwPipeline {
 public:
@@ -26,12 +27,10 @@ public:
                              float roughness,
                              float emissive);
 
-public:
-    const SwTexture<Color>* m_texture;
-    Vector3f c_cameraPosition;
+    PerBatchConstantBuffer per_batch_cb;
+    PerFrameConstantBuffer per_frame_cb;
 
-    Matrix4x4f M;
-    Matrix4x4f PV;
+    const SwTexture<Color>* m_texture = nullptr;
 };
 
 }  // namespace cave

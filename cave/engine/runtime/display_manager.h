@@ -37,6 +37,9 @@ public:
 
     virtual void BeginFrame() = 0;
 
+    virtual std::string_view GetTitle() = 0;
+    virtual void SetTitle(std::string_view p_title) = 0;
+
 protected:
     virtual auto InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> = 0;
     virtual void InitializeKeyMapping() = 0;

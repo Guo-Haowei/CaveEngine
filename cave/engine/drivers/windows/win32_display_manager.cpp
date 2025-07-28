@@ -27,6 +27,8 @@ static LRESULT WndProcWrapper(HWND p_hwnd, UINT p_msg, WPARAM p_wparam, LPARAM p
 auto Win32DisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> {
     RECT rect = { 0, 0, p_spec.width, p_spec.height };
     AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+
+    m_title = p_spec.title;
     std::wstring title(p_spec.title.begin(), p_spec.title.end());
 
     m_wndClass = { sizeof(m_wndClass),
@@ -84,6 +86,17 @@ bool Win32DisplayManager::ShouldClose() {
     }
     ::PostQuitMessage(0);
     return true;
+}
+
+std::string_view Win32DisplayManager::GetTitle() {
+    return m_title;
+}
+
+void Win32DisplayManager::SetTitle(std::string_view p_title) {
+    m_title = p_title;
+    std::wstring title(m_title.begin(), m_title.end());
+
+    SetWindowTextW(m_hwnd, title.c_str());
 }
 
 std::tuple<int, int> Win32DisplayManager::GetWindowSize() {

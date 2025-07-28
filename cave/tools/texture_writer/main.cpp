@@ -1,5 +1,5 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "tinygltf/stb_image_write.h"
+#include <tinygltf/stb_image_write.h>
 
 #include "engine/core/os/threads.h"
 #include "engine/core/os/timer.h"

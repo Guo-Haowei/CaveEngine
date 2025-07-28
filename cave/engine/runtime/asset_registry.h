@@ -41,6 +41,8 @@ public:
                                  const Guid& p_guid,
                                  AssetRef p_asset);
 
+    std::vector<AssetHandle> GetAssetsOfType(AssetType p_type) const;
+
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;

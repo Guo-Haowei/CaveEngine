@@ -6,15 +6,16 @@ namespace cave {
 
 VSOutput PbrPipeline::ProcessVertex(const VSInput& input) {
     VSOutput vs_output;
-    vs_output.world_position = M * input.position;
-    vs_output.position = PV * vs_output.world_position;
-    vs_output.normal = M * input.normal;
+    vs_output.world_position = per_batch_cb.c_worldMatrix * input.position;
+    vs_output.position = per_frame_cb.c_camProj *
+                         per_frame_cb.c_camView *
+                         vs_output.world_position;
+    vs_output.normal = per_batch_cb.c_worldMatrix * input.normal;
     vs_output.uv = input.uv;
     return vs_output;
 }
 
-// @TODO: move to sample
-FORCE_INLINE float srgb_to_linear(float s) {
+FORCE_INLINE float SrgbToLinear(float s) {
     return std::pow((s + 0.055f) / 1.055f, 2.4f);
 }
 
@@ -24,11 +25,11 @@ Vector3f PbrPipeline::ProcessFragment(const VSOutput& input) {
     if (m_texture) {
         Color color;
         color = m_texture->sample(input.uv);
-        base_color.r = srgb_to_linear(color.r / 255.f);
-        base_color.g = srgb_to_linear(color.g / 255.f);
-        base_color.b = srgb_to_linear(color.b / 255.f);
+        base_color.r = SrgbToLinear(color.r / 255.f);
+        base_color.g = SrgbToLinear(color.g / 255.f);
+        base_color.b = SrgbToLinear(color.b / 255.f);
     } else {
-        base_color = Vector3f::UnitX;
+        base_color = Vector3f(0.5f);
     }
 
     Vector3f final_color = ComputeLighting(base_color,
@@ -51,7 +52,7 @@ Vector3f PbrPipeline::ComputeLighting(Vector3f base_color,
         return Vector3f(emissive * base_color);
     }
 
-    const Vector3f V = normalize(c_cameraPosition - world_position);
+    const Vector3f V = normalize(per_frame_cb.c_cameraPosition - world_position);
     const float NdotV = cave::max(dot(N, V), 0.0f);
     Vector3f R = glm::reflect(-V, N);
 

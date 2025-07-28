@@ -14,6 +14,7 @@ build-emscripten/
 *.meta.cpp
 glsl_generated/
 generated/
+_cache
 
 # others
 *.exe

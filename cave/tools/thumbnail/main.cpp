@@ -21,7 +21,7 @@ void RegisterExtraDvars() {
 }
 
 extern Application* CreateGuiApp(const ApplicationSpec& p_spec);
-extern Application* CreateGliApp(const ApplicationSpec& p_spec);
+extern Application* CreateCliApp(const ApplicationSpec& p_spec);
 
 Application* CreateApplication() {
     // @TODO: get rid of this
@@ -47,8 +47,7 @@ Application* CreateApplication() {
     spec.vsync = false;
     spec.enableImgui = false;
     if (DVAR_GET_BOOL(headless)) {
-        CRASH_NOW();
-        return nullptr;
+        return CreateCliApp(spec);
     } else {
         return CreateGuiApp(spec);
     }
