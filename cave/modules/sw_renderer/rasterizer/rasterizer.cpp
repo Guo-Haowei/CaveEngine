@@ -2,8 +2,9 @@
 
 #include <execution>
 
-#include "engine/systems/job_system/job_system.h"
+#include "engine/assets/mesh_asset.h"
 #include "engine/math/box.h"
+#include "engine/systems/job_system/job_system.h"
 
 namespace cave::rs {
 
@@ -17,33 +18,6 @@ static constexpr int TILE_SIZE = 128;
 // [u v 1] [CAx CBx PCx] = 0
 // [u v 1] [CAy CBy PCy] = 0
 // [u v 1] is the cross product
-
-struct RenderState {
-    IVertexShader* vs = nullptr;
-    IFragmentShader* fs = nullptr;
-    RenderTarget* rt = nullptr;
-
-    const VSInput* vertices = nullptr;
-    const uint32_t* indices = nullptr;
-};
-
-static RenderState g_state;
-
-void setSize(int width, int height) {
-    DEV_ASSERT(width > 0 && height > 0);
-    g_state.rt->resize(width, height);
-}
-
-void setVertexArray(const VSInput* vertices) { g_state.vertices = vertices; }
-void setIndexArray(const unsigned int* indices) { g_state.indices = indices; }
-void setVertexShader(IVertexShader* vs) { g_state.vs = vs; }
-void setFragmentShader(IFragmentShader* fs) { g_state.fs = fs; }
-void setRenderTarget(RenderTarget* renderTarget) { g_state.rt = renderTarget; }
-
-struct OutTriangle {
-    VSOutput p0, p1, p2;
-    int discarded = false;
-};
 
 /**
  * Perspective correct linear interpolation
@@ -61,8 +35,10 @@ static void NdcToViewport(Vector4f& p_position) {
     p_position.y = 0.5f + 0.5f * p_position.y;
 }
 
-static inline OutTriangle ProcessTriangle(const VSInput& vs_in0, const VSInput& vs_in1, const VSInput& vs_in2) {
-    IVertexShader* vs = g_state.vs;
+OutTriangle SwGraphicsManager::ProcessTriangle(const VSInput& vs_in0,
+                                               const VSInput& vs_in1,
+                                               const VSInput& vs_in2) {
+    IVertexShader* vs = m_state.vs;
     VSOutput vs_out0 = vs->processVertex(vs_in0);
     VSOutput vs_out1 = vs->processVertex(vs_in1);
     VSOutput vs_out2 = vs->processVertex(vs_in2);
@@ -86,14 +62,11 @@ static inline OutTriangle ProcessTriangle(const VSInput& vs_in0, const VSInput& 
     Vector3f ac3d(vs_out0.position.x - vs_out2.position.x, vs_out0.position.y - vs_out2.position.y, vs_out0.position.z - vs_out2.position.z);
     Vector3f normal = cross(ab3d, ac3d);
 
-    // @TODO: cull face
-#if 0
-    if (normal.z * g_state.cullFace < 0.0f) {
+    if (normal.z < 0.0f) {  // Cull backface
         OutTriangle triangle;
         triangle.discarded = true;
         return triangle;
     }
-#endif
 
     return OutTriangle{ vs_out0, vs_out1, vs_out2 };
 }
@@ -103,17 +76,17 @@ static int TileNumber(int p_tile_size, int p_length) {
     return (p_length / p_tile_size) + rem;
 }
 
-static void ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
+void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
     // prepare to go multi-threading
-    RenderTarget* rt = g_state.rt;
+    RenderTarget* rt = m_state.rt;
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
 
     const VSOutput& vs_out0 = vs_out.p0;
     const VSOutput& vs_out1 = vs_out.p1;
     const VSOutput& vs_out2 = vs_out.p2;
-    IVertexShader* vs = g_state.vs;
-    IFragmentShader* fs = g_state.fs;
+    IVertexShader* vs = m_state.vs;
+    IFragmentShader* fs = m_state.fs;
     const Vector2f a(vs_out0.position.x * width, vs_out0.position.y * height);
     const Vector2f b(vs_out1.position.x * width, vs_out1.position.y * height);
     const Vector2f c(vs_out2.position.x * width, vs_out2.position.y * height);
@@ -208,14 +181,14 @@ static void ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
     }
 }
 
-static void DrawArrayInternal(std::vector<OutTriangle>& trigs) {
+void SwGraphicsManager::DrawArrayInternal(std::vector<OutTriangle>& trigs) {
     // remove invalid triangles
     trigs.erase(remove_if(trigs.begin(),
                           trigs.end(),
                           [](OutTriangle& trig) { return trig.discarded; }),
                 trigs.end());
 
-    RenderTarget* rt = g_state.rt;
+    RenderTarget* rt = m_state.rt;
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
 
@@ -234,16 +207,16 @@ static void DrawArrayInternal(std::vector<OutTriangle>& trigs) {
     ctx.Wait();
 }
 
-void SoftwareRenderer::SetPipelineStateImpl(PipelineStateName p_name) {
+void SwGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name) {
     unused(p_name);
 }
 
-void SoftwareRenderer::Clear(const Framebuffer* p_framebuffer,
-                             ClearFlags p_flags,
-                             const float* p_clear_color,
-                             float p_clear_depth,
-                             uint8_t,
-                             int) {
+void SwGraphicsManager::Clear(const Framebuffer* p_framebuffer,
+                              ClearFlags p_flags,
+                              const float* p_clear_color,
+                              float p_clear_depth,
+                              uint8_t,
+                              int) {
     unused(p_framebuffer);
 
     Color clear_color;
@@ -253,14 +226,14 @@ void SoftwareRenderer::Clear(const Framebuffer* p_framebuffer,
     clear_color.a = static_cast<uint8_t>(p_clear_color[3] * 255.f);
 
     if (p_flags & ClearFlags::CLEAR_COLOR_BIT) {
-        g_state.rt->m_colorBuffer.clear(clear_color);
+        m_state.rt->m_colorBuffer.clear(clear_color);
     }
     if (p_flags & ClearFlags::CLEAR_DEPTH_BIT) {
-        g_state.rt->m_depthBuffer.clear(p_clear_depth);
+        m_state.rt->m_depthBuffer.clear(p_clear_depth);
     }
 }
 
-void SoftwareRenderer::DrawElements(uint32_t p_count, uint32_t p_offset) {
+void SwGraphicsManager::DrawElements(uint32_t p_count, uint32_t p_offset) {
     DEV_ASSERT(p_count % 3 == 0);
     DEV_ASSERT(p_offset % 3 == 0);
 
@@ -270,8 +243,8 @@ void SoftwareRenderer::DrawElements(uint32_t p_count, uint32_t p_offset) {
     jobsystem::Context ctx;
     ctx.Dispatch(triangle_count, 8, [&](jobsystem::JobArgs args) {
         const uint32_t idx = args.jobIndex;
-        const VSInput* vertices = g_state.vertices;
-        const uint32_t* indices = g_state.indices;
+        const VSInput* vertices = m_state.vertices;
+        const uint32_t* indices = m_state.indices;
         const VSInput& p0 = vertices[indices[idx * 3 + 0]];
         const VSInput& p1 = vertices[indices[idx * 3 + 1]];
         const VSInput& p2 = vertices[indices[idx * 3 + 2]];
@@ -282,7 +255,7 @@ void SoftwareRenderer::DrawElements(uint32_t p_count, uint32_t p_offset) {
     DrawArrayInternal(triangles);
 }
 
-void SoftwareRenderer::DrawArrays(uint32_t p_count, uint32_t p_offsest) {
+void SwGraphicsManager::DrawArrays(uint32_t p_count, uint32_t p_offsest) {
     DEV_ASSERT(p_count % 3 == 0);
     DEV_ASSERT(p_offsest % 3 == 0);
 
@@ -292,7 +265,7 @@ void SoftwareRenderer::DrawArrays(uint32_t p_count, uint32_t p_offsest) {
     jobsystem::Context ctx;
     ctx.Dispatch(triangle_count, 8, [&](jobsystem::JobArgs args) {
         const uint32_t idx = args.jobIndex;
-        const VSInput* vertices = g_state.vertices;
+        const VSInput* vertices = m_state.vertices;
         const VSInput& p0 = vertices[idx * 3 + 0];
         const VSInput& p1 = vertices[idx * 3 + 1];
         const VSInput& p2 = vertices[idx * 3 + 2];
@@ -301,6 +274,29 @@ void SoftwareRenderer::DrawArrays(uint32_t p_count, uint32_t p_offsest) {
     ctx.Wait();
 
     DrawArrayInternal(triangles);
+}
+
+auto SwGraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
+    GpuMeshDesc desc;
+    desc.drawCount = static_cast<uint32_t>(p_mesh.indices.size());
+    auto mesh = std::make_shared<SwMesh>(desc);
+    unused(p_mesh);
+    mesh->indices = p_mesh.indices;
+    mesh->vertices.resize(p_mesh.positions.size());
+
+    for (size_t i = 0; i < mesh->vertices.size(); ++i) {
+        mesh->vertices[i].position = Vector4f(p_mesh.positions[i], 1.0f);
+        mesh->vertices[i].normal = Vector4f(p_mesh.normals[i], 0.0f);
+        mesh->vertices[i].uv = p_mesh.texcoords_0[i];
+    }
+
+    return mesh;
+}
+
+void SwGraphicsManager::SetMesh(const GpuMesh* p_mesh) {
+    const SwMesh* mesh = static_cast<const SwMesh*>(p_mesh);
+    m_state.vertices = mesh->vertices.data();
+    m_state.indices = mesh->indices.data();
 }
 
 }  // namespace cave::rs

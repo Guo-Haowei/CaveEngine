@@ -41,11 +41,6 @@ public:
 
     auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override { return nullptr; }
 
-    auto CreateMeshImpl(const GpuMeshDesc& p_desc,
-                        uint32_t p_count,
-                        const GpuBufferDesc* p_vb_descs,
-                        const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> override { return nullptr; }
-
     void SetMesh(const GpuMesh* p_mesh) override {}
 
     void DrawElements(uint32_t p_count, uint32_t p_offset = 0) override {}

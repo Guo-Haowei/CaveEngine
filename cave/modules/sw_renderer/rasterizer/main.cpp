@@ -44,25 +44,21 @@ private:
 class TextureFs : public IFragmentShader {
 public:
     virtual Color processFragment(const VSOutput& input) override {
-        Color color = m_cubeTexture->sample(input.uv);
+        Color color = m_texture->sample(input.uv);
         return color;
     }
 
 public:
-    const Texture* m_cubeTexture;
+    const Texture* m_texture;
 };
-
-std::vector<VSInput> g_vertices;
-
-// const unsigned int g_indices[6] = { 0, 1, 2, 0, 2, 3 };
 
 //---------------
 
 void RegisterExtraDvars() {}
 
-class SwRendererApp : public Application {
+class MyApp : public Application {
 public:
-    SwRendererApp(const ApplicationSpec& p_spec)
+    MyApp(const ApplicationSpec& p_spec)
         : Application(p_spec, Application::Type::Tool) {
         m_mode_manager = std::unique_ptr<ModeManager>(new ModeManager(GameMode::Tool, *this));
     }
@@ -96,37 +92,34 @@ public:
         m_src = CreateCompatibleDC(m_hdc);
         SelectObject(m_src, m_map);
 
+        auto sw = static_cast<SwGraphicsManager*>(m_graphics_manager);
+
         // @TODO: refactor
         m_renderTarget.create({ DIM, DIM, true, true });
-        rs::setRenderTarget(&m_renderTarget);
+        sw->setRenderTarget(&m_renderTarget);
 
-        rs::setSize(DIM, DIM);
-        rs::setVertexShader(&m_vs);
-        rs::setFragmentShader(&m_fs);
+        sw->setSize(DIM, DIM);
+        sw->setVertexShader(&m_vs);
+        sw->setFragmentShader(&m_fs);
 
         // model
-        // MeshAsset* model = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
-        MeshAsset* model = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap().Get();
-        g_vertices.resize(model->positions.size());
-        for (size_t i = 0; i < g_vertices.size(); ++i) {
-            g_vertices[i].position = Vector4f(model->positions[i], 1.0f);
-            g_vertices[i].uv = model->texcoords_0[i];
-        }
-        m_index_count = static_cast<uint32_t>(model->indices.size());
-
-        rs::setVertexArray(g_vertices.data());
-        rs::setIndexArray(model->indices.data());
+#if 0
+        m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
+#else
+        m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap().Get();
+#endif
+        m_mesh->gpuResource = m_graphics_manager->CreateMesh(*m_mesh).value_or(nullptr);
 
         // texture
         ImageAsset* image = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/uv.png").unwrap().Get();
         DEV_ASSERT(image);
 
         m_texture.create({ image->width, image->height, image->buffer.data() });
-        m_fs.m_cubeTexture = &m_texture;
+        m_fs.m_texture = &m_texture;
 
         // constant buffer
         constexpr float w = 1.0f;
-        V = LookAtRh(Vector3f(0, 0, 4), Vector3f::Zero, Vector3f::UnitY);
+        V = LookAtRh(Vector3f(0, 0, 3), Vector3f::Zero, Vector3f::UnitY);
         P = BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
         P = BuildOpenGlPerspectiveRH(Degree(45.0f).GetRadians(), 1.0f, 0.1f, 100.0f);
         PV = P * V;
@@ -162,13 +155,19 @@ protected:
             return false;
         }
 
+        auto& sw = m_graphics_manager;
+
+        sw->SetMesh(m_mesh->gpuResource.get());
+
         Matrix4x4f M = Rotate(Degree(45.0f), Vector3f::UnitY);
         m_vs.PVM = PV * M;
 
-        const auto clear_flag = ClearFlags::CLEAR_COLOR_BIT | ClearFlags::CLEAR_DEPTH_BIT;
         // @TODO: viewport
-        m_renderer.Clear(nullptr, clear_flag);
-        m_renderer.DrawElements(m_index_count);
+
+        const auto clear_flag = ClearFlags::CLEAR_COLOR_BIT | ClearFlags::CLEAR_DEPTH_BIT;
+        // @TODO: render target
+        sw->Clear(nullptr, clear_flag);
+        sw->DrawElements(m_mesh->gpuResource->desc.drawCount);
 
         DrawPixels(m_renderTarget.getColorBuffer().getData());
 
@@ -179,8 +178,9 @@ protected:
     TextureVs m_vs;
     TextureFs m_fs;
 
+    MeshAsset* m_mesh;
+
     Texture m_texture;
-    uint32_t m_index_count;
 
     Matrix4x4f P;
     Matrix4x4f V;
@@ -190,8 +190,6 @@ protected:
     HBITMAP m_map;
     HDC m_src;
     HDC m_hdc = NULL;
-
-    SoftwareRenderer m_renderer;
 };
 
 Application* CreateApplication() {
@@ -213,7 +211,7 @@ Application* CreateApplication() {
     spec.fullscreen = false;
     spec.vsync = false;
     spec.enableImgui = false;
-    return new SwRendererApp(spec);
+    return new MyApp(spec);
 }
 
 }  // namespace cave
@@ -225,7 +223,7 @@ int main(int p_argc, const char** p_argv) {
         return new Win32DisplayManager();
     });
     IGraphicsManager::RegisterCreateFunc([]() -> IGraphicsManager* {
-        return new EmptyGraphicsManager();
+        return new SwGraphicsManager();
     });
 
     return Main(p_argc, p_argv);

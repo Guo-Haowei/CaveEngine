@@ -8,7 +8,7 @@ DVAR_IVEC2(resolution, DVAR_FLAG_NONE, "Frame resolution", 1920, 1080);
 #if USING(PLATFORM_APPLE)
 DVAR_STRING(gfx_backend, DVAR_FLAG_NONE, "Renderer backend", "metal");
 #else
-DVAR_STRING(gfx_backend, DVAR_FLAG_NONE, "Renderer backend", "opengl");
+DVAR_STRING(gfx_backend, DVAR_FLAG_NONE, "Renderer backend", "empty");
 #endif
 DVAR_STRING(gfx_render_graph, DVAR_FLAG_NONE, "Renderer graph", "scene3d");
 DVAR_BOOL(gfx_gpu_validation, DVAR_FLAG_NONE, "Enable GPU validation", true);

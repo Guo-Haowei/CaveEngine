@@ -13,8 +13,6 @@ enum VaryingFlag : unsigned int {
 struct alignas(16) VSInput {
     Vector4f position;
     Vector4f normal;
-    Vector4i boneId;
-    Vector4f weights;
     Vector2f uv;
 };
 

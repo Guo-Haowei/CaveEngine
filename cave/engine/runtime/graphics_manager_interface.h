@@ -75,11 +75,6 @@ public:
 
     virtual auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> = 0;
 
-    virtual auto CreateMeshImpl(const GpuMeshDesc& p_desc,
-                                uint32_t p_count,
-                                const GpuBufferDesc* p_vb_descs,
-                                const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> = 0;
-
     virtual void SetMesh(const GpuMesh* p_mesh) = 0;
 
     virtual void DrawElements(uint32_t p_count, uint32_t p_offset = 0) = 0;

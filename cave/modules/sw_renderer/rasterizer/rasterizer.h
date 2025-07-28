@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/renderer/gpu_resource.h"
 #include "engine/empty/empty_graphics_manager.h"
 
 // @TODO: refactor
@@ -7,21 +8,22 @@
 
 namespace cave::rs {
 
-void setSize(int width, int height);
+struct SwMesh : GpuMesh {
+    using GpuMesh::GpuMesh;
 
-// pipeline state
-void setVertexShader(IVertexShader* vs);
-void setFragmentShader(IFragmentShader* fs);
+    std::vector<VSInput> vertices;
+    std::vector<uint32_t> indices;
+};
 
-void setVertexArray(const VSInput* vertices);
-void setIndexArray(const unsigned int* indices);
+struct OutTriangle {
+    VSOutput p0, p1, p2;
+    int discarded = false;
+};
 
-void setRenderTarget(RenderTarget* renderTarget);
-
-class SoftwareRenderer : public EmptyGraphicsManager {
+class SwGraphicsManager : public EmptyGraphicsManager {
 public:
-    SoftwareRenderer()
-        : EmptyGraphicsManager("SoftwareRenderer") {}
+    SwGraphicsManager()
+        : EmptyGraphicsManager("SwGraphicsManager") {}
 
     void Clear(const Framebuffer* p_framebuffer,
                ClearFlags p_flags,
@@ -35,6 +37,40 @@ public:
     void DrawElements(uint32_t p_count, uint32_t p_offset = 0) override;
 
     void DrawArrays(uint32_t p_count, uint32_t p_offset = 0) override;
+
+    auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override;
+
+    void SetMesh(const GpuMesh* p_mesh) override;
+
+    //---------------------------------
+    // @TODO: refactor
+    struct RenderState {
+        IVertexShader* vs = nullptr;
+        IFragmentShader* fs = nullptr;
+        RenderTarget* rt = nullptr;
+
+        const VSInput* vertices = nullptr;
+        const uint32_t* indices = nullptr;
+    };
+
+    RenderState m_state;
+
+    void setVertexShader(IVertexShader* vs) { m_state.vs = vs; }
+    void setFragmentShader(IFragmentShader* fs) { m_state.fs = fs; }
+    void setRenderTarget(RenderTarget* renderTarget) { m_state.rt = renderTarget; }
+
+    void setSize(int width, int height) {
+        DEV_ASSERT(width > 0 && height > 0);
+        m_state.rt->resize(width, height);
+    }
+
+    void ProcessFragment(OutTriangle& vs_out, int tx, int ty);
+
+    void DrawArrayInternal(std::vector<OutTriangle>& trigs);
+
+    OutTriangle ProcessTriangle(const VSInput& vs_in0,
+                                const VSInput& vs_in1,
+                                const VSInput& vs_in2);
 };
 
 }  // namespace cave::rs

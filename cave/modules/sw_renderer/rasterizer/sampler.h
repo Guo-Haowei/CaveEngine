@@ -24,13 +24,19 @@ public:
         memcpy(&m_buffer[0], info.data, sizeof(T) * m_width * m_height);
     }
 
-    const T& sample(Vector2f uv) const {
+    T sample(Vector2f uv) const {
         int x = static_cast<int>(uv.x * m_width);
         int y = static_cast<int>(uv.y * m_height);
         if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
             return sDefaultValue;
         } else {
-            return m_buffer[y * m_width + x];
+            if constexpr (std::is_same<T, Color>()) {
+                Color color = m_buffer[y * m_width + x];
+                std::swap(color.r, color.b);
+                return color;
+            } else {
+                return m_buffer[y * m_width + x];
+            }
         }
     }
 
