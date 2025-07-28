@@ -9,6 +9,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/mode_manager.h"
+
 #include "modules/sw/sw_renderer.h"
 
 #include "pbr.hlsl.h"
@@ -109,7 +110,7 @@ public:
     }
 
 public:
-    const Texture* m_texture;
+    const SwTexture<Color>* m_texture;
     Vector3f c_cameraPosition;
 
     Matrix4x4f M;
@@ -167,7 +168,7 @@ public:
 
         // model
 #if 1
-        //m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
+        // m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
         m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/torus").unwrap().Get();
 #else
         m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap().Get();
@@ -263,12 +264,12 @@ protected:
         return true;
     }
 
-    rs::RenderTarget m_renderTarget;
+    SwRenderTarget m_renderTarget;
     PbrPipeline m_pipeline;
 
     MeshAsset* m_mesh;
 
-    Texture m_texture;
+    SwTexture<Color> m_texture;
 
     Matrix4x4f P;
     Matrix4x4f V;

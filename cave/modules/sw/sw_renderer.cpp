@@ -75,7 +75,7 @@ static int TileNumber(int p_tile_size, int p_length) {
 }
 
 void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
-    RenderTarget* rt = m_state.rt;
+    SwRenderTarget* rt = m_state.rt;
     SwPipeline* pipeline = m_state.pipeline;
 
     const int width = rt->m_depthBuffer.m_width;
@@ -97,7 +97,7 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
     }
 
     auto& colorBuffer = rt->m_colorBuffer;
-    DepthBuffer& depthBuffer = rt->m_depthBuffer;
+    auto& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = pipeline->GetVaryingFlags();
 
     const Vector2f _min(tx * TILE_SIZE, ty * TILE_SIZE);
@@ -186,7 +186,7 @@ void SwGraphicsManager::DrawArrayInternal(std::vector<OutTriangle>& trigs) {
                           [](OutTriangle& trig) { return trig.discarded; }),
                 trigs.end());
 
-    RenderTarget* rt = m_state.rt;
+    SwRenderTarget* rt = m_state.rt;
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
 

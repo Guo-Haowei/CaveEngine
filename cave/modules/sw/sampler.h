@@ -1,14 +1,14 @@
 #pragma once
 #include "engine/math/geomath.h"
 
+namespace cave {
+
 struct Color {
     uint8_t r, g, b, a;
 };
 
-namespace cave::rs {
-
 template<class T>
-class TextureBase {
+class SwTexture {
 public:
     struct CreateInfo {
         int width;
@@ -28,7 +28,7 @@ public:
         int x = static_cast<int>(uv.x * m_width);
         int y = static_cast<int>(uv.y * m_height);
         if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
-            return sDefaultValue;
+            return T(0);
         } else {
             return m_buffer[y * m_width + x];
         }
@@ -50,12 +50,6 @@ public:
     int m_width = 0;
     int m_height = 0;
     std::vector<T> m_buffer;
-
-    static const T sDefaultValue;
 };
 
-typedef TextureBase<Color> Texture;
-typedef TextureBase<float> DepthBuffer;
-typedef Texture ColorBuffer;
-
-}  // namespace cave::rs
+}  // namespace cave

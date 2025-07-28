@@ -80,7 +80,7 @@ public:
     // @TODO: refactor
     struct RenderState {
         SwPipeline* pipeline = nullptr;
-        RenderTarget* rt = nullptr;
+        SwRenderTarget* rt = nullptr;
 
         const VSInput* vertices = nullptr;
         const uint32_t* indices = nullptr;
@@ -89,7 +89,7 @@ public:
     RenderState m_state;
 
     void SetPipeline(SwPipeline* p_pipeline) { m_state.pipeline = p_pipeline; }
-    void setRenderTarget(RenderTarget* renderTarget) { m_state.rt = renderTarget; }
+    void setRenderTarget(SwRenderTarget* renderTarget) { m_state.rt = renderTarget; }
 
     void setSize(int width, int height) {
         DEV_ASSERT(width > 0 && height > 0);
