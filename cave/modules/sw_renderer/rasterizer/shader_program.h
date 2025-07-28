@@ -1,5 +1,4 @@
 #pragma once
-#include "linalg.h"
 #include "sampler.h"
 
 namespace cave::rs {

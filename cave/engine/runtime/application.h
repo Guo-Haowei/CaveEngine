@@ -46,8 +46,8 @@ public:
     Application(const ApplicationSpec& p_spec, Type p_type = Type::Runtime);
     virtual ~Application();
 
-    Result<void> Initialize();
-    void Finalize();
+    virtual Result<void> Initialize();
+    virtual void Finalize();
     static void Run(Application* p_app);
 
     void AttachLayer(Layer* p_layer);

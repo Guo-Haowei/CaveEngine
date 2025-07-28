@@ -1,5 +1,4 @@
 #pragma once
-#include "linalg.h"
 #include "render_target.h"
 #include "shader_program.h"
 

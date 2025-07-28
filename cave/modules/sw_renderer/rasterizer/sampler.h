@@ -1,5 +1,9 @@
 #pragma once
-#include "linalg.h"
+#include "engine/math/geomath.h"
+
+struct Color {
+    unsigned char r, g, b, a;
+};
 
 namespace cave::rs {
 
