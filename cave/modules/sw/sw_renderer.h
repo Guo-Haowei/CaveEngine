@@ -96,7 +96,8 @@ public:
         m_state.rt->resize(width, height);
     }
 
-    void ProcessFragment(OutTriangle& vs_out, int tx, int ty);
+private:
+    void ProcessFragment(OutTriangle& vs_out);
 
     void DrawArrayInternal(std::vector<OutTriangle>& trigs);
 

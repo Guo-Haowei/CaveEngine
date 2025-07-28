@@ -12,6 +12,8 @@
 
 namespace cave {
 
+static constexpr Vector3f CAM_POS{ 0.0f, 1.f, 2.3f };
+
 class GuiApp : public Application {
 public:
     GuiApp(const ApplicationSpec& p_spec)
@@ -59,29 +61,29 @@ public:
         sw->SetPipeline(&m_pipeline);
 
         // model
-#if 1
-        // m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
-        m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/torus").unwrap().Get();
+#if 0
+        m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
 #else
         m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap().Get();
 #endif
         m_mesh->gpuResource = m_graphics_manager->CreateMesh(*m_mesh).value_or(nullptr);
 
+#if 0
         // texture
         ImageAsset* image = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/uv.png").unwrap().Get();
         DEV_ASSERT(image);
 
         m_texture.create({ image->width, image->height, image->buffer.data() });
         m_pipeline.m_texture = &m_texture;
+#endif
 
         // constant buffer
-        constexpr float w = 1.0f;
+        //BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
 
-        m_pipeline.c_cameraPosition = CAM_POS;
-        V = LookAtRh(CAM_POS, Vector3f::Zero, Vector3f::UnitY);
-        P = BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
-        P = BuildOpenGlPerspectiveRH(Degree(45.0f).GetRadians(), 1.0f, 0.1f, 100.0f);
-        PV = P * V;
+        m_pipeline.per_batch_cb.c_worldMatrix = Rotate(Degree(30.0f), Vector3f::UnitY);
+        m_pipeline.per_frame_cb.c_cameraPosition = CAM_POS;
+        m_pipeline.per_frame_cb.c_camView = LookAtRh(CAM_POS, Vector3f::Zero, Vector3f::UnitY);
+        m_pipeline.per_frame_cb.c_camProj = BuildOpenGlPerspectiveRH(Degree(45.0f).GetRadians(), 1.0f, 0.1f, 100.0f);
 
         return Result<void>();
     }
@@ -117,9 +119,6 @@ protected:
         auto& sw = m_graphics_manager;
 
         sw->SetMesh(m_mesh->gpuResource.get());
-
-        m_pipeline.M = Rotate(Degree(45.0f), Vector3f::UnitX);
-        m_pipeline.PV = PV;
 
         // @TODO: viewport
 
@@ -158,11 +157,6 @@ protected:
 
     // @TODO: refactor
     SwTexture<Color> m_texture;
-
-    Matrix4x4f P;
-    Matrix4x4f V;
-    Matrix4x4f PV;
-    /// </summary>
 
     SwRenderTarget m_renderTarget;
     PbrPipeline m_pipeline;
