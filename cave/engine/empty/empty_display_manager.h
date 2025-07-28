@@ -3,10 +3,10 @@
 
 namespace cave {
 
-class NullDisplayManager : public IDisplayManager {
+class EmptyDisplayManager : public IDisplayManager {
 public:
-    NullDisplayManager()
-        : IDisplayManager("NullDisplayManager") {}
+    EmptyDisplayManager()
+        : IDisplayManager("EmptyDisplayManager") {}
 
     void FinalizeImpl() override {}
 

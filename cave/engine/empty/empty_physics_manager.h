@@ -3,10 +3,10 @@
 
 namespace cave {
 
-class NullPhysicsManager : public IPhysicsManager {
+class EmptyPhysicsManager : public IPhysicsManager {
 public:
-    NullPhysicsManager()
-        : IPhysicsManager("NullPhysicsManager") {}
+    EmptyPhysicsManager()
+        : IPhysicsManager("EmptyPhysicsManager") {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}

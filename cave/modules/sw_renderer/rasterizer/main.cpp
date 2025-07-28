@@ -1,7 +1,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/drivers/windows/win32_display_manager.h"
 #include "engine/math/matrix_transform.h"
-#include "engine/null/null_graphics_manager.h"
+#include "engine/empty/empty_graphics_manager.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/mode_manager.h"
@@ -237,7 +237,7 @@ int main(int p_argc, const char** p_argv) {
         return new Win32DisplayManager();
     });
     IGraphicsManager::RegisterCreateFunc([]() -> IGraphicsManager* {
-        return new NullGraphicsManager();
+        return new EmptyGraphicsManager();
     });
 
     return Main(p_argc, p_argv);

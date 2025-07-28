@@ -6,10 +6,10 @@ namespace cave {
 WARNING_PUSH()
 WARNING_DISABLE(4100, "-Wunused-parameter")
 
-class NullGraphicsManager : public IGraphicsManager {
+class EmptyGraphicsManager : public IGraphicsManager {
 public:
-    NullGraphicsManager()
-        : IGraphicsManager("NullGraphicsManager") {}
+    EmptyGraphicsManager()
+        : IGraphicsManager("EmptyGraphicsManager") {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}

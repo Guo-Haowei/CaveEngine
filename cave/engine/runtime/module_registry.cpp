@@ -1,10 +1,10 @@
 #include "module_registry.h"
 
 #include "engine/assets/asset_manager.h"
-#include "engine/null/null_display_manager.h"
-#include "engine/null/null_graphics_manager.h"
-#include "engine/null/null_physics_manager.h"
-#include "engine/null/null_script_manager.h"
+#include "engine/empty/empty_display_manager.h"
+#include "engine/empty/empty_graphics_manager.h"
+#include "engine/empty/empty_physics_manager.h"
+#include "engine/empty/empty_script_manager.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/scripting/lua/lua_script_manager.h"
 
@@ -49,11 +49,11 @@ IAssetManager* CreateAssetManager() {
 }
 
 IDisplayManager* CreateDisplayManager() {
-    return CreateModule<IDisplayManager, NullDisplayManager>();
+    return CreateModule<IDisplayManager, EmptyDisplayManager>();
 }
 
 IPhysicsManager* CreatePhysicsManager() {
-    return CreateModule<IPhysicsManager, NullPhysicsManager>();
+    return CreateModule<IPhysicsManager, EmptyPhysicsManager>();
 }
 
 ISceneManager* CreateSceneManager() {
@@ -104,7 +104,7 @@ static IGraphicsManager* SelectGraphicsManager(const std::string& p_backend) {
         return nullptr;
     }
 
-    return new NullGraphicsManager;
+    return new EmptyGraphicsManager;
 }
 
 IGraphicsManager* CreateGraphicsManager() {
@@ -116,9 +116,9 @@ IGraphicsManager* CreateGraphicsManager() {
     IGraphicsManager* manager = SelectGraphicsManager(backend);
 
     if (!manager) {
-        manager = new NullGraphicsManager;
+        manager = new EmptyGraphicsManager;
 
-        LOG_ERROR("backend '{}' not supported, fallback to NullGraphicsManager", backend);
+        LOG_ERROR("backend '{}' not supported, fallback to EmptyGraphicsManager", backend);
     }
 
     return manager;
