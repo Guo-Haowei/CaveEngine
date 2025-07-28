@@ -32,7 +32,7 @@ private:
 
     void EnqueueLoadTask(LoadTask& p_task);
 
-    uint32_t m_counter{ 0 };
+    uint32_t m_fps_counter{ 0 };
     std::mutex m_assetLock;
     std::filesystem::path m_assets_root;
 };

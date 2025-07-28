@@ -147,7 +147,7 @@ Result<Guid> AssetManager::CreateAsset(AssetType p_type,
     // 1. Creates both meta and file
     fs::path new_file = p_folder;
     const char* ext = EnumTraits<AssetType>::ToString(p_type).data();
-    auto name = std::format("{}_{}.{}", p_name ? p_name : "untitled", ++m_counter, ext);
+    auto name = std::format("{}_{}.{}", p_name ? p_name : "untitled", ++m_fps_counter, ext);
     new_file = new_file / name;
 
     std::string meta_file = new_file.string();

@@ -14,6 +14,37 @@ namespace cave {
 
 static constexpr Vector3f CAM_POS{ 0.0f, 1.f, 2.3f };
 
+class FpsCounter {
+public:
+    void Frame() {
+        ++m_frameCount;
+        auto now = Clock::now();
+        std::chrono::duration<float> delta = now - m_lastTime;
+
+        if (delta.count() >= 1.0f) {
+            m_fps = m_frameCount / delta.count();
+            m_frameCount = 0;
+            m_lastTime = now;
+        }
+    }
+
+    float GetFPS() const {
+        return m_fps;
+    }
+
+    std::string GetFPSString(int precision = 1) const {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(precision) << m_fps << " FPS";
+        return oss.str();
+    }
+
+private:
+    using Clock = std::chrono::high_resolution_clock;
+    Clock::time_point m_lastTime = Clock::now();
+    int m_frameCount = 0;
+    float m_fps = 0.0f;
+};
+
 class GuiApp : public Application {
 public:
     GuiApp(const ApplicationSpec& p_spec)
@@ -54,8 +85,8 @@ public:
         auto sw = static_cast<SwGraphicsManager*>(m_graphics_manager);
 
         // @TODO: refactor
-        m_renderTarget.create({ m_dim, m_dim, true, true });
-        sw->setRenderTarget(&m_renderTarget);
+        m_render_target.create({ m_dim, m_dim, true, true });
+        sw->setRenderTarget(&m_render_target);
 
         sw->setSize(m_dim, m_dim);
         sw->SetPipeline(&m_pipeline);
@@ -78,7 +109,7 @@ public:
 #endif
 
         // constant buffer
-        //BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
+        // BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
 
         m_pipeline.per_batch_cb.c_worldMatrix = Rotate(Degree(30.0f), Vector3f::UnitY);
         m_pipeline.per_frame_cb.c_cameraPosition = CAM_POS;
@@ -116,6 +147,8 @@ protected:
             return false;
         }
 
+        m_counter.Frame();
+
         auto& sw = m_graphics_manager;
 
         sw->SetMesh(m_mesh->gpuResource.get());
@@ -133,7 +166,7 @@ protected:
         };
 
         // @TODO: gamma correct
-        const auto& buffer = m_renderTarget.m_colorBuffer.m_buffer;
+        const auto& buffer = m_render_target.m_colorBuffer.m_buffer;
         std::vector<Color> color(buffer.size());
         constexpr float gamma = 1.0f / 2.2f;
         for (size_t i = 0; i < buffer.size(); ++i) {
@@ -152,17 +185,21 @@ protected:
 
         DrawPixels(color.data());
 
+        LOG("fps: {}", m_counter.GetFPS());
+
         return true;
     }
 
     // @TODO: refactor
     SwTexture<Color> m_texture;
 
-    SwRenderTarget m_renderTarget;
+    SwRenderTarget m_render_target;
     PbrPipeline m_pipeline;
 
     MeshAsset* m_mesh;
     int m_dim;
+
+    FpsCounter m_counter;
 
     BITMAP m_bitmap;
     HBITMAP m_map;
