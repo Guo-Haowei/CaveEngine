@@ -35,6 +35,11 @@ std::unique_ptr<FolderTreeNode> BuildFolderTree(const fs::path& p_sys_path,
             node->file_name = node->virtual_path;
         }
 
+        if (node->file_name == "_cache") {
+            // ignore _cache folder
+            return nullptr;
+        }
+
         if (is_file) {
             auto handle = AssetRegistry::GetSingleton().FindByPath(node->virtual_path);
             if (handle.is_none()) {
