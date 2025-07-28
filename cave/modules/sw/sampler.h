@@ -2,7 +2,7 @@
 #include "engine/math/geomath.h"
 
 struct Color {
-    unsigned char r, g, b, a;
+    uint8_t r, g, b, a;
 };
 
 namespace cave::rs {
@@ -30,13 +30,7 @@ public:
         if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
             return sDefaultValue;
         } else {
-            if constexpr (std::is_same<T, Color>()) {
-                Color color = m_buffer[y * m_width + x];
-                std::swap(color.r, color.b);
-                return color;
-            } else {
-                return m_buffer[y * m_width + x];
-            }
+            return m_buffer[y * m_width + x];
         }
     }
 

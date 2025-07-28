@@ -1,6 +1,4 @@
-#include "rasterizer.h"
-
-#include <execution>
+#include "sw_renderer.h"
 
 #include "engine/assets/mesh_asset.h"
 #include "engine/math/box.h"
@@ -38,10 +36,10 @@ static void NdcToViewport(Vector4f& p_position) {
 OutTriangle SwGraphicsManager::ProcessTriangle(const VSInput& vs_in0,
                                                const VSInput& vs_in1,
                                                const VSInput& vs_in2) {
-    IVertexShader* vs = m_state.vs;
-    VSOutput vs_out0 = vs->processVertex(vs_in0);
-    VSOutput vs_out1 = vs->processVertex(vs_in1);
-    VSOutput vs_out2 = vs->processVertex(vs_in2);
+    SwPipeline* pipeline = m_state.pipeline;
+    VSOutput vs_out0 = pipeline->ProcessVertex(vs_in0);
+    VSOutput vs_out1 = pipeline->ProcessVertex(vs_in1);
+    VSOutput vs_out2 = pipeline->ProcessVertex(vs_in2);
 
     // TODO: front plane clipping
     constexpr float t = 1.0f;
@@ -77,16 +75,15 @@ static int TileNumber(int p_tile_size, int p_length) {
 }
 
 void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
-    // prepare to go multi-threading
     RenderTarget* rt = m_state.rt;
+    SwPipeline* pipeline = m_state.pipeline;
+
     const int width = rt->m_depthBuffer.m_width;
     const int height = rt->m_depthBuffer.m_height;
 
     const VSOutput& vs_out0 = vs_out.p0;
     const VSOutput& vs_out1 = vs_out.p1;
     const VSOutput& vs_out2 = vs_out.p2;
-    IVertexShader* vs = m_state.vs;
-    IFragmentShader* fs = m_state.fs;
     const Vector2f a(vs_out0.position.x * width, vs_out0.position.y * height);
     const Vector2f b(vs_out1.position.x * width, vs_out1.position.y * height);
     const Vector2f c(vs_out2.position.x * width, vs_out2.position.y * height);
@@ -99,9 +96,9 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
         return;
     }
 
-    ColorBuffer& colorBuffer = rt->m_colorBuffer;
+    auto& colorBuffer = rt->m_colorBuffer;
     DepthBuffer& depthBuffer = rt->m_depthBuffer;
-    const uint32_t varyingFlags = vs->getVaryingFlags();
+    const uint32_t varyingFlags = pipeline->GetVaryingFlags();
 
     const Vector2f _min(tx * TILE_SIZE, ty * TILE_SIZE);
     const Vector2f _max(
@@ -162,6 +159,7 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
 
                 if (varyingFlags & VARYING_NORMAL) {
                     output.normal = bCoord.x * vs_out0.normal + bCoord.y * vs_out1.normal + bCoord.z * vs_out2.normal;
+                    output.normal = normalize(output.normal);
                 }
                 if (varyingFlags & VARYING_COLOR) {
                     output.color = bCoord.x * vs_out0.color + bCoord.y * vs_out1.color + bCoord.z * vs_out2.color;
@@ -171,11 +169,11 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out, int tx, int ty) {
                     output.uv = bCoord.x * vs_out0.uv + bCoord.y * vs_out1.uv + bCoord.z * vs_out2.uv;
                 }
                 if (varyingFlags & VARYING_WORLD_POSITION) {
-                    output.worldPosition = bCoord.x * vs_out0.worldPosition + bCoord.y * vs_out1.worldPosition + bCoord.z * vs_out2.worldPosition;
+                    output.world_position = bCoord.x * vs_out0.world_position + bCoord.y * vs_out1.world_position + bCoord.z * vs_out2.world_position;
                 }
 
                 // fragment shader
-                colorBuffer.m_buffer[index] = fs->processFragment(output);
+                colorBuffer.m_buffer[index] = Vector4f(pipeline->ProcessFragment(output), 1.0f);
             }
         }
     }
@@ -219,14 +217,9 @@ void SwGraphicsManager::Clear(const Framebuffer* p_framebuffer,
                               int) {
     unused(p_framebuffer);
 
-    Color clear_color;
-    clear_color.r = static_cast<uint8_t>(p_clear_color[0] * 255.f);
-    clear_color.g = static_cast<uint8_t>(p_clear_color[1] * 255.f);
-    clear_color.b = static_cast<uint8_t>(p_clear_color[2] * 255.f);
-    clear_color.a = static_cast<uint8_t>(p_clear_color[3] * 255.f);
-
     if (p_flags & ClearFlags::CLEAR_COLOR_BIT) {
-        m_state.rt->m_colorBuffer.clear(clear_color);
+        auto clear_color = reinterpret_cast<const Vector4f*>(p_clear_color);
+        m_state.rt->m_colorBuffer.clear(*clear_color);
     }
     if (p_flags & ClearFlags::CLEAR_DEPTH_BIT) {
         m_state.rt->m_depthBuffer.clear(p_clear_depth);

@@ -16,12 +16,12 @@ public:
 
     void resize(int width, int height);
 
-    inline const ColorBuffer& getColorBuffer() const { return m_colorBuffer; }
+    const auto& getColorBuffer() const { return m_colorBuffer; }
 
-    inline const DepthBuffer& getDepthBuffer() const { return m_depthBuffer; }
+    const auto& getDepthBuffer() const { return m_depthBuffer; }
 
 public:
-    ColorBuffer m_colorBuffer;
+    TextureBase<Vector4f> m_colorBuffer;
     DepthBuffer m_depthBuffer;
 
     bool m_useColor = true;

@@ -4,52 +4,116 @@
 #include "engine/drivers/windows/win32_display_manager.h"
 #include "engine/empty/empty_graphics_manager.h"
 #include "engine/math/matrix_transform.h"
+#include "engine/math/vector.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/entry_point.h"
 #include "engine/runtime/mode_manager.h"
+#include "modules/sw/sw_renderer.h"
 
-//---------------
-#include "rasterizer.h"
-//---------------
+#include "pbr.hlsl.h"
 
 namespace cave {
 
-constexpr int DIM = 256 * 2;
+constexpr int DIM = 256;
 namespace fs = std::filesystem;
 using namespace rs;
 
 //---------------
 
-class TextureVs : public IVertexShader {
-public:
-    TextureVs()
-        : IVertexShader(sVaryingFlags) {}
+constexpr Vector3f CAM_POS{ 0, 0, 2 };
+constexpr Vector3f LIGHT_POS{ 0, 4, 4 };
+constexpr Vector4f AMBIENT_COLOR{ 0.04f, 0.04f, 0.04f, 1.0f };
 
-    virtual VSOutput processVertex(const VSInput& input) override {
+class PbrPipeline : public SwPipeline {
+public:
+    PbrPipeline()
+        : SwPipeline(VARYING_UV | VARYING_NORMAL | VARYING_WORLD_POSITION) {}
+
+    virtual VSOutput ProcessVertex(const VSInput& input) override {
         VSOutput vs_output;
-        vs_output.position = input.position;
+        vs_output.world_position = M * input.position;
+        vs_output.position = PV * vs_output.world_position;
+        vs_output.normal = M * input.normal;
         vs_output.uv = input.uv;
-        vs_output.position = PVM * vs_output.position;
         return vs_output;
     }
 
-public:
-    Matrix4x4f PVM;
+    // @TODO: move to sample
+    FORCE_INLINE float srgb_to_linear(float s) {
+        return std::pow((s + 0.055f) / 1.055f, 2.4f);
+    }
 
-private:
-    static const unsigned int sVaryingFlags = VARYING_UV;
-};
+    virtual Vector3f ProcessFragment(const VSOutput& input) override {
+        // @TODO:
+#if 1
+        Color color;
+        color = m_texture->sample(input.uv);
+        Vector3f base_color;
+        base_color.r = srgb_to_linear(color.r / 255.f);
+        base_color.g = srgb_to_linear(color.g / 255.f);
+        base_color.b = srgb_to_linear(color.b / 255.f);
+#else
+        Vector3f base_color = Vector3f::UnitX;
+#endif
 
-class TextureFs : public IFragmentShader {
-public:
-    virtual Color processFragment(const VSOutput& input) override {
-        Color color = m_texture->sample(input.uv);
-        return color;
+        Vector3f final_color = ComputeLighting(base_color,
+                                               Vector3f::Zero,
+                                               input.normal.xyz,
+                                               0.4f,
+                                               0.6f,
+                                               0.0f);
+
+        return final_color;
+    }
+
+    Vector3f ComputeLighting(Vector3f base_color,
+                             Vector3f world_position,
+                             Vector3f N,
+                             float metallic,
+                             float roughness,
+                             float emissive) {
+        if (emissive > 0.0) {
+            return Vector3f(emissive * base_color);
+        }
+
+        const Vector3f V = normalize(c_cameraPosition - world_position);
+        const float NdotV = cave::max(dot(N, V), 0.0f);
+        Vector3f R = glm::reflect(-V, N);
+
+        Vector3f Lo = Vector3f(0.0f);
+        Vector3f F0 = cave::lerp(Vector3f(0.04f), base_color, metallic);
+
+        const Vector3f radiance = Vector3f(4.0f);
+        Vector3f delta = -world_position + LIGHT_POS;
+        Vector3f L = normalize(delta);
+        const Vector3f H = normalize(V + L);
+        Vector3f direct_lighting = lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
+        Lo += direct_lighting;
+
+        Vector3f F = FresnelSchlickRoughness(NdotV, F0, roughness);
+        Vector3f kS = F;
+        Vector3f kD = 1.0f - kS;
+        kD *= 1.0f - metallic;
+
+#if 1
+        Vector3f diffuse = AMBIENT_COLOR.xyz;
+        Vector3f specular = Vector3f(0.0f);
+
+        const float ao = 1.0;
+        Vector3f ambient = (kD * diffuse + specular) * ao;
+#endif
+
+        Vector3f final_color = Lo + ambient;
+        return final_color;
     }
 
 public:
     const Texture* m_texture;
+    Vector3f c_cameraPosition;
+
+    Matrix4x4f M;
+    Matrix4x4f PV;
 };
 
 //---------------
@@ -99,12 +163,12 @@ public:
         sw->setRenderTarget(&m_renderTarget);
 
         sw->setSize(DIM, DIM);
-        sw->setVertexShader(&m_vs);
-        sw->setFragmentShader(&m_fs);
+        sw->SetPipeline(&m_pipeline);
 
         // model
-#if 0
-        m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
+#if 1
+        //m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
+        m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/torus").unwrap().Get();
 #else
         m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap().Get();
 #endif
@@ -115,11 +179,13 @@ public:
         DEV_ASSERT(image);
 
         m_texture.create({ image->width, image->height, image->buffer.data() });
-        m_fs.m_texture = &m_texture;
+        m_pipeline.m_texture = &m_texture;
 
         // constant buffer
         constexpr float w = 1.0f;
-        V = LookAtRh(Vector3f(0, 0, 3), Vector3f::Zero, Vector3f::UnitY);
+
+        m_pipeline.c_cameraPosition = CAM_POS;
+        V = LookAtRh(CAM_POS, Vector3f::Zero, Vector3f::UnitY);
         P = BuildOpenGlOrthoRH(-w, w, -w, w, 1.0f, 100.0f);
         P = BuildOpenGlPerspectiveRH(Degree(45.0f).GetRadians(), 1.0f, 0.1f, 100.0f);
         PV = P * V;
@@ -159,24 +225,46 @@ protected:
 
         sw->SetMesh(m_mesh->gpuResource.get());
 
-        Matrix4x4f M = Rotate(Degree(45.0f), Vector3f::UnitY);
-        m_vs.PVM = PV * M;
+        m_pipeline.M = Rotate(Degree(45.0f), Vector3f::UnitX);
+        m_pipeline.PV = PV;
 
         // @TODO: viewport
 
         const auto clear_flag = ClearFlags::CLEAR_COLOR_BIT | ClearFlags::CLEAR_DEPTH_BIT;
         // @TODO: render target
-        sw->Clear(nullptr, clear_flag);
+
+        sw->Clear(nullptr, clear_flag, &AMBIENT_COLOR.r);
         sw->DrawElements(m_mesh->gpuResource->desc.drawCount);
 
-        DrawPixels(m_renderTarget.getColorBuffer().getData());
+        auto convert = [](float v) {
+            return static_cast<uint8_t>(clamp(255.f * v, 0.0f, 255.f));
+        };
+
+        // @TODO: gamma correct
+        const auto& buffer = m_renderTarget.m_colorBuffer.m_buffer;
+        std::vector<Color> color(buffer.size());
+        constexpr float gamma = 1.0f / 2.2f;
+        for (size_t i = 0; i < buffer.size(); ++i) {
+            Vector4f in = buffer[i];
+            in = in / (in + 1.0f);
+            in.r = glm::pow(in.r, gamma);
+            in.g = glm::pow(in.g, gamma);
+            in.b = glm::pow(in.b, gamma);
+
+            auto& out = color[i];
+            out.r = convert(in.b);
+            out.g = convert(in.g);
+            out.b = convert(in.r);
+            out.a = 255;
+        }
+
+        DrawPixels(color.data());
 
         return true;
     }
 
     rs::RenderTarget m_renderTarget;
-    TextureVs m_vs;
-    TextureFs m_fs;
+    PbrPipeline m_pipeline;
 
     MeshAsset* m_mesh;
 

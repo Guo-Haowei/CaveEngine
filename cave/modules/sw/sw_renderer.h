@@ -4,9 +4,43 @@
 
 // @TODO: refactor
 #include "render_target.h"
-#include "shader_program.h"
 
 namespace cave::rs {
+
+enum VaryingFlag : uint8_t {
+    VARYING_COLOR = 1u << 0,
+    VARYING_NORMAL = 1u << 1,
+    VARYING_UV = 1u << 2,
+    VARYING_WORLD_POSITION = 1u << 3,
+};
+
+struct alignas(16) VSInput {
+    Vector4f position;
+    Vector4f normal;
+    Vector2f uv;
+};
+
+struct alignas(16) VSOutput {
+    Vector4f position;
+    Vector4f world_position;
+    Vector4f normal;
+    Vector4f color;
+    Vector2f uv;
+};
+
+class SwPipeline {
+public:
+    SwPipeline(uint8_t varyingFlags)
+        : m_varying_flags(varyingFlags) {}
+
+    virtual VSOutput ProcessVertex(const VSInput& input) = 0;
+
+    virtual Vector3f ProcessFragment(const VSOutput& input) = 0;
+
+    uint8_t GetVaryingFlags() const { return m_varying_flags; }
+
+    const uint8_t m_varying_flags;
+};
 
 struct SwMesh : GpuMesh {
     using GpuMesh::GpuMesh;
@@ -45,8 +79,7 @@ public:
     //---------------------------------
     // @TODO: refactor
     struct RenderState {
-        IVertexShader* vs = nullptr;
-        IFragmentShader* fs = nullptr;
+        SwPipeline* pipeline = nullptr;
         RenderTarget* rt = nullptr;
 
         const VSInput* vertices = nullptr;
@@ -55,8 +88,7 @@ public:
 
     RenderState m_state;
 
-    void setVertexShader(IVertexShader* vs) { m_state.vs = vs; }
-    void setFragmentShader(IFragmentShader* fs) { m_state.fs = fs; }
+    void SetPipeline(SwPipeline* p_pipeline) { m_state.pipeline = p_pipeline; }
     void setRenderTarget(RenderTarget* renderTarget) { m_state.rt = renderTarget; }
 
     void setSize(int width, int height) {

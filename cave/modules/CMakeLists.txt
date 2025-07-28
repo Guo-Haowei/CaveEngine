@@ -10,7 +10,7 @@ elseif (EMSCRIPTEN)
     add_subdirectory(opengles3)
 endif()
 
-add_subdirectory(sw_renderer)
+add_subdirectory(sw)
 
 if (NOT EMSCRIPTEN)
     add_subdirectory(box2d)

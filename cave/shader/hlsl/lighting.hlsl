@@ -63,32 +63,6 @@ float point_shadow_calculation(Light p_light, float3 p_frag_pos, float3 p_eye) {
     return shadow;
 }
 
-// @TODO: refactor
-float3 lighting(float3 N, float3 L, float3 V, float3 radiance, float3 F0, float roughness, float metallic, float3 p_base_color) {
-    float3 Lo = float3(0.0, 0.0, 0.0);
-    const float3 H = normalize(V + L);
-    const float NdotL = max(dot(N, L), 0.0);
-    const float NdotH = max(dot(N, H), 0.0);
-    const float NdotV = max(dot(N, V), 0.0);
-
-    // direct cook-torrance brdf
-    const float NDF = DistributionGGX(NdotH, roughness);
-    const float G = GeometrySmith(NdotV, NdotL, roughness);
-    const float3 F = FresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
-
-    const float3 nom = NDF * G * F;
-    float denom = 4 * NdotV * NdotL;
-
-    float3 specular = nom / max(denom, 0.001);
-
-    const float3 kS = F;
-    const float3 kD = (1.0 - metallic) * (float3(1.0, 1.0, 1.0) - kS);
-
-    float3 direct_lighting = (kD * p_base_color / MY_PI + specular) * radiance * NdotL;
-
-    return direct_lighting;
-}
-
 float3 compute_lighting(Texture2D shadowMap,
                         float3 base_color,
                         float3 world_position,
