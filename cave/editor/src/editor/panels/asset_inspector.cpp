@@ -23,9 +23,14 @@ AssetInspector::AssetInspector(EditorLayer& p_editor)
 void AssetInspector::OnAttach() {
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
     m_folder_iamge = asset_manager.FindImage("folder_icon.png");
-    m_meta_image = asset_manager.FindImage("meta_icon.png");
+    m_fallback_iamge = asset_manager.FindImage("meta_icon.png");
+    m_thumbnail_lut[".scene"] = asset_manager.FindImage("scene@256x256.png");
+    m_thumbnail_lut[".sprite_anim"] = asset_manager.FindImage("anim@256x256.png");
+    m_thumbnail_lut[".lua"] = asset_manager.FindImage("script@256x256.png");
+    m_thumbnail_lut[".tilemap"] = asset_manager.FindImage("tileset@256x256.png");
+    m_thumbnail_lut[".tileset"] = asset_manager.FindImage("tileset@256x256.png");
 
-    DEV_ASSERT(m_folder_iamge && m_meta_image);
+    DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
 }
 
 void AssetInspector::UpdateInternal() {
@@ -173,9 +178,18 @@ void AssetInspector::DrawContentBrowser() {
     ImVec2 thumbnail_size{ 196, 196 };
 
     for (const auto& node : current->children) {
-        ImageAsset* image = node->thumbnail.Get();
-        if (!image) {
-            image = node->is_dir ? m_folder_iamge.get() : m_meta_image.get();
+        ImageAsset* image = nullptr;
+        if (node->is_dir) {
+            image = m_folder_iamge.get();
+        } else {
+            if (!(image = node->thumbnail.Get())) {
+                auto it = m_thumbnail_lut.find(node->extension);
+                if (it == m_thumbnail_lut.end()) {
+                    image = m_fallback_iamge.get();
+                } else {
+                    image = it->second.get();
+                }
+            }
         }
 
         auto [hovered, clicked] = DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
@@ -188,11 +202,7 @@ void AssetInspector::DrawContentBrowser() {
             }
         } else {
             if (hovered) {
-                const IAsset* asset = node->handle.Get();
-                const AssetMetaData* meta = node->handle.GetMeta();
-                if (asset && meta) {
-                    ShowAssetToolTip(*meta, asset);
-                }
+                ShowAssetToolTip(*node);
             }
         }
 

@@ -358,40 +358,6 @@ void CenteredImage(const ImageAsset* p_image,
     ImGui::EndChild();
 }
 
-void ShowAssetToolTip(const Guid& p_guid) {
-    if (auto res = AssetRegistry::GetSingleton().FindByGuid(p_guid); res.is_some()) {
-        AssetHandle handle = std::move(res.unwrap_unchecked());
-        if (auto asset = handle.Get(); asset) {
-            ShowAssetToolTip(*handle.GetMeta(), asset);
-        }
-    }
-}
-
-void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset) {
-    if (ImGui::BeginTooltip()) {
-        ImGui::Text("name: %s", p_meta.name.c_str());
-        ImGui::Text("import_path: %s", p_meta.import_path.c_str());
-        ImGui::Text("type: %s", EnumTraits<AssetType>::ToString(p_meta.type).data());
-
-        if (p_asset) {
-            if (p_asset->GetType() == AssetType::Image) {
-                auto texture = reinterpret_cast<const ImageAsset&>(*p_asset);
-                const int w = texture.width;
-                const int h = texture.height;
-                ImGui::Text("Dimension: %d x %d", w, h);
-
-                if (texture.gpu_texture) {
-                    float adjusted_w = glm::min(256.f, static_cast<float>(w));
-                    float adjusted_h = adjusted_w / w * h;
-                    ImGui::Image(texture.gpu_texture->GetHandle(), ImVec2(adjusted_w, adjusted_h));
-                }
-            }
-        }
-
-        ImGui::EndTooltip();
-    }
-}
-
 void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_descs) {
     const int size = static_cast<int>(p_descs.size());
     float width_so_far = 0.0f;
