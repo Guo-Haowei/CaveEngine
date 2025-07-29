@@ -29,8 +29,7 @@ public:
 
     PerBatchConstantBuffer per_batch_cb;
     PerFrameConstantBuffer per_frame_cb;
-
-    const SwTexture<Color>* m_texture = nullptr;
+    MaterialConstantBuffer material_cb;
 };
 
 }  // namespace cave
