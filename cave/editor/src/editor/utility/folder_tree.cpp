@@ -82,8 +82,7 @@ void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset) {
         ImGui::Text("import_path: %s", p_meta.import_path.c_str());
         ImGui::Text("type: %s", EnumTraits<AssetType>::ToString(p_meta.type).data());
 
-        if (p_asset) {
-            DEV_ASSERT(p_asset->GetType() == AssetType::Image);
+        if (p_asset && p_asset->GetType() == AssetType::Image) {
             auto texture = reinterpret_cast<const ImageAsset&>(*p_asset);
             const int w = texture.width;
             const int h = texture.height;
