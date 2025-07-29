@@ -7,6 +7,12 @@
 #include "modules/sw/sampler.h"
 #include "modules/sw/sw_renderer.h"
 
+namespace cave {
+
+constexpr Vector3f CAM_POS{ 0.0f, 1.f, 2.3f };
+
+}  // namespace cave
+
 namespace cave::thumbnail {
 
 std::vector<Color> Convert(const std::vector<Vector4f>& p_buffer, bool p_to_bgra = false);

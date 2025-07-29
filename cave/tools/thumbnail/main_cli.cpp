@@ -15,8 +15,6 @@
 
 namespace cave {
 
-static constexpr Vector3f CAM_POS{ 0.0f, 1.f, 2.3f };
-
 class CliApp : public Application {
 public:
     CliApp(const ApplicationSpec& p_spec)
@@ -51,7 +49,7 @@ public:
         auto all_materials = m_asset_registry->GetAssetsOfType(AssetType::Material);
 
         // @TODO: proper setup
-        m_pipeline.per_batch_cb.c_worldMatrix = Rotate(Degree(30.0f), Vector3f::UnitY);
+        m_pipeline.per_batch_cb.c_worldMatrix = Rotate(Degree(-30.0f), Vector3f::UnitY);
         m_pipeline.per_frame_cb.c_cameraPosition = CAM_POS;
         m_pipeline.per_frame_cb.c_camView = LookAtRh(CAM_POS, Vector3f::Zero, Vector3f::UnitY);
         m_pipeline.per_frame_cb.c_camProj = BuildOpenGlPerspectiveRH(Degree(45.0f).GetRadians(), 1.0f, 0.1f, 100.0f);

@@ -78,7 +78,7 @@ Vector3f PbrPipeline::ComputeLighting(Vector3f base_color,
     Vector3f Lo = Vector3f(0.0f);
     Vector3f F0 = cave::lerp(Vector3f(0.04f), base_color, metallic);
 
-    const Vector3f radiance = Vector3f(4.0f);
+    const Vector3f radiance = Vector3f(LIGHT_INTENSITY);
     Vector3f delta = -world_position + LIGHT_POS;
     Vector3f L = normalize(delta);
     const Vector3f H = normalize(V + L);
