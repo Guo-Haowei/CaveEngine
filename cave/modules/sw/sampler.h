@@ -24,16 +24,6 @@ public:
         memcpy(&m_buffer[0], info.data, sizeof(T) * m_width * m_height);
     }
 
-    T sample(Vector2f uv) const {
-        int x = static_cast<int>(uv.x * m_width);
-        int y = static_cast<int>(uv.y * m_height);
-        if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
-            return T(0);
-        } else {
-            return m_buffer[y * m_width + x];
-        }
-    }
-
     void resize(int width, int height) {
         m_width = width;
         m_height = height;

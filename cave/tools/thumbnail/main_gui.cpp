@@ -8,11 +8,9 @@
 #include "modules/sw/pbr_pipeline.h"
 #include "modules/sw/sw_renderer.h"
 
-#include "thumbnail_dvars.h"
+#include "thumbnail.h"
 
 namespace cave {
-
-static constexpr Vector3f CAM_POS{ 0.0f, 1.f, 2.3f };
 
 class FpsCounter {
 public:
@@ -92,11 +90,7 @@ public:
         sw->SetPipeline(&m_pipeline);
 
         // model
-#if 1
         m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
-#else
-        m_mesh = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/cube").unwrap().Get();
-#endif
         m_mesh->gpuResource = m_graphics_manager->CreateMesh(*m_mesh).value_or(nullptr);
 
 #if 0
@@ -109,7 +103,7 @@ public:
 #endif
 
         // @TODO: proper setup
-        m_pipeline.per_batch_cb.c_worldMatrix = Rotate(Degree(30.0f), Vector3f::UnitY);
+        m_pipeline.per_batch_cb.c_worldMatrix = Rotate(Degree(-30.0f), Vector3f::UnitY);
         m_pipeline.per_frame_cb.c_cameraPosition = CAM_POS;
         m_pipeline.per_frame_cb.c_camView = LookAtRh(CAM_POS, Vector3f::Zero, Vector3f::UnitY);
         m_pipeline.per_frame_cb.c_camProj = BuildOpenGlPerspectiveRH(Degree(45.0f).GetRadians(), 1.0f, 0.1f, 100.0f);
@@ -147,40 +141,11 @@ protected:
 
         m_fps_counter.Frame();
 
-        auto& sw = m_graphics_manager;
+        thumbnail::FillDefaultMaterial(m_pipeline.material_cb);
 
-        sw->SetMesh(m_mesh->gpuResource.get());
+        thumbnail::DrawMesh(m_mesh->gpuResource.get(), *m_graphics_manager);
 
-        // @TODO: viewport
-
-        const auto clear_flag = ClearFlags::CLEAR_COLOR_BIT | ClearFlags::CLEAR_DEPTH_BIT;
-        // @TODO: render target
-
-        sw->Clear(nullptr, clear_flag, &AMBIENT_COLOR.r);
-        sw->DrawElements(m_mesh->gpuResource->desc.drawCount);
-
-        auto convert = [](float v) {
-            return static_cast<uint8_t>(clamp(255.f * v, 0.0f, 255.f));
-        };
-
-        // @TODO: gamma correct
-        const auto& buffer = m_render_target.m_colorBuffer.m_buffer;
-        std::vector<Color> color(buffer.size());
-        constexpr float gamma = 1.0f / 2.2f;
-        for (size_t i = 0; i < buffer.size(); ++i) {
-            Vector4f in = buffer[i];
-            in = in / (in + 1.0f);
-            in.r = glm::pow(in.r, gamma);
-            in.g = glm::pow(in.g, gamma);
-            in.b = glm::pow(in.b, gamma);
-
-            auto& out = color[i];
-            out.r = convert(in.b);
-            out.g = convert(in.g);
-            out.b = convert(in.r);
-            out.a = 255;
-        }
-
+        std::vector<Color> color = thumbnail::Convert(m_render_target.m_colorBuffer.m_buffer, true);
         DrawPixels(color.data());
 
         std::string title = std::format("SwRenderer (fps: {})", m_fps_counter.GetFPS());

@@ -8,8 +8,9 @@ namespace cave {
 #include "cbuffer.hlsl.h"
 
 // @TODO: refactor
-constexpr Vector3f LIGHT_POS{ 5, 6, 3 };
+constexpr Vector3f LIGHT_POS{ -5, 6, 3 };
 constexpr Vector4f AMBIENT_COLOR{ .06f, .06f, .06f, 1.0f };
+constexpr float LIGHT_INTENSITY = 3.0f;
 
 class PbrPipeline : public SwPipeline {
 public:
@@ -29,8 +30,7 @@ public:
 
     PerBatchConstantBuffer per_batch_cb;
     PerFrameConstantBuffer per_frame_cb;
-
-    const SwTexture<Color>* m_texture = nullptr;
+    MaterialConstantBuffer material_cb;
 };
 
 }  // namespace cave

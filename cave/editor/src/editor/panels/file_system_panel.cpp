@@ -77,17 +77,7 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
 
         const bool hovered = ImGui::IsItemHovered();
         if (hovered) {
-            auto asset_registry = m_editor.GetApplication()->GetAssetRegistry();
-            auto _handle = asset_registry->FindByPath(short_path);
-            if (_handle.is_some()) {
-                auto handle = std::move(_handle.unwrap_unchecked());
-                IAsset* asset = handle.Get();
-                if (DEV_VERIFY(asset)) {
-                    if (is_file) {
-                        ShowAssetToolTip(*handle.GetMeta(), asset);
-                    }
-                }
-            }
+            ShowAssetToolTip(p_node);
         }
     }
 

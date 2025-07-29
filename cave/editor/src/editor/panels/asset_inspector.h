@@ -30,7 +30,8 @@ protected:
     std::vector<std::string> m_current_path;
 
     std::shared_ptr<ImageAsset> m_folder_iamge;
-    std::shared_ptr<ImageAsset> m_meta_image;
+    std::shared_ptr<ImageAsset> m_fallback_iamge;
+    std::unordered_map<std::string_view, std::shared_ptr<ImageAsset>> m_thumbnail_lut;
 };
 
 }  // namespace cave

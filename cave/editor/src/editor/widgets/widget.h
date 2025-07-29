@@ -76,11 +76,6 @@ void CenteredImage(const ImageAsset* p_image,
                    const ImVec2& p_background_region,
                    uint64_t p_background);
 
-/// tool tip
-void ShowAssetToolTip(const Guid& p_guid);
-
-void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset);
-
 /// asset inspector
 struct AssetChildPanel {
     const char* name;
