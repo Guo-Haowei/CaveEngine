@@ -42,7 +42,7 @@ entities:
     TransformComponent:
       translation: [0, 1.29999995, 0]
       rotation: [0, 0, 0, 1]
-      scale: [1, 1.20000005, 1]
+      scale: [1, 1, 1]
     AnimatorComponent:
       anim_id: A19D178A-EFC6-A346-815793EC6AB97322
       current_clip: idle
