@@ -173,12 +173,7 @@ void AssetInspector::DrawContentBrowser() {
     ImVec2 thumbnail_size{ 196, 196 };
 
     for (const auto& node : current->children) {
-        ImageAsset* image = nullptr;
-        // @TODO: cache thumbnail image path in node instead
-        auto thumbnail_image = std::format("@res://_cache/{}@256x256.png", node->handle.GetGuid().ToString());
-        if (auto _handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>(thumbnail_image); _handle.is_some()) {
-            image = _handle.unwrap_unchecked().Get();
-        }
+        ImageAsset* image = node->thumbnail.Get();
         if (!image) {
             image = node->is_dir ? m_folder_iamge.get() : m_meta_image.get();
         }

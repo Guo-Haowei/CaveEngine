@@ -6,6 +6,7 @@ namespace cave {
 struct FolderTreeNode {
     AssetType type;
     AssetHandle handle;
+    Handle<ImageAsset> thumbnail;
 
     bool is_dir;
     std::filesystem::path sys_path;

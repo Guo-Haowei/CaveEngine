@@ -1,5 +1,6 @@
 #include "folder_tree.h"
 
+#include "engine/assets/image_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
@@ -47,9 +48,14 @@ std::unique_ptr<FolderTreeNode> BuildFolderTree(const fs::path& p_sys_path,
             }
             node->handle = handle.unwrap_unchecked();
             const AssetMetaData* meta = node->handle.GetMeta();
+
             DEV_ASSERT(meta);
             node->type = meta->type;
             node->extension = StringUtils::Extension(node->file_name);
+            std::string thumbnail_path = std::format("@res://_cache/{}@256x256.png", meta->guid.ToString());
+            if (auto _handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>(thumbnail_path); _handle.is_some()) {
+                node->thumbnail = _handle.unwrap_unchecked();
+            }
         } else {
             for (const auto& entry : fs::directory_iterator(p_sys_path)) {
                 auto child = BuildFolderTree(entry.path(), node.get());
