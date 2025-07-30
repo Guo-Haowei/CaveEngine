@@ -4,6 +4,6 @@ name: level_1.scene
 import_path: "@res://scenes/level_1.scene"
 dependencies: []
 source_created_time: 2025-07-26 13:51:57.6423697
-source_last_modified: 2025-07-29 17:36:04.9917008
+source_last_modified: 2025-07-30 18:10:01.1922304
 import_settings:
   {}

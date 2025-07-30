@@ -8,8 +8,9 @@ function Player.new(id)
     setmetatable(self, Player)
     Engine.log_ok('hello from player.lua')
     self.velocity = g_scene:get_velocity(self.id)
-    self.animator = g_scene:get_animator(self.id)
     self.transform = g_scene:get_transform(self.id)
+    self.animator_id = g_scene:find_entity_by_name("player_animator_node")
+    self.animator = g_scene:get_animator(self.animator_id)
     return self
 end
 
