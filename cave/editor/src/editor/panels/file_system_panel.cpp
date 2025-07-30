@@ -14,6 +14,35 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+// ----------------- @TODO: refactor drag drop --------------------------
+using AssetID = uint64_t;
+using EntityID = uint32_t;
+using PathStr = std::string;  // for virtual FS paths
+
+enum class DragKind : uint32_t {
+    Asset, // assign guid
+    Folder, // move folder
+    Entity,
+    Material, // apply to mesh directly
+};
+
+enum class DropOp : uint8_t { None,
+                              Copy,
+                              Move,
+                              Link,
+                              Create };
+
+struct DragPayload {
+    DragKind kind;
+    // union-like data (POD): no pointers to UI state
+    std::vector<AssetID> assets;
+    std::vector<PathStr> folders;
+    std::vector<EntityID> entities;
+    // optional extra info
+    std::string sourcePanel;  // "ContentBrowser", "Hierarchy", "Viewport"
+};
+// ----------------- @TODO: refactor drag drop --------------------------
+
 FileSystemPanel::FileSystemPanel(EditorLayer& p_editor)
     : EditorWindow(p_editor) {
 }
