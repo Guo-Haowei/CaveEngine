@@ -287,7 +287,7 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
 
     PhysicsWorldContext& context = *p_scene.m_physicsWorld;
 
-    for (auto [id, component] : p_scene.m_RigidBodyComponents) {
+    for (auto [id, component] : p_scene.View<RigidBodyComponent>()) {
         if (component.physicsObject) {
             continue;
         }

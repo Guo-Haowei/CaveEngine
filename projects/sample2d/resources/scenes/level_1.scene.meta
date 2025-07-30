@@ -1,9 +1,9 @@
 type: scene
 guid: 1753AE53-3873-1140-B148E89E52FE7489
 name: level_1.scene
-import_path: "@res://scenes/level_1/level_1.scene"
+import_path: "@res://scenes/level_1.scene"
 dependencies: []
 source_created_time: 2025-07-26 13:51:57.6423697
-source_last_modified: 2025-07-26 13:55:14.6034610
+source_last_modified: 2025-07-29 17:36:04.9917008
 import_settings:
   {}

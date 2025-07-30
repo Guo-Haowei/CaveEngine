@@ -56,13 +56,13 @@ void Scene::Update(float p_timestep) {
     RunMeshAABBUpdateSystem(*this, ctx, p_timestep);
 
     // @TODO: refactor
-    for (auto [entity, camera] : m_CameraComponents) {
+    for (auto [entity, camera] : View<CameraComponent>()) {
         if (camera.Update()) {
             m_dirtyFlags.fetch_or(SCENE_DIRTY_CAMERA);
         }
     }
 
-    for (auto [entity, voxel_gi] : m_VoxelGiComponents) {
+    for (auto [entity, voxel_gi] : View<VoxelGiComponent>()) {
         auto transform = GetComponent<TransformComponent>(entity);
         if (DEV_VERIFY(transform)) {
             const auto& matrix = transform->GetWorldMatrix();
@@ -111,7 +111,7 @@ void Scene::Merge(Scene& p_other) {
 }
 
 ecs::Entity Scene::GetMainCamera() {
-    for (auto [entity, camera] : m_CameraComponents) {
+    for (auto [entity, camera] : View<CameraComponent>()) {
         if (camera.HasPrimaryFlag()) {
             return entity;
         }
@@ -121,7 +121,7 @@ ecs::Entity Scene::GetMainCamera() {
 }
 
 ecs::Entity Scene::FindEntityByName(const char* p_name) {
-    for (auto [entity, name] : m_NameComponents) {
+    for (auto [entity, name] : View<NameComponent>()) {
         if (name.GetName() == p_name) {
             return entity;
         }
@@ -144,7 +144,7 @@ void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
 
 void Scene::RemoveEntity(ecs::Entity p_entity) {
     std::vector<ecs::Entity> children;
-    for (auto [child, hierarchy] : m_HierarchyComponents) {
+    for (auto [child, hierarchy] : View<HierarchyComponent>()) {
         if (hierarchy.GetParent() == p_entity) {
             children.emplace_back(child);
         }
@@ -204,9 +204,7 @@ bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) {
 Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     RayIntersectionResult result;
 
-    // @TODO: box collider
-    for (size_t object_idx = 0; object_idx < GetCount<MeshRendererComponent>(); ++object_idx) {
-        ecs::Entity entity = GetEntity<MeshRendererComponent>(object_idx);
+    for (auto [entity, _] : View<MeshRendererComponent>()) {
         if (RayObjectIntersect(entity, p_ray)) {
             result.entity = entity;
         }
@@ -262,6 +260,11 @@ static constexpr char SCENE_MAGIC[] = "xBScene";
 static constexpr char SCENE_GUARD_MESSAGE[] = "Should see this message";
 static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
 
+template<typename T>
+concept HasOnDeserialized = requires(T& t) {
+    { t.OnDeserialized() } -> std::same_as<void>;
+};
+
 template<ComponentType T>
 static void DeserializeComponent(IDeserializer& d,
                                  const char* p_key,
@@ -271,7 +274,9 @@ static void DeserializeComponent(IDeserializer& d,
         T& component = p_scene.Create<T>(p_id);
         d.Read(component);
         d.LeaveKey();
-        component.OnDeserialized();
+        if constexpr (HasOnDeserialized<T>) {
+            component.OnDeserialized();
+        }
     }
 }
 

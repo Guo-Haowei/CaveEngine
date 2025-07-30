@@ -50,6 +50,12 @@ namespace cave {
     REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)     \
     REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)
 
+#define REGISTER_COMPONENT(TYPE, ...) \
+    template<>                        \
+    struct IsComponent<TYPE> : std::true_type {};
+REGISTER_COMPONENT_LIST
+#undef REGISTER_COMPONENT
+
 // @TODO: refactor
 struct PhysicsWorldContext;
 
@@ -85,8 +91,6 @@ public:
     template<ComponentType T>
     size_t GetCount() const { return 0; }
     template<ComponentType T>
-    ecs::Entity GetEntity(size_t) const { return ecs::Entity::Null(); }
-    template<ComponentType T>
     T& Create(const ecs::Entity&) { return *(T*)(nullptr); }
 
     template<ComponentType T>
@@ -99,16 +103,16 @@ public:
     inline ecs::View<T> View() {
         static_assert(0, "this code should never instantiate");
         struct Dummy {};
-        ecs::ComponentManager<Dummy> dummyManager;
-        return ecs::View(dummyManager);
+        ecs::ComponentManager<Dummy> dummy;
+        return ecs::View(dummy);
     }
 
     template<typename T>
-    inline const ecs::View<T> View() const {
+    inline ecs::ConstView<T> View() const {
         static_assert(0, "this code should never instantiate");
         struct Dummy {};
-        ecs::ComponentManager<Dummy> dummyManager;
-        return ecs::View(dummyManager);
+        ecs::ComponentManager<Dummy> dummy;
+        return ecs::ConstView(dummy);
     }
 
 #pragma region WORLD_COMPONENTS_REGISTRY
@@ -127,13 +131,11 @@ public:
     template<>                                                                                                     \
     inline size_t GetCount<T>() const { return m_##T##s.GetCount(); }                                              \
     template<>                                                                                                     \
-    inline ecs::Entity GetEntity<T>(size_t p_index) const { return m_##T##s.GetEntity(p_index); }                  \
-    template<>                                                                                                     \
     T& Create<T>(const ecs::Entity& p_entity) { return m_##T##s.Create(p_entity); }                                \
     template<>                                                                                                     \
     inline ecs::View<T> View() { return ecs::View<T>(m_##T##s); }                                                  \
     template<>                                                                                                     \
-    inline const ecs::View<T> View() const { return ecs::View<T>(m_##T##s); }
+    inline ecs::ConstView<T> View() const { return ecs::ConstView<T>(m_##T##s); }
 
 #pragma endregion WORLD_COMPONENTS_REGISTRY
 

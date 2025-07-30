@@ -1,0 +1,31 @@
+#pragma once
+#include "allocator_interface.h"
+
+namespace cave::memory {
+
+class LinearAllocator : public IAllocator {
+public:
+    static inline constexpr bool kDebug = USING(DEBUG_BUILD);
+
+    LinearAllocator(size_t p_capacity);
+    ~LinearAllocator();
+
+    void* Allocate(size_t p_size, size_t p_alignment = kDefaultAlignment) override;
+    void Deallocate(void* p_ptr, size_t p_size) override;
+
+    void Reset();
+
+    size_t Capacity() const { return m_capacity; }
+    size_t Used() const { return m_offset; }
+
+private:
+    static std::uintptr_t PtrToInt(void* p) {
+        return reinterpret_cast<std::uintptr_t>(p);
+    }
+
+    const size_t m_capacity;
+    void* m_base = nullptr;
+    size_t m_offset = 0;
+};
+
+}  // namespace cave::memory

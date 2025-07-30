@@ -269,15 +269,12 @@ static void UpdateLight(float p_timestep,
     }
 }
 
-void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
+void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context&, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    unused(p_context);
 
-    for (auto [id, light] : p_scene.m_LightComponents) {
-        const TransformComponent* transform = p_scene.GetComponent<TransformComponent>(id);
-        if (DEV_VERIFY(transform)) {
-            UpdateLight(p_timestep, *transform, light);
-        }
+    auto view = ecs::View<LightComponent, TransformComponent>(p_scene.m_LightComponents, p_scene.m_TransformComponents);
+    for (auto [id, light, transform] : view) {
+        UpdateLight(p_timestep, transform, light);
     }
 }
 

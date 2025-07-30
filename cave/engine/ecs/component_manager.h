@@ -4,86 +4,19 @@
 namespace cave {
 
 class Scene;
-class FileAccess;
 
 template<typename T>
-concept ComponentType = requires(T& t) {
-    { t.OnDeserialized() } -> std::same_as<void>;
-};
+struct IsComponent : std::false_type {};
+
+template<typename T>
+inline constexpr bool IsComponentV = IsComponent<T>::value;
+
+template<typename T>
+concept ComponentType = IsComponentV<std::decay_t<T>>;
 
 }  // namespace cave
 
 namespace cave::ecs {
-
-template<ComponentType T>
-class View;
-
-// @TODO: remove this iterator, use view iterator instead
-#define COMPONENT_MANAGER_ITERATOR_COMMON                                              \
-public:                                                                                \
-    self_type operator++(int) {                                                        \
-        self_type tmp = *this;                                                         \
-        ++m_index;                                                                     \
-        return tmp;                                                                    \
-    }                                                                                  \
-    self_type operator--(int) {                                                        \
-        self_type tmp = *this;                                                         \
-        --m_index;                                                                     \
-        return tmp;                                                                    \
-    }                                                                                  \
-    self_type& operator++() {                                                          \
-        ++m_index;                                                                     \
-        return *this;                                                                  \
-    }                                                                                  \
-    self_type& operator--() {                                                          \
-        --m_index;                                                                     \
-        return *this;                                                                  \
-    }                                                                                  \
-    bool operator==(const self_type& p_rhs) const { return m_index == p_rhs.m_index; } \
-    bool operator!=(const self_type& p_rhs) const { return m_index != p_rhs.m_index; } \
-    using _dummy_force_semi_colon = int
-
-template<ComponentType T>
-class ComponentManagerIterator {
-    using self_type = ComponentManagerIterator<T>;
-
-public:
-    ComponentManagerIterator(std::vector<Entity>& p_entity_array, std::vector<T>& p_component_array, size_t p_index)
-        : m_entityArray(p_entity_array), m_componentArray(p_component_array), m_index(p_index) {}
-
-    COMPONENT_MANAGER_ITERATOR_COMMON;
-
-    std::pair<Entity, T&> operator*() const {
-        return std::make_pair(this->m_entityArray[this->m_index], std::ref(this->m_componentArray[this->m_index]));
-    }
-
-private:
-    std::vector<Entity>& m_entityArray;
-    std::vector<T>& m_componentArray;
-
-    size_t m_index;
-};
-
-template<ComponentType T>
-class ComponentManagerConstIterator {
-    using self_type = ComponentManagerConstIterator<T>;
-
-public:
-    ComponentManagerConstIterator(const std::vector<Entity>& p_entity_array, const std::vector<T>& p_component_array, size_t p_index)
-        : m_entityArray(p_entity_array), m_componentArray(p_component_array), m_index(p_index) {}
-
-    COMPONENT_MANAGER_ITERATOR_COMMON;
-
-    std::pair<Entity, const T&> operator*() const {
-        return std::make_pair(this->m_entityArray[this->m_index], std::ref(this->m_componentArray[this->m_index]));
-    }
-
-private:
-    const std::vector<Entity>& m_entityArray;
-    const std::vector<T>& m_componentArray;
-
-    size_t m_index;
-};
 
 class IComponentManager {
     IComponentManager(const IComponentManager&) = delete;
@@ -98,22 +31,13 @@ public:
     virtual void Remove(const Entity& p_entity) = 0;
     virtual bool Contains(const Entity& p_entity) const = 0;
     virtual size_t GetCount() const = 0;
-    virtual Entity GetEntity(size_t p_index) const = 0;
 
     virtual const std::vector<Entity>& GetEntityArray() const = 0;
 };
 
 template<ComponentType T>
-class ComponentManager final : public IComponentManager {
-    using iter = ComponentManagerIterator<T>;
-    using const_iter = ComponentManagerConstIterator<T>;
-
+class ComponentManager : public IComponentManager {
 public:
-    iter begin() { return iter(m_entityArray, m_componentArray, 0); }
-    iter end() { return iter(m_entityArray, m_componentArray, m_componentArray.size()); }
-    const_iter begin() const { return const_iter(m_entityArray, m_componentArray, 0); }
-    const_iter end() const { return const_iter(m_entityArray, m_componentArray, m_componentArray.size()); }
-
     ComponentManager(size_t p_capacity = 0) { Reserve(p_capacity); }
 
     void Reserve(size_t p_capacity);
@@ -140,7 +64,11 @@ public:
 
     size_t GetCount() const override { return m_componentArray.size(); }
 
-    Entity GetEntity(size_t p_index) const override;
+    Option<size_t> FindIndex(Entity p_entity) const {
+        auto it = m_lookup.find(p_entity);
+        if (it == m_lookup.end()) return None();
+        return Some(it->second);
+    }
 
     T& Create(const Entity& p_entity);
 
@@ -148,13 +76,12 @@ public:
         return m_entityArray;
     }
 
-private:
+protected:
     std::vector<T> m_componentArray;
     std::vector<Entity> m_entityArray;
     std::unordered_map<Entity, size_t> m_lookup;
 
     friend class ::cave::Scene;
-    friend class View<T>;
 };
 
 class ComponentLibrary {
