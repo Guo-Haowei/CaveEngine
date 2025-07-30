@@ -31,31 +31,30 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     b2WorldId world_id = GetWorldId(m_world_id.unwrap_unchecked());
 
     // 1. set speed
-    auto view = p_scene.View<ColliderComponent>();
-    for (auto [id, collider] : view) {
-        VelocityComponent* vel = p_scene.GetComponent<VelocityComponent>(id);
-        if (!vel) continue;
-        b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
-        b2Body_SetLinearVelocity(body_id, { vel->linear.x, vel->linear.y });
+    {
+        auto view = ecs::View<ColliderComponent, VelocityComponent>(p_scene.m_ColliderComponents, p_scene.m_VelocityComponents);
+        for (auto [id, collider, vel] : view) {
+            b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
+            b2Body_SetLinearVelocity(body_id, { vel.linear.x, vel.linear.y });
+        }
     }
 
     // 2. simulate
     b2World_Step(world_id, p_timestep, sub_step_count);
 
     // 3. sync speed and position
-    for (auto [id, collider] : view) {
-        TransformComponent* transform = p_scene.GetComponent<TransformComponent>(id);
-        if (!transform) continue;
+    auto view = ecs::View<ColliderComponent, TransformComponent>(p_scene.m_ColliderComponents, p_scene.m_TransformComponents);
+    for (auto [id, collider, transform] : view) {
         b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
 
         b2Vec2 position = b2Body_GetPosition(body_id);
         [[maybe_unused]] b2Rot rotation = b2Body_GetRotation(body_id);
 
-        Vector3f translation = transform->GetTranslation();
+        Vector3f translation = transform.GetTranslation();
         translation.x = position.x;
         translation.y = position.y;
-        transform->SetTranslation(translation);
-        transform->SetDirty();
+        transform.SetTranslation(translation);
+        transform.SetDirty();
 
         if (VelocityComponent* vel = p_scene.GetComponent<VelocityComponent>(id); vel) {
             b2Vec2 linear = b2Body_GetLinearVelocity(body_id);
@@ -72,11 +71,9 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
     m_world_id = Some(std::bit_cast<uint32_t>(world_id));
 
-    for (auto [id, collider] : p_scene.View<ColliderComponent>()) {
-        const TransformComponent* transform = p_scene.GetComponent<TransformComponent>(id);
-        if (!transform) continue;
-
-        Vector4f position = transform->GetWorldMatrix() * Vector4f::UnitW;
+    auto view = ecs::View<ColliderComponent, TransformComponent>(p_scene.m_ColliderComponents, p_scene.m_TransformComponents);
+    for (auto [id, collider, transform] : view) {
+        Vector4f position = transform.GetWorldMatrix() * Vector4f::UnitW;
         b2BodyDef body_def = b2DefaultBodyDef();
         body_def.position = { position.x, position.y };
         body_def.fixedRotation = true;

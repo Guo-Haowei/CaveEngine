@@ -65,15 +65,13 @@ public:
 };
 
 void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
-    // @TODO: use jobsystem
     unused(p_context);
 
-    for (auto [id, animator] : p_scene.View<AnimatorComponent>()) {
-        SpriteRendererComponent* renderer = p_scene.GetComponent<SpriteRendererComponent>(id);
-        DEV_ASSERT(renderer);
-        if (!renderer) continue;
+    // @TODO: simplify it
+    auto view = ecs::View<AnimatorComponent, SpriteRendererComponent>(p_scene.m_AnimatorComponents, p_scene.m_SpriteRendererComponents);
 
-        AnimationSystem::UpdateSpriteAnimation(p_timestep, animator, *renderer);
+    for (auto [id, animator, renderer] : view) {
+        AnimationSystem::UpdateSpriteAnimation(p_timestep, animator, renderer);
     }
 }
 

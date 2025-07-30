@@ -159,15 +159,14 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
     }
 
     {
-        const auto view = p_scene.View<MeshRendererComponent>();
+        const auto view = ecs::View<MeshRendererComponent, TransformComponent>(p_scene.m_MeshRendererComponents, p_scene.m_TransformComponents);
 
         std::vector<GpuPtMesh> meshes;
         meshes.reserve(p_scene.GetCount<MeshRendererComponent>());
-        for (auto [id, renderer] : view) {
-            auto transform = p_scene.GetComponent<TransformComponent>(id);
+        for (auto [id, renderer, transform] : view) {
             auto handle = renderer.GetMeshHandle();
             auto mesh = handle.Get();
-            if (DEV_VERIFY(transform && mesh)) {
+            if (DEV_VERIFY(mesh)) {
                 auto mesh_it = m_meshs.find(handle.GetGuid());
                 if (mesh_it == m_meshs.end()) {
                     CRASH_NOW_MSG("mesh not found");
@@ -175,7 +174,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
                 }
 
                 GpuPtMesh gpu_pt_mesh;
-                gpu_pt_mesh.transform = transform->GetWorldMatrix();
+                gpu_pt_mesh.transform = transform.GetWorldMatrix();
                 gpu_pt_mesh.transformInv = glm::inverse(gpu_pt_mesh.transform);
                 const auto& cache = mesh_it->second;
                 gpu_pt_mesh.rootBvhId = cache.rootBvhId;

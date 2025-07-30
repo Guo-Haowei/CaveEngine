@@ -7,11 +7,10 @@ namespace cave {
 void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
     DebugDraw& debug_draw = p_framedata.GetDebugDraw();
 
-    for (const auto& [id, collider] : p_scene->View<ColliderComponent>()) {
+    auto view = ecs::ConstView<ColliderComponent, TransformComponent>(p_scene->m_ColliderComponents, p_scene->m_TransformComponents);
+    for (const auto& [id, collider, transform] : view) {
         if (!collider.GetDebugDraw()) continue;
-        const TransformComponent* transform = p_scene->GetComponent<TransformComponent>(id);
-        if (!transform) continue;
-        const Matrix4x4f& m = transform->GetWorldMatrix();
+        const Matrix4x4f& m = transform.GetWorldMatrix();
         const Shape& shape = collider.GetShape();
         switch (shape.type) {
             case ShapeType::Box: {

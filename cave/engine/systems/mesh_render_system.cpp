@@ -80,17 +80,12 @@ static void FillPass(const Scene& p_scene,
                      std::vector<RenderCommand>& p_commands,
                      FrameData& p_framedata) {
 
-    for (auto [entity, renderer] : p_scene.View<MeshRendererComponent>()) {
-        if (!p_scene.Contains<TransformComponent>(entity)) {
-            continue;
-        }
-
+    auto view = ecs::ConstView<MeshRendererComponent, TransformComponent>(p_scene.m_MeshRendererComponents, p_scene.m_TransformComponents);
+    for (auto [entity, renderer, transform] : view) {
         const MeshAsset* _mesh = renderer.GetMeshHandle().Get();
         if (!_mesh) continue;
 
         if (!p_filter1(renderer)) continue;
-
-        const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
 
         const MeshAsset& mesh = *_mesh;
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
