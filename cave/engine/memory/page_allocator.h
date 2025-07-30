@@ -1,7 +1,7 @@
 #pragma once
 #include "allocator_interface.h"
 
-namespace cave {
+namespace cave::memory {
 
 class PageAllocator : public IAllocator {
 public:
@@ -11,7 +11,7 @@ public:
     void* Allocate(size_t p_size, size_t p_alignment = 16) override;
     void Deallocate(void* p_ptr, size_t p_size) override;
 
-    void* GetPtr(size_t p_offset);
+    // void* GetPtr(size_t p_offset);
 
     // void Commit(size_t offset, size_t size, PageAccess access = PageAccess::ReadWrite);
     // void Protect(size_t offset, size_t size, PageAccess access);
@@ -27,4 +27,4 @@ private:
     size_t m_page_size = 0;
 };
 
-}  // namespace cave
+}  // namespace cave::memory

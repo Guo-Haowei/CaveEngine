@@ -1,18 +1,31 @@
 #include "page_allocator.h"
 
-namespace cave {
+namespace cave::memory {
 
-PageAllocator::PageAllocator(size_t totalSize)
-    : m_total_size(totalSize), m_page_size(PlatformVM::PageSize()) {
-    m_base = PlatformVM::Reserve(nullptr, m_totalSize);
-    assert(m_base && "Virtual memory reservation failed");
+PageAllocator::PageAllocator(size_t p_totalSize)
+    : m_total_size(p_totalSize), m_page_size(0) {
+    CRASH_NOW();
 }
 
 PageAllocator::~PageAllocator() {
+    CRASH_NOW();
     if (m_base) {
-        PlatformVM::Release(m_base, m_totalSize);
     }
 }
+
+void* PageAllocator::Allocate(size_t p_size, size_t p_alignment) {
+    unused(p_size);
+    unused(p_alignment);
+    return nullptr;
+}
+
+void PageAllocator::Deallocate(void* p_ptr, size_t p_size) {
+    unused(p_ptr);
+    unused(p_size);
+}
+
+#if 0
+
 
 void* PageAllocator::GetPtr(size_t offset) {
     assert(offset < m_totalSize);
@@ -40,12 +53,6 @@ void PageAllocator::Release() {
         m_base = nullptr;
     }
 }
+#endif
 
-void* PageAllocator::Allocate(size_t p_size, size_t p_alignment) {
-    return nullptr;
-}
-
-void PageAllocator::Deallocate(void* p_ptr, size_t p_size) {
-}
-
-}  // namespace cave
+}  // namespace cave::memory
