@@ -5,6 +5,8 @@ namespace cave::memory {
 
 class LinearAllocator : public IAllocator {
 public:
+    static inline constexpr bool kDebug = USING(DEBUG_BUILD);
+
     LinearAllocator(size_t p_capacity);
     ~LinearAllocator();
 
@@ -13,7 +15,8 @@ public:
 
     void Reset();
 
-    std::size_t Capacity() const { return m_capacity; }
+    size_t Capacity() const { return m_capacity; }
+    size_t Used() const { return m_offset; }
 
 private:
     static std::uintptr_t PtrToInt(void* p) {

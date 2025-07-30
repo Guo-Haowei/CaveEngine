@@ -2,16 +2,14 @@
 
 namespace cave::memory {
 
-#define DEBUG_ALLOCATOR USE_IF(USING(DEBUG_BUILD))
-
 LinearAllocator::LinearAllocator(size_t p_capacity)
     : m_capacity(p_capacity) {
     DEV_ASSERT(p_capacity);
     m_base = std::malloc(p_capacity);
     DEV_ASSERT_MSG(m_base, "malloc failed");
-#if USING(DEBUG_ALLOCATOR)
-    std::memset(m_base, 0xCD, m_capacity);
-#endif
+    if constexpr (kDebug) {
+        std::memset(m_base, 0xCD, m_capacity);
+    }
 }
 
 LinearAllocator::~LinearAllocator() {
@@ -29,7 +27,6 @@ void* LinearAllocator::Allocate(size_t p_size, size_t p_alignment) {
     const size_t new_offset = m_offset + alloc_size;
 
     if (new_offset > m_capacity) {
-        CRASH_NOW_MSG("failed to allocate");  // @TODO: add number and stuff
         return nullptr;
     }
 
@@ -44,9 +41,9 @@ void LinearAllocator::Deallocate(void*, size_t) {
 
 void LinearAllocator::Reset() {
     m_offset = 0;
-#if USING(DEBUG_ALLOCATOR)
-    std::memset(m_base, 0xDD, m_capacity);
-#endif
+    if constexpr (kDebug) {
+        std::memset(m_base, 0xDD, m_capacity);
+    }
 }
 
 }  // namespace cave::memory
