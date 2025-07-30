@@ -62,17 +62,26 @@ void ComponentManager<T>::Remove(const Entity& p_entity) {
         return;
     }
 
-    size_t index = it->second;
+    const size_t index = it->second;
     DEV_ASSERT_INDEX(index, m_entityArray.size());
-    m_lookup.erase(it);
-    m_entityArray.erase(m_entityArray.begin() + index);
-    m_componentArray.erase(m_componentArray.begin() + index);
-    for (auto& iter : m_lookup) {
-        DEV_ASSERT(iter.second != index);
-        if (iter.second > index) {
-            --iter.second;
-        }
+    const size_t last = m_componentArray.size() - 1;
+
+    if (index != last) {
+        // 1) Move last component into the gap
+        m_componentArray[index] = std::move(m_componentArray[last]);
+
+        // 2) Move last entity id into the gap
+        const Entity movedEntity = m_entityArray[last];
+        m_entityArray[index] = movedEntity;
+
+        // 3) Fix the moved entity's index in the lookup
+        m_lookup[movedEntity] = index;
     }
+
+    // 4) Pop the last slot and erase the removed entity from the map
+    m_componentArray.pop_back();
+    m_entityArray.pop_back();
+    m_lookup.erase(it);
 }
 
 template<ComponentType T>
@@ -108,12 +117,6 @@ T* ComponentManager<T>::GetComponent(const Entity& p_entity) {
     }
 
     return &m_componentArray[it->second];
-}
-
-template<ComponentType T>
-Entity ComponentManager<T>::GetEntity(size_t p_index) const {
-    DEV_ASSERT(p_index < m_entityArray.size());
-    return m_entityArray[p_index];
 }
 
 template<ComponentType T>

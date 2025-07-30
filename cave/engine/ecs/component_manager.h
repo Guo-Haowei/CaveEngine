@@ -98,13 +98,12 @@ public:
     virtual void Remove(const Entity& p_entity) = 0;
     virtual bool Contains(const Entity& p_entity) const = 0;
     virtual size_t GetCount() const = 0;
-    virtual Entity GetEntity(size_t p_index) const = 0;
 
     virtual const std::vector<Entity>& GetEntityArray() const = 0;
 };
 
 template<ComponentType T>
-class ComponentManager final : public IComponentManager {
+class ComponentManager : public IComponentManager {
     using iter = ComponentManagerIterator<T>;
     using const_iter = ComponentManagerConstIterator<T>;
 
@@ -140,7 +139,11 @@ public:
 
     size_t GetCount() const override { return m_componentArray.size(); }
 
-    Entity GetEntity(size_t p_index) const override;
+    Option<size_t> FindIndex(Entity p_entity) const {
+        auto it = m_lookup.find(p_entity);
+        if (it == m_lookup.end()) return None();
+        return Some(it->second);
+    }
 
     T& Create(const Entity& p_entity);
 
@@ -148,7 +151,7 @@ public:
         return m_entityArray;
     }
 
-private:
+protected:
     std::vector<T> m_componentArray;
     std::vector<Entity> m_entityArray;
     std::unordered_map<Entity, size_t> m_lookup;

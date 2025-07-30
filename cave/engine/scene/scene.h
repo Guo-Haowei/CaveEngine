@@ -85,8 +85,6 @@ public:
     template<ComponentType T>
     size_t GetCount() const { return 0; }
     template<ComponentType T>
-    ecs::Entity GetEntity(size_t) const { return ecs::Entity::Null(); }
-    template<ComponentType T>
     T& Create(const ecs::Entity&) { return *(T*)(nullptr); }
 
     template<ComponentType T>
@@ -126,8 +124,6 @@ public:
     inline bool Contains<T>(const ecs::Entity& p_entity) const { return m_##T##s.Contains(p_entity); }             \
     template<>                                                                                                     \
     inline size_t GetCount<T>() const { return m_##T##s.GetCount(); }                                              \
-    template<>                                                                                                     \
-    inline ecs::Entity GetEntity<T>(size_t p_index) const { return m_##T##s.GetEntity(p_index); }                  \
     template<>                                                                                                     \
     T& Create<T>(const ecs::Entity& p_entity) { return m_##T##s.Create(p_entity); }                                \
     template<>                                                                                                     \
