@@ -204,15 +204,11 @@ bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) {
 Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
     RayIntersectionResult result;
 
-    unused(p_ray);
-    CRASH_NOW();
-    // @TODO: box collider
-    // for (size_t object_idx = 0; object_idx < GetCount<MeshRendererComponent>(); ++object_idx) {
-    //    ecs::Entity entity = GetEntity<MeshRendererComponent>(object_idx);
-    //    if (RayObjectIntersect(entity, p_ray)) {
-    //        result.entity = entity;
-    //    }
-    //}
+    for (auto [entity, _] : View<MeshRendererComponent>()) {
+        if (RayObjectIntersect(entity, p_ray)) {
+            result.entity = entity;
+        }
+    }
 
     return result;
 }

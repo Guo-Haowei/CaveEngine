@@ -125,7 +125,7 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
         return false;
     }
 
-    for (auto [self_id, hier] : p_scene.m_HierarchyComponents) {
+    for (auto [self_id, hier] : p_scene.View<HierarchyComponent>()) {
         auto find_or_create = [this](ecs::Entity id) {
             auto it = m_nodes.find(id);
             if (it == m_nodes.end()) {
