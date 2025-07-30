@@ -109,7 +109,7 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
     }
     lua_setglobal(L, LUA_GLOBAL_SCENE);
 
-    for (auto [entity, script] : p_scene.m_LuaScriptComponents) {
+    for (auto [entity, script] : p_scene.View<LuaScriptComponent>()) {
         if (script.m_source_id.IsNull()) {
             continue;
         }

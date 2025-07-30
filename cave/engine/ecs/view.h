@@ -3,103 +3,139 @@
 
 namespace cave::ecs {
 
-// @TODO: combine View with reserved allocator and recycling
-// so when removing a component, we don't need to remove it from the array,
-// but we can invalidate it, and when creating View, View can skip it
+template<bool IsConst, class T>
+using MaybeConst = std::conditional_t<IsConst, const T, T>;
 
-template<ComponentType T>
-class View {
-    using ViewContainer = std::vector<std::pair<Entity, int>>;
+template<bool IsConst, class T>
+using MaybeRef = std::conditional_t<IsConst, const T&, T&>;
+
+template<bool IsConst, class... Cs>
+class BasicView {
+    using MgrTuple = std::tuple<MaybeConst<IsConst, ComponentManager<Cs>>*...>;
 
 public:
-    template<typename U>
-        requires std::is_same_v<T, std::remove_const_t<U>>
-    class Iterator;
+    using value_type = std::tuple<Entity, MaybeRef<IsConst, Cs>...>;
 
-    using iter = Iterator<T>;
-    using const_iter = Iterator<const T>;
-
-#pragma region ITERATOR
-    template<typename U>
-        requires std::is_same_v<T, std::remove_const_t<U>>
-    class Iterator {
-        using Self = Iterator<U>;
-
+    class iterator {
     public:
-        Iterator(const ViewContainer& p_container,
-                 const ComponentManager<T>& p_manager,
-                 uint32_t p_index)
-            : m_container(p_container), m_manager(p_manager), m_index(p_index) {}
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = typename BasicView::value_type;
 
-        Self operator++(int) {
-            Self tmp = *this;
-            ++m_index;
-            return tmp;
+        iterator() = default;
+
+        iterator(std::size_t i,
+                 const std::vector<Entity>* ents,
+                 MgrTuple mgrs)
+            : m_i(i), m_ents(ents), m_mgrs(mgrs) {
+            m_n = m_ents ? m_ents->size() : 0;
+            skip_to_valid();
         }
 
-        Self operator--(int) {
-            Self tmp = *this;
-            --m_index;
-            return tmp;
+        value_type operator*() const {
+            const Entity e = (*m_ents)[m_i];
+            return std::tuple_cat(std::make_tuple(e), refs_for(e));
         }
 
-        Self& operator++() {
-            ++m_index;
+        iterator& operator++() {
+            ++m_i;
+            skip_to_valid();
             return *this;
         }
 
-        Self& operator--() {
-            --m_index;
-            return *this;
+        iterator operator++(int) {
+            auto tmp = *this;
+            ++(*this);
+            return tmp;
         }
 
-        bool operator==(const Self& p_rhs) const { return m_index == p_rhs.m_index; }
-        bool operator!=(const Self& p_rhs) const { return m_index != p_rhs.m_index; }
-
-        auto operator*() -> std::pair<Entity, U&> {
-            Entity entity = m_container[m_index].first;
-            int index = m_container[m_index].second;
-            U& component = ((ComponentManager<T>&)m_manager).GetComponentByIndex(index);
-            return std::pair<Entity, U&>(entity, component);
+        bool operator==(const iterator& r) const {
+            return m_i == r.m_i && m_ents == r.m_ents;
         }
 
-        auto operator*() const -> std::pair<Entity, U&> {
-            Entity entity = m_container[m_index].first;
-            int index = m_container[m_index].second;
-            U& component = m_manager.GetComponentByIndex(index);
-            return std::pair<Entity, U&>(entity, component);
-        }
+        bool operator!=(const iterator& r) const { return !(*this == r); }
 
     private:
-        const ViewContainer& m_container;
-        const ComponentManager<T>& m_manager;
-
-        uint32_t m_index{ 0 };
-    };
-#pragma endregion ITERATOR
-
-    View(const ComponentManager<T>& p_manager)
-        : m_manager(p_manager), m_size(static_cast<uint32_t>(p_manager.GetCount())) {
-        const int size = (int)p_manager.GetCount();
-        for (int i = 0; i < size; ++i) {
-            m_container.emplace_back(std::make_pair(m_manager.m_entityArray[i], i));
+        template<std::size_t... I>
+        auto refs_for_impl(Entity e, std::index_sequence<I...>) const {
+            return std::tuple<MaybeRef<IsConst, Cs>...>(
+                std::get<I>(m_mgrs)->GetComponentByIndex(index_of<I>(e))...);
         }
+        auto refs_for(Entity e) const {
+            return refs_for_impl(e, std::index_sequence_for<Cs...>{});
+        }
+
+        bool present_in_all(Entity e) const {
+            return present_in_all_impl(e, std::index_sequence_for<Cs...>{});
+        }
+
+        template<std::size_t... I>
+        bool present_in_all_impl(Entity e, std::index_sequence<I...>) const {
+            bool ok = true;
+            ((ok = ok && std::get<I>(m_mgrs)->Contains(e)), ...);
+            return ok;
+        }
+
+        template<std::size_t I>
+        std::size_t index_of(Entity e) const {
+            auto idx = std::get<I>(m_mgrs)->FindIndex(e);
+            DEV_ASSERT(idx.is_some());
+            return idx.unwrap();
+        }
+
+        void skip_to_valid() {
+            while (m_i < m_n) {
+                const Entity e = (*m_ents)[m_i];
+                if (present_in_all(e)) break;
+                ++m_i;
+            }
+        }
+
+        size_t m_i = 0;
+        size_t m_n = 0;
+        const std::vector<Entity>* m_ents = nullptr;
+        MgrTuple m_mgrs{};
+    };
+
+    explicit BasicView(MaybeConst<IsConst, ComponentManager<Cs>>&... mgrs)
+        : m_mgrs{ (&mgrs)... } {
+        pick_baseline();
     }
 
-    View(const View<T>&) = default;
-
-    iter begin() { return iter(m_container, m_manager, 0); }
-    iter end() { return iter(m_container, m_manager, m_size); }
-
-    const_iter begin() const { return const_iter(m_container, m_manager, 0); }
-    const_iter end() const { return const_iter(m_container, m_manager, m_size); }
-
-    uint32_t GetSize() const { return m_size; }
+    iterator begin() { return iterator(0, m_baseline, m_mgrs); }
+    iterator end() { return iterator(m_baseline_size, m_baseline, m_mgrs); }
+    iterator begin() const { return iterator(0, m_baseline, m_mgrs); }
+    iterator end() const { return iterator(m_baseline_size, m_baseline, m_mgrs); }
 
 private:
-    ViewContainer m_container;
-    const ComponentManager<T>& m_manager;
-    uint32_t m_size;
+    void pick_baseline() {
+        pick_baseline_impl(std::index_sequence_for<Cs...>{});
+    }
+
+    template<std::size_t... I>
+    void pick_baseline_impl(std::index_sequence<I...>) {
+        std::array<std::size_t, sizeof...(Cs)> counts{ (std::get<I>(m_mgrs)->GetCount())... };
+        std::array<const std::vector<Entity>*, sizeof...(Cs)> ents{ (&std::get<I>(m_mgrs)->GetEntityArray())... };
+
+        std::size_t minIdx = 0;
+        for (std::size_t i = 1; i < counts.size(); ++i) {
+            if (counts[i] < counts[minIdx]) minIdx = i;
+        }
+        m_baseline = ents[minIdx];
+        m_baseline_size = counts[minIdx];
+    }
+
+private:
+    MgrTuple m_mgrs{};
+    const std::vector<Entity>* m_baseline = nullptr;
+    std::size_t m_baseline_size = 0;
 };
+
+// Convenient aliases
+template<class... Cs>
+using View = BasicView<false, Cs...>;
+
+template<class... Cs>
+using ConstView = BasicView<true, Cs...>;
 
 }  // namespace cave::ecs

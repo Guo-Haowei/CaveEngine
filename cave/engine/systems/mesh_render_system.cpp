@@ -268,7 +268,7 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
     bool show_debug = false;
     p_framedata.voxel_gi_bound.MakeInvalid();
     int counter = 0;
-    for (auto [entity, voxel_gi] : p_scene.m_VoxelGiComponents) {
+    for (auto [entity, voxel_gi] : p_scene.View<VoxelGiComponent>()) {
         p_framedata.voxel_gi_bound = voxel_gi.region;
         if (!p_framedata.voxel_gi_bound.IsValid()) {
             return;

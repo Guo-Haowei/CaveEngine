@@ -273,7 +273,7 @@ void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p
     CAVE_PROFILE_EVENT();
     unused(p_context);
 
-    for (auto [id, light] : p_scene.m_LightComponents) {
+    for (auto [id, light] : p_scene.View<LightComponent>()) {
         const TransformComponent* transform = p_scene.GetComponent<TransformComponent>(id);
         if (DEV_VERIFY(transform)) {
             UpdateLight(p_timestep, *transform, light);
