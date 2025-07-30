@@ -260,6 +260,11 @@ static constexpr char SCENE_MAGIC[] = "xBScene";
 static constexpr char SCENE_GUARD_MESSAGE[] = "Should see this message";
 static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
 
+template<typename T>
+concept HasOnDeserialized = requires(T& t) {
+    { t.OnDeserialized() } -> std::same_as<void>;
+};
+
 template<ComponentType T>
 static void DeserializeComponent(IDeserializer& d,
                                  const char* p_key,
@@ -269,7 +274,9 @@ static void DeserializeComponent(IDeserializer& d,
         T& component = p_scene.Create<T>(p_id);
         d.Read(component);
         d.LeaveKey();
-        component.OnDeserialized();
+        if constexpr (HasOnDeserialized<T>) {
+            component.OnDeserialized();
+        }
     }
 }
 
