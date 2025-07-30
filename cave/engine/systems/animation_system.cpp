@@ -67,8 +67,7 @@ public:
 void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     unused(p_context);
 
-    // @TODO: simplify it
-    auto view = ecs::View<AnimatorComponent, SpriteRendererComponent>(p_scene.m_AnimatorComponents, p_scene.m_SpriteRendererComponents);
+    auto view = p_scene.View<AnimatorComponent, SpriteRendererComponent>();
 
     for (auto [id, animator, renderer] : view) {
         AnimationSystem::UpdateSpriteAnimation(p_timestep, animator, renderer);
