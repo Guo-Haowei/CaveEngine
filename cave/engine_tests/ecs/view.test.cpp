@@ -1,20 +1,32 @@
 #include "engine/ecs/component_manager.inl"
 #include "engine/ecs/view.h"
 
-namespace cave::ecs {
+namespace cave {
 
 struct C1 {
     int a = 0;
-    void OnDeserialized() {}
 };
+
 struct C2 {
     float b = 0.0f;
-    void OnDeserialized() {}
 };
+
 struct C3 {
     int c = 0;
-    void OnDeserialized() {}
 };
+
+template<>
+struct IsComponent<C1> : std::true_type {};
+
+template<>
+struct IsComponent<C2> : std::true_type {};
+
+template<>
+struct IsComponent<C3> : std::true_type {};
+
+}  // namespace cave
+
+namespace cave::ecs {
 
 template<ComponentType T>
 class MockManager : public ComponentManager<T> {

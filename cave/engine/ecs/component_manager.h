@@ -5,11 +5,14 @@ namespace cave {
 
 class Scene;
 
-// @TODO: refactor this
 template<typename T>
-concept ComponentType = requires(T& t) {
-    { t.OnDeserialized() } -> std::same_as<void>;
-};
+struct IsComponent : std::false_type {};
+
+template<typename T>
+inline constexpr bool IsComponentV = IsComponent<T>::value;
+
+template<typename T>
+concept ComponentType = IsComponentV<std::decay_t<T>>;
 
 }  // namespace cave
 

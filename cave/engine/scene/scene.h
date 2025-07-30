@@ -50,6 +50,12 @@ namespace cave {
     REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)     \
     REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)
 
+#define REGISTER_COMPONENT(TYPE, ...) \
+    template<>                        \
+    struct IsComponent<TYPE> : std::true_type {};
+REGISTER_COMPONENT_LIST
+#undef REGISTER_COMPONENT
+
 // @TODO: refactor
 struct PhysicsWorldContext;
 

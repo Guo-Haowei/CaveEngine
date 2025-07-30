@@ -100,8 +100,6 @@ public:
     const BodyType& GetBodyType() const { return m_body_type; }
 
     bool GetDebugDraw() const { return m_debug_draw; }
-
-    void OnDeserialized() {}
 };
 
 }  // namespace cave

@@ -41,8 +41,6 @@ public:
 
     const std::string& GetName() const { return m_name; }
     std::string& GetNameRef() { return m_name; }
-
-    void OnDeserialized() {}
 };
 
 class HierarchyComponent {
@@ -55,8 +53,6 @@ class HierarchyComponent {
 
 public:
     ecs::Entity GetParent() const { return m_parent_id; }
-
-    void OnDeserialized() {}
 };
 
 class VelocityComponent {
@@ -64,8 +60,6 @@ class VelocityComponent {
 public:
     CAVE_PROP(editor = Translation)
     Vector3f linear = Vector3f::Zero;
-
-    void OnDeserialized() {}
 };
 
 // @TODO: make it asset
@@ -112,7 +106,6 @@ struct AnimationComponent {
     std::vector<Sampler> samplers;
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
 };
 #pragma endregion ANIMATION_COMPONENT
 
@@ -126,7 +119,6 @@ struct ArmatureComponent {
     std::vector<Matrix4x4f> boneTransforms;
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
 };
 #pragma endregion ARMATURE_COMPONENT
 
@@ -154,7 +146,6 @@ struct CollisionObjectBase {
     void* physicsObject{ nullptr };
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
 };
 
 struct RigidBodyComponent : CollisionObjectBase {
@@ -182,7 +173,6 @@ struct RigidBodyComponent : CollisionObjectBase {
     RigidBodyComponent& InitGhost();
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
 };
 
 enum ClothFixFlag : uint32_t {
@@ -207,7 +197,6 @@ struct ClothComponent : CollisionObjectBase {
     void* physicsObject{ nullptr };
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
 };
 #pragma endregion COLLISION_OBJECT_COMPONENT
 
@@ -230,7 +219,6 @@ struct EnvironmentComponent {
     } ambient;
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
 };
 
 struct VoxelGiComponent {
@@ -247,7 +235,6 @@ struct VoxelGiComponent {
     bool ShowDebugBox() const { return flags & SHOW_DEBUG_BOX; }
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
 };
 #pragma endregion ENVIRONMENT_COMPONENT
 
