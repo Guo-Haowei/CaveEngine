@@ -92,6 +92,7 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
         if (is_dir) {
             if (ImGui::BeginDragDropTarget()) {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
+                    // @TODO: retrieve path
                     LOG_WARN("TODO: implement moving asset");
                 }
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_FOLDER)) {
@@ -106,7 +107,6 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
                     } else {
                         fs::path old_path = moved->sys_path;
                         fs::path new_path = p_node.sys_path / moved->file_name;
-                        // LOG_OK("moving {} to {}", old_path.string(), new_path.string());
                         fs::rename(old_path, new_path);
                     }
                 }

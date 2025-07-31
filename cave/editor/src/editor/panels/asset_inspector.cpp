@@ -11,6 +11,7 @@
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/tool_bar.h"
+#include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
@@ -195,6 +196,15 @@ void AssetInspector::DrawContentBrowser() {
         auto [hovered, clicked] = DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
                                                 node->file_name.data(),
                                                 thumbnail_size);
+
+        if (!node->is_dir) {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+                DragPayload payload = MakePayloadAsset(node->type, node->handle.GetGuid());
+                SetPayload(PAYLOAD_ASSET, payload);
+                ImGui::Text("%s", node->virtual_path.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
