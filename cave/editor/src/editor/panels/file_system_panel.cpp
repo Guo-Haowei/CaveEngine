@@ -24,16 +24,7 @@ void FileSystemPanel::OnAttach() {
     m_root = fs::path{ path };
 }
 
-static bool IsChild(const FolderTreeNode* p_node1, const FolderTreeNode* p_node2) {
-    for (const FolderTreeNode* cursor = p_node1; cursor; cursor = cursor->parent) {
-        if (cursor == p_node2) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
+void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
     const bool is_dir = p_node.is_dir;
 
     int flags = 0;
@@ -72,47 +63,9 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
             ImGui::EndPopup();
         }
 
-        // @TODO: exclude dropping to the source
-        [[maybe_unused]] ImGuiID my_id = ImGui::GetItemID();
+        DragDropSourceContentEntry(p_node);
 
-        if (p_node.virtual_path != "@res://") {
-            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-                if (is_dir) {
-                    DragPayload payload = MakePayloadFolder(p_node.sys_path);
-                    SetPayload(PAYLOAD_FOLDER, payload);
-                } else {
-                    DragPayload payload = MakePayloadAsset(p_node.type, p_node.handle.GetGuid());
-                    SetPayload(PAYLOAD_ASSET, payload);
-                }
-                ImGui::Text("%s", p_node.virtual_path.c_str());
-                ImGui::EndDragDropSource();
-            }
-        }
-
-        if (is_dir) {
-            if (ImGui::BeginDragDropTarget()) {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
-                    // @TODO: retrieve path
-                    LOG_WARN("TODO: implement moving asset");
-                }
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_FOLDER)) {
-                    const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
-                    const auto& lut = m_editor.GetFolderLut();
-                    auto it = lut.find(std::string(data.folder.path));
-                    DEV_ASSERT(it != lut.end());
-                    const FolderTreeNode* moved = it->second;
-                    const bool is_child = IsChild(&p_node, moved);
-                    if (is_child) {
-                        LOG_ERROR("can't move '{}' to '{}'", moved->virtual_path, p_node.virtual_path);
-                    } else {
-                        fs::path old_path = moved->sys_path;
-                        fs::path new_path = p_node.sys_path / moved->file_name;
-                        fs::rename(old_path, new_path);
-                    }
-                }
-                ImGui::EndDragDropTarget();
-            }
-        }
+        DragDropTargetFolder(p_node, m_editor.GetFolderLut());
 
         if (hovered) {
             ShowAssetToolTip(p_node);
@@ -129,7 +82,7 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
 }
 
 // @TODO: refactor this to work for both content browser and file system
-void FileSystemPanel::FolderPopup(const FolderTreeNode& p_node) {
+void FileSystemPanel::FolderPopup(const ContentEntry& p_node) {
     if (ImGui::MenuItem("Rename")) {
         m_renaming = p_node.sys_path;
     }

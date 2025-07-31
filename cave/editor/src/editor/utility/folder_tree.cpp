@@ -9,8 +9,8 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-std::unique_ptr<FolderTreeNode> BuildFolderTree(const fs::path& p_sys_path,
-                                                FolderTreeNode* p_parent) {
+std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
+                                              ContentEntry* p_parent) {
     try {
         if (!fs::exists(p_sys_path)) {
             return nullptr;
@@ -22,7 +22,7 @@ std::unique_ptr<FolderTreeNode> BuildFolderTree(const fs::path& p_sys_path,
             return nullptr;
         }
 
-        auto node = std::make_unique<FolderTreeNode>();
+        auto node = std::make_unique<ContentEntry>();
         node->type = AssetType::Unknown;
         node->extension = "";
         node->is_dir = is_dir;
@@ -98,7 +98,7 @@ void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset) {
     }
 }
 
-void ShowAssetToolTip(const FolderTreeNode& p_node) {
+void ShowAssetToolTip(const ContentEntry& p_node) {
     if (p_node.is_dir) {
         return;
     }
