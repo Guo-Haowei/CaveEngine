@@ -8,40 +8,12 @@
 #include "engine/runtime/common_dvars.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/folder_tree.h"
+#include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
 
 namespace fs = std::filesystem;
-
-// ----------------- @TODO: refactor drag drop --------------------------
-using AssetID = uint64_t;
-using EntityID = uint32_t;
-using PathStr = std::string;  // for virtual FS paths
-
-enum class DragKind : uint32_t {
-    Asset, // assign guid
-    Folder, // move folder
-    Entity,
-    Material, // apply to mesh directly
-};
-
-enum class DropOp : uint8_t { None,
-                              Copy,
-                              Move,
-                              Link,
-                              Create };
-
-struct DragPayload {
-    DragKind kind;
-    // union-like data (POD): no pointers to UI state
-    std::vector<AssetID> assets;
-    std::vector<PathStr> folders;
-    std::vector<EntityID> entities;
-    // optional extra info
-    std::string sourcePanel;  // "ContentBrowser", "Hierarchy", "Viewport"
-};
-// ----------------- @TODO: refactor drag drop --------------------------
 
 FileSystemPanel::FileSystemPanel(EditorLayer& p_editor)
     : EditorWindow(p_editor) {
@@ -62,8 +34,6 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
     auto id = std::format("##{}", p_node.virtual_path);
 
     const bool node_open = ImGui::TreeNodeEx(id.c_str(), flags);
-
-    const std::string& short_path = p_node.virtual_path;
 
     ImGui::SameLine();
 
@@ -92,16 +62,19 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
             ImGui::EndPopup();
         }
 
-        const bool is_file = !p_node.is_dir;
-        if (is_file) {
-            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-                const char* data = short_path.c_str();
-                ImGui::SetDragDropPayload(ASSET_DRAG_DROP_PAYLOAD,
-                                          data,
-                                          short_path.length() + 1);
-                ImGui::Text("Dragging '%s'", data);
-                ImGui::EndDragDropSource();
+        // @TODO: exclude dropping to the source
+        [[maybe_unused]] ImGuiID my_id = ImGui::GetItemID();
+
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+            if (is_dir) {
+                DragPayload payload = MakePayloadFolder(p_node.sys_path);
+                SetPayload(PAYLOAD_FOLDER, payload);
+            } else {
+                DragPayload payload = MakePayloadAsset(p_node.type, p_node.handle.GetGuid());
+                SetPayload(PAYLOAD_ASSET, payload);
             }
+            ImGui::Text("%s", p_node.virtual_path.c_str());
+            ImGui::EndDragDropSource();
         }
 
         const bool hovered = ImGui::IsItemHovered();

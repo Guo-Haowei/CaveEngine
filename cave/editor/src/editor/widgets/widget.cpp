@@ -1,10 +1,7 @@
 #include "widget.h"
 
 #include "engine/assets/image_asset.h"
-#include "engine/runtime/asset_registry.h"
 #include "engine/scene/scene.h"
-
-#include "editor/editor_window.h"
 
 namespace cave {
 
@@ -288,21 +285,6 @@ bool ToggleButton(const char* p_str_id, bool& p_value) {
     draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
 
     return toggled;
-}
-
-Option<AssetHandle> DragDropTarget(AssetType p_mask) {
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ASSET_DRAG_DROP_PAYLOAD)) {
-            const char* path = reinterpret_cast<const char*>(payload->Data);
-            auto handle = AssetRegistry::GetSingleton().FindByPath(path, p_mask);
-            if (handle.is_some()) {
-                return Some(handle.unwrap_unchecked());
-            }
-        }
-        ImGui::EndDragDropTarget();
-    }
-
-    return None();
 }
 
 void CenteredImage(const ImageAsset* p_image,

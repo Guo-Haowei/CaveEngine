@@ -69,8 +69,6 @@ bool DrawColorPicker4(const char* p_label,
 
 bool ToggleButton(const char* p_str_id, bool& p_value);
 
-Option<AssetHandle> DragDropTarget(AssetType p_mask);
-
 /// image
 void CenteredImage(const ImageAsset* p_image,
                    const ImVec2& p_background_region,

@@ -16,7 +16,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-6, -5, -5]
+      translation: [-6, -5, -0.290982485]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapRendererComponent:
@@ -62,7 +62,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [2, -5, -4]
+      translation: [2, -5, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     ColliderComponent:
@@ -79,7 +79,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [7, -3, -4]
+      translation: [7, -3, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     ColliderComponent:
