@@ -71,6 +71,7 @@ public:
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
 
     const auto& GetAssetRoot() const { return m_asset_root; }
+    const auto& GetFolderLut() const { return m_folder_lut; }
 
 private:
     void DockSpace();
@@ -108,6 +109,7 @@ private:
 
     std::vector<std::shared_ptr<InputEvent>> m_buffered_events;
     std::unique_ptr<FolderTreeNode> m_asset_root;
+    std::unordered_map<std::string, const FolderTreeNode*> m_folder_lut;
 };
 
 }  // namespace cave

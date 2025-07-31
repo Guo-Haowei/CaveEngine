@@ -228,9 +228,20 @@ void EditorLayer::OnUpdate(float p_timestep) {
     // Scene* scene = nullptr;
 }
 
+static void BuildFolderLut(const FolderTreeNode* p_node,
+                           std::unordered_map<std::string, const FolderTreeNode*>& p_lut) {
+    p_lut[p_node->sys_path.string()] = p_node;
+    for (const auto& child : p_node->children) {
+        BuildFolderLut(child.get(), p_lut);
+    }
+}
+
 void EditorLayer::OnImGuiRender() {
     const std::string& path = GetApplication()->GetResourceFolder();
     m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
+
+    m_folder_lut.clear();
+    BuildFolderLut(m_asset_root.get(), m_folder_lut);
 
     // @TODO: DO NOT Request SCENE here
     Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();
