@@ -7,26 +7,39 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-DragPayload MakePayloadFolder(const std::filesystem::path& p_path) {
-    DragPayload payload = {
-        .kind = DragKind::Folder,
-        .folder = {}
-    };
-    strncpy(payload.folder.path,
-            p_path.string().c_str(),
-            sizeof(payload.folder.path) - 1);
+struct DragPayload {
+    DragKind kind;
+    ecs::Entity entity;
+    AssetType type{ AssetType::Unknown };
+    Guid guid;
+    char path[256]{ 0 };
+};
+
+template<class T>
+inline void SetPayload(const char* p_type, const T& pay_load) {
+    ImGui::SetDragDropPayload(p_type, &pay_load, sizeof(T), ImGuiCond_Once);
+}
+
+static DragPayload MakePayloadFolder(const ContentEntry& p_entry) {
+    DragPayload payload;
+    payload.kind = DragKind::Folder,
+    strncpy(payload.path,
+            p_entry.sys_path.string().c_str(),
+            sizeof(payload.path) - 1);
 
     return payload;
 }
 
-DragPayload MakePayloadAsset(AssetType p_type, const Guid& p_guid) {
-    return {
-        .kind = DragKind::Asset,
-        .asset = {
-            .type = p_type,
-            .guid = p_guid,
-        },
-    };
+static DragPayload MakePayloadAsset(const ContentEntry& p_entry) {
+    DragPayload payload;
+    payload.kind = DragKind::Asset;
+    payload.type = p_entry.type;
+    payload.guid = p_entry.handle.GetGuid();
+    strncpy(payload.path,
+            p_entry.sys_path.string().c_str(),
+            sizeof(payload.path) - 1);
+
+    return payload;
 }
 
 Option<AssetHandle> DragDropTarget(AssetType p_mask) {
@@ -34,7 +47,7 @@ Option<AssetHandle> DragDropTarget(AssetType p_mask) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
             DEV_ASSERT(data.kind == DragKind::Asset);
-            auto handle = AssetRegistry::GetSingleton().FindByGuid(data.asset.guid, p_mask);
+            auto handle = AssetRegistry::GetSingleton().FindByGuid(data.guid, p_mask);
             if (handle.is_some()) {
                 return Some(handle.unwrap_unchecked());
             }
@@ -58,10 +71,10 @@ void DragDropSourceContentEntry(const ContentEntry& p_source) {
     if (p_source.virtual_path != "@res://") {
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
             if (p_source.is_dir) {
-                DragPayload payload = MakePayloadFolder(p_source.sys_path);
+                DragPayload payload = MakePayloadFolder(p_source);
                 SetPayload(PAYLOAD_FOLDER, payload);
             } else {
-                DragPayload payload = MakePayloadAsset(p_source.type, p_source.handle.GetGuid());
+                DragPayload payload = MakePayloadAsset(p_source);
                 SetPayload(PAYLOAD_ASSET, payload);
             }
             ImGui::Text("%s", p_source.virtual_path.c_str());
@@ -72,18 +85,19 @@ void DragDropSourceContentEntry(const ContentEntry& p_source) {
 
 void DragDropTargetFolder(const ContentEntry& p_target,
                           const std::unordered_map<std::string, const ContentEntry*>& p_lut) {
+
     if (!p_target.is_dir) {
         return;
     }
 
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
-            // @TODO: retrieve path
-            LOG_WARN("TODO: implement moving asset");
+            // @TODO: move assets, need to move meta as well
         }
+
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_FOLDER)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
-            auto it = p_lut.find(std::string(data.folder.path));
+            auto it = p_lut.find(std::string(data.path));
             DEV_ASSERT(it != p_lut.end());
             const ContentEntry* moved = it->second;
             const bool is_child = IsChild(&p_target, moved);
@@ -95,6 +109,7 @@ void DragDropTargetFolder(const ContentEntry& p_target,
                 fs::rename(old_path, new_path);
             }
         }
+
         ImGui::EndDragDropTarget();
     }
 }
