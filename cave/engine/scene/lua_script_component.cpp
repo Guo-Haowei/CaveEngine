@@ -6,11 +6,11 @@
 
 namespace cave {
 
-void LuaScriptComponent::SetResourceGuid(const Guid& p_guid) {
-    AssetHandle::ReplaceGuidAndHandle(AssetType::Blob,
-                                      p_guid,
-                                      m_source_id,
-                                      m_source_handle.RawHandle());
+bool LuaScriptComponent::SetResourceGuid(const Guid& p_guid) {
+    return AssetHandle::ReplaceGuidAndHandle(AssetType::Blob,
+                                             p_guid,
+                                             m_source_id,
+                                             m_source_handle.RawHandle());
 }
 
 LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view p_class_name) {

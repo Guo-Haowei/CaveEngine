@@ -21,7 +21,7 @@ private:
 public:
     LuaScriptComponent& SetClassName(std::string_view p_class_name);
 
-    void SetResourceGuid(const Guid& p_guid);
+    bool SetResourceGuid(const Guid& p_guid);
     const Guid& GetResourceGuid() const { return m_source_id; }
 
     const std::string& GetClassName() const { return m_class_name; }

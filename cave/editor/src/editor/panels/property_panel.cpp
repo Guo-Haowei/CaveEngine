@@ -65,7 +65,7 @@ static void DrawComponent(const std::string& p_name,
 
 template<typename T>
 concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
-    { t.SetResourceGuid(guid) } -> std::same_as<void>;
+    { t.SetResourceGuid(guid) } -> std::same_as<bool>;
 };
 
 static_assert(HasSetResourceGuid<LuaScriptComponent>);
@@ -93,11 +93,13 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
 
     ImGui::Text(" %s ", meta ? meta->name.c_str() : "not set");
 
+    bool dirty = false;
+
     const bool hovered = ImGui::IsItemHovered();
     if (auto _handle = DragDropTarget(type); _handle.is_some()) {
         if constexpr (HasSetResourceGuid<T>) {
             if (p_component) {
-                p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
+                dirty = p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
             }
         }
     }
@@ -106,7 +108,7 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     if (hovered && meta) {
         ShowAssetToolTip(*meta, asset);
     }
-    return true;
+    return dirty;
 };
 
 static bool DrawCheckBox(const char* p_name,
@@ -238,28 +240,30 @@ void PropertyPanel::UpdateInternal() {
     MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
     SpriteRendererComponent* sprite_renderer = scene.GetComponent<SpriteRendererComponent>(id);
     TileMapRendererComponent* tile_map_renderer = scene.GetComponent<TileMapRendererComponent>(id);
-    AnimatorComponent* animator_component = scene.GetComponent<AnimatorComponent>(id);
+    AnimatorComponent* animator = scene.GetComponent<AnimatorComponent>(id);
 
-    TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
-    LightComponent* light_component = scene.GetComponent<LightComponent>(id);
-    MaterialComponent* material_component = scene.GetComponent<MaterialComponent>(id);
+    TransformComponent* transform = scene.GetComponent<TransformComponent>(id);
+    LightComponent* light = scene.GetComponent<LightComponent>(id);
+    MaterialComponent* material = scene.GetComponent<MaterialComponent>(id);
     ColliderComponent* collider = scene.GetComponent<ColliderComponent>(id);
+    LuaScriptComponent* lua_script = scene.GetComponent<LuaScriptComponent>(id);
+    CameraComponent* camera = scene.GetComponent<CameraComponent>(id);
+    PrefabInstanceComponent* prefab = scene.GetComponent<PrefabInstanceComponent>(id);
+
+    AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
+
 #if 0
     ParticleEmitterComponent* particle_emitter_component = scene.GetComponent<ParticleEmitterComponent>(id);
     MeshEmitterComponent* mesh_emitter_component = scene.GetComponent<MeshEmitterComponent>(id);
-    ForceFieldComponent* force_field_component = scene.GetComponent<ForceFieldComponent>(id);
 #endif
-    LuaScriptComponent* script_component = scene.GetComponent<LuaScriptComponent>(id);
-    CameraComponent* camera_component = scene.GetComponent<CameraComponent>(id);
-    AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
 
     SceneDocument& document = static_cast<SceneDocument&>(tab->GetDocument());
     const bool is_2d = m_editor.GetApplication()->IsWorld2D();
 
     // @TODO: limit this in scene editor
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, _scene, id
-    DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform_component, [&](TransformComponent& p_transform) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&](TransformComponent& p_transform) {
         const Matrix4x4f old_transform = p_transform.GetLocalMatrix();
         const bool dirty = DrawComponentAuto<TransformComponent>(&p_transform);
         if (dirty) {
@@ -269,20 +273,31 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Light"), light_component, [&](LightComponent& p_light) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Light"), light, [&](LightComponent& p_light) {
         bool dirty = DrawComponentAuto<LightComponent>(&p_light);
         if (dirty) {
             p_light.SetDirty();
         }
-        if (material_component) {
-            DrawComponentAuto<MaterialComponent>(material_component);
+
+        if (material) {
+            DrawComponentAuto<MaterialComponent>(material);
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Script"), script_component, [](LuaScriptComponent& p_script) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [](LuaScriptComponent& p_script) {
         DrawInputText("class_name", p_script.GetClassNameRef(), DEFAULT_COLUMN_WIDTH);
 
         DrawComponentAuto<LuaScriptComponent>(&p_script);
+    });
+
+    DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent&) {
+        const bool was_null = prefab->GetResourceGuid().IsNull();
+        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(prefab);
+        if (dirty) {
+            // don't support remove instantiated entities yet
+            DEV_ASSERT(was_null);
+            scene.InstantiatePrefab(*prefab, id);
+        }
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& p_collider) {
@@ -307,7 +322,7 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Animator"), animator_component, [](AnimatorComponent& p_animator) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Animator"), animator, [](AnimatorComponent& p_animator) {
         // @TODO: refactor this
         // @TODO: drop down
         const Guid& guid = p_animator.GetResourceGuid();
@@ -344,7 +359,7 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera_component, [&](CameraComponent& p_camera) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera, [&](CameraComponent& p_camera) {
         // @TODO: need a better way to do this
         bool is_ortho = p_camera.HasOrthoFlag();
         if (ToggleButton("ortho", is_ortho)) {
@@ -431,12 +446,6 @@ void PropertyPanel::UpdateInternal() {
 
         DrawCheckBoxBitflag("run", p_emitter.flags, MeshEmitterComponent::RUNNING);
         DrawCheckBoxBitflag("recycle", p_emitter.flags, MeshEmitterComponent::RECYCLE);
-    });
-
-    DrawComponent("Force Field", force_field_component, [](ForceFieldComponent& p_force_field) {
-        const float width = 120.0f;
-        DrawDragFloat("Strength", p_force_field.strength, 0.1f, -10.0f, 10.0f, width);
-        DrawDragFloat("Radius", p_force_field.radius, 0.1f, 0.1f, 100.0f, width);
     });
 #endif
 }

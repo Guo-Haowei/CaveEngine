@@ -33,17 +33,19 @@ void ComponentManager<T>::Copy(const IComponentManager& p_other) {
 }
 
 template<ComponentType T>
-void ComponentManager<T>::Merge(ComponentManager<T>& p_other) {
-    const size_t reserved = GetCount() + p_other.GetCount();
+void ComponentManager<T>::Merge(ComponentManager<T>&& p_other) {
+    const size_t base_count = GetCount();
+    const size_t other_count = p_other.GetCount();
+    const size_t reserved = base_count + other_count;
     m_componentArray.reserve(reserved);
     m_entityArray.reserve(reserved);
     m_lookup.reserve(reserved);
 
-    for (size_t i = 0; i < p_other.GetCount(); ++i) {
+    for (size_t i = 0; i < other_count; ++i) {
         Entity entity = p_other.m_entityArray[i];
         DEV_ASSERT(!Contains(entity));
         m_entityArray.push_back(entity);
-        m_lookup[entity] = m_componentArray.size();
+        m_lookup[entity] = base_count + i;
         m_componentArray.push_back(std::move(p_other.m_componentArray[i]));
     }
 
@@ -51,8 +53,8 @@ void ComponentManager<T>::Merge(ComponentManager<T>& p_other) {
 }
 
 template<ComponentType T>
-void ComponentManager<T>::Merge(IComponentManager& p_other) {
-    Merge((ComponentManager<T>&)p_other);
+void ComponentManager<T>::Merge(IComponentManager&& p_other) {
+    Merge((ComponentManager<T>&&)p_other);
 }
 
 template<ComponentType T>

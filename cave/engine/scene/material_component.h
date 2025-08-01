@@ -28,7 +28,7 @@ struct MaterialComponent {
     std::vector<Handle<ImageAsset>> m_images;
 
     const Guid& GetResourceGuid() const { return m_material_id; }
-    void SetResourceGuid(const Guid& p_guid);
+    bool SetResourceGuid(const Guid& p_guid);
 
     void OnDeserialized();
 

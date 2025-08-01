@@ -5,11 +5,11 @@
 
 namespace cave {
 
-void SpriteRendererComponent::SetResourceGuid(const Guid& p_guid) {
-    AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
-                                      p_guid,
-                                      m_image_id,
-                                      m_image_handle.RawHandle());
+bool SpriteRendererComponent::SetResourceGuid(const Guid& p_guid) {
+    return AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
+                                             p_guid,
+                                             m_image_id,
+                                             m_image_handle.RawHandle());
 }
 
 void SpriteRendererComponent::OnDeserialized() {

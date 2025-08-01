@@ -25,6 +25,8 @@ REGISTER_COMPONENT_LIST
 
 namespace cave {
 
+using ecs::Entity;
+
 void Scene::Update(float p_timestep) {
     CAVE_PROFILE_EVENT();
 
@@ -88,8 +90,8 @@ void Scene::Update(float p_timestep) {
 }
 
 void Scene::Copy(Scene& p_other) {
-    for (auto& entry : m_componentLib.m_entries) {
-        auto& manager = *p_other.m_componentLib.m_entries[entry.first].manager;
+    for (auto& entry : m_component_lib.m_entries) {
+        auto& manager = *p_other.m_component_lib.m_entries[entry.first].manager;
         entry.second.manager->Copy(manager);
     }
 
@@ -98,30 +100,78 @@ void Scene::Copy(Scene& p_other) {
     m_physicsMode = p_other.m_physicsMode;
 }
 
-void Scene::InstantiatePrefab(ecs::Entity p_entity, PrefabInstanceComponent& p_prefab) {
-    if (p_prefab.instantiated) {
-        return;
+std::vector<Entity> Scene::GetSortedEntityArray() const {
+    std::unordered_set<Entity> entity_set;
+
+    for (const auto& it : m_component_lib.m_entries) {
+        auto& manager = it.second.manager;
+        for (auto entity : manager->GetEntityArray()) {
+            entity_set.insert(entity);
+        }
     }
 
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<Scene>(p_prefab.prefab_id);
+    std::vector<Entity> entity_array(entity_set.begin(), entity_set.end());
+    std::sort(entity_array.begin(), entity_array.end());
+    return entity_array;
+}
+
+void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_entity) {
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<Scene>(p_prefab.GetResourceGuid());
     if (handle.is_none()) {
         return;
     }
-}
 
-void Scene::Merge(Scene& p_other) {
-    CRASH_NOW_MSG("SHOULD NOT CALL THIS");
-    // @TODO: check the correctness of this
-    for (auto& entry : m_componentLib.m_entries) {
-        auto& manager = *p_other.m_componentLib.m_entries[entry.first].manager;
-        entry.second.manager->Merge(manager);
-    }
-    if (p_other.m_root.IsValid()) {
-        AttachChild(p_other.m_root, m_root);
+    Scene copy;
+    copy.Copy(*handle.unwrap_unchecked().Get());
+
+    auto new_entities = copy.GetSortedEntityArray();
+    std::unordered_map<Entity, Entity> mapping;
+    for (Entity raw_entity : new_entities) {
+        Entity mapped = CreateEntity();
+        mapping[raw_entity] = mapped;
     }
 
-    m_bound.UnionBox(p_other.m_bound);
+    // remap hierarchy
+    for (auto [id, hier] : copy.View<HierarchyComponent>()) {
+        hier.parent_id = mapping[id];
+    }
+
+    // remap material
+    for (auto [id, renderer] : copy.View<MeshRendererComponent>()) {
+        auto& materials = renderer.GetMaterialInstances();
+        for (size_t i = 0; i < materials.size(); ++i) {
+            materials[i] = mapping[materials[i]];
+        }
+    }
+
+    // remap all entities
+    for (auto&& [key, entry] : copy.m_component_lib.m_entries) {
+        entry.manager->Remap(mapping);
+
+        auto my_entry = m_component_lib.m_entries.find(key);
+        CRASH_COND(my_entry == m_component_lib.m_entries.end());
+        my_entry->second.manager->Merge(std::move(*entry.manager));
+    }
+
+    // link instance
+    Entity mapped_root = mapping[copy.m_root];
+    HierarchyComponent& hier = Create<HierarchyComponent>(copy.m_root);
+    hier.parent_id = p_entity.IsValid() ? p_entity : m_root;
 }
+
+// void Scene::Merge(Scene& p_other) {
+//      CRASH_NOW_MSG("SHOULD NOT CALL THIS");
+//     // @TODO: check the correctness of this
+//     for (auto& entry : m_component_lib.m_entries) {
+//         auto& manager = *p_other.m_component_lib.m_entries[entry.first].manager;
+//         entry.second.manager->Merge(manager);
+//     }
+//     if (p_other.m_root.IsValid()) {
+//         AttachChild(p_other.m_root, m_root);
+//     }
+//
+//     m_bound.UnionBox(p_other.m_bound);
+// }
 
 ecs::Entity Scene::GetMainCamera() {
     for (auto [entity, camera] : View<CameraComponent>()) {
@@ -167,7 +217,7 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
         RemoveEntity(child);
     }
 
-    for (auto&& [_, component_manager] : m_componentLib.m_entries) {
+    for (auto&& [_, component_manager] : m_component_lib.m_entries) {
         component_manager.manager->Remove(p_entity);
     }
 }
@@ -228,7 +278,7 @@ std::vector<Guid> Scene::GetDependencies() const {
         dependencies.push_back(mesh_renderer.GetResourceGuid());
     }
     for (const auto& [id, prefab] : View<PrefabInstanceComponent>()) {
-        dependencies.push_back(prefab.prefab_id);
+        dependencies.push_back(prefab.GetResourceGuid());
     }
 
     dependencies.erase(
@@ -369,17 +419,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     // @TODO: maybe pass ISerializer next
     YamlSerializer yaml;
 
-    std::unordered_set<uint32_t> entity_set;
-
-    for (const auto& it : m_componentLib.m_entries) {
-        auto& manager = it.second.manager;
-        for (auto entity : manager->GetEntityArray()) {
-            entity_set.insert(entity.GetId());
-        }
-    }
-
-    std::vector<uint32_t> entity_array(entity_set.begin(), entity_set.end());
-    std::sort(entity_array.begin(), entity_array.end());
+    auto entity_array = GetSortedEntityArray();
 
     yaml.BeginMap(false)
         .Key("version")

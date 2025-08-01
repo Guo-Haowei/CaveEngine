@@ -51,13 +51,16 @@ struct HierarchyComponent {
     ecs::Entity parent_id;
 };
 
-struct PrefabInstanceComponent {
+class PrefabInstanceComponent {
     CAVE_META(PrefabInstanceComponent)
 
-    CAVE_PROP()
-    Guid prefab_id;
+private:
+    CAVE_PROP(editor = Asset)
+    Guid m_prefab_id;
 
-    bool instantiated = false;
+public:
+    bool SetResourceGuid(const Guid& p_guid);
+    const Guid& GetResourceGuid() const { return m_prefab_id; }
 };
 
 struct VelocityComponent {
@@ -312,18 +315,6 @@ struct MeshEmitterComponent {
 };
 #endif
 #pragma endregion MESH_EMITTER_COMPONENT
-
-#pragma region FORCE_FIELD_COMPONENT
-#if 0
-struct ForceFieldComponent {
-    float strength{ 1.0f };
-    float radius{ 0.01f };
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
-};
-#endif
-#pragma endregion FORCE_FIELD_COMPONENT
 
 // #pragma region _COMPONENT
 // #pragma endregion _COMPONENT

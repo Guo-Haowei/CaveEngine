@@ -12,11 +12,11 @@ void TileMapRendererComponent::SetTintColor(const Vector4f& p_tint_color) {
     m_tint_color = p_tint_color;
 }
 
-void TileMapRendererComponent::SetResourceGuid(const Guid& p_guid) {
-    AssetHandle::ReplaceGuidAndHandle(AssetType::TileMap,
-                                      p_guid,
-                                      m_tile_map_id,
-                                      m_handle.RawHandle());
+bool TileMapRendererComponent::SetResourceGuid(const Guid& p_guid) {
+    return AssetHandle::ReplaceGuidAndHandle(AssetType::TileMap,
+                                             p_guid,
+                                             m_tile_map_id,
+                                             m_handle.RawHandle());
 }
 
 void TileMapRendererComponent::OnDeserialized() {

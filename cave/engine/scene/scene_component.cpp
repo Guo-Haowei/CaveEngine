@@ -7,6 +7,14 @@
 
 namespace cave {
 
+bool PrefabInstanceComponent::SetResourceGuid(const Guid& p_guid) {
+    if (p_guid != m_prefab_id) {
+        m_prefab_id = p_guid;
+        return true;
+    }
+    return false;
+}
+
 #pragma region RIGID_BODY_COMPONENT
 RigidBodyComponent& RigidBodyComponent::InitCube(const Vector3f& p_half_size) {
     shape = SHAPE_CUBE;

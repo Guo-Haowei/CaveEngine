@@ -75,7 +75,7 @@ enum SceneDirtyFlags : uint32_t {
 DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 
 class Scene : public NonCopyable, public IAsset {
-    ecs::ComponentLibrary m_componentLib;
+    ecs::ComponentLibrary m_component_lib;
 
     CAVE_ASSET(Scene, AssetType::Scene, 0)
 public:
@@ -122,7 +122,7 @@ public:
 
 #pragma region WORLD_COMPONENTS_REGISTRY
 #define REGISTER_COMPONENT(T, NAME, VER)                                                                           \
-    ecs::ComponentManager<T>& m_##T##s = m_componentLib.RegisterManager<T>(NAME, VER);                             \
+    ecs::ComponentManager<T>& m_##T##s = m_component_lib.RegisterManager<T>(NAME, VER);                            \
     template<>                                                                                                     \
     inline T& GetComponentByIndex<T>(size_t p_index) { return m_##T##s.m_componentArray[p_index]; }                \
     template<>                                                                                                     \
@@ -152,8 +152,6 @@ public:
 
     void Copy(Scene& p_other);
 
-    void Merge(Scene& p_other);
-
     ecs::Entity GetMainCamera();
 
     ecs::Entity FindEntityByName(const char* p_name);
@@ -163,6 +161,8 @@ public:
     void AttachChild(ecs::Entity p_entity) { AttachChild(p_entity, m_root); }
 
     void RemoveEntity(ecs::Entity p_entity);
+
+    void InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_entity = ecs::Entity::Null());
 
     auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
 
@@ -180,7 +180,6 @@ public:
 
     const AABB& GetBound() const { return m_bound; }
 
-    // @TODO: refactor
     ecs::Entity m_root;
     ecs::Entity m_selected;
     bool m_replace = false;
@@ -192,13 +191,13 @@ public:
     PhysicsMode m_physicsMode{ PhysicsMode::NONE };
     mutable PhysicsWorldContext* m_physicsWorld{ nullptr };
 
-    const auto& GetLibraryEntries() const { return m_componentLib.m_entries; }
+    const auto& GetLibraryEntries() const { return m_component_lib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 
     ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
 
 private:
-    void InstantiatePrefab(ecs::Entity p_entity, PrefabInstanceComponent& p_prefab);
+    std::vector<ecs::Entity> GetSortedEntityArray() const;
 
     uint32_t m_entity_seed{ 0 };
 
