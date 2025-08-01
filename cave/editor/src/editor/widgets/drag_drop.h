@@ -20,6 +20,11 @@ enum class DragKind : uint32_t {
 
 Option<AssetHandle> DragDropTarget(AssetType p_mask);
 
+template<class T>
+inline void SetPayload(const char* p_type, const T& pay_load) {
+    ImGui::SetDragDropPayload(p_type, &pay_load, sizeof(T), ImGuiCond_Once);
+}
+
 void DragDropSourceContentEntry(const ContentEntry& p_source);
 
 void DragDropTargetFolder(const ContentEntry& p_target,

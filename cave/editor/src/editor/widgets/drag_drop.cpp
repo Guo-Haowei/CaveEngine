@@ -15,11 +15,6 @@ struct DragPayload {
     char path[256]{ 0 };
 };
 
-template<class T>
-inline void SetPayload(const char* p_type, const T& pay_load) {
-    ImGui::SetDragDropPayload(p_type, &pay_load, sizeof(T), ImGuiCond_Once);
-}
-
 static DragPayload MakePayloadFolder(const ContentEntry& p_entry) {
     DragPayload payload;
     payload.kind = DragKind::Folder,
