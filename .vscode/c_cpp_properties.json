@@ -10,9 +10,9 @@
                 "${workspaceRoot}/thirdparty/glm/",
                 "${workspaceRoot}/thirdparty/optick/",
                 "${workspaceRoot}/thirdparty/",
-                "${workspaceRoot}/cave",
+                "${workspaceRoot}/cave/editor/src/",
                 "${workspaceRoot}/cave/shader/",
-                "${workspaceRoot}/cave/editor/src/"
+                "${workspaceRoot}/cave"
             ],
             "forcedInclude": [
                 "${workspaceRoot}/cave/engine/pch.h",

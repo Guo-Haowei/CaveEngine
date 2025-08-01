@@ -1,6 +1,5 @@
 #pragma once
 #include "editor/editor_window.h"
-#include "engine/core/base/graph.h"
 #include "engine/renderer/graphics_defines.h"
 
 namespace cave {
