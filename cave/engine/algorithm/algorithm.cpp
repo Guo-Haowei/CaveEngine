@@ -2,7 +2,7 @@
 
 namespace cave {
 
-std::vector<int> topological_sort(int N, const std::vector<std::pair<int, int>>& p_edges) {
+Option<std::vector<int>> TopologicalSort(int N, const std::vector<TopoSortEdge>& p_edges) {
     std::vector<int> indegree(N, 0);
     std::vector<int> sorted;
     std::vector<std::vector<int>> adj(N);
@@ -31,10 +31,10 @@ std::vector<int> topological_sort(int N, const std::vector<std::pair<int, int>>&
     }
 
     if (static_cast<int>(sorted.size()) != N) {
-        return {};
+        return None();
     }
 
-    return sorted;
+    return Some(sorted);
 }
 
 }  // namespace cave

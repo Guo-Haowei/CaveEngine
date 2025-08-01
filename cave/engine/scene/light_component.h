@@ -19,6 +19,7 @@ DECLARE_ENUM_TRAITS(LightType, "infinite", "point", "spot", "area");
 class LightComponent {
     CAVE_META(LightComponent)
 
+private:
     CAVE_PROP(editor = EnumDropDown)
     LightType m_type = LightType::Infinite;
 

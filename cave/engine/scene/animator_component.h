@@ -8,6 +8,7 @@ namespace cave {
 class AnimatorComponent {
     CAVE_META(AnimatorComponent)
 
+private:
     CAVE_PROP(editor = Asset)
     Guid m_anim_id;
 
@@ -34,7 +35,7 @@ public:
     void SetClip(const std::string& p_name);
     const std::string& GetCurrentClip() const { return m_current_clip; }
 
-    void SetResourceGuid(const Guid& p_guid);
+    bool SetResourceGuid(const Guid& p_guid);
     const Guid& GetResourceGuid() const { return m_anim_id; }
 
     const Handle<SpriteAnimationAsset>& GetAnimHandle() { return m_anim_handle; }

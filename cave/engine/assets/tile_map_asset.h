@@ -51,6 +51,7 @@ class TileMapAsset : public IAsset {
 
     CAVE_META(TileMapAsset)
 
+private:
     CAVE_PROP(type = string, hint = name)
     std::string m_name;
 

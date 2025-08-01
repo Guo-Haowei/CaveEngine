@@ -1,4 +1,5 @@
 #pragma once
+#include <compare>
 
 namespace cave::ecs {
 
@@ -17,9 +18,7 @@ public:
 
     ~Entity() = default;
 
-    bool operator==(const Entity& p_rhs) const { return m_id == p_rhs.m_id; }
-
-    bool operator!=(const Entity& p_rhs) const { return m_id != p_rhs.m_id; }
+    std::strong_ordering operator<=>(const Entity&) const = default;
 
     bool IsValid() const { return m_id != INVALID_ID; }
 

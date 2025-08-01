@@ -28,6 +28,7 @@ class Scene;
 class NameComponent {
     CAVE_META(NameComponent)
 
+private:
     CAVE_PROP()
     std::string m_name;
 
@@ -43,21 +44,28 @@ public:
     std::string& GetNameRef() { return m_name; }
 };
 
-class HierarchyComponent {
+struct HierarchyComponent {
     CAVE_META(HierarchyComponent)
 
     CAVE_PROP()
-    ecs::Entity m_parent_id;
-
-    friend class Scene;
-
-public:
-    ecs::Entity GetParent() const { return m_parent_id; }
+    ecs::Entity parent_id;
 };
 
-class VelocityComponent {
-    CAVE_META(VelocityComponent)
+class PrefabInstanceComponent {
+    CAVE_META(PrefabInstanceComponent)
+
+private:
+    CAVE_PROP(editor = Asset)
+    Guid m_prefab_id;
+
 public:
+    bool SetResourceGuid(const Guid& p_guid);
+    const Guid& GetResourceGuid() const { return m_prefab_id; }
+};
+
+struct VelocityComponent {
+    CAVE_META(VelocityComponent)
+
     CAVE_PROP(editor = Translation)
     Vector3f linear = Vector3f::Zero;
 };
@@ -307,18 +315,6 @@ struct MeshEmitterComponent {
 };
 #endif
 #pragma endregion MESH_EMITTER_COMPONENT
-
-#pragma region FORCE_FIELD_COMPONENT
-#if 0
-struct ForceFieldComponent {
-    float strength{ 1.0f };
-    float radius{ 0.01f };
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
-};
-#endif
-#pragma endregion FORCE_FIELD_COMPONENT
 
 // #pragma region _COMPONENT
 // #pragma endregion _COMPONENT

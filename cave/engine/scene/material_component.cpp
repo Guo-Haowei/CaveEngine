@@ -22,13 +22,15 @@ void MaterialComponent::OnDeserializedHelper(Handle<MaterialAsset>& p_handle, bo
     }
 }
 
-void MaterialComponent::SetResourceGuid(const Guid& p_guid) {
+bool MaterialComponent::SetResourceGuid(const Guid& p_guid) {
     if (AssetHandle::ReplaceGuidAndHandle(AssetType::Material,
                                           p_guid,
                                           m_material_id,
                                           m_material_handle.RawHandle())) {
         OnDeserializedHelper(m_material_handle, true);
+        return true;
     }
+    return false;
 }
 
 void MaterialComponent::OnDeserialized() {

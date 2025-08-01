@@ -8,6 +8,7 @@ namespace cave {
 class SpriteAnimationClip {
     CAVE_META(SpriteAnimationClip)
 
+private:
     CAVE_PROP(type = box2[])
     std::vector<Rect> m_frames;
 
@@ -44,6 +45,7 @@ class SpriteAnimationAsset : public IAsset {
 
     CAVE_META(SpriteAnimationAsset)
 
+private:
     CAVE_PROP(type = guid, tooltip = "image id")
     Guid m_image_guid;
 

@@ -143,7 +143,7 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
 
     Matrix4x4f world_matrix = self_transform->GetLocalMatrix();
     const HierarchyComponent* hierarchy = &p_scene.GetComponentByIndex<HierarchyComponent>(p_index);
-    ecs::Entity parent = hierarchy->GetParent();
+    ecs::Entity parent = hierarchy->parent_id;
 
     while (parent.IsValid()) {
         TransformComponent* parent_transform = p_scene.GetComponent<TransformComponent>(parent);
@@ -151,7 +151,7 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
             world_matrix = parent_transform->GetLocalMatrix() * world_matrix;
 
             if ((hierarchy = p_scene.GetComponent<HierarchyComponent>(parent)) != nullptr) {
-                parent = hierarchy->GetParent();
+                parent = hierarchy->parent_id;
                 DEV_ASSERT(parent.IsValid());
             } else {
                 parent.MakeInvalid();

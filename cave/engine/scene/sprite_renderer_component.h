@@ -9,6 +9,7 @@ namespace cave {
 class SpriteRendererComponent {
     CAVE_META(SpriteRendererComponent)
 
+private:
     CAVE_PROP(editor = Asset)
     Guid m_image_id;
 
@@ -31,7 +32,7 @@ class SpriteRendererComponent {
     Handle<ImageAsset> m_image_handle;
 
 public:
-    void SetResourceGuid(const Guid& p_guid);
+    bool SetResourceGuid(const Guid& p_guid);
     const Guid& GetResourceGuid() const { return m_image_id; }
 
     const Handle<ImageAsset> GetHandle() const { return m_image_handle; }

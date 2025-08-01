@@ -5,9 +5,10 @@
 
 namespace cave {
 
-struct MeshRendererComponent {
+class MeshRendererComponent {
     CAVE_META(MeshRendererComponent)
 
+private:
     CAVE_PROP(editor = Visibility)
     bool m_is_visible = true;
 
@@ -30,7 +31,7 @@ public:
     MeshRendererComponent();
 
     const Guid& GetResourceGuid() const { return m_mesh_id; }
-    void SetResourceGuid(const Guid& p_guid);
+    bool SetResourceGuid(const Guid& p_guid);
 
     auto& GetMaterialInstances() { return m_materials; }
     const auto& GetMaterialInstances() const { return m_materials; }

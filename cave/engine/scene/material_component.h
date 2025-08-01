@@ -8,7 +8,6 @@ namespace cave {
 struct MaterialComponent {
     CAVE_META(MaterialComponent)
 
-public:
     CAVE_PROP(editor = Color)
     Vector4f base_color = Vector4f::One;
 
@@ -29,7 +28,7 @@ public:
     std::vector<Handle<ImageAsset>> m_images;
 
     const Guid& GetResourceGuid() const { return m_material_id; }
-    void SetResourceGuid(const Guid& p_guid);
+    bool SetResourceGuid(const Guid& p_guid);
 
     void OnDeserialized();
 

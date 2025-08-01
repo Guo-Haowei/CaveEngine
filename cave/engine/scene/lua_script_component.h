@@ -7,6 +7,7 @@ namespace cave {
 class LuaScriptComponent {
     CAVE_META(LuaScriptComponent)
 
+private:
     CAVE_PROP()
     std::string m_class_name;
 
@@ -20,7 +21,7 @@ class LuaScriptComponent {
 public:
     LuaScriptComponent& SetClassName(std::string_view p_class_name);
 
-    void SetResourceGuid(const Guid& p_guid);
+    bool SetResourceGuid(const Guid& p_guid);
     const Guid& GetResourceGuid() const { return m_source_id; }
 
     const std::string& GetClassName() const { return m_class_name; }

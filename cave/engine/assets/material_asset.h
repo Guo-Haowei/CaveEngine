@@ -18,7 +18,7 @@ struct MaterialAsset : public IAsset {
     CAVE_ASSET(MaterialAsset, AssetType::Material, 0)
 
     CAVE_META(MaterialAsset)
-public:
+
     CAVE_PROP(editor = Color)
     Vector4f base_color = Vector4f::One;
 

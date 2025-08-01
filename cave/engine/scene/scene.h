@@ -25,6 +25,9 @@ class Context;
 
 namespace cave {
 
+// Tags that don't need to be serialized
+struct NoSaveTag {};
+
 #define REGISTER_COMPONENT_SERIALIZED_LIST                                           \
     REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                     \
     REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)           \
@@ -35,19 +38,21 @@ namespace cave {
     REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)             \
     REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)             \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
+    REGISTER_COMPONENT(PrefabInstanceComponent, "World::PrefabInstanceComponent", 0) \
     REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)     \
     REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)             \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0) \
     REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
 
 // @TODO: use meta table for all components
-#define REGISTER_COMPONENT_LIST                                            \
-    REGISTER_COMPONENT_SERIALIZED_LIST                                     \
-    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)   \
-    REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0) \
-    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0) \
-    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)     \
-    REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)
+#define REGISTER_COMPONENT_LIST                                                \
+    REGISTER_COMPONENT_SERIALIZED_LIST                                         \
+    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)       \
+    REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0)     \
+    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0)     \
+    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)         \
+    REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0) \
+    REGISTER_COMPONENT(NoSaveTag, "World::NoSaveTag", 0)
 
 #define REGISTER_COMPONENT(TYPE, ...) \
     template<>                        \
@@ -74,7 +79,7 @@ enum SceneDirtyFlags : uint32_t {
 DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 
 class Scene : public NonCopyable, public IAsset {
-    ecs::ComponentLibrary m_componentLib;
+    ecs::ComponentLibrary m_component_lib;
 
     CAVE_ASSET(Scene, AssetType::Scene, 0)
 public:
@@ -121,7 +126,7 @@ public:
 
 #pragma region WORLD_COMPONENTS_REGISTRY
 #define REGISTER_COMPONENT(T, NAME, VER)                                                                           \
-    ecs::ComponentManager<T>& m_##T##s = m_componentLib.RegisterManager<T>(NAME, VER);                             \
+    ecs::ComponentManager<T>& m_##T##s = m_component_lib.RegisterManager<T>(NAME, VER);                            \
     template<>                                                                                                     \
     inline T& GetComponentByIndex<T>(size_t p_index) { return m_##T##s.m_componentArray[p_index]; }                \
     template<>                                                                                                     \
@@ -149,9 +154,7 @@ public:
 public:
     void Update(float p_delta_time);
 
-    void Copy(Scene& p_other);
-
-    void Merge(Scene& p_other);
+    void Copy(const Scene& p_other);
 
     ecs::Entity GetMainCamera();
 
@@ -163,6 +166,8 @@ public:
 
     void RemoveEntity(ecs::Entity p_entity);
 
+    void InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_entity = ecs::Entity::Null());
+
     auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
 
     auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
@@ -173,12 +178,12 @@ public:
         ecs::Entity entity;
     };
 
+    // @TODO: refactor this
     RayIntersectionResult Intersects(Ray& p_ray);
     bool RayObjectIntersect(ecs::Entity p_object_id, Ray& p_ray);
 
     const AABB& GetBound() const { return m_bound; }
 
-    // @TODO: refactor
     ecs::Entity m_root;
     ecs::Entity m_selected;
     bool m_replace = false;
@@ -190,12 +195,14 @@ public:
     PhysicsMode m_physicsMode{ PhysicsMode::NONE };
     mutable PhysicsWorldContext* m_physicsWorld{ nullptr };
 
-    const auto& GetLibraryEntries() const { return m_componentLib.m_entries; }
+    const auto& GetLibraryEntries() const { return m_component_lib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 
     ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
 
 private:
+    std::vector<ecs::Entity> GetSortedEntityArray() const;
+
     uint32_t m_entity_seed{ 0 };
 
     friend class EntityFactory;

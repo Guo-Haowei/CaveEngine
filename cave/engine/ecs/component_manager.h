@@ -27,12 +27,18 @@ public:
     virtual ~IComponentManager() = default;
     virtual void Clear() = 0;
     virtual void Copy(const IComponentManager& p_other) = 0;
-    virtual void Merge(IComponentManager& p_other) = 0;
+    virtual void Merge(IComponentManager&& p_other) = 0;
     virtual void Remove(const Entity& p_entity) = 0;
     virtual bool Contains(const Entity& p_entity) const = 0;
     virtual size_t GetCount() const = 0;
 
     virtual const std::vector<Entity>& GetEntityArray() const = 0;
+
+    void Remap(const std::unordered_map<Entity, Entity>& p_map);
+
+protected:
+    std::vector<Entity> m_entityArray;
+    std::unordered_map<Entity, size_t> m_lookup;
 };
 
 template<ComponentType T>
@@ -48,9 +54,9 @@ public:
 
     void Copy(const IComponentManager& p_other) override;
 
-    void Merge(ComponentManager<T>& p_other);
+    void Merge(ComponentManager<T>&& p_other);
 
-    void Merge(IComponentManager& p_other) override;
+    void Merge(IComponentManager&& p_other) override;
 
     void Remove(const Entity& p_entity) override;
 
@@ -78,8 +84,6 @@ public:
 
 protected:
     std::vector<T> m_componentArray;
-    std::vector<Entity> m_entityArray;
-    std::unordered_map<Entity, size_t> m_lookup;
 
     friend class ::cave::Scene;
 };
@@ -87,16 +91,16 @@ protected:
 class ComponentLibrary {
 public:
     struct LibraryEntry {
-        std::unique_ptr<IComponentManager> m_manager = nullptr;
-        uint64_t m_version = 0;
+        std::unique_ptr<IComponentManager> manager = nullptr;
+        uint64_t version = 0;
     };
 
     template<ComponentType T>
     inline ComponentManager<T>& RegisterManager(const std::string& p_name, uint64_t p_version = 0) {
         DEV_ASSERT(m_entries.find(p_name) == m_entries.end());
-        m_entries[p_name].m_manager = std::make_unique<ComponentManager<T>>();
-        m_entries[p_name].m_version = p_version;
-        return static_cast<ComponentManager<T>&>(*(m_entries[p_name].m_manager));
+        m_entries[p_name].manager = std::make_unique<ComponentManager<T>>();
+        m_entries[p_name].version = p_version;
+        return static_cast<ComponentManager<T>&>(*(m_entries[p_name].manager));
     }
 
 private:

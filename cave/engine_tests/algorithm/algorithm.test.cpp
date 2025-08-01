@@ -5,7 +5,7 @@ namespace cave {
 TEST(topological_sort, test1) {
     std::vector<std::pair<int, int>> edges = { { 1, 0 } };
 
-    auto sorted = topological_sort(2, edges);
+    auto sorted = TopologicalSort(2, edges);
 
     EXPECT_EQ(sorted[0], 1);
     EXPECT_EQ(sorted[1], 0);
@@ -19,7 +19,7 @@ TEST(topological_sort, test2) {
         { 2, 3 }
     };
 
-    auto sorted = topological_sort(4, edges);
+    auto sorted = TopologicalSort(4, edges);
 
     EXPECT_EQ(sorted[0], 0);
     EXPECT_EQ(sorted[1], 1);

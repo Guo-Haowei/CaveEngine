@@ -125,7 +125,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
     std::map<ecs::Entity, int> materials_lookup;
     {
         std::vector<GpuPtMaterial> materials;
-        for (auto mesh_it : m_meshs) {
+        for (auto&& mesh_it : m_meshs) {
             auto material_id = mesh_it.second.materialId;
             auto mat_it = materials_lookup.find(material_id);
             if (mat_it != materials_lookup.end()) {
