@@ -16,12 +16,17 @@
 #include "editor/utility/folder_tree.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
+#include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
 
-template<typename T, typename UIFunction>
-static void DrawComponent(const std::string& p_name, T* p_component, UIFunction p_function) {
+template<ComponentType T, typename UIFunction>
+static void DrawComponent(const std::string& p_name,
+                          Scene* p_scene,
+                          ecs::Entity p_entity,
+                          T* p_component,
+                          UIFunction p_function) {
     const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
                                              ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap |
                                              ImGuiTreeNodeFlags_FramePadding;
@@ -53,7 +58,7 @@ static void DrawComponent(const std::string& p_name, T* p_component, UIFunction 
         }
 
         if (should_remove_component) {
-            LOG_ERROR("TODO: implement remove component");
+            p_scene->Get<T>().Remove(p_entity);
         }
     }
 }
@@ -247,14 +252,14 @@ void PropertyPanel::UpdateInternal() {
 #endif
     LuaScriptComponent* script_component = scene.GetComponent<LuaScriptComponent>(id);
     CameraComponent* camera_component = scene.GetComponent<CameraComponent>(id);
-    EnvironmentComponent* environment_component = scene.GetComponent<EnvironmentComponent>(id);
-    VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
     AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
 
     SceneDocument& document = static_cast<SceneDocument&>(tab->GetDocument());
+    const bool is_2d = m_editor.GetApplication()->IsWorld2D();
 
     // @TODO: limit this in scene editor
-    DrawComponent("Transform", transform_component, [&](TransformComponent& p_transform) {
+#define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, _scene, id
+    DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform_component, [&](TransformComponent& p_transform) {
         const Matrix4x4f old_transform = p_transform.GetLocalMatrix();
         const bool dirty = DrawComponentAuto<TransformComponent>(&p_transform);
         if (dirty) {
@@ -264,7 +269,7 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent("Light", light_component, [&](LightComponent& p_light) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Light"), light_component, [&](LightComponent& p_light) {
         bool dirty = DrawComponentAuto<LightComponent>(&p_light);
         if (dirty) {
             p_light.SetDirty();
@@ -274,15 +279,13 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent("LuaScript", script_component, [](LuaScriptComponent& p_script) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Script"), script_component, [](LuaScriptComponent& p_script) {
         DrawInputText("class_name", p_script.GetClassNameRef(), DEFAULT_COLUMN_WIDTH);
 
         DrawComponentAuto<LuaScriptComponent>(&p_script);
     });
 
-    const bool is_2d = m_editor.GetApplication()->IsWorld2D();
-
-    DrawComponent("Collider", collider, [&](ColliderComponent& p_collider) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& p_collider) {
         DrawComponentAuto<ColliderComponent>(&p_collider);
 
         Shape& shape = p_collider.GetShape();
@@ -304,7 +307,7 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent("Animator", animator_component, [](AnimatorComponent& p_animator) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Animator"), animator_component, [](AnimatorComponent& p_animator) {
         // @TODO: refactor this
         // @TODO: drop down
         const Guid& guid = p_animator.GetResourceGuid();
@@ -323,15 +326,15 @@ void PropertyPanel::UpdateInternal() {
         DrawComponentAuto<AnimatorComponent>(&p_animator);
     });
 
-    DrawComponent("SpriteRenderer", sprite_renderer, [](SpriteRendererComponent& p_sprite_renderer) {
+    DrawComponent(DRAW_COMPONENT_ARGS("SpriteRenderer"), sprite_renderer, [](SpriteRendererComponent& p_sprite_renderer) {
         DrawComponentAuto<SpriteRendererComponent>(&p_sprite_renderer);
     });
 
-    DrawComponent("TileMapRenderer", tile_map_renderer, [](TileMapRendererComponent& p_tile_map_renderer) {
+    DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"), tile_map_renderer, [](TileMapRendererComponent& p_tile_map_renderer) {
         DrawComponentAuto<TileMapRendererComponent>(&p_tile_map_renderer);
     });
 
-    DrawComponent("MeshRenderer", mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
+    DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
         DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
 
         for (ecs::Entity id : p_mesh_renderer.GetMaterialInstances()) {
@@ -341,7 +344,7 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent("Camera", camera_component, [&](CameraComponent& p_camera) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera_component, [&](CameraComponent& p_camera) {
         // @TODO: need a better way to do this
         bool is_ortho = p_camera.HasOrthoFlag();
         if (ToggleButton("ortho", is_ortho)) {
@@ -352,7 +355,7 @@ void PropertyPanel::UpdateInternal() {
         DrawComponentAuto<CameraComponent>(&p_camera);
     });
 
-    DrawComponent("RigidBody", rigid_body_component, [](RigidBodyComponent& p_rigid_body) {
+    DrawComponent(DRAW_COMPONENT_ARGS("RigidBody"), rigid_body_component, [](RigidBodyComponent& p_rigid_body) {
         const auto& size = p_rigid_body.size;
         switch (p_rigid_body.shape) {
             case RigidBodyComponent::SHAPE_CUBE: {
@@ -369,7 +372,7 @@ void PropertyPanel::UpdateInternal() {
     });
 
     // @TODO: refactor this
-    DrawComponent("Animation", animation_component, [&](AnimationComponent& p_animation) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Animation"), animation_component, [&](AnimationComponent& p_animation) {
         if (!p_animation.IsPlaying()) {
             if (ImGui::Button("play")) {
                 p_animation.flags |= AnimationComponent::PLAYING;
@@ -385,6 +388,9 @@ void PropertyPanel::UpdateInternal() {
         ImGui::Separator();
     });
 
+#if 0
+    VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
+    EnvironmentComponent* environment_component = scene.GetComponent<EnvironmentComponent>(id);
     DrawComponent("Environment", environment_component, [](EnvironmentComponent& p_environment) {
         DrawInputText("texture", p_environment.sky.texturePath);
         ImGui::BeginDisabled(p_environment.sky.texturePath.empty());
@@ -404,7 +410,6 @@ void PropertyPanel::UpdateInternal() {
         DVAR_SET_INT(gfx_debug_vxgi_voxel, value);
     });
 
-#if 0
     DrawComponent("ParticleEmitter", particle_emitter_component, [](ParticleEmitterComponent& p_emitter) {
         const float width = 100.0f;
         ImGui::Checkbox("Gravity", &p_emitter.gravity);

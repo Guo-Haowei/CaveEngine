@@ -80,7 +80,7 @@ static void FillPass(const Scene& p_scene,
                      std::vector<RenderCommand>& p_commands,
                      FrameData& p_framedata) {
 
-    auto view = ecs::ConstView<MeshRendererComponent, TransformComponent>(p_scene.m_MeshRendererComponents, p_scene.m_TransformComponents);
+    auto view = p_scene.View<MeshRendererComponent, TransformComponent>();
     for (auto [entity, renderer, transform] : view) {
         const MeshAsset* _mesh = renderer.GetMeshHandle().Get();
         if (!_mesh) continue;

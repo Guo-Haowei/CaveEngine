@@ -15,7 +15,7 @@ enum class KeyCode : uint16_t;
 class AssetInspector;
 class EditorCommandBase;
 class FileSystemPanel;
-struct FolderTreeNode;
+struct ContentEntry;
 class LogPanel;
 class MenuBar;
 class Viewer;
@@ -71,6 +71,7 @@ public:
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
 
     const auto& GetAssetRoot() const { return m_asset_root; }
+    const auto& GetFolderLut() const { return m_folder_lut; }
 
 private:
     void DockSpace();
@@ -107,7 +108,8 @@ private:
     AssetHandle m_selected_asset;
 
     std::vector<std::shared_ptr<InputEvent>> m_buffered_events;
-    std::unique_ptr<FolderTreeNode> m_asset_root;
+    std::unique_ptr<ContentEntry> m_asset_root;
+    std::unordered_map<std::string, const ContentEntry*> m_folder_lut;
 };
 
 }  // namespace cave

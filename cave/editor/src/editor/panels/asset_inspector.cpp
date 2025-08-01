@@ -11,6 +11,7 @@
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/tool_bar.h"
+#include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
@@ -59,9 +60,9 @@ void AssetInspector::DrawBreadcrumb() {
     }
 }
 
-const FolderTreeNode* AssetInspector::Navigate(const FolderTreeNode* p_node,
-                                               int p_cur,
-                                               int p_max) {
+const ContentEntry* AssetInspector::Navigate(const ContentEntry* p_node,
+                                             int p_cur,
+                                             int p_max) {
     if (!p_node) {
         return nullptr;
     }
@@ -78,7 +79,7 @@ const FolderTreeNode* AssetInspector::Navigate(const FolderTreeNode* p_node,
     }
 
     for (const auto& child : p_node->children) {
-        const FolderTreeNode* match = Navigate(child.get(), p_cur + 1, p_max);
+        const ContentEntry* match = Navigate(child.get(), p_cur + 1, p_max);
         if (match) {
             return match;
         }
@@ -168,7 +169,7 @@ void AssetInspector::DrawContentBrowser() {
 
     const auto& root = m_editor.GetAssetRoot();
     const int max = static_cast<int>(m_current_path.size()) - 1;
-    const FolderTreeNode* current = Navigate(root.get(), 0, max);
+    const ContentEntry* current = Navigate(root.get(), 0, max);
     if (!current) {
         m_current_path = { "@res://" };
         current = root.get();
@@ -195,6 +196,10 @@ void AssetInspector::DrawContentBrowser() {
         auto [hovered, clicked] = DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
                                                 node->file_name.data(),
                                                 thumbnail_size);
+
+        DragDropSourceContentEntry(*node);
+
+        DragDropTargetFolder(*node, m_editor.GetFolderLut());
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {

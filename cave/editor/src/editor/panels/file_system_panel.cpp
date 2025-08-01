@@ -8,6 +8,7 @@
 #include "engine/runtime/common_dvars.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/folder_tree.h"
+#include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
@@ -23,7 +24,7 @@ void FileSystemPanel::OnAttach() {
     m_root = fs::path{ path };
 }
 
-void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
+void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
     const bool is_dir = p_node.is_dir;
 
     int flags = 0;
@@ -33,8 +34,6 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
     auto id = std::format("##{}", p_node.virtual_path);
 
     const bool node_open = ImGui::TreeNodeEx(id.c_str(), flags);
-
-    const std::string& short_path = p_node.virtual_path;
 
     ImGui::SameLine();
 
@@ -57,25 +56,17 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
         }
         auto text = std::format("{} {}", icon, p_node.file_name);
         ImGui::Selectable(text.c_str());
+        const bool hovered = ImGui::IsItemHovered();
 
         if (ImGui::BeginPopupContextItem()) {
             FolderPopup(p_node);
             ImGui::EndPopup();
         }
 
-        const bool is_file = !p_node.is_dir;
-        if (is_file) {
-            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-                const char* data = short_path.c_str();
-                ImGui::SetDragDropPayload(ASSET_DRAG_DROP_PAYLOAD,
-                                          data,
-                                          short_path.length() + 1);
-                ImGui::Text("Dragging '%s'", data);
-                ImGui::EndDragDropSource();
-            }
-        }
+        DragDropSourceContentEntry(p_node);
 
-        const bool hovered = ImGui::IsItemHovered();
+        DragDropTargetFolder(p_node, m_editor.GetFolderLut());
+
         if (hovered) {
             ShowAssetToolTip(p_node);
         }
@@ -91,7 +82,7 @@ void FileSystemPanel::DrawFolderTreeNode(const FolderTreeNode& p_node) {
 }
 
 // @TODO: refactor this to work for both content browser and file system
-void FileSystemPanel::FolderPopup(const FolderTreeNode& p_node) {
+void FileSystemPanel::FolderPopup(const ContentEntry& p_node) {
     if (ImGui::MenuItem("Rename")) {
         m_renaming = p_node.sys_path;
     }

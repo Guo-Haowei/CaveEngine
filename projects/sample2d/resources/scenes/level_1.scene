@@ -1,5 +1,5 @@
 version: 19
-seed: 6
+seed: 7
 root: 1
 physics_mode: 0
 entities:
@@ -16,7 +16,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-6, -5, -5]
+      translation: [-6, -5, -0.290982485]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapRendererComponent:
@@ -43,17 +43,11 @@ entities:
       translation: [0, 1.29999995, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-    AnimatorComponent:
-      anim_id: A19D178A-EFC6-A346-815793EC6AB97322
-      current_clip: idle
-      looping: true
-      playing: true
-      speed: 1
     ColliderComponent:
       body_type: dynamic
       shape:
         type: box
-        data: [0.5, 0.5, 0.5]
+        data: [0.25, 0.5, 0.5]
       flags: 0
       category: 0
       mask: 0
@@ -62,22 +56,13 @@ entities:
     LuaScriptComponent:
       class_name: Player
       source_id: 133E5416-E5D5-BA4A-9F13460A05C8D6EA
-    SpriteRendererComponent:
-      image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
-      tint_color: [1, 1, 1, 1]
-      rect:
-        min: [0.625, 1]
-        max: [0.75, 0.5]
-      flip_x: false
-      flip_y: false
-      is_billboard: false
   - id: 5
     NameComponent:
       name: floor
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [2, -5, -4]
+      translation: [2, -5, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     ColliderComponent:
@@ -94,7 +79,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [7, -3, -4]
+      translation: [7, -3, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     ColliderComponent:
@@ -105,3 +90,27 @@ entities:
       flags: 0
       category: 0
       mask: 0
+  - id: 7
+    NameComponent:
+      name: player_animator_node
+    HierarchyComponent:
+      parent_id: 4
+    TransformComponent:
+      translation: [0, 0.0500000007, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1.125, 1]
+    AnimatorComponent:
+      anim_id: A19D178A-EFC6-A346-815793EC6AB97322
+      current_clip: idle
+      looping: true
+      playing: true
+      speed: 1
+    SpriteRendererComponent:
+      image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
+      tint_color: [1, 1, 1, 1]
+      rect:
+        min: [0.625, 1]
+        max: [0.75, 0.5]
+      flip_x: false
+      flip_y: false
+      is_billboard: false

@@ -272,7 +272,7 @@ static void UpdateLight(float p_timestep,
 void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context&, float p_timestep) {
     CAVE_PROFILE_EVENT();
 
-    auto view = ecs::View<LightComponent, TransformComponent>(p_scene.m_LightComponents, p_scene.m_TransformComponents);
+    auto view = p_scene.View<LightComponent, TransformComponent>();
     for (auto [id, light, transform] : view) {
         UpdateLight(p_timestep, transform, light);
     }

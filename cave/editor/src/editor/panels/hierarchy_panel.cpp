@@ -7,13 +7,15 @@
 #include "editor/editor_layer.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
+#include "editor/widgets/drag_drop.h"
 
 namespace cave {
 using ecs::Entity;
 
 #define POPUP_NAME_ID "SCENE_PANEL_POPUP"
 
-// @TODO: do not traverse every frame
+// @TODO: build the scene tree and attach to scene
+// @TODO: on scene change instead of build every frame
 class HierarchyCreator {
 public:
     struct HierarchyNode {
@@ -69,22 +71,26 @@ static bool TreeNodeHelper(const Scene& p_scene,
 
     const bool expanded = ImGui::TreeNodeEx(node_name.c_str(), p_flags);
     ImGui::SameLine();
-    if (!p_on_left_click && !p_on_right_click) {
-        ImGui::Text("%s", tag.c_str());
-    } else {
-        ImGui::Selectable(tag.c_str());
-        if (ImGui::IsItemHovered()) {
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                if (p_on_left_click) {
-                    p_on_left_click();
-                }
-            } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-                if (p_on_right_click) {
-                    p_on_right_click();
-                }
+
+    ImGui::Selectable(tag.c_str());
+    if (ImGui::IsItemHovered()) {
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            if (p_on_left_click) {
+                p_on_left_click();
+            }
+        } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+            if (p_on_right_click) {
+                p_on_right_click();
             }
         }
     }
+
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+        SetPayload(PAYLOAD_SCENE_NODE, p_id);
+        ImGui::Text("entity '%s'", name.c_str());
+        ImGui::EndDragDropSource();
+    }
+
     return expanded;
 }
 
@@ -119,7 +125,6 @@ void HierarchyCreator::DrawNode(ViewerTab* p_tab, HierarchyNode* p_hier, ImGuiTr
 }
 
 bool HierarchyCreator::Build(const Scene& p_scene) {
-    // @TODO: on scene change instead of build every frame
     const size_t hierarchy_count = p_scene.GetCount<HierarchyComponent>();
     if (hierarchy_count == 0) {
         return false;
@@ -166,7 +171,6 @@ void HierarchyPanel::UpdateInternal() {
         if (Scene* scene = tab->GetScene(); scene) {
             HierarchyCreator creator(m_editor);
             DrawPopup(tab);
-            // @TODO: build scene tree somewhere else
             creator.Update(tab);
         }
     }

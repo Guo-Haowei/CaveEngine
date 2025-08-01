@@ -10,7 +10,7 @@ void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
         return;
     }
 
-    auto view = ecs::ConstView<SpriteRendererComponent, TransformComponent>(p_scene->m_SpriteRendererComponents, p_scene->m_TransformComponents);
+    auto view = p_scene->View<SpriteRendererComponent, TransformComponent>();
     for (const auto& [id, sprite_renderer, transform] : view) {
         const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         PerBatchConstantBuffer batch_buffer;

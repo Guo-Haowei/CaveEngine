@@ -403,4 +403,88 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     return SaveYaml(p_meta.import_path, yaml);
 }
 
+#if 0
+Result<void> SaveSceneBinary(const std::string& p_path, Scene& p_scene) {
+    Archive archive;
+    if (auto res = archive.OpenWrite(p_path); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    archive << SCENE_MAGIC;
+    archive << LATEST_SCENE_VERSION;
+    archive << ecs::Entity::GetSeed();
+    archive << p_scene.m_root;
+    archive << p_scene.m_physicsMode;
+
+    archive << SCENE_GUARD_MESSAGE;
+
+    for (const auto& it : p_scene.GetLibraryEntries()) {
+        if (it.second.m_manager->GetCount()) {
+            archive << HAS_NEXT_FLAG;
+            archive << it.first;  // write name
+            it.second.m_manager->Serialize(archive, LATEST_SCENE_VERSION);
+        }
+    }
+    archive << uint64_t(0);
+    return Result<void>();
+}
+
+Result<void> LoadSceneBinary(const std::string& p_path, Scene& p_scene) {
+    Archive archive;
+    if (auto res = archive.OpenRead(p_path); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    char magic[sizeof(SCENE_MAGIC)]{ 0 };
+    if (!archive.Read(magic) || !StringUtils::StringEqual(magic, SCENE_MAGIC)) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "file corrupted, magic is not '{}'", SCENE_MAGIC);
+    }
+
+    uint32_t version;
+    if (!archive.Read(version) || version > LATEST_SCENE_VERSION) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "incorrect scene version {}, current version is {}", version, LATEST_SCENE_VERSION);
+    }
+
+    SCENE_DBG_LOG("loading scene '{}', version: {}", p_path, version);
+
+    uint32_t seed = ecs::Entity::MAX_ID;
+    if (!archive.Read(seed)) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "failed to read seed");
+    }
+
+    archive >> p_scene.m_root;
+
+    p_scene.m_physicsMode = PhysicsMode::NONE;
+    if (version >= 19) {
+        archive >> p_scene.m_physicsMode;
+    }
+
+    char guard_message[sizeof(SCENE_GUARD_MESSAGE)]{ 0 };
+    archive >> guard_message;
+    if (!StringUtils::StringEqual(guard_message, SCENE_GUARD_MESSAGE)) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT);
+    }
+
+    for (;;) {
+        uint64_t has_next = 0;
+        archive >> has_next;
+        if (has_next != HAS_NEXT_FLAG) {
+            return Result<void>();
+        }
+
+        std::string key;
+        archive >> key;
+
+        SCENE_DBG_LOG("Loading Component {}", key);
+
+        auto it = p_scene.GetLibraryEntries().find(key);
+        if (it == p_scene.GetLibraryEntries().end()) {
+            return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "entry '{}' not found", key);
+        }
+        if (!it->second.m_manager->Serialize(archive, version)) {
+            return CAVE_ERROR(ErrorCode::ERR_FILE_CORRUPT, "failed to serialize '{}'", key);
+        }
+    }
+}
+#endif
 }  // namespace cave

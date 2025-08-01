@@ -32,7 +32,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
 
     // 1. set speed
     {
-        auto view = ecs::View<ColliderComponent, VelocityComponent>(p_scene.m_ColliderComponents, p_scene.m_VelocityComponents);
+        auto view = p_scene.View<ColliderComponent, VelocityComponent>();
         for (auto [id, collider, vel] : view) {
             b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
             b2Body_SetLinearVelocity(body_id, { vel.linear.x, vel.linear.y });
@@ -43,7 +43,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     b2World_Step(world_id, p_timestep, sub_step_count);
 
     // 3. sync speed and position
-    auto view = ecs::View<ColliderComponent, TransformComponent>(p_scene.m_ColliderComponents, p_scene.m_TransformComponents);
+    auto view = p_scene.View<ColliderComponent, TransformComponent>();
     for (auto [id, collider, transform] : view) {
         b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
 
@@ -71,7 +71,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
     m_world_id = Some(std::bit_cast<uint32_t>(world_id));
 
-    auto view = ecs::View<ColliderComponent, TransformComponent>(p_scene.m_ColliderComponents, p_scene.m_TransformComponents);
+    auto view = p_scene.View<ColliderComponent, TransformComponent>();
     for (auto [id, collider, transform] : view) {
         Vector4f position = transform.GetWorldMatrix() * Vector4f::UnitW;
         b2BodyDef body_def = b2DefaultBodyDef();

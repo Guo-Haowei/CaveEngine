@@ -10,6 +10,7 @@
 #include "editor/document/document.h"
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
+#include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"

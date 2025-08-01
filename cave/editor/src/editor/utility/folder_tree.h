@@ -3,7 +3,7 @@
 
 namespace cave {
 
-struct FolderTreeNode {
+struct ContentEntry {
     AssetType type;
     AssetHandle handle;
     Handle<ImageAsset> thumbnail;
@@ -14,16 +14,16 @@ struct FolderTreeNode {
     std::string_view file_name;
     std::string_view extension;
 
-    FolderTreeNode* parent;
-    std::vector<std::unique_ptr<FolderTreeNode>> children;
+    ContentEntry* parent;
+    std::vector<std::unique_ptr<ContentEntry>> children;
 };
 
-std::unique_ptr<FolderTreeNode> BuildFolderTree(const std::filesystem::path& p_sys_path,
-                                                FolderTreeNode* p_parent);
+std::unique_ptr<ContentEntry> BuildFolderTree(const std::filesystem::path& p_sys_path,
+                                              ContentEntry* p_parent);
 
 /// tool tip
 void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset);
 
-void ShowAssetToolTip(const FolderTreeNode& p_node);
+void ShowAssetToolTip(const ContentEntry& p_node);
 
 }  // namespace cave
