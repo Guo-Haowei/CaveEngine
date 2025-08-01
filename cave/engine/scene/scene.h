@@ -25,6 +25,9 @@ class Context;
 
 namespace cave {
 
+// Tags that don't need to be serialized
+struct NoSaveTag {};
+
 #define REGISTER_COMPONENT_SERIALIZED_LIST                                           \
     REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                     \
     REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)           \
@@ -42,13 +45,14 @@ namespace cave {
     REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
 
 // @TODO: use meta table for all components
-#define REGISTER_COMPONENT_LIST                                            \
-    REGISTER_COMPONENT_SERIALIZED_LIST                                     \
-    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)   \
-    REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0) \
-    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0) \
-    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)     \
-    REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)
+#define REGISTER_COMPONENT_LIST                                                \
+    REGISTER_COMPONENT_SERIALIZED_LIST                                         \
+    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)       \
+    REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0)     \
+    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0)     \
+    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)         \
+    REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0) \
+    REGISTER_COMPONENT(NoSaveTag, "World::NoSaveTag", 0)
 
 #define REGISTER_COMPONENT(TYPE, ...) \
     template<>                        \
@@ -150,7 +154,7 @@ public:
 public:
     void Update(float p_delta_time);
 
-    void Copy(Scene& p_other);
+    void Copy(const Scene& p_other);
 
     ecs::Entity GetMainCamera();
 

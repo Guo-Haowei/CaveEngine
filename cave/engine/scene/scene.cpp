@@ -89,9 +89,9 @@ void Scene::Update(float p_timestep) {
 #endif
 }
 
-void Scene::Copy(Scene& p_other) {
+void Scene::Copy(const Scene& p_other) {
     for (auto& entry : m_component_lib.m_entries) {
-        auto& manager = *p_other.m_component_lib.m_entries[entry.first].manager;
+        const auto& manager = *p_other.m_component_lib.m_entries.find(entry.first)->second.manager;
         entry.second.manager->Copy(manager);
     }
 
@@ -121,19 +121,22 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
         return;
     }
 
+    const Scene* source = handle.unwrap_unchecked().Get();
+    DEV_ASSERT(source);
     Scene copy;
-    copy.Copy(*handle.unwrap_unchecked().Get());
+    copy.Copy(*source);
 
     auto new_entities = copy.GetSortedEntityArray();
     std::unordered_map<Entity, Entity> mapping;
     for (Entity raw_entity : new_entities) {
         Entity mapped = CreateEntity();
+        Create<NoSaveTag>(mapped);
         mapping[raw_entity] = mapped;
     }
 
     // remap hierarchy
     for (auto [id, hier] : copy.View<HierarchyComponent>()) {
-        hier.parent_id = mapping[id];
+        hier.parent_id = mapping[hier.parent_id];
     }
 
     // remap material
@@ -155,7 +158,7 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
 
     // link instance
     Entity mapped_root = mapping[copy.m_root];
-    HierarchyComponent& hier = Create<HierarchyComponent>(copy.m_root);
+    HierarchyComponent& hier = Create<HierarchyComponent>(mapped_root);
     hier.parent_id = p_entity.IsValid() ? p_entity : m_root;
 }
 
@@ -392,6 +395,9 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     d.LeaveKey();
 
     // @TODO: instantiate prefab
+    for (auto&& [id, prefab] : View<PrefabInstanceComponent>()) {
+        InstantiatePrefab(prefab, id);
+    }
 
     return Result<void>();
 }
@@ -434,12 +440,14 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
 
     yaml.BeginArray(false);
 
-    for (auto id : entity_array) {
-        ecs::Entity entity{ id };
+    for (auto entity : entity_array) {
+        if (Contains<NoSaveTag>(entity)) {
+            continue;
+        }
 
         yaml.BeginMap(false)
             .Key("id")
-            .Write(id);
+            .Write(entity);
 
 #define REGISTER_COMPONENT(COMPONENT, ...) \
     SerializeComponent<COMPONENT>(yaml, #COMPONENT, entity, *this);

@@ -1,5 +1,5 @@
 version: 19
-seed: 8
+seed: 10
 root: 1
 physics_mode: 0
 entities:
@@ -78,4 +78,4 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     PrefabInstanceComponent:
-      prefab_id: 00000000-0000-0000-0000000000000000
+      prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
