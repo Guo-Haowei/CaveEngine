@@ -1,20 +1,11 @@
 version: 19
-seed: 3
+seed: 2
 root: 1
 physics_mode: 0
 entities:
   - id: 1
     NameComponent:
-      name: world
-    TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-  - id: 2
-    NameComponent:
       name: player
-    HierarchyComponent:
-      parent_id: 1
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -32,11 +23,11 @@ entities:
     LuaScriptComponent:
       class_name: Player
       source_id: 133E5416-E5D5-BA4A-9F13460A05C8D6EA
-  - id: 3
+  - id: 2
     NameComponent:
       name: player_animator_node
     HierarchyComponent:
-      parent_id: 2
+      parent_id: 1
     TransformComponent:
       translation: [0, 0.0500000007, 0]
       rotation: [0, 0, 0, 1]
