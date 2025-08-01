@@ -125,16 +125,11 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
     add_edges(reads);
     add_edges(writes);
 
-    auto sorted = topological_sort(N, edges);
-    if (static_cast<int>(sorted.size()) != N) {
+    auto res = TopologicalSort(N, edges);
+    if (res.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_CYCLIC_LINK);
     }
-
-    DEBUG_PRINT("sorted:");
-    for (auto i : sorted) {
-        unused(i);
-        DEBUG_PRINT("{}", m_passes[i].GetName());
-    }
+    auto sorted = res.unwrap_unchecked();
 
     auto render_graph = std::make_shared<RenderGraph>();
 

@@ -106,11 +106,15 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
     for (const auto& it : m_component_lib.m_entries) {
         auto& manager = it.second.manager;
         for (auto entity : manager->GetEntityArray()) {
+            if (Contains<NoSaveTag>(entity)) {
+                continue;
+            }
             entity_set.insert(entity);
         }
     }
 
     std::vector<Entity> entity_array(entity_set.begin(), entity_set.end());
+
     std::sort(entity_array.begin(), entity_array.end());
     return entity_array;
 }
@@ -283,6 +287,12 @@ std::vector<Guid> Scene::GetDependencies() const {
     for (const auto& [id, prefab] : View<PrefabInstanceComponent>()) {
         dependencies.push_back(prefab.GetResourceGuid());
     }
+    for (const auto& [id, tile_map_renderer] : View<TileMapRendererComponent>()) {
+        dependencies.push_back(tile_map_renderer.GetResourceGuid());
+    }
+    for (const auto& [id, animator] : View<AnimatorComponent>()) {
+        dependencies.push_back(animator.GetResourceGuid());
+    }
 
     dependencies.erase(
         std::remove_if(dependencies.begin(), dependencies.end(),
@@ -426,16 +436,17 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     YamlSerializer yaml;
 
     auto entity_array = GetSortedEntityArray();
+    Entity last = entity_array.back();
 
     yaml.BeginMap(false)
         .Key("version")
         .Write(LATEST_SCENE_VERSION)
         .Key("seed")
-        .Write(m_entity_seed)
+        .Write(entity_array.back())
         .Key("root")
-        .Write(m_root.GetId())
+        .Write(last)
         .Key("physics_mode")
-        .Write(static_cast<uint32_t>(m_physicsMode))
+        .Write(static_cast<uint32_t>(m_physicsMode)) // @TODO: refactor
         .Key("entities");
 
     yaml.BeginArray(false);

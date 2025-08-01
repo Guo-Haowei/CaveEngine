@@ -20,7 +20,6 @@
                 "${workspaceRoot}/cave/editor/src/editor/pch.h"
             ],
             "defines": [
-                "DATA_DIR=\"\"",
                 "ROOT_FOLDER=\"\""
             ]
         }

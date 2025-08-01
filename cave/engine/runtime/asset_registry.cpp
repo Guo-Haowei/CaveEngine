@@ -3,6 +3,7 @@
 #include <fstream>
 #include <latch>
 
+#include "engine/algorithm/algorithm.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager_interface.h"
@@ -80,18 +81,28 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
         assets.emplace_back(std::move(meta2));
     }
 
-    // @HACK: load scene last
-    // @TODO: [SCRUM-245] need to figure out dependency
-    for (size_t i = 0; i < assets.size(); ++i) {
-        if (assets[i].type == AssetType::Scene) {
-            std::swap(assets[i], assets.back());
-            break;
+    const int N = static_cast<int>(assets.size());
+    std::vector<TopoSortEdge> edges;
+    std::unordered_map<Guid, int> mapping;
+    for (int i = 0; i < N; ++i) {
+        mapping[assets[i].guid] = i;
+    }
+
+    for (const auto& asset : assets) {
+        auto to = mapping.find(asset.guid);
+        DEV_ASSERT(to != mapping.end());
+        for (const auto& guid : asset.dependencies) {
+            auto from = mapping.find(guid);
+            DEV_ASSERT(from != mapping.end());
+            edges.push_back({ from->second, to->second });
         }
     }
 
+    const auto order = TopologicalSort(N, edges).unwrap();
+
     std::latch latch(assets.size());
-    for (auto& meta : assets) {
-        StartAsyncLoad(std::move(meta), [](AssetRef, void* p_userdata) {
+    for (int idx : order) {
+        StartAsyncLoad(std::move(assets[idx]), [](AssetRef, void* p_userdata) {
             DEV_ASSERT(p_userdata);
             std::latch& latch = *reinterpret_cast<std::latch*>(p_userdata);
             latch.count_down(); }, [](void* p_userdata) {
