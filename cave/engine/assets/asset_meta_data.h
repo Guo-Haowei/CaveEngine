@@ -14,7 +14,6 @@ using TimePoint = std::chrono::system_clock::time_point;
 struct AssetMetaData {
     CAVE_META(AssetMetaData)
 
-public:
     CAVE_PROP()
     AssetType type = AssetType::Unknown;
 

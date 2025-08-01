@@ -5,9 +5,10 @@
 
 namespace cave {
 
-struct MeshRendererComponent {
+class MeshRendererComponent {
     CAVE_META(MeshRendererComponent)
 
+private:
     CAVE_PROP(editor = Visibility)
     bool m_is_visible = true;
 

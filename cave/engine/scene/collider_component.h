@@ -55,6 +55,8 @@ ISerializer& WriteObject(ISerializer& s, const Shape& p_shape);
 bool ReadObject(IDeserializer& d, Shape& p_shape);
 
 class ColliderComponent {
+    CAVE_META(ColliderComponent)
+
     enum : uint32_t {
         None = BIT(0),
         FixedRotationFlag = BIT(1),
@@ -62,8 +64,7 @@ class ColliderComponent {
         BulletFlag = BIT(3),
     };
 
-    CAVE_META(ColliderComponent)
-
+private:
     CAVE_PROP(editor = EnumDropDown)
     BodyType m_body_type;
 

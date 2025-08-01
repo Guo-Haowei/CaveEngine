@@ -8,7 +8,6 @@ namespace cave {
 struct MaterialComponent {
     CAVE_META(MaterialComponent)
 
-public:
     CAVE_PROP(editor = Color)
     Vector4f base_color = Vector4f::One;
 

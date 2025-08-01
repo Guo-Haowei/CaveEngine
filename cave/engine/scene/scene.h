@@ -35,6 +35,7 @@ namespace cave {
     REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)             \
     REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)             \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
+    REGISTER_COMPONENT(PrefabInstanceComponent, "World::PrefabInstanceComponent", 0) \
     REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)     \
     REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)             \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0) \
@@ -173,6 +174,7 @@ public:
         ecs::Entity entity;
     };
 
+    // @TODO: refactor this
     RayIntersectionResult Intersects(Ray& p_ray);
     bool RayObjectIntersect(ecs::Entity p_object_id, Ray& p_ray);
 
@@ -196,6 +198,8 @@ public:
     ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
 
 private:
+    void InstantiatePrefab(ecs::Entity p_entity, PrefabInstanceComponent& p_prefab);
+
     uint32_t m_entity_seed{ 0 };
 
     friend class EntityFactory;

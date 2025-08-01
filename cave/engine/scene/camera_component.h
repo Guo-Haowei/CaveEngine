@@ -9,6 +9,8 @@ namespace cave {
 class Degree;
 
 class CameraComponent {
+    CAVE_META(CameraComponent)
+
     enum : uint32_t {
         None = BIT(0),
         DirtyFlag = BIT(1),
@@ -18,8 +20,7 @@ class CameraComponent {
         View2dFlag = BIT(5),
     };
 
-    CAVE_META(CameraComponent)
-
+private:
     CAVE_PROP(type = flags)
     uint32_t m_flags = DirtyFlag;
 

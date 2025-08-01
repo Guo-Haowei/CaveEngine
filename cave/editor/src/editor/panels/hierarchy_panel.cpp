@@ -140,7 +140,7 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
             return it->second.get();
         };
 
-        const ecs::Entity parent_id = hier.GetParent();
+        const ecs::Entity parent_id = hier.parent_id;
         HierarchyNode* parent_node = find_or_create(parent_id);
         HierarchyNode* self_node = find_or_create(self_id);
         parent_node->children.push_back(self_node);

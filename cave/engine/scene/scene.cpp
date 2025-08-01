@@ -98,7 +98,19 @@ void Scene::Copy(Scene& p_other) {
     m_physicsMode = p_other.m_physicsMode;
 }
 
+void Scene::InstantiatePrefab(ecs::Entity p_entity, PrefabInstanceComponent& p_prefab) {
+    if (p_prefab.instantiated) {
+        return;
+    }
+
+    auto handle = AssetRegistry::GetSingleton().FindByGuid<Scene>(p_prefab.prefab_id);
+    if (handle.is_none()) {
+        return;
+    }
+}
+
 void Scene::Merge(Scene& p_other) {
+    CRASH_NOW_MSG("SHOULD NOT CALL THIS");
     // @TODO: check the correctness of this
     for (auto& entry : m_componentLib.m_entries) {
         auto& manager = *p_other.m_componentLib.m_entries[entry.first].manager;
@@ -140,13 +152,13 @@ void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
     }
 
     HierarchyComponent& hier = Create<HierarchyComponent>(p_child);
-    hier.m_parent_id = p_parent;
+    hier.parent_id = p_parent;
 }
 
 void Scene::RemoveEntity(ecs::Entity p_entity) {
     std::vector<ecs::Entity> children;
     for (auto [child, hierarchy] : View<HierarchyComponent>()) {
-        if (hierarchy.GetParent() == p_entity) {
+        if (hierarchy.parent_id == p_entity) {
             children.emplace_back(child);
         }
     }
@@ -214,6 +226,9 @@ std::vector<Guid> Scene::GetDependencies() const {
     }
     for (const auto& [id, mesh_renderer] : View<MeshRendererComponent>()) {
         dependencies.push_back(mesh_renderer.GetResourceGuid());
+    }
+    for (const auto& [id, prefab] : View<PrefabInstanceComponent>()) {
+        dependencies.push_back(prefab.prefab_id);
     }
 
     dependencies.erase(
@@ -325,6 +340,9 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     }
 
     d.LeaveKey();
+
+    // @TODO: instantiate prefab
+
     return Result<void>();
 }
 

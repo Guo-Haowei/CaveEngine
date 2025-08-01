@@ -9,6 +9,7 @@ namespace cave {
 class SpriteRendererComponent {
     CAVE_META(SpriteRendererComponent)
 
+private:
     CAVE_PROP(editor = Asset)
     Guid m_image_id;
 

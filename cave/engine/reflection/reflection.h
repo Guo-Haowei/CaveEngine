@@ -10,12 +10,10 @@
 
 #else
 
-#define CAVE_META(CLASS_NAME)                             \
-public:                                                   \
-    friend class MetaDataTable<CLASS_NAME>;               \
-    static inline constexpr ::cave::MetaTag s_meta_tag{}; \
-                                                          \
-private:
+#define CAVE_META(CLASS_NAME)               \
+public:                                     \
+    friend class MetaDataTable<CLASS_NAME>; \
+    static inline constexpr ::cave::MetaTag s_meta_tag{};
 
 #define CAVE_PROP(...)
 

@@ -28,6 +28,7 @@ class Scene;
 class NameComponent {
     CAVE_META(NameComponent)
 
+private:
     CAVE_PROP()
     std::string m_name;
 
@@ -43,21 +44,25 @@ public:
     std::string& GetNameRef() { return m_name; }
 };
 
-class HierarchyComponent {
+struct HierarchyComponent {
     CAVE_META(HierarchyComponent)
 
     CAVE_PROP()
-    ecs::Entity m_parent_id;
-
-    friend class Scene;
-
-public:
-    ecs::Entity GetParent() const { return m_parent_id; }
+    ecs::Entity parent_id;
 };
 
-class VelocityComponent {
+struct PrefabInstanceComponent {
+    CAVE_META(PrefabInstanceComponent)
+
+    CAVE_PROP()
+    Guid prefab_id;
+
+    bool instantiated = false;
+};
+
+struct VelocityComponent {
     CAVE_META(VelocityComponent)
-public:
+
     CAVE_PROP(editor = Translation)
     Vector3f linear = Vector3f::Zero;
 };

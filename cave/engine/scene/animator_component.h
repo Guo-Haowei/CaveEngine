@@ -8,6 +8,7 @@ namespace cave {
 class AnimatorComponent {
     CAVE_META(AnimatorComponent)
 
+private:
     CAVE_PROP(editor = Asset)
     Guid m_anim_id;
 

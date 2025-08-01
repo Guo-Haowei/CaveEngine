@@ -12,6 +12,7 @@ class Degree;
 class TransformComponent : public ComponentFlagBase {
     CAVE_META(TransformComponent)
 
+private:
     CAVE_PROP(editor = Translation)
     Vector3f m_translation;
 
@@ -21,7 +22,6 @@ class TransformComponent : public ComponentFlagBase {
     CAVE_PROP(editor = Scale)
     Vector3f m_scale;
 
-private:
     // Non-serialized attributes
     Matrix4x4f m_world_matrix;
 

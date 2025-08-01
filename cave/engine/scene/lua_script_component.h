@@ -7,6 +7,7 @@ namespace cave {
 class LuaScriptComponent {
     CAVE_META(LuaScriptComponent)
 
+private:
     CAVE_PROP()
     std::string m_class_name;
 
