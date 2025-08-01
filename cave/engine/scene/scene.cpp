@@ -446,7 +446,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
         .Key("root")
         .Write(m_root)
         .Key("physics_mode")
-        .Write(static_cast<uint32_t>(m_physicsMode)) // @TODO: refactor
+        .Write(static_cast<uint32_t>(m_physicsMode))  // @TODO: refactor
         .Key("entities");
 
     yaml.BeginArray(false);
