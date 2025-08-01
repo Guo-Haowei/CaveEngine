@@ -1,8 +1,8 @@
-set(TARGET_NAME loader_assimp)
+set(TARGET_NAME importer_assimp)
 
 file(GLOB_RECURSE SRC
-    "assimp_asset_loader.h"
-    "assimp_asset_loader.cpp"
+    "importer_assimp.h"
+    "importer_assimp.cpp"
 )
 
 add_library(${TARGET_NAME} STATIC ${SRC})
@@ -10,10 +10,10 @@ add_library(${TARGET_NAME} STATIC ${SRC})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/ FILES ${SRC})
 
 target_include_directories(${TARGET_NAME} PRIVATE
-    ${PROJECT_SOURCE_DIR}/cave
-    ${PROJECT_SOURCE_DIR}/cave/shader
-    ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/assimp/include
+    ${PROJECT_SOURCE_DIR}/thirdparty/glm
+    ${PROJECT_SOURCE_DIR}/cave/shader
+    ${PROJECT_SOURCE_DIR}/cave
 )
 
 target_set_warning_level(${TARGET_NAME})
@@ -30,4 +30,4 @@ set(lib_irrxmld_debug "${PROJECT_SOURCE_DIR}/thirdparty/assimp/build/lib/Debug/I
 set(lib_zlib_debug "${PROJECT_SOURCE_DIR}/thirdparty/assimp/build/lib/Debug/zlibstaticd.lib")
 target_link_libraries(${TARGET_NAME} debug ${lib_assimp_debug} ${lib_irrxmld_debug} ${lib_zlib_debug})
 
-set_target_properties(${TARGET_NAME} PROPERTIES FOLDER plugins)
+set_target_properties(${TARGET_NAME} PROPERTIES FOLDER modules)

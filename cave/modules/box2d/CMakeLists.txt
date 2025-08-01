@@ -28,8 +28,8 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 target_include_directories(${TARGET_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
-    ${PROJECT_SOURCE_DIR}/cave/
     ${PROJECT_SOURCE_DIR}/cave/shader
+    ${PROJECT_SOURCE_DIR}/cave/
 )
 
 target_link_libraries(${TARGET_NAME} PRIVATE

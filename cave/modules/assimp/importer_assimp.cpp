@@ -1,4 +1,4 @@
-#include "assimp_asset_loader.h"
+#include "importer_assimp.h"
 
 #if USING(USING_ASSIMP)
 // #include <assimp/GltfMaterial.h>
@@ -150,7 +150,7 @@ ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_p
 
         MeshRendererComponent& objComponent = *m_scene->GetComponent<MeshRendererComponent>(entity);
         objComponent.SetResourceGuid(Guid());
-        //objComponent.meshId = m_meshes[p_node->mMeshes[0]];
+        // objComponent.meshId = m_meshes[p_node->mMeshes[0]];
     } else {  // else make it a transform/bone node
         entity = EntityFactory::CreateTransformEntity(*m_scene, "Node::" + key);
 

@@ -19,9 +19,6 @@ Scene* EditorSceneManager::CreateDefaultScene() {
     if (scene_string == "physics_test") {
         return CreatePhysicsTestScene();
     }
-    if (scene_string == "the_aviator") {
-        return CreateTheAviatorScene();
-    }
     if (scene_string == "box") {
         return CreateBoxScene();
     }

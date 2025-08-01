@@ -40,5 +40,5 @@ def format_folder(folder_name):
                 print(f'*** formatting file {file_path}')
                 subprocess.run([clang_format_path, '-i', file_path])
 
-for dir in ['cave', 'plugin', 'applications']:
+for dir in ['cave', 'applications']:
     format_folder(os.path.join(project_dir, dir))
