@@ -444,7 +444,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
         .Key("seed")
         .Write(entity_array.back())
         .Key("root")
-        .Write(last)
+        .Write(m_root)
         .Key("physics_mode")
         .Write(static_cast<uint32_t>(m_physicsMode)) // @TODO: refactor
         .Key("entities");
