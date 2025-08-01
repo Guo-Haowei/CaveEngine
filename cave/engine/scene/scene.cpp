@@ -89,8 +89,8 @@ void Scene::Update(float p_timestep) {
 
 void Scene::Copy(Scene& p_other) {
     for (auto& entry : m_componentLib.m_entries) {
-        auto& manager = *p_other.m_componentLib.m_entries[entry.first].m_manager;
-        entry.second.m_manager->Copy(manager);
+        auto& manager = *p_other.m_componentLib.m_entries[entry.first].manager;
+        entry.second.manager->Copy(manager);
     }
 
     m_root = p_other.m_root;
@@ -99,9 +99,10 @@ void Scene::Copy(Scene& p_other) {
 }
 
 void Scene::Merge(Scene& p_other) {
+    // @TODO: check the correctness of this
     for (auto& entry : m_componentLib.m_entries) {
-        auto& manager = *p_other.m_componentLib.m_entries[entry.first].m_manager;
-        entry.second.m_manager->Merge(manager);
+        auto& manager = *p_other.m_componentLib.m_entries[entry.first].manager;
+        entry.second.manager->Merge(manager);
     }
     if (p_other.m_root.IsValid()) {
         AttachChild(p_other.m_root, m_root);
@@ -149,21 +150,14 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
             children.emplace_back(child);
         }
     }
+
     for (auto child : children) {
         RemoveEntity(child);
     }
 
-    LightComponent* light = GetComponent<LightComponent>(p_entity);
-    if (light) {
-        // @TODO: shadow atlas
-        m_LightComponents.Remove(p_entity);
+    for (auto&& [_, component_manager] : m_componentLib.m_entries) {
+        component_manager.manager->Remove(p_entity);
     }
-    m_HierarchyComponents.Remove(p_entity);
-    m_TransformComponents.Remove(p_entity);
-    m_MeshRendererComponents.Remove(p_entity);
-    // m_ParticleEmitterComponents.Remove(p_entity);
-    // m_ForceFieldComponents.Remove(p_entity);
-    m_NameComponents.Remove(p_entity);
 }
 
 bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) {
@@ -360,7 +354,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     std::unordered_set<uint32_t> entity_set;
 
     for (const auto& it : m_componentLib.m_entries) {
-        auto& manager = it.second.m_manager;
+        auto& manager = it.second.manager;
         for (auto entity : manager->GetEntityArray()) {
             entity_set.insert(entity.GetId());
         }
