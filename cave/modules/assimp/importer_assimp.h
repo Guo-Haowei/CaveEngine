@@ -17,15 +17,15 @@ struct aiAnimation;
 
 namespace cave {
 
-class AssimpAssetLoader : public IAssetLoader {
+class ImporterAssimp : public IAssetLoader {
 public:
     using IAssetLoader::IAssetLoader;
 
     static std::unique_ptr<IAssetLoader> CreateLoader(const std::string& p_import_path) {
-        return std::make_unique<AssimpAssetLoader>(p_import_path);
+        return std::make_unique<ImporterAssimp>(p_import_path);
     }
 
-    auto Load() -> Result<AssetRef> override;
+    Result<AssetRef> Load() override;
 
 protected:
     void ProcessMaterial(aiMaterial& p_material);

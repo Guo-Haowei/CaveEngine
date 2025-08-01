@@ -1,7 +1,6 @@
 #include "importer_assimp.h"
 
 #if USING(USING_ASSIMP)
-// #include <assimp/GltfMaterial.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
@@ -13,7 +12,7 @@
 
 namespace cave {
 
-auto AssimpAssetLoader::Load() -> Result<AssetRef> {
+Result<AssetRef> ImporterAssimp::Load() {
     m_scene = new Scene;
     Assimp::Importer importer;
 
@@ -50,7 +49,7 @@ auto AssimpAssetLoader::Load() -> Result<AssetRef> {
     return AssetRef(mesh_asset);
 }
 
-void AssimpAssetLoader::ProcessMaterial(aiMaterial& p_material) {
+void ImporterAssimp::ProcessMaterial(aiMaterial& p_material) {
     unused(p_material);
 #if 0
     MaterialComponent* materialComponent = m_scene->GetComponent<MaterialComponent>(material_id);
@@ -91,14 +90,13 @@ void AssimpAssetLoader::ProcessMaterial(aiMaterial& p_material) {
 #endif
 }
 
-std::shared_ptr<MeshAsset> AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) {
+std::shared_ptr<MeshAsset> ImporterAssimp::ProcessMesh(const aiMesh& p_mesh) {
     DEV_ASSERT(p_mesh.mNumVertices);
     const std::string mesh_name(p_mesh.mName.C_Str());
     const bool has_uv = p_mesh.mTextureCoords[0];
     if (!has_uv) {
         LOG_WARN("mesh {} does not have texture coordinates", mesh_name);
     }
-    mesh_name;
 
     auto mesh_asset = std::make_shared<MeshAsset>();
 
@@ -140,7 +138,7 @@ std::shared_ptr<MeshAsset> AssimpAssetLoader::ProcessMesh(const aiMesh& p_mesh) 
     return mesh_asset;
 }
 
-ecs::Entity AssimpAssetLoader::ProcessNode(const aiNode* p_node, ecs::Entity p_parent) {
+ecs::Entity ImporterAssimp::ProcessNode(const aiNode* p_node, ecs::Entity p_parent) {
     const auto key = std::string(p_node->mName.C_Str());
 
     ecs::Entity entity;
