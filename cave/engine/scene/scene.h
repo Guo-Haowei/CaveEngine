@@ -46,7 +46,6 @@ namespace cave {
     REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)   \
     REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0) \
     REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0) \
-    REGISTER_COMPONENT(ClothComponent, "World::ClothComponent", 0)         \
     REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)     \
     REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0)
 
