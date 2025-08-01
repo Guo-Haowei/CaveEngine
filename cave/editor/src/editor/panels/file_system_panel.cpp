@@ -111,6 +111,9 @@ void FileSystemPanel::FolderPopup(const ContentEntry& p_node) {
 
             ImGui::EndMenu();
         }
+        if (ImGui::MenuItem("Add Folder")) {
+            fs::create_directory(p_node.sys_path / "NewFolder");
+        }
         if (ImGui::MenuItem("Delete")) {
             LOG_ERROR("{}", p_node.virtual_path);
         }
