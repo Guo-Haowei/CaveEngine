@@ -41,7 +41,7 @@ std::string SceneImporter::NameGenerator(std::string_view p_name, uint32_t& p_co
     return std::format("{}_{}", p_name, p_counter);
 }
 
-Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_path) {
+Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_path, bool p_srgb) {
     fs::path name = p_sys_path.filename();
 
     fs::path image_path = m_dest_dir / name;
@@ -61,6 +61,10 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
 
     // save meta
     AssetMetaData meta = std::move(_meta.unwrap_unchecked());
+
+    meta.import_settings["color_space"] = p_srgb ? "srgb" : "linear";
+    meta.import_settings["sampler"] = "linear";
+
     if (auto res = meta.SaveToDisk(nullptr); !res) {
         return CAVE_ERROR(res.error());
     }

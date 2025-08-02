@@ -184,7 +184,7 @@ Guid TinyGltfImporter::ProcessMaterial(const tinygltf::Material& p_material) {
         int img_source = tex.source;
         auto& img = m_model->images[img_source];
         const std::string path = m_base_path + img.uri;
-        Guid guid = RegisterImage(path).value();
+        Guid guid = RegisterImage(path, true).value();
         material_asset->textures[std::to_underlying(TextureSlot::Base)] = guid;
     }
 
@@ -193,7 +193,7 @@ Guid TinyGltfImporter::ProcessMaterial(const tinygltf::Material& p_material) {
         int img_source = tex.source;
         auto& img = m_model->images[img_source];
         const std::string path = m_base_path + img.uri;
-        Guid guid = RegisterImage(path).value();
+        Guid guid = RegisterImage(path, false).value();
         material_asset->textures[std::to_underlying(TextureSlot::Normal)] = guid;
     }
 
@@ -202,7 +202,7 @@ Guid TinyGltfImporter::ProcessMaterial(const tinygltf::Material& p_material) {
         int img_source = tex.source;
         auto& img = m_model->images[img_source];
         const std::string path = m_base_path + img.uri;
-        Guid guid = RegisterImage(path).value();
+        Guid guid = RegisterImage(path, false).value();
         material_asset->textures[std::to_underlying(TextureSlot::MetallicRoughness)] = guid;
     }
 

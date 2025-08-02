@@ -1,9 +1,10 @@
 type: image
-guid: EA45FFE3-07C2-F84B-92E5F4B19B4D33AD
+guid: F325BFC9-79B6-AA4C-928147256DA47AEE
 name: ""
 import_path: "@res://models/Sponza/11968150294050148237.jpg"
 dependencies: []
 source_created_time: ""
 source_last_modified: ""
 import_settings:
-  {}
+  color_space: linear
+  sampler: linear
