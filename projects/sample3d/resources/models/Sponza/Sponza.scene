@@ -1,5 +1,5 @@
 version: 19
-seed: 105
+seed: 107
 root: 1
 physics_mode: 0
 entities:
@@ -12,7 +12,7 @@ entities:
       scale: [1, 1, 1]
   - id: 2
     NameComponent:
-      name: "Node::"
+      name: SponzaMesh
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
@@ -849,3 +849,57 @@ entities:
       roughness: 1
       emissive: 0
       material_id: ABBB06FD-C05D-4C4E-AE2C283525E1BB5B
+  - id: 106
+    NameComponent:
+      name: InfiniteLight-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [-0.766797483, 0, 0, 0.641889155]
+      scale: [1, 1.00000048, 1.00000048]
+    LightComponent:
+      type: infinite
+      atten_constant: 1
+      atten_linear: 0
+      atten_quadratic: 0
+      shadow_region:
+        min: [.inf, .inf, .inf]
+        max: [-.inf, -.inf, -.inf]
+      cast_shadow: true
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 5
+      material_id: 00000000-0000-0000-0000000000000000
+  - id: 107
+    NameComponent:
+      name: AreaLight-2
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [-2.83990717, 0.670451045, -0.877553582]
+      rotation: [0, 0.70710665, 0, 0.707106888]
+      scale: [0.999994099, 1.00000072, 0.999994099]
+    LightComponent:
+      type: area
+      atten_constant: 1
+      atten_linear: 0.0900000036
+      atten_quadratic: 0.0320000015
+      shadow_region:
+        min: [.inf, .inf, .inf]
+        max: [-.inf, -.inf, -.inf]
+      cast_shadow: false
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 00000000-0000-0000-0000000000000004
+      materials: [107]
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 5
+      material_id: 00000000-0000-0000-0000000000000000
