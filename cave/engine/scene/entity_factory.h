@@ -20,7 +20,7 @@ public:
     static Entity CreateTransformEntity(Scene& p_scene,
                                         const std::string& p_name);
 
-    static Entity CreateObjectEntity(Scene& p_scene,
+    static Entity CreateMeshInstance(Scene& p_scene,
                                      const std::string& p_name);
 
     static Entity CreatePointLightEntity(Scene& p_scene,

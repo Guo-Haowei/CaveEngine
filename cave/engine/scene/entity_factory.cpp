@@ -42,7 +42,7 @@ Entity EntityFactory::CreateTransformEntity(Scene& p_scene,
     return entity;
 }
 
-Entity EntityFactory::CreateObjectEntity(Scene& p_scene,
+Entity EntityFactory::CreateMeshInstance(Scene& p_scene,
                                          const std::string& p_name) {
     auto entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<MeshRendererComponent>(entity);
@@ -55,7 +55,7 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
                                              const Vector3f& p_position,
                                              const Vector3f& p_color,
                                              const float p_emissive) {
-    auto id = CreateObjectEntity(p_scene, p_name);
+    auto id = CreateMeshInstance(p_scene, p_name);
 
     LightComponent& light = p_scene.Create<LightComponent>(id);
     light.SetType(LightType::Point);
@@ -97,7 +97,7 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
                                             const std::string& p_name,
                                             const Vector3f& p_color,
                                             const float p_emissive) {
-    auto id = CreateObjectEntity(p_scene, p_name);
+    auto id = CreateMeshInstance(p_scene, p_name);
 
     // light
     LightComponent& light = p_scene.Create<LightComponent>(id);

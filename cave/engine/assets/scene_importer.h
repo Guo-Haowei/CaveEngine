@@ -5,6 +5,7 @@
 
 namespace cave {
 
+struct MaterialAsset;
 class MeshAsset;
 class Scene;
 
@@ -16,13 +17,16 @@ public:
 protected:
     Result<void> PrepareImport();
 
-    Result<Guid> RegisterMesh(std::string&& p_mesh_name,
+    Result<Guid> RegisterMaterial(std::string&& p_name,
+                                  std::shared_ptr<MaterialAsset>&& p_material);
+
+    Result<Guid> RegisterMesh(std::string&& p_name,
                               std::shared_ptr<MeshAsset>&& p_mesh);
 
     Result<void> RegisterScene(ecs::Entity p_root);
 
     std::string GenerateMeshName() { return NameGenerator("mesh", m_mesh_counter); }
-    std::string GenerateMatName() { return NameGenerator("mat", m_mat_counter); }
+    std::string GenerateMaterialName() { return NameGenerator("mat", m_mat_counter); }
 
     std::string m_file_name;
     std::string m_file_path;

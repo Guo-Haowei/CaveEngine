@@ -18,6 +18,7 @@ namespace tinygltf {
 class Model;
 struct Animation;
 struct Mesh;
+struct Material;
 }  // namespace tinygltf
 
 namespace cave {
@@ -34,9 +35,11 @@ public:
     Result<void> Import() override;
 
 protected:
-    void ProcessNode(int p_node_index, ecs::Entity p_parent);
-    void ProcessMesh(const tinygltf::Mesh& p_mesh, int p_id);
+    Guid ProcessMaterial(const tinygltf::Material& p_material);
+    Guid ProcessMesh(const tinygltf::Mesh& p_mesh);
     void ProcessAnimation(const tinygltf::Animation& p_anim, int p_id);
+
+    void ProcessNode(int p_node_index, ecs::Entity p_parent);
 
     std::unordered_map<int, ecs::Entity> m_node_map;
     std::shared_ptr<tinygltf::Model> m_model;

@@ -1,5 +1,6 @@
 #include "scene_importer.h"
 
+#include "engine/assets/material_asset.h"
 #include "engine/assets/mesh_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_manager.h"
@@ -39,14 +40,37 @@ std::string SceneImporter::NameGenerator(std::string_view p_name, uint32_t& p_co
     return std::format("{}_{}", p_name, p_counter);
 }
 
-Result<Guid> SceneImporter::RegisterMesh(std::string&& p_mesh_name,
+Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,
+                                             std::shared_ptr<MaterialAsset>&& p_material) {
+
+    fs::path sys_path = m_dest_dir / std::format("{}.mat", p_name);
+
+    Guid guid = Guid::Create();
+    AssetMetaData meta;
+    meta.type = AssetType::Material;
+    meta.name = std::move(p_name);
+    meta.guid = guid;
+    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+
+    if (auto res = p_material->SaveToDisk(meta); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), p_material);
+
+    // @TODO: request textures
+
+    return guid;
+}
+
+Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
                                          std::shared_ptr<MeshAsset>&& p_mesh) {
-    fs::path sys_path = m_dest_dir / std::format("{}.mesh", p_mesh_name);
+    fs::path sys_path = m_dest_dir / std::format("{}.mesh", p_name);
 
     Guid guid = Guid::Create();
     AssetMetaData meta;
     meta.type = AssetType::Mesh;
-    meta.name = std::move(p_mesh_name);
+    meta.name = std::move(p_name);
     meta.guid = guid;
     meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
 

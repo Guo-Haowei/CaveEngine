@@ -51,6 +51,9 @@ Result<void> AssimpImporter::Import() {
 
 Guid AssimpImporter::ProcessMaterial(aiMaterial& p_material) {
     std::string name = p_material.GetName().C_Str();
+    if (name.empty()) {
+        name = GenerateMaterialName();
+    }
 
     auto get_material_path = [&](aiTextureType p_type, uint32_t p_index) -> std::string {
         aiString path;
@@ -88,25 +91,14 @@ Guid AssimpImporter::ProcessMaterial(aiMaterial& p_material) {
         // AssetRegistry::GetSingleton().RequestAssetSync(path);
     }
 
-    fs::path sys_path = m_dest_dir / std::format("{}.mat", name);
-
-    AssetMetaData meta;
-    meta.type = AssetType::Material;
-    meta.name = std::move(name);
-    meta.guid = Guid::Create();
-    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
-
-    mat_asset->SaveToDisk(meta);
-
-    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), mat_asset);
-
-    // GraphicsManager::GetSingleton().RequestMesh(mesh_asset.get());
-
-    return meta.guid;
+    return RegisterMaterial(std::move(name), std::move(mat_asset)).value();
 }
 
 Guid AssimpImporter::ProcessMesh(const aiMesh& p_mesh) {
     std::string name = p_mesh.mName.C_Str();
+    if (name.empty()) {
+        name = GenerateMeshName();
+    }
 
     DEV_ASSERT(p_mesh.mNumVertices);
     const bool has_uv = p_mesh.mTextureCoords[0];
@@ -157,7 +149,7 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
     ecs::Entity entity;
 
     if (p_node->mNumMeshes == 1) {  // geometry node
-        entity = EntityFactory::CreateObjectEntity(*m_scene, "Geometry::" + key);
+        entity = EntityFactory::CreateMeshInstance(*m_scene, "Geometry::" + key);
 
         MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(entity);
         const uint32_t mesh_idx = p_node->mMeshes[0];
@@ -172,7 +164,7 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
         entity = EntityFactory::CreateTransformEntity(*m_scene, "Node::" + key);
         for (uint32_t i = 0; i < p_node->mNumMeshes; ++i) {
             DEV_ASSERT(0);
-            ecs::Entity child = EntityFactory::CreateObjectEntity(*m_scene, "");
+            ecs::Entity child = EntityFactory::CreateMeshInstance(*m_scene, "");
             auto tagComponent = m_scene->GetComponent<NameComponent>(child);
             tagComponent->SetName("SubGeometry_" + std::to_string(child.GetId()));
             MeshRendererComponent& renderer = m_scene->Create<MeshRendererComponent>(child);
