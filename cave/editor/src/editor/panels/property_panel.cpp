@@ -13,7 +13,7 @@
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
 #include "editor/scene_editor/scene_document.h"
-#include "editor/utility/folder_tree.h"
+#include "editor/utility/content_entry.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/drag_drop.h"

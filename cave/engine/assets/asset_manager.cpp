@@ -159,10 +159,7 @@ Result<Guid> AssetManager::CreateAsset(AssetType p_type,
 }
 
 Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) {
-    if (fs::is_directory(p_old)) {
-        LOG_WARN("don't support moving folder yet");
-        return Result<void>();
-    }
+    DEV_ASSERT(!fs::is_directory(p_old));
 
     auto meta_path_str = std::format("{}.meta", p_old.string());
     fs::path old_meta{ meta_path_str };

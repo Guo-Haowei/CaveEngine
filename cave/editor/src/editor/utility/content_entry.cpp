@@ -1,9 +1,12 @@
-#include "folder_tree.h"
+#include "content_entry.h"
 
 #include "engine/assets/image_asset.h"
+#include "engine/core/os/platform_io.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
+
+#include "editor/editor_layer.h"
 
 namespace cave {
 
@@ -106,6 +109,67 @@ void ShowAssetToolTip(const ContentEntry& p_node) {
     const AssetMetaData* meta = p_node.handle.GetMeta();
     if (meta) {
         ShowAssetToolTip(*meta, p_node.thumbnail.Get());
+    }
+}
+
+static void ShowFolderPopup(const ContentEntry& p_node) {
+    auto& asset_manager = IAssetManager::GetSingleton();
+
+    if (ImGui::BeginMenu("Add")) {
+        if (ImGui::MenuItem("Folder")) {
+            fs::create_directory(p_node.sys_path / "NewFolder");
+        }
+
+#define ADD_ASSET_MENU(TYPE)                                                        \
+    do {                                                                            \
+        if (ImGui::MenuItem(#TYPE)) {                                               \
+            auto res = asset_manager.CreateAsset(AssetType::TYPE, p_node.sys_path); \
+            if (!res) {                                                             \
+                LOG_ERROR("Failed to create asset: {}", ToString(res.error()));     \
+            }                                                                       \
+        }                                                                           \
+    } while (0)
+
+        ADD_ASSET_MENU(Scene);
+        ADD_ASSET_MENU(SpriteAnimation);
+        ADD_ASSET_MENU(Material);
+        ADD_ASSET_MENU(TileSet);
+        ADD_ASSET_MENU(TileMap);
+
+        ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Import")) {
+        if (ImGui::MenuItem("Scene")) {
+        }
+        ImGui::EndMenu();
+    }
+    if (ImGui::MenuItem("Delete")) {
+        fs::remove_all(p_node.sys_path);
+    }
+}
+
+void ShowPopup(const ContentEntry& p_node,
+    EditorLayer& p_editor,
+    std::filesystem::path* p_rename) {
+    if (ImGui::MenuItem("Rename")) {
+        if (p_rename) {
+            *p_rename = p_node.sys_path;
+        }
+    }
+
+    if (p_node.is_dir) {
+        ShowFolderPopup(p_node);
+    } else {
+        if (ImGui::MenuItem("Edit")) {
+            p_editor.CommandInspectAsset(p_node.handle.GetGuid());
+        }
+        if (ImGui::MenuItem("Save")) {
+            AssetRegistry::GetSingleton().SaveAsset(p_node.handle.GetGuid());
+        }
+    }
+
+    if (ImGui::MenuItem("Reveal In File Explorer")) {
+        cave::os::RevealInFolder(p_node.sys_path);
     }
 }
 

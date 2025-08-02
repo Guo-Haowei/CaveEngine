@@ -3,6 +3,8 @@
 
 namespace cave {
 
+class EditorLayer;
+
 struct ContentEntry {
     AssetType type;
     AssetHandle handle;
@@ -25,5 +27,10 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const std::filesystem::path& p_sys
 void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset);
 
 void ShowAssetToolTip(const ContentEntry& p_node);
+
+/// popup
+void ShowPopup(const ContentEntry& p_node,
+               EditorLayer& p_editor,
+               std::filesystem::path* p_rename = nullptr);
 
 }  // namespace cave

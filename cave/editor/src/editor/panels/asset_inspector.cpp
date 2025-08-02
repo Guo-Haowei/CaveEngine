@@ -7,7 +7,7 @@
 
 #include "editor/editor_asset_manager.h"
 #include "editor/editor_layer.h"
-#include "editor/utility/folder_tree.h"
+#include "editor/utility/content_entry.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/tool_bar.h"
