@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <fstream>
 
-#include "engine/assets/importer_interface.h"
+#include "engine/assets/asset_importer.h"
 #include "engine/assets/blob_asset.h"
 #include "engine/assets/image_asset.h"
 #include "engine/assets/material_asset.h"
@@ -19,20 +19,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
-// @TODO: refactor this
-#if USING(PLATFORM_WINDOWS)
-#define USE_IMPORTER_TINYGLTF IN_USE
-#elif USING(PLATFORM_APPLE)
-#define USE_IMPORTER_TINYGLTF IN_USE
-#elif USING(PLATFORM_WASM)
-#define USE_IMPORTER_TINYGLTF NOT_IN_USE
-#else
-#error "Platform not supported"
-#endif
-
-#if USING(USE_IMPORTER_TINYGLTF)
-#include "modules/tinygltf/tinygltf_loader.h"
-#endif
+#include "modules/tinygltf/importer_tinygltf.h"
 #include "modules/assimp/importer_assimp.h"
 
 namespace cave {

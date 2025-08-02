@@ -129,7 +129,6 @@ Guid ImporterAssimp::ProcessMesh(const aiMesh& p_mesh) {
     std::string name = p_mesh.mName.C_Str();
 
     DEV_ASSERT(p_mesh.mNumVertices);
-    const std::string mesh_name(p_mesh.mName.C_Str());
     const bool has_uv = p_mesh.mTextureCoords[0];
     if (!has_uv) {
         LOG_WARN("mesh {} does not have texture coordinates", name);

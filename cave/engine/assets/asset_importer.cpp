@@ -1,4 +1,4 @@
-#include "importer_interface.h"
+#include "asset_importer.h"
 
 #include "engine/assets/blob_asset.h"
 #include "engine/assets/image_asset.h"

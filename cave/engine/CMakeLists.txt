@@ -91,13 +91,14 @@ set(TARGET_LIBS
     glm::glm
     lua
     yaml-cpp
+    importer_assimp
+    importer_tinygltf
 )
 
 if(WIN32)
     list(APPEND TARGET_LIBS
         glfw
         optick
-        importer_assimp
         opengl_4_backend
         d3d11_backend
         d3d12_backend

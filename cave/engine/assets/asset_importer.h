@@ -16,7 +16,7 @@ public:
 
     virtual ~IImporter() = default;
 
-    [[nodiscard]] virtual Result<void> Import() = 0;
+    virtual Result<void> Import() = 0;
 
     static bool RegisterImporter(const std::string& p_extension, CreateImporterFunc p_func);
 

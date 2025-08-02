@@ -1,7 +1,10 @@
-#include "tinygltf_loader.h"
+#include "importer_tinygltf.h"
 
-#if 0
+#if USING(USE_IMPORTER_TINYGLTF)
 
+#include "engine/assets/material_asset.h"
+#include "engine/assets/mesh_asset.h"
+#include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
@@ -45,107 +48,19 @@ static bool DummyWriteImage(const std::string* /* basepath */,
 
 namespace cave {
 
-void TinyGLTFLoader::ProcessNode(int p_node_index, ecs::Entity p_parent) {
-    if (p_node_index < 0 || m_entityMap.count(p_node_index)) {
-        return;
+namespace fs = std::filesystem;
+
+Result<void> ImporterTinyGltf::Import() {
+    // create dest directory
+    // @TODO: base class
+    m_file_name = StringUtils::RemoveExtension(m_file_name);
+    m_dest_dir = m_dest_dir / m_file_name;
+
+    if (!fs::exists(m_dest_dir)) {
+        fs::create_directories(m_dest_dir);
     }
 
-    ecs::Entity entity;
-    auto& node = m_model->nodes[p_node_index];
-
-    if (node.mesh >= 0) {
-        DEV_ASSERT(node.mesh < (int)m_scene->GetCount<MeshAsset>());
-        if (node.skin >= 0) {  // this node is an armature
-            entity = m_scene->GetEntity<ArmatureComponent>(node.skin);
-            MeshAsset& mesh = m_scene->m_MeshComponents.GetComponentByIndex(node.mesh);
-            ecs::Entity mesh_id = m_scene->GetEntity<MeshAsset>(node.mesh);
-            DEV_ASSERT(!mesh.joints_0.empty());
-            if (mesh.armatureId.IsValid()) {
-                // Reuse mesh with different skin is not possible currently, so we create a new one:
-                LOG_WARN("Re-use mesh for different skin!");
-                mesh_id = entity;
-                MeshAsset& newMesh = m_scene->Create<MeshAsset>(mesh_id);
-                newMesh = m_scene->m_MeshComponents.GetComponentByIndex(node.mesh);
-                mesh = newMesh;
-            }
-            mesh.armatureId = entity;
-
-            // the object component will use an identity transform but will be parented to the armature
-            ecs::Entity objectID = EntityFactory::CreateObjectEntity(*m_scene, "Animated::" + node.name);
-            MeshRenderer& object = *m_scene->GetComponent<MeshRenderer>(objectID);
-            object.meshId = mesh_id;
-            m_scene->AttachChild(objectID, entity);
-        } else {  // this node is a mesh instance
-            entity = EntityFactory::CreateObjectEntity(*m_scene, "Object::" + node.name);
-            MeshRenderer& object = *m_scene->GetComponent<MeshRenderer>(entity);
-            object.meshId = m_scene->GetEntity<MeshAsset>(node.mesh);
-        }
-    } else if (node.camera >= 0) {
-        LOG_WARN("@TODO: camera");
-    }
-
-    // light
-
-    // transform
-    if (!entity.IsValid()) {
-        entity = m_scene->CreateEntity();
-        m_scene->Create<TransformComponent>(entity);
-        m_scene->Create<NameComponent>(entity).SetName("Transform::" + node.name);
-    }
-
-    m_entityMap[p_node_index] = entity;
-
-    TransformComponent& transform = *m_scene->GetComponent<TransformComponent>(entity);
-    if (!node.matrix.empty()) {
-        Matrix4x4f matrix;
-        matrix[0].x = float(node.matrix.at(0));
-        matrix[0].y = float(node.matrix.at(1));
-        matrix[0].z = float(node.matrix.at(2));
-        matrix[0].w = float(node.matrix.at(3));
-        matrix[1].x = float(node.matrix.at(4));
-        matrix[1].y = float(node.matrix.at(5));
-        matrix[1].z = float(node.matrix.at(6));
-        matrix[1].w = float(node.matrix.at(7));
-        matrix[2].x = float(node.matrix.at(8));
-        matrix[2].y = float(node.matrix.at(9));
-        matrix[2].z = float(node.matrix.at(10));
-        matrix[2].w = float(node.matrix.at(11));
-        matrix[3].x = float(node.matrix.at(12));
-        matrix[3].y = float(node.matrix.at(13));
-        matrix[3].z = float(node.matrix.at(14));
-        matrix[3].w = float(node.matrix.at(15));
-        transform.MatrixTransform(matrix);
-    } else {
-        if (!node.scale.empty()) {
-            // Note: limiting min scale because scale <= 0.0001 will break matrix decompose and mess up the model (float precision issue?)
-            for (int idx = 0; idx < 3; ++idx) {
-                if (std::abs(node.scale[idx]) <= 0.0001) {
-                    const double sign = node.scale[idx] < 0 ? -1 : 1;
-                    node.scale[idx] = 0.0001001 * sign;
-                }
-            }
-            transform.SetScale(Vector3f(float(node.scale[0]), float(node.scale[1]), float(node.scale[2])));
-        }
-        if (!node.rotation.empty()) {
-            transform.SetRotation(Vector4f(float(node.rotation[0]), float(node.rotation[1]), float(node.rotation[2]), float(node.rotation[3])));
-        }
-        if (!node.translation.empty()) {
-            transform.SetTranslation(Vector3f(float(node.translation[0]), float(node.translation[1]), float(node.translation[2])));
-        }
-    }
-    transform.UpdateTransform();
-
-    if (p_parent.IsValid()) {
-        m_scene->AttachChild(entity, p_parent);
-    }
-
-    for (int child : node.children) {
-        ProcessNode(child, entity);
-    }
-}
-
-auto TinyGLTFLoader::Load() -> Result<AssetRef> {
-    m_scene = new Scene;
+    m_scene = std::make_shared<Scene>();
 
     tinygltf::TinyGLTF loader;
     std::string err;
@@ -153,27 +68,24 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
 
     m_model = std::make_shared<tinygltf::Model>();
 
+    std::string source_path = m_source_path.string();
     loader.SetImageLoader(tinygltf::DummyLoadImage, nullptr);
     loader.SetImageWriter(tinygltf::DummyWriteImage, nullptr);
-    bool ret = loader.LoadASCIIFromFile(m_model.get(), &err, &warn, m_filePath);
+    bool ret = loader.LoadASCIIFromFile(m_model.get(), &err, &warn, source_path);
 
     if (!warn.empty()) {
-        return CAVE_ERROR(ErrorCode::FAILURE, "Warn: failed to import scene '{}'\n\tdetails: {}", m_filePath, warn);
+        return CAVE_ERROR(ErrorCode::FAILURE, "Warn: failed to import scene '{}'\n\tdetails: {}", source_path, warn);
     }
 
     if (!err.empty()) {
-        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", m_filePath, err);
+        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", source_path, err);
     }
 
     if (!ret) {
-        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'", m_filePath);
+        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'", source_path);
     }
 
-    ecs::Entity root = m_scene->CreateEntity();
-    m_scene->Create<TransformComponent>(root);
-    m_scene->Create<NameComponent>(root).SetName(m_fileName);
-    m_scene->m_root = root;
-
+#if 0
     // Create materials
     for (const auto& x : m_model->materials) {
         ecs::Entity materialEntity = EntityFactory::CreateMaterialEntity(*m_scene, x.name);
@@ -194,7 +106,6 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
         // auto alphaMode = x.additionalValues.find("alphaMode");
 
         CRASH_NOW();
-#if 0
         MaterialComponent& material = *m_scene->GetComponent<MaterialComponent>(materialEntity);
 
 
@@ -241,7 +152,6 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
             DEV_ASSERT(0);
             // AssetRegistry::GetSingleton().RequestAssetAsync(path);
         }
-#if 0
 		if (emissiveTexture != x.additionalValues.end())
 		{
 			auto& tex = state.gltfModel.textures[emissiveTexture->second.TextureIndex()];
@@ -269,15 +179,15 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
 			material.textures[MaterialComponent::OCCLUSIONMAP].uvset = occlusionTexture->second.TextureTexCoord();
 			material.SetOcclusionEnabled_Secondary(true);
 		}
-#endif
-#endif
     }
+#endif
 
     // Create meshes:
     for (int id = 0; id < (int)m_model->meshes.size(); ++id) {
         const tinygltf::Mesh& mesh = m_model->meshes[id];
         ProcessMesh(mesh, id);
     }
+
     // Create armatures
     for (const auto& skin : m_model->skins) {
         ecs::Entity armature_id = m_scene->CreateEntity();
@@ -294,6 +204,11 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
             LOG_FATAL("No inverse matrices found");
         }
     }
+
+    ecs::Entity root = m_scene->CreateEntity();
+    m_scene->Create<TransformComponent>(root);
+    m_scene->Create<NameComponent>(root).SetName(m_file_name);
+    m_scene->m_root = root;
 
     // Create transform hierarchy, assign objects, meshes, armatures, cameras
     DEV_ASSERT(m_model->scenes.size());
@@ -328,26 +243,21 @@ auto TinyGLTFLoader::Load() -> Result<AssetRef> {
     // Create cameras:
 
     m_scene->m_root = root;
-    return AssetRef(m_scene);
+    return Result<void>();
 }
 
-void TinyGLTFLoader::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
-    ecs::Entity mesh_id = EntityFactory::CreateMeshEntity(*m_scene, "Mesh::" + p_gltf_mesh.name);
-    // m_scene->Component_Attach(mesh_id, state.rootEntity);
-    MeshAsset& mesh = *m_scene->GetComponent<MeshAsset>(mesh_id);
+void ImporterTinyGltf::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
+    std::string name = p_gltf_mesh.name;
+
+    auto mesh_asset = std::make_shared<MeshAsset>();
+    MeshAsset& mesh = *mesh_asset;
 
     for (const auto& prim : p_gltf_mesh.primitives) {
         MeshAsset::MeshSubset subset;
-        CRASH_NOW();
-#if 0
-        if (m_scene->GetCount<MaterialComponent>() == 0) {
-            LOG_FATAL("No material! Consider use default");
-        }
-        subset.material_id = m_scene->GetEntity<MaterialComponent>(max(0, prim.material));
-#endif
 
-        //        const size_t index_remap[] = { 0, 1, 2 };
-        uint32_t vertexOffset = (uint32_t)mesh.normals.size();
+        // subset.material_id = m_scene->GetEntity<MaterialComponent>(max(0, prim.material));
+
+        const uint32_t vertexOffset = (uint32_t)mesh.normals.size();
 
         if (prim.indices >= 0) {
             // Fill indices:
@@ -599,7 +509,112 @@ void TinyGLTFLoader::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
     mesh.CreateRenderData();
 }
 
-void TinyGLTFLoader::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, int) {
+void ImporterTinyGltf::ProcessNode(int p_node_index, ecs::Entity p_parent) {
+    if (p_node_index < 0 || m_entityMap.count(p_node_index)) {
+        return;
+    }
+
+    unused(p_parent);
+#if 0
+    ecs::Entity entity;
+    auto& node = m_model->nodes[p_node_index];
+
+    if (node.mesh >= 0) {
+        DEV_ASSERT(node.mesh < (int)m_scene->GetCount<MeshAsset>());
+        if (node.skin >= 0) {  // this node is an armature
+            entity = m_scene->GetEntity<ArmatureComponent>(node.skin);
+            MeshAsset& mesh = m_scene->m_MeshComponents.GetComponentByIndex(node.mesh);
+            ecs::Entity mesh_id = m_scene->GetEntity<MeshAsset>(node.mesh);
+            DEV_ASSERT(!mesh.joints_0.empty());
+            if (mesh.armatureId.IsValid()) {
+                // Reuse mesh with different skin is not possible currently, so we create a new one:
+                LOG_WARN("Re-use mesh for different skin!");
+                mesh_id = entity;
+                MeshAsset& newMesh = m_scene->Create<MeshAsset>(mesh_id);
+                newMesh = m_scene->m_MeshComponents.GetComponentByIndex(node.mesh);
+                mesh = newMesh;
+            }
+            mesh.armatureId = entity;
+
+            // the object component will use an identity transform but will be parented to the armature
+            ecs::Entity objectID = EntityFactory::CreateObjectEntity(*m_scene, "Animated::" + node.name);
+            MeshRenderer& object = *m_scene->GetComponent<MeshRenderer>(objectID);
+            object.meshId = mesh_id;
+            m_scene->AttachChild(objectID, entity);
+        } else {  // this node is a mesh instance
+            entity = EntityFactory::CreateObjectEntity(*m_scene, "Object::" + node.name);
+            MeshRenderer& object = *m_scene->GetComponent<MeshRenderer>(entity);
+            object.meshId = m_scene->GetEntity<MeshAsset>(node.mesh);
+        }
+    } else if (node.camera >= 0) {
+        LOG_WARN("@TODO: camera");
+    }
+
+    // light
+
+    // transform
+    if (!entity.IsValid()) {
+        entity = m_scene->CreateEntity();
+        m_scene->Create<TransformComponent>(entity);
+        m_scene->Create<NameComponent>(entity).SetName("Transform::" + node.name);
+    }
+
+    m_entityMap[p_node_index] = entity;
+
+    TransformComponent& transform = *m_scene->GetComponent<TransformComponent>(entity);
+    if (!node.matrix.empty()) {
+        Matrix4x4f matrix;
+        matrix[0].x = float(node.matrix.at(0));
+        matrix[0].y = float(node.matrix.at(1));
+        matrix[0].z = float(node.matrix.at(2));
+        matrix[0].w = float(node.matrix.at(3));
+        matrix[1].x = float(node.matrix.at(4));
+        matrix[1].y = float(node.matrix.at(5));
+        matrix[1].z = float(node.matrix.at(6));
+        matrix[1].w = float(node.matrix.at(7));
+        matrix[2].x = float(node.matrix.at(8));
+        matrix[2].y = float(node.matrix.at(9));
+        matrix[2].z = float(node.matrix.at(10));
+        matrix[2].w = float(node.matrix.at(11));
+        matrix[3].x = float(node.matrix.at(12));
+        matrix[3].y = float(node.matrix.at(13));
+        matrix[3].z = float(node.matrix.at(14));
+        matrix[3].w = float(node.matrix.at(15));
+        transform.MatrixTransform(matrix);
+    } else {
+        if (!node.scale.empty()) {
+            // Note: limiting min scale because scale <= 0.0001 will break matrix decompose and mess up the model (float precision issue?)
+            for (int idx = 0; idx < 3; ++idx) {
+                if (std::abs(node.scale[idx]) <= 0.0001) {
+                    const double sign = node.scale[idx] < 0 ? -1 : 1;
+                    node.scale[idx] = 0.0001001 * sign;
+                }
+            }
+            transform.SetScale(Vector3f(float(node.scale[0]), float(node.scale[1]), float(node.scale[2])));
+        }
+        if (!node.rotation.empty()) {
+            transform.SetRotation(Vector4f(float(node.rotation[0]), float(node.rotation[1]), float(node.rotation[2]), float(node.rotation[3])));
+        }
+        if (!node.translation.empty()) {
+            transform.SetTranslation(Vector3f(float(node.translation[0]), float(node.translation[1]), float(node.translation[2])));
+        }
+    }
+    transform.UpdateTransform();
+
+    if (p_parent.IsValid()) {
+        m_scene->AttachChild(entity, p_parent);
+    }
+
+    for (int child : node.children) {
+        ProcessNode(child, entity);
+    }
+#endif
+}
+
+void ImporterTinyGltf::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, int) {
+    unused(p_gltf_anim);
+
+#if 0
     static int s_counter = 0;
 
     std::string tag = p_gltf_anim.name;
@@ -692,7 +707,9 @@ void TinyGLTFLoader::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, in
             animation.channels[index].path = AnimationComponent::Channel::PATH_UNKNOWN;
         }
     }
+#endif
 }
 
 }  // namespace cave
-#endif
+
+#endif  // #if USING(USE_IMPORTER_TINYGLTF)

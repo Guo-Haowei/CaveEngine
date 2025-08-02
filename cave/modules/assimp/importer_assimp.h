@@ -11,7 +11,7 @@
 #endif
 
 #if USING(USE_IMPORTER_ASSIMP)
-#include "engine/assets/importer_interface.h"
+#include "engine/assets/asset_importer.h"
 #include "engine/scene/scene.h"
 
 struct aiMesh;
@@ -45,7 +45,6 @@ protected:
     std::shared_ptr<Scene> m_scene;
 
     const aiScene* m_raw_scene = nullptr;
-    ;
 };
 
 }  // namespace cave

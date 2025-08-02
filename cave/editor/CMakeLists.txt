@@ -25,10 +25,6 @@ set(TARGET_LIBS
     bullet3_physics_manager
 )
 
-if (BUILD_TINYGLTF_LOADER)
-    list(APPEND TARGET_LIBS tinygltf_loader)
-endif()
-
 target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_LIBS})
 
 set_target_properties(${TARGET_NAME}
