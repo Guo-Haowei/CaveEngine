@@ -25,7 +25,7 @@
 #include "editor/panels/property_panel.h"
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
-#include "editor/utility/folder_tree.h"
+#include "editor/utility/content_entry.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"

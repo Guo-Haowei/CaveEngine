@@ -1,0 +1,9 @@
+type: scene
+guid: 28595A64-76BC-E940-A2EE07AD29029698
+name: monkey
+import_path: "@res://models/monkey/monkey.scene"
+dependencies: [890B0A22-950F-D24D-829FFA096C2D8571, 935F026E-C054-6046-913DC55FA22DE59C]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

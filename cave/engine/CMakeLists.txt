@@ -97,7 +97,7 @@ if(WIN32)
     list(APPEND TARGET_LIBS
         glfw
         optick
-        loader_assimp
+        importer_assimp
         opengl_4_backend
         d3d11_backend
         d3d12_backend

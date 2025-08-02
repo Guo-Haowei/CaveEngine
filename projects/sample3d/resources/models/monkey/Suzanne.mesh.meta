@@ -1,0 +1,9 @@
+type: mesh
+guid: 935F026E-C054-6046-913DC55FA22DE59C
+name: Suzanne
+import_path: "@res://models/monkey/Suzanne.mesh"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

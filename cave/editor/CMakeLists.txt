@@ -20,7 +20,6 @@ target_include_directories(${TARGET_NAME} PRIVATE
 
 set(TARGET_LIBS
     engine
-    the_aviator_lib
     imnodes
     box2d_physics_manager
     bullet3_physics_manager

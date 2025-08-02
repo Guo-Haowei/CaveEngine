@@ -240,12 +240,12 @@ TEST(StringUtils, extension_multi_extension) {
 }
 
 TEST(remove_extension, extension_found) {
-    auto file = StringUtils::RemoveExtension("abc.lua", ".lua");
+    auto file = StringUtils::RemoveExtension("abc.lua");
     EXPECT_EQ(file, "abc");
 }
 
 TEST(remove_extension, extension_not_found) {
-    auto file = StringUtils::RemoveExtension("abc.c", ".lua");
+    auto file = StringUtils::RemoveExtension("abc.c");
     EXPECT_EQ(file, "");
 }
 

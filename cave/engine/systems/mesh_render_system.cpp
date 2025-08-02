@@ -26,20 +26,18 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
     cb.c_materialMapHandle = 0;
     cb.c_heightMapHandle = 0;
 
-    // @TODO: fix
-    if (p_material) {
-        cb.c_baseColor = p_material->base_color;
-        cb.c_metallic = p_material->metallic;
-        cb.c_roughness = p_material->roughness;
-        cb.c_emissivePower = p_material->emissive;
-        // cb.c_reflectPower = 0.0f;
-    } else {
+    if (!p_material) {
         cb.c_baseColor = Vector4f(1, 0, 1, 1);
         cb.c_metallic = 0.5f;
         cb.c_roughness = 0.5f;
         cb.c_emissivePower = 0.0f;
-        // cb.c_reflectPower = 0.0f;
+        return;
     }
+
+    cb.c_baseColor = p_material->base_color;
+    cb.c_metallic = p_material->metallic;
+    cb.c_roughness = p_material->roughness;
+    cb.c_emissivePower = p_material->emissive;
 
     // @TODO: [SCRUM-210] fix material
     const auto& images = p_material->m_images;

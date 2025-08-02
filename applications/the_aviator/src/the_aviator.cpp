@@ -1,3 +1,4 @@
+#if 0
 //  @TODO: refactor
 #include "engine/core/base/random.h"
 #include "engine/math/color.h"
@@ -9,7 +10,6 @@
 // @TODO: remove
 #include "engine/math/matrix_transform.h"
 
-#if 0
 namespace std {
 
 template<>
@@ -720,7 +720,6 @@ void SceneCreator::CreatePlane(Scene* p_scene) {
         p_scene->AttachChild(blade2, propeller);
     }
 }
-#endif
 
 Scene* CreateTheAviatorScene() {
     DEV_ASSERT(0);
@@ -730,3 +729,5 @@ Scene* CreateTheAviatorScene() {
 }
 
 }  // namespace cave
+
+#endif

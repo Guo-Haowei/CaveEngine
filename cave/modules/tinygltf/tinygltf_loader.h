@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/assets/asset_loader.h"
+#include "engine/assets/importer_interface.h"
 #include "engine/ecs/entity.h"
 
 #if 0

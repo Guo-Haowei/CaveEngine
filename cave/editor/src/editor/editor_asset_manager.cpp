@@ -1,6 +1,5 @@
 #include "editor_asset_manager.h"
 
-#include "engine/assets/asset_loader.h"
 #include "engine/assets/image_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"

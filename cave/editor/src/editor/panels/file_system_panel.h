@@ -20,8 +20,6 @@ protected:
 
     void DrawFolderTreeNode(const ContentEntry& p_node);
 
-    void FolderPopup(const ContentEntry& p_node);
-
     std::filesystem::path m_root;
     std::filesystem::path m_renaming;
 };
