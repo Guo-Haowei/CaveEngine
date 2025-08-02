@@ -73,9 +73,12 @@ Result<void> SceneImporter::RegisterScene(ecs::Entity p_root) {
     meta.name = m_file_name;
     meta.guid = Guid::Create();
     meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
-    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), m_scene);
+    if (auto res = m_scene->SaveToDisk(meta); !res) {
+        return CAVE_ERROR(res.error());
+    }
 
-    return m_scene->SaveToDisk(meta);
+    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), m_scene);
+    return Result<void>();
 }
 
 }  // namespace cave

@@ -201,6 +201,7 @@ Result<void> TinyGltfImporter::Import() {
 
     ecs::Entity root = m_scene->CreateEntity();
     m_scene->Create<TransformComponent>(root);
+    m_scene->Create<NameComponent>(root);
 
     // Create transform hierarchy, assign objects, meshes, armatures, cameras
     DEV_ASSERT(m_model->scenes.size());

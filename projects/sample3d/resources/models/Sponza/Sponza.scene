@@ -1,0 +1,27 @@
+version: 19
+seed: 2
+root: 1
+physics_mode: 0
+entities:
+  - id: 1
+    NameComponent:
+      name: Sponza
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 2
+    NameComponent:
+      name: "Node::"
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [0.00800000038, 0.00800000038, 0.00800000038]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: C7E9857B-1768-8041-8EB22D7539E715BE
+      materials: []

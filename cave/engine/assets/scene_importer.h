@@ -1,6 +1,7 @@
 #pragma once
 #include "engine/assets/asset_importer.h"
 #include "engine/assets/guid.h"
+#include "engine/ecs/entity.h"
 
 namespace cave {
 

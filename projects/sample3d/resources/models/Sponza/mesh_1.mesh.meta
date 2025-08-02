@@ -1,0 +1,9 @@
+type: mesh
+guid: C7E9857B-1768-8041-8EB22D7539E715BE
+name: mesh_1
+import_path: "@res://models/Sponza/mesh_1.mesh"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

@@ -1,0 +1,9 @@
+type: scene
+guid: 038246D9-4AC9-954E-96E94EC38DE78220
+name: Sponza
+import_path: "@res://models/Sponza/Sponza.scene"
+dependencies: [C7E9857B-1768-8041-8EB22D7539E715BE]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}
