@@ -23,11 +23,11 @@ struct VectorBase {
         }
     }
 
-    constexpr T& operator[](int p_index) {
+    constexpr T& operator[](size_t p_index) {
         return Data()[p_index];
     }
 
-    constexpr const T& operator[](int p_index) const {
+    constexpr const T& operator[](size_t p_index) const {
         return Data()[p_index];
     }
 };
