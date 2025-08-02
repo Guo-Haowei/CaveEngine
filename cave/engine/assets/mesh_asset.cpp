@@ -72,8 +72,6 @@ std::vector<Guid> MeshAsset::GetDependencies() const {
 }
 
 Result<void> MeshAsset::SaveToDisk(const AssetMetaData& p_meta) const {
-    unused(p_meta);
-#if 0
     if (auto res = p_meta.SaveToDisk(this); !res) {
         return CAVE_ERROR(res.error());
     }
@@ -87,7 +85,6 @@ Result<void> MeshAsset::SaveToDisk(const AssetMetaData& p_meta) const {
     // bypass the const check
     auto asset = const_cast<MeshAsset&>(*this);
     asset.SerializeBinary(archive, VERSION);
-#endif
     return Result<void>();
 }
 

@@ -1,11 +1,11 @@
 #pragma once
 
 #if USING(PLATFORM_WINDOWS)
-#define USE_IMPORTER_ASSIMP   IN_USE
+#define USE_IMPORTER_ASSIMP IN_USE
 #elif USING(PLATFORM_APPLE)
-#define USE_IMPORTER_ASSIMP   NOT_IN_USE
+#define USE_IMPORTER_ASSIMP NOT_IN_USE
 #elif USING(PLATFORM_WASM)
-#define USE_IMPORTER_ASSIMP   NOT_IN_USE
+#define USE_IMPORTER_ASSIMP NOT_IN_USE
 #else
 #error "Platform not supported"
 #endif
@@ -42,7 +42,7 @@ protected:
     std::vector<ecs::Entity> m_materials;
     std::vector<ecs::Entity> m_meshes;
 
-    Scene* m_scene;
+    std::shared_ptr<Scene> m_scene;
 };
 
 }  // namespace cave

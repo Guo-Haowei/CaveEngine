@@ -7,13 +7,25 @@
 
 #include "engine/assets/mesh_asset.h"
 #include "engine/core/io/file_access.h"
+#include "engine/core/string/string_utils.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
 namespace cave {
 
+namespace fs = std::filesystem;
+
 Result<AssetRef> ImporterAssimp::Import() {
-    m_scene = new Scene;
+    // create dest directory
+    m_dest_dir = m_dest_dir / StringUtils::RemoveExtension(m_file_name);
+
+    if (!fs::exists(m_dest_dir)) {
+        fs::create_directories(m_dest_dir);
+    }
+
+    m_scene = std::make_shared<Scene>();
+
     Assimp::Importer importer;
 
     const uint32_t flag = aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_FlipUVs;
@@ -34,9 +46,8 @@ Result<AssetRef> ImporterAssimp::Import() {
         ProcessMaterial(*aiscene->mMaterials[i]);
     }
 
-    std::shared_ptr<MeshAsset> mesh_asset;
     for (uint32_t i = 0; i < numMeshes; ++i) {
-        mesh_asset = ProcessMesh(*aiscene->mMeshes[i]);
+        auto mesh_asset = ProcessMesh(*aiscene->mMeshes[i]);
     }
 
 #if 0
@@ -45,7 +56,8 @@ Result<AssetRef> ImporterAssimp::Import() {
 
     m_scene->m_root = root;
 #endif
-    return AssetRef(mesh_asset);
+
+    return nullptr;
 }
 
 void ImporterAssimp::ProcessMaterial(aiMaterial& p_material) {
@@ -90,11 +102,13 @@ void ImporterAssimp::ProcessMaterial(aiMaterial& p_material) {
 }
 
 std::shared_ptr<MeshAsset> ImporterAssimp::ProcessMesh(const aiMesh& p_mesh) {
+    std::string name = p_mesh.mName.C_Str();
+
     DEV_ASSERT(p_mesh.mNumVertices);
     const std::string mesh_name(p_mesh.mName.C_Str());
     const bool has_uv = p_mesh.mTextureCoords[0];
     if (!has_uv) {
-        LOG_WARN("mesh {} does not have texture coordinates", mesh_name);
+        LOG_WARN("mesh {} does not have texture coordinates", name);
     }
 
     auto mesh_asset = std::make_shared<MeshAsset>();
@@ -124,21 +138,32 @@ std::shared_ptr<MeshAsset> ImporterAssimp::ProcessMesh(const aiMesh& p_mesh) {
         mesh_asset->indices.emplace_back(face.mIndices[2]);
     }
 
-    // DEV_ASSERT(m_materials.size());
+    LOG_WARN("TODO: fix material");
     MeshAsset::MeshSubset subset;
     subset.index_count = (uint32_t)mesh_asset->indices.size();
     subset.index_offset = 0;
-    // CRASH_NOW();
-    // subset.material_id = m_materials.at(p_mesh.mMaterialIndex);
     mesh_asset->subsets.emplace_back(subset);
 
     mesh_asset->CreateRenderData();
+
+    fs::path sys_path = m_dest_dir / std::format("{}.mesh", name);
+
+    AssetMetaData meta;
+    meta.type = AssetType::Mesh;
+    meta.name = std::move(name);
+    meta.guid = Guid::Create();
+    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+
+    mesh_asset->SaveToDisk(meta);
 
     return mesh_asset;
 }
 
 ecs::Entity ImporterAssimp::ProcessNode(const aiNode* p_node, ecs::Entity p_parent) {
     const auto key = std::string(p_node->mName.C_Str());
+    // DEV_ASSERT(m_materials.size());
+    // CRASH_NOW();
+    // subset.material_id = m_materials.at(p_mesh.mMaterialIndex);
 
     ecs::Entity entity;
 

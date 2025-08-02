@@ -27,7 +27,7 @@ public:
 
 protected:
     const std::filesystem::path m_source_path;
-    const std::filesystem::path m_dest_dir;
+    std::filesystem::path m_dest_dir;
 
     std::string m_file_name;
     std::string m_file_path;

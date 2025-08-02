@@ -1,0 +1,9 @@
+type: mesh
+guid: E5E30A8F-190D-C24E-BA841BAF914C6A4E
+name: Suzanne
+import_path: "@res://models/monkey/Suzanne.mesh"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}
