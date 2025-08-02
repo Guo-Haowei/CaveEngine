@@ -38,22 +38,4 @@ std::unique_ptr<IAssetLoader> IAssetLoader::Create(const std::string& p_import_p
     return it->second(p_import_path);
 }
 
-auto BufferAssetLoader::Load() -> Result<AssetRef> {
-    auto res = FileAccess::Open(m_import_path, FileAccess::READ);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    std::shared_ptr<FileAccess> file_access = *res;
-
-    const size_t size = file_access->GetLength();
-
-    std::vector<char> buffer;
-    buffer.resize(size);
-    file_access->ReadBuffer(buffer.data(), size);
-    auto file = new BlobAsset;
-    file->SetBlob(std::move(buffer));
-    return AssetRef(file);
-}
-
 }  // namespace cave

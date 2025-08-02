@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "engine/assets/asset_loader.h"
+#include "engine/assets/blob_asset.h"
 #include "engine/assets/image_asset.h"
 #include "engine/assets/material_asset.h"
 #include "engine/assets/mesh_asset.h"
@@ -43,8 +44,15 @@ namespace cave {
 namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
 
+enum class LoadTaskType : uint8_t {
+    Load,
+    Import,
+};
+
 struct AssetManager::LoadTask {
+    LoadTaskType type;
     Guid guid;
+    std::string path;
     AssetLoadSuccessCallback on_success;
     AssetLoadFailureCallback on_failure;
     void* userdata;
@@ -53,10 +61,10 @@ struct AssetManager::LoadTask {
 // @TODO: get rid of this?
 static struct {
     // @TODO: better wake up
-    std::condition_variable wakeCondition;
+    std::condition_variable wake_condition;
     std::mutex wakeMutex;
     // @TODO: better thread safe queue
-    ConcurrentQueue<AssetManager::LoadTask> jobQueue;
+    ConcurrentQueue<AssetManager::LoadTask> job_queue;
     std::atomic_int runningWorkers;
 } s_assetManagerGlob;
 
@@ -75,6 +83,8 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
             return std::make_shared<TileMapAsset>();
         case AssetType::Material:
             return std::make_shared<MaterialAsset>();
+        case AssetType::Blob:
+            return std::make_shared<BlobAsset>();
         default:
             return nullptr;
     }
@@ -103,15 +113,6 @@ auto AssetManager::InitializeImpl() -> Result<void> {
 
 #if USING(USING_ASSIMP)
     IAssetLoader::RegisterLoader(".obj", ImporterAssimp::CreateLoader);
-#endif
-
-    IAssetLoader::RegisterLoader(".lua", BufferAssetLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".ttf", BufferAssetLoader::CreateLoader);
-
-#if 0
-    IAssetLoader::RegisterLoader(".h", BufferAssetLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".hlsl", BufferAssetLoader::CreateLoader);
-    IAssetLoader::RegisterLoader(".glsl", BufferAssetLoader::CreateLoader);
 #endif
 
     return Result<void>();
@@ -254,23 +255,30 @@ bool AssetManager::LoadAssetAsync(const Guid& p_guid,
                                   AssetLoadSuccessCallback&& p_on_success,
                                   AssetLoadFailureCallback&& p_on_failure,
                                   void* p_userdata) {
-    // @TODO: check queue full
     LoadTask task;
+    task.type = LoadTaskType::Load;
     task.guid = p_guid;
     task.on_success = std::move(p_on_success);
     task.on_failure = std::move(p_on_failure);
     task.userdata = p_userdata;
-    EnqueueLoadTask(task);
-    return true;
+    return EnqueueLoadTask(task);
+}
+
+bool AssetManager::ImportScene(const std::string& p_path) {
+    LoadTask task;
+    task.type = LoadTaskType::Import;
+    task.path = p_path;
+    return EnqueueLoadTask(task);
 }
 
 void AssetManager::FinalizeImpl() {
     RequestShutdown();
 }
 
-void AssetManager::EnqueueLoadTask(LoadTask& p_task) {
-    s_assetManagerGlob.jobQueue.push(std::move(p_task));
-    s_assetManagerGlob.wakeCondition.notify_one();
+bool AssetManager::EnqueueLoadTask(LoadTask& p_task) {
+    s_assetManagerGlob.job_queue.push(std::move(p_task));
+    s_assetManagerGlob.wake_condition.notify_one();
+    return true;
 }
 
 void AssetManager::WorkerMain() {
@@ -280,20 +288,27 @@ void AssetManager::WorkerMain() {
         }
 
         LoadTask task;
-        if (!s_assetManagerGlob.jobQueue.pop(task)) {
+        if (!s_assetManagerGlob.job_queue.pop(task)) {
             std::unique_lock<std::mutex> lock(s_assetManagerGlob.wakeMutex);
-            s_assetManagerGlob.wakeCondition.wait(lock);
+            s_assetManagerGlob.wake_condition.wait(lock);
             continue;
         }
 
         s_assetManagerGlob.runningWorkers.fetch_add(1);
 
-        AssetManager& asset_manager = static_cast<AssetManager&>(IAssetManager::GetSingleton());
-        auto asset = asset_manager.LoadAssetSync(task.guid);
-        if (asset) {
-            task.on_success ? task.on_success(asset, task.userdata) : (void)0;
-        } else {
-            task.on_failure ? task.on_failure(task.userdata) : (void)0;
+        switch (task.type) {
+            case LoadTaskType::Load: {
+                AssetManager& asset_manager = static_cast<AssetManager&>(IAssetManager::GetSingleton());
+                auto asset = asset_manager.LoadAssetSync(task.guid);
+                if (asset) {
+                    task.on_success ? task.on_success(asset, task.userdata) : (void)0;
+                } else {
+                    task.on_failure ? task.on_failure(task.userdata) : (void)0;
+                }
+            } break;
+            case LoadTaskType::Import: {
+                LOG_WARN("@TODO: {}", task.path);
+            } break;
         }
 
         s_assetManagerGlob.runningWorkers.fetch_sub(1);
@@ -301,7 +316,7 @@ void AssetManager::WorkerMain() {
 }
 
 void AssetManager::RequestShutdown() {
-    s_assetManagerGlob.wakeCondition.notify_all();
+    s_assetManagerGlob.wake_condition.notify_all();
 }
 
 }  // namespace cave

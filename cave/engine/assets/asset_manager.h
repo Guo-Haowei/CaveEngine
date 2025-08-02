@@ -24,13 +24,15 @@ public:
                         AssetLoadFailureCallback&& p_on_failure,
                         void* p_userdata) override;
 
+    bool ImportScene(const std::string& p_path) override;
+
     static void WorkerMain();
     static void RequestShutdown();
 
 private:
     AssetRef LoadAssetSync(const Guid& p_guid);
 
-    void EnqueueLoadTask(LoadTask& p_task);
+    bool EnqueueLoadTask(LoadTask& p_task);
 
     uint32_t m_fps_counter{ 0 };
     std::mutex m_assetLock;

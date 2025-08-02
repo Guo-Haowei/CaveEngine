@@ -31,15 +31,4 @@ protected:
     std::string m_extension;
 };
 
-class BufferAssetLoader : public IAssetLoader {
-public:
-    using IAssetLoader::IAssetLoader;
-
-    static std::unique_ptr<IAssetLoader> CreateLoader(const std::string& p_import_path) {
-        return std::make_unique<BufferAssetLoader>(p_import_path);
-    }
-
-    auto Load() -> Result<AssetRef> override;
-};
-
 }  // namespace cave

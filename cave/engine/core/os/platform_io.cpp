@@ -20,7 +20,7 @@ void RevealInFolder(const fs::path& p_path) {
     ::ShellExecuteA(NULL, "open", "explorer.exe", path.c_str(), NULL, SW_SHOWNORMAL);
 }
 
-std::string OpenFileDialog(const std::vector<const char*>& p_filters) {
+Option<std::string> OpenFileDialog(const std::vector<const char*>& p_filters) {
     std::string filter_str;
     if (p_filters.empty()) {
         filter_str = "*.*";
@@ -43,20 +43,20 @@ std::string OpenFileDialog(const std::vector<const char*>& p_filters) {
 
     OPENFILENAMEA ofn;
     ZeroMemory(&ofn, sizeof(ofn));
-    char szFile[260] = { 0 };
+    char file_buffer[260] = { 0 };
     ofn.lStructSize = sizeof(ofn);
     // ofn.hwndOwner = DEV_ASSERT(0);
     ofn.hwndOwner = NULL;
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFile = file_buffer;
+    ofn.nMaxFile = sizeof(file_buffer);
     ofn.lpstrFilter = buffer;
     ofn.nFilterIndex = 1;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
     if (GetOpenFileNameA(&ofn)) {
-        return std::string(szFile);
+        return Some(std::string(file_buffer));
     }
 
-    return "";
+    return None();
 }
 
 bool OpenSaveDialog(std::filesystem::path& p_inout_path) {

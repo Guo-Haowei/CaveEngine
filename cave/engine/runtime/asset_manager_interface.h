@@ -28,6 +28,8 @@ public:
                                 AssetLoadSuccessCallback&& p_on_success,
                                 AssetLoadFailureCallback&& p_on_failure,
                                 void* p_userdata) = 0;
+
+    virtual bool ImportScene(const std::string& p_path) = 0;
 };
 
 }  // namespace cave

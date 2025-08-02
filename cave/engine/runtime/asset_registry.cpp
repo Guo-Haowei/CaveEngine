@@ -67,7 +67,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
         DEV_ASSERT(value.has_source);
         auto meta = AssetMetaData::CreateMeta(key);
         if (meta.is_none()) {
-            LOG_WARN("file '{}' not supported", key);
+            // LOG_WARN("file '{}' not supported", key);
             continue;
         }
 

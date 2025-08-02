@@ -145,7 +145,10 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
                 ".gltf",
                 ".fbx",
             };
-            os::OpenFileDialog(filter);
+
+            if (auto path = os::OpenFileDialog(filter); path.is_some()) {
+                IAssetManager::GetSingleton().ImportScene(path.unwrap_unchecked());
+            }
         }
         ImGui::EndMenu();
     }
