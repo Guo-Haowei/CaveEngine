@@ -201,8 +201,6 @@ Result<void> TinyGltfImporter::Import() {
 
     ecs::Entity root = m_scene->CreateEntity();
     m_scene->Create<TransformComponent>(root);
-    m_scene->Create<NameComponent>(root).SetName(m_file_name);
-    m_scene->m_root = root;
 
     // Create transform hierarchy, assign objects, meshes, armatures, cameras
     DEV_ASSERT(m_model->scenes.size());
@@ -212,6 +210,7 @@ Result<void> TinyGltfImporter::Import() {
     }
 
     // Create armature-bone mappings:
+#if 0
     int armatureIndex = 0;
     for (const auto& skin : m_model->skins) {
         //        ecs::Entity armature_id = m_scene->GetEntity<ArmatureComponent>(armatureIndex);
@@ -223,7 +222,7 @@ Result<void> TinyGltfImporter::Import() {
         // create bone collection
         for (size_t i = 0; i < jointCount; ++i) {
             int jointIndex = skin.joints[i];
-            ecs::Entity boneID = m_entityMap[jointIndex];
+            ecs::Entity boneID = m_node_map[jointIndex];
             armature.boneCollection[i] = boneID;
         }
     }
@@ -233,20 +232,20 @@ Result<void> TinyGltfImporter::Import() {
         const tinygltf::Animation& anim = m_model->animations[id];
         ProcessAnimation(anim, id);
     }
+#endif
     // Create lights:
     // Create cameras:
 
-    m_scene->m_root = root;
-    return Result<void>();
+    return RegisterScene(root);
 }
 
-void TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
-    std::string name = p_gltf_mesh.name;
+void TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_mesh, int) {
+    std::string name = p_mesh.name.empty() ? GenerateMeshName() : p_mesh.name;
 
     auto mesh_asset = std::make_shared<MeshAsset>();
     MeshAsset& mesh = *mesh_asset;
 
-    for (const auto& prim : p_gltf_mesh.primitives) {
+    for (const auto& prim : p_mesh.primitives) {
         MeshAsset::MeshSubset subset;
 
         // subset.material_id = m_scene->GetEntity<MaterialComponent>(max(0, prim.material));
@@ -501,21 +500,23 @@ void TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
     }
 
     mesh.CreateRenderData();
+
+    Guid guid = RegisterMesh(std::move(name), std::move(mesh_asset)).value();
+    m_meshes.push_back(guid);
 }
 
 void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
-    if (p_node_index < 0 || m_entityMap.count(p_node_index)) {
+    if (p_node_index < 0 || m_node_map.count(p_node_index)) {
         return;
     }
 
     unused(p_parent);
-#if 0
     ecs::Entity entity;
     auto& node = m_model->nodes[p_node_index];
 
     if (node.mesh >= 0) {
-        DEV_ASSERT(node.mesh < (int)m_scene->GetCount<MeshAsset>());
         if (node.skin >= 0) {  // this node is an armature
+#if 0
             entity = m_scene->GetEntity<ArmatureComponent>(node.skin);
             MeshAsset& mesh = m_scene->m_MeshComponents.GetComponentByIndex(node.mesh);
             ecs::Entity mesh_id = m_scene->GetEntity<MeshAsset>(node.mesh);
@@ -535,10 +536,11 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
             MeshRenderer& object = *m_scene->GetComponent<MeshRenderer>(objectID);
             object.meshId = mesh_id;
             m_scene->AttachChild(objectID, entity);
+#endif
         } else {  // this node is a mesh instance
-            entity = EntityFactory::CreateObjectEntity(*m_scene, "Object::" + node.name);
-            MeshRenderer& object = *m_scene->GetComponent<MeshRenderer>(entity);
-            object.meshId = m_scene->GetEntity<MeshAsset>(node.mesh);
+            entity = EntityFactory::CreateObjectEntity(*m_scene, "Node::" + node.name);
+            MeshRendererComponent& mesh = *m_scene->GetComponent<MeshRendererComponent>(entity);
+            mesh.SetResourceGuid(m_meshes.at(node.mesh));
         }
     } else if (node.camera >= 0) {
         LOG_WARN("@TODO: camera");
@@ -553,7 +555,8 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
         m_scene->Create<NameComponent>(entity).SetName("Transform::" + node.name);
     }
 
-    m_entityMap[p_node_index] = entity;
+    auto [_, ok] = m_node_map.try_emplace(p_node_index, entity);
+    DEV_ASSERT(ok);
 
     TransformComponent& transform = *m_scene->GetComponent<TransformComponent>(entity);
     if (!node.matrix.empty()) {
@@ -602,7 +605,6 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     for (int child : node.children) {
         ProcessNode(child, entity);
     }
-#endif
 }
 
 void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, int) {
@@ -686,7 +688,7 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, 
 
     for (size_t index = 0; index < p_gltf_anim.channels.size(); ++index) {
         const auto& channel = p_gltf_anim.channels[index];
-        animation.channels[index].targetId = m_entityMap[channel.target_node];
+        animation.channels[index].targetId = m_node_map[channel.target_node];
         DEV_ASSERT(channel.sampler >= 0);
         animation.channels[index].samplerIndex = (uint32_t)channel.sampler;
 

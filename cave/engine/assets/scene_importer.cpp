@@ -1,6 +1,11 @@
 #include "scene_importer.h"
 
+#include "engine/assets/mesh_asset.h"
 #include "engine/core/string/string_utils.h"
+#include "engine/renderer/graphics_manager.h"
+#include "engine/runtime/asset_manager_interface.h"
+#include "engine/runtime/asset_registry.h"
+#include "engine/scene/entity_factory.h"
 
 namespace cave {
 
@@ -27,6 +32,50 @@ Result<void> SceneImporter::PrepareImport() {
     }
 
     return Result<void>();
+}
+
+std::string SceneImporter::NameGenerator(std::string_view p_name, uint32_t& p_counter) {
+    ++p_counter;
+    return std::format("{}_{}", p_name, p_counter);
+}
+
+Result<Guid> SceneImporter::RegisterMesh(std::string&& p_mesh_name,
+                                         std::shared_ptr<MeshAsset>&& p_mesh) {
+    fs::path sys_path = m_dest_dir / std::format("{}.mesh", p_mesh_name);
+
+    Guid guid = Guid::Create();
+    AssetMetaData meta;
+    meta.type = AssetType::Mesh;
+    meta.name = std::move(p_mesh_name);
+    meta.guid = guid;
+    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+
+    if (auto res = p_mesh->SaveToDisk(meta); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), p_mesh);
+
+    // @TODO: move it to somewhere else, if it's headless, no need to create gpu data
+    GraphicsManager::GetSingleton().RequestMesh(p_mesh.get());
+
+    return Result<Guid>(guid);
+}
+
+Result<void> SceneImporter::RegisterScene(ecs::Entity p_root) {
+    m_scene->m_root = p_root;
+    m_scene->GetComponent<NameComponent>(p_root)->SetName(m_file_name);
+
+    fs::path sys_path = m_dest_dir / std::format("{}.scene", m_file_name);
+
+    AssetMetaData meta;
+    meta.type = AssetType::Scene;
+    meta.name = m_file_name;
+    meta.guid = Guid::Create();
+    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), m_scene);
+
+    return m_scene->SaveToDisk(meta);
 }
 
 }  // namespace cave

@@ -92,7 +92,7 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     m_assets_root = fs::path{ m_app->GetResourceFolder() };
 
 #if USING(USE_IMPORTER_TINYGLTF)
-    // IAssetLoader::RegisterLoader(".gltf", TinyGLTFLoader::CreateLoader);
+    AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
 #endif
 
 #if USING(USE_IMPORTER_ASSIMP)

@@ -7,9 +7,6 @@
 
 #include "engine/assets/material_asset.h"
 #include "engine/assets/mesh_asset.h"
-#include "engine/core/io/file_access.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
@@ -49,20 +46,7 @@ Result<void> AssimpImporter::Import() {
 
     ecs::Entity root = ProcessNode(m_raw_scene->mRootNode, ecs::Entity::Null());
 
-    m_scene->GetComponent<NameComponent>(root)->SetName(m_file_name);
-    m_scene->m_root = root;
-
-    fs::path sys_path = m_dest_dir / std::format("{}.scene", m_file_name);
-
-    AssetMetaData meta;
-    meta.type = AssetType::Scene;
-    meta.name = m_file_name;
-    meta.guid = Guid::Create();
-    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
-    m_scene->SaveToDisk(meta);
-    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), m_scene);
-
-    return Result<void>();
+    return RegisterScene(root);
 }
 
 Guid AssimpImporter::ProcessMaterial(aiMaterial& p_material) {
@@ -161,32 +145,14 @@ Guid AssimpImporter::ProcessMesh(const aiMesh& p_mesh) {
     subset.index_count = (uint32_t)mesh_asset->indices.size();
     subset.index_offset = 0;
     mesh_asset->subsets.emplace_back(subset);
-
     mesh_asset->CreateRenderData();
 
-    fs::path sys_path = m_dest_dir / std::format("{}.mesh", name);
-
-    AssetMetaData meta;
-    meta.type = AssetType::Mesh;
-    meta.name = std::move(name);
-    meta.guid = Guid::Create();
-    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
-
-    mesh_asset->SaveToDisk(meta);
-
-    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), mesh_asset);
-
-    // @TODO: move it to somewhere else, if it's headless, no need to create gpu data
-    GraphicsManager::GetSingleton().RequestMesh(mesh_asset.get());
-
-    return meta.guid;
+    // @TODO: error handling
+    return RegisterMesh(std::move(name), std::move(mesh_asset)).value();
 }
 
 ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_parent) {
     const auto key = std::string(p_node->mName.C_Str());
-    // DEV_ASSERT(m_materials.size());
-    // CRASH_NOW();
-    // subset.material_id = m_materials.at(p_mesh.mMaterialIndex);
 
     ecs::Entity entity;
 

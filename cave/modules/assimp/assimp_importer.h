@@ -39,9 +39,6 @@ protected:
 
     ecs::Entity ProcessNode(const aiNode* p_node, ecs::Entity p_parent);
 
-    std::vector<Guid> m_materials;
-    std::vector<Guid> m_meshes;
-
     const aiScene* m_raw_scene = nullptr;
 };
 
