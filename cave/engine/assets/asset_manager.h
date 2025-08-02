@@ -17,12 +17,14 @@ public:
 
     Result<void> MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) override;
 
-    std::string ResolvePath(const std::filesystem::path& p_path) override;
+    [[nodiscard]] std::string ResolvePath(const std::filesystem::path& p_path) override;
 
     bool LoadAssetAsync(const Guid& p_guid,
                         AssetLoadSuccessCallback&& p_on_success,
                         AssetLoadFailureCallback&& p_on_failure,
                         void* p_userdata) override;
+
+    AssetRef LoadAssetSync(const Guid& p_guid) override;
 
     bool ImportSceneAsync(const std::filesystem::path& p_source_path,
                           const std::filesystem::path& p_dest_dir) override;
@@ -31,7 +33,6 @@ public:
     static void RequestShutdown();
 
 private:
-    AssetRef LoadAssetSync(const Guid& p_guid);
     void ImportSceneSync(LoadTask&& p_task);
 
     bool EnqueueLoadTask(LoadTask& p_task);

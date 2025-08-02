@@ -1,5 +1,5 @@
 type: mesh
-guid: C7E9857B-1768-8041-8EB22D7539E715BE
+guid: E4AD9ADC-FA1F-7349-A2C5F48FAB948D35
 name: mesh_1
 import_path: "@res://models/Sponza/mesh_1.mesh"
 dependencies: []

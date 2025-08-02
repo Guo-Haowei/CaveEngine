@@ -149,17 +149,15 @@ Guid TinyGltfImporter::ProcessMaterial(const tinygltf::Material& p_material) {
     const auto& x = p_material;
     std::string name = x.name.empty() ? GenerateMaterialName() : x.name;
 
-    auto mat_asset = std::make_shared<MaterialAsset>();
+    auto material_asset = std::make_shared<MaterialAsset>();
 
-    // metallic-roughness workflow:
-    auto baseColorTexture = x.values.find("baseColorTexture");
-    auto metallicRoughnessTexture = x.values.find("metallicRoughnessTexture");
     auto base_color = x.values.find("baseColorFactor");
-    // auto roughnessFactor = x.values.find("roughnessFactor");
-    // auto metallicFactor = x.values.find("metallicFactor");
+    auto roughness = x.values.find("roughnessFactor");
+    auto metallic = x.values.find("metallicFactor");
 
-    // common workflow:
-    auto normalTexture = x.additionalValues.find("normalTexture");
+    auto base_color_tex = x.values.find("baseColorTexture");
+    auto normal_tex = x.additionalValues.find("normalTexture");
+    auto metallic_roughness_tex = x.values.find("metallicRoughnessTexture");
     // auto emissiveTexture = x.additionalValues.find("emissiveTexture");
     // auto occlusionTexture = x.additionalValues.find("occlusionTexture");
     // auto emissiveFactor = x.additionalValues.find("emissiveFactor");
@@ -169,49 +167,48 @@ Guid TinyGltfImporter::ProcessMaterial(const tinygltf::Material& p_material) {
     if (base_color != x.values.end()) {
         const auto& number_array = base_color->second.number_array;
         for (size_t idx = 0; idx < number_array.size(); ++idx) {
-            mat_asset->base_color[idx] = static_cast<float>(number_array[idx]);
+            material_asset->base_color[idx] = static_cast<float>(number_array[idx]);
         }
     }
 
-    return RegisterMaterial(std::move(name), std::move(mat_asset)).value();
+    if (roughness != x.values.end()) {
+        material_asset->roughness = static_cast<float>(roughness->second.number_value);
+    }
+
+    if (metallic != x.values.end()) {
+        material_asset->metallic = static_cast<float>(metallic->second.number_value);
+    }
+
+    if (base_color_tex != x.values.end()) {
+        auto& tex = m_model->textures[base_color_tex->second.TextureIndex()];
+        int img_source = tex.source;
+        auto& img = m_model->images[img_source];
+        const std::string path = m_base_path + img.uri;
+        Guid guid = RegisterImage(path).value();
+        material_asset->textures[std::to_underlying(TextureSlot::Base)] = guid;
+    }
+
+    if (normal_tex != x.additionalValues.end()) {
+        auto& tex = m_model->textures[normal_tex->second.TextureIndex()];
+        int img_source = tex.source;
+        auto& img = m_model->images[img_source];
+        const std::string path = m_base_path + img.uri;
+        Guid guid = RegisterImage(path).value();
+        material_asset->textures[std::to_underlying(TextureSlot::Normal)] = guid;
+    }
+
+    if (metallic_roughness_tex != x.values.end()) {
+        auto& tex = m_model->textures[metallic_roughness_tex->second.TextureIndex()];
+        int img_source = tex.source;
+        auto& img = m_model->images[img_source];
+        const std::string path = m_base_path + img.uri;
+        Guid guid = RegisterImage(path).value();
+        material_asset->textures[std::to_underlying(TextureSlot::MetallicRoughness)] = guid;
+    }
+
+    return RegisterMaterial(std::move(name), std::move(material_asset)).value();
 
 #if 0
-    if (baseColorTexture != x.values.end()) {
-        auto& tex = m_model->textures[baseColorTexture->second.TextureIndex()];
-        int img_source = tex.source;
-        if (tex.extensions.count("KHR_texture_basisu")) {
-            img_source = tex.extensions["KHR_texture_basisu"].Get("source").Get<int>();
-        }
-        auto& img = m_model->images[img_source];
-        const std::string path = m_basePath + img.uri;
-        material.textures[MaterialComponent::TEXTURE_BASE].path = path;
-        DEV_ASSERT(0);
-        // AssetRegistry::GetSingleton().RequestAssetAsync(path);
-    }
-    if (normalTexture != x.additionalValues.end()) {
-        auto& tex = m_model->textures[normalTexture->second.TextureIndex()];
-        int img_source = tex.source;
-        if (tex.extensions.count("KHR_texture_basisu")) {
-            img_source = tex.extensions["KHR_texture_basisu"].Get("source").Get<int>();
-        }
-        auto& img = m_model->images[img_source];
-        const std::string path = m_basePath + img.uri;
-        material.textures[MaterialComponent::TEXTURE_NORMAL].path = path;
-        DEV_ASSERT(0);
-        // AssetRegistry::GetSingleton().RequestAssetAsync(path);
-    }
-    if (metallicRoughnessTexture != x.values.end()) {
-        auto& tex = m_model->textures[metallicRoughnessTexture->second.TextureIndex()];
-        int img_source = tex.source;
-        if (tex.extensions.count("KHR_texture_basisu")) {
-            img_source = tex.extensions["KHR_texture_basisu"].Get("source").Get<int>();
-        }
-        auto& img = m_model->images[img_source];
-        const std::string path = m_basePath + img.uri;
-        material.textures[MaterialComponent::TEXTURE_METALLIC_ROUGHNESS].path = path;
-        DEV_ASSERT(0);
-        // AssetRegistry::GetSingleton().RequestAssetAsync(path);
-    }
     if (emissiveTexture != x.additionalValues.end()) {
         auto& tex = state.gltfModel.textures[emissiveTexture->second.TextureIndex()];
         int img_source = tex.source;
@@ -246,8 +243,6 @@ Guid TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_mesh) {
 
     for (const auto& prim : p_mesh.primitives) {
         MeshAsset::MeshSubset subset;
-
-        // subset.material_id = m_scene->GetEntity<MaterialComponent>(max(0, prim.material));
 
         const uint32_t vertexOffset = (uint32_t)mesh.normals.size();
 
@@ -536,8 +531,18 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 #endif
         } else {  // this node is a mesh instance
             entity = EntityFactory::CreateMeshInstance(*m_scene, "Node::" + node.name);
-            MeshRendererComponent& mesh = *m_scene->GetComponent<MeshRendererComponent>(entity);
-            mesh.SetResourceGuid(m_meshes.at(node.mesh));
+            MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(entity);
+            renderer.SetResourceGuid(m_meshes.at(node.mesh));
+
+            const tinygltf::Mesh& mesh = m_model->meshes[node.mesh];
+            for (const auto& prim : mesh.primitives) {
+                ecs::Entity material_id = m_scene->CreateEntity();
+                renderer.AddMaterial(material_id);
+
+                Guid material_guid = m_materials[prim.material];
+                MaterialComponent& material_instance = m_scene->Create<MaterialComponent>(material_id);
+                material_instance.SetResourceGuid(material_guid);
+            }
         }
     } else if (node.camera >= 0) {
         LOG_WARN("@TODO: camera");

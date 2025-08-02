@@ -1,0 +1,7 @@
+version: 0
+content:
+  base_color: [0.588, 0.588, 0.588, 1]
+  metallic: 0
+  roughness: 1
+  emissive: 0
+  textures: [97285FC9-E4CF-6B45-84336C3D44998E32, 3E1C963B-D376-DE45-ACD03D3F1A7A57BA, B79F1B79-EFFA-D248-BC00FF34D013CD36]

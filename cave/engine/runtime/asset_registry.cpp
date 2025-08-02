@@ -29,14 +29,14 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
     // go through all files, create meta if not exists
     for (const auto& entry : fs::recursive_directory_iterator(assets_root)) {
         if (entry.is_regular_file()) {
-            std::string short_path = m_app->GetAssetManager()->ResolvePath(entry.path());
+            std::string virtual_path = m_app->GetAssetManager()->ResolvePath(entry.path());
 
-            auto ext = StringUtils::Extension(short_path);
+            auto ext = StringUtils::Extension(virtual_path);
             if (ext == ".meta") {
-                short_path.resize(short_path.size() - 5);  // remove '.meta'
-                resources[short_path].has_meta = true;
+                virtual_path.resize(virtual_path.size() - 5);  // remove '.meta'
+                resources[virtual_path].has_meta = true;
             } else {
-                resources[short_path].has_source = true;
+                resources[virtual_path].has_source = true;
             }
         }
     }
@@ -148,6 +148,7 @@ struct TransparentCompare {
 };
 
 void AssetRegistry::RegisterAsset(AssetMetaData&& p_meta, AssetRef p_asset) {
+
     std::lock_guard lock(registry_mutex);
 
     Guid guid = p_meta.guid;
@@ -158,7 +159,7 @@ void AssetRegistry::RegisterAsset(AssetMetaData&& p_meta, AssetRef p_asset) {
 
     {
         std::shared_ptr<AssetEntry> entry = std::make_shared<AssetEntry>(std::move(p_meta));
-        entry->status = AssetStatus::Loaded;
+        entry->status = p_asset ? AssetStatus::Loaded : AssetStatus::Unloaded;
         entry->asset = p_asset;
         auto [_, ok] = m_guid_map.try_emplace(guid, std::move(entry));
         DEV_ASSERT(ok);

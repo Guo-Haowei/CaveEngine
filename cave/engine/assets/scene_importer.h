@@ -17,6 +17,8 @@ public:
 protected:
     Result<void> PrepareImport();
 
+    Result<Guid> RegisterImage(const std::filesystem::path& p_sys_path);
+
     Result<Guid> RegisterMaterial(std::string&& p_name,
                                   std::shared_ptr<MaterialAsset>&& p_material);
 

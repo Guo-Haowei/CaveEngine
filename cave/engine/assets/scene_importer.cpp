@@ -1,5 +1,6 @@
 #include "scene_importer.h"
 
+#include "engine/assets/image_asset.h"
 #include "engine/assets/material_asset.h"
 #include "engine/assets/mesh_asset.h"
 #include "engine/core/string/string_utils.h"
@@ -18,7 +19,7 @@ SceneImporter::SceneImporter(const std::filesystem::path& p_source_path,
 
     m_file_name = StringUtils::RemoveExtension(m_source_path.filename().string());
 
-    m_base_path = fs::path(m_base_path).remove_filename().string();
+    m_base_path = fs::path(m_source_path).remove_filename().string();
 
     m_dest_dir = m_dest_dir / m_file_name;
 }
@@ -38,6 +39,39 @@ Result<void> SceneImporter::PrepareImport() {
 std::string SceneImporter::NameGenerator(std::string_view p_name, uint32_t& p_counter) {
     ++p_counter;
     return std::format("{}_{}", p_name, p_counter);
+}
+
+Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_path) {
+    fs::path name = p_sys_path.filename();
+
+    fs::path image_path = m_dest_dir / name;
+
+    std::string virtual_path = IAssetManager::GetSingleton().ResolvePath(image_path);
+    if (auto res = AssetRegistry::GetSingleton().FindByPath<ImageAsset>(virtual_path); res.is_some()) {
+        return res.unwrap_unchecked().GetGuid();
+    }
+
+    // copy image to dest
+    fs::copy_file(p_sys_path, image_path);
+
+    auto _meta = AssetMetaData::CreateMeta(virtual_path);
+    if (_meta.is_none()) {
+        CRASH_NOW();
+    }
+
+    // save meta
+    AssetMetaData meta = std::move(_meta.unwrap_unchecked());
+    if (auto res = meta.SaveToDisk(nullptr); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    Guid guid = meta.guid;
+
+    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), nullptr);
+
+    IAssetManager::GetSingleton().LoadAssetSync(guid);
+
+    return guid;
 }
 
 Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,

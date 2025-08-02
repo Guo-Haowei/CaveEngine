@@ -1,5 +1,5 @@
 version: 19
-seed: 2
+seed: 105
 root: 1
 physics_mode: 0
 entities:
@@ -23,5 +23,829 @@ entities:
       is_visible: true
       cast_shadow: true
       transparency: false
-      mesh_id: C7E9857B-1768-8041-8EB22D7539E715BE
-      materials: []
+      mesh_id: E4AD9ADC-FA1F-7349-A2C5F48FAB948D35
+      materials:
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        - 25
+        - 26
+        - 27
+        - 28
+        - 29
+        - 30
+        - 31
+        - 32
+        - 33
+        - 34
+        - 35
+        - 36
+        - 37
+        - 38
+        - 39
+        - 40
+        - 41
+        - 42
+        - 43
+        - 44
+        - 45
+        - 46
+        - 47
+        - 48
+        - 49
+        - 50
+        - 51
+        - 52
+        - 53
+        - 54
+        - 55
+        - 56
+        - 57
+        - 58
+        - 59
+        - 60
+        - 61
+        - 62
+        - 63
+        - 64
+        - 65
+        - 66
+        - 67
+        - 68
+        - 69
+        - 70
+        - 71
+        - 72
+        - 73
+        - 74
+        - 75
+        - 76
+        - 77
+        - 78
+        - 79
+        - 80
+        - 81
+        - 82
+        - 83
+        - 84
+        - 85
+        - 86
+        - 87
+        - 88
+        - 89
+        - 90
+        - 91
+        - 92
+        - 93
+        - 94
+        - 95
+        - 96
+        - 97
+        - 98
+        - 99
+        - 100
+        - 101
+        - 102
+        - 103
+        - 104
+        - 105
+  - id: 3
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 79416BF5-BEBB-2149-9FD5D61E7013B15C
+  - id: 4
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 443B0ABE-7C58-4643-846D8B526E31710F
+  - id: 5
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 1A726BA8-989E-8447-A8A174C6DCF65FF9
+  - id: 6
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: CA5BA58B-76D6-4D4F-AC20BA38C3E76B0B
+  - id: 7
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 8
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 9
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 10
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 86D50AAC-6014-3743-811E6B71D62D1D36
+  - id: 11
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 12
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: C6AD53A6-D910-FF48-A4B4F51FC1192440
+  - id: 13
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 14
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 15
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 189EFF5F-32EB-D940-BC0B090036E98A61
+  - id: 16
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 17
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 18
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 19
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 20
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 21
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 22
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 23
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 24
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 25
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 26
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 27
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 28
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 29
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 30
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 31
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 32
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 33
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 34
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 35
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 36
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3CED857A-17CC-A341-BFB5D105B12A2298
+  - id: 37
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 38
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 39
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 40
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 41
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 15805B2F-2772-AB4B-9CE46FD349EFDCC1
+  - id: 42
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 43
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 15805B2F-2772-AB4B-9CE46FD349EFDCC1
+  - id: 44
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 45
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 15805B2F-2772-AB4B-9CE46FD349EFDCC1
+  - id: 46
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 47
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 189EFF5F-32EB-D940-BC0B090036E98A61
+  - id: 48
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 49
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: C6AD53A6-D910-FF48-A4B4F51FC1192440
+  - id: 50
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 86D50AAC-6014-3743-811E6B71D62D1D36
+  - id: 51
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6E232700-BA8D-574A-AC35F86CE7051609
+  - id: 52
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3679453F-442F-F141-B2827B72D3AC0147
+  - id: 53
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 21B59E4B-242D-484F-91963A619A94B67A
+  - id: 54
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 55
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 824ADE41-C28D-9346-97118E0431DCCE9E
+  - id: 56
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 79416BF5-BEBB-2149-9FD5D61E7013B15C
+  - id: 57
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 888140B8-1F8D-9D48-951E623F4BE99C38
+  - id: 58
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 7AE52F33-89B5-5240-9CD46388EA553A8C
+  - id: 59
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 5D86436C-DE4D-C74F-836F566A5A56F892
+  - id: 60
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 888140B8-1F8D-9D48-951E623F4BE99C38
+  - id: 61
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 7AE52F33-89B5-5240-9CD46388EA553A8C
+  - id: 62
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 888140B8-1F8D-9D48-951E623F4BE99C38
+  - id: 63
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 5D86436C-DE4D-C74F-836F566A5A56F892
+  - id: 64
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 7AE52F33-89B5-5240-9CD46388EA553A8C
+  - id: 65
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 824ADE41-C28D-9346-97118E0431DCCE9E
+  - id: 66
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3151ADC7-BB18-B143-902C35970D6B73D5
+  - id: 67
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: CA852965-859D-EB40-80B20E86081080B1
+  - id: 68
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 08D1E073-70FD-BE4E-9EF6CE08F4C2360B
+  - id: 69
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: CA852965-859D-EB40-80B20E86081080B1
+  - id: 70
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 08D1E073-70FD-BE4E-9EF6CE08F4C2360B
+  - id: 71
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: CA852965-859D-EB40-80B20E86081080B1
+  - id: 72
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3151ADC7-BB18-B143-902C35970D6B73D5
+  - id: 73
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 08D1E073-70FD-BE4E-9EF6CE08F4C2360B
+  - id: 74
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: CA852965-859D-EB40-80B20E86081080B1
+  - id: 75
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 3151ADC7-BB18-B143-902C35970D6B73D5
+  - id: 76
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 08627C72-DB0B-D045-8AE9B1BC84DED34D
+  - id: 77
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6C490C81-45C8-2342-96179E381B8425C5
+  - id: 78
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 08627C72-DB0B-D045-8AE9B1BC84DED34D
+  - id: 79
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6C490C81-45C8-2342-96179E381B8425C5
+  - id: 80
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 08627C72-DB0B-D045-8AE9B1BC84DED34D
+  - id: 81
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6C490C81-45C8-2342-96179E381B8425C5
+  - id: 82
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 08627C72-DB0B-D045-8AE9B1BC84DED34D
+  - id: 83
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 6C490C81-45C8-2342-96179E381B8425C5
+  - id: 84
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 443B0ABE-7C58-4643-846D8B526E31710F
+  - id: 85
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 1A726BA8-989E-8447-A8A174C6DCF65FF9
+  - id: 86
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 443B0ABE-7C58-4643-846D8B526E31710F
+  - id: 87
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 1A726BA8-989E-8447-A8A174C6DCF65FF9
+  - id: 88
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 443B0ABE-7C58-4643-846D8B526E31710F
+  - id: 89
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 1A726BA8-989E-8447-A8A174C6DCF65FF9
+  - id: 90
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 443B0ABE-7C58-4643-846D8B526E31710F
+  - id: 91
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 1A726BA8-989E-8447-A8A174C6DCF65FF9
+  - id: 92
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 443B0ABE-7C58-4643-846D8B526E31710F
+  - id: 93
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 1A726BA8-989E-8447-A8A174C6DCF65FF9
+  - id: 94
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 443B0ABE-7C58-4643-846D8B526E31710F
+  - id: 95
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 1A726BA8-989E-8447-A8A174C6DCF65FF9
+  - id: 96
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 443B0ABE-7C58-4643-846D8B526E31710F
+  - id: 97
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 1A726BA8-989E-8447-A8A174C6DCF65FF9
+  - id: 98
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 0F2A1B73-DAD1-2845-BA6A8202F28397FF
+  - id: 99
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 527B29CE-DCF0-FD47-B76CA933D58770B1
+  - id: 100
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: CA5BA58B-76D6-4D4F-AC20BA38C3E76B0B
+  - id: 101
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 527B29CE-DCF0-FD47-B76CA933D58770B1
+  - id: 102
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: CA5BA58B-76D6-4D4F-AC20BA38C3E76B0B
+  - id: 103
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
+  - id: 104
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 106B2243-C2AA-8D4A-90F03A8B7DF08433
+  - id: 105
+    MaterialComponent:
+      base_color: [0.588, 0.588, 0.588, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 07EB6622-A1B5-5248-B63FC03B6818356B
