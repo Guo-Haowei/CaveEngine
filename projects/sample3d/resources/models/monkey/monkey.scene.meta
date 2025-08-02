@@ -1,0 +1,9 @@
+type: scene
+guid: BCE020A1-37F3-F742-80582B9C065939DD
+name: monkey
+import_path: "@res://models/monkey/monkey/monkey.scene"
+dependencies: [9765BFA0-58EB-AD41-96CC0537379EF15B]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

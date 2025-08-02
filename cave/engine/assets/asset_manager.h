@@ -32,7 +32,7 @@ public:
 
 private:
     AssetRef LoadAssetSync(const Guid& p_guid);
-    AssetRef ImportSceneSync(LoadTask&& p_task);
+    void ImportSceneSync(LoadTask&& p_task);
 
     bool EnqueueLoadTask(LoadTask& p_task);
 

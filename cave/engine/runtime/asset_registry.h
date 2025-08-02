@@ -37,6 +37,8 @@ public:
 
     bool SaveAllAssets() const;
 
+    void RegisterAsset(AssetMetaData&& p_meta, AssetRef p_asset);
+
     void RegisterPersistentAsset(const std::string& p_name,
                                  const Guid& p_guid,
                                  AssetRef p_asset);

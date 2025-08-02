@@ -31,16 +31,16 @@ public:
         return std::make_unique<ImporterAssimp>(p_source_path, p_dest_dir);
     }
 
-    Result<AssetRef> Import() override;
+    Result<void> Import() override;
 
 protected:
     void ProcessMaterial(aiMaterial& p_material);
-    std::shared_ptr<MeshAsset> ProcessMesh(const aiMesh& p_mesh);
+    Guid ProcessMesh(const aiMesh& p_mesh);
 
     ecs::Entity ProcessNode(const aiNode* p_node, ecs::Entity p_parent);
 
     std::vector<ecs::Entity> m_materials;
-    std::vector<ecs::Entity> m_meshes;
+    std::vector<Guid> m_meshes;
 
     std::shared_ptr<Scene> m_scene;
 };

@@ -147,6 +147,24 @@ struct TransparentCompare {
     bool operator()(const char* lhs, const std::string& rhs) const { return lhs < rhs; }
 };
 
+void AssetRegistry::RegisterAsset(AssetMetaData&& p_meta, AssetRef p_asset) {
+    std::lock_guard lock(registry_mutex);
+
+    Guid guid = p_meta.guid;
+    {
+        auto [_, ok] = m_path_map.try_emplace(p_meta.import_path, p_meta.guid);
+        DEV_ASSERT(ok);
+    }
+
+    {
+        std::shared_ptr<AssetEntry> entry = std::make_shared<AssetEntry>(std::move(p_meta));
+        entry->status = AssetStatus::Loaded;
+        entry->asset = p_asset;
+        auto [_, ok] = m_guid_map.try_emplace(guid, std::move(entry));
+        DEV_ASSERT(ok);
+    }
+}
+
 void AssetRegistry::RegisterPersistentAsset(const std::string& p_name,
                                             const Guid& p_guid,
                                             AssetRef p_asset) {
@@ -156,20 +174,7 @@ void AssetRegistry::RegisterPersistentAsset(const std::string& p_name,
     meta.name = p_name;
     meta.import_path = std::format("@persist://{}", p_name);
 
-    std::lock_guard lock(registry_mutex);
-
-    {
-        auto [_, ok] = m_path_map.try_emplace(meta.import_path, p_guid);
-        DEV_ASSERT(ok);
-    }
-
-    {
-        std::shared_ptr<AssetEntry> entry = std::make_shared<AssetEntry>(std::move(meta));
-        entry->status = AssetStatus::Loaded;
-        entry->asset = p_asset;
-        auto [_, ok] = m_guid_map.try_emplace(p_guid, std::move(entry));
-        DEV_ASSERT(ok);
-    }
+    RegisterAsset(std::move(meta), p_asset);
 }
 
 Option<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_type) {

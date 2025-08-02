@@ -68,10 +68,10 @@ static struct {
 static AssetRef CreateAssetInstance(AssetType p_type) {
     // @TODO: [SCRUM-222] refactor this part
     switch (p_type) {
+        case AssetType::Blob:
+            return std::make_shared<BlobAsset>();
         case AssetType::Image:
             return std::make_shared<ImageAsset>();
-        case AssetType::Scene:
-            return std::make_shared<Scene>();
         case AssetType::TileSet:
             return std::make_shared<TileSetAsset>();
         case AssetType::SpriteAnimation:
@@ -80,8 +80,10 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
             return std::make_shared<TileMapAsset>();
         case AssetType::Material:
             return std::make_shared<MaterialAsset>();
-        case AssetType::Blob:
-            return std::make_shared<BlobAsset>();
+        case AssetType::Mesh:
+            return std::make_shared<MeshAsset>();
+        case AssetType::Scene:
+            return std::make_shared<Scene>();
         default:
             return nullptr;
     }
@@ -239,19 +241,19 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     return asset;
 }
 
-AssetRef AssetManager::ImportSceneSync(LoadTask&& p_task) {
+void AssetManager::ImportSceneSync(LoadTask&& p_task) {
     auto loader = IImporter::Create(p_task.source, std::move(p_task.dest));
 
     if (!loader) {
         LOG_ERROR("No suitable loader found for asset '{}'", p_task.source.string());
-        return nullptr;
+        return;
     }
 
     auto res = loader->Import();
 
     if (!res) {
-        LOG_ERROR("Failed to load '{}'", p_task.source.string());
-        return nullptr;
+        LOG_ERROR("Failed to load '{}', reason: {}", p_task.source.string(), ToString(res.error()));
+        return;
     }
 
     return *res;

@@ -64,7 +64,10 @@ void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t) {
 void MeshAsset::OnDeserialized() {
     CreateRenderData();
 
-    GraphicsManager::GetSingleton().RequestMesh(this);
+    GraphicsManager* graphics_manager = GraphicsManager::GetSingletonPtr();
+    if (graphics_manager) {
+        graphics_manager->RequestMesh(this);
+    }
 }
 
 std::vector<Guid> MeshAsset::GetDependencies() const {
@@ -82,14 +85,21 @@ Result<void> MeshAsset::SaveToDisk(const AssetMetaData& p_meta) const {
         return CAVE_ERROR(res.error());
     }
 
-    // bypass the const check
+    // the archive is write mode, so it's safe to const cast
     auto asset = const_cast<MeshAsset&>(*this);
     asset.SerializeBinary(archive, VERSION);
     return Result<void>();
 }
 
 Result<void> MeshAsset::LoadFromDisk(const AssetMetaData& p_meta) {
-    unused(p_meta);
+    Archive archive;
+    if (auto res = archive.OpenRead(p_meta.import_path); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    SerializeBinary(archive, VERSION);
+    OnDeserialized();
+
     return Result<void>();
 }
 

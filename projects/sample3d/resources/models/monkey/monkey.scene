@@ -1,0 +1,27 @@
+version: 19
+seed: 2
+root: 1
+physics_mode: 0
+entities:
+  - id: 1
+    NameComponent:
+      name: monkey
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 2
+    NameComponent:
+      name: Geometry::Suzanne
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 9765BFA0-58EB-AD41-96CC0537379EF15B
+      materials: []
