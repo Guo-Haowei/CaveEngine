@@ -19,8 +19,8 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
-#include "modules/tinygltf/importer_tinygltf.h"
-#include "modules/assimp/importer_assimp.h"
+#include "modules/tinygltf/tiny_gltf_importer.h"
+#include "modules/assimp/assimp_importer.h"
 
 namespace cave {
 

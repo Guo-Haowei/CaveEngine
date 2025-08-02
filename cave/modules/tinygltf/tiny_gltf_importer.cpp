@@ -1,4 +1,4 @@
-#include "importer_tinygltf.h"
+#include "tiny_gltf_importer.h"
 
 #if USING(USE_IMPORTER_TINYGLTF)
 

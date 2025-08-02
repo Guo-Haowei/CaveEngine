@@ -1,4 +1,4 @@
-#include "importer_assimp.h"
+#include "assimp_importer.h"
 
 #if USING(USE_IMPORTER_ASSIMP)
 #include <assimp/postprocess.h>
