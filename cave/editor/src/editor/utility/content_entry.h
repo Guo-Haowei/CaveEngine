@@ -31,6 +31,6 @@ void ShowAssetToolTip(const ContentEntry& p_node);
 /// popup
 void ShowPopup(const ContentEntry& p_node,
                EditorLayer& p_editor,
-               std::filesystem::path* p_rename = nullptr);
+               std::function<void(void)> p_rename_cb = nullptr);
 
 }  // namespace cave

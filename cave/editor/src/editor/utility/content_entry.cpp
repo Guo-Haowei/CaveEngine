@@ -140,6 +140,12 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
     }
     if (ImGui::BeginMenu("Import")) {
         if (ImGui::MenuItem("Scene")) {
+            std::vector<const char*> filter = {
+                ".obj",
+                ".gltf",
+                ".fbx",
+            };
+            os::OpenFileDialog(filter);
         }
         ImGui::EndMenu();
     }
@@ -149,11 +155,11 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
 }
 
 void ShowPopup(const ContentEntry& p_node,
-    EditorLayer& p_editor,
-    std::filesystem::path* p_rename) {
+               EditorLayer& p_editor,
+               std::function<void(void)> p_rename_cb) {
     if (ImGui::MenuItem("Rename")) {
-        if (p_rename) {
-            *p_rename = p_node.sys_path;
+        if (p_rename_cb) {
+            p_rename_cb();
         }
     }
 

@@ -196,6 +196,12 @@ void AssetInspector::DrawContentBrowser() {
         auto [hovered, clicked] = DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
                                                 node->file_name.data(),
                                                 thumbnail_size);
+        if (ImGui::BeginPopupContextItem()) {
+            ShowPopup(*node, m_editor, []() {
+                LOG_WARN("TODO: rename");
+            });
+            ImGui::EndPopup();
+        }
 
         DragDropSourceContentEntry(*node);
 

@@ -65,7 +65,9 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
         const bool hovered = ImGui::IsItemHovered();
 
         if (ImGui::BeginPopupContextItem()) {
-            ShowPopup(p_node, m_editor, &m_renaming);
+            ShowPopup(p_node, m_editor, [&]() {
+                m_renaming = p_node.sys_path;
+            });
             ImGui::EndPopup();
         }
 
