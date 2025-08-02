@@ -96,8 +96,8 @@ auto AssetManager::InitializeImpl() -> Result<void> {
 #endif
 
 #if USING(USE_IMPORTER_ASSIMP)
-    AssetImporter::RegisterImporter(".obj", ImporterAssimp::CreateImporter);
-    AssetImporter::RegisterImporter(".fbx", ImporterAssimp::CreateImporter);
+    AssetImporter::RegisterImporter(".obj", AssimpImporter::CreateImporter);
+    AssetImporter::RegisterImporter(".fbx", AssimpImporter::CreateImporter);
 #endif
 
     return Result<void>();

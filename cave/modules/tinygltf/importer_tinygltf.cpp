@@ -4,7 +4,6 @@
 
 #include "engine/assets/material_asset.h"
 #include "engine/assets/mesh_asset.h"
-#include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
@@ -50,14 +49,9 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-Result<void> ImporterTinyGltf::Import() {
-    // create dest directory
-    // @TODO: base class
-    m_file_name = StringUtils::RemoveExtension(m_file_name);
-    m_dest_dir = m_dest_dir / m_file_name;
-
-    if (!fs::exists(m_dest_dir)) {
-        fs::create_directories(m_dest_dir);
+Result<void> TinyGltfImporter::Import() {
+    if (auto res = PrepareImport(); !res) {
+        return CAVE_ERROR(res.error());
     }
 
     m_scene = std::make_shared<Scene>();
@@ -246,7 +240,7 @@ Result<void> ImporterTinyGltf::Import() {
     return Result<void>();
 }
 
-void ImporterTinyGltf::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
+void TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
     std::string name = p_gltf_mesh.name;
 
     auto mesh_asset = std::make_shared<MeshAsset>();
@@ -509,7 +503,7 @@ void ImporterTinyGltf::ProcessMesh(const tinygltf::Mesh& p_gltf_mesh, int) {
     mesh.CreateRenderData();
 }
 
-void ImporterTinyGltf::ProcessNode(int p_node_index, ecs::Entity p_parent) {
+void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     if (p_node_index < 0 || m_entityMap.count(p_node_index)) {
         return;
     }
@@ -611,7 +605,7 @@ void ImporterTinyGltf::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 #endif
 }
 
-void ImporterTinyGltf::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, int) {
+void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_gltf_anim, int) {
     unused(p_gltf_anim);
 
 #if 0

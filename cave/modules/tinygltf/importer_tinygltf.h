@@ -11,7 +11,7 @@
 #endif
 
 #if USING(USE_IMPORTER_TINYGLTF)
-#include "engine/assets/asset_importer.h"
+#include "engine/assets/scene_importer.h"
 #include "engine/ecs/entity.h"
 
 namespace tinygltf {
@@ -22,15 +22,13 @@ struct Mesh;
 
 namespace cave {
 
-class Scene;
-
-class ImporterTinyGltf : public AssetImporter {
+class TinyGltfImporter : public SceneImporter {
 public:
-    using AssetImporter::AssetImporter;
+    using SceneImporter::SceneImporter;
 
     static std::unique_ptr<AssetImporter> CreateImporter(const std::filesystem::path& p_source_path,
                                                          const std::filesystem::path& p_dest_dir) {
-        return std::make_unique<ImporterTinyGltf>(p_source_path, p_dest_dir);
+        return std::make_unique<TinyGltfImporter>(p_source_path, p_dest_dir);
     }
 
     Result<void> Import() override;
@@ -42,7 +40,6 @@ protected:
 
     std::unordered_map<int, ecs::Entity> m_entityMap;
     std::shared_ptr<tinygltf::Model> m_model;
-    std::shared_ptr<Scene> m_scene;
 };
 
 }  // namespace cave

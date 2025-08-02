@@ -18,13 +18,9 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-Result<void> ImporterAssimp::Import() {
-    // create dest directory
-    m_file_name = StringUtils::RemoveExtension(m_file_name);
-    m_dest_dir = m_dest_dir / m_file_name;
-
-    if (!fs::exists(m_dest_dir)) {
-        fs::create_directories(m_dest_dir);
+Result<void> AssimpImporter::Import() {
+    if (auto res = PrepareImport(); !res) {
+        return CAVE_ERROR(res.error());
     }
 
     m_scene = std::make_shared<Scene>();
@@ -69,7 +65,7 @@ Result<void> ImporterAssimp::Import() {
     return Result<void>();
 }
 
-Guid ImporterAssimp::ProcessMaterial(aiMaterial& p_material) {
+Guid AssimpImporter::ProcessMaterial(aiMaterial& p_material) {
     std::string name = p_material.GetName().C_Str();
 
     auto get_material_path = [&](aiTextureType p_type, uint32_t p_index) -> std::string {
@@ -125,7 +121,7 @@ Guid ImporterAssimp::ProcessMaterial(aiMaterial& p_material) {
     return meta.guid;
 }
 
-Guid ImporterAssimp::ProcessMesh(const aiMesh& p_mesh) {
+Guid AssimpImporter::ProcessMesh(const aiMesh& p_mesh) {
     std::string name = p_mesh.mName.C_Str();
 
     DEV_ASSERT(p_mesh.mNumVertices);
@@ -186,7 +182,7 @@ Guid ImporterAssimp::ProcessMesh(const aiMesh& p_mesh) {
     return meta.guid;
 }
 
-ecs::Entity ImporterAssimp::ProcessNode(const aiNode* p_node, ecs::Entity p_parent) {
+ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_parent) {
     const auto key = std::string(p_node->mName.C_Str());
     // DEV_ASSERT(m_materials.size());
     // CRASH_NOW();

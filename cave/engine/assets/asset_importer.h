@@ -26,12 +26,8 @@ public:
     inline static std::map<std::string, CreateImporterFunc> s_importer_creators;
 
 protected:
-    const std::filesystem::path m_source_path;
+    std::filesystem::path m_source_path;
     std::filesystem::path m_dest_dir;
-
-    std::string m_file_name;
-    std::string m_file_path;
-    std::string m_base_path;
 };
 
 }  // namespace cave

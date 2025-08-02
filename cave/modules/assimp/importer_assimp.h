@@ -11,7 +11,7 @@
 #endif
 
 #if USING(USE_IMPORTER_ASSIMP)
-#include "engine/assets/asset_importer.h"
+#include "engine/assets/scene_importer.h"
 #include "engine/scene/scene.h"
 
 struct aiMesh;
@@ -22,13 +22,13 @@ struct aiAnimation;
 
 namespace cave {
 
-class ImporterAssimp : public AssetImporter {
+class AssimpImporter : public SceneImporter {
 public:
-    using AssetImporter::AssetImporter;
+    using SceneImporter::SceneImporter;
 
     static std::unique_ptr<AssetImporter> CreateImporter(const std::filesystem::path& p_source_path,
                                                          const std::filesystem::path& p_dest_dir) {
-        return std::make_unique<ImporterAssimp>(p_source_path, p_dest_dir);
+        return std::make_unique<AssimpImporter>(p_source_path, p_dest_dir);
     }
 
     Result<void> Import() override;
@@ -41,8 +41,6 @@ protected:
 
     std::vector<Guid> m_materials;
     std::vector<Guid> m_meshes;
-
-    std::shared_ptr<Scene> m_scene;
 
     const aiScene* m_raw_scene = nullptr;
 };

@@ -14,8 +14,6 @@ AssetImporter::AssetImporter(const fs::path& p_source_path,
                              const fs::path& p_dest_dir)
     : m_source_path(p_source_path)
     , m_dest_dir(p_dest_dir) {
-    m_file_name = m_source_path.filename().string();
-    m_base_path = fs::path(m_base_path).remove_filename().string();
 }
 
 bool AssetImporter::RegisterImporter(const std::string& p_extension, CreateImporterFunc p_func) {
