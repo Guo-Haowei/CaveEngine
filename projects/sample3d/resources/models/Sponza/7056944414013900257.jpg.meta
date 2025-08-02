@@ -1,0 +1,10 @@
+type: image
+guid: AD2D18C0-ED56-9743-90FC7305B1D8F141
+name: ""
+import_path: "@res://models/Sponza/7056944414013900257.jpg"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  color_space: linear
+  sampler: linear

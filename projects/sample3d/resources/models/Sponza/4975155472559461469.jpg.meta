@@ -1,0 +1,10 @@
+type: image
+guid: 500E1710-EA4D-0C46-89D10617295E0F06
+name: ""
+import_path: "@res://models/Sponza/4975155472559461469.jpg"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  color_space: srgb
+  sampler: linear

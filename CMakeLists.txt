@@ -9,7 +9,6 @@ if(APPLE)
     enable_language(OBJCXX)
 endif()
 
-option(BUILD_TINYGLTF_LOADER "Build tinygltf_loader" ON)
 option(BUILD_UNIT_TESTS "Build Tests" ON)
 
 message("***********************************************************************")
@@ -19,7 +18,6 @@ message(STATUS "CMAKE_BUILD_TOOL        : ${CMAKE_BUILD_TOOL}")
 ################################################################################
 
 if (EMSCRIPTEN)
-    set(BUILD_TINYGLTF_LOADER OFF CACHE BOOL "" FORCE)
     set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 
     set(CMAKE_EXECUTABLE_SUFFIX ".html")

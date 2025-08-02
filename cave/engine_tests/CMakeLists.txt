@@ -24,10 +24,6 @@ set(TARGET_LIBS
     gtest_main
 )
 
-if (BUILD_TINYGLTF_LOADER)
-    list(APPEND TARGET_LIBS tinygltf_loader)
-endif()
-
 target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_LIBS})
 
 target_precompile_headers(${TARGET_NAME} PRIVATE pch.h)

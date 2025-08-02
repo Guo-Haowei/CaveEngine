@@ -1,7 +1,6 @@
 # @TODO: move backend to RHI
 add_subdirectory(opengl_common)
 if (WIN32)
-    add_subdirectory(assimp)
     add_subdirectory(opengl4)
     add_subdirectory(d3d_common)
     add_subdirectory(d3d11)
@@ -12,12 +11,12 @@ elseif (EMSCRIPTEN)
 endif()
 
 add_subdirectory(sw)
+# TODO: move above modules to RHI
+
+add_subdirectory(assimp)
+add_subdirectory(tinygltf)
 
 if (NOT EMSCRIPTEN)
     add_subdirectory(box2d)
     add_subdirectory(bullet3)
-endif()
-
-if (BUILD_TINYGLTF_LOADER)
-    add_subdirectory(tinygltf)
 endif()

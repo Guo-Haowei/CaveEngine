@@ -126,10 +126,9 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
         DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
 
         ImGui::Text("%s texture: ", EnumTraits<TextureSlot>::ToString(static_cast<TextureSlot>(i)).data());
-        CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
-
-        // if (ImGui::IsItemClicked()) {
-        // }
+        if (image && image->gpu_texture) {
+            ImGui::Image(image->gpu_texture->GetHandle(), ImVec2(128, 128));
+        }
 
         if (auto _handle = DragDropTarget(AssetType::Image); _handle.is_some()) {
             material = _handle.unwrap_unchecked().GetGuid();

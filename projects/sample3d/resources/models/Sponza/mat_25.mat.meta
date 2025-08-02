@@ -1,0 +1,9 @@
+type: mat
+guid: 8637B90A-976C-7B4F-8286D8E2400CFC90
+name: mat_25
+import_path: "@res://models/Sponza/mat_25.mat"
+dependencies: [384958A0-77D9-D748-849409565771FC35, 9382FFF7-B1A8-E74E-9EDDB9EAAA993107, 658CE0E3-87E2-0C4D-A962C66F7C1B4735]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

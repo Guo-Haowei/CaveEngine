@@ -1,0 +1,10 @@
+type: image
+guid: ABB49493-FAD0-894D-BEA8C13AEC028F54
+name: ""
+import_path: "@res://models/Sponza/14267839433702832875.jpg"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  color_space: linear
+  sampler: linear

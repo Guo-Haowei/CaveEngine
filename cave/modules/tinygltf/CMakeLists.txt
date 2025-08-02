@@ -1,4 +1,4 @@
-set(TARGET_NAME tinygltf_loader)
+set(TARGET_NAME importer_tinygltf)
 
 file(GLOB_RECURSE SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
@@ -12,8 +12,8 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/
-    ${PROJECT_SOURCE_DIR}/cave
     ${PROJECT_SOURCE_DIR}/cave/shader
+    ${PROJECT_SOURCE_DIR}/cave
 )
 
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER modules)
