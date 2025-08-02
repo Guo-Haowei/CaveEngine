@@ -23,5 +23,11 @@ entities:
       is_visible: true
       cast_shadow: true
       transparency: false
-      mesh_id: 9765BFA0-58EB-AD41-96CC0537379EF15B
-      materials: []
+      mesh_id: 935F026E-C054-6046-913DC55FA22DE59C
+      materials: [2]
+    MaterialComponent:
+      base_color: [0.600000024, 0.600000024, 0.600000024, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 890B0A22-950F-D24D-829FFA096C2D8571

@@ -34,15 +34,18 @@ public:
     Result<void> Import() override;
 
 protected:
-    void ProcessMaterial(aiMaterial& p_material);
+    Guid ProcessMaterial(aiMaterial& p_material);
     Guid ProcessMesh(const aiMesh& p_mesh);
 
     ecs::Entity ProcessNode(const aiNode* p_node, ecs::Entity p_parent);
 
-    std::vector<ecs::Entity> m_materials;
+    std::vector<Guid> m_materials;
     std::vector<Guid> m_meshes;
 
     std::shared_ptr<Scene> m_scene;
+
+    const aiScene* m_raw_scene = nullptr;
+    ;
 };
 
 }  // namespace cave

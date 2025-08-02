@@ -5,6 +5,7 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 
+#include "engine/assets/material_asset.h"
 #include "engine/assets/mesh_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/core/string/string_utils.h"
@@ -32,27 +33,25 @@ Result<void> ImporterAssimp::Import() {
 
     const uint32_t flag = aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_FlipUVs;
 
-    const aiScene* aiscene = importer.ReadFile(m_source_path.string(), flag);
+    m_raw_scene = importer.ReadFile(m_source_path.string(), flag);
 
     // check for errors
-    if (!aiscene || aiscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aiscene->mRootNode) {
+    if (!m_raw_scene || m_raw_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !m_raw_scene->mRootNode) {
         return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", m_source_path.string(), importer.GetErrorString());
     }
 
-    const uint32_t numMeshes = aiscene->mNumMeshes;
-    const uint32_t numMaterials = aiscene->mNumMaterials;
+    const uint32_t num_meshes = m_raw_scene->mNumMeshes;
+    const uint32_t num_materials = m_raw_scene->mNumMaterials;
 
-    // LOG_VERBOSE("scene '{}' has {} meshes, {} materials", m_file_path, numMeshes, numMaterials);
-
-    for (uint32_t i = 0; i < numMaterials; ++i) {
-        ProcessMaterial(*aiscene->mMaterials[i]);
+    for (uint32_t i = 0; i < num_materials; ++i) {
+        m_materials.emplace_back(ProcessMaterial(*m_raw_scene->mMaterials[i]));
     }
 
-    for (uint32_t i = 0; i < numMeshes; ++i) {
-        m_meshes.emplace_back(ProcessMesh(*aiscene->mMeshes[i]));
+    for (uint32_t i = 0; i < num_meshes; ++i) {
+        m_meshes.emplace_back(ProcessMesh(*m_raw_scene->mMeshes[i]));
     }
 
-    ecs::Entity root = ProcessNode(aiscene->mRootNode, ecs::Entity::Null());
+    ecs::Entity root = ProcessNode(m_raw_scene->mRootNode, ecs::Entity::Null());
 
     m_scene->GetComponent<NameComponent>(root)->SetName(m_file_name);
     m_scene->m_root = root;
@@ -70,24 +69,31 @@ Result<void> ImporterAssimp::Import() {
     return Result<void>();
 }
 
-void ImporterAssimp::ProcessMaterial(aiMaterial& p_material) {
-    unused(p_material);
-#if 0
-    MaterialComponent* materialComponent = m_scene->GetComponent<MaterialComponent>(material_id);
-    DEV_ASSERT(materialComponent);
+Guid ImporterAssimp::ProcessMaterial(aiMaterial& p_material) {
+    std::string name = p_material.GetName().C_Str();
 
     auto get_material_path = [&](aiTextureType p_type, uint32_t p_index) -> std::string {
         aiString path;
         if (p_material.GetTexture(p_type, p_index, &path) == AI_SUCCESS) {
-            return m_basePath + path.C_Str();
+            return m_base_path + path.C_Str();
         }
         return "";
     };
 
+    auto mat_asset = std::make_shared<MaterialAsset>();
+
+    aiColor4D diffuse_color;
+    if (aiReturn_SUCCESS == p_material.Get(AI_MATKEY_COLOR_DIFFUSE, diffuse_color)) {
+        mat_asset->base_color.r = diffuse_color.r;
+        mat_asset->base_color.g = diffuse_color.g;
+        mat_asset->base_color.b = diffuse_color.b;
+        mat_asset->base_color.a = diffuse_color.a;
+    }
+
     std::string path = get_material_path(aiTextureType_DIFFUSE, 0);
     if (!path.empty()) {
-        materialComponent->textures[MaterialComponent::TEXTURE_BASE].path = path;
         DEV_ASSERT(0);
+        // materialComponent->textures[MaterialComponent::TEXTURE_BASE].path = path;
         // AssetRegistry::GetSingleton().RequestAssetSync(path);
     }
 
@@ -95,20 +101,28 @@ void ImporterAssimp::ProcessMaterial(aiMaterial& p_material) {
     if (path.empty()) {
         path = get_material_path(aiTextureType_HEIGHT, 0);
     }
+
     if (!path.empty()) {
-        materialComponent->textures[MaterialComponent::TEXTURE_NORMAL].path = path;
         DEV_ASSERT(0);
+        // materialComponent->textures[MaterialComponent::TEXTURE_NORMAL].path = path;
         // AssetRegistry::GetSingleton().RequestAssetSync(path);
     }
 
-    path = get_material_path(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE);
-    if (!path.empty()) {
-        materialComponent->textures[MaterialComponent::TEXTURE_METALLIC_ROUGHNESS].path = path;
-        AssetRegistry::GetSingleton().RequestAssetSync(path);
-    }
+    fs::path sys_path = m_dest_dir / std::format("{}.mat", name);
 
-    m_materials.emplace_back(material_id);
-#endif
+    AssetMetaData meta;
+    meta.type = AssetType::Material;
+    meta.name = std::move(name);
+    meta.guid = Guid::Create();
+    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+
+    mat_asset->SaveToDisk(meta);
+
+    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), mat_asset);
+
+    // GraphicsManager::GetSingleton().RequestMesh(mesh_asset.get());
+
+    return meta.guid;
 }
 
 Guid ImporterAssimp::ProcessMesh(const aiMesh& p_mesh) {
@@ -148,7 +162,6 @@ Guid ImporterAssimp::ProcessMesh(const aiMesh& p_mesh) {
         mesh_asset->indices.emplace_back(face.mIndices[2]);
     }
 
-    LOG_WARN("TODO: fix material");
     MeshAsset::MeshSubset subset;
     subset.index_count = (uint32_t)mesh_asset->indices.size();
     subset.index_offset = 0;
@@ -186,11 +199,18 @@ ecs::Entity ImporterAssimp::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
         entity = EntityFactory::CreateObjectEntity(*m_scene, "Geometry::" + key);
 
         MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(entity);
-        renderer.SetResourceGuid(m_meshes[p_node->mMeshes[0]]);
+        const uint32_t mesh_idx = p_node->mMeshes[0];
+        const aiMesh* mesh = m_raw_scene->mMeshes[mesh_idx];
+
+        MaterialComponent& material = m_scene->Create<MaterialComponent>(entity);
+        material.SetResourceGuid(m_materials[mesh->mMaterialIndex]);
+
+        renderer.SetResourceGuid(m_meshes[mesh_idx]);
+        renderer.GetMaterialInstances().push_back(entity);
     } else {  // else make it a transform/bone node
         entity = EntityFactory::CreateTransformEntity(*m_scene, "Node::" + key);
-
         for (uint32_t i = 0; i < p_node->mNumMeshes; ++i) {
+            DEV_ASSERT(0);
             ecs::Entity child = EntityFactory::CreateObjectEntity(*m_scene, "");
             auto tagComponent = m_scene->GetComponent<NameComponent>(child);
             tagComponent->SetName("SubGeometry_" + std::to_string(child.GetId()));

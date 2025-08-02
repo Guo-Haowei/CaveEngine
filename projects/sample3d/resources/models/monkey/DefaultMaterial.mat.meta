@@ -1,0 +1,9 @@
+type: mat
+guid: 890B0A22-950F-D24D-829FFA096C2D8571
+name: DefaultMaterial
+import_path: "@res://models/monkey/DefaultMaterial.mat"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}
