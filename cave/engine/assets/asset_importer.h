@@ -6,22 +6,22 @@ namespace cave {
 
 class IAsset;
 
-class IImporter {
-    using CreateImporterFunc = std::unique_ptr<IImporter> (*)(const std::filesystem::path& p_source_path,
-                                                              const std::filesystem::path& p_dest_dir);
+class AssetImporter {
+    using CreateImporterFunc = std::unique_ptr<AssetImporter> (*)(const std::filesystem::path& p_source_path,
+                                                                  const std::filesystem::path& p_dest_dir);
 
 public:
-    IImporter(const std::filesystem::path& p_source_path,
-              const std::filesystem::path& p_dest_dir);
+    AssetImporter(const std::filesystem::path& p_source_path,
+                  const std::filesystem::path& p_dest_dir);
 
-    virtual ~IImporter() = default;
+    virtual ~AssetImporter() = default;
 
     virtual Result<void> Import() = 0;
 
     static bool RegisterImporter(const std::string& p_extension, CreateImporterFunc p_func);
 
-    static std::unique_ptr<IImporter> Create(const std::filesystem::path& p_source_path,
-                                             const std::filesystem::path& p_dest_dir);
+    static std::unique_ptr<AssetImporter> Create(const std::filesystem::path& p_source_path,
+                                                 const std::filesystem::path& p_dest_dir);
 
     inline static std::map<std::string, CreateImporterFunc> s_importer_creators;
 

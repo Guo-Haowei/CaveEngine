@@ -96,8 +96,8 @@ auto AssetManager::InitializeImpl() -> Result<void> {
 #endif
 
 #if USING(USE_IMPORTER_ASSIMP)
-    IImporter::RegisterImporter(".obj", ImporterAssimp::CreateImporter);
-    IImporter::RegisterImporter(".fbx", ImporterAssimp::CreateImporter);
+    AssetImporter::RegisterImporter(".obj", ImporterAssimp::CreateImporter);
+    AssetImporter::RegisterImporter(".fbx", ImporterAssimp::CreateImporter);
 #endif
 
     return Result<void>();
@@ -229,7 +229,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
 }
 
 void AssetManager::ImportSceneSync(LoadTask&& p_task) {
-    auto loader = IImporter::Create(p_task.source, std::move(p_task.dest));
+    auto loader = AssetImporter::Create(p_task.source, std::move(p_task.dest));
 
     if (!loader) {
         LOG_ERROR("No suitable loader found for asset '{}'", p_task.source.string());

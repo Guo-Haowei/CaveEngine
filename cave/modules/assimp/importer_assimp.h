@@ -22,12 +22,12 @@ struct aiAnimation;
 
 namespace cave {
 
-class ImporterAssimp : public IImporter {
+class ImporterAssimp : public AssetImporter {
 public:
-    using IImporter::IImporter;
+    using AssetImporter::AssetImporter;
 
-    static std::unique_ptr<IImporter> CreateImporter(const std::filesystem::path& p_source_path,
-                                                     const std::filesystem::path& p_dest_dir) {
+    static std::unique_ptr<AssetImporter> CreateImporter(const std::filesystem::path& p_source_path,
+                                                         const std::filesystem::path& p_dest_dir) {
         return std::make_unique<ImporterAssimp>(p_source_path, p_dest_dir);
     }
 

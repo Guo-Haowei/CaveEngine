@@ -10,15 +10,15 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-IImporter::IImporter(const fs::path& p_source_path,
-                     const fs::path& p_dest_dir)
+AssetImporter::AssetImporter(const fs::path& p_source_path,
+                             const fs::path& p_dest_dir)
     : m_source_path(p_source_path)
     , m_dest_dir(p_dest_dir) {
     m_file_name = m_source_path.filename().string();
     m_base_path = fs::path(m_base_path).remove_filename().string();
 }
 
-bool IImporter::RegisterImporter(const std::string& p_extension, CreateImporterFunc p_func) {
+bool AssetImporter::RegisterImporter(const std::string& p_extension, CreateImporterFunc p_func) {
     DEV_ASSERT(!p_extension.empty());
     DEV_ASSERT(p_func);
     auto it = s_importer_creators.find(p_extension);
@@ -31,8 +31,8 @@ bool IImporter::RegisterImporter(const std::string& p_extension, CreateImporterF
     return true;
 }
 
-std::unique_ptr<IImporter> IImporter::Create(const fs::path& p_source_path,
-                                             const fs::path& p_dest_dir) {
+std::unique_ptr<AssetImporter> AssetImporter::Create(const fs::path& p_source_path,
+                                                     const fs::path& p_dest_dir) {
     std::string ext = p_source_path.extension().string();
 
     auto it = s_importer_creators.find(ext);
