@@ -24,13 +24,15 @@ public:
                         AssetLoadFailureCallback&& p_on_failure,
                         void* p_userdata) override;
 
-    bool ImportScene(const std::string& p_path) override;
+    bool ImportSceneAsync(const std::filesystem::path& p_source_path,
+                          const std::filesystem::path& p_dest_dir) override;
 
     static void WorkerMain();
     static void RequestShutdown();
 
 private:
     AssetRef LoadAssetSync(const Guid& p_guid);
+    AssetRef ImportSceneSync(LoadTask&& p_task);
 
     bool EnqueueLoadTask(LoadTask& p_task);
 

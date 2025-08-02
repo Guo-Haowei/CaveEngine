@@ -20,7 +20,7 @@ void RevealInFolder(const fs::path& p_path) {
     ::ShellExecuteA(NULL, "open", "explorer.exe", path.c_str(), NULL, SW_SHOWNORMAL);
 }
 
-Option<std::string> OpenFileDialog(const std::vector<const char*>& p_filters) {
+Option<std::filesystem::path> OpenFileDialog(const std::vector<const char*>& p_filters) {
     std::string filter_str;
     if (p_filters.empty()) {
         filter_str = "*.*";

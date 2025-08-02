@@ -147,7 +147,8 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
             };
 
             if (auto path = os::OpenFileDialog(filter); path.is_some()) {
-                IAssetManager::GetSingleton().ImportScene(path.unwrap_unchecked());
+                fs::path dest = p_node.sys_path;
+                IAssetManager::GetSingleton().ImportSceneAsync(path.unwrap_unchecked(), dest);
             }
         }
         ImGui::EndMenu();

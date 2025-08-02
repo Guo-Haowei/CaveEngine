@@ -1,12 +1,17 @@
 #pragma once
-#ifdef _NO_ASSIMP
-#define USING_ASSIMP NOT_IN_USE
+
+#if USING(PLATFORM_WINDOWS)
+#define USE_IMPORTER_ASSIMP   IN_USE
+#elif USING(PLATFORM_APPLE)
+#define USE_IMPORTER_ASSIMP   NOT_IN_USE
+#elif USING(PLATFORM_WASM)
+#define USE_IMPORTER_ASSIMP   NOT_IN_USE
 #else
-#define USING_ASSIMP USE_IF(USING(PLATFORM_WINDOWS))
+#error "Platform not supported"
 #endif
 
-#if USING(USING_ASSIMP)
-#include "engine/assets/asset_loader.h"
+#if USING(USE_IMPORTER_ASSIMP)
+#include "engine/assets/importer_interface.h"
 #include "engine/scene/scene.h"
 
 struct aiMesh;
@@ -17,15 +22,16 @@ struct aiAnimation;
 
 namespace cave {
 
-class ImporterAssimp : public IAssetLoader {
+class ImporterAssimp : public IImporter {
 public:
-    using IAssetLoader::IAssetLoader;
+    using IImporter::IImporter;
 
-    static std::unique_ptr<IAssetLoader> CreateLoader(const std::string& p_import_path) {
-        return std::make_unique<ImporterAssimp>(p_import_path);
+    static std::unique_ptr<IImporter> CreateImporter(const std::filesystem::path& p_source_path,
+                                                     const std::filesystem::path& p_dest_dir) {
+        return std::make_unique<ImporterAssimp>(p_source_path, p_dest_dir);
     }
 
-    Result<AssetRef> Load() override;
+    Result<AssetRef> Import() override;
 
 protected:
     void ProcessMaterial(aiMaterial& p_material);
@@ -40,4 +46,5 @@ protected:
 };
 
 }  // namespace cave
-#endif
+
+#endif  // #if USING(USE_IMPORTER_ASSIMP)

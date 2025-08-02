@@ -29,7 +29,8 @@ public:
                                 AssetLoadFailureCallback&& p_on_failure,
                                 void* p_userdata) = 0;
 
-    virtual bool ImportScene(const std::string& p_path) = 0;
+    virtual bool ImportSceneAsync(const std::filesystem::path& p_source_path,
+                                  const std::filesystem::path& p_dest_dir) = 0;
 };
 
 }  // namespace cave

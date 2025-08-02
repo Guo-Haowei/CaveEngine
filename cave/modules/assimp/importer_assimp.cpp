@@ -1,6 +1,6 @@
 #include "importer_assimp.h"
 
-#if USING(USING_ASSIMP)
+#if USING(USE_IMPORTER_ASSIMP)
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
@@ -12,18 +12,17 @@
 
 namespace cave {
 
-Result<AssetRef> ImporterAssimp::Load() {
+Result<AssetRef> ImporterAssimp::Import() {
     m_scene = new Scene;
     Assimp::Importer importer;
 
     const uint32_t flag = aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_FlipUVs;
 
-    std::string resolved_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, m_import_path);
-    const aiScene* aiscene = importer.ReadFile(resolved_path, flag);
+    const aiScene* aiscene = importer.ReadFile(m_source_path.string(), flag);
 
     // check for errors
     if (!aiscene || aiscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aiscene->mRootNode) {
-        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", m_filePath, importer.GetErrorString());
+        return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'\n\tdetails: {}", m_source_path.string(), importer.GetErrorString());
     }
 
     const uint32_t numMeshes = aiscene->mNumMeshes;
@@ -187,4 +186,5 @@ ecs::Entity ImporterAssimp::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
 }
 
 }  // namespace cave
-#endif
+
+#endif  // #if USING(USE_IMPORTER_ASSIMP)
