@@ -1,7 +1,7 @@
 #include "lua_script_manager.h"
 
 #include "engine/assets/blob_asset.h"
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/input_manager.h"

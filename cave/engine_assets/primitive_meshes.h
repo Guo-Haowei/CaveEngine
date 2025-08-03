@@ -235,6 +235,11 @@ static std::shared_ptr<MeshAsset> CreateSphereMesh(float p_radius,
             mesh->positions.emplace_back(p_radius * normal);
             mesh->normals.emplace_back(normal);
             mesh->texcoords_0.emplace_back(Vector2f(1.0f - x_seg, y_seg));
+
+            mesh->tangents.emplace_back(Vector3f(
+                -std::sin(x_seg * 2.0f * pi),
+                0.0f,
+                std::cos(x_seg * 2.0f * pi)));
         }
     }
 

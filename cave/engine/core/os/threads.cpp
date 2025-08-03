@@ -3,7 +3,7 @@
 #include <latch>
 #include <thread>
 
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/core/io/print.h"
 #include "engine/drivers/windows/win32_prerequisites.h"
 // @TODO: use generic worker thread

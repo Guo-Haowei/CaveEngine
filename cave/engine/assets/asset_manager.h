@@ -12,6 +12,8 @@ public:
     Result<void> InitializeImpl() override;
     void FinalizeImpl() override;
 
+    void Update() override {}
+
     Result<Guid> CreateAsset(AssetType p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr) override;
     Result<Guid> CreateAsset(AssetType p_type, const std::string& p_short_path) override;
 
@@ -32,14 +34,14 @@ public:
     static void WorkerMain();
     static void RequestShutdown();
 
-private:
+protected:
     void ImportSceneSync(LoadTask&& p_task);
 
     bool EnqueueLoadTask(LoadTask& p_task);
 
     uint32_t m_fps_counter{ 0 };
-    std::mutex m_assetLock;
-    std::filesystem::path m_assets_root;
+    std::mutex m_asset_lock;
+    std::filesystem::path m_asset_root_path;
 };
 
 }  // namespace cave

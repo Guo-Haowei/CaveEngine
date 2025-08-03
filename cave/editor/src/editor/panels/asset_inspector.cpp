@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/assets/image_asset.h"
+#include "engine/debugger/profiler.h"
 #include "engine/runtime/asset_registry.h"
 
 #include "editor/editor_asset_manager.h"
@@ -35,6 +36,7 @@ void AssetInspector::OnAttach() {
 }
 
 void AssetInspector::UpdateInternal() {
+    CAVE_PROFILE_EVENT();
     if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
         tab->DrawAssetInspector();
     } else {
@@ -167,7 +169,8 @@ void AssetInspector::DrawContentBrowser() {
     ImGui::BeginTable("Inner", num_col);
     ImGui::TableNextColumn();
 
-    const auto& root = m_editor.GetAssetRoot();
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+    const auto& root = asset_manager.GetAssetRoot();
     const int max = static_cast<int>(m_current_path.size()) - 1;
     const ContentEntry* current = Navigate(root.get(), 0, max);
     if (!current) {
@@ -205,7 +208,7 @@ void AssetInspector::DrawContentBrowser() {
 
         DragDropSourceContentEntry(*node);
 
-        DragDropTargetFolder(*node, m_editor.GetFolderLut());
+        DragDropTargetFolder(*node, asset_manager.GetFolderLut());
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {

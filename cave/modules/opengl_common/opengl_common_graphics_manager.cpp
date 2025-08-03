@@ -2,7 +2,7 @@
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/math/geometry.h"
 #include "engine/render_graph/render_graph_defines.h"

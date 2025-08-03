@@ -2,6 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 
+#include "engine/debugger/profiler.h"
 #include "engine/render_graph/render_graph_defines.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
@@ -33,6 +34,8 @@ static void CollapseWindow(const std::string& p_window_name, std::function<void(
 }
 
 void RendererPanel::UpdateInternal() {
+    CAVE_PROFILE_EVENT();
+
     ImGui::Text("Debug");
     ImGui::Text("Frame rate:%.2f", ImGui::GetIO().Framerate);
     ImGui::Checkbox("show editor", (bool*)DVAR_GET_POINTER(show_editor));

@@ -4,6 +4,8 @@
 #include <imgui/imgui_internal.h>
 
 #include "engine/assets/mesh_asset.h"
+#include "engine/debugger/profiler.h"
+
 #include "editor/editor_layer.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
@@ -167,6 +169,7 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
 }
 
 void HierarchyPanel::UpdateInternal() {
+    CAVE_PROFILE_EVENT();
     if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
         if (Scene* scene = tab->GetScene(); scene) {
             HierarchyCreator creator(m_editor);

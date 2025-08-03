@@ -4,6 +4,7 @@
 #include <imnodes/imnodes.h>
 
 #include "engine/assets/image_asset.h"
+#include "engine/debugger/profiler.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/input/input_event.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -25,7 +26,6 @@
 #include "editor/panels/property_panel.h"
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
-#include "editor/utility/content_entry.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"
@@ -179,6 +179,8 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 }
 
 void EditorLayer::DockSpace() {
+    CAVE_PROFILE_EVENT();
+
     ImGui::GetMainViewport();
 
     static bool opt_padding = false;
@@ -228,20 +230,8 @@ void EditorLayer::OnUpdate(float p_timestep) {
     // Scene* scene = nullptr;
 }
 
-static void BuildFolderLut(const ContentEntry* p_node,
-                           std::unordered_map<std::string, const ContentEntry*>& p_lut) {
-    p_lut[p_node->sys_path.string()] = p_node;
-    for (const auto& child : p_node->children) {
-        BuildFolderLut(child.get(), p_lut);
-    }
-}
-
 void EditorLayer::OnImGuiRender() {
-    const std::string& path = GetApplication()->GetResourceFolder();
-    m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
-
-    m_folder_lut.clear();
-    BuildFolderLut(m_asset_root.get(), m_folder_lut);
+    CAVE_PROFILE_EVENT();
 
     // @TODO: DO NOT Request SCENE here
     Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();
@@ -258,6 +248,8 @@ void EditorLayer::OnImGuiRender() {
 }
 
 void EditorLayer::FlushInputEvents() {
+    CAVE_PROFILE_EVENT();
+
     for (auto& event : m_buffered_events) {
         if (m_viewer->IsFocused() || m_viewer->IsHovered()) {
             if (m_viewer->HandleInput(event.get())) {
@@ -331,6 +323,8 @@ void EditorLayer::CommandRemoveEntity(ecs::Entity p_target) {
 }
 
 void EditorLayer::FlushCommand(Scene* p_scene) {
+    CAVE_PROFILE_EVENT();
+
     while (!m_command_buffer.empty()) {
         auto task = m_command_buffer.front();
         m_command_buffer.pop_front();

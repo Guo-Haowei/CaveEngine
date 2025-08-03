@@ -1,7 +1,7 @@
 #include "scene.h"
 
 #include "engine/assets/mesh_asset.h"
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/core/io/archive.h"
 #include "engine/ecs/component_manager.inl"
 #include "engine/runtime/asset_registry.h"

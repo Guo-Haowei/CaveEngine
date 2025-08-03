@@ -2,10 +2,12 @@
 
 #include <imnodes/imnodes.h>
 
-#include "editor/editor_layer.h"
+#include "engine/debugger/profiler.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/render_graph/render_graph.h"
 #include "engine/runtime/application.h"
+
+#include "editor/editor_layer.h"
 
 namespace cave {
 
@@ -104,6 +106,8 @@ void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {
 }
 
 void RenderGraphViewer::UpdateInternal() {
+    CAVE_PROFILE_EVENT();
+
     auto graphics_manager = m_editor.GetApplication()->GetGraphicsManager();
     if (m_backend == Backend::COUNT) {
         m_backend = m_editor.GetApplication()->GetGraphicsManager()->GetBackend();

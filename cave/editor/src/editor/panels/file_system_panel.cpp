@@ -2,10 +2,12 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
+#include "engine/debugger/profiler.h"
 #include "engine/core/os/platform_io.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/common_dvars.h"
 
+#include "editor/editor_asset_manager.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/content_entry.h"
 #include "editor/widgets/drag_drop.h"
@@ -73,7 +75,9 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
 
         DragDropSourceContentEntry(p_node);
 
-        DragDropTargetFolder(p_node, m_editor.GetFolderLut());
+        auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+
+        DragDropTargetFolder(p_node, asset_manager.GetFolderLut());
 
         if (hovered) {
             ShowAssetToolTip(p_node);
@@ -90,7 +94,11 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
 }
 
 void FileSystemPanel::UpdateInternal() {
-    DrawFolderTreeNode(*m_editor.GetAssetRoot());
+    CAVE_PROFILE_EVENT();
+
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+
+    DrawFolderTreeNode(*asset_manager.GetAssetRoot());
 }
 
 }  // namespace cave

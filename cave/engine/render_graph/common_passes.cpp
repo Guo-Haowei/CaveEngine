@@ -3,7 +3,7 @@
 #include "engine/algorithm/algorithm.h"
 #include "engine/assets/image_asset.h"
 #include "engine/core/base/random.h"
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/math/matrix_transform.h"
 #include "engine/renderer/frame_data.h"
 #include "engine/renderer/graphics_dvars.h"
