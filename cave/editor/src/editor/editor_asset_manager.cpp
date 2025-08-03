@@ -27,8 +27,8 @@ private:
 
     std::string m_path;
     std::thread m_thread;
-    std::atomic<bool> m_stop = false;
-    std::atomic<bool> m_changed = false;
+    std::atomic<bool> m_stop{ false };
+    std::atomic<bool> m_changed{ true };  // set to true to trigger build the first frame
     HANDLE m_dir_handle = INVALID_HANDLE_VALUE;
 };
 
@@ -124,8 +124,6 @@ Result<void> EditorAssetManager::InitializeImpl() {
     if (auto res = AssetManager::InitializeImpl(); !res) {
         return std::unexpected(res.error());
     }
-
-    RebuildAssetFolderTree();
 
     m_file_watcher = std::make_unique<FileWatcher>();
     m_file_watcher->Start(m_asset_root_path.string());
