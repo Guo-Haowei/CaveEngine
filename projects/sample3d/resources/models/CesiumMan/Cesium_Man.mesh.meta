@@ -1,7 +1,7 @@
 type: mesh
-guid: 34F1E199-2063-5C4B-984B029243521D63
+guid: EB78D29C-986D-DE4C-8A0EA50E93A0028E
 name: Cesium_Man
-import_path: "@res://models/CesiumMan/CesiumMan/Cesium_Man.mesh"
+import_path: "@res://models/CesiumMan/Cesium_Man.mesh"
 dependencies: []
 source_created_time: ""
 source_last_modified: ""

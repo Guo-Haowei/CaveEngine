@@ -98,11 +98,14 @@ public:
     auto& GetChannels() { return m_channels; }
     const auto& GetChannels() const { return m_channels; }
 
-    void SetStart(float p_start) { m_start = p_start; }
     float GetStart() const { return m_start; }
+    void SetStart(float p_start) { m_start = p_start; }
 
-    void SetEnd(float p_end) { m_end = p_end; }
     float GetEnd() const { return m_end; }
+    void SetEnd(float p_end) { m_end = p_end; }
+
+    float GetTimer() const { return m_timer; }
+    void SetTimer(float p_timer) { m_timer = p_timer; }
 };
 
 }  // namespace cave

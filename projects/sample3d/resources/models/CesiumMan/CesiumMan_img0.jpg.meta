@@ -1,7 +1,7 @@
 type: image
-guid: 28965D79-57D3-C146-B541C0EE00FF99A3
+guid: CF200913-E164-D645-9C468FEB714E872D
 name: ""
-import_path: "@res://models/CesiumMan/CesiumMan/CesiumMan_img0.jpg"
+import_path: "@res://models/CesiumMan/CesiumMan_img0.jpg"
 dependencies: []
 source_created_time: ""
 source_last_modified: ""

@@ -1,9 +1,0 @@
-type: mat
-guid: 83DC066D-96EB-B248-B8C69DCF391B8E3F
-name: Cesium_Man-effect
-import_path: "@res://models/CesiumMan/CesiumMan/Cesium_Man-effect.mat"
-dependencies: [28965D79-57D3-C146-B541C0EE00FF99A3]
-source_created_time: ""
-source_last_modified: ""
-import_settings:
-  {}
