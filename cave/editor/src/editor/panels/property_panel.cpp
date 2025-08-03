@@ -178,7 +178,7 @@ bool DrawComponentAuto(T* p_component) {
                 float& f = field->template GetData<float>(p_component);
                 dirty |= (int)DrawDragFloat(field->name,
                                             f,
-                                            0.1f,          // speed
+                                            0.01f,         // speed
                                             field->v_min,  // min
                                             field->v_max   // max
                 );
@@ -392,10 +392,10 @@ void PropertyPanel::UpdateInternal() {
     // @TODO: refactor this
     DrawComponent(DRAW_COMPONENT_ARGS("Animation"), animation_component, [](SkeletalAnimatorComponent& p_animation) {
         DrawComponentAuto<SkeletalAnimatorComponent>(&p_animation);
-        if (ImGui::SliderFloat("Frame", &p_animation.timer, p_animation.start, p_animation.end)) {
-            p_animation.SetPlaying();
-        }
         ImGui::Separator();
+        // if (ImGui::SliderFloat("Frame", &p_animation.timer, p_animation.start, p_animation.end)) {
+        //     p_animation.SetPlaying();
+        // }
     });
 
 #if 0

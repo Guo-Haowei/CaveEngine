@@ -51,6 +51,9 @@ private:
     CAVE_PROP(editor = Toggle)
     bool m_looped = true;
 
+    CAVE_PROP(editor = DragFloat, min = 0, max = 1000)
+    float m_speed = 1;
+
     CAVE_PROP()
     float m_start = 0;
 
@@ -61,16 +64,15 @@ private:
     float m_timer = 0;
 
     CAVE_PROP()
-    float m_amount = 1;  // blend amount
-
-    CAVE_PROP()
-    float m_speed = 1;
+    float m_blend_amount = 1;
 
     CAVE_PROP()
     std::vector<Channel> m_channels;
 
     CAVE_PROP()
     std::vector<Sampler> m_samplers;
+
+    friend class SkeletalAnimationSystem;
 
 public:
     bool IsPlaying() const { return m_playing; }
@@ -98,8 +100,8 @@ ISerializer& WriteObject(ISerializer& s, const SkeletalAnimatorComponent::Channe
 
 bool ReadObject(IDeserializer& d, SkeletalAnimatorComponent::Channel& p_channel);
 
-ISerializer& WriteObject(ISerializer& s, const SkeletalAnimatorComponent::Sampler& p_tile_data);
+ISerializer& WriteObject(ISerializer& s, const SkeletalAnimatorComponent::Sampler& p_sampler);
 
-bool ReadObject(IDeserializer& d, SkeletalAnimatorComponent::Sampler& p_tile_data);
+bool ReadObject(IDeserializer& d, SkeletalAnimatorComponent::Sampler& p_sampler);
 
 }  // namespace cave

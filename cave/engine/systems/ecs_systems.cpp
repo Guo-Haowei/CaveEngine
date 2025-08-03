@@ -28,19 +28,24 @@ namespace cave {
 #define JS_PARALLEL_FOR JS_NO_PARALLEL_FOR
 #endif
 
-static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
+class SkeletalAnimationSystem {
+public:
+    static void Update(Scene& p_scene, size_t p_index, float p_timestep);
+};
+
+void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_timestep) {
     SkeletalAnimatorComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimatorComponent>(p_index);
 
     if (!animation.IsPlaying()) {
         return;
     }
 
-    for (const SkeletalAnimatorComponent::Channel& channel : animation.channels) {
-        if (channel.path == AnimationChannelPath::Unknown) {
+    for (const SkeletalAnimatorComponent::Channel& channel : animation.m_channels) {
+        if (channel.path == AnimationChannelPath::Count) {
             continue;
         }
-        DEV_ASSERT(channel.sampler_index < (int)animation.samplers.size());
-        const SkeletalAnimatorComponent::Sampler& sampler = animation.samplers[channel.sampler_index];
+        DEV_ASSERT(channel.sampler_index < (int)animation.m_samplers.size());
+        const SkeletalAnimatorComponent::Sampler& sampler = animation.m_samplers[channel.sampler_index];
 
         int key_left = 0;
         int key_right = 0;
@@ -57,17 +62,17 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
             if (time > time_last) {
                 time_last = time;
             }
-            if (time <= animation.timer && time > time_left) {
+            if (time <= animation.m_timer && time > time_left) {
                 time_left = time;
                 key_left = k;
             }
-            if (time >= animation.timer && time < time_right) {
+            if (time >= animation.m_timer && time < time_right) {
                 time_right = time;
                 key_right = k;
             }
         }
 
-        if (animation.timer < time_first) {
+        if (animation.m_timer < time_first) {
             continue;
         }
 
@@ -76,7 +81,7 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
 
         float t = 0;
         if (key_left != key_right) {
-            t = (animation.timer - left) / (right - left);
+            t = (animation.m_timer - left) / (right - left);
         }
         t = Saturate(t);
 
@@ -122,12 +127,12 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
         targetTransform->SetDirty();
     }
 
-    if (animation.IsLooped() && animation.timer > animation.end) {
-        animation.timer = animation.start;
+    if (animation.IsLooped() && animation.m_timer > animation.m_end) {
+        animation.m_timer = animation.m_start;
     }
 
     if (animation.IsPlaying()) {
-        animation.timer += p_timestep * animation.speed;
+        animation.m_timer += p_timestep * animation.m_speed;
     }
 }
 
@@ -290,7 +295,7 @@ void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context
 
 void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(SkeletalAnimatorComponent, p_context, index, 1, UpdateAnimation(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletalAnimatorComponent, p_context, index, 1, SkeletalAnimationSystem::Update(p_scene, index, p_timestep));
 }
 
 void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
