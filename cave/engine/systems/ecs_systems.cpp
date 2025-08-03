@@ -29,18 +29,18 @@ namespace cave {
 #endif
 
 static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
-    AnimationComponent& animation = p_scene.GetComponentByIndex<AnimationComponent>(p_index);
+    SkeletalAnimationComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimationComponent>(p_index);
 
     if (!animation.IsPlaying()) {
         return;
     }
 
-    for (const AnimationComponent::Channel& channel : animation.channels) {
-        if (channel.path == AnimationComponent::Channel::PATH_UNKNOWN) {
+    for (const SkeletalAnimationComponent::Channel& channel : animation.channels) {
+        if (channel.path == AnimationChannelPath::Unknown) {
             continue;
         }
         DEV_ASSERT(channel.samplerIndex < (int)animation.samplers.size());
-        const AnimationComponent::Sampler& sampler = animation.samplers[channel.samplerIndex];
+        const SkeletalAnimationComponent::Sampler& sampler = animation.samplers[channel.samplerIndex];
 
         int key_left = 0;
         int key_right = 0;
@@ -91,7 +91,7 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
             return Vector4f(tmp.x, tmp.y, tmp.z, tmp.w);
         };
         switch (channel.path) {
-            case AnimationComponent::Channel::PATH_SCALE: {
+            case AnimationChannelPath::Scale: {
                 DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 3);
                 const Vector3f* data = (const Vector3f*)sampler.keyframeData.data();
                 const Vector3f& vLeft = data[key_left];
@@ -99,7 +99,7 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
                 targetTransform->SetScale(dummy_mix(vLeft, vRight, t));
                 break;
             }
-            case AnimationComponent::Channel::PATH_TRANSLATION: {
+            case AnimationChannelPath::Translation: {
                 DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 3);
                 const Vector3f* data = (const Vector3f*)sampler.keyframeData.data();
                 const Vector3f& vLeft = data[key_left];
@@ -107,7 +107,7 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
                 targetTransform->SetTranslation(dummy_mix(vLeft, vRight, t));
                 break;
             }
-            case AnimationComponent::Channel::PATH_ROTATION: {
+            case AnimationChannelPath::Rotation: {
                 DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 4);
                 const Vector4f* data = (const Vector4f*)sampler.keyframeData.data();
                 const Vector4f& vLeft = data[key_left];
@@ -290,7 +290,7 @@ void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context
 
 void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(AnimationComponent, p_context, index, 1, UpdateAnimation(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletalAnimationComponent, p_context, index, 1, UpdateAnimation(p_scene, index, p_timestep));
 }
 
 void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {

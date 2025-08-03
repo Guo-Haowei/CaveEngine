@@ -577,7 +577,7 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
     // @TODO: make animation asset instead
     m_scene->AttachChild(entity);
 
-    AnimationComponent& animation = m_scene->Create<AnimationComponent>(entity);
+    SkeletalAnimationComponent& animation = m_scene->Create<SkeletalAnimationComponent>(entity);
     animation.samplers.resize(p_anim.samplers.size());
     animation.channels.resize(p_anim.channels.size());
     DEV_ASSERT(p_anim.samplers.size() == p_anim.channels.size());
@@ -649,14 +649,14 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
         animation.channels[index].samplerIndex = (uint32_t)channel.sampler;
 
         if (channel.target_path == "scale") {
-            animation.channels[index].path = AnimationComponent::Channel::PATH_SCALE;
+            animation.channels[index].path = AnimationChannelPath::Scale;
         } else if (channel.target_path == "rotation") {
-            animation.channels[index].path = AnimationComponent::Channel::PATH_ROTATION;
+            animation.channels[index].path = AnimationChannelPath::Rotation;
         } else if (channel.target_path == "translation") {
-            animation.channels[index].path = AnimationComponent::Channel::PATH_TRANSLATION;
+            animation.channels[index].path = AnimationChannelPath::Translation;
         } else {
             LOG_WARN("Unkown target path {}", channel.target_path.c_str());
-            animation.channels[index].path = AnimationComponent::Channel::PATH_UNKNOWN;
+            animation.channels[index].path = AnimationChannelPath::Unknown;
         }
     }
 }

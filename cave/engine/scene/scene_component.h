@@ -8,8 +8,6 @@
 // @TODO: get rid of this
 #include "scene_component_base.h"
 
-#include "transform_component.h"
-
 namespace cave {
 #include "shader_defines.hlsl.h"
 }  // namespace cave
@@ -70,65 +68,6 @@ struct VelocityComponent {
     Vector3f linear = Vector3f::Zero;
 };
 
-struct SkeletonComponent {
-    CAVE_META(SkeletonComponent)
-
-    CAVE_PROP()
-    std::vector<ecs::Entity> bone_collection;
-
-    CAVE_PROP()
-    std::vector<Matrix4x4f> inverse_bind_matrices;
-
-    // Non-Serialized
-    std::vector<Matrix4x4f> bone_transforms;
-};
-
-// @TODO: make it asset
-#pragma region ANIMATION_COMPONENT
-struct AnimationComponent {
-    enum : uint32_t {
-        NONE = 0,
-        PLAYING = 1 << 0,
-        LOOPED = 1 << 1,
-    };
-
-    struct Channel {
-        enum Path {
-            PATH_TRANSLATION,
-            PATH_ROTATION,
-            PATH_SCALE,
-
-            PATH_UNKNOWN,
-        };
-
-        Path path = PATH_UNKNOWN;
-        ecs::Entity targetId;
-        int samplerIndex = -1;
-    };
-
-    struct Sampler {
-        std::vector<float> keyframeTimes;
-        std::vector<float> keyframeData;
-    };
-
-    bool IsPlaying() const { return flags & PLAYING; }
-    bool IsLooped() const { return flags & LOOPED; }
-    float GetLegnth() const { return end - start; }
-    float IsEnd() const { return timer > end; }
-
-    uint32_t flags = LOOPED;
-    float start = 0;
-    float end = 0;
-    float timer = 0;
-    float amount = 1;  // blend amount
-    float speed = 1;
-
-    std::vector<Channel> channels;
-    std::vector<Sampler> samplers;
-};
-#pragma endregion ANIMATION_COMPONENT
-
-// @TODO: move the following to scripts
 #pragma region COLLISION_OBJECT_COMPONENT
 
 struct CollisionObjectBase {

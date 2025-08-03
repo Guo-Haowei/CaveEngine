@@ -23,7 +23,6 @@ FILES = [
     'assets/tile_set_asset.h',
 
     # components
-    'scene/animator_component.h',
     'scene/collider_component.h',
     'scene/camera_component.h',
     'scene/light_component.h',
@@ -31,6 +30,8 @@ FILES = [
     'scene/material_component.h',
     'scene/transform_component.h',
     'scene/scene_component.h',
+    'scene/skeletal_animator_component.h',
+    'scene/sprite_animator_component.h',
 
     # renderers
     'scene/mesh_renderer_component.h',
