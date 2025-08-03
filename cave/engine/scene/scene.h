@@ -14,7 +14,7 @@
 #include "engine/scene/lua_script_component.h"
 #include "engine/scene/material_component.h"
 #include "engine/scene/mesh_renderer_component.h"
-#include "engine/scene/skeletal_animator_component.h"
+#include "engine/scene/skeletal_animation_component.h"
 #include "engine/scene/sprite_animator_component.h"
 #include "engine/scene/sprite_renderer_component.h"
 #include "engine/scene/tile_map_renderer_component.h"
@@ -29,22 +29,22 @@ namespace cave {
 // Tags that don't need to be serialized
 struct NoSaveTag {};
 
-#define REGISTER_COMPONENT_SERIALIZED_LIST                                               \
-    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                         \
-    REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)               \
-    REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0)               \
-    REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)                     \
-    REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                       \
-    REGISTER_COMPONENT(SkeletalAnimatorComponent, "World::SkeletalAnimatorComponent", 0) \
-    REGISTER_COMPONENT(SkeletonComponent, "World::SkeletonComponent", 0)                 \
-    REGISTER_COMPONENT(SpriteAnimatorComponent, "World::SpriteAnimatorComponent", 0)     \
-    REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)                 \
-    REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)                 \
-    REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)               \
-    REGISTER_COMPONENT(PrefabInstanceComponent, "World::PrefabInstanceComponent", 0)     \
-    REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)         \
-    REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)                 \
-    REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)     \
+#define REGISTER_COMPONENT_SERIALIZED_LIST                                                 \
+    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                           \
+    REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)                 \
+    REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0)                 \
+    REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)                       \
+    REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                         \
+    REGISTER_COMPONENT(SkeletalAnimationComponent, "World::SkeletalAnimationComponent", 0) \
+    REGISTER_COMPONENT(SkeletonComponent, "World::SkeletonComponent", 0)                   \
+    REGISTER_COMPONENT(SpriteAnimatorComponent, "World::SpriteAnimatorComponent", 0)       \
+    REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)                   \
+    REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)                   \
+    REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)                 \
+    REGISTER_COMPONENT(PrefabInstanceComponent, "World::PrefabInstanceComponent", 0)       \
+    REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)           \
+    REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)                   \
+    REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)       \
     REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
 
 // @TODO: use meta table for all components

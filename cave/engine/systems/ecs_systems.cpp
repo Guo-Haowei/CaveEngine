@@ -34,18 +34,18 @@ public:
 };
 
 void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_timestep) {
-    SkeletalAnimatorComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimatorComponent>(p_index);
+    SkeletalAnimationComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimationComponent>(p_index);
 
     if (!animation.IsPlaying()) {
         return;
     }
 
-    for (const SkeletalAnimatorComponent::Channel& channel : animation.m_channels) {
+    for (const SkeletalAnimationComponent::SkeletalAnimationChannel& channel : animation.m_channels) {
         if (channel.path == AnimationChannelPath::Count) {
             continue;
         }
         DEV_ASSERT(channel.sampler_index < (int)animation.m_samplers.size());
-        const SkeletalAnimatorComponent::Sampler& sampler = animation.m_samplers[channel.sampler_index];
+        const SkeletalAnimationComponent::SkeletalAnimationSampler& sampler = animation.m_samplers[channel.sampler_index];
 
         int key_left = 0;
         int key_right = 0;
@@ -295,7 +295,7 @@ void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context
 
 void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(SkeletalAnimatorComponent, p_context, index, 1, SkeletalAnimationSystem::Update(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletalAnimationComponent, p_context, index, 1, SkeletalAnimationSystem::Update(p_scene, index, p_timestep));
 }
 
 void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {

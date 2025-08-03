@@ -5,9 +5,6 @@
 
 namespace cave {
 
-class ISerializer;
-class IDeserializer;
-
 struct SkeletonComponent {
     CAVE_META(SkeletonComponent)
 
@@ -30,19 +27,31 @@ enum class AnimationChannelPath {
 
 DECLARE_ENUM_TRAITS(AnimationChannelPath, "translation", "rotation", "scale");
 
-class SkeletalAnimatorComponent {
-    CAVE_META(SkeletalAnimatorComponent)
+struct SkeletalAnimationChannel {
+    CAVE_META(SkeletalAnimationChannel)
 
-    struct Channel {
-        AnimationChannelPath path = AnimationChannelPath::Count;
-        ecs::Entity target_id;
-        int sampler_index = -1;
-    };
+    CAVE_PROP()
+    AnimationChannelPath path = AnimationChannelPath::Count;
 
-    struct Sampler {
-        std::vector<float> keyframe_times;
-        std::vector<float> keyframe_data;
-    };
+    CAVE_PROP()
+    ecs::Entity target_id;
+
+    CAVE_PROP()
+    int sampler_index = -1;
+};
+
+struct SkeletalAnimationSampler {
+    CAVE_META(SkeletalAnimationSampler)
+
+    CAVE_PROP()
+    std::vector<float> keyframe_times;
+
+    CAVE_PROP()
+    std::vector<float> keyframe_data;
+};
+
+class SkeletalAnimationComponent {
+    CAVE_META(SkeletalAnimationComponent)
 
 private:
     CAVE_PROP(editor = Toggle)
@@ -67,10 +76,10 @@ private:
     float m_blend_amount = 1;
 
     CAVE_PROP()
-    std::vector<Channel> m_channels;
+    std::vector<SkeletalAnimationChannel> m_channels;
 
     CAVE_PROP()
-    std::vector<Sampler> m_samplers;
+    std::vector<SkeletalAnimationSampler> m_samplers;
 
     friend class SkeletalAnimationSystem;
 
@@ -95,13 +104,5 @@ public:
     void SetEnd(float p_end) { m_end = p_end; }
     float GetEnd() const { return m_end; }
 };
-
-ISerializer& WriteObject(ISerializer& s, const SkeletalAnimatorComponent::Channel& p_channel);
-
-bool ReadObject(IDeserializer& d, SkeletalAnimatorComponent::Channel& p_channel);
-
-ISerializer& WriteObject(ISerializer& s, const SkeletalAnimatorComponent::Sampler& p_sampler);
-
-bool ReadObject(IDeserializer& d, SkeletalAnimatorComponent::Sampler& p_sampler);
 
 }  // namespace cave

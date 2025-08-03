@@ -577,7 +577,7 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
     // @TODO: make animation asset instead
     m_scene->AttachChild(entity);
 
-    SkeletalAnimatorComponent& animation = m_scene->Create<SkeletalAnimatorComponent>(entity);
+    SkeletalAnimationComponent& animation = m_scene->Create<SkeletalAnimationComponent>(entity);
     auto& samplers = animation.GetSamplers();
     auto& channels = animation.GetChannels();
     samplers.resize(p_anim.samplers.size());

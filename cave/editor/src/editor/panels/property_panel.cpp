@@ -253,7 +253,7 @@ void PropertyPanel::UpdateInternal() {
     CameraComponent* camera = scene.GetComponent<CameraComponent>(id);
     PrefabInstanceComponent* prefab = scene.GetComponent<PrefabInstanceComponent>(id);
 
-    SkeletalAnimatorComponent* animation_component = scene.GetComponent<SkeletalAnimatorComponent>(id);
+    SkeletalAnimationComponent* animation_component = scene.GetComponent<SkeletalAnimationComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 
 #if 0
@@ -390,8 +390,8 @@ void PropertyPanel::UpdateInternal() {
     });
 
     // @TODO: refactor this
-    DrawComponent(DRAW_COMPONENT_ARGS("Animation"), animation_component, [](SkeletalAnimatorComponent& p_animation) {
-        DrawComponentAuto<SkeletalAnimatorComponent>(&p_animation);
+    DrawComponent(DRAW_COMPONENT_ARGS("Animation"), animation_component, [](SkeletalAnimationComponent& p_animation) {
+        DrawComponentAuto<SkeletalAnimationComponent>(&p_animation);
         ImGui::Separator();
         // if (ImGui::SliderFloat("Frame", &p_animation.timer, p_animation.start, p_animation.end)) {
         //     p_animation.SetPlaying();

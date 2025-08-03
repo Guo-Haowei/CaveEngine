@@ -13,7 +13,7 @@
 #include "generated/material_component.generated.cpp"
 #include "generated/transform_component.generated.cpp"
 #include "generated/scene_component.generated.cpp"
-#include "generated/skeletal_animator_component.generated.cpp"
+#include "generated/skeletal_animation_component.generated.cpp"
 #include "generated/sprite_animator_component.generated.cpp"
 #include "generated/mesh_renderer_component.generated.cpp"
 #include "generated/sprite_renderer_component.generated.cpp"
