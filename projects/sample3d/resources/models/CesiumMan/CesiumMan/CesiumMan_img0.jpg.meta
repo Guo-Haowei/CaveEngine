@@ -1,0 +1,10 @@
+type: image
+guid: 28965D79-57D3-C146-B541C0EE00FF99A3
+name: ""
+import_path: "@res://models/CesiumMan/CesiumMan/CesiumMan_img0.jpg"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  color_space: srgb
+  sampler: linear

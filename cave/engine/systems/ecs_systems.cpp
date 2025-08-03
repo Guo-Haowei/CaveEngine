@@ -40,12 +40,12 @@ void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_tim
         return;
     }
 
-    for (const SkeletalAnimationComponent::SkeletalAnimationChannel& channel : animation.m_channels) {
+    for (const SkeletalAnimationChannel& channel : animation.m_channels) {
         if (channel.path == AnimationChannelPath::Count) {
             continue;
         }
         DEV_ASSERT(channel.sampler_index < (int)animation.m_samplers.size());
-        const SkeletalAnimationComponent::SkeletalAnimationSampler& sampler = animation.m_samplers[channel.sampler_index];
+        const SkeletalAnimationSampler& sampler = animation.m_samplers[channel.sampler_index];
 
         int key_left = 0;
         int key_right = 0;
