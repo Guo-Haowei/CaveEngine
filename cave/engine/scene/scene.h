@@ -35,6 +35,7 @@ struct NoSaveTag {};
     REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)                 \
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                   \
     REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)             \
+    REGISTER_COMPONENT(SkeletonComponent, "World::SkeletonComponent", 0)             \
     REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)             \
     REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)             \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)           \
@@ -47,7 +48,6 @@ struct NoSaveTag {};
 // @TODO: use meta table for all components
 #define REGISTER_COMPONENT_LIST                                                \
     REGISTER_COMPONENT_SERIALIZED_LIST                                         \
-    REGISTER_COMPONENT(ArmatureComponent, "World::ArmatureComponent", 0)       \
     REGISTER_COMPONENT(AnimationComponent, "World::AnimationComponent", 0)     \
     REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0)     \
     REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)         \

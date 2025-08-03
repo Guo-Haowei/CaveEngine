@@ -49,9 +49,8 @@ void Scene::Update(float p_timestep) {
     // RunMeshEmitterUpdateSystem(*this, ctx, p_timestep);
     // particle
     // RunParticleEmitterUpdateSystem(*this, ctx, p_timestep);
-    // armature
 
-    RunArmatureUpdateSystem(*this, ctx, p_timestep);
+    RunSkeletonUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
 
     // update bounding box

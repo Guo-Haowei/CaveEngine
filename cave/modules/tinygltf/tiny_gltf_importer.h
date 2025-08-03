@@ -38,7 +38,7 @@ protected:
     Guid ProcessMaterial(const tinygltf::Material& p_material);
     Guid ProcessMesh(const tinygltf::Mesh& p_mesh);
 
-    void ProcessAnimation(const tinygltf::Animation& p_anim, int p_id);
+    void ProcessAnimation(const tinygltf::Animation& p_anim);
 
     void ProcessNode(int p_node_index, ecs::Entity p_parent);
 

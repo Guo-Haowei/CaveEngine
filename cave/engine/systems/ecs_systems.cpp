@@ -165,13 +165,13 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
     self_transform->SetDirty(false);
 }
 
-static void UpdateArmature(Scene& p_scene, size_t p_index, float) {
-    TransformComponent* transform = p_scene.GetComponent<TransformComponent>(p_scene.GetEntityByIndex<ArmatureComponent>(p_index));
+static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
+    TransformComponent* transform = p_scene.GetComponent<TransformComponent>(p_scene.GetEntityByIndex<SkeletonComponent>(p_index));
     DEV_ASSERT(transform);
 
-    // The transform world matrices are in world space, but skinning needs them in armature-local space,
+    // The transform world matrices are in world space, but skinning needs them in skeleton-local space,
     //	so that the skin is reusable for instanced meshes.
-    //	We remove the armature's world matrix from the bone world matrix to obtain the bone local transform
+    //	We remove the skeleton's world matrix from the bone world matrix to obtain the bone local transform
     //	These local bone matrices will only be used for skinning, the actual transform components for the bones
     //	remain unchanged.
     //
@@ -180,25 +180,25 @@ static void UpdateArmature(Scene& p_scene, size_t p_index, float) {
     // to LH space) 	then the inverseBindMatrices are not reflected in that because they are not contained in
     // the hierarchy system. 	But this will correct them too.
 
-    ArmatureComponent& armature = p_scene.GetComponentByIndex<ArmatureComponent>(p_index);
+    SkeletonComponent& skeleton = p_scene.GetComponentByIndex<SkeletonComponent>(p_index);
     const Matrix4x4f R = glm::inverse(transform->GetWorldMatrix());
-    const size_t numBones = armature.bone_collection.size();
-    if (armature.bone_transforms.size() != numBones) {
-        armature.bone_transforms.resize(numBones);
+    const size_t numBones = skeleton.bone_collection.size();
+    if (skeleton.bone_transforms.size() != numBones) {
+        skeleton.bone_transforms.resize(numBones);
     }
 
     int idx = 0;
-    for (ecs::Entity boneID : armature.bone_collection) {
+    for (ecs::Entity boneID : skeleton.bone_collection) {
         const TransformComponent* boneTransform = p_scene.GetComponent<TransformComponent>(boneID);
         DEV_ASSERT(boneTransform);
 
-        const Matrix4x4f& B = armature.inverse_bind_matrices[idx];
+        const Matrix4x4f& B = skeleton.inverse_bind_matrices[idx];
         const Matrix4x4f& W = boneTransform->GetWorldMatrix();
         const Matrix4x4f M = R * W * B;
-        armature.bone_transforms[idx] = M;
+        skeleton.bone_transforms[idx] = M;
         ++idx;
 
-        // @TODO: armature animation
+        // @TODO: skeleton animation
     }
 };
 
@@ -293,9 +293,9 @@ void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, flo
     JS_PARALLEL_FOR(AnimationComponent, p_context, index, 1, UpdateAnimation(p_scene, index, p_timestep));
 }
 
-void RunArmatureUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
+void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(ArmatureComponent, p_context, index, 1, UpdateArmature(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletonComponent, p_context, index, 1, UpdateSkeleton(p_scene, index, p_timestep));
 }
 
 void RunHierarchyUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {

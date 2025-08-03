@@ -79,6 +79,11 @@ Result<void> TinyGltfImporter::Import() {
         return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'", source_path);
     }
 
+    ecs::Entity root = m_scene->CreateEntity();
+    m_scene->Create<TransformComponent>(root);
+    m_scene->Create<NameComponent>(root);
+    m_scene->m_root = root;
+
     for (const tinygltf::Material& mat : m_model->materials) {
         m_materials.emplace_back(ProcessMaterial(mat));
     }
@@ -87,59 +92,53 @@ Result<void> TinyGltfImporter::Import() {
         m_meshes.emplace_back(ProcessMesh(mesh));
     }
 
-    // Create armatures
+    // Create skeleton
     for (const auto& skin : m_model->skins) {
-        ecs::Entity armature_id = m_scene->CreateEntity();
-        m_scene->Create<NameComponent>(armature_id).SetName(skin.name);
-        m_scene->Create<TransformComponent>(armature_id);
-        ArmatureComponent& armature = m_scene->Create<ArmatureComponent>(armature_id);
+        ecs::Entity skeleton_id = m_scene->CreateEntity();
+        m_scene->Create<NameComponent>(skeleton_id).SetName(skin.name);
+        m_scene->Create<TransformComponent>(skeleton_id);
+        SkeletonComponent& skeleton = m_scene->Create<SkeletonComponent>(skeleton_id);
         if (skin.inverseBindMatrices >= 0) {
             const tinygltf::Accessor& accessor = m_model->accessors[skin.inverseBindMatrices];
             const tinygltf::BufferView& buffer_view = m_model->bufferViews[accessor.bufferView];
             const tinygltf::Buffer& buffer = m_model->buffers[buffer_view.buffer];
-            armature.inverse_bind_matrices.resize(accessor.count);
-            memcpy(armature.inverse_bind_matrices.data(), &buffer.data[accessor.byteOffset + buffer_view.byteOffset], accessor.count * sizeof(Matrix4x4f));
+            skeleton.inverse_bind_matrices.resize(accessor.count);
+            memcpy(skeleton.inverse_bind_matrices.data(), &buffer.data[accessor.byteOffset + buffer_view.byteOffset], accessor.count * sizeof(Matrix4x4f));
         } else {
             LOG_FATAL("No inverse matrices found");
         }
     }
 
-    ecs::Entity root = m_scene->CreateEntity();
-    m_scene->Create<TransformComponent>(root);
-    m_scene->Create<NameComponent>(root);
-    m_scene->m_root = root;
-
-    // Create transform hierarchy, assign objects, meshes, armatures, cameras
+    // Create transform hierarchy, assign objects, meshes, skeletons, cameras
     DEV_ASSERT(m_model->scenes.size());
-    const tinygltf::Scene& gltfScene = m_model->scenes[max(0, m_model->defaultScene)];
-    for (size_t i = 0; i < gltfScene.nodes.size(); ++i) {
-        ProcessNode(gltfScene.nodes[i], root);
+    const tinygltf::Scene& gltf_scene = m_model->scenes[max(0, m_model->defaultScene)];
+    for (size_t i = 0; i < gltf_scene.nodes.size(); ++i) {
+        ProcessNode(gltf_scene.nodes[i], root);
     }
 
-    // Create armature-bone mappings:
-    int skin_index = 0;
-    for (const auto& skin : m_model->skins) {
-        ArmatureComponent& armature = m_scene->m_ArmatureComponents.GetComponentByIndex(skin_index++);
+    // Create skeleton-bone mappings:
+    for (size_t skin_index = 0; skin_index < m_model->skins.size(); ++skin_index) {
+        const tinygltf::Skin& skin = m_model->skins[skin_index];
+        SkeletonComponent& skeleton = m_scene->GetComponentByIndex<SkeletonComponent>(skin_index);
 
-        const size_t jointCount = skin.joints.size();
-        armature.bone_collection.resize(jointCount);
+        const size_t joint_count = skin.joints.size();
+        skeleton.bone_collection.resize(joint_count);
 
         // create bone collection
-        for (size_t i = 0; i < jointCount; ++i) {
+        for (size_t i = 0; i < joint_count; ++i) {
             int jointIndex = skin.joints[i];
-            ecs::Entity boneID = m_node_map[jointIndex];
-            armature.bone_collection[i] = boneID;
+            ecs::Entity bone_id = m_node_map[jointIndex];
+            skeleton.bone_collection[i] = bone_id;
         }
     }
 
     // Create animations:
-    for (int id = 0; id < (int)m_model->animations.size(); ++id) {
-        const tinygltf::Animation& anim = m_model->animations[id];
-        ProcessAnimation(anim, id);
+    for (const tinygltf::Animation& anim : m_model->animations) {
+        ProcessAnimation(anim);
     }
 
-    // Create lights:
-    // Create cameras:
+    // @TODO: lights
+    // @TODO: cameras
 
     return RegisterScene(root);
 }
@@ -501,8 +500,8 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
         if (!has_skin) {
             node_id = mesh_instance;
         } else {
-            node_id = m_scene->GetEntityByIndex<ArmatureComponent>(node.skin);
-            renderer.SetArmatureId(node_id);
+            node_id = m_scene->GetEntityByIndex<SkeletonComponent>(node.skin);
+            renderer.SetSkeletonId(node_id);
             m_scene->AttachChild(mesh_instance, node_id);
         }
 
@@ -571,7 +570,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     }
 }
 
-void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim, int) {
+void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
     std::string tag = p_anim.name.empty() ? GenerateAnimationName() : p_anim.name;
     auto entity = EntityFactory::CreateNameEntity(*m_scene, tag);
 

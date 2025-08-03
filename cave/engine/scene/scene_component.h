@@ -70,6 +70,19 @@ struct VelocityComponent {
     Vector3f linear = Vector3f::Zero;
 };
 
+struct SkeletonComponent {
+    CAVE_META(SkeletonComponent)
+
+    CAVE_PROP()
+    std::vector<ecs::Entity> bone_collection;
+
+    CAVE_PROP()
+    std::vector<Matrix4x4f> inverse_bind_matrices;
+
+    // Non-Serialized
+    std::vector<Matrix4x4f> bone_transforms;
+};
+
 // @TODO: make it asset
 #pragma region ANIMATION_COMPONENT
 struct AnimationComponent {
@@ -114,17 +127,6 @@ struct AnimationComponent {
     std::vector<Sampler> samplers;
 };
 #pragma endregion ANIMATION_COMPONENT
-
-// @TODO: make it asset
-#pragma region ARMATURE_COMPONENT
-struct ArmatureComponent {
-    std::vector<ecs::Entity> bone_collection;
-    std::vector<Matrix4x4f> inverse_bind_matrices;
-
-    // Non-Serialized
-    std::vector<Matrix4x4f> bone_transforms;
-};
-#pragma endregion ARMATURE_COMPONENT
 
 // @TODO: move the following to scripts
 #pragma region COLLISION_OBJECT_COMPONENT
