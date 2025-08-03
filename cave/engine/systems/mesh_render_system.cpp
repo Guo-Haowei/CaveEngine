@@ -106,10 +106,10 @@ static void FillPass(const Scene& p_scene,
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(entity, batch_buffer);
         if (armature_id.IsValid()) {
             auto& armature = *p_scene.GetComponent<ArmatureComponent>(armature_id);
-            DEV_ASSERT(armature.boneTransforms.size() <= MAX_BONE_COUNT);
+            DEV_ASSERT(armature.bone_transforms.size() <= MAX_BONE_COUNT);
 
             BoneConstantBuffer bone;
-            memcpy(bone.c_bones, armature.boneTransforms.data(), sizeof(Matrix4x4f) * armature.boneTransforms.size());
+            memcpy(bone.c_bones, armature.bone_transforms.data(), sizeof(Matrix4x4f) * armature.bone_transforms.size());
 
             // @TODO: better memory usage
             draw.bone_idx = p_framedata.boneCache.FindOrAdd(armature_id, bone);
@@ -355,16 +355,16 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
         }
 
         if (armature_id.IsValid()) {
-            auto& armature = *scene.GetComponent<ArmatureComponent>(armature_id);
-            DEV_ASSERT(armature.boneTransforms.size() <= MAX_BONE_COUNT);
+            const ArmatureComponent* armature = scene.GetComponent<ArmatureComponent>(armature_id);
+            if (armature) {
+                DEV_ASSERT(armature->bone_transforms.size() <= MAX_BONE_COUNT);
 
-            BoneConstantBuffer bone;
-            memcpy(bone.c_bones, armature.boneTransforms.data(), sizeof(Matrix4x4f) * armature.boneTransforms.size());
+                BoneConstantBuffer bone;
+                memcpy(bone.c_bones, armature->bone_transforms.data(), sizeof(Matrix4x4f) * armature->bone_transforms.size());
 
-            // @TODO: better memory usage
-            draw.bone_idx = p_framedata.boneCache.FindOrAdd(armature_id, bone);
-        } else {
-            draw.bone_idx = -1;
+                // @TODO: better memory usage
+                draw.bone_idx = p_framedata.boneCache.FindOrAdd(armature_id, bone);
+            }
         }
 
         draw.mat_idx = -1;

@@ -67,6 +67,7 @@ void MeshEmitterComponent::UpdateParticle(Index p_index, float p_timestep) {
 
 // @TODO: refactor
 
+#if 0
 void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);
     p_archive.ArchiveValue(start);
@@ -95,9 +96,10 @@ void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {
 }
 
 void ArmatureComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(boneCollection);
-    p_archive.ArchiveValue(inverseBindMatrices);
+    p_archive.ArchiveValue(bone_collection);
+    p_archive.ArchiveValue(inverse_bind_matrices);
 }
+#endif
 
 void CollisionObjectBase::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(collisionType);

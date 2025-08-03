@@ -182,20 +182,20 @@ static void UpdateArmature(Scene& p_scene, size_t p_index, float) {
 
     ArmatureComponent& armature = p_scene.GetComponentByIndex<ArmatureComponent>(p_index);
     const Matrix4x4f R = glm::inverse(transform->GetWorldMatrix());
-    const size_t numBones = armature.boneCollection.size();
-    if (armature.boneTransforms.size() != numBones) {
-        armature.boneTransforms.resize(numBones);
+    const size_t numBones = armature.bone_collection.size();
+    if (armature.bone_transforms.size() != numBones) {
+        armature.bone_transforms.resize(numBones);
     }
 
     int idx = 0;
-    for (ecs::Entity boneID : armature.boneCollection) {
+    for (ecs::Entity boneID : armature.bone_collection) {
         const TransformComponent* boneTransform = p_scene.GetComponent<TransformComponent>(boneID);
         DEV_ASSERT(boneTransform);
 
-        const Matrix4x4f& B = armature.inverseBindMatrices[idx];
+        const Matrix4x4f& B = armature.inverse_bind_matrices[idx];
         const Matrix4x4f& W = boneTransform->GetWorldMatrix();
         const Matrix4x4f M = R * W * B;
-        armature.boneTransforms[idx] = M;
+        armature.bone_transforms[idx] = M;
         ++idx;
 
         // @TODO: armature animation
