@@ -112,40 +112,23 @@ struct AnimationComponent {
 
     std::vector<Channel> channels;
     std::vector<Sampler> samplers;
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
 };
 #pragma endregion ANIMATION_COMPONENT
 
 // @TODO: make it asset
 #pragma region ARMATURE_COMPONENT
 struct ArmatureComponent {
-    std::vector<ecs::Entity> boneCollection;
-    std::vector<Matrix4x4f> inverseBindMatrices;
+    std::vector<ecs::Entity> bone_collection;
+    std::vector<Matrix4x4f> inverse_bind_matrices;
 
     // Non-Serialized
-    std::vector<Matrix4x4f> boneTransforms;
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
+    std::vector<Matrix4x4f> bone_transforms;
 };
 #pragma endregion ARMATURE_COMPONENT
 
 // @TODO: move the following to scripts
 #pragma region COLLISION_OBJECT_COMPONENT
 
-/*
-    enum Type : uint32_t {
-        PLAYER = BIT(1),
-        FRIENDLY = BIT(2),
-        HOSTILE = BIT(4),
-    };
-
-    player.collisionType = PLAYER;
-    player.collisionMask = HOSTILE;
-
-    hostile.collisionType = HOSTILE;
-    hostile.collisionMask = PLAYER | FRIENDLY;
-*/
 struct CollisionObjectBase {
     uint32_t collisionType = 0;
     uint32_t collisionMask = 0;

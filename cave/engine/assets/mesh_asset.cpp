@@ -42,7 +42,9 @@ void MeshAsset::CreateRenderData() {
     return;
 }
 
-void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t) {
+void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t p_version) {
+    unused(p_version);
+
     size_t subset_count = subsets.size();
     p_archive.ArchiveValue(subset_count);
     p_archive.ArchiveValue(subsets);
@@ -56,9 +58,6 @@ void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(joints_0);
     p_archive.ArchiveValue(weights_0);
     p_archive.ArchiveValue(color_0);
-
-    // @TODO: get rid of it
-    p_archive.ArchiveValue(armatureId);
 }
 
 void MeshAsset::OnDeserialized() {
@@ -102,36 +101,5 @@ Result<void> MeshAsset::LoadFromDisk(const AssetMetaData& p_meta) {
 
     return Result<void>();
 }
-
-#if 0
-
-void MeshComponent::RegisterClass() {
-    BEGIN_REGISTRY(MeshComponent);
-    REGISTER_FIELD_2(MeshComponent, flags);
-    REGISTER_FIELD_2(MeshComponent, subsets);
-    REGISTER_FIELD(MeshComponent, "armature_id", armatureId);
-
-    REGISTER_FIELD_2(MeshComponent, indices, FieldFlag::BINARY);
-    REGISTER_FIELD_2(MeshComponent, positions, FieldFlag::BINARY);
-    REGISTER_FIELD_2(MeshComponent, normals, FieldFlag::BINARY);
-    REGISTER_FIELD_2(MeshComponent, tangents, FieldFlag::BINARY);
-    REGISTER_FIELD_2(MeshComponent, texcoords_0, FieldFlag::BINARY);
-    REGISTER_FIELD_2(MeshComponent, texcoords_1, FieldFlag::BINARY);
-    REGISTER_FIELD_2(MeshComponent, joints_0, FieldFlag::BINARY);
-    REGISTER_FIELD_2(MeshComponent, weights_0, FieldFlag::BINARY);
-    REGISTER_FIELD_2(MeshComponent, color_0, FieldFlag::BINARY);
-    END_REGISTRY(MeshComponent);
-}
-
-void MeshComponent::MeshSubset::RegisterClass() {
-    BEGIN_REGISTRY(MeshComponent::MeshSubset);
-    REGISTER_FIELD_2(MeshComponent::MeshSubset, material_id);
-    REGISTER_FIELD_2(MeshComponent::MeshSubset, index_count);
-    REGISTER_FIELD_2(MeshComponent::MeshSubset, index_offset);
-    REGISTER_FIELD_2(MeshComponent::MeshSubset, local_bound);
-    END_REGISTRY(MeshComponent::MeshSubset);
-}
-
-#endif
 
 }  // namespace cave

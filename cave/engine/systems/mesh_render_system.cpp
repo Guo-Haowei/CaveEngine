@@ -93,9 +93,10 @@ static void FillPass(const Scene& p_scene,
             continue;
         }
 
+        ecs::Entity armature_id = renderer.GetArmatureId();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_meshFlag = mesh.armatureId.IsValid();
+        batch_buffer.c_meshFlag = armature_id.IsValid();
 
         DrawCommand draw;
         if (entity == p_scene.m_selected) {
@@ -103,15 +104,15 @@ static void FillPass(const Scene& p_scene,
         }
 
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(entity, batch_buffer);
-        if (mesh.armatureId.IsValid()) {
-            auto& armature = *p_scene.GetComponent<ArmatureComponent>(mesh.armatureId);
-            DEV_ASSERT(armature.boneTransforms.size() <= MAX_BONE_COUNT);
+        if (armature_id.IsValid()) {
+            auto& armature = *p_scene.GetComponent<ArmatureComponent>(armature_id);
+            DEV_ASSERT(armature.bone_transforms.size() <= MAX_BONE_COUNT);
 
             BoneConstantBuffer bone;
-            memcpy(bone.c_bones, armature.boneTransforms.data(), sizeof(Matrix4x4f) * armature.boneTransforms.size());
+            memcpy(bone.c_bones, armature.bone_transforms.data(), sizeof(Matrix4x4f) * armature.bone_transforms.size());
 
             // @TODO: better memory usage
-            draw.bone_idx = p_framedata.boneCache.FindOrAdd(mesh.armatureId, bone);
+            draw.bone_idx = p_framedata.boneCache.FindOrAdd(armature_id, bone);
         } else {
             draw.bone_idx = -1;
         }
@@ -342,9 +343,10 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
         AABB aabb = mesh.localBound;
         aabb.ApplyMatrix(world_matrix);
 
+        ecs::Entity armature_id = renderer.GetArmatureId();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_meshFlag = mesh.armatureId.IsValid();
+        batch_buffer.c_meshFlag = armature_id.IsValid();
 
         DrawCommand draw;
         // @TODO: refactor the stencil part
@@ -352,17 +354,17 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
             draw.flags = STENCIL_FLAG_SELECTED;
         }
 
-        if (mesh.armatureId.IsValid()) {
-            auto& armature = *scene.GetComponent<ArmatureComponent>(mesh.armatureId);
-            DEV_ASSERT(armature.boneTransforms.size() <= MAX_BONE_COUNT);
+        if (armature_id.IsValid()) {
+            const ArmatureComponent* armature = scene.GetComponent<ArmatureComponent>(armature_id);
+            if (armature) {
+                DEV_ASSERT(armature->bone_transforms.size() <= MAX_BONE_COUNT);
 
-            BoneConstantBuffer bone;
-            memcpy(bone.c_bones, armature.boneTransforms.data(), sizeof(Matrix4x4f) * armature.boneTransforms.size());
+                BoneConstantBuffer bone;
+                memcpy(bone.c_bones, armature->bone_transforms.data(), sizeof(Matrix4x4f) * armature->bone_transforms.size());
 
-            // @TODO: better memory usage
-            draw.bone_idx = p_framedata.boneCache.FindOrAdd(mesh.armatureId, bone);
-        } else {
-            draw.bone_idx = -1;
+                // @TODO: better memory usage
+                draw.bone_idx = p_framedata.boneCache.FindOrAdd(armature_id, bone);
+            }
         }
 
         draw.mat_idx = -1;

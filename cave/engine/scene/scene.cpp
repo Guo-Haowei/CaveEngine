@@ -149,6 +149,8 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
         for (size_t i = 0; i < materials.size(); ++i) {
             materials[i] = mapping[materials[i]];
         }
+
+        CRASH_NOW_MSG("remap skin and skeleton");
     }
 
     // remap all entities
@@ -165,20 +167,6 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
     HierarchyComponent& hier = Create<HierarchyComponent>(mapped_root);
     hier.parent_id = p_entity.IsValid() ? p_entity : m_root;
 }
-
-// void Scene::Merge(Scene& p_other) {
-//      CRASH_NOW_MSG("SHOULD NOT CALL THIS");
-//     // @TODO: check the correctness of this
-//     for (auto& entry : m_component_lib.m_entries) {
-//         auto& manager = *p_other.m_component_lib.m_entries[entry.first].manager;
-//         entry.second.manager->Merge(manager);
-//     }
-//     if (p_other.m_root.IsValid()) {
-//         AttachChild(p_other.m_root, m_root);
-//     }
-//
-//     m_bound.UnionBox(p_other.m_bound);
-// }
 
 ecs::Entity Scene::GetMainCamera() {
     for (auto [entity, camera] : View<CameraComponent>()) {
