@@ -2,7 +2,7 @@
 
 #include "engine/assets/mesh_asset.h"
 #include "engine/core/base/random.h"
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/scene/scene.h"
 #include "engine/systems/job_system/job_system.h"
 

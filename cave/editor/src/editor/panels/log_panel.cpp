@@ -1,6 +1,6 @@
 #include "log_panel.h"
 
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/core/io/logger.h"
 #include "engine/math/color.h"
 

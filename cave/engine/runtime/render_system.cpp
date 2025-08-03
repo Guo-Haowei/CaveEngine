@@ -1,7 +1,7 @@
 #include "render_system.h"
 
 #include "engine/core/base/random.h"
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/math/matrix_transform.h"
 #include "engine/render_graph/render_graph_defines.h"
 #include "engine/renderer/frame_data.h"

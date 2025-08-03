@@ -2,7 +2,7 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/core/os/platform_io.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/common_dvars.h"

@@ -2,7 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/input/input_event.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"

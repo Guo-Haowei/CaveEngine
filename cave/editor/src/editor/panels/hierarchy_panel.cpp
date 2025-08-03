@@ -4,7 +4,7 @@
 #include <imgui/imgui_internal.h>
 
 #include "engine/assets/mesh_asset.h"
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 
 #include "editor/editor_layer.h"
 #include "editor/viewer/viewer.h"

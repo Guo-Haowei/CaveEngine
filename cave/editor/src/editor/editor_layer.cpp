@@ -4,7 +4,7 @@
 #include <imnodes/imnodes.h>
 
 #include "engine/assets/image_asset.h"
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/input/input_event.h"
 #include "engine/renderer/graphics_dvars.h"

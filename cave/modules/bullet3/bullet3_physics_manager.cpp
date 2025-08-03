@@ -1,7 +1,7 @@
 
 #include "bullet3_physics_manager.h"
 
-#include "engine/core/debugger/profiler.h"
+#include "engine/debugger/profiler.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/runtime/script_manager.h"

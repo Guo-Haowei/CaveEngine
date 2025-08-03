@@ -3,6 +3,7 @@
 
 namespace cave {
 
+class FileWatcher;
 struct ImageAsset;
 
 class EditorAssetManager : public AssetManager {
@@ -15,6 +16,7 @@ protected:
     Result<void> AddAlwaysLoadImages();
 
     std::unordered_map<std::string, std::shared_ptr<ImageAsset>> m_images;
+    std::unique_ptr<FileWatcher> m_file_watcher;
 };
 
 }  // namespace cave
