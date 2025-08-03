@@ -1,0 +1,9 @@
+type: mat
+guid: F5034A54-4DBE-0A43-A61D43F5DE5A5C43
+name: Cesium_Man-effect
+import_path: "@res://models/CesiumMan/Cesium_Man-effect.mat"
+dependencies: [032DE929-7CBD-5C45-84D1097028B755C8]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

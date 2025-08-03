@@ -104,12 +104,6 @@ Result<void> TinyGltfImporter::Import() {
         }
     }
 
-    // Create animations:
-    for (int id = 0; id < (int)m_model->animations.size(); ++id) {
-        const tinygltf::Animation& anim = m_model->animations[id];
-        ProcessAnimation(anim, id);
-    }
-
     ecs::Entity root = m_scene->CreateEntity();
     m_scene->Create<TransformComponent>(root);
     m_scene->Create<NameComponent>(root);
@@ -136,6 +130,12 @@ Result<void> TinyGltfImporter::Import() {
             ecs::Entity boneID = m_node_map[jointIndex];
             armature.boneCollection[i] = boneID;
         }
+    }
+
+    // Create animations:
+    for (int id = 0; id < (int)m_model->animations.size(); ++id) {
+        const tinygltf::Animation& anim = m_model->animations[id];
+        ProcessAnimation(anim, id);
     }
 
     // Create lights:
@@ -476,12 +476,15 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
         return;
     }
 
-    ecs::Entity entity;
+    ecs::Entity node_id;
     auto& node = m_model->nodes[p_node_index];
 
+#if 0
+#endif
+
     if (node.mesh >= 0) {
-        entity = EntityFactory::CreateMeshInstance(*m_scene, "Node::" + node.name);
-        MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(entity);
+        ecs::Entity mesh_instance = EntityFactory::CreateMeshInstance(*m_scene, "Node::" + node.name);
+        MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(mesh_instance);
         renderer.SetResourceGuid(m_meshes.at(node.mesh));
 
         const tinygltf::Mesh& mesh = m_model->meshes[node.mesh];
@@ -494,17 +497,15 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
             material_instance.SetResourceGuid(material_guid);
         }
 
-        if (node.skin >= 0) {
-            ecs::Entity skin_id = m_scene->GetEntityByIndex<ArmatureComponent>(node.skin);
-            Guid mesh_guid = m_meshes.at(node.mesh);
-
-            if (renderer.GetArmatureId().IsValid()) {
-                LOG_ERROR("Reuse mesh with different skin is not supported");
-            }
-
-            renderer.SetArmatureId(skin_id);
-            m_scene->AttachChild(entity, skin_id);
+        const bool has_skin = node.skin >= 0;
+        if (!has_skin) {
+            node_id = mesh_instance;
+        } else {
+            node_id = m_scene->GetEntityByIndex<ArmatureComponent>(node.skin);
+            renderer.SetArmatureId(node_id);
+            m_scene->AttachChild(mesh_instance, node_id);
         }
+
     } else if (node.camera >= 0) {
         LOG_WARN("@TODO: camera");
     }
@@ -512,16 +513,16 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     // light
 
     // transform
-    if (!entity.IsValid()) {
-        entity = m_scene->CreateEntity();
-        m_scene->Create<TransformComponent>(entity);
-        m_scene->Create<NameComponent>(entity).SetName("Transform::" + node.name);
+    if (!node_id.IsValid()) {
+        node_id = m_scene->CreateEntity();
+        m_scene->Create<TransformComponent>(node_id);
+        m_scene->Create<NameComponent>(node_id).SetName("Transform::" + node.name);
     }
 
-    auto [_, ok] = m_node_map.try_emplace(p_node_index, entity);
+    auto [_, ok] = m_node_map.try_emplace(p_node_index, node_id);
     DEV_ASSERT(ok);
 
-    TransformComponent& transform = *m_scene->GetComponent<TransformComponent>(entity);
+    TransformComponent& transform = *m_scene->GetComponent<TransformComponent>(node_id);
     if (!node.matrix.empty()) {
         Matrix4x4f matrix;
         matrix[0].x = float(node.matrix.at(0));
@@ -562,11 +563,11 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     transform.UpdateTransform();
 
     if (p_parent.IsValid()) {
-        m_scene->AttachChild(entity, p_parent);
+        m_scene->AttachChild(node_id, p_parent);
     }
 
     for (int child : node.children) {
-        ProcessNode(child, entity);
+        ProcessNode(child, node_id);
     }
 }
 

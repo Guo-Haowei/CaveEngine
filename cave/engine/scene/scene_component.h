@@ -133,19 +133,6 @@ struct ArmatureComponent {
 // @TODO: move the following to scripts
 #pragma region COLLISION_OBJECT_COMPONENT
 
-/*
-    enum Type : uint32_t {
-        PLAYER = BIT(1),
-        FRIENDLY = BIT(2),
-        HOSTILE = BIT(4),
-    };
-
-    player.collisionType = PLAYER;
-    player.collisionMask = HOSTILE;
-
-    hostile.collisionType = HOSTILE;
-    hostile.collisionMask = PLAYER | FRIENDLY;
-*/
 struct CollisionObjectBase {
     uint32_t collisionType = 0;
     uint32_t collisionMask = 0;
