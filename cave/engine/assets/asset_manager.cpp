@@ -89,7 +89,7 @@ static auto LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) -> Result<Asse
 }
 
 auto AssetManager::InitializeImpl() -> Result<void> {
-    m_asset_root = fs::path{ m_app->GetResourceFolder() };
+    m_asset_root_path = fs::path{ m_app->GetResourceFolder() };
 
 #if USING(USE_IMPORTER_TINYGLTF)
     AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
@@ -167,7 +167,7 @@ Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const s
 }
 
 std::string AssetManager::ResolvePath(const fs::path& p_path) {
-    fs::path relative = fs::relative(p_path, m_asset_root);
+    fs::path relative = fs::relative(p_path, m_asset_root_path);
     return std::format("@res://{}", relative.generic_string());
 }
 

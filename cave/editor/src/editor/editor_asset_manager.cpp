@@ -2,11 +2,14 @@
 
 #include "engine/assets/image_asset.h"
 #include "engine/core/string/string_utils.h"
+#include "engine/debugger/profiler.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/graphics_manager_interface.h"
 
 // @TODO: refactor
 #include "engine/drivers/windows/win32_prerequisites.h"
+
+#include "editor/utility/content_entry.h"
 
 namespace cave {
 
@@ -41,11 +44,16 @@ void FileWatcher::Start(const std::string& path) {
 void FileWatcher::Stop() {
     m_stop = true;
     if (m_dir_handle != INVALID_HANDLE_VALUE) {
-        CancelIoEx(m_dir_handle, nullptr);
-        CloseHandle(m_dir_handle);
+        CancelIoEx(m_dir_handle, nullptr);  // this safely breaks ReadDirectoryChangesW
     }
+
     if (m_thread.joinable()) {
-        m_thread.join();
+        m_thread.join();  // make sure WatchLoop exits
+    }
+
+    if (m_dir_handle != INVALID_HANDLE_VALUE) {
+        CloseHandle(m_dir_handle);  // now it's safe
+        m_dir_handle = INVALID_HANDLE_VALUE;
     }
 }
 
@@ -97,9 +105,6 @@ void FileWatcher::WatchLoop() {
 
         m_changed.store(true);  // flag to main thread
     }
-
-    CloseHandle(m_dir_handle);
-    m_dir_handle = INVALID_HANDLE_VALUE;
 }
 
 [[nodiscard]] static auto CreateImageAsset(const AssetMetaData& p_meta) -> Result<std::shared_ptr<ImageAsset>> {
@@ -120,8 +125,10 @@ Result<void> EditorAssetManager::InitializeImpl() {
         return std::unexpected(res.error());
     }
 
+    RebuildAssetFolderTree();
+
     m_file_watcher = std::make_unique<FileWatcher>();
-    m_file_watcher->Start(m_asset_root.string());
+    m_file_watcher->Start(m_asset_root_path.string());
 
     return AddAlwaysLoadImages();
 }
@@ -134,9 +141,26 @@ void EditorAssetManager::FinalizeImpl() {
 
 void EditorAssetManager::Update() {
     if (m_file_watcher->HasChanged()) {
-        LOG_OK("changed");
+        RebuildAssetFolderTree();
         m_file_watcher->ClearFlag();
     }
+}
+
+static void BuildFolderLut(const ContentEntry* p_node,
+                           std::unordered_map<std::string, const ContentEntry*>& p_lut) {
+    p_lut[p_node->sys_path.string()] = p_node;
+    for (const auto& child : p_node->children) {
+        BuildFolderLut(child.get(), p_lut);
+    }
+}
+
+void EditorAssetManager::RebuildAssetFolderTree() {
+    CAVE_PROFILE_EVENT("Build folder tree");
+    const std::string& path = m_app->GetResourceFolder();
+    m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
+
+    m_folder_lut.clear();
+    BuildFolderLut(m_asset_root.get(), m_folder_lut);
 }
 
 Result<void> EditorAssetManager::AddAlwaysLoadImages() {

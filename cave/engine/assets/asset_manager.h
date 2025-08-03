@@ -41,7 +41,7 @@ protected:
 
     uint32_t m_fps_counter{ 0 };
     std::mutex m_asset_lock;
-    std::filesystem::path m_asset_root;
+    std::filesystem::path m_asset_root_path;
 };
 
 }  // namespace cave

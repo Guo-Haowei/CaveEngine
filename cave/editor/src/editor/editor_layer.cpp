@@ -26,7 +26,6 @@
 #include "editor/panels/property_panel.h"
 #include "editor/panels/render_graph_viewer.h"
 #include "editor/panels/renderer_panel.h"
-#include "editor/utility/content_entry.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/widget.h"
@@ -231,25 +230,8 @@ void EditorLayer::OnUpdate(float p_timestep) {
     // Scene* scene = nullptr;
 }
 
-static void BuildFolderLut(const ContentEntry* p_node,
-                           std::unordered_map<std::string, const ContentEntry*>& p_lut) {
-    p_lut[p_node->sys_path.string()] = p_node;
-    for (const auto& child : p_node->children) {
-        BuildFolderLut(child.get(), p_lut);
-    }
-}
-
 void EditorLayer::OnImGuiRender() {
     CAVE_PROFILE_EVENT();
-
-    {
-        CAVE_PROFILE_EVENT("Build folder tree");
-        const std::string& path = GetApplication()->GetResourceFolder();
-        m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
-
-        m_folder_lut.clear();
-        BuildFolderLut(m_asset_root.get(), m_folder_lut);
-    }
 
     // @TODO: DO NOT Request SCENE here
     Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();

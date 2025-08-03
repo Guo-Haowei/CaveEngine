@@ -7,6 +7,7 @@
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/common_dvars.h"
 
+#include "editor/editor_asset_manager.h"
 #include "editor/editor_layer.h"
 #include "editor/utility/content_entry.h"
 #include "editor/widgets/drag_drop.h"
@@ -74,7 +75,9 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
 
         DragDropSourceContentEntry(p_node);
 
-        DragDropTargetFolder(p_node, m_editor.GetFolderLut());
+        auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+
+        DragDropTargetFolder(p_node, asset_manager.GetFolderLut());
 
         if (hovered) {
             ShowAssetToolTip(p_node);
@@ -92,7 +95,10 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
 
 void FileSystemPanel::UpdateInternal() {
     CAVE_PROFILE_EVENT();
-    DrawFolderTreeNode(*m_editor.GetAssetRoot());
+
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+
+    DrawFolderTreeNode(*asset_manager.GetAssetRoot());
 }
 
 }  // namespace cave
