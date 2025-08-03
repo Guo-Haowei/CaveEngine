@@ -42,7 +42,9 @@ void MeshAsset::CreateRenderData() {
     return;
 }
 
-void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t) {
+void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t p_version) {
+    unused(p_version);
+
     size_t subset_count = subsets.size();
     p_archive.ArchiveValue(subset_count);
     p_archive.ArchiveValue(subsets);
@@ -56,9 +58,6 @@ void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(joints_0);
     p_archive.ArchiveValue(weights_0);
     p_archive.ArchiveValue(color_0);
-
-    // @TODO: get rid of it
-    p_archive.ArchiveValue(armatureId);
 }
 
 void MeshAsset::OnDeserialized() {

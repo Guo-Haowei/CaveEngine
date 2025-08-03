@@ -28,7 +28,8 @@ protected:
     Result<void> RegisterScene(ecs::Entity p_root);
 
     std::string GenerateMeshName() { return NameGenerator("mesh", m_mesh_counter); }
-    std::string GenerateMaterialName() { return NameGenerator("mat", m_mat_counter); }
+    std::string GenerateMaterialName() { return NameGenerator("mat", m_material_counter); }
+    std::string GenerateAnimationName() { return NameGenerator("anim", m_anim_counter); }
 
     std::string m_file_name;
     std::string m_file_path;
@@ -43,7 +44,8 @@ private:
     std::string NameGenerator(std::string_view p_name, uint32_t& p_counter);
 
     uint32_t m_mesh_counter = 0;
-    uint32_t m_mat_counter = 0;
+    uint32_t m_material_counter = 0;
+    uint32_t m_anim_counter = 0;
 };
 
 }  // namespace cave

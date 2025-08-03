@@ -58,9 +58,6 @@ public:
     };
     std::vector<MeshSubset> subsets;
 
-    // @TODO: make it an asset
-    ecs::Entity armatureId;
-
     // Non-serialized
     mutable std::shared_ptr<GpuMesh> gpuResource;
     mutable std::shared_ptr<BvhAccel> bvh;
