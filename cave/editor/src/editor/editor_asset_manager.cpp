@@ -111,6 +111,34 @@ void FileWatcher::WatchLoop() {
     return image;
 }
 
+EditorAssetManager::EditorAssetManager() = default;
+
+EditorAssetManager::~EditorAssetManager() = default;
+
+Result<void> EditorAssetManager::InitializeImpl() {
+    if (auto res = AssetManager::InitializeImpl(); !res) {
+        return std::unexpected(res.error());
+    }
+
+    m_file_watcher = std::make_unique<FileWatcher>();
+    m_file_watcher->Start(m_asset_root.string());
+
+    return AddAlwaysLoadImages();
+}
+
+void EditorAssetManager::FinalizeImpl() {
+    m_file_watcher->Stop();
+
+    AssetManager::FinalizeImpl();
+}
+
+void EditorAssetManager::Update() {
+    if (m_file_watcher->HasChanged()) {
+        LOG_OK("changed");
+        m_file_watcher->ClearFlag();
+    }
+}
+
 Result<void> EditorAssetManager::AddAlwaysLoadImages() {
     // @TODO: fix this path, it won't work if the file is moved
     std::string_view tmp = StringUtils::BasePath(__FILE__);
@@ -138,17 +166,6 @@ Result<void> EditorAssetManager::AddAlwaysLoadImages() {
 
     return Result<void>();
 }
-
-Result<void> EditorAssetManager::InitializeImpl() {
-    if (auto res = AssetManager::InitializeImpl(); !res) {
-        return std::unexpected(res.error());
-    }
-
-    m_file_watcher = std::make_unique<FileWatcher>();
-
-    return AddAlwaysLoadImages();
-}
-
 std::shared_ptr<ImageAsset> EditorAssetManager::FindImage(const std::string& p_name) {
     auto it = m_images.find(p_name);
     if (it == m_images.end()) {

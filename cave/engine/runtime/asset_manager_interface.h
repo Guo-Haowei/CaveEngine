@@ -17,6 +17,8 @@ public:
     IAssetManager()
         : Module("AssetManager") {}
 
+    virtual void Update() = 0;
+
     virtual Result<Guid> CreateAsset(AssetType p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr) = 0;
     virtual Result<Guid> CreateAsset(AssetType p_type, const std::string& p_short_path) = 0;
 

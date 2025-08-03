@@ -8,7 +8,13 @@ struct ImageAsset;
 
 class EditorAssetManager : public AssetManager {
 public:
+    EditorAssetManager();
+    virtual ~EditorAssetManager();
+
     Result<void> InitializeImpl() override;
+    void FinalizeImpl() override;
+
+    void Update() override;
 
     std::shared_ptr<ImageAsset> FindImage(const std::string& p_name);
 

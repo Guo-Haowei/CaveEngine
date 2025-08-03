@@ -222,6 +222,7 @@ bool Application::MainLoop() {
     8. Render System           (submit to GPU)
     */
 
+    m_asset_manager->Update();
     m_scene_manager->Update();
 
     // layer should set active scene
