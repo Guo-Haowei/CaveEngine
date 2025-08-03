@@ -4,6 +4,7 @@
 #include <imnodes/imnodes.h>
 
 #include "engine/assets/image_asset.h"
+#include "engine/core/debugger/profiler.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/input/input_event.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -179,6 +180,8 @@ void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 }
 
 void EditorLayer::DockSpace() {
+    CAVE_PROFILE_EVENT();
+
     ImGui::GetMainViewport();
 
     static bool opt_padding = false;
@@ -237,11 +240,16 @@ static void BuildFolderLut(const ContentEntry* p_node,
 }
 
 void EditorLayer::OnImGuiRender() {
-    const std::string& path = GetApplication()->GetResourceFolder();
-    m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
+    CAVE_PROFILE_EVENT();
 
-    m_folder_lut.clear();
-    BuildFolderLut(m_asset_root.get(), m_folder_lut);
+    {
+        CAVE_PROFILE_EVENT("Build folder tree");
+        const std::string& path = GetApplication()->GetResourceFolder();
+        m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
+
+        m_folder_lut.clear();
+        BuildFolderLut(m_asset_root.get(), m_folder_lut);
+    }
 
     // @TODO: DO NOT Request SCENE here
     Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();
@@ -258,6 +266,8 @@ void EditorLayer::OnImGuiRender() {
 }
 
 void EditorLayer::FlushInputEvents() {
+    CAVE_PROFILE_EVENT();
+
     for (auto& event : m_buffered_events) {
         if (m_viewer->IsFocused() || m_viewer->IsHovered()) {
             if (m_viewer->HandleInput(event.get())) {
@@ -331,6 +341,8 @@ void EditorLayer::CommandRemoveEntity(ecs::Entity p_target) {
 }
 
 void EditorLayer::FlushCommand(Scene* p_scene) {
+    CAVE_PROFILE_EVENT();
+
     while (!m_command_buffer.empty()) {
         auto task = m_command_buffer.front();
         m_command_buffer.pop_front();

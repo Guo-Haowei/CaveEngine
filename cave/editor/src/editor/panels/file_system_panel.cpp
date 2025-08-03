@@ -2,6 +2,7 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
+#include "engine/core/debugger/profiler.h"
 #include "engine/core/os/platform_io.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/common_dvars.h"
@@ -90,6 +91,7 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
 }
 
 void FileSystemPanel::UpdateInternal() {
+    CAVE_PROFILE_EVENT();
     DrawFolderTreeNode(*m_editor.GetAssetRoot());
 }
 

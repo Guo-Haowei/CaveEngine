@@ -2,6 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 
+#include "engine/core/debugger/profiler.h"
 #include "engine/input/input_event.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -166,6 +167,8 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
 }
 
 void Viewer::UpdateInternal() {
+    CAVE_PROFILE_EVENT();
+
     UpdateFrameSize();
 
     auto _tab = m_tab_manager.GetActiveTab();

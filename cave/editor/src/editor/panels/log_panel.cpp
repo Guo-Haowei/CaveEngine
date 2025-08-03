@@ -1,5 +1,6 @@
 #include "log_panel.h"
 
+#include "engine/core/debugger/profiler.h"
 #include "engine/core/io/logger.h"
 #include "engine/math/color.h"
 
@@ -29,6 +30,8 @@ static ImVec4 GetLogLevelColor(LogLevel level) {
 }
 
 void LogPanel::UpdateInternal() {
+    CAVE_PROFILE_EVENT();
+
     ImGui::Separator();
 
     // reserve enough left-over height for 1 separator + 1 input text

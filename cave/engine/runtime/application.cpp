@@ -232,14 +232,19 @@ bool Application::MainLoop() {
 
     // @TODO: refactor this
     if (m_imgui_manager) {
-        CAVE_PROFILE_EVENT("Application::ImGui");
-        m_imgui_manager->BeginFrame();
+        {
+            CAVE_PROFILE_EVENT("ImGuiManager::BeginFrame");
+            m_imgui_manager->BeginFrame();
+        }
 
         for (int i = (int)m_layers.size() - 1; i >= 0; --i) {
             m_layers[i]->OnImGuiRender();
         }
 
-        ImGui::Render();
+        {
+            CAVE_PROFILE_EVENT("ImGui::Render");
+            ImGui::Render();
+        }
     }
 
     const GameMode game_mode = m_mode_manager->GetMode();

@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/assets/image_asset.h"
+#include "engine/core/debugger/profiler.h"
 #include "engine/runtime/asset_registry.h"
 
 #include "editor/editor_asset_manager.h"
@@ -35,6 +36,7 @@ void AssetInspector::OnAttach() {
 }
 
 void AssetInspector::UpdateInternal() {
+    CAVE_PROFILE_EVENT();
     if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
         tab->DrawAssetInspector();
     } else {
