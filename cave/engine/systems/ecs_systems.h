@@ -17,7 +17,7 @@ void RunHierarchyUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, flo
 
 void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 
-void RunArmatureUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 
 void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 

@@ -22,6 +22,7 @@
 
 namespace cave {
 
+// @TODO: refactor DrawComponent
 template<ComponentType T, typename UIFunction>
 static void DrawComponent(const std::string& p_name,
                           Scene* p_scene,
@@ -178,7 +179,7 @@ bool DrawComponentAuto(T* p_component) {
                 float& f = field->template GetData<float>(p_component);
                 dirty |= (int)DrawDragFloat(field->name,
                                             f,
-                                            0.1f,          // speed
+                                            0.01f,         // speed
                                             field->v_min,  // min
                                             field->v_max   // max
                 );
@@ -240,11 +241,6 @@ void PropertyPanel::UpdateInternal() {
 
     // @TODO: see how much this can be done with meta table
 
-    MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
-    SpriteRendererComponent* sprite_renderer = scene.GetComponent<SpriteRendererComponent>(id);
-    TileMapRendererComponent* tile_map_renderer = scene.GetComponent<TileMapRendererComponent>(id);
-    AnimatorComponent* animator = scene.GetComponent<AnimatorComponent>(id);
-
     TransformComponent* transform = scene.GetComponent<TransformComponent>(id);
     LightComponent* light = scene.GetComponent<LightComponent>(id);
     MaterialComponent* material = scene.GetComponent<MaterialComponent>(id);
@@ -253,7 +249,6 @@ void PropertyPanel::UpdateInternal() {
     CameraComponent* camera = scene.GetComponent<CameraComponent>(id);
     PrefabInstanceComponent* prefab = scene.GetComponent<PrefabInstanceComponent>(id);
 
-    AnimationComponent* animation_component = scene.GetComponent<AnimationComponent>(id);
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 
 #if 0
@@ -264,8 +259,8 @@ void PropertyPanel::UpdateInternal() {
     SceneDocument& document = static_cast<SceneDocument&>(tab->GetDocument());
     const bool is_2d = m_editor.GetApplication()->IsWorld2D();
 
-    // @TODO: limit this in scene editor
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, _scene, id
+
     DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&](TransformComponent& p_transform) {
         const Matrix4x4f old_transform = p_transform.GetLocalMatrix();
         const bool dirty = DrawComponentAuto<TransformComponent>(&p_transform);
@@ -325,33 +320,57 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Animator"), animator, [](AnimatorComponent& p_animator) {
-        // @TODO: refactor this
-        // @TODO: drop down
-        const Guid& guid = p_animator.GetResourceGuid();
-        if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
-            handle.is_some()) {
-            SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
-            std::string clip_name = p_animator.GetCurrentClip();
-            if (DrawInputText("clip", clip_name, DEFAULT_COLUMN_WIDTH)) {
-                const SpriteAnimationClip* clip = asset->GetClip(clip_name);
-                if (clip) {
-                    p_animator.SetClip(clip_name);
+    DrawComponent(
+        DRAW_COMPONENT_ARGS("SpriteAnimator"),
+        scene.GetComponent<SpriteAnimatorComponent>(id),
+        [](SpriteAnimatorComponent& p_animator) {
+            // @TODO: refactor this
+            // @TODO: drop down
+            const Guid& guid = p_animator.GetResourceGuid();
+            if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
+                handle.is_some()) {
+                SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
+                std::string clip_name = p_animator.GetCurrentClip();
+                if (DrawInputText("clip", clip_name, DEFAULT_COLUMN_WIDTH)) {
+                    const SpriteAnimationClip* clip = asset->GetClip(clip_name);
+                    if (clip) {
+                        p_animator.SetClip(clip_name);
+                    }
                 }
             }
-        }
 
-        DrawComponentAuto<AnimatorComponent>(&p_animator);
-    });
+            DrawComponentAuto<SpriteAnimatorComponent>(&p_animator);
+        });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("SpriteRenderer"), sprite_renderer, [](SpriteRendererComponent& p_sprite_renderer) {
-        DrawComponentAuto<SpriteRendererComponent>(&p_sprite_renderer);
-    });
+    DrawComponent(
+        DRAW_COMPONENT_ARGS("SkeletalAnimation"),
+        scene.GetComponent<SkeletalAnimationComponent>(id),
+        [](SkeletalAnimationComponent& p_anim) {
+            DrawComponentAuto<SkeletalAnimationComponent>(&p_anim);
+            ImGui::Separator();
+            const float start = p_anim.GetStart();
+            const float end = p_anim.GetEnd();
+            float timer = p_anim.GetTimer();
 
-    DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"), tile_map_renderer, [](TileMapRendererComponent& p_tile_map_renderer) {
-        DrawComponentAuto<TileMapRendererComponent>(&p_tile_map_renderer);
-    });
+            if (ImGui::SliderFloat("Frame", &timer, start, end)) {
+                p_anim.SetPlaying();
+                p_anim.SetTimer(timer);
+            }
+        });
 
+    DrawComponent(DRAW_COMPONENT_ARGS("SpriteRenderer"),
+                  scene.GetComponent<SpriteRendererComponent>(id),
+                  [](SpriteRendererComponent& p_sprite_renderer) {
+                      DrawComponentAuto<SpriteRendererComponent>(&p_sprite_renderer);
+                  });
+
+    DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"),
+                  scene.GetComponent<TileMapRendererComponent>(id),
+                  [](TileMapRendererComponent& p_tile_map_renderer) {
+                      DrawComponentAuto<TileMapRendererComponent>(&p_tile_map_renderer);
+                  });
+
+    MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
     DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
         DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
 
@@ -387,23 +406,6 @@ void PropertyPanel::UpdateInternal() {
             default:
                 break;
         }
-    });
-
-    // @TODO: refactor this
-    DrawComponent(DRAW_COMPONENT_ARGS("Animation"), animation_component, [&](AnimationComponent& p_animation) {
-        if (!p_animation.IsPlaying()) {
-            if (ImGui::Button("play")) {
-                p_animation.flags |= AnimationComponent::PLAYING;
-            }
-        } else {
-            if (ImGui::Button("stop")) {
-                p_animation.flags &= ~AnimationComponent::PLAYING;
-            }
-        }
-        if (ImGui::SliderFloat("Frame", &p_animation.timer, p_animation.start, p_animation.end)) {
-            p_animation.flags |= AnimationComponent::PLAYING;
-        }
-        ImGui::Separator();
     });
 
 #if 0

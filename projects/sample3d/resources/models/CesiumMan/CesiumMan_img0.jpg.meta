@@ -1,0 +1,10 @@
+type: image
+guid: CF200913-E164-D645-9C468FEB714E872D
+name: ""
+import_path: "@res://models/CesiumMan/CesiumMan_img0.jpg"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  color_space: srgb
+  sampler: linear

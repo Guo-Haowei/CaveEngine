@@ -28,14 +28,14 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_vi
     // ICON_FA_BACKWARD;
     m_play_button = { ICON_FA_PLAY, "Play animation",
                       [&]() {
-                          AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+                          SpriteAnimatorComponent* animator = m_tmp_scene->GetComponent<SpriteAnimatorComponent>(m_animator_id);
                           if (DEV_VERIFY(animator)) {
                               animator->SetPlaying(true);
                           }
                       } };
     m_pause_button = { ICON_FA_PAUSE, "Pause animation",
                        [&]() {
-                           AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+                           SpriteAnimatorComponent* animator = m_tmp_scene->GetComponent<SpriteAnimatorComponent>(m_animator_id);
                            if (DEV_VERIFY(animator)) {
                                animator->SetPlaying(false);
                            }
@@ -59,7 +59,7 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
 
         scene->Create<SpriteRendererComponent>(id);
 
-        AnimatorComponent& animator = scene->Create<AnimatorComponent>(id);
+        SpriteAnimatorComponent& animator = scene->Create<SpriteAnimatorComponent>(id);
         animator.SetResourceGuid(p_guid);
 
         return scene;
@@ -67,7 +67,7 @@ void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
 
     // cache the id
 
-    auto view = m_tmp_scene->View<AnimatorComponent>();
+    auto view = m_tmp_scene->View<SpriteAnimatorComponent>();
     for (const auto [id, _] : view) {
         DEV_ASSERT(!m_animator_id.IsValid());
         m_animator_id = id;
@@ -85,7 +85,7 @@ void SpriteAnimationEditor::OnActivate() {
 }
 
 const std::vector<const ToolBarButtonDesc*> SpriteAnimationEditor::GetToolBarButtons() const {
-    AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+    SpriteAnimatorComponent* animator = m_tmp_scene->GetComponent<SpriteAnimatorComponent>(m_animator_id);
     const bool is_playing = animator->IsPlaying();
 
     return { is_playing ? &m_pause_button : &m_play_button };
@@ -204,7 +204,7 @@ void SpriteAnimationEditor::DrawTimeLine() {
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, width);
     {
-        AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+        SpriteAnimatorComponent* animator = m_tmp_scene->GetComponent<SpriteAnimatorComponent>(m_animator_id);
         DEV_ASSERT(animator);
 
         int current_clip = -1;
@@ -244,7 +244,7 @@ void SpriteAnimationEditor::DrawTimeLine() {
     }
 
     ImGui::NextColumn();
-    AnimatorComponent* animator = m_tmp_scene->GetComponent<AnimatorComponent>(m_animator_id);
+    SpriteAnimatorComponent* animator = m_tmp_scene->GetComponent<SpriteAnimatorComponent>(m_animator_id);
     DEV_ASSERT(animator);
 
     std::vector<const ToolBarButtonDesc*> buttons = {

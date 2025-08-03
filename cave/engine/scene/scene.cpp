@@ -49,9 +49,8 @@ void Scene::Update(float p_timestep) {
     // RunMeshEmitterUpdateSystem(*this, ctx, p_timestep);
     // particle
     // RunParticleEmitterUpdateSystem(*this, ctx, p_timestep);
-    // armature
 
-    RunArmatureUpdateSystem(*this, ctx, p_timestep);
+    RunSkeletonUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
 
     // update bounding box
@@ -278,7 +277,7 @@ std::vector<Guid> Scene::GetDependencies() const {
     for (const auto& [id, tile_map_renderer] : View<TileMapRendererComponent>()) {
         dependencies.push_back(tile_map_renderer.GetResourceGuid());
     }
-    for (const auto& [id, animator] : View<AnimatorComponent>()) {
+    for (const auto& [id, animator] : View<SpriteAnimatorComponent>()) {
         dependencies.push_back(animator.GetResourceGuid());
     }
 

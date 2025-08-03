@@ -1,0 +1,9 @@
+type: scene
+guid: B282E80C-2970-6A48-8946EB0920BA0DD5
+name: CesiumMan
+import_path: "@res://models/CesiumMan/CesiumMan.scene"
+dependencies: [F9D806F8-3521-D94F-B756FDCC4A38F212, EB78D29C-986D-DE4C-8A0EA50E93A0028E]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

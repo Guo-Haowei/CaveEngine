@@ -17,13 +17,11 @@ FILES = [
     # assets
     'assets/asset_meta_data.h',
     'assets/material_asset.h',
-    # 'assets/mesh_asset.h',
     'assets/sprite_animation_asset.h',
     'assets/tile_map_asset.h',
     'assets/tile_set_asset.h',
 
     # components
-    'scene/animator_component.h',
     'scene/collider_component.h',
     'scene/camera_component.h',
     'scene/light_component.h',
@@ -31,6 +29,8 @@ FILES = [
     'scene/material_component.h',
     'scene/transform_component.h',
     'scene/scene_component.h',
+    'scene/skeletal_animation_component.h',
+    'scene/sprite_animator_component.h',
 
     # renderers
     'scene/mesh_renderer_component.h',

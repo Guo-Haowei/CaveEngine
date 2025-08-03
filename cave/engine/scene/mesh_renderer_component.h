@@ -25,7 +25,7 @@ private:
     std::vector<ecs::Entity> m_materials;
 
     CAVE_PROP()
-    ecs::Entity m_armature_id;
+    ecs::Entity m_skeleton_id;
 
     // Non-serialized
     Handle<MeshAsset> m_mesh_handle{};
@@ -43,8 +43,8 @@ public:
 
     const auto& GetMeshHandle() const { return m_mesh_handle; }
 
-    ecs::Entity GetArmatureId() const { return m_armature_id; }
-    void SetArmatureId(ecs::Entity p_id) { m_armature_id = p_id; }
+    ecs::Entity GetSkeletonId() const { return m_skeleton_id; }
+    void SetSkeletonId(ecs::Entity p_id) { m_skeleton_id = p_id; }
 
     void SetVisible(bool p_value = true) { m_is_visible = p_value; }
     bool IsVisible() const { return m_is_visible; }

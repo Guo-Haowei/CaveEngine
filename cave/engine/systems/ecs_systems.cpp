@@ -28,19 +28,24 @@ namespace cave {
 #define JS_PARALLEL_FOR JS_NO_PARALLEL_FOR
 #endif
 
-static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
-    AnimationComponent& animation = p_scene.GetComponentByIndex<AnimationComponent>(p_index);
+class SkeletalAnimationSystem {
+public:
+    static void Update(Scene& p_scene, size_t p_index, float p_timestep);
+};
+
+void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_timestep) {
+    SkeletalAnimationComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimationComponent>(p_index);
 
     if (!animation.IsPlaying()) {
         return;
     }
 
-    for (const AnimationComponent::Channel& channel : animation.channels) {
-        if (channel.path == AnimationComponent::Channel::PATH_UNKNOWN) {
+    for (const SkeletalAnimationChannel& channel : animation.m_channels) {
+        if (channel.path == AnimationChannelPath::Count) {
             continue;
         }
-        DEV_ASSERT(channel.samplerIndex < (int)animation.samplers.size());
-        const AnimationComponent::Sampler& sampler = animation.samplers[channel.samplerIndex];
+        DEV_ASSERT(channel.sampler_index < (int)animation.m_samplers.size());
+        const SkeletalAnimationSampler& sampler = animation.m_samplers[channel.sampler_index];
 
         int key_left = 0;
         int key_right = 0;
@@ -49,38 +54,38 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
         float time_left = std::numeric_limits<float>::min();
         float time_right = std::numeric_limits<float>::max();
 
-        for (int k = 0; k < (int)sampler.keyframeTimes.size(); ++k) {
-            const float time = sampler.keyframeTimes[k];
+        for (int k = 0; k < (int)sampler.keyframe_times.size(); ++k) {
+            const float time = sampler.keyframe_times[k];
             if (time < time_first) {
                 time_first = time;
             }
             if (time > time_last) {
                 time_last = time;
             }
-            if (time <= animation.timer && time > time_left) {
+            if (time <= animation.m_timer && time > time_left) {
                 time_left = time;
                 key_left = k;
             }
-            if (time >= animation.timer && time < time_right) {
+            if (time >= animation.m_timer && time < time_right) {
                 time_right = time;
                 key_right = k;
             }
         }
 
-        if (animation.timer < time_first) {
+        if (animation.m_timer < time_first) {
             continue;
         }
 
-        const float left = sampler.keyframeTimes[key_left];
-        const float right = sampler.keyframeTimes[key_right];
+        const float left = sampler.keyframe_times[key_left];
+        const float right = sampler.keyframe_times[key_right];
 
         float t = 0;
         if (key_left != key_right) {
-            t = (animation.timer - left) / (right - left);
+            t = (animation.m_timer - left) / (right - left);
         }
         t = Saturate(t);
 
-        TransformComponent* targetTransform = p_scene.GetComponent<TransformComponent>(channel.targetId);
+        TransformComponent* targetTransform = p_scene.GetComponent<TransformComponent>(channel.target_id);
         DEV_ASSERT(targetTransform);
         auto dummy_mix = [](const Vector3f& a, const Vector3f& b, float t) {
             glm::vec3 tmp = glm::mix(glm::vec3(a.x, a.y, a.z), glm::vec3(b.x, b.y, b.z), t);
@@ -91,25 +96,25 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
             return Vector4f(tmp.x, tmp.y, tmp.z, tmp.w);
         };
         switch (channel.path) {
-            case AnimationComponent::Channel::PATH_SCALE: {
-                DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 3);
-                const Vector3f* data = (const Vector3f*)sampler.keyframeData.data();
+            case AnimationChannelPath::Scale: {
+                DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 3);
+                const Vector3f* data = (const Vector3f*)sampler.keyframe_data.data();
                 const Vector3f& vLeft = data[key_left];
                 const Vector3f& vRight = data[key_right];
                 targetTransform->SetScale(dummy_mix(vLeft, vRight, t));
                 break;
             }
-            case AnimationComponent::Channel::PATH_TRANSLATION: {
-                DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 3);
-                const Vector3f* data = (const Vector3f*)sampler.keyframeData.data();
+            case AnimationChannelPath::Translation: {
+                DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 3);
+                const Vector3f* data = (const Vector3f*)sampler.keyframe_data.data();
                 const Vector3f& vLeft = data[key_left];
                 const Vector3f& vRight = data[key_right];
                 targetTransform->SetTranslation(dummy_mix(vLeft, vRight, t));
                 break;
             }
-            case AnimationComponent::Channel::PATH_ROTATION: {
-                DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 4);
-                const Vector4f* data = (const Vector4f*)sampler.keyframeData.data();
+            case AnimationChannelPath::Rotation: {
+                DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 4);
+                const Vector4f* data = (const Vector4f*)sampler.keyframe_data.data();
                 const Vector4f& vLeft = data[key_left];
                 const Vector4f& vRight = data[key_right];
                 targetTransform->SetRotation(dummy_mix_4(vLeft, vRight, t));
@@ -122,12 +127,12 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
         targetTransform->SetDirty();
     }
 
-    if (animation.IsLooped() && animation.timer > animation.end) {
-        animation.timer = animation.start;
+    if (animation.IsLooped() && animation.m_timer > animation.m_end) {
+        animation.m_timer = animation.m_start;
     }
 
     if (animation.IsPlaying()) {
-        animation.timer += p_timestep * animation.speed;
+        animation.m_timer += p_timestep * animation.m_speed;
     }
 }
 
@@ -165,13 +170,13 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
     self_transform->SetDirty(false);
 }
 
-static void UpdateArmature(Scene& p_scene, size_t p_index, float) {
-    TransformComponent* transform = p_scene.GetComponent<TransformComponent>(p_scene.GetEntityByIndex<ArmatureComponent>(p_index));
+static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
+    TransformComponent* transform = p_scene.GetComponent<TransformComponent>(p_scene.GetEntityByIndex<SkeletonComponent>(p_index));
     DEV_ASSERT(transform);
 
-    // The transform world matrices are in world space, but skinning needs them in armature-local space,
+    // The transform world matrices are in world space, but skinning needs them in skeleton-local space,
     //	so that the skin is reusable for instanced meshes.
-    //	We remove the armature's world matrix from the bone world matrix to obtain the bone local transform
+    //	We remove the skeleton's world matrix from the bone world matrix to obtain the bone local transform
     //	These local bone matrices will only be used for skinning, the actual transform components for the bones
     //	remain unchanged.
     //
@@ -180,25 +185,25 @@ static void UpdateArmature(Scene& p_scene, size_t p_index, float) {
     // to LH space) 	then the inverseBindMatrices are not reflected in that because they are not contained in
     // the hierarchy system. 	But this will correct them too.
 
-    ArmatureComponent& armature = p_scene.GetComponentByIndex<ArmatureComponent>(p_index);
+    SkeletonComponent& skeleton = p_scene.GetComponentByIndex<SkeletonComponent>(p_index);
     const Matrix4x4f R = glm::inverse(transform->GetWorldMatrix());
-    const size_t numBones = armature.bone_collection.size();
-    if (armature.bone_transforms.size() != numBones) {
-        armature.bone_transforms.resize(numBones);
+    const size_t numBones = skeleton.bone_collection.size();
+    if (skeleton.bone_transforms.size() != numBones) {
+        skeleton.bone_transforms.resize(numBones);
     }
 
     int idx = 0;
-    for (ecs::Entity boneID : armature.bone_collection) {
+    for (ecs::Entity boneID : skeleton.bone_collection) {
         const TransformComponent* boneTransform = p_scene.GetComponent<TransformComponent>(boneID);
         DEV_ASSERT(boneTransform);
 
-        const Matrix4x4f& B = armature.inverse_bind_matrices[idx];
+        const Matrix4x4f& B = skeleton.inverse_bind_matrices[idx];
         const Matrix4x4f& W = boneTransform->GetWorldMatrix();
         const Matrix4x4f M = R * W * B;
-        armature.bone_transforms[idx] = M;
+        skeleton.bone_transforms[idx] = M;
         ++idx;
 
-        // @TODO: armature animation
+        // @TODO: skeleton animation
     }
 };
 
@@ -290,12 +295,12 @@ void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context
 
 void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(AnimationComponent, p_context, index, 1, UpdateAnimation(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletalAnimationComponent, p_context, index, 1, SkeletalAnimationSystem::Update(p_scene, index, p_timestep));
 }
 
-void RunArmatureUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
+void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(ArmatureComponent, p_context, index, 1, UpdateArmature(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletonComponent, p_context, index, 1, UpdateSkeleton(p_scene, index, p_timestep));
 }
 
 void RunHierarchyUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
