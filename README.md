@@ -1,4 +1,4 @@
-# GameEngine
+# CaveEngine
 
 Yet another game engine.
 
@@ -22,6 +22,9 @@ $ mingw32-make
 $ cd ../scripts
 $ python -m simple-http-server.py
 ```
+
+### Profiling the Engine
+Open `bin/Optick.exe` to start profiling session
 
 ## Screenshots
 
