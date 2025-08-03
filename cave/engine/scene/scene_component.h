@@ -147,6 +147,7 @@ struct VoxelGiComponent {
 };
 #pragma endregion ENVIRONMENT_COMPONENT
 
+// @TODO: move to particle system
 #pragma region PARTICLE_EMITTER_COMPONENT
 #if 0
 struct ParticleEmitterComponent {
@@ -239,8 +240,5 @@ struct MeshEmitterComponent {
 };
 #endif
 #pragma endregion MESH_EMITTER_COMPONENT
-
-// #pragma region _COMPONENT
-// #pragma endregion _COMPONENT
 
 }  // namespace cave

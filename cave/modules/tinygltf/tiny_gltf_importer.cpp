@@ -577,15 +577,17 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
     // @TODO: make animation asset instead
     m_scene->AttachChild(entity);
 
-    SkeletalAnimationComponent& animation = m_scene->Create<SkeletalAnimationComponent>(entity);
-    animation.samplers.resize(p_anim.samplers.size());
-    animation.channels.resize(p_anim.channels.size());
+    SkeletalAnimatorComponent& animation = m_scene->Create<SkeletalAnimatorComponent>(entity);
+    auto& samplers = animation.GetSamplers();
+    auto& channels = animation.GetChannels();
+    samplers.resize(p_anim.samplers.size());
+    channels.resize(p_anim.channels.size());
     DEV_ASSERT(p_anim.samplers.size() == p_anim.channels.size());
 
     for (size_t index = 0; index < p_anim.samplers.size(); ++index) {
         const auto& gltf_sampler = p_anim.samplers[index];
         DEV_ASSERT(gltf_sampler.interpolation == "LINEAR");
-        auto& sampler = animation.samplers[index];
+        auto& sampler = samplers[index];
 
         // Animation Sampler input = keyframe times
         {
@@ -598,7 +600,7 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
             int stride = accessor.ByteStride(buffer_view);
             size_t count = accessor.count;
 
-            sampler.keyframeTimes.resize(count);
+            sampler.keyframe_times.resize(count);
 
             const unsigned char* data = buffer.data.data() + accessor.byteOffset + buffer_view.byteOffset;
 
@@ -606,9 +608,9 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
 
             for (size_t j = 0; j < count; ++j) {
                 float time = ((float*)data)[j];
-                sampler.keyframeTimes[j] = time;
-                animation.start = min(animation.start, time);
-                animation.end = max(animation.end, time);
+                sampler.keyframe_times[j] = time;
+                animation.SetStart(std::min(animation.GetStart(), time));
+                animation.SetEnd(std::max(animation.GetEnd(), time));
             }
         }
 
@@ -637,26 +639,22 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
                     LOG_FATAL("Invalid format {}", accessor.type);
                     break;
             }
-            sampler.keyframeData.resize(count * stride / sizeof(float));
-            memcpy(sampler.keyframeData.data(), data, count * stride);
+            sampler.keyframe_data.resize(count * stride / sizeof(float));
+            memcpy(sampler.keyframe_data.data(), data, count * stride);
         }
     }
 
     for (size_t index = 0; index < p_anim.channels.size(); ++index) {
-        const auto& channel = p_anim.channels[index];
-        animation.channels[index].targetId = m_node_map[channel.target_node];
+        const tinygltf::AnimationChannel& channel = p_anim.channels[index];
+        animation.GetChannels()[index].target_id = m_node_map[channel.target_node];
         DEV_ASSERT(channel.sampler >= 0);
-        animation.channels[index].samplerIndex = (uint32_t)channel.sampler;
+        animation.GetChannels()[index].sampler_index = (uint32_t)channel.sampler;
 
-        if (channel.target_path == "scale") {
-            animation.channels[index].path = AnimationChannelPath::Scale;
-        } else if (channel.target_path == "rotation") {
-            animation.channels[index].path = AnimationChannelPath::Rotation;
-        } else if (channel.target_path == "translation") {
-            animation.channels[index].path = AnimationChannelPath::Translation;
+        auto path = EnumTraits<AnimationChannelPath>::FromString(channel.target_path);
+        if (path.is_some()) {
+            animation.GetChannels()[index].path = path.unwrap_unchecked();
         } else {
-            LOG_WARN("Unkown target path {}", channel.target_path.c_str());
-            animation.channels[index].path = AnimationChannelPath::Unknown;
+            LOG_WARN("Unkown target path {}", channel.target_path);
         }
     }
 }

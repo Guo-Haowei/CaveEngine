@@ -29,18 +29,18 @@ namespace cave {
 #endif
 
 static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
-    SkeletalAnimationComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimationComponent>(p_index);
+    SkeletalAnimatorComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimatorComponent>(p_index);
 
     if (!animation.IsPlaying()) {
         return;
     }
 
-    for (const SkeletalAnimationComponent::Channel& channel : animation.channels) {
+    for (const SkeletalAnimatorComponent::Channel& channel : animation.channels) {
         if (channel.path == AnimationChannelPath::Unknown) {
             continue;
         }
-        DEV_ASSERT(channel.samplerIndex < (int)animation.samplers.size());
-        const SkeletalAnimationComponent::Sampler& sampler = animation.samplers[channel.samplerIndex];
+        DEV_ASSERT(channel.sampler_index < (int)animation.samplers.size());
+        const SkeletalAnimatorComponent::Sampler& sampler = animation.samplers[channel.sampler_index];
 
         int key_left = 0;
         int key_right = 0;
@@ -49,8 +49,8 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
         float time_left = std::numeric_limits<float>::min();
         float time_right = std::numeric_limits<float>::max();
 
-        for (int k = 0; k < (int)sampler.keyframeTimes.size(); ++k) {
-            const float time = sampler.keyframeTimes[k];
+        for (int k = 0; k < (int)sampler.keyframe_times.size(); ++k) {
+            const float time = sampler.keyframe_times[k];
             if (time < time_first) {
                 time_first = time;
             }
@@ -71,8 +71,8 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
             continue;
         }
 
-        const float left = sampler.keyframeTimes[key_left];
-        const float right = sampler.keyframeTimes[key_right];
+        const float left = sampler.keyframe_times[key_left];
+        const float right = sampler.keyframe_times[key_right];
 
         float t = 0;
         if (key_left != key_right) {
@@ -80,7 +80,7 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
         }
         t = Saturate(t);
 
-        TransformComponent* targetTransform = p_scene.GetComponent<TransformComponent>(channel.targetId);
+        TransformComponent* targetTransform = p_scene.GetComponent<TransformComponent>(channel.target_id);
         DEV_ASSERT(targetTransform);
         auto dummy_mix = [](const Vector3f& a, const Vector3f& b, float t) {
             glm::vec3 tmp = glm::mix(glm::vec3(a.x, a.y, a.z), glm::vec3(b.x, b.y, b.z), t);
@@ -92,24 +92,24 @@ static void UpdateAnimation(Scene& p_scene, size_t p_index, float p_timestep) {
         };
         switch (channel.path) {
             case AnimationChannelPath::Scale: {
-                DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 3);
-                const Vector3f* data = (const Vector3f*)sampler.keyframeData.data();
+                DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 3);
+                const Vector3f* data = (const Vector3f*)sampler.keyframe_data.data();
                 const Vector3f& vLeft = data[key_left];
                 const Vector3f& vRight = data[key_right];
                 targetTransform->SetScale(dummy_mix(vLeft, vRight, t));
                 break;
             }
             case AnimationChannelPath::Translation: {
-                DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 3);
-                const Vector3f* data = (const Vector3f*)sampler.keyframeData.data();
+                DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 3);
+                const Vector3f* data = (const Vector3f*)sampler.keyframe_data.data();
                 const Vector3f& vLeft = data[key_left];
                 const Vector3f& vRight = data[key_right];
                 targetTransform->SetTranslation(dummy_mix(vLeft, vRight, t));
                 break;
             }
             case AnimationChannelPath::Rotation: {
-                DEV_ASSERT(sampler.keyframeData.size() == sampler.keyframeTimes.size() * 4);
-                const Vector4f* data = (const Vector4f*)sampler.keyframeData.data();
+                DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 4);
+                const Vector4f* data = (const Vector4f*)sampler.keyframe_data.data();
                 const Vector4f& vLeft = data[key_left];
                 const Vector4f& vRight = data[key_right];
                 targetTransform->SetRotation(dummy_mix_4(vLeft, vRight, t));
@@ -290,7 +290,7 @@ void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context
 
 void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(SkeletalAnimationComponent, p_context, index, 1, UpdateAnimation(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletalAnimatorComponent, p_context, index, 1, UpdateAnimation(p_scene, index, p_timestep));
 }
 
 void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {

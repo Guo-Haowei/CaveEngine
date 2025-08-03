@@ -67,7 +67,6 @@ void MeshEmitterComponent::UpdateParticle(Index p_index, float p_timestep) {
 
 // @TODO: refactor
 
-
 void CollisionObjectBase::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(collisionType);
     p_archive.ArchiveValue(collisionMask);

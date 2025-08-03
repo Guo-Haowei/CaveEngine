@@ -1,6 +1,30 @@
 #include "skeletal_animator_component.h"
 
+#include "engine/serialization/yaml_include.h"
+
 namespace cave {
+
+ISerializer& WriteObject(ISerializer& s, const SkeletalAnimatorComponent::Channel& p_channel) {
+    unused(p_channel);
+    return s;
+}
+
+bool ReadObject(IDeserializer& d, SkeletalAnimatorComponent::Channel& p_channel) {
+    unused(d);
+    unused(p_channel);
+    return false;
+}
+
+ISerializer& WriteObject(ISerializer& s, const SkeletalAnimatorComponent::Sampler& p_sampler) {
+    unused(p_sampler);
+    return s;
+}
+
+bool ReadObject(IDeserializer& d, SkeletalAnimatorComponent::Sampler& p_sampler) {
+    unused(d);
+    unused(p_sampler);
+    return false;
+}
 
 #if 0
 void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {
