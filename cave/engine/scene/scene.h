@@ -34,7 +34,7 @@ struct NoSaveTag {};
     REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0)           \
     REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)                 \
     REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                   \
-    REGISTER_COMPONENT(AnimatorComponent, "World::AnimatorComponent", 0)             \
+    REGISTER_COMPONENT(SpriteAnimatorComponent, "World::SpriteAnimatorComponent", 0) \
     REGISTER_COMPONENT(SkeletonComponent, "World::SkeletonComponent", 0)             \
     REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)             \
     REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)             \

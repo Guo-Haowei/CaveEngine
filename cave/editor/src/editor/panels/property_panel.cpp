@@ -243,7 +243,7 @@ void PropertyPanel::UpdateInternal() {
     MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
     SpriteRendererComponent* sprite_renderer = scene.GetComponent<SpriteRendererComponent>(id);
     TileMapRendererComponent* tile_map_renderer = scene.GetComponent<TileMapRendererComponent>(id);
-    AnimatorComponent* animator = scene.GetComponent<AnimatorComponent>(id);
+    SpriteAnimatorComponent* animator = scene.GetComponent<SpriteAnimatorComponent>(id);
 
     TransformComponent* transform = scene.GetComponent<TransformComponent>(id);
     LightComponent* light = scene.GetComponent<LightComponent>(id);
@@ -325,7 +325,7 @@ void PropertyPanel::UpdateInternal() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Animator"), animator, [](AnimatorComponent& p_animator) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Animator"), animator, [](SpriteAnimatorComponent& p_animator) {
         // @TODO: refactor this
         // @TODO: drop down
         const Guid& guid = p_animator.GetResourceGuid();
@@ -341,7 +341,7 @@ void PropertyPanel::UpdateInternal() {
             }
         }
 
-        DrawComponentAuto<AnimatorComponent>(&p_animator);
+        DrawComponentAuto<SpriteAnimatorComponent>(&p_animator);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("SpriteRenderer"), sprite_renderer, [](SpriteRendererComponent& p_sprite_renderer) {

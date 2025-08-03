@@ -197,8 +197,8 @@ bool OpenSceneLib(lua_State* L) {
 
     // Animator
     luabridge::getGlobalNamespace(L)
-        .beginClass<AnimatorComponent>("AnimatorComponent")
-        .addFunction("set_clip", &AnimatorComponent::SetClip)
+        .beginClass<SpriteAnimatorComponent>("SpriteAnimatorComponent")
+        .addFunction("set_clip", &SpriteAnimatorComponent::SetClip)
         .endClass();
 
     // CameraComponent
@@ -264,7 +264,7 @@ bool OpenSceneLib(lua_State* L) {
             return p_scene->GetComponent<TransformComponent>(ecs::Entity(p_entity));
         })
         .addFunction("get_animator", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<AnimatorComponent>(ecs::Entity(p_entity));
+            return p_scene->GetComponent<SpriteAnimatorComponent>(ecs::Entity(p_entity));
         })
         .addFunction("get_velocity", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<VelocityComponent>(ecs::Entity(p_entity));

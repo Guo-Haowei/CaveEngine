@@ -277,7 +277,7 @@ std::vector<Guid> Scene::GetDependencies() const {
     for (const auto& [id, tile_map_renderer] : View<TileMapRendererComponent>()) {
         dependencies.push_back(tile_map_renderer.GetResourceGuid());
     }
-    for (const auto& [id, animator] : View<AnimatorComponent>()) {
+    for (const auto& [id, animator] : View<SpriteAnimatorComponent>()) {
         dependencies.push_back(animator.GetResourceGuid());
     }
 

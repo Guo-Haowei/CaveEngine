@@ -4,9 +4,8 @@
 
 namespace cave {
 
-// @TODO: reuse AnimatorComponent for both sprite and skeleton
-class AnimatorComponent {
-    CAVE_META(AnimatorComponent)
+class SpriteAnimatorComponent {
+    CAVE_META(SpriteAnimatorComponent)
 
 private:
     CAVE_PROP(editor = Asset)
