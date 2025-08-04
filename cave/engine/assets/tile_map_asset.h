@@ -52,19 +52,18 @@ class TileMapAsset : public IAsset {
     CAVE_META(TileMapAsset)
 
 private:
-    CAVE_PROP(type = string, hint = name)
+    CAVE_PROP()
     std::string m_name;
 
-    CAVE_PROP(type = guid, tooltip = "tileset id")
+    CAVE_PROP(editor = Asset)
     Guid m_tile_set_id;
 
-    CAVE_PROP(type = boolean, hint = visibility, tooltip = "toggle layer visibility")
+    CAVE_PROP(editor = Visibility)
     bool m_is_visible = true;
 
-    CAVE_PROP(type = tile_data)
+    CAVE_PROP()
     TileData m_tiles;
 
-private:
     // Non serialized
     Handle<TileSetAsset> m_tile_set_handle;
     uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame

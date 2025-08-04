@@ -13,22 +13,22 @@ class TileSetAsset : public IAsset {
     CAVE_META(TileSetAsset)
 
 private:
-    CAVE_PROP(type = guid, tooltip = "image id")
+    CAVE_PROP(editor = Asset)
     Guid m_image_guid;
 
-    CAVE_PROP(type = f32, min = 0.1f, hint = input_float)
+    CAVE_PROP(editor = DragFloat, min = 0.01f, max = 100.0f)
     float m_tile_scale = 1.0f;
 
-    CAVE_PROP(type = u32)
+    CAVE_PROP()
     uint32_t m_width = 0;
 
-    CAVE_PROP(type = u32)
+    CAVE_PROP()
     uint32_t m_height = 0;
 
-    CAVE_PROP(type = u32, min = 1, hint = input_int)
+    CAVE_PROP(editor = InputInt, min = 1, max = 1000)
     uint32_t m_row = 1;
 
-    CAVE_PROP(type = u32, min = 1, hint = input_int)
+    CAVE_PROP(editor = InputInt, min = 1, max = 1000)
     uint32_t m_column = 1;
 
     /// Non serialized
