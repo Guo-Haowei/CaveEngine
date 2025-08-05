@@ -53,8 +53,8 @@ public:
 private:
     std::vector<std::shared_ptr<ILogger>> m_loggers;
 
-    RingBuffer<Log, MAX_LOGS_KEPT> m_logHistory;
-    std::mutex m_logHistoryMutex;
+    RingBuffer<Log, MAX_LOGS_KEPT> m_log_history;
+    std::mutex m_log_history_mutex;
 
     int m_channels = LOG_LEVEL_ALL;
 };

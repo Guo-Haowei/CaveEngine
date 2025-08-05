@@ -39,28 +39,29 @@ void CompositeLogger::Print(LogLevel p_level, std::string_view p_message) {
         logger->Print(p_level, p_message);
     }
 
-    m_logHistoryMutex.lock();
-    m_logHistory.push_back({});
-    auto& log_history = m_logHistory.back();
+    m_log_history_mutex.lock();
+    m_log_history.push_back({});
+    auto& log_history = m_log_history.back();
     log_history.level = p_level;
     strncpy(log_history.buffer, p_message.data(), sizeof(log_history.buffer) - 1);
-    m_logHistoryMutex.unlock();
+    m_log_history_mutex.unlock();
 }
 
 void CompositeLogger::ClearLog() {
-    m_logHistoryMutex.lock();
-    m_logHistory.clear();
-    m_logHistoryMutex.unlock();
+    m_log_history_mutex.lock();
+    m_log_history.clear();
+    m_log_history_mutex.unlock();
 }
 
-void CompositeLogger::RetrieveLog(std::vector<Log>& p_buffer) {
-    m_logHistoryMutex.lock();
+void CompositeLogger::RetrieveLog(std::vector<Log>& p_out_logs) {
+    m_log_history_mutex.lock();
 
-    for (auto& log : m_logHistory) {
-        p_buffer.push_back(log);
+    p_out_logs.reserve(m_log_history.size());
+    for (auto& log : m_log_history) {
+        p_out_logs.push_back(log);
     }
 
-    m_logHistoryMutex.unlock();
+    m_log_history_mutex.unlock();
 }
 
 }  // namespace cave
