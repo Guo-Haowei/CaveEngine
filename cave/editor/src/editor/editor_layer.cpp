@@ -224,10 +224,10 @@ void EditorLayer::DockSpace() {
 }
 
 void EditorLayer::OnUpdate(float p_timestep) {
+    // @TODO: refactor this
     context.timestep = p_timestep;
 
-    // Scene* scene = SceneManager::GetSingleton().GetScenePtr();
-    // Scene* scene = nullptr;
+    m_log_panel->RetrieveLogs();
 }
 
 void EditorLayer::OnImGuiRender() {

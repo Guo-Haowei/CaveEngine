@@ -37,6 +37,8 @@ enum class EditorHint {
     Asset,
     Toggle,
     Visibility,
+    InputInt,
+    InputFloat,
     DragFloat,
     DragInt,
     Color,
