@@ -32,6 +32,17 @@ void LogPanel::RetrieveLogs() {
     auto& logger = CompositeLogger::GetSingleton();
     m_logs.clear();
     logger.RetrieveLog(m_logs);
+
+    m_warning_count = 0;
+    m_error_count = 0;
+
+    for (const auto& log : m_logs) {
+        if (log.level & LogLevel::LOG_LEVEL_ERROR) {
+            ++m_error_count;
+        } else if (log.level & LogLevel::LOG_LEVEL_WARN) {
+            ++m_warning_count;
+        }
+    }
 }
 
 void LogPanel::UpdateInternal() {
@@ -46,15 +57,7 @@ void LogPanel::UpdateInternal() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));  // Tighten spacing
 
-    m_warning_count = m_error_count = 0;
-
     for (const auto& log : m_logs) {
-        if (log.level & LogLevel::LOG_LEVEL_ERROR) {
-            ++m_error_count;
-        } else if (log.level & LogLevel::LOG_LEVEL_WARN) {
-            ++m_warning_count;
-        }
-
         if (log.level & m_filter) {
             ImGui::PushStyleColor(ImGuiCol_Text, GetLogLevelColor(log.level));
             ImGui::TextUnformatted(log.buffer);
