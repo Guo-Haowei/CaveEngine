@@ -64,7 +64,7 @@ void LogPanel::UpdateInternal() {
         IM_COL32(41, 42, 44, 255),  // dark
     };
 
-    constexpr float padding = 4;
+    constexpr float padding = 3;
 
     int color_index = 0;
 
