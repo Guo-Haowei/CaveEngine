@@ -154,12 +154,11 @@ auto Application::Initialize() -> Result<void> {
     }
 
     for (Module* module : m_modules) {
-        LOG("module '{}' being initialized...", module->GetName());
         if (auto res = module->Initialize(); !res) {
-            // LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
+            LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
             return CAVE_ERROR(res.error());
         }
-        LOG("module '{}' initialized\n", module->GetName());
+        LOG_OK("module '{}' initialized", module->GetName());
     }
 
     InitLayers();

@@ -57,11 +57,36 @@ void LogPanel::UpdateInternal() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));  // Tighten spacing
 
+    ImVec2 window_size = ImGui::GetWindowSize();
+
+    constexpr ImU32 colors[] = {
+        IM_COL32(57, 57, 57, 255),  // light
+        IM_COL32(41, 42, 44, 255),  // dark
+    };
+
+    constexpr float padding = 4;
+
+    int color_index = 0;
+
     for (const auto& log : m_logs) {
         if (log.level & m_filter) {
+            ImVec2 text_pos = ImGui::GetCursorScreenPos();
+            ImVec2 text_size = ImGui::CalcTextSize(log.buffer);
+            text_size.x = std::max(text_size.x, window_size.x);
+            text_size.y += padding * 3;
+
+            ImGui::GetWindowDrawList()->AddRectFilled(
+                text_pos,
+                ImVec2(text_pos.x + text_size.x, text_pos.y + text_size.y),
+                colors[color_index]);
+
+            color_index ^= 1;
+
+            ImGui::Dummy(ImVec2(padding, padding));
             ImGui::PushStyleColor(ImGuiCol_Text, GetLogLevelColor(log.level));
-            ImGui::TextUnformatted(log.buffer);
+            ImGui::Text(log.buffer);
             ImGui::PopStyleColor();
+            ImGui::Dummy(ImVec2(padding, padding));
         }
     }
 
