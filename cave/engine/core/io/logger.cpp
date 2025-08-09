@@ -4,6 +4,8 @@
 
 namespace cave {
 
+static_assert(sizeof(CompositeLogger::Log) == CompositeLogger::kLogStructSize);
+
 void StdLogger::Print(LogLevel p_level, std::string_view p_message) {
     const char* tag = "";
     switch (p_level) {
@@ -43,6 +45,7 @@ void CompositeLogger::Print(LogLevel p_level, std::string_view p_message) {
     m_log_history.push_back({});
     auto& log_history = m_log_history.back();
     log_history.level = p_level;
+    log_history.id = m_log_id.fetch_add(1);
     strncpy(log_history.buffer, p_message.data(), sizeof(log_history.buffer) - 1);
     m_log_history_mutex.unlock();
 }
