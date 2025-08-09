@@ -33,14 +33,16 @@ void LogPanel::RetrieveLogs() {
     m_logs.clear();
     logger.RetrieveLog(m_logs);
 
-    m_warning_count = 0;
-    m_error_count = 0;
-
     for (const auto& log : m_logs) {
-        if (log.level & LogLevel::LOG_LEVEL_ERROR) {
-            ++m_error_count;
-        } else if (log.level & LogLevel::LOG_LEVEL_WARN) {
-            ++m_warning_count;
+        switch (log.level) {
+            case LogLevel::LOG_LEVEL_ERROR: {
+                m_error_logs.AddPermLog(log);
+            } break;
+            case LogLevel::LOG_LEVEL_WARN: {
+                m_warning_logs.AddPermLog(log);
+            } break;
+            default:
+                break;
         }
     }
 }
@@ -68,7 +70,20 @@ void LogPanel::UpdateInternal() {
 
     int color_index = 0;
 
-    for (const auto& log : m_logs) {
+    const auto* logs = &m_logs;
+    switch (m_filter) {
+        case cave::LOG_LEVEL_WARN:
+            logs = &m_warning_logs.logs;
+            break;
+        case cave::LOG_LEVEL_ERROR:
+            logs = &m_error_logs.logs;
+            break;
+        default:
+            break;
+    }
+
+    const auto& _logs = *logs;
+    for (const auto& log : _logs) {
         if (log.level & m_filter) {
             ImVec2 text_pos = ImGui::GetCursorScreenPos();
             ImVec2 text_size = ImGui::CalcTextSize(log.buffer);

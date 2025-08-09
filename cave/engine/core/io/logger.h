@@ -31,13 +31,14 @@ public:
 class CompositeLogger : public ILogger, public Singleton<CompositeLogger> {
 public:
     enum {
-        MAX_LOGS_KEPT = 128,
-        PER_LOG_STRUCT_SIZE = 512,
+        kMaxLogsKept = 128,
+        kLogStructSize = 512,
     };
 
     struct Log {
+        uint32_t id;
         LogLevel level;
-        char buffer[PER_LOG_STRUCT_SIZE - sizeof(level)];
+        char buffer[kLogStructSize - sizeof(LogLevel) - sizeof(uint32_t)];
     };
 
     void Print(LogLevel p_level, std::string_view p_message) override;
@@ -53,10 +54,11 @@ public:
 private:
     std::vector<std::shared_ptr<ILogger>> m_loggers;
 
-    RingBuffer<Log, MAX_LOGS_KEPT> m_log_history;
+    RingBuffer<Log, kMaxLogsKept> m_log_history;
     std::mutex m_log_history_mutex;
 
     int m_channels = LOG_LEVEL_ALL;
+    std::atomic_uint32_t m_log_id;
 };
 
 }  // namespace cave
