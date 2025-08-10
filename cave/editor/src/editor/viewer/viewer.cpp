@@ -20,6 +20,7 @@
 #include "editor/material_editor/material_editor.h"
 #include "editor/scene_editor/scene_editor.h"
 #include "editor/tile_map_editor/tile_map_editor.h"
+#include "editor/tile_map_editor/tile_set_editor.h"
 
 namespace cave {
 
@@ -146,15 +147,18 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
         case AssetType::Scene: {
             tab.reset(new SceneEditor(m_editor, *this));
         } break;
-        case AssetType::TileMap:
+        case AssetType::TileSet: {
+            tab.reset(new TileSetEditor(m_editor, *this));
+        } break;
+        case AssetType::TileMap: {
             tab.reset(new TileMapEditor(m_editor, *this));
-            break;
-        case AssetType::SpriteAnimation:
+        } break;
+        case AssetType::SpriteAnimation: {
             tab.reset(new SpriteAnimationEditor(m_editor, *this));
-            break;
-        case AssetType::Material:
+        } break;
+        case AssetType::Material: {
             tab.reset(new MaterialEditor(m_editor, *this));
-            break;
+        } break;
         default:
             LOG_WARN("Can't open tab {}", EnumTraits<AssetType>::ToString(p_type));
             return;
