@@ -1,0 +1,110 @@
+#include "tile_set_editor.h"
+
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
+#include "engine/assets/image_asset.h"
+#include "engine/assets/tile_set_asset.h"
+#include "engine/scene/camera_component.h"
+
+#include "editor/document/document.h"
+#include "editor/widgets/widget.h"
+
+namespace cave {
+
+TileSetEditor::TileSetEditor(EditorLayer& p_editor, Viewer& p_viewer)
+    : ViewerTab(p_editor, p_viewer)
+    , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
+
+    m_camera = std::make_unique<CameraComponent>();
+    ViewerTab::CreateDefaultCamera2D(*m_camera.get());
+
+    m_square_collider_desc = { ICON_FA_SQUARE, "Add square collider",
+                               [&]() {
+                                   LOG_WARN("TODO");
+                               } };
+    m_circle_collider_desc = { ICON_FA_CIRCLE, "Add circle collider",
+                               [&]() {
+                                   LOG_WARN("TODO");
+                               } };
+}
+
+TileSetEditor::~TileSetEditor() = default;
+
+bool TileSetEditor::HandleInput(const InputEvent* p_input_event) {
+    unused(p_input_event);
+    return false;
+}
+
+void TileSetEditor::OnCreate(const Guid& p_guid) {
+    ViewerTab::OnCreate(p_guid);
+
+    m_document = std::make_unique<Document>(p_guid);
+}
+
+void TileSetEditor::OnDestroy() {
+}
+
+void TileSetEditor::OnActivate() {
+}
+
+void TileSetEditor::DrawMainView(const CameraComponent& p_camera) {
+    unused(p_camera);
+}
+
+void TileSetEditor::DrawAssetInspector() {
+    TileSetAsset* tile_set = m_document->GetHandle<TileSetAsset>().Get();
+
+    std::vector<AssetChildPanel> descs = {
+        {
+            "SpriteTab",
+            360,
+            [&]() {
+                if (!tile_set) {
+                    return;
+                }
+                int column = tile_set->GetCol();
+                int row = tile_set->GetRow();
+                if (m_sprite_selector.EditSprite(&column, &row)) {
+                    tile_set->SetCol(column);
+                    tile_set->SetRow(row);
+                }
+            },
+        },
+        {
+            "PaintTab",
+            0,
+            [&]() {
+                if (tile_set) {
+                    auto handle = tile_set->GetHandle();
+                    const int column = tile_set->GetCol();
+                    const int row = tile_set->GetRow();
+                    if (auto image = handle.Get(); image) {
+                        m_sprite_selector.SelectSprite(*image, &column, &row);
+                    }
+                }
+            },
+        }
+    };
+
+    const float full_width = ImGui::GetContentRegionAvail().x;
+
+    DrawContents(full_width, descs);
+}
+
+Document& TileSetEditor::GetDocument() const {
+    return *m_document;
+}
+
+const CameraComponent& TileSetEditor::GetActiveCameraInternal() const {
+    DEV_ASSERT(m_camera);
+    return *m_camera.get();
+}
+
+const std::vector<const ToolBarButtonDesc*> TileSetEditor::GetToolBarButtons() const {
+    return {
+        &m_square_collider_desc,
+        &m_circle_collider_desc,
+    };
+}
+
+}  // namespace cave

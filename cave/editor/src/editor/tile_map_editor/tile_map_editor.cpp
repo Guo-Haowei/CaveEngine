@@ -6,6 +6,7 @@
 #include "engine/assets/tile_set_asset.h"
 #include "engine/input/input_event.h"
 #include "engine/scene/entity_factory.h"
+
 #include "editor/editor_layer.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widgets/drag_drop.h"
@@ -17,7 +18,8 @@
 namespace cave {
 
 TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer) {
+    : ViewerTab(p_editor, p_viewer)
+    , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
 
     m_camera = std::make_unique<CameraComponent>();
     ViewerTab::CreateDefaultCamera2D(*m_camera.get());
@@ -28,10 +30,12 @@ TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
                                       } };
 }
 
+TileMapEditor::~TileMapEditor() = default;
+
 void TileMapEditor::OnCreate(const Guid& p_guid) {
     ViewerTab::OnCreate(p_guid);
 
-    m_document = std::make_shared<TileMapDocument>(p_guid, *this);
+    m_document = std::make_unique<TileMapDocument>(p_guid, *this);
 
     auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
     DEV_ASSERT(scene_manager);
@@ -88,7 +92,7 @@ void TileMapEditor::DrawAssetInspector() {
     std::vector<AssetChildPanel> descs = {
         {
             "LayerOverview",
-            360,
+            720,
             [&]() {
                 if (ImGui::BeginTabBar("##MyTabs1")) {
                     if (ImGui::BeginTabItem("Layer")) {
@@ -96,21 +100,6 @@ void TileMapEditor::DrawAssetInspector() {
                         ImGui::EndTabItem();
                     }
                     ImGui::EndTabBar();
-                }
-            },
-        },
-        {
-            "SpriteTab",
-            360,
-            [&]() {
-                if (!tile_set) {
-                    return;
-                }
-                int column = tile_set->GetCol();
-                int row = tile_set->GetRow();
-                if (m_sprite_selector.EditSprite(&column, &row)) {
-                    tile_set->SetCol(column);
-                    tile_set->SetRow(row);
                 }
             },
         },
@@ -282,8 +271,6 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 }
 
 const std::vector<const ToolBarButtonDesc*> TileMapEditor::GetToolBarButtons() const {
-    std::vector<const ToolBarButtonDesc*> descs{ &m_brush_desc };
-
     return { &m_brush_desc };
 }
 

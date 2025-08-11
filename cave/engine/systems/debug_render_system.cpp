@@ -5,6 +5,10 @@
 namespace cave {
 
 void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
+    if (!p_scene) {
+        return;
+    }
+
     DebugDraw& debug_draw = p_framedata.GetDebugDraw();
 
     auto view = p_scene->View<ColliderComponent, TransformComponent>();
