@@ -12,10 +12,20 @@
 namespace cave {
 
 TileSetEditor::TileSetEditor(EditorLayer& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer) {
+    : ViewerTab(p_editor, p_viewer)
+    , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
 
     m_camera = std::make_unique<CameraComponent>();
     ViewerTab::CreateDefaultCamera2D(*m_camera.get());
+
+    m_square_collider_desc = { ICON_FA_SQUARE, "Add square collider",
+                               [&]() {
+                                   LOG_WARN("TODO");
+                               } };
+    m_circle_collider_desc = { ICON_FA_CIRCLE, "Add circle collider",
+                               [&]() {
+                                   LOG_WARN("TODO");
+                               } };
 }
 
 TileSetEditor::~TileSetEditor() = default;
@@ -26,11 +36,6 @@ bool TileSetEditor::HandleInput(const InputEvent* p_input_event) {
 }
 
 void TileSetEditor::OnCreate(const Guid& p_guid) {
-    m_desc = { ICON_FA_BRUSH, "TileMap editor mode",
-               [&]() {
-                   LOG_WARN("TODO");
-               } };
-
     ViewerTab::OnCreate(p_guid);
 
     m_document = std::make_unique<Document>(p_guid);
@@ -96,7 +101,10 @@ const CameraComponent& TileSetEditor::GetActiveCameraInternal() const {
 }
 
 const std::vector<const ToolBarButtonDesc*> TileSetEditor::GetToolBarButtons() const {
-    return { &m_desc };
+    return {
+        &m_square_collider_desc,
+        &m_circle_collider_desc,
+    };
 }
 
 }  // namespace cave

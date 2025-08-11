@@ -5,6 +5,14 @@ namespace cave {
 
 class SpriteSelector {
 public:
+    enum class SelectionMode {
+        Single,
+        Multi,
+    };
+
+    SpriteSelector(SelectionMode p_mode)
+        : m_mode(p_mode) {}
+
     bool EditSprite(int* p_colomn, int* p_row);
 
     void SelectSprite(const ImageAsset& p_handle,
@@ -22,12 +30,13 @@ public:
     }
 
 private:
+    const SelectionMode m_mode;
+
     int m_column = 1;
     int m_row = 1;
     float m_zoom = 1.0f;
 
     std::set<uint32_t> m_selections;
-    bool m_is_selection_mode;
 };
 
 }  // namespace cave

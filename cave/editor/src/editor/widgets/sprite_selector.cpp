@@ -58,9 +58,7 @@ std::vector<std::pair<uint16_t, uint16_t>> SpriteSelector::GetSelections() const
 void SpriteSelector::SelectSprite(const ImageAsset& p_image,
                                   const int* p_colomn,
                                   const int* p_row) {
-    ImGui::Text("Left click to select a square, right click to deselect a square");
-
-    // DrawDragFloat("scale", m_zoom, 0.01f, 0.1f, 5.0f);
+    DrawDragFloat("scale", m_zoom, 0.01f, 0.1f, 5.0f);
 
     const float width = m_zoom * p_image.width;
     const float height = m_zoom * p_image.height;
@@ -113,10 +111,22 @@ void SpriteSelector::SelectSprite(const ImageAsset& p_image,
         // Clamp to valid range
         if (local_x >= 0 && local_x < num_col && local_y >= 0 && local_y < num_row) {
             uint32_t key = Pack(static_cast<uint16_t>(local_x), static_cast<uint16_t>(local_y));
-            if (left_clicked) {
-                m_selections.insert(key);
-            } else if (right_clicked) {
-                m_selections.erase(key);
+            switch (m_mode) {
+                case SelectionMode::Single: {
+                    if (left_clicked) {
+                        if (!m_selections.empty()) {
+                            m_selections.clear();
+                        }
+                        m_selections.insert(key);
+                    }
+                } break;
+                case SelectionMode::Multi: {
+                    if (left_clicked) {
+                        m_selections.insert(key);
+                    } else if (right_clicked) {
+                        m_selections.erase(key);
+                    }
+                } break;
             }
         }
     }
@@ -124,11 +134,11 @@ void SpriteSelector::SelectSprite(const ImageAsset& p_image,
     for (uint32_t key : m_selections) {
         const auto [x, y] = Unpack(key);
 
-        ImVec2 pMin = ImVec2(cursor.x + x * cell_w, cursor.y + y * cell_h);
-        ImVec2 pMax = ImVec2(pMin.x + cell_w, pMin.y + cell_h);
+        ImVec2 p_min = ImVec2(cursor.x + x * cell_w, cursor.y + y * cell_h);
+        ImVec2 p_max = ImVec2(p_min.x + cell_w, p_min.y + cell_h);
 
-        draw_list->AddRectFilled(pMin, pMax, IM_COL32(0, 255, 0, 100));  // green transparent overlay
-        draw_list->AddRect(pMin, pMax, IM_COL32(0, 255, 0, 255));        // solid border
+        draw_list->AddRectFilled(p_min, p_max, IM_COL32(0, 255, 0, 100));  // green transparent overlay
+        draw_list->AddRect(p_min, p_max, IM_COL32(0, 255, 0, 255));        // solid border
     }
 }
 

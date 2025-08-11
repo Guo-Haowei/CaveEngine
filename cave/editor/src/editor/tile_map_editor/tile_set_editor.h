@@ -35,7 +35,8 @@ protected:
     std::unique_ptr<CameraComponent> m_camera;
     std::unique_ptr<Document> m_document;
 
-    ToolBarButtonDesc m_desc;
+    ToolBarButtonDesc m_square_collider_desc;
+    ToolBarButtonDesc m_circle_collider_desc;
 
     SpriteSelector m_sprite_selector;
 };
