@@ -6,6 +6,17 @@
 
 namespace cave {
 
+static uint32_t Pack(uint16_t x, uint16_t y) {
+    return x << 16 | y;
+}
+
+static std::pair<uint16_t, uint16_t> Unpack(uint32_t p_key) {
+    return {
+        static_cast<uint16_t>(p_key >> 16),
+        static_cast<uint16_t>(p_key & 0xFFFF),
+    };
+}
+
 bool SpriteSelector::EditSprite(int* p_colomn, int* p_row) {
     bool dirty = false;
     if (ImGui::BeginTabBar("TileSetModes")) {

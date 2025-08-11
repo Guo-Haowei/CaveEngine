@@ -29,17 +29,6 @@ public:
         return std::make_pair(m_column, m_row);
     }
 
-    static uint32_t Pack(uint16_t x, uint16_t y) {
-        return x << 16 | y;
-    }
-
-    static std::pair<uint16_t, uint16_t> Unpack(uint32_t p_key) {
-        return {
-            static_cast<uint16_t>(p_key >> 16),
-            static_cast<uint16_t>(p_key & 0xFFFF),
-        };
-    }
-
 private:
     const SelectionMode m_mode;
 

@@ -54,6 +54,8 @@ public:
     float GetScale() const { return m_tile_scale; }
     void SetScale(float p_scale);
 
+    bool AddBoxCollider(uint32_t p_id);
+
     void SetImage(const Guid& p_guid);
     const Handle<ImageAsset>& GetHandle() const { return m_image_handle; }
 

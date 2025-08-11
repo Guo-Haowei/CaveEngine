@@ -43,17 +43,19 @@ void TileSetEditor::DrawMainView(const CameraComponent& p_camera) {
 }
 
 void TileSetEditor::DrawPhysicsTab(TileSetAsset& p_tile_set) {
-    unused(p_tile_set);
-
     int index = -1;
     if (auto selected = m_sprite_selector.GetSelections(); !selected.empty()) {
         auto [x, y] = selected.front();
-        index = SpriteSelector::Pack(x, y);
+        index = p_tile_set.GetCol() * y + x;
     }
 
     ToolBarButtonDesc add_square_button_desc = { ICON_FA_SQUARE " Box", "Add box collider",
                                                  [&]() {
-                                                     LOG_WARN("TODO");
+                                                     if (p_tile_set.AddBoxCollider(index)) {
+                                                         LOG_OK("Box collider added for {}", index);
+                                                     } else {
+                                                         LOG_ERROR("Failed to add box collider for {}", index);
+                                                     }
                                                  } };
 
     ToolBarButtonDesc add_polygon_button_desc = { ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",

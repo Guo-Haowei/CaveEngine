@@ -29,6 +29,14 @@ void TileSetAsset::SetScale(float p_scale) {
     }
 }
 
+bool TileSetAsset::AddBoxCollider(uint32_t p_id) {
+    if (p_id < static_cast<uint32_t>(m_frames.size())) {
+        m_colliders[p_id] = Shape::MakeBox(Vector2f(0.5f, 0.5f));
+        return true;
+    }
+    return false;
+}
+
 void TileSetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     m_image_handle = std::move(p_handle);
     const ImageAsset* image = m_image_handle.Get();
