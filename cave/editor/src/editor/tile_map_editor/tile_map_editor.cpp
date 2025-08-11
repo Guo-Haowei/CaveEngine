@@ -91,7 +91,7 @@ void TileMapEditor::DrawAssetInspector() {
     std::vector<AssetChildPanel> descs = {
         {
             "LayerOverview",
-            360,
+            720,
             [&]() {
                 if (ImGui::BeginTabBar("##MyTabs1")) {
                     if (ImGui::BeginTabItem("Layer")) {
@@ -99,21 +99,6 @@ void TileMapEditor::DrawAssetInspector() {
                         ImGui::EndTabItem();
                     }
                     ImGui::EndTabBar();
-                }
-            },
-        },
-        {
-            "SpriteTab",
-            360,
-            [&]() {
-                if (!tile_set) {
-                    return;
-                }
-                int column = tile_set->GetCol();
-                int row = tile_set->GetRow();
-                if (m_sprite_selector.EditSprite(&column, &row)) {
-                    tile_set->SetCol(column);
-                    tile_set->SetRow(row);
                 }
             },
         },
@@ -285,8 +270,6 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 }
 
 const std::vector<const ToolBarButtonDesc*> TileMapEditor::GetToolBarButtons() const {
-    std::vector<const ToolBarButtonDesc*> descs{ &m_brush_desc };
-
     return { &m_brush_desc };
 }
 

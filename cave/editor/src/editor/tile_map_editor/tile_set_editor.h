@@ -2,6 +2,7 @@
 #include "engine/assets/asset_handle.h"
 
 #include "editor/viewer/viewer_tab.h"
+#include "editor/widgets/sprite_selector.h"
 
 namespace cave {
 
@@ -33,6 +34,10 @@ protected:
 
     std::unique_ptr<CameraComponent> m_camera;
     std::unique_ptr<Document> m_document;
+
+    ToolBarButtonDesc m_desc;
+
+    SpriteSelector m_sprite_selector;
 };
 
 }  // namespace cave

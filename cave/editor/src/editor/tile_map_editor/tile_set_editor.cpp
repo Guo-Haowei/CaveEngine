@@ -2,9 +2,12 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "engine/assets/image_asset.h"
+#include "engine/assets/tile_set_asset.h"
 #include "engine/scene/camera_component.h"
 
 #include "editor/document/document.h"
+#include "editor/widgets/widget.h"
 
 namespace cave {
 
@@ -23,7 +26,12 @@ bool TileSetEditor::HandleInput(const InputEvent* p_input_event) {
 }
 
 void TileSetEditor::OnCreate(const Guid& p_guid) {
-    unused(p_guid);
+    m_desc = { ICON_FA_BRUSH, "TileMap editor mode",
+               [&]() {
+                   LOG_WARN("TODO");
+               } };
+
+    ViewerTab::OnCreate(p_guid);
 
     m_document = std::make_unique<Document>(p_guid);
 }
@@ -39,6 +47,43 @@ void TileSetEditor::DrawMainView(const CameraComponent& p_camera) {
 }
 
 void TileSetEditor::DrawAssetInspector() {
+    TileSetAsset* tile_set = m_document->GetHandle<TileSetAsset>().Get();
+
+    std::vector<AssetChildPanel> descs = {
+        {
+            "SpriteTab",
+            360,
+            [&]() {
+                if (!tile_set) {
+                    return;
+                }
+                int column = tile_set->GetCol();
+                int row = tile_set->GetRow();
+                if (m_sprite_selector.EditSprite(&column, &row)) {
+                    tile_set->SetCol(column);
+                    tile_set->SetRow(row);
+                }
+            },
+        },
+        {
+            "PaintTab",
+            0,
+            [&]() {
+                if (tile_set) {
+                    auto handle = tile_set->GetHandle();
+                    const int column = tile_set->GetCol();
+                    const int row = tile_set->GetRow();
+                    if (auto image = handle.Get(); image) {
+                        m_sprite_selector.SelectSprite(*image, &column, &row);
+                    }
+                }
+            },
+        }
+    };
+
+    const float full_width = ImGui::GetContentRegionAvail().x;
+
+    DrawContents(full_width, descs);
 }
 
 Document& TileSetEditor::GetDocument() const {
@@ -51,7 +96,7 @@ const CameraComponent& TileSetEditor::GetActiveCameraInternal() const {
 }
 
 const std::vector<const ToolBarButtonDesc*> TileSetEditor::GetToolBarButtons() const {
-    return {};
+    return { &m_desc };
 }
 
 }  // namespace cave
