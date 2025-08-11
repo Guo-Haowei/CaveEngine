@@ -71,14 +71,24 @@ struct MapTraits<std::unordered_map<K, V, Rest...>> {
 };
 
 template<typename T>
-concept StringMap = requires {
+concept StringKeyMap = requires {
     typename MapTraits<T>::key_type;
     typename MapTraits<T>::mapped_type;
 } && std::is_same_v<typename MapTraits<T>::key_type, std::string>;
 
-static_assert(StringMap<std::map<std::string, int>>);
-static_assert(StringMap<std::unordered_map<std::string, float>>);
-static_assert(!StringMap<std::map<int, std::string>>);
+static_assert(StringKeyMap<std::map<std::string, int>>);
+static_assert(StringKeyMap<std::unordered_map<std::string, float>>);
+static_assert(!StringKeyMap<std::map<int, std::string>>);
+
+template<typename T>
+concept IntegralKeyMap = requires {
+    typename MapTraits<T>::key_type;
+    typename MapTraits<T>::mapped_type;
+} && std::is_integral_v<typename MapTraits<T>::key_type>;
+
+static_assert(IntegralKeyMap<std::map<int, int>>);
+static_assert(IntegralKeyMap<std::unordered_map<uint32_t, float>>);
+static_assert(!IntegralKeyMap<std::map<std::string, std::string>>);
 
 class ISerializer;
 class IDeserializer;

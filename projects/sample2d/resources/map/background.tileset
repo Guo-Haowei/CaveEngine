@@ -6,3 +6,5 @@ content:
   height: 64
   row: 1
   column: 2
+  colliders:
+    {}

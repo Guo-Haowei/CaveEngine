@@ -1,9 +1,11 @@
 #pragma once
 #include "engine/assets/asset_handle.h"
 #include "engine/assets/asset_interface.h"
-
+#include "engine/scene/collider_component.h"
 #include "engine/math/box.h"
 #include "engine/reflection/reflection.h"
+
+// @TODO: move layer & mask to shape, and rename it collision shape
 
 namespace cave {
 
@@ -30,6 +32,9 @@ private:
 
     CAVE_PROP(editor = InputInt, min = 1, max = 1000)
     uint32_t m_column = 1;
+
+    CAVE_PROP()
+    std::map<uint32_t, Shape> m_colliders;
 
     /// Non serialized
     std::vector<Rect> m_frames;  // frames are calculated

@@ -69,6 +69,7 @@ void TileSetEditor::DrawPhysicsTab(TileSetAsset& p_tile_set) {
             };
 
             DrawToolBar(tool_bar);
+            ImGui::Separator();
 
             ImGui::EndTabItem();
         }

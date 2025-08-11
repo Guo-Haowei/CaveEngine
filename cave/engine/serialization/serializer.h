@@ -72,12 +72,23 @@ public:
         return *this;
     }
 
-    template<StringMap T>
+    template<StringKeyMap T>
     ISerializer& Write(const T& p_map) {
         const size_t len = std::ranges::size(p_map);
         BeginMap(len < SINGLE_LINE_MAX_ELEMENT);
         for (const auto& [key, value] : p_map) {
             Key(key).Write(value);
+        }
+        EndMap();
+        return *this;
+    }
+
+    template<IntegralKeyMap T>
+    ISerializer& Write(const T& p_map) {
+        const size_t len = std::ranges::size(p_map);
+        BeginMap(len < SINGLE_LINE_MAX_ELEMENT);
+        for (const auto& [key, value] : p_map) {
+            Key(std::to_string(key)).Write(value);
         }
         EndMap();
         return *this;
