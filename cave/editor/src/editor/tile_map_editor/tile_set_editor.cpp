@@ -51,8 +51,20 @@ void TileSetEditor::DrawMainView(const CameraComponent& p_camera) {
     unused(p_camera);
 }
 
+void TileSetEditor::DrawPhysicsTab(TileSetAsset& p_tile_set) {
+    unused(p_tile_set);
+
+    if (ImGui::BeginTabBar("TileSetPhysics")) {
+        if (ImGui::BeginTabItem("Physics Layer")) {
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+}
+
 void TileSetEditor::DrawAssetInspector() {
     TileSetAsset* tile_set = m_document->GetHandle<TileSetAsset>().Get();
+    DEV_ASSERT(tile_set);
 
     std::vector<AssetChildPanel> descs = {
         {
@@ -71,6 +83,13 @@ void TileSetEditor::DrawAssetInspector() {
             },
         },
         {
+            "PhysicsTab",
+            360,
+            [&]() {
+                DrawPhysicsTab(*tile_set);
+            },
+        },
+        {
             "PaintTab",
             0,
             [&]() {
@@ -83,7 +102,7 @@ void TileSetEditor::DrawAssetInspector() {
                     }
                 }
             },
-        }
+        },
     };
 
     const float full_width = ImGui::GetContentRegionAvail().x;
