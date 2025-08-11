@@ -18,14 +18,20 @@ TileSetEditor::TileSetEditor(EditorLayer& p_editor, Viewer& p_viewer)
     m_camera = std::make_unique<CameraComponent>();
     ViewerTab::CreateDefaultCamera2D(*m_camera.get());
 
-    m_square_collider_desc = { ICON_FA_SQUARE, "Add square collider",
-                               [&]() {
-                                   LOG_WARN("TODO");
-                               } };
-    m_circle_collider_desc = { ICON_FA_CIRCLE, "Add circle collider",
-                               [&]() {
-                                   LOG_WARN("TODO");
-                               } };
+    m_add_square_button_desc = { ICON_FA_SQUARE " Box", "Add box collider",
+                                 [&]() {
+                                     LOG_WARN("TODO");
+                                 } };
+
+    m_add_polygon_button_desc = { ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
+                                  [&]() {
+                                      LOG_WARN("TODO");
+                                  } };
+
+    m_add_circle_button_desc = { ICON_FA_CIRCLE " Circle", "Add circle collider",
+                                 [&]() {
+                                     LOG_WARN("TODO");
+                                 } };
 }
 
 TileSetEditor::~TileSetEditor() = default;
@@ -56,6 +62,14 @@ void TileSetEditor::DrawPhysicsTab(TileSetAsset& p_tile_set) {
 
     if (ImGui::BeginTabBar("TileSetPhysics")) {
         if (ImGui::BeginTabItem("Physics Layer")) {
+            std::vector<const ToolBarButtonDesc*> tool_bar = {
+                &m_add_square_button_desc,
+                &m_add_polygon_button_desc,
+                &m_add_circle_button_desc,
+            };
+
+            DrawToolBar(tool_bar);
+
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -120,10 +134,7 @@ const CameraComponent& TileSetEditor::GetActiveCameraInternal() const {
 }
 
 const std::vector<const ToolBarButtonDesc*> TileSetEditor::GetToolBarButtons() const {
-    return {
-        &m_square_collider_desc,
-        &m_circle_collider_desc,
-    };
+    return {};
 }
 
 }  // namespace cave
