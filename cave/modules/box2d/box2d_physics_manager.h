@@ -1,5 +1,8 @@
 #pragma once
+#include "engine/math/box.h"
 #include "engine/runtime/physics_manager_interface.h"
+
+struct b2WorldId;
 
 namespace cave {
 
@@ -16,6 +19,7 @@ public:
 protected:
     Result<void> InitializeImpl() override;
     void FinalizeImpl() override;
+    void AddStaticBox(const b2WorldId& p_world_id, const Box2& p_box);
 
     Option<uint32_t> m_world_id;
 };

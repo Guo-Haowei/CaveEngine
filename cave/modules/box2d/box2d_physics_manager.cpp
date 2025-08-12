@@ -2,8 +2,6 @@
 
 #include <box2d/box2d.h>
 
-#include "engine/assets/tile_map_asset.h"
-#include "engine/assets/tile_set_asset.h"
 #include "engine/scene/scene.h"
 
 namespace cave {
@@ -50,7 +48,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
         b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
 
         b2Vec2 position = b2Body_GetPosition(body_id);
-        [[maybe_unused]] b2Rot rotation = b2Body_GetRotation(body_id);
+        // b2Rot rotation = b2Body_GetRotation(body_id);
 
         Vector3f translation = transform.GetTranslation();
         translation.x = position.x;
@@ -66,6 +64,23 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     }
 }
 
+void Box2dPhysicsManager::AddStaticBox(const b2WorldId& p_world_id, const Box2& p_box) {
+    Vector2f center = p_box.Center();
+    Vector2f half = 0.5f * p_box.Size();
+
+    b2BodyDef body_def = b2DefaultBodyDef();
+    body_def.position = { center.x, center.y };
+    body_def.fixedRotation = true;
+
+    b2ShapeDef shape_def = b2DefaultShapeDef();
+    body_def.type = b2_staticBody;
+
+    b2BodyId body_id = b2CreateBody(p_world_id, &body_def);
+
+    b2Polygon box = b2MakeBox(half.x, half.y);
+    b2CreatePolygonShape(body_id, &shape_def, &box);
+}
+
 void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = { 0.0f, -20.0f };
@@ -78,12 +93,6 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
         b2BodyDef body_def = b2DefaultBodyDef();
         body_def.position = { position.x, position.y };
         body_def.fixedRotation = true;
-#if USING(DEBUG_BUILD)
-        const NameComponent* name = p_scene.GetComponent<NameComponent>(id);
-        if (name) {
-            body_def.name = name->GetName().c_str();
-        }
-#endif
 
         b2ShapeDef shape_def = b2DefaultShapeDef();
 
@@ -119,43 +128,12 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
     }
 
     for (auto [id, tile_map_renderer, transform] : p_scene.View<TileMapRendererComponent, TransformComponent>()) {
-        const TileMapAsset* tile_map = tile_map_renderer.GetTileMapHandle().Get();
-        if (!tile_map) continue;
-        const TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-        if (!tile_set) continue;
-
+        const auto& boxes = tile_map_renderer.GetBoxes();
         Vector4f position = transform.GetWorldMatrix() * Vector4f::UnitW;
-
-        const auto& colliders = tile_set->GetColliders();
-        const auto& chunks = tile_map->GetTiles().chunks;
-        for (const auto& [key, chunk_ptr] : chunks) {
-            const int16_t offset_x = key.x * TILE_CHUNK_SIZE;
-            const int16_t offset_y = key.y * TILE_CHUNK_SIZE;
-            const auto& chunk = chunk_ptr->tiles;
-            for (int16_t y = offset_y; y < offset_y + TILE_CHUNK_SIZE; ++y) {
-                for (int16_t x = offset_x; x < offset_x + TILE_CHUNK_SIZE; ++x) {
-                    const TileId& tile_id = chunk[y - offset_y][x - offset_x];
-                    auto it = colliders.find(tile_id);
-                    if (it == colliders.end()) continue;
-                    const Shape& shape = it->second;
-                    DEV_ASSERT(shape.type == ShapeType::Box);
-
-                    // @TODO: fix this part
-                    b2BodyDef body_def = b2DefaultBodyDef();
-                    body_def.type = b2_staticBody;
-                    body_def.position = {
-                        position.x + x - 0.5f,
-                        position.y + y + 0.5f,
-                    };
-                    body_def.fixedRotation = true;
-
-                    b2BodyId body_id = b2CreateBody(world_id, &body_def);
-                    const auto& half = shape.data.half;
-                    b2Polygon box = b2MakeBox(half.x, half.y);
-                    b2ShapeDef shape_def = b2DefaultShapeDef();
-                    b2CreatePolygonShape(body_id, &shape_def, &box);
-                }
-            }
+        Vector2f offset = position.xy;
+        for (const Box2& _box : boxes) {
+            Box2 box(_box.GetMin() + offset, _box.GetMax() + offset);
+            AddStaticBox(world_id, box);
         }
     }
 }

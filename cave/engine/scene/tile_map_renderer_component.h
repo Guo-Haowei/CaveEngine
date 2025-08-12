@@ -28,13 +28,16 @@ private:
 
     // Non serialize
     bool m_visibility;
-    Handle<TileMapAsset> m_handle;
-    Cache m_cache;
     uint32_t m_revision{ 0 };
 
+    Handle<TileMapAsset> m_handle;
+
+    Cache m_cache;
+
+    std::vector<Box2> m_boxes;
+
 public:
-    // @TODO: better way to create data
-    void CreateRenderData();
+    void UpdateData();
 
     bool GetVisibility() const { return m_visibility; }
     const auto& GetCache() const { return m_cache; }
@@ -44,10 +47,16 @@ public:
 
     const auto& GetTileMapHandle() const { return m_handle; }
 
+    const auto& GetBoxes() const { return m_boxes; }
+
     void SetTintColor(const Vector4f& p_tint_color);
     const Vector4f& GetTintColor() const { return m_tint_color; }
 
     void OnDeserialized();
+
+private:
+    void CreateRenderData(TileSetAsset* p_tile_set, TileMapAsset* p_tile_map);
+    void CreatePhysicsData(TileSetAsset* p_tile_set, TileMapAsset* p_tile_map);
 };
 
 }  // namespace cave

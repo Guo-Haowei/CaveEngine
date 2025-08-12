@@ -24,7 +24,7 @@ void TileMapRendererComponent::OnDeserialized() {
     m_handle = std::move(res.unwrap());
 }
 
-void TileMapRendererComponent::CreateRenderData() {
+void TileMapRendererComponent::UpdateData() {
     if (m_tile_map_id != m_handle.GetGuid()) {
         OnDeserialized();
     }
@@ -62,20 +62,47 @@ void TileMapRendererComponent::CreateRenderData() {
         return;
     }
 
-    m_cache.image = tile_set->GetHandle();
+    CreatePhysicsData(tile_set, tile_map);
+    CreateRenderData(tile_set, tile_map);
+}
+
+void TileMapRendererComponent::CreatePhysicsData(TileSetAsset* p_tile_set, TileMapAsset* p_tile_map) {
+    const auto& colliders = p_tile_set->GetColliders();
+    const auto& chunks = p_tile_map->GetTiles().chunks;
+    for (const auto& [key, chunk_ptr] : chunks) {
+        const int16_t offset_x = key.x * TILE_CHUNK_SIZE;
+        const int16_t offset_y = key.y * TILE_CHUNK_SIZE;
+        const auto& chunk = chunk_ptr->tiles;
+        for (int16_t y = offset_y; y < offset_y + TILE_CHUNK_SIZE; ++y) {
+            for (int16_t x = offset_x; x < offset_x + TILE_CHUNK_SIZE; ++x) {
+                const TileId& tile_id = chunk[y - offset_y][x - offset_x];
+                auto it = colliders.find(tile_id);
+                if (it == colliders.end()) continue;
+                const Shape& shape = it->second;
+                DEV_ASSERT(shape.type == ShapeType::Box);
+
+                Box2 aabb(Vector2f(x, y), Vector2f(x + 1.0f, y + 1.0f));
+                m_boxes.push_back(aabb);
+            }
+        }
+    }
+}
+
+void TileMapRendererComponent::CreateRenderData(TileSetAsset* p_tile_set, TileMapAsset* p_tile_map) {
+    m_cache.image = p_tile_set->GetHandle();
 
     std::vector<Vector2f> vertices;
     std::vector<Vector2f> uvs;
     std::vector<uint32_t> indices;
 
-    const auto& chunks = tile_map->GetTiles().chunks;
+    const auto& chunks = p_tile_map->GetTiles().chunks;
     if (chunks.empty()) {
         m_visibility = false;
         return;
     }
-    m_visibility = tile_map->IsVisible();
+    m_visibility = p_tile_map->IsVisible();
 
-    const auto& frames = tile_set->GetFrames();
+    const auto& frames = p_tile_set->GetFrames();
 
     vertices.reserve((TILE_CHUNK_SIZE * TILE_CHUNK_SIZE));
     for (const auto& [key, chunk_ptr] : chunks) {
@@ -161,7 +188,7 @@ void TileMapRendererComponent::CreateRenderData() {
 
     m_cache.mesh = *mesh;
 
-    m_revision = tile_map->GetRevision();
+    m_revision = p_tile_map->GetRevision();
 }
 
 }  // namespace cave
