@@ -88,7 +88,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
     m_world_id = Some(std::bit_cast<uint32_t>(world_id));
 
-    for (auto [id, collider, transform] : p_scene.View<ColliderComponent, TransformComponent>()) {
+    for (const auto& [id, collider, transform] : p_scene.View<ColliderComponent, TransformComponent>()) {
         Vector4f position = transform.GetWorldMatrix() * Vector4f::UnitW;
         b2BodyDef body_def = b2DefaultBodyDef();
         body_def.position = { position.x, position.y };
@@ -127,7 +127,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
         }
     }
 
-    for (auto [id, tile_map_renderer, transform] : p_scene.View<TileMapRendererComponent, TransformComponent>()) {
+    for (const auto& [id, tile_map_renderer, transform] : p_scene.View<TileMapRendererComponent, TransformComponent>()) {
         const auto& boxes = tile_map_renderer.GetBoxes();
         Vector4f position = transform.GetWorldMatrix() * Vector4f::UnitW;
         Vector2f offset = position.xy;

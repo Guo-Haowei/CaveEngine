@@ -27,6 +27,14 @@ void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
         }
     }
 
+    for (const auto& [id, tile_map_renderer, transform] : p_scene->View<TileMapRendererComponent, TransformComponent>()) {
+        const auto& boxes = tile_map_renderer.GetBoxes();
+        const Matrix4x4f& m = transform.GetWorldMatrix();
+        for (const Box2& box : boxes) {
+            debug_draw.AddBox2Frame(box.GetMin(), box.GetMax(), Vector4f(0, 1, 1, 0.9f), &m, 0.04f);
+        }
+    }
+
     debug_draw.Batch();
 }
 
