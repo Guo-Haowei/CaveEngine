@@ -4,6 +4,8 @@
 #include "engine/math/box.h"
 #include "engine/math/geomath.h"
 
+// @TODO: rename it to TileMapInstanceComponent
+
 namespace cave {
 
 struct GpuMesh;
@@ -11,13 +13,13 @@ struct GpuMesh;
 class TileMapRendererComponent {
     CAVE_META(TileMapRendererComponent)
 
+private:
     CAVE_PROP(editor = Asset, tooltip = "tile map")
     Guid m_tile_map_id;
 
     CAVE_PROP(editor = Color)
     Vector4f m_tint_color = Vector4f::One;
 
-private:
     struct Cache {
         Handle<ImageAsset> image;
         Handle<TileSetAsset> tile_set_handle;
@@ -39,6 +41,8 @@ public:
 
     bool SetResourceGuid(const Guid& p_guid);
     const Guid& GetResourceGuid() const { return m_tile_map_id; }
+
+    const auto& GetTileMapHandle() const { return m_handle; }
 
     void SetTintColor(const Vector4f& p_tint_color);
     const Vector4f& GetTintColor() const { return m_tint_color; }
