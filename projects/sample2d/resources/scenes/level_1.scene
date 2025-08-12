@@ -34,47 +34,13 @@ entities:
     TileMapRendererComponent:
       tile_map_id: 9FE5F444-57A6-0047-801BB379815BDC96
       tint_color: [1, 1, 1, 1]
-  - id: 5
-    NameComponent:
-      name: floor
-    HierarchyComponent:
-      parent_id: 1
-    TransformComponent:
-      translation: [2, -5, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-    ColliderComponent:
-      body_type: static
-      shape:
-        type: box
-        data: [8, 1, 0.5]
-      flags: 0
-      category: 0
-      mask: 0
-  - id: 6
-    NameComponent:
-      name: collider2
-    HierarchyComponent:
-      parent_id: 1
-    TransformComponent:
-      translation: [7, -3, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-    ColliderComponent:
-      body_type: static
-      shape:
-        type: box
-        data: [1, 3, 0.5]
-      flags: 0
-      category: 0
-      mask: 0
   - id: 8
     NameComponent:
       name: player-01
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
+      translation: [0.699211895, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     PrefabInstanceComponent:

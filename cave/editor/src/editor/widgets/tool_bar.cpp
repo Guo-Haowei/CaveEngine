@@ -26,7 +26,7 @@ static void DrawToolBarButton(const ToolBarButtonDesc& desc) {
     }
 }
 
-void DrawToolBar(const std::vector<const ToolBarButtonDesc*>& p_button_descs) {
+void DrawToolBar(const std::vector<const ToolBarButtonDesc*>& p_button_descs, bool p_new_line) {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
     auto& colors = ImGui::GetStyle().Colors;
     const auto& button_hovered = colors[ImGuiCol_ButtonHovered];
@@ -36,7 +36,13 @@ void DrawToolBar(const std::vector<const ToolBarButtonDesc*>& p_button_descs) {
 
     for (size_t i = 0; i < p_button_descs.size(); ++i) {
         const ToolBarButtonDesc* desc = p_button_descs[i];
-        if (i != 0) ImGui::SameLine();
+
+        if (i != 0) {
+            if (!p_new_line) {
+                ImGui::SameLine();
+            }
+        }
+
         DrawToolBarButton(*desc);
     }
 

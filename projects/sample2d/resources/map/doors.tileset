@@ -6,3 +6,5 @@ content:
   height: 256
   row: 16
   column: 16
+  colliders:
+    {}

@@ -6,3 +6,7 @@ content:
   height: 64
   row: 1
   column: 2
+  colliders:
+    1:
+      type: box
+      data: [0.5, 0.5, 0.5]

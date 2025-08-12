@@ -81,12 +81,28 @@ public:
         return true;
     }
 
-    template<StringMap T>
+    template<StringKeyMap T>
     bool Read(T& p_map) {
         if (auto _keys = GetKeys(); _keys.is_some()) {
             for (const auto& key : _keys.unwrap_unchecked()) {
                 TryEnterKey(key.c_str());
                 Read(p_map[key]);
+                LeaveKey();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    template<IntegralKeyMap T>
+    bool Read(T& p_map) {
+        if (auto _keys = GetKeys(); _keys.is_some()) {
+            for (const auto& key : _keys.unwrap_unchecked()) {
+                TryEnterKey(key.c_str());
+                const auto val = static_cast<typename MapTraits<T>::key_type>(std::stoll(key));
+                Read(p_map[val]);
                 LeaveKey();
             }
 

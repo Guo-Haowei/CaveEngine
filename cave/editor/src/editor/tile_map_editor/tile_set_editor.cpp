@@ -17,15 +17,6 @@ TileSetEditor::TileSetEditor(EditorLayer& p_editor, Viewer& p_viewer)
 
     m_camera = std::make_unique<CameraComponent>();
     ViewerTab::CreateDefaultCamera2D(*m_camera.get());
-
-    m_square_collider_desc = { ICON_FA_SQUARE, "Add square collider",
-                               [&]() {
-                                   LOG_WARN("TODO");
-                               } };
-    m_circle_collider_desc = { ICON_FA_CIRCLE, "Add circle collider",
-                               [&]() {
-                                   LOG_WARN("TODO");
-                               } };
 }
 
 TileSetEditor::~TileSetEditor() = default;
@@ -51,8 +42,45 @@ void TileSetEditor::DrawMainView(const CameraComponent& p_camera) {
     unused(p_camera);
 }
 
+void TileSetEditor::DrawPhysicsTab(TileSetAsset& p_tile_set) {
+    int index = -1;
+    if (auto selected = m_sprite_selector.GetSelections(); !selected.empty()) {
+        auto [x, y] = selected.front();
+        index = p_tile_set.GetCol() * y + x;
+    }
+
+    ToolBarButtonDesc add_square_button_desc = { ICON_FA_SQUARE " Box", "Add box collider",
+                                                 [&]() {
+                                                     if (p_tile_set.AddBoxCollider(index)) {
+                                                         LOG_OK("Box collider added for {}", index);
+                                                     } else {
+                                                         LOG_ERROR("Failed to add box collider for {}", index);
+                                                     }
+                                                 } };
+
+    ToolBarButtonDesc add_polygon_button_desc = { ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
+                                                  [&]() {
+                                                      LOG_WARN("Not implemented");
+                                                  } };
+
+    ToolBarButtonDesc add_circle_button_desc = { ICON_FA_CIRCLE " Circle", "Add circle collider",
+                                                 [&]() {
+                                                     LOG_WARN("Not implemented");
+                                                 } };
+
+    std::vector<const ToolBarButtonDesc*> tool_bar = {
+        &add_square_button_desc,
+        &add_polygon_button_desc,
+        &add_circle_button_desc,
+    };
+
+    DrawToolBar(tool_bar);
+    ImGui::Separator();
+}
+
 void TileSetEditor::DrawAssetInspector() {
     TileSetAsset* tile_set = m_document->GetHandle<TileSetAsset>().Get();
+    DEV_ASSERT(tile_set);
 
     std::vector<AssetChildPanel> descs = {
         {
@@ -71,6 +99,19 @@ void TileSetEditor::DrawAssetInspector() {
             },
         },
         {
+            "PhysicsTab",
+            360,
+            [&]() {
+                if (ImGui::BeginTabBar("TileSetPhysics")) {
+                    if (ImGui::BeginTabItem("Physics Layer")) {
+                        DrawPhysicsTab(*tile_set);
+                        ImGui::EndTabItem();
+                    }
+                    ImGui::EndTabBar();
+                }
+            },
+        },
+        {
             "PaintTab",
             0,
             [&]() {
@@ -83,7 +124,7 @@ void TileSetEditor::DrawAssetInspector() {
                     }
                 }
             },
-        }
+        },
     };
 
     const float full_width = ImGui::GetContentRegionAvail().x;
@@ -101,10 +142,7 @@ const CameraComponent& TileSetEditor::GetActiveCameraInternal() const {
 }
 
 const std::vector<const ToolBarButtonDesc*> TileSetEditor::GetToolBarButtons() const {
-    return {
-        &m_square_collider_desc,
-        &m_circle_collider_desc,
-    };
+    return {};
 }
 
 }  // namespace cave
