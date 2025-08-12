@@ -140,11 +140,12 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
                     const Shape& shape = it->second;
                     DEV_ASSERT(shape.type == ShapeType::Box);
 
+                    // @TODO: fix this part
                     b2BodyDef body_def = b2DefaultBodyDef();
                     body_def.type = b2_staticBody;
                     body_def.position = {
-                        position.x + x + 0.0f,
-                        position.y + y + 0.0f,
+                        position.x + x - 0.5f,
+                        position.y + y + 0.5f,
                     };
                     body_def.fixedRotation = true;
 
