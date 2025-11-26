@@ -28,9 +28,33 @@ Open `bin/Optick.exe` to start profiling session
 
 ## Screenshots
 
-<img src="https://github.com/Guo-Haowei/GameEngine/blob/master/documents/editor.png" width="70%">
+<p align="center">
+    <img src="https://github.com/Guo-Haowei/GameEngine/blob/master/documents/editor.png" width="70%">
+</p>
+<p align="center">
+    <em>Showcase — Sponza (VXGI)</em>
+</p>
 
-<img src="https://github.com/Guo-Haowei/GameEngine/blob/master/documents/breakfast_room.png" width="70%">
+<p align="center">
+    <img src="https://github.com/Guo-Haowei/GameEngine/blob/master/documents/path_tracer.png" width="70%">
+</p>
+<p align="center">
+    <em>Showcase — Sponza (Path traced)</em>
+</p>
+
+<p align="center">
+    <img src="https://github.com/Guo-Haowei/GameEngine/blob/master/documents/breakfast_room.png" width="70%">
+</p>
+<p align="center">
+    <em>Showcase — Breakfast Room</em>
+</p>
+
+<p align="center">
+    <img src="https://github.com/Guo-Haowei/GameEngine/blob/master/documents/tile_map_editor.gif" width="70%">
+</p>
+<p align="center">
+    <em>Showcase — Tile Map Editor</em>
+</p>
 
 ## Graphics APIs
 
