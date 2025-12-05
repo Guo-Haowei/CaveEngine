@@ -1,0 +1,12 @@
+name: Windows CI
+run-name: ${{ github.actor }} is testing out GitHub Actions
+on: [push]
+jobs:
+  format:
+    name: Check Formatting
+    runs-on: self-hosted
+    steps:
+      - name: Check Formatting
+        uses: actions/checkout@v5
+      - run: python .\scripts\format_code.py
+      - run: python .\scripts\get_git_changed_files.py
