@@ -10,3 +10,11 @@ jobs:
         uses: actions/checkout@v5
       - run: python .\scripts\format_code.py
       - run: python .\scripts\get_git_changed_files.py
+
+  shader_generation:
+    name: Shader Generation
+    runs-on: self-hosted
+    steps:
+      - name: Shader Generation
+        uses: actions/checkout@v5
+      - run: python .\scripts\generate_shader.py
