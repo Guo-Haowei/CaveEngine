@@ -32,3 +32,27 @@ jobs:
       #   uses: actions/upload-artifact@v3
       #   with:
       #     name: build-debug
+
+  # build_release:
+  #   name: Build Release
+  #   needs: format
+  #   runs-on: self-hosted
+  #   steps:
+  #     - name: Build Release
+  #       uses: actions/checkout@v5
+  #     - run: echo "Building the project..."
+  #     - run: .\scripts\ci_build_job.bat Release
+  #     - name: Upload Build Artifacts
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: build-release
+
+  test_job:
+    name: Test Job
+    needs: build_debug
+    runs-on: self-hosted
+    steps:
+      - name: Test Job
+        uses: actions/checkout@v5
+      - run: echo "Running tests..."
+      - run: .\scripts\ci_test_job.bat
