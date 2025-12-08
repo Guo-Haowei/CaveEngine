@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-debug-results
-          path: ./build
+          path: ./build/bin
 
   # build_release:
   #   name: Build Release
@@ -48,10 +48,6 @@ jobs:
   #     - run: echo "Building the project..."
   #     - run: python .\scripts\generate_meta.py
   #     - run: .\scripts\ci_build_job.bat Release
-  #     - name: Upload Build Artifacts
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: build-release
 
   # test_job:
   #   name: Test Job
