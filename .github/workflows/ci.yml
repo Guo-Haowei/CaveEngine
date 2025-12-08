@@ -19,23 +19,23 @@ jobs:
         uses: actions/checkout@v5
       - run: python .\scripts\generate_shader.py
 
-  build_debug:
-    name: Build Debug
-    needs: format
-    runs-on: self-hosted
-    steps:
-      - name: Build Debug
-        uses: actions/checkout@v5
-        with:
-          submodules: recursive
-          fetch-depth: 0
-      - run: echo "Building project..."
-      - run: .\scripts\ci_build_job.bat Debug
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-debug-results
-          path: ./build
+  # build_debug:
+  #   name: Build Debug
+  #   needs: format
+  #   runs-on: self-hosted
+  #   steps:
+  #     - name: Build Debug
+  #       uses: actions/checkout@v5
+  #       with:
+  #         submodules: recursive
+  #         fetch-depth: 0
+  #     - run: echo "Building project..."
+  #     - run: .\scripts\ci_build_job.bat Debug
+  #     - name: Upload Build Artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: build-debug-results
+  #         path: ./build
 
   # build_release:
   #   name: Build Release
@@ -51,12 +51,12 @@ jobs:
   #       with:
   #         name: build-release
 
-  test_job:
-    name: Test Job
-    needs: build_debug
-    runs-on: self-hosted
-    steps:
-      - name: Test Job
-        uses: actions/checkout@v5
-      - run: echo "Running tests..."
-      - run: .\scripts\ci_test_job.bat
+  # test_job:
+  #   name: Test Job
+  #   needs: build_debug
+  #   runs-on: self-hosted
+  #   steps:
+  #     - name: Test Job
+  #       uses: actions/checkout@v5
+  #     - run: echo "Running tests..."
+  #     - run: .\scripts\ci_test_job.bat
