@@ -20,7 +20,16 @@
 #include "engine/scene/entity_factory.h"
 
 #include "modules/tinygltf/tiny_gltf_importer.h"
+
+#if USING(PLATFORM_WINDOWS) && defined(BUILD_ASSIMP)
+#define USE_IMPORTER_ASSIMP IN_USE
+#else
+#define USE_IMPORTER_ASSIMP NOT_IN_USE
+#endif
+
+#if USING(USE_IMPORTER_ASSIMP)
 #include "modules/assimp/assimp_importer.h"
+#endif
 
 namespace cave {
 

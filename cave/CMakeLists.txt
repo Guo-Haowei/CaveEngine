@@ -4,7 +4,10 @@ add_subdirectory(modules)
 add_subdirectory(editor)
 add_subdirectory(shader)
 
-if (NOT EMSCRIPTEN)
-    add_subdirectory(engine_tests)
+if(NOT EMSCRIPTEN)
     add_subdirectory(tools)
+endif()
+
+if(BUILD_UNIT_TESTS)
+    add_subdirectory(engine_tests)
 endif()

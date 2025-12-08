@@ -1,6 +1,5 @@
 #include "assimp_importer.h"
 
-#if USING(USE_IMPORTER_ASSIMP)
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
@@ -198,5 +197,3 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
 }
 
 }  // namespace cave
-
-#endif  // #if USING(USE_IMPORTER_ASSIMP)

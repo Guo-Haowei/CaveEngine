@@ -10,6 +10,7 @@ if(APPLE)
 endif()
 
 option(BUILD_UNIT_TESTS "Build Tests" ON)
+option(BUILD_ASSIMP "Build Assimp" ON)
 
 message("***********************************************************************")
 message(STATUS "CMAKE_CXX_COMPILER_ID   : ${CMAKE_CXX_COMPILER_ID}")
@@ -32,8 +33,8 @@ if (EMSCRIPTEN)
     # set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${EM_FLAGS}")
 endif ()
 
+# GLAD
 if (NOT EMSCRIPTEN)
-    # GLAD
     add_subdirectory(thirdparty/glad)
     set_target_properties(glad PROPERTIES FOLDER thirdparty)
 endif()
@@ -47,6 +48,7 @@ include(cmake/build_imnodes.cmake)
 add_subdirectory(thirdparty/glm)
 set_target_properties(glm PROPERTIES FOLDER thirdparty)
 
+# optick
 if(WIN32)
     message(STATUS "Configuring optick...")
     add_subdirectory(thirdparty/optick)
@@ -56,7 +58,7 @@ endif()
 ################################################################################
 
 # gtest
-if (NOT EMSCRIPTEN)
+if (BUILD_UNIT_TESTS)
     enable_testing()
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)

@@ -83,6 +83,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
 target_compile_definitions(${TARGET_NAME} PUBLIC
     -D_CRT_SECURE_NO_WARNINGS
     -DROOT_FOLDER="${PROJECT_SOURCE_DIR}/"
+    $<$<BOOL:${BUILD_ASSIMP}>:BUILD_ASSIMP>
 )
 
 set(TARGET_LIBS
@@ -91,9 +92,12 @@ set(TARGET_LIBS
     glm::glm
     lua
     yaml-cpp
-    importer_assimp
     importer_tinygltf
 )
+
+if(BUILD_ASSIMP)
+    list(APPEND TARGET_LIBS importer_assimp)
+endif()
 
 if(WIN32)
     list(APPEND TARGET_LIBS
@@ -104,7 +108,7 @@ if(WIN32)
         d3d12_backend
         vk_backend
     )
-elseif (EMSCRIPTEN)
+elseif(EMSCRIPTEN)
     list(APPEND TARGET_LIBS
         opengles_3_backend
     )

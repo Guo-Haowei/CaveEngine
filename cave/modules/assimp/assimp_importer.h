@@ -1,16 +1,5 @@
 #pragma once
 
-#if USING(PLATFORM_WINDOWS)
-#define USE_IMPORTER_ASSIMP IN_USE
-#elif USING(PLATFORM_APPLE)
-#define USE_IMPORTER_ASSIMP NOT_IN_USE
-#elif USING(PLATFORM_WASM)
-#define USE_IMPORTER_ASSIMP NOT_IN_USE
-#else
-#error "Platform not supported"
-#endif
-
-#if USING(USE_IMPORTER_ASSIMP)
 #include "engine/assets/scene_importer.h"
 #include "engine/scene/scene.h"
 
@@ -43,5 +32,3 @@ protected:
 };
 
 }  // namespace cave
-
-#endif  // #if USING(USE_IMPORTER_ASSIMP)
