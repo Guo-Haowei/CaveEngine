@@ -32,8 +32,10 @@ if (EMSCRIPTEN)
     # set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${EM_FLAGS}")
 endif ()
 
+# TODO: YAML-CPP
+
+# GLAD
 if (NOT EMSCRIPTEN)
-    # GLAD
     add_subdirectory(thirdparty/glad)
     set_target_properties(glad PROPERTIES FOLDER thirdparty)
 endif()
@@ -47,6 +49,7 @@ include(cmake/build_imnodes.cmake)
 add_subdirectory(thirdparty/glm)
 set_target_properties(glm PROPERTIES FOLDER thirdparty)
 
+# optick
 if(WIN32)
     message(STATUS "Configuring optick...")
     add_subdirectory(thirdparty/optick)

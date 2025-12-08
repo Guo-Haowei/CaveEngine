@@ -19,23 +19,23 @@ jobs:
         uses: actions/checkout@v5
       - run: python .\scripts\generate_shader.py
 
-  # build_debug:
-  #   name: Build Debug
-  #   needs: format
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Build Debug
-  #       uses: actions/checkout@v5
-  #       with:
-  #         submodules: recursive
-  #         fetch-depth: 0
-  #     - run: echo "Building project..."
-  #     - run: .\scripts\ci_build_job.bat Debug
-  #     - name: Upload Build Artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: build-debug-results
-  #         path: ./build
+  build_debug:
+    name: Build Debug
+    needs: format
+    runs-on: self-hosted
+    steps:
+      - name: Build Debug
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - run: echo "Building project..."
+      - run: .\scripts\ci_build_job.bat Debug
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-debug-results
+          path: ./build
 
   # build_release:
   #   name: Build Release
