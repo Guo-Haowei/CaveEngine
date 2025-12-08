@@ -30,7 +30,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
       - run: echo "Building project..."
-      - run: .\scripts\generate_meta.py
+      - run: python .\scripts\generate_meta.py
       - run: .\scripts\ci_build_job.bat Debug
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
@@ -46,7 +46,7 @@ jobs:
   #     - name: Build Release
   #       uses: actions/checkout@v5
   #     - run: echo "Building the project..."
-  #     - run: .\scripts\generate_meta.py
+  #     - run: python .\scripts\generate_meta.py
   #     - run: .\scripts\ci_build_job.bat Release
   #     - name: Upload Build Artifacts
   #       uses: actions/upload-artifact@v3
