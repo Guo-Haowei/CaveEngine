@@ -8,6 +8,6 @@ if(NOT EMSCRIPTEN)
     add_subdirectory(tools)
 endif()
 
-if(BUILD_UNIT_TESTS)
+if(CAVE_BUILD_UNIT_TESTS)
     add_subdirectory(engine_tests)
 endif()

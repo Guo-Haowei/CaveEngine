@@ -9,8 +9,8 @@ if(APPLE)
     enable_language(OBJCXX)
 endif()
 
-option(BUILD_UNIT_TESTS "Build Tests" ON)
-option(BUILD_ASSIMP "Build Assimp" ON)
+option(CAVE_BUILD_UNIT_TESTS "Build Tests" ON)
+option(CAVE_BUILD_ASSIMP "Build Assimp" ON)
 
 message("***********************************************************************")
 message(STATUS "CMAKE_CXX_COMPILER_ID   : ${CMAKE_CXX_COMPILER_ID}")
@@ -19,7 +19,7 @@ message(STATUS "CMAKE_BUILD_TOOL        : ${CMAKE_BUILD_TOOL}")
 ################################################################################
 
 if (EMSCRIPTEN)
-    set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+    set(CAVE_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
@@ -58,7 +58,7 @@ endif()
 ################################################################################
 
 # gtest
-if (BUILD_UNIT_TESTS)
+if (CAVE_BUILD_UNIT_TESTS)
     enable_testing()
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)

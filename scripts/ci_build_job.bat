@@ -15,7 +15,7 @@ if not exist "%build_folder%" (
 
 cd %build_folder%
 
-cmake -DBUILD_ASSIMP=OFF -DBUILD_UNIT_TESTS=OFF .. || goto error
+cmake -DCAVE_BUILD_ASSIMP=OFF -DCAVE_BUILD_UNIT_TESTS=ON .. || goto error
 cmake --build . --config %1 || goto error
 
 endlocal

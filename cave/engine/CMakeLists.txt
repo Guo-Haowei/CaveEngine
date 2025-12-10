@@ -83,7 +83,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
 target_compile_definitions(${TARGET_NAME} PUBLIC
     -D_CRT_SECURE_NO_WARNINGS
     -DROOT_FOLDER="${PROJECT_SOURCE_DIR}/"
-    $<$<BOOL:${BUILD_ASSIMP}>:BUILD_ASSIMP>
+    $<$<BOOL:${CAVE_BUILD_ASSIMP}>:CAVE_BUILD_ASSIMP>
 )
 
 set(TARGET_LIBS
@@ -95,7 +95,7 @@ set(TARGET_LIBS
     importer_tinygltf
 )
 
-if(BUILD_ASSIMP)
+if(CAVE_BUILD_ASSIMP)
     list(APPEND TARGET_LIBS importer_assimp)
 endif()
 

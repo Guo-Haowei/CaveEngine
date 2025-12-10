@@ -14,7 +14,7 @@ add_subdirectory(sw)
 # TODO: move above modules to RHI
 
 add_subdirectory(tinygltf)
-if(BUILD_ASSIMP)
+if(CAVE_BUILD_ASSIMP)
     add_subdirectory(assimp)
 endif()
 

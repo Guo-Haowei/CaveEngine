@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-debug-results
-          path: ./build/bin
+          path: ./build/bin/Debug/engine_tests.exe
 
   # build_release:
   #   name: Build Release
@@ -49,12 +49,17 @@ jobs:
   #     - run: python .\scripts\generate_meta.py
   #     - run: .\scripts\ci_build_job.bat Release
 
-  # test_job:
-  #   name: Test Job
-  #   needs: build_debug
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Test Job
-  #       uses: actions/checkout@v5
-  #     - run: echo "Running tests..."
-  #     - run: .\scripts\ci_test_job.bat
+  test_job:
+    name: Unit Tests
+    needs: build_debug
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-debug-results
+          path: build-out
+
+      - name: Run executable
+        run: .\build-out\engine_tests.exe
