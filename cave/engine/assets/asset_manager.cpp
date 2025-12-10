@@ -21,7 +21,7 @@
 
 #include "modules/tinygltf/tiny_gltf_importer.h"
 
-#if USING(PLATFORM_WINDOWS) && defined(BUILD_ASSIMP)
+#if USING(PLATFORM_WINDOWS) && defined(CAVE_BUILD_ASSIMP)
 #define USE_IMPORTER_ASSIMP IN_USE
 #else
 #define USE_IMPORTER_ASSIMP NOT_IN_USE
