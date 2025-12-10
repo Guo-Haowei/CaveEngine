@@ -62,4 +62,4 @@ jobs:
           path: build-out
 
       - name: Run executable
-        run: .\build-out\engine.tests.exe
+        run: .\build-out\engine_tests.exe
