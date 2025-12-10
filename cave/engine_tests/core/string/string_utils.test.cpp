@@ -244,9 +244,9 @@ TEST(remove_extension, extension_found) {
     EXPECT_EQ(file, "abc");
 }
 
-TEST(remove_extension, extension_not_found) {
-    auto file = StringUtils::RemoveExtension("abc.c");
-    EXPECT_EQ(file, "");
+TEST(remove_extension, no_extension) {
+    auto file = StringUtils::RemoveExtension("abc");
+    EXPECT_EQ(file, "abc");
 }
 
 }  // namespace cave::string_utils
