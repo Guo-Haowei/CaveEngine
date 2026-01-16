@@ -36,7 +36,7 @@ entities:
       material_id: 00000000-0000-0000-0000000000000000
   - id: 3
     NameComponent:
-      name: WB1
+      name: white_bishop_01
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
