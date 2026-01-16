@@ -1,7 +1,7 @@
 type: mesh
 guid: 80B0EAC1-0D35-F94C-A8D301CC3AB0FB8C
-name: King.002
-import_path: "@res://models/king/King.002.mesh"
+name: king
+import_path: "@res://models/king.mesh"
 dependencies: []
 source_created_time: ""
 source_last_modified: ""
