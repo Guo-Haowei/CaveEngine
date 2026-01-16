@@ -6,4 +6,5 @@ dependencies: []
 source_created_time: ""
 source_last_modified: ""
 import_settings:
-  {}
+  color_space: srgb
+  sampler: linear

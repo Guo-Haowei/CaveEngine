@@ -1,11 +1,11 @@
 version: 19
-seed: 23
+seed: 26
 root: 1
 physics_mode: 0
 entities:
   - id: 1
     NameComponent:
-      name: root
+      name: world
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -258,3 +258,37 @@ entities:
       roughness: 1
       emissive: 0
       material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
+  - id: 24
+    NameComponent:
+      name: black_bishop_01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 2.11193395]
+      rotation: [0, 0, 0, 1]
+      scale: [10, 10, 10]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: B27A2079-81CA-1C4E-BFFB846060FC62AD
+      materials: [26]
+      skeleton_id: 0
+  - id: 25
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: C779E33D-C328-F94C-A97296D6897B7F7D
+  - id: 26
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: C779E33D-C328-F94C-A97296D6897B7F7D

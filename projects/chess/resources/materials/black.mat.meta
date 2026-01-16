@@ -6,4 +6,5 @@ dependencies: [BB6563BC-6F95-E440-9D5CD38C3068F183]
 source_created_time: ""
 source_last_modified: ""
 import_settings:
-  {}
+  color_space: linear
+  sampler: linear
