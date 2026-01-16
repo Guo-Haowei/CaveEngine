@@ -52,7 +52,12 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
     }
 
     // copy image to dest
-    fs::copy_file(p_sys_path, image_path);
+    std::error_code err;
+    const bool ok = fs::copy_file(p_sys_path, image_path, std::filesystem::copy_options::overwrite_existing, err);
+    if (!ok) {
+        return CAVE_ERROR(ErrorCode::FAILURE, "Failed to copy file from {} to {}", p_sys_path.string(), image_path.string());
+    }
+
 
     auto _meta = AssetMetaData::CreateMeta(virtual_path);
     if (_meta.is_none()) {

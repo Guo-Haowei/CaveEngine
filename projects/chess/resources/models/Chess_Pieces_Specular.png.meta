@@ -1,0 +1,9 @@
+type: image
+guid: 34D9B0B0-6FD6-8945-8BA1CAA3018013B2
+name: ""
+import_path: "@res://models/Chess_Pieces_Specular.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

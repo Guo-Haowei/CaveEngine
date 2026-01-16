@@ -102,6 +102,7 @@ auto AssetManager::InitializeImpl() -> Result<void> {
 
 #if USING(USE_IMPORTER_TINYGLTF)
     AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
+    AssetImporter::RegisterImporter(".glb", TinyGltfImporter::CreateImporter);
 #endif
 
 #if USING(USE_IMPORTER_ASSIMP)

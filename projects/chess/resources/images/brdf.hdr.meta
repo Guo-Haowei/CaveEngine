@@ -1,0 +1,9 @@
+type: image
+guid: 30BAAC9B-7587-2D46-BC1AED69B5367EB8
+name: ""
+import_path: "@res://images/brdf.hdr"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

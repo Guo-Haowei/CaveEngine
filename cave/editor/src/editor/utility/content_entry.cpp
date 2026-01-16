@@ -141,8 +141,9 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
     if (ImGui::BeginMenu("Import")) {
         if (ImGui::MenuItem("Scene")) {
             std::vector<const char*> filter = {
-                ".obj",
                 ".gltf",
+                ".glb",
+                ".obj",
                 ".fbx",
             };
 
