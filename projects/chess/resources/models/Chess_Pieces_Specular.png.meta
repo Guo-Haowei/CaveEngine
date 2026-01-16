@@ -3,7 +3,8 @@ guid: 34D9B0B0-6FD6-8945-8BA1CAA3018013B2
 name: ""
 import_path: "@res://models/Chess_Pieces_Specular.png"
 dependencies: []
-source_created_time: ""
-source_last_modified: ""
+source_created_time: 2026-01-16 13:17:10.9338655
+source_last_modified: 2026-01-16 09:03:44.9071254
 import_settings:
-  {}
+  color_space: linear
+  sampler: linear

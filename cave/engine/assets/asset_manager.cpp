@@ -78,8 +78,11 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
             return std::make_shared<MaterialAsset>();
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
-        case AssetType::Scene:
-            return std::make_shared<Scene>();
+        case AssetType::Scene: {
+            auto scene = std::make_shared<Scene>();
+            //scene->CreateEmpty();
+            return scene;
+        }
         default:
             return nullptr;
     }

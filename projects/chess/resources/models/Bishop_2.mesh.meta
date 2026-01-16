@@ -1,9 +1,0 @@
-type: mesh
-guid: B27A2079-81CA-1C4E-BFFB846060FC62AD
-name: Bishop_2
-import_path: "@res://models/bishop/Bishop_2.mesh"
-dependencies: []
-source_created_time: ""
-source_last_modified: ""
-import_settings:
-  {}
