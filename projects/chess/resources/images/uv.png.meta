@@ -4,7 +4,7 @@ name: ""
 import_path: "@res://images/uv.png"
 dependencies: []
 source_created_time: 2026-01-16 13:17:10.9321439
-source_last_modified: 2025-07-26 09:28:26.5224027
+source_last_modified: 2026-01-16 13:54:40.7826807
 import_settings:
-  color_space: linear
+  color_space: srgb
   sampler: linear

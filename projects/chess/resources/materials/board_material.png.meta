@@ -1,0 +1,10 @@
+type: image
+guid: B8C89EE6-D3EA-7746-8C55B08EE16A711C
+name: ""
+import_path: "@res://materials/board_material.png"
+dependencies: []
+source_created_time: 2026-01-16 17:37:54.3971496
+source_last_modified: 2026-01-16 07:39:08.6032657
+import_settings:
+  color_space: linear
+  sampler: linear

@@ -1,0 +1,10 @@
+type: image
+guid: A680F1DE-9534-F34A-83A8F8F555D84669
+name: ""
+import_path: "@res://materials/board_base_color.png"
+dependencies: []
+source_created_time: 2026-01-16 17:37:54.3946444
+source_last_modified: 2026-01-16 07:39:08.6532200
+import_settings:
+  color_space: linear
+  sampler: linear

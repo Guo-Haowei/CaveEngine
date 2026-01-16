@@ -10,6 +10,7 @@
 #include "engine/reflection/meta_editor.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/scene/entity_factory.h"
 
 #include "editor/editor_command.h"
 #include "editor/editor_layer.h"
@@ -373,6 +374,14 @@ void PropertyPanel::UpdateInternal() {
     MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
     DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
         DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
+
+        auto& materials = p_mesh_renderer.GetMaterialInstances();
+        if (ImGui::Button("+")) {
+            auto name = std::format("mat_{}", materials.size());
+            auto mat_id = EntityFactory::CreateNameEntity(scene, name);
+            scene.Create<MaterialComponent>(mat_id);
+            p_mesh_renderer.AddMaterial(mat_id);
+        }
 
         for (ecs::Entity id : p_mesh_renderer.GetMaterialInstances()) {
             if (MaterialComponent* material = scene.GetComponent<MaterialComponent>(id); material) {

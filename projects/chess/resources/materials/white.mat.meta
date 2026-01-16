@@ -1,0 +1,9 @@
+type: mat
+guid: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
+name: white
+import_path: "@res://materials/white.mat"
+dependencies: [3E17A281-DBDC-D447-A2D07EF241C6CE49]
+source_created_time: 2026-01-16 16:06:24.3478215
+source_last_modified: 2026-01-16 17:44:38.4312464
+import_settings:
+  {}
