@@ -1,0 +1,52 @@
+version: 19
+seed: 3
+root: 1
+physics_mode: 0
+entities:
+  - id: 1
+    NameComponent:
+      name: root
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 2
+    NameComponent:
+      name: InfiniteLight-1
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    LightComponent:
+      type: infinite
+      atten_constant: 1
+      atten_linear: 0
+      atten_quadratic: 0
+      shadow_region:
+        min: [.inf, .inf, .inf]
+        max: [-.inf, -.inf, -.inf]
+      cast_shadow: false
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 5
+      material_id: 00000000-0000-0000-0000000000000000
+  - id: 3
+    NameComponent:
+      name: white_bishop_01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [10, 10, 10]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: B27A2079-81CA-1C4E-BFFB846060FC62AD
+      materials: []
+      skeleton_id: 0

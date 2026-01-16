@@ -933,6 +933,7 @@ void RenderGraphBuilderExt::AddGenerateSkylightPass() {
 
         auto& pass = AddPass(RG_PASS_BAKE_SKYBOX);
         pass.Import(RG_RES_IBL, []() {
+                // @TODO: fix this
                 auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/sky.hdr");
                 auto image = handle.unwrap().Wait();
                 return GraphicsManager::GetSingleton().CreateTexture(image.get());

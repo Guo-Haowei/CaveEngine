@@ -1,0 +1,9 @@
+type: mesh
+guid: 06139F3F-F634-7E45-BC12D11CD1A05F00
+name: rook
+import_path: "@res://models/rook.mesh"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

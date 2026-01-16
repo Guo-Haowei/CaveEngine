@@ -1,0 +1,9 @@
+type: mesh
+guid: 61ED0337-FA7C-734E-B64E5811F2FEF67F
+name: knight
+import_path: "@res://models/knight.mesh"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

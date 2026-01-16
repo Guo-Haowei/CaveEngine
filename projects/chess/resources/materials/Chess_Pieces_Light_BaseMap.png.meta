@@ -1,0 +1,9 @@
+type: image
+guid: 70C117EF-A4CA-4744-B3E35F84F7F564C3
+name: ""
+import_path: "@res://materials/Chess_Pieces_Light_BaseMap.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

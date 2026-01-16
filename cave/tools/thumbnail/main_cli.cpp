@@ -66,7 +66,11 @@ public:
 
             std::string path = std::format("@res://_cache/{}@{}x{}.png", entry.GetGuid().ToString(), m_dim, m_dim);
             path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, path);
-            stbi_write_png(path.c_str(), m_dim, m_dim, 4, color.data(), m_dim * sizeof(Color));
+            if (!stbi_write_png(path.c_str(), m_dim, m_dim, 4, color.data(), m_dim * sizeof(Color))) {
+                LOG_ERROR("Failed to write png '{}'.", path);
+            } else {
+                LOG_OK("Successfully wrote png '{}'.", path);
+            }
         }
 
         auto sphere = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/sphere").unwrap().Get();
@@ -91,7 +95,11 @@ public:
             std::vector<Color> color = thumbnail::Convert(m_render_target.m_colorBuffer.m_buffer);
             std::string path = std::format("@res://_cache/{}@{}x{}.png", entry.GetGuid().ToString(), m_dim, m_dim);
             path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, path);
-            stbi_write_png(path.c_str(), m_dim, m_dim, 4, color.data(), m_dim * sizeof(Color));
+            if (!stbi_write_png(path.c_str(), m_dim, m_dim, 4, color.data(), m_dim * sizeof(Color))) {
+                LOG_ERROR("Failed to write png '{}'.", path);
+            } else {
+                LOG_OK("Successfully wrote png '{}'.", path);
+            }
         }
 
         return Result<void>();

@@ -78,8 +78,11 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
             return std::make_shared<MaterialAsset>();
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
-        case AssetType::Scene:
-            return std::make_shared<Scene>();
+        case AssetType::Scene: {
+            auto scene = std::make_shared<Scene>();
+            //scene->CreateEmpty();
+            return scene;
+        }
         default:
             return nullptr;
     }
@@ -102,6 +105,7 @@ auto AssetManager::InitializeImpl() -> Result<void> {
 
 #if USING(USE_IMPORTER_TINYGLTF)
     AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
+    AssetImporter::RegisterImporter(".glb", TinyGltfImporter::CreateImporter);
 #endif
 
 #if USING(USE_IMPORTER_ASSIMP)

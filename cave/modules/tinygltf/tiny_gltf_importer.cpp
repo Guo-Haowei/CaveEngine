@@ -4,6 +4,7 @@
 
 #include "engine/assets/material_asset.h"
 #include "engine/assets/mesh_asset.h"
+#include "engine/core/string/string_utils.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
@@ -65,7 +66,17 @@ Result<void> TinyGltfImporter::Import() {
     std::string source_path = m_source_path.string();
     loader.SetImageLoader(tinygltf::DummyLoadImage, nullptr);
     loader.SetImageWriter(tinygltf::DummyWriteImage, nullptr);
-    bool ret = loader.LoadASCIIFromFile(m_model.get(), &err, &warn, source_path);
+
+    std::string_view extension = StringUtils::Extension(source_path);
+
+    bool ret = false;
+    if (extension == ".gltf") {
+        ret = loader.LoadASCIIFromFile(m_model.get(), &err, &warn, source_path);
+    } else if (extension == ".glb") {
+        ret = loader.LoadBinaryFromFile(m_model.get(), &err, &warn, source_path);
+    } else {
+        return CAVE_ERROR(ErrorCode::FAILURE, "Error: unable to load format '{}'", extension);
+    }
 
     if (!warn.empty()) {
         return CAVE_ERROR(ErrorCode::FAILURE, "Warn: failed to import scene '{}'\n\tdetails: {}", source_path, warn);
@@ -182,8 +193,10 @@ Guid TinyGltfImporter::ProcessMaterial(const tinygltf::Material& p_material) {
         int img_source = tex.source;
         auto& img = m_model->images[img_source];
         const std::string path = m_base_path + img.uri;
-        Guid guid = RegisterImage(path, true).value();
-        material_asset->textures[std::to_underlying(TextureSlot::Base)] = guid;
+        auto guid = RegisterImage(path, true);
+        if (guid.has_value()) {
+            material_asset->textures[std::to_underlying(TextureSlot::Base)] = *guid;
+        }
     }
 
     if (normal_tex != x.additionalValues.end()) {
@@ -191,8 +204,10 @@ Guid TinyGltfImporter::ProcessMaterial(const tinygltf::Material& p_material) {
         int img_source = tex.source;
         auto& img = m_model->images[img_source];
         const std::string path = m_base_path + img.uri;
-        Guid guid = RegisterImage(path, false).value();
-        material_asset->textures[std::to_underlying(TextureSlot::Normal)] = guid;
+        auto guid = RegisterImage(path, false);
+        if (guid.has_value()) {
+            material_asset->textures[std::to_underlying(TextureSlot::Normal)] = *guid;
+        }
     }
 
     if (metallic_roughness_tex != x.values.end()) {
@@ -200,8 +215,10 @@ Guid TinyGltfImporter::ProcessMaterial(const tinygltf::Material& p_material) {
         int img_source = tex.source;
         auto& img = m_model->images[img_source];
         const std::string path = m_base_path + img.uri;
-        Guid guid = RegisterImage(path, false).value();
-        material_asset->textures[std::to_underlying(TextureSlot::MetallicRoughness)] = guid;
+        auto guid = RegisterImage(path, false);
+        if (guid.has_value()) {
+            material_asset->textures[std::to_underlying(TextureSlot::MetallicRoughness)] = *guid;
+        }
     }
 
     return RegisterMaterial(std::move(name), std::move(material_asset)).value();
