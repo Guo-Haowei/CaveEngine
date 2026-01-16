@@ -1,9 +1,0 @@
-type: scene
-guid: F39B030D-4541-4449-9A19B0E56FADD13F
-name: game
-import_path: "@res://images/game.scene"
-dependencies: [B27A2079-81CA-1C4E-BFFB846060FC62AD]
-source_created_time: 2026-01-16 13:11:54.6500014
-source_last_modified: 2026-01-16 13:18:38.9674711
-import_settings:
-  {}

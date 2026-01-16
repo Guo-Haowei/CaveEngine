@@ -1,5 +1,5 @@
 version: 19
-seed: 3
+seed: 4
 root: 1
 physics_mode: 0
 entities:
@@ -48,5 +48,14 @@ entities:
       cast_shadow: true
       transparency: false
       mesh_id: B27A2079-81CA-1C4E-BFFB846060FC62AD
-      materials: []
+      materials: [4]
       skeleton_id: 0
+  - id: 4
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF

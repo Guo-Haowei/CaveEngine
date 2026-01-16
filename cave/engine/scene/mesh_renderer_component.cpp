@@ -16,7 +16,7 @@ bool MeshRendererComponent::SetResourceGuid(const Guid& p_guid) {
                                              m_mesh_handle.RawHandle());
 }
 
-void MeshRendererComponent::AddMaterial(ecs::Entity& p_material) {
+void MeshRendererComponent::AddMaterial(ecs::Entity p_material) {
     m_materials.push_back(p_material);
 }
 

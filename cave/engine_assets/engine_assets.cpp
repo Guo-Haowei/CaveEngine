@@ -64,9 +64,6 @@ static void RegisterPersistentImages(Application* p_app) {
     }
 }
 
-static void RegisterPersistentMaterials(Application*) {
-}
-
 static void RegisterPersistentMeshes(Application* p_app) {
     auto& asset_registry = *p_app->GetAssetRegistry();
     auto& graphics_manager = *p_app->GetGraphicsManager();
@@ -112,6 +109,13 @@ static void RegisterPersistentMeshes(Application* p_app) {
                                                mesh);
         graphics_manager.RequestMesh(mesh.get());
     }
+}
+
+static void RegisterPersistentMaterials(Application* p_app) {
+    auto& asset_registry = *p_app->GetAssetRegistry();
+    auto material = std::make_shared<MaterialAsset>();
+    material->base_color = Vector4f(1.0f, 0.0f, 1.0f, 1.0f);
+    asset_registry.RegisterPersistentAsset("materials/default", TO_GUID(GUID10), material);
 }
 
 void RegisterAllPersistentAssets(Application* p_app) {
