@@ -1,5 +1,5 @@
 version: 19
-seed: 26
+seed: 31
 root: 1
 physics_mode: 0
 entities:
@@ -17,8 +17,8 @@ entities:
       parent_id: 1
     TransformComponent:
       translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
+      rotation: [-0.380671948, -0.244994596, 0.10533119, 0.885421872]
+      scale: [0.999999881, 0.999999881, 1]
     LightComponent:
       type: infinite
       atten_constant: 1
@@ -27,7 +27,7 @@ entities:
       shadow_region:
         min: [.inf, .inf, .inf]
         max: [-.inf, -.inf, -.inf]
-      cast_shadow: false
+      cast_shadow: true
     MaterialComponent:
       base_color: [1, 1, 1, 1]
       metallic: 0
@@ -40,9 +40,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
+      translation: [-3.5, 0, -1.5]
       rotation: [0, 0, 0, 1]
-      scale: [10, 10, 10]
+      scale: [9, 9, 9]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -65,9 +65,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [1.8657521, 0, 0]
+      translation: [-3.5, 0, 1.5]
       rotation: [0, 0, 0, 1]
-      scale: [10, 10, 10]
+      scale: [9, 9, 9]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -90,9 +90,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-1.59224677, 0, 0]
+      translation: [-3.5, 0, 0.5]
       rotation: [0, 0, 0, 1]
-      scale: [10, 10, 10]
+      scale: [9, 9, 9]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -115,9 +115,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [3.43937159, 0, 0]
+      translation: [-3.5, 0, -2.5]
       rotation: [0, 0, 0, 1]
-      scale: [10, 10, 10]
+      scale: [9, 9, 9]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -131,9 +131,9 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [4.54967403, 0, 0]
+      translation: [-3.5, 0, 2.5]
       rotation: [0, 0, 0, 1]
-      scale: [10, 10, 10]
+      scale: [9, 9, 9]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -228,27 +228,48 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
+      translation: [-3.5, 0, -0.5]
       rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
+      scale: [9, 9, 9]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: C6ADB600-4501-AD41-A394C80CECF893E4
+      materials: [29]
+      skeleton_id: 0
   - id: 21
     NameComponent:
       name: white_rook_01
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
+      translation: [-3.5, 0, -3.5]
       rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
+      scale: [9, 9, 9]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 06139F3F-F634-7E45-BC12D11CD1A05F00
+      materials: [30]
+      skeleton_id: 0
   - id: 22
     NameComponent:
       name: white_rook_02
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 0]
+      translation: [-3.5, 0, 3.5]
       rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
+      scale: [9, 9, 9]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 06139F3F-F634-7E45-BC12D11CD1A05F00
+      materials: [31]
+      skeleton_id: 0
   - id: 23
     NameComponent:
       name: mat_0
@@ -264,7 +285,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 2.11193395]
+      translation: [2.85074663, 0, -1.63709784]
       rotation: [0, 0, 0, 1]
       scale: [10, 10, 10]
     MeshRendererComponent:
@@ -292,3 +313,55 @@ entities:
       roughness: 1
       emissive: 0
       material_id: C779E33D-C328-F94C-A97296D6897B7F7D
+  - id: 27
+    NameComponent:
+      name: board
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [7.83999968, 7.83999968, 7.83999968]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 6E2C66A5-5D0B-944A-87F91E968231C94A
+      materials: [28]
+      skeleton_id: 0
+  - id: 28
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 8B43351D-333B-9A4D-8BAAB542CF234B1E
+  - id: 29
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
+  - id: 30
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
+  - id: 31
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF

@@ -3,8 +3,8 @@ guid: BB6563BC-6F95-E440-9D5CD38C3068F183
 name: ""
 import_path: "@res://materials/black.png"
 dependencies: []
-source_created_time: ""
-source_last_modified: ""
+source_created_time: 2026-01-16 17:37:54.3918865
+source_last_modified: 2026-01-16 07:39:17.9306947
 import_settings:
   color_space: srgb
   sampler: linear

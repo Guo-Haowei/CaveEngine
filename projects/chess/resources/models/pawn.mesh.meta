@@ -3,7 +3,7 @@ guid: 7E03F077-F485-304C-93C86FD16C68042E
 name: pawn
 import_path: "@res://models/pawn.mesh"
 dependencies: []
-source_created_time: ""
-source_last_modified: ""
+source_created_time: 2026-01-16 17:37:54.3834244
+source_last_modified: 2026-01-16 13:54:40.7902762
 import_settings:
   {}
