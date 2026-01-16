@@ -1,5 +1,5 @@
 version: 19
-seed: 8
+seed: 23
 root: 1
 physics_mode: 0
 entities:
@@ -12,7 +12,7 @@ entities:
       scale: [1, 1, 1]
   - id: 2
     NameComponent:
-      name: InfiniteLight-1
+      name: light
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
@@ -101,6 +101,155 @@ entities:
       materials: [8]
       skeleton_id: 0
   - id: 8
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
+  - id: 9
+    NameComponent:
+      name: white_knight_01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [3.43937159, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [10, 10, 10]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 61ED0337-FA7C-734E-B64E5811F2FEF67F
+      materials: [11]
+      skeleton_id: 0
+  - id: 10
+    NameComponent:
+      name: white_knight_02
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [4.54967403, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [10, 10, 10]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 61ED0337-FA7C-734E-B64E5811F2FEF67F
+      materials: [23]
+      skeleton_id: 0
+  - id: 11
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
+  - id: 12
+    NameComponent:
+      name: white_pawn_01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 13
+    NameComponent:
+      name: white_pawn_02
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 14
+    NameComponent:
+      name: white_pawn_03
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 15
+    NameComponent:
+      name: white_pawn_04
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 16
+    NameComponent:
+      name: white_pawn_05
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 17
+    NameComponent:
+      name: white_pawn_06
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 18
+    NameComponent:
+      name: white_pawn_07
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 19
+    NameComponent:
+      name: white_pawn_08
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 20
+    NameComponent:
+      name: white_queen
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 21
+    NameComponent:
+      name: white_rook_01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 22
+    NameComponent:
+      name: white_rook_02
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 23
     NameComponent:
       name: mat_0
     MaterialComponent:

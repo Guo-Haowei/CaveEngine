@@ -1,0 +1,9 @@
+type: mat
+guid: C779E33D-C328-F94C-A97296D6897B7F7D
+name: "black"
+import_path: "@res://materials/black.mat"
+dependencies: [BB6563BC-6F95-E440-9D5CD38C3068F183]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}
