@@ -1,0 +1,9 @@
+type: mesh
+guid: C6ADB600-4501-AD41-A394C80CECF893E4
+name: Queen.002
+import_path: "@res://models/queen/Queen.002.mesh"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

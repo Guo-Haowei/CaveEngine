@@ -1,0 +1,9 @@
+type: mesh
+guid: 7E03F077-F485-304C-93C86FD16C68042E
+name: Pawn.002
+import_path: "@res://models/pawn/Pawn.002.mesh"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

@@ -1,0 +1,9 @@
+type: mesh
+guid: 06139F3F-F634-7E45-BC12D11CD1A05F00
+name: Tower_2.001
+import_path: "@res://models/rook/Tower_2.001.mesh"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}
