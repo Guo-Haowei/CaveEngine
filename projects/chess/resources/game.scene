@@ -1,5 +1,5 @@
 version: 19
-seed: 4
+seed: 8
 root: 1
 physics_mode: 0
 entities:
@@ -51,6 +51,56 @@ entities:
       materials: [4]
       skeleton_id: 0
   - id: 4
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
+  - id: 5
+    NameComponent:
+      name: white_bishop_02
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [1.8657521, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [10, 10, 10]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: B27A2079-81CA-1C4E-BFFB846060FC62AD
+      materials: [6]
+      skeleton_id: 0
+  - id: 6
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
+  - id: 7
+    NameComponent:
+      name: white_king
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [-1.59224677, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [10, 10, 10]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 80B0EAC1-0D35-F94C-A8D301CC3AB0FB8C
+      materials: [8]
+      skeleton_id: 0
+  - id: 8
     NameComponent:
       name: mat_0
     MaterialComponent:
