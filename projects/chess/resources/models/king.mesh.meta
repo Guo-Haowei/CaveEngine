@@ -4,6 +4,6 @@ name: king
 import_path: "@res://models/king.mesh"
 dependencies: []
 source_created_time: 2026-01-16 17:37:54.4048337
-source_last_modified: 2026-01-16 13:54:40.7902762
+source_last_modified: 2026-01-16 17:44:38.4446352
 import_settings:
   {}

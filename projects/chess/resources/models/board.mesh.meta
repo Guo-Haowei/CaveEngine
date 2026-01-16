@@ -4,6 +4,6 @@ name: board
 import_path: "@res://models/board.mesh"
 dependencies: []
 source_created_time: 2026-01-16 17:37:54.3933831
-source_last_modified: 2026-01-16 17:31:02.6270016
+source_last_modified: 2026-01-16 17:44:38.4333103
 import_settings:
   {}

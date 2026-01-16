@@ -4,6 +4,6 @@ name: queen
 import_path: "@res://models/queen.mesh"
 dependencies: []
 source_created_time: 2026-01-16 17:37:54.4087274
-source_last_modified: 2026-01-16 13:54:40.7902762
+source_last_modified: 2026-01-16 17:44:38.4481741
 import_settings:
   {}

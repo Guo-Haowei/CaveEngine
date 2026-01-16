@@ -4,6 +4,6 @@ name: bishop
 import_path: "@res://models/bishop.mesh"
 dependencies: []
 source_created_time: 2026-01-16 13:17:10.9274965
-source_last_modified: 2026-01-16 13:54:40.7902762
+source_last_modified: 2026-01-16 17:44:38.4250347
 import_settings:
   {}

@@ -4,7 +4,7 @@ name: black
 import_path: "@res://materials/black.mat"
 dependencies: [BB6563BC-6F95-E440-9D5CD38C3068F183]
 source_created_time: 2026-01-16 17:37:54.3743654
-source_last_modified: 2026-01-16 16:48:08.3222398
+source_last_modified: 2026-01-16 17:44:38.4420280
 import_settings:
   color_space: linear
   sampler: linear
