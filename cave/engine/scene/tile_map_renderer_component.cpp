@@ -35,6 +35,8 @@ void TileMapRendererComponent::CreateRenderData() {
         return;
     }
 
+    m_is_visible = tile_map->IsVisible();
+
     // @TODO: update guid
     if (m_cache.tile_set_handle.GetGuid() == Guid::Null()) {
         auto tile_set_handle = AssetRegistry::GetSingleton().FindByGuid<TileSetAsset>(tile_map->GetTileSetGuid());
@@ -70,10 +72,9 @@ void TileMapRendererComponent::CreateRenderData() {
 
     const auto& chunks = tile_map->GetTiles().chunks;
     if (chunks.empty()) {
-        m_visibility = false;
+        m_is_visible = false;
         return;
     }
-    m_visibility = tile_map->IsVisible();
 
     const auto& frames = tile_set->GetFrames();
 
