@@ -1,5 +1,5 @@
 version: 19
-seed: 69
+seed: 73
 root: 1
 physics_mode: 0
 entities:
@@ -656,7 +656,7 @@ entities:
     TransformComponent:
       translation: [0, -0.120999999, 0]
       rotation: [0, 0, 0, 1]
-      scale: [7.7699995, 7.7699995, 7.7699995]
+      scale: [7.76999998, 7.7699995, 7.7699976]
     MeshRendererComponent:
       is_visible: true
       cast_shadow: true
@@ -871,3 +871,37 @@ entities:
       roughness: 1
       emissive: 0
       material_id: C779E33D-C328-F94C-A97296D6897B7F7D
+  - id: 70
+    NameComponent:
+      name: cursor
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 72
+    NameComponent:
+      name: highlight
+    HierarchyComponent:
+      parent_id: 70
+    TransformComponent:
+      translation: [-3.5, 0.0299999993, -3.5]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 0.0500000007, 1]
+    MeshRendererComponent:
+      is_visible: true
+      cast_shadow: true
+      transparency: true
+      mesh_id: 00000000-0000-0000-0000000000000005
+      materials: [73]
+      skeleton_id: 0
+  - id: 73
+    NameComponent:
+      name: Cube-3:mat
+    MaterialComponent:
+      base_color: [1, 0, 0, 0.941176474]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 00000000-0000-0000-0000000000000000
