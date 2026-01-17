@@ -15,7 +15,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         tile_map_renderer.CreateRenderData();
 
         const auto& cache = tile_map_renderer.GetCache();
-        if (!tile_map_renderer.GetVisibility()) {
+        if (!tile_map_renderer.IsVisible()) {
             continue;
         }
 

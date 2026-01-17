@@ -27,7 +27,7 @@ private:
     };
 
     // Non serialize
-    bool m_visibility;
+    bool m_is_visible;
     Handle<TileMapAsset> m_handle;
     Cache m_cache;
     uint32_t m_revision{ 0 };
@@ -36,7 +36,7 @@ public:
     // @TODO: better way to create data
     void CreateRenderData();
 
-    bool GetVisibility() const { return m_visibility; }
+    bool IsVisible() const { return m_is_visible; }
     const auto& GetCache() const { return m_cache; }
 
     bool SetResourceGuid(const Guid& p_guid);

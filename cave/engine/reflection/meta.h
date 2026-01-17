@@ -36,7 +36,6 @@ enum class EditorHint {
     EnumDropDown,
     Asset,
     Toggle,
-    Visibility,
     InputInt,
     InputFloat,
     DragFloat,

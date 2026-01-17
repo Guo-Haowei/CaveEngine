@@ -9,8 +9,8 @@ class MeshRendererComponent {
     CAVE_META(MeshRendererComponent)
 
 private:
-    CAVE_PROP(editor = Visibility)
-    bool m_is_visible = true;
+    CAVE_PROP(editor = Toggle)
+    bool m_visibility = true;
 
     CAVE_PROP(editor = Toggle)
     bool m_cast_shadow = true;
@@ -46,8 +46,8 @@ public:
     ecs::Entity GetSkeletonId() const { return m_skeleton_id; }
     void SetSkeletonId(ecs::Entity p_id) { m_skeleton_id = p_id; }
 
-    void SetVisible(bool p_value = true) { m_is_visible = p_value; }
-    bool IsVisible() const { return m_is_visible; }
+    void SetVisible(bool p_value = true) { m_visibility = p_value; }
+    bool IsVisible() const { return m_visibility; }
 
     void SetCastShadow(bool p_value = true) { m_cast_shadow = p_value; }
     bool CastShadow() const { return m_cast_shadow; }

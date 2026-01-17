@@ -11,10 +11,6 @@ namespace cave {
 
 static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
-    const bool nothing_to_draw = p_ctx.frameData.tile_maps.empty() && p_ctx.frameData.sprites.empty();
-    if (nothing_to_draw) {
-        return;
-    }
 
     auto& cmd = p_ctx.cmd;
     Framebuffer* fb = p_ctx.framebuffer;
@@ -25,6 +21,11 @@ static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetViewport(Viewport(width, height));
     float clear_color[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     cmd.Clear(fb, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, clear_color, 0.0f);
+
+    const bool nothing_to_draw = p_ctx.frameData.tile_maps.empty() && p_ctx.frameData.sprites.empty();
+    if (nothing_to_draw) {
+        return;
+    }
 
     auto& frame = cmd.GetCurrentFrame();
     const PassContext& pass = p_ctx.frameData.mainPass;
