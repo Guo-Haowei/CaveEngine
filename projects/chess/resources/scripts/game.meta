@@ -1,0 +1,9 @@
+type: blob
+guid: FC13D490-BC12-814F-8BC5EC11F9C401F6
+name: "game"
+import_path: "@res://scripts/game.lua"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

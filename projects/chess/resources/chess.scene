@@ -10,6 +10,9 @@ entities:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
+    LuaScriptComponent:
+      class_name: Game
+      source_id: 4F81F684-0A03-CA4B-846FE39F40F0B5B3
   - id: 2
     NameComponent:
       name: light
@@ -651,7 +654,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, -0.150000006, 0]
+      translation: [0, -0.120999999, 0]
       rotation: [0, 0, 0, 1]
       scale: [7.7699995, 7.7699995, 7.7699995]
     MeshRendererComponent:
