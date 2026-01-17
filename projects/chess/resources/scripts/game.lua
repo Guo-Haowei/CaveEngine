@@ -56,46 +56,57 @@ function Game.new(id)
     local self = GameObject.new(id)
     setmetatable(self, Game)
 
-    -- data
-    self.pieces = {}
     self.board = Board.new()
 
-    -- @TODO: get all pieces
-    local wp1 = g_scene:find_entity_by_name("white_pawn_01")
-
-    local arr = {}
-    for i = 1, 8 do
-        local pawn_name = "white_pawn_0" .. i
-        local pawn_id = g_scene:find_entity_by_name(pawn_name)
-        arr[#arr + 1] = pawn_id
-    end
-    self.pieces[WP] = arr
-
-    print(self.pieces[WP])
-
-    Engine.log_ok('hello from wp1' .. tostring(wp1))
-    self:render()
     return self
 end
 
 function Game:render()
+    -- collect all pieces
+    local pieces = {}
+
+    local function add_piece(piece_type, name, count)
+        local arr = {}
+        for i = 1, count do
+            local piece_name = name .. tostring(i)
+            local piece_entity = g_scene:find_entity_by_name(piece_name)
+            local renderer = g_scene:get_mesh_renderer(piece_entity)
+            renderer:set_visible(false)
+            arr[#arr + 1] = piece_entity
+        end
+        pieces[piece_type] = arr
+    end
+
+    add_piece(WP, "white_pawn_", 8)
+    add_piece(WN, "white_knight_", 2)
+    add_piece(WB, "white_bishop_", 2)
+    add_piece(WR, "white_rook_", 2)
+    add_piece(WQ, "white_queen_", 1)
+    add_piece(WK, "white_king_", 1)
+    add_piece(BP, "black_pawn_", 8)
+    add_piece(BN, "black_knight_", 2)
+    add_piece(BB, "black_bishop_", 2)
+    add_piece(BR, "black_rook_", 2)
+    add_piece(BQ, "black_queen_", 1)
+    add_piece(BK, "black_king_", 1)
+
     for rank = 1, 8 do
         for file = 1, 8 do
             local piece = self.board:get_piece(file, rank)
             if piece ~= EMPTY then
-                Engine.log_ok("piece at " .. file_rank_to_string(file, rank) .. " is " .. tostring(piece))
+                -- Engine.log_ok("piece at " .. file_rank_to_string(file, rank) .. " is " .. tostring(piece))
+                local pool = pieces[piece]
+                local piece_entity = pool[#pool]
+                pool[#pool] = nil -- remove from pool
+                local transform = g_scene:get_transform(piece_entity)
+                transform:set_translation(Vector3(file - 1, 0, rank - 1))
+                local renderer = g_scene:get_mesh_renderer(piece_entity)
+                renderer:set_visible(true)
             end
         end
     end
 end
 
 function Game:_process(timestep)
-    for i = 1, 8 do
-        local pawn_id = self.pieces[WP][i]
-        local transform = g_scene:get_transform(pawn_id)
-        local pos = transform:get_translation()
-        pos.y = pos.y + math.sin(0.01 * 3 + i) * 0.01
-        transform:set_translation(pos)
-    end
-    -- @TODO: move entities to desired positions
+    self:render()
 end

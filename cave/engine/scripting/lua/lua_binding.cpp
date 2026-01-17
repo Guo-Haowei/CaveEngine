@@ -220,10 +220,10 @@ bool OpenSceneLib(lua_State* L) {
 
     luabridge::getGlobalNamespace(L)
         .beginClass<MeshRendererComponent>("MeshRendererComponent")
-        .addProperty("is_visible", [](MeshRendererComponent* p_mesh_renderer) {
+        .addFunction("is_visible", [](MeshRendererComponent* p_mesh_renderer) {
             return p_mesh_renderer->IsVisible();
         })
-        .addProperty("set_visible", [](MeshRendererComponent* p_mesh_renderer, bool visible) {
+        .addFunction("set_visible", [](MeshRendererComponent* p_mesh_renderer, bool visible) {
             p_mesh_renderer->SetVisible(visible);
         })
         .endClass();
