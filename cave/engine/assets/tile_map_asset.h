@@ -58,8 +58,8 @@ private:
     CAVE_PROP(editor = Asset)
     Guid m_tile_set_id;
 
-    CAVE_PROP(editor = Visibility)
-    bool m_is_visible = true;
+    CAVE_PROP(editor = Toggle)
+    bool m_visibility = true;
 
     CAVE_PROP()
     TileData m_tiles;
@@ -89,8 +89,8 @@ public:
     uint32_t GetRevision() const { return m_revision; }
     void IncRevision() { ++m_revision; }
 
-    bool IsVisible() const { return m_is_visible; }
-    void SetVisible(bool p_visible) { m_is_visible = p_visible; }
+    bool IsVisible() const { return m_visibility; }
+    void SetVisible(bool p_visible) { m_visibility = p_visible; }
 
     Result<void> SaveToDisk(const AssetMetaData& p_meta) const override;
     Result<void> LoadFromDisk(const AssetMetaData& p_meta) override;
