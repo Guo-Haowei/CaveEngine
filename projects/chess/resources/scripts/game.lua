@@ -116,6 +116,7 @@ function Game:render()
             local piece_entity = g_scene:find_entity_by_name(piece_name)
             local renderer = g_scene:get_mesh_renderer(piece_entity)
             renderer:set_visible(false)
+            renderer:set_cast_shadows(false)
             arr[#arr + 1] = piece_entity
         end
         pieces[piece_type] = arr
@@ -149,6 +150,7 @@ function Game:render()
                 transform:set_translation(position)
                 local renderer = g_scene:get_mesh_renderer(piece_entity)
                 renderer:set_visible(true)
+                renderer:set_cast_shadows(true)
             end
         end
     end

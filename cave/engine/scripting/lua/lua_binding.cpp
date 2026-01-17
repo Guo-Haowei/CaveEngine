@@ -223,8 +223,14 @@ bool OpenSceneLib(lua_State* L) {
         .addFunction("is_visible", [](MeshRendererComponent* p_mesh_renderer) {
             return p_mesh_renderer->IsVisible();
         })
-        .addFunction("set_visible", [](MeshRendererComponent* p_mesh_renderer, bool visible) {
-            p_mesh_renderer->SetVisible(visible);
+        .addFunction("set_visible", [](MeshRendererComponent* p_mesh_renderer, bool p_visible) {
+            p_mesh_renderer->SetVisible(p_visible);
+        })
+        .addFunction("cast_shadow", [](MeshRendererComponent* p_mesh_renderer) {
+            return p_mesh_renderer->CastShadow();
+        })
+        .addFunction("set_cast_shadow", [](MeshRendererComponent* p_mesh_renderer, bool p_cast_shadow) {
+            p_mesh_renderer->SetCastShadow(p_cast_shadow);
         })
         .endClass();
 
