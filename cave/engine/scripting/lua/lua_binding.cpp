@@ -218,6 +218,16 @@ bool OpenSceneLib(lua_State* L) {
         .addProperty("linear", &VelocityComponent::linear)
         .endClass();
 
+    luabridge::getGlobalNamespace(L)
+        .beginClass<MeshRendererComponent>("MeshRendererComponent")
+        .addProperty("is_visible", [](MeshRendererComponent* p_mesh_renderer) {
+            return p_mesh_renderer->IsVisible();
+        })
+        .addProperty("set_visible", [](MeshRendererComponent* p_mesh_renderer, bool visible) {
+            p_mesh_renderer->SetVisible(visible);
+        })
+        .endClass();
+
 #if 0
     // RigidBodyComponent
     luabridge::getGlobalNamespace(L)
@@ -268,6 +278,9 @@ bool OpenSceneLib(lua_State* L) {
         })
         .addFunction("get_velocity", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<VelocityComponent>(ecs::Entity(p_entity));
+        })
+        .addFunction("get_mesh_renderer", [](Scene* p_scene, uint32_t p_entity) {
+            return p_scene->GetComponent<MeshRendererComponent>(ecs::Entity(p_entity));
         })
         .addFunction("get_camera", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<CameraComponent>(ecs::Entity(p_entity));
