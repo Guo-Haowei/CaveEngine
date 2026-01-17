@@ -1,45 +1,50 @@
 -- file: game.lua
 
-local EMPTY = 0
-local WP = 1
-local WN = 2
-local WB = 3
-local WR = 4
-local WQ = 5
-local WK = 6
-local BP = 7
-local BN = 8
-local BB = 9
-local BR = 10
-local BQ = 11
-local BK = 12
+local EMPTY = '.'
+local WP = 'P'
+local WN = 'N'
+local WB = 'B'
+local WR = 'R'
+local WQ = 'Q'
+local WK = 'K'
+local BP = 'p'
+local BN = 'n'
+local BB = 'b'
+local BR = 'r'
+local BQ = 'q'
+local BK = 'k'
 
 -- board
 local Board = {}
 Board.__index = Board
 
--- @TODO: set from FEN string
-function Board.new()
+local function file_rank_to_string(file, rank)
+    local file_char = string.char(string.byte('a') + file - 1)
+    return file_char .. tostring(rank)
+end
+
+function Board.new(FEN)
     local self = setmetatable({}, Board)
+    -- @TODO: set from FEN string
     self.grid = {
-        {WR, WN, WB, WQ, WK, WB, WN, WR},
-        {WP, WP, WP, WP, WP, WP, WP, WP},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {BP, BP, BP, BP, BP, BP, BP, BP},
-        {BR, BN, BB, BQ, BK, BB, BN, BR},
+        {WR, WN, WB, WQ, WK, WB, WN, WR}, -- rank 1
+        {WP, WP, WP, WP, WP, WP, WP, WP}, -- rank 2
+        {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}, -- rank 3
+        {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}, -- rank 4
+        {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}, -- rank 5
+        {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}, -- rank 6
+        {BP, BP, BP, BP, BP, BP, BP, BP}, -- rank 7
+        {BR, BN, BB, BQ, BK, BB, BN, BR}, -- rank 8
     }
     return self
 end
 
-function Board.get_piece(self, x, y)
-    if x < 1 or x > 8 or y < 1 or y > 8 then
+function Board.get_piece(self, file, rank)
+    if file < 1 or file > 8 or rank < 1 or rank > 8 then
         return nil
     end
 
-    return self.grid[y][x]
+    return self.grid[rank][file]
 end
 
 -- game
@@ -51,25 +56,37 @@ function Game.new(id)
     local self = GameObject.new(id)
     setmetatable(self, Game)
 
+    -- data
+    self.pieces = {}
+    self.board = Board.new()
+
     -- @TODO: get all pieces
     local wp1 = g_scene:find_entity_by_name("white_pawn_01")
 
-    self.pieces = {}
-    self.pieces[WP] = {}
+    local arr = {}
     for i = 1, 8 do
         local pawn_name = "white_pawn_0" .. i
         local pawn_id = g_scene:find_entity_by_name(pawn_name)
-        table.insert(self.pieces[WP], pawn_id)
+        arr[#arr + 1] = pawn_id
     end
+    self.pieces[WP] = arr
 
     print(self.pieces[WP])
 
     Engine.log_ok('hello from wp1' .. tostring(wp1))
-    -- self.velocity = g_scene:get_velocity(self.id)
-    -- self.transform = g_scene:get_transform(self.id)
-    -- self.animator_id = g_scene:find_entity_by_name("player_animator_node")
-    -- self.animator = g_scene:get_animator(self.animator_id)
+    self:render()
     return self
+end
+
+function Game:render()
+    for rank = 1, 8 do
+        for file = 1, 8 do
+            local piece = self.board:get_piece(file, rank)
+            if piece ~= EMPTY then
+                Engine.log_ok("piece at " .. file_rank_to_string(file, rank) .. " is " .. tostring(piece))
+            end
+        end
+    end
 end
 
 function Game:_process(timestep)
