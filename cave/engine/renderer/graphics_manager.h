@@ -48,7 +48,7 @@ public:
         : IGraphicsManager(p_name), m_backend(p_backend), m_frameCount(p_frame_count) {}
 
     auto InitializeImpl() -> Result<void> final;
-    void Update(Scene* p_scene) override;
+    void Update() override;
 
     // resource
     void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) override;

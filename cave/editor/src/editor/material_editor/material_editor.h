@@ -15,11 +15,7 @@ public:
 
     bool HandleInput(const InputEvent* p_input_event) override;
 
-    void OnCreate(const Guid& p_guid) override;
-
     void OnDestroy() override;
-
-    void OnActivate() override;
 
     void DrawMainView(const CameraComponent& p_camera) override;
 
@@ -30,15 +26,16 @@ public:
     Scene* GetScene() override;
 
 protected:
-    void DrawTextureSlots(MaterialAsset& p_material);
+    void OnCreateInternal(const Guid& p_guid) override;
 
-    const CameraComponent& GetActiveCameraInternal() const override;
+    void OnActivateInternal() override;
+
+    void DrawTextureSlots(MaterialAsset& p_material);
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 
     std::shared_ptr<Scene> m_tmp_scene;
     std::shared_ptr<MaterialDocument> m_document;
-    CameraComponent m_camera;
 };
 
 }  // namespace cave

@@ -8,6 +8,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/display_manager.h"
 #include "engine/runtime/mode_manager.h"
+#include "engine/runtime/viewport_manager.h"
 
 #include "editor/document/document.h"
 #include "editor/editor_dvars.h"
@@ -80,51 +81,7 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     return None();
 }
 
-bool Viewer::CacheCameraInput(const InputEvent* p_input_event) {
-    if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
-        if (e->IsHolding() && !e->IsModiferPressed()) {
-            bool handled = true;
-            switch (e->GetKey()) {
-                case KeyCode::KEY_D:
-                    ++m_camera_input.dx;
-                    break;
-                case KeyCode::KEY_A:
-                    --m_camera_input.dx;
-                    break;
-                case KeyCode::KEY_E:
-                    ++m_camera_input.dy;
-                    break;
-                case KeyCode::KEY_Q:
-                    --m_camera_input.dy;
-                    break;
-                case KeyCode::KEY_W:
-                    ++m_camera_input.dz;
-                    break;
-                case KeyCode::KEY_S:
-                    --m_camera_input.dz;
-                    break;
-                default:
-                    handled = false;
-                    break;
-            }
-            return handled;
-        }
-    }
-
-    if (auto e = dynamic_cast<const InputEventMouseWheel*>(p_input_event); e) {
-        if (!e->IsModiferPressed()) {
-            m_camera_input.scroll += 3.0f * e->GetWheelY();
-            return true;
-        }
-    }
-
-    if (auto e = dynamic_cast<const InputEventMouseMove*>(p_input_event); e) {
-        if (!e->IsModiferPressed() && e->IsButtonDown(MouseButton::MIDDLE)) {
-            m_camera_input.mouse_move += e->GetDelta();
-            return true;
-        }
-    }
-
+bool Viewer::CacheCameraInput(const InputEvent*) {
     return false;
 }
 
@@ -164,6 +121,9 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
             return;
     }
 
+    ViewportManager* viewport_manager = m_editor.GetApplication()->GetViewportManager();
+    viewport_manager->CreateViewport(tab, tab->GetDebugName());
+
     DVAR_SET_STRING(last_open_asset, p_guid.ToString());
 
     tab->OnCreate(p_guid);
@@ -180,7 +140,7 @@ void Viewer::UpdateInternal() {
         return;
     }
 
-    ViewerTab* active_tab = _tab.unwrap_unchecked();
+    //ViewerTab* active_tab = _tab.unwrap_unchecked();
 
     int flag = 0;
 #if 0
@@ -189,34 +149,6 @@ void Viewer::UpdateInternal() {
     if (!ImGui::BeginTabBar("MyTabs", flag)) {
         return;
     }
-
-    // update camera
-    const float dt = m_editor.context.timestep;
-    auto& camera = active_tab->GetActiveCamera();
-    const auto& c = m_camera_input;
-    const bool is_2d = camera.HasView2dFlag();
-    if (is_2d) {
-        const float speed = dt * 0.5f;
-        const float dx = speed * -c.mouse_move.x;
-        const float dy = speed * c.mouse_move.y;
-        CameraInputState state = {
-            .move = Vector3f(dx, dy, 0.0f),
-            .zoomDelta = -dt * c.scroll,
-            .rotation = Vector2f::Zero,
-        };
-        m_controller_2d.Update(camera, state);
-        camera.Update();
-    } else {
-        CameraInputState state{
-            .move = dt * Vector3f(c.dx, c.dy, c.dz),
-            .zoomDelta = dt * c.scroll,
-            .rotation = dt * c.mouse_move,
-        };
-        m_controller_3d.Update(camera, state);
-        camera.Update();
-    }
-
-    m_camera_input.Reset();
 
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
@@ -238,6 +170,9 @@ void Viewer::UpdateInternal() {
 
             auto buttons = tab->GetToolBarButtons();
             DrawToolBar(buttons);
+
+            // @TODO: remove this dummy camera
+            CameraComponent camera;
             tab->DrawMainView(camera);
 
             ImGui::EndTabItem();

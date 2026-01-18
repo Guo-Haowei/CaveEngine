@@ -16,13 +16,10 @@ namespace cave {
 
 MaterialEditor::MaterialEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
-    ViewerTab::CreateDefaultCamera3D(m_camera);
-
-    m_camera.SetPosition(Vector3f(0, 0, 2));
 }
 
-void MaterialEditor::OnCreate(const Guid& p_guid) {
-    ViewerTab::OnCreate(p_guid);
+void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
+    m_camera->SetPosition(Vector3f(0, 0, 2));
 
     m_document = std::make_shared<MaterialDocument>(p_guid);
 
@@ -72,7 +69,7 @@ void MaterialEditor::OnCreate(const Guid& p_guid) {
 void MaterialEditor::OnDestroy() {
 }
 
-void MaterialEditor::OnActivate() {
+void MaterialEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
     scene_manager->OpenTempScene(m_tmp_scene);
 }
@@ -143,10 +140,6 @@ bool MaterialEditor::HandleInput(const InputEvent* p_input_event) {
 
 Document& MaterialEditor::GetDocument() const {
     return *m_document;
-}
-
-const CameraComponent& MaterialEditor::GetActiveCameraInternal() const {
-    return m_camera;
 }
 
 const std::vector<const ToolBarButtonDesc*> MaterialEditor::GetToolBarButtons() const {

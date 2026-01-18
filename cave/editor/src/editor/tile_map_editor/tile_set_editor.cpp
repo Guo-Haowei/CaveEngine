@@ -26,16 +26,14 @@ bool TileSetEditor::HandleInput(const InputEvent* p_input_event) {
     return false;
 }
 
-void TileSetEditor::OnCreate(const Guid& p_guid) {
-    ViewerTab::OnCreate(p_guid);
-
+void TileSetEditor::OnCreateInternal(const Guid& p_guid) {
     m_document = std::make_unique<Document>(p_guid);
 }
 
 void TileSetEditor::OnDestroy() {
 }
 
-void TileSetEditor::OnActivate() {
+void TileSetEditor::OnActivateInternal() {
 }
 
 void TileSetEditor::DrawMainView(const CameraComponent& p_camera) {
@@ -134,11 +132,6 @@ void TileSetEditor::DrawAssetInspector() {
 
 Document& TileSetEditor::GetDocument() const {
     return *m_document;
-}
-
-const CameraComponent& TileSetEditor::GetActiveCameraInternal() const {
-    DEV_ASSERT(m_camera);
-    return *m_camera.get();
 }
 
 const std::vector<const ToolBarButtonDesc*> TileSetEditor::GetToolBarButtons() const {

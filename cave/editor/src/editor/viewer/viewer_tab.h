@@ -3,6 +3,7 @@
 
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
+#include "engine/runtime/scene_view.h"
 
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
@@ -13,10 +14,12 @@ namespace cave {
 class CameraComponent;
 class Document;
 class TabId;
-struct ToolBarButtonDesc;
 class Viewer;
 
-class ViewerTab {
+struct CameraInputState;
+struct ToolBarButtonDesc;
+
+class ViewerTab : public ISceneViewProvider {
 public:
     ViewerTab(EditorLayer& p_editor, Viewer& p_viewer);
 
@@ -24,11 +27,11 @@ public:
 
     virtual bool HandleInput(const InputEvent* p_input_event) = 0;
 
-    virtual void OnCreate(const Guid&);
+    void OnCreate(const Guid& p_guid);
     virtual void OnDestroy() {}
 
-    virtual void OnActivate() {}
-    virtual void OnDeactivate() {}
+    void OnActivate();
+    void OnDeactivate();
 
     virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
@@ -48,27 +51,46 @@ public:
         return m_title;
     }
 
-    const CameraComponent& GetActiveCamera() const {
-        return GetActiveCameraInternal();
-    }
-
-    CameraComponent& GetActiveCamera() {
-        return const_cast<CameraComponent&>(GetActiveCameraInternal());
-    }
-
     virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const = 0;
 
-protected:
-    virtual const CameraComponent& GetActiveCameraInternal() const = 0;
+    void Update(float p_timestep,
+                const ViewportInput& p_input,
+                bool p_focused) override;
 
+    void BuildViews(std::vector<SceneView>& p_out_views,
+                    bool p_is_opengl) override;
+
+    const char* GetDebugName() const override {
+        return "ViewerTab";
+    }
+
+protected:
+    virtual void OnCreateInternal(const Guid& p_guid) = 0;
+    virtual void OnActivateInternal() {}
+    virtual void OnDeactivateInternal() {}
+
+    virtual void CreateDefaultCameraAndController();
+
+    void CameraInputState2D(float p_timestep,
+                            const ViewportInput& p_input,
+                            CameraInputState& p_out_state);
+
+    void CameraInputState3D(float p_timestep,
+                            const ViewportInput& p_input,
+                            CameraInputState& p_out_state);
+
+    // @TODO: get rid of this
     static void CreateDefaultCamera2D(CameraComponent& p_out);
-    static void CreateDefaultCamera3D(CameraComponent& p_out);
 
     const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
 
     ecs::Entity m_selected;
+    bool m_active{ false };
+
+    // @TODO: camera controller
+    std::shared_ptr<CameraComponent> m_camera;
 
 private:
     std::string m_title;

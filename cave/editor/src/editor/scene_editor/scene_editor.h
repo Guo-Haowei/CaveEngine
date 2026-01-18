@@ -12,22 +12,24 @@ class SceneEditor : public ViewerTab {
 public:
     SceneEditor(EditorLayer& p_editor, Viewer& p_viewer);
 
-    bool HandleInput(const InputEvent* p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event) final;
 
-    void OnCreate(const Guid& p_guid) override;
+    void OnDestroy() final;
 
-    void OnDestroy() override;
+    void DrawMainView(const CameraComponent& p_camera) final;
 
-    void OnActivate() override;
+    Document& GetDocument() const final;
 
-    void DrawMainView(const CameraComponent& p_camera) override;
+    Scene* GetScene() final;
 
-    Document& GetDocument() const override;
-
-    Scene* GetScene() override;
+    const char* GetDebugName() const final {
+        return "SceneEditor";
+    }
 
 protected:
-    const CameraComponent& GetActiveCameraInternal() const override;
+    void OnCreateInternal(const Guid& p_guid) final;
+
+    void OnActivateInternal() final;
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 
@@ -37,12 +39,8 @@ protected:
 
     std::shared_ptr<SceneDocument> m_document;
 
-    std::array<CameraComponent, 2> m_cameras;
-    mutable int m_camera_idx = 0;
-
     ToolBarButtonDesc m_play_button;
     ToolBarButtonDesc m_pause_button;
-    ToolBarButtonDesc m_toggle_view_button;
 };
 
 }  // namespace cave

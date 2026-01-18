@@ -54,8 +54,6 @@ public:
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 
-    CameraComponent* GetActiveCamera();
-
     EditorContext context;
 
     void SetSelectedAsset(AssetHandle&& p_asset_handle) {

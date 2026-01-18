@@ -21,10 +21,6 @@ public:
         : Application(p_spec, Application::Type::Tool) {
     }
 
-    CameraComponent* GetActiveCamera() override {
-        return nullptr;
-    }
-
     bool IsWorld2D() const override {
         return false;
     }

@@ -15,7 +15,7 @@ public:
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}
 
-    void Update(Scene* p_scene) override {}
+    void Update() override {}
 
     // resource
     auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> override { return nullptr; }

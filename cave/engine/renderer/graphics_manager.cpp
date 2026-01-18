@@ -251,9 +251,8 @@ std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) 
     return p_image->gpu_texture;
 }
 
-void GraphicsManager::Update(Scene* p_scene) {
+void GraphicsManager::Update() {
     CAVE_PROFILE_EVENT();
-    unused(p_scene);
 
     // @TODO: make it a function
     auto loaded_images = m_loadedImages.pop_all();
@@ -277,6 +276,7 @@ void GraphicsManager::Update(Scene* p_scene) {
         }
     }
 
+    // @TODO: support multiple views
     {
         CAVE_PROFILE_EVENT("Render");
         BeginFrame();

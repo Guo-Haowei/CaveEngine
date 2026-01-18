@@ -23,11 +23,7 @@ public:
 
     bool HandleInput(const InputEvent* p_input_event) override;
 
-    void OnCreate(const Guid& p_guid) override;
-
     void OnDestroy() override;
-
-    void OnActivate() override;
 
     void DrawMainView(const CameraComponent& p_camera) override;
 
@@ -36,7 +32,9 @@ public:
     Document& GetDocument() const override;
 
 protected:
-    const CameraComponent& GetActiveCameraInternal() const override;
+    void OnCreateInternal(const Guid& p_guid) override;
+
+    void OnActivateInternal() override;
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 

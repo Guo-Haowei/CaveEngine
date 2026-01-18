@@ -32,8 +32,7 @@ TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
 
 TileMapEditor::~TileMapEditor() = default;
 
-void TileMapEditor::OnCreate(const Guid& p_guid) {
-    ViewerTab::OnCreate(p_guid);
+void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
 
     m_document = std::make_unique<TileMapDocument>(p_guid, *this);
 
@@ -58,7 +57,7 @@ void TileMapEditor::OnDestroy() {
     m_tmp_scene.reset();
 }
 
-void TileMapEditor::OnActivate() {
+void TileMapEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
     scene_manager->OpenTempScene(m_tmp_scene);
 }
@@ -133,7 +132,8 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     auto ndc_2 = res.unwrap_unchecked();
     Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
 
-    const CameraComponent& cam = GetActiveCamera();
+    DEV_ASSERT(0);
+    CameraComponent cam;
     const auto inv_proj_view = glm::inverse(cam.GetProjectionViewMatrix());
 
     Vector4f position = inv_proj_view * ndc;
@@ -174,11 +174,6 @@ bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
     }
 
     return false;
-}
-
-const CameraComponent& TileMapEditor::GetActiveCameraInternal() const {
-    DEV_ASSERT(m_camera);
-    return *m_camera.get();
 }
 
 void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {

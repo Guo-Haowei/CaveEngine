@@ -20,9 +20,6 @@ namespace cave {
 
 SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer) {
-    ViewerTab::CreateDefaultCamera3D(m_cameras[0]);
-    ViewerTab::CreateDefaultCamera2D(m_cameras[1]);
-
     m_play_button = {
         ICON_FA_PLAY,
         "Run Project",
@@ -43,37 +40,43 @@ SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
         },
         //[&]() { return app_state != Application::State::EDITING; },
     };
-    m_toggle_view_button = { ICON_FA_CAMERA_ROTATE, "Toggle 2D/3D view",
-                             [&]() {
-                                 m_camera_idx ^= 1;
-                             } };
 }
 
 Document& SceneEditor::GetDocument() const {
     return *m_document.get();
 }
 
-void SceneEditor::OnCreate(const Guid& p_guid) {
-    ViewerTab::OnCreate(p_guid);
-
+void SceneEditor::OnCreateInternal(const Guid& p_guid) {
     m_document = std::make_shared<SceneDocument>(p_guid);
 }
 
 void SceneEditor::OnDestroy() {
 }
 
-void SceneEditor::OnActivate() {
+void SceneEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
     scene_manager->OpenTempScene(m_document->m_scene);
 }
 
 Scene* SceneEditor::GetScene() {
+    Application* app = m_editor.GetApplication();
+    const GameMode game_mode = app->GetModeManager().GetMode();
+
+    if (game_mode == GameMode::Gameplay) {
+        auto scene = app->GetSceneManager()->GetActiveScene();
+        DEV_ASSERT(scene);
+        return scene.get();
+    }
+
     auto handle = m_document->GetHandle<Scene>();
     return handle.Get();
 }
 
-void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
+void SceneEditor::DrawMainView(const CameraComponent&) {
+    // @TODO: fix this as well
+    const CameraComponent& p_camera = *m_camera;
+
     ViewerTab::DrawMainView(p_camera);
 
     const Matrix4x4f& view_matrix = p_camera.GetViewMatrix();
@@ -139,10 +142,6 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     }
 }
 
-const CameraComponent& SceneEditor::GetActiveCameraInternal() const {
-    return m_cameras[m_camera_idx];
-}
-
 bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
     // change gizmo state
     if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
@@ -182,7 +181,7 @@ const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() con
     Application* app = m_editor.GetApplication();
     ModeManager& mode_manager = app->GetModeManager();
 
-    return { mode_manager.GetMode() == GameMode::Editor ? &m_play_button : &m_pause_button, &m_toggle_view_button };
+    return { mode_manager.GetMode() == GameMode::Editor ? &m_play_button : &m_pause_button };
 }
 
 void SceneEditor::Select(const Vector2f& p_cursor) {
@@ -190,7 +189,8 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
         Vector2f ndc_2 = res.unwrap_unchecked();
         Vector4f ndc{ ndc_2.x, ndc_2.y, 1.0f, 1.0f };
 
-        const CameraComponent& cam = GetActiveCamera();
+        DEV_ASSERT(0);
+        CameraComponent cam;
 
         const Matrix4x4f inv_pv = glm::inverse(cam.GetProjectionViewMatrix());
 

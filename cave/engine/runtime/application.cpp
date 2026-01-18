@@ -21,6 +21,7 @@
 #include "engine/runtime/render_system.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
+#include "engine/runtime/viewport_manager.h"
 #include "engine/scene/scene.h"
 
 #if USING(PLATFORM_WASM)
@@ -90,6 +91,7 @@ auto Application::SetupModules() -> Result<void> {
     m_display_server = CreateDisplayManager();
     m_input_manager = new InputManager();
     m_render_system = new RenderSystem();
+    m_viewport_manager = new ViewportManager();
 
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);
@@ -100,6 +102,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_graphics_manager);
     RegisterModule(m_render_system);
     RegisterModule(m_input_manager);
+    RegisterModule(m_viewport_manager);
 
     if (m_specification.enableImgui) {
         auto res = CreateImguiManager();
@@ -266,10 +269,17 @@ bool Application::MainLoop() {
         m_physics_manager->Update(*scene, timestep);
     }
 
-    m_render_system->RenderFrame(scene.get());
+    // view has camera controller and camera manager
+    const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;
 
-    // === Rendering Phase ===
-    m_graphics_manager->Update(scene.get());
+    std::vector<SceneView> views;
+    m_viewport_manager->BuildViews(timestep, views, is_opengl);
+
+    // @TODO: build render data, rename it to something better
+    m_render_system->RenderFrame(views);
+
+    // @TODO: think of how to handle multiple view
+    m_graphics_manager->Update();
 
     // === End Frame ===
     m_input_manager->EndFrame();

@@ -38,6 +38,34 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
     m_title = std::format("{}###{}", meta->name, handle.GetGuid().ToString());
 
     LOG_OK("ViewerTab '{}' created", m_title);
+
+    CreateDefaultCameraAndController();
+
+    OnCreateInternal(p_guid);
+}
+
+void ViewerTab::OnActivate() {
+    m_active = true;
+    OnActivateInternal();
+}
+
+void ViewerTab::OnDeactivate() {
+    OnDeactivateInternal();
+    m_active = false;
+}
+
+void ViewerTab::CreateDefaultCameraAndController() {
+    const auto res = DVAR_GET_IVEC2(resolution);
+
+    m_camera = std::make_shared<CameraComponent>();
+    m_camera->SetDimension(res.x, res.y);
+    m_camera->SetNear(1.0f);
+    m_camera->SetFar(1000.0f);
+    m_camera->SetPosition(Vector3f(0, 4, 10));
+    m_camera->SetDirtyFlag();
+    m_camera->Update();
+
+    // @TODO: controller
 }
 
 void ViewerTab::CreateDefaultCamera2D(CameraComponent& p_out) {
@@ -48,17 +76,6 @@ void ViewerTab::CreateDefaultCamera2D(CameraComponent& p_out) {
     p_out.SetNear(1.0f);
     p_out.SetFar(1000.0f);
     p_out.SetPosition(Vector3f(0, 0, 10));
-    p_out.SetDirtyFlag();
-    p_out.Update();
-}
-
-void ViewerTab::CreateDefaultCamera3D(CameraComponent& p_out) {
-    const auto res = DVAR_GET_IVEC2(resolution);
-    auto camera = std::make_shared<CameraComponent>();
-    p_out.SetDimension(res.x, res.y);
-    p_out.SetNear(1.0f);
-    p_out.SetFar(1000.0f);
-    p_out.SetPosition(Vector3f(0, 4, 10));
     p_out.SetDirtyFlag();
     p_out.Update();
 }
@@ -98,6 +115,79 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
         default:
             CRASH_NOW();
             break;
+    }
+}
+
+void ViewerTab::CameraInputState2D(float p_timestep,
+                                   const ViewportInput& p_input,
+                                   CameraInputState& p_out_state) {
+    unused(p_timestep);
+    unused(p_input);
+    unused(p_out_state);
+}
+
+void ViewerTab::CameraInputState3D(float p_timestep,
+                                   const ViewportInput& p_input,
+                                   CameraInputState& p_out_state) {
+    const int dx = p_input.IsKeyDown(KeyCode::KEY_D) - p_input.IsKeyDown(KeyCode::KEY_A);
+    const int dy = p_input.IsKeyDown(KeyCode::KEY_E) - p_input.IsKeyDown(KeyCode::KEY_Q);
+    const int dz = p_input.IsKeyDown(KeyCode::KEY_W) - p_input.IsKeyDown(KeyCode::KEY_S);
+
+    p_out_state.move = p_timestep * Vector3f(dx, dy, dz);
+    p_out_state.zoom_delta = p_timestep * 3.0f * p_input.wheel_delta;
+
+    if (p_input.IsButtonDown(MouseButton::MIDDLE)) {
+        p_out_state.rotation = p_timestep * p_input.mouse_move;
+    }
+}
+
+void ViewerTab::Update(float p_timestep,
+                       const ViewportInput& p_input,
+                       bool p_focused) {
+    if (!m_viewer.IsHovered()) {
+        return;
+    }
+
+    if (!p_focused) {
+    }
+
+    CameraInputState state;
+    CameraInputState3D(p_timestep, p_input, state);
+
+    // @TODO: fix view
+#if 0
+    const float timestep = m_editor.context.timestep;
+    CameraComponent camera;
+    const auto& c = m_camera_input;
+    const bool is_2d = camera.HasView2dFlag();
+    if (is_2d) {
+        const float speed = timestep * 0.5f;
+        const float dx = speed * -c.mouse_move.x;
+        const float dy = speed * c.mouse_move.y;
+        CameraInputState state = {
+            .move = Vector3f(dx, dy, 0.0f),
+            .zoomDelta = -timestep * c.scroll,
+            .rotation = Vector2f::Zero,
+        };
+        m_controller_2d.Update(camera, state);
+        camera.Update();
+    }
+#endif
+
+    // @TODO: change camera based on game mode, etc
+
+    CameraControllerFPS m_controller_3d;
+    m_controller_3d.Update(*m_camera, state);
+    m_camera->Update();
+}
+
+void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
+    if (m_active) {
+        SceneView scene_view;
+        scene_view.scene = GetScene();
+        ViewInfo::FromCamera(*m_camera, scene_view.view_info, p_is_opengl);
+
+        p_out_views.push_back(scene_view);
     }
 }
 
