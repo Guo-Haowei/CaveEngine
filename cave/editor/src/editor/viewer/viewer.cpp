@@ -195,32 +195,33 @@ void Viewer::UpdateInternal() {
     }
 
     // update camera
-    const float dt = m_editor.context.timestep;
+#if 0
+    const float timestep = m_editor.context.timestep;
     //auto& camera = active_tab->GetActiveCamera();
     CameraComponent camera;
-    DEV_ASSERT(0);
     const auto& c = m_camera_input;
     const bool is_2d = camera.HasView2dFlag();
     if (is_2d) {
-        const float speed = dt * 0.5f;
+        const float speed = timestep * 0.5f;
         const float dx = speed * -c.mouse_move.x;
         const float dy = speed * c.mouse_move.y;
         CameraInputState state = {
             .move = Vector3f(dx, dy, 0.0f),
-            .zoomDelta = -dt * c.scroll,
+            .zoomDelta = -timestep * c.scroll,
             .rotation = Vector2f::Zero,
         };
         m_controller_2d.Update(camera, state);
         camera.Update();
     } else {
         CameraInputState state{
-            .move = dt * Vector3f(c.dx, c.dy, c.dz),
-            .zoomDelta = dt * c.scroll,
-            .rotation = dt * c.mouse_move,
+            .move = timestep * Vector3f(c.dx, c.dy, c.dz),
+            .zoomDelta = timestep * c.scroll,
+            .rotation = timestep * c.mouse_move,
         };
         m_controller_3d.Update(camera, state);
         camera.Update();
     }
+#endif
 
     m_camera_input.Reset();
 
@@ -244,6 +245,9 @@ void Viewer::UpdateInternal() {
 
             auto buttons = tab->GetToolBarButtons();
             DrawToolBar(buttons);
+
+            // @TODO: remove this dummy camera
+            CameraComponent camera;
             tab->DrawMainView(camera);
 
             ImGui::EndTabItem();
