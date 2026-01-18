@@ -73,7 +73,9 @@ Scene* SceneEditor::GetScene() {
     return handle.Get();
 }
 
-void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
+void SceneEditor::DrawMainView(const CameraComponent&) {
+    const CameraComponent& p_camera = GetActiveCameraInternal();
+
     ViewerTab::DrawMainView(p_camera);
 
     const Matrix4x4f& view_matrix = p_camera.GetViewMatrix();

@@ -195,6 +195,7 @@ void Viewer::UpdateInternal() {
     }
 
     // update camera
+    DEV_ASSERT(0);
 #if 0
     const float timestep = m_editor.context.timestep;
     //auto& camera = active_tab->GetActiveCamera();
