@@ -33,20 +33,6 @@ void ViewerTab::SelectEntity(ecs::Entity p_selected) {
     }
 }
 
-#if 0
-static std::shared_ptr<CameraComponent> CreateDefaultCamera2D(const Vector2i& p_resolution, TransformComponent& p_transform) {
-    auto camera = std::make_shared<CameraComponent>();
-    camera->SetProjection(ProjectionType::Orthographic);
-    camera->SetDimension(p_resolution.x, p_resolution.y);
-    camera->SetNear(1.0f);
-    camera->SetFar(1000.0f);
-    p_transform.SetTranslation(Vector3f(0, 0, 10));
-
-    camera->Update(p_transform.GetWorldMatrix());
-    return camera;
-}
-#endif
-
 void ViewerTab::OnCreate(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
     auto meta = handle.GetMeta();
@@ -60,14 +46,34 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
 
     switch (m_dimension) {
         case DIMENSION_2: {
-            DEV_ASSERT(0);
-            // DVAR_GET_IVEC2(resolution)
+            SetupDefault2DCamera();
         } break;
         case DIMENSION_3: {
             SetupDefault3DCamera();
         } break;
     }
 
+}
+
+void ViewerTab::SetupDefault2DCamera() {
+    Scene* scene = GetScene();
+    DEV_ASSERT(scene);
+
+    Entity cam = EntityFactory::CreateCameraEntity(*scene, "editor_cam");
+
+    scene->Create<NoSaveTag>(cam);
+
+    scene->AttachChild(cam);
+
+    CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
+    camera->SetProjection(ProjectionType::Orthographic);
+
+    TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
+    transform->SetTranslation(Vector3f(0, 0, 10));
+
+    m_camera_root = m_camera = cam;
+
+    m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
 }
 
 void ViewerTab::SetupDefault3DCamera() {
@@ -85,16 +91,6 @@ void ViewerTab::SetupDefault3DCamera() {
     scene->AttachChild(cam_root);
     scene->AttachChild(cam_y, cam_root);
     scene->AttachChild(cam, cam_y);
-
-    #if 0
-    auto camera = std::make_shared<CameraComponent>();
-    camera->SetDimension(p_resolution.x, p_resolution.y);
-    camera->SetNear(1.0f);
-    camera->SetFar(1000.0f);
-
-    p_transform.SetTranslation(Vector3f(0, 4, 10));
-    camera->Update(p_transform.GetWorldMatrix());
-    #endif
 
     m_camera = cam;
     m_camera_root = cam_root;

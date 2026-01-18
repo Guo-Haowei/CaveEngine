@@ -73,6 +73,7 @@ protected:
     virtual void OnActivateInternal() {}
     virtual void OnDeactivateInternal() {}
 
+    void SetupDefault2DCamera();
     void SetupDefault3DCamera();
 
     void CameraInputState2D(float p_timestep,

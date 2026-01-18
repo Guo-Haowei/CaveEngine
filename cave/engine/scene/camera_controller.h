@@ -21,7 +21,16 @@ public:
 
 class CameraController2DEditor : public ICameraController {
 public:
-    void Update(const CameraInputState& p_state) override;
+    CameraController2DEditor(Scene* p_scene,
+                             ecs::Entity p_cam)
+        : m_scene(p_scene)
+        , m_cam(p_cam) {}
+
+    void Update(const CameraInputState& p_state) final;
+
+private:
+    Scene* m_scene;
+    ecs::Entity m_cam;
 };
 
 class CameraControllerFPS : public ICameraController {
@@ -33,10 +42,9 @@ public:
         : m_scene(p_scene)
         , m_cam_root(p_cam_root)
         , m_cam_y(p_cam_y)
-        , m_cam(p_cam)
-    {}
+        , m_cam(p_cam) {}
 
-    void Update(const CameraInputState& p_state) override;
+    void Update(const CameraInputState& p_state) final;
 
 private:
     Scene* m_scene;

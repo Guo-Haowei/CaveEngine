@@ -7,19 +7,18 @@
 namespace cave {
 
 void CameraController2DEditor::Update(const CameraInputState& p_state) {
-    DEV_ASSERT(0);
+    CameraComponent* camera = m_scene->GetComponent<CameraComponent>(m_cam);
+    TransformComponent* transform = m_scene->GetComponent<TransformComponent>(m_cam);
 
-    CameraComponent  p_camera;
-    TransformComponent  p_transform;
     const bool moved = p_state.move.x || p_state.move.y;
     if (moved) {
-        p_transform.Translate(Vector3f(p_state.move.x, p_state.move.y, 0.0f));
+        transform->Translate(Vector3f(p_state.move.x, p_state.move.y, 0.0f));
     }
 
     if (p_state.zoom_delta != 0.0f) {
-        float ortho_height = p_camera.GetOrthoHeight() + 4.0f * p_state.zoom_delta;
+        float ortho_height = camera->GetOrthoHeight() + 4.0f * p_state.zoom_delta;
         ortho_height = glm::clamp(ortho_height, 0.1f, 100.0f);
-        p_camera.SetOrthoHeight(ortho_height);
+        camera->SetOrthoHeight(ortho_height);
     }
 }
 
@@ -65,7 +64,7 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
         }
 
         if (rotate_y) {
-            rotation_y->RotateY(Degree(rotate_y));
+            rotation_y->RotateY(Degree(-rotate_y));
         }
 
         if (rotate_x) {
