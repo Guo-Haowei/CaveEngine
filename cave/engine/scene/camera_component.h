@@ -31,8 +31,8 @@ private:
     CAVE_PROP(editor = EnumDropDown)
     ProjectionType m_projection;
 
-    CAVE_PROP()
-    Degree m_fovy = DEFAULT_FOVY;
+    CAVE_PROP(editor = DragFloat, min = 1, max = 179)
+    float m_fovy = DEFAULT_FOVY;
 
     CAVE_PROP(editor = DragFloat, min = 0.1f, max = 9)
     float m_near = DEFAULT_NEAR;
@@ -50,16 +50,11 @@ private:
     float m_ortho_height = 10;
 
     CAVE_PROP()
-    Degree m_pitch;
-
-    CAVE_PROP()
-    Degree m_yaw;
-
-    CAVE_PROP()
     Vector3f m_position = Vector3f::Zero;
 
     // Not serlialized
     Vector3f m_front;
+    Vector3f m_up;
     Vector3f m_right;
 
     Matrix4x4f m_viewMatrix;
@@ -72,14 +67,15 @@ private:
 public:
     static constexpr float DEFAULT_NEAR = 0.1f;
     static constexpr float DEFAULT_FAR = 1000.0f;
-    static constexpr Degree DEFAULT_FOVY{ 50.0f };
+    static constexpr float DEFAULT_FOVY = 60.0f;
 
-    bool Update();
+    bool Update(const Matrix4x4f& p_transform);
 
     void SetDimension(int p_width, int p_height);
 
-    Degree GetFovy() const { return m_fovy; }
-    void SetFovy(Degree p_degree) {
+    float GetFovy() const { return m_fovy; }
+
+    void SetFovy(float p_degree) {
         m_fovy = p_degree;
         SetDirtyFlag();
     }
@@ -112,7 +108,7 @@ public:
     const Matrix4x4f& GetProjectionMatrix() const { return m_projectionMatrix; }
     const Matrix4x4f& GetProjectionViewMatrix() const { return m_projectionViewMatrix; }
     const Vector3f& GetRight() const { return m_right; }
-    const Vector3f GetFront() const { return m_front; }
+    const Vector3f& GetFront() const { return m_front; }
 
     Matrix4x4f CalcProjection() const;
     Matrix4x4f CalcProjectionGL() const;

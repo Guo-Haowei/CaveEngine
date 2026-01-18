@@ -4,6 +4,7 @@
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
 #include "engine/runtime/scene_view.h"
+#include "engine/scene/transform_component.h"
 
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
@@ -90,6 +91,7 @@ protected:
     ecs::Entity m_selected;
     bool m_active{ false };
 
+    TransformComponent m_transform;
     std::shared_ptr<CameraComponent> m_camera;
     std::shared_ptr<ICameraController> m_camera_controller;
 

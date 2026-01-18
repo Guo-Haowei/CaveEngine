@@ -58,6 +58,8 @@ void CameraControllerFPS::Update(CameraComponent& p_camera,
         }
 
         // @TODO: DPI
+        DEV_ASSERT(0);
+#if 0
         if (rotate_y) {
             p_camera.m_yaw += Degree(rotate_y);
         }
@@ -66,6 +68,7 @@ void CameraControllerFPS::Update(CameraComponent& p_camera,
             p_camera.m_pitch += Degree(rotate_x);
             p_camera.m_pitch.Clamp(-85.0f, 85.0f);
         }
+#endif
 
         return rotate_x != 0.0f || rotate_y != 0.0f;
     };

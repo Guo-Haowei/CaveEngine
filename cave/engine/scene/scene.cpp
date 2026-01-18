@@ -59,8 +59,8 @@ void Scene::Update(float p_timestep) {
     RunMeshAABBUpdateSystem(*this, ctx, p_timestep);
 
     // @TODO: refactor
-    for (auto [entity, camera] : View<CameraComponent>()) {
-        if (camera.Update()) {
+    for (auto [entity, camera, transform] : View<CameraComponent, TransformComponent>()) {
+        if (camera.Update(transform.GetWorldMatrix())) {
             m_dirtyFlags.fetch_or(SCENE_DIRTY_CAMERA);
         }
     }

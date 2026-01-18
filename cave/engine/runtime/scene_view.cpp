@@ -8,15 +8,6 @@ void ViewInfo::FromCamera(const CameraComponent& p_camera,
                           ViewInfo& p_out_view_info,
                           bool p_is_opengl) {
 
-    // @TODO: refactor this part
-    p_out_view_info.sceen_width = static_cast<float>(p_camera.GetWidth());
-    p_out_view_info.sceen_height = static_cast<float>(p_camera.GetHeight());
-    p_out_view_info.aspect_ratio = p_out_view_info.sceen_width / p_out_view_info.sceen_height;
-    p_out_view_info.fovy = p_camera.GetFovy();
-
-    p_out_view_info.view = p_camera.GetViewMatrix();
-    p_out_view_info.projection_frustum = p_camera.GetProjectionMatrix();
-
     p_out_view_info.sceen_width = static_cast<float>(p_camera.GetWidth());
     p_out_view_info.sceen_height = static_cast<float>(p_camera.GetHeight());
     p_out_view_info.aspect_ratio = p_out_view_info.sceen_width / p_out_view_info.sceen_height;

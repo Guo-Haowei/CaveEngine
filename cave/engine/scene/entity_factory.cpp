@@ -12,7 +12,8 @@ Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
                                          const std::string& p_name,
                                          float p_near_plane,
                                          float p_far_plane,
-                                         Degree p_fovy) {
+                                         float p_fovy) {
+
     auto entity = CreateNameEntity(p_scene, p_name);
     CameraComponent& camera = p_scene.Create<CameraComponent>(entity);
 
@@ -23,8 +24,6 @@ Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
     camera.m_near = p_near_plane;
     camera.m_far = p_far_plane;
     camera.m_fovy = p_fovy;
-    camera.m_pitch = Degree{ -10.0f };
-    camera.m_yaw = Degree{ -90.0f };
     camera.SetDirtyFlag();
     return entity;
 }

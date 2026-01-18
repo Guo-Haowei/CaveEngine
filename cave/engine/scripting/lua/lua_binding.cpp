@@ -205,10 +205,10 @@ bool OpenSceneLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginClass<CameraComponent>("CameraComponent")
         .addFunction("get_fovy", [](CameraComponent* p_camera) -> float {
-            return p_camera->GetFovy().GetDegree();
+            return p_camera->GetFovy();
         })
         .addFunction("set_fovy", [](CameraComponent* p_camera, float p_degree) {
-            p_camera->SetFovy(Degree(p_degree));
+            p_camera->SetFovy(p_degree);
         })
         .endClass();
 

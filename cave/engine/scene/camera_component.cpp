@@ -15,7 +15,7 @@ Matrix4x4f CameraComponent::CalcProjection() const {
                             m_near,
                             m_far);
     }
-    return BuildPerspectiveRH(m_fovy.GetRadians(), GetAspect(), m_near, m_far);
+    return BuildPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
 }
 
 Matrix4x4f CameraComponent::CalcProjectionGL() const {
@@ -29,18 +29,16 @@ Matrix4x4f CameraComponent::CalcProjectionGL() const {
                                   m_near,
                                   m_far);
     }
-    return BuildOpenGlPerspectiveRH(m_fovy.GetRadians(), GetAspect(), m_near, m_far);
+    return BuildOpenGlPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
 }
 
-bool CameraComponent::Update() {
+bool CameraComponent::Update(const Matrix4x4f& p_transform) {
     if (HasDirtyFlag()) {
         SetDirtyFlag(false);
 
-        m_front.x = m_yaw.Sin() * m_pitch.Cos();
-        m_front.y = m_pitch.Sin();
-        m_front.z = m_yaw.Cos() * -m_pitch.Cos();
-
-        m_right = cross(m_front, Vector3f::UnitY);
+        m_right = (p_transform * Vector4f::UnitX).xyz;
+        m_up = (p_transform * Vector4f::UnitY).xyz;
+        m_front = (p_transform * -Vector4f::UnitZ).xyz;
 
         m_viewMatrix = LookAtRh(m_position, m_position + m_front, Vector3f::UnitY);
 
