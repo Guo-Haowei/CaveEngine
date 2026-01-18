@@ -81,7 +81,7 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
 
     // camera
     {
-        const auto& camera = p_out_data.mainCamera;
+        const auto& camera = p_out_data.view_info;
         cache.c_camView = camera.viewMatrix;
         cache.c_camProj = camera.projectionMatrixRendering;
         cache.c_invCamView = glm::inverse(camera.viewMatrix);
@@ -206,7 +206,10 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     if (!camera) {
         return;
     }
-    FillCameraData(*camera, framedata);
+
+    // @TODO: move it to BuildViews
+    ViewInfo::FromCamera(*camera, framedata.view_info, framedata.options.isOpengl);
+
     FillConstantBuffer(p_scene, framedata);
 
     RunMeshRenderSystem(p_scene, framedata);
@@ -228,49 +231,6 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     if (p_scene) {
         RequestPathTracerUpdate(*camera, *p_scene);
     }
-}
-
-void RenderSystem::FillCameraData(const CameraComponent& p_camera, FrameData& p_framedata) {
-
-    auto reverse_z = [](Matrix4x4f& p_perspective) {
-        constexpr Matrix4x4f matrix{ 1.0f, 0.0f, 0.0f, 0.0f,
-                                     0.0f, 1.0f, 0.0f, 0.0f,
-                                     0.0f, 0.0f, -1.0f, 0.0f,
-                                     0.0f, 0.0f, 1.0f, 1.0f };
-        p_perspective = matrix * p_perspective;
-    };
-    auto normalize_unit_range = [](Matrix4x4f& p_perspective) {
-        constexpr Matrix4x4f matrix{ 1.0f, 0.0f, 0.0f, 0.0f,
-                                     0.0f, 1.0f, 0.0f, 0.0f,
-                                     0.0f, 0.0f, 0.5f, 0.0f,
-                                     0.0f, 0.0f, 0.5f, 1.0f };
-        p_perspective = matrix * p_perspective;
-    };
-
-    auto& camera = p_framedata.mainCamera;
-    camera.sceenWidth = static_cast<float>(p_camera.GetWidth());
-    camera.sceenHeight = static_cast<float>(p_camera.GetHeight());
-    camera.aspectRatio = camera.sceenWidth / camera.sceenHeight;
-    camera.fovy = p_camera.GetFovy();
-
-    camera.viewMatrix = p_camera.GetViewMatrix();
-    camera.projectionMatrixFrustum = p_camera.GetProjectionMatrix();
-    // https://tomhultonharrop.com/mathematics/graphics/2023/08/06/reverse-z.html
-    if (p_framedata.options.isOpengl) {
-        // since we use opengl matrix for frustum culling,
-        // we can use the same matrix for rendering
-        camera.projectionMatrixRendering = camera.projectionMatrixFrustum;
-        normalize_unit_range(camera.projectionMatrixRendering);
-        reverse_z(camera.projectionMatrixRendering);
-    } else {
-        camera.projectionMatrixRendering = p_camera.CalcProjection();
-        reverse_z(camera.projectionMatrixRendering);
-    }
-    camera.position = p_camera.GetPosition();
-
-    camera.front = p_camera.GetFront();
-    camera.right = p_camera.GetRight();
-    camera.up = cross(camera.front, camera.right);
 }
 
 }  // namespace cave

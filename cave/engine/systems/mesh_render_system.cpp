@@ -305,7 +305,7 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
 }
 
 static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
-    const auto& camera = p_framedata.mainCamera;
+    const auto& camera = p_framedata.view_info;
     Frustum camera_frustum(camera.projectionMatrixFrustum * camera.viewMatrix);
 
     // main pass

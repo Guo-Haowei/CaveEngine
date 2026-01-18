@@ -1,12 +1,15 @@
 #pragma once
 #include "engine/runtime/module.h"
+#include "engine/runtime/scene_view_provider_interface.h"
 
 namespace cave {
 
 class ISceneViewProvider;
+class Scene;
 
-class SceneView {
-
+struct SceneView {
+    ViewInfo view_info;
+    Scene* scene{ nullptr };
 };
 
 using ViewportId = uint32_t;

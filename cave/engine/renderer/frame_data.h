@@ -9,6 +9,7 @@
 #include "engine/renderer/gpu_resource.h"
 #include "engine/renderer/graphics_defines.h"
 #include "engine/renderer/render_command.h"
+#include "engine/runtime/scene_view_provider_interface.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"
@@ -59,27 +60,13 @@ struct BufferCache {
 };
 
 struct FrameData {
-    struct Camera {
-        Matrix4x4f viewMatrix;
-        Matrix4x4f projectionMatrixRendering;
-        Matrix4x4f projectionMatrixFrustum;
-        Vector3f position;
-        Vector3f up;
-        Vector3f front;
-        Vector3f right;
-        float sceenWidth;
-        float sceenHeight;
-        float aspectRatio;
-        Degree fovy;
-    };
-
     FrameData(const RenderOptions& p_options)
         : options(p_options) {
     }
 
     const RenderOptions options;
 
-    Camera mainCamera;
+    ViewInfo view_info;
 
     // @TODO: multi camera & viewport
 
