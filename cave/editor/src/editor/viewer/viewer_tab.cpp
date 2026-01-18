@@ -38,6 +38,24 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
     m_title = std::format("{}###{}", meta->name, handle.GetGuid().ToString());
 
     LOG_OK("ViewerTab '{}' created", m_title);
+
+    CreateDefaultCameraAndController();
+
+    OnCreateInternal(p_guid);
+}
+
+void ViewerTab::CreateDefaultCameraAndController() {
+    const auto res = DVAR_GET_IVEC2(resolution);
+
+    m_camera = std::make_shared<CameraComponent>();
+    m_camera->SetDimension(res.x, res.y);
+    m_camera->SetNear(1.0f);
+    m_camera->SetFar(1000.0f);
+    m_camera->SetPosition(Vector3f(0, 4, 10));
+    m_camera->SetDirtyFlag();
+    m_camera->Update();
+
+    // @TODO: controller
 }
 
 void ViewerTab::CreateDefaultCamera2D(CameraComponent& p_out) {
@@ -48,17 +66,6 @@ void ViewerTab::CreateDefaultCamera2D(CameraComponent& p_out) {
     p_out.SetNear(1.0f);
     p_out.SetFar(1000.0f);
     p_out.SetPosition(Vector3f(0, 0, 10));
-    p_out.SetDirtyFlag();
-    p_out.Update();
-}
-
-void ViewerTab::CreateDefaultCamera3D(CameraComponent& p_out) {
-    const auto res = DVAR_GET_IVEC2(resolution);
-    auto camera = std::make_shared<CameraComponent>();
-    p_out.SetDimension(res.x, res.y);
-    p_out.SetNear(1.0f);
-    p_out.SetFar(1000.0f);
-    p_out.SetPosition(Vector3f(0, 4, 10));
     p_out.SetDirtyFlag();
     p_out.Update();
 }
@@ -156,18 +163,14 @@ void ViewerTab::Update(float p_timestep,
     // @TODO: change camera based on game mode, etc
 
     CameraControllerFPS m_controller_3d;
-    CameraComponent& camera = const_cast<CameraComponent&>(GetActiveCameraInternal());
-    m_controller_3d.Update(camera, state);
-    camera.Update();
+    m_controller_3d.Update(*m_camera, state);
+    m_camera->Update();
 }
 
 void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
-    // @TODO: refactor this part
-    const CameraComponent& camera = GetActiveCameraInternal();
-
     SceneView scene_view;
     scene_view.scene = GetScene();
-    ViewInfo::FromCamera(camera, scene_view.view_info, p_is_opengl);
+    ViewInfo::FromCamera(*m_camera, scene_view.view_info, p_is_opengl);
 
     p_out_views.push_back(scene_view);
 }

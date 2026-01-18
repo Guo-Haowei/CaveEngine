@@ -27,7 +27,7 @@ public:
 
     virtual bool HandleInput(const InputEvent* p_input_event) = 0;
 
-    virtual void OnCreate(const Guid&);
+    void OnCreate(const Guid& p_guid);
     virtual void OnDestroy() {}
 
     virtual void OnActivate() {}
@@ -65,10 +65,8 @@ public:
     }
 
 protected:
-    virtual const CameraComponent& GetActiveCameraInternal() const = 0;
-
-    static void CreateDefaultCamera2D(CameraComponent& p_out);
-    static void CreateDefaultCamera3D(CameraComponent& p_out);
+    virtual void OnCreateInternal(const Guid& p_guid) = 0;
+    virtual void CreateDefaultCameraAndController();
 
     void CameraInputState2D(float p_timestep,
                             const ViewportInput& p_input,
@@ -78,11 +76,17 @@ protected:
                             const ViewportInput& p_input,
                             CameraInputState& p_out_state);
 
+    // @TODO: get rid of this
+    static void CreateDefaultCamera2D(CameraComponent& p_out);
+
     const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
 
     ecs::Entity m_selected;
+
+    // @TODO: camera controller
+    std::shared_ptr<CameraComponent> m_camera;
 
 private:
     std::string m_title;

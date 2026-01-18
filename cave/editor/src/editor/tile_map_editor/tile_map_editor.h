@@ -21,8 +21,6 @@ public:
 
     bool HandleInput(const InputEvent* p_input_event) override;
 
-    void OnCreate(const Guid& p_guid) override;
-
     void OnDestroy() override;
 
     void OnActivate() override;
@@ -36,7 +34,7 @@ public:
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
 protected:
-    const CameraComponent& GetActiveCameraInternal() const override;
+    void OnCreateInternal(const Guid& p_guid) override;
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 

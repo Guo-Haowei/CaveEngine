@@ -14,8 +14,6 @@ public:
 
     bool HandleInput(const InputEvent* p_input_event) final;
 
-    void OnCreate(const Guid& p_guid) final;
-
     void OnDestroy() final;
 
     void OnActivate() final;
@@ -31,7 +29,7 @@ public:
     }
 
 protected:
-    const CameraComponent& GetActiveCameraInternal() const override;
+    void OnCreateInternal(const Guid& p_guid) final;
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 
@@ -41,12 +39,8 @@ protected:
 
     std::shared_ptr<SceneDocument> m_document;
 
-    std::array<CameraComponent, 2> m_cameras;
-    mutable int m_camera_idx = 0;
-
     ToolBarButtonDesc m_play_button;
     ToolBarButtonDesc m_pause_button;
-    ToolBarButtonDesc m_toggle_view_button;
 };
 
 }  // namespace cave

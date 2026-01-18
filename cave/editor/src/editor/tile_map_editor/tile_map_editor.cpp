@@ -32,8 +32,7 @@ TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
 
 TileMapEditor::~TileMapEditor() = default;
 
-void TileMapEditor::OnCreate(const Guid& p_guid) {
-    ViewerTab::OnCreate(p_guid);
+void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
 
     m_document = std::make_unique<TileMapDocument>(p_guid, *this);
 
@@ -176,11 +175,6 @@ bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
     }
 
     return false;
-}
-
-const CameraComponent& TileMapEditor::GetActiveCameraInternal() const {
-    DEV_ASSERT(m_camera);
-    return *m_camera.get();
 }
 
 void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {

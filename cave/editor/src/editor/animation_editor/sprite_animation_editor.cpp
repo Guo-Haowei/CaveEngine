@@ -43,8 +43,7 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_vi
                        } };
 }
 
-void SpriteAnimationEditor::OnCreate(const Guid& p_guid) {
-    ViewerTab::OnCreate(p_guid);
+void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
     m_document = std::make_shared<SpriteAnimationDocument>(p_guid);
 
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
@@ -323,10 +322,6 @@ Document& SpriteAnimationEditor::GetDocument() const {
 bool SpriteAnimationEditor::HandleInput(const InputEvent* p_input_event) {
     unused(p_input_event);
     return false;
-}
-
-const CameraComponent& SpriteAnimationEditor::GetActiveCameraInternal() const {
-    return *m_camera.get();
 }
 
 }  // namespace cave
