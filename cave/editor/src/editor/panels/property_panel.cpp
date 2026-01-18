@@ -176,6 +176,16 @@ bool DrawComponentAuto(T* p_component) {
                     dirty |= 1;
                 }
             } break;
+            case EditorHint::InputInt: {
+                int& i = field->template GetData<int>(p_component);
+                dirty |= (int)DrawInputInt(field->name, i);
+            } break;
+            case EditorHint::InputFloat: {
+                float& f = field->template GetData<float>(p_component);
+                dirty |= (int)DrawInputFloat(field->name, f);
+            } break;
+            case EditorHint::DragInt: {
+            } break;
             case EditorHint::DragFloat: {
                 float& f = field->template GetData<float>(p_component);
                 dirty |= (int)DrawDragFloat(field->name,
@@ -269,6 +279,10 @@ void PropertyPanel::UpdateInternal() {
             Matrix4x4f new_transform = p_transform.GetLocalMatrix();
             // already moved, no need to move again
             document.RequestMove(id, old_transform, new_transform, false);
+
+            if (camera) {
+                camera->SetDirtyFlag();
+            }
         }
     });
 
@@ -391,14 +405,9 @@ void PropertyPanel::UpdateInternal() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera, [&](CameraComponent& p_camera) {
-        // @TODO: need a better way to do this
-        bool is_ortho = p_camera.HasOrthoFlag();
-        if (ToggleButton("ortho", is_ortho)) {
-            p_camera.SetOrthoFlag(is_ortho);
+        if (DrawComponentAuto<CameraComponent>(&p_camera)) {
             p_camera.SetDirtyFlag();
         }
-
-        DrawComponentAuto<CameraComponent>(&p_camera);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("RigidBody"), rigid_body_component, [](RigidBodyComponent& p_rigid_body) {

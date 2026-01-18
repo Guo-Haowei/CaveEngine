@@ -15,31 +15,29 @@ auto ViewportManager::InitializeImpl() -> Result<void> {
 void ViewportManager::FinalizeImpl() {
 }
 
-ViewportId ViewportManager::CreateViewport(ViewProviderRef p_provider, const char* p_debug_name) {
-    ManagedViewport V;
-    V.id = ++m_next_id;
-    V.debug_name = p_debug_name ? p_debug_name : "Viewport";
-    V.view_provider = std::move(p_provider);
+ViewportId ViewportManager::CreateViewport(ViewProviderRef p_provider) {
+    ManagedViewport vp;
+    vp.id = ++m_next_id;
+    vp.view_provider = std::move(p_provider);
 
-    m_viewports.push_back(std::move(V));
+    m_viewports.push_back(std::move(vp));
     return m_viewports.back().id;
 }
 
-void ViewportManager::BuildViews(float p_timestep,
-                                 std::vector<SceneView>& p_out_views,
-                                 bool p_is_opengl) {
-    p_out_views.clear();
-
-    // @TODO: only build input for focused viewport
+void ViewportManager::UpdateProviders(float p_timestep) {
+    // @TODO: refactor input routing
     ViewportInput input;
     m_app->GetInputManager()->FillViewportInput(input);
 
     for (auto& vp : m_viewports) {
-        if (!vp.visible || !vp.view_provider) {
-            continue;
-        }
-
         vp.view_provider->Update(p_timestep, input, vp.focused);
+    }
+}
+
+void ViewportManager::BuildViews(std::vector<SceneView>& p_out_views,
+                                 bool p_is_opengl) {
+    p_out_views.clear();
+    for (auto& vp : m_viewports) {
         vp.view_provider->BuildViews(p_out_views, p_is_opengl);
     }
 }

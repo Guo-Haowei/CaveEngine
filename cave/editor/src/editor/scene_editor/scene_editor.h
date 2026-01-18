@@ -10,7 +10,7 @@ class SceneDocument;
 
 class SceneEditor : public ViewerTab {
 public:
-    SceneEditor(EditorLayer& p_editor, Viewer& p_viewer);
+    SceneEditor(EditorLayer& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension);
 
     bool HandleInput(const InputEvent* p_input_event) final;
 
@@ -22,16 +22,15 @@ public:
 
     Scene* GetScene() final;
 
-    const char* GetDebugName() const final {
-        return "SceneEditor";
-    }
+    void BuildViews(std::vector<SceneView>& p_out_views,
+                    bool p_is_opengl) final;
 
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
 
     void OnActivateInternal() final;
 
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
+    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
     GizmoAction m_state{ GizmoAction::Translate };
 

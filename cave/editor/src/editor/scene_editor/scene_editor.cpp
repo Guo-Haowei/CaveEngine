@@ -2,6 +2,7 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
+#include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/mode_manager.h"
 #include "engine/scene/entity_factory.h"
@@ -18,8 +19,9 @@
 
 namespace cave {
 
-SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer) {
+SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension)
+    : ViewerTab(p_editor, p_viewer, p_dimension) {
+
     m_play_button = {
         ICON_FA_PLAY,
         "Run Project",
@@ -73,15 +75,41 @@ Scene* SceneEditor::GetScene() {
     return handle.Get();
 }
 
+void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
+    if (!m_active) {
+        return;
+    }
+
+    Scene* scene = GetScene();
+
+    const GameMode mode = m_editor.GetApplication()->GetModeManager().GetMode();
+
+    if (mode == GameMode::Gameplay) {
+        // @HACK: find the first non-editor camera
+        for (auto [id, camera] : scene->View<CameraComponent>()) {
+            if (scene->Contains<NoSaveTag>(id)) {
+                continue;
+            }
+
+            BuildViewsImpl(scene, id, p_out_views, p_is_opengl);
+            break;
+        }
+    } else {
+        BuildViewsImpl(scene, m_camera, p_out_views, p_is_opengl);
+    }
+}
+
+// @TODO: rename this to DrawEditor
 void SceneEditor::DrawMainView(const CameraComponent&) {
     // @TODO: fix this as well
-    const CameraComponent& p_camera = *m_camera;
+    const CameraComponent* p_camera = GetScene()->GetComponent<CameraComponent>(m_camera);
+    DEV_ASSERT(p_camera);
 
-    ViewerTab::DrawMainView(p_camera);
+    ViewerTab::DrawMainView(*p_camera);
 
-    const Matrix4x4f& view_matrix = p_camera.GetViewMatrix();
-    const Matrix4x4f& proj_matrix = p_camera.GetProjectionMatrix();
-    const Matrix4x4f& proj_view = p_camera.GetProjectionViewMatrix();
+    const Matrix4x4f& view_matrix = p_camera->GetViewMatrix();
+    const Matrix4x4f& proj_matrix = p_camera->GetProjectionMatrix();
+    const Matrix4x4f& proj_view = p_camera->GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -194,7 +222,8 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
 
         const Matrix4x4f inv_pv = glm::inverse(cam.GetProjectionViewMatrix());
 
-        const Vector3f ray_start = cam.GetPosition();
+        const Vector3f ray_start = Vector3f::Zero;
+        // const Vector3f ray_start = m_camera_transform.GetTranslation();
         const Vector3f direction = normalize(Vector3f((inv_pv * ndc).xyz));
         const Vector3f ray_end = ray_start + direction * cam.GetFar();
         Ray ray(ray_start, ray_end);

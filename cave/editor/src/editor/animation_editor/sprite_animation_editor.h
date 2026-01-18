@@ -21,22 +21,26 @@ class SpriteAnimationEditor : public ViewerTab {
 public:
     SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_viewer);
 
-    bool HandleInput(const InputEvent* p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event) final;
 
-    void OnDestroy() override;
+    void OnDestroy() final;
 
-    void DrawMainView(const CameraComponent& p_camera) override;
+    void DrawMainView(const CameraComponent& p_camera) final;
 
-    void DrawAssetInspector() override;
+    void DrawAssetInspector() final;
 
-    Document& GetDocument() const override;
+    Document& GetDocument() const final;
+
+    Scene* GetScene() final {
+        return m_tmp_scene.get();
+    }
 
 protected:
-    void OnCreateInternal(const Guid& p_guid) override;
+    void OnCreateInternal(const Guid& p_guid) final;
 
-    void OnActivateInternal() override;
+    void OnActivateInternal() final;
 
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
+    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
     void DrawFrameSelector(ImageAsset& p_image_asset);
     void DrawTimeLine();

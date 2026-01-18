@@ -29,6 +29,11 @@ static void RegisterRenderDvars() {
 extern Application* CreateApplication();
 extern void RegisterExtraDvars();
 
+#ifdef EMPTY_APPLICATION
+Application* CreateApplication() { return nullptr; }
+void RegisterExtraDvars() {}
+#endif
+
 static auto SaveCommandLine(int p_argc, const char** p_argv) {
     std::vector<std::string> command_line;
     // m_appName = p_argv[0];

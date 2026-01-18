@@ -102,7 +102,9 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
 
     switch (p_type) {
         case AssetType::Scene: {
-            tab.reset(new SceneEditor(m_editor, *this));
+            ViewerTab::Dimension dimension = DVAR_GET_BOOL(is_world_2d) ? ViewerTab::DIMENSION_2
+                                                                        : ViewerTab::DIMENSION_3;
+            tab.reset(new SceneEditor(m_editor, *this, dimension));
         } break;
         case AssetType::TileSet: {
             tab.reset(new TileSetEditor(m_editor, *this));
@@ -122,7 +124,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     }
 
     ViewportManager* viewport_manager = m_editor.GetApplication()->GetViewportManager();
-    viewport_manager->CreateViewport(tab, tab->GetDebugName());
+    viewport_manager->CreateViewport(tab);
 
     DVAR_SET_STRING(last_open_asset, p_guid.ToString());
 
@@ -140,7 +142,7 @@ void Viewer::UpdateInternal() {
         return;
     }
 
-    //ViewerTab* active_tab = _tab.unwrap_unchecked();
+    // ViewerTab* active_tab = _tab.unwrap_unchecked();
 
     int flag = 0;
 #if 0

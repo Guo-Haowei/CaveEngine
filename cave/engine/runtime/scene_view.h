@@ -21,7 +21,7 @@ struct ViewInfo {
     float sceen_width;
     float sceen_height;
     float aspect_ratio;
-    Degree fovy;
+    float fovy;
 
     static void FromCamera(const CameraComponent& p_camera,
                            ViewInfo& p_out_view_info,
@@ -58,8 +58,6 @@ public:
 
     virtual void BuildViews(std::vector<SceneView>& p_out_views,
                             bool p_is_opengl) = 0;
-
-    virtual const char* GetDebugName() const = 0;
 };
 
 }  // namespace cave

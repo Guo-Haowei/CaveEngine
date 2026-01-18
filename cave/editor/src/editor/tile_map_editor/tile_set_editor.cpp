@@ -12,11 +12,8 @@
 namespace cave {
 
 TileSetEditor::TileSetEditor(EditorLayer& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer)
+    : ViewerTab(p_editor, p_viewer, DIMENSION_2)
     , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
-
-    m_camera = std::make_unique<CameraComponent>();
-    ViewerTab::CreateDefaultCamera2D(*m_camera.get());
 }
 
 TileSetEditor::~TileSetEditor() = default;

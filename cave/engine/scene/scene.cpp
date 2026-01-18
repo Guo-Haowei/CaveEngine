@@ -29,11 +29,6 @@ namespace cave {
 
 using ecs::Entity;
 
-void Scene::CreateEmpty() {
-    auto root = EntityFactory::CreateTransformEntity(*this, "root");
-    m_root = root;
-}
-
 void Scene::Update(float p_timestep) {
     CAVE_PROFILE_EVENT();
 
@@ -64,8 +59,8 @@ void Scene::Update(float p_timestep) {
     RunMeshAABBUpdateSystem(*this, ctx, p_timestep);
 
     // @TODO: refactor
-    for (auto [entity, camera] : View<CameraComponent>()) {
-        if (camera.Update()) {
+    for (auto [entity, camera, transform] : View<CameraComponent, TransformComponent>()) {
+        if (camera.Update(transform.GetWorldMatrix())) {
             m_dirtyFlags.fetch_or(SCENE_DIRTY_CAMERA);
         }
     }
@@ -172,16 +167,6 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
     Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = Create<HierarchyComponent>(mapped_root);
     hier.parent_id = p_entity.IsValid() ? p_entity : m_root;
-}
-
-ecs::Entity Scene::GetMainCamera() {
-    for (auto [entity, camera] : View<CameraComponent>()) {
-        if (camera.HasPrimaryFlag()) {
-            return entity;
-        }
-    }
-
-    return ecs::Entity::Null();
 }
 
 ecs::Entity Scene::FindEntityByName(const char* p_name) {

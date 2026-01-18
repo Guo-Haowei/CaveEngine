@@ -5,7 +5,7 @@
 namespace cave {
 
 Matrix4x4f CameraComponent::CalcProjection() const {
-    if (HasOrthoFlag()) {
+    if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
         return BuildOrthoRH(-half_width,
@@ -15,11 +15,11 @@ Matrix4x4f CameraComponent::CalcProjection() const {
                             m_near,
                             m_far);
     }
-    return BuildPerspectiveRH(m_fovy.GetRadians(), GetAspect(), m_near, m_far);
+    return BuildPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
 }
 
 Matrix4x4f CameraComponent::CalcProjectionGL() const {
-    if (HasOrthoFlag()) {
+    if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
         return BuildOpenGlOrthoRH(-half_width,
@@ -29,24 +29,23 @@ Matrix4x4f CameraComponent::CalcProjectionGL() const {
                                   m_near,
                                   m_far);
     }
-    return BuildOpenGlPerspectiveRH(m_fovy.GetRadians(), GetAspect(), m_near, m_far);
+    return BuildOpenGlPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
 }
 
-bool CameraComponent::Update() {
+bool CameraComponent::Update(const Matrix4x4f& p_transform) {
     if (HasDirtyFlag()) {
         SetDirtyFlag(false);
 
-        m_front.x = m_yaw.Sin() * m_pitch.Cos();
-        m_front.y = m_pitch.Sin();
-        m_front.z = m_yaw.Cos() * -m_pitch.Cos();
+        m_front = (p_transform * -Vector4f::UnitZ).xyz;
+        m_right = (p_transform * Vector4f::UnitX).xyz;
+        m_up = (p_transform * Vector4f::UnitY).xyz;
+        m_position = (p_transform * Vector4f::UnitW).xyz;
 
-        m_right = cross(m_front, Vector3f::UnitY);
-
-        m_viewMatrix = LookAtRh(m_position, m_position + m_front, Vector3f::UnitY);
+        m_view_matrix = LookAtRh(m_position, m_position + m_front, Vector3f::UnitY);
 
         // use gl matrix for frustum culling
-        m_projectionMatrix = CalcProjectionGL();
-        m_projectionViewMatrix = m_projectionMatrix * m_viewMatrix;
+        m_projection_matrix = CalcProjectionGL();
+        m_projection_view_matrix = m_projection_matrix * m_view_matrix;
         return true;
     }
 
@@ -65,13 +64,6 @@ void CameraComponent::SetDimension(int p_width, int p_height) {
 void CameraComponent::SetOrthoHeight(float p_height) {
     if (p_height != m_ortho_height) {
         m_ortho_height = p_height;
-        SetDirtyFlag();
-    }
-}
-
-void CameraComponent::SetPosition(const Vector3f& p_position) {
-    if (p_position != m_position) {
-        m_position = p_position;
         SetDirtyFlag();
     }
 }

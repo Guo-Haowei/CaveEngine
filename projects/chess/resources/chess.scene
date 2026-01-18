@@ -1,5 +1,5 @@
 version: 19
-seed: 73
+seed: 77
 root: 1
 physics_mode: 0
 entities:
@@ -891,7 +891,7 @@ entities:
       scale: [1, 0.0500000007, 1]
     MeshRendererComponent:
       visibility: true
-      cast_shadow: true
+      cast_shadow: false
       transparency: true
       mesh_id: 00000000-0000-0000-0000000000000005
       materials: [73]
@@ -905,3 +905,21 @@ entities:
       roughness: 1
       emissive: 0
       material_id: 00000000-0000-0000-0000000000000000
+  - id: 77
+    NameComponent:
+      name: game_camera
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [-5.80000019, 6.69999981, 0]
+      rotation: [-0.31498, -0.632995546, -0.314871162, 0.633214235]
+      scale: [1, 1, 1]
+    CameraComponent:
+      flags: 0
+      projection: perspective
+      fovy: 60
+      near: 0.100000001
+      far: 1000
+      width: 1920
+      height: 1080
+      ortho_height: 10

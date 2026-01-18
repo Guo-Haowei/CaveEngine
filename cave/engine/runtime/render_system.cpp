@@ -86,7 +86,7 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
         cache.c_camProj = view_info->projection_rendering;
         cache.c_invCamView = glm::inverse(view_info->view);
         cache.c_invCamProj = glm::inverse(view_info->projection_rendering);
-        cache.c_cameraFovDegree = view_info->fovy.GetDegree();
+        cache.c_cameraFovDegree = view_info->fovy;
         cache.c_cameraForward = view_info->front;
         cache.c_cameraRight = view_info->right;
         cache.c_cameraUp = view_info->up;
@@ -209,7 +209,7 @@ void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
         FillEnvConstants(framedata);
 
         // @TODO: fix path tracer
-        //if (p_scene) {
+        // if (p_scene) {
         //    RequestPathTracerUpdate(*camera, *p_scene);
         //}
     }

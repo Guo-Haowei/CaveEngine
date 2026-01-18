@@ -11,6 +11,8 @@
 
 // @TODO: refactor
 #include "pbr.hlsl.h"
+#define EMPTY_APPLICATION
+#include "engine/runtime/entry_point.h"
 
 using namespace cave;
 

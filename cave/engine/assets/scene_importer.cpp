@@ -58,7 +58,6 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
         return CAVE_ERROR(ErrorCode::FAILURE, "Failed to copy file from {} to {}", p_sys_path.string(), image_path.string());
     }
 
-
     auto _meta = AssetMetaData::CreateMeta(virtual_path);
     if (_meta.is_none()) {
         CRASH_NOW();

@@ -15,12 +15,10 @@
 namespace cave {
 
 MaterialEditor::MaterialEditor(EditorLayer& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer) {
+    : ViewerTab(p_editor, p_viewer, DIMENSION_3) {
 }
 
 void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
-    m_camera->SetPosition(Vector3f(0, 0, 2));
-
     m_document = std::make_shared<MaterialDocument>(p_guid);
 
     auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
@@ -72,10 +70,6 @@ void MaterialEditor::OnDestroy() {
 void MaterialEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
     scene_manager->OpenTempScene(m_tmp_scene);
-}
-
-Scene* MaterialEditor::GetScene() {
-    return m_tmp_scene.get();
 }
 
 void MaterialEditor::DrawMainView(const CameraComponent& p_camera) {

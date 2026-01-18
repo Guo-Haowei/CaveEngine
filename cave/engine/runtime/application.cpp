@@ -260,6 +260,8 @@ bool Application::MainLoop() {
         m_script_manager->Update(*scene, timestep);
     }
 
+    m_viewport_manager->UpdateProviders(timestep);
+
     if (scene) {
         scene->Update(timestep);
     }
@@ -273,7 +275,7 @@ bool Application::MainLoop() {
     const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;
 
     std::vector<SceneView> views;
-    m_viewport_manager->BuildViews(timestep, views, is_opengl);
+    m_viewport_manager->BuildViews(views, is_opengl);
 
     // @TODO: build render data, rename it to something better
     m_render_system->RenderFrame(views);

@@ -2,49 +2,51 @@
 
 #include "engine/assets/material_asset.h"
 #include "engine/math/geometry.h"
+#include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
 namespace cave {
 
-Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
-                                                    const std::string& p_name,
-                                                    int p_width,
-                                                    int p_height,
-                                                    float p_near_plane,
-                                                    float p_far_plane,
-                                                    Degree p_fovy) {
-    auto entity = CreateNameEntity(p_scene, p_name);
+Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
+                                         const std::string& p_name,
+                                         float p_near_plane,
+                                         float p_far_plane,
+                                         float p_fovy) {
+
+    Entity entity = CreateNameEntity(p_scene, p_name);
     CameraComponent& camera = p_scene.Create<CameraComponent>(entity);
 
-    camera.m_width = p_width;
-    camera.m_height = p_height;
+    Vector2i frame_size = DVAR_GET_IVEC2(resolution);
+
+    camera.m_width = frame_size.x;
+    camera.m_height = frame_size.y;
     camera.m_near = p_near_plane;
     camera.m_far = p_far_plane;
     camera.m_fovy = p_fovy;
-    camera.m_pitch = Degree{ -10.0f };
-    camera.m_yaw = Degree{ -90.0f };
     camera.SetDirtyFlag();
+
+    p_scene.Create<TransformComponent>(entity);
     return entity;
 }
 
 Entity EntityFactory::CreateNameEntity(Scene& p_scene,
                                        const std::string& p_name) {
-    auto entity = p_scene.CreateEntity();
+    Entity entity = p_scene.CreateEntity();
     p_scene.Create<NameComponent>(entity).SetName(p_name);
     return entity;
 }
 
 Entity EntityFactory::CreateTransformEntity(Scene& p_scene,
                                             const std::string& p_name) {
-    auto entity = CreateNameEntity(p_scene, p_name);
+    Entity entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<TransformComponent>(entity);
     return entity;
 }
 
 Entity EntityFactory::CreateMeshInstance(Scene& p_scene,
                                          const std::string& p_name) {
-    auto entity = CreateNameEntity(p_scene, p_name);
+    Entity entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<MeshRendererComponent>(entity);
     p_scene.Create<TransformComponent>(entity);
     return entity;
@@ -55,7 +57,7 @@ Entity EntityFactory::CreatePointLightEntity(Scene& p_scene,
                                              const Vector3f& p_position,
                                              const Vector3f& p_color,
                                              const float p_emissive) {
-    auto id = CreateMeshInstance(p_scene, p_name);
+    Entity id = CreateMeshInstance(p_scene, p_name);
 
     LightComponent& light = p_scene.Create<LightComponent>(id);
     light.SetType(LightType::Point);
@@ -78,7 +80,7 @@ Entity EntityFactory::CreateInfiniteLightEntity(Scene& p_scene,
                                                 const std::string& p_name,
                                                 const Vector3f& p_color,
                                                 const float p_emissive) {
-    auto id = CreateNameEntity(p_scene, p_name);
+    Entity id = CreateNameEntity(p_scene, p_name);
     p_scene.Create<TransformComponent>(id);
     LightComponent& light = p_scene.Create<LightComponent>(id);
     light.SetType(LightType::Infinite);
@@ -97,7 +99,7 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
                                             const std::string& p_name,
                                             const Vector3f& p_color,
                                             const float p_emissive) {
-    auto id = CreateMeshInstance(p_scene, p_name);
+    Entity id = CreateMeshInstance(p_scene, p_name);
 
     // light
     LightComponent& light = p_scene.Create<LightComponent>(id);
@@ -123,7 +125,7 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
 
 Entity EntityFactory::CreateEnvironmentEntity(Scene& p_scene,
                                               const std::string& p_name) {
-    auto entity = CreateNameEntity(p_scene, p_name);
+    Entity entity = CreateNameEntity(p_scene, p_name);
     p_scene.Create<EnvironmentComponent>(entity);
     return entity;
 }
@@ -140,7 +142,7 @@ static Entity CreateMeshEntity(const std::string& p_asset_path,
                                Scene& p_scene,
                                const std::string& p_name,
                                const Matrix4x4f& p_transform) {
-    auto id = EntityFactory::CreateNameEntity(p_scene, p_name);
+    Entity id = EntityFactory::CreateNameEntity(p_scene, p_name);
     TransformComponent& transform = p_scene.Create<TransformComponent>(id);
     transform.MatrixTransform(p_transform);
 
@@ -221,7 +223,7 @@ Entity EntityFactory::CreateMeshEmitterEntity(Scene& p_scene,
 Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
                                           const std::string& p_name,
                                           const Matrix4x4f& p_transform) {
-    auto entity = CreateNameEntity(p_scene, p_name);
+    Entity entity = CreateNameEntity(p_scene, p_name);
 
     TransformComponent& transform = p_scene.Create<TransformComponent>(entity);
     transform.MatrixTransform(p_transform);
