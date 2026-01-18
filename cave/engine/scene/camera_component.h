@@ -14,7 +14,7 @@ enum class ProjectionType : uint8_t {
     Count,
 };
 
-DECLARE_ENUM_TRAITS(ProjectionType, "Perspective", "Orthographic");
+DECLARE_ENUM_TRAITS(ProjectionType, "perspective", "orthographic");
 
 class CameraComponent {
     CAVE_META(CameraComponent)
@@ -50,13 +50,13 @@ private:
     float m_ortho_height = 10;
 
     // Not serlialized
-    Vector3f m_front;
-    Vector3f m_right;
-    Vector3f m_up;
+    Vector3f m_front = -Vector3f::UnitZ;
+    Vector3f m_right = Vector3f::UnitX;
+    Vector3f m_up = Vector3f::UnitY;
 
-    Matrix4x4f m_viewMatrix;
-    Matrix4x4f m_projectionMatrix;
-    Matrix4x4f m_projectionViewMatrix;
+    Matrix4x4f m_view_matrix;
+    Matrix4x4f m_projection_matrix;
+    Matrix4x4f m_projection_view_matrix;
 
     friend class CameraControllerFPS;
     friend class EntityFactory;
@@ -98,9 +98,9 @@ public:
     float GetOrthoHeight() const { return m_ortho_height; }
     void SetOrthoHeight(float p_height);
 
-    const Matrix4x4f& GetViewMatrix() const { return m_viewMatrix; }
-    const Matrix4x4f& GetProjectionMatrix() const { return m_projectionMatrix; }
-    const Matrix4x4f& GetProjectionViewMatrix() const { return m_projectionViewMatrix; }
+    const Matrix4x4f& GetViewMatrix() const { return m_view_matrix; }
+    const Matrix4x4f& GetProjectionMatrix() const { return m_projection_matrix; }
+    const Matrix4x4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
     const Vector3f& GetFront() const { return m_front; }
     const Vector3f& GetRight() const { return m_right; }
     const Vector3f& GetUp() const { return m_up; }

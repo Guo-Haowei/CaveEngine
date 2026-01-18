@@ -42,11 +42,11 @@ bool CameraComponent::Update(const Matrix4x4f& p_transform) {
 
         Vector3f position = (p_transform * Vector4f::UnitW).xyz;
 
-        m_viewMatrix = LookAtRh(position, position + m_front, Vector3f::UnitY);
+        m_view_matrix = LookAtRh(position, position + m_front, Vector3f::UnitY);
 
         // use gl matrix for frustum culling
-        m_projectionMatrix = CalcProjectionGL();
-        m_projectionViewMatrix = m_projectionMatrix * m_viewMatrix;
+        m_projection_matrix = CalcProjectionGL();
+        m_projection_view_matrix = m_projection_matrix * m_view_matrix;
         return true;
     }
 

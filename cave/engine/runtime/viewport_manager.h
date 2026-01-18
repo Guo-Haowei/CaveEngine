@@ -27,9 +27,10 @@ public:
 
     ViewportId CreateViewport(ViewProviderRef p_provider);
 
-    void BuildViews(float p_timestep,
-                    std::vector<SceneView>& p_out_views,
-                    bool p_is_opengl);
+    void UpdateProviders(float p_timestep);
+
+    void BuildViews(std::vector<SceneView>& p_out_views,
+                        bool p_is_opengl);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

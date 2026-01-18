@@ -24,21 +24,20 @@ ViewportId ViewportManager::CreateViewport(ViewProviderRef p_provider) {
     return m_viewports.back().id;
 }
 
-void ViewportManager::BuildViews(float p_timestep,
-                                 std::vector<SceneView>& p_out_views,
-                                 bool p_is_opengl) {
-    p_out_views.clear();
-
-    // @TODO: only build input for focused viewport
+void ViewportManager::UpdateProviders(float p_timestep) {
+    // @TODO: refactor input routing
     ViewportInput input;
     m_app->GetInputManager()->FillViewportInput(input);
 
     for (auto& vp : m_viewports) {
-        if (!vp.visible || !vp.view_provider) {
-            continue;
-        }
-
         vp.view_provider->Update(p_timestep, input, vp.focused);
+    }
+}
+
+void ViewportManager::BuildViews(std::vector<SceneView>& p_out_views,
+                                 bool p_is_opengl) {
+    p_out_views.clear();
+    for (auto& vp : m_viewports) {
         vp.view_provider->BuildViews(p_out_views, p_is_opengl);
     }
 }

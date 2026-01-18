@@ -2,8 +2,7 @@
 
 #include "engine/math/angle.h"
 #include "engine/runtime/input_manager.h"
-#include "engine/scene/camera_component.h"
-#include "engine/scene/transform_component.h"
+#include "engine/scene/scene.h"
 
 namespace cave {
 
@@ -25,8 +24,11 @@ void CameraController2DEditor::Update(const CameraInputState& p_state) {
 }
 
 void CameraControllerFPS::Update(const CameraInputState& p_state) {
-    CameraComponent p_camera;
-    TransformComponent p_transform;
+    CameraComponent* camera = m_scene->GetComponent<CameraComponent>(m_cam);
+    TransformComponent* rotation_x = m_scene->GetComponent<TransformComponent>(m_cam);
+    TransformComponent* rotation_y = m_scene->GetComponent<TransformComponent>(m_cam_y);
+    TransformComponent* root = m_scene->GetComponent<TransformComponent>(m_cam_root);
+    DEV_ASSERT(camera && rotation_x && rotation_y && root);
 
     const bool moved = p_state.move.x || p_state.move.y || p_state.move.z || p_state.zoom_delta != 0.0f;
     if (moved) {
@@ -34,19 +36,19 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
         const float dy = p_state.move.y;
 
         float dz = p_state.move.z;
-        const float scroll_z = m_scrollSpeed * p_state.zoom_delta;
+        const float scroll_z = m_scroll_speed * p_state.zoom_delta;
         if (glm::abs(scroll_z) > glm::abs(dz)) {
             dz = scroll_z;
         }
 
-        Vector3f position = p_transform.GetTranslation();
+        Vector3f position = root->GetTranslation();
 
         if (dx || dz) {
-            Vector3f delta = (m_moveSpeed * dz) * p_camera.GetFront() + (m_moveSpeed * dx) * p_camera.GetRight();
-            p_transform.Translate(delta);
+            Vector3f delta = (m_move_speed * dz) * camera->GetFront() + (m_move_speed * dx) * camera->GetRight();
+            root->Translate(delta);
         }
         if (dy) {
-            p_transform.Translate(Vector3f(0.0f, m_moveSpeed * dy, 0.0f));
+            root->Translate(Vector3f(0.0f, m_move_speed * dy, 0.0f));
         }
     }
 
@@ -55,30 +57,26 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
         float rotate_y = 0.0f;
 
         Vector2f movement = p_state.rotation;
-        movement = m_rotateSpeed * movement;
+        movement = m_rotate_speed * movement;
         if (glm::abs(movement.x) > glm::abs(movement.y)) {
             rotate_y = movement.x;
         } else {
             rotate_x = movement.y;
         }
 
-        // @TODO: DPI
-#if 0
         if (rotate_y) {
-            p_camera.m_yaw += Degree(rotate_y);
+            rotation_y->RotateY(Degree(rotate_y));
         }
 
         if (rotate_x) {
-            p_camera.m_pitch += Degree(rotate_x);
-            p_camera.m_pitch.Clamp(-85.0f, 85.0f);
+            rotation_x->RotateX(Degree(rotate_x));
         }
-#endif
 
         return rotate_x != 0.0f || rotate_y != 0.0f;
     };
 
     if (moved || rotate_camera()) {
-        p_camera.SetDirtyFlag();
+        camera->SetDirtyFlag();
     }
 }
 
