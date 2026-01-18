@@ -196,11 +196,6 @@ void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
     DEV_ASSERT(m_frameData);
     FrameData& framedata = *m_frameData;
 
-    DEV_ASSERT(0);
-
-    // @TODO: move it to BuildViews
-    //ViewInfo::FromCamera(*camera, framedata.view_info, framedata.options.isOpengl);
-
     for (SceneView& view : p_views) {
         Scene* p_scene = view.scene;
         // @TODO: only support one view, fix this

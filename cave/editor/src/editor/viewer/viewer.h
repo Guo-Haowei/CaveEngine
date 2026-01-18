@@ -3,11 +3,13 @@
 
 #include "engine/input/input_router.h"
 #include "engine/scene/camera_controller.h"
+
 #include "editor/editor_window.h"
 #include "editor/enums.h"
 
 namespace cave {
 
+// @TODO: move this to viewport
 struct InputCache {
     int dx, dy, dz;
     float scroll;

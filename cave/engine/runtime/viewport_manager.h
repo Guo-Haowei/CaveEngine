@@ -8,7 +8,7 @@ class ISceneViewProvider;
 struct SceneView;
 
 using ViewportId = uint32_t;
-using ViewProviderRef = std::unique_ptr<ISceneViewProvider>;
+using ViewProviderRef = std::shared_ptr<ISceneViewProvider>;
 
 struct ManagedViewport {
     ViewportId id = 0;
@@ -27,7 +27,9 @@ public:
     ViewportManager();
 
     ViewportId CreateViewport(ViewProviderRef p_provider, const char* p_debug_name );
-    void BuildViews(float p_timestep, std::vector<SceneView>& p_out_views);
+    void BuildViews(float p_timestep,
+                    std::vector<SceneView>& p_out_views,
+                    bool p_is_opengl);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

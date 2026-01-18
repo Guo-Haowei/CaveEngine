@@ -3,6 +3,7 @@
 
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
+#include "engine/runtime/scene_view.h"
 
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
@@ -16,7 +17,7 @@ class TabId;
 struct ToolBarButtonDesc;
 class Viewer;
 
-class ViewerTab {
+class ViewerTab: public ISceneViewProvider {
 public:
     ViewerTab(EditorLayer& p_editor, Viewer& p_viewer);
 
@@ -49,6 +50,14 @@ public:
     }
 
     virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const = 0;
+
+    void Update(float, bool) override {}
+
+    void BuildViews(std::vector<SceneView>&, bool) override {}
+
+    const char* GetDebugName() const override {
+        return "ViewerTab";
+    }
 
 protected:
     virtual const CameraComponent& GetActiveCameraInternal() const = 0;

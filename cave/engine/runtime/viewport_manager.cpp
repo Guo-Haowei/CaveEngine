@@ -1,7 +1,5 @@
 #include "viewport_manager.h"
 
-#include "engine/runtime/scene_view.h"
-
 namespace cave {
 
 ViewportManager::ViewportManager()
@@ -24,7 +22,9 @@ ViewportId ViewportManager::CreateViewport(ViewProviderRef p_provider, const cha
     return m_viewports.back().id;
 }
 
-void ViewportManager::BuildViews(float p_timestep, std::vector<SceneView>& p_out_views) {
+void ViewportManager::BuildViews(float p_timestep,
+                                 std::vector<SceneView>& p_out_views,
+                                 bool p_is_opengl) {
     p_out_views.clear();
 
     for (auto& vp : m_viewports) {
@@ -33,7 +33,7 @@ void ViewportManager::BuildViews(float p_timestep, std::vector<SceneView>& p_out
         }
 
         vp.view_provider->Update(p_timestep, vp.focused);
-        vp.view_provider->BuildViews(p_out_views);
+        vp.view_provider->BuildViews(p_out_views, p_is_opengl);
     }
 }
 

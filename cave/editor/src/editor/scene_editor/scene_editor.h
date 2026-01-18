@@ -12,19 +12,27 @@ class SceneEditor : public ViewerTab {
 public:
     SceneEditor(EditorLayer& p_editor, Viewer& p_viewer);
 
-    bool HandleInput(const InputEvent* p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event) final;
 
-    void OnCreate(const Guid& p_guid) override;
+    void OnCreate(const Guid& p_guid) final;
 
-    void OnDestroy() override;
+    void OnDestroy() final;
 
-    void OnActivate() override;
+    void OnActivate() final;
 
-    void DrawMainView(const CameraComponent& p_camera) override;
+    void DrawMainView(const CameraComponent& p_camera) final;
 
-    Document& GetDocument() const override;
+    Document& GetDocument() const final;
 
-    Scene* GetScene() override;
+    Scene* GetScene() final;
+
+    void Update(float p_timestep, bool p_focused) final;
+
+    void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final;
+
+    const char* GetDebugName() const final {
+        return "SceneEditor";
+    }
 
 protected:
     const CameraComponent& GetActiveCameraInternal() const override;

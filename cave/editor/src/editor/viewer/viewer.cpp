@@ -8,6 +8,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/display_manager.h"
 #include "engine/runtime/mode_manager.h"
+#include "engine/runtime/viewport_manager.h"
 
 #include "editor/document/document.h"
 #include "editor/editor_dvars.h"
@@ -163,6 +164,9 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
             LOG_WARN("Can't open tab {}", EnumTraits<AssetType>::ToString(p_type));
             return;
     }
+
+    ViewportManager* viewport_manager = m_editor.GetApplication()->GetViewportManager();
+    viewport_manager->CreateViewport(tab, tab->GetDebugName());
 
     DVAR_SET_STRING(last_open_asset, p_guid.ToString());
 
