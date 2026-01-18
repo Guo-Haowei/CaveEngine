@@ -20,6 +20,7 @@ class ISceneManager;
 class IScriptManager;
 class RenderSystem;
 class Scene;
+class ViewportManager;
 
 struct ApplicationSpec {
     std::string_view userFolder;
@@ -67,6 +68,7 @@ public:
     IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     RenderSystem* GetRenderSystem() { return m_render_system; }
+    ViewportManager* GetViewportManager() { return m_viewport_manager; }
 
     const ApplicationSpec& GetSpecification() const { return m_specification; }
     const std::string& GetUserFolder() const { return m_user_folder; }
@@ -116,6 +118,7 @@ protected:
     IScriptManager* m_script_manager{ nullptr };
     RenderSystem* m_render_system{ nullptr };
     InputManager* m_input_manager{ nullptr };
+    ViewportManager* m_viewport_manager{ nullptr };
 
     std::vector<Module*> m_modules;
 

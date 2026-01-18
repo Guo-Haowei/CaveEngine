@@ -21,6 +21,7 @@
 #include "engine/runtime/render_system.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
+#include "engine/runtime/viewport_manager.h"
 #include "engine/scene/scene.h"
 
 #if USING(PLATFORM_WASM)
@@ -90,6 +91,7 @@ auto Application::SetupModules() -> Result<void> {
     m_display_server = CreateDisplayManager();
     m_input_manager = new InputManager();
     m_render_system = new RenderSystem();
+    m_viewport_manager = new ViewportManager();
 
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);
@@ -268,6 +270,8 @@ bool Application::MainLoop() {
 
     //std::vector<FRenderView> views;
     //m_viewport_manager->BuildViews(*scene, dt, views);
+    // view has camera controller and camera manager
+    // view has
 
     m_render_system->RenderFrame(scene.get());
 
