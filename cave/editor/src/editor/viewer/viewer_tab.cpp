@@ -134,15 +134,19 @@ void ViewerTab::CameraInputState3D(float p_timestep,
 void ViewerTab::Update(float p_timestep,
                        const ViewportInput& p_input,
                        bool p_focused) {
+    if (!m_viewer.IsFocused()) {
+        return;
+    }
+
     if (!p_focused) {
     }
 
     CameraInputState state;
     CameraInputState3D(p_timestep, p_input, state);
 
+    // @TODO: fix view
 #if 0
     const float timestep = m_editor.context.timestep;
-    //auto& camera = active_tab->GetActiveCamera();
     CameraComponent camera;
     const auto& c = m_camera_input;
     const bool is_2d = camera.HasView2dFlag();

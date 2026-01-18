@@ -132,9 +132,8 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     auto ndc_2 = res.unwrap_unchecked();
     Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
 
-    CameraComponent cam;
     DEV_ASSERT(0);
-    //const CameraComponent& cam = GetActiveCamera();
+    CameraComponent cam;
     const auto inv_proj_view = glm::inverse(cam.GetProjectionViewMatrix());
 
     Vector4f position = inv_proj_view * ndc;
