@@ -102,7 +102,9 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
 
     switch (p_type) {
         case AssetType::Scene: {
-            tab.reset(new SceneEditor(m_editor, *this));
+            ViewerTab::Dimension dimension = DVAR_GET_BOOL(is_world_2d) ? ViewerTab::DIMENSION_2
+                                                                        : ViewerTab::DIMENSION_3;
+            tab.reset(new SceneEditor(m_editor, *this, dimension));
         } break;
         case AssetType::TileSet: {
             tab.reset(new TileSetEditor(m_editor, *this));

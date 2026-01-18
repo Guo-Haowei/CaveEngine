@@ -18,8 +18,8 @@
 
 namespace cave {
 
-SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer, DIMENSION_3) {
+SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension)
+    : ViewerTab(p_editor, p_viewer, p_dimension) {
 
     m_play_button = {
         ICON_FA_PLAY,

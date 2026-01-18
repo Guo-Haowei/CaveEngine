@@ -10,7 +10,7 @@ class SceneDocument;
 
 class SceneEditor : public ViewerTab {
 public:
-    SceneEditor(EditorLayer& p_editor, Viewer& p_viewer);
+    SceneEditor(EditorLayer& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension);
 
     bool HandleInput(const InputEvent* p_input_event) final;
 
