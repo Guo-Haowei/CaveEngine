@@ -34,10 +34,10 @@ struct SceneView {
 };
 
 struct ViewportInput {
-    float wheel_delta;
-    Vector2f mouse_move;
-    MouseButtonArray buttons;
-    KeyArray keys;
+    float wheel_delta{ 0 };
+    Vector2f mouse_move{ 0, 0 };
+    MouseButtonArray buttons{};
+    KeyArray keys{};
 };
 
 class ISceneViewProvider {

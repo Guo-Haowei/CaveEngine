@@ -1,5 +1,8 @@
 #include "viewport_manager.h"
 
+#include "engine/runtime/application.h"
+#include "engine/runtime/input_manager.h"
+
 namespace cave {
 
 ViewportManager::ViewportManager()
@@ -27,12 +30,14 @@ void ViewportManager::BuildViews(float p_timestep,
                                  bool p_is_opengl) {
     p_out_views.clear();
 
+    // @TODO: only build input for focused viewport
+    ViewportInput input;
+    m_app->GetInputManager()->FillViewportInput(input);
+
     for (auto& vp : m_viewports) {
         if (!vp.visible || !vp.view_provider) {
             continue;
         }
-
-        ViewportInput input;
 
         vp.view_provider->Update(p_timestep, input, vp.focused);
         vp.view_provider->BuildViews(p_out_views, p_is_opengl);

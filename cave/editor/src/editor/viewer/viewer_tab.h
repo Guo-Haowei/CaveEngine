@@ -17,7 +17,7 @@ class TabId;
 struct ToolBarButtonDesc;
 class Viewer;
 
-class ViewerTab: public ISceneViewProvider {
+class ViewerTab : public ISceneViewProvider {
 public:
     ViewerTab(EditorLayer& p_editor, Viewer& p_viewer);
 

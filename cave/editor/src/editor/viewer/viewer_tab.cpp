@@ -101,12 +101,76 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     }
 }
 
+// @TODO: refactor this part
+struct InputCache {
+    int dx, dy, dz;
+    float scroll;
+    Vector2f mouse_move;
+    std::array<bool, 3> buttons;
+
+    InputCache() { Reset(); }
+
+    void Reset() {
+        dx = dy = dz = 0;
+        scroll = 0.0f;
+        mouse_move = Vector2f{ 0, 0 };
+        buttons.fill(0);
+    }
+};
+
 void ViewerTab::Update(float p_timestep,
                        const ViewportInput& p_input,
                        bool p_focused) {
-    unused(p_timestep);
-    unused(p_focused);
-    unused(p_input);
+    if (!p_focused) {
+    }
+
+    InputCache c;
+
+    bool handled = false;
+
+    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_D))) {
+        ++c.dx;
+        handled = true;
+    }
+    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_A))) {
+        --c.dx;
+        handled = true;
+    }
+    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_E))) {
+        ++c.dy;
+        handled = true;
+    }
+    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_Q))) {
+        --c.dy;
+        handled = true;
+    }
+    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_W))) {
+        ++c.dz;
+        handled = true;
+    }
+    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_S))) {
+        --c.dz;
+        handled = true;
+    }
+
+    if (p_input.wheel_delta != 0) {
+        c.scroll += 3.0f * p_input.wheel_delta;
+    }
+
+    if (p_input.buttons.test(std::to_underlying(MouseButton::MIDDLE))) {
+        c.mouse_move += p_input.mouse_move;
+    }
+
+    CameraInputState state{
+        .move = p_timestep * Vector3f(c.dx, c.dy, c.dz),
+        .zoomDelta = p_timestep * c.scroll,
+        .rotation = p_timestep * c.mouse_move,
+    };
+
+    CameraControllerFPS m_controller_3d;
+    CameraComponent& camera = const_cast<CameraComponent&>(GetActiveCameraInternal());
+    m_controller_3d.Update(camera, state);
+    camera.Update();
 }
 
 void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {

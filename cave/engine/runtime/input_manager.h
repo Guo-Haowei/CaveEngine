@@ -6,8 +6,9 @@
 
 namespace cave {
 
+struct ViewportInput;
+
 using StringId = std::string;
-#define STR_ID(x) (x)
 
 class InputManager : public Singleton<InputManager>,
                      public Module,
@@ -35,6 +36,8 @@ public:
     Vector2f MouseMove();
     const Vector2f& GetCursor() const { return m_cursor; }
 
+    void FillViewportInput(ViewportInput& p_out_viewport_input);
+
 protected:
     bool IsKeyDown(KeyCode p_key);
     bool IsKeyPressed(KeyCode p_key);
@@ -46,15 +49,15 @@ protected:
     void SetWheel(double p_x, double p_y);
 
     KeyArray m_keys;
-    KeyArray m_prevKeys;
+    KeyArray m_prev_keys;
 
     Vector2f m_cursor{ 0, 0 };
-    Vector2f m_prevCursor{ 0, 0 };
+    Vector2f m_prev_cursor{ 0, 0 };
 
-    double m_wheelX{ 0 };
-    double m_wheelY{ 0 };
+    double m_wheel_x{ 0 };
+    double m_wheel_y{ 0 };
 
-    bool m_mouseMoved{ false };
+    bool m_mouse_moved{ false };
 
     InputRouter m_router;
 

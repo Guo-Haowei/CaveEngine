@@ -16,15 +16,15 @@ class InputEvent {
 public:
     virtual ~InputEvent() = default;
 
-    bool IsAltPressed() const { return m_altPressed; }
-    bool IsShiftPressed() const { return m_shiftPressed; }
-    bool IsCtrlPressed() const { return m_ctrlPressed; }
-    bool IsModiferPressed() const { return m_altPressed || m_shiftPressed || m_ctrlPressed; }
+    bool IsAltPressed() const { return m_alt_pressed; }
+    bool IsShiftPressed() const { return m_shift_pressed; }
+    bool IsCtrlPressed() const { return m_ctrl_pressed; }
+    bool IsModiferPressed() const { return m_alt_pressed || m_shift_pressed || m_ctrl_pressed; }
 
 protected:
-    bool m_altPressed;
-    bool m_shiftPressed;
-    bool m_ctrlPressed;
+    bool m_alt_pressed;
+    bool m_shift_pressed;
+    bool m_ctrl_pressed;
 
     friend class InputManager;
 };
@@ -53,7 +53,7 @@ public:
 
 protected:
     MouseButtonArray m_buttons;
-    MouseButtonArray m_prevButtons;
+    MouseButtonArray m_prev_buttons;
 };
 
 class InputEventMouse : public InputEvent, public MouseButtonBase {
@@ -62,7 +62,7 @@ public:
                     const MouseButtonArray& p_prevButtons,
                     const Vector2f& p_pos) {
         m_buttons = p_buttons;
-        m_prevButtons = p_prevButtons;
+        m_prev_buttons = p_prevButtons;
         m_pos = p_pos;
     }
 
@@ -93,13 +93,13 @@ public:
                         const MouseButtonArray& p_prevButtons,
                         const Vector2f& p_pos,
                         const Vector2f& p_prev_pos)
-        : InputEventMouse(p_buttons, p_prevButtons, p_pos), m_prevPos(p_prev_pos) {}
+        : InputEventMouse(p_buttons, p_prevButtons, p_pos), m_prev_pos(p_prev_pos) {}
 
-    const Vector2f& GetPrevPos() const { return m_prevPos; }
-    const Vector2f GetDelta() const { return m_pos - m_prevPos; }
+    const Vector2f& GetPrevPos() const { return m_prev_pos; }
+    const Vector2f GetDelta() const { return m_pos - m_prev_pos; }
 
 protected:
-    Vector2f m_prevPos;
+    Vector2f m_prev_pos;
 };
 
 template<size_t N>

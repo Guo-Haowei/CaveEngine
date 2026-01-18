@@ -81,51 +81,7 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     return None();
 }
 
-bool Viewer::CacheCameraInput(const InputEvent* p_input_event) {
-    if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
-        if (e->IsHolding() && !e->IsModiferPressed()) {
-            bool handled = true;
-            switch (e->GetKey()) {
-                case KeyCode::KEY_D:
-                    ++m_camera_input.dx;
-                    break;
-                case KeyCode::KEY_A:
-                    --m_camera_input.dx;
-                    break;
-                case KeyCode::KEY_E:
-                    ++m_camera_input.dy;
-                    break;
-                case KeyCode::KEY_Q:
-                    --m_camera_input.dy;
-                    break;
-                case KeyCode::KEY_W:
-                    ++m_camera_input.dz;
-                    break;
-                case KeyCode::KEY_S:
-                    --m_camera_input.dz;
-                    break;
-                default:
-                    handled = false;
-                    break;
-            }
-            return handled;
-        }
-    }
-
-    if (auto e = dynamic_cast<const InputEventMouseWheel*>(p_input_event); e) {
-        if (!e->IsModiferPressed()) {
-            m_camera_input.scroll += 3.0f * e->GetWheelY();
-            return true;
-        }
-    }
-
-    if (auto e = dynamic_cast<const InputEventMouseMove*>(p_input_event); e) {
-        if (!e->IsModiferPressed() && e->IsButtonDown(MouseButton::MIDDLE)) {
-            m_camera_input.mouse_move += e->GetDelta();
-            return true;
-        }
-    }
-
+bool Viewer::CacheCameraInput(const InputEvent*) {
     return false;
 }
 
@@ -212,18 +168,8 @@ void Viewer::UpdateInternal() {
         };
         m_controller_2d.Update(camera, state);
         camera.Update();
-    } else {
-        CameraInputState state{
-            .move = timestep * Vector3f(c.dx, c.dy, c.dz),
-            .zoomDelta = timestep * c.scroll,
-            .rotation = timestep * c.mouse_move,
-        };
-        m_controller_3d.Update(camera, state);
-        camera.Update();
     }
 #endif
-
-    m_camera_input.Reset();
 
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
