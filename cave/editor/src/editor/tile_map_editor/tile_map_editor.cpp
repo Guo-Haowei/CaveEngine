@@ -57,7 +57,7 @@ void TileMapEditor::OnDestroy() {
     m_tmp_scene.reset();
 }
 
-void TileMapEditor::OnActivate() {
+void TileMapEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
     scene_manager->OpenTempScene(m_tmp_scene);
 }

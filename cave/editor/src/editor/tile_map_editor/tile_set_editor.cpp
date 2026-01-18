@@ -33,7 +33,7 @@ void TileSetEditor::OnCreateInternal(const Guid& p_guid) {
 void TileSetEditor::OnDestroy() {
 }
 
-void TileSetEditor::OnActivate() {
+void TileSetEditor::OnActivateInternal() {
 }
 
 void TileSetEditor::DrawMainView(const CameraComponent& p_camera) {

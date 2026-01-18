@@ -17,8 +17,6 @@ public:
 
     void OnDestroy() override;
 
-    void OnActivate() override;
-
     void DrawMainView(const CameraComponent& p_camera) override;
 
     void DrawAssetInspector() override;
@@ -29,6 +27,8 @@ public:
 
 protected:
     void OnCreateInternal(const Guid& p_guid) override;
+
+    void OnActivateInternal() override;
 
     void DrawTextureSlots(MaterialAsset& p_material);
 

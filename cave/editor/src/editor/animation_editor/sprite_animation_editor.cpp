@@ -78,7 +78,7 @@ void SpriteAnimationEditor::OnDestroy() {
     m_tmp_scene = nullptr;  // decrease ref count
 }
 
-void SpriteAnimationEditor::OnActivate() {
+void SpriteAnimationEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
     scene_manager->OpenTempScene(m_tmp_scene);

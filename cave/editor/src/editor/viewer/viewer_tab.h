@@ -30,8 +30,8 @@ public:
     void OnCreate(const Guid& p_guid);
     virtual void OnDestroy() {}
 
-    virtual void OnActivate() {}
-    virtual void OnDeactivate() {}
+    void OnActivate();
+    void OnDeactivate();
 
     virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
@@ -66,6 +66,9 @@ public:
 
 protected:
     virtual void OnCreateInternal(const Guid& p_guid) = 0;
+    virtual void OnActivateInternal() {}
+    virtual void OnDeactivateInternal() {}
+
     virtual void CreateDefaultCameraAndController();
 
     void CameraInputState2D(float p_timestep,
@@ -84,6 +87,7 @@ protected:
     Viewer& m_viewer;
 
     ecs::Entity m_selected;
+    bool m_active{ false };
 
     // @TODO: camera controller
     std::shared_ptr<CameraComponent> m_camera;

@@ -44,6 +44,16 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
     OnCreateInternal(p_guid);
 }
 
+void ViewerTab::OnActivate() {
+    m_active = true;
+    OnActivateInternal();
+}
+
+void ViewerTab::OnDeactivate() {
+    OnDeactivateInternal();
+    m_active = false;
+}
+
 void ViewerTab::CreateDefaultCameraAndController() {
     const auto res = DVAR_GET_IVEC2(resolution);
 
@@ -172,11 +182,13 @@ void ViewerTab::Update(float p_timestep,
 }
 
 void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
-    SceneView scene_view;
-    scene_view.scene = GetScene();
-    ViewInfo::FromCamera(*m_camera, scene_view.view_info, p_is_opengl);
+    if (m_active) {
+        SceneView scene_view;
+        scene_view.scene = GetScene();
+        ViewInfo::FromCamera(*m_camera, scene_view.view_info, p_is_opengl);
 
-    p_out_views.push_back(scene_view);
+        p_out_views.push_back(scene_view);
+    }
 }
 
 }  // namespace cave

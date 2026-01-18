@@ -69,7 +69,7 @@ void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
 void MaterialEditor::OnDestroy() {
 }
 
-void MaterialEditor::OnActivate() {
+void MaterialEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
     scene_manager->OpenTempScene(m_tmp_scene);
 }

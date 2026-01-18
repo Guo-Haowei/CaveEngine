@@ -53,7 +53,7 @@ void SceneEditor::OnCreateInternal(const Guid& p_guid) {
 void SceneEditor::OnDestroy() {
 }
 
-void SceneEditor::OnActivate() {
+void SceneEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
     DEV_ASSERT(scene_manager);
     scene_manager->OpenTempScene(m_document->m_scene);

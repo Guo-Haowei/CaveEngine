@@ -16,8 +16,6 @@ public:
 
     void OnDestroy() final;
 
-    void OnActivate() final;
-
     void DrawMainView(const CameraComponent& p_camera) final;
 
     Document& GetDocument() const final;
@@ -30,6 +28,8 @@ public:
 
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
+
+    void OnActivateInternal() final;
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 
