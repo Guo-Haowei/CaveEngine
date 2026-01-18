@@ -144,7 +144,7 @@ void ViewerTab::CameraInputState3D(float p_timestep,
 void ViewerTab::Update(float p_timestep,
                        const ViewportInput& p_input,
                        bool p_focused) {
-    if (!m_viewer.IsFocused()) {
+    if (!m_viewer.IsHovered()) {
         return;
     }
 

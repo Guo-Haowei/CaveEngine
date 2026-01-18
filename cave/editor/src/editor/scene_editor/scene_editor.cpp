@@ -60,6 +60,15 @@ void SceneEditor::OnActivateInternal() {
 }
 
 Scene* SceneEditor::GetScene() {
+    Application* app = m_editor.GetApplication();
+    const GameMode game_mode = app->GetModeManager().GetMode();
+
+    if (game_mode == GameMode::Gameplay) {
+        auto scene = app->GetSceneManager()->GetActiveScene();
+        DEV_ASSERT(scene);
+        return scene.get();
+    }
+
     auto handle = m_document->GetHandle<Scene>();
     return handle.Get();
 }
