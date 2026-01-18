@@ -13,26 +13,29 @@ public:
     TileSetEditor(EditorLayer& p_editor, Viewer& p_viewer);
     ~TileSetEditor();
 
-    bool HandleInput(const InputEvent* p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event) final;
 
-    void OnDestroy() override;
+    void OnDestroy() final;
 
-    void DrawMainView(const CameraComponent& p_camera) override;
+    void DrawMainView(const CameraComponent& p_camera) final;
 
-    void DrawAssetInspector() override;
+    void DrawAssetInspector() final;
 
-    Document& GetDocument() const override;
+    Document& GetDocument() const final;
+
+    Scene* GetScene() final {
+        return nullptr;
+    }
 
 protected:
-    void OnCreateInternal(const Guid& p_guid) override;
+    void OnCreateInternal(const Guid& p_guid) final;
 
-    void OnActivateInternal() override;
+    void OnActivateInternal() final;
 
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
+    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
     void DrawPhysicsTab(TileSetAsset& p_tile_set);
 
-    std::unique_ptr<CameraComponent> m_camera;
     std::unique_ptr<Document> m_document;
 
     SpriteSelector m_sprite_selector;

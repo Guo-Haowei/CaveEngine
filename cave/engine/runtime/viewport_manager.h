@@ -12,7 +12,6 @@ using ViewProviderRef = std::shared_ptr<ISceneViewProvider>;
 
 struct ManagedViewport {
     ViewportId id = 0;
-    std::string debug_name;
     bool visible = true;
     bool focused = false;
 
@@ -26,8 +25,7 @@ class ViewportManager : public Module {
 public:
     ViewportManager();
 
-    ViewportId CreateViewport(ViewProviderRef p_provider,
-                              const char* p_debug_name);
+    ViewportId CreateViewport(ViewProviderRef p_provider);
 
     void BuildViews(float p_timestep,
                     std::vector<SceneView>& p_out_views,

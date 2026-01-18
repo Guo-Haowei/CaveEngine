@@ -15,13 +15,12 @@ auto ViewportManager::InitializeImpl() -> Result<void> {
 void ViewportManager::FinalizeImpl() {
 }
 
-ViewportId ViewportManager::CreateViewport(ViewProviderRef p_provider, const char* p_debug_name) {
-    ManagedViewport V;
-    V.id = ++m_next_id;
-    V.debug_name = p_debug_name ? p_debug_name : "Viewport";
-    V.view_provider = std::move(p_provider);
+ViewportId ViewportManager::CreateViewport(ViewProviderRef p_provider) {
+    ManagedViewport vp;
+    vp.id = ++m_next_id;
+    vp.view_provider = std::move(p_provider);
 
-    m_viewports.push_back(std::move(V));
+    m_viewports.push_back(std::move(vp));
     return m_viewports.back().id;
 }
 

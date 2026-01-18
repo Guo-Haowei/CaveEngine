@@ -13,26 +13,28 @@ class MaterialEditor : public ViewerTab {
 public:
     MaterialEditor(EditorLayer& p_editor, Viewer& p_viewer);
 
-    bool HandleInput(const InputEvent* p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event) final;
 
-    void OnDestroy() override;
+    void OnDestroy() final;
 
-    void DrawMainView(const CameraComponent& p_camera) override;
+    void DrawMainView(const CameraComponent& p_camera) final;
 
-    void DrawAssetInspector() override;
+    void DrawAssetInspector() final;
 
-    Document& GetDocument() const override;
+    Document& GetDocument() const final;
 
-    Scene* GetScene() override;
+    Scene* GetScene() final {
+        return m_tmp_scene.get();
+    }
 
 protected:
-    void OnCreateInternal(const Guid& p_guid) override;
+    void OnCreateInternal(const Guid& p_guid) final;
 
-    void OnActivateInternal() override;
+    void OnActivateInternal() final;
 
     void DrawTextureSlots(MaterialAsset& p_material);
 
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
+    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
     std::shared_ptr<Scene> m_tmp_scene;
     std::shared_ptr<MaterialDocument> m_document;

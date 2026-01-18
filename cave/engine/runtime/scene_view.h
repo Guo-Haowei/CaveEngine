@@ -58,8 +58,6 @@ public:
 
     virtual void BuildViews(std::vector<SceneView>& p_out_views,
                             bool p_is_opengl) = 0;
-
-    virtual const char* GetDebugName() const = 0;
 };
 
 }  // namespace cave

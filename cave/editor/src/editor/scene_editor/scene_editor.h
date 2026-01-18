@@ -22,16 +22,12 @@ public:
 
     Scene* GetScene() final;
 
-    const char* GetDebugName() const final {
-        return "SceneEditor";
-    }
-
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
 
     void OnActivateInternal() final;
 
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
+    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
     GizmoAction m_state{ GizmoAction::Translate };
 

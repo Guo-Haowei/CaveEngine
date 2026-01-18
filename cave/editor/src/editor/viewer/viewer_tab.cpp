@@ -17,8 +17,9 @@ const Guid& ViewerTab::GetGuid() const {
     return GetDocument().GetGuid();
 }
 
-ViewerTab::ViewerTab(EditorLayer& p_editor, Viewer& p_viewer)
+ViewerTab::ViewerTab(EditorLayer& p_editor, Viewer& p_viewer, Dimension p_dimension)
     : m_id(TabId::Next())
+    , m_dimension(p_dimension)
     , m_editor(p_editor)
     , m_viewer(p_viewer) {
 }
@@ -30,6 +31,30 @@ void ViewerTab::SelectEntity(ecs::Entity p_selected) {
     }
 }
 
+static std::shared_ptr<CameraComponent> CreateDefaultCamera2D(const Vector2i& p_resolution) {
+    auto camera = std::make_shared<CameraComponent>();
+    camera->SetOrthoFlag();
+    camera->SetView2dFlag();
+    camera->SetDimension(p_resolution.x, p_resolution.y);
+    camera->SetNear(1.0f);
+    camera->SetFar(1000.0f);
+    camera->SetPosition(Vector3f(0, 0, 10));
+    camera->SetDirtyFlag();
+    camera->Update();
+    return camera;
+}
+
+static std::shared_ptr<CameraComponent> CreateDefaultCamera3D(const Vector2i& p_resolution) {
+    auto camera = std::make_shared<CameraComponent>();
+    camera->SetDimension(p_resolution.x, p_resolution.y);
+    camera->SetNear(1.0f);
+    camera->SetFar(1000.0f);
+    camera->SetPosition(Vector3f(0, 4, 10));
+    camera->SetDirtyFlag();
+    camera->Update();
+    return camera;
+}
+
 void ViewerTab::OnCreate(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
     auto meta = handle.GetMeta();
@@ -39,7 +64,14 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
 
     LOG_OK("ViewerTab '{}' created", m_title);
 
-    CreateDefaultCameraAndController();
+    // create camera
+    const Vector2i res = DVAR_GET_IVEC2(resolution);
+    const bool is_2d = m_dimension == DIMENSION_2;
+    m_camera = is_2d ? CreateDefaultCamera2D(res) : CreateDefaultCamera3D(res);
+
+    // create controller
+
+    // CreateDefaultCameraAndController();
 
     OnCreateInternal(p_guid);
 }
@@ -55,29 +87,7 @@ void ViewerTab::OnDeactivate() {
 }
 
 void ViewerTab::CreateDefaultCameraAndController() {
-    const auto res = DVAR_GET_IVEC2(resolution);
-
-    m_camera = std::make_shared<CameraComponent>();
-    m_camera->SetDimension(res.x, res.y);
-    m_camera->SetNear(1.0f);
-    m_camera->SetFar(1000.0f);
-    m_camera->SetPosition(Vector3f(0, 4, 10));
-    m_camera->SetDirtyFlag();
-    m_camera->Update();
-
     // @TODO: controller
-}
-
-void ViewerTab::CreateDefaultCamera2D(CameraComponent& p_out) {
-    const auto res = DVAR_GET_IVEC2(resolution);
-    p_out.SetOrthoFlag();
-    p_out.SetView2dFlag();
-    p_out.SetDimension(res.x, res.y);
-    p_out.SetNear(1.0f);
-    p_out.SetFar(1000.0f);
-    p_out.SetPosition(Vector3f(0, 0, 10));
-    p_out.SetDirtyFlag();
-    p_out.Update();
 }
 
 void ViewerTab::DrawAssetInspector() {
@@ -118,12 +128,16 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     }
 }
 
+// @TODO: refactor
 void ViewerTab::CameraInputState2D(float p_timestep,
                                    const ViewportInput& p_input,
                                    CameraInputState& p_out_state) {
-    unused(p_timestep);
-    unused(p_input);
-    unused(p_out_state);
+    const float speed = p_timestep * 0.5f;
+    const float dx = speed * -p_input.mouse_move.x;
+    const float dy = speed * p_input.mouse_move.y;
+    p_out_state.move = Vector3f(dx, dy, 0.0f);
+    p_out_state.zoom_delta = -p_timestep * p_input.wheel_delta;
+    p_out_state.rotation = Vector2f::Zero;
 }
 
 void ViewerTab::CameraInputState3D(float p_timestep,
@@ -152,33 +166,27 @@ void ViewerTab::Update(float p_timestep,
     }
 
     CameraInputState state;
-    CameraInputState3D(p_timestep, p_input, state);
 
-    // @TODO: fix view
-#if 0
-    const float timestep = m_editor.context.timestep;
-    CameraComponent camera;
-    const auto& c = m_camera_input;
-    const bool is_2d = camera.HasView2dFlag();
-    if (is_2d) {
-        const float speed = timestep * 0.5f;
-        const float dx = speed * -c.mouse_move.x;
-        const float dy = speed * c.mouse_move.y;
-        CameraInputState state = {
-            .move = Vector3f(dx, dy, 0.0f),
-            .zoomDelta = -timestep * c.scroll,
-            .rotation = Vector2f::Zero,
-        };
-        m_controller_2d.Update(camera, state);
-        camera.Update();
+    // @TODO: refactor controller
+    switch (m_dimension) {
+        case DIMENSION_2: {
+            CameraInputState2D(p_timestep, p_input, state);
+            CameraController2DEditor m_controller_2d;
+            m_controller_2d.Update(*m_camera, state);
+            m_camera->Update();
+        } break;
+        case DIMENSION_3: {
+            CameraInputState3D(p_timestep, p_input, state);
+            CameraControllerFPS m_controller_3d;
+            m_controller_3d.Update(*m_camera, state);
+            m_camera->Update();
+        } break;
+        default: {
+            CRASH_NOW_MSG("invalid dimension");
+        } break;
     }
-#endif
 
     // @TODO: change camera based on game mode, etc
-
-    CameraControllerFPS m_controller_3d;
-    m_controller_3d.Update(*m_camera, state);
-    m_camera->Update();
 }
 
 void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {

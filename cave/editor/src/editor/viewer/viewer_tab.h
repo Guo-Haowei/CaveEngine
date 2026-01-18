@@ -21,7 +21,12 @@ struct ToolBarButtonDesc;
 
 class ViewerTab : public ISceneViewProvider {
 public:
-    ViewerTab(EditorLayer& p_editor, Viewer& p_viewer);
+    enum Dimension {
+        DIMENSION_2,
+        DIMENSION_3,
+    };
+
+    ViewerTab(EditorLayer& p_editor, Viewer& p_viewer, Dimension p_dimension);
 
     virtual ~ViewerTab() = default;
 
@@ -38,7 +43,7 @@ public:
 
     virtual Document& GetDocument() const = 0;
 
-    virtual Scene* GetScene() { return nullptr; }
+    virtual Scene* GetScene() = 0;
 
     void SelectEntity(ecs::Entity p_selected);
     ecs::Entity GetSelectedEntity() const { return m_selected; }
@@ -60,9 +65,7 @@ public:
     void BuildViews(std::vector<SceneView>& p_out_views,
                     bool p_is_opengl) override;
 
-    const char* GetDebugName() const override {
-        return "ViewerTab";
-    }
+    Dimension GetDimension() const { return m_dimension; }
 
 protected:
     virtual void OnCreateInternal(const Guid& p_guid) = 0;
@@ -79,9 +82,6 @@ protected:
                             const ViewportInput& p_input,
                             CameraInputState& p_out_state);
 
-    // @TODO: get rid of this
-    static void CreateDefaultCamera2D(CameraComponent& p_out);
-
     const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
@@ -93,6 +93,7 @@ protected:
     std::shared_ptr<CameraComponent> m_camera;
 
 private:
+    const Dimension m_dimension;
     std::string m_title;
 };
 

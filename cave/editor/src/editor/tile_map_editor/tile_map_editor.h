@@ -19,21 +19,26 @@ public:
     TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer);
     ~TileMapEditor();
 
-    bool HandleInput(const InputEvent* p_input_event) override;
+    bool HandleInput(const InputEvent* p_input_event) final;
 
-    void OnDestroy() override;
+    void OnDestroy() final;
 
-    void DrawMainView(const CameraComponent& p_camera) override;
+    void DrawMainView(const CameraComponent& p_camera) final;
 
-    void DrawAssetInspector() override;
+    void DrawAssetInspector() final;
 
-    Document& GetDocument() const override;
+    Document& GetDocument() const final;
 
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
+    Scene* GetScene() final {
+        return m_tmp_scene.get();
+    }
+
 protected:
-    void OnCreateInternal(const Guid& p_guid) override;
-    void OnActivateInternal() override;
+    void OnCreateInternal(const Guid& p_guid) final;
+
+    void OnActivateInternal() final;
 
     const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
 

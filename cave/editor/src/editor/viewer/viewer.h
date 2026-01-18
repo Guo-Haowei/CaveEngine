@@ -37,8 +37,6 @@ protected:
     Vector2f m_canvas_size;
 
     ViewerTabManager m_tab_manager;
-
-    CameraController2DEditor m_controller_2d;
 };
 
 }  // namespace cave
