@@ -26,7 +26,9 @@ class ViewportManager : public Module {
 public:
     ViewportManager();
 
-    ViewportId CreateViewport(ViewProviderRef p_provider, const char* p_debug_name );
+    ViewportId CreateViewport(ViewProviderRef p_provider,
+                              const char* p_debug_name);
+
     void BuildViews(float p_timestep,
                     std::vector<SceneView>& p_out_views,
                     bool p_is_opengl);

@@ -32,7 +32,9 @@ void ViewportManager::BuildViews(float p_timestep,
             continue;
         }
 
-        vp.view_provider->Update(p_timestep, vp.focused);
+        ViewportInput input;
+
+        vp.view_provider->Update(p_timestep, input, vp.focused);
         vp.view_provider->BuildViews(p_out_views, p_is_opengl);
     }
 }

@@ -26,10 +26,6 @@ public:
 
     Scene* GetScene() final;
 
-    void Update(float p_timestep, bool p_focused) final;
-
-    void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final;
-
     const char* GetDebugName() const final {
         return "SceneEditor";
     }

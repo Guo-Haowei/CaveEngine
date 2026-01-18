@@ -9,6 +9,7 @@
 
 namespace cave {
 
+// @TODO: refactor this part
 // @TODO: move this to viewport
 struct InputCache {
     int dx, dy, dz;

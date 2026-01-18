@@ -208,20 +208,4 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
     }
 }
 
-void SceneEditor::Update(float p_timestep, bool p_focused) {
-    unused(p_timestep);
-    unused(p_focused);
-}
-
-void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
-    // @TODO: refactor this part
-    const CameraComponent& camera = GetActiveCameraInternal();
-
-    SceneView scene_view;
-    scene_view.scene = GetScene();
-    ViewInfo::FromCamera(camera, scene_view.view_info, p_is_opengl);
-
-    p_out_views.push_back(scene_view);
-}
-
 }  // namespace cave

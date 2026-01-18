@@ -51,9 +51,12 @@ public:
 
     virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const = 0;
 
-    void Update(float, bool) override {}
+    void Update(float p_timestep,
+                const ViewportInput& p_input,
+                bool p_focused) override;
 
-    void BuildViews(std::vector<SceneView>&, bool) override {}
+    void BuildViews(std::vector<SceneView>& p_out_views,
+                    bool p_is_opengl) override;
 
     const char* GetDebugName() const override {
         return "ViewerTab";

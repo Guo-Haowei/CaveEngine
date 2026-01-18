@@ -101,4 +101,23 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     }
 }
 
+void ViewerTab::Update(float p_timestep,
+                       const ViewportInput& p_input,
+                       bool p_focused) {
+    unused(p_timestep);
+    unused(p_focused);
+    unused(p_input);
+}
+
+void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
+    // @TODO: refactor this part
+    const CameraComponent& camera = GetActiveCameraInternal();
+
+    SceneView scene_view;
+    scene_view.scene = GetScene();
+    ViewInfo::FromCamera(camera, scene_view.view_info, p_is_opengl);
+
+    p_out_views.push_back(scene_view);
+}
+
 }  // namespace cave
