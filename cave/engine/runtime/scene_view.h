@@ -24,6 +24,7 @@ struct ViewInfo {
     float fovy;
 
     static void FromCamera(const CameraComponent& p_camera,
+                           const Matrix4x4f& p_transform,
                            ViewInfo& p_out_view_info,
                            bool p_is_opengl);
 };

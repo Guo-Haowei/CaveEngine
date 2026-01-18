@@ -19,7 +19,7 @@ MaterialEditor::MaterialEditor(EditorLayer& p_editor, Viewer& p_viewer)
 }
 
 void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
-    m_camera->SetPosition(Vector3f(0, 0, 2));
+    m_camera_transform.SetTranslation(Vector3f(0, 0, 2));
 
     m_document = std::make_shared<MaterialDocument>(p_guid);
 

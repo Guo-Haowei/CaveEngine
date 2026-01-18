@@ -91,7 +91,7 @@ protected:
     ecs::Entity m_selected;
     bool m_active{ false };
 
-    TransformComponent m_transform;
+    TransformComponent m_camera_transform;
     std::shared_ptr<CameraComponent> m_camera;
     std::shared_ptr<ICameraController> m_camera_controller;
 

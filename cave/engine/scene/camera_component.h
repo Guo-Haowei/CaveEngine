@@ -49,13 +49,10 @@ private:
     CAVE_PROP()
     float m_ortho_height = 10;
 
-    CAVE_PROP()
-    Vector3f m_position = Vector3f::Zero;
-
     // Not serlialized
     Vector3f m_front;
-    Vector3f m_up;
     Vector3f m_right;
+    Vector3f m_up;
 
     Matrix4x4f m_viewMatrix;
     Matrix4x4f m_projectionMatrix;
@@ -92,9 +89,6 @@ public:
         SetDirtyFlag();
     }
 
-    const Vector3f& GetPosition() const { return m_position; }
-    void SetPosition(const Vector3f& p_position);
-
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }
     float GetAspect() const { return (float)m_width / m_height; }
@@ -107,8 +101,9 @@ public:
     const Matrix4x4f& GetViewMatrix() const { return m_viewMatrix; }
     const Matrix4x4f& GetProjectionMatrix() const { return m_projectionMatrix; }
     const Matrix4x4f& GetProjectionViewMatrix() const { return m_projectionViewMatrix; }
-    const Vector3f& GetRight() const { return m_right; }
     const Vector3f& GetFront() const { return m_front; }
+    const Vector3f& GetRight() const { return m_right; }
+    const Vector3f& GetUp() const { return m_up; }
 
     Matrix4x4f CalcProjection() const;
     Matrix4x4f CalcProjectionGL() const;

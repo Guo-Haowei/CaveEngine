@@ -3,17 +3,17 @@
 #include "engine/math/angle.h"
 #include "engine/runtime/input_manager.h"
 #include "engine/scene/camera_component.h"
+#include "engine/scene/transform_component.h"
 
 namespace cave {
 
-void CameraController2DEditor::Update(CameraComponent& p_camera,
-                                      const CameraInputState& p_state) {
+void CameraController2DEditor::Update(const CameraInputState& p_state,
+                                      CameraComponent& p_camera,
+                                      TransformComponent& p_transform) {
+
     const bool moved = p_state.move.x || p_state.move.y;
     if (moved) {
-        Vector3f pos = p_camera.GetPosition();
-        pos.x += p_state.move.x;
-        pos.y += p_state.move.y;
-        p_camera.SetPosition(pos);
+        p_transform.Translate(Vector3f(p_state.move.x, p_state.move.y, 0.0f));
     }
 
     if (p_state.zoom_delta != 0.0f) {
@@ -23,8 +23,9 @@ void CameraController2DEditor::Update(CameraComponent& p_camera,
     }
 }
 
-void CameraControllerFPS::Update(CameraComponent& p_camera,
-                                 const CameraInputState& p_state) {
+void CameraControllerFPS::Update(const CameraInputState& p_state,
+                                 CameraComponent& p_camera,
+                                 TransformComponent& p_transform) {
 
     const bool moved = p_state.move.x || p_state.move.y || p_state.move.z || p_state.zoom_delta != 0.0f;
     if (moved) {
@@ -36,12 +37,15 @@ void CameraControllerFPS::Update(CameraComponent& p_camera,
         if (glm::abs(scroll_z) > glm::abs(dz)) {
             dz = scroll_z;
         }
+
+        Vector3f position = p_transform.GetTranslation();
+
         if (dx || dz) {
             Vector3f delta = (m_moveSpeed * dz) * p_camera.GetFront() + (m_moveSpeed * dx) * p_camera.GetRight();
-            p_camera.m_position += delta;
+            p_transform.Translate(delta);
         }
         if (dy) {
-            p_camera.m_position += Vector3f(0, m_moveSpeed * dy, 0);
+            p_transform.Translate(Vector3f(0.0f, m_moveSpeed * dy, 0.0f));
         }
     }
 
@@ -58,7 +62,6 @@ void CameraControllerFPS::Update(CameraComponent& p_camera,
         }
 
         // @TODO: DPI
-        DEV_ASSERT(0);
 #if 0
         if (rotate_y) {
             p_camera.m_yaw += Degree(rotate_y);

@@ -195,7 +195,7 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
 
         const Matrix4x4f inv_pv = glm::inverse(cam.GetProjectionViewMatrix());
 
-        const Vector3f ray_start = cam.GetPosition();
+        const Vector3f ray_start = m_camera_transform.GetTranslation();
         const Vector3f direction = normalize(Vector3f((inv_pv * ndc).xyz));
         const Vector3f ray_end = ray_start + direction * cam.GetFar();
         Ray ray(ray_start, ray_end);

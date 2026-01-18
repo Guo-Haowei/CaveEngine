@@ -5,6 +5,7 @@
 namespace cave {
 
 void ViewInfo::FromCamera(const CameraComponent& p_camera,
+                          const Matrix4x4f& p_transform,
                           ViewInfo& p_out_view_info,
                           bool p_is_opengl) {
 
@@ -42,10 +43,11 @@ void ViewInfo::FromCamera(const CameraComponent& p_camera,
         p_out_view_info.projection_rendering = p_camera.CalcProjection();
         reverse_z(p_out_view_info.projection_rendering);
     }
-    p_out_view_info.position = p_camera.GetPosition();
 
     p_out_view_info.front = p_camera.GetFront();
     p_out_view_info.right = p_camera.GetRight();
+
+    p_out_view_info.position = (p_transform * Vector4f::UnitW).xyz;
     p_out_view_info.up = cross(p_out_view_info.front, p_out_view_info.right);
 }
 

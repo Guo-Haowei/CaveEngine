@@ -4,6 +4,7 @@
 namespace cave {
 
 class CameraComponent;
+class TransformComponent;
 
 struct CameraInputState {
     Vector3f move{ 0, 0, 0 };
@@ -14,17 +15,23 @@ struct CameraInputState {
 class ICameraController {
 public:
     virtual ~ICameraController() = default;
-    virtual void Update(CameraComponent& p_camera, const CameraInputState& p_state) = 0;
+    virtual void Update(const CameraInputState& p_state,
+                        CameraComponent& p_camera,
+                        TransformComponent& p_transform) = 0;
 };
 
 class CameraController2DEditor : public ICameraController {
 public:
-    void Update(CameraComponent& p_camera, const CameraInputState& p_state) override;
+    void Update(const CameraInputState& p_state,
+                CameraComponent& p_camera,
+                TransformComponent& p_transform) override;
 };
 
 class CameraControllerFPS : public ICameraController {
 public:
-    void Update(CameraComponent& p_camera, const CameraInputState& p_state) override;
+    void Update(const CameraInputState& p_state,
+                CameraComponent& p_camera,
+                TransformComponent& p_transform) override;
 
     float m_moveSpeed{ 10.0f };
     float m_rotateSpeed{ 10.0f };

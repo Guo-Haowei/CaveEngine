@@ -37,8 +37,7 @@ static std::shared_ptr<CameraComponent> CreateDefaultCamera2D(const Vector2i& p_
     camera->SetDimension(p_resolution.x, p_resolution.y);
     camera->SetNear(1.0f);
     camera->SetFar(1000.0f);
-    camera->SetPosition(Vector3f(0, 0, 10));
-    camera->SetDirtyFlag();
+    p_transform.SetTranslation(Vector3f(0, 0, 10));
 
     camera->Update(p_transform.GetWorldMatrix());
     return camera;
@@ -49,10 +48,8 @@ static std::shared_ptr<CameraComponent> CreateDefaultCamera3D(const Vector2i& p_
     camera->SetDimension(p_resolution.x, p_resolution.y);
     camera->SetNear(1.0f);
     camera->SetFar(1000.0f);
-    camera->SetPosition(Vector3f(0, 4, 10));
-    camera->SetDirtyFlag();
 
-    // @TODO: rotate transform
+    p_transform.SetTranslation(Vector3f(0, 4, 10));
     camera->Update(p_transform.GetWorldMatrix());
     return camera;
 }
@@ -70,7 +67,7 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
     const bool is_2d = m_dimension == DIMENSION_2;
 
     const Vector2i res = DVAR_GET_IVEC2(resolution);
-    m_camera = is_2d ? CreateDefaultCamera2D(res, m_transform) : CreateDefaultCamera3D(res, m_transform);
+    m_camera = is_2d ? CreateDefaultCamera2D(res, m_camera_transform) : CreateDefaultCamera3D(res, m_camera_transform);
 
     if (is_2d) {
         m_camera_controller = std::make_shared<CameraController2DEditor>();
@@ -188,18 +185,28 @@ void ViewerTab::Update(float p_timestep,
         } break;
     }
 
-    m_camera_controller->Update(*m_camera, state);
-    m_camera->Update(m_transform.GetWorldMatrix());
+    m_camera_controller->Update(state, *m_camera, m_camera_transform);
+
+    m_camera_transform.SetDirty();
+    m_camera_transform.UpdateTransform();
+
+    m_camera->Update(m_camera_transform.GetWorldMatrix());
 }
 
 void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
-    if (m_active) {
-        SceneView scene_view;
-        scene_view.scene = GetScene();
-        ViewInfo::FromCamera(*m_camera, scene_view.view_info, p_is_opengl);
-
-        p_out_views.push_back(scene_view);
+    if (!m_active) {
+        return;
     }
+
+    SceneView scene_view;
+    scene_view.scene = GetScene();
+
+    ViewInfo::FromCamera(*m_camera,
+                         m_camera_transform.GetWorldMatrix(),
+                         scene_view.view_info,
+                         p_is_opengl);
+
+    p_out_views.push_back(scene_view);
 }
 
 }  // namespace cave
