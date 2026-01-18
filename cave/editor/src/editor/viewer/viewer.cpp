@@ -122,7 +122,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     }
 
     ViewportManager* viewport_manager = m_editor.GetApplication()->GetViewportManager();
-    viewport_manager->CreateViewport(tab, tab->GetDebugName());
+    viewport_manager->CreateViewport(tab);
 
     DVAR_SET_STRING(last_open_asset, p_guid.ToString());
 
