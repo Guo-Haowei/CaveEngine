@@ -5,7 +5,7 @@
 namespace cave {
 
 Matrix4x4f CameraComponent::CalcProjection() const {
-    if (IsOrtho()) {
+    if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
         return BuildOrthoRH(-half_width,
@@ -19,7 +19,7 @@ Matrix4x4f CameraComponent::CalcProjection() const {
 }
 
 Matrix4x4f CameraComponent::CalcProjectionGL() const {
-    if (IsOrtho()) {
+    if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
         return BuildOpenGlOrthoRH(-half_width,

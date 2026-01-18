@@ -33,7 +33,7 @@ void ViewerTab::SelectEntity(ecs::Entity p_selected) {
 
 static std::shared_ptr<CameraComponent> CreateDefaultCamera2D(const Vector2i& p_resolution) {
     auto camera = std::make_shared<CameraComponent>();
-    camera->SetOrtho();
+    camera->SetProjection(ProjectionType::Orthographic);
     camera->SetDimension(p_resolution.x, p_resolution.y);
     camera->SetNear(1.0f);
     camera->SetFar(1000.0f);

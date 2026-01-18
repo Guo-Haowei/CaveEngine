@@ -17,6 +17,14 @@ constexpr float DEFAULT_COLUMN_WIDTH = 150.0f;
 void PushDisabled();
 void PopDisabled();
 
+bool DrawInputInt(const char* p_label,
+                  int& p_out,
+                  float p_column_width = DEFAULT_COLUMN_WIDTH);
+
+bool DrawInputFloat(const char* p_label,
+                    float& p_out,
+                    float p_column_width = DEFAULT_COLUMN_WIDTH);
+
 bool DrawDragInt(const char* p_label,
                  int& p_out,
                  float p_speed,

@@ -8,6 +8,14 @@ namespace cave {
 
 class Degree;
 
+enum class ProjectionType : uint8_t {
+    Perspective,
+    Orthographic,
+    Count,
+};
+
+DECLARE_ENUM_TRAITS(ProjectionType, "Perspective", "Orthographic");
+
 class CameraComponent {
     CAVE_META(CameraComponent)
 
@@ -17,10 +25,13 @@ class CameraComponent {
     };
 
 private:
-    CAVE_PROP(type = flags)
+    CAVE_PROP()
     uint32_t m_flags = DirtyFlag;
 
-    CAVE_PROP(type = degree)
+    CAVE_PROP(editor = EnumDropDown)
+    ProjectionType m_projection;
+
+    CAVE_PROP()
     Degree m_fovy = DEFAULT_FOVY;
 
     CAVE_PROP(editor = DragFloat, min = 0.1f, max = 9)
@@ -29,13 +40,10 @@ private:
     CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
     float m_far = DEFAULT_FAR;
 
-    CAVE_PROP(editor = Toggle)
-    bool m_ortho = false;
-
-    CAVE_PROP()
+    CAVE_PROP(editor = InputInt)
     int m_width = 0;
 
-    CAVE_PROP()
+    CAVE_PROP(editor = InputInt)
     int m_height = 0;
 
     CAVE_PROP()
@@ -95,8 +103,7 @@ public:
     int GetHeight() const { return m_height; }
     float GetAspect() const { return (float)m_width / m_height; }
 
-    bool IsOrtho() const { return m_ortho; }
-    void SetOrtho(bool p_value = true) { m_ortho = p_value; }
+    void SetProjection(ProjectionType p_projection) { m_projection = p_projection; }
 
     float GetOrthoHeight() const { return m_ortho_height; }
     void SetOrthoHeight(float p_height);

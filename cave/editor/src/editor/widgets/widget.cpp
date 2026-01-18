@@ -15,6 +15,32 @@ void PopDisabled() {
     ImGui::PopStyleVar();
 }
 
+bool DrawInputInt(const char* p_label,
+                  int& p_out,
+                  float p_column_width) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_column_width);
+    ImGui::Text("%s", p_label);
+    ImGui::NextColumn();
+    auto tag = std::format("##{}", p_label);
+    bool is_dirty = ImGui::InputInt(tag.c_str(), &p_out);
+    ImGui::Columns(1);
+    return is_dirty;
+}
+
+bool DrawInputFloat(const char* p_label,
+                  float& p_out,
+                  float p_column_width) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_column_width);
+    ImGui::Text("%s", p_label);
+    ImGui::NextColumn();
+    auto tag = std::format("##{}", p_label);
+    bool is_dirty = ImGui::InputFloat(tag.c_str(), &p_out);
+    ImGui::Columns(1);
+    return is_dirty;
+}
+
 bool DrawDragInt(const char* p_label,
                  int& p_out,
                  float p_speed,
