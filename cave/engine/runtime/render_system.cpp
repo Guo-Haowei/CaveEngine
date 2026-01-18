@@ -209,7 +209,7 @@ void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
         FillEnvConstants(framedata);
 
         // @TODO: fix path tracer
-        //if (p_scene) {
+        // if (p_scene) {
         //    RequestPathTracerUpdate(*camera, *p_scene);
         //}
     }

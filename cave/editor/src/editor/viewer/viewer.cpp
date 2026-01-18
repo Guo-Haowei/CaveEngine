@@ -142,7 +142,7 @@ void Viewer::UpdateInternal() {
         return;
     }
 
-    //ViewerTab* active_tab = _tab.unwrap_unchecked();
+    // ViewerTab* active_tab = _tab.unwrap_unchecked();
 
     int flag = 0;
 #if 0
