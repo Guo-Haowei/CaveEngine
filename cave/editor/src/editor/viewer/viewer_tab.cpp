@@ -101,22 +101,28 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     }
 }
 
-// @TODO: refactor this part
-struct InputCache {
-    int dx, dy, dz;
-    float scroll;
-    Vector2f mouse_move;
-    std::array<bool, 3> buttons;
+void ViewerTab::CameraInputState2D(float p_timestep,
+                                   const ViewportInput& p_input,
+                                   CameraInputState& p_out_state) {
+    unused(p_timestep);
+    unused(p_input);
+    unused(p_out_state);
+}
 
-    InputCache() { Reset(); }
+void ViewerTab::CameraInputState3D(float p_timestep,
+                                   const ViewportInput& p_input,
+                                   CameraInputState& p_out_state) {
+    const int dx = p_input.IsKeyDown(KeyCode::KEY_D) - p_input.IsKeyDown(KeyCode::KEY_A);
+    const int dy = p_input.IsKeyDown(KeyCode::KEY_E) - p_input.IsKeyDown(KeyCode::KEY_Q);
+    const int dz = p_input.IsKeyDown(KeyCode::KEY_W) - p_input.IsKeyDown(KeyCode::KEY_S);
 
-    void Reset() {
-        dx = dy = dz = 0;
-        scroll = 0.0f;
-        mouse_move = Vector2f{ 0, 0 };
-        buttons.fill(0);
+    p_out_state.move = p_timestep * Vector3f(dx, dy, dz);
+    p_out_state.zoom_delta = p_timestep * 3.0f * p_input.wheel_delta;
+
+    if (p_input.IsButtonDown(MouseButton::MIDDLE)) {
+        p_out_state.rotation = p_timestep * p_input.mouse_move;
     }
-};
+}
 
 void ViewerTab::Update(float p_timestep,
                        const ViewportInput& p_input,
@@ -124,48 +130,30 @@ void ViewerTab::Update(float p_timestep,
     if (!p_focused) {
     }
 
-    InputCache c;
+    CameraInputState state;
+    CameraInputState3D(p_timestep, p_input, state);
 
-    bool handled = false;
+#if 0
+    const float timestep = m_editor.context.timestep;
+    //auto& camera = active_tab->GetActiveCamera();
+    CameraComponent camera;
+    const auto& c = m_camera_input;
+    const bool is_2d = camera.HasView2dFlag();
+    if (is_2d) {
+        const float speed = timestep * 0.5f;
+        const float dx = speed * -c.mouse_move.x;
+        const float dy = speed * c.mouse_move.y;
+        CameraInputState state = {
+            .move = Vector3f(dx, dy, 0.0f),
+            .zoomDelta = -timestep * c.scroll,
+            .rotation = Vector2f::Zero,
+        };
+        m_controller_2d.Update(camera, state);
+        camera.Update();
+    }
+#endif
 
-    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_D))) {
-        ++c.dx;
-        handled = true;
-    }
-    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_A))) {
-        --c.dx;
-        handled = true;
-    }
-    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_E))) {
-        ++c.dy;
-        handled = true;
-    }
-    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_Q))) {
-        --c.dy;
-        handled = true;
-    }
-    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_W))) {
-        ++c.dz;
-        handled = true;
-    }
-    if (p_input.keys.test(std::to_underlying(KeyCode::KEY_S))) {
-        --c.dz;
-        handled = true;
-    }
-
-    if (p_input.wheel_delta != 0) {
-        c.scroll += 3.0f * p_input.wheel_delta;
-    }
-
-    if (p_input.buttons.test(std::to_underlying(MouseButton::MIDDLE))) {
-        c.mouse_move += p_input.mouse_move;
-    }
-
-    CameraInputState state{
-        .move = p_timestep * Vector3f(c.dx, c.dy, c.dz),
-        .zoomDelta = p_timestep * c.scroll,
-        .rotation = p_timestep * c.mouse_move,
-    };
+    // @TODO: change camera based on game mode, etc
 
     CameraControllerFPS m_controller_3d;
     CameraComponent& camera = const_cast<CameraComponent&>(GetActiveCameraInternal());

@@ -16,8 +16,8 @@ void CameraController2DEditor::Update(CameraComponent& p_camera,
         p_camera.SetPosition(pos);
     }
 
-    if (p_state.zoomDelta != 0.0f) {
-        float ortho_height = p_camera.GetOrthoHeight() + 4.0f * p_state.zoomDelta;
+    if (p_state.zoom_delta != 0.0f) {
+        float ortho_height = p_camera.GetOrthoHeight() + 4.0f * p_state.zoom_delta;
         ortho_height = glm::clamp(ortho_height, 0.1f, 100.0f);
         p_camera.SetOrthoHeight(ortho_height);
     }
@@ -26,13 +26,13 @@ void CameraController2DEditor::Update(CameraComponent& p_camera,
 void CameraControllerFPS::Update(CameraComponent& p_camera,
                                  const CameraInputState& p_state) {
 
-    const bool moved = p_state.move.x || p_state.move.y || p_state.move.z || p_state.zoomDelta != 0.0f;
+    const bool moved = p_state.move.x || p_state.move.y || p_state.move.z || p_state.zoom_delta != 0.0f;
     if (moved) {
         const float dx = p_state.move.x;
         const float dy = p_state.move.y;
 
         float dz = p_state.move.z;
-        const float scroll_z = m_scrollSpeed * p_state.zoomDelta;
+        const float scroll_z = m_scrollSpeed * p_state.zoom_delta;
         if (glm::abs(scroll_z) > glm::abs(dz)) {
             dz = scroll_z;
         }

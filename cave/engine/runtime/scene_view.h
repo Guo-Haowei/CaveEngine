@@ -38,6 +38,14 @@ struct ViewportInput {
     Vector2f mouse_move{ 0, 0 };
     MouseButtonArray buttons{};
     KeyArray keys{};
+
+    bool IsKeyDown(KeyCode p_key_code) const {
+        return keys.test(std::to_underlying(p_key_code));
+    }
+
+    bool IsButtonDown(MouseButton p_button) const {
+        return buttons.test(std::to_underlying(p_button));
+    }
 };
 
 class ISceneViewProvider {

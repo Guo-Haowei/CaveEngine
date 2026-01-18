@@ -150,27 +150,6 @@ void Viewer::UpdateInternal() {
         return;
     }
 
-    // update camera
-#if 0
-    const float timestep = m_editor.context.timestep;
-    //auto& camera = active_tab->GetActiveCamera();
-    CameraComponent camera;
-    const auto& c = m_camera_input;
-    const bool is_2d = camera.HasView2dFlag();
-    if (is_2d) {
-        const float speed = timestep * 0.5f;
-        const float dx = speed * -c.mouse_move.x;
-        const float dy = speed * c.mouse_move.y;
-        CameraInputState state = {
-            .move = Vector3f(dx, dy, 0.0f),
-            .zoomDelta = -timestep * c.scroll,
-            .rotation = Vector2f::Zero,
-        };
-        m_controller_2d.Update(camera, state);
-        camera.Update();
-    }
-#endif
-
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
         int flags = 0;

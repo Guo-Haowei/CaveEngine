@@ -7,7 +7,7 @@ class CameraComponent;
 
 struct CameraInputState {
     Vector3f move{ 0, 0, 0 };
-    float zoomDelta{ 0 };
+    float zoom_delta{ 0 };
     Vector2f rotation{ 0, 0 };
 };
 

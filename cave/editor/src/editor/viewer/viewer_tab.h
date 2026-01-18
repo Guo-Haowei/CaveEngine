@@ -14,8 +14,10 @@ namespace cave {
 class CameraComponent;
 class Document;
 class TabId;
-struct ToolBarButtonDesc;
 class Viewer;
+
+struct CameraInputState;
+struct ToolBarButtonDesc;
 
 class ViewerTab : public ISceneViewProvider {
 public:
@@ -67,6 +69,14 @@ protected:
 
     static void CreateDefaultCamera2D(CameraComponent& p_out);
     static void CreateDefaultCamera3D(CameraComponent& p_out);
+
+    void CameraInputState2D(float p_timestep,
+                            const ViewportInput& p_input,
+                            CameraInputState& p_out_state);
+
+    void CameraInputState3D(float p_timestep,
+                            const ViewportInput& p_input,
+                            CameraInputState& p_out_state);
 
     const TabId m_id;
     EditorLayer& m_editor;
