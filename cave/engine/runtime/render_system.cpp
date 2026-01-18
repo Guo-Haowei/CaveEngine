@@ -192,7 +192,9 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     }
 
     CAVE_PROFILE_EVENT();
-    CameraComponent* camera = m_app->GetActiveCamera();
+    CameraComponent* camera = nullptr;
+    DEV_ASSERT(camera);
+
     if (!camera && p_scene) {
         auto cam = p_scene->GetMainCamera();
         camera = p_scene->GetComponent<CameraComponent>(cam);
@@ -250,8 +252,6 @@ void RenderSystem::FillCameraData(const CameraComponent& p_camera, FrameData& p_
     camera.sceenHeight = static_cast<float>(p_camera.GetHeight());
     camera.aspectRatio = camera.sceenWidth / camera.sceenHeight;
     camera.fovy = p_camera.GetFovy();
-    camera.zNear = p_camera.GetNear();
-    camera.zFar = p_camera.GetFar();
 
     camera.viewMatrix = p_camera.GetViewMatrix();
     camera.projectionMatrixFrustum = p_camera.GetProjectionMatrix();

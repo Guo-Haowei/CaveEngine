@@ -75,7 +75,6 @@ public:
     ModeManager& GetModeManager();
 
     GameLayer* GetGameLayer();
-    virtual CameraComponent* GetActiveCamera() = 0;
 
     bool IsRuntime() const { return m_type == Type::Runtime; }
     bool IsEditor() const { return m_type == Type::Editor; }

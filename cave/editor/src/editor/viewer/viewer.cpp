@@ -180,7 +180,7 @@ void Viewer::UpdateInternal() {
         return;
     }
 
-    ViewerTab* active_tab = _tab.unwrap_unchecked();
+    //ViewerTab* active_tab = _tab.unwrap_unchecked();
 
     int flag = 0;
 #if 0
@@ -192,7 +192,9 @@ void Viewer::UpdateInternal() {
 
     // update camera
     const float dt = m_editor.context.timestep;
-    auto& camera = active_tab->GetActiveCamera();
+    //auto& camera = active_tab->GetActiveCamera();
+    CameraComponent camera;
+    DEV_ASSERT(0);
     const auto& c = m_camera_input;
     const bool is_2d = camera.HasView2dFlag();
     if (is_2d) {

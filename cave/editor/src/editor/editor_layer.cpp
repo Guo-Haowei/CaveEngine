@@ -332,12 +332,4 @@ void EditorLayer::FlushCommand(Scene* p_scene) {
     }
 }
 
-CameraComponent* EditorLayer::GetActiveCamera() {
-    if (auto tab = m_viewer->GetActiveTab(); tab) {
-        return &(tab->GetActiveCamera());
-    }
-
-    return nullptr;
-}
-
 }  // namespace cave

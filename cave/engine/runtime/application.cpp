@@ -266,6 +266,9 @@ bool Application::MainLoop() {
         m_physics_manager->Update(*scene, timestep);
     }
 
+    //std::vector<FRenderView> views;
+    //m_viewport_manager->BuildViews(*scene, dt, views);
+
     m_render_system->RenderFrame(scene.get());
 
     // === Rendering Phase ===

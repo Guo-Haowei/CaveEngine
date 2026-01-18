@@ -190,7 +190,9 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
         Vector2f ndc_2 = res.unwrap_unchecked();
         Vector4f ndc{ ndc_2.x, ndc_2.y, 1.0f, 1.0f };
 
-        const CameraComponent& cam = GetActiveCamera();
+        //const CameraComponent& cam = GetActiveCamera();
+        CameraComponent cam;
+        DEV_ASSERT(0);
 
         const Matrix4x4f inv_pv = glm::inverse(cam.GetProjectionViewMatrix());
 

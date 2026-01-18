@@ -70,8 +70,6 @@ struct FrameData {
         float sceenWidth;
         float sceenHeight;
         float aspectRatio;
-        float zNear;
-        float zFar;
         Degree fovy;
     };
 

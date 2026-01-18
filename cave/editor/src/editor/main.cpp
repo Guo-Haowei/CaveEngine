@@ -97,10 +97,6 @@ public:
         Application::Finalize();
     }
 
-    CameraComponent* GetActiveCamera() override {
-        return m_editorLayer->GetActiveCamera();
-    }
-
     bool IsWorld2D() const override {
         return m_is_world_2d;
     }

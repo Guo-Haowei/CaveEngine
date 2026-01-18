@@ -48,14 +48,6 @@ public:
         return m_title;
     }
 
-    const CameraComponent& GetActiveCamera() const {
-        return GetActiveCameraInternal();
-    }
-
-    CameraComponent& GetActiveCamera() {
-        return const_cast<CameraComponent&>(GetActiveCameraInternal());
-    }
-
     virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const = 0;
 
 protected:
