@@ -5,12 +5,7 @@
 namespace cave {
 
 class ISceneViewProvider;
-class Scene;
-
-struct SceneView {
-    ViewInfo view_info;
-    Scene* scene{ nullptr };
-};
+struct SceneView;
 
 using ViewportId = uint32_t;
 using ViewProviderRef = std::unique_ptr<ISceneViewProvider>;
@@ -32,7 +27,7 @@ public:
     ViewportManager();
 
     ViewportId CreateViewport(ViewProviderRef p_provider, const char* p_debug_name );
-    void BuildViews(float dt, std::vector<SceneView>& outViews);
+    void BuildViews(float p_timestep, std::vector<SceneView>& p_out_views);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

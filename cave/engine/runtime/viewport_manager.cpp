@@ -32,10 +32,8 @@ void ViewportManager::BuildViews(float p_timestep, std::vector<SceneView>& p_out
             continue;
         }
 
-        unused(p_timestep);
-
-        // vp.Provider->Tick(p_timestep, vp.Input, vp.bFocused);
-        // vp.Provider->BuildViews(vp.Rect, vp.RenderTarget, p_out_views);
+        vp.view_provider->Update(p_timestep, vp.focused);
+        vp.view_provider->BuildViews(p_out_views);
     }
 }
 

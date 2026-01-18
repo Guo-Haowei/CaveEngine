@@ -5,6 +5,7 @@
 namespace cave {
 
 class CameraComponent;
+class Scene;
 
 struct ViewInfo {
     Matrix4x4f viewMatrix;
@@ -24,16 +25,18 @@ struct ViewInfo {
                            bool p_is_opengl);
 };
 
+struct SceneView {
+    ViewInfo view_info;
+    Scene* scene{ nullptr };
+};
+
 class ISceneViewProvider {
 public:
     virtual ~ISceneViewProvider() = default;
 
-    // virtual void Tick(float dt, const FViewportInput& input, bool bFocused) = 0;
+    virtual void Update(float p_timestep, bool p_focused) = 0;
 
-    // 1..N views
-    // virtual void BuildViews(const FIntRect& viewRect,
-    //                        FRenderTarget* rt,
-    //                        std::vector<FRenderView>& outViews) = 0;
+    virtual void BuildViews(std::vector<SceneView>& p_out_views) = 0;
 
     virtual const char* GetDebugName() const = 0;
 };

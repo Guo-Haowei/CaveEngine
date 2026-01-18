@@ -268,14 +268,14 @@ bool Application::MainLoop() {
         m_physics_manager->Update(*scene, timestep);
     }
 
-    //std::vector<FRenderView> views;
-    //m_viewport_manager->BuildViews(*scene, dt, views);
     // view has camera controller and camera manager
-    // view has
+    std::vector<SceneView> views;
+    m_viewport_manager->BuildViews(timestep, views);
+
+    // for each view, do things
 
     m_render_system->RenderFrame(scene.get());
 
-    // === Rendering Phase ===
     m_graphics_manager->Update(scene.get());
 
     // === End Frame ===
