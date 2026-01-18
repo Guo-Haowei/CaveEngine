@@ -1,6 +1,6 @@
 #include "viewport_manager.h"
 
-#include "engine/runtime/scene_view_provider_interface.h"
+#include "engine/runtime/scene_view.h"
 
 namespace cave {
 

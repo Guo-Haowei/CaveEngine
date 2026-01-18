@@ -81,16 +81,16 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
 
     // camera
     {
-        const auto& camera = p_out_data.view_info;
-        cache.c_camView = camera.viewMatrix;
-        cache.c_camProj = camera.projectionMatrixRendering;
-        cache.c_invCamView = glm::inverse(camera.viewMatrix);
-        cache.c_invCamProj = glm::inverse(camera.projectionMatrixRendering);
-        cache.c_cameraFovDegree = camera.fovy.GetDegree();
-        cache.c_cameraForward = camera.front;
-        cache.c_cameraRight = camera.right;
-        cache.c_cameraUp = camera.up;
-        cache.c_cameraPosition = camera.position;
+        const auto& view_info = p_out_data.view_info;
+        cache.c_camView = view_info->viewMatrix;
+        cache.c_camProj = view_info->projectionMatrixRendering;
+        cache.c_invCamView = glm::inverse(view_info->viewMatrix);
+        cache.c_invCamProj = glm::inverse(view_info->projectionMatrixRendering);
+        cache.c_cameraFovDegree = view_info->fovy.GetDegree();
+        cache.c_cameraForward = view_info->front;
+        cache.c_cameraRight = view_info->right;
+        cache.c_cameraUp = view_info->up;
+        cache.c_cameraPosition = view_info->position;
     }
 
     // Bloom
@@ -179,7 +179,7 @@ void RenderSystem::BeginFrame() {
     s_firstFrame = false;
 }
 
-void RenderSystem::RenderFrame(Scene* p_scene) {
+void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
     // HACK
     auto backend = m_app->GetGraphicsManager()->GetBackend();
     switch (backend) {
@@ -192,44 +192,31 @@ void RenderSystem::RenderFrame(Scene* p_scene) {
     }
 
     CAVE_PROFILE_EVENT();
-    CameraComponent* camera = nullptr;
-    DEV_ASSERT(camera);
-
-    if (!camera && p_scene) {
-        auto cam = p_scene->GetMainCamera();
-        camera = p_scene->GetComponent<CameraComponent>(cam);
-    }
 
     DEV_ASSERT(m_frameData);
     FrameData& framedata = *m_frameData;
 
-    if (!camera) {
-        return;
-    }
+    DEV_ASSERT(0);
 
     // @TODO: move it to BuildViews
-    ViewInfo::FromCamera(*camera, framedata.view_info, framedata.options.isOpengl);
+    //ViewInfo::FromCamera(*camera, framedata.view_info, framedata.options.isOpengl);
 
-    FillConstantBuffer(p_scene, framedata);
+    for (SceneView& view : p_views) {
+        Scene* p_scene = view.scene;
+        // @TODO: only support one view, fix this
+        framedata.view_info = &view.view_info;
 
-    RunMeshRenderSystem(p_scene, framedata);
+        FillConstantBuffer(p_scene, framedata);
+        RunMeshRenderSystem(p_scene, framedata);
+        RunTileMapRenderSystem(p_scene, framedata);
+        RunSpriteRenderSystem(p_scene, framedata);
+        RunDebugRenderSystem(p_scene, framedata);
+        FillEnvConstants(framedata);
 
-    RunTileMapRenderSystem(p_scene, framedata);
-    RunSpriteRenderSystem(p_scene, framedata);
-
-    RunDebugRenderSystem(p_scene, framedata);
-
-    // @TODO: RunSprite
-    // @TODO: RunTileMap
-#if 0
-    FillMeshEmitterBuffer(p_scene, p_out_data);
-    FillParticleEmitterBuffer(p_scene, p_out_data);
-#endif
-
-    FillEnvConstants(framedata);
-
-    if (p_scene) {
-        RequestPathTracerUpdate(*camera, *p_scene);
+        // @TODO: fix path tracer
+        //if (p_scene) {
+        //    RequestPathTracerUpdate(*camera, *p_scene);
+        //}
     }
 }
 

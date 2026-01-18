@@ -4,8 +4,10 @@
 namespace cave {
 
 class CameraComponent;
-struct FrameData;
 class Scene;
+
+struct FrameData;
+struct SceneView;
 
 class RenderSystem : public Module {
 public:
@@ -14,7 +16,7 @@ public:
 
     void BeginFrame();
 
-    void RenderFrame(Scene* p_scene);
+    void RenderFrame(std::vector<SceneView>& p_views);
 
     const FrameData* GetFrameData() const { return m_frameData; }
 

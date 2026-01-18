@@ -9,7 +9,7 @@
 #include "engine/renderer/gpu_resource.h"
 #include "engine/renderer/graphics_defines.h"
 #include "engine/renderer/render_command.h"
-#include "engine/runtime/scene_view_provider_interface.h"
+#include "engine/runtime/scene_view.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"
@@ -65,8 +65,7 @@ struct FrameData {
     }
 
     const RenderOptions options;
-
-    ViewInfo view_info;
+    const ViewInfo* view_info{ nullptr };
 
     // @TODO: multi camera & viewport
 

@@ -274,7 +274,7 @@ bool Application::MainLoop() {
 
     // for each view, do things
 
-    m_render_system->RenderFrame(scene.get());
+    m_render_system->RenderFrame(views);
 
     m_graphics_manager->Update(scene.get());
 

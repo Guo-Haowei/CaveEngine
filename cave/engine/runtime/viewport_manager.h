@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/runtime/module.h"
-#include "engine/runtime/scene_view_provider_interface.h"
+#include "engine/runtime/scene_view.h"
 
 namespace cave {
 
