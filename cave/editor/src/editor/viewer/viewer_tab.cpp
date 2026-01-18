@@ -4,7 +4,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/scene/scene.h"
+#include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
 #include "editor/editor_layer.h"
@@ -12,6 +12,8 @@
 #include "editor/viewer/viewer.h"
 
 namespace cave {
+
+using ecs::Entity;
 
 const Guid& ViewerTab::GetGuid() const {
     return GetDocument().GetGuid();
@@ -31,6 +33,7 @@ void ViewerTab::SelectEntity(ecs::Entity p_selected) {
     }
 }
 
+#if 0
 static std::shared_ptr<CameraComponent> CreateDefaultCamera2D(const Vector2i& p_resolution, TransformComponent& p_transform) {
     auto camera = std::make_shared<CameraComponent>();
     camera->SetProjection(ProjectionType::Orthographic);
@@ -42,17 +45,7 @@ static std::shared_ptr<CameraComponent> CreateDefaultCamera2D(const Vector2i& p_
     camera->Update(p_transform.GetWorldMatrix());
     return camera;
 }
-
-static std::shared_ptr<CameraComponent> CreateDefaultCamera3D(const Vector2i& p_resolution, TransformComponent& p_transform) {
-    auto camera = std::make_shared<CameraComponent>();
-    camera->SetDimension(p_resolution.x, p_resolution.y);
-    camera->SetNear(1.0f);
-    camera->SetFar(1000.0f);
-
-    p_transform.SetTranslation(Vector3f(0, 4, 10));
-    camera->Update(p_transform.GetWorldMatrix());
-    return camera;
-}
+#endif
 
 void ViewerTab::OnCreate(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
@@ -63,21 +56,50 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
 
     LOG_OK("ViewerTab '{}' created", m_title);
 
-    // create camera & controller
-    const bool is_2d = m_dimension == DIMENSION_2;
+    OnCreateInternal(p_guid);
 
-    const Vector2i res = DVAR_GET_IVEC2(resolution);
-    m_camera = is_2d ? CreateDefaultCamera2D(res, m_camera_transform) : CreateDefaultCamera3D(res, m_camera_transform);
-
-    if (is_2d) {
-        m_camera_controller = std::make_shared<CameraController2DEditor>();
-    } else {
-        m_camera_controller = std::make_shared<CameraControllerFPS>();
+    switch (m_dimension) {
+        case DIMENSION_2: {
+            DEV_ASSERT(0);
+            // DVAR_GET_IVEC2(resolution)
+        } break;
+        case DIMENSION_3: {
+            SetupDefault3DCamera();
+        } break;
     }
 
-    // CreateDefaultCameraAndController();
+}
 
-    OnCreateInternal(p_guid);
+void ViewerTab::SetupDefault3DCamera() {
+    Scene* scene = GetScene();
+    DEV_ASSERT(scene);
+
+    Entity cam = EntityFactory::CreateCameraEntity(*scene, "editor_cam");
+    Entity cam_y = EntityFactory::CreateTransformEntity(*scene, "editor_cam_y");
+    Entity cam_root = EntityFactory::CreateTransformEntity(*scene, "editor_cam_root");
+
+    scene->Create<NoSaveTag>(cam);
+    scene->Create<NoSaveTag>(cam_y);
+    scene->Create<NoSaveTag>(cam_root);
+
+    scene->AttachChild(cam_root);
+    scene->AttachChild(cam_y, cam_root);
+    scene->AttachChild(cam, cam_y);
+
+    #if 0
+    auto camera = std::make_shared<CameraComponent>();
+    camera->SetDimension(p_resolution.x, p_resolution.y);
+    camera->SetNear(1.0f);
+    camera->SetFar(1000.0f);
+
+    p_transform.SetTranslation(Vector3f(0, 4, 10));
+    camera->Update(p_transform.GetWorldMatrix());
+    #endif
+
+    m_camera = cam;
+    m_camera_root = cam_root;
+
+    m_camera_controller = std::make_shared<CameraControllerFPS>(scene, cam_root, cam_y, cam);
 }
 
 void ViewerTab::OnActivate() {
@@ -88,10 +110,6 @@ void ViewerTab::OnActivate() {
 void ViewerTab::OnDeactivate() {
     OnDeactivateInternal();
     m_active = false;
-}
-
-void ViewerTab::CreateDefaultCameraAndController() {
-    // @TODO: controller
 }
 
 void ViewerTab::DrawAssetInspector() {
@@ -185,12 +203,7 @@ void ViewerTab::Update(float p_timestep,
         } break;
     }
 
-    m_camera_controller->Update(state, *m_camera, m_camera_transform);
-
-    m_camera_transform.SetDirty();
-    m_camera_transform.UpdateTransform();
-
-    m_camera->Update(m_camera_transform.GetWorldMatrix());
+    m_camera_controller->Update(state);
 }
 
 void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
@@ -198,11 +211,15 @@ void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl
         return;
     }
 
+    Scene* scene = GetScene();
     SceneView scene_view;
-    scene_view.scene = GetScene();
+    scene_view.scene = scene;
 
-    ViewInfo::FromCamera(*m_camera,
-                         m_camera_transform.GetWorldMatrix(),
+    const CameraComponent* cam = scene->GetComponent<CameraComponent>(m_camera);
+    const TransformComponent* cam_root = scene->GetComponent<TransformComponent>(m_camera_root);
+
+    ViewInfo::FromCamera(*cam,
+                         cam_root->GetWorldMatrix(),
                          scene_view.view_info,
                          p_is_opengl);
 

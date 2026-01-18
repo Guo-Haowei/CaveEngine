@@ -4,7 +4,6 @@
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
 #include "engine/runtime/scene_view.h"
-#include "engine/scene/transform_component.h"
 
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
@@ -12,13 +11,13 @@
 
 namespace cave {
 
-class CameraComponent;
 class Document;
 class ICameraController;
 class TabId;
 class Viewer;
 
 struct CameraInputState;
+
 struct ToolBarButtonDesc;
 
 class ViewerTab : public ISceneViewProvider {
@@ -74,7 +73,7 @@ protected:
     virtual void OnActivateInternal() {}
     virtual void OnDeactivateInternal() {}
 
-    virtual void CreateDefaultCameraAndController();
+    void SetupDefault3DCamera();
 
     void CameraInputState2D(float p_timestep,
                             const ViewportInput& p_input,
@@ -84,15 +83,17 @@ protected:
                             const ViewportInput& p_input,
                             CameraInputState& p_out_state);
 
+    // @TODO: refactor field
     const TabId m_id;
     EditorLayer& m_editor;
     Viewer& m_viewer;
 
-    ecs::Entity m_selected;
     bool m_active{ false };
 
-    TransformComponent m_camera_transform;
-    std::shared_ptr<CameraComponent> m_camera;
+    ecs::Entity m_selected;
+
+    ecs::Entity m_camera_root;
+    ecs::Entity m_camera;
     std::shared_ptr<ICameraController> m_camera_controller;
 
 private:

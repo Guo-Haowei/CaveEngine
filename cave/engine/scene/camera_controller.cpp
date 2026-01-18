@@ -7,10 +7,11 @@
 
 namespace cave {
 
-void CameraController2DEditor::Update(const CameraInputState& p_state,
-                                      CameraComponent& p_camera,
-                                      TransformComponent& p_transform) {
+void CameraController2DEditor::Update(const CameraInputState& p_state) {
+    DEV_ASSERT(0);
 
+    CameraComponent  p_camera;
+    TransformComponent  p_transform;
     const bool moved = p_state.move.x || p_state.move.y;
     if (moved) {
         p_transform.Translate(Vector3f(p_state.move.x, p_state.move.y, 0.0f));
@@ -23,9 +24,9 @@ void CameraController2DEditor::Update(const CameraInputState& p_state,
     }
 }
 
-void CameraControllerFPS::Update(const CameraInputState& p_state,
-                                 CameraComponent& p_camera,
-                                 TransformComponent& p_transform) {
+void CameraControllerFPS::Update(const CameraInputState& p_state) {
+    CameraComponent p_camera;
+    TransformComponent p_transform;
 
     const bool moved = p_state.move.x || p_state.move.y || p_state.move.z || p_state.zoom_delta != 0.0f;
     if (moved) {

@@ -74,15 +74,17 @@ Scene* SceneEditor::GetScene() {
     return handle.Get();
 }
 
+// @TODO: rename this to DrawEditor
 void SceneEditor::DrawMainView(const CameraComponent&) {
     // @TODO: fix this as well
-    const CameraComponent& p_camera = *m_camera;
+    const CameraComponent* p_camera = GetScene()->GetComponent<CameraComponent>(m_camera);
+    DEV_ASSERT(p_camera);
 
-    ViewerTab::DrawMainView(p_camera);
+    ViewerTab::DrawMainView(*p_camera);
 
-    const Matrix4x4f& view_matrix = p_camera.GetViewMatrix();
-    const Matrix4x4f& proj_matrix = p_camera.GetProjectionMatrix();
-    const Matrix4x4f& proj_view = p_camera.GetProjectionViewMatrix();
+    const Matrix4x4f& view_matrix = p_camera->GetViewMatrix();
+    const Matrix4x4f& proj_matrix = p_camera->GetProjectionMatrix();
+    const Matrix4x4f& proj_view = p_camera->GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -195,7 +197,8 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
 
         const Matrix4x4f inv_pv = glm::inverse(cam.GetProjectionViewMatrix());
 
-        const Vector3f ray_start = m_camera_transform.GetTranslation();
+        const Vector3f ray_start = Vector3f::Zero;
+        //const Vector3f ray_start = m_camera_transform.GetTranslation();
         const Vector3f direction = normalize(Vector3f((inv_pv * ndc).xyz));
         const Vector3f ray_end = ray_start + direction * cam.GetFar();
         Ray ray(ray_start, ray_end);
