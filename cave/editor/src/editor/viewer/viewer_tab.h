@@ -13,6 +13,7 @@ namespace cave {
 
 class CameraComponent;
 class Document;
+class ICameraController;
 class TabId;
 class Viewer;
 
@@ -89,8 +90,8 @@ protected:
     ecs::Entity m_selected;
     bool m_active{ false };
 
-    // @TODO: camera controller
     std::shared_ptr<CameraComponent> m_camera;
+    std::shared_ptr<ICameraController> m_camera_controller;
 
 private:
     const Dimension m_dimension;

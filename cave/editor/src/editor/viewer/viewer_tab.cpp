@@ -64,12 +64,17 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
 
     LOG_OK("ViewerTab '{}' created", m_title);
 
-    // create camera
-    const Vector2i res = DVAR_GET_IVEC2(resolution);
+    // create camera & controller
     const bool is_2d = m_dimension == DIMENSION_2;
+
+    const Vector2i res = DVAR_GET_IVEC2(resolution);
     m_camera = is_2d ? CreateDefaultCamera2D(res) : CreateDefaultCamera3D(res);
 
-    // create controller
+    if (is_2d) {
+        m_camera_controller = std::make_shared<CameraController2DEditor>();
+    } else {
+        m_camera_controller = std::make_shared<CameraControllerFPS>();
+    }
 
     // CreateDefaultCameraAndController();
 
@@ -169,26 +174,20 @@ void ViewerTab::Update(float p_timestep,
 
     CameraInputState state;
 
-    // @TODO: refactor controller
     switch (m_dimension) {
         case DIMENSION_2: {
             CameraInputState2D(p_timestep, p_input, state);
-            CameraController2DEditor m_controller_2d;
-            m_controller_2d.Update(*m_camera, state);
-            m_camera->Update();
         } break;
         case DIMENSION_3: {
             CameraInputState3D(p_timestep, p_input, state);
-            CameraControllerFPS m_controller_3d;
-            m_controller_3d.Update(*m_camera, state);
-            m_camera->Update();
         } break;
         default: {
             CRASH_NOW_MSG("invalid dimension");
         } break;
     }
 
-    // @TODO: change camera based on game mode, etc
+    m_camera_controller->Update(*m_camera, state);
+    m_camera->Update();
 }
 
 void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
