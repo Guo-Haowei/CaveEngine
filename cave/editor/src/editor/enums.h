@@ -15,6 +15,7 @@ enum class GizmoAction : uint8_t {
     ENTITY_TYPE(PointLight,     false) \
     ENTITY_TYPE(Environment,    false) \
     ENTITY_TYPE(AreaLight,      false) \
+    ENTITY_TYPE(Camera,         true ) \
     ENTITY_TYPE(VoxelGi,        true ) \
     ENTITY_TYPE(Transform,      false) \
     ENTITY_TYPE(Plane,          false) \

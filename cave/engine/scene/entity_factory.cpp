@@ -2,23 +2,24 @@
 
 #include "engine/assets/material_asset.h"
 #include "engine/math/geometry.h"
+#include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
 namespace cave {
 
-Entity EntityFactory::CreatePerspectiveCameraEntity(Scene& p_scene,
-                                                    const std::string& p_name,
-                                                    int p_width,
-                                                    int p_height,
-                                                    float p_near_plane,
-                                                    float p_far_plane,
-                                                    Degree p_fovy) {
+Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
+                                         const std::string& p_name,
+                                         float p_near_plane,
+                                         float p_far_plane,
+                                         Degree p_fovy) {
     auto entity = CreateNameEntity(p_scene, p_name);
     CameraComponent& camera = p_scene.Create<CameraComponent>(entity);
 
-    camera.m_width = p_width;
-    camera.m_height = p_height;
+    Vector2i frame_size = DVAR_GET_IVEC2(resolution);
+
+    camera.m_width = frame_size.x;
+    camera.m_height = frame_size.y;
     camera.m_near = p_near_plane;
     camera.m_far = p_far_plane;
     camera.m_fovy = p_fovy;

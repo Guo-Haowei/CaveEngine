@@ -6,13 +6,11 @@ using ecs::Entity;
 
 class EntityFactory {
 public:
-    static Entity CreatePerspectiveCameraEntity(Scene& p_scene,
-                                                const std::string& p_name,
-                                                int p_width,
-                                                int p_height,
-                                                float p_near_plane = CameraComponent::DEFAULT_NEAR,
-                                                float p_far_plane = CameraComponent::DEFAULT_FAR,
-                                                Degree p_fovy = CameraComponent::DEFAULT_FOVY);
+    static Entity CreateCameraEntity(Scene& p_scene,
+                                     const std::string& p_name,
+                                     float p_near_plane = CameraComponent::DEFAULT_NEAR,
+                                     float p_far_plane = CameraComponent::DEFAULT_FAR,
+                                     Degree p_fovy = CameraComponent::DEFAULT_FOVY);
 
     static Entity CreateNameEntity(Scene& p_scene,
                                    const std::string& p_name);

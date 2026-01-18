@@ -153,13 +153,9 @@ public:
 #undef REGISTER_COMPONENT
 
 public:
-    void CreateEmpty();
-
     void Update(float p_delta_time);
 
     void Copy(const Scene& p_other);
-
-    ecs::Entity GetMainCamera();
 
     ecs::Entity FindEntityByName(const char* p_name);
 

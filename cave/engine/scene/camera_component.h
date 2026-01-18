@@ -14,10 +14,6 @@ class CameraComponent {
     enum : uint32_t {
         None = BIT(0),
         DirtyFlag = BIT(1),
-        OrthoFlag = BIT(2),
-        EditorFlag = BIT(3),
-        PrimaryFlag = BIT(4),
-        View2dFlag = BIT(5),
     };
 
 private:
@@ -32,6 +28,9 @@ private:
 
     CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
     float m_far = DEFAULT_FAR;
+
+    CAVE_PROP(editor = Toggle)
+    bool m_ortho = false;
 
     CAVE_PROP()
     int m_width = 0;
@@ -96,6 +95,9 @@ public:
     int GetHeight() const { return m_height; }
     float GetAspect() const { return (float)m_width / m_height; }
 
+    bool IsOrtho() const { return m_ortho; }
+    void SetOrtho(bool p_value = true) { m_ortho = p_value; }
+
     float GetOrthoHeight() const { return m_ortho_height; }
     void SetOrthoHeight(float p_height);
 
@@ -109,10 +111,6 @@ public:
     Matrix4x4f CalcProjectionGL() const;
 
     FLAG_GETTER_SETTER(DirtyFlag, m_flags)
-    FLAG_GETTER_SETTER(OrthoFlag, m_flags)
-    FLAG_GETTER_SETTER(EditorFlag, m_flags)
-    FLAG_GETTER_SETTER(PrimaryFlag, m_flags)
-    FLAG_GETTER_SETTER(View2dFlag, m_flags)
 
     void OnDeserialized() { m_flags |= DirtyFlag; }
 };

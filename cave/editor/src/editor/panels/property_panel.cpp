@@ -392,9 +392,9 @@ void PropertyPanel::UpdateInternal() {
 
     DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera, [&](CameraComponent& p_camera) {
         // @TODO: need a better way to do this
-        bool is_ortho = p_camera.HasOrthoFlag();
+        bool is_ortho = p_camera.IsOrtho();
         if (ToggleButton("ortho", is_ortho)) {
-            p_camera.SetOrthoFlag(is_ortho);
+            p_camera.SetOrtho(is_ortho);
             p_camera.SetDirtyFlag();
         }
 
