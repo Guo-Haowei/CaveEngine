@@ -306,12 +306,12 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
 
 static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     const auto& camera = p_framedata.view_info;
-    Frustum camera_frustum(camera->projectionMatrixFrustum * camera->viewMatrix);
+    Frustum camera_frustum(camera->projection_frustum * camera->view);
 
     // main pass
     PerPassConstantBuffer pass_constant;
-    pass_constant.c_viewMatrix = camera->viewMatrix;
-    pass_constant.c_projectionMatrix = camera->projectionMatrixRendering;
+    pass_constant.c_viewMatrix = camera->view;
+    pass_constant.c_projectionMatrix = camera->projection_rendering;
 
     p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.passCache.size());
     p_framedata.passCache.emplace_back(pass_constant);

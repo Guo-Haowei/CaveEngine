@@ -272,11 +272,11 @@ bool Application::MainLoop() {
     std::vector<SceneView> views;
     m_viewport_manager->BuildViews(timestep, views);
 
-    // for each view, do things
-
+    // @TODO: build render data, rename it to something better
     m_render_system->RenderFrame(views);
 
-    m_graphics_manager->Update(scene.get());
+    // @TODO: think of how to handle multiple view
+    m_graphics_manager->Update();
 
     // === End Frame ===
     m_input_manager->EndFrame();

@@ -8,16 +8,16 @@ class CameraComponent;
 class Scene;
 
 struct ViewInfo {
-    Matrix4x4f viewMatrix;
-    Matrix4x4f projectionMatrixRendering;
-    Matrix4x4f projectionMatrixFrustum;
+    Matrix4x4f view;
+    Matrix4x4f projection_rendering;
+    Matrix4x4f projection_frustum;
     Vector3f position;
     Vector3f up;
     Vector3f front;
     Vector3f right;
-    float sceenWidth;
-    float sceenHeight;
-    float aspectRatio;
+    float sceen_width;
+    float sceen_height;
+    float aspect_ratio;
     Degree fovy;
 
     static void FromCamera(const CameraComponent& p_camera,

@@ -9,21 +9,21 @@ void ViewInfo::FromCamera(const CameraComponent& p_camera,
                           bool p_is_opengl) {
 
     // @TODO: refactor this part
-    p_out_view_info.sceenWidth = static_cast<float>(p_camera.GetWidth());
-    p_out_view_info.sceenHeight = static_cast<float>(p_camera.GetHeight());
-    p_out_view_info.aspectRatio = p_out_view_info.sceenWidth / p_out_view_info.sceenHeight;
+    p_out_view_info.sceen_width = static_cast<float>(p_camera.GetWidth());
+    p_out_view_info.sceen_height = static_cast<float>(p_camera.GetHeight());
+    p_out_view_info.aspect_ratio = p_out_view_info.sceen_width / p_out_view_info.sceen_height;
     p_out_view_info.fovy = p_camera.GetFovy();
 
-    p_out_view_info.viewMatrix = p_camera.GetViewMatrix();
-    p_out_view_info.projectionMatrixFrustum = p_camera.GetProjectionMatrix();
+    p_out_view_info.view = p_camera.GetViewMatrix();
+    p_out_view_info.projection_frustum = p_camera.GetProjectionMatrix();
 
-    p_out_view_info.sceenWidth = static_cast<float>(p_camera.GetWidth());
-    p_out_view_info.sceenHeight = static_cast<float>(p_camera.GetHeight());
-    p_out_view_info.aspectRatio = p_out_view_info.sceenWidth / p_out_view_info.sceenHeight;
+    p_out_view_info.sceen_width = static_cast<float>(p_camera.GetWidth());
+    p_out_view_info.sceen_height = static_cast<float>(p_camera.GetHeight());
+    p_out_view_info.aspect_ratio = p_out_view_info.sceen_width / p_out_view_info.sceen_height;
     p_out_view_info.fovy = p_camera.GetFovy();
 
-    p_out_view_info.viewMatrix = p_camera.GetViewMatrix();
-    p_out_view_info.projectionMatrixFrustum = p_camera.GetProjectionMatrix();
+    p_out_view_info.view = p_camera.GetViewMatrix();
+    p_out_view_info.projection_frustum = p_camera.GetProjectionMatrix();
 
     auto reverse_z = [](Matrix4x4f& p_perspective) {
         constexpr Matrix4x4f matrix{ 1.0f, 0.0f, 0.0f, 0.0f,
@@ -44,12 +44,12 @@ void ViewInfo::FromCamera(const CameraComponent& p_camera,
     if (p_is_opengl) {
         // since we use opengl matrix for frustum culling,
         // we can use the same matrix for rendering
-        p_out_view_info.projectionMatrixRendering = p_out_view_info.projectionMatrixFrustum;
-        normalize_unit_range(p_out_view_info.projectionMatrixRendering);
-        reverse_z(p_out_view_info.projectionMatrixRendering);
+        p_out_view_info.projection_rendering = p_out_view_info.projection_frustum;
+        normalize_unit_range(p_out_view_info.projection_rendering);
+        reverse_z(p_out_view_info.projection_rendering);
     } else {
-        p_out_view_info.projectionMatrixRendering = p_camera.CalcProjection();
-        reverse_z(p_out_view_info.projectionMatrixRendering);
+        p_out_view_info.projection_rendering = p_camera.CalcProjection();
+        reverse_z(p_out_view_info.projection_rendering);
     }
     p_out_view_info.position = p_camera.GetPosition();
 

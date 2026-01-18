@@ -49,7 +49,7 @@ public:
         : Module(p_name) {}
 
     virtual auto InitializeImpl() -> Result<void> = 0;
-    virtual void Update(Scene* p_scene) = 0;
+    virtual void Update() = 0;
 
     // resource
     virtual auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> = 0;
