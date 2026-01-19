@@ -1,7 +1,7 @@
 -- file: game.lua
 local GridAdapter = require('@res://scripts/grid_adapter.lua')
-local GridSelector = require('@res://scripts/grid_selector.lua')
-print(GridSelector)
+local TileSelector = require('@res://scripts/tile_selector.lua')
+print(TileSelector)
 
 local EMPTY = '.'
 local WP = 'P'

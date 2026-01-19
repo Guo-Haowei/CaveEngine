@@ -1,4 +1,4 @@
--- file: grid_selector.lua
+-- file: tile_selector.lua
 
 local TileSelector = {}
 TileSelector.__index = TileSelector

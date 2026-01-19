@@ -42,7 +42,7 @@ function Plane:OnUpdate(timestep)
 
     self.speed.x = 0.8 * self.speed.x
     self.speed.y = 0.8 * self.speed.y
-    self.displacement.x = 0.9 * self.displacement.x 
+    self.displacement.x = 0.9 * self.displacement.x
     self.displacement.y = 0.9 * self.displacement.y
 
     local rotate_z = 0.3 * delta.y
