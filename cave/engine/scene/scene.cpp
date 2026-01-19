@@ -182,13 +182,15 @@ void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
     DEV_ASSERT(p_child != p_parent);
     DEV_ASSERT(p_parent.IsValid());
 
-    // if child already has a parent, detach it
-    if (Contains<HierarchyComponent>(p_child)) {
-        CRASH_NOW_MSG("Unlikely to happen at this point");
+    // @TODO: prevent circular dependency
+
+    HierarchyComponent* hier = GetComponent<HierarchyComponent>(p_child);
+
+    if (hier == nullptr) {
+        hier = &Create<HierarchyComponent>(p_child);
     }
 
-    HierarchyComponent& hier = Create<HierarchyComponent>(p_child);
-    hier.parent_id = p_parent;
+    hier->parent_id = p_parent;
 }
 
 void Scene::RemoveEntity(ecs::Entity p_entity) {
