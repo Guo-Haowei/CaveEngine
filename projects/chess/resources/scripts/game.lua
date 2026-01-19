@@ -23,14 +23,15 @@ function Game.new(id)
 
     self.grid_adapter = GridAdapter.new({})
 
+    self.grid_selector_entity = g_scene:find_entity_by_name('grid_selector')
+    self.piece_hightlight_entity = g_scene:find_entity_by_name('piece_highlight')
+
     self.selector = GridSelector.new(self.grid_adapter, {
         can_select = function(tx, ty)
             local piece = self.chess:get_piece(tx, ty)
             if not piece then
                 return false
             end
-
-            Engine.log('piece color is ' .. tostring(self.chess:piece_color(piece)) .. ', turn is ' .. tostring(self.chess:turn()))
 
             return self.chess:piece_color(piece) == self.chess:turn()
         end,
@@ -124,9 +125,21 @@ function Game:render()
     end
 
     -- place selector to focused tile
-    local piece_entity = g_scene:find_entity_by_name('grid_selector')
-    local transform = g_scene:get_transform(piece_entity)
-    transform:set_translation(Vector3(self.selector.focus.y - 1, 0.05, self.selector.focus.x - 1))
+    if self.grid_selector_entity then
+        local transform = g_scene:get_transform(self.grid_selector_entity)
+        transform:set_translation(Vector3(self.selector.focus.y - 1, 0.05, self.selector.focus.x - 1))
+    end
+
+    if self.piece_hightlight_entity then
+        local renderer = g_scene:get_mesh_renderer(self.piece_hightlight_entity)
+        if self.selector.selected then
+            local transform = g_scene:get_transform(self.piece_hightlight_entity)
+            transform:set_translation(Vector3(self.selector.selected.y - 1, 0.05, self.selector.selected.x - 1))
+            renderer:set_visible(true)
+        else
+            renderer:set_visible(false)
+        end
+    end
 end
 
 function Game:_process(timestep)
@@ -149,9 +162,6 @@ function Game:_process(timestep)
     if Input.is_action_just_pressed('ui_cancel') == 1 then
         self.selector:cancel()
     end
-
-    -- if key == 'return' or key == 'space' then selector:confirm() end
-    -- if key == 'escape' then selector:cancel() end
 
     self:render()
 end

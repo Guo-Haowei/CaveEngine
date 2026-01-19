@@ -1,5 +1,5 @@
 version: 19
-seed: 86
+seed: 92
 root: 1
 physics_mode: 0
 entities:
@@ -941,3 +941,28 @@ entities:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
+  - id: 91
+    NameComponent:
+      name: piece_highlight
+    HierarchyComponent:
+      parent_id: 81
+    TransformComponent:
+      translation: [0, 0.0500000007, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 0.0500000007, 1]
+    MeshRendererComponent:
+      visibility: false
+      cast_shadow: false
+      transparency: false
+      mesh_id: 00000000-0000-0000-0000000000000005
+      materials: [92]
+      skeleton_id: 0
+  - id: 92
+    NameComponent:
+      name: Cube-2:mat
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 00000000-0000-0000-0000000000000000
