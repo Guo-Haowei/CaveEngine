@@ -1,4 +1,5 @@
 -- file: game.lua
+local move = require('@res://scripts/chess/move.lua')
 local Position = require('@res://scripts/chess/position.lua')
 local Chess = require('@res://scripts/chess/chess.lua')
 
@@ -10,6 +11,10 @@ Game = {}
 Game.__index = Game
 setmetatable(Game, GameObject)
 
+local function coord_to_square(x, y)
+    return (y - 1) * 8 + (x - 1)
+end
+
 function Game.new(id)
     local self = GameObject.new(id)
     setmetatable(self, Game)
@@ -20,12 +25,13 @@ function Game.new(id)
 
     self.selector = GridSelector.new(self.grid_adapter, {
         can_select = function(tx, ty)
+            local piece = self.chess:get_piece(tx, ty)
+            if not piece then
+                return false
+            end
+
             return true
-            -- local piece = chess:get_piece(tx, ty)
-            -- if not piece then
-            --     return false
-            -- end
-            -- return piece.color == chess.side_to_move
+            -- return piece.color == self.chess.side_to_move
         end,
 
         can_drop = function(sx, sy, tx, ty)
@@ -34,7 +40,7 @@ function Game.new(id)
         end,
 
         on_select = function(tx, ty)
-            if chess.get_legal_moves_from then
+            if self.chess.get_legal_moves_from then
                 -- chess.highlight_tiles = chess:get_legal_moves_from(tx, ty)
             else
                 -- chess.highlight_tiles = nil
@@ -42,8 +48,13 @@ function Game.new(id)
         end,
 
         on_commit = function(sx, sy, tx, ty)
-            -- chess:make_move(sx, sy, tx, ty)
+            local mv = {
+                from = coord_to_square(sx, sy),
+                to = coord_to_square(tx, ty),
+            }
+            self.chess:make_move(mv)
             -- chess.highlight_tiles = nil
+            print('move', move.index_to_square(mv.from), '->', move.index_to_square(mv.to))
         end,
 
         on_cancel = function()
@@ -93,7 +104,6 @@ function Game:render()
     for rank = 1, 8 do
         for file = 1, 8 do
             local piece = self.chess:get_piece(file, rank)
-            print(piece)
             if piece ~= nil then
                 local pool = pieces[piece]
                 local piece_entity = pool[#pool]
@@ -127,6 +137,14 @@ function Game:_process(timestep)
     end
     if Input.is_action_just_pressed('ui_down') == 1 then
         self.selector:move_focus(0, -1)
+    end
+    if Input.is_action_just_pressed('ui_accept') == 1 then
+        print('confirm')
+        self.selector:confirm()
+    end
+    if Input.is_action_just_pressed('ui_cancel') == 1 then
+        print('cancel')
+        self.selector:cancel()
     end
 
     -- if key == 'return' or key == 'space' then selector:confirm() end

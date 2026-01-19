@@ -39,6 +39,7 @@ end
 
 function GridSelector:confirm()
     self:select_tile(self.focus.x, self.focus.y)
+    print('select_tile', self.focus.x, self.focus.y)
 end
 
 function GridSelector:cancel()

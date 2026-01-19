@@ -62,6 +62,10 @@ function Chess:get_piece(file, rank)
     return self.pos:piece_at(sq)
 end
 
+function Chess:make_move(mv)
+    return self.pos:push(mv)
+end
+
 return {
     new = Chess.new,
     from_fen = Chess.from_fen,
