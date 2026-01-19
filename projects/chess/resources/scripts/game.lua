@@ -54,7 +54,7 @@ function Game.new(id)
                 from = coord_to_square(sx, sy),
                 to = coord_to_square(tx, ty),
             }
-            Engine.log('move committed: ' .. move.index_to_square(mv.from) .. ' -> ' .. move.index_to_square(mv.to))
+            -- Engine.log('move committed: ' .. move.index_to_square(mv.from) .. ' -> ' .. move.index_to_square(mv.to))
 
             local ok, err = self.chess:make_move(mv)
             if not ok then

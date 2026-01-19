@@ -891,7 +891,7 @@ entities:
     NameComponent:
       name: Cube-3:mat
     MaterialComponent:
-      base_color: [1, 0, 0, 0.627451003]
+      base_color: [1, 0, 0, 0.501960814]
       metallic: 0
       roughness: 1
       emissive: 0
@@ -961,7 +961,7 @@ entities:
     NameComponent:
       name: Cube-2:mat
     MaterialComponent:
-      base_color: [0, 1, 0.0980392173, 0.627451003]
+      base_color: [0, 1, 0.0980392173, 0.501960814]
       metallic: 0
       roughness: 1
       emissive: 0
