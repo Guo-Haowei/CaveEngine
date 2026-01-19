@@ -135,9 +135,6 @@ function Game:render()
     add_piece(BQ, 'black_queen_', 1)
     add_piece(BK, 'black_king_', 1)
 
-    local offset_x = -3.5
-    local offset_z = -3.5
-
     for rank = 1, 8 do
         for file = 1, 8 do
             local piece = self.board:get_piece(file, rank)
@@ -146,7 +143,7 @@ function Game:render()
                 local piece_entity = pool[#pool]
                 pool[#pool] = nil -- remove from pool
                 local transform = g_scene:get_transform(piece_entity)
-                local position = Vector3(rank - 1 + offset_x, 0, file - 1 + offset_z)
+                local position = Vector3(rank - 1, 0, file - 1)
                 transform:set_translation(position)
                 local renderer = g_scene:get_mesh_renderer(piece_entity)
                 renderer:set_visible(true)

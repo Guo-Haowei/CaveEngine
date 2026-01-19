@@ -1,5 +1,5 @@
 version: 19
-seed: 81
+seed: 86
 root: 1
 physics_mode: 0
 entities:
@@ -41,9 +41,9 @@ entities:
     NameComponent:
       name: white_bishop_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-3.5, 0, -1.5]
+      translation: [0, 0, 2]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -66,9 +66,9 @@ entities:
     NameComponent:
       name: white_bishop_2
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-3.5, 0, 1.5]
+      translation: [0, 0, 5]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -91,9 +91,9 @@ entities:
     NameComponent:
       name: white_king_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-3.5, 0, 0.5]
+      translation: [0, 0, 4]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -116,9 +116,9 @@ entities:
     NameComponent:
       name: white_knight_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-3.5, 0, -2.5]
+      translation: [0, 0, 1]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -132,9 +132,9 @@ entities:
     NameComponent:
       name: white_knight_2
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-3.5, 0, 2.5]
+      translation: [0, 0, 6]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -157,9 +157,9 @@ entities:
     NameComponent:
       name: white_pawn_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-2.5, 0, -3.5]
+      translation: [1, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -173,9 +173,9 @@ entities:
     NameComponent:
       name: white_pawn_2
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-2.5, 0, -2.5]
+      translation: [1, 0, 1]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -189,9 +189,9 @@ entities:
     NameComponent:
       name: white_pawn_3
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-2.5, 0, -1.5]
+      translation: [1, 0, 2]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -205,9 +205,9 @@ entities:
     NameComponent:
       name: white_pawn_4
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-2.5, 0, -0.5]
+      translation: [1, 0, 3]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -221,9 +221,9 @@ entities:
     NameComponent:
       name: white_pawn_5
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-2.5, 0, 0.5]
+      translation: [1, 0, 4]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -237,9 +237,9 @@ entities:
     NameComponent:
       name: white_pawn_6
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-2.5, 0, 1.5]
+      translation: [1, 0, 5]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -253,9 +253,9 @@ entities:
     NameComponent:
       name: white_pawn_7
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-2.5, 0, 2.5]
+      translation: [1, 0, 6]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -269,9 +269,9 @@ entities:
     NameComponent:
       name: white_pawn_8
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-2.5, 0, 3.5]
+      translation: [1, 0, 7]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -285,9 +285,9 @@ entities:
     NameComponent:
       name: white_queen_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-3.5, 0, -0.5]
+      translation: [0, 0, 3]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -301,9 +301,9 @@ entities:
     NameComponent:
       name: white_rook_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-3.5, 0, -3.5]
+      translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -317,9 +317,9 @@ entities:
     NameComponent:
       name: white_rook_2
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 85
     TransformComponent:
-      translation: [-3.5, 0, 3.5]
+      translation: [0, 0, 7]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -342,9 +342,9 @@ entities:
     NameComponent:
       name: black_bishop_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [3.5, 0, -1.5]
+      translation: [7, 0, 2]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -376,9 +376,9 @@ entities:
     NameComponent:
       name: black_bishop_2
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [3.5, 0, 1.5]
+      translation: [7, 0, 5]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -428,9 +428,9 @@ entities:
     NameComponent:
       name: black_king_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [3.5, 0, 0.5]
+      translation: [7, 0, 4]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -444,9 +444,9 @@ entities:
     NameComponent:
       name: black_knight_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [3.5, 0, -2.5]
+      translation: [7, 0, 1]
       rotation: [-4.37113883e-08, 1, -4.37113883e-08, 1.91068547e-15]
       scale: [9.00000095, 9, 9.00000095]
     MeshRendererComponent:
@@ -460,9 +460,9 @@ entities:
     NameComponent:
       name: black_knight_2
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [3.5, 0, 2.5]
+      translation: [7, 0, 6]
       rotation: [-4.37113883e-08, 1, -4.37113883e-08, 1.91068547e-15]
       scale: [8.99999237, 9, 8.99999237]
     MeshRendererComponent:
@@ -476,9 +476,9 @@ entities:
     NameComponent:
       name: black_pawn_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [2.5, 0, -3.5]
+      translation: [6, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -492,9 +492,9 @@ entities:
     NameComponent:
       name: black_pawn_2
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [2.5, 0, -2.5]
+      translation: [6, 0, 1]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -508,9 +508,9 @@ entities:
     NameComponent:
       name: black_pawn_3
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [2.5, 0, -1.5]
+      translation: [6, 0, 2]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -524,9 +524,9 @@ entities:
     NameComponent:
       name: black_pawn_4
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [2.5, 0, -0.5]
+      translation: [6, 0, 3]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -540,9 +540,9 @@ entities:
     NameComponent:
       name: black_pawn_5
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [2.5, 0, 0.5]
+      translation: [6, 0, 4]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -556,9 +556,9 @@ entities:
     NameComponent:
       name: black_pawn_6
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [2.5, 0, 1.5]
+      translation: [6, 0, 5]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -572,9 +572,9 @@ entities:
     NameComponent:
       name: black_pawn_7
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [2.5, 0, 2.5]
+      translation: [6, 0, 6]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -588,9 +588,9 @@ entities:
     NameComponent:
       name: black_pawn_8
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [2.5, 0, 3.5]
+      translation: [6, 0, 7]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -604,9 +604,9 @@ entities:
     NameComponent:
       name: black_queen_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [3.5, 0, -0.5]
+      translation: [7, 0, 3]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -620,9 +620,9 @@ entities:
     NameComponent:
       name: black_rook_1
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [3.5, 0, -3.5]
+      translation: [7, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -636,9 +636,9 @@ entities:
     NameComponent:
       name: black_rook_2
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 86
     TransformComponent:
-      translation: [3.5, 0, 3.5]
+      translation: [7, 0, 7]
       rotation: [0, 0, 0, 1]
       scale: [9, 9, 9]
     MeshRendererComponent:
@@ -928,6 +928,24 @@ entities:
       name: pieces
     HierarchyComponent:
       parent_id: 1
+    TransformComponent:
+      translation: [-3.5, 0, -3.5]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 85
+    NameComponent:
+      name: white
+    HierarchyComponent:
+      parent_id: 81
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 86
+    NameComponent:
+      name: black
+    HierarchyComponent:
+      parent_id: 81
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
