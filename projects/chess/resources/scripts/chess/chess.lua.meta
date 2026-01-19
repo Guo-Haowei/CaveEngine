@@ -1,0 +1,9 @@
+type: blob
+guid: 5D78A260-9822-5548-B1DA290A82DA212C
+name: ""
+import_path: "@res://scripts/chess/chess.lua"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}
