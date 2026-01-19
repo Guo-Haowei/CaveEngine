@@ -24,6 +24,22 @@ function Chess.from_fen(fen)
     return self
 end
 
+function Chess:piece_color(piece)
+    if not piece then
+        return nil
+    end
+
+    if piece >= Position.PIECE.WP and piece <= Position.PIECE.WK then
+        return 'w'
+    end
+
+    if piece >= Position.PIECE.BP and piece <= Position.PIECE.BK then
+        return 'b'
+    end
+
+    return nil
+end
+
 function Chess:fen()
     return self.pos:fen()
 end

@@ -30,8 +30,9 @@ function Game.new(id)
                 return false
             end
 
-            return true
-            -- return piece.color == self.chess.side_to_move
+            Engine.log('piece color is ' .. tostring(self.chess:piece_color(piece)) .. ', turn is ' .. tostring(self.chess:turn()))
+
+            return self.chess:piece_color(piece) == self.chess:turn()
         end,
 
         can_drop = function(sx, sy, tx, ty)
@@ -52,9 +53,13 @@ function Game.new(id)
                 from = coord_to_square(sx, sy),
                 to = coord_to_square(tx, ty),
             }
-            self.chess:make_move(mv)
+            Engine.log('move committed: ' .. move.index_to_square(mv.from) .. ' -> ' .. move.index_to_square(mv.to))
+
+            local ok, err = self.chess:make_move(mv)
+            if not ok then
+                Engine.log('invalid move: ' .. err)
+            end
             -- chess.highlight_tiles = nil
-            print('move', move.index_to_square(mv.from), '->', move.index_to_square(mv.to))
         end,
 
         on_cancel = function()
@@ -139,11 +144,9 @@ function Game:_process(timestep)
         self.selector:move_focus(0, -1)
     end
     if Input.is_action_just_pressed('ui_accept') == 1 then
-        print('confirm')
         self.selector:confirm()
     end
     if Input.is_action_just_pressed('ui_cancel') == 1 then
-        print('cancel')
         self.selector:cancel()
     end
 
