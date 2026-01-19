@@ -15,7 +15,7 @@ function GridSelector.new(grid, cb)
     self.grid = grid
     self.cb = cb or {}
 
-    self.cols, self.rows = grid.get_bounds()
+    self.cols, self.rows = grid:get_bounds()
 
     self.state = 'idle'     -- 'idle' | 'armed'
     self.selected = nil
