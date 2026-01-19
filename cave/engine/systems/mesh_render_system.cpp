@@ -330,9 +330,9 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
         if (_mesh == nullptr) continue;
         const MeshAsset& mesh = *_mesh;
 
-        const bool is_renderable = renderer.IsVisible();
+        const bool is_visible = renderer.IsVisible();
         const bool is_transparent = renderer.Transparency();
-        const bool is_opaque = is_renderable && !is_transparent;
+        const bool is_opaque = is_visible && !is_transparent;
 
         // @TODO: cast shadow
 
@@ -375,7 +375,9 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
             continue;
         }
 
-        auto add_to_pass = [&](std::vector<RenderCommand>& p_commands, FilterFunc& p_filter, bool p_model_only) {
+        auto add_to_pass = [&](std::vector<RenderCommand>& p_commands,
+                               FilterFunc& p_filter,
+                               bool p_model_only) {
             if (!p_filter(aabb)) {
                 return;
             }
@@ -421,7 +423,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
             add_to_pass(p_framedata.gbuffer_commands, filter_main, false);
         }
 
-        if (is_transparent) {
+        if (is_transparent && is_visible) {
             add_to_pass(p_framedata.transparent_commands, filter_main, false);
         }
 
