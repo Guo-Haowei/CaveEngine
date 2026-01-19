@@ -1,4 +1,7 @@
 -- file: game.lua
+local GridAdapter = require('@res://scripts/grid_adapter.lua')
+local GridSelector = require('@res://scripts/grid_selector.lua')
+print(GridSelector)
 
 local EMPTY = '.'
 local WP = 'P'
@@ -76,7 +79,7 @@ function Board.new(fen)
     return self
 end
 
-function Board.get_piece(self, file, rank)
+function Board:get_piece(file, rank)
     if file < 1 or file > 8 or rank < 1 or rank > 8 then
         return nil
     end
@@ -102,6 +105,46 @@ function Game.new(id)
     -- local fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
     local fen = '8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8 b - - 99 50'
     self.board = Board.new(fen)
+    self.grid_adapter = GridAdapter.new({})
+
+    self.selector = GridSelector.new(self.grid_adapter, {
+        can_select = function(tx, ty)
+            return true
+            -- local piece = chess:get_piece(tx, ty)
+            -- if not piece then
+            --     return false
+            -- end
+            -- return piece.color == chess.side_to_move
+        end,
+
+        can_drop = function(sx, sy, tx, ty)
+            -- return chess:is_legal_move(sx, sy, tx, ty)
+            return true
+        end,
+
+        on_select = function(tx, ty)
+            if chess.get_legal_moves_from then
+                -- chess.highlight_tiles = chess:get_legal_moves_from(tx, ty)
+            else
+                -- chess.highlight_tiles = nil
+            end
+        end,
+
+        on_commit = function(sx, sy, tx, ty)
+            -- chess:make_move(sx, sy, tx, ty)
+            -- chess.highlight_tiles = nil
+        end,
+
+        on_cancel = function()
+            -- chess.highlight_tiles = nil
+        end,
+
+        on_invalid = function(kind, ...)
+            -- kind == 'select' or 'drop'
+            -- you can play a sound or flash UI here
+        end,
+    })
+
     return self
 end
 
@@ -135,6 +178,7 @@ function Game:render()
     add_piece(BQ, 'black_queen_', 1)
     add_piece(BK, 'black_king_', 1)
 
+    --  place pieces on board
     for rank = 1, 8 do
         for file = 1, 8 do
             local piece = self.board:get_piece(file, rank)
@@ -151,8 +195,30 @@ function Game:render()
             end
         end
     end
+
+    -- place selector to focused tile
+    local piece_entity = g_scene:find_entity_by_name('grid_selector')
+    local transform = g_scene:get_transform(piece_entity)
+    transform:set_translation(Vector3(self.selector.focus.y - 1, 0.05, self.selector.focus.x - 1))
 end
 
 function Game:_process(timestep)
+    -- @TODO: refactor this part
+    if Input.is_action_just_pressed('ui_right') == 1 then
+        self.selector:move_focus(1, 0)
+    end
+    if Input.is_action_just_pressed('ui_left') == 1 then
+        self.selector:move_focus(-1, 0)
+    end
+    if Input.is_action_just_pressed('ui_up') == 1 then
+        self.selector:move_focus(0, 1)
+    end
+    if Input.is_action_just_pressed('ui_down') == 1 then
+        self.selector:move_focus(0, -1)
+    end
+
+    -- if key == 'return' or key == 'space' then selector:confirm() end
+    -- if key == 'escape' then selector:cancel() end
+
     self:render()
 end

@@ -106,7 +106,6 @@ bool InputManager::IsKeyDown(KeyCode p_key) {
 }
 
 bool InputManager::IsKeyPressed(KeyCode p_key) {
-    unused(p_key);
     return InputHasChanged(m_keys, m_prev_keys, std::to_underlying(p_key));
 }
 
