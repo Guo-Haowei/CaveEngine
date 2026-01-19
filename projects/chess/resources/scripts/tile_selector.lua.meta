@@ -1,9 +1,0 @@
-type: blob
-guid: 1A45727F-0771-354D-93232C99D8F992F3
-name: ""
-import_path: "@res://scripts/tile_selector.lua"
-dependencies: []
-source_created_time: ""
-source_last_modified: ""
-import_settings:
-  {}
