@@ -877,7 +877,7 @@ entities:
     HierarchyComponent:
       parent_id: 81
     TransformComponent:
-      translation: [0, 0, 0]
+      translation: [0, 0.0500000007, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 0.0500000007, 1]
     MeshRendererComponent:
@@ -891,7 +891,7 @@ entities:
     NameComponent:
       name: Cube-3:mat
     MaterialComponent:
-      base_color: [1, 0, 0, 0.87843138]
+      base_color: [1, 0, 0, 0.627451003]
       metallic: 0
       roughness: 1
       emissive: 0

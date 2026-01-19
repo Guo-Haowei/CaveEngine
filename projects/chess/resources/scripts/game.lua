@@ -199,12 +199,26 @@ function Game:render()
     -- place selector to focused tile
     local piece_entity = g_scene:find_entity_by_name('grid_selector')
     local transform = g_scene:get_transform(piece_entity)
-    transform:set_translation(Vector3(self.selector.focus.y - 1, 1, self.selector.focus.x - 1))
-    -- transform:set_translation(Vector3(self.selector.focus.y - 1, 0, self.selector.focus.x - 1))
-    -- local renderer = g_scene:get_mesh_renderer(piece_entity)
-    -- renderer:set_visible(true)
+    transform:set_translation(Vector3(self.selector.focus.y - 1, 0.05, self.selector.focus.x - 1))
 end
 
 function Game:_process(timestep)
+    -- @TODO: refactor this part
+    if Input.is_action_just_pressed('ui_right') == 1 then
+        self.selector:move_focus(1, 0)
+    end
+    if Input.is_action_just_pressed('ui_left') == 1 then
+        self.selector:move_focus(-1, 0)
+    end
+    if Input.is_action_just_pressed('ui_up') == 1 then
+        self.selector:move_focus(0, 1)
+    end
+    if Input.is_action_just_pressed('ui_down') == 1 then
+        self.selector:move_focus(0, -1)
+    end
+
+    -- if key == 'return' or key == 'space' then selector:confirm() end
+    -- if key == 'escape' then selector:cancel() end
+
     self:render()
 end
