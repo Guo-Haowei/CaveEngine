@@ -1,21 +1,9 @@
 -- file: game.lua
+local Position = require('@res://scripts/chess/position.lua')
 local Chess = require('@res://scripts/chess/chess.lua')
+
 local GridAdapter = require('@res://scripts/grid_adapter.lua')
 local GridSelector = require('@res://scripts/grid_selector.lua')
-
-local EMPTY = '.'
-local WP = 'P'
-local WN = 'N'
-local WB = 'B'
-local WR = 'R'
-local WQ = 'Q'
-local WK = 'K'
-local BP = 'p'
-local BN = 'n'
-local BB = 'b'
-local BR = 'r'
-local BQ = 'q'
-local BK = 'k'
 
 -- game
 Game = {}
@@ -88,24 +76,25 @@ function Game:render()
         pieces[piece_type] = arr
     end
 
-    add_piece(WP, 'white_pawn_', 8)
-    add_piece(WN, 'white_knight_', 2)
-    add_piece(WB, 'white_bishop_', 2)
-    add_piece(WR, 'white_rook_', 2)
-    add_piece(WQ, 'white_queen_', 1)
-    add_piece(WK, 'white_king_', 1)
-    add_piece(BP, 'black_pawn_', 8)
-    add_piece(BN, 'black_knight_', 2)
-    add_piece(BB, 'black_bishop_', 2)
-    add_piece(BR, 'black_rook_', 2)
-    add_piece(BQ, 'black_queen_', 1)
-    add_piece(BK, 'black_king_', 1)
+    add_piece(Position.PIECE.WP, 'white_pawn_', 8)
+    add_piece(Position.PIECE.WN, 'white_knight_', 2)
+    add_piece(Position.PIECE.WB, 'white_bishop_', 2)
+    add_piece(Position.PIECE.WR, 'white_rook_', 2)
+    add_piece(Position.PIECE.WQ, 'white_queen_', 1)
+    add_piece(Position.PIECE.WK, 'white_king_', 1)
+    add_piece(Position.PIECE.BP, 'black_pawn_', 8)
+    add_piece(Position.PIECE.BN, 'black_knight_', 2)
+    add_piece(Position.PIECE.BB, 'black_bishop_', 2)
+    add_piece(Position.PIECE.BR, 'black_rook_', 2)
+    add_piece(Position.PIECE.BQ, 'black_queen_', 1)
+    add_piece(Position.PIECE.BK, 'black_king_', 1)
 
     --  place pieces on board
     for rank = 1, 8 do
         for file = 1, 8 do
             local piece = self.chess:get_piece(file, rank)
-            if piece ~= EMPTY then
+            print(piece)
+            if piece ~= nil then
                 local pool = pieces[piece]
                 local piece_entity = pool[#pool]
                 pool[#pool] = nil -- remove from pool
