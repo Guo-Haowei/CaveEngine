@@ -159,9 +159,9 @@ public:
 
     ecs::Entity FindEntityByName(const char* p_name);
 
-    void AttachChild(ecs::Entity p_entity, ecs::Entity p_parent);
+    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
 
-    void AttachChild(ecs::Entity p_entity) { AttachChild(p_entity, m_root); }
+    void AttachChild(ecs::Entity p_child) { AttachChild(p_child, m_root); }
 
     void RemoveEntity(ecs::Entity p_entity);
 

@@ -50,7 +50,7 @@ private:
     EditorLayer& m_editorLayer;
 };
 
-static bool TreeNodeHelper(const Scene& p_scene,
+static bool TreeNodeHelper(Scene& p_scene,
                            Entity p_id,
                            ImGuiTreeNodeFlags p_flags,
                            std::function<void()> p_on_left_click,
@@ -87,10 +87,27 @@ static bool TreeNodeHelper(const Scene& p_scene,
         }
     }
 
+    // @TODO: refactor to use drag_drop.h interface
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
         SetPayload(PAYLOAD_SCENE_NODE, p_id);
         ImGui::Text("entity '%s'", name.c_str());
         ImGui::EndDragDropSource();
+    }
+
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_SCENE_NODE)) {
+            Entity child_id = *reinterpret_cast<Entity*>(payload->Data);
+            if (child_id != p_id) {
+                p_scene.AttachChild(child_id, p_id);
+
+                if constexpr (true) { // @TODO: log macro
+                    const NameComponent* child_name = p_scene.GetComponent<NameComponent>(child_id);
+                    DEV_ASSERT(child_name);
+                    LOG_VERBOSE("moved '{}' under '{}'", child_name->GetName(), name);
+                }
+            }
+        }
+        ImGui::EndDragDropTarget();
     }
 
     return expanded;
@@ -98,7 +115,7 @@ static bool TreeNodeHelper(const Scene& p_scene,
 
 // @TODO: make it an widget
 void HierarchyCreator::DrawNode(ViewerTab* p_tab, HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flags) {
-    const Scene& p_scene = *p_tab->GetScene();
+    Scene& p_scene = *p_tab->GetScene();
     DEV_ASSERT(p_hier);
     Entity id = p_hier->entity;
 
