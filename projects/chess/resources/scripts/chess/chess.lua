@@ -4,8 +4,7 @@ local Position = require('@res://scripts/chess/position.lua')
 local Chess = {}
 Chess.__index = Chess
 
--- local START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-local START_FEN = '8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8 b - - 99 50'
+local START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 function Chess.new(opts)
     local self = setmetatable({}, Chess)

@@ -47,7 +47,7 @@ function Position.new()
         self.bb[i] = u64(0)
     end
 
-    self.side_to_move = 'w' -- 'w' or 'b'
+    self.turn = 'w' -- 'w' or 'b'
     self.castling = 'KQkq'
     self.ep = nil
     self.halfmove = 0
