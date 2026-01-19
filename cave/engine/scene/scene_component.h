@@ -18,7 +18,6 @@ struct BvhAccel;
 struct GpuMesh;
 struct GpuStructuredBuffer;
 struct ImageAsset;
-struct TextAsset;
 class Archive;
 class FileAccess;
 class Scene;

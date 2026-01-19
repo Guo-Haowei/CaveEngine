@@ -1,10 +1,12 @@
 #include "lua_binding.h"
 
+#include "engine/assets/blob_asset.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/display_manager.h"
 #include "engine/runtime/input_manager.h"
 #include "engine/math/vector.h"
 #include "engine/scene/scene.h"
+
 #include "lua_bridge_include.h"
 
 namespace cave::lua {
@@ -19,29 +21,25 @@ struct Quat {
 };
 
 static int CustomSearcher(lua_State* L) {
-    unused(L);
-    DEV_ASSERT(0);
-#if 0
-        const char* path = luaL_checkstring(L, 1);
-        auto asset = dynamic_cast<const TextAsset*>(
-            AssetRegistry::GetSingleton()
-                .Request(std::format("{}", path)));
-        if (!asset) {
-            return 0;
-        }
+    const char* path = luaL_checkstring(L, 1);
 
-        const auto& source = asset->source;
-        if (luaL_loadbuffer(L, source.data(), source.length(), path) == LUA_OK) {
+    auto asset = AssetRegistry::GetSingleton().FindByPath<BlobAsset>(std::format("{}", path));
+    if (asset.is_none()) {
+        return 0;
+    }
+
+    Handle<BlobAsset> handle = asset.unwrap_unchecked();
+    if (const BlobAsset* blob = handle.Get()) {
+        if (luaL_loadbuffer(L, blob->GetBufferPoiner(), blob->GetBufferLength(), path) == LUA_OK) {
             return 1;
         }
 
         const char* error_message = lua_tostring(L, -1);
         LOG_ERROR("{}", error_message);
+        return 1;
+    }
 
-        auto error = std::format("error loading '{}'", path);
-        lua_pushstring(L, error.c_str());
-#endif
-    return 1;
+    return 0;
 }
 
 void SetPreloadFunc(lua_State* L) {

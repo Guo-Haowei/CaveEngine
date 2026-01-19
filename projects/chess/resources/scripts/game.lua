@@ -1,4 +1,7 @@
 -- file: game.lua
+local GridAdapter = require('@res://scripts/grid_adapter.lua')
+local GridSelector = require('@res://scripts/grid_selector.lua')
+print(GridSelector)
 
 local EMPTY = '.'
 local WP = 'P'
@@ -76,7 +79,7 @@ function Board.new(fen)
     return self
 end
 
-function Board.get_piece(self, file, rank)
+function Board:get_piece(file, rank)
     if file < 1 or file > 8 or rank < 1 or rank > 8 then
         return nil
     end
