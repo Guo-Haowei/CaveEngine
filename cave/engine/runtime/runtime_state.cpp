@@ -4,6 +4,7 @@
 
 #include "engine/runtime/application.h"
 #include "engine/runtime/imgui_manager.h"
+#include "engine/runtime/script_manager.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_manager.h"
 
@@ -32,20 +33,14 @@ void RuntimeState::OnExit() {
 }
 
 void RuntimeState::Tick(float p_timestep) {
-    unused(p_timestep);
+    if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
+        imgui_manager->BeginFrame();
 
-    ImguiManager* imgui_manager = m_app.GetImguiManager();
-    // @TODO: refactor this
-    if (imgui_manager) {
-        {
-            //CAVE_PROFILE_EVENT("ImGuiManager::BeginFrame");
-            imgui_manager->BeginFrame();
-        }
+        ImGui::Render();
+    }
 
-        {
-            //CAVE_PROFILE_EVENT("ImGui::Render");
-            ImGui::Render();
-        }
+    if (std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene()) {
+        m_app.GetScriptManager()->Update(*scene, p_timestep);
     }
 }
 

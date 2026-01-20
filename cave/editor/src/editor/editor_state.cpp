@@ -216,16 +216,6 @@ void EditorState::Tick(float p_timestep) {
             ImGui::Render();
         }
     }
-
-    // const GameMode game_mode = m_mode_manager.GetMode();
-    //  change game mode from here
-
-    // @TODO: set mode here
-    // std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
-
-    // if (scene && game_mode == GameMode::Gameplay) {
-    //     m_script_manager->Update(*scene, p_timestep);
-    // }
 }
 
 Option<StateRequest> EditorState::PopRequest() {
