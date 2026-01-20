@@ -34,8 +34,6 @@ struct ApplicationSpec {
     bool enableImgui;
 };
 
-class ModeManager;
-
 class Application : public NonCopyable {
 public:
     enum class Type : uint32_t {
@@ -69,8 +67,6 @@ public:
     const std::string& GetUserFolder() const { return m_user_folder; }
     const std::string& GetResourceFolder() const { return m_resource_folder; }
 
-    ModeManager& GetModeManager();
-
     // @TODO: get rid of the following
     bool IsRuntime() const { return m_type == Type::Runtime; }
     bool IsEditor() const { return m_type == Type::Editor; }
@@ -89,7 +85,6 @@ protected:
     void RegisterModule(Module* p_module);
 
     const Type m_type;
-    std::unique_ptr<ModeManager> m_mode_manager;
 
     std::string m_user_folder;
     std::string m_resource_folder;

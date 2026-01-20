@@ -16,7 +16,6 @@
 #include "engine/runtime/display_manager.h"
 #include "engine/runtime/imgui_manager.h"
 #include "engine/runtime/input_manager.h"
-#include "engine/runtime/mode_manager.h"
 #include "engine/runtime/module_registry.h"
 #include "engine/runtime/render_system.h"
 #include "engine/runtime/scene_manager_interface.h"
@@ -43,10 +42,6 @@ Application::Application(const ApplicationSpec& p_spec, Type p_type)
 }
 
 Application::~Application() {
-}
-
-ModeManager& Application::GetModeManager() {
-    return *m_mode_manager.get();
 }
 
 void Application::RegisterModule(Module* p_module) {

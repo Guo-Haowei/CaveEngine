@@ -4,7 +4,6 @@
 
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
-#include "engine/runtime/mode_manager.h"
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
@@ -26,8 +25,8 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
         ICON_FA_PLAY,
         "Run Project",
         [&]() {
-            ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
-            mode_manager.SetMode(GameMode::Gameplay);
+            //ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
+            //mode_manager.SetMode(GameMode::Gameplay);
         }
         //[&]() { return app_state != Application::State::SIM; },
     };
@@ -35,8 +34,8 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
         ICON_FA_PAUSE,
         "Pause Running Project",
         [&]() {
-            ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
-            mode_manager.SetMode(GameMode::Editor);
+            //ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
+            //mode_manager.SetMode(GameMode::Editor);
         },
         //[&]() { return app_state != Application::State::EDITING; },
     };
@@ -60,14 +59,11 @@ void SceneEditor::OnActivateInternal() {
 }
 
 Scene* SceneEditor::GetScene() {
-    Application& app = m_editor.GetApp();
-    const GameMode game_mode = app.GetModeManager().GetMode();
-
-    if (game_mode == GameMode::Gameplay) {
-        auto scene = app.GetSceneManager()->GetActiveScene();
-        DEV_ASSERT(scene);
-        return scene.get();
-    }
+    //if (game_mode == GameMode::Gameplay) {
+    //    auto scene = app.GetSceneManager()->GetActiveScene();
+    //    DEV_ASSERT(scene);
+    //    return scene.get();
+    //}
 
     auto handle = m_document->GetHandle<Scene>();
     return handle.Get();
@@ -80,6 +76,7 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
 
     Scene* scene = GetScene();
 
+#if 0
     const GameMode mode = m_editor.GetApp().GetModeManager().GetMode();
 
     if (mode == GameMode::Gameplay) {
@@ -92,7 +89,9 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
             BuildViewsImpl(scene, id, p_out_views, p_is_opengl);
             break;
         }
-    } else {
+    } else
+#endif
+    {
         BuildViewsImpl(scene, m_camera, p_out_views, p_is_opengl);
     }
 }
@@ -204,9 +203,7 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
 }
 
 const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
-    ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
-
-    return { mode_manager.GetMode() == GameMode::Editor ? &m_play_button : &m_pause_button };
+    return { &m_play_button };
 }
 
 void SceneEditor::Select(const Vector2f& p_cursor) {

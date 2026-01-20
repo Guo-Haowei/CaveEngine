@@ -2,7 +2,6 @@
 #include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
-#include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/scripting/lua/lua_script_manager.h"
 
@@ -27,6 +26,7 @@ void RegisterExtraDvars() {
 #undef REGISTER_DVAR
 }
 
+#if 0
 class EditorModeManager : public ModeManager {
 public:
     EditorModeManager(Application& p_app)
@@ -68,13 +68,14 @@ public:
         m_mode = p_mode;
     }
 };
+#endif
 
 class Editor : public Application {
 public:
     Editor(const ApplicationSpec& p_spec)
         : Application(p_spec, Application::Type::Editor)
         , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
-        m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
+        //m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
     }
 
     auto Initialize() -> Result<void> final {

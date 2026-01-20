@@ -7,7 +7,6 @@
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/display_manager.h"
-#include "engine/runtime/mode_manager.h"
 #include "engine/runtime/viewport_manager.h"
 
 #include "editor/document/document.h"
@@ -53,11 +52,6 @@ void Viewer::UpdateFrameSize() {
 }
 
 bool Viewer::HandleInput(const InputEvent* p_input_event) {
-    const GameMode mode = m_editor.GetApp().GetModeManager().GetMode();
-    if (mode != GameMode::Editor) {
-        return true;
-    }
-
     auto active_tab = GetActiveTab();
     if (active_tab && active_tab->HandleInput(p_input_event)) {
         return true;
