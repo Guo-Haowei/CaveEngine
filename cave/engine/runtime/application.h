@@ -52,11 +52,6 @@ public:
     virtual void Finalize();
     static void Run(Application* p_app);
 
-    void AttachLayer(Layer* p_layer);
-    void DetachLayer(Layer* p_layer);
-    void AttachGameLayer();
-    void DetachGameLayer();
-
     EventQueue& GetEventQueue() { return m_event_queue; }
 
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
@@ -77,8 +72,7 @@ public:
 
     ModeManager& GetModeManager();
 
-    GameLayer* GetGameLayer();
-
+    // @TODO: get rid of the following
     bool IsRuntime() const { return m_type == Type::Runtime; }
     bool IsEditor() const { return m_type == Type::Editor; }
     virtual bool IsWorld2D() const = 0;
@@ -98,9 +92,6 @@ protected:
 
     const Type m_type;
     std::unique_ptr<ModeManager> m_mode_manager;
-
-    std::unique_ptr<GameLayer> m_game_layer;
-    std::vector<Layer*> m_layers;
 
     std::string m_user_folder;
     std::string m_resource_folder;
@@ -126,7 +117,7 @@ protected:
 
     Timer m_timer;
 
-    AppStateMachine m_state_machine;
+    std::unique_ptr<AppStateMachine> m_state_machine;
 };
 
 }  // namespace cave

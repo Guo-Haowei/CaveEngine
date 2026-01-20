@@ -4,6 +4,7 @@
 namespace cave {
 
 class Application;
+class EditorState;
 class Scene;
 
 class Layer : public NonCopyable {
@@ -26,7 +27,7 @@ protected:
 
     Application* m_app{ nullptr };
 
-    friend class Application;
+    friend class EditorState;
 };
 
 class GameLayer : public Layer {

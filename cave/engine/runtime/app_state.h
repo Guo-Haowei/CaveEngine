@@ -25,9 +25,9 @@ public:
 
     virtual ~AppState() = default;
 
-    virtual void OnEnter(const StateRequest& p_args) { unused(p_args); }
+    virtual void OnEnter(const StateRequest& p_args) = 0;
 
-    virtual void OnExit() {}
+    virtual void OnExit() = 0;
 
     virtual void Tick(float p_timestep) = 0;
 
@@ -50,6 +50,8 @@ public:
 
     void Init(AppStateId p_initial_state);
 
+    void Shutdown();
+
     void Tick(float p_timestep);
 
     static void RegisterCreateFunc(AppStateId p_state_id, CreateFunc p_func);
@@ -59,7 +61,7 @@ public:
 private:
     void SwitchTo(const StateRequest& p_request);
 
-    static CreateFunc s_create_funcs[std::to_underlying(AppStateId::Count)];
+    inline static CreateFunc s_create_funcs[std::to_underlying(AppStateId::Count)];
 
     Application& m_app;
     std::unique_ptr<AppState> m_state;

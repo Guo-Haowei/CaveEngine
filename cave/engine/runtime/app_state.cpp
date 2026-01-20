@@ -8,6 +8,12 @@ void AppStateMachine::Init(AppStateId p_initial_state) {
     m_state->OnEnter(req);
 }
 
+void AppStateMachine::Shutdown() {
+    if (DEV_VERIFY(m_state)) {
+        m_state->OnExit();
+    }
+}
+
 void AppStateMachine::Tick(float p_timestep) {
     m_state->Tick(p_timestep);
 
