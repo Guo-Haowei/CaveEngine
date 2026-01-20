@@ -79,7 +79,11 @@ public:
         m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
     }
 
-    void InitLayers() override {
+    auto Initialize() -> Result<void> final {
+        if (auto res = Application::Initialize(); !res) {
+            return res;
+        }
+
         AppStateMachine::RegisterCreateFunc(AppStateId::EditorMain, [](Application& p_app) {
             auto state = std::make_unique<EditorState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
@@ -87,6 +91,7 @@ public:
 
         m_state_machine = std::make_unique<AppStateMachine>(*this);
         m_state_machine->Init(AppStateId::EditorMain);
+        return Result<void>();
     }
 
     void Finalize() override {

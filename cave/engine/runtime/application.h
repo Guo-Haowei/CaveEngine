@@ -2,13 +2,13 @@
 #include "engine/core/base/noncopyable.h"
 #include "engine/core/os/timer.h"
 #include "engine/renderer/graphics_defines.h"
-#include "engine/runtime/app_state.h"
 #include "engine/runtime/event_queue.h"
 #include "engine/runtime/layer.h"
 #include "engine/runtime/module.h"
 
 namespace cave {
 
+class AppStateMachine;
 class IAssetManager;
 class AssetRegistry;
 class CameraComponent;
@@ -84,7 +84,6 @@ protected:
 
     float UpdateTime();
 
-    virtual void InitLayers() {}
     // @TODO: add CreateXXXManager for all managers
     virtual Result<ImguiManager*> CreateImguiManager();
 

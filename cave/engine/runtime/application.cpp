@@ -9,6 +9,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
+#include "engine/runtime/app_state.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
@@ -142,8 +143,6 @@ auto Application::Initialize() -> Result<void> {
         }
         LOG_OK("module '{}' initialized", module->GetName());
     }
-
-    InitLayers();
 
     return Result<void>();
 }
