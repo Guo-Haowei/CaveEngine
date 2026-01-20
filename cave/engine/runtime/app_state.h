@@ -7,8 +7,8 @@ class Application;
 enum class AppStateId : uint8_t {
     ProjectBrowser = 0,
     LoadingScreen,
-    EditorMain,
-    RuntimeMain,
+    Editor,
+    Runtime,
     Count,
 };
 

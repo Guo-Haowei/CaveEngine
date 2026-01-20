@@ -12,6 +12,7 @@
 #include "editor/editor_asset_manager.h"
 #include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
+#include "editor/project_browser_state.h"
 
 #define DEFINE_DVAR
 #include "editor_dvars.h"
@@ -40,19 +41,25 @@ public:
             return res;
         }
 
-        // @TODO: generalize this part
-        AppStateMachine::RegisterCreateFunc(AppStateId::RuntimeMain, [](Application& p_app) {
-            auto state = std::make_unique<RuntimeState>(p_app);
+        // @TODO: refactor this part
+        constexpr AppStateId initial_state = AppStateId::ProjectBrowser;
+        AppStateMachine::RegisterCreateFunc(AppStateId::ProjectBrowser, [](Application& p_app) {
+            auto state = std::make_unique<ProjectBrowserState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 
-        AppStateMachine::RegisterCreateFunc(AppStateId::EditorMain, [](Application& p_app) {
+        AppStateMachine::RegisterCreateFunc(AppStateId::Editor, [](Application& p_app) {
             auto state = std::make_unique<EditorState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 
+        AppStateMachine::RegisterCreateFunc(AppStateId::Runtime, [](Application& p_app) {
+            auto state = std::make_unique<RuntimeState>(p_app);
+            return std::unique_ptr<AppState>(std::move(state));
+        });
+
         m_state_machine = std::make_unique<AppStateMachine>(*this);
-        m_state_machine->Init(AppStateId::EditorMain);
+        m_state_machine->Init(initial_state);
         return Result<void>();
     }
 
