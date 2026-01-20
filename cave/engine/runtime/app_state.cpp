@@ -3,7 +3,7 @@
 namespace cave {
 
 void AppStateMachine::Init(AppStateId p_initial_state) {
-    StateRequest req{ true, p_initial_state };
+    StateRequest req{ p_initial_state };
     m_state = CreateState(m_app, req.next);
     m_state->OnEnter(req);
 }
@@ -17,8 +17,8 @@ void AppStateMachine::Shutdown() {
 void AppStateMachine::Tick(float p_timestep) {
     m_state->Tick(p_timestep);
 
-    if (StateRequest req = m_state->PopRequest(); req.requested) {
-        SwitchTo(req);
+    if (auto req = m_state->PopRequest(); req.is_some()) {
+        SwitchTo(req.unwrap_unchecked());
     }
 }
 

@@ -13,7 +13,6 @@ enum class AppStateId : uint8_t {
 };
 
 struct StateRequest {
-    bool requested{ false };
     AppStateId next{ AppStateId::ProjectBrowser };
     std::string arg0;  // e.g. project path, error message
 };
@@ -31,7 +30,7 @@ public:
 
     virtual void Tick(float p_timestep) = 0;
 
-    virtual StateRequest PopRequest() { return {}; }
+    virtual Option<StateRequest> PopRequest() = 0;
 
 #if USING(DEBUG_BUILD)
     virtual const char* GetDebugName() = 0;

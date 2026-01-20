@@ -181,19 +181,35 @@ void EditorState::OnExit() {
 }
 
 void EditorState::Tick(float p_timestep) {
-    OnUpdate(p_timestep);
+    context.timestep = p_timestep;
 
-    ImguiManager* m_imgui_manager = m_app.GetImguiManager();
-    // ModeManager& m_mode_manager = m_app.GetModeManager();
+    m_log_panel->RetrieveLogs();
+
+    ImguiManager* imgui_manager = m_app.GetImguiManager();
 
     // @TODO: refactor this
-    if (m_imgui_manager) {
+    if (imgui_manager) {
         {
             CAVE_PROFILE_EVENT("ImGuiManager::BeginFrame");
-            m_imgui_manager->BeginFrame();
+            imgui_manager->BeginFrame();
         }
 
-        OnImGuiRender();
+        {
+            CAVE_PROFILE_EVENT();
+
+            // @TODO: DO NOT Request SCENE here
+            Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
+
+            FlushInputEvents();
+
+            DockSpace();
+            for (auto& it : m_panels) {
+                it->Update();
+            }
+
+            // @TODO: fix this as well
+            FlushCommand(scene);
+        }
 
         {
             CAVE_PROFILE_EVENT("ImGui::Render");
@@ -212,8 +228,14 @@ void EditorState::Tick(float p_timestep) {
     // }
 }
 
-StateRequest EditorState::PopRequest() {
-    return {};
+Option<StateRequest> EditorState::PopRequest() {
+    auto request = m_request;
+    m_request = None();
+    return request;
+}
+
+void EditorState::RequestGamePlay() {
+    m_request = Some(StateRequest { AppStateId::RuntimeMain });
 }
 
 ////////////////////
@@ -266,30 +288,6 @@ void EditorState::DockSpace() {
 
     ImGui::End();
     return;
-}
-
-void EditorState::OnUpdate(float p_timestep) {
-    // @TODO: refactor this
-    context.timestep = p_timestep;
-
-    m_log_panel->RetrieveLogs();
-}
-
-void EditorState::OnImGuiRender() {
-    CAVE_PROFILE_EVENT();
-
-    // @TODO: DO NOT Request SCENE here
-    Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
-
-    FlushInputEvents();
-
-    DockSpace();
-    for (auto& it : m_panels) {
-        it->Update();
-    }
-
-    // @TODO: fix this as well
-    FlushCommand(scene);
 }
 
 void EditorState::FlushInputEvents() {

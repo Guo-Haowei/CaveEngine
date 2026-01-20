@@ -25,8 +25,7 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
         ICON_FA_PLAY,
         "Run Project",
         [&]() {
-            // ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
-            // mode_manager.SetMode(GameMode::Gameplay);
+            m_editor.RequestGamePlay();
         }
         //[&]() { return app_state != Application::State::SIM; },
     };

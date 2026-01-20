@@ -13,7 +13,7 @@ public:
 
     void Tick(float p_timestep) final;
 
-    StateRequest PopRequest() final;
+    Option<StateRequest> PopRequest() final;
 
 #if USING(DEBUG_BUILD)
     const char* GetDebugName() final { return "RuntimeState"; }

@@ -45,18 +45,19 @@ public:
 
     void Tick(float p_timestep) final;
 
-    StateRequest PopRequest() final;
+    Option<StateRequest> PopRequest() final;
+
+    void RequestGamePlay();
 
 #if USING(DEBUG_BUILD)
     const char* GetDebugName() final { return "EditorState"; }
 #endif
 
 private:
-    // @TODO: refactor the following
-public:
-    void OnUpdate(float p_timestep);
-    void OnImGuiRender();
+    Option<StateRequest> m_request;
 
+public:
+    // @TODO: refactor the following
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
     void CommandInspectAsset(const Guid& p_guid);
     void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
