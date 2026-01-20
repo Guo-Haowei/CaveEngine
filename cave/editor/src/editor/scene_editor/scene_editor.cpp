@@ -27,16 +27,12 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
         [&]() {
             m_editor.RequestGamePlay();
         }
-        //[&]() { return app_state != Application::State::SIM; },
     };
     m_pause_button = {
         ICON_FA_PAUSE,
         "Pause Running Project",
         [&]() {
-            // ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
-            // mode_manager.SetMode(GameMode::Editor);
         },
-        //[&]() { return app_state != Application::State::EDITING; },
     };
 }
 
@@ -75,10 +71,8 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
 
     Scene* scene = GetScene();
 
-#if 0
-    const GameMode mode = m_editor.GetApp().GetModeManager().GetMode();
-
-    if (mode == GameMode::Gameplay) {
+    // @TODO: fix this part
+    if (true) {
         // @HACK: find the first non-editor camera
         for (auto [id, camera] : scene->View<CameraComponent>()) {
             if (scene->Contains<NoSaveTag>(id)) {
@@ -88,9 +82,7 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
             BuildViewsImpl(scene, id, p_out_views, p_is_opengl);
             break;
         }
-    } else
-#endif
-    {
+    } else {
         BuildViewsImpl(scene, m_camera, p_out_views, p_is_opengl);
     }
 }

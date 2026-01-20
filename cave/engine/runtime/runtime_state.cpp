@@ -8,6 +8,9 @@
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_manager.h"
 
+//
+#include "engine/runtime/graphics_manager_interface.h"
+
 namespace cave {
 
 RuntimeState::RuntimeState(Application& p_app)
@@ -37,6 +40,14 @@ void RuntimeState::OnExit() {
 void RuntimeState::Tick(float p_timestep) {
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
+
+        if (ImGui::Begin("temp window for display")) {
+            const IGraphicsManager* gm = GetApp().GetGraphicsManager();
+            uint64_t handle = gm->GetFinalImage();
+
+            ImGui::Image((ImTextureID)handle, ImVec2{800, 600});
+        }
+        ImGui::End();
 
         ImGui::Render();
     }
