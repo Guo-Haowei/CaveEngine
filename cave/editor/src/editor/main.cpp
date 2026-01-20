@@ -75,7 +75,7 @@ public:
     Editor(const ApplicationSpec& p_spec)
         : Application(p_spec, Application::Type::Editor)
         , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
-        //m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
+        // m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
     }
 
     auto Initialize() -> Result<void> final {

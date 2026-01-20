@@ -184,7 +184,7 @@ void EditorState::Tick(float p_timestep) {
     OnUpdate(p_timestep);
 
     ImguiManager* m_imgui_manager = m_app.GetImguiManager();
-    //ModeManager& m_mode_manager = m_app.GetModeManager();
+    // ModeManager& m_mode_manager = m_app.GetModeManager();
 
     // @TODO: refactor this
     if (m_imgui_manager) {
@@ -201,15 +201,15 @@ void EditorState::Tick(float p_timestep) {
         }
     }
 
-    //const GameMode game_mode = m_mode_manager.GetMode();
-    // change game mode from here
+    // const GameMode game_mode = m_mode_manager.GetMode();
+    //  change game mode from here
 
     // @TODO: set mode here
-    //std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
+    // std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
 
-    //if (scene && game_mode == GameMode::Gameplay) {
-    //    m_script_manager->Update(*scene, p_timestep);
-    //}
+    // if (scene && game_mode == GameMode::Gameplay) {
+    //     m_script_manager->Update(*scene, p_timestep);
+    // }
 }
 
 StateRequest EditorState::PopRequest() {

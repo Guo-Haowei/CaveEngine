@@ -52,7 +52,6 @@ public:
 #endif
 
 private:
-
     // @TODO: refactor the following
 public:
     void OnUpdate(float p_timestep);

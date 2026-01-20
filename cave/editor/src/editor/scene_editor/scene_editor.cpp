@@ -25,8 +25,8 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
         ICON_FA_PLAY,
         "Run Project",
         [&]() {
-            //ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
-            //mode_manager.SetMode(GameMode::Gameplay);
+            // ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
+            // mode_manager.SetMode(GameMode::Gameplay);
         }
         //[&]() { return app_state != Application::State::SIM; },
     };
@@ -34,8 +34,8 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
         ICON_FA_PAUSE,
         "Pause Running Project",
         [&]() {
-            //ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
-            //mode_manager.SetMode(GameMode::Editor);
+            // ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
+            // mode_manager.SetMode(GameMode::Editor);
         },
         //[&]() { return app_state != Application::State::EDITING; },
     };
@@ -59,11 +59,11 @@ void SceneEditor::OnActivateInternal() {
 }
 
 Scene* SceneEditor::GetScene() {
-    //if (game_mode == GameMode::Gameplay) {
-    //    auto scene = app.GetSceneManager()->GetActiveScene();
-    //    DEV_ASSERT(scene);
-    //    return scene.get();
-    //}
+    // if (game_mode == GameMode::Gameplay) {
+    //     auto scene = app.GetSceneManager()->GetActiveScene();
+    //     DEV_ASSERT(scene);
+    //     return scene.get();
+    // }
 
     auto handle = m_document->GetHandle<Scene>();
     return handle.Get();

@@ -100,7 +100,7 @@ static bool TreeNodeHelper(Scene& p_scene,
             if (child_id != p_id) {
                 p_scene.AttachChild(child_id, p_id);
 
-                if constexpr (true) { // @TODO: log macro
+                if constexpr (true) {  // @TODO: log macro
                     const NameComponent* child_name = p_scene.GetComponent<NameComponent>(child_id);
                     DEV_ASSERT(child_name);
                     LOG_VERBOSE("moved '{}' under '{}'", child_name->GetName(), name);
