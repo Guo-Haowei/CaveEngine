@@ -115,7 +115,7 @@ function Game:render()
                 local piece_entity = pool[#pool]
                 pool[#pool] = nil -- remove from pool
                 local transform = g_scene:get_transform(piece_entity)
-                local position = Vector3(rank - 1, offset, file - 1)
+                local position = Vector3(rank - 1, 0, file - 1)
                 transform:set_translation(position)
                 local renderer = g_scene:get_mesh_renderer(piece_entity)
                 renderer:set_visible(true)

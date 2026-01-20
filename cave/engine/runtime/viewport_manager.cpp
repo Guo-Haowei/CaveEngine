@@ -24,6 +24,11 @@ ViewportId ViewportManager::CreateViewport(ViewProviderRef p_provider) {
     return m_viewports.back().id;
 }
 
+void ViewportManager::ClearViewport() {
+    m_next_id = 0;
+    m_viewports.clear();
+}
+
 void ViewportManager::UpdateProviders(float p_timestep) {
     // @TODO: refactor input routing
     ViewportInput input;

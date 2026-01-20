@@ -55,6 +55,8 @@ public:
 
     void Tick(float p_timestep);
 
+    AppStateId GetStateId() const { return m_state_id; }
+
     static void RegisterCreateFunc(AppStateId p_state_id, CreateFunc p_func);
 
     static std::unique_ptr<AppState> CreateState(Application& p_app, AppStateId p_state_id);
@@ -66,6 +68,7 @@ private:
 
     Application& m_app;
     std::unique_ptr<AppState> m_state;
+    AppStateId m_state_id;
 };
 
 }  // namespace cave

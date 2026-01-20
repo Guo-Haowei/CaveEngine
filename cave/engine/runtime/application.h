@@ -7,6 +7,8 @@
 
 namespace cave {
 
+enum class AppStateId : uint8_t;
+
 class AppStateMachine;
 class IAssetManager;
 class AssetRegistry;
@@ -48,6 +50,8 @@ public:
     virtual Result<void> Initialize();
     virtual void Finalize();
     static void Run(Application* p_app);
+
+    AppStateId GetStateId() const;
 
     EventQueue& GetEventQueue() { return m_event_queue; }
 

@@ -27,6 +27,8 @@ public:
 
     ViewportId CreateViewport(ViewProviderRef p_provider);
 
+    void ClearViewport();
+
     void UpdateProviders(float p_timestep);
 
     void BuildViews(std::vector<SceneView>& p_out_views,

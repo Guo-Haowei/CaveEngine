@@ -227,4 +227,8 @@ void Application::Run(Application* p_app) {
         "\n********************************************************************************");
 }
 
+AppStateId Application::GetStateId() const {
+    return m_state_machine->GetStateId();
+    }
+
 }  // namespace cave

@@ -6,6 +6,8 @@ void AppStateMachine::Init(AppStateId p_initial_state) {
     StateRequest req{ p_initial_state };
     m_state = CreateState(m_app, req.next);
     m_state->OnEnter(req);
+
+    m_state_id = p_initial_state;
 }
 
 void AppStateMachine::Shutdown() {
@@ -30,6 +32,8 @@ void AppStateMachine::SwitchTo(const StateRequest& p_request) {
     m_state->OnExit();
     m_state = CreateState(m_app, p_request.next);
     m_state->OnEnter(p_request);
+
+    m_state_id = p_request.next;
 
 #if USING(DEBUG_BUILD)
     const char* new_state = m_state->GetDebugName();

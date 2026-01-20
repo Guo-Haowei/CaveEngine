@@ -54,12 +54,6 @@ void SceneEditor::OnActivateInternal() {
 }
 
 Scene* SceneEditor::GetScene() {
-    // if (game_mode == GameMode::Gameplay) {
-    //     auto scene = app.GetSceneManager()->GetActiveScene();
-    //     DEV_ASSERT(scene);
-    //     return scene.get();
-    // }
-
     auto handle = m_document->GetHandle<Scene>();
     return handle.Get();
 }
@@ -69,22 +63,7 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
         return;
     }
 
-    Scene* scene = GetScene();
-
-    // @TODO: fix this part
-    if (true) {
-        // @HACK: find the first non-editor camera
-        for (auto [id, camera] : scene->View<CameraComponent>()) {
-            if (scene->Contains<NoSaveTag>(id)) {
-                continue;
-            }
-
-            BuildViewsImpl(scene, id, p_out_views, p_is_opengl);
-            break;
-        }
-    } else {
-        BuildViewsImpl(scene, m_camera, p_out_views, p_is_opengl);
-    }
+    BuildViewsImpl(GetScene(), m_camera, p_out_views, p_is_opengl);
 }
 
 // @TODO: rename this to DrawEditor
