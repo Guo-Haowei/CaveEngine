@@ -12,7 +12,7 @@
 
 #include "editor/document/document.h"
 #include "editor/editor_dvars.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/utility/imguizmo.h"
 #include "editor/widgets/widget.h"
 
@@ -29,7 +29,7 @@ namespace cave {
 
 static constexpr float TOOL_BAR_OFFSET = 80.0f;
 
-Viewer::Viewer(EditorLayer& p_editor)
+Viewer::Viewer(EditorState& p_editor)
     : EditorWindow(p_editor) {
 }
 
@@ -53,7 +53,7 @@ void Viewer::UpdateFrameSize() {
 }
 
 bool Viewer::HandleInput(const InputEvent* p_input_event) {
-    const GameMode mode = m_editor.GetApplication()->GetModeManager().GetMode();
+    const GameMode mode = m_editor.GetApp().GetModeManager().GetMode();
     if (mode != GameMode::Editor) {
         return true;
     }
@@ -67,7 +67,7 @@ bool Viewer::HandleInput(const InputEvent* p_input_event) {
 }
 
 Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
-    auto [window_x, window_y] = m_editor.GetApplication()->GetDisplayServer()->GetWindowPos();
+    auto [window_x, window_y] = m_editor.GetApp().GetDisplayServer()->GetWindowPos();
     p_point.x = (p_point.x + window_x - m_canvas_min.x) / m_canvas_size.x;
     p_point.y = (p_point.y + window_y - m_canvas_min.y) / m_canvas_size.y;
 
@@ -123,7 +123,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
             return;
     }
 
-    ViewportManager* viewport_manager = m_editor.GetApplication()->GetViewportManager();
+    ViewportManager* viewport_manager = m_editor.GetApp().GetViewportManager();
     viewport_manager->CreateViewport(tab);
 
     DVAR_SET_STRING(last_open_asset, p_guid.ToString());

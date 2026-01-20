@@ -6,7 +6,7 @@
 #include "engine/assets/mesh_asset.h"
 #include "engine/debugger/profiler.h"
 
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/drag_drop.h"
@@ -27,7 +27,7 @@ public:
         std::vector<HierarchyNode*> children;
     };
 
-    HierarchyCreator(EditorLayer& p_editor)
+    HierarchyCreator(EditorState& p_editor)
         : m_editorLayer(p_editor) {}
 
     void Update(ViewerTab* p_tab) {
@@ -47,7 +47,7 @@ private:
 
     std::map<Entity, std::shared_ptr<HierarchyNode>> m_nodes;
     HierarchyNode* m_root = nullptr;
-    EditorLayer& m_editorLayer;
+    EditorState& m_editorLayer;
 };
 
 static bool TreeNodeHelper(Scene& p_scene,

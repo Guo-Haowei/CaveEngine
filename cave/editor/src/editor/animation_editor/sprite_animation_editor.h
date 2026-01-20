@@ -19,7 +19,7 @@ using SpriteAnimationDocument = Document;
 
 class SpriteAnimationEditor : public ViewerTab {
 public:
-    SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_viewer);
+    SpriteAnimationEditor(EditorState& p_editor, Viewer& p_viewer);
 
     bool HandleInput(const InputEvent* p_input_event) final;
 

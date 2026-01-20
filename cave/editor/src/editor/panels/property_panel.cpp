@@ -13,7 +13,7 @@
 #include "engine/scene/entity_factory.h"
 
 #include "editor/editor_command.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/scene_editor/scene_document.h"
 #include "editor/utility/content_entry.h"
 #include "editor/viewer/viewer.h"
@@ -268,7 +268,7 @@ void PropertyPanel::UpdateInternal() {
 #endif
 
     SceneDocument& document = static_cast<SceneDocument&>(tab->GetDocument());
-    const bool is_2d = m_editor.GetApplication()->IsWorld2D();
+    const bool is_2d = m_editor.GetApp().IsWorld2D();
 
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, _scene, id
 

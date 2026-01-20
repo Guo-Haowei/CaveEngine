@@ -5,7 +5,7 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/input_manager.h"
 
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/panels/log_panel.h"
 #include "editor/widgets/widget.h"
 

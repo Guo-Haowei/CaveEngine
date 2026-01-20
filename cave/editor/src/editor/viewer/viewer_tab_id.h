@@ -6,7 +6,7 @@
 namespace cave {
 
 class CameraComponent;
-class EditorLayer;
+class EditorState;
 class InputEvent;
 class Scene;
 class Viewer;

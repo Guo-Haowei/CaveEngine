@@ -37,6 +37,8 @@ public:
     virtual const char* GetDebugName() = 0;
 #endif
 
+    Application& GetApp() { return m_app; }
+
 protected:
     Application& m_app;
 };

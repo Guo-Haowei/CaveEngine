@@ -11,7 +11,7 @@ struct ImageAsset;
 
 class AssetInspector : public EditorWindow {
 public:
-    AssetInspector(EditorLayer& p_editor);
+    AssetInspector(EditorState& p_editor);
 
     void OnAttach() override;
 

@@ -2,7 +2,6 @@
 #include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
-#include "engine/runtime/layer.h"
 #include "engine/runtime/mode_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/scripting/lua/lua_script_manager.h"
@@ -11,9 +10,8 @@
 #include "modules/bullet3/bullet3_physics_manager.h"
 
 #include "editor/editor_asset_manager.h"
-#include "editor/editor_layer.h"
-#include "editor/editor_scene_manager.h"
 #include "editor/editor_state.h"
+#include "editor/editor_scene_manager.h"
 
 #define DEFINE_DVAR
 #include "editor_dvars.h"

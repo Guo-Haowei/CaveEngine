@@ -3,14 +3,14 @@
 
 namespace cave {
 
-class EditorLayer;
+class EditorState;
 
 class EditorItem {
 public:
     inline static constexpr const char* DRAG_DROP_ENV = "DRAG_DROP_ENV";
     inline static constexpr const char* DRAG_DROP_IMPORT = "DRAG_DROP_IMPORT";
 
-    EditorItem(EditorLayer& p_editor)
+    EditorItem(EditorState& p_editor)
         : m_editor(p_editor) {}
     virtual ~EditorItem() = default;
 
@@ -20,7 +20,7 @@ public:
 protected:
     void OpenAddEntityPopup(ecs::Entity p_parent);
 
-    EditorLayer& m_editor;
+    EditorState& m_editor;
 };
 
 }  // namespace cave

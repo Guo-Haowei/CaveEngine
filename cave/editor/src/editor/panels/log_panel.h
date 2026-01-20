@@ -24,7 +24,7 @@ class LogPanel : public EditorWindow {
     };
 
 public:
-    LogPanel(EditorLayer& editor)
+    LogPanel(EditorState& editor)
         : EditorWindow(editor) {}
 
     const char* GetTitle() const override {

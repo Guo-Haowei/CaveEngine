@@ -8,7 +8,7 @@
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/scene_editor/scene_document.h"
 #include "editor/utility/imguizmo.h"
@@ -19,15 +19,14 @@
 
 namespace cave {
 
-SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension)
+SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension)
     : ViewerTab(p_editor, p_viewer, p_dimension) {
 
     m_play_button = {
         ICON_FA_PLAY,
         "Run Project",
         [&]() {
-            Application* app = m_editor.GetApplication();
-            ModeManager& mode_manager = app->GetModeManager();
+            ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
             mode_manager.SetMode(GameMode::Gameplay);
         }
         //[&]() { return app_state != Application::State::SIM; },
@@ -36,8 +35,7 @@ SceneEditor::SceneEditor(EditorLayer& p_editor, Viewer& p_viewer, ViewerTab::Dim
         ICON_FA_PAUSE,
         "Pause Running Project",
         [&]() {
-            Application* app = m_editor.GetApplication();
-            ModeManager& mode_manager = app->GetModeManager();
+            ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
             mode_manager.SetMode(GameMode::Editor);
         },
         //[&]() { return app_state != Application::State::EDITING; },
@@ -56,17 +54,17 @@ void SceneEditor::OnDestroy() {
 }
 
 void SceneEditor::OnActivateInternal() {
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
+    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
     DEV_ASSERT(scene_manager);
     scene_manager->OpenTempScene(m_document->m_scene);
 }
 
 Scene* SceneEditor::GetScene() {
-    Application* app = m_editor.GetApplication();
-    const GameMode game_mode = app->GetModeManager().GetMode();
+    Application& app = m_editor.GetApp();
+    const GameMode game_mode = app.GetModeManager().GetMode();
 
     if (game_mode == GameMode::Gameplay) {
-        auto scene = app->GetSceneManager()->GetActiveScene();
+        auto scene = app.GetSceneManager()->GetActiveScene();
         DEV_ASSERT(scene);
         return scene.get();
     }
@@ -82,7 +80,7 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
 
     Scene* scene = GetScene();
 
-    const GameMode mode = m_editor.GetApplication()->GetModeManager().GetMode();
+    const GameMode mode = m_editor.GetApp().GetModeManager().GetMode();
 
     if (mode == GameMode::Gameplay) {
         // @HACK: find the first non-editor camera
@@ -206,8 +204,7 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
 }
 
 const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
-    Application* app = m_editor.GetApplication();
-    ModeManager& mode_manager = app->GetModeManager();
+    ModeManager& mode_manager = m_editor.GetApp().GetModeManager();
 
     return { mode_manager.GetMode() == GameMode::Editor ? &m_play_button : &m_pause_button };
 }

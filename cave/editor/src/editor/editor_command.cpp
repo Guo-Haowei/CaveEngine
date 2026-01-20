@@ -1,6 +1,6 @@
 #include "editor_command.h"
 
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/viewer/viewer.h"
 
 #include "engine/core/os/platform_io.h"
@@ -19,7 +19,7 @@ static std::string GenerateName(std::string_view p_name) {
 
 /// EditorInspectAssetCommand
 void EditorInspectAssetCommand::Execute(Scene&) {
-    auto asset_registry = m_editor->GetApplication()->GetAssetRegistry();
+    auto asset_registry = m_editor->GetApp().GetAssetRegistry();
     if (auto res = asset_registry->FindByGuid(m_guid); res.is_some()) {
         auto handle = res.unwrap_unchecked();
         if (handle.IsReady()) {

@@ -7,7 +7,7 @@ class ViewerTab;
 
 class HierarchyPanel : public EditorWindow {
 public:
-    HierarchyPanel(EditorLayer& editor)
+    HierarchyPanel(EditorState& editor)
         : EditorWindow(editor) {}
 
     const char* GetTitle() const override {

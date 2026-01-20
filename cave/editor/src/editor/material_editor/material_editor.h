@@ -11,7 +11,7 @@ using MaterialDocument = Document;
 
 class MaterialEditor : public ViewerTab {
 public:
-    MaterialEditor(EditorLayer& p_editor, Viewer& p_viewer);
+    MaterialEditor(EditorState& p_editor, Viewer& p_viewer);
 
     bool HandleInput(const InputEvent* p_input_event) final;
 

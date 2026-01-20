@@ -6,7 +6,7 @@ namespace cave {
 
 class MenuBar : public EditorItem {
 public:
-    MenuBar(EditorLayer& p_editor)
+    MenuBar(EditorState& p_editor)
         : EditorItem(p_editor) {}
 
     void Update() override;

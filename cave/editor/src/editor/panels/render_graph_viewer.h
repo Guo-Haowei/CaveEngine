@@ -10,7 +10,7 @@ namespace cave {
 
 class RenderGraphViewer : public EditorWindow {
 public:
-    RenderGraphViewer(EditorLayer& p_editor);
+    RenderGraphViewer(EditorState& p_editor);
 
     const char* GetTitle() const override {
         return "Render Graph";

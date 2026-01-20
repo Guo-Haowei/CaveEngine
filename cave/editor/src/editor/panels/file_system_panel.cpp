@@ -8,7 +8,7 @@
 #include "engine/runtime/common_dvars.h"
 
 #include "editor/editor_asset_manager.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/utility/content_entry.h"
 #include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
@@ -17,12 +17,12 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-FileSystemPanel::FileSystemPanel(EditorLayer& p_editor)
+FileSystemPanel::FileSystemPanel(EditorState& p_editor)
     : EditorWindow(p_editor) {
 }
 
 void FileSystemPanel::OnAttach() {
-    const auto& path = m_editor.GetApplication()->GetResourceFolder();
+    const auto& path = m_editor.GetApp().GetResourceFolder();
     m_root = fs::path{ path };
 }
 
@@ -54,7 +54,7 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
             if (is_dir) {
                 fs::rename(m_renaming, to_path);
             } else {
-                m_editor.GetApplication()->GetAssetManager()->MoveAsset(m_renaming, to_path);
+                m_editor.GetApp().GetAssetManager()->MoveAsset(m_renaming, to_path);
             }
             m_renaming = "";
         }

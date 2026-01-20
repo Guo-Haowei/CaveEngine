@@ -7,7 +7,7 @@
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/viewer/viewer.h"
 
@@ -19,7 +19,7 @@ const Guid& ViewerTab::GetGuid() const {
     return GetDocument().GetGuid();
 }
 
-ViewerTab::ViewerTab(EditorLayer& p_editor, Viewer& p_viewer, Dimension p_dimension)
+ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimension)
     : m_id(TabId::Next())
     , m_dimension(p_dimension)
     , m_editor(p_editor)
@@ -118,7 +118,7 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     ImVec2 bottom_right(canvas_max.x, canvas_max.y);
 
     // @TODO: fix this
-    const auto& gm = *m_editor.GetApplication()->GetGraphicsManager();
+    const auto& gm = *m_editor.GetApp().GetGraphicsManager();
     uint64_t handle = gm.GetFinalImage();
     // add image for drawing
     switch (gm.GetBackend()) {
