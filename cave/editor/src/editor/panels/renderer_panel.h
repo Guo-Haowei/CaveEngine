@@ -5,7 +5,7 @@ namespace cave {
 
 class RendererPanel : public EditorWindow {
 public:
-    RendererPanel(EditorLayer& p_editor)
+    RendererPanel(EditorState& p_editor)
         : EditorWindow(p_editor) {}
 
     const char* GetTitle() const override {

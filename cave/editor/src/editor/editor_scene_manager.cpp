@@ -78,8 +78,8 @@ std::shared_ptr<Scene> EditorSceneManager::CreateTempScene(const Guid& p_guid,
 }
 
 std::shared_ptr<Scene> EditorSceneManager::GetActiveScene() const {
-    if (auto lock = m_sim_scene.lock(); lock) {
-        return lock;
+    if (m_sim_scene) {
+        return m_sim_scene;
     }
 
     if (auto lock = m_tmp_scene.lock(); lock) {

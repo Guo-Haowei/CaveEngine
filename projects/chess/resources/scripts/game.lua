@@ -125,16 +125,18 @@ function Game:render()
     end
 
     -- place selector to focused tile
+    local offset = 0.05
+
     if self.grid_selector_entity then
         local transform = g_scene:get_transform(self.grid_selector_entity)
-        transform:set_translation(Vector3(self.selector.focus.y - 1, 0.05, self.selector.focus.x - 1))
+        transform:set_translation(Vector3(self.selector.focus.y - 1, offset, self.selector.focus.x - 1))
     end
 
     if self.piece_hightlight_entity then
         local renderer = g_scene:get_mesh_renderer(self.piece_hightlight_entity)
         if self.selector.selected then
             local transform = g_scene:get_transform(self.piece_hightlight_entity)
-            transform:set_translation(Vector3(self.selector.selected.y - 1, 0.05, self.selector.selected.x - 1))
+            transform:set_translation(Vector3(self.selector.selected.y - 1, offset, self.selector.selected.x - 1))
             renderer:set_visible(true)
         else
             renderer:set_visible(false)

@@ -27,7 +27,7 @@ public:
         DIMENSION_3,
     };
 
-    ViewerTab(EditorLayer& p_editor, Viewer& p_viewer, Dimension p_dimension);
+    ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimension);
 
     virtual ~ViewerTab() = default;
 
@@ -92,7 +92,7 @@ protected:
 
     // @TODO: refactor field
     const TabId m_id;
-    EditorLayer& m_editor;
+    EditorState& m_editor;
     Viewer& m_viewer;
 
     bool m_active{ false };

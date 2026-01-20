@@ -10,7 +10,7 @@ class Document;
 
 class TileSetEditor : public ViewerTab {
 public:
-    TileSetEditor(EditorLayer& p_editor, Viewer& p_viewer);
+    TileSetEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileSetEditor();
 
     bool HandleInput(const InputEvent* p_input_event) final;

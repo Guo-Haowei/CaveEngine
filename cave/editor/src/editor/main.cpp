@@ -2,8 +2,7 @@
 #include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/entry_point.h"
-#include "engine/runtime/layer.h"
-#include "engine/runtime/mode_manager.h"
+#include "engine/runtime/runtime_state.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/scripting/lua/lua_script_manager.h"
 
@@ -11,7 +10,7 @@
 #include "modules/bullet3/bullet3_physics_manager.h"
 
 #include "editor/editor_asset_manager.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
 
 #define DEFINE_DVAR
@@ -28,64 +27,33 @@ void RegisterExtraDvars() {
 #undef REGISTER_DVAR
 }
 
-class EditorModeManager : public ModeManager {
-public:
-    EditorModeManager(Application& p_app)
-        : ModeManager(GameMode::Editor, p_app) {}
-
-    void SetMode(GameMode p_mode) {
-        LOG("attempt to transit from mode {} to {}", (int)m_mode, (int)p_mode);
-        if (p_mode == m_mode) {
-            return;
-        }
-
-        auto& scene_manager = reinterpret_cast<EditorSceneManager&>(ISceneManager::GetSingleton());
-        GameLayer* game_layer = m_app.GetGameLayer();
-        DEV_ASSERT(game_layer);
-        switch (p_mode) {
-            case GameMode::Editor: {
-                m_app.DetachGameLayer();
-                game_layer->SetActiveScene(nullptr);
-                scene_manager.CloseSimScene();
-            } break;
-            case GameMode::Gameplay: {
-                std::shared_ptr<Scene> sim_scene = std::make_shared<Scene>();
-                {
-                    std::shared_ptr<Scene> current_scene = scene_manager.GetActiveScene();
-                    sim_scene->Copy(*current_scene);
-                    sim_scene->Update(0.0f);
-                }
-
-                scene_manager.OpenSimScene(sim_scene);
-                game_layer->SetActiveScene(std::move(sim_scene));
-                m_app.AttachGameLayer();
-            } break;
-            case GameMode::CutScene:
-            case GameMode::Loading:
-            case GameMode::Paused:
-            default:
-                CRASH_NOW_MSG("mode not supported");
-                break;
-        }
-
-        m_mode = p_mode;
-    }
-};
-
 class Editor : public Application {
 public:
     Editor(const ApplicationSpec& p_spec)
         : Application(p_spec, Application::Type::Editor)
         , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
-        m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
+        // m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
     }
 
-    void InitLayers() override {
-        m_editorLayer = std::make_unique<EditorLayer>();
-        AttachLayer(m_editorLayer.get());
+    auto Initialize() -> Result<void> final {
+        if (auto res = Application::Initialize(); !res) {
+            return res;
+        }
 
-        // Only creates game layer, don't attach yet
-        m_game_layer = std::make_unique<GameLayer>("GameLayer");
+        // @TODO: generalize this part
+        AppStateMachine::RegisterCreateFunc(AppStateId::RuntimeMain, [](Application& p_app) {
+            auto state = std::make_unique<RuntimeState>(p_app);
+            return std::unique_ptr<AppState>(std::move(state));
+        });
+
+        AppStateMachine::RegisterCreateFunc(AppStateId::EditorMain, [](Application& p_app) {
+            auto state = std::make_unique<EditorState>(p_app);
+            return std::unique_ptr<AppState>(std::move(state));
+        });
+
+        m_state_machine = std::make_unique<AppStateMachine>(*this);
+        m_state_machine->Init(AppStateId::EditorMain);
+        return Result<void>();
     }
 
     void Finalize() override {
@@ -103,7 +71,6 @@ public:
 
 private:
     const bool m_is_world_2d;
-    std::unique_ptr<EditorLayer> m_editorLayer;
 };
 
 Application* CreateApplication() {

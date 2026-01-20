@@ -7,14 +7,14 @@
 #include "engine/render_graph/render_graph.h"
 #include "engine/runtime/application.h"
 
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 
 namespace cave {
 
 // @TODO: save the nodes position to disk
 // @TODO: find longese path, and arrange nodes
 
-RenderGraphViewer::RenderGraphViewer(EditorLayer& p_editor)
+RenderGraphViewer::RenderGraphViewer(EditorState& p_editor)
     : EditorWindow(p_editor) {
 }
 
@@ -108,9 +108,9 @@ void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {
 void RenderGraphViewer::UpdateInternal() {
     CAVE_PROFILE_EVENT();
 
-    auto graphics_manager = m_editor.GetApplication()->GetGraphicsManager();
+    auto graphics_manager = m_editor.GetApp().GetGraphicsManager();
     if (m_backend == Backend::COUNT) {
-        m_backend = m_editor.GetApplication()->GetGraphicsManager()->GetBackend();
+        m_backend = m_editor.GetApp().GetGraphicsManager()->GetBackend();
     }
 
     switch (graphics_manager->GetBackend()) {

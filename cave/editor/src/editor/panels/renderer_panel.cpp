@@ -12,7 +12,7 @@
 #include "engine/scene/scene.h"
 
 #include "editor/editor_dvars.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 
 namespace cave {
 
@@ -59,7 +59,7 @@ void RendererPanel::UpdateInternal() {
     });
 
     CollapseWindow("Path Tracer", [&]() {
-        auto& gm = *m_editor.GetApplication()->GetGraphicsManager();
+        auto& gm = *m_editor.GetApp().GetGraphicsManager();
         int selected = (int)gm.GetActiveRenderGraphName();
         const int prev_selected = selected;
         for (int i = 0; i < std::to_underlying(RenderGraphName::COUNT); ++i) {

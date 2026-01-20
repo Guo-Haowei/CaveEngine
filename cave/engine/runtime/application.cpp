@@ -9,14 +9,13 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
+#include "engine/runtime/app_state.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
 #include "engine/runtime/imgui_manager.h"
 #include "engine/runtime/input_manager.h"
-#include "engine/runtime/layer.h"
-#include "engine/runtime/mode_manager.h"
 #include "engine/runtime/module_registry.h"
 #include "engine/runtime/render_system.h"
 #include "engine/runtime/scene_manager_interface.h"
@@ -35,39 +34,14 @@ namespace fs = std::filesystem;
 Application::Application(const ApplicationSpec& p_spec, Type p_type)
     : m_type(p_type)
     , m_specification(p_spec) {
-    // select work directory
+
+    // @TODO: refactor this select work directory
     m_user_folder = std::string{ m_specification.userFolder };
 
     FileAccess::SetUserFolderCallback([&]() { return m_user_folder.c_str(); });
 }
 
 Application::~Application() {
-}
-
-ModeManager& Application::GetModeManager() {
-    return *m_mode_manager.get();
-}
-
-void Application::AttachLayer(Layer* p_layer) {
-    DEV_ASSERT(p_layer);
-
-    p_layer->m_app = this;
-    p_layer->OnAttach();
-    m_layers.emplace_back(p_layer);
-}
-
-void Application::DetachLayer(Layer* p_layer) {
-    DEV_ASSERT(p_layer);
-
-    auto it = std::find(m_layers.begin(), m_layers.end(), p_layer);
-    if (it == m_layers.end()) {
-        LOG_WARN("Layer '{}' not found");
-        return;
-    }
-
-    m_layers.erase(it);
-    p_layer->OnDetach();
-    p_layer->m_app = nullptr;
 }
 
 void Application::RegisterModule(Module* p_module) {
@@ -164,22 +138,11 @@ auto Application::Initialize() -> Result<void> {
         LOG_OK("module '{}' initialized", module->GetName());
     }
 
-    InitLayers();
-    for (auto& layer : m_layers) {
-        layer->m_app = this;
-        layer->OnAttach();
-        LOG("[Runtime] layer '{}' attached!", layer->GetName());
-    }
-
     return Result<void>();
 }
 
 void Application::Finalize() {
-    for (auto& layer : m_layers) {
-        layer->OnDetach();
-        LOG("[Runtime] layer '{}' detached!", layer->GetName());
-    }
-    m_layers.clear();
+    m_state_machine->Shutdown();
 
     // @TODO: move it to request shutdown
     thread::RequestShutdown();
@@ -212,63 +175,19 @@ bool Application::MainLoop() {
     // === Update Phase ===
     const float timestep = UpdateTime();
 
-    /*
-    @TODO: refactor this to update in the following order
-    1. Input System            (poll input, dispatch events)
-    2. Script System           (Lua or custom scripts modify components)
-    3. Animation System        (update animation timers & apply output to transforms, visuals)
-    4. Transformation System   (update local-to-world matrices, resolve hierarchy)
-    5. Physics System          (simulate rigidbodies, detect collisions)
-    6. Late Script Callbacks   (optional scripts react to post-physics state)
-    7. Rendering Prep          (culling, batching, sorting)
-    8. Render System           (submit to GPU)
-    */
-
     m_asset_manager->Update();
     m_scene_manager->Update();
 
     // layer should set active scene
     // update layers from back to front
-    for (int i = (int)m_layers.size() - 1; i >= 0; --i) {
-        m_layers[i]->OnUpdate(timestep);
-    }
 
-    // @TODO: refactor this
-    if (m_imgui_manager) {
-        {
-            CAVE_PROFILE_EVENT("ImGuiManager::BeginFrame");
-            m_imgui_manager->BeginFrame();
-        }
+    m_state_machine->Tick(timestep);
 
-        for (int i = (int)m_layers.size() - 1; i >= 0; --i) {
-            m_layers[i]->OnImGuiRender();
-        }
-
-        {
-            CAVE_PROFILE_EVENT("ImGui::Render");
-            ImGui::Render();
-        }
-    }
-
-    const GameMode game_mode = m_mode_manager->GetMode();
-    // change game mode from here
-
-    // @TODO: set mode here
     std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
-
-    if (scene && game_mode == GameMode::Gameplay) {
-        m_script_manager->Update(*scene, timestep);
-    }
-
     m_viewport_manager->UpdateProviders(timestep);
 
     if (scene) {
         scene->Update(timestep);
-    }
-
-    // @TODO: register system instead of if else
-    if (scene && game_mode == GameMode::Gameplay) {
-        m_physics_manager->Update(*scene, timestep);
     }
 
     // view has camera controller and camera manager
@@ -308,20 +227,8 @@ void Application::Run(Application* p_app) {
         "\n********************************************************************************");
 }
 
-GameLayer* Application::GetGameLayer() {
-    return m_game_layer.get();
-}
-
-void Application::AttachGameLayer() {
-    if (m_game_layer) {
-        AttachLayer(m_game_layer.get());
-    }
-}
-
-void Application::DetachGameLayer() {
-    if (m_game_layer) {
-        DetachLayer(m_game_layer.get());
-    }
+AppStateId Application::GetStateId() const {
+    return m_state_machine->GetStateId();
 }
 
 }  // namespace cave

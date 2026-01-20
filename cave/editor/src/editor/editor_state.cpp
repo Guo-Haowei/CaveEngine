@@ -1,5 +1,10 @@
-#include "editor_layer.h"
+#include "editor_state.h"
 
+#include "engine/debugger/profiler.h"
+#include "engine/runtime/application.h"
+#include "engine/runtime/imgui_manager.h"
+
+// @TODO: refactor
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
@@ -11,7 +16,6 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/input_manager.h"
-#include "engine/runtime/layer.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 
@@ -32,8 +36,8 @@
 
 namespace cave {
 
-EditorLayer::EditorLayer()
-    : Layer("EditorLayer") {
+EditorState::EditorState(Application& p_app)
+    : AppState(p_app) {
 
     m_asset_inspector = std::make_shared<AssetInspector>(*this);
     m_menu_bar = std::make_shared<MenuBar>(*this);
@@ -145,7 +149,9 @@ EditorLayer::EditorLayer()
     }
 }
 
-void EditorLayer::OnAttach() {
+void EditorState::OnEnter(const StateRequest& p_args) {
+    unused(p_args);
+
     ImNodes::CreateContext();
 
     auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
@@ -153,7 +159,7 @@ void EditorLayer::OnAttach() {
         context.checkerboard = handle.unwrap_unchecked().Wait();
     }
 
-    m_app->GetInputManager()->PushInputHandler(this);
+    m_app.GetInputManager()->PushInputHandler(this);
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
@@ -167,18 +173,69 @@ void EditorLayer::OnAttach() {
     }
 }
 
-void EditorLayer::OnDetach() {
-    [[maybe_unused]] auto handler = m_app->GetInputManager()->PopInputHandler();
+void EditorState::OnExit() {
+    [[maybe_unused]] auto handler = m_app.GetInputManager()->PopInputHandler();
     DEV_ASSERT(handler == this);
 
     ImNodes::DestroyContext();
 }
 
-void EditorLayer::AddPanel(std::shared_ptr<EditorItem> p_panel) {
+void EditorState::Tick(float p_timestep) {
+    context.timestep = p_timestep;
+
+    m_log_panel->RetrieveLogs();
+
+    ImguiManager* imgui_manager = m_app.GetImguiManager();
+
+    // @TODO: refactor this
+    if (imgui_manager) {
+        {
+            CAVE_PROFILE_EVENT("ImGuiManager::BeginFrame");
+            imgui_manager->BeginFrame();
+        }
+
+        {
+            CAVE_PROFILE_EVENT();
+
+            // @TODO: DO NOT Request SCENE here
+            Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
+
+            FlushInputEvents();
+
+            DockSpace();
+            for (auto& it : m_panels) {
+                it->Update();
+            }
+
+            // @TODO: fix this as well
+            FlushCommand(scene);
+        }
+
+        {
+            CAVE_PROFILE_EVENT("ImGui::Render");
+            ImGui::Render();
+        }
+    }
+}
+
+Option<StateRequest> EditorState::PopRequest() {
+    auto request = m_request;
+    m_request = None();
+    return request;
+}
+
+void EditorState::RequestGamePlay() {
+    m_request = Some(StateRequest{ AppStateId::RuntimeMain });
+}
+
+////////////////////
+////////////////////
+
+void EditorState::AddPanel(std::shared_ptr<EditorItem> p_panel) {
     m_panels.emplace_back(p_panel);
 }
 
-void EditorLayer::DockSpace() {
+void EditorState::DockSpace() {
     CAVE_PROFILE_EVENT();
 
     ImGui::GetMainViewport();
@@ -223,31 +280,7 @@ void EditorLayer::DockSpace() {
     return;
 }
 
-void EditorLayer::OnUpdate(float p_timestep) {
-    // @TODO: refactor this
-    context.timestep = p_timestep;
-
-    m_log_panel->RetrieveLogs();
-}
-
-void EditorLayer::OnImGuiRender() {
-    CAVE_PROFILE_EVENT();
-
-    // @TODO: DO NOT Request SCENE here
-    Scene* scene = m_app->GetSceneManager()->GetActiveScene().get();
-
-    FlushInputEvents();
-
-    DockSpace();
-    for (auto& it : m_panels) {
-        it->Update();
-    }
-
-    // @TODO: fix this as well
-    FlushCommand(scene);
-}
-
-void EditorLayer::FlushInputEvents() {
+void EditorState::FlushInputEvents() {
     CAVE_PROFILE_EVENT();
 
     for (auto& event : m_buffered_events) {
@@ -289,40 +322,40 @@ void EditorLayer::FlushInputEvents() {
     m_buffered_events.clear();
 }
 
-HandleInputResult EditorLayer::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
+HandleInputResult EditorState::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
     m_buffered_events.emplace_back(std::move(p_input_event));
     return HandleInputResult::NotHandled;
 }
 
 // @TODO: these are associated with scene editor, move to scene editor
-void EditorLayer::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {
+void EditorState::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {
     p_command->m_editor = this;
     m_command_buffer.emplace_back(std::move(p_command));
 }
 
-void EditorLayer::CommandInspectAsset(const Guid& p_guid) {
+void EditorState::CommandInspectAsset(const Guid& p_guid) {
     auto command = std::make_shared<EditorInspectAssetCommand>(p_guid);
     BufferCommand(command);
 }
 
-void EditorLayer::CommandAddComponent(ComponentName p_type, ecs::Entity p_target) {
+void EditorState::CommandAddComponent(ComponentName p_type, ecs::Entity p_target) {
     auto command = std::make_shared<EditorCommandAddComponent>(p_type);
     command->target = p_target;
     BufferCommand(command);
 }
 
-void EditorLayer::CommandAddEntity(EntityType p_type, ecs::Entity p_parent) {
+void EditorState::CommandAddEntity(EntityType p_type, ecs::Entity p_parent) {
     auto command = std::make_shared<EditorCommandAddEntity>(p_type);
     command->m_parent = p_parent;
     BufferCommand(command);
 }
 
-void EditorLayer::CommandRemoveEntity(ecs::Entity p_target) {
+void EditorState::CommandRemoveEntity(ecs::Entity p_target) {
     auto command = std::make_shared<EditorCommandRemoveEntity>(p_target);
     BufferCommand(command);
 }
 
-void EditorLayer::FlushCommand(Scene* p_scene) {
+void EditorState::FlushCommand(Scene* p_scene) {
     CAVE_PROFILE_EVENT();
 
     while (!m_command_buffer.empty()) {

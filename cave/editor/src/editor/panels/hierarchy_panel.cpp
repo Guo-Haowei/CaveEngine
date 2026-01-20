@@ -6,7 +6,7 @@
 #include "engine/assets/mesh_asset.h"
 #include "engine/debugger/profiler.h"
 
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/drag_drop.h"
@@ -27,7 +27,7 @@ public:
         std::vector<HierarchyNode*> children;
     };
 
-    HierarchyCreator(EditorLayer& p_editor)
+    HierarchyCreator(EditorState& p_editor)
         : m_editorLayer(p_editor) {}
 
     void Update(ViewerTab* p_tab) {
@@ -47,7 +47,7 @@ private:
 
     std::map<Entity, std::shared_ptr<HierarchyNode>> m_nodes;
     HierarchyNode* m_root = nullptr;
-    EditorLayer& m_editorLayer;
+    EditorState& m_editorLayer;
 };
 
 static bool TreeNodeHelper(Scene& p_scene,
@@ -100,7 +100,7 @@ static bool TreeNodeHelper(Scene& p_scene,
             if (child_id != p_id) {
                 p_scene.AttachChild(child_id, p_id);
 
-                if constexpr (true) { // @TODO: log macro
+                if constexpr (true) {  // @TODO: log macro
                     const NameComponent* child_name = p_scene.GetComponent<NameComponent>(child_id);
                     DEV_ASSERT(child_name);
                     LOG_VERBOSE("moved '{}' under '{}'", child_name->GetName(), name);

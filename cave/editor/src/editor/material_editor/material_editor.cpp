@@ -5,7 +5,7 @@
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/material_editor/material_document.h"
 #include "editor/panels/asset_inspector.h"
@@ -14,7 +14,7 @@
 
 namespace cave {
 
-MaterialEditor::MaterialEditor(EditorLayer& p_editor, Viewer& p_viewer)
+MaterialEditor::MaterialEditor(EditorState& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer, DIMENSION_3) {
 }
 

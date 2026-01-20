@@ -6,7 +6,7 @@
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 
 namespace cave {
 
@@ -160,7 +160,7 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
 }
 
 void ShowPopup(const ContentEntry& p_node,
-               EditorLayer& p_editor,
+               EditorState& p_editor,
                std::function<void(void)> p_rename_cb) {
     if (ImGui::MenuItem("Rename")) {
         if (p_rename_cb) {

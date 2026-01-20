@@ -11,7 +11,7 @@ namespace cave {
 
 class Viewer : public EditorWindow {
 public:
-    Viewer(EditorLayer& p_editor);
+    Viewer(EditorState& p_editor);
 
     bool HandleInput(const InputEvent* p_input_event);
 

@@ -19,6 +19,9 @@ public:
 
     virtual void Update() = 0;
     virtual void BumpRevision() = 0;
+
+    // @TODO
+    virtual void OpenSimScene(const std::shared_ptr<Scene>&) {};
 };
 
 }  // namespace cave

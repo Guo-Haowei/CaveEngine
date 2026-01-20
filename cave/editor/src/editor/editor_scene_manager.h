@@ -17,7 +17,7 @@ public:
 
     void OpenTempScene(const std::shared_ptr<Scene>& p_scene);
 
-    void OpenSimScene(const std::shared_ptr<Scene>& p_scene);
+    void OpenSimScene(const std::shared_ptr<Scene>& p_scene) override;
 
     void CloseSimScene();
 
@@ -40,7 +40,7 @@ protected:
     std::unordered_map<std::string, SceneHandle> m_scenes;
 
     std::weak_ptr<Scene> m_tmp_scene;
-    std::weak_ptr<Scene> m_sim_scene;
+    std::shared_ptr<Scene> m_sim_scene;
 };
 
 }  // namespace cave

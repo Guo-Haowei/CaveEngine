@@ -7,7 +7,7 @@
 #include "engine/input/input_event.h"
 #include "engine/scene/entity_factory.h"
 
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
@@ -17,7 +17,7 @@
 
 namespace cave {
 
-TileMapEditor::TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer)
+TileMapEditor::TileMapEditor(EditorState& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer, DIMENSION_2)
     , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
 

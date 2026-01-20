@@ -8,7 +8,7 @@
 
 namespace cave {
 
-class EditorLayer;
+class EditorState;
 class Scene;
 
 class EditorCommandBase {
@@ -20,9 +20,9 @@ public:
     virtual void Execute(Scene& p_scene) = 0;
 
 protected:
-    EditorLayer* m_editor{ nullptr };
+    EditorState* m_editor{ nullptr };
 
-    friend class EditorLayer;
+    friend class EditorState;
 };
 
 // @TODO: change to memento
@@ -57,7 +57,7 @@ protected:
     ecs::Entity m_parent;
     ecs::Entity m_entity;
 
-    friend class EditorLayer;
+    friend class EditorState;
 };
 
 class EditorCommandAddComponent : public EditorCommandBase {
@@ -71,7 +71,7 @@ protected:
     ComponentName m_componentType;
     ecs::Entity target;
 
-    friend class EditorLayer;
+    friend class EditorState;
 };
 
 class EditorCommandRemoveEntity : public EditorCommandBase {
@@ -84,7 +84,7 @@ public:
 protected:
     ecs::Entity m_target;
 
-    friend class EditorLayer;
+    friend class EditorState;
 };
 
 class SaveProjectCommand : public EditorCommandBase {

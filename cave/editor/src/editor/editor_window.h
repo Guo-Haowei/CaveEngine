@@ -5,7 +5,7 @@ namespace cave {
 
 class EditorWindow : public EditorItem {
 public:
-    EditorWindow(EditorLayer& p_editor)
+    EditorWindow(EditorState& p_editor)
         : EditorItem(p_editor) {}
 
     void Update() override;

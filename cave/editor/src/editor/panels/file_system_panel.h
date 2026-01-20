@@ -7,7 +7,7 @@ struct ContentEntry;
 
 class FileSystemPanel : public EditorWindow {
 public:
-    FileSystemPanel(EditorLayer& p_editor);
+    FileSystemPanel(EditorState& p_editor);
 
     void OnAttach() override;
 

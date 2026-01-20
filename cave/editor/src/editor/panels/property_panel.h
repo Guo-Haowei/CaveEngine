@@ -5,7 +5,7 @@ namespace cave {
 
 class PropertyPanel : public EditorWindow {
 public:
-    PropertyPanel(EditorLayer& p_editor)
+    PropertyPanel(EditorState& p_editor)
         : EditorWindow(p_editor) {}
 
     const char* GetTitle() const override {

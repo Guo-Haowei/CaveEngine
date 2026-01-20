@@ -3,7 +3,7 @@
 
 namespace cave {
 
-class EditorLayer;
+class EditorState;
 
 struct ContentEntry {
     AssetType type;
@@ -30,7 +30,7 @@ void ShowAssetToolTip(const ContentEntry& p_node);
 
 /// popup
 void ShowPopup(const ContentEntry& p_node,
-               EditorLayer& p_editor,
+               EditorState& p_editor,
                std::function<void(void)> p_rename_cb = nullptr);
 
 }  // namespace cave

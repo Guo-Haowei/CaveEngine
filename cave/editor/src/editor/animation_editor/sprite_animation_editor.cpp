@@ -8,7 +8,7 @@
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widgets/drag_drop.h"
 #include "editor/widgets/widget.h"
@@ -17,7 +17,7 @@
 
 namespace cave {
 
-SpriteAnimationEditor::SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_viewer)
+SpriteAnimationEditor::SpriteAnimationEditor(EditorState& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, p_viewer, DIMENSION_2)
     , m_sprite_selector(SpriteSelector::SelectionMode::Multi) {
 
@@ -43,7 +43,7 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorLayer& p_editor, Viewer& p_vi
 void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
     m_document = std::make_shared<SpriteAnimationDocument>(p_guid);
 
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
+    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
     DEV_ASSERT(scene_manager);
 
     m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
@@ -76,7 +76,7 @@ void SpriteAnimationEditor::OnDestroy() {
 }
 
 void SpriteAnimationEditor::OnActivateInternal() {
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApplication()->GetSceneManager());
+    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
     DEV_ASSERT(scene_manager);
     scene_manager->OpenTempScene(m_tmp_scene);
 }

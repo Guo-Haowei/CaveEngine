@@ -7,7 +7,7 @@
 #include "engine/runtime/asset_registry.h"
 
 #include "editor/editor_asset_manager.h"
-#include "editor/editor_layer.h"
+#include "editor/editor_state.h"
 #include "editor/utility/content_entry.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
@@ -17,7 +17,7 @@
 
 namespace cave {
 
-AssetInspector::AssetInspector(EditorLayer& p_editor)
+AssetInspector::AssetInspector(EditorState& p_editor)
     : EditorWindow(p_editor) {
     m_current_path = { "@res://" };
 }

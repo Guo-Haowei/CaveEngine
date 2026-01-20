@@ -16,7 +16,7 @@ class TileMapDocument;
 
 class TileMapEditor : public ViewerTab {
 public:
-    TileMapEditor(EditorLayer& p_editor, Viewer& p_viewer);
+    TileMapEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileMapEditor();
 
     bool HandleInput(const InputEvent* p_input_event) final;

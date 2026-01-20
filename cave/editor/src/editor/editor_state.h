@@ -1,8 +1,10 @@
 #pragma once
+#include "engine/runtime/app_state.h"
+
+// @TODO: check if all the includes are necessary
 #include "engine/assets/asset_handle.h"
 #include "engine/input/input_router.h"
 #include "engine/runtime/application.h"
-#include "engine/runtime/layer.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_component.h"
 #include "editor/editor_window.h"
@@ -33,17 +35,29 @@ struct EditorContext {
     std::shared_ptr<ImageAsset> checkerboard;
 };
 
-class EditorLayer : public Layer, public IInputHandler {
+class EditorState final : public AppState, public IInputHandler {
 public:
-    EditorLayer();
-    virtual ~EditorLayer() = default;
+    EditorState(Application& p_app);
 
-    void OnAttach() override;
-    void OnDetach() override;
+    void OnEnter(const StateRequest& p_args) final;
 
-    void OnUpdate(float p_timestep) override;
-    void OnImGuiRender() override;
+    void OnExit() final;
 
+    void Tick(float p_timestep) final;
+
+    Option<StateRequest> PopRequest() final;
+
+    void RequestGamePlay();
+
+#if USING(DEBUG_BUILD)
+    const char* GetDebugName() final { return "EditorState"; }
+#endif
+
+private:
+    Option<StateRequest> m_request;
+
+public:
+    // @TODO: refactor the following
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
     void CommandInspectAsset(const Guid& p_guid);
     void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
