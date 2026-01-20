@@ -26,6 +26,7 @@ void RegisterExtraDvars() {
 #undef REGISTER_DVAR
 }
 
+// @TODO: delete this chunk
 #if 0
 class EditorModeManager : public ModeManager {
 public:
@@ -41,8 +42,6 @@ public:
         //auto& scene_manager = reinterpret_cast<EditorSceneManager&>(ISceneManager::GetSingleton());
         switch (p_mode) {
             case GameMode::Editor: {
-                //m_app.DetachGameLayer();
-                //game_layer->SetActiveScene(nullptr);
                 //scene_manager.CloseSimScene();
             } break;
             case GameMode::Gameplay: {
