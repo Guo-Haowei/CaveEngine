@@ -34,8 +34,10 @@ namespace fs = std::filesystem;
 
 Application::Application(const ApplicationSpec& p_spec, Type p_type)
     : m_type(p_type)
-    , m_specification(p_spec) {
-    // select work directory
+    , m_specification(p_spec)
+    , m_state_machine(*this) {
+
+    // @TODO: refactor this select work directory
     m_user_folder = std::string{ m_specification.userFolder };
 
     FileAccess::SetUserFolderCallback([&]() { return m_user_folder.c_str(); });

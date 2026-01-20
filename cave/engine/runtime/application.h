@@ -2,6 +2,7 @@
 #include "engine/core/base/noncopyable.h"
 #include "engine/core/os/timer.h"
 #include "engine/renderer/graphics_defines.h"
+#include "engine/runtime/app_state.h"
 #include "engine/runtime/event_queue.h"
 #include "engine/runtime/layer.h"
 #include "engine/runtime/module.h"
@@ -108,6 +109,7 @@ protected:
 
     EventQueue m_event_queue;
 
+    // @TODO: differentiate global and state specific managers
     AssetRegistry* m_asset_registry{ nullptr };
     IAssetManager* m_asset_manager{ nullptr };
     ISceneManager* m_scene_manager{ nullptr };
@@ -123,6 +125,8 @@ protected:
     std::vector<Module*> m_modules;
 
     Timer m_timer;
+
+    AppStateMachine m_state_machine;
 };
 
 }  // namespace cave
