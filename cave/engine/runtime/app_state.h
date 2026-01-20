@@ -4,7 +4,7 @@ namespace cave {
 
 class Application;
 
-enum class AppStateId {
+enum class AppStateId : uint8_t {
     ProjectBrowser = 0,
     LoadingScreen,
     EditorMain,
@@ -32,6 +32,10 @@ public:
     virtual void Tick(float p_timestep) = 0;
 
     virtual StateRequest PopRequest() { return {}; }
+
+#if USING(DEBUG_BUILD)
+    virtual const char* GetDebugName() = 0;
+#endif
 
 protected:
     Application& m_app;

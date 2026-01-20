@@ -17,9 +17,18 @@ void AppStateMachine::Tick(float p_timestep) {
 }
 
 void AppStateMachine::SwitchTo(const StateRequest& p_request) {
+#if USING(DEBUG_BUILD)
+    const char* old_state = m_state->GetDebugName();
+#endif
+
     m_state->OnExit();
     m_state = CreateState(m_app, p_request.next);
     m_state->OnEnter(p_request);
+
+#if USING(DEBUG_BUILD)
+    const char* new_state = m_state->GetDebugName();
+    LOG("AppStateMachine::SwitchTo: {} -> {}", old_state, new_state);
+#endif
 }
 
 void AppStateMachine::RegisterCreateFunc(AppStateId p_state_id, CreateFunc p_func) {

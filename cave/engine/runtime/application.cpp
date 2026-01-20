@@ -256,10 +256,12 @@ bool Application::MainLoop() {
         scene->Update(timestep);
     }
 
-    // @TODO: register system instead of if else
+// @TODO: register system instead of if else
+#if 0
     if (scene && game_mode == GameMode::Gameplay) {
         m_physics_manager->Update(*scene, timestep);
     }
+#endif
 
     // view has camera controller and camera manager
     const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;
