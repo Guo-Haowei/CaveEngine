@@ -22,7 +22,7 @@ public:
                 const ViewportInput&,
                 bool) final {}
 
-    void BuildViews(std::vector<SceneView>&p_out_views,
+    void BuildViews(std::vector<SceneView>& p_out_views,
                     bool p_is_opengl) final {
         std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene();
 

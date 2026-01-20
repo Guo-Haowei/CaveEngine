@@ -225,7 +225,7 @@ Option<StateRequest> EditorState::PopRequest() {
 }
 
 void EditorState::RequestGamePlay() {
-    m_request = Some(StateRequest { AppStateId::RuntimeMain });
+    m_request = Some(StateRequest{ AppStateId::RuntimeMain });
 }
 
 ////////////////////
