@@ -26,10 +26,12 @@ void RuntimeState::OnEnter(const StateRequest& p_args) {
 
     // set active scene?
     // game_layer->SetActiveScene(std::move(sim_scene));
+    m_app.GetScriptManager()->OnSimBegin(*sim_scene);
 }
 
 void RuntimeState::OnExit() {
     // scene_manager.CloseSimScene();
+    m_app.GetScriptManager()->OnSimEnd();
 }
 
 void RuntimeState::Tick(float p_timestep) {
