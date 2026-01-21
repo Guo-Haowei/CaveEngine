@@ -10,6 +10,7 @@
 #include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widgets/drag_drop.h"
+#include "editor/widgets/inputs.h"
 #include "editor/widgets/widget.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
@@ -203,7 +204,7 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         ImGui::Dummy(ImVec2(8, 8));
 
-        if (DrawInputText("layer", layer.GetName())) {
+        if (ui::TextBox("layer", layer.GetName())) {
             // @TODO: notify dirty
         }
 

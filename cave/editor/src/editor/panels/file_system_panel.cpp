@@ -11,7 +11,7 @@
 #include "editor/editor_state.h"
 #include "editor/utility/content_entry.h"
 #include "editor/widgets/drag_drop.h"
-#include "editor/widgets/widget.h"
+#include "editor/widgets/inputs.h"
 
 namespace cave {
 
@@ -48,7 +48,7 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
         buffer.resize(256);
         ImGui::Text("%s", icon);
         ImGui::SameLine();
-        if (DrawInputText(nullptr, buffer)) {
+        if (ui::TextBox(nullptr, buffer)) {
             fs::path to_path = m_renaming.parent_path();
             to_path = to_path / buffer.c_str();
             if (is_dir) {

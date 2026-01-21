@@ -11,6 +11,7 @@
 #include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widgets/drag_drop.h"
+#include "editor/widgets/inputs.h"
 #include "editor/widgets/widget.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
@@ -136,7 +137,7 @@ void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
     const auto& button_active = colors[ImGuiCol_ButtonActive];
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
-    DrawInputText("name", m_clip_name, 80, 160, false);
+    ui::TextBox("name", m_clip_name, 80, 160, false);
 
     ImGui::SameLine();
 

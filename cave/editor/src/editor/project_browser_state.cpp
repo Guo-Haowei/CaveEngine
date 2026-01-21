@@ -35,11 +35,12 @@ static std::vector<ProjectItem> gProjects = {
     { "Physics Lab", "5.0" },
 };
 
+// @TODO: refactor
 extern auto DrawAssetCard(ImTextureID p_texture_id,
                           const char* p_name,
                           ImVec2 p_image_size) -> std::tuple<bool, bool>;
 
-static void DrawProjectTileSimple( ) {
+static void DrawProjectTileSimple() {
     ImVec2 window_size = ImGui::GetContentRegionAvail();
     constexpr float desired_icon_size = 224.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
@@ -81,12 +82,6 @@ void DrawMyProjectsUI() {
     const float tileW = 170.0f;
     const float tileH = 150.0f;
     ImVec2 tileSize(tileW, tileH);
-
-    // Columns based on available width
-    //float avail = ImGui::GetContentRegionAvail().x;
-    //float spacing = ImGui::GetStyle().ItemSpacing.x;
-    //int cols = (int)((avail + spacing) / (tileW + spacing));
-    //if (cols < 1) cols = 1;
 
     DrawProjectTileSimple();
 }
