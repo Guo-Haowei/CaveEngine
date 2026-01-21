@@ -19,9 +19,8 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-auto AssetRegistry::RequestProject() -> Result<void> {
-    fs::path assets_root = fs::path{ m_app->GetResourceFolder() };
-    DEV_ASSERT(!assets_root.empty());
+auto AssetRegistry::RequestProject(const fs::path& p_resources_root) -> Result<void> {
+    DEV_ASSERT(!p_resources_root.empty());
 
     struct Pair {
         bool has_meta;
@@ -31,7 +30,7 @@ auto AssetRegistry::RequestProject() -> Result<void> {
     std::unordered_map<std::string, Pair> resources;
 
     // go through all files, create meta if not exists
-    for (const auto& entry : fs::recursive_directory_iterator(assets_root)) {
+    for (const auto& entry : fs::recursive_directory_iterator(p_resources_root)) {
         if (entry.is_regular_file()) {
             std::string virtual_path = m_app->GetAssetManager()->ResolvePath(entry.path());
 

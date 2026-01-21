@@ -17,6 +17,7 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/vfs.h"
 #include "engine/scene/entity_factory.h"
 
 #include "modules/tinygltf/tiny_gltf_importer.h"
@@ -101,8 +102,6 @@ static auto LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) -> Result<Asse
 }
 
 auto AssetManager::InitializeImpl() -> Result<void> {
-    m_asset_root_path = fs::path{ m_app->GetResourceFolder() };
-
 #if USING(USE_IMPORTER_TINYGLTF)
     AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
     AssetImporter::RegisterImporter(".glb", TinyGltfImporter::CreateImporter);
@@ -180,8 +179,7 @@ Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const s
 }
 
 std::string AssetManager::ResolvePath(const fs::path& p_path) {
-    fs::path relative = fs::relative(p_path, m_asset_root_path);
-    return std::format("@res://{}", relative.generic_string());
+    return m_app->GetVFS().Resolve("@res", p_path);
 }
 
 bool AssetManager::LoadAssetAsync(const Guid& p_guid,

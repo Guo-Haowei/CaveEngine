@@ -45,7 +45,7 @@ public:
 
     std::vector<AssetHandle> GetAssetsOfType(AssetType p_type) const;
 
-    auto RequestProject() -> Result<void>;
+    auto RequestProject(const std::filesystem::path& p_path) -> Result<void>;
 
 protected:
     auto InitializeImpl() -> Result<void> override;

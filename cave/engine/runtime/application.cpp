@@ -21,6 +21,7 @@
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
 #include "engine/runtime/task_manager.h"
+#include "engine/runtime/vfs.h"
 #include "engine/runtime/viewport_manager.h"
 #include "engine/scene/scene.h"
 
@@ -36,10 +37,10 @@ Application::Application(const ApplicationSpec& p_spec, Type p_type)
     : m_type(p_type)
     , m_specification(p_spec) {
 
-    // @TODO: refactor this select work directory
-    m_user_folder = std::string{ m_specification.userFolder };
+    m_vfs = std::make_unique<VFS>();
 
-    FileAccess::SetUserFolderCallback([&]() { return m_user_folder.c_str(); });
+    // @TODO: refactor this select work directory
+    m_vfs->Mount("@user", fs::path(m_specification.userFolder));
 }
 
 Application::~Application() {
@@ -218,20 +219,20 @@ AppStateId Application::GetStateId() const {
     return m_state_machine->GetStateId();
 }
 
-void Application::SetProjectPath(std::string_view p_path) {
+void Application::LoadProjectAsync(std::string_view p_path) {
     DEV_ASSERT(!p_path.empty());
-    m_project_folder = p_path;
-    fs::path resource_folder = fs::path(m_project_folder) / "resources";
-    m_resource_folder = resource_folder.string();
 
-    FileAccess::SetResFolderCallback([&]() { return m_resource_folder.c_str(); });
+    fs::path resource_folder = fs::path(p_path) / "resources";
+    m_vfs->Mount("@res", resource_folder);
 
-    fs::path project_setting = fs::path(m_project_folder) / "project.yaml";
+    fs::path project_setting = fs::path(p_path) / "project.yaml";
 
     std::ifstream file(project_setting.string());
     if (file.is_open()) {
         // @TODO: load stuff
     }
+
+    m_asset_registry->RequestProject(resource_folder);
 }
 
 }  // namespace cave

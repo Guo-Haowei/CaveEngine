@@ -126,7 +126,7 @@ Result<void> EditorAssetManager::InitializeImpl() {
     }
 
     m_file_watcher = std::make_unique<FileWatcher>();
-    m_file_watcher->Start(m_asset_root_path.string());
+    //m_file_watcher->Start(m_asset_root_path.string());
 
     return AddAlwaysLoadImages();
 }
@@ -154,7 +154,15 @@ static void BuildFolderLut(const ContentEntry* p_node,
 
 void EditorAssetManager::RebuildAssetFolderTree() {
     CAVE_PROFILE_EVENT("Build folder tree");
-    const std::string& path = m_app->GetResourceFolder();
+    //const std::string& path = m_app->GetResourceFolder();
+
+    if (this != nullptr) {
+        LOG_WARN("????????????????????");
+        return;
+    }
+
+    std::string path;
+    DEV_ASSERT(!path.empty());
     m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
 
     m_folder_lut.clear();

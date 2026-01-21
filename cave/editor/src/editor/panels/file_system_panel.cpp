@@ -22,8 +22,11 @@ FileSystemPanel::FileSystemPanel(EditorState& p_editor)
 }
 
 void FileSystemPanel::OnAttach() {
+    DEV_ASSERT(0);
+#if 0
     const auto& path = m_editor.GetApp().GetResourceFolder();
     m_root = fs::path{ path };
+#endif
 }
 
 void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {

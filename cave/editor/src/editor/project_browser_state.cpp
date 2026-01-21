@@ -69,11 +69,8 @@ void ProjectBrowserState::DrawRecentProjects() {
 
         if (clicked && !m_request_fired) {
             m_request = Some(StateRequest{ AppStateId::Editor, item.path });
-            m_app.SetProjectPath(item.path);
+            m_app.LoadProjectAsync(item.path);
             m_request_fired = true;
-
-            // @TODO: load asset?
-            m_app.GetAssetRegistry()->RequestProject();
         }
     }
 
