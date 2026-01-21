@@ -4,12 +4,26 @@
 
 namespace cave::ui {
 
+bool CheckBox(const char* p_name,
+              bool& p_val,
+              float p_column_width) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_column_width);
+    ImGui::Text("%s", p_name);
+    ImGui::NextColumn();
+
+    auto string_id = std::format("##{}", p_name);
+    const bool dirty = ImGui::Checkbox(string_id.c_str(), &p_val);
+
+    ImGui::Columns(1);
+    return dirty;
+}
+
 bool TextBox(const char* p_label,
              std::string& p_string,
              float p_text_width,
              float p_text_box_width,
              bool p_enter_returns_true) {
-
     if (p_label) {
         ImGui::Columns(2);
         ImGui::SetColumnWidth(0, p_text_width);
@@ -212,6 +226,68 @@ bool Float3(const char* p_label,
             float p_reset_value,
             float p_column_width) {
     return Float3Impl<3>(TYPE_TRANSFORM, p_label, &p_out_vec3.x, p_reset_value, p_column_width);
+}
+
+bool ColorPicker3(const char* p_label,
+                  float* p_out,
+                  float p_column_width) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_column_width);
+    ImGui::Text("%s", p_label);
+    ImGui::NextColumn();
+    const bool dirty = ImGui::ColorPicker3(p_label, p_out);
+    ImGui::Columns(1);
+    return dirty;
+}
+
+bool ColorPicker4(const char* p_label,
+                  float* p_out,
+                  float p_column_width) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_column_width);
+    ImGui::Text("%s", p_label);
+    ImGui::NextColumn();
+    const bool dirty = ImGui::ColorPicker4(p_label, p_out);
+    ImGui::Columns(1);
+    ImGui::Dummy(ImVec2(8, 8));
+    return dirty;
+}
+bool ToggleButton(const char* p_str_id, bool& p_value) {
+    ImVec2 p = ImGui::GetCursorScreenPos();
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    float height = ImGui::GetFrameHeight();
+    float width = height * 1.55f;
+    float radius = height * 0.50f;
+
+    bool toggled = false;
+
+    ImGui::InvisibleButton(p_str_id, ImVec2(width, height));
+    if (ImGui::IsItemClicked()) {
+        p_value = !p_value;
+        toggled = true;
+    }
+
+    float t = p_value ? 1.0f : 0.0f;
+
+    ImGuiContext& g = *GImGui;
+    float ANIM_SPEED = 0.08f;
+    if (g.LastActiveId == g.CurrentWindow->GetID(p_str_id)) {
+        float t_anim = ImSaturate(g.LastActiveIdTimer / ANIM_SPEED);
+        t = p_value ? (t_anim) : (1.0f - t_anim);
+    }
+
+    ImU32 col_bg;
+    if (ImGui::IsItemHovered()) {
+        col_bg = ImGui::GetColorU32(ImLerp(ImVec4(0.78f, 0.78f, 0.78f, 1.0f), ImVec4(0.64f, 0.83f, 0.34f, 1.0f), t));
+    } else {
+        col_bg = ImGui::GetColorU32(ImLerp(ImVec4(0.85f, 0.85f, 0.85f, 1.0f), ImVec4(0.56f, 0.83f, 0.26f, 1.0f), t));
+    }
+
+    draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), col_bg, height * 0.5f);
+    draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
+
+    return toggled;
 }
 
 }  // namespace cave::ui

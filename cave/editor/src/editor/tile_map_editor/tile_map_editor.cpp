@@ -10,6 +10,7 @@
 #include "editor/editor_state.h"
 #include "editor/editor_scene_manager.h"
 #include "editor/widgets/drag_drop.h"
+#include "editor/widgets/image.h"
 #include "editor/widgets/inputs.h"
 #include "editor/widgets/widget.h"
 #include "editor/viewer/viewer.h"
@@ -225,7 +226,6 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
         // next line
 
         {
-            ImVec2 region_size(128, 128);
 
             const ImageAsset* image = nullptr;
             if (auto image_handle = layer.GetTileSetHandle().Get(); image_handle) {
@@ -235,7 +235,8 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
             auto checkerboard = m_editor.context.checkerboard;
             DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
 
-            CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
+            Vector2f region_size(128, 128);
+            ui::CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
 
             if (ImGui::IsItemClicked()) {
                 // tool->SetActiveLayer(layer_id);

@@ -83,7 +83,7 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     const IAsset* asset = nullptr;
 
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, DEFAULT_COLUMN_WIDTH);
+    ImGui::SetColumnWidth(0, ui::DEFAULT_COLUMN_WIDTH);
     ImGui::Text(ICON_FA_CUBE "  %s", p_name);
     ImGui::NextColumn();
 
@@ -115,21 +115,6 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     return dirty;
 };
 
-static bool DrawCheckBox(const char* p_name,
-                         bool& p_val,
-                         float p_column_width = DEFAULT_COLUMN_WIDTH) {
-    ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_name);
-    ImGui::NextColumn();
-
-    auto string_id = std::format("##{}", p_name);
-    const bool dirty = ImGui::Checkbox(string_id.c_str(), &p_val);
-
-    ImGui::Columns(1);
-    return dirty;
-}
-
 template<typename T>
 bool DrawComponentAuto(T* p_component) {
     const auto& meta_table = MetaDataTable<T>::GetFields();
@@ -138,15 +123,15 @@ bool DrawComponentAuto(T* p_component) {
     for (const auto& field : meta_table) {
         switch (field->editor_hint) {
             case EditorHint::EnumDropDown: {
-                dirty |= (int)field->DrawEditor(p_component, DEFAULT_COLUMN_WIDTH);
+                dirty |= (int)field->DrawEditor(p_component, ui::DEFAULT_COLUMN_WIDTH);
             } break;
             case EditorHint::Toggle: {
                 bool& toggle = field->template GetData<bool>(p_component);
-                dirty |= (int)DrawCheckBox(field->name, toggle);
+                dirty |= (int)ui::CheckBox(field->name, toggle);
             } break;
             case EditorHint::Color: {
                 Vector4f& color = field->template GetData<Vector4f>(p_component);
-                dirty |= (int)DrawColorPicker4(field->name, &color.r);
+                dirty |= (int)ui::ColorPicker4(field->name, &color.r);
             } break;
             case EditorHint::Asset: {
                 const Guid& guid = field->template GetData<Guid>(p_component);
@@ -299,7 +284,7 @@ void PropertyPanel::UpdateInternal() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [](LuaScriptComponent& p_script) {
-        ui::TextBox("class_name", p_script.GetClassNameRef(), DEFAULT_COLUMN_WIDTH);
+        ui::TextBox("class_name", p_script.GetClassNameRef());
 
         DrawComponentAuto<LuaScriptComponent>(&p_script);
     });
@@ -318,7 +303,7 @@ void PropertyPanel::UpdateInternal() {
         DrawComponentAuto<ColliderComponent>(&p_collider);
 
         Shape& shape = p_collider.GetShape();
-        DrawEnumDropDown("shape", shape.type, DEFAULT_COLUMN_WIDTH);
+        DrawEnumDropDown("shape", shape.type, ui::DEFAULT_COLUMN_WIDTH);
         switch (shape.type) {
             case ShapeType::Round: {
                 ui::InputFloat("radius", shape.data.radius);
@@ -347,7 +332,7 @@ void PropertyPanel::UpdateInternal() {
                 handle.is_some()) {
                 SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
                 std::string clip_name = p_animator.GetCurrentClip();
-                if (ui::TextBox("clip", clip_name, DEFAULT_COLUMN_WIDTH)) {
+                if (ui::TextBox("clip", clip_name)) {
                     const SpriteAnimationClip* clip = asset->GetClip(clip_name);
                     if (clip) {
                         p_animator.SetClip(clip_name);
