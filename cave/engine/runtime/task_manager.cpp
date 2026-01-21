@@ -8,14 +8,9 @@ namespace cave {
 
 class TaskContext;
 
-static uint64_t NowMs() {
-    using namespace std::chrono;
-    return (uint64_t)duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
-}
-
-static double Clamp01(double v) {
-    if (v < 0.0) return 0.0;
-    if (v > 1.0) return 1.0;
+static float Clamp01(float v) {
+    if (v < 0.0f) return 0.0f;
+    if (v > 1.0f) return 1.0f;
     return v;
 }
 
@@ -31,7 +26,7 @@ TaskManager::~TaskManager() {
 auto TaskManager::InitializeImpl() -> Result<void> {
     Stop();
 
-    uint32_t worker_count = 2;
+    uint32_t worker_count = 1;
 
     m_is_running.store(true);
     m_workers.reserve(worker_count);
@@ -157,24 +152,6 @@ TaskSnapshot TaskManager::GetSnapshot(TaskId p_id) const {
         std::lock_guard<std::mutex> el(s->err_mutex);
         out.last_error = s->last_error;
     }
-    return out;
-}
-
-std::vector<TaskLogLine> TaskManager::GetRecentLogs(TaskId p_id, size_t p_max_lines) const {
-    std::vector<TaskLogLine> out;
-
-    std::lock_guard<std::mutex> lock(m_states_mutex);
-    const TaskState* s = FindStateUnlocked(p_id);
-    if (!s) return out;
-
-    std::lock_guard<std::mutex> l(s->log_mutex);
-    const size_t n = std::min(p_max_lines, s->logs.size());
-    out.reserve(n);
-
-    auto it = s->logs.end();
-    for (size_t i = 0; i < n; ++i) --it;
-    for (; it != s->logs.end(); ++it) out.push_back(*it);
-
     return out;
 }
 
@@ -353,15 +330,15 @@ void TaskManager::UpdateGroupAggregation(TaskState& g) {
     bool all_done = true;
     bool any_running = false;
 
-    double total_w = 0.0;
-    double sum = 0.0;
+    float total_w = 0.0f;
+    float sum = 0.0f;
 
     for (size_t i = 0; i < g.children.size(); ++i) {
         TaskId cid = g.children[i];
         TaskState* c = FindStateUnlocked(cid);
         if (!c) continue;
 
-        const double w = has_weights ? g.weights[i] : 1.0;
+        const float w = has_weights ? g.weights[i] : 1.0f;
         total_w += w;
 
         TaskStatus cs = c->status.load();
@@ -372,15 +349,15 @@ void TaskManager::UpdateGroupAggregation(TaskState& g) {
         }
 
         // Child contribution:
-        double cp = 0.0;
+        float cp = 0.0f;
         if (cs == TaskStatus::Succeeded)
-            cp = 1.0;
+            cp = 1.0f;
         else if (cs == TaskStatus::Failed || cs == TaskStatus::Canceled)
-            cp = 1.0;  // group progresses past completed children
+            cp = 1.0f;  // group progresses past completed children
         else {
             if (c->indeterminate.load()) {
                 // For indeterminate child, treat as 0 until it becomes determinate.
-                cp = 0.0;
+                cp = 0.0f;
             } else {
                 cp = Clamp01(c->progress01.load());
             }
@@ -389,7 +366,7 @@ void TaskManager::UpdateGroupAggregation(TaskState& g) {
         sum += w * cp;
     }
 
-    if (total_w <= 0.0) total_w = 1.0;
+    if (total_w <= 0.0) total_w = 1.0f;
     g.indeterminate.store(false);
     g.progress01.store(Clamp01(sum / total_w));
 
@@ -418,14 +395,14 @@ void TaskManager::UpdateGroupAggregation(TaskState& g) {
 
 // --- TaskContext bridge ---
 
-void TaskManager::CtxSetIndeterminate(TaskId id, bool v) {
+void TaskManager::ContxtSetIndeterminate(TaskId id, bool v) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     TaskState* s = FindStateUnlocked(id);
     if (!s) return;
     s->indeterminate.store(v);
 }
 
-void TaskManager::CtxSetProgress(TaskId id, double p01) {
+void TaskManager::ContextSetProgress(TaskId id, float p01) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     TaskState* s = FindStateUnlocked(id);
     if (!s) return;
@@ -433,7 +410,7 @@ void TaskManager::CtxSetProgress(TaskId id, double p01) {
     s->progress01.store(Clamp01(p01));
 }
 
-void TaskManager::CtxFail(TaskId id, std::string err) {
+void TaskManager::ContextFail(TaskId id, std::string err) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     TaskState* s = FindStateUnlocked(id);
     if (!s) return;
@@ -445,21 +422,11 @@ void TaskManager::CtxFail(TaskId id, std::string err) {
     s->status.store(TaskStatus::Failed);
 }
 
-bool TaskManager::CtxIsCancelRequested(TaskId id) const {
+bool TaskManager::ContextIsCancelRequested(TaskId id) const {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     const TaskState* s = FindStateUnlocked(id);
     if (!s) return false;
     return s->cancel_requested.load();
-}
-
-void TaskManager::CtxLog(TaskId id, TaskLogLevel lvl, std::string msg) {
-    std::lock_guard<std::mutex> lock(m_states_mutex);
-    TaskState* s = FindStateUnlocked(id);
-    if (!s) return;
-
-    std::lock_guard<std::mutex> l(s->log_mutex);
-    if (s->logs.size() >= s->log_capacity) s->logs.pop_front();
-    s->logs.push_back(TaskLogLine{ NowMs(), lvl, std::move(msg) });
 }
 
 }  // namespace cave

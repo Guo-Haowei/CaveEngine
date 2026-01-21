@@ -5,8 +5,6 @@ namespace cave {
 
 class AssetManager : public IAssetManager {
 public:
-    struct LoadTask;
-
     AssetManager() = default;
 
     Result<void> InitializeImpl() override;
@@ -32,10 +30,6 @@ public:
                           const std::filesystem::path& p_dest_dir) override;
 
 protected:
-    void ImportSceneSync(LoadTask&& p_task);
-
-    bool EnqueueLoadTask(LoadTask& p_task);
-
     uint32_t m_fps_counter{ 0 };
     std::mutex m_asset_lock;
 };

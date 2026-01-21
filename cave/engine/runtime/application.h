@@ -67,6 +67,7 @@ public:
     IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     RenderSystem* GetRenderSystem() { return m_render_system; }
+    TaskManager* GetTaskManager() { return m_task_manager; }
     ViewportManager* GetViewportManager() { return m_viewport_manager; }
     VFS& GetVFS() { return *m_vfs; }
 

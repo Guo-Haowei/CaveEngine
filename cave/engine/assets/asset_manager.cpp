@@ -17,6 +17,9 @@
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/async_task_interface.h"
+#include "engine/runtime/task_context.h"
+#include "engine/runtime/task_manager.h"
 #include "engine/runtime/vfs.h"
 #include "engine/scene/entity_factory.h"
 
@@ -37,23 +40,88 @@ namespace cave {
 namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
 
-enum class LoadTaskType : uint8_t {
-    Load,
-    Import,
+class LoadAssetTask final : public IAsyncTask {
+public:
+    LoadAssetTask(AssetManager& p_asset_manager,
+                  const Guid p_guid)
+        : m_asset_manager(p_asset_manager)
+        , m_guid(p_guid) {
+    }
+
+    const char* Name() const final {
+        return "LoadFileTask";
+    }
+
+    void Run(TaskContext& p_ctx) final {
+        p_ctx.SetIndeterminate(true);
+
+        p_ctx.SetIndeterminate(false);
+        p_ctx.SetProgress(0.0f);
+
+        auto asset = m_asset_manager.LoadAssetSync(m_guid);
+        if (!asset) {
+            p_ctx.Fail(std::format("failed to load {}", m_guid.ToString()));
+        }
+
+        p_ctx.SetProgress(1.0f);
+
+        //// Apply result on main thread
+        // ctx.EnqueueMainThread([data = std::move(data)]() mutable {
+        //     // Example: register in asset manager
+        //     // assetManager->RegisterRawData(std::move(data));
+        // });
+    }
+
+private:
+    AssetManager& m_asset_manager;
+    Guid m_guid;
 };
 
-struct AssetManager::LoadTask {
-    LoadTaskType type;
-    Guid guid;
-    AssetLoadSuccessCallback on_success = nullptr;
-    AssetLoadFailureCallback on_failure = nullptr;
-    void* userdata;
-    fs::path source;
-    fs::path dest;
+class ImportAssetTask final : public IAsyncTask {
+public:
+    ImportAssetTask(AssetManager& p_asset_manager,
+                    const fs::path& p_source,
+                    const fs::path& p_dest)
+        : m_asset_manager(p_asset_manager)
+        , m_source(p_source)
+        , m_dest(p_dest) {
+    }
+
+    const char* Name() const final {
+        return "ImportAssetTask";
+    }
+
+    void Run(TaskContext& p_ctx) final {
+        p_ctx.SetIndeterminate(true);
+
+        p_ctx.SetIndeterminate(false);
+        p_ctx.SetProgress(0.0f);
+
+        auto loader = AssetImporter::Create(m_source, m_dest);
+
+        if (!loader) {
+            LOG_ERROR("No suitable loader found for asset '{}'", m_source.string());
+            return;
+        }
+
+        auto res = loader->Import();
+
+        if (!res) {
+            LOG_ERROR("Failed to load '{}', reason: {}", m_source.string(), ToString(res.error()));
+            return;
+        }
+
+        p_ctx.SetProgress(1.0f);
+    }
+
+private:
+    AssetManager& m_asset_manager;
+    fs::path m_source;
+    fs::path m_dest;
 };
 
 static AssetRef CreateAssetInstance(AssetType p_type) {
-    // @TODO: [SCRUM-222] refactor this part
+    // @TODO: refactor this part
     switch (p_type) {
         case AssetType::Blob:
             return std::make_shared<BlobAsset>();
@@ -69,11 +137,8 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
             return std::make_shared<MaterialAsset>();
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
-        case AssetType::Scene: {
-            auto scene = std::make_shared<Scene>();
-            // scene->CreateEmpty();
-            return scene;
-        }
+        case AssetType::Scene:
+            return std::make_shared<Scene>();
         default:
             return nullptr;
     }
@@ -173,29 +238,44 @@ std::string AssetManager::ResolvePath(const fs::path& p_path) {
 }
 
 bool AssetManager::LoadAssetAsync(const Guid& p_guid,
-                                  AssetLoadSuccessCallback&& p_on_success,
-                                  AssetLoadFailureCallback&& p_on_failure,
-                                  void* p_userdata) {
-    LoadTask task;
-    task.type = LoadTaskType::Load;
-    task.guid = p_guid;
-    task.on_success = std::move(p_on_success);
-    task.on_failure = std::move(p_on_failure);
-    task.userdata = p_userdata;
-    return EnqueueLoadTask(task);
+                                  AssetLoadSuccessCallback&&,
+                                  AssetLoadFailureCallback&&,
+                                  void*) {
+
+    m_app->GetTaskManager()->Submit(
+        std::make_unique<LoadAssetTask>(*this, p_guid),
+        TaskSubmitOptions{ .priority = TaskPriority::Normal,
+                           .start_immediately = true },
+        [](TaskId p_id, TaskSnapshot p_snapshot) {
+            unused(p_id);
+            if (p_snapshot.status == TaskStatus::Succeeded) {
+                // @TODO: handle result
+            }
+        });
+
+    return true;
 }
 
 bool AssetManager::ImportSceneAsync(const std::filesystem::path& p_source_path,
                                     const std::filesystem::path& p_dest_dir) {
-    LoadTask task;
-    task.type = LoadTaskType::Import;
-    task.source = p_source_path;
-    task.dest = p_dest_dir;
-    return EnqueueLoadTask(task);
+    m_app->GetTaskManager()->Submit(
+        std::make_unique<ImportAssetTask>(*this,
+                                          p_source_path,
+                                          p_dest_dir),
+        TaskSubmitOptions{ .priority = TaskPriority::Normal,
+                           .start_immediately = true },
+        [](TaskId p_id, TaskSnapshot p_snapshot) {
+            unused(p_id);
+            if (p_snapshot.status == TaskStatus::Succeeded) {
+                // @TODO: handle result
+            }
+        });
+
+    return true;
 }
 
 AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
-    DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
+    // DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
 
     Timer timer;
     auto entry = m_app->GetAssetRegistry()->GetEntry(p_guid);
@@ -229,30 +309,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     return asset;
 }
 
-void AssetManager::ImportSceneSync(LoadTask&& p_task) {
-    auto loader = AssetImporter::Create(p_task.source, std::move(p_task.dest));
-
-    if (!loader) {
-        LOG_ERROR("No suitable loader found for asset '{}'", p_task.source.string());
-        return;
-    }
-
-    auto res = loader->Import();
-
-    if (!res) {
-        LOG_ERROR("Failed to load '{}', reason: {}", p_task.source.string(), ToString(res.error()));
-        return;
-    }
-
-    return *res;
-}
-
 void AssetManager::FinalizeImpl() {
-}
-
-bool AssetManager::EnqueueLoadTask(LoadTask& p_task) {
-    unused(p_task);
-    return false;
 }
 
 }  // namespace cave

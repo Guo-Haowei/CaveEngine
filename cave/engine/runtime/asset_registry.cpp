@@ -107,7 +107,6 @@ auto AssetRegistry::RequestProject(const fs::path& p_resources_root) -> Result<v
         StartAsyncLoad(std::move(assets[idx]), [](AssetRef, void*) {}, [](void*) {});
     }
 
-    //latch.wait();
     return Result<void>();
 }
 

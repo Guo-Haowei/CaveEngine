@@ -10,7 +10,7 @@ class TaskQueue;
 struct TaskGroupSpec {
     std::string name;
     std::vector<TaskId> children;
-    std::vector<double> weights;  // optional; if empty => equal weights
+    std::vector<float> weights;  // optional; if empty => equal weights
 };
 
 struct TaskSnapshot {
@@ -20,16 +20,10 @@ struct TaskSnapshot {
     TaskStatus status = TaskStatus::Queued;
 
     bool indeterminate = true;
-    double progress01 = 0.0;  // valid if !indeterminate
+    float progress01 = 0.0f;  // valid if !indeterminate
 
     bool cancel_requested = false;
     std::string last_error;
-};
-
-struct TaskLogLine {
-    uint64_t time_ms = 0;
-    TaskLogLevel level = TaskLogLevel::Info;
-    std::string text;
 };
 
 // Task priority only applies within this async system (separate from frame jobs).
@@ -73,7 +67,6 @@ public:
 
     // Read-only views for UI
     TaskSnapshot GetSnapshot(TaskId p_id) const;
-    std::vector<TaskLogLine> GetRecentLogs(TaskId p_id, size_t p_max_lines) const;
 
     // Call once per frame on main thread:
     // - drain main-thread queue (you can also do it outside)
@@ -95,7 +88,7 @@ private:
         std::atomic<bool> cancel_requested{ false };
 
         std::atomic<bool> indeterminate{ true };
-        std::atomic<double> progress01{ 0.0 };
+        std::atomic<float> progress01{ 0.0 };
 
         TaskPriority priority = TaskPriority::Normal;
         bool start_immediately = true;
@@ -107,18 +100,13 @@ private:
         mutable std::mutex err_mutex;
         std::string last_error;
 
-        // Logs (ring buffer)
-        mutable std::mutex log_mutex;
-        std::deque<TaskLogLine> logs;
-        size_t log_capacity = 512;
-
         // Execution payload (null for group tasks)
         std::unique_ptr<IAsyncTask> task;
 
         // Group fields
         bool is_group = false;
         std::vector<TaskId> children;
-        std::vector<double> weights;
+        std::vector<float> weights;
         bool completion_enqueued = false;
     };
 
@@ -140,10 +128,10 @@ private:
     void MaybeEnqueueCompletionOnMainThread(TaskState& s);
 
     // Called by TaskContext
-    void CtxSetIndeterminate(TaskId id, bool v);
-    void CtxSetProgress(TaskId id, double p01);
-    void CtxFail(TaskId id, std::string err);
-    bool CtxIsCancelRequested(TaskId id) const;
+    void ContxtSetIndeterminate(TaskId id, bool v);
+    void ContextSetProgress(TaskId id, float p01);
+    void ContextFail(TaskId id, std::string err);
+    bool ContextIsCancelRequested(TaskId id) const;
     void CtxLog(TaskId id, TaskLogLevel lvl, std::string msg);
 
     // Group aggregation on main thread

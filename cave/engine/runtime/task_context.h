@@ -30,15 +30,12 @@ public:
 
     // Progress
     void SetIndeterminate(bool p_value);
-    void SetProgress(double p_progress);  // clamps [0,1], sets indeterminate=false
+    void SetProgress(float p_progress);  // clamps [0,1], sets indeterminate=false
 
     // Cancel/fail
     void RequestCancel();
     bool IsCancelRequested() const;
     void Fail(std::string p_error);  // marks Failed; task should return
-
-    // Logs
-    void Log(TaskLogLevel p_log_level, std::string p_message);
 
     // Main thread continuation (GPU upload, registry mutation, etc.)
     // void EnqueueMainThread(std::function<void()> p_func);
