@@ -42,7 +42,11 @@ public:
         }
 
         // @TODO: refactor this part
-        constexpr AppStateId initial_state = AppStateId::ProjectBrowser;
+#if 0
+        const AppStateId initial_state = AppStateId::Editor;
+#else
+        const AppStateId initial_state = AppStateId::ProjectBrowser;
+#endif
         AppStateMachine::RegisterCreateFunc(AppStateId::ProjectBrowser, [](Application& p_app) {
             auto state = std::make_unique<ProjectBrowserState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));

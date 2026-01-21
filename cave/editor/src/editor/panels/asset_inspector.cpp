@@ -90,9 +90,10 @@ const ContentEntry* AssetInspector::Navigate(const ContentEntry* p_node,
     return nullptr;
 }
 
-static auto DrawAssetCard(ImTextureID p_texture_id,
-                          const char* p_name,
-                          ImVec2 p_image_size) -> std::tuple<bool, bool> {
+// @TODO: refactor this
+auto DrawAssetCard(ImTextureID p_texture_id,
+                   const char* p_name,
+                   ImVec2 p_image_size) -> std::tuple<bool, bool> {
     ImDrawList* draw = ImGui::GetWindowDrawList();
     ImVec2 pos = ImGui::GetCursorScreenPos();
 
@@ -161,6 +162,7 @@ void AssetInspector::DrawContentBrowser() {
 
     // thumbnails
 
+    // @TODO: reuse this part
     ImVec2 window_size = ImGui::GetContentRegionAvail();
     constexpr float desired_icon_size = 224.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
