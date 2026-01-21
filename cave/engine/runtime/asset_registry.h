@@ -53,10 +53,8 @@ protected:
 
     bool SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const;
 
-    bool StartAsyncLoad(AssetMetaData&& p_meta,
-                        AssetLoadSuccessCallback&& p_on_success,
-                        AssetLoadFailureCallback&& p_on_failure,
-                        void* p_userdata = nullptr);
+    // @TODO: deprecate
+    bool StartAsyncLoad(AssetMetaData&& p_meta);
 
     std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
 
@@ -64,6 +62,7 @@ protected:
     std::unordered_map<std::string, Guid> m_path_map;
     std::unordered_map<Guid, std::shared_ptr<AssetEntry>> m_guid_map;
 
+    // @TODO: deprecate
     friend class AssetManager;
 };
 

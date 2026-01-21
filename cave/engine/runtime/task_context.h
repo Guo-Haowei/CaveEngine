@@ -18,15 +18,14 @@ enum class TaskStatus {
     Canceled
 };
 
-using TaskId = uint64_t;
-inline constexpr TaskId kInvalidTaskId = 0;
+inline constexpr uint64_t kInvalidTaskId = 0;
 
 class TaskContext {
 public:
-    TaskContext(TaskManager& p_manager, TaskId p_task_id)
+    TaskContext(TaskManager& p_manager, uint64_t p_task_id)
         : m_task_manager(p_manager), m_task_id(p_task_id) {}
 
-    TaskId Id() const { return m_task_id; }
+    uint64_t Id() const { return m_task_id; }
 
     // Progress
     void SetIndeterminate(bool p_value);
@@ -42,7 +41,7 @@ public:
 
 private:
     TaskManager& m_task_manager;
-    TaskId m_task_id;
+    uint64_t m_task_id;
 };
 
 }  // namespace cave

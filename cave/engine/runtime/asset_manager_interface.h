@@ -13,6 +13,17 @@ class Scene;
 // @TODO: remove
 struct ImageAsset;
 
+struct AssetLoadRequest {
+    std::string name;
+    std::vector<Guid> guids;
+    bool high_priority = false;
+};
+
+struct SceneImportRequest {
+    std::filesystem::path source_path;
+    std::filesystem::path dest_dir;
+};
+
 class IAssetManager : public Singleton<IAssetManager>,
                       public Module,
                       public ModuleCreateRegistry<IAssetManager> {
@@ -27,15 +38,20 @@ public:
 
     virtual Result<void> MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) = 0;
 
+    virtual uint64_t SubmitLoadAssets(const AssetLoadRequest& p_request) = 0;
+
+    virtual uint64_t SubmitImportScene(const SceneImportRequest& p_request) = 0;
+
+    // @TODO: deprecate
     virtual std::string ResolvePath(const std::filesystem::path& p_path) = 0;
 
-    virtual bool LoadAssetAsync(const Guid& p_guid,
-                                AssetLoadSuccessCallback&& p_on_success,
-                                AssetLoadFailureCallback&& p_on_failure,
-                                void* p_userdata) = 0;
+    // @TODO: deprecate
+    virtual bool LoadAssetAsync(const Guid& p_guid) = 0;
 
+    // @TODO: deprecate
     virtual AssetRef LoadAssetSync(const Guid& p_guid) = 0;
 
+    // @TODO: deprecate
     virtual bool ImportSceneAsync(const std::filesystem::path& p_source_path,
                                   const std::filesystem::path& p_dest_dir) = 0;
 

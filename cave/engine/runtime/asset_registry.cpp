@@ -104,7 +104,7 @@ auto AssetRegistry::RequestProject(const fs::path& p_resources_root) -> Result<v
     const auto order = TopologicalSort(N, edges).unwrap();
 
     for (int idx : order) {
-        StartAsyncLoad(std::move(assets[idx]), [](AssetRef, void*) {}, [](void*) {});
+        StartAsyncLoad(std::move(assets[idx]));
     }
 
     return Result<void>();
@@ -113,10 +113,7 @@ auto AssetRegistry::RequestProject(const fs::path& p_resources_root) -> Result<v
 void AssetRegistry::FinalizeImpl() {
 }
 
-bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
-                                   AssetLoadSuccessCallback&& p_on_success,
-                                   AssetLoadFailureCallback&& p_on_failure,
-                                   void* p_userdata) {
+bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta) {
 
     auto entry = std::make_shared<AssetEntry>(std::move(p_meta));
     bool ok = true;
@@ -126,10 +123,7 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
         ok = ok && m_path_map.try_emplace(entry->metadata.import_path, entry->metadata.guid).second;
     }
     if (ok) {
-        m_app->GetAssetManager()->LoadAssetAsync(entry->metadata.guid,
-                                                 std::move(p_on_success),
-                                                 std::move(p_on_failure),
-                                                 p_userdata);
+        m_app->GetAssetManager()->LoadAssetAsync(entry->metadata.guid);
     }
     return ok;
 }

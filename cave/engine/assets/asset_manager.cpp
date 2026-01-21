@@ -189,7 +189,7 @@ Result<Guid> AssetManager::CreateAsset(AssetType p_type,
     }
 
     Guid guid = meta.guid;
-    m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta), nullptr, nullptr, nullptr);
+    m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta));
     return guid;
 }
 
@@ -237,16 +237,13 @@ std::string AssetManager::ResolvePath(const fs::path& p_path) {
     return m_app->GetVFS().Resolve("@res", p_path);
 }
 
-bool AssetManager::LoadAssetAsync(const Guid& p_guid,
-                                  AssetLoadSuccessCallback&&,
-                                  AssetLoadFailureCallback&&,
-                                  void*) {
+bool AssetManager::LoadAssetAsync(const Guid& p_guid) {
 
     m_app->GetTaskManager()->Submit(
         std::make_unique<LoadAssetTask>(*this, p_guid),
         TaskSubmitOptions{ .priority = TaskPriority::Normal,
                            .start_immediately = true },
-        [](TaskId p_id, TaskSnapshot p_snapshot) {
+        [](uint64_t p_id, TaskSnapshot p_snapshot) {
             unused(p_id);
             if (p_snapshot.status == TaskStatus::Succeeded) {
                 // @TODO: handle result
@@ -254,6 +251,16 @@ bool AssetManager::LoadAssetAsync(const Guid& p_guid,
         });
 
     return true;
+}
+
+uint64_t AssetManager::SubmitLoadAssets(const AssetLoadRequest& p_request) {
+    unused(p_request);
+    return 0;
+}
+
+uint64_t AssetManager::SubmitImportScene(const SceneImportRequest& p_request) {
+    unused(p_request);
+    return 0;
 }
 
 bool AssetManager::ImportSceneAsync(const std::filesystem::path& p_source_path,
@@ -264,7 +271,7 @@ bool AssetManager::ImportSceneAsync(const std::filesystem::path& p_source_path,
                                           p_dest_dir),
         TaskSubmitOptions{ .priority = TaskPriority::Normal,
                            .start_immediately = true },
-        [](TaskId p_id, TaskSnapshot p_snapshot) {
+        [](uint64_t p_id, TaskSnapshot p_snapshot) {
             unused(p_id);
             if (p_snapshot.status == TaskStatus::Succeeded) {
                 // @TODO: handle result
