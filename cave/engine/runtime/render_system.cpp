@@ -172,11 +172,13 @@ void RenderSystem::BeginFrame() {
         .ssaoKernelRadius = DVAR_GET_FLOAT(gfx_ssao_radius),
     };
 
-    // @HACK
+    // @HACK: really need to
     m_frameData = new FrameData(options);
-    static bool s_firstFrame = true;
-    m_frameData->bakeIbl = s_firstFrame;
-    s_firstFrame = false;
+    static int s_should_bake = 0;
+    if (m_app->GetStateId() != static_cast<AppStateId>(0)) {
+        if (s_should_bake == 1) m_frameData->bakeIbl = true;
+        ++s_should_bake;
+    }
 }
 
 void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
