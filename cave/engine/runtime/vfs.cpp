@@ -56,7 +56,7 @@ std::string VFS::Resolve(std::string_view p_path) const {
         return std::string(p_path);
     }
 
-    // @HACK: assume all 
+    // @HACK: assume all
     std::string path(it->second.string());
     path.append(p_path, pos + 1, std::string::npos);
     return path;

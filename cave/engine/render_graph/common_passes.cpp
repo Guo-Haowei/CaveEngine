@@ -936,11 +936,11 @@ void RenderGraphBuilderExt::AddGenerateSkylightPass() {
 
         auto& pass = AddPass(RG_PASS_BAKE_SKYBOX);
         pass.Import(RG_RES_IBL, []() {
-            #if 0
+#if 0
                 auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/sky.hdr");
                 auto image = handle.unwrap().Wait();
                 return GraphicsManager::GetSingleton().CreateTexture(image.get());
-            #endif
+#endif
                 return nullptr;
             })
             .Create(RG_RES_ENV_SKYBOX_CUBE, { desc, CubemapSampler() })
