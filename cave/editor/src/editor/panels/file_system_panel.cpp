@@ -6,6 +6,7 @@
 #include "engine/core/os/platform_io.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/common_dvars.h"
+#include "engine/runtime/vfs.h"
 
 #include "editor/editor_asset_manager.h"
 #include "editor/editor_state.h"
@@ -22,11 +23,7 @@ FileSystemPanel::FileSystemPanel(EditorState& p_editor)
 }
 
 void FileSystemPanel::OnAttach() {
-    DEV_ASSERT(0);
-#if 0
-    const auto& path = m_editor.GetApp().GetResourceFolder();
-    m_root = fs::path{ path };
-#endif
+    m_root = m_editor.GetApp().GetVFS().GetMount("@res");
 }
 
 void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
@@ -99,9 +96,9 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
 void FileSystemPanel::UpdateInternal() {
     CAVE_PROFILE_EVENT();
 
-    //auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
 
-    //DrawFolderTreeNode(*asset_manager.GetAssetRoot());
+    DrawFolderTreeNode(*asset_manager.GetAssetRoot());
 }
 
 }  // namespace cave

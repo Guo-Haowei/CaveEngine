@@ -13,6 +13,8 @@ public:
 
     bool HasMount(std::string_view p_mount_name) const;
 
+    std::filesystem::path GetMount(std::string_view p_mount_name) const;
+
     std::string Resolve(std::string_view p_mount_name,
                         std::filesystem::path p_path) const;
 

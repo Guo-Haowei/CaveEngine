@@ -5,6 +5,7 @@
 #include "engine/debugger/profiler.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/graphics_manager_interface.h"
+#include "engine/runtime/vfs.h"
 
 // @TODO: refactor
 #include "engine/drivers/windows/win32_prerequisites.h"
@@ -19,8 +20,12 @@ class FileWatcher {
 public:
     void Start(const std::string& path);
     void Stop();
-    bool HasChanged() const;
-    void ClearFlag();
+
+    bool HasChanged() const { return m_changed.load(); }
+
+    void ClearFlag() { m_changed.store(false); }
+
+    bool IsStopped() const { return m_stop; }
 
 private:
     void WatchLoop();
@@ -55,14 +60,6 @@ void FileWatcher::Stop() {
         CloseHandle(m_dir_handle);  // now it's safe
         m_dir_handle = INVALID_HANDLE_VALUE;
     }
-}
-
-bool FileWatcher::HasChanged() const {
-    return m_changed.load();
-}
-
-void FileWatcher::ClearFlag() {
-    m_changed.store(false);
 }
 
 void FileWatcher::WatchLoop() {
@@ -126,7 +123,6 @@ Result<void> EditorAssetManager::InitializeImpl() {
     }
 
     m_file_watcher = std::make_unique<FileWatcher>();
-    //m_file_watcher->Start(m_asset_root_path.string());
 
     return AddAlwaysLoadImages();
 }
@@ -138,6 +134,17 @@ void EditorAssetManager::FinalizeImpl() {
 }
 
 void EditorAssetManager::Update() {
+    if (m_resource_folder.empty()) {
+        m_resource_folder = m_app->GetVFS().GetMount("@res");
+        if (m_resource_folder.empty()) {
+            return;
+        }
+    }
+
+    if (m_file_watcher->IsStopped()) {
+        m_file_watcher->Start(m_resource_folder.string());
+    }
+
     if (m_file_watcher->HasChanged()) {
         RebuildAssetFolderTree();
         m_file_watcher->ClearFlag();
@@ -154,16 +161,8 @@ static void BuildFolderLut(const ContentEntry* p_node,
 
 void EditorAssetManager::RebuildAssetFolderTree() {
     CAVE_PROFILE_EVENT("Build folder tree");
-    //const std::string& path = m_app->GetResourceFolder();
 
-    if (this != nullptr) {
-        LOG_WARN("????????????????????");
-        return;
-    }
-
-    std::string path;
-    DEV_ASSERT(!path.empty());
-    m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
+    m_asset_root = BuildFolderTree(m_resource_folder, nullptr);
 
     m_folder_lut.clear();
     if (m_asset_root) {

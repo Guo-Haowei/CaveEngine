@@ -20,6 +20,14 @@ bool VFS::HasMount(std::string_view mountName) const {
     return m_mounts.find(std::string(mountName)) != m_mounts.end();
 }
 
+std::filesystem::path VFS::GetMount(std::string_view p_mount_name) const {
+    auto it = m_mounts.find(std::string(p_mount_name));
+    if (it == m_mounts.end()) {
+        return {};
+    }
+    return it->second;
+}
+
 std::string VFS::Resolve(std::string_view p_mount_name,
                          std::filesystem::path p_path) const {
     auto it = m_mounts.find(std::string(p_mount_name));

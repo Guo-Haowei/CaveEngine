@@ -92,11 +92,6 @@ const ContentEntry* AssetInspector::Navigate(const ContentEntry* p_node,
 }
 
 void AssetInspector::DrawContentBrowser() {
-    if (this != nullptr)
-    {
-        return;
-    }
-
     std::vector<ToolBarButtonDesc> descs = {
         { ICON_FA_FOLDER_CLOSED, "Placeholder",
           []() {
