@@ -15,6 +15,34 @@ namespace fs = std::filesystem;
 
 namespace cave {
 
+static void BeginFullscreenWindow(const char* name) {
+    ImGuiViewport* vp = ImGui::GetMainViewport();
+
+    ImGui::SetNextWindowPos(vp->Pos);
+    ImGui::SetNextWindowSize(vp->Size);
+    ImGui::SetNextWindowViewport(vp->ID);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoBringToFrontOnFocus |
+        ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoDocking;
+
+    ImGui::Begin(name, nullptr, flags);
+}
+
+static void EndFullscreenWindow() {
+    ImGui::End();
+    ImGui::PopStyleVar(3);
+}
+
 ProjectBrowserState::ProjectBrowserState(Application& p_app)
     : AppState(p_app) {
 }
@@ -108,10 +136,9 @@ void ProjectBrowserState::Tick(float) {
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
-        if (ImGui::Begin("Launcher")) {
-            DrawUI();
-        }
-        ImGui::End();
+        BeginFullscreenWindow("Project Browser");
+        DrawUI();
+        EndFullscreenWindow();
 
         ImGui::Render();
     }
