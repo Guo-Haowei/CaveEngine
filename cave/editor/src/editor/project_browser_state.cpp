@@ -2,11 +2,13 @@
 
 #include <imgui/imgui.h>
 
+#include "engine/assets/image_asset.h"
 #include "engine/math/geomath.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/imgui_manager.h"
 
+#include "editor/editor_asset_manager.h"
 #include "editor/widgets/image.h"
 
 namespace fs = std::filesystem;
@@ -48,17 +50,24 @@ void ProjectBrowserState::OnExit() {
 
 void ProjectBrowserState::DrawRecentProjects() {
     ImVec2 window_size = ImGui::GetContentRegionAvail();
-    constexpr float desired_icon_size = 224.f;
+    constexpr float desired_icon_size = 296.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
     num_col = glm::max(1, num_col);
 
     ImGui::BeginTable("Inner", num_col);
     ImGui::TableNextColumn();
 
-    Vector2f thumbnail_size(196);
+    Vector2f thumbnail_size(256);
+
+    // @TODO: use actual image
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+    std::shared_ptr<ImageAsset> image = asset_manager.FindImage("scene@256x256.png");
+    GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
     for (const auto& item : m_projects) {
-        auto [hovered, clicked] = ui::AssetCard(0, item.name.c_str(), thumbnail_size);
+        auto [hovered, clicked] = ui::AssetCard(texture ? texture->GetHandle() : 0,
+                                                item.name.c_str(),
+                                                thumbnail_size);
         ImGui::TableNextColumn();
 
         if (hovered) {
