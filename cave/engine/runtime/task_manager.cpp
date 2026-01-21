@@ -54,7 +54,9 @@ void TaskManager::Stop() {
 TaskId TaskManager::Submit(std::unique_ptr<IAsyncTask> p_task,
                            TaskSubmitOptions p_opt,
                            TaskCompletionCallback p_on_done) {
-    if (!p_task) return kInvalidTaskId;
+    if (!p_task) {
+        return kInvalidTaskId;
+    }
 
     TaskId id = m_next_id.fetch_add(1);
 
@@ -169,6 +171,17 @@ void TaskManager::TickMainThread() {
     }
 }
 
+bool TaskManager::HasPendingWork() const {
+    return m_in_flight.load(std::memory_order_acquire) > 0;
+}
+
+void TaskManager::WaitUntilIdle() {
+        while (HasPendingWork()) {
+            std::this_thread::yield();
+        }
+    }
+
+
 void TaskManager::WorkerLoop() {
     while (m_is_running.load()) {
         TaskId id = kInvalidTaskId;
@@ -199,7 +212,10 @@ void TaskManager::WorkerLoop() {
         TaskContext ctx(*this, id);
 
         try {
-            if (task) task->Run(ctx);
+            if (task) {
+                task->Run(ctx);
+                m_in_flight.fetch_sub(1, std::memory_order_acq_rel);
+            }
         } catch (...) {
             ctx.Fail("Unhandled exception in async task.");
         }
@@ -270,6 +286,8 @@ void TaskManager::EnqueueWork(TaskId id, TaskPriority pri) {
                 break;
         }
     }
+
+    m_in_flight.fetch_add(1, std::memory_order_relaxed);
     m_work_cv.notify_one();
 }
 

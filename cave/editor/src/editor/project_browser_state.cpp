@@ -5,10 +5,11 @@
 #include "engine/assets/image_asset.h"
 #include "engine/math/geomath.h"
 #include "engine/runtime/application.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/runtime/imgui_manager.h"
+#include "engine/runtime/task_manager.h"
 
-#include "editor/editor_asset_manager.h"
 #include "editor/widgets/image.h"
 
 namespace fs = std::filesystem;
@@ -88,8 +89,7 @@ void ProjectBrowserState::DrawRecentProjects() {
     Vector2f thumbnail_size(256);
 
     // @TODO: use actual image
-    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
-    std::shared_ptr<ImageAsset> image = asset_manager.FindImage("scene@256x256.png");
+    std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("scene@256x256.png");
     GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
     for (const auto& item : m_projects) {
@@ -145,6 +145,14 @@ void ProjectBrowserState::Tick(float) {
 }
 
 Option<StateRequest> ProjectBrowserState::PopRequest() {
+    if (!m_request_fired) {
+        return None();
+    }
+
+    if (m_app.GetTaskManager()->HasPendingWork()) {
+        return None();
+    }
+
     auto request = m_request;
     m_request = None();
     return request;

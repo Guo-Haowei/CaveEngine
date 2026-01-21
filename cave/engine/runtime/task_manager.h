@@ -68,6 +68,10 @@ public:
     // Read-only views for UI
     TaskSnapshot GetSnapshot(TaskId p_id) const;
 
+    bool HasPendingWork() const;
+
+    void WaitUntilIdle();
+
     // Call once per frame on main thread:
     // - drain main-thread queue (you can also do it outside)
     // - update group aggregation and fire group completion callbacks
@@ -155,6 +159,7 @@ private:
     mutable std::mutex m_states_mutex;
     std::unordered_map<TaskId, std::unique_ptr<TaskState>> m_states;
     std::atomic<TaskId> m_next_id{ 1 };
+    std::atomic<int> m_in_flight{ 0 };
 };
 
 }  // namespace cave
