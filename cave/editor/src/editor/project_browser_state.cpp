@@ -4,6 +4,7 @@
 
 #include "engine/math/geomath.h"
 #include "engine/runtime/application.h"
+#include "engine/runtime/asset_registry.h"
 #include "engine/runtime/imgui_manager.h"
 
 #include "editor/widgets/image.h"
@@ -66,8 +67,13 @@ void ProjectBrowserState::DrawRecentProjects() {
             ImGui::EndTooltip();
         }
 
-        if (clicked) {
-            m_request = Some(StateRequest{ AppStateId::Editor });
+        if (clicked && !m_request_fired) {
+            m_request = Some(StateRequest{ AppStateId::Editor, item.path });
+            m_app.SetProjectPath(item.path);
+            m_request_fired = true;
+
+            // @TODO: load asset?
+            m_app.GetAssetRegistry()->RequestProject();
         }
     }
 

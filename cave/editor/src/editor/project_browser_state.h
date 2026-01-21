@@ -4,6 +4,11 @@
 namespace cave {
 
 class ProjectBrowserState : public AppState {
+    struct ProjectItem {
+        std::string name;
+        std::string path;
+    };
+
 public:
     ProjectBrowserState(Application& p_app);
 
@@ -20,16 +25,12 @@ public:
 #endif
 
 private:
-    struct ProjectItem {
-        std::string name;
-        std::string path;
-    };
-
     void DrawUI();
     void DrawRecentProjects();
 
-    Option<StateRequest> m_request;
-    std::vector<ProjectItem> m_projects;
+    std::vector<ProjectItem> m_projects{};
+    bool m_request_fired{ false };
+    Option<StateRequest> m_request{};
 };
 
 }  // namespace cave

@@ -158,7 +158,9 @@ void EditorAssetManager::RebuildAssetFolderTree() {
     m_asset_root = BuildFolderTree(std::filesystem::path(path), nullptr);
 
     m_folder_lut.clear();
-    BuildFolderLut(m_asset_root.get(), m_folder_lut);
+    if (m_asset_root) {
+        BuildFolderLut(m_asset_root.get(), m_folder_lut);
+    }
 }
 
 Result<void> EditorAssetManager::AddAlwaysLoadImages() {

@@ -45,6 +45,8 @@ public:
 
     std::vector<AssetHandle> GetAssetsOfType(AssetType p_type) const;
 
+    auto RequestProject() -> Result<void>;
+
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;

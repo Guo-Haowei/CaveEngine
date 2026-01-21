@@ -93,21 +93,6 @@ auto Application::SetupModules() -> Result<void> {
 }
 
 auto Application::Initialize() -> Result<void> {
-    // @TODO: refactor this part
-    {
-        m_project_folder = DVAR_GET_STRING(project);
-        DEV_ASSERT(!m_project_folder.empty());
-        fs::path resource_folder = fs::path(m_project_folder) / "resources";
-        m_resource_folder = resource_folder.string();
-
-        FileAccess::SetResFolderCallback([&]() { return m_resource_folder.c_str(); });
-
-        fs::path project_setting = fs::path(m_project_folder) / "project.yaml";
-
-        std::ifstream file(project_setting.string());
-        if (file.is_open()) {
-        }
-    }
 
     // select backend
     {
@@ -229,6 +214,22 @@ void Application::Run(Application* p_app) {
 
 AppStateId Application::GetStateId() const {
     return m_state_machine->GetStateId();
+}
+
+void Application::SetProjectPath(std::string_view p_path) {
+    DEV_ASSERT(!p_path.empty());
+    m_project_folder = p_path;
+    fs::path resource_folder = fs::path(m_project_folder) / "resources";
+    m_resource_folder = resource_folder.string();
+
+    FileAccess::SetResFolderCallback([&]() { return m_resource_folder.c_str(); });
+
+    fs::path project_setting = fs::path(m_project_folder) / "project.yaml";
+
+    std::ifstream file(project_setting.string());
+    if (file.is_open()) {
+        // @TODO: load stuff
+    }
 }
 
 }  // namespace cave

@@ -71,6 +71,8 @@ public:
     const std::string& GetUserFolder() const { return m_user_folder; }
     const std::string& GetResourceFolder() const { return m_resource_folder; }
 
+    void SetProjectPath(std::string_view p_path);
+
     // @TODO: get rid of the following
     bool IsRuntime() const { return m_type == Type::Runtime; }
     bool IsEditor() const { return m_type == Type::Editor; }

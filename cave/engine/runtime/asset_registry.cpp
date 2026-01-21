@@ -16,8 +16,12 @@ extern void RegisterAllPersistentAssets(Application* p_app);
 
 auto AssetRegistry::InitializeImpl() -> Result<void> {
     RegisterAllPersistentAssets(m_app);
+    return Result<void>();
+}
 
+auto AssetRegistry::RequestProject() -> Result<void> {
     fs::path assets_root = fs::path{ m_app->GetResourceFolder() };
+    DEV_ASSERT(!assets_root.empty());
 
     struct Pair {
         bool has_meta;

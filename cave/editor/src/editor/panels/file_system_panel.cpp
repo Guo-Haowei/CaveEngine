@@ -96,9 +96,9 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
 void FileSystemPanel::UpdateInternal() {
     CAVE_PROFILE_EVENT();
 
-    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+    //auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
 
-    DrawFolderTreeNode(*asset_manager.GetAssetRoot());
+    //DrawFolderTreeNode(*asset_manager.GetAssetRoot());
 }
 
 }  // namespace cave
