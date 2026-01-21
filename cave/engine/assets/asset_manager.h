@@ -31,9 +31,6 @@ public:
     bool ImportSceneAsync(const std::filesystem::path& p_source_path,
                           const std::filesystem::path& p_dest_dir) override;
 
-    static void WorkerMain();
-    static void RequestShutdown();
-
 protected:
     void ImportSceneSync(LoadTask&& p_task);
 

@@ -70,6 +70,7 @@ auto Application::SetupModules() -> Result<void> {
     m_viewport_manager = new ViewportManager();
     m_task_manager = new TaskManager();
 
+    RegisterModule(m_task_manager);
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);
     RegisterModule(m_scene_manager);
@@ -156,6 +157,8 @@ bool Application::MainLoop() {
     if (m_display_server->ShouldClose()) {
         return false;
     }
+
+    m_task_manager->TickMainThread();
 
     m_render_system->BeginFrame();
     m_input_manager->BeginFrame();

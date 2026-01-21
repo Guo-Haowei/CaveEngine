@@ -52,16 +52,6 @@ struct AssetManager::LoadTask {
     fs::path dest;
 };
 
-// @TODO: get rid of this?
-static struct {
-    // @TODO: better wake up
-    std::condition_variable wake_condition;
-    std::mutex wakeMutex;
-    // @TODO: better thread safe queue
-    ConcurrentQueue<AssetManager::LoadTask> job_queue;
-    std::atomic_int runningWorkers;
-} s_assetManagerGlob;
-
 static AssetRef CreateAssetInstance(AssetType p_type) {
     // @TODO: [SCRUM-222] refactor this part
     switch (p_type) {
@@ -258,51 +248,11 @@ void AssetManager::ImportSceneSync(LoadTask&& p_task) {
 }
 
 void AssetManager::FinalizeImpl() {
-    RequestShutdown();
 }
 
 bool AssetManager::EnqueueLoadTask(LoadTask& p_task) {
-    s_assetManagerGlob.job_queue.push(std::move(p_task));
-    s_assetManagerGlob.wake_condition.notify_one();
-    return true;
-}
-
-void AssetManager::WorkerMain() {
-    for (;;) {
-        if (thread::ShutdownRequested()) {
-            break;
-        }
-
-        LoadTask task;
-        if (!s_assetManagerGlob.job_queue.pop(task)) {
-            std::unique_lock<std::mutex> lock(s_assetManagerGlob.wakeMutex);
-            s_assetManagerGlob.wake_condition.wait(lock);
-            continue;
-        }
-
-        s_assetManagerGlob.runningWorkers.fetch_add(1);
-
-        AssetManager& asset_manager = static_cast<AssetManager&>(IAssetManager::GetSingleton());
-        switch (task.type) {
-            case LoadTaskType::Load: {
-                auto asset = asset_manager.LoadAssetSync(task.guid);
-                if (asset) {
-                    task.on_success ? task.on_success(asset, task.userdata) : (void)0;
-                } else {
-                    task.on_failure ? task.on_failure(task.userdata) : (void)0;
-                }
-            } break;
-            case LoadTaskType::Import: {
-                asset_manager.ImportSceneSync(std::move(task));
-            } break;
-        }
-
-        s_assetManagerGlob.runningWorkers.fetch_sub(1);
-    }
-}
-
-void AssetManager::RequestShutdown() {
-    s_assetManagerGlob.wake_condition.notify_all();
+    unused(p_task);
+    return false;
 }
 
 }  // namespace cave

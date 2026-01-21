@@ -103,18 +103,11 @@ auto AssetRegistry::RequestProject(const fs::path& p_resources_root) -> Result<v
 
     const auto order = TopologicalSort(N, edges).unwrap();
 
-    std::latch latch(assets.size());
     for (int idx : order) {
-        StartAsyncLoad(std::move(assets[idx]), [](AssetRef, void* p_userdata) {
-            DEV_ASSERT(p_userdata);
-            std::latch& latch = *reinterpret_cast<std::latch*>(p_userdata);
-            latch.count_down(); }, [](void* p_userdata) {
-            DEV_ASSERT(p_userdata);
-            std::latch& latch = *reinterpret_cast<std::latch*>(p_userdata);
-            latch.count_down(); }, &latch);
+        StartAsyncLoad(std::move(assets[idx]), [](AssetRef, void*) {}, [](void*) {});
     }
 
-    latch.wait();
+    //latch.wait();
     return Result<void>();
 }
 

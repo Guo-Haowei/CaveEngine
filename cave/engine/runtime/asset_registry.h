@@ -56,7 +56,7 @@ protected:
     bool StartAsyncLoad(AssetMetaData&& p_meta,
                         AssetLoadSuccessCallback&& p_on_success,
                         AssetLoadFailureCallback&& p_on_failure,
-                        void* p_userdata);
+                        void* p_userdata = nullptr);
 
     std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
 
