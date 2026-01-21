@@ -20,9 +20,16 @@ public:
 #endif
 
 private:
+    struct ProjectItem {
+        std::string name;
+        std::string path;
+    };
+
     void DrawUI();
+    void DrawRecentProjects();
 
     Option<StateRequest> m_request;
+    std::vector<ProjectItem> m_projects;
 };
 
 }  // namespace cave
