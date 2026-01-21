@@ -11,8 +11,9 @@
 #include "editor/utility/content_entry.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/tool_bar.h"
 #include "editor/widgets/drag_drop.h"
+#include "editor/widgets/image.h"
+#include "editor/widgets/tool_bar.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
@@ -90,53 +91,6 @@ const ContentEntry* AssetInspector::Navigate(const ContentEntry* p_node,
     return nullptr;
 }
 
-static auto DrawAssetCard(ImTextureID p_texture_id,
-                          const char* p_name,
-                          ImVec2 p_image_size) -> std::tuple<bool, bool> {
-    ImDrawList* draw = ImGui::GetWindowDrawList();
-    ImVec2 pos = ImGui::GetCursorScreenPos();
-
-    const float rounding = 6.0f;
-    const float padding = 6.0f;
-    const float spacing = 4.0f;
-    const float shadow_offset = 5.0f;
-
-    // Estimate text height: 2 lines + padding
-    float text_height = ImGui::GetFontSize() * 2 + spacing * 2;
-    ImVec2 card_size = ImVec2(p_image_size.x + padding * 2,
-                              p_image_size.y + text_height + 8);
-
-    // Shadow behind card
-    draw->AddRectFilled(pos + ImVec2(shadow_offset, shadow_offset),
-                        pos + card_size + ImVec2(shadow_offset, shadow_offset),
-                        IM_COL32(10, 10, 10, 160),
-                        rounding);
-
-    // Card background (lighter than ImGui window)
-    ImU32 card_bg = IM_COL32(40, 40, 40, 255);
-    ImGui::PushStyleColor(ImGuiCol_Button, card_bg);  // just for convention
-    draw->AddRectFilled(pos, pos + card_size, card_bg, rounding);
-    ImGui::PopStyleColor();
-
-    ImGui::InvisibleButton(p_name, card_size);
-    bool hovered = ImGui::IsItemHovered();
-    bool clicked = ImGui::IsItemClicked();
-
-    // Image (square)
-    ImVec2 image_pos = pos + ImVec2(padding, padding);
-    draw->AddImage(p_texture_id, image_pos, image_pos + p_image_size);
-
-    // Text
-    ImVec2 textStart = image_pos + ImVec2(0, p_image_size.y + spacing);
-    draw->AddText(textStart, IM_COL32(180, 180, 180, 220), p_name);
-
-    if (hovered) {
-        // draw->AddRect(pos, pos + card_size, IM_COL32(255, 255, 255, 100), rounding, 0, 1.5f);
-    }
-
-    return { hovered, clicked };
-}
-
 void AssetInspector::DrawContentBrowser() {
     std::vector<ToolBarButtonDesc> descs = {
         { ICON_FA_FOLDER_CLOSED, "Placeholder",
@@ -161,6 +115,7 @@ void AssetInspector::DrawContentBrowser() {
 
     // thumbnails
 
+    // @TODO: reuse this part
     ImVec2 window_size = ImGui::GetContentRegionAvail();
     constexpr float desired_icon_size = 224.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
@@ -179,7 +134,7 @@ void AssetInspector::DrawContentBrowser() {
     }
     DEV_ASSERT(current->is_dir);
 
-    ImVec2 thumbnail_size{ 196, 196 };
+    Vector2f thumbnail_size(196);
 
     for (const auto& node : current->children) {
         ImageAsset* image = nullptr;
@@ -196,7 +151,7 @@ void AssetInspector::DrawContentBrowser() {
             }
         }
 
-        auto [hovered, clicked] = DrawAssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
+        auto [hovered, clicked] = ui::AssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
                                                 node->file_name.data(),
                                                 thumbnail_size);
         if (ImGui::BeginPopupContextItem()) {

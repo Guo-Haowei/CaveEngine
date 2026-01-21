@@ -5,8 +5,6 @@ namespace cave::thread {
 
 enum ThreadID : uint32_t {
     THREAD_MAIN,
-    THREAD_ASSET_LOADER_1,
-// THREAD_ASSET_LOADER_2,
 #if USING(ENABLE_JOB_SYSTEM)
     THREAD_JOBSYSTEM_WORKER_1,
     THREAD_JOBSYSTEM_WORKER_2,

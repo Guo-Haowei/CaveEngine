@@ -2,7 +2,7 @@
 
 #include "engine/assets/image_asset.h"
 
-#include "editor/widgets/widget.h"
+#include "editor/widgets/inputs.h"
 
 namespace cave {
 
@@ -58,7 +58,7 @@ std::vector<std::pair<uint16_t, uint16_t>> SpriteSelector::GetSelections() const
 void SpriteSelector::SelectSprite(const ImageAsset& p_image,
                                   const int* p_colomn,
                                   const int* p_row) {
-    DrawDragFloat("scale", m_zoom, 0.01f, 0.1f, 5.0f);
+    ui::DragFloat("scale", m_zoom, 0.01f, 0.1f, 5.0f);
 
     const float width = m_zoom * p_image.width;
     const float height = m_zoom * p_image.height;

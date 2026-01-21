@@ -6,12 +6,13 @@
 #include "engine/core/os/platform_io.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/common_dvars.h"
+#include "engine/runtime/vfs.h"
 
 #include "editor/editor_asset_manager.h"
 #include "editor/editor_state.h"
 #include "editor/utility/content_entry.h"
 #include "editor/widgets/drag_drop.h"
-#include "editor/widgets/widget.h"
+#include "editor/widgets/inputs.h"
 
 namespace cave {
 
@@ -22,8 +23,7 @@ FileSystemPanel::FileSystemPanel(EditorState& p_editor)
 }
 
 void FileSystemPanel::OnAttach() {
-    const auto& path = m_editor.GetApp().GetResourceFolder();
-    m_root = fs::path{ path };
+    m_root = m_editor.GetApp().GetVFS().GetMount("@res");
 }
 
 void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
@@ -48,7 +48,7 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
         buffer.resize(256);
         ImGui::Text("%s", icon);
         ImGui::SameLine();
-        if (DrawInputText(nullptr, buffer)) {
+        if (ui::TextBox(nullptr, buffer)) {
             fs::path to_path = m_renaming.parent_path();
             to_path = to_path / buffer.c_str();
             if (is_dir) {

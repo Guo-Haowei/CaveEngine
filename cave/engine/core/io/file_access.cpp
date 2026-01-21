@@ -1,17 +1,16 @@
 #include "file_access.h"
 
 #include "engine/core/string/string_utils.h"
+#include "engine/runtime/vfs.h"
 
 namespace cave {
 
-FileAccess::CreateFunc FileAccess::s_createFuncs[ACCESS_MAX];
-FileAccess::GetUserFolderFunc FileAccess::s_getUserFolderFunc;
-FileAccess::GetResourceFolderFunc FileAccess::s_getResourceFolderFunc;
+FileAccess::CreateFunc FileAccess::s_create_funcs[ACCESS_MAX];
 
 auto FileAccess::Create(AccessType p_access_type) -> std::shared_ptr<FileAccess> {
     DEV_ASSERT_INDEX(p_access_type, ACCESS_MAX);
 
-    auto ret = s_createFuncs[p_access_type]();
+    auto ret = s_create_funcs[p_access_type]();
     ret->SetAccessType(p_access_type);
     return std::shared_ptr<FileAccess>(ret);
 }
@@ -39,25 +38,10 @@ auto FileAccess::Open(std::string_view p_path, ModeFlags p_mode_flags) -> Result
     return file_access;
 }
 
-std::string FileAccess::FixPath(AccessType p_access_type, std::string_view p_path) {
-    std::string fixed_path{ p_path };
-    switch (p_access_type) {
-        case ACCESS_RESOURCE: {
-            if (p_path.starts_with("@res://")) {
-                StringUtils::ReplaceFirst(fixed_path, "@res:/", s_getResourceFolderFunc());
-                return fixed_path;
-            }
-        } break;
-        case ACCESS_USERDATA: {
-            if (p_path.starts_with("@user://")) {
-                StringUtils::ReplaceFirst(fixed_path, "@user:/", s_getUserFolderFunc());
-                return fixed_path;
-            }
-        } break;
-        default:
-            break;
-    }
-    return fixed_path;
+// @TODO: refactor this part
+std::string FileAccess::FixPath(AccessType, std::string_view p_path) {
+    VFS* vfs = VFS::GetSingletonPtr();
+    return vfs ? vfs->Resolve(p_path) : std::string(p_path);
 }
 
 }  // namespace cave

@@ -20,6 +20,8 @@
 #include "engine/runtime/render_system.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
+#include "engine/runtime/task_manager.h"
+#include "engine/runtime/vfs.h"
 #include "engine/runtime/viewport_manager.h"
 #include "engine/scene/scene.h"
 
@@ -35,10 +37,10 @@ Application::Application(const ApplicationSpec& p_spec, Type p_type)
     : m_type(p_type)
     , m_specification(p_spec) {
 
-    // @TODO: refactor this select work directory
-    m_user_folder = std::string{ m_specification.userFolder };
+    m_vfs = std::make_unique<VFS>();
 
-    FileAccess::SetUserFolderCallback([&]() { return m_user_folder.c_str(); });
+    // @TODO: refactor this select work directory
+    m_vfs->Mount("@user", fs::path(m_specification.userFolder));
 }
 
 Application::~Application() {
@@ -66,7 +68,9 @@ auto Application::SetupModules() -> Result<void> {
     m_input_manager = new InputManager();
     m_render_system = new RenderSystem();
     m_viewport_manager = new ViewportManager();
+    m_task_manager = new TaskManager();
 
+    RegisterModule(m_task_manager);
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);
     RegisterModule(m_scene_manager);
@@ -93,21 +97,6 @@ auto Application::SetupModules() -> Result<void> {
 }
 
 auto Application::Initialize() -> Result<void> {
-    // @TODO: refactor this part
-    {
-        m_project_folder = DVAR_GET_STRING(project);
-        DEV_ASSERT(!m_project_folder.empty());
-        fs::path resource_folder = fs::path(m_project_folder) / "resources";
-        m_resource_folder = resource_folder.string();
-
-        FileAccess::SetResFolderCallback([&]() { return m_resource_folder.c_str(); });
-
-        fs::path project_setting = fs::path(m_project_folder) / "project.yaml";
-
-        std::ifstream file(project_setting.string());
-        if (file.is_open()) {
-        }
-    }
 
     // select backend
     {
@@ -169,6 +158,8 @@ bool Application::MainLoop() {
         return false;
     }
 
+    m_task_manager->TickMainThread();
+
     m_render_system->BeginFrame();
     m_input_manager->BeginFrame();
 
@@ -229,6 +220,22 @@ void Application::Run(Application* p_app) {
 
 AppStateId Application::GetStateId() const {
     return m_state_machine->GetStateId();
+}
+
+void Application::LoadProjectAsync(std::string_view p_path) {
+    DEV_ASSERT(!p_path.empty());
+
+    fs::path resource_folder = fs::path(p_path) / "resources";
+    m_vfs->Mount("@res", resource_folder);
+
+    fs::path project_setting = fs::path(p_path) / "project.yaml";
+
+    std::ifstream file(project_setting.string());
+    if (file.is_open()) {
+        // @TODO: load stuff
+    }
+
+    m_asset_registry->RequestProject(resource_folder);
 }
 
 }  // namespace cave

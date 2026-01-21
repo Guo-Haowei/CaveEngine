@@ -29,6 +29,7 @@ protected:
     std::unordered_map<std::string, std::shared_ptr<ImageAsset>> m_images;
     std::unique_ptr<FileWatcher> m_file_watcher;
 
+    std::filesystem::path m_resource_folder;
     std::unique_ptr<ContentEntry> m_asset_root;
     std::unordered_map<std::string, const ContentEntry*> m_folder_lut;
 };

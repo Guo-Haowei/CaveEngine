@@ -25,8 +25,6 @@ static struct {
     std::atomic_bool shutdownRequested;
     std::array<ThreadObject, THREAD_MAX> threads = {
         ThreadObject{ "THREAD_MAIN", []() {} },
-        ThreadObject{ "THREAD_ASSET_LOADER_1", AssetManager::WorkerMain },
-    // ThreadObject{ "THREAD_ASSET_LOADER_2", AssetManager::WorkerMain },
 #if USING(ENABLE_JOB_SYSTEM)
         ThreadObject{ "THREAD_JOBSYSTEM_WORKER_1", jobsystem::WorkerMain },
         ThreadObject{ "THREAD_JOBSYSTEM_WORKER_2", jobsystem::WorkerMain },
@@ -95,7 +93,6 @@ bool ShutdownRequested() {
 
 void RequestShutdown() {
     s_threadGlob.shutdownRequested = true;
-    AssetManager::RequestShutdown();
     // wake up
 }
 

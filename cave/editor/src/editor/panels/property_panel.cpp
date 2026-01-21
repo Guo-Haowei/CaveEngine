@@ -19,6 +19,7 @@
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
 #include "editor/widgets/drag_drop.h"
+#include "editor/widgets/inputs.h"
 #include "editor/widgets/widget.h"
 
 namespace cave {
@@ -82,7 +83,7 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     const IAsset* asset = nullptr;
 
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, DEFAULT_COLUMN_WIDTH);
+    ImGui::SetColumnWidth(0, ui::DEFAULT_COLUMN_WIDTH);
     ImGui::Text(ICON_FA_CUBE "  %s", p_name);
     ImGui::NextColumn();
 
@@ -114,21 +115,6 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
     return dirty;
 };
 
-static bool DrawCheckBox(const char* p_name,
-                         bool& p_val,
-                         float p_column_width = DEFAULT_COLUMN_WIDTH) {
-    ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_name);
-    ImGui::NextColumn();
-
-    auto string_id = std::format("##{}", p_name);
-    const bool dirty = ImGui::Checkbox(string_id.c_str(), &p_val);
-
-    ImGui::Columns(1);
-    return dirty;
-}
-
 template<typename T>
 bool DrawComponentAuto(T* p_component) {
     const auto& meta_table = MetaDataTable<T>::GetFields();
@@ -137,15 +123,15 @@ bool DrawComponentAuto(T* p_component) {
     for (const auto& field : meta_table) {
         switch (field->editor_hint) {
             case EditorHint::EnumDropDown: {
-                dirty |= (int)field->DrawEditor(p_component, DEFAULT_COLUMN_WIDTH);
+                dirty |= (int)field->DrawEditor(p_component, ui::DEFAULT_COLUMN_WIDTH);
             } break;
             case EditorHint::Toggle: {
                 bool& toggle = field->template GetData<bool>(p_component);
-                dirty |= (int)DrawCheckBox(field->name, toggle);
+                dirty |= (int)ui::CheckBox(field->name, toggle);
             } break;
             case EditorHint::Color: {
                 Vector4f& color = field->template GetData<Vector4f>(p_component);
-                dirty |= (int)DrawColorPicker4(field->name, &color.r);
+                dirty |= (int)ui::ColorPicker4(field->name, &color.r);
             } break;
             case EditorHint::Asset: {
                 const Guid& guid = field->template GetData<Guid>(p_component);
@@ -153,11 +139,11 @@ bool DrawComponentAuto(T* p_component) {
             } break;
             case EditorHint::Translation: {
                 Vector3f& translation = field->template GetData<Vector3f>(p_component);
-                dirty |= (int)DrawVec3Control(field->name, translation, 0.0f);
+                dirty |= (int)ui::Float3(field->name, translation, 0.0f);
             } break;
             case EditorHint::Scale: {
                 Vector3f& scale = field->template GetData<Vector3f>(p_component);
-                dirty |= (int)DrawVec3Control(field->name, scale, 1.0f);
+                dirty |= (int)ui::Float3(field->name, scale, 1.0f);
             } break;
             case EditorHint::Rotation: {
                 Vector4f& q = field->template GetData<Vector4f>(p_component);
@@ -167,9 +153,9 @@ bool DrawComponentAuto(T* p_component) {
                 constexpr float DEG_TO_RAD = glm::pi<float>() / 180.0f;
                 euler *= RAD_TO_DEG;
 
-                if (DrawVec3Control(field->name,
-                                    euler,
-                                    0.0f)) {
+                if (ui::Float3(field->name,
+                               euler,
+                               0.0f)) {
                     euler *= DEG_TO_RAD;
                     glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
                     q = Vector4f(q2.x, q2.y, q2.z, q2.w);
@@ -178,17 +164,17 @@ bool DrawComponentAuto(T* p_component) {
             } break;
             case EditorHint::InputInt: {
                 int& i = field->template GetData<int>(p_component);
-                dirty |= (int)DrawInputInt(field->name, i);
+                dirty |= (int)ui::InputInt(field->name, i);
             } break;
             case EditorHint::InputFloat: {
                 float& f = field->template GetData<float>(p_component);
-                dirty |= (int)DrawInputFloat(field->name, f);
+                dirty |= (int)ui::InputFloat(field->name, f);
             } break;
             case EditorHint::DragInt: {
             } break;
             case EditorHint::DragFloat: {
                 float& f = field->template GetData<float>(p_component);
-                dirty |= (int)DrawDragFloat(field->name,
+                dirty |= (int)ui::DragFloat(field->name,
                                             f,
                                             0.01f,         // speed
                                             field->v_min,  // min
@@ -227,7 +213,7 @@ void PropertyPanel::UpdateInternal() {
         return;
     }
 
-    DrawInputText("Name", name_component->GetNameRef());
+    ui::TextBox("Name", name_component->GetNameRef());
 
     ImGui::SameLine();
     ImGui::PushItemWidth(-1);
@@ -298,7 +284,7 @@ void PropertyPanel::UpdateInternal() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [](LuaScriptComponent& p_script) {
-        DrawInputText("class_name", p_script.GetClassNameRef(), DEFAULT_COLUMN_WIDTH);
+        ui::TextBox("class_name", p_script.GetClassNameRef());
 
         DrawComponentAuto<LuaScriptComponent>(&p_script);
     });
@@ -317,20 +303,20 @@ void PropertyPanel::UpdateInternal() {
         DrawComponentAuto<ColliderComponent>(&p_collider);
 
         Shape& shape = p_collider.GetShape();
-        DrawEnumDropDown("shape", shape.type, DEFAULT_COLUMN_WIDTH);
+        DrawEnumDropDown("shape", shape.type, ui::DEFAULT_COLUMN_WIDTH);
         switch (shape.type) {
             case ShapeType::Round: {
-                DrawVec1Control("radius", shape.data.radius, 0.5f);
+                ui::InputFloat("radius", shape.data.radius);
             } break;
             case ShapeType::Box: {
                 if (is_2d) {
-                    DrawVec2Control("half", reinterpret_cast<Vector2f&>(shape.data.half), 0.5f);
+                    ui::Float2("half", reinterpret_cast<Vector2f&>(shape.data.half), 0.5f);
                 } else {
-                    DrawVec3Control("half", shape.data.half, 0.5f);
+                    ui::Float3("half", shape.data.half, 0.5f);
                 }
             } break;
             default:
-                DrawVec3Control("placeholder", shape.data.half, 0.5f);
+                ui::Float3("placeholder", shape.data.half, 0.5f);
                 break;
         }
     });
@@ -346,7 +332,7 @@ void PropertyPanel::UpdateInternal() {
                 handle.is_some()) {
                 SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
                 std::string clip_name = p_animator.GetCurrentClip();
-                if (DrawInputText("clip", clip_name, DEFAULT_COLUMN_WIDTH)) {
+                if (ui::TextBox("clip", clip_name)) {
                     const SpriteAnimationClip* clip = asset->GetClip(clip_name);
                     if (clip) {
                         p_animator.SetClip(clip_name);

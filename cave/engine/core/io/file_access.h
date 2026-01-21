@@ -10,7 +10,6 @@ class FileAccess {
 public:
     using CreateFunc = FileAccess* (*)(void);
     using GetUserFolderFunc = std::function<const char*()>;
-    using GetResourceFolderFunc = std::function<const char*()>;
 
     enum AccessType : uint8_t {
         ACCESS_FILESYSTEM,
@@ -81,15 +80,10 @@ public:
 
     template<typename T>
     static void MakeDefault(AccessType p_access_type) {
-        s_createFuncs[p_access_type] = CreateBuiltin<T>;
+        s_create_funcs[p_access_type] = CreateBuiltin<T>;
     }
 
     static std::string FixPath(AccessType p_access_type, std::string_view p_path);
-
-    static void SetUserFolderCallback(GetUserFolderFunc p_user_func) { s_getUserFolderFunc = p_user_func; }
-    static void ResetUserFolderCallback() { s_getUserFolderFunc = nullptr; }
-    static void SetResFolderCallback(GetResourceFolderFunc p_resource_func) { s_getResourceFolderFunc = p_resource_func; }
-    static void ResetResFolderCallback() { s_getResourceFolderFunc = nullptr; }
 
 protected:
     FileAccess() = default;
@@ -100,16 +94,13 @@ protected:
     AccessType m_accessType = ACCESS_MAX;
     ModeFlags m_openMode = NONE;
 
-    static CreateFunc s_createFuncs[ACCESS_MAX];
+    static CreateFunc s_create_funcs[ACCESS_MAX];
 
 private:
     template<typename T>
     static FileAccess* CreateBuiltin() {
         return new T;
     }
-
-    static GetUserFolderFunc s_getUserFolderFunc;
-    static GetResourceFolderFunc s_getResourceFolderFunc;
 };
 
 DEFINE_ENUM_BITWISE_OPERATIONS(FileAccess::ModeFlags);

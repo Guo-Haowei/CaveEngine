@@ -45,6 +45,8 @@ public:
 
     std::vector<AssetHandle> GetAssetsOfType(AssetType p_type) const;
 
+    auto RequestProject(const std::filesystem::path& p_path) -> Result<void>;
+
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
@@ -54,7 +56,7 @@ protected:
     bool StartAsyncLoad(AssetMetaData&& p_meta,
                         AssetLoadSuccessCallback&& p_on_success,
                         AssetLoadFailureCallback&& p_on_failure,
-                        void* p_userdata);
+                        void* p_userdata = nullptr);
 
     std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
 

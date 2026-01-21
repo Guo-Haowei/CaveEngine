@@ -10,6 +10,7 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/vfs.h"
 
 namespace cave {
 
@@ -68,7 +69,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
         }
     }
 
-    fs::path ini_path = fs::path{ m_app->GetUserFolder() } / "imgui.ini";
+    fs::path ini_path = m_app->GetVFS().Resolve("@user://imgui.ini");
     m_imguiSettingsPath = ini_path.string();
     LOG_VERBOSE("imgui settings path is '{}'", m_imguiSettingsPath);
     io.IniFilename = m_imguiSettingsPath.c_str();

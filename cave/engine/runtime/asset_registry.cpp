@@ -16,8 +16,11 @@ extern void RegisterAllPersistentAssets(Application* p_app);
 
 auto AssetRegistry::InitializeImpl() -> Result<void> {
     RegisterAllPersistentAssets(m_app);
+    return Result<void>();
+}
 
-    fs::path assets_root = fs::path{ m_app->GetResourceFolder() };
+auto AssetRegistry::RequestProject(const fs::path& p_resources_root) -> Result<void> {
+    DEV_ASSERT(!p_resources_root.empty());
 
     struct Pair {
         bool has_meta;
@@ -27,7 +30,7 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
     std::unordered_map<std::string, Pair> resources;
 
     // go through all files, create meta if not exists
-    for (const auto& entry : fs::recursive_directory_iterator(assets_root)) {
+    for (const auto& entry : fs::recursive_directory_iterator(p_resources_root)) {
         if (entry.is_regular_file()) {
             std::string virtual_path = m_app->GetAssetManager()->ResolvePath(entry.path());
 
@@ -100,18 +103,10 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 
     const auto order = TopologicalSort(N, edges).unwrap();
 
-    std::latch latch(assets.size());
     for (int idx : order) {
-        StartAsyncLoad(std::move(assets[idx]), [](AssetRef, void* p_userdata) {
-            DEV_ASSERT(p_userdata);
-            std::latch& latch = *reinterpret_cast<std::latch*>(p_userdata);
-            latch.count_down(); }, [](void* p_userdata) {
-            DEV_ASSERT(p_userdata);
-            std::latch& latch = *reinterpret_cast<std::latch*>(p_userdata);
-            latch.count_down(); }, &latch);
+        StartAsyncLoad(std::move(assets[idx]), [](AssetRef, void*) {}, [](void*) {});
     }
 
-    latch.wait();
     return Result<void>();
 }
 

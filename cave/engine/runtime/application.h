@@ -21,7 +21,9 @@ class IPhysicsManager;
 class ISceneManager;
 class IScriptManager;
 class RenderSystem;
+class TaskManager;
 class Scene;
+class VFS;
 class ViewportManager;
 
 struct ApplicationSpec {
@@ -65,11 +67,13 @@ public:
     IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     RenderSystem* GetRenderSystem() { return m_render_system; }
+    TaskManager* GetTaskManager() { return m_task_manager; }
     ViewportManager* GetViewportManager() { return m_viewport_manager; }
+    VFS& GetVFS() { return *m_vfs; }
 
     const ApplicationSpec& GetSpecification() const { return m_specification; }
-    const std::string& GetUserFolder() const { return m_user_folder; }
-    const std::string& GetResourceFolder() const { return m_resource_folder; }
+
+    void LoadProjectAsync(std::string_view p_path);
 
     // @TODO: get rid of the following
     bool IsRuntime() const { return m_type == Type::Runtime; }
@@ -90,9 +94,6 @@ protected:
 
     const Type m_type;
 
-    std::string m_user_folder;
-    std::string m_resource_folder;
-    std::string m_project_folder;
     ApplicationSpec m_specification;
 
     EventQueue m_event_queue;
@@ -101,14 +102,21 @@ protected:
     AssetRegistry* m_asset_registry{ nullptr };
     IAssetManager* m_asset_manager{ nullptr };
     ISceneManager* m_scene_manager{ nullptr };
+
     IPhysicsManager* m_physics_manager{ nullptr };
+    IScriptManager* m_script_manager{ nullptr };
+
     IDisplayManager* m_display_server{ nullptr };
     IGraphicsManager* m_graphics_manager{ nullptr };
-    ImguiManager* m_imgui_manager{ nullptr };
-    IScriptManager* m_script_manager{ nullptr };
     RenderSystem* m_render_system{ nullptr };
+
+    ImguiManager* m_imgui_manager{ nullptr };
     InputManager* m_input_manager{ nullptr };
+    TaskManager* m_task_manager{ nullptr };
+
     ViewportManager* m_viewport_manager{ nullptr };
+
+    std::unique_ptr<VFS> m_vfs;
 
     std::vector<Module*> m_modules;
 
