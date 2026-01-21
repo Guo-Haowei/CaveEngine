@@ -18,6 +18,11 @@ public:
 #if USING(DEBUG_BUILD)
     const char* GetDebugName() final { return "ProjectBrowser"; }
 #endif
+
+private:
+    void DrawUI();
+
+    Option<StateRequest> m_request;
 };
 
 }  // namespace cave

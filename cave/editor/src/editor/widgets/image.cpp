@@ -60,4 +60,54 @@ void CenteredImage(const ImageAsset* p_image,
     ImGui::EndChild();
 }
 
+auto AssetCard(uint64_t p_texture_id,
+               const char* p_name,
+               const Vector2f& p_image_size) -> std::tuple<bool, bool> {
+
+    ImDrawList* draw = ImGui::GetWindowDrawList();
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+
+    const float rounding = 6.0f;
+    const float padding = 6.0f;
+    const float spacing = 4.0f;
+    const float shadow_offset = 5.0f;
+
+    // Estimate text height: 2 lines + padding
+    float text_height = ImGui::GetFontSize() * 2 + spacing * 2;
+    ImVec2 card_size = ImVec2(p_image_size.x + padding * 2,
+                              p_image_size.y + text_height + 8);
+
+    // Shadow behind card
+    draw->AddRectFilled(pos + ImVec2(shadow_offset, shadow_offset),
+                        pos + card_size + ImVec2(shadow_offset, shadow_offset),
+                        IM_COL32(10, 10, 10, 160),
+                        rounding);
+
+    // Card background (lighter than ImGui window)
+    ImU32 card_bg = IM_COL32(40, 40, 40, 255);
+    ImGui::PushStyleColor(ImGuiCol_Button, card_bg);  // just for convention
+    draw->AddRectFilled(pos, pos + card_size, card_bg, rounding);
+    ImGui::PopStyleColor();
+
+    ImGui::InvisibleButton(p_name, card_size);
+    bool hovered = ImGui::IsItemHovered();
+    bool clicked = ImGui::IsItemClicked();
+
+    // Image (square)
+    ImVec2 image_min = pos + ImVec2(padding, padding);
+    ImVec2 image_max = image_min + ImVec2(p_image_size.x, p_image_size.y);
+
+    draw->AddImage(p_texture_id, image_min, image_max);
+
+    // Text
+    ImVec2 textStart = image_min + ImVec2(0, p_image_size.y + spacing);
+    draw->AddText(textStart, IM_COL32(180, 180, 180, 220), p_name);
+
+    if (hovered) {
+        draw->AddRect(pos, pos + card_size, IM_COL32(255, 255, 255, 100), rounding, 0, 1.5f);
+    }
+
+    return { hovered, clicked };
+}
+
 }  // namespace cave::ui

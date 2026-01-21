@@ -6,6 +6,8 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/imgui_manager.h"
 
+#include "editor/widgets/image.h"
+
 namespace cave {
 
 ProjectBrowserState::ProjectBrowserState(Application& p_app)
@@ -24,7 +26,7 @@ struct ProjectItem {
     const char* version;
 };
 
-static std::vector<ProjectItem> gProjects = {
+static std::vector<ProjectItem> s_projects = {
     { "Third Person Demo", "5.0" },
     { "Shooter Prototype", "4.27" },
     { "Racing Game", "5.0" },
@@ -35,12 +37,7 @@ static std::vector<ProjectItem> gProjects = {
     { "Physics Lab", "5.0" },
 };
 
-// @TODO: refactor
-extern auto DrawAssetCard(ImTextureID p_texture_id,
-                          const char* p_name,
-                          ImVec2 p_image_size) -> std::tuple<bool, bool>;
-
-static void DrawProjectTileSimple() {
+static bool DrawProjects() {
     ImVec2 window_size = ImGui::GetContentRegionAvail();
     constexpr float desired_icon_size = 224.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
@@ -49,21 +46,20 @@ static void DrawProjectTileSimple() {
     ImGui::BeginTable("Inner", num_col);
     ImGui::TableNextColumn();
 
-    ImVec2 thumbnail_size{ 196, 196 };
+    Vector2f thumbnail_size(196);
 
-    for (const auto& item : gProjects) {
-
-        // @TODO: draw stuff
-        auto [hovered, clicked] = DrawAssetCard(0,
-                                                item.name,
-                                                thumbnail_size);
+    bool any_click = false;
+    for (const auto& item : s_projects) {
+        auto [hovered, clicked] = ui::AssetCard(0, item.name, thumbnail_size);
+        any_click = any_click || clicked;
         ImGui::TableNextColumn();
     }
 
     ImGui::EndTable();
+    return any_click;
 }
 
-void DrawMyProjectsUI() {
+void ProjectBrowserState::DrawUI() {
     static int selectedIndex = -1;
     static char search[128] = "";
 
@@ -78,12 +74,10 @@ void DrawMyProjectsUI() {
 
     ImGui::Spacing();
 
-    // Tile sizing
-    const float tileW = 170.0f;
-    const float tileH = 150.0f;
-    ImVec2 tileSize(tileW, tileH);
-
-    DrawProjectTileSimple();
+    bool any_click = DrawProjects();
+    if (any_click) {
+        m_request = Some(StateRequest{ AppStateId::Editor });
+    }
 }
 
 void ProjectBrowserState::Tick(float) {
@@ -91,7 +85,7 @@ void ProjectBrowserState::Tick(float) {
         imgui_manager->BeginFrame();
 
         if (ImGui::Begin("Launcher")) {
-            DrawMyProjectsUI();
+            DrawUI();
         }
         ImGui::End();
 
@@ -100,7 +94,9 @@ void ProjectBrowserState::Tick(float) {
 }
 
 Option<StateRequest> ProjectBrowserState::PopRequest() {
-    return None();
+    auto request = m_request;
+    m_request = None();
+    return request;
 }
 
 }  // namespace cave

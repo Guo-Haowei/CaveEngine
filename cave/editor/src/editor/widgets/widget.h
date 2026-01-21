@@ -3,13 +3,6 @@
 
 namespace cave {
 
-//enum class AssetType : uint32_t;
-//class AssetHandle;
-//struct AssetMetaData;
-//class Guid;
-//class IAsset;
-//struct ImageAsset;
-
 /// asset inspector
 struct AssetChildPanel {
     const char* name;
