@@ -17,6 +17,7 @@
 
 // @TODO: remove
 #include "engine/renderer/ltc_matrix.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
 
 namespace cave {
@@ -563,12 +564,8 @@ void RenderGraphBuilderExt::AddLightingPass() {
     auto& pass = AddPass(RG_PASS_LIGHTING);
     // @TODO: dynamic
     pass.Import(RG_RES_BRDF, []() {
-#if 0
-            auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/brdf.hdr");
-            auto image = handle.unwrap().Wait();
+            std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
             return GraphicsManager::GetSingleton().CreateTexture(image.get());
-#endif
-            return nullptr;
         })
         .Import(RG_RES_LTC1, []() {
             return GenerateLTC(RG_RES_LTC1, LTC1);
@@ -936,12 +933,8 @@ void RenderGraphBuilderExt::AddGenerateSkylightPass() {
 
         auto& pass = AddPass(RG_PASS_BAKE_SKYBOX);
         pass.Import(RG_RES_IBL, []() {
-#if 0
-                auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@res://images/sky.hdr");
-                auto image = handle.unwrap().Wait();
+                std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("sky.hdr");
                 return GraphicsManager::GetSingleton().CreateTexture(image.get());
-#endif
-                return nullptr;
             })
             .Create(RG_RES_ENV_SKYBOX_CUBE, { desc, CubemapSampler() })
             .Read(ResourceAccess::SRV, RG_RES_IBL)

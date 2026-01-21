@@ -10,6 +10,9 @@ enum class AssetType : uint32_t;
 class AssetEntry;
 class Scene;
 
+// @TODO: remove
+struct ImageAsset;
+
 class IAssetManager : public Singleton<IAssetManager>,
                       public Module,
                       public ModuleCreateRegistry<IAssetManager> {
@@ -35,6 +38,9 @@ public:
 
     virtual bool ImportSceneAsync(const std::filesystem::path& p_source_path,
                                   const std::filesystem::path& p_dest_dir) = 0;
+
+    // @TODO: remove this
+    virtual std::shared_ptr<ImageAsset> FindImage(const std::string&) { return nullptr; }
 };
 
 }  // namespace cave
