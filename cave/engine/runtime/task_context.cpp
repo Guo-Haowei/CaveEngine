@@ -5,12 +5,28 @@
 
 namespace cave {
 
-void TaskContext::SetIndeterminate(bool v) { m_task_manager.CtxSetIndeterminate(m_task_id, v); }
-void TaskContext::SetProgress(double p01) { m_task_manager.CtxSetProgress(m_task_id, p01); }
-void TaskContext::RequestCancel() { m_task_manager.RequestCancel(m_task_id); }
-bool TaskContext::IsCancelRequested() const { return m_task_manager.CtxIsCancelRequested(m_task_id); }
-void TaskContext::Fail(std::string err) { m_task_manager.CtxFail(m_task_id, std::move(err)); }
-void TaskContext::Log(TaskLogLevel lvl, std::string msg) { m_task_manager.CtxLog(m_task_id, lvl, std::move(msg)); }
-void TaskContext::EnqueueMainThread(std::function<void()> fn) { m_task_queue.Enqueue(std::move(fn)); }
+void TaskContext::SetIndeterminate(bool p_value) {
+    m_task_manager.CtxSetIndeterminate(m_task_id, p_value);
+}
+
+void TaskContext::SetProgress(double p_progress) {
+    m_task_manager.CtxSetProgress(m_task_id, p_progress);
+}
+
+void TaskContext::RequestCancel() {
+    m_task_manager.RequestCancel(m_task_id);
+}
+
+bool TaskContext::IsCancelRequested() const {
+    return m_task_manager.CtxIsCancelRequested(m_task_id);
+}
+
+void TaskContext::Fail(std::string p_error) {
+    m_task_manager.CtxFail(m_task_id, std::move(p_error));
+}
+
+void TaskContext::Log(TaskLogLevel p_level, std::string p_message) {
+    m_task_manager.CtxLog(m_task_id, p_level, std::move(p_message));
+}
 
 }  // namespace cave

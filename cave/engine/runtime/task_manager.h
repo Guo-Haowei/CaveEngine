@@ -1,4 +1,5 @@
 #pragma once
+#include "engine/runtime/module.h"
 #include "engine/runtime/task_context.h"
 
 namespace cave {
@@ -43,17 +44,15 @@ struct TaskSubmitOptions {
     bool start_immediately = true;  // if false, task stays queued until ResumeTask()
 };
 
-class TaskManager {
+class TaskManager : public Module {
 
     // Completion callback: always invoked on main thread via MainThreadQueue.
     using TaskCompletionCallback = std::function<void(TaskId, TaskSnapshot)>;
 
 public:
-    explicit TaskManager(TaskQueue& p_task_queue);
+    explicit TaskManager();
     ~TaskManager();
 
-    // Dedicated pool for long tasks; recommend 1–2 threads.
-    bool Start(uint32_t p_worker_count);
     void Stop();
 
     // Long task submission
@@ -80,6 +79,10 @@ public:
     // - drain main-thread queue (you can also do it outside)
     // - update group aggregation and fire group completion callbacks
     void TickMainThread();
+
+protected:
+    auto InitializeImpl() -> Result<void> final;
+    void FinalizeImpl() final;
 
 private:
     friend class TaskContext;
@@ -147,7 +150,7 @@ private:
     void UpdateGroupAggregation(TaskState& g);
 
 private:
-    TaskQueue& m_task_queue;
+    std::unique_ptr<TaskQueue> m_task_queue;
 
     std::atomic<bool> m_is_running{ false };
     std::vector<std::thread> m_workers;

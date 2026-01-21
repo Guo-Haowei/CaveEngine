@@ -21,6 +21,7 @@ class IPhysicsManager;
 class ISceneManager;
 class IScriptManager;
 class RenderSystem;
+class TaskManager;
 class Scene;
 class ViewportManager;
 
@@ -103,13 +104,18 @@ protected:
     AssetRegistry* m_asset_registry{ nullptr };
     IAssetManager* m_asset_manager{ nullptr };
     ISceneManager* m_scene_manager{ nullptr };
+
     IPhysicsManager* m_physics_manager{ nullptr };
+    IScriptManager* m_script_manager{ nullptr };
+
     IDisplayManager* m_display_server{ nullptr };
     IGraphicsManager* m_graphics_manager{ nullptr };
-    ImguiManager* m_imgui_manager{ nullptr };
-    IScriptManager* m_script_manager{ nullptr };
     RenderSystem* m_render_system{ nullptr };
+
+    ImguiManager* m_imgui_manager{ nullptr };
     InputManager* m_input_manager{ nullptr };
+    TaskManager* m_task_manager{ nullptr };
+
     ViewportManager* m_viewport_manager{ nullptr };
 
     std::vector<Module*> m_modules;

@@ -20,6 +20,7 @@
 #include "engine/runtime/render_system.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
+#include "engine/runtime/task_manager.h"
 #include "engine/runtime/viewport_manager.h"
 #include "engine/scene/scene.h"
 
@@ -66,6 +67,7 @@ auto Application::SetupModules() -> Result<void> {
     m_input_manager = new InputManager();
     m_render_system = new RenderSystem();
     m_viewport_manager = new ViewportManager();
+    m_task_manager = new TaskManager();
 
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);

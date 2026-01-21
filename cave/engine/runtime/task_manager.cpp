@@ -19,23 +19,31 @@ static double Clamp01(double v) {
     return v;
 }
 
-TaskManager::TaskManager(TaskQueue& mtq)
-    : m_task_queue(mtq) {}
+TaskManager::TaskManager()
+    : Module("TaskManager")
+    , m_task_queue(std::make_unique<TaskQueue>()) {
+}
 
 TaskManager::~TaskManager() {
     Stop();
 }
 
-bool TaskManager::Start(uint32_t worker_count) {
+auto TaskManager::InitializeImpl() -> Result<void> {
     Stop();
-    if (worker_count == 0) worker_count = 1;
+
+    uint32_t worker_count = 2;
 
     m_is_running.store(true);
     m_workers.reserve(worker_count);
     for (uint32_t i = 0; i < worker_count; ++i) {
         m_workers.emplace_back([this]() { WorkerLoop(); });
     }
-    return true;
+
+    return Result<void>();
+}
+
+void TaskManager::FinalizeImpl() {
+    Stop();
 }
 
 void TaskManager::Stop() {
@@ -48,20 +56,20 @@ void TaskManager::Stop() {
     m_workers.clear();
 }
 
-TaskId TaskManager::Submit(std::unique_ptr<IAsyncTask> task,
-                               TaskSubmitOptions opt,
-                               TaskCompletionCallback on_done) {
-    if (!task) return kInvalidTaskId;
+TaskId TaskManager::Submit(std::unique_ptr<IAsyncTask> p_task,
+                           TaskSubmitOptions p_opt,
+                           TaskCompletionCallback p_on_done) {
+    if (!p_task) return kInvalidTaskId;
 
     TaskId id = m_next_id.fetch_add(1);
 
     auto st = std::make_unique<TaskState>();
     st->id = id;
-    st->name = task->Name();
-    st->task = std::move(task);
-    st->priority = opt.priority;
-    st->start_immediately = opt.start_immediately;
-    st->on_done = std::move(on_done);
+    st->name = p_task->Name();
+    st->task = std::move(p_task);
+    st->priority = p_opt.priority;
+    st->start_immediately = p_opt.start_immediately;
+    st->on_done = std::move(p_on_done);
 
     st->status.store(TaskStatus::Queued);
     st->indeterminate.store(true);
@@ -72,26 +80,26 @@ TaskId TaskManager::Submit(std::unique_ptr<IAsyncTask> task,
         m_states[id] = std::move(st);
     }
 
-    if (opt.start_immediately) {
-        EnqueueWork(id, opt.priority);
+    if (p_opt.start_immediately) {
+        EnqueueWork(id, p_opt.priority);
     }
     return id;
 }
 
-TaskId TaskManager::SubmitGroup(TaskGroupSpec spec,
-                                    TaskPriority priority,
-                                    TaskCompletionCallback on_done) {
+TaskId TaskManager::SubmitGroup(TaskGroupSpec p_spec,
+                                TaskPriority p_priority,
+                                TaskCompletionCallback p_on_done) {
     TaskId id = m_next_id.fetch_add(1);
 
     auto st = std::make_unique<TaskState>();
     st->id = id;
-    st->name = std::move(spec.name);
-    st->priority = priority;
-    st->on_done = std::move(on_done);
+    st->name = std::move(p_spec.name);
+    st->priority = p_priority;
+    st->on_done = std::move(p_on_done);
 
     st->is_group = true;
-    st->children = std::move(spec.children);
-    st->weights = std::move(spec.weights);
+    st->children = std::move(p_spec.children);
+    st->weights = std::move(p_spec.weights);
 
     st->status.store(TaskStatus::Running);
     st->indeterminate.store(false);
@@ -106,20 +114,20 @@ TaskId TaskManager::SubmitGroup(TaskGroupSpec spec,
     return id;
 }
 
-void TaskManager::ResumeTask(TaskId id) {
+void TaskManager::ResumeTask(TaskId p_id) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
-    TaskState* s = FindStateUnlocked(id);
+    TaskState* s = FindStateUnlocked(p_id);
     if (!s) return;
     if (s->is_group) return;
     if (s->status.load() != TaskStatus::Queued) return;
 
     s->start_immediately = true;
-    EnqueueWork(id, s->priority);
+    EnqueueWork(p_id, s->priority);
 }
 
-void TaskManager::RequestCancel(TaskId id) {
+void TaskManager::RequestCancel(TaskId p_id) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
-    TaskState* s = FindStateUnlocked(id);
+    TaskState* s = FindStateUnlocked(p_id);
     if (!s) return;
 
     s->cancel_requested.store(true);
@@ -132,9 +140,9 @@ void TaskManager::RequestCancel(TaskId id) {
     }
 }
 
-TaskSnapshot TaskManager::GetSnapshot(TaskId id) const {
+TaskSnapshot TaskManager::GetSnapshot(TaskId p_id) const {
     std::lock_guard<std::mutex> lock(m_states_mutex);
-    const TaskState* s = FindStateUnlocked(id);
+    const TaskState* s = FindStateUnlocked(p_id);
 
     TaskSnapshot out;
     if (!s) return out;
@@ -152,15 +160,15 @@ TaskSnapshot TaskManager::GetSnapshot(TaskId id) const {
     return out;
 }
 
-std::vector<TaskLogLine> TaskManager::GetRecentLogs(TaskId id, size_t max_lines) const {
+std::vector<TaskLogLine> TaskManager::GetRecentLogs(TaskId p_id, size_t p_max_lines) const {
     std::vector<TaskLogLine> out;
 
     std::lock_guard<std::mutex> lock(m_states_mutex);
-    const TaskState* s = FindStateUnlocked(id);
+    const TaskState* s = FindStateUnlocked(p_id);
     if (!s) return out;
 
     std::lock_guard<std::mutex> l(s->log_mutex);
-    const size_t n = std::min(max_lines, s->logs.size());
+    const size_t n = std::min(p_max_lines, s->logs.size());
     out.reserve(n);
 
     auto it = s->logs.end();
@@ -172,7 +180,7 @@ std::vector<TaskLogLine> TaskManager::GetRecentLogs(TaskId id, size_t max_lines)
 
 void TaskManager::TickMainThread() {
     // You may drain outside, but doing it here is convenient.
-    m_task_queue.Drain();
+    m_task_queue->Drain();
 
     // Update groups + dispatch group completion callbacks.
     std::lock_guard<std::mutex> lock(m_states_mutex);
@@ -211,7 +219,7 @@ void TaskManager::WorkerLoop() {
             task = std::move(s->task);
         }
 
-        TaskContext ctx(*this, m_task_queue, id);
+        TaskContext ctx(*this, id);
 
         try {
             if (task) task->Run(ctx);
@@ -325,7 +333,7 @@ void TaskManager::MaybeEnqueueCompletionOnMainThread(TaskState& s) {
         snap.last_error = s.last_error;
     }
 
-    m_task_queue.Enqueue([id, snap, cb]() mutable {
+    m_task_queue->Enqueue([id, snap, cb]() mutable {
         cb(id, std::move(snap));
     });
 }
@@ -454,4 +462,4 @@ void TaskManager::CtxLog(TaskId id, TaskLogLevel lvl, std::string msg) {
     s->logs.push_back(TaskLogLine{ NowMs(), lvl, std::move(msg) });
 }
 
-}  // namespace cave::tmp
+}  // namespace cave
