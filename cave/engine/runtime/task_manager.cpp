@@ -176,11 +176,10 @@ bool TaskManager::HasPendingWork() const {
 }
 
 void TaskManager::WaitUntilIdle() {
-        while (HasPendingWork()) {
-            std::this_thread::yield();
-        }
+    while (HasPendingWork()) {
+        std::this_thread::yield();
     }
-
+}
 
 void TaskManager::WorkerLoop() {
     while (m_is_running.load()) {
