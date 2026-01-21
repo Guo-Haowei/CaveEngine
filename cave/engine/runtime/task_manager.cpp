@@ -1,5 +1,6 @@
 #include "task_manager.h"
 
+#include "engine/core/os/threads.h"
 #include "engine/runtime/async_task_interface.h"
 #include "engine/runtime/task_context.h"
 #include "engine/runtime/task_queue.h"
@@ -31,7 +32,11 @@ auto TaskManager::InitializeImpl() -> Result<void> {
     m_is_running.store(true);
     m_workers.reserve(worker_count);
     for (uint32_t i = 0; i < worker_count; ++i) {
-        m_workers.emplace_back([this]() { WorkerLoop(); });
+        std::thread thread([this]() { WorkerLoop(); });
+        std::string name = std::format("THREAD_TASK_MANAGER_WORKER_{}", i);
+        thread::SetThreadDescription(thread, name);
+
+        m_workers.emplace_back(std::move(thread));
     }
 
     return Result<void>();

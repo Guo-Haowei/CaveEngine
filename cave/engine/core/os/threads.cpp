@@ -6,8 +6,6 @@
 #include "engine/debugger/profiler.h"
 #include "engine/core/io/print.h"
 #include "engine/drivers/windows/win32_prerequisites.h"
-// @TODO: use generic worker thread
-#include "engine/assets/asset_manager.h"
 
 namespace cave::thread {
 
@@ -20,7 +18,7 @@ struct ThreadObject {
     std::thread threadObject{};
 };
 
-static thread_local uint32_t g_threadId;
+static thread_local uint32_t g_thread_id;
 static struct {
     std::atomic_bool shutdownRequested;
     std::array<ThreadObject, THREAD_MAX> threads = {
@@ -39,7 +37,7 @@ static struct {
 } s_threadGlob;
 
 bool Initialize() {
-    g_threadId = THREAD_MAIN;
+    g_thread_id = THREAD_MAIN;
 
     std::latch latch{ THREAD_MAX - 1 };
 
@@ -50,7 +48,7 @@ bool Initialize() {
         thread.threadObject = std::thread(
             [&](ThreadObject* p_object) {
                 // set thread id
-                g_threadId = p_object->id;
+                g_thread_id = p_object->id;
 
                 latch.count_down();
                 LOG_VERBOSE("[threads] thread '{}'(id: {}) starts.", p_object->name, p_object->id);
@@ -60,18 +58,7 @@ bool Initialize() {
             },
             &thread);
 
-#if USING(PLATFORM_WINDOWS)
-        HANDLE handle = (HANDLE)thread.threadObject.native_handle();
-
-        // @TODO: set thread affinity
-        // DWORD_PTR affinityMask = 1ull << threadID;
-        // DWORD_PTR affinityResult = SetThreadAffinityMask(handle, affinityMask);
-
-        std::string name = thread.name;
-        std::wstring wname(name.begin(), name.end());
-        HRESULT hr = SetThreadDescription(handle, wname.c_str());
-        DEV_ASSERT(!FAILED(hr));
-#endif
+        SetThreadDescription(thread.threadObject, thread.name);
     }
 
     latch.wait();
@@ -97,11 +84,21 @@ void RequestShutdown() {
 }
 
 bool IsMainThread() {
-    return g_threadId == THREAD_MAIN;
+    return g_thread_id == THREAD_MAIN;
 }
 
 uint32_t GetThreadId() {
-    return g_threadId;
+    return g_thread_id;
+}
+
+void SetThreadDescription(std::thread& p_thread, std::string_view p_name) {
+#if USING(PLATFORM_WINDOWS)
+    HANDLE handle = (HANDLE)p_thread.native_handle();
+
+    std::wstring name(p_name.begin(), p_name.end());
+    HRESULT hr = ::SetThreadDescription(handle, name.c_str());
+    DEV_ASSERT(!FAILED(hr));
+#endif
 }
 
 }  // namespace cave::thread

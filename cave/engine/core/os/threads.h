@@ -30,4 +30,6 @@ bool IsMainThread();
 
 uint32_t GetThreadId();
 
+void SetThreadDescription(std::thread& p_thread, std::string_view p_name);
+
 }  // namespace cave::thread
