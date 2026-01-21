@@ -3,6 +3,10 @@
 
 namespace cave {
 
+bool BeginFullscreenWindow(const char* p_name);
+
+void EndFullscreenWindow();
+
 /// asset inspector
 struct AssetChildPanel {
     const char* name;

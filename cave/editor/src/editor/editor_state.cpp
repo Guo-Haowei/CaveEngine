@@ -32,7 +32,7 @@
 #include "editor/panels/renderer_panel.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/widget.h"
+#include "engine/ui/layout.h"
 
 namespace cave {
 

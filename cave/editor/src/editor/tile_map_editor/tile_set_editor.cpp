@@ -7,7 +7,7 @@
 #include "engine/scene/camera_component.h"
 
 #include "editor/document/document.h"
-#include "editor/widgets/widget.h"
+#include "engine/ui/layout.h"
 
 namespace cave {
 

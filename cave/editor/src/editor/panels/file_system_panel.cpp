@@ -12,7 +12,7 @@
 #include "editor/editor_state.h"
 #include "editor/utility/content_entry.h"
 #include "editor/widgets/drag_drop.h"
-#include "editor/widgets/inputs.h"
+#include "engine/ui/inputs.h"
 
 namespace cave {
 

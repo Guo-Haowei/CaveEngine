@@ -10,6 +10,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_manager.h"
+#include "engine/ui/layout.h"
 
 namespace cave {
 
@@ -80,14 +81,14 @@ void RuntimeState::Tick(float p_timestep) {
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
-        if (ImGui::Begin("temp window for display")) {
+        if (BeginFullscreenWindow("Full Screen")) {
             const IGraphicsManager* gm = GetApp().GetGraphicsManager();
             uint64_t handle = gm->GetFinalImage();
 
             const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
             ImGui::Image((ImTextureID)handle, ImVec2{ (float)frame_size.x, (float)frame_size.y });
         }
-        ImGui::End();
+        EndFullscreenWindow();
 
         ImGui::Render();
     }

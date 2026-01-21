@@ -7,7 +7,7 @@
 
 #include "editor/editor_state.h"
 #include "editor/panels/log_panel.h"
-#include "editor/widgets/widget.h"
+#include "engine/ui/layout.h"
 
 namespace cave {
 

@@ -14,7 +14,7 @@
 #include "editor/widgets/drag_drop.h"
 #include "editor/widgets/image.h"
 #include "editor/widgets/tool_bar.h"
-#include "editor/widgets/widget.h"
+#include "engine/ui/layout.h"
 
 namespace cave {
 
