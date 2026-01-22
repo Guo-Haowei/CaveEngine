@@ -13,6 +13,10 @@ class Scene;
 // @TODO: remove
 struct ImageAsset;
 
+struct AssetLoadRequest {
+    Guid guid;
+};
+
 struct SceneImportRequest {
     std::filesystem::path source_path;
     std::filesystem::path dest_dir;
@@ -32,7 +36,7 @@ public:
 
     virtual Result<void> MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) = 0;
 
-    virtual uint64_t SubmitLoadAsset(const Guid& p_request) = 0;
+    virtual uint64_t SubmitLoadAsset(const AssetLoadRequest& p_request) = 0;
 
     virtual uint64_t SubmitImportScene(const SceneImportRequest& p_request) = 0;
 
@@ -41,10 +45,6 @@ public:
 
     // @TODO: deprecate
     virtual AssetRef LoadAssetSync(const Guid& p_guid) = 0;
-
-    // @TODO: deprecate
-    virtual bool ImportSceneAsync(const std::filesystem::path& p_source_path,
-                                  const std::filesystem::path& p_dest_dir) = 0;
 
     // @TODO: remove this
     virtual std::shared_ptr<ImageAsset> FindImage(const std::string&) { return nullptr; }

@@ -32,9 +32,9 @@ auto TaskManager::InitializeImpl() -> Result<void> {
     m_is_running.store(true);
     m_workers.reserve(worker_count);
     for (uint32_t i = 0; i < worker_count; ++i) {
-        std::thread thread([this]() { WorkerLoop(); });
+        std::thread thread([this](uint32_t p_id) { WorkerLoop(p_id); }, i);
         std::string name = std::format("THREAD_TASK_MANAGER_WORKER_{}", i);
-        thread::SetThreadDescription(thread, name);
+        thread::SetThreadName(thread, name);
 
         m_workers.emplace_back(std::move(thread));
     }
@@ -186,7 +186,9 @@ void TaskManager::WaitUntilIdle() {
     }
 }
 
-void TaskManager::WorkerLoop() {
+void TaskManager::WorkerLoop(uint32_t p_worker_id) {
+    thread::SetThreadID(thread::THREAD_TASK_MANAGER_WORKER_1 + p_worker_id);
+
     while (m_is_running.load()) {
         uint64_t id = kInvalidTaskId;
         if (!PopNextWorkItem(id)) continue;

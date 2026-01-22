@@ -121,7 +121,7 @@ private:
     };
 
     // Worker logic
-    void WorkerLoop();
+    void WorkerLoop(uint32_t p_worker_id);
     bool PopNextWorkItem(uint64_t& out_id);
 
     // Helpers

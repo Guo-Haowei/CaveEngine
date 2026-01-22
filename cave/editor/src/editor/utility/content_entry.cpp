@@ -149,7 +149,7 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
 
             if (auto path = os::OpenFileDialog(filter); path.is_some()) {
                 fs::path dest = p_node.sys_path;
-                IAssetManager::GetSingleton().ImportSceneAsync(path.unwrap_unchecked(), dest);
+                IAssetManager::GetSingleton().SubmitImportScene({ path.unwrap_unchecked(), dest });
             }
         }
         ImGui::EndMenu();

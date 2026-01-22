@@ -40,49 +40,6 @@ namespace cave {
 namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
 
-class ImportAssetTask final : public IAsyncTask {
-public:
-    ImportAssetTask(AssetManager& p_asset_manager,
-                    const fs::path& p_source,
-                    const fs::path& p_dest)
-        : m_asset_manager(p_asset_manager)
-        , m_source(p_source)
-        , m_dest(p_dest) {
-    }
-
-    const char* Name() const final {
-        return "ImportAssetTask";
-    }
-
-    void Run(TaskContext& p_ctx) final {
-        p_ctx.SetIndeterminate(true);
-
-        p_ctx.SetIndeterminate(false);
-        p_ctx.SetProgress(0.0f);
-
-        auto loader = AssetImporter::Create(m_source, m_dest);
-
-        if (!loader) {
-            LOG_ERROR("No suitable loader found for asset '{}'", m_source.string());
-            return;
-        }
-
-        auto res = loader->Import();
-
-        if (!res) {
-            LOG_ERROR("Failed to load '{}', reason: {}", m_source.string(), ToString(res.error()));
-            return;
-        }
-
-        p_ctx.SetProgress(1.0f);
-    }
-
-private:
-    AssetManager& m_asset_manager;
-    fs::path m_source;
-    fs::path m_dest;
-};
-
 static AssetRef CreateAssetInstance(AssetType p_type) {
     // @TODO: refactor this part
     switch (p_type) {
@@ -201,7 +158,7 @@ std::string AssetManager::ResolvePath(const fs::path& p_path) {
     return m_app->GetVFS().Resolve("@res", p_path);
 }
 
-uint64_t AssetManager::SubmitLoadAsset(const Guid& p_request) {
+uint64_t AssetManager::SubmitLoadAsset(const AssetLoadRequest& p_request) {
     class LoadAssetTask final : public IAsyncTask {
     public:
         LoadAssetTask(AssetManager& p_asset_manager,
@@ -236,21 +193,56 @@ uint64_t AssetManager::SubmitLoadAsset(const Guid& p_request) {
     opt.priority = TaskPriority::Normal;
     opt.start_immediately = true;
 
-    return m_app->GetTaskManager()->Submit(std::make_unique<LoadAssetTask>(*this, p_request),
+    return m_app->GetTaskManager()->Submit(std::make_unique<LoadAssetTask>(*this, p_request.guid),
                                            opt);
 }
 
 uint64_t AssetManager::SubmitImportScene(const SceneImportRequest& p_request) {
-    unused(p_request);
-    return 0;
-}
+    class ImportAssetTask final : public IAsyncTask {
+    public:
+        ImportAssetTask(AssetManager& p_asset_manager,
+                        const fs::path& p_source,
+                        const fs::path& p_dest)
+            : m_asset_manager(p_asset_manager)
+            , m_source(p_source)
+            , m_dest(p_dest) {
+        }
 
-bool AssetManager::ImportSceneAsync(const std::filesystem::path& p_source_path,
-                                    const std::filesystem::path& p_dest_dir) {
-    m_app->GetTaskManager()->Submit(
+        const char* Name() const final {
+            return "ImportAssetTask";
+        }
+
+        void Run(TaskContext& p_ctx) final {
+            p_ctx.SetIndeterminate(false);
+            p_ctx.SetProgress(0.0f);
+
+            auto loader = AssetImporter::Create(m_source, m_dest);
+
+            if (!loader) {
+                p_ctx.Fail(std::format("No suitable loader found for asset '{}'", m_source.string()));
+                return;
+            }
+
+            auto res = loader->Import();
+
+            if (!res) {
+                p_ctx.Fail(std::format("Failed to load '{}', reason: {}", m_source.string(), ToString(res.error())));
+                return;
+            }
+
+            p_ctx.SetProgress(1.0f);
+        }
+
+    private:
+        AssetManager& m_asset_manager;
+        fs::path m_source;
+        fs::path m_dest;
+    };
+
+    return m_app->GetTaskManager()->Submit(
         std::make_unique<ImportAssetTask>(*this,
-                                          p_source_path,
-                                          p_dest_dir),
+                                          p_request.source_path,
+                                          p_request.dest_dir),
         TaskSubmitOptions{ .priority = TaskPriority::Normal,
                            .start_immediately = true },
         [](uint64_t p_id, TaskSnapshot p_snapshot) {
@@ -259,12 +251,10 @@ bool AssetManager::ImportSceneAsync(const std::filesystem::path& p_source_path,
                 // @TODO: handle result
             }
         });
-
-    return true;
 }
 
 AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
-    // DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
+    DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
 
     Timer timer;
     auto entry = m_app->GetAssetRegistry()->GetEntry(p_guid);

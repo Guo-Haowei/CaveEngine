@@ -19,6 +19,7 @@ struct ThreadObject {
 };
 
 static thread_local uint32_t g_thread_id;
+
 static struct {
     std::atomic_bool shutdownRequested;
     std::array<ThreadObject, THREAD_MAX> threads = {
@@ -37,7 +38,7 @@ static struct {
 } s_threadGlob;
 
 bool Initialize() {
-    g_thread_id = THREAD_MAIN;
+    SetThreadID(THREAD_MAIN);
 
     std::latch latch{ THREAD_MAX - 1 };
 
@@ -48,7 +49,7 @@ bool Initialize() {
         thread.threadObject = std::thread(
             [&](ThreadObject* p_object) {
                 // set thread id
-                g_thread_id = p_object->id;
+                SetThreadID(p_object->id);
 
                 latch.count_down();
                 LOG_VERBOSE("[threads] thread '{}'(id: {}) starts.", p_object->name, p_object->id);
@@ -58,7 +59,7 @@ bool Initialize() {
             },
             &thread);
 
-        SetThreadDescription(thread.threadObject, thread.name);
+        SetThreadName(thread.threadObject, thread.name);
     }
 
     latch.wait();
@@ -91,7 +92,7 @@ uint32_t GetThreadId() {
     return g_thread_id;
 }
 
-void SetThreadDescription(std::thread& p_thread, std::string_view p_name) {
+void SetThreadName(std::thread& p_thread, std::string_view p_name) {
 #if USING(PLATFORM_WINDOWS)
     HANDLE handle = (HANDLE)p_thread.native_handle();
 
@@ -99,6 +100,10 @@ void SetThreadDescription(std::thread& p_thread, std::string_view p_name) {
     HRESULT hr = ::SetThreadDescription(handle, name.c_str());
     DEV_ASSERT(!FAILED(hr));
 #endif
+}
+
+void SetThreadID(uint32_t p_id) {
+    g_thread_id = p_id;
 }
 
 }  // namespace cave::thread
