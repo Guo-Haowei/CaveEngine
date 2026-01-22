@@ -11,7 +11,7 @@ Game = {}
 Game.__index = Game
 setmetatable(Game, GameObject)
 
-local function coord_to_square(x, y)
+local function coord_to_index(x, y)
     return (y - 1) * 8 + (x - 1)
 end
 
@@ -28,12 +28,12 @@ function Game.new(id)
 
     self.selector = GridSelector.new(self.grid_adapter, {
         can_select = function(tx, ty)
-            local piece = self.chess:get_piece(tx, ty)
-            if not piece then
-                return false
+            local index = coord_to_index(tx, ty)
+            local ok = self.chess:can_move(index)
+            if not ok then
+                logger.trace('cannot select square ' .. move.index_to_uci(index))
             end
-
-            return self.chess:piece_color(piece) == self.chess:turn()
+            return ok
         end,
 
         can_drop = function(sx, sy, tx, ty)
@@ -42,23 +42,22 @@ function Game.new(id)
         end,
 
         on_select = function(tx, ty)
-            if self.chess.get_legal_moves_from then
-                -- chess.highlight_tiles = chess:get_legal_moves_from(tx, ty)
-            else
-                -- chess.highlight_tiles = nil
-            end
+            -- if self.chess.get_legal_moves_from then
+            --     -- chess.highlight_tiles = chess:get_legal_moves_from(tx, ty)
+            -- else
+            --     -- chess.highlight_tiles = nil
+            -- end
         end,
 
         on_commit = function(sx, sy, tx, ty)
             local mv = {
-                from = coord_to_square(sx, sy),
-                to = coord_to_square(tx, ty),
+                from = coord_to_index(sx, sy),
+                to = coord_to_index(tx, ty),
             }
-            -- Engine.log('move committed: ' .. move.index_to_square(mv.from) .. ' -> ' .. move.index_to_square(mv.to))
+            logger.trace('move committed: ' .. move.index_to_uci(mv.from) .. ' -> ' .. move.index_to_uci(mv.to))
 
             local ok, err = self.chess:make_move(mv)
             if not ok then
-                Engine.log('invalid move: ' .. err)
             end
             -- chess.highlight_tiles = nil
         end,
