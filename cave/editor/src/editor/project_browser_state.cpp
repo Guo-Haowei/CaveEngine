@@ -105,16 +105,6 @@ void ProjectBrowserState::DrawUI() {
     ImGui::Spacing();
 
     DrawRecentProjects();
-
-    if (m_request_fired || true) {
-        TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
-
-        if (root.indeterminate) {
-            ImGui::ProgressBar(-1.0f, ImVec2(-1.0f, 0.0f));
-        } else {
-            ImGui::ProgressBar(root.progress01, ImVec2(-1.0f, 0.0f));
-        }
-    }
 }
 
 void ProjectBrowserState::Tick(float) {
@@ -129,6 +119,23 @@ void ProjectBrowserState::Tick(float) {
 
         if (ImGui::Begin("Recent Projects")) {
             DrawUI();
+        }
+        ImGui::End();
+
+        if (ImGui::Begin("Settings")) {
+        }
+        ImGui::End();
+
+        if (ImGui::Begin("Project Location")) {
+            if (m_request_fired) {
+                TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
+
+                if (root.indeterminate) {
+                    ImGui::ProgressBar(-1.0f, ImVec2(-1.0f, 0.0f));
+                } else {
+                    ImGui::ProgressBar(root.progress01, ImVec2(-1.0f, 0.0f));
+                }
+            }
         }
         ImGui::End();
 
