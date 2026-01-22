@@ -43,6 +43,12 @@ void MenuBar::Update() {
     }
     ImGui::Separator();
     EditorItem::OpenAddEntityPopup(ecs::Entity::Null());
+
+    ImGui::Separator();
+    if (ImGui::BeginMenu("Debug")) {
+        build_menu_item(SHORT_CUT_DEBUG);
+        ImGui::EndMenu();
+    }
 }
 
 }  // namespace cave

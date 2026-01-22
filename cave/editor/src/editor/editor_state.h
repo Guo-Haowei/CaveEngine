@@ -27,6 +27,7 @@ enum {
     SHORT_CUT_OPEN,
     SHORT_CUT_UNDO,
     SHORT_CUT_REDO,
+    SHORT_CUT_DEBUG,
     SHORT_CUT_MAX,
 };
 
@@ -40,9 +41,7 @@ public:
     EditorState(Application& p_app);
 
     void OnEnter(const StateRequest& p_args) final;
-
     void OnExit() final;
-
     void Tick(float p_timestep) final;
 
     Option<StateRequest> PopRequest() final;

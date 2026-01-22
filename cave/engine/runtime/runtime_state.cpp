@@ -5,6 +5,7 @@
 #include "engine/runtime/application.h"
 #include "engine/runtime/graphics_manager_interface.h"
 #include "engine/runtime/imgui_manager.h"
+#include "engine/runtime/input_manager.h"
 #include "engine/runtime/script_manager.h"
 #include "engine/runtime/viewport_manager.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -89,19 +90,17 @@ void RuntimeState::OnEnter(const StateRequest& p_args) {
     sim_scene->Update(0.0f);
 
     m_app.GetSceneManager()->OpenSimScene(sim_scene);
-
-    // set active scene?
-    // game_layer->SetActiveScene(std::move(sim_scene));
     m_app.GetScriptManager()->OnSimBegin(*sim_scene);
 
-    // reset viewport
     m_app.GetViewportManager()->ClearViewport();
     m_app.GetViewportManager()->CreateViewport(std::shared_ptr<ISceneViewProvider>(new RuntimeSceneViewProvider(m_app)));
 }
 
 void RuntimeState::OnExit() {
-    // scene_manager.CloseSimScene();
+    m_app.GetViewportManager()->ClearViewport();
+
     m_app.GetScriptManager()->OnSimEnd();
+    m_app.GetSceneManager()->CloseSimScene();
 }
 
 void RuntimeState::Tick(float p_timestep) {
@@ -123,10 +122,16 @@ void RuntimeState::Tick(float p_timestep) {
     if (std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene()) {
         m_app.GetScriptManager()->Update(*scene, p_timestep);
     }
+
+    if (InputManager::GetSingleton().IsActionJustPressed("ui_cancel")) {
+        m_request = Some(StateRequest{ AppStateId::Editor });
+    }
 }
 
 Option<StateRequest> RuntimeState::PopRequest() {
-    return None();
+    auto request = m_request;
+    m_request = None();
+    return request;
 }
 
 }  // namespace cave

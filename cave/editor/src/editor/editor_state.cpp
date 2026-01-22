@@ -59,8 +59,8 @@ EditorState::EditorState(Application& p_app)
     m_shortcuts[SHORT_CUT_SAVE_AS] = {
         "Save As..",
         "Ctrl+Shift+S",
-        [&]() {
-            this->BufferCommand(std::make_shared<SaveProjectCommand>(true));
+        [this]() {
+            BufferCommand(std::make_shared<SaveProjectCommand>(true));
         },
     };
     m_shortcuts[SHORT_CUT_SAVE] = {
@@ -90,11 +90,19 @@ EditorState::EditorState(Application& p_app)
         [active_document]() { auto doc = active_document(); if (doc) doc->Redo(); },
         [active_document]() { auto doc = active_document(); return doc ? doc ->CanRedo() : false; }
     };
+
     m_shortcuts[SHORT_CUT_UNDO] = {
         "Undo",
         "Ctrl+Z",
         [active_document]() { auto doc = active_document(); if (doc) doc->Undo(); },
         [active_document]() { auto doc = active_document(); return doc ? doc ->CanUndo() : false; }
+    };
+
+    m_shortcuts[SHORT_CUT_DEBUG] = {
+        "Start Debugging",
+        "F5",
+        [this]() { RequestGamePlay(); },
+        []() { return true; },
     };
 
     // @TODO: proper key mapping
@@ -125,6 +133,7 @@ EditorState::EditorState(Application& p_app)
         { "X", KeyCode::KEY_X },
         { "Y", KeyCode::KEY_Y },
         { "Z", KeyCode::KEY_Z },
+        { "F5", KeyCode::KEY_F5 },
     };
 
     for (auto& shortcut : m_shortcuts) {
@@ -182,39 +191,30 @@ void EditorState::OnExit() {
 }
 
 void EditorState::Tick(float p_timestep) {
+    CAVE_PROFILE_EVENT();
     context.timestep = p_timestep;
 
     ImguiManager* imgui_manager = m_app.GetImguiManager();
+    DEV_ASSERT(imgui_manager);
 
     // @TODO: refactor this
-    if (imgui_manager) {
-        {
-            CAVE_PROFILE_EVENT("ImGuiManager::BeginFrame");
-            imgui_manager->BeginFrame();
-        }
+    imgui_manager->BeginFrame();
 
-        {
-            CAVE_PROFILE_EVENT();
+    // @TODO: DO NOT Request SCENE here
+    Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
 
-            // @TODO: DO NOT Request SCENE here
-            Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
+    FlushInputEvents();
 
-            FlushInputEvents();
-
-            DockSpace();
-            for (auto& it : m_panels) {
-                it->Update();
-            }
-
-            // @TODO: fix this as well
-            FlushCommand(scene);
-        }
-
-        {
-            CAVE_PROFILE_EVENT("ImGui::Render");
-            ImGui::Render();
-        }
+    DockSpace();
+    for (auto& it : m_panels) {
+        it->Update();
     }
+
+    // @TODO: fix this as well
+    FlushCommand(scene);
+
+    CAVE_PROFILE_EVENT("ImGui::Render");
+    ImGui::Render();
 }
 
 Option<StateRequest> EditorState::PopRequest() {
@@ -293,7 +293,10 @@ void EditorState::FlushInputEvents() {
                     return true;
                 };
                 if (is_key_handled()) {
-                    shortcut.executeFunc();
+                    if (shortcut.executeFunc) {
+                        shortcut.executeFunc();
+                    }
+
                     break;
                 }
             }

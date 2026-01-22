@@ -18,6 +18,9 @@ public:
 #if USING(DEBUG_BUILD)
     const char* GetDebugName() final { return "RuntimeState"; }
 #endif
+
+private:
+    Option<StateRequest> m_request{};
 };
 
 }  // namespace cave
