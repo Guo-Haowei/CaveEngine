@@ -283,7 +283,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
             break;
     }
 
-    LOG_VERBOSE("[AssetManager] asset '{}' loaded in {}", entry->metadata.import_path, timer.GetDurationString());
+    LOG_VERBOSE("'{}' loaded in {}", entry->metadata.import_path, timer.GetDurationString());
     entry->MarkLoaded(asset);
     return asset;
 }

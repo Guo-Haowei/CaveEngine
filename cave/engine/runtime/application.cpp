@@ -5,6 +5,7 @@
 
 #include "engine/debugger/profiler.h"
 #include "engine/core/io/file_access.h"
+#include "engine/core/io/logger.h"
 #include "engine/core/os/threads.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -33,7 +34,6 @@ static cave::Application* s_app = nullptr;
 namespace cave {
 
 namespace fs = std::filesystem;
-
 
 Application::Application(const ApplicationSpec& p_spec, Type p_type)
     : m_type(p_type)
@@ -151,13 +151,15 @@ void Application::Finalize() {
 }
 
 float Application::UpdateTime() {
-    float timestep = static_cast<float>(m_timer.GetDuration().ToSecond());
+    const float timestep = static_cast<float>(m_timer.GetDuration().ToSecond());
     m_timer.Start();
     return min(timestep, 0.5f);
 }
 
 bool Application::MainLoop() {
     CAVE_PROFILE_FRAME("MainThread");
+
+    CompositeLogger::GetSingleton().Flush();
 
     // === Begin Frame ===
     m_display_server->BeginFrame();

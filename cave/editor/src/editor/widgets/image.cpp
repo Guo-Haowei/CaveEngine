@@ -1,10 +1,29 @@
 #include "image.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
 #include <imgui/imgui.h>
 
 #include "engine/assets/image_asset.h"
 
 namespace cave::ui {
+
+void OkIcon() {
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.502f, 0.878f, 0.502f, 1.0f));
+    ImGui::Text(ICON_FA_CIRCLE_CHECK);
+    ImGui::PopStyleColor();
+}
+
+void WarningIcon() {
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.75f, 0.0f, 1.0f));
+    ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION);
+    ImGui::PopStyleColor();
+}
+
+void ErrorIcon() {
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+    ImGui::Text(ICON_FA_CIRCLE_EXCLAMATION);
+    ImGui::PopStyleColor();
+}
 
 void CenteredImage(const ImageAsset* p_image,
                    const Vector2f& p_background_region,

@@ -183,8 +183,6 @@ void EditorState::OnExit() {
 void EditorState::Tick(float p_timestep) {
     context.timestep = p_timestep;
 
-    m_log_panel->RetrieveLogs();
-
     ImguiManager* imgui_manager = m_app.GetImguiManager();
 
     // @TODO: refactor this

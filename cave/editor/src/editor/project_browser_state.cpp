@@ -105,7 +105,7 @@ void ProjectBrowserState::DrawUI() {
 
     DrawRecentProjects();
 
-    if (m_request_fired) {
+    if (m_request_fired || true) {
         TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
 
         if (root.indeterminate) {

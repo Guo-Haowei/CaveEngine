@@ -1,13 +1,12 @@
 #include "menu_bar.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
-
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/input_manager.h"
+#include "engine/ui/layout.h"
 
 #include "editor/editor_state.h"
 #include "editor/panels/log_panel.h"
-#include "engine/ui/layout.h"
+#include "editor/widgets/image.h"
 
 namespace cave {
 
@@ -59,26 +58,19 @@ void MenuBar::Update() {
 
     if (ImGui::BeginViewportSideBar("StatusBar", viewport, ImGuiDir_Down, height, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
         if (ImGui::BeginMenuBar()) {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
-            ImGui::Text(ICON_FA_CIRCLE_EXCLAMATION);
-            ImGui::PopStyleColor();
+            const uint32_t error_count = (uint32_t)CompositeLogger::GetSingleton().GetErrorLogs().size();
+            const uint32_t warning_count = (uint32_t)CompositeLogger::GetSingleton().GetWarningLogs().size();
+
+            ui::ErrorIcon();
 
             ImGui::SameLine();
-
-            const uint32_t error_count = m_editor.GetLogPanel().GetErrorCount();
-            const uint32_t warning_count = m_editor.GetLogPanel().GetWarningCount();
-
-            ImGui::Text(" %u Error", error_count);
+            ImGui::Text(" %u Error(s)", error_count);
 
             ImGui::SameLine();
-
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.75f, 0.0f, 1.0f));
-            ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION);
-            ImGui::PopStyleColor();
+            ui::WarningIcon();
 
             ImGui::SameLine();
-
-            ImGui::Text(" %u Warning", warning_count);
+            ImGui::Text(" %u Warning(s)", warning_count);
 
             ImGui::EndMenuBar();
         }

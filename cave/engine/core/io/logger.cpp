@@ -1,10 +1,14 @@
 #include "logger.h"
 
-#include "engine/core/base/ring_buffer.h"
+#include "engine/core/os/threads.h"
 
 namespace cave {
 
-static_assert(sizeof(CompositeLogger::Log) == CompositeLogger::kLogStructSize);
+#if USING(ENABLE_ASSERT)
+#define ASSERT_OPERATION_THREAD() DEV_ASSERT(thread::IsMainThread())
+#else
+#define ASSERT_OPERATION_THREAD() ((void)0)
+#endif
 
 void StdLogger::Print(LogLevel p_level, std::string_view p_message) {
     const char* tag = "";
@@ -41,30 +45,59 @@ void CompositeLogger::Print(LogLevel p_level, std::string_view p_message) {
         logger->Print(p_level, p_message);
     }
 
-    m_log_history_mutex.lock();
-    m_log_history.push_back({});
-    auto& log_history = m_log_history.back();
-    log_history.level = p_level;
-    log_history.id = m_log_id.fetch_add(1);
-    strncpy(log_history.buffer, p_message.data(), sizeof(log_history.buffer) - 1);
-    m_log_history_mutex.unlock();
+    LogEvent log = {
+        .level = p_level,
+        .id = m_log_id.fetch_add(1),
+        .message = std::string(p_message),
+    };
+
+    m_buffer.mutex.lock();
+    m_buffer.buffer.emplace_back(std::move(log));
+    m_buffer.mutex.unlock();
+}
+
+void CompositeLogger::Flush() {
+    ASSERT_OPERATION_THREAD();
+
+    m_buffer.mutex.lock();
+
+    for (LogEvent& log : m_buffer.buffer) {
+        switch (log.level) {
+            case LogLevel::LOG_LEVEL_FATAL:
+            case LogLevel::LOG_LEVEL_ERROR: {
+                m_errors.emplace_back(log);
+            } break;
+            case LogLevel::LOG_LEVEL_WARN: {
+                m_warnings.emplace_back(log);
+            } break;
+            default:
+                break;
+        }
+        m_all_logs.emplace_back(std::move(log));
+    }
+
+    m_buffer.buffer.clear();
+    m_buffer.mutex.unlock();
 }
 
 void CompositeLogger::ClearLog() {
-    m_log_history_mutex.lock();
-    m_log_history.clear();
-    m_log_history_mutex.unlock();
+    ASSERT_OPERATION_THREAD();
+    m_all_logs.clear();
 }
 
-void CompositeLogger::RetrieveLog(std::vector<Log>& p_out_logs) {
-    m_log_history_mutex.lock();
+const std::vector<LogEvent>& CompositeLogger::GetAllLogs() const {
+    ASSERT_OPERATION_THREAD();
+    return m_all_logs;
+}
 
-    p_out_logs.reserve(m_log_history.size());
-    for (auto& log : m_log_history) {
-        p_out_logs.push_back(log);
-    }
+const std::vector<LogEvent>& CompositeLogger::GetWarningLogs() const {
+    ASSERT_OPERATION_THREAD();
+    return m_warnings;
+}
 
-    m_log_history_mutex.unlock();
+const std::vector<LogEvent>& CompositeLogger::GetErrorLogs() const {
+    ASSERT_OPERATION_THREAD();
+    return m_errors;
 }
 
 }  // namespace cave

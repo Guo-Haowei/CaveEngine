@@ -1,5 +1,4 @@
 #pragma once
-#include "engine/core/base/ring_buffer.h"
 #include "engine/core/base/singleton.h"
 #include "engine/core/io/print.h"
 
@@ -16,6 +15,12 @@ namespace cave {
     LOG_LEVEL_COLOR(LOG_LEVEL_FATAL,    "[FATAL]",  "\033[101;30m", 0xC)
 // clang-format on
 
+struct LogEvent {
+    LogLevel level;
+    uint64_t id;
+    std::string message;
+};
+
 class ILogger {
 public:
     virtual ~ILogger() = default;
@@ -30,35 +35,36 @@ public:
 
 class CompositeLogger : public ILogger, public Singleton<CompositeLogger> {
 public:
-    enum {
-        kMaxLogsKept = 128,
-        kLogStructSize = 512,
-    };
-
-    struct Log {
-        uint32_t id;
-        LogLevel level;
-        char buffer[kLogStructSize - sizeof(LogLevel) - sizeof(uint32_t)];
-    };
-
     void Print(LogLevel p_level, std::string_view p_message) override;
 
     void AddLogger(std::shared_ptr<ILogger> p_logger);
     void AddChannel(LogLevel p_log) { m_channels |= p_log; }
     void RemoveChannel(LogLevel p_log) { m_channels &= ~p_log; }
 
+    void Flush();
+
     void ClearLog();
-    // @TODO: change to array
-    void RetrieveLog(std::vector<Log>& p_buffer);
+
+    const std::vector<LogEvent>& GetAllLogs() const;
+    const std::vector<LogEvent>& GetWarningLogs() const;
+    const std::vector<LogEvent>& GetErrorLogs() const;
 
 private:
+    struct Buffer {
+        std::vector<LogEvent> buffer;
+        std::mutex mutex;
+    };
+
     std::vector<std::shared_ptr<ILogger>> m_loggers;
 
-    RingBuffer<Log, kMaxLogsKept> m_log_history;
-    std::mutex m_log_history_mutex;
+    std::vector<LogEvent> m_all_logs;
+    std::vector<LogEvent> m_errors;
+    std::vector<LogEvent> m_warnings;
 
-    int m_channels = LOG_LEVEL_ALL;
-    std::atomic_uint32_t m_log_id;
+    Buffer m_buffer;
+
+    std::atomic_uint32_t m_channels{ LOG_LEVEL_ALL };
+    std::atomic_uint64_t m_log_id{ 0 };
 };
 
 }  // namespace cave

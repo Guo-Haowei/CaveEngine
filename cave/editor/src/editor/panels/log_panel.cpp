@@ -3,48 +3,31 @@
 #include "engine/debugger/profiler.h"
 #include "engine/math/color.h"
 
+#include "editor/widgets/image.h"
+
 namespace cave {
 
-static ImVec4 GetLogLevelColor(LogLevel level) {
-    Color color = Color::Hex(ColorCode::COLOR_WHITE);
-    switch (level) {
-        case LOG_LEVEL_VERBOSE:
-            color = Color::Hex(ColorCode::COLOR_SILVER);
-            break;
-        case LOG_LEVEL_OK:
-            color = Color::Hex(ColorCode::COLOR_GREEN);
-            break;
+static void DrawLog(const LogEvent& p_log) {
+
+    switch (p_log.level) {
         case LOG_LEVEL_WARN:
-            color = Color::Hex(ColorCode::COLOR_YELLOW);
+            ui::WarningIcon();
             break;
         case LOG_LEVEL_ERROR:
         case LOG_LEVEL_FATAL:
-            color = Color::Hex(ColorCode::COLOR_RED);
+            ui::ErrorIcon();
             break;
         default:
+            ui::OkIcon();
             break;
     }
 
-    return ImVec4(color.r, color.g, color.b, 1.0f);
-}
+    Color color = Color::Hex(p_log.level == LOG_LEVEL_VERBOSE ? ColorCode::COLOR_SILVER : ColorCode::COLOR_WHITE);
 
-void LogPanel::RetrieveLogs() {
-    auto& logger = CompositeLogger::GetSingleton();
-    m_logs.clear();
-    logger.RetrieveLog(m_logs);
-
-    for (const auto& log : m_logs) {
-        switch (log.level) {
-            case LogLevel::LOG_LEVEL_ERROR: {
-                m_error_logs.AddPermLog(log);
-            } break;
-            case LogLevel::LOG_LEVEL_WARN: {
-                m_warning_logs.AddPermLog(log);
-            } break;
-            default:
-                break;
-        }
-    }
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, 1.0f));
+    ImGui::SameLine();
+    ImGui::Text(p_log.message.c_str());
+    ImGui::PopStyleColor();
 }
 
 void LogPanel::UpdateInternal() {
@@ -70,23 +53,22 @@ void LogPanel::UpdateInternal() {
 
     int color_index = 0;
 
-    const auto* logs = &m_logs;
+    const std::vector<LogEvent>* logs = &CompositeLogger::GetSingleton().GetAllLogs();
     switch (m_filter) {
         case cave::LOG_LEVEL_WARN:
-            logs = &m_warning_logs.logs;
+            logs = &CompositeLogger::GetSingleton().GetWarningLogs();
             break;
         case cave::LOG_LEVEL_ERROR:
-            logs = &m_error_logs.logs;
+            logs = &CompositeLogger::GetSingleton().GetErrorLogs();
             break;
         default:
             break;
     }
 
-    const auto& _logs = *logs;
-    for (const auto& log : _logs) {
+    for (const LogEvent& log : (*logs)) {
         if (log.level & m_filter) {
             ImVec2 text_pos = ImGui::GetCursorScreenPos();
-            ImVec2 text_size = ImGui::CalcTextSize(log.buffer);
+            ImVec2 text_size = ImGui::CalcTextSize(log.message.c_str());
             text_size.x = std::max(text_size.x, window_size.x);
             text_size.y += padding * 3;
 
@@ -98,9 +80,7 @@ void LogPanel::UpdateInternal() {
             color_index ^= 1;
 
             ImGui::Dummy(ImVec2(padding, padding));
-            ImGui::PushStyleColor(ImGuiCol_Text, GetLogLevelColor(log.level));
-            ImGui::Text(log.buffer);
-            ImGui::PopStyleColor();
+            DrawLog(log);
             ImGui::Dummy(ImVec2(padding, padding));
         }
     }
