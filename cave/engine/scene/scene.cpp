@@ -210,6 +210,15 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
     }
 }
 
+template<typename T>
+static void DuplicateComponent(Scene& p_scene, ecs::Entity p_source, ecs::Entity p_dest) {
+    if (const T* comp = p_scene.GetComponent<T>(p_source)) {
+        T copy = *comp;
+        T& dest = p_scene.Create<T>(p_dest);
+        dest = copy;
+    }
+}
+
 ecs::Entity Scene::DuplicateEntity(ecs::Entity p_entity) {
     if (!p_entity.IsValid()) {
         return p_entity;
@@ -217,11 +226,7 @@ ecs::Entity Scene::DuplicateEntity(ecs::Entity p_entity) {
 
     ecs::Entity entity = CreateEntity();
 
-#define REGISTER_COMPONENT(COMP, ...)                     \
-    if (const auto comp = GetComponent<COMP>(p_entity)) { \
-        auto& copy = Create<COMP>(entity);                \
-        copy = *comp;                                     \
-    }
+#define REGISTER_COMPONENT(COMP, ...) DuplicateComponent<COMP>(*this, p_entity, entity);
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
