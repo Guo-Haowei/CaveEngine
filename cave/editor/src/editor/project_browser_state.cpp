@@ -143,7 +143,14 @@ void ProjectBrowserState::DrawSideBar() {
     }
 
     const LogEvent& log = logs.back();
-    ImGui::Text("%s", log.message.c_str());
+
+    const char* ptr1 = log.message.c_str();
+    const char* ptr2 = strchr(ptr1, ']');
+    ptr2 = ptr2 ? (ptr2 + 1) : ptr1;
+
+    TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
+
+    ImGui::Text("[%d%%] %s", static_cast<int>(root.progress01 * 100), ptr2);
 }
 
 Option<StateRequest> ProjectBrowserState::PopRequest() {
