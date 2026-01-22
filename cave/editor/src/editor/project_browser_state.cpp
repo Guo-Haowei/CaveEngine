@@ -79,7 +79,7 @@ void ProjectBrowserState::DrawRecentProjects() {
 
         if (clicked && !m_request_fired) {
             m_request = Some(StateRequest{ AppStateId::Editor, item.path });
-            m_app.LoadProjectAsync(item.path);
+            m_app.RequestProject(item.path);
             m_request_fired = true;
         }
     }

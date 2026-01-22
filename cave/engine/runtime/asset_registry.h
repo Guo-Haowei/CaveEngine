@@ -45,19 +45,18 @@ public:
 
     std::vector<AssetHandle> GetAssetsOfType(AssetType p_type) const;
 
-    auto RequestProject(const std::filesystem::path& p_path) -> Result<void>;
-
     // should only used by AssetManager
+    //[[deprecated]]
     std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
+
+    //[[deprecated]]
+    uint64_t StartAsyncLoad(AssetMetaData&& p_meta);
 
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
     bool SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const;
-
-    // @TODO: deprecate
-    bool StartAsyncLoad(AssetMetaData&& p_meta);
 
     mutable std::mutex registry_mutex;
     std::unordered_map<std::string, Guid> m_path_map;

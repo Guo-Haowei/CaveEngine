@@ -33,6 +33,7 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+
 Application::Application(const ApplicationSpec& p_spec, Type p_type)
     : m_type(p_type)
     , m_specification(p_spec) {
@@ -222,8 +223,9 @@ AppStateId Application::GetStateId() const {
     return m_state_machine->GetStateId();
 }
 
-void Application::LoadProjectAsync(std::string_view p_path) {
+void Application::RequestProject(std::string_view p_path) {
     DEV_ASSERT(!p_path.empty());
+    DEV_ASSERT_MSG(!m_vfs->HasMount("@res"), "resource folder already mounted");
 
     fs::path resource_folder = fs::path(p_path) / "resources";
     m_vfs->Mount("@res", resource_folder);
@@ -235,7 +237,8 @@ void Application::LoadProjectAsync(std::string_view p_path) {
         // @TODO: load stuff
     }
 
-    m_asset_registry->RequestProject(resource_folder);
+    DEV_ASSERT(0);
+    //m_asset_registry->RequestProject(resource_folder);
 }
 
 }  // namespace cave

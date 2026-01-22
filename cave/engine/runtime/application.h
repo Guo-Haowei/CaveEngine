@@ -73,7 +73,7 @@ public:
 
     const ApplicationSpec& GetSpecification() const { return m_specification; }
 
-    void LoadProjectAsync(std::string_view p_path);
+    void RequestProject(std::string_view p_path);
 
     // @TODO: get rid of the following
     bool IsRuntime() const { return m_type == Type::Runtime; }
