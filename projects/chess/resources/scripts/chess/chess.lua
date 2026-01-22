@@ -79,9 +79,12 @@ function Chess:update_legal_moves()
     self.legal_moves_map = map
 end
 
--- Stubs for later
 function Chess:legal_moves(opts)
-    return {}, 'not implemented'
+    return self.legal_moves
+end
+
+function Chess:legal_moves_from(index)
+    return self.legal_moves_map[index] or {}
 end
 
 function Chess:can_move(index)
@@ -89,7 +92,17 @@ function Chess:can_move(index)
 end
 
 function Chess:is_legal(mv)
-    return false, 'not implemented'
+    local sub = self.legal_moves_map[mv.from]
+    if not sub then
+        return false
+    end
+    for i = 1, #sub do
+        local lm = sub[i]
+        if lm.to == mv.to and lm.promo == mv.promo then
+            return true
+        end
+    end
+    return false
 end
 
 function Chess:get_piece(file, rank)
