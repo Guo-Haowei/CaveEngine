@@ -337,7 +337,7 @@ void EditorState::CommandRemoveEntity(ecs::Entity p_target) {
 }
 
 void EditorState::CommandDuplicateEntity(ecs::Entity p_target) {
-    auto command = std::make_shared<EditorCommandRemoveEntity>(p_target);
+    auto command = std::make_shared<EditorCommandDuplicateEntity>(p_target);
     BufferCommand(command);
 }
 
