@@ -124,7 +124,7 @@ void TileSetEditor::DrawAssetInspector() {
 
     const float full_width = ImGui::GetContentRegionAvail().x;
 
-    DrawContents(full_width, descs);
+    ui::DrawContents(full_width, descs);
 }
 
 Document& TileSetEditor::GetDocument() const {

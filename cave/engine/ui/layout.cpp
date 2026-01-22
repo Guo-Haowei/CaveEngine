@@ -1,8 +1,57 @@
 #include "layout.h"
 
-#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
-namespace cave {
+namespace cave::ui {
+
+void DockSpace(const DockSpaceContext& p_context) {
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoBringToFrontOnFocus |
+        ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoBackground;
+
+    if (p_context.menubar_func) {
+        flags |= ImGuiWindowFlags_MenuBar;
+    }
+
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+    ImGui::SetNextWindowViewport(viewport->ID);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+    ImGui::Begin("DockSpaceRoot", nullptr, flags);
+    ImGui::PopStyleVar(3);
+
+    ImGuiID dockspace_id = ImGui::GetID(p_context.str_id);
+    ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
+
+    if (p_context.menubar_func) {
+        if (ImGui::BeginMainMenuBar()) {
+            p_context.menubar_func();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    if (p_context.sidebar_func) {
+        if (ImGui::BeginViewportSideBar("StatusBar", viewport, ImGuiDir_Down, ImGui::GetFrameHeight(), ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
+            if (ImGui::BeginMenuBar()) {
+                p_context.sidebar_func();
+                ImGui::EndMenuBar();
+            }
+            ImGui::End();
+        }
+    }
+    ImGui::End();
+}
 
 void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_descs) {
     const int size = static_cast<int>(p_descs.size());
@@ -24,32 +73,4 @@ void DrawContents(float p_full_width, const std::vector<AssetChildPanel>& p_desc
     }
 }
 
-bool BeginFullscreenWindow(const char* p_name) {
-    ImGuiViewport* vp = ImGui::GetMainViewport();
-
-    ImGui::SetNextWindowPos(vp->Pos);
-    ImGui::SetNextWindowSize(vp->Size);
-    ImGui::SetNextWindowViewport(vp->ID);
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
-    ImGuiWindowFlags flags =
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoBringToFrontOnFocus |
-        ImGuiWindowFlags_NoNavFocus |
-        ImGuiWindowFlags_NoDocking;
-
-    return ImGui::Begin(p_name, nullptr, flags);
-}
-
-void EndFullscreenWindow() {
-    ImGui::End();
-    ImGui::PopStyleVar(3);
-}
-
-}  // namespace cave
+}  // namespace cave::ui

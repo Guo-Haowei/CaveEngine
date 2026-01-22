@@ -119,7 +119,7 @@ void TileMapEditor::DrawAssetInspector() {
 
     const float full_width = ImGui::GetContentRegionAvail().x;
 
-    DrawContents(full_width, descs);
+    ui::DrawContents(full_width, descs);
 }
 
 bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {

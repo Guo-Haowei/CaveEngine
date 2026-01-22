@@ -100,7 +100,7 @@ void MaterialEditor::DrawAssetInspector() {
 
     const float full_width = ImGui::GetContentRegionAvail().x;
 
-    DrawContents(full_width, descs);
+    ui::DrawContents(full_width, descs);
 }
 
 void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {

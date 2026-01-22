@@ -8,7 +8,6 @@
 namespace cave {
 
 static void DrawLog(const LogEvent& p_log) {
-
     switch (p_log.level) {
         case LOG_LEVEL_WARN:
             ui::WarningIcon();
@@ -26,7 +25,7 @@ static void DrawLog(const LogEvent& p_log) {
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, 1.0f));
     ImGui::SameLine();
-    ImGui::Text(p_log.message.c_str());
+    ImGui::Text("  %s", p_log.message.c_str());
     ImGui::PopStyleColor();
 }
 

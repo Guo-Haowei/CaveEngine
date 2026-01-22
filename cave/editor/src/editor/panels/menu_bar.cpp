@@ -58,8 +58,9 @@ void MenuBar::Update() {
 
     if (ImGui::BeginViewportSideBar("StatusBar", viewport, ImGuiDir_Down, height, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
         if (ImGui::BeginMenuBar()) {
-            const uint32_t error_count = (uint32_t)CompositeLogger::GetSingleton().GetErrorLogs().size();
-            const uint32_t warning_count = (uint32_t)CompositeLogger::GetSingleton().GetWarningLogs().size();
+            CompositeLogger& logger = CompositeLogger::GetSingleton();
+            const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
+            const uint32_t warning_count = static_cast<uint32_t>(logger.GetWarningLogs().size());
 
             ui::ErrorIcon();
 

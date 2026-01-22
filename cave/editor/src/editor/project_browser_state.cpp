@@ -10,9 +10,9 @@
 #include "engine/runtime/boot_load_pipeline.h"
 #include "engine/runtime/imgui_manager.h"
 #include "engine/runtime/task_manager.h"
+#include "engine/ui/layout.h"
 
 #include "editor/widgets/image.h"
-#include "engine/ui/layout.h"
 
 namespace fs = std::filesystem;
 
@@ -120,13 +120,35 @@ void ProjectBrowserState::Tick(float) {
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
-        if (BeginFullscreenWindow("Project Browser")) {
+        ui::DockSpace({ "MyDockSpace",
+                        nullptr,
+                        [this]() {
+                            DrawSideBar();
+                        } });
+
+        if (ImGui::Begin("Recent Projects")) {
             DrawUI();
         }
-        EndFullscreenWindow();
+        ImGui::End();
 
         ImGui::Render();
     }
+}
+
+void ProjectBrowserState::DrawSideBar() {
+    const uint32_t error_count = 0;
+    const uint32_t warning_count = 0;
+
+    ui::ErrorIcon();
+
+    ImGui::SameLine();
+    ImGui::Text(" %u Error(s)", error_count);
+
+    ImGui::SameLine();
+    ui::WarningIcon();
+
+    ImGui::SameLine();
+    ImGui::Text(" %u Warning(s)", warning_count);
 }
 
 Option<StateRequest> ProjectBrowserState::PopRequest() {
@@ -142,90 +164,5 @@ Option<StateRequest> ProjectBrowserState::PopRequest() {
     m_request = None();
     return request;
 }
-
-#if 0
-class BootLoadPipeline {
-public:
-    BootLoadPipeline(TaskManager& tm, IAssetManager& am, AssetRegistry& reg)
-        : m_tm(tm), m_am(am), m_reg(reg) {}
-
-    void Start(const std::filesystem::path& project_path) {
-        m_children.clear();
-
-        // 1) Request project (registry scanning / indexing) as a task
-        m_children.push_back(SubmitRequestProject(project_path));
-
-        // 2) Preload essential assets as a task (uses registry list)
-        m_children.push_back(SubmitPreloadEssentials());
-
-        // 3) Optional: import / compile / warmup
-        // m_children.push_back(...)
-
-        TaskGroupSpec group;
-        group.name = "Boot";
-        group.children = m_children;
-        group.weights = { 0.3f, 0.7f };
-
-        m_root = m_tm.SubmitGroup(std::move(group), TaskPriority::High);
-    }
-
-    TaskSnapshot RootSnapshot() const { return m_tm.GetSnapshot(m_root); }
-
-    std::vector<TaskSnapshot> ChildSnapshots() const {
-        std::vector<TaskSnapshot> out;
-        out.reserve(m_children.size());
-        for (auto id : m_children) out.push_back(m_tm.GetSnapshot(id));
-        return out;
-    }
-
-    TaskId RootId() const { return m_root; }
-
-private:
-    TaskId SubmitRequestProject(const std::filesystem::path& project_path) {
-        struct RequestProjectTask final : IAsyncTask {
-            AssetRegistry& reg;
-            std::filesystem::path path;
-            RequestProjectTask(AssetRegistry& r, std::filesystem::path p) : reg(r), path(std::move(p)) {}
-
-            void Run(TaskContext& ctx) override {
-                ctx.SetIndeterminate(true);
-                auto res = reg.RequestProject(path);
-                if (res.is_err()) ctx.Fail(res.err().ToString());
-                ctx.SetIndeterminate(false);
-                ctx.SetProgress(1.0f);
-            }
-        };
-
-        return m_tm.Submit(std::make_unique<RequestProjectTask>(m_reg, project_path));
-    }
-
-    TaskId SubmitPreloadEssentials() {
-        // however you decide essentials (by type, tag, persistent list, etc.)
-        std::vector<Guid> essentials = GatherEssentialsFromRegistry();
-
-        AssetLoadRequest req;
-        req.name = "Preload essentials";
-        req.guids = std::move(essentials);
-        req.high_priority = true;
-
-        return m_am.SubmitLoadAssets(m_tm, req);
-    }
-
-    std::vector<Guid> GatherEssentialsFromRegistry() {
-        // placeholder – implement however you already do it
-        std::vector<Guid> out;
-        // e.g. reg.GetAssetsOfType(Image/Shader/etc.) -> guids
-        return out;
-    }
-
-private:
-    TaskManager& m_tm;
-    IAssetManager& m_am;
-    AssetRegistry& m_reg;
-
-    TaskId m_root = kInvalidTaskId;
-    std::vector<TaskId> m_children;
-};
-#endif
 
 }  // namespace cave
