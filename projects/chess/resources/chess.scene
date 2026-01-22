@@ -20,8 +20,8 @@ entities:
       parent_id: 1
     TransformComponent:
       translation: [0, 0, 0]
-      rotation: [-0.0970900729, -0.502117634, -0.24437356, 0.823852539]
-      scale: [1, 1.00000238, 1.00000012]
+      rotation: [0.852087259, 0.0361759625, 0.447049439, -0.269787729]
+      scale: [0.999999821, 1.00000095, 1.00000024]
     LightComponent:
       type: infinite
       atten_constant: 1

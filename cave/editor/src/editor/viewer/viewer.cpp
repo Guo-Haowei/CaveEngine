@@ -13,7 +13,7 @@
 #include "editor/editor_dvars.h"
 #include "editor/editor_state.h"
 #include "editor/utility/imguizmo.h"
-#include "editor/widgets/widget.h"
+#include "engine/ui/layout.h"
 
 // asset editors
 #include "editor/animation_editor/sprite_animation_editor.h"

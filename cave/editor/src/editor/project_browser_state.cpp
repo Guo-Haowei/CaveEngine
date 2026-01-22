@@ -3,12 +3,16 @@
 #include <imgui/imgui.h>
 
 #include "engine/assets/image_asset.h"
+#include "engine/core/io/logger.h"
 #include "engine/math/geomath.h"
 #include "engine/runtime/application.h"
+#include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/boot_load_pipeline.h"
 #include "engine/runtime/imgui_manager.h"
+#include "engine/runtime/task_manager.h"
+#include "engine/ui/layout.h"
 
-#include "editor/editor_asset_manager.h"
 #include "editor/widgets/image.h"
 
 namespace fs = std::filesystem;
@@ -60,8 +64,7 @@ void ProjectBrowserState::DrawRecentProjects() {
     Vector2f thumbnail_size(256);
 
     // @TODO: use actual image
-    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
-    std::shared_ptr<ImageAsset> image = asset_manager.FindImage("scene@256x256.png");
+    std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("scene@256x256.png");
     GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
     for (const auto& item : m_projects) {
@@ -78,7 +81,7 @@ void ProjectBrowserState::DrawRecentProjects() {
 
         if (clicked && !m_request_fired) {
             m_request = Some(StateRequest{ AppStateId::Editor, item.path });
-            m_app.LoadProjectAsync(item.path);
+            m_app.RequestProject(item.path);
             m_request_fired = true;
         }
     }
@@ -108,8 +111,31 @@ void ProjectBrowserState::Tick(float) {
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
-        if (ImGui::Begin("Launcher")) {
+        ui::DockSpace({ "DockSpaceRoot",
+                        nullptr,
+                        [this]() {
+                            DrawSideBar();
+                        } });
+
+        if (ImGui::Begin("Recent Projects")) {
             DrawUI();
+        }
+        ImGui::End();
+
+        if (ImGui::Begin("Settings")) {
+        }
+        ImGui::End();
+
+        if (ImGui::Begin("Project Location")) {
+            if (m_request_fired) {
+                TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
+
+                if (root.indeterminate) {
+                    ImGui::ProgressBar(-1.0f, ImVec2(-1.0f, 0.0f));
+                } else {
+                    ImGui::ProgressBar(root.progress01, ImVec2(-1.0f, 0.0f));
+                }
+            }
         }
         ImGui::End();
 
@@ -117,7 +143,32 @@ void ProjectBrowserState::Tick(float) {
     }
 }
 
+void ProjectBrowserState::DrawSideBar() {
+    const std::vector<LogEvent>& logs = CompositeLogger::GetSingleton().GetAllLogs();
+    if (logs.empty()) {
+        return;
+    }
+
+    const LogEvent& log = logs.back();
+
+    const char* ptr1 = log.message.c_str();
+    const char* ptr2 = strchr(ptr1, ']');
+    ptr2 = ptr2 ? (ptr2 + 1) : ptr1;
+
+    TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
+
+    ImGui::Text("[%d%%] %s", static_cast<int>(root.progress01 * 100), ptr2);
+}
+
 Option<StateRequest> ProjectBrowserState::PopRequest() {
+    if (!m_request_fired) {
+        return None();
+    }
+
+    if (m_app.GetTaskManager()->HasPendingWork()) {
+        return None();
+    }
+
     auto request = m_request;
     m_request = None();
     return request;

@@ -2,7 +2,7 @@
 
 #include "engine/assets/image_asset.h"
 
-#include "editor/widgets/inputs.h"
+#include "engine/ui/inputs.h"
 
 namespace cave {
 

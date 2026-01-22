@@ -12,8 +12,8 @@
 #include "editor/editor_scene_manager.h"
 #include "editor/widgets/drag_drop.h"
 #include "editor/widgets/image.h"
-#include "editor/widgets/inputs.h"
-#include "editor/widgets/widget.h"
+#include "engine/ui/inputs.h"
+#include "engine/ui/layout.h"
 #include "editor/viewer/viewer.h"
 #include "editor/utility/imguizmo.h"
 
@@ -310,7 +310,7 @@ void SpriteAnimationEditor::DrawAssetInspector() {
 
     const float full_width = ImGui::GetContentRegionAvail().x;
 
-    DrawContents(full_width, descs);
+    ui::DrawContents(full_width, descs);
 }
 
 Document& SpriteAnimationEditor::GetDocument() const {

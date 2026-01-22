@@ -5,6 +5,7 @@
 
 #include "engine/debugger/profiler.h"
 #include "engine/core/io/file_access.h"
+#include "engine/core/io/logger.h"
 #include "engine/core/os/threads.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -12,6 +13,7 @@
 #include "engine/runtime/app_state.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/boot_load_pipeline.h"
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/display_manager.h"
 #include "engine/runtime/imgui_manager.h"
@@ -69,6 +71,11 @@ auto Application::SetupModules() -> Result<void> {
     m_render_system = new RenderSystem();
     m_viewport_manager = new ViewportManager();
     m_task_manager = new TaskManager();
+
+    m_boot_load_pipeline = std::make_unique<BootLoadPipeline>(
+        *m_task_manager,
+        *m_asset_manager,
+        *m_asset_registry);
 
     RegisterModule(m_task_manager);
     RegisterModule(m_asset_manager);
@@ -144,13 +151,15 @@ void Application::Finalize() {
 }
 
 float Application::UpdateTime() {
-    float timestep = static_cast<float>(m_timer.GetDuration().ToSecond());
+    const float timestep = static_cast<float>(m_timer.GetDuration().ToSecond());
     m_timer.Start();
     return min(timestep, 0.5f);
 }
 
 bool Application::MainLoop() {
     CAVE_PROFILE_FRAME("MainThread");
+
+    CompositeLogger::GetSingleton().Flush();
 
     // === Begin Frame ===
     m_display_server->BeginFrame();
@@ -222,8 +231,9 @@ AppStateId Application::GetStateId() const {
     return m_state_machine->GetStateId();
 }
 
-void Application::LoadProjectAsync(std::string_view p_path) {
+void Application::RequestProject(std::string_view p_path) {
     DEV_ASSERT(!p_path.empty());
+    DEV_ASSERT_MSG(!m_vfs->HasMount("@res"), "resource folder already mounted");
 
     fs::path resource_folder = fs::path(p_path) / "resources";
     m_vfs->Mount("@res", resource_folder);
@@ -235,7 +245,12 @@ void Application::LoadProjectAsync(std::string_view p_path) {
         // @TODO: load stuff
     }
 
-    m_asset_registry->RequestProject(resource_folder);
+    m_boot_load_pipeline->RequestProject(resource_folder);
+}
+
+BootLoadPipeline& Application::GetBootLoadPipeline() {
+    DEV_ASSERT(m_boot_load_pipeline);
+    return *m_boot_load_pipeline;
 }
 
 }  // namespace cave

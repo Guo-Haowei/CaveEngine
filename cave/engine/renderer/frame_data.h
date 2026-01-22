@@ -97,7 +97,7 @@ struct FrameData {
     // std::vector<ParticleEmitterComponent> emitters;
 
     // @TODO: refactor
-    bool bakeIbl;
+    bool bakeIbl{ false };
 
     struct UpdateBuffer {
         std::vector<Vector3f> positions;

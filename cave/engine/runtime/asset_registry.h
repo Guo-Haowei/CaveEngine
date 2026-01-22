@@ -45,7 +45,12 @@ public:
 
     std::vector<AssetHandle> GetAssetsOfType(AssetType p_type) const;
 
-    auto RequestProject(const std::filesystem::path& p_path) -> Result<void>;
+    // should only used by AssetManager
+    //[[deprecated]]
+    std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
+
+    //[[deprecated]]
+    uint64_t StartAsyncLoad(AssetMetaData&& p_meta);
 
 protected:
     auto InitializeImpl() -> Result<void> override;
@@ -53,18 +58,9 @@ protected:
 
     bool SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const;
 
-    bool StartAsyncLoad(AssetMetaData&& p_meta,
-                        AssetLoadSuccessCallback&& p_on_success,
-                        AssetLoadFailureCallback&& p_on_failure,
-                        void* p_userdata = nullptr);
-
-    std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
-
     mutable std::mutex registry_mutex;
     std::unordered_map<std::string, Guid> m_path_map;
     std::unordered_map<Guid, std::shared_ptr<AssetEntry>> m_guid_map;
-
-    friend class AssetManager;
 };
 
 }  // namespace cave

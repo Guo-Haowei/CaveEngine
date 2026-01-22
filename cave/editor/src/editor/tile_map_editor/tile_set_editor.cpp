@@ -7,7 +7,7 @@
 #include "engine/scene/camera_component.h"
 
 #include "editor/document/document.h"
-#include "editor/widgets/widget.h"
+#include "engine/ui/layout.h"
 
 namespace cave {
 
@@ -124,7 +124,7 @@ void TileSetEditor::DrawAssetInspector() {
 
     const float full_width = ImGui::GetContentRegionAvail().x;
 
-    DrawContents(full_width, descs);
+    ui::DrawContents(full_width, descs);
 }
 
 Document& TileSetEditor::GetDocument() const {

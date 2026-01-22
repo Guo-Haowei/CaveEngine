@@ -1,6 +1,6 @@
 #include "inputs.h"
 
-#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 namespace cave::ui {
 

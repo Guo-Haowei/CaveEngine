@@ -11,10 +11,10 @@ namespace cave {
 
 auto InputManager::InitializeImpl() -> Result<void> {
     // @TODO: this should come from asset, not hard coded
-    m_input_binding[STR_ID("ui_left")] = std::to_underlying(KeyCode::KEY_A);
-    m_input_binding[STR_ID("ui_right")] = std::to_underlying(KeyCode::KEY_D);
-    m_input_binding[STR_ID("ui_up")] = std::to_underlying(KeyCode::KEY_W);
-    m_input_binding[STR_ID("ui_down")] = std::to_underlying(KeyCode::KEY_S);
+    m_input_binding[STR_ID("ui_left")] = std::to_underlying(KeyCode::KEY_LEFT);
+    m_input_binding[STR_ID("ui_right")] = std::to_underlying(KeyCode::KEY_RIGHT);
+    m_input_binding[STR_ID("ui_up")] = std::to_underlying(KeyCode::KEY_UP);
+    m_input_binding[STR_ID("ui_down")] = std::to_underlying(KeyCode::KEY_DOWN);
     m_input_binding[STR_ID("ui_accept")] = std::to_underlying(KeyCode::KEY_ENTER);
     m_input_binding[STR_ID("ui_cancel")] = std::to_underlying(KeyCode::KEY_ESCAPE);
     return Result<void>();

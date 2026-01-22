@@ -1,5 +1,6 @@
 #include "task_manager.h"
 
+#include "engine/core/os/threads.h"
 #include "engine/runtime/async_task_interface.h"
 #include "engine/runtime/task_context.h"
 #include "engine/runtime/task_queue.h"
@@ -31,7 +32,11 @@ auto TaskManager::InitializeImpl() -> Result<void> {
     m_is_running.store(true);
     m_workers.reserve(worker_count);
     for (uint32_t i = 0; i < worker_count; ++i) {
-        m_workers.emplace_back([this]() { WorkerLoop(); });
+        std::thread thread([this](uint32_t p_id) { WorkerLoop(p_id); }, i);
+        std::string name = std::format("THREAD_TASK_MANAGER_WORKER_{}", i);
+        thread::SetThreadName(thread, name);
+
+        m_workers.emplace_back(std::move(thread));
     }
 
     return Result<void>();
@@ -51,12 +56,14 @@ void TaskManager::Stop() {
     m_workers.clear();
 }
 
-TaskId TaskManager::Submit(std::unique_ptr<IAsyncTask> p_task,
-                           TaskSubmitOptions p_opt,
-                           TaskCompletionCallback p_on_done) {
-    if (!p_task) return kInvalidTaskId;
+uint64_t TaskManager::Submit(std::unique_ptr<IAsyncTask> p_task,
+                             TaskSubmitOptions p_opt,
+                             TaskCompletionCallback p_on_done) {
+    if (!p_task) {
+        return kInvalidTaskId;
+    }
 
-    TaskId id = m_next_id.fetch_add(1);
+    uint64_t id = m_next_id.fetch_add(1);
 
     auto st = std::make_unique<TaskState>();
     st->id = id;
@@ -81,10 +88,10 @@ TaskId TaskManager::Submit(std::unique_ptr<IAsyncTask> p_task,
     return id;
 }
 
-TaskId TaskManager::SubmitGroup(TaskGroupSpec p_spec,
-                                TaskPriority p_priority,
-                                TaskCompletionCallback p_on_done) {
-    TaskId id = m_next_id.fetch_add(1);
+uint64_t TaskManager::SubmitGroup(TaskGroupSpec p_spec,
+                                  TaskPriority p_priority,
+                                  TaskCompletionCallback p_on_done) {
+    uint64_t id = m_next_id.fetch_add(1);
 
     auto st = std::make_unique<TaskState>();
     st->id = id;
@@ -109,7 +116,7 @@ TaskId TaskManager::SubmitGroup(TaskGroupSpec p_spec,
     return id;
 }
 
-void TaskManager::ResumeTask(TaskId p_id) {
+void TaskManager::ResumeTask(uint64_t p_id) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     TaskState* s = FindStateUnlocked(p_id);
     if (!s) return;
@@ -120,7 +127,7 @@ void TaskManager::ResumeTask(TaskId p_id) {
     EnqueueWork(p_id, s->priority);
 }
 
-void TaskManager::RequestCancel(TaskId p_id) {
+void TaskManager::RequestCancel(uint64_t p_id) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     TaskState* s = FindStateUnlocked(p_id);
     if (!s) return;
@@ -128,14 +135,14 @@ void TaskManager::RequestCancel(TaskId p_id) {
     s->cancel_requested.store(true);
 
     if (s->is_group) {
-        for (TaskId c : s->children) {
+        for (uint64_t c : s->children) {
             TaskState* cs = FindStateUnlocked(c);
             if (cs) cs->cancel_requested.store(true);
         }
     }
 }
 
-TaskSnapshot TaskManager::GetSnapshot(TaskId p_id) const {
+TaskSnapshot TaskManager::GetSnapshot(uint64_t p_id) const {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     const TaskState* s = FindStateUnlocked(p_id);
 
@@ -169,9 +176,21 @@ void TaskManager::TickMainThread() {
     }
 }
 
-void TaskManager::WorkerLoop() {
+bool TaskManager::HasPendingWork() const {
+    return m_in_flight.load(std::memory_order_acquire) > 0;
+}
+
+void TaskManager::WaitUntilIdle() {
+    while (HasPendingWork()) {
+        std::this_thread::yield();
+    }
+}
+
+void TaskManager::WorkerLoop(uint32_t p_worker_id) {
+    thread::SetThreadID(thread::THREAD_TASK_MANAGER_WORKER_1 + p_worker_id);
+
     while (m_is_running.load()) {
-        TaskId id = kInvalidTaskId;
+        uint64_t id = kInvalidTaskId;
         if (!PopNextWorkItem(id)) continue;
 
         std::unique_ptr<IAsyncTask> task;
@@ -199,7 +218,10 @@ void TaskManager::WorkerLoop() {
         TaskContext ctx(*this, id);
 
         try {
-            if (task) task->Run(ctx);
+            if (task) {
+                task->Run(ctx);
+                m_in_flight.fetch_sub(1, std::memory_order_acq_rel);
+            }
         } catch (...) {
             ctx.Fail("Unhandled exception in async task.");
         }
@@ -228,7 +250,7 @@ void TaskManager::WorkerLoop() {
     }
 }
 
-bool TaskManager::PopNextWorkItem(TaskId& out_id) {
+bool TaskManager::PopNextWorkItem(uint64_t& out_id) {
     std::unique_lock<std::mutex> lock(m_work_mutex);
     m_work_cv.wait(lock, [&]() {
         return !m_is_running.load() || !m_queue_high.empty() || !m_queue_norm.empty() || !m_queue_low.empty();
@@ -250,7 +272,7 @@ bool TaskManager::PopNextWorkItem(TaskId& out_id) {
     return false;
 }
 
-void TaskManager::EnqueueWork(TaskId id, TaskPriority pri) {
+void TaskManager::EnqueueWork(uint64_t id, TaskPriority pri) {
     {
         std::lock_guard<std::mutex> lock(m_work_mutex);
         QueuedItem it;
@@ -270,16 +292,18 @@ void TaskManager::EnqueueWork(TaskId id, TaskPriority pri) {
                 break;
         }
     }
+
+    m_in_flight.fetch_add(1, std::memory_order_relaxed);
     m_work_cv.notify_one();
 }
 
-TaskManager::TaskState* TaskManager::FindStateUnlocked(TaskId id) {
+TaskManager::TaskState* TaskManager::FindStateUnlocked(uint64_t id) {
     auto it = m_states.find(id);
     if (it == m_states.end()) return nullptr;
     return it->second.get();
 }
 
-const TaskManager::TaskState* TaskManager::FindStateUnlocked(TaskId id) const {
+const TaskManager::TaskState* TaskManager::FindStateUnlocked(uint64_t id) const {
     auto it = m_states.find(id);
     if (it == m_states.end()) return nullptr;
     return it->second.get();
@@ -294,7 +318,7 @@ void TaskManager::MaybeEnqueueCompletionOnMainThread(TaskState& s) {
 
     s.completion_enqueued = true;
 
-    TaskId id = s.id;
+    uint64_t id = s.id;
     TaskCompletionCallback cb = s.on_done;
 
     // Capture a snapshot by value for the callback.
@@ -334,7 +358,7 @@ void TaskManager::UpdateGroupAggregation(TaskState& g) {
     float sum = 0.0f;
 
     for (size_t i = 0; i < g.children.size(); ++i) {
-        TaskId cid = g.children[i];
+        uint64_t cid = g.children[i];
         TaskState* c = FindStateUnlocked(cid);
         if (!c) continue;
 
@@ -395,14 +419,14 @@ void TaskManager::UpdateGroupAggregation(TaskState& g) {
 
 // --- TaskContext bridge ---
 
-void TaskManager::ContxtSetIndeterminate(TaskId id, bool v) {
+void TaskManager::ContxtSetIndeterminate(uint64_t id, bool v) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     TaskState* s = FindStateUnlocked(id);
     if (!s) return;
     s->indeterminate.store(v);
 }
 
-void TaskManager::ContextSetProgress(TaskId id, float p01) {
+void TaskManager::ContextSetProgress(uint64_t id, float p01) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     TaskState* s = FindStateUnlocked(id);
     if (!s) return;
@@ -410,7 +434,7 @@ void TaskManager::ContextSetProgress(TaskId id, float p01) {
     s->progress01.store(Clamp01(p01));
 }
 
-void TaskManager::ContextFail(TaskId id, std::string err) {
+void TaskManager::ContextFail(uint64_t id, std::string err) {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     TaskState* s = FindStateUnlocked(id);
     if (!s) return;
@@ -422,7 +446,7 @@ void TaskManager::ContextFail(TaskId id, std::string err) {
     s->status.store(TaskStatus::Failed);
 }
 
-bool TaskManager::ContextIsCancelRequested(TaskId id) const {
+bool TaskManager::ContextIsCancelRequested(uint64_t id) const {
     std::lock_guard<std::mutex> lock(m_states_mutex);
     const TaskState* s = FindStateUnlocked(id);
     if (!s) return false;

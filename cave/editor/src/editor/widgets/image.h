@@ -8,6 +8,12 @@ struct ImVec2;
 
 namespace cave::ui {
 
+void OkIcon();
+
+void WarningIcon();
+
+void ErrorIcon();
+
 void CenteredImage(const ImageAsset* p_image,
                    const Vector2f& p_background_region,
                    uint64_t p_background);

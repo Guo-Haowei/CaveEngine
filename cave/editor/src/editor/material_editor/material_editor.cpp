@@ -10,7 +10,7 @@
 #include "editor/material_editor/material_document.h"
 #include "editor/panels/asset_inspector.h"
 #include "editor/widgets/drag_drop.h"
-#include "editor/widgets/widget.h"
+#include "engine/ui/layout.h"
 
 namespace cave {
 
@@ -100,7 +100,7 @@ void MaterialEditor::DrawAssetInspector() {
 
     const float full_width = ImGui::GetContentRegionAvail().x;
 
-    DrawContents(full_width, descs);
+    ui::DrawContents(full_width, descs);
 }
 
 void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {

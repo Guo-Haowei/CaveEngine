@@ -18,6 +18,7 @@
 #include "engine/runtime/input_manager.h"
 #include "engine/runtime/scene_manager_interface.h"
 #include "engine/runtime/script_manager.h"
+#include "engine/ui/layout.h"
 
 #include "editor/document/document.h"
 #include "editor/editor_command.h"
@@ -32,7 +33,7 @@
 #include "editor/panels/renderer_panel.h"
 #include "editor/viewer/viewer.h"
 #include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/widget.h"
+#include "editor/widgets/image.h"
 
 namespace cave {
 
@@ -183,8 +184,6 @@ void EditorState::OnExit() {
 void EditorState::Tick(float p_timestep) {
     context.timestep = p_timestep;
 
-    m_log_panel->RetrieveLogs();
-
     ImguiManager* imgui_manager = m_app.GetImguiManager();
 
     // @TODO: refactor this
@@ -228,9 +227,6 @@ void EditorState::RequestGamePlay() {
     m_request = Some(StateRequest{ AppStateId::Runtime });
 }
 
-////////////////////
-////////////////////
-
 void EditorState::AddPanel(std::shared_ptr<EditorItem> p_panel) {
     m_panels.emplace_back(p_panel);
 }
@@ -238,47 +234,32 @@ void EditorState::AddPanel(std::shared_ptr<EditorItem> p_panel) {
 void EditorState::DockSpace() {
     CAVE_PROFILE_EVENT();
 
-    ImGui::GetMainViewport();
+    ui::DockSpace({
+        "DockSpace Demo",
+        [this]() { m_menu_bar->Update(); },
+        [this]() {
+            CompositeLogger& logger = CompositeLogger::GetSingleton();
+            const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
+            const uint32_t warning_count = static_cast<uint32_t>(logger.GetWarningLogs().size());
 
-    static bool opt_padding = false;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+            ui::ErrorIcon();
 
-    // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-    // because it would be confusing to have two docking targets within each others.
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(viewport->WorkPos);
-    ImGui::SetNextWindowSize(viewport->WorkSize);
-    ImGui::SetNextWindowViewport(viewport->ID);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    window_flags |=
-        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+            ImGui::SameLine();
+            ImGui::Text(" %u Error(s)", error_count);
 
-    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) {
-        window_flags |= ImGuiWindowFlags_NoBackground;
-    }
+            ImGui::SameLine();
+            ui::WarningIcon();
 
-    if (!opt_padding) {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    }
-    ImGui::Begin("DockSpace Demo", nullptr, window_flags);
-    if (!opt_padding) {
-        ImGui::PopStyleVar();
-    }
+            ImGui::SameLine();
+            ImGui::Text(" %u Warning(s)", warning_count);
+        },
+    });
 
-    ImGui::PopStyleVar(2);
-
-    // Submit the DockSpace
-    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-
-    m_menu_bar->Update();
-
-    ImGui::End();
     return;
 }
+
+////////////////////
+////////////////////
 
 void EditorState::FlushInputEvents() {
     CAVE_PROFILE_EVENT();

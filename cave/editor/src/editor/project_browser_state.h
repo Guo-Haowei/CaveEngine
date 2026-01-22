@@ -27,6 +27,7 @@ public:
 private:
     void DrawUI();
     void DrawRecentProjects();
+    void DrawSideBar();
 
     std::vector<ProjectItem> m_projects{};
     bool m_request_fired{ false };

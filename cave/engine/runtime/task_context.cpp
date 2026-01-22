@@ -22,6 +22,7 @@ bool TaskContext::IsCancelRequested() const {
 }
 
 void TaskContext::Fail(std::string p_error) {
+    LOG_ERROR("{}", p_error);
     m_task_manager.ContextFail(m_task_id, std::move(p_error));
 }
 

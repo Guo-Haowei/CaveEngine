@@ -3,8 +3,6 @@
 #include <fstream>
 #include <latch>
 
-#include "engine/algorithm/algorithm.h"
-#include "engine/core/string/string_utils.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager_interface.h"
 
@@ -19,105 +17,10 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-auto AssetRegistry::RequestProject(const fs::path& p_resources_root) -> Result<void> {
-    DEV_ASSERT(!p_resources_root.empty());
-
-    struct Pair {
-        bool has_meta;
-        bool has_source;
-    };
-
-    std::unordered_map<std::string, Pair> resources;
-
-    // go through all files, create meta if not exists
-    for (const auto& entry : fs::recursive_directory_iterator(p_resources_root)) {
-        if (entry.is_regular_file()) {
-            std::string virtual_path = m_app->GetAssetManager()->ResolvePath(entry.path());
-
-            auto ext = StringUtils::Extension(virtual_path);
-            if (ext == ".meta") {
-                virtual_path.resize(virtual_path.size() - 5);  // remove '.meta'
-                resources[virtual_path].has_meta = true;
-            } else {
-                resources[virtual_path].has_source = true;
-            }
-        }
-    }
-
-    std::vector<AssetMetaData> assets;
-    assets.reserve(resources.size());
-
-    for (const auto& [key, value] : resources) {
-        auto meta_path = std::format("{}.meta", key);
-        if (value.has_meta) {
-            auto res = AssetMetaData::LoadMeta(meta_path);
-            if (!res) {
-                return CAVE_ERROR(res.error());
-            }
-
-            auto meta = std::move(*res);
-
-            if (meta.import_path != key) {
-                LOG_WARN("path of asset '{}' is outdated expect: '{}', actual: '{}'", meta.guid.ToString(), meta.import_path, key);
-                meta.import_path = key;
-            }
-
-            LOG_VERBOSE("'{}' detected, loading...", meta_path);
-            assets.emplace_back(std::move(meta));
-            continue;
-        }
-
-        DEV_ASSERT(value.has_source);
-        auto meta = AssetMetaData::CreateMeta(key);
-        if (meta.is_none()) {
-            // LOG_WARN("file '{}' not supported", key);
-            continue;
-        }
-
-        auto meta2 = std::move(meta.unwrap_unchecked());
-        auto res = meta2.SaveToDisk(nullptr);
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-
-        LOG_VERBOSE("'{}' not detected, creating", meta_path);
-        assets.emplace_back(std::move(meta2));
-    }
-
-    const int N = static_cast<int>(assets.size());
-    std::vector<TopoSortEdge> edges;
-    std::unordered_map<Guid, int> mapping;
-    for (int i = 0; i < N; ++i) {
-        mapping[assets[i].guid] = i;
-    }
-
-    for (const auto& asset : assets) {
-        auto to = mapping.find(asset.guid);
-        DEV_ASSERT(to != mapping.end());
-        for (const auto& guid : asset.dependencies) {
-            auto from = mapping.find(guid);
-            DEV_ASSERT(from != mapping.end());
-            edges.push_back({ from->second, to->second });
-        }
-    }
-
-    const auto order = TopologicalSort(N, edges).unwrap();
-
-    for (int idx : order) {
-        StartAsyncLoad(std::move(assets[idx]), [](AssetRef, void*) {}, [](void*) {});
-    }
-
-    return Result<void>();
-}
-
 void AssetRegistry::FinalizeImpl() {
 }
 
-bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
-                                   AssetLoadSuccessCallback&& p_on_success,
-                                   AssetLoadFailureCallback&& p_on_failure,
-                                   void* p_userdata) {
-
+uint64_t AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta) {
     auto entry = std::make_shared<AssetEntry>(std::move(p_meta));
     bool ok = true;
     {
@@ -126,12 +29,10 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta,
         ok = ok && m_path_map.try_emplace(entry->metadata.import_path, entry->metadata.guid).second;
     }
     if (ok) {
-        m_app->GetAssetManager()->LoadAssetAsync(entry->metadata.guid,
-                                                 std::move(p_on_success),
-                                                 std::move(p_on_failure),
-                                                 p_userdata);
+        return m_app->GetAssetManager()->SubmitLoadAsset({ entry->metadata.guid });
     }
-    return ok;
+
+    return 0;
 }
 
 // @TODO: use this for string look up

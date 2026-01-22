@@ -13,6 +13,34 @@
 
 namespace cave {
 
+static bool BeginFullscreenWindow(const char* p_name) {
+    ImGuiViewport* vp = ImGui::GetMainViewport();
+
+    ImGui::SetNextWindowPos(vp->Pos);
+    ImGui::SetNextWindowSize(vp->Size);
+    ImGui::SetNextWindowViewport(vp->ID);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoBringToFrontOnFocus |
+        ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoDocking;
+
+    return ImGui::Begin(p_name, nullptr, flags);
+}
+
+static void EndFullscreenWindow() {
+    ImGui::End();
+    ImGui::PopStyleVar(3);
+}
+
 class RuntimeSceneViewProvider : public ISceneViewProvider {
 public:
     RuntimeSceneViewProvider(Application& p_app)
@@ -80,14 +108,14 @@ void RuntimeState::Tick(float p_timestep) {
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
-        if (ImGui::Begin("temp window for display")) {
+        if (BeginFullscreenWindow("Full Screen")) {
             const IGraphicsManager* gm = GetApp().GetGraphicsManager();
             uint64_t handle = gm->GetFinalImage();
 
             const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
             ImGui::Image((ImTextureID)handle, ImVec2{ (float)frame_size.x, (float)frame_size.y });
         }
-        ImGui::End();
+        EndFullscreenWindow();
 
         ImGui::Render();
     }

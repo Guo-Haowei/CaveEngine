@@ -3,6 +3,7 @@
 
 namespace cave::thread {
 
+// @TODO: refactor thread
 enum ThreadID : uint32_t {
     THREAD_MAIN,
 #if USING(ENABLE_JOB_SYSTEM)
@@ -16,6 +17,9 @@ enum ThreadID : uint32_t {
     THREAD_JOBSYSTEM_WORKER_8,
 #endif
     THREAD_MAX,
+
+    THREAD_TASK_MANAGER_WORKER_1,
+    THREAD_TASK_MANAGER_WORKER_2,
 };
 
 bool Initialize();
@@ -29,5 +33,9 @@ void RequestShutdown();
 bool IsMainThread();
 
 uint32_t GetThreadId();
+
+void SetThreadName(std::thread& p_thread, std::string_view p_name);
+
+void SetThreadID(uint32_t p_id);
 
 }  // namespace cave::thread
