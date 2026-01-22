@@ -22,56 +22,6 @@ ProjectBrowserState::ProjectBrowserState(Application& p_app)
     : AppState(p_app) {
 }
 
-// Call once when you start loading:
-static void BeginLoadingPopup() {
-    ImGui::OpenPopup("Loading");
-}
-
-// Call every frame while you might be loading:
-static void DrawLoadingPopup(const TaskSnapshot& root) {
-    // Center it (or near center)
-    const ImVec2 viewport_pos = ImGui::GetMainViewport()->Pos;
-    const ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
-    const ImVec2 win_size(420.0f, 120.0f);
-
-    ImGui::SetNextWindowPos(
-        ImVec2(viewport_pos.x + (viewport_size.x - win_size.x) * 0.5f,
-               viewport_pos.y + (viewport_size.y - win_size.y) * 0.5f),
-        ImGuiCond_Always);
-
-    ImGui::SetNextWindowSize(win_size, ImGuiCond_Always);
-
-    ImGuiWindowFlags flags =
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoSavedSettings;
-
-    bool open = true;
-    if (ImGui::BeginPopupModal("Loading", &open, flags)) {
-        ImGui::Spacing();
-
-        if (root.indeterminate) {
-            // ImGui doesn't have a true indeterminate bar; common trick is -1.0f
-            ImGui::ProgressBar(-1.0f, ImVec2(-1.0f, 0.0f));
-        } else {
-            ImGui::ProgressBar(root.progress01, ImVec2(-1.0f, 0.0f));
-        }
-
-        ImGui::Spacing();
-
-        // Optional: cancel button
-        // if (ImGui::Button("Cancel")) task_mgr.RequestCancel(root.id);
-
-        // Auto-close when finished
-        if (root.status == TaskStatus::Succeeded || root.status == TaskStatus::Failed) {
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndPopup();
-    }
-}
-
 void ProjectBrowserState::OnEnter(const StateRequest&) {
     fs::path project_root{ ROOT_FOLDER "projects" };
     if (!fs::exists(project_root) || !fs::is_directory(project_root)) {
@@ -155,15 +105,14 @@ void ProjectBrowserState::DrawUI() {
 
     DrawRecentProjects();
 
-    bool show_modal = m_request_fired;
-    show_modal = true;
-    if (show_modal && !m_modal_popped) {
-        BeginLoadingPopup();
-        m_modal_popped = true;
-    }
+    if (m_request_fired) {
+        TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
 
-    if (show_modal) {
-        DrawLoadingPopup(m_app.GetBootLoadPipeline().RootSnapshot());
+        if (root.indeterminate) {
+            ImGui::ProgressBar(-1.0f, ImVec2(-1.0f, 0.0f));
+        } else {
+            ImGui::ProgressBar(root.progress01, ImVec2(-1.0f, 0.0f));
+        }
     }
 }
 

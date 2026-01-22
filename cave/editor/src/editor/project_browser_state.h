@@ -30,7 +30,6 @@ private:
 
     std::vector<ProjectItem> m_projects{};
     bool m_request_fired{ false };
-    bool m_modal_popped{ false };
     Option<StateRequest> m_request{};
 };
 
