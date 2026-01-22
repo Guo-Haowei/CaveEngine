@@ -165,6 +165,8 @@ public:
 
     void RemoveEntity(ecs::Entity p_entity);
 
+    ecs::Entity DuplicateEntity(ecs::Entity p_entity);
+
     void InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_entity = ecs::Entity::Null());
 
     auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
@@ -184,6 +186,7 @@ public:
     const AABB& GetBound() const { return m_bound; }
 
     ecs::Entity m_root;
+    // @TODO: deprecate
     ecs::Entity m_selected;
     bool m_replace = false;
 

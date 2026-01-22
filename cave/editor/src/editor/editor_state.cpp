@@ -336,6 +336,11 @@ void EditorState::CommandRemoveEntity(ecs::Entity p_target) {
     BufferCommand(command);
 }
 
+void EditorState::CommandDuplicateEntity(ecs::Entity p_target) {
+    auto command = std::make_shared<EditorCommandRemoveEntity>(p_target);
+    BufferCommand(command);
+}
+
 void EditorState::FlushCommand(Scene* p_scene) {
     CAVE_PROFILE_EVENT();
 

@@ -83,6 +83,11 @@ void EditorCommandRemoveEntity::Execute(Scene& p_scene) {
     p_scene.RemoveEntity(entity);
 }
 
+/// EditorCommandDuplicateEntity
+void EditorCommandDuplicateEntity::Execute(Scene& p_scene) {
+    p_scene.DuplicateEntity(m_target);
+}
+
 /// SaveProjectCommand
 void SaveProjectCommand::Execute(Scene& p_scene) {
     unused(p_scene);

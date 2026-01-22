@@ -87,6 +87,19 @@ protected:
     friend class EditorState;
 };
 
+class EditorCommandDuplicateEntity : public EditorCommandBase {
+public:
+    EditorCommandDuplicateEntity(ecs::Entity p_target)
+        : m_target(p_target) {}
+
+    virtual void Execute(Scene& p_scene) override;
+
+protected:
+    ecs::Entity m_target;
+
+    friend class EditorState;
+};
+
 class SaveProjectCommand : public EditorCommandBase {
 public:
     SaveProjectCommand(bool p_open_dialog)

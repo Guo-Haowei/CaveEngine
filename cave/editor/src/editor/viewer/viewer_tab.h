@@ -47,8 +47,11 @@ public:
 
     virtual Scene* GetScene() = 0;
 
-    void SelectEntity(ecs::Entity p_selected);
     ecs::Entity GetSelectedEntity() const { return m_selected; }
+    void SetSelectedEntity(ecs::Entity p_selected);
+
+    ecs::Entity GetCopiedEntity() const { return m_copied; }
+    void SetCopiedEntity(ecs::Entity p_copied);
 
     const TabId& GetId() const { return m_id; }
 
@@ -98,6 +101,7 @@ protected:
     bool m_active{ false };
 
     ecs::Entity m_selected;
+    ecs::Entity m_copied;
 
     ecs::Entity m_camera;
     std::shared_ptr<ICameraController> m_camera_controller;

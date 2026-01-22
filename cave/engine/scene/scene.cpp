@@ -210,6 +210,24 @@ void Scene::RemoveEntity(ecs::Entity p_entity) {
     }
 }
 
+ecs::Entity Scene::DuplicateEntity(ecs::Entity p_entity) {
+    if (!p_entity.IsValid()) {
+        return p_entity;
+    }
+
+    ecs::Entity entity = CreateEntity();
+
+#define REGISTER_COMPONENT(COMP, ...)                     \
+    if (const auto comp = GetComponent<COMP>(p_entity)) { \
+        auto& copy = Create<COMP>(entity);                \
+        copy = *comp;                                     \
+    }
+    REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+
+    return entity;
+}
+
 bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) {
     MeshRendererComponent* renderer = GetComponent<MeshRendererComponent>(p_id);
     MeshAsset* mesh = renderer->GetMeshHandle().Get();

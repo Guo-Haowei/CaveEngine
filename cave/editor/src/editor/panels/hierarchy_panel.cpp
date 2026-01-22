@@ -125,10 +125,10 @@ void HierarchyCreator::DrawNode(ViewerTab* p_tab, HierarchyNode* p_hier, ImGuiTr
     const bool expanded = TreeNodeHelper(
         p_scene, id, p_flags,
         [&]() {
-            p_tab->SelectEntity(id);
+            p_tab->SetSelectedEntity(id);
         },
         [&]() {
-            p_tab->SelectEntity(id);
+            p_tab->SetSelectedEntity(id);
             ImGui::OpenPopup(POPUP_NAME_ID);
         });
 
@@ -202,9 +202,19 @@ void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
 
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
         OpenAddEntityPopup(selected);
+        if (ImGui::MenuItem("Copy")) {
+            if (selected.IsValid()) {
+                p_tab->SetCopiedEntity(selected);
+            }
+        }
+        if (ImGui::MenuItem("Paste")) {
+            if (ecs::Entity to_be_copied = p_tab->GetCopiedEntity(); to_be_copied.IsValid()) {
+                m_editor.CommandDuplicateEntity(to_be_copied);
+            }
+        }
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
-                p_tab->SelectEntity(Entity::Null());
+                p_tab->SetSelectedEntity(Entity::Null());
                 // move the command to tab document
                 m_editor.CommandRemoveEntity(selected);
             }

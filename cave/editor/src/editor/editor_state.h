@@ -63,6 +63,7 @@ public:
     void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
     void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
     void CommandRemoveEntity(ecs::Entity p_target);
+    void CommandDuplicateEntity(ecs::Entity p_target);
 
     HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
 
