@@ -15,7 +15,7 @@ void DockSpace(const DockSpaceContext& p_context) {
         ImGuiWindowFlags_NoNavFocus |
         ImGuiWindowFlags_NoBackground;
 
-    if (p_context.menubar_func) {
+    if (p_context.menu_bar_func) {
         flags |= ImGuiWindowFlags_MenuBar;
     }
 
@@ -28,23 +28,23 @@ void DockSpace(const DockSpaceContext& p_context) {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-    ImGui::Begin("DockSpaceRoot", nullptr, flags);
+    ImGui::Begin(p_context.str_id, nullptr, flags);
     ImGui::PopStyleVar(3);
 
-    ImGuiID dockspace_id = ImGui::GetID(p_context.str_id);
+    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
 
-    if (p_context.menubar_func) {
+    if (p_context.menu_bar_func) {
         if (ImGui::BeginMainMenuBar()) {
-            p_context.menubar_func();
+            p_context.menu_bar_func();
         }
         ImGui::EndMainMenuBar();
     }
 
-    if (p_context.sidebar_func) {
+    if (p_context.side_bar_func) {
         if (ImGui::BeginViewportSideBar("StatusBar", viewport, ImGuiDir_Down, ImGui::GetFrameHeight(), ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
             if (ImGui::BeginMenuBar()) {
-                p_context.sidebar_func();
+                p_context.side_bar_func();
                 ImGui::EndMenuBar();
             }
             ImGui::End();

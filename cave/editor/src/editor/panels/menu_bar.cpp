@@ -10,7 +10,7 @@
 
 namespace cave {
 
-void MenuBar::MainMenuBar() {
+void MenuBar::Update() {
     const auto& shortcuts = m_editor.GetShortcuts();
     auto build_menu_item = [&](int p_index) {
         const auto& it = shortcuts[p_index];
@@ -43,40 +43,6 @@ void MenuBar::MainMenuBar() {
     }
     ImGui::Separator();
     EditorItem::OpenAddEntityPopup(ecs::Entity::Null());
-}
-
-void MenuBar::Update() {
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetCurrentViewport(nullptr, (ImGuiViewportP*)viewport);  // Set viewport explicitly so GetFrameHeight reacts to DPI changes
-
-    float height = ImGui::GetFrameHeight();
-
-    if (ImGui::BeginMainMenuBar()) {
-        MainMenuBar();
-        ImGui::EndMainMenuBar();
-    }
-
-    if (ImGui::BeginViewportSideBar("StatusBar", viewport, ImGuiDir_Down, height, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
-        if (ImGui::BeginMenuBar()) {
-            CompositeLogger& logger = CompositeLogger::GetSingleton();
-            const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
-            const uint32_t warning_count = static_cast<uint32_t>(logger.GetWarningLogs().size());
-
-            ui::ErrorIcon();
-
-            ImGui::SameLine();
-            ImGui::Text(" %u Error(s)", error_count);
-
-            ImGui::SameLine();
-            ui::WarningIcon();
-
-            ImGui::SameLine();
-            ImGui::Text(" %u Warning(s)", warning_count);
-
-            ImGui::EndMenuBar();
-        }
-        ImGui::End();
-    }
 }
 
 }  // namespace cave

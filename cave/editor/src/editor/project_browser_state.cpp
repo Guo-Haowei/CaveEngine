@@ -3,6 +3,7 @@
 #include <imgui/imgui.h>
 
 #include "engine/assets/image_asset.h"
+#include "engine/core/io/logger.h"
 #include "engine/math/geomath.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager_interface.h"
@@ -120,7 +121,7 @@ void ProjectBrowserState::Tick(float) {
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
-        ui::DockSpace({ "MyDockSpace",
+        ui::DockSpace({ "DockSpaceRoot",
                         nullptr,
                         [this]() {
                             DrawSideBar();
@@ -136,19 +137,13 @@ void ProjectBrowserState::Tick(float) {
 }
 
 void ProjectBrowserState::DrawSideBar() {
-    const uint32_t error_count = 0;
-    const uint32_t warning_count = 0;
+    const std::vector<LogEvent>& logs = CompositeLogger::GetSingleton().GetAllLogs();
+    if (logs.empty()) {
+        return;
+    }
 
-    ui::ErrorIcon();
-
-    ImGui::SameLine();
-    ImGui::Text(" %u Error(s)", error_count);
-
-    ImGui::SameLine();
-    ui::WarningIcon();
-
-    ImGui::SameLine();
-    ImGui::Text(" %u Warning(s)", warning_count);
+    const LogEvent& log = logs.back();
+    ImGui::Text("%s", log.message.c_str());
 }
 
 Option<StateRequest> ProjectBrowserState::PopRequest() {

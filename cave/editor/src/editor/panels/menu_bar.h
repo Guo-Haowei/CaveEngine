@@ -10,9 +10,6 @@ public:
         : EditorItem(p_editor) {}
 
     void Update() override;
-
-private:
-    void MainMenuBar();
 };
 
 }  // namespace cave

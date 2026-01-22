@@ -15,8 +15,8 @@ namespace cave::ui {
 
 struct DockSpaceContext {
     const char* str_id{ nullptr };
-    std::function<void()> menubar_func;
-    std::function<void()> sidebar_func;
+    std::function<void()> menu_bar_func;
+    std::function<void()> side_bar_func;
 };
 
 void DockSpace(const DockSpaceContext& p_context);
