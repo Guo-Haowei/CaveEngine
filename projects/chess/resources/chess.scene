@@ -1,5 +1,5 @@
 version: 19
-seed: 92
+seed: 96
 root: 1
 physics_mode: 0
 entities:
@@ -945,7 +945,7 @@ entities:
     NameComponent:
       name: piece_highlight
     HierarchyComponent:
-      parent_id: 81
+      parent_id: 96
     TransformComponent:
       translation: [0, 0.0500000007, 0]
       rotation: [0, 0, 0, 1]
@@ -966,3 +966,12 @@ entities:
       roughness: 1
       emissive: 0
       material_id: 00000000-0000-0000-0000000000000000
+  - id: 96
+    NameComponent:
+      name: highlights
+    HierarchyComponent:
+      parent_id: 81
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
