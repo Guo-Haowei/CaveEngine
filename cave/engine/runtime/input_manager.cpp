@@ -16,6 +16,7 @@ auto InputManager::InitializeImpl() -> Result<void> {
     m_input_binding[STR_ID("ui_up")] = std::to_underlying(KeyCode::KEY_UP);
     m_input_binding[STR_ID("ui_down")] = std::to_underlying(KeyCode::KEY_DOWN);
     m_input_binding[STR_ID("ui_accept")] = std::to_underlying(KeyCode::KEY_ENTER);
+    m_input_binding[STR_ID("ui_back")] = std::to_underlying(KeyCode::KEY_BACKSPACE);
     m_input_binding[STR_ID("ui_cancel")] = std::to_underlying(KeyCode::KEY_ESCAPE);
     return Result<void>();
 }

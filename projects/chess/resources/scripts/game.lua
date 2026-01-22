@@ -70,8 +70,7 @@ function Game.new(id)
         end,
 
         on_invalid = function(kind, ...)
-            -- kind == 'select' or 'drop'
-            -- you can play a sound or flash UI here
+            -- @TODO: play error sound
         end,
     })
 
@@ -176,7 +175,7 @@ function Game:_process(timestep)
     if Input.is_action_just_pressed('ui_accept') == 1 then
         self.selector:confirm()
     end
-    if Input.is_action_just_pressed('ui_cancel') == 1 then
+    if Input.is_action_just_pressed('ui_back') == 1 then
         self.selector:cancel()
     end
 
