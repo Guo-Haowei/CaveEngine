@@ -17,8 +17,7 @@ public:
 
     Result<void> MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) override;
 
-    // @TODO: add these interfaces
-    uint64_t SubmitLoadAssets(const AssetLoadRequest& p_request) override;
+    uint64_t SubmitLoadAsset(const Guid& p_request) override;
 
     uint64_t SubmitImportScene(const SceneImportRequest& p_request) override;
 
@@ -26,12 +25,10 @@ public:
     [[nodiscard]] std::string ResolvePath(const std::filesystem::path& p_path) override;
 
     // @TODO: deprecate
-    bool LoadAssetAsync(const Guid& p_guid) override;
-
-    // @TODO: deprecate
     AssetRef LoadAssetSync(const Guid& p_guid) override;
 
     // @TODO: deprecate
+    [[deprecated]]
     bool ImportSceneAsync(const std::filesystem::path& p_source_path,
                           const std::filesystem::path& p_dest_dir) override;
 

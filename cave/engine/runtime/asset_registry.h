@@ -47,6 +47,9 @@ public:
 
     auto RequestProject(const std::filesystem::path& p_path) -> Result<void>;
 
+    // should only used by AssetManager
+    std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
+
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
@@ -56,14 +59,9 @@ protected:
     // @TODO: deprecate
     bool StartAsyncLoad(AssetMetaData&& p_meta);
 
-    std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
-
     mutable std::mutex registry_mutex;
     std::unordered_map<std::string, Guid> m_path_map;
     std::unordered_map<Guid, std::shared_ptr<AssetEntry>> m_guid_map;
-
-    // @TODO: deprecate
-    friend class AssetManager;
 };
 
 }  // namespace cave

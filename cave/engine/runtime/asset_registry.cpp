@@ -123,7 +123,7 @@ bool AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta) {
         ok = ok && m_path_map.try_emplace(entry->metadata.import_path, entry->metadata.guid).second;
     }
     if (ok) {
-        m_app->GetAssetManager()->LoadAssetAsync(entry->metadata.guid);
+        m_app->GetAssetManager()->SubmitLoadAsset(entry->metadata.guid);
     }
     return ok;
 }

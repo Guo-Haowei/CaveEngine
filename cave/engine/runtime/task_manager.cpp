@@ -57,8 +57,8 @@ void TaskManager::Stop() {
 }
 
 uint64_t TaskManager::Submit(std::unique_ptr<IAsyncTask> p_task,
-                           TaskSubmitOptions p_opt,
-                           TaskCompletionCallback p_on_done) {
+                             TaskSubmitOptions p_opt,
+                             TaskCompletionCallback p_on_done) {
     if (!p_task) {
         return kInvalidTaskId;
     }
@@ -89,8 +89,8 @@ uint64_t TaskManager::Submit(std::unique_ptr<IAsyncTask> p_task,
 }
 
 uint64_t TaskManager::SubmitGroup(TaskGroupSpec p_spec,
-                                TaskPriority p_priority,
-                                TaskCompletionCallback p_on_done) {
+                                  TaskPriority p_priority,
+                                  TaskCompletionCallback p_on_done) {
     uint64_t id = m_next_id.fetch_add(1);
 
     auto st = std::make_unique<TaskState>();

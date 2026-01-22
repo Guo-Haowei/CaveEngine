@@ -51,13 +51,13 @@ public:
 
     // Long task submission
     uint64_t Submit(std::unique_ptr<IAsyncTask> p_task,
-                  TaskSubmitOptions p_opt = {},
-                  TaskCompletionCallback p_on_done = nullptr);
+                    TaskSubmitOptions p_opt = {},
+                    TaskCompletionCallback p_on_done = nullptr);
 
     // Aggregates children progress and completes when all children complete.
     uint64_t SubmitGroup(TaskGroupSpec p_spec,
-                       TaskPriority p_priority = TaskPriority::Normal,
-                       TaskCompletionCallback p_on_done = nullptr);
+                         TaskPriority p_priority = TaskPriority::Normal,
+                         TaskCompletionCallback p_on_done = nullptr);
 
     // Cancel cooperatively.
     void RequestCancel(uint64_t p_id);
@@ -136,7 +136,6 @@ private:
     void ContextSetProgress(uint64_t id, float p01);
     void ContextFail(uint64_t id, std::string err);
     bool ContextIsCancelRequested(uint64_t id) const;
-    void CtxLog(uint64_t id, TaskLogLevel lvl, std::string msg);
 
     // Group aggregation on main thread
     void UpdateGroupAggregation(TaskState& g);

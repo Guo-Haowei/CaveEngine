@@ -40,43 +40,6 @@ namespace cave {
 namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
 
-class LoadAssetTask final : public IAsyncTask {
-public:
-    LoadAssetTask(AssetManager& p_asset_manager,
-                  const Guid p_guid)
-        : m_asset_manager(p_asset_manager)
-        , m_guid(p_guid) {
-    }
-
-    const char* Name() const final {
-        return "LoadFileTask";
-    }
-
-    void Run(TaskContext& p_ctx) final {
-        p_ctx.SetIndeterminate(true);
-
-        p_ctx.SetIndeterminate(false);
-        p_ctx.SetProgress(0.0f);
-
-        auto asset = m_asset_manager.LoadAssetSync(m_guid);
-        if (!asset) {
-            p_ctx.Fail(std::format("failed to load {}", m_guid.ToString()));
-        }
-
-        p_ctx.SetProgress(1.0f);
-
-        //// Apply result on main thread
-        // ctx.EnqueueMainThread([data = std::move(data)]() mutable {
-        //     // Example: register in asset manager
-        //     // assetManager->RegisterRawData(std::move(data));
-        // });
-    }
-
-private:
-    AssetManager& m_asset_manager;
-    Guid m_guid;
-};
-
 class ImportAssetTask final : public IAsyncTask {
 public:
     ImportAssetTask(AssetManager& p_asset_manager,
@@ -189,7 +152,8 @@ Result<Guid> AssetManager::CreateAsset(AssetType p_type,
     }
 
     Guid guid = meta.guid;
-    m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta));
+    DEV_ASSERT(0 && "fix this part");
+    // m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta));
     return guid;
 }
 
@@ -237,25 +201,43 @@ std::string AssetManager::ResolvePath(const fs::path& p_path) {
     return m_app->GetVFS().Resolve("@res", p_path);
 }
 
-bool AssetManager::LoadAssetAsync(const Guid& p_guid) {
+uint64_t AssetManager::SubmitLoadAsset(const Guid& p_request) {
+    class LoadAssetTask final : public IAsyncTask {
+    public:
+        LoadAssetTask(AssetManager& p_asset_manager,
+                      const Guid& p_guid)
+            : m_asset_manager(p_asset_manager)
+            , m_guid(p_guid) {
+        }
 
-    m_app->GetTaskManager()->Submit(
-        std::make_unique<LoadAssetTask>(*this, p_guid),
-        TaskSubmitOptions{ .priority = TaskPriority::Normal,
-                           .start_immediately = true },
-        [](uint64_t p_id, TaskSnapshot p_snapshot) {
-            unused(p_id);
-            if (p_snapshot.status == TaskStatus::Succeeded) {
-                // @TODO: handle result
+        const char* Name() const final {
+            return "LoadFileTask";
+        }
+
+        void Run(TaskContext& p_ctx) final {
+            p_ctx.SetIndeterminate(false);
+            p_ctx.SetProgress(0.0f);
+
+            AssetRef asset = m_asset_manager.LoadAssetSync(m_guid);
+            if (!asset) {
+                p_ctx.Fail(std::format("LoadAssetSync failed for '{}'", m_guid.ToString()));
+                return;
             }
-        });
 
-    return true;
-}
+            p_ctx.SetProgress(1.0f);
+        }
 
-uint64_t AssetManager::SubmitLoadAssets(const AssetLoadRequest& p_request) {
-    unused(p_request);
-    return 0;
+    private:
+        AssetManager& m_asset_manager;
+        Guid m_guid;
+    };
+
+    TaskSubmitOptions opt;
+    opt.priority = TaskPriority::Normal;
+    opt.start_immediately = true;
+
+    return m_app->GetTaskManager()->Submit(std::make_unique<LoadAssetTask>(*this, p_request),
+                                           opt);
 }
 
 uint64_t AssetManager::SubmitImportScene(const SceneImportRequest& p_request) {
