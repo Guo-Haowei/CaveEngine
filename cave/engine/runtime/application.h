@@ -10,9 +10,9 @@ namespace cave {
 enum class AppStateId : uint8_t;
 
 class AppStateMachine;
-class IAssetManager;
 class AssetRegistry;
-class CameraComponent;
+class BootLoadPipeline;
+class IAssetManager;
 class IDisplayManager;
 class IGraphicsManager;
 class ImguiManager;
@@ -71,6 +71,8 @@ public:
     ViewportManager* GetViewportManager() { return m_viewport_manager; }
     VFS& GetVFS() { return *m_vfs; }
 
+    BootLoadPipeline& GetBootLoadPipeline();
+
     const ApplicationSpec& GetSpecification() const { return m_specification; }
 
     void RequestProject(std::string_view p_path);
@@ -123,6 +125,7 @@ protected:
     Timer m_timer;
 
     std::unique_ptr<AppStateMachine> m_state_machine;
+    std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
 };
 
 }  // namespace cave

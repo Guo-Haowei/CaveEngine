@@ -13,8 +13,6 @@ public:
                      IAssetManager& p_asset_manager,
                      AssetRegistry& p_asset_registry);
 
-    void Start(const std::filesystem::path& p_project_path);
-
     auto RequestProject(const std::filesystem::path& p_project_path) -> Result<void>;
 
     TaskSnapshot RootSnapshot() const { return m_task_manager.GetSnapshot(m_root); }

@@ -14,9 +14,6 @@ BootLoadPipeline::BootLoadPipeline(TaskManager& p_task_manager,
     , m_asset_manager(p_asset_manager)
     , m_asset_registry(p_asset_registry) {}
 
-void BootLoadPipeline::Start(const std::filesystem::path& project_path) {
-}
-
 std::vector<TaskSnapshot> BootLoadPipeline::ChildSnapshots() const {
     std::vector<TaskSnapshot> out;
     out.reserve(m_children.size());
