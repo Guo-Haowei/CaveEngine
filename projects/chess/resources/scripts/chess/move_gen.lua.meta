@@ -1,0 +1,9 @@
+type: blob
+guid: 5AAC1A43-F7B2-0143-86B48E3039EF54B0
+name: ""
+import_path: "@res://scripts/chess/move_gen.lua"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

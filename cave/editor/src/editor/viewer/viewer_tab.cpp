@@ -15,6 +15,8 @@ namespace cave {
 
 using ecs::Entity;
 
+static const char EDITOR_CAMERA_NAME[] = "_editor_cam";
+
 const Guid& ViewerTab::GetGuid() const {
     return GetDocument().GetGuid();
 }
@@ -62,20 +64,18 @@ void ViewerTab::SetupDefault2DCamera() {
     Scene* scene = GetScene();
     DEV_ASSERT(scene);
 
-    Entity cam = EntityFactory::CreateCameraEntity(*scene, "editor_cam");
-
-    scene->Create<NoSaveTag>(cam);
-
-    scene->AttachChild(cam);
-
-    CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
-    camera->SetProjection(ProjectionType::Orthographic);
-
-    TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
-    transform->SetTranslation(Vector3f(0, 0, 10));
+    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
+    if (!cam.IsValid()) {
+        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
+        scene->Create<NoSaveTag>(cam);
+        scene->AttachChild(cam);
+        CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
+        camera->SetProjection(ProjectionType::Orthographic);
+        TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
+        transform->SetTranslation(Vector3f(0, 0, 10));
+    }
 
     m_camera = cam;
-
     m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
 }
 
@@ -83,20 +83,25 @@ void ViewerTab::SetupDefault3DCamera() {
     Scene* scene = GetScene();
     DEV_ASSERT(scene);
 
-    Entity cam = EntityFactory::CreateCameraEntity(*scene, "editor_cam");
-    Entity cam_y = EntityFactory::CreateTransformEntity(*scene, "editor_cam_y");
-    Entity cam_root = EntityFactory::CreateTransformEntity(*scene, "editor_cam_root");
+    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
+    Entity cam_y = scene->FindEntityByName("_editor_cam_y");
+    Entity cam_root = scene->FindEntityByName("_editor_cam_root");
 
-    scene->Create<NoSaveTag>(cam);
-    scene->Create<NoSaveTag>(cam_y);
-    scene->Create<NoSaveTag>(cam_root);
+    if (!cam.IsValid()) {
+        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
+        cam_y = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_y");
+        cam_root = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_root");
 
-    scene->AttachChild(cam_root);
-    scene->AttachChild(cam_y, cam_root);
-    scene->AttachChild(cam, cam_y);
+        scene->Create<NoSaveTag>(cam);
+        scene->Create<NoSaveTag>(cam_y);
+        scene->Create<NoSaveTag>(cam_root);
+
+        scene->AttachChild(cam_root);
+        scene->AttachChild(cam_y, cam_root);
+        scene->AttachChild(cam, cam_y);
+    }
 
     m_camera = cam;
-
     m_camera_controller = std::make_shared<CameraControllerFPS>(scene, cam_root, cam_y, cam);
 }
 

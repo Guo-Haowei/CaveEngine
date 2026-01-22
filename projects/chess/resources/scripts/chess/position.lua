@@ -291,7 +291,7 @@ function Position:fen()
     local castling = (self.castling == '' and '-') or self.castling
     local ep = '-'
     if self.ep ~= nil then
-        ep = move.index_to_square(self.ep)
+        ep = move.index_to_uci(self.ep)
     end
 
     return string.format('%s %s %s %s %d %d', board, turn, castling, ep, self.halfmove, self.fullmove)

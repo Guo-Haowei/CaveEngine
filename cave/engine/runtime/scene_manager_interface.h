@@ -20,8 +20,9 @@ public:
     virtual void Update() = 0;
     virtual void BumpRevision() = 0;
 
-    // @TODO
+    // @TODO: get rid of these
     virtual void OpenSimScene(const std::shared_ptr<Scene>&) {};
+    virtual void CloseSimScene() {}
 };
 
 }  // namespace cave

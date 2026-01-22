@@ -133,14 +133,11 @@ bool OpenDisplayLib(lua_State* L) {
     return true;
 }
 
-bool OpenEngineLib(lua_State* L) {
+bool OpenLogLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
-        .beginNamespace("Engine")
-        .addFunction("log", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_NORMAL, "{}", p_message);
-        })
-        .addFunction("log_ok", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_OK, "{}", p_message);
+        .beginNamespace("logger")
+        .addFunction("trace", [](const char* p_message) {
+            LogImpl(LOG_LEVEL_VERBOSE, "-- {}", p_message);
         })
         .addFunction("error", [](const char* p_file, int p_line, const char* p_error) {
             ReportErrorImpl("lua_function", p_file, p_line, p_error);

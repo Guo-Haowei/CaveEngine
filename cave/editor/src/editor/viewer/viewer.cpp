@@ -57,7 +57,7 @@ bool Viewer::HandleInput(const InputEvent* p_input_event) {
         return true;
     }
 
-    return CacheCameraInput(p_input_event);
+    return false;
 }
 
 Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
@@ -73,10 +73,6 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     }
 
     return None();
-}
-
-bool Viewer::CacheCameraInput(const InputEvent*) {
-    return false;
 }
 
 void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {

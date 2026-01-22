@@ -31,7 +31,6 @@ protected:
     void UpdateInternal() override;
 
     void UpdateFrameSize();
-    bool CacheCameraInput(const InputEvent* p_input_event);
 
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;

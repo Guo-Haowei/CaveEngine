@@ -28,7 +28,7 @@ function M.square_to_index(sq)
     return r * 8 + f
 end
 
-function M.index_to_square(i)
+function M.index_to_uci(i)
     if type(i) ~= 'number' or i < 0 or i > 63 then
         return nil, 'index must be 0..63'
     end
@@ -72,9 +72,9 @@ function M.to_uci(mv)
         return nil, 'move must be table or string'
     end
 
-    local from_sq, e1 = M.index_to_square(mv.from)
+    local from_sq, e1 = M.index_to_uci(mv.from)
     if not from_sq then return nil, e1 end
-    local to_sq, e2 = M.index_to_square(mv.to)
+    local to_sq, e2 = M.index_to_uci(mv.to)
     if not to_sq then return nil, e2 end
 
     local s = from_sq .. to_sq

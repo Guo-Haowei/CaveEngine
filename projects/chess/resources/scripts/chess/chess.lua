@@ -1,5 +1,6 @@
 -- file: chess.lua
 local Position = require('@res://scripts/chess/position.lua')
+local MoveGen  = require('@res://scripts/chess/move_gen.lua')
 
 local Chess = {}
 Chess.__index = Chess
@@ -10,6 +11,8 @@ function Chess.new(opts)
     local self = setmetatable({}, Chess)
     self.pos = Position.new()
     self.pos:load_fen(START_FEN)
+
+    self:update_legal_moves()
     return self
 end
 
@@ -20,6 +23,8 @@ function Chess.from_fen(fen)
     if not ok then
         return nil, err
     end
+
+    self:update_legal_moves()
     return self
 end
 
@@ -59,13 +64,45 @@ function Chess:board_array()
     return self.pos:board_array()
 end
 
--- Stubs for later
+function Chess:update_legal_moves()
+    self.legal_moves = MoveGen.generate_all(self.pos)
+    local map = {}
+    for i = 1, #self.legal_moves do
+        local mv = self.legal_moves[i]
+        if map[mv.from] == nil then
+            map[mv.from] = {}
+        end
+        local sub = map[mv.from]
+
+        sub[#sub + 1] = mv
+    end
+    self.legal_moves_map = map
+end
+
 function Chess:legal_moves(opts)
-    return {}, 'not implemented'
+    return self.legal_moves
+end
+
+function Chess:legal_moves_from(index)
+    return self.legal_moves_map[index] or {}
+end
+
+function Chess:can_move(index)
+    return self.legal_moves_map[index] ~= nil
 end
 
 function Chess:is_legal(mv)
-    return false, 'not implemented'
+    local sub = self.legal_moves_map[mv.from]
+    if not sub then
+        return false
+    end
+    for i = 1, #sub do
+        local lm = sub[i]
+        if lm.to == mv.to and lm.promo == mv.promo then
+            return true
+        end
+    end
+    return false
 end
 
 function Chess:get_piece(file, rank)
@@ -78,7 +115,9 @@ function Chess:get_piece(file, rank)
 end
 
 function Chess:make_move(mv)
-    return self.pos:push(mv)
+    ok, err = self.pos:push(mv)
+    self:update_legal_moves()
+    return ok, err
 end
 
 return {

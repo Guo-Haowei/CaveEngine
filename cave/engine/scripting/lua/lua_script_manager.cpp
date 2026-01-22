@@ -94,7 +94,7 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
     lua::OpenSceneLib(L);
     lua::OpenInputLib(L);
     lua::OpenDisplayLib(L);
-    lua::OpenEngineLib(L);
+    lua::OpenLogLib(L);
 
     if (luaL_dostring(L, g_lua_always_load) != LUA_OK) {
         LOG_ERROR("failed to execute script, error: {}", lua_tostring(L, -1));

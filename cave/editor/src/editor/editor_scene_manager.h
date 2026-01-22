@@ -19,7 +19,7 @@ public:
 
     void OpenSimScene(const std::shared_ptr<Scene>& p_scene) override;
 
-    void CloseSimScene();
+    void CloseSimScene() override;
 
     std::shared_ptr<Scene> GetActiveScene() const override;
 

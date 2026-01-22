@@ -17,7 +17,7 @@ function GridSelector.new(grid, cb)
 
     self.cols, self.rows = grid:get_bounds()
 
-    self.state = 'idle'     -- 'idle' | 'armed'
+    self.state = 'idle' -- 'idle' | 'armed'
     self.selected = nil
     self.focus = { x = 1, y = 1 }
     self.hover = nil

@@ -11,7 +11,7 @@ Game = {}
 Game.__index = Game
 setmetatable(Game, GameObject)
 
-local function coord_to_square(x, y)
+local function coord_to_index(x, y)
     return (y - 1) * 8 + (x - 1)
 end
 
@@ -22,56 +22,64 @@ function Game.new(id)
     self.chess = Chess.new()
 
     self.grid_adapter = GridAdapter.new({})
-
     self.grid_selector_entity = g_scene:find_entity_by_name('grid_selector')
-    self.piece_hightlight_entity = g_scene:find_entity_by_name('piece_highlight')
 
     self.selector = GridSelector.new(self.grid_adapter, {
         can_select = function(tx, ty)
-            local piece = self.chess:get_piece(tx, ty)
-            if not piece then
-                return false
+            local index = coord_to_index(tx, ty)
+            local ok = self.chess:can_move(index)
+            if not ok then
+                logger.trace('cannot select: ' .. move.index_to_uci(index))
             end
-
-            return self.chess:piece_color(piece) == self.chess:turn()
+            return ok
         end,
 
         can_drop = function(sx, sy, tx, ty)
-            -- return chess:is_legal_move(sx, sy, tx, ty)
-            return true
+            local mv = {
+                from = coord_to_index(sx, sy),
+                to = coord_to_index(tx, ty),
+            }
+
+            local ok = self.chess:is_legal(mv)
+            if not ok then
+                logger.trace('cannot drop: ' .. move.index_to_uci(mv.from) .. move.index_to_uci(mv.to))
+            end
+            return ok
         end,
 
         on_select = function(tx, ty)
-            if self.chess.get_legal_moves_from then
-                -- chess.highlight_tiles = chess:get_legal_moves_from(tx, ty)
-            else
-                -- chess.highlight_tiles = nil
-            end
+            local index = coord_to_index(tx, ty)
+            self.highlights = self.chess:legal_moves_from(index)
         end,
 
         on_commit = function(sx, sy, tx, ty)
             local mv = {
-                from = coord_to_square(sx, sy),
-                to = coord_to_square(tx, ty),
+                from = coord_to_index(sx, sy),
+                to = coord_to_index(tx, ty),
             }
-            -- Engine.log('move committed: ' .. move.index_to_square(mv.from) .. ' -> ' .. move.index_to_square(mv.to))
 
             local ok, err = self.chess:make_move(mv)
-            if not ok then
-                Engine.log('invalid move: ' .. err)
+            if ok then
+                logger.trace('make move: ' .. move.index_to_uci(mv.from) .. move.index_to_uci(mv.to))
             end
-            -- chess.highlight_tiles = nil
+            self.highlights = nil
         end,
 
         on_cancel = function()
-            -- chess.highlight_tiles = nil
+            self.highlights = nil
         end,
 
         on_invalid = function(kind, ...)
-            -- kind == 'select' or 'drop'
-            -- you can play a sound or flash UI here
+            -- @TODO: play error sound
         end,
     })
+
+    self.highlight_pool = {}
+    for i = 1, 27 do
+        local highlight = g_scene:find_entity_by_name('highlight_' .. tostring(i))
+        self.highlight_pool[#self.highlight_pool + 1] = highlight
+        logger.trace('highlight entity: ' .. tostring(highlight))
+    end
 
     return self
 end
@@ -132,15 +140,21 @@ function Game:render()
         transform:set_translation(Vector3(self.selector.focus.y - 1, offset, self.selector.focus.x - 1))
     end
 
-    if self.piece_hightlight_entity then
-        local renderer = g_scene:get_mesh_renderer(self.piece_hightlight_entity)
-        if self.selector.selected then
-            local transform = g_scene:get_transform(self.piece_hightlight_entity)
-            transform:set_translation(Vector3(self.selector.selected.y - 1, offset, self.selector.selected.x - 1))
-            renderer:set_visible(true)
-        else
-            renderer:set_visible(false)
-        end
+    -- set highlights to invisible
+    for i = 1, #self.highlight_pool do
+        local highlight = self.highlight_pool[i]
+        local renderer = g_scene:get_mesh_renderer(highlight)
+        renderer:set_visible(false)
+    end
+
+    -- draw highlights
+    for i = 1, #self.highlights do
+        local mv = self.highlights[i]
+        local highlight = self.highlight_pool[i]
+        local transform = g_scene:get_transform(highlight)
+        transform:set_translation(Vector3(math.floor(mv.to / 8), offset, mv.to % 8))
+        local renderer = g_scene:get_mesh_renderer(highlight)
+        renderer:set_visible(true)
     end
 end
 
@@ -161,7 +175,7 @@ function Game:_process(timestep)
     if Input.is_action_just_pressed('ui_accept') == 1 then
         self.selector:confirm()
     end
-    if Input.is_action_just_pressed('ui_cancel') == 1 then
+    if Input.is_action_just_pressed('ui_back') == 1 then
         self.selector:cancel()
     end
 

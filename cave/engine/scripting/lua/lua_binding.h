@@ -24,7 +24,7 @@ bool OpenInputLib(lua_State* L);
 
 bool OpenDisplayLib(lua_State* L);
 
-bool OpenEngineLib(lua_State* L);
+bool OpenLogLib(lua_State* L);
 
 bool OpenSceneLib(lua_State* L);
 
