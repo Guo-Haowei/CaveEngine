@@ -193,7 +193,7 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
         Ray ray(ray_start, ray_end);
 
         const auto result = GetScene()->Intersects(ray);
-        SelectEntity(result.entity);
+        SetSelectedEntity(result.entity);
     }
 }
 

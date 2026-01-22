@@ -26,11 +26,15 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
     , m_viewer(p_viewer) {
 }
 
-void ViewerTab::SelectEntity(ecs::Entity p_selected) {
+void ViewerTab::SetSelectedEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
     if (Scene* scene = GetScene(); scene) {
         scene->m_selected = m_selected;
     }
+}
+
+void ViewerTab::SetCopiedEntity(ecs::Entity p_copied) {
+    m_copied = p_copied;
 }
 
 void ViewerTab::OnCreate(const Guid& p_guid) {
