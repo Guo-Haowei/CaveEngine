@@ -10,7 +10,7 @@
 
 namespace cave {
 
-void MenuBar::Update() {
+void MenuBar::Update(float) {
     const auto& shortcuts = m_editor.GetShortcuts();
     auto build_menu_item = [&](int p_index) {
         const auto& it = shortcuts[p_index];

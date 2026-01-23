@@ -1,5 +1,4 @@
 #pragma once
-#include "engine/core/base/singleton.h"
 #include "engine/input/input_device_interface.h"
 #include "engine/input/input_router.h"
 #include "engine/input/key_state.h"
@@ -7,8 +6,7 @@
 
 namespace cave {
 
-class InputManager : public Singleton<InputManager>,
-                     public Module {
+class InputManager : public Module {
 public:
     InputManager()
         : Module("InputManager") {}
@@ -18,9 +16,10 @@ public:
 
     void AddDevice(std::unique_ptr<IInputDevice> p_device);
 
-    // Call once per frame.
     void Update();
 
+    const KeyState& GetKeyState() const { return m_key_state; }
+    RawInputRouter& RawRouter() { return m_raw_router; }
     InputRouter& Router() { return m_router; }
 
 private:
@@ -29,10 +28,10 @@ private:
     std::vector<InputEvent> m_events;
     std::vector<ActionEvent> m_actions;
 
-    // @TODO: input mapper
-    // @TODO: raw router
     KeyState m_key_state;
+    RawInputRouter m_raw_router;
     InputRouter m_router;
+    // @TODO: input mapper
 };
 
 };  // namespace cave

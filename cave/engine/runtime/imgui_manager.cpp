@@ -204,8 +204,8 @@ void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
 
         switch (e.type) {
             case InputEventType::MouseMove: {
-                float x = static_cast<float>(e.v0);
-                float y = static_cast<float>(e.v1);
+                float x = static_cast<float>(e.x);
+                float y = static_cast<float>(e.y);
                 if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
                     auto [window_x, window_y] = m_app->GetDisplayManager()->GetWindowPos();
                     x += window_x;
@@ -214,7 +214,7 @@ void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
                 io.AddMousePosEvent(x, y);
             } break;
             case InputEventType::MouseWheel: {
-                io.AddMouseWheelEvent(0.0f, e.v0);  // vertical scroll
+                io.AddMouseWheelEvent(e.dx, e.dy);
             } break;
             case InputEventType::TextInput: {
                 io.AddInputCharacter((unsigned int)e.code);

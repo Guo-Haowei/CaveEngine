@@ -21,7 +21,7 @@ void RawInputRouter::Unregister(IRawInputConsumer* p_consumer) {
         m_consumers.end());
 }
 
-void RawInputRouter::Dispatch(std::vector<InputEvent>& p_events) {
+void RawInputRouter::Dispatch(const std::vector<InputEvent>& p_events) {
     for (auto* c : m_consumers) {
         if (DEV_VERIFY(c)) {
             c->OnEvents(p_events);

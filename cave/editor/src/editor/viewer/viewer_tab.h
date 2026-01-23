@@ -5,6 +5,7 @@
 #include "engine/ecs/entity.h"
 #include "engine/input/raw_input_consumer_interface.h"
 #include "engine/runtime/scene_view.h"
+#include "engine/scene/camera_controller.h"
 
 #include "editor/enums.h"
 #include "editor/undo_redo/undo_stack.h"
@@ -13,11 +14,8 @@
 namespace cave {
 
 class Document;
-class ICameraController;
 class TabId;
 class Viewer;
-
-struct CameraInputState;
 
 struct ToolBarButtonDesc;
 
@@ -29,8 +27,7 @@ public:
     };
 
     ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimension);
-
-    virtual ~ViewerTab() = default;
+    virtual ~ViewerTab();
 
     void OnCreate(const Guid& p_guid);
     virtual void OnDestroy() {}
@@ -68,7 +65,7 @@ public:
 
     int GetPriority() const override { return 10; }
 
-    void OnEvents(std::vector<InputEvent>& p_events) override;
+    void OnEvents(const std::vector<InputEvent>& p_events) override;
 
     Dimension GetDimension() const { return m_dimension; }
 
@@ -79,10 +76,6 @@ protected:
 
     void SetupDefault2DCamera();
     void SetupDefault3DCamera();
-
-    void CameraInputState2D(float p_timestep, CameraInputState& p_out_state);
-
-    void CameraInputState3D(float p_timestep, CameraInputState& p_out_state);
 
     void BuildViewsImpl(Scene* p_scene,
                         ecs::Entity p_camera,
@@ -100,11 +93,15 @@ protected:
     ecs::Entity m_copied;
 
     ecs::Entity m_camera;
-    std::shared_ptr<ICameraController> m_camera_controller;
-
 private:
+    CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events);
+    CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events);
+
     const Dimension m_dimension;
     std::string m_title;
+
+    std::shared_ptr<ICameraController> m_camera_controller;
+    CameraInputState m_camera_state;
 };
 
 }  // namespace cave

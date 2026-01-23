@@ -105,7 +105,7 @@ void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {
     // }
 }
 
-void RenderGraphViewer::UpdateInternal() {
+void RenderGraphViewer::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
 
     auto graphics_manager = m_editor.GetApp().GetGraphicsManager();

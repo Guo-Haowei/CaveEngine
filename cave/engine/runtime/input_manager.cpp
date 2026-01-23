@@ -51,7 +51,7 @@ void InputManager::Update() {
     }
 
     // 4) Raw routing stage (shortcuts, viewport tools, gestures)
-    // m_raw_router.Dispatch(m_events);
+    m_raw_router.Dispatch(m_events);
 
     // 5) Rebuild key state after raw consumption (critical for chords/drag gating)
     m_key_state.BeginFrame();

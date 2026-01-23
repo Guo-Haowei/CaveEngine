@@ -2,7 +2,6 @@
 #include "viewer_tab_manager.h"
 
 #include "engine/input/input_router.h"
-#include "engine/scene/camera_controller.h"
 
 #include "editor/editor_window.h"
 #include "editor/enums.h"

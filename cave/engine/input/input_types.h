@@ -50,11 +50,11 @@ enum class InputEventType : uint8_t {
 struct InputEvent {
     InputEventType type{};
     InputDeviceId device{};
-    bool consumed{ false };
+    mutable bool consumed{ false };
 
     uint32_t code{ 0 };  // Key / Button / Axis index / char / etc.
-    float v0{ 0.0f };
-    float v1{ 0.0f };
+    float x = 0.0f, y = 0.0f;
+    float dx = 0.0f, dy = 0.0f;
     uint64_t timestamp_us{ 0 };
 
     static InputEvent MouseMove(InputDeviceId p_id,
@@ -66,20 +66,22 @@ struct InputEvent {
         e.device = p_id;
         e.timestamp_us = p_timestamp;
 
-        e.v0 = p_x;
-        e.v1 = p_y;
+        e.x = p_x;
+        e.y = p_y;
         return e;
     }
 
     static InputEvent MouseWheel(InputDeviceId p_id,
                                  uint64_t p_timestamp,
-                                 float p_offset) {
+                                 float p_x_offset,
+                                 float p_y_offset) {
         InputEvent e{};
         e.type = InputEventType::MouseWheel;
         e.device = p_id;
         e.timestamp_us = p_timestamp;
 
-        e.v0 = p_offset;
+        e.x = e.dx = p_x_offset;
+        e.y = e.dy = p_y_offset;
         return e;
     }
 

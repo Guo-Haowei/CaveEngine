@@ -9,7 +9,7 @@ public:
     void Register(IRawInputConsumer* p_consumer);
     void Unregister(IRawInputConsumer* p_consumer);
 
-    void Dispatch(std::vector<InputEvent>& p_events);
+    void Dispatch(const std::vector<InputEvent>& p_events);
 
 private:
     void Sort();
