@@ -9,9 +9,7 @@
 #include <imnodes/imnodes.h>
 
 #include "engine/assets/image_asset.h"
-#include "engine/debugger/profiler.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/input/input_event.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_registry.h"
@@ -106,34 +104,34 @@ EditorState::EditorState(Application& p_app)
     };
 
     // @TODO: proper key mapping
-    std::map<std::string_view, KeyCode> keyMapping = {
-        { "A", KeyCode::KEY_A },
-        { "B", KeyCode::KEY_B },
-        { "C", KeyCode::KEY_C },
-        { "D", KeyCode::KEY_D },
-        { "E", KeyCode::KEY_E },
-        { "F", KeyCode::KEY_F },
-        { "G", KeyCode::KEY_G },
-        { "H", KeyCode::KEY_H },
-        { "I", KeyCode::KEY_I },
-        { "J", KeyCode::KEY_J },
-        { "K", KeyCode::KEY_K },
-        { "L", KeyCode::KEY_L },
-        { "M", KeyCode::KEY_M },
-        { "N", KeyCode::KEY_N },
-        { "O", KeyCode::KEY_O },
-        { "P", KeyCode::KEY_P },
-        { "Q", KeyCode::KEY_Q },
-        { "R", KeyCode::KEY_R },
-        { "S", KeyCode::KEY_S },
-        { "T", KeyCode::KEY_T },
-        { "U", KeyCode::KEY_U },
-        { "V", KeyCode::KEY_V },
-        { "W", KeyCode::KEY_W },
-        { "X", KeyCode::KEY_X },
-        { "Y", KeyCode::KEY_Y },
-        { "Z", KeyCode::KEY_Z },
-        { "F5", KeyCode::KEY_F5 },
+    std::map<std::string_view, Key> keyMapping = {
+        { "A", Key::A },
+        { "B", Key::B },
+        { "C", Key::C },
+        { "D", Key::D },
+        { "E", Key::E },
+        { "F", Key::F },
+        { "G", Key::G },
+        { "H", Key::H },
+        { "I", Key::I },
+        { "J", Key::J },
+        { "K", Key::K },
+        { "L", Key::L },
+        { "M", Key::M },
+        { "N", Key::N },
+        { "O", Key::O },
+        { "P", Key::P },
+        { "Q", Key::Q },
+        { "R", Key::R },
+        { "S", Key::S },
+        { "T", Key::T },
+        { "U", Key::U },
+        { "V", Key::V },
+        { "W", Key::W },
+        { "X", Key::X },
+        { "Y", Key::Y },
+        { "Z", Key::Z },
+        { "F5", Key::F5 },
     };
 
     for (auto& shortcut : m_shortcuts) {
@@ -169,7 +167,7 @@ void EditorState::OnEnter(const StateRequest& p_args) {
         context.checkerboard = handle.unwrap_unchecked().Wait();
     }
 
-    m_app.GetInputManager()->PushInputHandler(this);
+    // m_app.GetInputManager()->PushInputHandler(this);
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
@@ -184,8 +182,8 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 }
 
 void EditorState::OnExit() {
-    [[maybe_unused]] auto handler = m_app.GetInputManager()->PopInputHandler();
-    DEV_ASSERT(handler == this);
+    //[[maybe_unused]] auto handler = m_app.GetInputManager()->PopInputHandler();
+    // DEV_ASSERT(handler == this);
 
     ImNodes::DestroyContext();
 }
@@ -203,11 +201,9 @@ void EditorState::Tick(float p_timestep) {
     // @TODO: DO NOT Request SCENE here
     Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
 
-    FlushInputEvents();
-
     DockSpace();
     for (auto& it : m_panels) {
-        it->Update();
+        it->Update(p_timestep);
     }
 
     // @TODO: fix this as well
@@ -236,7 +232,7 @@ void EditorState::DockSpace() {
 
     ui::DockSpace({
         "DockSpace Demo",
-        [this]() { m_menu_bar->Update(); },
+        [this]() { m_menu_bar->Update(0.0f); },
         [this]() {
             CompositeLogger& logger = CompositeLogger::GetSingleton();
             const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
@@ -260,56 +256,6 @@ void EditorState::DockSpace() {
 
 ////////////////////
 ////////////////////
-
-void EditorState::FlushInputEvents() {
-    CAVE_PROFILE_EVENT();
-
-    for (auto& event : m_buffered_events) {
-        if (m_viewer->IsFocused() || m_viewer->IsHovered()) {
-            if (m_viewer->HandleInput(event.get())) {
-                continue;
-            }
-        }
-
-        if (auto e = dynamic_cast<InputEventKey*>(event.get()); e) {
-            for (auto shortcut : m_shortcuts) {
-                // @TODO: refactor this
-                auto is_key_handled = [&]() {
-                    if (!e->IsPressed()) {
-                        return false;
-                    }
-                    if (e->GetKey() != shortcut.key) {
-                        return false;
-                    }
-                    if (e->IsAltPressed() != shortcut.alt) {
-                        return false;
-                    }
-                    if (e->IsShiftPressed() != shortcut.shift) {
-                        return false;
-                    }
-                    if (e->IsCtrlPressed() != shortcut.ctrl) {
-                        return false;
-                    }
-                    return true;
-                };
-                if (is_key_handled()) {
-                    if (shortcut.executeFunc) {
-                        shortcut.executeFunc();
-                    }
-
-                    break;
-                }
-            }
-        }
-    }
-
-    m_buffered_events.clear();
-}
-
-HandleInputResult EditorState::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
-    m_buffered_events.emplace_back(std::move(p_input_event));
-    return HandleInputResult::NotHandled;
-}
 
 // @TODO: these are associated with scene editor, move to scene editor
 void EditorState::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {

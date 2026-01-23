@@ -4,7 +4,6 @@
 
 #include "engine/assets/image_asset.h"
 #include "engine/assets/tile_set_asset.h"
-#include "engine/input/input_event.h"
 #include "engine/scene/entity_factory.h"
 
 #include "editor/editor_state.h"
@@ -148,7 +147,10 @@ Document& TileMapEditor::GetDocument() const {
     return *m_document.get();
 }
 
-bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
+#if 0
+bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
+    DEV_ASSERT(0);
+    unused(p_input_event);
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
             if (e->IsButtonDown(MouseButton::LEFT)) {
@@ -174,6 +176,7 @@ bool TileMapEditor::HandleInput(const InputEvent* p_input_event) {
 
     return false;
 }
+#endif
 
 void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {

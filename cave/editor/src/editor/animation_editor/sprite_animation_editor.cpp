@@ -3,7 +3,6 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/assets/image_asset.h"
-#include "engine/input/input_event.h"
 #include "engine/runtime/asset_registry.h"
 #include "engine/scene/entity_factory.h"
 
@@ -315,11 +314,6 @@ void SpriteAnimationEditor::DrawAssetInspector() {
 
 Document& SpriteAnimationEditor::GetDocument() const {
     return *m_document.get();
-}
-
-bool SpriteAnimationEditor::HandleInput(const InputEvent* p_input_event) {
-    unused(p_input_event);
-    return false;
 }
 
 }  // namespace cave

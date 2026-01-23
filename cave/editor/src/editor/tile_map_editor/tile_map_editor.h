@@ -10,7 +10,6 @@ namespace cave {
 
 class AssetRegistry;
 class Document;
-class InputEvent;
 class Scene;
 class TileMapDocument;
 
@@ -18,8 +17,6 @@ class TileMapEditor : public ViewerTab {
 public:
     TileMapEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileMapEditor();
-
-    bool HandleInput(const InputEvent* p_input_event) final;
 
     void OnDestroy() final;
 

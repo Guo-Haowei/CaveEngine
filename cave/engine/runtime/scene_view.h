@@ -3,7 +3,7 @@
 
 #include "engine/math/angle.h"
 #include "engine/math/geomath.h"
-#include "engine/input/input_code.h"
+#include "engine/input/key_code.h"
 
 namespace cave {
 
@@ -33,31 +33,11 @@ struct SceneView {
     Scene* scene{ nullptr };
 };
 
-struct ViewportInput {
-    float wheel_delta{ 0 };
-    Vector2f mouse_move{ 0, 0 };
-    MouseButtonArray buttons{};
-    KeyArray keys{};
-
-    bool IsKeyDown(KeyCode p_key_code) const {
-        return keys.test(std::to_underlying(p_key_code));
-    }
-
-    bool IsButtonDown(MouseButton p_button) const {
-        return buttons.test(std::to_underlying(p_button));
-    }
-};
-
 class ISceneViewProvider {
 public:
     virtual ~ISceneViewProvider() = default;
 
-    virtual void Update(float p_timestep,
-                        const ViewportInput& p_input,
-                        bool p_focused) = 0;
-
-    virtual void BuildViews(std::vector<SceneView>& p_out_views,
-                            bool p_is_opengl) = 0;
+    virtual void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) = 0;
 };
 
 }  // namespace cave

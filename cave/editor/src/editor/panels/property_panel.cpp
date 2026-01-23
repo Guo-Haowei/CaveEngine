@@ -188,7 +188,7 @@ bool DrawComponentAuto(T* p_component) {
     return (bool)dirty;
 }
 
-void PropertyPanel::UpdateInternal() {
+void PropertyPanel::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
 
     ViewerTab* tab = m_editor.GetViewer().GetActiveTab();

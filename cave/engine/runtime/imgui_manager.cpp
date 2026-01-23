@@ -2,14 +2,17 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui.h>
-
+#include <imgui/backends/imgui_impl_glfw.h>
 #include <filesystem>
 
 #include "engine/assets/blob_asset.h"
 #include "engine/core/string/string_utils.h"
+#include "engine/input/key_code.h"
+#include "engine/input/input_types.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/display_manager.h"
 #include "engine/runtime/vfs.h"
 
 namespace cave {
@@ -140,6 +143,113 @@ void ImguiManager::BeginFrame() {
         m_displayBeginFrameFunc();
         ImGui::NewFrame();
     }
+}
+
+static int MouseButtonIndex(Key p_key) {
+    switch (p_key) {
+        case Key::LMB:
+            return 0;  // ImGuiMouseButton_Left
+        case Key::RMB:
+            return 1;  // ImGuiMouseButton_Right
+        case Key::MMB:
+            return 2;  // ImGuiMouseButton_Middle
+        default:
+            return -1;
+    }
+}
+
+ImGuiKey ImguiManager::ToImGuiKey(Key p_key) {
+    switch (p_key) {
+        case Key::W:
+            return ImGuiKey_W;
+        case Key::A:
+            return ImGuiKey_A;
+        case Key::S:
+            return ImGuiKey_S;
+        case Key::D:
+            return ImGuiKey_D;
+
+        case Key::LeftCtrl:
+        case Key::RightCtrl:
+            return ImGuiKey_ModCtrl;
+        case Key::LeftShift:
+        case Key::RightShift:
+            return ImGuiKey_ModShift;
+        case Key::LeftAlt:
+        case Key::RightAlt:
+            return ImGuiKey_ModAlt;
+
+        case Key::Up:
+            return ImGuiKey_UpArrow;
+        case Key::Down:
+            return ImGuiKey_DownArrow;
+        case Key::Left:
+            return ImGuiKey_LeftArrow;
+        case Key::Right:
+            return ImGuiKey_RightArrow;
+
+        // Add more as needed
+        default:
+            return ImGuiKey_None;
+    }
+}
+
+void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
+    ImGuiIO& io = ImGui::GetIO();
+
+    for (auto& e : p_events) {
+        if (e.consumed) {
+            continue;
+        }
+
+        switch (e.type) {
+            case InputEventType::MouseMove: {
+                float x = static_cast<float>(e.x);
+                float y = static_cast<float>(e.y);
+                if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+                    auto [window_x, window_y] = m_app->GetDisplayManager()->GetWindowPos();
+                    x += window_x;
+                    y += window_y;
+                }
+                io.AddMousePosEvent(x, y);
+            } break;
+            case InputEventType::MouseWheel: {
+                io.AddMouseWheelEvent(e.dx, e.dy);
+            } break;
+            case InputEventType::TextInput: {
+                io.AddInputCharacter((unsigned int)e.code);
+            } break;
+            case InputEventType::ButtonDown:
+            case InputEventType::ButtonUp: {
+                const bool down = (e.type == InputEventType::ButtonDown);
+                const Key k = static_cast<Key>(e.code);
+
+                if (IsMouseButton(k)) {
+                    if (const int idx = MouseButtonIndex(k); idx >= 0) {
+                        io.AddMouseButtonEvent(idx, down);
+                    }
+                } else {
+                    if (const ImGuiKey ik = ToImGuiKey(k); ik != ImGuiKey_None) {
+                        io.AddKeyEvent(ik, down);
+                    }
+                }
+            } break;
+            default:
+                break;
+        }
+    }
+}
+
+bool ImguiManager::WantKeyboard() const {
+    return ImGui::GetIO().WantCaptureKeyboard;
+}
+
+bool ImguiManager::WantMouse() const {
+    return ImGui::GetIO().WantCaptureMouse;
+}
+
+bool ImguiManager::WantTextInput() const {
+    return ImGui::GetIO().WantTextInput;
 }
 
 }  // namespace cave

@@ -185,7 +185,7 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
     return true;
 }
 
-void HierarchyPanel::UpdateInternal() {
+void HierarchyPanel::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
     if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
         if (Scene* scene = tab->GetScene(); scene) {

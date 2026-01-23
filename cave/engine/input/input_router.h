@@ -1,29 +1,33 @@
-
 #pragma once
-#include "engine/input/input_event.h"
+#include "engine/input/action_consumer_interface.h"
+#include "engine/input/raw_input_consumer_interface.h"
 
 namespace cave {
 
-enum class HandleInputResult : uint8_t {
-    Handled,
-    NotHandled,
-};
-
-class IInputHandler {
+class RawInputRouter {
 public:
-    virtual HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) = 0;
+    void Register(IRawInputConsumer* p_consumer);
+    void Unregister(IRawInputConsumer* p_consumer);
+
+    void Dispatch(const std::vector<InputEvent>& p_events);
+
+private:
+    void Sort();
+
+    std::vector<IRawInputConsumer*> m_consumers;
 };
 
 class InputRouter {
 public:
-    void Route(std::shared_ptr<InputEvent> p_input_event);
+    void Register(IActionConsumer* p_consumer);
+    void Unregister(IActionConsumer* p_consumer);
 
-    void PushHandler(IInputHandler* p_handler);
-
-    IInputHandler* PopHandler();
+    void Dispatch(const ActionEvent& p_action);
 
 private:
-    std::vector<IInputHandler*> m_stack;
+    void Sort();
+
+    std::vector<IActionConsumer*> m_consumers;
 };
 
 }  // namespace cave

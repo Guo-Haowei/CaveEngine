@@ -1,7 +1,13 @@
 #pragma once
 #include "engine/runtime/module.h"
 
+enum ImGuiKey : int;
+
 namespace cave {
+
+enum class Key : uint16_t;
+
+struct InputEvent;
 
 class ImguiManager : public Module {
     using Callback = std::function<void()>;
@@ -12,6 +18,12 @@ public:
 
     auto InitializeImpl() -> Result<void> final;
     void FinalizeImpl() final;
+
+    void Feed(std::vector<InputEvent>& p_events);
+
+    bool WantKeyboard() const;
+    bool WantMouse() const;
+    bool WantTextInput() const;
 
     void SetDisplayCallbacks(Callback p_initialize_func,
                              Callback p_finalize_func,
@@ -29,6 +41,8 @@ public:
     void BeginFrame();
 
 private:
+    static ImGuiKey ToImGuiKey(Key k);
+
     Callback m_displayInitializeFunc;
     Callback m_displayBeginFrameFunc;
     Callback m_displayFinalizeFunc;

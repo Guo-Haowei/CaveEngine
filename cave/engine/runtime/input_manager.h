@@ -1,18 +1,18 @@
 #pragma once
-#include "engine/core/base/singleton.h"
+#include "engine/input/input_device_interface.h"
 #include "engine/input/input_router.h"
-#include "engine/math/vector.h"
+#include "engine/input/key_state.h"
 #include "engine/runtime/module.h"
 
 namespace cave {
 
-struct ViewportInput;
+struct PointerState {
+    bool has_pos = false;
+    float x = 0.0f, y = 0.0f;
+    float dx = 0.0f, dy = 0.0f;
+};
 
-using StringId = std::string;
-
-class InputManager : public Singleton<InputManager>,
-                     public Module,
-                     public MouseButtonBase {
+class InputManager : public Module {
 public:
     InputManager()
         : Module("InputManager") {}
@@ -20,51 +20,28 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    void SetButton(MouseButton p_button, bool p_pressed);
+    void AddDevice(std::unique_ptr<IInputDevice> p_device);
 
-    void BeginFrame();
-    void EndFrame();
+    void Update();
 
-    void PushInputHandler(IInputHandler* p_input_handler);
-    IInputHandler* PopInputHandler();
+    const KeyState& GetKeyState() const { return m_key_state; }
+    RawInputRouter& RawRouter() { return m_raw_router; }
+    InputRouter& Router() { return m_router; }
 
-    // Should only use for lua binding
-    bool IsActionPressed(StringId p_name);
-    bool IsActionJustPressed(StringId p_name);
-    bool IsActionJustReleased(StringId p_name);
+private:
+    void UpdatePointers(std::vector<InputEvent>& p_events);
 
-    Vector2f MouseMove();
-    const Vector2f& GetCursor() const { return m_cursor; }
+    std::vector<std::unique_ptr<IInputDevice>> m_devices{};
 
-    void FillViewportInput(ViewportInput& p_out_viewport_input);
+    std::vector<InputEvent> m_events;
+    std::vector<ActionEvent> m_actions;
 
-protected:
-    bool IsKeyDown(KeyCode p_key);
-    bool IsKeyPressed(KeyCode p_key);
-    bool IsKeyReleased(KeyCode p_key);
-    Vector2f GetWheel() const;
+    std::unordered_map<uint32_t, PointerState> m_pointers;
 
-    void SetKey(KeyCode p_key, bool p_pressed);
-    void SetCursor(float p_x, float p_y);
-    void SetWheel(double p_x, double p_y);
-
-    KeyArray m_keys;
-    KeyArray m_prev_keys;
-
-    Vector2f m_cursor{ 0, 0 };
-    Vector2f m_prev_cursor{ 0, 0 };
-
-    double m_wheel_x{ 0 };
-    double m_wheel_y{ 0 };
-
-    bool m_mouse_moved{ false };
-
+    KeyState m_key_state;
+    RawInputRouter m_raw_router;
     InputRouter m_router;
-
-    std::unordered_map<StringId, uint16_t> m_input_binding;
-
-    friend class GlfwDisplayManager;
-    friend class Win32DisplayManager;
+    // @TODO: input mapper
 };
 
 };  // namespace cave

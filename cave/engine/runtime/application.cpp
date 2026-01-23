@@ -83,10 +83,10 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_scene_manager);
     RegisterModule(m_script_manager);
     RegisterModule(m_physics_manager);
+    RegisterModule(m_input_manager);
     RegisterModule(m_display_server);
     RegisterModule(m_graphics_manager);
     RegisterModule(m_render_system);
-    RegisterModule(m_input_manager);
     RegisterModule(m_viewport_manager);
 
     if (m_specification.enableImgui) {
@@ -170,7 +170,7 @@ bool Application::MainLoop() {
     m_task_manager->TickMainThread();
 
     m_render_system->BeginFrame();
-    m_input_manager->BeginFrame();
+    m_input_manager->Update();
 
     // === Update Phase ===
     const float timestep = UpdateTime();
@@ -184,7 +184,6 @@ bool Application::MainLoop() {
     m_state_machine->Tick(timestep);
 
     std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
-    m_viewport_manager->UpdateProviders(timestep);
 
     if (scene) {
         scene->Update(timestep);
@@ -203,7 +202,6 @@ bool Application::MainLoop() {
     m_graphics_manager->Update();
 
     // === End Frame ===
-    m_input_manager->EndFrame();
     return true;
 }
 

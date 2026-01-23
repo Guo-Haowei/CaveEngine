@@ -1,5 +1,4 @@
 #pragma once
-#include "engine/input/input_event.h"
 #include "engine/scene/camera_component.h"
 
 #include "editor/viewer/viewer_tab.h"
@@ -11,8 +10,6 @@ class SceneDocument;
 class SceneEditor : public ViewerTab {
 public:
     SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension);
-
-    bool HandleInput(const InputEvent* p_input_event) final;
 
     void OnDestroy() final;
 

@@ -4,6 +4,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/input_manager.h"
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
@@ -26,6 +27,14 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
     , m_dimension(p_dimension)
     , m_editor(p_editor)
     , m_viewer(p_viewer) {
+
+    RawInputRouter& router = m_editor.GetApp().GetInputManager()->RawRouter();
+    router.Register(this);
+}
+
+ViewerTab::~ViewerTab() {
+    RawInputRouter& router = m_editor.GetApp().GetInputManager()->RawRouter();
+    router.Unregister(this);
 }
 
 void ViewerTab::SetSelectedEntity(ecs::Entity p_selected) {
@@ -153,60 +162,108 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     }
 }
 
-// @TODO: refactor
-void ViewerTab::CameraInputState2D(float p_timestep,
-                                   const ViewportInput& p_input,
-                                   CameraInputState& p_out_state) {
-    const float speed = p_timestep * 0.5f;
-    const float dx = speed * -p_input.mouse_move.x;
-    const float dy = speed * p_input.mouse_move.y;
-    p_out_state.zoom_delta = -p_timestep * p_input.wheel_delta;
-    p_out_state.rotation = Vector2f::Zero;
-    if (p_input.IsButtonDown(MouseButton::MIDDLE)) {
-        p_out_state.move = Vector3f(dx, dy, 0.0f);
+CameraInputState ViewerTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events) {
+    CameraInputState state{};
+
+    float dx = 0.0f;
+    float dy = 0.0f;
+    bool mmb = false;
+
+    for (const InputEvent& e : p_events) {
+        if (e.consumed) {
+            continue;
+        }
+
+        switch (e.type) {
+            case InputEventType::MouseWheel: {
+                e.consumed = true;
+                state.zoom_delta = -e.dy;
+            } break;
+            case InputEventType::MouseMove: {
+                e.consumed = true;
+                dx = -e.dx;
+                dy = e.dy;
+            } break;
+            case InputEventType::ButtonDown:
+                if (e.code == std::to_underlying(Key::MMB)) {
+                    e.consumed = true;
+                    mmb = true;
+                }
+                break;
+            default:
+                break;
+        }
+
+        if (mmb) {
+            state.move = Vector3f(dx, dy, 0.0f);
+        }
     }
+
+    return state;
 }
 
-void ViewerTab::CameraInputState3D(float p_timestep,
-                                   const ViewportInput& p_input,
-                                   CameraInputState& p_out_state) {
-    const int dx = p_input.IsKeyDown(KeyCode::KEY_D) - p_input.IsKeyDown(KeyCode::KEY_A);
-    const int dy = p_input.IsKeyDown(KeyCode::KEY_E) - p_input.IsKeyDown(KeyCode::KEY_Q);
-    const int dz = p_input.IsKeyDown(KeyCode::KEY_W) - p_input.IsKeyDown(KeyCode::KEY_S);
+CameraInputState ViewerTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events) {
+    Vector2f rotation = Vector2f::Zero;
 
-    p_out_state.move = p_timestep * Vector3f(dx, dy, dz);
-    p_out_state.zoom_delta = p_timestep * 3.0f * p_input.wheel_delta;
+    const KeyState& st = m_editor.GetApp().GetInputManager()->GetKeyState();
+    const InputDeviceId id{ 0 };
+    const bool mmb = st.Down(id, Key::MMB);
+    const int dx = st.Down(id, Key::D) - st.Down(id, Key::A);
+    const int dy = st.Down(id, Key::E) - st.Down(id, Key::Q);
+    const int dz = st.Down(id, Key::W) - st.Down(id, Key::S);
 
-    if (p_input.IsButtonDown(MouseButton::MIDDLE)) {
-        p_out_state.rotation = p_timestep * p_input.mouse_move;
+    CameraInputState state{};
+
+    for (const InputEvent& e : p_events) {
+        if (e.consumed) {
+            continue;
+        }
+        switch (e.type) {
+            case InputEventType::MouseWheel: {
+                e.consumed = true;
+                state.zoom_delta = 3.0f * e.dy;
+            } break;
+            case InputEventType::MouseMove: {
+                if (mmb) {
+                    e.consumed = true;
+                    state.rotation.x = e.dx;
+                    state.rotation.y = e.dy;
+                }
+            } break;
+            default:
+                break;
+        }
     }
+
+    state.move = Vector3f(dx, dy, dz);
+    return state;
 }
 
-void ViewerTab::Update(float p_timestep,
-                       const ViewportInput& p_input,
-                       bool p_focused) {
+void ViewerTab::Update(float p_timestep) {
+
+    m_camera_state.move *= p_timestep;
+    m_camera_state.zoom_delta *= p_timestep;
+    m_camera_state.rotation *= p_timestep;
+
+    m_camera_controller->Update(m_camera_state);
+}
+
+void ViewerTab::OnEvents(const std::vector<InputEvent>& p_events) {
     if (!m_viewer.IsHovered()) {
         return;
     }
 
-    if (!p_focused) {
-    }
-
-    CameraInputState state;
-
     switch (m_dimension) {
         case DIMENSION_2: {
-            CameraInputState2D(p_timestep, p_input, state);
+            m_camera_state = CreateCameraInputState2D(p_events);
         } break;
         case DIMENSION_3: {
-            CameraInputState3D(p_timestep, p_input, state);
+            m_camera_state = CreateCameraInputState3D(p_events);
         } break;
         default: {
             CRASH_NOW_MSG("invalid dimension");
         } break;
     }
-
-    m_camera_controller->Update(state);
 }
 
 void ViewerTab::BuildViewsImpl(Scene* p_scene,

@@ -63,7 +63,7 @@ public:
     ISceneManager* GetSceneManager() { return m_scene_manager; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptManager* GetScriptManager() { return m_script_manager; }
-    IDisplayManager* GetDisplayServer() { return m_display_server; }
+    IDisplayManager* GetDisplayManager() { return m_display_server; }
     IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     RenderSystem* GetRenderSystem() { return m_render_system; }

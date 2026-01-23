@@ -11,7 +11,6 @@ namespace cave {
 
 class AssetRegistry;
 class Document;
-class InputEvent;
 class TileMapDocument;
 class Viewer;
 
@@ -20,8 +19,6 @@ using SpriteAnimationDocument = Document;
 class SpriteAnimationEditor : public ViewerTab {
 public:
     SpriteAnimationEditor(EditorState& p_editor, Viewer& p_viewer);
-
-    bool HandleInput(const InputEvent* p_input_event) final;
 
     void OnDestroy() final;
 

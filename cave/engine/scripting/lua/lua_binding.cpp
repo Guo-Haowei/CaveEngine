@@ -103,20 +103,17 @@ bool OpenInputLib(lua_State* L) {
     // @TODO: route the input
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Input")
-        .addFunction("get_mouse_move", []() {
-            return InputManager::GetSingleton().MouseMove();
+        .addFunction("is_action_pressed", [](const char* p_str_id) -> int {
+            unused(p_str_id);
+            return false;
         })
-        .addFunction("get_cursor", []() -> Vector2f {
-            return InputManager::GetSingleton().GetCursor();
+        .addFunction("is_action_just_pressed", [](const char* p_str_id) -> int {
+            unused(p_str_id);
+            return false;
         })
-        .addFunction("is_action_pressed", [](StringId p_name) -> int {
-            return InputManager::GetSingleton().IsActionPressed(p_name);
-        })
-        .addFunction("is_action_just_pressed", [](StringId p_name) -> int {
-            return InputManager::GetSingleton().IsActionJustPressed(p_name);
-        })
-        .addFunction("is_action_just_released", [](StringId p_name) -> int {
-            return InputManager::GetSingleton().IsActionJustReleased(p_name);
+        .addFunction("is_action_just_released", [](const char* p_str_id) -> int {
+            unused(p_str_id);
+            return false;
         })
         .endNamespace();
     return true;

@@ -13,7 +13,7 @@ public:
     }
 
 protected:
-    void UpdateInternal() override;
+    void UpdateInternal(float p_timestep) override;
 };
 
 }  // namespace cave

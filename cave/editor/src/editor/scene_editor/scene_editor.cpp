@@ -137,19 +137,21 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     }
 }
 
-bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
+#if 0
+bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
+    unused(p_input_event);
     // change gizmo state
     if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
         if (e->IsPressed() && !e->IsModiferPressed()) {
             bool handled = true;
             switch (e->GetKey()) {
-                case KeyCode::KEY_Z: {
+                case Key::Z: {
                     m_state = GizmoAction::Translate;
                 } break;
-                case KeyCode::KEY_X: {
+                case Key::X: {
                     m_state = GizmoAction::Rotate;
                 } break;
-                case KeyCode::KEY_C: {
+                case Key::C: {
                     m_state = GizmoAction::Scale;
                 } break;
                 default:
@@ -160,7 +162,7 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
         }
     }
 
-    // select
+// select
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
             Vector2f clicked = e->GetPos();
@@ -168,9 +170,11 @@ bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
             return true;
         }
     }
+    DEV_ASSERT(0);
 
     return false;
 }
+#endif
 
 const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
     return { &m_play_button };

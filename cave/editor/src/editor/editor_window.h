@@ -8,7 +8,7 @@ public:
     EditorWindow(EditorState& p_editor)
         : EditorItem(p_editor) {}
 
-    void Update() override;
+    void Update(float p_timestep) override;
 
     virtual const char* GetTitle() const = 0;
 
@@ -16,7 +16,7 @@ public:
     bool IsHovered() const { return m_is_hovered; }
 
 protected:
-    virtual void UpdateInternal() = 0;
+    virtual void UpdateInternal(float p_timestep) = 0;
 
     bool m_is_focused = false;
     bool m_is_hovered = false;

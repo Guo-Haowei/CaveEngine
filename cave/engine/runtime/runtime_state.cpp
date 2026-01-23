@@ -47,12 +47,7 @@ public:
     RuntimeSceneViewProvider(Application& p_app)
         : m_app(p_app) {}
 
-    void Update(float,
-                const ViewportInput&,
-                bool) final {}
-
-    void BuildViews(std::vector<SceneView>& p_out_views,
-                    bool p_is_opengl) final {
+    void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final {
         std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene();
 
         // @HACK: find the first non-editor camera
@@ -123,9 +118,12 @@ void RuntimeState::Tick(float p_timestep) {
         m_app.GetScriptManager()->Update(*scene, p_timestep);
     }
 
+    CRASH_NOW();
+#if 0
     if (InputManager::GetSingleton().IsActionJustPressed("ui_cancel")) {
         m_request = Some(StateRequest{ AppStateId::Editor });
     }
+#endif
 }
 
 Option<StateRequest> RuntimeState::PopRequest() {

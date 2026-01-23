@@ -15,7 +15,7 @@ public:
     }
 
 protected:
-    void UpdateInternal() override;
+    void UpdateInternal(float p_timestep) override;
 
     bool m_auto_scroll{ true };
     bool m_scroll_to_bottom{ false };

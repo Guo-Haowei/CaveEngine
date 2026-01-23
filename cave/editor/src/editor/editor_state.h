@@ -13,7 +13,7 @@
 namespace cave {
 
 enum class HandleInput : uint8_t;
-enum class KeyCode : uint16_t;
+enum class Key : uint16_t;
 class AssetInspector;
 class EditorCommandBase;
 class FileSystemPanel;
@@ -36,7 +36,7 @@ struct EditorContext {
     std::shared_ptr<ImageAsset> checkerboard;
 };
 
-class EditorState final : public AppState, public IInputHandler {
+class EditorState final : public AppState {
 public:
     EditorState(Application& p_app);
 
@@ -64,8 +64,6 @@ public:
     void CommandRemoveEntity(ecs::Entity p_target);
     void CommandDuplicateEntity(ecs::Entity p_target);
 
-    HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
-
     const auto& GetShortcuts() const { return m_shortcuts; }
 
     EditorContext context;
@@ -85,7 +83,6 @@ private:
     void DockSpace();
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
 
-    void FlushInputEvents();
     void FlushCommand(Scene* p_scene);
 
     std::shared_ptr<AssetInspector> m_asset_inspector;
@@ -98,13 +95,14 @@ private:
 
     std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
 
+    // @TODO: refactor shortcut
     struct ShortcutDesc {
         const char* name{ nullptr };
         const char* shortcut{ nullptr };
         std::function<void()> executeFunc{ nullptr };
         std::function<bool()> enabledFunc{ nullptr };
 
-        KeyCode key{};
+        Key key{};
         bool ctrl{};
         bool alt{};
         bool shift{};
@@ -114,8 +112,6 @@ private:
     std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
 
     AssetHandle m_selected_asset;
-
-    std::vector<std::shared_ptr<InputEvent>> m_buffered_events;
 };
 
 }  // namespace cave

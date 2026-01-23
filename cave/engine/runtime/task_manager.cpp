@@ -187,7 +187,7 @@ void TaskManager::WaitUntilIdle() {
 }
 
 void TaskManager::WorkerLoop(uint32_t p_worker_id) {
-    thread::SetThreadID(thread::THREAD_TASK_MANAGER_WORKER_1 + p_worker_id);
+    thread::SetThreadId(thread::THREAD_TASK_MANAGER_WORKER_1 + p_worker_id);
 
     while (m_is_running.load()) {
         uint64_t id = kInvalidTaskId;

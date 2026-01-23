@@ -22,7 +22,7 @@ public:
     void DrawContentBrowser();
 
 protected:
-    void UpdateInternal() override;
+    void UpdateInternal(float p_timestep) override;
 
     const ContentEntry* Navigate(const ContentEntry* p_node, int p_cur, int p_max);
     void DrawBreadcrumb();

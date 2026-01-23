@@ -2,7 +2,6 @@
 #include "viewer_tab_manager.h"
 
 #include "engine/input/input_router.h"
-#include "engine/scene/camera_controller.h"
 
 #include "editor/editor_window.h"
 #include "editor/enums.h"
@@ -12,8 +11,6 @@ namespace cave {
 class Viewer : public EditorWindow {
 public:
     Viewer(EditorState& p_editor);
-
-    bool HandleInput(const InputEvent* p_input_event);
 
     Option<Vector2f> CursorToNDC(Vector2f p_point) const;
 
@@ -28,7 +25,7 @@ public:
     }
 
 protected:
-    void UpdateInternal() override;
+    void UpdateInternal(float p_timestep) override;
 
     void UpdateFrameSize();
 

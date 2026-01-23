@@ -13,8 +13,6 @@ public:
     TileSetEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileSetEditor();
 
-    bool HandleInput(const InputEvent* p_input_event) final;
-
     void OnDestroy() final;
 
     void DrawMainView(const CameraComponent& p_camera) final;

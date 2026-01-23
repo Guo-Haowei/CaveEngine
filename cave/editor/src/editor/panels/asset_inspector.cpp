@@ -36,7 +36,7 @@ void AssetInspector::OnAttach() {
     DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
 }
 
-void AssetInspector::UpdateInternal() {
+void AssetInspector::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
     if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
         tab->DrawAssetInspector();

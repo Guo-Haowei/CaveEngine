@@ -9,7 +9,7 @@ public:
     MenuBar(EditorState& p_editor)
         : EditorItem(p_editor) {}
 
-    void Update() override;
+    void Update(float p_timestep) override;
 };
 
 }  // namespace cave
