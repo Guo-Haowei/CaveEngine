@@ -13,17 +13,17 @@ public:
     void BeginFrame();
 
     // Feed raw events (ButtonDown / ButtonUp)
-    void UpdateFromEvents(const InputEvent* events, size_t count);
+    void UpdateFromEvents(const InputEvent* p_events, size_t p_count);
 
     // --- Queries ---
-    bool Down(InputDeviceId dev, Key k) const;
-    bool PressedThisFrame(InputDeviceId dev, Key k) const;
-    bool ReleasedThisFrame(InputDeviceId dev, Key k) const;
+    bool Down(InputDeviceId p_device, Key p_key) const;
+    bool PressedThisFrame(InputDeviceId p_device, Key p_key) const;
+    bool ReleasedThisFrame(InputDeviceId p_device, Key p_key) const;
 
     // Modifier helpers
-    bool CtrlDown(InputDeviceId dev) const;
-    bool ShiftDown(InputDeviceId dev) const;
-    bool AltDown(InputDeviceId dev) const;
+    bool CtrlDown(InputDeviceId p_device) const;
+    bool ShiftDown(InputDeviceId p_device) const;
+    bool AltDown(InputDeviceId p_device) const;
 
     // Any-device helpers (useful for global shortcuts)
     bool AnyCtrlDown() const;
@@ -31,15 +31,15 @@ public:
     bool AnyAltDown() const;
 
     // Debug / introspection
-    void ClearDevice(InputDeviceId dev);
+    void ClearDevice(InputDeviceId p_device);
 
 private:
-    static size_t Index(Key k);
+    static size_t Index(Key p_key);
 
     struct PerDeviceState {
-        std::array<uint8_t, kMaxKeys> down{};
-        std::array<uint8_t, kMaxKeys> pressed{};
-        std::array<uint8_t, kMaxKeys> released{};
+        std::bitset<kMaxKeys> down{};
+        std::bitset<kMaxKeys> pressed{};
+        std::bitset<kMaxKeys> released{};
     };
 
     std::unordered_map<uint32_t, PerDeviceState> m_states;

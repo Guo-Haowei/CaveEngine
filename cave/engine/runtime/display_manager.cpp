@@ -3,9 +3,6 @@
 #include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/common_dvars.h"
-#if USING(PLATFORM_WINDOWS)
-#include "engine/drivers/windows/win32_display_manager.h"
-#endif
 #include "engine/renderer/graphics_dvars.h"
 
 namespace cave {

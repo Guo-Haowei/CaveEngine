@@ -1,16 +1,9 @@
 #include "input_manager.h"
 
-#include "engine/input/input_event.h"
-
-// @TODO: refactor, not ideal to include scene_view here
-#include "engine/runtime/scene_view.h"
-
 namespace cave {
 
-#define STR_ID(x) (x)
-
 auto InputManager::InitializeImpl() -> Result<void> {
-    // @TODO: this should come from asset, not hard coded
+#if 0
     m_input_binding[STR_ID("ui_left")] = std::to_underlying(Key::KEY_LEFT);
     m_input_binding[STR_ID("ui_right")] = std::to_underlying(Key::KEY_RIGHT);
     m_input_binding[STR_ID("ui_up")] = std::to_underlying(Key::KEY_UP);
@@ -18,16 +11,71 @@ auto InputManager::InitializeImpl() -> Result<void> {
     m_input_binding[STR_ID("ui_accept")] = std::to_underlying(Key::KEY_ENTER);
     m_input_binding[STR_ID("ui_back")] = std::to_underlying(Key::KEY_BACKSPACE);
     m_input_binding[STR_ID("ui_cancel")] = std::to_underlying(Key::KEY_ESCAPE);
+#endif
     return Result<void>();
 }
 
 void InputManager::FinalizeImpl() {
 }
 
+void InputManager::AddDevice(std::unique_ptr<IInputDevice> p_device) {
+    if (DEV_VERIFY(p_device)) {
+        m_devices.push_back(std::move(p_device));
+    }
+}
+
+void InputManager::Update() {
+    m_events.clear();
+    m_actions.clear();
+
+    // Poll raw events from registered devices
+    for (auto& d : m_devices) {
+        d->Poll(m_events);
+    }
+
+    // Update key state
+
+    /*
+    Poll raw events
+    Update key state
+    Raw event dispatcher
+    Feed ImGui before or after raw
+    Mapper maps to remaining actions
+    Action router
+    */
+
+#if 0
+    // 2) Update key state (from *unconsumed* events only)
+    m_keys.BeginFrame();
+    m_keys.UpdateFromEvents(m_events.data(), m_events.size());
+
+    // 4) IMPORTANT: update key state again to reflect any consumed events (Ctrl+S consumes S down)
+    //    This prevents mapping from seeing S as down this frame if you rely on PressedThisFrame.
+    //    For pure Down() checks, the consumed keydown already happened, so rebuild key state cleanly.
+    //    Simple approach: rebuild from scratch (cheap for Phase 1).
+    m_keys = KeyState{};
+    m_keys.BeginFrame();
+    m_keys.UpdateFromEvents(m_events.data(), m_events.size());
+
+    // 5) Map remaining input -> actions
+    m_mapper.Map(m_events, m_keys, m_actions);
+
+    // 6) Route actions by priority/consumption
+#endif
+
+    // @TODO: map input to action
+    for (const auto& a : m_actions) {
+        m_router.Dispatch(a);
+    }
+}
+
+#if 0
+#define STR_ID(x) (x)
+
 void InputManager::BeginFrame() {
-    const bool alt = IsKeyDown(Key::KEY_LEFT_ALT) || IsKeyDown(Key::KEY_RIGHT_ALT);
-    const bool ctrl = IsKeyDown(Key::KEY_LEFT_CONTROL) || IsKeyDown(Key::KEY_RIGHT_CONTROL);
-    const bool shift = IsKeyDown(Key::KEY_LEFT_SHIFT) || IsKeyDown(Key::KEY_RIGHT_SHIFT);
+    const bool alt = IsKeyDown(Key::LeftAlt) || IsKeyDown(Key::RightAlt);
+    const bool ctrl = IsKeyDown(Key::LeftCtrl) || IsKeyDown(Key::RightCtrl);
+    const bool shift = IsKeyDown(Key::LeftShift) || IsKeyDown(Key::RightShift);
     const bool modifier_pressed = alt || ctrl || shift;
 
     // Send key events
@@ -180,5 +228,6 @@ void InputManager::FillViewportInput(ViewportInput& p_out_viewport_input) {
     p_out_viewport_input.mouse_move = MouseMove();
     p_out_viewport_input.wheel_delta = static_cast<float>(m_wheel_y);
 }
+#endif
 
 }  // namespace cave

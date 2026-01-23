@@ -30,11 +30,11 @@ void ViewportManager::ClearViewport() {
 }
 
 void ViewportManager::UpdateProviders(float p_timestep) {
-    // @TODO: refactor input routing
-    ViewportInput input;
-    m_app->GetInputManager()->FillViewportInput(input);
-
     for (auto& vp : m_viewports) {
+        // @TODO: refactor input routing
+        ViewportInput input;
+        DEV_ASSERT(0);
+        // m_app->GetInputManager()->FillViewportInput(input);
         vp.view_provider->Update(p_timestep, input, vp.focused);
     }
 }

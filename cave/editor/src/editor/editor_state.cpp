@@ -169,7 +169,7 @@ void EditorState::OnEnter(const StateRequest& p_args) {
         context.checkerboard = handle.unwrap_unchecked().Wait();
     }
 
-    m_app.GetInputManager()->PushInputHandler(this);
+    //m_app.GetInputManager()->PushInputHandler(this);
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
@@ -184,8 +184,8 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 }
 
 void EditorState::OnExit() {
-    [[maybe_unused]] auto handler = m_app.GetInputManager()->PopInputHandler();
-    DEV_ASSERT(handler == this);
+    //[[maybe_unused]] auto handler = m_app.GetInputManager()->PopInputHandler();
+    //DEV_ASSERT(handler == this);
 
     ImNodes::DestroyContext();
 }

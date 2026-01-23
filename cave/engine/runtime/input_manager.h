@@ -1,14 +1,13 @@
 #pragma once
 #include "engine/core/base/singleton.h"
+#include "engine/input/input_device_interface.h"
 #include "engine/input/input_router.h"
-#include "engine/math/vector.h"
+#include "engine/input/key_state.h"
 #include "engine/runtime/module.h"
 
 namespace cave {
 
-struct ViewportInput;
-
-using StringId = std::string;
+class KeyState;
 
 class InputManager : public Singleton<InputManager>,
                      public Module,
@@ -20,51 +19,22 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    void SetButton(MouseButton p_button, bool p_pressed);
+    void AddDevice(std::unique_ptr<IInputDevice> p_device);
 
-    void BeginFrame();
-    void EndFrame();
+    // Call once per frame.
+    void Update();
 
-    void PushInputHandler(IInputHandler* p_input_handler);
-    IInputHandler* PopInputHandler();
+    InputRouter& Router() { return m_router; }
 
-    // Should only use for lua binding
-    bool IsActionPressed(StringId p_name);
-    bool IsActionJustPressed(StringId p_name);
-    bool IsActionJustReleased(StringId p_name);
+private:
+    std::vector<std::unique_ptr<IInputDevice>> m_devices;
 
-    Vector2f MouseMove();
-    const Vector2f& GetCursor() const { return m_cursor; }
+    std::vector<IInputDevice::Event> m_events;
+    std::vector<ActionEvent> m_actions;
 
-    void FillViewportInput(ViewportInput& p_out_viewport_input);
-
-protected:
-    bool IsKeyDown(Key p_key);
-    bool IsKeyPressed(Key p_key);
-    bool IsKeyReleased(Key p_key);
-    Vector2f GetWheel() const;
-
-    void SetKey(Key p_key, bool p_pressed);
-    void SetCursor(float p_x, float p_y);
-    void SetWheel(double p_x, double p_y);
-
-    KeyArray m_keys;
-    KeyArray m_prev_keys;
-
-    Vector2f m_cursor{ 0, 0 };
-    Vector2f m_prev_cursor{ 0, 0 };
-
-    double m_wheel_x{ 0 };
-    double m_wheel_y{ 0 };
-
-    bool m_mouse_moved{ false };
-
+    // @TODO: input mapper
+    std::unique_ptr<KeyState> m_keys;
     InputRouter m_router;
-
-    std::unordered_map<StringId, uint16_t> m_input_binding;
-
-    friend class GlfwDisplayManager;
-    friend class Win32DisplayManager;
 };
 
 };  // namespace cave

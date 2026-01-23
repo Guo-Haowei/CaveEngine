@@ -170,7 +170,7 @@ bool Application::MainLoop() {
     m_task_manager->TickMainThread();
 
     m_render_system->BeginFrame();
-    m_input_manager->BeginFrame();
+    m_input_manager->Update();
 
     // === Update Phase ===
     const float timestep = UpdateTime();
@@ -203,7 +203,6 @@ bool Application::MainLoop() {
     m_graphics_manager->Update();
 
     // === End Frame ===
-    m_input_manager->EndFrame();
     return true;
 }
 

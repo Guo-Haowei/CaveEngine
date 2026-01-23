@@ -11,7 +11,7 @@
 #include "../d3d_common/d3d_common.h"
 #include "d3d12_pipeline_state_manager.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/drivers/windows/win32_display_manager.h"
+#include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/math/matrix_transform.h"
 #include "engine/renderer/graphics_private.h"
 #include "engine/renderer/sampler.h"
@@ -1206,7 +1206,7 @@ auto D3d12GraphicsManager::CreateDescriptorHeaps() -> Result<void> {
 }
 
 auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) -> Result<void> {
-    auto display_manager = dynamic_cast<Win32DisplayManager*>(IDisplayManager::GetSingletonPtr());
+    auto display_manager = dynamic_cast<GlfwDisplayManager*>(IDisplayManager::GetSingletonPtr());
     DEV_ASSERT(display_manager);
 
     // create a struct to hold information about the swap chain
@@ -1229,7 +1229,7 @@ auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) 
 
     D3D_FAIL(m_factory->CreateSwapChainForHwnd(
                  m_graphicsCommandQueue.Get(),
-                 display_manager->GetHwnd(),
+                 static_cast<HWND>(display_manager->GetNativeWindow()),
                  &scd,
                  NULL,
                  NULL,
