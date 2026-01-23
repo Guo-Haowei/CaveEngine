@@ -13,12 +13,14 @@ void RawInputRouter::Register(IRawInputConsumer* p_consumer) {
         m_consumers.push_back(p_consumer);
         Sort();
     }
+    LOG_VERBOSE("RawInputRouter::Register: register raw input consumer {}", (void*)p_consumer);
 }
 
 void RawInputRouter::Unregister(IRawInputConsumer* p_consumer) {
     m_consumers.erase(
         std::remove(m_consumers.begin(), m_consumers.end(), p_consumer),
         m_consumers.end());
+    LOG_VERBOSE("RawInputRouter::Register: unregister raw input consumer {}", (void*)p_consumer);
 }
 
 void RawInputRouter::Dispatch(const std::vector<InputEvent>& p_events) {
@@ -47,12 +49,14 @@ void InputRouter::Register(IActionConsumer* p_consumer) {
         m_consumers.push_back(p_consumer);
         Sort();
     }
+    LOG_VERBOSE("InputRouter::Register: register action consumer {}", (void*)p_consumer);
 }
 
 void InputRouter::Unregister(IActionConsumer* p_consumer) {
     m_consumers.erase(
         std::remove(m_consumers.begin(), m_consumers.end(), p_consumer),
         m_consumers.end());
+    LOG_VERBOSE("InputRouter::Register: unregister action consumer {}", (void*)p_consumer);
 }
 
 void InputRouter::Sort() {

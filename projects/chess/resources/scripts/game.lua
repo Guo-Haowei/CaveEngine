@@ -78,7 +78,6 @@ function Game.new(id)
     for i = 1, 27 do
         local highlight = g_scene:find_entity_by_name('highlight_' .. tostring(i))
         self.highlight_pool[#self.highlight_pool + 1] = highlight
-        logger.trace('highlight entity: ' .. tostring(highlight))
     end
 
     return self
@@ -148,13 +147,15 @@ function Game:render()
     end
 
     -- draw highlights
-    for i = 1, #self.highlights do
-        local mv = self.highlights[i]
-        local highlight = self.highlight_pool[i]
-        local transform = g_scene:get_transform(highlight)
-        transform:set_translation(Vector3(math.floor(mv.to / 8), offset, mv.to % 8))
-        local renderer = g_scene:get_mesh_renderer(highlight)
-        renderer:set_visible(true)
+    if self.highlights ~= nil then
+        for i = 1, #self.highlights do
+            local mv = self.highlights[i]
+            local highlight = self.highlight_pool[i]
+            local transform = g_scene:get_transform(highlight)
+            transform:set_translation(Vector3(math.floor(mv.to / 8), offset, mv.to % 8))
+            local renderer = g_scene:get_mesh_renderer(highlight)
+            renderer:set_visible(true)
+        end
     end
 end
 
