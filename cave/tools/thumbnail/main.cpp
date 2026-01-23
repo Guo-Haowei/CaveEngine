@@ -1,5 +1,4 @@
 #include "engine/core/string/string_utils.h"
-#include "engine/drivers/windows/win32_display_manager.h"
 #include "engine/empty/empty_display_manager.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/entry_point.h"
@@ -20,7 +19,6 @@ void RegisterExtraDvars() {
 #undef REGISTER_DVAR
 }
 
-extern Application* CreateGuiApp(const ApplicationSpec& p_spec);
 extern Application* CreateCliApp(const ApplicationSpec& p_spec);
 
 Application* CreateApplication() {
@@ -46,11 +44,7 @@ Application* CreateApplication() {
     spec.fullscreen = false;
     spec.vsync = false;
     spec.enableImgui = false;
-    if (DVAR_GET_BOOL(headless)) {
-        return CreateCliApp(spec);
-    } else {
-        return CreateGuiApp(spec);
-    }
+    return CreateCliApp(spec);
 }
 
 }  // namespace cave
@@ -58,14 +52,8 @@ Application* CreateApplication() {
 int main(int p_argc, const char** p_argv) {
     using namespace cave;
 
-    // @TODO: check if headless
-
     IDisplayManager::RegisterCreateFunc([]() -> IDisplayManager* {
-        if (DVAR_GET_BOOL(headless)) {
-            return new EmptyDisplayManager();
-        } else {
-            return new Win32DisplayManager();
-        }
+        return new EmptyDisplayManager();
     });
     IGraphicsManager::RegisterCreateFunc([]() -> IGraphicsManager* {
         return new SwGraphicsManager();
