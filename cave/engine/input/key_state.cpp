@@ -17,18 +17,18 @@ void KeyState::BeginFrame() {
 
 void KeyState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
     for (size_t i = 0; i < p_count; ++i) {
-        unused(p_events);
-#if 0
-        const InputEvent& e = events[i];
-        if (e.consumed) continue;
+        const InputEvent& e = p_events[i];
+        if (e.consumed) {
+            continue;
+        }
 
         if (e.type != InputEventType::ButtonDown &&
             e.type != InputEventType::ButtonUp) {
             continue;
         }
 
-        const Key p_key = FromCode(e.code);
-        const size_t idx = Index(k);
+        const Key key = static_cast<Key>(e.code);
+        const size_t idx = Index(key);
 
         auto& st = m_states[e.device.value];  // auto-creates if missing
 
@@ -37,13 +37,12 @@ void KeyState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
                 st.down[idx] = 1;
                 st.pressed[idx] = 1;
             }
-        } else {  // ButtonUp
+        } else {  // e.type == InputEventType::ButtonUp
             if (st.down[idx]) {
                 st.down[idx] = 0;
                 st.released[idx] = 1;
             }
         }
-#endif
     }
 }
 

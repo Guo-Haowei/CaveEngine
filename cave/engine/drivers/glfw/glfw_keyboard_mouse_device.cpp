@@ -170,9 +170,16 @@ void GlfwKeyboardMouseDevice::Push(InputEvent p_event) {
 }
 
 Key GlfwKeyboardMouseDevice::MapGlfwMouseButtonToCode(int p_glfw_button) {
-    DEV_ASSERT(0);
-    unused(p_glfw_button);
-    return Key::Unknown;
+    switch (p_glfw_button) {
+        case GLFW_MOUSE_BUTTON_LEFT:
+            return Key::LMB;
+        case GLFW_MOUSE_BUTTON_RIGHT:
+            return Key::RMB;
+        case GLFW_MOUSE_BUTTON_MIDDLE:
+            return Key::MMB;
+        default:
+            return Key::Unknown;
+    }
 }
 
 Key GlfwKeyboardMouseDevice::MapGlfwKeyToCode(int p_glfw_key) {

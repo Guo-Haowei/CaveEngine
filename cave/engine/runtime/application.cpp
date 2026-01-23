@@ -83,10 +83,10 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_scene_manager);
     RegisterModule(m_script_manager);
     RegisterModule(m_physics_manager);
+    RegisterModule(m_input_manager);
     RegisterModule(m_display_server);
     RegisterModule(m_graphics_manager);
     RegisterModule(m_render_system);
-    RegisterModule(m_input_manager);
     RegisterModule(m_viewport_manager);
 
     if (m_specification.enableImgui) {

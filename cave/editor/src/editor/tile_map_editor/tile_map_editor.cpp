@@ -149,6 +149,9 @@ Document& TileMapEditor::GetDocument() const {
 }
 
 bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
+    DEV_ASSERT(0);
+    unused(p_input_event);
+#if 0
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
             if (e->IsButtonDown(MouseButton::LEFT)) {
@@ -171,6 +174,7 @@ bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
             }
         }
     }
+#endif
 
     return false;
 }

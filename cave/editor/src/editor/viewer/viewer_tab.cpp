@@ -162,9 +162,15 @@ void ViewerTab::CameraInputState2D(float p_timestep,
     const float dy = speed * p_input.mouse_move.y;
     p_out_state.zoom_delta = -p_timestep * p_input.wheel_delta;
     p_out_state.rotation = Vector2f::Zero;
+
+    CRASH_NOW();
+    unused(dx);
+    unused(dy);
+#if 0
     if (p_input.IsButtonDown(MouseButton::MIDDLE)) {
         p_out_state.move = Vector3f(dx, dy, 0.0f);
     }
+#endif
 }
 
 void ViewerTab::CameraInputState3D(float p_timestep,
@@ -177,9 +183,12 @@ void ViewerTab::CameraInputState3D(float p_timestep,
     p_out_state.move = p_timestep * Vector3f(dx, dy, dz);
     p_out_state.zoom_delta = p_timestep * 3.0f * p_input.wheel_delta;
 
+    CRASH_NOW();
+#if 0
     if (p_input.IsButtonDown(MouseButton::MIDDLE)) {
         p_out_state.rotation = p_timestep * p_input.mouse_move;
     }
+#endif
 }
 
 void ViewerTab::Update(float p_timestep,

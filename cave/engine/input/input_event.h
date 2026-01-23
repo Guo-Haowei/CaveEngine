@@ -48,62 +48,6 @@ protected:
     friend class InputManager;
 };
 
-class MouseButtonBase {
-public:
-    bool IsButtonDown(MouseButton p_button) const;
-    bool IsButtonUp(MouseButton p_button) const;
-    bool IsButtonPressed(MouseButton p_button) const;
-    bool IsButtonReleased(MouseButton p_button) const;
-
-protected:
-    MouseButtonArray m_buttons;
-    MouseButtonArray m_prev_buttons;
-};
-
-class InputEventMouse : public OldInputEvent, public MouseButtonBase {
-public:
-    InputEventMouse(const MouseButtonArray& p_buttons,
-                    const MouseButtonArray& p_prevButtons,
-                    const Vector2f& p_pos) {
-        m_buttons = p_buttons;
-        m_prev_buttons = p_prevButtons;
-        m_pos = p_pos;
-    }
-
-    const Vector2f& GetPos() const { return m_pos; }
-
-protected:
-    Vector2f m_pos;
-};
-
-class InputEventMouseWheel : public InputEventMouse {
-public:
-    InputEventMouseWheel(const MouseButtonArray& p_buttons,
-                         const MouseButtonArray& p_prevButtons,
-                         const Vector2f& p_pos,
-                         float p_scroll)
-        : InputEventMouse(p_buttons, p_prevButtons, p_pos), m_scroll(p_scroll) {}
-
-    float GetWheelY() const { return m_scroll; }
-
-protected:
-    float m_scroll;
-};
-
-class InputEventMouseMove : public InputEventMouse {
-public:
-    InputEventMouseMove(const MouseButtonArray& p_buttons,
-                        const MouseButtonArray& p_prevButtons,
-                        const Vector2f& p_pos,
-                        const Vector2f& p_prev_pos)
-        : InputEventMouse(p_buttons, p_prevButtons, p_pos), m_prev_pos(p_prev_pos) {}
-
-    const Vector2f& GetPrevPos() const { return m_prev_pos; }
-    const Vector2f GetDelta() const { return m_pos - m_prev_pos; }
-
-protected:
-    Vector2f m_prev_pos;
-};
 
 template<size_t N>
 inline bool InputIsDown(const std::bitset<N>& p_array, int p_index) {

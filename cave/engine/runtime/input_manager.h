@@ -7,11 +7,8 @@
 
 namespace cave {
 
-class KeyState;
-
 class InputManager : public Singleton<InputManager>,
-                     public Module,
-                     public MouseButtonBase {
+                     public Module {
 public:
     InputManager()
         : Module("InputManager") {}
@@ -19,7 +16,7 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    void AddDevice(std::unique_ptr<IInputDevice>&& p_device);
+    void AddDevice(std::unique_ptr<IInputDevice> p_device);
 
     // Call once per frame.
     void Update();
@@ -27,13 +24,14 @@ public:
     InputRouter& Router() { return m_router; }
 
 private:
-    std::vector<std::unique_ptr<IInputDevice>> m_devices;
+    std::vector<std::unique_ptr<IInputDevice>> m_devices{};
 
     std::vector<InputEvent> m_events;
     std::vector<ActionEvent> m_actions;
 
     // @TODO: input mapper
-    std::unique_ptr<KeyState> m_key_state;
+    // @TODO: raw router
+    KeyState m_key_state;
     InputRouter m_router;
 };
 

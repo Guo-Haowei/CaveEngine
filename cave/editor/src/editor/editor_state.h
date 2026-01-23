@@ -36,7 +36,7 @@ struct EditorContext {
     std::shared_ptr<ImageAsset> checkerboard;
 };
 
-class EditorState final : public AppState, public IInputHandler {
+class EditorState final : public AppState {
 public:
     EditorState(Application& p_app);
 
@@ -63,8 +63,6 @@ public:
     void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
     void CommandRemoveEntity(ecs::Entity p_target);
     void CommandDuplicateEntity(ecs::Entity p_target);
-
-    HandleInputResult HandleInput(std::shared_ptr<OldInputEvent> p_input_event) override;
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 

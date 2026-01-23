@@ -32,14 +32,4 @@ void InputRouter::Dispatch(const ActionEvent& p_consumer) {
     }
 }
 
-void InputRouter::Route(std::shared_ptr<OldInputEvent>) {
-}
-
-void InputRouter::PushHandler(IInputHandler*) {
-}
-
-IInputHandler* InputRouter::PopHandler() {
-    return nullptr;
-}
-
 }  // namespace cave

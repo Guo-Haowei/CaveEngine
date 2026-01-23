@@ -1,5 +1,8 @@
 #include "input_manager.h"
 
+#include "engine/runtime/application.h"
+#include "engine/runtime/imgui_manager.h"
+
 namespace cave {
 
 auto InputManager::InitializeImpl() -> Result<void> {
@@ -18,52 +21,50 @@ auto InputManager::InitializeImpl() -> Result<void> {
 void InputManager::FinalizeImpl() {
 }
 
-void InputManager::AddDevice(std::unique_ptr<IInputDevice>&& p_device) {
+void InputManager::AddDevice(std::unique_ptr<IInputDevice> p_device) {
     DEV_ASSERT(p_device);
 
     LOG_VERBOSE("InputManager::AddDevice: device '{}' added", p_device->Id().value);
-    m_devices.push_back(std::move(p_device));
+    m_devices.emplace_back(std::move(p_device));
 }
 
 void InputManager::Update() {
     m_events.clear();
     m_actions.clear();
 
-    // Poll raw events from registered devices
+    // 1) Poll devices -> raw events
     for (auto& d : m_devices) {
         d->Poll(m_events);
     }
 
     // Update key state
-    m_key_state->UpdateFromEvents(m_events.data(), m_events.size());
+    // 2) Build key/button state for this frame (from unconsumed events)
+    m_key_state.BeginFrame();
+    m_key_state.UpdateFromEvents(m_events.data(), m_events.size());
 
-    /*
-    Poll raw events
-    Update key state
-    Raw event dispatcher
-    Feed ImGui before or after raw
-    Mapper maps to remaining actions
-    Action router
-    */
+    // 3) Raw routing stage (shortcuts, viewport tools, gestures)
+    //    Raw consumers can:
+    //      - mark events consumed
+    //      - optionally inject actions (via callback to InputSystem::PushAction)
+    // m_raw_router.Dispatch(m_events);
 
-#if 0
-    // 2) Update key state (from *unconsumed* events only)
-    m_keys.BeginFrame();
-    m_keys.UpdateFromEvents(m_events.data(), m_events.size());
+    // 4) Feed ImGui from remaining raw events (if you’re doing “no ImGui callbacks”)
+    //    You can place this before raw routing if you want UI to get first dibs;
+    //    for editor viewport control you usually gate by hit-test.
+    if (ImguiManager* imgui = m_app->GetImguiManager()) {
+        imgui->Feed(m_events);
 
-    // 4) IMPORTANT: update key state again to reflect any consumed events (Ctrl+S consumes S down)
-    //    This prevents mapping from seeing S as down this frame if you rely on PressedThisFrame.
-    //    For pure Down() checks, the consumed keydown already happened, so rebuild key state cleanly.
-    //    Simple approach: rebuild from scratch (cheap for Phase 1).
-    m_keys = KeyState{};
-    m_keys.BeginFrame();
-    m_keys.UpdateFromEvents(m_events.data(), m_events.size());
+        // Gate gameplay/editor mapping based on ImGui capture
+        // const bool blockKeyboard = imgui->WantKeyboard();
+        // const bool blockMouse = imgui->WantMouse();
+    }
 
-    // 5) Map remaining input -> actions
-    m_mapper.Map(m_events, m_keys, m_actions);
+    // 5) Rebuild key state after raw consumption (critical for chords/drag gating)
+    m_key_state.BeginFrame();
+    m_key_state.UpdateFromEvents(m_events.data(), m_events.size());
 
-    // 6) Route actions by priority/consumption
-#endif
+    // 6) Mapping stage (non-consumed raw -> actions, with player assignment)
+    // m_mapper.Map(m_events, m_keys, m_device_routing, m_actions);
 
     // @TODO: map input to action
     for (const auto& a : m_actions) {

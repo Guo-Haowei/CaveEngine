@@ -3,17 +3,11 @@
 
 namespace cave {
 
-enum class MouseButton : uint8_t {
-    LEFT = 0,
-    RIGHT,
-    MIDDLE,
-    COUNT,
-};
-
 // clang-format off
 enum class Key : uint16_t {
     Unknown = 0,
 
+    // Keyboard keys
     Space,
     Apostrophe,
     Comma,
@@ -68,13 +62,19 @@ enum class Key : uint16_t {
     RightSuper,
     Menu,
 
+    // Mouse buttons
+    LMB, // Left Mouse Button
+    RMB, // Right Mouse Button
+    MMB, // Middle Mouse Button
+
+    // Joystick
+
     COUNT,
 };
 // clang-format on
 
 inline constexpr uint16_t kMaxKeys = std::to_underlying(Key::COUNT);
 
-using MouseButtonArray = std::bitset<std::to_underlying(MouseButton::COUNT)>;
 using KeyArray = std::bitset<kMaxKeys>;
 
 }  // namespace cave

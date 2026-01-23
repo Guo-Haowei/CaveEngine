@@ -36,15 +36,10 @@ struct SceneView {
 struct ViewportInput {
     float wheel_delta{ 0 };
     Vector2f mouse_move{ 0, 0 };
-    MouseButtonArray buttons{};
     KeyArray keys{};
 
     bool IsKeyDown(Key p_key_code) const {
         return keys.test(std::to_underlying(p_key_code));
-    }
-
-    bool IsButtonDown(MouseButton p_button) const {
-        return buttons.test(std::to_underlying(p_button));
     }
 };
 

@@ -305,11 +305,6 @@ void EditorState::FlushInputEvents() {
     m_buffered_events.clear();
 }
 
-HandleInputResult EditorState::HandleInput(std::shared_ptr<OldInputEvent> p_input_event) {
-    m_buffered_events.emplace_back(std::move(p_input_event));
-    return HandleInputResult::NotHandled;
-}
-
 // @TODO: these are associated with scene editor, move to scene editor
 void EditorState::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {
     p_command->m_editor = this;
