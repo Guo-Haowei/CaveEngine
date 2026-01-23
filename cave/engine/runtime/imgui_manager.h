@@ -19,7 +19,7 @@ public:
     auto InitializeImpl() -> Result<void> final;
     void FinalizeImpl() final;
 
-    void Feed(std::vector<InputEvent>& events);
+    void Feed(std::vector<InputEvent>& p_events);
 
     bool WantKeyboard() const;
     bool WantMouse() const;

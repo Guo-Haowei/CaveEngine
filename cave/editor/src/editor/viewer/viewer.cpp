@@ -3,7 +3,6 @@
 #include <imgui/imgui_internal.h>
 
 #include "engine/debugger/profiler.h"
-#include "engine/input/input_event.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/display_manager.h"
@@ -61,7 +60,7 @@ bool Viewer::HandleInput(const OldInputEvent* p_input_event) {
 }
 
 Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
-    auto [window_x, window_y] = m_editor.GetApp().GetDisplayServer()->GetWindowPos();
+    auto [window_x, window_y] = m_editor.GetApp().GetDisplayManager()->GetWindowPos();
     p_point.x = (p_point.x + window_x - m_canvas_min.x) / m_canvas_size.x;
     p_point.y = (p_point.y + window_y - m_canvas_min.y) / m_canvas_size.y;
 

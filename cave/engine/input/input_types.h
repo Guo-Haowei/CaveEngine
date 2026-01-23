@@ -67,7 +67,7 @@ struct InputEvent {
         e.timestamp_us = p_timestamp;
 
         e.v0 = p_x;
-        e.v0 = p_y;
+        e.v1 = p_y;
         return e;
     }
 

@@ -4,7 +4,6 @@
 
 #include "engine/assets/image_asset.h"
 #include "engine/assets/tile_set_asset.h"
-#include "engine/input/input_event.h"
 #include "engine/scene/entity_factory.h"
 
 #include "editor/editor_state.h"

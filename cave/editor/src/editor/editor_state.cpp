@@ -10,7 +10,6 @@
 
 #include "engine/assets/image_asset.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/input/input_event.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/asset_registry.h"
@@ -263,6 +262,7 @@ void EditorState::DockSpace() {
 void EditorState::FlushInputEvents() {
     CAVE_PROFILE_EVENT();
 
+#if 0
     for (auto& event : m_buffered_events) {
         if (m_viewer->IsFocused() || m_viewer->IsHovered()) {
             if (m_viewer->HandleInput(event.get())) {
@@ -301,6 +301,7 @@ void EditorState::FlushInputEvents() {
             }
         }
     }
+#endif
 
     m_buffered_events.clear();
 }

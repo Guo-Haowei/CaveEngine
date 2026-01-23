@@ -138,6 +138,8 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
 }
 
 bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
+    unused(p_input_event);
+#if 0
     // change gizmo state
     if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
         if (e->IsPressed() && !e->IsModiferPressed()) {
@@ -161,7 +163,6 @@ bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
     }
 
 // select
-#if 0
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
             Vector2f clicked = e->GetPos();

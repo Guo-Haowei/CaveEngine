@@ -14,7 +14,7 @@ namespace cave {
 static void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
 
 auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
-    auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayServer());
+    auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayManager());
     DEV_ASSERT(display_manager);
     if (!display_manager) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");

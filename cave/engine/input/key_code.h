@@ -68,13 +68,27 @@ enum class Key : uint16_t {
     MMB, // Middle Mouse Button
 
     // Joystick
+    _Max,
 
-    COUNT,
+    _FirstKey = Space,
+    _LastKey = Menu,
+    _FirstMouseButton = LMB,
+    _LastMouseButton = MMB,
 };
 // clang-format on
 
-inline constexpr uint16_t kMaxKeys = std::to_underlying(Key::COUNT);
+inline constexpr uint16_t kMaxKeys = std::to_underlying(Key::_Max);
 
 using KeyArray = std::bitset<kMaxKeys>;
+
+constexpr inline bool IsMouseButton(Key p_key) {
+    return std::to_underlying(p_key) >= std::to_underlying(Key::_FirstMouseButton) &&
+           std::to_underlying(p_key) <= std::to_underlying(Key::_LastMouseButton);
+}
+
+constexpr inline bool IsKey(Key p_key) {
+    return std::to_underlying(p_key) >= std::to_underlying(Key::_FirstKey) &&
+           std::to_underlying(p_key) <= std::to_underlying(Key::_LastKey);
+}
 
 }  // namespace cave

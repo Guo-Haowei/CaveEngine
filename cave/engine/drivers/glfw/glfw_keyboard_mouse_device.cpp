@@ -2,7 +2,7 @@
 
 #include <glfw/glfw3.h>
 
-#include "engine/input/input_code.h"
+#include "engine/input/key_code.h"
 
 namespace cave {
 
@@ -112,54 +112,6 @@ void GlfwKeyboardMouseDevice::InstallCallbacks(GLFWwindow* p_window) {
 
     m_windows.push_back(p_window);
 }
-
-// @TODO: refactor this part
-#if 0
-void GlfwDisplayManager::CursorPosCallback(GLFWwindow* p_window, double p_x, double p_y) {
-    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
-    // auto input_manager = window->m_app->GetInputManager();
-
-    if (window->m_app->GetSpecification().enableImgui) {
-        ImGui_ImplGlfw_CursorPosCallback(p_window, p_x, p_y);
-    }
-}
-
-void GlfwDisplayManager::MouseButtonCallback(GLFWwindow* p_window,
-                                             int p_button,
-                                             int p_action,
-                                             int p_mods) {
-    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
-    // auto input_manager = window->m_app->GetInputManager();
-
-    if (window->m_app->GetSpecification().enableImgui) {
-        ImGui_ImplGlfw_MouseButtonCallback(p_window, p_button, p_action, p_mods);
-    }
-}
-
-void GlfwDisplayManager::KeyCallback(GLFWwindow* p_window,
-                                     int p_keycode,
-                                     int p_scancode,
-                                     int p_action,
-                                     int p_mods) {
-    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
-    // auto input_manager = window->m_app->GetInputManager();
-
-    if (window->m_app->GetSpecification().enableImgui) {
-        ImGui_ImplGlfw_KeyCallback(p_window, p_keycode, p_scancode, p_action, p_mods);
-    }
-}
-
-void GlfwDisplayManager::ScrollCallback(GLFWwindow* p_window,
-                                        double p_xoffset,
-                                        double p_yoffset) {
-    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
-    // auto input_manager = window->m_app->GetInputManager();
-
-    if (window->m_app->GetSpecification().enableImgui) {
-        ImGui_ImplGlfw_ScrollCallback(p_window, p_xoffset, p_yoffset);
-    }
-}
-#endif
 
 GlfwKeyboardMouseDevice* GlfwKeyboardMouseDevice::Get(GLFWwindow* p_window) {
     return static_cast<GlfwKeyboardMouseDevice*>(glfwGetWindowUserPointer(p_window));

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/input/input_code.h"
+#include "engine/input/key_code.h"
 #include "engine/input/input_types.h"
 
 namespace cave {

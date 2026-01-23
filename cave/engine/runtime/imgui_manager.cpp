@@ -2,15 +2,17 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 #include <filesystem>
 
 #include "engine/assets/blob_asset.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/input/input_code.h"
+#include "engine/input/key_code.h"
 #include "engine/input/input_types.h"
 #include "engine/runtime/application.h"
 #include "engine/runtime/asset_manager_interface.h"
 #include "engine/runtime/asset_registry.h"
+#include "engine/runtime/display_manager.h"
 #include "engine/runtime/vfs.h"
 
 namespace cave {
@@ -143,25 +145,21 @@ void ImguiManager::BeginFrame() {
     }
 }
 
-static bool IsMouseButton(Key k) {
-    return k == Key::LMB || k == Key::RMB || k == Key::MMB;
-}
-
-static int MouseButtonIndex(Key k) {
-    switch (k) {
+static int MouseButtonIndex(Key p_key) {
+    switch (p_key) {
         case Key::LMB:
-            return 0;
+            return 0;  // ImGuiMouseButton_Left
         case Key::RMB:
-            return 1;
+            return 1;  // ImGuiMouseButton_Right
         case Key::MMB:
-            return 2;
+            return 2;  // ImGuiMouseButton_Middle
         default:
             return -1;
     }
 }
 
-ImGuiKey ImguiManager::ToImGuiKey(Key k) {
-    switch (k) {
+ImGuiKey ImguiManager::ToImGuiKey(Key p_key) {
+    switch (p_key) {
         case Key::W:
             return ImGuiKey_W;
         case Key::A:
@@ -196,46 +194,46 @@ ImGuiKey ImguiManager::ToImGuiKey(Key k) {
     }
 }
 
-void ImguiManager::Feed(std::vector<InputEvent>& events) {
+void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
     ImGuiIO& io = ImGui::GetIO();
 
-    for (auto& e : events) {
+    for (auto& e : p_events) {
         if (e.consumed) {
             continue;
         }
 
         switch (e.type) {
-            case InputEventType::MouseMove:
-                io.AddMousePosEvent(e.v0, e.v1);
-                break;
-
-            case InputEventType::MouseWheel:
+            case InputEventType::MouseMove: {
+                float x = static_cast<float>(e.v0);
+                float y = static_cast<float>(e.v1);
+                if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+                    auto [window_x, window_y] = m_app->GetDisplayManager()->GetWindowPos();
+                    x += window_x;
+                    y += window_y;
+                }
+                io.AddMousePosEvent(x, y);
+            } break;
+            case InputEventType::MouseWheel: {
                 io.AddMouseWheelEvent(0.0f, e.v0);  // vertical scroll
-                break;
-
-            case InputEventType::TextInput:
+            } break;
+            case InputEventType::TextInput: {
                 io.AddInputCharacter((unsigned int)e.code);
-                break;
-
+            } break;
             case InputEventType::ButtonDown:
             case InputEventType::ButtonUp: {
                 const bool down = (e.type == InputEventType::ButtonDown);
                 const Key k = static_cast<Key>(e.code);
 
                 if (IsMouseButton(k)) {
-                    const int idx = MouseButtonIndex(k);
-                    if (idx >= 0) {
+                    if (const int idx = MouseButtonIndex(k); idx >= 0) {
                         io.AddMouseButtonEvent(idx, down);
                     }
                 } else {
-                    const ImGuiKey ik = ToImGuiKey(k);
-                    if (ik != ImGuiKey_None) {
+                    if (const ImGuiKey ik = ToImGuiKey(k); ik != ImGuiKey_None) {
                         io.AddKeyEvent(ik, down);
                     }
                 }
-                break;
-            }
-
+            } break;
             default:
                 break;
         }

@@ -3,7 +3,7 @@
 
 #include "engine/math/angle.h"
 #include "engine/math/geomath.h"
-#include "engine/input/input_code.h"
+#include "engine/input/key_code.h"
 
 namespace cave {
 
