@@ -1,5 +1,7 @@
-
 #pragma once
+#include "engine/input/action_consumer_interface.h"
+
+// @TODO: refactor
 #include "engine/input/input_event.h"
 
 namespace cave {
@@ -16,14 +18,23 @@ public:
 
 class InputRouter {
 public:
+    void Register(IActionConsumer* p_comsumer);
+    void Unregister(IActionConsumer* p_comsumer);
+
+    void Dispatch(const ActionEvent& e);
+
+    //[[deprecated]]
     void Route(std::shared_ptr<InputEvent> p_input_event);
 
+    //[[deprecated]]
     void PushHandler(IInputHandler* p_handler);
 
+    //[[deprecated]]
     IInputHandler* PopHandler();
 
 private:
-    std::vector<IInputHandler*> m_stack;
+    void Sort();
+    std::vector<IActionConsumer*> m_consumers;
 };
 
 }  // namespace cave

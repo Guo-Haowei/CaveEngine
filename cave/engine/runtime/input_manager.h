@@ -39,12 +39,12 @@ public:
     void FillViewportInput(ViewportInput& p_out_viewport_input);
 
 protected:
-    bool IsKeyDown(KeyCode p_key);
-    bool IsKeyPressed(KeyCode p_key);
-    bool IsKeyReleased(KeyCode p_key);
+    bool IsKeyDown(Key p_key);
+    bool IsKeyPressed(Key p_key);
+    bool IsKeyReleased(Key p_key);
     Vector2f GetWheel() const;
 
-    void SetKey(KeyCode p_key, bool p_pressed);
+    void SetKey(Key p_key, bool p_pressed);
     void SetCursor(float p_x, float p_y);
     void SetWheel(double p_x, double p_y);
 

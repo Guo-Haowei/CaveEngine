@@ -13,7 +13,7 @@
 namespace cave {
 
 enum class HandleInput : uint8_t;
-enum class KeyCode : uint16_t;
+enum class Key : uint16_t;
 class AssetInspector;
 class EditorCommandBase;
 class FileSystemPanel;

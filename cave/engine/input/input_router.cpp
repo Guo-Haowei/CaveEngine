@@ -2,27 +2,44 @@
 
 namespace cave {
 
-void InputRouter::Route(std::shared_ptr<InputEvent> p_input_event) {
-    for (int i = static_cast<int>(m_stack.size()) - 1; i >= 0; --i) {
-        if (m_stack[i]->HandleInput(p_input_event) == HandleInputResult::Handled) {
-            break;
+void InputRouter::Register(IActionConsumer* p_consumer) {
+    if (!p_consumer) return;
+    for (auto* it : m_consumers) {
+        if (it == p_consumer) return;
+    }
+    m_consumers.push_back(p_consumer);
+    Sort();
+}
+
+void InputRouter::Unregister(IActionConsumer* p_consumer) {
+    m_consumers.erase(
+        std::remove(m_consumers.begin(), m_consumers.end(), p_consumer),
+        m_consumers.end());
+}
+
+void InputRouter::Sort() {
+    std::sort(m_consumers.begin(), m_consumers.end(),
+              [](const IActionConsumer* a, const IActionConsumer* b) {
+                  return a->GetPriority() > b->GetPriority();
+              });
+}
+
+void InputRouter::Dispatch(const ActionEvent& p_consumer) {
+    for (auto* c : m_consumers) {
+        if (c && c->OnAction(p_consumer)) {
+            return;
         }
     }
 }
 
-void InputRouter::PushHandler(IInputHandler* p_handler) {
-    DEV_ASSERT(p_handler);
-    m_stack.push_back(p_handler);
+void InputRouter::Route(std::shared_ptr<InputEvent>) {
+}
+
+void InputRouter::PushHandler(IInputHandler*) {
 }
 
 IInputHandler* InputRouter::PopHandler() {
-    DEV_ASSERT(!m_stack.empty());
-    if (m_stack.empty()) {
-        return nullptr;
-    }
-    IInputHandler* back = m_stack.back();
-    m_stack.pop_back();
-    return back;
+    return nullptr;
 }
 
 }  // namespace cave

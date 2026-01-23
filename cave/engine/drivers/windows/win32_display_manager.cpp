@@ -217,17 +217,17 @@ LRESULT Win32DisplayManager::WndProc(HWND p_hwnd, UINT p_msg, WPARAM p_wparam, L
 void Win32DisplayManager::InitializeKeyMapping() {
     DEV_ASSERT(m_keyMapping.empty());
 
-    m_keyMapping[VK_SPACE] = KeyCode::KEY_SPACE;
-    m_keyMapping[VK_LEFT] = KeyCode::KEY_LEFT;
-    m_keyMapping[VK_RIGHT] = KeyCode::KEY_RIGHT;
-    m_keyMapping[VK_UP] = KeyCode::KEY_UP;
-    m_keyMapping[VK_DOWN] = KeyCode::KEY_DOWN;
-    m_keyMapping[VK_LSHIFT] = KeyCode::KEY_LEFT_SHIFT;
-    m_keyMapping[VK_LCONTROL] = KeyCode::KEY_LEFT_CONTROL;
-    m_keyMapping[VK_RSHIFT] = KeyCode::KEY_RIGHT_SHIFT;
-    m_keyMapping[VK_RCONTROL] = KeyCode::KEY_RIGHT_CONTROL;
-    m_keyMapping[VK_SHIFT] = KeyCode::KEY_LEFT_SHIFT;
-    m_keyMapping[VK_CONTROL] = KeyCode::KEY_LEFT_CONTROL;
+    m_keyMapping[VK_SPACE] = Key::KEY_SPACE;
+    m_keyMapping[VK_LEFT] = Key::KEY_LEFT;
+    m_keyMapping[VK_RIGHT] = Key::KEY_RIGHT;
+    m_keyMapping[VK_UP] = Key::KEY_UP;
+    m_keyMapping[VK_DOWN] = Key::KEY_DOWN;
+    m_keyMapping[VK_LSHIFT] = Key::KEY_LEFT_SHIFT;
+    m_keyMapping[VK_LCONTROL] = Key::KEY_LEFT_CONTROL;
+    m_keyMapping[VK_RSHIFT] = Key::KEY_RIGHT_SHIFT;
+    m_keyMapping[VK_RCONTROL] = Key::KEY_RIGHT_CONTROL;
+    m_keyMapping[VK_SHIFT] = Key::KEY_LEFT_SHIFT;
+    m_keyMapping[VK_CONTROL] = Key::KEY_LEFT_CONTROL;
 
     //    #define VK_LSHIFT
     // #define VK_RSHIFT   0xA1
@@ -235,10 +235,10 @@ void Win32DisplayManager::InitializeKeyMapping() {
     // #define VK_RCONTROL 0xA3
 
     for (char i = 0; i <= 9; ++i) {
-        m_keyMapping['0' + i] = static_cast<KeyCode>((uint16_t)KeyCode::KEY_0 + i);
+        m_keyMapping['0' + i] = static_cast<Key>((uint16_t)Key::KEY_0 + i);
     }
     for (char i = 0; i < 26; ++i) {
-        m_keyMapping['A' + i] = static_cast<KeyCode>((uint16_t)KeyCode::KEY_A + i);
+        m_keyMapping['A' + i] = static_cast<Key>((uint16_t)Key::KEY_A + i);
     }
 
     // @TODO: do the rest

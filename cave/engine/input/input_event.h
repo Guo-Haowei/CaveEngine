@@ -1,6 +1,10 @@
 #pragma once
-#include "engine/math/geomath.h"
+
+#include "engine/input/input_types.h"
+
+// @TODO: refactor
 #include "input_code.h"
+#include "engine/math/geomath.h"
 
 namespace cave {
 
@@ -35,10 +39,10 @@ public:
     bool IsHolding() const { return m_state == InputState::HOLD; }
     bool IsReleased() const { return m_state == InputState::RELEASED; }
 
-    KeyCode GetKey() const { return m_key; }
+    Key GetKey() const { return m_key; }
 
 protected:
-    KeyCode m_key;
+    Key m_key;
     InputState m_state;
 
     friend class InputManager;
@@ -77,14 +81,13 @@ public:
     InputEventMouseWheel(const MouseButtonArray& p_buttons,
                          const MouseButtonArray& p_prevButtons,
                          const Vector2f& p_pos,
-                         const Vector2f& p_scroll)
+                         float p_scroll)
         : InputEventMouse(p_buttons, p_prevButtons, p_pos), m_scroll(p_scroll) {}
 
-    float GetWheelX() const { return m_scroll.x; }
-    float GetWheelY() const { return m_scroll.y; }
+    float GetWheelY() const { return m_scroll; }
 
 protected:
-    Vector2f m_scroll;
+    float m_scroll;
 };
 
 class InputEventMouseMove : public InputEventMouse {

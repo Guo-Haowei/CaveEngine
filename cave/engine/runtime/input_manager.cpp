@@ -11,13 +11,13 @@ namespace cave {
 
 auto InputManager::InitializeImpl() -> Result<void> {
     // @TODO: this should come from asset, not hard coded
-    m_input_binding[STR_ID("ui_left")] = std::to_underlying(KeyCode::KEY_LEFT);
-    m_input_binding[STR_ID("ui_right")] = std::to_underlying(KeyCode::KEY_RIGHT);
-    m_input_binding[STR_ID("ui_up")] = std::to_underlying(KeyCode::KEY_UP);
-    m_input_binding[STR_ID("ui_down")] = std::to_underlying(KeyCode::KEY_DOWN);
-    m_input_binding[STR_ID("ui_accept")] = std::to_underlying(KeyCode::KEY_ENTER);
-    m_input_binding[STR_ID("ui_back")] = std::to_underlying(KeyCode::KEY_BACKSPACE);
-    m_input_binding[STR_ID("ui_cancel")] = std::to_underlying(KeyCode::KEY_ESCAPE);
+    m_input_binding[STR_ID("ui_left")] = std::to_underlying(Key::KEY_LEFT);
+    m_input_binding[STR_ID("ui_right")] = std::to_underlying(Key::KEY_RIGHT);
+    m_input_binding[STR_ID("ui_up")] = std::to_underlying(Key::KEY_UP);
+    m_input_binding[STR_ID("ui_down")] = std::to_underlying(Key::KEY_DOWN);
+    m_input_binding[STR_ID("ui_accept")] = std::to_underlying(Key::KEY_ENTER);
+    m_input_binding[STR_ID("ui_back")] = std::to_underlying(Key::KEY_BACKSPACE);
+    m_input_binding[STR_ID("ui_cancel")] = std::to_underlying(Key::KEY_ESCAPE);
     return Result<void>();
 }
 
@@ -25,13 +25,13 @@ void InputManager::FinalizeImpl() {
 }
 
 void InputManager::BeginFrame() {
-    const bool alt = IsKeyDown(KeyCode::KEY_LEFT_ALT) || IsKeyDown(KeyCode::KEY_RIGHT_ALT);
-    const bool ctrl = IsKeyDown(KeyCode::KEY_LEFT_CONTROL) || IsKeyDown(KeyCode::KEY_RIGHT_CONTROL);
-    const bool shift = IsKeyDown(KeyCode::KEY_LEFT_SHIFT) || IsKeyDown(KeyCode::KEY_RIGHT_SHIFT);
+    const bool alt = IsKeyDown(Key::KEY_LEFT_ALT) || IsKeyDown(Key::KEY_RIGHT_ALT);
+    const bool ctrl = IsKeyDown(Key::KEY_LEFT_CONTROL) || IsKeyDown(Key::KEY_RIGHT_CONTROL);
+    const bool shift = IsKeyDown(Key::KEY_LEFT_SHIFT) || IsKeyDown(Key::KEY_RIGHT_SHIFT);
     const bool modifier_pressed = alt || ctrl || shift;
 
     // Send key events
-    for (int i = 0; i < std::to_underlying(KeyCode::COUNT); ++i) {
+    for (int i = 0; i < std::to_underlying(Key::COUNT); ++i) {
         const auto value = m_keys[i];
         const auto prev_value = m_prev_keys[i];
 
@@ -53,13 +53,13 @@ void InputManager::BeginFrame() {
             continue;
         }
         auto e = std::make_shared<InputEventKey>();
-        e->m_key = static_cast<KeyCode>(i);
+        e->m_key = static_cast<Key>(i);
         e->m_state = state;
         e->m_alt_pressed = alt;
         e->m_ctrl_pressed = ctrl;
         e->m_shift_pressed = shift;
 
-        m_router.Route(e);
+        //m_router.Route(e);
     }
 
     // Send mouse wheel events
@@ -67,12 +67,12 @@ void InputManager::BeginFrame() {
         auto e = std::make_shared<InputEventMouseWheel>(m_buttons,
                                                         m_prev_buttons,
                                                         m_cursor,
-                                                        Vector2f(static_cast<float>(m_wheel_x), static_cast<float>(m_wheel_y)));
+                                                        static_cast<float>(m_wheel_y));
         e->m_alt_pressed = alt;
         e->m_ctrl_pressed = ctrl;
         e->m_shift_pressed = shift;
 
-        m_router.Route(e);
+        //m_router.Route(e);
     }
 
     // Send mouse moved event
@@ -82,7 +82,7 @@ void InputManager::BeginFrame() {
         e->m_ctrl_pressed = ctrl;
         e->m_shift_pressed = shift;
 
-        m_router.Route(e);
+        //m_router.Route(e);
     }
 }
 
@@ -105,15 +105,15 @@ IInputHandler* InputManager::PopInputHandler() {
     return m_router.PopHandler();
 }
 
-bool InputManager::IsKeyDown(KeyCode p_key) {
+bool InputManager::IsKeyDown(Key p_key) {
     return m_keys[std::to_underlying(p_key)];
 }
 
-bool InputManager::IsKeyPressed(KeyCode p_key) {
+bool InputManager::IsKeyPressed(Key p_key) {
     return InputHasChanged(m_keys, m_prev_keys, std::to_underlying(p_key));
 }
 
-bool InputManager::IsKeyReleased(KeyCode p_key) {
+bool InputManager::IsKeyReleased(Key p_key) {
     return InputHasChanged(m_prev_keys, m_keys, std::to_underlying(p_key));
 }
 
@@ -121,13 +121,13 @@ bool InputManager::IsKeyReleased(KeyCode p_key) {
 bool InputManager::IsActionPressed(StringId p_name) {
     auto it = m_input_binding.find(p_name);
     if (it == m_input_binding.end()) return false;
-    return IsKeyDown(static_cast<KeyCode>(it->second));
+    return IsKeyDown(static_cast<Key>(it->second));
 }
 
 bool InputManager::IsActionJustPressed(StringId p_name) {
     auto it = m_input_binding.find(p_name);
     if (it == m_input_binding.end()) return false;
-    const bool pressed = IsKeyPressed(static_cast<KeyCode>(it->second));
+    const bool pressed = IsKeyPressed(static_cast<Key>(it->second));
     if (pressed) {
         return true;
     }
@@ -137,7 +137,7 @@ bool InputManager::IsActionJustPressed(StringId p_name) {
 bool InputManager::IsActionJustReleased(StringId p_name) {
     auto it = m_input_binding.find(p_name);
     if (it == m_input_binding.end()) return false;
-    return IsKeyReleased(static_cast<KeyCode>(it->second));
+    return IsKeyReleased(static_cast<Key>(it->second));
 }
 
 Vector2f InputManager::MouseMove() {
@@ -151,8 +151,8 @@ void InputManager::SetButton(MouseButton p_button, bool p_pressed) {
     m_buttons[std::to_underlying(p_button)] = p_pressed;
 }
 
-void InputManager::SetKey(KeyCode p_key, bool p_pressed) {
-    ERR_FAIL_INDEX(p_key, KeyCode::COUNT);
+void InputManager::SetKey(Key p_key, bool p_pressed) {
+    ERR_FAIL_INDEX(p_key, Key::COUNT);
     const auto index = std::to_underlying(p_key);
     m_keys[index] = p_pressed;
 }

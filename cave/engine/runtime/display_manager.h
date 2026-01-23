@@ -7,7 +7,7 @@
 
 namespace cave {
 
-enum class KeyCode : uint16_t;
+enum class Key : uint16_t;
 
 struct WindowSpecfication {
     std::string title;
@@ -48,7 +48,7 @@ protected:
         int x, y;
     } m_frameSize, m_windowPos;
 
-    std::unordered_map<int, KeyCode> m_keyMapping;
+    std::unordered_map<int, Key> m_keyMapping;
 };
 
 }  // namespace cave

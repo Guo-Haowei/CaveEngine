@@ -11,7 +11,7 @@ enum class MouseButton : uint8_t {
 };
 
 // clang-format off
-enum class KeyCode : uint16_t {
+enum class Key : uint16_t {
     KEY_SPACE,
     KEY_APOSTROPHE,
     KEY_COMMA,
@@ -74,7 +74,9 @@ enum class KeyCode : uint16_t {
 };
 // clang-format on
 
+inline constexpr uint16_t kMaxKeys = std::to_underlying(Key::COUNT);
+
 using MouseButtonArray = std::bitset<std::to_underlying(MouseButton::COUNT)>;
-using KeyArray = std::bitset<std::to_underlying(KeyCode::COUNT)>;
+using KeyArray = std::bitset<kMaxKeys>;
 
 }  // namespace cave

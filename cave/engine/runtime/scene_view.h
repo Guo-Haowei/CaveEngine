@@ -39,7 +39,7 @@ struct ViewportInput {
     MouseButtonArray buttons{};
     KeyArray keys{};
 
-    bool IsKeyDown(KeyCode p_key_code) const {
+    bool IsKeyDown(Key p_key_code) const {
         return keys.test(std::to_underlying(p_key_code));
     }
 
