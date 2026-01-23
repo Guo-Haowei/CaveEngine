@@ -38,7 +38,7 @@ static struct {
 } s_threadGlob;
 
 bool Initialize() {
-    SetThreadID(THREAD_MAIN);
+    SetThreadId(THREAD_MAIN);
 
     std::latch latch{ THREAD_MAX - 1 };
 
@@ -49,7 +49,7 @@ bool Initialize() {
         thread.threadObject = std::thread(
             [&](ThreadObject* p_object) {
                 // set thread id
-                SetThreadID(p_object->id);
+                SetThreadId(p_object->id);
 
                 latch.count_down();
                 LOG_VERBOSE("[threads] thread '{}'(id: {}) starts.", p_object->name, p_object->id);
@@ -102,7 +102,7 @@ void SetThreadName(std::thread& p_thread, std::string_view p_name) {
 #endif
 }
 
-void SetThreadID(uint32_t p_id) {
+void SetThreadId(uint32_t p_id) {
     g_thread_id = p_id;
 }
 

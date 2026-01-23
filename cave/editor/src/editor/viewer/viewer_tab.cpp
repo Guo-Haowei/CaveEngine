@@ -170,9 +170,9 @@ void ViewerTab::CameraInputState2D(float p_timestep,
 void ViewerTab::CameraInputState3D(float p_timestep,
                                    const ViewportInput& p_input,
                                    CameraInputState& p_out_state) {
-    const int dx = p_input.IsKeyDown(Key::KEY_D) - p_input.IsKeyDown(Key::KEY_A);
-    const int dy = p_input.IsKeyDown(Key::KEY_E) - p_input.IsKeyDown(Key::KEY_Q);
-    const int dz = p_input.IsKeyDown(Key::KEY_W) - p_input.IsKeyDown(Key::KEY_S);
+    const int dx = p_input.IsKeyDown(Key::D) - p_input.IsKeyDown(Key::A);
+    const int dy = p_input.IsKeyDown(Key::E) - p_input.IsKeyDown(Key::Q);
+    const int dz = p_input.IsKeyDown(Key::W) - p_input.IsKeyDown(Key::S);
 
     p_out_state.move = p_timestep * Vector3f(dx, dy, dz);
     p_out_state.zoom_delta = p_timestep * 3.0f * p_input.wheel_delta;

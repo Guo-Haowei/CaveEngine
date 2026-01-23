@@ -9,9 +9,14 @@ enum class InputDeviceType : uint8_t {
 };
 
 struct InputDeviceId {
-    uint8_t value{ 0 };
+    uint32_t value{ 0 };
     constexpr bool operator==(const InputDeviceId& p_other) const { return value == p_other.value; }
     constexpr bool operator!=(const InputDeviceId& p_other) const { return value != p_other.value; }
+
+    static InputDeviceId NextId() {
+        static std::atomic<uint32_t> s_id{ 0 };
+        return InputDeviceId{ s_id++ };
+    }
 };
 
 using ActionId = uint32_t;

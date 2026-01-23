@@ -8,8 +8,6 @@
 namespace cave {
 
 Result<void> IDisplayManager::InitializeImpl() {
-    InitializeKeyMapping();
-
     const auto& spec = m_app->GetSpecification();
 
     std::string title{ spec.name };

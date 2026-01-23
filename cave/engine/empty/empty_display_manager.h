@@ -29,7 +29,6 @@ protected:
     auto InitializeWindow(const WindowSpecfication&) -> Result<void> override {
         return Result<void>();
     }
-    void InitializeKeyMapping() override {};
 };
 
 }  // namespace cave

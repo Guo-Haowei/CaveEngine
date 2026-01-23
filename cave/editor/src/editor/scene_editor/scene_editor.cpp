@@ -143,13 +143,13 @@ bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
         if (e->IsPressed() && !e->IsModiferPressed()) {
             bool handled = true;
             switch (e->GetKey()) {
-                case Key::KEY_Z: {
+                case Key::Z: {
                     m_state = GizmoAction::Translate;
                 } break;
-                case Key::KEY_X: {
+                case Key::X: {
                     m_state = GizmoAction::Rotate;
                 } break;
-                case Key::KEY_C: {
+                case Key::C: {
                     m_state = GizmoAction::Scale;
                 } break;
                 default:

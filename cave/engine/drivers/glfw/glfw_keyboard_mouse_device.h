@@ -9,14 +9,14 @@ enum class Key : uint16_t;
 
 class GlfwKeyboardMouseDevice : public IInputDevice {
 public:
-    GlfwKeyboardMouseDevice(InputDeviceId p_id, GLFWwindow* p_window);
+    GlfwKeyboardMouseDevice(InputDeviceId p_id);
 
     InputDeviceType Type() const override { return InputDeviceType::KeyboardMouse; }
     InputDeviceId Id() const override { return m_id; }
 
     void Poll(std::vector<InputEvent>& p_out_events) override;
 
-    void InstallCallbacks();
+    void InstallCallbacks(GLFWwindow* p_window);
 
 private:
     Key MapGlfwKeyToCode(int p_glfw_key);
@@ -33,10 +33,10 @@ private:
     void Push(InputEvent e);
 
     InputDeviceId m_id{};
-    GLFWwindow* m_window{ nullptr };
 
+    std::vector<GLFWwindow*> m_windows;
     std::deque<InputEvent> m_queue;
-    std::unordered_map<int, Key> m_keyMapping;
+    std::unordered_map<int, Key> m_key_mapping;
 };
 
 }  // namespace cave

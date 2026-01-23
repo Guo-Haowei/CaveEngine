@@ -19,7 +19,7 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    void AddDevice(std::unique_ptr<IInputDevice> p_device);
+    void AddDevice(std::unique_ptr<IInputDevice>&& p_device);
 
     // Call once per frame.
     void Update();

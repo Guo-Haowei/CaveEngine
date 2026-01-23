@@ -18,10 +18,11 @@ auto InputManager::InitializeImpl() -> Result<void> {
 void InputManager::FinalizeImpl() {
 }
 
-void InputManager::AddDevice(std::unique_ptr<IInputDevice> p_device) {
-    if (DEV_VERIFY(p_device)) {
-        m_devices.push_back(std::move(p_device));
-    }
+void InputManager::AddDevice(std::unique_ptr<IInputDevice>&& p_device) {
+    DEV_ASSERT(p_device);
+
+    LOG_VERBOSE("InputManager::AddDevice: device '{}' added", p_device->Id().value);
+    m_devices.push_back(std::move(p_device));
 }
 
 void InputManager::Update() {

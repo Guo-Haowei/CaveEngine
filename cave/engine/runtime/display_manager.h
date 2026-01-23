@@ -42,13 +42,10 @@ public:
 
 protected:
     virtual auto InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> = 0;
-    virtual void InitializeKeyMapping() = 0;
 
     struct {
         int x, y;
     } m_frameSize, m_windowPos;
-
-    std::unordered_map<int, Key> m_keyMapping;
 };
 
 }  // namespace cave

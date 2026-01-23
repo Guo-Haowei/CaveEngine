@@ -15,9 +15,83 @@ static uint64_t NowUs() {
     return static_cast<uint64_t>(now.time_since_epoch().count());
 }
 
-GlfwKeyboardMouseDevice::GlfwKeyboardMouseDevice(InputDeviceId p_id, GLFWwindow* p_window)
-    : m_id(p_id)
-    , m_window(p_window) {
+GlfwKeyboardMouseDevice::GlfwKeyboardMouseDevice(InputDeviceId p_id)
+    : m_id(p_id) {
+
+    if (DEV_VERIFY(m_key_mapping.empty())) {
+        m_key_mapping[GLFW_KEY_SPACE] = Key::Space;
+        m_key_mapping[GLFW_KEY_APOSTROPHE] = Key::Apostrophe;
+        m_key_mapping[GLFW_KEY_COMMA] = Key::Comma;
+        m_key_mapping[GLFW_KEY_MINUS] = Key::Minus;
+        m_key_mapping[GLFW_KEY_PERIOD] = Key::Period;
+        m_key_mapping[GLFW_KEY_SLASH] = Key::Slash;
+
+        for (uint16_t i = GLFW_KEY_0; i <= GLFW_KEY_9; ++i) {
+            const uint16_t offset = i - GLFW_KEY_0;
+            m_key_mapping[i] = static_cast<Key>(std::to_underlying(Key::_0) + offset);
+        }
+
+        m_key_mapping[GLFW_KEY_SEMICOLON] = Key::Semicolon;
+        m_key_mapping[GLFW_KEY_EQUAL] = Key::Equal;
+
+        for (uint16_t i = GLFW_KEY_A; i <= GLFW_KEY_Z; ++i) {
+            const uint16_t offset = i - GLFW_KEY_A;
+            m_key_mapping[i] = static_cast<Key>(std::to_underlying(Key::A) + offset);
+        }
+
+        m_key_mapping[GLFW_KEY_LEFT_BRACKET] = Key::LeftBracket;
+        m_key_mapping[GLFW_KEY_BACKSLASH] = Key::Backslash;
+        m_key_mapping[GLFW_KEY_RIGHT_BRACKET] = Key::RightBracket;
+        m_key_mapping[GLFW_KEY_GRAVE_ACCENT] = Key::GraveAccent;
+        m_key_mapping[GLFW_KEY_WORLD_1] = Key::World1;
+        m_key_mapping[GLFW_KEY_WORLD_2] = Key::World2;
+        m_key_mapping[GLFW_KEY_ESCAPE] = Key::Escape;
+        m_key_mapping[GLFW_KEY_ENTER] = Key::Enter;
+        m_key_mapping[GLFW_KEY_TAB] = Key::Tab;
+        m_key_mapping[GLFW_KEY_BACKSPACE] = Key::Backspace;
+        m_key_mapping[GLFW_KEY_INSERT] = Key::Insert;
+        m_key_mapping[GLFW_KEY_DELETE] = Key::Delete;
+        m_key_mapping[GLFW_KEY_RIGHT] = Key::Right;
+        m_key_mapping[GLFW_KEY_LEFT] = Key::Left;
+        m_key_mapping[GLFW_KEY_DOWN] = Key::Down;
+        m_key_mapping[GLFW_KEY_UP] = Key::Up;
+        m_key_mapping[GLFW_KEY_PAGE_UP] = Key::PageUp;
+        m_key_mapping[GLFW_KEY_PAGE_DOWN] = Key::PageDown;
+        m_key_mapping[GLFW_KEY_HOME] = Key::Home;
+        m_key_mapping[GLFW_KEY_END] = Key::End;
+        m_key_mapping[GLFW_KEY_CAPS_LOCK] = Key::CapsLock;
+        m_key_mapping[GLFW_KEY_SCROLL_LOCK] = Key::ScrollLock;
+        m_key_mapping[GLFW_KEY_NUM_LOCK] = Key::NumLock;
+        m_key_mapping[GLFW_KEY_PRINT_SCREEN] = Key::PrintScreen;
+        m_key_mapping[GLFW_KEY_PAUSE] = Key::Pause;
+
+        for (uint16_t i = GLFW_KEY_F1; i <= GLFW_KEY_F25; ++i) {
+            const uint16_t offset = i - GLFW_KEY_F1;
+            m_key_mapping[i] = static_cast<Key>(std::to_underlying(Key::F1) + offset);
+        }
+
+        for (uint16_t i = GLFW_KEY_KP_0; i <= GLFW_KEY_KP_9; ++i) {
+            const uint16_t offset = i - GLFW_KEY_KP_0;
+            m_key_mapping[i] = static_cast<Key>(std::to_underlying(Key::Keypad0) + offset);
+        }
+
+        m_key_mapping[GLFW_KEY_KP_DECIMAL] = Key::KeypadDecimal;
+        m_key_mapping[GLFW_KEY_KP_DIVIDE] = Key::KeypadDivide;
+        m_key_mapping[GLFW_KEY_KP_MULTIPLY] = Key::KeypadMultiply;
+        m_key_mapping[GLFW_KEY_KP_SUBTRACT] = Key::KeypadSubtract;
+        m_key_mapping[GLFW_KEY_KP_ADD] = Key::KeypadAdd;
+        m_key_mapping[GLFW_KEY_KP_ENTER] = Key::KeypadEnter;
+        m_key_mapping[GLFW_KEY_KP_EQUAL] = Key::KeypadEqual;
+        m_key_mapping[GLFW_KEY_LEFT_SHIFT] = Key::LeftShift;
+        m_key_mapping[GLFW_KEY_LEFT_CONTROL] = Key::LeftCtrl;
+        m_key_mapping[GLFW_KEY_LEFT_ALT] = Key::LeftAlt;
+        m_key_mapping[GLFW_KEY_LEFT_SUPER] = Key::LeftSuper;
+        m_key_mapping[GLFW_KEY_RIGHT_SHIFT] = Key::RightShift;
+        m_key_mapping[GLFW_KEY_RIGHT_CONTROL] = Key::RightCtrl;
+        m_key_mapping[GLFW_KEY_RIGHT_ALT] = Key::RightAlt;
+        m_key_mapping[GLFW_KEY_RIGHT_SUPER] = Key::RightSuper;
+        m_key_mapping[GLFW_KEY_MENU] = Key::Menu;
+    }
 }
 
 void GlfwKeyboardMouseDevice::Poll(std::vector<InputEvent>& p_out_events) {
@@ -27,15 +101,65 @@ void GlfwKeyboardMouseDevice::Poll(std::vector<InputEvent>& p_out_events) {
     }
 }
 
-void GlfwKeyboardMouseDevice::InstallCallbacks() {
-    glfwSetWindowUserPointer(m_window, this);
+void GlfwKeyboardMouseDevice::InstallCallbacks(GLFWwindow* p_window) {
+    glfwSetWindowUserPointer(p_window, this);
 
-    glfwSetKeyCallback(m_window, &GlfwKeyboardMouseDevice::KeyCallback);
-    glfwSetCharCallback(m_window, &GlfwKeyboardMouseDevice::CharCallback);
-    glfwSetMouseButtonCallback(m_window, &GlfwKeyboardMouseDevice::MouseButtonCallback);
-    glfwSetCursorPosCallback(m_window, &GlfwKeyboardMouseDevice::CursorPosCallback);
-    glfwSetScrollCallback(m_window, &GlfwKeyboardMouseDevice::ScrollCallback);
+    glfwSetKeyCallback(p_window, &GlfwKeyboardMouseDevice::KeyCallback);
+    glfwSetCharCallback(p_window, &GlfwKeyboardMouseDevice::CharCallback);
+    glfwSetMouseButtonCallback(p_window, &GlfwKeyboardMouseDevice::MouseButtonCallback);
+    glfwSetCursorPosCallback(p_window, &GlfwKeyboardMouseDevice::CursorPosCallback);
+    glfwSetScrollCallback(p_window, &GlfwKeyboardMouseDevice::ScrollCallback);
+
+    m_windows.push_back(p_window);
 }
+
+// @TODO: refactor this part
+#if 0
+void GlfwDisplayManager::CursorPosCallback(GLFWwindow* p_window, double p_x, double p_y) {
+    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
+    // auto input_manager = window->m_app->GetInputManager();
+
+    if (window->m_app->GetSpecification().enableImgui) {
+        ImGui_ImplGlfw_CursorPosCallback(p_window, p_x, p_y);
+    }
+}
+
+void GlfwDisplayManager::MouseButtonCallback(GLFWwindow* p_window,
+                                             int p_button,
+                                             int p_action,
+                                             int p_mods) {
+    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
+    // auto input_manager = window->m_app->GetInputManager();
+
+    if (window->m_app->GetSpecification().enableImgui) {
+        ImGui_ImplGlfw_MouseButtonCallback(p_window, p_button, p_action, p_mods);
+    }
+}
+
+void GlfwDisplayManager::KeyCallback(GLFWwindow* p_window,
+                                     int p_keycode,
+                                     int p_scancode,
+                                     int p_action,
+                                     int p_mods) {
+    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
+    // auto input_manager = window->m_app->GetInputManager();
+
+    if (window->m_app->GetSpecification().enableImgui) {
+        ImGui_ImplGlfw_KeyCallback(p_window, p_keycode, p_scancode, p_action, p_mods);
+    }
+}
+
+void GlfwDisplayManager::ScrollCallback(GLFWwindow* p_window,
+                                        double p_xoffset,
+                                        double p_yoffset) {
+    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
+    // auto input_manager = window->m_app->GetInputManager();
+
+    if (window->m_app->GetSpecification().enableImgui) {
+        ImGui_ImplGlfw_ScrollCallback(p_window, p_xoffset, p_yoffset);
+    }
+}
+#endif
 
 GlfwKeyboardMouseDevice* GlfwKeyboardMouseDevice::Get(GLFWwindow* p_window) {
     return static_cast<GlfwKeyboardMouseDevice*>(glfwGetWindowUserPointer(p_window));
@@ -52,7 +176,7 @@ Key GlfwKeyboardMouseDevice::MapGlfwMouseButtonToCode(int p_glfw_button) {
 }
 
 Key GlfwKeyboardMouseDevice::MapGlfwKeyToCode(int p_glfw_key) {
-    if (auto it = m_keyMapping.find(p_glfw_key); it != m_keyMapping.end()) {
+    if (auto it = m_key_mapping.find(p_glfw_key); it != m_key_mapping.end()) {
         return it->second;
     }
 
