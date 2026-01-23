@@ -6,6 +6,12 @@
 
 namespace cave {
 
+struct PointerState {
+    bool has_pos = false;
+    float x = 0.0f, y = 0.0f;
+    float dx = 0.0f, dy = 0.0f;
+};
+
 class InputManager : public Module {
 public:
     InputManager()
@@ -23,10 +29,14 @@ public:
     InputRouter& Router() { return m_router; }
 
 private:
+    void UpdatePointers(std::vector<InputEvent>& p_events);
+
     std::vector<std::unique_ptr<IInputDevice>> m_devices{};
 
     std::vector<InputEvent> m_events;
     std::vector<ActionEvent> m_actions;
+
+    std::unordered_map<uint32_t, PointerState> m_pointers;
 
     KeyState m_key_state;
     RawInputRouter m_raw_router;

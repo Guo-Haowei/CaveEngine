@@ -93,6 +93,7 @@ protected:
     ecs::Entity m_copied;
 
     ecs::Entity m_camera;
+
 private:
     CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events);
     CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events);

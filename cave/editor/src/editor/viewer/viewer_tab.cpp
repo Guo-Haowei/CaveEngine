@@ -181,8 +181,8 @@ CameraInputState ViewerTab::CreateCameraInputState2D(const std::vector<InputEven
             } break;
             case InputEventType::MouseMove: {
                 e.consumed = true;
-                dx = -e.x;
-                dy = e.y;
+                dx = -e.dx;
+                dy = e.dy;
             } break;
             case InputEventType::ButtonDown:
                 if (e.code == std::to_underlying(Key::MMB)) {
@@ -203,34 +203,31 @@ CameraInputState ViewerTab::CreateCameraInputState2D(const std::vector<InputEven
 }
 
 CameraInputState ViewerTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events) {
-    bool mmb = false;
     Vector2f rotation = Vector2f::Zero;
+
+    const KeyState& st = m_editor.GetApp().GetInputManager()->GetKeyState();
+    const InputDeviceId id{ 0 };
+    const bool mmb = st.Down(id, Key::MMB);
+    const int dx = st.Down(id, Key::D) - st.Down(id, Key::A);
+    const int dy = st.Down(id, Key::E) - st.Down(id, Key::Q);
+    const int dz = st.Down(id, Key::W) - st.Down(id, Key::S);
 
     CameraInputState state{};
 
-    for (const InputEvent& event : p_events) {
-        if (event.consumed) {
+    for (const InputEvent& e : p_events) {
+        if (e.consumed) {
             continue;
         }
-        switch (event.type) {
+        switch (e.type) {
             case InputEventType::MouseWheel: {
-                event.consumed = true;
-                state.zoom_delta = 3.0f * event.dy;
+                e.consumed = true;
+                state.zoom_delta = 3.0f * e.dy;
             } break;
             case InputEventType::MouseMove: {
-                event.consumed = true;
-                rotation.x = event.x;
-                rotation.y = event.y;
-            } break;
-            case InputEventType::ButtonDown: {
-                event.consumed = true;
-                switch (static_cast<Key>(event.code)) {
-                    case Key::MMB:
-                        mmb = true;
-                        break;
-                    default:
-                        event.consumed = false;
-                        break;
+                if (mmb) {
+                    e.consumed = true;
+                    state.rotation.x = e.dx;
+                    state.rotation.y = e.dy;
                 }
             } break;
             default:
@@ -238,16 +235,7 @@ CameraInputState ViewerTab::CreateCameraInputState3D(const std::vector<InputEven
         }
     }
 
-    const KeyState& st = m_editor.GetApp().GetInputManager()->GetKeyState();
-    const InputDeviceId id{ 0 };
-    const int dx = st.Down(id, Key::D) - st.Down(id, Key::A);
-    const int dy = st.Down(id, Key::E) - st.Down(id, Key::Q);
-    const int dz = st.Down(id, Key::W) - st.Down(id, Key::S);
     state.move = Vector3f(dx, dy, dz);
-
-    if (mmb) {
-        state.rotation = rotation;
-    }
     return state;
 }
 
