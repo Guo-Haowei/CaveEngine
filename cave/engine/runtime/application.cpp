@@ -184,7 +184,6 @@ bool Application::MainLoop() {
     m_state_machine->Tick(timestep);
 
     std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
-    m_viewport_manager->UpdateProviders(timestep);
 
     if (scene) {
         scene->Update(timestep);

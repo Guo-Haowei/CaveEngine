@@ -201,11 +201,9 @@ void EditorState::Tick(float p_timestep) {
     // @TODO: DO NOT Request SCENE here
     Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
 
-    FlushInputEvents();
-
     DockSpace();
     for (auto& it : m_panels) {
-        it->Update();
+        it->Update(p_timestep);
     }
 
     // @TODO: fix this as well
@@ -234,7 +232,7 @@ void EditorState::DockSpace() {
 
     ui::DockSpace({
         "DockSpace Demo",
-        [this]() { m_menu_bar->Update(); },
+        [this]() { m_menu_bar->Update(0.0f); },
         [this]() {
             CompositeLogger& logger = CompositeLogger::GetSingleton();
             const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
@@ -258,53 +256,6 @@ void EditorState::DockSpace() {
 
 ////////////////////
 ////////////////////
-
-void EditorState::FlushInputEvents() {
-    CAVE_PROFILE_EVENT();
-
-#if 0
-    for (auto& event : m_buffered_events) {
-        if (m_viewer->IsFocused() || m_viewer->IsHovered()) {
-            if (m_viewer->HandleInput(event.get())) {
-                continue;
-            }
-        }
-
-        if (auto e = dynamic_cast<InputEventKey*>(event.get()); e) {
-            for (auto shortcut : m_shortcuts) {
-                // @TODO: refactor this
-                auto is_key_handled = [&]() {
-                    if (!e->IsPressed()) {
-                        return false;
-                    }
-                    if (e->GetKey() != shortcut.key) {
-                        return false;
-                    }
-                    if (e->IsAltPressed() != shortcut.alt) {
-                        return false;
-                    }
-                    if (e->IsShiftPressed() != shortcut.shift) {
-                        return false;
-                    }
-                    if (e->IsCtrlPressed() != shortcut.ctrl) {
-                        return false;
-                    }
-                    return true;
-                };
-                if (is_key_handled()) {
-                    if (shortcut.executeFunc) {
-                        shortcut.executeFunc();
-                    }
-
-                    break;
-                }
-            }
-        }
-    }
-#endif
-
-    m_buffered_events.clear();
-}
 
 // @TODO: these are associated with scene editor, move to scene editor
 void EditorState::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {

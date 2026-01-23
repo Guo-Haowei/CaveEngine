@@ -3,6 +3,7 @@
 
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
+#include "engine/input/raw_input_consumer_interface.h"
 #include "engine/runtime/scene_view.h"
 
 #include "editor/enums.h"
@@ -20,7 +21,7 @@ struct CameraInputState;
 
 struct ToolBarButtonDesc;
 
-class ViewerTab : public ISceneViewProvider {
+class ViewerTab : public ISceneViewProvider, public IRawInputConsumer {
 public:
     enum Dimension {
         DIMENSION_2,
@@ -30,8 +31,6 @@ public:
     ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimension);
 
     virtual ~ViewerTab() = default;
-
-    virtual bool HandleInput(const OldInputEvent* p_input_event) = 0;
 
     void OnCreate(const Guid& p_guid);
     virtual void OnDestroy() {}
@@ -61,14 +60,15 @@ public:
         return m_title;
     }
 
+    void Update(float p_timestep);
+
     virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const = 0;
 
-    void Update(float p_timestep,
-                const ViewportInput& p_input,
-                bool p_focused) override;
+    void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) override;
 
-    void BuildViews(std::vector<SceneView>& p_out_views,
-                    bool p_is_opengl) override;
+    int GetPriority() const override { return 10; }
+
+    void OnEvents(std::vector<InputEvent>& p_events) override;
 
     Dimension GetDimension() const { return m_dimension; }
 
@@ -80,13 +80,9 @@ protected:
     void SetupDefault2DCamera();
     void SetupDefault3DCamera();
 
-    void CameraInputState2D(float p_timestep,
-                            const ViewportInput& p_input,
-                            CameraInputState& p_out_state);
+    void CameraInputState2D(float p_timestep, CameraInputState& p_out_state);
 
-    void CameraInputState3D(float p_timestep,
-                            const ViewportInput& p_input,
-                            CameraInputState& p_out_state);
+    void CameraInputState3D(float p_timestep, CameraInputState& p_out_state);
 
     void BuildViewsImpl(Scene* p_scene,
                         ecs::Entity p_camera,

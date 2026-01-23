@@ -15,7 +15,7 @@ public:
     virtual ~EditorItem() = default;
 
     virtual void OnAttach() {}
-    virtual void Update() = 0;
+    virtual void Update(float p_timestep) = 0;
 
 protected:
     void OpenAddEntityPopup(ecs::Entity p_parent);

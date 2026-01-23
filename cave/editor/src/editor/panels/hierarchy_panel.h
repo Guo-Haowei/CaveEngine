@@ -15,7 +15,7 @@ public:
     }
 
 protected:
-    void UpdateInternal() override;
+    void UpdateInternal(float p_timestep) override;
 
 private:
     void DrawPopup(ViewerTab* p_tab);

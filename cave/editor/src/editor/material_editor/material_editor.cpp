@@ -127,11 +127,6 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
     }
 }
 
-bool MaterialEditor::HandleInput(const OldInputEvent* p_input_event) {
-    unused(p_input_event);
-    return false;
-}
-
 Document& MaterialEditor::GetDocument() const {
     return *m_document;
 }

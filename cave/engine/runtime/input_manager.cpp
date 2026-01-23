@@ -37,20 +37,11 @@ void InputManager::Update() {
         d->Poll(m_events);
     }
 
-    // Update key state
     // 2) Build key/button state for this frame (from unconsumed events)
     m_key_state.BeginFrame();
     m_key_state.UpdateFromEvents(m_events.data(), m_events.size());
 
-    // 3) Raw routing stage (shortcuts, viewport tools, gestures)
-    //    Raw consumers can:
-    //      - mark events consumed
-    //      - optionally inject actions (via callback to InputSystem::PushAction)
-    // m_raw_router.Dispatch(m_events);
-
-    // 4) Feed ImGui from remaining raw events
-    //    You can place this before raw routing if you want UI to get first dibs;
-    //    for editor viewport control you usually gate by hit-test.
+    // 3) Feed ImGui from remaining raw events
     if (ImguiManager* imgui = m_app->GetImguiManager()) {
         imgui->Feed(m_events);
 
@@ -58,6 +49,9 @@ void InputManager::Update() {
         // const bool blockKeyboard = imgui->WantKeyboard();
         // const bool blockMouse = imgui->WantMouse();
     }
+
+    // 4) Raw routing stage (shortcuts, viewport tools, gestures)
+    // m_raw_router.Dispatch(m_events);
 
     // 5) Rebuild key state after raw consumption (critical for chords/drag gating)
     m_key_state.BeginFrame();
@@ -71,17 +65,5 @@ void InputManager::Update() {
         m_router.Dispatch(a);
     }
 }
-
-#if 0
-#define STR_ID(x) (x)
-
-// @TODO: refactor this
-void InputManager::FillViewportInput(ViewportInput& p_out_viewport_input) {
-    p_out_viewport_input.buttons = m_buttons;
-    p_out_viewport_input.keys = m_keys;
-    p_out_viewport_input.mouse_move = MouseMove();
-    p_out_viewport_input.wheel_delta = static_cast<float>(m_wheel_y);
-}
-#endif
 
 }  // namespace cave

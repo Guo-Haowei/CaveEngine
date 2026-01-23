@@ -50,15 +50,6 @@ void Viewer::UpdateFrameSize() {
     m_canvas_min.y = TOOL_BAR_OFFSET + window->ContentRegionRect.Min.y;
 }
 
-bool Viewer::HandleInput(const OldInputEvent* p_input_event) {
-    auto active_tab = GetActiveTab();
-    if (active_tab && active_tab->HandleInput(p_input_event)) {
-        return true;
-    }
-
-    return false;
-}
-
 Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     auto [window_x, window_y] = m_editor.GetApp().GetDisplayManager()->GetWindowPos();
     p_point.x = (p_point.x + window_x - m_canvas_min.x) / m_canvas_size.x;
@@ -121,7 +112,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     m_tab_manager.SwitchTab(std::move(tab));
 }
 
-void Viewer::UpdateInternal() {
+void Viewer::UpdateInternal(float p_timestep) {
     CAVE_PROFILE_EVENT();
 
     UpdateFrameSize();
@@ -131,7 +122,8 @@ void Viewer::UpdateInternal() {
         return;
     }
 
-    // ViewerTab* active_tab = _tab.unwrap_unchecked();
+    ViewerTab* active_tab = _tab.unwrap_unchecked();
+    active_tab->Update(p_timestep);
 
     int flag = 0;
 #if 0

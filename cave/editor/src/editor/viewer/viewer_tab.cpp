@@ -154,8 +154,8 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
 }
 
 // @TODO: refactor
+#if 0
 void ViewerTab::CameraInputState2D(float p_timestep,
-                                   const ViewportInput& p_input,
                                    CameraInputState& p_out_state) {
     const float speed = p_timestep * 0.5f;
     const float dx = speed * -p_input.mouse_move.x;
@@ -166,15 +166,14 @@ void ViewerTab::CameraInputState2D(float p_timestep,
     CRASH_NOW();
     unused(dx);
     unused(dy);
-#if 0
     if (p_input.IsButtonDown(MouseButton::MIDDLE)) {
         p_out_state.move = Vector3f(dx, dy, 0.0f);
     }
-#endif
 }
+#endif
 
+#if 0
 void ViewerTab::CameraInputState3D(float p_timestep,
-                                   const ViewportInput& p_input,
                                    CameraInputState& p_out_state) {
     const int dx = p_input.IsKeyDown(Key::D) - p_input.IsKeyDown(Key::A);
     const int dy = p_input.IsKeyDown(Key::E) - p_input.IsKeyDown(Key::Q);
@@ -184,38 +183,38 @@ void ViewerTab::CameraInputState3D(float p_timestep,
     p_out_state.zoom_delta = p_timestep * 3.0f * p_input.wheel_delta;
 
     CRASH_NOW();
-#if 0
     if (p_input.IsButtonDown(MouseButton::MIDDLE)) {
         p_out_state.rotation = p_timestep * p_input.mouse_move;
     }
+}
 #endif
+
+void ViewerTab::Update(float p_timestep) {
+    unused(p_timestep);
+
+    CameraInputState state;
+    m_camera_controller->Update(state);
 }
 
-void ViewerTab::Update(float p_timestep,
-                       const ViewportInput& p_input,
-                       bool p_focused) {
+void ViewerTab::OnEvents(std::vector<InputEvent>& p_events) {
     if (!m_viewer.IsHovered()) {
         return;
-    }
-
-    if (!p_focused) {
     }
 
     CameraInputState state;
 
     switch (m_dimension) {
         case DIMENSION_2: {
-            CameraInputState2D(p_timestep, p_input, state);
+            //CameraInputState2D(p_timestep, state);
         } break;
         case DIMENSION_3: {
-            CameraInputState3D(p_timestep, p_input, state);
+            //CameraInputState3D(p_timestep, state);
         } break;
         default: {
             CRASH_NOW_MSG("invalid dimension");
         } break;
     }
 
-    m_camera_controller->Update(state);
 }
 
 void ViewerTab::BuildViewsImpl(Scene* p_scene,

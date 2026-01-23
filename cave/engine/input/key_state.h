@@ -5,8 +5,6 @@
 
 namespace cave {
 
-class OldInputEvent;
-
 class KeyState {
 public:
     // Call once per frame before feeding events

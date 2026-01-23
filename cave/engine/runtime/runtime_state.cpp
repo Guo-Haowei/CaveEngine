@@ -47,12 +47,7 @@ public:
     RuntimeSceneViewProvider(Application& p_app)
         : m_app(p_app) {}
 
-    void Update(float,
-                const ViewportInput&,
-                bool) final {}
-
-    void BuildViews(std::vector<SceneView>& p_out_views,
-                    bool p_is_opengl) final {
+    void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final {
         std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene();
 
         // @HACK: find the first non-editor camera

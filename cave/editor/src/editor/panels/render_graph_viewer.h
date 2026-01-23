@@ -17,7 +17,7 @@ public:
     }
 
 protected:
-    void UpdateInternal() override;
+    void UpdateInternal(float p_timestep) override;
     void DrawNodes(const RenderGraph& p_graph);
 
     bool m_firstFrame{ true };

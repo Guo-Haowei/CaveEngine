@@ -18,11 +18,6 @@ TileSetEditor::TileSetEditor(EditorState& p_editor, Viewer& p_viewer)
 
 TileSetEditor::~TileSetEditor() = default;
 
-bool TileSetEditor::HandleInput(const OldInputEvent* p_input_event) {
-    unused(p_input_event);
-    return false;
-}
-
 void TileSetEditor::OnCreateInternal(const Guid& p_guid) {
     m_document = std::make_unique<Document>(p_guid);
 }

@@ -11,8 +11,6 @@ class SceneEditor : public ViewerTab {
 public:
     SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension);
 
-    bool HandleInput(const OldInputEvent* p_input_event) final;
-
     void OnDestroy() final;
 
     void DrawMainView(const CameraComponent& p_camera) final;

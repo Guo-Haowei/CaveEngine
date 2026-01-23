@@ -137,9 +137,9 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     }
 }
 
+#if 0
 bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
     unused(p_input_event);
-#if 0
     // change gizmo state
     if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
         if (e->IsPressed() && !e->IsModiferPressed()) {
@@ -170,11 +170,11 @@ bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
             return true;
         }
     }
-#endif
     DEV_ASSERT(0);
 
     return false;
 }
+#endif
 
 const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
     return { &m_play_button };

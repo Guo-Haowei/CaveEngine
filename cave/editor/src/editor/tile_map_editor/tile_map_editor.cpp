@@ -147,10 +147,10 @@ Document& TileMapEditor::GetDocument() const {
     return *m_document.get();
 }
 
+#if 0
 bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
     DEV_ASSERT(0);
     unused(p_input_event);
-#if 0
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (!e->IsModiferPressed()) {
             if (e->IsButtonDown(MouseButton::LEFT)) {
@@ -173,10 +173,10 @@ bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
             }
         }
     }
-#endif
 
     return false;
 }
+#endif
 
 void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {

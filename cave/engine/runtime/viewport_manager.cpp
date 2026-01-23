@@ -29,16 +29,6 @@ void ViewportManager::ClearViewport() {
     m_viewports.clear();
 }
 
-void ViewportManager::UpdateProviders(float p_timestep) {
-    for (auto& vp : m_viewports) {
-        // @TODO: refactor input routing
-        ViewportInput input;
-        DEV_ASSERT(0);
-        // m_app->GetInputManager()->FillViewportInput(input);
-        vp.view_provider->Update(p_timestep, input, vp.focused);
-    }
-}
-
 void ViewportManager::BuildViews(std::vector<SceneView>& p_out_views,
                                  bool p_is_opengl) {
     p_out_views.clear();

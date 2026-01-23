@@ -13,8 +13,6 @@ class Viewer : public EditorWindow {
 public:
     Viewer(EditorState& p_editor);
 
-    bool HandleInput(const OldInputEvent* p_input_event);
-
     Option<Vector2f> CursorToNDC(Vector2f p_point) const;
 
     const Vector2f& GetCanvasMin() const { return m_canvas_min; }
@@ -28,7 +26,7 @@ public:
     }
 
 protected:
-    void UpdateInternal() override;
+    void UpdateInternal(float p_timestep) override;
 
     void UpdateFrameSize();
 
