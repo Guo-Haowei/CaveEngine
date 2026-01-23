@@ -98,13 +98,14 @@ private:
 
     std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
 
+    // @TODO: refactor shortcut
     struct ShortcutDesc {
         const char* name{ nullptr };
         const char* shortcut{ nullptr };
         std::function<void()> executeFunc{ nullptr };
         std::function<bool()> enabledFunc{ nullptr };
 
-        KeyCode key{};
+        Key key{};
         bool ctrl{};
         bool alt{};
         bool shift{};
