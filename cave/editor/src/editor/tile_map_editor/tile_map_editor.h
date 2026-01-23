@@ -10,7 +10,7 @@ namespace cave {
 
 class AssetRegistry;
 class Document;
-class InputEvent;
+class OldInputEvent;
 class Scene;
 class TileMapDocument;
 
@@ -19,7 +19,7 @@ public:
     TileMapEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileMapEditor();
 
-    bool HandleInput(const InputEvent* p_input_event) final;
+    bool HandleInput(const OldInputEvent* p_input_event) final;
 
     void OnDestroy() final;
 

@@ -18,7 +18,7 @@ TileSetEditor::TileSetEditor(EditorState& p_editor, Viewer& p_viewer)
 
 TileSetEditor::~TileSetEditor() = default;
 
-bool TileSetEditor::HandleInput(const InputEvent* p_input_event) {
+bool TileSetEditor::HandleInput(const OldInputEvent* p_input_event) {
     unused(p_input_event);
     return false;
 }

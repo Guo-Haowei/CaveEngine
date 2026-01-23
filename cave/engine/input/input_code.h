@@ -12,6 +12,8 @@ enum class MouseButton : uint8_t {
 
 // clang-format off
 enum class Key : uint16_t {
+    Unknown = 0,
+
     KEY_SPACE,
     KEY_APOSTROPHE,
     KEY_COMMA,
@@ -70,6 +72,7 @@ enum class Key : uint16_t {
     RightAlt,
     KEY_RIGHT_SUPER,
     KEY_MENU,
+
     COUNT,
 };
 // clang-format on

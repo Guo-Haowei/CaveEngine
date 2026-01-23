@@ -32,7 +32,7 @@ void InputRouter::Dispatch(const ActionEvent& p_consumer) {
     }
 }
 
-void InputRouter::Route(std::shared_ptr<InputEvent>) {
+void InputRouter::Route(std::shared_ptr<OldInputEvent>) {
 }
 
 void InputRouter::PushHandler(IInputHandler*) {

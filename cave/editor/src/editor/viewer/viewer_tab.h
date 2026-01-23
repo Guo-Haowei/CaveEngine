@@ -31,7 +31,7 @@ public:
 
     virtual ~ViewerTab() = default;
 
-    virtual bool HandleInput(const InputEvent* p_input_event) = 0;
+    virtual bool HandleInput(const OldInputEvent* p_input_event) = 0;
 
     void OnCreate(const Guid& p_guid);
     virtual void OnDestroy() {}

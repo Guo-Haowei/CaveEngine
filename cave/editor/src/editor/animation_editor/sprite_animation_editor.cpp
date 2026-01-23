@@ -317,7 +317,7 @@ Document& SpriteAnimationEditor::GetDocument() const {
     return *m_document.get();
 }
 
-bool SpriteAnimationEditor::HandleInput(const InputEvent* p_input_event) {
+bool SpriteAnimationEditor::HandleInput(const OldInputEvent* p_input_event) {
     unused(p_input_event);
     return false;
 }

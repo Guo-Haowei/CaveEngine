@@ -64,7 +64,7 @@ public:
     void CommandRemoveEntity(ecs::Entity p_target);
     void CommandDuplicateEntity(ecs::Entity p_target);
 
-    HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) override;
+    HandleInputResult HandleInput(std::shared_ptr<OldInputEvent> p_input_event) override;
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 
@@ -116,7 +116,7 @@ private:
 
     AssetHandle m_selected_asset;
 
-    std::vector<std::shared_ptr<InputEvent>> m_buffered_events;
+    std::vector<std::shared_ptr<OldInputEvent>> m_buffered_events;
 };
 
 }  // namespace cave

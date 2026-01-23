@@ -34,6 +34,7 @@ void InputManager::Update() {
     }
 
     // Update key state
+    m_key_state->UpdateFromEvents(m_events.data(), m_events.size());
 
     /*
     Poll raw events

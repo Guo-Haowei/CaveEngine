@@ -137,7 +137,7 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     }
 }
 
-bool SceneEditor::HandleInput(const InputEvent* p_input_event) {
+bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
     // change gizmo state
     if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
         if (e->IsPressed() && !e->IsModiferPressed()) {

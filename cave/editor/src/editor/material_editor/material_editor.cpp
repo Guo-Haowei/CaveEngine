@@ -127,7 +127,7 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
     }
 }
 
-bool MaterialEditor::HandleInput(const InputEvent* p_input_event) {
+bool MaterialEditor::HandleInput(const OldInputEvent* p_input_event) {
     unused(p_input_event);
     return false;
 }

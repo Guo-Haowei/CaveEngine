@@ -9,7 +9,6 @@
 #include <imnodes/imnodes.h>
 
 #include "engine/assets/image_asset.h"
-#include "engine/debugger/profiler.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/input/input_event.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -306,7 +305,7 @@ void EditorState::FlushInputEvents() {
     m_buffered_events.clear();
 }
 
-HandleInputResult EditorState::HandleInput(std::shared_ptr<InputEvent> p_input_event) {
+HandleInputResult EditorState::HandleInput(std::shared_ptr<OldInputEvent> p_input_event) {
     m_buffered_events.emplace_back(std::move(p_input_event));
     return HandleInputResult::NotHandled;
 }

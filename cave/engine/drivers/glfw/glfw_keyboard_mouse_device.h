@@ -5,6 +5,8 @@ struct GLFWwindow;
 
 namespace cave {
 
+enum class Key : uint16_t;
+
 class GlfwKeyboardMouseDevice : public IInputDevice {
 public:
     GlfwKeyboardMouseDevice(InputDeviceId p_id, GLFWwindow* p_window);
@@ -12,11 +14,14 @@ public:
     InputDeviceType Type() const override { return InputDeviceType::KeyboardMouse; }
     InputDeviceId Id() const override { return m_id; }
 
-    void Poll(std::vector<Event>& p_out_events) override;
+    void Poll(std::vector<InputEvent>& p_out_events) override;
 
     void InstallCallbacks();
 
 private:
+    Key MapGlfwKeyToCode(int p_glfw_key);
+    Key MapGlfwMouseButtonToCode(int p_glfw_button);
+
     static GlfwKeyboardMouseDevice* Get(GLFWwindow* p_window);
 
     static void KeyCallback(GLFWwindow* p_window, int p_key, int p_scancode, int p_action, int p_mods);
@@ -25,24 +30,13 @@ private:
     static void CursorPosCallback(GLFWwindow* p_window, double p_x, double p_y);
     static void ScrollCallback(GLFWwindow* p_window, double p_x_offset, double p_y_offset);
 
-    // Map GLFW key -> your Key enum code (KeyCodes.h)
-    static uint32_t MapGlfwKeyToCode(int p_glfw_key);
-    static uint32_t MapGlfwMouseButtonToCode(int p_glfw_button);
-
-    void Push(Event e);
-
-    // @TODO: refactor
-    static uint64_t NowUs();
+    void Push(InputEvent e);
 
     InputDeviceId m_id{};
     GLFWwindow* m_window{ nullptr };
 
-    std::deque<Event> m_queue;
-
-    // @TODO: refactor
-    MouseButtonArray m_buttons;
-    MouseButtonArray m_prev_buttons;
-    Vector2f m_pointer_pos;
+    std::deque<InputEvent> m_queue;
+    std::unordered_map<int, Key> m_keyMapping;
 };
 
 }  // namespace cave

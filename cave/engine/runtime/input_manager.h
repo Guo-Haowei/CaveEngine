@@ -29,11 +29,11 @@ public:
 private:
     std::vector<std::unique_ptr<IInputDevice>> m_devices;
 
-    std::vector<IInputDevice::Event> m_events;
+    std::vector<InputEvent> m_events;
     std::vector<ActionEvent> m_actions;
 
     // @TODO: input mapper
-    std::unique_ptr<KeyState> m_keys;
+    std::unique_ptr<KeyState> m_key_state;
     InputRouter m_router;
 };
 

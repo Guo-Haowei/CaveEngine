@@ -13,7 +13,7 @@ class Viewer : public EditorWindow {
 public:
     Viewer(EditorState& p_editor);
 
-    bool HandleInput(const InputEvent* p_input_event);
+    bool HandleInput(const OldInputEvent* p_input_event);
 
     Option<Vector2f> CursorToNDC(Vector2f p_point) const;
 

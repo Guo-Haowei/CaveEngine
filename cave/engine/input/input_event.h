@@ -16,9 +16,9 @@ enum class InputState : uint8_t {
     // @TODO: TOGGLE?
 };
 
-class InputEvent {
+class OldInputEvent {
 public:
-    virtual ~InputEvent() = default;
+    virtual ~OldInputEvent() = default;
 
     bool IsAltPressed() const { return m_alt_pressed; }
     bool IsShiftPressed() const { return m_shift_pressed; }
@@ -33,7 +33,7 @@ protected:
     friend class InputManager;
 };
 
-class InputEventKey : public InputEvent {
+class InputEventKey : public OldInputEvent {
 public:
     bool IsPressed() const { return m_state == InputState::PRESSED; }
     bool IsHolding() const { return m_state == InputState::HOLD; }
@@ -60,7 +60,7 @@ protected:
     MouseButtonArray m_prev_buttons;
 };
 
-class InputEventMouse : public InputEvent, public MouseButtonBase {
+class InputEventMouse : public OldInputEvent, public MouseButtonBase {
 public:
     InputEventMouse(const MouseButtonArray& p_buttons,
                     const MouseButtonArray& p_prevButtons,

@@ -13,7 +13,7 @@ enum class HandleInputResult : uint8_t {
 
 class IInputHandler {
 public:
-    virtual HandleInputResult HandleInput(std::shared_ptr<InputEvent> p_input_event) = 0;
+    virtual HandleInputResult HandleInput(std::shared_ptr<OldInputEvent> p_input_event) = 0;
 };
 
 class InputRouter {
@@ -24,7 +24,7 @@ public:
     void Dispatch(const ActionEvent& e);
 
     //[[deprecated]]
-    void Route(std::shared_ptr<InputEvent> p_input_event);
+    void Route(std::shared_ptr<OldInputEvent> p_input_event);
 
     //[[deprecated]]
     void PushHandler(IInputHandler* p_handler);

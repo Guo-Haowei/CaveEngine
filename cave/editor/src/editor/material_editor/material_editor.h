@@ -13,7 +13,7 @@ class MaterialEditor : public ViewerTab {
 public:
     MaterialEditor(EditorState& p_editor, Viewer& p_viewer);
 
-    bool HandleInput(const InputEvent* p_input_event) final;
+    bool HandleInput(const OldInputEvent* p_input_event) final;
 
     void OnDestroy() final;
 

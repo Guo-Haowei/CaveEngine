@@ -5,7 +5,7 @@
 
 namespace cave {
 
-class InputEvent;
+class OldInputEvent;
 
 class KeyState {
 public:

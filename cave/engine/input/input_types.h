@@ -31,8 +31,6 @@ struct ActionEvent {
     uint64_t timestamp_us = 0;
 };
 
-#if 0
-
 enum class InputEventType : uint8_t {
     ButtonDown,
     ButtonUp,
@@ -47,12 +45,50 @@ enum class InputEventType : uint8_t {
 struct InputEvent {
     InputEventType type{};
     InputDeviceId device{};
-    uint32_t code{ 0 };  // Key / Button / Axis index / etc.
+    bool consumed{ false };
+
+    uint32_t code{ 0 };  // Key / Button / Axis index / char / etc.
     float v0{ 0.0f };
     float v1{ 0.0f };
     uint64_t timestamp_us{ 0 };
-    bool consumed{ false };
+
+    static InputEvent MouseMove(InputDeviceId p_id,
+                                uint64_t p_timestamp,
+                                float p_x,
+                                float p_y) {
+        InputEvent e{};
+        e.type = InputEventType::MouseMove;
+        e.device = p_id;
+        e.timestamp_us = p_timestamp;
+
+        e.v0 = p_x;
+        e.v0 = p_y;
+        return e;
+    }
+
+    static InputEvent MouseWheel(InputDeviceId p_id,
+                                 uint64_t p_timestamp,
+                                 float p_offset) {
+        InputEvent e{};
+        e.type = InputEventType::MouseWheel;
+        e.device = p_id;
+        e.timestamp_us = p_timestamp;
+
+        e.v0 = p_offset;
+        return e;
+    }
+
+    static InputEvent TextInput(InputDeviceId p_id,
+                                uint64_t p_timestamp,
+                                uint32_t p_code) {
+        InputEvent e{};
+        e.type = InputEventType::TextInput;
+        e.device = p_id;
+        e.timestamp_us = p_timestamp;
+
+        e.code = p_code;
+        return e;
+    }
 };
-#endif
 
 }  // namespace cave

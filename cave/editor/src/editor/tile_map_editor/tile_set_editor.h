@@ -13,7 +13,7 @@ public:
     TileSetEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileSetEditor();
 
-    bool HandleInput(const InputEvent* p_input_event) final;
+    bool HandleInput(const OldInputEvent* p_input_event) final;
 
     void OnDestroy() final;
 

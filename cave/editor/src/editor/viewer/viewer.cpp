@@ -51,7 +51,7 @@ void Viewer::UpdateFrameSize() {
     m_canvas_min.y = TOOL_BAR_OFFSET + window->ContentRegionRect.Min.y;
 }
 
-bool Viewer::HandleInput(const InputEvent* p_input_event) {
+bool Viewer::HandleInput(const OldInputEvent* p_input_event) {
     auto active_tab = GetActiveTab();
     if (active_tab && active_tab->HandleInput(p_input_event)) {
         return true;
