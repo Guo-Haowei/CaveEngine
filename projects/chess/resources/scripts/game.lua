@@ -180,5 +180,20 @@ function Game:_process(timestep)
         self.selector:cancel()
     end
 
+    local dx = Input.get_action_strength('ui_axis_x')
+    local dy = Input.get_action_strength('ui_axis_y')
+    if dx > 0.5 then
+        self.selector:move_focus(1, 0)
+    end
+    if dx < -0.5 then
+        self.selector:move_focus(-1, 0)
+    end
+    if dy > 0.5 then
+        self.selector:move_focus(0, 1)
+    end
+    if dy < -0.5 then
+        self.selector:move_focus(0, -1)
+    end
+
     self:render()
 end

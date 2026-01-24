@@ -111,6 +111,9 @@ bool OpenInputLib(lua_State* L) {
         .addFunction("is_action_just_released", [](const char* p_str_id) -> int {
             return InputManager::GetSingleton().IsActionJustReleased(StringId(p_str_id));
         })
+        .addFunction("get_action_strength", [](const char* p_str_id) -> float {
+            return InputManager::GetSingleton().GetActionStrength(StringId(p_str_id));
+        })
         .endNamespace();
     return true;
 }
