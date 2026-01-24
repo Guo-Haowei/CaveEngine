@@ -1,4 +1,4 @@
-set(TARGET_NAME engine_tests)
+set(TARGET_NAME unit_tests)
 
 file(GLOB_RECURSE SRC
     "*.h"
@@ -10,7 +10,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 add_executable(${TARGET_NAME} ${SRC})
 
 target_include_directories(${TARGET_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src
+    ${PROJECT_SOURCE_DIR}/cave/engine/
     ${PROJECT_SOURCE_DIR}/thirdparty/googletest/googletest/include
 )
 

@@ -9,7 +9,7 @@ if(APPLE)
     enable_language(OBJCXX)
 endif()
 
-option(CAVE_BUILD_UNIT_TESTS "Build Tests" ON)
+option(CAVE_BUILD_TESTS "Build Tests" ON)
 option(CAVE_BUILD_ASSIMP "Build Assimp" ON)
 
 message("***********************************************************************")
@@ -19,7 +19,7 @@ message(STATUS "CMAKE_BUILD_TOOL        : ${CMAKE_BUILD_TOOL}")
 ################################################################################
 
 if (EMSCRIPTEN)
-    set(CAVE_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+    set(CAVE_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
@@ -58,7 +58,7 @@ endif()
 ################################################################################
 
 # gtest
-if (CAVE_BUILD_UNIT_TESTS)
+if (CAVE_BUILD_TESTS)
     enable_testing()
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
@@ -80,3 +80,7 @@ endfunction()
 
 add_subdirectory(cave)
 add_subdirectory(applications)
+
+if(CAVE_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
