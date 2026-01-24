@@ -1,6 +1,7 @@
 #pragma once
 #include "engine/core/base/singleton.h"
 #include "engine/input/action_state.h"
+#include "engine/input/axis_state.h"
 #include "engine/input/input_action_map.h"
 #include "engine/input/input_device_interface.h"
 #include "engine/input/input_mapper.h"
@@ -29,6 +30,7 @@ public:
     void Update();
 
     const KeyState& GetKeyState() const { return m_key_state; }
+
     RawInputRouter& RawRouter() { return m_raw_router; }
     InputRouter& Router() { return m_input_router; }
     InputActionMap& ActionMap() { return m_input_action_map; }
@@ -86,6 +88,7 @@ private:
     std::unordered_map<uint32_t, PointerState> m_pointers;
 
     KeyState m_key_state;
+    AxisState m_axis_state;
     ActionState m_action_state;
 
     RawInputRouter m_raw_router;

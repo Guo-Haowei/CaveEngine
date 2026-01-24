@@ -78,7 +78,6 @@ enum class Key : uint16_t {
     PadUp, PadDown, PadLeft, PadRight,
 
     // Counters
-
     _Max,
 
     _FirstKey = Space,
@@ -88,9 +87,21 @@ enum class Key : uint16_t {
 };
 // clang-format on
 
-inline constexpr uint16_t kMaxKeys = std::to_underlying(Key::_Max);
+enum class AxisCode : uint16_t {
+    None = 0,
+    LX,
+    LY,
+    RX,
+    RY,
+    LT,
+    RT,
 
-using KeyArray = std::bitset<kMaxKeys>;
+    // Counters
+    _Max,
+};
+
+constexpr uint16_t kKeyCount = std::to_underlying(Key::_Max);
+constexpr uint16_t kAxisCount = std::to_underlying(AxisCode::_Max);
 
 constexpr inline bool IsMouseButton(Key p_key) {
     return std::to_underlying(p_key) >= std::to_underlying(Key::_FirstMouseButton) &&

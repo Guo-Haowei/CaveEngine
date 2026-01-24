@@ -3,6 +3,8 @@
 
 namespace cave {
 
+class AxisState;
+
 class GlfwGamepadDevice final : public IInputDevice {
 public:
     GlfwGamepadDevice(InputDeviceId p_id, int p_joystick_id)

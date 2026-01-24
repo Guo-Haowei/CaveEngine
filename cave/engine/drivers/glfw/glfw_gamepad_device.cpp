@@ -1,7 +1,8 @@
 #include "glfw_gamepad_device.h"
 
 #include <GLFW/glfw3.h>
-#include "engine/input/key_code.h"
+
+#include "engine/input/axis_state.h"
 
 namespace cave {
 
@@ -45,6 +46,16 @@ static Key ToKeyFromGlfwButton(int p_button) {
     }
 }
 
+static void EmitAxis(std::vector<InputEvent>& p_out,
+                     InputDeviceId p_dev_id,
+                     AxisCode p_axis,
+                     float p_value) {
+    InputEvent e(InputEventType::Axis, p_dev_id);
+    e.code = std::to_underlying(p_axis);
+    e.x = p_value;
+    p_out.push_back(e);
+}
+
 void GlfwGamepadDevice::Poll(std::vector<InputEvent>& p_out_events) {
     if (!glfwJoystickPresent(m_joy)) {
         return;
@@ -68,14 +79,20 @@ void GlfwGamepadDevice::Poll(std::vector<InputEvent>& p_out_events) {
         m_prev_buttons[b] = now;
 
         if (const Key k = ToKeyFromGlfwButton(b); k != Key::None) {
-            InputEvent e{};
-            e.device = m_id;
-            e.type = (now == GLFW_PRESS) ? InputEventType::ButtonDown
-                                         : InputEventType::ButtonUp;
+            InputEvent e((now == GLFW_PRESS) ? InputEventType::ButtonDown
+                                             : InputEventType::ButtonUp,
+                         m_id);
             e.code = std::to_underlying(k);
             p_out_events.push_back(e);
         }
     }
+
+    EmitAxis(p_out_events, m_id, AxisCode::LX, s.axes[GLFW_GAMEPAD_AXIS_LEFT_X]);
+    EmitAxis(p_out_events, m_id, AxisCode::LY, s.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
+    EmitAxis(p_out_events, m_id, AxisCode::RX, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_X]);
+    EmitAxis(p_out_events, m_id, AxisCode::RY, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+    EmitAxis(p_out_events, m_id, AxisCode::LT, s.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]);
+    EmitAxis(p_out_events, m_id, AxisCode::RT, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
 }
 
 }  // namespace cave

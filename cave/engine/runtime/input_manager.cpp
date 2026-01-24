@@ -12,6 +12,16 @@ InputManager::InputManager()
 auto InputManager::InitializeImpl() -> Result<void> {
     // @TODO: config from asset
     InputActionMap& map = ActionMap();
+
+    map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_accept"), Key::Enter);
+    map.BindDigital(StringId("ui_accept"), Key::Space);
+    map.BindDigital(StringId("ui_accept"), Key::PadA);
+
+    map.AddAction(StringId("ui_back"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_back"), Key::Backspace);
+    map.BindDigital(StringId("ui_back"), Key::PadB);
+
     map.AddAction(StringId("ui_left"), ActionValueType::Digital);
     map.BindDigital(StringId("ui_left"), Key::A);
     map.BindDigital(StringId("ui_left"), Key::Left);
@@ -32,14 +42,19 @@ auto InputManager::InitializeImpl() -> Result<void> {
     map.BindDigital(StringId("ui_down"), Key::Down);
     map.BindDigital(StringId("ui_down"), Key::PadDown);
 
-    map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_accept"), Key::Enter);
-    map.BindDigital(StringId("ui_accept"), Key::Space);
-    map.BindDigital(StringId("ui_accept"), Key::PadA);
+    // Movement scalar axes
+    map.AddAction(StringId("ui_axis_x"), ActionValueType::Scalar);
+    map.AddAction(StringId("ui_axis_y"), ActionValueType::Scalar);
 
-    map.AddAction(StringId("ui_back"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_back"), Key::Backspace);
-    map.BindDigital(StringId("ui_back"), Key::PadB);
+    // Keyboard contributes scalar when held
+    // map.BindScalar(StringId("ui_axis_x"), Key::A, -1.0f);
+    // map.BindScalar(StringId("ui_axis_x"), Key::D, +1.0f);
+    // map.BindScalar(StringId("ui_axis_y"), Key::S, -1.0f);
+    // map.BindScalar(StringId("ui_axis_y"), Key::W, +1.0f);
+
+    // Gamepad axes contribute scalar too
+    map.BindScalar(StringId("ui_axis_x"), AxisCode::LX, 1.0f, 0.2f);
+    map.BindScalar(StringId("ui_axis_y"), AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
 
     return Result<void>();
 }
@@ -121,6 +136,9 @@ void InputManager::Update() {
     // *) Build key/button state for this frame (from unconsumed events)
     m_key_state.BeginFrame();
     m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+
+    // *) Build axis state for this frame (from unconsumed events)
+    m_axis_state.BeginFrame();
 
     // *) Feed ImGui from remaining raw events
     if (ImguiManager* imgui = m_app->GetImguiManager()) {

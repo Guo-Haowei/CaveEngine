@@ -74,7 +74,7 @@ void InputMapper::MapAxis1D(const StringId& p_str_id, const ActionDef& p_def,
         float value = 0.0f;
 
         for (const auto& b : p_def.bindings) {
-            if (b.kind != BindingKind::Axis1D) {
+            if (b.kind != BindingKind::Axis1DKey) {
                 continue;
             }
 

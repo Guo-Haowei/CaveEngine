@@ -11,13 +11,35 @@ bool InputActionMap::HasAction(const StringId& p_str_id) const {
 }
 
 void InputActionMap::BindDigital(const StringId& p_str_id, Key p_key) {
-    auto& a = m_actions[p_str_id];
-    a.bindings.push_back(ActionBinding{ BindingKind::Digital, p_key, 1.0f });
+    auto& def = m_actions[p_str_id];
+    ActionBinding binding{};
+    binding.behavior = BindingBehavior::Digital;
+    binding.source = BindingSource::FromKey(p_key);
+    def.bindings.push_back(binding);
 }
 
-void InputActionMap::BindAxis1D(const StringId& p_str_id, Key p_key, float p_scale) {
-    auto& a = m_actions[p_str_id];
-    a.bindings.push_back(ActionBinding{ BindingKind::Axis1D, p_key, p_scale });
+void InputActionMap::BindScalar(const StringId& p_str_id, Key p_key, float p_scale) {
+    auto& def = m_actions[p_str_id];
+    ActionBinding binding{};
+    binding.behavior = BindingBehavior::Scalar;
+    binding.source = BindingSource::FromKey(p_key);
+    binding.scale = p_scale;
+    def.bindings.push_back(binding);
+}
+
+void InputActionMap::BindScalar(const StringId& p_str_id,
+                                AxisCode p_axis,
+                                float p_scale,
+                                float p_deadzone,
+                                bool p_invert) {
+    auto& def = m_actions[p_str_id];
+    ActionBinding binding{};
+    binding.behavior = BindingBehavior::Scalar;
+    binding.source = BindingSource::FromAxis(p_axis);
+    binding.scale = p_scale;
+    binding.deadzone = p_scale;
+    binding.invert = p_invert;
+    def.bindings.push_back(binding);
 }
 
 const ActionDef* InputActionMap::Find(const StringId& p_str_id) const {

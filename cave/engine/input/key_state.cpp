@@ -4,7 +4,7 @@ namespace cave {
 
 size_t KeyState::Index(Key p_key) {
     const size_t idx = static_cast<size_t>(static_cast<uint16_t>(p_key));
-    return (idx < kMaxKeys) ? idx : 0;
+    return (idx < kKeyCount) ? idx : 0;
 }
 
 void KeyState::BeginFrame() {
