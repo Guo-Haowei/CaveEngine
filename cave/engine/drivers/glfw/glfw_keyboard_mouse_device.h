@@ -9,10 +9,10 @@ enum class Key : uint16_t;
 
 class GlfwKeyboardMouseDevice : public IInputDevice {
 public:
-    GlfwKeyboardMouseDevice(InputDeviceId p_id);
+    GlfwKeyboardMouseDevice(InputDeviceId p_dev_id);
 
     InputDeviceType Type() const override { return InputDeviceType::KeyboardMouse; }
-    InputDeviceId Id() const override { return m_id; }
+    InputDeviceId Id() const override { return m_dev_id; }
 
     void Poll(std::vector<InputEvent>& p_out_events) override;
 
@@ -32,7 +32,7 @@ private:
 
     void Push(InputEvent e);
 
-    InputDeviceId m_id{};
+    InputDeviceId m_dev_id{};
 
     std::vector<GLFWwindow*> m_windows;
     std::deque<InputEvent> m_queue;

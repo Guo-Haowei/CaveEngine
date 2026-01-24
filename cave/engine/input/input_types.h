@@ -7,7 +7,6 @@ enum class InputDeviceType : uint8_t {
     None = 0,
     KeyboardMouse,
     Gamepad,
-    JoystickRaw,
 };
 
 struct InputDeviceId {
@@ -24,7 +23,7 @@ struct InputDeviceId {
 enum class InputEventType : uint8_t {
     ButtonDown,
     ButtonUp,
-    Axis,        // 1D
+    Axis,
     MouseMove,   // v0=x, v1=y
     MouseWheel,  // v0=wheel_y
     TextInput,   // code = Unicode codepoint
@@ -33,50 +32,41 @@ enum class InputEventType : uint8_t {
 };
 
 struct InputEvent {
-    InputEventType type{};
-    InputDeviceId device{};
+    const InputEventType type{};
+    const InputDeviceId device_id{};
     mutable bool consumed{ false };
 
     uint32_t code{ 0 };  // Key / Button / Axis index / char / etc.
     float x = 0.0f, y = 0.0f;
     float dx = 0.0f, dy = 0.0f;
-    uint64_t timestamp_us{ 0 };
 
-    static InputEvent MouseMove(InputDeviceId p_id,
-                                uint64_t p_timestamp,
+    InputEvent(InputEventType p_type, InputDeviceId p_dev_id)
+        : type(p_type)
+        , device_id(p_dev_id) {
+    }
+
+    static InputEvent MouseMove(InputDeviceId p_dev_id,
                                 float p_x,
                                 float p_y) {
-        InputEvent e{};
-        e.type = InputEventType::MouseMove;
-        e.device = p_id;
-        e.timestamp_us = p_timestamp;
-
+        InputEvent e(InputEventType::MouseMove, p_dev_id);
         e.x = p_x;
         e.y = p_y;
         return e;
     }
 
-    static InputEvent MouseWheel(InputDeviceId p_id,
-                                 uint64_t p_timestamp,
+    static InputEvent MouseWheel(InputDeviceId p_dev_id,
                                  float p_x_offset,
                                  float p_y_offset) {
-        InputEvent e{};
-        e.type = InputEventType::MouseWheel;
-        e.device = p_id;
-        e.timestamp_us = p_timestamp;
+        InputEvent e(InputEventType::MouseWheel, p_dev_id);
 
         e.x = e.dx = p_x_offset;
         e.y = e.dy = p_y_offset;
         return e;
     }
 
-    static InputEvent TextInput(InputDeviceId p_id,
-                                uint64_t p_timestamp,
+    static InputEvent TextInput(InputDeviceId p_dev_id,
                                 uint32_t p_code) {
-        InputEvent e{};
-        e.type = InputEventType::TextInput;
-        e.device = p_id;
-        e.timestamp_us = p_timestamp;
+        InputEvent e(InputEventType::TextInput, p_dev_id);
 
         e.code = p_code;
         return e;
@@ -97,7 +87,6 @@ struct ActionEvent {
 
     float x = 0.0f;
     float y = 0.0f;
-    uint64_t timestamp_us = 0;
 };
 
 }  // namespace cave

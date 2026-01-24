@@ -9,6 +9,7 @@
 #include "engine/runtime/common_dvars.h"
 #include "engine/runtime/input_manager.h"
 
+#include "engine/drivers/glfw/glfw_gamepad_device.h"
 #include "engine/drivers/glfw/glfw_keyboard_mouse_device.h"
 
 // @TODO: refactor
@@ -55,9 +56,20 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
 
     glfwSetWindowSizeCallback(m_window, WindowSizeCallback);
 
-    auto keyboard_mouse_device = std::make_unique<GlfwKeyboardMouseDevice>(InputDeviceId::NextId());
-    keyboard_mouse_device->InstallCallbacks(m_window);
-    m_app->GetInputManager()->AddDevice(std::move(keyboard_mouse_device));
+    InputManager& input = *m_app->GetInputManager();
+    {
+        InputDeviceId kb_id = InputDeviceId::NextId();
+        auto keyboard_mouse_device = std::make_unique<GlfwKeyboardMouseDevice>(kb_id);
+        keyboard_mouse_device->InstallCallbacks(m_window);
+        input.AddDevice(std::move(keyboard_mouse_device));
+    }
+    {
+        InputDeviceId pad_id = InputDeviceId::NextId();
+        auto keyboard_mouse_device = std::make_unique<GlfwGamepadDevice>(pad_id, GLFW_JOYSTICK_1);
+        input.AddDevice(std::move(keyboard_mouse_device));
+
+        // input.Router;
+    }
 
     glfwSetWindowPos(m_window, 200, 200);
     glfwGetWindowSize(m_window, &m_frameSize.x, &m_frameSize.y);

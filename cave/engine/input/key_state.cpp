@@ -4,7 +4,7 @@ namespace cave {
 
 size_t KeyState::Index(Key p_key) {
     const size_t idx = static_cast<size_t>(static_cast<uint16_t>(p_key));
-    return (idx < kMaxKeys) ? idx : 0;
+    return (idx < kKeyCount) ? idx : 0;
 }
 
 void KeyState::BeginFrame() {
@@ -30,7 +30,7 @@ void KeyState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
         const Key key = static_cast<Key>(e.code);
         const size_t idx = Index(key);
 
-        auto& st = m_states[e.device.value];  // auto-creates if missing
+        auto& st = m_states[e.device_id.value];  // auto-creates if missing
 
         if (e.type == InputEventType::ButtonDown) {
             if (!st.down[idx]) {

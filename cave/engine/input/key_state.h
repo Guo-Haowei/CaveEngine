@@ -6,8 +6,9 @@
 namespace cave {
 
 class KeyState {
+    using KeyArray = std::bitset<kKeyCount>;
+
 public:
-    // Call once per frame before feeding events
     void BeginFrame();
 
     // Feed raw events (ButtonDown / ButtonUp)
@@ -18,28 +19,25 @@ public:
     bool PressedThisFrame(InputDeviceId p_device, Key p_key) const;
     bool ReleasedThisFrame(InputDeviceId p_device, Key p_key) const;
 
-    // Modifier helpers
+    // --- Modifier helpers ---
     bool CtrlDown(InputDeviceId p_device) const;
     bool ShiftDown(InputDeviceId p_device) const;
     bool AltDown(InputDeviceId p_device) const;
 
-    // Any-device helpers (useful for global shortcuts)
     bool AnyCtrlDown() const;
     bool AnyShiftDown() const;
     bool AnyAltDown() const;
 
-    // Debug / introspection
     void ClearDevice(InputDeviceId p_device);
-
     std::vector<InputDeviceId> ActiveDevices() const;
 
 private:
     static size_t Index(Key p_key);
 
     struct PerDeviceState {
-        std::bitset<kMaxKeys> down{};
-        std::bitset<kMaxKeys> pressed{};
-        std::bitset<kMaxKeys> released{};
+        KeyArray down{};
+        KeyArray pressed{};
+        KeyArray released{};
     };
 
     std::unordered_map<uint32_t, PerDeviceState> m_states;

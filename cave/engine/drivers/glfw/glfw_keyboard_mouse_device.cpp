@@ -6,17 +6,8 @@
 
 namespace cave {
 
-// codes for mouse buttons
-static constexpr uint32_t kMouseButtonBase = 1000;
-
-static uint64_t NowUs() {
-    using namespace std::chrono;
-    const auto now = time_point_cast<microseconds>(steady_clock::now());
-    return static_cast<uint64_t>(now.time_since_epoch().count());
-}
-
-GlfwKeyboardMouseDevice::GlfwKeyboardMouseDevice(InputDeviceId p_id)
-    : m_id(p_id) {
+GlfwKeyboardMouseDevice::GlfwKeyboardMouseDevice(InputDeviceId p_dev_id)
+    : m_dev_id(p_dev_id) {
 
     if (DEV_VERIFY(m_key_mapping.empty())) {
         m_key_mapping[GLFW_KEY_SPACE] = Key::Space;
@@ -142,25 +133,25 @@ Key GlfwKeyboardMouseDevice::MapGlfwKeyToCode(int p_glfw_key) {
     return Key::None;
 }
 
-void GlfwKeyboardMouseDevice::KeyCallback(GLFWwindow* p_window, int p_key, int, int p_action, int) {
+void GlfwKeyboardMouseDevice::KeyCallback(GLFWwindow* p_window,
+                                          int p_key,
+                                          int,
+                                          int p_action, int) {
 
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
         if (Key code = self->MapGlfwKeyToCode(p_key); code != Key::None) {
-            InputEvent e{};
+            InputEventType type = InputEventType::ButtonDown;
             switch (p_action) {
                 case GLFW_PRESS:
                 case GLFW_REPEAT:
-                    e.type = InputEventType::ButtonDown;
                     break;
                 case GLFW_RELEASE:
-                    e.type = InputEventType::ButtonUp;
+                    type = InputEventType::ButtonUp;
                     break;
                 default:
                     return;
             }
-
-            e.device = self->m_id;
-            e.timestamp_us = NowUs();
+            InputEvent e(type, self->m_dev_id);
 
             e.code = std::to_underlying(code);
             self->Push(e);
@@ -170,25 +161,26 @@ void GlfwKeyboardMouseDevice::KeyCallback(GLFWwindow* p_window, int p_key, int, 
 
 void GlfwKeyboardMouseDevice::CharCallback(GLFWwindow* p_window, unsigned int p_code) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        self->Push(InputEvent::TextInput(self->m_id, NowUs(), p_code));
+        self->Push(InputEvent::TextInput(self->m_dev_id, p_code));
     }
 }
 
 void GlfwKeyboardMouseDevice::MouseButtonCallback(GLFWwindow* p_window, int p_button, int p_action, int /*mods*/) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
         if (Key code = self->MapGlfwMouseButtonToCode(p_button); code != Key::None) {
-            InputEvent e{};
-            if (p_action == GLFW_PRESS) {
-                e.type = InputEventType::ButtonDown;
-            } else if (p_action == GLFW_RELEASE) {
-                e.type = InputEventType::ButtonUp;
-            } else {
-                return;
+            InputEventType type = InputEventType::ButtonDown;
+            switch (p_action) {
+                case GLFW_PRESS:
+                    break;
+                case GLFW_RELEASE:
+                    type = InputEventType::ButtonUp;
+                    break;
+                default:
+                    return;
             }
 
-            e.device = self->m_id;
+            InputEvent e(type, self->m_dev_id);
             e.code = std::to_underlying(code);
-            e.timestamp_us = NowUs();
 
             self->Push(e);
         }
@@ -197,8 +189,7 @@ void GlfwKeyboardMouseDevice::MouseButtonCallback(GLFWwindow* p_window, int p_bu
 
 void GlfwKeyboardMouseDevice::CursorPosCallback(GLFWwindow* p_window, double p_x, double p_y) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        self->Push(InputEvent::MouseMove(self->m_id,
-                                         NowUs(),
+        self->Push(InputEvent::MouseMove(self->m_dev_id,
                                          static_cast<float>(p_x),
                                          static_cast<float>(p_y)));
     }
@@ -206,9 +197,7 @@ void GlfwKeyboardMouseDevice::CursorPosCallback(GLFWwindow* p_window, double p_x
 
 void GlfwKeyboardMouseDevice::ScrollCallback(GLFWwindow* p_window, double p_x_offset, double p_y_offset) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        InputEvent e{};
-        self->Push(InputEvent::MouseWheel(self->m_id,
-                                          NowUs(),
+        self->Push(InputEvent::MouseWheel(self->m_dev_id,
                                           static_cast<float>(p_x_offset),
                                           static_cast<float>(p_y_offset)));
     }

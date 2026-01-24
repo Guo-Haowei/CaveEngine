@@ -10,29 +10,51 @@ InputManager::InputManager()
     , m_mapper(m_input_action_map) {}
 
 auto InputManager::InitializeImpl() -> Result<void> {
+    // @TODO: config from asset
     InputActionMap& map = ActionMap();
-    map.AddAction(StringId("ui_left"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_left"), Key::Left);
-    map.BindDigital(StringId("ui_left"), Key::A);
-
-    map.AddAction(StringId("ui_right"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_right"), Key::Right);
-    map.BindDigital(StringId("ui_right"), Key::D);
-
-    map.AddAction(StringId("ui_up"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_up"), Key::Up);
-    map.BindDigital(StringId("ui_up"), Key::W);
-
-    map.AddAction(StringId("ui_down"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_down"), Key::Down);
-    map.BindDigital(StringId("ui_down"), Key::S);
 
     map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
     map.BindDigital(StringId("ui_accept"), Key::Enter);
     map.BindDigital(StringId("ui_accept"), Key::Space);
+    map.BindDigital(StringId("ui_accept"), Key::PadA);
 
     map.AddAction(StringId("ui_back"), ActionValueType::Digital);
     map.BindDigital(StringId("ui_back"), Key::Backspace);
+    map.BindDigital(StringId("ui_back"), Key::PadB);
+
+    map.AddAction(StringId("ui_left"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_left"), Key::A);
+    map.BindDigital(StringId("ui_left"), Key::Left);
+    map.BindDigital(StringId("ui_left"), Key::PadLeft);
+
+    map.AddAction(StringId("ui_right"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_right"), Key::D);
+    map.BindDigital(StringId("ui_right"), Key::Right);
+    map.BindDigital(StringId("ui_right"), Key::PadRight);
+
+    map.AddAction(StringId("ui_up"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_up"), Key::W);
+    map.BindDigital(StringId("ui_up"), Key::Up);
+    map.BindDigital(StringId("ui_up"), Key::PadUp);
+
+    map.AddAction(StringId("ui_down"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_down"), Key::S);
+    map.BindDigital(StringId("ui_down"), Key::Down);
+    map.BindDigital(StringId("ui_down"), Key::PadDown);
+
+    // Movement scalar axes
+    map.AddAction(StringId("ui_axis_x"), ActionValueType::Scalar);
+    map.AddAction(StringId("ui_axis_y"), ActionValueType::Scalar);
+
+    // Keyboard contributes scalar when held
+    // map.BindScalar(StringId("ui_axis_x"), Key::A, -1.0f);
+    // map.BindScalar(StringId("ui_axis_x"), Key::D, +1.0f);
+    // map.BindScalar(StringId("ui_axis_y"), Key::S, -1.0f);
+    // map.BindScalar(StringId("ui_axis_y"), Key::W, +1.0f);
+
+    // Gamepad axes contribute scalar too
+    map.BindScalar(StringId("ui_axis_x"), AxisCode::LX, 1.0f, 0.2f);
+    map.BindScalar(StringId("ui_axis_y"), AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
 
     return Result<void>();
 }
@@ -40,10 +62,23 @@ auto InputManager::InitializeImpl() -> Result<void> {
 void InputManager::FinalizeImpl() {
 }
 
+static const char* InputDeviceTypeToString(InputDeviceType p_type) {
+    switch (p_type) {
+        case cave::InputDeviceType::KeyboardMouse:
+            return "KeyboardMouse";
+        case cave::InputDeviceType::Gamepad:
+            return "Gamepad";
+        default:
+            return "None";
+    }
+}
+
 void InputManager::AddDevice(std::unique_ptr<IInputDevice> p_device) {
     DEV_ASSERT(p_device);
 
-    LOG_VERBOSE("InputManager::AddDevice: device '{}' added", p_device->Id().value);
+    LOG_VERBOSE("InputManager::AddDevice: device '{}' (type: {}) added",
+                p_device->Id().value,
+                InputDeviceTypeToString(p_device->Type()));
     m_devices.emplace_back(std::move(p_device));
 }
 
@@ -57,7 +92,7 @@ void InputManager::UpdatePointers(std::vector<InputEvent>& p_events) {
         if (e.consumed) continue;
         if (e.type != InputEventType::MouseMove) continue;
 
-        auto& ps = m_pointers[e.device.value];
+        auto& ps = m_pointers[e.device_id.value];
 
         const float new_x = e.x;
         const float new_y = e.y;
@@ -78,7 +113,7 @@ void InputManager::UpdatePointers(std::vector<InputEvent>& p_events) {
 
 void InputManager::UpdateActions(const DeviceRouting& p_routing) {
     m_action_events.clear();
-    m_mapper.Map(m_input_events, m_key_state, p_routing, m_action_events);
+    m_mapper.Map(m_input_events, m_key_state, m_axis_state, p_routing, m_action_events);
 
     m_action_state.BeginFrame();
     for (const auto& action : m_action_events) {
@@ -101,6 +136,10 @@ void InputManager::Update() {
     // *) Build key/button state for this frame (from unconsumed events)
     m_key_state.BeginFrame();
     m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+
+    // *) Build axis state for this frame (from unconsumed events)
+    m_axis_state.BeginFrame();
+    m_axis_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
 
     // *) Feed ImGui from remaining raw events
     if (ImguiManager* imgui = m_app->GetImguiManager()) {
