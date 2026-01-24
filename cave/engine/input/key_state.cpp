@@ -120,4 +120,12 @@ void KeyState::ClearDevice(InputDeviceId p_device) {
     m_states.erase(p_device.value);
 }
 
+std::vector<InputDeviceId> KeyState::ActiveDevices() const {
+    std::vector<InputDeviceId> devices;
+    for (const auto& [key, _] : m_states) {
+        devices.push_back(InputDeviceId{ key });
+    }
+    return devices;
+}
+
 }  // namespace cave
