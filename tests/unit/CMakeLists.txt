@@ -1,4 +1,4 @@
-set(TARGET_NAME cave_unit_tests)
+set(TARGET_NAME unit_tests)
 
 file(GLOB_RECURSE SRC
     "*.h"
