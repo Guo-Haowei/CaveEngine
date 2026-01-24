@@ -41,4 +41,4 @@ private:
     const InputActionMap& m_map;
 };
 
-}  // namespace cave::input
+}  // namespace cave

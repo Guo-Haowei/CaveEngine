@@ -55,14 +55,14 @@ public:
     }
 
     bool IsActionJustPressed(const StringId& p_action) const {
-        return IsActionJustPressed(0, p_action); 
+        return IsActionJustPressed(0, p_action);
     }
 
     bool IsActionJustReleased(const StringId& p_action) const {
-        return IsActionJustReleased(0, p_action); 
+        return IsActionJustReleased(0, p_action);
     }
 
-    float GetActionStrength(const StringId& p_action) const { 
+    float GetActionStrength(const StringId& p_action) const {
         return GetActionStrength(0, p_action);
     }
 
