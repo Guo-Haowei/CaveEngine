@@ -31,6 +31,8 @@ public:
     // Debug / introspection
     void ClearDevice(InputDeviceId p_device);
 
+    std::vector<InputDeviceId> ActiveDevices() const;
+
 private:
     static size_t Index(Key p_key);
 

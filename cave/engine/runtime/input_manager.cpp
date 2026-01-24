@@ -5,16 +5,35 @@
 
 namespace cave {
 
+InputManager::InputManager()
+    : Module("InputManager")
+    , m_mapper(m_input_action_map) {}
+
 auto InputManager::InitializeImpl() -> Result<void> {
-#if 0
-    m_input_binding[STR_ID("ui_left")] = std::to_underlying(Key::KEY_LEFT);
-    m_input_binding[STR_ID("ui_right")] = std::to_underlying(Key::KEY_RIGHT);
-    m_input_binding[STR_ID("ui_up")] = std::to_underlying(Key::KEY_UP);
-    m_input_binding[STR_ID("ui_down")] = std::to_underlying(Key::KEY_DOWN);
-    m_input_binding[STR_ID("ui_accept")] = std::to_underlying(Key::KEY_ENTER);
-    m_input_binding[STR_ID("ui_back")] = std::to_underlying(Key::KEY_BACKSPACE);
-    m_input_binding[STR_ID("ui_cancel")] = std::to_underlying(Key::KEY_ESCAPE);
-#endif
+    InputActionMap& map = ActionMap();
+    map.AddAction(StringId("ui_left"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_left"), Key::Left);
+    map.BindDigital(StringId("ui_left"), Key::A);
+
+    map.AddAction(StringId("ui_right"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_right"), Key::Right);
+    map.BindDigital(StringId("ui_right"), Key::D);
+
+    map.AddAction(StringId("ui_up"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_up"), Key::Up);
+    map.BindDigital(StringId("ui_up"), Key::W);
+
+    map.AddAction(StringId("ui_down"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_down"), Key::Down);
+    map.BindDigital(StringId("ui_down"), Key::S);
+
+    map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_accept"), Key::Enter);
+    map.BindDigital(StringId("ui_accept"), Key::Space);
+
+    map.AddAction(StringId("ui_back"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_back"), Key::Backspace);
+
     return Result<void>();
 }
 
@@ -29,7 +48,6 @@ void InputManager::AddDevice(std::unique_ptr<IInputDevice> p_device) {
 }
 
 void InputManager::UpdatePointers(std::vector<InputEvent>& p_events) {
-    // reset deltas each frame
     for (auto& [_, ps] : m_pointers) {
         ps.dx = 0.0f;
         ps.dy = 0.0f;
@@ -58,25 +76,35 @@ void InputManager::UpdatePointers(std::vector<InputEvent>& p_events) {
     }
 }
 
+void InputManager::UpdateActions(const DeviceRouting& p_routing) {
+    m_action_events.clear();
+    m_mapper.Map(m_input_events, m_key_state, p_routing, m_action_events);
+
+    m_action_state.BeginFrame();
+    for (const auto& action : m_action_events) {
+        m_action_state.Apply(action);
+    }
+}
+
 void InputManager::Update() {
-    m_events.clear();
-    m_actions.clear();
+    m_input_events.clear();
+    m_action_events.clear();
 
     // *) Poll devices -> raw events
     for (auto& d : m_devices) {
-        d->Poll(m_events);
+        d->Poll(m_input_events);
     }
 
     // *) Update pointers
-    UpdatePointers(m_events);
+    UpdatePointers(m_input_events);
 
     // *) Build key/button state for this frame (from unconsumed events)
     m_key_state.BeginFrame();
-    m_key_state.UpdateFromEvents(m_events.data(), m_events.size());
+    m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
 
     // *) Feed ImGui from remaining raw events
     if (ImguiManager* imgui = m_app->GetImguiManager()) {
-        imgui->Feed(m_events);
+        imgui->Feed(m_input_events);
 
         // Gate gameplay/editor mapping based on ImGui capture
         // const bool blockKeyboard = imgui->WantKeyboard();
@@ -84,18 +112,19 @@ void InputManager::Update() {
     }
 
     // *) Raw routing stage (shortcuts, viewport tools, gestures)
-    m_raw_router.Dispatch(m_events);
+    m_raw_router.Dispatch(m_input_events);
 
     // *) Rebuild key state after raw consumption (critical for chords/drag gating)
     m_key_state.BeginFrame();
-    m_key_state.UpdateFromEvents(m_events.data(), m_events.size());
+    m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
 
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
-    // m_mapper.Map(m_events, m_keys, m_device_routing, m_actions);
+    DeviceRouting routing;
+    UpdateActions(routing);
 
     // *) Action routing stage (gameplay)
-    for (const auto& a : m_actions) {
-        m_router.Dispatch(a);
+    for (const auto& a : m_action_events) {
+        m_input_router.Dispatch(a);
     }
 }
 

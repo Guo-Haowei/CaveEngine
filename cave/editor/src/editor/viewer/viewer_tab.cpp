@@ -162,7 +162,7 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     }
 }
 
-CameraInputState ViewerTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events) {
+CameraInputState ViewerTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
     CameraInputState state{};
 
     float dx = 0.0f;
@@ -202,15 +202,14 @@ CameraInputState ViewerTab::CreateCameraInputState2D(const std::vector<InputEven
     return state;
 }
 
-CameraInputState ViewerTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events) {
+CameraInputState ViewerTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
     Vector2f rotation = Vector2f::Zero;
 
-    const KeyState& st = m_editor.GetApp().GetInputManager()->GetKeyState();
     const InputDeviceId id{ 0 };
-    const bool mmb = st.Down(id, Key::MMB);
-    const int dx = st.Down(id, Key::D) - st.Down(id, Key::A);
-    const int dy = st.Down(id, Key::E) - st.Down(id, Key::Q);
-    const int dz = st.Down(id, Key::W) - st.Down(id, Key::S);
+    const bool mmb = p_st.Down(id, Key::MMB);
+    const int dx = p_st.Down(id, Key::D) - p_st.Down(id, Key::A);
+    const int dy = p_st.Down(id, Key::E) - p_st.Down(id, Key::Q);
+    const int dz = p_st.Down(id, Key::W) - p_st.Down(id, Key::S);
 
     CameraInputState state{};
 
@@ -240,7 +239,6 @@ CameraInputState ViewerTab::CreateCameraInputState3D(const std::vector<InputEven
 }
 
 void ViewerTab::Update(float p_timestep) {
-
     m_camera_state.move *= p_timestep;
     m_camera_state.zoom_delta *= p_timestep;
     m_camera_state.rotation *= p_timestep;
@@ -253,12 +251,18 @@ void ViewerTab::OnEvents(const std::vector<InputEvent>& p_events) {
         return;
     }
 
+    const KeyState& st = m_editor.GetApp().GetInputManager()->GetKeyState();
+    if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
+        m_camera_state = {};
+        return;
+    }
+
     switch (m_dimension) {
         case DIMENSION_2: {
-            m_camera_state = CreateCameraInputState2D(p_events);
+            m_camera_state = CreateCameraInputState2D(p_events, st);
         } break;
         case DIMENSION_3: {
-            m_camera_state = CreateCameraInputState3D(p_events);
+            m_camera_state = CreateCameraInputState3D(p_events, st);
         } break;
         default: {
             CRASH_NOW_MSG("invalid dimension");

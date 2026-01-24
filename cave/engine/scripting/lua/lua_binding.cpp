@@ -100,20 +100,16 @@ bool OpenMathLib(lua_State* L) {
 }
 
 bool OpenInputLib(lua_State* L) {
-    // @TODO: route the input
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Input")
         .addFunction("is_action_pressed", [](const char* p_str_id) -> int {
-            unused(p_str_id);
-            return false;
+            return InputManager::GetSingleton().IsActionPressed(StringId(p_str_id));
         })
         .addFunction("is_action_just_pressed", [](const char* p_str_id) -> int {
-            unused(p_str_id);
-            return false;
+            return InputManager::GetSingleton().IsActionJustPressed(StringId(p_str_id));
         })
         .addFunction("is_action_just_released", [](const char* p_str_id) -> int {
-            unused(p_str_id);
-            return false;
+            return InputManager::GetSingleton().IsActionJustReleased(StringId(p_str_id));
         })
         .endNamespace();
     return true;

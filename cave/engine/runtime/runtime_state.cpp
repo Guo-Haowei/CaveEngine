@@ -87,7 +87,6 @@ void RuntimeState::OnEnter(const StateRequest& p_args) {
     m_app.GetSceneManager()->OpenSimScene(sim_scene);
     m_app.GetScriptManager()->OnSimBegin(*sim_scene);
 
-    m_app.GetViewportManager()->ClearViewport();
     m_app.GetViewportManager()->CreateViewport(std::shared_ptr<ISceneViewProvider>(new RuntimeSceneViewProvider(m_app)));
 }
 
@@ -118,12 +117,9 @@ void RuntimeState::Tick(float p_timestep) {
         m_app.GetScriptManager()->Update(*scene, p_timestep);
     }
 
-    CRASH_NOW();
-#if 0
-    if (InputManager::GetSingleton().IsActionJustPressed("ui_cancel")) {
-        m_request = Some(StateRequest{ AppStateId::Editor });
-    }
-#endif
+    // if (InputManager::GetSingleton().IsActionJustPressed("ui_cancel")) {
+    //     m_request = Some(StateRequest{ AppStateId::Editor });
+    // }
 }
 
 Option<StateRequest> RuntimeState::PopRequest() {

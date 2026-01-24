@@ -1,8 +1,10 @@
 #pragma once
+#include "engine/core/string/string_id.h"
 
 namespace cave {
 
 enum class InputDeviceType : uint8_t {
+    None = 0,
     KeyboardMouse,
     Gamepad,
     JoystickRaw,
@@ -17,23 +19,6 @@ struct InputDeviceId {
         static std::atomic<uint32_t> s_id{ 0 };
         return InputDeviceId{ s_id++ };
     }
-};
-
-using ActionId = uint32_t;
-
-enum class ActionEventType : uint8_t {
-    Pressed,
-    Released,
-    Value,  // axis/analog value updates
-};
-
-struct ActionEvent {
-    ActionId action = 0;
-    ActionEventType type{};
-    int player_index = 0;
-    float v0 = 0.0f;
-    float v1 = 0.0f;
-    uint64_t timestamp_us = 0;
 };
 
 enum class InputEventType : uint8_t {
@@ -96,6 +81,23 @@ struct InputEvent {
         e.code = p_code;
         return e;
     }
+};
+
+enum class ActionEventType : uint8_t {
+    Pressed,
+    Released,
+    Axis1D,
+    Axis2D
+};
+
+struct ActionEvent {
+    StringId action;
+    ActionEventType type;
+    int player = 0;
+
+    float x = 0.0f;
+    float y = 0.0f;
+    uint64_t timestamp_us = 0;
 };
 
 }  // namespace cave

@@ -14,6 +14,7 @@
 namespace cave {
 
 class Document;
+class KeyState;
 class TabId;
 class Viewer;
 
@@ -95,8 +96,8 @@ protected:
     ecs::Entity m_camera;
 
 private:
-    CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events);
-    CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events);
+    CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
+    CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
 
     const Dimension m_dimension;
     std::string m_title;
