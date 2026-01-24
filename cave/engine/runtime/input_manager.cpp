@@ -10,29 +10,36 @@ InputManager::InputManager()
     , m_mapper(m_input_action_map) {}
 
 auto InputManager::InitializeImpl() -> Result<void> {
+    // @TODO: config from asset
     InputActionMap& map = ActionMap();
     map.AddAction(StringId("ui_left"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_left"), Key::Left);
     map.BindDigital(StringId("ui_left"), Key::A);
+    map.BindDigital(StringId("ui_left"), Key::Left);
+    map.BindDigital(StringId("ui_left"), Key::PadLeft);
 
     map.AddAction(StringId("ui_right"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_right"), Key::Right);
     map.BindDigital(StringId("ui_right"), Key::D);
+    map.BindDigital(StringId("ui_right"), Key::Right);
+    map.BindDigital(StringId("ui_right"), Key::PadRight);
 
     map.AddAction(StringId("ui_up"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_up"), Key::Up);
     map.BindDigital(StringId("ui_up"), Key::W);
+    map.BindDigital(StringId("ui_up"), Key::Up);
+    map.BindDigital(StringId("ui_up"), Key::PadUp);
 
     map.AddAction(StringId("ui_down"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_down"), Key::Down);
     map.BindDigital(StringId("ui_down"), Key::S);
+    map.BindDigital(StringId("ui_down"), Key::Down);
+    map.BindDigital(StringId("ui_down"), Key::PadDown);
 
     map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
     map.BindDigital(StringId("ui_accept"), Key::Enter);
     map.BindDigital(StringId("ui_accept"), Key::Space);
+    map.BindDigital(StringId("ui_accept"), Key::PadA);
 
     map.AddAction(StringId("ui_back"), ActionValueType::Digital);
     map.BindDigital(StringId("ui_back"), Key::Backspace);
+    map.BindDigital(StringId("ui_back"), Key::PadB);
 
     return Result<void>();
 }
@@ -40,10 +47,23 @@ auto InputManager::InitializeImpl() -> Result<void> {
 void InputManager::FinalizeImpl() {
 }
 
+static const char* InputDeviceTypeToString(InputDeviceType p_type) {
+    switch (p_type) {
+        case cave::InputDeviceType::KeyboardMouse:
+            return "KeyboardMouse";
+        case cave::InputDeviceType::Gamepad:
+            return "Gamepad";
+        default:
+            return "None";
+    }
+}
+
 void InputManager::AddDevice(std::unique_ptr<IInputDevice> p_device) {
     DEV_ASSERT(p_device);
 
-    LOG_VERBOSE("InputManager::AddDevice: device '{}' added", p_device->Id().value);
+    LOG_VERBOSE("InputManager::AddDevice: device '{}' (type: {}) added",
+                p_device->Id().value,
+                InputDeviceTypeToString(p_device->Type()));
     m_devices.emplace_back(std::move(p_device));
 }
 

@@ -7,7 +7,6 @@ enum class InputDeviceType : uint8_t {
     None = 0,
     KeyboardMouse,
     Gamepad,
-    JoystickRaw,
 };
 
 struct InputDeviceId {
@@ -97,7 +96,6 @@ struct ActionEvent {
 
     float x = 0.0f;
     float y = 0.0f;
-    uint64_t timestamp_us = 0;
 };
 
 }  // namespace cave

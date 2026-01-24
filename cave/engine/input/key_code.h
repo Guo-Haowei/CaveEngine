@@ -68,6 +68,17 @@ enum class Key : uint16_t {
     MMB, // Middle Mouse Button
 
     // Joystick
+
+    PadA, PadB, PadX, PadY,
+    PadLB, PadRB, // Bumper
+    PadBack,
+    PadStart,
+    PadGuid,
+    PadLS, PadRS, // Thumb
+    PadUp, PadDown, PadLeft, PadRight,
+
+    // Counters
+
     _Max,
 
     _FirstKey = Space,
