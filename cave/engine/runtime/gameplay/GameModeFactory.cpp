@@ -37,4 +37,4 @@ void GameModeFactory::ListIds(std::vector<std::string>& p_out_ids) const {
     std::sort(p_out_ids.begin(), p_out_ids.end());
 }
 
-} // namespace cave
+}  // namespace cave

@@ -14,17 +14,17 @@ class IPlayerAgent {
 public:
     virtual ~IPlayerAgent() = default;
 
-    virtual void OnMatchStart(GameSession& /*p_session*/, const IGameMode& /*p_mode*/, int /*p_player_index*/) = 0;
-    virtual void OnMatchEnd(GameSession& /*p_session*/, const IGameMode& /*p_mode*/, int /*p_player_index*/) = 0;
+    virtual void OnMatchStart(GameSession& p_session, const IGameMode& p_mode, int p_player_index) = 0;
+    virtual void OnMatchEnd(GameSession& p_session, const IGameMode& p_mode, int p_player_index) = 0;
 
     virtual void Tick(GameSession& /*p_session*/,
                       const IGameMode& /*p_mode*/,
-                      int /*p_player_index*/,
+                      int /*p_player_idx*/,
                       const GameFrameTime& /*p_time*/) {}
 
     virtual bool PollDecision(GameSession& p_session,
                               const IGameMode& p_mode,
-                              int p_player_index,
+                              int p_player_idx,
                               GameDecision& p_out_decision) = 0;
 };
 

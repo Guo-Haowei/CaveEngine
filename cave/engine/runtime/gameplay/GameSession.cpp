@@ -24,7 +24,6 @@ bool GameSession::Start(std::string_view p_mode_id) {
 }
 
 bool GameSession::RequestSwitch(std::string_view p_mode_id) {
-    // Build pending mode now (so failure is immediate, not on commit).
     auto next = m_factory.Create(p_mode_id);
     if (!next) {
         return false;
@@ -69,4 +68,4 @@ void GameSession::Tick(const GameFrameTime& time) {
     }
 }
 
-} // namespace cave
+}  // namespace cave

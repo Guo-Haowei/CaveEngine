@@ -9,7 +9,12 @@ class GameSession;
 
 struct GameFrameTime {
     float dt = 0.0f;
-    uint64_t frameIndex = 0;
+    uint64_t frame_index = 0;
+};
+
+struct GameDecision {
+    uint64_t type = 0;             // game-defined type id (e.g., hash of 'ChessMove')
+    std::vector<uint8_t> payload;  // game-defined bytes
 };
 
 #if 0
