@@ -5,7 +5,7 @@ namespace cave {
 
 // clang-format off
 enum class Key : uint16_t {
-    Unknown = 0,
+    None = 0,
 
     // Keyboard keys
     Space,

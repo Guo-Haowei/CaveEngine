@@ -130,7 +130,7 @@ Key GlfwKeyboardMouseDevice::MapGlfwMouseButtonToCode(int p_glfw_button) {
         case GLFW_MOUSE_BUTTON_MIDDLE:
             return Key::MMB;
         default:
-            return Key::Unknown;
+            return Key::None;
     }
 }
 
@@ -139,13 +139,13 @@ Key GlfwKeyboardMouseDevice::MapGlfwKeyToCode(int p_glfw_key) {
         return it->second;
     }
 
-    return Key::Unknown;
+    return Key::None;
 }
 
 void GlfwKeyboardMouseDevice::KeyCallback(GLFWwindow* p_window, int p_key, int, int p_action, int) {
 
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        if (Key code = self->MapGlfwKeyToCode(p_key); code != Key::Unknown) {
+        if (Key code = self->MapGlfwKeyToCode(p_key); code != Key::None) {
             InputEvent e{};
             switch (p_action) {
                 case GLFW_PRESS:
@@ -176,7 +176,7 @@ void GlfwKeyboardMouseDevice::CharCallback(GLFWwindow* p_window, unsigned int p_
 
 void GlfwKeyboardMouseDevice::MouseButtonCallback(GLFWwindow* p_window, int p_button, int p_action, int /*mods*/) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        if (Key code = self->MapGlfwMouseButtonToCode(p_button); code != Key::Unknown) {
+        if (Key code = self->MapGlfwMouseButtonToCode(p_button); code != Key::None) {
             InputEvent e{};
             if (p_action == GLFW_PRESS) {
                 e.type = InputEventType::ButtonDown;

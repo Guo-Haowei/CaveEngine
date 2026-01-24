@@ -1,8 +1,10 @@
 #pragma once
+#include "engine/core/string/string_id.h"
 
 namespace cave {
 
 enum class InputDeviceType : uint8_t {
+    None = 0,
     KeyboardMouse,
     Gamepad,
     JoystickRaw,
@@ -79,6 +81,23 @@ struct InputEvent {
         e.code = p_code;
         return e;
     }
+};
+
+enum class ActionEventType : uint8_t {
+    Pressed,
+    Released,
+    Axis1D,
+    Axis2D
+};
+
+struct ActionEvent {
+    StringId action;
+    ActionEventType type;
+    int player = 0;
+
+    float x = 0.0f;
+    float y = 0.0f;
+    uint64_t timestamp_us = 0;
 };
 
 }  // namespace cave

@@ -19,6 +19,8 @@ static constexpr inline uint64_t fnv1a_64(std::string_view s) {
 
 class StringId {
 public:
+    constexpr StringId() = default;
+
     constexpr StringId(std::string_view p_str)
         : m_hash(fnv1a_64(p_str))
 #if USING(STRING_ID_KEEKP_SOURCE)
@@ -44,7 +46,7 @@ public:
     }
 
 private:
-    uint64_t m_hash;
+    uint64_t m_hash{ 0 };
 #if USING(STRING_ID_KEEKP_SOURCE)
     std::string m_source;
 #endif
