@@ -40,4 +40,12 @@ float AxisState::GetDelta(InputDeviceId p_dev_id, AxisCode p_axis) const {
     return it->second.axes[std::to_underlying(p_axis)].delta;
 }
 
+std::vector<InputDeviceId> AxisState::ActiveDevices() const {
+    std::vector<InputDeviceId> devices;
+    for (const auto& [key, _] : m_devices) {
+        devices.push_back(InputDeviceId{ key });
+    }
+    return devices;
+}
+
 }  // namespace cave

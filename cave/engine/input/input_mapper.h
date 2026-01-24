@@ -20,8 +20,8 @@ public:
         : m_map(p_map) {}
 
     void Map(const std::vector<InputEvent>& p_events,
-             const KeyState& p_keys,
-             const AxisState& p_axis,
+             const KeyState& p_key_state,
+             const AxisState& p_axis_state,
              const DeviceRouting& p_routing,
              std::vector<ActionEvent>& p_out_actions) const;
 
@@ -34,8 +34,13 @@ private:
 
     void MapScalar(const StringId& p_str_id,
                    const ActionDef& p_def,
-                   const KeyState& p_keys,
-                   const AxisState& p_axis,
+                   const KeyState& p_key_state,
+                   const DeviceRouting& p_routing,
+                   std::vector<ActionEvent>& p_out_actions) const;
+
+    void MapScalar(const StringId& p_str_id,
+                   const ActionDef& p_def,
+                   const AxisState& p_axis_state,
                    const DeviceRouting& p_routing,
                    std::vector<ActionEvent>& p_out_actions) const;
 

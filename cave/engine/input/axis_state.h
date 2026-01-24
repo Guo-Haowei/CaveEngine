@@ -24,6 +24,8 @@ public:
 
     float GetDelta(InputDeviceId p_dev_id, AxisCode p_axis) const;
 
+    std::vector<InputDeviceId> ActiveDevices() const;
+
 private:
     std::unordered_map<uint32_t, AxisDeviceState> m_devices;
 };
