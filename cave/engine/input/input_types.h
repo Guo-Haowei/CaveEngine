@@ -19,23 +19,6 @@ struct InputDeviceId {
     }
 };
 
-using ActionId = uint32_t;
-
-enum class ActionEventType : uint8_t {
-    Pressed,
-    Released,
-    Value,  // axis/analog value updates
-};
-
-struct ActionEvent {
-    ActionId action = 0;
-    ActionEventType type{};
-    int player_index = 0;
-    float v0 = 0.0f;
-    float v1 = 0.0f;
-    uint64_t timestamp_us = 0;
-};
-
 enum class InputEventType : uint8_t {
     ButtonDown,
     ButtonUp,
