@@ -20,8 +20,7 @@ void InputActionMap::BindAxis1D(const StringId& p_str_id, Key p_key, float p_sca
     a.bindings.push_back(ActionBinding{ BindingKind::Axis1D, p_key, p_scale });
 }
 
-const ActionDef*
-InputActionMap::Find(const StringId& p_str_id) const {
+const ActionDef* InputActionMap::Find(const StringId& p_str_id) const {
     auto it = m_actions.find(p_str_id);
     return it != m_actions.end() ? &it->second : nullptr;
 }
