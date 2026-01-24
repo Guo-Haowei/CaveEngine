@@ -1,9 +1,12 @@
 #pragma once
 #include "engine/input/input_action_map.h"
-#include "engine/input/key_state.h"
 
 namespace cave {
 
+class AxisState;
+class KeyState;
+
+// @TODO: refactor
 class DeviceRouting {
 public:
     int PlayerFor(InputDeviceId) const {
@@ -18,25 +21,23 @@ public:
 
     void Map(const std::vector<InputEvent>& p_events,
              const KeyState& p_keys,
+             const AxisState& p_axis,
              const DeviceRouting& p_routing,
              std::vector<ActionEvent>& p_out_actions) const;
 
 private:
-    void MapDigital(const StringId& p_str_id, const ActionDef& p_def,
+    void MapDigital(const StringId& p_str_id,
+                    const ActionDef& p_def,
                     const std::vector<InputEvent>& p_events,
                     const DeviceRouting& p_routing,
                     std::vector<ActionEvent>& p_out_actions) const;
 
-    void MapAxis1D(const StringId& p_str_id, const ActionDef& p_def,
+    void MapScalar(const StringId& p_str_id,
+                   const ActionDef& p_def,
                    const KeyState& p_keys,
+                   const AxisState& p_axis,
                    const DeviceRouting& p_routing,
                    std::vector<ActionEvent>& p_out_actions) const;
-
-    // Optional convenience: build Axis2D directly from two 1D actions in ActionState instead.
-    // If you keep Axis2D in map, implement similarly.
-    void MapAxis2D_NotImplementedYet(const StringId&, const ActionDef&,
-                                     const KeyState&, const DeviceRouting&,
-                                     std::vector<ActionEvent>&) const {}
 
     const InputActionMap& m_map;
 };

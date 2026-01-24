@@ -30,7 +30,7 @@ void KeyState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
         const Key key = static_cast<Key>(e.code);
         const size_t idx = Index(key);
 
-        auto& st = m_states[e.device.value];  // auto-creates if missing
+        auto& st = m_states[e.device_id.value];  // auto-creates if missing
 
         if (e.type == InputEventType::ButtonDown) {
             if (!st.down[idx]) {

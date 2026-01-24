@@ -37,7 +37,7 @@ void InputActionMap::BindScalar(const StringId& p_str_id,
     binding.behavior = BindingBehavior::Scalar;
     binding.source = BindingSource::FromAxis(p_axis);
     binding.scale = p_scale;
-    binding.deadzone = p_scale;
+    binding.deadzone = p_deadzone;
     binding.invert = p_invert;
     def.bindings.push_back(binding);
 }

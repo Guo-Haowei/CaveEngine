@@ -92,7 +92,7 @@ void InputManager::UpdatePointers(std::vector<InputEvent>& p_events) {
         if (e.consumed) continue;
         if (e.type != InputEventType::MouseMove) continue;
 
-        auto& ps = m_pointers[e.device.value];
+        auto& ps = m_pointers[e.device_id.value];
 
         const float new_x = e.x;
         const float new_y = e.y;
@@ -113,7 +113,7 @@ void InputManager::UpdatePointers(std::vector<InputEvent>& p_events) {
 
 void InputManager::UpdateActions(const DeviceRouting& p_routing) {
     m_action_events.clear();
-    m_mapper.Map(m_input_events, m_key_state, p_routing, m_action_events);
+    m_mapper.Map(m_input_events, m_key_state, m_axis_state, p_routing, m_action_events);
 
     m_action_state.BeginFrame();
     for (const auto& action : m_action_events) {
@@ -139,6 +139,7 @@ void InputManager::Update() {
 
     // *) Build axis state for this frame (from unconsumed events)
     m_axis_state.BeginFrame();
+    m_axis_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
 
     // *) Feed ImGui from remaining raw events
     if (ImguiManager* imgui = m_app->GetImguiManager()) {

@@ -1,9 +1,13 @@
 #include "input_mapper.h"
 
+#include "engine/input/axis_state.h"
+#include "engine/input/key_state.h"
+
 namespace cave {
 
 void InputMapper::Map(const std::vector<InputEvent>& p_events,
                       const KeyState& p_key_state,
+                      const AxisState& p_axis,
                       const DeviceRouting& p_routing,
                       std::vector<ActionEvent>& p_out_actions) const {
     for (const auto& [name, def] : m_map.GetActions()) {
@@ -11,19 +15,15 @@ void InputMapper::Map(const std::vector<InputEvent>& p_events,
             case ActionValueType::Digital: {
                 MapDigital(name, def, p_events, p_routing, p_out_actions);
             } break;
-            case ActionValueType::Axis1D: {
-                MapAxis1D(name, def, p_key_state, p_routing, p_out_actions);
-            } break;
-            case ActionValueType::Axis2D: {
-                // Recommended approach:
-                // build 2D vectors via ActionState::GetVector from four 1D actions.
-                // If you insist on direct Axis2D bindings, implement here.
+            case ActionValueType::Scalar: {
+                MapScalar(name, def, p_key_state, p_axis, p_routing, p_out_actions);
             } break;
         }
     }
 }
 
-void InputMapper::MapDigital(const StringId& p_str_id, const ActionDef& p_def,
+void InputMapper::MapDigital(const StringId& p_str_id,
+                             const ActionDef& p_def,
                              const std::vector<InputEvent>& p_events,
                              const DeviceRouting& p_routing,
                              std::vector<ActionEvent>& p_out_actions) const {
@@ -32,18 +32,17 @@ void InputMapper::MapDigital(const StringId& p_str_id, const ActionDef& p_def,
             continue;
         }
 
-        if (e.type != InputEventType::ButtonDown &&
-            e.type != InputEventType::ButtonUp) {
+        if (e.type != InputEventType::ButtonDown && e.type != InputEventType::ButtonUp) {
             continue;
         }
 
         const Key k = static_cast<Key>(e.code);
 
         for (const auto& b : p_def.bindings) {
-            if (b.kind != BindingKind::Digital) {
+            if (b.behavior != BindingBehavior::Digital) {
                 continue;
             }
-            if (b.key != k) {
+            if (b.source.key != k) {
                 continue;
             }
 
@@ -52,7 +51,7 @@ void InputMapper::MapDigital(const StringId& p_str_id, const ActionDef& p_def,
             a.type = (e.type == InputEventType::ButtonDown)
                          ? ActionEventType::Pressed
                          : ActionEventType::Released;
-            a.player = p_routing.PlayerFor(e.device);
+            a.player = p_routing.PlayerFor(e.device_id);
 
             p_out_actions.push_back(a);
             break;
@@ -60,13 +59,14 @@ void InputMapper::MapDigital(const StringId& p_str_id, const ActionDef& p_def,
     }
 }
 
-void InputMapper::MapAxis1D(const StringId& p_str_id, const ActionDef& p_def,
+void InputMapper::MapScalar(const StringId& p_str_id, const ActionDef& p_def,
                             const KeyState& p_keys,
+                            const AxisState& p_axis,
                             const DeviceRouting& p_routing,
                             std::vector<ActionEvent>& p_out_actions) const {
     // Evaluate per device -> per player
 
-    for (InputDeviceId dev : p_keys.ActiveDevices()) {
+    for (InputDeviceId dev_id : p_keys.ActiveDevices()) {
         // Typical editor rule: don’t drive movement while Ctrl/Alt are down
         // (Put your own gating elsewhere if you prefer)
         // if (keys.CtrlDown(dev) || keys.AltDown(dev)) continue;
@@ -74,12 +74,19 @@ void InputMapper::MapAxis1D(const StringId& p_str_id, const ActionDef& p_def,
         float value = 0.0f;
 
         for (const auto& b : p_def.bindings) {
-            if (b.kind != BindingKind::Axis1DKey) {
+            if (b.behavior != BindingBehavior::Scalar) {
                 continue;
             }
 
-            if (p_keys.Down(dev, b.key)) {
-                value += b.scale;
+            if (b.source.type == BindingSourceType::Key) {
+                if (p_keys.Down(dev_id, b.source.key)) {
+                    value += b.scale;
+                }
+            } else /* if (b.source.type == BindingSourceType::Axis) */ {
+                float v = p_axis.Get(dev_id, b.source.axis);
+                if (b.invert) v = -v;
+                if (std::abs(v) < b.deadzone) v = 0.0f;
+                value += v * b.scale;
             }
         }
 
@@ -87,7 +94,7 @@ void InputMapper::MapAxis1D(const StringId& p_str_id, const ActionDef& p_def,
             ActionEvent a{};
             a.action = p_str_id;
             a.type = ActionEventType::Axis1D;
-            a.player = p_routing.PlayerFor(dev);
+            a.player = p_routing.PlayerFor(dev_id);
             a.x = value;
             p_out_actions.push_back(a);
         }

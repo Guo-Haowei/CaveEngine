@@ -11,14 +11,17 @@ void AxisState::BeginFrame() {
     }
 }
 
-void AxisState::Set(InputDeviceId p_dev_id, AxisCode p_axis, float p_value) {
-    auto& d = m_devices[p_dev_id.value];
-    d.active = true;
+void AxisState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
+    for (size_t i = 0; i < p_count; ++i) {
+        const InputEvent& e = p_events[i];
+        if (e.type != InputEventType::Axis) {
+            continue;
+        }
 
-    AxisSample& s = d.axes[std::to_underlying(p_axis)];
-    const float prev = s.value;
-    s.value = p_value;
-    s.delta += (p_value - prev);  // accumulate if set multiple times per frame
+        AxisCode axis = static_cast<AxisCode>(e.code);
+        auto& dev = m_devices[e.device_id.value];
+        dev.axes[std::to_underlying(axis)].value = e.x;
+    }
 }
 
 float AxisState::Get(InputDeviceId p_dev_id, AxisCode p_axis) const {

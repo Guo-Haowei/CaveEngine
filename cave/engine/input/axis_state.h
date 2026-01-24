@@ -18,13 +18,10 @@ class AxisState {
 public:
     void BeginFrame();
 
-    // Set axis value for a device (called by devices)
-    void Set(InputDeviceId p_dev_id, AxisCode p_axis, float p_value);
+    void UpdateFromEvents(const InputEvent* p_events, size_t p_count);
 
-    // Read current axis value
     float Get(InputDeviceId p_dev_id, AxisCode p_axis) const;
 
-    // Read axis delta (this frame)
     float GetDelta(InputDeviceId p_dev_id, AxisCode p_axis) const;
 
 private:

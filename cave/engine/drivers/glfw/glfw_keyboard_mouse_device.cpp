@@ -197,7 +197,6 @@ void GlfwKeyboardMouseDevice::CursorPosCallback(GLFWwindow* p_window, double p_x
 
 void GlfwKeyboardMouseDevice::ScrollCallback(GLFWwindow* p_window, double p_x_offset, double p_y_offset) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        InputEvent e{};
         self->Push(InputEvent::MouseWheel(self->m_dev_id,
                                           static_cast<float>(p_x_offset),
                                           static_cast<float>(p_y_offset)));
