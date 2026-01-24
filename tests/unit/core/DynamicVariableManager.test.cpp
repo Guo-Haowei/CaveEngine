@@ -4,7 +4,7 @@
 
 namespace cave {
 
-#include "test_dvars.h"
+#include "TestDvars.h"
 
 extern void register_test_dvars();
 

@@ -1,17 +1,16 @@
 #include "engine/core/dynamic_variable/dynamic_variable.h"
-
 #include "engine/core/io/archive.h"
 
 namespace cave {
 
 #define DEFINE_DVAR
-#include "test_dvars.h"
+#include "TestDvars.h"
 
 void register_test_dvars() {
     static bool s_registered = false;
     if (!s_registered) {
 #define REGISTER_DVAR
-#include "test_dvars.h"
+#include "TestDvars.h"
 #undef REGISTER_DVAR
     }
     s_registered = true;
