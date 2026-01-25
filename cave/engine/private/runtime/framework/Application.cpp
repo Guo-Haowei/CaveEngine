@@ -32,16 +32,13 @@ static cave::IApplication* s_app = nullptr;
 namespace cave {
 
 namespace fs = std::filesystem;
-Application::Application(const ApplicationSpec& p_spec, Application::Type p_type)
+Application::Application(const ApplicationSpec& p_spec, AppType p_type)
     : IApplication(p_spec)
     , m_type(p_type)
     , m_state_machine(*this) {
 
     // @TODO: refactor this select work directory
     m_vfs.Mount("@user", fs::path(m_specification.userFolder));
-}
-
-IApplication::~IApplication() {
 }
 
 void Application::RegisterModule(Module* p_module) {

@@ -28,16 +28,15 @@ void RegisterExtraDvars() {
 #undef REGISTER_DVAR
 }
 
-class Editor : public Application {
+class Editor final : public Application {
 public:
     Editor(const ApplicationSpec& p_spec)
-        : Application(p_spec, IApplication::Type::Editor)
+        : Application(p_spec, AppType::Editor)
         , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
-        // m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
     }
 
-    auto Initialize() -> Result<void> final {
-        if (auto res = IApplication::Initialize(); !res) {
+    Result<void> Initialize() final {
+        if (auto res = Application::Initialize(); !res) {
             return res;
         }
 
@@ -62,21 +61,20 @@ public:
             return std::unique_ptr<AppState>(std::move(state));
         });
 
-        m_state_machine = std::make_unique<AppStateMachine>(*this);
-        m_state_machine->Init(initial_state);
+        m_state_machine.Init(initial_state);
         return Result<void>();
     }
 
-    void Finalize() override {
+    void Finalize() final {
         if (m_display_server) {
             [[maybe_unused]] auto [w, h] = m_display_server->GetWindowSize();
             DVAR_SET_IVEC2(window_resolution, w, h);
         }
 
-        IApplication::Finalize();
+        Application::Finalize();
     }
 
-    bool IsWorld2D() const override {
+    bool IsWorld2D() const final {
         return m_is_world_2d;
     }
 

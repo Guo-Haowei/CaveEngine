@@ -15,7 +15,7 @@ class Module;
 
 class Application : public IApplication {
 public:
-    Application(const ApplicationSpec& p_spec, Application::Type p_type);
+    Application(const ApplicationSpec& p_spec, AppType p_type);
 
     AppStateId GetStateId() const override;
 
@@ -28,7 +28,7 @@ public:
     VFS& GetVFS() override { return m_vfs; }
     EventQueue& GetEventQueue() override { return m_event_queue; }
 
-    Type GetType() const override { return m_type; }
+    AppType GetType() const override { return m_type; }
 
 protected:
     [[nodiscard]] auto SetupModules() -> Result<void>;
@@ -42,7 +42,7 @@ protected:
 
     void RegisterModule(Module* p_module);
 
-    const Type m_type;
+    const AppType m_type;
 
     AppStateMachine m_state_machine;
     std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;

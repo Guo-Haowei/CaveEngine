@@ -39,20 +39,19 @@ struct ApplicationSpec {
     bool enableImgui;
 };
 
+enum class AppType : uint8_t {
+    Runtime,
+    Editor,
+    Tool,
+};
+
 class IApplication : public NonCopyable {
 public:
-    // @TODO: add server
-    enum class Type : uint32_t {
-        Runtime,
-        Editor,
-        Tool,
-    };
-
     IApplication(const ApplicationSpec& p_spec)
         : m_specification(p_spec) {
     }
 
-    virtual ~IApplication();
+    virtual ~IApplication() = default;
 
     virtual Result<void> Initialize() = 0;
     virtual void Finalize() = 0;
@@ -82,8 +81,8 @@ public:
     static void Run(IApplication* p_app);
 
     // @TODO: get rid of the following
-    virtual Type GetType() const = 0;
-    bool IsRuntime() const { return GetType() == Type::Runtime; }
+    virtual AppType GetType() const = 0;
+    bool IsRuntime() const { return GetType() == AppType::Runtime; }
 
     virtual bool IsWorld2D() const = 0;
 
