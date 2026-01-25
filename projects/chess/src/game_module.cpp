@@ -1,5 +1,3 @@
-#include <memory>
-
 #include <cave/plugin/game_module_api.h>
 #include <cave/runtime/framework/IApplication.h>
 #include <cave/runtime/gameplay/GameModeFactory.h>
@@ -11,9 +9,10 @@ namespace cave::chess {
 static void RegisterGame(IApplication& p_app, const GameLoadArgs& p_args) {
     (void)p_args;
 
-    p_app.GetGameModeFactory().Register("chess", []() -> std::unique_ptr<IGameMode> {
-        return std::make_unique<ChessMode>();
-    });
+    p_app.GetGameModeFactory().Register(
+        "chess",
+        []() -> IGameMode* { return new ChessGameMode(); },
+        [](IGameMode* p_mode) { delete p_mode; });
 }
 
 static const GameModuleApi g_api = {

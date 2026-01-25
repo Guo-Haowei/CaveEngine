@@ -13,16 +13,23 @@ class IGameMode;
 
 class GameModeFactory {
 public:
-    using CreatorFn = std::function<std::unique_ptr<IGameMode>()>;
+    using CreateFn = IGameMode* (*)();
+    using DestroyFn = void (*)(IGameMode*);
+    using GameModeRef = std::unique_ptr<IGameMode, DestroyFn>;
 
-    bool Register(std::string_view p_id, CreatorFn p_fn);
+    struct CreatorEntry {
+        CreateFn create;
+        DestroyFn destroy;
+    };
 
-    std::unique_ptr<IGameMode> Create(std::string_view p_id) const;
+    bool Register(std::string_view p_id, CreateFn p_create_fn, DestroyFn p_destroy_fn);
+
+    GameModeRef Create(std::string_view p_id) const;
 
     void ListIds(std::vector<std::string>& p_out_ids) const;
 
 private:
-    std::unordered_map<std::string, CreatorFn> m_creators;
+    std::unordered_map<std::string, CreatorEntry> m_creators;
 };
 
 }  // namespace cave

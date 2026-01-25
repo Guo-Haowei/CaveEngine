@@ -5,7 +5,9 @@
 
 #include <imgui/imgui.h>
 
+#include "cave/runtime/gameplay/GameSession.h"
 #include "cave/runtime/framework/IApplication.h"
+
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
@@ -83,11 +85,19 @@ GameRuntimeState::GameRuntimeState(IApplication& p_app)
 }
 
 void GameRuntimeState::OnEnter(const StateRequest& p_args) {
-    unused(p_args);
-
-    // @TODO: refacotr
     const char* module_name = "game_Debug.dll";
     LoadGameModule(module_name, m_module);
+
+    if (m_module.api && m_module.api->RegisterGame) {
+        GameLoadArgs args{};
+        m_module.api->RegisterGame(m_app, args);
+    }
+
+    std::string_view mode = p_args.arg0;
+    mode = "chess"; // @TODO: get correct game mode
+
+    m_session = std::make_unique<GameSession>(m_app.GetGameModeFactory());
+    m_session->Start(mode);
 
     std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
     std::shared_ptr<Scene> sim_scene = std::make_shared<Scene>();
@@ -106,11 +116,18 @@ void GameRuntimeState::OnExit() {
     m_app.GetScriptManager()->OnSimEnd();
     m_app.GetSceneManager()->CloseSimScene();
 
+    m_session.reset();
+
     UnloadGameModule(m_module);
 }
 
 void GameRuntimeState::Tick(float p_timestep) {
     // @TODO: tick game?
+
+    if (m_session) {
+        GameFrameTime frame;
+        m_session->Tick(frame);
+    }
 
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();

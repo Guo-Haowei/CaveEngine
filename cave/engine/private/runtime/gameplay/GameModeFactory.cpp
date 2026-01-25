@@ -6,8 +6,8 @@
 
 namespace cave {
 
-bool GameModeFactory::Register(std::string_view p_id, CreatorFn p_fn) {
-    if (p_id.empty() || !p_fn) {
+bool GameModeFactory::Register(std::string_view p_id, CreateFn p_create_fn, DestroyFn p_destroy_fn) {
+    if (p_id.empty() || !p_create_fn || !p_destroy_fn) {
         return false;
     }
     std::string key(p_id);
@@ -15,16 +15,18 @@ bool GameModeFactory::Register(std::string_view p_id, CreatorFn p_fn) {
     if (it != m_creators.end()) {
         return false;
     }
-    m_creators.emplace(std::move(key), std::move(p_fn));
+
+    m_creators.emplace(std::move(key), CreatorEntry{ std::move(p_create_fn), std::move(p_destroy_fn) });
     return true;
 }
 
-std::unique_ptr<IGameMode> GameModeFactory::Create(std::string_view p_id) const {
+GameModeFactory::GameModeRef GameModeFactory::Create(std::string_view p_id) const {
     auto it = m_creators.find(std::string(p_id));
     if (it == m_creators.end()) {
-        return nullptr;
+        return GameModeFactory::GameModeRef(nullptr, nullptr);
     }
-    return (it->second)();
+    const CreatorEntry& e = it->second;
+    return GameModeFactory::GameModeRef(e.create(), e.destroy);
 }
 
 void GameModeFactory::ListIds(std::vector<std::string>& p_out_ids) const {

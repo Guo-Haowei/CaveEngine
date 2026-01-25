@@ -13,6 +13,7 @@ bool GameSession::Start(std::string_view p_mode_id) {
 
     auto mode = m_factory.Create(p_mode_id);
     if (!mode) {
+        LOG_ERROR("GameSession::Start: mode '{}' not found", p_mode_id);
         return false;
     }
 

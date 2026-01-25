@@ -3,7 +3,7 @@
 
 namespace cave {
 
-class ChessMode final : public cave::IGameMode {
+class ChessGameMode final : public cave::IGameMode {
 public:
     std::string_view GetId() const final { return "chess"; }
 

@@ -2,20 +2,20 @@
 
 namespace cave {
 
-void ChessMode::OnEnter(GameSession& p_session) {
+void ChessGameMode::OnEnter(GameSession& p_session) {
     (void)p_session;
-    printf("ChessMode::OnEnter\n");
+    printf("ChessGameMode::OnEnter\n");
 }
 
-void ChessMode::OnExit(GameSession& p_session) {
+void ChessGameMode::OnExit(GameSession& p_session) {
     (void)p_session;
-    printf("ChessMode::OnExit\n");
+    printf("ChessGameMode::OnExit\n");
 }
 
-void ChessMode::Tick(GameSession& p_session, const GameFrameTime& p_time) {
+void ChessGameMode::Tick(GameSession& p_session, const GameFrameTime& p_time) {
     (void)p_session;
     (void)p_time;
-    printf("ChessMode::Tick\n");
+    printf("ChessGameMode::Tick\n");
 }
 
 }  // namespace cave

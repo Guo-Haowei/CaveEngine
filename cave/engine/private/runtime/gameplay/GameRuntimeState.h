@@ -9,6 +9,8 @@
 
 namespace cave {
 
+class GameSession;
+
 class GameRuntimeState : public AppState {
 public:
     GameRuntimeState(IApplication& p_app);
@@ -29,6 +31,8 @@ private:
     Option<StateRequest> m_request{};
     LoadedGameModule m_module{};
     GameModeFactory m_factory;
+
+    std::unique_ptr<GameSession> m_session;
 };
 
 }  // namespace cave

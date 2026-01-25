@@ -44,8 +44,8 @@ public:
 private:
     GameModeFactory& m_factory;
 
-    std::unique_ptr<IGameMode> m_active;
-    std::unique_ptr<IGameMode> m_pending;
+    GameModeFactory::GameModeRef m_active{ nullptr, nullptr };
+    GameModeFactory::GameModeRef m_pending{ nullptr, nullptr };
 
     std::string m_active_id;
     std::string m_pending_id;
