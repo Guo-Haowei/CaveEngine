@@ -8,7 +8,7 @@
 #include <engine/private/scene/scene_component.h>
 
 #include "editor/EditorWindow.h"
-#include "editor/ShortcutManager.h"
+#include "editor/shortcut/ShortcutDesc.h"
 #include "editor/viewer/ViewerTab.h"
 
 namespace cave {
@@ -20,6 +20,7 @@ class EditorCommandBase;
 class FileSystemPanel;
 class LogPanel;
 class MenuBar;
+class ShortcutManager;
 class Viewer;
 
 struct EditorContext {
@@ -30,6 +31,7 @@ struct EditorContext {
 class EditorState final : public AppState {
 public:
     EditorState(IApplication& p_app);
+    ~EditorState();
 
     void OnEnter(const StateRequest& p_args) final;
     void OnExit() final;
@@ -43,14 +45,12 @@ public:
     const char* GetDebugName() final { return "EditorState"; }
 #endif
 
-    const auto& GetShortcuts() const {
-        return m_shortcut_manager.GetShortcuts();
-    }
+    const std::array<ShortcutDesc, kShortcutCount>& GetShortcuts() const;
 
 private:
     Option<StateRequest> m_request;
 
-    ShortcutManager m_shortcut_manager;
+    std::unique_ptr<ShortcutManager> m_shortcut_manager;
 
     // @TODO: refactor the following
 public:

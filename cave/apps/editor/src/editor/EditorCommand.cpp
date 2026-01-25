@@ -91,9 +91,11 @@ void EditorCommandDuplicateEntity::Execute(Scene& p_scene) {
 /// SaveProjectCommand
 void SaveProjectCommand::Execute(Scene& p_scene) {
     unused(p_scene);
-
-    CRASH_NOW();
+    LOG_WARN("TODO: implement SaveProjectCommand");
     std::string scene;
+    if (scene.empty()) {
+        return;
+    }
 
     std::filesystem::path path{ scene.empty() ? "untitled.scene" : scene.c_str() };
     if (m_openDialog || scene.empty()) {

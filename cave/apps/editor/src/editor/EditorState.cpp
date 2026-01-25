@@ -1,9 +1,12 @@
 #include "EditorState.h"
 
-#include "engine/private/debugger/profiler.h"
 #include "cave/runtime/framework/IApplication.h"
+
+#include "engine/private/debugger/profiler.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
+
+#include "editor/shortcut/ShortcutManager.h"
 
 // @TODO: refactor
 #include <imgui/imgui_internal.h>
@@ -18,7 +21,7 @@
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/ui/layout.h"
 
-#include "editor/document/document.h"
+#include "editor/document/Document.h"
 #include "editor/EditorCommand.h"
 #include "editor/EditorDvars.h"
 #include "editor/panels/AssetInspector.h"
@@ -36,9 +39,12 @@
 namespace cave {
 
 EditorState::EditorState(IApplication& p_app)
-    : AppState(p_app)
-    , m_shortcut_manager(*this) {
+    : AppState(p_app) {
 
+    // shortcut
+    m_shortcut_manager = std::make_unique<ShortcutManager>(*this);
+
+    // panels
     m_asset_inspector = std::make_shared<AssetInspector>(*this);
     m_menu_bar = std::make_shared<MenuBar>(*this);
     m_viewer = std::make_shared<Viewer>(*this);
@@ -53,6 +59,10 @@ EditorState::EditorState(IApplication& p_app)
     AddPanel(m_asset_inspector);
     AddPanel(std::make_shared<RenderGraphViewer>(*this));
     AddPanel(m_file_system_panel);
+}
+
+EditorState::~EditorState() {
+    m_panels.clear();
 }
 
 void EditorState::OnEnter(const StateRequest& p_args) {
@@ -147,6 +157,10 @@ void EditorState::DockSpace() {
     });
 
     return;
+}
+
+const std::array<ShortcutDesc, kShortcutCount>& EditorState::GetShortcuts() const {
+    return m_shortcut_manager->GetShortcuts();
 }
 
 ////////////////////

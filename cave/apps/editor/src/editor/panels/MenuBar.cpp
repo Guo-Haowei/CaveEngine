@@ -5,6 +5,7 @@
 #include "engine/private/ui/layout.h"
 
 #include "editor/EditorState.h"
+#include "editor/shortcut/ShortcutManager.h"
 #include "editor/panels/LogPanel.h"
 #include "editor/widgets/Image.h"
 

@@ -21,7 +21,7 @@ bool Document::CanUndo() const {
 }
 
 bool Document::CanRedo() const {
-    return m_undo_stack->CanUndo();
+    return m_undo_stack->CanRedo();
 }
 
 void Document::Undo() {

@@ -1,5 +1,6 @@
 #include "ShortcutManager.h"
 
+#include "cave/runtime/input/KeyCode.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -150,6 +151,7 @@ void ShortcutManager::OnEvents(const std::vector<InputEvent>& p_events) {
             if (desc.alt)
                 if (!alt) continue;
 
+            // LOG_VERBOSE("ShortcutManager::OnEvents: shortcut '{}' fired", desc.shortcut);
             desc.execute_func();
             e.consumed = true;
             break;
