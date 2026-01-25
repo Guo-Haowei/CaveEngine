@@ -1,7 +1,7 @@
 #include "menu_bar.h"
 
 #include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/input_manager.h"
+#include "engine/runtime/framework/InputSystem.h"
 #include "engine/ui/layout.h"
 
 #include "editor/editor_state.h"

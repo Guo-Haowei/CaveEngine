@@ -1,6 +1,6 @@
-#include "pipeline_state_manager.h"
+#include "PipelineStateManager.h"
 
-#include "engine/runtime/graphics_manager_interface.h"
+#include "engine/runtime/framework/IGraphicsManager.h"
 #include "engine/renderer/pipeline_state_objects.h"
 #include "engine/render_graph/render_graph_defines.h"
 

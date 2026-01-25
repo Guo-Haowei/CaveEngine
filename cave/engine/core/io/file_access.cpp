@@ -1,7 +1,7 @@
 #include "file_access.h"
 
 #include "engine/core/string/string_utils.h"
-#include "engine/runtime/vfs.h"
+#include "engine/runtime/framework/VFS.h"
 
 namespace cave {
 

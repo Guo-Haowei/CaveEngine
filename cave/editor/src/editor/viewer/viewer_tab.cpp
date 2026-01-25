@@ -3,8 +3,8 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/input_manager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/runtime/framework/InputSystem.h"
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"

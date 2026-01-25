@@ -2,8 +2,8 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/runtime/application.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"

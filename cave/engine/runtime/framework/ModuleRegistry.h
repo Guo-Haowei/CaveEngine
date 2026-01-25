@@ -1,9 +1,14 @@
-#include "asset_manager_interface.h"
-#include "display_manager.h"
-#include "graphics_manager_interface.h"
-#include "physics_manager_interface.h"
-#include "scene_manager_interface.h"
-#include "script_manager.h"
+// =============================================================================
+// File: engine/runtime/framework/ModuleRegistry.h
+// =============================================================================
+#pragma once
+
+#include "engine/runtime/framework/IAssetManager.h"
+#include "engine/runtime/framework/DisplayManager.h"
+#include "engine/runtime/framework/IGraphicsManager.h"
+#include "engine/runtime/framework/IPhysicsManager.h"
+#include "engine/runtime/framework/ISceneManager.h"
+#include "engine/runtime/framework/ScriptManager.h"
 
 namespace cave {
 

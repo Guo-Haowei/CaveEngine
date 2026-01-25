@@ -11,9 +11,9 @@
 #include "engine/renderer/gpu_resource.h"
 #include "engine/renderer/graphics_private.h"
 #include "engine/renderer/sampler.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/display_manager.h"
-#include "engine/runtime/imgui_manager.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/DisplayManager.h"
+#include "engine/runtime/framework/ImGuiManager.h"
 #include "engine/scene/scene.h"
 
 // @TODO: remove the following

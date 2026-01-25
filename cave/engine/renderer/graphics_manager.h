@@ -6,8 +6,8 @@
 #include "engine/render_graph/render_graph.h"
 #include "engine/renderer/gpu_resource.h"
 #include "engine/renderer/pipeline_state.h"
-#include "engine/runtime/graphics_manager_interface.h"
-#include "engine/runtime/pipeline_state_manager.h"
+#include "engine/runtime/framework/IGraphicsManager.h"
+#include "engine/runtime/framework/PipelineStateManager.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"

@@ -1,13 +1,13 @@
 #pragma once
 #include "engine/core/dynamic_variable/dynamic_variable_manager.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/engine.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/Engine.h"
 
 #define DEFINE_DVAR
 #include "engine/renderer/graphics_dvars.h"
 #undef DEFINE_DVAR
 #define DEFINE_DVAR
-#include "engine/runtime/common_dvars.h"
+#include "engine/runtime/framework/CommonDvars.h"
 #undef DEFINE_DVAR
 
 namespace cave {
@@ -16,7 +16,7 @@ namespace cave {
 
 static void RegisterCommonDvars() {
 #define REGISTER_DVAR
-#include "engine/runtime/common_dvars.h"
+#include "engine/runtime/framework/CommonDvars.h"
 #undef REGISTER_DVAR
 }
 

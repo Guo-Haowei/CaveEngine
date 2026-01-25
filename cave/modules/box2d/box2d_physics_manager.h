@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/runtime/physics_manager_interface.h"
+#include "engine/runtime/framework/IPhysicsManager.h"
 
 namespace cave {
 

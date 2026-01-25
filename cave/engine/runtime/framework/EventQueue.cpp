@@ -1,4 +1,4 @@
-#include "event_queue.h"
+#include "EventQueue.h"
 
 namespace cave {
 

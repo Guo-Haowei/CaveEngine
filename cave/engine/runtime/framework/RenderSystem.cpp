@@ -1,4 +1,4 @@
-#include "render_system.h"
+#include "RenderSystem.h"
 
 #include "engine/core/base/random.h"
 #include "engine/debugger/profiler.h"
@@ -7,8 +7,8 @@
 #include "engine/renderer/frame_data.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/path_tracer_render_system.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/graphics_manager_interface.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/IGraphicsManager.h"
 #include "engine/scene/scene.h"
 
 namespace cave {

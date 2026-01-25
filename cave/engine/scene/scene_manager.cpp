@@ -6,9 +6,9 @@
 #include "engine/core/os/timer.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/common_dvars.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/runtime/framework/CommonDvars.h"
 #include "engine/scene/scene.h"
 
 namespace cave {

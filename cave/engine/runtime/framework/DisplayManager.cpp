@@ -1,8 +1,8 @@
-#include "display_manager.h"
+#include "DisplayManager.h"
 
 #include "engine/drivers/glfw/glfw_display_manager.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/common_dvars.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/CommonDvars.h"
 #include "engine/renderer/graphics_dvars.h"
 
 namespace cave {

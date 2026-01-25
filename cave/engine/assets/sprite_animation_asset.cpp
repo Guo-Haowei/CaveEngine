@@ -1,7 +1,7 @@
 #include "sprite_animation_asset.h"
 
 #include "engine/assets/image_asset.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "engine/serialization/yaml_include.h"
 
 namespace cave {

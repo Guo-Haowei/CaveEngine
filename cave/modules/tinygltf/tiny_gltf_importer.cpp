@@ -5,7 +5,7 @@
 #include "engine/assets/material_asset.h"
 #include "engine/assets/mesh_asset.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "engine/scene/entity_factory.h"
 
 #define TINYGLTF_IMPLEMENTATION

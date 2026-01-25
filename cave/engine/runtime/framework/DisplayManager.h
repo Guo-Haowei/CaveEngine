@@ -3,7 +3,7 @@
 
 #include "engine/core/base/singleton.h"
 #include "engine/renderer/graphics_defines.h"
-#include "engine/runtime/module.h"
+#include "engine/runtime/framework/Module.h"
 
 namespace cave {
 

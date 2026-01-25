@@ -3,9 +3,9 @@
 
 #include "engine/assets/blob_asset.h"
 #include "engine/assets/material_asset.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/graphics_manager_interface.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/runtime/framework/IGraphicsManager.h"
 
 namespace cave {
 

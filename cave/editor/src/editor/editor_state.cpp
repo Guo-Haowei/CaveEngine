@@ -1,9 +1,9 @@
 #include "editor_state.h"
 
 #include "engine/debugger/profiler.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/imgui_manager.h"
-#include "engine/runtime/viewport_manager.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/ImGuiManager.h"
+#include "engine/runtime/framework/ViewportManager.h"
 
 // @TODO: refactor
 #include <imgui/imgui_internal.h>
@@ -13,10 +13,10 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/input_manager.h"
-#include "engine/runtime/scene_manager_interface.h"
-#include "engine/runtime/script_manager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/runtime/framework/InputManager.h"
+#include "engine/runtime/framework/ISceneManager.h"
+#include "engine/runtime/framework/ScriptManager.h"
 #include "engine/ui/layout.h"
 
 #include "editor/document/document.h"

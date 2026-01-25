@@ -1,4 +1,4 @@
-#include "module_registry.h"
+#include "ModuleRegistry.h"
 
 #include "engine/assets/asset_manager.h"
 #include "engine/empty/empty_display_manager.h"

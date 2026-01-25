@@ -1,6 +1,6 @@
 #include "drag_drop.h"
 
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "editor/utility/content_entry.h"
 
 namespace cave {

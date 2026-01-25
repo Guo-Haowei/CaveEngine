@@ -1,7 +1,6 @@
-#include "viewport_manager.h"
+#include "ViewportManager.h"
 
-#include "engine/runtime/application.h"
-#include "engine/runtime/input_manager.h"
+#include "engine/runtime/framework/Application.h"
 
 namespace cave {
 

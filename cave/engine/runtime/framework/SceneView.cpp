@@ -1,4 +1,4 @@
-#include "scene_view.h"
+#include "SceneView.h"
 
 #include "engine/scene/camera_component.h"
 

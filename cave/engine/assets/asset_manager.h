@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/runtime/asset_manager_interface.h"
+#include "engine/runtime/framework/IAssetManager.h"
 
 namespace cave {
 

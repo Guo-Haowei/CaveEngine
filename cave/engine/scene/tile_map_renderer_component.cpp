@@ -4,7 +4,7 @@
 #include "engine/assets/tile_set_asset.h"
 #include "engine/renderer/gpu_resource.h"
 #include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

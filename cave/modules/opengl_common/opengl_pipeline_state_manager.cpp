@@ -4,7 +4,7 @@
 
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "opengl_helpers.h"
 
 namespace cave {

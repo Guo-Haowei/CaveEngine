@@ -6,8 +6,8 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/renderer/renderer.h"
-#include "engine/runtime/common_dvars.h"
-#include "engine/runtime/entry_point.h"
+#include "engine/runtime/framework/CommonDvars.h"
+#include "engine/runtime/framework/EntryPoint.h"
 #include "engine/runtime/layer.h"
 
 namespace cave {

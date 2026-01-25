@@ -3,8 +3,8 @@
 #include "engine/assets/image_asset.h"
 #include "engine/core/os/platform_io.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/runtime/asset_manager_interface.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/IAssetManager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 #include "editor/editor_state.h"
 

@@ -9,7 +9,7 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/reflection/meta_editor.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "engine/scene/entity_factory.h"
 
 #include "editor/editor_command.h"

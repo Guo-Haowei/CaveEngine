@@ -5,15 +5,15 @@
 
 #include "engine/debugger/profiler.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/common_dvars.h"
-#include "engine/runtime/input_manager.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/CommonDvars.h"
+#include "engine/runtime/framework/InputSystem.h"
 
 #include "engine/drivers/glfw/glfw_gamepad_device.h"
 #include "engine/drivers/glfw/glfw_keyboard_mouse_device.h"
 
 // @TODO: refactor
-#include "engine/runtime/imgui_manager.h"
+#include "engine/runtime/framework/ImGuiManager.h"
 
 #if USING(PLATFORM_WINDOWS)
 #define GLFW_EXPOSE_NATIVE_WIN32

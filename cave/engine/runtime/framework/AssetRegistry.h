@@ -3,7 +3,7 @@
 #include "engine/assets/asset_interface.h"
 #include "engine/assets/asset_handle.h"
 #include "engine/core/base/singleton.h"
-#include "engine/runtime/module.h"
+#include "engine/runtime/framework/Module.h"
 
 namespace cave {
 

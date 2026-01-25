@@ -5,8 +5,8 @@
 #include "engine/assets/material_asset.h"
 #include "engine/core/io/file_access.h"
 #include "engine/math/matrix_transform.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 #include "modules/sw/pbr_pipeline.h"
 #include "modules/sw/sw_renderer.h"

@@ -5,14 +5,14 @@
 #include "engine/core/os/timer.h"
 #include "engine/systems/job_system/job_system.h"
 #include "engine/math/geomath.h"
-#include "engine/runtime/engine.h"
+#include "engine/runtime/framework/Engine.h"
 #include "engine/math/color.h"
 #include "engine/math/vector.h"
 
 // @TODO: refactor
 #include "pbr.hlsl.h"
 #define EMPTY_APPLICATION
-#include "engine/runtime/entry_point.h"
+#include "engine/runtime/framework/EntryPoint.h"
 
 using namespace cave;
 

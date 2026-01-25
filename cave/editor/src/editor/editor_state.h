@@ -1,10 +1,10 @@
 #pragma once
-#include "engine/runtime/app_state.h"
+#include "engine/runtime/framework/AppState.h"
 
 // @TODO: check if all the includes are necessary
 #include "engine/assets/asset_handle.h"
 #include "engine/input/input_router.h"
-#include "engine/runtime/application.h"
+#include "engine/runtime/framework/Application.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_component.h"
 #include "editor/editor_window.h"

@@ -4,7 +4,7 @@
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
 #include "engine/input/raw_input_consumer_interface.h"
-#include "engine/runtime/scene_view.h"
+#include "engine/runtime/framework/SceneView.h"
 #include "engine/scene/camera_controller.h"
 
 #include "editor/enums.h"

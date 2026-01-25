@@ -2,7 +2,7 @@
 
 #include "engine/assets/blob_asset.h"
 #include "engine/core/io/archive.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

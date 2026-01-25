@@ -1,7 +1,7 @@
-#include "task_context.h"
+#include "TaskContext.h"
 
-#include "engine/runtime/task_manager.h"
-#include "engine/runtime/task_queue.h"
+#include "engine/runtime/framework/TaskManager.h"
+#include "engine/runtime/framework/TaskQueue.h"
 
 namespace cave {
 

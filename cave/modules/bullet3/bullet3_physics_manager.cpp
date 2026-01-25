@@ -2,9 +2,9 @@
 #include "bullet3_physics_manager.h"
 
 #include "engine/debugger/profiler.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/graphics_manager_interface.h"
-#include "engine/runtime/script_manager.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/IGraphicsManager.h"
+#include "engine/runtime/framework/ScriptManager.h"
 #include "engine/scene/scene.h"
 
 #pragma warning(push, 0)

@@ -7,7 +7,7 @@
 #include "engine/input/input_mapper.h"
 #include "engine/input/input_router.h"
 #include "engine/input/key_state.h"
-#include "engine/runtime/module.h"
+#include "engine/runtime/framework/Module.h"
 
 namespace cave {
 

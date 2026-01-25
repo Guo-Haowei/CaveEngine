@@ -2,7 +2,7 @@
 
 #include "asset_entry.h"
 
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

@@ -2,8 +2,8 @@
 #include "engine/core/base/noncopyable.h"
 #include "engine/core/os/timer.h"
 #include "engine/renderer/graphics_defines.h"
-#include "engine/runtime/event_queue.h"
-#include "engine/runtime/module.h"
+#include "engine/runtime/framework/EventQueue.h"
+#include "engine/runtime/framework/Module.h"
 
 namespace cave {
 

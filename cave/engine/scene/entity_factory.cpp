@@ -3,8 +3,8 @@
 #include "engine/assets/material_asset.h"
 #include "engine/math/geometry.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/asset_manager_interface.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/IAssetManager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

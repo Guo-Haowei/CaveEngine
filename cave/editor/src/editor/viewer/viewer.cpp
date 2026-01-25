@@ -5,8 +5,8 @@
 #include "engine/debugger/profiler.h"
 #include "engine/math/ray.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/display_manager.h"
-#include "engine/runtime/viewport_manager.h"
+#include "engine/runtime/framework/DisplayManager.h"
+#include "engine/runtime/framework/ViewportManager.h"
 
 #include "editor/document/document.h"
 #include "editor/editor_dvars.h"

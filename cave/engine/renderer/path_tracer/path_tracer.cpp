@@ -4,7 +4,7 @@
 
 #include "engine/assets/mesh_asset.h"
 #include "engine/core/os/timer.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/renderer/path_tracer/bvh_accel.h"
 #include "engine/scene/scene.h"

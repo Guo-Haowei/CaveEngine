@@ -11,14 +11,14 @@
 #include "engine/renderer/path_tracer_render_system.h"
 #include "engine/renderer/renderer_misc.h"
 #include "engine/renderer/sampler.h"
-#include "engine/runtime/display_manager.h"
+#include "engine/runtime/framework/DisplayManager.h"
 #include "render_graph_defines.h"
 #include "render_pass_builder.h"
 
 // @TODO: remove
 #include "engine/renderer/ltc_matrix.h"
-#include "engine/runtime/asset_manager_interface.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/IAssetManager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"

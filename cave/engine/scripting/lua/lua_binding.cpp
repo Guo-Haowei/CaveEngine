@@ -1,9 +1,9 @@
 #include "lua_binding.h"
 
 #include "engine/assets/blob_asset.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/display_manager.h"
-#include "engine/runtime/input_manager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/runtime/framework/DisplayManager.h"
+#include "engine/runtime/framework/InputSystem.h"
 #include "engine/math/vector.h"
 #include "engine/scene/scene.h"
 

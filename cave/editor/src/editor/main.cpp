@@ -1,9 +1,9 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/entry_point.h"
-#include "engine/runtime/runtime_state.h"
-#include "engine/runtime/scene_manager_interface.h"
+#include "engine/runtime/framework/EntryPoint.h"
+#include "engine/runtime/framework/RuntimeState.h"
+#include "engine/runtime/framework/ISceneManager.h"
 #include "engine/scripting/lua/lua_script_manager.h"
 
 #include "modules/box2d/box2d_physics_manager.h"

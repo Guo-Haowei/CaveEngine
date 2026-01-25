@@ -13,9 +13,9 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/renderer_misc.h"
 #include "engine/renderer/sampler.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/render_system.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/runtime/framework/RenderSystem.h"
 #include "engine/scene/scene.h"
 
 namespace cave {

@@ -4,9 +4,9 @@
 
 #include "engine/debugger/profiler.h"
 #include "engine/core/os/platform_io.h"
-#include "engine/runtime/asset_manager_interface.h"
-#include "engine/runtime/common_dvars.h"
-#include "engine/runtime/vfs.h"
+#include "engine/runtime/framework/IAssetManager.h"
+#include "engine/runtime/framework/CommonDvars.h"
+#include "engine/runtime/framework/VFS.h"
 
 #include "editor/editor_asset_manager.h"
 #include "editor/editor_state.h"

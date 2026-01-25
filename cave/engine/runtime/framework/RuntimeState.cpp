@@ -1,13 +1,14 @@
-#include "runtime_state.h"
+#include "RuntimeState.h"
 
 #include <imgui/imgui.h>
 
-#include "engine/runtime/application.h"
-#include "engine/runtime/graphics_manager_interface.h"
-#include "engine/runtime/imgui_manager.h"
-#include "engine/runtime/input_manager.h"
-#include "engine/runtime/script_manager.h"
-#include "engine/runtime/viewport_manager.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/IGraphicsManager.h"
+#include "engine/runtime/framework/ImGuiManager.h"
+#include "engine/runtime/framework/InputSystem.h"
+#include "engine/runtime/framework/ISceneManager.h"
+#include "engine/runtime/framework/ScriptManager.h"
+#include "engine/runtime/framework/ViewportManager.h"
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_manager.h"

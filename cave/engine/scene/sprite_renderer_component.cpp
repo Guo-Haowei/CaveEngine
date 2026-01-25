@@ -1,7 +1,7 @@
 #include "sprite_renderer_component.h"
 
 #include "engine/assets/image_asset.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

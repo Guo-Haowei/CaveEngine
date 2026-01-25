@@ -9,7 +9,7 @@
 #include "engine/renderer/gpu_resource.h"
 #include "engine/renderer/graphics_defines.h"
 #include "engine/renderer/render_command.h"
-#include "engine/runtime/scene_view.h"
+#include "engine/runtime/framework/SceneView.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"

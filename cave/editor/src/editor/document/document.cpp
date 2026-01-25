@@ -1,6 +1,6 @@
 #include "document.h"
 
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "editor/undo_redo/undo_stack.h"
 
 namespace cave {

@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/ecs/entity.h"
-#include "engine/runtime/module.h"
+#include "engine/runtime/framework/Module.h"
 
 namespace cave {
 

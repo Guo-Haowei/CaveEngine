@@ -7,8 +7,8 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/renderer/path_tracer_render_system.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/common_dvars.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/CommonDvars.h"
 #include "engine/scene/scene.h"
 
 #include "editor/editor_dvars.h"

@@ -5,8 +5,8 @@
 #include "engine/assets/mesh_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/asset_manager_interface.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/IAssetManager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 #include "engine/scene/entity_factory.h"
 
 namespace cave {

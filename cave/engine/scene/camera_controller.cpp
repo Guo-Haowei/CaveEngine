@@ -1,7 +1,6 @@
 #include "camera_controller.h"
 
 #include "engine/math/angle.h"
-#include "engine/runtime/input_manager.h"
 #include "engine/scene/scene.h"
 
 namespace cave {

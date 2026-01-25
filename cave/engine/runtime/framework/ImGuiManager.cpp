@@ -1,4 +1,4 @@
-#include "imgui_manager.h"
+#include "ImGuiManager.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui.h>
@@ -9,11 +9,11 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/input/key_code.h"
 #include "engine/input/input_types.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/asset_manager_interface.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/display_manager.h"
-#include "engine/runtime/vfs.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/IAssetManager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/runtime/framework/DisplayManager.h"
+#include "engine/runtime/framework/VFS.h"
 
 namespace cave {
 

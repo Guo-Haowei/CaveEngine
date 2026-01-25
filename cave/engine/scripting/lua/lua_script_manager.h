@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/assets/guid.h"
-#include "engine/runtime/script_manager.h"
+#include "engine/runtime/framework/ScriptManager.h"
 
 struct lua_State;
 

@@ -1,7 +1,7 @@
-#include "input_manager.h"
+#include "InputSystem.h"
 
-#include "engine/runtime/application.h"
-#include "engine/runtime/imgui_manager.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/ImGuiManager.h"
 
 namespace cave {
 

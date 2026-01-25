@@ -3,9 +3,9 @@
 #include "engine/assets/image_asset.h"
 #include "engine/core/string/string_utils.h"
 #include "engine/debugger/profiler.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/graphics_manager_interface.h"
-#include "engine/runtime/vfs.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/IGraphicsManager.h"
+#include "engine/runtime/framework/VFS.h"
 
 // @TODO: refactor
 #include "engine/drivers/windows/win32_prerequisites.h"

@@ -1,9 +1,9 @@
-#include "boot_load_pipeline.h"
+#include "BootLoadPipeline.h"
 
 #include "engine/algorithm/algorithm.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/runtime/asset_manager_interface.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/IAssetManager.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

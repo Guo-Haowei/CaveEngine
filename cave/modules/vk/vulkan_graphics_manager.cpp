@@ -2,8 +2,8 @@
 
 #include "engine/drivers/glfw/glfw_display_manager.h"
 #include "engine/empty/empty_pipeline_state_manager.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/imgui_manager.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/ImGuiManager.h"
 #include "vulkan_helpers.h"
 ///////
 #include "imgui/backends/imgui_impl_glfw.h"

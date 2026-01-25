@@ -4,7 +4,7 @@
 
 #include "engine/assets/image_asset.h"
 #include "engine/debugger/profiler.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/runtime/framework/AssetRegistry.h"
 
 #include "editor/editor_asset_manager.h"
 #include "editor/editor_state.h"

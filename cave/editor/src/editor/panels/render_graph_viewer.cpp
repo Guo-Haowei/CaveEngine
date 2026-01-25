@@ -5,7 +5,7 @@
 #include "engine/debugger/profiler.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/render_graph/render_graph.h"
-#include "engine/runtime/application.h"
+#include "engine/runtime/framework/Application.h"
 
 #include "editor/editor_state.h"
 

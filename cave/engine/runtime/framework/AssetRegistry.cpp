@@ -1,10 +1,10 @@
-#include "asset_registry.h"
+#include "AssetRegistry.h"
 
 #include <fstream>
 #include <latch>
 
-#include "engine/runtime/application.h"
-#include "engine/runtime/asset_manager_interface.h"
+#include "engine/runtime/framework/Application.h"
+#include "engine/runtime/framework/IAssetManager.h"
 
 namespace cave {
 

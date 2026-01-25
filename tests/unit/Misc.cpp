@@ -1,3 +1,3 @@
 // @TODO: get rid of this file
 #define EMPTY_APPLICATION
-#include "engine/runtime/entry_point.h"
+#include "engine/runtime/framework/EntryPoint.h"

@@ -5,9 +5,9 @@
 
 #include "engine/core/os/platform_io.h"
 #include "engine/core/string/string_utils.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/runtime/common_dvars.h"
-#include "engine/runtime/scene_manager_interface.h"
+#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/runtime/framework/CommonDvars.h"
+#include "engine/runtime/framework/ISceneManager.h"
 #include "engine/scene/entity_factory.h"
 
 namespace cave {
