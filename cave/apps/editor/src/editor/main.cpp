@@ -1,9 +1,8 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/drivers/glfw/glfw_display_manager.h"
-// #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/framework/EntryPoint.h"
-#include "engine/runtime/framework/RuntimeState.h"
 #include "engine/runtime/framework/ISceneManager.h"
+#include "engine/runtime/gameplay/GameRuntimeState.h"
 #include "engine/scripting/lua/lua_script_manager.h"
 
 #include "modules/box2d/box2d_physics_manager.h"
@@ -57,8 +56,8 @@ public:
             return std::unique_ptr<AppState>(std::move(state));
         });
 
-        AppStateMachine::RegisterCreateFunc(AppStateId::Runtime, [](Application& p_app) {
-            auto state = std::make_unique<RuntimeState>(p_app);
+        AppStateMachine::RegisterCreateFunc(AppStateId::GameRuntime, [](Application& p_app) {
+            auto state = std::make_unique<GameRuntimeState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 

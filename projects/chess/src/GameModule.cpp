@@ -1,8 +1,8 @@
-#include <cave/api/GameModule.h>
+#include "cave/api/GameModule.h"
 
 namespace cave::chess {
 
-static void RegisterGame(Application& p_app, const GameLoadArgs& p_args) {
+static void RegisterGame(GameRuntimeState& p_app, const GameLoadArgs& p_args) {
     // Register chess app states
     // app.GetStateMachine().RegisterState<ChessPlayState>();
 

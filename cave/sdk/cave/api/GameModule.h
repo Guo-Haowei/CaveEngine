@@ -5,7 +5,7 @@
 
 namespace cave {
 
-class Application;
+class GameRuntimeState;
 
 enum class HostKind : uint32_t {
     Editor = 0,
@@ -23,7 +23,7 @@ constexpr uint32_t CAVE_GAME_MODULE_API_VERSION = 1;
 struct GameModuleApi {
     uint32_t version;
     const char* module_name;
-    void (*RegisterGame)(Application& p_app, const GameLoadArgs& p_args);
+    void (*RegisterGame)(GameRuntimeState& p_game, const GameLoadArgs& p_args);
 };
 
 }  // namespace cave

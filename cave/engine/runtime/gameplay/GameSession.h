@@ -2,9 +2,9 @@
 // File: engine/runtime/gameplay/GameSession.h
 // =============================================================================
 #pragma once
-#include "engine/runtime/gameplay/IGameMode.h"
-#include "engine/runtime/gameplay/IPlayerAgent.h"
-#include "engine/runtime/gameplay/GameModeFactory.h"
+#include "IGameMode.h"
+#include "IPlayerAgent.h"
+#include "GameModeFactory.h"
 
 namespace cave {
 

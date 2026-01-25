@@ -33,7 +33,7 @@ static void LogLoadError(const char* p_dll_path) {
 #endif
 }
 
-bool TryLoadGameModule(const char* p_dll_path, LoadedGameModule& p_out_module) {
+bool LoadGameModule(const char* p_dll_path, LoadedGameModule& p_out_module) {
     p_out_module = {};
 
     if (StringUtils::IsNullOrEmpty(p_dll_path)) {
@@ -64,28 +64,30 @@ bool TryLoadGameModule(const char* p_dll_path, LoadedGameModule& p_out_module) {
     auto* get_api_symbol_fn = reinterpret_cast<GetApiFn>(LoadSymbol(p_out_module.handle, "Cave_GetGameModuleApi"));
 
     if (!get_api_symbol_fn) {
-        LOG_ERROR("game module '{}' missing export: Cave_GetGameModuleApi", p_dll_path);
+        LOG_ERROR("LoadGameModule: '{}' missing export: Cave_GetGameModuleApi", p_dll_path);
         UnloadGameModule(p_out_module);
         return false;
     }
 
     const GameModuleApi* api = get_api_symbol_fn();
     if (!api) {
-        LOG_ERROR("game module '{}' returned null GameModuleApi", p_dll_path);
+        LOG_ERROR("LoadGameModule: '{}' returned null GameModuleApi", p_dll_path);
         UnloadGameModule(p_out_module);
         return false;
     }
 
     if (api->version != CAVE_GAME_MODULE_API_VERSION) {
-        LOG_ERROR("game module '{}' api version mismatch (expected {}, got {})",
-                  p_dll_path, CAVE_GAME_MODULE_API_VERSION, api->version);
+        LOG_ERROR("LoadGameModule: '{}' api version mismatch (expected {}, got {})",
+                  p_dll_path,
+                  CAVE_GAME_MODULE_API_VERSION,
+                  api->version);
         UnloadGameModule(p_out_module);
         return false;
     }
 
     p_out_module.api = api;
 
-    LOG_OK("game module loaded: {}", !StringUtils::IsNullOrEmpty(api->module_name) ? api->module_name : "<unnamed>");
+    LOG_OK("LoadGameModule: module loaded: {}", !StringUtils::IsNullOrEmpty(api->module_name) ? api->module_name : "<unnamed>");
     return true;
 }
 

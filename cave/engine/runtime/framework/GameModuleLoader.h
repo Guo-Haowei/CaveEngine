@@ -11,7 +11,7 @@ struct LoadedGameModule {
     const GameModuleApi* api = nullptr;
 };
 
-bool TryLoadGameModule(const char* p_dll_path, LoadedGameModule& p_out_module);
+bool LoadGameModule(const char* p_dll_path, LoadedGameModule& p_out_module);
 void UnloadGameModule(LoadedGameModule& p_module);
 
 }  // namespace cave

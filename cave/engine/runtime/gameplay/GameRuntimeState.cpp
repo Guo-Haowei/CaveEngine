@@ -1,4 +1,7 @@
-#include "RuntimeState.h"
+// =============================================================================
+// File: engine/runtime/gameplay/GameRuntimeState.cpp
+// =============================================================================
+#include "GameRuntimeState.h"
 
 #include <imgui/imgui.h>
 
@@ -9,6 +12,8 @@
 #include "engine/runtime/framework/ISceneManager.h"
 #include "engine/runtime/framework/ScriptManager.h"
 #include "engine/runtime/framework/ViewportManager.h"
+
+// @TODO: refactor
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/scene/scene.h"
 #include "engine/scene/scene_manager.h"
@@ -73,12 +78,16 @@ private:
     Application& m_app;
 };
 
-RuntimeState::RuntimeState(Application& p_app)
+GameRuntimeState::GameRuntimeState(Application& p_app)
     : AppState(p_app) {
 }
 
-void RuntimeState::OnEnter(const StateRequest& p_args) {
+void GameRuntimeState::OnEnter(const StateRequest& p_args) {
     unused(p_args);
+
+    // @TODO: refacotr
+    const char* module_name = "game_Debug.dll";
+    LoadGameModule(module_name, m_module);
 
     std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
     std::shared_ptr<Scene> sim_scene = std::make_shared<Scene>();
@@ -91,14 +100,18 @@ void RuntimeState::OnEnter(const StateRequest& p_args) {
     m_app.GetViewportManager()->CreateViewport(std::shared_ptr<ISceneViewProvider>(new RuntimeSceneViewProvider(m_app)));
 }
 
-void RuntimeState::OnExit() {
+void GameRuntimeState::OnExit() {
     m_app.GetViewportManager()->ClearViewport();
 
     m_app.GetScriptManager()->OnSimEnd();
     m_app.GetSceneManager()->CloseSimScene();
+
+    UnloadGameModule(m_module);
 }
 
-void RuntimeState::Tick(float p_timestep) {
+void GameRuntimeState::Tick(float p_timestep) {
+    // @TODO: tick game?
+
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
@@ -123,7 +136,7 @@ void RuntimeState::Tick(float p_timestep) {
     // }
 }
 
-Option<StateRequest> RuntimeState::PopRequest() {
+Option<StateRequest> GameRuntimeState::PopRequest() {
     auto request = m_request;
     m_request = None();
     return request;

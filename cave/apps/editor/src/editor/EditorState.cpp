@@ -218,7 +218,7 @@ Option<StateRequest> EditorState::PopRequest() {
 }
 
 void EditorState::RequestGamePlay() {
-    m_request = Some(StateRequest{ AppStateId::Runtime });
+    m_request = Some(StateRequest{ AppStateId::GameRuntime });
 }
 
 void EditorState::AddPanel(std::shared_ptr<EditorItem> p_panel) {

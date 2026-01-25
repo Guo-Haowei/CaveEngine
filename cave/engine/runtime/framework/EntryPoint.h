@@ -2,7 +2,6 @@
 #include "engine/core/dynamic_variable/dynamic_variable_manager.h"
 #include "engine/runtime/framework/Application.h"
 #include "engine/runtime/framework/Engine.h"
-#include "engine/runtime/framework/GameModuleLoader.h"
 
 #define DEFINE_DVAR
 #include "engine/runtime/framework/CommonDvars.h"
@@ -61,15 +60,11 @@ static auto SaveCommandLine(int p_argc, const char** p_argv) {
 }
 
 int Main(int p_argc, const char** p_argv) {
-    LoadedGameModule game_module{};
-
     engine::InitializeCore();
-    TryLoadGameModule("game_Debug.dll", game_module);
     INITIALIZE_DVARS(SaveCommandLine(p_argc, p_argv));
 
     ON_SCOPE_EXIT([&]() {
         FINALIZE_DVARS();
-        UnloadGameModule(game_module);
         engine::FinalizeCore();
     });
 
