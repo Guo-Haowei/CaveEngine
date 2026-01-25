@@ -6,8 +6,7 @@
 namespace cave {
 
 void PrintImpl(LogLevel p_level, const std::string& p_message) {
-    OS* os = OS::GetSingletonPtr();
-    if (os) [[likely]] {
+    if (OS* os = OS::GetSingletonPtr()) [[likely]] {
         os->Print(p_level, p_message);
     } else {
         StdLogger logger;

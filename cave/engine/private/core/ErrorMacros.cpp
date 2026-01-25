@@ -51,7 +51,7 @@ void ReportErrorImpl(std::string_view p_function,
                                p_function,
                                p_file,
                                p_line);
-    if (auto os = OS::GetSingletonPtr(); os) {
+    if (auto os = OS::GetSingletonPtr()) {
         os->Print(LOG_LEVEL_ERROR, message);
     } else {
         fprintf(stdout, "%s", message.c_str());
