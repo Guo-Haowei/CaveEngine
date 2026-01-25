@@ -1,7 +1,7 @@
 #pragma once
 #include "sw_renderer.h"
 
-#include "engine/math/geomath.h"
+#include "engine/private/math/geomath.h"
 
 namespace cave {
 

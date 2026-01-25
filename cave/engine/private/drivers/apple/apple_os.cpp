@@ -1,8 +1,8 @@
 #include <unistd.h>
 
-#include "engine/core/io/ansi_logger.h"
-#include "engine/core/io/file_access_unix.h"
-#include "engine/core/os/os.h"
+#include "engine/private/core/io/ansi_logger.h"
+#include "engine/private/core/io/file_access_unix.h"
+#include "engine/private/core/os/os.h"
 
 namespace cave {
 

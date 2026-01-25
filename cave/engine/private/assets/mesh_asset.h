@@ -1,8 +1,8 @@
 #pragma once
-#include "engine/assets/asset_handle.h"
-#include "engine/ecs/entity.h"
-#include "engine/math/aabb.h"
-#include "engine/math/geomath.h"
+#include "engine/private/assets/asset_handle.h"
+#include "engine/private/ecs/entity.h"
+#include "engine/private/math/aabb.h"
+#include "engine/private/math/geomath.h"
 
 namespace cave {
 

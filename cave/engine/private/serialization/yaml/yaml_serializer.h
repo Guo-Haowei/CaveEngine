@@ -1,9 +1,9 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 
-#include "engine/serialization/serializer.h"
+#include "engine/private/serialization/serializer.h"
 
-#include "engine/core/io/file_access.h"
+#include "engine/private/core/io/file_access.h"
 
 namespace cave {
 

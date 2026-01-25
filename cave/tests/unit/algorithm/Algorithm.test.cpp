@@ -1,4 +1,4 @@
-#include <engine/algorithm/algorithm.h>
+#include <engine/private/algorithm/algorithm.h>
 
 namespace cave {
 

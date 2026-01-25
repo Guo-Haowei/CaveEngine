@@ -20,5 +20,5 @@ set_target_properties(${TARGET_NAME} PROPERTIES FOLDER modules)
 
 target_set_warning_level(${TARGET_NAME})
 
-target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/pch.h)
+target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/private/pch.h)
 

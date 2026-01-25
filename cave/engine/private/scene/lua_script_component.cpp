@@ -1,8 +1,8 @@
 #include "lua_script_component.h"
 
-#include "engine/assets/blob_asset.h"
-#include "engine/core/io/archive.h"
-#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/private/assets/blob_asset.h"
+#include "engine/private/core/io/archive.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

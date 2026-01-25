@@ -1,9 +1,9 @@
 #include "vulkan_graphics_manager.h"
 
-#include "engine/drivers/glfw/glfw_display_manager.h"
-#include "engine/empty/empty_pipeline_state_manager.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/ImGuiManager.h"
+#include "engine/private/drivers/glfw/glfw_display_manager.h"
+#include "engine/private/empty/empty_pipeline_state_manager.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
 #include "vulkan_helpers.h"
 ///////
 #include "imgui/backends/imgui_impl_glfw.h"
@@ -217,7 +217,7 @@ auto VulkanGraphicsManager::CreateDescriptorPool() -> Result<void> {
 }
 
 // All the ImGui_ImplVulkanH_XXX structures/functions are optional helpers used by the demo.
-// Your real engine/app may not use them.
+// Your real engine/private/app may not use them.
 void SetupVulkanWindow(ImGui_ImplVulkanH_Window* wd, VkSurfaceKHR surface, int width, int height) {
     wd->Surface = surface;
 

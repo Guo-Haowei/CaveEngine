@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/runtime/framework/Module.h"
+#include "engine/private/runtime/framework/Module.h"
 
 enum ImGuiKey : int;
 

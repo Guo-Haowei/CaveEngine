@@ -1,9 +1,9 @@
 #include "TaskManager.h"
 
-#include "engine/core/os/threads.h"
-#include "engine/runtime/framework/IAsyncTask.h"
-#include "engine/runtime/framework/TaskContext.h"
-#include "engine/runtime/framework/TaskQueue.h"
+#include "engine/private/core/os/threads.h"
+#include "engine/private/runtime/framework/IAsyncTask.h"
+#include "engine/private/runtime/framework/TaskContext.h"
+#include "engine/private/runtime/framework/TaskQueue.h"
 
 namespace cave {
 

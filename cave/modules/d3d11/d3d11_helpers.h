@@ -6,7 +6,7 @@
 
 #include <d3d11.h>
 
-#include "engine/renderer/gpu_resource.h"
+#include "engine/private/renderer/gpu_resource.h"
 
 namespace cave::d3d {
 

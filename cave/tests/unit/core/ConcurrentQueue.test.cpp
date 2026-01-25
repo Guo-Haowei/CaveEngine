@@ -1,4 +1,4 @@
-#include "engine/core/base/concurrent_queue.h"
+#include "engine/private/core/base/concurrent_queue.h"
 
 namespace cave {
 

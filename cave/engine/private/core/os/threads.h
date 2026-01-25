@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/systems/job_system/job_system.h"
+#include "engine/private/systems/job_system/job_system.h"
 
 namespace cave::thread {
 

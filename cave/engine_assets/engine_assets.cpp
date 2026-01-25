@@ -1,11 +1,11 @@
 #include "default_textures.h"
 #include "primitive_meshes.h"
 
-#include "engine/assets/blob_asset.h"
-#include "engine/assets/material_asset.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/IGraphicsManager.h"
+#include "engine/private/assets/blob_asset.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/IGraphicsManager.h"
 
 namespace cave {
 

@@ -1,6 +1,6 @@
-#include "engine/core/io/print.h"
+#include "engine/private/core/io/print.h"
 
-#include "engine/core/os/os.h"
+#include "engine/private/core/os/os.h"
 
 namespace cave {
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/runtime/framework/EventQueue.h"
-#include "engine/runtime/framework/Module.h"
+#include "engine/private/runtime/framework/EventQueue.h"
+#include "engine/private/runtime/framework/Module.h"
 
 // @TODO: refactor
 struct MaterialConstantBuffer;

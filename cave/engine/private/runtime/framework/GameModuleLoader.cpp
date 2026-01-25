@@ -1,9 +1,9 @@
 // =============================================================================
-// File: engine/runtime/framework/GameModuleLoader.cpp
+// File: engine/private/runtime/framework/GameModuleLoader.cpp
 // =============================================================================
 #include "GameModuleLoader.h"
 
-#include "engine/core/string/string_utils.h"
+#include "engine/private/core/string/string_utils.h"
 
 // @TODO: hide platform specific code from loader
 #if USING(PLATFORM_WINDOWS)

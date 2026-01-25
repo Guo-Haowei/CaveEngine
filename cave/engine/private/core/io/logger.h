@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/core/base/singleton.h"
-#include "engine/core/io/print.h"
+#include "engine/private/core/base/singleton.h"
+#include "engine/private/core/io/print.h"
 
 namespace cave {
 // WORD is flags of FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE

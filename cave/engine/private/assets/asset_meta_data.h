@@ -1,9 +1,9 @@
 #pragma once
 #include <chrono>
 
-#include "engine/assets/asset_type.h"
-#include "engine/assets/guid.h"
-#include "engine/reflection/meta.h"
+#include "engine/private/assets/asset_type.h"
+#include "engine/private/assets/guid.h"
+#include "engine/private/reflection/meta.h"
 
 namespace cave {
 

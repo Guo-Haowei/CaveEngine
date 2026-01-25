@@ -1,9 +1,9 @@
 #pragma once
-#include "engine/assets/asset_entry.h"
-#include "engine/assets/asset_interface.h"
-#include "engine/assets/asset_handle.h"
-#include "engine/core/base/singleton.h"
-#include "engine/runtime/framework/Module.h"
+#include "engine/private/assets/asset_entry.h"
+#include "engine/private/assets/asset_interface.h"
+#include "engine/private/assets/asset_handle.h"
+#include "engine/private/core/base/singleton.h"
+#include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
 

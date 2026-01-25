@@ -37,7 +37,7 @@
 #define _freea(x)
 #endif
 
-#include "engine/math/geomath.h"
+#include "engine/private/math/geomath.h"
 
 // includes patches for multiview from
 // https://github.com/CedricGuillemet/ImGuizmo/issues/15

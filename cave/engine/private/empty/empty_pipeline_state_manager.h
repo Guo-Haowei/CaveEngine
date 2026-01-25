@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/runtime/framework/PipelineStateManager.h"
+#include "engine/private/runtime/framework/PipelineStateManager.h"
 
 namespace cave {
 

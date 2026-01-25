@@ -1,13 +1,13 @@
 #pragma once
-#include "engine/core/dynamic_variable/dynamic_variable_manager.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/Engine.h"
+#include "engine/private/core/dynamic_variable/dynamic_variable_manager.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/Engine.h"
 
 #define DEFINE_DVAR
-#include "engine/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
 #undef DEFINE_DVAR
 #define DEFINE_DVAR
-#include "engine/renderer/graphics_dvars.h"
+#include "engine/private/renderer/graphics_dvars.h"
 #undef DEFINE_DVAR
 
 namespace cave {
@@ -20,10 +20,10 @@ extern void RegisterExtraDvars();
 static void InitializeDvars(const std::vector<std::string>& p_commands) {
     // 1) Register dvars
 #define REGISTER_DVAR
-#include "engine/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
 #undef REGISTER_DVAR
 #define REGISTER_DVAR
-#include "engine/renderer/graphics_dvars.h"
+#include "engine/private/renderer/graphics_dvars.h"
 #undef REGISTER_DVAR
     RegisterExtraDvars();
 

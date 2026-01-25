@@ -1,4 +1,4 @@
-#include "engine/core/base/intrusive_list.h"
+#include "engine/private/core/base/intrusive_list.h"
 
 namespace cave {
 

@@ -1,13 +1,13 @@
 #include "scene_importer.h"
 
-#include "engine/assets/image_asset.h"
-#include "engine/assets/material_asset.h"
-#include "engine/assets/mesh_asset.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/framework/IAssetManager.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/scene/entity_factory.h"
 
 namespace cave {
 

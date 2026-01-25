@@ -1,7 +1,7 @@
 #include "camera_controller.h"
 
-#include "engine/math/angle.h"
-#include "engine/scene/scene.h"
+#include "engine/private/math/angle.h"
+#include "engine/private/scene/scene.h"
 
 namespace cave {
 

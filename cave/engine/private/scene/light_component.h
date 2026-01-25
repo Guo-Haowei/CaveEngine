@@ -1,7 +1,7 @@
 #pragma once
-#include "engine/assets/asset_handle.h"
-#include "engine/math/aabb.h"
-#include "engine/reflection/reflection.h"
+#include "engine/private/assets/asset_handle.h"
+#include "engine/private/math/aabb.h"
+#include "engine/private/reflection/reflection.h"
 
 namespace cave {
 

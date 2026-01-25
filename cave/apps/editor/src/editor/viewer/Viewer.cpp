@@ -2,17 +2,17 @@
 
 #include <imgui/imgui_internal.h>
 
-#include "engine/debugger/profiler.h"
-#include "engine/math/ray.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/framework/DisplayManager.h"
-#include "engine/runtime/framework/ViewportManager.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/math/ray.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/ViewportManager.h"
 
 #include "editor/document/document.h"
 #include "editor/EditorDvars.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"
-#include "engine/ui/layout.h"
+#include "engine/private/ui/layout.h"
 
 // asset editors
 #include "editor/animation_editor/SpriteAnimationEditor.h"

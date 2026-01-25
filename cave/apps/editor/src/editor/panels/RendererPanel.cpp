@@ -2,14 +2,14 @@
 
 #include <imgui/imgui_internal.h>
 
-#include "engine/debugger/profiler.h"
-#include "engine/render_graph/render_graph_defines.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/renderer/graphics_manager.h"
-#include "engine/renderer/path_tracer_render_system.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/CommonDvars.h"
-#include "engine/scene/scene.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/renderer/path_tracer_render_system.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/scene/scene.h"
 
 #include "editor/EditorDvars.h"
 #include "editor/EditorState.h"

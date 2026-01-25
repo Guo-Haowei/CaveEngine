@@ -1,9 +1,9 @@
 #include "scene_component.h"
 
-#include "engine/core/io/archive.h"
-#include "engine/math/matrix_transform.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/IGraphicsManager.h"
+#include "engine/private/core/io/archive.h"
+#include "engine/private/math/matrix_transform.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/IGraphicsManager.h"
 
 namespace cave {
 

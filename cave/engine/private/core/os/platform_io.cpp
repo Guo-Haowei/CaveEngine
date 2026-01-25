@@ -1,9 +1,9 @@
 #include "platform_io.h"
 
-#include "engine/core/string/string_utils.h"
+#include "engine/private/core/string/string_utils.h"
 
 #if USING(PLATFORM_WINDOWS)
-#include "engine/drivers/windows/win32_prerequisites.h"
+#include "engine/private/drivers/windows/win32_prerequisites.h"
 #include <shellapi.h>
 #endif
 

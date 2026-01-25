@@ -1,10 +1,10 @@
-#include "engine/debugger/profiler.h"
-#include "engine/render_graph/render_graph.h"
-#include "engine/render_graph/render_graph_builder.h"
-#include "engine/renderer/frame_data.h"
-#include "engine/renderer/graphics_manager.h"
-#include "engine/renderer/pipeline_state.h"
-#include "engine/scene/scene_component.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/render_graph/render_graph.h"
+#include "engine/private/render_graph/render_graph_builder.h"
+#include "engine/private/renderer/frame_data.h"
+#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/renderer/pipeline_state.h"
+#include "engine/private/scene/scene_component.h"
 #include "render_graph_predefined.h"
 
 namespace cave {

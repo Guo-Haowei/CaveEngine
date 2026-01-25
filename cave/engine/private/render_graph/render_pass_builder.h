@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/renderer/sampler.h"
+#include "engine/private/renderer/sampler.h"
 #include "render_pass.h"
 
 // clang-format off

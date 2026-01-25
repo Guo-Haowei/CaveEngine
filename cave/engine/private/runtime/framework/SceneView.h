@@ -1,9 +1,9 @@
 #pragma once
 #include <bitset>
 
-#include "engine/math/angle.h"
-#include "engine/math/geomath.h"
-#include "engine/input/key_code.h"
+#include "engine/private/math/angle.h"
+#include "engine/private/math/geomath.h"
+#include "engine/private/input/key_code.h"
 
 namespace cave {
 

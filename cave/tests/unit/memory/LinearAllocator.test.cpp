@@ -1,4 +1,4 @@
-#include "engine/memory/linear_allocator.h"
+#include "engine/private/memory/linear_allocator.h"
 
 namespace cave::memory {
 

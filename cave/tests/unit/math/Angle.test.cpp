@@ -1,4 +1,4 @@
-#include "engine/math/angle.h"
+#include "engine/private/math/angle.h"
 
 namespace cave {
 

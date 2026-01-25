@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/core/base/intrusive_list.h"
+#include "engine/private/core/base/intrusive_list.h"
 #include "error.h"
 
 namespace cave {

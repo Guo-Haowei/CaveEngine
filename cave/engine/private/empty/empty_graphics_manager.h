@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/renderer/graphics_defines.h"
-#include "engine/runtime/framework/IGraphicsManager.h"
+#include "engine/private/renderer/graphics_defines.h"
+#include "engine/private/runtime/framework/IGraphicsManager.h"
 
 namespace cave {
 

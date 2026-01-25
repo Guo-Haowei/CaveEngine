@@ -2,9 +2,9 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/scene/entity_factory.h"
 
 #include "editor/document/document.h"
 #include "editor/EditorState.h"

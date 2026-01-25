@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/math/detail/common.h"
+#include "engine/private/math/detail/common.h"
 
 namespace cave {
 

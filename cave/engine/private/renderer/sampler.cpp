@@ -1,6 +1,6 @@
 #include "sampler.h"
 
-#include "engine/render_graph/render_graph_defines.h"
+#include "engine/private/render_graph/render_graph_defines.h"
 
 namespace cave {
 

@@ -1,6 +1,6 @@
 #include "error.h"
 
-#include "engine/core/string/string_builder.h"
+#include "engine/private/core/string/string_builder.h"
 
 namespace cave {
 

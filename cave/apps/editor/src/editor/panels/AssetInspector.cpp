@@ -2,9 +2,9 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "engine/assets/image_asset.h"
-#include "engine/debugger/profiler.h"
-#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
@@ -14,7 +14,7 @@
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"
-#include "engine/ui/layout.h"
+#include "engine/private/ui/layout.h"
 
 namespace cave {
 

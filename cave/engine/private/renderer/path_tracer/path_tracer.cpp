@@ -2,12 +2,12 @@
 
 #include <algorithm>
 
-#include "engine/assets/mesh_asset.h"
-#include "engine/core/os/timer.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/renderer/graphics_manager.h"
-#include "engine/renderer/path_tracer/bvh_accel.h"
-#include "engine/scene/scene.h"
+#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/core/os/timer.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/renderer/path_tracer/bvh_accel.h"
+#include "engine/private/scene/scene.h"
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"

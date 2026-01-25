@@ -1,14 +1,14 @@
 #include "EditorAssetManager.h"
 
-#include "engine/assets/image_asset.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/debugger/profiler.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/IGraphicsManager.h"
-#include "engine/runtime/framework/VFS.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/VFS.h"
 
 // @TODO: refactor
-#include "engine/drivers/windows/win32_prerequisites.h"
+#include "engine/private/drivers/windows/win32_prerequisites.h"
 
 #include "editor/utility/ContentEntry.h"
 

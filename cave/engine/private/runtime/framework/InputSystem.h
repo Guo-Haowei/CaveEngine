@@ -1,13 +1,13 @@
 #pragma once
-#include "engine/core/base/singleton.h"
-#include "engine/input/action_state.h"
-#include "engine/input/axis_state.h"
-#include "engine/input/input_action_map.h"
-#include "engine/input/input_device_interface.h"
-#include "engine/input/input_mapper.h"
-#include "engine/input/input_router.h"
-#include "engine/input/key_state.h"
-#include "engine/runtime/framework/Module.h"
+#include "engine/private/core/base/singleton.h"
+#include "engine/private/input/action_state.h"
+#include "engine/private/input/axis_state.h"
+#include "engine/private/input/input_action_map.h"
+#include "engine/private/input/input_device_interface.h"
+#include "engine/private/input/input_mapper.h"
+#include "engine/private/input/input_router.h"
+#include "engine/private/input/key_state.h"
+#include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
 

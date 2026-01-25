@@ -1,7 +1,7 @@
 #include "LogPanel.h"
 
-#include "engine/debugger/profiler.h"
-#include "engine/math/color.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/math/color.h"
 
 #include "editor/widgets/Image.h"
 

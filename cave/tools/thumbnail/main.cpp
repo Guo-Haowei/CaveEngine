@@ -1,7 +1,7 @@
-#include "engine/core/string/string_utils.h"
-#include "engine/empty/empty_display_manager.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/EntryPoint.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/empty/empty_display_manager.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/EntryPoint.h"
 
 #include "modules/sw/sw_renderer.h"
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/ecs/entity.h"
-#include "engine/math/geomath.h"
+#include "engine/private/ecs/entity.h"
+#include "engine/private/math/geomath.h"
 
 namespace cave {
 

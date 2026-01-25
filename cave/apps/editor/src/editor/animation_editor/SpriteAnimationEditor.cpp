@@ -2,17 +2,17 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "engine/assets/image_asset.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/scene/entity_factory.h"
 
 #include "editor/document/document.h"
 #include "editor/EditorState.h"
 #include "editor/EditorSceneManager.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
-#include "engine/ui/inputs.h"
-#include "engine/ui/layout.h"
+#include "engine/private/ui/inputs.h"
+#include "engine/private/ui/layout.h"
 #include "editor/viewer/Viewer.h"
 #include "editor/utility/ImGuizmo.h"
 

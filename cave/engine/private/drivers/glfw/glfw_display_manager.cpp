@@ -3,17 +3,17 @@
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
-#include "engine/debugger/profiler.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/CommonDvars.h"
-#include "engine/runtime/framework/InputSystem.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/InputSystem.h"
 
-#include "engine/drivers/glfw/glfw_gamepad_device.h"
-#include "engine/drivers/glfw/glfw_keyboard_mouse_device.h"
+#include "engine/private/drivers/glfw/glfw_gamepad_device.h"
+#include "engine/private/drivers/glfw/glfw_keyboard_mouse_device.h"
 
 // @TODO: refactor
-#include "engine/runtime/framework/ImGuiManager.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
 
 #if USING(PLATFORM_WINDOWS)
 #define GLFW_EXPOSE_NATIVE_WIN32

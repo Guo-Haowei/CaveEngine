@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/renderer/pipeline_state.h"
+#include "engine/private/renderer/pipeline_state.h"
 
 namespace cave {
 

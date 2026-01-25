@@ -1,11 +1,11 @@
 #include "ViewerTab.h"
 
-#include "engine/core/string/string_utils.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/InputSystem.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/scene/entity_factory.h"
 
 #include "editor/document/document.h"
 #include "editor/EditorState.h"

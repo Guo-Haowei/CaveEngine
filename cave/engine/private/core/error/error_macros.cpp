@@ -1,7 +1,7 @@
 #include "error_macros.h"
 
-#include "engine/core/os/os.h"
-#include "engine/drivers/windows/win32_prerequisites.h"
+#include "engine/private/core/os/os.h"
+#include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {
 

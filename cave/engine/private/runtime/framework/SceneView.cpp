@@ -1,6 +1,6 @@
 #include "SceneView.h"
 
-#include "engine/scene/camera_component.h"
+#include "engine/private/scene/camera_component.h"
 
 namespace cave {
 

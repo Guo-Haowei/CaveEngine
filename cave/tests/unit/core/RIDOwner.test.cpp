@@ -1,4 +1,4 @@
-#include "engine/core/base/rid_owner.h"
+#include "engine/private/core/base/rid_owner.h"
 
 namespace cave {
 

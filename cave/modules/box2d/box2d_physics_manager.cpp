@@ -2,9 +2,9 @@
 
 #include <box2d/box2d.h>
 
-#include "engine/assets/tile_map_asset.h"
-#include "engine/assets/tile_set_asset.h"
-#include "engine/scene/scene.h"
+#include "engine/private/assets/tile_map_asset.h"
+#include "engine/private/assets/tile_set_asset.h"
+#include "engine/private/scene/scene.h"
 
 namespace cave {
 

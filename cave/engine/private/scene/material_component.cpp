@@ -1,8 +1,8 @@
 #include "material_component.h"
 
-#include "engine/assets/image_asset.h"
-#include "engine/assets/material_asset.h"
-#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

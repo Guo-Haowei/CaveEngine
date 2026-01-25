@@ -1,10 +1,10 @@
 #include "entity_factory.h"
 
-#include "engine/assets/material_asset.h"
-#include "engine/math/geometry.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/framework/IAssetManager.h"
-#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/math/geometry.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

@@ -2,10 +2,10 @@
 #include "rid.h"
 // #include "safe_refcount.h"
 
-#include "engine/core/io/print.h"
+#include "engine/private/core/io/print.h"
 #include "intrusive_list.h"
-// #include "engine/math/math.h"
-#include "engine/core/os/spin_lock.h"
+// #include "engine/private/math/math.h"
+#include "engine/private/core/os/spin_lock.h"
 
 namespace cave {
 

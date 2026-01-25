@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/assets/guid.h"
-#include "engine/runtime/framework/TaskManager.h"
+#include "engine/private/assets/guid.h"
+#include "engine/private/runtime/framework/TaskManager.h"
 
 namespace cave {
 

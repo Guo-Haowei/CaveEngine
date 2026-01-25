@@ -1,8 +1,8 @@
 #include "mesh_renderer_component.h"
 
-#include "engine/assets/material_asset.h"
-#include "engine/assets/mesh_asset.h"
-#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

@@ -1,4 +1,4 @@
-#include "engine/runtime/gameplay/GameSession.h"
+#include "engine/private/runtime/gameplay/GameSession.h"
 
 namespace cave::gameplay {
 

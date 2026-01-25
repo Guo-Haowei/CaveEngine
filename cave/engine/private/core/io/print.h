@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/math/math.h"
+#include "engine/private/math/math.h"
 
 #define LOG_VERBOSE(...)   ::cave::LogImpl(::cave::LOG_LEVEL_VERBOSE, __VA_ARGS__)
 #define LOG(...)           ::cave::LogImpl(::cave::LOG_LEVEL_NORMAL, __VA_ARGS__)

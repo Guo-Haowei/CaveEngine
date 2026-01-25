@@ -1,7 +1,7 @@
 #include "ray.h"
 
-#include "engine/math/matrix_transform.h"
-#include "engine/math/vector.h"
+#include "engine/private/math/matrix_transform.h"
+#include "engine/private/math/vector.h"
 
 namespace cave {
 

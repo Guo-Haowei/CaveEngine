@@ -1,6 +1,6 @@
 #pragma once
 #include "editor/EditorWindow.h"
-#include "engine/renderer/graphics_defines.h"
+#include "engine/private/renderer/graphics_defines.h"
 
 namespace cave {
 class RenderGraph;

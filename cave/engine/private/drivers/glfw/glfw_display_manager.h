@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayManager.h"
 
 struct GLFWwindow;
 

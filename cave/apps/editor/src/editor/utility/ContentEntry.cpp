@@ -1,10 +1,10 @@
 #include "ContentEntry.h"
 
-#include "engine/assets/image_asset.h"
-#include "engine/core/os/platform_io.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/runtime/framework/IAssetManager.h"
-#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/core/os/platform_io.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/EditorState.h"
 

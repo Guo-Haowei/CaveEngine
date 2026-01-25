@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "engine/input/axis_state.h"
+#include "engine/private/input/axis_state.h"
 
 namespace cave {
 

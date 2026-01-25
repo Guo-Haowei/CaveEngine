@@ -1,9 +1,9 @@
 #pragma once
 #include "scene_component_base.h"
 
-#include "engine/math/angle.h"
-#include "engine/math/geomath.h"
-#include "engine/reflection/reflection.h"
+#include "engine/private/math/angle.h"
+#include "engine/private/math/geomath.h"
+#include "engine/private/reflection/reflection.h"
 
 namespace cave {
 

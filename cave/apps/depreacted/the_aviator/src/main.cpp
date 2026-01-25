@@ -2,13 +2,13 @@
 
 #include <filesystem>
 
-#include "engine/core/string/string_utils.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/renderer/graphics_manager.h"
-#include "engine/renderer/renderer.h"
-#include "engine/runtime/framework/CommonDvars.h"
-#include "engine/runtime/framework/EntryPoint.h"
-#include "engine/runtime/layer.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/renderer/renderer.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/EntryPoint.h"
+#include "engine/private/runtime/layer.h"
 
 namespace cave {
 

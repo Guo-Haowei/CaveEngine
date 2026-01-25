@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/runtime/gameplay/GameSession.cpp
+// File: engine/private/runtime/gameplay/GameSession.cpp
 // =============================================================================
 #include "GameSession.h"
 

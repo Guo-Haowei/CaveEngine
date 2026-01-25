@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/renderer/gpu_resource.h"
-#include "engine/renderer/pixel_format.h"
+#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/pixel_format.h"
 #include "render_pass_builder.h"
 
 // clang-format off

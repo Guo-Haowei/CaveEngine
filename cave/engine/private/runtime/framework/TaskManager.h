@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/runtime/framework/Module.h"
-#include "engine/runtime/framework/TaskContext.h"
+#include "engine/private/runtime/framework/Module.h"
+#include "engine/private/runtime/framework/TaskContext.h"
 
 namespace cave {
 

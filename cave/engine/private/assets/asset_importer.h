@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/assets/asset_interface.h"
-#include "engine/renderer/graphics_dvars.h"
+#include "engine/private/assets/asset_interface.h"
+#include "engine/private/renderer/graphics_dvars.h"
 
 namespace cave {
 

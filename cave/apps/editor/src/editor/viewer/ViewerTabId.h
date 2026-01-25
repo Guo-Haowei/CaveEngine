@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/assets/guid.h"
+#include "engine/private/assets/guid.h"
 #include "editor/Enums.h"
 #include "editor/undo_redo/UndoStack.h"
 

@@ -1,22 +1,22 @@
 // =============================================================================
-// File: engine/runtime/gameplay/GameRuntimeState.cpp
+// File: engine/private/runtime/gameplay/GameRuntimeState.cpp
 // =============================================================================
 #include "GameRuntimeState.h"
 
 #include <imgui/imgui.h>
 
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/IGraphicsManager.h"
-#include "engine/runtime/framework/ImGuiManager.h"
-#include "engine/runtime/framework/InputSystem.h"
-#include "engine/runtime/framework/ISceneManager.h"
-#include "engine/runtime/framework/ScriptManager.h"
-#include "engine/runtime/framework/ViewportManager.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
+#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/ViewportManager.h"
 
 // @TODO: refactor
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/scene/scene.h"
-#include "engine/scene/scene_manager.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/scene/scene.h"
+#include "engine/private/scene/scene_manager.h"
 
 namespace cave {
 

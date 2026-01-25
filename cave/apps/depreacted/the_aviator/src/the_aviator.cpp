@@ -1,14 +1,14 @@
 #if 0
 //  @TODO: refactor
-#include "engine/core/base/random.h"
-#include "engine/math/color.h"
-#include "engine/math/geometry.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/scene/camera_controller.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/core/base/random.h"
+#include "engine/private/math/color.h"
+#include "engine/private/math/geometry.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/scene/camera_controller.h"
+#include "engine/private/scene/entity_factory.h"
 
 // @TODO: remove
-#include "engine/math/matrix_transform.h"
+#include "engine/private/math/matrix_transform.h"
 
 namespace std {
 

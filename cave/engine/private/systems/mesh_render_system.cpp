@@ -1,11 +1,11 @@
-#include "engine/assets/image_asset.h"
-#include "engine/assets/material_asset.h"
-#include "engine/math/frustum.h"
-#include "engine/math/geometry.h"
-#include "engine/math/matrix_transform.h"
-#include "engine/renderer/frame_data.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/scene/scene.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/math/frustum.h"
+#include "engine/private/math/geometry.h"
+#include "engine/private/math/matrix_transform.h"
+#include "engine/private/renderer/frame_data.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/scene/scene.h"
 
 namespace cave {
 

@@ -1,6 +1,6 @@
 #include "material_asset.h"
 
-#include "engine/serialization/yaml_include.h"
+#include "engine/private/serialization/yaml_include.h"
 
 namespace cave {
 

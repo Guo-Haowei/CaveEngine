@@ -1,12 +1,12 @@
 #include "ModuleRegistry.h"
 
-#include "engine/assets/asset_manager.h"
-#include "engine/empty/empty_display_manager.h"
-#include "engine/empty/empty_graphics_manager.h"
-#include "engine/empty/empty_physics_manager.h"
-#include "engine/empty/empty_script_manager.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/scripting/lua/lua_script_manager.h"
+#include "engine/private/assets/asset_manager.h"
+#include "engine/private/empty/empty_display_manager.h"
+#include "engine/private/empty/empty_graphics_manager.h"
+#include "engine/private/empty/empty_physics_manager.h"
+#include "engine/private/empty/empty_script_manager.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/scripting/lua/lua_script_manager.h"
 
 #if USING(PLATFORM_WINDOWS)
 #include "modules/d3d11/d3d11_graphics_manager.h"
@@ -14,7 +14,7 @@
 #include "modules/opengl4/opengl4_graphics_manager.h"
 #include "modules/vk/vulkan_graphics_manager.h"
 #elif USING(PLATFORM_APPLE)
-#include "engine/drivers/metal/metal_graphics_manager.h"
+#include "engine/private/drivers/metal/metal_graphics_manager.h"
 #elif USING(PLATFORM_WASM)
 #include "modules/opengles3/opengles3_graphics_manager.h"
 #endif

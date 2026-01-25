@@ -1,7 +1,7 @@
 #pragma once
-#include "engine/core/string/string_id.h"
-#include "engine/input/input_types.h"
-#include "engine/input/key_code.h"
+#include "engine/private/core/string/string_id.h"
+#include "engine/private/input/input_types.h"
+#include "engine/private/input/key_code.h"
 
 namespace cave {
 

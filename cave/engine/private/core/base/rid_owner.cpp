@@ -1,6 +1,6 @@
 #include "rid_owner.h"
 
-#include "engine/core/io/print.h"
+#include "engine/private/core/io/print.h"
 
 namespace cave {
 

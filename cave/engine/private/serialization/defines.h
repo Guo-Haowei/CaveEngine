@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/reflection/meta.h"
-#include "engine/serialization/concept.h"
+#include "engine/private/reflection/meta.h"
+#include "engine/private/serialization/concept.h"
 
 #define VALIDATE_SERIALIZER USE_IF(USING(ENABLE_ASSERT))
 

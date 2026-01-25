@@ -1,9 +1,9 @@
 #pragma once
 #include <tuple>
 
-#include "engine/core/base/singleton.h"
-#include "engine/renderer/graphics_defines.h"
-#include "engine/runtime/framework/Module.h"
+#include "engine/private/core/base/singleton.h"
+#include "engine/private/renderer/graphics_defines.h"
+#include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
 

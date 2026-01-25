@@ -1,7 +1,7 @@
-#include "engine/core/base/random.h"
-#include "engine/math/matrix_transform.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/core/base/random.h"
+#include "engine/private/math/matrix_transform.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/scene/entity_factory.h"
 
 /*
 @TODO

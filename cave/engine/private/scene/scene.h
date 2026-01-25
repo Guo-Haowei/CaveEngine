@@ -1,24 +1,24 @@
 #pragma once
-#include "engine/assets/asset_interface.h"
-#include "engine/core/base/noncopyable.h"
-#include "engine/ecs/component_manager.h"
-#include "engine/ecs/view.h"
-#include "engine/math/ray.h"
+#include "engine/private/assets/asset_interface.h"
+#include "engine/private/core/base/noncopyable.h"
+#include "engine/private/ecs/component_manager.h"
+#include "engine/private/ecs/view.h"
+#include "engine/private/math/ray.h"
 
 // components
-#include "engine/scene/scene_component.h"  // @TODO: split this
+#include "engine/private/scene/scene_component.h"  // @TODO: split this
 
-#include "engine/scene/camera_component.h"
-#include "engine/scene/collider_component.h"
-#include "engine/scene/light_component.h"
-#include "engine/scene/lua_script_component.h"
-#include "engine/scene/material_component.h"
-#include "engine/scene/mesh_renderer_component.h"
-#include "engine/scene/skeletal_animation_component.h"
-#include "engine/scene/sprite_animator_component.h"
-#include "engine/scene/sprite_renderer_component.h"
-#include "engine/scene/tile_map_renderer_component.h"
-#include "engine/scene/transform_component.h"
+#include "engine/private/scene/camera_component.h"
+#include "engine/private/scene/collider_component.h"
+#include "engine/private/scene/light_component.h"
+#include "engine/private/scene/lua_script_component.h"
+#include "engine/private/scene/material_component.h"
+#include "engine/private/scene/mesh_renderer_component.h"
+#include "engine/private/scene/skeletal_animation_component.h"
+#include "engine/private/scene/sprite_animator_component.h"
+#include "engine/private/scene/sprite_renderer_component.h"
+#include "engine/private/scene/tile_map_renderer_component.h"
+#include "engine/private/scene/transform_component.h"
 
 namespace cave::jobsystem {
 class Context;

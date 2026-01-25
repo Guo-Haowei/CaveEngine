@@ -2,15 +2,15 @@
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include "engine/debugger/profiler.h"
-#include "engine/drivers/glfw/glfw_display_manager.h"
-#include "engine/math/geometry.h"
-#include "engine/render_graph/render_graph_defines.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/IAssetManager.h"
-#include "engine/runtime/framework/ImGuiManager.h"
-#include "engine/scene/scene.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/drivers/glfw/glfw_display_manager.h"
+#include "engine/private/math/geometry.h"
+#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
+#include "engine/private/scene/scene.h"
 #include "opengl_helpers.h"
 #include "opengl_pipeline_state_manager.h"
 #include "opengl_resources.h"
@@ -21,7 +21,7 @@
 #include <GLFW/glfw3.h>
 
 // @TODO: remove the following
-#include "engine/render_graph/render_graph_builder.h"
+#include "engine/private/render_graph/render_graph_builder.h"
 
 // #define RESIDENT_TEXTURE USE_IF(USING(PLATFORM_WINDOWS))
 #define RESIDENT_TEXTURE NOT_IN_USE

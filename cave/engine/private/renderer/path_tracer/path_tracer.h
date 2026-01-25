@@ -1,11 +1,11 @@
 #pragma once
-#include "engine/assets/guid.h"
-#include "engine/ecs/entity.h"
-#include "engine/math/box.h"
-#include "engine/renderer/gpu_resource.h"
-#include "engine/renderer/path_tracer/bvh_accel.h"
+#include "engine/private/assets/guid.h"
+#include "engine/private/ecs/entity.h"
+#include "engine/private/math/box.h"
+#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/path_tracer/bvh_accel.h"
 // @TODO: refactor
-#include "engine/renderer/path_tracer_render_system.h"
+#include "engine/private/renderer/path_tracer_render_system.h"
 
 namespace cave {
 

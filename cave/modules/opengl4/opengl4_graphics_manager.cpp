@@ -5,9 +5,9 @@
 #include "../opengl_common/opengl_helpers.h"
 #include "../opengl_common/opengl_prerequisites.h"
 #include "../opengl_common/opengl_resources.h"
-#include "engine/drivers/glfw/glfw_display_manager.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/ImGuiManager.h"
+#include "engine/private/drivers/glfw/glfw_display_manager.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
 
 namespace cave {
 

@@ -3,9 +3,9 @@
 #include <latch>
 #include <thread>
 
-#include "engine/debugger/profiler.h"
-#include "engine/core/io/print.h"
-#include "engine/drivers/windows/win32_prerequisites.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/core/io/print.h"
+#include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave::thread {
 

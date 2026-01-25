@@ -1,7 +1,7 @@
 
 #include "path_tracer_render_system.h"
 
-#include "engine/renderer/path_tracer/path_tracer.h"
+#include "engine/private/renderer/path_tracer/path_tracer.h"
 
 namespace cave {
 

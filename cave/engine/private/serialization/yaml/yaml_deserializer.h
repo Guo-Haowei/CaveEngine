@@ -1,7 +1,7 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 
-#include "engine/serialization/deserializer.h"
+#include "engine/private/serialization/deserializer.h"
 
 namespace cave {
 

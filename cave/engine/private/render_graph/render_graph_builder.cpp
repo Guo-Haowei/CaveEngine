@@ -1,9 +1,9 @@
 #include "render_graph_builder.h"
 
-#include "engine/algorithm/algorithm.h"
-#include "engine/renderer/renderer_misc.h"
-#include "engine/renderer/sampler.h"
-#include "engine/renderer/graphics_manager.h"
+#include "engine/private/algorithm/algorithm.h"
+#include "engine/private/renderer/renderer_misc.h"
+#include "engine/private/renderer/sampler.h"
+#include "engine/private/renderer/graphics_manager.h"
 #include "render_graph.h"
 #include "render_graph_defines.h"
 #include "render_pass_builder.h"

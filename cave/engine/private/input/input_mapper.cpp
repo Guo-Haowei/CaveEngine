@@ -1,7 +1,7 @@
 #include "input_mapper.h"
 
-#include "engine/input/axis_state.h"
-#include "engine/input/key_state.h"
+#include "engine/private/input/axis_state.h"
+#include "engine/private/input/key_state.h"
 
 namespace cave {
 
@@ -66,7 +66,7 @@ void InputMapper::MapScalar(const StringId& p_str_id, const ActionDef& p_def,
                             std::vector<ActionEvent>& p_out_actions) const {
 
     for (InputDeviceId dev_id : p_keys.ActiveDevices()) {
-        // Typical editor rule: don’t drive movement while Ctrl/Alt are down
+        // Typical editor rule: donï¿½t drive movement while Ctrl/Alt are down
         // (Put your own gating elsewhere if you prefer)
         // if (keys.CtrlDown(dev) || keys.AltDown(dev)) continue;
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/input/action_consumer_interface.h"
-#include "engine/input/raw_input_consumer_interface.h"
+#include "engine/private/input/action_consumer_interface.h"
+#include "engine/private/input/raw_input_consumer_interface.h"
 
 namespace cave {
 

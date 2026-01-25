@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/renderer/gpu_resource.h"
+#include "engine/private/renderer/gpu_resource.h"
 
 namespace cave {
 struct FrameData;

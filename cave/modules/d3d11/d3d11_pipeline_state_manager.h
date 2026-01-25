@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "engine/runtime/framework/PipelineStateManager.h"
+#include "engine/private/runtime/framework/PipelineStateManager.h"
 
 namespace cave {
 

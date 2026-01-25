@@ -1,10 +1,10 @@
 #include "ecs_systems.h"
 
-#include "engine/assets/mesh_asset.h"
-#include "engine/core/base/random.h"
-#include "engine/debugger/profiler.h"
-#include "engine/scene/scene.h"
-#include "engine/systems/job_system/job_system.h"
+#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/core/base/random.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/scene/scene.h"
+#include "engine/private/systems/job_system/job_system.h"
 
 namespace cave {
 

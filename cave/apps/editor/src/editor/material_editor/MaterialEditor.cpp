@@ -1,16 +1,16 @@
 #include "MaterialEditor.h"
 
-#include "engine/assets/image_asset.h"
-#include "engine/assets/material_asset.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/scene/entity_factory.h"
 
 #include "editor/EditorState.h"
 #include "editor/EditorSceneManager.h"
 #include "editor/material_editor/MaterialDocument.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/widgets/DragDrop.h"
-#include "engine/ui/layout.h"
+#include "engine/private/ui/layout.h"
 
 namespace cave {
 

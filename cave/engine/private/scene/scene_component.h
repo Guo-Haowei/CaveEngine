@@ -1,9 +1,9 @@
 #pragma once
-#include "engine/assets/asset_handle.h"
-#include "engine/ecs/entity.h"
-#include "engine/math/aabb.h"
-#include "engine/math/angle.h"
-#include "engine/reflection/reflection.h"
+#include "engine/private/assets/asset_handle.h"
+#include "engine/private/ecs/entity.h"
+#include "engine/private/math/aabb.h"
+#include "engine/private/math/angle.h"
+#include "engine/private/reflection/reflection.h"
 
 // @TODO: get rid of this
 #include "scene_component_base.h"

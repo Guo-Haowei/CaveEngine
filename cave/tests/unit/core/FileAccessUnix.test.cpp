@@ -1,6 +1,6 @@
-#include "engine/core/io/file_access_unix.h"
+#include "engine/private/core/io/file_access_unix.h"
 
-#include "engine/core/string/string_builder.h"
+#include "engine/private/core/string/string_builder.h"
 
 namespace cave {
 

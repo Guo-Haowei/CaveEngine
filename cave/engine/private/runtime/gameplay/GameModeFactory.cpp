@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/runtime/gameplay/GameModeFactory.cpp
+// File: engine/private/runtime/gameplay/GameModeFactory.cpp
 // =============================================================================
 #include "GameModeFactory.h"
 

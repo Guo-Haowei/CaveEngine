@@ -1,6 +1,6 @@
 #include "yaml_serializer.h"
 
-#include "engine/assets/guid.h"
+#include "engine/private/assets/guid.h"
 
 namespace cave {
 

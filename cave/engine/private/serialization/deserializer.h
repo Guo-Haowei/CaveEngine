@@ -1,8 +1,8 @@
 #pragma once
 #include "defines.h"
-#include "engine/ecs/entity.h"
-#include "engine/math/box.h"
-#include "engine/math/matrix.h"
+#include "engine/private/ecs/entity.h"
+#include "engine/private/math/box.h"
+#include "engine/private/math/matrix.h"
 
 namespace cave {
 

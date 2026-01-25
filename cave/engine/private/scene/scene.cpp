@@ -2,19 +2,19 @@
 
 #include "entity_factory.h"
 
-#include "engine/assets/mesh_asset.h"
-#include "engine/debugger/profiler.h"
-#include "engine/core/io/archive.h"
-#include "engine/ecs/component_manager.inl"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/systems/animation_system.h"
-#include "engine/systems/ecs_systems.h"
-#include "engine/systems/job_system/job_system.h"
+#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/core/io/archive.h"
+#include "engine/private/ecs/component_manager.inl"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/systems/animation_system.h"
+#include "engine/private/systems/ecs_systems.h"
+#include "engine/private/systems/job_system/job_system.h"
 
 // @TODO: refactor
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/renderer/path_tracer/bvh_accel.h"
-#include "engine/serialization/yaml_include.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/renderer/path_tracer/bvh_accel.h"
+#include "engine/private/serialization/yaml_include.h"
 
 namespace cave::ecs {
 

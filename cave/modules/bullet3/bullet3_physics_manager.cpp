@@ -1,11 +1,11 @@
 
 #include "bullet3_physics_manager.h"
 
-#include "engine/debugger/profiler.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/IGraphicsManager.h"
-#include "engine/runtime/framework/ScriptManager.h"
-#include "engine/scene/scene.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/scene/scene.h"
 
 #pragma warning(push, 0)
 #include <BulletCollision/CollisionDispatch/btCollisionDispatcher.h>

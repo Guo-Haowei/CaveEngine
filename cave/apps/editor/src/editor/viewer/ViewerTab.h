@@ -1,11 +1,11 @@
 #pragma once
 #include "ViewerTabId.h"
 
-#include "engine/assets/guid.h"
-#include "engine/ecs/entity.h"
-#include "engine/input/raw_input_consumer_interface.h"
-#include "engine/runtime/framework/SceneView.h"
-#include "engine/scene/camera_controller.h"
+#include "engine/private/assets/guid.h"
+#include "engine/private/ecs/entity.h"
+#include "engine/private/input/raw_input_consumer_interface.h"
+#include "engine/private/runtime/framework/SceneView.h"
+#include "engine/private/scene/camera_controller.h"
 
 #include "editor/Enums.h"
 #include "editor/undo_redo/UndoStack.h"

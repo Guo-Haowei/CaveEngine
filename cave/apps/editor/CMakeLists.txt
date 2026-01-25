@@ -14,7 +14,6 @@ endif()
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/editor FILES ${SRC})
 
 target_include_directories(${TARGET_NAME} PRIVATE
-    ${PROJECT_SOURCE_DIR}/cave/engine
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 

@@ -1,9 +1,9 @@
 #include "tile_map_asset.h"
 
-#include "engine/assets/tile_set_asset.h"
-#include "engine/core/io/file_access.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/serialization/yaml_include.h"
+#include "engine/private/assets/tile_set_asset.h"
+#include "engine/private/core/io/file_access.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/serialization/yaml_include.h"
 
 namespace cave {
 

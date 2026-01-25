@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/math/detail/vector_math.h"
+#include "engine/private/math/detail/vector_math.h"
 
 namespace cave {
 

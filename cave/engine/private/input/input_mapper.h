@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/input/input_action_map.h"
+#include "engine/private/input/input_action_map.h"
 
 namespace cave {
 

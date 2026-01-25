@@ -1,8 +1,8 @@
 #include "MenuBar.h"
 
-#include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/framework/InputSystem.h"
-#include "engine/ui/layout.h"
+#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/ui/layout.h"
 
 #include "editor/EditorState.h"
 #include "editor/panels/LogPanel.h"

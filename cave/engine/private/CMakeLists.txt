@@ -74,7 +74,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/
-    ${PROJECT_SOURCE_DIR}/cave/sdk/
+    ${PROJECT_SOURCE_DIR}/cave/engine/public/
     ${PROJECT_SOURCE_DIR}/cave/shader
     ${PROJECT_SOURCE_DIR}/cave/
     ${PROJECT_SOURCE_DIR}/plugins/src

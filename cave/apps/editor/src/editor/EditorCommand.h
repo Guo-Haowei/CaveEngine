@@ -1,7 +1,7 @@
 #pragma once
-#include <engine/assets/guid.h>
-#include <engine/ecs/entity.h>
-#include <engine/math/geomath.h>
+#include <engine/private/assets/guid.h>
+#include <engine/private/ecs/entity.h>
+#include <engine/private/math/geomath.h>
 
 #include "editor/Enums.h"
 #include "editor/undo_redo/UndoCommand.h"

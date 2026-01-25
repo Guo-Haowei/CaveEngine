@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/math/vector.h"
+#include "engine/private/math/vector.h"
 
 WARNING_PUSH()
 WARNING_DISABLE(4201, "-Wunused-parameter")

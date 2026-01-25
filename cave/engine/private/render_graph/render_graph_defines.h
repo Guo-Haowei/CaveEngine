@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/renderer/pixel_format.h"
+#include "engine/private/renderer/pixel_format.h"
 
 namespace cave {
 

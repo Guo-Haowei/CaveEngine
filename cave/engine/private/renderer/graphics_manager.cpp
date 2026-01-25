@@ -1,29 +1,29 @@
 #include "graphics_manager.h"
 
-#include "engine/assets/image_asset.h"
-#include "engine/core/base/random.h"
-#include "engine/debugger/profiler.h"
-#include "engine/math/frustum.h"
-#include "engine/math/geometry.h"
-#include "engine/math/matrix_transform.h"
-#include "engine/render_graph/common_passes.h"
-#include "engine/render_graph/render_graph_defines.h"
-#include "engine/render_graph/render_graph_predefined.h"
-#include "engine/renderer/frame_data.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/renderer/renderer_misc.h"
-#include "engine/renderer/sampler.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/RenderSystem.h"
-#include "engine/scene/scene.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/core/base/random.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/math/frustum.h"
+#include "engine/private/math/geometry.h"
+#include "engine/private/math/matrix_transform.h"
+#include "engine/private/render_graph/common_passes.h"
+#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/render_graph/render_graph_predefined.h"
+#include "engine/private/renderer/frame_data.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/renderer/renderer_misc.h"
+#include "engine/private/renderer/sampler.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/RenderSystem.h"
+#include "engine/private/scene/scene.h"
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"
 }  // namespace cave
 
 // @TODO: refactor
-#include "engine/renderer/path_tracer/path_tracer.h"
+#include "engine/private/renderer/path_tracer/path_tracer.h"
 
 #ifdef min
 #undef min

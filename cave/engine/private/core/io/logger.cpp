@@ -1,6 +1,6 @@
 #include "logger.h"
 
-#include "engine/core/os/threads.h"
+#include "engine/private/core/os/threads.h"
 
 namespace cave {
 

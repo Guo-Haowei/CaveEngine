@@ -1,4 +1,4 @@
-#include "engine/math/box.h"
+#include "engine/private/math/box.h"
 
 namespace cave {
 

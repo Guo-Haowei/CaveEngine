@@ -1,9 +1,9 @@
 #include "asset_meta_data.h"
 
-#include "engine/assets/asset_interface.h"
-#include "engine/core/io/file_access.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/serialization/yaml_include.h"
+#include "engine/private/assets/asset_interface.h"
+#include "engine/private/core/io/file_access.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/serialization/yaml_include.h"
 
 namespace cave {
 

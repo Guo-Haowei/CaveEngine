@@ -2,10 +2,10 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "engine/assets/image_asset.h"
-#include "engine/assets/tile_set_asset.h"
-#include "engine/scene/camera_component.h"
-#include "engine/ui/layout.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/assets/tile_set_asset.h"
+#include "engine/private/scene/camera_component.h"
+#include "engine/private/ui/layout.h"
 
 #include "editor/document/document.h"
 

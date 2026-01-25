@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/math/vector.h"
+#include "engine/private/math/vector.h"
 
 #define ENABLE_DVAR USE_IF(!USING(PLATFORM_WASM))
 

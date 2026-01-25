@@ -1,23 +1,23 @@
 #include "EditorState.h"
 
-#include "engine/debugger/profiler.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/ImGuiManager.h"
-#include "engine/runtime/framework/ViewportManager.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
+#include "engine/private/runtime/framework/ViewportManager.h"
 
 // @TODO: refactor
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
-#include "engine/assets/image_asset.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/renderer/graphics_manager.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/InputSystem.h"
-#include "engine/runtime/framework/ISceneManager.h"
-#include "engine/runtime/framework/ScriptManager.h"
-#include "engine/ui/layout.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/ui/layout.h"
 
 #include "editor/document/document.h"
 #include "editor/EditorCommand.h"

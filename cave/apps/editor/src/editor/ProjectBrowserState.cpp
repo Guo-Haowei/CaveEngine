@@ -2,16 +2,16 @@
 
 #include <imgui/imgui.h>
 
-#include <engine/assets/image_asset.h>
-#include <engine/core/io/logger.h>
-#include <engine/math/geomath.h>
-#include <engine/runtime/framework/Application.h>
-#include <engine/runtime/framework/IAssetManager.h>
-#include <engine/runtime/framework/AssetRegistry.h>
-#include <engine/runtime/framework/BootLoadPipeline.h>
-#include <engine/runtime/framework/ImGuiManager.h>
-#include <engine/runtime/framework/TaskManager.h>
-#include <engine/ui/layout.h>
+#include <engine/private/assets/image_asset.h>
+#include <engine/private/core/io/logger.h>
+#include <engine/private/math/geomath.h>
+#include <engine/private/runtime/framework/Application.h>
+#include <engine/private/runtime/framework/IAssetManager.h>
+#include <engine/private/runtime/framework/AssetRegistry.h>
+#include <engine/private/runtime/framework/BootLoadPipeline.h>
+#include <engine/private/runtime/framework/ImGuiManager.h>
+#include <engine/private/runtime/framework/TaskManager.h>
+#include <engine/private/ui/layout.h>
 
 #include "editor/widgets/Image.h"
 

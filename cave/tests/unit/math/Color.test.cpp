@@ -1,4 +1,4 @@
-#include "engine/math/color.h"
+#include "engine/private/math/color.h"
 
 namespace cave {
 

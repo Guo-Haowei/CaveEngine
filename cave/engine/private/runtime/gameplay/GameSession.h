@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/runtime/gameplay/GameSession.h
+// File: engine/private/runtime/gameplay/GameSession.h
 // =============================================================================
 #pragma once
 #include "IGameMode.h"

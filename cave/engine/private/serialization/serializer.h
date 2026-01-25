@@ -1,12 +1,12 @@
 #pragma once
 #include "defines.h"
 
-#include "engine/core/io/file_access.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/ecs/entity.h"
-#include "engine/math/angle.h"
-#include "engine/math/box.h"
-#include "engine/math/matrix.h"
+#include "engine/private/core/io/file_access.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/ecs/entity.h"
+#include "engine/private/math/angle.h"
+#include "engine/private/math/box.h"
+#include "engine/private/math/matrix.h"
 
 namespace cave {
 

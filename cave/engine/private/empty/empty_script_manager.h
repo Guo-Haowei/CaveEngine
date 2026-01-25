@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/ScriptManager.h"
 
 namespace cave {
 

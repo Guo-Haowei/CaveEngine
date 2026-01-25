@@ -1,9 +1,9 @@
 #pragma once
-#include "engine/core/base/noncopyable.h"
-#include "engine/core/os/timer.h"
-#include "engine/renderer/graphics_defines.h"
-#include "engine/runtime/framework/EventQueue.h"
-#include "engine/runtime/framework/Module.h"
+#include "engine/private/core/base/noncopyable.h"
+#include "engine/private/core/os/timer.h"
+#include "engine/private/renderer/graphics_defines.h"
+#include "engine/private/runtime/framework/EventQueue.h"
+#include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
 

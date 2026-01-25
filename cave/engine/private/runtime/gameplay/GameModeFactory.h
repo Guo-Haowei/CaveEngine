@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/runtime/gameplay/GameModeFactory.h
+// File: engine/private/runtime/gameplay/GameModeFactory.h
 // =============================================================================
 #pragma once
 

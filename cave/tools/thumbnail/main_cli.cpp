@@ -1,12 +1,12 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <tinygltf/stb_image_write.h>
 
-#include "engine/assets/image_asset.h"
-#include "engine/assets/material_asset.h"
-#include "engine/core/io/file_access.h"
-#include "engine/math/matrix_transform.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/core/io/file_access.h"
+#include "engine/private/math/matrix_transform.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "modules/sw/pbr_pipeline.h"
 #include "modules/sw/sw_renderer.h"

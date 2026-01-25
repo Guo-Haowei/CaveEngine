@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-#include "engine/core/io/archive.h"
+#include "engine/private/core/io/archive.h"
 
 namespace cave {
 

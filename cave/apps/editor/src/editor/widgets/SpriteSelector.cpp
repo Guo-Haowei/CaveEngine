@@ -1,8 +1,8 @@
 #include "SpriteSelector.h"
 
-#include "engine/assets/image_asset.h"
+#include "engine/private/assets/image_asset.h"
 
-#include "engine/ui/inputs.h"
+#include "engine/private/ui/inputs.h"
 
 namespace cave {
 

@@ -2,14 +2,14 @@
 
 #include <imgui/imgui.h>
 
-#include "engine/debugger/profiler.h"
-#include "engine/core/os/timer.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/CommonDvars.h"
-#include "engine/scene/scene.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/core/os/timer.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/scene/scene.h"
 
 namespace cave {
 

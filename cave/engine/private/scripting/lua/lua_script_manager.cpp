@@ -1,12 +1,12 @@
 #include "lua_script_manager.h"
 
-#include "engine/assets/blob_asset.h"
-#include "engine/debugger/profiler.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/InputSystem.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/scene/scene.h"
+#include "engine/private/assets/blob_asset.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/scene/scene.h"
 
 // lua include
 #include "lua_binding.h"

@@ -1,7 +1,7 @@
 #pragma once
-#include "engine/render_graph/framebuffer.h"
-#include "engine/render_graph/render_graph_defines.h"
-#include "engine/renderer/render_command.h"
+#include "engine/private/render_graph/framebuffer.h"
+#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/renderer/render_command.h"
 
 // clang-format off
 namespace cave { class IGraphicsManager; }

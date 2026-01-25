@@ -3,12 +3,12 @@
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 
-#include "engine/core/os/platform_io.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/CommonDvars.h"
-#include "engine/runtime/framework/ISceneManager.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/core/os/platform_io.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/scene/entity_factory.h"
 
 namespace cave {
 

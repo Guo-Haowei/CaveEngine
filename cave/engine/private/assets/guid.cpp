@@ -4,8 +4,8 @@
 #include <objbase.h>
 #endif
 
-#include "engine/core/string/string_builder.h"
-#include "engine/core/string/string_utils.h"
+#include "engine/private/core/string/string_builder.h"
+#include "engine/private/core/string/string_utils.h"
 
 namespace cave {
 

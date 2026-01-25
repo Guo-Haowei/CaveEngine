@@ -5,15 +5,15 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <filesystem>
 
-#include "engine/assets/blob_asset.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/input/key_code.h"
-#include "engine/input/input_types.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/runtime/framework/IAssetManager.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/DisplayManager.h"
-#include "engine/runtime/framework/VFS.h"
+#include "engine/private/assets/blob_asset.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/input/key_code.h"
+#include "engine/private/input/input_types.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/VFS.h"
 
 namespace cave {
 

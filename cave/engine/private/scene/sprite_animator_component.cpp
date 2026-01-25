@@ -1,7 +1,7 @@
 #include "sprite_animator_component.h"
 
-#include "engine/assets/sprite_animation_asset.h"
-#include "engine/runtime/framework/AssetRegistry.h"
+#include "engine/private/assets/sprite_animation_asset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 

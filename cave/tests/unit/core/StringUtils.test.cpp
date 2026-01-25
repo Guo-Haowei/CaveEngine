@@ -1,4 +1,4 @@
-#include "engine/core/string/string_utils.h"
+#include "engine/private/core/string/string_utils.h"
 
 namespace cave::string {
 

@@ -3,9 +3,9 @@
 #endif
 #define OPENGL_HELPERS_INCLUDED
 
-#include "engine/renderer/gpu_resource.h"
-#include "engine/renderer/pipeline_state.h"
-#include "engine/renderer/sampler.h"
+#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/pipeline_state.h"
+#include "engine/private/renderer/sampler.h"
 #include "opengl_prerequisites.h"
 
 // @TODO: wrap all enums for better debugging information

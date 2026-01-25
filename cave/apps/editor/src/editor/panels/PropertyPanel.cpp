@@ -4,15 +4,15 @@
 #include <ImGuizmo/ImGuizmo.h>
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/assets/sprite_animation_asset.h"
-#include "engine/debugger/profiler.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/reflection/meta_editor.h"
-#include "engine/renderer/graphics_dvars.h"
-#include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/scene/entity_factory.h"
-#include "engine/ui/inputs.h"
-#include "engine/ui/layout.h"
+#include "engine/private/assets/sprite_animation_asset.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/reflection/meta_editor.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/scene/entity_factory.h"
+#include "engine/private/ui/inputs.h"
+#include "engine/private/ui/layout.h"
 
 #include "editor/EditorCommand.h"
 #include "editor/EditorState.h"

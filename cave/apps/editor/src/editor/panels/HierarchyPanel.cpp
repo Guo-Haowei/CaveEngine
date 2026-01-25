@@ -3,8 +3,8 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui_internal.h>
 
-#include "engine/assets/mesh_asset.h"
-#include "engine/debugger/profiler.h"
+#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/debugger/profiler.h"
 
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"

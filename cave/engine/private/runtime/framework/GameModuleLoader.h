@@ -1,8 +1,8 @@
 // =============================================================================
-// File: engine/runtime/framework/GameModuleLoader.h
+// File: engine/private/runtime/framework/GameModuleLoader.h
 // =============================================================================
 #pragma once
-#include "sdk/cave/api/GameModule.h"
+#include "cave/plugin/game_module_api.h"
 
 namespace cave {
 

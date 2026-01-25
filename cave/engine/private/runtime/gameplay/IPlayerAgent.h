@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/runtime/gameplay/IPlayerAgent.h
+// File: engine/private/runtime/gameplay/IPlayerAgent.h
 // =============================================================================
 #pragma once
 

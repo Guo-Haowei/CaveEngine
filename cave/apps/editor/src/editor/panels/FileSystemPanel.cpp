@@ -2,17 +2,17 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/debugger/profiler.h"
-#include "engine/core/os/platform_io.h"
-#include "engine/runtime/framework/IAssetManager.h"
-#include "engine/runtime/framework/CommonDvars.h"
-#include "engine/runtime/framework/VFS.h"
+#include "engine/private/debugger/profiler.h"
+#include "engine/private/core/os/platform_io.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/VFS.h"
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/widgets/DragDrop.h"
-#include "engine/ui/inputs.h"
+#include "engine/private/ui/inputs.h"
 
 namespace cave {
 

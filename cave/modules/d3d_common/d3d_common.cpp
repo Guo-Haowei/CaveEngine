@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-#include "engine/core/string/string_builder.h"
+#include "engine/private/core/string/string_builder.h"
 
 #if USING(USE_D3D_DEBUG_NAME)
 #pragma comment(lib, "dxguid.lib")

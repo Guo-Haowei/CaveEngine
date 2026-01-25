@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/runtime/core/string/StringUtils.h
+// File: engine/private/runtime/core/string/StringUtils.h
 // =============================================================================
 #pragma once
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/assets/asset_handle.h"
-#include "engine/reflection/reflection.h"
+#include "engine/private/assets/asset_handle.h"
+#include "engine/private/reflection/reflection.h"
 
 namespace cave {
 

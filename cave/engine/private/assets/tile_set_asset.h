@@ -1,9 +1,9 @@
 #pragma once
-#include "engine/assets/asset_handle.h"
-#include "engine/assets/asset_interface.h"
-#include "engine/scene/collider_component.h"
-#include "engine/math/box.h"
-#include "engine/reflection/reflection.h"
+#include "engine/private/assets/asset_handle.h"
+#include "engine/private/assets/asset_interface.h"
+#include "engine/private/scene/collider_component.h"
+#include "engine/private/math/box.h"
+#include "engine/private/reflection/reflection.h"
 
 // @TODO: move layer & mask to shape, and rename it collision shape
 

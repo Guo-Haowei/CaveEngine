@@ -1,13 +1,13 @@
 #pragma once
-#include "engine/core/base/concurrent_queue.h"
-#include "engine/core/base/singleton.h"
-#include "engine/math/geomath.h"
-#include "engine/render_graph/framebuffer.h"
-#include "engine/render_graph/render_graph.h"
-#include "engine/renderer/gpu_resource.h"
-#include "engine/renderer/pipeline_state.h"
-#include "engine/runtime/framework/IGraphicsManager.h"
-#include "engine/runtime/framework/PipelineStateManager.h"
+#include "engine/private/core/base/concurrent_queue.h"
+#include "engine/private/core/base/singleton.h"
+#include "engine/private/math/geomath.h"
+#include "engine/private/render_graph/framebuffer.h"
+#include "engine/private/render_graph/render_graph.h"
+#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/pipeline_state.h"
+#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/PipelineStateManager.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"

@@ -1,6 +1,6 @@
 #include "pbr_pipeline.h"
 
-#include "engine/assets/image_asset.h"
+#include "engine/private/assets/image_asset.h"
 
 #include "pbr.hlsl.h"
 

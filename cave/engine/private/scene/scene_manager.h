@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/framework/ISceneManager.h"
 
 namespace cave {
 

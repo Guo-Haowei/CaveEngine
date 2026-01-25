@@ -1,8 +1,8 @@
-#include "engine/core/error/error.h"
+#include "engine/private/core/error/error.h"
 
 #include <regex>
 
-#include "engine/core/string/string_builder.h"
+#include "engine/private/core/string/string_builder.h"
 
 namespace cave {
 

@@ -1,7 +1,7 @@
 #include "debug_draw.h"
 
-#include "engine/renderer/gpu_resource.h"
-#include "engine/renderer/graphics_manager.h"
+#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/graphics_manager.h"
 
 namespace cave {
 
