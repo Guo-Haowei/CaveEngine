@@ -269,6 +269,7 @@ bool DynamicVariableParser::OutOfBound() {
     return m_cursor >= m_commands.size();
 }
 
+// @TODO: avoid using std::vector<std::string>, use string_view instead
 bool DynamicVariableManager::Parse(const std::vector<std::string>& p_commands) {
     DynamicVariableParser parser(p_commands, DynamicVariableParser::SOURCE_COMMAND_LINE);
     bool ok = parser.Parse();

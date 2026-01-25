@@ -1,5 +1,9 @@
+// =============================================================================
+// File: engine/runtime/core/string/StringUtils.h
+// =============================================================================
 #pragma once
 
+// @TODO: move this class to sdk
 namespace cave {
 
 #if USING(PLATFORM_WINDOWS)
@@ -37,6 +41,10 @@ private:
 
 class StringUtils {
 public:
+    [[nodiscard]] static bool IsNullOrEmpty(const char* p_str) {
+        return !p_str || *p_str == '\0';
+    }
+
     static bool StringEqual(const char* p_str1, const char* p_str2);
 
     static void ReplaceFirst(std::string& p_string, std::string_view p_pattern, std::string_view p_replacement);
