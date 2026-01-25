@@ -1,22 +1,19 @@
+#include <memory>
+
 #include <cave/plugin/game_module_api.h>
+#include <cave/runtime/framework/IApplication.h>
+#include <cave/runtime/gameplay/GameModeFactory.h>
 
 #include "ChessMode.h"
 
 namespace cave::chess {
 
 static void RegisterGame(IApplication& p_app, const GameLoadArgs& p_args) {
-    // Register chess app states
-    // app.GetStateMachine().RegisterState<ChessPlayState>();
-
-    // Register chess game modes
-    // app.GetGameModeFactory().Register("chess", [] {
-    //     return std::make_unique<ChessGameMode>();
-    // });
-
-    // Register Lua bindings
-    // app.GetScriptManager().RegisterModule("chess", RegisterChessLua);
-
     (void)p_args;
+
+    p_app.GetGameModeFactory().Register("chess", []() -> std::unique_ptr<IGameMode> {
+        return std::make_unique<ChessMode>();
+    });
 }
 
 static const GameModuleApi g_api = {

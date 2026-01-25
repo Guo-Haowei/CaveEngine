@@ -1,6 +1,7 @@
 #pragma once
 #include "cave/runtime/core/NonCopyable.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/gameplay/GameModeFactory.h"
 
 // @TODO: refactor
 #include "engine/private/core/os/timer.h"
@@ -15,7 +16,7 @@ class Module;
 
 class Application : public IApplication {
 public:
-    Application(const ApplicationSpec& p_spec, AppType p_type);
+    Application(const AppSpec& p_spec, AppType p_type);
 
     AppStateId GetStateId() const override;
 
@@ -27,6 +28,7 @@ public:
     BootLoadPipeline& GetBootLoadPipeline() override;
     VFS& GetVFS() override { return m_vfs; }
     EventQueue& GetEventQueue() override { return m_event_queue; }
+    GameModeFactory& GetGameModeFactory() override { return m_game_mode_factory; }
 
     AppType GetType() const override { return m_type; }
 
@@ -45,13 +47,15 @@ protected:
     const AppType m_type;
 
     AppStateMachine m_state_machine;
-    std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
+    GameModeFactory m_game_mode_factory;
 
     Timer m_timer;
     VFS m_vfs;
 
     EventQueue m_event_queue;
     std::vector<Module*> m_modules;
+
+    std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
 };
 
 }  // namespace cave

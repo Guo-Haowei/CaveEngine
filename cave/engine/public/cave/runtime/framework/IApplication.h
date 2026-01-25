@@ -2,6 +2,8 @@
 // File: engine/public/cave/runtime/framework/IApplication.h
 // =============================================================================
 #pragma once
+#include <string_view>
+
 #include "cave/runtime/core/NonCopyable.h"
 
 namespace cave {
@@ -13,6 +15,7 @@ class AppStateMachine;
 class AssetRegistry;
 class BootLoadPipeline;
 class EventQueue;
+class GameModeFactory;
 class IAssetManager;
 class IDisplayManager;
 class IGraphicsManager;
@@ -27,7 +30,7 @@ class Scene;
 class VFS;
 class ViewportManager;
 
-struct ApplicationSpec {
+struct AppSpec {
     std::string_view userFolder;
     std::string_view name;
     int width;
@@ -47,7 +50,7 @@ enum class AppType : uint8_t {
 
 class IApplication : public NonCopyable {
 public:
-    IApplication(const ApplicationSpec& p_spec)
+    IApplication(const AppSpec& p_spec)
         : m_specification(p_spec) {
     }
 
@@ -62,6 +65,7 @@ public:
     virtual BootLoadPipeline& GetBootLoadPipeline() = 0;
     virtual VFS& GetVFS() = 0;
     virtual EventQueue& GetEventQueue() = 0;
+    virtual GameModeFactory& GetGameModeFactory() = 0;
 
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
@@ -76,7 +80,7 @@ public:
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewportManager* GetViewportManager() { return m_viewport_manager; }
 
-    const ApplicationSpec& GetSpecification() const { return m_specification; }
+    const AppSpec& GetSpecification() const { return m_specification; }
 
     static void Run(IApplication* p_app);
 
@@ -89,7 +93,7 @@ public:
 protected:
     virtual bool MainLoop() = 0;
 
-    ApplicationSpec m_specification;
+    AppSpec m_specification;
 
     // @TODO: differentiate global and state specific managers
     AssetRegistry* m_asset_registry{ nullptr };

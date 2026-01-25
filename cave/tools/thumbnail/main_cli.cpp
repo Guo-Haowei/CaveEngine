@@ -17,7 +17,7 @@ namespace cave {
 
 class CliApp : public Application {
 public:
-    CliApp(const ApplicationSpec& p_spec)
+    CliApp(const AppSpec& p_spec)
         : Application(p_spec, AppType::Tool) {
     }
 
@@ -116,7 +116,7 @@ protected:
     int m_dim;
 };
 
-IApplication* CreateCliApp(const ApplicationSpec& p_spec) {
+IApplication* CreateCliApp(const AppSpec& p_spec) {
     return new CliApp(p_spec);
 }
 

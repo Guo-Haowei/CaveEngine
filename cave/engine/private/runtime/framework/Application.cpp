@@ -32,7 +32,7 @@ static cave::IApplication* s_app = nullptr;
 namespace cave {
 
 namespace fs = std::filesystem;
-Application::Application(const ApplicationSpec& p_spec, AppType p_type)
+Application::Application(const AppSpec& p_spec, AppType p_type)
     : IApplication(p_spec)
     , m_type(p_type)
     , m_state_machine(*this) {

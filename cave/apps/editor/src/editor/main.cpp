@@ -30,7 +30,7 @@ void RegisterExtraDvars() {
 
 class Editor final : public Application {
 public:
-    Editor(const ApplicationSpec& p_spec)
+    Editor(const AppSpec& p_spec)
         : Application(p_spec, AppType::Editor)
         , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
     }
@@ -91,7 +91,7 @@ IApplication* CreateApp() {
     auto user_path = fs::path{ root } / "user";
     auto user_string = user_path.string();
 
-    ApplicationSpec spec{};
+    AppSpec spec{};
     spec.userFolder = user_string;
     spec.name = "Editor";
     spec.backend = Backend::EMPTY;

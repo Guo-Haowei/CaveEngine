@@ -29,8 +29,9 @@
 #include <unordered_set>
 #include <vector>
 
-#include "engine/private/core/base/typedefs.h"
-#include "engine/private/core/error/error_macros.h"
+#include "cave/runtime/core/typedefs.h"
+#include "cave/runtime/core/ErrorMacros.h"
+
 #include "engine/private/core/io/print.h"
 
 // include it after error_macros.h

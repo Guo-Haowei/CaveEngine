@@ -19,7 +19,7 @@ void RegisterExtraDvars() {
 #undef REGISTER_DVAR
 }
 
-extern IApplication* CreateCliApp(const ApplicationSpec& p_spec);
+extern IApplication* CreateCliApp(const AppSpec& p_spec);
 
 IApplication* CreateApp() {
     // @TODO: get rid of this
@@ -34,7 +34,7 @@ IApplication* CreateApp() {
     dim = clamp(dim, 64, 1024);
     DVAR_SET_INT(thumbnail_size, dim);
 
-    ApplicationSpec spec{};
+    AppSpec spec{};
     spec.userFolder = user_string;
     spec.name = "SoftwareRenderer";
     spec.width = dim;

@@ -1,9 +1,9 @@
 #pragma once
 #include "rid.h"
-// #include "safe_refcount.h"
+
+#include "cave/runtime/core/IntrusiveList.h"
 
 #include "engine/private/core/io/print.h"
-#include "intrusive_list.h"
 // #include "engine/private/math/math.h"
 #include "engine/private/core/os/spin_lock.h"
 

@@ -1,6 +1,7 @@
 #pragma once
-#include "engine/private/core/base/intrusive_list.h"
-#include "error.h"
+#include "Error.h"
+#include "typedefs.h"
+#include "IntrusiveList.h"
 
 namespace cave {
 
