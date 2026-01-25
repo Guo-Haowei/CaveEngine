@@ -16,14 +16,14 @@ void InputRouter::Register(IInputConsumer* p_consumer) {
         m_consumers.push_back(p_consumer);
         Sort();
     }
-    LOG_VERBOSE("InputRouter::Register: register raw input consumer {}", (void*)p_consumer);
+    LOG_VERBOSE("InputRouter::Register: register input consumer '{}'", (void*)p_consumer);
 }
 
 void InputRouter::Unregister(IInputConsumer* p_consumer) {
     m_consumers.erase(
         std::remove(m_consumers.begin(), m_consumers.end(), p_consumer),
         m_consumers.end());
-    LOG_VERBOSE("InputRouter::Register: unregister raw input consumer {}", (void*)p_consumer);
+    LOG_VERBOSE("InputRouter::Register: unregister input consumer '{}'", (void*)p_consumer);
 }
 
 void InputRouter::Dispatch(const std::vector<InputEvent>& p_events) {

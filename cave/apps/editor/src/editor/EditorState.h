@@ -8,6 +8,7 @@
 #include <engine/private/scene/scene_component.h>
 
 #include "editor/EditorWindow.h"
+#include "editor/ShortcutManager.h"
 #include "editor/viewer/ViewerTab.h"
 
 namespace cave {
@@ -20,16 +21,6 @@ class FileSystemPanel;
 class LogPanel;
 class MenuBar;
 class Viewer;
-
-enum {
-    SHORT_CUT_SAVE_AS = 0,
-    SHORT_CUT_SAVE,
-    SHORT_CUT_OPEN,
-    SHORT_CUT_UNDO,
-    SHORT_CUT_REDO,
-    SHORT_CUT_DEBUG,
-    SHORT_CUT_MAX,
-};
 
 struct EditorContext {
     float timestep{ 0 };
@@ -52,11 +43,17 @@ public:
     const char* GetDebugName() final { return "EditorState"; }
 #endif
 
+    const auto& GetShortcuts() const {
+        return m_shortcut_manager.GetShortcuts();
+    }
+
 private:
     Option<StateRequest> m_request;
 
-public:
+    ShortcutManager m_shortcut_manager;
+
     // @TODO: refactor the following
+public:
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
     void CommandInspectAsset(const Guid& p_guid);
     void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
@@ -64,8 +61,7 @@ public:
     void CommandRemoveEntity(ecs::Entity p_target);
     void CommandDuplicateEntity(ecs::Entity p_target);
 
-    const auto& GetShortcuts() const { return m_shortcuts; }
-
+    // @TODO: refactor
     EditorContext context;
 
     void SetSelectedAsset(AssetHandle&& p_asset_handle) {
@@ -94,22 +90,6 @@ private:
     std::vector<std::shared_ptr<EditorItem>> m_panels;
 
     std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
-
-    // @TODO: refactor shortcut
-    struct ShortcutDesc {
-        const char* name{ nullptr };
-        const char* shortcut{ nullptr };
-        std::function<void()> executeFunc{ nullptr };
-        std::function<bool()> enabledFunc{ nullptr };
-
-        Key key{};
-        bool ctrl{};
-        bool alt{};
-        bool shift{};
-    };
-
-    // @TODO: refactor shortcut
-    std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
 
     AssetHandle m_selected_asset;
 };

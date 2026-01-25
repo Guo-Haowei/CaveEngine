@@ -12,26 +12,26 @@ namespace cave {
 
 void MenuBar::Update(float) {
     const auto& shortcuts = m_editor.GetShortcuts();
-    auto build_menu_item = [&](int p_index) {
-        const auto& it = shortcuts[p_index];
-        const bool enabled = it.enabledFunc ? it.enabledFunc() : true;
+    auto build_menu_item = [&](Shortcut p_index) {
+        const auto& it = shortcuts[std ::to_underlying(p_index)];
+        const bool enabled = it.enabled_func ? it.enabled_func() : true;
         if (ImGui::MenuItem(it.name, it.shortcut, false, enabled)) {
-            it.executeFunc();
+            it.execute_func();
         }
     };
 
     if (ImGui::BeginMenu("File")) {
-        build_menu_item(SHORT_CUT_OPEN);
+        build_menu_item(Shortcut::Open);
         // Open Recent
         ImGui::Separator();
-        build_menu_item(SHORT_CUT_SAVE);
-        build_menu_item(SHORT_CUT_SAVE_AS);
+        build_menu_item(Shortcut::Save);
+        build_menu_item(Shortcut::SaveAs);
         ImGui::EndMenu();
     }
     ImGui::Separator();
     if (ImGui::BeginMenu("Edit")) {
-        build_menu_item(SHORT_CUT_UNDO);
-        build_menu_item(SHORT_CUT_REDO);
+        build_menu_item(Shortcut::Undo);
+        build_menu_item(Shortcut::Redo);
         ImGui::Separator();
         if (ImGui::MenuItem("Cut", "Ctrl+X")) {
         }
@@ -46,7 +46,7 @@ void MenuBar::Update(float) {
 
     ImGui::Separator();
     if (ImGui::BeginMenu("Debug")) {
-        build_menu_item(SHORT_CUT_DEBUG);
+        build_menu_item(Shortcut::Debug);
         ImGui::EndMenu();
     }
 }

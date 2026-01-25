@@ -10,7 +10,6 @@
 #include <imnodes/imnodes.h>
 
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -37,7 +36,8 @@
 namespace cave {
 
 EditorState::EditorState(IApplication& p_app)
-    : AppState(p_app) {
+    : AppState(p_app)
+    , m_shortcut_manager(*this) {
 
     m_asset_inspector = std::make_shared<AssetInspector>(*this);
     m_menu_bar = std::make_shared<MenuBar>(*this);
@@ -53,109 +53,6 @@ EditorState::EditorState(IApplication& p_app)
     AddPanel(m_asset_inspector);
     AddPanel(std::make_shared<RenderGraphViewer>(*this));
     AddPanel(m_file_system_panel);
-
-    // @TODO: refactor this at some point
-    m_shortcuts[SHORT_CUT_SAVE_AS] = {
-        "Save As..",
-        "Ctrl+Shift+S",
-        [this]() {
-            BufferCommand(std::make_shared<SaveProjectCommand>(true));
-        },
-    };
-    m_shortcuts[SHORT_CUT_SAVE] = {
-        "Save",
-        "Ctrl+S",
-        [&]() {
-            AssetRegistry::GetSingleton().SaveAllAssets();
-            // this->BufferCommand(std::make_shared<SaveProjectCommand>(false));
-        },
-    };
-    m_shortcuts[SHORT_CUT_OPEN] = {
-        "Open",
-        "Ctrl+O",
-        //[&]() { this->BufferCommand(std::make_shared<OpenProjectCommand>(true)); },
-    };
-
-    auto active_document = [this]() -> Document* {
-        if (auto tab = m_viewer->GetActiveTab(); tab) {
-            return &tab->GetDocument();
-        }
-        return nullptr;
-    };
-
-    m_shortcuts[SHORT_CUT_REDO] = {
-        "Redo",
-        "Ctrl+Shift+Z",
-        [active_document]() { auto doc = active_document(); if (doc) doc->Redo(); },
-        [active_document]() { auto doc = active_document(); return doc ? doc ->CanRedo() : false; }
-    };
-
-    m_shortcuts[SHORT_CUT_UNDO] = {
-        "Undo",
-        "Ctrl+Z",
-        [active_document]() { auto doc = active_document(); if (doc) doc->Undo(); },
-        [active_document]() { auto doc = active_document(); return doc ? doc ->CanUndo() : false; }
-    };
-
-    m_shortcuts[SHORT_CUT_DEBUG] = {
-        "Start Debugging",
-        "F5",
-        [this]() { RequestGamePlay(); },
-        []() { return true; },
-    };
-
-    // @TODO: proper key mapping
-    std::map<std::string_view, Key> keyMapping = {
-        { "A", Key::A },
-        { "B", Key::B },
-        { "C", Key::C },
-        { "D", Key::D },
-        { "E", Key::E },
-        { "F", Key::F },
-        { "G", Key::G },
-        { "H", Key::H },
-        { "I", Key::I },
-        { "J", Key::J },
-        { "K", Key::K },
-        { "L", Key::L },
-        { "M", Key::M },
-        { "N", Key::N },
-        { "O", Key::O },
-        { "P", Key::P },
-        { "Q", Key::Q },
-        { "R", Key::R },
-        { "S", Key::S },
-        { "T", Key::T },
-        { "U", Key::U },
-        { "V", Key::V },
-        { "W", Key::W },
-        { "X", Key::X },
-        { "Y", Key::Y },
-        { "Z", Key::Z },
-        { "F5", Key::F5 },
-    };
-
-    for (auto& shortcut : m_shortcuts) {
-        StringSplitter split(shortcut.shortcut);
-        while (split.CanAdvance()) {
-            std::string_view sv = split.Advance('+');
-            if (sv == "Ctrl") {
-                shortcut.ctrl = true;
-            } else if (sv == "Shift") {
-                shortcut.shift = true;
-            } else if (sv == "Alt") {
-                shortcut.alt = true;
-            } else {
-                if (sv.length() == 1) {
-                    auto it = keyMapping.find(sv);
-                    if (it == keyMapping.end()) {
-                        CRASH_NOW();
-                    }
-                    shortcut.key = it->second;
-                }
-            }
-        }
-    }
 }
 
 void EditorState::OnEnter(const StateRequest& p_args) {
