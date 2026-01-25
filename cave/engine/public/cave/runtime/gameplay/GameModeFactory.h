@@ -2,6 +2,10 @@
 // File: engine/public/cave/runtime/gameplay/GameModeFactory.h
 // =============================================================================
 #pragma once
+#include <functional>
+#include <memory>
+#include <string>
+#include <string_view>
 
 namespace cave {
 
