@@ -10,7 +10,7 @@ class ProjectBrowserState : public AppState {
     };
 
 public:
-    ProjectBrowserState(Application& p_app);
+    ProjectBrowserState(IApplication& p_app);
 
     void OnEnter(const StateRequest& p_args) final;
 

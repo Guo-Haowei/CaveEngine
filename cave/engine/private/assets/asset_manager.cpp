@@ -15,7 +15,7 @@
 #include "engine/private/core/os/threads.h"
 #include "engine/private/core/os/timer.h"
 #include "engine/private/renderer/graphics_manager.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IAsyncTask.h"
 #include "engine/private/runtime/framework/TaskContext.h"

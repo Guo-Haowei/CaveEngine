@@ -5,7 +5,7 @@
 
 #include <imgui/imgui.h>
 
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
@@ -50,7 +50,7 @@ static void EndFullscreenWindow() {
 
 class RuntimeSceneViewProvider : public ISceneViewProvider {
 public:
-    RuntimeSceneViewProvider(Application& p_app)
+    RuntimeSceneViewProvider(IApplication& p_app)
         : m_app(p_app) {}
 
     void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final {
@@ -75,10 +75,10 @@ public:
     }
 
 private:
-    Application& m_app;
+    IApplication& m_app;
 };
 
-GameRuntimeState::GameRuntimeState(Application& p_app)
+GameRuntimeState::GameRuntimeState(IApplication& p_app)
     : AppState(p_app) {
 }
 

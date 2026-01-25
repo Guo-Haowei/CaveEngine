@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/core/dynamic_variable/dynamic_variable_manager.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/Engine.h"
 
 #define DEFINE_DVAR
@@ -40,12 +40,12 @@ static void InitializeDvars(const std::vector<std::string>& p_commands) {
 #define FINALIZE_DVARS()      (void)0
 #endif
 
-extern Application* CreateApp();
-extern void DestroyApp(Application* p_app);
+extern IApplication* CreateApp();
+extern void DestroyApp(IApplication* p_app);
 
 #ifdef EMPTY_APPLICATION
-Application* CreateApp() { return nullptr; }
-void DestroyApp(Application*) {}
+IApplication* CreateApp() { return nullptr; }
+void DestroyApp(IApplication*) {}
 
 void RegisterExtraDvars() {}
 #endif
@@ -68,7 +68,7 @@ int Main(int p_argc, const char** p_argv) {
         engine::FinalizeCore();
     });
 
-    Application* app = CreateApp();
+    IApplication* app = CreateApp();
     if (!app) {
         LOG_ERROR("Failed to create application");
         return 1;
@@ -80,7 +80,7 @@ int Main(int p_argc, const char** p_argv) {
         return 1;
     }
 
-    Application::Run(app);
+    IApplication::Run(app);
     app->Finalize();
     DestroyApp(app);
     return 0;

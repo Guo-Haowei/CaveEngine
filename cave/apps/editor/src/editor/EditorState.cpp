@@ -1,7 +1,7 @@
 #include "EditorState.h"
 
 #include "engine/private/debugger/profiler.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 
@@ -36,7 +36,7 @@
 
 namespace cave {
 
-EditorState::EditorState(Application& p_app)
+EditorState::EditorState(IApplication& p_app)
     : AppState(p_app) {
 
     m_asset_inspector = std::make_shared<AssetInspector>(*this);

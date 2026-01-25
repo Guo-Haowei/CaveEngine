@@ -10,10 +10,8 @@
 #include "engine/private/core/string/string_utils.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
-#include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
@@ -24,34 +22,31 @@
 #include "engine/private/runtime/framework/ISceneManager.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
-#include "engine/private/runtime/framework/VFS.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 #include "engine/private/scene/scene.h"
 
 #if USING(PLATFORM_WASM)
-static cave::Application* s_app = nullptr;
+static cave::IApplication* s_app = nullptr;
 #endif
 
 namespace cave {
 
 namespace fs = std::filesystem;
-
-Application::Application(const ApplicationSpec& p_spec, Type p_type)
-    : m_type(p_type)
-    , m_specification(p_spec) {
-
-    m_vfs = std::make_unique<VFS>();
+Application::Application(const ApplicationSpec& p_spec, Application::Type p_type)
+    : IApplication(p_spec)
+    , m_type(p_type)
+    , m_state_machine(*this) {
 
     // @TODO: refactor this select work directory
-    m_vfs->Mount("@user", fs::path(m_specification.userFolder));
+    m_vfs.Mount("@user", fs::path(m_specification.userFolder));
 }
 
-Application::~Application() {
+IApplication::~IApplication() {
 }
 
 void Application::RegisterModule(Module* p_module) {
     DEV_ASSERT(p_module);
-    p_module->m_app = this;
+    p_module->SetApp(this);
     m_modules.push_back(p_module);
 }
 
@@ -139,7 +134,7 @@ auto Application::Initialize() -> Result<void> {
 }
 
 void Application::Finalize() {
-    m_state_machine->Shutdown();
+    m_state_machine.Shutdown();
 
     // @TODO: move it to request shutdown
     thread::RequestShutdown();
@@ -182,7 +177,7 @@ bool Application::MainLoop() {
     // layer should set active scene
     // update layers from back to front
 
-    m_state_machine->Tick(timestep);
+    m_state_machine.Tick(timestep);
 
     std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
 
@@ -206,7 +201,7 @@ bool Application::MainLoop() {
     return true;
 }
 
-void Application::Run(Application* p_app) {
+void IApplication::Run(IApplication* p_app) {
     LOG("\n********************************************************************************"
         "\nMain Loop"
         "\n********************************************************************************");
@@ -227,15 +222,15 @@ void Application::Run(Application* p_app) {
 }
 
 AppStateId Application::GetStateId() const {
-    return m_state_machine->GetStateId();
+    return m_state_machine.GetStateId();
 }
 
 void Application::RequestProject(std::string_view p_path) {
     DEV_ASSERT(!p_path.empty());
-    DEV_ASSERT_MSG(!m_vfs->HasMount("@res"), "resource folder already mounted");
+    DEV_ASSERT_MSG(!m_vfs.HasMount("@res"), "resource folder already mounted");
 
     fs::path resource_folder = fs::path(p_path) / "resources";
-    m_vfs->Mount("@res", resource_folder);
+    m_vfs.Mount("@res", resource_folder);
 
     fs::path project_setting = fs::path(p_path) / "project.yaml";
 

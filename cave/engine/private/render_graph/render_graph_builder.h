@@ -20,7 +20,6 @@ struct RenderGraphBuilderConfig {
     bool enableBloom = true;
     bool enableHighlight = true;
 
-    bool is_runtime;
     int frameWidth;
     int frameHeight;
 };

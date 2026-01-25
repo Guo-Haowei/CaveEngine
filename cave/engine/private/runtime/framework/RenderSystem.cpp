@@ -7,7 +7,7 @@
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/path_tracer_render_system.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/scene/scene.h"
 

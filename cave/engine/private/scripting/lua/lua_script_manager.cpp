@@ -2,7 +2,7 @@
 
 #include "engine/private/assets/blob_asset.h"
 #include "engine/private/debugger/profiler.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/core/string/string_utils.h"

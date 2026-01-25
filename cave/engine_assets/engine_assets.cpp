@@ -3,7 +3,7 @@
 
 #include "engine/private/assets/blob_asset.h"
 #include "engine/private/assets/material_asset.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 
@@ -37,7 +37,7 @@ static AssetRef LoadBlob(const unsigned char* p_data, unsigned int p_length) {
     return blob;
 }
 
-static void RegisterPersistentFonts(Application* p_app) {
+static void RegisterPersistentFonts(IApplication* p_app) {
     auto& asset_registry = *p_app->GetAssetRegistry();
 
     {
@@ -52,7 +52,7 @@ static void RegisterPersistentFonts(Application* p_app) {
     }
 }
 
-static void RegisterPersistentImages(Application* p_app) {
+static void RegisterPersistentImages(IApplication* p_app) {
     auto& asset_registry = *p_app->GetAssetRegistry();
     auto& graphics_manager = *p_app->GetGraphicsManager();
     {
@@ -64,7 +64,7 @@ static void RegisterPersistentImages(Application* p_app) {
     }
 }
 
-static void RegisterPersistentMeshes(Application* p_app) {
+static void RegisterPersistentMeshes(IApplication* p_app) {
     auto& asset_registry = *p_app->GetAssetRegistry();
     auto& graphics_manager = *p_app->GetGraphicsManager();
     {
@@ -111,14 +111,14 @@ static void RegisterPersistentMeshes(Application* p_app) {
     }
 }
 
-static void RegisterPersistentMaterials(Application* p_app) {
+static void RegisterPersistentMaterials(IApplication* p_app) {
     auto& asset_registry = *p_app->GetAssetRegistry();
     auto material = std::make_shared<MaterialAsset>();
     material->base_color = Vector4f(1.0f, 0.0f, 1.0f, 1.0f);
     asset_registry.RegisterPersistentAsset("materials/default", TO_GUID(GUID10), material);
 }
 
-void RegisterAllPersistentAssets(Application* p_app) {
+void RegisterAllPersistentAssets(IApplication* p_app) {
     RegisterPersistentFonts(p_app);
     RegisterPersistentImages(p_app);
     RegisterPersistentMaterials(p_app);

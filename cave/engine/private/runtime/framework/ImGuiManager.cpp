@@ -9,7 +9,7 @@
 #include "engine/private/core/string/string_utils.h"
 #include "engine/private/input/key_code.h"
 #include "engine/private/input/input_types.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/DisplayManager.h"

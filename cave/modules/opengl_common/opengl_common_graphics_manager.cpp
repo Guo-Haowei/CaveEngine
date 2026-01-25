@@ -7,7 +7,7 @@
 #include "engine/private/math/geometry.h"
 #include "engine/private/render_graph/render_graph_defines.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/scene/scene.h"

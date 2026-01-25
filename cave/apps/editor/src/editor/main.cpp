@@ -1,5 +1,6 @@
 #include "engine/private/core/string/string_utils.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
+#include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
 #include "engine/private/runtime/framework/ISceneManager.h"
 #include "engine/private/runtime/gameplay/GameRuntimeState.h"
@@ -30,13 +31,13 @@ void RegisterExtraDvars() {
 class Editor : public Application {
 public:
     Editor(const ApplicationSpec& p_spec)
-        : Application(p_spec, Application::Type::Editor)
+        : Application(p_spec, IApplication::Type::Editor)
         , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
         // m_mode_manager = std::unique_ptr<ModeManager>(new EditorModeManager(*this));
     }
 
     auto Initialize() -> Result<void> final {
-        if (auto res = Application::Initialize(); !res) {
+        if (auto res = IApplication::Initialize(); !res) {
             return res;
         }
 
@@ -46,17 +47,17 @@ public:
 #else
         const AppStateId initial_state = AppStateId::ProjectBrowser;
 #endif
-        AppStateMachine::RegisterCreateFunc(AppStateId::ProjectBrowser, [](Application& p_app) {
+        AppStateMachine::RegisterCreateFunc(AppStateId::ProjectBrowser, [](IApplication& p_app) {
             auto state = std::make_unique<ProjectBrowserState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 
-        AppStateMachine::RegisterCreateFunc(AppStateId::Editor, [](Application& p_app) {
+        AppStateMachine::RegisterCreateFunc(AppStateId::Editor, [](IApplication& p_app) {
             auto state = std::make_unique<EditorState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 
-        AppStateMachine::RegisterCreateFunc(AppStateId::GameRuntime, [](Application& p_app) {
+        AppStateMachine::RegisterCreateFunc(AppStateId::GameRuntime, [](IApplication& p_app) {
             auto state = std::make_unique<GameRuntimeState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
@@ -72,7 +73,7 @@ public:
             DVAR_SET_IVEC2(window_resolution, w, h);
         }
 
-        Application::Finalize();
+        IApplication::Finalize();
     }
 
     bool IsWorld2D() const override {
@@ -83,7 +84,7 @@ private:
     const bool m_is_world_2d;
 };
 
-Application* CreateApp() {
+IApplication* CreateApp() {
     std::string_view root = StringUtils::BasePath(__FILE__);
     root = StringUtils::BasePath(root);
     root = StringUtils::BasePath(root);
@@ -120,7 +121,7 @@ Application* CreateApp() {
     return new Editor(spec);
 }
 
-void DestroyApp(Application* p_app) {
+void DestroyApp(IApplication* p_app) {
     if (DEV_VERIFY(p_app)) {
         delete p_app;
     }

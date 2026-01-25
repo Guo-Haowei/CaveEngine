@@ -2,7 +2,7 @@
 
 namespace cave {
 
-class Application;
+class IApplication;
 
 class Module {
 public:
@@ -13,6 +13,9 @@ public:
     auto Initialize() -> Result<void>;
     void Finalize();
 
+    IApplication* GetApp() { return m_app; }
+    void SetApp(IApplication* p_app) { m_app = p_app; }
+
     std::string_view GetName() const { return m_name; }
 
 protected:
@@ -21,8 +24,7 @@ protected:
 
     bool m_initialized{ false };
     std::string_view m_name;
-    Application* m_app;
-    friend class Application;
+    IApplication* m_app;
 };
 
 template<class T>

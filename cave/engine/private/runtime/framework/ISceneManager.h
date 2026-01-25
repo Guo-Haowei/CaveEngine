@@ -6,7 +6,7 @@
 namespace cave {
 
 class Scene;
-class Application;
+class IApplication;
 
 class ISceneManager : public Module,
                       public ModuleCreateRegistry<ISceneManager>,

@@ -48,7 +48,7 @@ void AppStateMachine::RegisterCreateFunc(AppStateId p_state_id, CreateFunc p_fun
     s_create_funcs[index] = p_func;
 }
 
-std::unique_ptr<AppState> AppStateMachine::CreateState(Application& p_app, AppStateId p_state_id) {
+std::unique_ptr<AppState> AppStateMachine::CreateState(IApplication& p_app, AppStateId p_state_id) {
     const uint8_t index = std::to_underlying(p_state_id);
     if (index >= std::to_underlying(AppStateId::Count) || s_create_funcs[index] == nullptr) {
         return nullptr;

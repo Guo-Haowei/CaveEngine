@@ -1,6 +1,6 @@
 #include "ViewportManager.h"
 
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 
 namespace cave {
 

@@ -15,7 +15,7 @@
 #include "engine/private/math/matrix_transform.h"
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/scene/scene.h"
 

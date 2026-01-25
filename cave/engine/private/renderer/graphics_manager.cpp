@@ -13,7 +13,7 @@
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/RenderSystem.h"
 #include "engine/private/scene/scene.h"
@@ -400,7 +400,6 @@ auto GraphicsManager::SelectRenderGraph() -> Result<void> {
     RenderGraphBuilderConfig config;
     config.frameWidth = frame_size.x;
     config.frameHeight = frame_size.y;
-    config.is_runtime = m_app->IsRuntime();
 
     switch (m_activeRenderGraphName) {
         case RenderGraphName::SCENE2D: {

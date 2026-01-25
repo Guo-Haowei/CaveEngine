@@ -2,7 +2,7 @@
 #include "bullet3_physics_manager.h"
 
 #include "engine/private/debugger/profiler.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/scene/scene.h"

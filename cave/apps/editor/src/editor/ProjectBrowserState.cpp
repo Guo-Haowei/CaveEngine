@@ -1,11 +1,12 @@
 #include "ProjectBrowserState.h"
 
+#include <cave/runtime/framework/IApplication.h>
+
 #include <imgui/imgui.h>
 
 #include <engine/private/assets/image_asset.h>
 #include <engine/private/core/io/logger.h>
 #include <engine/private/math/geomath.h>
-#include <engine/private/runtime/framework/Application.h>
 #include <engine/private/runtime/framework/IAssetManager.h>
 #include <engine/private/runtime/framework/AssetRegistry.h>
 #include <engine/private/runtime/framework/BootLoadPipeline.h>
@@ -19,7 +20,7 @@ namespace fs = std::filesystem;
 
 namespace cave {
 
-ProjectBrowserState::ProjectBrowserState(Application& p_app)
+ProjectBrowserState::ProjectBrowserState(IApplication& p_app)
     : AppState(p_app) {
 }
 

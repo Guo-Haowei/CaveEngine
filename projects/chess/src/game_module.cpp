@@ -4,7 +4,7 @@
 
 namespace cave::chess {
 
-static void RegisterGame(Application& p_app, const GameLoadArgs& p_args) {
+static void RegisterGame(IApplication& p_app, const GameLoadArgs& p_args) {
     // Register chess app states
     // app.GetStateMachine().RegisterState<ChessPlayState>();
 

@@ -1,10 +1,10 @@
 #pragma once
-#include <engine/private/runtime/framework/AppState.h>
+#include <cave/runtime/framework/IApplication.h>
 
 // @TODO: check if all the includes are necessary
+#include <engine/private/runtime/framework/AppState.h>
 #include <engine/private/assets/asset_handle.h>
 #include <engine/private/input/input_router.h>
-#include <engine/private/runtime/framework/Application.h>
 #include <engine/private/scene/scene.h>
 #include <engine/private/scene/scene_component.h>
 
@@ -39,7 +39,7 @@ struct EditorContext {
 
 class EditorState final : public AppState {
 public:
-    EditorState(Application& p_app);
+    EditorState(IApplication& p_app);
 
     void OnEnter(const StateRequest& p_args) final;
     void OnExit() final;

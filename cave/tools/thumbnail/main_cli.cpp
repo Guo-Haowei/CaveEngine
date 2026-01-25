@@ -5,7 +5,7 @@
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/math/matrix_transform.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "modules/sw/pbr_pipeline.h"
@@ -15,10 +15,10 @@
 
 namespace cave {
 
-class CliApp : public Application {
+class CliApp : public IApplication {
 public:
     CliApp(const ApplicationSpec& p_spec)
-        : Application(p_spec, Application::Type::Tool) {
+        : IApplication(p_spec, IApplication::Type::Tool) {
     }
 
     bool IsWorld2D() const override {
@@ -26,7 +26,7 @@ public:
     }
 
     Result<void> Initialize() override {
-        if (auto res = Application::Initialize(); !res) {
+        if (auto res = IApplication::Initialize(); !res) {
             return CAVE_ERROR(res.error());
         }
 
@@ -102,7 +102,7 @@ public:
     }
 
     void Finalize() {
-        Application::Finalize();
+        IApplication::Finalize();
     }
 
 protected:
@@ -116,7 +116,7 @@ protected:
     int m_dim;
 };
 
-Application* CreateCliApp(const ApplicationSpec& p_spec) {
+IApplication* CreateCliApp(const ApplicationSpec& p_spec) {
     return new CliApp(p_spec);
 }
 

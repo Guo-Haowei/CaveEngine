@@ -1,6 +1,6 @@
 #include "engine/private/core/string/string_utils.h"
 #include "engine/private/empty/empty_display_manager.h"
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
 
 #include "modules/sw/sw_renderer.h"
@@ -19,9 +19,9 @@ void RegisterExtraDvars() {
 #undef REGISTER_DVAR
 }
 
-extern Application* CreateCliApp(const ApplicationSpec& p_spec);
+extern IApplication* CreateCliApp(const ApplicationSpec& p_spec);
 
-Application* CreateApp() {
+IApplication* CreateApp() {
     // @TODO: get rid of this
     std::string_view root = StringUtils::BasePath(__FILE__);
     root = StringUtils::BasePath(root);
@@ -47,7 +47,7 @@ Application* CreateApp() {
     return CreateCliApp(spec);
 }
 
-void DestroyApp(Application* p_app) {
+void DestroyApp(IApplication* p_app) {
     if (DEV_VERIFY(p_app)) {
         delete p_app;
     }

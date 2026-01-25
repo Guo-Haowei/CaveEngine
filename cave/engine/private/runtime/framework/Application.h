@@ -1,92 +1,39 @@
 #pragma once
 #include "cave/runtime/core/NonCopyable.h"
+#include "cave/runtime/framework/IApplication.h"
 
+// @TODO: refactor
 #include "engine/private/core/os/timer.h"
+#include "engine/private/runtime/framework/AppState.h"
+#include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/EventQueue.h"
-#include "engine/private/runtime/framework/Module.h"
+#include "engine/private/runtime/framework/VFS.h"
 
 namespace cave {
 
-enum class AppStateId : uint8_t;
-enum class Backend : uint8_t;
+class Module;
 
-class AppStateMachine;
-class AssetRegistry;
-class BootLoadPipeline;
-class IAssetManager;
-class IDisplayManager;
-class IGraphicsManager;
-class ImguiManager;
-class InputSystem;
-class IPhysicsManager;
-class ISceneManager;
-class IScriptManager;
-class RenderSystem;
-class TaskManager;
-class Scene;
-class VFS;
-class ViewportManager;
-
-struct ApplicationSpec {
-    std::string_view userFolder;
-    std::string_view name;
-    int width;
-    int height;
-    Backend backend;
-    bool decorated;
-    bool fullscreen;
-    bool vsync;
-    bool enableImgui;
-};
-
-class Application : public NonCopyable {
+class Application : public IApplication {
 public:
-    enum class Type : uint32_t {
-        Runtime,
-        Editor,
-        Tool,
-    };
+    Application(const ApplicationSpec& p_spec, Application::Type p_type);
 
-    Application(const ApplicationSpec& p_spec, Type p_type = Type::Runtime);
-    virtual ~Application();
+    AppStateId GetStateId() const override;
 
-    virtual Result<void> Initialize();
-    virtual void Finalize();
-    static void Run(Application* p_app);
+    Result<void> Initialize() override;
+    void Finalize() override;
 
-    AppStateId GetStateId() const;
+    void RequestProject(std::string_view p_path) override;
 
-    EventQueue& GetEventQueue() { return m_event_queue; }
+    BootLoadPipeline& GetBootLoadPipeline() override;
+    VFS& GetVFS() override { return m_vfs; }
+    EventQueue& GetEventQueue() override { return m_event_queue; }
 
-    AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
-    IAssetManager* GetAssetManager() { return m_asset_manager; }
-    InputSystem* GetInputSystem() { return m_input_system; }
-    ISceneManager* GetSceneManager() { return m_scene_manager; }
-    IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
-    IScriptManager* GetScriptManager() { return m_script_manager; }
-    IDisplayManager* GetDisplayManager() { return m_display_server; }
-    IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
-    ImguiManager* GetImguiManager() { return m_imgui_manager; }
-    RenderSystem* GetRenderSystem() { return m_render_system; }
-    TaskManager* GetTaskManager() { return m_task_manager; }
-    ViewportManager* GetViewportManager() { return m_viewport_manager; }
-    VFS& GetVFS() { return *m_vfs; }
-
-    BootLoadPipeline& GetBootLoadPipeline();
-
-    const ApplicationSpec& GetSpecification() const { return m_specification; }
-
-    void RequestProject(std::string_view p_path);
-
-    // @TODO: get rid of the following
-    bool IsRuntime() const { return m_type == Type::Runtime; }
-    bool IsEditor() const { return m_type == Type::Editor; }
-    virtual bool IsWorld2D() const = 0;
+    Type GetType() const override { return m_type; }
 
 protected:
     [[nodiscard]] auto SetupModules() -> Result<void>;
 
-    virtual bool MainLoop();
+    bool MainLoop() override;
 
     float UpdateTime();
 
@@ -97,36 +44,14 @@ protected:
 
     const Type m_type;
 
-    ApplicationSpec m_specification;
-
-    EventQueue m_event_queue;
-
-    // @TODO: differentiate global and state specific managers
-    AssetRegistry* m_asset_registry{ nullptr };
-    IAssetManager* m_asset_manager{ nullptr };
-    ISceneManager* m_scene_manager{ nullptr };
-
-    IPhysicsManager* m_physics_manager{ nullptr };
-    IScriptManager* m_script_manager{ nullptr };
-
-    IDisplayManager* m_display_server{ nullptr };
-    IGraphicsManager* m_graphics_manager{ nullptr };
-    RenderSystem* m_render_system{ nullptr };
-
-    ImguiManager* m_imgui_manager{ nullptr };
-    InputSystem* m_input_system{ nullptr };
-    TaskManager* m_task_manager{ nullptr };
-
-    ViewportManager* m_viewport_manager{ nullptr };
-
-    std::unique_ptr<VFS> m_vfs;
-
-    std::vector<Module*> m_modules;
+    AppStateMachine m_state_machine;
+    std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
 
     Timer m_timer;
+    VFS m_vfs;
 
-    std::unique_ptr<AppStateMachine> m_state_machine;
-    std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
+    EventQueue m_event_queue;
+    std::vector<Module*> m_modules;
 };
 
 }  // namespace cave

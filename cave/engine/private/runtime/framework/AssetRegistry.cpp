@@ -3,14 +3,14 @@
 #include <fstream>
 #include <latch>
 
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 
 namespace cave {
 
 namespace fs = std::filesystem;
 
-extern void RegisterAllPersistentAssets(Application* p_app);
+extern void RegisterAllPersistentAssets(IApplication* p_app);
 
 auto AssetRegistry::InitializeImpl() -> Result<void> {
     RegisterAllPersistentAssets(m_app);

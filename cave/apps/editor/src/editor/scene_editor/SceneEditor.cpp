@@ -2,7 +2,7 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/private/runtime/framework/Application.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/scene/entity_factory.h"
 

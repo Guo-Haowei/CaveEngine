@@ -11,7 +11,7 @@ namespace cave {
 
 class GameRuntimeState : public AppState {
 public:
-    GameRuntimeState(Application& p_app);
+    GameRuntimeState(IApplication& p_app);
 
     void OnEnter(const StateRequest& p_args) final;
 
