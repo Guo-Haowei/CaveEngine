@@ -1,4 +1,4 @@
-#include "engine/private/runtime/gameplay/GameSession.h"
+#include "cave/runtime/gameplay/GameSession.h"
 
 namespace cave::gameplay {
 
@@ -12,40 +12,47 @@ struct Counters {
 
 class TestGameMode final : public IGameMode {
 public:
-    explicit TestGameMode(std::string_view p_id, std::shared_ptr<Counters> p_counters)
-        : m_id(p_id), m_counters(p_counters) {
+    explicit TestGameMode(std::string_view p_id)
+        : m_id(p_id), counters(std::make_shared<Counters>()) {
     }
 
     std::string_view GetId() const override { return m_id; }
 
-    void OnEnter(GameSession&) override { ++m_counters->enter_count; }
-    void OnExit(GameSession&) override { ++m_counters->exit_count; }
+    void OnEnter(GameSession&) override { ++counters->enter_count; }
+    void OnExit(GameSession&) override { ++counters->exit_count; }
 
     void Tick(GameSession&, const GameFrameTime& p_time) override {
-        ++m_counters->tick_count;
-        m_counters->last_dt = p_time.dt;
-        m_counters->last_frame = p_time.frame_index;
+        ++counters->tick_count;
+        counters->last_dt = p_time.dt;
+        counters->last_frame = p_time.frame_index;
     }
+
+    std::shared_ptr<Counters> counters;
 
 private:
     std::string_view m_id;
-    std::shared_ptr<Counters> m_counters;
 };
+
+static void DeleteTestGameMode(IGameMode* p_mode) {
+    if (p_mode) {
+        delete p_mode;
+    }
+}
+
+static bool RegisterTestGame(GameModeFactory& factory) {
+    return factory.Register(
+        "test",
+        []() -> IGameMode* { return new TestGameMode("test"); },
+        DeleteTestGameMode);
+}
 
 TEST(GameModeFactory, register_and_create) {
     GameModeFactory factory;
 
-    auto c = std::make_shared<Counters>();
-    const bool ok = factory.Register("test", [&c] {
-        return std::make_unique<TestGameMode>("test", c);
-    });
-
-    EXPECT_TRUE(ok);
+    EXPECT_TRUE(RegisterTestGame(factory));
 
     // Registering the same id should fail.
-    EXPECT_FALSE(factory.Register("test", [&c] {
-        return std::make_unique<TestGameMode>("test", c);
-    }));
+    EXPECT_FALSE(RegisterTestGame(factory));
 
     auto mode = factory.Create("test");
     ASSERT_NE(mode, nullptr);
@@ -58,15 +65,13 @@ TEST(GameModeFactory, register_and_create) {
 TEST(GameSession, start_tick_stop_calls_lifecycle) {
     GameModeFactory factory;
 
-    auto c = std::make_shared<Counters>();
-
-    factory.Register("test", [&c] {
-        return std::make_unique<TestGameMode>("test", c);
-    });
+    EXPECT_TRUE(RegisterTestGame(factory));
 
     GameSession session(factory);
 
     EXPECT_TRUE(session.Start("test"));
+    auto mode = dynamic_cast<const TestGameMode*>(session.GetMode());
+    auto c = mode->counters;
 
     EXPECT_EQ(c->enter_count, 1);
     EXPECT_EQ(c->exit_count, 0);
@@ -90,20 +95,20 @@ TEST(GameSession, start_tick_stop_calls_lifecycle) {
 TEST(GameSession, request_switch_then_commit_swaps_at_sync_point) {
     GameModeFactory factory;
 
-    auto a = std::make_shared<Counters>();
-    auto b = std::make_shared<Counters>();
-    factory.Register("A", [&a] {
-        auto ptr = std::make_unique<TestGameMode>("A", a);
-        return ptr;
-    });
-    factory.Register("B", [&b] {
-        auto ptr = std::make_unique<TestGameMode>("B", b);
-        return ptr;
-    });
+    factory.Register(
+        "A",
+        []() -> IGameMode* { return new TestGameMode("A"); },
+        DeleteTestGameMode);
+    factory.Register(
+        "B",
+        []() -> IGameMode* { return new TestGameMode("B"); },
+        DeleteTestGameMode);
 
     GameSession session(factory);
 
     ASSERT_TRUE(session.Start("A"));
+    auto mode = dynamic_cast<const TestGameMode*>(session.GetMode());
+    const auto a = mode->counters;
     ASSERT_NE(a, nullptr);
 
     EXPECT_EQ(a->enter_count, 1);
@@ -125,6 +130,8 @@ TEST(GameSession, request_switch_then_commit_swaps_at_sync_point) {
     EXPECT_TRUE(session.CommitModeSwitch());
     EXPECT_EQ(session.GetActiveModeId(), "B");
 
+    mode = dynamic_cast<const TestGameMode*>(session.GetMode());
+    const auto b = mode->counters;
     ASSERT_NE(b, nullptr);
     EXPECT_EQ(a->exit_count, 1);
     EXPECT_EQ(b->enter_count, 1);
@@ -142,15 +149,13 @@ TEST(GameSession, request_switch_fails_if_mode_missing) {
     GameModeFactory factory;
 
     auto a = std::make_shared<Counters>();
-    factory.Register("A", [&a] {
-        return std::make_unique<TestGameMode>("A", a);
-    });
+    EXPECT_TRUE(RegisterTestGame(factory));
 
     GameSession session(factory);
-    ASSERT_TRUE(session.Start("A"));
+    ASSERT_TRUE(session.Start("test"));
 
     EXPECT_FALSE(session.RequestSwitch("Missing"));
-    EXPECT_EQ(session.GetActiveModeId(), "A");
+    EXPECT_EQ(session.GetActiveModeId(), "test");
 }
 
 }  // namespace cave::gameplay

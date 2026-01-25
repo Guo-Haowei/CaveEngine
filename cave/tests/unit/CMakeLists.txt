@@ -19,6 +19,11 @@ set_target_properties(${TARGET_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
+set_target_properties(${TARGET_NAME}
+    PROPERTIES
+    FOLDER tests
+)
+
 set(TARGET_LIBS
     engine
     gtest_main

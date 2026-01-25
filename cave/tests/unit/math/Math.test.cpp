@@ -1,5 +1,3 @@
-#include "engine/private/math/math.h"
-
 namespace cave {
 
 TEST(Bit, compile_time) {

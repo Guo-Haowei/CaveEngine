@@ -1,4 +1,4 @@
-#include "engine/private/runtime/gameplay/GameSession.h"
+#include "cave/runtime/gameplay/GameSession.h"
 
 namespace cave::gameplay {
 
@@ -150,9 +150,10 @@ private:
 };
 
 static inline void RegisterMiniCount(cave::GameModeFactory& factory) {
-    factory.Register("minicount", [] {
-        return std::make_unique<MiniCountGameMode>(Config{ .target = 9 });
-    });
+    factory.Register(
+        "minicount",
+        []() -> IGameMode* { return new MiniCountGameMode(Config{ .target = 9 }); },
+        [](IGameMode* p_mode) { delete p_mode; });
 }
 
 TEST(MiniCountGameMode, scripted_vs_greedy_player0_wins) {

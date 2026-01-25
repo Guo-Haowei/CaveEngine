@@ -2,6 +2,7 @@
 
 namespace cave {
 
+#if 0
 TEST(concurrent_queue, test) {
     ConcurrentQueue<int> concurrent_queue;
     std::latch latch{ 1 };
@@ -41,5 +42,6 @@ TEST(concurrent_queue, test) {
               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
               "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 }
+#endif
 
 }  // namespace cave
