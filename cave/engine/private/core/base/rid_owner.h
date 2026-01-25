@@ -3,8 +3,6 @@
 
 #include "cave/runtime/core/IntrusiveList.h"
 
-#include "engine/private/core/io/print.h"
-// #include "engine/private/math/math.h"
 #include "engine/private/core/os/spin_lock.h"
 
 namespace cave {

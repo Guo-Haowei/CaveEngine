@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+#include <type_traits>
 
 #ifdef BIT
 #undef BIT

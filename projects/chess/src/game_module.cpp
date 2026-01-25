@@ -2,7 +2,7 @@
 #include <cave/runtime/framework/IApplication.h>
 #include <cave/runtime/gameplay/GameModeFactory.h>
 
-#include "ChessMode.h"
+#include "ChessGameMode.h"
 
 namespace cave::chess {
 

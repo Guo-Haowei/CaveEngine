@@ -94,7 +94,7 @@ void GameRuntimeState::OnEnter(const StateRequest& p_args) {
     }
 
     std::string_view mode = p_args.arg0;
-    mode = "chess"; // @TODO: get correct game mode
+    mode = "chess";  // @TODO: get correct game mode
 
     m_session = std::make_unique<GameSession>(m_app.GetGameModeFactory());
     m_session->Start(mode);

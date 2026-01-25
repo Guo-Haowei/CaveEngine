@@ -31,8 +31,7 @@
 
 #include "cave/runtime/core/typedefs.h"
 #include "cave/runtime/core/ErrorMacros.h"
-
-#include "engine/private/core/io/print.h"
+#include "cave/runtime/core/Print.h"
 
 // include it after error_macros.h
 #include "engine/private/core/base/optional.h"
