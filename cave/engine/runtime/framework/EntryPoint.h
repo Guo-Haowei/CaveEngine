@@ -4,39 +4,55 @@
 #include "engine/runtime/framework/Engine.h"
 
 #define DEFINE_DVAR
-#include "engine/renderer/graphics_dvars.h"
+#include "engine/runtime/framework/CommonDvars.h"
 #undef DEFINE_DVAR
 #define DEFINE_DVAR
-#include "engine/runtime/framework/CommonDvars.h"
+#include "engine/renderer/graphics_dvars.h"
 #undef DEFINE_DVAR
 
 namespace cave {
 
-[[maybe_unused]] static constexpr const char* DVAR_CACHE_FILE = "dynamic_variables.cache";
+#if USING(ENABLE_DVAR)
+static constexpr const char* DVAR_CACHE_FILE = "dynamic_variables.cache";
 
-static void RegisterCommonDvars() {
+extern void RegisterExtraDvars();
+
+static void InitializeDvars(const std::vector<std::string>& p_commands) {
+    // 1) Register dvars
 #define REGISTER_DVAR
 #include "engine/runtime/framework/CommonDvars.h"
 #undef REGISTER_DVAR
-}
-
-static void RegisterRenderDvars() {
 #define REGISTER_DVAR
 #include "engine/renderer/graphics_dvars.h"
 #undef REGISTER_DVAR
-}
+    RegisterExtraDvars();
 
-extern Application* CreateApplication();
-extern void RegisterExtraDvars();
+    // 2) Deserialize dvars
+    DynamicVariableManager::Deserialize(DVAR_CACHE_FILE);
+    // 3) Parse from command line, so command line will override cache
+    DynamicVariableManager::Parse(p_commands);
+}
+#define INITIALIZE_DVARS(CMD) ::cave::InitializeDvars(CMD)
+#define FINALIZE_DVARS()      ::cave::DynamicVariableManager::Serialize(DVAR_CACHE_FILE)
+
+#else
+#define INITIALIZE_DVARS(...) (void)0
+#define FINALIZE_DVARS()      (void)0
+#endif
+
+extern Application* CreateApp();
+extern void DestroyApp(Application* p_app);
 
 #ifdef EMPTY_APPLICATION
-Application* CreateApplication() { return nullptr; }
+Application* CreateApp() { return nullptr; }
+void DestroyApp(Application*) {}
+
 void RegisterExtraDvars() {}
 #endif
 
+// @TODO: refactor this
 static auto SaveCommandLine(int p_argc, const char** p_argv) {
     std::vector<std::string> command_line;
-    // m_appName = p_argv[0];
     for (int i = 1; i < p_argc; ++i) {
         command_line.push_back(p_argv[i]);
     }
@@ -44,38 +60,30 @@ static auto SaveCommandLine(int p_argc, const char** p_argv) {
 }
 
 int Main(int p_argc, const char** p_argv) {
-    int result = 0;
-    {
-        engine::InitializeCore();
+    engine::InitializeCore();
+    INITIALIZE_DVARS(SaveCommandLine(p_argc, p_argv));
 
-#if USING(ENABLE_DVAR)
-        RegisterCommonDvars();
-        RegisterRenderDvars();
-        RegisterExtraDvars(); // NOTE: this should come from game.dll?
-        DynamicVariableManager::Deserialize(DVAR_CACHE_FILE);
-        // parse happens after deserialization, so command line will override cache
-        DynamicVariableManager::Parse(SaveCommandLine(p_argc, p_argv));
-#endif
-
-        Application* app = CreateApplication();
-        DEV_ASSERT(app);
-
-        if (auto res = app->Initialize(); !res) {
-            LOG_ERROR("{}", ToString(res.error()));
-        } else {
-            Application::Run(app);
-        }
-
-        app->Finalize();
-        delete app;
-
-#if USING(ENABLE_DVAR)
-        DynamicVariableManager::Serialize(DVAR_CACHE_FILE);
-#endif
-
+    ON_SCOPE_EXIT([&]() {
+        FINALIZE_DVARS();
         engine::FinalizeCore();
+    });
+
+    Application* app = CreateApp();
+    if (!app) {
+        LOG_ERROR("Failed to create application");
+        return 1;
     }
-    return result;
+
+    if (auto res = app->Initialize(); !res) {
+        LOG_ERROR("{}", ToString(res.error()));
+        DestroyApp(app);
+        return 1;
+    }
+
+    Application::Run(app);
+    app->Finalize();
+    DestroyApp(app);
+    return 0;
 }
 
 }  // namespace cave

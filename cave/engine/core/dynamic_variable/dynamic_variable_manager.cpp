@@ -44,6 +44,7 @@ void DynamicVariableManager::Deserialize(std::string_view p_path) {
     reader->ReadBuffer(buffer.data(), size);
     reader->Close();
 
+    // @TODO: use string_view instead
     std::stringstream ss{ buffer };
     std::vector<std::string> commands;
     std::string token;

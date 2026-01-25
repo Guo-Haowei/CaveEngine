@@ -1,6 +1,6 @@
 #include "engine/core/string/string_utils.h"
 #include "engine/drivers/glfw/glfw_display_manager.h"
-#include "engine/renderer/graphics_dvars.h"
+// #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/framework/EntryPoint.h"
 #include "engine/runtime/framework/RuntimeState.h"
 #include "engine/runtime/framework/ISceneManager.h"
@@ -84,7 +84,7 @@ private:
     const bool m_is_world_2d;
 };
 
-Application* CreateApplication() {
+Application* CreateApp() {
     std::string_view root = StringUtils::BasePath(__FILE__);
     root = StringUtils::BasePath(root);
     root = StringUtils::BasePath(root);
@@ -119,6 +119,12 @@ Application* CreateApplication() {
     }
 
     return new Editor(spec);
+}
+
+void DestroyApp(Application* p_app) {
+    if (DEV_VERIFY(p_app)) {
+        delete p_app;
+    }
 }
 
 }  // namespace cave

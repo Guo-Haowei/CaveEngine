@@ -21,7 +21,7 @@ void RegisterExtraDvars() {
 
 extern Application* CreateCliApp(const ApplicationSpec& p_spec);
 
-Application* CreateApplication() {
+Application* CreateApp() {
     // @TODO: get rid of this
     std::string_view root = StringUtils::BasePath(__FILE__);
     root = StringUtils::BasePath(root);
@@ -45,6 +45,12 @@ Application* CreateApplication() {
     spec.vsync = false;
     spec.enableImgui = false;
     return CreateCliApp(spec);
+}
+
+void DestroyApp(Application* p_app) {
+    if (DEV_VERIFY(p_app)) {
+        delete p_app;
+    }
 }
 
 }  // namespace cave
