@@ -1,4 +1,4 @@
-#include "property_panel.h"
+#include "PropertyPanel.h"
 
 #include <glm/gtc/quaternion.hpp>
 #include <ImGuizmo/ImGuizmo.h>
@@ -11,16 +11,16 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/runtime/framework/AssetRegistry.h"
 #include "engine/scene/entity_factory.h"
-
-#include "editor/editor_command.h"
-#include "editor/editor_state.h"
-#include "editor/scene_editor/scene_document.h"
-#include "editor/utility/content_entry.h"
-#include "editor/viewer/viewer.h"
-#include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/drag_drop.h"
 #include "engine/ui/inputs.h"
 #include "engine/ui/layout.h"
+
+#include "editor/EditorCommand.h"
+#include "editor/EditorState.h"
+#include "editor/scene_editor/SceneDocument.h"
+#include "editor/utility/ContentEntry.h"
+#include "editor/viewer/Viewer.h"
+#include "editor/viewer/ViewerTab.h"
+#include "editor/widgets/DragDrop.h"
 
 namespace cave {
 

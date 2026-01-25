@@ -3,9 +3,9 @@
 #include "engine/assets/sprite_animation_asset.h"
 #include "engine/ecs/entity.h"
 
-#include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/sprite_selector.h"
-#include "editor/widgets/tool_bar.h"
+#include "editor/viewer/ViewerTab.h"
+#include "editor/widgets/SpriteSelector.h"
+#include "editor/widgets/ToolBar.h"
 
 namespace cave {
 

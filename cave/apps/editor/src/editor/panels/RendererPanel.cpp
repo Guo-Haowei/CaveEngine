@@ -1,4 +1,4 @@
-#include "renderer_panel.h"
+#include "RendererPanel.h"
 
 #include <imgui/imgui_internal.h>
 
@@ -11,8 +11,8 @@
 #include "engine/runtime/framework/CommonDvars.h"
 #include "engine/scene/scene.h"
 
-#include "editor/editor_dvars.h"
-#include "editor/editor_state.h"
+#include "editor/EditorDvars.h"
+#include "editor/EditorState.h"
 
 namespace cave {
 

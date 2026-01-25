@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/assets/guid.h"
-#include "editor/enums.h"
-#include "editor/undo_redo/undo_stack.h"
+#include "editor/Enums.h"
+#include "editor/undo_redo/UndoStack.h"
 
 namespace cave {
 

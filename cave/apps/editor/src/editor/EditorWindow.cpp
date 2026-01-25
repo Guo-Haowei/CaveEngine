@@ -1,4 +1,4 @@
-#include "editor_window.h"
+#include "EditorWindow.h"
 
 namespace cave {
 

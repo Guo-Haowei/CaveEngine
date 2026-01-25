@@ -1,12 +1,12 @@
-#include "menu_bar.h"
+#include "MenuBar.h"
 
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/framework/InputSystem.h"
 #include "engine/ui/layout.h"
 
-#include "editor/editor_state.h"
-#include "editor/panels/log_panel.h"
-#include "editor/widgets/image.h"
+#include "editor/EditorState.h"
+#include "editor/panels/LogPanel.h"
+#include "editor/widgets/Image.h"
 
 namespace cave {
 

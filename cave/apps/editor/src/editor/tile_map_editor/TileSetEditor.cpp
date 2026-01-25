@@ -1,13 +1,13 @@
-#include "tile_set_editor.h"
+#include "TileSetEditor.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/assets/image_asset.h"
 #include "engine/assets/tile_set_asset.h"
 #include "engine/scene/camera_component.h"
+#include "engine/ui/layout.h"
 
 #include "editor/document/document.h"
-#include "engine/ui/layout.h"
 
 namespace cave {
 

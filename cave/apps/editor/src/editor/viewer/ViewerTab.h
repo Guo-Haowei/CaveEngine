@@ -1,5 +1,5 @@
 #pragma once
-#include "viewer_tab_id.h"
+#include "ViewerTabId.h"
 
 #include "engine/assets/guid.h"
 #include "engine/ecs/entity.h"
@@ -7,9 +7,9 @@
 #include "engine/runtime/framework/SceneView.h"
 #include "engine/scene/camera_controller.h"
 
-#include "editor/enums.h"
-#include "editor/undo_redo/undo_stack.h"
-#include "editor/widgets/tool_bar.h"
+#include "editor/Enums.h"
+#include "editor/undo_redo/UndoStack.h"
+#include "editor/widgets/ToolBar.h"
 
 namespace cave {
 

@@ -1,10 +1,10 @@
 #pragma once
-#include "enums.h"
+#include <engine/assets/guid.h>
+#include <engine/ecs/entity.h>
+#include <engine/math/geomath.h>
 
-#include "engine/assets/guid.h"
-#include "engine/ecs/entity.h"
-#include "engine/math/geomath.h"
-#include "editor/undo_redo/undo_command.h"
+#include "editor/Enums.h"
+#include "editor/undo_redo/UndoCommand.h"
 
 namespace cave {
 

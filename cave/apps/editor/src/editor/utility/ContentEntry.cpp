@@ -1,4 +1,4 @@
-#include "content_entry.h"
+#include "ContentEntry.h"
 
 #include "engine/assets/image_asset.h"
 #include "engine/core/os/platform_io.h"
@@ -6,7 +6,7 @@
 #include "engine/runtime/framework/IAssetManager.h"
 #include "engine/runtime/framework/AssetRegistry.h"
 
-#include "editor/editor_state.h"
+#include "editor/EditorState.h"
 
 namespace cave {
 

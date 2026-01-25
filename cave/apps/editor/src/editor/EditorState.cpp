@@ -1,4 +1,4 @@
-#include "editor_state.h"
+#include "EditorState.h"
 
 #include "engine/debugger/profiler.h"
 #include "engine/runtime/framework/Application.h"
@@ -20,19 +20,19 @@
 #include "engine/ui/layout.h"
 
 #include "editor/document/document.h"
-#include "editor/editor_command.h"
-#include "editor/editor_dvars.h"
-#include "editor/panels/asset_inspector.h"
-#include "editor/panels/file_system_panel.h"
-#include "editor/panels/hierarchy_panel.h"
-#include "editor/panels/log_panel.h"
-#include "editor/panels/menu_bar.h"
-#include "editor/panels/property_panel.h"
-#include "editor/panels/render_graph_viewer.h"
-#include "editor/panels/renderer_panel.h"
-#include "editor/viewer/viewer.h"
-#include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/image.h"
+#include "editor/EditorCommand.h"
+#include "editor/EditorDvars.h"
+#include "editor/panels/AssetInspector.h"
+#include "editor/panels/FileSystemPanel.h"
+#include "editor/panels/HierarchyPanel.h"
+#include "editor/panels/LogPanel.h"
+#include "editor/panels/MenuBar.h"
+#include "editor/panels/PropertyPanel.h"
+#include "editor/panels/RenderGraphViewer.h"
+#include "editor/panels/RendererPanel.h"
+#include "editor/viewer/Viewer.h"
+#include "editor/viewer/ViewerTab.h"
+#include "editor/widgets/Image.h"
 
 namespace cave {
 

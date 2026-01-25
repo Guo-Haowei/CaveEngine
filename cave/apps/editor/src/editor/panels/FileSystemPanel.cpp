@@ -1,4 +1,4 @@
-#include "file_system_panel.h"
+#include "FileSystemPanel.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
@@ -8,10 +8,10 @@
 #include "engine/runtime/framework/CommonDvars.h"
 #include "engine/runtime/framework/VFS.h"
 
-#include "editor/editor_asset_manager.h"
-#include "editor/editor_state.h"
-#include "editor/utility/content_entry.h"
-#include "editor/widgets/drag_drop.h"
+#include "editor/EditorAssetManager.h"
+#include "editor/EditorState.h"
+#include "editor/utility/ContentEntry.h"
+#include "editor/widgets/DragDrop.h"
 #include "engine/ui/inputs.h"
 
 namespace cave {

@@ -1,11 +1,10 @@
-#include "editor_scene_manager.h"
+#include "EditorSceneManager.h"
 
-#include "editor_dvars.h"
+#include "EditorDvars.h"
 #include "engine/scene/entity_factory.h"
 
 namespace cave {
 
-extern Scene* CreateTheAviatorScene();
 extern Scene* CreateBoxScene();
 extern Scene* CreatePbrTestScene();
 extern Scene* CreatePhysicsTestScene();

@@ -1,7 +1,7 @@
-#include "viewer_tab_manager.h"
+#include "ViewerTabManager.h"
 
 #include "editor/document/document.h"
-#include "editor/viewer/viewer_tab.h"
+#include "editor/viewer/ViewerTab.h"
 
 namespace cave {
 

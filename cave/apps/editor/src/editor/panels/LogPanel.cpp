@@ -1,9 +1,9 @@
-#include "log_panel.h"
+#include "LogPanel.h"
 
 #include "engine/debugger/profiler.h"
 #include "engine/math/color.h"
 
-#include "editor/widgets/image.h"
+#include "editor/widgets/Image.h"
 
 namespace cave {
 

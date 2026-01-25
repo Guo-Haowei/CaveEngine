@@ -1,4 +1,4 @@
-#include "editor_asset_manager.h"
+#include "EditorAssetManager.h"
 
 #include "engine/assets/image_asset.h"
 #include "engine/core/string/string_utils.h"
@@ -10,7 +10,7 @@
 // @TODO: refactor
 #include "engine/drivers/windows/win32_prerequisites.h"
 
-#include "editor/utility/content_entry.h"
+#include "editor/utility/ContentEntry.h"
 
 namespace cave {
 

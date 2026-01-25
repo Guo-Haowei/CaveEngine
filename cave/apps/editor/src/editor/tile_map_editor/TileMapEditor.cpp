@@ -1,4 +1,4 @@
-#include "tile_map_editor.h"
+#include "TileMapEditor.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
@@ -6,15 +6,15 @@
 #include "engine/assets/tile_set_asset.h"
 #include "engine/scene/entity_factory.h"
 
-#include "editor/editor_state.h"
-#include "editor/editor_scene_manager.h"
-#include "editor/widgets/drag_drop.h"
-#include "editor/widgets/image.h"
+#include "editor/EditorState.h"
+#include "editor/EditorSceneManager.h"
+#include "editor/widgets/DragDrop.h"
+#include "editor/widgets/Image.h"
 #include "engine/ui/inputs.h"
 #include "engine/ui/layout.h"
-#include "editor/viewer/viewer.h"
-#include "editor/utility/imguizmo.h"
-#include "editor/tile_map_editor/tile_map_document.h"
+#include "editor/viewer/Viewer.h"
+#include "editor/utility/ImGuizmo.h"
+#include "editor/tile_map_editor/TileMapDocument.h"
 
 namespace cave {
 

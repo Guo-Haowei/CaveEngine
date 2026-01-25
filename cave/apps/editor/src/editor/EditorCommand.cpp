@@ -1,7 +1,7 @@
-#include "editor_command.h"
+#include "EditorCommand.h"
 
-#include "editor/editor_state.h"
-#include "editor/viewer/viewer.h"
+#include "editor/EditorState.h"
+#include "editor/viewer/Viewer.h"
 
 #include "engine/core/os/platform_io.h"
 #include "engine/core/string/string_utils.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/editor_item.h"
+#include "editor/EditorItem.h"
 #include "engine/scene/scene.h"
 
 namespace cave {

@@ -1,4 +1,4 @@
-#include "hierarchy_panel.h"
+#include "HierarchyPanel.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui_internal.h>
@@ -6,10 +6,10 @@
 #include "engine/assets/mesh_asset.h"
 #include "engine/debugger/profiler.h"
 
-#include "editor/editor_state.h"
-#include "editor/viewer/viewer.h"
-#include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/drag_drop.h"
+#include "editor/EditorState.h"
+#include "editor/viewer/Viewer.h"
+#include "editor/viewer/ViewerTab.h"
+#include "editor/widgets/DragDrop.h"
 
 namespace cave {
 using ecs::Entity;
@@ -87,7 +87,7 @@ static bool TreeNodeHelper(Scene& p_scene,
         }
     }
 
-    // @TODO: refactor to use drag_drop.h interface
+    // @TODO: refactor to use DragDrop.h interface
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
         SetPayload(PAYLOAD_SCENE_NODE, p_id);
         ImGui::Text("entity '%s'", name.c_str());

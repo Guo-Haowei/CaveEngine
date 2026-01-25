@@ -1,14 +1,15 @@
 #pragma once
-#include "engine/runtime/framework/AppState.h"
+#include <engine/runtime/framework/AppState.h>
 
 // @TODO: check if all the includes are necessary
-#include "engine/assets/asset_handle.h"
-#include "engine/input/input_router.h"
-#include "engine/runtime/framework/Application.h"
-#include "engine/scene/scene.h"
-#include "engine/scene/scene_component.h"
-#include "editor/editor_window.h"
-#include "editor/viewer/viewer_tab.h"
+#include <engine/assets/asset_handle.h>
+#include <engine/input/input_router.h>
+#include <engine/runtime/framework/Application.h>
+#include <engine/scene/scene.h>
+#include <engine/scene/scene_component.h>
+
+#include "editor/EditorWindow.h"
+#include "editor/viewer/ViewerTab.h"
 
 namespace cave {
 

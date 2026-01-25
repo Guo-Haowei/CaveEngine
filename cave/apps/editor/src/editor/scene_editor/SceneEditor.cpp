@@ -1,4 +1,4 @@
-#include "scene_editor.h"
+#include "SceneEditor.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
@@ -7,14 +7,14 @@
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
-#include "editor/editor_state.h"
-#include "editor/editor_scene_manager.h"
-#include "editor/scene_editor/scene_document.h"
-#include "editor/utility/imguizmo.h"
-#include "editor/viewer/viewer.h"
+#include "editor/EditorState.h"
+#include "editor/EditorSceneManager.h"
+#include "editor/scene_editor/SceneDocument.h"
+#include "editor/utility/ImGuizmo.h"
+#include "editor/viewer/Viewer.h"
 
 // @TODO: refactor
-#include "editor/editor_dvars.h"
+#include "editor/EditorDvars.h"
 
 namespace cave {
 

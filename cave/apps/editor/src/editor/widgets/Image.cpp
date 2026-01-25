@@ -1,4 +1,4 @@
-#include "image.h"
+#include "Image.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 #include <imgui/imgui.h>

@@ -3,8 +3,8 @@
 #include "engine/math/geomath.h"
 #include "engine/assets/tile_map_asset.h"
 
-#include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/sprite_selector.h"
+#include "editor/viewer/ViewerTab.h"
+#include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
 

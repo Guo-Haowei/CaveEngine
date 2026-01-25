@@ -1,6 +1,6 @@
-#include "editor_item.h"
+#include "EditorItem.h"
 
-#include "editor/editor_state.h"
+#include "editor/EditorState.h"
 
 namespace cave {
 

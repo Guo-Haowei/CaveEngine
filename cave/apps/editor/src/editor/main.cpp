@@ -9,13 +9,13 @@
 #include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
-#include "editor/editor_asset_manager.h"
-#include "editor/editor_state.h"
-#include "editor/editor_scene_manager.h"
-#include "editor/project_browser_state.h"
+#include "editor/EditorAssetManager.h"
+#include "editor/EditorState.h"
+#include "editor/EditorSceneManager.h"
+#include "editor/ProjectBrowserState.h"
 
 #define DEFINE_DVAR
-#include "editor_dvars.h"
+#include "EditorDvars.h"
 #undef DEFINE_DVAR
 
 namespace cave {
@@ -24,7 +24,7 @@ namespace fs = std::filesystem;
 
 void RegisterExtraDvars() {
 #define REGISTER_DVAR
-#include "editor_dvars.h"
+#include "EditorDvars.h"
 #undef REGISTER_DVAR
 }
 

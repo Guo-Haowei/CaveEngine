@@ -1,4 +1,4 @@
-#include "viewer_tab.h"
+#include "ViewerTab.h"
 
 #include "engine/core/string/string_utils.h"
 #include "engine/renderer/graphics_dvars.h"
@@ -8,9 +8,9 @@
 #include "engine/scene/entity_factory.h"
 
 #include "editor/document/document.h"
-#include "editor/editor_state.h"
-#include "editor/panels/asset_inspector.h"
-#include "editor/viewer/viewer.h"
+#include "editor/EditorState.h"
+#include "editor/panels/AssetInspector.h"
+#include "editor/viewer/Viewer.h"
 
 namespace cave {
 

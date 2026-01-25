@@ -1,4 +1,4 @@
-#include "viewer.h"
+#include "Viewer.h"
 
 #include <imgui/imgui_internal.h>
 
@@ -9,17 +9,17 @@
 #include "engine/runtime/framework/ViewportManager.h"
 
 #include "editor/document/document.h"
-#include "editor/editor_dvars.h"
-#include "editor/editor_state.h"
-#include "editor/utility/imguizmo.h"
+#include "editor/EditorDvars.h"
+#include "editor/EditorState.h"
+#include "editor/utility/ImGuizmo.h"
 #include "engine/ui/layout.h"
 
 // asset editors
-#include "editor/animation_editor/sprite_animation_editor.h"
-#include "editor/material_editor/material_editor.h"
-#include "editor/scene_editor/scene_editor.h"
-#include "editor/tile_map_editor/tile_map_editor.h"
-#include "editor/tile_map_editor/tile_set_editor.h"
+#include "editor/animation_editor/SpriteAnimationEditor.h"
+#include "editor/material_editor/MaterialEditor.h"
+#include "editor/scene_editor/SceneEditor.h"
+#include "editor/tile_map_editor/TileMapEditor.h"
+#include "editor/tile_map_editor/TileSetEditor.h"
 
 namespace cave {
 

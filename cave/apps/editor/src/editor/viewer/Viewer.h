@@ -1,10 +1,7 @@
 #pragma once
-#include "viewer_tab_manager.h"
-
-#include "engine/input/input_router.h"
-
-#include "editor/editor_window.h"
-#include "editor/enums.h"
+#include "editor/viewer/ViewerTabManager.h"
+#include "editor/EditorWindow.h"
+#include "editor/Enums.h"
 
 namespace cave {
 

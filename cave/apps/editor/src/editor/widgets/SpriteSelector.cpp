@@ -1,4 +1,4 @@
-#include "sprite_selector.h"
+#include "SpriteSelector.h"
 
 #include "engine/assets/image_asset.h"
 

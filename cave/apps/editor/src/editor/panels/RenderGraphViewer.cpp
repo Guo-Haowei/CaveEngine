@@ -1,4 +1,4 @@
-#include "render_graph_viewer.h"
+#include "RenderGraphViewer.h"
 
 #include <imnodes/imnodes.h>
 
@@ -7,7 +7,7 @@
 #include "engine/render_graph/render_graph.h"
 #include "engine/runtime/framework/Application.h"
 
-#include "editor/editor_state.h"
+#include "editor/EditorState.h"
 
 namespace cave {
 

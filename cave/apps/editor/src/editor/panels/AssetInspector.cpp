@@ -1,4 +1,4 @@
-#include "asset_inspector.h"
+#include "AssetInspector.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
@@ -6,14 +6,14 @@
 #include "engine/debugger/profiler.h"
 #include "engine/runtime/framework/AssetRegistry.h"
 
-#include "editor/editor_asset_manager.h"
-#include "editor/editor_state.h"
-#include "editor/utility/content_entry.h"
-#include "editor/viewer/viewer.h"
-#include "editor/viewer/viewer_tab.h"
-#include "editor/widgets/drag_drop.h"
-#include "editor/widgets/image.h"
-#include "editor/widgets/tool_bar.h"
+#include "editor/EditorAssetManager.h"
+#include "editor/EditorState.h"
+#include "editor/utility/ContentEntry.h"
+#include "editor/viewer/Viewer.h"
+#include "editor/viewer/ViewerTab.h"
+#include "editor/widgets/DragDrop.h"
+#include "editor/widgets/Image.h"
+#include "editor/widgets/ToolBar.h"
 #include "engine/ui/layout.h"
 
 namespace cave {
