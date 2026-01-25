@@ -51,7 +51,7 @@ int Main(int p_argc, const char** p_argv) {
 #if USING(ENABLE_DVAR)
         RegisterCommonDvars();
         RegisterRenderDvars();
-        RegisterExtraDvars();
+        RegisterExtraDvars(); // NOTE: this should come from game.dll?
         DynamicVariableManager::Deserialize(DVAR_CACHE_FILE);
         // parse happens after deserialization, so command line will override cache
         DynamicVariableManager::Parse(SaveCommandLine(p_argc, p_argv));
