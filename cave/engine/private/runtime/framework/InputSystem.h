@@ -1,5 +1,6 @@
 #pragma once
-#include "engine/private/core/base/singleton.h"
+#include "cave/runtime/core/Singleton.h"
+
 #include "engine/private/input/action_state.h"
 #include "engine/private/input/axis_state.h"
 #include "engine/private/input/input_action_map.h"

@@ -1,7 +1,10 @@
 // =============================================================================
-// File: engine/private/runtime/gameplay/IGameMode.h
+// File: engine/public/cave/runtime/gameplay/IGameMode.h
 // =============================================================================
 #pragma once
+#include <cstdint>
+#include <string_view>
+#include <vector>
 
 namespace cave {
 

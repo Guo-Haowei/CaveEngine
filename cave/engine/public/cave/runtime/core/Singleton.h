@@ -1,5 +1,6 @@
 #pragma once
-#include "noncopyable.h"
+#include <cassert>
+#include "NonCopyable.h"
 
 namespace cave {
 
@@ -10,17 +11,17 @@ class Singleton : public NonCopyable {
 
 public:
     Singleton() {
-        DEV_ASSERT(s_singleton == nullptr);
+        assert(s_singleton == nullptr);
         s_singleton = static_cast<T*>(this);
     }
 
     virtual ~Singleton() {
-        DEV_ASSERT(s_singleton);
+        assert(s_singleton);
         s_singleton = nullptr;
     }
 
     static T& GetSingleton() {
-        DEV_ASSERT(s_singleton);
+        assert(s_singleton);
         return *s_singleton;
     }
 

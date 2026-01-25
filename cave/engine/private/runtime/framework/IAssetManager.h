@@ -1,7 +1,8 @@
 #pragma once
+#include "cave/runtime/core/Singleton.h"
+
 #include "engine/private/assets/asset_interface.h"
 #include "engine/private/core/base/concurrent_queue.h"
-#include "engine/private/core/base/singleton.h"
 #include "engine/private/runtime/framework/Module.h"
 
 namespace cave {

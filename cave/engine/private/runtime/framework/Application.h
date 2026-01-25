@@ -1,13 +1,14 @@
 #pragma once
-#include "engine/private/core/base/noncopyable.h"
+#include "cave/runtime/core/NonCopyable.h"
+
 #include "engine/private/core/os/timer.h"
-#include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
 
 enum class AppStateId : uint8_t;
+enum class Backend : uint8_t;
 
 class AppStateMachine;
 class AssetRegistry;

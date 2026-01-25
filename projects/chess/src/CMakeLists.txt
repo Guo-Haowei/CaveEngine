@@ -15,7 +15,7 @@ set_target_properties(${TARGET_NAME}
 )
 
 target_include_directories(${TARGET_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}/cave/sdk/
+    ${CMAKE_SOURCE_DIR}/cave/public
 )
 
 set_target_properties(${TARGET_NAME}

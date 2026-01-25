@@ -1,9 +1,8 @@
 // =============================================================================
 // File: engine/private/runtime/gameplay/GameModeFactory.cpp
 // =============================================================================
-#include "GameModeFactory.h"
-
-#include "IGameMode.h"
+#include "cave/runtime/gameplay/GameModeFactory.h"
+#include "cave/runtime/gameplay/IGameMode.h"
 
 namespace cave {
 

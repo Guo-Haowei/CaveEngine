@@ -1,5 +1,6 @@
 #pragma once
-#include "engine/private/core/base/noncopyable.h"
+#include "cave/runtime/core/NonCopyable.h"
+
 #include "render_pass.h"
 
 namespace cave {

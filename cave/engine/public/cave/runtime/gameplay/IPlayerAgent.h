@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/private/runtime/gameplay/IPlayerAgent.h
+// File: engine/public/cave/runtime/gameplay/IPlayerAgent.h
 // =============================================================================
 #pragma once
 

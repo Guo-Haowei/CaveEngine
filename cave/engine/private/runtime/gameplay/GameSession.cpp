@@ -1,7 +1,7 @@
 // =============================================================================
 // File: engine/private/runtime/gameplay/GameSession.cpp
 // =============================================================================
-#include "GameSession.h"
+#include "cave/runtime/gameplay/GameSession.h"
 
 namespace cave {
 

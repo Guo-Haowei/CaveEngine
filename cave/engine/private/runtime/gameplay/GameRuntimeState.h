@@ -2,9 +2,10 @@
 // File: engine/private/runtime/gameplay/GameRuntimeState.h
 // =============================================================================
 #pragma once
+#include "cave/runtime/gameplay/GameModeFactory.h"
+
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/GameModuleLoader.h"
-#include "engine/private/runtime/gameplay/GameModeFactory.h"
 
 namespace cave {
 

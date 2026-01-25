@@ -1,5 +1,6 @@
 #pragma once
-#include "engine/private/core/base/singleton.h"
+#include "cave/runtime/core/Singleton.h"
+
 #include "engine/private/core/io/logger.h"
 
 namespace cave {
