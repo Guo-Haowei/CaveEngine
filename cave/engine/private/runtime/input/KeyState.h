@@ -2,9 +2,8 @@
 // File: engine/private/runtime/input/KeyState.h
 // =============================================================================
 #pragma once
+#include "cave/runtime/input/InputTypes.h"
 #include "cave/runtime/input/KeyCode.h"
-
-#include "InputTypes.h"
 
 namespace cave {
 

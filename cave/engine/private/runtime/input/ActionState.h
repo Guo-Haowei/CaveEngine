@@ -2,7 +2,7 @@
 // File: engine/private/runtime/input/ActionState.h
 // =============================================================================
 #pragma once
-#include "InputTypes.h"
+#include "cave/runtime/input/InputTypes.h"
 
 namespace cave {
 

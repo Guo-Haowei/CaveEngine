@@ -2,9 +2,11 @@
 // File: engine/private/runtime/input/IInputDevice.h
 // =============================================================================
 #pragma once
-#include "InputTypes.h"
+#include "cave/runtime/input/InputTypes.h"
 
 namespace cave {
+
+struct InputEvent;
 
 class IInputDevice {
 public:

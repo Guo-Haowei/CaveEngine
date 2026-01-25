@@ -2,8 +2,7 @@
 // File: engine/private/runtime/input/AxisState.h
 // =============================================================================
 #pragma once
-#include "InputTypes.h"
-
+#include "cave/runtime/input/InputTypes.h"
 #include "cave/runtime/input/KeyCode.h"
 
 namespace cave {

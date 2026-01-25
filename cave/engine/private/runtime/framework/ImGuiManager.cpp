@@ -6,11 +6,11 @@
 #include <filesystem>
 
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/input/InputTypes.h"
 #include "cave/runtime/input/KeyCode.h"
 
 #include "engine/private/assets/blob_asset.h"
 #include "engine/private/runtime/string/StringUtils.h"
-#include "engine/private/runtime/input/InputTypes.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/DisplayManager.h"

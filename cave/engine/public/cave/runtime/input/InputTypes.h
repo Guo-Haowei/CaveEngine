@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/private/runtime/input/InputTypes.h
+// File: cave/runtime/input/InputTypes.h
 // =============================================================================
 #pragma once
 #include "cave/runtime/string/StringId.h"
