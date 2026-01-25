@@ -1,7 +1,7 @@
 #include "ecs_systems.h"
 
 #include "engine/private/assets/mesh_asset.h"
-#include "engine/private/core/base/random.h"
+#include "engine/private/runtime/core/base/random.h"
 #include "engine/private/debugger/profiler.h"
 #include "engine/private/scene/scene.h"
 #include "engine/private/systems/job_system/job_system.h"

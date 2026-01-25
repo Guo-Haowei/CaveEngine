@@ -2,7 +2,6 @@
 
 #include <fstream>
 
-#include "engine/private/core/string/string_utils.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "opengl_helpers.h"

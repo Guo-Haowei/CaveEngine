@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/private/core/base/rid_owner.h"
+#include "engine/private/runtime/core/base/rid_owner.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "opengl_helpers_forward.h"
 

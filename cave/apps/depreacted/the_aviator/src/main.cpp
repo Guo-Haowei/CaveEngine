@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/renderer/renderer.h"

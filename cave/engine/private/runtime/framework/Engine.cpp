@@ -1,7 +1,7 @@
 #include "Engine.h"
 
-#include "engine/private/core/os/os.h"
-#include "engine/private/core/os/threads.h"
+#include "engine/private/runtime/core/os/os.h"
+#include "engine/private/runtime/core/os/threads.h"
 #include "engine/private/systems/job_system/job_system.h"
 
 namespace cave {

@@ -2,7 +2,7 @@
 
 #include <glfw/glfw3.h>
 
-#include "engine/private/input/key_code.h"
+#include "cave/runtime/input/KeyCode.h"
 
 namespace cave {
 

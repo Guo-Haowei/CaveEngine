@@ -1,5 +1,5 @@
-#include "engine/private/core/dynamic_variable/dynamic_variable_begin.h"
+#include "engine/private/runtime/core/dynamic_variable/dynamic_variable_begin.h"
 
 DVAR_INT(thumbnail_size, DVAR_FLAG_NONE, "Thumbnail size", 256);
 
-#include "engine/private/core/dynamic_variable/dynamic_variable_end.h"
+#include "engine/private/runtime/core/dynamic_variable/dynamic_variable_end.h"

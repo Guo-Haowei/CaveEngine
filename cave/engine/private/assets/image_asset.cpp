@@ -2,8 +2,8 @@
 
 #include <tinygltf/stb_image.h>
 
-#include "engine/private/core/io/file_access.h"
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/core/io/file_access.h"
+#include "engine/private/runtime/string/StringUtils.h"
 
 namespace cave {
 

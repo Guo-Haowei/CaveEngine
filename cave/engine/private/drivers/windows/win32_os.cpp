@@ -1,6 +1,6 @@
-#include "engine/private/core/io/ansi_logger.h"
-#include "engine/private/core/io/file_access_unix.h"
-#include "engine/private/core/os/os.h"
+#include "engine/private/runtime/core/io/ansi_logger.h"
+#include "engine/private/runtime/core/io/file_access_unix.h"
+#include "engine/private/runtime/core/os/os.h"
 #include "win32_logger.h"
 #include "win32_prerequisites.h"
 

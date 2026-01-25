@@ -4,7 +4,7 @@
 #include "cave/runtime/gameplay/GameModeFactory.h"
 
 // @TODO: refactor
-#include "engine/private/core/os/timer.h"
+#include "engine/private/runtime/core/os/timer.h"
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/EventQueue.h"

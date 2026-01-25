@@ -1,4 +1,4 @@
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/EntryPoint.h"

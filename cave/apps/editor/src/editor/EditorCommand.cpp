@@ -3,8 +3,8 @@
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 
-#include "engine/private/core/os/platform_io.h"
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/core/os/platform_io.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/ISceneManager.h"
@@ -91,9 +91,11 @@ void EditorCommandDuplicateEntity::Execute(Scene& p_scene) {
 /// SaveProjectCommand
 void SaveProjectCommand::Execute(Scene& p_scene) {
     unused(p_scene);
-
-    CRASH_NOW();
+    LOG_WARN("TODO: implement SaveProjectCommand");
     std::string scene;
+    if (scene.empty()) {
+        return;
+    }
 
     std::filesystem::path path{ scene.empty() ? "untitled.scene" : scene.c_str() };
     if (m_openDialog || scene.empty()) {

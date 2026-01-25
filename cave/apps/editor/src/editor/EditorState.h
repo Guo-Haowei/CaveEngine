@@ -4,11 +4,11 @@
 // @TODO: check if all the includes are necessary
 #include <engine/private/runtime/framework/AppState.h>
 #include <engine/private/assets/asset_handle.h>
-#include <engine/private/input/input_router.h>
 #include <engine/private/scene/scene.h>
 #include <engine/private/scene/scene_component.h>
 
 #include "editor/EditorWindow.h"
+#include "editor/shortcut/ShortcutDesc.h"
 #include "editor/viewer/ViewerTab.h"
 
 namespace cave {
@@ -20,17 +20,8 @@ class EditorCommandBase;
 class FileSystemPanel;
 class LogPanel;
 class MenuBar;
+class ShortcutManager;
 class Viewer;
-
-enum {
-    SHORT_CUT_SAVE_AS = 0,
-    SHORT_CUT_SAVE,
-    SHORT_CUT_OPEN,
-    SHORT_CUT_UNDO,
-    SHORT_CUT_REDO,
-    SHORT_CUT_DEBUG,
-    SHORT_CUT_MAX,
-};
 
 struct EditorContext {
     float timestep{ 0 };
@@ -40,6 +31,7 @@ struct EditorContext {
 class EditorState final : public AppState {
 public:
     EditorState(IApplication& p_app);
+    ~EditorState();
 
     void OnEnter(const StateRequest& p_args) final;
     void OnExit() final;
@@ -53,11 +45,15 @@ public:
     const char* GetDebugName() final { return "EditorState"; }
 #endif
 
+    const std::array<ShortcutDesc, kShortcutCount>& GetShortcuts() const;
+
 private:
     Option<StateRequest> m_request;
 
-public:
+    std::unique_ptr<ShortcutManager> m_shortcut_manager;
+
     // @TODO: refactor the following
+public:
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
     void CommandInspectAsset(const Guid& p_guid);
     void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
@@ -65,8 +61,7 @@ public:
     void CommandRemoveEntity(ecs::Entity p_target);
     void CommandDuplicateEntity(ecs::Entity p_target);
 
-    const auto& GetShortcuts() const { return m_shortcuts; }
-
+    // @TODO: refactor
     EditorContext context;
 
     void SetSelectedAsset(AssetHandle&& p_asset_handle) {
@@ -95,22 +90,6 @@ private:
     std::vector<std::shared_ptr<EditorItem>> m_panels;
 
     std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
-
-    // @TODO: refactor shortcut
-    struct ShortcutDesc {
-        const char* name{ nullptr };
-        const char* shortcut{ nullptr };
-        std::function<void()> executeFunc{ nullptr };
-        std::function<bool()> enabledFunc{ nullptr };
-
-        Key key{};
-        bool ctrl{};
-        bool alt{};
-        bool shift{};
-    };
-
-    // @TODO: refactor shortcut
-    std::array<ShortcutDesc, SHORT_CUT_MAX> m_shortcuts;
 
     AssetHandle m_selected_asset;
 };

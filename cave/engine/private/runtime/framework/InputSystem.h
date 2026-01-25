@@ -1,14 +1,15 @@
 #pragma once
 #include "cave/runtime/core/Singleton.h"
+#include "cave/runtime/string/StringId.h"
 
-#include "engine/private/input/action_state.h"
-#include "engine/private/input/axis_state.h"
-#include "engine/private/input/input_action_map.h"
-#include "engine/private/input/input_device_interface.h"
-#include "engine/private/input/input_mapper.h"
-#include "engine/private/input/input_router.h"
-#include "engine/private/input/key_state.h"
 #include "engine/private/runtime/framework/Module.h"
+#include "engine/private/runtime/input/ActionState.h"
+#include "engine/private/runtime/input/AxisState.h"
+#include "engine/private/runtime/input/IInputDevice.h"
+#include "engine/private/runtime/input/InputActionMap.h"
+#include "engine/private/runtime/input/InputMapper.h"
+#include "engine/private/runtime/input/InputRouter.h"
+#include "engine/private/runtime/input/KeyState.h"
 
 namespace cave {
 
@@ -32,8 +33,7 @@ public:
 
     const KeyState& GetKeyState() const { return m_key_state; }
 
-    RawInputRouter& RawRouter() { return m_raw_router; }
-    InputRouter& Router() { return m_input_router; }
+    InputRouter& Router() { return m_router; }
     InputActionMap& ActionMap() { return m_input_action_map; }
 
     // Convenience overloads for single-player default
@@ -92,8 +92,7 @@ private:
     AxisState m_axis_state;
     ActionState m_action_state;
 
-    RawInputRouter m_raw_router;
-    InputRouter m_input_router;
+    InputRouter m_router;
 
     InputActionMap m_input_action_map;
     InputMapper m_mapper;

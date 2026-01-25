@@ -5,11 +5,12 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <filesystem>
 
-#include "engine/private/assets/blob_asset.h"
-#include "engine/private/core/string/string_utils.h"
-#include "engine/private/input/key_code.h"
-#include "engine/private/input/input_types.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/input/InputTypes.h"
+#include "cave/runtime/input/KeyCode.h"
+
+#include "engine/private/assets/blob_asset.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
