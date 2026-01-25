@@ -1,6 +1,6 @@
-#include "engine/private/core/dynamic_variable/dynamic_variable_manager.h"
+#include "engine/private/runtime/core/dynamic_variable/dynamic_variable_manager.h"
 
-#include "engine/private/core/os/os.h"
+#include "engine/private/runtime/core/os/os.h"
 
 namespace cave {
 

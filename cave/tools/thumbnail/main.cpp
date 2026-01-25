@@ -1,4 +1,4 @@
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/empty/empty_display_manager.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/EntryPoint.h"

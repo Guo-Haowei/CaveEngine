@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/core/io/logger.h"
+#include "engine/private/runtime/core/io/logger.h"
 
 #include "editor/EditorWindow.h"
 

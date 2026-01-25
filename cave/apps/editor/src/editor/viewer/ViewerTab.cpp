@@ -1,6 +1,6 @@
 #include "ViewerTab.h"
 
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -28,12 +28,12 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
     , m_editor(p_editor)
     , m_viewer(p_viewer) {
 
-    RawInputRouter& router = m_editor.GetApp().GetInputSystem()->RawRouter();
+    InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
     router.Register(this);
 }
 
 ViewerTab::~ViewerTab() {
-    RawInputRouter& router = m_editor.GetApp().GetInputSystem()->RawRouter();
+    InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
     router.Unregister(this);
 }
 

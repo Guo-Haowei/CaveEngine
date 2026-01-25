@@ -2,7 +2,7 @@
 #include <d3d11_1.h>
 #include <wrl/client.h>
 
-#include "engine/private/core/base/rid_owner.h"
+#include "engine/private/runtime/core/base/rid_owner.h"
 #include "engine/private/renderer/graphics_manager.h"
 
 namespace cave {

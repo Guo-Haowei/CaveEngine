@@ -1,7 +1,7 @@
 #include "yaml_deserializer.h"
 
 #include "engine/private/assets/guid.h"
-#include "engine/private/core/io/file_access.h"
+#include "engine/private/runtime/core/io/file_access.h"
 
 namespace cave {
 

@@ -1,9 +1,10 @@
 #pragma once
 #include "ViewerTabId.h"
 
+#include "cave/runtime/input/IInputConsumer.h"
+
 #include "engine/private/assets/guid.h"
 #include "engine/private/ecs/entity.h"
-#include "engine/private/input/raw_input_consumer_interface.h"
 #include "engine/private/runtime/framework/SceneView.h"
 #include "engine/private/scene/camera_controller.h"
 
@@ -20,7 +21,7 @@ class Viewer;
 
 struct ToolBarButtonDesc;
 
-class ViewerTab : public ISceneViewProvider, public IRawInputConsumer {
+class ViewerTab : public ISceneViewProvider, public IInputConsumer {
 public:
     enum Dimension {
         DIMENSION_2,

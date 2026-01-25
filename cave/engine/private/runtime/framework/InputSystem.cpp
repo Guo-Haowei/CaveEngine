@@ -151,7 +151,7 @@ void InputSystem::Update() {
     }
 
     // *) Raw routing stage (shortcuts, viewport tools, gestures)
-    m_raw_router.Dispatch(m_input_events);
+    m_router.Dispatch(m_input_events);
 
     // *) Rebuild key state after raw consumption (critical for chords/drag gating)
     m_key_state.BeginFrame();
@@ -160,11 +160,6 @@ void InputSystem::Update() {
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
     DeviceRouting routing;
     UpdateActions(routing);
-
-    // *) Action routing stage (gameplay)
-    for (const auto& a : m_action_events) {
-        m_input_router.Dispatch(a);
-    }
 }
 
 }  // namespace cave

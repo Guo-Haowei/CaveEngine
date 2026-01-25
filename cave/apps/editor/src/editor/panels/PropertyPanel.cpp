@@ -6,7 +6,7 @@
 
 #include "engine/private/assets/sprite_animation_asset.h"
 #include "engine/private/debugger/profiler.h"
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/reflection/meta_editor.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

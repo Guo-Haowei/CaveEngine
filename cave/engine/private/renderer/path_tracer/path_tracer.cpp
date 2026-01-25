@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "engine/private/assets/mesh_asset.h"
-#include "engine/private/core/os/timer.h"
+#include "engine/private/runtime/core/os/timer.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/renderer/path_tracer/bvh_accel.h"

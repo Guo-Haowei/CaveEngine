@@ -1,7 +1,7 @@
 #include "mesh_asset.h"
 
 #include "engine/private/assets/material_asset.h"
-#include "engine/private/core/io/archive.h"
+#include "engine/private/runtime/core/io/archive.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 

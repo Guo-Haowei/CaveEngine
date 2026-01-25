@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/runtime/core/Singleton.h"
 
-#include "engine/private/core/base/concurrent_queue.h"
+#include "engine/private/runtime/core/base/concurrent_queue.h"
 #include "engine/private/math/geomath.h"
 #include "engine/private/render_graph/framebuffer.h"
 #include "engine/private/render_graph/render_graph.h"

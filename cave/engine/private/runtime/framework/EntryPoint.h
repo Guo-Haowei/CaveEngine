@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/core/dynamic_variable/dynamic_variable_manager.h"
+#include "engine/private/runtime/core/dynamic_variable/dynamic_variable_manager.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/Engine.h"
 

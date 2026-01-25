@@ -1,7 +1,7 @@
 #include "tile_set_asset.h"
 
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/core/io/file_access.h"
+#include "engine/private/runtime/core/io/file_access.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/serialization/yaml_include.h"
 

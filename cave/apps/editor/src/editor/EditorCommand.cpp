@@ -3,8 +3,8 @@
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 
-#include "engine/private/core/os/platform_io.h"
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/core/os/platform_io.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/ISceneManager.h"

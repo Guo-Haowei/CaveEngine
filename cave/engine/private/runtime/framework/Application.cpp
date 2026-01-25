@@ -4,10 +4,10 @@
 #include <imgui/imgui.h>
 
 #include "engine/private/debugger/profiler.h"
-#include "engine/private/core/io/file_access.h"
-#include "engine/private/core/io/logger.h"
-#include "engine/private/core/os/threads.h"
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/core/io/file_access.h"
+#include "engine/private/runtime/core/io/logger.h"
+#include "engine/private/runtime/core/os/threads.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/IAssetManager.h"

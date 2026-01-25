@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/input/input_device_interface.h"
+#include "engine/private/runtime/input/IInputDevice.h"
 
 struct GLFWwindow;
 

@@ -10,7 +10,7 @@
 
 #include "../d3d_common/d3d_common.h"
 #include "d3d12_pipeline_state_manager.h"
-#include "engine/private/core/string/string_utils.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/math/matrix_transform.h"
 #include "engine/private/renderer/graphics_private.h"
