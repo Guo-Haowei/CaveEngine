@@ -1,5 +1,3 @@
-#include "engine/runtime/gameplay/IGameMode.h"
-#include "engine/runtime/gameplay/IPlayerAgent.h"
 #include "engine/runtime/gameplay/GameSession.h"
 
 namespace cave::gameplay {
@@ -28,19 +26,13 @@ public:
         m_current_player = 0;
         m_result = MatchResult::Ongoing;
 
-        for (int i = 0; i < 2; ++i) {
-            if (m_agents[i]) {
-                m_agents[i]->OnMatchStart(p_session, *this, i);
-            }
-        }
+        p_session.GetPlayer(0)->OnMatchStart(p_session, *this, 0);
+        p_session.GetPlayer(1)->OnMatchStart(p_session, *this, 1);
     }
 
     void OnExit(GameSession& p_session) override {
-        for (int i = 0; i < 2; ++i) {
-            if (m_agents[i]) {
-                m_agents[i]->OnMatchEnd(p_session, *this, i);
-            }
-        }
+        p_session.GetPlayer(0)->OnMatchEnd(p_session, *this, 0);
+        p_session.GetPlayer(1)->OnMatchEnd(p_session, *this, 1);
     }
 
     void Tick(GameSession& p_session, const GameFrameTime& p_time) override {
@@ -48,17 +40,10 @@ public:
             return;
         }
 
-        for (int i = 0; i < 2; ++i) {
-            if (m_agents[i]) {
-                m_agents[i]->Tick(p_session, *this, i, p_time);
-            }
-        }
+        p_session.GetPlayer(0)->Tick(p_session, *this, 0, p_time);
+        p_session.GetPlayer(1)->Tick(p_session, *this, 1, p_time);
 
         TryConsumeDecision(p_session, p_time);
-    }
-
-    void SetAgent(int p_player_idx, std::unique_ptr<IPlayerAgent> p_agent) {
-        m_agents[p_player_idx] = std::move(p_agent);
     }
 
     int Total() const { return m_total; }
@@ -67,7 +52,7 @@ public:
 
 private:
     bool TryConsumeDecision(GameSession& p_session, const GameFrameTime&) {
-        auto& agent = m_agents[m_current_player];
+        IPlayerAgent* agent = p_session.GetPlayer(m_current_player);
         if (!agent) {
             return false;
         }
@@ -114,8 +99,6 @@ private:
 
 private:
     Config m_cfg;
-
-    std::unique_ptr<IPlayerAgent> m_agents[2];
 
     int m_total = 0;
     int m_current_player = 0;
@@ -177,13 +160,13 @@ TEST(MiniCountGameMode, scripted_vs_greedy_player0_wins) {
     RegisterMiniCount(factory);
 
     GameSession session(factory);
+    session.AddPlayer(std::make_unique<ScriptedAddAgent>(std::deque<uint8_t>{ 2, 2, 1 }));
+    session.AddPlayer(std::make_unique<GreedyAddAgent>());
+
     ASSERT_TRUE(session.Start("minicount"));
 
     auto* mode = dynamic_cast<MiniCountGameMode*>(session.GetMode());
     ASSERT_NE(mode, nullptr);
-
-    mode->SetAgent(0, std::make_unique<ScriptedAddAgent>(std::deque<uint8_t>{ 2, 2, 1 }));
-    mode->SetAgent(1, std::make_unique<GreedyAddAgent>());
 
     // Simulate frames until game ends (turn-based consumes 1 decision per frame)
     for (uint64_t f = 0; f < 32; ++f) {
@@ -207,13 +190,13 @@ TEST(MiniCountGameMode, greedy_vs_scripted_player1_wins) {
     RegisterMiniCount(factory);
 
     GameSession session(factory);
+    session.AddPlayer(std::make_unique<GreedyAddAgent>());
+    session.AddPlayer(std::make_unique<ScriptedAddAgent>(std::deque<uint8_t>{ 1, 1, 1 }));
+
     ASSERT_TRUE(session.Start("minicount"));
 
     auto* mode = dynamic_cast<MiniCountGameMode*>(session.GetMode());
     ASSERT_NE(mode, nullptr);
-
-    mode->SetAgent(0, std::make_unique<GreedyAddAgent>());
-    mode->SetAgent(1, std::make_unique<ScriptedAddAgent>(std::deque<uint8_t>{ 1, 1, 1 }));
 
     // Simulate frames until game ends (turn-based consumes 1 decision per frame)
     for (uint64_t f = 0; f < 32; ++f) {

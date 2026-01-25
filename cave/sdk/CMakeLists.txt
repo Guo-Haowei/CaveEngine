@@ -9,6 +9,10 @@ add_library(${TARGET_NAME} STATIC EXCLUDE_FROM_ALL
     ${ENGINE_SDK_HEADERS}
 )
 
+target_include_directories(${TARGET_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/ FILES ${ENGINE_SDK_HEADERS})
 
 set_target_properties(${TARGET_NAME} PROPERTIES

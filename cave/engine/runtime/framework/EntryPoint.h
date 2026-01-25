@@ -64,7 +64,7 @@ int Main(int p_argc, const char** p_argv) {
     LoadedGameModule game_module{};
 
     engine::InitializeCore();
-    TryLoadGameModule("game.dll", game_module);
+    TryLoadGameModule("game_Debug.dll", game_module);
     INITIALIZE_DVARS(SaveCommandLine(p_argc, p_argv));
 
     ON_SCOPE_EXIT([&]() {

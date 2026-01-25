@@ -68,4 +68,12 @@ void GameSession::Tick(const GameFrameTime& time) {
     }
 }
 
+IPlayerAgent* GameSession::GetPlayer(uint32_t p_index) {
+    if (DEV_VERIFY(p_index < m_players.size())) {
+        return m_players[p_index].get();
+    }
+
+    return nullptr;
+}
+
 }  // namespace cave

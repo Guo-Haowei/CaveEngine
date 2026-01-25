@@ -1,14 +1,26 @@
 #include "engine/core/string/string_utils.h"
 
-namespace cave::string_utils {
+namespace cave::string {
 
-TEST(StringEqual, null_input) {
+TEST(StringUtils, IsNullOrEmpty_Null) {
+    EXPECT_TRUE(StringUtils::IsNullOrEmpty(nullptr));
+}
+
+TEST(StringUtils, IsNullOrEmpty_Emtpy) {
+    EXPECT_TRUE(StringUtils::IsNullOrEmpty(""));
+}
+
+TEST(StringUtils, IsNullOrEmpty_NormalString) {
+    EXPECT_FALSE(StringUtils::IsNullOrEmpty("abc"));
+}
+
+TEST(StringEqual, string_equal_null_input) {
     EXPECT_TRUE(StringUtils::StringEqual(nullptr, nullptr));
     EXPECT_TRUE(StringUtils::StringEqual("", nullptr));
     EXPECT_FALSE(StringUtils::StringEqual(nullptr, "abc"));
 }
 
-TEST(StringEqual, empty_input) {
+TEST(StringEqual, string_equal_nullempty_input) {
     EXPECT_TRUE(StringUtils::StringEqual(nullptr, ""));
     EXPECT_TRUE(StringUtils::StringEqual("", ""));
     EXPECT_FALSE(StringUtils::StringEqual("abc", ""));
@@ -249,4 +261,4 @@ TEST(remove_extension, no_extension) {
     EXPECT_EQ(file, "abc");
 }
 
-}  // namespace cave::string_utils
+}  // namespace cave::string

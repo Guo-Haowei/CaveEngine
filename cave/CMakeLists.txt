@@ -10,3 +10,7 @@ add_subdirectory(apps)
 if(NOT EMSCRIPTEN)
     add_subdirectory(tools)
 endif()
+
+if(CAVE_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()

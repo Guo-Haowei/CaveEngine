@@ -1,6 +1,8 @@
 #pragma once
 #include <stdint.h>
 
+#include "cave/Export.h"
+
 namespace cave {
 
 class Application;
@@ -12,23 +14,18 @@ enum class HostKind : uint32_t {
 };
 
 struct GameLoadArgs {
-    HostKind hostKind;
-    const char* projectPath;
+    HostKind host_kind;
+    const char* project_path;
 };
 
-static constexpr uint32_t CAVE_GAME_MODULE_API_VERSION = 1;
+constexpr uint32_t CAVE_GAME_MODULE_API_VERSION = 1;
 
 struct GameModuleApi {
-    uint32_t apiVersion;
-    const char* moduleName;
-
-    void (*RegisterGame)(Application& app, const GameLoadArgs& args);  // optional
+    uint32_t version;
+    const char* module_name;
+    void (*RegisterGame)(Application& p_app, const GameLoadArgs& p_args);
 };
 
 }  // namespace cave
 
-extern "C" {
-
-__declspec(dllexport) const cave::GameModuleApi* Cave_GetGameModuleApi();
-
-}
+extern "C" CAVE_API const cave::GameModuleApi* Cave_GetGameModuleApi();

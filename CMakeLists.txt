@@ -79,3 +79,4 @@ function(target_set_warning_level TARGET)
 endfunction()
 
 add_subdirectory(cave)
+add_subdirectory(projects)

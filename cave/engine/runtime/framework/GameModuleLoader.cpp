@@ -76,16 +76,16 @@ bool TryLoadGameModule(const char* p_dll_path, LoadedGameModule& p_out_module) {
         return false;
     }
 
-    if (api->apiVersion != CAVE_GAME_MODULE_API_VERSION) {
-        LOG_ERROR("game module '{}' api version mismatch (got {}, expected {})",
-                  p_dll_path, api->apiVersion, CAVE_GAME_MODULE_API_VERSION);
+    if (api->version != CAVE_GAME_MODULE_API_VERSION) {
+        LOG_ERROR("game module '{}' api version mismatch (expected {}, got {})",
+                  p_dll_path, CAVE_GAME_MODULE_API_VERSION, api->version);
         UnloadGameModule(p_out_module);
         return false;
     }
 
     p_out_module.api = api;
 
-    LOG_OK("game module loaded: {}", (api->moduleName && api->moduleName[0] ? api->moduleName : "<unnamed>"));
+    LOG_OK("game module loaded: {}", !StringUtils::IsNullOrEmpty(api->module_name) ? api->module_name : "<unnamed>");
     return true;
 }
 
