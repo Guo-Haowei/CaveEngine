@@ -56,7 +56,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
 
     glfwSetWindowSizeCallback(m_window, WindowSizeCallback);
 
-    InputManager& input = *m_app->GetInputManager();
+    InputSystem& input = *m_app->GetInputSystem();
     {
         InputDeviceId kb_id = InputDeviceId::NextId();
         auto keyboard_mouse_device = std::make_unique<GlfwKeyboardMouseDevice>(kb_id);

@@ -28,12 +28,12 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
     , m_editor(p_editor)
     , m_viewer(p_viewer) {
 
-    RawInputRouter& router = m_editor.GetApp().GetInputManager()->RawRouter();
+    RawInputRouter& router = m_editor.GetApp().GetInputSystem()->RawRouter();
     router.Register(this);
 }
 
 ViewerTab::~ViewerTab() {
-    RawInputRouter& router = m_editor.GetApp().GetInputManager()->RawRouter();
+    RawInputRouter& router = m_editor.GetApp().GetInputSystem()->RawRouter();
     router.Unregister(this);
 }
 
@@ -251,7 +251,7 @@ void ViewerTab::OnEvents(const std::vector<InputEvent>& p_events) {
         return;
     }
 
-    const KeyState& st = m_editor.GetApp().GetInputManager()->GetKeyState();
+    const KeyState& st = m_editor.GetApp().GetInputSystem()->GetKeyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
         m_camera_state = {};
         return;

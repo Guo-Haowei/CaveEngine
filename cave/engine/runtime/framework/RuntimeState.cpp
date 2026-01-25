@@ -118,7 +118,7 @@ void RuntimeState::Tick(float p_timestep) {
         m_app.GetScriptManager()->Update(*scene, p_timestep);
     }
 
-    // if (InputManager::GetSingleton().IsActionJustPressed("ui_cancel")) {
+    // if (InputSystem::GetSingleton().IsActionJustPressed("ui_cancel")) {
     //     m_request = Some(StateRequest{ AppStateId::Editor });
     // }
 }

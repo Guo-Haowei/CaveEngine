@@ -68,7 +68,7 @@ auto Application::SetupModules() -> Result<void> {
     m_physics_manager = CreatePhysicsManager();
     m_graphics_manager = CreateGraphicsManager();
     m_display_server = CreateDisplayManager();
-    m_input_manager = new InputManager();
+    m_input_system = new InputSystem();
     m_render_system = new RenderSystem();
     m_viewport_manager = new ViewportManager();
     m_task_manager = new TaskManager();
@@ -84,7 +84,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_scene_manager);
     RegisterModule(m_script_manager);
     RegisterModule(m_physics_manager);
-    RegisterModule(m_input_manager);
+    RegisterModule(m_input_system);
     RegisterModule(m_display_server);
     RegisterModule(m_graphics_manager);
     RegisterModule(m_render_system);
@@ -171,7 +171,7 @@ bool Application::MainLoop() {
     m_task_manager->TickMainThread();
 
     m_render_system->BeginFrame();
-    m_input_manager->Update();
+    m_input_system->Update();
 
     // === Update Phase ===
     const float timestep = UpdateTime();

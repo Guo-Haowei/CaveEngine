@@ -16,7 +16,7 @@ class IAssetManager;
 class IDisplayManager;
 class IGraphicsManager;
 class ImguiManager;
-class InputManager;
+class InputSystem;
 class IPhysicsManager;
 class ISceneManager;
 class IScriptManager;
@@ -59,7 +59,7 @@ public:
 
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
-    InputManager* GetInputManager() { return m_input_manager; }
+    InputSystem* GetInputSystem() { return m_input_system; }
     ISceneManager* GetSceneManager() { return m_scene_manager; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptManager* GetScriptManager() { return m_script_manager; }
@@ -113,7 +113,7 @@ protected:
     RenderSystem* m_render_system{ nullptr };
 
     ImguiManager* m_imgui_manager{ nullptr };
-    InputManager* m_input_manager{ nullptr };
+    InputSystem* m_input_system{ nullptr };
     TaskManager* m_task_manager{ nullptr };
 
     ViewportManager* m_viewport_manager{ nullptr };

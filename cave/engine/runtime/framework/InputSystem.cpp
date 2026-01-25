@@ -5,11 +5,11 @@
 
 namespace cave {
 
-InputManager::InputManager()
-    : Module("InputManager")
+InputSystem::InputSystem()
+    : Module("InputSystem")
     , m_mapper(m_input_action_map) {}
 
-auto InputManager::InitializeImpl() -> Result<void> {
+auto InputSystem::InitializeImpl() -> Result<void> {
     // @TODO: config from asset
     InputActionMap& map = ActionMap();
 
@@ -59,7 +59,7 @@ auto InputManager::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void InputManager::FinalizeImpl() {
+void InputSystem::FinalizeImpl() {
 }
 
 static const char* InputDeviceTypeToString(InputDeviceType p_type) {
@@ -73,16 +73,16 @@ static const char* InputDeviceTypeToString(InputDeviceType p_type) {
     }
 }
 
-void InputManager::AddDevice(std::unique_ptr<IInputDevice> p_device) {
+void InputSystem::AddDevice(std::unique_ptr<IInputDevice> p_device) {
     DEV_ASSERT(p_device);
 
-    LOG_VERBOSE("InputManager::AddDevice: device '{}' (type: {}) added",
+    LOG_VERBOSE("InputSystem::AddDevice: device '{}' (type: {}) added",
                 p_device->Id().value,
                 InputDeviceTypeToString(p_device->Type()));
     m_devices.emplace_back(std::move(p_device));
 }
 
-void InputManager::UpdatePointers(std::vector<InputEvent>& p_events) {
+void InputSystem::UpdatePointers(std::vector<InputEvent>& p_events) {
     for (auto& [_, ps] : m_pointers) {
         ps.dx = 0.0f;
         ps.dy = 0.0f;
@@ -111,7 +111,7 @@ void InputManager::UpdatePointers(std::vector<InputEvent>& p_events) {
     }
 }
 
-void InputManager::UpdateActions(const DeviceRouting& p_routing) {
+void InputSystem::UpdateActions(const DeviceRouting& p_routing) {
     m_action_events.clear();
     m_mapper.Map(m_input_events, m_key_state, m_axis_state, p_routing, m_action_events);
 
@@ -121,7 +121,7 @@ void InputManager::UpdateActions(const DeviceRouting& p_routing) {
     }
 }
 
-void InputManager::Update() {
+void InputSystem::Update() {
     m_input_events.clear();
     m_action_events.clear();
 

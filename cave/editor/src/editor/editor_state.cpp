@@ -14,7 +14,7 @@
 #include "engine/renderer/graphics_dvars.h"
 #include "engine/renderer/graphics_manager.h"
 #include "engine/runtime/framework/AssetRegistry.h"
-#include "engine/runtime/framework/InputManager.h"
+#include "engine/runtime/framework/InputSystem.h"
 #include "engine/runtime/framework/ISceneManager.h"
 #include "engine/runtime/framework/ScriptManager.h"
 #include "engine/ui/layout.h"

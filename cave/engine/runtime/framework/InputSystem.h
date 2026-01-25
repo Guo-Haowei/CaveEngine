@@ -17,10 +17,10 @@ struct PointerState {
     float dx = 0.0f, dy = 0.0f;
 };
 
-class InputManager : public Module,
-                     public Singleton<InputManager> {
+class InputSystem : public Module,
+                    public Singleton<InputSystem> {
 public:
-    InputManager();
+    InputSystem();
 
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;

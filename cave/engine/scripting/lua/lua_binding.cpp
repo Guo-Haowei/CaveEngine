@@ -103,16 +103,16 @@ bool OpenInputLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Input")
         .addFunction("is_action_pressed", [](const char* p_str_id) -> int {
-            return InputManager::GetSingleton().IsActionPressed(StringId(p_str_id));
+            return InputSystem::GetSingleton().IsActionPressed(StringId(p_str_id));
         })
         .addFunction("is_action_just_pressed", [](const char* p_str_id) -> int {
-            return InputManager::GetSingleton().IsActionJustPressed(StringId(p_str_id));
+            return InputSystem::GetSingleton().IsActionJustPressed(StringId(p_str_id));
         })
         .addFunction("is_action_just_released", [](const char* p_str_id) -> int {
-            return InputManager::GetSingleton().IsActionJustReleased(StringId(p_str_id));
+            return InputSystem::GetSingleton().IsActionJustReleased(StringId(p_str_id));
         })
         .addFunction("get_action_strength", [](const char* p_str_id) -> float {
-            return InputManager::GetSingleton().GetActionStrength(StringId(p_str_id));
+            return InputSystem::GetSingleton().GetActionStrength(StringId(p_str_id));
         })
         .endNamespace();
     return true;
