@@ -1,7 +1,7 @@
-#include "engine/core/string/string_utils.h"
-#include "engine/empty/empty_display_manager.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/entry_point.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/empty/empty_display_manager.h"
+#include "cave/runtime/framework/IApplication.h"
+#include "engine/private/runtime/framework/EntryPoint.h"
 
 #include "modules/sw/sw_renderer.h"
 
@@ -19,9 +19,9 @@ void RegisterExtraDvars() {
 #undef REGISTER_DVAR
 }
 
-extern Application* CreateCliApp(const ApplicationSpec& p_spec);
+extern IApplication* CreateCliApp(const AppSpec& p_spec);
 
-Application* CreateApplication() {
+IApplication* CreateApp() {
     // @TODO: get rid of this
     std::string_view root = StringUtils::BasePath(__FILE__);
     root = StringUtils::BasePath(root);
@@ -34,7 +34,7 @@ Application* CreateApplication() {
     dim = clamp(dim, 64, 1024);
     DVAR_SET_INT(thumbnail_size, dim);
 
-    ApplicationSpec spec{};
+    AppSpec spec{};
     spec.userFolder = user_string;
     spec.name = "SoftwareRenderer";
     spec.width = dim;
@@ -45,6 +45,12 @@ Application* CreateApplication() {
     spec.vsync = false;
     spec.enableImgui = false;
     return CreateCliApp(spec);
+}
+
+void DestroyApp(IApplication* p_app) {
+    if (DEV_VERIFY(p_app)) {
+        delete p_app;
+    }
 }
 
 }  // namespace cave

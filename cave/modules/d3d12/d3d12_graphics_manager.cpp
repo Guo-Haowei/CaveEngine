@@ -10,17 +10,17 @@
 
 #include "../d3d_common/d3d_common.h"
 #include "d3d12_pipeline_state_manager.h"
-#include "engine/core/string/string_utils.h"
-#include "engine/drivers/glfw/glfw_display_manager.h"
-#include "engine/math/matrix_transform.h"
-#include "engine/renderer/graphics_private.h"
-#include "engine/renderer/sampler.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/imgui_manager.h"
-#include "engine/scene/scene.h"
+#include "engine/private/core/string/string_utils.h"
+#include "engine/private/drivers/glfw/glfw_display_manager.h"
+#include "engine/private/math/matrix_transform.h"
+#include "engine/private/renderer/graphics_private.h"
+#include "engine/private/renderer/sampler.h"
+#include "cave/runtime/framework/IApplication.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
+#include "engine/private/scene/scene.h"
 
 // @TODO: refactor
-#include "engine/render_graph/render_graph_builder.h"
+#include "engine/private/render_graph/render_graph_builder.h"
 
 #define INCLUDE_AS_D3D12
 #include "../d3d_common/d3d_convert.h"

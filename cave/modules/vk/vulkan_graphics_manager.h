@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
-#include "engine/renderer/graphics_manager.h"
+#include "engine/private/renderer/graphics_manager.h"
 
 struct GLFWwindow;
 

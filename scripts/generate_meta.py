@@ -6,7 +6,7 @@ import sys
 def get_engine_src_folder():
     source_folder = os.path.dirname(os.path.abspath(__file__))
     project_dir = os.path.dirname(source_folder)
-    return os.path.join(project_dir, 'cave', 'engine')
+    return os.path.join(project_dir, 'cave', 'engine', 'private')
 
 print('Project root folder:', get_engine_src_folder())
 
@@ -168,9 +168,9 @@ def generate_meta_file(base_path, file_path, metas):
         f.write(f"// Auto-generated metadata for {filename}\n")
         f.write(f"// Check {SCRIPT_NAME} for more details\n\n")
 
-        f.write('#include "engine/reflection/meta_editor.h"\n')
-        f.write('#include "engine/serialization/yaml_include.h"\n')
-        f.write(f'#include "engine/{base_path}"\n\n')
+        f.write('#include "engine/private/reflection/meta_editor.h"\n')
+        f.write('#include "engine/private/serialization/yaml_include.h"\n')
+        f.write(f'#include "engine/private/{base_path}"\n\n')
         f.write('namespace cave {\n\n')
 
         for class_name, fields in metas.items():

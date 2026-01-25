@@ -1,12 +1,12 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <tinygltf/stb_image_write.h>
 
-#include "engine/assets/image_asset.h"
-#include "engine/assets/material_asset.h"
-#include "engine/core/io/file_access.h"
-#include "engine/math/matrix_transform.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/asset_registry.h"
+#include "engine/private/assets/image_asset.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/core/io/file_access.h"
+#include "engine/private/math/matrix_transform.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "modules/sw/pbr_pipeline.h"
 #include "modules/sw/sw_renderer.h"
@@ -17,8 +17,8 @@ namespace cave {
 
 class CliApp : public Application {
 public:
-    CliApp(const ApplicationSpec& p_spec)
-        : Application(p_spec, Application::Type::Tool) {
+    CliApp(const AppSpec& p_spec)
+        : Application(p_spec, AppType::Tool) {
     }
 
     bool IsWorld2D() const override {
@@ -116,7 +116,7 @@ protected:
     int m_dim;
 };
 
-Application* CreateCliApp(const ApplicationSpec& p_spec) {
+IApplication* CreateCliApp(const AppSpec& p_spec) {
     return new CliApp(p_spec);
 }
 

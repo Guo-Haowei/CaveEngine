@@ -4,11 +4,11 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 
-#include "engine/assets/material_asset.h"
-#include "engine/assets/mesh_asset.h"
-#include "engine/runtime/asset_manager_interface.h"
-#include "engine/runtime/asset_registry.h"
-#include "engine/scene/entity_factory.h"
+#include "engine/private/assets/material_asset.h"
+#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/scene/entity_factory.h"
 
 namespace cave {
 

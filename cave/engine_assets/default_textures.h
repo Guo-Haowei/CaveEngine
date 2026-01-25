@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/assets/image_asset.h"
+#include "engine/private/assets/image_asset.h"
 
 namespace cave {
 

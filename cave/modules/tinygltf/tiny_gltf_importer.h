@@ -11,8 +11,8 @@
 #endif
 
 #if USING(USE_IMPORTER_TINYGLTF)
-#include "engine/assets/scene_importer.h"
-#include "engine/ecs/entity.h"
+#include "engine/private/assets/scene_importer.h"
+#include "engine/private/ecs/entity.h"
 
 namespace tinygltf {
 class Model;

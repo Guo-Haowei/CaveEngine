@@ -1,6 +1,6 @@
 /// File: shared_path_tracer.h
 #if defined(__cplusplus)
-#include <engine/math/vector.h>
+#include <engine/private/math/vector.h>
 
 #include <cmath>
 

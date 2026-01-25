@@ -34,8 +34,8 @@
 #error "Unknown API"
 #endif
 
-#include "engine/renderer/pipeline_state.h"
-#include "engine/renderer/pixel_format.h"
+#include "engine/private/renderer/pipeline_state.h"
+#include "engine/private/renderer/pixel_format.h"
 
 namespace cave::d3d {
 

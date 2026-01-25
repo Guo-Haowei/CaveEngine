@@ -3,8 +3,8 @@
 #endif
 #define OPENGL_RESOURCES_INCLUDED
 
-#include "engine/render_graph/framebuffer.h"
-#include "engine/renderer/gpu_resource.h"
+#include "engine/private/render_graph/framebuffer.h"
+#include "engine/private/renderer/gpu_resource.h"
 #include "opengl_helpers_forward.h"
 
 namespace cave {

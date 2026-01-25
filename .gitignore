@@ -13,7 +13,6 @@ build-emscripten/
 *.spv
 *.meta.cpp
 glsl_generated/
-generated/
 _cache
 
 # others

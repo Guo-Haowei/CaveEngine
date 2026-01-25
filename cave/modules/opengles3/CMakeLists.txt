@@ -16,8 +16,9 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/thirdparty/imgui
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/
-    ${PROJECT_SOURCE_DIR}/cave
+    ${PROJECT_SOURCE_DIR}/cave/engine/public
     ${PROJECT_SOURCE_DIR}/cave/shader
+    ${PROJECT_SOURCE_DIR}/cave
 )
 
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER modules)
@@ -26,4 +27,4 @@ target_link_libraries(${TARGET_NAME} PRIVATE opengl_common)
 
 target_set_warning_level(${TARGET_NAME})
 
-target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/pch.h)
+target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/private/pch.h)

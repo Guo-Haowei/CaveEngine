@@ -1,8 +1,8 @@
 #include "sw_renderer.h"
 
-#include "engine/assets/mesh_asset.h"
-#include "engine/math/box.h"
-#include "engine/systems/job_system/job_system.h"
+#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/math/box.h"
+#include "engine/private/systems/job_system/job_system.h"
 
 namespace cave {
 

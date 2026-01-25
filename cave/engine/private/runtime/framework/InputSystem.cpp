@@ -1,0 +1,170 @@
+#include "InputSystem.h"
+
+#include "cave/runtime/framework/IApplication.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
+
+namespace cave {
+
+InputSystem::InputSystem()
+    : Module("InputSystem")
+    , m_mapper(m_input_action_map) {}
+
+auto InputSystem::InitializeImpl() -> Result<void> {
+    // @TODO: config from asset
+    InputActionMap& map = ActionMap();
+
+    map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_accept"), Key::Enter);
+    map.BindDigital(StringId("ui_accept"), Key::Space);
+    map.BindDigital(StringId("ui_accept"), Key::PadA);
+
+    map.AddAction(StringId("ui_back"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_back"), Key::Backspace);
+    map.BindDigital(StringId("ui_back"), Key::PadB);
+
+    map.AddAction(StringId("ui_left"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_left"), Key::A);
+    map.BindDigital(StringId("ui_left"), Key::Left);
+    map.BindDigital(StringId("ui_left"), Key::PadLeft);
+
+    map.AddAction(StringId("ui_right"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_right"), Key::D);
+    map.BindDigital(StringId("ui_right"), Key::Right);
+    map.BindDigital(StringId("ui_right"), Key::PadRight);
+
+    map.AddAction(StringId("ui_up"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_up"), Key::W);
+    map.BindDigital(StringId("ui_up"), Key::Up);
+    map.BindDigital(StringId("ui_up"), Key::PadUp);
+
+    map.AddAction(StringId("ui_down"), ActionValueType::Digital);
+    map.BindDigital(StringId("ui_down"), Key::S);
+    map.BindDigital(StringId("ui_down"), Key::Down);
+    map.BindDigital(StringId("ui_down"), Key::PadDown);
+
+    // Movement scalar axes
+    map.AddAction(StringId("ui_axis_x"), ActionValueType::Scalar);
+    map.AddAction(StringId("ui_axis_y"), ActionValueType::Scalar);
+
+    // Keyboard contributes scalar when held
+    // map.BindScalar(StringId("ui_axis_x"), Key::A, -1.0f);
+    // map.BindScalar(StringId("ui_axis_x"), Key::D, +1.0f);
+    // map.BindScalar(StringId("ui_axis_y"), Key::S, -1.0f);
+    // map.BindScalar(StringId("ui_axis_y"), Key::W, +1.0f);
+
+    // Gamepad axes contribute scalar too
+    map.BindScalar(StringId("ui_axis_x"), AxisCode::LX, 1.0f, 0.2f);
+    map.BindScalar(StringId("ui_axis_y"), AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
+
+    return Result<void>();
+}
+
+void InputSystem::FinalizeImpl() {
+}
+
+static const char* InputDeviceTypeToString(InputDeviceType p_type) {
+    switch (p_type) {
+        case cave::InputDeviceType::KeyboardMouse:
+            return "KeyboardMouse";
+        case cave::InputDeviceType::Gamepad:
+            return "Gamepad";
+        default:
+            return "None";
+    }
+}
+
+void InputSystem::AddDevice(std::unique_ptr<IInputDevice> p_device) {
+    DEV_ASSERT(p_device);
+
+    LOG_VERBOSE("InputSystem::AddDevice: device '{}' (type: {}) added",
+                p_device->Id().value,
+                InputDeviceTypeToString(p_device->Type()));
+    m_devices.emplace_back(std::move(p_device));
+}
+
+void InputSystem::UpdatePointers(std::vector<InputEvent>& p_events) {
+    for (auto& [_, ps] : m_pointers) {
+        ps.dx = 0.0f;
+        ps.dy = 0.0f;
+    }
+
+    for (InputEvent& e : p_events) {
+        if (e.consumed) continue;
+        if (e.type != InputEventType::MouseMove) continue;
+
+        auto& ps = m_pointers[e.device_id.value];
+
+        const float new_x = e.x;
+        const float new_y = e.y;
+
+        if (ps.has_pos) {
+            ps.dx = new_x - ps.x;
+            ps.dy = new_y - ps.y;
+
+            e.dx = ps.dx;
+            e.dy = ps.dy;
+        }
+
+        ps.x = new_x;
+        ps.y = new_y;
+        ps.has_pos = true;
+    }
+}
+
+void InputSystem::UpdateActions(const DeviceRouting& p_routing) {
+    m_action_events.clear();
+    m_mapper.Map(m_input_events, m_key_state, m_axis_state, p_routing, m_action_events);
+
+    m_action_state.BeginFrame();
+    for (const auto& action : m_action_events) {
+        m_action_state.Apply(action);
+    }
+}
+
+void InputSystem::Update() {
+    m_input_events.clear();
+    m_action_events.clear();
+
+    // *) Poll devices -> raw events
+    for (auto& d : m_devices) {
+        d->Poll(m_input_events);
+    }
+
+    // *) Update pointers
+    UpdatePointers(m_input_events);
+
+    // *) Build key/button state for this frame (from unconsumed events)
+    m_key_state.BeginFrame();
+    m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+
+    // *) Build axis state for this frame (from unconsumed events)
+    m_axis_state.BeginFrame();
+    m_axis_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+
+    // *) Feed ImGui from remaining raw events
+    if (ImguiManager* imgui = m_app->GetImguiManager()) {
+        imgui->Feed(m_input_events);
+
+        // Gate gameplay/editor mapping based on ImGui capture
+        // const bool blockKeyboard = imgui->WantKeyboard();
+        // const bool blockMouse = imgui->WantMouse();
+    }
+
+    // *) Raw routing stage (shortcuts, viewport tools, gestures)
+    m_raw_router.Dispatch(m_input_events);
+
+    // *) Rebuild key state after raw consumption (critical for chords/drag gating)
+    m_key_state.BeginFrame();
+    m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+
+    // *) Mapping stage (non-consumed raw -> actions, with player assignment)
+    DeviceRouting routing;
+    UpdateActions(routing);
+
+    // *) Action routing stage (gameplay)
+    for (const auto& a : m_action_events) {
+        m_input_router.Dispatch(a);
+    }
+}
+
+}  // namespace cave

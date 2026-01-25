@@ -1,7 +1,7 @@
 #pragma once
 #include "thumbnail_dvars.h"
 
-#include "engine/assets/mesh_asset.h"
+#include "engine/private/assets/mesh_asset.h"
 
 #include "modules/sw/pbr_pipeline.h"
 #include "modules/sw/sampler.h"

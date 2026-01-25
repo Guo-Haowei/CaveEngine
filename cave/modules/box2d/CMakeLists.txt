@@ -28,8 +28,9 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 target_include_directories(${TARGET_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
+    ${PROJECT_SOURCE_DIR}/cave/engine/public
     ${PROJECT_SOURCE_DIR}/cave/shader
-    ${PROJECT_SOURCE_DIR}/cave/
+    ${PROJECT_SOURCE_DIR}/cave
 )
 
 target_link_libraries(${TARGET_NAME} PRIVATE
@@ -40,4 +41,4 @@ set_target_properties(${TARGET_NAME} PROPERTIES FOLDER modules)
 
 target_set_warning_level(${TARGET_NAME})
 
-target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/pch.h)
+target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/private/pch.h)
