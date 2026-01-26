@@ -70,7 +70,7 @@ TEST(SceneManager, register_also_uses_allocation_and_produces_alive_scene) {
     SceneManager sm;
 
     auto scene = std::make_unique<Scene>();  // or DummyScene / Scene(desc) depending on your ctor
-    SceneId id = sm.Register(std::move(scene), MakeDesc("Registered"));
+    SceneId id = sm.Register(MakeDesc("Registered"), std::move(scene));
 
     ASSERT_TRUE(sm.IsAlive(id));
     ASSERT_NE(sm.Resolve(id), nullptr);
