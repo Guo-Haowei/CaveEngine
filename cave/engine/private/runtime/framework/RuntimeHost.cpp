@@ -3,7 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/gameplay/GameSession.h"
 
-#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/scene/ISceneManager.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 

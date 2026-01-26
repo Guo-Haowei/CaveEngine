@@ -8,8 +8,6 @@ using CreateSceneFunc = std::function<std::shared_ptr<Scene>()>;
 
 class EditorSceneManager : public SceneManager {
 public:
-    virtual Scene* CreateDefaultScene() override;
-
     std::shared_ptr<Scene> CreateTempScene(const Guid& p_guid,
                                            const CreateSceneFunc& p_func);
 

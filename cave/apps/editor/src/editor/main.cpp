@@ -2,7 +2,7 @@
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
-#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/scene/ISceneManager.h"
 #include "engine/private/runtime/gameplay/GameRuntimeState.h"
 #include "engine/private/scripting/lua/lua_script_manager.h"
 

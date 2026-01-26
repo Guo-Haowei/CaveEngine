@@ -5,31 +5,6 @@
 
 namespace cave {
 
-extern Scene* CreateBoxScene();
-extern Scene* CreatePbrTestScene();
-extern Scene* CreatePhysicsTestScene();
-
-Scene* EditorSceneManager::CreateDefaultScene() {
-    return nullptr;
-#if 0
-    if (scene_string == "pbr_test") {
-        return CreatePbrTestScene();
-    }
-    if (scene_string == "physics_test") {
-        return CreatePhysicsTestScene();
-    }
-    if (scene_string == "box") {
-        return CreateBoxScene();
-    }
-
-    Scene* scene = new Scene;
-    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
-    scene->m_root = root;
-
-    return scene;
-#endif
-}
-
 void EditorSceneManager::Update() {
     SceneManager::Update();
 

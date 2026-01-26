@@ -13,7 +13,7 @@
 #include "editor/viewer/Viewer.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/scene/ISceneManager.h"
 
 namespace cave {
 

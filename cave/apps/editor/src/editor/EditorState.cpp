@@ -18,7 +18,7 @@
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/scene/ISceneManager.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/ui/layout.h"

@@ -6,6 +6,7 @@
 #include "engine/private/empty/empty_physics_manager.h"
 #include "engine/private/empty/empty_script_manager.h"
 #include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/scripting/lua/lua_script_manager.h"
 
 #if USING(PLATFORM_WINDOWS)
@@ -36,6 +37,19 @@ public:
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}
+
+    SceneId Create(const SceneDesc&) override { return SceneId{}; }
+    SceneId Register(std::unique_ptr<Scene>, const SceneDesc&) override { return SceneId{}; }
+    void Destroy(SceneId) override {}
+
+    Scene* Resolve(SceneId) override { return nullptr; }
+    const Scene* Resolve(SceneId) const override { return nullptr; }
+
+    virtual bool IsAlive(SceneId) const override { return false; }
+
+#if USING(DEBUG_BUILD)
+    virtual const char* GetDebugName(SceneId) const override { return nullptr; }
+#endif
 
     std::shared_ptr<Scene> GetActiveScene() const override { return nullptr; }
 
