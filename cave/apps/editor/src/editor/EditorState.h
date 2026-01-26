@@ -11,6 +11,9 @@
 #include "editor/shortcut/ShortcutDesc.h"
 #include "editor/viewer/ViewerTab.h"
 
+// @TODO: refactor this
+#include "engine/private/runtime/framework/GameModuleLoader.h"
+
 namespace cave {
 
 enum class HandleInput : uint8_t;
@@ -77,6 +80,8 @@ private:
     std::vector<std::shared_ptr<EditorItem>> m_panels;
 
     // @TODO: refactor the following
+    LoadedGameModule m_module{};
+
 public:
     void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
     void CommandInspectAsset(const Guid& p_guid);

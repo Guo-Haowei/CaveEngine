@@ -42,7 +42,6 @@ namespace cave {
 
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app) {
-
     // shortcut
     m_shortcut_manager = std::make_unique<ShortcutManager>(*this);
 
@@ -73,6 +72,14 @@ EditorState::~EditorState() {
 void EditorState::OnEnter(const StateRequest& p_args) {
     unused(p_args);
 
+    const char* module_name = "game_Debug.dll";
+    LoadGameModule(module_name, m_module);
+
+    if (m_module.api && m_module.api->RegisterGame) {
+        GameLoadArgs args{};
+        m_module.api->RegisterGame(m_app, args);
+    }
+
     ImNodes::CreateContext();
 
     auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
@@ -96,6 +103,8 @@ void EditorState::OnExit() {
     m_app.GetViewportManager()->ClearViewport();
 
     ImNodes::DestroyContext();
+
+    UnloadGameModule(m_module);
 }
 
 void EditorState::Tick(float p_timestep) {

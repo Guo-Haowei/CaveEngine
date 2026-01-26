@@ -31,7 +31,6 @@ void RuntimeHost::Start(const RuntimeStartParams& p_params) {
 
     m_session = std::make_unique<GameSession>(m_app.GetGameModeFactory());
 
-    //m_session->SetMode(p_params.mode);
     m_session->Start(p_params.game_mode_id);
 }
 
