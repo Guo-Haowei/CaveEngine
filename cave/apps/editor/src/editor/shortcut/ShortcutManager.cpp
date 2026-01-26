@@ -78,7 +78,7 @@ void ShortcutManager::InitShortcuts() {
     m_shortcuts[std::to_underlying(Shortcut::Debug)] = {
         "Start Debugging",
         "F5",
-        [this]() { m_editor.RequestGamePlay(); },
+        [this]() { m_editor.RequestModeSwitch(); },
         []() { return true; },
     };
 

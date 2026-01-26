@@ -3,7 +3,6 @@
 #include <imgui/imgui.h>
 
 #include "engine/private/debugger/profiler.h"
-#include "engine/private/runtime/core/os/timer.h"
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "cave/runtime/framework/IApplication.h"

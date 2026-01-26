@@ -2,9 +2,9 @@
 #include "cave/runtime/core/NonCopyable.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/gameplay/GameModeFactory.h"
+#include "cave/runtime/core/time/Stopwatch.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/core/os/timer.h"
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/EventQueue.h"
@@ -49,7 +49,7 @@ protected:
     AppStateMachine m_state_machine;
     GameModeFactory m_game_mode_factory;
 
-    Timer m_timer;
+    Stopwatch m_stopwatch;
     VFS m_vfs;
 
     EventQueue m_event_queue;

@@ -120,13 +120,16 @@ auto Application::Initialize() -> Result<void> {
     }
 
     for (Module* module : m_modules) {
+        m_stopwatch.Restart();
         if (auto res = module->Initialize(); !res) {
             LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
             return CAVE_ERROR(res.error());
         }
-        LOG_OK("module '{}' initialized", module->GetName());
+        m_stopwatch.Stop();
+        LOG_OK("module '{}' initialized in {}", module->GetName(), m_stopwatch.Elapsed().ToString());
     }
 
+    m_stopwatch.Restart();
     return Result<void>();
 }
 
@@ -144,9 +147,10 @@ void Application::Finalize() {
 }
 
 float Application::UpdateTime() {
-    const float timestep = static_cast<float>(m_timer.GetDuration().ToSecond());
-    m_timer.Start();
-    return min(timestep, 0.5f);
+    const Nanoseconds elapsed = m_stopwatch.Restart();
+    const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
+
+    return min(elapsed_sec, 0.5f);
 }
 
 bool Application::MainLoop() {
@@ -198,6 +202,7 @@ bool Application::MainLoop() {
     return true;
 }
 
+// @TODO: get rid of this
 void IApplication::Run(IApplication* p_app) {
     LOG("\n********************************************************************************"
         "\nMain Loop"

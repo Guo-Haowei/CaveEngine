@@ -2,8 +2,9 @@
 
 #include <algorithm>
 
+#include "cave/runtime/core/time/Stopwatch.h"
+
 #include "engine/private/assets/mesh_asset.h"
-#include "engine/private/runtime/core/os/timer.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/renderer/path_tracer/bvh_accel.h"
@@ -205,9 +206,10 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
 
     // @TODO: refactor
     auto gm = GraphicsManager::GetSingletonPtr();
-
-    Timer timer;
     GpuScene gpu_scene;
+
+    Stopwatch stopwatch;
+    stopwatch.Start();
 
     // meshes
     for (auto [id, renderer] : p_scene.View<MeshRendererComponent>()) {
@@ -246,8 +248,9 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     m_ptVertexBuffer = *CreateBuffer(gm, GetGlobalPtVerticesSlot(), gpu_scene.vertices);
     m_ptIndexBuffer = *CreateBuffer(gm, GetGlobalPtIndicesSlot(), gpu_scene.indices);
 
+    stopwatch.Stop();
     LOG("Path tracer scene loaded in {}, contains {} triangles, {} BVH",
-        timer.GetDurationString(),
+        stopwatch.Elapsed().ToString(),
         triangle_count,
         bvh_count);
 

@@ -24,7 +24,7 @@ public:
 
     void Stop();
 
-    void Tick(const GameFrameTime& p_time);
+    void Tick(const GameFrameTime& p_frame);
 
     IGameMode* GetMode() { return m_active.get(); }
     const IGameMode* GetMode() const { return m_active.get(); }

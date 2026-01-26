@@ -1,6 +1,7 @@
 #include "EditorState.h"
 
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/gameplay/IGameMode.h"
 
 #include "engine/private/debugger/profiler.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
@@ -18,6 +19,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/ui/layout.h"
 
@@ -40,9 +42,11 @@ namespace cave {
 
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app) {
-
     // shortcut
     m_shortcut_manager = std::make_unique<ShortcutManager>(*this);
+
+    // runtime
+    m_runtime_host = std::make_unique<RuntimeHost>(p_app);
 
     // panels
     m_asset_inspector = std::make_shared<AssetInspector>(*this);
@@ -68,6 +72,14 @@ EditorState::~EditorState() {
 void EditorState::OnEnter(const StateRequest& p_args) {
     unused(p_args);
 
+    const char* module_name = "game_Debug.dll";
+    LoadGameModule(module_name, m_module);
+
+    if (m_module.api && m_module.api->RegisterGame) {
+        GameLoadArgs args{};
+        m_module.api->RegisterGame(m_app, args);
+    }
+
     ImNodes::CreateContext();
 
     auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
@@ -91,11 +103,18 @@ void EditorState::OnExit() {
     m_app.GetViewportManager()->ClearViewport();
 
     ImNodes::DestroyContext();
+
+    UnloadGameModule(m_module);
 }
 
 void EditorState::Tick(float p_timestep) {
     CAVE_PROFILE_EVENT();
-    context.timestep = p_timestep;
+
+    if (IsPlaying()) {
+        GameFrameTime frame;
+        frame.dt = p_timestep;
+        m_runtime_host->Tick(frame);
+    }
 
     ImguiManager* imgui_manager = m_app.GetImguiManager();
     DEV_ASSERT(imgui_manager);
@@ -114,18 +133,48 @@ void EditorState::Tick(float p_timestep) {
     // @TODO: fix this as well
     FlushCommand(scene);
 
-    CAVE_PROFILE_EVENT("ImGui::Render");
-    ImGui::Render();
+    {
+        CAVE_PROFILE_EVENT("ImGui::Render");
+        ImGui::Render();
+    }
+
+    CommitModeSwitch();
 }
 
-Option<StateRequest> EditorState::PopRequest() {
-    auto request = m_request;
-    m_request = None();
-    return request;
+void EditorState::RequestModeSwitch() {
+    m_switch_mode_requested = true;
 }
 
-void EditorState::RequestGamePlay() {
-    m_request = Some(StateRequest{ AppStateId::GameRuntime });
+void EditorState::CommitModeSwitch() {
+    if (!m_switch_mode_requested) {
+        return;
+    }
+
+    // @TODO: refactor
+#if 1
+    {
+        const char* names[2] = { "Editing", "PIE" };
+        LOG("EditorState::CommitModeSwitch: {} -> {}",
+            names[std::to_underlying(m_state)],
+            names[std::to_underlying(FlipState(m_state))]);
+    }
+#endif
+
+    switch (m_state) {
+        case cave::EditorState::Mode::Editing: {
+            std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
+            RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
+            params.game_mode_id = "chess";
+            params.mode = RuntimeStartParams::Mode::PIE;
+            m_runtime_host->Start(params);
+        } break;
+        case cave::EditorState::Mode::Playing: {
+            m_runtime_host->Stop();
+        } break;
+    }
+
+    m_state = FlipState(m_state);
+    m_switch_mode_requested = false;
 }
 
 void EditorState::AddPanel(std::shared_ptr<EditorItem> p_panel) {

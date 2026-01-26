@@ -33,10 +33,12 @@ protected:
 
     void Select(const Vector2f& p_cursor);
 
-    std::shared_ptr<SceneDocument> m_document;
+    std::array<const char*, 2> m_button_displays;
+    std::array<const char*, 2> m_button_tooltips;
 
+    int m_button_index{ 0 };
+    std::shared_ptr<SceneDocument> m_document;
     ToolBarButtonDesc m_play_button;
-    ToolBarButtonDesc m_pause_button;
 };
 
 }  // namespace cave
