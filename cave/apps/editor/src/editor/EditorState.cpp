@@ -107,8 +107,6 @@ void EditorState::Tick(float p_timestep) {
         m_runtime_host->Tick(frame);
     }
 
-    context.timestep = p_timestep;
-
     ImguiManager* imgui_manager = m_app.GetImguiManager();
     DEV_ASSERT(imgui_manager);
 
@@ -134,7 +132,7 @@ void EditorState::Tick(float p_timestep) {
     CommitModeSwitch();
 }
 
-void EditorState::RequestPlayInEditor() {
+void EditorState::RequestModeSwitch() {
     m_switch_mode_requested = true;
 }
 
@@ -148,21 +146,24 @@ void EditorState::CommitModeSwitch() {
     {
         const char* names[2] = { "Editing", "PIE" };
         LOG("EditorState::CommitModeSwitch: {} -> {}",
-            names[m_state],
-            names[FlipState(m_state)]);
+            names[std::to_underlying(m_state)],
+            names[std::to_underlying(FlipState(m_state))]);
     }
 #endif
 
-    if (m_state == Editing) { // Editing -> PIE
-        // @TODO: lock editor scene
-        std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
-        RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
-        params.game_mode_id = "chess";
-        params.mode = RuntimeStartParams::Mode::PIE;
-        m_runtime_host->Start(params);
-    } else { // PIE -> Editing
-        m_runtime_host->Stop();
+    switch (m_state) {
+        case cave::EditorState::Mode::Editing: {
+            std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
+            RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
+            params.game_mode_id = "chess";
+            params.mode = RuntimeStartParams::Mode::PIE;
+            m_runtime_host->Start(params);
+        } break;
+        case cave::EditorState::Mode::Playing: {
+            m_runtime_host->Stop();
+        } break;
     }
+
     m_state = FlipState(m_state);
     m_switch_mode_requested = false;
 }

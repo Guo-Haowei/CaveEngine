@@ -25,12 +25,11 @@ class ShortcutManager;
 class Viewer;
 
 struct EditorContext {
-    float timestep{ 0 };
     std::shared_ptr<ImageAsset> checkerboard;
 };
 
 class EditorState final : public AppState {
-    enum State : uint8_t {
+    enum class Mode : uint8_t {
         Editing = 0,
         Playing,
     };
@@ -45,8 +44,8 @@ public:
 
     Option<StateRequest> PopRequest() final { return None(); }
 
-    void RequestPlayInEditor();
-    bool IsPlaying() const { return m_state == State::Playing; }
+    void RequestModeSwitch();
+    bool IsPlaying() const { return m_state == Mode::Playing; }
 
 #if USING(DEBUG_BUILD)
     const char* GetDebugName() final { return "EditorState"; }
@@ -54,14 +53,28 @@ public:
 
     const std::array<ShortcutDesc, kShortcutCount>& GetShortcuts() const;
 
+    AssetInspector& GetAssetInspector() { return *m_asset_inspector.get(); }
+    LogPanel& GetLogPanel() { return *m_log_panel.get(); }
+    Viewer& GetViewer() { return *m_viewer.get(); }
+    FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
+
 private:
-    static State FlipState(State p_state) { return static_cast<State>(1 - p_state); }
+    static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
     void CommitModeSwitch();
+
+    Mode m_state{ Mode::Editing };
+    bool m_switch_mode_requested{ false };
 
     std::unique_ptr<RuntimeHost> m_runtime_host;
     std::unique_ptr<ShortcutManager> m_shortcut_manager;
-    State m_state{ State::Editing };
-    bool m_switch_mode_requested{ false };
+
+    std::shared_ptr<AssetInspector> m_asset_inspector;
+    std::shared_ptr<FileSystemPanel> m_file_system_panel;
+    std::shared_ptr<LogPanel> m_log_panel;
+    std::shared_ptr<MenuBar> m_menu_bar;
+    std::shared_ptr<Viewer> m_viewer;
+
+    std::vector<std::shared_ptr<EditorItem>> m_panels;
 
     // @TODO: refactor the following
 public:
@@ -72,7 +85,7 @@ public:
     void CommandRemoveEntity(ecs::Entity p_target);
     void CommandDuplicateEntity(ecs::Entity p_target);
 
-    // @TODO: refactor
+    // @TODO: refactor this smelly context
     EditorContext context;
 
     void SetSelectedAsset(AssetHandle&& p_asset_handle) {
@@ -81,24 +94,11 @@ public:
 
     const AssetHandle& GetSelectedAsset() const { return m_selected_asset; }
 
-    AssetInspector& GetAssetInspector() { return *m_asset_inspector.get(); }
-    LogPanel& GetLogPanel() { return *m_log_panel.get(); }
-    Viewer& GetViewer() { return *m_viewer.get(); }
-    FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
-
 private:
     void DockSpace();
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
 
     void FlushCommand(Scene* p_scene);
-
-    std::shared_ptr<AssetInspector> m_asset_inspector;
-    std::shared_ptr<FileSystemPanel> m_file_system_panel;
-    std::shared_ptr<LogPanel> m_log_panel;
-    std::shared_ptr<MenuBar> m_menu_bar;
-    std::shared_ptr<Viewer> m_viewer;
-
-    std::vector<std::shared_ptr<EditorItem>> m_panels;
 
     std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
 

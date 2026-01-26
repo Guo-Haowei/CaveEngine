@@ -19,20 +19,19 @@
 namespace cave {
 
 SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension)
-    : ViewerTab(p_editor, p_viewer, p_dimension) {
+    : ViewerTab(p_editor, p_viewer, p_dimension)
+    , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
+    , m_button_tooltips{ "Run Project", "Pause Project" } {
 
     m_play_button = {
         ICON_FA_PLAY,
         "Run Project",
-        [&]() {
-            m_editor.RequestPlayInEditor();
+        [this]() {
+            m_editor.RequestModeSwitch();
+            m_button_index = 1 - m_button_index;
+            m_play_button.display = m_button_displays[m_button_index];
+            m_play_button.tooltip = m_button_tooltips[m_button_index];
         }
-    };
-    m_pause_button = {
-        ICON_FA_PAUSE,
-        "Pause Running Project",
-        [&]() {
-        },
     };
 }
 
