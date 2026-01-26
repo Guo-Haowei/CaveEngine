@@ -3,6 +3,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "cave/runtime/core/time/Stopwatch.h"
+
 #include "engine/private/assets/asset_importer.h"
 #include "engine/private/assets/blob_asset.h"
 #include "engine/private/assets/image_asset.h"
@@ -13,7 +15,6 @@
 #include "engine/private/assets/tile_map_asset.h"
 #include "engine/private/runtime/core/io/file_access.h"
 #include "engine/private/runtime/core/os/threads.h"
-#include "engine/private/runtime/core/os/timer.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -256,7 +257,8 @@ uint64_t AssetManager::SubmitImportScene(const SceneImportRequest& p_request) {
 AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
 
-    Timer timer;
+    Stopwatch stopwatch;
+    stopwatch.Start();
     auto entry = m_app->GetAssetRegistry()->GetEntry(p_guid);
 
     auto res = LoadAsset(entry);
@@ -283,7 +285,8 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
             break;
     }
 
-    LOG_VERBOSE("'{}' loaded in {}", entry->metadata.import_path, timer.GetDurationString());
+    stopwatch.Stop();
+    LOG_VERBOSE("'{}' loaded in {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
     entry->MarkLoaded(asset);
     return asset;
 }
