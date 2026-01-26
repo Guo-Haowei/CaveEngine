@@ -100,6 +100,10 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 }
 
 void EditorState::OnExit() {
+    if (IsPlaying()) {
+        m_runtime_host->Stop();
+    }
+
     m_app.GetViewportManager()->ClearViewport();
 
     ImNodes::DestroyContext();
