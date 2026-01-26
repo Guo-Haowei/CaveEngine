@@ -39,12 +39,6 @@ public:
     virtual std::shared_ptr<Scene> GetActiveScene() const = 0;
 
     // @TODO: deperacate
-    virtual void Update() = 0;
-
-    // @TODO: deperacate
-    virtual void BumpRevision() = 0;
-
-    // @TODO: deperacate
     virtual void OpenSimScene(const std::shared_ptr<Scene>&) {};
 
     // @TODO: deperacate

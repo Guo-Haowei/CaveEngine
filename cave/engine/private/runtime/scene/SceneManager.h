@@ -12,7 +12,6 @@ public:
 
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
-    void Update() override;
 
     SceneId Create(const SceneDesc& p_desc) override;
     SceneId Register(std::unique_ptr<Scene> p_scene, const SceneDesc& p_desc) override;
@@ -34,7 +33,6 @@ private:
 #if USING(DEBUG_BUILD)
         char debug_name[32];
 #endif
-
         Slot();
     };
 
@@ -44,24 +42,9 @@ private:
     std::vector<Slot> m_slots;
     std::vector<uint32_t> m_free;
 
-public:
-
     // @TODO: deprecated below
-
+public:
     std::shared_ptr<Scene> GetActiveScene() const override;
-
-    void BumpRevision() override { ++m_revision; }
-
-protected:
-    bool TrySwapScene();
-
-    uint32_t m_revision = 0;
-    uint32_t m_lastRevision = 0;
-
-    struct LoadSceneTask {
-        bool replace;
-        Scene* scene;
-    };
 };
 
 }  // namespace cave

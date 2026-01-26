@@ -13,11 +13,11 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
+#include "engine/private/runtime/scene/ISceneManager.h"
 
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneManager.h"
 
 namespace cave {
 

@@ -19,8 +19,6 @@ public:
 
     std::shared_ptr<Scene> GetActiveScene() const override;
 
-    void Update() override;
-
 protected:
     enum class SceneType : uint8_t {
         Temp,

@@ -52,10 +52,6 @@ public:
 #endif
 
     std::shared_ptr<Scene> GetActiveScene() const override { return nullptr; }
-
-    void Update() override {}
-
-    void BumpRevision() override {}
 };
 
 IAssetManager* CreateAssetManager() {

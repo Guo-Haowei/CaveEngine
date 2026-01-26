@@ -5,6 +5,7 @@
 
 namespace cave {
 
+#if 0
 void EditorSceneManager::Update() {
     SceneManager::Update();
 
@@ -20,6 +21,7 @@ void EditorSceneManager::Update() {
         m_scenes.erase(it);
     }
 }
+#endif
 
 void EditorSceneManager::OpenScene(const Guid& p_guid, std::shared_ptr<Scene>& p_scene) {
     std::string id = p_guid.ToString();

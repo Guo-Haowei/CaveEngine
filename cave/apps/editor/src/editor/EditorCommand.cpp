@@ -55,8 +55,6 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
     }
 
     // m_editor->SelectEntity(id);
-
-    ISceneManager::GetSingleton().BumpRevision();
 }
 
 /// EditorCommandAddComponent

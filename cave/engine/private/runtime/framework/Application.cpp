@@ -173,7 +173,6 @@ bool Application::MainLoop() {
     const float timestep = UpdateTime();
 
     m_asset_manager->Update();
-    m_scene_manager->Update();
 
     // layer should set active scene
     // update layers from back to front
