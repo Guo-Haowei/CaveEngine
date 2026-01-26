@@ -3,10 +3,9 @@
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/scene/entity_factory.h"
 
+
 /*
-@TODO
-    * draw array vs draw elements
-    * refactor mesh
+@TODO : DELETE THIS FILE!!!
 */
 
 namespace cave {
