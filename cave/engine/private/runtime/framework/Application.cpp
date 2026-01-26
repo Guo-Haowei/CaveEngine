@@ -23,7 +23,7 @@
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #if USING(PLATFORM_WASM)
 static cave::IApplication* s_app = nullptr;

@@ -4,8 +4,8 @@
 // @TODO: check if all the includes are necessary
 #include <engine/private/runtime/framework/AppState.h>
 #include <engine/private/assets/asset_handle.h>
-#include <engine/private/scene/scene.h>
-#include <engine/private/scene/scene_component.h>
+#include <engine/private/runtime/scene/scene.h>
+#include <engine/private/runtime/scene/SceneComponent.h>
 
 #include "editor/EditorWindow.h"
 #include "editor/shortcut/ShortcutDesc.h"

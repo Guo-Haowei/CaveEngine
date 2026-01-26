@@ -1,4 +1,4 @@
-#include "camera_component.h"
+#include "CameraComponent.h"
 
 #include "engine/private/math/matrix_transform.h"
 

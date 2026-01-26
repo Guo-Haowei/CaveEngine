@@ -1,7 +1,7 @@
 #include "EditorSceneManager.h"
 
 #include "EditorDvars.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 namespace cave {
 

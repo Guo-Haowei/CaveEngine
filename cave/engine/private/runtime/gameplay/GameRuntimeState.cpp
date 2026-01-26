@@ -16,8 +16,8 @@
 
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/scene/scene.h"
-#include "engine/private/scene/scene_manager.h"
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 
 namespace cave {
 

@@ -1,4 +1,4 @@
-#include "mesh_renderer_component.h"
+#include "MeshRendererComponent.h"
 
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/assets/mesh_asset.h"

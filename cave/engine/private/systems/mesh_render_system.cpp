@@ -5,7 +5,7 @@
 #include "engine/private/math/matrix_transform.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 

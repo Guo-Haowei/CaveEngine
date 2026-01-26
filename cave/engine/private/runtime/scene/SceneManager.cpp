@@ -1,4 +1,4 @@
-#include "scene_manager.h"
+#include "SceneManager.h"
 
 #include <imgui/imgui.h>
 
@@ -8,7 +8,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 

@@ -1,4 +1,4 @@
-#include "tile_map_renderer_component.h"
+#include "TileMapRendererComponent.h"
 
 #include "engine/private/assets/tile_map_asset.h"
 #include "engine/private/assets/tile_set_asset.h"

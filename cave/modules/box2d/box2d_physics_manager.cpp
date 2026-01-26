@@ -4,7 +4,7 @@
 
 #include "engine/private/assets/tile_map_asset.h"
 #include "engine/private/assets/tile_set_asset.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 

@@ -1,4 +1,4 @@
-#include "entity_factory.h"
+#include "EntityFactory.h"
 
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/math/geometry.h"

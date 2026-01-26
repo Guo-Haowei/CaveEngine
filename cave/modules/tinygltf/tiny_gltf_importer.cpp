@@ -6,7 +6,7 @@
 
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/assets/mesh_asset.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define TINYGLTF_NO_STB_IMAGE

@@ -8,7 +8,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/renderer/path_tracer/bvh_accel.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"

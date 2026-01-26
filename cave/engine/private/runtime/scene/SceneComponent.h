@@ -6,7 +6,7 @@
 #include "engine/private/reflection/reflection.h"
 
 // @TODO: get rid of this
-#include "scene_component_base.h"
+#include "SceneComponentBase.h"
 
 namespace cave {
 #include "shader_defines.hlsl.h"

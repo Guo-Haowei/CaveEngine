@@ -14,7 +14,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 // @TODO: remove the following
 #include "engine/private/render_graph/render_graph_builder.h"

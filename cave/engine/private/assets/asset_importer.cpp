@@ -4,7 +4,7 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/runtime/core/io/file_access.h"
 #include "engine/private/renderer/pixel_format.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 

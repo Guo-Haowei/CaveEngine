@@ -6,7 +6,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/string/StringUtils.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 // lua include
 #include "lua_binding.h"

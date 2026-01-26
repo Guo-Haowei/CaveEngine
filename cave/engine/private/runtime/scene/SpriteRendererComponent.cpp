@@ -1,4 +1,4 @@
-#include "sprite_renderer_component.h"
+#include "SpriteRendererComponent.h"
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

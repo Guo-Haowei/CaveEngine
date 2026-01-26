@@ -1,4 +1,4 @@
-#include "material_component.h"
+#include "MaterialComponent.h"
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"

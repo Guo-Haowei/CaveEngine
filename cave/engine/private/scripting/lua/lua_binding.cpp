@@ -5,7 +5,7 @@
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/math/vector.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #include "lua_bridge_include.h"
 

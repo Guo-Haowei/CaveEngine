@@ -6,7 +6,7 @@
 #include "engine/private/assets/guid.h"
 #include "engine/private/ecs/entity.h"
 #include "engine/private/runtime/framework/SceneView.h"
-#include "engine/private/scene/camera_controller.h"
+#include "engine/private/runtime/scene/CameraController.h"
 
 #include "editor/Enums.h"
 #include "editor/undo_redo/UndoStack.h"

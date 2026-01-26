@@ -1,4 +1,4 @@
-#include "lua_script_component.h"
+#include "LuaScriptComponent.h"
 
 #include "engine/private/assets/blob_asset.h"
 #include "engine/private/runtime/core/io/archive.h"

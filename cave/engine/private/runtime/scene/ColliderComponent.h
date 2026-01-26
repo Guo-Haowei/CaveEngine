@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/math/geomath.h"
 #include "engine/private/reflection/reflection.h"
-#include "engine/private/scene/scene_component_base.h"
+#include "engine/private/runtime/scene/SceneComponentBase.h"
 
 /*
 [Entity Root]

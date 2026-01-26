@@ -5,7 +5,7 @@
 
 #include "engine/private/runtime/framework/ISceneManager.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 

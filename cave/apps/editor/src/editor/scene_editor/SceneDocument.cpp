@@ -1,6 +1,6 @@
 #include "SceneDocument.h"
 
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 #include "editor/undo_redo/UndoStack.h"
 
 namespace cave {

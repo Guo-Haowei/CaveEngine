@@ -4,8 +4,8 @@
 #include "engine/private/math/color.h"
 #include "engine/private/math/geometry.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/scene/camera_controller.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/CameraController.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 // @TODO: remove
 #include "engine/private/math/matrix_transform.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "scene_component_base.h"
+#include "SceneComponentBase.h"
 
 #include "engine/private/math/angle.h"
 #include "engine/private/math/geomath.h"

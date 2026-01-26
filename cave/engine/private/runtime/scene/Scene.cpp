@@ -1,6 +1,6 @@
-#include "scene.h"
+#include "Scene.h"
 
-#include "entity_factory.h"
+#include "EntityFactory.h"
 
 #include "engine/private/assets/mesh_asset.h"
 #include "engine/private/debugger/profiler.h"

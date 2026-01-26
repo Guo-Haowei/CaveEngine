@@ -4,7 +4,7 @@
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/renderer/pipeline_state.h"
-#include "engine/private/scene/scene_component.h"
+#include "engine/private/runtime/scene/SceneComponent.h"
 #include "render_graph_predefined.h"
 
 namespace cave {

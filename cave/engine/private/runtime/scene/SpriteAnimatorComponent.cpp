@@ -1,4 +1,4 @@
-#include "sprite_animator_component.h"
+#include "SpriteAnimatorComponent.h"
 
 #include "engine/private/assets/sprite_animation_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

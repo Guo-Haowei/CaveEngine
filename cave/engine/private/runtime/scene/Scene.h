@@ -7,19 +7,19 @@
 #include "engine/private/math/ray.h"
 
 // components
-#include "engine/private/scene/scene_component.h"  // @TODO: split this
+#include "engine/private/runtime/scene/SceneComponent.h"  // @TODO: split this
 
-#include "engine/private/scene/camera_component.h"
-#include "engine/private/scene/collider_component.h"
-#include "engine/private/scene/light_component.h"
-#include "engine/private/scene/lua_script_component.h"
-#include "engine/private/scene/material_component.h"
-#include "engine/private/scene/mesh_renderer_component.h"
-#include "engine/private/scene/skeletal_animation_component.h"
-#include "engine/private/scene/sprite_animator_component.h"
-#include "engine/private/scene/sprite_renderer_component.h"
-#include "engine/private/scene/tile_map_renderer_component.h"
-#include "engine/private/scene/transform_component.h"
+#include "engine/private/runtime/scene/CameraComponent.h"
+#include "engine/private/runtime/scene/ColliderComponent.h"
+#include "engine/private/runtime/scene/LightComponent.h"
+#include "engine/private/runtime/scene/LuaScriptComponent.h"
+#include "engine/private/runtime/scene/MaterialComponent.h"
+#include "engine/private/runtime/scene/MeshRendererComponent.h"
+#include "engine/private/runtime/scene/SkeletalAnimationComponent.h"
+#include "engine/private/runtime/scene/SpriteAnimatorComponent.h"
+#include "engine/private/runtime/scene/SpriteRendererComponent.h"
+#include "engine/private/runtime/scene/TileMapRendererComponent.h"
+#include "engine/private/runtime/scene/TransformComponent.h"
 
 namespace cave::jobsystem {
 class Context;

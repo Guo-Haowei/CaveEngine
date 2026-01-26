@@ -10,7 +10,7 @@
 #include "engine/private/reflection/meta_editor.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 

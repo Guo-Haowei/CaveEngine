@@ -1,4 +1,4 @@
-#include "scene_component.h"
+#include "SceneComponent.h"
 
 #include "engine/private/runtime/core/io/archive.h"
 #include "engine/private/math/matrix_transform.h"

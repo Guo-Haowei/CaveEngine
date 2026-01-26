@@ -1,4 +1,4 @@
-#include "collider_component.h"
+#include "ColliderComponent.h"
 
 #include "engine/private/serialization/yaml_include.h"
 

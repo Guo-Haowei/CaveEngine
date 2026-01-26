@@ -3,7 +3,7 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
 #include "editor/EditorSceneManager.h"
