@@ -33,7 +33,7 @@ struct SceneView {
     ViewInfo view_info;
     SceneId scene_id;
     SceneManager* scene_manager{ nullptr };
-    
+
     Scene* ResolveScene();
 };
 
