@@ -287,7 +287,8 @@ void ViewerTab::BuildViewsImpl(Scene* p_scene,
                                std::vector<SceneView>& p_out_views,
                                bool p_is_opengl) {
     if (m_editor.IsPlaying()) {
-        std::shared_ptr<Scene> scene = m_editor.GetApp().GetSceneManager()->GetActiveScene();
+        DEV_ASSERT(0);
+        std::shared_ptr<Scene> scene = nullptr;
 
         // @HACK: find the first non-editor camera
         for (auto [id, camera] : scene->View<CameraComponent>()) {
@@ -304,7 +305,8 @@ void ViewerTab::BuildViewsImpl(Scene* p_scene,
 
             p_out_views.push_back(scene_view);
             break;
-        }    return;
+        }
+        return;
     }
 
     const CameraComponent* cam = p_scene->GetComponent<CameraComponent>(p_camera);

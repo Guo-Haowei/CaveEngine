@@ -6,6 +6,15 @@ namespace cave {
 class Scene;
 
 class SceneManager : public ISceneManager {
+    struct Slot {
+        uint32_t gen;
+        std::unique_ptr<Scene> scene;
+#if USING(DEBUG_BUILD)
+        char debug_name[32];
+#endif
+        Slot();
+    };
+
 public:
     SceneManager()
         : ISceneManager("SceneManager") {}
@@ -14,7 +23,10 @@ public:
     void FinalizeImpl() override;
 
     SceneId Create(const SceneDesc& p_desc) override;
-    SceneId Register(std::unique_ptr<Scene> p_scene, const SceneDesc& p_desc) override;
+
+    SceneId Register(std::unique_ptr<Scene> p_scene,
+                     const SceneDesc& p_desc) override;
+
     void Destroy(SceneId p_id) override;
 
     Scene* Resolve(SceneId p_id) override;
@@ -27,24 +39,11 @@ public:
 #endif
 
 private:
-    struct Slot {
-        uint32_t gen;
-        std::unique_ptr<Scene> scene;
-#if USING(DEBUG_BUILD)
-        char debug_name[32];
-#endif
-        Slot();
-    };
-
     SceneId Alloc();
     void Free(const SceneId& p_id);
 
     std::vector<Slot> m_slots;
     std::vector<uint32_t> m_free;
-
-    // @TODO: deprecated below
-public:
-    std::shared_ptr<Scene> GetActiveScene() const override;
 };
 
 }  // namespace cave

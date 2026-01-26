@@ -56,7 +56,8 @@ public:
         : m_app(p_app) {}
 
     void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final {
-        std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene();
+        std::shared_ptr<Scene> scene;
+        // std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene();
 
         // @HACK: find the first non-editor camera
         for (auto [id, camera] : scene->View<CameraComponent>()) {
@@ -100,8 +101,9 @@ void GameRuntimeState::OnEnter(const StateRequest& p_args) {
     m_app.GetViewportManager()->CreateViewport(std::shared_ptr<ISceneViewProvider>(new RuntimeSceneViewProvider(m_app)));
 
     // @TODO: fix this part
-    std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
+    std::shared_ptr<Scene> current_scene;
     RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
+    DEV_ASSERT(0);
 
     std::string_view mode = p_args.arg0;
     mode = "chess";  // @TODO: get correct game mode

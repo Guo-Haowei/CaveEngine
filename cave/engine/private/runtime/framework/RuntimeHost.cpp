@@ -26,8 +26,9 @@ void RuntimeHost::Start(const RuntimeStartParams& p_params) {
         } break;
     }
 
-    m_app.GetSceneManager()->OpenSimScene(sim_scene);
-    m_app.GetScriptManager()->OnSimBegin(*sim_scene);
+    DEV_ASSERT(0);
+    // m_app.GetSceneManager()->OpenSimScene(sim_scene);
+    // m_app.GetScriptManager()->OnSimBegin(*sim_scene);
 
     m_session = std::make_unique<GameSession>(m_app.GetGameModeFactory());
 
@@ -38,8 +39,9 @@ void RuntimeHost::Stop() {
     m_session->Stop();
     m_session.reset();
 
-    m_app.GetScriptManager()->OnSimEnd();
-    m_app.GetSceneManager()->CloseSimScene();
+    DEV_ASSERT(0);
+    // m_app.GetScriptManager()->OnSimEnd();
+    // m_app.GetSceneManager()->CloseSimScene();
 }
 
 void RuntimeHost::Tick(const GameFrameTime& p_frame) {
@@ -47,9 +49,10 @@ void RuntimeHost::Tick(const GameFrameTime& p_frame) {
         m_session->Tick(p_frame);
     }
 
-    if (std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene()) {
-        m_app.GetScriptManager()->Update(*scene, p_frame.dt);
-    }
+    DEV_ASSERT(0);
+    // if (std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene()) {
+    //     m_app.GetScriptManager()->Update(*scene, p_frame.dt);
+    // }
 }
 
 }  // namespace cave

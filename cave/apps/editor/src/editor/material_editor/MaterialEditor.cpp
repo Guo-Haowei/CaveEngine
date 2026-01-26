@@ -68,8 +68,8 @@ void MaterialEditor::OnDestroy() {
 }
 
 void MaterialEditor::OnActivateInternal() {
-    //auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
-    //scene_manager->OpenTempScene(m_tmp_scene);
+    // auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
+    // scene_manager->OpenTempScene(m_tmp_scene);
     DEV_ASSERT(0);
 }
 

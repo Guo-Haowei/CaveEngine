@@ -8,8 +8,7 @@ namespace cave {
 
 template<typename Tag>
 struct GenId {
-    enum : uint32_t
-    {
+    enum : uint32_t {
         kInvalidGen = 0,
         kInitialGen = 1,
     };

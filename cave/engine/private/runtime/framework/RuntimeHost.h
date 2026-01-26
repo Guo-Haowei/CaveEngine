@@ -36,7 +36,7 @@ struct RuntimeStartParams {
     std::string game_mode_id;
 
     // Input routing
-    //IInputProvider* input_provider;
+    // IInputProvider* input_provider;
 
     RuntimeStartParams(SceneSource p_source)
         : source(std::move(p_source)) {}

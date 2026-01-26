@@ -39,7 +39,7 @@ Document& SceneEditor::GetDocument() const {
     return *m_document.get();
 }
 
-SceneId SceneEditor:: GetSceneId() const {
+SceneId SceneEditor::GetSceneId() const {
     return m_document->GetSceneId();
 }
 
@@ -68,9 +68,9 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
 // @TODO: rename this to DrawEditor
 void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     // @TODO: fix this as well
-    //const CameraComponent* p_camera = nullptr;
+    // const CameraComponent* p_camera = nullptr;
     //    GetScene()->GetComponent<CameraComponent>(m_camera);
-    //DEV_ASSERT(p_camera);
+    // DEV_ASSERT(p_camera);
 
     ViewerTab::DrawMainView(p_camera);
 

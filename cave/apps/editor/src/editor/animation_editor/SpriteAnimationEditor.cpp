@@ -48,18 +48,18 @@ void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
     DEV_ASSERT(scene_manager);
 
     {
-    auto scene = std::make_unique<Scene>();
-    auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
-    scene->m_root = root;
+        auto scene = std::make_unique<Scene>();
+        auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
+        scene->m_root = root;
 
-    auto id = EntityFactory::CreateTransformEntity(*scene, "animation_test");
-    scene->AttachChild(id);
+        auto id = EntityFactory::CreateTransformEntity(*scene, "animation_test");
+        scene->AttachChild(id);
 
-    scene->Create<SpriteRendererComponent>(id);
+        scene->Create<SpriteRendererComponent>(id);
 
-    SpriteAnimatorComponent& animator = scene->Create<SpriteAnimatorComponent>(id);
-    animator.SetResourceGuid(p_guid);
-    DEV_ASSERT(0);
+        SpriteAnimatorComponent& animator = scene->Create<SpriteAnimatorComponent>(id);
+        animator.SetResourceGuid(p_guid);
+        DEV_ASSERT(0);
     }
 
     // cache the id

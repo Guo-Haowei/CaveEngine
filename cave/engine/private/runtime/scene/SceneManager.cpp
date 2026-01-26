@@ -112,8 +112,4 @@ void SceneManager::Free(const SceneId& p_id) {
     m_free.push_back(p_id.index);
 }
 
-std::shared_ptr<Scene> SceneManager::GetActiveScene() const {
-    return nullptr;
-}
-
 }  // namespace cave

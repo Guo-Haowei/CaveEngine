@@ -23,7 +23,10 @@ public:
         : Module(p_name) {}
 
     virtual SceneId Create(const SceneDesc& p_desc) = 0;
-    virtual SceneId Register(std::unique_ptr<Scene> p_scene, const SceneDesc& p_desc) = 0;
+
+    virtual SceneId Register(std::unique_ptr<Scene> p_scene,
+                             const SceneDesc& p_desc) = 0;
+
     virtual void Destroy(SceneId p_id) = 0;
 
     virtual Scene* Resolve(SceneId p_id) = 0;
@@ -34,15 +37,6 @@ public:
 #if USING(DEBUG_BUILD)
     virtual const char* GetDebugName(SceneId p_id) const = 0;
 #endif
-
-    // @TODO: deperacate
-    virtual std::shared_ptr<Scene> GetActiveScene() const = 0;
-
-    // @TODO: deperacate
-    virtual void OpenSimScene(const std::shared_ptr<Scene>&) {};
-
-    // @TODO: deperacate
-    virtual void CloseSimScene() {}
 };
 
 }  // namespace cave

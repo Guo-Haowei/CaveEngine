@@ -50,8 +50,6 @@ public:
 #if USING(DEBUG_BUILD)
     virtual const char* GetDebugName(SceneId) const override { return nullptr; }
 #endif
-
-    std::shared_ptr<Scene> GetActiveScene() const override { return nullptr; }
 };
 
 IAssetManager* CreateAssetManager() {

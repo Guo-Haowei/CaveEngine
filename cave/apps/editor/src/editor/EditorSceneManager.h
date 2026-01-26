@@ -13,12 +13,6 @@ public:
 
     void OpenScene(const Guid& p_guid, std::shared_ptr<Scene>& p_scene);
 
-    void OpenSimScene(const std::shared_ptr<Scene>& p_scene) override;
-
-    void CloseSimScene() override;
-
-    std::shared_ptr<Scene> GetActiveScene() const override;
-
 protected:
     enum class SceneType : uint8_t {
         Temp,
@@ -32,9 +26,6 @@ protected:
     };
 
     std::unordered_map<std::string, SceneHandle> m_scenes;
-
-    std::weak_ptr<Scene> m_tmp_scene;
-    std::shared_ptr<Scene> m_sim_scene;
 };
 
 }  // namespace cave

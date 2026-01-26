@@ -126,16 +126,13 @@ void EditorState::Tick(float p_timestep) {
     // @TODO: refactor this
     imgui_manager->BeginFrame();
 
-    // @TODO: DO NOT Request SCENE here
-    Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
-
     DockSpace();
     for (auto& it : m_panels) {
         it->Update(p_timestep);
     }
 
     // @TODO: fix this as well
-    FlushCommand(scene);
+    FlushCommand(nullptr);
 
     {
         CAVE_PROFILE_EVENT("ImGui::Render");
@@ -166,7 +163,9 @@ void EditorState::CommitModeSwitch() {
 
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
-            std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
+            // std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
+            DEV_ASSERT(0);
+            std::shared_ptr<Scene> current_scene = nullptr;
             RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
             params.game_mode_id = "chess";
             params.mode = RuntimeStartParams::Mode::PIE;
