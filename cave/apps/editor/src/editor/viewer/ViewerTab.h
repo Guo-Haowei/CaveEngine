@@ -16,7 +16,7 @@
 namespace cave {
 
 class Document;
-class ISceneManager;
+class SceneManager;
 class KeyState;
 class TabId;
 class Viewer;
@@ -86,7 +86,7 @@ protected:
     void SetupDefault2DCamera();
     void SetupDefault3DCamera();
 
-    void BuildViewsImpl(Scene* p_scene,
+    void BuildViewsImpl(SceneId p_scene_id,
                         ecs::Entity p_camera,
                         std::vector<SceneView>& p_out_views,
                         bool p_is_opengl);
@@ -95,7 +95,7 @@ protected:
     const TabId m_id;
     EditorState& m_editor;
     Viewer& m_viewer;
-    ISceneManager& m_scene_manager;
+    SceneManager& m_scene_manager;
 
     bool m_active{ false };
 

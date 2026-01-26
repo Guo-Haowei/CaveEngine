@@ -7,7 +7,7 @@
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/scene/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 
 namespace cave {
@@ -20,7 +20,7 @@ IGraphicsManager* CreateGraphicsManager();
 
 IPhysicsManager* CreatePhysicsManager();
 
-ISceneManager* CreateSceneManager();
+SceneManager* CreateSceneManager();
 
 IScriptManager* CreateScriptManager();
 

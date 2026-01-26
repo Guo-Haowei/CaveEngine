@@ -18,7 +18,7 @@
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/scene/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/ui/layout.h"
@@ -163,10 +163,9 @@ void EditorState::CommitModeSwitch() {
 
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
-            // std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
-            DEV_ASSERT(0);
-            std::shared_ptr<Scene> current_scene = nullptr;
-            RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
+            ViewerTab* tab = m_viewer->GetActiveTab();
+            DEV_ASSERT(tab);
+            RuntimeStartParams params(std::move(SceneSource::FromExisting(tab->GetSceneId())));
             params.game_mode_id = "chess";
             params.mode = RuntimeStartParams::Mode::PIE;
             m_runtime_host->Start(params);

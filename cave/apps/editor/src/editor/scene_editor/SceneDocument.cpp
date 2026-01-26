@@ -1,6 +1,6 @@
 #include "SceneDocument.h"
 
-#include "engine/private/runtime/scene/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "editor/undo_redo/UndoStack.h"
 
@@ -76,7 +76,7 @@ bool TransformCommand::MergeCommand(const UndoCommand* p_command) {
     return true;
 }
 
-SceneDocument::SceneDocument(const Guid& p_guid, ISceneManager& p_scene_manager)
+SceneDocument::SceneDocument(const Guid& p_guid, SceneManager& p_scene_manager)
     : Document(p_guid)
     , m_scene_manager(p_scene_manager) {
 
@@ -90,7 +90,7 @@ SceneDocument::SceneDocument(const Guid& p_guid, ISceneManager& p_scene_manager)
     desc.debug_name = "SceneDocument";
 #endif
 
-    m_scene_id = m_scene_manager.Register(std::move(scene), desc);
+    m_scene_id = m_scene_manager.Register(desc, std::move(scene));
 }
 
 void SceneDocument::RequestMove(ecs::Entity p_entity,

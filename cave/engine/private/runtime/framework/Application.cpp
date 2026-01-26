@@ -19,7 +19,7 @@
 #include "engine/private/runtime/framework/ModuleRegistry.h"
 #include "engine/private/runtime/framework/RenderSystem.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/scene/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"

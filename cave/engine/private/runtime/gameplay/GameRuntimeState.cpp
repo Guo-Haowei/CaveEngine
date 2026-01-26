@@ -13,7 +13,7 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
-#include "engine/private/runtime/scene/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"
@@ -56,25 +56,9 @@ public:
         : m_app(p_app) {}
 
     void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final {
-        std::shared_ptr<Scene> scene;
-        // std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene();
-
-        // @HACK: find the first non-editor camera
-        for (auto [id, camera] : scene->View<CameraComponent>()) {
-            if (scene->Contains<NoSaveTag>(id)) {
-                continue;
-            }
-
-            SceneView scene_view;
-            scene_view.scene = scene.get();
-
-            ViewInfo::FromCamera(camera,
-                                 scene_view.view_info,
-                                 p_is_opengl);
-
-            p_out_views.push_back(scene_view);
-            break;
-        }
+        unused(p_out_views);
+        unused(p_is_opengl);
+        DEV_ASSERT(0);
     }
 
 private:
@@ -102,7 +86,7 @@ void GameRuntimeState::OnEnter(const StateRequest& p_args) {
 
     // @TODO: fix this part
     std::shared_ptr<Scene> current_scene;
-    RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
+    RuntimeStartParams params(std::move(SceneSource::FromPath("")));
     DEV_ASSERT(0);
 
     std::string_view mode = p_args.arg0;

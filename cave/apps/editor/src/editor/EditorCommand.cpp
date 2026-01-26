@@ -7,7 +7,7 @@
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/runtime/scene/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 namespace cave {

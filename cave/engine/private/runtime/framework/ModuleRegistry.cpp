@@ -30,28 +30,6 @@ inline T1* CreateModule() {
     return new FALLBACK;
 }
 
-class NullSceneManager : public ISceneManager {
-public:
-    NullSceneManager()
-        : ISceneManager("NullSceneManager") {}
-
-    auto InitializeImpl() -> Result<void> override { return Result<void>(); }
-    void FinalizeImpl() override {}
-
-    SceneId Create(const SceneDesc&) override { return SceneId{}; }
-    SceneId Register(std::unique_ptr<Scene>, const SceneDesc&) override { return SceneId{}; }
-    void Destroy(SceneId) override {}
-
-    Scene* Resolve(SceneId) override { return nullptr; }
-    const Scene* Resolve(SceneId) const override { return nullptr; }
-
-    virtual bool IsAlive(SceneId) const override { return false; }
-
-#if USING(DEBUG_BUILD)
-    virtual const char* GetDebugName(SceneId) const override { return nullptr; }
-#endif
-};
-
 IAssetManager* CreateAssetManager() {
     return CreateModule<IAssetManager, AssetManager>();
 }
@@ -64,8 +42,8 @@ IPhysicsManager* CreatePhysicsManager() {
     return CreateModule<IPhysicsManager, EmptyPhysicsManager>();
 }
 
-ISceneManager* CreateSceneManager() {
-    return CreateModule<ISceneManager, NullSceneManager>();
+SceneManager* CreateSceneManager() {
+    return CreateModule<SceneManager, SceneManager>();
 }
 
 IScriptManager* CreateScriptManager() {

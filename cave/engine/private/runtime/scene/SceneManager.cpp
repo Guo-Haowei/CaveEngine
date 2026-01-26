@@ -5,7 +5,6 @@
 #include "engine/private/debugger/profiler.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/core/os/threads.h"
-#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -27,6 +26,13 @@ SceneManager::Slot::Slot()
     debug_name[0] = '\0';
 }
 
+SceneManager::SceneManager()
+    : Module("SceneManager") {
+}
+
+SceneManager::~SceneManager() {
+}
+
 auto SceneManager::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
@@ -35,10 +41,23 @@ void SceneManager::FinalizeImpl() {
 }
 
 SceneId SceneManager::Create(const SceneDesc& p_desc) {
-    return Register(std::make_unique<Scene>(), p_desc);
+    return Register(p_desc, std::make_unique<Scene>());
 }
 
-SceneId SceneManager::Register(std::unique_ptr<Scene> p_scene, const SceneDesc& p_desc) {
+SceneId SceneManager::Clone(const SceneDesc& p_desc, SceneId p_id) {
+    if (!IsAlive(p_id)) {
+        return {};
+    }
+
+    const Scene& source = *(m_slots[p_id.index].scene);
+    auto copy = std::make_unique<Scene>();
+    copy->Copy(source);
+
+    return Register(p_desc, std::move(copy));
+}
+
+SceneId SceneManager::Register(const SceneDesc& p_desc, std::unique_ptr<Scene> p_scene) {
+    ASSERT_GAME_THREAD();
     SceneId id = Alloc();
     Slot& slot = m_slots[id.index];
     DEV_ASSERT(slot.scene == nullptr);
@@ -102,7 +121,7 @@ SceneId SceneManager::Alloc() {
     return { index, m_slots[index].gen };
 }
 
-void SceneManager::Free(const SceneId& p_id) {
+void SceneManager::Free(SceneId p_id) {
     Slot& slot = m_slots[p_id.index];
     ++slot.gen;
     slot.scene.reset();

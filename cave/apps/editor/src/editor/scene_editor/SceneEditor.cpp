@@ -58,11 +58,7 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
         return;
     }
 
-    Scene* scene = GetResolvedScene();
-    // @HACK: force update
-    scene->Update(0.01f);
-
-    BuildViewsImpl(scene, m_camera, p_out_views, p_is_opengl);
+    BuildViewsImpl(GetSceneId(), m_camera, p_out_views, p_is_opengl);
 }
 
 // @TODO: rename this to DrawEditor

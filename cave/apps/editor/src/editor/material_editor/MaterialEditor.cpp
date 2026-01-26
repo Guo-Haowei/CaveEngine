@@ -21,7 +21,7 @@ MaterialEditor::MaterialEditor(EditorState& p_editor, Viewer& p_viewer)
 void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
     m_document = std::make_shared<MaterialDocument>(p_guid);
 
-    auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
+    auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
     DEV_ASSERT(scene_manager);
 
     m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {

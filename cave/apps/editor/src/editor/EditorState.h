@@ -57,9 +57,11 @@ public:
     const std::array<ShortcutDesc, kShortcutCount>& GetShortcuts() const;
 
     AssetInspector& GetAssetInspector() { return *m_asset_inspector.get(); }
+    FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
     Viewer& GetViewer() { return *m_viewer.get(); }
-    FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
+
+    RuntimeHost& GetRuntimeHost() { return *m_runtime_host.get(); }
 
 private:
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
