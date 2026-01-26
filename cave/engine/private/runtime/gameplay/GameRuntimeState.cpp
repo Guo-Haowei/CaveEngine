@@ -11,8 +11,7 @@
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/framework/ISceneManager.h"
-#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 
 // @TODO: refactor
@@ -50,6 +49,7 @@ static void EndFullscreenWindow() {
     ImGui::PopStyleVar(3);
 }
 
+// @TODO: refactor
 class RuntimeSceneViewProvider : public ISceneViewProvider {
 public:
     RuntimeSceneViewProvider(IApplication& p_app)
@@ -82,6 +82,10 @@ private:
 
 GameRuntimeState::GameRuntimeState(IApplication& p_app)
     : AppState(p_app) {
+    m_runtime_host = std::make_unique<RuntimeHost>(p_app);
+}
+
+GameRuntimeState::~GameRuntimeState() {
 }
 
 void GameRuntimeState::OnEnter(const StateRequest& p_args) {
@@ -96,38 +100,28 @@ void GameRuntimeState::OnEnter(const StateRequest& p_args) {
     std::string_view mode = p_args.arg0;
     mode = "chess";  // @TODO: get correct game mode
 
-    m_session = std::make_unique<GameSession>(m_app.GetGameModeFactory());
-    m_session->Start(mode);
-
-    std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
-    std::shared_ptr<Scene> sim_scene = std::make_shared<Scene>();
-    sim_scene->Copy(*current_scene);
-    sim_scene->Update(0.0f);
-
-    m_app.GetSceneManager()->OpenSimScene(sim_scene);
-    m_app.GetScriptManager()->OnSimBegin(*sim_scene);
-
     m_app.GetViewportManager()->CreateViewport(std::shared_ptr<ISceneViewProvider>(new RuntimeSceneViewProvider(m_app)));
+
+    // @TODO: fix this part
+    std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
+    RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
+    params.game_mode_id = mode;
+    params.mode = RuntimeStartParams::Mode::PIE;
+    m_runtime_host->Start(params);
 }
 
 void GameRuntimeState::OnExit() {
     m_app.GetViewportManager()->ClearViewport();
 
-    m_app.GetScriptManager()->OnSimEnd();
-    m_app.GetSceneManager()->CloseSimScene();
-
-    m_session.reset();
+    m_runtime_host->Stop();
 
     UnloadGameModule(m_module);
 }
 
 void GameRuntimeState::Tick(float p_timestep) {
-    // @TODO: tick game?
-
-    if (m_session) {
-        GameFrameTime frame;
-        m_session->Tick(frame);
-    }
+    GameFrameTime frame;
+    frame.dt = p_timestep;
+    m_runtime_host->Tick(frame);
 
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
@@ -143,14 +137,6 @@ void GameRuntimeState::Tick(float p_timestep) {
 
         ImGui::Render();
     }
-
-    if (std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene()) {
-        m_app.GetScriptManager()->Update(*scene, p_timestep);
-    }
-
-    // if (InputSystem::GetSingleton().IsActionJustPressed("ui_cancel")) {
-    //     m_request = Some(StateRequest{ AppStateId::Editor });
-    // }
 }
 
 Option<StateRequest> GameRuntimeState::PopRequest() {

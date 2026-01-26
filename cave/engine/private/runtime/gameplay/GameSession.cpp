@@ -63,9 +63,9 @@ void GameSession::Stop() {
     m_active_id.clear();
 }
 
-void GameSession::Tick(const GameFrameTime& time) {
+void GameSession::Tick(const GameFrameTime& p_frame) {
     if (m_active) {
-        m_active->Tick(*this, time);
+        m_active->Tick(*this, p_frame);
     }
 }
 

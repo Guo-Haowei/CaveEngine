@@ -24,12 +24,6 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    std::string_view engine_folder = StringUtils::BasePath(__FILE__);
-    engine_folder = StringUtils::BasePath(engine_folder);
-    engine_folder = StringUtils::BasePath(engine_folder);
-    engine_folder = StringUtils::BasePath(engine_folder);
-    engine_folder = StringUtils::BasePath(engine_folder);
-
     ImGuiIO& io = ImGui::GetIO();
     // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
     const float scale = 1.5f;
