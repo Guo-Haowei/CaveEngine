@@ -25,7 +25,7 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
         ICON_FA_PLAY,
         "Run Project",
         [&]() {
-            m_editor.RequestGamePlay();
+            m_editor.RequestPlayInEditor();
         }
     };
     m_pause_button = {

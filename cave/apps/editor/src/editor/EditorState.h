@@ -20,6 +20,7 @@ class EditorCommandBase;
 class FileSystemPanel;
 class LogPanel;
 class MenuBar;
+class RuntimeHost;
 class ShortcutManager;
 class Viewer;
 
@@ -29,6 +30,11 @@ struct EditorContext {
 };
 
 class EditorState final : public AppState {
+    enum State : uint8_t {
+        Editing = 0,
+        Playing,
+    };
+
 public:
     EditorState(IApplication& p_app);
     ~EditorState();
@@ -37,9 +43,10 @@ public:
     void OnExit() final;
     void Tick(float p_timestep) final;
 
-    Option<StateRequest> PopRequest() final;
+    Option<StateRequest> PopRequest() final { return None(); }
 
-    void RequestGamePlay();
+    void RequestPlayInEditor();
+    bool IsPlaying() const { return m_state == State::Playing; }
 
 #if USING(DEBUG_BUILD)
     const char* GetDebugName() final { return "EditorState"; }
@@ -48,9 +55,13 @@ public:
     const std::array<ShortcutDesc, kShortcutCount>& GetShortcuts() const;
 
 private:
-    Option<StateRequest> m_request;
+    static State FlipState(State p_state) { return static_cast<State>(1 - p_state); }
+    void CommitModeSwitch();
 
+    std::unique_ptr<RuntimeHost> m_runtime_host;
     std::unique_ptr<ShortcutManager> m_shortcut_manager;
+    State m_state{ State::Editing };
+    bool m_switch_mode_requested{ false };
 
     // @TODO: refactor the following
 public:

@@ -12,6 +12,9 @@
 #include "editor/panels/AssetInspector.h"
 #include "editor/viewer/Viewer.h"
 
+// @TODO: refactor
+#include "engine/private/runtime/framework/ISceneManager.h"
+
 namespace cave {
 
 using ecs::Entity;
@@ -251,6 +254,10 @@ void ViewerTab::OnEvents(const std::vector<InputEvent>& p_events) {
         return;
     }
 
+    if (m_editor.IsPlaying()) {
+        return;
+    }
+
     const KeyState& st = m_editor.GetApp().GetInputSystem()->GetKeyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
         m_camera_state = {};
@@ -274,6 +281,26 @@ void ViewerTab::BuildViewsImpl(Scene* p_scene,
                                ecs::Entity p_camera,
                                std::vector<SceneView>& p_out_views,
                                bool p_is_opengl) {
+    if (m_editor.IsPlaying()) {
+        std::shared_ptr<Scene> scene = m_editor.GetApp().GetSceneManager()->GetActiveScene();
+
+        // @HACK: find the first non-editor camera
+        for (auto [id, camera] : scene->View<CameraComponent>()) {
+            if (scene->Contains<NoSaveTag>(id)) {
+                continue;
+            }
+
+            SceneView scene_view;
+            scene_view.scene = scene.get();
+
+            ViewInfo::FromCamera(camera,
+                                 scene_view.view_info,
+                                 p_is_opengl);
+
+            p_out_views.push_back(scene_view);
+            break;
+        }    return;
+    }
 
     const CameraComponent* cam = p_scene->GetComponent<CameraComponent>(p_camera);
 

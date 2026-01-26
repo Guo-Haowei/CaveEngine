@@ -97,14 +97,14 @@ void GameRuntimeState::OnEnter(const StateRequest& p_args) {
         m_module.api->RegisterGame(m_app, args);
     }
 
-    std::string_view mode = p_args.arg0;
-    mode = "chess";  // @TODO: get correct game mode
-
     m_app.GetViewportManager()->CreateViewport(std::shared_ptr<ISceneViewProvider>(new RuntimeSceneViewProvider(m_app)));
 
     // @TODO: fix this part
     std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
     RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
+
+    std::string_view mode = p_args.arg0;
+    mode = "chess";  // @TODO: get correct game mode
     params.game_mode_id = mode;
     params.mode = RuntimeStartParams::Mode::PIE;
     m_runtime_host->Start(params);

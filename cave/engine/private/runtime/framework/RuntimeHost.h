@@ -45,6 +45,7 @@ struct RuntimeStartParams {
 class RuntimeHost {
 public:
     RuntimeHost(IApplication& p_app);
+    ~RuntimeHost();
 
     void Start(const RuntimeStartParams& p_params);
     void Stop();
