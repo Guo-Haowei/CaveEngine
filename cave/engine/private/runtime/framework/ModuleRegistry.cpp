@@ -6,6 +6,7 @@
 #include "engine/private/empty/empty_physics_manager.h"
 #include "engine/private/empty/empty_script_manager.h"
 #include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/scripting/lua/lua_script_manager.h"
 
 #if USING(PLATFORM_WINDOWS)
@@ -29,21 +30,6 @@ inline T1* CreateModule() {
     return new FALLBACK;
 }
 
-class NullSceneManager : public ISceneManager {
-public:
-    NullSceneManager()
-        : ISceneManager("NullSceneManager") {}
-
-    auto InitializeImpl() -> Result<void> override { return Result<void>(); }
-    void FinalizeImpl() override {}
-
-    std::shared_ptr<Scene> GetActiveScene() const override { return nullptr; }
-
-    void Update() override {}
-
-    void BumpRevision() override {}
-};
-
 IAssetManager* CreateAssetManager() {
     return CreateModule<IAssetManager, AssetManager>();
 }
@@ -56,8 +42,8 @@ IPhysicsManager* CreatePhysicsManager() {
     return CreateModule<IPhysicsManager, EmptyPhysicsManager>();
 }
 
-ISceneManager* CreateSceneManager() {
-    return CreateModule<ISceneManager, NullSceneManager>();
+SceneManager* CreateSceneManager() {
+    return CreateModule<SceneManager, SceneManager>();
 }
 
 IScriptManager* CreateScriptManager() {

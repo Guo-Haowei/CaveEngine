@@ -1,6 +1,7 @@
 #include "SceneView.h"
 
-#include "engine/private/scene/camera_component.h"
+#include "engine/private/runtime/scene/CameraComponent.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 
 namespace cave {
 
@@ -48,6 +49,13 @@ void ViewInfo::FromCamera(const CameraComponent& p_camera,
     p_out_view_info.up = p_camera.GetUp();
 
     p_out_view_info.position = p_camera.GetPosition();
+}
+
+Scene* SceneView::ResolveScene() {
+    if (DEV_VERIFY(scene_manager)) {
+        return scene_manager->Resolve(scene_id);
+    }
+    return nullptr;
 }
 
 }  // namespace cave

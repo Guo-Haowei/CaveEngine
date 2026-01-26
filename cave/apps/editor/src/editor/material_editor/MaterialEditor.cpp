@@ -3,7 +3,7 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
 #include "editor/EditorSceneManager.h"
@@ -21,7 +21,7 @@ MaterialEditor::MaterialEditor(EditorState& p_editor, Viewer& p_viewer)
 void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
     m_document = std::make_shared<MaterialDocument>(p_guid);
 
-    auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
+    auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
     DEV_ASSERT(scene_manager);
 
     m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
@@ -68,8 +68,9 @@ void MaterialEditor::OnDestroy() {
 }
 
 void MaterialEditor::OnActivateInternal() {
-    auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
-    scene_manager->OpenTempScene(m_tmp_scene);
+    // auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
+    // scene_manager->OpenTempScene(m_tmp_scene);
+    DEV_ASSERT(0);
 }
 
 void MaterialEditor::DrawMainView(const CameraComponent& p_camera) {

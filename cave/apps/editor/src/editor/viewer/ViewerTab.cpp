@@ -5,7 +5,8 @@
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/framework/RuntimeHost.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/document/document.h"
 #include "editor/EditorState.h"
@@ -13,7 +14,7 @@
 #include "editor/viewer/Viewer.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 
 namespace cave {
 
@@ -29,7 +30,8 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
     : m_id(TabId::Next())
     , m_dimension(p_dimension)
     , m_editor(p_editor)
-    , m_viewer(p_viewer) {
+    , m_viewer(p_viewer)
+    , m_scene_manager(*p_editor.GetApp().GetSceneManager()) {
 
     InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
     router.Register(this);
@@ -42,9 +44,13 @@ ViewerTab::~ViewerTab() {
 
 void ViewerTab::SetSelectedEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
-    if (Scene* scene = GetScene(); scene) {
+    if (Scene* scene = GetResolvedScene(); scene) {
         scene->m_selected = m_selected;
     }
+}
+
+Scene* ViewerTab::GetResolvedScene() {
+    return m_scene_manager.Resolve(GetSceneId());
 }
 
 void ViewerTab::SetCopiedEntity(ecs::Entity p_copied) {
@@ -73,7 +79,7 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
 }
 
 void ViewerTab::SetupDefault2DCamera() {
-    Scene* scene = GetScene();
+    Scene* scene = GetResolvedScene();
     DEV_ASSERT(scene);
 
     Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
@@ -92,7 +98,7 @@ void ViewerTab::SetupDefault2DCamera() {
 }
 
 void ViewerTab::SetupDefault3DCamera() {
-    Scene* scene = GetScene();
+    Scene* scene = GetResolvedScene();
     DEV_ASSERT(scene);
 
     Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
@@ -277,12 +283,17 @@ void ViewerTab::OnEvents(const std::vector<InputEvent>& p_events) {
     }
 }
 
-void ViewerTab::BuildViewsImpl(Scene* p_scene,
+void ViewerTab::BuildViewsImpl(SceneId p_scene_id,
                                ecs::Entity p_camera,
                                std::vector<SceneView>& p_out_views,
                                bool p_is_opengl) {
+    // @TODO: refactor scene view API
     if (m_editor.IsPlaying()) {
-        std::shared_ptr<Scene> scene = m_editor.GetApp().GetSceneManager()->GetActiveScene();
+        SceneView scene_view;
+        scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
+        scene_view.scene_manager = m_editor.GetApp().GetSceneManager();
+
+        Scene* scene = scene_view.ResolveScene();
 
         // @HACK: find the first non-editor camera
         for (auto [id, camera] : scene->View<CameraComponent>()) {
@@ -290,24 +301,26 @@ void ViewerTab::BuildViewsImpl(Scene* p_scene,
                 continue;
             }
 
-            SceneView scene_view;
-            scene_view.scene = scene.get();
-
             ViewInfo::FromCamera(camera,
                                  scene_view.view_info,
                                  p_is_opengl);
 
             p_out_views.push_back(scene_view);
             break;
-        }    return;
+        }
+        return;
     }
 
-    const CameraComponent* cam = p_scene->GetComponent<CameraComponent>(p_camera);
+    // @HACK: force update
+    SceneView scene_view;
+    scene_view.scene_id = p_scene_id;
+    scene_view.scene_manager = m_editor.GetApp().GetSceneManager();
+
+    Scene* scene = scene_view.ResolveScene();
+    scene->Update(0.01f);
+    const CameraComponent* cam = scene->GetComponent<CameraComponent>(p_camera);
 
     if (DEV_VERIFY(cam)) {
-        SceneView scene_view;
-        scene_view.scene = p_scene;
-
         ViewInfo::FromCamera(*cam,
                              scene_view.view_info,
                              p_is_opengl);
@@ -321,7 +334,7 @@ void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl
         return;
     }
 
-    BuildViewsImpl(GetScene(), m_camera, p_out_views, p_is_opengl);
+    BuildViewsImpl(GetSceneId(), m_camera, p_out_views, p_is_opengl);
 }
 
 }  // namespace cave

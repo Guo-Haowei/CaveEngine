@@ -9,7 +9,7 @@
 #include "engine/private/renderer/path_tracer_render_system.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/EditorDvars.h"
 #include "editor/EditorState.h"

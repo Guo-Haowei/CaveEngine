@@ -4,7 +4,7 @@
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/tile_set_asset.h"
-#include "engine/private/scene/camera_component.h"
+#include "engine/private/runtime/scene/CameraComponent.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/document/document.h"

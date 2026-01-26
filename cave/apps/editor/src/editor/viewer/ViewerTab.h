@@ -2,11 +2,12 @@
 #include "ViewerTabId.h"
 
 #include "cave/runtime/input/IInputConsumer.h"
+#include "cave/runtime/scene/SceneId.h"
 
 #include "engine/private/assets/guid.h"
 #include "engine/private/ecs/entity.h"
 #include "engine/private/runtime/framework/SceneView.h"
-#include "engine/private/scene/camera_controller.h"
+#include "engine/private/runtime/scene/CameraController.h"
 
 #include "editor/Enums.h"
 #include "editor/undo_redo/UndoStack.h"
@@ -15,6 +16,7 @@
 namespace cave {
 
 class Document;
+class SceneManager;
 class KeyState;
 class TabId;
 class Viewer;
@@ -37,13 +39,18 @@ public:
     void OnActivate();
     void OnDeactivate();
 
+    // @TODO: fix this
+    virtual SceneId GetSceneId() const {
+        return SceneId{};
+    }
+
+    Scene* GetResolvedScene();
+
     // @TODO: get rid of these two functions
     virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
 
     virtual Document& GetDocument() const = 0;
-
-    virtual Scene* GetScene() = 0;
 
     ecs::Entity GetSelectedEntity() const { return m_selected; }
     void SetSelectedEntity(ecs::Entity p_selected);
@@ -79,7 +86,7 @@ protected:
     void SetupDefault2DCamera();
     void SetupDefault3DCamera();
 
-    void BuildViewsImpl(Scene* p_scene,
+    void BuildViewsImpl(SceneId p_scene_id,
                         ecs::Entity p_camera,
                         std::vector<SceneView>& p_out_views,
                         bool p_is_opengl);
@@ -88,6 +95,7 @@ protected:
     const TabId m_id;
     EditorState& m_editor;
     Viewer& m_viewer;
+    SceneManager& m_scene_manager;
 
     bool m_active{ false };
 

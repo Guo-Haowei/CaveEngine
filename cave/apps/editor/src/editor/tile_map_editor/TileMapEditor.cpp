@@ -4,7 +4,7 @@
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/tile_set_asset.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
 #include "editor/EditorSceneManager.h"
@@ -34,7 +34,7 @@ void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
 
     m_document = std::make_unique<TileMapDocument>(p_guid, *this);
 
-    auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
+    auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
     DEV_ASSERT(scene_manager);
 
     m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
@@ -56,8 +56,9 @@ void TileMapEditor::OnDestroy() {
 }
 
 void TileMapEditor::OnActivateInternal() {
-    auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
-    scene_manager->OpenTempScene(m_tmp_scene);
+    // auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
+    // scene_manager->OpenTempScene(m_tmp_scene);
+    DEV_ASSERT(0);
 }
 
 void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {

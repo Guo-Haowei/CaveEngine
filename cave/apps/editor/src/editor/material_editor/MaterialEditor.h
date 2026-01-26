@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/scene/camera_component.h"
+#include "engine/private/runtime/scene/CameraComponent.h"
 
 #include "editor/viewer/ViewerTab.h"
 
@@ -20,10 +20,6 @@ public:
     void DrawAssetInspector() final;
 
     Document& GetDocument() const final;
-
-    Scene* GetScene() final {
-        return m_tmp_scene.get();
-    }
 
 protected:
     void OnCreateInternal(const Guid& p_guid) final;

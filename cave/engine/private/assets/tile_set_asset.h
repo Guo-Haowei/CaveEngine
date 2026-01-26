@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/assets/asset_interface.h"
-#include "engine/private/scene/collider_component.h"
+#include "engine/private/runtime/scene/ColliderComponent.h"
 #include "engine/private/math/box.h"
 #include "engine/private/reflection/reflection.h"
 

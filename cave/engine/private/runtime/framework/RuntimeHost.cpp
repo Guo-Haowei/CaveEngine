@@ -3,9 +3,9 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/gameplay/GameSession.h"
 
-#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
@@ -15,22 +15,21 @@ RuntimeHost::RuntimeHost(IApplication& p_app)
 RuntimeHost::~RuntimeHost() {}
 
 void RuntimeHost::Start(const RuntimeStartParams& p_params) {
-    std::shared_ptr<Scene> sim_scene = std::make_shared<Scene>();
+    SceneManager& scene_manager = *m_app.GetSceneManager();
+
     switch (p_params.source.type) {
         case SceneSource::Type::FromPath: {
             CRASH_NOW_MSG("TODO");
         } break;
         case SceneSource::Type::FromExisting: {
-            sim_scene->Copy(*p_params.source.existing);
-            sim_scene->Update(0.0f);
+            m_scene_id = scene_manager.Clone({ "" }, p_params.source.existing);
         } break;
     }
 
-    m_app.GetSceneManager()->OpenSimScene(sim_scene);
-    m_app.GetScriptManager()->OnSimBegin(*sim_scene);
-
+    Scene* scene = scene_manager.Resolve(m_scene_id);
+    DEV_ASSERT(scene);
+    m_app.GetScriptManager()->OnSimBegin(*scene);
     m_session = std::make_unique<GameSession>(m_app.GetGameModeFactory());
-
     m_session->Start(p_params.game_mode_id);
 }
 
@@ -38,8 +37,9 @@ void RuntimeHost::Stop() {
     m_session->Stop();
     m_session.reset();
 
-    m_app.GetScriptManager()->OnSimEnd();
-    m_app.GetSceneManager()->CloseSimScene();
+    if (Scene* scene = m_app.GetSceneManager()->Resolve(m_scene_id)) {
+        m_app.GetScriptManager()->OnSimEnd();
+    }
 }
 
 void RuntimeHost::Tick(const GameFrameTime& p_frame) {
@@ -47,8 +47,9 @@ void RuntimeHost::Tick(const GameFrameTime& p_frame) {
         m_session->Tick(p_frame);
     }
 
-    if (std::shared_ptr<Scene> scene = m_app.GetSceneManager()->GetActiveScene()) {
+    if (Scene* scene = m_app.GetSceneManager()->Resolve(m_scene_id)) {
         m_app.GetScriptManager()->Update(*scene, p_frame.dt);
+        scene->Update(p_frame.dt);
     }
 }
 

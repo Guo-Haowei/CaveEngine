@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/scene/camera_component.h"
+#include "engine/private/runtime/scene/CameraComponent.h"
 
 #include "editor/viewer/ViewerTab.h"
 
@@ -17,7 +17,7 @@ public:
 
     Document& GetDocument() const final;
 
-    Scene* GetScene() final;
+    SceneId GetSceneId() const final;
 
     void BuildViews(std::vector<SceneView>& p_out_views,
                     bool p_is_opengl) final;

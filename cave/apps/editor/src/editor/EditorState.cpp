@@ -18,7 +18,7 @@
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/ui/layout.h"
@@ -100,6 +100,10 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 }
 
 void EditorState::OnExit() {
+    if (IsPlaying()) {
+        m_runtime_host->Stop();
+    }
+
     m_app.GetViewportManager()->ClearViewport();
 
     ImNodes::DestroyContext();
@@ -122,16 +126,13 @@ void EditorState::Tick(float p_timestep) {
     // @TODO: refactor this
     imgui_manager->BeginFrame();
 
-    // @TODO: DO NOT Request SCENE here
-    Scene* scene = m_app.GetSceneManager()->GetActiveScene().get();
-
     DockSpace();
     for (auto& it : m_panels) {
         it->Update(p_timestep);
     }
 
     // @TODO: fix this as well
-    FlushCommand(scene);
+    FlushCommand(nullptr);
 
     {
         CAVE_PROFILE_EVENT("ImGui::Render");
@@ -162,8 +163,9 @@ void EditorState::CommitModeSwitch() {
 
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
-            std::shared_ptr<Scene> current_scene = m_app.GetSceneManager()->GetActiveScene();
-            RuntimeStartParams params(std::move(SceneSource::FromExisting(current_scene.get())));
+            ViewerTab* tab = m_viewer->GetActiveTab();
+            DEV_ASSERT(tab);
+            RuntimeStartParams params(std::move(SceneSource::FromExisting(tab->GetSceneId())));
             params.game_mode_id = "chess";
             params.mode = RuntimeStartParams::Mode::PIE;
             m_runtime_host->Start(params);

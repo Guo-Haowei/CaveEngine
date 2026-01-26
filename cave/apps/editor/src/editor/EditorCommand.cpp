@@ -7,8 +7,8 @@
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/runtime/framework/ISceneManager.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 namespace cave {
 
@@ -55,8 +55,6 @@ void EditorCommandAddEntity::Execute(Scene& p_scene) {
     }
 
     // m_editor->SelectEntity(id);
-
-    ISceneManager::GetSingleton().BumpRevision();
 }
 
 /// EditorCommandAddComponent

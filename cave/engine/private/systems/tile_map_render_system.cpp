@@ -1,6 +1,6 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/renderer/frame_data.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 

@@ -61,10 +61,16 @@ public:
     }
 
     template<size_t N>
-    static char* Strcpy(char (&p_buffer)[N], const std::string& p_string) {
-        char* result = strncpy(p_buffer, p_string.c_str(), N);
-        p_buffer[N - 1] = '\0';
+    static char* Strcpy(char (&p_buffer)[N], const char* p_string, size_t p_length) {
+        const size_t len = ((N - 1) < p_length) ? (N - 1) : p_length;
+        char* result = strncpy(p_buffer, p_string, len);
+        p_buffer[len] = '\0';
         return result;
+    }
+
+    template<size_t N>
+    static char* Strcpy(char (&p_buffer)[N], const std::string& p_string) {
+        return Strcpy(p_buffer, p_string.c_str(), p_string.size());
     }
 
     static constexpr bool IsDigit(const char p_char) {

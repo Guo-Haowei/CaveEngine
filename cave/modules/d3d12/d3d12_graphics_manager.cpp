@@ -17,7 +17,7 @@
 #include "engine/private/renderer/sampler.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 // @TODO: refactor
 #include "engine/private/render_graph/render_graph_builder.h"

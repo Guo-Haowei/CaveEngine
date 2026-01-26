@@ -9,7 +9,7 @@
 #include "engine/private/renderer/path_tracer_render_system.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
@@ -199,15 +199,15 @@ void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
     FrameData& framedata = *m_frameData;
 
     for (SceneView& view : p_views) {
-        Scene* p_scene = view.scene;
+        Scene* scene = view.ResolveScene();
         // @TODO: only support one view, fix this
         framedata.view_info = &view.view_info;
 
-        FillConstantBuffer(p_scene, framedata);
-        RunMeshRenderSystem(p_scene, framedata);
-        RunTileMapRenderSystem(p_scene, framedata);
-        RunSpriteRenderSystem(p_scene, framedata);
-        RunDebugRenderSystem(p_scene, framedata);
+        FillConstantBuffer(scene, framedata);
+        RunMeshRenderSystem(scene, framedata);
+        RunTileMapRenderSystem(scene, framedata);
+        RunSpriteRenderSystem(scene, framedata);
+        RunDebugRenderSystem(scene, framedata);
         FillEnvConstants(framedata);
 
         // @TODO: fix path tracer

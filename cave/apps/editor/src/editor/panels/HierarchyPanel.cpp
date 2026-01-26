@@ -31,8 +31,8 @@ public:
         : m_editorLayer(p_editor) {}
 
     void Update(ViewerTab* p_tab) {
-        DEV_ASSERT(p_tab && p_tab->GetScene());
-        const Scene& scene = *p_tab->GetScene();
+        DEV_ASSERT(p_tab && p_tab->GetResolvedScene());
+        const Scene& scene = *p_tab->GetResolvedScene();
         if (Build(scene)) {
             DEV_ASSERT(m_root);
             DrawNode(p_tab, m_root, ImGuiTreeNodeFlags_DefaultOpen);
@@ -115,7 +115,7 @@ static bool TreeNodeHelper(Scene& p_scene,
 
 // @TODO: make it an widget
 void HierarchyCreator::DrawNode(ViewerTab* p_tab, HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flags) {
-    Scene& p_scene = *p_tab->GetScene();
+    Scene& p_scene = *p_tab->GetResolvedScene();
     DEV_ASSERT(p_hier);
     Entity id = p_hier->entity;
 
@@ -188,7 +188,7 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
 void HierarchyPanel::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
     if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
-        if (Scene* scene = tab->GetScene(); scene) {
+        if (Scene* scene = tab->GetResolvedScene(); scene) {
             HierarchyCreator creator(m_editor);
             DrawPopup(tab);
             creator.Update(tab);

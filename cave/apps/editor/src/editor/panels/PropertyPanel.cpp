@@ -10,7 +10,7 @@
 #include "engine/private/reflection/meta_editor.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 
@@ -192,7 +192,7 @@ void PropertyPanel::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
 
     ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
-    Scene* _scene = tab ? tab->GetScene() : nullptr;
+    Scene* _scene = tab ? tab->GetResolvedScene() : nullptr;
 
     if (!_scene) {
         return;

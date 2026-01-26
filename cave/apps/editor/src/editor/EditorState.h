@@ -4,8 +4,8 @@
 // @TODO: check if all the includes are necessary
 #include <engine/private/runtime/framework/AppState.h>
 #include <engine/private/assets/asset_handle.h>
-#include <engine/private/scene/scene.h>
-#include <engine/private/scene/scene_component.h>
+#include <engine/private/runtime/scene/scene.h>
+#include <engine/private/runtime/scene/SceneComponent.h>
 
 #include "editor/EditorWindow.h"
 #include "editor/shortcut/ShortcutDesc.h"
@@ -57,9 +57,11 @@ public:
     const std::array<ShortcutDesc, kShortcutCount>& GetShortcuts() const;
 
     AssetInspector& GetAssetInspector() { return *m_asset_inspector.get(); }
+    FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
     Viewer& GetViewer() { return *m_viewer.get(); }
-    FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
+
+    RuntimeHost& GetRuntimeHost() { return *m_runtime_host.get(); }
 
 private:
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }

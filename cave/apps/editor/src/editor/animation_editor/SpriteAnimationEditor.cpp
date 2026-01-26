@@ -4,7 +4,7 @@
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/scene/entity_factory.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/document/document.h"
 #include "editor/EditorState.h"
@@ -47,8 +47,8 @@ void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
     DEV_ASSERT(scene_manager);
 
-    m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
-        auto scene = std::make_shared<Scene>();
+    {
+        auto scene = std::make_unique<Scene>();
         auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
         scene->m_root = root;
 
@@ -59,9 +59,8 @@ void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
 
         SpriteAnimatorComponent& animator = scene->Create<SpriteAnimatorComponent>(id);
         animator.SetResourceGuid(p_guid);
-
-        return scene;
-    });
+        DEV_ASSERT(0);
+    }
 
     // cache the id
 
@@ -79,7 +78,8 @@ void SpriteAnimationEditor::OnDestroy() {
 void SpriteAnimationEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
     DEV_ASSERT(scene_manager);
-    scene_manager->OpenTempScene(m_tmp_scene);
+    // scene_manager->OpenTempScene(m_tmp_scene);
+    m_scene_manager;
 }
 
 const std::vector<const ToolBarButtonDesc*> SpriteAnimationEditor::GetToolBarButtons() const {

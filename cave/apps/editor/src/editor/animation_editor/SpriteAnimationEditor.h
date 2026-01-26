@@ -28,10 +28,6 @@ public:
 
     Document& GetDocument() const final;
 
-    Scene* GetScene() final {
-        return m_tmp_scene.get();
-    }
-
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
 

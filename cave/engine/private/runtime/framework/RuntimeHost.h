@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/runtime/scene/SceneId.h"
 
 namespace cave {
 
@@ -13,14 +14,14 @@ struct SceneSource {
         FromExisting,
     } type;
     std::string path;
-    Scene* existing{ nullptr };
+    SceneId existing;
 
     static SceneSource FromPath(std::string p_path) {
-        return { Type::FromPath, std::move(p_path), nullptr };
+        return { Type::FromPath, std::move(p_path), {} };
     }
 
-    static SceneSource FromExisting(Scene* p_world) {
-        return { Type::FromExisting, "", p_world };
+    static SceneSource FromExisting(SceneId p_scene_id) {
+        return { Type::FromExisting, "", p_scene_id };
     }
 };
 
@@ -36,7 +37,7 @@ struct RuntimeStartParams {
     std::string game_mode_id;
 
     // Input routing
-    //IInputProvider* input_provider;
+    // IInputProvider* input_provider;
 
     RuntimeStartParams(SceneSource p_source)
         : source(std::move(p_source)) {}
@@ -53,13 +54,14 @@ public:
     void Tick(const GameFrameTime& p_frame);
 
     GameSession* GetSession() const;
-    Scene* GetScene() const;
+
+    SceneId GetSceneId() const { return m_scene_id; }
 
 private:
     IApplication& m_app;
 
     std::unique_ptr<GameSession> m_session;
-    std::unique_ptr<Scene> m_world;
+    SceneId m_scene_id;
 };
 
 }  // namespace cave

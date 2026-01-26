@@ -22,20 +22,19 @@ FILES = [
     'assets/tile_set_asset.h',
 
     # components
-    'scene/collider_component.h',
-    'scene/camera_component.h',
-    'scene/light_component.h',
-    'scene/lua_script_component.h',
-    'scene/material_component.h',
-    'scene/transform_component.h',
-    'scene/scene_component.h',
-    'scene/skeletal_animation_component.h',
-    'scene/sprite_animator_component.h',
-
+    'runtime/scene/ColliderComponent.h',
+    'runtime/scene/CameraComponent.h',
+    'runtime/scene/LightComponent.h',
+    'runtime/scene/LuaScriptComponent.h',
+    'runtime/scene/MaterialComponent.h',
+    'runtime/scene/TransformComponent.h',
+    'runtime/scene/SceneComponent.h',
+    'runtime/scene/SkeletalAnimationComponent.h',
+    'runtime/scene/SpriteAnimatorComponent.h',
     # renderers
-    'scene/mesh_renderer_component.h',
-    'scene/sprite_renderer_component.h',
-    'scene/tile_map_renderer_component.h',
+    'runtime/scene/MeshRendererComponent.h',
+    'runtime/scene/SpriteRendererComponent.h',
+    'runtime/scene/TileMapRendererComponent.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'reflection/generated')

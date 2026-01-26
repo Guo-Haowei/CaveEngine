@@ -19,11 +19,11 @@
 #include "engine/private/runtime/framework/ModuleRegistry.h"
 #include "engine/private/runtime/framework/RenderSystem.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/framework/ISceneManager.h"
+#include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
-#include "engine/private/scene/scene.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #if USING(PLATFORM_WASM)
 static cave::IApplication* s_app = nullptr;
@@ -173,18 +173,11 @@ bool Application::MainLoop() {
     const float timestep = UpdateTime();
 
     m_asset_manager->Update();
-    m_scene_manager->Update();
 
     // layer should set active scene
     // update layers from back to front
 
     m_state_machine.Tick(timestep);
-
-    std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
-
-    if (scene) {
-        scene->Update(timestep);
-    }
 
     // view has camera controller and camera manager
     const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;

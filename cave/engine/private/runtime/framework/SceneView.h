@@ -1,5 +1,6 @@
 #pragma once
 #include <bitset>
+#include "cave/runtime/scene/SceneId.h"
 
 #include "engine/private/math/angle.h"
 #include "engine/private/math/geomath.h"
@@ -8,6 +9,7 @@ namespace cave {
 
 class CameraComponent;
 class Scene;
+class SceneManager;
 
 struct ViewInfo {
     Matrix4x4f view;
@@ -29,7 +31,10 @@ struct ViewInfo {
 
 struct SceneView {
     ViewInfo view_info;
-    Scene* scene{ nullptr };
+    SceneId scene_id;
+    SceneManager* scene_manager{ nullptr };
+
+    Scene* ResolveScene();
 };
 
 class ISceneViewProvider {
