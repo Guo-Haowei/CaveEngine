@@ -42,7 +42,7 @@ SceneId SceneManager::Register(std::unique_ptr<Scene> p_scene, const SceneDesc& 
     SceneId id = Alloc();
     Slot& slot = m_slots[id.index];
     DEV_ASSERT(slot.scene == nullptr);
-    slot.scene = std::make_unique<Scene>();
+    slot.scene = std::move(p_scene);
 #if USING(DEBUG_BUILD)
     StringUtils::Strcpy(slot.debug_name,
                         p_desc.debug_name.data(),

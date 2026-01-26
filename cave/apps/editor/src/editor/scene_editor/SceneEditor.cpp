@@ -39,22 +39,18 @@ Document& SceneEditor::GetDocument() const {
     return *m_document.get();
 }
 
+SceneId SceneEditor:: GetSceneId() const {
+    return m_document->GetSceneId();
+}
+
 void SceneEditor::OnCreateInternal(const Guid& p_guid) {
-    m_document = std::make_shared<SceneDocument>(p_guid);
+    m_document = std::make_shared<SceneDocument>(p_guid, m_scene_manager);
 }
 
 void SceneEditor::OnDestroy() {
 }
 
 void SceneEditor::OnActivateInternal() {
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
-    DEV_ASSERT(scene_manager);
-    scene_manager->OpenTempScene(m_document->m_scene);
-}
-
-Scene* SceneEditor::GetScene() {
-    auto handle = m_document->GetHandle<Scene>();
-    return handle.Get();
 }
 
 void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
@@ -62,20 +58,25 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
         return;
     }
 
-    BuildViewsImpl(GetScene(), m_camera, p_out_views, p_is_opengl);
+    Scene* scene = GetResolvedScene();
+    // @HACK: force update
+    scene->Update(0.01f);
+
+    BuildViewsImpl(scene, m_camera, p_out_views, p_is_opengl);
 }
 
 // @TODO: rename this to DrawEditor
-void SceneEditor::DrawMainView(const CameraComponent&) {
+void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     // @TODO: fix this as well
-    const CameraComponent* p_camera = GetScene()->GetComponent<CameraComponent>(m_camera);
-    DEV_ASSERT(p_camera);
+    //const CameraComponent* p_camera = nullptr;
+    //    GetScene()->GetComponent<CameraComponent>(m_camera);
+    //DEV_ASSERT(p_camera);
 
-    ViewerTab::DrawMainView(*p_camera);
+    ViewerTab::DrawMainView(p_camera);
 
-    const Matrix4x4f& view_matrix = p_camera->GetViewMatrix();
-    const Matrix4x4f& proj_matrix = p_camera->GetProjectionMatrix();
-    const Matrix4x4f& proj_view = p_camera->GetProjectionViewMatrix();
+    const Matrix4x4f& view_matrix = p_camera.GetViewMatrix();
+    const Matrix4x4f& proj_matrix = p_camera.GetProjectionMatrix();
+    const Matrix4x4f& proj_view = p_camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -86,7 +87,7 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
-    Scene& scene = *m_document->m_scene.get();
+    Scene& scene = *GetResolvedScene();
     ecs::Entity id = GetSelectedEntity();
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
 
@@ -180,11 +181,13 @@ const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() con
 }
 
 void SceneEditor::Select(const Vector2f& p_cursor) {
+    unused(p_cursor);
+    DEV_ASSERT(0);
+#if 0
     if (auto res = m_viewer.CursorToNDC(p_cursor); res.is_some()) {
         Vector2f ndc_2 = res.unwrap_unchecked();
         Vector4f ndc{ ndc_2.x, ndc_2.y, 1.0f, 1.0f };
 
-        DEV_ASSERT(0);
         CameraComponent cam;
 
         const Matrix4x4f inv_pv = glm::inverse(cam.GetProjectionViewMatrix());
@@ -198,6 +201,7 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
         const auto result = GetScene()->Intersects(ray);
         SetSelectedEntity(result.entity);
     }
+#endif
 }
 
 }  // namespace cave

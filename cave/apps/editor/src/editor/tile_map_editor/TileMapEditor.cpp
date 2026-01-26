@@ -56,8 +56,9 @@ void TileMapEditor::OnDestroy() {
 }
 
 void TileMapEditor::OnActivateInternal() {
-    auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
-    scene_manager->OpenTempScene(m_tmp_scene);
+    //auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
+    //scene_manager->OpenTempScene(m_tmp_scene);
+    DEV_ASSERT(0);
 }
 
 void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {

@@ -29,7 +29,8 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
     : m_id(TabId::Next())
     , m_dimension(p_dimension)
     , m_editor(p_editor)
-    , m_viewer(p_viewer) {
+    , m_viewer(p_viewer)
+    , m_scene_manager(*p_editor.GetApp().GetSceneManager()) {
 
     InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
     router.Register(this);
@@ -42,9 +43,13 @@ ViewerTab::~ViewerTab() {
 
 void ViewerTab::SetSelectedEntity(ecs::Entity p_selected) {
     m_selected = p_selected;
-    if (Scene* scene = GetScene(); scene) {
+    if (Scene* scene = GetResolvedScene(); scene) {
         scene->m_selected = m_selected;
     }
+}
+
+Scene* ViewerTab::GetResolvedScene() {
+    return m_scene_manager.Resolve(GetSceneId());
 }
 
 void ViewerTab::SetCopiedEntity(ecs::Entity p_copied) {
@@ -73,7 +78,7 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
 }
 
 void ViewerTab::SetupDefault2DCamera() {
-    Scene* scene = GetScene();
+    Scene* scene = GetResolvedScene();
     DEV_ASSERT(scene);
 
     Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
@@ -92,7 +97,7 @@ void ViewerTab::SetupDefault2DCamera() {
 }
 
 void ViewerTab::SetupDefault3DCamera() {
-    Scene* scene = GetScene();
+    Scene* scene = GetResolvedScene();
     DEV_ASSERT(scene);
 
     Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
@@ -321,7 +326,7 @@ void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl
         return;
     }
 
-    BuildViewsImpl(GetScene(), m_camera, p_out_views, p_is_opengl);
+    BuildViewsImpl(GetResolvedScene(), m_camera, p_out_views, p_is_opengl);
 }
 
 }  // namespace cave

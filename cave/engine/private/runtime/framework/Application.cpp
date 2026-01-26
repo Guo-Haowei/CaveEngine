@@ -180,12 +180,6 @@ bool Application::MainLoop() {
 
     m_state_machine.Tick(timestep);
 
-    std::shared_ptr<Scene> scene = m_scene_manager->GetActiveScene();
-
-    if (scene) {
-        scene->Update(timestep);
-    }
-
     // view has camera controller and camera manager
     const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;
 

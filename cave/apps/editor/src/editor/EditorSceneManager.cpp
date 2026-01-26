@@ -36,10 +36,6 @@ void EditorSceneManager::CloseSimScene() {
     m_sim_scene.reset();
 }
 
-void EditorSceneManager::OpenTempScene(const std::shared_ptr<Scene>& p_scene) {
-    m_tmp_scene = p_scene;
-}
-
 std::shared_ptr<Scene> EditorSceneManager::CreateTempScene(const Guid& p_guid,
                                                            const CreateSceneFunc& p_func) {
     std::string id = p_guid.ToString();
@@ -57,7 +53,7 @@ std::shared_ptr<Scene> EditorSceneManager::GetActiveScene() const {
     }
 
     if (auto lock = m_tmp_scene.lock(); lock) {
-        return lock;
+        return nullptr;
     }
 
     return nullptr;

@@ -13,8 +13,6 @@ public:
 
     void OpenScene(const Guid& p_guid, std::shared_ptr<Scene>& p_scene);
 
-    void OpenTempScene(const std::shared_ptr<Scene>& p_scene);
-
     void OpenSimScene(const std::shared_ptr<Scene>& p_scene) override;
 
     void CloseSimScene() override;

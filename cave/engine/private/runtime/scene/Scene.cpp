@@ -99,6 +99,7 @@ void Scene::Copy(const Scene& p_other) {
     m_root = p_other.m_root;
     m_bound = p_other.m_bound;
     m_physicsMode = p_other.m_physicsMode;
+    m_entity_seed = p_other.m_entity_seed;
 }
 
 std::vector<Entity> Scene::GetSortedEntityArray() const {

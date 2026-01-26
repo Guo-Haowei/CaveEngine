@@ -2,6 +2,7 @@
 #include "ViewerTabId.h"
 
 #include "cave/runtime/input/IInputConsumer.h"
+#include "cave/runtime/scene/SceneId.h"
 
 #include "engine/private/assets/guid.h"
 #include "engine/private/ecs/entity.h"
@@ -15,6 +16,7 @@
 namespace cave {
 
 class Document;
+class ISceneManager;
 class KeyState;
 class TabId;
 class Viewer;
@@ -37,13 +39,18 @@ public:
     void OnActivate();
     void OnDeactivate();
 
+    // @TODO: fix this
+    virtual SceneId GetSceneId() const {
+        return SceneId{};
+    }
+
+    Scene* GetResolvedScene();
+
     // @TODO: get rid of these two functions
     virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
 
     virtual Document& GetDocument() const = 0;
-
-    virtual Scene* GetScene() = 0;
 
     ecs::Entity GetSelectedEntity() const { return m_selected; }
     void SetSelectedEntity(ecs::Entity p_selected);
@@ -88,6 +95,7 @@ protected:
     const TabId m_id;
     EditorState& m_editor;
     Viewer& m_viewer;
+    ISceneManager& m_scene_manager;
 
     bool m_active{ false };
 

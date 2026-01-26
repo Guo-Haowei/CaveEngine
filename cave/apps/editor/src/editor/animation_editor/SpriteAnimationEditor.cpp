@@ -47,21 +47,20 @@ void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
     DEV_ASSERT(scene_manager);
 
-    m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
-        auto scene = std::make_shared<Scene>();
-        auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
-        scene->m_root = root;
+    {
+    auto scene = std::make_unique<Scene>();
+    auto root = EntityFactory::CreateTransformEntity(*scene, "sprite_animation_test_scene");
+    scene->m_root = root;
 
-        auto id = EntityFactory::CreateTransformEntity(*scene, "animation_test");
-        scene->AttachChild(id);
+    auto id = EntityFactory::CreateTransformEntity(*scene, "animation_test");
+    scene->AttachChild(id);
 
-        scene->Create<SpriteRendererComponent>(id);
+    scene->Create<SpriteRendererComponent>(id);
 
-        SpriteAnimatorComponent& animator = scene->Create<SpriteAnimatorComponent>(id);
-        animator.SetResourceGuid(p_guid);
-
-        return scene;
-    });
+    SpriteAnimatorComponent& animator = scene->Create<SpriteAnimatorComponent>(id);
+    animator.SetResourceGuid(p_guid);
+    DEV_ASSERT(0);
+    }
 
     // cache the id
 
@@ -79,7 +78,8 @@ void SpriteAnimationEditor::OnDestroy() {
 void SpriteAnimationEditor::OnActivateInternal() {
     auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
     DEV_ASSERT(scene_manager);
-    scene_manager->OpenTempScene(m_tmp_scene);
+    // scene_manager->OpenTempScene(m_tmp_scene);
+    m_scene_manager;
 }
 
 const std::vector<const ToolBarButtonDesc*> SpriteAnimationEditor::GetToolBarButtons() const {

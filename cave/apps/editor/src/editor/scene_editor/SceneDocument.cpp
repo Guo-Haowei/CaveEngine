@@ -1,5 +1,6 @@
 #include "SceneDocument.h"
 
+#include "engine/private/runtime/scene/ISceneManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "editor/undo_redo/UndoStack.h"
 
@@ -75,6 +76,23 @@ bool TransformCommand::MergeCommand(const UndoCommand* p_command) {
     return true;
 }
 
+SceneDocument::SceneDocument(const Guid& p_guid, ISceneManager& p_scene_manager)
+    : Document(p_guid)
+    , m_scene_manager(p_scene_manager) {
+
+    m_asset_scene = m_handle.Wait<Scene>();
+
+    auto scene = std::make_unique<Scene>();
+    scene->Copy(*m_asset_scene);
+
+    SceneDesc desc;
+#if USING(DEBUG_BUILD)
+    desc.debug_name = "SceneDocument";
+#endif
+
+    m_scene_id = m_scene_manager.Register(std::move(scene), desc);
+}
+
 void SceneDocument::RequestMove(ecs::Entity p_entity,
                                 const Matrix4x4f& p_before,
                                 const Matrix4x4f& p_after,
@@ -92,6 +110,11 @@ void SceneDocument::RequestMove(ecs::Entity p_entity,
     }
 
     m_undo_stack->Submit(command);
+}
+
+bool SceneDocument::Save() {
+    DEV_ASSERT(0);
+    return false;
 }
 
 }  // namespace cave

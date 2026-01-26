@@ -28,10 +28,6 @@ public:
 
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
-    Scene* GetScene() final {
-        return m_tmp_scene.get();
-    }
-
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
 

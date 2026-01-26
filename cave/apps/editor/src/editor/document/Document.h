@@ -20,7 +20,7 @@ public:
 
     const Guid& GetGuid() const { return m_guid; }
 
-    bool Save();
+    virtual bool Save();
 
     void Undo();
     void Redo();

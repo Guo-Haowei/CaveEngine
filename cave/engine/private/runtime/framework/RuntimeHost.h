@@ -53,7 +53,6 @@ public:
     void Tick(const GameFrameTime& p_frame);
 
     GameSession* GetSession() const;
-    Scene* GetScene() const;
 
 private:
     IApplication& m_app;

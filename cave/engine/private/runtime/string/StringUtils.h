@@ -62,8 +62,9 @@ public:
 
     template<size_t N>
     static char* Strcpy(char (&p_buffer)[N], const char* p_string, size_t p_length) {
-        char* result = strncpy(p_buffer, p_string, (N < p_length) ? N : p_length);
-        p_buffer[N - 1] = '\0';
+        const size_t len = ((N - 1) < p_length) ? (N - 1) : p_length;
+        char* result = strncpy(p_buffer, p_string, len);
+        p_buffer[len] = '\0';
         return result;
     }
 
