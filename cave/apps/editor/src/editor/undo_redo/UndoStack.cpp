@@ -2,7 +2,7 @@
 
 namespace cave {
 
-bool UndoStack::Submit(std::shared_ptr<UndoCommand>&& p_command) {
+bool UndoStack::Submit(std::unique_ptr<UndoCommand> p_command) {
     // New commands invalidate redo history
     if (!m_redo_stack.empty()) {
         m_redo_stack.clear();
@@ -10,7 +10,7 @@ bool UndoStack::Submit(std::shared_ptr<UndoCommand>&& p_command) {
 
     // Try merge the command
     if (!m_undo_stack.empty()) {
-        auto last = m_undo_stack.back();
+        auto& last = m_undo_stack.back();
         if (last->MergeCommand(p_command.get())) {
             return true;
         }
@@ -18,11 +18,6 @@ bool UndoStack::Submit(std::shared_ptr<UndoCommand>&& p_command) {
 
     // If can't merge, add to undo stack
     m_undo_stack.emplace_back(std::move(p_command));
-
-    // remove oldest
-    if (m_undo_stack.size() > m_max_undo) {
-        m_undo_stack.erase(m_undo_stack.begin());
-    }
 
     return true;
 }

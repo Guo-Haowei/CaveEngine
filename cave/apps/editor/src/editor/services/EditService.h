@@ -1,28 +1,75 @@
 #pragma once
-#include "editor/services/EditCommand.h"
+#include "cave/runtime/scene/SceneId.h"
+
+// @TODO: move it to public
+#include "engine/private/ecs/entity.h"
+
+#include "editor/undo_redo/UndoCommand.h"
 
 namespace cave {
 
-class EditorCommandBase;
 class EditorState;
+class Guid;
+class UndoStack;
+
+// @TODO: refactor this part
+enum class EntityType : uint8_t;
+enum class ComponentName : uint8_t;
 
 class EditService {
 public:
-    EditService(EditorState& p_editor)
-        : m_editor(p_editor) {}
+    class ICommand : public UndoCommand {
+    public:
+        ICommand(EditorState& p_editor,
+                 SceneId p_scene_id);
 
-    void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
+        virtual ~ICommand() = default;
+
+        Scene* ResolveScene();
+
+        SceneId GetSceneId() const { return m_scene_id; }
+    protected:
+        EditorState& m_editor;
+        SceneId m_scene_id;
+    };
+
+    EditService(EditorState& p_editor);
+
+    // @TODO: this should be part of view port service
     void CommandInspectAsset(const Guid& p_guid);
-    void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
-    void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
-    void CommandRemoveEntity(ecs::Entity p_target);
-    void CommandDuplicateEntity(ecs::Entity p_target);
 
-    void FlushCommand(Scene* p_scene);
+    void CommandCreateObject(SceneId p_scene_id,
+                             EntityType p_type,
+                             ecs::Entity p_parent);
+
+    void CommandAddComponent(SceneId p_scene_id,
+                             ComponentName p_type,
+                             ecs::Entity p_target);
+
+    void CommandDeleteObject(SceneId p_scene_id,
+                             ecs::Entity p_target);
+
+    void CommandCloneObject(SceneId p_scene_id,
+                            ecs::Entity p_target);
+
+    void Flush();
+
+#if 0
+    bool IsDirty(SceneId);
+
+    void MarkSaved(SceneId);
+
+    uint64_t GetRevision(SceneId);
+
+    void ClearHistory(SceneId);
+#endif
 
 private:
     EditorState& m_editor;
-    std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
+    std::list<std::unique_ptr<ICommand>> m_pending_commands;
+
+    std::unordered_map<SceneId, std::unique_ptr<UndoStack>> m_stacks;
+    // Undo stack per SceneId
 };
 
 }  // namespace cave

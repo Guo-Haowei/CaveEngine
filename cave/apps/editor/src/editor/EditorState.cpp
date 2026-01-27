@@ -137,7 +137,7 @@ void EditorState::Tick(float p_timestep) {
         ImGui::Render();
     }
 
-    m_edit_service->FlushCommand(nullptr);
+    m_edit_service->Flush();
     CommitModeSwitch();
 }
 

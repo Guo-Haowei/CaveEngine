@@ -155,8 +155,8 @@ void Viewer::UpdateInternal(float p_timestep) {
             DrawToolBar(buttons);
 
             // @TODO: remove this dummy camera
-            CameraComponent camera;
-            tab->DrawMainView(camera);
+            CameraComponent dummy_camera;
+            tab->DrawMainView(dummy_camera);
 
             ImGui::EndTabItem();
         }

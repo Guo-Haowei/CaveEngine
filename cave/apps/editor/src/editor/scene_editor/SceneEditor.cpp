@@ -62,17 +62,15 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
 }
 
 // @TODO: rename this to DrawEditor
-void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
-    // @TODO: fix this as well
-    // const CameraComponent* p_camera = nullptr;
-    //    GetScene()->GetComponent<CameraComponent>(m_camera);
-    // DEV_ASSERT(p_camera);
+void SceneEditor::DrawMainView(const CameraComponent& ) {
+    Scene& scene = *GetResolvedScene();
+    CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
 
-    ViewerTab::DrawMainView(p_camera);
+    ViewerTab::DrawMainView(camera);
 
-    const Matrix4x4f& view_matrix = p_camera.GetViewMatrix();
-    const Matrix4x4f& proj_matrix = p_camera.GetProjectionMatrix();
-    const Matrix4x4f& proj_view = p_camera.GetProjectionViewMatrix();
+    const Matrix4x4f& view_matrix = camera.GetViewMatrix();
+    const Matrix4x4f& proj_matrix = camera.GetProjectionMatrix();
+    const Matrix4x4f& proj_view = camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -83,7 +81,6 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
-    Scene& scene = *GetResolvedScene();
     ecs::Entity id = GetSelectedEntity();
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
 

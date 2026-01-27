@@ -10,7 +10,6 @@
 #include "editor/services/EditService.h"
 
 #include "editor/document/Document.h"
-#include "editor/services/EditCommand.h"
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 
@@ -35,15 +34,17 @@ void ShortcutService::InitShortcuts() {
         "Save As..",
         "Ctrl+Shift+S",
         [this]() {
-            m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(true));
+            LOG_WARN("Ctrl+Shift+S");
+            // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(true));
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [this]() {
-            AssetRegistry::GetSingleton().SaveAllAssets();
-            m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(false));
+            LOG_WARN("Ctrl+S");
+            // AssetRegistry::GetSingleton().SaveAllAssets();
+            // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(false));
         },
     };
 
@@ -51,7 +52,7 @@ void ShortcutService::InitShortcuts() {
         "Open",
         "Ctrl+O",
         [this]() {
-            LOG_WARN("TODO: not implemented");
+            LOG_WARN("Ctrl+O");
             // m_editor.BufferCommand(std::make_shared<OpenProjectCommand>(true));
         },
     };

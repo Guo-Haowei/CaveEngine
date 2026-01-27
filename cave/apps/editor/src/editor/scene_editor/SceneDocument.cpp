@@ -99,7 +99,7 @@ void SceneDocument::RequestMove(ecs::Entity p_entity,
                                 bool p_execute) {
     Handle<Scene> handle = Handle<Scene>(m_handle);
 
-    auto command = std::make_shared<TransformCommand>(
+    auto command = std::make_unique<TransformCommand>(
         handle,
         p_entity,
         p_before,
@@ -109,7 +109,7 @@ void SceneDocument::RequestMove(ecs::Entity p_entity,
         command->Redo();
     }
 
-    m_undo_stack->Submit(command);
+    m_undo_stack->Submit(std::move(command));
 }
 
 bool SceneDocument::Save() {
