@@ -2,7 +2,7 @@
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/gameplay/GameRuntimeState.h"
 #include "engine/private/scripting/lua/lua_script_manager.h"
 
@@ -11,7 +11,6 @@
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
-#include "editor/EditorSceneManager.h"
 #include "editor/ProjectBrowserState.h"
 
 #define DEFINE_DVAR
@@ -132,9 +131,6 @@ int main(int p_argc, const char** p_argv) {
 
     IAssetManager::RegisterCreateFunc([]() -> IAssetManager* {
         return new EditorAssetManager();
-    });
-    SceneManager::RegisterCreateFunc([]() -> SceneManager* {
-        return new EditorSceneManager();
     });
     IScriptManager::RegisterCreateFunc([]() -> IScriptManager* {
         return new LuaScriptManager();

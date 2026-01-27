@@ -8,7 +8,7 @@
 #include <engine/private/runtime/scene/SceneComponent.h>
 
 #include "editor/EditorWindow.h"
-#include "editor/shortcut/ShortcutDesc.h"
+#include "editor/services/ShortcutDesc.h"
 #include "editor/viewer/ViewerTab.h"
 
 // @TODO: refactor this
@@ -18,14 +18,21 @@ namespace cave {
 
 enum class HandleInput : uint8_t;
 enum class Key : uint16_t;
+
+class RuntimeHost;
+
+// pannels
 class AssetInspector;
-class EditorCommandBase;
 class FileSystemPanel;
 class LogPanel;
 class MenuBar;
-class RuntimeHost;
-class ShortcutManager;
 class Viewer;
+
+// services
+class EditService;
+class DocumentService;
+class ShortcutService;
+class Workspace;
 
 struct EditorContext {
     std::shared_ptr<ImageAsset> checkerboard;
@@ -54,14 +61,17 @@ public:
     const char* GetDebugName() final { return "EditorState"; }
 #endif
 
-    const std::array<ShortcutDesc, kShortcutCount>& GetShortcuts() const;
-
     AssetInspector& GetAssetInspector() { return *m_asset_inspector.get(); }
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
     Viewer& GetViewer() { return *m_viewer.get(); }
 
-    RuntimeHost& GetRuntimeHost() { return *m_runtime_host.get(); }
+    RuntimeHost& GetRuntimeHost() { return *m_runtime_host; }
+
+    DocumentService& GetDocumentService() { return *m_document_service; }
+    EditService& GetEditService() { return *m_edit_service; }
+    ShortcutService& GetShortcutService() { return *m_shortcut_service; }
+    Workspace& GetWorkspace() { return *m_workspace; }
 
 private:
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
@@ -71,7 +81,11 @@ private:
     bool m_switch_mode_requested{ false };
 
     std::unique_ptr<RuntimeHost> m_runtime_host;
-    std::unique_ptr<ShortcutManager> m_shortcut_manager;
+
+    std::unique_ptr<DocumentService> m_document_service;
+    std::unique_ptr<EditService> m_edit_service;
+    std::unique_ptr<ShortcutService> m_shortcut_service;
+    std::unique_ptr<Workspace> m_workspace;
 
     std::shared_ptr<AssetInspector> m_asset_inspector;
     std::shared_ptr<FileSystemPanel> m_file_system_panel;
@@ -85,31 +99,12 @@ private:
     LoadedGameModule m_module{};
 
 public:
-    void BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command);
-    void CommandInspectAsset(const Guid& p_guid);
-    void CommandAddComponent(ComponentName p_type, ecs::Entity p_target);
-    void CommandAddEntity(EntityType p_type, ecs::Entity p_parent);
-    void CommandRemoveEntity(ecs::Entity p_target);
-    void CommandDuplicateEntity(ecs::Entity p_target);
-
     // @TODO: refactor this smelly context
     EditorContext context;
-
-    void SetSelectedAsset(AssetHandle&& p_asset_handle) {
-        m_selected_asset = std::move(p_asset_handle);
-    }
-
-    const AssetHandle& GetSelectedAsset() const { return m_selected_asset; }
 
 private:
     void DockSpace();
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
-
-    void FlushCommand(Scene* p_scene);
-
-    std::list<std::shared_ptr<EditorCommandBase>> m_command_buffer;
-
-    AssetHandle m_selected_asset;
 };
 
 }  // namespace cave

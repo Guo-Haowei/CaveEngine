@@ -1,6 +1,7 @@
 #include "SceneDocument.h"
 
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "editor/undo_redo/UndoStack.h"
 
@@ -76,30 +77,32 @@ bool TransformCommand::MergeCommand(const UndoCommand* p_command) {
     return true;
 }
 
-SceneDocument::SceneDocument(const Guid& p_guid, SceneManager& p_scene_manager)
-    : Document(p_guid)
-    , m_scene_manager(p_scene_manager) {
-
-    m_asset_scene = m_handle.Wait<Scene>();
+SceneDocument::SceneDocument(IApplication& p_app, const Guid& p_guid)
+    : DocumentBase(p_app, p_guid) {
 
     auto scene = std::make_unique<Scene>();
-    scene->Copy(*m_asset_scene);
+    scene->Copy(*m_handle.Get<Scene>());
 
-    SceneDesc desc;
-#if USING(DEBUG_BUILD)
-    desc.debug_name = "SceneDocument";
-#endif
-
-    m_scene_id = m_scene_manager.Register(desc, std::move(scene));
+    m_preview_scene = m_scene_reg.Register(std::move(scene));
 }
 
+bool SceneDocument::Save() {
+    return false;
+}
+
+bool SceneDocument::SaveAs(std::string_view p_new_path) {
+    unused(p_new_path);
+    return false;
+}
+
+#if 0
 void SceneDocument::RequestMove(ecs::Entity p_entity,
                                 const Matrix4x4f& p_before,
                                 const Matrix4x4f& p_after,
                                 bool p_execute) {
     Handle<Scene> handle = Handle<Scene>(m_handle);
 
-    auto command = std::make_shared<TransformCommand>(
+    auto command = std::make_unique<TransformCommand>(
         handle,
         p_entity,
         p_before,
@@ -109,12 +112,8 @@ void SceneDocument::RequestMove(ecs::Entity p_entity,
         command->Redo();
     }
 
-    m_undo_stack->Submit(command);
+    m_undo_stack->Submit(std::move(command));
 }
-
-bool SceneDocument::Save() {
-    DEV_ASSERT(0);
-    return false;
-}
+#endif
 
 }  // namespace cave

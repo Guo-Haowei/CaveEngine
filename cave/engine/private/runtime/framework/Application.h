@@ -4,11 +4,11 @@
 #include "cave/runtime/gameplay/GameModeFactory.h"
 #include "cave/runtime/core/time/Stopwatch.h"
 
-// @TODO: refactor
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
 
 namespace cave {
 
@@ -29,6 +29,7 @@ public:
     VFS& GetVFS() override { return m_vfs; }
     EventQueue& GetEventQueue() override { return m_event_queue; }
     GameModeFactory& GetGameModeFactory() override { return m_game_mode_factory; }
+    SceneScheduler& GetSceneScheduler() override { return *m_scene_scheduler; }
 
     AppType GetType() const override { return m_type; }
 
@@ -56,6 +57,7 @@ protected:
     std::vector<Module*> m_modules;
 
     std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
+    std::unique_ptr<SceneScheduler> m_scene_scheduler;
 };
 
 }  // namespace cave

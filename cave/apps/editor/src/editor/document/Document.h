@@ -5,11 +5,11 @@ namespace cave {
 
 class UndoStack;
 
-class Document {
+class OldDocument {
 public:
-    Document(const Guid& p_guid);
+    OldDocument(const Guid& p_guid);
 
-    virtual ~Document();
+    virtual ~OldDocument();
 
     template<typename T>
     Handle<T> GetHandle() const {

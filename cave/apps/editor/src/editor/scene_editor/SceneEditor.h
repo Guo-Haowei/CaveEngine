@@ -1,11 +1,12 @@
 #pragma once
-#include "engine/private/runtime/scene/CameraComponent.h"
+#include "editor/document/SceneDocument.h"
 
+// @TODO:
 #include "editor/viewer/ViewerTab.h"
 
 namespace cave {
 
-class SceneDocument;
+class OldDocument;
 
 class SceneEditor : public ViewerTab {
 public:
@@ -15,7 +16,7 @@ public:
 
     void DrawMainView(const CameraComponent& p_camera) final;
 
-    Document& GetDocument() const final;
+    OldDocument& GetDocument() const final;
 
     SceneId GetSceneId() const final;
 
@@ -37,7 +38,8 @@ protected:
     std::array<const char*, 2> m_button_tooltips;
 
     int m_button_index{ 0 };
-    std::shared_ptr<SceneDocument> m_document;
+
+    DocId m_doc_id;
     ToolBarButtonDesc m_play_button;
 };
 

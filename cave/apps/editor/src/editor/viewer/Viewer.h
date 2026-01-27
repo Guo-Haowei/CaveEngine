@@ -1,9 +1,13 @@
 #pragma once
-#include "editor/viewer/ViewerTabManager.h"
+
+// @TODO: refactor
 #include "editor/EditorWindow.h"
 #include "editor/Enums.h"
 
 namespace cave {
+
+class Workspace;
+class ViewerTab;
 
 class Viewer : public EditorWindow {
 public:
@@ -14,7 +18,7 @@ public:
     const Vector2f& GetCanvasMin() const { return m_canvas_min; }
     const Vector2f& GetCanvasSize() const { return m_canvas_size; }
 
-    void OpenTab(AssetType p_type, const Guid& p_guid);
+    // @TODO: deprecate
     ViewerTab* GetActiveTab();
 
     const char* GetTitle() const override {
@@ -26,10 +30,10 @@ protected:
 
     void UpdateFrameSize();
 
+    Workspace& m_workspace;
+
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;
-
-    ViewerTabManager m_tab_manager;
 };
 
 }  // namespace cave

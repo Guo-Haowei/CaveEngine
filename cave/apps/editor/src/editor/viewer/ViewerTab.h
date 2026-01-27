@@ -8,6 +8,7 @@
 #include "engine/private/ecs/entity.h"
 #include "engine/private/runtime/framework/SceneView.h"
 #include "engine/private/runtime/scene/CameraController.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
 
 #include "editor/Enums.h"
 #include "editor/undo_redo/UndoStack.h"
@@ -15,15 +16,17 @@
 
 namespace cave {
 
-class Document;
-class SceneManager;
+class OldDocument;
+class ISceneRegistry;
 class KeyState;
 class TabId;
 class Viewer;
 
 struct ToolBarButtonDesc;
 
-class ViewerTab : public ISceneViewProvider, public IInputConsumer {
+class ViewerTab : public ISceneViewProvider,
+                  public IInputConsumer,
+                  public ISceneTickContributor {
 public:
     enum Dimension {
         DIMENSION_2,
@@ -39,6 +42,8 @@ public:
     void OnActivate();
     void OnDeactivate();
 
+    void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
+
     // @TODO: fix this
     virtual SceneId GetSceneId() const {
         return SceneId{};
@@ -50,7 +55,7 @@ public:
     virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
 
-    virtual Document& GetDocument() const = 0;
+    virtual OldDocument& GetDocument() const = 0;
 
     ecs::Entity GetSelectedEntity() const { return m_selected; }
     void SetSelectedEntity(ecs::Entity p_selected);
@@ -95,7 +100,7 @@ protected:
     const TabId m_id;
     EditorState& m_editor;
     Viewer& m_viewer;
-    SceneManager& m_scene_manager;
+    ISceneRegistry& m_scene_manager;
 
     bool m_active{ false };
 

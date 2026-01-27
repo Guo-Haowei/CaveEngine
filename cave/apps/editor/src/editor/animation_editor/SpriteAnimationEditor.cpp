@@ -8,7 +8,6 @@
 
 #include "editor/document/document.h"
 #include "editor/EditorState.h"
-#include "editor/EditorSceneManager.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "engine/private/ui/inputs.h"
@@ -42,9 +41,12 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorState& p_editor, Viewer& p_vi
 }
 
 void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
+    DEV_ASSERT(0);
+    unused(p_guid);
+#if 0
     m_document = std::make_shared<SpriteAnimationDocument>(p_guid);
 
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
+    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneRegistry());
     DEV_ASSERT(scene_manager);
 
     {
@@ -69,6 +71,7 @@ void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
         DEV_ASSERT(!m_animator_id.IsValid());
         m_animator_id = id;
     }
+#endif
 }
 
 void SpriteAnimationEditor::OnDestroy() {
@@ -76,10 +79,11 @@ void SpriteAnimationEditor::OnDestroy() {
 }
 
 void SpriteAnimationEditor::OnActivateInternal() {
-    auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneManager());
-    DEV_ASSERT(scene_manager);
-    // scene_manager->OpenTempScene(m_tmp_scene);
-    m_scene_manager;
+    DEV_ASSERT(0);
+    // auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneRegistry());
+    // DEV_ASSERT(scene_manager);
+    //// scene_manager->OpenTempScene(m_tmp_scene);
+    // m_scene_manager;
 }
 
 const std::vector<const ToolBarButtonDesc*> SpriteAnimationEditor::GetToolBarButtons() const {
@@ -312,7 +316,7 @@ void SpriteAnimationEditor::DrawAssetInspector() {
     ui::DrawContents(full_width, descs);
 }
 
-Document& SpriteAnimationEditor::GetDocument() const {
+OldDocument& SpriteAnimationEditor::GetDocument() const {
     return *m_document.get();
 }
 

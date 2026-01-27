@@ -14,7 +14,7 @@
 #include "editor/viewer/Viewer.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 
 namespace cave {
 
@@ -31,15 +31,10 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
     , m_dimension(p_dimension)
     , m_editor(p_editor)
     , m_viewer(p_viewer)
-    , m_scene_manager(*p_editor.GetApp().GetSceneManager()) {
-
-    InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
-    router.Register(this);
+    , m_scene_manager(*p_editor.GetApp().GetSceneRegistry()) {
 }
 
 ViewerTab::~ViewerTab() {
-    InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
-    router.Unregister(this);
 }
 
 void ViewerTab::SetSelectedEntity(ecs::Entity p_selected) {
@@ -126,11 +121,27 @@ void ViewerTab::SetupDefault3DCamera() {
 void ViewerTab::OnActivate() {
     m_active = true;
     OnActivateInternal();
+
+    IApplication& app = m_editor.GetApp();
+
+    app.GetInputSystem()->Router().Register(this);
+    app.GetSceneScheduler().Register(this);
 }
 
 void ViewerTab::OnDeactivate() {
+    IApplication& app = m_editor.GetApp();
+
+    app.GetSceneScheduler().Unregister(this);
+    app.GetInputSystem()->Router().Unregister(this);
+
     OnDeactivateInternal();
     m_active = false;
+}
+
+void ViewerTab::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
+    if (m_editor.IsPlaying()) return;
+
+    p_out.push_back({ SceneTickMode::Editor, GetSceneId() });
 }
 
 void ViewerTab::DrawAssetInspector() {
@@ -291,7 +302,7 @@ void ViewerTab::BuildViewsImpl(SceneId p_scene_id,
     if (m_editor.IsPlaying()) {
         SceneView scene_view;
         scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-        scene_view.scene_manager = m_editor.GetApp().GetSceneManager();
+        scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
 
         Scene* scene = scene_view.ResolveScene();
 
@@ -314,10 +325,9 @@ void ViewerTab::BuildViewsImpl(SceneId p_scene_id,
     // @HACK: force update
     SceneView scene_view;
     scene_view.scene_id = p_scene_id;
-    scene_view.scene_manager = m_editor.GetApp().GetSceneManager();
+    scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
 
     Scene* scene = scene_view.ResolveScene();
-    scene->Update(0.01f);
     const CameraComponent* cam = scene->GetComponent<CameraComponent>(p_camera);
 
     if (DEV_VERIFY(cam)) {

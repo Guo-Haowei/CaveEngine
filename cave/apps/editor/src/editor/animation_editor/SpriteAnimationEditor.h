@@ -10,11 +10,11 @@
 namespace cave {
 
 class AssetRegistry;
-class Document;
+class OldDocument;
 class TileMapDocument;
 class Viewer;
 
-using SpriteAnimationDocument = Document;
+using SpriteAnimationDocument = OldDocument;
 
 class SpriteAnimationEditor : public ViewerTab {
 public:
@@ -26,7 +26,7 @@ public:
 
     void DrawAssetInspector() final;
 
-    Document& GetDocument() const final;
+    OldDocument& GetDocument() const final;
 
 protected:
     void OnCreateInternal(const Guid& p_guid) final;

@@ -7,7 +7,6 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
-#include "editor/EditorSceneManager.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "engine/private/ui/inputs.h"
@@ -31,6 +30,9 @@ TileMapEditor::TileMapEditor(EditorState& p_editor, Viewer& p_viewer)
 TileMapEditor::~TileMapEditor() = default;
 
 void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
+    unused(p_guid);
+    DEV_ASSERT(0);
+#if 0
 
     m_document = std::make_unique<TileMapDocument>(p_guid, *this);
 
@@ -49,6 +51,7 @@ void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
         tile_map_renderer->SetResourceGuid(p_guid);
         return scene;
     });
+#endif
 }
 
 void TileMapEditor::OnDestroy() {
@@ -144,7 +147,7 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     return true;
 }
 
-Document& TileMapEditor::GetDocument() const {
+OldDocument& TileMapEditor::GetDocument() const {
     return *m_document.get();
 }
 

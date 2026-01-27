@@ -6,6 +6,8 @@
 #include "engine/private/assets/mesh_asset.h"
 #include "engine/private/debugger/profiler.h"
 
+#include "editor/services/EditService.h"
+
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 #include "editor/viewer/ViewerTab.h"
@@ -200,6 +202,9 @@ void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
     auto selected = p_tab->GetSelectedEntity();
     // @TODO: save commands for undo
 
+    ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
+    SceneId scene_id = tab ? tab->GetSceneId() : SceneId{};
+
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
         OpenAddEntityPopup(selected);
         if (ImGui::MenuItem("Copy")) {
@@ -209,14 +214,14 @@ void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
         }
         if (ImGui::MenuItem("Paste")) {
             if (ecs::Entity to_be_copied = p_tab->GetCopiedEntity(); to_be_copied.IsValid()) {
-                m_editor.CommandDuplicateEntity(to_be_copied);
+                m_editor.GetEditService().CommandCloneObject(scene_id, to_be_copied);
             }
         }
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
                 p_tab->SetSelectedEntity(Entity::Null());
                 // move the command to tab document
-                m_editor.CommandRemoveEntity(selected);
+                m_editor.GetEditService().CommandDeleteObject(scene_id, selected);
             }
         }
         ImGui::EndPopup();

@@ -16,9 +16,9 @@ public:
         return SetTile(m_new_tile);
     }
 
-    static std::shared_ptr<SetTileCommand> AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileId p_tile);
+    static std::unique_ptr<SetTileCommand> AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileId p_tile);
 
-    static std::shared_ptr<SetTileCommand> RemoveTile(TileMapAsset& p_tile_map, TileIndex p_index);
+    static std::unique_ptr<SetTileCommand> RemoveTile(TileMapAsset& p_tile_map, TileIndex p_index);
 
     bool MergeCommand(const UndoCommand* p_other) override;
 
@@ -36,7 +36,7 @@ private:
     Option<TileId> m_new_tile{ None() };
 };
 
-std::shared_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileId p_tile) {
+std::unique_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map, TileIndex p_index, TileId p_tile) {
     Option<TileId> old_tile = p_tile_map.GetTile(p_index);
 
     if (!p_tile_map.AddTile(p_index, p_tile)) {
@@ -45,14 +45,14 @@ std::shared_ptr<SetTileCommand> SetTileCommand::AddTile(TileMapAsset& p_tile_map
 
     p_tile_map.IncRevision();
 
-    auto cmd = std::make_shared<SetTileCommand>();
+    auto cmd = std::make_unique<SetTileCommand>();
     cmd->m_old_tile = old_tile;
     cmd->m_new_tile = Some(p_tile);
     cmd->m_index = p_index;
     return cmd;
 }
 
-std::shared_ptr<SetTileCommand> SetTileCommand::RemoveTile(TileMapAsset& p_tile_map, TileIndex p_index) {
+std::unique_ptr<SetTileCommand> SetTileCommand::RemoveTile(TileMapAsset& p_tile_map, TileIndex p_index) {
     Option<TileId> old_tile = p_tile_map.GetTile(p_index);
 
     if (!p_tile_map.RemoveTile(p_index)) {
@@ -61,7 +61,7 @@ std::shared_ptr<SetTileCommand> SetTileCommand::RemoveTile(TileMapAsset& p_tile_
 
     p_tile_map.IncRevision();
 
-    auto cmd = std::make_shared<SetTileCommand>();
+    auto cmd = std::make_unique<SetTileCommand>();
     cmd->m_old_tile = old_tile;
     cmd->m_new_tile = None();
     cmd->m_index = p_index;
@@ -117,13 +117,13 @@ void TileMapDocument::FlushCommands() {
                 if (auto cmd = SetTileCommand::AddTile(*tile_map, p_cmd.tile, p_cmd.id); cmd) {
                     m_dirty = true;
                     cmd->SetHandle(std::move(handle));
-                    m_undo_stack->Submit(cmd);
+                    m_undo_stack->Submit(std::move(cmd));
                 }
             } else if constexpr (std::is_same_v<T, CommandEraseTile>) {
                 if (auto cmd = SetTileCommand::RemoveTile(*tile_map, p_cmd.tile); cmd) {
                     m_dirty = true;
                     cmd->SetHandle(std::move(handle));
-                    m_undo_stack->Submit(cmd);
+                    m_undo_stack->Submit(std::move(cmd));
                 }
             }
         },

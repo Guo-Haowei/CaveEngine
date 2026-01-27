@@ -4,7 +4,7 @@
 #include "engine/private/debugger/profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
-#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #pragma warning(push, 0)

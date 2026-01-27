@@ -5,14 +5,14 @@
 #include "engine/private/ui/layout.h"
 
 #include "editor/EditorState.h"
-#include "editor/shortcut/ShortcutManager.h"
+#include "editor/services/ShortcutService.h"
 #include "editor/panels/LogPanel.h"
 #include "editor/widgets/Image.h"
 
 namespace cave {
 
 void MenuBar::Update(float) {
-    const auto& shortcuts = m_editor.GetShortcuts();
+    const auto& shortcuts = m_editor.GetShortcutService().GetShortcuts();
     auto build_menu_item = [&](Shortcut p_index) {
         const auto& it = shortcuts[std ::to_underlying(p_index)];
         const bool enabled = it.enabled_func ? it.enabled_func() : true;

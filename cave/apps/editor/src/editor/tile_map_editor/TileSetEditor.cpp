@@ -19,7 +19,7 @@ TileSetEditor::TileSetEditor(EditorState& p_editor, Viewer& p_viewer)
 TileSetEditor::~TileSetEditor() = default;
 
 void TileSetEditor::OnCreateInternal(const Guid& p_guid) {
-    m_document = std::make_unique<Document>(p_guid);
+    m_document = std::make_unique<OldDocument>(p_guid);
 }
 
 void TileSetEditor::OnDestroy() {
@@ -122,7 +122,7 @@ void TileSetEditor::DrawAssetInspector() {
     ui::DrawContents(full_width, descs);
 }
 
-Document& TileSetEditor::GetDocument() const {
+OldDocument& TileSetEditor::GetDocument() const {
     return *m_document;
 }
 

@@ -23,11 +23,11 @@ class IGraphicsManager;
 class ImguiManager;
 class InputSystem;
 class IPhysicsManager;
-class SceneManager;
 class IScriptManager;
 class RenderSystem;
+class ISceneRegistry;
+class SceneScheduler;
 class TaskManager;
-class Scene;
 class VFS;
 class ViewportManager;
 
@@ -67,11 +67,12 @@ public:
     virtual VFS& GetVFS() = 0;
     virtual EventQueue& GetEventQueue() = 0;
     virtual GameModeFactory& GetGameModeFactory() = 0;
+    virtual SceneScheduler& GetSceneScheduler() = 0;
 
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
     InputSystem* GetInputSystem() { return m_input_system; }
-    SceneManager* GetSceneManager() { return m_scene_manager; }
+    ISceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptManager* GetScriptManager() { return m_script_manager; }
     IDisplayManager* GetDisplayManager() { return m_display_server; }
@@ -99,7 +100,7 @@ protected:
     // @TODO: differentiate global and state specific managers
     AssetRegistry* m_asset_registry{ nullptr };
     IAssetManager* m_asset_manager{ nullptr };
-    SceneManager* m_scene_manager{ nullptr };
+    ISceneRegistry* m_scene_registry{ nullptr };
 
     IPhysicsManager* m_physics_manager{ nullptr };
     IScriptManager* m_script_manager{ nullptr };

@@ -6,7 +6,6 @@
 #include "engine/private/empty/empty_physics_manager.h"
 #include "engine/private/empty/empty_script_manager.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/scripting/lua/lua_script_manager.h"
 
 #if USING(PLATFORM_WINDOWS)
@@ -40,10 +39,6 @@ IDisplayManager* CreateDisplayManager() {
 
 IPhysicsManager* CreatePhysicsManager() {
     return CreateModule<IPhysicsManager, EmptyPhysicsManager>();
-}
-
-SceneManager* CreateSceneManager() {
-    return CreateModule<SceneManager, SceneManager>();
 }
 
 IScriptManager* CreateScriptManager() {

@@ -7,7 +7,10 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 
-#include "editor/shortcut/ShortcutManager.h"
+#include "editor/document/DocumentService.h"
+#include "editor/services/EditService.h"
+#include "editor/services/ShortcutService.h"
+#include "editor/services/Workspace.h"
 
 // @TODO: refactor
 #include <imgui/imgui_internal.h>
@@ -18,13 +21,12 @@
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
-#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/document/Document.h"
-#include "editor/EditorCommand.h"
 #include "editor/EditorDvars.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/panels/FileSystemPanel.h"
@@ -42,8 +44,11 @@ namespace cave {
 
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app) {
-    // shortcut
-    m_shortcut_manager = std::make_unique<ShortcutManager>(*this);
+    // services
+    m_document_service = std::make_unique<DocumentService>(*this);
+    m_edit_service = std::make_unique<EditService>(*this);
+    m_shortcut_service = std::make_unique<ShortcutService>(*this);
+    m_workspace = std::make_unique<Workspace>(*this);
 
     // runtime
     m_runtime_host = std::make_unique<RuntimeHost>(p_app);
@@ -94,7 +99,8 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
         if (auto res = Guid::Parse(asset); res.is_some()) {
             Guid guid = res.unwrap_unchecked();
-            CommandInspectAsset(guid);
+            auto req = WorkspaceRequest::OpenDoc(m_document_service->OpenScene(guid));
+            m_workspace->SendRequest(std::move(req));
         }
     }
 }
@@ -111,12 +117,12 @@ void EditorState::OnExit() {
     UnloadGameModule(m_module);
 }
 
-void EditorState::Tick(float p_timestep) {
+void EditorState::Tick(float p_dt) {
     CAVE_PROFILE_EVENT();
 
     if (IsPlaying()) {
         GameFrameTime frame;
-        frame.dt = p_timestep;
+        frame.dt = p_dt;
         m_runtime_host->Tick(frame);
     }
 
@@ -128,17 +134,16 @@ void EditorState::Tick(float p_timestep) {
 
     DockSpace();
     for (auto& it : m_panels) {
-        it->Update(p_timestep);
+        it->Update(p_dt);
     }
-
-    // @TODO: fix this as well
-    FlushCommand(nullptr);
 
     {
         CAVE_PROFILE_EVENT("ImGui::Render");
         ImGui::Render();
     }
 
+    m_edit_service->Flush();
+    m_workspace->Tick(p_dt);
     CommitModeSwitch();
 }
 
@@ -208,56 +213,6 @@ void EditorState::DockSpace() {
     });
 
     return;
-}
-
-const std::array<ShortcutDesc, kShortcutCount>& EditorState::GetShortcuts() const {
-    return m_shortcut_manager->GetShortcuts();
-}
-
-////////////////////
-////////////////////
-
-// @TODO: these are associated with scene editor, move to scene editor
-void EditorState::BufferCommand(std::shared_ptr<EditorCommandBase>&& p_command) {
-    p_command->m_editor = this;
-    m_command_buffer.emplace_back(std::move(p_command));
-}
-
-void EditorState::CommandInspectAsset(const Guid& p_guid) {
-    auto command = std::make_shared<EditorInspectAssetCommand>(p_guid);
-    BufferCommand(command);
-}
-
-void EditorState::CommandAddComponent(ComponentName p_type, ecs::Entity p_target) {
-    auto command = std::make_shared<EditorCommandAddComponent>(p_type);
-    command->target = p_target;
-    BufferCommand(command);
-}
-
-void EditorState::CommandAddEntity(EntityType p_type, ecs::Entity p_parent) {
-    auto command = std::make_shared<EditorCommandAddEntity>(p_type);
-    command->m_parent = p_parent;
-    BufferCommand(command);
-}
-
-void EditorState::CommandRemoveEntity(ecs::Entity p_target) {
-    auto command = std::make_shared<EditorCommandRemoveEntity>(p_target);
-    BufferCommand(command);
-}
-
-void EditorState::CommandDuplicateEntity(ecs::Entity p_target) {
-    auto command = std::make_shared<EditorCommandDuplicateEntity>(p_target);
-    BufferCommand(command);
-}
-
-void EditorState::FlushCommand(Scene* p_scene) {
-    CAVE_PROFILE_EVENT();
-
-    while (!m_command_buffer.empty()) {
-        auto task = m_command_buffer.front();
-        m_command_buffer.pop_front();
-        task->Execute(*p_scene);
-    }
 }
 
 }  // namespace cave

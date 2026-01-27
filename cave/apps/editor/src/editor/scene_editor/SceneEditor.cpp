@@ -7,9 +7,9 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/document/document.h"
+#include "editor/document/DocumentService.h"
+#include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
-#include "editor/EditorSceneManager.h"
-#include "editor/scene_editor/SceneDocument.h"
 #include "editor/utility/ImGuizmo.h"
 #include "editor/viewer/Viewer.h"
 
@@ -35,19 +35,22 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
     };
 }
 
-Document& SceneEditor::GetDocument() const {
-    return *m_document.get();
+OldDocument& SceneEditor::GetDocument() const {
+    return *((OldDocument*)nullptr);
 }
 
 SceneId SceneEditor::GetSceneId() const {
-    return m_document->GetSceneId();
+    IDocument* doc = m_editor.GetDocumentService().Resolve(m_doc_id);
+    if (!doc) return {};
+    return doc->GetPreviewScene();
 }
 
 void SceneEditor::OnCreateInternal(const Guid& p_guid) {
-    m_document = std::make_shared<SceneDocument>(p_guid, m_scene_manager);
+    m_doc_id = m_editor.GetDocumentService().OpenScene(p_guid);
 }
 
 void SceneEditor::OnDestroy() {
+    m_editor.GetDocumentService().Close(m_doc_id);
 }
 
 void SceneEditor::OnActivateInternal() {
@@ -62,17 +65,15 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
 }
 
 // @TODO: rename this to DrawEditor
-void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
-    // @TODO: fix this as well
-    // const CameraComponent* p_camera = nullptr;
-    //    GetScene()->GetComponent<CameraComponent>(m_camera);
-    // DEV_ASSERT(p_camera);
+void SceneEditor::DrawMainView(const CameraComponent&) {
+    Scene& scene = *GetResolvedScene();
+    CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
 
-    ViewerTab::DrawMainView(p_camera);
+    ViewerTab::DrawMainView(camera);
 
-    const Matrix4x4f& view_matrix = p_camera.GetViewMatrix();
-    const Matrix4x4f& proj_matrix = p_camera.GetProjectionMatrix();
-    const Matrix4x4f& proj_view = p_camera.GetProjectionViewMatrix();
+    const Matrix4x4f& view_matrix = camera.GetViewMatrix();
+    const Matrix4x4f& proj_matrix = camera.GetProjectionMatrix();
+    const Matrix4x4f& proj_view = camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();
     const Vector2f& canvas_size = m_viewer.GetCanvasSize();
@@ -83,7 +84,6 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
-    Scene& scene = *GetResolvedScene();
     ecs::Entity id = GetSelectedEntity();
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
 
@@ -98,7 +98,7 @@ void SceneEditor::DrawMainView(const CameraComponent& p_camera) {
                                      // ImGuizmo::WORLD,
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
-                m_document->RequestMove(id, before, after, true);
+                // m_document->RequestMove(id, before, after, true);
             }
         }
     };

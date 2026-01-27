@@ -18,12 +18,12 @@ struct CommandEraseTile {
     TileIndex tile;
 };
 
-class TileMapDocument : public Document {
+class TileMapDocument : public OldDocument {
     using Command = std::variant<CommandAddTile, CommandEraseTile>;
 
 public:
     TileMapDocument(const Guid& p_guid, const TileMapEditor& p_tile_map_editor)
-        : Document(p_guid)
+        : OldDocument(p_guid)
         , m_tile_map_editor(p_tile_map_editor) {}
 
     void RequestAdd(const Vector2f& p_cursor, const TileId& p_id);

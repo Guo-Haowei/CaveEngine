@@ -19,11 +19,10 @@
 #include "engine/private/runtime/framework/ModuleRegistry.h"
 #include "engine/private/runtime/framework/RenderSystem.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/scene/SceneManager.h"
-#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
-#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 #if USING(PLATFORM_WASM)
 static cave::IApplication* s_app = nullptr;
@@ -56,7 +55,7 @@ auto Application::SetupModules() -> Result<void> {
     m_asset_manager = CreateAssetManager();
     m_asset_registry = new AssetRegistry();
     m_script_manager = CreateScriptManager();
-    m_scene_manager = CreateSceneManager();
+    m_scene_registry = new SceneRegistry();
     m_physics_manager = CreatePhysicsManager();
     m_graphics_manager = CreateGraphicsManager();
     m_display_server = CreateDisplayManager();
@@ -70,10 +69,14 @@ auto Application::SetupModules() -> Result<void> {
         *m_asset_manager,
         *m_asset_registry);
 
+    m_scene_scheduler = std::make_unique<SceneScheduler>(
+        *m_scene_registry,
+        *m_script_manager);
+
     RegisterModule(m_task_manager);
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);
-    RegisterModule(m_scene_manager);
+    RegisterModule(m_scene_registry);
     RegisterModule(m_script_manager);
     RegisterModule(m_physics_manager);
     RegisterModule(m_input_system);
@@ -178,6 +181,9 @@ bool Application::MainLoop() {
     // update layers from back to front
 
     m_state_machine.Tick(timestep);
+
+    // update scene after ImGui, physics and script updates
+    m_scene_scheduler->Tick(timestep);
 
     // view has camera controller and camera manager
     const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;

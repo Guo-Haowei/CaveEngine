@@ -6,7 +6,6 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
-#include "editor/EditorSceneManager.h"
 #include "editor/material_editor/MaterialDocument.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/widgets/DragDrop.h"
@@ -19,6 +18,9 @@ MaterialEditor::MaterialEditor(EditorState& p_editor, Viewer& p_viewer)
 }
 
 void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
+    unused(p_guid);
+    DEV_ASSERT(0);
+#if 0
     m_document = std::make_shared<MaterialDocument>(p_guid);
 
     auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
@@ -62,6 +64,7 @@ void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
 
         return scene;
     });
+#endif
 }
 
 void MaterialEditor::OnDestroy() {
@@ -128,7 +131,7 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
     }
 }
 
-Document& MaterialEditor::GetDocument() const {
+OldDocument& MaterialEditor::GetDocument() const {
     return *m_document;
 }
 
