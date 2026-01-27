@@ -4,7 +4,6 @@
 #include "cave/runtime/gameplay/GameModeFactory.h"
 #include "cave/runtime/core/time/Stopwatch.h"
 
-// @TODO: refactor
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/EventQueue.h"
@@ -13,6 +12,7 @@
 namespace cave {
 
 class Module;
+class SceneScheduler;
 
 class Application : public IApplication {
 public:
@@ -24,6 +24,7 @@ public:
     void Finalize() override;
 
     void RequestProject(std::string_view p_path) override;
+    void ScheduleSceneTick(const SceneTickRequest& p_request) override;
 
     BootLoadPipeline& GetBootLoadPipeline() override;
     VFS& GetVFS() override { return m_vfs; }
@@ -56,6 +57,7 @@ protected:
     std::vector<Module*> m_modules;
 
     std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
+    std::unique_ptr<SceneScheduler> m_scene_scheduler;
 };
 
 }  // namespace cave

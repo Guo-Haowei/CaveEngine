@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/IScriptManager.h"
 
 namespace cave {
 

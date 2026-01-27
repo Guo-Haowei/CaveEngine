@@ -20,7 +20,7 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/SceneManager.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
-#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/document/Document.h"

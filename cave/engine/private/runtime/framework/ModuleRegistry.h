@@ -8,7 +8,7 @@
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/scene/SceneManager.h"
-#include "engine/private/runtime/framework/ScriptManager.h"
+#include "engine/private/runtime/framework/IScriptManager.h"
 
 namespace cave {
 

@@ -3,9 +3,10 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/gameplay/GameSession.h"
 
-#include "engine/private/runtime/scene/SceneManager.h"
-#include "engine/private/runtime/framework/ScriptManager.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
+#include "engine/private/runtime/framework/IScriptManager.h"
 
 namespace cave {
 
@@ -47,10 +48,7 @@ void RuntimeHost::Tick(const GameFrameTime& p_frame) {
         m_session->Tick(p_frame);
     }
 
-    if (Scene* scene = m_app.GetSceneManager()->Resolve(m_scene_id)) {
-        m_app.GetScriptManager()->Update(*scene, p_frame.dt);
-        scene->Update(p_frame.dt);
-    }
+    m_app.ScheduleSceneTick({ SceneTickMode::Simulation, m_scene_id });
 }
 
 }  // namespace cave

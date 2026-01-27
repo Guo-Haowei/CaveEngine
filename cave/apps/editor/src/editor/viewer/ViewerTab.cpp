@@ -316,8 +316,10 @@ void ViewerTab::BuildViewsImpl(SceneId p_scene_id,
     scene_view.scene_id = p_scene_id;
     scene_view.scene_manager = m_editor.GetApp().GetSceneManager();
 
+    DEV_ASSERT(0);
+    //m_editor.GetApp().ScheduleSceneTick({ p_scene_id });
+
     Scene* scene = scene_view.ResolveScene();
-    scene->Update(0.01f);
     const CameraComponent* cam = scene->GetComponent<CameraComponent>(p_camera);
 
     if (DEV_VERIFY(cam)) {

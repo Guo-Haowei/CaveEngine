@@ -23,13 +23,14 @@ class IGraphicsManager;
 class ImguiManager;
 class InputSystem;
 class IPhysicsManager;
-class SceneManager;
 class IScriptManager;
 class RenderSystem;
+class SceneManager;
 class TaskManager;
-class Scene;
 class VFS;
 class ViewportManager;
+
+struct SceneTickRequest;
 
 struct AppSpec {
     std::string_view userFolder;
@@ -61,6 +62,7 @@ public:
     virtual void Finalize() = 0;
 
     virtual void RequestProject(std::string_view p_path) = 0;
+    virtual void ScheduleSceneTick(const SceneTickRequest& p_request) = 0;
 
     virtual AppStateId GetStateId() const = 0;
     virtual BootLoadPipeline& GetBootLoadPipeline() = 0;
