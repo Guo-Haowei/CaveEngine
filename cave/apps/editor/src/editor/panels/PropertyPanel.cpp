@@ -14,8 +14,9 @@
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 
-#include "editor/EditorCommand.h"
+#include "editor/services/EditCommand.h"
 #include "editor/EditorState.h"
+#include "editor/services/EditService.h"
 #include "editor/scene_editor/SceneDocument.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/viewer/Viewer.h"
@@ -226,9 +227,9 @@ void PropertyPanel::UpdateInternal(float) {
             LOG_ERROR("TODO: implement add component");
             ImGui::CloseCurrentPopup();
         }
-#define COMPONENT_DECL(NAME)                                   \
-    if (ImGui::MenuItem(#NAME)) {                              \
-        m_editor.CommandAddComponent(ComponentName::NAME, id); \
+#define COMPONENT_DECL(NAME)                                                    \
+    if (ImGui::MenuItem(#NAME)) {                                               \
+        m_editor.GetEditService().CommandAddComponent(ComponentName::NAME, id); \
     }
         COMPONENT_LIST
 #undef COMPONENT_DECL

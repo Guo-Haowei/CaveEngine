@@ -1,4 +1,4 @@
-#include "EditorCommand.h"
+#include "EditCommand.h"
 
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"

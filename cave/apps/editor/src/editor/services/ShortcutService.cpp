@@ -1,4 +1,4 @@
-#include "ShortcutManager.h"
+#include "ShortcutService.h"
 
 #include "cave/runtime/input/KeyCode.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -7,14 +7,16 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/string/StringUtils.h"
 
+#include "editor/services/EditService.h"
+
 #include "editor/document/Document.h"
-#include "editor/EditorCommand.h"
+#include "editor/services/EditCommand.h"
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 
 namespace cave {
 
-ShortcutManager::ShortcutManager(EditorState& p_editor)
+ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor) {
     InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
     router.Register(this);
@@ -22,18 +24,18 @@ ShortcutManager::ShortcutManager(EditorState& p_editor)
     InitShortcuts();
 }
 
-ShortcutManager::~ShortcutManager() {
+ShortcutService::~ShortcutService() {
     InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
     router.Unregister(this);
 }
 
-void ShortcutManager::InitShortcuts() {
+void ShortcutService::InitShortcuts() {
 
     m_shortcuts[std::to_underlying(Shortcut::SaveAs)] = {
         "Save As..",
         "Ctrl+Shift+S",
         [this]() {
-            m_editor.BufferCommand(std::make_shared<SaveProjectCommand>(true));
+            m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(true));
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
@@ -41,7 +43,7 @@ void ShortcutManager::InitShortcuts() {
         "Ctrl+S",
         [this]() {
             AssetRegistry::GetSingleton().SaveAllAssets();
-            m_editor.BufferCommand(std::make_shared<SaveProjectCommand>(false));
+            m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(false));
         },
     };
 
@@ -132,7 +134,7 @@ void ShortcutManager::InitShortcuts() {
     }
 }
 
-void ShortcutManager::OnEvents(const std::vector<InputEvent>& p_events) {
+void ShortcutService::OnEvents(const std::vector<InputEvent>& p_events) {
     InputSystem* input = m_editor.GetApp().GetInputSystem();
     const bool ctrl = input->GetKeyState().AnyCtrlDown();
     const bool alt = input->GetKeyState().AnyAltDown();
@@ -151,7 +153,7 @@ void ShortcutManager::OnEvents(const std::vector<InputEvent>& p_events) {
             if (desc.alt)
                 if (!alt) continue;
 
-            // LOG_VERBOSE("ShortcutManager::OnEvents: shortcut '{}' fired", desc.shortcut);
+            // LOG_VERBOSE("ShortcutService::OnEvents: shortcut '{}' fired", desc.shortcut);
             desc.execute_func();
             e.consumed = true;
             break;

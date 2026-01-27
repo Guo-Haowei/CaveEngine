@@ -1,10 +1,14 @@
 #pragma once
-#include <engine/private/assets/guid.h>
-#include <engine/private/ecs/entity.h>
-#include <engine/private/math/geomath.h>
+#include "cave/runtime/scene/SceneId.h"
+
+#include "engine/private/assets/guid.h"
+#include "engine/private/ecs/entity.h"
+#include "engine/private/math/geomath.h"
 
 #include "editor/Enums.h"
 #include "editor/undo_redo/UndoCommand.h"
+
+// @TODO: refactor EditService
 
 namespace cave {
 
@@ -22,7 +26,7 @@ public:
 protected:
     EditorState* m_editor{ nullptr };
 
-    friend class EditorState;
+    friend class EditService;
 };
 
 // @TODO: change to memento
@@ -57,7 +61,7 @@ protected:
     ecs::Entity m_parent;
     ecs::Entity m_entity;
 
-    friend class EditorState;
+    friend class EditService;
 };
 
 class EditorCommandAddComponent : public EditorCommandBase {
@@ -71,7 +75,7 @@ protected:
     ComponentName m_componentType;
     ecs::Entity target;
 
-    friend class EditorState;
+    friend class EditService;
 };
 
 class EditorCommandRemoveEntity : public EditorCommandBase {
@@ -84,7 +88,7 @@ public:
 protected:
     ecs::Entity m_target;
 
-    friend class EditorState;
+    friend class EditService;
 };
 
 class EditorCommandDuplicateEntity : public EditorCommandBase {
@@ -97,7 +101,7 @@ public:
 protected:
     ecs::Entity m_target;
 
-    friend class EditorState;
+    friend class EditService;
 };
 
 class SaveProjectCommand : public EditorCommandBase {

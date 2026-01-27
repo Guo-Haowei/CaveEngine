@@ -7,10 +7,10 @@ namespace cave {
 
 class EditorState;
 
-class ShortcutManager : public IInputConsumer {
+class ShortcutService : public IInputConsumer {
 public:
-    ShortcutManager(EditorState& p_editor);
-    ~ShortcutManager();
+    ShortcutService(EditorState& p_editor);
+    ~ShortcutService();
 
     int GetPriority() const override { return 1000; }
     void OnEvents(const std::vector<InputEvent>& p_events) override;
