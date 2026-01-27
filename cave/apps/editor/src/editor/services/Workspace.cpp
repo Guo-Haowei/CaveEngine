@@ -1,4 +1,4 @@
-#include "ViewerTabManager.h"
+#include "Workspace.h"
 
 #include "editor/document/document.h"
 #include "editor/viewer/ViewerTab.h"

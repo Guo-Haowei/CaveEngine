@@ -1,5 +1,7 @@
 #pragma once
-#include "editor/viewer/ViewerTabManager.h"
+#include "editor/services/Workspace.h"
+
+// @TODO: refactor
 #include "editor/EditorWindow.h"
 #include "editor/Enums.h"
 

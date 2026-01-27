@@ -1,5 +1,5 @@
 #pragma once
-#include "ViewerTabId.h"
+#include "editor/viewer/ViewerTabId.h"
 
 namespace cave {
 
