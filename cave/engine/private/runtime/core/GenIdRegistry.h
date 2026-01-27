@@ -10,7 +10,7 @@ class GenIdRegistry {
         std::unique_ptr<T> storage{ nullptr };
     };
 
-protected:
+public:
     using IdT = GenId<T>;
 
     IdT Create(std::unique_ptr<T>&& p_data) {

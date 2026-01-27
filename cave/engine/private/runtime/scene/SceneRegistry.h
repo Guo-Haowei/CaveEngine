@@ -7,7 +7,7 @@ namespace cave {
 class Scene;
 
 class SceneRegistry : public ISceneRegistry,
-                      public GenIdRegistry<Scene> {
+                      protected GenIdRegistry<Scene> {
     using Base = GenIdRegistry<Scene>;
 
 public:

@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include <cstdint>
+#include <type_traits>
 
 namespace cave {
 
@@ -30,3 +31,14 @@ struct GenId {
 };
 
 }  // namespace cave
+
+namespace std {
+
+template<typename T>
+struct hash<::cave::GenId<T>> {
+    size_t operator()(const ::cave::GenId<T>& id) const noexcept {
+        return (static_cast<std::size_t>(id.gen) << 32) | id.index;
+    }
+};
+
+}  // namespace std

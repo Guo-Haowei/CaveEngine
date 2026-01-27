@@ -16,6 +16,21 @@ enum class SaveDialogResponse {
     Cancel,
 };
 
+struct WorkspaceRequest {
+    enum class Type {
+        OpenDoc,
+        OpenPath,
+        NewDoc,
+        CloseDoc,
+        CloseAll,
+        FocusDoc,
+    } type;
+
+    DocKind kind{};
+    DocId doc_id{};
+    std::string path;
+};
+
 class Workspace {
 public:
     Workspace(EditorState& p_editor);
