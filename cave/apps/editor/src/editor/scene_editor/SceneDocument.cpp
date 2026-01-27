@@ -76,7 +76,7 @@ bool TransformCommand::MergeCommand(const UndoCommand* p_command) {
     return true;
 }
 
-SceneDocument::SceneDocument(const Guid& p_guid, SceneManager& p_scene_manager)
+SceneDocument::SceneDocument(const Guid& p_guid, ISceneRegistry& p_scene_manager)
     : Document(p_guid)
     , m_scene_manager(p_scene_manager) {
 

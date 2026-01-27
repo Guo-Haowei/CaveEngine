@@ -20,7 +20,7 @@ EditService::ICommand::ICommand(EditorState& p_editor,
 }
 
 Scene* EditService::ICommand::ResolveScene() {
-    return m_editor.GetApp().GetSceneManager()->Resolve(m_scene_id);
+    return m_editor.GetApp().GetSceneRegistry()->Resolve(m_scene_id);
 }
 
 // @TODO: move this to document service

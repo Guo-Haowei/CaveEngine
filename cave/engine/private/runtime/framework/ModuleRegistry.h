@@ -20,7 +20,7 @@ IGraphicsManager* CreateGraphicsManager();
 
 IPhysicsManager* CreatePhysicsManager();
 
-SceneManager* CreateSceneManager();
+ISceneRegistry* CreateSceneManager();
 
 IScriptManager* CreateScriptManager();
 

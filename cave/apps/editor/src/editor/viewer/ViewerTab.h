@@ -17,7 +17,7 @@
 namespace cave {
 
 class Document;
-class SceneManager;
+class ISceneRegistry;
 class KeyState;
 class TabId;
 class Viewer;
@@ -100,7 +100,7 @@ protected:
     const TabId m_id;
     EditorState& m_editor;
     Viewer& m_viewer;
-    SceneManager& m_scene_manager;
+    ISceneRegistry& m_scene_manager;
 
     bool m_active{ false };
 

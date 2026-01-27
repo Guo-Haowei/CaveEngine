@@ -6,7 +6,6 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
-#include "editor/EditorSceneManager.h"
 #include "editor/material_editor/MaterialDocument.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/widgets/DragDrop.h"

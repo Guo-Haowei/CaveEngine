@@ -8,7 +8,6 @@
 
 #include "editor/document/document.h"
 #include "editor/EditorState.h"
-#include "editor/EditorSceneManager.h"
 #include "editor/scene_editor/SceneDocument.h"
 #include "editor/utility/ImGuizmo.h"
 #include "editor/viewer/Viewer.h"

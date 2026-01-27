@@ -9,7 +9,7 @@ namespace cave {
 
 class CameraComponent;
 class Scene;
-class SceneManager;
+class ISceneRegistry;
 
 struct ViewInfo {
     Matrix4x4f view;
@@ -32,7 +32,7 @@ struct ViewInfo {
 struct SceneView {
     ViewInfo view_info;
     SceneId scene_id;
-    SceneManager* scene_manager{ nullptr };
+    ISceneRegistry* scene_manager{ nullptr };
 
     Scene* ResolveScene();
 };

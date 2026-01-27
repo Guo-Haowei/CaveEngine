@@ -7,7 +7,6 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
-#include "editor/EditorSceneManager.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "engine/private/ui/inputs.h"

@@ -18,7 +18,7 @@ RuntimeHost::~RuntimeHost() {
 }
 
 void RuntimeHost::Start(const RuntimeStartParams& p_params) {
-    SceneManager& scene_manager = *m_app.GetSceneManager();
+    ISceneRegistry& scene_manager = *m_app.GetSceneRegistry();
 
     switch (p_params.source.type) {
         case SceneSource::Type::FromPath: {
@@ -44,7 +44,7 @@ void RuntimeHost::Stop() {
     m_session->Stop();
     m_session.reset();
 
-    if (Scene* scene = m_app.GetSceneManager()->Resolve(m_scene_id)) {
+    if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_scene_id)) {
         m_app.GetScriptManager()->OnSimEnd();
     }
 }

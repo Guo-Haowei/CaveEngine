@@ -1,14 +1,7 @@
-#include "ISceneRegistry.h"
+#include "SceneRegistry.h"
 
-#include "cave/runtime/framework/IApplication.h"
-
-#include "engine/private/debugger/profiler.h"
-#include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/core/os/threads.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/string/StringUtils.h"
 
 namespace cave {
 
@@ -20,63 +13,40 @@ namespace fs = std::filesystem;
         DEV_ASSERT(::cave::thread::IsMainThread()); \
     } while (0)
 
-SceneManager::SceneManager()
-    : Module("SceneManager") {
+SceneRegistry::SceneRegistry()
+    : ISceneRegistry("SceneRegistry") {
 }
 
-SceneManager::~SceneManager() = default;
-
-auto SceneManager::InitializeImpl() -> Result<void> {
+auto SceneRegistry::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void SceneManager::FinalizeImpl() {
+void SceneRegistry::FinalizeImpl() {
 }
 
-SceneId SceneManager::Create() {
-    return {};
+SceneId SceneRegistry::Create() {
+    SceneId id = Base::Create(std::make_unique<Scene>());
+    // @TODO: post update
+    return id;
 }
 
-SceneId SceneManager::Clone(SceneId p_id) {
-    if (!IsAlive(p_id)) {
-        return {};
-    }
-
-    const Scene& source = *(m_slots[p_id.index].scene);
+SceneId SceneRegistry::Clone(SceneId p_id) {
+    const Scene* scene = Base::Resolve(p_id);
+    if (!scene) return {};
     auto copy = std::make_unique<Scene>();
-    copy->Copy(source);
-
+    copy->Copy(*scene);
     return Register(std::move(copy));
 }
 
-SceneId SceneManager::Register(std::unique_ptr<Scene> p_scene) {
-    unused(p_scene);
-    return {};
+SceneId SceneRegistry::Register(std::unique_ptr<Scene> p_scene) {
+    SceneId id = Base::Create(std::move(p_scene));
+    // @TODO: post update
+    return id;
 }
 
-void SceneManager::Destroy(SceneId p_id) {
-    unused(p_id);
-}
-
-Scene* SceneManager::Resolve(SceneId) {
-    return nullptr;
-}
-
-const Scene* SceneManager::Resolve(SceneId) const {
-    return nullptr;
-}
-
-bool SceneManager::IsAlive(SceneId p_id) const {
-    unused(p_id);
-    return false;
-}
-
-SceneId SceneManager::Alloc() {
-    return {};
-}
-
-void SceneManager::Free(SceneId p_id) {
-    unused(p_id);
+void SceneRegistry::Destroy(SceneId p_id) {
+    // @TODO: pre clean up
+    Base::Destroy(p_id);
 }
 
 }  // namespace cave

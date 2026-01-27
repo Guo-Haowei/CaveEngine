@@ -8,39 +8,24 @@ namespace cave {
 class Scene;
 class IApplication;
 
-class SceneManager : public Module,
-                     public ModuleCreateRegistry<SceneManager> {
-    struct Slot {
-        uint32_t gen;
-        std::unique_ptr<Scene> scene;
-    };
+class ISceneRegistry : public Module {
 
 public:
-    SceneManager();
-    ~SceneManager();
+    using Module::Module;
 
-    auto InitializeImpl() -> Result<void> override;
-    void FinalizeImpl() override;
+    virtual SceneId Create() = 0;
 
-    SceneId Create();
+    virtual SceneId Clone(SceneId p_id) = 0;
 
-    SceneId Clone(SceneId p_id);
+    virtual SceneId Register(std::unique_ptr<Scene> p_scene) = 0;
 
-    SceneId Register(std::unique_ptr<Scene> p_scene);
+    virtual void Destroy(SceneId p_id) = 0;
 
-    void Destroy(SceneId p_id);
+    virtual Scene* Resolve(SceneId p_id) = 0;
 
-    Scene* Resolve(SceneId p_id);
-    const Scene* Resolve(SceneId p_id) const;
+    virtual const Scene* Resolve(SceneId p_id) const = 0;
 
-    bool IsAlive(SceneId p_id) const;
-
-private:
-    SceneId Alloc();
-    void Free(SceneId p_id);
-
-    std::vector<Slot> m_slots;
-    std::vector<uint32_t> m_free;
+    virtual bool IsAlive(SceneId p_id) const = 0;
 };
 
 }  // namespace cave

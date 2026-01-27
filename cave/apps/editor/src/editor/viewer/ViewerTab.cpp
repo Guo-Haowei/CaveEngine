@@ -31,7 +31,7 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
     , m_dimension(p_dimension)
     , m_editor(p_editor)
     , m_viewer(p_viewer)
-    , m_scene_manager(*p_editor.GetApp().GetSceneManager()) {
+    , m_scene_manager(*p_editor.GetApp().GetSceneRegistry()) {
 }
 
 ViewerTab::~ViewerTab() {
@@ -302,7 +302,7 @@ void ViewerTab::BuildViewsImpl(SceneId p_scene_id,
     if (m_editor.IsPlaying()) {
         SceneView scene_view;
         scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-        scene_view.scene_manager = m_editor.GetApp().GetSceneManager();
+        scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
 
         Scene* scene = scene_view.ResolveScene();
 
@@ -325,7 +325,7 @@ void ViewerTab::BuildViewsImpl(SceneId p_scene_id,
     // @HACK: force update
     SceneView scene_view;
     scene_view.scene_id = p_scene_id;
-    scene_view.scene_manager = m_editor.GetApp().GetSceneManager();
+    scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
 
     Scene* scene = scene_view.ResolveScene();
     const CameraComponent* cam = scene->GetComponent<CameraComponent>(p_camera);

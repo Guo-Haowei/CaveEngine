@@ -3,7 +3,7 @@
 
 namespace cave {
 
-class SceneManager;
+class ISceneRegistry;
 class IScriptManager;
 
 enum class SceneTickMode {
@@ -25,7 +25,7 @@ public:
 
 class SceneScheduler {
 public:
-    SceneScheduler(SceneManager& p_scene_manager,
+    SceneScheduler(ISceneRegistry& p_scene_manager,
                    IScriptManager& p_script_manager)
         : m_scene_manager(p_scene_manager)
         , m_script_manager(p_script_manager) {
@@ -38,7 +38,7 @@ public:
 
 private:
     IScriptManager& m_script_manager;
-    SceneManager& m_scene_manager;
+    ISceneRegistry& m_scene_manager;
 
     std::vector<ISceneTickContributor*> m_contributors;
 };
