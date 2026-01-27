@@ -57,7 +57,7 @@ void ShortcutService::InitShortcuts() {
         },
     };
 
-    auto active_document = [this]() -> Document* {
+    auto active_document = [this]() -> OldDocument* {
         if (auto tab = m_editor.GetViewer().GetActiveTab(); tab) {
             return &tab->GetDocument();
         }
@@ -116,6 +116,7 @@ void ShortcutService::InitShortcuts() {
         { "F5", Key::F5 },
     };
 
+    // @TODO: compile time
     for (ShortcutDesc& shortcut : m_shortcuts) {
         StringSplitter split(shortcut.shortcut);
         while (split.CanAdvance()) {

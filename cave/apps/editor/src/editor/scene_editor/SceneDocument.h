@@ -11,7 +11,7 @@ namespace cave {
 class ISceneRegistry;
 class Scene;
 
-class SceneDocument : public Document {
+class SceneDocument : public OldDocument {
 public:
     SceneDocument(const Guid& p_guid, ISceneRegistry& p_scene_manager);
 

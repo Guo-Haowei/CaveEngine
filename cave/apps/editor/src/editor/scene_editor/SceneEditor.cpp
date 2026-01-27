@@ -34,7 +34,7 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
     };
 }
 
-Document& SceneEditor::GetDocument() const {
+OldDocument& SceneEditor::GetDocument() const {
     return *m_document.get();
 }
 

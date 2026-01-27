@@ -131,7 +131,7 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
     }
 }
 
-Document& MaterialEditor::GetDocument() const {
+OldDocument& MaterialEditor::GetDocument() const {
     return *m_document;
 }
 

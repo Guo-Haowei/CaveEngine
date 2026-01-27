@@ -2,7 +2,6 @@
 
 namespace cave {
 
-
 class TestRegistry : public GenIdRegistry<int> {
 public:
     template<typename... Args>

@@ -80,10 +80,10 @@ void SpriteAnimationEditor::OnDestroy() {
 
 void SpriteAnimationEditor::OnActivateInternal() {
     DEV_ASSERT(0);
-    //auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneRegistry());
-    //DEV_ASSERT(scene_manager);
+    // auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneRegistry());
+    // DEV_ASSERT(scene_manager);
     //// scene_manager->OpenTempScene(m_tmp_scene);
-    //m_scene_manager;
+    // m_scene_manager;
 }
 
 const std::vector<const ToolBarButtonDesc*> SpriteAnimationEditor::GetToolBarButtons() const {
@@ -316,7 +316,7 @@ void SpriteAnimationEditor::DrawAssetInspector() {
     ui::DrawContents(full_width, descs);
 }
 
-Document& SpriteAnimationEditor::GetDocument() const {
+OldDocument& SpriteAnimationEditor::GetDocument() const {
     return *m_document.get();
 }
 

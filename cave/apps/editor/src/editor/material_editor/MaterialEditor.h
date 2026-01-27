@@ -7,7 +7,7 @@ namespace cave {
 
 struct MaterialAsset;
 
-using MaterialDocument = Document;
+using MaterialDocument = OldDocument;
 
 class MaterialEditor : public ViewerTab {
 public:
@@ -19,7 +19,7 @@ public:
 
     void DrawAssetInspector() final;
 
-    Document& GetDocument() const final;
+    OldDocument& GetDocument() const final;
 
 protected:
     void OnCreateInternal(const Guid& p_guid) final;

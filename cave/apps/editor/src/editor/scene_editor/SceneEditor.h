@@ -15,7 +15,7 @@ public:
 
     void DrawMainView(const CameraComponent& p_camera) final;
 
-    Document& GetDocument() const final;
+    OldDocument& GetDocument() const final;
 
     SceneId GetSceneId() const final;
 

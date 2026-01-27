@@ -9,7 +9,7 @@
 namespace cave {
 
 class AssetRegistry;
-class Document;
+class OldDocument;
 class Scene;
 class TileMapDocument;
 
@@ -24,7 +24,7 @@ public:
 
     void DrawAssetInspector() final;
 
-    Document& GetDocument() const final;
+    OldDocument& GetDocument() const final;
 
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 

@@ -16,7 +16,7 @@
 
 namespace cave {
 
-class Document;
+class OldDocument;
 class ISceneRegistry;
 class KeyState;
 class TabId;
@@ -55,7 +55,7 @@ public:
     virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
 
-    virtual Document& GetDocument() const = 0;
+    virtual OldDocument& GetDocument() const = 0;
 
     ecs::Entity GetSelectedEntity() const { return m_selected; }
     void SetSelectedEntity(ecs::Entity p_selected);
