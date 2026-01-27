@@ -14,7 +14,7 @@
 #include "editor/viewer/Viewer.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 
 namespace cave {
 

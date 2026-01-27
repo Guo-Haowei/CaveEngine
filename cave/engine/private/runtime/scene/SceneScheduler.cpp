@@ -1,7 +1,7 @@
 #include "SceneScheduler.h"
 
 #include "Scene.h"
-#include "SceneManager.h"
+#include "ISceneRegistry.h"
 
 #include "engine/private/runtime/framework/IScriptManager.h"
 

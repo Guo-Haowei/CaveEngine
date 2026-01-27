@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/assets/guid.h"
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 
 namespace cave {
 

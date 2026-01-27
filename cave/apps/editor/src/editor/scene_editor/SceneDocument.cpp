@@ -1,6 +1,6 @@
 #include "SceneDocument.h"
 
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "editor/undo_redo/UndoStack.h"
 
@@ -85,12 +85,7 @@ SceneDocument::SceneDocument(const Guid& p_guid, SceneManager& p_scene_manager)
     auto scene = std::make_unique<Scene>();
     scene->Copy(*m_asset_scene);
 
-    SceneDesc desc;
-#if USING(DEBUG_BUILD)
-    desc.debug_name = "SceneDocument";
-#endif
-
-    m_scene_id = m_scene_manager.Register(desc, std::move(scene));
+    m_scene_id = m_scene_manager.Register(std::move(scene));
 }
 
 void SceneDocument::RequestMove(ecs::Entity p_entity,

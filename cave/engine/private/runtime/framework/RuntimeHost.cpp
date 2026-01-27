@@ -4,7 +4,7 @@
 #include "cave/runtime/gameplay/GameSession.h"
 
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
 

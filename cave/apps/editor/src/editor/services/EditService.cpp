@@ -3,7 +3,7 @@
 #include "engine/private/debugger/profiler.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
-#include "engine/private/runtime/scene/SceneManager.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"

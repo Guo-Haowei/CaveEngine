@@ -1,4 +1,4 @@
-#include "SceneManager.h"
+#include "ISceneRegistry.h"
 
 #include "cave/runtime/framework/IApplication.h"
 
@@ -58,11 +58,11 @@ void SceneManager::Destroy(SceneId p_id) {
     unused(p_id);
 }
 
-Scene* SceneManager::Resolve(SceneId ) {
+Scene* SceneManager::Resolve(SceneId) {
     return nullptr;
 }
 
-const Scene* SceneManager::Resolve(SceneId ) const {
+const Scene* SceneManager::Resolve(SceneId) const {
     return nullptr;
 }
 
