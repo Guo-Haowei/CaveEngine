@@ -32,7 +32,11 @@ public:
         : EditService::ICommand(p_editor, p_scene_id)
         , m_guid(p_guid) {}
 
-    void Execute() override {
+    bool Undo() override {
+        return false;
+    }
+
+    bool Redo() override {
         auto asset_registry = m_editor.GetApp().GetAssetRegistry();
         if (auto res = asset_registry->FindByGuid(m_guid); res.is_some()) {
             auto handle = res.unwrap_unchecked();
@@ -42,8 +46,10 @@ public:
                 m_editor.GetViewer().OpenTab(meta->type, m_guid);
 
                 m_editor.SetSelectedAsset(std::move(handle));
+                return true;
             }
         }
+        return false;
     }
 
 protected:
@@ -265,13 +271,18 @@ void EditService::CommandCloneObject(SceneId p_scene_id,
 
 void EditService::Flush() {
     CAVE_PROFILE_EVENT();
-
+    
     // @TODO: submit to undo queue
     while (!m_pending_commands.empty()) {
         ICommand* task = m_pending_commands.front().get();
         task->Redo();
         m_pending_commands.pop_front();
     }
+
+    //auto& undo_stack = I
+    //    task->Redo();
+    //    m_pending_commands.pop_front();
+    //}
 }
 
 }  // namespace cave

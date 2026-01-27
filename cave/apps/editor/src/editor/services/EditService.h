@@ -28,6 +28,7 @@ public:
         Scene* ResolveScene();
 
         SceneId GetSceneId() const { return m_scene_id; }
+
     protected:
         EditorState& m_editor;
         SceneId m_scene_id;
@@ -68,7 +69,7 @@ private:
     EditorState& m_editor;
     std::list<std::unique_ptr<ICommand>> m_pending_commands;
 
-    std::unordered_map<SceneId, std::unique_ptr<UndoStack>> m_stacks;
+    //std::unordered_map<SceneId, std::unique_ptr<UndoStack>> m_stacks;
     // Undo stack per SceneId
 };
 

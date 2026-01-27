@@ -62,7 +62,7 @@ void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_open
 }
 
 // @TODO: rename this to DrawEditor
-void SceneEditor::DrawMainView(const CameraComponent& ) {
+void SceneEditor::DrawMainView(const CameraComponent&) {
     Scene& scene = *GetResolvedScene();
     CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
 
