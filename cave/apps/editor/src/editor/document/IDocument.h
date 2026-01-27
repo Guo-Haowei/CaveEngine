@@ -1,5 +1,9 @@
 #pragma once
-#include "DocId.h"
+#include "DocumentTypes.h"
+
+#include "cave/runtime/scene/SceneId.h"
+
+#include "engine/private/assets/asset_handle.h"
 
 namespace cave {
 
@@ -15,8 +19,6 @@ struct DocInfo {
 class IDocument {
 public:
     virtual ~IDocument() = default;
-
-    virtual DocInfo GetInfo() const = 0;
 
     // --- Editing (commands mutate document state) ---
     // Apply pushes onto undo stack; clears redo stack.
@@ -41,6 +43,18 @@ public:
     //// --- Optional: for UI ---
     virtual void GetUndoLabels(std::vector<std::string>& p_out, int p_max_items) const = 0;
     virtual void GetRedoLabels(std::vector<std::string>& p_out, int p_max_items) const = 0;
+
+    virtual SceneId GetPreviewScene() const = 0;
+
+    template<typename T>
+    Handle<T> GetHandle() const {
+        static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
+        AssetHandle copy = m_handle;
+        return Handle<T>(std::move(copy));
+    }
+
+protected:
+    AssetHandle m_handle;
 };
 
 }  // namespace cave

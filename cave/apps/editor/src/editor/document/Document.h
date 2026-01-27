@@ -38,5 +38,4 @@ protected:
     std::unique_ptr<UndoStack> m_undo_stack;
 };
 
-
 }  // namespace cave

@@ -136,9 +136,9 @@ void Viewer::UpdateInternal(float p_timestep) {
     TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_tab_manager.GetTabs()) {
         int flags = 0;
-        if (tab->GetDocument().IsDirty()) {
-            flags |= ImGuiTabItemFlags_UnsavedDocument;
-        }
+        // if (tab->GetDocument().IsDirty()) {
+        //     flags |= ImGuiTabItemFlags_UnsavedDocument;
+        // }
 
         if (tab->GetId() == focus_tab_id) {
             flags |= ImGuiTabItemFlags_SetSelected;

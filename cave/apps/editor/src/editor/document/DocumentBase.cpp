@@ -1,6 +1,14 @@
 #include "DocumentBase.h"
 
+#include "cave/runtime/framework/IApplication.h"
+
 namespace cave {
+
+DocumentBase::DocumentBase(IApplication& p_app, const Guid& p_guid)
+    : m_asset_reg(*p_app.GetAssetRegistry())
+    , m_scene_reg(*p_app.GetSceneRegistry())
+    , m_guid(p_guid) {
+}
 
 bool DocumentBase::Apply(std::unique_ptr<IEditCommand> p_cmd, uint32_t p_coalesce) {
     if (!p_cmd) return false;

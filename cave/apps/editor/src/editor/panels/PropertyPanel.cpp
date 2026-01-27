@@ -16,7 +16,6 @@
 
 #include "editor/EditorState.h"
 #include "editor/services/EditService.h"
-#include "editor/scene_editor/SceneDocument.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/viewer/Viewer.h"
 #include "editor/viewer/ViewerTab.h"
@@ -256,7 +255,7 @@ void PropertyPanel::UpdateInternal(float) {
     MeshEmitterComponent* mesh_emitter_component = scene.GetComponent<MeshEmitterComponent>(id);
 #endif
 
-    SceneDocument& document = static_cast<SceneDocument&>(tab->GetDocument());
+    // SceneDocument& document = static_cast<SceneDocument&>(tab->GetDocument());
     const bool is_2d = m_editor.GetApp().IsWorld2D();
 
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, _scene, id
@@ -267,7 +266,7 @@ void PropertyPanel::UpdateInternal(float) {
         if (dirty) {
             Matrix4x4f new_transform = p_transform.GetLocalMatrix();
             // already moved, no need to move again
-            document.RequestMove(id, old_transform, new_transform, false);
+            // document.RequestMove(id, old_transform, new_transform, false);
 
             if (camera) {
                 camera->SetDirtyFlag();

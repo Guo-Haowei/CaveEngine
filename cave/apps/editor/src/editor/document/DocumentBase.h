@@ -1,10 +1,18 @@
 #include "IDocument.h"
+
 #include "editor/edit/IEditCommand.h"
 
 namespace cave {
 
+class IApplication;
+
+class AssetRegistry;
+class ISceneRegistry;
+
 class DocumentBase : public IDocument {
 public:
+    DocumentBase(IApplication& p_app, const Guid& p_guid);
+
     bool Apply(std::unique_ptr<IEditCommand> p_cmd, uint32_t p_coalesce) override;
 
     bool CanUndo() const override { return !m_undo.empty(); }
@@ -28,8 +36,9 @@ public:
 
     void GetRedoLabels(std::vector<std::string>& p_out, int p_max_items) const override;
 
-protected:
-    void SetUndoLimit(size_t limit) { m_undo_limit = limit; }
+    SceneId GetPreviewScene() const override {
+        return m_preview_scene;
+    }
 
 private:
     void TouchDirtyAfterEdit() {
@@ -42,6 +51,14 @@ private:
     }
 
     void TrimUndoIfNeeded();
+
+protected:
+    void SetUndoLimit(size_t limit) { m_undo_limit = limit; }
+
+    AssetRegistry& m_asset_reg;
+    ISceneRegistry& m_scene_reg;
+    SceneId m_preview_scene{};
+    Guid m_guid;
 
 private:
     std::deque<std::unique_ptr<IEditCommand>> m_undo;

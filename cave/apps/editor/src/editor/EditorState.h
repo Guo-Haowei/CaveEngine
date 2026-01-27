@@ -19,6 +19,8 @@ namespace cave {
 enum class HandleInput : uint8_t;
 enum class Key : uint16_t;
 
+class RuntimeHost;
+
 // pannels
 class AssetInspector;
 class FileSystemPanel;
@@ -28,8 +30,8 @@ class Viewer;
 
 // services
 class EditService;
+class DocumentService;
 class ShortcutService;
-class RuntimeHost;
 
 struct EditorContext {
     std::shared_ptr<ImageAsset> checkerboard;
@@ -64,6 +66,8 @@ public:
     Viewer& GetViewer() { return *m_viewer.get(); }
 
     RuntimeHost& GetRuntimeHost() { return *m_runtime_host; }
+
+    DocumentService& GetDocumentService() { return *m_document_service; }
     EditService& GetEditService() { return *m_edit_service; }
     ShortcutService& GetShortcutService() { return *m_shortcut_service; }
 
@@ -75,6 +79,8 @@ private:
     bool m_switch_mode_requested{ false };
 
     std::unique_ptr<RuntimeHost> m_runtime_host;
+
+    std::unique_ptr<DocumentService> m_document_service;
     std::unique_ptr<EditService> m_edit_service;
     std::unique_ptr<ShortcutService> m_shortcut_service;
 

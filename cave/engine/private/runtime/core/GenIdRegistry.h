@@ -10,7 +10,7 @@ class GenIdRegistry {
         std::unique_ptr<T> storage{ nullptr };
     };
 
-public:
+protected:
     using IdT = GenId<T>;
 
     IdT Create(std::unique_ptr<T>&& p_data) {
@@ -48,7 +48,7 @@ public:
         return slot.storage != nullptr;
     }
 
-protected:
+private:
     IdT Alloc() {
         uint32_t index;
         if (m_free.empty()) {
@@ -70,6 +70,7 @@ protected:
         m_free.push_back(p_id.index);
     }
 
+protected:
     std::vector<Slot> m_slots;
     std::vector<uint32_t> m_free;
 };

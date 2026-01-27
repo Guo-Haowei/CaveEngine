@@ -7,8 +7,9 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/document/document.h"
+#include "editor/document/DocumentService.h"
+#include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
-#include "editor/scene_editor/SceneDocument.h"
 #include "editor/utility/ImGuizmo.h"
 #include "editor/viewer/Viewer.h"
 
@@ -35,18 +36,21 @@ SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dim
 }
 
 OldDocument& SceneEditor::GetDocument() const {
-    return *m_document.get();
+    return *((OldDocument*)nullptr);
 }
 
 SceneId SceneEditor::GetSceneId() const {
-    return m_document->GetSceneId();
+    IDocument* doc = m_editor.GetDocumentService().Resolve(m_doc_id);
+    if (!doc) return {};
+    return doc->GetPreviewScene();
 }
 
 void SceneEditor::OnCreateInternal(const Guid& p_guid) {
-    m_document = std::make_shared<SceneDocument>(p_guid, m_scene_manager);
+    m_doc_id = m_editor.GetDocumentService().OpenScene(p_guid);
 }
 
 void SceneEditor::OnDestroy() {
+    m_editor.GetDocumentService().Close(m_doc_id);
 }
 
 void SceneEditor::OnActivateInternal() {
@@ -94,7 +98,7 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
                                      // ImGuizmo::WORLD,
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
-                m_document->RequestMove(id, before, after, true);
+                // m_document->RequestMove(id, before, after, true);
             }
         }
     };

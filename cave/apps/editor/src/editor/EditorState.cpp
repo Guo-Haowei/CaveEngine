@@ -7,6 +7,7 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 
+#include "editor/document/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/ShortcutService.h"
 
@@ -43,6 +44,7 @@ namespace cave {
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app) {
     // shortcut
+    m_document_service = std::make_unique<DocumentService>(*this);
     m_edit_service = std::make_unique<EditService>(*this);
     m_shortcut_service = std::make_unique<ShortcutService>(*this);
 
