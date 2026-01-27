@@ -18,7 +18,7 @@ public:
     const Vector2f& GetCanvasMin() const { return m_canvas_min; }
     const Vector2f& GetCanvasSize() const { return m_canvas_size; }
 
-    void OpenTab(AssetType p_type, const Guid& p_guid);
+    // @TODO: deprecate
     ViewerTab* GetActiveTab();
 
     const char* GetTitle() const override {

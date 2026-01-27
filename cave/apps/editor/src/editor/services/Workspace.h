@@ -29,17 +29,29 @@ struct WorkspaceRequest {
     DocKind kind{};
     DocId doc_id{};
     std::string path;
+
+    static WorkspaceRequest OpenDoc(DocId p_doc_id) {
+        WorkspaceRequest req{};
+        req.type = Type::OpenDoc;
+        req.doc_id = p_doc_id;
+        return req;
+    }
 };
 
 class Workspace {
 public:
     Workspace(EditorState& p_editor);
 
-    void OpenOrFocusDoc(DocId doc_id);
+    void SendRequest(WorkspaceRequest p_request);
 
-    bool RequestCloseDoc(DocId doc_id);
+    void Tick(float p_dt);
 
-    bool RequestCloseTab(TabId tab_id);
+private:
+    void OpenOrFocusDoc(DocId p_doc_id);
+
+    bool RequestCloseDoc(DocId p_doc_id);
+
+    bool RequestCloseTab(TabId p_tab_id);
 
     bool RequestCloseAll();
 
@@ -61,35 +73,30 @@ public:
 
     //// New doc (untitled) + tab.
     // void RequestNewDoc(DocKind kind);
-private:
+
     EditorState& m_editor;
+
+    // @TODO: change to unique_ptr
+    std::unordered_map<DocId, std::shared_ptr<ViewerTab>> m_tabs;
+    std::vector<WorkspaceRequest> m_pending_reqs;
 
     //----------------------------------------------------------------
     // @TODO: deprecate below apis
-public:
-    void SwitchTab(const TabId& p_id);
-    void SwitchTab(std::shared_ptr<ViewerTab>&& p_tab);
 
-    Option<ViewerTab*> FindTabById(const TabId& p_id);
-    Option<ViewerTab*> FindTabByGuid(const Guid& p_guid);
-    Option<ViewerTab*> GetActiveTab();
+    ViewerTab* m_active_tab = nullptr;
+
+public:
+    ViewerTab* GetActiveTab() { return m_active_tab; }
 
     void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
 
-    void SetCloseRequest(const TabId& p_id) { m_close_request = Some(p_id); }
+    // void SetCloseRequest(const TabId& p_id) { m_close_request = Some(p_id); }
     void HandleCloseRequest();
-
-    const Option<TabId>& GetFocusRequest() const { return m_focus_request; }
-    void ClearFocusRequest() { m_focus_request = None(); }
 
     auto& GetTabs() { return m_tabs; }
 
 private:
-    Option<TabId> m_focus_request{ None() };
-    Option<TabId> m_close_request{ None() };
-
-    Option<TabId> m_active_tab;
-    std::unordered_map<TabId, std::shared_ptr<ViewerTab>> m_tabs;
+    std::unordered_map<TabId, std::shared_ptr<ViewerTab>> m_old_tabs;
 };
 
 }  // namespace cave

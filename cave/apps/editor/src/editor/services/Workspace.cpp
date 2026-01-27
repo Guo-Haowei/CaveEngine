@@ -1,7 +1,14 @@
 #include "Workspace.h"
 
-#include "editor/document/document.h"
+#include "editor/document/DocumentService.h"
+#include "editor/EditorState.h"
+
+// @TODO: delete
 #include "editor/viewer/ViewerTab.h"
+#include "editor/document/document.h"
+#include "editor/EditorDvars.h"
+#include "editor/scene_editor/SceneEditor.h"
+#include "engine/private/runtime/framework/ViewportManager.h"
 
 namespace cave {
 
@@ -9,69 +16,95 @@ Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor) {
 }
 
-//-------------- DEPRECATE ------------------
-
-Option<ViewerTab*> Workspace::FindTabById(const TabId& p_id) {
-    auto it = m_tabs.find(p_id);
-    if (it != m_tabs.end()) {
-        return Some(it->second.get());
-    }
-    return None();
+void Workspace::SendRequest(WorkspaceRequest p_request) {
+    m_pending_reqs.emplace_back(std::move(p_request));
 }
 
-Option<ViewerTab*> Workspace::FindTabByGuid(const Guid& p_guid) {
-    for (const auto& [id, tab] : m_tabs) {
-        if (tab->GetGuid() == p_guid) {
-            return Some(tab.get());
+void Workspace::Tick(float p_dt) {
+    unused(p_dt);
+
+    for (WorkspaceRequest& req : m_pending_reqs) {
+        switch (req.type) {
+            case WorkspaceRequest::Type::OpenDoc: {
+                OpenOrFocusDoc(req.doc_id);
+            } break;
+            case WorkspaceRequest::Type::FocusDoc: {
+                // OpenOrFocusDoc(req.doc_id);
+            } break;
+            default:
+                break;
         }
     }
-    return None();
+
+    m_pending_reqs.clear();
 }
-
-Option<ViewerTab*> Workspace::GetActiveTab() {
-    if (m_active_tab.is_none()) {
-        return None();
-    }
-    return FindTabById(m_active_tab.unwrap_unchecked());
-}
-
-void Workspace::SwitchTab(std::shared_ptr<ViewerTab>&& p_tab) {
-    const auto& id = p_tab->GetId();
-    auto [it, ok] = m_tabs.try_emplace(p_tab->GetId(), std::move(p_tab));
-    DEV_ASSERT(ok);
-
-    SwitchTab(id);
-}
-
-void Workspace::SwitchTab(const TabId& p_id) {
-    if (m_active_tab == p_id) {
+void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
+    if (auto it = m_tabs.find(p_doc_id); it != m_tabs.end()) {
+        DEV_ASSERT(0);
         return;
     }
 
-    auto new_tab = FindTabById(p_id).unwrap();
-    auto old_tab = GetActiveTab();
-
-    if (old_tab.is_some()) {
-        old_tab.unwrap_unchecked()->OnDeactivate();
+    IDocument* doc = m_editor.GetDocumentService().Resolve(p_doc_id);
+    if (!doc) {
+        return;
     }
 
-    m_active_tab = Some(p_id);
-    m_focus_request = Some(p_id);
+    const AssetMetaData* meta = doc->GetHandleRaw().GetMeta();
+    if (!meta) {
+        return;
+    }
 
-    new_tab->OnActivate();
+    // @TODO: create a new tab
+    std::shared_ptr<ViewerTab> tab;
+    Viewer& viewer = m_editor.GetViewer();
+    switch (meta->type) {
+        case AssetType::Scene: {
+            ViewerTab::Dimension dimension = DVAR_GET_BOOL(is_world_2d) ? ViewerTab::DIMENSION_2
+                                                                        : ViewerTab::DIMENSION_3;
+            tab.reset(new SceneEditor(m_editor, viewer, dimension));
+        } break;
+        // case AssetType::TileSet: {
+        //     tab.reset(new TileSetEditor(m_editor, *this));
+        // } break;
+        // case AssetType::TileMap: {
+        //     tab.reset(new TileMapEditor(m_editor, *this));
+        // } break;
+        // case AssetType::SpriteAnimation: {
+        //     tab.reset(new SpriteAnimationEditor(m_editor, *this));
+        // } break;
+        // case AssetType::Material: {
+        //     tab.reset(new MaterialEditor(m_editor, *this));
+        // } break;
+        default: {
+            CRASH_NOW_MSG("not supported");
+        } break;
+    }
 
-    LOG("Tool [{}] -> [{}]", old_tab.is_some() ? old_tab.unwrap_unchecked()->GetTitle() : "(null)", new_tab->GetTitle());
+    ViewportManager* viewport_manager = m_editor.GetApp().GetViewportManager();
+    viewport_manager->CreateViewport(tab);
+
+    // DVAR_SET_STRING(last_open_asset, p_guid.ToString());
+    tab->OnCreate(meta->guid);
+    tab->OnActivate();
+    // @TODO: set active tab
+    LOG_VERBOSE("tab {} created", tab->GetTitle());
+
+    m_tabs[p_doc_id] = tab;
+    m_active_tab = tab.get();
 }
+
+//-------------- DEPRECATE ------------------
 
 void Workspace::HandleCloseRequest() {
-    if (m_close_request.is_none()) {
-        return;
-    }
+    // if (m_close_request.is_none()) {
+    //     return;
+    // }
 
+#if 0
     RequestSaveDialog([&](SaveDialogResponse p_response) {
-        auto it = m_tabs.find(m_close_request.unwrap());
+        auto it = m_old_tabs.find(m_close_request.unwrap());
         std::shared_ptr<ViewerTab> to_close = it->second;
-        DEV_ASSERT(it != m_tabs.end());
+        DEV_ASSERT(it != m_old_tabs.end());
         switch (p_response) {
             case SaveDialogResponse::Save:
                 to_close->GetDocument().Save();
@@ -79,7 +112,7 @@ void Workspace::HandleCloseRequest() {
                 [[fallthrough]];
             case SaveDialogResponse::Discard: {
                 // remove the tab
-                m_tabs.erase(it);
+                m_old_tabs.erase(it);
                 to_close->OnDeactivate();
                 to_close->OnDestroy();
             } break;
@@ -89,6 +122,7 @@ void Workspace::HandleCloseRequest() {
 
         m_close_request = None();
     });
+#endif
 }
 
 void Workspace::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {

@@ -69,51 +69,8 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
     return None();
 }
 
-void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
-    // check if tab already exists
-    auto cached_tab = m_workspace.FindTabByGuid(p_guid);
-
-    if (cached_tab.is_some()) {
-        m_workspace.SwitchTab(cached_tab.unwrap_unchecked()->GetId());
-        return;
-    }
-
-    DEV_ASSERT(!p_guid.IsNull());
-
-    // else, create a new tab
-
-    std::shared_ptr<ViewerTab> tab;
-
-    switch (p_type) {
-        case AssetType::Scene: {
-            ViewerTab::Dimension dimension = DVAR_GET_BOOL(is_world_2d) ? ViewerTab::DIMENSION_2
-                                                                        : ViewerTab::DIMENSION_3;
-            tab.reset(new SceneEditor(m_editor, *this, dimension));
-        } break;
-        case AssetType::TileSet: {
-            tab.reset(new TileSetEditor(m_editor, *this));
-        } break;
-        case AssetType::TileMap: {
-            tab.reset(new TileMapEditor(m_editor, *this));
-        } break;
-        case AssetType::SpriteAnimation: {
-            tab.reset(new SpriteAnimationEditor(m_editor, *this));
-        } break;
-        case AssetType::Material: {
-            tab.reset(new MaterialEditor(m_editor, *this));
-        } break;
-        default:
-            LOG_WARN("Can't open tab {}", EnumTraits<AssetType>::ToString(p_type));
-            return;
-    }
-
-    ViewportManager* viewport_manager = m_editor.GetApp().GetViewportManager();
-    viewport_manager->CreateViewport(tab);
-
-    DVAR_SET_STRING(last_open_asset, p_guid.ToString());
-
-    tab->OnCreate(p_guid);
-    m_workspace.SwitchTab(std::move(tab));
+ViewerTab* Viewer::GetActiveTab() {
+    return m_editor.GetWorkspace().GetActiveTab();
 }
 
 void Viewer::UpdateInternal(float p_timestep) {
@@ -121,12 +78,11 @@ void Viewer::UpdateInternal(float p_timestep) {
 
     UpdateFrameSize();
 
-    auto _tab = m_workspace.GetActiveTab();
-    if (_tab.is_none()) {
+    ViewerTab* active_tab = m_workspace.GetActiveTab();
+    if (!active_tab) {
         return;
     }
 
-    ViewerTab* active_tab = _tab.unwrap_unchecked();
     active_tab->Update(p_timestep);
 
     int flag = 0;
@@ -137,23 +93,24 @@ void Viewer::UpdateInternal(float p_timestep) {
         return;
     }
 
-    TabId focus_tab_id = m_workspace.GetFocusRequest().unwrap_or(TabId::Null());
+    // TabId focus_tab_id = m_workspace.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_workspace.GetTabs()) {
         int flags = 0;
         // if (tab->GetDocument().IsDirty()) {
         //     flags |= ImGuiTabItemFlags_UnsavedDocument;
         // }
 
-        if (tab->GetId() == focus_tab_id) {
-            flags |= ImGuiTabItemFlags_SetSelected;
-            m_workspace.ClearFocusRequest();
-        }
+        // if (tab->GetId() == focus_tab_id) {
+        //     flags |= ImGuiTabItemFlags_SetSelected;
+        //     m_workspace.ClearFocusRequest();
+        // }
 
         bool tab_open = true;
         if (ImGui::BeginTabItem(tab->GetTitle().c_str(), &tab_open, flags)) {
-            if (focus_tab_id == TabId::Null()) {
-                m_workspace.SwitchTab(tab->GetId());
-            }
+            // if (focus_tab_id == TabId::Null()) {
+            //     LOG_WARN("TODO");
+            //     //m_workspace.SwitchTab(tab->GetId());
+            // }
 
             auto buttons = tab->GetToolBarButtons();
             DrawToolBar(buttons);
@@ -166,24 +123,13 @@ void Viewer::UpdateInternal(float p_timestep) {
         }
 
         if (!tab_open) {
-            m_workspace.SetCloseRequest(tab->GetId());
+            // m_workspace.SetCloseRequest(tab->GetId());
         }
     }
 
     m_workspace.HandleCloseRequest();
 
     ImGui::EndTabBar();
-}
-
-// @NOTE: do not hold the pointer
-ViewerTab* Viewer::GetActiveTab() {
-    auto active = m_workspace.GetActiveTab();
-
-    if (active.is_none()) {
-        return nullptr;
-    }
-
-    return active.unwrap();
 }
 
 }  // namespace cave

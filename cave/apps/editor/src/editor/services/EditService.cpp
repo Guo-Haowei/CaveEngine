@@ -1,5 +1,8 @@
 #include "EditService.h"
 
+#include "editor/document/DocumentService.h"
+#include "editor/services/Workspace.h"
+
 #include "engine/private/debugger/profiler.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
@@ -22,39 +25,6 @@ EditService::ICommand::ICommand(EditorState& p_editor,
 Scene* EditService::ICommand::ResolveScene() {
     return m_editor.GetApp().GetSceneRegistry()->Resolve(m_scene_id);
 }
-
-// @TODO: move this to document service
-class OpenDocumentCommand : public EditService::ICommand {
-public:
-    OpenDocumentCommand(EditorState& p_editor,
-                        SceneId p_scene_id,
-                        const Guid& p_guid)
-        : EditService::ICommand(p_editor, p_scene_id)
-        , m_guid(p_guid) {}
-
-    bool Undo() override {
-        return false;
-    }
-
-    bool Redo() override {
-        auto asset_registry = m_editor.GetApp().GetAssetRegistry();
-        if (auto res = asset_registry->FindByGuid(m_guid); res.is_some()) {
-            auto handle = res.unwrap_unchecked();
-            if (handle.IsReady()) {
-                const auto meta = handle.GetMeta();
-                LOG_OK("Asset {} selected", meta->name);
-                m_editor.GetViewer().OpenTab(meta->type, m_guid);
-
-                m_editor.SetSelectedAsset(std::move(handle));
-                return true;
-            }
-        }
-        return false;
-    }
-
-protected:
-    const Guid m_guid;
-};
 
 // @TODO: SaveDocumentCommand
 #if 0
@@ -225,13 +195,6 @@ protected:
 
 EditService::EditService(EditorState& p_editor)
     : m_editor(p_editor) {}
-
-void EditService::CommandInspectAsset(const Guid& p_guid) {
-    m_pending_commands.emplace_back(std::make_unique<OpenDocumentCommand>(
-        m_editor,
-        SceneId{},
-        p_guid));
-}
 
 void EditService::CommandCreateObject(SceneId p_scene_id,
                                       EntityType p_type,

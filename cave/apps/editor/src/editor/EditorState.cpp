@@ -99,7 +99,8 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
         if (auto res = Guid::Parse(asset); res.is_some()) {
             Guid guid = res.unwrap_unchecked();
-            m_edit_service->CommandInspectAsset(guid);
+            auto req = WorkspaceRequest::OpenDoc(m_document_service->OpenScene(guid));
+            m_workspace->SendRequest(std::move(req));
         }
     }
 }
@@ -116,12 +117,12 @@ void EditorState::OnExit() {
     UnloadGameModule(m_module);
 }
 
-void EditorState::Tick(float p_timestep) {
+void EditorState::Tick(float p_dt) {
     CAVE_PROFILE_EVENT();
 
     if (IsPlaying()) {
         GameFrameTime frame;
-        frame.dt = p_timestep;
+        frame.dt = p_dt;
         m_runtime_host->Tick(frame);
     }
 
@@ -133,7 +134,7 @@ void EditorState::Tick(float p_timestep) {
 
     DockSpace();
     for (auto& it : m_panels) {
-        it->Update(p_timestep);
+        it->Update(p_dt);
     }
 
     {
@@ -142,6 +143,7 @@ void EditorState::Tick(float p_timestep) {
     }
 
     m_edit_service->Flush();
+    m_workspace->Tick(p_dt);
     CommitModeSwitch();
 }
 

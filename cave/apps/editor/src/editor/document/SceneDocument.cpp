@@ -80,12 +80,8 @@ bool TransformCommand::MergeCommand(const UndoCommand* p_command) {
 SceneDocument::SceneDocument(IApplication& p_app, const Guid& p_guid)
     : DocumentBase(p_app, p_guid) {
 
-    auto handle = m_asset_reg.FindByGuid<Scene>(p_guid).unwrap();
-
-    auto asset_scene = handle.Wait();
-
     auto scene = std::make_unique<Scene>();
-    scene->Copy(*asset_scene);
+    scene->Copy(*m_handle.Get<Scene>());
 
     m_preview_scene = m_scene_reg.Register(std::move(scene));
 }

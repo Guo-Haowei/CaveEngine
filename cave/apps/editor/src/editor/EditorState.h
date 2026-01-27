@@ -102,17 +102,9 @@ public:
     // @TODO: refactor this smelly context
     EditorContext context;
 
-    void SetSelectedAsset(AssetHandle&& p_asset_handle) {
-        m_selected_asset = std::move(p_asset_handle);
-    }
-
-    const AssetHandle& GetSelectedAsset() const { return m_selected_asset; }
-
 private:
     void DockSpace();
     void AddPanel(std::shared_ptr<EditorItem> p_panel);
-
-    AssetHandle m_selected_asset;
 };
 
 }  // namespace cave

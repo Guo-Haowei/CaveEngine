@@ -3,12 +3,12 @@
 #include "editor/EditorState.h"
 
 #include "editor/services/EditService.h"
-#include "editor/viewer/Viewer.h"
+#include "editor/services/Workspace.h"
 
 namespace cave {
 
 void EditorItem::OpenAddEntityPopup(ecs::Entity p_parent) {
-    ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
+    ViewerTab* tab = m_editor.GetWorkspace().GetActiveTab();
     SceneId scene_id = tab ? tab->GetSceneId() : SceneId{};
 
     if (ImGui::BeginMenu("Add")) {

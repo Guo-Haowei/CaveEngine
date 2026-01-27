@@ -46,6 +46,10 @@ public:
 
     virtual SceneId GetPreviewScene() const = 0;
 
+    AssetHandle GetHandleRaw() const {
+        return m_handle;
+    }
+
     template<typename T>
     Handle<T> GetHandle() const {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
@@ -55,6 +59,7 @@ public:
 
 protected:
     AssetHandle m_handle;
+    AssetRef m_asset;
 };
 
 }  // namespace cave

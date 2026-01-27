@@ -36,9 +36,6 @@ public:
 
     EditService(EditorState& p_editor);
 
-    // @TODO: this should be part of view port service
-    void CommandInspectAsset(const Guid& p_guid);
-
     void CommandCreateObject(SceneId p_scene_id,
                              EntityType p_type,
                              ecs::Entity p_parent);

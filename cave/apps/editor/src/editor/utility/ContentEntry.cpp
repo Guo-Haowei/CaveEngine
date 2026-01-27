@@ -173,7 +173,9 @@ void ShowPopup(const ContentEntry& p_node,
         ShowFolderPopup(p_node);
     } else {
         if (ImGui::MenuItem("Edit")) {
-            p_editor.GetEditService().CommandInspectAsset(p_node.handle.GetGuid());
+            unused(p_editor);
+            LOG_WARN("TODO: implement edit");
+            // p_editor.GetEditService().CommandInspectAsset(p_node.handle.GetGuid());
         }
         if (ImGui::MenuItem("Save")) {
             AssetRegistry::GetSingleton().SaveAsset(p_node.handle.GetGuid());
