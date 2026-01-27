@@ -25,7 +25,7 @@ void RuntimeHost::Start(const RuntimeStartParams& p_params) {
             CRASH_NOW_MSG("TODO");
         } break;
         case SceneSource::Type::FromExisting: {
-            m_scene_id = scene_manager.Clone({ "" }, p_params.source.existing);
+            m_scene_id = scene_manager.Clone(p_params.source.existing);
         } break;
     }
 

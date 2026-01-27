@@ -19,6 +19,9 @@ MaterialEditor::MaterialEditor(EditorState& p_editor, Viewer& p_viewer)
 }
 
 void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
+    unused(p_guid);
+    DEV_ASSERT(0);
+#if 0
     m_document = std::make_shared<MaterialDocument>(p_guid);
 
     auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
@@ -62,6 +65,7 @@ void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
 
         return scene;
     });
+#endif
 }
 
 void MaterialEditor::OnDestroy() {

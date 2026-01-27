@@ -31,6 +31,9 @@ TileMapEditor::TileMapEditor(EditorState& p_editor, Viewer& p_viewer)
 TileMapEditor::~TileMapEditor() = default;
 
 void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
+    unused(p_guid);
+    DEV_ASSERT(0);
+#if 0
 
     m_document = std::make_unique<TileMapDocument>(p_guid, *this);
 
@@ -49,6 +52,7 @@ void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
         tile_map_renderer->SetResourceGuid(p_guid);
         return scene;
     });
+#endif
 }
 
 void TileMapEditor::OnDestroy() {

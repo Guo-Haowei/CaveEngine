@@ -69,8 +69,8 @@ private:
     EditorState& m_editor;
     std::list<std::unique_ptr<ICommand>> m_pending_commands;
 
-    //std::unordered_map<SceneId, std::unique_ptr<UndoStack>> m_stacks;
-    // Undo stack per SceneId
+    // std::unordered_map<SceneId, std::unique_ptr<UndoStack>> m_stacks;
+    //  Undo stack per SceneId
 };
 
 }  // namespace cave

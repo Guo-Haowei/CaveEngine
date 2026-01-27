@@ -1,5 +1,4 @@
 #pragma once
-#include "cave/runtime/core/Singleton.h"
 #include "cave/runtime/scene/SceneId.h"
 
 #include "engine/private/runtime/framework/Module.h"
@@ -9,22 +8,11 @@ namespace cave {
 class Scene;
 class IApplication;
 
-struct SceneDesc {
-#if USING(DEBUG_BUILD)
-    std::string_view debug_name;
-#endif
-};
-
 class SceneManager : public Module,
-                     public ModuleCreateRegistry<SceneManager>,
-                     public Singleton<SceneManager> {
+                     public ModuleCreateRegistry<SceneManager> {
     struct Slot {
         uint32_t gen;
         std::unique_ptr<Scene> scene;
-#if USING(DEBUG_BUILD)
-        char debug_name[32];
-#endif
-        Slot();
     };
 
 public:
@@ -34,11 +22,11 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    SceneId Create(const SceneDesc& p_desc);
+    SceneId Create();
 
-    SceneId Clone(const SceneDesc& p_desc, SceneId p_id);
+    SceneId Clone(SceneId p_id);
 
-    SceneId Register(const SceneDesc& p_desc, std::unique_ptr<Scene> p_scene);
+    SceneId Register(std::unique_ptr<Scene> p_scene);
 
     void Destroy(SceneId p_id);
 
@@ -46,10 +34,6 @@ public:
     const Scene* Resolve(SceneId p_id) const;
 
     bool IsAlive(SceneId p_id) const;
-
-#if USING(DEBUG_BUILD)
-    const char* GetDebugName(SceneId p_id) const;
-#endif
 
 private:
     SceneId Alloc();

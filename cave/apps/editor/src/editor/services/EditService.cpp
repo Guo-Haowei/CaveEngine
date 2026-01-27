@@ -271,7 +271,7 @@ void EditService::CommandCloneObject(SceneId p_scene_id,
 
 void EditService::Flush() {
     CAVE_PROFILE_EVENT();
-    
+
     // @TODO: submit to undo queue
     while (!m_pending_commands.empty()) {
         ICommand* task = m_pending_commands.front().get();
@@ -279,10 +279,10 @@ void EditService::Flush() {
         m_pending_commands.pop_front();
     }
 
-    //auto& undo_stack = I
-    //    task->Redo();
-    //    m_pending_commands.pop_front();
-    //}
+    // auto& undo_stack = I
+    //     task->Redo();
+    //     m_pending_commands.pop_front();
+    // }
 }
 
 }  // namespace cave
