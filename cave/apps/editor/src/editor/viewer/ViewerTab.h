@@ -8,6 +8,7 @@
 #include "engine/private/ecs/entity.h"
 #include "engine/private/runtime/framework/SceneView.h"
 #include "engine/private/runtime/scene/CameraController.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
 
 #include "editor/Enums.h"
 #include "editor/undo_redo/UndoStack.h"
@@ -23,7 +24,9 @@ class Viewer;
 
 struct ToolBarButtonDesc;
 
-class ViewerTab : public ISceneViewProvider, public IInputConsumer {
+class ViewerTab : public ISceneViewProvider,
+                  public IInputConsumer,
+                  public ISceneTickContributor {
 public:
     enum Dimension {
         DIMENSION_2,
@@ -38,6 +41,8 @@ public:
 
     void OnActivate();
     void OnDeactivate();
+
+    void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
 
     // @TODO: fix this
     virtual SceneId GetSceneId() const {

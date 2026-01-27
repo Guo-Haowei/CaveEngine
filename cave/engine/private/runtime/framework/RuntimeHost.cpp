@@ -11,9 +11,11 @@
 namespace cave {
 
 RuntimeHost::RuntimeHost(IApplication& p_app)
-    : m_app(p_app) {}
+    : m_app(p_app) {
+}
 
-RuntimeHost::~RuntimeHost() {}
+RuntimeHost::~RuntimeHost() {
+}
 
 void RuntimeHost::Start(const RuntimeStartParams& p_params) {
     SceneManager& scene_manager = *m_app.GetSceneManager();
@@ -32,9 +34,13 @@ void RuntimeHost::Start(const RuntimeStartParams& p_params) {
     m_app.GetScriptManager()->OnSimBegin(*scene);
     m_session = std::make_unique<GameSession>(m_app.GetGameModeFactory());
     m_session->Start(p_params.game_mode_id);
+
+    m_app.GetSceneScheduler().Register(this);
 }
 
 void RuntimeHost::Stop() {
+    m_app.GetSceneScheduler().Unregister(this);
+
     m_session->Stop();
     m_session.reset();
 
@@ -43,12 +49,14 @@ void RuntimeHost::Stop() {
     }
 }
 
+void RuntimeHost::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
+    p_out.push_back({ SceneTickMode::Simulation, m_scene_id });
+}
+
 void RuntimeHost::Tick(const GameFrameTime& p_frame) {
     if (m_session) {
         m_session->Tick(p_frame);
     }
-
-    m_app.ScheduleSceneTick({ SceneTickMode::Simulation, m_scene_id });
 }
 
 }  // namespace cave

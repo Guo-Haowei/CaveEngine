@@ -16,6 +16,13 @@ struct SceneTickRequest {
     SceneId scene_id;
 };
 
+class ISceneTickContributor {
+public:
+    virtual ~ISceneTickContributor() = default;
+
+    virtual void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) = 0;
+};
+
 class SceneScheduler {
 public:
     SceneScheduler(SceneManager& p_scene_manager,
@@ -24,14 +31,16 @@ public:
         , m_script_manager(p_script_manager) {
     }
 
-    void Add(const SceneTickRequest& p_request);
+    bool Register(ISceneTickContributor* p_contributor);
+    bool Unregister(ISceneTickContributor* p_contributor);
 
     void Tick(float p_dt);
 
 private:
     IScriptManager& m_script_manager;
     SceneManager& m_scene_manager;
-    std::vector<SceneTickRequest> m_requests;
+
+    std::vector<ISceneTickContributor*> m_contributors;
 };
 
 }  // namespace cave

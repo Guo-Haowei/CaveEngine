@@ -1,6 +1,8 @@
 #pragma once
 #include "cave/runtime/scene/SceneId.h"
 
+#include "engine/private/runtime/scene/SceneScheduler.h"
+
 namespace cave {
 
 class GameSession;
@@ -43,7 +45,7 @@ struct RuntimeStartParams {
         : source(std::move(p_source)) {}
 };
 
-class RuntimeHost {
+class RuntimeHost : public ISceneTickContributor {
 public:
     RuntimeHost(IApplication& p_app);
     ~RuntimeHost();
@@ -53,7 +55,9 @@ public:
 
     void Tick(const GameFrameTime& p_frame);
 
-    GameSession* GetSession() const;
+    void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
+
+    GameSession* GetSession() const { return m_session.get(); }
 
     SceneId GetSceneId() const { return m_scene_id; }
 

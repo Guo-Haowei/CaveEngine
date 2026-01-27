@@ -23,8 +23,6 @@
 #include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
-#include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneScheduler.h"
 
 #if USING(PLATFORM_WASM)
 static cave::IApplication* s_app = nullptr;
@@ -243,10 +241,6 @@ void Application::RequestProject(std::string_view p_path) {
     }
 
     m_boot_load_pipeline->RequestProject(resource_folder);
-}
-
-void Application::ScheduleSceneTick(const SceneTickRequest& p_request) {
-    m_scene_scheduler->Add(p_request);
 }
 
 BootLoadPipeline& Application::GetBootLoadPipeline() {

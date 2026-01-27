@@ -8,11 +8,11 @@
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
 
 namespace cave {
 
 class Module;
-class SceneScheduler;
 
 class Application : public IApplication {
 public:
@@ -24,12 +24,12 @@ public:
     void Finalize() override;
 
     void RequestProject(std::string_view p_path) override;
-    void ScheduleSceneTick(const SceneTickRequest& p_request) override;
 
     BootLoadPipeline& GetBootLoadPipeline() override;
     VFS& GetVFS() override { return m_vfs; }
     EventQueue& GetEventQueue() override { return m_event_queue; }
     GameModeFactory& GetGameModeFactory() override { return m_game_mode_factory; }
+    SceneScheduler& GetSceneScheduler() override { return *m_scene_scheduler; }
 
     AppType GetType() const override { return m_type; }
 

@@ -26,11 +26,10 @@ class IPhysicsManager;
 class IScriptManager;
 class RenderSystem;
 class SceneManager;
+class SceneScheduler;
 class TaskManager;
 class VFS;
 class ViewportManager;
-
-struct SceneTickRequest;
 
 struct AppSpec {
     std::string_view userFolder;
@@ -62,13 +61,13 @@ public:
     virtual void Finalize() = 0;
 
     virtual void RequestProject(std::string_view p_path) = 0;
-    virtual void ScheduleSceneTick(const SceneTickRequest& p_request) = 0;
 
     virtual AppStateId GetStateId() const = 0;
     virtual BootLoadPipeline& GetBootLoadPipeline() = 0;
     virtual VFS& GetVFS() = 0;
     virtual EventQueue& GetEventQueue() = 0;
     virtual GameModeFactory& GetGameModeFactory() = 0;
+    virtual SceneScheduler& GetSceneScheduler() = 0;
 
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
