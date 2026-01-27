@@ -1,11 +1,13 @@
 #pragma once
-#include "editor/services/Workspace.h"
 
 // @TODO: refactor
 #include "editor/EditorWindow.h"
 #include "editor/Enums.h"
 
 namespace cave {
+
+class Workspace;
+class ViewerTab;
 
 class Viewer : public EditorWindow {
 public:
@@ -28,10 +30,10 @@ protected:
 
     void UpdateFrameSize();
 
+    Workspace& m_workspace;
+
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;
-
-    ViewerTabManager m_tab_manager;
 };
 
 }  // namespace cave

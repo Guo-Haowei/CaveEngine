@@ -5,7 +5,13 @@
 
 namespace cave {
 
-Option<ViewerTab*> ViewerTabManager::FindTabById(const TabId& p_id) {
+Workspace::Workspace(EditorState& p_editor)
+    : m_editor(p_editor) {
+}
+
+//-------------- DEPRECATE ------------------
+
+Option<ViewerTab*> Workspace::FindTabById(const TabId& p_id) {
     auto it = m_tabs.find(p_id);
     if (it != m_tabs.end()) {
         return Some(it->second.get());
@@ -13,7 +19,7 @@ Option<ViewerTab*> ViewerTabManager::FindTabById(const TabId& p_id) {
     return None();
 }
 
-Option<ViewerTab*> ViewerTabManager::FindTabByGuid(const Guid& p_guid) {
+Option<ViewerTab*> Workspace::FindTabByGuid(const Guid& p_guid) {
     for (const auto& [id, tab] : m_tabs) {
         if (tab->GetGuid() == p_guid) {
             return Some(tab.get());
@@ -22,14 +28,14 @@ Option<ViewerTab*> ViewerTabManager::FindTabByGuid(const Guid& p_guid) {
     return None();
 }
 
-Option<ViewerTab*> ViewerTabManager::GetActiveTab() {
+Option<ViewerTab*> Workspace::GetActiveTab() {
     if (m_active_tab.is_none()) {
         return None();
     }
     return FindTabById(m_active_tab.unwrap_unchecked());
 }
 
-void ViewerTabManager::SwitchTab(std::shared_ptr<ViewerTab>&& p_tab) {
+void Workspace::SwitchTab(std::shared_ptr<ViewerTab>&& p_tab) {
     const auto& id = p_tab->GetId();
     auto [it, ok] = m_tabs.try_emplace(p_tab->GetId(), std::move(p_tab));
     DEV_ASSERT(ok);
@@ -37,7 +43,7 @@ void ViewerTabManager::SwitchTab(std::shared_ptr<ViewerTab>&& p_tab) {
     SwitchTab(id);
 }
 
-void ViewerTabManager::SwitchTab(const TabId& p_id) {
+void Workspace::SwitchTab(const TabId& p_id) {
     if (m_active_tab == p_id) {
         return;
     }
@@ -57,7 +63,7 @@ void ViewerTabManager::SwitchTab(const TabId& p_id) {
     LOG("Tool [{}] -> [{}]", old_tab.is_some() ? old_tab.unwrap_unchecked()->GetTitle() : "(null)", new_tab->GetTitle());
 }
 
-void ViewerTabManager::HandleCloseRequest() {
+void Workspace::HandleCloseRequest() {
     if (m_close_request.is_none()) {
         return;
     }
@@ -85,7 +91,7 @@ void ViewerTabManager::HandleCloseRequest() {
     });
 }
 
-void ViewerTabManager::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
+void Workspace::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
     ImGui::OpenPopup("Save changes to");
     if (ImGui::BeginPopupModal("Save changes to")) {
         ImGui::Text("Save changes before closing?");

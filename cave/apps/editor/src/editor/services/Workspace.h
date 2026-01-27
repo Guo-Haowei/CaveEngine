@@ -1,8 +1,12 @@
 #pragma once
+#include "editor/document/DocumentTypes.h"
+
+// @TODO: deprecate
 #include "editor/viewer/ViewerTabId.h"
 
 namespace cave {
 
+class EditorState;
 class Guid;
 class ViewerTab;
 
@@ -12,7 +16,41 @@ enum class SaveDialogResponse {
     Cancel,
 };
 
-class ViewerTabManager {
+class Workspace {
+public:
+    Workspace(EditorState& p_editor);
+
+    void OpenOrFocusDoc(DocId doc_id);
+
+    bool RequestCloseDoc(DocId doc_id);
+
+    bool RequestCloseTab(TabId tab_id);
+
+    bool RequestCloseAll();
+
+    DocId GetActiveDoc() const;
+    TabId GetActiveTab() const;
+
+    // Focus/activate
+    bool FocusDoc(DocId doc_id);
+    bool FocusTab(TabId tab_id);
+
+    // Navigation / UI menus
+    // void ListOpenTabs(std::vector<TabInfo>& out) const;
+    // void ListOpenDocs(std::vector<DocInfo>& out) const;
+
+    // void RequestOpenFileDialog(DocKind kind);
+
+    //// Direct open by path (menu recent files, drag/drop).
+    // void RequestOpenPath(DocKind kind, std::string_view path);
+
+    //// New doc (untitled) + tab.
+    // void RequestNewDoc(DocKind kind);
+private:
+    EditorState& m_editor;
+
+    //----------------------------------------------------------------
+    // @TODO: deprecate below apis
 public:
     void SwitchTab(const TabId& p_id);
     void SwitchTab(std::shared_ptr<ViewerTab>&& p_tab);

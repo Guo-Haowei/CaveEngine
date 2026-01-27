@@ -10,6 +10,7 @@
 #include "editor/document/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/ShortcutService.h"
+#include "editor/services/Workspace.h"
 
 // @TODO: refactor
 #include <imgui/imgui_internal.h>
@@ -43,10 +44,11 @@ namespace cave {
 
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app) {
-    // shortcut
+    // services
     m_document_service = std::make_unique<DocumentService>(*this);
     m_edit_service = std::make_unique<EditService>(*this);
     m_shortcut_service = std::make_unique<ShortcutService>(*this);
+    m_workspace = std::make_unique<Workspace>(*this);
 
     // runtime
     m_runtime_host = std::make_unique<RuntimeHost>(p_app);

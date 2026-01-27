@@ -2,6 +2,9 @@
 
 #include <imgui/imgui_internal.h>
 
+#include "editor/services/Workspace.h"
+
+// -----------------------------
 #include "engine/private/debugger/profiler.h"
 #include "engine/private/math/ray.h"
 #include "engine/private/renderer/graphics_dvars.h"
@@ -28,7 +31,8 @@ namespace cave {
 static constexpr float TOOL_BAR_OFFSET = 80.0f;
 
 Viewer::Viewer(EditorState& p_editor)
-    : EditorWindow(p_editor) {
+    : EditorWindow(p_editor)
+    , m_workspace(p_editor.GetWorkspace()) {
 }
 
 void Viewer::UpdateFrameSize() {
@@ -67,10 +71,10 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
 
 void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     // check if tab already exists
-    auto cached_tab = m_tab_manager.FindTabByGuid(p_guid);
+    auto cached_tab = m_workspace.FindTabByGuid(p_guid);
 
     if (cached_tab.is_some()) {
-        m_tab_manager.SwitchTab(cached_tab.unwrap_unchecked()->GetId());
+        m_workspace.SwitchTab(cached_tab.unwrap_unchecked()->GetId());
         return;
     }
 
@@ -109,7 +113,7 @@ void Viewer::OpenTab(AssetType p_type, const Guid& p_guid) {
     DVAR_SET_STRING(last_open_asset, p_guid.ToString());
 
     tab->OnCreate(p_guid);
-    m_tab_manager.SwitchTab(std::move(tab));
+    m_workspace.SwitchTab(std::move(tab));
 }
 
 void Viewer::UpdateInternal(float p_timestep) {
@@ -117,7 +121,7 @@ void Viewer::UpdateInternal(float p_timestep) {
 
     UpdateFrameSize();
 
-    auto _tab = m_tab_manager.GetActiveTab();
+    auto _tab = m_workspace.GetActiveTab();
     if (_tab.is_none()) {
         return;
     }
@@ -133,8 +137,8 @@ void Viewer::UpdateInternal(float p_timestep) {
         return;
     }
 
-    TabId focus_tab_id = m_tab_manager.GetFocusRequest().unwrap_or(TabId::Null());
-    for (auto& [id, tab] : m_tab_manager.GetTabs()) {
+    TabId focus_tab_id = m_workspace.GetFocusRequest().unwrap_or(TabId::Null());
+    for (auto& [id, tab] : m_workspace.GetTabs()) {
         int flags = 0;
         // if (tab->GetDocument().IsDirty()) {
         //     flags |= ImGuiTabItemFlags_UnsavedDocument;
@@ -142,13 +146,13 @@ void Viewer::UpdateInternal(float p_timestep) {
 
         if (tab->GetId() == focus_tab_id) {
             flags |= ImGuiTabItemFlags_SetSelected;
-            m_tab_manager.ClearFocusRequest();
+            m_workspace.ClearFocusRequest();
         }
 
         bool tab_open = true;
         if (ImGui::BeginTabItem(tab->GetTitle().c_str(), &tab_open, flags)) {
             if (focus_tab_id == TabId::Null()) {
-                m_tab_manager.SwitchTab(tab->GetId());
+                m_workspace.SwitchTab(tab->GetId());
             }
 
             auto buttons = tab->GetToolBarButtons();
@@ -162,18 +166,18 @@ void Viewer::UpdateInternal(float p_timestep) {
         }
 
         if (!tab_open) {
-            m_tab_manager.SetCloseRequest(tab->GetId());
+            m_workspace.SetCloseRequest(tab->GetId());
         }
     }
 
-    m_tab_manager.HandleCloseRequest();
+    m_workspace.HandleCloseRequest();
 
     ImGui::EndTabBar();
 }
 
 // @NOTE: do not hold the pointer
 ViewerTab* Viewer::GetActiveTab() {
-    auto active = m_tab_manager.GetActiveTab();
+    auto active = m_workspace.GetActiveTab();
 
     if (active.is_none()) {
         return nullptr;

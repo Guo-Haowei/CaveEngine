@@ -32,6 +32,7 @@ class Viewer;
 class EditService;
 class DocumentService;
 class ShortcutService;
+class Workspace;
 
 struct EditorContext {
     std::shared_ptr<ImageAsset> checkerboard;
@@ -70,6 +71,7 @@ public:
     DocumentService& GetDocumentService() { return *m_document_service; }
     EditService& GetEditService() { return *m_edit_service; }
     ShortcutService& GetShortcutService() { return *m_shortcut_service; }
+    Workspace& GetWorkspace() { return *m_workspace; }
 
 private:
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
@@ -83,6 +85,7 @@ private:
     std::unique_ptr<DocumentService> m_document_service;
     std::unique_ptr<EditService> m_edit_service;
     std::unique_ptr<ShortcutService> m_shortcut_service;
+    std::unique_ptr<Workspace> m_workspace;
 
     std::shared_ptr<AssetInspector> m_asset_inspector;
     std::shared_ptr<FileSystemPanel> m_file_system_panel;
