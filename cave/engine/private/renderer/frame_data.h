@@ -1,6 +1,7 @@
 #pragma once
+#include "cave/runtime/ecs/Entity.h"
+
 #include "engine/private/assets/guid.h"
-#include "engine/private/ecs/entity.h"
 #include "engine/private/math/aabb.h"
 #include "engine/private/math/angle.h"
 #include "engine/private/math/color.h"

@@ -1,8 +1,8 @@
 #pragma once
+#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/scene/SceneId.h"
 
 // @TODO: move it to public
-#include "engine/private/ecs/entity.h"
 
 #include "editor/undo_redo/UndoCommand.h"
 

@@ -1,7 +1,6 @@
 #include "deserializer.h"
 
 #include "engine/private/assets/guid.h"
-#include "engine/private/ecs/entity.h"
 #include "engine/private/math/angle.h"
 
 namespace cave {

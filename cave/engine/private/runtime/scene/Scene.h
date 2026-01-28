@@ -2,8 +2,8 @@
 #include "cave/runtime/core/NonCopyable.h"
 
 #include "engine/private/assets/asset_interface.h"
-#include "engine/private/ecs/component_manager.h"
-#include "engine/private/ecs/view.h"
+#include "engine/private/runtime/ecs/ComponentManager.h"
+#include "engine/private/runtime/ecs/View.h"
 #include "engine/private/math/ray.h"
 
 // components

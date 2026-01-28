@@ -1,6 +1,7 @@
 #pragma once
+#include "cave/runtime/ecs/Entity.h"
+
 #include "defines.h"
-#include "engine/private/ecs/entity.h"
 #include "engine/private/math/box.h"
 #include "engine/private/math/matrix.h"
 

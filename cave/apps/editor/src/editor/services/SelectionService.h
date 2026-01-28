@@ -1,7 +1,6 @@
 #pragma once
+#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/scene/SceneId.h"
-
-#include "engine/private/ecs/entity.h"
 
 #include "editor/document/DocumentTypes.h"
 
@@ -10,7 +9,6 @@ namespace cave {
 class EditorState;
 
 enum class SelectionKind : uint8_t {
-    None,
     Scene,
     Entity,
     Asset,
@@ -18,7 +16,7 @@ enum class SelectionKind : uint8_t {
 };
 
 struct SelectionKey {
-    SelectionKind kind = SelectionKind::None;
+    SelectionKind kind;
 
     DocId doc{};
     SceneId scene{};
@@ -37,8 +35,13 @@ public:
     SelectionService(EditorState& p_editor)
         : m_editor(p_editor) {}
 
+    void Set(DocId p_doc_id, const SelectionKey& p_key);
+    Option<SelectionKey> Primary(DocId p_doc_id);
+
 private:
     EditorState& m_editor;
+
+    std::unordered_map<DocId, SelectionKey> m_selections;
 };
 
 }  // namespace cave

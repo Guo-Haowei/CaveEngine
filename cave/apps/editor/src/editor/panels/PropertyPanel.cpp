@@ -226,11 +226,11 @@ void PropertyPanel::UpdateInternal(float) {
             LOG_ERROR("TODO: implement add component");
             ImGui::CloseCurrentPopup();
         }
-#define COMPONENT_DECL(NAME)                                               \
-    if (ImGui::MenuItem(#NAME)) {                                          \
-        m_editor.GetEditService().CommandAddComponent(scene_id,            \
-                                                      ComponentName::NAME, \
-                                                      id);                 \
+#define COMPONENT_DECL(NAME)                                            \
+    if (ImGui::MenuItem(#NAME)) {                                       \
+        m_editor.EditService().CommandAddComponent(scene_id,            \
+                                                   ComponentName::NAME, \
+                                                   id);                 \
     }
         COMPONENT_LIST
 #undef COMPONENT_DECL

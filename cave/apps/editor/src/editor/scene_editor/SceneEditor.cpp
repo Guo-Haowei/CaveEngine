@@ -40,17 +40,17 @@ OldDocument& SceneEditor::GetDocument() const {
 }
 
 SceneId SceneEditor::GetSceneId() const {
-    IDocument* doc = m_editor.GetDocumentService().Resolve(m_doc_id);
+    IDocument* doc = m_editor.DocumentService().Resolve(m_doc_id);
     if (!doc) return {};
     return doc->GetPreviewScene();
 }
 
 void SceneEditor::OnCreateInternal(const Guid& p_guid) {
-    m_doc_id = m_editor.GetDocumentService().OpenScene(p_guid);
+    m_doc_id = m_editor.DocumentService().OpenScene(p_guid);
 }
 
 void SceneEditor::OnDestroy() {
-    m_editor.GetDocumentService().Close(m_doc_id);
+    m_editor.DocumentService().Close(m_doc_id);
 }
 
 void SceneEditor::OnActivateInternal() {

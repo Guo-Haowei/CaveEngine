@@ -9,6 +9,7 @@
 
 #include "editor/document/DocumentService.h"
 #include "editor/services/EditService.h"
+#include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
 #include "editor/services/Workspace.h"
 
@@ -45,10 +46,11 @@ namespace cave {
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app) {
     // services
-    m_document_service = std::make_unique<DocumentService>(*this);
-    m_edit_service = std::make_unique<EditService>(*this);
-    m_shortcut_service = std::make_unique<ShortcutService>(*this);
-    m_workspace = std::make_unique<Workspace>(*this);
+    m_document_service = std::make_unique<cave::DocumentService>(*this);
+    m_edit_service = std::make_unique<cave::EditService>(*this);
+    m_selection_service = std::make_unique<cave::SelectionService>(*this);
+    m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
+    m_workspace = std::make_unique<cave::Workspace>(*this);
 
     // runtime
     m_runtime_host = std::make_unique<RuntimeHost>(p_app);

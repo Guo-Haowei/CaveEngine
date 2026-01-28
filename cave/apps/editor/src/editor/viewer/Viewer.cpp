@@ -32,7 +32,7 @@ static constexpr float TOOL_BAR_OFFSET = 80.0f;
 
 Viewer::Viewer(EditorState& p_editor)
     : EditorWindow(p_editor)
-    , m_workspace(p_editor.GetWorkspace()) {
+    , m_workspace(p_editor.Workspace()) {
 }
 
 void Viewer::UpdateFrameSize() {
@@ -70,7 +70,7 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
 }
 
 ViewerTab* Viewer::GetActiveTab() {
-    return m_editor.GetWorkspace().GetActiveTab();
+    return m_editor.Workspace().GetActiveTab();
 }
 
 void Viewer::UpdateInternal(float p_timestep) {

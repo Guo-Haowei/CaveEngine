@@ -44,7 +44,7 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
         return;
     }
 
-    IDocument* doc = m_editor.GetDocumentService().Resolve(p_doc_id);
+    IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id);
     if (!doc) {
         return;
     }

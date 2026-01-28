@@ -31,6 +31,7 @@ class Viewer;
 // services
 class EditService;
 class DocumentService;
+class SelectionService;
 class ShortcutService;
 class Workspace;
 
@@ -68,10 +69,11 @@ public:
 
     RuntimeHost& GetRuntimeHost() { return *m_runtime_host; }
 
-    DocumentService& GetDocumentService() { return *m_document_service; }
-    EditService& GetEditService() { return *m_edit_service; }
-    ShortcutService& GetShortcutService() { return *m_shortcut_service; }
-    Workspace& GetWorkspace() { return *m_workspace; }
+    DocumentService& DocumentService() { return *m_document_service; }
+    EditService& EditService() { return *m_edit_service; }
+    SelectionService& SelectionService() { return *m_selection_service; }
+    ShortcutService& ShortcutService() { return *m_shortcut_service; }
+    Workspace& Workspace() { return *m_workspace; }
 
 private:
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
@@ -82,10 +84,11 @@ private:
 
     std::unique_ptr<RuntimeHost> m_runtime_host;
 
-    std::unique_ptr<DocumentService> m_document_service;
-    std::unique_ptr<EditService> m_edit_service;
-    std::unique_ptr<ShortcutService> m_shortcut_service;
-    std::unique_ptr<Workspace> m_workspace;
+    std::unique_ptr<cave::DocumentService> m_document_service;
+    std::unique_ptr<cave::EditService> m_edit_service;
+    std::unique_ptr<cave::SelectionService> m_selection_service;
+    std::unique_ptr<cave::ShortcutService> m_shortcut_service;
+    std::unique_ptr<cave::Workspace> m_workspace;
 
     std::shared_ptr<AssetInspector> m_asset_inspector;
     std::shared_ptr<FileSystemPanel> m_file_system_panel;

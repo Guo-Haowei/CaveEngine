@@ -1,11 +1,11 @@
 #pragma once
 #include "ViewerTabId.h"
 
+#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/input/IInputConsumer.h"
 #include "cave/runtime/scene/SceneId.h"
 
 #include "engine/private/assets/guid.h"
-#include "engine/private/ecs/entity.h"
 #include "engine/private/runtime/framework/SceneView.h"
 #include "engine/private/runtime/scene/CameraController.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"

@@ -8,18 +8,18 @@
 namespace cave {
 
 void EditorItem::OpenAddEntityPopup(ecs::Entity p_parent) {
-    ViewerTab* tab = m_editor.GetWorkspace().GetActiveTab();
+    ViewerTab* tab = m_editor.Workspace().GetActiveTab();
     SceneId scene_id = tab ? tab->GetSceneId() : SceneId{};
 
     if (ImGui::BeginMenu("Add")) {
-#define ENTITY_TYPE(NAME, SEP)                                          \
-    if (ImGui::MenuItem(#NAME)) {                                       \
-        m_editor.GetEditService().CommandCreateObject(scene_id,         \
-                                                      EntityType::NAME, \
-                                                      p_parent);        \
-    }                                                                   \
-    if constexpr (SEP) {                                                \
-        ImGui::Separator();                                             \
+#define ENTITY_TYPE(NAME, SEP)                                       \
+    if (ImGui::MenuItem(#NAME)) {                                    \
+        m_editor.EditService().CommandCreateObject(scene_id,         \
+                                                   EntityType::NAME, \
+                                                   p_parent);        \
+    }                                                                \
+    if constexpr (SEP) {                                             \
+        ImGui::Separator();                                          \
     }
         ENTITY_TYPE_LIST
 #undef ENTITY_TYPE
