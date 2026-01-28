@@ -34,17 +34,25 @@ void EditService::Redo(DocId p_doc_id) {
     }
 }
 
-bool EditService::CanUndo(DocId p_doc_id) {
-    if (IDocument* doc = ResolveDoc(p_doc_id)) {
+bool EditService::CanUndo(DocId p_doc_id) const {
+    if (const IDocument* doc = ResolveDoc(p_doc_id)) {
         return doc->CanUndo();
     }
 
     return false;
 }
 
-bool EditService::CanRedo(DocId p_doc_id) {
-    if (IDocument* doc = ResolveDoc(p_doc_id)) {
+bool EditService::CanRedo(DocId p_doc_id) const {
+    if (const IDocument* doc = ResolveDoc(p_doc_id)) {
         return doc->CanRedo();
+    }
+
+    return false;
+}
+
+bool EditService::IsDirty(DocId p_doc_id) const {
+    if (const IDocument* doc = ResolveDoc(p_doc_id)) {
+        return doc->IsDirty();
     }
 
     return false;
@@ -63,6 +71,10 @@ void EditService::FlushPendingCmds() {
     }
 
     m_pending_cmds.clear();
+}
+
+const IDocument* EditService::ResolveDoc(DocId p_doc_id) const {
+    return m_editor.DocumentService().Resolve(p_doc_id);
 }
 
 IDocument* EditService::ResolveDoc(DocId p_doc_id) {

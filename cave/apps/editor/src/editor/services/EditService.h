@@ -20,13 +20,16 @@ public:
     void Undo(DocId p_doc_id);
     void Redo(DocId p_doc_id);
 
-    bool CanUndo(DocId p_doc_id);
-    bool CanRedo(DocId p_doc_id);
+    bool CanUndo(DocId p_doc_id) const;
+    bool CanRedo(DocId p_doc_id) const;
+
+    bool IsDirty(DocId p_doc_id) const;
 
     void FlushPendingCmds();
 
 private:
     IDocument* ResolveDoc(DocId p_doc_id);
+    const IDocument* ResolveDoc(DocId p_doc_id) const;
 
     EditorState& m_editor;
     std::unordered_map<DocId, std::vector<std::unique_ptr<IEditCmd>>> m_pending_cmds;

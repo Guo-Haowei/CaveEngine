@@ -2,6 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 
+#include "editor/services/EditService.h"
 #include "editor/services/Workspace.h"
 
 // -----------------------------
@@ -93,12 +94,13 @@ void Viewer::UpdateInternal(float p_timestep) {
         return;
     }
 
+    EditService& edit = m_editor.EditService();
+
     // TabId focus_tab_id = m_workspace.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_workspace.GetTabs()) {
+        DocId doc = tab->GetDocId();
         int flags = 0;
-        // if (tab->GetDocument().IsDirty()) {
-        //     flags |= ImGuiTabItemFlags_UnsavedDocument;
-        // }
+        flags |= edit.IsDirty(doc) ? ImGuiTabItemFlags_UnsavedDocument : 0;
 
         // if (tab->GetId() == focus_tab_id) {
         //     flags |= ImGuiTabItemFlags_SetSelected;
