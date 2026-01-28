@@ -9,6 +9,7 @@ namespace cave {
 class EditorState;
 
 enum class SelectionKind : uint8_t {
+    None = 0,
     Scene,
     Entity,
     Asset,
@@ -16,8 +17,7 @@ enum class SelectionKind : uint8_t {
 };
 
 struct SelectionKey {
-    SelectionKind kind;
-
+    SelectionKind kind{ SelectionKind::None };
     DocId doc{};
     SceneId scene{};
     ecs::Entity entity{};
@@ -26,6 +26,8 @@ struct SelectionKey {
     // E.g. component type, tile coord, face index.
     uint32_t sub_kind{};
     uint64_t sub_id{};
+
+    bool IsValid() const { return kind != SelectionKind::None; }
 
     friend bool operator==(const SelectionKey&, const SelectionKey&) = default;
 };
@@ -36,7 +38,7 @@ public:
         : m_editor(p_editor) {}
 
     void Set(DocId p_doc_id, const SelectionKey& p_key);
-    Option<SelectionKey> Primary(DocId p_doc_id);
+    SelectionKey Primary(DocId p_doc_id);
 
 private:
     EditorState& m_editor;

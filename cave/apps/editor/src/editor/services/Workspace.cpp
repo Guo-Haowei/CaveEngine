@@ -61,7 +61,7 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
         case AssetType::Scene: {
             ViewerTab::Dimension dimension = DVAR_GET_BOOL(is_world_2d) ? ViewerTab::DIMENSION_2
                                                                         : ViewerTab::DIMENSION_3;
-            tab.reset(new SceneEditor(m_editor, viewer, dimension));
+            tab.reset(new SceneEditor(m_editor, p_doc_id, viewer, dimension));
         } break;
         // case AssetType::TileSet: {
         //     tab.reset(new TileSetEditor(m_editor, *this));

@@ -1,5 +1,12 @@
 #include "PropertyPanel.h"
 
+#include "cave/runtime/framework/IApplication.h"
+
+#include "engine/private/runtime/scene/ISceneRegistry.h"
+
+#include "editor/services/SelectionService.h"
+
+// @TODO: refactor
 #include <glm/gtc/quaternion.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <IconsFontAwesome/IconsFontAwesome6.h>
@@ -191,25 +198,24 @@ void PropertyPanel::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
 
     ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
-    Scene* _scene = tab ? tab->GetResolvedScene() : nullptr;
+    if (!tab) return;
 
-    if (!_scene) {
-        return;
-    }
+    SceneId scene_id = tab->GetSceneId();
+    DocId doc_id = tab->GetDocId();
 
-    SceneId scene_id = tab ? tab->GetSceneId() : SceneId{};
-    ecs::Entity id = tab->GetSelectedEntity();
+    SelectionKey selection = m_editor.SelectionService().Primary(doc_id);
 
+    ecs::Entity id = selection.entity;
     if (!id.IsValid()) {
         return;
     }
 
+    Scene* _scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_id);
+    DEV_ASSERT(_scene);
     Scene& scene = *_scene;
 
     NameComponent* name_component = scene.GetComponent<NameComponent>(id);
-    // @NOTE: when loading another scene, the selected entity will expire, thus don't have name
     if (!name_component) {
-        // LOG_WARN("Entity {} does not have name", id.get_id());
         return;
     }
 

@@ -3,23 +3,27 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/runtime/framework/IApplication.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 
-#include "editor/document/document.h"
+#include "editor/services/SelectionService.h"
+
+// @TODO: refactor
 #include "editor/document/DocumentService.h"
+
+// #include "editor/document/document.h"
 #include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"
 #include "editor/viewer/Viewer.h"
 
-// @TODO: refactor
 #include "editor/EditorDvars.h"
 
 namespace cave {
 
-SceneEditor::SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension)
-    : ViewerTab(p_editor, p_viewer, p_dimension)
+SceneEditor::SceneEditor(EditorState& p_editor,
+                         DocId p_doc_id,
+                         Viewer& p_viewer,
+                         ViewerTab::Dimension p_dimension)
+    : ViewerTab(p_editor, p_doc_id, p_viewer, p_dimension)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
     , m_button_tooltips{ "Run Project", "Pause Project" } {
 
@@ -45,8 +49,8 @@ SceneId SceneEditor::GetSceneId() const {
     return doc->GetPreviewScene();
 }
 
-void SceneEditor::OnCreateInternal(const Guid& p_guid) {
-    m_doc_id = m_editor.DocumentService().OpenScene(p_guid);
+void SceneEditor::OnCreateInternal(const Guid&) {
+    // m_doc_id = m_editor.DocumentService().OpenScene(p_guid);
 }
 
 void SceneEditor::OnDestroy() {
@@ -84,7 +88,8 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
 
-    ecs::Entity id = GetSelectedEntity();
+    SelectionKey selection = m_editor.SelectionService().Primary(m_doc_id);
+    ecs::Entity id = selection.entity;
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
 
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {

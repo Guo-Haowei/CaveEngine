@@ -26,8 +26,12 @@ const Guid& ViewerTab::GetGuid() const {
     return GetDocument().GetGuid();
 }
 
-ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimension)
+ViewerTab::ViewerTab(EditorState& p_editor,
+                     DocId p_doc_id,
+                     Viewer& p_viewer,
+                     Dimension p_dimension)
     : m_id(TabId::Next())
+    , m_doc_id(p_doc_id)
     , m_dimension(p_dimension)
     , m_editor(p_editor)
     , m_viewer(p_viewer)
@@ -35,13 +39,6 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
 }
 
 ViewerTab::~ViewerTab() {
-}
-
-void ViewerTab::SetSelectedEntity(ecs::Entity p_selected) {
-    m_selected = p_selected;
-    if (Scene* scene = GetResolvedScene(); scene) {
-        scene->m_selected = m_selected;
-    }
 }
 
 Scene* ViewerTab::GetResolvedScene() {

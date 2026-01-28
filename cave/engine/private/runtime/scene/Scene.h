@@ -187,17 +187,19 @@ public:
     const AABB& GetBound() const { return m_bound; }
 
     ecs::Entity m_root;
-    // @TODO: deprecate
-    ecs::Entity m_selected;
-    bool m_replace = false;
 
+    // @TODO: deprecate
     std::atomic<uint32_t> m_dirtyFlags{ SCENE_DIRTY_NONE };
     // @TODO: refactor
     AABB m_bound;
 
+    // @TODO: refactor
     PhysicsMode m_physicsMode{ PhysicsMode::NONE };
+
+    // @TODO: refactor
     mutable PhysicsWorldContext* m_physicsWorld{ nullptr };
 
+    // @TODO: refactor
     const auto& GetLibraryEntries() const { return m_component_lib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 

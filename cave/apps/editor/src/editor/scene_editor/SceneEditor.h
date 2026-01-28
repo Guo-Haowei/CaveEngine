@@ -10,7 +10,10 @@ class OldDocument;
 
 class SceneEditor : public ViewerTab {
 public:
-    SceneEditor(EditorState& p_editor, Viewer& p_viewer, ViewerTab::Dimension p_dimension);
+    SceneEditor(EditorState& p_editor,
+                DocId p_doc_id,
+                Viewer& p_viewer,
+                ViewerTab::Dimension p_dimension);
 
     void OnDestroy() final;
 
@@ -39,7 +42,6 @@ protected:
 
     int m_button_index{ 0 };
 
-    DocId m_doc_id;
     ToolBarButtonDesc m_play_button;
 };
 

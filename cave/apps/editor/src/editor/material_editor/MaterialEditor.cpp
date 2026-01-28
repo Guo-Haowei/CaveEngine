@@ -14,7 +14,7 @@
 namespace cave {
 
 MaterialEditor::MaterialEditor(EditorState& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer, DIMENSION_3) {
+    : ViewerTab(p_editor, {}, p_viewer, DIMENSION_3) {
 }
 
 void MaterialEditor::OnCreateInternal(const Guid& p_guid) {

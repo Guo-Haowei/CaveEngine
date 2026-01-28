@@ -18,7 +18,7 @@
 namespace cave {
 
 SpriteAnimationEditor::SpriteAnimationEditor(EditorState& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer, DIMENSION_2)
+    : ViewerTab(p_editor, {}, p_viewer, DIMENSION_2)
     , m_sprite_selector(SpriteSelector::SelectionMode::Multi) {
 
     // @TODO:
