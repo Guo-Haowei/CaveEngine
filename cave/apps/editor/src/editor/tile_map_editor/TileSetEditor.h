@@ -6,7 +6,7 @@
 
 namespace cave {
 
-class OldDocument;
+#if 0
 
 class TileSetEditor : public ViewerTab {
 public:
@@ -32,5 +32,7 @@ protected:
 
     SpriteSelector m_sprite_selector;
 };
+
+#endif
 
 }  // namespace cave

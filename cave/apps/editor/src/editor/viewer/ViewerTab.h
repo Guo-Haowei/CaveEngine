@@ -19,7 +19,6 @@
 
 namespace cave {
 
-class OldDocument;
 class ISceneRegistry;
 class KeyState;
 class ViewerTabId;

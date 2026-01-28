@@ -3,10 +3,10 @@
 
 #include "engine/private/math/geomath.h"
 #include "engine/private/assets/tile_map_asset.h"
-#include "editor/document/document.h"
 
 namespace cave {
 
+#if 0
 class TileMapEditor;
 
 struct CommandAddTile {
@@ -35,5 +35,6 @@ private:
     const TileMapEditor& m_tile_map_editor;
     std::vector<Command> m_commands;
 };
+#endif
 
 }  // namespace cave

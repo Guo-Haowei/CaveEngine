@@ -6,7 +6,6 @@
 // @TODO: delete
 #include "editor/viewer/Viewer.h"
 #include "editor/viewer/ViewerTab.h"
-#include "editor/document/document.h"
 #include "editor/EditorDvars.h"
 #include "editor/scene_editor/SceneEditor.h"
 #include "engine/private/runtime/framework/ViewportManager.h"

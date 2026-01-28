@@ -12,7 +12,6 @@
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 
-#include "editor/document/document.h"
 #include "editor/EditorDvars.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"

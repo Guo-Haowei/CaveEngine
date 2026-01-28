@@ -7,9 +7,9 @@
 #include "engine/private/runtime/scene/CameraComponent.h"
 #include "engine/private/ui/layout.h"
 
-#include "editor/document/document.h"
-
 namespace cave {
+
+#if 0
 
 TileSetEditor::TileSetEditor(EditorState& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, {}, p_viewer, DIMENSION_2)
@@ -125,5 +125,7 @@ void TileSetEditor::DrawAssetInspector() {
 const std::vector<const ToolBarButtonDesc*> TileSetEditor::GetToolBarButtons() const {
     return {};
 }
+
+#endif
 
 }  // namespace cave

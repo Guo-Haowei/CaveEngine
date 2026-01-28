@@ -17,6 +17,7 @@
 
 namespace cave {
 
+#if 0
 TileMapEditor::TileMapEditor(EditorState& p_editor, Viewer& p_viewer)
     : ViewerTab(p_editor, {}, p_viewer, DIMENSION_2)
     , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
@@ -270,5 +271,6 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
 const std::vector<const ToolBarButtonDesc*> TileMapEditor::GetToolBarButtons() const {
     return { &m_brush_desc };
 }
+#endif
 
 }  // namespace cave

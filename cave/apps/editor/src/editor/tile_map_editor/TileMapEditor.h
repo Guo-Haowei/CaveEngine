@@ -8,8 +8,8 @@
 
 namespace cave {
 
+#if 0
 class AssetRegistry;
-class OldDocument;
 class Scene;
 class TileMapDocument;
 
@@ -44,5 +44,6 @@ protected:
 
     SpriteSelector m_sprite_selector;
 };
+#endif
 
 }  // namespace cave

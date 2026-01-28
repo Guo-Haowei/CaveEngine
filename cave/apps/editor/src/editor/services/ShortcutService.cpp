@@ -9,7 +9,6 @@
 
 #include "editor/services/EditService.h"
 
-#include "editor/document/Document.h"
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 

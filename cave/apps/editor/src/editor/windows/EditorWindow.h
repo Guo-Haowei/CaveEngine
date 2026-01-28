@@ -10,6 +10,22 @@ struct WindowState {
     bool focused{ false };
 };
 
+template<typename T>
+struct RectT {
+    T x{};
+    T y{};
+    T w{};
+    T h{};
+
+    T Left() const { return x; }
+    T Right() const { return x + w; }
+
+    T Top() const { return y; }
+    T Bottom() const { return y + h; }
+};
+
+using Rect32f = RectT<float>;
+
 class EditorWindow : public IEditorItem {
 public:
     EditorWindow(EditorState& p_editor)
@@ -28,6 +44,8 @@ protected:
     virtual void UpdateInternal(float p_timestep) = 0;
 
     WindowState m_state;
+
+    Rect32f m_rect{};
 
     int m_flags{ 0 };
 };

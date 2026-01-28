@@ -28,7 +28,6 @@
 #include "engine/private/ui/layout.h"
 
 #include "editor/edit/EditObjectCmd.h"
-#include "editor/document/Document.h"
 #include "editor/EditorDvars.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/panels/FileSystemPanel.h"

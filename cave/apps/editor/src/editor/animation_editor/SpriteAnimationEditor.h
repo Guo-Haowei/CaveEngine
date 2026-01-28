@@ -10,6 +10,7 @@
 
 namespace cave {
 
+#if 0
 class AssetRegistry;
 class OldDocument;
 class TileMapDocument;
@@ -55,5 +56,6 @@ protected:
     ToolBarButtonDesc m_play_button;
     ToolBarButtonDesc m_pause_button;
 };
+#endif
 
 }  // namespace cave

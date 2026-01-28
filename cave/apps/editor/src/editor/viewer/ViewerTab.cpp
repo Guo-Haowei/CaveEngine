@@ -8,7 +8,6 @@
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
-#include "editor/document/document.h"
 #include "editor/EditorState.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/viewer/Viewer.h"

@@ -6,8 +6,6 @@
 
 namespace cave {
 
-class OldDocument;
-
 class SceneEditor : public ViewerTab {
 public:
     SceneEditor(EditorState& p_editor,

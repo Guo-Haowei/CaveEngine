@@ -5,6 +5,7 @@
 
 namespace cave {
 
+#if 0
 // @TODO: abstract brush class
 class SetTileCommand : public UndoCommand {
 public:
@@ -132,5 +133,6 @@ void TileMapDocument::FlushCommands() {
 
     m_commands.clear();
 }
+#endif
 
 }  // namespace cave
