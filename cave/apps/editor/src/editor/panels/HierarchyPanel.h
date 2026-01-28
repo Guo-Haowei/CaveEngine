@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 
@@ -10,7 +10,7 @@ public:
     HierarchyPanel(EditorState& editor)
         : EditorWindow(editor) {}
 
-    const char* GetTitle() const override {
+    const char* GetWindowId() const override {
         return "Hierarchy";
     }
 

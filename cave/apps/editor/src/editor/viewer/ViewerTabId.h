@@ -10,22 +10,22 @@ class EditorState;
 class Scene;
 class Viewer;
 
-class TabId {
+class ViewerTabId {
 public:
-    constexpr TabId(int p_val)
+    constexpr ViewerTabId(int p_val)
         : m_val(p_val) {}
 
-    static constexpr TabId Null() {
-        return TabId(-1);
+    static constexpr ViewerTabId Null() {
+        return ViewerTabId(-1);
     }
 
-    TabId(const TabId& p_rhs) = default;
+    ViewerTabId(const ViewerTabId& p_rhs) = default;
 
-    bool operator==(const TabId& p_rhs) const { return m_val == p_rhs.m_val; }
+    bool operator==(const ViewerTabId& p_rhs) const { return m_val == p_rhs.m_val; }
 
     int Get() const { return m_val; }
 
-    static TabId Next() {
+    static ViewerTabId Next() {
         static int s_counter = 0;
         return { ++s_counter };
     }
@@ -39,8 +39,8 @@ private:
 namespace std {
 
 template<>
-struct hash<::cave::TabId> {
-    std::size_t operator()(const ::cave::TabId& p_tab_id) const noexcept {
+struct hash<::cave::ViewerTabId> {
+    std::size_t operator()(const ::cave::ViewerTabId& p_tab_id) const noexcept {
         return std::hash<int>{}(p_tab_id.Get());
     }
 };

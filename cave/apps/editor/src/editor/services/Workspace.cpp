@@ -4,6 +4,7 @@
 #include "editor/EditorState.h"
 
 // @TODO: delete
+#include "editor/viewer/Viewer.h"
 #include "editor/viewer/ViewerTab.h"
 #include "editor/document/document.h"
 #include "editor/EditorDvars.h"
@@ -46,12 +47,14 @@ Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor) {
 }
 
-void Workspace::SendRequest(WorkspaceRequest p_request) {
-    m_pending_reqs.emplace_back(std::move(p_request));
+void Workspace::Submit(WorkspaceRequest p_req) {
+    m_pending_reqs.emplace_back(std::move(p_req));
 }
 
 void Workspace::Tick(float p_dt) {
     unused(p_dt);
+
+    // test window generation
 
     for (WorkspaceRequest& req : m_pending_reqs) {
         switch (req.type) {
@@ -61,19 +64,28 @@ void Workspace::Tick(float p_dt) {
             case WorkspaceRequest::Type::FocusDoc: {
                 // OpenOrFocusDoc(req.doc_id);
             } break;
+            case WorkspaceRequest::Type::CloseDoc: {
+            } break;
             default:
                 break;
         }
     }
 
     m_pending_reqs.clear();
-}
-void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
-    if (auto it = m_tabs.find(p_doc_id); it != m_tabs.end()) {
-        DEV_ASSERT(0);
-        return;
-    }
 
+    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
+        auto& slot = m_slots[idx];
+        if (slot.storage) {
+            if (m_focused_tab == TabId(idx, slot.gen)) {
+                ImGui::SetNextWindowFocus();
+                m_focused_tab = TabId();
+            }
+            slot.storage->Update(p_dt);
+        }
+    }
+}
+
+void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
     IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id);
     if (!doc) {
         return;
@@ -84,6 +96,18 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
         return;
     }
 
+    if (auto it = m_doc_to_tab.find(p_doc_id); it != m_doc_to_tab.end()) {
+        m_focused_tab = it->second;
+        return;
+    }
+
+    auto tab = std::make_unique<Tab>(m_editor);
+    TabId tab_id = Create(std::move(tab));
+    m_slots[tab_id.index].storage->SetTitleAndId(meta->name, tab_id.index);
+    m_focused_tab = tab_id;
+    m_doc_to_tab[p_doc_id] = tab_id;
+
+#if 0
     // @TODO: create a new tab
     std::shared_ptr<ViewerTab> tab;
     Viewer& viewer = m_editor.GetViewer();
@@ -119,8 +143,9 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
     // @TODO: set active tab
     LOG_VERBOSE("tab {} created", tab->GetTitle());
 
-    m_tabs[p_doc_id] = tab;
+    m_old_tabs[p_doc_id] = tab;
     m_active_tab = tab.get();
+#endif
 }
 
 //-------------- DEPRECATE ------------------

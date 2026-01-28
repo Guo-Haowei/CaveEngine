@@ -5,7 +5,7 @@ namespace cave {
 void EditorWindow::Update(float p_timestep) {
     m_state = {};
 
-    if (ImGui::Begin(GetTitle(), nullptr, m_flags)) {
+    if (ImGui::Begin(GetWindowId(), nullptr, m_flags)) {
         m_state.open = true;
         m_state.visible = !ImGui::IsWindowCollapsed();
         m_state.focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);

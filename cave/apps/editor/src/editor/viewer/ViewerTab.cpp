@@ -26,7 +26,7 @@ ViewerTab::ViewerTab(EditorState& p_editor,
                      DocId p_doc_id,
                      Viewer& p_viewer,
                      Dimension p_dimension)
-    : m_id(TabId::Next())
+    : m_id(ViewerTabId::Next())
     , m_doc_id(p_doc_id)
     , m_dimension(p_dimension)
     , m_editor(p_editor)

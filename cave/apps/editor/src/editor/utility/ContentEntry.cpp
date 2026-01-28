@@ -6,6 +6,7 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
+#include "editor/document/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/EditorState.h"
 
@@ -173,9 +174,10 @@ void ShowPopup(const ContentEntry& p_node,
         ShowFolderPopup(p_node);
     } else {
         if (ImGui::MenuItem("Edit")) {
-            unused(p_editor);
-            LOG_WARN("TODO: implement edit");
-            // p_editor.GetEditService().CommandInspectAsset(p_node.handle.GetGuid());
+            OpenDocDesc desc;
+            desc.guid = p_node.handle.GetGuid();
+            desc.asset_type = p_node.handle.GetMeta()->type;
+            p_editor.DocumentService().OpenDoc(desc);
         }
         if (ImGui::MenuItem("Save")) {
             AssetRegistry::GetSingleton().SaveAsset(p_node.handle.GetGuid());

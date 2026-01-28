@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/runtime/core/io/logger.h"
 
-#include "editor/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 
@@ -10,7 +10,7 @@ public:
     LogPanel(EditorState& editor)
         : EditorWindow(editor) {}
 
-    const char* GetTitle() const override {
+    const char* GetWindowId() const override {
         return "Log";
     }
 

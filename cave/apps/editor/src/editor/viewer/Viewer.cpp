@@ -49,7 +49,7 @@ void Viewer::UpdateFrameSize() {
         m_canvas_size.x = m_canvas_size.y * ratio;
     }
 
-    ImGuiWindow* window = ImGui::FindWindowByName(GetTitle());
+    ImGuiWindow* window = ImGui::FindWindowByName(GetWindowId());
     DEV_ASSERT(window);
     m_canvas_min.x = window->ContentRegionRect.Min.x;
     m_canvas_min.y = TOOL_BAR_OFFSET + window->ContentRegionRect.Min.y;
@@ -71,7 +71,7 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
 }
 
 ViewerTab* Viewer::GetActiveTab() {
-    return m_editor.Workspace().GetActiveTab();
+    return nullptr;
 }
 
 void Viewer::UpdateInternal(float p_timestep) {
@@ -79,7 +79,7 @@ void Viewer::UpdateInternal(float p_timestep) {
 
     UpdateFrameSize();
 
-    ViewerTab* active_tab = m_workspace.GetActiveTab();
+    ViewerTab* active_tab = nullptr;
     if (!active_tab) {
         return;
     }
@@ -94,9 +94,9 @@ void Viewer::UpdateInternal(float p_timestep) {
         return;
     }
 
+// TabId focus_tab_id = m_workspace.GetFocusRequest().unwrap_or(TabId::Null());
+#if 0
     EditService& edit = m_editor.EditService();
-
-    // TabId focus_tab_id = m_workspace.GetFocusRequest().unwrap_or(TabId::Null());
     for (auto& [id, tab] : m_workspace.GetTabs()) {
         DocId doc = tab->GetDocId();
         int flags = 0;
@@ -128,6 +128,7 @@ void Viewer::UpdateInternal(float p_timestep) {
             // m_workspace.SetCloseRequest(tab->GetId());
         }
     }
+#endif
 
     m_workspace.HandleCloseRequest();
 

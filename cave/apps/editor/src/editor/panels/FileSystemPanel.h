@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 
@@ -11,7 +11,7 @@ public:
 
     void OnAttach() override;
 
-    const char* GetTitle() const override {
+    const char* GetWindowId() const override {
         return "File System";
     }
 

@@ -17,7 +17,7 @@ public:
 
     void Update(float p_timestep) override;
 
-    virtual const char* GetTitle() const = 0;
+    virtual const char* GetWindowId() const = 0;
 
     bool IsOpen() const { return m_state.open; }
     bool IsVisible() const { return m_state.visible; }

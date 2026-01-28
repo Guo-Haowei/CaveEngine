@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 
@@ -8,7 +8,7 @@ public:
     RendererPanel(EditorState& p_editor)
         : EditorWindow(p_editor) {}
 
-    const char* GetTitle() const override {
+    const char* GetWindowId() const override {
         return "Renderer";
     }
 

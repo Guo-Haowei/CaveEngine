@@ -1,8 +1,7 @@
 #pragma once
 
 // @TODO: refactor
-#include "editor/EditorWindow.h"
-#include "editor/Enums.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 
@@ -21,8 +20,8 @@ public:
     // @TODO: deprecate
     ViewerTab* GetActiveTab();
 
-    const char* GetTitle() const override {
-        return "Viewer";
+    const char* GetWindowId() const override {
+        return "Viewer###(MainWorkSpace)";
     }
 
 protected:

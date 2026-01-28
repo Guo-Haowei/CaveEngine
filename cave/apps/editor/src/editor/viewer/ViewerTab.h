@@ -22,7 +22,7 @@ namespace cave {
 class OldDocument;
 class ISceneRegistry;
 class KeyState;
-class TabId;
+class ViewerTabId;
 class Viewer;
 
 struct ToolBarButtonDesc;
@@ -61,7 +61,7 @@ public:
     virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
 
-    const TabId& GetId() const { return m_id; }
+    const ViewerTabId& GetId() const { return m_id; }
 
     const std::string& GetTitle() const {
         return m_title;
@@ -96,7 +96,7 @@ protected:
     Scene* GetResolvedScene();
 
     // @TODO: refactor field
-    const TabId m_id;
+    const ViewerTabId m_id;
     EditorState& m_editor;
     Viewer& m_viewer;
     ISceneRegistry& m_scene_manager;

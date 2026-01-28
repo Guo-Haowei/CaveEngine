@@ -48,7 +48,7 @@ public:
         return slot.storage != nullptr;
     }
 
-private:
+protected:
     IdT Alloc() {
         uint32_t index;
         if (m_free.empty()) {

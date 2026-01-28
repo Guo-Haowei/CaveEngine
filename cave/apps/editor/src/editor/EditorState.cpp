@@ -102,9 +102,8 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 
     if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
         if (auto res = Guid::Parse(asset); res.is_some()) {
-            Guid guid = res.unwrap_unchecked();
-            auto req = WorkspaceRequest::OpenDoc(m_document_service->OpenScene(guid));
-            m_workspace->SendRequest(std::move(req));
+            //Guid guid = res.unwrap_unchecked();
+            //m_document_service->OpenScene(guid);
         }
     }
 }
@@ -139,17 +138,14 @@ void EditorState::Tick(float p_dt) {
     imgui_manager->BeginFrame();
 
     DockSpace();
-    for (auto& it : m_panels) {
+    for (auto& it : m_panels)
         it->Update(p_dt);
-    }
-
-    {
-        CAVE_PROFILE_EVENT("ImGui::Render");
-        ImGui::Render();
-    }
 
     m_edit_service->FlushPendingCmds();
     m_workspace->Tick(p_dt);
+
+    ImGui::Render();
+
     CommitModeSwitch();
 }
 
@@ -222,10 +218,10 @@ void EditorState::DockSpace() {
 }
 
 void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
-    ViewerTab* tab = m_workspace->GetActiveTab();
-    DocId doc_id = tab ? tab->GetDocId() : DocId{};
-
     if (ImGui::BeginMenu("Add")) {
+        ViewerTab* tab = nullptr;
+        DEV_ASSERT(tab);
+        DocId doc_id = tab ? tab->GetDocId() : DocId{};
 #define ENTITY_TYPE(NAME, SEP)                                                           \
     if (ImGui::MenuItem(#NAME)) {                                                        \
         auto cmd = std::make_unique<AddObjectCmd>(GetApp(), p_parent, EntityType::NAME); \
