@@ -25,25 +25,4 @@ bool SceneDocument::SaveAs(std::string_view p_new_path) {
     return false;
 }
 
-#if 0
-void SceneDocument::RequestMove(ecs::Entity p_entity,
-                                const Matrix4x4f& p_before,
-                                const Matrix4x4f& p_after,
-                                bool p_execute) {
-    Handle<Scene> handle = Handle<Scene>(m_handle);
-
-    auto command = std::make_unique<TransformCommand>(
-        handle,
-        p_entity,
-        p_before,
-        p_after);
-
-    if (p_execute) {
-        command->Redo();
-    }
-
-    m_undo_stack->Submit(std::move(command));
-}
-#endif
-
 }  // namespace cave

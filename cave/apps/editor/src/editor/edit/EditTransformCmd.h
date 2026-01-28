@@ -6,17 +6,18 @@
 
 namespace cave {
 
-class EditTransformCmd : public IEditCmd {
+class EditTransformCmd : public EditCmdBase {
 public:
-    EditTransformCmd(const EditCmdCtx& p_ctx,
+    EditTransformCmd(IApplication& p_app,
+                     ecs::Entity p_entity,
                      const Matrix4x4f& p_before,
                      const Matrix4x4f& p_after)
-        : m_ctx(p_ctx)
+        : EditCmdBase(p_app, p_entity)
         , m_before(p_before)
         , m_after(p_after) {}
 
     const char* Label() const override {
-        return "IEditTransformCmd";
+        return "EditTransformCmd";
     }
 
     bool Do(IDocument& p_doc) override;
@@ -26,7 +27,6 @@ public:
     void CoalesceFrom(std::unique_ptr<IEditCmd> p_cmd) override;
 
 private:
-    EditCmdCtx m_ctx;
     Matrix4x4f m_before;
     Matrix4x4f m_after;
 };

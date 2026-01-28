@@ -109,10 +109,11 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
 
-                EditCmdCtx ctx(m_editor.GetApp());
-                ctx.entity = id;
-
-                edit_service.Submit(doc_id, std::make_unique<EditTransformCmd>(ctx, before, after));
+                auto cmd = std::make_unique<EditTransformCmd>(m_editor.GetApp(),
+                                                              id,
+                                                              before,
+                                                              after);
+                edit_service.Submit(doc_id, std::move(cmd));
             }
         }
     };

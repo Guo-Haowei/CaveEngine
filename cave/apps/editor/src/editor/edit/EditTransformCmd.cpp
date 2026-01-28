@@ -6,8 +6,8 @@ namespace cave {
 
 bool EditTransformCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = m_ctx.ResolveScene(scene_doc->GetPreviewScene())) {
-            TransformComponent* transform = scene->GetComponent<TransformComponent>(m_ctx.entity);
+        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+            TransformComponent* transform = scene->GetComponent<TransformComponent>(m_entity);
             if (transform) {
                 transform->SetLocalTransform(m_after);
                 return true;
@@ -20,8 +20,8 @@ bool EditTransformCmd::Do(IDocument& p_doc) {
 
 bool EditTransformCmd::Undo(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = m_ctx.ResolveScene(scene_doc->GetPreviewScene())) {
-            TransformComponent* transform = scene->GetComponent<TransformComponent>(m_ctx.entity);
+        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+            TransformComponent* transform = scene->GetComponent<TransformComponent>(m_entity);
             if (transform) {
                 transform->SetLocalTransform(m_before);
                 return true;
@@ -33,7 +33,7 @@ bool EditTransformCmd::Undo(IDocument& p_doc) {
 
 bool EditTransformCmd::CanCoalesceWith(const IEditCmd* p_cmd) const {
     if (const EditTransformCmd* cmd = dynamic_cast<const EditTransformCmd*>(p_cmd)) {
-        if (m_ctx.entity == cmd->m_ctx.entity) {
+        if (m_entity == cmd->m_entity) {
             return true;
         }
     }

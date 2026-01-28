@@ -6,23 +6,22 @@
 
 #include "engine/private/runtime/scene/Scene.h"
 
-#include "editor/document/DocumentTypes.h"
-
 namespace cave {
 
 class IApplication;
 class ISceneRegistry;
 
-// @TODO: refactor this
-class EditCmdCtx {
-    ISceneRegistry& m_scene_reg;
-
+class EditCmdBase : public IEditCmd {
 public:
-    ecs::Entity entity{};
+    EditCmdBase(IApplication& p_app,
+                ecs::Entity p_entity);
 
-    EditCmdCtx(IApplication& p_app);
-
+protected:
     Scene* ResolveScene(SceneId p_scene_id);
+    ecs::Entity m_entity;
+
+private:
+    ISceneRegistry& m_scene_reg;
 };
 
 }  // namespace cave

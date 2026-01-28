@@ -16,7 +16,6 @@ class UndoStack;
 
 // @TODO: refactor this part
 enum class EntityType : uint8_t;
-enum class ComponentName : uint8_t;
 
 class EditService {
 public:
@@ -59,10 +58,6 @@ public:
     void CommandCreateObject(SceneId p_scene_id,
                              EntityType p_type,
                              ecs::Entity p_parent);
-
-    void CommandAddComponent(SceneId p_scene_id,
-                             ComponentName p_type,
-                             ecs::Entity p_target);
 
     void CommandDeleteObject(SceneId p_scene_id,
                              ecs::Entity p_target);

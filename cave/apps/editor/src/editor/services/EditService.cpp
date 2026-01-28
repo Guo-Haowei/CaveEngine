@@ -175,45 +175,6 @@ private:
     ecs::Entity m_target;
 };
 
-class AddComponentCommand : public EditService::ICommand {
-public:
-    AddComponentCommand(EditorState& p_editor,
-                        SceneId p_scene_id,
-                        ComponentName p_type,
-                        ecs::Entity p_target)
-        : EditService::ICommand(p_editor, p_scene_id)
-        , m_type(p_type)
-        , m_target(p_target) {}
-
-    bool Undo() override {
-        return false;
-    }
-
-    bool Redo() override {
-        Scene* scene = ResolveScene();
-        if (!scene) return false;
-
-        DEV_ASSERT(m_target.IsValid());
-        switch (m_type) {
-#define COMPONENT_DECL(NAME)                      \
-    case ComponentName::NAME: {                   \
-        scene->Create<NAME##Component>(m_target); \
-    } break;
-            COMPONENT_LIST
-#undef COMPONENT_DECL
-
-            default: {
-                CRASH_NOW();
-            } break;
-        }
-        return true;
-    }
-
-protected:
-    ComponentName m_type;
-    ecs::Entity m_target;
-};
-
 EditService::EditService(EditorState& p_editor)
     : m_editor(p_editor) {}
 
@@ -225,16 +186,6 @@ void EditService::CommandCreateObject(SceneId p_scene_id,
         p_scene_id,
         p_type,
         p_parent));
-}
-
-void EditService::CommandAddComponent(SceneId p_scene_id,
-                                      ComponentName p_type,
-                                      ecs::Entity p_target) {
-    m_old_pending_commands.emplace_back(std::make_unique<AddComponentCommand>(
-        m_editor,
-        p_scene_id,
-        p_type,
-        p_target));
 }
 
 void EditService::CommandDeleteObject(SceneId p_scene_id,

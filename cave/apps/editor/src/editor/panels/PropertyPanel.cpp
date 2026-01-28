@@ -4,6 +4,9 @@
 
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
+#include "editor/edit/EditTransformCmd.h"
+#include "editor/edit/EditComponentCmd.h"
+#include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
@@ -30,11 +33,29 @@
 
 namespace cave {
 
+// @TODO: refactor this
+#define COMPONENT_LIST              \
+    COMPONENT_DECL(LuaScript)       \
+    COMPONENT_DECL(SpriteAnimator)  \
+    COMPONENT_DECL(Collider)        \
+    COMPONENT_DECL(Velocity)        \
+    COMPONENT_DECL(MeshRenderer)    \
+    COMPONENT_DECL(SpriteRenderer)  \
+    COMPONENT_DECL(TileMapRenderer) \
+    COMPONENT_DECL(PrefabInstance)
+
+struct DrawComponentCtx {
+    IApplication& app;
+    EditService& edit;
+    Scene* scene;
+    ecs::Entity entity;
+    DocId doc_id;
+};
+
 // @TODO: refactor DrawComponent
 template<ComponentType T, typename UIFunction>
 static void DrawComponent(const std::string& p_name,
-                          Scene* p_scene,
-                          ecs::Entity p_entity,
+                          const DrawComponentCtx& ctx,
                           T* p_component,
                           UIFunction p_function) {
     const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
@@ -53,10 +74,10 @@ static void DrawComponent(const std::string& p_name,
             ImGui::OpenPopup("ComponentSettings");
         }
 
-        bool should_remove_component = false;
         if (ImGui::BeginPopup("ComponentSettings")) {
             if (ImGui::MenuItem("remove component")) {
-                should_remove_component = true;
+                auto cmd = std::make_unique<RemoveComponentCmd<T>>(ctx.app, ctx.entity, *p_component);
+                ctx.edit.Submit(ctx.doc_id, std::move(cmd));
             }
 
             ImGui::EndPopup();
@@ -65,10 +86,6 @@ static void DrawComponent(const std::string& p_name,
         if (open) {
             p_function(*p_component);
             ImGui::TreePop();
-        }
-
-        if (should_remove_component) {
-            p_scene->Get<T>().Remove(p_entity);
         }
     }
 }
@@ -219,6 +236,8 @@ void PropertyPanel::UpdateInternal(float) {
         return;
     }
 
+    EditService& edit_service = m_editor.EditService();
+
     ui::TextBox("Name", name_component->GetNameRef());
 
     ImGui::SameLine();
@@ -232,11 +251,11 @@ void PropertyPanel::UpdateInternal(float) {
             LOG_ERROR("TODO: implement add component");
             ImGui::CloseCurrentPopup();
         }
-#define COMPONENT_DECL(NAME)                                            \
-    if (ImGui::MenuItem(#NAME)) {                                       \
-        m_editor.EditService().CommandAddComponent(scene_id,            \
-                                                   ComponentName::NAME, \
-                                                   id);                 \
+
+#define COMPONENT_DECL(NAME)                                                                  \
+    if (ImGui::MenuItem(#NAME)) {                                                             \
+        auto cmd = std::make_unique<AddComponentCmd<NAME##Component>>(m_editor.GetApp(), id); \
+        edit_service.Submit(doc_id, std::move(cmd));                                          \
     }
         COMPONENT_LIST
 #undef COMPONENT_DECL
@@ -256,23 +275,32 @@ void PropertyPanel::UpdateInternal(float) {
 
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 
-#if 0
-    ParticleEmitterComponent* particle_emitter_component = scene.GetComponent<ParticleEmitterComponent>(id);
-    MeshEmitterComponent* mesh_emitter_component = scene.GetComponent<MeshEmitterComponent>(id);
-#endif
-
-    // SceneDocument& document = static_cast<SceneDocument&>(tab->GetDocument());
     const bool is_2d = m_editor.GetApp().IsWorld2D();
 
-#define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, _scene, id
+#define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
+
+    const DrawComponentCtx ctx{
+        .app = m_editor.GetApp(),
+        .edit = edit_service,
+        .scene = &scene,
+        .entity = id,
+        .doc_id = doc_id,
+    };
 
     DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&](TransformComponent& p_transform) {
         const Matrix4x4f old_transform = p_transform.GetLocalMatrix();
-        const bool dirty = DrawComponentAuto<TransformComponent>(&p_transform);
+
+        // @TODO: avoid making a copy
+        TransformComponent copy = p_transform;
+        const bool dirty = DrawComponentAuto<TransformComponent>(&copy);
         if (dirty) {
-            Matrix4x4f new_transform = p_transform.GetLocalMatrix();
-            // already moved, no need to move again
-            // document.RequestMove(id, old_transform, new_transform, false);
+            Matrix4x4f new_transform = copy.GetLocalMatrix();
+
+            auto cmd = std::make_unique<EditTransformCmd>(m_editor.GetApp(),
+                                                          id,
+                                                          old_transform,
+                                                          new_transform);
+            edit_service.Submit(doc_id, std::move(cmd));
 
             if (camera) {
                 camera->SetDirtyFlag();

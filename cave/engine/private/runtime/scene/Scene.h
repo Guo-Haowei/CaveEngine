@@ -98,6 +98,8 @@ public:
     size_t GetCount() const { return 0; }
     template<ComponentType T>
     T& Create(const ecs::Entity&) { return *(T*)(nullptr); }
+    template<ComponentType T>
+    void Remove(const ecs::Entity&) {}
 
     template<ComponentType T>
     inline T& GetComponentByIndex(size_t) { return *(T*)0; }
@@ -143,6 +145,8 @@ public:
     inline size_t GetCount<T>() const { return m_##T##s.GetCount(); }                                              \
     template<>                                                                                                     \
     inline T& Create<T>(const ecs::Entity& p_entity) { return m_##T##s.Create(p_entity); }                         \
+    template<>                                                                                                     \
+    inline void Remove<T>(const ecs::Entity& p_entity) { return m_##T##s.Remove(p_entity); }                       \
     template<>                                                                                                     \
     inline const ecs::ComponentManager<T>& Get() const { return m_##T##s; }                                        \
     template<>                                                                                                     \
