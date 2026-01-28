@@ -19,8 +19,6 @@ public:
 
     void DrawMainView(const CameraComponent& p_camera) final;
 
-    OldDocument& GetDocument() const final;
-
     SceneId GetSceneId() const final;
 
     void BuildViews(std::vector<SceneView>& p_out_views,

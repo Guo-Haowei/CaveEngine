@@ -41,10 +41,6 @@ SceneEditor::SceneEditor(EditorState& p_editor,
     };
 }
 
-OldDocument& SceneEditor::GetDocument() const {
-    return *((OldDocument*)nullptr);
-}
-
 SceneId SceneEditor::GetSceneId() const {
     IDocument* doc = m_editor.DocumentService().Resolve(m_doc_id);
     if (!doc) return {};

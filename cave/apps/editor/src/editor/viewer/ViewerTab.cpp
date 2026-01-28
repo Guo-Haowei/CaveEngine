@@ -22,10 +22,6 @@ using ecs::Entity;
 
 static const char EDITOR_CAMERA_NAME[] = "_editor_cam";
 
-const Guid& ViewerTab::GetGuid() const {
-    return GetDocument().GetGuid();
-}
-
 ViewerTab::ViewerTab(EditorState& p_editor,
                      DocId p_doc_id,
                      Viewer& p_viewer,

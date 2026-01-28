@@ -24,8 +24,6 @@ public:
 
     void DrawAssetInspector() final;
 
-    OldDocument& GetDocument() const final;
-
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
 protected:

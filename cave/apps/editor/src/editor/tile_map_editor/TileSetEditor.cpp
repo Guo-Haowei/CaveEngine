@@ -122,10 +122,6 @@ void TileSetEditor::DrawAssetInspector() {
     ui::DrawContents(full_width, descs);
 }
 
-OldDocument& TileSetEditor::GetDocument() const {
-    return *m_document;
-}
-
 const std::vector<const ToolBarButtonDesc*> TileSetEditor::GetToolBarButtons() const {
     return {};
 }

@@ -58,9 +58,9 @@ void ShortcutService::InitShortcuts() {
     };
 
     auto active_document = [this]() -> OldDocument* {
-        if (auto tab = m_editor.GetViewer().GetActiveTab(); tab) {
-            return &tab->GetDocument();
-        }
+        // if (auto tab = m_editor.GetViewer().GetActiveTab(); tab) {
+        //     return &tab->GetDocument();
+        // }
         return nullptr;
     };
 

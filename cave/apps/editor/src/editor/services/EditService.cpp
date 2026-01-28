@@ -42,18 +42,9 @@ void EditService::FlushPendingCmds() {
         }
     }
 
-    // @TODO: submit to undo queue
-    while (!m_old_pending_commands.empty()) {
-        ICommand* task = m_old_pending_commands.front().get();
-        task->Redo();
-        m_old_pending_commands.pop_front();
-    }
-
-    // auto& undo_stack = I
-    //     task->Redo();
-    //     m_pending_commands.pop_front();
-    // }
+    m_pending_cmds.clear();
 }
+
 // @TODO: refactor
 static std::string GenerateName(std::string_view p_name) {
     static int s_counter = 0;

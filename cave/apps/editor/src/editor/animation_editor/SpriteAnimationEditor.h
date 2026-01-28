@@ -27,8 +27,6 @@ public:
 
     void DrawAssetInspector() final;
 
-    OldDocument& GetDocument() const final;
-
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
 

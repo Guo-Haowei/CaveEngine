@@ -147,10 +147,6 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     return true;
 }
 
-OldDocument& TileMapEditor::GetDocument() const {
-    return *m_document.get();
-}
-
 #if 0
 bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
     DEV_ASSERT(0);

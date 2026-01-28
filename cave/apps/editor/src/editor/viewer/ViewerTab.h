@@ -61,11 +61,7 @@ public:
     virtual void DrawMainView(const CameraComponent& p_camera);
     virtual void DrawAssetInspector();
 
-    virtual OldDocument& GetDocument() const = 0;
-
     const TabId& GetId() const { return m_id; }
-
-    const Guid& GetGuid() const;
 
     const std::string& GetTitle() const {
         return m_title;

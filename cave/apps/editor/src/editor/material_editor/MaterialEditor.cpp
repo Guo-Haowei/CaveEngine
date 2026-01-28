@@ -131,10 +131,6 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
     }
 }
 
-OldDocument& MaterialEditor::GetDocument() const {
-    return *m_document;
-}
-
 const std::vector<const ToolBarButtonDesc*> MaterialEditor::GetToolBarButtons() const {
     return {};
 }

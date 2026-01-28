@@ -316,8 +316,4 @@ void SpriteAnimationEditor::DrawAssetInspector() {
     ui::DrawContents(full_width, descs);
 }
 
-OldDocument& SpriteAnimationEditor::GetDocument() const {
-    return *m_document.get();
-}
-
 }  // namespace cave
