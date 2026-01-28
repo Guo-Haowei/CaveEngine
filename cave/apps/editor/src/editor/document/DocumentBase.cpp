@@ -15,13 +15,13 @@ DocumentBase::DocumentBase(IApplication& p_app, const Guid& p_guid)
     m_asset = m_handle.Wait();
 }
 
-bool DocumentBase::Apply(std::unique_ptr<IEditCommand> p_cmd, uint32_t p_coalesce) {
+bool DocumentBase::Apply(std::unique_ptr<IEditCmd> p_cmd, uint32_t p_coalesce) {
     if (!p_cmd) return false;
 
     // Coalesce with last undo command if requested and compatible
     if (!m_undo.empty() && p_coalesce != 0 && m_last_coalesce == p_coalesce) {
-        IEditCommand* last = m_undo.back().get();
-        if (last && last->CanCoalesceWith(*p_cmd)) {
+        IEditCmd* last = m_undo.back().get();
+        if (last && last->CanCoalesceWith(p_cmd.get())) {
             // Do new change first, then merge for correct final state
             p_cmd->Do(*this);
             last->CoalesceFrom(std::move(p_cmd));

@@ -2,6 +2,8 @@
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/scene/SceneId.h"
 
+#include "editor/document/DocumentTypes.h"
+#include "editor/edit/IEditCmd.h"
 // @TODO: move it to public
 
 #include "editor/undo_redo/UndoCommand.h"
@@ -17,6 +19,18 @@ enum class EntityType : uint8_t;
 enum class ComponentName : uint8_t;
 
 class EditService {
+public:
+    EditService(EditorState& p_editor);
+
+    void Submit(DocId p_doc_id, std::unique_ptr<IEditCmd> p_cmd);
+
+    void FlushPendingCmds();
+
+private:
+    EditorState& m_editor;
+    std::unordered_map<DocId, std::vector<std::unique_ptr<IEditCmd>>> m_pending_cmds;
+
+    // @TODO: deprecate
 public:
     class ICommand : public UndoCommand {
     public:
@@ -34,8 +48,6 @@ public:
         SceneId m_scene_id;
     };
 
-    EditService(EditorState& p_editor);
-
     void CommandCreateObject(SceneId p_scene_id,
                              EntityType p_type,
                              ecs::Entity p_parent);
@@ -50,24 +62,8 @@ public:
     void CommandCloneObject(SceneId p_scene_id,
                             ecs::Entity p_target);
 
-    void Flush();
-
-#if 0
-    bool IsDirty(SceneId);
-
-    void MarkSaved(SceneId);
-
-    uint64_t GetRevision(SceneId);
-
-    void ClearHistory(SceneId);
-#endif
-
 private:
-    EditorState& m_editor;
-    std::list<std::unique_ptr<ICommand>> m_pending_commands;
-
-    // std::unordered_map<SceneId, std::unique_ptr<UndoStack>> m_stacks;
-    //  Undo stack per SceneId
+    std::list<std::unique_ptr<ICommand>> m_old_pending_commands;
 };
 
 }  // namespace cave

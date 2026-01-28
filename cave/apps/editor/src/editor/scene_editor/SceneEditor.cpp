@@ -4,6 +4,8 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
+#include "editor/edit/EditTransformCmd.h"
+#include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
@@ -46,7 +48,10 @@ OldDocument& SceneEditor::GetDocument() const {
 SceneId SceneEditor::GetSceneId() const {
     IDocument* doc = m_editor.DocumentService().Resolve(m_doc_id);
     if (!doc) return {};
-    return doc->GetPreviewScene();
+    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(doc)) {
+        return scene_doc->GetPreviewScene();
+    }
+    return {};
 }
 
 void SceneEditor::OnCreateInternal(const Guid&) {
@@ -73,6 +78,8 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     Scene& scene = *GetResolvedScene();
     CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
 
+    DocId doc_id = GetDocId();
+
     ViewerTab::DrawMainView(camera);
 
     const Matrix4x4f& view_matrix = camera.GetViewMatrix();
@@ -92,6 +99,8 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     ecs::Entity id = selection.entity;
     TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
 
+    EditService& edit_service = m_editor.EditService();
+
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {
             const Matrix4x4f before = transform_component->GetLocalMatrix();
@@ -103,7 +112,11 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
                                      // ImGuizmo::WORLD,
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
-                // m_document->RequestMove(id, before, after, true);
+
+                EditCmdCtx ctx(m_editor.GetApp());
+                ctx.entity = id;
+
+                edit_service.Submit(doc_id, std::make_unique<EditTransformCmd>(ctx, before, after));
             }
         }
     };

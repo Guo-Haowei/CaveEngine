@@ -144,7 +144,7 @@ void EditorState::Tick(float p_dt) {
         ImGui::Render();
     }
 
-    m_edit_service->Flush();
+    m_edit_service->FlushPendingCmds();
     m_workspace->Tick(p_dt);
     CommitModeSwitch();
 }

@@ -1,6 +1,6 @@
 #include "IDocument.h"
 
-#include "editor/edit/IEditCommand.h"
+#include "editor/edit/IEditCmd.h"
 
 namespace cave {
 
@@ -13,7 +13,7 @@ class DocumentBase : public IDocument {
 public:
     DocumentBase(IApplication& p_app, const Guid& p_guid);
 
-    bool Apply(std::unique_ptr<IEditCommand> p_cmd, uint32_t p_coalesce) override;
+    bool Apply(std::unique_ptr<IEditCmd> p_cmd, uint32_t p_coalesce) override;
 
     bool CanUndo() const override { return !m_undo.empty(); }
     bool CanRedo() const override { return !m_redo.empty(); }
@@ -36,10 +36,6 @@ public:
 
     void GetRedoLabels(std::vector<std::string>& p_out, int p_max_items) const override;
 
-    SceneId GetPreviewScene() const override {
-        return m_preview_scene;
-    }
-
 private:
     void TouchDirtyAfterEdit() {
         // nothing required here beyond marker comparison;
@@ -57,12 +53,11 @@ protected:
 
     AssetRegistry& m_asset_reg;
     ISceneRegistry& m_scene_reg;
-    SceneId m_preview_scene{};
     Guid m_guid;
 
 private:
-    std::deque<std::unique_ptr<IEditCommand>> m_undo;
-    std::deque<std::unique_ptr<IEditCommand>> m_redo;
+    std::deque<std::unique_ptr<IEditCmd>> m_undo;
+    std::deque<std::unique_ptr<IEditCmd>> m_redo;
 
     size_t m_undo_limit = 0;       // 0 = unlimited
     size_t m_saved_undo_size = 0;  // save marker

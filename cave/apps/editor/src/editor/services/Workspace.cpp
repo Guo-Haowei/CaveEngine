@@ -12,6 +12,36 @@
 
 namespace cave {
 
+// @TODO: SaveDocumentCommand
+#if 0
+/// SaveProjectCommand
+void SaveProjectCommand::Execute(Scene& p_scene) {
+    unused(p_scene);
+    LOG_WARN("TODO: implement SaveProjectCommand");
+    std::string scene;
+    if (scene.empty()) {
+        return;
+    }
+
+    std::filesystem::path path{ scene.empty() ? "untitled.scene" : scene.c_str() };
+    if (m_openDialog || scene.empty()) {
+// @TODO: implement
+#if USING(PLATFORM_WINDOWS)
+        if (!os::OpenSaveDialog(path)) {
+            return;
+        }
+#else
+        LOG_WARN("OpenSaveDialog not implemented");
+#endif
+    }
+
+    auto path_string = path.string();
+
+    [[maybe_unused]] const auto extension = StringUtils::Extension(path_string);
+    LOG_OK("scene saved to '{}'", path.string());
+}
+#endif
+
 Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor) {
 }

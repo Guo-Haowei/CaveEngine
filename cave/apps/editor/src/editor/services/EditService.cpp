@@ -26,36 +26,34 @@ Scene* EditService::ICommand::ResolveScene() {
     return m_editor.GetApp().GetSceneRegistry()->Resolve(m_scene_id);
 }
 
-// @TODO: SaveDocumentCommand
-#if 0
-/// SaveProjectCommand
-void SaveProjectCommand::Execute(Scene& p_scene) {
-    unused(p_scene);
-    LOG_WARN("TODO: implement SaveProjectCommand");
-    std::string scene;
-    if (scene.empty()) {
-        return;
-    }
-
-    std::filesystem::path path{ scene.empty() ? "untitled.scene" : scene.c_str() };
-    if (m_openDialog || scene.empty()) {
-// @TODO: implement
-#if USING(PLATFORM_WINDOWS)
-        if (!os::OpenSaveDialog(path)) {
-            return;
-        }
-#else
-        LOG_WARN("OpenSaveDialog not implemented");
-#endif
-    }
-
-    auto path_string = path.string();
-
-    [[maybe_unused]] const auto extension = StringUtils::Extension(path_string);
-    LOG_OK("scene saved to '{}'", path.string());
+void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd> p_cmd) {
+    m_pending_cmds[p_doc_id].emplace_back(std::move(p_cmd));
 }
-#endif
 
+void EditService::FlushPendingCmds() {
+    CAVE_PROFILE_EVENT();
+
+    for (auto&& [doc_id, pending] : m_pending_cmds) {
+        IDocument* doc = m_editor.DocumentService().Resolve(doc_id);
+        if (DEV_VERIFY(doc)) {
+            for (int i = (int)pending.size() - 1; i >= 0; --i) {
+                doc->Apply(std::move(pending[i]), 0);
+            }
+        }
+    }
+
+    // @TODO: submit to undo queue
+    while (!m_old_pending_commands.empty()) {
+        ICommand* task = m_old_pending_commands.front().get();
+        task->Redo();
+        m_old_pending_commands.pop_front();
+    }
+
+    // auto& undo_stack = I
+    //     task->Redo();
+    //     m_pending_commands.pop_front();
+    // }
+}
 // @TODO: refactor
 static std::string GenerateName(std::string_view p_name) {
     static int s_counter = 0;
@@ -199,7 +197,7 @@ EditService::EditService(EditorState& p_editor)
 void EditService::CommandCreateObject(SceneId p_scene_id,
                                       EntityType p_type,
                                       ecs::Entity p_parent) {
-    m_pending_commands.emplace_back(std::make_unique<CreateObjectCommand>(
+    m_old_pending_commands.emplace_back(std::make_unique<CreateObjectCommand>(
         m_editor,
         p_scene_id,
         p_type,
@@ -209,7 +207,7 @@ void EditService::CommandCreateObject(SceneId p_scene_id,
 void EditService::CommandAddComponent(SceneId p_scene_id,
                                       ComponentName p_type,
                                       ecs::Entity p_target) {
-    m_pending_commands.emplace_back(std::make_unique<AddComponentCommand>(
+    m_old_pending_commands.emplace_back(std::make_unique<AddComponentCommand>(
         m_editor,
         p_scene_id,
         p_type,
@@ -218,7 +216,7 @@ void EditService::CommandAddComponent(SceneId p_scene_id,
 
 void EditService::CommandDeleteObject(SceneId p_scene_id,
                                       ecs::Entity p_target) {
-    m_pending_commands.emplace_back(std::make_unique<DeleteObjectCommand>(
+    m_old_pending_commands.emplace_back(std::make_unique<DeleteObjectCommand>(
         m_editor,
         p_scene_id,
         p_target));
@@ -226,26 +224,10 @@ void EditService::CommandDeleteObject(SceneId p_scene_id,
 
 void EditService::CommandCloneObject(SceneId p_scene_id,
                                      ecs::Entity p_target) {
-    m_pending_commands.emplace_back(std::make_unique<CloneObjectCommand>(
+    m_old_pending_commands.emplace_back(std::make_unique<CloneObjectCommand>(
         m_editor,
         p_scene_id,
         p_target));
-}
-
-void EditService::Flush() {
-    CAVE_PROFILE_EVENT();
-
-    // @TODO: submit to undo queue
-    while (!m_pending_commands.empty()) {
-        ICommand* task = m_pending_commands.front().get();
-        task->Redo();
-        m_pending_commands.pop_front();
-    }
-
-    // auto& undo_stack = I
-    //     task->Redo();
-    //     m_pending_commands.pop_front();
-    // }
 }
 
 }  // namespace cave
