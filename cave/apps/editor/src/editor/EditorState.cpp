@@ -91,9 +91,12 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 
     ImNodes::CreateContext();
 
-    auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
-    if (handle.is_some()) {
-        context.checkerboard = handle.unwrap_unchecked().Wait();
+    {
+        // @TODO: get rid of this
+        auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
+        if (handle.is_some()) {
+            context.checkerboard = handle.unwrap_unchecked().Wait();
+        }
     }
 
     for (auto& panel : m_panels) {
@@ -102,8 +105,11 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 
     if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
         if (auto res = Guid::Parse(asset); res.is_some()) {
-            //Guid guid = res.unwrap_unchecked();
-            //m_document_service->OpenScene(guid);
+            Guid guid = res.unwrap_unchecked();
+            if (auto handle = m_app.GetAssetRegistry()->FindByGuid(guid); handle.is_some()) {
+                AssetHandle handle_ = handle.unwrap_unchecked();
+                m_document_service->OpenDoc({ guid, handle_.GetMeta()->type });
+            }
         }
     }
 }

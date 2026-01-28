@@ -51,8 +51,8 @@ public:
     void Tick(float p_dt);
 
     void Submit(WorkspaceRequest p_req);
-private:
 
+private:
     void OpenOrFocusDoc(DocId p_doc_id);
 
     bool RequestCloseDoc(DocId p_doc_id);

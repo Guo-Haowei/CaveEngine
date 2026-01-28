@@ -37,11 +37,6 @@ DocId DocumentService::OpenDoc(OpenDocDesc p_desc) {
     return doc_id;
 }
 
-//DocId DocumentService::Create(const CreateDocDesc& p_desc) {
-//    unused(p_desc);
-//    return {};
-//}
-
 CloseRequestResult DocumentService::Close(DocId p_id) {
     unused(p_id);
     return {};

@@ -29,8 +29,6 @@ public:
 
     DocId OpenDoc(OpenDocDesc p_desc);
 
-    //DocId Create(const CreateDocDesc& p_desc);
-
     CloseRequestResult Close(DocId p_id);
 
     IDocument* Resolve(DocId p_id) { return Base::Resolve(p_id); }
