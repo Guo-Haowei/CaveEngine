@@ -57,25 +57,25 @@ void ShortcutService::InitShortcuts() {
         },
     };
 
-    auto active_document = [this]() -> OldDocument* {
-        // if (auto tab = m_editor.GetViewer().GetActiveTab(); tab) {
-        //     return &tab->GetDocument();
-        // }
-        return nullptr;
+    auto active_document = [this]() -> DocId {
+        if (auto tab = m_editor.GetViewer().GetActiveTab(); tab) {
+            return tab->GetDocId();
+        }
+        return DocId{};
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Redo)] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [active_document]() { auto doc = active_document(); if (doc) doc->Redo(); },
-        [active_document]() { auto doc = active_document(); return doc ? doc ->CanRedo() : false; }
+        [active_document, this]() { m_editor.EditService().Redo(active_document()); },
+        [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Undo)] = {
         "Undo",
         "Ctrl+Z",
-        [active_document]() { auto doc = active_document(); if (doc) doc->Undo(); },
-        [active_document]() { auto doc = active_document(); return doc ? doc ->CanUndo() : false; }
+        [active_document, this]() { m_editor.EditService().Undo(active_document()); },
+        [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Debug)] = {

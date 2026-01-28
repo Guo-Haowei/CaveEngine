@@ -77,6 +77,7 @@ EditorState::~EditorState() {
 }
 
 void EditorState::OnEnter(const StateRequest& p_args) {
+    CAVE_PROFILE_EVENT();
     unused(p_args);
 
     const char* module_name = "game_Debug.dll";
@@ -108,6 +109,8 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 }
 
 void EditorState::OnExit() {
+    CAVE_PROFILE_EVENT();
+
     if (IsPlaying()) {
         m_runtime_host->Stop();
     }
