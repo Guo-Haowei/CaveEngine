@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/EditorItem.h"
+#include "editor/IEditorItem.h"
 
 namespace cave {
 
@@ -10,10 +10,10 @@ struct WindowState {
     bool focused{ false };
 };
 
-class EditorWindow : public EditorItem {
+class EditorWindow : public IEditorItem {
 public:
     EditorWindow(EditorState& p_editor)
-        : EditorItem(p_editor) {}
+        : IEditorItem(p_editor) {}
 
     void Update(float p_timestep) override;
 

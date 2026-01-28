@@ -22,14 +22,6 @@ public:
         return Remove(p_doc);
     }
 
-    bool CanCoalesceWith(const IEditCmd*) const override {
-        return false;
-    }
-
-    void CoalesceFrom(std::unique_ptr<IEditCmd>) override {
-        return;
-    }
-
 protected:
     bool Add(IDocument& p_doc, T* p_value) {
         if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {

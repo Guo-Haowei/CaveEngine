@@ -1,11 +1,10 @@
 #pragma once
-#include <cave/runtime/framework/IApplication.h>
+#include "cave/runtime/ecs/Entity.h"
+#include "cave/runtime/framework/IApplication.h"
 
 // @TODO: check if all the includes are necessary
 #include <engine/private/runtime/framework/AppState.h>
 #include <engine/private/assets/asset_handle.h>
-#include <engine/private/runtime/scene/scene.h>
-#include <engine/private/runtime/scene/SceneComponent.h>
 
 #include "editor/EditorWindow.h"
 #include "editor/services/ShortcutDesc.h"
@@ -75,6 +74,9 @@ public:
     ShortcutService& ShortcutService() { return *m_shortcut_service; }
     Workspace& Workspace() { return *m_workspace; }
 
+    // @TODO: move it to utility
+    void OpenAddEntityPopup(ecs::Entity p_parent);
+
 private:
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
     void CommitModeSwitch();
@@ -96,7 +98,7 @@ private:
     std::shared_ptr<MenuBar> m_menu_bar;
     std::shared_ptr<Viewer> m_viewer;
 
-    std::vector<std::shared_ptr<EditorItem>> m_panels;
+    std::vector<std::shared_ptr<IEditorItem>> m_panels;
 
     // @TODO: refactor the following
     LoadedGameModule m_module{};
@@ -107,7 +109,7 @@ public:
 
 private:
     void DockSpace();
-    void AddPanel(std::shared_ptr<EditorItem> p_panel);
+    void AddPanel(std::shared_ptr<IEditorItem> p_panel);
 };
 
 }  // namespace cave

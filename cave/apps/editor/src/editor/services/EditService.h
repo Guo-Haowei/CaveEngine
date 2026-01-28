@@ -55,10 +55,6 @@ public:
         SceneId m_scene_id;
     };
 
-    void CommandCreateObject(SceneId p_scene_id,
-                             EntityType p_type,
-                             ecs::Entity p_parent);
-
     void CommandDeleteObject(SceneId p_scene_id,
                              ecs::Entity p_target);
 

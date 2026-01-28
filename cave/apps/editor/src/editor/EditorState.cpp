@@ -27,6 +27,7 @@
 #include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/ui/layout.h"
 
+#include "editor/edit/EditObjectCmd.h"
 #include "editor/document/Document.h"
 #include "editor/EditorDvars.h"
 #include "editor/panels/AssetInspector.h"
@@ -189,7 +190,7 @@ void EditorState::CommitModeSwitch() {
     m_switch_mode_requested = false;
 }
 
-void EditorState::AddPanel(std::shared_ptr<EditorItem> p_panel) {
+void EditorState::AddPanel(std::shared_ptr<IEditorItem> p_panel) {
     m_panels.emplace_back(p_panel);
 }
 
@@ -218,6 +219,25 @@ void EditorState::DockSpace() {
     });
 
     return;
+}
+
+void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
+    ViewerTab* tab = m_workspace->GetActiveTab();
+    DocId doc_id = tab ? tab->GetDocId() : DocId{};
+
+    if (ImGui::BeginMenu("Add")) {
+#define ENTITY_TYPE(NAME, SEP)                                                           \
+    if (ImGui::MenuItem(#NAME)) {                                                        \
+        auto cmd = std::make_unique<AddObjectCmd>(GetApp(), p_parent, EntityType::NAME); \
+        m_edit_service->Submit(doc_id, std::move(cmd));                                  \
+    }                                                                                    \
+    if constexpr (SEP) {                                                                 \
+        ImGui::Separator();                                                              \
+    }
+        ENTITY_TYPE_LIST
+#undef ENTITY_TYPE
+        ImGui::EndMenu();
+    }
 }
 
 }  // namespace cave

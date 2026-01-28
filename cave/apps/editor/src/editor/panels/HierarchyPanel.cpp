@@ -239,7 +239,8 @@ void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
     // SceneId scene_id = tab ? tab->GetSceneId() : SceneId{};
 
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
-        OpenAddEntityPopup(ecs::Entity{});
+        m_editor.OpenAddEntityPopup(ecs::Entity{});
+
         if (ImGui::MenuItem("Copy")) {
             // if (selected.IsValid()) {
             //     // p_tab->SetCopiedEntity(selected);

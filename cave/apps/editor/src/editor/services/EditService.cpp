@@ -78,55 +78,6 @@ IDocument* EditService::ResolveDoc(DocId p_doc_id) {
 }
 
 // @TODO: refactor
-static std::string GenerateName(std::string_view p_name) {
-    static int s_counter = 0;
-    return std::format("{}-{}", p_name, ++s_counter);
-}
-
-class CreateObjectCommand : public EditService::ICommand {
-public:
-    CreateObjectCommand(EditorState& p_editor,
-                        SceneId p_scene_id,
-                        EntityType p_type,
-                        ecs::Entity p_parent)
-        : EditService::ICommand(p_editor, p_scene_id)
-        , m_type(p_type)
-        , m_parent(p_parent) {}
-
-    bool Undo() override {
-        return false;
-    }
-
-    bool Redo() override {
-        Scene* scene = ResolveScene();
-        if (!scene) return false;
-
-        ecs::Entity id;
-        switch (m_type) {
-#define ENTITY_TYPE(NAME, ...)                                                 \
-    case EntityType::NAME: {                                                   \
-        id = EntityFactory::Create##NAME##Entity(*scene, GenerateName(#NAME)); \
-    } break;
-            ENTITY_TYPE_LIST
-#undef ENTITY_TYPE
-            default:
-                LOG_FATAL("Entity type {} not supported", static_cast<int>(m_type));
-                break;
-        }
-
-        if (scene->m_root.IsValid()) {
-            scene->AttachChild(id, m_parent.IsValid() ? m_parent : scene->m_root);
-        } else {
-            scene->m_root = id;
-        }
-
-        return true;
-    }
-
-protected:
-    EntityType m_type;
-    ecs::Entity m_parent;
-};
 
 class DeleteObjectCommand : public EditService::ICommand {
 public:
@@ -177,16 +128,6 @@ private:
 
 EditService::EditService(EditorState& p_editor)
     : m_editor(p_editor) {}
-
-void EditService::CommandCreateObject(SceneId p_scene_id,
-                                      EntityType p_type,
-                                      ecs::Entity p_parent) {
-    m_old_pending_commands.emplace_back(std::make_unique<CreateObjectCommand>(
-        m_editor,
-        p_scene_id,
-        p_type,
-        p_parent));
-}
 
 void EditService::CommandDeleteObject(SceneId p_scene_id,
                                       ecs::Entity p_target) {

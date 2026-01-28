@@ -157,13 +157,13 @@ std::tuple<int, int> GlfwDisplayManager::GetWindowSize() { return std::tuple<int
 
 std::tuple<int, int> GlfwDisplayManager::GetWindowPos() { return std::tuple<int, int>(m_windowPos.x, m_windowPos.y); }
 
-void GlfwDisplayManager::WindowSizeCallback(GLFWwindow* p_window, int p_width, int p_height) {
-    auto window = reinterpret_cast<GlfwDisplayManager*>(glfwGetWindowUserPointer(p_window));
+void GlfwDisplayManager::WindowSizeCallback(GLFWwindow*, int p_width, int p_height) {
+    GlfwDisplayManager& window = reinterpret_cast<GlfwDisplayManager&>(IDisplayManager::GetSingleton());
 
     auto event = std::make_shared<ResizeEvent>(p_width, p_height);
-    window->m_frameSize.x = p_width;
-    window->m_frameSize.y = p_height;
-    window->m_app->GetEventQueue().DispatchEvent(event);
+    window.m_frameSize.x = p_width;
+    window.m_frameSize.y = p_height;
+    window.m_app->GetEventQueue().DispatchEvent(event);
 }
 
 }  // namespace cave

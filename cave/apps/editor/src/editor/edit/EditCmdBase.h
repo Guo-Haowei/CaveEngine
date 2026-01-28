@@ -16,6 +16,14 @@ public:
     EditCmdBase(IApplication& p_app,
                 ecs::Entity p_entity);
 
+    bool CanCoalesceWith(const IEditCmd*) const override {
+        return false;
+    }
+
+    void CoalesceFrom(std::unique_ptr<IEditCmd>) override {
+        return;
+    }
+
 protected:
     Scene* ResolveScene(SceneId p_scene_id);
     ecs::Entity m_entity;
