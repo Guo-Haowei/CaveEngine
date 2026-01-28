@@ -6,7 +6,7 @@
 #include <engine/private/runtime/framework/AppState.h>
 #include <engine/private/assets/asset_handle.h>
 
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 #include "editor/services/ShortcutDesc.h"
 #include "editor/viewer/ViewerTab.h"
 

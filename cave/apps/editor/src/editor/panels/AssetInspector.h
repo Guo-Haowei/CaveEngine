@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/assets/asset_interface.h"
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 
 namespace cave {
 

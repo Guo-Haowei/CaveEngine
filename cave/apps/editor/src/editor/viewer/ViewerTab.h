@@ -72,10 +72,6 @@ public:
 
     void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) override;
 
-    int GetPriority() const override { return 10; }
-
-    void OnEvents(const std::vector<InputEvent>& p_events) override;
-
     Dimension GetDimension() const { return m_dimension; }
 
 protected:

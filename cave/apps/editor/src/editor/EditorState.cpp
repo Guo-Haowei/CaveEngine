@@ -144,7 +144,7 @@ void EditorState::Tick(float p_dt) {
     for (auto& it : m_panels) it->DrawUI();
 
     m_edit_service->FlushPendingCmds();
-    m_workspace->Tick(p_dt);
+    m_workspace->Tick();
 
     ImGui::Render();
 

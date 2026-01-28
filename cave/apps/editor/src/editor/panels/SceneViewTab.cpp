@@ -1,4 +1,4 @@
-#include "SceneEditor.h"
+#include "SceneViewTab.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
@@ -120,6 +120,10 @@ void SceneEditor::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
     }
 }
 
+void SceneEditor::OnInputEvents(const std::vector<InputEvent>& p_events) {
+    unused(p_events);
+}
+
 // @TODO: rename this to DrawEditor
 #if 0
 void SceneEditor::DrawMainView(const CameraComponent&) {
@@ -198,22 +202,6 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
         //                         ImVec2(size, size),
         //                         IM_COL32(64, 64, 64, 96));
     }
-}
-#endif
-
-#if 0
-bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
-    // select
-    if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
-        if (e->IsButtonPressed(MouseButton::RIGHT)) {
-            Vector2f clicked = e->GetPos();
-            Select(clicked);
-            return true;
-        }
-    }
-    DEV_ASSERT(0);
-
-    return false;
 }
 #endif
 

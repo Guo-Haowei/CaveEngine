@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 
 #include "cave/runtime/input/IInputConsumer.h"
 #include "engine/private/runtime/framework/SceneView.h"
@@ -17,8 +17,7 @@ enum ViewDimension : uint8_t {
     DIMENSION_3,
 };
 
-class Tab : public EditorWindow,
-            public IInputConsumer {
+class Tab : public EditorWindow {
 public:
     Tab(EditorState& p_editor,
         DocId p_doc_id,
@@ -31,14 +30,11 @@ public:
     virtual void OnCreate();
     virtual void OnDestroy();
 
-    int GetPriority() const override { return 10; }
-
-    // @TODO: workspace decide which view the input should route to
-    void OnEvents(const std::vector<InputEvent>&) override {}
-
     ViewDimension GetDimension() const { return m_dim; }
 
     DocId GetDocId() const { return m_doc_id; }
+
+    virtual void OnInputEvents(const std::vector<InputEvent>&) {}
 
 protected:
     void DrawUIImpl() override;

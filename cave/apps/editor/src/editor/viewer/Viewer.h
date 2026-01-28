@@ -1,7 +1,7 @@
 #pragma once
 
 // @TODO: refactor
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 
 namespace cave {
 

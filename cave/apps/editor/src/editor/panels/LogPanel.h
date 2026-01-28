@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/runtime/core/io/logger.h"
 
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 
 namespace cave {
 

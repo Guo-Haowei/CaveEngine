@@ -2,7 +2,7 @@
 #include "engine/private/runtime/core/GenIdRegistry.h"
 
 #include "editor/document/DocumentTypes.h"
-#include "editor/windows/Tab.h"
+#include "editor/panels/Tab.h"
 
 namespace cave {
 
@@ -42,11 +42,13 @@ struct WorkspaceRequest {
 using TabId = GenId<Tab>;
 
 class Workspace : public GenIdRegistry<Tab>,
-                  public ISceneViewProvider {
+                  public ISceneViewProvider,
+                  public IInputConsumer {
 public:
     Workspace(EditorState& p_editor);
+    ~Workspace();
 
-    void Tick(float p_dt);
+    void Tick();
 
     void Submit(WorkspaceRequest p_req);
 
@@ -56,6 +58,19 @@ public:
 
     void BuildViews(std::vector<SceneView>& p_out_views,
                     bool p_is_opengl) final;
+
+    void OnEvents(const std::vector<InputEvent>& p_events) final;
+
+    int GetPriority() const final { return 10; }
+
+    //----------------------------------------------------------------
+    // @TODO: deprecate below apis
+
+public:
+    void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
+
+    // void SetCloseRequest(const TabId& p_id) { m_close_request = Some(p_id); }
+    void HandleCloseRequest();
 
 private:
     void OpenOrFocusDoc(DocId p_doc_id);
@@ -71,21 +86,15 @@ private:
     // Focus/activate
     bool FocusDoc(DocId doc_id);
 
+    void FlushPendingRequests();
+    void DrawTabs();
+
     EditorState& m_editor;
     TabId m_focused_tab{};
     TabId m_focused_req{};
 
     std::vector<WorkspaceRequest> m_pending_reqs;
     std::unordered_map<DocId, TabId> m_doc_to_tab;
-
-    //----------------------------------------------------------------
-    // @TODO: deprecate below apis
-
-public:
-    void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
-
-    // void SetCloseRequest(const TabId& p_id) { m_close_request = Some(p_id); }
-    void HandleCloseRequest();
 };
 
 }  // namespace cave

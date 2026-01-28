@@ -1,58 +1,39 @@
 #include "Workspace.h"
 
+#include "engine/private/runtime/framework/InputSystem.h"
+
 #include "editor/document/DocumentService.h"
 #include "editor/EditorState.h"
 
 // @TODO: delete
-#include "editor/EditorDvars.h"
-#include "editor/scene_editor/SceneEditor.h"
-#include "engine/private/runtime/framework/ViewportManager.h"
+#include "editor/panels/SceneViewTab.h"
+//#include "engine/private/runtime/framework/ViewportManager.h"
 
 namespace cave {
 
-// @TODO: SaveDocumentCommand
-#if 0
-/// SaveProjectCommand
-void SaveProjectCommand::Execute(Scene& p_scene) {
-    unused(p_scene);
-    LOG_WARN("TODO: implement SaveProjectCommand");
-    std::string scene;
-    if (scene.empty()) {
-        return;
-    }
-
-    std::filesystem::path path{ scene.empty() ? "untitled.scene" : scene.c_str() };
-    if (m_openDialog || scene.empty()) {
-// @TODO: implement
-#if USING(PLATFORM_WINDOWS)
-        if (!os::OpenSaveDialog(path)) {
-            return;
-        }
-#else
-        LOG_WARN("OpenSaveDialog not implemented");
-#endif
-    }
-
-    auto path_string = path.string();
-
-    [[maybe_unused]] const auto extension = StringUtils::Extension(path_string);
-    LOG_OK("scene saved to '{}'", path.string());
-}
-#endif
-
 Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor) {
+
+    IApplication& app = m_editor.GetApp();
+    app.GetInputSystem()->Router().Register(this);
+}
+
+Workspace::~Workspace() {
+    IApplication& app = m_editor.GetApp();
+
+    app.GetInputSystem()->Router().Unregister(this);
+}
+
+void Workspace::Tick() {
+    FlushPendingRequests();
+    DrawTabs();
 }
 
 void Workspace::Submit(WorkspaceRequest p_req) {
     m_pending_reqs.emplace_back(std::move(p_req));
 }
 
-void Workspace::Tick(float p_dt) {
-    unused(p_dt);
-
-    // test window generation
-
+void Workspace::FlushPendingRequests() {
     for (WorkspaceRequest& req : m_pending_reqs) {
         switch (req.type) {
             case WorkspaceRequest::Type::OpenDoc: {
@@ -69,7 +50,9 @@ void Workspace::Tick(float p_dt) {
     }
 
     m_pending_reqs.clear();
+}
 
+void Workspace::DrawTabs() {
     for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
         auto& slot = m_slots[idx];
         if (slot.storage) {
@@ -96,6 +79,16 @@ void Workspace::BuildViews(std::vector<SceneView>& p_out_views,
             if (SceneEditor* scene_tab = dynamic_cast<SceneEditor*>(tab)) {
                 scene_tab->BuildViews(p_out_views, p_is_opengl);
             }
+        }
+    }
+}
+
+void Workspace::OnEvents(const std::vector<InputEvent>& p_events) {
+    for (size_t i = 0; i < m_slots.size(); ++i) {
+        Tab* tab = m_slots[i].storage.get();
+        if (tab && tab->IsFocused()) {
+            tab->OnInputEvents(p_events);
+            break;
         }
     }
 }
@@ -168,15 +161,6 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 
     ViewportManager* viewport_manager = m_editor.GetApp().GetViewportManager();
     viewport_manager->CreateViewport(tab);
-
-    // DVAR_SET_STRING(last_open_asset, p_guid.ToString());
-    tab->OnCreate(meta->guid);
-    tab->OnActivate();
-    // @TODO: set active tab
-    LOG_VERBOSE("tab {} created", tab->GetTitle());
-
-    m_old_tabs[p_doc_id] = tab;
-    m_active_tab = tab.get();
 #endif
 }
 

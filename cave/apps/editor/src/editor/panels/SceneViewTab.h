@@ -1,9 +1,9 @@
 #pragma once
 #include "editor/document/SceneDocument.h"
-#include "editor/windows/Tab.h"
+#include "editor/panels/Tab.h"
 
 // @TODO: refactor
-#include "../Enums.h"
+#include "editor/Enums.h"
 #include "engine/private/runtime/scene/CameraController.h"
 
 namespace cave {
@@ -22,6 +22,8 @@ public:
     void OnDestroy() final;
 
     void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
+
+    void OnInputEvents(const std::vector<InputEvent>& p_events) override;
 
     // @TODO: cleanup
     void BuildViews(std::vector<SceneView>& p_out_views,
