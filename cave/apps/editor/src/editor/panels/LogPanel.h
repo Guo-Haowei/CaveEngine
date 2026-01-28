@@ -15,7 +15,7 @@ public:
     }
 
 protected:
-    void UpdateInternal(float p_timestep) override;
+    void DrawUIImpl(float p_timestep) override;
 
     bool m_auto_scroll{ true };
     bool m_scroll_to_bottom{ false };

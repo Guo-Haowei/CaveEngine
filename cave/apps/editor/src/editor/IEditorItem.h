@@ -15,7 +15,7 @@ public:
     virtual ~IEditorItem() = default;
 
     virtual void OnAttach() {}
-    virtual void Update(float p_timestep) = 0;
+    virtual void DrawUI(float p_timestep) = 0;
 
 protected:
     EditorState& m_editor;

@@ -17,7 +17,7 @@ public:
     }
 
 protected:
-    void UpdateInternal(float p_timestep) override;
+    void DrawUIImpl(float p_timestep) override;
 
 private:
     void DrawPopup(const FocusedPreviewScene& p_ctx);

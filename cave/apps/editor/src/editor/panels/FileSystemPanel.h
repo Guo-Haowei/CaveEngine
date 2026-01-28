@@ -16,7 +16,7 @@ public:
     }
 
 protected:
-    void UpdateInternal(float p_timestep) override;
+    void DrawUIImpl(float p_timestep) override;
 
     void DrawFolderTreeNode(const ContentEntry& p_node);
 

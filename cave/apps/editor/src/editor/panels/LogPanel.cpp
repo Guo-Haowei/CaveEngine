@@ -29,7 +29,7 @@ static void DrawLog(const LogEvent& p_log) {
     ImGui::PopStyleColor();
 }
 
-void LogPanel::UpdateInternal(float) {
+void LogPanel::DrawUIImpl(float) {
     CAVE_PROFILE_EVENT();
 
     ImGui::Separator();

@@ -211,7 +211,7 @@ bool DrawComponentAuto(T* p_component) {
     return (bool)dirty;
 }
 
-void PropertyPanel::UpdateInternal(float) {
+void PropertyPanel::DrawUIImpl(float) {
     CAVE_PROFILE_EVENT();
 
     FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();

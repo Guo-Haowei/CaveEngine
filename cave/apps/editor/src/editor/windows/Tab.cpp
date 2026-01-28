@@ -15,7 +15,7 @@ Tab::Tab(EditorState& p_editor,
     , m_dim(p_dim)
     , m_doc_id(p_doc_id) {}
 
-void Tab::UpdateInternal(float p_dt) {
+void Tab::DrawUIImpl(float p_dt) {
     unused(p_dt);
 
     // ImGui::Text("%s", m_window_id.c_str());
