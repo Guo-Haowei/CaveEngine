@@ -13,7 +13,7 @@ public:
     }
 
 protected:
-    void DrawUIImpl(float p_timestep) override;
+    void DrawUIImpl() override;
 };
 
 }  // namespace cave

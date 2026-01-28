@@ -31,7 +31,7 @@ public:
     EditorWindow(EditorState& p_editor)
         : IEditorItem(p_editor) {}
 
-    void DrawUI(float p_timestep) override;
+    void DrawUI() override;
 
     virtual const char* GetWindowId() const = 0;
 
@@ -41,7 +41,7 @@ public:
     bool IsHovered() const { return m_state.hovered; }
 
 protected:
-    virtual void DrawUIImpl(float p_timestep) = 0;
+    virtual void DrawUIImpl() = 0;
 
     WindowState m_state;
 

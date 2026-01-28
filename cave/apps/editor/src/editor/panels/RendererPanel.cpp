@@ -33,7 +33,7 @@ static void CollapseWindow(const std::string& p_window_name, std::function<void(
     }
 }
 
-void RendererPanel::DrawUIImpl(float) {
+void RendererPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 
     ImGui::Text("Debug");

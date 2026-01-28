@@ -41,7 +41,7 @@ public:
     DocId GetDocId() const { return m_doc_id; }
 
 protected:
-    void DrawUIImpl(float p_dt) override;
+    void DrawUIImpl() override;
 
     // virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const;
 

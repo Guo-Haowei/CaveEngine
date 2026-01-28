@@ -79,7 +79,7 @@ void Workspace::Tick(float p_dt) {
                 ImGui::SetNextWindowFocus();
                 m_focused_req = TabId();
             }
-            tab.DrawUI(p_dt);
+            tab.DrawUI();
 
             if (tab.IsFocused()) {
                 m_focused_tab = current;

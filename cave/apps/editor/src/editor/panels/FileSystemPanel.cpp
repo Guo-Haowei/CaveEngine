@@ -93,7 +93,7 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
     }
 }
 
-void FileSystemPanel::DrawUIImpl(float) {
+void FileSystemPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());

@@ -205,7 +205,7 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
     return true;
 }
 
-void HierarchyPanel::DrawUIImpl(float) {
+void HierarchyPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
     FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
     if (preview.scene) {

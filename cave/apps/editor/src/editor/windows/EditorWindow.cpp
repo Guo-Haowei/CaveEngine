@@ -2,7 +2,7 @@
 
 namespace cave {
 
-void EditorWindow::DrawUI(float p_timestep) {
+void EditorWindow::DrawUI() {
     m_state = {};
     m_rect = {};
     if (ImGui::Begin(GetWindowId(), nullptr, m_flags)) {
@@ -17,7 +17,7 @@ void EditorWindow::DrawUI(float p_timestep) {
         m_rect.y = pos.y;
         m_rect.w = size.x;
         m_rect.h = size.y;
-        DrawUIImpl(p_timestep);
+        DrawUIImpl();
     }
     ImGui::End();
 }

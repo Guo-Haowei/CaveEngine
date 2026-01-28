@@ -9,7 +9,7 @@ public:
     MenuBar(EditorState& p_editor)
         : IEditorItem(p_editor) {}
 
-    void DrawUI(float p_timestep) override;
+    void DrawUI() override;
 };
 
 }  // namespace cave

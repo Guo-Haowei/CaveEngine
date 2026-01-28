@@ -17,7 +17,7 @@ public:
     }
 
 protected:
-    void DrawUIImpl(float p_timestep) override;
+    void DrawUIImpl() override;
     void DrawNodes(const RenderGraph& p_graph);
 
     bool m_firstFrame{ true };

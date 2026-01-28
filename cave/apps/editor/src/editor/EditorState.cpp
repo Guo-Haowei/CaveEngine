@@ -141,8 +141,7 @@ void EditorState::Tick(float p_dt) {
     imgui_manager->BeginFrame();
 
     DockSpace();
-    for (auto& it : m_panels)
-        it->DrawUI(p_dt);
+    for (auto& it : m_panels) it->DrawUI();
 
     m_edit_service->FlushPendingCmds();
     m_workspace->Tick(p_dt);
@@ -201,7 +200,7 @@ void EditorState::DockSpace() {
 
     ui::DockSpace({
         "DockSpace Demo",
-        [this]() { m_menu_bar->DrawUI(0.0f); },
+        [this]() { m_menu_bar->DrawUI(); },
         [this]() {
             CompositeLogger& logger = CompositeLogger::GetSingleton();
             const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
