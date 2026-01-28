@@ -28,8 +28,7 @@ using Rect32f = RectT<float>;
 
 class EditorWindow : public IEditorItem {
 public:
-    EditorWindow(EditorState& p_editor)
-        : IEditorItem(p_editor) {}
+    EditorWindow(EditorState& p_editor);
 
     void DrawUI() override;
 
@@ -42,6 +41,8 @@ public:
 
 protected:
     virtual void DrawUIImpl() = 0;
+    void ResetState();
+    void UpdateState();
 
     WindowState m_state;
 

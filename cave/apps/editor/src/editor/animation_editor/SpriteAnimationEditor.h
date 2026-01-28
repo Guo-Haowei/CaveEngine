@@ -17,7 +17,7 @@ class Viewer;
 
 using SpriteAnimationDocument = OldDocument;
 
-class SpriteAnimationEditor : public ViewerTab {
+class SpriteAnimationEditor {
 public:
     SpriteAnimationEditor(EditorState& p_editor, Viewer& p_viewer);
 

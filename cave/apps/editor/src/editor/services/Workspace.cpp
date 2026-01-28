@@ -50,6 +50,7 @@ void Workspace::FlushPendingRequests() {
                 // OpenOrFocusDoc(req.doc_id);
             } break;
             case WorkspaceRequest::Type::CloseDoc: {
+                CloseDoc(req.doc_id);
             } break;
             default:
                 break;
@@ -64,15 +65,16 @@ void Workspace::DrawTabs() {
         auto& slot = m_slots[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
-            TabId current = TabId(idx, slot.gen);
-            if (m_focused_req == current) {
+            TabId current_id = tab.GetTabId();
+            DEV_ASSERT(current_id == TabId(idx, slot.gen));
+            if (m_focused_req == current_id) {
                 ImGui::SetNextWindowFocus();
                 m_focused_req = TabId();
             }
             tab.DrawUI();
 
             if (tab.IsFocused()) {
-                m_focused_tab = current;
+                m_focused_tab = current_id;
             }
         }
     }
@@ -133,9 +135,10 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
         } break;
     }
 
-    TabId tab_id = Create(std::move(tab));
+    const TabId tab_id = Create(std::move(tab));
 
     Tab* tab_raw = (m_slots[tab_id.index].storage).get();
+    tab_raw->SetTabId(tab_id);
     tab_raw->SetTitleAndId(meta->name, tab_id.index);
     tab_raw->OnCreate();
     m_focused_req = tab_id;
@@ -143,8 +146,6 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 
 #if 0
     // @TODO: create a new tab
-    std::shared_ptr<ViewerTab> tab;
-    Viewer& viewer = m_editor.GetViewer();
     switch (meta->type) {
         case AssetType::Scene: {
         } break;
@@ -170,34 +171,23 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 #endif
 }
 
-//-------------- DEPRECATE ------------------
+bool Workspace::CloseDoc(DocId p_doc_id) {
+    auto it = m_doc_to_tab.find(p_doc_id);
+    DEV_ASSERT(it != m_doc_to_tab.end());
+    
+    const TabId tab_id = it->second;
+    Tab* tab = Resolve(tab_id);
+    DEV_ASSERT(tab->GetDocId() == p_doc_id);
+    tab->OnDestroy();
+    Destroy(tab_id);
+    m_doc_to_tab.erase(p_doc_id);
 
-void Workspace::HandleCloseRequest() {
-#if 0
-    RequestSaveDialog([&](SaveDialogResponse p_response) {
-        auto it = m_old_tabs.find(m_close_request.unwrap());
-        std::shared_ptr<ViewerTab> to_close = it->second;
-        DEV_ASSERT(it != m_old_tabs.end());
-        switch (p_response) {
-            case SaveDialogResponse::Save:
-                to_close->GetDocument().Save();
-                // @TODO: save
-                [[fallthrough]];
-            case SaveDialogResponse::Discard: {
-                // remove the tab
-                m_old_tabs.erase(it);
-                to_close->OnDeactivate();
-                to_close->OnDestroy();
-            } break;
-            case SaveDialogResponse::Cancel:
-                break;
-        }
-
-        m_close_request = None();
-    });
-#endif
+    // close doc
+    m_editor.DocumentService().Close(p_doc_id);
+    return true;
 }
 
+#if 0
 void Workspace::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
     ImGui::OpenPopup("Save changes to");
     if (ImGui::BeginPopupModal("Save changes to")) {
@@ -219,5 +209,6 @@ void Workspace::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_c
         ImGui::EndPopup();
     }
 }
+#endif
 
 }  // namespace cave

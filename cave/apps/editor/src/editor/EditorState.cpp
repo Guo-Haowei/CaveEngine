@@ -17,6 +17,7 @@
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
+#include "Enums.h"
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
@@ -235,13 +236,9 @@ FocusedPreviewScene EditorState::GetFocusedPreviewScene() {
 }
 
 void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
-    unused(p_parent);
     if (ImGui::BeginMenu("Add")) {
-        DEV_ASSERT(0);
-#if 0
-        ViewerTab* tab = nullptr;
-        DEV_ASSERT(tab);
-        DocId doc_id = tab ? tab->GetDocId() : DocId{};
+        FocusedPreviewScene preview = GetFocusedPreviewScene();
+        DocId doc_id = preview.doc_id;
 #define ENTITY_TYPE(NAME, SEP)                                                           \
     if (ImGui::MenuItem(#NAME)) {                                                        \
         auto cmd = std::make_unique<AddObjectCmd>(GetApp(), p_parent, EntityType::NAME); \
@@ -252,7 +249,6 @@ void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
     }
         ENTITY_TYPE_LIST
 #undef ENTITY_TYPE
-#endif
         ImGui::EndMenu();
     }
 }

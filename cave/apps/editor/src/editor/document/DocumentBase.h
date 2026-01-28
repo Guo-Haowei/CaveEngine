@@ -37,8 +37,8 @@ public:
 
     void GetRedoLabels(std::vector<std::string>& p_out, int p_max_items) const override;
 
-    bool Save() { return false; }
-    bool SaveAs(std::string_view) { return false; }
+    bool Save() override;
+    bool SaveAs(std::string_view) override;
 
 private:
     void TouchDirtyAfterEdit() {

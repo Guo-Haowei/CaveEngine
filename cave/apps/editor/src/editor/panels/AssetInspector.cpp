@@ -38,7 +38,7 @@ void AssetInspector::OnAttach() {
 void AssetInspector::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 #if 0
-    if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
+    if (tab) {
         tab->DrawAssetInspector();
     } else {
         DrawContentBrowser();

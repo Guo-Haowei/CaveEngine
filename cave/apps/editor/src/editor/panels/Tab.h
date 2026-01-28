@@ -12,6 +12,10 @@
 
 namespace cave {
 
+class Tab;
+
+using TabId = GenId<Tab>;
+
 class Tab : public EditorWindow {
 public:
     Tab(EditorState& p_editor, DocId p_doc_id);
@@ -23,11 +27,16 @@ public:
     virtual void OnCreate();
     virtual void OnDestroy();
 
-    DocId GetDocId() const { return m_doc_id; }
+    void DrawUI() override;
 
     virtual void OnInputEvents(const std::vector<InputEvent>&) {}
 
     virtual void Tick(float);
+
+    DocId GetDocId() const { return m_doc_id; }
+
+    TabId GetTabId() const { return m_tab_id; }
+    void SetTabId(TabId p_tab_id) { m_tab_id = p_tab_id; }
 
 protected:
     void DrawUIImpl() override;
@@ -35,9 +44,10 @@ protected:
     // virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const;
 
     DocId m_doc_id;
+    TabId m_tab_id;
+    uint32_t m_idx{ 0 };
     std::string m_window_id;
     std::string m_title;
-    uint32_t m_idx{ 0 };
 };
 
 }  // namespace cave

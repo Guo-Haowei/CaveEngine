@@ -105,4 +105,12 @@ void DocumentBase::TrimUndoIfNeeded() {
     }
 }
 
+bool DocumentBase::Save() {
+    return m_asset_reg.SaveAsset(m_guid);
+}
+
+bool DocumentBase::SaveAs(std::string_view) {
+    return false;
+}
+
 }  // namespace cave

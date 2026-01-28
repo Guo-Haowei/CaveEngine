@@ -8,7 +8,6 @@ namespace cave {
 
 class EditorState;
 class Guid;
-class ViewerTab;
 
 enum class SaveDialogResponse {
     Save,
@@ -43,18 +42,22 @@ struct WorkspaceRequest {
     DocId doc_id{};
     std::string path;
 
-    static WorkspaceRequest OpenDoc(DocId p_doc_id) {
+    static WorkspaceRequest Open(DocId p_doc_id) {
         WorkspaceRequest req{};
         req.type = Type::OpenDoc;
         req.doc_id = p_doc_id;
         return req;
     }
+
+    static WorkspaceRequest Close(DocId p_doc_id) {
+        WorkspaceRequest req{};
+        req.type = Type::CloseDoc;
+        req.doc_id = p_doc_id;
+        return req;
+    }
 };
 
-// @TODO: tab allocator
-using TabId = GenId<Tab>;
-
-class Workspace : public GenIdRegistry<Tab>,
+class Workspace : protected GenIdRegistry<Tab>,
                   public ISceneViewProvider,
                   public IInputConsumer {
 public:
@@ -76,21 +79,10 @@ public:
 
     int GetPriority() const final { return 10; }
 
-    //----------------------------------------------------------------
-    // @TODO: deprecate below apis
-
-public:
-    void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
-
-    // void SetCloseRequest(const TabId& p_id) { m_close_request = Some(p_id); }
-    void HandleCloseRequest();
-
 private:
     void OpenOrFocusDoc(DocId p_doc_id);
 
-    bool RequestCloseDoc(DocId p_doc_id);
-
-    // bool RequestCloseTab(ViewerTabId p_tab_id);
+    bool CloseDoc(DocId p_doc_id);
 
     bool RequestCloseAll();
 

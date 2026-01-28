@@ -12,7 +12,7 @@ class AssetRegistry;
 class Scene;
 class TileMapDocument;
 
-class TileMapEditor : public ViewerTab {
+class TileMapEditor {
 public:
     TileMapEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileMapEditor();

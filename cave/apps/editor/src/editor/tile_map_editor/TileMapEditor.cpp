@@ -66,8 +66,6 @@ void TileMapEditor::OnActivateInternal() {
 }
 
 void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {
-    ViewerTab::DrawMainView(p_camera);
-
     const Matrix4x4f proj_view = p_camera.GetProjectionViewMatrix();
 
     const Vector2f& canvas_min = m_viewer.GetCanvasMin();

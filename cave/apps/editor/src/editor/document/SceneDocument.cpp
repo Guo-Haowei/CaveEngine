@@ -17,7 +17,10 @@ SceneDocument::SceneDocument(IApplication& p_app, const Guid& p_guid)
 }
 
 bool SceneDocument::Save() {
-    return false;
+    Scene* source = m_handle.Get<Scene>();
+    Scene* tmp = m_scene_reg.Resolve(m_preview_scene);
+    source->Copy(*tmp);
+    return m_asset_reg.SaveAsset(m_guid);
 }
 
 bool SceneDocument::SaveAs(std::string_view p_new_path) {

@@ -35,12 +35,16 @@ DocId DocumentService::OpenDoc(OpenDocDesc p_desc) {
         m_doc_cache[p_desc.guid] = doc_id;
     }
 
-    m_editor.Workspace().Submit(WorkspaceRequest::OpenDoc(doc_id));
+    m_editor.Workspace().Submit(WorkspaceRequest::Open(doc_id));
     return doc_id;
 }
 
-CloseRequestResult DocumentService::Close(DocId p_id) {
-    unused(p_id);
+CloseRequestResult DocumentService::Close(DocId p_doc_id) {
+    IDocument* doc = Resolve(p_doc_id);
+    DEV_ASSERT(doc);
+    auto handle = doc->GetHandleRaw();
+    m_doc_cache.erase(handle.GetGuid());
+    Destroy(p_doc_id);
     return {};
 }
 

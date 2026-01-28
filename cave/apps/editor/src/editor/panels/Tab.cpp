@@ -2,21 +2,76 @@
 
 #include "editor/EditorState.h"
 #include "editor/services/EditService.h"
+#include "editor/services/Workspace.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/renderer/graphics_manager.h"
 
+#include "engine/private/drivers/windows/win32_prerequisites.h"
+
 namespace cave {
+
+enum class CloseDecision {
+    Save,
+    Discard,
+    Cancel,
+};
+
+// @TODO: move to Dialog Service
+static CloseDecision AskCloseUnsaved(HWND p_owner, const char* p_title) {
+    int result = MessageBoxA(
+        p_owner,
+        "You have unsaved changes.\n\nDo you want to save before closing?",
+        p_title,
+        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON1);
+
+    switch (result) {
+        case IDYES:
+            return CloseDecision::Save;
+        case IDNO:
+            return CloseDecision::Discard;
+        default:
+            return CloseDecision::Cancel;
+    }
+}
 
 Tab::Tab(EditorState& p_editor, DocId p_doc_id)
     : EditorWindow(p_editor)
     , m_doc_id(p_doc_id) {}
 
-void Tab::DrawUIImpl() {
-    // ImGui::Text("%s", m_window_id.c_str());
-    // ImGui::Text("ID: %u", m_idx);
+void Tab::DrawUI() {
+    ResetState();
+    bool open = true;
+    if (ImGui::Begin(GetWindowId(), &open, m_flags)) {
+        UpdateState();
+        DrawUIImpl();
+    }
+    ImGui::End();
 
+    if (!open) {
+        const bool dirty = m_editor.EditService().IsDirty(m_doc_id);
+        bool should_save = false;
+        if (dirty) {
+            switch (AskCloseUnsaved(0, "Warning")) {
+                case CloseDecision::Cancel:
+                    return;
+                case CloseDecision::Save: {
+                    should_save = true;
+                } break;
+                case CloseDecision::Discard: {
+                    // Do nothing, close
+                } break;
+            }
+        }
+        if (should_save) {
+            // @TODO: save
+        }
+        m_editor.Workspace().Submit(WorkspaceRequest::Close(m_doc_id));
+    }
+}
+
+void Tab::DrawUIImpl() {
     ImVec2 top_left(m_rect.Left(), m_rect.Top());
     ImVec2 bottom_right(m_rect.Right(), m_rect.Bottom());
 

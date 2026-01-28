@@ -7,7 +7,6 @@ namespace cave {
 
 #if 0
 class Workspace;
-class ViewerTab;
 
 class Viewer : public EditorWindow {
 public:

@@ -65,11 +65,6 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
 
     return None();
 }
-
-ViewerTab* Viewer::GetActiveTab() {
-    return nullptr;
-}
-
 void Viewer::UpdateInternal(float p_timestep) {
     CAVE_PROFILE_EVENT();
 
