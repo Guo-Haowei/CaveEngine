@@ -65,7 +65,7 @@ void Tab::DrawUI() {
             }
         }
         if (should_save) {
-            // @TODO: save
+            m_editor.EditService().Save(m_doc_id);
         }
         m_editor.Workspace().Submit(WorkspaceRequest::Close(m_doc_id));
     }

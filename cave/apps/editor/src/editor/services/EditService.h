@@ -24,6 +24,7 @@ public:
     bool CanRedo(DocId p_doc_id) const;
 
     bool IsDirty(DocId p_doc_id) const;
+    bool Save(DocId p_doc_id);
 
     void FlushPendingCmds();
 

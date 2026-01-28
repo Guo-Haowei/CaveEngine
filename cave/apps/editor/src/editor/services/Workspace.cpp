@@ -174,7 +174,7 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 bool Workspace::CloseDoc(DocId p_doc_id) {
     auto it = m_doc_to_tab.find(p_doc_id);
     DEV_ASSERT(it != m_doc_to_tab.end());
-    
+
     const TabId tab_id = it->second;
     Tab* tab = Resolve(tab_id);
     DEV_ASSERT(tab->GetDocId() == p_doc_id);

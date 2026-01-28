@@ -58,6 +58,14 @@ bool EditService::IsDirty(DocId p_doc_id) const {
     return false;
 }
 
+bool EditService::Save(DocId p_doc_id) {
+    if (IDocument* doc = ResolveDoc(p_doc_id)) {
+        return doc->Save();
+    }
+
+    return false;
+}
+
 void EditService::FlushPendingCmds() {
     CAVE_PROFILE_EVENT();
 
