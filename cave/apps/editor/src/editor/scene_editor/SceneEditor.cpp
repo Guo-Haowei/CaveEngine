@@ -52,13 +52,22 @@ SceneId SceneEditor::GetSceneId() const {
 }
 #endif
 
-void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
-    if (IsVisible()) {
-        if (IDocument* doc = m_editor.DocumentService().Resolve(GetDocId())) {
-            // @TODO: scene
-            BuildViewsImpl(m_scene_id, m_camera, p_out_views, p_is_opengl);
-        }
+void SceneEditor::OnCreate() {
+    IApplication& app = m_editor.GetApp();
+    app.GetSceneScheduler().Register(this);
+}
 
+void SceneEditor::OnDestroy() {
+    IApplication& app = m_editor.GetApp();
+    app.GetSceneScheduler().Unregister(this);
+}
+
+void SceneEditor::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
+    if (!m_editor.IsPlaying()) {
+        p_out.push_back(SceneTickRequest{
+            SceneTickMode::Editor,
+            m_scene_id,
+        });
     }
 }
 
@@ -187,11 +196,5 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
     }
 }
 #endif
-
-void SceneEditor::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
-    if (m_editor.IsPlaying()) return;
-
-    p_out.push_back({ SceneTickMode::Editor, m_scene_id });
-}
 
 }  // namespace cave

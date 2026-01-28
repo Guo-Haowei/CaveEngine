@@ -6,17 +6,16 @@
 
 namespace cave {
 
-class SceneEditor : public Tab {
+class SceneEditor : public Tab,
+                    public ISceneTickContributor {
 public:
     SceneEditor(EditorState& p_editor,
                 DocId p_doc_id,
                 SceneId p_scene_id,
                 ViewDimension p_dim);
 
-    // void DrawMainView(const CameraComponent& p_camera) final;
-
-    void BuildViews(std::vector<SceneView>& p_out_views,
-                    bool p_is_opengl) final;
+    void OnCreate() final;
+    void OnDestroy() final;
 
     void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
 

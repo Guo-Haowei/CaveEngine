@@ -96,7 +96,7 @@ private:
     std::unique_ptr<cave::EditService> m_edit_service;
     std::unique_ptr<cave::SelectionService> m_selection_service;
     std::unique_ptr<cave::ShortcutService> m_shortcut_service;
-    std::unique_ptr<cave::Workspace> m_workspace;
+    std::shared_ptr<cave::Workspace> m_workspace;
 
     std::shared_ptr<AssetInspector> m_asset_inspector;
     std::shared_ptr<FileSystemPanel> m_file_system_panel;

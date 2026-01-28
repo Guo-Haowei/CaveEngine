@@ -41,7 +41,8 @@ struct WorkspaceRequest {
 // @TODO: tab allocator
 using TabId = GenId<Tab>;
 
-class Workspace : public GenIdRegistry<Tab> {
+class Workspace : public GenIdRegistry<Tab>,
+                  public ISceneViewProvider {
 public:
     Workspace(EditorState& p_editor);
 
@@ -52,6 +53,9 @@ public:
     TabId GetFocusedTabId() const { return m_focused_tab; }
 
     Tab* GetFocusedTab() { return Resolve(m_focused_tab); }
+
+    void BuildViews(std::vector<SceneView>& p_out_views,
+                    bool p_is_opengl) final;
 
 private:
     void OpenOrFocusDoc(DocId p_doc_id);

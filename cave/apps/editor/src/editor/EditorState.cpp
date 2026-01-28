@@ -48,7 +48,9 @@ EditorState::EditorState(IApplication& p_app)
     m_edit_service = std::make_unique<cave::EditService>(*this);
     m_selection_service = std::make_unique<cave::SelectionService>(*this);
     m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
-    m_workspace = std::make_unique<cave::Workspace>(*this);
+    m_workspace = std::make_shared<cave::Workspace>(*this);
+    
+    m_app.GetViewportManager()->CreateViewport(m_workspace);
 
     // runtime
     m_runtime_host = std::make_unique<RuntimeHost>(p_app);

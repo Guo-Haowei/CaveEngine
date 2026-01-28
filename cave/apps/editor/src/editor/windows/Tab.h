@@ -21,9 +21,7 @@ enum ViewDimension : uint8_t{
 };
 
 class Tab : public EditorWindow,
-            public ISceneViewProvider,
-            public IInputConsumer,
-            public ISceneTickContributor {
+            public IInputConsumer {
 public:
     Tab(EditorState& p_editor,
         DocId p_doc_id,
@@ -37,9 +35,6 @@ public:
     virtual void OnCreate();
     virtual void OnDestroy();
 
-    // @TODO: let view service decides
-    void BuildViews(std::vector<SceneView>&, bool) {}
-
     int GetPriority() const override { return 10; }
 
     // @TODO: workspace decide which view the input should route to
@@ -49,7 +44,10 @@ public:
 
     DocId GetDocId() const { return m_doc_id; }
 
-    void CollectSceneTicks(std::vector<SceneTickRequest>&) override {}
+    void BuildViews(std::vector<SceneView>& p_out_views,
+                    bool p_is_opengl) {
+        BuildViewsImpl(m_scene_id, m_camera, p_out_views, p_is_opengl);
+    }
 
 protected:
     void UpdateInternal(float p_dt) override;

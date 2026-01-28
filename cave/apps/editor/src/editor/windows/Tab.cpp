@@ -70,20 +70,15 @@ void Tab::OnCreate() {
             SetupDefault3DCamera();
         } break;
     }
-
-    IApplication& app = m_editor.GetApp();
-    app.GetSceneScheduler().Register(this);
 }
 
 void Tab::OnDestroy() {
-    IApplication& app = m_editor.GetApp();
-    app.GetSceneScheduler().Unregister(this);
 }
 
 void Tab::BuildViewsImpl(SceneId p_scene_id,
-                               ecs::Entity p_camera,
-                               std::vector<SceneView>& p_out_views,
-                               bool p_is_opengl) {
+                         ecs::Entity p_camera,
+                         std::vector<SceneView>& p_out_views,
+                         bool p_is_opengl) {
     // @TODO: refactor scene view API
     if (m_editor.IsPlaying()) {
         SceneView scene_view;

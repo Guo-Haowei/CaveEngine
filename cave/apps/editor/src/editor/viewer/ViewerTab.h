@@ -86,11 +86,6 @@ protected:
     void SetupDefault2DCamera();
     void SetupDefault3DCamera();
 
-    void BuildViewsImpl(SceneId p_scene_id,
-                        ecs::Entity p_camera,
-                        std::vector<SceneView>& p_out_views,
-                        bool p_is_opengl);
-
     // @TODO: deprecate
     Scene* GetResolvedScene();
 

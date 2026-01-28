@@ -125,12 +125,6 @@ void ViewerTab::OnDeactivate() {
     m_active = false;
 }
 
-void ViewerTab::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
-    if (m_editor.IsPlaying()) return;
-
-    p_out.push_back({ SceneTickMode::Editor, GetSceneId() });
-}
-
 void ViewerTab::DrawAssetInspector() {
     m_editor.GetAssetInspector().DrawContentBrowser();
 }
