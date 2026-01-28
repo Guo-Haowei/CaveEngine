@@ -48,10 +48,6 @@ Scene* ViewerTab::GetResolvedScene() {
     return m_scene_manager.Resolve(GetSceneId());
 }
 
-void ViewerTab::SetCopiedEntity(ecs::Entity p_copied) {
-    m_copied = p_copied;
-}
-
 void ViewerTab::OnCreate(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
     auto meta = handle.GetMeta();

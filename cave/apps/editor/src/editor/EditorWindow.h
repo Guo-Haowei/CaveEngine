@@ -3,6 +3,13 @@
 
 namespace cave {
 
+struct WindowState {
+    bool open{ false };
+    bool visible{ false };
+    bool hovered{ false };
+    bool focused{ false };
+};
+
 class EditorWindow : public EditorItem {
 public:
     EditorWindow(EditorState& p_editor)
@@ -12,14 +19,15 @@ public:
 
     virtual const char* GetTitle() const = 0;
 
-    bool IsFocused() const { return m_is_focused; }
-    bool IsHovered() const { return m_is_hovered; }
+    bool IsOpen() const { return m_state.open; }
+    bool IsVisible() const { return m_state.visible; }
+    bool IsFocused() const { return m_state.focused; }
+    bool IsHovered() const { return m_state.hovered; }
 
 protected:
     virtual void UpdateInternal(float p_timestep) = 0;
 
-    bool m_is_focused = false;
-    bool m_is_hovered = false;
+    WindowState m_state;
 
     int m_flags{ 0 };
 };

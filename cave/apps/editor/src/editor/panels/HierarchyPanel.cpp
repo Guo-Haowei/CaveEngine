@@ -209,13 +209,13 @@ void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
         OpenAddEntityPopup(selected);
         if (ImGui::MenuItem("Copy")) {
             if (selected.IsValid()) {
-                p_tab->SetCopiedEntity(selected);
+                //p_tab->SetCopiedEntity(selected);
             }
         }
         if (ImGui::MenuItem("Paste")) {
-            if (ecs::Entity to_be_copied = p_tab->GetCopiedEntity(); to_be_copied.IsValid()) {
-                m_editor.GetEditService().CommandCloneObject(scene_id, to_be_copied);
-            }
+            //if (ecs::Entity to_be_copied = p_tab->GetCopiedEntity(); to_be_copied.IsValid()) {
+            //    m_editor.GetEditService().CommandCloneObject(scene_id, to_be_copied);
+            //}
         }
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
