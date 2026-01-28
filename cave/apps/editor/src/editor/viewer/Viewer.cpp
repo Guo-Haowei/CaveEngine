@@ -26,6 +26,7 @@
 
 namespace cave {
 
+#if 0
 #define VIEWER_WINDOW_ID "###Viewer"
 
 static constexpr float TOOL_BAR_OFFSET = 80.0f;
@@ -133,5 +134,6 @@ void Viewer::UpdateInternal(float p_timestep) {
 
     ImGui::EndTabBar();
 }
+#endif
 
 }  // namespace cave

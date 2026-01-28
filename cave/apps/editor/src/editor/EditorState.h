@@ -25,7 +25,6 @@ class AssetInspector;
 class FileSystemPanel;
 class LogPanel;
 class MenuBar;
-class Viewer;
 
 // services
 class EditService;
@@ -36,6 +35,12 @@ class Workspace;
 
 struct EditorContext {
     std::shared_ptr<ImageAsset> checkerboard;
+};
+
+struct FocusedPreviewScene {
+    DocId doc_id{};
+    SceneId scene_id{};
+    Scene* scene{ nullptr };
 };
 
 class EditorState final : public AppState {
@@ -64,7 +69,6 @@ public:
     AssetInspector& GetAssetInspector() { return *m_asset_inspector.get(); }
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
-    Viewer& GetViewer() { return *m_viewer.get(); }
 
     RuntimeHost& GetRuntimeHost() { return *m_runtime_host; }
 
@@ -73,6 +77,8 @@ public:
     SelectionService& SelectionService() { return *m_selection_service; }
     ShortcutService& ShortcutService() { return *m_shortcut_service; }
     Workspace& Workspace() { return *m_workspace; }
+
+    FocusedPreviewScene GetFocusedPreviewScene();
 
     // @TODO: move it to utility
     void OpenAddEntityPopup(ecs::Entity p_parent);
@@ -96,7 +102,6 @@ private:
     std::shared_ptr<FileSystemPanel> m_file_system_panel;
     std::shared_ptr<LogPanel> m_log_panel;
     std::shared_ptr<MenuBar> m_menu_bar;
-    std::shared_ptr<Viewer> m_viewer;
 
     std::vector<std::shared_ptr<IEditorItem>> m_panels;
 

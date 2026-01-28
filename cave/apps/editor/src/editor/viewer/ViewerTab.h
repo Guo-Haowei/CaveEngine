@@ -2,7 +2,6 @@
 #include "editor/document/DocumentTypes.h"
 
 // @TODO: refactor
-#include "ViewerTabId.h"
 
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/input/IInputConsumer.h"
@@ -19,6 +18,7 @@
 
 namespace cave {
 
+#if 0
 class ISceneRegistry;
 class KeyState;
 class ViewerTabId;
@@ -116,5 +116,6 @@ private:
     std::shared_ptr<ICameraController> m_camera_controller;
     CameraInputState m_camera_state;
 };
+#endif
 
 }  // namespace cave

@@ -7,8 +7,10 @@
 #include "engine/private/debugger/profiler.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
+#include "editor/document/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
+#include "editor/services/Workspace.h"
 
 #include "editor/edit/EditObjectCmd.h"
 #include "editor/EditorState.h"
@@ -25,13 +27,6 @@ using ecs::Entity;
 // @TODO: on scene change instead of build every frame
 class HierarchyCreator {
 public:
-    struct Ctx {
-        SelectionService& selection_service;
-        Scene& scene;
-        SceneId scene_id;
-        DocId doc_id;
-    };
-
     struct HierarchyNode {
         HierarchyNode* parent = nullptr;
         Entity entity;
@@ -39,11 +34,11 @@ public:
         std::vector<HierarchyNode*> children;
     };
 
-    HierarchyCreator(const Ctx& p_ctx)
-        : m_ctx(p_ctx) {}
+    HierarchyCreator(const FocusedPreviewScene& p_preview, SelectionService& p_selection)
+        : m_preview(p_preview), m_selection(p_selection) {}
 
     void Update() {
-        if (Build(m_ctx.scene)) {
+        if (Build(*m_preview.scene)) {
             DEV_ASSERT(m_root);
             DrawNode(m_root, ImGuiTreeNodeFlags_DefaultOpen);
         }
@@ -56,7 +51,8 @@ private:
 
     std::map<Entity, std::shared_ptr<HierarchyNode>> m_nodes;
     HierarchyNode* m_root = nullptr;
-    const Ctx& m_ctx;
+    const FocusedPreviewScene& m_preview;
+    SelectionService& m_selection;
 };
 
 static bool TreeNodeHelper(Scene& p_scene,
@@ -127,32 +123,32 @@ void HierarchyCreator::DrawNode(HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flag
     DEV_ASSERT(p_hier);
     Entity current_id = p_hier->entity;
 
-    SelectionKey selection = m_ctx.selection_service.Primary(m_ctx.doc_id);
+    SelectionKey selection = m_selection.Primary(m_preview.doc_id);
 
     p_flags |= p_hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
     p_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
 
     const bool expanded = TreeNodeHelper(
-        m_ctx.scene,
+        *m_preview.scene,
         current_id,
         p_flags,
         [this, current_id]() {
             SelectionKey selection;
             selection.kind = SelectionKind::Entity;
-            selection.doc = m_ctx.doc_id;
-            selection.scene = m_ctx.scene_id;
+            selection.doc = m_preview.doc_id;
+            selection.scene = m_preview.scene_id;
             selection.entity = current_id;
 
-            m_ctx.selection_service.Set(m_ctx.doc_id, selection);
+            m_selection.Set(m_preview.doc_id, selection);
         },
         [this, current_id]() {
             SelectionKey selection;
             selection.kind = SelectionKind::Entity;
-            selection.doc = m_ctx.doc_id;
-            selection.scene = m_ctx.scene_id;
+            selection.doc = m_preview.doc_id;
+            selection.scene = m_preview.scene_id;
             selection.entity = current_id;
 
-            m_ctx.selection_service.Set(m_ctx.doc_id, selection);
+            m_selection.Set(m_preview.doc_id, selection);
             ImGui::OpenPopup(POPUP_NAME_ID);
         });
 
@@ -211,37 +207,19 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
 
 void HierarchyPanel::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
-    if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
-        const SceneId scene_id = tab->GetSceneId();
-        const DocId doc_id = tab->GetDocId();
-        if (Scene* scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_id)) {
-            const HierarchyCreator::Ctx ctx = {
-                .selection_service = m_editor.SelectionService(),
-                .scene = *scene,
-                .scene_id = scene_id,
-                .doc_id = doc_id,
-            };
-
-            HierarchyCreator creator(ctx);
-            DrawPopup(tab);
-            creator.Update();
-        }
+    FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
+    if (preview.scene) {
+        HierarchyCreator creator(preview, m_editor.SelectionService());
+        DrawPopup(preview);
+        creator.Update();
     }
 }
 
-void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
-    DEV_ASSERT(p_tab);
-    DocId doc_id = p_tab->GetDocId();
-    //// @TODO: save commands for undo
-
-    // ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
-    // DocId doc = tab ? tab->GetDocId() : DocId{};
-
-    // SceneId scene_id = tab ? tab->GetSceneId() : SceneId{};
+void HierarchyPanel::DrawPopup(const FocusedPreviewScene& p_ctx) {
 
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
-        SelectionKey selection = m_editor.SelectionService().Primary(doc_id);
-        DEV_ASSERT(selection.doc == doc_id);
+        SelectionKey selection = m_editor.SelectionService().Primary(p_ctx.doc_id);
+        DEV_ASSERT(selection.doc == p_ctx.doc_id);
         ecs::Entity selected = selection.entity;
 
         m_editor.OpenAddEntityPopup(selected);
@@ -257,7 +235,7 @@ void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
                 auto cmd = std::make_unique<DeleteObjectCmd>(m_editor.GetApp(), selected);
-                edit.Submit(doc_id, std::move(cmd));
+                edit.Submit(p_ctx.doc_id, std::move(cmd));
             }
         }
         ImGui::EndPopup();

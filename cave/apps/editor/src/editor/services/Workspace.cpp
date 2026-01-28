@@ -4,8 +4,6 @@
 #include "editor/EditorState.h"
 
 // @TODO: delete
-#include "editor/viewer/Viewer.h"
-#include "editor/viewer/ViewerTab.h"
 #include "editor/EditorDvars.h"
 #include "editor/scene_editor/SceneEditor.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
@@ -75,11 +73,17 @@ void Workspace::Tick(float p_dt) {
     for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
         auto& slot = m_slots[idx];
         if (slot.storage) {
-            if (m_focused_tab == TabId(idx, slot.gen)) {
+            Tab& tab = *slot.storage;
+            TabId current = TabId(idx, slot.gen);
+            if (m_focused_req == current) {
                 ImGui::SetNextWindowFocus();
-                m_focused_tab = TabId();
+                m_focused_req = TabId();
             }
-            slot.storage->Update(p_dt);
+            tab.Update(p_dt);
+
+            if (tab.IsFocused()) {
+                m_focused_tab = current;
+            }
         }
     }
 }
@@ -96,14 +100,19 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
     }
 
     if (auto it = m_doc_to_tab.find(p_doc_id); it != m_doc_to_tab.end()) {
-        m_focused_tab = it->second;
+        m_focused_req = it->second;
         return;
     }
 
-    auto tab = std::make_unique<Tab>(m_editor);
+    SceneId scene_id = doc->GetPreviewScene();
+
+    auto tab = std::make_unique<Tab>(m_editor,
+                                     p_doc_id,
+                                     scene_id,
+                                     ViewDimension::DIMENSION_3);
     TabId tab_id = Create(std::move(tab));
     m_slots[tab_id.index].storage->SetTitleAndId(meta->name, tab_id.index);
-    m_focused_tab = tab_id;
+    m_focused_req = tab_id;
     m_doc_to_tab[p_doc_id] = tab_id;
 
 #if 0

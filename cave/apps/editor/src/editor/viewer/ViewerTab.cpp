@@ -17,9 +17,8 @@
 
 namespace cave {
 
+#if 0
 using ecs::Entity;
-
-static const char EDITOR_CAMERA_NAME[] = "_editor_cam";
 
 ViewerTab::ViewerTab(EditorState& p_editor,
                      DocId p_doc_id,
@@ -170,82 +169,6 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
     }
 }
 
-CameraInputState ViewerTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
-    CameraInputState state{};
-
-    float dx = 0.0f;
-    float dy = 0.0f;
-    bool mmb = false;
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
-
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                state.zoom_delta = -e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                e.consumed = true;
-                dx = -e.dx;
-                dy = e.dy;
-            } break;
-            case InputEventType::ButtonDown:
-                if (e.code == std::to_underlying(Key::MMB)) {
-                    e.consumed = true;
-                    mmb = true;
-                }
-                break;
-            default:
-                break;
-        }
-
-        if (mmb) {
-            state.move = Vector3f(dx, dy, 0.0f);
-        }
-    }
-
-    return state;
-}
-
-CameraInputState ViewerTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
-    Vector2f rotation = Vector2f::Zero;
-
-    const InputDeviceId id{ 0 };
-    const bool mmb = p_st.Down(id, Key::MMB);
-    const int dx = p_st.Down(id, Key::D) - p_st.Down(id, Key::A);
-    const int dy = p_st.Down(id, Key::E) - p_st.Down(id, Key::Q);
-    const int dz = p_st.Down(id, Key::W) - p_st.Down(id, Key::S);
-
-    CameraInputState state{};
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                state.zoom_delta = 3.0f * e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                if (mmb) {
-                    e.consumed = true;
-                    state.rotation.x = e.dx;
-                    state.rotation.y = e.dy;
-                }
-            } break;
-            default:
-                break;
-        }
-    }
-
-    state.move = Vector3f(dx, dy, dz);
-    return state;
-}
-
 void ViewerTab::Update(float p_timestep) {
     m_camera_state.move *= p_timestep;
     m_camera_state.zoom_delta *= p_timestep;
@@ -334,5 +257,6 @@ void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl
 
     BuildViewsImpl(GetSceneId(), m_camera, p_out_views, p_is_opengl);
 }
+#endif
 
 }  // namespace cave

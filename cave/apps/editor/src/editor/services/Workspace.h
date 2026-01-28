@@ -4,9 +4,6 @@
 #include "editor/document/DocumentTypes.h"
 #include "editor/windows/Tab.h"
 
-// @TODO: deprecate
-#include "editor/viewer/ViewerTabId.h"
-
 namespace cave {
 
 class EditorState;
@@ -52,24 +49,27 @@ public:
 
     void Submit(WorkspaceRequest p_req);
 
+    TabId GetFocusedTabId() const { return m_focused_tab; }
+
+    Tab* GetFocusedTab() { return Resolve(m_focused_tab); }
+
 private:
     void OpenOrFocusDoc(DocId p_doc_id);
 
     bool RequestCloseDoc(DocId p_doc_id);
 
-    bool RequestCloseTab(ViewerTabId p_tab_id);
+    //bool RequestCloseTab(ViewerTabId p_tab_id);
 
     bool RequestCloseAll();
 
     DocId GetActiveDoc() const;
-    ViewerTabId GetActiveTab() const;
 
     // Focus/activate
     bool FocusDoc(DocId doc_id);
-    bool FocusTab(ViewerTabId tab_id);
 
     EditorState& m_editor;
     TabId m_focused_tab{};
+    TabId m_focused_req{};
 
     std::vector<WorkspaceRequest> m_pending_reqs;
     std::unordered_map<DocId, TabId> m_doc_to_tab;

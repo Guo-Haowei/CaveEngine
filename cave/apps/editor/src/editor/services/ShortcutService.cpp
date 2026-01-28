@@ -10,7 +10,6 @@
 #include "editor/services/EditService.h"
 
 #include "editor/EditorState.h"
-#include "editor/viewer/Viewer.h"
 
 namespace cave {
 
@@ -57,10 +56,8 @@ void ShortcutService::InitShortcuts() {
     };
 
     auto active_document = [this]() -> DocId {
-        if (auto tab = m_editor.GetViewer().GetActiveTab(); tab) {
-            return tab->GetDocId();
-        }
-        return DocId{};
+        FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
+        return preview.doc_id;
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Redo)] = {

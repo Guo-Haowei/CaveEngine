@@ -23,9 +23,9 @@ namespace cave {
 
 SceneEditor::SceneEditor(EditorState& p_editor,
                          DocId p_doc_id,
-                         Viewer& p_viewer,
-                         ViewerTab::Dimension p_dimension)
-    : ViewerTab(p_editor, p_doc_id, p_viewer, p_dimension)
+                         SceneId p_scene_id,
+                         ViewDimension p_dimension)
+    : Tab(p_editor, p_doc_id, p_scene_id, p_dimension)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
     , m_button_tooltips{ "Run Project", "Pause Project" } {
 
@@ -41,6 +41,7 @@ SceneEditor::SceneEditor(EditorState& p_editor,
     };
 }
 
+#if 0
 SceneId SceneEditor::GetSceneId() const {
     IDocument* doc = m_editor.DocumentService().Resolve(m_doc_id);
     if (!doc) return {};
@@ -49,27 +50,20 @@ SceneId SceneEditor::GetSceneId() const {
     }
     return {};
 }
-
-void SceneEditor::OnCreateInternal(const Guid&) {
-    // m_doc_id = m_editor.DocumentService().OpenScene(p_guid);
-}
-
-void SceneEditor::OnDestroy() {
-    m_editor.DocumentService().Close(m_doc_id);
-}
-
-void SceneEditor::OnActivateInternal() {
-}
+#endif
 
 void SceneEditor::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) {
-    if (!m_active) {
-        return;
-    }
+    if (IsVisible()) {
+        if (IDocument* doc = m_editor.DocumentService().Resolve(GetDocId())) {
+            // @TODO: scene
+            BuildViewsImpl(m_scene_id, m_camera, p_out_views, p_is_opengl);
+        }
 
-    BuildViewsImpl(GetSceneId(), m_camera, p_out_views, p_is_opengl);
+    }
 }
 
 // @TODO: rename this to DrawEditor
+#if 0
 void SceneEditor::DrawMainView(const CameraComponent&) {
     Scene& scene = *GetResolvedScene();
     CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
@@ -138,42 +132,21 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     if (show_editor) {
         ImGuizmo::DrawAxes(proj_view);
 
-        const float size = 120.f;
-        const auto& min = m_viewer.GetCanvasMin();
-        ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
-                                 10.0f,
-                                 ImVec2(min.x, min.y),
-                                 ImVec2(size, size),
-                                 IM_COL32(64, 64, 64, 96));
+        DEV_ASSERT(0);
+        //const float size = 120.f;
+        //const auto& min = m_viewer.GetCanvasMin();
+        //ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
+        //                         10.0f,
+        //                         ImVec2(min.x, min.y),
+        //                         ImVec2(size, size),
+        //                         IM_COL32(64, 64, 64, 96));
     }
 }
+#endif
 
 #if 0
 bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
-    unused(p_input_event);
-    // change gizmo state
-    if (auto e = dynamic_cast<const InputEventKey*>(p_input_event); e) {
-        if (e->IsPressed() && !e->IsModiferPressed()) {
-            bool handled = true;
-            switch (e->GetKey()) {
-                case Key::Z: {
-                    m_state = GizmoAction::Translate;
-                } break;
-                case Key::X: {
-                    m_state = GizmoAction::Rotate;
-                } break;
-                case Key::C: {
-                    m_state = GizmoAction::Scale;
-                } break;
-                default:
-                    handled = false;
-                    break;
-            }
-            return handled;
-        }
-    }
-
-// select
+    // select
     if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
         if (e->IsButtonPressed(MouseButton::RIGHT)) {
             Vector2f clicked = e->GetPos();
@@ -187,14 +160,14 @@ bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
 }
 #endif
 
-const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
-    return { &m_play_button };
-}
+//const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
+//    return { &m_play_button };
+//}
 
+#if 0
 void SceneEditor::Select(const Vector2f& p_cursor) {
     unused(p_cursor);
     DEV_ASSERT(0);
-#if 0
     if (auto res = m_viewer.CursorToNDC(p_cursor); res.is_some()) {
         Vector2f ndc_2 = res.unwrap_unchecked();
         Vector4f ndc{ ndc_2.x, ndc_2.y, 1.0f, 1.0f };
@@ -212,7 +185,13 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
         const auto result = GetScene()->Intersects(ray);
         SetSelectedEntity(result.entity);
     }
+}
 #endif
+
+void SceneEditor::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
+    if (m_editor.IsPlaying()) return;
+
+    p_out.push_back({ SceneTickMode::Editor, m_scene_id });
 }
 
 }  // namespace cave

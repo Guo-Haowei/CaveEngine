@@ -55,6 +55,11 @@ public:
         return Handle<T>(std::move(copy));
     }
 
+    // @TODO: remove this, not all doc is related to scene
+    virtual SceneId GetPreviewScene() const {
+        return {};
+    }
+
 protected:
     AssetHandle m_handle;
     AssetRef m_asset;

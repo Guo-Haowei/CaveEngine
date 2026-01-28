@@ -5,6 +5,7 @@
 
 namespace cave {
 
+#if 0
 class Workspace;
 class ViewerTab;
 
@@ -34,5 +35,6 @@ protected:
     Vector2f m_canvas_min;
     Vector2f m_canvas_size;
 };
+#endif
 
 }  // namespace cave

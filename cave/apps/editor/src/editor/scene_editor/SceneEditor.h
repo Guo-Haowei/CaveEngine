@@ -1,33 +1,31 @@
 #pragma once
 #include "editor/document/SceneDocument.h"
+#include "editor/windows/Tab.h"
 
-// @TODO:
-#include "editor/viewer/ViewerTab.h"
+#include "../Enums.h"
 
 namespace cave {
 
-class SceneEditor : public ViewerTab {
+class SceneEditor : public Tab {
 public:
     SceneEditor(EditorState& p_editor,
                 DocId p_doc_id,
-                Viewer& p_viewer,
-                ViewerTab::Dimension p_dimension);
+                SceneId p_scene_id,
+                ViewDimension p_dim);
 
-    void OnDestroy() final;
-
-    void DrawMainView(const CameraComponent& p_camera) final;
-
-    SceneId GetSceneId() const final;
+    // void DrawMainView(const CameraComponent& p_camera) final;
 
     void BuildViews(std::vector<SceneView>& p_out_views,
                     bool p_is_opengl) final;
 
+    void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
+
 protected:
-    void OnCreateInternal(const Guid& p_guid) final;
+    //void OnCreateInternal(const Guid& p_guid) final;
 
-    void OnActivateInternal() final;
+    //void OnActivateInternal() final;
 
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
+    //const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
     GizmoAction m_state{ GizmoAction::Translate };
 

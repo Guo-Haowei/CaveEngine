@@ -214,22 +214,20 @@ bool DrawComponentAuto(T* p_component) {
 void PropertyPanel::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
 
-    ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
-    if (!tab) return;
+    FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
+    if (!preview.scene) {
+        return;
+    }
 
-    SceneId scene_id = tab->GetSceneId();
-    DocId doc_id = tab->GetDocId();
-
-    SelectionKey selection = m_editor.SelectionService().Primary(doc_id);
+    SelectionKey selection = m_editor.SelectionService().Primary(preview.doc_id);
 
     ecs::Entity id = selection.entity;
     if (!id.IsValid()) {
         return;
     }
 
-    Scene* _scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_id);
-    DEV_ASSERT(_scene);
-    Scene& scene = *_scene;
+    Scene& scene = *preview.scene;
+    DocId doc_id = preview.doc_id;
 
     NameComponent* name_component = scene.GetComponent<NameComponent>(id);
     if (!name_component) {
