@@ -10,17 +10,11 @@ class AddComponentCmd : public EditCmdBase {
 public:
     using EditCmdBase::EditCmdBase;
 
-    const char* Label() const override {
-        return "AddComponentCmd";
-    }
+    const char* Label() const override { return "AddComponentCmd"; }
 
-    bool Do(IDocument& p_doc) override {
-        return Add(p_doc, nullptr);
-    }
+    bool Do(IDocument& p_doc) override { return Add(p_doc, nullptr); }
 
-    bool Undo(IDocument& p_doc) override {
-        return Remove(p_doc);
-    }
+    bool Undo(IDocument& p_doc) override { return Remove(p_doc); }
 
 protected:
     bool Add(IDocument& p_doc, T* p_value) {
@@ -57,17 +51,11 @@ public:
         , m_origin(p_origin) {
     }
 
-    const char* Label() const override {
-        return "RemoveComponentCmd";
-    }
+    const char* Label() const override { return "RemoveComponentCmd"; }
 
-    bool Do(IDocument& p_doc) override {
-        return AddComponentCmd<T>::Remove(p_doc);
-    }
+    bool Do(IDocument& p_doc) override { return AddComponentCmd<T>::Remove(p_doc); }
 
-    bool Undo(IDocument& p_doc) override {
-        return AddComponentCmd<T>::Add(p_doc, &m_origin);
-    }
+    bool Undo(IDocument& p_doc) override { return AddComponentCmd<T>::Add(p_doc, &m_origin); }
 
 protected:
     T m_origin;

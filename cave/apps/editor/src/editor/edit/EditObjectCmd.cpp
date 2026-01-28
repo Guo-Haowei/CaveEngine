@@ -6,6 +6,7 @@
 
 namespace cave {
 
+// @TODO: refactor
 static std::string GenerateName(std::string_view p_name) {
     static int s_counter = 0;
     return std::format("{}-{}", p_name, ++s_counter);
@@ -47,6 +48,36 @@ bool AddObjectCmd::Undo(IDocument& p_doc) {
             return true;
         }
     }
+    return false;
+}
+
+bool DeleteObjectCmd::Do(IDocument& p_doc) {
+    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
+        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+            scene->RemoveEntity(m_entity);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool DeleteObjectCmd::Undo(IDocument&) {
+    LOG_WARN("TODO: implement DeleteObjectCmd::Undo");
+    return false;
+}
+
+bool CloneObjectCmd::Do(IDocument& p_doc) {
+    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
+        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+            scene->DuplicateEntity(m_entity);
+            return true;
+        }
+    }
+    return true;
+}
+
+bool CloneObjectCmd::Undo(IDocument&) {
+    LOG_WARN("TODO: implement CloneObjectCmd::Undo");
     return false;
 }
 

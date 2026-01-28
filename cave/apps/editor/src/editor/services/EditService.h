@@ -4,17 +4,11 @@
 
 #include "editor/document/DocumentTypes.h"
 #include "editor/edit/IEditCmd.h"
-// @TODO: move it to public
-
-#include "editor/undo_redo/UndoCommand.h"
 
 namespace cave {
 
 class EditorState;
-class Guid;
-class UndoStack;
 
-// @TODO: refactor this part
 enum class EntityType : uint8_t;
 
 class EditService {
@@ -36,33 +30,6 @@ private:
 
     EditorState& m_editor;
     std::unordered_map<DocId, std::vector<std::unique_ptr<IEditCmd>>> m_pending_cmds;
-
-    // @TODO: deprecate
-public:
-    class ICommand : public UndoCommand {
-    public:
-        ICommand(EditorState& p_editor,
-                 SceneId p_scene_id);
-
-        virtual ~ICommand() = default;
-
-        Scene* ResolveScene();
-
-        SceneId GetSceneId() const { return m_scene_id; }
-
-    protected:
-        EditorState& m_editor;
-        SceneId m_scene_id;
-    };
-
-    void CommandDeleteObject(SceneId p_scene_id,
-                             ecs::Entity p_target);
-
-    void CommandCloneObject(SceneId p_scene_id,
-                            ecs::Entity p_target);
-
-private:
-    std::list<std::unique_ptr<ICommand>> m_old_pending_commands;
 };
 
 }  // namespace cave

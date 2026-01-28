@@ -10,6 +10,7 @@
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
 
+#include "editor/edit/EditObjectCmd.h"
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 #include "editor/viewer/ViewerTab.h"
@@ -229,8 +230,8 @@ void HierarchyPanel::UpdateInternal(float) {
 }
 
 void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
-    unused(p_tab);
-    // auto selected = p_tab->GetSelectedEntity();
+    DEV_ASSERT(p_tab);
+    DocId doc_id = p_tab->GetDocId();
     //// @TODO: save commands for undo
 
     // ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
@@ -239,24 +240,25 @@ void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
     // SceneId scene_id = tab ? tab->GetSceneId() : SceneId{};
 
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
-        m_editor.OpenAddEntityPopup(ecs::Entity{});
+        SelectionKey selection = m_editor.SelectionService().Primary(doc_id);
+        DEV_ASSERT(selection.doc == doc_id);
+        ecs::Entity selected = selection.entity;
+
+        m_editor.OpenAddEntityPopup(selected);
+        EditService& edit = m_editor.EditService();
 
         if (ImGui::MenuItem("Copy")) {
-            // if (selected.IsValid()) {
-            //     // p_tab->SetCopiedEntity(selected);
-            // }
+            // Clipboard service
+            LOG_WARN("TODO: fix Copy");
         }
         if (ImGui::MenuItem("Paste")) {
-            // if (ecs::Entity to_be_copied = p_tab->GetCopiedEntity(); to_be_copied.IsValid()) {
-            //     m_editor.GetEditService().CommandCloneObject(scene_id, to_be_copied);
-            // }
+            LOG_WARN("TODO: fix Paste");
         }
         if (ImGui::MenuItem("Delete")) {
-            // if (selected.IsValid()) {
-            //     p_tab->SetSelectedEntity(Entity::Null());
-            //     // move the command to tab document
-            //     m_editor.EditService().CommandDeleteObject(scene_id, selected);
-            // }
+            if (selected.IsValid()) {
+                auto cmd = std::make_unique<DeleteObjectCmd>(m_editor.GetApp(), selected);
+                edit.Submit(doc_id, std::move(cmd));
+            }
         }
         ImGui::EndPopup();
     }
