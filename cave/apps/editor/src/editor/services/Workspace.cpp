@@ -93,7 +93,9 @@ void Workspace::BuildViews(std::vector<SceneView>& p_out_views,
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
         if (tab && tab->IsVisible()) {
-            tab->BuildViews(p_out_views, p_is_opengl);
+            if (SceneEditor* scene_tab = dynamic_cast<SceneEditor*>(tab)) {
+                scene_tab->BuildViews(p_out_views, p_is_opengl);
+            }
         }
     }
 }
@@ -114,20 +116,17 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
         return;
     }
 
-    SceneId scene_id = doc->GetPreviewScene();
-
     std::unique_ptr<Tab> tab;
     switch (meta->type) {
         case AssetType::Scene: {
             tab = std::make_unique<SceneEditor>(m_editor,
                                                 p_doc_id,
-                                                scene_id,
+                                                doc->GetPreviewScene(),
                                                 ViewDimension::DIMENSION_3);
         } break;
         default: {
             tab = std::make_unique<Tab>(m_editor,
                                         p_doc_id,
-                                        scene_id,
                                         ViewDimension::DIMENSION_3);
         } break;
     }

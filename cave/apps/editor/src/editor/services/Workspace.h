@@ -62,7 +62,7 @@ private:
 
     bool RequestCloseDoc(DocId p_doc_id);
 
-    //bool RequestCloseTab(ViewerTabId p_tab_id);
+    // bool RequestCloseTab(ViewerTabId p_tab_id);
 
     bool RequestCloseAll();
 

@@ -10,6 +10,10 @@
 
 // @TODO: refactor
 #include "editor/document/DocumentService.h"
+#include "engine/private/runtime/framework/RuntimeHost.h"
+#include "engine/private/runtime/scene/EntityFactory.h"
+#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 
 // #include "editor/document/document.h"
 #include "editor/document/SceneDocument.h"
@@ -23,9 +27,10 @@ namespace cave {
 
 SceneEditor::SceneEditor(EditorState& p_editor,
                          DocId p_doc_id,
-                         SceneId p_scene_id,
+                         SceneId p_preview_scene_id,
                          ViewDimension p_dimension)
-    : Tab(p_editor, p_doc_id, p_scene_id, p_dimension)
+    : Tab(p_editor, p_doc_id, p_dimension)
+    , m_preview_scene(p_preview_scene_id)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
     , m_button_tooltips{ "Run Project", "Pause Project" } {
 
@@ -41,18 +46,62 @@ SceneEditor::SceneEditor(EditorState& p_editor,
     };
 }
 
-#if 0
-SceneId SceneEditor::GetSceneId() const {
-    IDocument* doc = m_editor.DocumentService().Resolve(m_doc_id);
-    if (!doc) return {};
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(doc)) {
-        return scene_doc->GetPreviewScene();
+void SceneEditor::BuildViewsImpl(SceneId p_scene_id,
+                                 ecs::Entity p_camera,
+                                 std::vector<SceneView>& p_out_views,
+                                 bool p_is_opengl) {
+    // @TODO: refactor scene view API
+    if (m_editor.IsPlaying()) {
+        DEV_ASSERT(0);
+        SceneView scene_view;
+        scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
+        scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
+
+        Scene* scene = scene_view.ResolveScene();
+
+        // @HACK: find the first non-editor camera
+        for (auto [id, camera] : scene->View<CameraComponent>()) {
+            if (scene->Contains<NoSaveTag>(id)) {
+                continue;
+            }
+
+            ViewInfo::FromCamera(camera,
+                                 scene_view.view_info,
+                                 p_is_opengl);
+
+            p_out_views.push_back(scene_view);
+            break;
+        }
+        return;
     }
-    return {};
+
+    // @HACK: force update
+    SceneView scene_view;
+    scene_view.scene_id = p_scene_id;
+    scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
+
+    Scene* scene = scene_view.ResolveScene();
+    const CameraComponent* cam = scene->GetComponent<CameraComponent>(p_camera);
+
+    if (DEV_VERIFY(cam)) {
+        ViewInfo::FromCamera(*cam,
+                             scene_view.view_info,
+                             p_is_opengl);
+
+        p_out_views.push_back(scene_view);
+    }
 }
-#endif
 
 void SceneEditor::OnCreate() {
+    switch (m_dim) {
+        case DIMENSION_2: {
+            SetupDefault2DCamera();
+        } break;
+        case DIMENSION_3: {
+            SetupDefault3DCamera();
+        } break;
+    }
+
     IApplication& app = m_editor.GetApp();
     app.GetSceneScheduler().Register(this);
 }
@@ -66,7 +115,7 @@ void SceneEditor::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
     if (!m_editor.IsPlaying()) {
         p_out.push_back(SceneTickRequest{
             SceneTickMode::Editor,
-            m_scene_id,
+            m_preview_scene,
         });
     }
 }
@@ -74,7 +123,6 @@ void SceneEditor::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
 // @TODO: rename this to DrawEditor
 #if 0
 void SceneEditor::DrawMainView(const CameraComponent&) {
-    Scene& scene = *GetResolvedScene();
     CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
 
     DocId doc_id = GetDocId();
@@ -169,9 +217,9 @@ bool SceneEditor::HandleInput(const OldInputEvent* p_input_event) {
 }
 #endif
 
-//const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
-//    return { &m_play_button };
-//}
+// const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
+//     return { &m_play_button };
+// }
 
 #if 0
 void SceneEditor::Select(const Vector2f& p_cursor) {
@@ -196,5 +244,132 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
     }
 }
 #endif
+
+Scene* SceneEditor::GetResolvedScene() {
+    return m_editor.GetApp().GetSceneRegistry()->Resolve(m_preview_scene);
+}
+
+static const char EDITOR_CAMERA_NAME[] = "_editor_cam";
+
+void SceneEditor::SetupDefault2DCamera() {
+    Scene* scene = GetResolvedScene();
+    DEV_ASSERT(scene);
+
+    ecs::Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
+    if (!cam.IsValid()) {
+        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
+        scene->Create<NoSaveTag>(cam);
+        scene->AttachChild(cam);
+        CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
+        camera->SetProjection(ProjectionType::Orthographic);
+        TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
+        transform->SetTranslation(Vector3f(0, 0, 10));
+    }
+
+    m_camera = cam;
+    m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
+}
+
+void SceneEditor::SetupDefault3DCamera() {
+    Scene* scene = GetResolvedScene();
+    DEV_ASSERT(scene);
+
+    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
+    Entity cam_y = scene->FindEntityByName("_editor_cam_y");
+    Entity cam_root = scene->FindEntityByName("_editor_cam_root");
+
+    if (!cam.IsValid()) {
+        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
+        cam_y = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_y");
+        cam_root = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_root");
+
+        scene->Create<NoSaveTag>(cam);
+        scene->Create<NoSaveTag>(cam_y);
+        scene->Create<NoSaveTag>(cam_root);
+
+        scene->AttachChild(cam_root);
+        scene->AttachChild(cam_y, cam_root);
+        scene->AttachChild(cam, cam_y);
+    }
+
+    m_camera = cam;
+    m_camera_controller = std::make_shared<CameraControllerFPS>(scene, cam_root, cam_y, cam);
+}
+
+CameraInputState SceneEditor::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
+    CameraInputState state{};
+
+    float dx = 0.0f;
+    float dy = 0.0f;
+    bool mmb = false;
+
+    for (const InputEvent& e : p_events) {
+        if (e.consumed) {
+            continue;
+        }
+
+        switch (e.type) {
+            case InputEventType::MouseWheel: {
+                e.consumed = true;
+                state.zoom_delta = -e.dy;
+            } break;
+            case InputEventType::MouseMove: {
+                e.consumed = true;
+                dx = -e.dx;
+                dy = e.dy;
+            } break;
+            case InputEventType::ButtonDown:
+                if (e.code == std::to_underlying(Key::MMB)) {
+                    e.consumed = true;
+                    mmb = true;
+                }
+                break;
+            default:
+                break;
+        }
+
+        if (mmb) {
+            state.move = Vector3f(dx, dy, 0.0f);
+        }
+    }
+
+    return state;
+}
+
+CameraInputState SceneEditor::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
+    Vector2f rotation = Vector2f::Zero;
+
+    const InputDeviceId id{ 0 };
+    const bool mmb = p_st.Down(id, Key::MMB);
+    const int dx = p_st.Down(id, Key::D) - p_st.Down(id, Key::A);
+    const int dy = p_st.Down(id, Key::E) - p_st.Down(id, Key::Q);
+    const int dz = p_st.Down(id, Key::W) - p_st.Down(id, Key::S);
+
+    CameraInputState state{};
+
+    for (const InputEvent& e : p_events) {
+        if (e.consumed) {
+            continue;
+        }
+        switch (e.type) {
+            case InputEventType::MouseWheel: {
+                e.consumed = true;
+                state.zoom_delta = 3.0f * e.dy;
+            } break;
+            case InputEventType::MouseMove: {
+                if (mmb) {
+                    e.consumed = true;
+                    state.rotation.x = e.dx;
+                    state.rotation.y = e.dy;
+                }
+            } break;
+            default:
+                break;
+        }
+    }
+
+    state.move = Vector3f(dx, dy, dz);
+    return state;
+}
 
 }  // namespace cave

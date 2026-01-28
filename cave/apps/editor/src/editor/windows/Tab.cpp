@@ -5,26 +5,21 @@
 // @TODO: refactor
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/renderer/graphics_manager.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
-#include "engine/private/runtime/framework/InputSystem.h"
 
 namespace cave {
 
 Tab::Tab(EditorState& p_editor,
-    DocId p_doc_id,
-    SceneId p_scene_id,
-    ViewDimension p_dim)
+         DocId p_doc_id,
+         ViewDimension p_dim)
     : EditorWindow(p_editor)
-    , m_dim(p_dim) 
-    , m_scene_id(p_scene_id)
+    , m_dim(p_dim)
     , m_doc_id(p_doc_id) {}
 
 void Tab::UpdateInternal(float p_dt) {
     unused(p_dt);
 
-    //ImGui::Text("%s", m_window_id.c_str());
-    //ImGui::Text("ID: %u", m_idx);
+    // ImGui::Text("%s", m_window_id.c_str());
+    // ImGui::Text("ID: %u", m_idx);
 
     ImVec2 top_left(m_rect.Left(), m_rect.Top());
     ImVec2 bottom_right(m_rect.Right(), m_rect.Bottom());
@@ -62,190 +57,9 @@ void Tab::SetTitleAndId(std::string_view p_title, uint32_t p_idx) {
 }
 
 void Tab::OnCreate() {
-    switch (m_dim) {
-        case DIMENSION_2: {
-            SetupDefault2DCamera();
-        } break;
-        case DIMENSION_3: {
-            SetupDefault3DCamera();
-        } break;
-    }
 }
 
 void Tab::OnDestroy() {
 }
-
-void Tab::BuildViewsImpl(SceneId p_scene_id,
-                         ecs::Entity p_camera,
-                         std::vector<SceneView>& p_out_views,
-                         bool p_is_opengl) {
-    // @TODO: refactor scene view API
-    if (m_editor.IsPlaying()) {
-        SceneView scene_view;
-        scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-        scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
-
-        Scene* scene = scene_view.ResolveScene();
-
-        // @HACK: find the first non-editor camera
-        for (auto [id, camera] : scene->View<CameraComponent>()) {
-            if (scene->Contains<NoSaveTag>(id)) {
-                continue;
-            }
-
-            ViewInfo::FromCamera(camera,
-                                 scene_view.view_info,
-                                 p_is_opengl);
-
-            p_out_views.push_back(scene_view);
-            break;
-        }
-        return;
-    }
-
-    // @HACK: force update
-    SceneView scene_view;
-    scene_view.scene_id = p_scene_id;
-    scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
-
-    Scene* scene = scene_view.ResolveScene();
-    const CameraComponent* cam = scene->GetComponent<CameraComponent>(p_camera);
-
-    if (DEV_VERIFY(cam)) {
-        ViewInfo::FromCamera(*cam,
-                             scene_view.view_info,
-                             p_is_opengl);
-
-        p_out_views.push_back(scene_view);
-    }
-}
-
-static const char EDITOR_CAMERA_NAME[] = "_editor_cam";
-
-void Tab::SetupDefault2DCamera() {
-    Scene* scene = GetResolvedScene();
-    DEV_ASSERT(scene);
-
-    ecs::Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    if (!cam.IsValid()) {
-        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
-        scene->Create<NoSaveTag>(cam);
-        scene->AttachChild(cam);
-        CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
-        camera->SetProjection(ProjectionType::Orthographic);
-        TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
-        transform->SetTranslation(Vector3f(0, 0, 10));
-    }
-
-    m_camera = cam;
-    m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
-}
-
-void Tab::SetupDefault3DCamera() {
-    Scene* scene = GetResolvedScene();
-    DEV_ASSERT(scene);
-
-    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    Entity cam_y = scene->FindEntityByName("_editor_cam_y");
-    Entity cam_root = scene->FindEntityByName("_editor_cam_root");
-
-    if (!cam.IsValid()) {
-        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
-        cam_y = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_y");
-        cam_root = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_root");
-
-        scene->Create<NoSaveTag>(cam);
-        scene->Create<NoSaveTag>(cam_y);
-        scene->Create<NoSaveTag>(cam_root);
-
-        scene->AttachChild(cam_root);
-        scene->AttachChild(cam_y, cam_root);
-        scene->AttachChild(cam, cam_y);
-    }
-
-    m_camera = cam;
-    m_camera_controller = std::make_shared<CameraControllerFPS>(scene, cam_root, cam_y, cam);
-}
-
-Scene* Tab::GetResolvedScene() {
-    return m_editor.GetApp().GetSceneRegistry()->Resolve(m_scene_id);
-}
-
-CameraInputState Tab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
-    CameraInputState state{};
-
-    float dx = 0.0f;
-    float dy = 0.0f;
-    bool mmb = false;
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
-
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                state.zoom_delta = -e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                e.consumed = true;
-                dx = -e.dx;
-                dy = e.dy;
-            } break;
-            case InputEventType::ButtonDown:
-                if (e.code == std::to_underlying(Key::MMB)) {
-                    e.consumed = true;
-                    mmb = true;
-                }
-                break;
-            default:
-                break;
-        }
-
-        if (mmb) {
-            state.move = Vector3f(dx, dy, 0.0f);
-        }
-    }
-
-    return state;
-}
-
-CameraInputState Tab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
-    Vector2f rotation = Vector2f::Zero;
-
-    const InputDeviceId id{ 0 };
-    const bool mmb = p_st.Down(id, Key::MMB);
-    const int dx = p_st.Down(id, Key::D) - p_st.Down(id, Key::A);
-    const int dy = p_st.Down(id, Key::E) - p_st.Down(id, Key::Q);
-    const int dz = p_st.Down(id, Key::W) - p_st.Down(id, Key::S);
-
-    CameraInputState state{};
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                state.zoom_delta = 3.0f * e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                if (mmb) {
-                    e.consumed = true;
-                    state.rotation.x = e.dx;
-                    state.rotation.y = e.dy;
-                }
-            } break;
-            default:
-                break;
-        }
-    }
-
-    state.move = Vector3f(dx, dy, dz);
-    return state;
-}
-
 
 }  // namespace cave

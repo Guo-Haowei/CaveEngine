@@ -35,10 +35,6 @@ ViewerTab::ViewerTab(EditorState& p_editor,
 ViewerTab::~ViewerTab() {
 }
 
-Scene* ViewerTab::GetResolvedScene() {
-    return m_scene_manager.Resolve(GetSceneId());
-}
-
 void ViewerTab::OnCreate(const Guid& p_guid) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid(p_guid).unwrap();
     auto meta = handle.GetMeta();
@@ -58,51 +54,6 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
             SetupDefault3DCamera();
         } break;
     }
-}
-
-void ViewerTab::SetupDefault2DCamera() {
-    Scene* scene = GetResolvedScene();
-    DEV_ASSERT(scene);
-
-    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    if (!cam.IsValid()) {
-        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
-        scene->Create<NoSaveTag>(cam);
-        scene->AttachChild(cam);
-        CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
-        camera->SetProjection(ProjectionType::Orthographic);
-        TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
-        transform->SetTranslation(Vector3f(0, 0, 10));
-    }
-
-    m_camera = cam;
-    m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
-}
-
-void ViewerTab::SetupDefault3DCamera() {
-    Scene* scene = GetResolvedScene();
-    DEV_ASSERT(scene);
-
-    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    Entity cam_y = scene->FindEntityByName("_editor_cam_y");
-    Entity cam_root = scene->FindEntityByName("_editor_cam_root");
-
-    if (!cam.IsValid()) {
-        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
-        cam_y = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_y");
-        cam_root = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_root");
-
-        scene->Create<NoSaveTag>(cam);
-        scene->Create<NoSaveTag>(cam_y);
-        scene->Create<NoSaveTag>(cam_root);
-
-        scene->AttachChild(cam_root);
-        scene->AttachChild(cam_y, cam_root);
-        scene->AttachChild(cam, cam_y);
-    }
-
-    m_camera = cam;
-    m_camera_controller = std::make_shared<CameraControllerFPS>(scene, cam_root, cam_y, cam);
 }
 
 void ViewerTab::OnActivate() {
