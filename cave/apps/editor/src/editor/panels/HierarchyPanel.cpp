@@ -7,7 +7,7 @@
 #include "engine/private/debugger/profiler.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
-#include "editor/document/DocumentService.h"
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
@@ -15,7 +15,6 @@
 #include "editor/edit/EditObjectCmd.h"
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/DragDrop.h"
 
 namespace cave {

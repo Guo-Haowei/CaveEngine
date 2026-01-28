@@ -6,7 +6,6 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
-#include "editor/material_editor/MaterialDocument.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/widgets/DragDrop.h"
 #include "engine/private/ui/layout.h"
@@ -14,58 +13,6 @@
 namespace cave {
 
 #if 0
-MaterialEditor::MaterialEditor(EditorState& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, {}, p_viewer, DIMENSION_3) {
-}
-
-void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
-    unused(p_guid);
-    DEV_ASSERT(0);
-    m_document = std::make_shared<MaterialDocument>(p_guid);
-
-    auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
-    DEV_ASSERT(scene_manager);
-
-    m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
-        auto scene = std::make_shared<Scene>();
-        auto root = EntityFactory::CreateTransformEntity(*scene, "material_test");
-        scene->m_root = root;
-
-        if constexpr (1) {  // add point light
-            auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vector3f(0, 3, 1));
-
-            scene->AttachChild(id);
-        }
-
-        if constexpr (1)  // add sphere
-        {
-            auto id = EntityFactory::CreateSphereEntity(*scene, "sphere");
-            MeshRendererComponent* renderer = scene->GetComponent<MeshRendererComponent>(id);
-            DEV_ASSERT(renderer);
-            auto material_id = renderer->GetMaterialInstances()[0];
-            MaterialComponent* material = scene->GetComponent<MaterialComponent>(material_id);
-            material->SetResourceGuid(p_guid);
-
-            TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
-            transform.SetTranslation(Vector3f(0.0f, 0.0f, 0.0f));
-
-            scene->AttachChild(id);
-        }
-
-        if constexpr (0)  // add plane
-        {
-            auto id = EntityFactory::CreatePlaneEntity(*scene, "plane");
-            TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
-            transform.SetScale(Vector3f(5));
-            transform.RotateX(Degree(-90.0f));
-
-            scene->AttachChild(id);
-        }
-
-        return scene;
-    });
-}
-
 void MaterialEditor::OnDestroy() {
 }
 

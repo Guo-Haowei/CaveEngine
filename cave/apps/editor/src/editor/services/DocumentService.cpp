@@ -1,6 +1,7 @@
 #include "DocumentService.h"
 
-#include "SceneDocument.h"
+#include "editor/document/MaterialDocument.h"
+#include "editor/document/SceneDocument.h"
 
 #include "cave/runtime/framework/IApplication.h"
 
@@ -17,7 +18,8 @@ static std::unique_ptr<IDocument> CreateDoc(IApplication& p_app, const OpenDocDe
     switch (p_desc.asset_type) {
         case AssetType::Scene:
             return std::make_unique<SceneDocument>(p_app, p_desc.guid);
-        // case AssetType::Material:
+        case AssetType::Material:
+            return std::make_unique<MaterialDocument>(p_app, p_desc.guid);
         default:
             return std::make_unique<DocumentBase>(p_app, p_desc.guid);
     }

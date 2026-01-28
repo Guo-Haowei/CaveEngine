@@ -3,12 +3,12 @@
 
 namespace cave {
 
-class SceneDocument : public DocumentBase {
+class MaterialDocument : public DocumentBase {
 public:
-    SceneDocument(IApplication& p_app, const Guid& p_guid);
+    MaterialDocument(IApplication& p_app, const Guid& p_guid);
 
-    bool Save() override;
-    bool SaveAs(std::string_view p_new_path) override;
+    // bool Save() override;
+    // bool SaveAs(std::string_view p_new_path) override;
 
     SceneId GetPreviewScene() const {
         return m_preview_scene;

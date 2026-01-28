@@ -8,22 +8,29 @@
 
 namespace cave {
 
+enum ViewDimension : uint8_t {
+    DIMENSION_2,
+    DIMENSION_3,
+};
+
 class KeyState;
 
-class SceneEditor : public Tab,
-                    public ISceneTickContributor {
+class SceneViewTab : public Tab,
+                     public ISceneTickContributor {
 public:
-    SceneEditor(EditorState& p_editor,
-                DocId p_doc_id,
-                SceneId p_preview_scene_id,
-                ViewDimension p_dim);
+    SceneViewTab(EditorState& p_editor,
+                 DocId p_doc_id,
+                 SceneId p_preview_scene_id,
+                 ViewDimension p_dim);
 
-    void OnCreate() final;
-    void OnDestroy() final;
+    void OnCreate() override;
+    void OnDestroy() override;
 
     void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
 
     void OnInputEvents(const std::vector<InputEvent>& p_events) override;
+
+    void Tick(float p_dt) override;
 
     // @TODO: cleanup
     void BuildViews(std::vector<SceneView>& p_out_views,
@@ -55,6 +62,7 @@ protected:
     ToolBarButtonDesc m_play_button;
 
     int m_button_index{ 0 };
+    ViewDimension m_dim;
 
     // @TODO: move to input controller
     void SetupDefault2DCamera();

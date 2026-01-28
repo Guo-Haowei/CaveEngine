@@ -1,8 +1,6 @@
 #pragma once
 #include "engine/private/runtime/scene/CameraComponent.h"
 
-#include "editor/viewer/ViewerTab.h"
-
 namespace cave {
 
 #if 0

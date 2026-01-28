@@ -1,6 +1,7 @@
 #include "Tab.h"
 
 #include "editor/EditorState.h"
+#include "editor/services/EditService.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/RuntimeHost.h"
@@ -8,11 +9,8 @@
 
 namespace cave {
 
-Tab::Tab(EditorState& p_editor,
-         DocId p_doc_id,
-         ViewDimension p_dim)
+Tab::Tab(EditorState& p_editor, DocId p_doc_id)
     : EditorWindow(p_editor)
-    , m_dim(p_dim)
     , m_doc_id(p_doc_id) {}
 
 void Tab::DrawUIImpl() {
@@ -52,6 +50,15 @@ void Tab::SetTitleAndId(std::string_view p_title, uint32_t p_idx) {
     m_idx = p_idx;
     m_title = p_title.empty() ? "Untitled" : p_title;
     m_window_id = std::format("{}###WorkspaceTab{}", m_title, m_idx);
+}
+
+void Tab::Tick(float) {
+    const bool dirty = m_editor.EditService().IsDirty(m_doc_id);
+    if (dirty) {
+        m_flags |= ImGuiWindowFlags_UnsavedDocument;
+    } else {
+        m_flags &= ~ImGuiWindowFlags_UnsavedDocument;
+    }
 }
 
 void Tab::OnCreate() {

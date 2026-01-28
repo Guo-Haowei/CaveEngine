@@ -1,5 +1,5 @@
 #pragma once
-#include "DocumentTypes.h"
+#include "DocId.h"
 
 #include "cave/runtime/scene/SceneId.h"
 

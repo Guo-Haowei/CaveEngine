@@ -1,6 +1,6 @@
 #include "EditService.h"
 
-#include "editor/document/DocumentService.h"
+#include "editor/services/DocumentService.h"
 #include "editor/services/Workspace.h"
 
 #include "engine/private/debugger/profiler.h"

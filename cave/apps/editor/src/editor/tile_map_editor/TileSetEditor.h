@@ -1,7 +1,6 @@
 #pragma once
 #include "engine/private/assets/asset_handle.h"
 
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/SpriteSelector.h"
 
 namespace cave {

@@ -1,3 +1,4 @@
+#pragma once
 #include "IDocument.h"
 
 #include "editor/edit/IEditCmd.h"

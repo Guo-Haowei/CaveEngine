@@ -2,12 +2,11 @@
 
 #include "engine/private/runtime/framework/InputSystem.h"
 
-#include "editor/document/DocumentService.h"
+#include "editor/services/DocumentService.h"
 #include "editor/EditorState.h"
 
 // @TODO: delete
 #include "editor/panels/SceneViewTab.h"
-//#include "engine/private/runtime/framework/ViewportManager.h"
 
 namespace cave {
 
@@ -24,7 +23,15 @@ Workspace::~Workspace() {
     app.GetInputSystem()->Router().Unregister(this);
 }
 
-void Workspace::Tick() {
+void Workspace::Tick(float p_dt) {
+    for (auto& it : m_slots) {
+        if (Tab* tab = it.storage.get()) {
+            // @NOTE: tick collapsed?
+            // @NOTE: tick inactive?
+            tab->Tick(p_dt);
+        }
+    }
+
     FlushPendingRequests();
     DrawTabs();
 }
@@ -75,8 +82,10 @@ void Workspace::BuildViews(std::vector<SceneView>& p_out_views,
                            bool p_is_opengl) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
+        // @TODO: should build when visible, but we only support one render target output
         if (tab && tab->IsVisible()) {
-            if (SceneEditor* scene_tab = dynamic_cast<SceneEditor*>(tab)) {
+            // if (tab && tab->IsFocused()) {
+            if (SceneViewTab* scene_tab = dynamic_cast<SceneViewTab*>(tab)) {
                 scene_tab->BuildViews(p_out_views, p_is_opengl);
             }
         }
@@ -93,6 +102,7 @@ void Workspace::OnEvents(const std::vector<InputEvent>& p_events) {
     }
 }
 
+// @TODO: probably want to refactor this
 void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
     IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id);
     if (!doc) {
@@ -111,16 +121,15 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 
     std::unique_ptr<Tab> tab;
     switch (meta->type) {
-        case AssetType::Scene: {
-            tab = std::make_unique<SceneEditor>(m_editor,
-                                                p_doc_id,
-                                                doc->GetPreviewScene(),
-                                                ViewDimension::DIMENSION_3);
+        case AssetType::Scene:
+        case AssetType::Material: {
+            tab = std::make_unique<SceneViewTab>(m_editor,
+                                                 p_doc_id,
+                                                 doc->GetPreviewScene(),
+                                                 ViewDimension::DIMENSION_3);
         } break;
         default: {
-            tab = std::make_unique<Tab>(m_editor,
-                                        p_doc_id,
-                                        ViewDimension::DIMENSION_3);
+            tab = std::make_unique<Tab>(m_editor, p_doc_id);
         } break;
     }
 
@@ -138,9 +147,6 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
     Viewer& viewer = m_editor.GetViewer();
     switch (meta->type) {
         case AssetType::Scene: {
-            ViewerTab::Dimension dimension = DVAR_GET_BOOL(is_world_2d) ? ViewerTab::DIMENSION_2
-                                                                        : ViewerTab::DIMENSION_3;
-            tab.reset(new SceneEditor(m_editor, p_doc_id, viewer, dimension));
         } break;
         // case AssetType::TileSet: {
         //     tab.reset(new TileSetEditor(m_editor, *this));
@@ -167,10 +173,6 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 //-------------- DEPRECATE ------------------
 
 void Workspace::HandleCloseRequest() {
-    // if (m_close_request.is_none()) {
-    //     return;
-    // }
-
 #if 0
     RequestSaveDialog([&](SaveDialogResponse p_response) {
         auto it = m_old_tabs.find(m_close_request.unwrap());

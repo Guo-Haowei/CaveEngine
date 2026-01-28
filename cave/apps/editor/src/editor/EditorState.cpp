@@ -7,7 +7,7 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 
-#include "editor/document/DocumentService.h"
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
@@ -144,7 +144,7 @@ void EditorState::Tick(float p_dt) {
     for (auto& it : m_panels) it->DrawUI();
 
     m_edit_service->FlushPendingCmds();
-    m_workspace->Tick();
+    m_workspace->Tick(p_dt);
 
     ImGui::Render();
 

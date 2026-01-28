@@ -9,13 +9,11 @@
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
-#include "editor/document/DocumentService.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
-// #include "editor/document/document.h"
 #include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"
@@ -25,11 +23,12 @@
 
 namespace cave {
 
-SceneEditor::SceneEditor(EditorState& p_editor,
-                         DocId p_doc_id,
-                         SceneId p_preview_scene_id,
-                         ViewDimension p_dimension)
-    : Tab(p_editor, p_doc_id, p_dimension)
+SceneViewTab::SceneViewTab(EditorState& p_editor,
+                           DocId p_doc_id,
+                           SceneId p_preview_scene_id,
+                           ViewDimension p_dimension)
+    : Tab(p_editor, p_doc_id)
+    , m_dim(p_dimension)
     , m_preview_scene(p_preview_scene_id)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
     , m_button_tooltips{ "Run Project", "Pause Project" } {
@@ -46,10 +45,10 @@ SceneEditor::SceneEditor(EditorState& p_editor,
     };
 }
 
-void SceneEditor::BuildViewsImpl(SceneId p_scene_id,
-                                 ecs::Entity p_camera,
-                                 std::vector<SceneView>& p_out_views,
-                                 bool p_is_opengl) {
+void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
+                                  ecs::Entity p_camera,
+                                  std::vector<SceneView>& p_out_views,
+                                  bool p_is_opengl) {
     // @TODO: refactor scene view API
     if (m_editor.IsPlaying()) {
         DEV_ASSERT(0);
@@ -92,7 +91,7 @@ void SceneEditor::BuildViewsImpl(SceneId p_scene_id,
     }
 }
 
-void SceneEditor::OnCreate() {
+void SceneViewTab::OnCreate() {
     switch (m_dim) {
         case DIMENSION_2: {
             SetupDefault2DCamera();
@@ -106,12 +105,12 @@ void SceneEditor::OnCreate() {
     app.GetSceneScheduler().Register(this);
 }
 
-void SceneEditor::OnDestroy() {
+void SceneViewTab::OnDestroy() {
     IApplication& app = m_editor.GetApp();
     app.GetSceneScheduler().Unregister(this);
 }
 
-void SceneEditor::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
+void SceneViewTab::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
     if (!m_editor.IsPlaying()) {
         p_out.push_back(SceneTickRequest{
             SceneTickMode::Editor,
@@ -120,8 +119,42 @@ void SceneEditor::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
     }
 }
 
-void SceneEditor::OnInputEvents(const std::vector<InputEvent>& p_events) {
-    unused(p_events);
+void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
+    if (!IsHovered()) {
+        return;
+    }
+
+    if (m_editor.IsPlaying()) {
+        return;
+    }
+
+    const KeyState& st = m_editor.GetApp().GetInputSystem()->GetKeyState();
+    if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
+        m_camera_state = {};
+        return;
+    }
+
+    switch (m_dim) {
+        case DIMENSION_2: {
+            m_camera_state = CreateCameraInputState2D(p_events, st);
+        } break;
+        case DIMENSION_3: {
+            m_camera_state = CreateCameraInputState3D(p_events, st);
+        } break;
+        default: {
+            CRASH_NOW_MSG("invalid dimension");
+        } break;
+    }
+}
+
+void SceneViewTab::Tick(float p_dt) {
+    Tab::Tick(p_dt);
+
+    m_camera_state.move *= p_dt;
+    m_camera_state.zoom_delta *= p_dt;
+    m_camera_state.rotation *= p_dt;
+
+    m_camera_controller->Update(m_camera_state);
 }
 
 // @TODO: rename this to DrawEditor
@@ -233,13 +266,13 @@ void SceneEditor::Select(const Vector2f& p_cursor) {
 }
 #endif
 
-Scene* SceneEditor::GetResolvedScene() {
+Scene* SceneViewTab::GetResolvedScene() {
     return m_editor.GetApp().GetSceneRegistry()->Resolve(m_preview_scene);
 }
 
 static const char EDITOR_CAMERA_NAME[] = "_editor_cam";
 
-void SceneEditor::SetupDefault2DCamera() {
+void SceneViewTab::SetupDefault2DCamera() {
     Scene* scene = GetResolvedScene();
     DEV_ASSERT(scene);
 
@@ -258,7 +291,7 @@ void SceneEditor::SetupDefault2DCamera() {
     m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
 }
 
-void SceneEditor::SetupDefault3DCamera() {
+void SceneViewTab::SetupDefault3DCamera() {
     Scene* scene = GetResolvedScene();
     DEV_ASSERT(scene);
 
@@ -284,7 +317,7 @@ void SceneEditor::SetupDefault3DCamera() {
     m_camera_controller = std::make_shared<CameraControllerFPS>(scene, cam_root, cam_y, cam);
 }
 
-CameraInputState SceneEditor::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
+CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
     CameraInputState state{};
 
     float dx = 0.0f;
@@ -324,7 +357,7 @@ CameraInputState SceneEditor::CreateCameraInputState2D(const std::vector<InputEv
     return state;
 }
 
-CameraInputState SceneEditor::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
+CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
     Vector2f rotation = Vector2f::Zero;
 
     const InputDeviceId id{ 0 };

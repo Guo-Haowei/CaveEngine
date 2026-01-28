@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/runtime/core/GenIdRegistry.h"
 
-#include "editor/document/DocumentTypes.h"
+#include "editor/document/DocId.h"
 #include "editor/panels/Tab.h"
 
 namespace cave {
@@ -14,6 +14,19 @@ enum class SaveDialogResponse {
     Save,
     Discard,
     Cancel,
+};
+
+enum class DocKind : uint8_t {
+    Scene,
+    Script,
+    Material,
+    Mesh,
+    Texture,
+    Audio,
+    Prefab,
+    Shader,
+
+    _Count,
 };
 
 struct WorkspaceRequest {
@@ -48,7 +61,7 @@ public:
     Workspace(EditorState& p_editor);
     ~Workspace();
 
-    void Tick();
+    void Tick(float p_dt);
 
     void Submit(WorkspaceRequest p_req);
 

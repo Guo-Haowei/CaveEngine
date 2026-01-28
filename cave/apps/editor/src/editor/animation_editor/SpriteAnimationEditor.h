@@ -4,7 +4,6 @@
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/assets/sprite_animation_asset.h"
 
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/SpriteSelector.h"
 #include "editor/widgets/ToolBar.h"
 
