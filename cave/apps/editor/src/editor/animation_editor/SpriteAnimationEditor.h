@@ -1,7 +1,8 @@
 #pragma once
+#include "cave/runtime/ecs/Entity.h"
+
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/assets/sprite_animation_asset.h"
-#include "engine/private/ecs/entity.h"
 
 #include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/SpriteSelector.h"
@@ -9,6 +10,7 @@
 
 namespace cave {
 
+#if 0
 class AssetRegistry;
 class OldDocument;
 class TileMapDocument;
@@ -25,8 +27,6 @@ public:
     void DrawMainView(const CameraComponent& p_camera) final;
 
     void DrawAssetInspector() final;
-
-    OldDocument& GetDocument() const final;
 
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
@@ -56,5 +56,6 @@ protected:
     ToolBarButtonDesc m_play_button;
     ToolBarButtonDesc m_pause_button;
 };
+#endif
 
 }  // namespace cave

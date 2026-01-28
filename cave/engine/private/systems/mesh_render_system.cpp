@@ -99,9 +99,9 @@ static void FillPass(const Scene& p_scene,
         batch_buffer.c_meshFlag = skeleton_id.IsValid();
 
         DrawCommand draw;
-        if (entity == p_scene.m_selected) {
-            draw.flags = STENCIL_FLAG_SELECTED;
-        }
+        // if (entity == p_scene.m_selected) {
+        //     draw.flags = STENCIL_FLAG_SELECTED;
+        // }
 
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(entity, batch_buffer);
         if (skeleton_id.IsValid()) {
@@ -350,9 +350,9 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
         DrawCommand draw;
         // @TODO: refactor the stencil part
-        if (entity == scene.m_selected) {
-            draw.flags = STENCIL_FLAG_SELECTED;
-        }
+        // if (entity == scene.m_selected) {
+        //    draw.flags = STENCIL_FLAG_SELECTED;
+        //}
 
         if (skeleton_id.IsValid()) {
             const SkeletonComponent* skeleton = scene.GetComponent<SkeletonComponent>(skeleton_id);

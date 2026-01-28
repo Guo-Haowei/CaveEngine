@@ -11,8 +11,9 @@
 #endif
 
 #if USING(USE_IMPORTER_TINYGLTF)
+#include "cave/runtime/ecs/Entity.h"
+
 #include "engine/private/assets/scene_importer.h"
-#include "engine/private/ecs/entity.h"
 
 namespace tinygltf {
 class Model;

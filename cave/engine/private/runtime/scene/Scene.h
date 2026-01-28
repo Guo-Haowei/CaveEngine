@@ -2,8 +2,8 @@
 #include "cave/runtime/core/NonCopyable.h"
 
 #include "engine/private/assets/asset_interface.h"
-#include "engine/private/ecs/component_manager.h"
-#include "engine/private/ecs/view.h"
+#include "engine/private/runtime/ecs/ComponentManager.h"
+#include "engine/private/runtime/ecs/View.h"
 #include "engine/private/math/ray.h"
 
 // components
@@ -98,6 +98,8 @@ public:
     size_t GetCount() const { return 0; }
     template<ComponentType T>
     T& Create(const ecs::Entity&) { return *(T*)(nullptr); }
+    template<ComponentType T>
+    void Remove(const ecs::Entity&) {}
 
     template<ComponentType T>
     inline T& GetComponentByIndex(size_t) { return *(T*)0; }
@@ -144,6 +146,8 @@ public:
     template<>                                                                                                     \
     inline T& Create<T>(const ecs::Entity& p_entity) { return m_##T##s.Create(p_entity); }                         \
     template<>                                                                                                     \
+    inline void Remove<T>(const ecs::Entity& p_entity) { return m_##T##s.Remove(p_entity); }                       \
+    template<>                                                                                                     \
     inline const ecs::ComponentManager<T>& Get() const { return m_##T##s; }                                        \
     template<>                                                                                                     \
     inline ecs::ComponentManager<T>& Get() { return m_##T##s; }
@@ -187,17 +191,19 @@ public:
     const AABB& GetBound() const { return m_bound; }
 
     ecs::Entity m_root;
-    // @TODO: deprecate
-    ecs::Entity m_selected;
-    bool m_replace = false;
 
+    // @TODO: deprecate
     std::atomic<uint32_t> m_dirtyFlags{ SCENE_DIRTY_NONE };
     // @TODO: refactor
     AABB m_bound;
 
+    // @TODO: refactor
     PhysicsMode m_physicsMode{ PhysicsMode::NONE };
+
+    // @TODO: refactor
     mutable PhysicsWorldContext* m_physicsWorld{ nullptr };
 
+    // @TODO: refactor
     const auto& GetLibraryEntries() const { return m_component_lib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 

@@ -1,15 +1,18 @@
 #pragma once
 #include <compare>
+#include <cstdint>
 
 namespace cave::ecs {
 
 class Entity {
 public:
-    static constexpr uint32_t INVALID_ID = 0;
-    static constexpr uint32_t MAX_ID = ~0u;
+    enum : uint32_t {
+        kInvalidId = 0u,
+        kMaxId = ~0u,
+    };
 
     explicit constexpr Entity()
-        : m_id(INVALID_ID) {}
+        : m_id(kInvalidId) {}
 
     explicit constexpr Entity(uint32_t p_handle)
         : m_id(p_handle) {}
@@ -20,9 +23,9 @@ public:
 
     std::strong_ordering operator<=>(const Entity&) const = default;
 
-    bool IsValid() const { return m_id != INVALID_ID; }
+    bool IsValid() const { return m_id != kInvalidId; }
 
-    void MakeInvalid() { m_id = INVALID_ID; }
+    void MakeInvalid() { m_id = kInvalidId; }
 
     constexpr uint32_t GetId() const { return m_id; }
 

@@ -9,6 +9,7 @@
 
 #include "editor/document/DocumentService.h"
 #include "editor/services/EditService.h"
+#include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
 #include "editor/services/Workspace.h"
 
@@ -26,7 +27,7 @@
 #include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/ui/layout.h"
 
-#include "editor/document/Document.h"
+#include "editor/edit/EditObjectCmd.h"
 #include "editor/EditorDvars.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/panels/FileSystemPanel.h"
@@ -36,8 +37,6 @@
 #include "editor/panels/PropertyPanel.h"
 #include "editor/panels/RenderGraphViewer.h"
 #include "editor/panels/RendererPanel.h"
-#include "editor/viewer/Viewer.h"
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/Image.h"
 
 namespace cave {
@@ -45,10 +44,13 @@ namespace cave {
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app) {
     // services
-    m_document_service = std::make_unique<DocumentService>(*this);
-    m_edit_service = std::make_unique<EditService>(*this);
-    m_shortcut_service = std::make_unique<ShortcutService>(*this);
-    m_workspace = std::make_unique<Workspace>(*this);
+    m_document_service = std::make_unique<cave::DocumentService>(*this);
+    m_edit_service = std::make_unique<cave::EditService>(*this);
+    m_selection_service = std::make_unique<cave::SelectionService>(*this);
+    m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
+    m_workspace = std::make_shared<cave::Workspace>(*this);
+
+    m_app.GetViewportManager()->CreateViewport(m_workspace);
 
     // runtime
     m_runtime_host = std::make_unique<RuntimeHost>(p_app);
@@ -56,7 +58,6 @@ EditorState::EditorState(IApplication& p_app)
     // panels
     m_asset_inspector = std::make_shared<AssetInspector>(*this);
     m_menu_bar = std::make_shared<MenuBar>(*this);
-    m_viewer = std::make_shared<Viewer>(*this);
     m_log_panel = std::make_shared<LogPanel>(*this);
     m_file_system_panel = std::make_shared<FileSystemPanel>(*this);
 
@@ -64,7 +65,6 @@ EditorState::EditorState(IApplication& p_app)
     AddPanel(std::make_shared<RendererPanel>(*this));
     AddPanel(std::make_shared<HierarchyPanel>(*this));
     AddPanel(std::make_shared<PropertyPanel>(*this));
-    AddPanel(m_viewer);
     AddPanel(m_asset_inspector);
     AddPanel(std::make_shared<RenderGraphViewer>(*this));
     AddPanel(m_file_system_panel);
@@ -75,6 +75,7 @@ EditorState::~EditorState() {
 }
 
 void EditorState::OnEnter(const StateRequest& p_args) {
+    CAVE_PROFILE_EVENT();
     unused(p_args);
 
     const char* module_name = "game_Debug.dll";
@@ -87,9 +88,12 @@ void EditorState::OnEnter(const StateRequest& p_args) {
 
     ImNodes::CreateContext();
 
-    auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
-    if (handle.is_some()) {
-        context.checkerboard = handle.unwrap_unchecked().Wait();
+    {
+        // @TODO: get rid of this
+        auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
+        if (handle.is_some()) {
+            context.checkerboard = handle.unwrap_unchecked().Wait();
+        }
     }
 
     for (auto& panel : m_panels) {
@@ -99,13 +103,17 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
         if (auto res = Guid::Parse(asset); res.is_some()) {
             Guid guid = res.unwrap_unchecked();
-            auto req = WorkspaceRequest::OpenDoc(m_document_service->OpenScene(guid));
-            m_workspace->SendRequest(std::move(req));
+            if (auto handle = m_app.GetAssetRegistry()->FindByGuid(guid); handle.is_some()) {
+                AssetHandle handle_ = handle.unwrap_unchecked();
+                m_document_service->OpenDoc({ guid, handle_.GetMeta()->type });
+            }
         }
     }
 }
 
 void EditorState::OnExit() {
+    CAVE_PROFILE_EVENT();
+
     if (IsPlaying()) {
         m_runtime_host->Stop();
     }
@@ -133,17 +141,14 @@ void EditorState::Tick(float p_dt) {
     imgui_manager->BeginFrame();
 
     DockSpace();
-    for (auto& it : m_panels) {
+    for (auto& it : m_panels)
         it->Update(p_dt);
-    }
 
-    {
-        CAVE_PROFILE_EVENT("ImGui::Render");
-        ImGui::Render();
-    }
-
-    m_edit_service->Flush();
+    m_edit_service->FlushPendingCmds();
     m_workspace->Tick(p_dt);
+
+    ImGui::Render();
+
     CommitModeSwitch();
 }
 
@@ -168,12 +173,15 @@ void EditorState::CommitModeSwitch() {
 
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
+            DEV_ASSERT(0);
+#if 0
             ViewerTab* tab = m_viewer->GetActiveTab();
             DEV_ASSERT(tab);
             RuntimeStartParams params(std::move(SceneSource::FromExisting(tab->GetSceneId())));
             params.game_mode_id = "chess";
             params.mode = RuntimeStartParams::Mode::PIE;
             m_runtime_host->Start(params);
+#endif
         } break;
         case cave::EditorState::Mode::Playing: {
             m_runtime_host->Stop();
@@ -184,7 +192,7 @@ void EditorState::CommitModeSwitch() {
     m_switch_mode_requested = false;
 }
 
-void EditorState::AddPanel(std::shared_ptr<EditorItem> p_panel) {
+void EditorState::AddPanel(std::shared_ptr<IEditorItem> p_panel) {
     m_panels.emplace_back(p_panel);
 }
 
@@ -213,6 +221,41 @@ void EditorState::DockSpace() {
     });
 
     return;
+}
+
+FocusedPreviewScene EditorState::GetFocusedPreviewScene() {
+    FocusedPreviewScene ret;
+    if (Tab* tab = m_workspace->GetFocusedTab()) {
+        ret.doc_id = tab->GetDocId();
+        if (IDocument* doc = m_document_service->Resolve(ret.doc_id)) {
+            ret.scene_id = doc->GetPreviewScene();
+            ret.scene = m_app.GetSceneRegistry()->Resolve(ret.scene_id);
+        }
+    }
+    return ret;
+}
+
+void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
+    unused(p_parent);
+    if (ImGui::BeginMenu("Add")) {
+        DEV_ASSERT(0);
+#if 0
+        ViewerTab* tab = nullptr;
+        DEV_ASSERT(tab);
+        DocId doc_id = tab ? tab->GetDocId() : DocId{};
+#define ENTITY_TYPE(NAME, SEP)                                                           \
+    if (ImGui::MenuItem(#NAME)) {                                                        \
+        auto cmd = std::make_unique<AddObjectCmd>(GetApp(), p_parent, EntityType::NAME); \
+        m_edit_service->Submit(doc_id, std::move(cmd));                                  \
+    }                                                                                    \
+    if constexpr (SEP) {                                                                 \
+        ImGui::Separator();                                                              \
+    }
+        ENTITY_TYPE_LIST
+#undef ENTITY_TYPE
+#endif
+        ImGui::EndMenu();
+    }
 }
 
 }  // namespace cave

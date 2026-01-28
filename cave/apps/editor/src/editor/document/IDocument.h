@@ -7,7 +7,7 @@
 
 namespace cave {
 
-struct IEditCommand;
+class IEditCmd;
 
 struct DocInfo {
     DocId id{};
@@ -23,7 +23,7 @@ public:
     // --- Editing (commands mutate document state) ---
     // Apply pushes onto undo stack; clears redo stack.
     // Returns false if rejected (invalid command for current doc state).
-    virtual bool Apply(std::unique_ptr<IEditCommand> p_cmd,
+    virtual bool Apply(std::unique_ptr<IEditCmd> p_cmd,
                        uint32_t p_coalesce) = 0;
 
     virtual bool CanUndo() const = 0;
@@ -44,8 +44,6 @@ public:
     virtual void GetUndoLabels(std::vector<std::string>& p_out, int p_max_items) const = 0;
     virtual void GetRedoLabels(std::vector<std::string>& p_out, int p_max_items) const = 0;
 
-    virtual SceneId GetPreviewScene() const = 0;
-
     AssetHandle GetHandleRaw() const {
         return m_handle;
     }
@@ -55,6 +53,11 @@ public:
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
         AssetHandle copy = m_handle;
         return Handle<T>(std::move(copy));
+    }
+
+    // @TODO: remove this, not all doc is related to scene
+    virtual SceneId GetPreviewScene() const {
+        return {};
     }
 
 protected:

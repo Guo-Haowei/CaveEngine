@@ -1,4 +1,4 @@
-#include "component_manager.h"
+#include "ComponentManager.h"
 
 namespace cave::ecs {
 

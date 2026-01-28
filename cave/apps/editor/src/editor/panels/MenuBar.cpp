@@ -12,7 +12,7 @@
 namespace cave {
 
 void MenuBar::Update(float) {
-    const auto& shortcuts = m_editor.GetShortcutService().GetShortcuts();
+    const auto& shortcuts = m_editor.ShortcutService().GetShortcuts();
     auto build_menu_item = [&](Shortcut p_index) {
         const auto& it = shortcuts[std ::to_underlying(p_index)];
         const bool enabled = it.enabled_func ? it.enabled_func() : true;
@@ -43,7 +43,8 @@ void MenuBar::Update(float) {
         ImGui::EndMenu();
     }
     ImGui::Separator();
-    EditorItem::OpenAddEntityPopup(ecs::Entity::Null());
+
+    m_editor.OpenAddEntityPopup(ecs::Entity::Null());
 
     ImGui::Separator();
     if (ImGui::BeginMenu("Debug")) {

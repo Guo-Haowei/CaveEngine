@@ -8,8 +8,8 @@
 
 namespace cave {
 
+#if 0
 class AssetRegistry;
-class OldDocument;
 class Scene;
 class TileMapDocument;
 
@@ -23,8 +23,6 @@ public:
     void DrawMainView(const CameraComponent& p_camera) final;
 
     void DrawAssetInspector() final;
-
-    OldDocument& GetDocument() const final;
 
     bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
 
@@ -46,5 +44,6 @@ protected:
 
     SpriteSelector m_sprite_selector;
 };
+#endif
 
 }  // namespace cave

@@ -4,6 +4,13 @@
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
+#define DEBUG_DOC IN_USE
+#if USING(DEBUG_DOC)
+#define DEBUG_DOC_LOG(...) LOG_VERBOSE(__VA_ARGS__)
+#else
+#define DEBUG_DOC_LOG(...) (void)0
+#endif
+
 namespace cave {
 
 DocumentBase::DocumentBase(IApplication& p_app, const Guid& p_guid)
@@ -15,17 +22,14 @@ DocumentBase::DocumentBase(IApplication& p_app, const Guid& p_guid)
     m_asset = m_handle.Wait();
 }
 
-bool DocumentBase::Apply(std::unique_ptr<IEditCommand> p_cmd, uint32_t p_coalesce) {
+bool DocumentBase::Apply(std::unique_ptr<IEditCmd> p_cmd, uint32_t p_coalesce) {
     if (!p_cmd) return false;
 
-    // Coalesce with last undo command if requested and compatible
-    if (!m_undo.empty() && p_coalesce != 0 && m_last_coalesce == p_coalesce) {
-        IEditCommand* last = m_undo.back().get();
-        if (last && last->CanCoalesceWith(*p_cmd)) {
-            // Do new change first, then merge for correct final state
+    if (!m_undo.empty() /*&& p_coalesce != 0 && m_last_coalesce == p_coalesce*/) {
+        IEditCmd* last = m_undo.back().get();
+        if (last && last->CanCoalesceWith(p_cmd.get())) {
             p_cmd->Do(*this);
             last->CoalesceFrom(std::move(p_cmd));
-            // redo invalidated
             m_redo.clear();
             TouchDirtyAfterEdit();
             return true;
@@ -33,12 +37,15 @@ bool DocumentBase::Apply(std::unique_ptr<IEditCommand> p_cmd, uint32_t p_coalesc
     }
 
     p_cmd->Do(*this);
+    LOG("DocumentBase::Apply: action '{}' applied", p_cmd->Label());
+
     m_undo.push_back(std::move(p_cmd));
     m_redo.clear();
 
     m_last_coalesce = p_coalesce;
     TouchDirtyAfterEdit();
     TrimUndoIfNeeded();
+
     return true;
 }
 
@@ -48,6 +55,7 @@ bool DocumentBase::Undo() {
     m_undo.pop_back();
 
     cmd->Undo(*this);
+    LOG("DocumentBase::Undo: action '{}' undone", cmd->Label());
     m_redo.push_back(std::move(cmd));
 
     m_last_coalesce = 0;
@@ -61,6 +69,7 @@ bool DocumentBase::Redo() {
     m_redo.pop_back();
 
     cmd->Do(*this);
+    LOG("DocumentBase::Undo: action '{}' redone", cmd->Label());
     m_undo.push_back(std::move(cmd));
 
     m_last_coalesce = 0;

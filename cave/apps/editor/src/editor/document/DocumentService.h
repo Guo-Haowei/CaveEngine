@@ -1,4 +1,6 @@
 #pragma once
+// @TODO: move to public
+#include "engine/private/assets/guid.h"
 #include "engine/private/runtime/core/GenIdRegistry.h"
 
 #include "editor/document/IDocument.h"
@@ -6,17 +8,17 @@
 namespace cave {
 
 class EditorState;
-class Guid;
-
-struct CreateDocDesc {
-    DocKind kind{ DocKind::Scene };
-    std::string title;
-};
 
 struct CloseRequestResult {
     bool ok{ false };
     bool not_found{ false };
     bool in_use{ false };  // track refcounts/pins
+};
+
+struct OpenDocDesc {
+    Guid guid;
+    AssetType asset_type;
+    bool focused{ true };
 };
 
 class DocumentService : protected GenIdRegistry<IDocument> {
@@ -25,9 +27,7 @@ class DocumentService : protected GenIdRegistry<IDocument> {
 public:
     DocumentService(EditorState& p_editor);
 
-    DocId OpenScene(const Guid& p_guid);
-
-    DocId Create(const CreateDocDesc& p_desc);
+    DocId OpenDoc(OpenDocDesc p_desc);
 
     CloseRequestResult Close(DocId p_id);
 
@@ -36,6 +36,8 @@ public:
     bool IsAlive(DocId p_id) const { return Base::IsAlive(p_id); }
 
 private:
+    std::unordered_map<Guid, DocId> m_doc_cache;
+
     EditorState& m_editor;
 };
 

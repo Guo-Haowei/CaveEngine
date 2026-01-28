@@ -13,14 +13,14 @@
 
 namespace cave {
 
+#if 0
 MaterialEditor::MaterialEditor(EditorState& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer, DIMENSION_3) {
+    : ViewerTab(p_editor, {}, p_viewer, DIMENSION_3) {
 }
 
 void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
     unused(p_guid);
     DEV_ASSERT(0);
-#if 0
     m_document = std::make_shared<MaterialDocument>(p_guid);
 
     auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
@@ -64,7 +64,6 @@ void MaterialEditor::OnCreateInternal(const Guid& p_guid) {
 
         return scene;
     });
-#endif
 }
 
 void MaterialEditor::OnDestroy() {
@@ -131,12 +130,9 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
     }
 }
 
-OldDocument& MaterialEditor::GetDocument() const {
-    return *m_document;
-}
-
 const std::vector<const ToolBarButtonDesc*> MaterialEditor::GetToolBarButtons() const {
     return {};
 }
+#endif
 
 }  // namespace cave

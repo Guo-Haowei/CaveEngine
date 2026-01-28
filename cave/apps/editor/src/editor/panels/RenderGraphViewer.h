@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 #include "engine/private/renderer/graphics_defines.h"
 
 namespace cave {
@@ -12,7 +12,7 @@ class RenderGraphViewer : public EditorWindow {
 public:
     RenderGraphViewer(EditorState& p_editor);
 
-    const char* GetTitle() const override {
+    const char* GetWindowId() const override {
         return "Render Graph";
     }
 

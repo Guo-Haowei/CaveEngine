@@ -6,7 +6,7 @@
 
 namespace cave {
 
-class OldDocument;
+#if 0
 
 class TileSetEditor : public ViewerTab {
 public:
@@ -18,8 +18,6 @@ public:
     void DrawMainView(const CameraComponent& p_camera) final;
 
     void DrawAssetInspector() final;
-
-    OldDocument& GetDocument() const final;
 
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
@@ -34,5 +32,7 @@ protected:
 
     SpriteSelector m_sprite_selector;
 };
+
+#endif
 
 }  // namespace cave

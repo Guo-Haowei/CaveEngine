@@ -1,16 +1,18 @@
 #pragma once
-#include "editor/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 
 class ViewerTab;
+
+struct FocusedPreviewScene;
 
 class HierarchyPanel : public EditorWindow {
 public:
     HierarchyPanel(EditorState& editor)
         : EditorWindow(editor) {}
 
-    const char* GetTitle() const override {
+    const char* GetWindowId() const override {
         return "Hierarchy";
     }
 
@@ -18,7 +20,7 @@ protected:
     void UpdateInternal(float p_timestep) override;
 
 private:
-    void DrawPopup(ViewerTab* p_tab);
+    void DrawPopup(const FocusedPreviewScene& p_ctx);
 };
 
 }  // namespace cave

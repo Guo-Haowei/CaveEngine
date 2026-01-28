@@ -82,7 +82,7 @@ void GameRuntimeState::OnEnter(const StateRequest& p_args) {
         m_module.api->RegisterGame(m_app, args);
     }
 
-    m_app.GetViewportManager()->CreateViewport(std::shared_ptr<ISceneViewProvider>(new RuntimeSceneViewProvider(m_app)));
+    m_app.GetViewportManager()->CreateViewport(std::make_shared<RuntimeSceneViewProvider>(m_app));
 
     // @TODO: fix this part
     std::shared_ptr<Scene> current_scene;

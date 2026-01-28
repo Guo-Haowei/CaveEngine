@@ -1,5 +1,5 @@
-#include "engine/private/ecs/component_manager.inl"
-#include "engine/private/ecs/view.h"
+#include "engine/private/runtime/ecs/ComponentManager.inl"
+#include "engine/private/runtime/ecs/View.h"
 
 namespace cave {
 

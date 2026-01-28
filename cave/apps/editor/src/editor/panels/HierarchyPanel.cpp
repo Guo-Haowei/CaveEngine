@@ -5,9 +5,14 @@
 
 #include "engine/private/assets/mesh_asset.h"
 #include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 
+#include "editor/document/DocumentService.h"
 #include "editor/services/EditService.h"
+#include "editor/services/SelectionService.h"
+#include "editor/services/Workspace.h"
 
+#include "editor/edit/EditObjectCmd.h"
 #include "editor/EditorState.h"
 #include "editor/viewer/Viewer.h"
 #include "editor/viewer/ViewerTab.h"
@@ -29,27 +34,25 @@ public:
         std::vector<HierarchyNode*> children;
     };
 
-    HierarchyCreator(EditorState& p_editor)
-        : m_editorLayer(p_editor) {}
+    HierarchyCreator(const FocusedPreviewScene& p_preview, SelectionService& p_selection)
+        : m_preview(p_preview), m_selection(p_selection) {}
 
-    void Update(ViewerTab* p_tab) {
-        DEV_ASSERT(p_tab && p_tab->GetResolvedScene());
-        const Scene& scene = *p_tab->GetResolvedScene();
-        if (Build(scene)) {
+    void Update() {
+        if (Build(*m_preview.scene)) {
             DEV_ASSERT(m_root);
-            DrawNode(p_tab, m_root, ImGuiTreeNodeFlags_DefaultOpen);
+            DrawNode(m_root, ImGuiTreeNodeFlags_DefaultOpen);
         }
     }
 
 private:
     bool Build(const Scene& p_scene);
-    void DrawNode(ViewerTab* p_tab,
-                  HierarchyNode* p_node,
+    void DrawNode(HierarchyNode* p_node,
                   ImGuiTreeNodeFlags p_flags = 0);
 
     std::map<Entity, std::shared_ptr<HierarchyNode>> m_nodes;
     HierarchyNode* m_root = nullptr;
-    EditorState& m_editorLayer;
+    const FocusedPreviewScene& m_preview;
+    SelectionService& m_selection;
 };
 
 static bool TreeNodeHelper(Scene& p_scene,
@@ -116,21 +119,36 @@ static bool TreeNodeHelper(Scene& p_scene,
 }
 
 // @TODO: make it an widget
-void HierarchyCreator::DrawNode(ViewerTab* p_tab, HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flags) {
-    Scene& p_scene = *p_tab->GetResolvedScene();
+void HierarchyCreator::DrawNode(HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flags) {
     DEV_ASSERT(p_hier);
-    Entity id = p_hier->entity;
+    Entity current_id = p_hier->entity;
+
+    SelectionKey selection = m_selection.Primary(m_preview.doc_id);
 
     p_flags |= p_hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
-    p_flags |= p_tab->GetSelectedEntity() == id ? ImGuiTreeNodeFlags_Selected : 0;
+    p_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
 
     const bool expanded = TreeNodeHelper(
-        p_scene, id, p_flags,
-        [&]() {
-            p_tab->SetSelectedEntity(id);
+        *m_preview.scene,
+        current_id,
+        p_flags,
+        [this, current_id]() {
+            SelectionKey selection;
+            selection.kind = SelectionKind::Entity;
+            selection.doc = m_preview.doc_id;
+            selection.scene = m_preview.scene_id;
+            selection.entity = current_id;
+
+            m_selection.Set(m_preview.doc_id, selection);
         },
-        [&]() {
-            p_tab->SetSelectedEntity(id);
+        [this, current_id]() {
+            SelectionKey selection;
+            selection.kind = SelectionKind::Entity;
+            selection.doc = m_preview.doc_id;
+            selection.scene = m_preview.scene_id;
+            selection.entity = current_id;
+
+            m_selection.Set(m_preview.doc_id, selection);
             ImGui::OpenPopup(POPUP_NAME_ID);
         });
 
@@ -139,7 +157,7 @@ void HierarchyCreator::DrawNode(ViewerTab* p_tab, HierarchyNode* p_hier, ImGuiTr
         ImGui::Indent(indentWidth);
 
         for (auto& child : p_hier->children) {
-            DrawNode(p_tab, child);
+            DrawNode(child);
         }
         ImGui::Unindent(indentWidth);
     }
@@ -189,39 +207,35 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
 
 void HierarchyPanel::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
-    if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
-        if (Scene* scene = tab->GetResolvedScene(); scene) {
-            HierarchyCreator creator(m_editor);
-            DrawPopup(tab);
-            creator.Update(tab);
-        }
+    FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
+    if (preview.scene) {
+        HierarchyCreator creator(preview, m_editor.SelectionService());
+        DrawPopup(preview);
+        creator.Update();
     }
 }
 
-void HierarchyPanel::DrawPopup(ViewerTab* p_tab) {
-    auto selected = p_tab->GetSelectedEntity();
-    // @TODO: save commands for undo
-
-    ViewerTab* tab = m_editor.GetViewer().GetActiveTab();
-    SceneId scene_id = tab ? tab->GetSceneId() : SceneId{};
+void HierarchyPanel::DrawPopup(const FocusedPreviewScene& p_ctx) {
 
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
-        OpenAddEntityPopup(selected);
+        SelectionKey selection = m_editor.SelectionService().Primary(p_ctx.doc_id);
+        DEV_ASSERT(selection.doc == p_ctx.doc_id);
+        ecs::Entity selected = selection.entity;
+
+        m_editor.OpenAddEntityPopup(selected);
+        EditService& edit = m_editor.EditService();
+
         if (ImGui::MenuItem("Copy")) {
-            if (selected.IsValid()) {
-                p_tab->SetCopiedEntity(selected);
-            }
+            // Clipboard service
+            LOG_WARN("TODO: fix Copy");
         }
         if (ImGui::MenuItem("Paste")) {
-            if (ecs::Entity to_be_copied = p_tab->GetCopiedEntity(); to_be_copied.IsValid()) {
-                m_editor.GetEditService().CommandCloneObject(scene_id, to_be_copied);
-            }
+            LOG_WARN("TODO: fix Paste");
         }
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
-                p_tab->SetSelectedEntity(Entity::Null());
-                // move the command to tab document
-                m_editor.GetEditService().CommandDeleteObject(scene_id, selected);
+                auto cmd = std::make_unique<DeleteObjectCmd>(m_editor.GetApp(), selected);
+                edit.Submit(p_ctx.doc_id, std::move(cmd));
             }
         }
         ImGui::EndPopup();

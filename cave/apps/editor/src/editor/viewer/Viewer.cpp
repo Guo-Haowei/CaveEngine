@@ -2,6 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 
+#include "editor/services/EditService.h"
 #include "editor/services/Workspace.h"
 
 // -----------------------------
@@ -11,7 +12,6 @@
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 
-#include "editor/document/document.h"
 #include "editor/EditorDvars.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"
@@ -26,13 +26,14 @@
 
 namespace cave {
 
+#if 0
 #define VIEWER_WINDOW_ID "###Viewer"
 
 static constexpr float TOOL_BAR_OFFSET = 80.0f;
 
 Viewer::Viewer(EditorState& p_editor)
     : EditorWindow(p_editor)
-    , m_workspace(p_editor.GetWorkspace()) {
+    , m_workspace(p_editor.Workspace()) {
 }
 
 void Viewer::UpdateFrameSize() {
@@ -48,7 +49,7 @@ void Viewer::UpdateFrameSize() {
         m_canvas_size.x = m_canvas_size.y * ratio;
     }
 
-    ImGuiWindow* window = ImGui::FindWindowByName(GetTitle());
+    ImGuiWindow* window = ImGui::FindWindowByName(GetWindowId());
     DEV_ASSERT(window);
     m_canvas_min.x = window->ContentRegionRect.Min.x;
     m_canvas_min.y = TOOL_BAR_OFFSET + window->ContentRegionRect.Min.y;
@@ -70,7 +71,7 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
 }
 
 ViewerTab* Viewer::GetActiveTab() {
-    return m_editor.GetWorkspace().GetActiveTab();
+    return nullptr;
 }
 
 void Viewer::UpdateInternal(float p_timestep) {
@@ -78,7 +79,7 @@ void Viewer::UpdateInternal(float p_timestep) {
 
     UpdateFrameSize();
 
-    ViewerTab* active_tab = m_workspace.GetActiveTab();
+    ViewerTab* active_tab = nullptr;
     if (!active_tab) {
         return;
     }
@@ -93,12 +94,13 @@ void Viewer::UpdateInternal(float p_timestep) {
         return;
     }
 
-    // TabId focus_tab_id = m_workspace.GetFocusRequest().unwrap_or(TabId::Null());
+// TabId focus_tab_id = m_workspace.GetFocusRequest().unwrap_or(TabId::Null());
+#if 0
+    EditService& edit = m_editor.EditService();
     for (auto& [id, tab] : m_workspace.GetTabs()) {
+        DocId doc = tab->GetDocId();
         int flags = 0;
-        // if (tab->GetDocument().IsDirty()) {
-        //     flags |= ImGuiTabItemFlags_UnsavedDocument;
-        // }
+        flags |= edit.IsDirty(doc) ? ImGuiTabItemFlags_UnsavedDocument : 0;
 
         // if (tab->GetId() == focus_tab_id) {
         //     flags |= ImGuiTabItemFlags_SetSelected;
@@ -126,10 +128,12 @@ void Viewer::UpdateInternal(float p_timestep) {
             // m_workspace.SetCloseRequest(tab->GetId());
         }
     }
+#endif
 
     m_workspace.HandleCloseRequest();
 
     ImGui::EndTabBar();
 }
+#endif
 
 }  // namespace cave

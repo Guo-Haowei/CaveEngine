@@ -5,9 +5,8 @@
 
 namespace cave {
 
+#if 0
 struct MaterialAsset;
-
-using MaterialDocument = OldDocument;
 
 class MaterialEditor : public ViewerTab {
 public:
@@ -18,8 +17,6 @@ public:
     void DrawMainView(const CameraComponent& p_camera) final;
 
     void DrawAssetInspector() final;
-
-    OldDocument& GetDocument() const final;
 
 protected:
     void OnCreateInternal(const Guid& p_guid) final;
@@ -33,5 +30,6 @@ protected:
     std::shared_ptr<Scene> m_tmp_scene;
     std::shared_ptr<MaterialDocument> m_document;
 };
+#endif
 
 }  // namespace cave

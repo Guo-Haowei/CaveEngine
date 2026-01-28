@@ -1,6 +1,7 @@
 #pragma once
+#include "cave/runtime/ecs/Entity.h"
+
 #include "engine/private/assets/asset_handle.h"
-#include "engine/private/ecs/entity.h"
 #include "engine/private/reflection/reflection.h"
 
 namespace cave {

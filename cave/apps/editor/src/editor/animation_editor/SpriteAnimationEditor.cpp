@@ -6,7 +6,6 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
-#include "editor/document/document.h"
 #include "editor/EditorState.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
@@ -17,8 +16,9 @@
 
 namespace cave {
 
+#if 0
 SpriteAnimationEditor::SpriteAnimationEditor(EditorState& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, p_viewer, DIMENSION_2)
+    : ViewerTab(p_editor, {}, p_viewer, DIMENSION_2)
     , m_sprite_selector(SpriteSelector::SelectionMode::Multi) {
 
     // @TODO:
@@ -113,6 +113,7 @@ void SpriteAnimationEditor::DrawMainView(const CameraComponent& p_camera) {
 }
 
 void SpriteAnimationEditor::ImageSourceDropTarget() {
+#if 0
     auto asset = m_document->GetHandle<SpriteAnimationAsset>().Get();
     DEV_ASSERT(asset);
 
@@ -129,6 +130,7 @@ void SpriteAnimationEditor::ImageSourceDropTarget() {
     if (auto _handle = DragDropTarget(AssetType::Image); _handle.is_some()) {
         asset->SetGuid(_handle.unwrap_unchecked().GetGuid());
     }
+#endif
 }
 
 void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
@@ -145,7 +147,7 @@ void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
     ImGui::SameLine();
 
     if (ImGui::Button(ICON_FA_SQUARE_PLUS "  Add Animation")) {
-        Handle<SpriteAnimationAsset> handle = m_document->GetHandle<SpriteAnimationAsset>();
+        Handle<SpriteAnimationAsset> handle;
         if (auto anim = handle.Get(); anim) {
             Handle<ImageAsset> image_handle = anim->GetImageHandle();
             if (auto image = image_handle.Get()) {
@@ -176,7 +178,7 @@ void SpriteAnimationEditor::DrawFrameSelector(ImageAsset& p_image_asset) {
                     m_clip_name.clear();
                     m_sprite_selector.ClearSelections();
 
-                    m_document->SetDirty();
+                    // m_document->SetDirty();
                 }
             }
         }
@@ -208,6 +210,7 @@ void SpriteAnimationEditor::DrawTimeLine() {
         SpriteAnimatorComponent* animator = m_tmp_scene->GetComponent<SpriteAnimatorComponent>(m_animator_id);
         DEV_ASSERT(animator);
 
+#if 0
         int current_clip = -1;
         std::vector<const char*> clips;
         Handle<SpriteAnimationAsset> handle = m_document->GetHandle<SpriteAnimationAsset>();
@@ -242,6 +245,7 @@ void SpriteAnimationEditor::DrawTimeLine() {
             LOG_OK("Set clip to {}", clips[current_clip]);
             animator->SetClip(clips[current_clip]);
         }
+#endif
     }
 
     ImGui::NextColumn();
@@ -315,9 +319,6 @@ void SpriteAnimationEditor::DrawAssetInspector() {
 
     ui::DrawContents(full_width, descs);
 }
-
-OldDocument& SpriteAnimationEditor::GetDocument() const {
-    return *m_document.get();
-}
+#endif
 
 }  // namespace cave

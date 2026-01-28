@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/assets/asset_interface.h"
-#include "editor/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 
@@ -15,7 +15,7 @@ public:
 
     void OnAttach() override;
 
-    const char* GetTitle() const override {
+    const char* GetWindowId() const override {
         return "Asset Inspector";
     }
 

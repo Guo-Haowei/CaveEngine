@@ -1,4 +1,4 @@
-#include "engine/private/ecs/component_manager.inl"
+#include "engine/private/runtime/ecs/ComponentManager.inl"
 
 namespace cave {
 

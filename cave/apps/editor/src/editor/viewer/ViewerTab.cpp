@@ -8,7 +8,6 @@
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
-#include "editor/document/document.h"
 #include "editor/EditorState.h"
 #include "editor/panels/AssetInspector.h"
 #include "editor/viewer/Viewer.h"
@@ -18,16 +17,15 @@
 
 namespace cave {
 
+#if 0
 using ecs::Entity;
 
-static const char EDITOR_CAMERA_NAME[] = "_editor_cam";
-
-const Guid& ViewerTab::GetGuid() const {
-    return GetDocument().GetGuid();
-}
-
-ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimension)
-    : m_id(TabId::Next())
+ViewerTab::ViewerTab(EditorState& p_editor,
+                     DocId p_doc_id,
+                     Viewer& p_viewer,
+                     Dimension p_dimension)
+    : m_id(ViewerTabId::Next())
+    , m_doc_id(p_doc_id)
     , m_dimension(p_dimension)
     , m_editor(p_editor)
     , m_viewer(p_viewer)
@@ -35,21 +33,6 @@ ViewerTab::ViewerTab(EditorState& p_editor, Viewer& p_viewer, Dimension p_dimens
 }
 
 ViewerTab::~ViewerTab() {
-}
-
-void ViewerTab::SetSelectedEntity(ecs::Entity p_selected) {
-    m_selected = p_selected;
-    if (Scene* scene = GetResolvedScene(); scene) {
-        scene->m_selected = m_selected;
-    }
-}
-
-Scene* ViewerTab::GetResolvedScene() {
-    return m_scene_manager.Resolve(GetSceneId());
-}
-
-void ViewerTab::SetCopiedEntity(ecs::Entity p_copied) {
-    m_copied = p_copied;
 }
 
 void ViewerTab::OnCreate(const Guid& p_guid) {
@@ -73,51 +56,6 @@ void ViewerTab::OnCreate(const Guid& p_guid) {
     }
 }
 
-void ViewerTab::SetupDefault2DCamera() {
-    Scene* scene = GetResolvedScene();
-    DEV_ASSERT(scene);
-
-    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    if (!cam.IsValid()) {
-        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
-        scene->Create<NoSaveTag>(cam);
-        scene->AttachChild(cam);
-        CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
-        camera->SetProjection(ProjectionType::Orthographic);
-        TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
-        transform->SetTranslation(Vector3f(0, 0, 10));
-    }
-
-    m_camera = cam;
-    m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
-}
-
-void ViewerTab::SetupDefault3DCamera() {
-    Scene* scene = GetResolvedScene();
-    DEV_ASSERT(scene);
-
-    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    Entity cam_y = scene->FindEntityByName("_editor_cam_y");
-    Entity cam_root = scene->FindEntityByName("_editor_cam_root");
-
-    if (!cam.IsValid()) {
-        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
-        cam_y = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_y");
-        cam_root = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_root");
-
-        scene->Create<NoSaveTag>(cam);
-        scene->Create<NoSaveTag>(cam_y);
-        scene->Create<NoSaveTag>(cam_root);
-
-        scene->AttachChild(cam_root);
-        scene->AttachChild(cam_y, cam_root);
-        scene->AttachChild(cam, cam_y);
-    }
-
-    m_camera = cam;
-    m_camera_controller = std::make_shared<CameraControllerFPS>(scene, cam_root, cam_y, cam);
-}
-
 void ViewerTab::OnActivate() {
     m_active = true;
     OnActivateInternal();
@@ -136,12 +74,6 @@ void ViewerTab::OnDeactivate() {
 
     OnDeactivateInternal();
     m_active = false;
-}
-
-void ViewerTab::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
-    if (m_editor.IsPlaying()) return;
-
-    p_out.push_back({ SceneTickMode::Editor, GetSceneId() });
 }
 
 void ViewerTab::DrawAssetInspector() {
@@ -180,82 +112,6 @@ void ViewerTab::DrawMainView(const CameraComponent&) {
             CRASH_NOW();
             break;
     }
-}
-
-CameraInputState ViewerTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
-    CameraInputState state{};
-
-    float dx = 0.0f;
-    float dy = 0.0f;
-    bool mmb = false;
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
-
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                state.zoom_delta = -e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                e.consumed = true;
-                dx = -e.dx;
-                dy = e.dy;
-            } break;
-            case InputEventType::ButtonDown:
-                if (e.code == std::to_underlying(Key::MMB)) {
-                    e.consumed = true;
-                    mmb = true;
-                }
-                break;
-            default:
-                break;
-        }
-
-        if (mmb) {
-            state.move = Vector3f(dx, dy, 0.0f);
-        }
-    }
-
-    return state;
-}
-
-CameraInputState ViewerTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
-    Vector2f rotation = Vector2f::Zero;
-
-    const InputDeviceId id{ 0 };
-    const bool mmb = p_st.Down(id, Key::MMB);
-    const int dx = p_st.Down(id, Key::D) - p_st.Down(id, Key::A);
-    const int dy = p_st.Down(id, Key::E) - p_st.Down(id, Key::Q);
-    const int dz = p_st.Down(id, Key::W) - p_st.Down(id, Key::S);
-
-    CameraInputState state{};
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                state.zoom_delta = 3.0f * e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                if (mmb) {
-                    e.consumed = true;
-                    state.rotation.x = e.dx;
-                    state.rotation.y = e.dy;
-                }
-            } break;
-            default:
-                break;
-        }
-    }
-
-    state.move = Vector3f(dx, dy, dz);
-    return state;
 }
 
 void ViewerTab::Update(float p_timestep) {
@@ -346,5 +202,6 @@ void ViewerTab::BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl
 
     BuildViewsImpl(GetSceneId(), m_camera, p_out_views, p_is_opengl);
 }
+#endif
 
 }  // namespace cave

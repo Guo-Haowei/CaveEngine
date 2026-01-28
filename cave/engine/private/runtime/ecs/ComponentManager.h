@@ -1,5 +1,5 @@
 #pragma once
-#include "entity.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 

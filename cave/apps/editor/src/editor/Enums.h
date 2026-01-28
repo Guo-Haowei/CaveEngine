@@ -36,20 +36,4 @@ enum class EntityType : uint8_t {
         Count,
 };
 
-#define COMPONENT_LIST              \
-    COMPONENT_DECL(LuaScript)       \
-    COMPONENT_DECL(SpriteAnimator)  \
-    COMPONENT_DECL(Collider)        \
-    COMPONENT_DECL(Velocity)        \
-    COMPONENT_DECL(MeshRenderer)    \
-    COMPONENT_DECL(SpriteRenderer)  \
-    COMPONENT_DECL(TileMapRenderer) \
-    COMPONENT_DECL(PrefabInstance)
-
-enum class ComponentName : uint8_t {
-#define COMPONENT_DECL(NAME) NAME,
-    COMPONENT_LIST
-#undef COMPONENT_DECL
-};
-
 }  // namespace cave

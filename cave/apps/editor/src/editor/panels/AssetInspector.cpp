@@ -38,11 +38,14 @@ void AssetInspector::OnAttach() {
 
 void AssetInspector::UpdateInternal(float) {
     CAVE_PROFILE_EVENT();
+#if 0
     if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
         tab->DrawAssetInspector();
     } else {
         DrawContentBrowser();
     }
+#endif
+    DrawContentBrowser();
 }
 
 void AssetInspector::DrawBreadcrumb() {
