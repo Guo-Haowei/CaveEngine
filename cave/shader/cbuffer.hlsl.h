@@ -142,7 +142,7 @@ CBUFFER(BoneConstantBuffer, 3) {
 CBUFFER(PointShadowConstantBuffer, 4) {
     float4x4 c_pointLightMatrix;  // 64
     float3 c_pointLightPosition;  // 12
-    float c_pointLightFar;          // 4
+    float c_pointLightFar;        // 4
 
     float4 _point_shadow_padding_0;  // 16
     float4 _point_shadow_padding_1;  // 16

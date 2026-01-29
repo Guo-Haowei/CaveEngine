@@ -8,6 +8,9 @@
 
 namespace cave {
 
+using ecs::Entity;
+using namespace ::cave::math;
+
 Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
                                          const std::string& p_name,
                                          float p_near_plane,

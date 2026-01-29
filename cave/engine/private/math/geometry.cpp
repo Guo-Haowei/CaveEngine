@@ -2,7 +2,7 @@
 
 #include "engine/private/math/matrix_transform.h"
 
-namespace cave {
+namespace cave::math {
 
 /**
  *        E__________________ H
@@ -312,4 +312,4 @@ MeshAsset MakeBoxWireframeMesh(float size) {
     return mesh;
 }
 
-}  // namespace cave
+}  // namespace cave::math

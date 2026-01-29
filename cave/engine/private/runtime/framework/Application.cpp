@@ -153,7 +153,7 @@ float Application::UpdateTime() {
     const Nanoseconds elapsed = m_stopwatch.Restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
-    return min(elapsed_sec, 0.5f);
+    return math::min(elapsed_sec, 0.5f);
 }
 
 bool Application::MainLoop() {

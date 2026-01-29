@@ -37,6 +37,8 @@ namespace cave {
 
 namespace cave {
 
+using namespace math;
+
 const char* ToString(RenderGraphName p_name) {
     ERR_FAIL_INDEX_V(p_name, RenderGraphName::COUNT, nullptr);
     static constexpr const char* s_table[] = {

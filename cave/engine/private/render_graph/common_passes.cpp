@@ -26,6 +26,8 @@ namespace cave {
 
 namespace cave {
 
+using namespace cave::math;
+
 // @TODO: generalize this
 #if 0
 static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<InstanceContext>& p_instances, bool p_is_prepass) {

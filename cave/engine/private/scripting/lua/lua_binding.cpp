@@ -11,6 +11,8 @@
 
 namespace cave::lua {
 
+using namespace cave::math;
+
 // @TODO: refactor
 struct Quat {
     Quat(const Vector3f& p_euler) {

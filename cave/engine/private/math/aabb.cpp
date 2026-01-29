@@ -2,7 +2,7 @@
 
 #include "engine/private/math/matrix_transform.h"
 
-namespace cave {
+namespace cave::math {
 
 #if 0
  *        E__________________ H

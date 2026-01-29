@@ -31,6 +31,7 @@ namespace cave {
 
 namespace cave {
 
+using namespace cave::math;
 using Microsoft::WRL::ComPtr;
 
 // @TODO: refactor

@@ -1,7 +1,8 @@
 #pragma once
 #include "engine/private/assets/mesh_asset.h"
 
-namespace cave {
+// @TODO: this is coupled with MeshAsset, BAD!
+namespace cave::math {
 
 void BoxWireFrameHelper(const Vector3f& p_min,
                         const Vector3f& p_max,
@@ -19,4 +20,4 @@ MeshAsset MakeBoxWireframeMesh(float p_size = 0.5f);
 
 MeshAsset MakeSkyBoxMesh();
 
-}  // namespace cave
+}  // namespace cave::math

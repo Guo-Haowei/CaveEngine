@@ -51,22 +51,22 @@ constexpr inline T Degrees(const T& p_radians) {
 }
 
 // for glsl-like usage
-template<Arithmetic T>
+template<typename T>
 constexpr inline T min(const T& p_lhs, const T& p_rhs) {
     return p_lhs < p_rhs ? p_lhs : p_rhs;
 }
 
-template<Arithmetic T>
+template<typename T>
 constexpr inline T max(const T& p_lhs, const T& p_rhs) {
     return p_lhs > p_rhs ? p_lhs : p_rhs;
 }
 
-template<Arithmetic T>
+template<typename T>
 constexpr inline T abs(const T& p_lhs) {
     return std::abs(p_lhs);
 }
 
-template<Arithmetic T>
+template<typename T>
 constexpr inline T clamp(const T& p_value, const T& p_min, const T& p_max) {
     return max(p_min, min(p_value, p_max));
 }

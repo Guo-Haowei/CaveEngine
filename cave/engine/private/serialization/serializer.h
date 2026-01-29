@@ -1,13 +1,14 @@
 #pragma once
 #include "defines.h"
 
+#include "cave/core/ids/Entity.h"
+#include "cave/core/math/Angle.h"
+#include "cave/core/math/Matrix.h"
+
 #include "engine/private/runtime/string/StringUtils.h"
 
 #include "engine/private/runtime/core/io/file_access.h"
-#include "cave/core/ids/Entity.h"
-#include "engine/private/math/angle.h"
 #include "engine/private/math/box.h"
-#include "engine/private/math/matrix.h"
 
 namespace cave {
 
@@ -59,8 +60,8 @@ public:
     virtual ISerializer& Write(const Guid& p_object) = 0;
 
     ISerializer& Write(const ecs::Entity& p_object);
-    ISerializer& Write(const Degree& p_object);
-    ISerializer& Write(const Matrix4x4f& p_object);
+    ISerializer& Write(const math::Degree& p_object);
+    ISerializer& Write(const math::Matrix4x4f& p_object);
 
     template<ArrayLike T>
     ISerializer& Write(const T& p_array) {
@@ -110,7 +111,7 @@ public:
     }
 
     template<typename T, int N>
-    ISerializer& Write(const Vector<T, N>& p_object) {
+    ISerializer& Write(const math::Vector<T, N>& p_object) {
         BeginArray(true);
         Write(p_object.x);
         Write(p_object.y);
@@ -135,7 +136,7 @@ public:
     }
 
     template<int N>
-    ISerializer& Write(const Box<N>& p_object) {
+    ISerializer& Write(const math::Box<N>& p_object) {
         BeginMap(true)
             .Key("min")
             .Write(p_object.GetMin())

@@ -7,6 +7,8 @@
 
 namespace cave {
 
+using namespace ::cave::math;
+
 bool PrefabInstanceComponent::SetResourceGuid(const Guid& p_guid) {
     if (p_guid != m_prefab_id) {
         m_prefab_id = p_guid;

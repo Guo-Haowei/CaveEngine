@@ -2,7 +2,7 @@
 #include <chrono>
 
 #include "engine/private/assets/asset_type.h"
-#include "engine/private/assets/guid.h"
+#include "cave/core/ids/Guid.h"
 #include "engine/private/reflection/meta.h"
 
 namespace cave {

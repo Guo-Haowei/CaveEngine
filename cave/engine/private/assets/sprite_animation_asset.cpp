@@ -6,12 +6,12 @@
 
 namespace cave {
 
-SpriteAnimationClip::SpriteAnimationClip(std::vector<OldRect>&& p_frames, float p_length) {
+SpriteAnimationClip::SpriteAnimationClip(std::vector<math::Box2>&& p_frames, float p_length) {
     m_frames = std::move(p_frames);
     SetAnimationLength(p_length);
 }
 
-void SpriteAnimationClip::SetFrames(std::vector<OldRect>&& frames) {
+void SpriteAnimationClip::SetFrames(std::vector<math::Box2>&& frames) {
     m_frames = std::move(frames);
 }
 
@@ -24,7 +24,7 @@ void SpriteAnimationClip::SetAnimationLength(float p_length) {
     }
 }
 
-bool SpriteAnimationAsset::AddClip(std::string&& p_name, std::vector<OldRect>&& p_frames) {
+bool SpriteAnimationAsset::AddClip(std::string&& p_name, std::vector<math::Box2>&& p_frames) {
     auto it = m_clips.find(p_name);
     if (it != m_clips.end()) {
         LOG_WARN("clip '{}' already exists", p_name);

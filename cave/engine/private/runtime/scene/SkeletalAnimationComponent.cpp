@@ -4,6 +4,8 @@
 
 namespace cave {
 
+using namespace ::cave::math;
+
 #if 0
 void AnimationComponent::Serialize(Archive& p_archive, uint32_t) {
     p_archive.ArchiveValue(flags);

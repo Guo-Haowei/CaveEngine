@@ -121,7 +121,7 @@ void GameRuntimeState::Tick(float p_timestep) {
             const IGraphicsManager* gm = GetApp().GetGraphicsManager();
             uint64_t handle = gm->GetFinalImage();
 
-            const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
+            const math::Vector2i frame_size = DVAR_GET_IVEC2(resolution);
             ImGui::Image((ImTextureID)handle, ImVec2{ (float)frame_size.x, (float)frame_size.y });
         }
         EndFullscreenWindow();

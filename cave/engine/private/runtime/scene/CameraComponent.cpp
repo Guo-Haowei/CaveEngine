@@ -4,6 +4,8 @@
 
 namespace cave {
 
+using namespace ::cave::math;
+
 Matrix4x4f CameraComponent::CalcProjection() const {
     if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;

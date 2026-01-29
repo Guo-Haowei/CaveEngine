@@ -2,7 +2,7 @@
 #include "cave/core/ids/Entity.h"
 
 #include "engine/private/assets/asset_type.h"
-#include "engine/private/assets/guid.h"
+#include "cave/core/ids/Guid.h"
 
 namespace cave {
 

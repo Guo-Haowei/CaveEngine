@@ -43,29 +43,29 @@ public:
 
     uint32_t flags = RENDERABLE;
     std::vector<uint32_t> indices;
-    std::vector<Vector3f> positions;
-    std::vector<Vector3f> normals;
-    std::vector<Vector3f> tangents;
-    std::vector<Vector2f> texcoords_0;
-    std::vector<Vector2f> texcoords_1;
-    std::vector<Vector4i> joints_0;
-    std::vector<Vector4f> weights_0;
-    std::vector<Vector4f> color_0;
+    std::vector<math::Vector3f> positions;
+    std::vector<math::Vector3f> normals;
+    std::vector<math::Vector3f> tangents;
+    std::vector<math::Vector2f> texcoords_0;
+    std::vector<math::Vector2f> texcoords_1;
+    std::vector<math::Vector4i> joints_0;
+    std::vector<math::Vector4f> weights_0;
+    std::vector<math::Vector4f> color_0;
 
     struct MeshSubset {
         uint32_t index_offset = 0;
         uint32_t index_count = 0;
-        AABB local_bound;
+        math::AABB local_bound;
     };
     std::vector<MeshSubset> subsets;
 
     // Non-serialized
     mutable std::shared_ptr<GpuMesh> gpuResource;
     mutable std::shared_ptr<BvhAccel> bvh;
-    AABB localBound;
+    math::AABB localBound;
 
-    mutable std::vector<Vector3f> updatePositions;
-    mutable std::vector<Vector3f> updateNormals;
+    mutable std::vector<math::Vector3f> updatePositions;
+    mutable std::vector<math::Vector3f> updateNormals;
 
     VertexAttribute attributes[std::to_underlying(VertexAttributeName::COUNT)];
 

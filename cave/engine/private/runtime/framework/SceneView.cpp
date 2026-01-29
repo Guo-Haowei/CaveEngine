@@ -5,6 +5,8 @@
 
 namespace cave {
 
+using namespace math;
+
 void ViewInfo::FromCamera(const CameraComponent& p_camera,
                           ViewInfo& p_out_view_info,
                           bool p_is_opengl) {

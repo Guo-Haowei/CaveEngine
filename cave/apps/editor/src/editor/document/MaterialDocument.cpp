@@ -12,7 +12,7 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     scene->m_root = root;
 
     if constexpr (1) {  // add point light
-        auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vector3f(0, 3, 1));
+        auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", math::Vector3f(0, 3, 1));
 
         scene->AttachChild(id);
     }
@@ -27,7 +27,7 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
         material->SetResourceGuid(p_guid);
 
         TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
-        transform.SetTranslation(Vector3f(0.0f, 0.0f, 0.0f));
+        transform.SetTranslation(math::Vector3f(0.0f, 0.0f, 0.0f));
 
         scene->AttachChild(id);
     }
@@ -36,8 +36,8 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     {
         auto id = EntityFactory::CreatePlaneEntity(*scene, "plane");
         TransformComponent& transform = *scene->GetComponent<TransformComponent>(id);
-        transform.SetScale(Vector3f(5));
-        transform.RotateX(Degree(-90.0f));
+        transform.SetScale(math::Vector3f(5));
+        transform.RotateX(math::Degree(-90.0f));
 
         scene->AttachChild(id);
     }

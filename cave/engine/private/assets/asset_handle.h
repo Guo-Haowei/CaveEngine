@@ -1,6 +1,7 @@
 #pragma once
+#include "cave/core/ids/Guid.h"
+
 #include "asset_interface.h"
-#include "guid.h"
 
 namespace cave {
 

@@ -8,9 +8,9 @@ class CameraComponent;
 class Scene;
 
 struct CameraInputState {
-    Vector3f move{ 0, 0, 0 };
+    math::Vector3f move{ 0, 0, 0 };
     float zoom_delta{ 0 };
-    Vector2f rotation{ 0, 0 };
+    math::Vector2f rotation{ 0, 0 };
 };
 
 class ICameraController {

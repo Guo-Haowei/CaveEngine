@@ -1,13 +1,16 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
+#include "cave/core/math/Matrix.h"
 
 #include "defines.h"
 #include "engine/private/math/box.h"
-#include "engine/private/math/matrix.h"
+
+namespace cave::math {
+class Degree;
+}  // namespace cave::math
 
 namespace cave {
 
-class Degree;
 class Guid;
 
 class IDeserializer {
@@ -42,9 +45,9 @@ public:
     virtual bool Read(uint64_t& p_value) = 0;
 
     bool Read(ecs::Entity& p_object);
-    bool Read(Degree& p_object);
+    bool Read(math::Degree& p_object);
     bool Read(Guid& p_object);
-    bool Read(Matrix4x4f& p_object);
+    bool Read(math::Matrix4x4f& p_object);
 
     template<IsSerializable T>
     bool Read(T& p_value) {
@@ -114,7 +117,7 @@ public:
     }
 
     template<typename T, int N>
-    bool Read(Vector<T, N>& p_object) {
+    bool Read(math::Vector<T, N>& p_object) {
         const auto size = ArraySize().unwrap_or(-1);
         ERR_FAIL_COND_V_MSG(size != N, false, "expect vector");
 
@@ -128,20 +131,20 @@ public:
     }
 
     template<int N>
-    bool Read(Box<N>& p_object) {
-        auto min = Vector<float, N>(std::numeric_limits<float>::infinity());
+    bool Read(math::Box<N>& p_object) {
+        auto min = math::Vector<float, N>(std::numeric_limits<float>::infinity());
         if (TryEnterKey("min")) {
             Read(min);
             LeaveKey();
         }
 
-        auto max = Vector<float, N>(-std::numeric_limits<float>::infinity());
+        auto max = math::Vector<float, N>(-std::numeric_limits<float>::infinity());
         if (TryEnterKey("max")) {
             Read(max);
             LeaveKey();
         }
 
-        p_object = Box<N>(min, max);
+        p_object = math::Box<N>(min, max);
         return true;
     }
 

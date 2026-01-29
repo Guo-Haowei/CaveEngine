@@ -39,14 +39,14 @@ struct Shape {
     ShapeType type;
 
     union Data {
-        Vector3f half;  // box
+        math::Vector3f half;  // box
         float radius;   // sphere, circle
     } data;
 
     Shape();
 
-    static Shape MakeBox(const Vector2f& p_half);
-    static Shape MakeBox(const Vector3f& p_half);
+    static Shape MakeBox(const math::Vector2f& p_half);
+    static Shape MakeBox(const math::Vector3f& p_half);
     static Shape MakeRound(float p_half);
 };
 

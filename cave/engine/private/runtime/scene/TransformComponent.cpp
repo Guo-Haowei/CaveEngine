@@ -1,9 +1,11 @@
 #include "TransformComponent.h"
 
-#include "engine/private/math/angle.h"
+#include "cave/core/math/Angle.h"
 #include "engine/private/math/matrix_transform.h"
 
 namespace cave {
+
+using namespace math;
 
 TransformComponent::TransformComponent()
     : m_translation{ 0 }

@@ -1,9 +1,9 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
 
-#include "engine/private/assets/guid.h"
+#include "cave/core/ids/Guid.h"
 #include "engine/private/math/aabb.h"
-#include "engine/private/math/angle.h"
+#include "cave/core/math/Angle.h"
 #include "engine/private/math/color.h"
 #include "engine/private/math/geomath.h"
 #include "engine/private/renderer/debug_draw.h"
@@ -101,12 +101,12 @@ struct FrameData {
     bool bakeIbl{ false };
 
     struct UpdateBuffer {
-        std::vector<Vector3f> positions;
-        std::vector<Vector3f> normals;
+        std::vector<math::Vector3f> positions;
+        std::vector<math::Vector3f> normals;
         const void* id;
     };
 
-    AABB voxel_gi_bound;
+    math::AABB voxel_gi_bound;
 
     DebugDraw& GetDebugDraw() { return m_debug_draw; }
     const DebugDraw& GetDebugDraw() const { return m_debug_draw; }

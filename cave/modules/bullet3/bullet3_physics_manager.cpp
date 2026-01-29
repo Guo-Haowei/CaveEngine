@@ -19,6 +19,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 struct PhysicsWorldContext {
     // @TODO: free properly
     btDefaultCollisionConfiguration* collisionConfig = nullptr;

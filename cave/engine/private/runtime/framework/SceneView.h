@@ -3,7 +3,7 @@
 #include "cave/core/ids/DebugId.h"
 #include "cave/core/ids/SceneId.h"
 
-#include "engine/private/math/angle.h"
+#include "cave/core/math/Angle.h"
 #include "engine/private/math/geomath.h"
 
 namespace cave {
@@ -13,13 +13,13 @@ class Scene;
 class ISceneRegistry;
 
 struct ViewInfo {
-    Matrix4x4f view;
-    Matrix4x4f projection_rendering;
-    Matrix4x4f projection_frustum;
-    Vector3f position;
-    Vector3f up;
-    Vector3f front;
-    Vector3f right;
+    math::Matrix4x4f view;
+    math::Matrix4x4f projection_rendering;
+    math::Matrix4x4f projection_frustum;
+    math::Vector3f position;
+    math::Vector3f up;
+    math::Vector3f front;
+    math::Vector3f right;
     float sceen_width;
     float sceen_height;
     float aspect_ratio;

@@ -9,7 +9,7 @@ struct MaterialComponent {
     CAVE_META(MaterialComponent)
 
     CAVE_PROP(editor = Color)
-    Vector4f base_color = Vector4f::One;
+    math::Vector4f base_color = math::Vector4f::One;
 
     CAVE_PROP(editor = DragFloat, min = 0.00f, max = 0.99f)
     float metallic = 0.0f;

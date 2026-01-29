@@ -15,11 +15,11 @@ void WarningIcon();
 void ErrorIcon();
 
 void CenteredImage(const ImageAsset* p_image,
-                   const Vector2f& p_background_region,
+                   const math::Vector2f& p_background_region,
                    uint64_t p_background);
 
 auto AssetCard(uint64_t p_texture_id,
                const char* p_name,
-               const Vector2f& p_image_size) -> std::tuple<bool, bool>;
+               const math::Vector2f& p_image_size) -> std::tuple<bool, bool>;
 
 }  // namespace cave::ui

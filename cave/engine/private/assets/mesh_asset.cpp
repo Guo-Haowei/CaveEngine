@@ -6,6 +6,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
+using namespace ::cave::math;
 
 template<typename T>
 static void InitVertexAttrib(MeshAsset::VertexAttribute& p_attrib, const std::vector<T>& p_buffer) {

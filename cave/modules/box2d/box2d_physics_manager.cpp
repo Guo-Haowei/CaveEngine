@@ -8,6 +8,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 static_assert(sizeof(b2WorldId) == sizeof(uint32_t));
 static_assert(sizeof(b2BodyId) == sizeof(uint64_t));
 

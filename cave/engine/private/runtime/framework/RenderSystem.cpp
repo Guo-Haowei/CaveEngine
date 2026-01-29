@@ -13,6 +13,8 @@
 
 namespace cave {
 
+using namespace math;
+
 // render systems
 extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
 extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);

@@ -9,6 +9,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 using FilterObjectFunc1 = std::function<bool(const MeshRendererComponent& p_object)>;
 using FilterObjectFunc2 = std::function<bool(const AABB& p_object_aabb)>;
 

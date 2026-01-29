@@ -1,6 +1,6 @@
 #include "CameraController.h"
 
-#include "engine/private/math/angle.h"
+#include "cave/core/math/Angle.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
@@ -11,7 +11,7 @@ void CameraController2DEditor::Update(const CameraInputState& p_state) {
 
     const bool moved = p_state.move.x || p_state.move.y;
     if (moved) {
-        transform->Translate(Vector3f(p_state.move.x, p_state.move.y, 0.0f));
+        transform->Translate(math::Vector3f(p_state.move.x, p_state.move.y, 0.0f));
     }
 
     if (p_state.zoom_delta != 0.0f) {
@@ -39,14 +39,14 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
             dz = scroll_z;
         }
 
-        Vector3f position = root->GetTranslation();
+        math::Vector3f position = root->GetTranslation();
 
         if (dx || dz) {
-            Vector3f delta = (m_move_speed * dz) * camera->GetFront() + (m_move_speed * dx) * camera->GetRight();
+            math::Vector3f delta = (m_move_speed * dz) * camera->GetFront() + (m_move_speed * dx) * camera->GetRight();
             root->Translate(delta);
         }
         if (dy) {
-            root->Translate(Vector3f(0.0f, m_move_speed * dy, 0.0f));
+            root->Translate(math::Vector3f(0.0f, m_move_speed * dy, 0.0f));
         }
     }
 
@@ -54,7 +54,7 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
         float rotate_x = 0.0f;
         float rotate_y = 0.0f;
 
-        Vector2f movement = p_state.rotation;
+        math::Vector2f movement = p_state.rotation;
         movement = m_rotate_speed * movement;
         if (glm::abs(movement.x) > glm::abs(movement.y)) {
             rotate_y = movement.x;
@@ -63,11 +63,11 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
         }
 
         if (rotate_y) {
-            rotation_y->RotateY(Degree(-rotate_y));
+            rotation_y->RotateY(math::Degree(-rotate_y));
         }
 
         if (rotate_x) {
-            rotation_x->RotateX(Degree(rotate_x));
+            rotation_x->RotateX(math::Degree(rotate_x));
         }
 
         return rotate_x != 0.0f || rotate_y != 0.0f;

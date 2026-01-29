@@ -8,6 +8,8 @@
 
 namespace cave {
 
+using namespace math;
+
 void TileMapRendererComponent::SetTintColor(const Vector4f& p_tint_color) {
     m_tint_color = p_tint_color;
 }

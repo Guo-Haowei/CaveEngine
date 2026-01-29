@@ -1,12 +1,14 @@
 #pragma once
-#include "engine/private/math/angle.h"
+#include "cave/core/math/Angle.h"
 #include "engine/private/math/geomath.h"
 #include "engine/private/reflection/reflection.h"
 #include "engine/private/runtime/scene/SceneComponentBase.h"
 
-namespace cave {
-
+namespace cave::math {
 class Degree;
+}  // namespace cave::math
+
+namespace cave {
 
 enum class ProjectionType : uint8_t {
     Perspective,
@@ -50,14 +52,14 @@ private:
     float m_ortho_height = 10;
 
     // Not serlialized
-    Vector3f m_front = -Vector3f::UnitZ;
-    Vector3f m_right = Vector3f::UnitX;
-    Vector3f m_up = Vector3f::UnitY;
-    Vector3f m_position = Vector3f::Zero;
+    math::Vector3f m_front = -math::Vector3f::UnitZ;
+    math::Vector3f m_right = math::Vector3f::UnitX;
+    math::Vector3f m_up = math::Vector3f::UnitY;
+    math::Vector3f m_position = math::Vector3f::Zero;
 
-    Matrix4x4f m_view_matrix;
-    Matrix4x4f m_projection_matrix;
-    Matrix4x4f m_projection_view_matrix;
+    math::Matrix4x4f m_view_matrix;
+    math::Matrix4x4f m_projection_matrix;
+    math::Matrix4x4f m_projection_view_matrix;
 
     friend class CameraControllerFPS;
     friend class EntityFactory;
@@ -67,7 +69,7 @@ public:
     static constexpr float DEFAULT_FAR = 1000.0f;
     static constexpr float DEFAULT_FOVY = 60.0f;
 
-    bool Update(const Matrix4x4f& p_transform);
+    bool Update(const math::Matrix4x4f& p_transform);
 
     void SetDimension(int p_width, int p_height);
 
@@ -99,16 +101,16 @@ public:
     float GetOrthoHeight() const { return m_ortho_height; }
     void SetOrthoHeight(float p_height);
 
-    const Matrix4x4f& GetViewMatrix() const { return m_view_matrix; }
-    const Matrix4x4f& GetProjectionMatrix() const { return m_projection_matrix; }
-    const Matrix4x4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
-    const Vector3f& GetFront() const { return m_front; }
-    const Vector3f& GetRight() const { return m_right; }
-    const Vector3f& GetUp() const { return m_up; }
-    const Vector3f& GetPosition() const { return m_position; }
+    const math::Matrix4x4f& GetViewMatrix() const { return m_view_matrix; }
+    const math::Matrix4x4f& GetProjectionMatrix() const { return m_projection_matrix; }
+    const math::Matrix4x4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
+    const math::Vector3f& GetFront() const { return m_front; }
+    const math::Vector3f& GetRight() const { return m_right; }
+    const math::Vector3f& GetUp() const { return m_up; }
+    const math::Vector3f& GetPosition() const { return m_position; }
 
-    Matrix4x4f CalcProjection() const;
-    Matrix4x4f CalcProjectionGL() const;
+    math::Matrix4x4f CalcProjection() const;
+    math::Matrix4x4f CalcProjectionGL() const;
 
     FLAG_GETTER_SETTER(DirtyFlag, m_flags)
 

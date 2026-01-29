@@ -3,9 +3,9 @@
 #include "cbuffer.hlsl.h"
 
 struct Particle {
-    Vector4f position;
-    Vector4f velocity;
-    Vector4f color;
+    float4 position;
+    float4 velocity;
+    float4 color;
 
     float scale;
     float lifeSpan;
@@ -22,50 +22,50 @@ struct ParticleCounter {
 
 // ray tracing
 struct GpuPtBvh {
-    Vector3f min;
+    float3 min;
     int missIdx;
-    Vector3f max;
+    float3 max;
     int hitIdx;
 
-    Vector2f _padding;
+    float2 _padding;
     int leaf;
     int triangleIndex;
 };
 
 struct GpuPtVertex {
-    Vector3f position;
+    float3 position;
     int _padding1;
-    Vector3f normal;
+    float3 normal;
     int _padding2;
 };
 
 struct GpuPtIndex {
-    Vector3i tri;
+    int3 tri;
     int _padding1;
 };
 
 struct GpuPtMesh {
-    Matrix4x4f transform;
-    Matrix4x4f transformInv;
+    float4x4 transform;
+    float4x4 transformInv;
 
-    Vector2f _padding4;
+    float2 _padding4;
     int rootBvhId;
     int materialId;
 };
 
 struct GpuPtMaterial {
-    Vector3f baseColor;
+    float3 baseColor;
     float roughness;
-    Vector3f emissive;
+    float3 emissive;
     float metallic;
 };
 
 #ifdef __cplusplus
-static_assert(sizeof(GpuPtBvh) % sizeof(Vector4f) == 0);
-static_assert(sizeof(GpuPtVertex) % sizeof(Vector4f) == 0);
-static_assert(sizeof(GpuPtIndex) % sizeof(Vector4f) == 0);
-static_assert(sizeof(GpuPtMesh) % sizeof(Vector4f) == 0);
-static_assert(sizeof(GpuPtMaterial) % sizeof(Vector4f) == 0);
+static_assert(sizeof(GpuPtBvh) % sizeof(float4) == 0);
+static_assert(sizeof(GpuPtVertex) % sizeof(float4) == 0);
+static_assert(sizeof(GpuPtIndex) % sizeof(float4) == 0);
+static_assert(sizeof(GpuPtMesh) % sizeof(float4) == 0);
+static_assert(sizeof(GpuPtMaterial) % sizeof(float4) == 0);
 #endif  // __cplusplus
 
 #define SBUFFER_LIST                                         \

@@ -1,6 +1,6 @@
 #pragma once
 // @TODO: move to public
-#include "engine/private/assets/guid.h"
+#include "cave/core/ids/Guid.h"
 #include "engine/private/runtime/core/GenIdRegistry.h"
 
 #include "editor/document/IDocument.h"

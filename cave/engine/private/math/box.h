@@ -78,6 +78,5 @@ protected:
 
 using Box2 = Box<2>;
 using Box3 = Box<3>;
-using OldRect = Box2;
 
 }  // namespace cave::math

@@ -33,16 +33,16 @@ private:
     float m_atten_quadratic;
 
     CAVE_PROP()
-    AABB m_shadow_region;
+    math::AABB m_shadow_region;
 
     CAVE_PROP(editor = Toggle)
     bool m_cast_shadow = false;
 
     // Non-serialized
     bool m_dirty = true;
-    Vector3f m_position;
+    math::Vector3f m_position;
     float m_max_distance;
-    std::array<Matrix4x4f, 6> m_light_space_matrices;
+    std::array<math::Matrix4x4f, 6> m_light_space_matrices;
 
 public:
     bool IsDirty() const { return m_dirty; }
@@ -51,7 +51,7 @@ public:
     bool CastShadow() const { return m_cast_shadow; }
     void SetCastShadow(bool p_cast_shadow = true) { m_cast_shadow = p_cast_shadow; }
 
-    const AABB& GetShadowRegion() const { return m_shadow_region; }
+    const math::AABB& GetShadowRegion() const { return m_shadow_region; }
 
     LightType GetType() const { return m_type; }
     void SetType(LightType p_type) { m_type = p_type; }
@@ -63,8 +63,8 @@ public:
     float GetAttenLinear() const { return m_atten_linear; }
     float GetAttenQuadratic() const { return m_atten_quadratic; }
 
-    void SetPosition(const Vector3f& p_position) { m_position = p_position; }
-    const Vector3f& GetPosition() const { return m_position; }
+    void SetPosition(const math::Vector3f& p_position) { m_position = p_position; }
+    const math::Vector3f& GetPosition() const { return m_position; }
 
     auto& GetMatrices() { return m_light_space_matrices; }
     const auto& GetMatrices() const { return m_light_space_matrices; }

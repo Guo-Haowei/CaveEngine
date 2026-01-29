@@ -48,6 +48,7 @@ static bool DummyWriteImage(const std::string* /* basepath */,
 
 namespace cave {
 
+using namespace cave::math;
 namespace fs = std::filesystem;
 
 Result<void> TinyGltfImporter::Import() {

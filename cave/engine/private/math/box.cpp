@@ -1,8 +1,8 @@
 #include "box.h"
 
-#include "detail/vector3.h"
+#include "cave/core/math/Vector.h"
 
-namespace cave {
+namespace cave::math {
 
 template<>
 float Box<3>::SurfaceArea() const {
@@ -16,4 +16,4 @@ float Box<3>::SurfaceArea() const {
     return result;
 }
 
-}  // namespace cave
+}  // namespace cave::math

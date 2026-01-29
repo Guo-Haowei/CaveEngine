@@ -5,6 +5,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 static constexpr int DESCRIPTOR_MAX_COUNT = 512;
 
 //------------------------------------------------------------------------------

@@ -12,6 +12,7 @@
 
 namespace cave {
 
+using namespace cave::math;
 namespace fs = std::filesystem;
 
 Result<void> AssimpImporter::Import() {

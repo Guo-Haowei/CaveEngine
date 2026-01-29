@@ -28,6 +28,7 @@ REGISTER_COMPONENT_LIST
 namespace cave {
 
 using ecs::Entity;
+using namespace cave::math;
 
 void Scene::Update(float p_timestep) {
     CAVE_PROFILE_EVENT();

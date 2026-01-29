@@ -14,10 +14,10 @@ private:
     Guid m_image_id;
 
     CAVE_PROP(editor = Color)
-    Vector4f m_tint_color = Vector4f::One;
+    math::Vector4f m_tint_color = math::Vector4f::One;
 
     CAVE_PROP()
-    OldRect m_rect = { Vector2f::Zero, Vector2f::One };
+    math::Box2 m_rect = { math::Vector2f::Zero, math::Vector2f::One };
 
     CAVE_PROP(editor = Toggle)
     bool m_flip_x = false;
@@ -37,11 +37,11 @@ public:
 
     const Handle<ImageAsset> GetHandle() const { return m_image_handle; }
 
-    void SetTintColor(const Vector4f& p_tint_color) { m_tint_color = p_tint_color; }
-    const Vector4f& GetTintColor() const { return m_tint_color; }
+    void SetTintColor(const math::Vector4f& p_tint_color) { m_tint_color = p_tint_color; }
+    const math::Vector4f& GetTintColor() const { return m_tint_color; }
 
-    void SetRect(const OldRect& p_rect) { m_rect = p_rect; }
-    const OldRect& GetRect() const { return m_rect; }
+    void SetRect(const math::Box2& p_rect) { m_rect = p_rect; }
+    const math::Box2& GetRect() const { return m_rect; }
 
     void OnDeserialized();
 };
