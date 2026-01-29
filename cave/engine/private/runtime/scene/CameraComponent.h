@@ -16,12 +16,10 @@ DECLARE_ENUM_TRAITS(ProjectionType, "perspective", "orthographic");
 class CameraComponent {
     CAVE_META(CameraComponent)
 
-    // clang-format off
     enum Flags : uint32_t {
-        None      = 0b00,
-        DirtyFlag = 0b01,
+        None = 0,
+        DirtyFlag = BIT(0),
     };
-    // clang-format on
 
 private:
     CAVE_PROP()

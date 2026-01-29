@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/assets/asset_handle.h"
-#include "engine/private/math/aabb.h"
+#include "cave/core/math/AABB.h"
 #include "engine/private/reflection/reflection.h"
 
 namespace cave {

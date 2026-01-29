@@ -12,7 +12,7 @@ class IViewProvider {
 public:
     virtual ~IViewProvider() = default;
 
-    virtual void BuildViews(std::vector<ViewDesc>& p_out_views, bool p_is_opengl) = 0;
+    virtual void BuildViews(std::vector<ViewDesc>& p_out_views) = 0;
 
     virtual DebugId GetDebugId() = 0;
 };

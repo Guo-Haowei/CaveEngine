@@ -3,7 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/runtime/core/debugger/Profiler.h"
+#include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/EditorAssetManager.h"

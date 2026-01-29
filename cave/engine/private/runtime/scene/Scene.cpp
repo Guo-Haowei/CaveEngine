@@ -3,8 +3,8 @@
 #include "EntityFactory.h"
 
 #include "engine/private/assets/mesh_asset.h"
-#include "engine/private/runtime/core/debugger/Profiler.h"
-#include "engine/private/runtime/core/io/archive.h"
+#include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/ComponentManager.inl"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/systems/animation_system.h"

@@ -1,6 +1,6 @@
 #include "vector.test.h"
 
-namespace cave::detail {
+namespace cave::math {
 
 TEST(Swizzle3, vector3_swizzle3_read) {
     {
@@ -130,4 +130,4 @@ TEST(Swizzle3, vector4_swizzle3_write) {
     }
 }
 
-}  // namespace cave::detail
+}  // namespace cave::math

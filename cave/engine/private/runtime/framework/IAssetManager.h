@@ -2,7 +2,7 @@
 #include "cave/core/Singleton.h"
 
 #include "engine/private/assets/asset_interface.h"
-#include "engine/private/runtime/core/base/concurrent_queue.h"
+#include "engine/private/core/base/concurrent_queue.h"
 #include "engine/private/runtime/framework/Module.h"
 
 namespace cave {

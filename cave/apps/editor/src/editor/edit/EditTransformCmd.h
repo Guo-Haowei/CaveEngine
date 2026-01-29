@@ -2,7 +2,7 @@
 #include "EditCmdBase.h"
 
 // @TODO: move to public
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/geomath.h"
 
 namespace cave {
 

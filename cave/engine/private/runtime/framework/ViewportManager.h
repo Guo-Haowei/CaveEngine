@@ -27,8 +27,7 @@ public:
 
     void ClearViewport();
 
-    void BuildViews(std::vector<render::ViewDesc>& p_out_views,
-                    bool p_is_opengl);
+    void BuildViews(std::vector<render::ViewDesc>& p_out_views);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

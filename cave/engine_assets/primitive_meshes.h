@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/assets/mesh_asset.h"
-#include "engine/private/math/matrix_transform.h"
+#include "engine/private/core/math/MatrixTransform.h"
 
 namespace cave {
 

@@ -30,12 +30,14 @@ inline const char* ToString(Backend p_backend) {
     return m_table[std::to_underlying(p_backend)];
 }
 
+// clang-format off
 enum ClearFlags : uint32_t {
-    CLEAR_NONE = BIT(0),
-    CLEAR_COLOR_BIT = BIT(1),
-    CLEAR_DEPTH_BIT = BIT(2),
-    CLEAR_STENCIL_BIT = BIT(3),
+    CLEAR_NONE        = 0,
+    CLEAR_COLOR_BIT   = BIT(0),
+    CLEAR_DEPTH_BIT   = BIT(1),
+    CLEAR_STENCIL_BIT = BIT(2),
 };
+// clang-format on
 DEFINE_ENUM_BITWISE_OPERATIONS(ClearFlags);
 
 enum StencilFlags : uint8_t {
@@ -128,15 +130,16 @@ enum class BlendOp : uint8_t {
     BLEND_OP_SUB,
 };
 
+// clang-format off
 enum ColorWriteEnable : uint8_t {
-    COLOR_WRITE_ENABLE_NONE = BIT(0),
-    COLOR_WRITE_ENABLE_RED = BIT(1),
-    COLOR_WRITE_ENABLE_GREEN = BIT(2),
-    COLOR_WRITE_ENABLE_BLUE = BIT(3),
-    COLOR_WRITE_ENABLE_ALPHA = BIT(4),
-    COLOR_WRITE_ENABLE_ALL =
-        COLOR_WRITE_ENABLE_RED | COLOR_WRITE_ENABLE_GREEN | COLOR_WRITE_ENABLE_BLUE | COLOR_WRITE_ENABLE_ALPHA,
+    COLOR_WRITE_ENABLE_NONE  = 0,
+    COLOR_WRITE_ENABLE_RED   = BIT(0),
+    COLOR_WRITE_ENABLE_GREEN = BIT(1),
+    COLOR_WRITE_ENABLE_BLUE  = BIT(2),
+    COLOR_WRITE_ENABLE_ALPHA = BIT(3),
+    COLOR_WRITE_ENABLE_ALL   = COLOR_WRITE_ENABLE_RED | COLOR_WRITE_ENABLE_GREEN | COLOR_WRITE_ENABLE_BLUE | COLOR_WRITE_ENABLE_ALPHA,
 };
+// clang-format on
 DEFINE_ENUM_BITWISE_OPERATIONS(ColorWriteEnable);
 
 struct RenderTargetBlendDesc {

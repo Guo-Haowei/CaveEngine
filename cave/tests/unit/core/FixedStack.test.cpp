@@ -1,4 +1,4 @@
-#include "engine/private/runtime/core/base/fixed_stack.h"
+#include "engine/private/core/base/fixed_stack.h"
 
 namespace cave {
 

@@ -1,7 +1,7 @@
 #include "ContentEntry.h"
 
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/runtime/core/os/platform_io.h"
+#include "engine/private/core/os/platform_io.h"
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

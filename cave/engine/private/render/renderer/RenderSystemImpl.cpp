@@ -1,0 +1,224 @@
+#include "RenderSystemImpl.h"
+
+#include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/runtime/scene/Scene.h"
+
+// @TODO: remove
+#include "cave/runtime/framework/IApplication.h"
+#include "engine/private/core/base/random.h"
+#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/core/math/MatrixTransform.h"
+#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
+
+namespace cave {
+
+extern void RunMeshRenderSystem(const Scene* p_scene, FrameData& p_framedata);
+extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
+
+extern void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata);
+extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
+
+}  // namespace cave
+
+namespace cave::render {
+
+using math::Vector3f;
+using math::Vector4f;
+
+#if 0
+static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matrix) {
+    if (!p_bvh || p_bvh->depth > p_level) {
+        return;
+    }
+
+    if (p_bvh->depth == p_level) {
+        renderer::AddDebugCube(p_bvh->aabb,
+                               Color::HexRgba(0xFFFF0037),
+                               p_matrix);
+    }
+
+    DebugDrawBVH(p_level, p_bvh->left.get(), p_matrix);
+    DebugDrawBVH(p_level, p_bvh->right.get(), p_matrix);
+};
+#endif
+
+using KernelData = std::array<Vector4f, 64>;
+
+static_assert(sizeof(KernelData) == sizeof(Vector4f) * SSAO_KERNEL_SIZE);
+
+// @TODO: move it to somewhere else
+static KernelData GenerateSsaoKernel() {
+    auto lerp = [](float a, float b, float f) {
+        return a + f * (b - a);
+    };
+
+    KernelData kernel;
+
+    const int kernel_size = 32;
+    const float inv_kernel_size = 1.0f / kernel_size;
+    for (int i = 0; i < static_cast<int>(kernel.size()); ++i) {
+        // [-1, 1], [-1, 1], [0, 1]
+        Vector3f sample(Random::Float(-1.0f, 1.0f),
+                        Random::Float(-1.0f, 1.0f),
+                        Random::Float());
+
+        sample = normalize(sample);
+        sample *= Random::Float();
+        float scale = i * inv_kernel_size;
+
+        scale = lerp(0.1f, 1.0f, scale * scale);
+        sample *= scale;
+        kernel[i].xyz = sample;
+    }
+
+    return kernel;
+}
+
+// @TODO: refactor
+static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
+    const auto& options = p_out_data.options;
+    auto& cache = p_out_data.perFrameCache;
+
+    // camera
+    {
+        const auto& cam = p_out_data.camera_params;
+        cache.c_camView = cam.view;
+        cache.c_camProj = cam.proj;
+        cache.c_invCamView = cam.view_inv;
+        cache.c_invCamProj = cam.proj_inv;
+        cache.c_cameraFovDegree = cam.fovy;
+        cache.c_cameraForward = cam.front;
+        cache.c_cameraRight = cam.right;
+        cache.c_cameraUp = cam.up;
+        cache.c_cameraPosition = cam.position;
+    }
+
+    // Bloom
+    {
+        cache.c_bloomThreshold = 1.3f;
+        cache.c_enableBloom = options.bloomEnabled;
+
+        cache.c_debugVoxelId = options.debugVoxelId;
+        cache.c_ptObjectCount = p_scene ? ((int)p_scene->GetCount<MeshRendererComponent>()) : 0;
+    }
+
+    // IBL
+    {
+        cache.c_iblEnabled = options.iblEnabled;
+    }
+
+    // SSAO
+    {
+        // @TODO: do this properly
+        static auto kernel_data = GenerateSsaoKernel();
+        cache.c_ssaoEnabled = options.ssaoEnabled;
+        cache.c_ssaoKernalRadius = options.ssaoKernelRadius;
+        constexpr size_t kernel_size = sizeof(kernel_data);
+        static_assert(sizeof(cache.c_ssaoKernel) == kernel_size);
+        memcpy(cache.c_ssaoKernel, kernel_data.data(), kernel_size);
+    }
+
+    // @TODO: refactor
+    static int s_frameIndex = 0;
+    cache.c_frameIndex = s_frameIndex++;
+    // @TODO: fix this
+    cache.c_sceneDirty = p_scene ? (p_scene->GetDirtyFlags() != SCENE_DIRTY_NONE) : true;
+
+    // Force fields
+    // int counter = 0;
+    // for (auto [id, force_field_component] : p_scene.m_ForceFieldComponents) {
+    //    ForceField& force_field = cache.c_forceFields[counter++];
+    //    const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
+    //    force_field.position = transform.GetTranslation();
+    //    force_field.strength = force_field_component.strength;
+    //}
+
+    // cache.c_forceFieldsCount = counter;
+}
+
+static void FillEnvConstants(FrameData& p_out_data) {
+    // @TODO: return if necessary
+
+    constexpr int count = IBL_MIP_CHAIN_MAX * 6;
+    if (p_out_data.batchCache.buffer.size() < count) {
+        p_out_data.batchCache.buffer.resize(count);
+    }
+
+    auto matrices = p_out_data.options.isOpengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vector3f(0)) : BuildCubeMapViewProjectionMatrix(Vector3f(0));
+    for (int mip_idx = 0; mip_idx < IBL_MIP_CHAIN_MAX; ++mip_idx) {
+        for (int face_id = 0; face_id < 6; ++face_id) {
+            auto& batch = p_out_data.batchCache.buffer[mip_idx * 6 + face_id];
+            batch.c_cubeProjectionViewMatrix = matrices[face_id];
+            batch.c_envPassRoughness = (float)mip_idx / (float)(IBL_MIP_CHAIN_MAX - 1);
+        }
+    }
+}
+
+RenderSystemImpl::RenderSystemImpl(IApplication& p_app)
+    : m_app(p_app) {
+}
+
+void RenderSystemImpl::BeginFrame() {
+    if (m_frameData) {
+        delete m_frameData;
+        m_frameData = nullptr;
+    }
+
+    RenderOptions options = {
+        .isOpengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL,
+        .ssaoEnabled = DVAR_GET_BOOL(gfx_ssao_enabled),
+        .vxgiEnabled = false,
+        .bloomEnabled = DVAR_GET_BOOL(gfx_enable_bloom),
+        .iblEnabled = DVAR_GET_BOOL(gfx_enable_ibl),
+        .debugVoxelId = DVAR_GET_INT(gfx_debug_vxgi_voxel),
+        .debugBvhDepth = DVAR_GET_INT(gfx_bvh_debug),
+        .voxelTextureSize = DVAR_GET_INT(gfx_voxel_size),
+        .ssaoKernelRadius = DVAR_GET_FLOAT(gfx_ssao_radius),
+    };
+
+    // @HACK: really need to refactor this crap
+    m_frameData = new FrameData(options);
+    static int s_should_bake = 0;
+    if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
+        if (s_should_bake == 1) m_frameData->bakeIbl = true;
+        ++s_should_bake;
+    }
+}
+
+void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
+    CAVE_PROFILE_EVENT();
+
+    const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
+    DEV_ASSERT(m_frameData);
+    FrameData& framedata = *m_frameData;
+
+    for (const render::ViewDesc& view : p_views) {
+        Scene* scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
+        if (!scene) continue;
+
+        // RenderScene& rs = GetOrCreateRenderScene(view.scene_id);
+        // m_scene_builder.BuildFull(*scene, rs);
+
+        ResolvedView resolved = ResolveView(view, scene, is_opengl);
+
+        framedata.camera_params = resolved;
+        // @TODO: only support one view, fix this
+        FillConstantBuffer(scene, framedata);
+        RunMeshRenderSystem(scene, framedata);
+        RunTileMapRenderSystem(scene, framedata);
+        RunSpriteRenderSystem(scene, framedata);
+        RunDebugRenderSystem(scene, framedata);
+        FillEnvConstants(framedata);
+
+        // @TODO: fix path tracer
+        // if (p_scene) {
+        //    RequestPathTracerUpdate(*camera, *p_scene);
+        //}
+        if (scene) break;
+    }
+}
+
+}  // namespace cave::render

@@ -2,10 +2,9 @@
 // File: public/cave/render/ViewDesc.h
 // =============================================================================
 #pragma once
+#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/math/Rect.h"
-
-#include "cave/render/CameraParams.h"
 
 namespace cave::render {
 
@@ -20,7 +19,8 @@ struct ViewOutputDesc {
 
 struct ViewDesc {
     SceneId scene_id;
-    CameraParams camera;
+    ecs::Entity camera;
+    // CameraParams camera;
     math::IntRect viewport_pixel;
     ViewOutputDesc output;
     // missing: which render target info it draws to

@@ -1,7 +1,7 @@
 #include "EntityFactory.h"
 
 #include "engine/private/assets/material_asset.h"
-#include "engine/private/math/geometry.h"
+#include "engine/private/core/math/geometry.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

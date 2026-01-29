@@ -1,7 +1,9 @@
-#include "engine/private/runtime/core/dynamic_variable/dynamic_variable.h"
-#include "engine/private/runtime/core/io/archive.h"
+#include "engine/private/core/dynamic_variable/dynamic_variable.h"
+#include "engine/private/core/io/archive.h"
 
 namespace cave {
+
+using namespace cave::math;
 
 #define DEFINE_DVAR
 #include "TestDvars.h"

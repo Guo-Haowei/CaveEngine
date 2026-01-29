@@ -14,11 +14,11 @@ struct RenderGraphResourceCreateInfo {
 };
 
 enum class ResourceAccess : uint8_t {
-    NONE = BIT(0),
-    SRV = BIT(1),
-    UAV = BIT(2),
-    RTV = BIT(3),
-    DSV = BIT(4),
+    NONE = 0,
+    SRV = BIT(0),
+    UAV = BIT(1),
+    RTV = BIT(2),
+    DSV = BIT(3),
     // Present,
     // CopySrc,
     // CopyDst,

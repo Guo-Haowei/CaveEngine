@@ -35,9 +35,8 @@ public:
     void Tick(float p_dt) override;
 
     // @TODO: cleanup
-    void BuildViews(std::vector<render::ViewDesc>& p_out_views,
-                    bool p_is_opengl) {
-        BuildViewsImpl(m_preview_scene, m_camera, p_out_views, p_is_opengl);
+    void BuildViews(std::vector<render::ViewDesc>& p_out_views) {
+        BuildViewsImpl(m_preview_scene, m_camera, p_out_views);
     }
 
     DebugId GetDebugId() final { return m_debug_id; }
@@ -45,8 +44,7 @@ public:
 protected:
     void BuildViewsImpl(SceneId p_scene_id,
                         ecs::Entity p_camera,
-                        std::vector<render::ViewDesc>& p_out_views,
-                        bool p_is_opengl);
+                        std::vector<render::ViewDesc>& p_out_views);
 
     // void OnCreateInternal(const Guid& p_guid) final;
 

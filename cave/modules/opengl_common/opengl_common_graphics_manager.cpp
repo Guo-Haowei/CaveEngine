@@ -2,9 +2,9 @@
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include "engine/private/runtime/core/debugger/Profiler.h"
+#include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
-#include "engine/private/math/geometry.h"
+#include "engine/private/core/math/geometry.h"
 #include "engine/private/render_graph/render_graph_defines.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "cave/runtime/framework/IApplication.h"

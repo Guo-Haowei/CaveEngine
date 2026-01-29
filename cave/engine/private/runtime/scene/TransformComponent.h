@@ -1,8 +1,6 @@
 #pragma once
-#include "SceneComponentBase.h"
-
 #include "cave/core/math/Angle.h"
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/geomath.h"
 #include "engine/private/reflection/reflection.h"
 
 namespace cave::math {
@@ -11,8 +9,13 @@ class Degree;
 
 namespace cave {
 
-class TransformComponent : public ComponentFlagBase {
+class TransformComponent {
     CAVE_META(TransformComponent)
+
+    enum Flags : uint32_t {
+        None = 0,
+        DirtyFlag = BIT(0),
+    };
 
 private:
     CAVE_PROP(editor = Translation)
@@ -26,6 +29,8 @@ private:
 
     // Non-serialized attributes
     math::Matrix4x4f m_world_matrix;
+
+    uint32_t m_flags{};
 
 public:
     TransformComponent();
@@ -58,6 +63,10 @@ public:
     void MatrixTransform(const math::Matrix4x4f& p_matrix);
 
     void UpdateTransformParented(const TransformComponent& p_parent);
+
+    bool IsDirty() const { return m_flags & DirtyFlag; }
+    void SetDirty(bool p_dirty = true) { p_dirty ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }
+    void OnDeserialized() { m_flags |= DirtyFlag; }
 };
 
 }  // namespace cave

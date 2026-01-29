@@ -4,8 +4,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
-#include "engine/private/render/renderer/ExtractCamera.h"
+#include "engine/private/core/debugger/DebugIdAllocator.h"
 
 #include "editor/edit/EditTransformCmd.h"
 #include "editor/services/EditService.h"
@@ -52,25 +51,21 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
 // @TODO: game view tab
 void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
                                   ecs::Entity p_camera,
-                                  std::vector<render::ViewDesc>& p_out_views,
-                                  bool p_is_opengl) {
+                                  std::vector<render::ViewDesc>& p_out_views) {
     // @TODO: refactor scene view API
     if (m_editor.IsPlaying()) {
         render::ViewDesc scene_view;
         scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
 
-        Scene* scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_view.scene_id);
-
         // @HACK: find the first non-editor camera
+        // normally, shouldn't search for camera
+        const Scene* scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_view.scene_id);
         for (auto [id, camera] : scene->View<CameraComponent>()) {
             if (scene->Contains<NoSaveTag>(id)) {
                 continue;
             }
 
-            render::ExtractCamera(camera,
-                                  p_is_opengl,
-                                  scene_view.camera);
-
+            scene_view.camera = id;
             p_out_views.push_back(scene_view);
             break;
         }
@@ -79,16 +74,8 @@ void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
 
     render::ViewDesc scene_view;
     scene_view.scene_id = p_scene_id;
-
-    Scene* scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_view.scene_id);
-
-    if (CameraComponent* camera = scene->GetComponent<CameraComponent>(p_camera)) {
-        render::ExtractCamera(*camera,
-                              p_is_opengl,
-                              scene_view.camera);
-
-        p_out_views.push_back(scene_view);
-    }
+    scene_view.camera = p_camera;
+    p_out_views.push_back(scene_view);
 }
 
 void SceneViewTab::OnCreate() {

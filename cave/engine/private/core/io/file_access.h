@@ -1,0 +1,110 @@
+#pragma once
+
+namespace cave {
+
+// @TODO: refactor concepts
+template<typename T>
+concept TriviallyCopyable = std::is_trivially_copyable_v<T> && (!std::is_pointer_v<T>);
+
+class FileAccess {
+public:
+    using CreateFunc = FileAccess* (*)(void);
+    using GetUserFolderFunc = std::function<const char*()>;
+
+    enum AccessType : uint8_t {
+        ACCESS_FILESYSTEM,
+        ACCESS_RESOURCE,
+        ACCESS_USERDATA,
+        ACCESS_MAX,
+    };
+
+    // clang-format off
+    enum ModeFlags : uint8_t {
+        NONE      = 0,
+        READ      = BIT(0),
+        WRITE     = BIT(1),
+        CREATE    = BIT(2),
+        TRUNCATE  = BIT(3),
+        EXCLUSIVE = BIT(4),
+
+        READ_WRITE = READ | WRITE,
+    };
+    // clang-format on
+
+    virtual ~FileAccess() = default;
+
+    virtual void Close() = 0;
+    virtual bool IsOpen() const = 0;
+    virtual size_t GetLength() const = 0;
+
+    virtual size_t ReadBuffer(void* p_data, size_t p_size) const = 0;
+    virtual size_t WriteBuffer(const void* p_data, size_t p_size) = 0;
+
+    virtual size_t WriteString(const char* p_data) {
+        return WriteBuffer(p_data, strlen(p_data));
+    }
+
+    virtual size_t WriteString(const std::string& p_data) {
+        return WriteBuffer(p_data.data(), p_data.length());
+    }
+
+    // @TODO: refactor the error codes
+    virtual long Tell() = 0;
+    virtual int Seek(long p_offset) = 0;
+
+    template<TriviallyCopyable T>
+    size_t Read(T& p_data) {
+        return ReadBuffer(&p_data, sizeof(T));
+    }
+
+    template<TriviallyCopyable T>
+    size_t Write(const T& p_data) {
+        return WriteBuffer(&p_data, sizeof(T));
+    }
+
+    template<int N>
+    size_t Read(char (&p_data)[N]) {
+        return ReadBuffer(p_data, N);
+    }
+
+    template<int N>
+    size_t Write(const char (&p_data)[N]) {
+        return WriteBuffer(p_data, N);
+    }
+
+    AccessType GetAccessType() const { return m_accessType; }
+    ModeFlags GetOpenMode() const { return m_openMode; }
+
+    static auto Create(AccessType p_access_type) -> std::shared_ptr<FileAccess>;
+    static auto CreateForPath(std::string_view p_path) -> std::shared_ptr<FileAccess>;
+
+    static auto Open(std::string_view p_path, ModeFlags p_mode_flags) -> Result<std::shared_ptr<FileAccess>>;
+
+    template<typename T>
+    static void MakeDefault(AccessType p_access_type) {
+        s_create_funcs[p_access_type] = CreateBuiltin<T>;
+    }
+
+    static std::string FixPath(AccessType p_access_type, std::string_view p_path);
+
+protected:
+    FileAccess() = default;
+
+    virtual auto OpenInternal(std::string_view p_path, ModeFlags p_mode_flags) -> Result<void> = 0;
+    virtual void SetAccessType(AccessType p_access_type) { m_accessType = p_access_type; }
+
+    AccessType m_accessType = ACCESS_MAX;
+    ModeFlags m_openMode = NONE;
+
+    static CreateFunc s_create_funcs[ACCESS_MAX];
+
+private:
+    template<typename T>
+    static FileAccess* CreateBuiltin() {
+        return new T;
+    }
+};
+
+DEFINE_ENUM_BITWISE_OPERATIONS(FileAccess::ModeFlags);
+
+}  // namespace cave

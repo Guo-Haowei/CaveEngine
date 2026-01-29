@@ -15,7 +15,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/private/assets/sprite_animation_asset.h"
-#include "engine/private/runtime/core/debugger/Profiler.h"
+#include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/reflection/meta_editor.h"
 #include "engine/private/renderer/graphics_dvars.h"

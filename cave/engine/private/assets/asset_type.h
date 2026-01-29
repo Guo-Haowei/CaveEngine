@@ -3,18 +3,22 @@
 
 namespace cave {
 
+// I don't remember why bit flag for asset type
+
+// clang-format off
 enum class AssetType : uint32_t {
-    Unknown = BIT(0),
-    Image = BIT(1),
-    Blob = BIT(2),
-    SpriteAnimation = BIT(3),
-    TileSet = BIT(4),
-    TileMap = BIT(5),
-    Material = BIT(6),
-    Mesh = BIT(7),
-    Scene = BIT(8),
-    All = 0xFFFFFFFF,
+    Unknown         = 0,
+    Image           = BIT(0),
+    Blob            = BIT(1),
+    SpriteAnimation = BIT(2),
+    TileSet         = BIT(3),
+    TileMap         = BIT(4),
+    Material        = BIT(5),
+    Mesh            = BIT(6),
+    Scene           = BIT(7),
+    All             = 0xFFFFFFFF,
 };
+// clang-format on
 
 DEFINE_ENUM_BITWISE_OPERATIONS(AssetType);
 

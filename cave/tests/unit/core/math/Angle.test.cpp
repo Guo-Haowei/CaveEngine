@@ -1,6 +1,6 @@
 #include "cave/core/math/Angle.h"
 
-namespace cave {
+namespace cave::math {
 
 // @TODO: add more tests
 TEST(Degree, constructor) {
@@ -15,4 +15,4 @@ TEST(Degree, clamp) {
     EXPECT_FLOAT_EQ(a.GetDegree(), -180.0f);
 }
 
-}  // namespace cave
+}  // namespace cave::math

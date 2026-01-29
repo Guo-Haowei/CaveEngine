@@ -1,6 +1,6 @@
 #include "Workspace.h"
 
-#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
+#include "engine/private/core/debugger/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 
 #include "editor/services/DocumentService.h"
@@ -81,15 +81,14 @@ void Workspace::DrawTabs() {
     }
 }
 
-void Workspace::BuildViews(std::vector<render::ViewDesc>& p_out_views,
-                           bool p_is_opengl) {
+void Workspace::BuildViews(std::vector<render::ViewDesc>& p_out_views) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
         // @TODO: should build when visible, but we only support one render target output
         if (tab && tab->IsVisible()) {
             // if (tab && tab->IsFocused()) {
             if (SceneViewTab* scene_tab = dynamic_cast<SceneViewTab*>(tab)) {
-                scene_tab->BuildViews(p_out_views, p_is_opengl);
+                scene_tab->BuildViews(p_out_views);
             }
         }
     }
@@ -98,7 +97,7 @@ void Workspace::BuildViews(std::vector<render::ViewDesc>& p_out_views,
 void Workspace::OnEvents(const std::vector<InputEvent>& p_events) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
-        if (tab && tab->IsFocused()) {
+        if (tab && tab->IsHovered()) {
             tab->OnInputEvents(p_events);
             break;
         }

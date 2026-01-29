@@ -2,6 +2,10 @@
 #include "cave/render/ViewDesc.h"
 #include "engine/private/runtime/framework/Module.h"
 
+// clang-format off
+namespace cave::render { class RenderSystemImpl; }
+// clang-format on
+
 namespace cave {
 
 class CameraComponent;
@@ -11,20 +15,21 @@ struct FrameData;
 
 class RenderSystem : public Module {
 public:
-    RenderSystem()
-        : Module("RenderSystem") {}
+    RenderSystem();
+    ~RenderSystem();
 
     void BeginFrame();
 
-    void RenderFrame(std::vector<render::ViewDesc>& p_views);
+    void RenderFrame(std::span<const render::ViewDesc> p_views);
 
-    const FrameData* GetFrameData() const { return m_frameData; }
+    const FrameData* GetFrameData() const;
 
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
     FrameData* m_frameData{ nullptr };
+    std::unique_ptr<render::RenderSystemImpl> m_impl;
 };
 
 }  // namespace cave

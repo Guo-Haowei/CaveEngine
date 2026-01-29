@@ -1,4 +1,4 @@
-#include "engine/private/math/frustum.h"
+#include "engine/private/core/math/frustum.h"
 
 namespace cave {
 

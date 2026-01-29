@@ -1,7 +1,7 @@
 #include "SceneComponent.h"
 
-#include "engine/private/runtime/core/io/archive.h"
-#include "engine/private/math/matrix_transform.h"
+#include "engine/private/core/io/archive.h"
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 

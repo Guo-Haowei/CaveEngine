@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/render/IViewProvider.h"
 
-#include "engine/private/runtime/core/GenIdRegistry.h"
+#include "engine/private/core/GenIdRegistry.h"
 
 #include "editor/document/DocId.h"
 #include "editor/panels/Tab.h"
@@ -74,8 +74,7 @@ public:
 
     Tab* GetFocusedTab() { return Resolve(m_focused_tab); }
 
-    void BuildViews(std::vector<render::ViewDesc>& p_out_views,
-                    bool p_is_opengl) final;
+    void BuildViews(std::vector<render::ViewDesc>& p_out_views) final;
 
     void OnEvents(const std::vector<InputEvent>& p_events) final;
 

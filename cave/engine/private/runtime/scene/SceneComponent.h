@@ -2,12 +2,9 @@
 #include "cave/core/ids/Entity.h"
 
 #include "engine/private/assets/asset_handle.h"
-#include "engine/private/math/aabb.h"
+#include "cave/core/math/AABB.h"
 #include "cave/core/math/Angle.h"
 #include "engine/private/reflection/reflection.h"
-
-// @TODO: get rid of this
-#include "SceneComponentBase.h"
 
 namespace cave {
 #include "shader_defines.hlsl.h"
@@ -181,9 +178,9 @@ struct ParticleEmitterComponent {
 #if 0
 struct MeshEmitterComponent {
     enum : uint32_t {
-        NONE = BIT(0),
-        RUNNING = BIT(1),
-        RECYCLE = BIT(2),
+        NONE = 0,
+        RUNNING = BIT(0),
+        RECYCLE = BIT(1),
     };
 
     struct Particle {

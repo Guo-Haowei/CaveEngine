@@ -3,10 +3,10 @@
 #include <fstream>
 #include <imgui/imgui.h>
 
-#include "engine/private/runtime/core/debugger/Profiler.h"
-#include "engine/private/runtime/core/io/file_access.h"
-#include "engine/private/runtime/core/io/logger.h"
-#include "engine/private/runtime/core/os/threads.h"
+#include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/core/io/file_access.h"
+#include "engine/private/core/io/logger.h"
+#include "engine/private/core/os/threads.h"
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
@@ -185,11 +185,8 @@ bool Application::MainLoop() {
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->Tick(timestep);
 
-    // view has camera controller and camera manager
-    const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;
-
     std::vector<render::ViewDesc> views;
-    m_viewport_manager->BuildViews(views, is_opengl);
+    m_viewport_manager->BuildViews(views);
 
     // @TODO: build render data, rename it to something better
     m_render_system->RenderFrame(views);

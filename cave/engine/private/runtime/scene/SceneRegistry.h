@@ -1,6 +1,6 @@
 #include "ISceneRegistry.h"
 
-#include "engine/private/runtime/core/GenIdRegistry.h"
+#include "engine/private/core/GenIdRegistry.h"
 
 namespace cave {
 

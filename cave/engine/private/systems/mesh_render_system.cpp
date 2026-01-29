@@ -1,8 +1,8 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"
-#include "engine/private/math/frustum.h"
-#include "engine/private/math/geometry.h"
-#include "engine/private/math/matrix_transform.h"
+#include "engine/private/core/math/frustum.h"
+#include "engine/private/core/math/geometry.h"
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -308,12 +308,11 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
 
 static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     const auto& camera = p_framedata.camera_params;
-    Frustum camera_frustum(camera.proj_culling * camera.view);
 
     // main pass
     PerPassConstantBuffer pass_constant;
     pass_constant.c_viewMatrix = camera.view;
-    pass_constant.c_projectionMatrix = camera.proj_rendering;
+    pass_constant.c_projectionMatrix = camera.proj;
 
     p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.passCache.size());
     p_framedata.passCache.emplace_back(pass_constant);
@@ -324,7 +323,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     const Scene& scene = *p_scene;
 
     using FilterFunc = std::function<bool(const AABB&)>;
-    FilterFunc filter_main = [&](const AABB& p_aabb) -> bool { return camera_frustum.Intersects(p_aabb); };
+    FilterFunc filter_main = [&](const AABB& p_aabb) -> bool { return camera.frustum.Intersects(p_aabb); };
 
     const bool is_opengl = p_framedata.options.isOpengl;
     for (auto [entity, renderer] : scene.View<MeshRendererComponent>()) {
@@ -436,7 +435,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     }
 }
 
-void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata) {
+void RunMeshRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
     if (p_scene) {
         FillLightBuffer(*p_scene, p_framedata);
         FillVoxelPass(*p_scene, p_framedata);

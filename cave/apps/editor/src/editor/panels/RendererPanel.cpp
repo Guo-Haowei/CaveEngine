@@ -2,7 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 
-#include "engine/private/runtime/core/debugger/Profiler.h"
+#include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/render_graph/render_graph_defines.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"

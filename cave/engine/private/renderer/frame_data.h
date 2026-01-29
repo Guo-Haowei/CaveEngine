@@ -2,11 +2,13 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Angle.h"
+#include "cave/core/math/AABB.h"
 #include "cave/render/ViewDesc.h"
 
-#include "engine/private/math/aabb.h"
-#include "engine/private/math/color.h"
-#include "engine/private/math/geomath.h"
+#include "engine/private/render/renderer/ResolvedView.h"
+
+#include "engine/private/core/math/color.h"
+#include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/debug_draw.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_defines.h"
@@ -66,7 +68,7 @@ struct FrameData {
     }
 
     const RenderOptions options;
-    render::CameraParams camera_params;
+    render::ResolvedView camera_params;  // @TODO: rename
     // const ViewInfo* view_info{ nullptr };
 
     // @TODO: multi camera & viewport

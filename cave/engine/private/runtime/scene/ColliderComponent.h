@@ -1,7 +1,10 @@
 #pragma once
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/geomath.h"
 #include "engine/private/reflection/reflection.h"
-#include "engine/private/runtime/scene/SceneComponentBase.h"
+
+#define FLAG_GETTER_SETTER(FLAG, DATA)             \
+    bool Has##FLAG() const { return DATA & FLAG; } \
+    void Set##FLAG(bool p_value = true) { p_value ? DATA |= FLAG : DATA &= ~FLAG; }
 
 /*
 [Entity Root]
@@ -58,10 +61,10 @@ class ColliderComponent {
     CAVE_META(ColliderComponent)
 
     enum : uint32_t {
-        None = BIT(0),
-        FixedRotationFlag = BIT(1),
-        SensorFlag = BIT(2),
-        BulletFlag = BIT(3),
+        None = 0,
+        FixedRotationFlag = BIT(0),
+        SensorFlag = BIT(1),
+        BulletFlag = BIT(2),
     };
 
 private:

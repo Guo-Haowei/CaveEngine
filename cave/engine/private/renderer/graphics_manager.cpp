@@ -1,11 +1,11 @@
 #include "graphics_manager.h"
 
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/runtime/core/base/random.h"
-#include "engine/private/runtime/core/debugger/Profiler.h"
-#include "engine/private/math/frustum.h"
-#include "engine/private/math/geometry.h"
-#include "engine/private/math/matrix_transform.h"
+#include "engine/private/core/base/random.h"
+#include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/core/math/frustum.h"
+#include "engine/private/core/math/geometry.h"
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/render_graph/common_passes.h"
 #include "engine/private/render_graph/render_graph_defines.h"
 #include "engine/private/render_graph/render_graph_predefined.h"
@@ -156,7 +156,7 @@ auto GraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_
 
     std::array<GpuBufferDesc, count> vb_descs;
 
-    const bool is_dynamic = p_mesh.flags & MeshAsset::DYNAMIC;
+    const bool is_dynamic = false;
 
     GpuMeshDesc desc;
     desc.enabledVertexCount = count;

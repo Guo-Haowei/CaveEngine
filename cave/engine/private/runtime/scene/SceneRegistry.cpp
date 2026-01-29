@@ -1,6 +1,6 @@
 #include "SceneRegistry.h"
 
-#include "engine/private/runtime/core/os/threads.h"
+#include "engine/private/core/os/threads.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {

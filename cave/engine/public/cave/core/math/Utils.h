@@ -10,7 +10,7 @@
 namespace cave::math {
 
 constexpr inline uint64_t Bit(uint64_t p_a) {
-    return (1llu << p_a) >> 1llu;
+    return 1llu << p_a;
 }
 
 template<typename T, class = typename std::enable_if<std::is_integral<T>::value>::type>
