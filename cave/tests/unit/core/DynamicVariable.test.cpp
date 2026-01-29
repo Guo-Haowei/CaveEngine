@@ -3,6 +3,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 #define DEFINE_DVAR
 #include "TestDvars.h"
 

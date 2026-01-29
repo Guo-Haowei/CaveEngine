@@ -18,16 +18,18 @@ public:
         ACCESS_MAX,
     };
 
+    // clang-format off
     enum ModeFlags : uint8_t {
-        NONE = BIT(0),
-        READ = BIT(1),
-        WRITE = BIT(2),
-        CREATE = BIT(3),
-        TRUNCATE = BIT(4),
-        EXCLUSIVE = BIT(5),
+        NONE      = 0,
+        READ      = BIT(0),
+        WRITE     = BIT(1),
+        CREATE    = BIT(2),
+        TRUNCATE  = BIT(3),
+        EXCLUSIVE = BIT(4),
 
         READ_WRITE = READ | WRITE,
     };
+    // clang-format on
 
     virtual ~FileAccess() = default;
 

@@ -1,30 +1,27 @@
-namespace cave {
+namespace cave::math {
 
 TEST(Bit, compile_time) {
-    static_assert(Bit(0) == 0);
-    static_assert(Bit(1) == 1);
-    static_assert(Bit(2) == 2);
-    static_assert(Bit(3) == 4);
-    static_assert(Bit(31) == 1llu << 30);
+    static_assert(Bit(0) == 1);
+    static_assert(Bit(1) == 2);
+    static_assert(Bit(2) == 4);
+    static_assert(Bit(30) == 1llu << 30);
     SUCCEED();
 }
 
 TEST(Bit, run_time) {
-    EXPECT_EQ(Bit(0), 0);
-    EXPECT_EQ(Bit(1), 1);
-    EXPECT_EQ(Bit(2), 2);
-    EXPECT_EQ(Bit(3), 4);
-    EXPECT_EQ(Bit(4), 8);
-    EXPECT_EQ(Bit(5), 16);
-    EXPECT_EQ(Bit(6), 32);
-    EXPECT_EQ(Bit(7), 64);
-    EXPECT_EQ(Bit(8), 128);
-    EXPECT_EQ(Bit(9), 256);
-    EXPECT_EQ(Bit(30), 1llu << 29);
-    EXPECT_EQ(Bit(31), 1llu << 30);
-    EXPECT_EQ(Bit(32), 1llu << 31);
-    EXPECT_EQ(Bit(62), 1llu << 61);
-    EXPECT_EQ(Bit(63), 1llu << 62);
+    EXPECT_EQ(Bit(0), 1);
+    EXPECT_EQ(Bit(1), 2);
+    EXPECT_EQ(Bit(2), 4);
+    EXPECT_EQ(Bit(3), 8);
+    EXPECT_EQ(Bit(4), 16);
+    EXPECT_EQ(Bit(5), 32);
+    EXPECT_EQ(Bit(6), 64);
+    EXPECT_EQ(Bit(7), 128);
+    EXPECT_EQ(Bit(8), 256);
+    EXPECT_EQ(Bit(30), 1llu << 30);
+    EXPECT_EQ(Bit(31), 1llu << 31);
+    EXPECT_EQ(Bit(61), 1llu << 61);
+    EXPECT_EQ(Bit(62), 1llu << 62);
 }
 
 TEST(Align, roundup) {
@@ -106,4 +103,4 @@ TEST(next_power_of_two, compile_time) {
     static_assert(NextPowerOfTwo(17) == 32u);
 }
 
-}  // namespace cave
+}  // namespace cave::math

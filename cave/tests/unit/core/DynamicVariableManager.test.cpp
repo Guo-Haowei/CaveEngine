@@ -6,6 +6,8 @@ namespace cave {
 
 #include "TestDvars.h"
 
+using namespace cave::math;
+
 extern void register_test_dvars();
 
 using Commands = std::vector<std::string>;

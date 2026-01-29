@@ -27,12 +27,6 @@ class MeshAsset : public IAsset {
     CAVE_ASSET(MeshAsset, AssetType::Mesh, 0)
 
 public:
-    enum : uint32_t {
-        NONE = BIT(0),
-        RENDERABLE = BIT(1),
-        DYNAMIC = BIT(3),
-    };
-
     struct VertexAttribute {
         VertexAttributeName attribName;
         uint32_t offsetInByte{ 0 };
@@ -41,7 +35,7 @@ public:
         uint32_t elementCount{ 0 };
     };
 
-    uint32_t flags = RENDERABLE;
+    uint32_t flags = 0;
     std::vector<uint32_t> indices;
     std::vector<math::Vector3f> positions;
     std::vector<math::Vector3f> normals;

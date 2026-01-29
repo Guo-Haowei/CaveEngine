@@ -18,12 +18,12 @@ TEST(on_scope_exit, test) {
 }
 
 enum TestEnum : uint8_t {
-    TEST_ENUM_0 = BIT(0),
-    TEST_ENUM_1 = BIT(1),
-    TEST_ENUM_2 = BIT(2),
-    TEST_ENUM_3 = BIT(3),
-    TEST_ENUM_4 = BIT(4),
-    TEST_ENUM_5 = BIT(5),
+    TEST_ENUM_0 = 0,
+    TEST_ENUM_1 = BIT(0),
+    TEST_ENUM_2 = BIT(1),
+    TEST_ENUM_3 = BIT(2),
+    TEST_ENUM_4 = BIT(3),
+    TEST_ENUM_5 = BIT(4),
     TEST_ENUM_ALL = TEST_ENUM_1 |
                     TEST_ENUM_2 |
                     TEST_ENUM_3 |

@@ -156,7 +156,7 @@ auto GraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_
 
     std::array<GpuBufferDesc, count> vb_descs;
 
-    const bool is_dynamic = p_mesh.flags & MeshAsset::DYNAMIC;
+    const bool is_dynamic = false;
 
     GpuMeshDesc desc;
     desc.enabledVertexCount = count;

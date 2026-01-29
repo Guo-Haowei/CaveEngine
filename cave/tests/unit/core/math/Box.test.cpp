@@ -1,8 +1,6 @@
 #include "cave/core/math/Box.h"
 
-namespace cave {
-
-using Vector3f = Vector<float, 3>;
+namespace cave::math {
 
 TEST(box, constructor) {
     Box3 box(Vector3f(1), Vector3f(10));
@@ -51,4 +49,4 @@ TEST(box, center_and_size) {
     EXPECT_EQ(box.Size(), Vector3f(15));
 }
 
-}  // namespace cave
+}  // namespace cave::math

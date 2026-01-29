@@ -4,11 +4,13 @@
 #define ENABLE_DVAR USE_IF(!USING(PLATFORM_WASM))
 
 #if USING(ENABLE_DVAR)
+// clang-format off
 enum DvarFlags : uint32_t {
-    DVAR_FLAG_NONE = BIT(0),
-    DVAR_FLAG_CACHE = BIT(1),
-    DVAR_FLAG_OVERRIDEN = BIT(2),
+    DVAR_FLAG_NONE      = 0,
+    DVAR_FLAG_CACHE     = BIT(0),
+    DVAR_FLAG_OVERRIDEN = BIT(1),
 };
+// clang-format on
 DEFINE_ENUM_BITWISE_OPERATIONS(DvarFlags);
 
 namespace cave {

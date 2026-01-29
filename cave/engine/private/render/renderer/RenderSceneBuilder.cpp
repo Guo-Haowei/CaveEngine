@@ -2,7 +2,7 @@
 
 namespace cave::render {
 
-void RenderSceneBuilder::SyncFromECS(const Scene& p_scene, RenderScene& p_out_scene) {
+void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scene) {
     unused(p_scene);
     unused(p_out_scene);
 }
@@ -38,7 +38,7 @@ void RenderSceneBuilder::OnSkeletonChanged(ecs::Entity p_entity, RenderScene& p_
     unused(p_out_scene);
 }
 
-void RenderSceneBuilder::FlushUpdates(const Scene& p_scene, RenderScene& p_out_scene) {
+void RenderSceneBuilder::FlushPending(const Scene& p_scene, RenderScene& p_out_scene) {
     unused(p_scene);
     unused(p_out_scene);
 }

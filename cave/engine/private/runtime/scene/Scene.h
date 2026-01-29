@@ -73,10 +73,10 @@ enum class PhysicsMode : uint8_t {
 };
 
 enum SceneDirtyFlags : uint32_t {
-    SCENE_DIRTY_NONE = BIT(0),
-    SCENE_DIRTY_WORLD = BIT(1),
-    SCENE_DIRTY_CAMERA = BIT(2),
-    SCENE_DIRTY_LIGHT = BIT(3),
+    SCENE_DIRTY_NONE = 0,
+    SCENE_DIRTY_WORLD = BIT(0),
+    SCENE_DIRTY_CAMERA = BIT(1),
+    SCENE_DIRTY_LIGHT = BIT(2),
 };
 DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 

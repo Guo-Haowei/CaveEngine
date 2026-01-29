@@ -97,7 +97,7 @@ void Workspace::BuildViews(std::vector<render::ViewDesc>& p_out_views) {
 void Workspace::OnEvents(const std::vector<InputEvent>& p_events) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
-        if (tab && tab->IsFocused()) {
+        if (tab && tab->IsHovered()) {
             tab->OnInputEvents(p_events);
             break;
         }

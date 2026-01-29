@@ -16,11 +16,11 @@ using RenderObjectId = uint32_t;
 // clang-format off
 enum class RenderObjectFlags : uint32_t {
     None        = 0,
-    CastShadow  = 1 << 0,
-    Transparent = 1 << 1,
-    Skinned     = 1 << 2,
-    Visible     = 1 << 3,
-    Highligted  = 1 << 4,
+    CastShadow  = BIT(0),
+    Transparent = BIT(1),
+    Skinned     = BIT(2),
+    Visible     = BIT(3),
+    Highligted  = BIT(4),
 };
 // clang-format on
 DEFINE_ENUM_BITWISE_OPERATIONS(RenderObjectFlags)
@@ -59,12 +59,15 @@ struct RenderObject {
     uint32_t skeleton_ver{ 0 };
 };
 
+// clang-format off
 enum class RenderDirty : uint8_t {
-    Transform,
-    Mesh,
-    Material,
-    Skeleton,
+    None      = 0,
+    Transform = BIT(0),
+    Mesh      = BIT(1),
+    Material  = BIT(2),
+    Skeleton  = BIT(3),
 };
+// clang-format on
 
 class RenderScene {
 public:
