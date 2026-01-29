@@ -28,7 +28,7 @@ ResolvedView ResolveView(const ViewDesc& p_view, const Scene* p_scene, bool p_is
 
     Matrix4x4f view = cam->GetViewMatrix();
     Matrix4x4f proj = cam->GetProjectionMatrix();
-    math::Frustum frustum(view * proj);
+    math::Frustum frustum(proj * view);
 
     if (p_is_opengl) {
         normalize_unit_range(proj);
@@ -37,7 +37,7 @@ ResolvedView ResolveView(const ViewDesc& p_view, const Scene* p_scene, bool p_is
 
     return {
         .view = view,
-        .proj_rendering = proj,
+        .proj = proj,
         .view_inv = glm::inverse(view),
         .proj_inv = glm::inverse(proj),
         .frustum = frustum,

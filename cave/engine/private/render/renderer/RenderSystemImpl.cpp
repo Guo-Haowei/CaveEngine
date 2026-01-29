@@ -86,7 +86,7 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
     {
         const auto& cam = p_out_data.camera_params;
         cache.c_camView = cam.view;
-        cache.c_camProj = cam.proj_rendering;
+        cache.c_camProj = cam.proj;
         cache.c_invCamView = cam.view_inv;
         cache.c_invCamProj = cam.proj_inv;
         cache.c_cameraFovDegree = cam.fovy;

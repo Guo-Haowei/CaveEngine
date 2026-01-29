@@ -68,7 +68,7 @@ struct FrameData {
     }
 
     const RenderOptions options;
-    render::ResolvedView camera_params; // @TODO: rename
+    render::ResolvedView camera_params;  // @TODO: rename
     // const ViewInfo* view_info{ nullptr };
 
     // @TODO: multi camera & viewport

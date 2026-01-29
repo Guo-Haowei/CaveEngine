@@ -20,7 +20,7 @@ struct ViewOutputDesc {
 struct ViewDesc {
     SceneId scene_id;
     ecs::Entity camera;
-    //CameraParams camera;
+    // CameraParams camera;
     math::IntRect viewport_pixel;
     ViewOutputDesc output;
     // missing: which render target info it draws to

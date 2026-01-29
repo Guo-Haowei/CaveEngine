@@ -13,7 +13,7 @@ namespace cave::render {
 
 struct ResolvedView {
     math::Matrix4x4f view;
-    math::Matrix4x4f proj_rendering;
+    math::Matrix4x4f proj;
     math::Matrix4x4f view_inv;
     math::Matrix4x4f proj_inv;
     math::Frustum frustum;

@@ -185,11 +185,8 @@ bool Application::MainLoop() {
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->Tick(timestep);
 
-    // view has camera controller and camera manager
-    const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;
-
     std::vector<render::ViewDesc> views;
-    m_viewport_manager->BuildViews(views, is_opengl);
+    m_viewport_manager->BuildViews(views);
 
     // @TODO: build render data, rename it to something better
     m_render_system->RenderFrame(views);

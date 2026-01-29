@@ -28,11 +28,10 @@ void ViewportManager::ClearViewport() {
     m_viewports.clear();
 }
 
-void ViewportManager::BuildViews(std::vector<render::ViewDesc>& p_out_views,
-                                 bool p_is_opengl) {
+void ViewportManager::BuildViews(std::vector<render::ViewDesc>& p_out_views) {
     p_out_views.clear();
     for (auto& vp : m_viewports) {
-        vp.view_provider->BuildViews(p_out_views, p_is_opengl);
+        vp.view_provider->BuildViews(p_out_views);
     }
 }
 

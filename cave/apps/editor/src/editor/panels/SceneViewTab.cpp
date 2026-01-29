@@ -51,13 +51,11 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
 // @TODO: game view tab
 void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
                                   ecs::Entity p_camera,
-                                  std::vector<render::ViewDesc>& p_out_views,
-                                  bool p_is_opengl) {
-    render::ViewDesc scene_view;
-    scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-
+                                  std::vector<render::ViewDesc>& p_out_views) {
     // @TODO: refactor scene view API
     if (m_editor.IsPlaying()) {
+        render::ViewDesc scene_view;
+        scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
 
         // @HACK: find the first non-editor camera
         // normally, shouldn't search for camera

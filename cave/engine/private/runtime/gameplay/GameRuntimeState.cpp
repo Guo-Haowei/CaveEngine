@@ -57,9 +57,8 @@ public:
         : m_app(p_app)
         , m_debug_id(MakeDebugId(this)) {}
 
-    void BuildViews(std::vector<render::ViewDesc>& p_out_views, bool p_is_opengl) final {
+    void BuildViews(std::vector<render::ViewDesc>& p_out_views) final {
         unused(p_out_views);
-        unused(p_is_opengl);
         DEV_ASSERT(0);
     }
 
