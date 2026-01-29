@@ -8,7 +8,7 @@ namespace cave::render {
 void ExtractCamera(const CameraComponent& p_camera,
                    bool p_is_opengl,
                    CameraParams& p_out_cam) {
-    DEV_ASSERT(!p_camera.HasDirtyFlag()); // make sure camera has updated
+    DEV_ASSERT(!p_camera.IsDirty());  // make sure camera has updated
 
     CameraParams& c = p_out_cam;  // alias
 
@@ -18,7 +18,7 @@ void ExtractCamera(const CameraComponent& p_camera,
     c.fovy = p_camera.GetFovy();
 
     c.view = p_camera.GetViewMatrix();
-    c.proj_rendering = p_camera.GetProjectionMatrix();
+    c.proj_culling = p_camera.GetProjectionMatrix();
 
     auto reverse_z = [](math::Matrix4x4f& p_perspective) {
         constexpr math::Matrix4x4f matrix{ 1.0f, 0.0f, 0.0f, 0.0f,
@@ -52,13 +52,6 @@ void ExtractCamera(const CameraComponent& p_camera,
     c.up = p_camera.GetUp();
 
     c.position = p_camera.GetPosition();
-}
-
-Scene* SceneView::ResolveScene() {
-    if (DEV_VERIFY(scene_manager)) {
-        return scene_manager->Resolve(scene_id);
-    }
-    return nullptr;
 }
 
 }  // namespace cave::render

@@ -74,7 +74,7 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
     };
 
     if (moved || rotate_camera()) {
-        camera->SetDirtyFlag();
+        camera->SetDirty();
     }
 }
 

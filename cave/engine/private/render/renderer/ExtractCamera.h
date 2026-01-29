@@ -1,18 +1,14 @@
 #pragma once
 #include "cave/render/CameraParams.h"
 
-namespace cave {
-
-class CameraComponent;
-
-}  // namespace cave
+// clang-format off
+namespace cave { class CameraComponent; }
+// clang-format on
 
 namespace cave::render {
 
-void ViewInfo::FromCamera(const CameraComponent& p_camera,
-                          bool p_is_opengl,
-                          CameraParams& p_out_view_info) {
-
-void 
+void ExtractCamera(const CameraComponent& p_camera,
+                   bool p_is_opengl,
+                   CameraParams& p_out_cam);
 
 }  // namespace cave::render

@@ -2,7 +2,6 @@
 #include "editor/panels/EditorWindow.h"
 
 #include "cave/runtime/input/IInputConsumer.h"
-#include "engine/private/runtime/framework/SceneView.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 
 #include "editor/document/DocId.h"

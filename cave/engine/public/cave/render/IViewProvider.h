@@ -8,9 +8,9 @@
 
 namespace cave::render {
 
-class ISceneViewProvider {
+class IViewProvider {
 public:
-    virtual ~ISceneViewProvider() = default;
+    virtual ~IViewProvider() = default;
 
     virtual void BuildViews(std::vector<ViewDesc>& p_out_views, bool p_is_opengl) = 0;
 

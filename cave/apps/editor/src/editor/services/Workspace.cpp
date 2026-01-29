@@ -81,7 +81,7 @@ void Workspace::DrawTabs() {
     }
 }
 
-void Workspace::BuildViews(std::vector<SceneView>& p_out_views,
+void Workspace::BuildViews(std::vector<render::ViewDesc>& p_out_views,
                            bool p_is_opengl) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();

@@ -188,7 +188,7 @@ bool Application::MainLoop() {
     // view has camera controller and camera manager
     const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;
 
-    std::vector<SceneView> views;
+    std::vector<render::ViewDesc> views;
     m_viewport_manager->BuildViews(views, is_opengl);
 
     // @TODO: build render data, rename it to something better

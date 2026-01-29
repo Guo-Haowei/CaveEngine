@@ -5,6 +5,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
+#include "engine/private/render/renderer/ExtractCamera.h"
 
 #include "editor/edit/EditTransformCmd.h"
 #include "editor/services/EditService.h"
@@ -51,15 +52,14 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
 // @TODO: game view tab
 void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
                                   ecs::Entity p_camera,
-                                  std::vector<SceneView>& p_out_views,
+                                  std::vector<render::ViewDesc>& p_out_views,
                                   bool p_is_opengl) {
     // @TODO: refactor scene view API
     if (m_editor.IsPlaying()) {
-        SceneView scene_view;
+        render::ViewDesc scene_view;
         scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-        scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
 
-        Scene* scene = scene_view.ResolveScene();
+        Scene* scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_view.scene_id);
 
         // @HACK: find the first non-editor camera
         for (auto [id, camera] : scene->View<CameraComponent>()) {
@@ -67,9 +67,9 @@ void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
                 continue;
             }
 
-            ViewInfo::FromCamera(camera,
-                                 scene_view.view_info,
-                                 p_is_opengl);
+            render::ExtractCamera(camera,
+                                  p_is_opengl,
+                                  scene_view.camera);
 
             p_out_views.push_back(scene_view);
             break;
@@ -77,17 +77,15 @@ void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
         return;
     }
 
-    SceneView scene_view;
+    render::ViewDesc scene_view;
     scene_view.scene_id = p_scene_id;
-    scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
 
-    Scene* scene = scene_view.ResolveScene();
-    const CameraComponent* cam = scene->GetComponent<CameraComponent>(p_camera);
+    Scene* scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_view.scene_id);
 
-    if (DEV_VERIFY(cam)) {
-        ViewInfo::FromCamera(*cam,
-                             scene_view.view_info,
-                             p_is_opengl);
+    if (CameraComponent* camera = scene->GetComponent<CameraComponent>(p_camera)) {
+        render::ExtractCamera(*camera,
+                              p_is_opengl,
+                              scene_view.camera);
 
         p_out_views.push_back(scene_view);
     }

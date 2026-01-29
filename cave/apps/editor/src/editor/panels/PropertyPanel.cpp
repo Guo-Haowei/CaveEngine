@@ -302,7 +302,7 @@ void PropertyPanel::DrawUIImpl() {
             edit_service.Submit(doc_id, std::move(cmd));
 
             if (camera) {
-                camera->SetDirtyFlag();
+                camera->SetDirty();
             }
         }
     });
@@ -427,7 +427,7 @@ void PropertyPanel::DrawUIImpl() {
 
     DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera, [&](CameraComponent& p_camera) {
         if (DrawComponentAuto<CameraComponent>(&p_camera)) {
-            p_camera.SetDirtyFlag();
+            p_camera.SetDirty();
         }
     });
 

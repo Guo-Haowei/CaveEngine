@@ -27,7 +27,7 @@ Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
     camera.m_near = p_near_plane;
     camera.m_far = p_far_plane;
     camera.m_fovy = p_fovy;
-    camera.SetDirtyFlag();
+    camera.SetDirty();
 
     p_scene.Create<TransformComponent>(entity);
     return entity;

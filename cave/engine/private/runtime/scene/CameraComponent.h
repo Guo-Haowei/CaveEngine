@@ -1,12 +1,7 @@
 #pragma once
-#include "cave/core/math/Angle.h"
-#include "engine/private/math/geomath.h"
+#include "cave/core/math/Vector.h"
+#include "cave/core/math/Matrix.h"
 #include "engine/private/reflection/reflection.h"
-#include "engine/private/runtime/scene/SceneComponentBase.h"
-
-namespace cave::math {
-class Degree;
-}  // namespace cave::math
 
 namespace cave {
 
@@ -21,9 +16,9 @@ DECLARE_ENUM_TRAITS(ProjectionType, "perspective", "orthographic");
 class CameraComponent {
     CAVE_META(CameraComponent)
 
-    enum : uint32_t {
+    enum Flags : uint32_t {
         None = 0b00,
-        DirtyFlag = 0b1,
+        DirtyFlag = 0b01,
     };
 
 private:
@@ -34,13 +29,13 @@ private:
     ProjectionType m_projection;
 
     CAVE_PROP(editor = DragFloat, min = 1, max = 179)
-    float m_fovy = DEFAULT_FOVY;
+    float m_fovy = kDefaultFovy;
 
     CAVE_PROP(editor = DragFloat, min = 0.1f, max = 9)
-    float m_near = DEFAULT_NEAR;
+    float m_near = kDefaultNear;
 
     CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
-    float m_far = DEFAULT_FAR;
+    float m_far = kDefaultFar;
 
     CAVE_PROP(editor = InputInt)
     int m_width = 0;
@@ -65,9 +60,9 @@ private:
     friend class EntityFactory;
 
 public:
-    static constexpr float DEFAULT_NEAR = 0.1f;
-    static constexpr float DEFAULT_FAR = 1000.0f;
-    static constexpr float DEFAULT_FOVY = 60.0f;
+    static constexpr float kDefaultNear = 0.1f;
+    static constexpr float kDefaultFar = 1000.0f;
+    static constexpr float kDefaultFovy = 60.0f;
 
     bool Update(const math::Matrix4x4f& p_transform);
 
@@ -77,19 +72,19 @@ public:
 
     void SetFovy(float p_degree) {
         m_fovy = p_degree;
-        SetDirtyFlag();
+        SetDirty();
     }
 
     float GetNear() const { return m_near; }
     void SetNear(float p_near) {
         m_near = p_near;
-        SetDirtyFlag();
+        SetDirty();
     }
 
     float GetFar() const { return m_far; }
     void SetFar(float p_far) {
         m_far = p_far;
-        SetDirtyFlag();
+        SetDirty();
     }
 
     int GetWidth() const { return m_width; }
@@ -112,7 +107,8 @@ public:
     math::Matrix4x4f CalcProjection() const;
     math::Matrix4x4f CalcProjectionGL() const;
 
-    FLAG_GETTER_SETTER(DirtyFlag, m_flags)
+    bool IsDirty() const { return m_flags & DirtyFlag; }
+    void SetDirty(bool p_value = true) { p_value ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }
 
     void OnDeserialized() { m_flags |= DirtyFlag; }
 };

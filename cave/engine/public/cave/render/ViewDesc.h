@@ -11,7 +11,7 @@ namespace cave::render {
 
 using RenderTargetId = uint32_t;
 
-struct RenderOutputDesc {
+struct ViewOutputDesc {
     RenderTargetId color{};
     RenderTargetId depth{};
     bool clear_color = true;
@@ -22,7 +22,7 @@ struct ViewDesc {
     SceneId scene_id;
     CameraParams camera;
     math::IntRect viewport_pixel;
-    RenderOutputDesc output;
+    ViewOutputDesc output;
     // missing: which render target info it draws to
 };
 

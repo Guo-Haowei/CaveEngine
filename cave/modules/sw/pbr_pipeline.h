@@ -22,11 +22,11 @@ public:
     virtual math::Vector3f ProcessFragment(const VSOutput& input) override;
 
     math::Vector3f ComputeLighting(math::Vector3f base_color,
-                             math::Vector3f world_position,
-                             math::Vector3f N,
-                             float metallic,
-                             float roughness,
-                             float emissive);
+                                   math::Vector3f world_position,
+                                   math::Vector3f N,
+                                   float metallic,
+                                   float roughness,
+                                   float emissive);
 
     PerBatchConstantBuffer per_batch_cb;
     PerFrameConstantBuffer per_frame_cb;

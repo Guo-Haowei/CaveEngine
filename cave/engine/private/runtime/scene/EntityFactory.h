@@ -11,9 +11,9 @@ class EntityFactory {
 public:
     static Entity CreateCameraEntity(Scene& p_scene,
                                      const std::string& p_name,
-                                     float p_near_plane = CameraComponent::DEFAULT_NEAR,
-                                     float p_far_plane = CameraComponent::DEFAULT_FAR,
-                                     float p_fovy = CameraComponent::DEFAULT_FOVY);
+                                     float p_near_plane = CameraComponent::kDefaultNear,
+                                     float p_far_plane = CameraComponent::kDefaultFar,
+                                     float p_fovy = CameraComponent::kDefaultFovy);
 
     static Entity CreateNameEntity(Scene& p_scene,
                                    const std::string& p_name);

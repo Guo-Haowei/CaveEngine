@@ -51,13 +51,13 @@ static void EndFullscreenWindow() {
 }
 
 // @TODO: refactor
-class RuntimeSceneViewProvider final : public ISceneViewProvider {
+class RuntimeSceneViewProvider final : public render::IViewProvider {
 public:
     RuntimeSceneViewProvider(IApplication& p_app)
         : m_app(p_app)
         , m_debug_id(MakeDebugId(this)) {}
 
-    void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final {
+    void BuildViews(std::vector<render::ViewDesc>& p_out_views, bool p_is_opengl) final {
         unused(p_out_views);
         unused(p_is_opengl);
         DEV_ASSERT(0);

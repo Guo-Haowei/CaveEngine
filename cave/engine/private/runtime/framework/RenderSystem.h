@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/render/ViewDesc.h"
 #include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
@@ -7,7 +8,6 @@ class CameraComponent;
 class Scene;
 
 struct FrameData;
-struct SceneView;
 
 class RenderSystem : public Module {
 public:
@@ -16,7 +16,7 @@ public:
 
     void BeginFrame();
 
-    void RenderFrame(std::vector<SceneView>& p_views);
+    void RenderFrame(std::vector<render::ViewDesc>& p_views);
 
     const FrameData* GetFrameData() const { return m_frameData; }
 

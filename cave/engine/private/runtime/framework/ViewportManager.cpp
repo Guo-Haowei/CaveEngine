@@ -28,7 +28,7 @@ void ViewportManager::ClearViewport() {
     m_viewports.clear();
 }
 
-void ViewportManager::BuildViews(std::vector<SceneView>& p_out_views,
+void ViewportManager::BuildViews(std::vector<render::ViewDesc>& p_out_views,
                                  bool p_is_opengl) {
     p_out_views.clear();
     for (auto& vp : m_viewports) {
