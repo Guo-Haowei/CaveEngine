@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/math/aabb.h"
+#include "engine/private/core/math/aabb.h"
 #include "cave/core/math/Vector.h"
 
 namespace cave {

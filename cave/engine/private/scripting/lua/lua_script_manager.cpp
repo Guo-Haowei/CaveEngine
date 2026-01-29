@@ -1,7 +1,7 @@
 #include "lua_script_manager.h"
 
 #include "engine/private/assets/blob_asset.h"
-#include "engine/private/runtime/core/debugger/Profiler.h"
+#include "engine/private/core/debugger/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"

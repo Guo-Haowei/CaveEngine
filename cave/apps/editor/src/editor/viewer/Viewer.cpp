@@ -7,7 +7,7 @@
 
 // -----------------------------
 #include "engine/private/runtime/core/debugger/Profiler.h"
-#include "engine/private/math/ray.h"
+#include "engine/private/runtime/core/math/ray.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"

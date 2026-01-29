@@ -1,6 +1,6 @@
 #include "win32_logger.h"
 
-#include "engine/private/runtime/core/base/ring_buffer.h"
+#include "engine/private/core/base/ring_buffer.h"
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {

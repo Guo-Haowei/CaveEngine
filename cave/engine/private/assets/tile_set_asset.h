@@ -2,7 +2,7 @@
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/assets/asset_interface.h"
 #include "engine/private/runtime/scene/ColliderComponent.h"
-#include "engine/private/math/box.h"
+#include "engine/private/core/math/box.h"
 #include "engine/private/reflection/reflection.h"
 
 // @TODO: move layer & mask to shape, and rename it collision shape

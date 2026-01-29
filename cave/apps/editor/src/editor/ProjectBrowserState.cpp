@@ -5,8 +5,8 @@
 #include <imgui/imgui.h>
 
 #include <engine/private/assets/image_asset.h>
-#include <engine/private/runtime/core/io/logger.h>
-#include <engine/private/math/geomath.h>
+#include <engine/private/core/io/logger.h>
+#include <engine/private/core/math/geomath.h>
 #include <engine/private/runtime/framework/IAssetManager.h>
 #include <engine/private/runtime/framework/AssetRegistry.h>
 #include <engine/private/runtime/framework/BootLoadPipeline.h>

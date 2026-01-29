@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/render/IViewProvider.h"
 
-#include "engine/private/runtime/core/GenIdRegistry.h"
+#include "engine/private/core/GenIdRegistry.h"
 
 #include "editor/document/DocId.h"
 #include "editor/panels/Tab.h"

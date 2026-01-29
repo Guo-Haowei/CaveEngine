@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/geomath.h"
 #include "engine/private/reflection/reflection.h"
 #include "engine/private/runtime/scene/SceneComponentBase.h"
 

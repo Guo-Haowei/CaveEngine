@@ -1,7 +1,7 @@
-#include "engine/private/math/aabb.h"
+#include "engine/private/core/math/aabb.h"
 
 // @TODO: remove this
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/geomath.h"
 
 namespace cave {
 

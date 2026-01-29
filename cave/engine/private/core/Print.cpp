@@ -1,7 +1,7 @@
 #include "cave/core/Print.h"
 
-#include "engine/private/runtime/core/os/os.h"
-#include "engine/private/runtime/core/os/threads.h"
+#include "engine/private/core/os/os.h"
+#include "engine/private/core/os/threads.h"
 
 namespace cave {
 

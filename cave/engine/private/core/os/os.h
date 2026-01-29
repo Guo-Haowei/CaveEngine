@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/Singleton.h"
 
-#include "engine/private/runtime/core/io/logger.h"
+#include "engine/private/core/io/logger.h"
 
 namespace cave {
 

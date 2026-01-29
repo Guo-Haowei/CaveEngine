@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/geomath.h"
 
 // clang-format off
 namespace cave { struct ImageAsset; }

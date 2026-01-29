@@ -1,6 +1,6 @@
 #include "cave/core/ErrorMacros.h"
 
-#include "engine/private/runtime/core/os/os.h"
+#include "engine/private/core/os/os.h"
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {

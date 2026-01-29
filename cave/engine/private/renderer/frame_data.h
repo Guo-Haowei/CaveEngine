@@ -4,9 +4,9 @@
 #include "cave/core/math/Angle.h"
 #include "cave/render/ViewDesc.h"
 
-#include "engine/private/math/aabb.h"
-#include "engine/private/math/color.h"
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/aabb.h"
+#include "engine/private/core/math/color.h"
+#include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/debug_draw.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_defines.h"

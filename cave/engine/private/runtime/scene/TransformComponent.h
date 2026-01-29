@@ -2,7 +2,7 @@
 #include "SceneComponentBase.h"
 
 #include "cave/core/math/Angle.h"
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/geomath.h"
 #include "engine/private/reflection/reflection.h"
 
 namespace cave::math {

@@ -3,7 +3,7 @@
 
 #include "cave/core/IntrusiveList.h"
 
-#include "engine/private/runtime/core/os/spin_lock.h"
+#include "engine/private/core/os/spin_lock.h"
 
 namespace cave {
 

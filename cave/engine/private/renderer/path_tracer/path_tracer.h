@@ -2,7 +2,7 @@
 #include "cave/core/ids/Entity.h"
 
 #include "cave/core/ids/Guid.h"
-#include "engine/private/math/box.h"
+#include "engine/private/core/math/box.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/path_tracer/bvh_accel.h"
 // @TODO: refactor

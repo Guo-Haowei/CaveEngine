@@ -3,7 +3,7 @@
 #include "cave/core/math/Matrix.h"
 
 #include "defines.h"
-#include "engine/private/math/box.h"
+#include "engine/private/core/math/box.h"
 
 namespace cave::math {
 class Degree;

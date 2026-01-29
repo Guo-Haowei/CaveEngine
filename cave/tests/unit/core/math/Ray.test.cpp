@@ -1,4 +1,4 @@
-#include "engine/private/math/ray.h"
+#include "engine/private/core/math/ray.h"
 
 namespace cave {
 

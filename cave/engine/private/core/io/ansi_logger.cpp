@@ -1,6 +1,6 @@
 #include "ansi_logger.h"
 
-#include "engine/private/runtime/core/base/ring_buffer.h"
+#include "engine/private/core/base/ring_buffer.h"
 
 namespace cave {
 

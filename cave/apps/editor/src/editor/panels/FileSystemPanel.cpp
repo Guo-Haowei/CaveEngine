@@ -2,8 +2,8 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/private/runtime/core/debugger/Profiler.h"
-#include "engine/private/runtime/core/os/platform_io.h"
+#include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/core/os/platform_io.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/VFS.h"

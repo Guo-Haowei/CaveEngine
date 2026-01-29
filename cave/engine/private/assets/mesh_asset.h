@@ -2,8 +2,8 @@
 #include "cave/core/ids/Entity.h"
 
 #include "engine/private/assets/asset_handle.h"
-#include "engine/private/math/aabb.h"
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/aabb.h"
+#include "engine/private/core/math/geomath.h"
 
 namespace cave {
 

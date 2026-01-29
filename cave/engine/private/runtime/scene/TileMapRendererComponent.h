@@ -1,8 +1,8 @@
 #pragma once
 #include "engine/private/reflection/reflection.h"
 #include "engine/private/assets/asset_handle.h"
-#include "engine/private/math/box.h"
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/box.h"
+#include "engine/private/core/math/geomath.h"
 
 // @TODO: rename it to TileMapInstanceComponent
 

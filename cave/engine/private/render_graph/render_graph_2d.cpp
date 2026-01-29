@@ -1,4 +1,4 @@
-#include "engine/private/runtime/core/debugger/Profiler.h"
+#include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/render_graph/render_graph.h"
 #include "engine/private/render_graph/render_graph_builder.h"
 #include "engine/private/renderer/frame_data.h"

@@ -1,6 +1,6 @@
 #include "ray.h"
 
-#include "engine/private/math/matrix_transform.h"
+#include "engine/private/core/math/matrix_transform.h"
 #include "cave/core/math/Vector.h"
 
 namespace cave::math {

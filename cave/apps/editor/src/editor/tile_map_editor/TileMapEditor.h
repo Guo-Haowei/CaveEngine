@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/assets/asset_handle.h"
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/math/geomath.h"
 #include "engine/private/assets/tile_map_asset.h"
 
 #include "editor/widgets/SpriteSelector.h"

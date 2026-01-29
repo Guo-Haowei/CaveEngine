@@ -4,7 +4,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
+#include "engine/private/core/debugger/DebugIdAllocator.h"
 #include "engine/private/render/renderer/ExtractCamera.h"
 
 #include "editor/edit/EditTransformCmd.h"

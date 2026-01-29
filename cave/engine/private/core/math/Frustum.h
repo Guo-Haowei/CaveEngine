@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/math/Matrix.h"
 
-#include "engine/private/math/plane.h"
+#include "engine/private/core/math/plane.h"
 
 namespace cave::math {
 

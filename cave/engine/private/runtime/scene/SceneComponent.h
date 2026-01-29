@@ -2,7 +2,7 @@
 #include "cave/core/ids/Entity.h"
 
 #include "engine/private/assets/asset_handle.h"
-#include "engine/private/math/aabb.h"
+#include "engine/private/core/math/aabb.h"
 #include "cave/core/math/Angle.h"
 #include "engine/private/reflection/reflection.h"
 

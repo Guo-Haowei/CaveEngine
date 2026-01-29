@@ -1,6 +1,6 @@
 #pragma once
 #include "d3d12_core.h"
-#include "engine/private/runtime/core/base/rid_owner.h"
+#include "engine/private/core/base/rid_owner.h"
 #include "engine/private/renderer/graphics_manager.h"
 
 namespace cave {

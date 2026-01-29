@@ -1,9 +1,9 @@
 #include "job_system.h"
 
-#include "engine/private/runtime/core/base/thread_safe_ring_buffer.h"
-#include "engine/private/runtime/core/debugger/Profiler.h"
-#include "engine/private/runtime/core/os/threads.h"
-#include "engine/private/math/geomath.h"
+#include "engine/private/core/base/thread_safe_ring_buffer.h"
+#include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/core/os/threads.h"
+#include "engine/private/core/math/geomath.h"
 
 namespace cave::jobsystem {
 
