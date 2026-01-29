@@ -2,8 +2,8 @@
 
 namespace cave::math {
 
-TEST(RectI, left_top_bottom_right_calculation) {
-    RectI rect{ 1, 2, 3, 4 };
+TEST(IntRect, left_top_bottom_right_calculation) {
+    IntRect rect{ 1, 2, 3, 4 };
     EXPECT_EQ(rect.Left(), 1);
     EXPECT_EQ(rect.Right(), 4);
 
@@ -11,8 +11,8 @@ TEST(RectI, left_top_bottom_right_calculation) {
     EXPECT_EQ(rect.Bottom(), 6);
 }
 
-TEST(RectI, from_min_max) {
-    RectI rect = RectI::FromMinMax(1, 2, 3, 4);
+TEST(IntRect, from_min_max) {
+    IntRect rect = IntRect::FromMinMax(1, 2, 3, 4);
     EXPECT_EQ(rect.Left(), 1);
     EXPECT_EQ(rect.Top(), 2);
 

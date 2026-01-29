@@ -24,7 +24,7 @@ struct Rect {
     }
 };
 
-using RectI = Rect<int>;
-using RectF = Rect<float>;
+using IntRect = Rect<int>;
+using FloatRect = Rect<float>;
 
 }  // namespace cave::math

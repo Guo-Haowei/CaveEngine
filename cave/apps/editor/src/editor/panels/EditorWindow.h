@@ -32,7 +32,7 @@ protected:
 
     WindowState m_state;
 
-    RectF m_rect{};
+    math::FloatRect m_rect{};
 
     int m_flags{ 0 };
 };
