@@ -60,14 +60,16 @@ struct RenderObject {
 };
 
 // clang-format off
-enum class RenderDirty : uint8_t {
-    None      = 0,
-    Transform = BIT(0),
-    Mesh      = BIT(1),
-    Material  = BIT(2),
-    Skeleton  = BIT(3),
+enum RenderDirtyFlags : uint32_t {
+    RENGER_DIRTY_FLAG_NONE      = 0,
+    RENGER_DIRTY_FLAG_TRANSFORM = BIT(0),
+    RENGER_DIRTY_FLAG_MESH      = BIT(1),
+    RENGER_DIRTY_FLAG_MATERIAL  = BIT(2),
+    RENGER_DIRTY_FLAG_SKELETON  = BIT(3),
+    RENGER_DIRTY_FLAG_ALL       = ~0u,
 };
 // clang-format on
+DEFINE_ENUM_BITWISE_OPERATIONS(RenderDirtyFlags);
 
 class RenderScene {
 public:
@@ -113,7 +115,7 @@ public:
     }
 
     // ---------- Dirty tracking ----------
-    void MarkDirty(RenderObjectId p_id, RenderDirty p_dirty_flag);
+    void MarkDirty(RenderObjectId p_id, RenderDirtyFlags p_dirty_flag);
 
     void ClearDirtyLists();
 

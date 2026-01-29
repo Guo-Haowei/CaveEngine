@@ -13,10 +13,7 @@ RenderObjectId RenderScene::Ensure(ecs::Entity p_entity) {
     o = RenderObject{};
     o.entity = p_entity;
 
-    MarkDirty(id, RenderDirty::Transform);
-    MarkDirty(id, RenderDirty::Mesh);
-    MarkDirty(id, RenderDirty::Material);
-    MarkDirty(id, RenderDirty::Skeleton);
+    MarkDirty(id, RENGER_DIRTY_FLAG_ALL);
     return id;
 }
 
@@ -33,26 +30,14 @@ void RenderScene::Remove(ecs::Entity p_entity) {
     }
 }
 
-void RenderScene::MarkDirty(RenderObjectId p_id, RenderDirty p_dirty_flag) {
+void RenderScene::MarkDirty(RenderObjectId p_id, RenderDirtyFlags p_dirty_flag) {
     if (p_id == kInvalidId) return;
     if (p_id >= m_objects.size() || !m_alive[p_id]) return;
 
-    switch (p_dirty_flag) {
-        case RenderDirty::Transform:
-            m_dirty_transform.push_back(p_id);
-            break;
-        case RenderDirty::Mesh:
-            m_dirty_mesh.push_back(p_id);
-            break;
-        case RenderDirty::Material:
-            m_dirty_material.push_back(p_id);
-            break;
-        case RenderDirty::Skeleton:
-            m_dirty_skeleton.push_back(p_id);
-            break;
-        default:
-            break;
-    }
+    if (p_dirty_flag & RENGER_DIRTY_FLAG_TRANSFORM) m_dirty_transform.push_back(p_id);
+    if (p_dirty_flag & RENGER_DIRTY_FLAG_MESH) m_dirty_mesh.push_back(p_id);
+    if (p_dirty_flag & RENGER_DIRTY_FLAG_MATERIAL) m_dirty_material.push_back(p_id);
+    if (p_dirty_flag & RENGER_DIRTY_FLAG_SKELETON) m_dirty_skeleton.push_back(p_id);
 }
 
 void RenderScene::ClearDirtyLists() {

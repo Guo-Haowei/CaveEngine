@@ -197,8 +197,14 @@ void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
 
     for (const render::ViewDesc& view : p_views) {
         Scene* scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
-        framedata.camera_params = ResolveView(view, scene, is_opengl);
+        if (!scene) continue;
 
+        // RenderScene& rs = GetOrCreateRenderScene(view.scene_id);
+        // m_scene_builder.BuildFull(*scene, rs);
+
+        ResolvedView resolved = ResolveView(view, scene, is_opengl);
+
+        framedata.camera_params = resolved;
         // @TODO: only support one view, fix this
         FillConstantBuffer(scene, framedata);
         RunMeshRenderSystem(scene, framedata);

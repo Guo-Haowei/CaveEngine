@@ -1,6 +1,5 @@
 #include "ResolvedView.h"
 
-#include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave::render {
