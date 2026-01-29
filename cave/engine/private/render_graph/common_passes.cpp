@@ -4,7 +4,7 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/core/base/random.h"
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/core/math/matrix_transform.h"
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"

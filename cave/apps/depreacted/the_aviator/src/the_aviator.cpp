@@ -8,7 +8,7 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 // @TODO: remove
-#include "engine/private/core/math/matrix_transform.h"
+#include "engine/private/core/math/MatrixTransform.h"
 
 namespace std {
 

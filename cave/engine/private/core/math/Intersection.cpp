@@ -1,7 +1,6 @@
-#include "intersection.h"
-
-#include "aabb.h"
-#include "ray.h"
+#include "cave/core/math/AABB.h"
+#include "cave/core/math/Ray.h"
+#include "cave/core/math/Intersection.h"
 
 namespace cave::math {
 

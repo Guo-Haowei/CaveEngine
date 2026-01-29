@@ -1,7 +1,7 @@
 #include "frustum.h"
 
-#include "engine/private/core/math/aabb.h"
-#include "engine/private/core/math/matrix_transform.h"
+#include "cave/core/math/AABB.h"
+#include "engine/private/core/math/MatrixTransform.h"
 
 namespace cave::math {
 

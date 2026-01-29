@@ -4,7 +4,7 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/core/io/file_access.h"
-#include "engine/private/core/math/matrix_transform.h"
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 

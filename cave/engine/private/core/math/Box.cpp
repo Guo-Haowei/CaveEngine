@@ -1,9 +1,9 @@
-#include "box.h"
-
+#include "cave/core/math/Box.h"
 #include "cave/core/math/Vector.h"
 
 namespace cave::math {
 
+// @TODO: this should be moved
 template<>
 float Box<3>::SurfaceArea() const {
     if (!IsValid()) {

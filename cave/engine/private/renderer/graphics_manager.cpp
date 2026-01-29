@@ -5,7 +5,7 @@
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/core/math/frustum.h"
 #include "engine/private/core/math/geometry.h"
-#include "engine/private/core/math/matrix_transform.h"
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/render_graph/common_passes.h"
 #include "engine/private/render_graph/render_graph_defines.h"
 #include "engine/private/render_graph/render_graph_predefined.h"

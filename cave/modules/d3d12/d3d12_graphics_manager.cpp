@@ -12,7 +12,7 @@
 #include "d3d12_pipeline_state_manager.h"
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
-#include "engine/private/core/math/matrix_transform.h"
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
 #include "cave/runtime/framework/IApplication.h"

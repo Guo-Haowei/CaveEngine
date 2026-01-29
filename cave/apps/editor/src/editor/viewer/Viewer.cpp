@@ -6,8 +6,8 @@
 #include "editor/services/Workspace.h"
 
 // -----------------------------
-#include "engine/private/runtime/core/debugger/Profiler.h"
-#include "engine/private/runtime/core/math/ray.h"
+#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/math/Ray.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"

@@ -9,6 +9,7 @@ void RenderSceneBuilder::SyncFromECS(const Scene& p_scene, RenderScene& p_out_sc
 
 void RenderSceneBuilder::OnEntityAdded(const Scene& p_scene, ecs::Entity p_entity, RenderScene& p_out_scene) {
     unused(p_scene);
+    unused(p_entity);
     unused(p_out_scene);
 }
 

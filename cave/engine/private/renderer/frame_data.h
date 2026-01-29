@@ -4,7 +4,7 @@
 #include "cave/core/math/Angle.h"
 #include "cave/render/ViewDesc.h"
 
-#include "engine/private/core/math/aabb.h"
+#include "cave/core/math/AABB.h"
 #include "engine/private/core/math/color.h"
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/debug_draw.h"

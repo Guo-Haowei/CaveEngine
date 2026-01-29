@@ -4,7 +4,7 @@
 #include "engine/private/assets/asset_interface.h"
 #include "engine/private/runtime/ecs/ComponentManager.h"
 #include "engine/private/runtime/ecs/View.h"
-#include "engine/private/runtime/core/math/ray.h"
+#include "cave/core/math/Ray.h"
 
 // components
 #include "engine/private/runtime/scene/SceneComponent.h"  // @TODO: split this

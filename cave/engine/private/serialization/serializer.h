@@ -8,7 +8,7 @@
 #include "engine/private/runtime/string/StringUtils.h"
 
 #include "engine/private/core/io/file_access.h"
-#include "engine/private/core/math/box.h"
+#include "cave/core/math/Box.h"
 
 namespace cave {
 

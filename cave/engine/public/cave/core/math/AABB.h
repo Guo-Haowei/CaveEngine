@@ -1,8 +1,7 @@
 #pragma once
-#include "cave/core/math/Matrix.h"
-
-#include "engine/private/core/math/box.h"
-#include "engine/private/core/math/intersection.h"
+#include "Box.h"
+#include "Intersection.h"
+#include "Matrix.h"
 
 namespace cave::math {
 
