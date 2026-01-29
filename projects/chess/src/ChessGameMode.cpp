@@ -2,6 +2,8 @@
 
 #include <cave/core/Print.h>
 
+#include <cave/core/math/Matrix.h>
+
 namespace cave {
 
 void ChessGameMode::OnEnter(GameSession& p_session) {

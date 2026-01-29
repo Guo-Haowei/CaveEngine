@@ -21,7 +21,7 @@ public:
     const auto& getDepthBuffer() const { return m_depthBuffer; }
 
 public:
-    SwTexture<Vector4f> m_colorBuffer;
+    SwTexture<math::Vector4f> m_colorBuffer;
     SwTexture<float> m_depthBuffer;
 
     bool m_useColor = true;

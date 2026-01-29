@@ -22,8 +22,8 @@ class CameraComponent {
     CAVE_META(CameraComponent)
 
     enum : uint32_t {
-        None = BIT(0),
-        DirtyFlag = BIT(1),
+        None = 0b00,
+        DirtyFlag = 0b1,
     };
 
 private:

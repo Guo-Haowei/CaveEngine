@@ -16,29 +16,29 @@ uniform sampler2D u_Texture2;
 #define SSAO_KERNEL_BIAS 0.025f
 
 void main() {
-    const Vector2f uv = pass_uv;
+    const float2 uv = pass_uv;
 
-    Vector2i texture_size = textureSize(t_GbufferNormalMap, 0);
-    Vector2f noise_scale = Vector2f(texture_size);
+    int2 texture_size = textureSize(t_GbufferNormalMap, 0);
+    float2 noise_scale = float2(texture_size);
     noise_scale *= (1.0f / SSAO_NOISE_SIZE);
 
-    Vector3f N = texture(t_GbufferNormalMap, uv).rgb;
+    float3 N = texture(t_GbufferNormalMap, uv).rgb;
     N = 2.0f * N - 1.0f;
 
     // @TODO: ?
-    Vector3f rvec = Vector3f(texture(t_NoiseTexture, uv * noise_scale).xy, 0.0f);
-    Vector3f tangent = normalize(rvec - N * dot(rvec, N));
-    Vector3f bitangent = cross(N, tangent);
+    float3 rvec = float3(texture(t_NoiseTexture, uv * noise_scale).xy, 0.0f);
+    float3 tangent = normalize(rvec - N * dot(rvec, N));
+    float3 bitangent = cross(N, tangent);
 
     mat3 TBN = mat3(tangent, bitangent, N);
 
     // Reconstruct view position
     // https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy
     const float depth = texture(t_GbufferDepth, uv).r;
-    const Vector3f origin = NdcToViewPos(uv, depth);
+    const float3 origin = NdcToViewPos(uv, depth);
 
 #if 0
-    out_color = (TBN * Vector3f(0, 0, 1)).b;
+    out_color = (TBN * float3(0, 0, 1)).b;
     return;
 #endif
 
@@ -55,7 +55,7 @@ void main() {
         offset.xy = offset.xy * 0.5 + 0.5;  // transform to range 0.0 - 1.0
 
         const float depth2 = texture(t_GbufferDepth, offset.xy).r;
-        const Vector3f sampleOcclusionPos = NdcToViewPos(offset.xy, depth2);
+        const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2);
         const float sample_depth = sampleOcclusionPos.z;
 
         const float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(origin.z - sample_depth));
