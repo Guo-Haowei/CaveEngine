@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 #include "engine/private/renderer/graphics_defines.h"
 
 namespace cave {
@@ -17,7 +17,7 @@ public:
     }
 
 protected:
-    void UpdateInternal(float p_timestep) override;
+    void DrawUIImpl() override;
     void DrawNodes(const RenderGraph& p_graph);
 
     bool m_firstFrame{ true };

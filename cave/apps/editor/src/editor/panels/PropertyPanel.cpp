@@ -15,7 +15,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/private/assets/sprite_animation_asset.h"
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/reflection/meta_editor.h"
 #include "engine/private/renderer/graphics_dvars.h"
@@ -28,10 +28,11 @@
 #include "editor/services/EditService.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/viewer/Viewer.h"
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/DragDrop.h"
 
 namespace cave {
+
+using namespace math;
 
 // @TODO: refactor this
 #define COMPONENT_LIST              \
@@ -153,7 +154,7 @@ bool DrawComponentAuto(T* p_component) {
                 dirty |= (int)ui::CheckBox(field->name, toggle);
             } break;
             case EditorHint::Color: {
-                Vector4f& color = field->template GetData<Vector4f>(p_component);
+                math::Vector4f& color = field->template GetData<math::Vector4f>(p_component);
                 dirty |= (int)ui::ColorPicker4(field->name, &color.r);
             } break;
             case EditorHint::Asset: {
@@ -211,7 +212,7 @@ bool DrawComponentAuto(T* p_component) {
     return (bool)dirty;
 }
 
-void PropertyPanel::UpdateInternal(float) {
+void PropertyPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 
     FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
@@ -286,13 +287,13 @@ void PropertyPanel::UpdateInternal(float) {
     };
 
     DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&](TransformComponent& p_transform) {
-        const Matrix4x4f old_transform = p_transform.GetLocalMatrix();
+        const math::Matrix4x4f old_transform = p_transform.GetLocalMatrix();
 
         // @TODO: avoid making a copy
         TransformComponent copy = p_transform;
         const bool dirty = DrawComponentAuto<TransformComponent>(&copy);
         if (dirty) {
-            Matrix4x4f new_transform = copy.GetLocalMatrix();
+            math::Matrix4x4f new_transform = copy.GetLocalMatrix();
 
             auto cmd = std::make_unique<EditTransformCmd>(m_editor.GetApp(),
                                                           id,
@@ -301,7 +302,7 @@ void PropertyPanel::UpdateInternal(float) {
             edit_service.Submit(doc_id, std::move(cmd));
 
             if (camera) {
-                camera->SetDirtyFlag();
+                camera->SetDirty();
             }
         }
     });
@@ -344,7 +345,7 @@ void PropertyPanel::UpdateInternal(float) {
             } break;
             case ShapeType::Box: {
                 if (is_2d) {
-                    ui::Float2("half", reinterpret_cast<Vector2f&>(shape.data.half), 0.5f);
+                    ui::Float2("half", reinterpret_cast<math::Vector2f&>(shape.data.half), 0.5f);
                 } else {
                     ui::Float3("half", shape.data.half, 0.5f);
                 }
@@ -426,7 +427,7 @@ void PropertyPanel::UpdateInternal(float) {
 
     DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera, [&](CameraComponent& p_camera) {
         if (DrawComponentAuto<CameraComponent>(&p_camera)) {
-            p_camera.SetDirtyFlag();
+            p_camera.SetDirty();
         }
     });
 

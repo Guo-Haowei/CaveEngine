@@ -1,16 +1,16 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
+#include "cave/core/ids/Guid.h"
+#include "cave/core/math/Angle.h"
+#include "cave/render/ViewDesc.h"
 
-#include "engine/private/assets/guid.h"
 #include "engine/private/math/aabb.h"
-#include "engine/private/math/angle.h"
 #include "engine/private/math/color.h"
 #include "engine/private/math/geomath.h"
 #include "engine/private/renderer/debug_draw.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/renderer/render_command.h"
-#include "engine/private/runtime/framework/SceneView.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"
@@ -66,7 +66,8 @@ struct FrameData {
     }
 
     const RenderOptions options;
-    const ViewInfo* view_info{ nullptr };
+    render::CameraParams camera_params;
+    // const ViewInfo* view_info{ nullptr };
 
     // @TODO: multi camera & viewport
 
@@ -101,12 +102,12 @@ struct FrameData {
     bool bakeIbl{ false };
 
     struct UpdateBuffer {
-        std::vector<Vector3f> positions;
-        std::vector<Vector3f> normals;
+        std::vector<math::Vector3f> positions;
+        std::vector<math::Vector3f> normals;
         const void* id;
     };
 
-    AABB voxel_gi_bound;
+    math::AABB voxel_gi_bound;
 
     DebugDraw& GetDebugDraw() { return m_debug_draw; }
     const DebugDraw& GetDebugDraw() const { return m_debug_draw; }

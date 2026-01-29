@@ -38,12 +38,12 @@ bool DragFloat(const char* p_label,
                float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool Float2(const char* p_label,
-            Vector2f& p_out,
+            math::Vector2f& p_out,
             float p_reset_value = 0.0f,
             float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool Float3(const char* p_label,
-            Vector3f& p_out,
+            math::Vector3f& p_out,
             float p_reset_value = 0.0f,
             float p_column_width = DEFAULT_COLUMN_WIDTH);
 

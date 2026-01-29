@@ -1,13 +1,12 @@
 #pragma once
 
 // @TODO: refactor
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 
 namespace cave {
 
 #if 0
 class Workspace;
-class ViewerTab;
 
 class Viewer : public EditorWindow {
 public:

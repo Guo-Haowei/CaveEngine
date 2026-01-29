@@ -62,7 +62,7 @@ void ProjectBrowserState::DrawRecentProjects() {
     ImGui::BeginTable("Inner", num_col);
     ImGui::TableNextColumn();
 
-    Vector2f thumbnail_size(256);
+    math::Vector2f thumbnail_size(256);
 
     // @TODO: use actual image
     std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("scene@256x256.png");

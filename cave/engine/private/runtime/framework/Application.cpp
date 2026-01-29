@@ -3,7 +3,7 @@
 #include <fstream>
 #include <imgui/imgui.h>
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/runtime/core/io/file_access.h"
 #include "engine/private/runtime/core/io/logger.h"
 #include "engine/private/runtime/core/os/threads.h"
@@ -153,7 +153,7 @@ float Application::UpdateTime() {
     const Nanoseconds elapsed = m_stopwatch.Restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
-    return min(elapsed_sec, 0.5f);
+    return math::min(elapsed_sec, 0.5f);
 }
 
 bool Application::MainLoop() {
@@ -188,7 +188,7 @@ bool Application::MainLoop() {
     // view has camera controller and camera manager
     const bool is_opengl = m_graphics_manager->GetBackend() == Backend::OPENGL;
 
-    std::vector<SceneView> views;
+    std::vector<render::ViewDesc> views;
     m_viewport_manager->BuildViews(views, is_opengl);
 
     // @TODO: build render data, rename it to something better

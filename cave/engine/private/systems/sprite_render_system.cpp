@@ -5,6 +5,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
     if (!p_scene) {
         return;

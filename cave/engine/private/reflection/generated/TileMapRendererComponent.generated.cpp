@@ -9,7 +9,7 @@
 namespace cave {
 
 // Guid m_tile_map_id (editor = Asset, tooltip = "tile map")
-// Vector4f m_tint_color (editor = Color)
+// math::Vector4f m_tint_color (editor = Color)
 
 template<>
 const MetaTableFields& MetaDataTable<TileMapRendererComponent>::GetFields() {

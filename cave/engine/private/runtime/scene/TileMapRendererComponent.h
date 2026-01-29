@@ -18,7 +18,7 @@ private:
     Guid m_tile_map_id;
 
     CAVE_PROP(editor = Color)
-    Vector4f m_tint_color = Vector4f::One;
+    math::Vector4f m_tint_color = math::Vector4f::One;
 
     struct Cache {
         Handle<ImageAsset> image;
@@ -44,8 +44,8 @@ public:
 
     const auto& GetTileMapHandle() const { return m_handle; }
 
-    void SetTintColor(const Vector4f& p_tint_color);
-    const Vector4f& GetTintColor() const { return m_tint_color; }
+    void SetTintColor(const math::Vector4f& p_tint_color);
+    const math::Vector4f& GetTintColor() const { return m_tint_color; }
 
     void OnDeserialized();
 };

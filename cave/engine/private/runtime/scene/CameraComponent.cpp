@@ -4,37 +4,41 @@
 
 namespace cave {
 
+using math::Matrix4x4f;
+using math::Vector3f;
+using math::Vector4f;
+
 Matrix4x4f CameraComponent::CalcProjection() const {
     if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
-        return BuildOrthoRH(-half_width,
-                            half_width,
-                            -half_height,
-                            half_height,
-                            m_near,
-                            m_far);
-    }
-    return BuildPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
-}
-
-Matrix4x4f CameraComponent::CalcProjectionGL() const {
-    if (m_projection == ProjectionType::Orthographic) {
-        const float half_height = m_ortho_height * 0.5f;
-        const float half_width = half_height * GetAspect();
-        return BuildOpenGlOrthoRH(-half_width,
+        return math::BuildOrthoRH(-half_width,
                                   half_width,
                                   -half_height,
                                   half_height,
                                   m_near,
                                   m_far);
     }
-    return BuildOpenGlPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
+    return math::BuildPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
 }
 
-bool CameraComponent::Update(const Matrix4x4f& p_transform) {
-    if (HasDirtyFlag()) {
-        SetDirtyFlag(false);
+Matrix4x4f CameraComponent::CalcProjectionGL() const {
+    if (m_projection == ProjectionType::Orthographic) {
+        const float half_height = m_ortho_height * 0.5f;
+        const float half_width = half_height * GetAspect();
+        return math::BuildOpenGlOrthoRH(-half_width,
+                                        half_width,
+                                        -half_height,
+                                        half_height,
+                                        m_near,
+                                        m_far);
+    }
+    return math::BuildOpenGlPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
+}
+
+bool CameraComponent::Update(const math::Matrix4x4f& p_transform) {
+    if (IsDirty()) {
+        SetDirty(false);
 
         m_front = (p_transform * -Vector4f::UnitZ).xyz;
         m_right = (p_transform * Vector4f::UnitX).xyz;
@@ -57,14 +61,14 @@ void CameraComponent::SetDimension(int p_width, int p_height) {
     if (m_width != p_width || m_height != p_height) {
         m_width = p_width;
         m_height = p_height;
-        SetDirtyFlag();
+        SetDirty();
     }
 }
 
 void CameraComponent::SetOrthoHeight(float p_height) {
     if (p_height != m_ortho_height) {
         m_ortho_height = p_height;
-        SetDirtyFlag();
+        SetDirty();
     }
 }
 

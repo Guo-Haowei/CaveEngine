@@ -10,8 +10,8 @@ class EditTransformCmd : public EditCmdBase {
 public:
     EditTransformCmd(IApplication& p_app,
                      ecs::Entity p_entity,
-                     const Matrix4x4f& p_before,
-                     const Matrix4x4f& p_after)
+                     const math::Matrix4x4f& p_before,
+                     const math::Matrix4x4f& p_after)
         : EditCmdBase(p_app, p_entity)
         , m_before(p_before)
         , m_after(p_after) {}
@@ -27,8 +27,8 @@ public:
     void CoalesceFrom(std::unique_ptr<IEditCmd> p_cmd) override;
 
 private:
-    Matrix4x4f m_before;
-    Matrix4x4f m_after;
+    math::Matrix4x4f m_before;
+    math::Matrix4x4f m_after;
 };
 
 }  // namespace cave

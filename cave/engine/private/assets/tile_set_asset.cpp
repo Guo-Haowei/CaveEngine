@@ -31,7 +31,7 @@ void TileSetAsset::SetScale(float p_scale) {
 
 bool TileSetAsset::AddBoxCollider(uint32_t p_id) {
     if (p_id < static_cast<uint32_t>(m_frames.size())) {
-        m_colliders[p_id] = Shape::MakeBox(Vector2f(0.5f, 0.5f));
+        m_colliders[p_id] = Shape::MakeBox(math::Vector2f(0.5f));
         return true;
     }
     return false;
@@ -89,7 +89,7 @@ void TileSetAsset::UpdateFrames() {
             const float v1 = (y + 0) * inv_h;
 #endif
 
-            m_frames.push_back(Rect({ u0, v0 }, { u1, v1 }));
+            m_frames.push_back(math::Box2({ u0, v0 }, { u1, v1 }));
         }
     }
 

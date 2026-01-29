@@ -8,6 +8,9 @@
 
 namespace cave {
 
+using ecs::Entity;
+using namespace ::cave::math;
+
 Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
                                          const std::string& p_name,
                                          float p_near_plane,
@@ -24,7 +27,7 @@ Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
     camera.m_near = p_near_plane;
     camera.m_far = p_far_plane;
     camera.m_fovy = p_fovy;
-    camera.SetDirtyFlag();
+    camera.SetDirty();
 
     p_scene.Create<TransformComponent>(entity);
     return entity;

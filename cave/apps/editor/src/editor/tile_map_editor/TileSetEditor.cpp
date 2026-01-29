@@ -12,7 +12,6 @@ namespace cave {
 #if 0
 
 TileSetEditor::TileSetEditor(EditorState& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, {}, p_viewer, DIMENSION_2)
     , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
 }
 

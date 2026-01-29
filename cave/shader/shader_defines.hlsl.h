@@ -56,23 +56,35 @@ VCT_CONST float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
 VCT_CONST float LUT_BIAS = 0.5 / LUT_SIZE;
 
 #if defined(__cplusplus)
+
 using uint = unsigned int;
+using uint2 = ::cave::math::Vector2u;
+using uint3 = ::cave::math::Vector3u;
+using uint4 = ::cave::math::Vector4u;
+
+using int2 = ::cave::math::Vector2i;
+using int3 = ::cave::math::Vector3i;
+using int4 = ::cave::math::Vector4i;
+
+using float2 = ::cave::math::Vector2f;
+using float3 = ::cave::math::Vector3f;
+using float4 = ::cave::math::Vector4f;
+
+using float4x4 = ::cave::math::Matrix4x4f;
+
 #elif defined(HLSL_LANG)
-#define Vector2f   float2
-#define Vector3f   float3
-#define Vector4f   float4
-#define Vector2i   int2
-#define Vector3i   int3
-#define Vector4i   int4
-#define Matrix4x4f float4x4
+// do nothing
 #elif defined(GLSL_LANG)
-#define Vector2f         vec2
-#define Vector3f         vec3
-#define Vector4f         vec4
-#define Vector2i         ivec2
-#define Vector3i         ivec3
-#define Vector4i         ivec4
-#define Matrix4x4f       mat4x4
+#define float2           vec2
+#define float3           vec3
+#define float4           vec4
+#define int2             ivec2
+#define int3             ivec3
+#define int4             ivec4
+#define uint2            uvec2
+#define uint3            uvec3
+#define uint4            uvec4
+#define float4x4         mat4x4
 
 // @TODO: refactor
 #define Texture2D        sampler2D

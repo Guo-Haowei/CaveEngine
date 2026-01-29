@@ -11,14 +11,13 @@
                 "${workspaceRoot}/thirdparty/glm/",
                 "${workspaceRoot}/thirdparty/optick/",
                 "${workspaceRoot}/thirdparty/",
-                "${workspaceRoot}/cave/editor/src/",
+                "${workspaceRoot}/cave/engine/public/",
                 "${workspaceRoot}/cave/shader/",
                 "${workspaceRoot}/cave"
             ],
             "forcedInclude": [
-                "${workspaceRoot}/cave/engine/pch.h",
-                "${workspaceRoot}/cave/engine_tests/pch.h",
-                "${workspaceRoot}/cave/editor/src/editor/pch.h"
+                "${workspaceRoot}/cave/engine/private/pch.h",
+                "${workspaceRoot}/cave/apps/editor/src/editor/pch.h"
             ],
             "defines": [
                 "ROOT_FOLDER=\"\""

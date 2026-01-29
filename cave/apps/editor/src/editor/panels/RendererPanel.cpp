@@ -2,7 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/render_graph/render_graph_defines.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
@@ -33,7 +33,7 @@ static void CollapseWindow(const std::string& p_window_name, std::function<void(
     }
 }
 
-void RendererPanel::UpdateInternal(float) {
+void RendererPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 
     ImGui::Text("Debug");

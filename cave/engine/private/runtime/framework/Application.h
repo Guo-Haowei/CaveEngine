@@ -1,8 +1,8 @@
 #pragma once
-#include "cave/runtime/core/NonCopyable.h"
+#include "cave/core/NonCopyable.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/gameplay/GameModeFactory.h"
-#include "cave/runtime/core/time/Stopwatch.h"
+#include "cave/core/time/Stopwatch.h"
 
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"

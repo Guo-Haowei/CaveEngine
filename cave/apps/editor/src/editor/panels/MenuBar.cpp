@@ -11,7 +11,7 @@
 
 namespace cave {
 
-void MenuBar::Update(float) {
+void MenuBar::DrawUI() {
     const auto& shortcuts = m_editor.ShortcutService().GetShortcuts();
     auto build_menu_item = [&](Shortcut p_index) {
         const auto& it = shortcuts[std ::to_underlying(p_index)];

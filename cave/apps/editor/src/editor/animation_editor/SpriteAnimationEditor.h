@@ -1,10 +1,9 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/assets/sprite_animation_asset.h"
 
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/SpriteSelector.h"
 #include "editor/widgets/ToolBar.h"
 
@@ -18,7 +17,7 @@ class Viewer;
 
 using SpriteAnimationDocument = OldDocument;
 
-class SpriteAnimationEditor : public ViewerTab {
+class SpriteAnimationEditor {
 public:
     SpriteAnimationEditor(EditorState& p_editor, Viewer& p_viewer);
 

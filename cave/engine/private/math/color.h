@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/math/vector.h"
+#include "cave/core/math/Vector.h"
 
 namespace cave {
 
@@ -12,8 +12,8 @@ enum ColorCode : uint32_t {
     COLOR_WHITE = 0xE0E0E0,
 };
 
-class Color : public Vector<float, 4> {
-    using Base = Vector<float, 4>;
+class Color : public math::Vector<float, 4> {
+    using Base = math::Vector<float, 4>;
 
 public:
     constexpr Color()
@@ -26,8 +26,8 @@ public:
     uint32_t ToRgb() const;
     uint32_t ToRgba() const;
 
-    Vector4f ToVector4f() const {
-        return Vector4f(r, g, b, a);
+    math::Vector4f ToVector4f() const {
+        return math::Vector4f(r, g, b, a);
     }
 
     static constexpr Color Hex(uint32_t p_hex) {

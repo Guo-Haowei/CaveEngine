@@ -1,7 +1,7 @@
 #include "RenderSystem.h"
 
 #include "engine/private/runtime/core/base/random.h"
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/math/matrix_transform.h"
 #include "engine/private/render_graph/render_graph_defines.h"
 #include "engine/private/renderer/frame_data.h"
@@ -10,8 +10,12 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 
 namespace cave {
+
+using namespace math;
+using namespace render;
 
 // render systems
 extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
@@ -48,6 +52,7 @@ using KernelData = std::array<Vector4f, 64>;
 
 static_assert(sizeof(KernelData) == sizeof(Vector4f) * SSAO_KERNEL_SIZE);
 
+// @TODO: move it to somewhere else
 static KernelData GenerateSsaoKernel() {
     auto lerp = [](float a, float b, float f) {
         return a + f * (b - a);
@@ -75,22 +80,23 @@ static KernelData GenerateSsaoKernel() {
     return kernel;
 }
 
+// @TODO: refactor
 static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
     const auto& options = p_out_data.options;
     auto& cache = p_out_data.perFrameCache;
 
     // camera
     {
-        const auto& view_info = p_out_data.view_info;
-        cache.c_camView = view_info->view;
-        cache.c_camProj = view_info->projection_rendering;
-        cache.c_invCamView = glm::inverse(view_info->view);
-        cache.c_invCamProj = glm::inverse(view_info->projection_rendering);
-        cache.c_cameraFovDegree = view_info->fovy;
-        cache.c_cameraForward = view_info->front;
-        cache.c_cameraRight = view_info->right;
-        cache.c_cameraUp = view_info->up;
-        cache.c_cameraPosition = view_info->position;
+        const CameraParams& cam = p_out_data.camera_params;
+        cache.c_camView = cam.view;
+        cache.c_camProj = cam.proj_rendering;
+        cache.c_invCamView = glm::inverse(cam.view);
+        cache.c_invCamProj = glm::inverse(cam.proj_rendering);
+        cache.c_cameraFovDegree = cam.fovy;
+        cache.c_cameraForward = cam.front;
+        cache.c_cameraRight = cam.right;
+        cache.c_cameraUp = cam.up;
+        cache.c_cameraPosition = cam.position;
     }
 
     // Bloom
@@ -181,7 +187,7 @@ void RenderSystem::BeginFrame() {
     }
 }
 
-void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
+void RenderSystem::RenderFrame(std::vector<render::ViewDesc>& p_views) {
     // HACK
     auto backend = m_app->GetGraphicsManager()->GetBackend();
     switch (backend) {
@@ -198,10 +204,11 @@ void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
     DEV_ASSERT(m_frameData);
     FrameData& framedata = *m_frameData;
 
-    for (SceneView& view : p_views) {
-        Scene* scene = view.ResolveScene();
+    for (render::ViewDesc& view : p_views) {
+        Scene* scene = m_app->GetSceneRegistry()->Resolve(view.scene_id);
+
         // @TODO: only support one view, fix this
-        framedata.view_info = &view.view_info;
+        framedata.camera_params = view.camera;
 
         FillConstantBuffer(scene, framedata);
         RunMeshRenderSystem(scene, framedata);
@@ -214,6 +221,7 @@ void RenderSystem::RenderFrame(std::vector<SceneView>& p_views) {
         // if (p_scene) {
         //    RequestPathTracerUpdate(*camera, *p_scene);
         //}
+        if (scene) break;
     }
 }
 

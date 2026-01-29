@@ -1,7 +1,7 @@
 #include "deserializer.h"
 
-#include "engine/private/assets/guid.h"
-#include "engine/private/math/angle.h"
+#include "cave/core/ids/Guid.h"
+#include "cave/core/math/Angle.h"
 
 namespace cave {
 
@@ -15,13 +15,13 @@ bool IDeserializer::Read(ecs::Entity& p_object) {
     return true;
 }
 
-bool IDeserializer::Read(Degree& p_object) {
+bool IDeserializer::Read(math::Degree& p_object) {
     float raw = 0;
     if (!Read(raw)) {
         return false;
     }
 
-    p_object = Degree(raw);
+    p_object = math::Degree(raw);
     return true;
 }
 
@@ -39,7 +39,7 @@ bool IDeserializer::Read(Guid& p_object) {
     return true;
 }
 
-bool IDeserializer::Read(Matrix4x4f& p_object) {
+bool IDeserializer::Read(math::Matrix4x4f& p_object) {
     const auto size = ArraySize().unwrap_or(-1);
     ERR_FAIL_COND_V_MSG(size != 16, false, "expect float[16]");
 

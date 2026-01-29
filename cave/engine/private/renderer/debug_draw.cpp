@@ -5,6 +5,8 @@
 
 namespace cave {
 
+using namespace math;
+
 static constexpr float DEFAULT_Z = 0.0f;
 
 #if 0

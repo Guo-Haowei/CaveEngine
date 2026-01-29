@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 
 namespace cave {
 
@@ -16,7 +16,7 @@ public:
     }
 
 protected:
-    void UpdateInternal(float p_timestep) override;
+    void DrawUIImpl() override;
 
     void DrawFolderTreeNode(const ContentEntry& p_node);
 

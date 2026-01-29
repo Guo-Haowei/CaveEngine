@@ -1,9 +1,9 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/math/aabb.h"
-#include "engine/private/math/angle.h"
+#include "cave/core/math/Angle.h"
 #include "engine/private/reflection/reflection.h"
 
 // @TODO: get rid of this
@@ -65,7 +65,7 @@ struct VelocityComponent {
     CAVE_META(VelocityComponent)
 
     CAVE_PROP(editor = Translation)
-    Vector3f linear = Vector3f::Zero;
+    math::Vector3f linear = math::Vector3f::Zero;
 };
 
 #pragma region COLLISION_OBJECT_COMPONENT
@@ -95,10 +95,10 @@ struct RigidBodyComponent : CollisionObjectBase {
 
     CollisionShape shape{ SHAPE_UNKNOWN };
     ObjectType objectType{ DYNAMIC };
-    Vector3f size;
+    math::Vector3f size;
     float mass{ 1.0f };
 
-    RigidBodyComponent& InitCube(const Vector3f& p_half_size);
+    RigidBodyComponent& InitCube(const math::Vector3f& p_half_size);
 
     RigidBodyComponent& InitSphere(float p_radius);
 
@@ -124,7 +124,7 @@ struct EnvironmentComponent {
     } sky;
 
     struct Ambient {
-        Vector4f color;
+        math::Vector4f color;
     } ambient;
 
     void Serialize(Archive& p_archive, uint32_t p_version);
@@ -138,7 +138,7 @@ struct VoxelGiComponent {
 
     uint32_t flags = 0;
     // Non-serialized
-    AABB region;
+    math::AABB region;
 
     bool Enabled() const { return flags & ENABLED; }
     bool ShowDebugBox() const { return flags & SHOW_DEBUG_BOX; }

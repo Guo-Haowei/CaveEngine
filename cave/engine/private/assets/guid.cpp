@@ -1,4 +1,4 @@
-#include "guid.h"
+#include "cave/core/ids/Guid.h"
 
 #if USING(PLATFORM_WINDOWS)
 #include <objbase.h>

@@ -1,12 +1,9 @@
 #pragma once
-#include "engine/private/math/angle.h"
-#include "engine/private/math/geomath.h"
+#include "cave/core/math/Vector.h"
+#include "cave/core/math/Matrix.h"
 #include "engine/private/reflection/reflection.h"
-#include "engine/private/runtime/scene/SceneComponentBase.h"
 
 namespace cave {
-
-class Degree;
 
 enum class ProjectionType : uint8_t {
     Perspective,
@@ -19,10 +16,12 @@ DECLARE_ENUM_TRAITS(ProjectionType, "perspective", "orthographic");
 class CameraComponent {
     CAVE_META(CameraComponent)
 
-    enum : uint32_t {
-        None = BIT(0),
-        DirtyFlag = BIT(1),
+    // clang-format off
+    enum Flags : uint32_t {
+        None      = 0b00,
+        DirtyFlag = 0b01,
     };
+    // clang-format on
 
 private:
     CAVE_PROP()
@@ -32,13 +31,13 @@ private:
     ProjectionType m_projection;
 
     CAVE_PROP(editor = DragFloat, min = 1, max = 179)
-    float m_fovy = DEFAULT_FOVY;
+    float m_fovy = kDefaultFovy;
 
     CAVE_PROP(editor = DragFloat, min = 0.1f, max = 9)
-    float m_near = DEFAULT_NEAR;
+    float m_near = kDefaultNear;
 
     CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
-    float m_far = DEFAULT_FAR;
+    float m_far = kDefaultFar;
 
     CAVE_PROP(editor = InputInt)
     int m_width = 0;
@@ -50,24 +49,24 @@ private:
     float m_ortho_height = 10;
 
     // Not serlialized
-    Vector3f m_front = -Vector3f::UnitZ;
-    Vector3f m_right = Vector3f::UnitX;
-    Vector3f m_up = Vector3f::UnitY;
-    Vector3f m_position = Vector3f::Zero;
+    math::Vector3f m_front = -math::Vector3f::UnitZ;
+    math::Vector3f m_right = math::Vector3f::UnitX;
+    math::Vector3f m_up = math::Vector3f::UnitY;
+    math::Vector3f m_position = math::Vector3f::Zero;
 
-    Matrix4x4f m_view_matrix;
-    Matrix4x4f m_projection_matrix;
-    Matrix4x4f m_projection_view_matrix;
+    math::Matrix4x4f m_view_matrix;
+    math::Matrix4x4f m_projection_matrix;
+    math::Matrix4x4f m_projection_view_matrix;
 
     friend class CameraControllerFPS;
     friend class EntityFactory;
 
 public:
-    static constexpr float DEFAULT_NEAR = 0.1f;
-    static constexpr float DEFAULT_FAR = 1000.0f;
-    static constexpr float DEFAULT_FOVY = 60.0f;
+    static constexpr float kDefaultNear = 0.1f;
+    static constexpr float kDefaultFar = 1000.0f;
+    static constexpr float kDefaultFovy = 60.0f;
 
-    bool Update(const Matrix4x4f& p_transform);
+    bool Update(const math::Matrix4x4f& p_transform);
 
     void SetDimension(int p_width, int p_height);
 
@@ -75,19 +74,19 @@ public:
 
     void SetFovy(float p_degree) {
         m_fovy = p_degree;
-        SetDirtyFlag();
+        SetDirty();
     }
 
     float GetNear() const { return m_near; }
     void SetNear(float p_near) {
         m_near = p_near;
-        SetDirtyFlag();
+        SetDirty();
     }
 
     float GetFar() const { return m_far; }
     void SetFar(float p_far) {
         m_far = p_far;
-        SetDirtyFlag();
+        SetDirty();
     }
 
     int GetWidth() const { return m_width; }
@@ -99,18 +98,19 @@ public:
     float GetOrthoHeight() const { return m_ortho_height; }
     void SetOrthoHeight(float p_height);
 
-    const Matrix4x4f& GetViewMatrix() const { return m_view_matrix; }
-    const Matrix4x4f& GetProjectionMatrix() const { return m_projection_matrix; }
-    const Matrix4x4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
-    const Vector3f& GetFront() const { return m_front; }
-    const Vector3f& GetRight() const { return m_right; }
-    const Vector3f& GetUp() const { return m_up; }
-    const Vector3f& GetPosition() const { return m_position; }
+    const math::Matrix4x4f& GetViewMatrix() const { return m_view_matrix; }
+    const math::Matrix4x4f& GetProjectionMatrix() const { return m_projection_matrix; }
+    const math::Matrix4x4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
+    const math::Vector3f& GetFront() const { return m_front; }
+    const math::Vector3f& GetRight() const { return m_right; }
+    const math::Vector3f& GetUp() const { return m_up; }
+    const math::Vector3f& GetPosition() const { return m_position; }
 
-    Matrix4x4f CalcProjection() const;
-    Matrix4x4f CalcProjectionGL() const;
+    math::Matrix4x4f CalcProjection() const;
+    math::Matrix4x4f CalcProjectionGL() const;
 
-    FLAG_GETTER_SETTER(DirtyFlag, m_flags)
+    bool IsDirty() const { return m_flags & DirtyFlag; }
+    void SetDirty(bool p_value = true) { p_value ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }
 
     void OnDeserialized() { m_flags |= DirtyFlag; }
 };

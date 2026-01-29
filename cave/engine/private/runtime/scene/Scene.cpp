@@ -3,7 +3,7 @@
 #include "EntityFactory.h"
 
 #include "engine/private/assets/mesh_asset.h"
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/runtime/core/io/archive.h"
 #include "engine/private/runtime/ecs/ComponentManager.inl"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -28,6 +28,7 @@ REGISTER_COMPONENT_LIST
 namespace cave {
 
 using ecs::Entity;
+using namespace cave::math;
 
 void Scene::Update(float p_timestep) {
     CAVE_PROFILE_EVENT();

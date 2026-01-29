@@ -3,26 +3,26 @@
 
 #if defined(GLSL_LANG)
 void main() {
-    Vector3f N = normalize(out_var_POSITION);
+    float3 N = normalize(out_var_POSITION);
 #else
 float4 main(VS_OUTPUT_POSITION input)
     : SV_TARGET {
-    Vector3f N = normalize(input.world_position);
+    float3 N = normalize(input.world_position);
 #endif
 
     // make the simplyfying assumption that V equals R equals the normal
-    Vector3f R = N;
-    Vector3f V = R;
+    float3 R = N;
+    float3 V = R;
 
     float roughness = c_envPassRoughness;
 
-    Vector3f prefilteredColor = Vector3f(0.0, 0.0, 0.0);
+    float3 prefilteredColor = float3(0.0, 0.0, 0.0);
     float totalWeight = 0.0;
 
     for (uint i = 0u; i < SAMPLE_COUNT; ++i) {
-        Vector2f Xi = Hammersley(i, SAMPLE_COUNT);
-        Vector3f H = ImportanceSampleGGX(Xi, N, roughness);
-        Vector3f L = reflect(-V, H);
+        float2 Xi = Hammersley(i, SAMPLE_COUNT);
+        float3 H = ImportanceSampleGGX(Xi, N, roughness);
+        float3 L = reflect(-V, H);
 
         float NdotL = dot(N, L);
         if (NdotL > 0.0) {
@@ -53,6 +53,6 @@ float4 main(VS_OUTPUT_POSITION input)
 #if defined(GLSL_LANG)
     out_color = vec4(prefilteredColor, 1.0);
 #else
-    return Vector4f(prefilteredColor, 1.0);
+    return float4(prefilteredColor, 1.0);
 #endif
 }

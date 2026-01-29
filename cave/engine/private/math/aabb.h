@@ -1,9 +1,10 @@
 #pragma once
+#include "cave/core/math/Matrix.h"
+
 #include "engine/private/math/box.h"
 #include "engine/private/math/intersection.h"
-#include "engine/private/math/matrix.h"
 
-namespace cave {
+namespace cave::math {
 
 class AABB : public Box3 {
 public:
@@ -19,4 +20,4 @@ public:
     friend class TestIntersection;
 };
 
-}  // namespace cave
+}  // namespace cave::math

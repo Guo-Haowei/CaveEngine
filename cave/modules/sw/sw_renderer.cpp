@@ -100,8 +100,8 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     auto& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = pipeline->GetVaryingFlags();
 
-    const Rect screenBox(Vector2f::Zero, Vector2f(width, height));
-    Rect aabb{};
+    const OldRect screenBox(Vector2f::Zero, Vector2f(width, height));
+    OldRect aabb{};
     aabb.ExpandPoint(a);
     aabb.ExpandPoint(b);
     aabb.ExpandPoint(c);

@@ -1,6 +1,6 @@
 /// File: shared_path_tracer.h
 #if defined(__cplusplus)
-#include <engine/private/math/vector.h>
+#include <cave/core/math/Vector.h>
 
 #include <cmath>
 
@@ -36,20 +36,20 @@ extern GpuPtMaterial GlobalPtMaterials[];
 #endif
 
 struct Ray {
-    Vector3f origin;
+    float3 origin;
     float t;
-    Vector3f direction;
-    Vector3f invDir;
+    float3 direction;
+    float3 invDir;
 };
 
 struct HitResult {
-    Vector2f uv;
+    float2 uv;
     int hitTriangleId;  // @TODO: rename
     int hitMeshId;
 };
 
 struct Sphere {
-    Vector3f A;
+    float3 A;
     float radius;
 };
 
@@ -72,13 +72,13 @@ float Random(inout uint p_state) {
 }
 
 // random unit vector
-Vector3f RandomUnitVector(inout uint p_state) {
+float3 RandomUnitVector(inout uint p_state) {
     float z = Random(p_state) * 2.0 - 1.0;
     float a = Random(p_state) * MY_TWO_PI;
     float r = sqrt(1.0 - z * z);
     float x = r * cos(a);
     float y = r * sin(a);
-    return Vector3f(x, y, z);
+    return float3(x, y, z);
 }
 
 //------------------------------------------------------------------------------
@@ -88,29 +88,29 @@ Vector3f RandomUnitVector(inout uint p_state) {
 HitResult HitTriangle(inout Ray p_ray, int p_triangle_id) {
     // P = A + u(B - A) + v(C - A) => O - A = -tD + u(B - A) + v(C - A)
     // -tD + uAB + vAC = AO
-    Vector3i indices = GlobalPtIndices[p_triangle_id].tri;
-    Vector3f A = GlobalPtVertices[indices.x].position;
-    Vector3f B = GlobalPtVertices[indices.y].position;
-    Vector3f C = GlobalPtVertices[indices.z].position;
+    int3 indices = GlobalPtIndices[p_triangle_id].tri;
+    float3 A = GlobalPtVertices[indices.x].position;
+    float3 B = GlobalPtVertices[indices.y].position;
+    float3 C = GlobalPtVertices[indices.z].position;
 
-    Vector3f AB = B - A;
-    Vector3f AC = C - A;
+    float3 AB = B - A;
+    float3 AC = C - A;
 
-    Vector3f P = cross(p_ray.direction, AC);
+    float3 P = cross(p_ray.direction, AC);
     float det = dot(AB, P);
 
     HitResult result;
     result.hitMeshId = -1;
     result.hitTriangleId = -1;
-    result.uv = Vector2f(0.0f, 0.0f);
+    result.uv = float2(0.0f, 0.0f);
     if (det < EPSILON) {
         return result;
     }
 
     float invDet = 1.0 / det;
-    Vector3f AO = p_ray.origin - A;
+    float3 AO = p_ray.origin - A;
 
-    Vector3f Q = cross(AO, AB);
+    float3 Q = cross(AO, AB);
     float u = dot(AO, P) * invDet;
     float v = dot(p_ray.direction, Q) * invDet;
 
@@ -125,17 +125,17 @@ HitResult HitTriangle(inout Ray p_ray, int p_triangle_id) {
 
     p_ray.t = t;
     result.hitTriangleId = p_triangle_id;
-    result.uv = Vector2f(u, v);
+    result.uv = float2(u, v);
     return result;
 }
 
 // https://medium.com/@bromanz/another-view-on-the-classic-ray-aabb-intersection-algorithm-for-bvh-traversal-41125138b525
-bool HitBvh(in Ray p_ray, in Vector3f p_min, in Vector3f p_max) {
-    Vector3f t0s = (p_min - p_ray.origin) * p_ray.invDir;
-    Vector3f t1s = (p_max - p_ray.origin) * p_ray.invDir;
+bool HitBvh(in Ray p_ray, in float3 p_min, in float3 p_max) {
+    float3 t0s = (p_min - p_ray.origin) * p_ray.invDir;
+    float3 t1s = (p_max - p_ray.origin) * p_ray.invDir;
 
-    Vector3f tsmaller = min(t0s, t1s);
-    Vector3f tbigger = max(t0s, t1s);
+    float3 tsmaller = min(t0s, t1s);
+    float3 tbigger = max(t0s, t1s);
 
 #if 0
     float tmin = max(RAY_T_MIN, max(tsmaller.x, max(tsmaller.y, tsmaller.z)));
@@ -153,15 +153,15 @@ HitResult HitScene(inout Ray p_ray) {
     HitResult res;
     res.hitMeshId = -1;
     res.hitTriangleId = -1;
-    res.uv = Vector2f(0.0f, 0.0f);
+    res.uv = float2(0.0f, 0.0f);
 
     // check if it hits all the objects
     for (int mesh_id = 0; mesh_id < c_ptObjectCount; ++mesh_id) {
         GpuPtMesh mesh = GlobalPtMeshes[mesh_id];
-        Matrix4x4f inversed = mesh.transformInv;
+        float4x4 inversed = mesh.transformInv;
         Ray local_ray;
-        local_ray.origin = mul(inversed, Vector4f(p_ray.origin, 1.0f)).xyz;
-        local_ray.direction = mul(inversed, Vector4f(p_ray.direction, 0.0f)).xyz;
+        local_ray.origin = mul(inversed, float4(p_ray.origin, 1.0f)).xyz;
+        local_ray.direction = mul(inversed, float4(p_ray.direction, 0.0f)).xyz;
         local_ray.invDir = 1.0f / local_ray.direction;
         local_ray.t = p_ray.t;
 
@@ -188,9 +188,9 @@ HitResult HitScene(inout Ray p_ray) {
     return res;
 }
 
-Vector3f RayColor(inout Ray p_ray, inout uint state) {
-    Vector3f radiance = Vector3f(0, 0, 0);
-    Vector3f throughput = Vector3f(1, 1, 1);
+float3 RayColor(inout Ray p_ray, inout uint state) {
+    float3 radiance = float3(0, 0, 0);
+    float3 throughput = float3(1, 1, 1);
 
     for (int i = 0; i < MAX_BOUNCE; ++i) {
         // check all objects
@@ -202,26 +202,26 @@ Vector3f RayColor(inout Ray p_ray, inout uint state) {
             // calculate normal
             GpuPtMesh mesh = GlobalPtMeshes[result.hitMeshId];
 
-            Vector3i indices = GlobalPtIndices[result.hitTriangleId].tri;
-            Vector3f n1 = GlobalPtVertices[indices.x].normal;
-            Vector3f n2 = GlobalPtVertices[indices.y].normal;
-            Vector3f n3 = GlobalPtVertices[indices.z].normal;
-            Vector3f n = n1 + result.uv.x * (n2 - n1) + result.uv.y * (n3 - n1);
-            n = normalize(mul(mesh.transform, Vector4f(n, 0.0f)).xyz);
+            int3 indices = GlobalPtIndices[result.hitTriangleId].tri;
+            float3 n1 = GlobalPtVertices[indices.x].normal;
+            float3 n2 = GlobalPtVertices[indices.y].normal;
+            float3 n3 = GlobalPtVertices[indices.z].normal;
+            float3 n = n1 + result.uv.x * (n2 - n1) + result.uv.y * (n3 - n1);
+            n = normalize(mul(mesh.transform, float4(n, 0.0f)).xyz);
 #if 0
             return 0.5f * n + 0.5f;
 #endif
 
             GpuPtMaterial material = GlobalPtMaterials[mesh.materialId];
 
-            Vector3f diffuse_color = material.baseColor;
+            float3 diffuse_color = material.baseColor;
             float metallic = material.metallic;
             float roughness = material.roughness;
 
             float reflect_chance = Random(state) > metallic ? 0.0 : 1.0;
 
-            Vector3f diffuse_dir = normalize(n + RandomUnitVector(state));
-            Vector3f reflect_dir = reflect(p_ray.direction, n);
+            float3 diffuse_dir = normalize(n + RandomUnitVector(state));
+            float3 reflect_dir = reflect(p_ray.direction, n);
             reflect_dir = normalize(lerp(reflect_dir, diffuse_dir, roughness * roughness));
 
             p_ray.direction = normalize(lerp(diffuse_dir, reflect_dir, reflect_chance));
@@ -230,7 +230,7 @@ Vector3f RayColor(inout Ray p_ray, inout uint state) {
             radiance += material.emissive * throughput;
             throughput *= diffuse_color;
         } else {
-            radiance += Vector3f(0.3f, 0.3f, 0.3f) * throughput;
+            radiance += float3(0.3f, 0.3f, 0.3f) * throughput;
             break;
         }
     }
@@ -240,7 +240,7 @@ Vector3f RayColor(inout Ray p_ray, inout uint state) {
 
 #if 0
 bool HitSphere(inout Ray ray, in Sphere sphere) {
-    Vector3f oc = ray.origin - sphere.A;
+    float3 oc = ray.origin - sphere.A;
     float a = dot(ray.direction, ray.direction);
     float half_b = dot(oc, ray.direction);
     float c = dot(oc, oc) - sphere.radius * sphere.radius;
@@ -252,7 +252,7 @@ bool HitSphere(inout Ray ray, in Sphere sphere) {
     }
 
     ray.t = t;
-    Vector3f p = ray.origin + t * ray.direction;
+    float3 p = ray.origin + t * ray.direction;
     // ray.hit_normal = normalize(p - sphere.A);
     // ray.material_id = sphere.material_id;
     return true;

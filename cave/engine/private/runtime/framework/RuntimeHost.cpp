@@ -3,6 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/gameplay/GameSession.h"
 
+#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
@@ -11,7 +12,8 @@
 namespace cave {
 
 RuntimeHost::RuntimeHost(IApplication& p_app)
-    : m_app(p_app) {
+    : m_app(p_app)
+    , m_debug_id(MakeDebugId(this)) {
 }
 
 RuntimeHost::~RuntimeHost() {

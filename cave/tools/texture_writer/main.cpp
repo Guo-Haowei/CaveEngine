@@ -7,7 +7,7 @@
 #include "engine/private/math/geomath.h"
 #include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/math/color.h"
-#include "engine/private/math/vector.h"
+#include "cave/core/math/Vector.h"
 
 // @TODO: refactor
 #include "pbr.hlsl.h"

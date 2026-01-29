@@ -4,6 +4,8 @@
 
 namespace cave {
 
+using namespace math;
+
 using VertexList = std::vector<Vector3f>;
 using TriangleList = std::vector<Vector3i>;
 

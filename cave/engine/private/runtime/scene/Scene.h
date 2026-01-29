@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/core/NonCopyable.h"
+#include "cave/core/NonCopyable.h"
 
 #include "engine/private/assets/asset_interface.h"
 #include "engine/private/runtime/ecs/ComponentManager.h"
@@ -184,18 +184,18 @@ public:
         ecs::Entity entity;
     };
 
-    // @TODO: refactor this
-    RayIntersectionResult Intersects(Ray& p_ray);
-    bool RayObjectIntersect(ecs::Entity p_object_id, Ray& p_ray);
+    // @TODO: move hit test to somewhere else
+    RayIntersectionResult Intersects(math::Ray& p_ray);
+    bool RayObjectIntersect(ecs::Entity p_object_id, math::Ray& p_ray);
 
-    const AABB& GetBound() const { return m_bound; }
+    const math::AABB& GetBound() const { return m_bound; }
 
     ecs::Entity m_root;
 
     // @TODO: deprecate
     std::atomic<uint32_t> m_dirtyFlags{ SCENE_DIRTY_NONE };
     // @TODO: refactor
-    AABB m_bound;
+    math::AABB m_bound;
 
     // @TODO: refactor
     PhysicsMode m_physicsMode{ PhysicsMode::NONE };

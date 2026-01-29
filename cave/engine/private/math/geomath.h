@@ -11,10 +11,10 @@ WARNING_DISABLE(4201, "-Wunused-parameter")
 #include <glm/gtx/vector_angle.hpp>
 WARNING_POP()
 
-#include "engine/private/math/matrix.h"
-#include "engine/private/math/vector.h"
+#include "cave/core/math/Vector.h"
+#include "cave/core/math/Matrix.h"
 
-namespace cave {
+namespace cave::math {
 
 using Quaternion = glm::quat;
 
@@ -38,4 +38,4 @@ static inline void Decompose(const Matrix4x4f& p_matrix, Vector3f& p_scale, Vect
     p_translation.Set(&translation.x);
 }
 
-}  // namespace cave
+}  // namespace cave::math

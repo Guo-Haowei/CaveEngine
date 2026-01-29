@@ -3,7 +3,6 @@
 #include "engine/private/math/geomath.h"
 #include "engine/private/assets/tile_map_asset.h"
 
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
@@ -13,7 +12,7 @@ class AssetRegistry;
 class Scene;
 class TileMapDocument;
 
-class TileMapEditor : public ViewerTab {
+class TileMapEditor {
 public:
     TileMapEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileMapEditor();

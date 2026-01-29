@@ -4,7 +4,7 @@
 #include "shader_defines.hlsl.h"
 
 #if defined(__cplusplus)
-#include <engine/private/math/vector.h>
+#include <cave/core/math/Vector.h>
 #ifdef min
 #undef min
 #endif
@@ -61,7 +61,7 @@ float GeometrySmith(float p_n_dot_v, float p_n_dot_l, float p_roughness) {
     return ggx1 * ggx2;
 }
 
-Vector3f FresnelSchlick(float p_cos_theta, const Vector3f p_f0) {
+float3 FresnelSchlick(float p_cos_theta, const float3 p_f0) {
     return p_f0 + (1.0f - p_f0) * pow(1.0f - p_cos_theta, 5.0f);
 }
 
@@ -74,11 +74,11 @@ float RadicalInverseVDC(uint bits) {
     return float(bits) * 2.3283064365386963e-10f;  // / 0x100000000
 }
 
-Vector2f Hammersley(uint i, uint N) {
-    return Vector2f(float(i) / float(N), RadicalInverseVDC(i));
+float2 Hammersley(uint i, uint N) {
+    return float2(float(i) / float(N), RadicalInverseVDC(i));
 }
 
-Vector3f ImportanceSampleGGX(Vector2f Xi, Vector3f N, float roughness) {
+float3 ImportanceSampleGGX(float2 Xi, float3 N, float roughness) {
     float a = roughness * roughness;
 
     float phi = 2.0f * MY_PI * Xi.x;
@@ -86,28 +86,28 @@ Vector3f ImportanceSampleGGX(Vector2f Xi, Vector3f N, float roughness) {
     float sin_theta = sqrt(1.0f - cos_theta * cos_theta);
 
     // from spherical coordinates to cartesian coordinates - halfway vector
-    Vector3f H;
+    float3 H;
     H.x = cos(phi) * sin_theta;
     H.y = sin(phi) * sin_theta;
     H.z = cos_theta;
 
     // from tangent-space H vector to world-space sample vector
-    Vector3f up = abs(N.z) < 0.999f ? Vector3f(0.0f, 0.0f, 1.0f) : Vector3f(1.0f, 0.0f, 0.0f);
-    Vector3f tangent = normalize(cross(up, N));
-    Vector3f bitangent = cross(N, tangent);
+    float3 up = abs(N.z) < 0.999f ? float3(0.0f, 0.0f, 1.0f) : float3(1.0f, 0.0f, 0.0f);
+    float3 tangent = normalize(cross(up, N));
+    float3 bitangent = cross(N, tangent);
 
-    Vector3f sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
+    float3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
     return normalize(sampleVec);
 }
 
-Vector3f FresnelSchlickRoughness(float p_cos_theta, Vector3f F0, float p_roughness) {
-    Vector3f zero = Vector3f(0.0f, 0.0f, 0.0f);
-    Vector3f tmp = Vector3f(1.0f, 1.0f, 1.0f) - p_roughness;
+float3 FresnelSchlickRoughness(float p_cos_theta, float3 F0, float p_roughness) {
+    float3 zero = float3(0.0f, 0.0f, 0.0f);
+    float3 tmp = float3(1.0f, 1.0f, 1.0f) - p_roughness;
     return F0 + (max(tmp - F0, zero)) * pow(1.0f - p_cos_theta, 5.0f);
 }
 
-Vector2f IntegrateBRDF(float NdotV, float roughness) {
-    Vector3f V;
+float2 IntegrateBRDF(float NdotV, float roughness) {
+    float3 V;
     V.x = sqrt(1.0f - NdotV * NdotV);
     V.y = 0.0f;
     V.z = NdotV;
@@ -115,15 +115,15 @@ Vector2f IntegrateBRDF(float NdotV, float roughness) {
     float A = 0.0f;
     float B = 0.0f;
 
-    Vector3f N = Vector3f(0.0f, 0.0f, 1.0f);
+    float3 N = float3(0.0f, 0.0f, 1.0f);
 
     const uint SAMPLE_COUNT = 1024u;
     for (uint i = 0u; i < SAMPLE_COUNT; ++i) {
         // generates a sample vector that's biased towards the
         // preferred alignment direction (importance sampling).
-        Vector2f Xi = Hammersley(i, SAMPLE_COUNT);
-        Vector3f H = ImportanceSampleGGX(Xi, N, roughness);
-        Vector3f L = normalize(2.0f * dot(V, H) * H - V);
+        float2 Xi = Hammersley(i, SAMPLE_COUNT);
+        float3 H = ImportanceSampleGGX(Xi, N, roughness);
+        float3 L = normalize(2.0f * dot(V, H) * H - V);
 
         float NdotL = max(L.z, 0.0f);
         float NdotH = max(H.z, 0.0f);
@@ -140,20 +140,20 @@ Vector2f IntegrateBRDF(float NdotV, float roughness) {
     }
     A /= float(SAMPLE_COUNT);
     B /= float(SAMPLE_COUNT);
-    return Vector2f(A, B);
+    return float2(A, B);
 }
 
-Vector3f lighting(Vector3f N,
-                  Vector3f L,
-                  Vector3f V,
-                  Vector3f radiance,
-                  Vector3f F0,
-                  float roughness,
-                  float metallic,
-                  Vector3f p_base_color) {
+float3 lighting(float3 N,
+                float3 L,
+                float3 V,
+                float3 radiance,
+                float3 F0,
+                float roughness,
+                float metallic,
+                float3 p_base_color) {
 
-    Vector3f Lo = Vector3f(0.0f, 0.0f, 0.0f);
-    const Vector3f H = normalize(V + L);
+    float3 Lo = float3(0.0f, 0.0f, 0.0f);
+    const float3 H = normalize(V + L);
     const float NdotL = max(dot(N, L), 0.0f);
     const float NdotH = max(dot(N, H), 0.0f);
     const float NdotV = max(dot(N, V), 0.0f);
@@ -161,17 +161,17 @@ Vector3f lighting(Vector3f N,
     // direct cook-torrance brdf
     const float NDF = DistributionGGX(NdotH, roughness);
     const float G = GeometrySmith(NdotV, NdotL, roughness);
-    const Vector3f F = FresnelSchlick(clamp(dot(H, V), 0.0f, 1.0f), F0);
+    const float3 F = FresnelSchlick(clamp(dot(H, V), 0.0f, 1.0f), F0);
 
-    const Vector3f nom = NDF * G * F;
+    const float3 nom = NDF * G * F;
     float denom = 4 * NdotV * NdotL;
 
-    Vector3f specular = nom / max(denom, 0.001f);
+    float3 specular = nom / max(denom, 0.001f);
 
-    const Vector3f kS = F;
-    const Vector3f kD = (1.0f - metallic) * (Vector3f(1.0f, 1.0f, 1.0f) - kS);
+    const float3 kS = F;
+    const float3 kD = (1.0f - metallic) * (float3(1.0f, 1.0f, 1.0f) - kS);
 
-    Vector3f direct_lighting = (kD * p_base_color / MY_PI + specular) * radiance * NdotL;
+    float3 direct_lighting = (kD * p_base_color / MY_PI + specular) * radiance * NdotL;
 
     return direct_lighting;
 }

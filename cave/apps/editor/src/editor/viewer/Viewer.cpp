@@ -6,7 +6,7 @@
 #include "editor/services/Workspace.h"
 
 // -----------------------------
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/math/ray.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
@@ -19,10 +19,6 @@
 
 // asset editors
 #include "editor/animation_editor/SpriteAnimationEditor.h"
-#include "editor/material_editor/MaterialEditor.h"
-#include "editor/scene_editor/SceneEditor.h"
-#include "editor/tile_map_editor/TileMapEditor.h"
-#include "editor/tile_map_editor/TileSetEditor.h"
 
 namespace cave {
 
@@ -69,11 +65,6 @@ Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
 
     return None();
 }
-
-ViewerTab* Viewer::GetActiveTab() {
-    return nullptr;
-}
-
 void Viewer::UpdateInternal(float p_timestep) {
     CAVE_PROFILE_EVENT();
 

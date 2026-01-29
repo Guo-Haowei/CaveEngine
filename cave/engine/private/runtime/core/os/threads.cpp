@@ -3,7 +3,7 @@
 #include <latch>
 #include <thread>
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave::thread {

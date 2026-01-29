@@ -2,7 +2,7 @@
 
 #include <imnodes/imnodes.h>
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/render_graph/render_graph.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -105,7 +105,7 @@ void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {
     // }
 }
 
-void RenderGraphViewer::UpdateInternal(float) {
+void RenderGraphViewer::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 
     auto graphics_manager = m_editor.GetApp().GetGraphicsManager();

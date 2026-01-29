@@ -6,6 +6,8 @@
 
 namespace cave {
 
+using namespace math;
+
 VSOutput PbrPipeline::ProcessVertex(const VSInput& input) {
     VSOutput vs_output;
     vs_output.world_position = per_batch_cb.c_worldMatrix * input.position;

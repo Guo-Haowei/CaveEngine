@@ -3,11 +3,11 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/gameplay/IGameMode.h"
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewportManager.h"
 
-#include "editor/document/DocumentService.h"
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
@@ -17,6 +17,7 @@
 #include <imgui/imgui_internal.h>
 #include <imnodes/imnodes.h>
 
+#include "Enums.h"
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
@@ -141,8 +142,7 @@ void EditorState::Tick(float p_dt) {
     imgui_manager->BeginFrame();
 
     DockSpace();
-    for (auto& it : m_panels)
-        it->Update(p_dt);
+    for (auto& it : m_panels) it->DrawUI();
 
     m_edit_service->FlushPendingCmds();
     m_workspace->Tick(p_dt);
@@ -173,15 +173,12 @@ void EditorState::CommitModeSwitch() {
 
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
-            DEV_ASSERT(0);
-#if 0
-            ViewerTab* tab = m_viewer->GetActiveTab();
-            DEV_ASSERT(tab);
-            RuntimeStartParams params(std::move(SceneSource::FromExisting(tab->GetSceneId())));
+            FocusedPreviewScene preview = GetFocusedPreviewScene();
+
+            RuntimeStartParams params(std::move(SceneSource::FromExisting(preview.scene_id)));
             params.game_mode_id = "chess";
             params.mode = RuntimeStartParams::Mode::PIE;
             m_runtime_host->Start(params);
-#endif
         } break;
         case cave::EditorState::Mode::Playing: {
             m_runtime_host->Stop();
@@ -201,7 +198,7 @@ void EditorState::DockSpace() {
 
     ui::DockSpace({
         "DockSpace Demo",
-        [this]() { m_menu_bar->Update(0.0f); },
+        [this]() { m_menu_bar->DrawUI(); },
         [this]() {
             CompositeLogger& logger = CompositeLogger::GetSingleton();
             const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
@@ -236,13 +233,9 @@ FocusedPreviewScene EditorState::GetFocusedPreviewScene() {
 }
 
 void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
-    unused(p_parent);
     if (ImGui::BeginMenu("Add")) {
-        DEV_ASSERT(0);
-#if 0
-        ViewerTab* tab = nullptr;
-        DEV_ASSERT(tab);
-        DocId doc_id = tab ? tab->GetDocId() : DocId{};
+        FocusedPreviewScene preview = GetFocusedPreviewScene();
+        DocId doc_id = preview.doc_id;
 #define ENTITY_TYPE(NAME, SEP)                                                           \
     if (ImGui::MenuItem(#NAME)) {                                                        \
         auto cmd = std::make_unique<AddObjectCmd>(GetApp(), p_parent, EntityType::NAME); \
@@ -253,7 +246,6 @@ void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
     }
         ENTITY_TYPE_LIST
 #undef ENTITY_TYPE
-#endif
         ImGui::EndMenu();
     }
 }

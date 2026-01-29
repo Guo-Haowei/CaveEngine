@@ -2,7 +2,7 @@
 
 #include "engine/private/math/matrix_transform.h"
 
-namespace cave {
+namespace cave::math {
 
 #if 0
  *        E__________________ H
@@ -70,4 +70,4 @@ AABB AABB::FromCenterSize(const Vector3f& p_center, const Vector3f& p_size) {
     return box;
 }
 
-}  // namespace cave
+}  // namespace cave::math

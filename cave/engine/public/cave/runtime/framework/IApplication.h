@@ -4,8 +4,8 @@
 #pragma once
 #include <string_view>
 
-#include "cave/runtime/core/Error.h"
-#include "cave/runtime/core/NonCopyable.h"
+#include "cave/core/Error.h"
+#include "cave/core/NonCopyable.h"
 
 namespace cave {
 

@@ -1,19 +1,33 @@
 #pragma once
+#include "cave/render/IViewProvider.h"
+
 #include "engine/private/runtime/core/GenIdRegistry.h"
 
-#include "editor/document/DocumentTypes.h"
-#include "editor/windows/Tab.h"
+#include "editor/document/DocId.h"
+#include "editor/panels/Tab.h"
 
 namespace cave {
 
 class EditorState;
 class Guid;
-class ViewerTab;
 
 enum class SaveDialogResponse {
     Save,
     Discard,
     Cancel,
+};
+
+enum class DocKind : uint8_t {
+    Scene,
+    Script,
+    Material,
+    Mesh,
+    Texture,
+    Audio,
+    Prefab,
+    Shader,
+
+    _Count,
 };
 
 struct WorkspaceRequest {
@@ -30,21 +44,27 @@ struct WorkspaceRequest {
     DocId doc_id{};
     std::string path;
 
-    static WorkspaceRequest OpenDoc(DocId p_doc_id) {
+    static WorkspaceRequest Open(DocId p_doc_id) {
         WorkspaceRequest req{};
         req.type = Type::OpenDoc;
         req.doc_id = p_doc_id;
         return req;
     }
+
+    static WorkspaceRequest Close(DocId p_doc_id) {
+        WorkspaceRequest req{};
+        req.type = Type::CloseDoc;
+        req.doc_id = p_doc_id;
+        return req;
+    }
 };
 
-// @TODO: tab allocator
-using TabId = GenId<Tab>;
-
-class Workspace : public GenIdRegistry<Tab>,
-                  public ISceneViewProvider {
+class Workspace final : protected GenIdRegistry<Tab>,
+                        public render::IViewProvider,
+                        public IInputConsumer {
 public:
     Workspace(EditorState& p_editor);
+    ~Workspace();
 
     void Tick(float p_dt);
 
@@ -54,15 +74,19 @@ public:
 
     Tab* GetFocusedTab() { return Resolve(m_focused_tab); }
 
-    void BuildViews(std::vector<SceneView>& p_out_views,
+    void BuildViews(std::vector<render::ViewDesc>& p_out_views,
                     bool p_is_opengl) final;
+
+    void OnEvents(const std::vector<InputEvent>& p_events) final;
+
+    int GetPriority() const final { return 10; }
+
+    DebugId GetDebugId() final { return m_debug_id; }
 
 private:
     void OpenOrFocusDoc(DocId p_doc_id);
 
-    bool RequestCloseDoc(DocId p_doc_id);
-
-    // bool RequestCloseTab(ViewerTabId p_tab_id);
+    bool CloseDoc(DocId p_doc_id);
 
     bool RequestCloseAll();
 
@@ -71,21 +95,17 @@ private:
     // Focus/activate
     bool FocusDoc(DocId doc_id);
 
+    void FlushPendingRequests();
+    void DrawTabs();
+
     EditorState& m_editor;
+    const DebugId m_debug_id;
+
     TabId m_focused_tab{};
     TabId m_focused_req{};
 
     std::vector<WorkspaceRequest> m_pending_reqs;
     std::unordered_map<DocId, TabId> m_doc_to_tab;
-
-    //----------------------------------------------------------------
-    // @TODO: deprecate below apis
-
-public:
-    void RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close);
-
-    // void SetCloseRequest(const TabId& p_id) { m_close_request = Some(p_id); }
-    void HandleCloseRequest();
 };
 
 }  // namespace cave

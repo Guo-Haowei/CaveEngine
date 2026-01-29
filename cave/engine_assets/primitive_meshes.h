@@ -4,6 +4,8 @@
 
 namespace cave {
 
+using namespace ::cave::math;
+
 /**
  *        E__________________ H
  *       /|                 /|

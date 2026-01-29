@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/assets/asset_handle.h"
 #include "engine/private/assets/asset_interface.h"
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 
 namespace cave {
 
@@ -22,7 +22,7 @@ public:
     void DrawContentBrowser();
 
 protected:
-    void UpdateInternal(float p_timestep) override;
+    void DrawUIImpl() override;
 
     const ContentEntry* Navigate(const ContentEntry* p_node, int p_cur, int p_max);
     void DrawBreadcrumb();

@@ -3,14 +3,13 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/viewer/Viewer.h"
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"
@@ -36,10 +35,10 @@ void AssetInspector::OnAttach() {
     DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
 }
 
-void AssetInspector::UpdateInternal(float) {
+void AssetInspector::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 #if 0
-    if (ViewerTab* tab = m_editor.GetViewer().GetActiveTab(); tab) {
+    if (tab) {
         tab->DrawAssetInspector();
     } else {
         DrawContentBrowser();
@@ -137,7 +136,7 @@ void AssetInspector::DrawContentBrowser() {
     }
     DEV_ASSERT(current->is_dir);
 
-    Vector2f thumbnail_size(196);
+    math::Vector2f thumbnail_size(196);
 
     for (const auto& node : current->children) {
         ImageAsset* image = nullptr;

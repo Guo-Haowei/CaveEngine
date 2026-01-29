@@ -1,14 +1,13 @@
 #pragma once
 #include "engine/private/assets/asset_handle.h"
 
-#include "editor/viewer/ViewerTab.h"
 #include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
 
 #if 0
 
-class TileSetEditor : public ViewerTab {
+class TileSetEditor {
 public:
     TileSetEditor(EditorState& p_editor, Viewer& p_viewer);
     ~TileSetEditor();

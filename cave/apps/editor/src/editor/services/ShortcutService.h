@@ -7,7 +7,7 @@ namespace cave {
 
 class EditorState;
 
-class ShortcutService : public IInputConsumer {
+class ShortcutService final : public IInputConsumer {
 public:
     ShortcutService(EditorState& p_editor);
     ~ShortcutService();
@@ -17,10 +17,13 @@ public:
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 
+    DebugId GetDebugId() override { return m_debug_id; }
+
 private:
     void InitShortcuts();
 
     EditorState& m_editor;
+    const DebugId m_debug_id;
 
     std::array<ShortcutDesc, kShortcutCount> m_shortcuts;
 };

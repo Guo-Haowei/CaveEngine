@@ -1,4 +1,4 @@
-#include "cave/runtime/string/StringId.h"
+#include "cave/core/ids/StringId.h"
 
 namespace cave::string_utils {
 

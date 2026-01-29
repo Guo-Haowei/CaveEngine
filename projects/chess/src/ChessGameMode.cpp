@@ -1,6 +1,8 @@
 #include "ChessGameMode.h"
 
-#include <cave/runtime/core/Print.h>
+#include <cave/core/Print.h>
+
+#include <cave/core/math/Matrix.h>
 
 namespace cave {
 

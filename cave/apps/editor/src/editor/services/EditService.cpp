@@ -1,9 +1,9 @@
 #include "EditService.h"
 
-#include "editor/document/DocumentService.h"
+#include "editor/services/DocumentService.h"
 #include "editor/services/Workspace.h"
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
@@ -53,6 +53,14 @@ bool EditService::CanRedo(DocId p_doc_id) const {
 bool EditService::IsDirty(DocId p_doc_id) const {
     if (const IDocument* doc = ResolveDoc(p_doc_id)) {
         return doc->IsDirty();
+    }
+
+    return false;
+}
+
+bool EditService::Save(DocId p_doc_id) {
+    if (IDocument* doc = ResolveDoc(p_doc_id)) {
+        return doc->Save();
     }
 
     return false;

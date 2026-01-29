@@ -12,7 +12,7 @@ namespace cave {
 // float m_atten_constant (editor = DragFloat, min = 0, max = 1)
 // float m_atten_linear (editor = DragFloat, min = 0, max = 1)
 // float m_atten_quadratic (editor = DragFloat, min = 0, max = 1)
-// AABB m_shadow_region ()
+// math::AABB m_shadow_region ()
 // bool m_cast_shadow (editor = Toggle)
 
 template<>

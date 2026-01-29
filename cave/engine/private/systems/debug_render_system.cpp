@@ -4,6 +4,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
     if (!p_scene) {
         return;

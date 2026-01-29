@@ -1,58 +1,47 @@
 #include "Workspace.h"
 
-#include "editor/document/DocumentService.h"
+#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
+#include "engine/private/runtime/framework/InputSystem.h"
+
+#include "editor/services/DocumentService.h"
 #include "editor/EditorState.h"
 
 // @TODO: delete
-#include "editor/EditorDvars.h"
-#include "editor/scene_editor/SceneEditor.h"
-#include "engine/private/runtime/framework/ViewportManager.h"
+#include "editor/panels/SceneViewTab.h"
 
 namespace cave {
 
-// @TODO: SaveDocumentCommand
-#if 0
-/// SaveProjectCommand
-void SaveProjectCommand::Execute(Scene& p_scene) {
-    unused(p_scene);
-    LOG_WARN("TODO: implement SaveProjectCommand");
-    std::string scene;
-    if (scene.empty()) {
-        return;
-    }
-
-    std::filesystem::path path{ scene.empty() ? "untitled.scene" : scene.c_str() };
-    if (m_openDialog || scene.empty()) {
-// @TODO: implement
-#if USING(PLATFORM_WINDOWS)
-        if (!os::OpenSaveDialog(path)) {
-            return;
-        }
-#else
-        LOG_WARN("OpenSaveDialog not implemented");
-#endif
-    }
-
-    auto path_string = path.string();
-
-    [[maybe_unused]] const auto extension = StringUtils::Extension(path_string);
-    LOG_OK("scene saved to '{}'", path.string());
-}
-#endif
-
 Workspace::Workspace(EditorState& p_editor)
-    : m_editor(p_editor) {
+    : m_editor(p_editor)
+    , m_debug_id(MakeDebugId(this)) {
+    IApplication& app = m_editor.GetApp();
+    app.GetInputSystem()->Router().Register(this);
+}
+
+Workspace::~Workspace() {
+    IApplication& app = m_editor.GetApp();
+
+    app.GetInputSystem()->Router().Unregister(this);
+}
+
+void Workspace::Tick(float p_dt) {
+    for (auto& it : m_slots) {
+        if (Tab* tab = it.storage.get()) {
+            // @NOTE: tick collapsed?
+            // @NOTE: tick inactive?
+            tab->Tick(p_dt);
+        }
+    }
+
+    FlushPendingRequests();
+    DrawTabs();
 }
 
 void Workspace::Submit(WorkspaceRequest p_req) {
     m_pending_reqs.emplace_back(std::move(p_req));
 }
 
-void Workspace::Tick(float p_dt) {
-    unused(p_dt);
-
-    // test window generation
-
+void Workspace::FlushPendingRequests() {
     for (WorkspaceRequest& req : m_pending_reqs) {
         switch (req.type) {
             case WorkspaceRequest::Type::OpenDoc: {
@@ -62,6 +51,7 @@ void Workspace::Tick(float p_dt) {
                 // OpenOrFocusDoc(req.doc_id);
             } break;
             case WorkspaceRequest::Type::CloseDoc: {
+                CloseDoc(req.doc_id);
             } break;
             default:
                 break;
@@ -69,37 +59,53 @@ void Workspace::Tick(float p_dt) {
     }
 
     m_pending_reqs.clear();
+}
 
+void Workspace::DrawTabs() {
     for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
         auto& slot = m_slots[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
-            TabId current = TabId(idx, slot.gen);
-            if (m_focused_req == current) {
+            TabId current_id = tab.GetTabId();
+            DEV_ASSERT(current_id == TabId(idx, slot.gen));
+            if (m_focused_req == current_id) {
                 ImGui::SetNextWindowFocus();
                 m_focused_req = TabId();
             }
-            tab.Update(p_dt);
+            tab.DrawUI();
 
             if (tab.IsFocused()) {
-                m_focused_tab = current;
+                m_focused_tab = current_id;
             }
         }
     }
 }
 
-void Workspace::BuildViews(std::vector<SceneView>& p_out_views,
+void Workspace::BuildViews(std::vector<render::ViewDesc>& p_out_views,
                            bool p_is_opengl) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
+        // @TODO: should build when visible, but we only support one render target output
         if (tab && tab->IsVisible()) {
-            if (SceneEditor* scene_tab = dynamic_cast<SceneEditor*>(tab)) {
+            // if (tab && tab->IsFocused()) {
+            if (SceneViewTab* scene_tab = dynamic_cast<SceneViewTab*>(tab)) {
                 scene_tab->BuildViews(p_out_views, p_is_opengl);
             }
         }
     }
 }
 
+void Workspace::OnEvents(const std::vector<InputEvent>& p_events) {
+    for (size_t i = 0; i < m_slots.size(); ++i) {
+        Tab* tab = m_slots[i].storage.get();
+        if (tab && tab->IsFocused()) {
+            tab->OnInputEvents(p_events);
+            break;
+        }
+    }
+}
+
+// @TODO: probably want to refactor this
 void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
     IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id);
     if (!doc) {
@@ -118,22 +124,22 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 
     std::unique_ptr<Tab> tab;
     switch (meta->type) {
-        case AssetType::Scene: {
-            tab = std::make_unique<SceneEditor>(m_editor,
-                                                p_doc_id,
-                                                doc->GetPreviewScene(),
-                                                ViewDimension::DIMENSION_3);
+        case AssetType::Scene:
+        case AssetType::Material: {
+            tab = std::make_unique<SceneViewTab>(m_editor,
+                                                 p_doc_id,
+                                                 doc->GetPreviewScene(),
+                                                 ViewDimension::DIMENSION_3);
         } break;
         default: {
-            tab = std::make_unique<Tab>(m_editor,
-                                        p_doc_id,
-                                        ViewDimension::DIMENSION_3);
+            tab = std::make_unique<Tab>(m_editor, p_doc_id);
         } break;
     }
 
-    TabId tab_id = Create(std::move(tab));
+    const TabId tab_id = Create(std::move(tab));
 
     Tab* tab_raw = (m_slots[tab_id.index].storage).get();
+    tab_raw->SetTabId(tab_id);
     tab_raw->SetTitleAndId(meta->name, tab_id.index);
     tab_raw->OnCreate();
     m_focused_req = tab_id;
@@ -141,13 +147,8 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 
 #if 0
     // @TODO: create a new tab
-    std::shared_ptr<ViewerTab> tab;
-    Viewer& viewer = m_editor.GetViewer();
     switch (meta->type) {
         case AssetType::Scene: {
-            ViewerTab::Dimension dimension = DVAR_GET_BOOL(is_world_2d) ? ViewerTab::DIMENSION_2
-                                                                        : ViewerTab::DIMENSION_3;
-            tab.reset(new SceneEditor(m_editor, p_doc_id, viewer, dimension));
         } break;
         // case AssetType::TileSet: {
         //     tab.reset(new TileSetEditor(m_editor, *this));
@@ -168,50 +169,26 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 
     ViewportManager* viewport_manager = m_editor.GetApp().GetViewportManager();
     viewport_manager->CreateViewport(tab);
-
-    // DVAR_SET_STRING(last_open_asset, p_guid.ToString());
-    tab->OnCreate(meta->guid);
-    tab->OnActivate();
-    // @TODO: set active tab
-    LOG_VERBOSE("tab {} created", tab->GetTitle());
-
-    m_old_tabs[p_doc_id] = tab;
-    m_active_tab = tab.get();
 #endif
 }
 
-//-------------- DEPRECATE ------------------
+bool Workspace::CloseDoc(DocId p_doc_id) {
+    auto it = m_doc_to_tab.find(p_doc_id);
+    DEV_ASSERT(it != m_doc_to_tab.end());
 
-void Workspace::HandleCloseRequest() {
-    // if (m_close_request.is_none()) {
-    //     return;
-    // }
+    const TabId tab_id = it->second;
+    Tab* tab = Resolve(tab_id);
+    DEV_ASSERT(tab->GetDocId() == p_doc_id);
+    tab->OnDestroy();
+    Destroy(tab_id);
+    m_doc_to_tab.erase(p_doc_id);
+
+    // close doc
+    m_editor.DocumentService().Close(p_doc_id);
+    return true;
+}
 
 #if 0
-    RequestSaveDialog([&](SaveDialogResponse p_response) {
-        auto it = m_old_tabs.find(m_close_request.unwrap());
-        std::shared_ptr<ViewerTab> to_close = it->second;
-        DEV_ASSERT(it != m_old_tabs.end());
-        switch (p_response) {
-            case SaveDialogResponse::Save:
-                to_close->GetDocument().Save();
-                // @TODO: save
-                [[fallthrough]];
-            case SaveDialogResponse::Discard: {
-                // remove the tab
-                m_old_tabs.erase(it);
-                to_close->OnDeactivate();
-                to_close->OnDestroy();
-            } break;
-            case SaveDialogResponse::Cancel:
-                break;
-        }
-
-        m_close_request = None();
-    });
-#endif
-}
-
 void Workspace::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
     ImGui::OpenPopup("Save changes to");
     if (ImGui::BeginPopupModal("Save changes to")) {
@@ -233,5 +210,6 @@ void Workspace::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_c
         ImGui::EndPopup();
     }
 }
+#endif
 
 }  // namespace cave

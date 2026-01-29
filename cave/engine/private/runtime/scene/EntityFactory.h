@@ -2,15 +2,18 @@
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
-using ecs::Entity;
 
 class EntityFactory {
+    using Entity = cave::ecs::Entity;
+    using Vector3f = cave::math::Vector3f;
+    using Matrix4x4f = cave::math::Matrix4x4f;
+
 public:
     static Entity CreateCameraEntity(Scene& p_scene,
                                      const std::string& p_name,
-                                     float p_near_plane = CameraComponent::DEFAULT_NEAR,
-                                     float p_far_plane = CameraComponent::DEFAULT_FAR,
-                                     float p_fovy = CameraComponent::DEFAULT_FOVY);
+                                     float p_near_plane = CameraComponent::kDefaultNear,
+                                     float p_far_plane = CameraComponent::kDefaultFar,
+                                     float p_fovy = CameraComponent::kDefaultFovy);
 
     static Entity CreateNameEntity(Scene& p_scene,
                                    const std::string& p_name);

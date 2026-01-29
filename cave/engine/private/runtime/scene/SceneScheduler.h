@@ -1,5 +1,6 @@
 #pragma once
-#include "cave/runtime/scene/SceneId.h"
+#include "cave/core/ids/DebugId.h"
+#include "cave/core/ids/SceneId.h"
 
 namespace cave {
 
@@ -21,6 +22,8 @@ public:
     virtual ~ISceneTickContributor() = default;
 
     virtual void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) = 0;
+
+    virtual DebugId GetDebugId() = 0;
 };
 
 class SceneScheduler {

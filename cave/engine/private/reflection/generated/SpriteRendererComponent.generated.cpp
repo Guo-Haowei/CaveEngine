@@ -9,8 +9,8 @@
 namespace cave {
 
 // Guid m_image_id (editor = Asset)
-// Vector4f m_tint_color (editor = Color)
-// Rect m_rect ()
+// math::Vector4f m_tint_color (editor = Color)
+// math::Box2 m_rect ()
 // bool m_flip_x (editor = Toggle)
 // bool m_flip_y (editor = Toggle)
 // bool m_is_billboard (editor = Toggle)

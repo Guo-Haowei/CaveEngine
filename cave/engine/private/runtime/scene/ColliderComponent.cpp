@@ -4,6 +4,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 Shape::Shape() {
     type = ShapeType::Null;
     data.half = Vector3f(0.5f);

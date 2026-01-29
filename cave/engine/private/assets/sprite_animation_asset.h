@@ -10,7 +10,7 @@ class SpriteAnimationClip {
 
 private:
     CAVE_PROP(type = box2[])
-    std::vector<Rect> m_frames;
+    std::vector<math::Box2> m_frames;
 
     CAVE_PROP(type = f32[])
     std::vector<float> m_durations;
@@ -23,17 +23,17 @@ private:
 public:
     SpriteAnimationClip() = default;
 
-    SpriteAnimationClip(std::vector<Rect>&& p_frames, float p_length = 1.0f);
+    SpriteAnimationClip(std::vector<math::Box2>&& p_frames, float p_length = 1.0f);
 
     bool IsLooping() const { return m_loop; }
 
-    void SetFrames(std::vector<Rect>&& frames);
+    void SetFrames(std::vector<math::Box2>&& frames);
 
     void SetAnimationLength(float p_length);
 
     float GetTotalDuration() const { return m_total_duration; }
 
-    const std::vector<Rect>& GetFrames() const { return m_frames; }
+    const std::vector<math::Box2>& GetFrames() const { return m_frames; }
 
     const std::vector<float>& GetDurations() const { return m_durations; }
 
@@ -56,7 +56,7 @@ private:
     Handle<ImageAsset> m_image_handle;
 
 public:
-    bool AddClip(std::string&& p_name, std::vector<Rect>&& p_frames);
+    bool AddClip(std::string&& p_name, std::vector<math::Box2>&& p_frames);
 
     const SpriteAnimationClip* GetClip(const std::string& p_name);
 

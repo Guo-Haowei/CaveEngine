@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/assets/guid.h"
+#include "cave/core/ids/Guid.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
 
 struct lua_State;

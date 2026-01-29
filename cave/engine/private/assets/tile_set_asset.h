@@ -37,7 +37,7 @@ private:
     std::map<uint32_t, Shape> m_colliders;
 
     /// Non serialized
-    std::vector<Rect> m_frames;  // frames are calculated
+    std::vector<math::Box2> m_frames;  // frames are calculated
     Handle<ImageAsset> m_image_handle;
     bool m_dirty;
 

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "cave/runtime/core/time/Stopwatch.h"
+#include "cave/core/time/Stopwatch.h"
 
 #include "engine/private/assets/mesh_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -40,9 +40,9 @@ static void ConstructMesh(const MeshAsset& p_mesh, GpuScene& p_gpu_scene) {
 
     for (size_t i = 0; i < p_mesh.indices.size(); i += 3) {
         GpuPtIndex index;
-        index.tri = Vector3i(p_mesh.indices[i],
-                             p_mesh.indices[i + 1],
-                             p_mesh.indices[i + 2]);
+        index.tri = math::Vector3i(p_mesh.indices[i],
+                                   p_mesh.indices[i + 1],
+                                   p_mesh.indices[i + 2]);
         p_gpu_scene.indices.emplace_back(index);
     }
 }

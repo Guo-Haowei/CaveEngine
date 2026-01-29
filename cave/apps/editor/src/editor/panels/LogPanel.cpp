@@ -1,6 +1,6 @@
 #include "LogPanel.h"
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/math/color.h"
 
 #include "editor/widgets/Image.h"
@@ -29,7 +29,7 @@ static void DrawLog(const LogEvent& p_log) {
     ImGui::PopStyleColor();
 }
 
-void LogPanel::UpdateInternal(float) {
+void LogPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 
     ImGui::Separator();

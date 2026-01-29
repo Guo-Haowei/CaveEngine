@@ -1,14 +1,12 @@
 #pragma once
+#include "cave/render/IViewProvider.h"
+
 #include "engine/private/runtime/framework/Module.h"
-#include "engine/private/runtime/framework/SceneView.h"
 
 namespace cave {
 
-class ISceneViewProvider;
-struct SceneView;
-
 using ViewportId = uint32_t;
-using ViewProviderRef = std::shared_ptr<ISceneViewProvider>;
+using ViewProviderRef = std::shared_ptr<render::IViewProvider>;
 
 struct ManagedViewport {
     ViewportId id = 0;
@@ -29,7 +27,7 @@ public:
 
     void ClearViewport();
 
-    void BuildViews(std::vector<SceneView>& p_out_views,
+    void BuildViews(std::vector<render::ViewDesc>& p_out_views,
                     bool p_is_opengl);
 
 protected:

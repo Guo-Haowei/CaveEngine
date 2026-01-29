@@ -1,8 +1,8 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
-#include "cave/runtime/scene/SceneId.h"
+#include "cave/core/ids/Entity.h"
+#include "cave/core/ids/SceneId.h"
 
-#include "editor/document/DocumentTypes.h"
+#include "editor/document/DocId.h"
 #include "editor/edit/IEditCmd.h"
 
 namespace cave {
@@ -24,6 +24,7 @@ public:
     bool CanRedo(DocId p_doc_id) const;
 
     bool IsDirty(DocId p_doc_id) const;
+    bool Save(DocId p_doc_id);
 
     void FlushPendingCmds();
 

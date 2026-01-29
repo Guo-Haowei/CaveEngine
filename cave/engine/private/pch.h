@@ -29,9 +29,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "cave/runtime/core/typedefs.h"
-#include "cave/runtime/core/ErrorMacros.h"
-#include "cave/runtime/core/Print.h"
-
-// include it after error_macros.h
-#include "engine/private/runtime/core/base/optional.h"
+#include "cave/core/typedefs.h"
+#include "cave/core/ErrorMacros.h"
+#include "cave/core/Option.h"
+#include "cave/core/Print.h"

@@ -8,7 +8,7 @@
 
 namespace cave {
 
-// std::vector<Rect> m_frames (type = box2[])
+// std::vector<math::Box2> m_frames (type = box2[])
 // std::vector<float> m_durations (type = f32[])
 // bool m_loop (type = boolean, hint = toggle)
 

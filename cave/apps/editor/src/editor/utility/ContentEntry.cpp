@@ -6,7 +6,7 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
-#include "editor/document/DocumentService.h"
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/EditorState.h"
 

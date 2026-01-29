@@ -1,22 +1,21 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/core/ids/SceneId.h"
+
+#include "editor/document/DocId.h"
 
 // @TODO: check if all the includes are necessary
 #include <engine/private/runtime/framework/AppState.h>
 #include <engine/private/assets/asset_handle.h>
 
-#include "editor/windows/EditorWindow.h"
+#include "editor/panels/EditorWindow.h"
 #include "editor/services/ShortcutDesc.h"
-#include "editor/viewer/ViewerTab.h"
 
 // @TODO: refactor this
 #include "engine/private/runtime/framework/GameModuleLoader.h"
 
 namespace cave {
-
-enum class HandleInput : uint8_t;
-enum class Key : uint16_t;
 
 class RuntimeHost;
 

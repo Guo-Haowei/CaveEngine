@@ -20,6 +20,7 @@
 namespace cave {
 
 namespace fs = std::filesystem;
+using namespace math;
 
 void RegisterExtraDvars() {
 #define REGISTER_DVAR
