@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/scene/SceneId.h"
+#include "cave/core/ids/SceneId.h"
 
 #include "engine/private/runtime/scene/SceneScheduler.h"
 

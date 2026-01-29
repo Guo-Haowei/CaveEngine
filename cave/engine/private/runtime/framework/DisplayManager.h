@@ -1,6 +1,6 @@
 #pragma once
 #include <tuple>
-#include "cave/runtime/core/Singleton.h"
+#include "cave/core/Singleton.h"
 
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/runtime/framework/Module.h"

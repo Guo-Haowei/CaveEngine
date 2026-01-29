@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 #include "engine/private/assets/asset_type.h"
 #include "engine/private/assets/guid.h"

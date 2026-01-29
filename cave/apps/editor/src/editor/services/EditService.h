@@ -1,6 +1,6 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
-#include "cave/runtime/scene/SceneId.h"
+#include "cave/core/ids/Entity.h"
+#include "cave/core/ids/SceneId.h"
 
 #include "editor/document/DocId.h"
 #include "editor/edit/IEditCmd.h"

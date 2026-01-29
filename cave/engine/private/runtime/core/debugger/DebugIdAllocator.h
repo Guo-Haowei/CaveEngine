@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/core/debugger/DebugId.h"
+#include "cave/core/ids/DebugId.h"
 
 namespace cave::detail {
 

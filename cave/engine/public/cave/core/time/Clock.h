@@ -1,15 +1,18 @@
 // =============================================================================
-// File: public/cave/runtime/core/debugger/DebugId.h
+// File: public/cave/core/time/Clock.h
 // =============================================================================
 #pragma once
-#include <cstdint>
-#include <string_view>
+#include "Nanoseconds.h"
 
 namespace cave {
 
-struct DebugId {
-    uint64_t uid;
-    std::string_view type;
+class Clock {
+public:
+    // steady, never goes backward
+    static Nanoseconds Now();
+
+private:
+    Clock() = delete;  // pure static class
 };
 
 }  // namespace cave

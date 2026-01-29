@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <fstream>
 
-#include "cave/runtime/core/time/Stopwatch.h"
+#include "cave/core/time/Stopwatch.h"
 
 #include "engine/private/assets/asset_importer.h"
 #include "engine/private/assets/blob_asset.h"

@@ -1,6 +1,6 @@
 #pragma once
-#include "cave/runtime/core/Singleton.h"
-#include "cave/runtime/string/StringId.h"
+#include "cave/core/Singleton.h"
+#include "cave/core/ids/StringId.h"
 
 #include "engine/private/runtime/framework/Module.h"
 #include "engine/private/runtime/input/ActionState.h"

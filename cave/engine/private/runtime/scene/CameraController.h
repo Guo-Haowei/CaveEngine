@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 #include "engine/private/math/geomath.h"
 
 namespace cave {

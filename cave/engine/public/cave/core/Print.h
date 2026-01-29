@@ -3,7 +3,7 @@
 #include <string>
 
 #include "typedefs.h"
-#include "cave/runtime/math/math.h"
+#include "cave/core/math/Utils.h"
 
 #define USE_LOG IN_USE
 

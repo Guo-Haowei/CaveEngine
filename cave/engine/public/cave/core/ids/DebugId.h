@@ -1,14 +1,15 @@
 // =============================================================================
-// File: public/cave/runtime/scene/SceneId.h
+// File: public/cave/core/ids/DebugId.h
 // =============================================================================
 #pragma once
 #include <cstdint>
-#include "cave/runtime/core/GenId.h"
+#include <string_view>
 
 namespace cave {
 
-class Scene;
-
-using SceneId = GenId<Scene>;
+struct DebugId {
+    uint64_t uid;
+    std::string_view type;
+};
 
 }  // namespace cave

@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/core/geom/Rect.h"
+#include "cave/core/geom/Rect.h"
 
 #include "editor/IEditorItem.h"
 

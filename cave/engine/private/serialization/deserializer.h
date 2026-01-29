@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 #include "defines.h"
 #include "engine/private/math/box.h"

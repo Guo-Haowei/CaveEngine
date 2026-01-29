@@ -1,6 +1,6 @@
 #pragma once
-#include "cave/runtime/core/Print.h"
-#include "cave/runtime/core/Singleton.h"
+#include "cave/core/Print.h"
+#include "cave/core/Singleton.h"
 
 namespace cave {
 // WORD is flags of FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE

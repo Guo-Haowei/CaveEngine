@@ -4,7 +4,7 @@
 #include "engine/private/runtime/string/StringUtils.h"
 
 #include "engine/private/runtime/core/io/file_access.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 #include "engine/private/math/angle.h"
 #include "engine/private/math/box.h"
 #include "engine/private/math/matrix.h"

@@ -1,4 +1,4 @@
-#include "cave/runtime/core/geom/Rect.h"
+#include "cave/core/math/Rect.h"
 
 namespace cave::geom {
 

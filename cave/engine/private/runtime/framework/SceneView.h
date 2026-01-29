@@ -1,7 +1,7 @@
 #pragma once
 #include <bitset>
-#include "cave/runtime/core/debugger/DebugId.h"
-#include "cave/runtime/scene/SceneId.h"
+#include "cave/core/ids/DebugId.h"
+#include "cave/core/ids/SceneId.h"
 
 #include "engine/private/math/angle.h"
 #include "engine/private/math/geomath.h"

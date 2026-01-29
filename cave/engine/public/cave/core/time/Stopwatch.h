@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/core/time/Stopwatch.h
+// File: public/cave/core/time/Stopwatch.h
 // =============================================================================
 #pragma once
 #include "Clock.h"

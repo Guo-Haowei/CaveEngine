@@ -2,7 +2,7 @@
 // File: public/cave/runtime/input/InputTypes.h
 // =============================================================================
 #pragma once
-#include "cave/runtime/string/StringId.h"
+#include "cave/core/ids/StringId.h"
 
 namespace cave {
 

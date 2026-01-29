@@ -1,18 +1,13 @@
 // =============================================================================
-// File: public/cave/runtime/core/time/Clock.h
+// File: public/cave/core/ids/SceneId.h
 // =============================================================================
 #pragma once
-#include "Nanoseconds.h"
+#include "GenId.h"
 
 namespace cave {
 
-class Clock {
-public:
-    // steady, never goes backward
-    static Nanoseconds Now();
+class Scene;
 
-private:
-    Clock() = delete;  // pure static class
-};
+using SceneId = GenId<Scene>;
 
 }  // namespace cave

@@ -4,7 +4,7 @@
 #pragma once
 #include "cave/runtime/input/InputTypes.h"
 
-#include "cave/runtime/string/StringId.h"
+#include "cave/core/ids/StringId.h"
 #include "cave/runtime/input/KeyCode.h"
 
 namespace cave {

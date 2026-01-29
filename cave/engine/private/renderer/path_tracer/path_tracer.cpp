@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "cave/runtime/core/time/Stopwatch.h"
+#include "cave/core/time/Stopwatch.h"
 
 #include "engine/private/assets/mesh_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

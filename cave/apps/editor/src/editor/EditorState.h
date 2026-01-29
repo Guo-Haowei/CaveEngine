@@ -1,7 +1,7 @@
 #pragma once
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/scene/SceneId.h"
+#include "cave/core/ids/SceneId.h"
 
 #include "editor/document/DocId.h"
 

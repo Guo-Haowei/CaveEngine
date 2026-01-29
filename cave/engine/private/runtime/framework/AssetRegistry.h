@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/core/Singleton.h"
+#include "cave/core/Singleton.h"
 
 #include "engine/private/assets/asset_entry.h"
 #include "engine/private/assets/asset_interface.h"

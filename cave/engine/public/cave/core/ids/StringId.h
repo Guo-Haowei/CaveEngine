@@ -1,6 +1,9 @@
+// =============================================================================
+// File: public/cave/core/ids/StringId.h
+// =============================================================================
 #pragma once
 #include <string_view>
-#include "cave/runtime/core/typedefs.h"
+#include "cave/core/typedefs.h"
 
 #if USING(DEBUG_BUILD)
 #define STRING_ID_KEEKP_SOURCE IN_USE

@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/core/NonCopyable.h"
+#include "cave/core/NonCopyable.h"
 
 #include "engine/private/assets/asset_interface.h"
 #include "engine/private/runtime/ecs/ComponentManager.h"

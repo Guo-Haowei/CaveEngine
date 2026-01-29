@@ -1,4 +1,4 @@
-#include "cave/runtime/core/GenId.h"
+#include "cave/core/GenId.h"
 
 namespace cave {
 

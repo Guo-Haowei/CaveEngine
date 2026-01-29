@@ -1,6 +1,6 @@
 #pragma once
-#include "cave/runtime/core/debugger/DebugId.h"
-#include "cave/runtime/scene/SceneId.h"
+#include "cave/core/ids/DebugId.h"
+#include "cave/core/ids/SceneId.h"
 
 namespace cave {
 
