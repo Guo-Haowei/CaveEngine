@@ -70,4 +70,4 @@ AABB AABB::FromCenterSize(const Vector3f& p_center, const Vector3f& p_size) {
     return box;
 }
 
-}  // namespace cave
+}  // namespace cave::math

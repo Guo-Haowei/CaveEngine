@@ -66,7 +66,6 @@ protected:
     ViewDimension m_dim;
 
     // @TODO: move to input controller
-    void Select(const Vector2f& p_cursor);
     void SetupDefault2DCamera();
     void SetupDefault3DCamera();
     std::shared_ptr<ICameraController> m_camera_controller;

@@ -12,4 +12,4 @@ Radian& Radian::operator=(const Degree& p_degree) {
     return *this;
 }
 
-}  // namespace cave
+}  // namespace cave::math

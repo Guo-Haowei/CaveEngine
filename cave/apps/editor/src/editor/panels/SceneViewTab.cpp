@@ -286,7 +286,7 @@ void SceneViewTab::SetupDefault2DCamera() {
         CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
         camera->SetProjection(ProjectionType::Orthographic);
         TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
-        transform->SetTranslation(Vector3f(0, 0, 10));
+        transform->SetTranslation(math::Vector3f(0, 0, 10));
     }
 
     m_camera = cam;
@@ -297,9 +297,9 @@ void SceneViewTab::SetupDefault3DCamera() {
     Scene* scene = GetResolvedScene();
     DEV_ASSERT(scene);
 
-    Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    Entity cam_y = scene->FindEntityByName("_editor_cam_y");
-    Entity cam_root = scene->FindEntityByName("_editor_cam_root");
+    ecs::Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
+    ecs::Entity cam_y = scene->FindEntityByName("_editor_cam_y");
+    ecs::Entity cam_root = scene->FindEntityByName("_editor_cam_root");
 
     if (!cam.IsValid()) {
         cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
@@ -352,7 +352,7 @@ CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputE
         }
 
         if (mmb) {
-            state.move = Vector3f(dx, dy, 0.0f);
+            state.move = math::Vector3f(dx, dy, 0.0f);
         }
     }
 
@@ -360,7 +360,7 @@ CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputE
 }
 
 CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
-    Vector2f rotation = Vector2f::Zero;
+    math::Vector2f rotation = math::Vector2f::Zero;
 
     const InputDeviceId id{ 0 };
     const bool mmb = p_st.Down(id, Key::MMB);
@@ -391,7 +391,7 @@ CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputE
         }
     }
 
-    state.move = Vector3f(dx, dy, dz);
+    state.move = math::Vector3f(dx, dy, dz);
     return state;
 }
 

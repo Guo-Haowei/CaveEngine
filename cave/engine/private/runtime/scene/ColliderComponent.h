@@ -40,7 +40,7 @@ struct Shape {
 
     union Data {
         math::Vector3f half;  // box
-        float radius;   // sphere, circle
+        float radius;         // sphere, circle
     } data;
 
     Shape();

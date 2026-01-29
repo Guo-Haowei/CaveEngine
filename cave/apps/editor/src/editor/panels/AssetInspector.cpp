@@ -136,7 +136,7 @@ void AssetInspector::DrawContentBrowser() {
     }
     DEV_ASSERT(current->is_dir);
 
-    Vector2f thumbnail_size(196);
+    math::Vector2f thumbnail_size(196);
 
     for (const auto& node : current->children) {
         ImageAsset* image = nullptr;
