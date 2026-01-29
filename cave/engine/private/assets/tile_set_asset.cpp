@@ -89,7 +89,7 @@ void TileSetAsset::UpdateFrames() {
             const float v1 = (y + 0) * inv_h;
 #endif
 
-            m_frames.push_back(Rect({ u0, v0 }, { u1, v1 }));
+            m_frames.push_back(OldRect({ u0, v0 }, { u1, v1 }));
         }
     }
 

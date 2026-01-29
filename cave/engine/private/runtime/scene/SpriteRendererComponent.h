@@ -17,7 +17,7 @@ private:
     Vector4f m_tint_color = Vector4f::One;
 
     CAVE_PROP()
-    Rect m_rect = { Vector2f::Zero, Vector2f::One };
+    OldRect m_rect = { Vector2f::Zero, Vector2f::One };
 
     CAVE_PROP(editor = Toggle)
     bool m_flip_x = false;
@@ -40,8 +40,8 @@ public:
     void SetTintColor(const Vector4f& p_tint_color) { m_tint_color = p_tint_color; }
     const Vector4f& GetTintColor() const { return m_tint_color; }
 
-    void SetRect(const Rect& p_rect) { m_rect = p_rect; }
-    const Rect& GetRect() const { return m_rect; }
+    void SetRect(const OldRect& p_rect) { m_rect = p_rect; }
+    const OldRect& GetRect() const { return m_rect; }
 
     void OnDeserialized();
 };

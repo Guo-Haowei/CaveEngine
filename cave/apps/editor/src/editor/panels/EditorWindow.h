@@ -1,4 +1,6 @@
 #pragma once
+#include "cave/runtime/core/geom/Rect.h"
+
 #include "editor/IEditorItem.h"
 
 namespace cave {
@@ -9,22 +11,6 @@ struct WindowState {
     bool hovered{ false };
     bool focused{ false };
 };
-
-template<typename T>
-struct RectT {
-    T x{};
-    T y{};
-    T w{};
-    T h{};
-
-    T Left() const { return x; }
-    T Right() const { return x + w; }
-
-    T Top() const { return y; }
-    T Bottom() const { return y + h; }
-};
-
-using Rect32f = RectT<float>;
 
 class EditorWindow : public IEditorItem {
 public:
@@ -46,7 +32,7 @@ protected:
 
     WindowState m_state;
 
-    Rect32f m_rect{};
+    RectF m_rect{};
 
     int m_flags{ 0 };
 };

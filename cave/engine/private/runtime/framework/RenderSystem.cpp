@@ -48,6 +48,7 @@ using KernelData = std::array<Vector4f, 64>;
 
 static_assert(sizeof(KernelData) == sizeof(Vector4f) * SSAO_KERNEL_SIZE);
 
+// @TODO: move it to somewhere else
 static KernelData GenerateSsaoKernel() {
     auto lerp = [](float a, float b, float f) {
         return a + f * (b - a);
@@ -75,6 +76,7 @@ static KernelData GenerateSsaoKernel() {
     return kernel;
 }
 
+// @TODO: refactor
 static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
     const auto& options = p_out_data.options;
     auto& cache = p_out_data.perFrameCache;
