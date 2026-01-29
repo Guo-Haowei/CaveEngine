@@ -15,7 +15,7 @@
 
 namespace cave {
 
-extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
+extern void RunMeshRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
 extern void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata);
@@ -84,11 +84,11 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
 
     // camera
     {
-        const CameraParams& cam = p_out_data.camera_params;
+        const auto& cam = p_out_data.camera_params;
         cache.c_camView = cam.view;
         cache.c_camProj = cam.proj_rendering;
-        cache.c_invCamView = glm::inverse(cam.view);
-        cache.c_invCamProj = glm::inverse(cam.proj_rendering);
+        cache.c_invCamView = cam.view_inv;
+        cache.c_invCamProj = cam.proj_inv;
         cache.c_cameraFovDegree = cam.fovy;
         cache.c_cameraForward = cam.front;
         cache.c_cameraRight = cam.right;
@@ -191,15 +191,15 @@ void RenderSystemImpl::BeginFrame() {
 void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
     CAVE_PROFILE_EVENT();
 
+    const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
     DEV_ASSERT(m_frameData);
     FrameData& framedata = *m_frameData;
 
     for (const render::ViewDesc& view : p_views) {
         Scene* scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
+        framedata.camera_params = ResolveView(view, scene, is_opengl);
 
         // @TODO: only support one view, fix this
-        framedata.camera_params = view.camera;
-
         FillConstantBuffer(scene, framedata);
         RunMeshRenderSystem(scene, framedata);
         RunTileMapRenderSystem(scene, framedata);

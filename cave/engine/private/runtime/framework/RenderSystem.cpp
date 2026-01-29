@@ -4,13 +4,6 @@
 
 namespace cave {
 
-// render systems
-extern void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata);
-extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
-
-extern void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata);
-extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
-
 RenderSystem::RenderSystem()
     : Module("RenderSystem") {}
 

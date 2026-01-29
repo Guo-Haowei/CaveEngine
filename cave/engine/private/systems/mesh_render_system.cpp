@@ -436,7 +436,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     }
 }
 
-void RunMeshRenderSystem(Scene* p_scene, FrameData& p_framedata) {
+void RunMeshRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
     if (p_scene) {
         FillLightBuffer(*p_scene, p_framedata);
         FillVoxelPass(*p_scene, p_framedata);
