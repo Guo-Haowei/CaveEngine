@@ -1,6 +1,6 @@
 #include "cave/core/math/Rect.h"
 
-namespace cave::geom {
+namespace cave::math {
 
 TEST(RectI, left_top_bottom_right_calculation) {
     RectI rect{ 1, 2, 3, 4 };
@@ -23,4 +23,4 @@ TEST(RectI, from_min_max) {
     EXPECT_EQ(rect.h, 2);
 }
 
-}  // namespace cave::geom
+}  // namespace cave::math

@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/GenId.h"
+#include "cave/core/ids/GenId.h"
 
 namespace cave {
 

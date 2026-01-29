@@ -1,13 +1,13 @@
 // =============================================================================
-// File: public/cave/core/geom/Rect.h
+// File: public/cave/core/math/Rect.h
 // =============================================================================
 #pragma once
+#include <concepts>
 
-namespace cave {
-
-namespace detail {
+namespace cave::math {
 
 template<typename T>
+    requires(std::integral<T> || std::floating_point<T>)
 struct Rect {
     T x{};
     T y{};
@@ -24,9 +24,7 @@ struct Rect {
     }
 };
 
-}  // namespace detail
+using RectI = Rect<int>;
+using RectF = Rect<float>;
 
-using RectI = detail::Rect<int>;
-using RectF = detail::Rect<float>;
-
-}  // namespace cave
+}  // namespace cave::math
