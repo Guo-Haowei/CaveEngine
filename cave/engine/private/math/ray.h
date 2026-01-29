@@ -1,8 +1,8 @@
 #pragma once
+#include "cave/core/math/Matrix.h"
 #include "engine/private/math/intersection.h"
-#include "engine/private/math/matrix.h"
 
-namespace cave {
+namespace cave::math {
 
 class Ray {
 public:
@@ -32,4 +32,4 @@ private:
     friend class TestIntersection;
 };
 
-}  // namespace cave
+}  // namespace cave::math

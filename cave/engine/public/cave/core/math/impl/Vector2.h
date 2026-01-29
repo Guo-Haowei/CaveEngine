@@ -1,8 +1,11 @@
+// =============================================================================
+// File: public/cave/core/math/impl/Vector2.h
+// =============================================================================
 #pragma once
-#include "swizzle.h"
-#include "vector_base.h"
+#include "Swizzle.h"
+#include "VectorBase.h"
 
-namespace cave {
+namespace cave::math {
 
 template<Arithmetic T>
 struct Vector<T, 2> : VectorBase<T, 2> {
@@ -65,4 +68,4 @@ const Vector<T, 2> Vector<T, 2>::UnitX(static_cast<T>(1), static_cast<T>(0));
 template<Arithmetic T>
 const Vector<T, 2> Vector<T, 2>::UnitY(static_cast<T>(0), static_cast<T>(1));
 
-}  // namespace cave
+}  // namespace cave::math

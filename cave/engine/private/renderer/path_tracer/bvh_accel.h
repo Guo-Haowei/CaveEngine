@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/math/aabb.h"
-#include "engine/private/math/vector.h"
+#include "cave/core/math/Vector.h"
 
 namespace cave {
 #include "structured_buffer.hlsl.h"

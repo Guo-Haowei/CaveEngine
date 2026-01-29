@@ -21,7 +21,7 @@ struct ConstantBufferBase {
 
 struct sampler_t {
     union {
-        Vector2i handle_d3d;
+        int2 handle_d3d;
         uint64_t handle_gl;
     };
     sampler_t() { handle_gl = 0; }
@@ -51,14 +51,14 @@ using samplerCube = sampler_t;
 #endif
 
 struct Light {
-    Matrix4x4f projection_matrix;  // 64
-    Matrix4x4f view_matrix;        // 64
-    Vector4f points[4];            // 64
+    float4x4 projection_matrix;  // 64
+    float4x4 view_matrix;        // 64
+    float4 points[4];            // 64
 
-    Vector3f color;
+    float3 color;
     int type;
 
-    Vector3f position;  // direction
+    float3 position;  // direction
     int cast_shadow;
 
     float atten_constant;
@@ -67,45 +67,45 @@ struct Light {
     float atten_quadratic;
     float max_distance;  // max distance the light affects
 
-    Vector3f padding;
+    float3 padding;
     int shadow_map_index;
 };
 
 struct ForceField {
-    Vector3f position;
+    float3 position;
     float strength;
 };
 
 CBUFFER(PerBatchConstantBuffer, 0) {
-    Matrix4x4f c_worldMatrix;
+    float4x4 c_worldMatrix;
 
     // reuse per batch buffer for bloom
-    Vector4f _dummy;
+    float4 _dummy;
 
-    Vector2f _per_batch_padding_0;
+    float2 _per_batch_padding_0;
     float c_envPassRoughness;  // for environment map
     int c_meshFlag;
 
-    Vector4f c_tint_color;
-    Vector4f c_uv_rect;
+    float4 c_tint_color;
+    float4 c_uv_rect;
 
-    Matrix4x4f c_cubeProjectionViewMatrix;
-    Matrix4x4f _per_batch_padding_5;
+    float4x4 c_cubeProjectionViewMatrix;
+    float4x4 _per_batch_padding_5;
 };
 
 CBUFFER(PerPassConstantBuffer, 1) {
-    Matrix4x4f c_viewMatrix;
-    Matrix4x4f c_projectionMatrix;
+    float4x4 c_viewMatrix;
+    float4x4 c_projectionMatrix;
 
-    Matrix4x4f _per_pass_padding_0;
-    Matrix4x4f _per_pass_padding_1;
+    float4x4 _per_pass_padding_0;
+    float4x4 _per_pass_padding_1;
 };
 
 CBUFFER(MaterialConstantBuffer, 2) {
     // 16 floats
-    Vector4f c_baseColor;
+    float4 c_baseColor;
 
-    Vector3f _material_padding_0;
+    float3 _material_padding_0;
     int c_displayChannel;
 
     float c_metallic;
@@ -124,51 +124,51 @@ CBUFFER(MaterialConstantBuffer, 2) {
     TextureHandle c_materialMapHandle;
     TextureHandle c_heightMapHandle;
 
-    Vector4f _material_padding_1;
-    Vector4f _material_padding_2;
+    float4 _material_padding_1;
+    float4 _material_padding_2;
 
     // 16 floats
-    Matrix4x4f _material_padding_3;
+    float4x4 _material_padding_3;
 
     // 16 floats
-    Matrix4x4f _material_padding_4;
+    float4x4 _material_padding_4;
 };
 
 // @TODO: change to unordered access buffer
 CBUFFER(BoneConstantBuffer, 3) {
-    Matrix4x4f c_bones[MAX_BONE_COUNT];
+    float4x4 c_bones[MAX_BONE_COUNT];
 };
 
 CBUFFER(PointShadowConstantBuffer, 4) {
-    Matrix4x4f c_pointLightMatrix;  // 64
-    Vector3f c_pointLightPosition;  // 12
+    float4x4 c_pointLightMatrix;  // 64
+    float3 c_pointLightPosition;  // 12
     float c_pointLightFar;          // 4
 
-    Vector4f _point_shadow_padding_0;  // 16
-    Vector4f _point_shadow_padding_1;  // 16
-    Vector4f _point_shadow_padding_2;  // 16
+    float4 _point_shadow_padding_0;  // 16
+    float4 _point_shadow_padding_1;  // 16
+    float4 _point_shadow_padding_2;  // 16
 
-    Matrix4x4f _point_shadow_padding_3;  // 64
-    Matrix4x4f _point_shadow_padding_4;  // 64
+    float4x4 _point_shadow_padding_3;  // 64
+    float4x4 _point_shadow_padding_4;  // 64
 };
 
 CBUFFER(PerFrameConstantBuffer, 5) {
     Light c_lights[MAX_LIGHT_COUNT];
 
-    Vector4f c_ssaoKernel[SSAO_KERNEL_SIZE];
+    float4 c_ssaoKernel[SSAO_KERNEL_SIZE];
     //-----------------------------------------
-    Matrix4x4f c_camProj;
-    Matrix4x4f c_camView;
-    Matrix4x4f c_invCamProj;
-    Matrix4x4f c_invCamView;
+    float4x4 c_camProj;
+    float4x4 c_camView;
+    float4x4 c_invCamProj;
+    float4x4 c_invCamView;
 
-    Vector4f _per_frame_padding_2;
-    Vector4f _per_frame_padding_3;
-    Vector4f _per_frame_padding_4;
-    Vector3f c_sunPosition;
+    float4 _per_frame_padding_2;
+    float4 _per_frame_padding_3;
+    float4 _per_frame_padding_4;
+    float3 c_sunPosition;
     int c_iblEnabled;
     //-----------------------------------------
-    Vector4f c_ambientColor;  // 16
+    float4 c_ambientColor;  // 16
 
     int c_lightCount;
     int c_enableBloom;
@@ -180,7 +180,7 @@ CBUFFER(PerFrameConstantBuffer, 5) {
     int c_enableVxgi;
     float c_texelSize;  // 16
 
-    Vector2i c_tileOffset;
+    int2 c_tileOffset;
     float c_ssaoKernalRadius;
     int c_ptObjectCount;
     //-----------------------------------------
@@ -189,22 +189,22 @@ CBUFFER(PerFrameConstantBuffer, 5) {
     uint c_BrdfLutResidentHandle;
     int c_forceFieldsCount;  // 16
 
-    Vector4f _c_SkyboxHdrResidentHandle;  // 16
-    Vector4f _c_ShadowMapResidentHandle;
+    float4 _c_SkyboxHdrResidentHandle;  // 16
+    float4 _c_ShadowMapResidentHandle;
 
-    Vector3f c_cameraPosition;
+    float3 c_cameraPosition;
     float c_cameraFovDegree;  // 16
     //-----------------------------------------
-    Vector3f c_voxelWorldCenter;
+    float3 c_voxelWorldCenter;
     float c_voxelWorldSizeHalf;  // 16
 
-    Vector3f c_cameraForward;
+    float3 c_cameraForward;
     int c_frameIndex;  // 16
 
-    Vector3f c_cameraRight;
+    float3 c_cameraRight;
     float c_voxelSize;  // 16
 
-    Vector3f c_cameraUp;
+    float3 c_cameraUp;
     int c_sceneDirty;  // 16
     //-----------------------------------------
 
@@ -212,12 +212,12 @@ CBUFFER(PerFrameConstantBuffer, 5) {
 };
 
 CBUFFER(EmitterConstantBuffer, 6) {
-    Vector4f c_particleColor;
-    Vector3f c_seeds;
+    float4 c_particleColor;
+    float3 c_seeds;
     float c_emitterScale;
-    Vector3f c_emitterPosition;
+    float3 c_emitterPosition;
     int c_particlesPerFrame;
-    Vector3f c_emitterStartingVelocity;
+    float3 c_emitterStartingVelocity;
     int c_emitterMaxParticleCount;
 
     int c_preSimIdx;
@@ -225,16 +225,16 @@ CBUFFER(EmitterConstantBuffer, 6) {
     float c_elapsedTime;
     float c_lifeSpan;
 
-    Vector2i c_emitterSubUv;
+    int2 c_emitterSubUv;
     int c_emitterUseTexture;
     int c_emitterHasGravity;
 
-    Vector3f _emitter_padding_2;
+    float3 _emitter_padding_2;
     int c_subUvCounter;
 
-    Vector4f _emitter_padding_3;
-    Matrix4x4f _emitter_padding_4;
-    Matrix4x4f _emitter_padding_5;
+    float4 _emitter_padding_3;
+    float4x4 _emitter_padding_4;
+    float4x4 _emitter_padding_5;
 };
 
 #endif

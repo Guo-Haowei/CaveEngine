@@ -4,7 +4,7 @@
 #include "shader_defines.hlsl.h"
 
 #if defined(__cplusplus)
-#include <engine/private/math/vector.h>
+#include <cave/core/math/Vector.h>
 #ifdef min
 #undef min
 #endif

@@ -1,12 +1,15 @@
+// =============================================================================
+// File: public/cave/core/math/impl/VectorMathSSE.h
+// =============================================================================
 #pragma once
 #include <xmmintrin.h>
 
-#include "common.h"
-#include "vector2.h"
-#include "vector3.h"
-#include "vector4.h"
+#include "../Scalar.h"
+#include "Vector2.h"
+#include "Vector3.h"
+#include "Vector4.h"
 
-namespace cave {
+namespace cave::math {
 
 static_assert(alignof(__m128) == 16);
 
@@ -146,4 +149,4 @@ FORCE_INLINE Vector<float, 4>& operator/=(Vector<float, 4>& p_lhs, const U& p_rh
     return p_lhs;
 }
 
-}  // namespace cave
+}  // namespace cave::math

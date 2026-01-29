@@ -1,7 +1,10 @@
+// =============================================================================
+// File: public/cave/core/math/impl/Swizzle.h
+// =============================================================================
 #pragma once
-#include "forward.h"
+#include "Forward.h"
 
-namespace cave {
+namespace cave::math {
 
 template<Arithmetic T, int N, int A, int B, int C, int D>
     requires(N >= 2) and (A < N) and (B < N) and (C == -1) and (D == -1)
@@ -45,7 +48,7 @@ struct Swizzle<T, 4, N, A, B, C, D> {
     }
 };
 
-}  // namespace cave
+}  // namespace cave::math
 
 // Swizzle2
 #pragma region SWIZZLE2

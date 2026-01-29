@@ -1,7 +1,10 @@
+// =============================================================================
+// File: public/cave/core/math/impl/VectorBase.h
+// =============================================================================
 #pragma once
-#include "forward.h"
+#include "Forward.h"
 
-namespace cave {
+namespace cave::math {
 
 template<Arithmetic T, int N>
     requires(N >= 2 && N <= 4)
@@ -32,4 +35,4 @@ struct VectorBase {
     }
 };
 
-}  // namespace cave
+}  // namespace cave::math

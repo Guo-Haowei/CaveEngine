@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/math/vector.h"
+#include "cave/core/math/Vector.h"
 
 #define CHECK_VEC2(VEC, a, b)  \
     {                          \

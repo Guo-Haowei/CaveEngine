@@ -4,6 +4,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 DynamicVariable::DynamicVariable(VariantType p_type, DvarFlags p_flags, const char* p_desc)
     : m_type(p_type), m_desc(p_desc), m_flags(p_flags), m_int(0) {
 }

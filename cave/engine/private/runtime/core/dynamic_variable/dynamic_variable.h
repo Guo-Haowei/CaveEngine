@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/math/vector.h"
+#include "cave/core/math/Vector.h"
 
 #define ENABLE_DVAR USE_IF(!USING(PLATFORM_WASM))
 
@@ -44,12 +44,12 @@ public:
     [[nodiscard]] int AsInt() const;
     [[nodiscard]] float AsFloat() const;
     [[nodiscard]] const std::string& AsString() const;
-    [[nodiscard]] Vector2f AsVector2f() const;
-    [[nodiscard]] Vector3f AsVector3f() const;
-    [[nodiscard]] Vector4f AsVector4f() const;
-    [[nodiscard]] Vector2i AsVector2i() const;
-    [[nodiscard]] Vector3i AsVector3i() const;
-    [[nodiscard]] Vector4i AsVector4i() const;
+    [[nodiscard]] math::Vector2f AsVector2f() const;
+    [[nodiscard]] math::Vector3f AsVector3f() const;
+    [[nodiscard]] math::Vector4f AsVector4f() const;
+    [[nodiscard]] math::Vector2i AsVector2i() const;
+    [[nodiscard]] math::Vector3i AsVector3i() const;
+    [[nodiscard]] math::Vector4i AsVector4i() const;
     [[nodiscard]] void* AsPointer();
 
     bool SetInt(int p_value);
@@ -84,8 +84,8 @@ private:
     union {
         int m_int;
         float m_float;
-        Vector4f m_vec;
-        Vector4i m_ivec;
+        math::Vector4f m_vec;
+        math::Vector4i m_ivec;
     };
     std::string m_string;
     std::string m_name;

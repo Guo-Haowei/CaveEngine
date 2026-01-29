@@ -4,7 +4,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/math/vector.h"
+#include "cave/core/math/Vector.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "lua_bridge_include.h"

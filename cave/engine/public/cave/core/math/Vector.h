@@ -1,10 +1,13 @@
+// =============================================================================
+// File: public/cave/core/math/Vector.h
+// =============================================================================
 #pragma once
-#include "detail/vector2.h"
-#include "detail/vector3.h"
-#include "detail/vector4.h"
-#include "detail/vector_math.h"
+#include "impl/Vector2.h"
+#include "impl/Vector3.h"
+#include "impl/Vector4.h"
+#include "impl/VectorMath.h"
 
-namespace cave {
+namespace cave::math {
 
 using Vector2i = Vector<int, 2>;
 using Vector3i = Vector<int, 3>;
@@ -28,4 +31,4 @@ static_assert(sizeof(Vector4u) == 16);
 
 static_assert(alignof(Vector4f) == 16);
 
-}  // namespace cave
+}  // namespace cave::math

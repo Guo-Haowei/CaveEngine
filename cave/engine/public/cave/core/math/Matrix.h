@@ -1,5 +1,8 @@
+// =============================================================================
+// File: public/cave/core/math/Matrix.h
+// =============================================================================
 #pragma once
-#include "engine/private/math/vector.h"
+#include "Vector.h"
 
 WARNING_PUSH()
 WARNING_DISABLE(4201, "-Wunused-parameter")
@@ -7,7 +10,7 @@ WARNING_DISABLE(4201, "-Wunused-parameter")
 #include <glm/glm.hpp>
 WARNING_POP()
 
-namespace cave {
+namespace cave::math {
 
 using Matrix4x4f = glm::mat4;
 
@@ -17,4 +20,4 @@ constexpr inline Vector<float, 4> operator*(const glm::mat4& p_lhs, const Vector
     return Vector<float, 4>(tmp.x, tmp.y, tmp.z, tmp.w);
 }
 
-}  // namespace cave
+}  // namespace cave::math

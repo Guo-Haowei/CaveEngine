@@ -1,8 +1,23 @@
+// =============================================================================
+// File: public/cave/core/math/impl/Forward.h
+// =============================================================================
 #pragma once
-#include "config.h"
+#include "cave/core/typedefs.h"
 
-// @TODO: add name space
-namespace cave {
+#define MATH_ENABLE_SIMD_SSE  NOT_IN_USE
+#define MATH_ENABLE_SIMD_NEON NOT_IN_USE
+
+#if USING(ARCH_X64)
+#undef MATH_ENABLE_SIMD_SSE
+#define MATH_ENABLE_SIMD_SSE IN_USE
+#include <xmmintrin.h>
+#elif USING(ARCH_ARM64)  // #if USING(ARCH_X64)
+#undef MATH_ENABLE_SIMD_NEON
+#define MATH_ENABLE_SIMD_NEON IN_USE
+#include <arm_neon.h>
+#endif  // #else // #if USING(MATH_ENABLE_SIMD)
+
+namespace cave::math {
 
 template<typename T>
 concept Arithmetic = std::is_arithmetic_v<T>;
@@ -35,4 +50,4 @@ using Swizzle3 = Swizzle<T, 3, N, A, B, C, D>;
 template<typename T, int N, int A, int B, int C, int D>
 using Swizzle4 = Swizzle<T, 4, N, A, B, C, D>;
 
-}  // namespace cave
+}  // namespace cave::math

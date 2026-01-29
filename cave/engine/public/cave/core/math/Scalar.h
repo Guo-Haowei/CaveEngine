@@ -1,5 +1,8 @@
+// =============================================================================
+// File: public/cave/core/math/Scalar.h
+// =============================================================================
 #pragma once
-#include "forward.h"
+#include <concepts>
 
 #if defined(min)
 #undef min
@@ -9,7 +12,7 @@
 #undef max
 #endif
 
-namespace cave {
+namespace cave::math {
 
 template<typename T = float>
     requires std::is_floating_point_v<T>
@@ -47,6 +50,7 @@ constexpr inline T Degrees(const T& p_radians) {
     return p_radians * static_cast<T>(57.295779513082320876798154814105);
 }
 
+// for glsl-like usage
 template<Arithmetic T>
 constexpr inline T min(const T& p_lhs, const T& p_rhs) {
     return p_lhs < p_rhs ? p_lhs : p_rhs;
@@ -67,4 +71,4 @@ constexpr inline T clamp(const T& p_value, const T& p_min, const T& p_max) {
     return max(p_min, min(p_value, p_max));
 }
 
-}  // namespace cave
+}  // namespace cave::math

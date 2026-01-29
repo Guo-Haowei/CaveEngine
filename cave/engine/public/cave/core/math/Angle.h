@@ -1,7 +1,10 @@
+// =============================================================================
+// File: public/cave/core/math/Angle.h
+// =============================================================================
 #pragma once
-#include "engine/private/math/detail/common.h"
+#include "Scalar.h"
 
-namespace cave {
+namespace cave::math {
 
 class Radian;
 class Degree;
@@ -125,4 +128,4 @@ private:
     float m_value;
 };
 
-}  // namespace cave
+}  // namespace cave::math

@@ -1,10 +1,13 @@
+// =============================================================================
+// File: public/cave/core/math/impl/VectorMath.h
+// =============================================================================
 #pragma once
-#include "common.h"
-#include "vector2.h"
-#include "vector3.h"
-#include "vector4.h"
+#include "../Scalar.h"
+#include "Vector2.h"
+#include "Vector3.h"
+#include "Vector4.h"
 #if USING(MATH_ENABLE_SIMD_SSE)
-#include "vector_math_sse.h"
+#include "VectorMathSSE.h"
 #endif
 
 #if defined(min)
@@ -15,7 +18,7 @@
 #undef max
 #endif
 
-namespace cave {
+namespace cave::math {
 
 template<Arithmetic T, int N>
 constexpr bool operator==(const Vector<T, N>& p_lhs, const Vector<T, N>& p_rhs) {
@@ -544,4 +547,4 @@ FORCE_INLINE constexpr Vector<T, 3> cross(const Vector<T, 3>& p_lhs, const Vecto
     };
 }
 
-}  // namespace cave
+}  // namespace cave::math
