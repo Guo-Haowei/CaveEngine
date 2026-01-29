@@ -221,6 +221,7 @@ void RenderSystem::RenderFrame(std::vector<render::ViewDesc>& p_views) {
         // if (p_scene) {
         //    RequestPathTracerUpdate(*camera, *p_scene);
         //}
+        if (scene) break;
     }
 }
 
