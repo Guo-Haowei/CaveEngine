@@ -29,7 +29,7 @@ void RenderSystem::BeginFrame() {
     m_impl->BeginFrame();
 }
 
-void RenderSystem::RenderFrame(const std::vector<render::ViewDesc>& p_views) {
+void RenderSystem::RenderFrame(std::span<const render::ViewDesc> p_views) {
     m_impl->RenderFrame(p_views);
 }
 

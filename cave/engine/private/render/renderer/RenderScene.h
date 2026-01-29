@@ -1,9 +1,5 @@
 #pragma once
-#include <cstdint>
-#include <vector>
-#include <unordered_map>
-
-#include "cave/core/ids/Entity.h"  // your ecs::Entity
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/AABB.h"
 #include "cave/core/math/Matrix.h"
 

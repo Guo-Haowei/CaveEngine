@@ -20,7 +20,7 @@ public:
 
     void BeginFrame();
 
-    void RenderFrame(const std::vector<render::ViewDesc>& p_views);
+    void RenderFrame(std::span<const render::ViewDesc> p_views);
 
     const FrameData* GetFrameData() const;
 

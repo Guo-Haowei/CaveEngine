@@ -188,8 +188,7 @@ void RenderSystemImpl::BeginFrame() {
     }
 }
 
-void RenderSystemImpl::RenderFrame(const std::vector<ViewDesc>& p_views) {
-    // HACK
+void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
     CAVE_PROFILE_EVENT();
 
     DEV_ASSERT(m_frameData);
