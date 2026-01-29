@@ -38,6 +38,8 @@ public:
         BuildViewsImpl(m_preview_scene, m_camera, p_out_views, p_is_opengl);
     }
 
+    DebugId GetDebugId() final { return m_debug_id; }
+
 protected:
     void BuildViewsImpl(SceneId p_scene_id,
                         ecs::Entity p_camera,
@@ -50,9 +52,8 @@ protected:
 
     // const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
+    const DebugId m_debug_id;
     GizmoAction m_state{ GizmoAction::Translate };
-
-    void Select(const Vector2f& p_cursor);
 
     SceneId m_preview_scene;
 
@@ -65,6 +66,7 @@ protected:
     ViewDimension m_dim;
 
     // @TODO: move to input controller
+    void Select(const Vector2f& p_cursor);
     void SetupDefault2DCamera();
     void SetupDefault3DCamera();
     std::shared_ptr<ICameraController> m_camera_controller;

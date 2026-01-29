@@ -5,6 +5,9 @@
 #include "typedefs.h"
 #include "cave/runtime/math/math.h"
 
+#define USE_LOG IN_USE
+
+#if USING(USE_LOG)
 #define LOG_VERBOSE(...)   ::cave::LogImpl(::cave::LOG_LEVEL_VERBOSE, __VA_ARGS__)
 #define LOG(...)           ::cave::LogImpl(::cave::LOG_LEVEL_NORMAL, __VA_ARGS__)
 #define LOG_OK(...)        ::cave::LogImpl(::cave::LOG_LEVEL_OK, __VA_ARGS__)
@@ -17,6 +20,20 @@
 #define PRINT_WARN(...)    ::cave::PrintImpl(::cave::LOG_LEVEL_WARN, __VA_ARGS__)
 #define PRINT_ERROR(...)   ::cave::PrintImpl(::cave::LOG_LEVEL_ERROR, __VA_ARGS__)
 #define PRINT_FATAL(...)   ::cave::PrintImpl(::cave::LOG_LEVEL_FATAL, __VA_ARGS__)
+#else
+#define LOG_VERBOSE(...)   (void)0
+#define LOG(...)           (void)0
+#define LOG_OK(...)        (void)0
+#define LOG_WARN(...)      (void)0
+#define LOG_ERROR(...)     (void)0
+#define LOG_FATAL(...)     (void)0
+#define PRINT_VERBOSE(...) (void)0
+#define PRINT(...)         (void)0
+#define PRINT_OK(...)      (void)0
+#define PRINT_WARN(...)    (void)0
+#define PRINT_ERROR(...)   (void)0
+#define PRINT_FATAL(...)   (void)0
+#endif
 
 namespace cave {
 

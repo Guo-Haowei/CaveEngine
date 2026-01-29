@@ -8,6 +8,7 @@
 #include "cave/runtime/gameplay/GameSession.h"
 #include "cave/runtime/framework/IApplication.h"
 
+#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
@@ -50,10 +51,11 @@ static void EndFullscreenWindow() {
 }
 
 // @TODO: refactor
-class RuntimeSceneViewProvider : public ISceneViewProvider {
+class RuntimeSceneViewProvider final : public ISceneViewProvider {
 public:
     RuntimeSceneViewProvider(IApplication& p_app)
-        : m_app(p_app) {}
+        : m_app(p_app)
+        , m_debug_id(MakeDebugId(this)) {}
 
     void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) final {
         unused(p_out_views);
@@ -61,8 +63,11 @@ public:
         DEV_ASSERT(0);
     }
 
+    DebugId GetDebugId() final { return m_debug_id; }
+
 private:
     IApplication& m_app;
+    const DebugId m_debug_id;
 };
 
 GameRuntimeState::GameRuntimeState(IApplication& p_app)

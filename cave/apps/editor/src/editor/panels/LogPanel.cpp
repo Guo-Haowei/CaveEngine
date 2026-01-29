@@ -1,6 +1,6 @@
 #include "LogPanel.h"
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/math/color.h"
 
 #include "editor/widgets/Image.h"

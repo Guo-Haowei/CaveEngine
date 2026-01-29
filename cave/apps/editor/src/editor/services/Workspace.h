@@ -57,9 +57,9 @@ struct WorkspaceRequest {
     }
 };
 
-class Workspace : protected GenIdRegistry<Tab>,
-                  public ISceneViewProvider,
-                  public IInputConsumer {
+class Workspace final : protected GenIdRegistry<Tab>,
+                        public ISceneViewProvider,
+                        public IInputConsumer {
 public:
     Workspace(EditorState& p_editor);
     ~Workspace();
@@ -79,6 +79,8 @@ public:
 
     int GetPriority() const final { return 10; }
 
+    DebugId GetDebugId() final { return m_debug_id; }
+
 private:
     void OpenOrFocusDoc(DocId p_doc_id);
 
@@ -95,6 +97,8 @@ private:
     void DrawTabs();
 
     EditorState& m_editor;
+    const DebugId m_debug_id;
+
     TabId m_focused_tab{};
     TabId m_focused_req{};
 

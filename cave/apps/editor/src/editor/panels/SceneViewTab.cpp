@@ -4,6 +4,8 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
+#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
+
 #include "editor/edit/EditTransformCmd.h"
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
@@ -28,6 +30,7 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
                            SceneId p_preview_scene_id,
                            ViewDimension p_dimension)
     : Tab(p_editor, p_doc_id)
+    , m_debug_id(MakeDebugId(this))
     , m_dim(p_dimension)
     , m_preview_scene(p_preview_scene_id)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }

@@ -6,24 +6,30 @@
 namespace cave {
 
 void InputRouter::Register(IInputConsumer* p_consumer) {
-    if (DEV_VERIFY(p_consumer)) {
-        for (auto* it : m_consumers) {
-            if (it == p_consumer) {
-                return;
-            }
-        }
+    DEV_ASSERT(p_consumer);
+    if (!p_consumer) return;
 
-        m_consumers.push_back(p_consumer);
-        Sort();
-    }
-    LOG_VERBOSE("InputRouter::Register: register input consumer '{}'", (void*)p_consumer);
+    auto it = std::ranges::find(m_consumers, p_consumer);
+    if (it != m_consumers.end()) return;
+
+    m_consumers.push_back(p_consumer);
+    Sort();
+
+#if USING(USE_LOG)
+    DebugId id = p_consumer->GetDebugId();
+    LOG_VERBOSE("InputRouter::Register: register input consumer '{}(id:{})'", id.type, id.uid);
+#endif
 }
 
 void InputRouter::Unregister(IInputConsumer* p_consumer) {
     m_consumers.erase(
         std::remove(m_consumers.begin(), m_consumers.end(), p_consumer),
         m_consumers.end());
-    LOG_VERBOSE("InputRouter::Register: unregister input consumer '{}'", (void*)p_consumer);
+
+#if USING(USE_LOG)
+    DebugId id = p_consumer->GetDebugId();
+    LOG_VERBOSE("InputRouter::Unegister: unregister input consumer '{}(id:{})'", id.type, id.uid);
+#endif
 }
 
 void InputRouter::Dispatch(const std::vector<InputEvent>& p_events) {

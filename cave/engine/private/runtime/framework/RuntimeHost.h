@@ -45,7 +45,7 @@ struct RuntimeStartParams {
         : source(std::move(p_source)) {}
 };
 
-class RuntimeHost : public ISceneTickContributor {
+class RuntimeHost final : public ISceneTickContributor {
 public:
     RuntimeHost(IApplication& p_app);
     ~RuntimeHost();
@@ -61,8 +61,11 @@ public:
 
     SceneId GetSceneId() const { return m_scene_id; }
 
+    DebugId GetDebugId() override { return m_debug_id; }
+
 private:
     IApplication& m_app;
+    const DebugId m_debug_id;
 
     std::unique_ptr<GameSession> m_session;
     SceneId m_scene_id;

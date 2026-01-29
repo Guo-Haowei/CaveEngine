@@ -9,14 +9,17 @@ namespace cave {
 
 bool SceneScheduler::Register(ISceneTickContributor* p_contributor) {
     DEV_ASSERT(p_contributor);
+    if (!p_contributor) return false;
 
     auto it = std::ranges::find(m_contributors, p_contributor);
-    if (it != m_contributors.end()) {
-        return false;
-    }
+    if (it != m_contributors.end()) return false;
 
-    LOG_VERBOSE("SceneScheduler::Register: register scene contributor '{}'", (void*)p_contributor);
     m_contributors.push_back(p_contributor);
+
+#if USING(USE_LOG)
+    DebugId id = p_contributor->GetDebugId();
+    LOG_VERBOSE("SceneScheduler::Register: register scene contributor '{}(id:{})'", id.type, id.uid);
+#endif
     return true;
 }
 
@@ -29,7 +32,11 @@ bool SceneScheduler::Unregister(ISceneTickContributor* p_contributor) {
     }
 
     m_contributors.erase(it);
-    LOG_VERBOSE("SceneScheduler::Unregister: unregister scene contributor '{}'", (void*)p_contributor);
+
+#if USING(USE_LOG)
+    DebugId id = p_contributor->GetDebugId();
+    LOG_VERBOSE("SceneScheduler::Unregister: unregister scene contributor '{}(id:{})'", id.type, id.uid);
+#endif
     return true;
 }
 

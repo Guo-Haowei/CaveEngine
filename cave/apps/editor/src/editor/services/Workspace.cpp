@@ -1,5 +1,6 @@
 #include "Workspace.h"
 
+#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 
 #include "editor/services/DocumentService.h"
@@ -11,8 +12,8 @@
 namespace cave {
 
 Workspace::Workspace(EditorState& p_editor)
-    : m_editor(p_editor) {
-
+    : m_editor(p_editor)
+    , m_debug_id(MakeDebugId(this)) {
     IApplication& app = m_editor.GetApp();
     app.GetInputSystem()->Router().Register(this);
 }

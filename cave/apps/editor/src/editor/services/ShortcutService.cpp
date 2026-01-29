@@ -6,6 +6,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/runtime/core/debugger/DebugIdAllocator.h"
 
 #include "editor/services/EditService.h"
 
@@ -14,7 +15,9 @@
 namespace cave {
 
 ShortcutService::ShortcutService(EditorState& p_editor)
-    : m_editor(p_editor) {
+    : m_editor(p_editor)
+    , m_debug_id(MakeDebugId(this)) {
+
     InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
     router.Register(this);
 

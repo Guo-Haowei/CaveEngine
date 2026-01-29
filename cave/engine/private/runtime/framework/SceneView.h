@@ -1,5 +1,6 @@
 #pragma once
 #include <bitset>
+#include "cave/runtime/core/debugger/DebugId.h"
 #include "cave/runtime/scene/SceneId.h"
 
 #include "engine/private/math/angle.h"
@@ -42,6 +43,8 @@ public:
     virtual ~ISceneViewProvider() = default;
 
     virtual void BuildViews(std::vector<SceneView>& p_out_views, bool p_is_opengl) = 0;
+
+    virtual DebugId GetDebugId() = 0;
 };
 
 }  // namespace cave

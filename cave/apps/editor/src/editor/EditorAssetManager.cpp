@@ -4,7 +4,7 @@
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/runtime/string/StringUtils.h"
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/runtime/framework/VFS.h"
 

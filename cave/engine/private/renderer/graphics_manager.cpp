@@ -2,7 +2,7 @@
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/runtime/core/base/random.h"
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/math/frustum.h"
 #include "engine/private/math/geometry.h"
 #include "engine/private/math/matrix_transform.h"

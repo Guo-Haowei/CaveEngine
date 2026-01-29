@@ -3,7 +3,7 @@
 #include <fstream>
 #include <imgui/imgui.h>
 
-#include "engine/private/debugger/profiler.h"
+#include "engine/private/runtime/core/debugger/Profiler.h"
 #include "engine/private/runtime/core/io/file_access.h"
 #include "engine/private/runtime/core/io/logger.h"
 #include "engine/private/runtime/core/os/threads.h"
