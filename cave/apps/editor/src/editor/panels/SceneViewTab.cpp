@@ -48,13 +48,13 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
     };
 }
 
+// @TODO: game view tab
 void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
                                   ecs::Entity p_camera,
                                   std::vector<SceneView>& p_out_views,
                                   bool p_is_opengl) {
     // @TODO: refactor scene view API
     if (m_editor.IsPlaying()) {
-        DEV_ASSERT(0);
         SceneView scene_view;
         scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
         scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();
@@ -77,7 +77,6 @@ void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
         return;
     }
 
-    // @HACK: force update
     SceneView scene_view;
     scene_view.scene_id = p_scene_id;
     scene_view.scene_manager = m_editor.GetApp().GetSceneRegistry();

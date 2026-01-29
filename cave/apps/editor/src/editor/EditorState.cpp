@@ -173,15 +173,12 @@ void EditorState::CommitModeSwitch() {
 
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
-            DEV_ASSERT(0);
-#if 0
-            ViewerTab* tab = m_viewer->GetActiveTab();
-            DEV_ASSERT(tab);
-            RuntimeStartParams params(std::move(SceneSource::FromExisting(tab->GetSceneId())));
+            FocusedPreviewScene preview = GetFocusedPreviewScene();
+
+            RuntimeStartParams params(std::move(SceneSource::FromExisting(preview.scene_id)));
             params.game_mode_id = "chess";
             params.mode = RuntimeStartParams::Mode::PIE;
             m_runtime_host->Start(params);
-#endif
         } break;
         case cave::EditorState::Mode::Playing: {
             m_runtime_host->Stop();
