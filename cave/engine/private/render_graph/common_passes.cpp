@@ -61,16 +61,14 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 #endif
 
 static void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
-                                const std::vector<RenderCommand>& p_commands,
+                                const std::vector<DrawItem>& p_commands,
                                 bool p_is_prepass = false) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: remove
     auto& gm = p_ctx.cmd;
     auto& frame = gm.GetCurrentFrame();
-    for (const RenderCommand& cmd : p_commands) {
-        if (cmd.type != RenderCommandType::Draw) continue;
-        const DrawCommand& draw = cmd.draw;
+    for (const DrawItem& draw : p_commands) {
 
         const bool has_bone = draw.bone_idx >= 0;
         if (has_bone) {
@@ -95,7 +93,7 @@ static void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
 
             gm.BindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
         }
-        gm.DrawElements(draw.index_count, draw.index_offset);
+        gm.DrawElements(draw.index.count, draw.index.offset);
 
         if (p_is_prepass && draw.flags) {
             gm.SetStencilRef(0);

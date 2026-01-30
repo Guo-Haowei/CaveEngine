@@ -12,10 +12,11 @@
 #undef max
 #endif
 using namespace cave;
-using ::cave::cross;
-using ::cave::max;
-using ::cave::min;
-using ::cave::normalize;
+using ::cave::math::clamp;
+using ::cave::math::cross;
+using ::cave::math::max;
+using ::cave::math::min;
+using ::cave::math::normalize;
 #endif
 
 #define MAX_REFLECTION_LOD 4.0

@@ -32,27 +32,25 @@ static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_SPRITE);
-    for (const RenderCommand& render_cmd : p_ctx.frameData.tile_maps) {
-        const DrawCommand& draw = render_cmd.draw;
+    for (const DrawItem& draw : p_ctx.frameData.tile_maps) {
         const auto tile = draw.mesh_data;
         if (draw.texture) {
             cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
         }
         cmd.SetMesh(tile);
         cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
-        cmd.DrawElementsInstanced(1, draw.index_count);
+        cmd.DrawElementsInstanced(1, draw.index.count);
     }
 
     cmd.SetMesh(nullptr);
     cmd.SetPipelineState(PSO_SPRITE_NO_VERT);
-    for (const RenderCommand& render_cmd : p_ctx.frameData.sprites) {
-        const DrawCommand& draw = render_cmd.draw;
+    for (const DrawItem& draw : p_ctx.frameData.sprites) {
         DEV_ASSERT(draw.mesh_data == nullptr);
         if (draw.texture) {
             cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
         }
         cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
-        cmd.DrawArrays(draw.index_count);
+        cmd.DrawArrays(draw.index.count);
     }
 
     // draw debug stuff

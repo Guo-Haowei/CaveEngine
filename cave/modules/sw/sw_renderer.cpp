@@ -6,6 +6,8 @@
 
 namespace cave {
 
+using namespace cave::math;
+
 // config
 static constexpr int TILE_SIZE = 32;
 
@@ -100,8 +102,8 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     auto& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = pipeline->GetVaryingFlags();
 
-    const OldRect screenBox(Vector2f::Zero, Vector2f(width, height));
-    OldRect aabb{};
+    const Box2 screenBox(Vector2f::Zero, Vector2f(width, height));
+    Box2 aabb{};
     aabb.ExpandPoint(a);
     aabb.ExpandPoint(b);
     aabb.ExpandPoint(c);

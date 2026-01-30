@@ -30,8 +30,8 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         batch_buffer.c_worldMatrix = world_matrix;
         batch_buffer.c_tint_color = tile_map_renderer.GetTintColor();
 
-        DrawCommand draw;
-        draw.index_count = cache.mesh->desc.drawCount;
+        DrawItem draw;
+        draw.index.count = cache.mesh->desc.drawCount;
         draw.mesh_data = cache.mesh.get();
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
@@ -42,7 +42,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
             // @TODO: dummy sprite?
         }
 
-        p_framedata.tile_maps.push_back(RenderCommand::From(draw));
+        p_framedata.tile_maps.push_back(draw);
     }
 }
 

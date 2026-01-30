@@ -77,7 +77,7 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
 static void FillPass(const Scene& p_scene,
                      FilterObjectFunc1 p_filter1,
                      FilterObjectFunc2 p_filter2,
-                     std::vector<RenderCommand>& p_commands,
+                     std::vector<DrawItem>& p_commands,
                      FrameData& p_framedata) {
 
     auto view = p_scene.View<MeshRendererComponent, TransformComponent>();
@@ -100,7 +100,7 @@ static void FillPass(const Scene& p_scene,
         batch_buffer.c_worldMatrix = world_matrix;
         batch_buffer.c_meshFlag = skeleton_id.IsValid();
 
-        DrawCommand draw;
+        DrawItem draw;
         // if (entity == p_scene.m_selected) {
         //     draw.flags = STENCIL_FLAG_SELECTED;
         // }
@@ -122,8 +122,8 @@ static void FillPass(const Scene& p_scene,
         draw.mesh_data = mesh.gpuResource.get();
         if (draw.mesh_data) {
             draw.mat_idx = -1;
-            draw.index_count = static_cast<uint32_t>(mesh.indices.size());
-            p_commands.emplace_back(RenderCommand::From(draw));
+            draw.index.count = static_cast<uint32_t>(mesh.indices.size());
+            p_commands.emplace_back(draw);
         }
     }
 }
@@ -349,7 +349,7 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
         batch_buffer.c_worldMatrix = world_matrix;
         batch_buffer.c_meshFlag = skeleton_id.IsValid();
 
-        DrawCommand draw;
+        DrawItem draw;
         // @TODO: refactor the stencil part
         // if (entity == scene.m_selected) {
         //    draw.flags = STENCIL_FLAG_SELECTED;
@@ -370,22 +370,21 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
         draw.mat_idx = -1;
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(entity, batch_buffer);
-        draw.index_count = static_cast<uint32_t>(mesh.indices.size());
+        draw.index.count = static_cast<uint32_t>(mesh.indices.size());
         draw.mesh_data = (GpuMesh*)mesh.gpuResource.get();
         if (!draw.mesh_data) {
             continue;
         }
 
-        auto add_to_pass = [&](std::vector<RenderCommand>& p_commands,
+        auto add_to_pass = [&](std::vector<DrawItem>& p_commands,
                                FilterFunc& p_filter,
                                bool p_model_only) {
             if (!p_filter(aabb)) {
                 return;
             }
 
-            DrawCommand draw_cmd = draw;
             if (p_model_only) {
-                p_commands.emplace_back(RenderCommand::From(draw_cmd));
+                p_commands.emplace_back(draw);
                 return;
             }
 
@@ -408,11 +407,11 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
 
                 FillMaterialConstantBuffer(is_opengl, material, material_buffer);
 
-                draw_cmd.index_count = subset.index_count;
-                draw_cmd.index_offset = subset.index_offset;
-                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(material_id, material_buffer);
+                draw.index.count = subset.index_count;
+                draw.index.offset = subset.index_offset;
+                draw.mat_idx = p_framedata.materialCache.FindOrAdd(material_id, material_buffer);
 
-                p_commands.emplace_back(RenderCommand::From(draw_cmd));
+                p_commands.emplace_back(draw);
             }
         };
 
