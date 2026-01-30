@@ -25,6 +25,8 @@ Workspace::~Workspace() {
 }
 
 void Workspace::Tick(float p_dt) {
+    FlushPendingRequests();
+
     for (auto& it : m_slots) {
         if (Tab* tab = it.storage.get()) {
             // @NOTE: tick collapsed?
@@ -33,7 +35,6 @@ void Workspace::Tick(float p_dt) {
         }
     }
 
-    FlushPendingRequests();
     DrawTabs();
 }
 

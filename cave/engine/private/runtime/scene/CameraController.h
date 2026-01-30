@@ -1,6 +1,7 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
-#include "engine/private/core/math/geomath.h"
+// @TODO: move to public
+#include "engine/private/runtime/scene/TransformComponent.h"
 
 namespace cave {
 
@@ -35,22 +36,15 @@ private:
 
 class CameraControllerFPS : public ICameraController {
 public:
-    CameraControllerFPS(Scene* p_scene,
-                        ecs::Entity p_cam_root,
-                        ecs::Entity p_cam_y,
-                        ecs::Entity p_cam)
-        : m_scene(p_scene)
-        , m_cam_root(p_cam_root)
-        , m_cam_y(p_cam_y)
-        , m_cam(p_cam) {}
+    CameraControllerFPS(CameraComponent& p_camera,
+                        TransformComponent& p_transform);
 
     void Update(const CameraInputState& p_state) final;
 
 private:
-    Scene* m_scene;
-    ecs::Entity m_cam_root;
-    ecs::Entity m_cam_y;
-    ecs::Entity m_cam;
+    CameraComponent& m_camera;
+    TransformComponent& m_root;
+    float m_pitch{ -30.0f };
 
     float m_move_speed{ 10.0f };
     float m_rotate_speed{ 10.0f };
