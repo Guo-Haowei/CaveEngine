@@ -75,13 +75,16 @@ void SceneViewTab::OnCreate() {
     switch (m_dim) {
         case DIMENSION_2: {
             m_camera.SetProjection(ProjectionType::Orthographic);
-            // m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
+            m_camera_controller = std::make_unique<CameraController2DEditor>(m_camera, m_camera_transform);
         } break;
         case DIMENSION_3: {
             m_camera_transform.Translate(Vector3f(0, 4, 8));
             m_camera_controller = std::make_unique<CameraControllerFPS>(m_camera, m_camera_transform);
         } break;
     }
+
+    m_camera_transform.UpdateTransform();
+    m_camera.Update(m_camera_transform.GetWorldMatrix());
 
     IApplication& app = m_editor.GetApp();
     app.GetSceneScheduler().Register(this);
@@ -250,12 +253,13 @@ Scene* SceneViewTab::GetResolvedScene() {
     return m_editor.GetApp().GetSceneRegistry()->Resolve(m_preview_scene);
 }
 
-CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
+CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_ks) {
     CameraInputState state{};
 
+    const InputDeviceId id{ 0 };
     float dx = 0.0f;
     float dy = 0.0f;
-    bool mmb = false;
+    const bool mmb = p_ks.Down(id, Key::MMB);
 
     for (const InputEvent& e : p_events) {
         if (e.consumed) {
@@ -272,19 +276,13 @@ CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputE
                 dx = -e.dx;
                 dy = e.dy;
             } break;
-            case InputEventType::ButtonDown:
-                if (e.code == std::to_underlying(Key::MMB)) {
-                    e.consumed = true;
-                    mmb = true;
-                }
-                break;
             default:
                 break;
         }
+    }
 
-        if (mmb) {
-            state.move = math::Vector3f(dx, dy, 0.0f);
-        }
+    if (mmb) {
+        state.move = math::Vector3f(dx, dy, 0.0f);
     }
 
     return state;

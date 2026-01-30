@@ -8,31 +8,41 @@ namespace cave {
 using math::Matrix4x4f;
 using math::Vector3f;
 
-void CameraController2DEditor::Update(const CameraInputState& p_state) {
-    unused(p_state);
-    DEV_ASSERT(0);
-#if 0
-    CameraComponent* camera = m_scene->GetComponent<CameraComponent>(m_cam);
-    TransformComponent* transform = m_scene->GetComponent<TransformComponent>(m_cam);
+CameraController2DEditor::CameraController2DEditor(CameraComponent& p_camera,
+                                                   TransformComponent& p_tranform)
+    : m_camera(p_camera)
+    , m_root(p_tranform) {
+}
 
+void CameraController2DEditor::Update(const CameraInputState& p_state) {
     const bool moved = p_state.move.x || p_state.move.y;
+
+    bool need_update = false;
     if (moved) {
-        transform->Translate(math::Vector3f(p_state.move.x, p_state.move.y, 0.0f));
+        constexpr float speed = 1.0f;
+        m_root.Translate(math::Vector3f(p_state.move.x * speed,
+                                        p_state.move.y * speed,
+                                        0.0f));
+        need_update = true;
     }
 
     if (p_state.zoom_delta != 0.0f) {
-        float ortho_height = camera->GetOrthoHeight() + 4.0f * p_state.zoom_delta;
+        float ortho_height = m_camera.GetOrthoHeight() + 8.0f * p_state.zoom_delta;
         ortho_height = glm::clamp(ortho_height, 0.1f, 100.0f);
-        camera->SetOrthoHeight(ortho_height);
+        m_camera.SetOrthoHeight(ortho_height);
+        need_update = true;
     }
-#endif
+    if (need_update) {
+        m_camera.SetDirty();
+        m_root.UpdateTransform();
+        m_camera.Update(m_root.GetWorldMatrix());
+    }
 }
 
 CameraControllerFPS::CameraControllerFPS(CameraComponent& p_camera,
                                          TransformComponent& p_tranform)
     : m_camera(p_camera)
     , m_root(p_tranform) {
-    m_root.UpdateTransform();
 }
 
 void CameraControllerFPS::Update(const CameraInputState& p_state) {

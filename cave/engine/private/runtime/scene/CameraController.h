@@ -22,16 +22,14 @@ public:
 
 class CameraController2DEditor : public ICameraController {
 public:
-    CameraController2DEditor(Scene* p_scene,
-                             ecs::Entity p_cam)
-        : m_scene(p_scene)
-        , m_cam(p_cam) {}
+    CameraController2DEditor(CameraComponent& p_camera,
+                             TransformComponent& p_transform);
 
     void Update(const CameraInputState& p_state) final;
 
 private:
-    Scene* m_scene;
-    ecs::Entity m_cam;
+    CameraComponent& m_camera;
+    TransformComponent& m_root;
 };
 
 class CameraControllerFPS : public ICameraController {
@@ -44,7 +42,7 @@ public:
 private:
     CameraComponent& m_camera;
     TransformComponent& m_root;
-    float m_pitch{ -30.0f };
+    float m_pitch{ 0.0f };
 
     float m_move_speed{ 10.0f };
     float m_rotate_speed{ 10.0f };
