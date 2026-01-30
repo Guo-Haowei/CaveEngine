@@ -56,12 +56,19 @@ public:
                                        p_mips_level);
     }
 
+    RGTextureHandle CreateTexture(RGResourceCreateDesc&& p_info);
+    RGTextureHandle ImportTexture(RGResourceImportDesc&& p_info);
+
 protected:
     RenderGraphBuilderConfig m_config;
     IGraphicsManager& m_graphicsManager;
 
     std::vector<RenderPassBuilder> m_passes;
     std::vector<std::pair<std::string, std::string>> m_dependencies;
+
+private:
+    RGTextureHandle AllocHandle() const;
+    std::vector<RGTextureNode> m_textures;
 };
 
 }  // namespace cave::render

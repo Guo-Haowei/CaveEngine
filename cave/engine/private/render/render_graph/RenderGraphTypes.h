@@ -5,7 +5,7 @@
 
 namespace cave::render {
 
-using ImportFunc = std::function<std::shared_ptr<GpuTexture>()>;
+using RGImportFunc = std::function<std::shared_ptr<GpuTexture>()>;
 
 enum class ResourceAccess : uint8_t {
     NONE = 0,
@@ -21,13 +21,15 @@ enum class ResourceAccess : uint8_t {
 };
 DEFINE_ENUM_BITWISE_OPERATIONS(ResourceAccess);
 
+using RGTextureHandle = uint32_t;
+
 struct RGTextureNode {
     GpuTextureDesc desc{};
     SamplerDesc sampler{};
-    bool is_import = false;
-    ImportFunc import;
+    RGImportFunc import_fn;
+    ResourceAccess access_mask{ ResourceAccess::NONE };
 
-    ResourceAccess accessMask{ ResourceAccess::NONE };
+    std::string debug_name;
 };
 
 }  // namespace cave::render

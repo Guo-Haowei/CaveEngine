@@ -4,7 +4,7 @@
 namespace cave {
 
 constexpr const char RG_PASS_2D[] = "p:2d";
-constexpr const char RG_PASS_EARLY_Z[] = "p:early_z";
+constexpr const char RG_PASS_DEPTH_PREPASS[] = "p:early_z";
 constexpr const char RG_PASS_SHADOW[] = "p:shadow";
 constexpr const char RG_PASS_GBUFFER[] = "p:gbuffer";
 constexpr const char RG_PASS_VOXELIZATION[] = "p:voxelization";

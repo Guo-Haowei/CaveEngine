@@ -15,7 +15,7 @@ RenderGraphBuilder::RenderGraphBuilder(const RenderGraphBuilderConfig& p_config)
 }
 
 RenderPassBuilder& RenderGraphBuilder::AddPass(std::string_view p_pass_name) {
-    RenderPassBuilder builder{ p_pass_name };
+    RenderPassBuilder builder{ p_pass_name, *this };
     m_passes.push_back(builder);
     return m_passes.back();
 }
@@ -53,10 +53,10 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 
     std::unordered_map<std::string_view, int> lookup;
 
-    std::vector<std::pair<std::string_view, int>> reads;
-    std::vector<std::pair<std::string_view, int>> writes;
+    std::vector<std::pair<RGTextureHandle, int>> reads;
+    std::vector<std::pair<RGTextureHandle, int>> writes;
 
-    std::unordered_map<std::string_view, int> creates;
+    std::unordered_map<RGTextureHandle, int> creates;
 
     const int N = static_cast<int>(m_passes.size());
     DEV_ASSERT(N);
@@ -72,10 +72,10 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
             }
         }
 
-        for (const auto& create : pass.m_creates) {
-            auto [_, inserted] = creates.try_emplace(std::string_view(create.first), i);
+        for (const auto& id : pass.m_creates) {
+            auto [_, inserted] = creates.try_emplace(id, i);
             if (!inserted) {
-                return CAVE_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "resource '{}' is created multiple times", create.first);
+                return CAVE_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "tried to create resource '{}' more than once", id);
             }
         }
 
@@ -107,7 +107,7 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         edges.push_back({ from_idx, to_idx });
     }
 
-    auto add_edges = [&creates, &edges](const std::vector<std::pair<std::string_view, int>>& p_res) {
+    auto add_edges = [&creates, &edges](const std::vector<std::pair<RGTextureHandle, int>>& p_res) {
         for (const auto& [name, to] : p_res) {
             if (auto it = creates.find(name); it != creates.end()) {
                 const int from = it->second;
@@ -229,6 +229,33 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
     }
 
     return Result<std::shared_ptr<RenderGraph>>(render_graph);
+}
+
+RGTextureHandle RenderGraphBuilder::AllocHandle() const {
+    return { static_cast<RGTextureHandle>(m_textures.size()) };
+}
+
+RGTextureHandle RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info) {
+    RGTextureHandle handle = AllocHandle();
+    m_textures.emplace_back();
+
+    // fake handle allocation
+    RGTextureNode& node = m_textures.back();
+    node.desc = p_info.resourceDesc;
+    node.sampler = p_info.samplerDesc;
+    node.debug_name = std::move(p_info.debug_name);
+    return handle;
+}
+
+RGTextureHandle RenderGraphBuilder::ImportTexture(RGResourceImportDesc&& p_info) {
+    RGTextureHandle handle = AllocHandle();
+    m_textures.emplace_back();
+
+    // fake handle allocation
+    RGTextureNode& node = m_textures.back();
+    node.import_fn = std::move(p_info.func);
+    node.debug_name = std::move(p_info.debug_name);
+    return handle;
 }
 
 ///  @TODO: remove this

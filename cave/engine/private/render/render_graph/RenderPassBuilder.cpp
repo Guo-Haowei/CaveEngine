@@ -1,25 +1,28 @@
 #include "RenderPassBuilder.h"
+#include "RenderGraphBuilder.h"
 
 namespace cave::render {
 
-RenderPassBuilder& RenderPassBuilder::Create(std::string_view p_name, const RenderGraphResourceCreateInfo& p_desc) {
-    m_creates.push_back({ std::string(p_name), p_desc });
+RGTextureHandle RenderPassBuilder::Create(RGResourceCreateDesc&& p_desc) {
+    RGTextureHandle handle = m_builder.CreateTexture(std::move(p_desc));
+    m_creates.emplace_back(handle);
+    return handle;
+}
+
+RGTextureHandle RenderPassBuilder::Import(RGResourceImportDesc&& p_desc) {
+    RGTextureHandle handle = m_builder.ImportTexture(std::move(p_desc));
+    m_creates.emplace_back(handle);
+    return handle;
+}
+
+RenderPassBuilder& RenderPassBuilder::Read(ResourceAccess p_access, RGTextureHandle p_handle) {
+    m_reads.emplace_back(Resource{ p_handle, p_access });
     return *this;
 }
 
-RenderPassBuilder& RenderPassBuilder::Import(std::string_view p_name, ImportFunc&& p_func) {
-    m_imports.push_back({ std::string(p_name), std::move(p_func) });
-    return *this;
-}
-
-RenderPassBuilder& RenderPassBuilder::Read(ResourceAccess p_access, std::string_view p_name) {
-    m_reads.emplace_back(Resource{ std::string(p_name), p_access });
-    return *this;
-}
-
-RenderPassBuilder& RenderPassBuilder::Write(ResourceAccess p_access, std::string_view p_name) {
+RenderPassBuilder& RenderPassBuilder::Write(ResourceAccess p_access, RGTextureHandle p_handle) {
     // ignore DSV write?
-    m_writes.emplace_back(Resource{ std::string(p_name), p_access });
+    m_writes.emplace_back(Resource{ p_handle, p_access });
     return *this;
 }
 

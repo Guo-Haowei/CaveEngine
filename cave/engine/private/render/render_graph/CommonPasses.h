@@ -3,7 +3,20 @@
 
 namespace cave::render {
 
-using RGTextureHandle = uint64_t;
+struct ShadowOutput {
+    RGTextureHandle shadow;
+};
+
+struct DepthPrepassOutput {
+    RGTextureHandle depth;
+};
+
+struct GbufferOutput {
+    RGTextureHandle color0;
+    RGTextureHandle color1;
+    RGTextureHandle color2;
+    RGTextureHandle depth;
+};
 
 struct PostProcessInput {
     RGTextureHandle lighting;
@@ -16,6 +29,33 @@ struct PostProcessOutput {
     RGTextureHandle ds;
 };
 
+struct SsaoInput {
+    RGTextureHandle depth;
+    RGTextureHandle normal;
+};
+
+struct SsaoOutput {
+    RGTextureHandle processed;
+};
+
+struct LightingInput {
+    RGTextureHandle color0;
+    RGTextureHandle color1;
+    RGTextureHandle color2;
+    RGTextureHandle depth;
+    RGTextureHandle ssao;
+    RGTextureHandle shadow;
+    RGTextureHandle ibl_diffuse;
+    RGTextureHandle ibl_prefiltered;
+    RGTextureHandle brdf;
+    RGTextureHandle ltc1;
+    RGTextureHandle ltc2;
+};
+
+struct LightingOutput {
+    RGTextureHandle lighting;
+};
+
 class RenderGraphBuilderExt : public RenderGraphBuilder {
 public:
     // @TODO: create 2D
@@ -23,21 +63,21 @@ public:
     [[nodiscard]] static auto CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
 
 private:
-    void AddEarlyZPass();
-    void AddGbufferPass();
-    void AddHighlightPass();
-    void AddShadowPass();
-    void AddVoxelizationPass();
-    void AddSsaoPass();
-    void AddLightingPass();
+    [[nodiscard]] ShadowOutput AddShadowPass();
+    [[nodiscard]] DepthPrepassOutput AddDepthPrepass();
+    [[nodiscard]] GbufferOutput AddGbufferPass(const DepthPrepassOutput& p_in);
+    [[nodiscard]] LightingOutput AddLightingPass(const LightingInput& p_in);
+    [[nodiscard]] SsaoOutput AddSsaoPass(const SsaoInput& p_in);
     void AddForwardPass();
-    void AddBloomPass();
+    // void AddHighlightPass();
+    // void AddVoxelizationPass();
+    // void AddBloomPass();
+    // void AddGenerateSkylightPass();
     PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
 
     void AddPathTracerPass();
     void AddPathTracerTonePass();
 
-    void AddGenerateSkylightPass();
 };
 
 }  // namespace cave::render

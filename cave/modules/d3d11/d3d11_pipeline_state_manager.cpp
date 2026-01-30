@@ -40,7 +40,7 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
         ComPtr<ID3DBlob> blob;
         blob = *res;
         hr = device->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, pipeline_state->vertexShader.GetAddressOf());
-        D3D_FAIL_V_MSG(hr, nullptr, "failed to create vertex buffer");
+        D3D_FAIL_V_MSG(hr, nullptr, "failed to create vertex shader");
         vsblob = blob;
     }
     if (!p_desc.ps.empty()) {
@@ -52,7 +52,7 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
         ComPtr<ID3DBlob> blob;
         blob = *res;
         hr = device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, pipeline_state->pixelShader.GetAddressOf());
-        D3D_FAIL_V_MSG(hr, nullptr, "failed to create vertex buffer");
+        D3D_FAIL_V_MSG(hr, nullptr, "failed to create pixel shader");
     }
 
     if (p_desc.inputLayoutDesc) {
