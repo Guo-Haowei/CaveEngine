@@ -104,7 +104,7 @@ ShadowOutput RenderGraphBuilderExt::AddShadowPass() {
                                                   1 * shadow_res,
                                                   shadow_res);
     ShadowOutput out{
-        .shadow = pass.Create({
+        .shadow = CreateTexture({
             RG_RES_SHADOW_MAP,
             BuildDefaultTextureDesc(PixelFormat::D32_FLOAT,
                                     AttachmentType::SHADOW_2D,
@@ -123,7 +123,7 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
     RenderPassBuilder& pass = AddPass(RG_PASS_DEPTH_PREPASS);
 
     DepthPrepassOutput out{
-        .depth = pass.Create({
+        .depth = CreateTexture({
             RG_RES_DEPTH_STENCIL,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH,
                                     AttachmentType::DEPTH_STENCIL_2D),
@@ -140,15 +140,15 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
     RenderPassBuilder& pass = AddPass(RG_PASS_GBUFFER);
 
     GbufferOutput out{
-        .color0 = pass.Create(RGResourceCreateDesc{
+        .color0 = CreateTexture(RGResourceCreateDesc{
             RG_RES_GBUFFER_COLOR0,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_BASE_COLOR, AttachmentType::COLOR_2D),
         }),
-        .color1 = pass.Create(RGResourceCreateDesc{
+        .color1 = CreateTexture(RGResourceCreateDesc{
             RG_RES_GBUFFER_COLOR1,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_NORMAL, AttachmentType::COLOR_2D),
         }),
-        .color2 = pass.Create(RGResourceCreateDesc{
+        .color2 = CreateTexture(RGResourceCreateDesc{
             RG_RES_GBUFFER_COLOR2,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_MATERIAL, AttachmentType::COLOR_2D),
         }),
@@ -163,18 +163,18 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
 }
 
 SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
+    RGTextureHandle noise = ImportTexture({
+        .debug_name = RG_RES_SSAO_NOISE,
+        .func = []() { return GenerateSsaoNoise(); },
+    });
+
     RenderPassBuilder& pass = AddPass(RG_PASS_SSAO);
     SsaoOutput out{
-        .processed = pass.Create({
+        .processed = CreateTexture({
             RG_RES_SSAO,
             BuildDefaultTextureDesc(RT_FMT_SSAO, AttachmentType::COLOR_2D),
         })
     };
-
-    RGTextureHandle noise = pass.Import({
-        .debug_name = RG_RES_SSAO_NOISE,
-        .func = []() { return GenerateSsaoNoise(); },
-    });
 
     pass.Write(ResourceAccess::RTV, out.processed)
         .Read(ResourceAccess::SRV, p_in.normal)
@@ -185,10 +185,7 @@ SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
 }
 
 LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_SSAO);
-
-    // @TODO: move the import outside
-    RGTextureHandle brdf = pass.Import(RGResourceImportDesc{
+    RGTextureHandle brdf = ImportTexture(RGResourceImportDesc{
         .debug_name = RG_RES_BRDF,
         .func = []() {
             std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
@@ -196,38 +193,48 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         },
     });
 
-    RGTextureHandle ltc1 = pass.Import(RGResourceImportDesc{
+    RGTextureHandle ltc1 = ImportTexture(RGResourceImportDesc{
         .debug_name = RG_RES_LTC1,
         .func = []() { return GenerateLTC(RG_RES_LTC1, LTC1); },
     });
 
-    RGTextureHandle ltc2 = pass.Import(RGResourceImportDesc{
+    RGTextureHandle ltc2 = ImportTexture(RGResourceImportDesc{
         .debug_name = RG_RES_LTC2,
         .func = []() { return GenerateLTC(RG_RES_LTC2, LTC2); },
     });
 
-    LightingOutput out{
-        .lighting = pass.Create(RGResourceCreateDesc{
+    RGTextureHandle out;
+    if (p_in.target) {
+        out = ImportTexture(RGResourceImportDesc{
+            .debug_name = "Viewport",
+            .func = [&]() {
+                return p_in.target->color;
+            },
+        });
+    } else {
+        out = CreateTexture(RGResourceCreateDesc{
             RG_RES_LIGHTING,
             BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
-        }),
-    };
+        });
+    }
 
-    pass.Write(ResourceAccess::RTV, out.lighting)
+    RenderPassBuilder& pass = AddPass(RG_PASS_SSAO);
+
+    pass.Write(ResourceAccess::RTV, out)
         .Read(ResourceAccess::SRV, p_in.color0)
         .Read(ResourceAccess::SRV, p_in.color1)
         .Read(ResourceAccess::SRV, p_in.color2)
         .Read(ResourceAccess::SRV, p_in.depth)
         .Read(ResourceAccess::SRV, p_in.ssao)
         .Read(ResourceAccess::SRV, p_in.shadow)
-        .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
-        .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
-        .Read(ResourceAccess::SRV, p_in.brdf)
-        .Read(ResourceAccess::SRV, p_in.ltc1)
-        .Read(ResourceAccess::SRV, p_in.ltc2)
+        //.Read(ResourceAccess::SRV, p_in.ibl_diffuse)
+        //.Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
+        .Read(ResourceAccess::SRV, brdf)
+        .Read(ResourceAccess::SRV, ltc1)
+        .Read(ResourceAccess::SRV, ltc2)
         .SetExecuteFunc(LightingPassFunc);
 
-    return out;
+    return { out } ;
 
 #if 0
     if (m_config.enableVxgi) {
@@ -278,8 +285,6 @@ void RenderGraphBuilderExt::AddVoxelizationPass() {
         .Read(ResourceAccess::UAV, RG_RES_VOXEL_NORMAL)
         .SetExecuteFunc(VoxelizationPassFunc);
 }
-#endif
-
 
 void RenderGraphBuilderExt::AddForwardPass() {
     auto& pass = AddPass(RG_PASS_FORWARD);
@@ -300,6 +305,7 @@ void RenderGraphBuilderExt::AddForwardPass() {
             .Read(ResourceAccess::SRV, RG_RES_VOXEL_NORMAL);
     }
 }
+#endif
 
 /// Bloom
 
@@ -370,7 +376,6 @@ void RenderGraphBuilderExt::AddBloomPass() {
         }
     }
 }
-#endif
 
 PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
     unused(p_in);
@@ -402,7 +407,6 @@ PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInp
     return out;
 }
 
-#if 0
 void RenderGraphBuilderExt::AddGenerateSkylightPass() {
     {
         GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
@@ -483,31 +487,32 @@ void RenderGraphBuilderExt::AddPathTracerTonePass() {
 }
 
 /// Create pre-defined passes
-auto RenderGraphBuilderExt::Create3D(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>> {
-    p_config.enableBloom = true;
-    p_config.enableIbl = false;
-    p_config.enableVxgi = GraphicsManager::GetSingleton().GetBackend() == Backend::OPENGL;
-
+auto RenderGraphBuilderExt::Create3D(RenderGraphBuilderConfig& p_config,
+                                     const FinalTarget& p_target) -> Result<std::shared_ptr<RenderGraph>> {
     RenderGraphBuilderExt builder(p_config);
+
+    // builder.AddGenerateSkylightPass();
 
     auto shadow_out = builder.AddShadowPass();
     auto prepass_out = builder.AddDepthPrepass();
     auto gbuffer_out = builder.AddGbufferPass({ .depth = prepass_out.depth });
-    auto ssao_out = builder.AddSsaoPass({ .depth = gbuffer_out.depth, .normal = gbuffer_out.color1 });
-    // builder.AddGenerateSkylightPass();
-    builder.AddLightingPass();
-    builder.AddForwardPass();
 
-    // builder.AddHighlightPass();
-    // builder.AddVoxelizationPass();
-    // builder.AddBloomPass();
+    // auto ssao_out = builder.AddSsaoPass({ .depth = gbuffer_out.depth, .normal = gbuffer_out.color1 });
 
-    PostProcessInput pp_in{};
-    PostProcessOutput pp_out = builder.AddPostProcessPass(pp_in);
+    auto lighting_out = builder.AddLightingPass({
+        .color0 = gbuffer_out.color0,
+        .color1 = gbuffer_out.color1,
+        .color2 = gbuffer_out.color2,
+        .depth = gbuffer_out.depth,
+        //.ssao = ssao_out.processed,
+        .shadow = shadow_out.shadow,
+        .target = &p_target,
+    });
 
     return builder.Compile();
 }
 
+#if 0
 auto RenderGraphBuilderExt::CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>> {
     p_config.enableBloom = false;
     p_config.enableIbl = false;
@@ -521,5 +526,6 @@ auto RenderGraphBuilderExt::CreatePathTracer(RenderGraphBuilderConfig& p_config)
 
     return creator.Compile();
 }
+#endif
 
 }  // namespace cave::render

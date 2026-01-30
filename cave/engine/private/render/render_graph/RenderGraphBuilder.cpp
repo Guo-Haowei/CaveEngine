@@ -15,7 +15,7 @@ RenderGraphBuilder::RenderGraphBuilder(const RenderGraphBuilderConfig& p_config)
 }
 
 RenderPassBuilder& RenderGraphBuilder::AddPass(std::string_view p_pass_name) {
-    RenderPassBuilder builder{ p_pass_name, *this };
+    RenderPassBuilder builder{ p_pass_name };
     m_passes.push_back(builder);
     return m_passes.back();
 }
@@ -235,6 +235,7 @@ RGTextureHandle RenderGraphBuilder::AllocHandle() const {
     return { static_cast<RGTextureHandle>(m_textures.size()) };
 }
 
+// @TODO: allocate from index 1
 RGTextureHandle RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info) {
     RGTextureHandle handle = AllocHandle();
     m_textures.emplace_back();
@@ -247,6 +248,7 @@ RGTextureHandle RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info)
     return handle;
 }
 
+// @TODO: allocate from index 1
 RGTextureHandle RenderGraphBuilder::ImportTexture(RGResourceImportDesc&& p_info) {
     RGTextureHandle handle = AllocHandle();
     m_textures.emplace_back();

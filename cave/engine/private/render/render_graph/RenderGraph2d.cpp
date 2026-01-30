@@ -9,6 +9,7 @@
 
 namespace cave::render {
 
+#if 0
 static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
@@ -88,5 +89,6 @@ auto RenderGraph2D(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr
 
     return builder.Compile();
 }
+#endif
 
 }  // namespace cave::render
