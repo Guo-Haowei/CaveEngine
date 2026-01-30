@@ -196,29 +196,34 @@ void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
     FrameData& framedata = *m_frameData;
 
     for (const render::ViewDesc& view : p_views) {
-        Scene* scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
-        if (!scene) continue;
+        Scene* ecs_scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
+        if (!ecs_scene) continue;
 
-        // RenderScene& rs = GetOrCreateRenderScene(view.scene_id);
-        // m_scene_builder.BuildFull(*scene, rs);
+        RenderScene& render_scene = GetOrCreateRenderScene(view.scene_id);
+        m_scene_builder.BuildFull(*ecs_scene, render_scene);
 
-        ResolvedView resolved = ResolveView(view, scene, is_opengl);
+        ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
 
         framedata.camera_params = resolved;
         // @TODO: only support one view, fix this
-        FillConstantBuffer(scene, framedata);
-        RunMeshRenderSystem(scene, framedata);
-        RunTileMapRenderSystem(scene, framedata);
-        RunSpriteRenderSystem(scene, framedata);
-        RunDebugRenderSystem(scene, framedata);
+        FillConstantBuffer(ecs_scene, framedata);
+
+        RunMeshRenderSystem(ecs_scene, framedata);
+        RunTileMapRenderSystem(ecs_scene, framedata);
+        RunSpriteRenderSystem(ecs_scene, framedata);
+        RunDebugRenderSystem(ecs_scene, framedata);
         FillEnvConstants(framedata);
 
         // @TODO: fix path tracer
         // if (p_scene) {
         //    RequestPathTracerUpdate(*camera, *p_scene);
         //}
-        if (scene) break;
+        if (ecs_scene) break;
     }
+}
+
+RenderScene& RenderSystemImpl::GetOrCreateRenderScene(SceneId p_scene_id) {
+    return m_scene_cache[p_scene_id];
 }
 
 }  // namespace cave::render

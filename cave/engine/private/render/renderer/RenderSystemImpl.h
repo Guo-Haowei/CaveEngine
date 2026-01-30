@@ -23,7 +23,10 @@ public:
 
     const FrameData* GetFrameData() const { return m_frameData; }
 
-protected:
+private:
+    RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
+
+private:
     IApplication& m_app;
     RenderSceneBuilder m_scene_builder;
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
