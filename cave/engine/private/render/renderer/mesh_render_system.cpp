@@ -14,9 +14,6 @@ namespace cave::render {
 
 using namespace cave::math;
 
-using FilterObjectFunc1 = std::function<bool(const RenderableHeader&)>;
-using FilterObjectFunc2 = std::function<bool(const AABB&)>;
-
 // @TODO: fix this function OMG
 static void FillMaterialConstantBuffer(bool p_is_opengl,
                                        const MaterialComponent* p_material,
@@ -76,7 +73,9 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
     cb.c_hasMaterialMap = set_texture(TextureSlot::MetallicRoughness, cb.c_materialMapHandle);
 };
 
-// @TODO: refactor this
+using FilterObjectFunc1 = std::function<bool(const RenderableHeader&)>;
+using FilterObjectFunc2 = std::function<bool(const AABB&)>;
+
 static void FillPass(const RenderScene& p_rs,
                      const Scene& p_es,
                      FilterObjectFunc1 p_filter1,
@@ -199,7 +198,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                     [&](const AABB& p_aabb) {
                         return light_frustum.Intersects(p_aabb);
                     },
-                    p_framedata.shadow_pass_commands,
+                    p_framedata.commands[std::to_underlying(DrawPhase::Shadow)],
                     p_framedata);
             } break;
             case LIGHT_TYPE_POINT: {
@@ -402,20 +401,20 @@ static void FillMainPass(const Scene& p_es,
         };
 
         if (is_opaque) {
-            add_to_pass(p_framedata.prepass_commands, filter_main, true);
+            add_to_pass(p_framedata.commands[std::to_underlying(DrawPhase::DepthPrepass)], filter_main, true);
         }
 
         if (is_opaque) {
-            add_to_pass(p_framedata.gbuffer_commands, filter_main, false);
+            add_to_pass(p_framedata.commands[std::to_underlying(DrawPhase::Deferred)], filter_main, false);
         }
 
         if (is_transparent && is_visible) {
-            add_to_pass(p_framedata.transparent_commands, filter_main, false);
+            add_to_pass(p_framedata.commands[std::to_underlying(DrawPhase::Forward)], filter_main, false);
         }
 
         if (p_framedata.voxel_gi_bound.IsValid()) {
             FilterFunc gi_filter = [&](const AABB& p_aabb) -> bool { return p_framedata.voxel_gi_bound.Intersects(p_aabb); };
-            add_to_pass(p_framedata.voxelization_commands, gi_filter, false);
+            add_to_pass(p_framedata.commands[std::to_underlying(DrawPhase::Voxelization)], gi_filter, false);
         }
     }
 }

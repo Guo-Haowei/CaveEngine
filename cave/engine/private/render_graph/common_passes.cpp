@@ -133,7 +133,8 @@ static void EarlyZPassFunc(RenderPassExcutionContext& p_ctx) {
     const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     cmd.Clear(fb, CLEAR_DEPTH_BIT | CLEAR_STENCIL_BIT, clear_color, 0.0f, STENCIL_FLAG_SKY);
 
-    if (p_ctx.frameData.prepass_commands.empty()) {
+    const auto& prepass_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::DepthPrepass)];
+    if (prepass_commands.empty()) {
         return;
     }
 
@@ -141,7 +142,7 @@ static void EarlyZPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_PREPASS);
-    ExecuteDrawCommands(p_ctx, p_ctx.frameData.prepass_commands, true);
+    ExecuteDrawCommands(p_ctx, prepass_commands, true);
 }
 
 void RenderGraphBuilderExt::AddEarlyZPass() {
@@ -174,7 +175,8 @@ static void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
 #endif
     cmd.Clear(fb, CLEAR_COLOR_BIT, clear_color);
 
-    if (p_ctx.frameData.gbuffer_commands.empty()) {
+    const auto& deferred_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::Deferred)];
+    if (deferred_commands.empty()) {
         return;
     }
 
@@ -182,7 +184,7 @@ static void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_GBUFFER);
-    ExecuteDrawCommands(p_ctx, p_ctx.frameData.gbuffer_commands, false);
+    ExecuteDrawCommands(p_ctx, deferred_commands, false);
     // DrawInstacedGeometry(p_ctx.render_system, p_ctx.render_system.instances, false);
     cmd.SetPipelineState(PSO_GBUFFER_DOUBLE_SIDED);
 }
@@ -318,6 +320,7 @@ void RenderGraphBuilderExt::AddHighlightPass() {
     // prepare render data
     const auto [width, height] = framebuffer->GetBufferSize();
 
+    const auto& shadow_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::Shadow)];
     for (int pass_id = 0; pass_id < MAX_POINT_LIGHT_SHADOW_COUNT; ++pass_id) {
         auto& pass_ptr = p_ctx.frameData.pointShadowPasses[pass_id];
         if (!pass_ptr) {
@@ -334,7 +337,7 @@ void RenderGraphBuilderExt::AddHighlightPass() {
             cmd.SetViewport(Viewport(width, height));
 
             cmd.SetPipelineState(PSO_POINT_SHADOW);
-            ExecuteDrawCommands(p_ctx, p_ctx.frameData.shadow_pass_commands, false);
+            ExecuteDrawCommands(p_ctx, shadow_commands, false);
         }
     }
 }
@@ -351,7 +354,8 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
 
     cmd.Clear(framebuffer, CLEAR_DEPTH_BIT);
 
-    if (p_ctx.frameData.shadow_pass_commands.empty()) {
+    const auto& shadow_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::Shadow)];
+    if (shadow_commands.empty()) {
         return;
     }
 
@@ -361,7 +365,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_DPETH);
-    ExecuteDrawCommands(p_ctx, p_ctx.frameData.shadow_pass_commands);
+    ExecuteDrawCommands(p_ctx, shadow_commands);
 }
 
 void RenderGraphBuilderExt::AddShadowPass() {
@@ -401,7 +405,7 @@ static void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
         cmd.SetViewport(Viewport(voxel_size, voxel_size));
         cmd.SetPipelineState(PSO_VOXELIZATION);
         cmd.SetBlendState(PipelineStateManager::GetBlendDescDisable(), nullptr, 0xFFFFFFFF);
-        ExecuteDrawCommands(p_ctx, p_ctx.frameData.voxelization_commands);
+        ExecuteDrawCommands(p_ctx, p_ctx.frameData.commands[std::to_underlying(DrawPhase::Voxelization)]);
 
         // glSubpixelPrecisionBiasNV(0, 0);
         cmd.SetBlendState(PipelineStateManager::GetBlendDescDefault(), nullptr, 0xFFFFFFFF);
@@ -620,7 +624,7 @@ static void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
 
     // draw transparent objects
     gm.SetPipelineState(PSO_FORWARD_TRANSPARENT);
-    ExecuteDrawCommands(p_ctx, p_ctx.frameData.transparent_commands);
+    ExecuteDrawCommands(p_ctx, p_ctx.frameData.commands[std::to_underlying(DrawPhase::Forward)]);
 
     EmitterPassFunc(p_ctx);
 }

@@ -64,6 +64,17 @@ struct BufferCache {
     }
 };
 
+enum class DrawPhase : uint8_t {
+    Shadow = 0,
+    DepthPrepass,
+    Deferred,
+    Forward,
+    Voxelization,
+    // TileMap,
+    // Sprite,
+    Count,
+};
+
 struct FrameData {
 
     FrameData(const RenderOptions& p_options)
@@ -91,11 +102,7 @@ struct FrameData {
     PassContext voxelPass;
     PassContext mainPass;
 
-    std::vector<DrawItem> shadow_pass_commands;
-    std::vector<DrawItem> prepass_commands;
-    std::vector<DrawItem> gbuffer_commands;
-    std::vector<DrawItem> transparent_commands;
-    std::vector<DrawItem> voxelization_commands;
+    std::array<std::vector<DrawItem>, std::to_underlying(DrawPhase::Count)> commands;
     std::vector<DrawItem> tile_maps;
     std::vector<DrawItem> sprites;
 
