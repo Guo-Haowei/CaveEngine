@@ -15,7 +15,6 @@
 
 namespace cave {
 
-extern void RunMeshRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
 extern void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata);
@@ -27,6 +26,11 @@ namespace cave::render {
 
 using math::Vector3f;
 using math::Vector4f;
+
+// @TODO: remove this
+extern void RunMeshRenderSystem(const Scene& p_scene,
+                                const RenderScene& p_rscene,
+                                FrameData& p_framedata);
 
 #if 0
 static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matrix) {
@@ -208,7 +212,7 @@ void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
         // @TODO: only support one view, fix this
         FillConstantBuffer(ecs_scene, framedata);
 
-        RunMeshRenderSystem(ecs_scene, framedata);
+        RunMeshRenderSystem(*ecs_scene, render_scene, framedata);
         RunTileMapRenderSystem(ecs_scene, framedata);
         RunSpriteRenderSystem(ecs_scene, framedata);
         RunDebugRenderSystem(ecs_scene, framedata);

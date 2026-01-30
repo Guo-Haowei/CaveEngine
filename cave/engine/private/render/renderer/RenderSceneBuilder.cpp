@@ -27,17 +27,19 @@ void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scen
         }
 
         PayloadRef ref{
-            .kind = PayloadRef::Mesh,
+            .kind = PayloadKind::Mesh,
             .index = static_cast<uint16_t>(p_out_scene.m_meshes.size()),
         };
 
         // MeshPayload
-        p_out_scene.m_meshes.emplace_back();
-        MeshPayload& payload = p_out_scene.m_meshes.back();
-        payload.mesh = mesh_asset->gpuResource.get();
-        payload.local_bound = mesh_asset->localBound;
-        payload.skeleton = renderer.GetSkeletonId();
+        p_out_scene.m_meshes.emplace_back(
+            mesh_asset->gpuResource.get(),                      // mesh
+            mesh_asset->localBound,                             // bound
+            static_cast<uint32_t>(mesh_asset->indices.size()),  // index count
+            renderer.GetSkeletonId()                            // skeleton
+        );
 
+        MeshPayload& payload = p_out_scene.m_meshes.back();
         const auto& materials = renderer.GetMaterialInstances();
         const size_t num_subset = mesh_asset->subsets.size();
         payload.subsets.resize(num_subset);

@@ -27,15 +27,16 @@ DEFINE_ENUM_BITWISE_OPERATIONS(RenderableFlags)
 
 constexpr uint16_t kInvalidPayload = 0xFFFFu;
 
+enum PayloadKind : uint16_t {
+    None = 0,
+    Mesh,
+    Sprite,
+    TileMap,
+    Debug,
+};
+
 struct PayloadRef {
-    enum Kind : uint16_t {
-        None = 0,
-        Mesh,
-        Sprite,
-        TileMap,
-        Debug,
-    };
-    Kind kind{ None };
+    PayloadKind kind{ PayloadKind::None };
     uint16_t index{ kInvalidPayload };
 };
 
@@ -63,10 +64,11 @@ enum RenderDirtyFlags : uint32_t {
 DEFINE_ENUM_BITWISE_OPERATIONS(RenderDirtyFlags);
 
 struct MeshPayload {
-    const GpuMesh* mesh{ nullptr };
+    const GpuMesh* gpu_mesh{ nullptr };
     math::AABB local_bound{};
-
+    uint32_t index_count{};
     ecs::Entity skeleton{};
+
     std::vector<MeshAsset::MeshSubset> subsets;
     std::vector<ecs::Entity> materials;
 };
