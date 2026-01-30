@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/core/math/geomath.h"
-#include "engine/private/reflection/reflection.h"
+#include "cave/core/reflection/Reflection.h"
 
 #define FLAG_GETTER_SETTER(FLAG, DATA)             \
     bool Has##FLAG() const { return DATA & FLAG; } \

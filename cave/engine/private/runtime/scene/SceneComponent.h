@@ -4,7 +4,7 @@
 #include "engine/private/assets/asset_handle.h"
 #include "cave/core/math/AABB.h"
 #include "cave/core/math/Angle.h"
-#include "engine/private/reflection/reflection.h"
+#include "cave/core/reflection/Reflection.h"
 
 namespace cave {
 #include "shader_defines.hlsl.h"

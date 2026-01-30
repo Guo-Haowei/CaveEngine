@@ -3,7 +3,7 @@
 
 #include "engine/private/assets/asset_type.h"
 #include "cave/core/ids/Guid.h"
-#include "engine/private/reflection/meta.h"
+#include "cave/core/reflection/Meta.h"
 
 namespace cave {
 

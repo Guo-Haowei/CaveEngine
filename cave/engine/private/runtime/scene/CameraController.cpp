@@ -1,33 +1,51 @@
 #include "CameraController.h"
 
 #include "cave/core/math/Angle.h"
-#include "engine/private/runtime/scene/Scene.h"
+#include "cave/runtime/scene/CameraComponent.h"
 
 namespace cave {
 
-void CameraController2DEditor::Update(const CameraInputState& p_state) {
-    CameraComponent* camera = m_scene->GetComponent<CameraComponent>(m_cam);
-    TransformComponent* transform = m_scene->GetComponent<TransformComponent>(m_cam);
+using math::Matrix4x4f;
+using math::Vector3f;
 
+CameraController2DEditor::CameraController2DEditor(CameraComponent& p_camera,
+                                                   TransformComponent& p_tranform)
+    : m_camera(p_camera)
+    , m_root(p_tranform) {
+}
+
+void CameraController2DEditor::Update(const CameraInputState& p_state) {
     const bool moved = p_state.move.x || p_state.move.y;
+
+    bool need_update = false;
     if (moved) {
-        transform->Translate(math::Vector3f(p_state.move.x, p_state.move.y, 0.0f));
+        constexpr float speed = 1.0f;
+        m_root.Translate(math::Vector3f(p_state.move.x * speed,
+                                        p_state.move.y * speed,
+                                        0.0f));
+        need_update = true;
     }
 
     if (p_state.zoom_delta != 0.0f) {
-        float ortho_height = camera->GetOrthoHeight() + 4.0f * p_state.zoom_delta;
+        float ortho_height = m_camera.GetOrthoHeight() + 8.0f * p_state.zoom_delta;
         ortho_height = glm::clamp(ortho_height, 0.1f, 100.0f);
-        camera->SetOrthoHeight(ortho_height);
+        m_camera.SetOrthoHeight(ortho_height);
+        need_update = true;
+    }
+    if (need_update) {
+        m_camera.SetDirty();
+        m_root.UpdateTransform();
+        m_camera.Update(m_root.GetWorldMatrix());
     }
 }
 
-void CameraControllerFPS::Update(const CameraInputState& p_state) {
-    CameraComponent* camera = m_scene->GetComponent<CameraComponent>(m_cam);
-    TransformComponent* rotation_x = m_scene->GetComponent<TransformComponent>(m_cam);
-    TransformComponent* rotation_y = m_scene->GetComponent<TransformComponent>(m_cam_y);
-    TransformComponent* root = m_scene->GetComponent<TransformComponent>(m_cam_root);
-    DEV_ASSERT(camera && rotation_x && rotation_y && root);
+CameraControllerFPS::CameraControllerFPS(CameraComponent& p_camera,
+                                         TransformComponent& p_tranform)
+    : m_camera(p_camera)
+    , m_root(p_tranform) {
+}
 
+void CameraControllerFPS::Update(const CameraInputState& p_state) {
     const bool moved = p_state.move.x || p_state.move.y || p_state.move.z || p_state.zoom_delta != 0.0f;
     if (moved) {
         const float dx = p_state.move.x;
@@ -39,14 +57,12 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
             dz = scroll_z;
         }
 
-        math::Vector3f position = root->GetTranslation();
-
         if (dx || dz) {
-            math::Vector3f delta = (m_move_speed * dz) * camera->GetFront() + (m_move_speed * dx) * camera->GetRight();
-            root->Translate(delta);
+            Vector3f delta = (m_move_speed * dz) * m_camera.GetFront() + (m_move_speed * dx) * m_camera.GetRight();
+            m_root.Translate(delta);
         }
         if (dy) {
-            root->Translate(math::Vector3f(0.0f, m_move_speed * dy, 0.0f));
+            m_root.Translate(Vector3f(0.0f, m_move_speed * dy, 0.0f));
         }
     }
 
@@ -63,19 +79,29 @@ void CameraControllerFPS::Update(const CameraInputState& p_state) {
         }
 
         if (rotate_y) {
-            rotation_y->RotateY(math::Degree(-rotate_y));
+            m_root.RotateY(math::Degree(-rotate_y));
         }
 
         if (rotate_x) {
-            rotation_x->RotateX(math::Degree(rotate_x));
+            m_pitch += rotate_x;
+            m_pitch = math::clamp(m_pitch, -80.0f, 80.0f);
+            m_camera.SetDirty();
         }
 
         return rotate_x != 0.0f || rotate_y != 0.0f;
     };
 
     if (moved || rotate_camera()) {
-        camera->SetDirty();
+        m_camera.SetDirty();
     }
+    if (m_root.IsDirty()) {
+        m_camera.SetDirty();
+    }
+
+    m_root.UpdateTransform();
+    math::Matrix4x4f rotation = glm::rotate(glm::radians(m_pitch), glm::vec3(1, 0, 0));
+    math::Matrix4x4f trans = m_root.GetLocalMatrix() * rotation;
+    m_camera.Update(trans);
 }
 
 }  // namespace cave

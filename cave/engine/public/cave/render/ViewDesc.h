@@ -5,6 +5,7 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/math/Rect.h"
+#include "cave/runtime/scene/CameraComponent.h"
 
 namespace cave::render {
 
@@ -17,10 +18,25 @@ struct ViewOutputDesc {
     bool clear_depth = true;
 };
 
+struct CameraSource {
+    enum class Source : uint8_t {
+        Editor,
+        MainCamera,
+    } source;
+    CameraComponent camera;
+
+    static CameraSource Editor(const CameraComponent& p_camera) {
+        return { Source::Editor, p_camera };
+    }
+
+    static CameraSource MainCamera() {
+        return { Source::MainCamera };
+    }
+};
+
 struct ViewDesc {
+    CameraSource camera_source;
     SceneId scene_id;
-    ecs::Entity camera;
-    // CameraParams camera;
     math::IntRect viewport_pixel;
     ViewOutputDesc output;
     // missing: which render target info it draws to

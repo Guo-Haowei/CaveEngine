@@ -34,17 +34,18 @@ public:
 
     void Tick(float p_dt) override;
 
-    // @TODO: cleanup
     void BuildViews(std::vector<render::ViewDesc>& p_out_views) {
-        BuildViewsImpl(m_preview_scene, m_camera, p_out_views);
+        BuildViewsImpl(m_preview_scene, p_out_views);
     }
 
     DebugId GetDebugId() final { return m_debug_id; }
 
 protected:
-    void BuildViewsImpl(SceneId p_scene_id,
-                        ecs::Entity p_camera,
-                        std::vector<render::ViewDesc>& p_out_views);
+    void BuildViewsImpl(SceneId p_scene_id, std::vector<render::ViewDesc>& p_out_views);
+
+    void DrawUIImpl() override;
+
+    void DrawGizmo();
 
     // void OnCreateInternal(const Guid& p_guid) final;
 
@@ -66,11 +67,11 @@ protected:
     ViewDimension m_dim;
 
     // @TODO: move to input controller
-    void SetupDefault2DCamera();
-    void SetupDefault3DCamera();
-    std::shared_ptr<ICameraController> m_camera_controller;
+    std::unique_ptr<ICameraController> m_camera_controller;
     CameraInputState m_camera_state;
-    ecs::Entity m_camera;
+    CameraComponent m_camera;
+    TransformComponent m_camera_transform;
+
     Scene* GetResolvedScene();
     CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
     CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st);

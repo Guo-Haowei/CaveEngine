@@ -1,3 +1,5 @@
+#include "RenderScene.h"
+
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/core/math/frustum.h"
@@ -7,12 +9,10 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
-namespace cave {
+// @TODO: enventually get rid of this file
+namespace cave::render {
 
 using namespace cave::math;
-
-using FilterObjectFunc1 = std::function<bool(const MeshRendererComponent& p_object)>;
-using FilterObjectFunc2 = std::function<bool(const AABB& p_object_aabb)>;
 
 // @TODO: fix this function OMG
 static void FillMaterialConstantBuffer(bool p_is_opengl,
@@ -73,62 +73,89 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
     cb.c_hasMaterialMap = set_texture(TextureSlot::MetallicRoughness, cb.c_materialMapHandle);
 };
 
-// @TODO: refactor this
-static void FillPass(const Scene& p_scene,
-                     FilterObjectFunc1 p_filter1,
-                     FilterObjectFunc2 p_filter2,
-                     std::vector<RenderCommand>& p_commands,
-                     FrameData& p_framedata) {
+using FilterObjectFunc1 = std::function<bool(const RenderableHeader&)>;
+using FilterObjectFunc2 = std::function<bool(const AABB&)>;
 
-    auto view = p_scene.View<MeshRendererComponent, TransformComponent>();
-    for (auto [entity, renderer, transform] : view) {
-        const MeshAsset* _mesh = renderer.GetMeshHandle().Get();
-        if (!_mesh) continue;
+static void FillPass(const RenderScene& p_rs,
+                     const Scene& p_es,
+                     FilterObjectFunc1 p_filter,
+                     const math::Frustum& p_frustum,
+                     std::vector<DrawItem>& p_commands,
+                     FrameData& p_framedata,
+                     bool p_no_mat) {
 
-        if (!p_filter1(renderer)) continue;
+    for (const RenderableHeader& header : p_rs.m_renderables) {
+        if (!p_filter(header)) continue;
+        if (!p_frustum.Intersects(header.world_bound)) continue;
+        if (header.payload.kind != PayloadKind::Mesh) continue;
+        if (header.payload.index == kInvalidPayload) continue;
+        const MeshPayload& mesh = p_rs.m_meshes[header.payload.index];
 
-        const MeshAsset& mesh = *_mesh;
-        const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
-        AABB aabb = mesh.localBound;
-        aabb.ApplyMatrix(world_matrix);
-        if (!p_filter2(aabb)) {
+        ecs::Entity skeleton_id = mesh.skeleton;
+        PerBatchConstantBuffer batch_buffer;
+        batch_buffer.c_worldMatrix = header.world;
+        batch_buffer.c_meshFlag = skeleton_id.IsValid();
+
+        DrawItem draw;
+        // @TODO: refactor the stencil part
+        // if (entity == scene.m_selected) {
+        //    draw.flags = STENCIL_FLAG_SELECTED;
+        //}
+        if (skeleton_id.IsValid()) {
+            const SkeletonComponent* skeleton = p_es.GetComponent<SkeletonComponent>(skeleton_id);
+            if (skeleton) {
+                DEV_ASSERT(skeleton->bone_transforms.size() <= MAX_BONE_COUNT);
+
+                BoneConstantBuffer bone;
+                memcpy(bone.c_bones, skeleton->bone_transforms.data(), sizeof(Matrix4x4f) * skeleton->bone_transforms.size());
+
+                // @TODO: better memory usage
+                draw.bone_idx = p_framedata.boneCache.FindOrAdd(skeleton_id, bone);
+            }
+        }
+
+        if (!mesh.gpu_mesh) {
             continue;
         }
 
-        ecs::Entity skeleton_id = renderer.GetSkeletonId();
-        PerBatchConstantBuffer batch_buffer;
-        batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_meshFlag = skeleton_id.IsValid();
+        draw.mesh_data = mesh.gpu_mesh;
+        draw.batch_idx = p_framedata.batchCache.FindOrAdd(header.owner, batch_buffer);
 
-        DrawCommand draw;
-        // if (entity == p_scene.m_selected) {
-        //     draw.flags = STENCIL_FLAG_SELECTED;
-        // }
-
-        draw.batch_idx = p_framedata.batchCache.FindOrAdd(entity, batch_buffer);
-        if (skeleton_id.IsValid()) {
-            auto& skeleton = *p_scene.GetComponent<SkeletonComponent>(skeleton_id);
-            DEV_ASSERT(skeleton.bone_transforms.size() <= MAX_BONE_COUNT);
-
-            BoneConstantBuffer bone;
-            memcpy(bone.c_bones, skeleton.bone_transforms.data(), sizeof(Matrix4x4f) * skeleton.bone_transforms.size());
-
-            // @TODO: better memory usage
-            draw.bone_idx = p_framedata.boneCache.FindOrAdd(skeleton_id, bone);
-        } else {
-            draw.bone_idx = -1;
+        // if pass doesn't need material, early return
+        if (p_no_mat) {
+            draw.mat_idx = -1;
+            draw.index = { 0, mesh.index_count };
+            p_commands.emplace_back(draw);
+            continue;
         }
 
-        draw.mesh_data = mesh.gpuResource.get();
-        if (draw.mesh_data) {
-            draw.mat_idx = -1;
-            draw.index_count = static_cast<uint32_t>(mesh.indices.size());
-            p_commands.emplace_back(RenderCommand::From(draw));
+        // otherwise go through all the subsets
+        for (size_t idx = 0; idx < mesh.subsets.size(); ++idx) {
+            const auto& subset = mesh.subsets[idx];
+            // @TODO: cache world bound
+            AABB aabb2 = subset.local_bound;
+            aabb2.ApplyMatrix(header.world);
+            if (!p_frustum.Intersects(aabb2)) continue;
+
+            ecs::Entity material_id = mesh.materials[idx];
+            const MaterialComponent* material = p_es.GetComponent<MaterialComponent>(material_id);
+
+            MaterialConstantBuffer material_buffer;
+            FillMaterialConstantBuffer(p_framedata.options.isOpengl,
+                                       material,
+                                       material_buffer);
+
+            draw.index = { subset.index_offset, subset.index_count };
+            draw.mat_idx = p_framedata.materialCache.FindOrAdd(material_id, material_buffer);
+
+            p_commands.emplace_back(draw);
         }
     }
 }
 
-static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
+static void FillLightBuffer(const RenderScene& p_rs,
+                            const Scene& p_scene,
+                            FrameData& p_framedata) {
     const uint32_t light_count = glm::min<uint32_t>((uint32_t)p_scene.GetCount<LightComponent>(), MAX_LIGHT_COUNT);
 
     auto& cache = p_framedata.perFrameCache;
@@ -186,18 +213,17 @@ static void FillLightBuffer(const Scene& p_scene, FrameData& p_framedata) {
                 p_framedata.shadowPasses[0].pass_idx = static_cast<int>(p_framedata.passCache.size());
                 p_framedata.passCache.emplace_back(pass_constant);
 
-                // @TODO: fix
                 Frustum light_frustum(light.projection_matrix * light.view_matrix);
                 FillPass(
+                    p_rs,
                     p_scene,
-                    [](const MeshRendererComponent& p_object) {
-                        return p_object.CastShadow();
+                    [](const RenderableHeader& p_renderable) {
+                        return p_renderable.HasFlag(RenderableFlags::CastShadow);
                     },
-                    [&](const AABB& p_aabb) {
-                        return light_frustum.Intersects(p_aabb);
-                    },
-                    p_framedata.shadow_pass_commands,
-                    p_framedata);
+                    light_frustum,
+                    p_framedata.commands[std::to_underlying(DrawPhase::Shadow)],
+                    p_framedata,
+                    true);
             } break;
             case LIGHT_TYPE_POINT: {
                 // @TODO: there's a bug in shadow map allocation
@@ -306,7 +332,9 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
     cache.c_voxelSize = voxel_size;
 }
 
-static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
+static void FillMainPass(const Scene& p_es,
+                         const RenderScene& p_rs,
+                         FrameData& p_framedata) {
     const auto& camera = p_framedata.camera_params;
 
     // main pass
@@ -317,130 +345,48 @@ static void FillMainPass(const Scene* p_scene, FrameData& p_framedata) {
     p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.passCache.size());
     p_framedata.passCache.emplace_back(pass_constant);
 
-    if (!p_scene) {
-        return;
-    }
-    const Scene& scene = *p_scene;
+    FillPass(
+        p_rs,
+        p_es,
+        [](const RenderableHeader& p_header) {
+            // only draw visible opaque objects for pre pass
+            return p_header.HasFlag(RenderableFlags::Visible) && !p_header.HasFlag(RenderableFlags::Transparent);
+        },
+        camera.frustum,
+        p_framedata.commands[std::to_underlying(DrawPhase::DepthPrepass)],
+        p_framedata,
+        true);
 
-    using FilterFunc = std::function<bool(const AABB&)>;
-    FilterFunc filter_main = [&](const AABB& p_aabb) -> bool { return camera.frustum.Intersects(p_aabb); };
+    FillPass(
+        p_rs,
+        p_es,
+        [](const RenderableHeader& p_header) {
+            // only draw visible opaque objects for deferred pass
+            return p_header.HasFlag(RenderableFlags::Visible) && !p_header.HasFlag(RenderableFlags::Transparent);
+        },
+        camera.frustum,
+        p_framedata.commands[std::to_underlying(DrawPhase::Deferred)],
+        p_framedata,
+        false);
 
-    const bool is_opengl = p_framedata.options.isOpengl;
-    for (auto [entity, renderer] : scene.View<MeshRendererComponent>()) {
-        const MeshAsset* _mesh = renderer.GetMeshHandle().Get();
-        if (_mesh == nullptr) continue;
-        const MeshAsset& mesh = *_mesh;
-
-        const bool is_visible = renderer.IsVisible();
-        const bool is_transparent = renderer.Transparency();
-        const bool is_opaque = is_visible && !is_transparent;
-
-        // @TODO: cast shadow
-
-        const TransformComponent& transform = *scene.GetComponent<TransformComponent>(entity);
-        DEV_ASSERT(scene.Contains<TransformComponent>(entity));
-
-        const Matrix4x4f& world_matrix = transform.GetWorldMatrix();
-        AABB aabb = mesh.localBound;
-        aabb.ApplyMatrix(world_matrix);
-
-        ecs::Entity skeleton_id = renderer.GetSkeletonId();
-        PerBatchConstantBuffer batch_buffer;
-        batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_meshFlag = skeleton_id.IsValid();
-
-        DrawCommand draw;
-        // @TODO: refactor the stencil part
-        // if (entity == scene.m_selected) {
-        //    draw.flags = STENCIL_FLAG_SELECTED;
-        //}
-
-        if (skeleton_id.IsValid()) {
-            const SkeletonComponent* skeleton = scene.GetComponent<SkeletonComponent>(skeleton_id);
-            if (skeleton) {
-                DEV_ASSERT(skeleton->bone_transforms.size() <= MAX_BONE_COUNT);
-
-                BoneConstantBuffer bone;
-                memcpy(bone.c_bones, skeleton->bone_transforms.data(), sizeof(Matrix4x4f) * skeleton->bone_transforms.size());
-
-                // @TODO: better memory usage
-                draw.bone_idx = p_framedata.boneCache.FindOrAdd(skeleton_id, bone);
-            }
-        }
-
-        draw.mat_idx = -1;
-        draw.batch_idx = p_framedata.batchCache.FindOrAdd(entity, batch_buffer);
-        draw.index_count = static_cast<uint32_t>(mesh.indices.size());
-        draw.mesh_data = (GpuMesh*)mesh.gpuResource.get();
-        if (!draw.mesh_data) {
-            continue;
-        }
-
-        auto add_to_pass = [&](std::vector<RenderCommand>& p_commands,
-                               FilterFunc& p_filter,
-                               bool p_model_only) {
-            if (!p_filter(aabb)) {
-                return;
-            }
-
-            DrawCommand draw_cmd = draw;
-            if (p_model_only) {
-                p_commands.emplace_back(RenderCommand::From(draw_cmd));
-                return;
-            }
-
-            const auto& materials = renderer.GetMaterialInstances();
-
-            for (size_t idx = 0; idx < mesh.subsets.size(); ++idx) {
-                const auto& subset = mesh.subsets[idx];
-                AABB aabb2 = subset.local_bound;
-                aabb2.ApplyMatrix(world_matrix);
-                if (!p_filter(aabb2)) {
-                    continue;
-                }
-
-                // @TODO: [SCRUM-210] fix material
-                MaterialConstantBuffer material_buffer;
-                ecs::Entity material_id =
-                    idx < materials.size() ? materials[idx] : ecs::Entity::Null();
-
-                const MaterialComponent* material = p_scene->GetComponent<MaterialComponent>(material_id);
-
-                FillMaterialConstantBuffer(is_opengl, material, material_buffer);
-
-                draw_cmd.index_count = subset.index_count;
-                draw_cmd.index_offset = subset.index_offset;
-                draw_cmd.mat_idx = p_framedata.materialCache.FindOrAdd(material_id, material_buffer);
-
-                p_commands.emplace_back(RenderCommand::From(draw_cmd));
-            }
-        };
-
-        if (is_opaque) {
-            add_to_pass(p_framedata.prepass_commands, filter_main, true);
-        }
-
-        if (is_opaque) {
-            add_to_pass(p_framedata.gbuffer_commands, filter_main, false);
-        }
-
-        if (is_transparent && is_visible) {
-            add_to_pass(p_framedata.transparent_commands, filter_main, false);
-        }
-
-        if (p_framedata.voxel_gi_bound.IsValid()) {
-            FilterFunc gi_filter = [&](const AABB& p_aabb) -> bool { return p_framedata.voxel_gi_bound.Intersects(p_aabb); };
-            add_to_pass(p_framedata.voxelization_commands, gi_filter, false);
-        }
-    }
+    FillPass(
+        p_rs,
+        p_es,
+        [](const RenderableHeader& p_header) {
+            return p_header.HasFlag(RenderableFlags::Visible) && p_header.HasFlag(RenderableFlags::Transparent);
+        },
+        camera.frustum,
+        p_framedata.commands[std::to_underlying(DrawPhase::Forward)],
+        p_framedata,
+        false);
 }
 
-void RunMeshRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
-    if (p_scene) {
-        FillLightBuffer(*p_scene, p_framedata);
-        FillVoxelPass(*p_scene, p_framedata);
-    }
-    FillMainPass(p_scene, p_framedata);
+void RunMeshRenderSystem(const Scene& p_scene,
+                         const RenderScene& p_rscene,
+                         FrameData& p_framedata) {
+    FillLightBuffer(p_rscene, p_scene, p_framedata);
+    FillVoxelPass(p_scene, p_framedata);
+    FillMainPass(p_scene, p_rscene, p_framedata);
 }
 
 // @TODO: fix emitter
@@ -526,4 +472,4 @@ static void FillParticleEmitterBuffer(const Scene& p_scene,
 }
 #endif
 
-}  // namespace cave
+}  // namespace cave::render

@@ -1,4 +1,4 @@
-#include "CameraComponent.h"
+#include "cave/runtime/scene/CameraComponent.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 
@@ -37,6 +37,8 @@ Matrix4x4f CameraComponent::CalcProjectionGL() const {
 }
 
 bool CameraComponent::Update(const math::Matrix4x4f& p_transform) {
+    // @NOTE: the logic is wrong here,
+    // if the transform has changed, the cache must update too
     if (IsDirty()) {
         SetDirty(false);
 

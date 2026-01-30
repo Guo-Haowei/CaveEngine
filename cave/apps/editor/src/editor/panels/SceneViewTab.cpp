@@ -15,6 +15,7 @@
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/renderer/graphics_dvars.h"
 
 #include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
@@ -24,6 +25,9 @@
 #include "editor/EditorDvars.h"
 
 namespace cave {
+
+using math::Matrix4x4f;
+using math::Vector3f;
 
 SceneViewTab::SceneViewTab(EditorState& p_editor,
                            DocId p_doc_id,
@@ -50,43 +54,37 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
 
 // @TODO: game view tab
 void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
-                                  ecs::Entity p_camera,
                                   std::vector<render::ViewDesc>& p_out_views) {
-    // @TODO: refactor scene view API
+    using namespace render;
+    ViewDesc scene_view;
     if (m_editor.IsPlaying()) {
-        render::ViewDesc scene_view;
         scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-
-        // @HACK: find the first non-editor camera
-        // normally, shouldn't search for camera
-        const Scene* scene = m_editor.GetApp().GetSceneRegistry()->Resolve(scene_view.scene_id);
-        for (auto [id, camera] : scene->View<CameraComponent>()) {
-            if (scene->Contains<NoSaveTag>(id)) {
-                continue;
-            }
-
-            scene_view.camera = id;
-            p_out_views.push_back(scene_view);
-            break;
-        }
-        return;
+        scene_view.camera_source = CameraSource::MainCamera();
+    } else {
+        scene_view.scene_id = p_scene_id;
+        scene_view.camera_source = CameraSource::Editor(m_camera);
     }
-
-    render::ViewDesc scene_view;
-    scene_view.scene_id = p_scene_id;
-    scene_view.camera = p_camera;
     p_out_views.push_back(scene_view);
 }
 
 void SceneViewTab::OnCreate() {
+    math::Vector2i frame_size = DVAR_GET_IVEC2(resolution);
+    m_camera.SetWidth(frame_size.x);
+    m_camera.SetHeight(frame_size.y);
+    m_camera.SetDirty();
     switch (m_dim) {
         case DIMENSION_2: {
-            SetupDefault2DCamera();
+            m_camera.SetProjection(ProjectionType::Orthographic);
+            m_camera_controller = std::make_unique<CameraController2DEditor>(m_camera, m_camera_transform);
         } break;
         case DIMENSION_3: {
-            SetupDefault3DCamera();
+            m_camera_transform.Translate(Vector3f(0, 4, 8));
+            m_camera_controller = std::make_unique<CameraControllerFPS>(m_camera, m_camera_transform);
         } break;
     }
+
+    m_camera_transform.UpdateTransform();
+    m_camera.Update(m_camera_transform.GetWorldMatrix());
 
     IApplication& app = m_editor.GetApp();
     app.GetSceneScheduler().Register(this);
@@ -144,31 +142,33 @@ void SceneViewTab::Tick(float p_dt) {
     m_camera_controller->Update(m_camera_state);
 }
 
-// @TODO: rename this to DrawEditor
-#if 0
-void SceneEditor::DrawMainView(const CameraComponent&) {
-    CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
+void SceneViewTab::DrawUIImpl() {
+    Tab::DrawUIImpl();
 
+    if (m_editor.IsPlaying()) return;
+    DrawGizmo();
+}
+
+// @TODO: rename this to DrawEditor
+void SceneViewTab::DrawGizmo() {
+    DEV_ASSERT(!m_camera.IsDirty());
     DocId doc_id = GetDocId();
 
-    ViewerTab::DrawMainView(camera);
-
-    const Matrix4x4f& view_matrix = camera.GetViewMatrix();
-    const Matrix4x4f& proj_matrix = camera.GetProjectionMatrix();
-    const Matrix4x4f& proj_view = camera.GetProjectionViewMatrix();
-
-    const Vector2f& canvas_min = m_viewer.GetCanvasMin();
-    const Vector2f& canvas_size = m_viewer.GetCanvasSize();
+    const Matrix4x4f& view_matrix = m_camera.GetViewMatrix();
+    const Matrix4x4f& proj_matrix = m_camera.GetProjectionMatrix();
+    const Matrix4x4f& proj_view = m_camera.GetProjectionViewMatrix();
 
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();
 
     ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
+    ImGuizmo::SetRect(m_rect.x, m_rect.y, m_rect.w, m_rect.h);
 
     SelectionKey selection = m_editor.SelectionService().Primary(m_doc_id);
     ecs::Entity id = selection.entity;
-    TransformComponent* transform_component = scene.GetComponent<TransformComponent>(id);
+
+    Scene* scene = GetResolvedScene();
+    TransformComponent* transform_component = scene->GetComponent<TransformComponent>(id);
 
     EditService& edit_service = m_editor.EditService();
 
@@ -208,22 +208,18 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     }
 
     // @TODO: make show_editor as viewer attribute
-    // drag grid, grid size, snap, etc
     const bool show_editor = DVAR_GET_BOOL(show_editor);
     if (show_editor) {
         ImGuizmo::DrawAxes(proj_view);
 
-        DEV_ASSERT(0);
-        //const float size = 120.f;
-        //const auto& min = m_viewer.GetCanvasMin();
-        //ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
-        //                         10.0f,
-        //                         ImVec2(min.x, min.y),
-        //                         ImVec2(size, size),
-        //                         IM_COL32(64, 64, 64, 96));
+        // const float size = 240.f;
+        // ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
+        //                          10.0f,
+        //                          ImVec2(m_rect.x, m_rect.y),
+        //                          ImVec2(size, size),
+        //                          IM_COL32(64, 64, 64, 96));
     }
 }
-#endif
 
 // const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
 //     return { &m_play_button };
@@ -257,59 +253,13 @@ Scene* SceneViewTab::GetResolvedScene() {
     return m_editor.GetApp().GetSceneRegistry()->Resolve(m_preview_scene);
 }
 
-static const char EDITOR_CAMERA_NAME[] = "_editor_cam";
-
-void SceneViewTab::SetupDefault2DCamera() {
-    Scene* scene = GetResolvedScene();
-    DEV_ASSERT(scene);
-
-    ecs::Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    if (!cam.IsValid()) {
-        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
-        scene->Create<NoSaveTag>(cam);
-        scene->AttachChild(cam);
-        CameraComponent* camera = scene->GetComponent<CameraComponent>(cam);
-        camera->SetProjection(ProjectionType::Orthographic);
-        TransformComponent* transform = scene->GetComponent<TransformComponent>(cam);
-        transform->SetTranslation(math::Vector3f(0, 0, 10));
-    }
-
-    m_camera = cam;
-    m_camera_controller = std::make_shared<CameraController2DEditor>(scene, cam);
-}
-
-void SceneViewTab::SetupDefault3DCamera() {
-    Scene* scene = GetResolvedScene();
-    DEV_ASSERT(scene);
-
-    ecs::Entity cam = scene->FindEntityByName(EDITOR_CAMERA_NAME);
-    ecs::Entity cam_y = scene->FindEntityByName("_editor_cam_y");
-    ecs::Entity cam_root = scene->FindEntityByName("_editor_cam_root");
-
-    if (!cam.IsValid()) {
-        cam = EntityFactory::CreateCameraEntity(*scene, EDITOR_CAMERA_NAME);
-        cam_y = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_y");
-        cam_root = EntityFactory::CreateTransformEntity(*scene, "_editor_cam_root");
-
-        scene->Create<NoSaveTag>(cam);
-        scene->Create<NoSaveTag>(cam_y);
-        scene->Create<NoSaveTag>(cam_root);
-
-        scene->AttachChild(cam_root);
-        scene->AttachChild(cam_y, cam_root);
-        scene->AttachChild(cam, cam_y);
-    }
-
-    m_camera = cam;
-    m_camera_controller = std::make_shared<CameraControllerFPS>(scene, cam_root, cam_y, cam);
-}
-
-CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState&) {
+CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_ks) {
     CameraInputState state{};
 
+    const InputDeviceId id{ 0 };
     float dx = 0.0f;
     float dy = 0.0f;
-    bool mmb = false;
+    const bool mmb = p_ks.Down(id, Key::MMB);
 
     for (const InputEvent& e : p_events) {
         if (e.consumed) {
@@ -326,19 +276,13 @@ CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputE
                 dx = -e.dx;
                 dy = e.dy;
             } break;
-            case InputEventType::ButtonDown:
-                if (e.code == std::to_underlying(Key::MMB)) {
-                    e.consumed = true;
-                    mmb = true;
-                }
-                break;
             default:
                 break;
         }
+    }
 
-        if (mmb) {
-            state.move = math::Vector3f(dx, dy, 0.0f);
-        }
+    if (mmb) {
+        state.move = math::Vector3f(dx, dy, 0.0f);
     }
 
     return state;

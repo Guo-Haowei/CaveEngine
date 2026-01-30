@@ -21,8 +21,8 @@ void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
         const auto& rect = sprite_renderer.GetRect();
         batch_buffer.c_uv_rect = Vector4f(rect.GetMin(), rect.GetMax());
 
-        DrawCommand draw;
-        draw.index_count = 6;
+        DrawItem draw;
+        draw.index.count = 6;
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
         ImageAsset* image = sprite_renderer.GetHandle().Get();
@@ -32,7 +32,7 @@ void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
             // @TODO: dummy sprite?
         }
 
-        p_framedata.sprites.push_back(RenderCommand::From(draw));
+        p_framedata.sprites.push_back(draw);
     }
 }
 

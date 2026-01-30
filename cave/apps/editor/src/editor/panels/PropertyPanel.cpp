@@ -16,8 +16,8 @@
 
 #include "engine/private/assets/sprite_animation_asset.h"
 #include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/runtime/string/StringUtils.h"
-#include "engine/private/reflection/meta_editor.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
@@ -25,7 +25,6 @@
 #include "engine/private/ui/layout.h"
 
 #include "editor/EditorState.h"
-#include "editor/services/EditService.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/viewer/Viewer.h"
 #include "editor/widgets/DragDrop.h"

@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/math/Vector.h"
 #include "cave/core/math/Matrix.h"
-#include "engine/private/reflection/reflection.h"
+#include "cave/core/reflection/Reflection.h"
 
 namespace cave {
 
@@ -56,9 +56,6 @@ private:
     math::Matrix4x4f m_projection_matrix;
     math::Matrix4x4f m_projection_view_matrix;
 
-    friend class CameraControllerFPS;
-    friend class EntityFactory;
-
 public:
     static constexpr float kDefaultNear = 0.1f;
     static constexpr float kDefaultFar = 1000.0f;
@@ -88,7 +85,17 @@ public:
     }
 
     int GetWidth() const { return m_width; }
+    void SetWidth(int p_width) {
+        m_width = p_width;
+        SetDirty();
+    }
+
     int GetHeight() const { return m_height; }
+    void SetHeight(int p_height) {
+        m_height = p_height;
+        SetDirty();
+    }
+
     float GetAspect() const { return (float)m_width / m_height; }
 
     void SetProjection(ProjectionType p_projection) { m_projection = p_projection; }
@@ -96,16 +103,19 @@ public:
     float GetOrthoHeight() const { return m_ortho_height; }
     void SetOrthoHeight(float p_height);
 
+    math::Matrix4x4f CalcProjection() const;
+    math::Matrix4x4f CalcProjectionGL() const;
+
+    // ---------------- Accessors ----------------
+    // these values are modified by Update() function only
     const math::Matrix4x4f& GetViewMatrix() const { return m_view_matrix; }
     const math::Matrix4x4f& GetProjectionMatrix() const { return m_projection_matrix; }
     const math::Matrix4x4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
+
     const math::Vector3f& GetFront() const { return m_front; }
     const math::Vector3f& GetRight() const { return m_right; }
     const math::Vector3f& GetUp() const { return m_up; }
     const math::Vector3f& GetPosition() const { return m_position; }
-
-    math::Matrix4x4f CalcProjection() const;
-    math::Matrix4x4f CalcProjectionGL() const;
 
     bool IsDirty() const { return m_flags & DirtyFlag; }
     void SetDirty(bool p_value = true) { p_value ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }

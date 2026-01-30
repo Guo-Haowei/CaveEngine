@@ -6,19 +6,21 @@
 #include "cave/render/ViewDesc.h"
 
 #include "engine/private/render/renderer/ResolvedView.h"
+#include "engine/private/render/renderer/RenderPackets.h"
 
 #include "engine/private/core/math/color.h"
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/debug_draw.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_defines.h"
-#include "engine/private/renderer/render_command.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"
 }  // namespace cave
 
 namespace cave {
+
+using render::DrawItem;
 
 class Scene;
 
@@ -62,12 +64,19 @@ struct BufferCache {
     }
 };
 
-struct FrameData {
-    FrameData(const RenderOptions& p_options)
-        : options(p_options) {
-    }
+enum class DrawPhase : uint8_t {
+    Shadow = 0,
+    DepthPrepass,
+    Deferred,
+    Forward,
+    Voxelization,
+    // TileMap,
+    // Sprite,
+    Count,
+};
 
-    const RenderOptions options;
+struct FrameData {
+    RenderOptions options;
     render::ResolvedView camera_params;  // @TODO: rename
     // const ViewInfo* view_info{ nullptr };
 
@@ -88,13 +97,9 @@ struct FrameData {
     PassContext voxelPass;
     PassContext mainPass;
 
-    std::vector<RenderCommand> shadow_pass_commands;
-    std::vector<RenderCommand> prepass_commands;
-    std::vector<RenderCommand> gbuffer_commands;
-    std::vector<RenderCommand> transparent_commands;
-    std::vector<RenderCommand> voxelization_commands;
-    std::vector<RenderCommand> tile_maps;
-    std::vector<RenderCommand> sprites;
+    std::array<std::vector<DrawItem>, std::to_underlying(DrawPhase::Count)> commands;
+    std::vector<DrawItem> tile_maps;
+    std::vector<DrawItem> sprites;
 
     // std::vector<InstanceContext> instances;
 

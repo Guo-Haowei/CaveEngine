@@ -22,7 +22,7 @@ public:
 
     void RenderFrame(std::span<const render::ViewDesc> p_views);
 
-    const FrameData* GetFrameData() const;
+    std::span<const FrameData> GetFrameData() const;
 
 protected:
     auto InitializeImpl() -> Result<void> override;

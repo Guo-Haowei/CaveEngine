@@ -6,7 +6,7 @@ import sys
 def get_engine_src_folder():
     source_folder = os.path.dirname(os.path.abspath(__file__))
     project_dir = os.path.dirname(source_folder)
-    return os.path.join(project_dir, 'cave', 'engine', 'private')
+    return os.path.join(project_dir, 'cave', 'engine')
 
 print('Project root folder:', get_engine_src_folder())
 
@@ -15,33 +15,32 @@ print('Project root folder:', get_engine_src_folder())
 # ========= CONFIG ==========
 FILES = [
     # assets
-    'assets/asset_meta_data.h',
-    'assets/material_asset.h',
-    'assets/sprite_animation_asset.h',
-    'assets/tile_map_asset.h',
-    'assets/tile_set_asset.h',
-
+    'private/assets/asset_meta_data.h',
+    'private/assets/material_asset.h',
+    'private/assets/sprite_animation_asset.h',
+    'private/assets/tile_map_asset.h',
+    'private/assets/tile_set_asset.h',
     # components
-    'runtime/scene/ColliderComponent.h',
-    'runtime/scene/CameraComponent.h',
-    'runtime/scene/LightComponent.h',
-    'runtime/scene/LuaScriptComponent.h',
-    'runtime/scene/MaterialComponent.h',
-    'runtime/scene/TransformComponent.h',
-    'runtime/scene/SceneComponent.h',
-    'runtime/scene/SkeletalAnimationComponent.h',
-    'runtime/scene/SpriteAnimatorComponent.h',
+    'private/runtime/scene/ColliderComponent.h',
+    'public/cave/runtime/scene/CameraComponent.h',
+    'private/runtime/scene/LightComponent.h',
+    'private/runtime/scene/LuaScriptComponent.h',
+    'private/runtime/scene/MaterialComponent.h',
+    'private/runtime/scene/TransformComponent.h',
+    'private/runtime/scene/SceneComponent.h',
+    'private/runtime/scene/SkeletalAnimationComponent.h',
+    'private/runtime/scene/SpriteAnimatorComponent.h',
     # renderers
-    'runtime/scene/MeshRendererComponent.h',
-    'runtime/scene/SpriteRendererComponent.h',
-    'runtime/scene/TileMapRendererComponent.h',
+    'private/runtime/scene/MeshRendererComponent.h',
+    'private/runtime/scene/SpriteRendererComponent.h',
+    'private/runtime/scene/TileMapRendererComponent.h',
 ]
 
-OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'reflection/generated')
+OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'private/core/reflection/generated')
 SCRIPT_NAME = os.path.basename(__file__)
 
 META_CPP_SUFFIX = '.generated.cpp'
-META_CPP_ALL = 'meta_all.cpp'
+META_CPP_ALL = 'MetaAll.cpp'
 
 # ========= REGEX ==========
 
@@ -167,9 +166,9 @@ def generate_meta_file(base_path, file_path, metas):
         f.write(f"// Auto-generated metadata for {filename}\n")
         f.write(f"// Check {SCRIPT_NAME} for more details\n\n")
 
-        f.write('#include "engine/private/reflection/meta_editor.h"\n')
+        f.write('#include "engine/private/core/reflection/MetaEditor.h"\n')
         f.write('#include "engine/private/serialization/yaml_include.h"\n')
-        f.write(f'#include "engine/private/{base_path}"\n\n')
+        f.write(f'#include "engine/{base_path}"\n\n')
         f.write('namespace cave {\n\n')
 
         for class_name, fields in metas.items():

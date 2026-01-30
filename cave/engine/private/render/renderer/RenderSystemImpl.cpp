@@ -15,7 +15,6 @@
 
 namespace cave {
 
-extern void RunMeshRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
 extern void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata);
@@ -27,6 +26,11 @@ namespace cave::render {
 
 using math::Vector3f;
 using math::Vector4f;
+
+// @TODO: remove this
+extern void RunMeshRenderSystem(const Scene& p_scene,
+                                const RenderScene& p_rscene,
+                                FrameData& p_framedata);
 
 #if 0
 static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matrix) {
@@ -162,13 +166,17 @@ RenderSystemImpl::RenderSystemImpl(IApplication& p_app)
 }
 
 void RenderSystemImpl::BeginFrame() {
-    if (m_frameData) {
-        delete m_frameData;
-        m_frameData = nullptr;
-    }
+}
 
+void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
+    CAVE_PROFILE_EVENT();
+
+    m_frame_data.clear();
+    m_frame_data.resize(p_views.size());
+
+    const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
     RenderOptions options = {
-        .isOpengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL,
+        .isOpengl = is_opengl,
         .ssaoEnabled = DVAR_GET_BOOL(gfx_ssao_enabled),
         .vxgiEnabled = false,
         .bloomEnabled = DVAR_GET_BOOL(gfx_enable_bloom),
@@ -180,45 +188,47 @@ void RenderSystemImpl::BeginFrame() {
     };
 
     // @HACK: really need to refactor this crap
-    m_frameData = new FrameData(options);
-    static int s_should_bake = 0;
-    if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
-        if (s_should_bake == 1) m_frameData->bakeIbl = true;
-        ++s_should_bake;
+    if (m_frame_data.size()) {
+        static int s_should_bake = 0;
+        if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
+            if (s_should_bake == 1) m_frame_data[0].bakeIbl = true;
+            ++s_should_bake;
+        }
     }
-}
 
-void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
-    CAVE_PROFILE_EVENT();
-
-    const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
-    DEV_ASSERT(m_frameData);
-    FrameData& framedata = *m_frameData;
-
+    int i = 0;
     for (const render::ViewDesc& view : p_views) {
-        Scene* scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
-        if (!scene) continue;
+        Scene* ecs_scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
+        DEV_ASSERT(ecs_scene);
+        if (!ecs_scene) continue;
 
-        // RenderScene& rs = GetOrCreateRenderScene(view.scene_id);
-        // m_scene_builder.BuildFull(*scene, rs);
+        RenderScene& render_scene = GetOrCreateRenderScene(view.scene_id);
+        m_scene_builder.BuildFull(*ecs_scene, render_scene);
 
-        ResolvedView resolved = ResolveView(view, scene, is_opengl);
+        ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
 
+        FrameData& framedata = m_frame_data[i++];
+        framedata.options = options;
         framedata.camera_params = resolved;
-        // @TODO: only support one view, fix this
-        FillConstantBuffer(scene, framedata);
-        RunMeshRenderSystem(scene, framedata);
-        RunTileMapRenderSystem(scene, framedata);
-        RunSpriteRenderSystem(scene, framedata);
-        RunDebugRenderSystem(scene, framedata);
+
+        FillConstantBuffer(ecs_scene, framedata);
+
+        RunMeshRenderSystem(*ecs_scene, render_scene, framedata);
+        RunTileMapRenderSystem(ecs_scene, framedata);
+        RunSpriteRenderSystem(ecs_scene, framedata);
+        RunDebugRenderSystem(ecs_scene, framedata);
         FillEnvConstants(framedata);
 
         // @TODO: fix path tracer
         // if (p_scene) {
         //    RequestPathTracerUpdate(*camera, *p_scene);
         //}
-        if (scene) break;
+        // if (ecs_scene) break;
     }
+}
+
+RenderScene& RenderSystemImpl::GetOrCreateRenderScene(SceneId p_scene_id) {
+    return m_scene_cache[p_scene_id];
 }
 
 }  // namespace cave::render

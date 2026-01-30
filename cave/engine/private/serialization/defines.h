@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/reflection/meta.h"
+#include "cave/core/reflection/Meta.h"
 #include "engine/private/serialization/concept.h"
 
 #define VALIDATE_SERIALIZER USE_IF(USING(ENABLE_ASSERT))

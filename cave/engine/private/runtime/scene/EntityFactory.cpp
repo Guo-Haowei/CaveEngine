@@ -2,7 +2,6 @@
 
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/core/math/geometry.h"
-#include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -10,28 +9,6 @@ namespace cave {
 
 using ecs::Entity;
 using namespace ::cave::math;
-
-Entity EntityFactory::CreateCameraEntity(Scene& p_scene,
-                                         const std::string& p_name,
-                                         float p_near_plane,
-                                         float p_far_plane,
-                                         float p_fovy) {
-
-    Entity entity = CreateNameEntity(p_scene, p_name);
-    CameraComponent& camera = p_scene.Create<CameraComponent>(entity);
-
-    Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-
-    camera.m_width = frame_size.x;
-    camera.m_height = frame_size.y;
-    camera.m_near = p_near_plane;
-    camera.m_far = p_far_plane;
-    camera.m_fovy = p_fovy;
-    camera.SetDirty();
-
-    p_scene.Create<TransformComponent>(entity);
-    return entity;
-}
 
 Entity EntityFactory::CreateNameEntity(Scene& p_scene,
                                        const std::string& p_name) {
