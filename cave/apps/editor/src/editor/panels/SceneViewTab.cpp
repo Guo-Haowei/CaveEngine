@@ -25,6 +25,8 @@
 
 namespace cave {
 
+using math::Matrix4x4f;
+
 SceneViewTab::SceneViewTab(EditorState& p_editor,
                            DocId p_doc_id,
                            SceneId p_preview_scene_id,
@@ -144,27 +146,29 @@ void SceneViewTab::Tick(float p_dt) {
     m_camera_controller->Update(m_camera_state);
 }
 
+void SceneViewTab::DrawUIImpl() {
+    Tab::DrawUIImpl();
+
+    if (m_editor.IsPlaying()) return;
+    DrawGizmo();
+}
+
 // @TODO: rename this to DrawEditor
+void SceneViewTab::DrawGizmo() {
 #if 0
-void SceneEditor::DrawMainView(const CameraComponent&) {
-    CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
+    //CameraComponent& camera = *scene.GetComponent<CameraComponent>(m_camera);
 
     DocId doc_id = GetDocId();
-
-    ViewerTab::DrawMainView(camera);
 
     const Matrix4x4f& view_matrix = camera.GetViewMatrix();
     const Matrix4x4f& proj_matrix = camera.GetProjectionMatrix();
     const Matrix4x4f& proj_view = camera.GetProjectionViewMatrix();
 
-    const Vector2f& canvas_min = m_viewer.GetCanvasMin();
-    const Vector2f& canvas_size = m_viewer.GetCanvasSize();
-
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();
 
     ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
+    ImGuizmo::SetRect(m_rect.x, m_rect.y, m_rect.w, m_rect.h);
 
     SelectionKey selection = m_editor.SelectionService().Primary(m_doc_id);
     ecs::Entity id = selection.entity;
@@ -213,7 +217,7 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
     if (show_editor) {
         ImGuizmo::DrawAxes(proj_view);
 
-        DEV_ASSERT(0);
+        // DEV_ASSERT(0);
         //const float size = 120.f;
         //const auto& min = m_viewer.GetCanvasMin();
         //ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
@@ -222,8 +226,8 @@ void SceneEditor::DrawMainView(const CameraComponent&) {
         //                         ImVec2(size, size),
         //                         IM_COL32(64, 64, 64, 96));
     }
-}
 #endif
+}
 
 // const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
 //     return { &m_play_button };

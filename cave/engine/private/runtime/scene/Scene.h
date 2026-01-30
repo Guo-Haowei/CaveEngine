@@ -9,7 +9,7 @@
 // components
 #include "engine/private/runtime/scene/SceneComponent.h"  // @TODO: split this
 
-#include "engine/private/runtime/scene/CameraComponent.h"
+#include "cave/runtime/scene/CameraComponent.h"
 #include "engine/private/runtime/scene/ColliderComponent.h"
 #include "engine/private/runtime/scene/LightComponent.h"
 #include "engine/private/runtime/scene/LuaScriptComponent.h"

@@ -1,4 +1,4 @@
-#include "CameraComponent.h"
+#include "cave/runtime/scene/CameraComponent.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 

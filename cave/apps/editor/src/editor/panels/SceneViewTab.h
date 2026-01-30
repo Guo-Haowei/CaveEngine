@@ -46,6 +46,10 @@ protected:
                         ecs::Entity p_camera,
                         std::vector<render::ViewDesc>& p_out_views);
 
+    void DrawUIImpl() override;
+
+    void DrawGizmo();
+
     // void OnCreateInternal(const Guid& p_guid) final;
 
     // void OnActivateInternal() final;

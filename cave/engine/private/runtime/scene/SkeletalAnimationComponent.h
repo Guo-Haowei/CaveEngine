@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
 #include "engine/private/core/math/geomath.h"
-#include "engine/private/reflection/reflection.h"
+#include "cave/core/reflection/Reflection.h"
 
 namespace cave {
 

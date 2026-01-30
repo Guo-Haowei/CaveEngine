@@ -4,7 +4,7 @@
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/tile_set_asset.h"
-#include "engine/private/runtime/scene/CameraComponent.h"
+#include "cave/runtime/scene/CameraComponent.h"
 #include "engine/private/ui/layout.h"
 
 namespace cave {
