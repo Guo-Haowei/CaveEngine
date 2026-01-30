@@ -1,37 +1,21 @@
 #pragma once
 #include "engine/private/renderer/sampler.h"
-#include "render_pass.h"
+#include "RenderPass.h"
+#include "RenderGraphTypes.h"
 
 // clang-format off
 namespace cave { struct GpuTexture; }
 // clang-format on
 
-namespace cave {
+namespace cave::render {
 
 struct RenderGraphResourceCreateInfo {
     GpuTextureDesc resourceDesc;
     SamplerDesc samplerDesc = PointClampSampler();
 };
 
-enum class ResourceAccess : uint8_t {
-    NONE = 0,
-    SRV = BIT(0),
-    UAV = BIT(1),
-    RTV = BIT(2),
-    DSV = BIT(3),
-    // Present,
-    // CopySrc,
-    // CopyDst,
-    // DepthRead,
-    // DepthWrite,
-};
-
-DEFINE_ENUM_BITWISE_OPERATIONS(ResourceAccess)
-
 class RenderPassBuilder {
 public:
-    using ImportFunc = std::function<std::shared_ptr<GpuTexture>()>;
-
     struct Resource {
         std::string name;
         ResourceAccess access;
@@ -60,4 +44,4 @@ private:
     friend class RenderGraphBuilder;
 };
 
-}  // namespace cave
+}  // namespace cave::render

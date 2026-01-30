@@ -2,9 +2,9 @@
 #include "editor/panels/EditorWindow.h"
 #include "engine/private/renderer/graphics_defines.h"
 
-namespace cave {
+namespace cave::render {
 class RenderGraph;
-}
+}  // namespace cave::render
 
 namespace cave {
 
@@ -18,7 +18,7 @@ public:
 
 protected:
     void DrawUIImpl() override;
-    void DrawNodes(const RenderGraph& p_graph);
+    void DrawNodes(const render::RenderGraph& p_graph);
 
     bool m_firstFrame{ true };
     Backend m_backend{ Backend::COUNT };

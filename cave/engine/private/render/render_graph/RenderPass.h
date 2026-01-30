@@ -1,21 +1,21 @@
 #pragma once
-#include "engine/private/render_graph/framebuffer.h"
-#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/render/render_graph/Framebuffer.h"
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
 
 // clang-format off
 namespace cave { class IGraphicsManager; }
 namespace cave { struct GpuTexture; }
-namespace cave { class RenderPass; }
 // clang-format on
 
 namespace cave {
 // @TODO: split RHI and RenderCommandContext
 using IRenderCmdContext = IGraphicsManager;
+struct FrameData;
 }  // namespace cave
 
-namespace cave {
+namespace cave::render {
 
-struct FrameData;
+class RenderPass;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;
@@ -55,4 +55,4 @@ protected:
     friend class RenderGraph;
 };
 
-}  // namespace cave
+}  // namespace cave::render

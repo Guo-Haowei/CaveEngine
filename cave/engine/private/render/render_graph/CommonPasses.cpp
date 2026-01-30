@@ -1,4 +1,4 @@
-#include "common_passes.h"
+#include "CommonPasses.h"
 
 #include "engine/private/algorithm/algorithm.h"
 #include "engine/private/assets/image_asset.h"
@@ -12,8 +12,8 @@
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
-#include "render_graph_defines.h"
-#include "render_pass_builder.h"
+#include "RenderGraphDefines.h"
+#include "RenderPassBuilder.h"
 
 // @TODO: remove
 #include "engine/private/renderer/ltc_matrix.h"
@@ -24,7 +24,7 @@ namespace cave {
 #include "shader_resource_defines.hlsl.h"
 }  // namespace cave
 
-namespace cave {
+namespace cave::render {
 
 using namespace cave::math;
 
@@ -114,9 +114,10 @@ struct ScopedEvent {
     }
 };
 
-#define RENDER_PASS_FUNC()                                \
-    ScopedEvent _scoped(p_ctx.cmd, p_ctx.pass.GetName()); \
-    CAVE_PROFILE_EVENT();
+//#define RENDER_PASS_FUNC()                                \
+//    ScopedEvent _scoped(p_ctx.cmd, p_ctx.pass.GetName()); \
+//    CAVE_PROFILE_EVENT();
+#define RENDER_PASS_FUNC()
 
 static void EarlyZPassFunc(RenderPassExcutionContext& p_ctx) {
     RENDER_PASS_FUNC();
@@ -825,7 +826,10 @@ static void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     }
 }
 
-void RenderGraphBuilderExt::AddPostProcessPass() {
+PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
+    unused(p_in);
+    PostProcessOutput out{};
+
     auto desc = BuildDefaultTextureDesc(RT_FMT_TONE,
                                         AttachmentType::COLOR_2D);
     desc.bindFlags |= BIND_SHADER_RESOURCE;
@@ -848,6 +852,8 @@ void RenderGraphBuilderExt::AddPostProcessPass() {
     pass.Write(ResourceAccess::RTV, RG_RES_POST_PROCESS)
         .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
         .SetExecuteFunc(TonePassFunc);
+
+    return out;
 }
 
 static void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx) {
@@ -1059,7 +1065,9 @@ auto RenderGraphBuilderExt::Create3D(RenderGraphBuilderConfig& p_config) -> Resu
     builder.AddLightingPass();
     builder.AddForwardPass();
     builder.AddBloomPass();
-    builder.AddPostProcessPass();
+
+    PostProcessInput pp_in{};
+    PostProcessOutput pp_out = builder.AddPostProcessPass(pp_in);
 
     return builder.Compile();
 }
@@ -1078,4 +1086,4 @@ auto RenderGraphBuilderExt::CreatePathTracer(RenderGraphBuilderConfig& p_config)
     return creator.Compile();
 }
 
-}  // namespace cave
+}  // namespace cave::render

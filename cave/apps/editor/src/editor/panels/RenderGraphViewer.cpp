@@ -4,7 +4,7 @@
 
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/renderer/graphics_manager.h"
-#include "engine/private/render_graph/render_graph.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "editor/EditorState.h"
@@ -18,7 +18,7 @@ RenderGraphViewer::RenderGraphViewer(EditorState& p_editor)
     : EditorWindow(p_editor) {
 }
 
-void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {
+void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
     const auto& passes = p_graph.GetRenderPasses();
 
     auto draw_node = [&passes, this](int id, float x, float y) {
@@ -106,6 +106,7 @@ void RenderGraphViewer::DrawNodes(const RenderGraph& p_graph) {
 }
 
 void RenderGraphViewer::DrawUIImpl() {
+#if 0
     CAVE_PROFILE_EVENT();
 
     auto graphics_manager = m_editor.GetApp().GetGraphicsManager();
@@ -131,6 +132,7 @@ void RenderGraphViewer::DrawUIImpl() {
     ImNodes::EndNodeEditor();
 
     m_firstFrame = false;
+#endif
 }
 
 }  // namespace cave

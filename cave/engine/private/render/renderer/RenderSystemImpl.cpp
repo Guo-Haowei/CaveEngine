@@ -7,7 +7,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/core/base/random.h"
 #include "engine/private/renderer/frame_data.h"
-#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
 #include "engine/private/renderer/graphics_dvars.h"

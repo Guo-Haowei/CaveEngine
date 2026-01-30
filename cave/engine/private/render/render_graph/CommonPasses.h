@@ -1,7 +1,20 @@
 #pragma once
-#include "render_graph_builder.h"
+#include "RenderGraphBuilder.h"
 
-namespace cave {
+namespace cave::render {
+
+using RGTextureHandle = uint64_t;
+
+struct PostProcessInput {
+    RGTextureHandle lighting;
+    RGTextureHandle outline;
+    RGTextureHandle bloom;
+};
+
+struct PostProcessOutput {
+    RGTextureHandle processed;
+    RGTextureHandle ds;
+};
 
 class RenderGraphBuilderExt : public RenderGraphBuilder {
 public:
@@ -19,7 +32,7 @@ private:
     void AddLightingPass();
     void AddForwardPass();
     void AddBloomPass();
-    void AddPostProcessPass();
+    PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
 
     void AddPathTracerPass();
     void AddPathTracerTonePass();
@@ -27,4 +40,4 @@ private:
     void AddGenerateSkylightPass();
 };
 
-}  // namespace cave
+}  // namespace cave::render

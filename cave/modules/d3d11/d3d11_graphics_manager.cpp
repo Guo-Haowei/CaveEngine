@@ -6,8 +6,8 @@
 #include "d3d11_helpers.h"
 #include "d3d11_pipeline_state_manager.h"
 #include "d3d11_resources.h"
-#include "engine/private/render_graph/render_graph.h"
-#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
@@ -16,14 +16,12 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
-// @TODO: remove the following
-#include "engine/private/render_graph/render_graph_builder.h"
-
 #define INCLUDE_AS_D3D11
 #include "../d3d_common/d3d_convert.h"
 
 namespace cave {
 
+using namespace render;
 using Microsoft::WRL::ComPtr;
 
 D3d11GraphicsManager::D3d11GraphicsManager()
@@ -75,10 +73,6 @@ void D3d11GraphicsManager::Render() {
 
     if (m_app->IsRuntime()) {
         CRASH_NOW();
-        // RenderGraphBuilder::DrawDebugImages(*GetRenderData(),
-        //                                               width,
-        //                                               height,
-        //                                               *this);
     }
 
     if (m_app->GetSpecification().enableImgui) {

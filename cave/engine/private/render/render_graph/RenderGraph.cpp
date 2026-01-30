@@ -1,6 +1,6 @@
-#include "render_graph.h"
+#include "RenderGraph.h"
 
-namespace cave {
+namespace cave::render {
 
 void RenderGraph::AddResource(const std::string& p_name, const std::shared_ptr<GpuTexture>& p_resource) {
     const int idx = static_cast<int>(m_resources.size());
@@ -38,4 +38,4 @@ void RenderGraph::Execute(const FrameData& p_data, IGraphicsManager& p_graphics_
     }
 }
 
-}  // namespace cave
+}  // namespace cave::render

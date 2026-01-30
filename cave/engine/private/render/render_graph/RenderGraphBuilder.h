@@ -1,17 +1,17 @@
 #pragma once
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/pixel_format.h"
-#include "render_pass_builder.h"
+#include "RenderPassBuilder.h"
 
 // clang-format off
-namespace cave { struct Framebuffer; }
+namespace cave { struct FrameData; }
 namespace cave { class IGraphicsManager; }
 // clang-format on
 
-namespace cave {
+namespace cave::render {
 
 class RenderGraph;
-struct FrameData;
+struct Framebuffer;
 
 struct RenderGraphBuilderConfig {
     bool enablePointShadow = true;
@@ -64,4 +64,4 @@ protected:
     std::vector<std::pair<std::string, std::string>> m_dependencies;
 };
 
-}  // namespace cave
+}  // namespace cave::render

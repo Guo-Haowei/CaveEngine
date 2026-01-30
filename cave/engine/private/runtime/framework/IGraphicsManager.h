@@ -5,23 +5,21 @@
 // @TODO: refactor
 struct MaterialConstantBuffer;
 
-namespace cave {
-class RenderGraph;
-}
+namespace cave::render {
+struct Framebuffer;
+struct FramebufferDesc;
+}  // namespace cave::render
 
 namespace cave {
 
 enum class Backend : uint8_t;
 enum ClearFlags : uint32_t;
 enum class Dimension : uint32_t;
-enum class RenderGraphName : uint8_t;
 enum PipelineStateName : uint8_t;
 
 class Scene;
 
 struct BlendDesc;
-struct Framebuffer;
-struct FramebufferDesc;
 struct FrameContext;
 struct GpuBuffer;
 struct GpuBufferDesc;
@@ -41,6 +39,9 @@ class IGraphicsManager : public Module,
                          public EventListener,
                          public ModuleCreateRegistry<IGraphicsManager> {
 public:
+    using Framebuffer = render::Framebuffer;
+    using FramebufferDesc = render::FramebufferDesc;
+
     static constexpr int NUM_FRAMES_IN_FLIGHT = 2;
     static constexpr int NUM_BACK_BUFFERS = 2;
     static constexpr float DEFAULT_CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 1.0 };
@@ -137,10 +138,6 @@ public:
     // static auto Create() -> Result<GraphicsManager*>;
 
     virtual Backend GetBackend() const = 0;
-
-    virtual RenderGraphName GetActiveRenderGraphName() const = 0;
-    virtual bool SetActiveRenderGraph(RenderGraphName p_name) = 0;
-    virtual RenderGraph* GetActiveRenderGraph() = 0;
 
     virtual FrameContext& GetCurrentFrame() = 0;
 

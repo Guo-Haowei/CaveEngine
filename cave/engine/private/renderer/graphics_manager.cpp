@@ -6,9 +6,10 @@
 #include "engine/private/core/math/frustum.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/render_graph/common_passes.h"
-#include "engine/private/render_graph/render_graph_defines.h"
-#include "engine/private/render_graph/render_graph_predefined.h"
+#include "engine/private/render/render_graph/CommonPasses.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
+#include "engine/private/render/render_graph/RenderGraphPredefined.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/renderer_misc.h"
@@ -38,17 +39,7 @@ namespace cave {
 namespace cave {
 
 using namespace math;
-
-const char* ToString(RenderGraphName p_name) {
-    ERR_FAIL_INDEX_V(p_name, RenderGraphName::COUNT, nullptr);
-    static constexpr const char* s_table[] = {
-#define RENDER_GRAPH_DECLARE(ENUM, STR) STR,
-        RENDER_GRAPH_LIST
-#undef RENDER_GRAPH_DECLARE
-    };
-
-    return s_table[std::to_underlying(p_name)];
-}
+using namespace render;
 
 template<typename T>
 static auto CreateUniformCheckSize(GraphicsManager& p_graphics_manager, uint32_t p_max_count) {
@@ -76,8 +67,14 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
         return Result<void>();
     }
 
-    if (auto res = SelectRenderGraph(); !res) {
+    const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
+    RenderGraphBuilderConfig config;
+    config.frameWidth = frame_size.x;
+    config.frameHeight = frame_size.y;
+    if (auto res = RenderGraphBuilderExt::Create3D(config); !res) {
         return CAVE_ERROR(res.error());
+    } else {
+        m_render_graph = *res;
     }
 
     for (int i = 0; i < num_frames; ++i) {
@@ -309,10 +306,7 @@ void GraphicsManager::Update() {
                 case Backend::METAL:
                     break;
                 default: {
-                    auto graph = GetActiveRenderGraph();
-                    if (DEV_VERIFY(graph)) {
-                        graph->Execute(data, *this);
-                    }
+                    m_render_graph->Execute(data, *this);
                 } break;
             }
         }
@@ -321,7 +315,6 @@ void GraphicsManager::Update() {
         // if (p_scene) {
         //    UpdateEmitters(*p_scene);
         //}
-
 
         Render();
         EndFrame();
@@ -363,102 +356,6 @@ void GraphicsManager::EndDrawPass(const Framebuffer* p_framebuffer) {
             BindTexture(texture->desc.dimension, texture->GetHandle(), texture->slot);
         }
     }
-}
-
-auto GraphicsManager::SelectRenderGraph() -> Result<void> {
-    std::string method(DVAR_GET_STRING(gfx_render_graph));
-    static const std::map<std::string, RenderGraphName> lookup = {
-#define RENDER_GRAPH_DECLARE(ENUM, STR) \
-    { STR, RenderGraphName::ENUM },
-        RENDER_GRAPH_LIST
-#undef RENDER_GRAPH_DECLARE
-    };
-    if (m_app->IsWorld2D()) {
-        method = "scene2d";
-    }
-
-    if (!method.empty()) {
-        auto it = lookup.find(method);
-        if (it == lookup.end()) {
-            return CAVE_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "unknown render graph '{}'", method);
-        } else {
-            m_activeRenderGraphName = it->second;
-        }
-    }
-
-    switch (GetBackend()) {
-        case Backend::VULKAN:
-        case Backend::EMPTY:
-        case Backend::METAL:
-            m_activeRenderGraphName = RenderGraphName::SCENE2D;
-            return Result<void>();
-        default:
-            break;
-    }
-
-#if USING(PLATFORM_WASM)
-    m_activeRenderGraphName = RenderGraphName::SCENE2D;
-#endif
-
-    const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    RenderGraphBuilderConfig config;
-    config.frameWidth = frame_size.x;
-    config.frameHeight = frame_size.y;
-
-    switch (m_activeRenderGraphName) {
-        case RenderGraphName::SCENE2D: {
-            auto res = RenderGraph2D(config);
-            if (!res) {
-                return CAVE_ERROR(res.error());
-            }
-            m_renderGraphs[std::to_underlying(m_activeRenderGraphName)] = *res;
-        } break;
-        case RenderGraphName::SCENE3D: {
-            {
-                auto res = RenderGraphBuilderExt::Create3D(config);
-                if (!res) {
-                    return CAVE_ERROR(res.error());
-                }
-                m_renderGraphs[std::to_underlying(m_activeRenderGraphName)] = *res;
-            }
-            if constexpr (!USING(PLATFORM_WASM)) {
-                if (m_backend == Backend::OPENGL || m_backend == Backend::D3D11) {
-                    auto res = RenderGraphBuilderExt::CreatePathTracer(config);
-                    if (!res) {
-                        return CAVE_ERROR(res.error());
-                    }
-                    m_renderGraphs[std::to_underlying(RenderGraphName::PATHTRACER)] = *res;
-                }
-            }
-        } break;
-        default:
-            DEV_ASSERT(0 && "Should not reach here");
-            return CAVE_ERROR(ErrorCode::ERR_INVALID_PARAMETER, "unknown render graph '{}'", method);
-    }
-
-    return Result<void>();
-}
-
-bool GraphicsManager::SetActiveRenderGraph(RenderGraphName p_name) {
-    ERR_FAIL_INDEX_V(p_name, RenderGraphName::COUNT, false);
-    const int index = std::to_underlying(p_name);
-    if (!m_renderGraphs[index]) {
-        return false;
-    }
-
-    if (p_name == m_activeRenderGraphName) {
-        return false;
-    }
-
-    m_activeRenderGraphName = p_name;
-    return true;
-}
-
-RenderGraph* GraphicsManager::GetActiveRenderGraph() {
-    const int index = std::to_underlying(m_activeRenderGraphName);
-    ERR_FAIL_INDEX_V(index, RenderGraphName::COUNT, nullptr);
-    DEV_ASSERT(m_renderGraphs[index] != nullptr);
-    return m_renderGraphs[index].get();
 }
 
 std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {

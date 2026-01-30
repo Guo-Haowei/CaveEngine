@@ -19,9 +19,6 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
-// @TODO: refactor
-#include "engine/private/render_graph/render_graph_builder.h"
-
 #define INCLUDE_AS_D3D12
 #include "../d3d_common/d3d_convert.h"
 
@@ -32,6 +29,7 @@ namespace cave {
 namespace cave {
 
 using namespace cave::math;
+using namespace cave::render;
 using Microsoft::WRL::ComPtr;
 
 // @TODO: refactor
@@ -60,7 +58,7 @@ struct D3d12GpuTexture : public GpuTexture {
     DescriptorHeapHandle uavHandle;
 };
 
-struct D3d12Framebuffer : public Framebuffer {
+struct D3d12Framebuffer : public render::Framebuffer {
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvs;
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> dsvs;
 };

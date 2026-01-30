@@ -3,13 +3,12 @@
 
 namespace cave {
 struct FrameData;
-}
+class GraphicsManager;
+}  // namespace cave
 
-namespace cave {
+namespace cave::render {
 
 struct Framebuffer;
-
-class GraphicsManager;
 
 struct ResourceTransition {
     std::shared_ptr<GpuTexture> resource;
@@ -54,4 +53,4 @@ struct Framebuffer {
     std::vector<std::shared_ptr<GpuTexture>> outSrvs;
 };
 
-}  // namespace cave
+}  // namespace cave::render

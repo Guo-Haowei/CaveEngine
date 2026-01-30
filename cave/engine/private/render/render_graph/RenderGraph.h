@@ -1,27 +1,15 @@
 #pragma once
 #include "cave/core/NonCopyable.h"
 
-#include "render_pass.h"
-
-namespace cave {
-
-#define RENDER_GRAPH_LIST                    \
-    RENDER_GRAPH_DECLARE(SCENE2D, "scene2d") \
-    RENDER_GRAPH_DECLARE(SCENE3D, "scene3d") \
-    RENDER_GRAPH_DECLARE(PATHTRACER, "pathtracer")
-
-enum class RenderGraphName : uint8_t {
-#define RENDER_GRAPH_DECLARE(ENUM, ...) ENUM,
-    RENDER_GRAPH_LIST
-#undef RENDER_GRAPH_DECLARE
-        COUNT,
-};
-
-}  // namespace cave
+#include "RenderPass.h"
 
 namespace cave {
 
 struct FrameData;
+
+}  // namespace cave
+
+namespace cave::render {
 
 class RenderGraph : public NonCopyable {
 public:
@@ -50,4 +38,4 @@ private:
     friend class RenderGraphBuilder;
 };
 
-}  // namespace cave
+}  // namespace cave::render

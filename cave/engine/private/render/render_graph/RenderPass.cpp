@@ -1,4 +1,4 @@
-#include "render_pass.h"
+#include "RenderPass.h"
 
 #include "engine/private/renderer/graphics_manager.h"
 
@@ -9,7 +9,7 @@
 #define RT_DEBUG(...)
 #endif
 
-namespace cave {
+namespace cave::render {
 
 void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     RT_DEBUG("-- Executing pass '{}'", m_name);
@@ -52,4 +52,4 @@ void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     RT_DEBUG("-------");
 }
 
-}  // namespace cave
+}  // namespace cave::render

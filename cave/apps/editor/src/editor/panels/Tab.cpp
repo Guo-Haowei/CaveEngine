@@ -86,10 +86,10 @@ void Tab::DrawUIImpl() {
         case Backend::OPENGL: {
             ImVec2 uv_min = ImVec2(0, 1);
             ImVec2 uv_max = ImVec2(1, 0);
-            if (gm.GetActiveRenderGraphName() == RenderGraphName::PATHTRACER) {
-                uv_min = ImVec2(0, 0);
-                uv_max = ImVec2(1, 1);
-            }
+            // if (gm.GetActiveRenderGraphName() == RenderGraphName::PATHTRACER) {
+            //     uv_min = ImVec2(0, 0);
+            //     uv_max = ImVec2(1, 1);
+            // }
             ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right, uv_min, uv_max);
         } break;
         case Backend::VULKAN:

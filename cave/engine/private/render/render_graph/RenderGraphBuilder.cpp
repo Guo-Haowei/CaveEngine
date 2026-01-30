@@ -1,14 +1,14 @@
-#include "render_graph_builder.h"
+#include "RenderGraphBuilder.h"
 
 #include "engine/private/algorithm/algorithm.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
 #include "engine/private/renderer/graphics_manager.h"
-#include "render_graph.h"
-#include "render_graph_defines.h"
-#include "render_pass_builder.h"
+#include "RenderGraph.h"
+#include "RenderGraphDefines.h"
+#include "RenderPassBuilder.h"
 
-namespace cave {
+namespace cave::render {
 
 RenderGraphBuilder::RenderGraphBuilder(const RenderGraphBuilderConfig& p_config)
     : m_config(p_config), m_graphicsManager(GraphicsManager::GetSingleton()) {
@@ -276,4 +276,4 @@ GpuTextureDesc RenderGraphBuilder::BuildDefaultTextureDesc(PixelFormat p_format,
     return desc;
 };
 
-}  // namespace cave
+}  // namespace cave::render
