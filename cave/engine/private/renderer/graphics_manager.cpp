@@ -283,26 +283,22 @@ void GraphicsManager::Update() {
         CAVE_PROFILE_EVENT("Render");
         BeginFrame();
 
-        auto data = m_app->GetRenderSystem()->GetFrameData();
+        auto views = m_app->GetRenderSystem()->GetFrameData();
 
-        // @TODO: remove this
-        // if (p_scene) {
-        //    UpdateEmitters(*p_scene);
-        //}
+        for (const FrameData& data : views) {
 
-        if (data) {
             auto& frame = GetCurrentFrame();
-            UpdateConstantBuffer(frame.batchCb.get(), data->batchCache.buffer);
-            UpdateConstantBuffer(frame.materialCb.get(), data->materialCache.buffer);
-            UpdateConstantBuffer(frame.boneCb.get(), data->boneCache.buffer);
-            UpdateConstantBuffer(frame.passCb.get(), data->passCache);
+            UpdateConstantBuffer(frame.batchCb.get(), data.batchCache.buffer);
+            UpdateConstantBuffer(frame.materialCb.get(), data.materialCache.buffer);
+            UpdateConstantBuffer(frame.boneCb.get(), data.boneCache.buffer);
+            UpdateConstantBuffer(frame.passCb.get(), data.passCache);
             // UpdateConstantBuffer(frame.emitterCb.get(), data->emitterCache);
 
             UpdateConstantBuffer<PointShadowConstantBuffer, 6 * MAX_POINT_LIGHT_SHADOW_COUNT>(
                 frame.pointShadowCb.get(),
-                data->pointShadowCache);
+                data.pointShadowCache);
             UpdateConstantBuffer(frame.perFrameCb.get(),
-                                 &data->perFrameCache,
+                                 &data.perFrameCache,
                                  sizeof(PerFrameConstantBuffer));
 
             BindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
@@ -315,11 +311,17 @@ void GraphicsManager::Update() {
                 default: {
                     auto graph = GetActiveRenderGraph();
                     if (DEV_VERIFY(graph)) {
-                        graph->Execute(*data, *this);
+                        graph->Execute(data, *this);
                     }
                 } break;
             }
         }
+
+        // @TODO: remove this
+        // if (p_scene) {
+        //    UpdateEmitters(*p_scene);
+        //}
+
 
         Render();
         EndFrame();

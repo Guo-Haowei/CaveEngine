@@ -166,13 +166,17 @@ RenderSystemImpl::RenderSystemImpl(IApplication& p_app)
 }
 
 void RenderSystemImpl::BeginFrame() {
-    if (m_frameData) {
-        delete m_frameData;
-        m_frameData = nullptr;
-    }
+}
 
+void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
+    CAVE_PROFILE_EVENT();
+
+    m_frame_data.clear();
+    m_frame_data.resize(p_views.size());
+
+    const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
     RenderOptions options = {
-        .isOpengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL,
+        .isOpengl = is_opengl,
         .ssaoEnabled = DVAR_GET_BOOL(gfx_ssao_enabled),
         .vxgiEnabled = false,
         .bloomEnabled = DVAR_GET_BOOL(gfx_enable_bloom),
@@ -184,23 +188,18 @@ void RenderSystemImpl::BeginFrame() {
     };
 
     // @HACK: really need to refactor this crap
-    m_frameData = new FrameData(options);
-    static int s_should_bake = 0;
-    if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
-        if (s_should_bake == 1) m_frameData->bakeIbl = true;
-        ++s_should_bake;
+    if (m_frame_data.size()) {
+        static int s_should_bake = 0;
+        if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
+            if (s_should_bake == 1) m_frame_data[0].bakeIbl = true;
+            ++s_should_bake;
+        }
     }
-}
 
-void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
-    CAVE_PROFILE_EVENT();
-
-    const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
-    DEV_ASSERT(m_frameData);
-    FrameData& framedata = *m_frameData;
-
+    int i = 0;
     for (const render::ViewDesc& view : p_views) {
         Scene* ecs_scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
+        DEV_ASSERT(ecs_scene);
         if (!ecs_scene) continue;
 
         RenderScene& render_scene = GetOrCreateRenderScene(view.scene_id);
@@ -208,8 +207,10 @@ void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
 
         ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
 
+        FrameData& framedata = m_frame_data[i++];
+        framedata.options = options;
         framedata.camera_params = resolved;
-        // @TODO: only support one view, fix this
+
         FillConstantBuffer(ecs_scene, framedata);
 
         RunMeshRenderSystem(*ecs_scene, render_scene, framedata);
@@ -222,7 +223,7 @@ void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
         // if (p_scene) {
         //    RequestPathTracerUpdate(*camera, *p_scene);
         //}
-        if (ecs_scene) break;
+        // if (ecs_scene) break;
     }
 }
 

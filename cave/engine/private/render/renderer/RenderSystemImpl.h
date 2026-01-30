@@ -4,6 +4,9 @@
 
 #include "cave/core/ids/SceneId.h"
 
+// @TODO: remove
+#include "engine/private/renderer/frame_data.h "
+
 namespace cave {
 struct FrameData;
 class IApplication;
@@ -21,7 +24,7 @@ public:
 
     void RenderFrame(std::span<const render::ViewDesc> p_views);
 
-    const FrameData* GetFrameData() const { return m_frameData; }
+    std::span<const FrameData> GetFrameData() const { return m_frame_data; }
 
 private:
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
@@ -31,8 +34,7 @@ private:
     RenderSceneBuilder m_scene_builder;
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
 
-    // @TODO: deprecate
-    FrameData* m_frameData{ nullptr };
+    std::vector<FrameData> m_frame_data;
 };
 
 }  // namespace cave::render

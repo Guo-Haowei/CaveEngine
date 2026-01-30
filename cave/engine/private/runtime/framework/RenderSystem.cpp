@@ -26,7 +26,7 @@ void RenderSystem::RenderFrame(std::span<const render::ViewDesc> p_views) {
     m_impl->RenderFrame(p_views);
 }
 
-const FrameData* RenderSystem::GetFrameData() const {
+std::span<const FrameData> RenderSystem::GetFrameData() const {
     return m_impl->GetFrameData();
 }
 
