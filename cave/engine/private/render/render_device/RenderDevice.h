@@ -19,7 +19,7 @@ namespace cave {
 struct MaterialConstantBuffer;
 
 namespace cave::render {
-class RenderPass;
+struct RGRenderPass;
 }
 
 namespace cave {
@@ -118,7 +118,7 @@ protected:
     void UpdateEmitters(const Scene& p_scene) override;
 
 private:
-    void Execute(const FrameData& p_data, render::RenderPass& p_pass);
+    void Execute(const FrameData& p_data, render::RGRenderPass& p_pass);
 };
 
 }  // namespace cave

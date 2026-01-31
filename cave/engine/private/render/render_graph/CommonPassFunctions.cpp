@@ -102,9 +102,9 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
 }
 
 struct ScopedEvent {
-    IRenderCmdContext& m_ctx;
+    IRenderDevice& m_ctx;
 
-    ScopedEvent(IRenderCmdContext& p_ctx, std::string_view p_name)
+    ScopedEvent(IRenderDevice& p_ctx, std::string_view p_name)
         : m_ctx(p_ctx) {
         m_ctx.BeginEvent(p_name);
     }
@@ -114,8 +114,8 @@ struct ScopedEvent {
     }
 };
 
-#define RENDER_PASS_FUNC()                                \
-    ScopedEvent _scoped(p_ctx.cmd, p_ctx.pass.GetName()); \
+#define RENDER_PASS_FUNC()                           \
+    ScopedEvent _scoped(p_ctx.cmd, p_ctx.pass.name); \
     CAVE_PROFILE_EVENT();
 
 void DepthPrepassFunc(RenderPassExcutionContext& p_ctx) {
@@ -255,7 +255,7 @@ void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetPipelineState(PSO_VOXELIZATION_POST);
     cmd.Dispatch(group_size, group_size, group_size);
 
-    for (auto& uav : p_ctx.pass.GetUavs()) {
+    for (auto& uav : p_ctx.pass.uavs) {
         cmd.GenerateMipmap(uav.get());
     }
 
@@ -394,7 +394,7 @@ void BloomSetupFunc(RenderPassExcutionContext& p_ctx) {
 
     auto& cmd = p_ctx.cmd;
 
-    auto uav = p_ctx.pass.GetUavs()[0];
+    auto uav = p_ctx.pass.uavs[0];
 
     cmd.SetPipelineState(PSO_BLOOM_SETUP);
 
@@ -415,7 +415,7 @@ void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx) {
 
     cmd.SetPipelineState(PSO_BLOOM_DOWNSAMPLE);
 
-    auto uav = p_ctx.pass.GetUavs()[0];
+    auto uav = p_ctx.pass.uavs[0];
 
     const uint32_t work_group_x = CeilingDivision(uav->desc.width, 16);
     const uint32_t work_group_y = CeilingDivision(uav->desc.height, 16);
@@ -432,7 +432,7 @@ void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx) {
 
     auto& cmd = p_ctx.cmd;
 
-    auto uav = p_ctx.pass.GetUavs()[0];
+    auto uav = p_ctx.pass.uavs[0];
 
     cmd.SetPipelineState(PSO_BLOOM_UPSAMPLE);
 
@@ -571,7 +571,7 @@ void PathTracerPassFunc(RenderPassExcutionContext& p_ctx) {
     auto& cmd = p_ctx.cmd;
 
     cmd.SetPipelineState(PSO_PATH_TRACER);
-    const auto& input = p_ctx.pass.GetUavs()[0];
+    const auto& input = p_ctx.pass.uavs[0];
 
     DEV_ASSERT(input);
 

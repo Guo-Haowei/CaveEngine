@@ -29,6 +29,9 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 
 }  // namespace cave
 
+// @HACK: expose render graph for debugging
+cave::render::RenderGraph* g_graph = nullptr;
+
 namespace cave::render {
 
 using math::Vector2i;
@@ -220,6 +223,8 @@ auto Renderer::Impl::Initialize() -> Result<void> {
         return CAVE_ERROR(res.error());
     } else {
         m_render_graph = *res;
+
+        g_graph = m_render_graph.get();
         return Result<void>();
     }
 }

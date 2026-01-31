@@ -9,6 +9,8 @@
 
 #include "editor/EditorState.h"
 
+extern cave::render::RenderGraph* g_graph;
+
 namespace cave {
 
 // @TODO: save the nodes position to disk
@@ -33,7 +35,7 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
         }
         {
             ImNodes::BeginNodeTitleBar();
-            ImGui::TextUnformatted(pass->GetName().data());
+            ImGui::TextUnformatted(pass->name.c_str());
             ImNodes::EndNodeTitleBar();
         }
         ImGui::Spacing();
@@ -46,6 +48,8 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
         }
 
         auto add_image = [](bool p_flip, const std::shared_ptr<GpuTexture>& p_texture) {
+            if (!p_texture) return;
+
             ImGui::Text("%s", p_texture->desc.name.c_str());
             if (p_texture && p_texture->desc.dimension == Dimension::TEXTURE_2D) {
                 ImVec2 size(180 * 3, 120 * 3);
@@ -60,7 +64,7 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
         ImGui::Spacing();
         {
             ImNodes::BeginStaticAttribute(id);
-            for (const auto& srv : pass->GetSrvs()) {
+            for (const auto& srv : pass->srvs) {
                 add_image(flip_image, srv);
             }
             ImNodes::EndStaticAttribute();
@@ -79,7 +83,7 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
         {
             ImNodes::BeginInputAttribute(id);
 
-            for (const auto& rtv : pass->GetRtvs()) {
+            for (const auto& rtv : pass->rtvs) {
                 add_image(flip_image, rtv);
             }
             ImNodes::EndInputAttribute();
@@ -106,7 +110,8 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
 }
 
 void RenderGraphViewer::DrawUIImpl() {
-#if 0
+    if (!g_graph) return;
+
     CAVE_PROFILE_EVENT();
 
     auto graphics_manager = m_editor.GetApp().GetRenderDevice();
@@ -122,17 +127,14 @@ void RenderGraphViewer::DrawUIImpl() {
             break;
     }
 
-    const auto graph = graphics_manager->GetActiveRenderGraph();
-
     ImNodes::BeginNodeEditor();
 
-    DrawNodes(*graph);
+    DrawNodes(*g_graph);
 
     ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_BottomRight);
     ImNodes::EndNodeEditor();
 
     m_firstFrame = false;
-#endif
 }
 
 }  // namespace cave

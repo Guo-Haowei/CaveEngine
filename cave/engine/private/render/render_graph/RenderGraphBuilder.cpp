@@ -207,15 +207,15 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
             }
         }
 
-        auto render_pass = std::make_shared<RenderPass>();
-        render_pass->m_name = pass.m_name;
-        render_pass->m_framebuffer = m_graphicsManager.CreateFramebuffer(info);
-        render_pass->m_executor = pass.m_func;
+        auto render_pass = std::make_shared<RGRenderPass>();
+        render_pass->name = pass.m_name;
+        render_pass->framebuffer = m_graphicsManager.CreateFramebuffer(info);
+        render_pass->func = pass.m_func;
 
-        render_pass->m_srvs = std::move(srvs);
-        render_pass->m_uavs = std::move(uavs);
-        render_pass->m_rtvs = std::move(rtvs);
-        render_pass->m_dsv = std::move(dsv);
+        render_pass->srvs = std::move(srvs);
+        render_pass->uavs = std::move(uavs);
+        render_pass->rtvs = std::move(rtvs);
+        render_pass->dsv = std::move(dsv);
 
         render_graph->AddPass(pass.m_name, render_pass);
     }

@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/renderer/sampler.h"
-#include "RenderPass.h"
+#include "RGRenderPass.h"
 #include "RenderGraphTypes.h"
 
 // clang-format off

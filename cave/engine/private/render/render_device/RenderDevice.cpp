@@ -1,7 +1,7 @@
 #include "RenderDevice.h"
 
 #include "engine/private/render/renderer/RenderSubmission.h"
-#include "engine/private/render/render_graph/RenderPass.h"
+#include "engine/private/render/render_graph/RGRenderPass.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: determine if includes are necessary
@@ -413,10 +413,10 @@ void RenderDevice::DrawSkybox() {
 #define RT_DEBUG(...)
 #endif
 
-void RenderDevice::Execute(const FrameData& p_data, RenderPass& p_pass) {
+void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
     RT_DEBUG("-- Executing pass '{}'", m_name);
 
-    auto framebuffer = p_pass.m_framebuffer.get();
+    auto framebuffer = p_pass.framebuffer.get();
     RenderPassExcutionContext ctx{
         .frameData = p_data,
         .framebuffer = framebuffer,
@@ -425,30 +425,30 @@ void RenderDevice::Execute(const FrameData& p_data, RenderPass& p_pass) {
     };
 
     // bind srvs
-    for (int i = 0; i < (int)p_pass.m_srvs.size(); ++i) {
-        const GpuTexture* srv = p_pass.m_srvs[i].get();
+    for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
+        const GpuTexture* srv = p_pass.srvs[i].get();
         if (!srv) continue;
         BindTexture(srv->desc.dimension, srv->GetHandle(), i);
     }
     // bind uavs
-    for (int i = 0; i < (int)p_pass.m_uavs.size(); ++i) {
-        GpuTexture* uav = p_pass.m_uavs[i].get();
+    for (int i = 0; i < (int)p_pass.uavs.size(); ++i) {
+        GpuTexture* uav = p_pass.uavs[i].get();
         if (!uav) continue;
         BindUnorderedAccessView(i, uav);
     }
 
     BeginDrawPass(framebuffer);
-    p_pass.m_executor(ctx);
+    p_pass.func(ctx);
     EndDrawPass(framebuffer);
 
     // unbind srvs
-    for (int i = 0; i < (int)p_pass.m_srvs.size(); ++i) {
-        const GpuTexture* srv = p_pass.m_srvs[i].get();
+    for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
+        const GpuTexture* srv = p_pass.srvs[i].get();
         if (!srv) continue;
         UnbindTexture(srv->desc.dimension, i);
     }
     // unbind uavs
-    for (int i = 0; i < (int)p_pass.m_uavs.size(); ++i) {
+    for (int i = 0; i < (int)p_pass.uavs.size(); ++i) {
         UnbindUnorderedAccessView(i);
     }
 

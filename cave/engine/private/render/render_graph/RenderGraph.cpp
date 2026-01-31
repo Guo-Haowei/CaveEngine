@@ -17,13 +17,13 @@ std::shared_ptr<GpuTexture> RenderGraph::FindResource(RGTextureId p_handle) {
     return m_resources[it->second];
 }
 
-void RenderGraph::AddPass(const std::string& p_name, const std::shared_ptr<RenderPass>& p_pass) {
+void RenderGraph::AddPass(const std::string& p_name, const std::shared_ptr<RGRenderPass>& p_pass) {
     const int idx = static_cast<int>(m_renderPasses.size());
     m_renderPasses.push_back(p_pass);
     m_renderPassLookup.insert({ p_name, idx });
 }
 
-RenderPass* RenderGraph::FindPass(const std::string& p_name) {
+RGRenderPass* RenderGraph::FindPass(const std::string& p_name) {
     auto it = m_renderPassLookup.find(p_name);
     if (it == m_renderPassLookup.end()) {
         return nullptr;
