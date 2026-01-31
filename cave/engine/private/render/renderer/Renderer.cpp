@@ -3,6 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/render/features/ShadowFeature.h"
 #include "engine/private/render/renderer/RenderScene.h"
 #include "engine/private/render/renderer/RenderSceneBuilder.h"
 #include "engine/private/render/renderer/RenderSubmission.h"
@@ -43,6 +44,8 @@ public:
     void Tick(std::span<const render::ViewDesc> p_views);
 
 private:
+    auto BuildRenderGraph() -> Result<std::shared_ptr<RenderGraph>>;
+
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
 private:
@@ -50,7 +53,11 @@ private:
     RenderSceneBuilder m_scene_builder;
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
 
+    // @TODO: remove
     std::shared_ptr<RenderGraph> m_render_graph;
+
+    // features
+    ShadowFeature m_shadow;
 };
 
 Renderer::Renderer()
@@ -206,15 +213,7 @@ static void FillEnvConstants(FrameData& p_out_data) {
 }
 
 auto Renderer::Impl::Initialize() -> Result<void> {
-    // @TODO: change to perframe
-    FinalTarget target;
-    const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    RenderGraphBuilderConfig config;
-    config.frameWidth = frame_size.x;
-    config.frameHeight = frame_size.y;
-
-    RenderGraphBuilderExt builder(config);
-    if (auto res = builder.Create3D(config, target); !res) {
+    if (auto res = BuildRenderGraph(); !res) {
         return CAVE_ERROR(res.error());
     } else {
         m_render_graph = *res;
@@ -286,6 +285,53 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
 
     // @TODO: graph
     m_app.GetGraphicsManager()->Submit(std::move(submission));
+}
+
+auto Renderer::Impl::BuildRenderGraph() -> Result<std::shared_ptr<RenderGraph>> {
+    FramePlan plan;
+
+    // @TODO: get frame size from viewport
+    const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
+    RenderGraphBuilderConfig config;
+    config.frameWidth = frame_size.x;
+    config.frameHeight = frame_size.y;
+
+    RenderGraphBuilderExt builder(config);
+
+    auto shadow_outputs = m_shadow.Build(builder, plan);
+
+    // @TODO: refactor the following
+    auto prepass_outputs = builder.AddDepthPrepass();
+
+    auto gbuffer_outputs = builder.AddGbufferPass({
+        .depth = prepass_outputs.depth,
+    });
+
+    SsaoOutput ssao_outputs{};
+    if (plan.enable_ssao) {
+        ssao_outputs = builder.AddSsaoPass({
+            .depth = prepass_outputs.depth,
+            .normal = gbuffer_outputs.color1,
+        });
+    }
+
+    auto lighting_outputs = builder.AddLightingPass({
+        .color0 = gbuffer_outputs.color0,
+        .color1 = gbuffer_outputs.color1,
+        .color2 = gbuffer_outputs.color2,
+        .depth = prepass_outputs.depth,
+        .ssao = ssao_outputs.processed,
+        .shadow = shadow_outputs.shadow,
+        .target = nullptr,
+    });
+
+    auto postprocess_outputs = builder.AddPostProcessPass({
+        .lighting = lighting_outputs.lighting,
+        .outline = 0,
+        .bloom = 0,
+    });
+
+    return builder.Compile();
 }
 
 RenderScene& Renderer::Impl::GetOrCreateRenderScene(SceneId p_scene_id) {

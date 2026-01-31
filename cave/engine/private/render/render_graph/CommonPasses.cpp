@@ -28,7 +28,6 @@ using math::Vector2f;
 
 constexpr const char RG_PASS_2D[] = "p:2d";
 constexpr const char RG_PASS_DEPTH_PREPASS[] = "p:early_z";
-constexpr const char RG_PASS_SHADOW[] = "p:shadow";
 constexpr const char RG_PASS_GBUFFER[] = "p:gbuffer";
 constexpr const char RG_PASS_VOXELIZATION[] = "p:voxelization";
 constexpr const char RG_PASS_LIGHTING[] = "p:lighting";
@@ -44,7 +43,6 @@ constexpr const char RG_PASS_BAKE_DIFFUSE[] = "p:diffuse";
 constexpr const char RG_PASS_BAKE_PREFILTERED[] = "p:prefiltered";
 
 constexpr const char RG_RES_DEPTH_STENCIL[] = "r:depth";
-constexpr const char RG_RES_SHADOW_MAP[] = "r:shadow";
 constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
 constexpr const char RG_RES_GBUFFER_COLOR1[] = "r:gbuffer1";
 constexpr const char RG_RES_GBUFFER_COLOR2[] = "r:gbuffer2";
@@ -117,8 +115,6 @@ extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
 extern void GbufferPassFunc(RenderPassExcutionContext& p_ctx);
 extern void SsaoPassFunc(RenderPassExcutionContext& p_ctx);
 extern void HighlightPassFunc(RenderPassExcutionContext& p_ctx);
-extern void PointShadowPassFunc(RenderPassExcutionContext& p_ctx);
-extern void ShadowPassFunc(RenderPassExcutionContext& p_ctx);
 extern void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx);
 extern void LightingPassFunc(RenderPassExcutionContext& p_ctx);
 extern void ForwardPassFunc(RenderPassExcutionContext& p_ctx);
@@ -131,31 +127,6 @@ extern void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx);
 extern void PrefilteredFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerPassFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx);
-
-ShadowOutput RenderGraphBuilderExt::AddShadowPass() {
-    const int shadow_res = DVAR_GET_INT(gfx_shadow_res);
-    DEV_ASSERT(math::IsPowerOfTwo(shadow_res));
-    RenderPassBuilder& pass = AddPass(RG_PASS_SHADOW);
-
-    GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::D32_FLOAT,
-                                                  AttachmentType::SHADOW_2D,
-                                                  shadow_res,
-                                                  shadow_res);
-    ShadowOutput out{
-        .shadow = CreateTexture({
-            RG_RES_SHADOW_MAP,
-            BuildDefaultTextureDesc(PixelFormat::D32_FLOAT,
-                                    AttachmentType::SHADOW_2D,
-                                    1 * shadow_res,
-                                    shadow_res),
-            ShadowMapSampler(),
-        })
-    };
-
-    pass.Write(ResourceAccess::DSV, out.shadow)
-        .SetExecuteFunc(ShadowPassFunc);
-    return out;
-}
 
 DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
     RenderPassBuilder& pass = AddPass(RG_PASS_DEPTH_PREPASS);
@@ -517,47 +488,6 @@ void RenderGraphBuilderExt::AddPathTracerTonePass() {
         .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
         .SetExecuteFunc(PathTracerTonePassFunc);
 #endif
-}
-
-/// Create pre-defined passes
-auto RenderGraphBuilderExt::Create3D(RenderGraphBuilderConfig& p_config,
-                                     const FinalTarget& p_target) -> Result<std::shared_ptr<RenderGraph>> {
-    RenderGraphBuilderExt builder(p_config);
-
-    // builder.AddGenerateSkylightPass();
-    SsaoOutput ssao_out{};
-
-    auto shadow_out = builder.AddShadowPass();
-
-    auto prepass_out = builder.AddDepthPrepass();
-
-    auto gbuffer_out = builder.AddGbufferPass({
-        .depth = prepass_out.depth,
-    });
-
-    // @TODO: only add when ssao is enabled
-    ssao_out = builder.AddSsaoPass({
-        .depth = prepass_out.depth,
-        .normal = gbuffer_out.color1,
-    });
-
-    auto lighting_out = builder.AddLightingPass({
-        .color0 = gbuffer_out.color0,
-        .color1 = gbuffer_out.color1,
-        .color2 = gbuffer_out.color2,
-        .depth = prepass_out.depth,
-        .ssao = ssao_out.processed,
-        .shadow = shadow_out.shadow,
-        .target = &p_target,
-    });
-
-    auto post_processed = builder.AddPostProcessPass({
-        .lighting = lighting_out.lighting,
-        .outline = 0,
-        .bloom = 0,
-    });
-
-    return builder.Compile();
 }
 
 #if 0

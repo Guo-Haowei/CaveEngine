@@ -8,10 +8,6 @@ struct FinalTarget {
     std::shared_ptr<GpuTexture> depth;
 };
 
-struct ShadowOutput {
-    RGTextureId shadow{};
-};
-
 struct DepthPrepassOutput {
     RGTextureId depth{};
 };
@@ -60,13 +56,8 @@ struct LightingOutput {
 
 class RenderGraphBuilderExt : public RenderGraphBuilder {
 public:
-    // @TODO: create 2D
-    [[nodiscard]] auto Create3D(RenderGraphBuilderConfig& p_config,
-                                const FinalTarget& p_target) -> Result<std::shared_ptr<RenderGraph>>;
     //[[nodiscard]] auto CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
 
-private:
-    [[nodiscard]] ShadowOutput AddShadowPass();
     [[nodiscard]] DepthPrepassOutput AddDepthPrepass();
     [[nodiscard]] GbufferOutput AddGbufferPass(const DepthPrepassOutput& p_in);
     [[nodiscard]] LightingOutput AddLightingPass(const LightingInput& p_in);
