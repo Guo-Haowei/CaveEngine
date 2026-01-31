@@ -13,9 +13,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-namespace cave {
+namespace cave::render {
 
-using namespace ::cave::math;
+using namespace cave::math;
 
 // #define IMGUI_UNLIMITED_FRAME_RATE
 #ifdef _DEBUG
@@ -458,4 +458,4 @@ void VulkanGraphicsManager::Present() {
     }
 }
 
-}  // namespace cave
+}  // namespace cave::render

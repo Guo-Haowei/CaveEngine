@@ -35,7 +35,7 @@
         }                                                                                                                    \
     } while (0)
 
-namespace cave {
+namespace cave::render {
 
 CommonOpenGLGraphicsManager::CommonOpenGLGraphicsManager()
     : RenderDevice("CommonOpenGLGraphicsManager", Backend::OPENGL, 1) {
@@ -667,4 +667,4 @@ void CommonOpenGLGraphicsManager::Present() {
     glfwSwapBuffers(m_window);
 }
 
-}  // namespace cave
+}  // namespace cave::render

@@ -18,15 +18,16 @@ namespace cave {
 // @TODO: refactor
 struct MaterialConstantBuffer;
 
-namespace cave::render {
-struct RGRenderPass;
-}
-
 namespace cave {
 
 struct SamplerDesc;
 class Scene;
 struct GpuConstantBuffer;
+}  // namespace cave
+
+namespace cave::render {
+
+struct RGRenderPass;
 
 struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> batchCb;
@@ -121,4 +122,4 @@ private:
     void Execute(const FrameData& p_data, render::RGRenderPass& p_pass);
 };
 
-}  // namespace cave
+}  // namespace cave::render

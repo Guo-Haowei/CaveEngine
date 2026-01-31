@@ -3,11 +3,11 @@
 
 namespace cave {
 struct FrameData;
-class RenderDevice;
 }  // namespace cave
 
 namespace cave::render {
 
+class RenderDevice;
 struct Framebuffer;
 
 struct ResourceTransition {

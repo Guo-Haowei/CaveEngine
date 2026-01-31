@@ -6,7 +6,7 @@
 
 struct GLFWwindow;
 
-namespace cave {
+namespace cave::render {
 
 // @TODO: fix
 struct OpenGlMeshBuffers : GpuMesh {
@@ -101,4 +101,4 @@ private:
     uint32_t m_dummy_vao;  // for drawing with gl_VertexID
 };
 
-}  // namespace cave
+}  // namespace cave::render

@@ -10,7 +10,7 @@ namespace cave {
 #include "shader_resource_defines.hlsl.h"
 }  // namespace cave
 
-namespace cave {
+namespace cave::render {
 
 namespace fs = std::filesystem;
 
@@ -281,4 +281,4 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
     return program;
 }
 
-}  // namespace cave
+}  // namespace cave::render

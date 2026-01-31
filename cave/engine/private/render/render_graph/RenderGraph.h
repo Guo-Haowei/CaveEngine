@@ -7,11 +7,12 @@
 namespace cave {
 
 struct FrameData;
-class RenderDevice;
 
 }  // namespace cave
 
 namespace cave::render {
+
+class RenderDevice;
 
 class RenderGraph : public NonCopyable {
 public:

@@ -26,10 +26,9 @@ namespace cave {
 #include "structured_buffer.hlsl.h"
 }  // namespace cave
 
-namespace cave {
+namespace cave::render {
 
 using namespace cave::math;
-using namespace cave::render;
 using Microsoft::WRL::ComPtr;
 
 // @TODO: refactor
@@ -1398,4 +1397,4 @@ void D3d12GraphicsManager::CleanupRenderTarget() {
     SafeRelease(m_depthStencilBuffer);
 }
 
-}  // namespace cave
+}  // namespace cave::render

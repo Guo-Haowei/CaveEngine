@@ -5,7 +5,8 @@
 
 namespace cave {
 
-using namespace math;
+using namespace cave::math;
+using namespace cave::render;
 
 static constexpr float DEFAULT_Z = 0.0f;
 

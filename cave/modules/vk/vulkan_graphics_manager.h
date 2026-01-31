@@ -5,7 +5,7 @@
 
 struct GLFWwindow;
 
-namespace cave {
+namespace cave::render {
 
 WARNING_PUSH()
 WARNING_DISABLE(4100, "-Wunused-parameter")
@@ -88,4 +88,4 @@ private:
 
 WARNING_POP()
 
-}  // namespace cave
+}  // namespace cave::render

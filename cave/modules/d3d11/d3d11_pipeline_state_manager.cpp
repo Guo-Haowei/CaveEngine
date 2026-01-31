@@ -8,7 +8,7 @@
 #define INCLUDE_AS_D3D11
 #include "../d3d_common/d3d_convert.h"
 
-namespace cave {
+namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
@@ -150,6 +150,6 @@ auto D3d11PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p
     return pipeline_state;
 }
 
-}  // namespace cave
+}  // namespace cave::render
 
 #undef INCLUDE_AS_D3D11

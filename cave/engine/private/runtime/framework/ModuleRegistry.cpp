@@ -21,6 +21,8 @@
 
 namespace cave {
 
+using namespace cave::render;
+
 template<class T1, class FALLBACK>
 inline T1* CreateModule() {
     if (T1::s_createFunc) {
@@ -85,7 +87,7 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
         return nullptr;
     }
 
-    return new EmptyGraphicsManager;
+    return new render::EmptyGraphicsManager;
 }
 
 IRenderDevice* CreateRenderDevice() {

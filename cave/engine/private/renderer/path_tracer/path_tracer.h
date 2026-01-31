@@ -8,9 +8,12 @@
 // @TODO: refactor
 #include "engine/private/renderer/path_tracer_render_system.h"
 
+// @TODO: should not view raw scene
 namespace cave {
-
 class Scene;
+}
+
+namespace cave::render {
 
 struct GpuScene {
     // @TODO: material
@@ -53,4 +56,4 @@ private:
     PathTracerMode m_mode{ PathTracerMode::NONE };
 };
 
-}  // namespace cave
+}  // namespace cave::render

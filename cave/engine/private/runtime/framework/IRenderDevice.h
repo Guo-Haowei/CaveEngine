@@ -5,12 +5,6 @@
 // @TODO: refactor
 struct MaterialConstantBuffer;
 
-namespace cave::render {
-struct Framebuffer;
-struct FramebufferDesc;
-struct RenderSubmission;
-}  // namespace cave::render
-
 namespace cave {
 
 enum class Backend : uint8_t;
@@ -21,7 +15,6 @@ enum PipelineStateName : uint8_t;
 class Scene;
 
 struct BlendDesc;
-struct FrameContext;
 struct GpuBuffer;
 struct GpuBufferDesc;
 struct GpuConstantBuffer;
@@ -35,6 +28,15 @@ struct SamplerDesc;
 struct Viewport;
 
 struct GpuMesh;
+
+}  // namespace cave
+
+namespace cave::render {
+
+struct Framebuffer;
+struct FramebufferDesc;
+struct FrameContext;
+struct RenderSubmission;
 
 // @TODO: split this class to RenderDevice and RHI
 class IRenderDevice : public Module,
@@ -166,4 +168,4 @@ protected:
     virtual void UpdateEmitters(const Scene& p_scene) = 0;
 };
 
-}  // namespace cave
+}  // namespace cave::render

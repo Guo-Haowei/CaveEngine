@@ -4,11 +4,11 @@
 // clang-format off
 namespace cave { struct FrameData; }
 namespace cave { struct GpuTexture; }
-namespace cave { class IRenderDevice; }
 // clang-format on
 
 namespace cave::render {
 
+class IRenderDevice;
 struct Framebuffer;
 struct RGRenderPass;
 

@@ -2,14 +2,14 @@
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 
-namespace cave {
+namespace cave::render {
 
 WARNING_PUSH()
 WARNING_DISABLE(4100, "-Wunused-parameter")
 
 class EmptyGraphicsManager : public IRenderDevice {
 public:
-    EmptyGraphicsManager(std::string_view p_name = "EmptyGraphicsManager")
+    EmptyGraphicsManager(std::string_view p_name = "EmptyRenderDevice")
         : IRenderDevice(p_name) {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
@@ -113,4 +113,4 @@ protected:
 
 WARNING_POP()
 
-}  // namespace cave
+}  // namespace cave::render

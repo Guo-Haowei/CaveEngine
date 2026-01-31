@@ -4,7 +4,7 @@
 #include "engine/private/renderer/pipeline_state_objects.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
-namespace cave {
+namespace cave::render {
 
 const BlendDesc& PipelineStateManager::GetBlendDescDefault() {
     return s_blendStateDefault;
@@ -356,4 +356,4 @@ void PipelineStateManager::Finalize() {
     }
 }
 
-}  // namespace cave
+}  // namespace cave::render

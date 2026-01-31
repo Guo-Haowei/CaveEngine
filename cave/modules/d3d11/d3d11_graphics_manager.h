@@ -5,7 +5,7 @@
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
-namespace cave {
+namespace cave::render {
 
 struct D3d11Buffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -123,4 +123,4 @@ protected:
     } m_stateCache;
 };
 
-}  // namespace cave
+}  // namespace cave::render

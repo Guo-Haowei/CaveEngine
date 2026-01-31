@@ -4,7 +4,7 @@
 
 #include "engine/private/runtime/framework/PipelineStateManager.h"
 
-namespace cave {
+namespace cave::render {
 
 struct D3d12PipelineState : public PipelineState {
     using PipelineState::PipelineState;
@@ -24,4 +24,4 @@ private:
     std::vector<D3D_SHADER_MACRO> m_defines;
 };
 
-}  // namespace cave
+}  // namespace cave::render
