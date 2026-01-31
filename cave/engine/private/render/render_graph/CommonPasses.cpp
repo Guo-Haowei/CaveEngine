@@ -6,7 +6,7 @@
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
@@ -88,7 +88,7 @@ static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
         .name = RG_RES_SSAO,
     };
 
-    return GraphicsManager::GetSingleton().CreateTexture(desc, PointWrapSampler());
+    return RenderDevice::GetSingleton().CreateTexture(desc, PointWrapSampler());
 }
 
 static std::shared_ptr<GpuTexture> GenerateLTC(std::string_view p_name, const float* p_matrix_table) {
@@ -108,7 +108,7 @@ static std::shared_ptr<GpuTexture> GenerateLTC(std::string_view p_name, const fl
         .name = std::string(p_name),
     };
 
-    return GraphicsManager::GetSingleton().CreateTexture(desc, PointClampSampler());
+    return RenderDevice::GetSingleton().CreateTexture(desc, PointClampSampler());
 }
 
 extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
@@ -199,7 +199,7 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         .debug_name = RG_RES_BRDF,
         .func = []() {
             std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
-            return GraphicsManager::GetSingleton().CreateTexture(image.get());
+            return RenderDevice::GetSingleton().CreateTexture(image.get());
         },
     });
 

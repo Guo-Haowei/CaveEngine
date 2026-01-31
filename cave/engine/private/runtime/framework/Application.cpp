@@ -9,7 +9,7 @@
 #include "engine/private/core/os/threads.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

@@ -5,7 +5,7 @@
 
 // @TODO: remove this
 #include "engine/private/renderer/frame_data.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave::render {
 

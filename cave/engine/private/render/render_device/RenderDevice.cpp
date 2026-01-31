@@ -1,4 +1,4 @@
-#include "graphics_manager.h"
+#include "RenderDevice.h"
 
 #include "engine/private/render/renderer/RenderSubmission.h"
 #include "engine/private/render/render_graph/RenderPass.h"
@@ -45,7 +45,7 @@ using namespace math;
 using namespace render;
 
 template<typename T>
-static auto CreateUniformCheckSize(GraphicsManager& p_graphics_manager, uint32_t p_max_count) {
+static auto CreateUniformCheckSize(RenderDevice& p_graphics_manager, uint32_t p_max_count) {
     static_assert(sizeof(T) % 256 == 0);
     GpuBufferDesc buffer_desc{};
     buffer_desc.slot = T::GetUniformBufferSlot();
@@ -54,7 +54,7 @@ static auto CreateUniformCheckSize(GraphicsManager& p_graphics_manager, uint32_t
     return p_graphics_manager.CreateConstantBuffer(buffer_desc);
 }
 
-auto GraphicsManager::InitializeImpl() -> Result<void> {
+auto RenderDevice::InitializeImpl() -> Result<void> {
     m_enableValidationLayer = DVAR_GET_BOOL(gfx_gpu_validation);
 
     const int num_frames = (GetBackend() == Backend::D3D12) ? NUM_FRAMES_IN_FLIGHT : 1;
@@ -96,31 +96,31 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void GraphicsManager::EventReceived(std::shared_ptr<IEvent> p_event) {
+void RenderDevice::EventReceived(std::shared_ptr<IEvent> p_event) {
     if (ResizeEvent* e = dynamic_cast<ResizeEvent*>(p_event.get()); e) {
         OnWindowResize(e->GetWidth(), e->GetHeight());
     }
 }
 
-void GraphicsManager::SetPipelineState(PipelineStateName p_name) {
+void RenderDevice::SetPipelineState(PipelineStateName p_name) {
     SetPipelineStateImpl(p_name);
 }
 
-void GraphicsManager::RequestTexture(ImageAsset* p_image) {
+void RenderDevice::RequestTexture(ImageAsset* p_image) {
     m_loadedImages.push(p_image);
 }
 
-void GraphicsManager::RequestMesh(MeshAsset* p_mesh) {
+void RenderDevice::RequestMesh(MeshAsset* p_mesh) {
     m_loadedMeshes.push(p_mesh);
 }
 
-void GraphicsManager::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
+void RenderDevice::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     unused(p_desc);
     unused(p_buffer);
     CRASH_NOW();
 }
 
-auto GraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
+auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
     constexpr uint32_t count = std::to_underlying(VertexAttributeName::COUNT);
     std::array<VertexAttributeName, count> attribs = {
         VertexAttributeName::POSITION,
@@ -232,7 +232,7 @@ static void FillTextureAndSamplerDesc(const ImageAsset* p_image, GpuTextureDesc&
     }
 }
 
-std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) {
+std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(ImageAsset* p_image) {
     DEV_ASSERT(p_image);
 
     GpuTextureDesc texture_desc{};
@@ -243,7 +243,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) 
     return p_image->gpu_texture;
 }
 
-void GraphicsManager::Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) {
+void RenderDevice::Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: make it a function
@@ -304,32 +304,32 @@ void GraphicsManager::Submit(std::unique_ptr<render::RenderSubmission>&& p_submi
     }
 }
 
-void GraphicsManager::UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
+void RenderDevice::UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
     unused(p_desc);
     unused(p_buffer);
 }
 
-void GraphicsManager::BeginFrame() {
+void RenderDevice::BeginFrame() {
 }
 
-void GraphicsManager::EndFrame() {
+void RenderDevice::EndFrame() {
 }
 
-void GraphicsManager::MoveToNextFrame() {
+void RenderDevice::MoveToNextFrame() {
 }
 
-std::shared_ptr<FrameContext> GraphicsManager::CreateFrameContext() {
+std::shared_ptr<FrameContext> RenderDevice::CreateFrameContext() {
     return std::make_unique<FrameContext>();
 }
 
-void GraphicsManager::BeginDrawPass(const Framebuffer*) {
+void RenderDevice::BeginDrawPass(const Framebuffer*) {
 }
 
-void GraphicsManager::EndDrawPass(const Framebuffer*) {
+void RenderDevice::EndDrawPass(const Framebuffer*) {
     UnsetRenderTarget();
 }
 
-std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     auto texture = CreateTextureImpl(p_texture_desc, p_sampler_desc);
     if (p_texture_desc.type != AttachmentType::NONE) {
         auto [_, inserted] = m_resourceLookup.try_emplace(texture->desc.name, texture);
@@ -341,7 +341,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(const GpuTextureDesc&
     return texture;
 }
 
-std::shared_ptr<GpuTexture> GraphicsManager::FindTexture(std::string_view p_name) const {
+std::shared_ptr<GpuTexture> RenderDevice::FindTexture(std::string_view p_name) const {
     if (m_resourceLookup.empty()) {
         return nullptr;
     }
@@ -353,7 +353,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::FindTexture(std::string_view p_name
     return it->second;
 }
 
-uint64_t GraphicsManager::GetFinalImage() const {
+uint64_t RenderDevice::GetFinalImage() const {
     constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
     if (const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get()) {
         return texture->GetHandle();
@@ -362,7 +362,7 @@ uint64_t GraphicsManager::GetFinalImage() const {
     return 0;
 }
 
-void GraphicsManager::UpdateEmitters(const Scene& p_scene) {
+void RenderDevice::UpdateEmitters(const Scene& p_scene) {
     unused(p_scene);
 #if 0
     for (auto [id, emitter] : p_scene.m_ParticleEmitterComponents) {
@@ -401,7 +401,7 @@ void GraphicsManager::UpdateEmitters(const Scene& p_scene) {
 #endif
 }
 
-void GraphicsManager::DrawSkybox() {
+void RenderDevice::DrawSkybox() {
     SetMesh(m_skyboxBuffers.get());
     DrawElements(m_skyboxBuffers->desc.drawCount);
 }
@@ -413,7 +413,7 @@ void GraphicsManager::DrawSkybox() {
 #define RT_DEBUG(...)
 #endif
 
-void GraphicsManager::Execute(const FrameData& p_data, RenderPass& p_pass) {
+void RenderDevice::Execute(const FrameData& p_data, RenderPass& p_pass) {
     RT_DEBUG("-- Executing pass '{}'", m_name);
 
     auto framebuffer = p_pass.m_framebuffer.get();

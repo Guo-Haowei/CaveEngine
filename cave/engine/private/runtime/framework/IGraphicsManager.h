@@ -138,8 +138,6 @@ public:
     // @TODO: thread safety ?
     virtual void EventReceived(std::shared_ptr<IEvent> p_event) = 0;
 
-    // static auto Create() -> Result<GraphicsManager*>;
-
     virtual Backend GetBackend() const = 0;
 
     virtual FrameContext& GetCurrentFrame() = 0;

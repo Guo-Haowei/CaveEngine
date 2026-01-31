@@ -2,7 +2,7 @@
 
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/core/io/archive.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
@@ -64,7 +64,7 @@ void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t p_version) {
 void MeshAsset::OnDeserialized() {
     CreateRenderData();
 
-    GraphicsManager* graphics_manager = GraphicsManager::GetSingletonPtr();
+    RenderDevice* graphics_manager = RenderDevice::GetSingletonPtr();
     if (graphics_manager) {
         graphics_manager->RequestMesh(this);
     }

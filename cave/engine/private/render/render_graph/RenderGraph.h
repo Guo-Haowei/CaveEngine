@@ -7,7 +7,7 @@
 namespace cave {
 
 struct FrameData;
-class GraphicsManager;
+class RenderDevice;
 
 }  // namespace cave
 
@@ -36,7 +36,7 @@ private:
     std::unordered_map<RGTextureId, int> m_resourceLookup;
 
     friend class RenderGraphBuilder;
-    friend class GraphicsManager;
+    friend class RenderDevice;
 };
 
 }  // namespace cave::render

@@ -38,12 +38,12 @@ struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> perFrameCb;
 };
 
-class GraphicsManager : public IGraphicsManager,
-                        public Singleton<GraphicsManager> {
+class RenderDevice : public IGraphicsManager,
+                     public Singleton<RenderDevice> {
 public:
     // @TODO: rename to RenderTarget
 
-    GraphicsManager(std::string_view p_name, Backend p_backend, int p_frame_count)
+    RenderDevice(std::string_view p_name, Backend p_backend, int p_frame_count)
         : IGraphicsManager(p_name), m_backend(p_backend), m_frameCount(p_frame_count) {}
 
     auto InitializeImpl() -> Result<void> final;

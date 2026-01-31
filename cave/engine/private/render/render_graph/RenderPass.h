@@ -10,7 +10,7 @@ namespace cave {
 // @TODO: split RHI and RenderCommandContext
 using IRenderCmdContext = IGraphicsManager;
 struct FrameData;
-class GraphicsManager;
+class RenderDevice;
 }  // namespace cave
 
 namespace cave::render {
@@ -52,7 +52,7 @@ protected:
     friend class RenderPassBuilder;
     friend class RenderGraphBuilder;
     friend class RenderGraph;
-    friend class GraphicsManager;
+    friend class RenderDevice;
 };
 
 }  // namespace cave::render

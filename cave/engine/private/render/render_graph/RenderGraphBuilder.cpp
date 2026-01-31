@@ -3,7 +3,7 @@
 #include "engine/private/algorithm/algorithm.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "RenderGraph.h"
 #include "RenderGraphDefines.h"
 #include "RenderPassBuilder.h"
@@ -11,7 +11,7 @@
 namespace cave::render {
 
 RenderGraphBuilder::RenderGraphBuilder(const RenderGraphBuilderConfig& p_config)
-    : m_config(p_config), m_graphicsManager(GraphicsManager::GetSingleton()) {
+    : m_config(p_config), m_graphicsManager(RenderDevice::GetSingleton()) {
 }
 
 RenderPassBuilder& RenderGraphBuilder::AddPass(std::string_view p_pass_name) {

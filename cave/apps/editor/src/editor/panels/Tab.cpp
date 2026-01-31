@@ -6,7 +6,7 @@
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/RuntimeHost.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 

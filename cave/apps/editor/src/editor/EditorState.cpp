@@ -20,7 +20,7 @@
 #include "Enums.h"
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"

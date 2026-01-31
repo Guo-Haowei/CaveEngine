@@ -5,7 +5,7 @@
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/path_tracer_render_system.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/CommonDvars.h"

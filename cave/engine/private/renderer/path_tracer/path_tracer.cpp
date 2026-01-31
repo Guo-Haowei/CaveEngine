@@ -6,7 +6,7 @@
 
 #include "engine/private/assets/mesh_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/path_tracer/bvh_accel.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -121,7 +121,7 @@ static void AppendBvhs(const std::vector<GpuPtBvh>& p_source, std::vector<GpuPtB
 void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
     const auto dirty_flag = p_scene.GetDirtyFlags();
     // @TODO: refactor
-    auto gm = GraphicsManager::GetSingletonPtr();
+    auto gm = RenderDevice::GetSingletonPtr();
 
     std::map<ecs::Entity, int> materials_lookup;
     {
@@ -205,7 +205,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     DEV_ASSERT(m_ptVertexBuffer == nullptr);
 
     // @TODO: refactor
-    auto gm = GraphicsManager::GetSingletonPtr();
+    auto gm = RenderDevice::GetSingletonPtr();
     GpuScene gpu_scene;
 
     Stopwatch stopwatch;
