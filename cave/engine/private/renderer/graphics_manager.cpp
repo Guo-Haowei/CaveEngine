@@ -386,10 +386,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::FindTexture(std::string_view p_name
 }
 
 uint64_t GraphicsManager::GetFinalImage() const {
-    const GpuTexture* texture = FindTexture(RG_RES_LIGHTING).get();
-    //const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get();
-
-    if (texture) {
+    if (const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get()) {
         return texture->GetHandle();
     }
 

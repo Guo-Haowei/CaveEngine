@@ -221,22 +221,6 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetStencilRef(0);
 }
 
-#if 0
-void RenderGraphBuilderExt::AddHighlightPass() {
-    RenderPassBuilder& pass = AddPass(RG_PASS_OUTLINE);
-
-
-
-    auto color0_desc = BuildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT,
-                                               AttachmentType::COLOR_2D);
-
-    pass.Create(RG_RES_OUTLINE, { color0_desc })
-        .Write(ResourceAccess::RTV, RG_RES_OUTLINE)
-        .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
-        .SetExecuteFunc(HighlightPassFunc);
-}
-#endif
-
 /// Shadow
 void PointShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     RENDER_PASS_FUNC();
@@ -558,18 +542,12 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
 
     // draw billboards
 
-    // @HACK:
-    if (DVAR_GET_BOOL(gfx_debug_vxgi) && cmd.GetBackend() == Backend::OPENGL) {
-        // @TODO: add to forward pass
-        DebugVoxels(p_ctx);
-    } else {
-        cmd.SetViewport(Viewport(width, height));
-        cmd.Clear(fb, CLEAR_COLOR_BIT);
+    cmd.SetViewport(Viewport(width, height));
+    cmd.Clear(fb, CLEAR_COLOR_BIT);
 
-        cmd.SetPipelineState(PSO_POST_PROCESS);
-        cmd.SetMesh(nullptr);
-        cmd.DrawArrays(6);
-    }
+    cmd.SetPipelineState(PSO_POST_PROCESS);
+    cmd.SetMesh(nullptr);
+    cmd.DrawArrays(6);
 }
 
 void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx) {

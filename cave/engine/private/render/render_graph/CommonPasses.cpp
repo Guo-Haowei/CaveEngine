@@ -243,6 +243,28 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
     }
 #endif
 }
+
+PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
+    RenderPassBuilder& pass = AddPass(RG_PASS_POST_PROCESS);
+    auto desc = BuildDefaultTextureDesc(RT_FMT_TONE, AttachmentType::COLOR_2D);
+    desc.bindFlags |= BIND_SHADER_RESOURCE;
+
+    PostProcessOutput out{
+        .processed = CreateTexture(RGResourceCreateDesc{
+            RG_RES_POST_PROCESS,
+            desc,
+        }),
+    };
+
+    pass.Read(ResourceAccess::SRV, p_in.lighting)
+        .Read(ResourceAccess::SRV, p_in.outline)
+        .Read(ResourceAccess::SRV, p_in.bloom);
+
+    pass.Write(ResourceAccess::RTV, out.processed)
+        .SetExecuteFunc(TonePassFunc);
+
+    return out;
+}
 #if 0
 void RenderGraphBuilderExt::AddHighlightPass() {
     RenderPassBuilder& pass = AddPass(RG_PASS_OUTLINE);
@@ -377,35 +399,6 @@ void RenderGraphBuilderExt::AddBloomPass() {
     }
 }
 
-PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
-    unused(p_in);
-    PostProcessOutput out{};
-
-    auto desc = BuildDefaultTextureDesc(RT_FMT_TONE,
-                                        AttachmentType::COLOR_2D);
-    desc.bindFlags |= BIND_SHADER_RESOURCE;
-
-    auto bloom_res = std::format(RG_RES_BLOOM_PREFIX "{}x{}", m_config.frameWidth, m_config.frameHeight);
-
-    AddDependency(RG_PASS_BLOOM_UP_PREFIX "0", RG_PASS_POST_PROCESS);
-    auto& pass = AddPass(RG_PASS_POST_PROCESS);
-    pass.Create(RG_RES_POST_PROCESS, { desc })
-        .Read(ResourceAccess::SRV, RG_RES_LIGHTING)
-        .Read(ResourceAccess::SRV, RG_RES_OUTLINE)
-        .Read(ResourceAccess::SRV, bloom_res);
-
-    if (m_config.enableVxgi) {
-        // @TODO: move the debug to somewhere else
-        pass.Read(ResourceAccess::UAV, RG_RES_VOXEL_LIGHTING)
-            .Read(ResourceAccess::UAV, RG_RES_VOXEL_NORMAL);
-    }
-
-    pass.Write(ResourceAccess::RTV, RG_RES_POST_PROCESS)
-        .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
-        .SetExecuteFunc(TonePassFunc);
-
-    return out;
-}
 
 void RenderGraphBuilderExt::AddGenerateSkylightPass() {
     {
@@ -492,21 +485,36 @@ auto RenderGraphBuilderExt::Create3D(RenderGraphBuilderConfig& p_config,
     RenderGraphBuilderExt builder(p_config);
 
     // builder.AddGenerateSkylightPass();
+    SsaoOutput ssao_out{};
 
     auto shadow_out = builder.AddShadowPass();
-    auto prepass_out = builder.AddDepthPrepass();
-    auto gbuffer_out = builder.AddGbufferPass({ .depth = prepass_out.depth });
 
-    // auto ssao_out = builder.AddSsaoPass({ .depth = gbuffer_out.depth, .normal = gbuffer_out.color1 });
+    auto prepass_out = builder.AddDepthPrepass();
+
+    auto gbuffer_out = builder.AddGbufferPass({
+        .depth = prepass_out.depth,
+    });
+
+    // @TODO: only add when ssao is enabled
+    ssao_out = builder.AddSsaoPass({
+        .depth = prepass_out.depth,
+        .normal = gbuffer_out.color1,
+    });
 
     auto lighting_out = builder.AddLightingPass({
         .color0 = gbuffer_out.color0,
         .color1 = gbuffer_out.color1,
         .color2 = gbuffer_out.color2,
         .depth = prepass_out.depth,
-        //.ssao = ssao_out.processed,
+        .ssao = ssao_out.processed,
         .shadow = shadow_out.shadow,
         .target = &p_target,
+    });
+
+    auto post_processed = builder.AddPostProcessPass({
+        .lighting = lighting_out.lighting,
+        .outline = 0,
+        .bloom = 0,
     });
 
     return builder.Compile();

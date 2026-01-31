@@ -9,54 +9,53 @@ struct FinalTarget {
 };
 
 struct ShadowOutput {
-    RGTextureHandle shadow;
+    RGTextureHandle shadow{};
 };
 
 struct DepthPrepassOutput {
-    RGTextureHandle depth;
+    RGTextureHandle depth{};
 };
 
 struct GbufferOutput {
-    RGTextureHandle color0;
-    RGTextureHandle color1;
-    RGTextureHandle color2;
+    RGTextureHandle color0{};
+    RGTextureHandle color1{};
+    RGTextureHandle color2{};
 };
 
 struct PostProcessInput {
-    RGTextureHandle lighting;
-    RGTextureHandle outline;
-    RGTextureHandle bloom;
+    RGTextureHandle lighting{};
+    RGTextureHandle outline{};
+    RGTextureHandle bloom{};
 };
 
 struct PostProcessOutput {
-    RGTextureHandle processed;
-    RGTextureHandle ds;
+    RGTextureHandle processed{};
+    RGTextureHandle ds{};
 };
 
 struct SsaoInput {
-    RGTextureHandle depth;
-    RGTextureHandle normal;
+    RGTextureHandle depth{};
+    RGTextureHandle normal{};
 };
 
 struct SsaoOutput {
-    RGTextureHandle processed;
+    RGTextureHandle processed{};
 };
 
 struct LightingInput {
-    RGTextureHandle color0;
-    RGTextureHandle color1;
-    RGTextureHandle color2;
-    RGTextureHandle depth;
-    RGTextureHandle ssao;
-    RGTextureHandle shadow;
-    RGTextureHandle ibl_diffuse;
-    RGTextureHandle ibl_prefiltered;
+    RGTextureHandle color0{};
+    RGTextureHandle color1{};
+    RGTextureHandle color2{};
+    RGTextureHandle depth{};
+    RGTextureHandle ssao{};
+    RGTextureHandle shadow{};
+    RGTextureHandle ibl_diffuse{};
+    RGTextureHandle ibl_prefiltered{};
     const FinalTarget* target{ nullptr };
 };
 
 struct LightingOutput {
-    RGTextureHandle lighting;
-
+    RGTextureHandle lighting{};
 };
 
 class RenderGraphBuilderExt : public RenderGraphBuilder {
@@ -72,12 +71,12 @@ private:
     [[nodiscard]] GbufferOutput AddGbufferPass(const DepthPrepassOutput& p_in);
     [[nodiscard]] LightingOutput AddLightingPass(const LightingInput& p_in);
     [[nodiscard]] SsaoOutput AddSsaoPass(const SsaoInput& p_in);
+    [[nodiscard]] PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
     // void AddForwardPass();
     // void AddHighlightPass();
     // void AddVoxelizationPass();
     // void AddBloomPass();
     // void AddGenerateSkylightPass();
-    // PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
 
     void AddPathTracerPass();
     void AddPathTracerTonePass();
