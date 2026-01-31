@@ -18,10 +18,6 @@ namespace cave {
 // @TODO: refactor
 struct MaterialConstantBuffer;
 
-// clang-format off
-namespace cave::render { class RenderGraph; }
-// clang-format on
-
 namespace cave {
 
 struct SamplerDesc;
@@ -97,8 +93,6 @@ protected:
 
     const Backend m_backend;
     bool m_enableValidationLayer;
-
-    std::shared_ptr<render::RenderGraph> m_render_graph;
 
     std::unordered_map<std::string_view, std::shared_ptr<GpuTexture>> m_resourceLookup;
 

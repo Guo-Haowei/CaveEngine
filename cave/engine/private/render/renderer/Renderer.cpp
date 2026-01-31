@@ -15,6 +15,8 @@
 #include "engine/private/core/base/random.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/render_graph/CommonPasses.h"
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
 
 namespace cave {
 
@@ -27,6 +29,7 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 
 namespace cave::render {
 
+using math::Vector2i;
 using math::Vector3f;
 using math::Vector4f;
 
@@ -34,6 +37,8 @@ class Renderer::Impl {
 public:
     Impl(IApplication& p_app)
         : m_app(p_app) {}
+
+    auto Initialize() -> Result<void>;
 
     void Tick(std::span<const render::ViewDesc> p_views);
 
@@ -44,6 +49,8 @@ private:
     IApplication& m_app;
     RenderSceneBuilder m_scene_builder;
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
+
+    std::shared_ptr<RenderGraph> m_render_graph;
 };
 
 Renderer::Renderer()
@@ -53,7 +60,7 @@ Renderer::~Renderer() = default;
 
 auto Renderer::InitializeImpl() -> Result<void> {
     m_impl = std::make_unique<Impl>(*m_app);
-    return Result<void>();
+    return m_impl->Initialize();
 }
 
 void Renderer::FinalizeImpl() {
@@ -198,6 +205,23 @@ static void FillEnvConstants(FrameData& p_out_data) {
     }
 }
 
+auto Renderer::Impl::Initialize() -> Result<void> {
+    // @TODO: change to perframe
+    FinalTarget target;
+    const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
+    RenderGraphBuilderConfig config;
+    config.frameWidth = frame_size.x;
+    config.frameHeight = frame_size.y;
+
+    RenderGraphBuilderExt builder(config);
+    if (auto res = builder.Create3D(config, target); !res) {
+        return CAVE_ERROR(res.error());
+    } else {
+        m_render_graph = *res;
+        return Result<void>();
+    }
+}
+
 void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
     CAVE_PROFILE_EVENT();
 
@@ -258,6 +282,8 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
 
     auto submission = std::make_unique<RenderSubmission>();
     submission->frame_data = std::move(frame_data);
+    submission->render_graph = m_render_graph;
+
     // @TODO: graph
     m_app.GetGraphicsManager()->Submit(std::move(submission));
 }

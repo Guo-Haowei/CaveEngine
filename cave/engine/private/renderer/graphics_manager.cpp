@@ -1,6 +1,7 @@
 #include "graphics_manager.h"
 
 #include "engine/private/render/renderer/RenderSubmission.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: determine if includes are necessary
 #include "engine/private/assets/image_asset.h"
@@ -9,10 +10,6 @@
 #include "engine/private/core/math/frustum.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/render/render_graph/CommonPasses.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
-#include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/render_graph/RenderGraphPredefined.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/renderer_misc.h"
@@ -70,19 +67,6 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
 
     if (m_backend == Backend::METAL) {
         return Result<void>();
-    }
-
-    FinalTarget target;
-    const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    RenderGraphBuilderConfig config;
-    config.frameWidth = frame_size.x;
-    config.frameHeight = frame_size.y;
-
-    RenderGraphBuilderExt builder(config);
-    if (auto res = builder.Create3D(config, target); !res) {
-        return CAVE_ERROR(res.error());
-    } else {
-        m_render_graph = *res;
     }
 
     for (int i = 0; i < num_frames; ++i) {
@@ -306,15 +290,7 @@ void GraphicsManager::Submit(std::unique_ptr<render::RenderSubmission>&& p_submi
 
             BindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
 
-            // @HACK
-            switch (m_backend) {
-                case Backend::VULKAN:
-                case Backend::METAL:
-                    break;
-                default: {
-                    m_render_graph->Execute(data, *this);
-                } break;
-            }
+            p_submission->render_graph->Execute(data, *this);
         }
 
         // @TODO: remove this
