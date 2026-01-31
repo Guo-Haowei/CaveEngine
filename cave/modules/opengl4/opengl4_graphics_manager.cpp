@@ -9,7 +9,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 
-namespace cave {
+namespace cave::render {
 
 static void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
 
@@ -197,4 +197,4 @@ static void APIENTRY DebugCallback(GLenum p_source,
     cave::LogImpl(level, std::format("[opengl] {}\n\t| id: {} | source: {} | type: {}", p_message, p_id, source, type));
 }
 
-}  // namespace cave
+}  // namespace cave::render
