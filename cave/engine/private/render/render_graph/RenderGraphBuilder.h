@@ -29,7 +29,6 @@ public:
     RenderGraphBuilder(const RenderGraphBuilderConfig& p_config);
 
     RenderPassBuilder& AddPass(std::string_view p_name);
-    void AddDependency(std::string_view p_from, std::string_view p_to);
 
     [[nodiscard]] auto Compile() -> Result<std::shared_ptr<RenderGraph>>;
 
@@ -64,11 +63,14 @@ protected:
     IGraphicsManager& m_graphicsManager;
 
     std::vector<RenderPassBuilder> m_passes;
-    std::vector<std::pair<std::string, std::string>> m_dependencies;
 
 private:
-    RGTextureHandle AllocHandle() const;
+    RGTextureNode* GetLogicalTexture(RGTextureHandle p_handle);
+    const RGTextureNode* GetLogicalTexture(RGTextureHandle p_handle) const;
+
+    RGTextureHandle AllocHandle();
     std::vector<RGTextureNode> m_textures;
+    RGTextureHandle::Type m_id{};
 };
 
 }  // namespace cave::render

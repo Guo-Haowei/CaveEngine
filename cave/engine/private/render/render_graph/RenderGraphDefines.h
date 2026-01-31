@@ -37,7 +37,7 @@ constexpr const char RG_RES_ENV_DIFFUSE_CUBE[] = "r:diffuse_cube";
 constexpr const char RG_RES_ENV_PREFILTERED_CUBE[] = "r:prefiltered_cube";
 // external resources
 constexpr const char RG_RES_SSAO_NOISE[] = "r:ssao_noise";
-constexpr const char RG_RES_BRDF[] = "r:ssao_brdf";
+constexpr const char RG_RES_BRDF[] = "r:brdf";
 constexpr const char RG_RES_IBL[] = "r:ibl";
 constexpr const char RG_RES_LTC1[] = "r:ltc1";
 constexpr const char RG_RES_LTC2[] = "r:ltc2";

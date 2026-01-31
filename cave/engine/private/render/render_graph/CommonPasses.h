@@ -20,7 +20,6 @@ struct GbufferOutput {
     RGTextureHandle color0;
     RGTextureHandle color1;
     RGTextureHandle color2;
-    RGTextureHandle depth;
 };
 
 struct PostProcessInput {
@@ -50,8 +49,8 @@ struct LightingInput {
     RGTextureHandle depth;
     RGTextureHandle ssao;
     RGTextureHandle shadow;
-    // RGTextureHandle ibl_diffuse;
-    // RGTextureHandle ibl_prefiltered;
+    RGTextureHandle ibl_diffuse;
+    RGTextureHandle ibl_prefiltered;
     const FinalTarget* target{ nullptr };
 };
 

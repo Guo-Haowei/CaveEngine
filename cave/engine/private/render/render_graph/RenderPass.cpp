@@ -25,11 +25,13 @@ void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     // bind srvs
     for (int i = 0; i < (int)m_srvs.size(); ++i) {
         const GpuTexture* srv = m_srvs[i].get();
+        if (!srv) continue;
         p_cmd.BindTexture(srv->desc.dimension, srv->GetHandle(), i);
     }
     // bind uavs
     for (int i = 0; i < (int)m_uavs.size(); ++i) {
         GpuTexture* uav = m_uavs[i].get();
+        if (!uav) continue;
         p_cmd.BindUnorderedAccessView(i, uav);
     }
 
@@ -42,6 +44,7 @@ void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     // unbind srvs
     for (int i = 0; i < (int)m_srvs.size(); ++i) {
         const GpuTexture* srv = m_srvs[i].get();
+        if (!srv) continue;
         p_cmd.UnbindTexture(srv->desc.dimension, i);
     }
     // unbind uavs

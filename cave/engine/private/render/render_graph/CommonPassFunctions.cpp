@@ -117,7 +117,6 @@ struct ScopedEvent {
 #define RENDER_PASS_FUNC()                                \
     ScopedEvent _scoped(p_ctx.cmd, p_ctx.pass.GetName()); \
     CAVE_PROFILE_EVENT();
-#define RENDER_PASS_FUNC()
 
 void DepthPrepassFunc(RenderPassExcutionContext& p_ctx) {
     RENDER_PASS_FUNC();

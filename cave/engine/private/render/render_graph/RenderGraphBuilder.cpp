@@ -20,110 +20,107 @@ RenderPassBuilder& RenderGraphBuilder::AddPass(std::string_view p_pass_name) {
     return m_passes.back();
 }
 
-void RenderGraphBuilder::AddDependency(std::string_view p_from, std::string_view p_to) {
-    m_dependencies.emplace_back(std::make_pair(p_from, p_to));
-}
-
-auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
-
-#define DEBUG_BUILDER NOT_IN_USE
-#if USING(DEBUG_BUILDER)
-#define DEBUG_PRINT(...) LOG_OK(__VA_ARGS__)
+#define DEBUG_GRAPH_COMPILE IN_USE
+#if USING(DEBUG_GRAPH_COMPILE)
+#define DEBUG_PRINT(...) LOG(__VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
-#if USING(DEBUG_BUILDER)
-    int id = 0;
+
+auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
+#if USING(DEBUG_GRAPH_COMPILE)
     for (const auto& pass : m_passes) {
-        DEBUG_PRINT("found pass: {} (id: {})", pass.GetName(), id++);
-        DEBUG_PRINT("  it creates:");
-        for (const auto& create : pass.m_creates) {
-            DEBUG_PRINT("  -- {}", create.first);
-        }
-        DEBUG_PRINT("  it reads:");
-        for (const auto& read : pass.m_reads) {
-            DEBUG_PRINT("  -- {}", read.name);
-        }
-        DEBUG_PRINT("  it writes:");
-        for (const auto& write : pass.m_writes) {
-            DEBUG_PRINT("  -- {}", write.name);
-        }
+        DEBUG_PRINT("found pass: {}", pass.GetName());
+
+        auto helper = [this](const char* p_string, std::span<const RenderPassBuilder::Resource> p_resources) {
+            if (p_resources.empty()) return;
+            DEBUG_PRINT("  {}", p_string);
+            for (const auto& res : p_resources) {
+                const RGTextureNode* node = GetLogicalTexture(res.handle);
+                if (!node) continue;
+                std::string access;
+                if ((bool)(res.access & ResourceAccess::SRV)) access += " SRV |";
+                if ((bool)(res.access & ResourceAccess::RTV)) access += " RTV |";
+                if ((bool)(res.access & ResourceAccess::DSV)) access += " DSV |";
+                if ((bool)(res.access & ResourceAccess::UAV)) access += " UAV |";
+                if (!access.empty()) access.pop_back();
+
+                DEBUG_PRINT("     {}(id: {}) {}",
+                            node->debug_name,
+                            res.handle.Underlying(), access);
+            }
+        };
+        helper("in: ", pass.m_reads);
+        helper("out: ", pass.m_writes);
     }
 #endif
-
-    std::unordered_map<std::string_view, int> lookup;
-
-    std::vector<std::pair<RGTextureHandle, int>> reads;
-    std::vector<std::pair<RGTextureHandle, int>> writes;
-
-    std::unordered_map<RGTextureHandle, int> creates;
-
     const int N = static_cast<int>(m_passes.size());
-    DEV_ASSERT(N);
+    if (N == 0) {
+        return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "no pass registered");
+    }
 
-    std::unordered_map<std::string_view, ResourceAccess> accesses;
+    struct RGPassNode {
+        int id;
+        std::string_view debug_name;
+        std::vector<RGTextureHandle> in_nodes;
+        std::unordered_set<RGTextureHandle> out_nodes;
+
+        bool Needs(const RGPassNode& p_other) const {
+            for (RGTextureHandle in : in_nodes)
+                if (p_other.out_nodes.find(in) != p_other.out_nodes.end())
+                    return true;
+            return false;
+        }
+    };
+    std::vector<RGPassNode> nodes;
+    nodes.resize(N);
 
     for (int i = 0; i < N; ++i) {
-        const auto& pass = m_passes[i];
-        {
-            auto [_, inserted] = lookup.try_emplace(pass.m_name, i);
-            if (!inserted) {
-                return CAVE_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "pass '{}' already exists", pass.m_name);
-            }
-        }
+        const RenderPassBuilder& pass = m_passes[i];
+        RGPassNode& pass_node = nodes[i];
+        pass_node.id = i;
+        pass_node.debug_name = pass.GetName();
 
-        for (const auto& id : pass.m_creates) {
-            auto [_, inserted] = creates.try_emplace(id, i);
-            if (!inserted) {
-                return CAVE_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "tried to create resource '{}' more than once", id);
-            }
-        }
-
-        // @TODO: figure out what access to give to resource
         for (const auto& read : pass.m_reads) {
-            reads.push_back(std::make_pair(std::string_view(read.name), i));
-            accesses[read.name] |= read.access;
+            RGTextureNode* tex = GetLogicalTexture(read.handle);
+            if (!tex) continue;
+            pass_node.in_nodes.push_back(read.handle);
+            tex->access_mask |= read.access;
         }
         for (const auto& write : pass.m_writes) {
-            writes.push_back(std::make_pair(std::string_view(write.name), i));
-            accesses[write.name] |= write.access;
+            RGTextureNode* tex = GetLogicalTexture(write.handle);
+            if (!tex) continue;
+            pass_node.out_nodes.insert(write.handle);
+            tex->access_mask |= write.access;
         }
     }
 
     std::vector<std::pair<int, int>> edges;
-    edges.reserve(m_dependencies.size());
-    // add manual dependencies
-    for (const auto& [from, to] : m_dependencies) {
-        auto it = lookup.find(from);
-        if (it == lookup.end()) {
-            return CAVE_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "pass '{}' not found", from);
-        }
-        const int from_idx = it->second;
-        it = lookup.find(to);
-        if (it == lookup.end()) {
-            return CAVE_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "pass '{}' not found", to);
-        }
-        const int to_idx = it->second;
-        edges.push_back({ from_idx, to_idx });
-    }
-
-    auto add_edges = [&creates, &edges](const std::vector<std::pair<RGTextureHandle, int>>& p_res) {
-        for (const auto& [name, to] : p_res) {
-            if (auto it = creates.find(name); it != creates.end()) {
-                const int from = it->second;
-                // remove passes that create and write the same buffer
-                if (from == to) continue;
-                // DEBUG_PRINT("edge found from {} (create) to {}", m_passes[from].GetName(), m_passes[to].GetName());
-                edges.push_back(std::make_pair(from, to));
-            } else {
-                // if not found, it's possible the resource is imported
-                // return CAVE_ERROR(ErrorCode::ERR_DOES_NOT_EXIST, "resource '{}' not found", name);
+    for (int i = 0; i < N - 1; ++i) {
+        for (int j = i + 1; j < N; ++j) {
+            const RGPassNode& a = nodes[i];
+            const RGPassNode& b = nodes[j];
+            const bool a_needs_b = a.Needs(b);
+            const bool b_needs_a = b.Needs(a);
+            if (a_needs_b && b_needs_a) {
+                return CAVE_ERROR(ErrorCode::ERR_CYCLIC_LINK, "circular dependency found {} {}", a.debug_name, b.debug_name);
+            }
+            if (a_needs_b) {
+                edges.push_back(std::make_pair(b.id, a.id));
+            }
+            if (b_needs_a) {
+                edges.push_back(std::make_pair(a.id, b.id));
             }
         }
-    };
+    }
 
-    add_edges(reads);
-    add_edges(writes);
+#if USING(DEBUG_GRAPH_COMPILE)
+    for (const auto& edge : edges) {
+        const RGPassNode& from = nodes[edge.first];
+        const RGPassNode& to = nodes[edge.second];
+        DEBUG_PRINT("found edge from {} to {}", from.debug_name, to.debug_name);
+    }
+#endif
 
     auto res = TopologicalSort(N, edges);
     if (res.is_none()) {
@@ -134,38 +131,32 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
     auto render_graph = std::make_shared<RenderGraph>();
 
     // 1. Create/Import resources
-    for (const auto& pass : m_passes) {
-        for (const auto& create : pass.m_creates) {
-            const auto& name = create.first;
-            const auto& create_info = create.second;
-            GpuTextureDesc desc = create_info.resourceDesc;
-            desc.name = name;
-            const auto it = accesses.find(name);
-            if (it == accesses.end()) {
-                return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "bad resource '{}'", name);
-            }
-            ResourceAccess access = it->second;
-            if ((access & ResourceAccess::RTV) != ResourceAccess::NONE) {
-                desc.bindFlags |= BIND_RENDER_TARGET;
-            }
-            if ((access & ResourceAccess::DSV) != ResourceAccess::NONE) {
-                desc.bindFlags |= BIND_DEPTH_STENCIL;
-            }
-            if ((access & ResourceAccess::SRV) != ResourceAccess::NONE) {
-                desc.bindFlags |= BIND_SHADER_RESOURCE;
-            }
-            if ((access & ResourceAccess::UAV) != ResourceAccess::NONE) {
-                desc.bindFlags |= BIND_UNORDERED_ACCESS;
-            }
+    for (const RGTextureNode& node : m_textures) {
+        if (node.import_fn) {
+            auto texture = node.import_fn();
+            render_graph->AddResource(node.handle, std::move(texture));
+            continue;
+        }
 
-            auto texture = m_graphicsManager.CreateTexture(desc, create_info.samplerDesc);
-            render_graph->AddResource(name, texture);
+        GpuTextureDesc desc = node.desc;
+        // @TODO: get rid of the name
+        desc.name = node.debug_name;
+        ResourceAccess access = node.access_mask;
+        if ((access & ResourceAccess::RTV) != ResourceAccess::NONE) {
+            desc.bindFlags |= BIND_RENDER_TARGET;
         }
-        for (const auto& import : pass.m_imports) {
-            const auto& name = import.first;
-            auto texture = import.second();
-            render_graph->AddResource(name, texture);
+        if ((access & ResourceAccess::DSV) != ResourceAccess::NONE) {
+            desc.bindFlags |= BIND_DEPTH_STENCIL;
         }
+        if ((access & ResourceAccess::SRV) != ResourceAccess::NONE) {
+            desc.bindFlags |= BIND_SHADER_RESOURCE;
+        }
+        if ((access & ResourceAccess::UAV) != ResourceAccess::NONE) {
+            desc.bindFlags |= BIND_UNORDERED_ACCESS;
+        }
+
+        auto texture = m_graphicsManager.CreateTexture(desc, node.sampler);
+        render_graph->AddResource(node.handle, texture);
     }
 
     // 2. Create framebuffer (should only create it for opengl)
@@ -181,10 +172,10 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
             switch (write.access) {
                 case ResourceAccess::DSV: {
                     DEV_ASSERT(dsv == nullptr);
-                    dsv = render_graph->FindResource(write.name);
+                    dsv = render_graph->FindResource(write.handle);
                 } break;
                 case ResourceAccess::RTV: {
-                    auto rtv = render_graph->FindResource(write.name);
+                    auto rtv = render_graph->FindResource(write.handle);
                     DEV_ASSERT(rtv);
                     rtvs.emplace_back(rtv);
                 } break;
@@ -201,12 +192,14 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         for (const auto& read : pass.m_reads) {
             switch (read.access) {
                 case ResourceAccess::SRV: {
-                    auto srv = render_graph->FindResource(read.name);
-                    DEV_ASSERT(srv);
+                    auto srv = render_graph->FindResource(read.handle);
+                    if (!srv) {
+                        LOG_WARN("srv '{}' not present in {}", read.handle.Underlying(), pass.GetName());
+                    }
                     srvs.emplace_back(srv);
                 } break;
                 case ResourceAccess::UAV: {
-                    auto uav = render_graph->FindResource(read.name);
+                    auto uav = render_graph->FindResource(read.handle);
                     DEV_ASSERT(uav);
                     uavs.emplace_back(uav);
                 } break;
@@ -231,30 +224,36 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
     return Result<std::shared_ptr<RenderGraph>>(render_graph);
 }
 
-RGTextureHandle RenderGraphBuilder::AllocHandle() const {
-    return { static_cast<RGTextureHandle>(m_textures.size()) };
+RGTextureHandle RenderGraphBuilder::AllocHandle() {
+    return { ++m_id };
 }
 
-// @TODO: allocate from index 1
+RGTextureNode* RenderGraphBuilder::GetLogicalTexture(RGTextureHandle p_handle) {
+    if (p_handle.IsNull()) return nullptr;
+    return &m_textures[p_handle.Underlying() - 1];
+}
+
+const RGTextureNode* RenderGraphBuilder::GetLogicalTexture(RGTextureHandle p_handle) const {
+    if (p_handle.IsNull()) return nullptr;
+    return &m_textures[p_handle.Underlying() - 1];
+}
+
 RGTextureHandle RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info) {
     RGTextureHandle handle = AllocHandle();
-    m_textures.emplace_back();
-
-    // fake handle allocation
+    m_textures.resize(m_id);
     RGTextureNode& node = m_textures.back();
+    node.handle = handle;
     node.desc = p_info.resourceDesc;
     node.sampler = p_info.samplerDesc;
     node.debug_name = std::move(p_info.debug_name);
     return handle;
 }
 
-// @TODO: allocate from index 1
 RGTextureHandle RenderGraphBuilder::ImportTexture(RGResourceImportDesc&& p_info) {
     RGTextureHandle handle = AllocHandle();
-    m_textures.emplace_back();
-
-    // fake handle allocation
+    m_textures.resize(m_id);
     RGTextureNode& node = m_textures.back();
+    node.handle = handle;
     node.import_fn = std::move(p_info.func);
     node.debug_name = std::move(p_info.debug_name);
     return handle;

@@ -4,11 +4,9 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/core/base/random.h"
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
-#include "engine/private/renderer/path_tracer_render_system.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
@@ -101,7 +99,7 @@ ShadowOutput RenderGraphBuilderExt::AddShadowPass() {
 
     GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::D32_FLOAT,
                                                   AttachmentType::SHADOW_2D,
-                                                  1 * shadow_res,
+                                                  shadow_res,
                                                   shadow_res);
     ShadowOutput out{
         .shadow = CreateTexture({
@@ -125,8 +123,7 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
     DepthPrepassOutput out{
         .depth = CreateTexture({
             RG_RES_DEPTH_STENCIL,
-            BuildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH,
-                                    AttachmentType::DEPTH_STENCIL_2D),
+            BuildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
         }),
     };
 
@@ -154,7 +151,9 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
         }),
     };
 
-    pass.Write(ResourceAccess::DSV, p_in.depth)
+    // @TODO: introduce versioning
+    pass.Read(ResourceAccess::DSV, p_in.depth)
+        .Write(ResourceAccess::DSV, p_in.depth)
         .Write(ResourceAccess::RTV, out.color0)
         .Write(ResourceAccess::RTV, out.color1)
         .Write(ResourceAccess::RTV, out.color2)
@@ -176,10 +175,10 @@ SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
         })
     };
 
-    pass.Write(ResourceAccess::RTV, out.processed)
-        .Read(ResourceAccess::SRV, p_in.normal)
+    pass.Read(ResourceAccess::SRV, p_in.normal)
         .Read(ResourceAccess::SRV, p_in.depth)
         .Read(ResourceAccess::SRV, noise)
+        .Write(ResourceAccess::RTV, out.processed)
         .SetExecuteFunc(SsaoPassFunc);
     return out;
 }
@@ -204,34 +203,35 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
     });
 
     RGTextureHandle out;
-    if (p_in.target) {
-        out = ImportTexture(RGResourceImportDesc{
-            .debug_name = "Viewport",
-            .func = [&]() {
-                return p_in.target->color;
-            },
-        });
-    } else {
+    // @TODO: fix this logic
+    if (p_in.target || !p_in.target) {
         out = CreateTexture(RGResourceCreateDesc{
             RG_RES_LIGHTING,
             BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
         });
+    } else {
+        out = ImportTexture(RGResourceImportDesc{
+            .debug_name = "final_output",
+            .func = [&]() {
+                return p_in.target->color;
+            },
+        });
     }
 
-    RenderPassBuilder& pass = AddPass(RG_PASS_SSAO);
+    RenderPassBuilder& pass = AddPass(RG_PASS_LIGHTING);
 
-    pass.Write(ResourceAccess::RTV, out)
-        .Read(ResourceAccess::SRV, p_in.color0)
+    pass.Read(ResourceAccess::SRV, p_in.color0)
         .Read(ResourceAccess::SRV, p_in.color1)
         .Read(ResourceAccess::SRV, p_in.color2)
         .Read(ResourceAccess::SRV, p_in.depth)
         .Read(ResourceAccess::SRV, p_in.ssao)
         .Read(ResourceAccess::SRV, p_in.shadow)
-        //.Read(ResourceAccess::SRV, p_in.ibl_diffuse)
-        //.Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
+        .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
+        .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
         .Read(ResourceAccess::SRV, brdf)
         .Read(ResourceAccess::SRV, ltc1)
         .Read(ResourceAccess::SRV, ltc2)
+        .Write(ResourceAccess::RTV, out)
         .SetExecuteFunc(LightingPassFunc);
 
     return { out } ;
@@ -503,7 +503,7 @@ auto RenderGraphBuilderExt::Create3D(RenderGraphBuilderConfig& p_config,
         .color0 = gbuffer_out.color0,
         .color1 = gbuffer_out.color1,
         .color2 = gbuffer_out.color2,
-        .depth = gbuffer_out.depth,
+        .depth = prepass_out.depth,
         //.ssao = ssao_out.processed,
         .shadow = shadow_out.shadow,
         .target = &p_target,

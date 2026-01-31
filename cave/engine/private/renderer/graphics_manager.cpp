@@ -67,11 +67,14 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
         return Result<void>();
     }
 
+    FinalTarget target;
     const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
     RenderGraphBuilderConfig config;
     config.frameWidth = frame_size.x;
     config.frameHeight = frame_size.y;
-    if (auto res = RenderGraphBuilderExt::Create3D(config); !res) {
+
+    RenderGraphBuilderExt builder(config);
+    if (auto res = builder.Create3D(config, target); !res) {
         return CAVE_ERROR(res.error());
     } else {
         m_render_graph = *res;
@@ -383,7 +386,8 @@ std::shared_ptr<GpuTexture> GraphicsManager::FindTexture(std::string_view p_name
 }
 
 uint64_t GraphicsManager::GetFinalImage() const {
-    const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get();
+    const GpuTexture* texture = FindTexture(RG_RES_LIGHTING).get();
+    //const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get();
 
     if (texture) {
         return texture->GetHandle();
