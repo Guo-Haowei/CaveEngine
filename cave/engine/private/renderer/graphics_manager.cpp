@@ -386,6 +386,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::FindTexture(std::string_view p_name
 }
 
 uint64_t GraphicsManager::GetFinalImage() const {
+    constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
     if (const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get()) {
         return texture->GetHandle();
     }

@@ -9,53 +9,53 @@ struct FinalTarget {
 };
 
 struct ShadowOutput {
-    RGTextureHandle shadow{};
+    RGTextureId shadow{};
 };
 
 struct DepthPrepassOutput {
-    RGTextureHandle depth{};
+    RGTextureId depth{};
 };
 
 struct GbufferOutput {
-    RGTextureHandle color0{};
-    RGTextureHandle color1{};
-    RGTextureHandle color2{};
+    RGTextureId color0{};
+    RGTextureId color1{};
+    RGTextureId color2{};
 };
 
 struct PostProcessInput {
-    RGTextureHandle lighting{};
-    RGTextureHandle outline{};
-    RGTextureHandle bloom{};
+    RGTextureId lighting{};
+    RGTextureId outline{};
+    RGTextureId bloom{};
 };
 
 struct PostProcessOutput {
-    RGTextureHandle processed{};
-    RGTextureHandle ds{};
+    RGTextureId processed{};
+    RGTextureId ds{};
 };
 
 struct SsaoInput {
-    RGTextureHandle depth{};
-    RGTextureHandle normal{};
+    RGTextureId depth{};
+    RGTextureId normal{};
 };
 
 struct SsaoOutput {
-    RGTextureHandle processed{};
+    RGTextureId processed{};
 };
 
 struct LightingInput {
-    RGTextureHandle color0{};
-    RGTextureHandle color1{};
-    RGTextureHandle color2{};
-    RGTextureHandle depth{};
-    RGTextureHandle ssao{};
-    RGTextureHandle shadow{};
-    RGTextureHandle ibl_diffuse{};
-    RGTextureHandle ibl_prefiltered{};
+    RGTextureId color0{};
+    RGTextureId color1{};
+    RGTextureId color2{};
+    RGTextureId depth{};
+    RGTextureId ssao{};
+    RGTextureId shadow{};
+    RGTextureId ibl_diffuse{};
+    RGTextureId ibl_prefiltered{};
     const FinalTarget* target{ nullptr };
 };
 
 struct LightingOutput {
-    RGTextureHandle lighting{};
+    RGTextureId lighting{};
 };
 
 class RenderGraphBuilderExt : public RenderGraphBuilder {
@@ -80,7 +80,6 @@ private:
 
     void AddPathTracerPass();
     void AddPathTracerTonePass();
-
 };
 
 }  // namespace cave::render

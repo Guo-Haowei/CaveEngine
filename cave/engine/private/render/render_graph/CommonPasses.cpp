@@ -24,7 +24,47 @@ namespace cave {
 
 namespace cave::render {
 
-using namespace cave::math;
+using math::Vector2f;
+
+constexpr const char RG_PASS_2D[] = "p:2d";
+constexpr const char RG_PASS_DEPTH_PREPASS[] = "p:early_z";
+constexpr const char RG_PASS_SHADOW[] = "p:shadow";
+constexpr const char RG_PASS_GBUFFER[] = "p:gbuffer";
+constexpr const char RG_PASS_VOXELIZATION[] = "p:voxelization";
+constexpr const char RG_PASS_LIGHTING[] = "p:lighting";
+constexpr const char RG_PASS_FORWARD[] = "p:forward";
+constexpr const char RG_PASS_BLOOM_SETUP[] = "p:bloom_setup";
+constexpr const char RG_PASS_POST_PROCESS[] = "p:post_process";
+constexpr const char RG_PASS_SSAO[] = "p:ssao";
+constexpr const char RG_PASS_OUTLINE[] = "p:outline";
+constexpr const char RG_PASS_PATHTRACER[] = "p:pathtracer";
+constexpr const char RG_PASS_PATHTRACER_PRESENT[] = "p:pathtracer_present";
+constexpr const char RG_PASS_BAKE_SKYBOX[] = "p:env_skybox";
+constexpr const char RG_PASS_BAKE_DIFFUSE[] = "p:diffuse";
+constexpr const char RG_PASS_BAKE_PREFILTERED[] = "p:prefiltered";
+
+constexpr const char RG_RES_DEPTH_STENCIL[] = "r:depth";
+constexpr const char RG_RES_SHADOW_MAP[] = "r:shadow";
+constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
+constexpr const char RG_RES_GBUFFER_COLOR1[] = "r:gbuffer1";
+constexpr const char RG_RES_GBUFFER_COLOR2[] = "r:gbuffer2";
+constexpr const char RG_RES_LIGHTING[] = "r:lighting";
+constexpr const char RG_RES_SSAO[] = "r:ssao";
+constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
+constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
+constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
+constexpr const char RG_RES_OUTLINE[] = "r:outline";
+constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
+constexpr const char RG_RES_ENV_SKYBOX_CUBE[] = "r:env_cube";
+constexpr const char RG_RES_ENV_DIFFUSE_CUBE[] = "r:diffuse_cube";
+constexpr const char RG_RES_ENV_PREFILTERED_CUBE[] = "r:prefiltered_cube";
+
+// external resources
+constexpr const char RG_RES_SSAO_NOISE[] = "r:ssao_noise";
+constexpr const char RG_RES_BRDF[] = "r:brdf";
+constexpr const char RG_RES_IBL[] = "r:ibl";
+constexpr const char RG_RES_LTC1[] = "r:ltc1";
+constexpr const char RG_RES_LTC2[] = "r:ltc2";
 
 static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
     // generate noise texture
@@ -94,7 +134,7 @@ extern void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx);
 
 ShadowOutput RenderGraphBuilderExt::AddShadowPass() {
     const int shadow_res = DVAR_GET_INT(gfx_shadow_res);
-    DEV_ASSERT(IsPowerOfTwo(shadow_res));
+    DEV_ASSERT(math::IsPowerOfTwo(shadow_res));
     RenderPassBuilder& pass = AddPass(RG_PASS_SHADOW);
 
     GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::D32_FLOAT,
@@ -162,7 +202,7 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
 }
 
 SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
-    RGTextureHandle noise = ImportTexture({
+    RGTextureId noise = ImportTexture({
         .debug_name = RG_RES_SSAO_NOISE,
         .func = []() { return GenerateSsaoNoise(); },
     });
@@ -184,7 +224,7 @@ SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
 }
 
 LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in) {
-    RGTextureHandle brdf = ImportTexture(RGResourceImportDesc{
+    RGTextureId brdf = ImportTexture(RGResourceImportDesc{
         .debug_name = RG_RES_BRDF,
         .func = []() {
             std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
@@ -192,17 +232,17 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         },
     });
 
-    RGTextureHandle ltc1 = ImportTexture(RGResourceImportDesc{
+    RGTextureId ltc1 = ImportTexture(RGResourceImportDesc{
         .debug_name = RG_RES_LTC1,
         .func = []() { return GenerateLTC(RG_RES_LTC1, LTC1); },
     });
 
-    RGTextureHandle ltc2 = ImportTexture(RGResourceImportDesc{
+    RGTextureId ltc2 = ImportTexture(RGResourceImportDesc{
         .debug_name = RG_RES_LTC2,
         .func = []() { return GenerateLTC(RG_RES_LTC2, LTC2); },
     });
 
-    RGTextureHandle out;
+    RGTextureId out;
     // @TODO: fix this logic
     if (p_in.target || !p_in.target) {
         out = CreateTexture(RGResourceCreateDesc{
@@ -234,7 +274,7 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         .Write(ResourceAccess::RTV, out)
         .SetExecuteFunc(LightingPassFunc);
 
-    return { out } ;
+    return { out };
 
 #if 0
     if (m_config.enableVxgi) {

@@ -25,12 +25,12 @@ struct RGResourceImportDesc {
 class RenderPassBuilder {
 public:
     struct Resource {
-        RGTextureHandle handle;
+        RGTextureId handle;
         ResourceAccess access;
     };
 
-    RenderPassBuilder& Read(ResourceAccess p_access, RGTextureHandle p_handle);
-    RenderPassBuilder& Write(ResourceAccess p_access, RGTextureHandle p_handle);
+    RenderPassBuilder& Read(ResourceAccess p_access, RGTextureId p_handle);
+    RenderPassBuilder& Write(ResourceAccess p_access, RGTextureId p_handle);
     RenderPassBuilder& SetExecuteFunc(ExecuteFunc p_func);
 
     std::string_view GetName() const { return m_name; }
@@ -45,7 +45,6 @@ private:
     ExecuteFunc m_func;
 
     friend class RenderGraphBuilder;
-
 };
 
 }  // namespace cave::render

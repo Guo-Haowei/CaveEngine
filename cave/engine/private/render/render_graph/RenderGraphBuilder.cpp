@@ -62,11 +62,11 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
     struct RGPassNode {
         int id;
         std::string_view debug_name;
-        std::vector<RGTextureHandle> in_nodes;
-        std::unordered_set<RGTextureHandle> out_nodes;
+        std::vector<RGTextureId> in_nodes;
+        std::unordered_set<RGTextureId> out_nodes;
 
         bool Needs(const RGPassNode& p_other) const {
-            for (RGTextureHandle in : in_nodes)
+            for (RGTextureId in : in_nodes)
                 if (p_other.out_nodes.find(in) != p_other.out_nodes.end())
                     return true;
             return false;
@@ -224,22 +224,22 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
     return Result<std::shared_ptr<RenderGraph>>(render_graph);
 }
 
-RGTextureHandle RenderGraphBuilder::AllocHandle() {
+RGTextureId RenderGraphBuilder::AllocHandle() {
     return { ++m_id };
 }
 
-RGTextureNode* RenderGraphBuilder::GetLogicalTexture(RGTextureHandle p_handle) {
+RGTextureNode* RenderGraphBuilder::GetLogicalTexture(RGTextureId p_handle) {
     if (p_handle.IsNull()) return nullptr;
     return &m_textures[p_handle.Underlying() - 1];
 }
 
-const RGTextureNode* RenderGraphBuilder::GetLogicalTexture(RGTextureHandle p_handle) const {
+const RGTextureNode* RenderGraphBuilder::GetLogicalTexture(RGTextureId p_handle) const {
     if (p_handle.IsNull()) return nullptr;
     return &m_textures[p_handle.Underlying() - 1];
 }
 
-RGTextureHandle RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info) {
-    RGTextureHandle handle = AllocHandle();
+RGTextureId RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info) {
+    RGTextureId handle = AllocHandle();
     m_textures.resize(m_id);
     RGTextureNode& node = m_textures.back();
     node.handle = handle;
@@ -249,8 +249,8 @@ RGTextureHandle RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info)
     return handle;
 }
 
-RGTextureHandle RenderGraphBuilder::ImportTexture(RGResourceImportDesc&& p_info) {
-    RGTextureHandle handle = AllocHandle();
+RGTextureId RenderGraphBuilder::ImportTexture(RGResourceImportDesc&& p_info) {
+    RGTextureId handle = AllocHandle();
     m_textures.resize(m_id);
     RGTextureNode& node = m_textures.back();
     node.handle = handle;

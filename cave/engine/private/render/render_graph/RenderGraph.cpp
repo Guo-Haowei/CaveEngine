@@ -2,13 +2,13 @@
 
 namespace cave::render {
 
-void RenderGraph::AddResource(RGTextureHandle p_handle, const std::shared_ptr<GpuTexture>& p_resource) {
+void RenderGraph::AddResource(RGTextureId p_handle, const std::shared_ptr<GpuTexture>& p_resource) {
     const int idx = static_cast<int>(m_resources.size());
     m_resources.push_back(p_resource);
     m_resourceLookup.insert({ p_handle, idx });
 }
 
-std::shared_ptr<GpuTexture> RenderGraph::FindResource(RGTextureHandle p_handle) {
+std::shared_ptr<GpuTexture> RenderGraph::FindResource(RGTextureId p_handle) {
     auto it = m_resourceLookup.find(p_handle);
     if (it == m_resourceLookup.end()) {
         return nullptr;
