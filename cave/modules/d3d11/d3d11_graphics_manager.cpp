@@ -25,7 +25,7 @@ using namespace render;
 using Microsoft::WRL::ComPtr;
 
 D3d11GraphicsManager::D3d11GraphicsManager()
-    : GraphicsManager("D3d11GraphicsManager", Backend::D3D11, 1) {
+    : RenderDevice("D3d11GraphicsManager", Backend::D3D11, 1) {
     m_pipelineStateManager = std::make_shared<D3d11PipelineStateManager>(this);
 }
 

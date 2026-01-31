@@ -8,6 +8,8 @@ namespace cave {
 class Scene;
 class IApplication;
 
+// @TODO: this doesn't have to be an interface,
+// move the implementation to Impl class instead
 class ISceneRegistry : public Module {
 
 public:

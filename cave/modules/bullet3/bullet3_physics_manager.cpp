@@ -3,7 +3,7 @@
 
 #include "engine/private/core/debugger/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -413,7 +413,7 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
 
                 mesh.CreateRenderData();
                 mesh.flags |= MeshComponent::DYNAMIC;
-                mesh.gpuResource = *IGraphicsManager::GetSingleton().CreateMesh(mesh);
+                mesh.gpuResource = *IRenderDevice::GetSingleton().CreateMesh(mesh);
             }
 
             context.dynamicWorld->addSoftBody(cloth);

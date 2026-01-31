@@ -5,7 +5,7 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/VFS.h"
 
 // @TODO: refactor
@@ -192,7 +192,7 @@ Result<void> EditorAssetManager::AddAlwaysLoadImages() {
             }
             auto image = *res;
             m_images[file_name.string()] = image;
-            m_app->GetGraphicsManager()->RequestTexture(image.get());
+            m_app->GetRenderDevice()->RequestTexture(image.get());
         }
     }
 

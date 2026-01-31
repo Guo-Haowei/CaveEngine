@@ -3,7 +3,7 @@
 #include "engine/private/algorithm/algorithm.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "RenderGraph.h"
 #include "RenderGraphDefines.h"
 #include "RenderPassBuilder.h"
@@ -11,7 +11,7 @@
 namespace cave::render {
 
 RenderGraphBuilder::RenderGraphBuilder(const RenderGraphBuilderConfig& p_config)
-    : m_config(p_config), m_graphicsManager(GraphicsManager::GetSingleton()) {
+    : m_config(p_config), m_graphicsManager(RenderDevice::GetSingleton()) {
 }
 
 RenderPassBuilder& RenderGraphBuilder::AddPass(std::string_view p_pass_name) {
@@ -130,6 +130,8 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 
     auto render_graph = std::make_shared<RenderGraph>();
 
+    // @TODO: move texture and framebuffer creation outside Compile
+
     // 1. Create/Import resources
     for (const RGTextureNode& node : m_textures) {
         if (node.import_fn) {
@@ -193,9 +195,6 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
             switch (read.access) {
                 case ResourceAccess::SRV: {
                     auto srv = render_graph->FindResource(read.handle);
-                    if (!srv) {
-                        LOG_WARN("srv '{}' not present in {}", read.handle.Underlying(), pass.GetName());
-                    }
                     srvs.emplace_back(srv);
                 } break;
                 case ResourceAccess::UAV: {

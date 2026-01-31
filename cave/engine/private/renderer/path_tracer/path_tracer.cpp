@@ -6,7 +6,7 @@
 
 #include "engine/private/assets/mesh_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/path_tracer/bvh_accel.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -14,7 +14,7 @@ namespace cave {
 #include "shader_resource_defines.hlsl.h"
 
 template<typename T>
-static auto CreateBuffer(IGraphicsManager* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
+static auto CreateBuffer(IRenderDevice* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
     GpuBufferDesc desc{
         .slot = p_slot,
         .element_size = sizeof(T),
@@ -121,7 +121,7 @@ static void AppendBvhs(const std::vector<GpuPtBvh>& p_source, std::vector<GpuPtB
 void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
     const auto dirty_flag = p_scene.GetDirtyFlags();
     // @TODO: refactor
-    auto gm = GraphicsManager::GetSingletonPtr();
+    auto gm = RenderDevice::GetSingletonPtr();
 
     std::map<ecs::Entity, int> materials_lookup;
     {
@@ -205,7 +205,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     DEV_ASSERT(m_ptVertexBuffer == nullptr);
 
     // @TODO: refactor
-    auto gm = GraphicsManager::GetSingletonPtr();
+    auto gm = RenderDevice::GetSingletonPtr();
     GpuScene gpu_scene;
 
     Stopwatch stopwatch;
@@ -324,7 +324,7 @@ bool PathTracer::IsActive() const {
     return true;
 }
 
-void PathTracer::BindData(IGraphicsManager& p_gm) {
+void PathTracer::BindData(IRenderDevice& p_gm) {
     // @TODO: check null
     p_gm.BindStructuredBuffer(GetGlobalPtMeshesSlot(), m_ptMeshBuffer.get());
     p_gm.BindStructuredBuffer(GetGlobalPtBvhsSlot(), m_ptBvhBuffer.get());
@@ -333,7 +333,7 @@ void PathTracer::BindData(IGraphicsManager& p_gm) {
     p_gm.BindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_ptMaterialBuffer.get());
 }
 
-void PathTracer::UnbindData(IGraphicsManager& p_gm) {
+void PathTracer::UnbindData(IRenderDevice& p_gm) {
     p_gm.UnbindStructuredBuffer(GetGlobalPtBvhsSlot());
     p_gm.UnbindStructuredBuffer(GetGlobalPtVerticesSlot());
     p_gm.UnbindStructuredBuffer(GetGlobalPtIndicesSlot());

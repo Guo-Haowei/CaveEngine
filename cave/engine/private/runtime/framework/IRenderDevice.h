@@ -8,6 +8,7 @@ struct MaterialConstantBuffer;
 namespace cave::render {
 struct Framebuffer;
 struct FramebufferDesc;
+struct RenderSubmission;
 }  // namespace cave::render
 
 namespace cave {
@@ -35,9 +36,10 @@ struct Viewport;
 
 struct GpuMesh;
 
-class IGraphicsManager : public Module,
-                         public EventListener,
-                         public ModuleCreateRegistry<IGraphicsManager> {
+// @TODO: split this class to RenderDevice and RHI
+class IRenderDevice : public Module,
+                      public EventListener,
+                      public ModuleCreateRegistry<IRenderDevice> {
 public:
     using Framebuffer = render::Framebuffer;
     using FramebufferDesc = render::FramebufferDesc;
@@ -46,11 +48,12 @@ public:
     static constexpr int NUM_BACK_BUFFERS = 2;
     static constexpr float DEFAULT_CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 1.0 };
 
-    IGraphicsManager(std::string_view p_name)
+    IRenderDevice(std::string_view p_name)
         : Module(p_name) {}
 
     virtual auto InitializeImpl() -> Result<void> = 0;
-    virtual void Update() = 0;
+
+    virtual void Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) = 0;
 
     // resource
     virtual auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> = 0;
@@ -134,8 +137,6 @@ public:
 
     // @TODO: thread safety ?
     virtual void EventReceived(std::shared_ptr<IEvent> p_event) = 0;
-
-    // static auto Create() -> Result<GraphicsManager*>;
 
     virtual Backend GetBackend() const = 0;
 

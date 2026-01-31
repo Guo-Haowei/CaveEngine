@@ -4,7 +4,7 @@
 
 #include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/renderer.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
@@ -25,7 +25,7 @@ public:
     void OnUpdate(float p_timestep) override {
         unused(p_timestep);
 
-        auto graphics_manager = m_app->GetGraphicsManager();
+        auto graphics_manager = m_app->GetRenderDevice();
         auto resolution = DVAR_GET_IVEC2(resolution);
         if (auto image = graphics_manager->FindTexture(RESOURCE_TONE); image) {
             AddImage2D(image.get(), Vector2f(resolution));

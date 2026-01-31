@@ -1,6 +1,6 @@
 #include "MenuBar.h"
 
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/ui/layout.h"
 

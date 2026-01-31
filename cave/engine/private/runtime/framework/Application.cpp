@@ -7,9 +7,10 @@
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/io/logger.h"
 #include "engine/private/core/os/threads.h"
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/runtime/string/StringUtils.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
@@ -17,7 +18,6 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/ModuleRegistry.h"
-#include "engine/private/runtime/framework/RenderSystem.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
@@ -57,10 +57,10 @@ auto Application::SetupModules() -> Result<void> {
     m_script_manager = CreateScriptManager();
     m_scene_registry = new SceneRegistry();
     m_physics_manager = CreatePhysicsManager();
-    m_graphics_manager = CreateGraphicsManager();
+    m_render_device = CreateRenderDevice();
     m_display_server = CreateDisplayManager();
     m_input_system = new InputSystem();
-    m_render_system = new RenderSystem();
+    m_renderer = new render::Renderer();
     m_viewport_manager = new ViewportManager();
     m_task_manager = new TaskManager();
 
@@ -81,8 +81,8 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_physics_manager);
     RegisterModule(m_input_system);
     RegisterModule(m_display_server);
-    RegisterModule(m_graphics_manager);
-    RegisterModule(m_render_system);
+    RegisterModule(m_render_device);
+    RegisterModule(m_renderer);
     RegisterModule(m_viewport_manager);
 
     if (m_specification.enableImgui) {
@@ -94,7 +94,7 @@ auto Application::SetupModules() -> Result<void> {
         RegisterModule(m_imgui_manager);
     }
 
-    m_event_queue.RegisterListener(m_graphics_manager);
+    m_event_queue.RegisterListener(m_render_device);
 
     return Result<void>();
 }
@@ -169,7 +169,6 @@ bool Application::MainLoop() {
 
     m_task_manager->TickMainThread();
 
-    m_render_system->BeginFrame();
     m_input_system->Update();
 
     // === Update Phase ===
@@ -189,12 +188,7 @@ bool Application::MainLoop() {
     m_viewport_manager->BuildViews(views);
 
     // @TODO: build render data, rename it to something better
-    m_render_system->RenderFrame(views);
-
-    // @TODO: think of how to handle multiple view
-    m_graphics_manager->Update();
-
-    // === End Frame ===
+    m_renderer->Tick(views);
     return true;
 }
 

@@ -5,13 +5,12 @@
 
 // clang-format off
 namespace cave { struct FrameData; }
-namespace cave { class IGraphicsManager; }
+namespace cave { class IRenderDevice; }
 // clang-format on
 
 namespace cave::render {
 
 class RenderGraph;
-struct Framebuffer;
 
 struct RenderGraphBuilderConfig {
     bool enablePointShadow = true;
@@ -60,7 +59,7 @@ public:
 
 protected:
     RenderGraphBuilderConfig m_config;
-    IGraphicsManager& m_graphicsManager;
+    IRenderDevice& m_graphicsManager;
 
     std::vector<RenderPassBuilder> m_passes;
 

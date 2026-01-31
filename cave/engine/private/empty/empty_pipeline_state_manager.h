@@ -5,7 +5,7 @@ namespace cave {
 
 class EmptyPipelineStateManager : public PipelineStateManager {
 public:
-    EmptyPipelineStateManager(IGraphicsManager* p_graphics_manager)
+    EmptyPipelineStateManager(IRenderDevice* p_graphics_manager)
         : PipelineStateManager(p_graphics_manager) {}
 
 protected:

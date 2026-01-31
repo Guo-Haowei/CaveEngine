@@ -7,7 +7,7 @@
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/path_tracer_render_system.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
@@ -35,7 +35,7 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 
     CAVE_PROFILE_EVENT();
 
-    auto& gm = IGraphicsManager::GetSingleton();
+    auto& gm = IRenderDevice::GetSingleton();
     auto& frame = gm.GetCurrentFrame();
 
     for (const auto& instance : p_instances) {
@@ -60,9 +60,9 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 }
 #endif
 
-static void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
-                                const std::vector<DrawItem>& p_commands,
-                                bool p_is_prepass = false) {
+void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
+                         const std::vector<DrawItem>& p_commands,
+                         bool p_is_prepass) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: remove
@@ -221,69 +221,6 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetStencilRef(0);
 }
 
-/// Shadow
-void PointShadowPassFunc(RenderPassExcutionContext& p_ctx) {
-    RENDER_PASS_FUNC();
-
-    CRASH_NOW();
-
-    auto& cmd = p_ctx.cmd;
-
-    auto framebuffer = p_ctx.framebuffer;
-
-    auto& frame = cmd.GetCurrentFrame();
-
-    // prepare render data
-    const auto [width, height] = framebuffer->GetBufferSize();
-
-    const auto& shadow_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::Shadow)];
-    for (int pass_id = 0; pass_id < MAX_POINT_LIGHT_SHADOW_COUNT; ++pass_id) {
-        auto& pass_ptr = p_ctx.frameData.pointShadowPasses[pass_id];
-        if (!pass_ptr) {
-            continue;
-        }
-
-        for (int face_id = 0; face_id < 6; ++face_id) {
-            const uint32_t slot = pass_id * 6 + face_id;
-            cmd.BindConstantBufferSlot<PointShadowConstantBuffer>(frame.pointShadowCb.get(), slot);
-
-            cmd.SetRenderTarget(framebuffer, slot);
-            cmd.Clear(framebuffer, CLEAR_DEPTH_BIT, nullptr, 1.0f, 0, slot);
-
-            cmd.SetViewport(Viewport(width, height));
-
-            cmd.SetPipelineState(PSO_POINT_SHADOW);
-            ExecuteDrawCommands(p_ctx, shadow_commands, false);
-        }
-    }
-}
-
-void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
-    RENDER_PASS_FUNC();
-    auto& cmd = p_ctx.cmd;
-
-    const Framebuffer* framebuffer = p_ctx.framebuffer;
-    const auto& frame = cmd.GetCurrentFrame();
-
-    cmd.SetRenderTarget(framebuffer);
-    const auto [width, height] = framebuffer->GetBufferSize();
-
-    cmd.Clear(framebuffer, CLEAR_DEPTH_BIT);
-
-    const auto& shadow_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::Shadow)];
-    if (shadow_commands.empty()) {
-        return;
-    }
-
-    cmd.SetViewport(Viewport(width, height));
-
-    const PassContext& pass = p_ctx.frameData.shadowPasses[0];
-    cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
-
-    cmd.SetPipelineState(PSO_DPETH);
-    ExecuteDrawCommands(p_ctx, shadow_commands);
-}
-
 void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
     if (p_ctx.frameData.voxelPass.pass_idx < 0) {
         return;
@@ -308,7 +245,7 @@ void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
         cmd.SetViewport(Viewport(voxel_size, voxel_size));
         cmd.SetPipelineState(PSO_VOXELIZATION);
         cmd.SetBlendState(PipelineStateManager::GetBlendDescDisable(), nullptr, 0xFFFFFFFF);
-        ExecuteDrawCommands(p_ctx, p_ctx.frameData.commands[std::to_underlying(DrawPhase::Voxelization)]);
+        ExecuteDrawCommands(p_ctx, p_ctx.frameData.commands[std::to_underlying(DrawPhase::Voxelization)], false);
 
         // glSubpixelPrecisionBiasNV(0, 0);
         cmd.SetBlendState(PipelineStateManager::GetBlendDescDefault(), nullptr, 0xFFFFFFFF);
@@ -442,7 +379,7 @@ void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
 
     // draw transparent objects
     gm.SetPipelineState(PSO_FORWARD_TRANSPARENT);
-    ExecuteDrawCommands(p_ctx, p_ctx.frameData.commands[std::to_underlying(DrawPhase::Forward)]);
+    ExecuteDrawCommands(p_ctx, p_ctx.frameData.commands[std::to_underlying(DrawPhase::Forward)], false);
 
     EmitterPassFunc(p_ctx);
 }
@@ -517,7 +454,7 @@ void DebugVoxels(RenderPassExcutionContext& p_ctx) {
 
     // glEnable(GL_BLEND);
     gm.SetViewport(Viewport(width, height));
-    gm.Clear(p_framebuffer, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, IGraphicsManager::DEFAULT_CLEAR_COLOR, 0.0f);
+    gm.Clear(p_framebuffer, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, IRenderDevice::DEFAULT_CLEAR_COLOR, 0.0f);
 
     p_ctx.cmd.SetPipelineState(PSO_DEBUG_VOXEL);
 

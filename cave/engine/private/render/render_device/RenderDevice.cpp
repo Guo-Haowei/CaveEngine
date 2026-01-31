@@ -1,23 +1,26 @@
-#include "graphics_manager.h"
+#include "RenderDevice.h"
 
+#include "engine/private/render/renderer/RenderSubmission.h"
+#include "engine/private/render/render_graph/RenderPass.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
+
+// @TODO: determine if includes are necessary
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/core/base/random.h"
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/core/math/frustum.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/render/render_graph/CommonPasses.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
-#include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/render_graph/RenderGraphPredefined.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/RenderSystem.h"
 #include "engine/private/runtime/scene/Scene.h"
+
+// @TODO: remove this
+#include "engine/private/render/renderer/Renderer.h"
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"
@@ -42,7 +45,7 @@ using namespace math;
 using namespace render;
 
 template<typename T>
-static auto CreateUniformCheckSize(GraphicsManager& p_graphics_manager, uint32_t p_max_count) {
+static auto CreateUniformCheckSize(RenderDevice& p_graphics_manager, uint32_t p_max_count) {
     static_assert(sizeof(T) % 256 == 0);
     GpuBufferDesc buffer_desc{};
     buffer_desc.slot = T::GetUniformBufferSlot();
@@ -51,7 +54,7 @@ static auto CreateUniformCheckSize(GraphicsManager& p_graphics_manager, uint32_t
     return p_graphics_manager.CreateConstantBuffer(buffer_desc);
 }
 
-auto GraphicsManager::InitializeImpl() -> Result<void> {
+auto RenderDevice::InitializeImpl() -> Result<void> {
     m_enableValidationLayer = DVAR_GET_BOOL(gfx_gpu_validation);
 
     const int num_frames = (GetBackend() == Backend::D3D12) ? NUM_FRAMES_IN_FLIGHT : 1;
@@ -65,19 +68,6 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
 
     if (m_backend == Backend::METAL) {
         return Result<void>();
-    }
-
-    FinalTarget target;
-    const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    RenderGraphBuilderConfig config;
-    config.frameWidth = frame_size.x;
-    config.frameHeight = frame_size.y;
-
-    RenderGraphBuilderExt builder(config);
-    if (auto res = builder.Create3D(config, target); !res) {
-        return CAVE_ERROR(res.error());
-    } else {
-        m_render_graph = *res;
     }
 
     for (int i = 0; i < num_frames; ++i) {
@@ -106,31 +96,31 @@ auto GraphicsManager::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void GraphicsManager::EventReceived(std::shared_ptr<IEvent> p_event) {
+void RenderDevice::EventReceived(std::shared_ptr<IEvent> p_event) {
     if (ResizeEvent* e = dynamic_cast<ResizeEvent*>(p_event.get()); e) {
         OnWindowResize(e->GetWidth(), e->GetHeight());
     }
 }
 
-void GraphicsManager::SetPipelineState(PipelineStateName p_name) {
+void RenderDevice::SetPipelineState(PipelineStateName p_name) {
     SetPipelineStateImpl(p_name);
 }
 
-void GraphicsManager::RequestTexture(ImageAsset* p_image) {
+void RenderDevice::RequestTexture(ImageAsset* p_image) {
     m_loadedImages.push(p_image);
 }
 
-void GraphicsManager::RequestMesh(MeshAsset* p_mesh) {
+void RenderDevice::RequestMesh(MeshAsset* p_mesh) {
     m_loadedMeshes.push(p_mesh);
 }
 
-void GraphicsManager::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
+void RenderDevice::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     unused(p_desc);
     unused(p_buffer);
     CRASH_NOW();
 }
 
-auto GraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
+auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
     constexpr uint32_t count = std::to_underlying(VertexAttributeName::COUNT);
     std::array<VertexAttributeName, count> attribs = {
         VertexAttributeName::POSITION,
@@ -242,7 +232,7 @@ static void FillTextureAndSamplerDesc(const ImageAsset* p_image, GpuTextureDesc&
     }
 }
 
-std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) {
+std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(ImageAsset* p_image) {
     DEV_ASSERT(p_image);
 
     GpuTextureDesc texture_desc{};
@@ -253,7 +243,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) 
     return p_image->gpu_texture;
 }
 
-void GraphicsManager::Update() {
+void RenderDevice::Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: make it a function
@@ -283,9 +273,7 @@ void GraphicsManager::Update() {
         CAVE_PROFILE_EVENT("Render");
         BeginFrame();
 
-        auto views = m_app->GetRenderSystem()->GetFrameData();
-
-        for (const FrameData& data : views) {
+        for (const FrameData& data : p_submission->frame_data) {
 
             auto& frame = GetCurrentFrame();
             UpdateConstantBuffer(frame.batchCb.get(), data.batchCache.buffer);
@@ -303,21 +291,11 @@ void GraphicsManager::Update() {
 
             BindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
 
-            // @HACK
-            switch (m_backend) {
-                case Backend::VULKAN:
-                case Backend::METAL:
-                    break;
-                default: {
-                    m_render_graph->Execute(data, *this);
-                } break;
+            auto& graph = p_submission->render_graph;
+            for (auto& pass : graph->m_renderPasses) {
+                Execute(data, *pass);
             }
         }
-
-        // @TODO: remove this
-        // if (p_scene) {
-        //    UpdateEmitters(*p_scene);
-        //}
 
         Render();
         EndFrame();
@@ -326,42 +304,32 @@ void GraphicsManager::Update() {
     }
 }
 
-void GraphicsManager::UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
+void RenderDevice::UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
     unused(p_desc);
     unused(p_buffer);
 }
 
-void GraphicsManager::BeginFrame() {
+void RenderDevice::BeginFrame() {
 }
 
-void GraphicsManager::EndFrame() {
+void RenderDevice::EndFrame() {
 }
 
-void GraphicsManager::MoveToNextFrame() {
+void RenderDevice::MoveToNextFrame() {
 }
 
-std::shared_ptr<FrameContext> GraphicsManager::CreateFrameContext() {
+std::shared_ptr<FrameContext> RenderDevice::CreateFrameContext() {
     return std::make_unique<FrameContext>();
 }
 
-void GraphicsManager::BeginDrawPass(const Framebuffer* p_framebuffer) {
-    for (auto& texture : p_framebuffer->outSrvs) {
-        if (texture->slot >= 0) {
-            UnbindTexture(texture->desc.dimension, texture->slot);
-        }
-    }
+void RenderDevice::BeginDrawPass(const Framebuffer*) {
 }
 
-void GraphicsManager::EndDrawPass(const Framebuffer* p_framebuffer) {
+void RenderDevice::EndDrawPass(const Framebuffer*) {
     UnsetRenderTarget();
-    for (auto& texture : p_framebuffer->outSrvs) {
-        if (texture->slot >= 0) {
-            BindTexture(texture->desc.dimension, texture->GetHandle(), texture->slot);
-        }
-    }
 }
 
-std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     auto texture = CreateTextureImpl(p_texture_desc, p_sampler_desc);
     if (p_texture_desc.type != AttachmentType::NONE) {
         auto [_, inserted] = m_resourceLookup.try_emplace(texture->desc.name, texture);
@@ -373,7 +341,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(const GpuTextureDesc&
     return texture;
 }
 
-std::shared_ptr<GpuTexture> GraphicsManager::FindTexture(std::string_view p_name) const {
+std::shared_ptr<GpuTexture> RenderDevice::FindTexture(std::string_view p_name) const {
     if (m_resourceLookup.empty()) {
         return nullptr;
     }
@@ -385,7 +353,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::FindTexture(std::string_view p_name
     return it->second;
 }
 
-uint64_t GraphicsManager::GetFinalImage() const {
+uint64_t RenderDevice::GetFinalImage() const {
     constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
     if (const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get()) {
         return texture->GetHandle();
@@ -394,7 +362,7 @@ uint64_t GraphicsManager::GetFinalImage() const {
     return 0;
 }
 
-void GraphicsManager::UpdateEmitters(const Scene& p_scene) {
+void RenderDevice::UpdateEmitters(const Scene& p_scene) {
     unused(p_scene);
 #if 0
     for (auto [id, emitter] : p_scene.m_ParticleEmitterComponents) {
@@ -433,9 +401,58 @@ void GraphicsManager::UpdateEmitters(const Scene& p_scene) {
 #endif
 }
 
-void GraphicsManager::DrawSkybox() {
+void RenderDevice::DrawSkybox() {
     SetMesh(m_skyboxBuffers.get());
     DrawElements(m_skyboxBuffers->desc.drawCount);
+}
+
+// @TODO: refactor
+#if 0
+#define RT_DEBUG(...) LOG_VERBOSE(__VA_ARGS__)
+#else
+#define RT_DEBUG(...)
+#endif
+
+void RenderDevice::Execute(const FrameData& p_data, RenderPass& p_pass) {
+    RT_DEBUG("-- Executing pass '{}'", m_name);
+
+    auto framebuffer = p_pass.m_framebuffer.get();
+    RenderPassExcutionContext ctx{
+        .frameData = p_data,
+        .framebuffer = framebuffer,
+        .pass = p_pass,
+        .cmd = *this,
+    };
+
+    // bind srvs
+    for (int i = 0; i < (int)p_pass.m_srvs.size(); ++i) {
+        const GpuTexture* srv = p_pass.m_srvs[i].get();
+        if (!srv) continue;
+        BindTexture(srv->desc.dimension, srv->GetHandle(), i);
+    }
+    // bind uavs
+    for (int i = 0; i < (int)p_pass.m_uavs.size(); ++i) {
+        GpuTexture* uav = p_pass.m_uavs[i].get();
+        if (!uav) continue;
+        BindUnorderedAccessView(i, uav);
+    }
+
+    BeginDrawPass(framebuffer);
+    p_pass.m_executor(ctx);
+    EndDrawPass(framebuffer);
+
+    // unbind srvs
+    for (int i = 0; i < (int)p_pass.m_srvs.size(); ++i) {
+        const GpuTexture* srv = p_pass.m_srvs[i].get();
+        if (!srv) continue;
+        UnbindTexture(srv->desc.dimension, i);
+    }
+    // unbind uavs
+    for (int i = 0; i < (int)p_pass.m_uavs.size(); ++i) {
+        UnbindUnorderedAccessView(i);
+    }
+
+    RT_DEBUG("-------");
 }
 
 }  // namespace cave

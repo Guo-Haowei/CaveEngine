@@ -3,7 +3,7 @@
 #include <wrl/client.h>
 
 #include "engine/private/core/base/rid_owner.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave {
 
@@ -21,7 +21,7 @@ struct D3d11MeshBuffers : GpuMesh {
     using GpuMesh::GpuMesh;
 };
 
-class D3d11GraphicsManager : public GraphicsManager {
+class D3d11GraphicsManager : public RenderDevice {
 public:
     D3d11GraphicsManager();
 

@@ -1,7 +1,7 @@
 #include "debug_draw.h"
 
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave {
 
@@ -158,7 +158,7 @@ void DebugDraw::Batch() {
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vector2f), 0 };
     desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vector4f), 0 };
 
-    auto mesh = GraphicsManager::GetSingleton().CreateMeshImpl(desc, 3, buffer_descs, &index_desc);
+    auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, 3, buffer_descs, &index_desc);
     m_mesh = *mesh;
 }
 

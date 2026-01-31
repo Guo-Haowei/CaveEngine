@@ -1,14 +1,14 @@
 #pragma once
 #include "cave/core/Singleton.h"
 
-#include "engine/private/render/render_graph/Framebuffer.h"
+#include "engine/private/render/rhi/Framebuffer.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 #include "engine/private/core/base/concurrent_queue.h"
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/pipeline_state.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/PipelineStateManager.h"
 
 namespace cave {
@@ -18,9 +18,9 @@ namespace cave {
 // @TODO: refactor
 struct MaterialConstantBuffer;
 
-// clang-format off
-namespace cave::render { class RenderGraph; }
-// clang-format on
+namespace cave::render {
+class RenderPass;
+}
 
 namespace cave {
 
@@ -38,16 +38,17 @@ struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> perFrameCb;
 };
 
-class GraphicsManager : public IGraphicsManager,
-                        public Singleton<GraphicsManager> {
+class RenderDevice : public IRenderDevice,
+                     public Singleton<RenderDevice> {
 public:
     // @TODO: rename to RenderTarget
 
-    GraphicsManager(std::string_view p_name, Backend p_backend, int p_frame_count)
-        : IGraphicsManager(p_name), m_backend(p_backend), m_frameCount(p_frame_count) {}
+    RenderDevice(std::string_view p_name, Backend p_backend, int p_frame_count)
+        : IRenderDevice(p_name), m_backend(p_backend), m_frameCount(p_frame_count) {}
 
     auto InitializeImpl() -> Result<void> final;
-    void Update() override;
+
+    void Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) final;
 
     // resource
     void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) override;
@@ -97,8 +98,6 @@ protected:
     const Backend m_backend;
     bool m_enableValidationLayer;
 
-    std::shared_ptr<render::RenderGraph> m_render_graph;
-
     std::unordered_map<std::string_view, std::shared_ptr<GpuTexture>> m_resourceLookup;
 
     ConcurrentQueue<ImageAsset*> m_loadedImages;
@@ -117,6 +116,9 @@ protected:
 
 protected:
     void UpdateEmitters(const Scene& p_scene) override;
+
+private:
+    void Execute(const FrameData& p_data, render::RenderPass& p_pass);
 };
 
 }  // namespace cave

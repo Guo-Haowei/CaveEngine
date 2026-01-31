@@ -32,7 +32,7 @@ public:
 
         m_dim = DVAR_GET_INT(thumbnail_size);
 
-        auto sw = static_cast<SwGraphicsManager*>(m_graphics_manager);
+        auto sw = static_cast<SwGraphicsManager*>(m_render_device);
 
         // @TODO: refactor
         m_render_target.create({ m_dim, m_dim, true, true });
@@ -54,7 +54,7 @@ public:
 
         for (const auto& entry : all_meshes) {
             const MeshAsset* mesh = entry.Get<MeshAsset>();
-            mesh->gpuResource = m_graphics_manager->CreateMesh(*mesh).value_or(nullptr);
+            mesh->gpuResource = m_render_device->CreateMesh(*mesh).value_or(nullptr);
 
             thumbnail::DrawMesh(mesh->gpuResource.get(), *sw);
 

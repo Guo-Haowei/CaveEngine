@@ -38,7 +38,7 @@
 namespace cave {
 
 CommonOpenGLGraphicsManager::CommonOpenGLGraphicsManager()
-    : GraphicsManager("CommonOpenGLGraphicsManager", Backend::OPENGL, 1) {
+    : RenderDevice("CommonOpenGLGraphicsManager", Backend::OPENGL, 1) {
     m_dummy_vao = 0;
     m_window = nullptr;
     m_pipelineStateManager = std::make_shared<OpenGlPipelineStateManager>(this);

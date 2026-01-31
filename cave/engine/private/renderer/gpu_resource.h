@@ -180,7 +180,7 @@ struct GpuMesh {
 
 struct GpuTexture {
     GpuTexture(const GpuTextureDesc& p_desc)
-        : desc(p_desc), slot(-1) {}
+        : desc(p_desc) {}
 
     virtual ~GpuTexture() = default;
 
@@ -191,7 +191,6 @@ struct GpuTexture {
     uint32_t GetHandle32() const { return static_cast<uint32_t>(GetHandle()); }
 
     const GpuTextureDesc desc;
-    int slot;
 };
 
 // @TODO: remove this

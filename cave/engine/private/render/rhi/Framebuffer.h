@@ -3,7 +3,7 @@
 
 namespace cave {
 struct FrameData;
-class GraphicsManager;
+class RenderDevice;
 }  // namespace cave
 
 namespace cave::render {
@@ -13,8 +13,8 @@ struct Framebuffer;
 struct ResourceTransition {
     std::shared_ptr<GpuTexture> resource;
     int slot;
-    std::function<void(GraphicsManager*, GpuTexture*, int)> beginPassFunc;
-    std::function<void(GraphicsManager*, GpuTexture*, int)> endPassFunc;
+    std::function<void(RenderDevice*, GpuTexture*, int)> beginPassFunc;
+    std::function<void(RenderDevice*, GpuTexture*, int)> endPassFunc;
 };
 
 struct FramebufferDesc {

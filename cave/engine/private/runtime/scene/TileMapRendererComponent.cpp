@@ -3,7 +3,7 @@
 #include "engine/private/assets/tile_map_asset.h"
 #include "engine/private/assets/tile_set_asset.h"
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
@@ -160,7 +160,7 @@ void TileMapRendererComponent::CreateRenderData() {
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vector2f), 0 };
 
     // @TODO: refactor this part
-    auto mesh = GraphicsManager::GetSingleton().CreateMeshImpl(desc, 2, buffers, &index_desc);
+    auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, 2, buffers, &index_desc);
 
     m_cache.mesh = *mesh;
 

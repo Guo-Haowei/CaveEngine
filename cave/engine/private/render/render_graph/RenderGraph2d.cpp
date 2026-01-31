@@ -2,7 +2,7 @@
 #include "engine/private/render/render_graph/RenderGraph.h"
 #include "engine/private/render/render_graph/RenderGraphBuilder.h"
 #include "engine/private/renderer/frame_data.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/pipeline_state.h"
 #include "engine/private/runtime/scene/SceneComponent.h"
 #include "RenderGraphPredefined.h"

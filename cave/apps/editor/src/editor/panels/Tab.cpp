@@ -6,7 +6,7 @@
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/RuntimeHost.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
@@ -75,7 +75,7 @@ void Tab::DrawUIImpl() {
     ImVec2 top_left(m_rect.Left(), m_rect.Top());
     ImVec2 bottom_right(m_rect.Right(), m_rect.Bottom());
 
-    const auto& gm = *m_editor.GetApp().GetGraphicsManager();
+    const auto& gm = *m_editor.GetApp().GetRenderDevice();
     uint64_t handle = gm.GetFinalImage();
     // add image for drawing
     switch (gm.GetBackend()) {

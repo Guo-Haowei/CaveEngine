@@ -1,21 +1,22 @@
 #pragma once
-#include "engine/private/render/render_graph/Framebuffer.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
 // clang-format off
-namespace cave { class IGraphicsManager; }
+namespace cave { class IRenderDevice; }
 namespace cave { struct GpuTexture; }
 // clang-format on
 
 namespace cave {
 // @TODO: split RHI and RenderCommandContext
-using IRenderCmdContext = IGraphicsManager;
+using IRenderCmdContext = IRenderDevice;
 struct FrameData;
+class RenderDevice;
 }  // namespace cave
 
 namespace cave::render {
 
 class RenderPass;
+struct Framebuffer;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;
@@ -28,8 +29,6 @@ using ExecuteFunc = void (*)(RenderPassExcutionContext& ctx);
 
 class RenderPass {
 public:
-    void Execute(const FrameData& p_data, IRenderCmdContext& p_cmd);
-
     std::string_view GetName() const { return m_name; }
 
     const auto& GetUavs() const { return m_uavs; }
@@ -53,6 +52,7 @@ protected:
     friend class RenderPassBuilder;
     friend class RenderGraphBuilder;
     friend class RenderGraph;
+    friend class RenderDevice;
 };
 
 }  // namespace cave::render

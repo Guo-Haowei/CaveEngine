@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 
 struct GLFWwindow;
 
@@ -10,7 +10,7 @@ namespace cave {
 WARNING_PUSH()
 WARNING_DISABLE(4100, "-Wunused-parameter")
 
-class VulkanGraphicsManager : public GraphicsManager {
+class VulkanGraphicsManager : public RenderDevice {
 public:
     VulkanGraphicsManager();
 

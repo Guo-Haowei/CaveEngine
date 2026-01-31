@@ -5,7 +5,7 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/assets/mesh_asset.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
@@ -124,7 +124,7 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
     AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), p_mesh);
 
     // @TODO: move it to somewhere else, if it's headless, no need to create gpu data
-    GraphicsManager::GetSingleton().RequestMesh(p_mesh.get());
+    RenderDevice::GetSingleton().RequestMesh(p_mesh.get());
 
     return Result<Guid>(guid);
 }

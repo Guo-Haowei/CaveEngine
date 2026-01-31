@@ -5,7 +5,7 @@
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/graphics_manager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/path_tracer_render_system.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
@@ -60,7 +60,7 @@ void RendererPanel::DrawUIImpl() {
 
     CollapseWindow("Path Tracer", [&]() {
 #if 0
-        auto& gm = *m_editor.GetApp().GetGraphicsManager();
+        auto& gm = *m_editor.GetApp().GetRenderDevice();
         int selected = (int)gm.GetActiveRenderGraphName();
         const int prev_selected = selected;
         for (int i = 0; i < std::to_underlying(RenderGraphName::COUNT); ++i) {
