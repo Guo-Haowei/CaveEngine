@@ -10,6 +10,7 @@ namespace cave {
 // @TODO: split RHI and RenderCommandContext
 using IRenderCmdContext = IGraphicsManager;
 struct FrameData;
+class GraphicsManager;
 }  // namespace cave
 
 namespace cave::render {
@@ -28,9 +29,6 @@ using ExecuteFunc = void (*)(RenderPassExcutionContext& ctx);
 
 class RenderPass {
 public:
-    // @TODO: instead of this, call RenderDevice.Execute(RenderPass) instead
-    void Execute(const FrameData& p_data, IRenderCmdContext& p_cmd);
-
     std::string_view GetName() const { return m_name; }
 
     const auto& GetUavs() const { return m_uavs; }
@@ -54,6 +52,7 @@ protected:
     friend class RenderPassBuilder;
     friend class RenderGraphBuilder;
     friend class RenderGraph;
+    friend class GraphicsManager;
 };
 
 }  // namespace cave::render

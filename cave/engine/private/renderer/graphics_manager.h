@@ -18,6 +18,10 @@ namespace cave {
 // @TODO: refactor
 struct MaterialConstantBuffer;
 
+namespace cave::render {
+class RenderPass;
+}
+
 namespace cave {
 
 struct SamplerDesc;
@@ -112,6 +116,9 @@ protected:
 
 protected:
     void UpdateEmitters(const Scene& p_scene) override;
+
+private:
+    void Execute(const FrameData& p_data, render::RenderPass& p_pass);
 };
 
 }  // namespace cave

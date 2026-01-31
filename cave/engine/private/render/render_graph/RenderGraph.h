@@ -7,6 +7,7 @@
 namespace cave {
 
 struct FrameData;
+class GraphicsManager;
 
 }  // namespace cave
 
@@ -25,8 +26,6 @@ public:
     void AddPass(const std::string& p_name, const std::shared_ptr<RenderPass>& p_pass);
     RenderPass* FindPass(const std::string& p_name);
 
-    void Execute(const FrameData& p_data, IGraphicsManager& p_graphics_manager);
-
     const auto& GetRenderPasses() const { return m_renderPasses; }
 
 private:
@@ -37,6 +36,7 @@ private:
     std::unordered_map<RGTextureId, int> m_resourceLookup;
 
     friend class RenderGraphBuilder;
+    friend class GraphicsManager;
 };
 
 }  // namespace cave::render

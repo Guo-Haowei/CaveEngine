@@ -1,6 +1,7 @@
 #include "graphics_manager.h"
 
 #include "engine/private/render/renderer/RenderSubmission.h"
+#include "engine/private/render/render_graph/RenderPass.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: determine if includes are necessary
@@ -290,13 +291,11 @@ void GraphicsManager::Submit(std::unique_ptr<render::RenderSubmission>&& p_submi
 
             BindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
 
-            p_submission->render_graph->Execute(data, *this);
+            auto& graph = p_submission->render_graph;
+            for (auto& pass : graph->m_renderPasses) {
+                Execute(data, *pass);
+            }
         }
-
-        // @TODO: remove this
-        // if (p_scene) {
-        //    UpdateEmitters(*p_scene);
-        //}
 
         Render();
         EndFrame();
@@ -323,21 +322,11 @@ std::shared_ptr<FrameContext> GraphicsManager::CreateFrameContext() {
     return std::make_unique<FrameContext>();
 }
 
-void GraphicsManager::BeginDrawPass(const Framebuffer* p_framebuffer) {
-    for (auto& texture : p_framebuffer->outSrvs) {
-        if (texture->slot >= 0) {
-            UnbindTexture(texture->desc.dimension, texture->slot);
-        }
-    }
+void GraphicsManager::BeginDrawPass(const Framebuffer*) {
 }
 
-void GraphicsManager::EndDrawPass(const Framebuffer* p_framebuffer) {
+void GraphicsManager::EndDrawPass(const Framebuffer*) {
     UnsetRenderTarget();
-    for (auto& texture : p_framebuffer->outSrvs) {
-        if (texture->slot >= 0) {
-            BindTexture(texture->desc.dimension, texture->GetHandle(), texture->slot);
-        }
-    }
 }
 
 std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
@@ -415,6 +404,55 @@ void GraphicsManager::UpdateEmitters(const Scene& p_scene) {
 void GraphicsManager::DrawSkybox() {
     SetMesh(m_skyboxBuffers.get());
     DrawElements(m_skyboxBuffers->desc.drawCount);
+}
+
+// @TODO: refactor
+#if 0
+#define RT_DEBUG(...) LOG_VERBOSE(__VA_ARGS__)
+#else
+#define RT_DEBUG(...)
+#endif
+
+void GraphicsManager::Execute(const FrameData& p_data, RenderPass& p_pass) {
+    RT_DEBUG("-- Executing pass '{}'", m_name);
+
+    auto framebuffer = p_pass.m_framebuffer.get();
+    RenderPassExcutionContext ctx{
+        .frameData = p_data,
+        .framebuffer = framebuffer,
+        .pass = p_pass,
+        .cmd = *this,
+    };
+
+    // bind srvs
+    for (int i = 0; i < (int)p_pass.m_srvs.size(); ++i) {
+        const GpuTexture* srv = p_pass.m_srvs[i].get();
+        if (!srv) continue;
+        BindTexture(srv->desc.dimension, srv->GetHandle(), i);
+    }
+    // bind uavs
+    for (int i = 0; i < (int)p_pass.m_uavs.size(); ++i) {
+        GpuTexture* uav = p_pass.m_uavs[i].get();
+        if (!uav) continue;
+        BindUnorderedAccessView(i, uav);
+    }
+
+    BeginDrawPass(framebuffer);
+    p_pass.m_executor(ctx);
+    EndDrawPass(framebuffer);
+
+    // unbind srvs
+    for (int i = 0; i < (int)p_pass.m_srvs.size(); ++i) {
+        const GpuTexture* srv = p_pass.m_srvs[i].get();
+        if (!srv) continue;
+        UnbindTexture(srv->desc.dimension, i);
+    }
+    // unbind uavs
+    for (int i = 0; i < (int)p_pass.m_uavs.size(); ++i) {
+        UnbindUnorderedAccessView(i);
+    }
+
+    RT_DEBUG("-------");
 }
 
 }  // namespace cave
