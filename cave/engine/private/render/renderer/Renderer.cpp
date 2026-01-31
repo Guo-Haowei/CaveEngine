@@ -9,7 +9,7 @@
 #include "engine/private/render/renderer/RenderSceneBuilder.h"
 #include "engine/private/render/renderer/RenderSubmission.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
@@ -236,14 +236,14 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
     // submission->render_graph = BuildRenderGraph(plan);
 
     // @TODO: graph
-    m_app.GetGraphicsManager()->Submit(std::move(submission));
+    m_app.GetRenderDevice()->Submit(std::move(submission));
 }
 
 FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_views) {
     FramePlan plan;
     plan.frame_data.resize(p_views.size());
 
-    const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
+    const bool is_opengl = m_app.GetRenderDevice()->GetBackend() == Backend::OPENGL;
     RenderOptions options = {
         .isOpengl = is_opengl,
         .ssaoEnabled = DVAR_GET_BOOL(gfx_ssao_enabled),

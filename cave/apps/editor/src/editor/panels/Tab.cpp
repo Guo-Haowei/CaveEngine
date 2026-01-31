@@ -75,7 +75,7 @@ void Tab::DrawUIImpl() {
     ImVec2 top_left(m_rect.Left(), m_rect.Top());
     ImVec2 bottom_right(m_rect.Right(), m_rect.Bottom());
 
-    const auto& gm = *m_editor.GetApp().GetGraphicsManager();
+    const auto& gm = *m_editor.GetApp().GetRenderDevice();
     uint64_t handle = gm.GetFinalImage();
     // add image for drawing
     switch (gm.GetBackend()) {

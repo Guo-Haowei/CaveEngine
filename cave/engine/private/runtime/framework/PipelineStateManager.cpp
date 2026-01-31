@@ -1,6 +1,6 @@
 #include "PipelineStateManager.h"
 
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/renderer/pipeline_state_objects.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
@@ -61,13 +61,14 @@ auto PipelineStateManager::Create(PipelineStateName p_name, const PipelineStateD
 }
 
 Result<void> PipelineStateManager::Initialize() {
-    const Backend backend = m_graphics_manager->GetBackend();
+    const Backend backend = m_render_device->GetBackend();
 
     if constexpr (USING(PLATFORM_WASM)) {
         return Result<void>();
     }
     switch (backend) {
         case Backend::EMPTY:
+        case Backend::D3D12:
         case Backend::METAL:
         case Backend::VULKAN:
             return Result<void>();
@@ -79,44 +80,6 @@ Result<void> PipelineStateManager::Initialize() {
     do {                                                                          \
         if (auto res = Create(__VA_ARGS__); !res) return CAVE_ERROR(res.error()); \
     } while (0)
-
-    CREATE_PSO(PSO_SPRITE,
-               {
-                   .vs = "sprite.vs",
-                   .ps = "sprite.ps",
-                   .rasterizerDesc = &s_rasterizerDoubleSided,
-                   .depthStencilDesc = &s_depthReversedStencilEnabled,
-                   .inputLayoutDesc = &s_input_layout_sprite,
-                   .blendDesc = &s_transparent,
-                   .numRenderTargets = 1,
-                   .rtvFormats = { RT_FMT_TONE },
-                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-               });
-
-    CREATE_PSO(PSO_SPRITE_NO_VERT,
-               {
-                   .vs = "sprite_no_vert.vs",
-                   .ps = "sprite.ps",
-                   .rasterizerDesc = &s_rasterizerDoubleSided,
-                   .depthStencilDesc = &s_depthReversedStencilEnabled,
-                   .blendDesc = &s_transparent,
-                   .numRenderTargets = 1,
-                   .rtvFormats = { RT_FMT_TONE },
-                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-               });
-
-    CREATE_PSO(PSO_DEBUG_DRAW,
-               {
-                   .vs = "debug_draw.vs",
-                   .ps = "debug_draw.ps",
-                   .rasterizerDesc = &s_rasterizerDoubleSided,
-                   .depthStencilDesc = &s_depthReversedStencilDisabled,
-                   .inputLayoutDesc = &s_input_layout_debug,
-                   .blendDesc = &s_transparent,
-                   .numRenderTargets = 1,
-                   .rtvFormats = { RT_FMT_TONE },
-                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-               });
 
     CREATE_PSO(PSO_PREPASS,
                {
@@ -305,11 +268,43 @@ Result<void> PipelineStateManager::Initialize() {
                               });
 #pragma endregion PSO_ENV
 
-    // @HACK: only support this many shaders
-    if (backend == Backend::D3D12) {
-        return Result<void>();
-    }
+    CREATE_PSO(PSO_SPRITE,
+               {
+                   .vs = "sprite.vs",
+                   .ps = "sprite.ps",
+                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .depthStencilDesc = &s_depthReversedStencilEnabled,
+                   .inputLayoutDesc = &s_input_layout_sprite,
+                   .blendDesc = &s_transparent,
+                   .numRenderTargets = 1,
+                   .rtvFormats = { RT_FMT_TONE },
+                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
+               });
 
+    CREATE_PSO(PSO_SPRITE_NO_VERT,
+               {
+                   .vs = "sprite_no_vert.vs",
+                   .ps = "sprite.ps",
+                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .depthStencilDesc = &s_depthReversedStencilEnabled,
+                   .blendDesc = &s_transparent,
+                   .numRenderTargets = 1,
+                   .rtvFormats = { RT_FMT_TONE },
+                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
+               });
+
+    CREATE_PSO(PSO_DEBUG_DRAW,
+               {
+                   .vs = "debug_draw.vs",
+                   .ps = "debug_draw.ps",
+                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .depthStencilDesc = &s_depthReversedStencilDisabled,
+                   .inputLayoutDesc = &s_input_layout_debug,
+                   .blendDesc = &s_transparent,
+                   .numRenderTargets = 1,
+                   .rtvFormats = { RT_FMT_TONE },
+                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
+               });
     CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
 
     // @HACK: only support this many shaders

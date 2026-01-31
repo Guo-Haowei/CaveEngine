@@ -1,16 +1,16 @@
 #pragma once
 #include "engine/private/renderer/graphics_defines.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 
 namespace cave {
 
 WARNING_PUSH()
 WARNING_DISABLE(4100, "-Wunused-parameter")
 
-class EmptyGraphicsManager : public IGraphicsManager {
+class EmptyGraphicsManager : public IRenderDevice {
 public:
     EmptyGraphicsManager(std::string_view p_name = "EmptyGraphicsManager")
-        : IGraphicsManager(p_name) {}
+        : IRenderDevice(p_name) {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}

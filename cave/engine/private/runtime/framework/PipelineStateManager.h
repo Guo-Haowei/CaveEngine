@@ -4,12 +4,12 @@
 
 namespace cave {
 
-class IGraphicsManager;
+class IRenderDevice;
 
 class PipelineStateManager {
 public:
-    PipelineStateManager(IGraphicsManager* p_graphics_manager)
-        : m_graphics_manager(p_graphics_manager) {}
+    PipelineStateManager(IRenderDevice* p_graphics_manager)
+        : m_render_device(p_graphics_manager) {}
 
     virtual ~PipelineStateManager() = default;
 
@@ -25,7 +25,7 @@ protected:
     virtual auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> = 0;
     virtual auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> = 0;
 
-    IGraphicsManager* m_graphics_manager = nullptr;
+    IRenderDevice* m_render_device = nullptr;
 
 private:
     auto Create(PipelineStateName p_name, const PipelineStateDesc& p_desc) -> Result<void>;

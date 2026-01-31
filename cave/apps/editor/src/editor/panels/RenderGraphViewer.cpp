@@ -109,9 +109,9 @@ void RenderGraphViewer::DrawUIImpl() {
 #if 0
     CAVE_PROFILE_EVENT();
 
-    auto graphics_manager = m_editor.GetApp().GetGraphicsManager();
+    auto graphics_manager = m_editor.GetApp().GetRenderDevice();
     if (m_backend == Backend::COUNT) {
-        m_backend = m_editor.GetApp().GetGraphicsManager()->GetBackend();
+        m_backend = m_editor.GetApp().GetRenderDevice()->GetBackend();
     }
 
     switch (graphics_manager->GetBackend()) {

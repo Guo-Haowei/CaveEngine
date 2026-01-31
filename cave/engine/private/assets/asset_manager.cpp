@@ -275,11 +275,11 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     switch (asset->GetType()) {
         case AssetType::Image: {
             auto image = std::dynamic_pointer_cast<ImageAsset>(asset);
-            m_app->GetGraphicsManager()->RequestTexture(image.get());
+            m_app->GetRenderDevice()->RequestTexture(image.get());
         } break;
         case AssetType::Mesh: {
             auto mesh = std::dynamic_pointer_cast<MeshAsset>(asset);
-            m_app->GetGraphicsManager()->RequestMesh(mesh.get());
+            m_app->GetRenderDevice()->RequestMesh(mesh.get());
         } break;
         default:
             break;

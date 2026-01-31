@@ -46,7 +46,7 @@ IScriptManager* CreateScriptManager() {
 }
 
 // @TODO: move to RHI
-static IGraphicsManager* SelectGraphicsManager(const std::string& p_backend) {
+static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
     if (p_backend == "d3d11") {
 #if USING(PLATFORM_WINDOWS)
         return new D3d11GraphicsManager;
@@ -88,21 +88,21 @@ static IGraphicsManager* SelectGraphicsManager(const std::string& p_backend) {
     return new EmptyGraphicsManager;
 }
 
-IGraphicsManager* CreateGraphicsManager() {
-    if (IGraphicsManager::s_createFunc) {
-        return IGraphicsManager::s_createFunc();
+IRenderDevice* CreateRenderDevice() {
+    if (IRenderDevice::s_createFunc) {
+        return IRenderDevice::s_createFunc();
     }
 
     const std::string& backend = DVAR_GET_STRING(gfx_backend);
-    IGraphicsManager* manager = SelectGraphicsManager(backend);
+    IRenderDevice* device = SelectGraphicsManager(backend);
 
-    if (!manager) {
-        manager = new EmptyGraphicsManager;
+    if (!device) {
+        device = new EmptyGraphicsManager;
 
         LOG_ERROR("backend '{}' not supported, fallback to EmptyGraphicsManager", backend);
     }
 
-    return manager;
+    return device;
 }
 
 }  // namespace cave

@@ -14,7 +14,7 @@ namespace cave {
 #include "shader_resource_defines.hlsl.h"
 
 template<typename T>
-static auto CreateBuffer(IGraphicsManager* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
+static auto CreateBuffer(IRenderDevice* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
     GpuBufferDesc desc{
         .slot = p_slot,
         .element_size = sizeof(T),
@@ -324,7 +324,7 @@ bool PathTracer::IsActive() const {
     return true;
 }
 
-void PathTracer::BindData(IGraphicsManager& p_gm) {
+void PathTracer::BindData(IRenderDevice& p_gm) {
     // @TODO: check null
     p_gm.BindStructuredBuffer(GetGlobalPtMeshesSlot(), m_ptMeshBuffer.get());
     p_gm.BindStructuredBuffer(GetGlobalPtBvhsSlot(), m_ptBvhBuffer.get());
@@ -333,7 +333,7 @@ void PathTracer::BindData(IGraphicsManager& p_gm) {
     p_gm.BindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_ptMaterialBuffer.get());
 }
 
-void PathTracer::UnbindData(IGraphicsManager& p_gm) {
+void PathTracer::UnbindData(IRenderDevice& p_gm) {
     p_gm.UnbindStructuredBuffer(GetGlobalPtBvhsSlot());
     p_gm.UnbindStructuredBuffer(GetGlobalPtVerticesSlot());
     p_gm.UnbindStructuredBuffer(GetGlobalPtIndicesSlot());

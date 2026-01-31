@@ -37,9 +37,9 @@ struct Viewport;
 struct GpuMesh;
 
 // @TODO: split this class to RenderDevice and RHI
-class IGraphicsManager : public Module,
-                         public EventListener,
-                         public ModuleCreateRegistry<IGraphicsManager> {
+class IRenderDevice : public Module,
+                      public EventListener,
+                      public ModuleCreateRegistry<IRenderDevice> {
 public:
     using Framebuffer = render::Framebuffer;
     using FramebufferDesc = render::FramebufferDesc;
@@ -48,7 +48,7 @@ public:
     static constexpr int NUM_BACK_BUFFERS = 2;
     static constexpr float DEFAULT_CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 1.0 };
 
-    IGraphicsManager(std::string_view p_name)
+    IRenderDevice(std::string_view p_name)
         : Module(p_name) {}
 
     virtual auto InitializeImpl() -> Result<void> = 0;

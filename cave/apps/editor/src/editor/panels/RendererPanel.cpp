@@ -60,7 +60,7 @@ void RendererPanel::DrawUIImpl() {
 
     CollapseWindow("Path Tracer", [&]() {
 #if 0
-        auto& gm = *m_editor.GetApp().GetGraphicsManager();
+        auto& gm = *m_editor.GetApp().GetRenderDevice();
         int selected = (int)gm.GetActiveRenderGraphName();
         const int prev_selected = selected;
         for (int i = 0; i < std::to_underlying(RenderGraphName::COUNT); ++i) {

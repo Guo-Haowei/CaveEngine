@@ -29,7 +29,7 @@ std::vector<Color> Convert(const std::vector<Vector4f>& p_buffer, bool p_to_bgra
     return color;
 }
 
-void DrawMesh(const GpuMesh* p_mesh, IGraphicsManager& p_graphics_manager) {
+void DrawMesh(const GpuMesh* p_mesh, IRenderDevice& p_graphics_manager) {
     p_graphics_manager.SetMesh(p_mesh);
     ClearFlags clear_flag = ClearFlags::CLEAR_COLOR_BIT | ClearFlags::CLEAR_DEPTH_BIT;
     p_graphics_manager.Clear(nullptr, clear_flag, &AMBIENT_COLOR.r);

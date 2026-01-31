@@ -35,7 +35,7 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 
     CAVE_PROFILE_EVENT();
 
-    auto& gm = IGraphicsManager::GetSingleton();
+    auto& gm = IRenderDevice::GetSingleton();
     auto& frame = gm.GetCurrentFrame();
 
     for (const auto& instance : p_instances) {
@@ -454,7 +454,7 @@ void DebugVoxels(RenderPassExcutionContext& p_ctx) {
 
     // glEnable(GL_BLEND);
     gm.SetViewport(Viewport(width, height));
-    gm.Clear(p_framebuffer, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, IGraphicsManager::DEFAULT_CLEAR_COLOR, 0.0f);
+    gm.Clear(p_framebuffer, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, IRenderDevice::DEFAULT_CLEAR_COLOR, 0.0f);
 
     p_ctx.cmd.SetPipelineState(PSO_DEBUG_VOXEL);
 

@@ -57,7 +57,7 @@ auto Application::SetupModules() -> Result<void> {
     m_script_manager = CreateScriptManager();
     m_scene_registry = new SceneRegistry();
     m_physics_manager = CreatePhysicsManager();
-    m_graphics_manager = CreateGraphicsManager();
+    m_render_device = CreateRenderDevice();
     m_display_server = CreateDisplayManager();
     m_input_system = new InputSystem();
     m_renderer = new render::Renderer();
@@ -81,7 +81,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_physics_manager);
     RegisterModule(m_input_system);
     RegisterModule(m_display_server);
-    RegisterModule(m_graphics_manager);
+    RegisterModule(m_render_device);
     RegisterModule(m_renderer);
     RegisterModule(m_viewport_manager);
 
@@ -94,7 +94,7 @@ auto Application::SetupModules() -> Result<void> {
         RegisterModule(m_imgui_manager);
     }
 
-    m_event_queue.RegisterListener(m_graphics_manager);
+    m_event_queue.RegisterListener(m_render_device);
 
     return Result<void>();
 }

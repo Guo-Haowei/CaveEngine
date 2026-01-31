@@ -9,7 +9,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/debugger/DebugIdAllocator.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
@@ -117,7 +117,7 @@ void GameRuntimeState::Tick(float p_timestep) {
         imgui_manager->BeginFrame();
 
         if (BeginFullscreenWindow("Full Screen")) {
-            const IGraphicsManager* gm = GetApp().GetGraphicsManager();
+            const IRenderDevice* gm = GetApp().GetRenderDevice();
             uint64_t handle = gm->GetFinalImage();
 
             const math::Vector2i frame_size = DVAR_GET_IVEC2(resolution);

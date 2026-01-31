@@ -1,14 +1,14 @@
 #pragma once
 #include "cave/core/Singleton.h"
 
-#include "engine/private/render/render_graph/Framebuffer.h"
+#include "engine/private/render/rhi/Framebuffer.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 #include "engine/private/core/base/concurrent_queue.h"
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/pipeline_state.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/PipelineStateManager.h"
 
 namespace cave {
@@ -38,13 +38,13 @@ struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> perFrameCb;
 };
 
-class RenderDevice : public IGraphicsManager,
+class RenderDevice : public IRenderDevice,
                      public Singleton<RenderDevice> {
 public:
     // @TODO: rename to RenderTarget
 
     RenderDevice(std::string_view p_name, Backend p_backend, int p_frame_count)
-        : IGraphicsManager(p_name), m_backend(p_backend), m_frameCount(p_frame_count) {}
+        : IRenderDevice(p_name), m_backend(p_backend), m_frameCount(p_frame_count) {}
 
     auto InitializeImpl() -> Result<void> final;
 

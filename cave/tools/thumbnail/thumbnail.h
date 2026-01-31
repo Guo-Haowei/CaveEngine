@@ -17,7 +17,7 @@ namespace cave::thumbnail {
 
 std::vector<Color> Convert(const std::vector<Vector4f>& p_buffer, bool p_to_bgra = false);
 
-void DrawMesh(const GpuMesh* p_mesh, IGraphicsManager& p_graphics_manager);
+void DrawMesh(const GpuMesh* p_mesh, IRenderDevice& p_graphics_manager);
 
 void FillDefaultMaterial(MaterialConstantBuffer& p_out);
 

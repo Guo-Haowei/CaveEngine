@@ -2,13 +2,13 @@
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
 // clang-format off
-namespace cave { class IGraphicsManager; }
+namespace cave { class IRenderDevice; }
 namespace cave { struct GpuTexture; }
 // clang-format on
 
 namespace cave {
 // @TODO: split RHI and RenderCommandContext
-using IRenderCmdContext = IGraphicsManager;
+using IRenderCmdContext = IRenderDevice;
 struct FrameData;
 class RenderDevice;
 }  // namespace cave

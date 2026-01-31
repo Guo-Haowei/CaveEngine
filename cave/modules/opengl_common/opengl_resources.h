@@ -3,7 +3,7 @@
 #endif
 #define OPENGL_RESOURCES_INCLUDED
 
-#include "engine/private/render/render_graph/Framebuffer.h"
+#include "engine/private/render/rhi/Framebuffer.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "opengl_helpers_forward.h"
 

@@ -3,7 +3,7 @@
 #include "engine/private/core/io/archive.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 
 namespace cave {
 

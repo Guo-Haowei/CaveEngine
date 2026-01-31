@@ -5,7 +5,7 @@
 #include "engine/private/assets/material_asset.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/IGraphicsManager.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 
 namespace cave {
 
@@ -54,7 +54,7 @@ static void RegisterPersistentFonts(IApplication* p_app) {
 
 static void RegisterPersistentImages(IApplication* p_app) {
     auto& asset_registry = *p_app->GetAssetRegistry();
-    auto& graphics_manager = *p_app->GetGraphicsManager();
+    auto& graphics_manager = *p_app->GetRenderDevice();
     {
         auto texture = CreateCheckerBoardImage();
         asset_registry.RegisterPersistentAsset("textures/checkerboard",
@@ -66,7 +66,7 @@ static void RegisterPersistentImages(IApplication* p_app) {
 
 static void RegisterPersistentMeshes(IApplication* p_app) {
     auto& asset_registry = *p_app->GetAssetRegistry();
-    auto& graphics_manager = *p_app->GetGraphicsManager();
+    auto& graphics_manager = *p_app->GetRenderDevice();
     {
         auto mesh = CreatePlaneMesh(Vector3f(0.5f));
         asset_registry.RegisterPersistentAsset("meshes/plane",

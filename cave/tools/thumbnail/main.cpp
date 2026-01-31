@@ -61,7 +61,7 @@ int main(int p_argc, const char** p_argv) {
     IDisplayManager::RegisterCreateFunc([]() -> IDisplayManager* {
         return new EmptyDisplayManager();
     });
-    IGraphicsManager::RegisterCreateFunc([]() -> IGraphicsManager* {
+    IRenderDevice::RegisterCreateFunc([]() -> IRenderDevice* {
         return new SwGraphicsManager();
     });
 

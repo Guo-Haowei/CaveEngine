@@ -23,11 +23,11 @@ bool IsPathTracerActive() {
     return s_glob.pt.IsActive();
 }
 
-void BindPathTracerData(IGraphicsManager& p_graphics_manager) {
+void BindPathTracerData(IRenderDevice& p_graphics_manager) {
     s_glob.pt.BindData(p_graphics_manager);
 }
 
-void UnbindPathTracerData(IGraphicsManager& p_graphics_manager) {
+void UnbindPathTracerData(IRenderDevice& p_graphics_manager) {
     s_glob.pt.UnbindData(p_graphics_manager);
 }
 

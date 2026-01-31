@@ -5,7 +5,7 @@
 
 // clang-format off
 namespace cave { struct FrameData; }
-namespace cave { class IGraphicsManager; }
+namespace cave { class IRenderDevice; }
 // clang-format on
 
 namespace cave::render {
@@ -59,7 +59,7 @@ public:
 
 protected:
     RenderGraphBuilderConfig m_config;
-    IGraphicsManager& m_graphicsManager;
+    IRenderDevice& m_graphicsManager;
 
     std::vector<RenderPassBuilder> m_passes;
 

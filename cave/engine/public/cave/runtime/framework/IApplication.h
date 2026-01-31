@@ -23,7 +23,7 @@ class EventQueue;
 class GameModeFactory;
 class IAssetManager;
 class IDisplayManager;
-class IGraphicsManager;
+class IRenderDevice;
 class ImguiManager;
 class InputSystem;
 class IPhysicsManager;
@@ -79,7 +79,7 @@ public:
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptManager* GetScriptManager() { return m_script_manager; }
     IDisplayManager* GetDisplayManager() { return m_display_server; }
-    IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
+    IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewportManager* GetViewportManager() { return m_viewport_manager; }
@@ -108,7 +108,7 @@ protected:
     IScriptManager* m_script_manager{ nullptr };
 
     IDisplayManager* m_display_server{ nullptr };
-    IGraphicsManager* m_graphics_manager{ nullptr };
+    IRenderDevice* m_render_device{ nullptr };
     render::Renderer* m_renderer{ nullptr };
 
     ImguiManager* m_imgui_manager{ nullptr };

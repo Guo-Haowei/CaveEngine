@@ -257,7 +257,7 @@ static void UpdateLight(float p_timestep,
 #if 0
                     constexpr float near_plane = LIGHT_SHADOW_MIN_DISTANCE;
                     const float far_plane = p_light.m_maxDistance;
-                    const bool is_opengl = IGraphicsManager::GetSingleton().GetBackend() == Backend::OPENGL;
+                    const bool is_opengl = IRenderDevice::GetSingleton().GetBackend() == Backend::OPENGL;
                     auto matrices = is_opengl ? BuildOpenGlPointLightCubeMapViewProjectionMatrix(p_light.m_position, near_plane, far_plane)
                                               : BuildPointLightCubeMapViewProjectionMatrix(p_light.m_position, near_plane, far_plane);
 
