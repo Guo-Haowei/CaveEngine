@@ -3,7 +3,7 @@
 #include <imgui/imgui_internal.h>
 
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/renderer/path_tracer_render_system.h"
@@ -59,6 +59,7 @@ void RendererPanel::DrawUIImpl() {
     });
 
     CollapseWindow("Path Tracer", [&]() {
+#if 0
         auto& gm = *m_editor.GetApp().GetGraphicsManager();
         int selected = (int)gm.GetActiveRenderGraphName();
         const int prev_selected = selected;
@@ -86,6 +87,7 @@ void RendererPanel::DrawUIImpl() {
         if (ImGui::DragInt("Debug BVH", &bvh_level, 0.1f, -1, 10)) {
             DVAR_SET_INT(gfx_bvh_debug, bvh_level);
         }
+#endif
     });
 }
 

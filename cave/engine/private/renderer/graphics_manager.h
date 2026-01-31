@@ -1,10 +1,11 @@
 #pragma once
 #include "cave/core/Singleton.h"
 
+#include "engine/private/render/render_graph/Framebuffer.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
+
 #include "engine/private/core/base/concurrent_queue.h"
 #include "engine/private/core/math/geomath.h"
-#include "engine/private/render_graph/framebuffer.h"
-#include "engine/private/render_graph/render_graph.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/pipeline_state.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
@@ -16,10 +17,9 @@ namespace cave {
 
 // @TODO: refactor
 struct MaterialConstantBuffer;
-using cave::RenderPass;
 
 // clang-format off
-namespace cave { class RenderGraph; }
+namespace cave::render { class RenderGraph; }
 // clang-format on
 
 namespace cave {
@@ -27,8 +27,6 @@ namespace cave {
 struct SamplerDesc;
 class Scene;
 struct GpuConstantBuffer;
-
-const char* ToString(RenderGraphName p_name);
 
 struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> batchCb;
@@ -83,10 +81,6 @@ public:
 
     Backend GetBackend() const override { return m_backend; }
 
-    [[nodiscard]] auto SelectRenderGraph() -> Result<void>;
-    RenderGraphName GetActiveRenderGraphName() const override { return m_activeRenderGraphName; }
-    bool SetActiveRenderGraph(RenderGraphName p_name) override;
-    RenderGraph* GetActiveRenderGraph() override;
     FrameContext& GetCurrentFrame() override { return *(m_frameContexts[m_frameIndex].get()); }
 
     void DrawSkybox() override;
@@ -101,10 +95,9 @@ protected:
     std::shared_ptr<FrameContext> CreateFrameContext() override;
 
     const Backend m_backend;
-    RenderGraphName m_activeRenderGraphName{ RenderGraphName::SCENE3D };
     bool m_enableValidationLayer;
 
-    std::array<std::shared_ptr<RenderGraph>, std::to_underlying(RenderGraphName::COUNT)> m_renderGraphs;
+    std::shared_ptr<render::RenderGraph> m_render_graph;
 
     std::unordered_map<std::string_view, std::shared_ptr<GpuTexture>> m_resourceLookup;
 

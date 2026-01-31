@@ -1,17 +1,17 @@
 #pragma once
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/pixel_format.h"
-#include "render_pass_builder.h"
+#include "RenderPassBuilder.h"
 
 // clang-format off
-namespace cave { struct Framebuffer; }
+namespace cave { struct FrameData; }
 namespace cave { class IGraphicsManager; }
 // clang-format on
 
-namespace cave {
+namespace cave::render {
 
 class RenderGraph;
-struct FrameData;
+struct Framebuffer;
 
 struct RenderGraphBuilderConfig {
     bool enablePointShadow = true;
@@ -29,7 +29,6 @@ public:
     RenderGraphBuilder(const RenderGraphBuilderConfig& p_config);
 
     RenderPassBuilder& AddPass(std::string_view p_name);
-    void AddDependency(std::string_view p_from, std::string_view p_to);
 
     [[nodiscard]] auto Compile() -> Result<std::shared_ptr<RenderGraph>>;
 
@@ -56,12 +55,22 @@ public:
                                        p_mips_level);
     }
 
+    RGTextureId CreateTexture(RGResourceCreateDesc&& p_info);
+    RGTextureId ImportTexture(RGResourceImportDesc&& p_info);
+
 protected:
     RenderGraphBuilderConfig m_config;
     IGraphicsManager& m_graphicsManager;
 
     std::vector<RenderPassBuilder> m_passes;
-    std::vector<std::pair<std::string, std::string>> m_dependencies;
+
+private:
+    RGTextureNode* GetLogicalTexture(RGTextureId p_handle);
+    const RGTextureNode* GetLogicalTexture(RGTextureId p_handle) const;
+
+    RGTextureId AllocHandle();
+    std::vector<RGTextureNode> m_textures;
+    RGTextureId::Type m_id{};
 };
 
-}  // namespace cave
+}  // namespace cave::render

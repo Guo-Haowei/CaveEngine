@@ -1,4 +1,4 @@
-#include "render_pass.h"
+#include "RenderPass.h"
 
 #include "engine/private/renderer/graphics_manager.h"
 
@@ -9,7 +9,7 @@
 #define RT_DEBUG(...)
 #endif
 
-namespace cave {
+namespace cave::render {
 
 void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     RT_DEBUG("-- Executing pass '{}'", m_name);
@@ -25,11 +25,13 @@ void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     // bind srvs
     for (int i = 0; i < (int)m_srvs.size(); ++i) {
         const GpuTexture* srv = m_srvs[i].get();
+        if (!srv) continue;
         p_cmd.BindTexture(srv->desc.dimension, srv->GetHandle(), i);
     }
     // bind uavs
     for (int i = 0; i < (int)m_uavs.size(); ++i) {
         GpuTexture* uav = m_uavs[i].get();
+        if (!uav) continue;
         p_cmd.BindUnorderedAccessView(i, uav);
     }
 
@@ -42,6 +44,7 @@ void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     // unbind srvs
     for (int i = 0; i < (int)m_srvs.size(); ++i) {
         const GpuTexture* srv = m_srvs[i].get();
+        if (!srv) continue;
         p_cmd.UnbindTexture(srv->desc.dimension, i);
     }
     // unbind uavs
@@ -52,4 +55,4 @@ void RenderPass::Execute(const FrameData& p_data, IRenderCmdContext& p_cmd) {
     RT_DEBUG("-------");
 }
 
-}  // namespace cave
+}  // namespace cave::render

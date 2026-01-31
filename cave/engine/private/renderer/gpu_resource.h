@@ -84,7 +84,6 @@ enum class AttachmentType {
 struct GpuTextureDesc {
     // @TODO: change to usage
     AttachmentType type;
-    // @TODO: add debug name
     Dimension dimension;
     uint32_t width;
     uint32_t height;
@@ -95,6 +94,7 @@ struct GpuTextureDesc {
     BindFlags bindFlags;
     ResourceMiscFlags miscFlags;
     const void* initialData;
+    // @TODO: get rid of the name
     std::string name;
 };
 

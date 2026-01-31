@@ -5,7 +5,7 @@
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/core/math/geometry.h"
-#include "engine/private/render_graph/render_graph_defines.h"
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
@@ -19,9 +19,6 @@
 // @NOTE: include GLFW after opengl
 // @TODO: opengl shouldn't know about glfw
 #include <GLFW/glfw3.h>
-
-// @TODO: remove the following
-#include "engine/private/render_graph/render_graph_builder.h"
 
 // #define RESIDENT_TEXTURE USE_IF(USING(PLATFORM_WINDOWS))
 #define RESIDENT_TEXTURE NOT_IN_USE
@@ -476,7 +473,7 @@ std::shared_ptr<GpuTexture> CommonOpenGLGraphicsManager::CreateTextureImpl(const
     return texture;
 }
 
-std::shared_ptr<Framebuffer> CommonOpenGLGraphicsManager::CreateFramebuffer(const FramebufferDesc& p_desc) {
+std::shared_ptr<render::Framebuffer> CommonOpenGLGraphicsManager::CreateFramebuffer(const render::FramebufferDesc& p_desc) {
     auto framebuffer = std::make_shared<OpenGlFramebuffer>(p_desc);
     GLuint fbo_handle = 0;
 

@@ -86,10 +86,6 @@ public:
 
     Backend GetBackend() const override { return Backend::EMPTY; }
 
-    RenderGraphName GetActiveRenderGraphName() const override { return static_cast<RenderGraphName>(0); }
-    bool SetActiveRenderGraph(RenderGraphName p_name) override { return true; }
-    RenderGraph* GetActiveRenderGraph() override { return nullptr; }
-
     FrameContext& GetCurrentFrame() override {
         FrameContext* context = nullptr;
         return *context;

@@ -1,14 +1,15 @@
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/render_graph/render_graph.h"
-#include "engine/private/render_graph/render_graph_builder.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/render_graph/RenderGraphBuilder.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_manager.h"
 #include "engine/private/renderer/pipeline_state.h"
 #include "engine/private/runtime/scene/SceneComponent.h"
-#include "render_graph_predefined.h"
+#include "RenderGraphPredefined.h"
 
-namespace cave {
+namespace cave::render {
 
+#if 0
 static void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
@@ -88,5 +89,6 @@ auto RenderGraph2D(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr
 
     return builder.Compile();
 }
+#endif
 
-}  // namespace cave
+}  // namespace cave::render
