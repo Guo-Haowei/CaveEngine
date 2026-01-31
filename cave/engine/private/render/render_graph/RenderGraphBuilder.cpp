@@ -130,6 +130,8 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 
     auto render_graph = std::make_shared<RenderGraph>();
 
+    // @TODO: move texture and framebuffer creation outside Compile
+
     // 1. Create/Import resources
     for (const RGTextureNode& node : m_textures) {
         if (node.import_fn) {

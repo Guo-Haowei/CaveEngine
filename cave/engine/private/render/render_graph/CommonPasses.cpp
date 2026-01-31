@@ -213,21 +213,10 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         .func = []() { return GenerateLTC(RG_RES_LTC2, LTC2); },
     });
 
-    RGTextureId out;
-    // @TODO: fix this logic
-    if (p_in.target || !p_in.target) {
-        out = CreateTexture(RGResourceCreateDesc{
-            RG_RES_LIGHTING,
-            BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
-        });
-    } else {
-        out = ImportTexture(RGResourceImportDesc{
-            .debug_name = "final_output",
-            .func = [&]() {
-                return p_in.target->color;
-            },
-        });
-    }
+    RGTextureId out = CreateTexture(RGResourceCreateDesc{
+        RG_RES_LIGHTING,
+        BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
+    });
 
     RenderPassBuilder& pass = AddPass(RG_PASS_LIGHTING);
 

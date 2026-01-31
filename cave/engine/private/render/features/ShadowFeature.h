@@ -3,12 +3,8 @@
 
 namespace cave::render {
 
+struct FramePlan;
 class RenderGraphBuilder;
-
-struct FramePlan {
-    bool enable_ssao{ false };
-    bool enable_bloom{ false };
-};
 
 class ShadowFeature {
 public:

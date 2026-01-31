@@ -4,6 +4,7 @@
 
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/render/features/ShadowFeature.h"
+#include "engine/private/render/renderer/FramePlan.h"
 #include "engine/private/render/renderer/RenderScene.h"
 #include "engine/private/render/renderer/RenderSceneBuilder.h"
 #include "engine/private/render/renderer/RenderSubmission.h"
@@ -44,7 +45,8 @@ public:
     void Tick(std::span<const render::ViewDesc> p_views);
 
 private:
-    auto BuildRenderGraph() -> Result<std::shared_ptr<RenderGraph>>;
+    FramePlan BuildFramePlan(std::span<const render::ViewDesc> p_views);
+    auto BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<RenderGraph>>;
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
@@ -213,7 +215,8 @@ static void FillEnvConstants(FrameData& p_out_data) {
 }
 
 auto Renderer::Impl::Initialize() -> Result<void> {
-    if (auto res = BuildRenderGraph(); !res) {
+    FramePlan dummy_plan;
+    if (auto res = BuildRenderGraph(dummy_plan); !res) {
         return CAVE_ERROR(res.error());
     } else {
         m_render_graph = *res;
@@ -224,8 +227,21 @@ auto Renderer::Impl::Initialize() -> Result<void> {
 void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
     CAVE_PROFILE_EVENT();
 
-    std::vector<FrameData> frame_data;
-    frame_data.resize(p_views.size());
+    auto submission = std::make_unique<RenderSubmission>();
+
+    FramePlan plan = BuildFramePlan(p_views);
+
+    submission->frame_data = std::move(plan.frame_data);
+    submission->render_graph = m_render_graph;
+    // submission->render_graph = BuildRenderGraph(plan);
+
+    // @TODO: graph
+    m_app.GetGraphicsManager()->Submit(std::move(submission));
+}
+
+FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_views) {
+    FramePlan plan;
+    plan.frame_data.resize(p_views.size());
 
     const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
     RenderOptions options = {
@@ -241,10 +257,10 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
     };
 
     // @HACK: really need to refactor this crap
-    if (frame_data.size()) {
+    if (plan.frame_data.size()) {
         static int s_should_bake = 0;
         if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
-            if (s_should_bake == 1) frame_data[0].bakeIbl = true;
+            if (s_should_bake == 1) plan.frame_data[0].bakeIbl = true;
             ++s_should_bake;
         }
     }
@@ -260,7 +276,7 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
 
         ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
 
-        FrameData& framedata = frame_data[i++];
+        FrameData& framedata = plan.frame_data[i++];
         framedata.options = options;
         framedata.camera_params = resolved;
 
@@ -279,17 +295,10 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
         // if (ecs_scene) break;
     }
 
-    auto submission = std::make_unique<RenderSubmission>();
-    submission->frame_data = std::move(frame_data);
-    submission->render_graph = m_render_graph;
-
-    // @TODO: graph
-    m_app.GetGraphicsManager()->Submit(std::move(submission));
+    return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph() -> Result<std::shared_ptr<RenderGraph>> {
-    FramePlan plan;
-
+auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<RenderGraph>> {
     // @TODO: get frame size from viewport
     const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
     RenderGraphBuilderConfig config;
@@ -298,7 +307,7 @@ auto Renderer::Impl::BuildRenderGraph() -> Result<std::shared_ptr<RenderGraph>> 
 
     RenderGraphBuilderExt builder(config);
 
-    auto shadow_outputs = m_shadow.Build(builder, plan);
+    auto shadow_outputs = m_shadow.Build(builder, p_plan);
 
     // @TODO: refactor the following
     auto prepass_outputs = builder.AddDepthPrepass();
@@ -308,7 +317,7 @@ auto Renderer::Impl::BuildRenderGraph() -> Result<std::shared_ptr<RenderGraph>> 
     });
 
     SsaoOutput ssao_outputs{};
-    if (plan.enable_ssao) {
+    if (p_plan.enable_ssao) {
         ssao_outputs = builder.AddSsaoPass({
             .depth = prepass_outputs.depth,
             .normal = gbuffer_outputs.color1,

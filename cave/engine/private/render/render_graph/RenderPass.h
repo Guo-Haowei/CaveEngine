@@ -1,5 +1,4 @@
 #pragma once
-#include "engine/private/render/render_graph/Framebuffer.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
 // clang-format off
@@ -16,6 +15,7 @@ struct FrameData;
 namespace cave::render {
 
 class RenderPass;
+struct Framebuffer;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;
@@ -28,6 +28,7 @@ using ExecuteFunc = void (*)(RenderPassExcutionContext& ctx);
 
 class RenderPass {
 public:
+    // @TODO: instead of this, call RenderDevice.Execute(RenderPass) instead
     void Execute(const FrameData& p_data, IRenderCmdContext& p_cmd);
 
     std::string_view GetName() const { return m_name; }

@@ -11,7 +11,6 @@ namespace cave { class IGraphicsManager; }
 namespace cave::render {
 
 class RenderGraph;
-struct Framebuffer;
 
 struct RenderGraphBuilderConfig {
     bool enablePointShadow = true;
