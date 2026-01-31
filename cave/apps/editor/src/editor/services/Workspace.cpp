@@ -166,9 +166,6 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
             CRASH_NOW_MSG("not supported");
         } break;
     }
-
-    ViewportManager* viewport_manager = m_editor.GetApp().GetViewportManager();
-    viewport_manager->CreateViewport(tab);
 #endif
 }
 

@@ -1,17 +1,20 @@
-#include "RenderSystemImpl.h"
+#include "Renderer.h"
+
+#include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/runtime/scene/Scene.h"
-
-// @TODO: remove
-#include "cave/runtime/framework/IApplication.h"
-#include "engine/private/core/base/random.h"
-#include "engine/private/renderer/frame_data.h"
-#include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/core/math/MatrixTransform.h"
+#include "engine/private/render/renderer/RenderScene.h"
+#include "engine/private/render/renderer/RenderSceneBuilder.h"
+#include "engine/private/render/renderer/RenderSubmission.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
 #include "engine/private/runtime/framework/IGraphicsManager.h"
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
+
+// @TODO: cleanup
+#include "engine/private/core/base/random.h"
+#include "engine/private/core/math/MatrixTransform.h"
+#include "engine/private/renderer/graphics_dvars.h"
 
 namespace cave {
 
@@ -26,6 +29,40 @@ namespace cave::render {
 
 using math::Vector3f;
 using math::Vector4f;
+
+class Renderer::Impl {
+public:
+    Impl(IApplication& p_app)
+        : m_app(p_app) {}
+
+    void Tick(std::span<const render::ViewDesc> p_views);
+
+private:
+    RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
+
+private:
+    IApplication& m_app;
+    RenderSceneBuilder m_scene_builder;
+    std::unordered_map<SceneId, RenderScene> m_scene_cache;
+};
+
+Renderer::Renderer()
+    : Module("Render") {}
+
+Renderer::~Renderer() = default;
+
+auto Renderer::InitializeImpl() -> Result<void> {
+    m_impl = std::make_unique<Impl>(*m_app);
+    return Result<void>();
+}
+
+void Renderer::FinalizeImpl() {
+    m_impl.reset();
+}
+
+void Renderer::Tick(std::span<const ViewDesc> p_views) {
+    m_impl->Tick(p_views);
+}
 
 // @TODO: remove this
 extern void RunMeshRenderSystem(const Scene& p_scene,
@@ -161,18 +198,11 @@ static void FillEnvConstants(FrameData& p_out_data) {
     }
 }
 
-RenderSystemImpl::RenderSystemImpl(IApplication& p_app)
-    : m_app(p_app) {
-}
-
-void RenderSystemImpl::BeginFrame() {
-}
-
-void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
+void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
     CAVE_PROFILE_EVENT();
 
-    m_frame_data.clear();
-    m_frame_data.resize(p_views.size());
+    std::vector<FrameData> frame_data;
+    frame_data.resize(p_views.size());
 
     const bool is_opengl = m_app.GetGraphicsManager()->GetBackend() == Backend::OPENGL;
     RenderOptions options = {
@@ -188,10 +218,10 @@ void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
     };
 
     // @HACK: really need to refactor this crap
-    if (m_frame_data.size()) {
+    if (frame_data.size()) {
         static int s_should_bake = 0;
         if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
-            if (s_should_bake == 1) m_frame_data[0].bakeIbl = true;
+            if (s_should_bake == 1) frame_data[0].bakeIbl = true;
             ++s_should_bake;
         }
     }
@@ -207,7 +237,7 @@ void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
 
         ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
 
-        FrameData& framedata = m_frame_data[i++];
+        FrameData& framedata = frame_data[i++];
         framedata.options = options;
         framedata.camera_params = resolved;
 
@@ -225,9 +255,14 @@ void RenderSystemImpl::RenderFrame(std::span<const render::ViewDesc> p_views) {
         //}
         // if (ecs_scene) break;
     }
+
+    auto submission = std::make_unique<RenderSubmission>();
+    submission->frame_data = std::move(frame_data);
+    // @TODO: graph
+    m_app.GetGraphicsManager()->Submit(std::move(submission));
 }
 
-RenderScene& RenderSystemImpl::GetOrCreateRenderScene(SceneId p_scene_id) {
+RenderScene& Renderer::Impl::GetOrCreateRenderScene(SceneId p_scene_id) {
     return m_scene_cache[p_scene_id];
 }
 

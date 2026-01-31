@@ -8,6 +8,7 @@ struct MaterialConstantBuffer;
 namespace cave::render {
 struct Framebuffer;
 struct FramebufferDesc;
+struct RenderSubmission;
 }  // namespace cave::render
 
 namespace cave {
@@ -35,6 +36,7 @@ struct Viewport;
 
 struct GpuMesh;
 
+// @TODO: split this class to RenderDevice and RHI
 class IGraphicsManager : public Module,
                          public EventListener,
                          public ModuleCreateRegistry<IGraphicsManager> {
@@ -50,7 +52,8 @@ public:
         : Module(p_name) {}
 
     virtual auto InitializeImpl() -> Result<void> = 0;
-    virtual void Update() = 0;
+
+    virtual void Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) = 0;
 
     // resource
     virtual auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> = 0;

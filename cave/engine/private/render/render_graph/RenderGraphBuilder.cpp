@@ -193,9 +193,6 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
             switch (read.access) {
                 case ResourceAccess::SRV: {
                     auto srv = render_graph->FindResource(read.handle);
-                    if (!srv) {
-                        LOG_WARN("srv '{}' not present in {}", read.handle.Underlying(), pass.GetName());
-                    }
                     srvs.emplace_back(srv);
                 } break;
                 case ResourceAccess::UAV: {

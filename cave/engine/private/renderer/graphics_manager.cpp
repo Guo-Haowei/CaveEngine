@@ -1,5 +1,8 @@
 #include "graphics_manager.h"
 
+#include "engine/private/render/renderer/RenderSubmission.h"
+
+// @TODO: determine if includes are necessary
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/core/base/random.h"
 #include "engine/private/core/debugger/Profiler.h"
@@ -16,8 +19,10 @@
 #include "engine/private/renderer/sampler.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/RenderSystem.h"
 #include "engine/private/runtime/scene/Scene.h"
+
+// @TODO: remove this
+#include "engine/private/render/renderer/Renderer.h"
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"
@@ -253,7 +258,7 @@ std::shared_ptr<GpuTexture> GraphicsManager::CreateTexture(ImageAsset* p_image) 
     return p_image->gpu_texture;
 }
 
-void GraphicsManager::Update() {
+void GraphicsManager::Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: make it a function
@@ -283,9 +288,7 @@ void GraphicsManager::Update() {
         CAVE_PROFILE_EVENT("Render");
         BeginFrame();
 
-        auto views = m_app->GetRenderSystem()->GetFrameData();
-
-        for (const FrameData& data : views) {
+        for (const FrameData& data : p_submission->frame_data) {
 
             auto& frame = GetCurrentFrame();
             UpdateConstantBuffer(frame.batchCb.get(), data.batchCache.buffer);

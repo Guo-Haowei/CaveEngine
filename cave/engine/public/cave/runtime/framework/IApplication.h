@@ -7,6 +7,10 @@
 #include "cave/core/Error.h"
 #include "cave/core/NonCopyable.h"
 
+// clang-format off
+namespace cave::render { class Renderer; }
+// clang-format on
+
 namespace cave {
 
 enum class AppStateId : uint8_t;
@@ -24,7 +28,6 @@ class ImguiManager;
 class InputSystem;
 class IPhysicsManager;
 class IScriptManager;
-class RenderSystem;
 class ISceneRegistry;
 class SceneScheduler;
 class TaskManager;
@@ -78,7 +81,6 @@ public:
     IDisplayManager* GetDisplayManager() { return m_display_server; }
     IGraphicsManager* GetGraphicsManager() { return m_graphics_manager; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
-    RenderSystem* GetRenderSystem() { return m_render_system; }
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewportManager* GetViewportManager() { return m_viewport_manager; }
 
@@ -107,7 +109,7 @@ protected:
 
     IDisplayManager* m_display_server{ nullptr };
     IGraphicsManager* m_graphics_manager{ nullptr };
-    RenderSystem* m_render_system{ nullptr };
+    render::Renderer* m_renderer{ nullptr };
 
     ImguiManager* m_imgui_manager{ nullptr };
     InputSystem* m_input_system{ nullptr };
