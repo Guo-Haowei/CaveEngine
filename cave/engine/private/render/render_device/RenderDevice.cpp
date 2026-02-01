@@ -432,9 +432,6 @@ void RenderDevice::BeginPass(const RGRenderPass& p_pass) {
 
     // 2. Set Viewport
     SetViewport(p_pass.viewport ? *p_pass.viewport : Viewport(width, height));
-
-    // 3. Clear render target
-    // Clear(desc);
 }
 
 void RenderDevice::EndPass(const RGRenderPass& p_pass) {

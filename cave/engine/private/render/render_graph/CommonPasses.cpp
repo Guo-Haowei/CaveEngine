@@ -81,7 +81,6 @@ static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
     return RenderDevice::GetSingleton().CreateTexture(desc, PointWrapSampler());
 }
 
-
 extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
 extern void GbufferPassFunc(RenderPassExcutionContext& p_ctx);
 extern void SsaoPassFunc(RenderPassExcutionContext& p_ctx);
@@ -163,7 +162,6 @@ SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
 
 LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in) {
 
-
     RGTextureId out = CreateTexture(RGResourceCreateDesc{
         RG_RES_LIGHTING,
         BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
@@ -219,7 +217,7 @@ ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
         .Read(ResourceAccess::SRV, p_in.brdf)
         .Read(ResourceAccess::SRV, p_in.ltc1)
         .Read(ResourceAccess::SRV, p_in.ltc2)
-        .Read(ResourceAccess::NONE, p_in.lighting) // add dependency
+        .Read(ResourceAccess::NONE, p_in.lighting)  // add dependency
         .ReadDepth(p_in.depth, {}, LoadOp::Load)
         .WriteColor(p_in.lighting, {}, LoadOp::Load)
         .SetExecuteFunc(ForwardPassFunc);
