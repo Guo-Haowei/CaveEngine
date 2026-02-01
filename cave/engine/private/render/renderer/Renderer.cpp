@@ -3,6 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/render/features/EnvironmentFeature.h"
 #include "engine/private/render/features/ShadowFeature.h"
 #include "engine/private/render/renderer/FramePlan.h"
 #include "engine/private/render/renderer/RenderScene.h"
@@ -63,6 +64,7 @@ private:
 
     // features
     ShadowFeature m_shadow;
+    EnvironmentFeature m_env;
 };
 
 Renderer::Renderer()
@@ -312,6 +314,7 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
 
     RenderGraphBuilderExt builder(config);
 
+    auto env_outputs = m_env.Build(builder, p_plan);
     auto shadow_outputs = m_shadow.Build(builder, p_plan);
 
     // @TODO: refactor the following
@@ -336,6 +339,8 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
         .depth = prepass_outputs.depth,
         .ssao = ssao_outputs.processed,
         .shadow = shadow_outputs.shadow,
+        .ibl_diffuse = env_outputs.ibl_diffuse,
+        .ibl_prefiltered = env_outputs.ibl_prefiltered,
         .target = nullptr,
     });
 

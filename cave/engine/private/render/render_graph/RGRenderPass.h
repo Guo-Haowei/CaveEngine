@@ -18,7 +18,7 @@ struct RenderPassExcutionContext {
     IRenderDevice& cmd;
 };
 
-using ExecuteFunc = void (*)(RenderPassExcutionContext& ctx);
+using ExecuteFunc = std::function<void(RenderPassExcutionContext& ctx)>;
 
 struct RGRenderPass {
     std::string name;

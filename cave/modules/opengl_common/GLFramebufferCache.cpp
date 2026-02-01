@@ -127,7 +127,6 @@ static FboAttachmentKey MakeColorAttachment(const ColorAttachmentDesc& p_desc, u
         } break;
         case AttachmentType::COLOR_CUBE: {
             key.kind = AttachKind::CubeFace;
-            CRASH_NOW();
         } break;
         default: {
             CRASH_NOW();

@@ -48,7 +48,7 @@ RenderPassBuilder& RenderPassBuilder::WriteDepth(RGTextureId p_handle,
 }
 
 RenderPassBuilder& RenderPassBuilder::SetExecuteFunc(ExecuteFunc p_func) {
-    m_func = p_func;
+    m_func = std::move(p_func);
     return *this;
 }
 

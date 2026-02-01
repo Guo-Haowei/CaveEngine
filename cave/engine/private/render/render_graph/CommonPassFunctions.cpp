@@ -402,35 +402,6 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.DrawArrays(6);
 }
 
-void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx) {
-    CAVE_PROFILE_EVENT();
-
-    DEV_ASSERT(0);
-    if (!p_ctx.frameData.bakeIbl) {
-        return;
-    }
-
-#if 0
-    auto& cmd = p_ctx.cmd;
-    auto fb = p_ctx.framebuffer;
-
-    cmd.SetPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
-    auto cube_map = fb->desc.colorAttachments[0];
-    const auto [width, height] = fb->GetBufferSize();
-
-    auto& frame = cmd.GetCurrentFrame();
-    for (int i = 0; i < 6; ++i) {
-        cmd.SetRenderTarget(fb, i);
-
-        cmd.SetViewport(Viewport(width, height));
-
-        cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), i);
-        cmd.DrawSkybox();
-    }
-    cmd.GenerateMipmap(cube_map.get());
-#endif
-}
-
 void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx) {
     if (!p_ctx.frameData.bakeIbl) {
         return;

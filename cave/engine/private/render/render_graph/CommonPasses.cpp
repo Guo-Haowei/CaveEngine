@@ -38,9 +38,6 @@ constexpr const char RG_PASS_SSAO[] = "p:ssao";
 constexpr const char RG_PASS_OUTLINE[] = "p:outline";
 constexpr const char RG_PASS_PATHTRACER[] = "p:pathtracer";
 constexpr const char RG_PASS_PATHTRACER_PRESENT[] = "p:pathtracer_present";
-constexpr const char RG_PASS_BAKE_SKYBOX[] = "p:env_skybox";
-constexpr const char RG_PASS_BAKE_DIFFUSE[] = "p:diffuse";
-constexpr const char RG_PASS_BAKE_PREFILTERED[] = "p:prefiltered";
 
 constexpr const char RG_RES_DEPTH_STENCIL[] = "r:depth";
 constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
@@ -53,14 +50,12 @@ constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
 constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
 constexpr const char RG_RES_OUTLINE[] = "r:outline";
 constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
-constexpr const char RG_RES_ENV_SKYBOX_CUBE[] = "r:env_cube";
 constexpr const char RG_RES_ENV_DIFFUSE_CUBE[] = "r:diffuse_cube";
 constexpr const char RG_RES_ENV_PREFILTERED_CUBE[] = "r:prefiltered_cube";
 
 // external resources
 constexpr const char RG_RES_SSAO_NOISE[] = "r:ssao_noise";
 constexpr const char RG_RES_BRDF[] = "r:brdf";
-constexpr const char RG_RES_IBL[] = "r:ibl";
 constexpr const char RG_RES_LTC1[] = "r:ltc1";
 constexpr const char RG_RES_LTC2[] = "r:ltc2";
 
@@ -122,7 +117,6 @@ extern void BloomSetupFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void TonePassFunc(RenderPassExcutionContext& p_ctx);
-extern void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx);
 extern void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx);
 extern void PrefilteredFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerPassFunc(RenderPassExcutionContext& p_ctx);
@@ -399,58 +393,6 @@ void RenderGraphBuilderExt::AddBloomPass() {
     }
 }
 
-
-void RenderGraphBuilderExt::AddGenerateSkylightPass() {
-    {
-        GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
-                                                      AttachmentType::COLOR_CUBE,
-                                                      RT_SIZE_IBL_CUBEMAP,
-                                                      RT_SIZE_IBL_CUBEMAP,
-                                                      6,
-                                                      RESOURCE_MISC_GENERATE_MIPS,
-                                                      IBL_MIP_CHAIN_MAX);
-
-        auto& pass = AddPass(RG_PASS_BAKE_SKYBOX);
-        pass.Import(RG_RES_IBL, []() {
-                std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("sky.hdr");
-                return GraphicsManager::GetSingleton().CreateTexture(image.get());
-            })
-            .Create(RG_RES_ENV_SKYBOX_CUBE, { desc, CubemapSampler() })
-            .Read(ResourceAccess::SRV, RG_RES_IBL)
-            .Write(ResourceAccess::RTV, RG_RES_ENV_SKYBOX_CUBE)
-            .SetExecuteFunc(ConvertToCubemapFunc);
-    }
-    {
-        GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
-                                                      AttachmentType::COLOR_CUBE,
-                                                      RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
-                                                      RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
-                                                      6);
-
-        auto& pass = AddPass(RG_PASS_BAKE_DIFFUSE);
-        pass.Create(RG_RES_ENV_DIFFUSE_CUBE, { desc, CubemapNoMipSampler() })
-            .Read(ResourceAccess::SRV, RG_RES_ENV_SKYBOX_CUBE)
-            .Write(ResourceAccess::RTV, RG_RES_ENV_DIFFUSE_CUBE)
-            .SetExecuteFunc(DiffuseIrradianceFunc);
-    }
-    {
-        GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
-                                                      AttachmentType::COLOR_CUBE,
-                                                      RT_SIZE_IBL_PREFILTERED_CUBEMAP,
-                                                      RT_SIZE_IBL_PREFILTERED_CUBEMAP,
-                                                      6,
-                                                      RESOURCE_MISC_GENERATE_MIPS,
-                                                      IBL_MIP_CHAIN_MAX);
-
-        auto& pass = AddPass(RG_PASS_BAKE_PREFILTERED);
-        pass.Create(RG_RES_ENV_PREFILTERED_CUBE, { desc, CubemapLodSampler() })
-            .Read(ResourceAccess::SRV, RG_RES_ENV_SKYBOX_CUBE)
-            .Write(ResourceAccess::RTV, RG_RES_ENV_PREFILTERED_CUBE)
-            .SetExecuteFunc(PrefilteredFunc);
-
-        AddDependency(RG_PASS_BAKE_PREFILTERED, RG_PASS_DEPTH_PREPASS);
-    }
-}
 #endif
 
 void RenderGraphBuilderExt::AddPathTracerPass() {

@@ -206,8 +206,8 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         }
 
         auto render_pass = std::make_shared<RGRenderPass>();
-        render_pass->name = pass_builder.m_name;
-        render_pass->func = pass_builder.m_func;
+        render_pass->name = std::move(pass_builder.m_name);
+        render_pass->func = std::move(pass_builder.m_func);
 
         render_pass->srvs = std::move(srvs);
         render_pass->uavs = std::move(uavs);

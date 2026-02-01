@@ -67,7 +67,6 @@ public:
     // void AddHighlightPass();
     // void AddVoxelizationPass();
     // void AddBloomPass();
-    // void AddGenerateSkylightPass();
 
     void AddPathTracerPass();
     void AddPathTracerTonePass();
