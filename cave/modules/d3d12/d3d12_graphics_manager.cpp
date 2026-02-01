@@ -57,10 +57,10 @@ struct D3d12GpuTexture : public GpuTexture {
     DescriptorHeapHandle uavHandle;
 };
 
-struct D3d12Framebuffer : public render::RenderTarget {
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvs;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> dsvs;
-};
+// struct D3d12Framebuffer : public render::RenderTarget {
+//     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvs;
+//     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> dsvs;
+// };
 
 struct D3d12ConstantBuffer : public GpuConstantBuffer {
     using GpuConstantBuffer::GpuConstantBuffer;
@@ -226,7 +226,8 @@ void D3d12GraphicsManager::Render() {
     cmd_list->ResourceBarrier(1, &barrier);
 
     cmd_list->OMSetRenderTargets(1, &rtv_handle, FALSE, &dsv_handle);
-    cmd_list->ClearRenderTargetView(rtv_handle, DEFAULT_CLEAR_COLOR, 0, nullptr);
+    float clear_color[4]{ 0, 0, 0, 1 };
+    cmd_list->ClearRenderTargetView(rtv_handle, clear_color, 0, nullptr);
     cmd_list->ClearDepthStencilView(dsv_handle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     // @TODO: refactor this
@@ -312,14 +313,16 @@ void D3d12GraphicsManager::SetBlendState(const BlendDesc& p_desc, const float* p
     unused(p_mask);
 }
 
-void D3d12GraphicsManager::SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) {
-    unused(p_mip_level);
-    DEV_ASSERT(p_framebuffer);
+void D3d12GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_desc) {
+    unused(p_desc);
+    DEV_ASSERT(0);
 
+#if 0
     ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
 
     auto framebuffer = reinterpret_cast<const D3d12Framebuffer*>(p_framebuffer);
-    if (const auto& tex = framebuffer->desc.depth.tex) {
+    if (const auto& option = framebuffer->desc.depth) {
+        const auto& tex = option->tex;
         if (tex->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
             D3D12_CPU_DESCRIPTOR_HANDLE dsv{ framebuffer->dsvs[p_index] };
             command_list->OMSetRenderTargets(0, nullptr, false, &dsv);
@@ -337,9 +340,10 @@ void D3d12GraphicsManager::SetRenderTarget(const RenderTarget* p_framebuffer, in
         dsv_ptr = &(framebuffer->dsvs[0]);
     }
     command_list->OMSetRenderTargets((uint32_t)rtvs.size(), rtvs.data(), false, dsv_ptr);
+#endif
 }
 
-void D3d12GraphicsManager::UnsetRenderTarget() {
+void D3d12GraphicsManager::UnsetRenderTargets() {
 }
 
 void D3d12GraphicsManager::BeginPass(const RGRenderPass& p_pass) {
@@ -367,7 +371,7 @@ void D3d12GraphicsManager::BeginPass(const RGRenderPass& p_pass) {
 void D3d12GraphicsManager::EndPass(const RGRenderPass& p_pass) {
     RenderDevice::EndPass(p_pass);
     DEV_ASSERT(0);
-    UnsetRenderTarget();
+    UnsetRenderTargets();
 #if 0
     ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
     for (auto& texture : p_framebuffer->outSrvs) {
@@ -387,12 +391,9 @@ void D3d12GraphicsManager::EndPass(const RGRenderPass& p_pass) {
 #endif
 }
 
-void D3d12GraphicsManager::Clear(const RenderTarget* p_framebuffer,
-                                 ClearFlags p_flags,
-                                 const float* p_clear_color,
-                                 float p_clear_depth,
-                                 uint8_t p_clear_stencil,
-                                 int p_index) {
+void D3d12GraphicsManager::Clear(const RenderTargetDesc& p_target) {
+    unused(p_target);
+#if 0
     auto framebuffer = reinterpret_cast<const D3d12Framebuffer*>(p_framebuffer);
 
     if (p_flags & CLEAR_COLOR_BIT) {
@@ -414,6 +415,7 @@ void D3d12GraphicsManager::Clear(const RenderTarget* p_framebuffer,
         DEV_ASSERT_INDEX(p_index, framebuffer->dsvs.size());
         m_graphicsCommandList->ClearDepthStencilView(framebuffer->dsvs[p_index], clear_flags, p_clear_depth, p_clear_stencil, 0, nullptr);
     }
+#endif
 }
 
 void D3d12GraphicsManager::SetViewport(const Viewport& p_viewport) {
@@ -925,6 +927,7 @@ void D3d12GraphicsManager::GenerateMipmap(const GpuTexture* p_texture) {
     CRASH_NOW();
 }
 
+#if 0
 std::shared_ptr<RenderTarget> D3d12GraphicsManager::CreateFramebuffer(const RenderTargetDesc& p_subpass_desc) {
     auto framebuffer = std::make_shared<D3d12Framebuffer>(p_subpass_desc);
 
@@ -957,8 +960,8 @@ std::shared_ptr<RenderTarget> D3d12GraphicsManager::CreateFramebuffer(const Rend
         }
     }
 
-    if (auto& _tex = framebuffer->desc.depth.tex) {
-        auto tex = reinterpret_cast<const D3d12GpuTexture*>(_tex.get());
+    if (const auto& option = framebuffer->desc.depth) {
+        auto tex = reinterpret_cast<const D3d12GpuTexture*>(option->tex.get());
         switch (tex->desc.type) {
             case AttachmentType::DEPTH_2D: {
                 // ComPtr<ID3D11DepthStencilView> dsv;
@@ -1015,6 +1018,7 @@ std::shared_ptr<RenderTarget> D3d12GraphicsManager::CreateFramebuffer(const Rend
 
     return framebuffer;
 }
+#endif
 
 auto D3d12GraphicsManager::CreateDevice() -> Result<void> {
 #if USING(DEBUG_BUILD)

@@ -10,12 +10,10 @@ namespace cave { struct GpuTexture; }
 namespace cave::render {
 
 class IRenderDevice;
-struct RenderTarget;
 struct RGRenderPass;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;
-    RenderTarget* framebuffer;
     RGRenderPass& pass;
     IRenderDevice& cmd;
 };
@@ -26,16 +24,13 @@ struct RGRenderPass {
     std::string name;
 
     std::vector<ColorAttachmentDesc> colors;
-    DepthAttachmentDesc depth;
-
-    // @TODO: replace framebuffer with RenderTargetDesc
-    std::shared_ptr<RenderTarget> framebuffer;
+    std::optional<DepthAttachmentDesc> depth;
 
     std::optional<Viewport> viewport;
     // @TODO: sissor
 
-    std::vector<std::shared_ptr<GpuTexture>> uavs;
-    std::vector<std::shared_ptr<GpuTexture>> srvs;
+    std::vector<GpuTextureId> uavs;
+    std::vector<GpuTextureId> srvs;
 
     ExecuteFunc func;
 };

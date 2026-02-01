@@ -136,12 +136,11 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
     glUseProgram(pipeline->programId);
 }
 
-void CommonOpenGLGraphicsManager::Clear(const RenderTarget*,
-                                        ClearFlags p_flags,
-                                        const float* p_clear_color,
-                                        float p_clear_depth,
-                                        uint8_t p_clear_stencil,
-                                        int) {
+void CommonOpenGLGraphicsManager::Clear(const RenderTargetDesc& p_target) {
+    unused(p_target);
+    DEV_ASSERT(0);
+
+#if 0
     if (p_flags == CLEAR_NONE) {
         return;
     }
@@ -165,6 +164,7 @@ void CommonOpenGLGraphicsManager::Clear(const RenderTarget*,
     glClearDepthf(p_clear_depth);
     glClearStencil(p_clear_stencil);
     glClear(flags);
+#endif
 }
 
 void CommonOpenGLGraphicsManager::SetViewport(const Viewport& p_viewport) {
@@ -473,11 +473,12 @@ std::shared_ptr<GpuTexture> CommonOpenGLGraphicsManager::CreateTextureImpl(const
     return texture;
 }
 
+#if 0
 std::shared_ptr<RenderTarget> CommonOpenGLGraphicsManager::CreateFramebuffer(const RenderTargetDesc& p_desc) {
     auto framebuffer = std::make_shared<OpenGlFramebuffer>(p_desc);
     GLuint fbo_handle = 0;
 
-    const int num_depth_attachment = p_desc.depth.tex ? 1 : 0;
+    const int num_depth_attachment = p_desc.depth ? 1 : 0;
     const int num_color_attachment = (int)p_desc.colors.size();
     if (!num_depth_attachment && !num_color_attachment) {
         return framebuffer;
@@ -524,9 +525,9 @@ std::shared_ptr<RenderTarget> CommonOpenGLGraphicsManager::CreateFramebuffer(con
 #endif
     }
 
-    if (const auto& depth_attachment = p_desc.depth.tex) {
-        uint32_t texture_handle = static_cast<uint32_t>(depth_attachment->GetHandle());
-        switch (depth_attachment->desc.type) {
+    if (const auto& option = p_desc.depth) {
+        uint32_t texture_handle = static_cast<uint32_t>(option->tex->GetHandle());
+        switch (option->tex->desc.type) {
             case AttachmentType::SHADOW_2D:
             case AttachmentType::DEPTH_2D: {
                 glFramebufferTexture2D(GL_FRAMEBUFFER,       // target
@@ -560,6 +561,7 @@ std::shared_ptr<RenderTarget> CommonOpenGLGraphicsManager::CreateFramebuffer(con
     framebuffer->handle = fbo_handle;
     return framebuffer;
 }
+#endif
 
 void CommonOpenGLGraphicsManager::SetStencilRef(uint32_t p_ref) {
     glStencilFunc(gl::Convert(m_stateCache.stencilFunc), p_ref, 0xFF);
@@ -592,7 +594,11 @@ void CommonOpenGLGraphicsManager::SetBlendState(const BlendDesc& p_desc, const f
     glBlendFunc(src_blend, dest_blend);
 }
 
-void CommonOpenGLGraphicsManager::SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) {
+void CommonOpenGLGraphicsManager::SetRenderTargets(const RenderTargetDesc& p_target) {
+    unused(p_target);
+    DEV_ASSERT(0);
+
+#if 0
     DEV_ASSERT(p_framebuffer);
     if (p_framebuffer->desc.type == RenderTargetDesc::Screen) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -616,20 +622,21 @@ void CommonOpenGLGraphicsManager::SetRenderTarget(const RenderTarget* p_framebuf
         }
     }
 
-    if (const auto& depth_attachment = framebuffer->desc.depth.tex) {
-        if (depth_attachment->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
+    if (const auto& option = framebuffer->desc.depth) {
+        if (option->tex->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
             glFramebufferTextureLayer(GL_FRAMEBUFFER,
                                       GL_DEPTH_ATTACHMENT,
-                                      depth_attachment->GetHandle32(),
+                                      option->tex->GetHandle32(),
                                       0,
                                       p_index);
         }
     }
+#endif
 
     return;
 }
 
-void CommonOpenGLGraphicsManager::UnsetRenderTarget() {
+void CommonOpenGLGraphicsManager::UnsetRenderTargets() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

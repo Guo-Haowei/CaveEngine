@@ -22,15 +22,10 @@ public:
     auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> override { return nullptr; }
     void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) override {}
 
-    void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index = 0, int p_mip_level = 0) override {}
-    void UnsetRenderTarget() override {}
+    void SetRenderTargets(const RenderTargetDesc&) override {}
+    void UnsetRenderTargets() override {}
 
-    void Clear(const RenderTarget* p_framebuffer,
-               ClearFlags p_flags,
-               const float* p_clear_color = DEFAULT_CLEAR_COLOR,
-               float p_clear_depth = 1.0f,
-               uint8_t p_clear_stencil = 0,
-               int p_index = 0) override {}
+    void Clear(const RenderTargetDesc&) override {}
 
     void SetViewport(const Viewport& p_viewport) override {}
 
@@ -63,8 +58,6 @@ public:
     void UpdateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) override {}
 
     void BindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) override {}
-
-    std::shared_ptr<RenderTarget> CreateFramebuffer(const RenderTargetDesc& p_desc) override { return nullptr; }
 
     std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) override { return nullptr; }
     std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) override { return nullptr; }

@@ -411,25 +411,34 @@ void RenderDevice::BeginPass(const RGRenderPass& p_pass) {
         }
     }
 
+    RenderTargetDesc desc{
+        .colors = p_pass.colors,
+        .depth = p_pass.depth,
+    };
+
     // @TODO: build render target
-    SetRenderTarget(p_pass.framebuffer.get());
-    if (p_pass.viewport) {
-        SetViewport(*p_pass.viewport);
-    } else {
-        uint32_t width = 0, height = 0;
-        if (!p_pass.framebuffer->desc.colors.empty()) {
-            width = p_pass.framebuffer->desc.colors[0].tex->desc.width;
-            height = p_pass.framebuffer->desc.colors[0].tex->desc.height;
-        } else {
-            width = p_pass.framebuffer->desc.depth.tex->desc.width;
-            height = p_pass.framebuffer->desc.depth.tex->desc.height;
-        }
-        SetViewport(Viewport(width, height));
+    uint32_t width = 0, height = 0;
+    if (!desc.colors.empty()) {
+        width = desc.colors[0].tex->desc.width;
+        height = desc.colors[0].tex->desc.height;
     }
+    if (desc.depth) {
+        width = desc.depth->tex->desc.width;
+        height = desc.depth->tex->desc.height;
+    }
+
+    // 1. Set Render Target
+    SetRenderTargets(desc);
+
+    // 2. Set Viewport
+    SetViewport(p_pass.viewport ? *p_pass.viewport : Viewport(width, height));
+
+    // 3. Clear render target
+    // Clear(desc);
 }
 
 void RenderDevice::EndPass(const RGRenderPass& p_pass) {
-    UnsetRenderTarget();
+    UnsetRenderTargets();
 
     // unbind srvs
     for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
@@ -450,17 +459,17 @@ void RenderDevice::EndPass(const RGRenderPass& p_pass) {
 }
 
 void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
-    auto framebuffer = p_pass.framebuffer.get();
     RenderPassExcutionContext ctx{
         .frameData = p_data,
-        .framebuffer = framebuffer,
         .pass = p_pass,
         .cmd = *this,
     };
 
+    BeginEvent(p_pass.name);
     BeginPass(p_pass);
     p_pass.func(ctx);
     EndPass(p_pass);
+    EndEvent();
 }
 
 }  // namespace cave::render

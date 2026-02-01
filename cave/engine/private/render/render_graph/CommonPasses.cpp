@@ -138,7 +138,7 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
         }),
     };
 
-    pass.Write(ResourceAccess::DSV, out.depth)
+    pass.WriteDepth(out.depth, {}, LoadOp::Clear, StoreOp::Store, 0.0f)
         .SetExecuteFunc(DepthPrepassFunc);
 
     return out;
@@ -164,10 +164,10 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
 
     // @TODO: introduce versioning
     pass.Read(ResourceAccess::DSV, p_in.depth)
-        .Write(ResourceAccess::DSV, p_in.depth)
-        .Write(ResourceAccess::RTV, out.color0)
-        .Write(ResourceAccess::RTV, out.color1)
-        .Write(ResourceAccess::RTV, out.color2)
+        .WriteColor(out.color0, {}, LoadOp::Clear)
+        .WriteColor(out.color1, {}, LoadOp::Clear)
+        .WriteColor(out.color2, {}, LoadOp::Clear)
+        .WriteDepth(p_in.depth, {}, LoadOp::Load)
         .SetExecuteFunc(GbufferPassFunc);
     return out;
 }
@@ -189,7 +189,7 @@ SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
     pass.Read(ResourceAccess::SRV, p_in.normal)
         .Read(ResourceAccess::SRV, p_in.depth)
         .Read(ResourceAccess::SRV, noise)
-        .Write(ResourceAccess::RTV, out.processed)
+        .WriteColor(out.processed, {}, LoadOp::Clear)
         .SetExecuteFunc(SsaoPassFunc);
     return out;
 }
@@ -231,7 +231,7 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         .Read(ResourceAccess::SRV, brdf)
         .Read(ResourceAccess::SRV, ltc1)
         .Read(ResourceAccess::SRV, ltc2)
-        .Write(ResourceAccess::RTV, out)
+        .WriteColor(out, {}, LoadOp::Clear)
         .SetExecuteFunc(LightingPassFunc);
 
     return { out };
@@ -260,7 +260,7 @@ PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInp
         .Read(ResourceAccess::SRV, p_in.outline)
         .Read(ResourceAccess::SRV, p_in.bloom);
 
-    pass.Write(ResourceAccess::RTV, out.processed)
+    pass.WriteColor(out.processed, {}, LoadOp::Clear)
         .SetExecuteFunc(TonePassFunc);
 
     return out;

@@ -30,7 +30,19 @@ public:
     };
 
     RenderPassBuilder& Read(ResourceAccess p_access, RGTextureId p_handle);
-    RenderPassBuilder& Write(ResourceAccess p_access, RGTextureId p_handle);
+
+    RenderPassBuilder& WriteColor(RGTextureId p_handle,
+                                  const TextureViewDesc& p_tex_view_desc,
+                                  LoadOp p_load,
+                                  StoreOp p_store = StoreOp::Store);
+
+    RenderPassBuilder& WriteDepth(RGTextureId p_handle,
+                                  const TextureViewDesc& p_tex_view_desc,
+                                  LoadOp p_load,
+                                  StoreOp p_store = StoreOp::Store,
+                                  float p_clear_depth = 1.0f,
+                                  uint8_t p_clear_stencil = 0);
+
     RenderPassBuilder& SetExecuteFunc(ExecuteFunc p_func);
 
     std::string_view GetName() const { return m_name; }
@@ -42,6 +54,9 @@ private:
     std::string m_name;
     std::vector<Resource> m_reads;
     std::vector<Resource> m_writes;
+    std::vector<ColorAttachmentDesc> m_colors;
+    std::optional<DepthAttachmentDesc> m_depth;
+
     ExecuteFunc m_func;
 
     friend class RenderGraphBuilder;

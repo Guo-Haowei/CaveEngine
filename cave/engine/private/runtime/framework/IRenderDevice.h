@@ -33,7 +33,6 @@ struct GpuMesh;
 
 namespace cave::render {
 
-struct RenderTarget;
 struct RenderTargetDesc;
 struct FrameContext;
 struct RenderSubmission;
@@ -46,7 +45,6 @@ class IRenderDevice : public Module,
 public:
     static constexpr int NUM_FRAMES_IN_FLIGHT = 2;
     static constexpr int NUM_BACK_BUFFERS = 2;
-    static constexpr float DEFAULT_CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 1.0 };
 
     IRenderDevice(std::string_view p_name)
         : Module(p_name) {}
@@ -60,15 +58,10 @@ public:
     virtual auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> = 0;
     virtual void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) = 0;
 
-    virtual void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index = 0, int p_mip_level = 0) = 0;
-    virtual void UnsetRenderTarget() = 0;
+    virtual void SetRenderTargets(const RenderTargetDesc& p_desc) = 0;
+    virtual void UnsetRenderTargets() = 0;
 
-    virtual void Clear(const RenderTarget* p_framebuffer,
-                       ClearFlags p_flags,
-                       const float* p_clear_color = DEFAULT_CLEAR_COLOR,
-                       float p_clear_depth = 1.0f,
-                       uint8_t p_clear_stencil = 0,
-                       int p_index = 0) = 0;
+    virtual void Clear(const RenderTargetDesc& p_framebuffer) = 0;
 
     virtual void SetViewport(const Viewport& p_viewport) = 0;
 
@@ -113,8 +106,6 @@ public:
     void BindConstantBufferSlot(const GpuConstantBuffer* p_buffer, int slot) {
         BindConstantBufferRange(p_buffer, sizeof(T), slot * sizeof(T));
     }
-
-    virtual std::shared_ptr<RenderTarget> CreateFramebuffer(const RenderTargetDesc& p_desc) = 0;
 
     virtual std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) = 0;
     virtual std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) = 0;

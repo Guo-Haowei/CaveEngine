@@ -26,11 +26,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     }
 
     auto& cmd = p_ctx.cmd;
-
-    const RenderTarget* framebuffer = p_ctx.framebuffer;
     const auto& frame = cmd.GetCurrentFrame();
-
-    cmd.Clear(framebuffer, CLEAR_DEPTH_BIT);
 
     const PassContext& pass = p_ctx.frameData.shadowPasses[0];
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
@@ -57,7 +53,7 @@ ShadowFeature::Outputs ShadowFeature::Build(RenderGraphBuilder& p_builder, const
         })
     };
 
-    pass.Write(ResourceAccess::DSV, out.shadow)
+    pass.WriteDepth(out.shadow, {}, LoadOp::Clear)
         .SetExecuteFunc(ShadowPassFunc);
 
     return out;

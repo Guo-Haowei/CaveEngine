@@ -2,6 +2,9 @@
 
 #include <imgui/backends/imgui_impl_dx11.h>
 
+#include "D3D11ViewCache.h"
+
+// @TODO: refactor
 #include "../d3d_common/d3d_common.h"
 #include "d3d11_helpers.h"
 #include "d3d11_pipeline_state_manager.h"
@@ -23,6 +26,8 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
+static constexpr size_t RTV_MAX = 8;
+
 D3d11GraphicsManager::D3d11GraphicsManager()
     : RenderDevice("D3d11GraphicsManager", Backend::D3D11, 1) {
     m_pipelineStateManager = std::make_shared<D3d11PipelineStateManager>(this);
@@ -42,6 +47,8 @@ auto D3d11GraphicsManager::InitializeInternal() -> Result<void> {
         return CAVE_ERROR(res.error());
     }
 
+    m_view_cache = std::make_unique<D3D11ViewCache>(m_device.Get());
+
     m_meshes.set_description("GPU-Mesh-Allocator");
 
     auto imgui = m_app->GetImguiManager();
@@ -60,6 +67,7 @@ auto D3d11GraphicsManager::InitializeInternal() -> Result<void> {
 }
 
 void D3d11GraphicsManager::FinalizeImpl() {
+    m_view_cache.reset();
 }
 
 void D3d11GraphicsManager::Render() {
@@ -566,6 +574,7 @@ std::shared_ptr<GpuTexture> D3d11GraphicsManager::CreateTextureImpl(const GpuTex
     return gpu_texture;
 }
 
+#if 0
 std::shared_ptr<RenderTarget> D3d11GraphicsManager::CreateFramebuffer(const RenderTargetDesc& p_subpass_desc) {
     auto framebuffer = std::make_shared<D3d11Framebuffer>(p_subpass_desc);
 
@@ -600,8 +609,8 @@ std::shared_ptr<RenderTarget> D3d11GraphicsManager::CreateFramebuffer(const Rend
         }
     }
 
-    if (framebuffer->desc.depth.tex) {
-        auto tex = reinterpret_cast<const D3d11GpuTexture*>(framebuffer->desc.depth.tex.get());
+    if (const auto& option = framebuffer->desc.depth) {
+        auto tex = reinterpret_cast<const D3d11GpuTexture*>(option->tex.get());
         switch (tex->desc.type) {
             case AttachmentType::DEPTH_2D: {
                 ComPtr<ID3D11DepthStencilView> dsv;
@@ -633,20 +642,6 @@ std::shared_ptr<RenderTarget> D3d11GraphicsManager::CreateFramebuffer(const Rend
                 D3D_FAIL_V(m_device->CreateDepthStencilView(tex->texture.Get(), &dsv_desc, dsv.GetAddressOf()), nullptr);
                 framebuffer->dsvs.push_back(dsv);
             } break;
-            case AttachmentType::SHADOW_CUBE_ARRAY: {
-                for (uint32_t face = 0; face < tex->desc.arraySize; ++face) {
-                    ComPtr<ID3D11DepthStencilView> dsv;
-                    D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc{};
-                    dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
-                    dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
-                    dsv_desc.Texture2DArray.MipSlice = 0;
-                    dsv_desc.Texture2DArray.ArraySize = 1;
-                    dsv_desc.Texture2DArray.FirstArraySlice = face;
-
-                    D3D_FAIL_V(m_device->CreateDepthStencilView(tex->texture.Get(), &dsv_desc, dsv.GetAddressOf()), nullptr);
-                    framebuffer->dsvs.push_back(dsv);
-                }
-            } break;
             default:
                 CRASH_NOW();
                 break;
@@ -655,19 +650,43 @@ std::shared_ptr<RenderTarget> D3d11GraphicsManager::CreateFramebuffer(const Rend
 
     return framebuffer;
 }
+#endif
 
-void D3d11GraphicsManager::SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) {
-    unused(p_mip_level);
-    DEV_ASSERT(p_framebuffer);
+void D3d11GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_target) {
+    DEV_ASSERT(p_target.colors.size() <= RTV_MAX);
 
-    if (p_framebuffer->desc.type == RenderTargetDesc::Screen) {
-        m_deviceContext->OMSetRenderTargets(1, m_windowRtv.GetAddressOf(), nullptr);
-        return;
+    ID3D11RenderTargetView* rtvs[RTV_MAX]{ nullptr };
+    ID3D11DepthStencilView* dsv = nullptr;
+
+    uint32_t rtv_count = 0;
+    for (const ColorAttachmentDesc& color : p_target.colors) {
+        rtvs[rtv_count++] = m_view_cache->GetOrCreateRtv(color);
     }
 
+    if (p_target.depth) {
+        dsv = m_view_cache->GetOrCreateDsv(*p_target.depth);
+    }
+
+    m_deviceContext->OMSetRenderTargets(rtv_count, rtvs, dsv);
+
+    for (uint32_t idx = 0; idx < rtv_count; ++idx) {
+        const ColorAttachmentDesc& desc = p_target.colors[idx];
+        if (desc.load == LoadOp::Clear) {
+            m_deviceContext->ClearRenderTargetView(rtvs[idx], desc.clear_color);
+        }
+    }
+    if (dsv) {
+        const DepthAttachmentDesc& desc = *p_target.depth;
+        if (desc.load == LoadOp::Clear) {
+            const uint32_t flag = D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL;
+            m_deviceContext->ClearDepthStencilView(dsv, flag, desc.clear_depth, desc.clear_stencil);
+        }
+    }
+
+#if 0
     auto framebuffer = reinterpret_cast<const D3d11Framebuffer*>(p_framebuffer);
-    if (const auto& tex = framebuffer->desc.depth.tex) {
-        if (tex->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
+    if (const auto& option = framebuffer->desc.depth) {
+        if (option->tex->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
             ID3D11RenderTargetView* rtv = nullptr;
             m_deviceContext->OMSetRenderTargets(1, &rtv, framebuffer->dsvs[p_index].Get());
             return;
@@ -691,19 +710,18 @@ void D3d11GraphicsManager::SetRenderTarget(const RenderTarget* p_framebuffer, in
     }
 
     m_deviceContext->OMSetRenderTargets((UINT)rtvs.size(), rtvs.data(), dsv);
+#endif
 }
 
-void D3d11GraphicsManager::UnsetRenderTarget() {
-    ID3D11RenderTargetView* rtvs[] = { nullptr, nullptr, nullptr, nullptr };
+void D3d11GraphicsManager::UnsetRenderTargets() {
+    ID3D11RenderTargetView* rtvs[RTV_MAX]{ nullptr };
     m_deviceContext->OMSetRenderTargets(array_length(rtvs), rtvs, nullptr);
 }
 
-void D3d11GraphicsManager::Clear(const RenderTarget* p_framebuffer,
-                                 ClearFlags p_flags,
-                                 const float* p_clear_color,
-                                 float p_clear_depth,
-                                 uint8_t p_clear_stencil,
-                                 int p_index) {
+void D3d11GraphicsManager::Clear(const RenderTargetDesc& p_target) {
+    DEV_ASSERT(0);
+    unused(p_target);
+#if 0
     // @TODO: refactor
     const bool clear_color = p_flags & CLEAR_COLOR_BIT;
     const bool clear_depth = p_flags & CLEAR_DEPTH_BIT;
@@ -735,6 +753,7 @@ void D3d11GraphicsManager::Clear(const RenderTarget* p_framebuffer,
         DEV_ASSERT_INDEX(p_index, framebuffer->dsvs.size());
         m_deviceContext->ClearDepthStencilView(framebuffer->dsvs[p_index].Get(), clear_flags, p_clear_depth, p_clear_stencil);
     }
+#endif
 }
 
 void D3d11GraphicsManager::SetViewport(const Viewport& p_viewport) {

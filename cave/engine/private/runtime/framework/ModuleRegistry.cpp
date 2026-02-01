@@ -87,7 +87,7 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
         return nullptr;
     }
 
-    return new render::EmptyGraphicsManager;
+    return new EmptyGraphicsManager;
 }
 
 IRenderDevice* CreateRenderDevice() {

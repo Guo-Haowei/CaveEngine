@@ -163,40 +163,33 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 
     // 2. Create framebuffer (should only create it for opengl)
     for (int idx : sorted) {
-        const auto& pass = m_passes[idx];
+        auto& pass_builder = m_passes[idx];
 
-        std::vector<std::shared_ptr<GpuTexture>> srvs;
-        std::vector<std::shared_ptr<GpuTexture>> uavs;
-        std::vector<std::shared_ptr<GpuTexture>> rtvs;
-        std::shared_ptr<GpuTexture> dsv;
+        std::vector<GpuTextureId> srvs;
+        std::vector<GpuTextureId> uavs;
 
-        for (const auto& write : pass.m_writes) {
+        size_t color_idx = 0;
+        for (const auto& write : pass_builder.m_writes) {
             switch (write.access) {
                 case ResourceAccess::DSV: {
-                    DEV_ASSERT(dsv == nullptr);
-                    dsv = render_graph->FindResource(write.handle);
+                    GpuTextureId depth_id = render_graph->FindResource(write.handle);
+                    DEV_ASSERT(pass_builder.m_depth.has_value() && !pass_builder.m_depth->tex);
+                    pass_builder.m_depth->tex = depth_id;
                 } break;
                 case ResourceAccess::RTV: {
-                    auto rtv = render_graph->FindResource(write.handle);
-                    DEV_ASSERT(rtv);
-                    rtvs.emplace_back(rtv);
+                    GpuTextureId color_id = render_graph->FindResource(write.handle);
+                    DEV_ASSERT(color_idx < pass_builder.m_colors.size());
+                    ColorAttachmentDesc& color = pass_builder.m_colors[color_idx];
+                    DEV_ASSERT(!color.tex && color_id);
+                    color.tex = color_id;
+                    ++color_idx;
                 } break;
                 default:
                     break;
             }
         }
 
-        RenderTargetDesc info;
-        for (const auto& rtv : rtvs) {
-            info.colors.push_back({
-                .tex = rtv,
-            });
-        }
-        if (dsv) {
-            info.depth = { .tex = dsv };
-        }
-
-        for (const auto& read : pass.m_reads) {
+        for (const auto& read : pass_builder.m_reads) {
             switch (read.access) {
                 case ResourceAccess::SRV: {
                     auto srv = render_graph->FindResource(read.handle);
@@ -213,14 +206,15 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         }
 
         auto render_pass = std::make_shared<RGRenderPass>();
-        render_pass->name = pass.m_name;
-        render_pass->framebuffer = m_graphicsManager.CreateFramebuffer(info);
-        render_pass->func = pass.m_func;
+        render_pass->name = pass_builder.m_name;
+        render_pass->func = pass_builder.m_func;
 
         render_pass->srvs = std::move(srvs);
         render_pass->uavs = std::move(uavs);
+        render_pass->colors = std::move(pass_builder.m_colors);
+        render_pass->depth = std::move(pass_builder.m_depth);
 
-        render_graph->AddPass(pass.m_name, render_pass);
+        render_graph->AddPass(pass_builder.m_name, render_pass);
     }
 
     return Result<std::shared_ptr<RenderGraph>>(render_graph);
