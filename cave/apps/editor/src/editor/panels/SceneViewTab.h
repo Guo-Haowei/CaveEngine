@@ -54,7 +54,7 @@ protected:
     // const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
     const DebugId m_debug_id;
-    GizmoAction m_state{ GizmoAction::Translate };
+    GizmoAction m_gizmo_action{ GizmoAction::Translate };
 
     SceneId m_preview_scene;
 

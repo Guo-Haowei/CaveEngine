@@ -161,7 +161,6 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
 
     cmd.SetPipelineState(PSO_HIGHLIGHT);
     cmd.SetStencilRef(STENCIL_FLAG_SELECTED);
-    // cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
     cmd.SetStencilRef(STENCIL_FLAG_NONE);

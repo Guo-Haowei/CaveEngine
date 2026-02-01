@@ -74,7 +74,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
         {
             .debug_name = RG_RES_IBL,
             .func = []() {
-                std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("sky.hdr");
+                const char* path = "sky.hdr";
+                // const char* path = "forest.hdr";
+                std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage(path);
                 return RenderDevice::GetSingleton().CreateTexture(image.get());
             },
         });
@@ -130,6 +132,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
             });
     }
 
+    // bake irradiance map
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_DIFFUSE, face);
         RenderPassBuilder& pass = p_builder.AddPass(pass_name);
@@ -154,7 +157,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
             };
             std::string pass_name = std::format("{}_{}_{}", RG_PASS_BAKE_PREFILTERED, mip, face);
             RenderPassBuilder& pass = p_builder.AddPass(pass_name);
-            pass.Read(ResourceAccess::SRV, ibl_diffuse)
+            pass.Read(ResourceAccess::SRV, env_cube)
                 .WriteColor(ibl_prefiltered, view_desc, LoadOp::Load)
                 .SetViewport(Viewport(w, h))
                 .SetExecuteFunc([mip, face](RenderPassExcutionContext& p_context) {

@@ -113,6 +113,37 @@ void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
         return;
     }
 
+    bool gizmo_mode_changed = false;
+    for (const InputEvent& e : p_events) {
+        if (e.consumed) {
+            continue;
+        }
+
+        switch (e.type) {
+            case InputEventType::ButtonDown: {
+                const Key key = static_cast<Key>(e.code);
+                if (key == Key::Z) {
+                    m_gizmo_action = GizmoAction::Translate;
+                    e.consumed = true;
+                } else if (key == Key::X) {
+                    m_gizmo_action = GizmoAction::Rotate;
+                    e.consumed = true;
+                } else if (key == Key::C) {
+                    m_gizmo_action = GizmoAction::Scale;
+                    e.consumed = true;
+                }
+                gizmo_mode_changed = gizmo_mode_changed || e.consumed;
+            } break;
+            default:
+                break;
+        }
+    }
+
+    if (gizmo_mode_changed) {
+        m_camera_state = {};
+        return;
+    }
+
     const KeyState& st = m_editor.GetApp().GetInputSystem()->GetKeyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
         m_camera_state = {};
@@ -193,7 +224,7 @@ void SceneViewTab::DrawGizmo() {
         }
     };
 
-    switch (m_state) {
+    switch (m_gizmo_action) {
         case GizmoAction::Translate:
             draw_gizmo(ImGuizmo::TRANSLATE);
             break;
