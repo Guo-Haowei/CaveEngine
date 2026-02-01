@@ -3,11 +3,6 @@
 
 namespace cave::render {
 
-struct FinalTarget {
-    std::shared_ptr<GpuTexture> color;
-    std::shared_ptr<GpuTexture> depth;
-};
-
 struct DepthPrepassOutput {
     RGTextureId depth{};
 };
@@ -47,11 +42,30 @@ struct LightingInput {
     RGTextureId shadow{};
     RGTextureId ibl_diffuse{};
     RGTextureId ibl_prefiltered{};
-    const FinalTarget* target{ nullptr };
+    RGTextureId brdf{};
+    RGTextureId ltc1{};
+    RGTextureId ltc2{};
 };
 
 struct LightingOutput {
     RGTextureId lighting{};
+};
+
+struct ForwardInput {
+    RGTextureId skybox{};
+    RGTextureId shadow{};
+    RGTextureId ibl_diffuse{};
+    RGTextureId ibl_prefiltered{};
+    RGTextureId brdf{};
+    RGTextureId ltc1{};
+    RGTextureId ltc2{};
+
+    // output
+    RGTextureId depth{};
+    RGTextureId lighting{};
+};
+
+struct ForwardOutput {
 };
 
 class RenderGraphBuilderExt : public RenderGraphBuilder {
@@ -63,11 +77,10 @@ public:
     [[nodiscard]] LightingOutput AddLightingPass(const LightingInput& p_in);
     [[nodiscard]] SsaoOutput AddSsaoPass(const SsaoInput& p_in);
     [[nodiscard]] PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
-    // void AddForwardPass();
+    [[nodiscard]] ForwardOutput AddForwardPass(const ForwardInput& p_in);
     // void AddHighlightPass();
     // void AddVoxelizationPass();
     // void AddBloomPass();
-    // void AddGenerateSkylightPass();
 
     void AddPathTracerPass();
     void AddPathTracerTonePass();

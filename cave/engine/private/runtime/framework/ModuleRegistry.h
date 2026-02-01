@@ -16,11 +16,9 @@ IAssetManager* CreateAssetManager();
 
 IDisplayManager* CreateDisplayManager();
 
-IRenderDevice* CreateRenderDevice();
+render::IRenderDevice* CreateRenderDevice();
 
 IPhysicsManager* CreatePhysicsManager();
-
-ISceneRegistry* CreateSceneManager();
 
 IScriptManager* CreateScriptManager();
 

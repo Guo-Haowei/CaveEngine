@@ -3,7 +3,7 @@
 #include "../d3d_common/d3d_common.h"
 #include "d3d12_graphics_manager.h"
 
-namespace cave {
+namespace cave::render {
 
 using namespace cave::math;
 
@@ -215,4 +215,4 @@ void CopyContext::Submit(CopyCommand p_cmd) {
     m_lock.unlock();
 }
 
-}  // namespace cave
+}  // namespace cave::render

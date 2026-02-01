@@ -13,6 +13,7 @@
 namespace cave {
 
 namespace fs = std::filesystem;
+using namespace cave::render;
 
 SceneImporter::SceneImporter(const std::filesystem::path& p_source_path,
                              const std::filesystem::path& p_dest_dir)

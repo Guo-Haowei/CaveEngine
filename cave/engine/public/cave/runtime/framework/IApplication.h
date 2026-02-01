@@ -9,6 +9,7 @@
 
 // clang-format off
 namespace cave::render { class Renderer; }
+namespace cave::render { class IRenderDevice; }
 // clang-format on
 
 namespace cave {
@@ -23,7 +24,6 @@ class EventQueue;
 class GameModeFactory;
 class IAssetManager;
 class IDisplayManager;
-class IRenderDevice;
 class ImguiManager;
 class InputSystem;
 class IPhysicsManager;
@@ -79,7 +79,7 @@ public:
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptManager* GetScriptManager() { return m_script_manager; }
     IDisplayManager* GetDisplayManager() { return m_display_server; }
-    IRenderDevice* GetRenderDevice() { return m_render_device; }
+    render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewportManager* GetViewportManager() { return m_viewport_manager; }
@@ -108,8 +108,9 @@ protected:
     IScriptManager* m_script_manager{ nullptr };
 
     IDisplayManager* m_display_server{ nullptr };
-    IRenderDevice* m_render_device{ nullptr };
+
     render::Renderer* m_renderer{ nullptr };
+    render::IRenderDevice* m_render_device{ nullptr };
 
     ImguiManager* m_imgui_manager{ nullptr };
     InputSystem* m_input_system{ nullptr };

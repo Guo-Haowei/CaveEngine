@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/runtime/framework/PipelineStateManager.h"
 
-namespace cave {
+namespace cave::render {
 
 struct OpenGlPipelineState : public PipelineState {
     using PipelineState::PipelineState;
@@ -13,8 +13,7 @@ struct OpenGlPipelineState : public PipelineState {
 
 class OpenGlPipelineStateManager : public PipelineStateManager {
 public:
-    OpenGlPipelineStateManager(IRenderDevice* p_graphics_manager)
-        : PipelineStateManager(p_graphics_manager) {}
+    using PipelineStateManager::PipelineStateManager;
 
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
     auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
@@ -23,4 +22,4 @@ private:
     auto CreatePipelineImpl(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>>;
 };
 
-}  // namespace cave
+}  // namespace cave::render

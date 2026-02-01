@@ -20,22 +20,13 @@ extern void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
 static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = p_ctx.cmd;
-
-    const Framebuffer* framebuffer = p_ctx.framebuffer;
-    const auto& frame = cmd.GetCurrentFrame();
-
-    cmd.SetRenderTarget(framebuffer);
-    const auto [width, height] = framebuffer->GetBufferSize();
-
-    cmd.Clear(framebuffer, CLEAR_DEPTH_BIT);
-
     const auto& shadow_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::Shadow)];
     if (shadow_commands.empty()) {
         return;
     }
 
-    cmd.SetViewport(Viewport(width, height));
+    auto& cmd = p_ctx.cmd;
+    const auto& frame = cmd.GetCurrentFrame();
 
     const PassContext& pass = p_ctx.frameData.shadowPasses[0];
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
@@ -62,14 +53,15 @@ ShadowFeature::Outputs ShadowFeature::Build(RenderGraphBuilder& p_builder, const
         })
     };
 
-    pass.Write(ResourceAccess::DSV, out.shadow)
+    pass.WriteDepth(out.shadow, {}, LoadOp::Clear)
         .SetExecuteFunc(ShadowPassFunc);
 
     return out;
 }
 
 /// Shadow
-void PointShadowPassFunc(RenderPassExcutionContext& p_ctx) {
+#if 0
+static void PointShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     CRASH_NOW();
 
     auto& cmd = p_ctx.cmd;
@@ -102,5 +94,6 @@ void PointShadowPassFunc(RenderPassExcutionContext& p_ctx) {
         }
     }
 }
+#endif
 
 }  // namespace cave::render

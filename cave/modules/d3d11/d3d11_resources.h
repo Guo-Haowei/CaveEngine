@@ -6,10 +6,10 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "engine/private/render/rhi/Framebuffer.h"
+#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/gpu_resource.h"
 
-namespace cave {
+namespace cave::render {
 
 struct D3d11GpuTexture : public GpuTexture {
     using GpuTexture::GpuTexture;
@@ -24,11 +24,6 @@ struct D3d11GpuTexture : public GpuTexture {
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
     // @TODO: this shouldn't be here
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;
-};
-
-struct D3d11Framebuffer : public render::Framebuffer {
-    std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> rtvs;
-    std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> dsvs;
 };
 
 struct D3d11UniformBuffer : public GpuConstantBuffer {
@@ -46,4 +41,4 @@ struct D3d11StructuredBuffer : GpuStructuredBuffer {
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
 };
 
-}  // namespace cave
+}  // namespace cave::render

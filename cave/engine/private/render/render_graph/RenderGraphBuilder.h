@@ -5,12 +5,12 @@
 
 // clang-format off
 namespace cave { struct FrameData; }
-namespace cave { class IRenderDevice; }
 // clang-format on
 
 namespace cave::render {
 
 class RenderGraph;
+class IRenderDevice;
 
 struct RenderGraphBuilderConfig {
     bool enablePointShadow = true;

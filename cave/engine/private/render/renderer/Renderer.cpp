@@ -3,6 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/render/features/EnvironmentFeature.h"
 #include "engine/private/render/features/ShadowFeature.h"
 #include "engine/private/render/renderer/FramePlan.h"
 #include "engine/private/render/renderer/RenderScene.h"
@@ -20,6 +21,11 @@
 #include "engine/private/render/render_graph/CommonPasses.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
+// @TODO: remove
+#include "engine/private/renderer/ltc_matrix.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/render/render_device/RenderDevice.h"
+
 namespace cave {
 
 extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
@@ -29,11 +35,35 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 
 }  // namespace cave
 
+// @HACK: expose render graph for debugging
+cave::render::RenderGraph* g_graph = nullptr;
+
 namespace cave::render {
 
 using math::Vector2i;
 using math::Vector3f;
 using math::Vector4f;
+
+// @TODO: refactor
+static std::shared_ptr<GpuTexture> GenerateLTC(std::string_view p_name, const float* p_matrix_table) {
+    constexpr int LTC_SIZE = 64;
+    GpuTextureDesc desc{
+        .type = AttachmentType::NONE,
+        .dimension = Dimension::TEXTURE_2D,
+        .width = LTC_SIZE,
+        .height = LTC_SIZE,
+        .depth = 1,
+        .mipLevels = 1,
+        .arraySize = 1,
+        .format = PixelFormat::R32G32B32A32_FLOAT,
+        .bindFlags = BIND_SHADER_RESOURCE,
+        .miscFlags = RESOURCE_MISC_NONE,
+        .initialData = p_matrix_table,
+        .name = std::string(p_name),
+    };
+
+    return RenderDevice::GetSingleton().CreateTexture(desc, PointClampSampler());
+}
 
 class Renderer::Impl {
 public:
@@ -60,6 +90,7 @@ private:
 
     // features
     ShadowFeature m_shadow;
+    EnvironmentFeature m_env;
 };
 
 Renderer::Renderer()
@@ -220,6 +251,8 @@ auto Renderer::Impl::Initialize() -> Result<void> {
         return CAVE_ERROR(res.error());
     } else {
         m_render_graph = *res;
+
+        g_graph = m_render_graph.get();
         return Result<void>();
     }
 }
@@ -299,6 +332,10 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
 }
 
 auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<RenderGraph>> {
+    constexpr const char RG_RES_BRDF[] = "r:brdf";
+    constexpr const char RG_RES_LTC1[] = "r:ltc1";
+    constexpr const char RG_RES_LTC2[] = "r:ltc2";
+
     // @TODO: get frame size from viewport
     const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
     RenderGraphBuilderConfig config;
@@ -307,6 +344,25 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
 
     RenderGraphBuilderExt builder(config);
 
+    RGTextureId brdf = builder.ImportTexture(RGResourceImportDesc{
+        .debug_name = RG_RES_BRDF,
+        .func = []() {
+            std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
+            return RenderDevice::GetSingleton().CreateTexture(image.get());
+        },
+    });
+
+    RGTextureId ltc1 = builder.ImportTexture(RGResourceImportDesc{
+        .debug_name = RG_RES_LTC1,
+        .func = []() { return GenerateLTC(RG_RES_LTC1, LTC1); },
+    });
+
+    RGTextureId ltc2 = builder.ImportTexture(RGResourceImportDesc{
+        .debug_name = RG_RES_LTC2,
+        .func = []() { return GenerateLTC(RG_RES_LTC2, LTC2); },
+    });
+
+    auto env_outputs = m_env.Build(builder, p_plan);
     auto shadow_outputs = m_shadow.Build(builder, p_plan);
 
     // @TODO: refactor the following
@@ -331,7 +387,24 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
         .depth = prepass_outputs.depth,
         .ssao = ssao_outputs.processed,
         .shadow = shadow_outputs.shadow,
-        .target = nullptr,
+        .ibl_diffuse = env_outputs.ibl_diffuse,
+        .ibl_prefiltered = env_outputs.ibl_prefiltered,
+        .brdf = brdf,
+        .ltc1 = ltc1,
+        .ltc2 = ltc2,
+    });
+
+    auto forward_outputs = builder.AddForwardPass({
+        .skybox = env_outputs.ibl_diffuse,
+        //.skybox = env_outputs.skybox,
+        .shadow = shadow_outputs.shadow,
+        .ibl_diffuse = env_outputs.ibl_diffuse,
+        .ibl_prefiltered = env_outputs.ibl_prefiltered,
+        .brdf = brdf,
+        .ltc1 = ltc1,
+        .ltc2 = ltc2,
+        .depth = prepass_outputs.depth,
+        .lighting = lighting_outputs.lighting,
     });
 
     auto postprocess_outputs = builder.AddPostProcessPass({

@@ -5,12 +5,6 @@
 // @TODO: refactor
 struct MaterialConstantBuffer;
 
-namespace cave::render {
-struct Framebuffer;
-struct FramebufferDesc;
-struct RenderSubmission;
-}  // namespace cave::render
-
 namespace cave {
 
 enum class Backend : uint8_t;
@@ -21,7 +15,6 @@ enum PipelineStateName : uint8_t;
 class Scene;
 
 struct BlendDesc;
-struct FrameContext;
 struct GpuBuffer;
 struct GpuBufferDesc;
 struct GpuConstantBuffer;
@@ -36,41 +29,39 @@ struct Viewport;
 
 struct GpuMesh;
 
+}  // namespace cave
+
+namespace cave::render {
+
+struct RenderTargetDesc;
+struct FrameContext;
+struct RenderSubmission;
+struct RGRenderPass;
+
 // @TODO: split this class to RenderDevice and RHI
 class IRenderDevice : public Module,
                       public EventListener,
                       public ModuleCreateRegistry<IRenderDevice> {
 public:
-    using Framebuffer = render::Framebuffer;
-    using FramebufferDesc = render::FramebufferDesc;
-
     static constexpr int NUM_FRAMES_IN_FLIGHT = 2;
     static constexpr int NUM_BACK_BUFFERS = 2;
-    static constexpr float DEFAULT_CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 1.0 };
 
     IRenderDevice(std::string_view p_name)
         : Module(p_name) {}
 
     virtual auto InitializeImpl() -> Result<void> = 0;
 
-    virtual void Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) = 0;
+    virtual void Submit(std::unique_ptr<RenderSubmission>&& p_submission) = 0;
 
     // resource
     virtual auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> = 0;
     virtual auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> = 0;
     virtual void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) = 0;
 
-    virtual void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index = 0, int p_mip_level = 0) = 0;
-    virtual void UnsetRenderTarget() = 0;
-    virtual void BeginDrawPass(const Framebuffer* p_framebuffer) = 0;
-    virtual void EndDrawPass(const Framebuffer* p_framebuffer) = 0;
+    virtual void SetRenderTargets(const RenderTargetDesc& p_desc) = 0;
+    virtual void UnsetRenderTargets() = 0;
 
-    virtual void Clear(const Framebuffer* p_framebuffer,
-                       ClearFlags p_flags,
-                       const float* p_clear_color = DEFAULT_CLEAR_COLOR,
-                       float p_clear_depth = 1.0f,
-                       uint8_t p_clear_stencil = 0,
-                       int p_index = 0) = 0;
+    virtual void Clear(const RenderTargetDesc& p_framebuffer) = 0;
 
     virtual void SetViewport(const Viewport& p_viewport) = 0;
 
@@ -116,8 +107,6 @@ public:
         BindConstantBufferRange(p_buffer, sizeof(T), slot * sizeof(T));
     }
 
-    virtual std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc& p_desc) = 0;
-
     virtual std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) = 0;
     virtual std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) = 0;
     virtual std::shared_ptr<GpuTexture> FindTexture(std::string_view p_name) const = 0;
@@ -155,6 +144,9 @@ protected:
     virtual void MoveToNextFrame() = 0;
     virtual std::shared_ptr<FrameContext> CreateFrameContext() = 0;
 
+    virtual void BeginPass(const RGRenderPass& p_pass) = 0;
+    virtual void EndPass(const RGRenderPass& p_pass) = 0;
+
     virtual void OnWindowResize(int p_width, int p_height) = 0;
     virtual void SetPipelineStateImpl(PipelineStateName p_name) = 0;
 
@@ -166,4 +158,4 @@ protected:
     virtual void UpdateEmitters(const Scene& p_scene) = 0;
 };
 
-}  // namespace cave
+}  // namespace cave::render

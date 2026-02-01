@@ -82,8 +82,7 @@ enum class AttachmentType {
 };
 
 struct GpuTextureDesc {
-    // @TODO: change to usage
-    AttachmentType type;
+    AttachmentType type;  // this should be removed
     Dimension dimension;
     uint32_t width;
     uint32_t height;

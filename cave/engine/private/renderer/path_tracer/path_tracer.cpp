@@ -12,7 +12,9 @@
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"
+}
 
+namespace cave::render {
 template<typename T>
 static auto CreateBuffer(IRenderDevice* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
     GpuBufferDesc desc{
@@ -341,4 +343,4 @@ void PathTracer::UnbindData(IRenderDevice& p_gm) {
     p_gm.UnbindStructuredBuffer(GetGlobalPtMaterialsSlot());
 }
 
-}  // namespace cave
+}  // namespace cave::render

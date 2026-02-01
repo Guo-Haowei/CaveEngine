@@ -21,6 +21,8 @@
 
 namespace cave {
 
+using namespace cave::render;
+
 template<class T1, class FALLBACK>
 inline T1* CreateModule() {
     if (T1::s_createFunc) {

@@ -2,14 +2,14 @@
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 
-namespace cave {
+namespace cave::render {
 
 WARNING_PUSH()
 WARNING_DISABLE(4100, "-Wunused-parameter")
 
 class EmptyGraphicsManager : public IRenderDevice {
 public:
-    EmptyGraphicsManager(std::string_view p_name = "EmptyGraphicsManager")
+    EmptyGraphicsManager(std::string_view p_name = "EmptyRenderDevice")
         : IRenderDevice(p_name) {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
@@ -22,17 +22,10 @@ public:
     auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> override { return nullptr; }
     void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) override {}
 
-    void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index = 0, int p_mip_level = 0) override {}
-    void UnsetRenderTarget() override {}
-    void BeginDrawPass(const Framebuffer* p_framebuffer) override {}
-    void EndDrawPass(const Framebuffer* p_framebuffer) override {}
+    void SetRenderTargets(const RenderTargetDesc&) override {}
+    void UnsetRenderTargets() override {}
 
-    void Clear(const Framebuffer* p_framebuffer,
-               ClearFlags p_flags,
-               const float* p_clear_color = DEFAULT_CLEAR_COLOR,
-               float p_clear_depth = 1.0f,
-               uint8_t p_clear_stencil = 0,
-               int p_index = 0) override {}
+    void Clear(const RenderTargetDesc&) override {}
 
     void SetViewport(const Viewport& p_viewport) override {}
 
@@ -65,8 +58,6 @@ public:
     void UpdateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) override {}
 
     void BindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) override {}
-
-    std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc& p_desc) override { return nullptr; }
 
     std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) override { return nullptr; }
     std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) override { return nullptr; }
@@ -106,6 +97,9 @@ protected:
     void MoveToNextFrame() override {}
     std::shared_ptr<FrameContext> CreateFrameContext() override { return nullptr; }
 
+    void BeginPass(const RGRenderPass& p_pass) override {}
+    void EndPass(const RGRenderPass& p_pass) override {}
+
     void OnWindowResize(int p_width, int p_height) override {}
     void SetPipelineStateImpl(PipelineStateName p_name) override {}
     void UpdateEmitters(const Scene& p_scene) override {}
@@ -113,4 +107,4 @@ protected:
 
 WARNING_POP()
 
-}  // namespace cave
+}  // namespace cave::render

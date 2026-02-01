@@ -5,6 +5,8 @@
 
 namespace cave {
 
+using namespace cave::render;
+
 static struct {
     PathTracer pt;
 } s_glob;

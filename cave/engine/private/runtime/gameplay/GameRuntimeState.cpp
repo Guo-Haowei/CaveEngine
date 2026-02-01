@@ -117,11 +117,12 @@ void GameRuntimeState::Tick(float p_timestep) {
         imgui_manager->BeginFrame();
 
         if (BeginFullscreenWindow("Full Screen")) {
-            const IRenderDevice* gm = GetApp().GetRenderDevice();
-            uint64_t handle = gm->GetFinalImage();
+            DEV_ASSERT(0);
+            // const IRenderDevice* gm = GetApp().GetRenderDevice();
+            // uint64_t handle = gm->GetFinalImage();
 
-            const math::Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-            ImGui::Image((ImTextureID)handle, ImVec2{ (float)frame_size.x, (float)frame_size.y });
+            // const math::Vector2i frame_size = DVAR_GET_IVEC2(resolution);
+            // ImGui::Image((ImTextureID)handle, ImVec2{ (float)frame_size.x, (float)frame_size.y });
         }
         EndFullscreenWindow();
 

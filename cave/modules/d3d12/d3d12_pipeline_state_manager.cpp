@@ -5,7 +5,7 @@
 #define INCLUDE_AS_D3D12
 #include "../d3d_common/d3d_convert.h"
 
-namespace cave {
+namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
@@ -116,6 +116,6 @@ auto D3d12PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     return pipeline_state;
 }
 
-}  // namespace cave
+}  // namespace cave::render
 
 #undef INCLUDE_AS_D3D12

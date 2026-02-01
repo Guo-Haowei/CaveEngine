@@ -3,7 +3,7 @@
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
-namespace cave {
+namespace cave::render {
 
 struct D3d12Buffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -31,17 +31,11 @@ public:
     void SetStencilRef(uint32_t p_ref) final;
     void SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
 
-    void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index, int p_mip_level) final;
-    void UnsetRenderTarget() final;
-    void BeginDrawPass(const Framebuffer* p_framebuffer) final;
-    void EndDrawPass(const Framebuffer* p_framebuffer) final;
+    void SetRenderTargets(const RenderTargetDesc& p_desc) final;
+    void UnsetRenderTargets() final;
 
-    void Clear(const Framebuffer* p_framebuffer,
-               ClearFlags p_flags,
-               const float* p_clear_color,
-               float p_clear_depth,
-               uint8_t p_clear_stencil,
-               int p_index) final;
+    void Clear(const RenderTargetDesc& p_target) final;
+
     void SetViewport(const Viewport& p_viewport) final;
 
     auto CreateBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> final;
@@ -79,8 +73,6 @@ public:
 
     void GenerateMipmap(const GpuTexture* p_texture) final;
 
-    std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc& p_subpass_desc) final;
-
     ID3D12CommandQueue* CreateCommandQueue(D3D12_COMMAND_LIST_TYPE p_type);
 
     ID3D12Device4* const GetDevice() const { return m_device.Get(); }
@@ -97,6 +89,9 @@ protected:
     void EndFrame() final;
     void MoveToNextFrame() final;
     std::shared_ptr<FrameContext> CreateFrameContext() final;
+
+    void BeginPass(const RGRenderPass& p_pass) final;
+    void EndPass(const RGRenderPass& p_pass) final;
 
     void OnWindowResize(int p_width, int p_height) final;
     void SetPipelineStateImpl(PipelineStateName p_name) final;
@@ -160,4 +155,4 @@ private:
     RIDAllocator<D3d12MeshBuffers> m_meshes;
 };
 
-}  // namespace cave
+}  // namespace cave::render

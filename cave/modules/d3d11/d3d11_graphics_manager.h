@@ -5,7 +5,9 @@
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
-namespace cave {
+namespace cave::render {
+
+class D3D11ViewCache;
 
 struct D3d11Buffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -30,15 +32,10 @@ public:
     void SetStencilRef(uint32_t p_ref) final;
     void SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
 
-    void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index, int p_mip_level) final;
-    void UnsetRenderTarget() final;
+    void SetRenderTargets(const RenderTargetDesc& p_target) final;
+    void UnsetRenderTargets() final;
 
-    void Clear(const Framebuffer* p_framebuffer,
-               ClearFlags p_flags,
-               const float* p_clear_color,
-               float p_clear_depth,
-               uint8_t p_clear_stencil,
-               int p_index) final;
+    void Clear(const RenderTargetDesc& p_target) final;
 
     void SetViewport(const Viewport& p_viewport) final;
 
@@ -80,8 +77,6 @@ public:
     void BeginEvent(std::string_view p_event) final;
     void EndEvent() final;
 
-    std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc&) final;
-
     // For fast and dirty access to device and device context, try not to use it
     Microsoft::WRL::ComPtr<ID3D11Device>& GetD3dDevice() { return m_device; }
     Microsoft::WRL::ComPtr<ID3D11DeviceContext>& GetD3dContext() { return m_deviceContext; }
@@ -101,6 +96,8 @@ protected:
     auto CreateRenderTarget() -> Result<void>;
     auto CreateSampler(uint32_t p_slot, D3D11_SAMPLER_DESC p_desc) -> Result<void>;
     auto InitSamplers() -> Result<void>;
+
+    std::unique_ptr<D3D11ViewCache> m_view_cache;
 
     Microsoft::WRL::ComPtr<ID3D11Device> m_device;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
@@ -123,4 +120,4 @@ protected:
     } m_stateCache;
 };
 
-}  // namespace cave
+}  // namespace cave::render

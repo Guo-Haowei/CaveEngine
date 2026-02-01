@@ -19,12 +19,12 @@ void OpenGlGpuTexture::Clear() {
     }
 }
 
-void OpenGlFramebuffer::Clear() {
-    if (handle) {
-        glDeleteFramebuffers(1, &handle);
-        handle = 0;
-    }
-}
+// void OpenGlFramebuffer::Clear() {
+//     if (handle) {
+//         glDeleteFramebuffers(1, &handle);
+//         handle = 0;
+//     }
+// }
 
 void OpenGlUniformBuffer::Clear() {
     if (handle) {

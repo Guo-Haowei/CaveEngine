@@ -2,16 +2,17 @@
 #include "cave/core/NonCopyable.h"
 
 #include "RenderGraphTypes.h"
-#include "RenderPass.h"
+#include "RGRenderPass.h"
 
 namespace cave {
 
 struct FrameData;
-class RenderDevice;
 
 }  // namespace cave
 
 namespace cave::render {
+
+class RenderDevice;
 
 class RenderGraph : public NonCopyable {
 public:
@@ -23,13 +24,13 @@ public:
     void AddResource(RGTextureId p_handle, const std::shared_ptr<GpuTexture>& p_resource);
     std::shared_ptr<GpuTexture> FindResource(RGTextureId p_handle);
 
-    void AddPass(const std::string& p_name, const std::shared_ptr<RenderPass>& p_pass);
-    RenderPass* FindPass(const std::string& p_name);
+    void AddPass(const std::string& p_name, const std::shared_ptr<RGRenderPass>& p_pass);
+    RGRenderPass* FindPass(const std::string& p_name);
 
     const auto& GetRenderPasses() const { return m_renderPasses; }
 
 private:
-    std::vector<std::shared_ptr<RenderPass>> m_renderPasses;
+    std::vector<std::shared_ptr<RGRenderPass>> m_renderPasses;
     std::unordered_map<std::string, int> m_renderPassLookup;
 
     std::vector<std::shared_ptr<GpuTexture>> m_resources;

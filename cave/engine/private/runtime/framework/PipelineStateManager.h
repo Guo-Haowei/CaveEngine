@@ -2,7 +2,7 @@
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/renderer/pipeline_state.h"
 
-namespace cave {
+namespace cave::render {
 
 class IRenderDevice;
 
@@ -33,4 +33,4 @@ private:
     std::array<std::shared_ptr<PipelineState>, PSO_NAME_MAX> m_cache;
 };
 
-}  // namespace cave
+}  // namespace cave::render

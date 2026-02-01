@@ -17,8 +17,8 @@ public:
 
     void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index, int p_mip_level) override {}
     void UnsetRenderTarget() override {}
-    void BeginDrawPass(const Framebuffer* p_framebuffer) override {}
-    void EndDrawPass(const Framebuffer* p_framebuffer) override {}
+    void BeginPass(const RGRenderPass& p_pass) override {}
+    void EndPass(const RGRenderPass& p_pass) override {}
 
     void Clear(const Framebuffer* p_framebuffer, ClearFlags p_flags, const float* p_clear_color, float p_clear_depth, uint8_t p_clear_stencil, int p_index) override {}
     void SetViewport(const Viewport& p_viewport) override {}
@@ -46,7 +46,7 @@ public:
 
     void GenerateMipmap(const GpuTexture* p_texture) override {}
 
-    std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc& p_subpass_desc) override { return nullptr; }
+    std::shared_ptr<Framebuffer> CreateFramebuffer(const RenderTargetDesc& p_subpass_desc) override { return nullptr; }
 
 protected:
     auto InitializeInternal() -> Result<void> final;

@@ -9,9 +9,9 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 
-namespace cave {
+namespace cave::render {
 
-static void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
+void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
 
 auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayManager());
@@ -118,13 +118,13 @@ void OpenGL4GraphicsManager::EndEvent() {
     glPopDebugGroup();
 }
 
-static void APIENTRY DebugCallback(GLenum p_source,
-                                   GLenum p_type,
-                                   uint32_t p_id,
-                                   GLenum p_severity,
-                                   GLsizei,
-                                   const char* p_message,
-                                   const void*) {
+void APIENTRY DebugCallback(GLenum p_source,
+                            GLenum p_type,
+                            uint32_t p_id,
+                            GLenum p_severity,
+                            GLsizei,
+                            const char* p_message,
+                            const void*) {
     switch (p_id) {
         case 131185:
         case 131204:
@@ -197,4 +197,4 @@ static void APIENTRY DebugCallback(GLenum p_source,
     cave::LogImpl(level, std::format("[opengl] {}\n\t| id: {} | source: {} | type: {}", p_message, p_id, source, type));
 }
 
-}  // namespace cave
+}  // namespace cave::render

@@ -9,6 +9,7 @@
 namespace cave {
 
 using namespace math;
+using namespace render;
 
 void TileMapRendererComponent::SetTintColor(const Vector4f& p_tint_color) {
     m_tint_color = p_tint_color;
@@ -160,6 +161,7 @@ void TileMapRendererComponent::CreateRenderData() {
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vector2f), 0 };
 
     // @TODO: refactor this part
+    // @NOTE: shouldn't call RenderDevice here
     auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, 2, buffers, &index_desc);
 
     m_cache.mesh = *mesh;

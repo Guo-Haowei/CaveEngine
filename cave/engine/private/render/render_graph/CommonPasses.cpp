@@ -38,9 +38,6 @@ constexpr const char RG_PASS_SSAO[] = "p:ssao";
 constexpr const char RG_PASS_OUTLINE[] = "p:outline";
 constexpr const char RG_PASS_PATHTRACER[] = "p:pathtracer";
 constexpr const char RG_PASS_PATHTRACER_PRESENT[] = "p:pathtracer_present";
-constexpr const char RG_PASS_BAKE_SKYBOX[] = "p:env_skybox";
-constexpr const char RG_PASS_BAKE_DIFFUSE[] = "p:diffuse";
-constexpr const char RG_PASS_BAKE_PREFILTERED[] = "p:prefiltered";
 
 constexpr const char RG_RES_DEPTH_STENCIL[] = "r:depth";
 constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
@@ -53,16 +50,9 @@ constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
 constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
 constexpr const char RG_RES_OUTLINE[] = "r:outline";
 constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
-constexpr const char RG_RES_ENV_SKYBOX_CUBE[] = "r:env_cube";
-constexpr const char RG_RES_ENV_DIFFUSE_CUBE[] = "r:diffuse_cube";
-constexpr const char RG_RES_ENV_PREFILTERED_CUBE[] = "r:prefiltered_cube";
 
 // external resources
 constexpr const char RG_RES_SSAO_NOISE[] = "r:ssao_noise";
-constexpr const char RG_RES_BRDF[] = "r:brdf";
-constexpr const char RG_RES_IBL[] = "r:ibl";
-constexpr const char RG_RES_LTC1[] = "r:ltc1";
-constexpr const char RG_RES_LTC2[] = "r:ltc2";
 
 static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
     // generate noise texture
@@ -91,26 +81,6 @@ static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
     return RenderDevice::GetSingleton().CreateTexture(desc, PointWrapSampler());
 }
 
-static std::shared_ptr<GpuTexture> GenerateLTC(std::string_view p_name, const float* p_matrix_table) {
-    constexpr int LTC_SIZE = 64;
-    GpuTextureDesc desc{
-        .type = AttachmentType::NONE,
-        .dimension = Dimension::TEXTURE_2D,
-        .width = LTC_SIZE,
-        .height = LTC_SIZE,
-        .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
-        .format = PixelFormat::R32G32B32A32_FLOAT,
-        .bindFlags = BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
-        .initialData = p_matrix_table,
-        .name = std::string(p_name),
-    };
-
-    return RenderDevice::GetSingleton().CreateTexture(desc, PointClampSampler());
-}
-
 extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
 extern void GbufferPassFunc(RenderPassExcutionContext& p_ctx);
 extern void SsaoPassFunc(RenderPassExcutionContext& p_ctx);
@@ -122,9 +92,6 @@ extern void BloomSetupFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void TonePassFunc(RenderPassExcutionContext& p_ctx);
-extern void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx);
-extern void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx);
-extern void PrefilteredFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerPassFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx);
 
@@ -138,7 +105,7 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
         }),
     };
 
-    pass.Write(ResourceAccess::DSV, out.depth)
+    pass.WriteDepth(out.depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear, STENCIL_FLAG_SKY)
         .SetExecuteFunc(DepthPrepassFunc);
 
     return out;
@@ -163,11 +130,10 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
     };
 
     // @TODO: introduce versioning
-    pass.Read(ResourceAccess::DSV, p_in.depth)
-        .Write(ResourceAccess::DSV, p_in.depth)
-        .Write(ResourceAccess::RTV, out.color0)
-        .Write(ResourceAccess::RTV, out.color1)
-        .Write(ResourceAccess::RTV, out.color2)
+    pass.ReadDepth(p_in.depth, {}, LoadOp::Load)
+        .WriteColor(out.color0, {}, LoadOp::Clear)
+        .WriteColor(out.color1, {}, LoadOp::Clear)
+        .WriteColor(out.color2, {}, LoadOp::Clear)
         .SetExecuteFunc(GbufferPassFunc);
     return out;
 }
@@ -189,29 +155,12 @@ SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
     pass.Read(ResourceAccess::SRV, p_in.normal)
         .Read(ResourceAccess::SRV, p_in.depth)
         .Read(ResourceAccess::SRV, noise)
-        .Write(ResourceAccess::RTV, out.processed)
+        .WriteColor(out.processed, {}, LoadOp::Clear)
         .SetExecuteFunc(SsaoPassFunc);
     return out;
 }
 
 LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in) {
-    RGTextureId brdf = ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_BRDF,
-        .func = []() {
-            std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
-            return RenderDevice::GetSingleton().CreateTexture(image.get());
-        },
-    });
-
-    RGTextureId ltc1 = ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_LTC1,
-        .func = []() { return GenerateLTC(RG_RES_LTC1, LTC1); },
-    });
-
-    RGTextureId ltc2 = ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_LTC2,
-        .func = []() { return GenerateLTC(RG_RES_LTC2, LTC2); },
-    });
 
     RGTextureId out = CreateTexture(RGResourceCreateDesc{
         RG_RES_LIGHTING,
@@ -228,20 +177,13 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         .Read(ResourceAccess::SRV, p_in.shadow)
         .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
         .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
-        .Read(ResourceAccess::SRV, brdf)
-        .Read(ResourceAccess::SRV, ltc1)
-        .Read(ResourceAccess::SRV, ltc2)
-        .Write(ResourceAccess::RTV, out)
+        .Read(ResourceAccess::SRV, p_in.brdf)
+        .Read(ResourceAccess::SRV, p_in.ltc1)
+        .Read(ResourceAccess::SRV, p_in.ltc2)
+        .WriteColor(out, {}, LoadOp::Clear)
         .SetExecuteFunc(LightingPassFunc);
 
     return { out };
-
-#if 0
-    if (m_config.enableVxgi) {
-        pass.Read(ResourceAccess::SRV, RG_RES_VOXEL_LIGHTING)
-            .Read(ResourceAccess::SRV, RG_RES_VOXEL_NORMAL);
-    }
-#endif
 }
 
 PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
@@ -260,11 +202,29 @@ PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInp
         .Read(ResourceAccess::SRV, p_in.outline)
         .Read(ResourceAccess::SRV, p_in.bloom);
 
-    pass.Write(ResourceAccess::RTV, out.processed)
+    pass.WriteColor(out.processed, {}, LoadOp::Clear)
         .SetExecuteFunc(TonePassFunc);
 
     return out;
 }
+
+ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
+    RenderPassBuilder& pass = AddPass(RG_PASS_FORWARD);
+    pass.Read(ResourceAccess::SRV, p_in.skybox)
+        .Read(ResourceAccess::SRV, p_in.shadow)
+        .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
+        .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
+        .Read(ResourceAccess::SRV, p_in.brdf)
+        .Read(ResourceAccess::SRV, p_in.ltc1)
+        .Read(ResourceAccess::SRV, p_in.ltc2)
+        .Read(ResourceAccess::NONE, p_in.lighting)  // add dependency
+        .ReadDepth(p_in.depth, {}, LoadOp::Load)
+        .WriteColor(p_in.lighting, {}, LoadOp::Load)
+        .SetExecuteFunc(ForwardPassFunc);
+
+    return ForwardOutput{};
+}
+
 #if 0
 void RenderGraphBuilderExt::AddHighlightPass() {
     RenderPassBuilder& pass = AddPass(RG_PASS_OUTLINE);
@@ -306,26 +266,6 @@ void RenderGraphBuilderExt::AddVoxelizationPass() {
         .Read(ResourceAccess::UAV, RG_RES_VOXEL_LIGHTING)
         .Read(ResourceAccess::UAV, RG_RES_VOXEL_NORMAL)
         .SetExecuteFunc(VoxelizationPassFunc);
-}
-
-void RenderGraphBuilderExt::AddForwardPass() {
-    auto& pass = AddPass(RG_PASS_FORWARD);
-    AddDependency(RG_PASS_LIGHTING, RG_PASS_FORWARD);
-    pass.Read(ResourceAccess::SRV, RG_RES_ENV_SKYBOX_CUBE)
-        .Read(ResourceAccess::SRV, RG_RES_SHADOW_MAP)
-        .Read(ResourceAccess::SRV, RG_RES_ENV_DIFFUSE_CUBE)
-        .Read(ResourceAccess::SRV, RG_RES_ENV_PREFILTERED_CUBE)
-        .Read(ResourceAccess::SRV, RG_RES_BRDF)
-        .Read(ResourceAccess::SRV, RG_RES_LTC1)
-        .Read(ResourceAccess::SRV, RG_RES_LTC2)
-        .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
-        .Write(ResourceAccess::RTV, RG_RES_LIGHTING)
-        .SetExecuteFunc(ForwardPassFunc);
-
-    if (m_config.enableVxgi) {
-        pass.Read(ResourceAccess::SRV, RG_RES_VOXEL_LIGHTING)
-            .Read(ResourceAccess::SRV, RG_RES_VOXEL_NORMAL);
-    }
 }
 #endif
 
@@ -399,58 +339,6 @@ void RenderGraphBuilderExt::AddBloomPass() {
     }
 }
 
-
-void RenderGraphBuilderExt::AddGenerateSkylightPass() {
-    {
-        GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
-                                                      AttachmentType::COLOR_CUBE,
-                                                      RT_SIZE_IBL_CUBEMAP,
-                                                      RT_SIZE_IBL_CUBEMAP,
-                                                      6,
-                                                      RESOURCE_MISC_GENERATE_MIPS,
-                                                      IBL_MIP_CHAIN_MAX);
-
-        auto& pass = AddPass(RG_PASS_BAKE_SKYBOX);
-        pass.Import(RG_RES_IBL, []() {
-                std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("sky.hdr");
-                return GraphicsManager::GetSingleton().CreateTexture(image.get());
-            })
-            .Create(RG_RES_ENV_SKYBOX_CUBE, { desc, CubemapSampler() })
-            .Read(ResourceAccess::SRV, RG_RES_IBL)
-            .Write(ResourceAccess::RTV, RG_RES_ENV_SKYBOX_CUBE)
-            .SetExecuteFunc(ConvertToCubemapFunc);
-    }
-    {
-        GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
-                                                      AttachmentType::COLOR_CUBE,
-                                                      RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
-                                                      RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
-                                                      6);
-
-        auto& pass = AddPass(RG_PASS_BAKE_DIFFUSE);
-        pass.Create(RG_RES_ENV_DIFFUSE_CUBE, { desc, CubemapNoMipSampler() })
-            .Read(ResourceAccess::SRV, RG_RES_ENV_SKYBOX_CUBE)
-            .Write(ResourceAccess::RTV, RG_RES_ENV_DIFFUSE_CUBE)
-            .SetExecuteFunc(DiffuseIrradianceFunc);
-    }
-    {
-        GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
-                                                      AttachmentType::COLOR_CUBE,
-                                                      RT_SIZE_IBL_PREFILTERED_CUBEMAP,
-                                                      RT_SIZE_IBL_PREFILTERED_CUBEMAP,
-                                                      6,
-                                                      RESOURCE_MISC_GENERATE_MIPS,
-                                                      IBL_MIP_CHAIN_MAX);
-
-        auto& pass = AddPass(RG_PASS_BAKE_PREFILTERED);
-        pass.Create(RG_RES_ENV_PREFILTERED_CUBE, { desc, CubemapLodSampler() })
-            .Read(ResourceAccess::SRV, RG_RES_ENV_SKYBOX_CUBE)
-            .Write(ResourceAccess::RTV, RG_RES_ENV_PREFILTERED_CUBE)
-            .SetExecuteFunc(PrefilteredFunc);
-
-        AddDependency(RG_PASS_BAKE_PREFILTERED, RG_PASS_DEPTH_PREPASS);
-    }
-}
 #endif
 
 void RenderGraphBuilderExt::AddPathTracerPass() {
