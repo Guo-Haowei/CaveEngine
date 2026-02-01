@@ -24,13 +24,14 @@ RenderPassBuilder& RenderPassBuilder::WriteColor(RGTextureId p_handle,
     return *this;
 }
 
-RenderPassBuilder& RenderPassBuilder::WriteDepth(RGTextureId p_handle,
-                                                 const TextureViewDesc& p_tex_view_desc,
-                                                 LoadOp p_depth_load,
-                                                 float p_clear_depth,
-                                                 LoadOp p_stencil_load,
-                                                 uint8_t p_clear_stencil) {
-    m_writes.emplace_back(Resource{ p_handle, ResourceAccess::DSV });
+RenderPassBuilder& RenderPassBuilder::ReadOrWriteDepth(std::vector<Resource>& p_array,
+                                                       RGTextureId p_handle,
+                                                       const TextureViewDesc& p_tex_view_desc,
+                                                       LoadOp p_depth_load,
+                                                       float p_clear_depth,
+                                                       LoadOp p_stencil_load,
+                                                       uint8_t p_clear_stencil) {
+    p_array.emplace_back(Resource{ p_handle, ResourceAccess::DSV });
 
     if (DEV_VERIFY(!m_depth)) {
         DepthAttachmentDesc desc{

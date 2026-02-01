@@ -164,6 +164,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
     }
 
     return {
+        .skybox = env_cube,
         .ibl_diffuse = ibl_diffuse,
         .ibl_prefiltered = ibl_prefiltered,
     };

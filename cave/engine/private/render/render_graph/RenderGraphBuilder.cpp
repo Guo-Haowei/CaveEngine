@@ -115,11 +115,11 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
     }
 
 #if USING(DEBUG_GRAPH_COMPILE)
-    for (const auto& edge : edges) {
-        const RGPassNode& from = nodes[edge.first];
-        const RGPassNode& to = nodes[edge.second];
-        DEBUG_PRINT("found edge from {} to {}", from.debug_name, to.debug_name);
-    }
+    // for (const auto& edge : edges) {
+    //     const RGPassNode& from = nodes[edge.first];
+    //     const RGPassNode& to = nodes[edge.second];
+    //     DEBUG_PRINT("found edge from {} to {}", from.debug_name, to.debug_name);
+    // }
 #endif
 
     auto res = TopologicalSort(N, edges);
@@ -127,6 +127,14 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         return CAVE_ERROR(ErrorCode::ERR_CYCLIC_LINK);
     }
     auto sorted = res.unwrap_unchecked();
+
+#if USING(DEBUG_GRAPH_COMPILE)
+    DEBUG_PRINT("sorted order:");
+    for (int idx : sorted) {
+        const auto& pass = m_passes[idx];
+        DEBUG_PRINT("  -- pase: {}", pass.GetName());
+    }
+#endif
 
     auto render_graph = std::make_shared<RenderGraph>();
 
@@ -169,6 +177,13 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         std::vector<GpuTextureId> uavs;
 
         size_t color_idx = 0;
+        for (const auto& read : pass_builder.m_reads) {
+            if ((bool)(read.access & ResourceAccess::DSV)) {
+                GpuTextureId depth_id = render_graph->FindResource(read.handle);
+                pass_builder.m_depth->tex = depth_id;
+                break;
+            }
+        }
         for (const auto& write : pass_builder.m_writes) {
             switch (write.access) {
                 case ResourceAccess::DSV: {

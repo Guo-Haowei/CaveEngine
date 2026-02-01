@@ -53,9 +53,6 @@ constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
 
 // external resources
 constexpr const char RG_RES_SSAO_NOISE[] = "r:ssao_noise";
-constexpr const char RG_RES_BRDF[] = "r:brdf";
-constexpr const char RG_RES_LTC1[] = "r:ltc1";
-constexpr const char RG_RES_LTC2[] = "r:ltc2";
 
 static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
     // generate noise texture
@@ -84,25 +81,6 @@ static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
     return RenderDevice::GetSingleton().CreateTexture(desc, PointWrapSampler());
 }
 
-static std::shared_ptr<GpuTexture> GenerateLTC(std::string_view p_name, const float* p_matrix_table) {
-    constexpr int LTC_SIZE = 64;
-    GpuTextureDesc desc{
-        .type = AttachmentType::NONE,
-        .dimension = Dimension::TEXTURE_2D,
-        .width = LTC_SIZE,
-        .height = LTC_SIZE,
-        .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
-        .format = PixelFormat::R32G32B32A32_FLOAT,
-        .bindFlags = BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
-        .initialData = p_matrix_table,
-        .name = std::string(p_name),
-    };
-
-    return RenderDevice::GetSingleton().CreateTexture(desc, PointClampSampler());
-}
 
 extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
 extern void GbufferPassFunc(RenderPassExcutionContext& p_ctx);
@@ -153,11 +131,10 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
     };
 
     // @TODO: introduce versioning
-    pass.Read(ResourceAccess::DSV, p_in.depth)
+    pass.ReadDepth(p_in.depth, {}, LoadOp::Load)
         .WriteColor(out.color0, {}, LoadOp::Clear)
         .WriteColor(out.color1, {}, LoadOp::Clear)
         .WriteColor(out.color2, {}, LoadOp::Clear)
-        .WriteDepth(p_in.depth, {}, LoadOp::Load)
         .SetExecuteFunc(GbufferPassFunc);
     return out;
 }
@@ -185,23 +162,7 @@ SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
 }
 
 LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in) {
-    RGTextureId brdf = ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_BRDF,
-        .func = []() {
-            std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
-            return RenderDevice::GetSingleton().CreateTexture(image.get());
-        },
-    });
 
-    RGTextureId ltc1 = ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_LTC1,
-        .func = []() { return GenerateLTC(RG_RES_LTC1, LTC1); },
-    });
-
-    RGTextureId ltc2 = ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_LTC2,
-        .func = []() { return GenerateLTC(RG_RES_LTC2, LTC2); },
-    });
 
     RGTextureId out = CreateTexture(RGResourceCreateDesc{
         RG_RES_LIGHTING,
@@ -218,20 +179,13 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         .Read(ResourceAccess::SRV, p_in.shadow)
         .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
         .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
-        .Read(ResourceAccess::SRV, brdf)
-        .Read(ResourceAccess::SRV, ltc1)
-        .Read(ResourceAccess::SRV, ltc2)
+        .Read(ResourceAccess::SRV, p_in.brdf)
+        .Read(ResourceAccess::SRV, p_in.ltc1)
+        .Read(ResourceAccess::SRV, p_in.ltc2)
         .WriteColor(out, {}, LoadOp::Clear)
         .SetExecuteFunc(LightingPassFunc);
 
     return { out };
-
-#if 0
-    if (m_config.enableVxgi) {
-        pass.Read(ResourceAccess::SRV, RG_RES_VOXEL_LIGHTING)
-            .Read(ResourceAccess::SRV, RG_RES_VOXEL_NORMAL);
-    }
-#endif
 }
 
 PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
@@ -255,6 +209,24 @@ PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInp
 
     return out;
 }
+
+ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
+    RenderPassBuilder& pass = AddPass(RG_PASS_FORWARD);
+    pass.Read(ResourceAccess::SRV, p_in.skybox)
+        .Read(ResourceAccess::SRV, p_in.shadow)
+        .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
+        .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
+        .Read(ResourceAccess::SRV, p_in.brdf)
+        .Read(ResourceAccess::SRV, p_in.ltc1)
+        .Read(ResourceAccess::SRV, p_in.ltc2)
+        .Read(ResourceAccess::NONE, p_in.lighting) // add dependency
+        .ReadDepth(p_in.depth, {}, LoadOp::Load)
+        .WriteColor(p_in.lighting, {}, LoadOp::Load)
+        .SetExecuteFunc(ForwardPassFunc);
+
+    return ForwardOutput{};
+}
+
 #if 0
 void RenderGraphBuilderExt::AddHighlightPass() {
     RenderPassBuilder& pass = AddPass(RG_PASS_OUTLINE);
@@ -296,26 +268,6 @@ void RenderGraphBuilderExt::AddVoxelizationPass() {
         .Read(ResourceAccess::UAV, RG_RES_VOXEL_LIGHTING)
         .Read(ResourceAccess::UAV, RG_RES_VOXEL_NORMAL)
         .SetExecuteFunc(VoxelizationPassFunc);
-}
-
-void RenderGraphBuilderExt::AddForwardPass() {
-    auto& pass = AddPass(RG_PASS_FORWARD);
-    AddDependency(RG_PASS_LIGHTING, RG_PASS_FORWARD);
-    pass.Read(ResourceAccess::SRV, RG_RES_ENV_SKYBOX_CUBE)
-        .Read(ResourceAccess::SRV, RG_RES_SHADOW_MAP)
-        .Read(ResourceAccess::SRV, RG_RES_ENV_DIFFUSE_CUBE)
-        .Read(ResourceAccess::SRV, RG_RES_ENV_PREFILTERED_CUBE)
-        .Read(ResourceAccess::SRV, RG_RES_BRDF)
-        .Read(ResourceAccess::SRV, RG_RES_LTC1)
-        .Read(ResourceAccess::SRV, RG_RES_LTC2)
-        .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
-        .Write(ResourceAccess::RTV, RG_RES_LIGHTING)
-        .SetExecuteFunc(ForwardPassFunc);
-
-    if (m_config.enableVxgi) {
-        pass.Read(ResourceAccess::SRV, RG_RES_VOXEL_LIGHTING)
-            .Read(ResourceAccess::SRV, RG_RES_VOXEL_NORMAL);
-    }
 }
 #endif
 

@@ -9,6 +9,7 @@ class RenderGraphBuilder;
 class EnvironmentFeature {
 public:
     struct Outputs {
+        RGTextureId skybox{};
         RGTextureId ibl_diffuse{};
         RGTextureId ibl_prefiltered{};
     };

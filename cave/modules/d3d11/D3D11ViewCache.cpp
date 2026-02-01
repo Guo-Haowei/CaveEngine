@@ -35,7 +35,7 @@ ID3D11RenderTargetView* D3D11ViewCache::GetOrCreateRtv(const ColorAttachmentDesc
     if (inserted) {
         it->second = CreateRtv(key);
         ++m_stats.rtv_misses;
-        LOG("rtv cache miss {}", p_desc.tex->desc.name);
+        // LOG("rtv cache miss {}", p_desc.tex->desc.name);
     } else {
         ++m_stats.rtv_hits;
     }
@@ -50,7 +50,7 @@ ID3D11DepthStencilView* D3D11ViewCache::GetOrCreateDsv(const DepthAttachmentDesc
     if (inserted) {
         it->second = CreateDsv(key);
         ++m_stats.dsv_misses;
-        LOG("dsv cache miss {}", p_desc.tex->desc.name);
+        // LOG("dsv cache miss {}", p_desc.tex->desc.name);
     } else {
         ++m_stats.dsv_hits;
     }
