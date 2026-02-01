@@ -105,7 +105,7 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
         }),
     };
 
-    pass.WriteDepth(out.depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear, 0)
+    pass.WriteDepth(out.depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear, STENCIL_FLAG_SKY)
         .SetExecuteFunc(DepthPrepassFunc);
 
     return out;

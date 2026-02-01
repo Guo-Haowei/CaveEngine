@@ -96,7 +96,7 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
         gm.DrawElements(draw.index.count, draw.index.offset);
 
         if (p_is_prepass && draw.flags) {
-            gm.SetStencilRef(0);
+            gm.SetStencilRef(STENCIL_FLAG_NONE);
         }
     }
 }
@@ -164,7 +164,7 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
     // cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
-    cmd.SetStencilRef(0);
+    cmd.SetStencilRef(STENCIL_FLAG_NONE);
 }
 
 void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
@@ -302,13 +302,10 @@ void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
     const PassContext& pass = p_ctx.frameData.mainPass;
     gm.BindConstantBufferSlot<PerPassConstantBuffer>(gm.GetCurrentFrame().passCb.get(), pass.pass_idx);
 
-    // if (p_ctx.frameData.options.iblEnabled)
-    {
-        gm.SetPipelineState(PSO_ENV_SKYBOX);
-        gm.SetStencilRef(STENCIL_FLAG_SKY);
-        gm.DrawSkybox();
-        gm.SetStencilRef(0);
-    }
+    gm.SetPipelineState(PSO_ENV_SKYBOX);
+    gm.SetStencilRef(STENCIL_FLAG_SKY);
+    gm.DrawSkybox();
+    gm.SetStencilRef(STENCIL_FLAG_NONE);
 
     // draw transparent objects
     gm.SetPipelineState(PSO_FORWARD_TRANSPARENT);

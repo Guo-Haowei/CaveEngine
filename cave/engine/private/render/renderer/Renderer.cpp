@@ -396,6 +396,7 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
 
     auto forward_outputs = builder.AddForwardPass({
         .skybox = env_outputs.ibl_diffuse,
+        //.skybox = env_outputs.skybox,
         .shadow = shadow_outputs.shadow,
         .ibl_diffuse = env_outputs.ibl_diffuse,
         .ibl_prefiltered = env_outputs.ibl_prefiltered,

@@ -96,7 +96,7 @@ static void FillPass(const RenderScene& p_rs,
         batch_buffer.c_worldMatrix = header.world;
         batch_buffer.c_meshFlag = skeleton_id.IsValid();
 
-        DrawItem draw;
+        DrawItem draw{};
         // @TODO: refactor the stencil part
         // if (entity == scene.m_selected) {
         //    draw.flags = STENCIL_FLAG_SELECTED;
