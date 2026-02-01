@@ -50,8 +50,6 @@ constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
 constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
 constexpr const char RG_RES_OUTLINE[] = "r:outline";
 constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
-constexpr const char RG_RES_ENV_DIFFUSE_CUBE[] = "r:diffuse_cube";
-constexpr const char RG_RES_ENV_PREFILTERED_CUBE[] = "r:prefiltered_cube";
 
 // external resources
 constexpr const char RG_RES_SSAO_NOISE[] = "r:ssao_noise";
@@ -117,8 +115,6 @@ extern void BloomSetupFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void TonePassFunc(RenderPassExcutionContext& p_ctx);
-extern void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx);
-extern void PrefilteredFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerPassFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx);
 

@@ -402,61 +402,6 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.DrawArrays(6);
 }
 
-void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx) {
-    if (!p_ctx.frameData.bakeIbl) {
-        return;
-    }
-    DEV_ASSERT(0);
-
-#if 0
-    RENDER_PASS_FUNC();
-
-    auto& cmd = p_ctx.cmd;
-    auto fb = p_ctx.framebuffer;
-
-    cmd.SetPipelineState(PSO_DIFFUSE_IRRADIANCE);
-    const auto [width, height] = fb->GetBufferSize();
-
-    auto& frame = cmd.GetCurrentFrame();
-    for (int i = 0; i < 6; ++i) {
-        cmd.SetRenderTarget(fb, i);
-        cmd.SetViewport(Viewport(width, height));
-
-        cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), i);
-        cmd.DrawSkybox();
-    }
-#endif
-}
-
-void PrefilteredFunc(RenderPassExcutionContext& p_ctx) {
-    if (!p_ctx.frameData.bakeIbl) {
-        return;
-    }
-    DEV_ASSERT(0);
-
-#if 0
-    RENDER_PASS_FUNC();
-
-    auto& cmd = p_ctx.cmd;
-    auto fb = p_ctx.framebuffer;
-
-    cmd.SetPipelineState(PSO_PREFILTER);
-    auto [width, height] = fb->GetBufferSize();
-
-    auto& frame = cmd.GetCurrentFrame();
-    for (int mip_idx = 0; mip_idx < IBL_MIP_CHAIN_MAX; ++mip_idx, width /= 2, height /= 2) {
-        for (int face_id = 0; face_id < 6; ++face_id) {
-            const int index = mip_idx * 6 + face_id;
-            cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), index);
-
-            cmd.SetRenderTarget(fb, face_id, mip_idx);
-            cmd.SetViewport(Viewport(width, height));
-            cmd.DrawSkybox();
-        }
-    }
-#endif
-}
-
 void PathTracerPassFunc(RenderPassExcutionContext& p_ctx) {
     // @TODO: refactor this part
     if (!IsPathTracerActive()) {

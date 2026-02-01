@@ -47,9 +47,4 @@ RenderPassBuilder& RenderPassBuilder::WriteDepth(RGTextureId p_handle,
     return *this;
 }
 
-RenderPassBuilder& RenderPassBuilder::SetExecuteFunc(ExecuteFunc p_func) {
-    m_func = std::move(p_func);
-    return *this;
-}
-
 }  // namespace cave::render

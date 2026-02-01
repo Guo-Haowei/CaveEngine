@@ -612,19 +612,7 @@ void CommonOpenGLGraphicsManager::SetRenderTargets(const RenderTargetDesc& p_tar
     }
 
 #if 0
-    DEV_ASSERT(p_framebuffer);
-    if (p_framebuffer->desc.type == RenderTargetDesc::Screen) {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        return;
-    }
-
-    auto framebuffer = reinterpret_cast<const OpenGlFramebuffer*>(p_framebuffer);
-    DEV_ASSERT(framebuffer);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->handle);
-
     // @TODO: bind cube map/texture 2d array
-    if (!framebuffer->desc.colors.empty()) {
         const auto& resource = framebuffer->desc.colors[0].tex;
         if (resource->desc.type == AttachmentType::COLOR_CUBE) {
             glFramebufferTexture2D(GL_FRAMEBUFFER,
@@ -633,7 +621,6 @@ void CommonOpenGLGraphicsManager::SetRenderTargets(const RenderTargetDesc& p_tar
                                    static_cast<uint32_t>(resource->GetHandle()),
                                    p_mip_level);
         }
-    }
 
     if (const auto& option = framebuffer->desc.depth) {
         if (option->tex->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {

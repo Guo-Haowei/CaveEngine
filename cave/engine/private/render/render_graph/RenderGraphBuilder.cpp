@@ -213,6 +213,7 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         render_pass->uavs = std::move(uavs);
         render_pass->colors = std::move(pass_builder.m_colors);
         render_pass->depth = std::move(pass_builder.m_depth);
+        render_pass->viewport = pass_builder.m_viewport;
 
         render_graph->AddPass(pass_builder.m_name, render_pass);
     }

@@ -42,7 +42,15 @@ public:
                                   LoadOp p_stencil_load = LoadOp::Load,
                                   uint8_t p_clear_stencil = 0);
 
-    RenderPassBuilder& SetExecuteFunc(ExecuteFunc p_func);
+    RenderPassBuilder& SetExecuteFunc(ExecuteFunc p_func) {
+        m_func = std::move(p_func);
+        return *this;
+    }
+
+    RenderPassBuilder& SetViewport(const Viewport& p_viewport) {
+        m_viewport = p_viewport;
+        return *this;
+    }
 
     std::string_view GetName() const { return m_name; }
 
@@ -55,6 +63,7 @@ private:
     std::vector<Resource> m_writes;
     std::vector<ColorAttachmentDesc> m_colors;
     std::optional<DepthAttachmentDesc> m_depth;
+    std::optional<Viewport> m_viewport;
 
     ExecuteFunc m_func;
 
