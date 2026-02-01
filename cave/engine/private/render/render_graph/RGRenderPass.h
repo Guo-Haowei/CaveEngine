@@ -1,5 +1,6 @@
 #pragma once
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
+#include "engine/private/render/rhi/RenderTarget.h"
 
 // clang-format off
 namespace cave { struct FrameData; }
@@ -24,14 +25,17 @@ using ExecuteFunc = void (*)(RenderPassExcutionContext& ctx);
 struct RGRenderPass {
     std::string name;
 
-    std::vector<std::shared_ptr<GpuTexture>> rtvs;
-    std::shared_ptr<GpuTexture> dsv;
+    std::vector<ColorAttachmentDesc> colors;
+    DepthAttachmentDesc depth;
 
-    // @TODO: remove these
+    // @TODO: replace framebuffer with RenderTargetDesc
+    std::shared_ptr<RenderTarget> framebuffer;
+
+    std::optional<Viewport> viewport;
+    // @TODO: sissor
+
     std::vector<std::shared_ptr<GpuTexture>> uavs;
     std::vector<std::shared_ptr<GpuTexture>> srvs;
-
-    std::shared_ptr<RenderTarget> framebuffer;
 
     ExecuteFunc func;
 };

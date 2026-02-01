@@ -187,9 +187,6 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
         }
 
         RenderTargetDesc info;
-        //.colors
-        //.colorAttachments = rtvs,
-        //.depthAttachment = dsv,
         for (const auto& rtv : rtvs) {
             info.colors.push_back({
                 .tex = rtv,
@@ -222,8 +219,6 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 
         render_pass->srvs = std::move(srvs);
         render_pass->uavs = std::move(uavs);
-        render_pass->rtvs = std::move(rtvs);
-        render_pass->dsv = std::move(dsv);
 
         render_graph->AddPass(pass.m_name, render_pass);
     }

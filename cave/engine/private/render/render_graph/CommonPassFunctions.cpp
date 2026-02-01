@@ -322,11 +322,7 @@ void LightingPassFunc(RenderPassExcutionContext& p_ctx) {
 
     auto& cmd = p_ctx.cmd;
     auto fb = p_ctx.framebuffer;
-    const auto [width, height] = fb->GetBufferSize();
 
-    cmd.SetRenderTarget(fb);
-
-    cmd.SetViewport(Viewport(width, height));
     const float clear_color[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.SetPipelineState(PSO_LIGHTING);
@@ -340,13 +336,6 @@ void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
     RENDER_PASS_FUNC();
 
     auto& gm = p_ctx.cmd;
-
-    auto fb = p_ctx.framebuffer;
-    const auto [width, height] = fb->GetBufferSize();
-
-    gm.SetRenderTarget(fb);
-
-    gm.SetViewport(Viewport(width, height));
 
     const PassContext& pass = p_ctx.frameData.mainPass;
     gm.BindConstantBufferSlot<PerPassConstantBuffer>(gm.GetCurrentFrame().passCb.get(), pass.pass_idx);
@@ -430,11 +419,6 @@ void DebugVoxels(RenderPassExcutionContext& p_ctx) {
 
     auto& gm = p_ctx.cmd;
     auto p_framebuffer = p_ctx.framebuffer;
-    gm.SetRenderTarget(p_framebuffer);
-    const auto [width, height] = p_framebuffer->GetBufferSize();
-
-    // glEnable(GL_BLEND);
-    gm.SetViewport(Viewport(width, height));
     gm.Clear(p_framebuffer, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, IRenderDevice::DEFAULT_CLEAR_COLOR, 0.0f);
 
     p_ctx.cmd.SetPipelineState(PSO_DEBUG_VOXEL);
@@ -442,8 +426,6 @@ void DebugVoxels(RenderPassExcutionContext& p_ctx) {
     gm.SetMesh(gm.m_boxBuffers.get());
     const uint32_t size = DVAR_GET_INT(gfx_voxel_size);
     gm.DrawElementsInstanced(size * size * size, gm.m_boxBuffers->desc.drawCount);
-
-    // glDisable(GL_BLEND);
 }
 
 /// Tone
@@ -453,13 +435,6 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
 
     auto& cmd = p_ctx.cmd;
     auto fb = p_ctx.framebuffer;
-    cmd.SetRenderTarget(fb);
-
-    const auto [width, height] = fb->GetBufferSize();
-
-    // draw billboards
-
-    cmd.SetViewport(Viewport(width, height));
     cmd.Clear(fb, CLEAR_COLOR_BIT);
 
     cmd.SetPipelineState(PSO_POST_PROCESS);
@@ -500,7 +475,9 @@ void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx) {
     if (!p_ctx.frameData.bakeIbl) {
         return;
     }
+    DEV_ASSERT(0);
 
+#if 0
     RENDER_PASS_FUNC();
 
     auto& cmd = p_ctx.cmd;
@@ -517,13 +494,16 @@ void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx) {
         cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), i);
         cmd.DrawSkybox();
     }
+#endif
 }
 
 void PrefilteredFunc(RenderPassExcutionContext& p_ctx) {
     if (!p_ctx.frameData.bakeIbl) {
         return;
     }
+    DEV_ASSERT(0);
 
+#if 0
     RENDER_PASS_FUNC();
 
     auto& cmd = p_ctx.cmd;
@@ -543,6 +523,7 @@ void PrefilteredFunc(RenderPassExcutionContext& p_ctx) {
             cmd.DrawSkybox();
         }
     }
+#endif
 }
 
 void PathTracerPassFunc(RenderPassExcutionContext& p_ctx) {
@@ -574,13 +555,8 @@ void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx) {
 
     auto& cmd = p_ctx.cmd;
     auto fb = p_ctx.framebuffer;
-    cmd.SetRenderTarget(fb);
 
-    const auto [width, height] = fb->GetBufferSize();
-
-    cmd.SetViewport(Viewport(width, height));
     cmd.Clear(fb, CLEAR_COLOR_BIT);
-
     cmd.SetPipelineState(PSO_POST_PROCESS);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);

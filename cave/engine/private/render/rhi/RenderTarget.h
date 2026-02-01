@@ -64,17 +64,6 @@ struct RenderTarget {
         : desc(std::move(p_desc)) {
     }
 
-    // @TODO: refactor this
-    std::tuple<uint32_t, uint32_t> GetBufferSize() const {
-        if (desc.depth.tex) {
-            return std::make_tuple(desc.depth.tex->desc.width, desc.depth.tex->desc.height);
-        }
-
-        DEV_ASSERT(!desc.colors.empty());
-        return std::make_tuple(desc.colors[0].tex->desc.width,
-                               desc.colors[0].tex->desc.height);
-    }
-
     RenderTargetDesc desc;
 };
 

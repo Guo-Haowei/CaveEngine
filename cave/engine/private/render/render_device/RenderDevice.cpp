@@ -412,10 +412,20 @@ void RenderDevice::BeginPass(const RGRenderPass& p_pass) {
     }
 
     // @TODO: build render target
-
     SetRenderTarget(p_pass.framebuffer.get());
-    const auto [width, height] = p_pass.framebuffer->GetBufferSize();
-    SetViewport(Viewport(width, height));
+    if (p_pass.viewport) {
+        SetViewport(*p_pass.viewport);
+    } else {
+        uint32_t width = 0, height = 0;
+        if (!p_pass.framebuffer->desc.colors.empty()) {
+            width = p_pass.framebuffer->desc.colors[0].tex->desc.width;
+            height = p_pass.framebuffer->desc.colors[0].tex->desc.height;
+        } else {
+            width = p_pass.framebuffer->desc.depth.tex->desc.width;
+            height = p_pass.framebuffer->desc.depth.tex->desc.height;
+        }
+        SetViewport(Viewport(width, height));
+    }
 }
 
 void RenderDevice::EndPass(const RGRenderPass& p_pass) {

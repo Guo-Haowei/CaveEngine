@@ -83,8 +83,8 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
         {
             ImNodes::BeginInputAttribute(id);
 
-            for (const auto& rtv : pass->rtvs) {
-                add_image(flip_image, rtv);
+            for (const auto& rtv : pass->framebuffer->desc.colors) {
+                add_image(flip_image, rtv.tex);
             }
             ImNodes::EndInputAttribute();
         }
