@@ -21,7 +21,7 @@ public:
         uint32_t dsv_misses = 0;
     };
 
-    explicit D3D11ViewCache(ID3D11Device* p_device);
+    explicit D3D11ViewCache(ID3D11Device* p_device) noexcept;
     ~D3D11ViewCache();
 
     void Clear();
@@ -32,14 +32,10 @@ public:
     Stats GetStats() const;
     void ResetStats() { m_stats = {}; }
 
-    static D3D11RtvKey MakeRtvKey(const ColorAttachmentDesc& p_desc);
-    static D3D11DsvKey MakeDsvKey(const DepthAttachmentDesc& p_desc);
-
 private:
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> CreateRtv(const D3D11RtvKey& p_key);
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> CreateDsv(const D3D11DsvKey& p_key);
 
-private:
     ID3D11Device* m_device{ nullptr };
 
     std::unordered_map<D3D11RtvKey, Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> m_rtvs;

@@ -26,7 +26,7 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-static constexpr size_t RTV_MAX = 6;
+static constexpr size_t kMaxRenderTargets = 8;
 
 D3d11GraphicsManager::D3d11GraphicsManager()
     : RenderDevice("D3d11GraphicsManager", Backend::D3D11, 1) {
@@ -653,9 +653,9 @@ std::shared_ptr<RenderTarget> D3d11GraphicsManager::CreateFramebuffer(const Rend
 #endif
 
 void D3d11GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_target) {
-    DEV_ASSERT(p_target.colors.size() <= RTV_MAX);
+    DEV_ASSERT(p_target.colors.size() <= kMaxRenderTargets);
 
-    ID3D11RenderTargetView* rtvs[RTV_MAX]{ nullptr };
+    ID3D11RenderTargetView* rtvs[kMaxRenderTargets]{ nullptr };
     ID3D11DepthStencilView* dsv = nullptr;
 
     uint32_t rtv_count = 0;
@@ -669,6 +669,7 @@ void D3d11GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_target) {
 
     m_deviceContext->OMSetRenderTargets(rtv_count, rtvs, dsv);
 
+    // clear render targets
     for (uint32_t idx = 0; idx < rtv_count; ++idx) {
         const ColorAttachmentDesc& desc = p_target.colors[idx];
         if (desc.load == LoadOp::Clear) {
@@ -716,7 +717,7 @@ void D3d11GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_target) {
 }
 
 void D3d11GraphicsManager::UnsetRenderTargets() {
-    ID3D11RenderTargetView* rtvs[RTV_MAX]{ nullptr };
+    ID3D11RenderTargetView* rtvs[kMaxRenderTargets]{ nullptr };
     m_deviceContext->OMSetRenderTargets(array_length(rtvs), rtvs, nullptr);
 }
 

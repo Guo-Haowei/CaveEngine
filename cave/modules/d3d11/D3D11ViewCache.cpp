@@ -10,7 +10,7 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-D3D11ViewCache::D3D11ViewCache(ID3D11Device* p_device)
+D3D11ViewCache::D3D11ViewCache(ID3D11Device* p_device) noexcept
     : m_device(p_device) {
 }
 
@@ -24,6 +24,9 @@ void D3D11ViewCache::Clear() {
     m_rtvs.clear();
     m_dsvs.clear();
 }
+
+static D3D11RtvKey MakeRtvKey(const ColorAttachmentDesc& p_desc);
+static D3D11DsvKey MakeDsvKey(const DepthAttachmentDesc& p_desc);
 
 ID3D11RenderTargetView* D3D11ViewCache::GetOrCreateRtv(const ColorAttachmentDesc& p_desc) {
     const D3D11RtvKey key = MakeRtvKey(p_desc);
@@ -81,7 +84,7 @@ ComPtr<ID3D11DepthStencilView> D3D11ViewCache::CreateDsv(const D3D11DsvKey& p_ke
     return dsv;
 }
 
-D3D11RtvKey D3D11ViewCache::MakeRtvKey(const ColorAttachmentDesc& desc) {
+static D3D11RtvKey MakeRtvKey(const ColorAttachmentDesc& desc) {
     const D3d11GpuTexture* tex = reinterpret_cast<const D3d11GpuTexture*>(desc.tex.get());
 
     DXGI_FORMAT format = d3d::Convert(tex->desc.format);
@@ -108,7 +111,7 @@ D3D11RtvKey D3D11ViewCache::MakeRtvKey(const ColorAttachmentDesc& desc) {
     };
 }
 
-D3D11DsvKey D3D11ViewCache::MakeDsvKey(const DepthAttachmentDesc& desc) {
+static D3D11DsvKey MakeDsvKey(const DepthAttachmentDesc& desc) {
     const D3d11GpuTexture* tex = reinterpret_cast<const D3d11GpuTexture*>(desc.tex.get());
 
     DXGI_FORMAT format{};

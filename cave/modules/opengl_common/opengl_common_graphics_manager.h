@@ -8,6 +8,8 @@ struct GLFWwindow;
 
 namespace cave::render {
 
+class GLFramebufferCache;
+
 // @TODO: fix
 struct OpenGlMeshBuffers : GpuMesh {
     using GpuMesh::GpuMesh;
@@ -18,6 +20,7 @@ struct OpenGlMeshBuffers : GpuMesh {
 class CommonOpenGLGraphicsManager : public RenderDevice {
 public:
     CommonOpenGLGraphicsManager();
+    ~CommonOpenGLGraphicsManager();
 
     void FinalizeImpl() override;
 
@@ -93,6 +96,8 @@ protected:
 
 private:
     uint32_t m_dummy_vao;  // for drawing with gl_VertexID
+
+    std::unique_ptr<GLFramebufferCache> m_fbo_cache;
 };
 
 }  // namespace cave::render

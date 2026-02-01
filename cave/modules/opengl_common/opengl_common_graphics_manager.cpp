@@ -2,6 +2,8 @@
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
+#include "GLFramebufferCache.h"
+
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/core/math/geometry.h"
@@ -42,9 +44,14 @@ CommonOpenGLGraphicsManager::CommonOpenGLGraphicsManager()
     m_dummy_vao = 0;
     m_window = nullptr;
     m_pipelineStateManager = std::make_shared<OpenGlPipelineStateManager>(this);
+    m_fbo_cache = std::make_unique<GLFramebufferCache>();
 }
 
+CommonOpenGLGraphicsManager::~CommonOpenGLGraphicsManager() = default;
+
 void CommonOpenGLGraphicsManager::FinalizeImpl() {
+    m_fbo_cache.reset();
+
     m_pipelineStateManager->Finalize();
 }
 
@@ -139,32 +146,6 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
 void CommonOpenGLGraphicsManager::Clear(const RenderTargetDesc& p_target) {
     unused(p_target);
     DEV_ASSERT(0);
-
-#if 0
-    if (p_flags == CLEAR_NONE) {
-        return;
-    }
-
-    uint32_t flags = 0;
-    if (p_flags & CLEAR_COLOR_BIT) {
-        // @TODO: cache clear color
-        if (p_clear_color) {
-            glClearColor(p_clear_color[0], p_clear_color[1], p_clear_color[2], p_clear_color[3]);
-        }
-        flags |= GL_COLOR_BUFFER_BIT;
-    }
-    if (p_flags & CLEAR_DEPTH_BIT) {
-        flags |= GL_DEPTH_BUFFER_BIT;
-    }
-    if (p_flags & CLEAR_STENCIL_BIT) {
-        flags |= GL_STENCIL_BUFFER_BIT;
-    }
-
-    // @TODO: cache clear depth
-    glClearDepthf(p_clear_depth);
-    glClearStencil(p_clear_stencil);
-    glClear(flags);
-#endif
 }
 
 void CommonOpenGLGraphicsManager::SetViewport(const Viewport& p_viewport) {
@@ -513,6 +494,11 @@ std::shared_ptr<RenderTarget> CommonOpenGLGraphicsManager::CreateFramebuffer(con
                     );
                 } break;
                 case AttachmentType::COLOR_CUBE: {
+            glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                   GL_COLOR_ATTACHMENT0,
+                                   GL_TEXTURE_CUBE_MAP_POSITIVE_X + p_index,
+                                   static_cast<uint32_t>(resource->GetHandle()),
+                                   p_mip_level);
                 } break;
                 default:
                     CRASH_NOW();
@@ -595,8 +581,35 @@ void CommonOpenGLGraphicsManager::SetBlendState(const BlendDesc& p_desc, const f
 }
 
 void CommonOpenGLGraphicsManager::SetRenderTargets(const RenderTargetDesc& p_target) {
-    unused(p_target);
-    DEV_ASSERT(0);
+    GLuint fbo = m_fbo_cache->GetOrCreateFbo(p_target);
+    DEV_ASSERT(fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    uint32_t flags = 0;
+    if (p_target.depth) {
+        const DepthAttachmentDesc& desc = *p_target.depth;
+        if (desc.depth_load == LoadOp::Clear) {
+            flags |= GL_DEPTH_BUFFER_BIT;
+            glClearDepthf(desc.clear_depth);  // @TODO: cache
+        }
+        if (desc.stencil_load == LoadOp::Clear) {
+            flags |= GL_STENCIL_BUFFER_BIT;
+            glClearStencil(desc.clear_stencil);  // @TODO: cache
+        }
+    }
+    if (!p_target.colors.empty()) {
+        const ColorAttachmentDesc& desc = p_target.colors[0];
+        if (desc.load == LoadOp::Clear) {
+            flags |= GL_COLOR_BUFFER_BIT;
+            glClearColor(desc.clear_color[0],
+                         desc.clear_color[1],
+                         desc.clear_color[2],
+                         desc.clear_color[3]);
+        }
+    }
+    if (flags) {
+        glClear(flags);
+    }
 
 #if 0
     DEV_ASSERT(p_framebuffer);
@@ -632,8 +645,6 @@ void CommonOpenGLGraphicsManager::SetRenderTargets(const RenderTargetDesc& p_tar
         }
     }
 #endif
-
-    return;
 }
 
 void CommonOpenGLGraphicsManager::UnsetRenderTargets() {
