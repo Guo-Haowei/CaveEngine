@@ -26,16 +26,15 @@ struct ColorAttachmentDesc {
     GpuTextureId tex{};
     TextureViewDesc view{};
     LoadOp load{ LoadOp::Load };
-    StoreOp store{ StoreOp::Store };
     float clear_color[4]{ 0, 0, 0, 0 };
 };
 
 struct DepthAttachmentDesc {
     GpuTextureId tex{};
     TextureViewDesc view{};
-    LoadOp load{ LoadOp::Load };
-    StoreOp store{ StoreOp::Store };
+    LoadOp depth_load{ LoadOp::Load };
     float clear_depth{ 1.0f };
+    LoadOp stencil_load{ LoadOp::Load };
     uint8_t clear_stencil{ 0 };
 };
 

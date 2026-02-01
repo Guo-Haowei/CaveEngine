@@ -10,15 +10,13 @@ RenderPassBuilder& RenderPassBuilder::Read(ResourceAccess p_access, RGTextureId 
 
 RenderPassBuilder& RenderPassBuilder::WriteColor(RGTextureId p_handle,
                                                  const TextureViewDesc& p_tex_view_desc,
-                                                 LoadOp p_load,
-                                                 StoreOp p_store) {
+                                                 LoadOp p_load) {
     m_writes.emplace_back(Resource{ p_handle, ResourceAccess::RTV });
 
     ColorAttachmentDesc desc{
         .tex = nullptr,
         .view = p_tex_view_desc,
         .load = p_load,
-        .store = p_store,
         .clear_color = { 0, 0, 0, 0 },
     };
     m_colors.push_back(desc);
@@ -28,9 +26,9 @@ RenderPassBuilder& RenderPassBuilder::WriteColor(RGTextureId p_handle,
 
 RenderPassBuilder& RenderPassBuilder::WriteDepth(RGTextureId p_handle,
                                                  const TextureViewDesc& p_tex_view_desc,
-                                                 LoadOp p_load,
-                                                 StoreOp p_store,
+                                                 LoadOp p_depth_load,
                                                  float p_clear_depth,
+                                                 LoadOp p_stencil_load,
                                                  uint8_t p_clear_stencil) {
     m_writes.emplace_back(Resource{ p_handle, ResourceAccess::DSV });
 
@@ -38,9 +36,9 @@ RenderPassBuilder& RenderPassBuilder::WriteDepth(RGTextureId p_handle,
         DepthAttachmentDesc desc{
             .tex = nullptr,
             .view = p_tex_view_desc,
-            .load = p_load,
-            .store = p_store,
+            .depth_load = p_depth_load,
             .clear_depth = p_clear_depth,
+            .stencil_load = p_stencil_load,
             .clear_stencil = p_clear_stencil,
         };
         m_depth = desc;

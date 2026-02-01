@@ -26,7 +26,7 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-static constexpr size_t RTV_MAX = 8;
+static constexpr size_t RTV_MAX = 6;
 
 D3d11GraphicsManager::D3d11GraphicsManager()
     : RenderDevice("D3d11GraphicsManager", Backend::D3D11, 1) {
@@ -677,9 +677,11 @@ void D3d11GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_target) {
     }
     if (dsv) {
         const DepthAttachmentDesc& desc = *p_target.depth;
-        if (desc.load == LoadOp::Clear) {
-            const uint32_t flag = D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL;
-            m_deviceContext->ClearDepthStencilView(dsv, flag, desc.clear_depth, desc.clear_stencil);
+        uint32_t clear_flag = 0;
+        if (desc.depth_load == LoadOp::Clear) clear_flag |= D3D11_CLEAR_DEPTH;
+        if (desc.stencil_load == LoadOp::Clear) clear_flag |= D3D11_CLEAR_STENCIL;
+        if (clear_flag) {
+            m_deviceContext->ClearDepthStencilView(dsv, clear_flag, desc.clear_depth, desc.clear_stencil);
         }
     }
 

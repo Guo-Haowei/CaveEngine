@@ -33,14 +33,13 @@ public:
 
     RenderPassBuilder& WriteColor(RGTextureId p_handle,
                                   const TextureViewDesc& p_tex_view_desc,
-                                  LoadOp p_load,
-                                  StoreOp p_store = StoreOp::Store);
+                                  LoadOp p_load = LoadOp::Load);
 
     RenderPassBuilder& WriteDepth(RGTextureId p_handle,
                                   const TextureViewDesc& p_tex_view_desc,
-                                  LoadOp p_load,
-                                  StoreOp p_store = StoreOp::Store,
+                                  LoadOp p_depth_load = LoadOp::Load,
                                   float p_clear_depth = 1.0f,
+                                  LoadOp p_stencil_load = LoadOp::Load,
                                   uint8_t p_clear_stencil = 0);
 
     RenderPassBuilder& SetExecuteFunc(ExecuteFunc p_func);

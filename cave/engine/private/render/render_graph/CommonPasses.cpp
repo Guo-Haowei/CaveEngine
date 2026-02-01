@@ -138,7 +138,7 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
         }),
     };
 
-    pass.WriteDepth(out.depth, {}, LoadOp::Clear, StoreOp::Store, 0.0f)
+    pass.WriteDepth(out.depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear, 0)
         .SetExecuteFunc(DepthPrepassFunc);
 
     return out;
