@@ -186,10 +186,18 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
             }
         }
 
-        FramebufferDesc info{
-            .colorAttachments = rtvs,
-            .depthAttachment = dsv,
-        };
+        RenderTargetDesc info;
+        //.colors
+        //.colorAttachments = rtvs,
+        //.depthAttachment = dsv,
+        for (const auto& rtv : rtvs) {
+            info.colors.push_back({
+                .tex = rtv,
+            });
+        }
+        if (dsv) {
+            info.depth = { .tex = dsv };
+        }
 
         for (const auto& read : pass.m_reads) {
             switch (read.access) {

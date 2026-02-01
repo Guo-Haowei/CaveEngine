@@ -121,11 +121,10 @@ struct ScopedEvent {
 void DepthPrepassFunc(RenderPassExcutionContext& p_ctx) {
     RENDER_PASS_FUNC();
 
-    Framebuffer* fb = p_ctx.framebuffer;
+    RenderTarget* fb = p_ctx.framebuffer;
     auto& cmd = p_ctx.cmd;
     auto& frame = cmd.GetCurrentFrame();
-    const uint32_t width = fb->desc.depthAttachment->desc.width;
-    const uint32_t height = fb->desc.depthAttachment->desc.height;
+    const auto [width, height] = fb->GetBufferSize();
 
     cmd.SetRenderTarget(fb);
     cmd.SetViewport(Viewport(width, height));
@@ -148,12 +147,11 @@ void DepthPrepassFunc(RenderPassExcutionContext& p_ctx) {
 void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
     RENDER_PASS_FUNC();
 
-    const Framebuffer* fb = p_ctx.framebuffer;
+    const RenderTarget* fb = p_ctx.framebuffer;
     auto& cmd = p_ctx.cmd;
 
     const auto& frame = cmd.GetCurrentFrame();
-    const uint32_t width = fb->desc.depthAttachment->desc.width;
-    const uint32_t height = fb->desc.depthAttachment->desc.height;
+    const auto [width, height] = fb->GetBufferSize();
 
     cmd.SetRenderTarget(fb);
     cmd.SetViewport(Viewport(width, height));
@@ -191,8 +189,7 @@ void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
     auto& cmd = p_ctx.cmd;
 
     auto fb = p_ctx.framebuffer;
-    const uint32_t width = fb->desc.colorAttachments[0]->desc.width;
-    const uint32_t height = fb->desc.colorAttachments[0]->desc.height;
+    const auto [width, height] = fb->GetBufferSize();
 
     cmd.SetRenderTarget(fb);
     cmd.SetViewport(Viewport(width, height));
@@ -449,7 +446,6 @@ void DebugVoxels(RenderPassExcutionContext& p_ctx) {
     auto& gm = p_ctx.cmd;
     auto p_framebuffer = p_ctx.framebuffer;
     gm.SetRenderTarget(p_framebuffer);
-    auto depth_buffer = p_framebuffer->desc.depthAttachment;
     const auto [width, height] = p_framebuffer->GetBufferSize();
 
     // glEnable(GL_BLEND);
@@ -474,7 +470,6 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     auto fb = p_ctx.framebuffer;
     cmd.SetRenderTarget(fb);
 
-    auto depth_buffer = fb->desc.depthAttachment;
     const auto [width, height] = fb->GetBufferSize();
 
     // draw billboards
@@ -488,12 +483,14 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
 }
 
 void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx) {
+    DEV_ASSERT(0);
     if (!p_ctx.frameData.bakeIbl) {
         return;
     }
 
     RENDER_PASS_FUNC();
 
+#if 0
     auto& cmd = p_ctx.cmd;
     auto fb = p_ctx.framebuffer;
 
@@ -511,6 +508,7 @@ void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx) {
         cmd.DrawSkybox();
     }
     cmd.GenerateMipmap(cube_map.get());
+#endif
 }
 
 void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx) {
@@ -593,7 +591,6 @@ void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx) {
     auto fb = p_ctx.framebuffer;
     cmd.SetRenderTarget(fb);
 
-    auto depth_buffer = fb->desc.depthAttachment;
     const auto [width, height] = fb->GetBufferSize();
 
     cmd.SetViewport(Viewport(width, height));

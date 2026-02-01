@@ -6,7 +6,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "engine/private/render/rhi/Framebuffer.h"
+#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/gpu_resource.h"
 
 namespace cave {
@@ -26,7 +26,7 @@ struct D3d11GpuTexture : public GpuTexture {
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;
 };
 
-struct D3d11Framebuffer : public render::Framebuffer {
+struct D3d11Framebuffer : public render::RenderTarget {
     std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> rtvs;
     std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> dsvs;
 };

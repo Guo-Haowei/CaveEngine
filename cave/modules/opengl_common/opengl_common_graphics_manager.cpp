@@ -136,7 +136,7 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
     glUseProgram(pipeline->programId);
 }
 
-void CommonOpenGLGraphicsManager::Clear(const Framebuffer*,
+void CommonOpenGLGraphicsManager::Clear(const RenderTarget*,
                                         ClearFlags p_flags,
                                         const float* p_clear_color,
                                         float p_clear_depth,
@@ -473,12 +473,12 @@ std::shared_ptr<GpuTexture> CommonOpenGLGraphicsManager::CreateTextureImpl(const
     return texture;
 }
 
-std::shared_ptr<render::Framebuffer> CommonOpenGLGraphicsManager::CreateFramebuffer(const render::FramebufferDesc& p_desc) {
+std::shared_ptr<RenderTarget> CommonOpenGLGraphicsManager::CreateFramebuffer(const RenderTargetDesc& p_desc) {
     auto framebuffer = std::make_shared<OpenGlFramebuffer>(p_desc);
     GLuint fbo_handle = 0;
 
-    const int num_depth_attachment = p_desc.depthAttachment != nullptr;
-    const int num_color_attachment = (int)p_desc.colorAttachments.size();
+    const int num_depth_attachment = p_desc.depth.tex ? 1 : 0;
+    const int num_color_attachment = (int)p_desc.colors.size();
     if (!num_depth_attachment && !num_color_attachment) {
         return framebuffer;
     }
@@ -500,7 +500,7 @@ std::shared_ptr<render::Framebuffer> CommonOpenGLGraphicsManager::CreateFramebuf
             GLuint attachment = GL_COLOR_ATTACHMENT0 + idx;
             attachments.push_back(attachment);
 
-            const auto& color_attachment = p_desc.colorAttachments[idx];
+            const auto& color_attachment = p_desc.colors[idx].tex;
             uint32_t texture_handle = static_cast<uint32_t>(color_attachment->GetHandle());
             switch (color_attachment->desc.type) {
                 case AttachmentType::COLOR_2D: {
@@ -524,7 +524,7 @@ std::shared_ptr<render::Framebuffer> CommonOpenGLGraphicsManager::CreateFramebuf
 #endif
     }
 
-    if (auto depth_attachment = p_desc.depthAttachment; depth_attachment) {
+    if (const auto& depth_attachment = p_desc.depth.tex) {
         uint32_t texture_handle = static_cast<uint32_t>(depth_attachment->GetHandle());
         switch (depth_attachment->desc.type) {
             case AttachmentType::SHADOW_2D:
@@ -592,9 +592,9 @@ void CommonOpenGLGraphicsManager::SetBlendState(const BlendDesc& p_desc, const f
     glBlendFunc(src_blend, dest_blend);
 }
 
-void CommonOpenGLGraphicsManager::SetRenderTarget(const Framebuffer* p_framebuffer, int p_index, int p_mip_level) {
+void CommonOpenGLGraphicsManager::SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) {
     DEV_ASSERT(p_framebuffer);
-    if (p_framebuffer->desc.type == FramebufferDesc::SCREEN) {
+    if (p_framebuffer->desc.type == RenderTargetDesc::Screen) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         return;
     }
@@ -605,8 +605,8 @@ void CommonOpenGLGraphicsManager::SetRenderTarget(const Framebuffer* p_framebuff
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->handle);
 
     // @TODO: bind cube map/texture 2d array
-    if (!framebuffer->desc.colorAttachments.empty()) {
-        const auto resource = framebuffer->desc.colorAttachments[0];
+    if (!framebuffer->desc.colors.empty()) {
+        const auto& resource = framebuffer->desc.colors[0].tex;
         if (resource->desc.type == AttachmentType::COLOR_CUBE) {
             glFramebufferTexture2D(GL_FRAMEBUFFER,
                                    GL_COLOR_ATTACHMENT0,
@@ -616,7 +616,7 @@ void CommonOpenGLGraphicsManager::SetRenderTarget(const Framebuffer* p_framebuff
         }
     }
 
-    if (const auto depth_attachment = framebuffer->desc.depthAttachment; depth_attachment) {
+    if (const auto& depth_attachment = framebuffer->desc.depth.tex) {
         if (depth_attachment->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
             glFramebufferTextureLayer(GL_FRAMEBUFFER,
                                       GL_DEPTH_ATTACHMENT,

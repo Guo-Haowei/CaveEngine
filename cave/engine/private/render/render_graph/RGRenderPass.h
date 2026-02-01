@@ -9,12 +9,12 @@ namespace cave { struct GpuTexture; }
 namespace cave::render {
 
 class IRenderDevice;
-struct Framebuffer;
+struct RenderTarget;
 struct RGRenderPass;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;
-    Framebuffer* framebuffer;
+    RenderTarget* framebuffer;
     RGRenderPass& pass;
     IRenderDevice& cmd;
 };
@@ -27,10 +27,11 @@ struct RGRenderPass {
     std::vector<std::shared_ptr<GpuTexture>> rtvs;
     std::shared_ptr<GpuTexture> dsv;
 
+    // @TODO: remove these
     std::vector<std::shared_ptr<GpuTexture>> uavs;
     std::vector<std::shared_ptr<GpuTexture>> srvs;
 
-    std::shared_ptr<Framebuffer> framebuffer;
+    std::shared_ptr<RenderTarget> framebuffer;
 
     ExecuteFunc func;
 };

@@ -3,7 +3,7 @@
 #endif
 #define OPENGL_RESOURCES_INCLUDED
 
-#include "engine/private/render/rhi/Framebuffer.h"
+#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "opengl_helpers_forward.h"
 
@@ -39,7 +39,7 @@ struct OpenGlGpuTexture : public GpuTexture {
     uint64_t residentHandle = 0;
 };
 
-struct OpenGlFramebuffer : public render::Framebuffer {
+struct OpenGlFramebuffer : public render::RenderTarget {
     ~OpenGlFramebuffer() { Clear(); }
 
     void Clear();

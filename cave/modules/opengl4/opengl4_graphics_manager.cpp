@@ -11,7 +11,7 @@
 
 namespace cave::render {
 
-static void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
+void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
 
 auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayManager());
@@ -118,13 +118,13 @@ void OpenGL4GraphicsManager::EndEvent() {
     glPopDebugGroup();
 }
 
-static void APIENTRY DebugCallback(GLenum p_source,
-                                   GLenum p_type,
-                                   uint32_t p_id,
-                                   GLenum p_severity,
-                                   GLsizei,
-                                   const char* p_message,
-                                   const void*) {
+void APIENTRY DebugCallback(GLenum p_source,
+                            GLenum p_type,
+                            uint32_t p_id,
+                            GLenum p_severity,
+                            GLsizei,
+                            const char* p_message,
+                            const void*) {
     switch (p_id) {
         case 131185:
         case 131204:

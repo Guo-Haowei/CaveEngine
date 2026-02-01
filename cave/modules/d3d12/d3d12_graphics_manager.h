@@ -31,12 +31,12 @@ public:
     void SetStencilRef(uint32_t p_ref) final;
     void SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
 
-    void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index, int p_mip_level) final;
+    void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) final;
     void UnsetRenderTarget() final;
-    void BeginDrawPass(const Framebuffer* p_framebuffer) final;
-    void EndDrawPass(const Framebuffer* p_framebuffer) final;
+    void BeginDrawPass(const RenderTargetDesc& p_target) final;
+    void EndDrawPass(const RenderTargetDesc& p_target) final;
 
-    void Clear(const Framebuffer* p_framebuffer,
+    void Clear(const RenderTarget* p_framebuffer,
                ClearFlags p_flags,
                const float* p_clear_color,
                float p_clear_depth,
@@ -79,7 +79,7 @@ public:
 
     void GenerateMipmap(const GpuTexture* p_texture) final;
 
-    std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc& p_subpass_desc) final;
+    std::shared_ptr<RenderTarget> CreateFramebuffer(const RenderTargetDesc& p_subpass_desc) final;
 
     ID3D12CommandQueue* CreateCommandQueue(D3D12_COMMAND_LIST_TYPE p_type);
 

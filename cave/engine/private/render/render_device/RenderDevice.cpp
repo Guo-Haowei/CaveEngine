@@ -321,10 +321,10 @@ std::shared_ptr<FrameContext> RenderDevice::CreateFrameContext() {
     return std::make_unique<FrameContext>();
 }
 
-void RenderDevice::BeginDrawPass(const Framebuffer*) {
+void RenderDevice::BeginDrawPass(const RenderTargetDesc&) {
 }
 
-void RenderDevice::EndDrawPass(const Framebuffer*) {
+void RenderDevice::EndDrawPass(const RenderTargetDesc&) {
     UnsetRenderTarget();
 }
 
@@ -405,16 +405,7 @@ void RenderDevice::DrawSkybox() {
     DrawElements(m_skyboxBuffers->desc.drawCount);
 }
 
-// @TODO: refactor
-#if 0
-#define RT_DEBUG(...) LOG_VERBOSE(__VA_ARGS__)
-#else
-#define RT_DEBUG(...)
-#endif
-
 void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
-    RT_DEBUG("-- Executing pass '{}'", m_name);
-
     auto framebuffer = p_pass.framebuffer.get();
     RenderPassExcutionContext ctx{
         .frameData = p_data,
@@ -425,33 +416,38 @@ void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
 
     // bind srvs
     for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
-        const GpuTexture* srv = p_pass.srvs[i].get();
-        if (!srv) continue;
-        BindTexture(srv->desc.dimension, srv->GetHandle(), i);
+        if (const GpuTexture* srv = p_pass.srvs[i].get()) {
+            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+            BindTexture(srv->desc.dimension, srv->GetHandle(), i);
+        }
     }
     // bind uavs
     for (int i = 0; i < (int)p_pass.uavs.size(); ++i) {
-        GpuTexture* uav = p_pass.uavs[i].get();
-        if (!uav) continue;
-        BindUnorderedAccessView(i, uav);
+        if (GpuTexture* uav = p_pass.uavs[i].get()) {
+            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+            BindUnorderedAccessView(i, uav);
+        }
     }
 
-    BeginDrawPass(framebuffer);
+    BeginDrawPass(framebuffer->desc);
     p_pass.func(ctx);
-    EndDrawPass(framebuffer);
+    EndDrawPass(framebuffer->desc);
 
     // unbind srvs
     for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
-        const GpuTexture* srv = p_pass.srvs[i].get();
-        if (!srv) continue;
-        UnbindTexture(srv->desc.dimension, i);
+        if (const GpuTexture* srv = p_pass.srvs[i].get()) {
+            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+            UnbindTexture(srv->desc.dimension, i);
+        }
     }
     // unbind uavs
     for (int i = 0; i < (int)p_pass.uavs.size(); ++i) {
-        UnbindUnorderedAccessView(i);
+        if (GpuTexture* uav = p_pass.uavs[i].get()) {
+            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+            BindUnorderedAccessView(i, uav);
+            UnbindUnorderedAccessView(i);
+        }
     }
-
-    RT_DEBUG("-------");
 }
 
 }  // namespace cave::render

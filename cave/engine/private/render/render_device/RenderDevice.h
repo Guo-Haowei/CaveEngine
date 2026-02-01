@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/Singleton.h"
 
-#include "engine/private/render/rhi/Framebuffer.h"
+#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 #include "engine/private/core/base/concurrent_queue.h"
@@ -54,8 +54,8 @@ public:
     // resource
     void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) override;
 
-    void BeginDrawPass(const Framebuffer* p_framebuffer) override;
-    void EndDrawPass(const Framebuffer* p_framebuffer) override;
+    void BeginDrawPass(const RenderTargetDesc& p_target) override;
+    void EndDrawPass(const RenderTargetDesc& p_target) override;
 
     void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) override;
 

@@ -22,7 +22,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
 
     auto& cmd = p_ctx.cmd;
 
-    const Framebuffer* framebuffer = p_ctx.framebuffer;
+    const RenderTarget* framebuffer = p_ctx.framebuffer;
     const auto& frame = cmd.GetCurrentFrame();
 
     cmd.SetRenderTarget(framebuffer);

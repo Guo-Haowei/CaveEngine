@@ -30,10 +30,10 @@ public:
     void SetStencilRef(uint32_t p_ref) final;
     void SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
 
-    void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index, int p_mip_level) final;
+    void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) final;
     void UnsetRenderTarget() final;
 
-    void Clear(const Framebuffer* p_framebuffer,
+    void Clear(const RenderTarget* p_framebuffer,
                ClearFlags p_flags,
                const float* p_clear_color,
                float p_clear_depth,
@@ -80,7 +80,7 @@ public:
     void BeginEvent(std::string_view p_event) final;
     void EndEvent() final;
 
-    std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc&) final;
+    std::shared_ptr<RenderTarget> CreateFramebuffer(const RenderTargetDesc&) final;
 
     // For fast and dirty access to device and device context, try not to use it
     Microsoft::WRL::ComPtr<ID3D11Device>& GetD3dDevice() { return m_device; }

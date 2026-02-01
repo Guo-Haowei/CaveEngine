@@ -20,8 +20,6 @@ render::IRenderDevice* CreateRenderDevice();
 
 IPhysicsManager* CreatePhysicsManager();
 
-ISceneRegistry* CreateSceneManager();
-
 IScriptManager* CreateScriptManager();
 
 }  // namespace cave

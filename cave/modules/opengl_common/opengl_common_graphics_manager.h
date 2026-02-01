@@ -24,10 +24,10 @@ public:
     void SetStencilRef(uint32_t p_ref) override;
     void SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) override;
 
-    void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index, int p_mip_level) override;
+    void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) override;
     void UnsetRenderTarget() override;
 
-    void Clear(const Framebuffer* p_framebuffer,
+    void Clear(const RenderTarget* p_framebuffer,
                ClearFlags p_flags,
                const float* p_clear_color,
                float p_clear_depth,
@@ -71,7 +71,7 @@ public:
 
     void GenerateMipmap(const GpuTexture* p_texture) override;
 
-    std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc& p_desc) override;
+    std::shared_ptr<RenderTarget> CreateFramebuffer(const RenderTargetDesc& p_desc) override;
 
 protected:
     std::shared_ptr<GpuTexture> CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) override;

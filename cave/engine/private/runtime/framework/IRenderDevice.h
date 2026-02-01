@@ -33,8 +33,8 @@ struct GpuMesh;
 
 namespace cave::render {
 
-struct Framebuffer;
-struct FramebufferDesc;
+struct RenderTarget;
+struct RenderTargetDesc;
 struct FrameContext;
 struct RenderSubmission;
 
@@ -43,9 +43,6 @@ class IRenderDevice : public Module,
                       public EventListener,
                       public ModuleCreateRegistry<IRenderDevice> {
 public:
-    using Framebuffer = render::Framebuffer;
-    using FramebufferDesc = render::FramebufferDesc;
-
     static constexpr int NUM_FRAMES_IN_FLIGHT = 2;
     static constexpr int NUM_BACK_BUFFERS = 2;
     static constexpr float DEFAULT_CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 1.0 };
@@ -62,12 +59,12 @@ public:
     virtual auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> = 0;
     virtual void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) = 0;
 
-    virtual void SetRenderTarget(const Framebuffer* p_framebuffer, int p_index = 0, int p_mip_level = 0) = 0;
+    virtual void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index = 0, int p_mip_level = 0) = 0;
     virtual void UnsetRenderTarget() = 0;
-    virtual void BeginDrawPass(const Framebuffer* p_framebuffer) = 0;
-    virtual void EndDrawPass(const Framebuffer* p_framebuffer) = 0;
+    virtual void BeginDrawPass(const RenderTargetDesc& p_target) = 0;
+    virtual void EndDrawPass(const RenderTargetDesc& p_target) = 0;
 
-    virtual void Clear(const Framebuffer* p_framebuffer,
+    virtual void Clear(const RenderTarget* p_framebuffer,
                        ClearFlags p_flags,
                        const float* p_clear_color = DEFAULT_CLEAR_COLOR,
                        float p_clear_depth = 1.0f,
@@ -118,7 +115,7 @@ public:
         BindConstantBufferRange(p_buffer, sizeof(T), slot * sizeof(T));
     }
 
-    virtual std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferDesc& p_desc) = 0;
+    virtual std::shared_ptr<RenderTarget> CreateFramebuffer(const RenderTargetDesc& p_desc) = 0;
 
     virtual std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) = 0;
     virtual std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) = 0;
