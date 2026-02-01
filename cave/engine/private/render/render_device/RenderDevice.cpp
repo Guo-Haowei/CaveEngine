@@ -19,9 +19,6 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
-// @TODO: remove this
-#include "engine/private/render/renderer/Renderer.h"
-
 namespace cave {
 #include "shader_resource_defines.hlsl.h"
 }  // namespace cave
@@ -321,13 +318,6 @@ std::shared_ptr<FrameContext> RenderDevice::CreateFrameContext() {
     return std::make_unique<FrameContext>();
 }
 
-void RenderDevice::BeginDrawPass(const RenderTargetDesc&) {
-}
-
-void RenderDevice::EndDrawPass(const RenderTargetDesc&) {
-    UnsetRenderTarget();
-}
-
 std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     auto texture = CreateTextureImpl(p_texture_desc, p_sampler_desc);
     if (p_texture_desc.type != AttachmentType::NONE) {
@@ -405,15 +395,7 @@ void RenderDevice::DrawSkybox() {
     DrawElements(m_skyboxBuffers->desc.drawCount);
 }
 
-void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
-    auto framebuffer = p_pass.framebuffer.get();
-    RenderPassExcutionContext ctx{
-        .frameData = p_data,
-        .framebuffer = framebuffer,
-        .pass = p_pass,
-        .cmd = *this,
-    };
-
+void RenderDevice::BeginPass(const RGRenderPass& p_pass) {
     // bind srvs
     for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = p_pass.srvs[i].get()) {
@@ -429,9 +411,15 @@ void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
         }
     }
 
-    BeginDrawPass(framebuffer->desc);
-    p_pass.func(ctx);
-    EndDrawPass(framebuffer->desc);
+    // @TODO: build render target
+
+    SetRenderTarget(p_pass.framebuffer.get());
+    const auto [width, height] = p_pass.framebuffer->GetBufferSize();
+    SetViewport(Viewport(width, height));
+}
+
+void RenderDevice::EndPass(const RGRenderPass& p_pass) {
+    UnsetRenderTarget();
 
     // unbind srvs
     for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
@@ -440,6 +428,7 @@ void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
             UnbindTexture(srv->desc.dimension, i);
         }
     }
+
     // unbind uavs
     for (int i = 0; i < (int)p_pass.uavs.size(); ++i) {
         if (GpuTexture* uav = p_pass.uavs[i].get()) {
@@ -448,6 +437,20 @@ void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
             UnbindUnorderedAccessView(i);
         }
     }
+}
+
+void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
+    auto framebuffer = p_pass.framebuffer.get();
+    RenderPassExcutionContext ctx{
+        .frameData = p_data,
+        .framebuffer = framebuffer,
+        .pass = p_pass,
+        .cmd = *this,
+    };
+
+    BeginPass(p_pass);
+    p_pass.func(ctx);
+    EndPass(p_pass);
 }
 
 }  // namespace cave::render

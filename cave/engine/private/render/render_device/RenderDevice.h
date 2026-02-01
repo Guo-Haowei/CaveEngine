@@ -54,9 +54,6 @@ public:
     // resource
     void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) override;
 
-    void BeginDrawPass(const RenderTargetDesc& p_target) override;
-    void EndDrawPass(const RenderTargetDesc& p_target) override;
-
     void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) override;
 
     auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override;
@@ -117,6 +114,9 @@ protected:
 
 protected:
     void UpdateEmitters(const Scene& p_scene) override;
+
+    void BeginPass(const RGRenderPass& p_pass) override;
+    void EndPass(const RGRenderPass& p_pass) override;
 
 private:
     void Execute(const FrameData& p_data, render::RGRenderPass& p_pass);

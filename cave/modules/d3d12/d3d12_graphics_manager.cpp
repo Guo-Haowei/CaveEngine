@@ -342,8 +342,8 @@ void D3d12GraphicsManager::SetRenderTarget(const RenderTarget* p_framebuffer, in
 void D3d12GraphicsManager::UnsetRenderTarget() {
 }
 
-void D3d12GraphicsManager::BeginDrawPass(const RenderTargetDesc& p_target) {
-    RenderDevice::BeginDrawPass(p_target);
+void D3d12GraphicsManager::BeginPass(const RGRenderPass& p_pass) {
+    RenderDevice::BeginPass(p_pass);
     DEV_ASSERT(0);
 #if 0
     ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
@@ -364,8 +364,8 @@ void D3d12GraphicsManager::BeginDrawPass(const RenderTargetDesc& p_target) {
 #endif
 }
 
-void D3d12GraphicsManager::EndDrawPass(const RenderTargetDesc& p_target) {
-    RenderDevice::EndDrawPass(p_target);
+void D3d12GraphicsManager::EndPass(const RGRenderPass& p_pass) {
+    RenderDevice::EndPass(p_pass);
     DEV_ASSERT(0);
     UnsetRenderTarget();
 #if 0

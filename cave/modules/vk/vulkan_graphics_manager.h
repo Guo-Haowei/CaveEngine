@@ -21,8 +21,6 @@ public:
 
     void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) override {}
     void UnsetRenderTarget() override {}
-    void BeginDrawPass(const RenderTargetDesc& p_target) override {}
-    void EndDrawPass(const RenderTargetDesc& p_target) override {}
 
     void Clear(const RenderTarget* p_framebuffer, ClearFlags p_flags, const float* p_clear_color, float p_clear_depth, uint8_t p_clear_stencil, int p_index) override {}
     void SetViewport(const Viewport& p_viewport) override {}

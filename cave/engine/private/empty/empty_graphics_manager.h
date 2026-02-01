@@ -24,8 +24,6 @@ public:
 
     void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index = 0, int p_mip_level = 0) override {}
     void UnsetRenderTarget() override {}
-    void BeginDrawPass(const RenderTargetDesc& p_target) override {}
-    void EndDrawPass(const RenderTargetDesc& p_target) override {}
 
     void Clear(const RenderTarget* p_framebuffer,
                ClearFlags p_flags,
@@ -105,6 +103,9 @@ protected:
     void EndFrame() override {}
     void MoveToNextFrame() override {}
     std::shared_ptr<FrameContext> CreateFrameContext() override { return nullptr; }
+
+    void BeginPass(const RGRenderPass& p_pass) override {}
+    void EndPass(const RGRenderPass& p_pass) override {}
 
     void OnWindowResize(int p_width, int p_height) override {}
     void SetPipelineStateImpl(PipelineStateName p_name) override {}

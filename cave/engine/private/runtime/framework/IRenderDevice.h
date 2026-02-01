@@ -37,6 +37,7 @@ struct RenderTarget;
 struct RenderTargetDesc;
 struct FrameContext;
 struct RenderSubmission;
+struct RGRenderPass;
 
 // @TODO: split this class to RenderDevice and RHI
 class IRenderDevice : public Module,
@@ -52,7 +53,7 @@ public:
 
     virtual auto InitializeImpl() -> Result<void> = 0;
 
-    virtual void Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) = 0;
+    virtual void Submit(std::unique_ptr<RenderSubmission>&& p_submission) = 0;
 
     // resource
     virtual auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> = 0;
@@ -61,8 +62,6 @@ public:
 
     virtual void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index = 0, int p_mip_level = 0) = 0;
     virtual void UnsetRenderTarget() = 0;
-    virtual void BeginDrawPass(const RenderTargetDesc& p_target) = 0;
-    virtual void EndDrawPass(const RenderTargetDesc& p_target) = 0;
 
     virtual void Clear(const RenderTarget* p_framebuffer,
                        ClearFlags p_flags,
@@ -153,6 +152,9 @@ protected:
     virtual void EndFrame() = 0;
     virtual void MoveToNextFrame() = 0;
     virtual std::shared_ptr<FrameContext> CreateFrameContext() = 0;
+
+    virtual void BeginPass(const RGRenderPass& p_pass) = 0;
+    virtual void EndPass(const RGRenderPass& p_pass) = 0;
 
     virtual void OnWindowResize(int p_width, int p_height) = 0;
     virtual void SetPipelineStateImpl(PipelineStateName p_name) = 0;

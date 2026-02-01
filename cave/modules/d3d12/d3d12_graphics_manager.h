@@ -33,8 +33,6 @@ public:
 
     void SetRenderTarget(const RenderTarget* p_framebuffer, int p_index, int p_mip_level) final;
     void UnsetRenderTarget() final;
-    void BeginDrawPass(const RenderTargetDesc& p_target) final;
-    void EndDrawPass(const RenderTargetDesc& p_target) final;
 
     void Clear(const RenderTarget* p_framebuffer,
                ClearFlags p_flags,
@@ -97,6 +95,9 @@ protected:
     void EndFrame() final;
     void MoveToNextFrame() final;
     std::shared_ptr<FrameContext> CreateFrameContext() final;
+
+    void BeginPass(const RGRenderPass& p_pass) final;
+    void EndPass(const RGRenderPass& p_pass) final;
 
     void OnWindowResize(int p_width, int p_height) final;
     void SetPipelineStateImpl(PipelineStateName p_name) final;

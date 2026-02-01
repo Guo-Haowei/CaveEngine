@@ -124,10 +124,6 @@ void DepthPrepassFunc(RenderPassExcutionContext& p_ctx) {
     RenderTarget* fb = p_ctx.framebuffer;
     auto& cmd = p_ctx.cmd;
     auto& frame = cmd.GetCurrentFrame();
-    const auto [width, height] = fb->GetBufferSize();
-
-    cmd.SetRenderTarget(fb);
-    cmd.SetViewport(Viewport(width, height));
 
     const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     cmd.Clear(fb, CLEAR_DEPTH_BIT | CLEAR_STENCIL_BIT, clear_color, 0.0f, STENCIL_FLAG_SKY);
@@ -151,10 +147,6 @@ void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
     auto& cmd = p_ctx.cmd;
 
     const auto& frame = cmd.GetCurrentFrame();
-    const auto [width, height] = fb->GetBufferSize();
-
-    cmd.SetRenderTarget(fb);
-    cmd.SetViewport(Viewport(width, height));
 
 #if 0
     const float clear_color[4] = { .3f, .3f, .3f, 1.0f };
@@ -189,10 +181,6 @@ void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
     auto& cmd = p_ctx.cmd;
 
     auto fb = p_ctx.framebuffer;
-    const auto [width, height] = fb->GetBufferSize();
-
-    cmd.SetRenderTarget(fb);
-    cmd.SetViewport(Viewport(width, height));
     cmd.Clear(fb, CLEAR_COLOR_BIT);
 
     cmd.SetPipelineState(PSO_SSAO);
@@ -205,10 +193,6 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
 
     auto fb = p_ctx.framebuffer;
     auto& cmd = p_ctx.cmd;
-    cmd.SetRenderTarget(fb);
-    const auto [width, height] = fb->GetBufferSize();
-
-    cmd.SetViewport(Viewport(width, height));
 
     cmd.SetPipelineState(PSO_HIGHLIGHT);
     cmd.SetStencilRef(STENCIL_FLAG_SELECTED);
@@ -219,6 +203,7 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
 }
 
 void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
+    DEV_ASSERT(0);
     if (p_ctx.frameData.voxelPass.pass_idx < 0) {
         return;
     }
