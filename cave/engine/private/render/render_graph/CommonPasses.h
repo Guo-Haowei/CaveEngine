@@ -24,15 +24,6 @@ struct PostProcessOutput {
     RGTextureId ds{};
 };
 
-struct SsaoInput {
-    RGTextureId depth{};
-    RGTextureId normal{};
-};
-
-struct SsaoOutput {
-    RGTextureId processed{};
-};
-
 struct LightingInput {
     RGTextureId color0{};
     RGTextureId color1{};
@@ -83,7 +74,6 @@ public:
     [[nodiscard]] DepthPrepassOutput AddDepthPrepass();
     [[nodiscard]] GbufferOutput AddGbufferPass(const DepthPrepassOutput& p_in);
     [[nodiscard]] LightingOutput AddLightingPass(const LightingInput& p_in);
-    [[nodiscard]] SsaoOutput AddSsaoPass(const SsaoInput& p_in);
     [[nodiscard]] PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
     [[nodiscard]] ForwardOutput AddForwardPass(const ForwardInput& p_in);
     [[nodiscard]] HighlightOutput AddHighlightPass(const HighlightInput& p_in);

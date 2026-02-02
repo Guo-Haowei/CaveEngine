@@ -32,9 +32,7 @@ public:
     };
 
     struct ImportDesc {
-        std::string debug_name;
         GpuTextureId external;
-        RGImportFunc func;
     };
 
     RenderGraphBuilder(const RenderGraphBuilderConfig& p_config);

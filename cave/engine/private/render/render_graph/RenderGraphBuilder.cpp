@@ -142,9 +142,8 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
 
     // 1. Create/Import resources
     for (const RGTextureNode& node : m_textures) {
-        if (node.import_fn) {
-            auto texture = node.import_fn();
-            render_graph->AddResource(node.handle, std::move(texture));
+        if (node.external) {
+            render_graph->AddResource(node.handle, std::move(node.external));
             continue;
         }
 
@@ -262,12 +261,12 @@ RGTextureId RenderGraphBuilder::CreateTexture(CreateDesc&& p_info) {
 }
 
 RGTextureId RenderGraphBuilder::ImportTexture(ImportDesc&& p_info) {
+    DEV_ASSERT(p_info.external);
     RGTextureId handle = AllocHandle();
     m_textures.resize(m_id);
     RGTextureNode& node = m_textures.back();
     node.handle = handle;
-    node.import_fn = std::move(p_info.func);
-    node.debug_name = std::move(p_info.debug_name);
+    node.external = std::move(p_info.external);
     return handle;
 }
 

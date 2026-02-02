@@ -192,6 +192,9 @@ struct GpuTexture {
     const GpuTextureDesc desc;
 };
 
+// @TODO: use actual id
+using GpuTextureId = std::shared_ptr<GpuTexture>;
+
 // @TODO: remove this
 template<typename T>
 struct ConstantBuffer {

@@ -4,8 +4,8 @@
 namespace cave::render {
 
 struct FramePlan {
-    bool enable_ssao{ false };
-    bool enable_bloom{ false };
+    bool enable_ssao{ true };
+    bool enable_bloom{ true };
 
     std::vector<FrameData> frame_data;
 };

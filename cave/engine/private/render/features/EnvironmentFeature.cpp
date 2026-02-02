@@ -70,16 +70,14 @@ static void PrefilteredFunc(RenderPassExcutionContext& p_ctx, uint16_t p_mip, ui
 EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_builder, const FramePlan& p_plan) {
     unused(p_plan);
 
-    RGTextureId env_hdr = p_builder.ImportTexture(
-        {
-            .debug_name = RG_RES_IBL,
-            .func = []() {
-                const char* path = "sky.hdr";
-                // const char* path = "forest.hdr";
-                std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage(path);
-                return RenderDevice::GetSingleton().CreateTexture(image.get());
-            },
-        });
+    if (!m_env_texture) {
+        const char* path = "sky.hdr";
+        // const char* path = "forest.hdr";
+        std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage(path);
+        m_env_texture = RenderDevice::GetSingleton().CreateTexture(image.get());
+    }
+
+    RGTextureId env_hdr = p_builder.ImportTexture({ m_env_texture });
 
     RGTextureId env_cube = p_builder.CreateTexture({
         .debug_name = RG_RES_ENV_SKYBOX_CUBE,
