@@ -10,17 +10,17 @@ namespace cave { struct GpuTexture; }
 namespace cave::render {
 
 class IRenderDevice;
-struct RGRenderPass;
+struct RenderPass;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;
-    RGRenderPass& pass;
+    RenderPass& pass;
     IRenderDevice& cmd;
 };
 
 using ExecuteFunc = std::function<void(RenderPassExcutionContext& ctx)>;
 
-struct RGRenderPass {
+struct RenderPass {
     std::string name;
 
     std::vector<ColorAttachmentDesc> colors;

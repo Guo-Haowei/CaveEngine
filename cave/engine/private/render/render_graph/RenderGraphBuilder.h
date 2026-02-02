@@ -25,6 +25,18 @@ struct RenderGraphBuilderConfig {
 
 class RenderGraphBuilder {
 public:
+    struct CreateDesc {
+        std::string debug_name;
+        GpuTextureDesc resourceDesc;
+        SamplerDesc samplerDesc = PointClampSampler();
+    };
+
+    struct ImportDesc {
+        std::string debug_name;
+        GpuTextureId external;
+        RGImportFunc func;
+    };
+
     RenderGraphBuilder(const RenderGraphBuilderConfig& p_config);
 
     RenderPassBuilder& AddPass(std::string_view p_name);
@@ -54,8 +66,8 @@ public:
                                        p_mips_level);
     }
 
-    RGTextureId CreateTexture(RGResourceCreateDesc&& p_info);
-    RGTextureId ImportTexture(RGResourceImportDesc&& p_info);
+    RGTextureId CreateTexture(CreateDesc&& p_info);
+    RGTextureId ImportTexture(ImportDesc&& p_info);
 
 protected:
     RenderGraphBuilderConfig m_config;

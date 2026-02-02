@@ -115,15 +115,15 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
     RenderPassBuilder& pass = AddPass(RG_PASS_GBUFFER);
 
     GbufferOutput out{
-        .color0 = CreateTexture(RGResourceCreateDesc{
+        .color0 = CreateTexture({
             RG_RES_GBUFFER_COLOR0,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_BASE_COLOR, AttachmentType::COLOR_2D),
         }),
-        .color1 = CreateTexture(RGResourceCreateDesc{
+        .color1 = CreateTexture({
             RG_RES_GBUFFER_COLOR1,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_NORMAL, AttachmentType::COLOR_2D),
         }),
-        .color2 = CreateTexture(RGResourceCreateDesc{
+        .color2 = CreateTexture({
             RG_RES_GBUFFER_COLOR2,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_MATERIAL, AttachmentType::COLOR_2D),
         }),
@@ -162,7 +162,7 @@ SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
 
 LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in) {
 
-    RGTextureId out = CreateTexture(RGResourceCreateDesc{
+    RGTextureId out = CreateTexture({
         RG_RES_LIGHTING,
         BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
     });
@@ -227,7 +227,7 @@ PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInp
     desc.bindFlags |= BIND_SHADER_RESOURCE;
 
     PostProcessOutput out{
-        .processed = CreateTexture(RGResourceCreateDesc{
+        .processed = CreateTexture({
             RG_RES_POST_PROCESS,
             desc,
         }),

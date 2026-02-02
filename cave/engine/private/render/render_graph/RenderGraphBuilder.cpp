@@ -220,7 +220,7 @@ auto RenderGraphBuilder::Compile() -> Result<std::shared_ptr<RenderGraph>> {
             }
         }
 
-        auto render_pass = std::make_shared<RGRenderPass>();
+        auto render_pass = std::make_shared<RenderPass>();
         render_pass->name = std::move(pass_builder.m_name);
         render_pass->func = std::move(pass_builder.m_func);
 
@@ -250,7 +250,7 @@ const RGTextureNode* RenderGraphBuilder::GetLogicalTexture(RGTextureId p_handle)
     return &m_textures[p_handle.Underlying() - 1];
 }
 
-RGTextureId RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info) {
+RGTextureId RenderGraphBuilder::CreateTexture(CreateDesc&& p_info) {
     RGTextureId handle = AllocHandle();
     m_textures.resize(m_id);
     RGTextureNode& node = m_textures.back();
@@ -261,7 +261,7 @@ RGTextureId RenderGraphBuilder::CreateTexture(RGResourceCreateDesc&& p_info) {
     return handle;
 }
 
-RGTextureId RenderGraphBuilder::ImportTexture(RGResourceImportDesc&& p_info) {
+RGTextureId RenderGraphBuilder::ImportTexture(ImportDesc&& p_info) {
     RGTextureId handle = AllocHandle();
     m_textures.resize(m_id);
     RGTextureNode& node = m_textures.back();

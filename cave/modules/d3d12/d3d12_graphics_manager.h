@@ -90,8 +90,8 @@ protected:
     void MoveToNextFrame() final;
     std::shared_ptr<FrameContext> CreateFrameContext() final;
 
-    void BeginPass(const RGRenderPass& p_pass) final;
-    void EndPass(const RGRenderPass& p_pass) final;
+    void BeginPass(const RenderPass& p_pass) final;
+    void EndPass(const RenderPass& p_pass) final;
 
     void OnWindowResize(int p_width, int p_height) final;
     void SetPipelineStateImpl(PipelineStateName p_name) final;

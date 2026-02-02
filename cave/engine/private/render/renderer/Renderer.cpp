@@ -344,7 +344,7 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
 
     RenderGraphBuilderExt builder(config);
 
-    RGTextureId brdf = builder.ImportTexture(RGResourceImportDesc{
+    RGTextureId brdf = builder.ImportTexture({
         .debug_name = RG_RES_BRDF,
         .func = []() {
             std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
@@ -352,12 +352,12 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
         },
     });
 
-    RGTextureId ltc1 = builder.ImportTexture(RGResourceImportDesc{
+    RGTextureId ltc1 = builder.ImportTexture({
         .debug_name = RG_RES_LTC1,
         .func = []() { return GenerateLTC(RG_RES_LTC1, LTC1); },
     });
 
-    RGTextureId ltc2 = builder.ImportTexture(RGResourceImportDesc{
+    RGTextureId ltc2 = builder.ImportTexture({
         .debug_name = RG_RES_LTC2,
         .func = []() { return GenerateLTC(RG_RES_LTC2, LTC2); },
     });

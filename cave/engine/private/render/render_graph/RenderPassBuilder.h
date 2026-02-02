@@ -1,26 +1,9 @@
 #pragma once
 #include "engine/private/renderer/sampler.h"
-#include "RGRenderPass.h"
+#include "RenderPass.h"
 #include "RenderGraphTypes.h"
 
-// clang-format off
-namespace cave { struct GpuTexture; }
-// clang-format on
-
 namespace cave::render {
-
-class RenderGraphBuilder;
-
-struct RGResourceCreateDesc {
-    std::string debug_name;
-    GpuTextureDesc resourceDesc;
-    SamplerDesc samplerDesc = PointClampSampler();
-};
-
-struct RGResourceImportDesc {
-    std::string debug_name;
-    RGImportFunc func;
-};
 
 class RenderPassBuilder {
 public:

@@ -27,7 +27,7 @@ struct GpuConstantBuffer;
 
 namespace cave::render {
 
-struct RGRenderPass;
+struct RenderPass;
 
 struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> batchCb;
@@ -115,11 +115,11 @@ protected:
 protected:
     void UpdateEmitters(const Scene& p_scene) override;
 
-    void BeginPass(const RGRenderPass& p_pass) override;
-    void EndPass(const RGRenderPass& p_pass) override;
+    void BeginPass(const RenderPass& p_pass) override;
+    void EndPass(const RenderPass& p_pass) override;
 
 private:
-    void Execute(const FrameData& p_data, render::RGRenderPass& p_pass);
+    void Execute(const FrameData& p_data, render::RenderPass& p_pass);
 };
 
 }  // namespace cave::render

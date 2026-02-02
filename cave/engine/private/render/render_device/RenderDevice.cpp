@@ -1,7 +1,6 @@
 #include "RenderDevice.h"
 
 #include "engine/private/render/renderer/RenderSubmission.h"
-#include "engine/private/render/render_graph/RGRenderPass.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: determine if includes are necessary
@@ -395,7 +394,7 @@ void RenderDevice::DrawSkybox() {
     DrawElements(m_skyboxBuffers->desc.drawCount);
 }
 
-void RenderDevice::BeginPass(const RGRenderPass& p_pass) {
+void RenderDevice::BeginPass(const RenderPass& p_pass) {
     // bind srvs
     for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = p_pass.srvs[i].get()) {
@@ -434,7 +433,7 @@ void RenderDevice::BeginPass(const RGRenderPass& p_pass) {
     SetViewport(p_pass.viewport ? *p_pass.viewport : Viewport(width, height));
 }
 
-void RenderDevice::EndPass(const RGRenderPass& p_pass) {
+void RenderDevice::EndPass(const RenderPass& p_pass) {
     UnsetRenderTargets();
 
     // unbind srvs
@@ -455,7 +454,7 @@ void RenderDevice::EndPass(const RGRenderPass& p_pass) {
     }
 }
 
-void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
+void RenderDevice::Execute(const FrameData& p_data, RenderPass& p_pass) {
     RenderPassExcutionContext ctx{
         .frameData = p_data,
         .pass = p_pass,
