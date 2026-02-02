@@ -1,6 +1,6 @@
 #include "CompiledGraph.h"
 
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/renderer/TransientPool.h"
 
 namespace cave::render {
 
@@ -19,7 +19,7 @@ std::shared_ptr<GpuTexture> CompiledGraph::FindResource(RGTextureId p_handle) {
     return m_resources[it->second];
 }
 
-void CompiledGraph::Resolve(IRenderDevice& p_device) {
+void CompiledGraph::Resolve(TransientPool& p_pool) {
     // 1. Create/Import resources
     for (const RGTextureNode& node : m_textures) {
         if (node.external) {
@@ -44,7 +44,10 @@ void CompiledGraph::Resolve(IRenderDevice& p_device) {
             desc.bindFlags |= BIND_UNORDERED_ACCESS;
         }
 
-        auto texture = p_device.CreateTexture(desc, node.sampler);
+        auto texture = p_pool.AcquireTexture({
+            .texture = desc,
+            .sampler = node.sampler,
+        });
         AddResource(node.handle, texture);
     }
 

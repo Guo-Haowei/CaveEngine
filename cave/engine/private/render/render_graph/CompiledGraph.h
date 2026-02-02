@@ -13,7 +13,7 @@ struct FrameData;
 
 namespace cave::render {
 
-class RenderDevice;
+class TransientPool;
 
 class CompiledGraph : public NonCopyable {
 public:
@@ -27,7 +27,7 @@ public:
 
     std::span<const CompiledPass> GetCompiledPass() const { return m_compiled_pass; }
 
-    void Resolve(IRenderDevice& p_device);
+    void Resolve(TransientPool& p_pool);
 
 private:
     std::vector<CompiledPass> m_compiled_pass;

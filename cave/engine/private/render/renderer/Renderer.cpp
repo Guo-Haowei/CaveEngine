@@ -11,6 +11,7 @@
 #include "engine/private/render/renderer/RenderScene.h"
 #include "engine/private/render/renderer/RenderSceneBuilder.h"
 #include "engine/private/render/renderer/RenderSubmission.h"
+#include "engine/private/render/renderer/TransientPool.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -49,6 +50,7 @@ class Renderer::Impl {
 public:
     Impl(IApplication& p_app)
         : m_app(p_app)
+        , m_pool(*p_app.GetRenderDevice())
         , m_ssao(*p_app.GetRenderDevice()) {}
 
     auto Initialize() -> Result<void>;
@@ -70,6 +72,7 @@ private:
     std::shared_ptr<CompiledGraph> m_render_graph;
 
     // features
+    TransientPool m_pool;
     EnvironmentFeature m_env;
     ShadowFeature m_shadow;
     SsaoFeature m_ssao;
@@ -204,7 +207,7 @@ auto Renderer::Impl::Initialize() -> Result<void> {
         return CAVE_ERROR(res.error());
     } else {
         m_render_graph = *res;
-        m_render_graph->Resolve(*m_app.GetRenderDevice());
+        m_render_graph->Resolve(m_pool);
 
         g_graph = m_render_graph.get();
         return Result<void>();
