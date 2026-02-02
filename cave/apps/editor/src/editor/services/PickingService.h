@@ -7,8 +7,9 @@ class EditorState;
 
 struct PickRequest {
     TabId tab_id;
-    float x_view_px;
-    float y_view_px;
+    math::Vector2f cursor;  // cursor in window space
+    math::Vector2f pos;     // viewport position in screen space
+    math::Vector2f size;    // viewport size
 };
 
 class PickingService {

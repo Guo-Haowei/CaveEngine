@@ -29,7 +29,7 @@ void EditorWindow::UpdateState() {
     ImVec2 pos = ImGui::GetWindowPos();
     ImVec2 size = ImGui::GetWindowSize();
 
-    ImGui::GetForegroundDrawList()->AddCircle(pos, 10.f, IM_COL32(255, 0, 0, 255));
+    // ImGui::GetForegroundDrawList()->AddCircle(pos, 10.f, IM_COL32(255, 0, 0, 255));
 
     m_top_left = { pos.x, pos.y };
     m_size = { size.x, size.y };

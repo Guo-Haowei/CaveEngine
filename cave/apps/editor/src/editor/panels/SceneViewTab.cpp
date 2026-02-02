@@ -12,7 +12,6 @@
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/framework/DisplayManager.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/framework/InputSystem.h"
@@ -148,14 +147,10 @@ void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
                     case Key::RMB: {
                         PickRequest req{};
                         req.tab_id = GetTabId();
-                        auto [win_x, win_y] = m_editor.GetApp().GetDisplayManager()->GetWindowPos();
 
-                        req.x_view_px = win_x + e.x - m_view_rect.x;
-                        req.y_view_px = win_y + e.y - m_view_rect.y;
-
-                        // @TODO: check if normalized is
-                        req.x_view_px /= m_view_rect.w;
-                        req.y_view_px /= m_view_rect.h;
+                        req.cursor = Vector2f(e.x, e.y);
+                        req.pos = Vector2f(m_view_rect.x, m_view_rect.y);
+                        req.size = Vector2f(m_view_rect.w, m_view_rect.h);
 
                         m_editor.PickingService().Submit(std::move(req));
                         e.consumed = true;
