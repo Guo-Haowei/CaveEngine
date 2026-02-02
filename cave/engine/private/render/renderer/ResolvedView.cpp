@@ -63,6 +63,7 @@ ResolvedView ResolveView(const ViewDesc& p_view, const Scene* p_scene, bool p_is
         .vp_h = static_cast<float>(cam->GetHeight()),
         .aspect = cam->GetAspect(),
         .fovy = cam->GetFovy(),
+        .highlight = p_view.highlight,
     };
 }
 

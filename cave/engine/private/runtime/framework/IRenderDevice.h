@@ -36,7 +36,7 @@ namespace cave::render {
 struct RenderTargetDesc;
 struct FrameContext;
 struct RenderSubmission;
-struct RGRenderPass;
+struct CompiledPass;
 
 // @TODO: split this class to RenderDevice and RHI
 class IRenderDevice : public Module,
@@ -144,8 +144,8 @@ protected:
     virtual void MoveToNextFrame() = 0;
     virtual std::shared_ptr<FrameContext> CreateFrameContext() = 0;
 
-    virtual void BeginPass(const RGRenderPass& p_pass) = 0;
-    virtual void EndPass(const RGRenderPass& p_pass) = 0;
+    virtual void BeginPass(const CompiledPass& p_pass) = 0;
+    virtual void EndPass(const CompiledPass& p_pass) = 0;
 
     virtual void OnWindowResize(int p_width, int p_height) = 0;
     virtual void SetPipelineStateImpl(PipelineStateName p_name) = 0;

@@ -1,43 +1,83 @@
 #pragma once
-#include "cave/core/NonCopyable.h"
+#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/pixel_format.h"
+#include "RenderPass.h"
 
-#include "RenderGraphTypes.h"
-#include "RGRenderPass.h"
-
-namespace cave {
-
-struct FrameData;
-
-}  // namespace cave
+// clang-format off
+namespace cave { struct FrameData; }
+// clang-format on
 
 namespace cave::render {
 
-class RenderDevice;
+class CompiledGraph;
 
-class RenderGraph : public NonCopyable {
+struct RenderGraphConfig {
+    bool enablePointShadow = true;
+    bool enableVxgi = true;
+    bool enableIbl = true;
+    bool enableBloom = true;
+    bool enableHighlight = true;
+
+    int frameWidth;
+    int frameHeight;
+};
+
+class RenderGraph {
 public:
-    struct Edge {
-        int from;
-        int to;
+    struct CreateDesc {
+        std::string debug_name;
+        GpuTextureDesc resourceDesc;
+        SamplerDesc samplerDesc = PointClampSampler();
     };
 
-    void AddResource(RGTextureId p_handle, const std::shared_ptr<GpuTexture>& p_resource);
-    std::shared_ptr<GpuTexture> FindResource(RGTextureId p_handle);
+    struct ImportDesc {
+        GpuTextureId external;
+    };
 
-    void AddPass(const std::string& p_name, const std::shared_ptr<RGRenderPass>& p_pass);
-    RGRenderPass* FindPass(const std::string& p_name);
+    RenderGraph(const RenderGraphConfig& p_config);
 
-    const auto& GetRenderPasses() const { return m_renderPasses; }
+    RenderPass& AddPass(std::string_view p_name);
+
+    [[nodiscard]] auto Compile() -> Result<std::shared_ptr<CompiledGraph>>;
+
+    GpuTextureDesc BuildDefaultTextureDesc(PixelFormat p_format,
+                                           AttachmentType p_type,
+                                           uint32_t p_width,
+                                           uint32_t p_height,
+                                           uint32_t p_array_size = 1,
+                                           ResourceMiscFlags p_misc_flag = RESOURCE_MISC_NONE,
+                                           uint32_t p_mips_level = 0);
+
+    GpuTextureDesc BuildDefaultTextureDesc(PixelFormat p_format,
+                                           AttachmentType p_type,
+                                           uint32_t p_array_size = 1,
+                                           ResourceMiscFlags p_misc_flag = RESOURCE_MISC_NONE,
+                                           uint32_t p_mips_level = 0) {
+
+        return BuildDefaultTextureDesc(p_format,
+                                       p_type,
+                                       m_config.frameWidth,
+                                       m_config.frameHeight,
+                                       p_array_size,
+                                       p_misc_flag,
+                                       p_mips_level);
+    }
+
+    RGTextureId CreateTexture(CreateDesc&& p_info);
+    RGTextureId ImportTexture(ImportDesc&& p_info);
+
+protected:
+    RenderGraphConfig m_config;
+
+    std::vector<RenderPass> m_passes;
 
 private:
-    std::vector<std::shared_ptr<RGRenderPass>> m_renderPasses;
-    std::unordered_map<std::string, int> m_renderPassLookup;
+    RGTextureNode* GetLogicalTexture(RGTextureId p_handle);
+    const RGTextureNode* GetLogicalTexture(RGTextureId p_handle) const;
 
-    std::vector<std::shared_ptr<GpuTexture>> m_resources;
-    std::unordered_map<RGTextureId, int> m_resourceLookup;
-
-    friend class RenderGraphBuilder;
-    friend class RenderDevice;
+    RGTextureId AllocHandle();
+    std::vector<RGTextureNode> m_textures;
+    RGTextureId::Type m_id{};
 };
 
 }  // namespace cave::render

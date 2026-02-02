@@ -54,17 +54,12 @@ struct OutTriangle {
     int discarded = false;
 };
 
-class SwGraphicsManager : public EmptyGraphicsManager {
+class SwGraphicsManager : public render::EmptyGraphicsManager {
 public:
     SwGraphicsManager()
         : EmptyGraphicsManager("SwGraphicsManager") {}
 
-    void Clear(const Framebuffer* p_framebuffer,
-               ClearFlags p_flags,
-               const float* p_clear_color = DEFAULT_CLEAR_COLOR,
-               float p_clear_depth = 1.0f,
-               uint8_t p_clear_stencil = 0,
-               int p_index = 0) override;
+    void Clear(const render::RenderTargetDesc& p_target) override;
 
     void SetPipelineStateImpl(PipelineStateName p_name) override;
 

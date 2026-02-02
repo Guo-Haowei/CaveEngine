@@ -2,7 +2,7 @@
 #include "cave/core/Singleton.h"
 
 #include "engine/private/render/rhi/RenderTarget.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/render_graph/CompiledGraph.h"
 
 #include "engine/private/core/base/concurrent_queue.h"
 #include "engine/private/core/math/geomath.h"
@@ -27,7 +27,7 @@ struct GpuConstantBuffer;
 
 namespace cave::render {
 
-struct RGRenderPass;
+struct CompiledPass;
 
 struct FrameContext {
     std::shared_ptr<GpuConstantBuffer> batchCb;
@@ -115,11 +115,11 @@ protected:
 protected:
     void UpdateEmitters(const Scene& p_scene) override;
 
-    void BeginPass(const RGRenderPass& p_pass) override;
-    void EndPass(const RGRenderPass& p_pass) override;
+    void BeginPass(const CompiledPass& p_pass) override;
+    void EndPass(const CompiledPass& p_pass) override;
 
 private:
-    void Execute(const FrameData& p_data, render::RGRenderPass& p_pass);
+    void Execute(const FrameData& p_data, const CompiledPass& p_pass);
 };
 
 }  // namespace cave::render

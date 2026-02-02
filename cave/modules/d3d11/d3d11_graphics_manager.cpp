@@ -9,7 +9,7 @@
 #include "d3d11_helpers.h"
 #include "d3d11_pipeline_state_manager.h"
 #include "d3d11_resources.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_private.h"

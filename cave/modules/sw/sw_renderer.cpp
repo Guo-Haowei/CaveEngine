@@ -7,6 +7,7 @@
 namespace cave {
 
 using namespace cave::math;
+using namespace cave::render;
 
 // config
 static constexpr int TILE_SIZE = 32;
@@ -211,21 +212,18 @@ void SwGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name) {
     unused(p_name);
 }
 
-void SwGraphicsManager::Clear(const Framebuffer* p_framebuffer,
-                              ClearFlags p_flags,
-                              const float* p_clear_color,
-                              float p_clear_depth,
-                              uint8_t,
-                              int) {
-    unused(p_framebuffer);
+void SwGraphicsManager::Clear(const render::RenderTargetDesc& p_target) {
+    unused(p_target);
+    CRASH_NOW();
+    // unused(p_framebuffer);
 
-    if (p_flags & ClearFlags::CLEAR_COLOR_BIT) {
-        auto clear_color = reinterpret_cast<const Vector4f*>(p_clear_color);
-        m_state.rt->m_colorBuffer.clear(*clear_color);
-    }
-    if (p_flags & ClearFlags::CLEAR_DEPTH_BIT) {
-        m_state.rt->m_depthBuffer.clear(p_clear_depth);
-    }
+    // if (p_flags & ClearFlags::CLEAR_COLOR_BIT) {
+    //     auto clear_color = reinterpret_cast<const Vector4f*>(p_clear_color);
+    //     m_state.rt->m_colorBuffer.clear(*clear_color);
+    // }
+    // if (p_flags & ClearFlags::CLEAR_DEPTH_BIT) {
+    //     m_state.rt->m_depthBuffer.clear(p_clear_depth);
+    // }
 }
 
 void SwGraphicsManager::DrawElements(uint32_t p_count, uint32_t p_offset) {

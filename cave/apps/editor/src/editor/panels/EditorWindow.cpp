@@ -16,22 +16,17 @@ void EditorWindow::DrawUI() {
 
 void EditorWindow::ResetState() {
     m_state = {};
-    m_rect = {};
 }
 
 void EditorWindow::UpdateState() {
-
     m_state.open = true;
     m_state.visible = !ImGui::IsWindowCollapsed();
     m_state.focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
     m_state.hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
-    ImVec2 pos = ImGui::GetWindowPos();
-    ImVec2 size = ImGui::GetWindowSize();
-    m_rect.x = pos.x;
-    m_rect.y = pos.y;
-    m_rect.w = size.x;
-    m_rect.h = size.y;
+    // ImVec2 pos = ImGui::GetWindowPos();
+    // ImVec2 size = ImGui::GetWindowSize();
+    // ImGui::GetForegroundDrawList()->AddCircle(pos, 10.f, IM_COL32(255, 0, 0, 255));
 }
 
 }  // namespace cave

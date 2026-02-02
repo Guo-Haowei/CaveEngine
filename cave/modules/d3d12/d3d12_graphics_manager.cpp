@@ -346,7 +346,7 @@ void D3d12GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_desc) {
 void D3d12GraphicsManager::UnsetRenderTargets() {
 }
 
-void D3d12GraphicsManager::BeginPass(const RGRenderPass& p_pass) {
+void D3d12GraphicsManager::BeginPass(const CompiledPass& p_pass) {
     RenderDevice::BeginPass(p_pass);
     DEV_ASSERT(0);
 #if 0
@@ -368,7 +368,7 @@ void D3d12GraphicsManager::BeginPass(const RGRenderPass& p_pass) {
 #endif
 }
 
-void D3d12GraphicsManager::EndPass(const RGRenderPass& p_pass) {
+void D3d12GraphicsManager::EndPass(const CompiledPass& p_pass) {
     RenderDevice::EndPass(p_pass);
     DEV_ASSERT(0);
     UnsetRenderTargets();

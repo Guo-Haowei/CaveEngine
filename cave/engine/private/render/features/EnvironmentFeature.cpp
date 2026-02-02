@@ -2,7 +2,8 @@
 #include "EnvironmentFeature.h"
 
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/render/render_graph/RenderGraphBuilder.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/renderer/TransientPool.h"
 
 // @TODO: remove these
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -24,10 +25,6 @@ constexpr const char RG_RES_ENV_PREFILTERED_CUBE[] = "r:prefiltered_cube";
 static void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx, int p_face) {
     CAVE_PROFILE_EVENT();
 
-    if (!p_ctx.frameData.bakeIbl) {
-        return;
-    }
-
     auto& cmd = p_ctx.cmd;
 
     cmd.SetPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
@@ -43,10 +40,6 @@ static void ConvertToCubemapFunc(RenderPassExcutionContext& p_ctx, int p_face) {
 static void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx, int p_face) {
     CAVE_PROFILE_EVENT();
 
-    if (!p_ctx.frameData.bakeIbl) {
-        return;
-    }
-
     auto& cmd = p_ctx.cmd;
 
     cmd.SetPipelineState(PSO_DIFFUSE_IRRADIANCE);
@@ -56,9 +49,6 @@ static void DiffuseIrradianceFunc(RenderPassExcutionContext& p_ctx, int p_face) 
 
 static void PrefilteredFunc(RenderPassExcutionContext& p_ctx, uint16_t p_mip, uint16_t p_face) {
     CAVE_PROFILE_EVENT();
-    if (!p_ctx.frameData.bakeIbl) {
-        return;
-    }
 
     auto& cmd = p_ctx.cmd;
     const int index = p_mip * 6 + p_face;
@@ -67,21 +57,37 @@ static void PrefilteredFunc(RenderPassExcutionContext& p_ctx, uint16_t p_mip, ui
     cmd.DrawSkybox();
 }
 
-EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_builder, const FramePlan& p_plan) {
+EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, const FramePlan& p_plan) {
     unused(p_plan);
 
-    RGTextureId env_hdr = p_builder.ImportTexture(
-        {
-            .debug_name = RG_RES_IBL,
-            .func = []() {
-                std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("sky.hdr");
-                return RenderDevice::GetSingleton().CreateTexture(image.get());
-            },
-        });
+    if (GpuTextureId env_cube = m_pool.TryGetTexture(RG_RES_ENV_SKYBOX_CUBE)) {
+        GpuTextureId diffuse = m_pool.TryGetTexture(RG_RES_ENV_DIFFUSE_CUBE);
+        GpuTextureId specular = m_pool.TryGetTexture(RG_RES_ENV_PREFILTERED_CUBE);
+        DEV_ASSERT(diffuse);
+        DEV_ASSERT(specular);
 
-    RGTextureId env_cube = p_builder.CreateTexture({
+        RGTextureId env_cube_id = p_graph.ImportTexture({ env_cube });
+        RGTextureId diffuse_id = p_graph.ImportTexture({ diffuse });
+        RGTextureId specular_id = p_graph.ImportTexture({ specular });
+        return {
+            .skybox = env_cube_id,
+            .ibl_diffuse = diffuse_id,
+            .ibl_prefiltered = specular_id,
+        };
+    }
+
+    if (!m_env_texture) {
+        const char* path = "sky.hdr";
+        // const char* path = "forest.hdr";
+        std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage(path);
+        m_env_texture = RenderDevice::GetSingleton().CreateTexture(image.get());
+    }
+
+    RGTextureId env_hdr = p_graph.ImportTexture({ m_env_texture });
+
+    RGTextureId env_cube_id = p_graph.CreateTexture({
         .debug_name = RG_RES_ENV_SKYBOX_CUBE,
-        .resourceDesc = p_builder.BuildDefaultTextureDesc(
+        .resourceDesc = p_graph.BuildDefaultTextureDesc(
             PixelFormat::R32G32B32A32_FLOAT,
             AttachmentType::COLOR_CUBE,
             RT_SIZE_IBL_CUBEMAP,
@@ -92,9 +98,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
         .samplerDesc = CubemapSampler(),
     });
 
-    RGTextureId ibl_diffuse = p_builder.CreateTexture({
+    RGTextureId ibl_diffuse_id = p_graph.CreateTexture({
         .debug_name = RG_RES_ENV_DIFFUSE_CUBE,
-        .resourceDesc = p_builder.BuildDefaultTextureDesc(
+        .resourceDesc = p_graph.BuildDefaultTextureDesc(
             PixelFormat::R32G32B32A32_FLOAT,
             AttachmentType::COLOR_CUBE,
             RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
@@ -103,9 +109,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
         .samplerDesc = CubemapNoMipSampler(),
     });
 
-    RGTextureId ibl_prefiltered = p_builder.CreateTexture({
+    RGTextureId ibl_specular_id = p_graph.CreateTexture({
         .debug_name = RG_RES_ENV_PREFILTERED_CUBE,
-        .resourceDesc = p_builder.BuildDefaultTextureDesc(
+        .resourceDesc = p_graph.BuildDefaultTextureDesc(
             PixelFormat::R32G32B32A32_FLOAT,
             AttachmentType::COLOR_CUBE,
             RT_SIZE_IBL_PREFILTERED_CUBEMAP,
@@ -119,25 +125,26 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
     // bake environment cubemap
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_SKYBOX, face);
-        RenderPassBuilder& pass = p_builder.AddPass(pass_name);
+        RenderPass& pass = p_graph.AddPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
         pass.Read(ResourceAccess::SRV, env_hdr)
-            .WriteColor(env_cube, view_desc, LoadOp::Load)
+            .WriteColor(env_cube_id, view_desc, LoadOp::Load)
             .SetExecuteFunc([face](RenderPassExcutionContext& p_context) {
                 ConvertToCubemapFunc(p_context, face);
             });
     }
 
+    // bake irradiance map
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_DIFFUSE, face);
-        RenderPassBuilder& pass = p_builder.AddPass(pass_name);
+        RenderPass& pass = p_graph.AddPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
-        pass.Read(ResourceAccess::SRV, env_cube)
-            .WriteColor(ibl_diffuse, view_desc, LoadOp::Load)
+        pass.Read(ResourceAccess::SRV, env_cube_id)
+            .WriteColor(ibl_diffuse_id, view_desc, LoadOp::Load)
             .SetExecuteFunc([face](RenderPassExcutionContext& p_context) {
                 DiffuseIrradianceFunc(p_context, face);
             });
@@ -153,9 +160,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
                 .array_size = 1,
             };
             std::string pass_name = std::format("{}_{}_{}", RG_PASS_BAKE_PREFILTERED, mip, face);
-            RenderPassBuilder& pass = p_builder.AddPass(pass_name);
-            pass.Read(ResourceAccess::SRV, ibl_diffuse)
-                .WriteColor(ibl_prefiltered, view_desc, LoadOp::Load)
+            RenderPass& pass = p_graph.AddPass(pass_name);
+            pass.Read(ResourceAccess::SRV, env_cube_id)
+                .WriteColor(ibl_specular_id, view_desc, LoadOp::Load)
                 .SetViewport(Viewport(w, h))
                 .SetExecuteFunc([mip, face](RenderPassExcutionContext& p_context) {
                     PrefilteredFunc(p_context, mip, face);
@@ -163,10 +170,12 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
         }
     }
 
+    m_generated = true;
+
     return {
-        .skybox = env_cube,
-        .ibl_diffuse = ibl_diffuse,
-        .ibl_prefiltered = ibl_prefiltered,
+        .skybox = env_cube_id,
+        .ibl_diffuse = ibl_diffuse_id,
+        .ibl_prefiltered = ibl_specular_id,
     };
 }
 

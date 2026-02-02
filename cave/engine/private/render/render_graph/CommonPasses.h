@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderGraphBuilder.h"
+#include "RenderGraph.h"
 
 namespace cave::render {
 
@@ -22,15 +22,6 @@ struct PostProcessInput {
 struct PostProcessOutput {
     RGTextureId processed{};
     RGTextureId ds{};
-};
-
-struct SsaoInput {
-    RGTextureId depth{};
-    RGTextureId normal{};
-};
-
-struct SsaoOutput {
-    RGTextureId processed{};
 };
 
 struct LightingInput {
@@ -68,17 +59,24 @@ struct ForwardInput {
 struct ForwardOutput {
 };
 
-class RenderGraphBuilderExt : public RenderGraphBuilder {
+struct HighlightInput {
+    RGTextureId stencil{};
+};
+
+struct HighlightOutput {
+    RGTextureId outline{};
+};
+
+class RenderGraphBuilderExt : public RenderGraph {
 public:
     //[[nodiscard]] auto CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
 
     [[nodiscard]] DepthPrepassOutput AddDepthPrepass();
     [[nodiscard]] GbufferOutput AddGbufferPass(const DepthPrepassOutput& p_in);
     [[nodiscard]] LightingOutput AddLightingPass(const LightingInput& p_in);
-    [[nodiscard]] SsaoOutput AddSsaoPass(const SsaoInput& p_in);
     [[nodiscard]] PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
     [[nodiscard]] ForwardOutput AddForwardPass(const ForwardInput& p_in);
-    // void AddHighlightPass();
+    [[nodiscard]] HighlightOutput AddHighlightPass(const HighlightInput& p_in);
     // void AddVoxelizationPass();
     // void AddBloomPass();
 

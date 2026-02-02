@@ -4,12 +4,15 @@
 
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/render/features/EnvironmentFeature.h"
+#include "engine/private/render/features/PrecomputedTextures.h"
 #include "engine/private/render/features/ShadowFeature.h"
+#include "engine/private/render/features/SsaoFeature.h"
 #include "engine/private/render/renderer/FramePlan.h"
 #include "engine/private/render/renderer/RenderScene.h"
 #include "engine/private/render/renderer/RenderSceneBuilder.h"
 #include "engine/private/render/renderer/RenderSubmission.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/renderer/TransientPool.h"
+#include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
@@ -22,7 +25,6 @@
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
 // @TODO: remove
-#include "engine/private/renderer/ltc_matrix.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
@@ -36,7 +38,7 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 }  // namespace cave
 
 // @HACK: expose render graph for debugging
-cave::render::RenderGraph* g_graph = nullptr;
+cave::render::CompiledGraph* g_graph = nullptr;
 
 namespace cave::render {
 
@@ -44,31 +46,13 @@ using math::Vector2i;
 using math::Vector3f;
 using math::Vector4f;
 
-// @TODO: refactor
-static std::shared_ptr<GpuTexture> GenerateLTC(std::string_view p_name, const float* p_matrix_table) {
-    constexpr int LTC_SIZE = 64;
-    GpuTextureDesc desc{
-        .type = AttachmentType::NONE,
-        .dimension = Dimension::TEXTURE_2D,
-        .width = LTC_SIZE,
-        .height = LTC_SIZE,
-        .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
-        .format = PixelFormat::R32G32B32A32_FLOAT,
-        .bindFlags = BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
-        .initialData = p_matrix_table,
-        .name = std::string(p_name),
-    };
-
-    return RenderDevice::GetSingleton().CreateTexture(desc, PointClampSampler());
-}
-
 class Renderer::Impl {
 public:
     Impl(IApplication& p_app)
-        : m_app(p_app) {}
+        : m_app(p_app)
+        , m_pool(*p_app.GetRenderDevice())
+        , m_env(m_pool)
+        , m_ssao(*p_app.GetRenderDevice()) {}
 
     auto Initialize() -> Result<void>;
 
@@ -76,7 +60,7 @@ public:
 
 private:
     FramePlan BuildFramePlan(std::span<const render::ViewDesc> p_views);
-    auto BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<RenderGraph>>;
+    auto BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>>;
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
@@ -86,11 +70,16 @@ private:
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
 
     // @TODO: remove
-    std::shared_ptr<RenderGraph> m_render_graph;
+    std::shared_ptr<CompiledGraph> m_render_graph;
 
     // features
-    ShadowFeature m_shadow;
+    TransientPool m_pool;
     EnvironmentFeature m_env;
+    ShadowFeature m_shadow;
+    SsaoFeature m_ssao;
+    GpuTextureId m_brdf{};
+    GpuTextureId m_ltc1{};
+    GpuTextureId m_ltc2{};
 };
 
 Renderer::Renderer()
@@ -133,38 +122,6 @@ static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matri
 };
 #endif
 
-using KernelData = std::array<Vector4f, 64>;
-
-static_assert(sizeof(KernelData) == sizeof(Vector4f) * SSAO_KERNEL_SIZE);
-
-// @TODO: move it to somewhere else
-static KernelData GenerateSsaoKernel() {
-    auto lerp = [](float a, float b, float f) {
-        return a + f * (b - a);
-    };
-
-    KernelData kernel;
-
-    const int kernel_size = 32;
-    const float inv_kernel_size = 1.0f / kernel_size;
-    for (int i = 0; i < static_cast<int>(kernel.size()); ++i) {
-        // [-1, 1], [-1, 1], [0, 1]
-        Vector3f sample(Random::Float(-1.0f, 1.0f),
-                        Random::Float(-1.0f, 1.0f),
-                        Random::Float());
-
-        sample = normalize(sample);
-        sample *= Random::Float();
-        float scale = i * inv_kernel_size;
-
-        scale = lerp(0.1f, 1.0f, scale * scale);
-        sample *= scale;
-        kernel[i].xyz = sample;
-    }
-
-    return kernel;
-}
-
 // @TODO: refactor
 static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
     const auto& options = p_out_data.options;
@@ -172,7 +129,7 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
 
     // camera
     {
-        const auto& cam = p_out_data.camera_params;
+        const auto& cam = p_out_data.resolved_view;
         cache.c_camView = cam.view;
         cache.c_camProj = cam.proj;
         cache.c_invCamView = cam.view_inv;
@@ -201,7 +158,7 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
     // SSAO
     {
         // @TODO: do this properly
-        static auto kernel_data = GenerateSsaoKernel();
+        static auto kernel_data = SsaoFeature::CreateKernel();
         cache.c_ssaoEnabled = options.ssaoEnabled;
         cache.c_ssaoKernalRadius = options.ssaoKernelRadius;
         constexpr size_t kernel_size = sizeof(kernel_data);
@@ -246,15 +203,7 @@ static void FillEnvConstants(FrameData& p_out_data) {
 }
 
 auto Renderer::Impl::Initialize() -> Result<void> {
-    FramePlan dummy_plan;
-    if (auto res = BuildRenderGraph(dummy_plan); !res) {
-        return CAVE_ERROR(res.error());
-    } else {
-        m_render_graph = *res;
-
-        g_graph = m_render_graph.get();
-        return Result<void>();
-    }
+    return Result<void>();
 }
 
 void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
@@ -262,10 +211,21 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
 
     auto submission = std::make_unique<RenderSubmission>();
 
-    FramePlan plan = BuildFramePlan(p_views);
+    if (!p_views.empty()) {
+        FramePlan plan = BuildFramePlan(p_views);
 
-    submission->frame_data = std::move(plan.frame_data);
-    submission->render_graph = m_render_graph;
+        if (auto res = BuildRenderGraph(plan); !res) {
+            CRASH_NOW();
+        } else {
+            m_render_graph = *res;
+            m_render_graph->Resolve(m_pool);
+
+            g_graph = m_render_graph.get();
+        }
+
+        submission->frame_data = std::move(plan.frame_data);
+        submission->render_graph = m_render_graph;
+    }
     // submission->render_graph = BuildRenderGraph(plan);
 
     // @TODO: graph
@@ -289,16 +249,7 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
         .ssaoKernelRadius = DVAR_GET_FLOAT(gfx_ssao_radius),
     };
 
-    // @HACK: really need to refactor this crap
-    if (plan.frame_data.size()) {
-        static int s_should_bake = 0;
-        if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
-            if (s_should_bake == 1) plan.frame_data[0].bakeIbl = true;
-            ++s_should_bake;
-        }
-    }
-
-    int i = 0;
+    int view_idx = 0;
     for (const render::ViewDesc& view : p_views) {
         Scene* ecs_scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
         DEV_ASSERT(ecs_scene);
@@ -309,9 +260,9 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
 
         ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
 
-        FrameData& framedata = plan.frame_data[i++];
+        FrameData& framedata = plan.frame_data[view_idx++];
         framedata.options = options;
-        framedata.camera_params = resolved;
+        framedata.resolved_view = resolved;
 
         FillConstantBuffer(ecs_scene, framedata);
 
@@ -331,38 +282,36 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
     return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<RenderGraph>> {
+auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>> {
     constexpr const char RG_RES_BRDF[] = "r:brdf";
-    constexpr const char RG_RES_LTC1[] = "r:ltc1";
-    constexpr const char RG_RES_LTC2[] = "r:ltc2";
+
+    IRenderDevice& device = *m_app.GetRenderDevice();
+
+    if (!m_brdf) {
+        std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
+        m_brdf = device.CreateTexture(image.get());
+    }
+    if (!m_ltc1) {
+        m_ltc1 = CreateLTC1(device);
+    }
+    if (!m_ltc2) {
+        m_ltc2 = CreateLTC2(device);
+    }
 
     // @TODO: get frame size from viewport
     const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    RenderGraphBuilderConfig config;
+    RenderGraphConfig config;
     config.frameWidth = frame_size.x;
     config.frameHeight = frame_size.y;
 
     RenderGraphBuilderExt builder(config);
 
-    RGTextureId brdf = builder.ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_BRDF,
-        .func = []() {
-            std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
-            return RenderDevice::GetSingleton().CreateTexture(image.get());
-        },
-    });
-
-    RGTextureId ltc1 = builder.ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_LTC1,
-        .func = []() { return GenerateLTC(RG_RES_LTC1, LTC1); },
-    });
-
-    RGTextureId ltc2 = builder.ImportTexture(RGResourceImportDesc{
-        .debug_name = RG_RES_LTC2,
-        .func = []() { return GenerateLTC(RG_RES_LTC2, LTC2); },
-    });
+    RGTextureId brdf = builder.ImportTexture({ m_brdf });
+    RGTextureId ltc1 = builder.ImportTexture({ m_ltc1 });
+    RGTextureId ltc2 = builder.ImportTexture({ m_ltc2 });
 
     auto env_outputs = m_env.Build(builder, p_plan);
+
     auto shadow_outputs = m_shadow.Build(builder, p_plan);
 
     // @TODO: refactor the following
@@ -372,12 +321,14 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
         .depth = prepass_outputs.depth,
     });
 
-    SsaoOutput ssao_outputs{};
+    SsaoFeature::Outputs ssao_outputs{};
+
     if (p_plan.enable_ssao) {
-        ssao_outputs = builder.AddSsaoPass({
-            .depth = prepass_outputs.depth,
+        SsaoFeature::Inputs ssao_inputs{
             .normal = gbuffer_outputs.color1,
-        });
+            .depth = prepass_outputs.depth,
+        };
+        ssao_outputs = m_ssao.Build(builder, p_plan, ssao_inputs);
     }
 
     auto lighting_outputs = builder.AddLightingPass({
@@ -396,7 +347,6 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
 
     auto forward_outputs = builder.AddForwardPass({
         .skybox = env_outputs.ibl_diffuse,
-        //.skybox = env_outputs.skybox,
         .shadow = shadow_outputs.shadow,
         .ibl_diffuse = env_outputs.ibl_diffuse,
         .ibl_prefiltered = env_outputs.ibl_prefiltered,
@@ -407,9 +357,13 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
         .lighting = lighting_outputs.lighting,
     });
 
+    auto highlight_outputs = builder.AddHighlightPass({
+        .stencil = prepass_outputs.depth,
+    });
+
     auto postprocess_outputs = builder.AddPostProcessPass({
         .lighting = lighting_outputs.lighting,
-        .outline = 0,
+        .outline = highlight_outputs.outline,
         .bloom = 0,
     });
 

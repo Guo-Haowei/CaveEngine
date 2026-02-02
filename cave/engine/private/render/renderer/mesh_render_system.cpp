@@ -97,10 +97,11 @@ static void FillPass(const RenderScene& p_rs,
         batch_buffer.c_meshFlag = skeleton_id.IsValid();
 
         DrawItem draw{};
-        // @TODO: refactor the stencil part
-        // if (entity == scene.m_selected) {
-        //    draw.flags = STENCIL_FLAG_SELECTED;
-        //}
+        const auto& highlighted = p_framedata.resolved_view.highlight.entities;
+        if (auto it = highlighted.find(header.owner); it != highlighted.end()) {
+            draw.flags = STENCIL_FLAG_HIGHLIGHT;
+        }
+
         if (skeleton_id.IsValid()) {
             const SkeletonComponent* skeleton = p_es.GetComponent<SkeletonComponent>(skeleton_id);
             if (skeleton) {
@@ -335,7 +336,7 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
 static void FillMainPass(const Scene& p_es,
                          const RenderScene& p_rs,
                          FrameData& p_framedata) {
-    const auto& camera = p_framedata.camera_params;
+    const auto& camera = p_framedata.resolved_view;
 
     // main pass
     PerPassConstantBuffer pass_constant;

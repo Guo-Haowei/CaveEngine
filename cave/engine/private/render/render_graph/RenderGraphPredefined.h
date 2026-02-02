@@ -2,9 +2,9 @@
 
 namespace cave::render {
 
-struct RenderGraphBuilderConfig;
-class RenderGraph;
+struct RenderGraphConfig;
+class CompiledGraph;
 
-auto RenderGraph2D(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
+auto RenderGraph2D(RenderGraphConfig& p_config) -> Result<std::shared_ptr<CompiledGraph>>;
 
 }  // namespace cave::render

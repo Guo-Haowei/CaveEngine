@@ -2,7 +2,6 @@
 
 #include "engine/private/algorithm/algorithm.h"
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/core/base/random.h"
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
@@ -11,10 +10,9 @@
 #include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "RenderGraphDefines.h"
-#include "RenderPassBuilder.h"
+#include "RenderPass.h"
 
 // @TODO: remove
-#include "engine/private/renderer/ltc_matrix.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -34,7 +32,6 @@ constexpr const char RG_PASS_LIGHTING[] = "p:lighting";
 constexpr const char RG_PASS_FORWARD[] = "p:forward";
 constexpr const char RG_PASS_BLOOM_SETUP[] = "p:bloom_setup";
 constexpr const char RG_PASS_POST_PROCESS[] = "p:post_process";
-constexpr const char RG_PASS_SSAO[] = "p:ssao";
 constexpr const char RG_PASS_OUTLINE[] = "p:outline";
 constexpr const char RG_PASS_PATHTRACER[] = "p:pathtracer";
 constexpr const char RG_PASS_PATHTRACER_PRESENT[] = "p:pathtracer_present";
@@ -44,46 +41,14 @@ constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
 constexpr const char RG_RES_GBUFFER_COLOR1[] = "r:gbuffer1";
 constexpr const char RG_RES_GBUFFER_COLOR2[] = "r:gbuffer2";
 constexpr const char RG_RES_LIGHTING[] = "r:lighting";
-constexpr const char RG_RES_SSAO[] = "r:ssao";
 constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
 constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
 constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
 constexpr const char RG_RES_OUTLINE[] = "r:outline";
 constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
 
-// external resources
-constexpr const char RG_RES_SSAO_NOISE[] = "r:ssao_noise";
-
-static std::shared_ptr<GpuTexture> GenerateSsaoNoise() {
-    // generate noise texture
-    std::vector<Vector2f> ssao_noise;
-    for (int i = 0; i < (SSAO_NOISE_SIZE * SSAO_NOISE_SIZE); ++i) {
-        Vector2f noise(Random::Float(-1.0f, 1.0f),
-                       Random::Float(-1.0f, 1.0f));
-        ssao_noise.emplace_back(noise);
-    }
-
-    GpuTextureDesc desc{
-        .type = AttachmentType::NONE,
-        .dimension = Dimension::TEXTURE_2D,
-        .width = SSAO_NOISE_SIZE,
-        .height = SSAO_NOISE_SIZE,
-        .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
-        .format = PixelFormat::R32G32_FLOAT,
-        .bindFlags = BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
-        .initialData = ssao_noise.data(),
-        .name = RG_RES_SSAO,
-    };
-
-    return RenderDevice::GetSingleton().CreateTexture(desc, PointWrapSampler());
-}
-
 extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
 extern void GbufferPassFunc(RenderPassExcutionContext& p_ctx);
-extern void SsaoPassFunc(RenderPassExcutionContext& p_ctx);
 extern void HighlightPassFunc(RenderPassExcutionContext& p_ctx);
 extern void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx);
 extern void LightingPassFunc(RenderPassExcutionContext& p_ctx);
@@ -96,7 +61,7 @@ extern void PathTracerPassFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx);
 
 DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
-    RenderPassBuilder& pass = AddPass(RG_PASS_DEPTH_PREPASS);
+    RenderPass& pass = AddPass(RG_PASS_DEPTH_PREPASS);
 
     DepthPrepassOutput out{
         .depth = CreateTexture({
@@ -112,18 +77,18 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
 }
 
 GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_GBUFFER);
+    RenderPass& pass = AddPass(RG_PASS_GBUFFER);
 
     GbufferOutput out{
-        .color0 = CreateTexture(RGResourceCreateDesc{
+        .color0 = CreateTexture({
             RG_RES_GBUFFER_COLOR0,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_BASE_COLOR, AttachmentType::COLOR_2D),
         }),
-        .color1 = CreateTexture(RGResourceCreateDesc{
+        .color1 = CreateTexture({
             RG_RES_GBUFFER_COLOR1,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_NORMAL, AttachmentType::COLOR_2D),
         }),
-        .color2 = CreateTexture(RGResourceCreateDesc{
+        .color2 = CreateTexture({
             RG_RES_GBUFFER_COLOR2,
             BuildDefaultTextureDesc(RT_FMT_GBUFFER_MATERIAL, AttachmentType::COLOR_2D),
         }),
@@ -138,36 +103,14 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
     return out;
 }
 
-SsaoOutput RenderGraphBuilderExt::AddSsaoPass(const SsaoInput& p_in) {
-    RGTextureId noise = ImportTexture({
-        .debug_name = RG_RES_SSAO_NOISE,
-        .func = []() { return GenerateSsaoNoise(); },
-    });
-
-    RenderPassBuilder& pass = AddPass(RG_PASS_SSAO);
-    SsaoOutput out{
-        .processed = CreateTexture({
-            RG_RES_SSAO,
-            BuildDefaultTextureDesc(RT_FMT_SSAO, AttachmentType::COLOR_2D),
-        })
-    };
-
-    pass.Read(ResourceAccess::SRV, p_in.normal)
-        .Read(ResourceAccess::SRV, p_in.depth)
-        .Read(ResourceAccess::SRV, noise)
-        .WriteColor(out.processed, {}, LoadOp::Clear)
-        .SetExecuteFunc(SsaoPassFunc);
-    return out;
-}
-
 LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in) {
 
-    RGTextureId out = CreateTexture(RGResourceCreateDesc{
+    RGTextureId out = CreateTexture({
         RG_RES_LIGHTING,
         BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
     });
 
-    RenderPassBuilder& pass = AddPass(RG_PASS_LIGHTING);
+    RenderPass& pass = AddPass(RG_PASS_LIGHTING);
 
     pass.Read(ResourceAccess::SRV, p_in.color0)
         .Read(ResourceAccess::SRV, p_in.color1)
@@ -186,30 +129,8 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
     return { out };
 }
 
-PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_POST_PROCESS);
-    auto desc = BuildDefaultTextureDesc(RT_FMT_TONE, AttachmentType::COLOR_2D);
-    desc.bindFlags |= BIND_SHADER_RESOURCE;
-
-    PostProcessOutput out{
-        .processed = CreateTexture(RGResourceCreateDesc{
-            RG_RES_POST_PROCESS,
-            desc,
-        }),
-    };
-
-    pass.Read(ResourceAccess::SRV, p_in.lighting)
-        .Read(ResourceAccess::SRV, p_in.outline)
-        .Read(ResourceAccess::SRV, p_in.bloom);
-
-    pass.WriteColor(out.processed, {}, LoadOp::Clear)
-        .SetExecuteFunc(TonePassFunc);
-
-    return out;
-}
-
 ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_FORWARD);
+    RenderPass& pass = AddPass(RG_PASS_FORWARD);
     pass.Read(ResourceAccess::SRV, p_in.skybox)
         .Read(ResourceAccess::SRV, p_in.shadow)
         .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
@@ -225,21 +146,47 @@ ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
     return ForwardOutput{};
 }
 
-#if 0
-void RenderGraphBuilderExt::AddHighlightPass() {
-    RenderPassBuilder& pass = AddPass(RG_PASS_OUTLINE);
+HighlightOutput RenderGraphBuilderExt::AddHighlightPass(const HighlightInput& p_in) {
+    RenderPass& pass = AddPass(RG_PASS_OUTLINE);
 
+    HighlightOutput out = {
+        .outline = CreateTexture({
+            .debug_name = RG_RES_OUTLINE,
+            .resourceDesc = BuildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT, AttachmentType::COLOR_2D),
+            .samplerDesc = PointClampSampler(),
+        }),
+    };
 
-
-    auto color0_desc = BuildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT,
-                                               AttachmentType::COLOR_2D);
-
-    pass.Create(RG_RES_OUTLINE, { color0_desc })
-        .Write(ResourceAccess::RTV, RG_RES_OUTLINE)
-        .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
+    pass.ReadDepth(p_in.stencil, {}, LoadOp::Load)
+        .WriteColor(out.outline, {}, LoadOp::Clear)
         .SetExecuteFunc(HighlightPassFunc);
+
+    return out;
 }
 
+PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
+    RenderPass& pass = AddPass(RG_PASS_POST_PROCESS);
+    auto desc = BuildDefaultTextureDesc(RT_FMT_TONE, AttachmentType::COLOR_2D);
+    desc.bindFlags |= BIND_SHADER_RESOURCE;
+
+    PostProcessOutput out{
+        .processed = CreateTexture({
+            RG_RES_POST_PROCESS,
+            desc,
+        }),
+    };
+
+    pass.Read(ResourceAccess::SRV, p_in.lighting)
+        .Read(ResourceAccess::SRV, p_in.outline)
+        .Read(ResourceAccess::SRV, p_in.bloom);
+
+    pass.WriteColor(out.processed, {}, LoadOp::Clear)
+        .SetExecuteFunc(TonePassFunc);
+
+    return out;
+}
+
+#if 0
 void RenderGraphBuilderExt::AddVoxelizationPass() {
     auto& manager = m_graphicsManager;
     if (manager.GetBackend() != Backend::OPENGL) {

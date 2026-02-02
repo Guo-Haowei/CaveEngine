@@ -34,12 +34,18 @@ struct CameraSource {
     }
 };
 
+struct ViewHighlight {
+    std::unordered_set<ecs::Entity> entities;
+};
+
 struct ViewDesc {
     CameraSource camera_source;
     SceneId scene_id;
     math::IntRect viewport_pixel;
     ViewOutputDesc output;
     // missing: which render target info it draws to
+
+    ViewHighlight highlight;
 };
 
 }  // namespace cave::render

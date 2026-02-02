@@ -7,8 +7,6 @@
 
 namespace cave::render {
 
-using RGImportFunc = std::function<std::shared_ptr<GpuTexture>()>;
-
 // clang-format off
 enum class ResourceAccess : uint8_t {
     NONE   = 0,
@@ -29,8 +27,8 @@ struct RGTextureNode {
     RGTextureId handle;
     GpuTextureDesc desc{};
     SamplerDesc sampler{};
-    RGImportFunc import_fn;
     ResourceAccess access_mask{ ResourceAccess::NONE };
+    GpuTextureId external{};
 
     std::string debug_name;
 };

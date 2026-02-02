@@ -27,6 +27,8 @@ struct ResolvedView {
     float vp_h;
     float aspect;
     float fovy;
+
+    ViewHighlight highlight;
 };
 
 ResolvedView ResolveView(const ViewDesc& p_view, const Scene* p_scene, bool p_is_opengl);

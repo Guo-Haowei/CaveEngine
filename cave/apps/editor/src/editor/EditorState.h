@@ -26,8 +26,9 @@ class LogPanel;
 class MenuBar;
 
 // services
-class EditService;
 class DocumentService;
+class EditService;
+class PickingService;
 class SelectionService;
 class ShortcutService;
 class Workspace;
@@ -73,6 +74,7 @@ public:
 
     DocumentService& DocumentService() { return *m_document_service; }
     EditService& EditService() { return *m_edit_service; }
+    PickingService& PickingService() { return *m_picking_service; }
     SelectionService& SelectionService() { return *m_selection_service; }
     ShortcutService& ShortcutService() { return *m_shortcut_service; }
     Workspace& Workspace() { return *m_workspace; }
@@ -93,6 +95,7 @@ private:
 
     std::unique_ptr<cave::DocumentService> m_document_service;
     std::unique_ptr<cave::EditService> m_edit_service;
+    std::unique_ptr<cave::PickingService> m_picking_service;
     std::unique_ptr<cave::SelectionService> m_selection_service;
     std::unique_ptr<cave::ShortcutService> m_shortcut_service;
     std::shared_ptr<cave::Workspace> m_workspace;

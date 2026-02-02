@@ -77,7 +77,7 @@ enum class DrawPhase : uint8_t {
 
 struct FrameData {
     RenderOptions options;
-    render::ResolvedView camera_params;  // @TODO: rename
+    render::ResolvedView resolved_view;
     // const ViewInfo* view_info{ nullptr };
 
     // @TODO: multi camera & viewport
@@ -104,9 +104,6 @@ struct FrameData {
     // std::vector<InstanceContext> instances;
 
     // std::vector<ParticleEmitterComponent> emitters;
-
-    // @TODO: refactor
-    bool bakeIbl{ false };
 
     struct UpdateBuffer {
         std::vector<math::Vector3f> positions;

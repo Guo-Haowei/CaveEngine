@@ -1,8 +1,7 @@
 #include "RenderDevice.h"
 
 #include "engine/private/render/renderer/RenderSubmission.h"
-#include "engine/private/render/render_graph/RGRenderPass.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/render_graph/CompiledGraph.h"
 
 // @TODO: determine if includes are necessary
 #include "engine/private/assets/image_asset.h"
@@ -288,8 +287,8 @@ void RenderDevice::Submit(std::unique_ptr<render::RenderSubmission>&& p_submissi
             BindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
 
             auto& graph = p_submission->render_graph;
-            for (auto& pass : graph->m_renderPasses) {
-                Execute(data, *pass);
+            for (const CompiledPass& pass : graph->GetCompiledPass()) {
+                Execute(data, pass);
             }
         }
 
@@ -395,7 +394,7 @@ void RenderDevice::DrawSkybox() {
     DrawElements(m_skyboxBuffers->desc.drawCount);
 }
 
-void RenderDevice::BeginPass(const RGRenderPass& p_pass) {
+void RenderDevice::BeginPass(const CompiledPass& p_pass) {
     // bind srvs
     for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = p_pass.srvs[i].get()) {
@@ -434,7 +433,7 @@ void RenderDevice::BeginPass(const RGRenderPass& p_pass) {
     SetViewport(p_pass.viewport ? *p_pass.viewport : Viewport(width, height));
 }
 
-void RenderDevice::EndPass(const RGRenderPass& p_pass) {
+void RenderDevice::EndPass(const CompiledPass& p_pass) {
     UnsetRenderTargets();
 
     // unbind srvs
@@ -455,7 +454,7 @@ void RenderDevice::EndPass(const RGRenderPass& p_pass) {
     }
 }
 
-void RenderDevice::Execute(const FrameData& p_data, RGRenderPass& p_pass) {
+void RenderDevice::Execute(const FrameData& p_data, const CompiledPass& p_pass) {
     RenderPassExcutionContext ctx{
         .frameData = p_data,
         .pass = p_pass,

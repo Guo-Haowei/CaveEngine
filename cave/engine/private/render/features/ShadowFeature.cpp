@@ -1,7 +1,7 @@
 #include "ShadowFeature.h"
 
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/render/render_graph/RenderGraphBuilder.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: remove this
 #include "engine/private/renderer/frame_data.h"
@@ -35,20 +35,20 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     ExecuteDrawCommands(p_ctx, shadow_commands, false);
 }
 
-ShadowFeature::Outputs ShadowFeature::Build(RenderGraphBuilder& p_builder, const FramePlan& p_plan) {
+ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const FramePlan& p_plan) {
     unused(p_plan);
 
     constexpr int shadow_res = 1024 * 2;
     DEV_ASSERT(math::IsPowerOfTwo(shadow_res));
-    RenderPassBuilder& pass = p_builder.AddPass(RG_PASS_SHADOW);
+    RenderPass& pass = p_graph.AddPass(RG_PASS_SHADOW);
 
     Outputs out{
-        .shadow = p_builder.CreateTexture({
+        .shadow = p_graph.CreateTexture({
             RG_RES_SHADOW_MAP,
-            p_builder.BuildDefaultTextureDesc(PixelFormat::D32_FLOAT,
-                                              AttachmentType::SHADOW_2D,
-                                              shadow_res,
-                                              shadow_res),
+            p_graph.BuildDefaultTextureDesc(PixelFormat::D32_FLOAT,
+                                            AttachmentType::SHADOW_2D,
+                                            shadow_res,
+                                            shadow_res),
             ShadowMapSampler(),
         })
     };

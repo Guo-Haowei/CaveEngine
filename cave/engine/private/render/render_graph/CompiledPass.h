@@ -2,6 +2,9 @@
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/render/rhi/RenderTarget.h"
 
+// @TODO: fix
+#include "engine/private/renderer/graphics_defines.h"
+
 // clang-format off
 namespace cave { struct FrameData; }
 namespace cave { struct GpuTexture; }
@@ -10,17 +13,17 @@ namespace cave { struct GpuTexture; }
 namespace cave::render {
 
 class IRenderDevice;
-struct RGRenderPass;
+struct CompiledPass;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;
-    RGRenderPass& pass;
+    const CompiledPass& pass;
     IRenderDevice& cmd;
 };
 
 using ExecuteFunc = std::function<void(RenderPassExcutionContext& ctx)>;
 
-struct RGRenderPass {
+struct CompiledPass {
     std::string name;
 
     std::vector<ColorAttachmentDesc> colors;

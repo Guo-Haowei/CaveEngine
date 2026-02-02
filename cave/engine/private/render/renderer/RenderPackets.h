@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/ids/Entity.h"
 
 // clang-format off
 namespace cave { enum StencilFlags : uint8_t; }

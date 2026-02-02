@@ -9,6 +9,7 @@
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
+#include "editor/services/PickingService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
 #include "editor/services/Workspace.h"
@@ -47,6 +48,7 @@ EditorState::EditorState(IApplication& p_app)
     // services
     m_document_service = std::make_unique<cave::DocumentService>(*this);
     m_edit_service = std::make_unique<cave::EditService>(*this);
+    m_picking_service = std::make_unique<cave::PickingService>(*this);
     m_selection_service = std::make_unique<cave::SelectionService>(*this);
     m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
     m_workspace = std::make_shared<cave::Workspace>(*this);
@@ -146,6 +148,7 @@ void EditorState::Tick(float p_dt) {
 
     m_edit_service->FlushPendingCmds();
     m_workspace->Tick(p_dt);
+    m_picking_service->Tick();
 
     ImGui::Render();
 

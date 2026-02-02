@@ -1,12 +1,12 @@
 #include "EditTransformCmd.h"
 
-#include "editor/document/SceneDocument.h"
+#include "editor/document/IDocument.h"
 
 namespace cave {
 
 bool EditTransformCmd::Do(IDocument& p_doc) {
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+    if (SceneId scene_id = p_doc.GetPreviewScene(); scene_id.IsValid()) {
+        if (Scene* scene = ResolveScene(scene_id)) {
             TransformComponent* transform = scene->GetComponent<TransformComponent>(m_entity);
             if (transform) {
                 transform->SetLocalTransform(m_after);
@@ -19,8 +19,8 @@ bool EditTransformCmd::Do(IDocument& p_doc) {
 }
 
 bool EditTransformCmd::Undo(IDocument& p_doc) {
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+    if (SceneId scene_id = p_doc.GetPreviewScene(); scene_id.IsValid()) {
+        if (Scene* scene = ResolveScene(scene_id)) {
             TransformComponent* transform = scene->GetComponent<TransformComponent>(m_entity);
             if (transform) {
                 transform->SetLocalTransform(m_before);

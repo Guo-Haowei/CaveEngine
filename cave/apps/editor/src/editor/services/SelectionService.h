@@ -13,7 +13,7 @@ enum class SelectionKind : uint8_t {
     Scene,
     Entity,
     Asset,
-    // later: Component, MeshFace, Tile, Bone, etc.
+    Tile,
 };
 
 struct SelectionKey {
@@ -38,6 +38,7 @@ public:
         : m_editor(p_editor) {}
 
     void Set(DocId p_doc_id, const SelectionKey& p_key);
+
     SelectionKey Primary(DocId p_doc_id);
 
 private:

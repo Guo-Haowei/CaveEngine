@@ -8,6 +8,7 @@
 
 #include "editor/edit/EditTransformCmd.h"
 #include "editor/services/EditService.h"
+#include "editor/services/PickingService.h"
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
@@ -16,6 +17,7 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 
 #include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
@@ -27,6 +29,7 @@
 namespace cave {
 
 using math::Matrix4x4f;
+using math::Vector2f;
 using math::Vector3f;
 
 SceneViewTab::SceneViewTab(EditorState& p_editor,
@@ -39,6 +42,8 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
     , m_preview_scene(p_preview_scene_id)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
     , m_button_tooltips{ "Run Project", "Pause Project" } {
+
+    m_image_padding = Vector2f(10, 30);
 
     m_play_button = {
         ICON_FA_PLAY,
@@ -63,6 +68,11 @@ void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
     } else {
         scene_view.scene_id = p_scene_id;
         scene_view.camera_source = CameraSource::Editor(m_camera);
+
+        SelectionKey key = m_editor.SelectionService().Primary(m_doc_id);
+        if (key.scene == p_scene_id && key.entity.IsValid()) {
+            scene_view.highlight.entities.insert(key.entity);
+        }
     }
     p_out_views.push_back(scene_view);
 }
@@ -113,6 +123,53 @@ void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
         return;
     }
 
+    bool skip_camera = false;
+    for (const InputEvent& e : p_events) {
+        if (e.consumed) {
+            continue;
+        }
+
+        switch (e.type) {
+            case InputEventType::ButtonDown: {
+                switch (static_cast<Key>(e.code)) {
+                    case Key::Z: {
+                        m_gizmo_action = GizmoAction::Translate;
+                        e.consumed = true;
+                    } break;
+                    case Key::X: {
+                        m_gizmo_action = GizmoAction::Rotate;
+                        e.consumed = true;
+                    } break;
+                    case Key::C: {
+                        m_gizmo_action = GizmoAction::Scale;
+                        e.consumed = true;
+                    } break;
+                    case Key::RMB: {
+                        PickRequest req{};
+                        req.tab_id = GetTabId();
+
+                        req.cursor = Vector2f(e.x, e.y);
+                        req.pos = Vector2f(m_view_rect.x, m_view_rect.y);
+                        req.size = Vector2f(m_view_rect.w, m_view_rect.h);
+
+                        m_editor.PickingService().Submit(std::move(req));
+                        e.consumed = true;
+                    } break;
+                    default:
+                        break;
+                }
+                skip_camera = skip_camera || e.consumed;
+            } break;
+            default:
+                break;
+        }
+    }
+
+    if (skip_camera) {
+        m_camera_state = {};
+        return;
+    }
+
     const KeyState& st = m_editor.GetApp().GetInputSystem()->GetKeyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
         m_camera_state = {};
@@ -143,13 +200,71 @@ void SceneViewTab::Tick(float p_dt) {
 }
 
 void SceneViewTab::DrawUIImpl() {
-    Tab::DrawUIImpl();
+    UpdateViewRect();
+
+    DrawMainView();
 
     if (m_editor.IsPlaying()) return;
-    DrawGizmo();
+    if (IsFocused()) {
+        DrawGizmo();
+    }
 }
 
-// @TODO: rename this to DrawEditor
+// @TODO: instead of asking for image, provide an image to renderer
+void SceneViewTab::DrawMainView() {
+    ImVec2 top_left(m_view_rect.x, m_view_rect.y);
+    ImVec2 bottom_right(m_view_rect.Right(), m_view_rect.Bottom());
+
+    // @TODO: add a dummy button
+    const auto& gm = *m_editor.GetApp().GetRenderDevice();
+    uint64_t handle = gm.GetFinalImage();
+    // add image for drawing
+    switch (gm.GetBackend()) {
+        case Backend::D3D11:
+        case Backend::D3D12: {
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right);
+        } break;
+        case Backend::OPENGL: {
+            ImVec2 uv_min = ImVec2(0, 1);
+            ImVec2 uv_max = ImVec2(1, 0);
+            // if (gm.GetActiveRenderGraphName() == RenderGraphName::PATHTRACER) {
+            //     uv_min = ImVec2(0, 0);
+            //     uv_max = ImVec2(1, 1);
+            // }
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right, uv_min, uv_max);
+        } break;
+        case Backend::VULKAN:
+        case Backend::METAL: {
+        } break;
+        default:
+            CRASH_NOW();
+            break;
+    }
+}
+
+void SceneViewTab::UpdateViewRect() {
+    ImVec2 win_pos = ImGui::GetWindowPos();
+    ImVec2 win_size = ImGui::GetWindowSize();
+
+    Vector2f top_left = Vector2f(win_pos.x, win_pos.y) + m_image_padding;
+    Vector2f size = Vector2f(win_size.x, win_size.y) - m_image_padding;
+
+    const float aspect = m_camera.GetAspect();
+    if (aspect * size.y > size.x) {
+        size.y = size.x / aspect;
+    } else {
+        size.x = size.y * aspect;
+    }
+
+    m_view_rect = {
+        top_left.x,
+        top_left.y,
+        size.x,
+        size.y,
+    };
+}
+
+// @TODO: move this to gizmo
 void SceneViewTab::DrawGizmo() {
     DEV_ASSERT(!m_camera.IsDirty());
     DocId doc_id = GetDocId();
@@ -162,7 +277,7 @@ void SceneViewTab::DrawGizmo() {
     ImGuizmo::BeginFrame();
 
     ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(m_rect.x, m_rect.y, m_rect.w, m_rect.h);
+    ImGuizmo::SetRect(m_view_rect.x, m_view_rect.y, m_view_rect.w, m_view_rect.h);
 
     SelectionKey selection = m_editor.SelectionService().Primary(m_doc_id);
     ecs::Entity id = selection.entity;
@@ -193,7 +308,7 @@ void SceneViewTab::DrawGizmo() {
         }
     };
 
-    switch (m_state) {
+    switch (m_gizmo_action) {
         case GizmoAction::Translate:
             draw_gizmo(ImGuizmo::TRANSLATE);
             break;

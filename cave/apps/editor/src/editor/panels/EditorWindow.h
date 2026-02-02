@@ -1,6 +1,4 @@
 #pragma once
-#include "cave/core/math/Rect.h"
-
 #include "editor/IEditorItem.h"
 
 namespace cave {
@@ -31,8 +29,6 @@ protected:
     void UpdateState();
 
     WindowState m_state;
-
-    math::FloatRect m_rect{};
 
     int m_flags{ 0 };
 };

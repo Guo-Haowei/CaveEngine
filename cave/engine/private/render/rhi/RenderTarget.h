@@ -19,9 +19,6 @@ struct TextureViewDesc {
     uint16_t array_size = 1;         // D3D: ArraySize / NumCubes * 6
 };
 
-// @TODO: use actual id
-using GpuTextureId = std::shared_ptr<GpuTexture>;
-
 struct ColorAttachmentDesc {
     GpuTextureId tex{};
     TextureViewDesc view{};
