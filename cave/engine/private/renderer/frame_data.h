@@ -77,7 +77,7 @@ enum class DrawPhase : uint8_t {
 
 struct FrameData {
     RenderOptions options;
-    render::ResolvedView camera_params;  // @TODO: rename
+    render::ResolvedView resolved_view;
     // const ViewInfo* view_info{ nullptr };
 
     // @TODO: multi camera & viewport

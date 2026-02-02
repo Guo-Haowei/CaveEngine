@@ -68,6 +68,14 @@ struct ForwardInput {
 struct ForwardOutput {
 };
 
+struct HighlightInput {
+    RGTextureId stencil{};
+};
+
+struct HighlightOutput {
+    RGTextureId outline{};
+};
+
 class RenderGraphBuilderExt : public RenderGraphBuilder {
 public:
     //[[nodiscard]] auto CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
@@ -78,7 +86,7 @@ public:
     [[nodiscard]] SsaoOutput AddSsaoPass(const SsaoInput& p_in);
     [[nodiscard]] PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
     [[nodiscard]] ForwardOutput AddForwardPass(const ForwardInput& p_in);
-    // void AddHighlightPass();
+    [[nodiscard]] HighlightOutput AddHighlightPass(const HighlightInput& p_in);
     // void AddVoxelizationPass();
     // void AddBloomPass();
 

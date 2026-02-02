@@ -172,7 +172,7 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
 
     // camera
     {
-        const auto& cam = p_out_data.camera_params;
+        const auto& cam = p_out_data.resolved_view;
         cache.c_camView = cam.view;
         cache.c_camProj = cam.proj;
         cache.c_invCamView = cam.view_inv;
@@ -311,7 +311,7 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
 
         FrameData& framedata = plan.frame_data[i++];
         framedata.options = options;
-        framedata.camera_params = resolved;
+        framedata.resolved_view = resolved;
 
         FillConstantBuffer(ecs_scene, framedata);
 
@@ -406,9 +406,13 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
         .lighting = lighting_outputs.lighting,
     });
 
+    auto highlight_outputs = builder.AddHighlightPass({
+        .stencil = prepass_outputs.depth,
+    });
+
     auto postprocess_outputs = builder.AddPostProcessPass({
         .lighting = lighting_outputs.lighting,
-        .outline = 0,
+        .outline = highlight_outputs.outline,
         .bloom = 0,
     });
 

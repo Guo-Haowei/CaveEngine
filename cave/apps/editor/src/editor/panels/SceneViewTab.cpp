@@ -63,6 +63,11 @@ void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
     } else {
         scene_view.scene_id = p_scene_id;
         scene_view.camera_source = CameraSource::Editor(m_camera);
+
+        SelectionKey key = m_editor.SelectionService().Primary(m_doc_id);
+        if (key.scene == p_scene_id && key.entity.IsValid()) {
+            scene_view.highlight.entities.insert(key.entity);
+        }
     }
     p_out_views.push_back(scene_view);
 }

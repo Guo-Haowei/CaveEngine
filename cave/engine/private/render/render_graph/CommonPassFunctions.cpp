@@ -81,7 +81,8 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
 
         // @TODO: instead of dowing this,
         // set flag directly from draw.flags
-        if (p_is_prepass && draw.flags) {
+        const bool has_flags = p_is_prepass && draw.flags;
+        if (has_flags) {
             gm.SetStencilRef(draw.flags);
         }
 
@@ -95,7 +96,7 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
         }
         gm.DrawElements(draw.index.count, draw.index.offset);
 
-        if (p_is_prepass && draw.flags) {
+        if (has_flags) {
             gm.SetStencilRef(STENCIL_FLAG_NONE);
         }
     }
@@ -160,7 +161,7 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
     auto& cmd = p_ctx.cmd;
 
     cmd.SetPipelineState(PSO_HIGHLIGHT);
-    cmd.SetStencilRef(STENCIL_FLAG_SELECTED);
+    cmd.SetStencilRef(STENCIL_FLAG_HIGHLIGHT);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
     cmd.SetStencilRef(STENCIL_FLAG_NONE);

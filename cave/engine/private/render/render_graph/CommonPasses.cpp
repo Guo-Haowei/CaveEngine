@@ -186,6 +186,41 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
     return { out };
 }
 
+ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
+    RenderPassBuilder& pass = AddPass(RG_PASS_FORWARD);
+    pass.Read(ResourceAccess::SRV, p_in.skybox)
+        .Read(ResourceAccess::SRV, p_in.shadow)
+        .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
+        .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
+        .Read(ResourceAccess::SRV, p_in.brdf)
+        .Read(ResourceAccess::SRV, p_in.ltc1)
+        .Read(ResourceAccess::SRV, p_in.ltc2)
+        .Read(ResourceAccess::NONE, p_in.lighting)  // add dependency
+        .ReadDepth(p_in.depth, {}, LoadOp::Load)
+        .WriteColor(p_in.lighting, {}, LoadOp::Load)
+        .SetExecuteFunc(ForwardPassFunc);
+
+    return ForwardOutput{};
+}
+
+HighlightOutput RenderGraphBuilderExt::AddHighlightPass(const HighlightInput& p_in) {
+    RenderPassBuilder& pass = AddPass(RG_PASS_OUTLINE);
+
+    HighlightOutput out = {
+        .outline = CreateTexture({
+            .debug_name = RG_RES_OUTLINE,
+            .resourceDesc = BuildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT, AttachmentType::COLOR_2D),
+            .samplerDesc = PointClampSampler(),
+        }),
+    };
+
+    pass.ReadDepth(p_in.stencil, {}, LoadOp::Load)
+        .WriteColor(out.outline, {}, LoadOp::Clear)
+        .SetExecuteFunc(HighlightPassFunc);
+
+    return out;
+}
+
 PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
     RenderPassBuilder& pass = AddPass(RG_PASS_POST_PROCESS);
     auto desc = BuildDefaultTextureDesc(RT_FMT_TONE, AttachmentType::COLOR_2D);
@@ -208,38 +243,7 @@ PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInp
     return out;
 }
 
-ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_FORWARD);
-    pass.Read(ResourceAccess::SRV, p_in.skybox)
-        .Read(ResourceAccess::SRV, p_in.shadow)
-        .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
-        .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
-        .Read(ResourceAccess::SRV, p_in.brdf)
-        .Read(ResourceAccess::SRV, p_in.ltc1)
-        .Read(ResourceAccess::SRV, p_in.ltc2)
-        .Read(ResourceAccess::NONE, p_in.lighting)  // add dependency
-        .ReadDepth(p_in.depth, {}, LoadOp::Load)
-        .WriteColor(p_in.lighting, {}, LoadOp::Load)
-        .SetExecuteFunc(ForwardPassFunc);
-
-    return ForwardOutput{};
-}
-
 #if 0
-void RenderGraphBuilderExt::AddHighlightPass() {
-    RenderPassBuilder& pass = AddPass(RG_PASS_OUTLINE);
-
-
-
-    auto color0_desc = BuildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT,
-                                               AttachmentType::COLOR_2D);
-
-    pass.Create(RG_RES_OUTLINE, { color0_desc })
-        .Write(ResourceAccess::RTV, RG_RES_OUTLINE)
-        .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
-        .SetExecuteFunc(HighlightPassFunc);
-}
-
 void RenderGraphBuilderExt::AddVoxelizationPass() {
     auto& manager = m_graphicsManager;
     if (manager.GetBackend() != Backend::OPENGL) {
