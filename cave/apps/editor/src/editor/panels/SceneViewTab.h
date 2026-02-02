@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/math/Rect.h"
 #include "cave/render/ViewDesc.h"
 
 #include "editor/document/SceneDocument.h"
@@ -45,7 +46,10 @@ protected:
 
     void DrawUIImpl() override;
 
+    void DrawMainView();
     void DrawGizmo();
+
+    void UpdateViewRect();
 
     // void OnCreateInternal(const Guid& p_guid) final;
 
@@ -63,8 +67,10 @@ protected:
 
     ToolBarButtonDesc m_play_button;
 
-    int m_button_index{ 0 };
     ViewDimension m_dim;
+    int m_button_index{ 0 };
+    math::Vector2f m_image_padding{};
+    math::FloatRect m_view_rect{};
 
     // @TODO: move to input controller
     std::unique_ptr<ICameraController> m_camera_controller;

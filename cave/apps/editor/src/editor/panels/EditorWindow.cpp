@@ -16,7 +16,8 @@ void EditorWindow::DrawUI() {
 
 void EditorWindow::ResetState() {
     m_state = {};
-    m_rect = {};
+    m_top_left = math::Vector2f::Zero;
+    m_size = math::Vector2f::Zero;
 }
 
 void EditorWindow::UpdateState() {
@@ -28,10 +29,11 @@ void EditorWindow::UpdateState() {
 
     ImVec2 pos = ImGui::GetWindowPos();
     ImVec2 size = ImGui::GetWindowSize();
-    m_rect.x = pos.x;
-    m_rect.y = pos.y;
-    m_rect.w = size.x;
-    m_rect.h = size.y;
+
+    ImGui::GetForegroundDrawList()->AddCircle(pos, 10.f, IM_COL32(255, 0, 0, 255));
+
+    m_top_left = { pos.x, pos.y };
+    m_size = { size.x, size.y };
 }
 
 }  // namespace cave

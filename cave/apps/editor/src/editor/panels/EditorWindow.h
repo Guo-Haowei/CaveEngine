@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/math/Rect.h"
+#include "cave/core/math/Vector.h"
 
 #include "editor/IEditorItem.h"
 
@@ -32,7 +32,8 @@ protected:
 
     WindowState m_state;
 
-    math::FloatRect m_rect{};
+    math::Vector2f m_top_left;
+    math::Vector2f m_size;
 
     int m_flags{ 0 };
 };

@@ -181,6 +181,10 @@ void GlfwKeyboardMouseDevice::MouseButtonCallback(GLFWwindow* p_window, int p_bu
 
             InputEvent e(type, self->m_dev_id);
             e.code = std::to_underlying(code);
+            double x, y;
+            glfwGetCursorPos(p_window, &x, &y);
+            e.x = static_cast<float>(x);
+            e.y = static_cast<float>(y);
 
             self->Push(e);
         }

@@ -6,8 +6,6 @@
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/RuntimeHost.h"
-#include "engine/private/render/render_device/RenderDevice.h"
-
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {
@@ -68,36 +66,6 @@ void Tab::DrawUI() {
             m_editor.EditService().Save(m_doc_id);
         }
         m_editor.Workspace().Submit(WorkspaceRequest::Close(m_doc_id));
-    }
-}
-
-void Tab::DrawUIImpl() {
-    ImVec2 top_left(m_rect.Left(), m_rect.Top());
-    ImVec2 bottom_right(m_rect.Right(), m_rect.Bottom());
-
-    const auto& gm = *m_editor.GetApp().GetRenderDevice();
-    uint64_t handle = gm.GetFinalImage();
-    // add image for drawing
-    switch (gm.GetBackend()) {
-        case Backend::D3D11:
-        case Backend::D3D12: {
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right);
-        } break;
-        case Backend::OPENGL: {
-            ImVec2 uv_min = ImVec2(0, 1);
-            ImVec2 uv_max = ImVec2(1, 0);
-            // if (gm.GetActiveRenderGraphName() == RenderGraphName::PATHTRACER) {
-            //     uv_min = ImVec2(0, 0);
-            //     uv_max = ImVec2(1, 1);
-            // }
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right, uv_min, uv_max);
-        } break;
-        case Backend::VULKAN:
-        case Backend::METAL: {
-        } break;
-        default:
-            CRASH_NOW();
-            break;
     }
 }
 

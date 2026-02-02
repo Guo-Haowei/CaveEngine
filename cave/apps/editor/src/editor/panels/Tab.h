@@ -13,6 +13,7 @@ namespace cave {
 
 class Tab;
 
+// @TODO: move it to somewhere else
 using TabId = GenId<Tab>;
 
 class Tab : public EditorWindow {
@@ -38,7 +39,7 @@ public:
     void SetTabId(TabId p_tab_id) { m_tab_id = p_tab_id; }
 
 protected:
-    void DrawUIImpl() override;
+    void DrawUIImpl() override {}
 
     // virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const;
 
