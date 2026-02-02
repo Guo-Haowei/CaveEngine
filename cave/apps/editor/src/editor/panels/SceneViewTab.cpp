@@ -210,7 +210,9 @@ void SceneViewTab::DrawUIImpl() {
     DrawMainView();
 
     if (m_editor.IsPlaying()) return;
-    DrawGizmo();
+    if (IsFocused()) {
+        DrawGizmo();
+    }
 }
 
 void SceneViewTab::DrawMainView() {

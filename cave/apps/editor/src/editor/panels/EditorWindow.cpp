@@ -21,7 +21,6 @@ void EditorWindow::ResetState() {
 }
 
 void EditorWindow::UpdateState() {
-
     m_state.open = true;
     m_state.visible = !ImGui::IsWindowCollapsed();
     m_state.focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);

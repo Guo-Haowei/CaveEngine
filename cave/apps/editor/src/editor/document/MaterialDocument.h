@@ -10,7 +10,7 @@ public:
     // bool Save() override;
     // bool SaveAs(std::string_view p_new_path) override;
 
-    SceneId GetPreviewScene() const {
+    SceneId GetPreviewScene() const override {
         return m_preview_scene;
     }
 
