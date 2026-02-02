@@ -6,7 +6,7 @@
 namespace cave::render {
 
 struct FramePlan;
-class RenderGraphBuilder;
+class RenderGraph;
 
 class EnvironmentFeature {
 public:
@@ -16,7 +16,7 @@ public:
         RGTextureId ibl_prefiltered{};
     };
 
-    [[nodiscard]] Outputs Build(RenderGraphBuilder& p_builder, const FramePlan& p_plan);
+    [[nodiscard]] Outputs Build(RenderGraph& p_graph, const FramePlan& p_plan);
 
 private:
     GpuTextureId m_env_texture{};

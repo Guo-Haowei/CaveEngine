@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderGraphBuilder.h"
+#include "RenderGraph.h"
 
 namespace cave::render {
 
@@ -67,7 +67,7 @@ struct HighlightOutput {
     RGTextureId outline{};
 };
 
-class RenderGraphBuilderExt : public RenderGraphBuilder {
+class RenderGraphBuilderExt : public RenderGraph {
 public:
     //[[nodiscard]] auto CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
 

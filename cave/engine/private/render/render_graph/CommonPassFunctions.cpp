@@ -13,7 +13,7 @@
 #include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "RenderGraphDefines.h"
-#include "RenderPassBuilder.h"
+#include "RenderPass.h"
 
 // @TODO: remove
 #include "engine/private/runtime/framework/IAssetManager.h"

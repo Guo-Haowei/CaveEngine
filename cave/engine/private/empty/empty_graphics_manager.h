@@ -97,8 +97,8 @@ protected:
     void MoveToNextFrame() override {}
     std::shared_ptr<FrameContext> CreateFrameContext() override { return nullptr; }
 
-    void BeginPass(const RenderPass& p_pass) override {}
-    void EndPass(const RenderPass& p_pass) override {}
+    void BeginPass(const CompiledPass& p_pass) override {}
+    void EndPass(const CompiledPass& p_pass) override {}
 
     void OnWindowResize(int p_width, int p_height) override {}
     void SetPipelineStateImpl(PipelineStateName p_name) override {}

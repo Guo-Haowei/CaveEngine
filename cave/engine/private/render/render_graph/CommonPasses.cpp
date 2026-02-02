@@ -10,7 +10,7 @@
 #include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/framework/DisplayManager.h"
 #include "RenderGraphDefines.h"
-#include "RenderPassBuilder.h"
+#include "RenderPass.h"
 
 // @TODO: remove
 #include "engine/private/runtime/framework/IAssetManager.h"
@@ -61,7 +61,7 @@ extern void PathTracerPassFunc(RenderPassExcutionContext& p_ctx);
 extern void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx);
 
 DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
-    RenderPassBuilder& pass = AddPass(RG_PASS_DEPTH_PREPASS);
+    RenderPass& pass = AddPass(RG_PASS_DEPTH_PREPASS);
 
     DepthPrepassOutput out{
         .depth = CreateTexture({
@@ -77,7 +77,7 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
 }
 
 GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_GBUFFER);
+    RenderPass& pass = AddPass(RG_PASS_GBUFFER);
 
     GbufferOutput out{
         .color0 = CreateTexture({
@@ -110,7 +110,7 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
         BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
     });
 
-    RenderPassBuilder& pass = AddPass(RG_PASS_LIGHTING);
+    RenderPass& pass = AddPass(RG_PASS_LIGHTING);
 
     pass.Read(ResourceAccess::SRV, p_in.color0)
         .Read(ResourceAccess::SRV, p_in.color1)
@@ -130,7 +130,7 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
 }
 
 ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_FORWARD);
+    RenderPass& pass = AddPass(RG_PASS_FORWARD);
     pass.Read(ResourceAccess::SRV, p_in.skybox)
         .Read(ResourceAccess::SRV, p_in.shadow)
         .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
@@ -147,7 +147,7 @@ ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
 }
 
 HighlightOutput RenderGraphBuilderExt::AddHighlightPass(const HighlightInput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_OUTLINE);
+    RenderPass& pass = AddPass(RG_PASS_OUTLINE);
 
     HighlightOutput out = {
         .outline = CreateTexture({
@@ -165,7 +165,7 @@ HighlightOutput RenderGraphBuilderExt::AddHighlightPass(const HighlightInput& p_
 }
 
 PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
-    RenderPassBuilder& pass = AddPass(RG_PASS_POST_PROCESS);
+    RenderPass& pass = AddPass(RG_PASS_POST_PROCESS);
     auto desc = BuildDefaultTextureDesc(RT_FMT_TONE, AttachmentType::COLOR_2D);
     desc.bindFlags |= BIND_SHADER_RESOURCE;
 

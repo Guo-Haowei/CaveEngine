@@ -3,7 +3,7 @@
 #include "cave/core/math/Vector.h"
 
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/render/render_graph/RenderGraphBuilder.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: remove this
 #include "engine/private/renderer/frame_data.h"
@@ -62,7 +62,7 @@ static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.DrawArrays(6);
 }
 
-SsaoFeature::Outputs SsaoFeature::Build(RenderGraphBuilder& p_builder,
+SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,
                                         const FramePlan& p_plan,
                                         const Inputs& p_in) {
     unused(p_plan);
@@ -75,13 +75,13 @@ SsaoFeature::Outputs SsaoFeature::Build(RenderGraphBuilder& p_builder,
         m_ssao_texture = GenerateSsaoNoise(m_device);
     }
 
-    RGTextureId noise = p_builder.ImportTexture({ m_ssao_texture });
+    RGTextureId noise = p_graph.ImportTexture({ m_ssao_texture });
 
-    RenderPassBuilder& pass = p_builder.AddPass(RG_PASS_SSAO);
+    RenderPass& pass = p_graph.AddPass(RG_PASS_SSAO);
     Outputs out{
-        .processed = p_builder.CreateTexture({
+        .processed = p_graph.CreateTexture({
             RG_RES_SSAO,
-            p_builder.BuildDefaultTextureDesc(RT_FMT_SSAO, AttachmentType::COLOR_2D),
+            p_graph.BuildDefaultTextureDesc(RT_FMT_SSAO, AttachmentType::COLOR_2D),
         })
     };
 

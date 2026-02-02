@@ -2,7 +2,7 @@
 #include "EnvironmentFeature.h"
 
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/render/render_graph/RenderGraphBuilder.h"
+#include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: remove these
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -67,7 +67,7 @@ static void PrefilteredFunc(RenderPassExcutionContext& p_ctx, uint16_t p_mip, ui
     cmd.DrawSkybox();
 }
 
-EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_builder, const FramePlan& p_plan) {
+EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, const FramePlan& p_plan) {
     unused(p_plan);
 
     if (!m_env_texture) {
@@ -77,11 +77,11 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
         m_env_texture = RenderDevice::GetSingleton().CreateTexture(image.get());
     }
 
-    RGTextureId env_hdr = p_builder.ImportTexture({ m_env_texture });
+    RGTextureId env_hdr = p_graph.ImportTexture({ m_env_texture });
 
-    RGTextureId env_cube = p_builder.CreateTexture({
+    RGTextureId env_cube = p_graph.CreateTexture({
         .debug_name = RG_RES_ENV_SKYBOX_CUBE,
-        .resourceDesc = p_builder.BuildDefaultTextureDesc(
+        .resourceDesc = p_graph.BuildDefaultTextureDesc(
             PixelFormat::R32G32B32A32_FLOAT,
             AttachmentType::COLOR_CUBE,
             RT_SIZE_IBL_CUBEMAP,
@@ -92,9 +92,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
         .samplerDesc = CubemapSampler(),
     });
 
-    RGTextureId ibl_diffuse = p_builder.CreateTexture({
+    RGTextureId ibl_diffuse = p_graph.CreateTexture({
         .debug_name = RG_RES_ENV_DIFFUSE_CUBE,
-        .resourceDesc = p_builder.BuildDefaultTextureDesc(
+        .resourceDesc = p_graph.BuildDefaultTextureDesc(
             PixelFormat::R32G32B32A32_FLOAT,
             AttachmentType::COLOR_CUBE,
             RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
@@ -103,9 +103,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
         .samplerDesc = CubemapNoMipSampler(),
     });
 
-    RGTextureId ibl_prefiltered = p_builder.CreateTexture({
+    RGTextureId ibl_prefiltered = p_graph.CreateTexture({
         .debug_name = RG_RES_ENV_PREFILTERED_CUBE,
-        .resourceDesc = p_builder.BuildDefaultTextureDesc(
+        .resourceDesc = p_graph.BuildDefaultTextureDesc(
             PixelFormat::R32G32B32A32_FLOAT,
             AttachmentType::COLOR_CUBE,
             RT_SIZE_IBL_PREFILTERED_CUBEMAP,
@@ -119,7 +119,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
     // bake environment cubemap
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_SKYBOX, face);
-        RenderPassBuilder& pass = p_builder.AddPass(pass_name);
+        RenderPass& pass = p_graph.AddPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
@@ -133,7 +133,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
     // bake irradiance map
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_DIFFUSE, face);
-        RenderPassBuilder& pass = p_builder.AddPass(pass_name);
+        RenderPass& pass = p_graph.AddPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
@@ -154,7 +154,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraphBuilder& p_buil
                 .array_size = 1,
             };
             std::string pass_name = std::format("{}_{}_{}", RG_PASS_BAKE_PREFILTERED, mip, face);
-            RenderPassBuilder& pass = p_builder.AddPass(pass_name);
+            RenderPass& pass = p_graph.AddPass(pass_name);
             pass.Read(ResourceAccess::SRV, env_cube)
                 .WriteColor(ibl_prefiltered, view_desc, LoadOp::Load)
                 .SetViewport(Viewport(w, h))

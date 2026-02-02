@@ -1,38 +1,90 @@
 #pragma once
-#include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/rhi/RenderTarget.h"
-
-// clang-format off
-namespace cave { struct FrameData; }
-namespace cave { struct GpuTexture; }
-// clang-format on
+#include "engine/private/renderer/sampler.h"
+#include "CompiledPass.h"
+#include "RenderGraphTypes.h"
 
 namespace cave::render {
 
-class IRenderDevice;
-struct RenderPass;
+class RenderPass {
+public:
+    struct Resource {
+        RGTextureId handle;
+        ResourceAccess access;
+    };
 
-struct RenderPassExcutionContext {
-    const FrameData& frameData;
-    RenderPass& pass;
-    IRenderDevice& cmd;
-};
+    RenderPass(std::string_view p_name)
+        : m_name(p_name) {}
 
-using ExecuteFunc = std::function<void(RenderPassExcutionContext& ctx)>;
+    RenderPass& Read(ResourceAccess p_access, RGTextureId p_handle);
 
-struct RenderPass {
-    std::string name;
+    RenderPass& ReadDepth(RGTextureId p_handle,
+                          const TextureViewDesc& p_tex_view_desc,
+                          LoadOp p_depth_load = LoadOp::Load,
+                          float p_clear_depth = 1.0f,
+                          LoadOp p_stencil_load = LoadOp::Load,
+                          uint8_t p_clear_stencil = 0) {
 
-    std::vector<ColorAttachmentDesc> colors;
-    std::optional<DepthAttachmentDesc> depth;
+        return ReadOrWriteDepth(m_reads,
+                                p_handle,
+                                p_tex_view_desc,
+                                p_depth_load,
+                                p_clear_depth,
+                                p_stencil_load,
+                                p_clear_stencil);
+    }
 
-    std::optional<Viewport> viewport;
-    // @TODO: sissor
+    RenderPass& WriteColor(RGTextureId p_handle,
+                           const TextureViewDesc& p_tex_view_desc,
+                           LoadOp p_load = LoadOp::Load);
 
-    std::vector<GpuTextureId> uavs;
-    std::vector<GpuTextureId> srvs;
+    RenderPass& WriteDepth(RGTextureId p_handle,
+                           const TextureViewDesc& p_tex_view_desc,
+                           LoadOp p_depth_load = LoadOp::Load,
+                           float p_clear_depth = 1.0f,
+                           LoadOp p_stencil_load = LoadOp::Load,
+                           uint8_t p_clear_stencil = 0) {
 
-    ExecuteFunc func;
+        return ReadOrWriteDepth(m_writes,
+                                p_handle,
+                                p_tex_view_desc,
+                                p_depth_load,
+                                p_clear_depth,
+                                p_stencil_load,
+                                p_clear_stencil);
+    }
+
+    RenderPass& SetExecuteFunc(ExecuteFunc p_func) {
+        m_func = std::move(p_func);
+        return *this;
+    }
+
+    RenderPass& SetViewport(const Viewport& p_viewport) {
+        m_viewport = p_viewport;
+        return *this;
+    }
+
+    std::string_view GetName() const { return m_name; }
+
+private:
+    RenderPass& ReadOrWriteDepth(std::vector<Resource>& p_array,
+                                 RGTextureId p_handle,
+                                 const TextureViewDesc& p_tex_view_desc,
+                                 LoadOp p_depth_load,
+                                 float p_clear_depth,
+                                 LoadOp p_stencil_load,
+                                 uint8_t p_clear_stencil);
+
+    std::string m_name;
+    std::vector<Resource> m_reads;
+    std::vector<Resource> m_writes;
+    std::vector<ColorAttachmentDesc> m_colors;
+    std::optional<DepthAttachmentDesc> m_depth;
+    std::optional<Viewport> m_viewport;
+
+    ExecuteFunc m_func;
+
+    friend class RenderGraph;
+    friend class CompiledGraph;
 };
 
 }  // namespace cave::render

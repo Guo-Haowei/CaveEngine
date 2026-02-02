@@ -4,12 +4,12 @@
 
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/render_graph/CompiledGraph.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "editor/EditorState.h"
 
-extern cave::render::RenderGraph* g_graph;
+extern cave::render::CompiledGraph* g_graph;
 
 namespace cave {
 
@@ -20,11 +20,13 @@ RenderGraphViewer::RenderGraphViewer(EditorState& p_editor)
     : EditorWindow(p_editor) {
 }
 
-void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
-    const auto& passes = p_graph.GetRenderPasses();
+void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
+    using namespace render;
+
+    std::span<const CompiledPass> passes = p_graph.GetCompiledPass();
 
     auto draw_node = [&passes, this](int id, float x, float y) {
-        const auto pass = passes[id].get();
+        const CompiledPass& pass = passes[id];
         const bool flip_image = m_backend == Backend::OPENGL;
 
         ImNodes::BeginNode(id);
@@ -35,7 +37,7 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
         }
         {
             ImNodes::BeginNodeTitleBar();
-            ImGui::TextUnformatted(pass->name.c_str());
+            ImGui::TextUnformatted(pass.name.c_str());
             ImNodes::EndNodeTitleBar();
         }
         ImGui::Spacing();
@@ -64,7 +66,7 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
         ImGui::Spacing();
         {
             ImNodes::BeginStaticAttribute(id);
-            for (const auto& srv : pass->srvs) {
+            for (const auto& srv : pass.srvs) {
                 add_image(flip_image, srv);
             }
             ImNodes::EndStaticAttribute();
@@ -83,7 +85,7 @@ void RenderGraphViewer::DrawNodes(const render::RenderGraph& p_graph) {
         {
             ImNodes::BeginInputAttribute(id);
 
-            for (const auto& rtv : pass->colors) {
+            for (const auto& rtv : pass.colors) {
                 add_image(flip_image, rtv.tex);
             }
             ImNodes::EndInputAttribute();

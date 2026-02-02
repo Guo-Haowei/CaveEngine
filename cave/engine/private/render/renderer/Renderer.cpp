@@ -11,7 +11,7 @@
 #include "engine/private/render/renderer/RenderScene.h"
 #include "engine/private/render/renderer/RenderSceneBuilder.h"
 #include "engine/private/render/renderer/RenderSubmission.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
@@ -37,7 +37,7 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 }  // namespace cave
 
 // @HACK: expose render graph for debugging
-cave::render::RenderGraph* g_graph = nullptr;
+cave::render::CompiledGraph* g_graph = nullptr;
 
 namespace cave::render {
 
@@ -57,7 +57,7 @@ public:
 
 private:
     FramePlan BuildFramePlan(std::span<const render::ViewDesc> p_views);
-    auto BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<RenderGraph>>;
+    auto BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>>;
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
@@ -67,7 +67,7 @@ private:
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
 
     // @TODO: remove
-    std::shared_ptr<RenderGraph> m_render_graph;
+    std::shared_ptr<CompiledGraph> m_render_graph;
 
     // features
     EnvironmentFeature m_env;
@@ -204,6 +204,7 @@ auto Renderer::Impl::Initialize() -> Result<void> {
         return CAVE_ERROR(res.error());
     } else {
         m_render_graph = *res;
+        m_render_graph->Resolve(*m_app.GetRenderDevice());
 
         g_graph = m_render_graph.get();
         return Result<void>();
@@ -284,7 +285,7 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
     return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<RenderGraph>> {
+auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>> {
     constexpr const char RG_RES_BRDF[] = "r:brdf";
 
     IRenderDevice& device = *m_app.GetRenderDevice();
@@ -302,7 +303,7 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
 
     // @TODO: get frame size from viewport
     const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    RenderGraphBuilderConfig config;
+    RenderGraphConfig config;
     config.frameWidth = frame_size.x;
     config.frameHeight = frame_size.y;
 

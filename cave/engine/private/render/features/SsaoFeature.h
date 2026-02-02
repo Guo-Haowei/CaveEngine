@@ -8,7 +8,7 @@
 namespace cave::render {
 
 struct FramePlan;
-class RenderGraphBuilder;
+class RenderGraph;
 
 using KernelData = std::array<math::Vector4f, 64>;
 
@@ -26,7 +26,7 @@ public:
     SsaoFeature(IRenderDevice& p_device)
         : m_device(p_device) {}
 
-    [[nodiscard]] Outputs Build(RenderGraphBuilder& p_builder,
+    [[nodiscard]] Outputs Build(RenderGraph& p_graph,
                                 const FramePlan& p_plan,
                                 const Inputs& p_in);
 
