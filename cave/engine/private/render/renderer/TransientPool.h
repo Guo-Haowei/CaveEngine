@@ -19,6 +19,8 @@ public:
 
     GpuTextureId AcquireTexture(const TransientTextureDesc& p_desc);
 
+    GpuTextureId TryGetTexture(const std::string& p_key);
+
 private:
     IRenderDevice& m_device;
     std::unordered_map<std::string, GpuTextureId> m_cache;

@@ -7,9 +7,13 @@ namespace cave::render {
 
 struct FramePlan;
 class RenderGraph;
+class TransientPool;
 
 class EnvironmentFeature {
 public:
+    EnvironmentFeature(TransientPool& p_pool)
+        : m_pool(p_pool) {}
+
     struct Outputs {
         RGTextureId skybox{};
         RGTextureId ibl_diffuse{};
@@ -19,7 +23,9 @@ public:
     [[nodiscard]] Outputs Build(RenderGraph& p_graph, const FramePlan& p_plan);
 
 private:
+    TransientPool& m_pool;
     GpuTextureId m_env_texture{};
+    bool m_generated{ false };
 };
 
 }  // namespace cave::render

@@ -51,6 +51,7 @@ public:
     Impl(IApplication& p_app)
         : m_app(p_app)
         , m_pool(*p_app.GetRenderDevice())
+        , m_env(m_pool)
         , m_ssao(*p_app.GetRenderDevice()) {}
 
     auto Initialize() -> Result<void>;
@@ -202,16 +203,7 @@ static void FillEnvConstants(FrameData& p_out_data) {
 }
 
 auto Renderer::Impl::Initialize() -> Result<void> {
-    FramePlan dummy_plan;
-    if (auto res = BuildRenderGraph(dummy_plan); !res) {
-        return CAVE_ERROR(res.error());
-    } else {
-        m_render_graph = *res;
-        m_render_graph->Resolve(m_pool);
-
-        g_graph = m_render_graph.get();
-        return Result<void>();
-    }
+    return Result<void>();
 }
 
 void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
@@ -219,10 +211,21 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
 
     auto submission = std::make_unique<RenderSubmission>();
 
-    FramePlan plan = BuildFramePlan(p_views);
+    if (!p_views.empty()) {
+        FramePlan plan = BuildFramePlan(p_views);
 
-    submission->frame_data = std::move(plan.frame_data);
-    submission->render_graph = m_render_graph;
+        if (auto res = BuildRenderGraph(plan); !res) {
+            CRASH_NOW();
+        } else {
+            m_render_graph = *res;
+            m_render_graph->Resolve(m_pool);
+
+            g_graph = m_render_graph.get();
+        }
+
+        submission->frame_data = std::move(plan.frame_data);
+        submission->render_graph = m_render_graph;
+    }
     // submission->render_graph = BuildRenderGraph(plan);
 
     // @TODO: graph
@@ -246,16 +249,7 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
         .ssaoKernelRadius = DVAR_GET_FLOAT(gfx_ssao_radius),
     };
 
-    // @HACK: really need to refactor this crap
-    if (plan.frame_data.size()) {
-        static int s_should_bake = 0;
-        if (m_app.GetStateId() != static_cast<AppStateId>(0)) {
-            if (s_should_bake == 1) plan.frame_data[0].bakeIbl = true;
-            ++s_should_bake;
-        }
-    }
-
-    int i = 0;
+    int view_idx = 0;
     for (const render::ViewDesc& view : p_views) {
         Scene* ecs_scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
         DEV_ASSERT(ecs_scene);
@@ -266,7 +260,7 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
 
         ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
 
-        FrameData& framedata = plan.frame_data[i++];
+        FrameData& framedata = plan.frame_data[view_idx++];
         framedata.options = options;
         framedata.resolved_view = resolved;
 
@@ -317,6 +311,7 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
     RGTextureId ltc2 = builder.ImportTexture({ m_ltc2 });
 
     auto env_outputs = m_env.Build(builder, p_plan);
+
     auto shadow_outputs = m_shadow.Build(builder, p_plan);
 
     // @TODO: refactor the following

@@ -18,4 +18,12 @@ GpuTextureId TransientPool::AcquireTexture(const TransientTextureDesc& p_desc) {
     return tex;
 }
 
+GpuTextureId TransientPool::TryGetTexture(const std::string& p_key) {
+    if (auto it = m_cache.find(p_key); it != m_cache.end()) {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
 }  // namespace cave::render
