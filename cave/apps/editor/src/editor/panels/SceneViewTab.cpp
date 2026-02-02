@@ -197,11 +197,11 @@ void SceneViewTab::Tick(float p_dt) {
     m_camera_state.rotation *= p_dt;
 
     m_camera_controller->Update(m_camera_state);
-
-    UpdateViewRect();
 }
 
 void SceneViewTab::DrawUIImpl() {
+    UpdateViewRect();
+
     DrawMainView();
 
     if (m_editor.IsPlaying()) return;
@@ -210,6 +210,7 @@ void SceneViewTab::DrawUIImpl() {
     }
 }
 
+// @TODO: instead of asking for image, provide an image to renderer
 void SceneViewTab::DrawMainView() {
     ImVec2 top_left(m_view_rect.x, m_view_rect.y);
     ImVec2 bottom_right(m_view_rect.Right(), m_view_rect.Bottom());
@@ -242,8 +243,11 @@ void SceneViewTab::DrawMainView() {
 }
 
 void SceneViewTab::UpdateViewRect() {
-    Vector2f top_left = m_top_left + m_image_padding;
-    Vector2f size = m_size - m_image_padding;
+    ImVec2 win_pos = ImGui::GetWindowPos();
+    ImVec2 win_size = ImGui::GetWindowSize();
+
+    Vector2f top_left = Vector2f(win_pos.x, win_pos.y) + m_image_padding;
+    Vector2f size = Vector2f(win_size.x, win_size.y) - m_image_padding;
 
     const float aspect = m_camera.GetAspect();
     if (aspect * size.y > size.x) {
@@ -260,6 +264,7 @@ void SceneViewTab::UpdateViewRect() {
     };
 }
 
+// @TODO: move this to gizmo
 void SceneViewTab::DrawGizmo() {
     DEV_ASSERT(!m_camera.IsDirty());
     DocId doc_id = GetDocId();
