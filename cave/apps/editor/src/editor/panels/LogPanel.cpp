@@ -26,6 +26,10 @@ static void DrawLog(const LogEvent& p_log) {
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, 1.0f));
     ImGui::SameLine();
     ImGui::Text("  %s", p_log.message.c_str());
+    if (p_log.repeat > 1) {
+        ImGui::SameLine();
+        ImGui::Text(" [ x%u ]", p_log.repeat);
+    }
     ImGui::PopStyleColor();
 }
 

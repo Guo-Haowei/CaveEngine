@@ -17,6 +17,7 @@ namespace cave {
 
 struct LogEvent {
     LogLevel level;
+    uint32_t repeat;
     uint64_t id;
     std::string message;
 };
@@ -55,11 +56,17 @@ private:
         std::mutex mutex;
     };
 
+    struct GroupedLog {
+        std::vector<LogEvent> logs;
+        void Add(LogEvent p_log);
+        void Clear() { logs.clear(); }
+    };
+
     std::vector<std::shared_ptr<ILogger>> m_loggers;
 
-    std::vector<LogEvent> m_all_logs;
-    std::vector<LogEvent> m_errors;
-    std::vector<LogEvent> m_warnings;
+    GroupedLog m_all_logs;
+    GroupedLog m_errors;
+    GroupedLog m_warnings;
 
     Buffer m_buffer;
 

@@ -31,6 +31,18 @@ void StdLogger::Print(LogLevel p_level, std::string_view p_message) {
     fflush(file);
 }
 
+void CompositeLogger::GroupedLog::Add(LogEvent p_log) {
+    if (!logs.empty()) {
+        LogEvent& log = logs.back();
+        if (log.message == p_log.message && log.level == p_log.level) {
+            ++log.repeat;
+            return;
+        }
+    }
+
+    logs.push_back(std::move(p_log));
+}
+
 void CompositeLogger::AddLogger(std::shared_ptr<ILogger> p_logger) {
     m_loggers.emplace_back(p_logger);
 }
@@ -47,6 +59,7 @@ void CompositeLogger::Print(LogLevel p_level, std::string_view p_message) {
 
     LogEvent log = {
         .level = p_level,
+        .repeat = 1,
         .id = m_log_id.fetch_add(1),
         .message = std::string(p_message),
     };
@@ -65,15 +78,15 @@ void CompositeLogger::Flush() {
         switch (log.level) {
             case LogLevel::LOG_LEVEL_FATAL:
             case LogLevel::LOG_LEVEL_ERROR: {
-                m_errors.emplace_back(log);
+                m_errors.Add(log);
             } break;
             case LogLevel::LOG_LEVEL_WARN: {
-                m_warnings.emplace_back(log);
+                m_warnings.Add(log);
             } break;
             default:
                 break;
         }
-        m_all_logs.emplace_back(std::move(log));
+        m_all_logs.Add(std::move(log));
     }
 
     m_buffer.buffer.clear();
@@ -82,22 +95,24 @@ void CompositeLogger::Flush() {
 
 void CompositeLogger::ClearLog() {
     ASSERT_OPERATION_THREAD();
-    m_all_logs.clear();
+    m_all_logs.Clear();
+    m_errors.Clear();
+    m_warnings.Clear();
 }
 
 const std::vector<LogEvent>& CompositeLogger::GetAllLogs() const {
     ASSERT_OPERATION_THREAD();
-    return m_all_logs;
+    return m_all_logs.logs;
 }
 
 const std::vector<LogEvent>& CompositeLogger::GetWarningLogs() const {
     ASSERT_OPERATION_THREAD();
-    return m_warnings;
+    return m_warnings.logs;
 }
 
 const std::vector<LogEvent>& CompositeLogger::GetErrorLogs() const {
     ASSERT_OPERATION_THREAD();
-    return m_errors;
+    return m_errors.logs;
 }
 
 }  // namespace cave

@@ -5,7 +5,7 @@
 
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/core/io/file_access.h"
-#include "engine/private/core/io/logger.h"
+#include "engine/private/core/logging/Logger.h"
 #include "engine/private/core/os/threads.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/renderer/graphics_dvars.h"
