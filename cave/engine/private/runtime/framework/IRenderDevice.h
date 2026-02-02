@@ -109,7 +109,6 @@ public:
 
     virtual std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) = 0;
     virtual std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) = 0;
-    virtual std::shared_ptr<GpuTexture> FindTexture(std::string_view p_name) const = 0;
     virtual void BindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) = 0;
     virtual void UnbindTexture(Dimension p_dimension, int p_slot) = 0;
 

@@ -12,7 +12,7 @@ GpuTextureId TransientPool::AcquireTexture(const TransientTextureDesc& p_desc) {
         return it->second;
     }
 
-    LOG_WARN("cache miss for {}", key);
+    // LOG_WARN("cache miss for {}", key);
     GpuTextureId tex = m_device.CreateTexture(p_desc.texture, p_desc.sampler);
     it->second = tex;
     return tex;

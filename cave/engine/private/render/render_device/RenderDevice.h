@@ -67,7 +67,6 @@ public:
 
     std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) override;
     std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) override;
-    std::shared_ptr<GpuTexture> FindTexture(std::string_view p_name) const override;
 
     void RequestTexture(ImageAsset* p_image) override;
     void RequestMesh(MeshAsset* p_mesh) override;

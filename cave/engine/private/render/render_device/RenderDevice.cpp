@@ -329,22 +329,11 @@ std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_
     return texture;
 }
 
-std::shared_ptr<GpuTexture> RenderDevice::FindTexture(std::string_view p_name) const {
-    if (m_resourceLookup.empty()) {
-        return nullptr;
-    }
-
-    auto it = m_resourceLookup.find(p_name);
-    if (it == m_resourceLookup.end()) {
-        return nullptr;
-    }
-    return it->second;
-}
-
 uint64_t RenderDevice::GetFinalImage() const {
     constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
-    if (const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get()) {
-        return texture->GetHandle();
+
+    if (auto it = m_resourceLookup.find(RG_RES_POST_PROCESS); it != m_resourceLookup.end()) {
+        return it->second->GetHandle();
     }
 
     return 0;
