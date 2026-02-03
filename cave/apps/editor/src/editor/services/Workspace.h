@@ -71,7 +71,7 @@ public:
 
     Tab* GetFocusedTab() { return Resolve(m_focused_tab); }
 
-    void OnEvents(const std::vector<InputEvent>& p_events) final;
+    void OnEvents(const InputFrame& p_input) final;
 
     int GetPriority() const final { return 10; }
 

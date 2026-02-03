@@ -32,10 +32,10 @@ void InputRouter::Unregister(IInputConsumer* p_consumer) {
 #endif
 }
 
-void InputRouter::Dispatch(const std::vector<InputEvent>& p_events) {
+void InputRouter::Dispatch(const InputFrame& p_input) {
     for (auto* c : m_consumers) {
         if (DEV_VERIFY(c)) {
-            c->OnEvents(p_events);
+            c->OnEvents(p_input);
         }
     }
 }

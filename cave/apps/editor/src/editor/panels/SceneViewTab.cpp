@@ -5,6 +5,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/debugger/DebugIdAllocator.h"
+#include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 
 #include "editor/edit/EditTransformCmd.h"
@@ -15,7 +16,6 @@
 // @TODO: refactor
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
-#include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_device/RenderDevice.h"
@@ -153,7 +153,7 @@ void SceneViewTab::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
     }
 }
 
-void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
+void SceneViewTab::OnInputEvents(const InputFrame& p_input) {
     if (!IsHovered()) {
         return;
     }
@@ -163,7 +163,7 @@ void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
     }
 
     bool skip_camera = false;
-    for (const InputEvent& e : p_events) {
+    for (const InputEvent& e : p_input.events) {
         if (e.consumed) {
             continue;
         }
@@ -194,37 +194,15 @@ void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
     }
 
     if (skip_camera) {
-        m_camera_state = {};
         return;
     }
 
     const KeyState& st = m_editor.GetApp().GetInputSystem()->GetKeyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
-        m_camera_state = {};
         return;
     }
 
-    switch (m_dim) {
-        case DIMENSION_2: {
-            m_camera_state = CreateCameraInputState2D(p_events, st);
-        } break;
-        case DIMENSION_3: {
-            m_camera_state = CreateCameraInputState3D(p_events, st);
-        } break;
-        default: {
-            CRASH_NOW_MSG("invalid dimension");
-        } break;
-    }
-}
-
-void SceneViewTab::Tick(float p_dt) {
-    Tab::Tick(p_dt);
-
-    m_camera_state.move *= p_dt;
-    m_camera_state.zoom_delta *= p_dt;
-    m_camera_state.rotation *= p_dt;
-
-    m_camera_controller->Update(m_camera_state);
+    m_camera_controller->Update(p_input);
 }
 
 void SceneViewTab::DrawUIImpl() {
@@ -379,78 +357,6 @@ void SceneViewTab::DrawGizmo() {
 // }
 Scene* SceneViewTab::GetResolvedScene() {
     return m_editor.GetApp().GetSceneRegistry()->Resolve(m_preview_scene);
-}
-
-CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_ks) {
-    CameraInputState state{};
-
-    const InputDeviceId id{ 0 };
-    float dx = 0.0f;
-    float dy = 0.0f;
-    const bool mmb = p_ks.Down(id, Key::MMB);
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
-
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                state.zoom_delta = -e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                e.consumed = true;
-                dx = -e.dx;
-                dy = e.dy;
-            } break;
-            default:
-                break;
-        }
-    }
-
-    if (mmb) {
-        state.move = math::Vector3f(dx, dy, 0.0f);
-    }
-
-    return state;
-}
-
-CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
-    constexpr Key kDragKey = Key::MMB;
-    const InputDeviceId id{ 0 };
-    const bool drag_button = p_st.Down(id, kDragKey);
-    const int dx = p_st.Down(id, Key::D) - p_st.Down(id, Key::A);
-    const int dy = p_st.Down(id, Key::E) - p_st.Down(id, Key::Q);
-    const int dz = p_st.Down(id, Key::W) - p_st.Down(id, Key::S);
-
-    math::Vector2f rotation = math::Vector2f::Zero;
-    float zoom = 0.0f;
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) continue;
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                zoom = 3.0f * e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                if (drag_button) {
-                    e.consumed = true;
-                    rotation.x = e.dx;
-                    rotation.y = e.dy;
-                }
-            } break;
-            default:
-                break;
-        }
-    }
-
-    return {
-        .move = Vector3f(dx, dy, dz),
-        .zoom_delta = zoom,
-        .rotation = rotation,
-    };
 }
 
 }  // namespace cave

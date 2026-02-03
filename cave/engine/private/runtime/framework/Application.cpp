@@ -178,10 +178,11 @@ bool Application::MainLoop() {
 
     m_task_manager->TickMainThread();
 
-    m_input_system->Update();
+    const float dt = UpdateTime();
+
+    m_input_system->Tick(dt);
 
     // === Update Phase ===
-    const float timestep = UpdateTime();
 
     m_asset_manager->Update();
 
@@ -189,10 +190,10 @@ bool Application::MainLoop() {
     // update layers from back to front
     m_view_manager->BeginFrame();
 
-    m_state_machine.Tick(timestep);
+    m_state_machine.Tick(dt);
 
     // update scene after ImGui, physics and script updates
-    m_scene_scheduler->Tick(timestep);
+    m_scene_scheduler->Tick(dt);
 
     std::span<const ResolvedView> views = m_view_manager->EndFrame();
     m_renderer->Tick(views);

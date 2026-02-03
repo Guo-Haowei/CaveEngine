@@ -8,7 +8,7 @@
 
 // @TODO: refactor
 #include "editor/Enums.h"
-#include "engine/private/runtime/scene/CameraController.h"
+#include "editor/camera/CameraController.h"
 
 namespace cave {
 
@@ -35,9 +35,7 @@ public:
 
     Option<PickData> GetPickData(const math::Vector2f& p_pos_screen) override;
 
-    void OnInputEvents(const std::vector<InputEvent>& p_events) override;
-
-    void Tick(float p_dt) override;
+    void OnInputEvents(const InputFrame& p_input) override;
 
     DebugId GetDebugId() final { return m_debug_id; }
 
@@ -50,9 +48,6 @@ protected:
     void DrawGizmo();
 
     Scene* GetResolvedScene();
-    CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
-    CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
-
     // void OnCreateInternal(const Guid& p_guid) final;
 
     // void OnActivateInternal() final;
@@ -75,7 +70,6 @@ protected:
 
     // @TODO: move to input controller
     std::unique_ptr<ICameraController> m_camera_controller;
-    CameraInputState m_camera_state;
     CameraComponent m_camera;
     TransformComponent m_camera_transform;
     GpuTextureId m_texture;

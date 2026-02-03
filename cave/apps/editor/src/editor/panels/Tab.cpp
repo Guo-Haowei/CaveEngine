@@ -75,9 +75,6 @@ void Tab::SetTitleAndId(std::string_view p_title, uint32_t p_idx) {
     m_window_id = std::format("{}###WorkspaceTab{}", m_title, m_idx);
 }
 
-void Tab::Tick(float) {
-}
-
 void Tab::OnCreate() {
 }
 

@@ -29,7 +29,7 @@ public:
 
     void AddDevice(std::unique_ptr<IInputDevice> p_device);
 
-    void Update();
+    void Tick(float p_dt);
 
     const KeyState& GetKeyState() const { return m_key_state; }
 

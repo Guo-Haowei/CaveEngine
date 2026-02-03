@@ -13,7 +13,7 @@ public:
     void Register(IInputConsumer* p_consumer);
     void Unregister(IInputConsumer* p_consumer);
 
-    void Dispatch(const std::vector<InputEvent>& p_events);
+    void Dispatch(const InputFrame& p_input);
 
 private:
     void Sort();
