@@ -18,13 +18,9 @@ struct CameraParams {
 struct ResolvedView {
     CameraParams cam;
     math::Frustum frustum;
+    math::IntRect viewport_px;
 
-    // @TODO: view port
-    float vp_w;
-    float vp_h;
-    float aspect;
     float fovy;
-
     SceneId scene_id;
     Scene* scene{ nullptr };
 

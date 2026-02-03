@@ -32,6 +32,9 @@ using math::Matrix4x4f;
 using math::Vector2f;
 using math::Vector3f;
 
+static constexpr uint32_t kTextureWidth = 1920;
+static constexpr uint32_t kTextureHeight = 1080;
+
 SceneViewTab::SceneViewTab(EditorState& p_editor,
                            DocId p_doc_id,
                            SceneId p_preview_scene_id,
@@ -61,8 +64,8 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
         GpuTextureDesc desc{
             .type = AttachmentType::COLOR_2D,
             .dimension = Dimension::TEXTURE_2D,
-            .width = 1920,
-            .height = 1080,
+            .width = kTextureWidth,
+            .height = kTextureHeight,
             .depth = 1,
             .mipLevels = 0,
             .arraySize = 1,
@@ -80,6 +83,7 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
 void SceneViewTab::SubmitView() {
     using namespace render;
     ViewDesc view;
+    view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
     if (m_editor.IsPlaying()) {
         view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
         view.camera_source = CameraSource::MainCamera();

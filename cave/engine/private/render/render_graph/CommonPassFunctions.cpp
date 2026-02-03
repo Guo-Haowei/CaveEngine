@@ -304,7 +304,7 @@ void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
 void BloomSetupFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
-    if (!p_ctx.frameData.options.bloomEnabled) {
+    if (!p_ctx.frameData.options.enable_bloom) {
         return;
     }
 
@@ -323,7 +323,7 @@ void BloomSetupFunc(RenderPassExcutionContext& p_ctx) {
 void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
-    if (!p_ctx.frameData.options.bloomEnabled) {
+    if (!p_ctx.frameData.options.enable_bloom) {
         return;
     }
 
@@ -342,7 +342,7 @@ void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx) {
 void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
-    if (!p_ctx.frameData.options.bloomEnabled) {
+    if (!p_ctx.frameData.options.enable_bloom) {
         return;
     }
 

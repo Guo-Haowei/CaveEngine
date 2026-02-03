@@ -80,6 +80,7 @@ static void FillPass(const RenderScene& p_rs,
                      FilterObjectFunc1 p_filter,
                      const math::Frustum& p_frustum,
                      std::vector<DrawItem>& p_commands,
+                     const ResolvedView& p_view,
                      FrameData& p_framedata,
                      bool p_no_mat) {
 
@@ -96,7 +97,7 @@ static void FillPass(const RenderScene& p_rs,
         batch_buffer.c_meshFlag = skeleton_id.IsValid();
 
         DrawItem draw{};
-        const auto& highlighted = p_framedata.resolved_view.highlight.entities;
+        const auto& highlighted = p_view.highlight.entities;
         if (auto it = highlighted.find(header.owner); it != highlighted.end()) {
             draw.flags = STENCIL_FLAG_HIGHLIGHT;
         }
@@ -141,7 +142,7 @@ static void FillPass(const RenderScene& p_rs,
             const MaterialComponent* material = p_es.GetComponent<MaterialComponent>(material_id);
 
             MaterialConstantBuffer material_buffer;
-            FillMaterialConstantBuffer(p_framedata.options.isOpengl,
+            FillMaterialConstantBuffer(p_framedata.options.is_opengl,
                                        material,
                                        material_buffer);
 
@@ -155,6 +156,7 @@ static void FillPass(const RenderScene& p_rs,
 
 static void FillLightBuffer(const RenderScene& p_rs,
                             const Scene& p_scene,
+                            const ResolvedView& p_view,
                             FrameData& p_framedata) {
     const uint32_t light_count = glm::min<uint32_t>((uint32_t)p_scene.GetCount<LightComponent>(), MAX_LIGHT_COUNT);
 
@@ -200,7 +202,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 tmp.Set(&light_dir.x);
                 light.view_matrix = LookAtRh(center + tmp * size, center, Vector3f::UnitY);
 
-                if (p_framedata.options.isOpengl) {
+                if (p_framedata.options.is_opengl) {
                     light.projection_matrix = BuildOpenGlOrthoRH(-size, size, -size, size, -size, 3.0f * size);
                 } else {
                     light.projection_matrix = BuildOrthoRH(-size, size, -size, size, -size, 3.0f * size);
@@ -222,6 +224,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                     },
                     light_frustum,
                     p_framedata.commands[std::to_underlying(DrawPhase::Shadow)],
+                    p_view,
                     p_framedata,
                     true);
             } break;
@@ -334,9 +337,10 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
 
 static void FillMainPass(const Scene& p_es,
                          const RenderScene& p_rs,
+                         const ResolvedView& p_view,
                          FrameData& p_framedata) {
-    const CameraParams& camera = p_framedata.resolved_view.cam;
-    const Frustum& frustum = p_framedata.resolved_view.frustum;
+    const CameraParams& camera = p_view.cam;
+    const Frustum& frustum = p_view.frustum;
 
     // main pass
     PerPassConstantBuffer pass_constant;
@@ -355,6 +359,7 @@ static void FillMainPass(const Scene& p_es,
         },
         frustum,
         p_framedata.commands[std::to_underlying(DrawPhase::DepthPrepass)],
+        p_view,
         p_framedata,
         true);
 
@@ -367,6 +372,7 @@ static void FillMainPass(const Scene& p_es,
         },
         frustum,
         p_framedata.commands[std::to_underlying(DrawPhase::Deferred)],
+        p_view,
         p_framedata,
         false);
 
@@ -378,16 +384,18 @@ static void FillMainPass(const Scene& p_es,
         },
         frustum,
         p_framedata.commands[std::to_underlying(DrawPhase::Forward)],
+        p_view,
         p_framedata,
         false);
 }
 
 void RunMeshRenderSystem(const Scene& p_scene,
                          const RenderScene& p_rscene,
+                         const ResolvedView& p_view,
                          FrameData& p_framedata) {
-    FillLightBuffer(p_rscene, p_scene, p_framedata);
+    FillLightBuffer(p_rscene, p_scene, p_view, p_framedata);
     FillVoxelPass(p_scene, p_framedata);
-    FillMainPass(p_scene, p_rscene, p_framedata);
+    FillMainPass(p_scene, p_rscene, p_view, p_framedata);
 }
 
 // @TODO: fix emitter

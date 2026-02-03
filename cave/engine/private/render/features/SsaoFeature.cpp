@@ -51,7 +51,7 @@ static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
 
 static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
-    if (!p_ctx.frameData.options.ssaoEnabled) {
+    if (!p_ctx.frameData.options.enable_ssao) {
         return;
     }
 
@@ -63,7 +63,7 @@ static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
 }
 
 SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,
-                                        const FramePlan& p_plan,
+                                        const RenderOptions& p_plan,
                                         const Inputs& p_in) {
     unused(p_plan);
 

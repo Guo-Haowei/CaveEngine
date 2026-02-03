@@ -23,6 +23,7 @@ struct ViewOutputDesc {
     bool clear_depth = true;
 };
 
+// @TODO: do not pass CameraComponent here
 struct CameraSource {
     enum class Source : uint8_t {
         Editor,
@@ -46,7 +47,7 @@ struct ViewHighlight {
 struct ViewDesc {
     CameraSource camera_source;
     SceneId scene_id;
-    math::IntRect viewport_pixel;
+    math::IntRect viewport_px;
 
     ViewHighlight highlight;
     GpuTextureId output;

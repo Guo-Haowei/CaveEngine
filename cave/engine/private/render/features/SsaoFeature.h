@@ -7,7 +7,7 @@
 
 namespace cave::render {
 
-struct FramePlan;
+struct RenderOptions;
 class RenderGraph;
 
 using KernelData = std::array<math::Vector4f, 64>;
@@ -27,7 +27,7 @@ public:
         : m_device(p_device) {}
 
     [[nodiscard]] Outputs Build(RenderGraph& p_graph,
-                                const FramePlan& p_plan,
+                                const RenderOptions& p_plan,
                                 const Inputs& p_in);
 
     static KernelData CreateKernel();

@@ -35,7 +35,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     ExecuteDrawCommands(p_ctx, shadow_commands, false);
 }
 
-ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const FramePlan& p_plan) {
+ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const RenderOptions& p_plan) {
     unused(p_plan);
 
     constexpr int shadow_res = 1024 * 2;

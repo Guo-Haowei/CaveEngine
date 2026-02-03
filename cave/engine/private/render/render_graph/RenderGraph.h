@@ -12,12 +12,6 @@ namespace cave::render {
 class CompiledGraph;
 
 struct RenderGraphConfig {
-    bool enablePointShadow = true;
-    bool enableVxgi = true;
-    bool enableIbl = true;
-    bool enableBloom = true;
-    bool enableHighlight = true;
-
     int frameWidth;
     int frameHeight;
 };

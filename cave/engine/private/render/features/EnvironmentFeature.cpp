@@ -57,7 +57,7 @@ static void PrefilteredFunc(RenderPassExcutionContext& p_ctx, uint16_t p_mip, ui
     cmd.DrawSkybox();
 }
 
-EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, const FramePlan& p_plan) {
+EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, const RenderOptions& p_plan) {
     unused(p_plan);
 
     if (GpuTextureId env_cube = m_pool.TryGetTexture(RG_RES_ENV_SKYBOX_CUBE)) {

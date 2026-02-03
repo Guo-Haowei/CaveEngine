@@ -57,7 +57,7 @@ public:
 
 private:
     FramePlan BuildFramePlan(std::span<const ResolvedView> p_views);
-    auto BuildRenderGraph(const FramePlan& p_plan,
+    auto BuildRenderGraph(const RenderOptions& p_plan,
                           GpuTextureId p_output) -> Result<std::shared_ptr<CompiledGraph>>;
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
@@ -98,6 +98,7 @@ void Renderer::Tick(std::span<const ResolvedView> p_views) {
 // @TODO: remove this
 extern void RunMeshRenderSystem(const Scene& p_scene,
                                 const RenderScene& p_rscene,
+                                const ResolvedView& p_view,
                                 FrameData& p_framedata);
 
 #if 0
@@ -118,18 +119,20 @@ static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matri
 #endif
 
 // @TODO: refactor
-static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
+static void FillConstantBuffer(const Scene* p_scene,
+                               const ResolvedView& p_view,
+                               FrameData& p_out_data) {
     const auto& options = p_out_data.options;
     auto& cache = p_out_data.perFrameCache;
 
     // camera
     {
-        const CameraParams& cam = p_out_data.resolved_view.cam;
+        const CameraParams& cam = p_view.cam;
         cache.c_camView = cam.view;
         cache.c_camProj = cam.proj;
         cache.c_invCamView = cam.view_inv;
         cache.c_invCamProj = cam.proj_inv;
-        cache.c_cameraFovDegree = p_out_data.resolved_view.fovy;
+        cache.c_cameraFovDegree = p_view.fovy;
         cache.c_cameraForward = (cam.view_inv * -Vector4f::UnitZ).xyz;
         cache.c_cameraRight = (cam.view_inv * Vector4f::UnitX).xyz;
         cache.c_cameraUp = (cam.view_inv * Vector4f::UnitY).xyz;
@@ -139,7 +142,7 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
     // Bloom
     {
         cache.c_bloomThreshold = 1.3f;
-        cache.c_enableBloom = options.bloomEnabled;
+        cache.c_enableBloom = options.enable_bloom;
 
         cache.c_debugVoxelId = options.debugVoxelId;
         cache.c_ptObjectCount = p_scene ? ((int)p_scene->GetCount<MeshRendererComponent>()) : 0;
@@ -147,14 +150,14 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
 
     // IBL
     {
-        cache.c_iblEnabled = options.iblEnabled;
+        cache.c_iblEnabled = options.enable_ibl;
     }
 
     // SSAO
     {
         // @TODO: do this properly
         static auto kernel_data = SsaoFeature::CreateKernel();
-        cache.c_ssaoEnabled = options.ssaoEnabled;
+        cache.c_ssaoEnabled = options.enable_ssao;
         cache.c_ssaoKernalRadius = options.ssaoKernelRadius;
         constexpr size_t kernel_size = sizeof(kernel_data);
         static_assert(sizeof(cache.c_ssaoKernel) == kernel_size);
@@ -187,7 +190,7 @@ static void FillEnvConstants(FrameData& p_out_data) {
         p_out_data.batchCache.buffer.resize(count);
     }
 
-    auto matrices = p_out_data.options.isOpengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vector3f(0)) : BuildCubeMapViewProjectionMatrix(Vector3f(0));
+    auto matrices = p_out_data.options.is_opengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vector3f(0)) : BuildCubeMapViewProjectionMatrix(Vector3f(0));
     for (int mip_idx = 0; mip_idx < IBL_MIP_CHAIN_MAX; ++mip_idx) {
         for (int face_id = 0; face_id < 6; ++face_id) {
             auto& batch = p_out_data.batchCache.buffer[mip_idx * 6 + face_id];
@@ -207,10 +210,11 @@ void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
     auto submission = std::make_unique<RenderSubmission>();
 
     FramePlan plan = BuildFramePlan(p_views);
-    submission->frame_data = std::move(plan.frame_data);
-    for (const ResolvedView& view : p_views) {
+    for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {
+        const ResolvedView& view = plan.views[idx];
+        const FrameData& data = plan.frame_data[idx];
 
-        if (auto res = BuildRenderGraph(plan, view.output); !res) {
+        if (auto res = BuildRenderGraph(data.options, view.output); !res) {
             CRASH_NOW();
         } else {
             auto graph = *res;
@@ -219,39 +223,44 @@ void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
             submission->render_graph.push_back(graph);
         }
     }
+    submission->frame_data = std::move(plan.frame_data);
 
     m_app.GetRenderDevice()->Submit(std::move(submission));
 }
 
 FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) {
     FramePlan plan;
-    plan.frame_data.resize(p_views.size());
 
     const bool is_opengl = m_app.GetRenderDevice()->GetBackend() == Backend::OPENGL;
     RenderOptions options = {
-        .isOpengl = is_opengl,
-        .ssaoEnabled = DVAR_GET_BOOL(gfx_ssao_enabled),
+        .is_opengl = is_opengl,
+        .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),
+        .enable_bloom = DVAR_GET_BOOL(gfx_enable_bloom),
+        .enable_ibl = DVAR_GET_BOOL(gfx_enable_ibl),
+
         .vxgiEnabled = false,
-        .bloomEnabled = DVAR_GET_BOOL(gfx_enable_bloom),
-        .iblEnabled = DVAR_GET_BOOL(gfx_enable_ibl),
         .debugVoxelId = DVAR_GET_INT(gfx_debug_vxgi_voxel),
         .debugBvhDepth = DVAR_GET_INT(gfx_bvh_debug),
         .voxelTextureSize = DVAR_GET_INT(gfx_voxel_size),
         .ssaoKernelRadius = DVAR_GET_FLOAT(gfx_ssao_radius),
     };
 
+    plan.frame_data.resize(p_views.size());
+    plan.views.reserve(p_views.size());
+
     int view_idx = 0;
     for (const ResolvedView& view : p_views) {
         RenderScene& render_scene = GetOrCreateRenderScene(view.scene_id);
         m_scene_builder.BuildFull(*view.scene, render_scene);
 
+        plan.views.push_back(view);
+
         FrameData& framedata = plan.frame_data[view_idx++];
         framedata.options = options;
-        framedata.resolved_view = view;
 
-        FillConstantBuffer(view.scene, framedata);
+        FillConstantBuffer(view.scene, view, framedata);
 
-        RunMeshRenderSystem(*view.scene, render_scene, framedata);
+        RunMeshRenderSystem(*view.scene, render_scene, view, framedata);
         RunTileMapRenderSystem(view.scene, framedata);
         RunSpriteRenderSystem(view.scene, framedata);
         RunDebugRenderSystem(view.scene, framedata);
@@ -267,7 +276,7 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) 
     return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan,
+auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan,
                                       GpuTextureId p_output) -> Result<std::shared_ptr<CompiledGraph>> {
     constexpr const char RG_RES_BRDF[] = "r:brdf";
 
