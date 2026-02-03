@@ -14,6 +14,7 @@ namespace cave {
 
 class Module;
 
+// @TODO: make this an impl class instead of virtual
 class Application : public IApplication {
 public:
     Application(const AppSpec& p_spec, AppType p_type);
@@ -23,6 +24,8 @@ public:
 
     Result<void> Initialize() override;
     void Finalize() override;
+
+    QuitVote OnQuitRequested(const QuitContext&) override { return QuitVote::Allow; }
 
     void RequestProject(std::string_view p_path) override;
 

@@ -12,6 +12,7 @@
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/ProjectBrowserState.h"
+#include "editor/services/Workspace.h"
 
 #define DEFINE_DVAR
 #include "EditorDvars.h"
@@ -74,8 +75,15 @@ public:
         Application::Finalize();
     }
 
-    bool IsWorld2D() const final {
-        return m_is_world_2d;
+    QuitVote OnQuitRequested(const QuitContext&) override {
+        if (EditorState* editor = dynamic_cast<EditorState*>(m_state_machine.GetAppState())) {
+            const bool should_quit = editor->Workspace().OnCloseRequested();
+            if (!should_quit) {
+                return QuitVote::Deny;
+            }
+        }
+
+        return QuitVote::Allow;
     }
 
 private:

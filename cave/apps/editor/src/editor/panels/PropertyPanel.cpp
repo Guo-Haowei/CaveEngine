@@ -272,8 +272,6 @@ void PropertyPanel::DrawUIImpl() {
 
     RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 
-    const bool is_2d = m_editor.GetApp().IsWorld2D();
-
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
     const DrawComponentCtx ctx{
@@ -342,11 +340,11 @@ void PropertyPanel::DrawUIImpl() {
                 ui::InputFloat("radius", shape.data.radius);
             } break;
             case ShapeType::Box: {
-                if (is_2d) {
-                    ui::Float2("half", reinterpret_cast<math::Vector2f&>(shape.data.half), 0.5f);
-                } else {
-                    ui::Float3("half", shape.data.half, 0.5f);
-                }
+                // if (is_2d) {
+                //     ui::Float2("half", reinterpret_cast<math::Vector2f&>(shape.data.half), 0.5f);
+                // } else {
+                // }
+                ui::Float3("half", shape.data.half, 0.5f);
             } break;
             default:
                 ui::Float3("placeholder", shape.data.half, 0.5f);

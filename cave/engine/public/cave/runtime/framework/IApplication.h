@@ -53,6 +53,21 @@ enum class AppType : uint8_t {
     Tool,
 };
 
+enum class QuitVote : uint8_t {
+    Allow,
+    Deny,
+};
+
+enum class QuitReason : uint8_t {
+    WindowClose,
+    MenuQuit,
+    AltF4,
+};
+
+struct QuitContext {
+    QuitReason reason;
+};
+
 class IApplication : public NonCopyable {
 public:
     IApplication(const AppSpec& p_spec)
@@ -63,6 +78,8 @@ public:
 
     virtual Result<void> Initialize() = 0;
     virtual void Finalize() = 0;
+
+    virtual QuitVote OnQuitRequested(const QuitContext& p_quit) = 0;
 
     virtual void RequestProject(std::string_view p_path) = 0;
 
@@ -96,8 +113,6 @@ public:
     // @TODO: get rid of the following
     virtual AppType GetType() const = 0;
     bool IsRuntime() const { return GetType() == AppType::Runtime; }
-
-    virtual bool IsWorld2D() const = 0;
 
 protected:
     virtual bool MainLoop() = 0;

@@ -37,7 +37,7 @@ private:
     CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
     float m_far = kDefaultFar;
 
-    CAVE_PROP()
+    CAVE_PROP(editor = InputFloat)
     float m_aspect = 1.0f;
 
     CAVE_PROP()

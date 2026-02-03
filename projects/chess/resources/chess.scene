@@ -911,8 +911,7 @@ entities:
       fovy: 60
       near: 0.100000001
       far: 1000
-      width: 1920
-      height: 1080
+      aspect: 1.77777779
       ortho_height: 10
   - id: 81
     NameComponent:

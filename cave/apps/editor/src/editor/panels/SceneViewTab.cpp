@@ -230,9 +230,7 @@ void SceneViewTab::Tick(float p_dt) {
 void SceneViewTab::DrawUIImpl() {
     DrawMainView();
 
-    if (m_editor.IsPlaying()) return;
-    // if (IsFocused())
-    {
+    if (!m_editor.IsPlaying()) {
         DrawGizmo();
     }
 

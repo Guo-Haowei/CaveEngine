@@ -57,6 +57,8 @@ public:
 
     AppStateId GetStateId() const { return m_state_id; }
 
+    AppState* GetAppState() const { return m_state.get(); }
+
     static void RegisterCreateFunc(AppStateId p_state_id, CreateFunc p_func);
 
     static std::unique_ptr<AppState> CreateState(IApplication& p_app, AppStateId p_state_id);

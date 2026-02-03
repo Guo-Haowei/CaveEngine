@@ -10,16 +10,10 @@
 
 namespace cave {
 
-enum class CloseDecision {
-    Save,
-    Discard,
-    Cancel,
-};
-
 // @TODO: move to Dialog Service
-static CloseDecision AskCloseUnsaved(HWND p_owner, const char* p_title) {
+CloseDecision AskCloseUnsaved(const char* p_title) {
     int result = MessageBoxA(
-        p_owner,
+        NULL,
         "You have unsaved changes.\n\nDo you want to save before closing?",
         p_title,
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON1);
@@ -57,7 +51,7 @@ void Tab::DrawUI() {
         const bool dirty = m_editor.EditService().IsDirty(m_doc_id);
         bool should_save = false;
         if (dirty) {
-            switch (AskCloseUnsaved(0, "Warning")) {
+            switch (AskCloseUnsaved("Warning")) {
                 case CloseDecision::Cancel:
                     return;
                 case CloseDecision::Save: {

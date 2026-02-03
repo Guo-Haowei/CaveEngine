@@ -5,6 +5,7 @@
 
 #include "editor/EditorState.h"
 #include "editor/services/DocumentService.h"
+#include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
 
 // @TODO: delete
@@ -183,6 +184,41 @@ bool Workspace::CloseDoc(DocId p_doc_id) {
     // close doc
     m_editor.DocumentService().Close(p_doc_id);
     return true;
+}
+
+extern CloseDecision AskCloseUnsaved(const char* p_title);
+
+bool Workspace::OnCloseRequested() {
+    EditService& edit = m_editor.EditService();
+
+    std::vector<DocId> unsaved;
+    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
+        auto& slot = m_slots[idx];
+        if (slot.storage) {
+            Tab& tab = *slot.storage;
+            DocId doc = tab.GetDocId();
+            if (edit.IsDirty(doc)) {
+                unsaved.push_back(doc);
+            }
+        }
+    }
+
+    if (unsaved.empty()) {
+        return true;
+    }
+
+    CloseDecision desicion = AskCloseUnsaved("Warning");
+    switch (desicion) {
+        case CloseDecision::Save:
+            for (DocId doc : unsaved) {
+                edit.Save(doc);
+            }
+            return true;
+        case CloseDecision::Discard:
+            return true;
+        case CloseDecision::Cancel:
+            return false;
+    }
 }
 
 }  // namespace cave
