@@ -17,6 +17,7 @@ struct PostProcessInput {
     RGTextureId lighting{};
     RGTextureId outline{};
     RGTextureId bloom{};
+    GpuTextureId out{};
 };
 
 struct PostProcessOutput {

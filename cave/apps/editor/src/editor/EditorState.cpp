@@ -5,7 +5,7 @@
 
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
-#include "engine/private/runtime/framework/ViewportManager.h"
+#include "engine/private/runtime/framework/ViewManager.h"
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
@@ -52,8 +52,6 @@ EditorState::EditorState(IApplication& p_app)
     m_selection_service = std::make_unique<cave::SelectionService>(*this);
     m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
     m_workspace = std::make_shared<cave::Workspace>(*this);
-
-    m_app.GetViewportManager()->CreateViewport(m_workspace);
 
     // runtime
     m_runtime_host = std::make_unique<RuntimeHost>(p_app);
@@ -120,8 +118,6 @@ void EditorState::OnExit() {
     if (IsPlaying()) {
         m_runtime_host->Stop();
     }
-
-    m_app.GetViewportManager()->ClearViewport();
 
     ImNodes::DestroyContext();
 

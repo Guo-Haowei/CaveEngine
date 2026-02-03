@@ -9,7 +9,6 @@
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ContentEntry.h"
-#include "editor/viewer/Viewer.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"

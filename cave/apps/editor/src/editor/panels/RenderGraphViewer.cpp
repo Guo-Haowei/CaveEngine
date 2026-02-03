@@ -9,8 +9,6 @@
 
 #include "editor/EditorState.h"
 
-extern cave::render::CompiledGraph* g_graph;
-
 namespace cave {
 
 // @TODO: save the nodes position to disk
@@ -112,7 +110,8 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
 }
 
 void RenderGraphViewer::DrawUIImpl() {
-    if (!g_graph) return;
+    render::CompiledGraph* graph = nullptr;
+    if (!graph) return;
 
     CAVE_PROFILE_EVENT();
 
@@ -131,7 +130,7 @@ void RenderGraphViewer::DrawUIImpl() {
 
     ImNodes::BeginNodeEditor();
 
-    DrawNodes(*g_graph);
+    DrawNodes(*graph);
 
     ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_BottomRight);
     ImNodes::EndNodeEditor();

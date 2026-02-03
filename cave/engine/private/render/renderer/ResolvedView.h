@@ -1,13 +1,10 @@
 #pragma once
-#include "cave/core/math/Matrix.h"
+#include "cave/core/math/Frustum.h"
 #include "cave/render/ViewDesc.h"
 
-// @TODO: move to public
-#include "engine/private/core/math/Frustum.h"
-
-namespace cave {
-class Scene;
-}  // namespace cave
+// clang-format off
+namespace cave { class Scene; }
+// clang-format on
 
 namespace cave::render {
 
@@ -28,9 +25,11 @@ struct ResolvedView {
     float aspect;
     float fovy;
 
-    ViewHighlight highlight;
-};
+    SceneId scene_id;
+    Scene* scene{ nullptr };
 
-ResolvedView ResolveView(const ViewDesc& p_view, const Scene* p_scene, bool p_is_opengl);
+    ViewHighlight highlight;
+    GpuTextureId output;
+};
 
 }  // namespace cave::render

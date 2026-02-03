@@ -61,7 +61,6 @@ public:
 
     std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) override { return nullptr; }
     std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) override { return nullptr; }
-    std::shared_ptr<GpuTexture> FindTexture(std::string_view p_name) const override { return nullptr; }
     void BindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) override {}
     void UnbindTexture(Dimension p_dimension, int p_slot) override {}
 
@@ -72,8 +71,6 @@ public:
 
     void RequestTexture(ImageAsset* p_image) override {}
     void RequestMesh(MeshAsset* p_mesh) override {}
-
-    uint64_t GetFinalImage() const override { return 0; }
 
     Backend GetBackend() const override { return Backend::EMPTY; }
 

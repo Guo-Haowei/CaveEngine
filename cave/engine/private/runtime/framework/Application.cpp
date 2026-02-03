@@ -21,7 +21,7 @@
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
-#include "engine/private/runtime/framework/ViewportManager.h"
+#include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #if USING(PLATFORM_WASM)
@@ -61,7 +61,7 @@ auto Application::SetupModules() -> Result<void> {
     m_display_server = CreateDisplayManager();
     m_input_system = new InputSystem();
     m_renderer = new render::Renderer();
-    m_viewport_manager = new ViewportManager();
+    m_view_manager = new ViewManager();
     m_task_manager = new TaskManager();
 
     m_boot_load_pipeline = std::make_unique<BootLoadPipeline>(
@@ -83,7 +83,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_display_server);
     RegisterModule(m_render_device);
     RegisterModule(m_renderer);
-    RegisterModule(m_viewport_manager);
+    RegisterModule(m_view_manager);
 
     if (m_specification.enableImgui) {
         auto res = CreateImguiManager();
@@ -157,6 +157,7 @@ float Application::UpdateTime() {
 }
 
 bool Application::MainLoop() {
+    using namespace render;
     CAVE_PROFILE_FRAME("MainThread");
 
     CompositeLogger::GetSingleton().Flush();
@@ -178,17 +179,16 @@ bool Application::MainLoop() {
 
     // layer should set active scene
     // update layers from back to front
+    m_view_manager->BeginFrame();
 
     m_state_machine.Tick(timestep);
 
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->Tick(timestep);
 
-    std::vector<render::ViewDesc> views;
-    m_viewport_manager->BuildViews(views);
-
-    // @TODO: build render data, rename it to something better
+    std::span<const ResolvedView> views = m_view_manager->EndFrame();
     m_renderer->Tick(views);
+
     return true;
 }
 

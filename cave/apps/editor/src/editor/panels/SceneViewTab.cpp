@@ -5,6 +5,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/debugger/DebugIdAllocator.h"
+#include "engine/private/runtime/framework/ViewManager.h"
 
 #include "editor/edit/EditTransformCmd.h"
 #include "editor/services/EditService.h"
@@ -22,7 +23,6 @@
 #include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"
-#include "editor/viewer/Viewer.h"
 
 #include "editor/EditorDvars.h"
 
@@ -55,26 +55,45 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
             m_play_button.tooltip = m_button_tooltips[m_button_index];
         }
     };
+
+    // @TODO: move it to somewhere else
+    {
+        GpuTextureDesc desc{
+            .type = AttachmentType::COLOR_2D,
+            .dimension = Dimension::TEXTURE_2D,
+            .width = 1920,
+            .height = 1080,
+            .depth = 1,
+            .mipLevels = 0,
+            .arraySize = 1,
+            .format = PixelFormat::R16G16B16A16_FLOAT,
+            .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+            .miscFlags = RESOURCE_MISC_NONE,
+        };
+        m_texture = m_editor.GetApp().GetRenderDevice()->CreateTexture(
+            desc,
+            PointClampSampler());
+    }
 }
 
 // @TODO: game view tab
-void SceneViewTab::BuildViewsImpl(SceneId p_scene_id,
-                                  std::vector<render::ViewDesc>& p_out_views) {
+void SceneViewTab::SubmitView() {
     using namespace render;
-    ViewDesc scene_view;
+    ViewDesc view;
     if (m_editor.IsPlaying()) {
-        scene_view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-        scene_view.camera_source = CameraSource::MainCamera();
+        view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
+        view.camera_source = CameraSource::MainCamera();
     } else {
-        scene_view.scene_id = p_scene_id;
-        scene_view.camera_source = CameraSource::Editor(m_camera);
+        view.scene_id = m_preview_scene;
+        view.camera_source = CameraSource::Editor(m_camera);
 
         SelectionKey key = m_editor.SelectionService().Primary(m_doc_id);
-        if (key.scene == p_scene_id && key.entity.IsValid()) {
-            scene_view.highlight.entities.insert(key.entity);
+        if (key.scene == m_preview_scene && key.entity.IsValid()) {
+            view.highlight.entities.insert(key.entity);
         }
     }
-    p_out_views.push_back(scene_view);
+    view.output = m_texture;
+    m_editor.GetApp().GetViewManager()->Submit(view);
 }
 
 void SceneViewTab::OnCreate() {
@@ -208,6 +227,8 @@ void SceneViewTab::DrawUIImpl() {
     if (IsFocused()) {
         DrawGizmo();
     }
+
+    SubmitView();
 }
 
 // @TODO: instead of asking for image, provide an image to renderer
@@ -217,7 +238,7 @@ void SceneViewTab::DrawMainView() {
 
     // @TODO: add a dummy button
     const auto& gm = *m_editor.GetApp().GetRenderDevice();
-    uint64_t handle = gm.GetFinalImage();
+    uint64_t handle = m_texture->GetHandle();
     // add image for drawing
     switch (gm.GetBackend()) {
         case Backend::D3D11:
@@ -438,5 +459,22 @@ CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputE
     state.move = math::Vector3f(dx, dy, dz);
     return state;
 }
+
+#if 0
+Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
+    auto [window_x, window_y] = m_editor.GetApp().GetDisplayManager()->GetWindowPos();
+    p_point.x = (p_point.x + window_x - m_canvas_min.x) / m_canvas_size.x;
+    p_point.y = (p_point.y + window_y - m_canvas_min.y) / m_canvas_size.y;
+
+    if (p_point.x >= 0.0f && p_point.x <= 1.0f && p_point.y >= 0.0f && p_point.y <= 1.0f) {
+        p_point *= 2.0f;
+        p_point -= 1.0f;
+        p_point.y = -p_point.y;
+        return Some(p_point);
+    }
+
+    return None();
+}
+#endif
 
 }  // namespace cave

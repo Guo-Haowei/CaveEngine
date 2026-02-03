@@ -26,7 +26,6 @@
 
 #include "editor/EditorState.h"
 #include "editor/utility/ContentEntry.h"
-#include "editor/viewer/Viewer.h"
 #include "editor/widgets/DragDrop.h"
 
 namespace cave {

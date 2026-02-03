@@ -7,7 +7,6 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/core/base/random.h"
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/core/math/frustum.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/frame_data.h"
@@ -268,6 +267,7 @@ void RenderDevice::Submit(std::unique_ptr<render::RenderSubmission>&& p_submissi
         CAVE_PROFILE_EVENT("Render");
         BeginFrame();
 
+        int idx = 0;
         for (const FrameData& data : p_submission->frame_data) {
 
             auto& frame = GetCurrentFrame();
@@ -286,7 +286,7 @@ void RenderDevice::Submit(std::unique_ptr<render::RenderSubmission>&& p_submissi
 
             BindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
 
-            auto& graph = p_submission->render_graph;
+            auto& graph = p_submission->render_graph[idx++];
             for (const CompiledPass& pass : graph->GetCompiledPass()) {
                 Execute(data, pass);
             }
@@ -319,35 +319,7 @@ std::shared_ptr<FrameContext> RenderDevice::CreateFrameContext() {
 
 std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     auto texture = CreateTextureImpl(p_texture_desc, p_sampler_desc);
-    if (p_texture_desc.type != AttachmentType::NONE) {
-        auto [_, inserted] = m_resourceLookup.try_emplace(texture->desc.name, texture);
-        if (!inserted) {
-            CRASH_NOW();
-        }
-        m_resourceLookup[p_texture_desc.name] = texture;
-    }
     return texture;
-}
-
-std::shared_ptr<GpuTexture> RenderDevice::FindTexture(std::string_view p_name) const {
-    if (m_resourceLookup.empty()) {
-        return nullptr;
-    }
-
-    auto it = m_resourceLookup.find(p_name);
-    if (it == m_resourceLookup.end()) {
-        return nullptr;
-    }
-    return it->second;
-}
-
-uint64_t RenderDevice::GetFinalImage() const {
-    constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
-    if (const GpuTexture* texture = FindTexture(RG_RES_POST_PROCESS).get()) {
-        return texture->GetHandle();
-    }
-
-    return 0;
 }
 
 void RenderDevice::UpdateEmitters(const Scene& p_scene) {

@@ -9,7 +9,6 @@
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
 #include "editor/EditorState.h"
-#include "editor/viewer/Viewer.h"
 
 #include "../Enums.h"
 

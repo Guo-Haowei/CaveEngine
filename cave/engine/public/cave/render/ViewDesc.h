@@ -7,6 +7,11 @@
 #include "cave/core/math/Rect.h"
 #include "cave/runtime/scene/CameraComponent.h"
 
+namespace cave {
+struct GpuTexture;
+using GpuTextureId = std::shared_ptr<GpuTexture>;
+}  // namespace cave
+
 namespace cave::render {
 
 using RenderTargetId = uint32_t;
@@ -42,10 +47,9 @@ struct ViewDesc {
     CameraSource camera_source;
     SceneId scene_id;
     math::IntRect viewport_pixel;
-    ViewOutputDesc output;
-    // missing: which render target info it draws to
 
     ViewHighlight highlight;
+    GpuTextureId output;
 };
 
 }  // namespace cave::render

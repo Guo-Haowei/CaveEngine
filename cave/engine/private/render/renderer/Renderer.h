@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/render/ViewDesc.h"
+#include "engine/private/render/renderer/ResolvedView.h"
 #include "engine/private/runtime/framework/Module.h"
 
 // clang-format off
@@ -15,7 +15,7 @@ public:
     Renderer();
     ~Renderer();
 
-    void Tick(std::span<const ViewDesc> p_views);
+    void Tick(std::span<const ResolvedView> p_views);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

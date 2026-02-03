@@ -67,16 +67,12 @@ public:
 
     std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) override;
     std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) override;
-    std::shared_ptr<GpuTexture> FindTexture(std::string_view p_name) const override;
 
     void RequestTexture(ImageAsset* p_image) override;
     void RequestMesh(MeshAsset* p_mesh) override;
 
     void BeginEvent(std::string_view p_event) override { unused(p_event); }
     void EndEvent() override {}
-
-    // @TODO: move to renderer
-    uint64_t GetFinalImage() const override;
 
     Backend GetBackend() const override { return m_backend; }
 
@@ -95,8 +91,6 @@ protected:
 
     const Backend m_backend;
     bool m_enableValidationLayer;
-
-    std::unordered_map<std::string_view, std::shared_ptr<GpuTexture>> m_resourceLookup;
 
     ConcurrentQueue<ImageAsset*> m_loadedImages;
     ConcurrentQueue<MeshAsset*> m_loadedMeshes;

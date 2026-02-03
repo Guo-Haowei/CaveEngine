@@ -32,7 +32,7 @@ class ISceneRegistry;
 class SceneScheduler;
 class TaskManager;
 class VFS;
-class ViewportManager;
+class ViewManager;
 
 struct AppSpec {
     std::string_view userFolder;
@@ -82,7 +82,7 @@ public:
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     TaskManager* GetTaskManager() { return m_task_manager; }
-    ViewportManager* GetViewportManager() { return m_viewport_manager; }
+    ViewManager* GetViewManager() { return m_view_manager; }
 
     const AppSpec& GetSpecification() const { return m_specification; }
 
@@ -116,7 +116,7 @@ protected:
     InputSystem* m_input_system{ nullptr };
     TaskManager* m_task_manager{ nullptr };
 
-    ViewportManager* m_viewport_manager{ nullptr };
+    ViewManager* m_view_manager{ nullptr };
 };
 
 }  // namespace cave

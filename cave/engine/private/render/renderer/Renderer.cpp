@@ -37,9 +37,6 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 
 }  // namespace cave
 
-// @HACK: expose render graph for debugging
-cave::render::CompiledGraph* g_graph = nullptr;
-
 namespace cave::render {
 
 using math::Vector2i;
@@ -56,11 +53,12 @@ public:
 
     auto Initialize() -> Result<void>;
 
-    void Tick(std::span<const render::ViewDesc> p_views);
+    void Tick(std::span<const ResolvedView> p_views);
 
 private:
-    FramePlan BuildFramePlan(std::span<const render::ViewDesc> p_views);
-    auto BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>>;
+    FramePlan BuildFramePlan(std::span<const ResolvedView> p_views);
+    auto BuildRenderGraph(const FramePlan& p_plan,
+                          GpuTextureId p_output) -> Result<std::shared_ptr<CompiledGraph>>;
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
@@ -68,9 +66,6 @@ private:
     IApplication& m_app;
     RenderSceneBuilder m_scene_builder;
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
-
-    // @TODO: remove
-    std::shared_ptr<CompiledGraph> m_render_graph;
 
     // features
     TransientPool m_pool;
@@ -96,7 +91,7 @@ void Renderer::FinalizeImpl() {
     m_impl.reset();
 }
 
-void Renderer::Tick(std::span<const ViewDesc> p_views) {
+void Renderer::Tick(std::span<const ResolvedView> p_views) {
     m_impl->Tick(p_views);
 }
 
@@ -206,33 +201,29 @@ auto Renderer::Impl::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
+void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
     CAVE_PROFILE_EVENT();
 
     auto submission = std::make_unique<RenderSubmission>();
 
-    if (!p_views.empty()) {
-        FramePlan plan = BuildFramePlan(p_views);
+    FramePlan plan = BuildFramePlan(p_views);
+    submission->frame_data = std::move(plan.frame_data);
+    for (const ResolvedView& view : p_views) {
 
-        if (auto res = BuildRenderGraph(plan); !res) {
+        if (auto res = BuildRenderGraph(plan, view.output); !res) {
             CRASH_NOW();
         } else {
-            m_render_graph = *res;
-            m_render_graph->Resolve(m_pool);
+            auto graph = *res;
+            graph->Resolve(m_pool);
 
-            g_graph = m_render_graph.get();
+            submission->render_graph.push_back(graph);
         }
-
-        submission->frame_data = std::move(plan.frame_data);
-        submission->render_graph = m_render_graph;
     }
-    // submission->render_graph = BuildRenderGraph(plan);
 
-    // @TODO: graph
     m_app.GetRenderDevice()->Submit(std::move(submission));
 }
 
-FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_views) {
+FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) {
     FramePlan plan;
     plan.frame_data.resize(p_views.size());
 
@@ -250,26 +241,20 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
     };
 
     int view_idx = 0;
-    for (const render::ViewDesc& view : p_views) {
-        Scene* ecs_scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
-        DEV_ASSERT(ecs_scene);
-        if (!ecs_scene) continue;
-
+    for (const ResolvedView& view : p_views) {
         RenderScene& render_scene = GetOrCreateRenderScene(view.scene_id);
-        m_scene_builder.BuildFull(*ecs_scene, render_scene);
-
-        ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
+        m_scene_builder.BuildFull(*view.scene, render_scene);
 
         FrameData& framedata = plan.frame_data[view_idx++];
         framedata.options = options;
-        framedata.resolved_view = resolved;
+        framedata.resolved_view = view;
 
-        FillConstantBuffer(ecs_scene, framedata);
+        FillConstantBuffer(view.scene, framedata);
 
-        RunMeshRenderSystem(*ecs_scene, render_scene, framedata);
-        RunTileMapRenderSystem(ecs_scene, framedata);
-        RunSpriteRenderSystem(ecs_scene, framedata);
-        RunDebugRenderSystem(ecs_scene, framedata);
+        RunMeshRenderSystem(*view.scene, render_scene, framedata);
+        RunTileMapRenderSystem(view.scene, framedata);
+        RunSpriteRenderSystem(view.scene, framedata);
+        RunDebugRenderSystem(view.scene, framedata);
         FillEnvConstants(framedata);
 
         // @TODO: fix path tracer
@@ -282,7 +267,8 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
     return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>> {
+auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan,
+                                      GpuTextureId p_output) -> Result<std::shared_ptr<CompiledGraph>> {
     constexpr const char RG_RES_BRDF[] = "r:brdf";
 
     IRenderDevice& device = *m_app.GetRenderDevice();
@@ -365,6 +351,7 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
         .lighting = lighting_outputs.lighting,
         .outline = highlight_outputs.outline,
         .bloom = 0,
+        .out = p_output,
     });
 
     return builder.Compile();

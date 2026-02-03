@@ -11,7 +11,6 @@
 #include "editor/widgets/Image.h"
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
-#include "editor/viewer/Viewer.h"
 #include "editor/utility/ImGuizmo.h"
 #include "editor/tile_map_editor/TileMapDocument.h"
 

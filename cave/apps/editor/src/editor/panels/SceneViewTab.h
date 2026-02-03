@@ -35,14 +35,10 @@ public:
 
     void Tick(float p_dt) override;
 
-    void BuildViews(std::vector<render::ViewDesc>& p_out_views) {
-        BuildViewsImpl(m_preview_scene, p_out_views);
-    }
-
     DebugId GetDebugId() final { return m_debug_id; }
 
 protected:
-    void BuildViewsImpl(SceneId p_scene_id, std::vector<render::ViewDesc>& p_out_views);
+    void SubmitView();
 
     void DrawUIImpl() override;
 
@@ -50,6 +46,10 @@ protected:
     void DrawGizmo();
 
     void UpdateViewRect();
+
+    Scene* GetResolvedScene();
+    CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
+    CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
 
     // void OnCreateInternal(const Guid& p_guid) final;
 
@@ -77,10 +77,7 @@ protected:
     CameraInputState m_camera_state;
     CameraComponent m_camera;
     TransformComponent m_camera_transform;
-
-    Scene* GetResolvedScene();
-    CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
-    CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
+    GpuTextureId m_texture;
 };
 
 }  // namespace cave
