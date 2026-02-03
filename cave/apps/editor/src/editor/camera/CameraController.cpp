@@ -7,8 +7,9 @@
 
 namespace cave {
 
-using math::Matrix4x4f;
+using math::Vector2f;
 using math::Vector3f;
+using math::Matrix4x4f;
 
 CameraController2DEditor::CameraController2DEditor(CameraComponent& p_camera,
                                                    TransformComponent& p_tranform)
@@ -17,29 +18,61 @@ CameraController2DEditor::CameraController2DEditor(CameraComponent& p_camera,
 }
 
 void CameraController2DEditor::Update(const InputFrame& p_input) {
-    unused(p_input);
-#if 0
+    constexpr Key drag_key = Key::MMB;
+    const InputDeviceId id{ 0 };
+    const bool drag_key_down = p_input.keystate.Down(id, drag_key);
+    float dx = 0.0f;
+    float dy = 0.0f;
+    float zoom = 0.0f;
+
+    for (const InputEvent& e : p_input.events) {
+        if (e.consumed) {
+            continue;
+        }
+
+        switch (e.type) {
+            case InputEventType::MouseWheel: {
+                e.consumed = true;
+                zoom = -e.dy;
+            } break;
+            case InputEventType::MouseMove: {
+                e.consumed = true;
+                dx = -e.dx;
+                dy = e.dy;
+            } break;
+            case InputEventType::ButtonDown: {
+                if (e.code == std::to_underlying(drag_key)) {
+                    e.consumed = true;
+                }
+            } break;
+            default:
+                break;
+        }
+    }
+
     bool need_update = false;
-    if (dx || dy || dz) {
+    const float dt = p_input.dt;
+    if (drag_key_down && (dx || dy)) {
         constexpr float speed = 1.0f;
-        m_root.Translate(math::Vector3f(p_state.move.x * speed,
-                                        p_state.move.y * speed,
-                                        0.0f));
+        Vector2f delta(dx, dy);
+        delta *= (speed * dt);
+        m_root.Translate(math::Vector3f(delta, 0.0f));
+
         need_update = true;
     }
 
-    if (p_state.zoom_delta != 0.0f) {
-        float ortho_height = m_camera.GetOrthoHeight() + 8.0f * p_state.zoom_delta;
+    if (zoom != 0.0f) {
+        float ortho_height = m_camera.GetOrthoHeight() + 8.0f * (zoom * dt);
         ortho_height = glm::clamp(ortho_height, 0.1f, 100.0f);
         m_camera.SetOrthoHeight(ortho_height);
         need_update = true;
     }
+
     if (need_update) {
         m_camera.SetDirty();
         m_root.UpdateTransform();
         m_camera.Update(m_root.GetWorldMatrix());
     }
-#endif
 }
 
 CameraControllerFPS::CameraControllerFPS(CameraComponent& p_camera,
@@ -57,7 +90,7 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
     const int _dy = ks.Down(id, Key::E) - ks.Down(id, Key::Q);
     const int _dz = ks.Down(id, Key::W) - ks.Down(id, Key::S);
 
-    math::Vector2f rotation = math::Vector2f::Zero;
+    Vector2f rotation = Vector2f::Zero;
 
     for (const InputEvent& e : p_input.events) {
         if (e.consumed) continue;
@@ -94,7 +127,7 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
         float rotate_x = 0.0f;
         float rotate_y = 0.0f;
 
-        math::Vector2f movement = rotation;
+        Vector2f movement = rotation;
         movement = m_rotate_speed * movement;
         if (glm::abs(movement.x) > glm::abs(movement.y)) {
             rotate_y = movement.x;
@@ -127,43 +160,5 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
     math::Matrix4x4f trans = m_root.GetLocalMatrix() * R;
     m_camera.Update(trans);
 }
-
-#if 0
-CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_ks) {
-    CameraInputState state{};
-
-    const InputDeviceId id{ 0 };
-    float dx = 0.0f;
-    float dy = 0.0f;
-    const bool mmb = p_ks.Down(id, Key::MMB);
-
-    for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
-
-        switch (e.type) {
-            case InputEventType::MouseWheel: {
-                e.consumed = true;
-                state.zoom_delta = -e.dy;
-            } break;
-            case InputEventType::MouseMove: {
-                e.consumed = true;
-                dx = -e.dx;
-                dy = e.dy;
-            } break;
-            default:
-                break;
-        }
-    }
-
-    if (mmb) {
-        state.move = math::Vector3f(dx, dy, 0.0f);
-    }
-
-    return state;
-}
-
-#endif
 
 }  // namespace cave

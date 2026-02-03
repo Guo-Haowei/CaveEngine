@@ -26,16 +26,8 @@ Workspace::~Workspace() {
     app.GetInputSystem()->Router().Unregister(this);
 }
 
-void Workspace::Tick(float p_dt) {
+void Workspace::Tick() {
     FlushPendingRequests();
-
-    for (auto& it : m_slots) {
-        if (Tab* tab = it.storage.get()) {
-            // @NOTE: tick collapsed?
-            // @NOTE: tick inactive?
-            tab->Tick(p_dt);
-        }
-    }
 
     DrawTabs();
 }

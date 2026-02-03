@@ -63,7 +63,7 @@ public:
     Workspace(EditorState& p_editor);
     ~Workspace();
 
-    void Tick(float p_dt);
+    void Tick();
 
     void Submit(WorkspaceRequest p_req);
 

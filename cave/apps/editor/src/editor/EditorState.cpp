@@ -145,7 +145,7 @@ void EditorState::Tick(float p_dt) {
     }
 
     m_edit_service->FlushPendingCmds();
-    m_workspace->Tick(p_dt);
+    m_workspace->Tick();
     m_picking_service->Tick();
 
     ImGui::Render();

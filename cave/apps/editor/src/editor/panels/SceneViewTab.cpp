@@ -355,6 +355,7 @@ void SceneViewTab::DrawGizmo() {
 // const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
 //     return { &m_play_button };
 // }
+
 Scene* SceneViewTab::GetResolvedScene() {
     return m_editor.GetApp().GetSceneRegistry()->Resolve(m_preview_scene);
 }
