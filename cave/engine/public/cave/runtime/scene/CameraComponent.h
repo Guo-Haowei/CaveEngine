@@ -37,11 +37,8 @@ private:
     CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
     float m_far = kDefaultFar;
 
-    CAVE_PROP(editor = InputInt)
-    int m_width = 0;
-
-    CAVE_PROP(editor = InputInt)
-    int m_height = 0;
+    CAVE_PROP(editor = InputFloat)
+    float m_aspect = 1.0f;
 
     CAVE_PROP()
     float m_ortho_height = 10;
@@ -63,8 +60,6 @@ public:
 
     bool Update(const math::Matrix4x4f& p_transform);
 
-    void SetDimension(int p_width, int p_height);
-
     float GetFovy() const { return m_fovy; }
 
     void SetFovy(float p_degree) {
@@ -84,19 +79,11 @@ public:
         SetDirty();
     }
 
-    int GetWidth() const { return m_width; }
-    void SetWidth(int p_width) {
-        m_width = p_width;
+    float GetAspect() const { return m_aspect; }
+    void SetAspect(float p_aspect) {
+        m_aspect = p_aspect;
         SetDirty();
     }
-
-    int GetHeight() const { return m_height; }
-    void SetHeight(int p_height) {
-        m_height = p_height;
-        SetDirty();
-    }
-
-    float GetAspect() const { return (float)m_width / m_height; }
 
     void SetProjection(ProjectionType p_projection) { m_projection = p_projection; }
 

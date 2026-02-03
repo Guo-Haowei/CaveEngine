@@ -59,14 +59,6 @@ bool CameraComponent::Update(const math::Matrix4x4f& p_transform) {
 }
 
 // @TODO: reflection?
-void CameraComponent::SetDimension(int p_width, int p_height) {
-    if (m_width != p_width || m_height != p_height) {
-        m_width = p_width;
-        m_height = p_height;
-        SetDirty();
-    }
-}
-
 void CameraComponent::SetOrthoHeight(float p_height) {
     if (p_height != m_ortho_height) {
         m_ortho_height = p_height;

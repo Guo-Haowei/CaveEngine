@@ -13,8 +13,7 @@ namespace cave {
 // float m_fovy (editor = DragFloat, min = 1, max = 179)
 // float m_near (editor = DragFloat, min = 0.1f, max = 9)
 // float m_far (editor = DragFloat, min = 10, max = 10000)
-// int m_width (editor = InputInt)
-// int m_height (editor = InputInt)
+// float m_aspect (editor = InputFloat)
 // float m_ortho_height ()
 
 template<>
@@ -25,8 +24,7 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
         REGISTER_FIELD(CameraComponent, "fovy", m_fovy, FieldFlag::Serialize, EditorHint::DragFloat, 1, 179),
         REGISTER_FIELD(CameraComponent, "near", m_near, FieldFlag::Serialize, EditorHint::DragFloat, 0.1f, 9),
         REGISTER_FIELD(CameraComponent, "far", m_far, FieldFlag::Serialize, EditorHint::DragFloat, 10, 10000),
-        REGISTER_FIELD(CameraComponent, "width", m_width, FieldFlag::Serialize, EditorHint::InputInt),
-        REGISTER_FIELD(CameraComponent, "height", m_height, FieldFlag::Serialize, EditorHint::InputInt),
+        REGISTER_FIELD(CameraComponent, "aspect", m_aspect, FieldFlag::Serialize, EditorHint::InputFloat),
         REGISTER_FIELD(CameraComponent, "ortho_height", m_ortho_height, FieldFlag::Serialize, EditorHint::None),
     };
 

@@ -29,6 +29,7 @@ class InputSystem;
 class IPhysicsManager;
 class IScriptManager;
 class ISceneRegistry;
+class SceneQueryService;
 class SceneScheduler;
 class TaskManager;
 class VFS;
@@ -52,16 +53,33 @@ enum class AppType : uint8_t {
     Tool,
 };
 
+enum class QuitVote : uint8_t {
+    Allow,
+    Deny,
+};
+
+enum class QuitReason : uint8_t {
+    WindowClose,
+    MenuQuit,
+    AltF4,
+};
+
+struct QuitContext {
+    QuitReason reason;
+};
+
 class IApplication : public NonCopyable {
 public:
     IApplication(const AppSpec& p_spec)
         : m_specification(p_spec) {
     }
 
-    virtual ~IApplication() = default;
+    virtual ~IApplication();
 
     virtual Result<void> Initialize() = 0;
     virtual void Finalize() = 0;
+
+    virtual QuitVote OnQuitRequested(const QuitContext& p_quit) = 0;
 
     virtual void RequestProject(std::string_view p_path) = 0;
 
@@ -72,6 +90,10 @@ public:
     virtual GameModeFactory& GetGameModeFactory() = 0;
     virtual SceneScheduler& GetSceneScheduler() = 0;
 
+    // services
+    SceneQueryService& SceneQueryService() { return *m_scene_query_service; }
+
+    // @TODO: return reference instead
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
     InputSystem* GetInputSystem() { return m_input_system; }
@@ -92,12 +114,12 @@ public:
     virtual AppType GetType() const = 0;
     bool IsRuntime() const { return GetType() == AppType::Runtime; }
 
-    virtual bool IsWorld2D() const = 0;
-
 protected:
     virtual bool MainLoop() = 0;
 
     AppSpec m_specification;
+
+    cave::SceneQueryService* m_scene_query_service;
 
     // @TODO: differentiate global and state specific managers
     AssetRegistry* m_asset_registry{ nullptr };

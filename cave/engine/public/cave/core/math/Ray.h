@@ -21,13 +21,13 @@ public:
         return TestIntersection::RayTriangle(p_a, p_b, p_c, *this);
     }
 
-    // Used for inverse ray intersection update result
-    void CopyDist(const Ray& p_other) { m_dist = p_other.m_dist; }
+    float GetDist() const { return m_dist; }
+    void SetDist(float p_dist) { m_dist = p_dist; }
 
 private:
     const Vector3f m_start;
     const Vector3f m_end;
-    float m_dist;  // if dist is in range of [0, 1.0f), it hits something
+    float m_dist;  // hit distance
 
     friend class TestIntersection;
 };

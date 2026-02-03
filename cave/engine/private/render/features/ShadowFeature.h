@@ -3,7 +3,7 @@
 
 namespace cave::render {
 
-struct FramePlan;
+struct RenderOptions;
 class RenderGraph;
 
 class ShadowFeature {
@@ -12,7 +12,7 @@ public:
         RGTextureId shadow{};
     };
 
-    [[nodiscard]] Outputs Build(RenderGraph& p_graph, const FramePlan& p_plan);
+    [[nodiscard]] Outputs Build(RenderGraph& p_graph, const RenderOptions& p_plan);
 
 private:
     // @TODO: reuse shadow map, shadow atlas, etc

@@ -24,11 +24,12 @@ void ViewManager::FinalizeImpl() {
 }
 
 void ViewManager::BeginFrame() {
+    DEV_ASSERT(m_can_submit == false);
+    DEV_ASSERT(m_view_descs.empty());
     m_can_submit = true;
-    m_view_descs.clear();
 }
 
-static ResolvedView ResolveView(const ViewDesc& p_view,
+static ResolvedView ResolveView(ViewDesc&& p_view,
                                 Scene* p_scene,
                                 bool p_is_opengl) {
     using math::Matrix4x4f;
@@ -76,41 +77,40 @@ static ResolvedView ResolveView(const ViewDesc& p_view,
     reverse_z(proj);
 
     return {
-        .view = view,
-        .proj = proj,
-        .view_inv = glm::inverse(view),
-        .proj_inv = glm::inverse(proj),
+        .cam = {
+            .view = view,
+            .proj = proj,
+            .view_inv = glm::inverse(view),
+            .proj_inv = glm::inverse(proj),
+        },
         .frustum = frustum,
-        .position = cam->GetPosition(),
-        .up = cam->GetUp(),
-        .front = cam->GetFront(),
-        .right = cam->GetRight(),
-        .vp_w = static_cast<float>(cam->GetWidth()),
-        .vp_h = static_cast<float>(cam->GetHeight()),
-        .aspect = cam->GetAspect(),
+        .viewport_px = p_view.viewport_px,
         .fovy = cam->GetFovy(),
         .scene_id = p_view.scene_id,
         .scene = p_scene,
-        .highlight = p_view.highlight,
-        .output = p_view.output,
+        .highlight = std::move(p_view.highlight),
+        .output = std::move(p_view.output),
     };
 }
 
 std::span<const render::ResolvedView> ViewManager::EndFrame() {
+    DEV_ASSERT(m_can_submit == true);
     m_can_submit = false;
-    // @TODO: resolve view
+
     const bool is_opengl = m_app->GetRenderDevice()->GetBackend() == Backend::OPENGL;
 
     m_views.clear();
     m_views.reserve(m_view_descs.size());
-    for (const ViewDesc& v : m_view_descs) {
-        Scene* scene = m_app->GetSceneRegistry()->Resolve(v.scene_id);
-        DEV_ASSERT(scene);
-        if (!scene) continue;
-
-        m_views.emplace_back(ResolveView(v, scene, is_opengl));
+    for (ViewDesc& desc : m_view_descs) {
+        SceneId id = desc.scene_id;
+        if (Scene* scene = m_app->GetSceneRegistry()->Resolve(id)) {
+            m_views.emplace_back(ResolveView(std::move(desc), scene, is_opengl));
+        } else {
+            LOG_ERROR("can't resolve scene ({},{})", id.index, id.gen);
+        }
     }
 
+    m_view_descs.clear();
     return m_views;
 }
 

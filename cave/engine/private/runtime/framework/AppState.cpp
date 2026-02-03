@@ -13,6 +13,7 @@ void AppStateMachine::Init(AppStateId p_initial_state) {
 void AppStateMachine::Shutdown() {
     if (DEV_VERIFY(m_state)) {
         m_state->OnExit();
+        m_state.reset();
     }
 }
 

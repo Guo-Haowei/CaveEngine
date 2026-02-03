@@ -18,23 +18,29 @@ namespace cave {
 #include "cbuffer.hlsl.h"
 }  // namespace cave
 
-namespace cave {
-
-using render::DrawItem;
-
-class Scene;
+namespace cave::render {
 
 struct RenderOptions {
-    bool isOpengl{ false };
-    bool ssaoEnabled{ false };
+    bool is_opengl{ false };
+    bool enable_ssao{ false };
+    bool enable_bloom{ false };
+    bool enable_ibl{ false };
+
+    // @TODO: refactor the following
     bool vxgiEnabled{ false };
-    bool bloomEnabled{ false };
-    bool iblEnabled{ false };
     int debugVoxelId{ 0 };
     int debugBvhDepth{ -1 };
     int voxelTextureSize{ 0 };
     float ssaoKernelRadius{ 0.0f };
 };
+
+}  // namespace cave::render
+
+namespace cave {
+
+using render::DrawItem;
+
+class Scene;
 
 struct PassContext {
     int pass_idx{ 0 };
@@ -76,10 +82,7 @@ enum class DrawPhase : uint8_t {
 };
 
 struct FrameData {
-    RenderOptions options;
-    render::ResolvedView resolved_view;
-    // const ViewInfo* view_info{ nullptr };
-
+    render::RenderOptions options;
     // @TODO: multi camera & viewport
 
     PerFrameConstantBuffer perFrameCache;

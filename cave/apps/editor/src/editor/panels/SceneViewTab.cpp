@@ -32,6 +32,14 @@ using math::Matrix4x4f;
 using math::Vector2f;
 using math::Vector3f;
 
+#if 1
+static constexpr uint32_t kTextureWidth = 1920;
+static constexpr uint32_t kTextureHeight = 1080;
+#else
+static constexpr uint32_t kTextureWidth = 640;
+static constexpr uint32_t kTextureHeight = 480;
+#endif
+
 SceneViewTab::SceneViewTab(EditorState& p_editor,
                            DocId p_doc_id,
                            SceneId p_preview_scene_id,
@@ -42,8 +50,6 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
     , m_preview_scene(p_preview_scene_id)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
     , m_button_tooltips{ "Run Project", "Pause Project" } {
-
-    m_image_padding = Vector2f(10, 30);
 
     m_play_button = {
         ICON_FA_PLAY,
@@ -61,8 +67,8 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
         GpuTextureDesc desc{
             .type = AttachmentType::COLOR_2D,
             .dimension = Dimension::TEXTURE_2D,
-            .width = 1920,
-            .height = 1080,
+            .width = kTextureWidth,
+            .height = kTextureHeight,
             .depth = 1,
             .mipLevels = 0,
             .arraySize = 1,
@@ -80,6 +86,7 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
 void SceneViewTab::SubmitView() {
     using namespace render;
     ViewDesc view;
+    view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
     if (m_editor.IsPlaying()) {
         view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
         view.camera_source = CameraSource::MainCamera();
@@ -97,9 +104,7 @@ void SceneViewTab::SubmitView() {
 }
 
 void SceneViewTab::OnCreate() {
-    math::Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    m_camera.SetWidth(frame_size.x);
-    m_camera.SetHeight(frame_size.y);
+    m_camera.SetAspect((float)kTextureWidth / (float)kTextureHeight);
     m_camera.SetDirty();
     switch (m_dim) {
         case DIMENSION_2: {
@@ -117,11 +122,26 @@ void SceneViewTab::OnCreate() {
 
     IApplication& app = m_editor.GetApp();
     app.GetSceneScheduler().Register(this);
+    m_editor.PickingService().Register(this);
 }
 
 void SceneViewTab::OnDestroy() {
+    m_editor.PickingService().Register(this);
     IApplication& app = m_editor.GetApp();
     app.GetSceneScheduler().Unregister(this);
+}
+
+Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& p_pos_screen) {
+    if (!IsVisible()) return None();
+    if (!m_rect.Contains(p_pos_screen)) return None();
+
+    return Some(PickData{
+        .proj_view = m_camera.GetProjectionViewMatrix(),
+        .cursor = p_pos_screen - m_rect.Min(),
+        .extent = m_rect.Size(),
+        .scene_id = m_preview_scene,
+        .doc_id = m_doc_id,
+    });
 }
 
 void SceneViewTab::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
@@ -161,17 +181,6 @@ void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
                     } break;
                     case Key::C: {
                         m_gizmo_action = GizmoAction::Scale;
-                        e.consumed = true;
-                    } break;
-                    case Key::RMB: {
-                        PickRequest req{};
-                        req.tab_id = GetTabId();
-
-                        req.cursor = Vector2f(e.x, e.y);
-                        req.pos = Vector2f(m_view_rect.x, m_view_rect.y);
-                        req.size = Vector2f(m_view_rect.w, m_view_rect.h);
-
-                        m_editor.PickingService().Submit(std::move(req));
                         e.consumed = true;
                     } break;
                     default:
@@ -219,22 +228,41 @@ void SceneViewTab::Tick(float p_dt) {
 }
 
 void SceneViewTab::DrawUIImpl() {
-    UpdateViewRect();
-
     DrawMainView();
 
-    if (m_editor.IsPlaying()) return;
-    if (IsFocused()) {
+    if (!m_editor.IsPlaying()) {
         DrawGizmo();
     }
 
     SubmitView();
 }
 
+static void FitAspect(float p_aspect, float& p_width, float& p_height) {
+    if (p_aspect * p_height > p_width) {
+        p_height = p_width / p_aspect;
+    } else {
+        p_width = p_height * p_aspect;
+    }
+}
+
 // @TODO: instead of asking for image, provide an image to renderer
 void SceneViewTab::DrawMainView() {
-    ImVec2 top_left(m_view_rect.x, m_view_rect.y);
-    ImVec2 bottom_right(m_view_rect.Right(), m_view_rect.Bottom());
+    ImVec2 cursor_pos = ImGui::GetCursorPos();  // cursor to window pos
+    ImVec2 cursor_screen_pos = ImGui::GetCursorScreenPos();
+    ImVec2 size = ImGui::GetWindowSize();
+    {
+        size.x -= 2 * cursor_pos.x;
+        size.y -= 1.2f * cursor_pos.y;
+
+        const float aspect = m_camera.GetAspect();
+        FitAspect(aspect, size.x, size.y);
+    }
+
+    const ImVec2& min = cursor_screen_pos;
+    ImVec2 max(min.x + size.x, min.y + size.y);
+
+    m_rect.SetMinMax(Vector2f(min.x, min.y),
+                     Vector2f(max.x, max.y));
 
     // @TODO: add a dummy button
     const auto& gm = *m_editor.GetApp().GetRenderDevice();
@@ -243,7 +271,7 @@ void SceneViewTab::DrawMainView() {
     switch (gm.GetBackend()) {
         case Backend::D3D11:
         case Backend::D3D12: {
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right);
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max);
         } break;
         case Backend::OPENGL: {
             ImVec2 uv_min = ImVec2(0, 1);
@@ -252,7 +280,7 @@ void SceneViewTab::DrawMainView() {
             //     uv_min = ImVec2(0, 0);
             //     uv_max = ImVec2(1, 1);
             // }
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right, uv_min, uv_max);
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max, uv_min, uv_max);
         } break;
         case Backend::VULKAN:
         case Backend::METAL: {
@@ -261,28 +289,15 @@ void SceneViewTab::DrawMainView() {
             CRASH_NOW();
             break;
     }
-}
 
-void SceneViewTab::UpdateViewRect() {
-    ImVec2 win_pos = ImGui::GetWindowPos();
-    ImVec2 win_size = ImGui::GetWindowSize();
-
-    Vector2f top_left = Vector2f(win_pos.x, win_pos.y) + m_image_padding;
-    Vector2f size = Vector2f(win_size.x, win_size.y) - m_image_padding;
-
-    const float aspect = m_camera.GetAspect();
-    if (aspect * size.y > size.x) {
-        size.y = size.x / aspect;
-    } else {
-        size.x = size.y * aspect;
+    // @TODO: drop target
+    ImGui::Dummy(size);
+    // ImGui::InvisibleButton("###DropTarget", size);
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CAVE/Asset")) {
+        }
+        ImGui::EndDragDropTarget();
     }
-
-    m_view_rect = {
-        top_left.x,
-        top_left.y,
-        size.x,
-        size.y,
-    };
 }
 
 // @TODO: move this to gizmo
@@ -298,7 +313,9 @@ void SceneViewTab::DrawGizmo() {
     ImGuizmo::BeginFrame();
 
     ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(m_view_rect.x, m_view_rect.y, m_view_rect.w, m_view_rect.h);
+    Vector2f min = m_rect.Min();
+    Vector2f size = m_rect.Size();
+    ImGuizmo::SetRect(min.x, min.y, size.x, size.y);
 
     SelectionKey selection = m_editor.SelectionService().Primary(m_doc_id);
     ecs::Entity id = selection.entity;
@@ -315,8 +332,8 @@ void SceneViewTab::DrawGizmo() {
             if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
                                      glm::value_ptr(proj_matrix),
                                      p_operation,
-                                     ImGuizmo::LOCAL,
-                                     // ImGuizmo::WORLD,
+                                     // ImGuizmo::LOCAL,
+                                     ImGuizmo::WORLD,
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
 
@@ -360,31 +377,6 @@ void SceneViewTab::DrawGizmo() {
 // const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
 //     return { &m_play_button };
 // }
-
-#if 0
-void SceneEditor::Select(const Vector2f& p_cursor) {
-    unused(p_cursor);
-    DEV_ASSERT(0);
-    if (auto res = m_viewer.CursorToNDC(p_cursor); res.is_some()) {
-        Vector2f ndc_2 = res.unwrap_unchecked();
-        Vector4f ndc{ ndc_2.x, ndc_2.y, 1.0f, 1.0f };
-
-        CameraComponent cam;
-
-        const Matrix4x4f inv_pv = glm::inverse(cam.GetProjectionViewMatrix());
-
-        const Vector3f ray_start = Vector3f::Zero;
-        // const Vector3f ray_start = m_camera_transform.GetTranslation();
-        const Vector3f direction = normalize(Vector3f((inv_pv * ndc).xyz));
-        const Vector3f ray_end = ray_start + direction * cam.GetFar();
-        Ray ray(ray_start, ray_end);
-
-        const auto result = GetScene()->Intersects(ray);
-        SetSelectedEntity(result.entity);
-    }
-}
-#endif
-
 Scene* SceneViewTab::GetResolvedScene() {
     return m_editor.GetApp().GetSceneRegistry()->Resolve(m_preview_scene);
 }
@@ -425,30 +417,28 @@ CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputE
 }
 
 CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
-    math::Vector2f rotation = math::Vector2f::Zero;
-
+    constexpr Key kDragKey = Key::MMB;
     const InputDeviceId id{ 0 };
-    const bool mmb = p_st.Down(id, Key::MMB);
+    const bool drag_button = p_st.Down(id, kDragKey);
     const int dx = p_st.Down(id, Key::D) - p_st.Down(id, Key::A);
     const int dy = p_st.Down(id, Key::E) - p_st.Down(id, Key::Q);
     const int dz = p_st.Down(id, Key::W) - p_st.Down(id, Key::S);
 
-    CameraInputState state{};
+    math::Vector2f rotation = math::Vector2f::Zero;
+    float zoom = 0.0f;
 
     for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
+        if (e.consumed) continue;
         switch (e.type) {
             case InputEventType::MouseWheel: {
                 e.consumed = true;
-                state.zoom_delta = 3.0f * e.dy;
+                zoom = 3.0f * e.dy;
             } break;
             case InputEventType::MouseMove: {
-                if (mmb) {
+                if (drag_button) {
                     e.consumed = true;
-                    state.rotation.x = e.dx;
-                    state.rotation.y = e.dy;
+                    rotation.x = e.dx;
+                    rotation.y = e.dy;
                 }
             } break;
             default:
@@ -456,25 +446,11 @@ CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputE
         }
     }
 
-    state.move = math::Vector3f(dx, dy, dz);
-    return state;
+    return {
+        .move = Vector3f(dx, dy, dz),
+        .zoom_delta = zoom,
+        .rotation = rotation,
+    };
 }
-
-#if 0
-Option<Vector2f> Viewer::CursorToNDC(Vector2f p_point) const {
-    auto [window_x, window_y] = m_editor.GetApp().GetDisplayManager()->GetWindowPos();
-    p_point.x = (p_point.x + window_x - m_canvas_min.x) / m_canvas_size.x;
-    p_point.y = (p_point.y + window_y - m_canvas_min.y) / m_canvas_size.y;
-
-    if (p_point.x >= 0.0f && p_point.x <= 1.0f && p_point.y >= 0.0f && p_point.y <= 1.0f) {
-        p_point *= 2.0f;
-        p_point -= 1.0f;
-        p_point.y = -p_point.y;
-        return Some(p_point);
-    }
-
-    return None();
-}
-#endif
 
 }  // namespace cave

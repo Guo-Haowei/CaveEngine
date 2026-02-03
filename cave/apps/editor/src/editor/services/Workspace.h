@@ -77,6 +77,8 @@ public:
 
     DebugId GetDebugId() final { return m_debug_id; }
 
+    bool OnCloseRequested();
+
 private:
     void OpenOrFocusDoc(DocId p_doc_id);
 

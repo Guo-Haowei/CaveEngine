@@ -16,6 +16,12 @@ class Tab;
 // @TODO: move it to somewhere else
 using TabId = GenId<Tab>;
 
+enum class CloseDecision {
+    Save,
+    Discard,
+    Cancel,
+};
+
 class Tab : public EditorWindow {
 public:
     Tab(EditorState& p_editor, DocId p_doc_id);

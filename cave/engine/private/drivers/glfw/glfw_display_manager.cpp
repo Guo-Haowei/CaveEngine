@@ -57,6 +57,19 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
 
     glfwSetWindowSizeCallback(m_window, WindowSizeCallback);
 
+    glfwSetWindowCloseCallback(m_window, [](GLFWwindow* p_window) {
+        glfwSetWindowShouldClose(p_window, GLFW_FALSE);
+        QuitVote vote = IDisplayManager::GetSingleton().GetApp()->OnQuitRequested({ QuitReason::WindowClose });
+        switch (vote) {
+            case QuitVote::Allow: {
+                glfwSetWindowShouldClose(p_window, true);
+            } break;
+            case QuitVote::Deny: {
+                glfwSetWindowShouldClose(p_window, false);
+            } break;
+        }
+    });
+
     InputSystem& input = *m_app->GetInputSystem();
     {
         InputDeviceId kb_id = InputDeviceId::NextId();

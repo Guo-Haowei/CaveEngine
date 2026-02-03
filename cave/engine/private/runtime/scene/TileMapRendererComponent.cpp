@@ -103,8 +103,8 @@ void TileMapRendererComponent::CreateRenderData() {
                 Vector2f bottom_right{ x1, y0 };
                 Vector2f top_left{ x0, y1 };
                 Vector2f top_right{ x1, y1 };
-                Vector2f uv_min = frames[tile_id].GetMin();
-                Vector2f uv_max = frames[tile_id].GetMax();
+                Vector2f uv_min = frames[tile_id].Min();
+                Vector2f uv_max = frames[tile_id].Max();
 
                 // manually flip y here
                 Vector2f uv0 = { uv_min.x, uv_max.y };

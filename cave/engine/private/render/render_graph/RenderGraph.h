@@ -1,4 +1,6 @@
 #pragma once
+#include "cave/core/math/Rect.h"
+
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/pixel_format.h"
 #include "RenderPass.h"
@@ -10,17 +12,6 @@ namespace cave { struct FrameData; }
 namespace cave::render {
 
 class CompiledGraph;
-
-struct RenderGraphConfig {
-    bool enablePointShadow = true;
-    bool enableVxgi = true;
-    bool enableIbl = true;
-    bool enableBloom = true;
-    bool enableHighlight = true;
-
-    int frameWidth;
-    int frameHeight;
-};
 
 class RenderGraph {
 public:
@@ -34,7 +25,8 @@ public:
         GpuTextureId external;
     };
 
-    RenderGraph(const RenderGraphConfig& p_config);
+    RenderGraph(const math::IntRect& p_rect)
+        : m_viewport(p_rect) {}
 
     RenderPass& AddPass(std::string_view p_name);
 
@@ -56,8 +48,8 @@ public:
 
         return BuildDefaultTextureDesc(p_format,
                                        p_type,
-                                       m_config.frameWidth,
-                                       m_config.frameHeight,
+                                       m_viewport.w,
+                                       m_viewport.h,
                                        p_array_size,
                                        p_misc_flag,
                                        p_mips_level);
@@ -67,7 +59,7 @@ public:
     RGTextureId ImportTexture(ImportDesc&& p_info);
 
 protected:
-    RenderGraphConfig m_config;
+    math::IntRect m_viewport;
 
     std::vector<RenderPass> m_passes;
 

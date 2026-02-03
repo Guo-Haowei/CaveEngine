@@ -5,7 +5,7 @@
 
 namespace cave::render {
 
-struct FramePlan;
+struct RenderOptions;
 class RenderGraph;
 class TransientPool;
 
@@ -20,7 +20,7 @@ public:
         RGTextureId ibl_prefiltered{};
     };
 
-    [[nodiscard]] Outputs Build(RenderGraph& p_graph, const FramePlan& p_plan);
+    [[nodiscard]] Outputs Build(RenderGraph& p_graph, const RenderOptions& p_plan);
 
 private:
     TransientPool& m_pool;

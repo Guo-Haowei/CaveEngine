@@ -116,10 +116,10 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     }
 
     // rasterization
-    Vector2f min = aabb.GetMin();
+    Vector2f min = aabb.Min();
     min.x = std::floor(min.x);
     min.y = std::floor(min.y);
-    Vector2f max = aabb.GetMax();
+    Vector2f max = aabb.Max();
     max.x = std::ceil(max.x);
     max.y = std::ceil(max.y);
     for (int _y = (int)min.y; _y < (int)max.y; ++_y) {

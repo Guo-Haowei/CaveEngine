@@ -10,16 +10,10 @@
 
 namespace cave {
 
-enum class CloseDecision {
-    Save,
-    Discard,
-    Cancel,
-};
-
 // @TODO: move to Dialog Service
-static CloseDecision AskCloseUnsaved(HWND p_owner, const char* p_title) {
+CloseDecision AskCloseUnsaved(const char* p_title) {
     int result = MessageBoxA(
-        p_owner,
+        NULL,
         "You have unsaved changes.\n\nDo you want to save before closing?",
         p_title,
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON1);
@@ -39,6 +33,12 @@ Tab::Tab(EditorState& p_editor, DocId p_doc_id)
     , m_doc_id(p_doc_id) {}
 
 void Tab::DrawUI() {
+    if (const bool dirty = m_editor.EditService().IsDirty(m_doc_id)) {
+        m_flags |= ImGuiWindowFlags_UnsavedDocument;
+    } else {
+        m_flags &= ~ImGuiWindowFlags_UnsavedDocument;
+    }
+
     ResetState();
     bool open = true;
     if (ImGui::Begin(GetWindowId(), &open, m_flags)) {
@@ -51,7 +51,7 @@ void Tab::DrawUI() {
         const bool dirty = m_editor.EditService().IsDirty(m_doc_id);
         bool should_save = false;
         if (dirty) {
-            switch (AskCloseUnsaved(0, "Warning")) {
+            switch (AskCloseUnsaved("Warning")) {
                 case CloseDecision::Cancel:
                     return;
                 case CloseDecision::Save: {
@@ -76,12 +76,6 @@ void Tab::SetTitleAndId(std::string_view p_title, uint32_t p_idx) {
 }
 
 void Tab::Tick(float) {
-    const bool dirty = m_editor.EditService().IsDirty(m_doc_id);
-    if (dirty) {
-        m_flags |= ImGuiWindowFlags_UnsavedDocument;
-    } else {
-        m_flags &= ~ImGuiWindowFlags_UnsavedDocument;
-    }
 }
 
 void Tab::OnCreate() {

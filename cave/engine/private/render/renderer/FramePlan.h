@@ -1,12 +1,12 @@
 #pragma once
+#include "ResolvedView.h"
+// @TODO: fix
 #include "engine/private/renderer/frame_data.h"
 
 namespace cave::render {
 
 struct FramePlan {
-    bool enable_ssao{ true };
-    bool enable_bloom{ true };
-
+    std::vector<ResolvedView> views;
     std::vector<FrameData> frame_data;
 };
 

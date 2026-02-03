@@ -67,7 +67,7 @@ BvhBuilder::BvhBuilder(const VertexList& p_vertices,
         const Vector3f& b = m_vertices.at(triangle.y);
         const Vector3f& c = m_vertices.at(triangle.z);
         m_centroids[i] = (1.0f / 3.0f) * (a + b + c);
-        m_aabbs[i].MakeInvalid();
+        m_aabbs[i].Invalidate();
         m_aabbs[i].ExpandPoint(a);
         m_aabbs[i].ExpandPoint(b);
         m_aabbs[i].ExpandPoint(c);
@@ -114,6 +114,15 @@ void BvhBuilder::SplitByAxis(BvhAccel* p_parent,
     p_parent->right = ConstructHelper(p_parent, right);
 }
 
+static float SurfaceArea(const Box3& p_box) {
+    if (!p_box.IsValid()) return 0.0f;
+    Vector3f span = p_box.Size();
+    const float result = 2.0f * (span.x * span.y +
+                                 span.x * span.z +
+                                 span.y * span.z);
+    return result;
+}
+
 BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::vector<uint32_t>& p_indices) const {
     const int depth = p_parent ? p_parent->depth + 1 : 0;
     if (depth > 64) {
@@ -134,7 +143,7 @@ BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::v
     }
 
     // @TODO: refactor
-    const float parent_surface = parent_aabb.SurfaceArea();
+    const float parent_surface = SurfaceArea(parent_aabb);
 
     // @TODO rework
     if (triangle_count <= 4 || parent_surface == 0.0f) {
@@ -158,8 +167,8 @@ BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::v
     centroidBox.MakeValid();
 
     const int axis = DominantAxis(centroidBox);
-    const float tmin = centroidBox.GetMin()[axis];
-    const float tmax = centroidBox.GetMax()[axis];
+    const float tmin = centroidBox.Min()[axis];
+    const float tmax = centroidBox.Max()[axis];
 
     for (int index : p_indices) {
         float tmp = ((m_centroids.at(index)[axis] - tmin) * BUCKED_MAX) / (tmax - tmin);
@@ -184,7 +193,7 @@ BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::v
         }
 
         constexpr float travCost = 0.125f;
-        costs[i] = travCost + (count0 * b0.SurfaceArea() + count1 * b1.SurfaceArea()) / parent_surface;
+        costs[i] = travCost + (count0 * SurfaceArea(b0) + count1 * SurfaceArea(b1)) / parent_surface;
     }
 
     int splitIndex = 0;
@@ -241,8 +250,8 @@ void BvhAccel::FillGpuBvhAccel(std::vector<GpuPtBvh>& p_out) {
     DEV_ASSERT(aabb.IsValid());
 
     GpuPtBvh gpu_bvh;
-    gpu_bvh.min = aabb.GetMin();
-    gpu_bvh.max = aabb.GetMax();
+    gpu_bvh.min = aabb.Min();
+    gpu_bvh.max = aabb.Max();
     gpu_bvh.hitIdx = hitIndex;
     gpu_bvh.missIdx = missIndex;
     gpu_bvh.leaf = !!isLeaf;
