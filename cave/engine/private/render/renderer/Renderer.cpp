@@ -37,9 +37,6 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 
 }  // namespace cave
 
-// @HACK: expose render graph for debugging
-cave::render::CompiledGraph* g_graph = nullptr;
-
 namespace cave::render {
 
 using math::Vector2i;
@@ -60,7 +57,8 @@ public:
 
 private:
     FramePlan BuildFramePlan(std::span<const ResolvedView> p_views);
-    auto BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>>;
+    auto BuildRenderGraph(const FramePlan& p_plan,
+                          GpuTextureId p_output) -> Result<std::shared_ptr<CompiledGraph>>;
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
@@ -68,9 +66,6 @@ private:
     IApplication& m_app;
     RenderSceneBuilder m_scene_builder;
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
-
-    // @TODO: remove
-    std::shared_ptr<CompiledGraph> m_render_graph;
 
     // features
     TransientPool m_pool;
@@ -211,24 +206,20 @@ void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
 
     auto submission = std::make_unique<RenderSubmission>();
 
-    if (!p_views.empty()) {
-        FramePlan plan = BuildFramePlan(p_views);
+    FramePlan plan = BuildFramePlan(p_views);
+    submission->frame_data = std::move(plan.frame_data);
+    for (const ResolvedView& view : p_views) {
 
-        if (auto res = BuildRenderGraph(plan); !res) {
+        if (auto res = BuildRenderGraph(plan, view.output); !res) {
             CRASH_NOW();
         } else {
-            m_render_graph = *res;
-            m_render_graph->Resolve(m_pool);
+            auto graph = *res;
+            graph->Resolve(m_pool);
 
-            g_graph = m_render_graph.get();
+            submission->render_graph.push_back(graph);
         }
-
-        submission->frame_data = std::move(plan.frame_data);
-        submission->render_graph = m_render_graph;
     }
-    // submission->render_graph = BuildRenderGraph(plan);
 
-    // @TODO: graph
     m_app.GetRenderDevice()->Submit(std::move(submission));
 }
 
@@ -276,7 +267,8 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) 
     return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>> {
+auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan,
+                                      GpuTextureId p_output) -> Result<std::shared_ptr<CompiledGraph>> {
     constexpr const char RG_RES_BRDF[] = "r:brdf";
 
     IRenderDevice& device = *m_app.GetRenderDevice();
@@ -359,6 +351,7 @@ auto Renderer::Impl::BuildRenderGraph(const FramePlan& p_plan) -> Result<std::sh
         .lighting = lighting_outputs.lighting,
         .outline = highlight_outputs.outline,
         .bloom = 0,
+        .out = p_output,
     });
 
     return builder.Compile();

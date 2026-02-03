@@ -267,6 +267,7 @@ void RenderDevice::Submit(std::unique_ptr<render::RenderSubmission>&& p_submissi
         CAVE_PROFILE_EVENT("Render");
         BeginFrame();
 
+        int idx = 0;
         for (const FrameData& data : p_submission->frame_data) {
 
             auto& frame = GetCurrentFrame();
@@ -285,7 +286,7 @@ void RenderDevice::Submit(std::unique_ptr<render::RenderSubmission>&& p_submissi
 
             BindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
 
-            auto& graph = p_submission->render_graph;
+            auto& graph = p_submission->render_graph[idx++];
             for (const CompiledPass& pass : graph->GetCompiledPass()) {
                 Execute(data, pass);
             }
@@ -318,24 +319,7 @@ std::shared_ptr<FrameContext> RenderDevice::CreateFrameContext() {
 
 std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     auto texture = CreateTextureImpl(p_texture_desc, p_sampler_desc);
-    if (p_texture_desc.type != AttachmentType::NONE) {
-        auto [_, inserted] = m_resourceLookup.try_emplace(texture->desc.name, texture);
-        if (!inserted) {
-            CRASH_NOW();
-        }
-        m_resourceLookup[p_texture_desc.name] = texture;
-    }
     return texture;
-}
-
-uint64_t RenderDevice::GetFinalImage() const {
-    constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
-
-    if (auto it = m_resourceLookup.find(RG_RES_POST_PROCESS); it != m_resourceLookup.end()) {
-        return it->second->GetHandle();
-    }
-
-    return 0;
 }
 
 void RenderDevice::UpdateEmitters(const Scene& p_scene) {

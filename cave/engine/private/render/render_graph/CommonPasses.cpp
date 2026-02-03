@@ -170,10 +170,7 @@ PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInp
     desc.bindFlags |= BIND_SHADER_RESOURCE;
 
     PostProcessOutput out{
-        .processed = CreateTexture({
-            RG_RES_POST_PROCESS,
-            desc,
-        }),
+        .processed = ImportTexture({ p_in.out }),
     };
 
     pass.Read(ResourceAccess::SRV, p_in.lighting)

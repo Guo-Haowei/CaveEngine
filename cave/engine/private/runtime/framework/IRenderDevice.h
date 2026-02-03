@@ -120,9 +120,6 @@ public:
     virtual void RequestTexture(ImageAsset* p_image) = 0;
     virtual void RequestMesh(MeshAsset* p_mesh) = 0;
 
-    // @TODO: move to renderer
-    virtual uint64_t GetFinalImage() const = 0;
-
     // @TODO: thread safety ?
     virtual void EventReceived(std::shared_ptr<IEvent> p_event) = 0;
 

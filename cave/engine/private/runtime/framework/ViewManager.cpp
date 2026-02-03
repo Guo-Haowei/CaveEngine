@@ -29,7 +29,7 @@ void ViewManager::BeginFrame() {
 }
 
 static ResolvedView ResolveView(const ViewDesc& p_view,
-                                const Scene* p_scene,
+                                Scene* p_scene,
                                 bool p_is_opengl) {
     using math::Matrix4x4f;
 
@@ -89,7 +89,10 @@ static ResolvedView ResolveView(const ViewDesc& p_view,
         .vp_h = static_cast<float>(cam->GetHeight()),
         .aspect = cam->GetAspect(),
         .fovy = cam->GetFovy(),
+        .scene_id = p_view.scene_id,
+        .scene = p_scene,
         .highlight = p_view.highlight,
+        .output = p_view.output,
     };
 }
 

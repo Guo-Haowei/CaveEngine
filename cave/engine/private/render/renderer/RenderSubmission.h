@@ -9,7 +9,7 @@ namespace cave::render {
 struct RenderSubmission {
     uint64_t frame_index;
     std::vector<FrameData> frame_data;
-    std::shared_ptr<CompiledGraph> render_graph;
+    std::vector<std::shared_ptr<CompiledGraph>> render_graph;
 };
 
 }  // namespace cave::render

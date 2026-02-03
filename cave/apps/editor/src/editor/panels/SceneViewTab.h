@@ -47,6 +47,10 @@ protected:
 
     void UpdateViewRect();
 
+    Scene* GetResolvedScene();
+    CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
+    CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
+
     // void OnCreateInternal(const Guid& p_guid) final;
 
     // void OnActivateInternal() final;
@@ -73,10 +77,7 @@ protected:
     CameraInputState m_camera_state;
     CameraComponent m_camera;
     TransformComponent m_camera_transform;
-
-    Scene* GetResolvedScene();
-    CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
-    CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
+    GpuTextureId m_texture;
 };
 
 }  // namespace cave

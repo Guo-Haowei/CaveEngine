@@ -74,9 +74,6 @@ public:
     void BeginEvent(std::string_view p_event) override { unused(p_event); }
     void EndEvent() override {}
 
-    // @TODO: move to renderer
-    uint64_t GetFinalImage() const override;
-
     Backend GetBackend() const override { return m_backend; }
 
     FrameContext& GetCurrentFrame() override { return *(m_frameContexts[m_frameIndex].get()); }
@@ -94,8 +91,6 @@ protected:
 
     const Backend m_backend;
     bool m_enableValidationLayer;
-
-    std::unordered_map<std::string_view, std::shared_ptr<GpuTexture>> m_resourceLookup;
 
     ConcurrentQueue<ImageAsset*> m_loadedImages;
     ConcurrentQueue<MeshAsset*> m_loadedMeshes;

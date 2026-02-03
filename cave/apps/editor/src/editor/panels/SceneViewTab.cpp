@@ -55,6 +55,25 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
             m_play_button.tooltip = m_button_tooltips[m_button_index];
         }
     };
+
+    // @TODO: move it to somewhere else
+    {
+        GpuTextureDesc desc{
+            .type = AttachmentType::COLOR_2D,
+            .dimension = Dimension::TEXTURE_2D,
+            .width = 1920,
+            .height = 1080,
+            .depth = 1,
+            .mipLevels = 0,
+            .arraySize = 1,
+            .format = PixelFormat::R16G16B16A16_FLOAT,
+            .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+            .miscFlags = RESOURCE_MISC_NONE,
+        };
+        m_texture = m_editor.GetApp().GetRenderDevice()->CreateTexture(
+            desc,
+            PointClampSampler());
+    }
 }
 
 // @TODO: game view tab
@@ -73,6 +92,7 @@ void SceneViewTab::SubmitView() {
             view.highlight.entities.insert(key.entity);
         }
     }
+    view.output = m_texture;
     m_editor.GetApp().GetViewManager()->Submit(view);
 }
 
@@ -218,7 +238,7 @@ void SceneViewTab::DrawMainView() {
 
     // @TODO: add a dummy button
     const auto& gm = *m_editor.GetApp().GetRenderDevice();
-    uint64_t handle = gm.GetFinalImage();
+    uint64_t handle = m_texture->GetHandle();
     // add image for drawing
     switch (gm.GetBackend()) {
         case Backend::D3D11:
