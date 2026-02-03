@@ -22,6 +22,7 @@
 #include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #if USING(PLATFORM_WASM)
@@ -31,6 +32,7 @@ static cave::IApplication* s_app = nullptr;
 namespace cave {
 
 namespace fs = std::filesystem;
+
 Application::Application(const AppSpec& p_spec, AppType p_type)
     : IApplication(p_spec)
     , m_type(p_type)
@@ -39,6 +41,9 @@ Application::Application(const AppSpec& p_spec, AppType p_type)
     // @TODO: refactor this select work directory
     m_vfs.Mount("@user", fs::path(m_specification.userFolder));
 }
+
+IApplication::~IApplication() = default;
+Application::~Application() = default;
 
 void Application::RegisterModule(Module* p_module) {
     DEV_ASSERT(p_module);
@@ -72,6 +77,8 @@ auto Application::SetupModules() -> Result<void> {
     m_scene_scheduler = std::make_unique<SceneScheduler>(
         *m_scene_registry,
         *m_script_manager);
+
+    m_scene_query_service = new cave::SceneQueryService(*m_scene_registry);
 
     RegisterModule(m_task_manager);
     RegisterModule(m_asset_manager);
@@ -146,6 +153,7 @@ void Application::Finalize() {
         Module* module = m_modules[index];
         module->Finalize();
         LOG_VERBOSE("module '{}' finalized", module->GetName());
+        delete module;
     }
 }
 

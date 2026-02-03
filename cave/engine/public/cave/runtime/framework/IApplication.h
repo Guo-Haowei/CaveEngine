@@ -29,6 +29,7 @@ class InputSystem;
 class IPhysicsManager;
 class IScriptManager;
 class ISceneRegistry;
+class SceneQueryService;
 class SceneScheduler;
 class TaskManager;
 class VFS;
@@ -58,7 +59,7 @@ public:
         : m_specification(p_spec) {
     }
 
-    virtual ~IApplication() = default;
+    virtual ~IApplication();
 
     virtual Result<void> Initialize() = 0;
     virtual void Finalize() = 0;
@@ -72,6 +73,10 @@ public:
     virtual GameModeFactory& GetGameModeFactory() = 0;
     virtual SceneScheduler& GetSceneScheduler() = 0;
 
+    // services
+    SceneQueryService& SceneQueryService() { return *m_scene_query_service; }
+
+    // @TODO: return reference instead
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
     InputSystem* GetInputSystem() { return m_input_system; }
@@ -98,6 +103,8 @@ protected:
     virtual bool MainLoop() = 0;
 
     AppSpec m_specification;
+
+    cave::SceneQueryService* m_scene_query_service;
 
     // @TODO: differentiate global and state specific managers
     AssetRegistry* m_asset_registry{ nullptr };

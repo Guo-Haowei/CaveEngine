@@ -2,7 +2,6 @@
 
 #include "EntityFactory.h"
 
-#include "engine/private/assets/mesh_asset.h"
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/ComponentManager.inl"
@@ -233,53 +232,6 @@ ecs::Entity Scene::DuplicateEntity(ecs::Entity p_entity) {
 #undef REGISTER_COMPONENT
 
     return entity;
-}
-
-bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) const {
-    const MeshRendererComponent* renderer = GetComponent<MeshRendererComponent>(p_id);
-    MeshAsset* mesh = renderer->GetMeshHandle().Get();
-    const TransformComponent* transform = GetComponent<TransformComponent>(p_id);
-    DEV_ASSERT(mesh && transform);
-
-    if (!transform || !mesh) {
-        return false;
-    }
-
-    Matrix4x4f inversedModel = glm::inverse(transform->GetWorldMatrix());
-    Ray inversedRay = p_ray.Inverse(inversedModel);
-    Ray inversedRayAABB = inversedRay;  // make a copy, we don't want dist to be modified by AABB
-    // Perform aabb test
-    if (!inversedRayAABB.Intersects(mesh->localBound)) {
-        return false;
-    }
-
-    // @TODO: test submesh intersection
-
-    // Test every single triange
-    for (size_t i = 0; i < mesh->indices.size(); i += 3) {
-        const Vector3f& A = mesh->positions[mesh->indices[i]];
-        const Vector3f& B = mesh->positions[mesh->indices[i + 1]];
-        const Vector3f& C = mesh->positions[mesh->indices[i + 2]];
-#define CC(a) Vector3f(a.x, a.y, a.z)
-        if (inversedRay.Intersects(CC(A), CC(B), CC(C))) {
-#undef CC
-            p_ray.CopyDist(inversedRay);
-            return true;
-        }
-    }
-    return false;
-}
-
-Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) const {
-    RayIntersectionResult result;
-
-    for (auto [entity, _] : View<MeshRendererComponent>()) {
-        if (RayObjectIntersect(entity, p_ray)) {
-            result.entity = entity;
-        }
-    }
-
-    return result;
 }
 
 std::vector<Guid> Scene::GetDependencies() const {

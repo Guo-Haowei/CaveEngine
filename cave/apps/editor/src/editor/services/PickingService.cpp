@@ -4,7 +4,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/DisplayManager.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/EditorState.h"
@@ -25,13 +25,13 @@ void PickingService::Submit(PickRequest p_req) {
     m_request = Some(std::move(p_req));
 }
 
-void PickingService::Raycast(const PickData& data, const Scene& p_scene) {
-    Vector2f ndc = (data.cursor / data.extent) * 2.0f - 1.0f;
+void PickingService::Raycast(const PickData& p_pick_data) {
+    Vector2f ndc = (p_pick_data.cursor / p_pick_data.extent) * 2.0f - 1.0f;
     ndc.y = -ndc.y;
     Vector4f clip_near{ ndc, 0.0f, 1.0f };
     Vector4f clip_far{ ndc, 1.0f, 1.0f };
 
-    const Matrix4x4f inv_pv = glm::inverse(data.proj_view);
+    const Matrix4x4f inv_pv = glm::inverse(p_pick_data.proj_view);
 
     Vector4f world_near = inv_pv * clip_near;
     Vector4f world_far = inv_pv * clip_far;
@@ -40,14 +40,15 @@ void PickingService::Raycast(const PickData& data, const Scene& p_scene) {
 
     math::Ray ray(world_near.xyz, world_far.xyz);
 
-    auto result = p_scene.Intersects(ray);
+    auto result = m_editor.GetApp().SceneQueryService().Raycast(p_pick_data.scene_id, ray, {});
+
     SelectionKey key{
         .kind = SelectionKind::Entity,
-        .doc = data.doc_id,
-        .scene = data.scene_id,
+        .doc = p_pick_data.doc_id,
+        .scene = p_pick_data.scene_id,
         .entity = result.entity,
     };
-    m_editor.SelectionService().Set(data.doc_id, key);
+    m_editor.SelectionService().Set(p_pick_data.doc_id, key);
 }
 
 void PickingService::Tick() {
@@ -66,11 +67,7 @@ void PickingService::Tick() {
         if (opt.is_none()) continue;
 
         PickData data = opt.unwrap_unchecked();
-
-        Scene* scene = m_editor.GetApp().GetSceneRegistry()->Resolve(data.scene_id);
-        if (!scene) continue;
-
-        Raycast(data, *scene);
+        Raycast(data);
 
         // @TODO: this doesn't work with overlay
         break;

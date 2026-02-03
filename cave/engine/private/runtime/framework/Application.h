@@ -17,6 +17,7 @@ class Module;
 class Application : public IApplication {
 public:
     Application(const AppSpec& p_spec, AppType p_type);
+    ~Application();
 
     AppStateId GetStateId() const override;
 

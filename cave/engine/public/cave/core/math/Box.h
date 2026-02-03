@@ -158,7 +158,10 @@ public:
     // Access
     [[nodiscard]] constexpr const Vec& Min() const noexcept { return m_min; }
     [[nodiscard]] constexpr const Vec& Max() const noexcept { return m_max; }
-    constexpr void SetMinMax(const Vec& min, const Vec& max) noexcept { m_min = min; m_max = max; }
+    constexpr void SetMinMax(const Vec& min, const Vec& max) noexcept {
+        m_min = min;
+        m_max = max;
+    }
 
     // Geometry
     [[nodiscard]] constexpr Vec Center() const noexcept { return (m_min + m_max) * Scalar(0.5); }
@@ -206,7 +209,6 @@ public:
             }
         }
     }
-
 
     // @TODO: refactor the following
     void ExpandPoint(const Vec& p_point) {

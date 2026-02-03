@@ -4,7 +4,6 @@
 namespace cave {
 
 class EditorState;
-class Scene;
 
 struct PickRequest {
     math::Vector2f cursor;  // cursor in window space
@@ -22,7 +21,7 @@ public:
     void Unregister(IPickConsumer* p_consumer);
 
 private:
-    void Raycast(const PickData& data, const Scene& p_scene);
+    void Raycast(const PickData& data);
 
     EditorState& m_editor;
 
