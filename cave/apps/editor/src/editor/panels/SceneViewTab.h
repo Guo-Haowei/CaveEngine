@@ -1,9 +1,10 @@
 #pragma once
-#include "cave/core/math/Rect.h"
+#include "cave/core/math/Box.h"
 #include "cave/render/ViewDesc.h"
 
 #include "editor/document/SceneDocument.h"
 #include "editor/panels/Tab.h"
+#include "editor/services/IPickConsumer.h"
 
 // @TODO: refactor
 #include "editor/Enums.h"
@@ -19,6 +20,7 @@ enum ViewDimension : uint8_t {
 class KeyState;
 
 class SceneViewTab : public Tab,
+                     public IPickConsumer,
                      public ISceneTickContributor {
 public:
     SceneViewTab(EditorState& p_editor,
@@ -30,6 +32,8 @@ public:
     void OnDestroy() override;
 
     void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
+
+    Option<PickData> GetPickData(const math::Vector2f& p_pos_screen) override;
 
     void OnInputEvents(const std::vector<InputEvent>& p_events) override;
 
@@ -67,7 +71,7 @@ protected:
 
     ViewDimension m_dim;
     int m_button_index{ 0 };
-    math::FloatRect m_view_rect{};
+    math::Box2 m_rect;
 
     // @TODO: move to input controller
     std::unique_ptr<ICameraController> m_camera_controller;

@@ -235,10 +235,10 @@ ecs::Entity Scene::DuplicateEntity(ecs::Entity p_entity) {
     return entity;
 }
 
-bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) {
-    MeshRendererComponent* renderer = GetComponent<MeshRendererComponent>(p_id);
+bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) const {
+    const MeshRendererComponent* renderer = GetComponent<MeshRendererComponent>(p_id);
     MeshAsset* mesh = renderer->GetMeshHandle().Get();
-    TransformComponent* transform = GetComponent<TransformComponent>(p_id);
+    const TransformComponent* transform = GetComponent<TransformComponent>(p_id);
     DEV_ASSERT(mesh && transform);
 
     if (!transform || !mesh) {
@@ -270,7 +270,7 @@ bool Scene::RayObjectIntersect(ecs::Entity p_id, Ray& p_ray) {
     return false;
 }
 
-Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) {
+Scene::RayIntersectionResult Scene::Intersects(Ray& p_ray) const {
     RayIntersectionResult result;
 
     for (auto [entity, _] : View<MeshRendererComponent>()) {

@@ -185,8 +185,8 @@ public:
     };
 
     // @TODO: move hit test to somewhere else
-    RayIntersectionResult Intersects(math::Ray& p_ray);
-    bool RayObjectIntersect(ecs::Entity p_object_id, math::Ray& p_ray);
+    RayIntersectionResult Intersects(math::Ray& p_ray) const;
+    bool RayObjectIntersect(ecs::Entity p_object_id, math::Ray& p_ray) const;
 
     const math::AABB& GetBound() const { return m_bound; }
 

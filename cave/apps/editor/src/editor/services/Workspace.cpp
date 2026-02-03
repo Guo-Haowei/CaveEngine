@@ -96,7 +96,7 @@ void Workspace::OnEvents(const std::vector<InputEvent>& p_events) {
         if (e.consumed) continue;
         if (e.type == InputEventType::ButtonDown) {
             const Key key = static_cast<Key>(e.code);
-            if (key == Key::LMB) {
+            if (key == Key::RMB) {
                 m_editor.PickingService().Submit({ math::Vector2f{ e.x, e.y } });
                 e.consumed = true;
                 break;
@@ -184,29 +184,5 @@ bool Workspace::CloseDoc(DocId p_doc_id) {
     m_editor.DocumentService().Close(p_doc_id);
     return true;
 }
-
-#if 0
-void Workspace::RequestSaveDialog(std::function<void(SaveDialogResponse)> p_on_close) {
-    ImGui::OpenPopup("Save changes to");
-    if (ImGui::BeginPopupModal("Save changes to")) {
-        ImGui::Text("Save changes before closing?");
-        if (ImGui::Button("Save")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Save);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Discard")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Discard);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
-            ImGui::CloseCurrentPopup();
-            p_on_close(SaveDialogResponse::Cancel);
-        }
-        ImGui::EndPopup();
-    }
-}
-#endif
 
 }  // namespace cave

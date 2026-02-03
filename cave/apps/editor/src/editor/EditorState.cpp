@@ -140,7 +140,9 @@ void EditorState::Tick(float p_dt) {
     imgui_manager->BeginFrame();
 
     DockSpace();
-    for (auto& it : m_panels) it->DrawUI();
+    for (auto& panel : m_panels) {
+        panel->DrawUI();
+    }
 
     m_edit_service->FlushPendingCmds();
     m_workspace->Tick(p_dt);

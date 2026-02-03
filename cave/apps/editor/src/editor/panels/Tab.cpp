@@ -39,6 +39,12 @@ Tab::Tab(EditorState& p_editor, DocId p_doc_id)
     , m_doc_id(p_doc_id) {}
 
 void Tab::DrawUI() {
+    if (const bool dirty = m_editor.EditService().IsDirty(m_doc_id)) {
+        m_flags |= ImGuiWindowFlags_UnsavedDocument;
+    } else {
+        m_flags &= ~ImGuiWindowFlags_UnsavedDocument;
+    }
+
     ResetState();
     bool open = true;
     if (ImGui::Begin(GetWindowId(), &open, m_flags)) {
@@ -76,12 +82,6 @@ void Tab::SetTitleAndId(std::string_view p_title, uint32_t p_idx) {
 }
 
 void Tab::Tick(float) {
-    const bool dirty = m_editor.EditService().IsDirty(m_doc_id);
-    if (dirty) {
-        m_flags |= ImGuiWindowFlags_UnsavedDocument;
-    } else {
-        m_flags &= ~ImGuiWindowFlags_UnsavedDocument;
-    }
 }
 
 void Tab::OnCreate() {

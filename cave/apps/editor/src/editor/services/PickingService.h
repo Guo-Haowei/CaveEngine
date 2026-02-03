@@ -1,18 +1,13 @@
 #pragma once
-#include "editor/panels/Tab.h"
+#include "IPickConsumer.h"
 
 namespace cave {
 
 class EditorState;
+class Scene;
 
 struct PickRequest {
     math::Vector2f cursor;  // cursor in window space
-    math::Vector2f pos;     // viewport position in screen space
-    math::Vector2f size;    // viewport size
-};
-
-struct PickContext {
-    
 };
 
 class PickingService {
@@ -23,10 +18,16 @@ public:
 
     void Tick();
 
+    void Register(IPickConsumer* p_consumer);
+    void Unregister(IPickConsumer* p_consumer);
+
 private:
+    void Raycast(const PickData& data, const Scene& p_scene);
+
     EditorState& m_editor;
 
-    std::vector<PickRequest> m_requests;
+    Option<PickRequest> m_request;
+    std::vector<IPickConsumer*> m_consumers;
 };
 
 }  // namespace cave
