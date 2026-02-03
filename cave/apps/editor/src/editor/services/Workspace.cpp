@@ -210,15 +210,16 @@ bool Workspace::OnCloseRequested() {
     CloseDecision desicion = AskCloseUnsaved("Warning");
     switch (desicion) {
         case CloseDecision::Save:
-            for (DocId doc : unsaved) {
-                edit.Save(doc);
-            }
-            return true;
+            break;
         case CloseDecision::Discard:
             return true;
         case CloseDecision::Cancel:
             return false;
     }
+    for (DocId doc : unsaved) {
+        edit.Save(doc);
+    }
+    return true;
 }
 
 }  // namespace cave
