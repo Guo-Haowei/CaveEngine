@@ -7,7 +7,6 @@
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/core/base/random.h"
 #include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/core/math/frustum.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/frame_data.h"

@@ -35,14 +35,10 @@ public:
 
     void Tick(float p_dt) override;
 
-    void BuildViews(std::vector<render::ViewDesc>& p_out_views) {
-        BuildViewsImpl(m_preview_scene, p_out_views);
-    }
-
     DebugId GetDebugId() final { return m_debug_id; }
 
 protected:
-    void BuildViewsImpl(SceneId p_scene_id, std::vector<render::ViewDesc>& p_out_views);
+    void SubmitView();
 
     void DrawUIImpl() override;
 

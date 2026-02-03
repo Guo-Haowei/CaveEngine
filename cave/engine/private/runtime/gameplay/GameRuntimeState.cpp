@@ -13,7 +13,7 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
-#include "engine/private/runtime/framework/ViewportManager.h"
+#include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
 // @TODO: refactor
@@ -51,18 +51,18 @@ static void EndFullscreenWindow() {
 }
 
 // @TODO: refactor
-class RuntimeSceneViewProvider final : public render::IViewProvider {
+class RuntimeSceneViewProvider {
 public:
     RuntimeSceneViewProvider(IApplication& p_app)
         : m_app(p_app)
         , m_debug_id(MakeDebugId(this)) {}
 
-    void BuildViews(std::vector<render::ViewDesc>& p_out_views) final {
-        unused(p_out_views);
-        DEV_ASSERT(0);
-    }
+    // void BuildViews(std::vector<render::ViewDesc>& p_out_views) final {
+    //     unused(p_out_views);
+    //     DEV_ASSERT(0);
+    // }
 
-    DebugId GetDebugId() final { return m_debug_id; }
+    // DebugId GetDebugId() final { return m_debug_id; }
 
 private:
     IApplication& m_app;
@@ -86,8 +86,6 @@ void GameRuntimeState::OnEnter(const StateRequest& p_args) {
         m_module.api->RegisterGame(m_app, args);
     }
 
-    m_app.GetViewportManager()->CreateViewport(std::make_shared<RuntimeSceneViewProvider>(m_app));
-
     // @TODO: fix this part
     std::shared_ptr<Scene> current_scene;
     RuntimeStartParams params(std::move(SceneSource::FromPath("")));
@@ -101,8 +99,6 @@ void GameRuntimeState::OnEnter(const StateRequest& p_args) {
 }
 
 void GameRuntimeState::OnExit() {
-    m_app.GetViewportManager()->ClearViewport();
-
     m_runtime_host->Stop();
 
     UnloadGameModule(m_module);

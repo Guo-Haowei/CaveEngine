@@ -56,10 +56,10 @@ public:
 
     auto Initialize() -> Result<void>;
 
-    void Tick(std::span<const render::ViewDesc> p_views);
+    void Tick(std::span<const ResolvedView> p_views);
 
 private:
-    FramePlan BuildFramePlan(std::span<const render::ViewDesc> p_views);
+    FramePlan BuildFramePlan(std::span<const ResolvedView> p_views);
     auto BuildRenderGraph(const FramePlan& p_plan) -> Result<std::shared_ptr<CompiledGraph>>;
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
@@ -96,7 +96,7 @@ void Renderer::FinalizeImpl() {
     m_impl.reset();
 }
 
-void Renderer::Tick(std::span<const ViewDesc> p_views) {
+void Renderer::Tick(std::span<const ResolvedView> p_views) {
     m_impl->Tick(p_views);
 }
 
@@ -206,7 +206,7 @@ auto Renderer::Impl::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
+void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
     CAVE_PROFILE_EVENT();
 
     auto submission = std::make_unique<RenderSubmission>();
@@ -232,7 +232,7 @@ void Renderer::Impl::Tick(std::span<const render::ViewDesc> p_views) {
     m_app.GetRenderDevice()->Submit(std::move(submission));
 }
 
-FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_views) {
+FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) {
     FramePlan plan;
     plan.frame_data.resize(p_views.size());
 
@@ -250,26 +250,20 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const render::ViewDesc> p_vie
     };
 
     int view_idx = 0;
-    for (const render::ViewDesc& view : p_views) {
-        Scene* ecs_scene = m_app.GetSceneRegistry()->Resolve(view.scene_id);
-        DEV_ASSERT(ecs_scene);
-        if (!ecs_scene) continue;
-
+    for (const ResolvedView& view : p_views) {
         RenderScene& render_scene = GetOrCreateRenderScene(view.scene_id);
-        m_scene_builder.BuildFull(*ecs_scene, render_scene);
-
-        ResolvedView resolved = ResolveView(view, ecs_scene, is_opengl);
+        m_scene_builder.BuildFull(*view.scene, render_scene);
 
         FrameData& framedata = plan.frame_data[view_idx++];
         framedata.options = options;
-        framedata.resolved_view = resolved;
+        framedata.resolved_view = view;
 
-        FillConstantBuffer(ecs_scene, framedata);
+        FillConstantBuffer(view.scene, framedata);
 
-        RunMeshRenderSystem(*ecs_scene, render_scene, framedata);
-        RunTileMapRenderSystem(ecs_scene, framedata);
-        RunSpriteRenderSystem(ecs_scene, framedata);
-        RunDebugRenderSystem(ecs_scene, framedata);
+        RunMeshRenderSystem(*view.scene, render_scene, framedata);
+        RunTileMapRenderSystem(view.scene, framedata);
+        RunSpriteRenderSystem(view.scene, framedata);
+        RunDebugRenderSystem(view.scene, framedata);
         FillEnvConstants(framedata);
 
         // @TODO: fix path tracer

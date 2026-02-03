@@ -1,6 +1,4 @@
 #pragma once
-#include "cave/render/IViewProvider.h"
-
 #include "engine/private/core/GenIdRegistry.h"
 
 #include "editor/document/DocId.h"
@@ -60,7 +58,6 @@ struct WorkspaceRequest {
 };
 
 class Workspace final : protected GenIdRegistry<Tab>,
-                        public render::IViewProvider,
                         public IInputConsumer {
 public:
     Workspace(EditorState& p_editor);
@@ -73,8 +70,6 @@ public:
     TabId GetFocusedTabId() const { return m_focused_tab; }
 
     Tab* GetFocusedTab() { return Resolve(m_focused_tab); }
-
-    void BuildViews(std::vector<render::ViewDesc>& p_out_views) final;
 
     void OnEvents(const std::vector<InputEvent>& p_events) final;
 

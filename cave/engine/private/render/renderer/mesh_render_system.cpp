@@ -2,7 +2,6 @@
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"
-#include "engine/private/core/math/frustum.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/frame_data.h"
