@@ -130,21 +130,21 @@ public:
         return true;
     }
 
-    template<int N>
-    bool Read(math::Box<N>& p_object) {
-        auto min = math::Vector<float, N>(std::numeric_limits<float>::infinity());
+    template<typename T, int N>
+    bool Read(math::Box<T, N>& p_object) {
+        auto min = math::Vector<T, N>(std::numeric_limits<T>::infinity());
         if (TryEnterKey("min")) {
             Read(min);
             LeaveKey();
         }
 
-        auto max = math::Vector<float, N>(-std::numeric_limits<float>::infinity());
+        auto max = math::Vector<T, N>(-std::numeric_limits<T>::infinity());
         if (TryEnterKey("max")) {
             Read(max);
             LeaveKey();
         }
 
-        p_object = math::Box<N>(min, max);
+        p_object = math::Box<T, N>(min, max);
         return true;
     }
 

@@ -291,7 +291,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
 static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
     bool enabled = false;
     bool show_debug = false;
-    p_framedata.voxel_gi_bound.MakeInvalid();
+    p_framedata.voxel_gi_bound.Invalidate();
     int counter = 0;
     for (auto [entity, voxel_gi] : p_scene.View<VoxelGiComponent>()) {
         p_framedata.voxel_gi_bound = voxel_gi.region;

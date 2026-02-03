@@ -19,9 +19,9 @@ static void InitVertexAttrib(MeshAsset::VertexAttribute& p_attrib, const std::ve
 
 void MeshAsset::CreateRenderData() {
     // AABB
-    localBound.MakeInvalid();
+    localBound.Invalidate();
     for (MeshSubset& subset : subsets) {
-        subset.local_bound.MakeInvalid();
+        subset.local_bound.Invalidate();
         for (uint32_t i = 0; i < subset.index_count; ++i) {
             const Vector3f& point = positions[indices[i + subset.index_offset]];
             subset.local_bound.ExpandPoint(reinterpret_cast<const Vector3f&>(point));

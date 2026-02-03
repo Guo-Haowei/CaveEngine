@@ -16,8 +16,8 @@ static void AddDebugCube(FrameData& p_framedata,
                          const Color& p_color,
                          const Matrix4x4f* p_transform = nullptr) {
 
-    const auto& min = p_aabb.GetMin();
-    const auto& max = p_aabb.GetMax();
+    const auto& min = p_aabb.Min();
+    const auto& max = p_aabb.Max();
 
     std::vector<Vector3f> positions;
     std::vector<uint32_t> indices;

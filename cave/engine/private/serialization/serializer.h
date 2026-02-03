@@ -135,13 +135,13 @@ public:
         return *this;
     }
 
-    template<int N>
-    ISerializer& Write(const math::Box<N>& p_object) {
+    template<typename T, int N>
+    ISerializer& Write(const math::Box<T, N>& p_object) {
         BeginMap(true)
             .Key("min")
-            .Write(p_object.GetMin())
+            .Write(p_object.Min())
             .Key("max")
-            .Write(p_object.GetMax());
+            .Write(p_object.Max());
         EndMap();
         return *this;
     }

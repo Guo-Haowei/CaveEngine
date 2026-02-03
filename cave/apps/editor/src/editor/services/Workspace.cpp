@@ -3,8 +3,9 @@
 #include "engine/private/core/debugger/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 
-#include "editor/services/DocumentService.h"
 #include "editor/EditorState.h"
+#include "editor/services/DocumentService.h"
+#include "editor/services/PickingService.h"
 
 // @TODO: delete
 #include "editor/panels/SceneViewTab.h"
@@ -88,6 +89,18 @@ void Workspace::OnEvents(const std::vector<InputEvent>& p_events) {
         if (tab && tab->IsHovered()) {
             tab->OnInputEvents(p_events);
             break;
+        }
+    }
+
+    for (const InputEvent& e : p_events) {
+        if (e.consumed) continue;
+        if (e.type == InputEventType::ButtonDown) {
+            const Key key = static_cast<Key>(e.code);
+            if (key == Key::LMB) {
+                m_editor.PickingService().Submit({ math::Vector2f{ e.x, e.y } });
+                e.consumed = true;
+                break;
+            }
         }
     }
 }

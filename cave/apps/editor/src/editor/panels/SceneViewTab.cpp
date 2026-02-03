@@ -51,8 +51,6 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
     , m_button_tooltips{ "Run Project", "Pause Project" } {
 
-    m_image_padding = Vector2f(10, 30);
-
     m_play_button = {
         ICON_FA_PLAY,
         "Run Project",
@@ -170,10 +168,9 @@ void SceneViewTab::OnInputEvents(const std::vector<InputEvent>& p_events) {
                         m_gizmo_action = GizmoAction::Scale;
                         e.consumed = true;
                     } break;
+                        // @TODO: refactor this
                     case Key::RMB: {
                         PickRequest req{};
-                        req.tab_id = GetTabId();
-
                         req.cursor = Vector2f(e.x, e.y);
                         req.pos = Vector2f(m_view_rect.x, m_view_rect.y);
                         req.size = Vector2f(m_view_rect.w, m_view_rect.h);
@@ -226,8 +223,6 @@ void SceneViewTab::Tick(float p_dt) {
 }
 
 void SceneViewTab::DrawUIImpl() {
-    UpdateViewRect();
-
     DrawMainView();
 
     if (m_editor.IsPlaying()) return;
@@ -238,11 +233,37 @@ void SceneViewTab::DrawUIImpl() {
     SubmitView();
 }
 
+static void FitAspect(float p_aspect, float& p_width, float& p_height) {
+    if (p_aspect * p_height > p_width) {
+        p_height = p_width / p_aspect;
+    } else {
+        p_width = p_height * p_aspect;
+    }
+}
+
 // @TODO: instead of asking for image, provide an image to renderer
 void SceneViewTab::DrawMainView() {
-    ImVec2 top_left(m_view_rect.x, m_view_rect.y);
-    ImVec2 bottom_right(m_view_rect.Right(), m_view_rect.Bottom());
+    ImVec2 cursor_pos = ImGui::GetCursorPos(); // cursor to window pos
+    ImVec2 cursor_screen_pos = ImGui::GetCursorScreenPos();
+    ImVec2 size = ImGui::GetWindowSize();
+    {
+        size.x -= 2 * cursor_pos.x;
+        size.y -= 1.2f * cursor_pos.y;
 
+        const float aspect = m_camera.GetAspect();
+        FitAspect(aspect, size.x, size.y);
+
+        m_view_rect = {
+            cursor_screen_pos.x,
+            cursor_screen_pos.y,
+            size.x,
+            size.y,
+        };
+    }
+
+    const ImVec2& min = cursor_screen_pos;
+    ImVec2 max(m_view_rect.Right(), m_view_rect.Bottom());
+    
     // @TODO: add a dummy button
     const auto& gm = *m_editor.GetApp().GetRenderDevice();
     uint64_t handle = m_texture->GetHandle();
@@ -250,7 +271,7 @@ void SceneViewTab::DrawMainView() {
     switch (gm.GetBackend()) {
         case Backend::D3D11:
         case Backend::D3D12: {
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right);
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max);
         } break;
         case Backend::OPENGL: {
             ImVec2 uv_min = ImVec2(0, 1);
@@ -259,7 +280,7 @@ void SceneViewTab::DrawMainView() {
             //     uv_min = ImVec2(0, 0);
             //     uv_max = ImVec2(1, 1);
             // }
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, top_left, bottom_right, uv_min, uv_max);
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max, uv_min, uv_max);
         } break;
         case Backend::VULKAN:
         case Backend::METAL: {
@@ -268,28 +289,14 @@ void SceneViewTab::DrawMainView() {
             CRASH_NOW();
             break;
     }
-}
 
-void SceneViewTab::UpdateViewRect() {
-    ImVec2 win_pos = ImGui::GetWindowPos();
-    ImVec2 win_size = ImGui::GetWindowSize();
-
-    Vector2f top_left = Vector2f(win_pos.x, win_pos.y) + m_image_padding;
-    Vector2f size = Vector2f(win_size.x, win_size.y) - m_image_padding;
-
-    const float aspect = m_camera.GetAspect();
-    if (aspect * size.y > size.x) {
-        size.y = size.x / aspect;
-    } else {
-        size.x = size.y * aspect;
+    // @TODO: drop target
+    ImGui::InvisibleButton("###DropTarget", size);
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CAVE/Asset")) {
+        }
+        ImGui::EndDragDropTarget();
     }
-
-    m_view_rect = {
-        top_left.x,
-        top_left.y,
-        size.x,
-        size.y,
-    };
 }
 
 // @TODO: move this to gizmo
@@ -432,30 +439,28 @@ CameraInputState SceneViewTab::CreateCameraInputState2D(const std::vector<InputE
 }
 
 CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st) {
-    math::Vector2f rotation = math::Vector2f::Zero;
-
+    constexpr Key kDragKey = Key::MMB;
     const InputDeviceId id{ 0 };
-    const bool mmb = p_st.Down(id, Key::MMB);
+    const bool drag_button = p_st.Down(id, kDragKey);
     const int dx = p_st.Down(id, Key::D) - p_st.Down(id, Key::A);
     const int dy = p_st.Down(id, Key::E) - p_st.Down(id, Key::Q);
     const int dz = p_st.Down(id, Key::W) - p_st.Down(id, Key::S);
 
-    CameraInputState state{};
+    math::Vector2f rotation = math::Vector2f::Zero;
+    float zoom = 0.0f;
 
     for (const InputEvent& e : p_events) {
-        if (e.consumed) {
-            continue;
-        }
+        if (e.consumed) continue;
         switch (e.type) {
             case InputEventType::MouseWheel: {
                 e.consumed = true;
-                state.zoom_delta = 3.0f * e.dy;
+                zoom = 3.0f * e.dy;
             } break;
             case InputEventType::MouseMove: {
-                if (mmb) {
+                if (drag_button) {
                     e.consumed = true;
-                    state.rotation.x = e.dx;
-                    state.rotation.y = e.dy;
+                    rotation.x = e.dx;
+                    rotation.y = e.dy;
                 }
             } break;
             default:
@@ -463,8 +468,29 @@ CameraInputState SceneViewTab::CreateCameraInputState3D(const std::vector<InputE
         }
     }
 
-    state.move = math::Vector3f(dx, dy, dz);
-    return state;
+    bool moved = dx || dy || dz;
+    moved = moved || rotation.x || rotation.y || zoom;
+    if (moved) {
+        for (const InputEvent& e : p_events) {
+            if (e.consumed) continue;
+            switch (e.type) {
+                case InputEventType::ButtonDown: {
+                    if (static_cast<Key>(e.code) == kDragKey) {
+                        e.consumed = true;
+                        LOG("MMB consumed");
+                    }
+                } break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    return {
+        .move = Vector3f(dx, dy, dz),
+        .zoom_delta = zoom,
+        .rotation = rotation,
+    };
 }
 
 #if 0

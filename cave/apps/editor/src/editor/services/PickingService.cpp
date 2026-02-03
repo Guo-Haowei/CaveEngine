@@ -20,13 +20,13 @@ void PickingService::Tick() {
     auto [win_x, win_y] = m_editor.GetApp().GetDisplayManager()->GetWindowPos();
 
     for (const PickRequest& req : m_requests) {
-        Vector2f click_pos = req.cursor + Vector2f(win_x, win_y) - req.pos;
-        Vector2f noramlized = click_pos / req.size;
+        Vector2f click_pos = req.cursor + Vector2f(win_x, win_y);
+        Vector2f noramlized = click_pos;
 
-        LOG("request tab: {}, x: {}, y: {}",
-            req.tab_id.index,
+        LOG("request x: {}, y: {}",
             noramlized.x,
             noramlized.y);
+        // @TODO: for registered
     }
 
     m_requests.clear();

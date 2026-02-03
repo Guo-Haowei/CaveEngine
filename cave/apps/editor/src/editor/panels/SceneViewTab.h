@@ -45,8 +45,6 @@ protected:
     void DrawMainView();
     void DrawGizmo();
 
-    void UpdateViewRect();
-
     Scene* GetResolvedScene();
     CameraInputState CreateCameraInputState2D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
     CameraInputState CreateCameraInputState3D(const std::vector<InputEvent>& p_events, const KeyState& p_st);
@@ -69,7 +67,6 @@ protected:
 
     ViewDimension m_dim;
     int m_button_index{ 0 };
-    math::Vector2f m_image_padding{};
     math::FloatRect m_view_rect{};
 
     // @TODO: move to input controller

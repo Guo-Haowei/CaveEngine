@@ -38,8 +38,8 @@ Frustum::Frustum(const Matrix4x4f& p_project_view_matrix) {
 }
 
 bool Frustum::Intersects(const AABB& p_box) const {
-    const auto& box_min = p_box.GetMin();
-    const auto& box_max = p_box.GetMax();
+    const auto& box_min = p_box.Min();
+    const auto& box_max = p_box.Max();
     for (int i = 0; i < 6; ++i) {
         const Plane& plane = this->operator[](i);
         Vector3f p;
