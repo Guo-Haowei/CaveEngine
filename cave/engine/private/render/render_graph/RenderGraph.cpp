@@ -9,10 +9,6 @@
 
 namespace cave::render {
 
-RenderGraph::RenderGraph(const RenderGraphConfig& p_config)
-    : m_config(p_config) {
-}
-
 RenderPass& RenderGraph::AddPass(std::string_view p_pass_name) {
     RenderPass builder{ p_pass_name };
     m_passes.push_back(builder);

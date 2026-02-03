@@ -1,8 +1,7 @@
 #include "engine/private/core/dynamic_variable/dynamic_variable_begin.h"
 
-DVAR_IVEC2(resolution, DVAR_FLAG_NONE, "Frame resolution", 1920, 1080);
-
-// @TODO: dvar range
+// @TODO: Dvar List
+// @TODO: Dvar Enum
 
 // General
 #if USING(PLATFORM_APPLE)

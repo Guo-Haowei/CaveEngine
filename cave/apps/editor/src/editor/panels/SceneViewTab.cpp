@@ -32,8 +32,13 @@ using math::Matrix4x4f;
 using math::Vector2f;
 using math::Vector3f;
 
+#if 1
 static constexpr uint32_t kTextureWidth = 1920;
 static constexpr uint32_t kTextureHeight = 1080;
+#else
+static constexpr uint32_t kTextureWidth = 640;
+static constexpr uint32_t kTextureHeight = 480;
+#endif
 
 SceneViewTab::SceneViewTab(EditorState& p_editor,
                            DocId p_doc_id,
@@ -101,9 +106,7 @@ void SceneViewTab::SubmitView() {
 }
 
 void SceneViewTab::OnCreate() {
-    math::Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    m_camera.SetWidth(frame_size.x);
-    m_camera.SetHeight(frame_size.y);
+    m_camera.SetAspect((float)kTextureWidth / (float)kTextureHeight);
     m_camera.SetDirty();
     switch (m_dim) {
         case DIMENSION_2: {

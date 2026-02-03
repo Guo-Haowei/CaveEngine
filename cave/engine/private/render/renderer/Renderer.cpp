@@ -58,7 +58,7 @@ public:
 private:
     FramePlan BuildFramePlan(std::span<const ResolvedView> p_views);
     auto BuildRenderGraph(const RenderOptions& p_plan,
-                          GpuTextureId p_output) -> Result<std::shared_ptr<CompiledGraph>>;
+                          const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
@@ -214,7 +214,7 @@ void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
         const ResolvedView& view = plan.views[idx];
         const FrameData& data = plan.frame_data[idx];
 
-        if (auto res = BuildRenderGraph(data.options, view.output); !res) {
+        if (auto res = BuildRenderGraph(data.options, view); !res) {
             CRASH_NOW();
         } else {
             auto graph = *res;
@@ -276,8 +276,7 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) 
     return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan,
-                                      GpuTextureId p_output) -> Result<std::shared_ptr<CompiledGraph>> {
+auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan, const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
     constexpr const char RG_RES_BRDF[] = "r:brdf";
 
     IRenderDevice& device = *m_app.GetRenderDevice();
@@ -293,13 +292,7 @@ auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan,
         m_ltc2 = CreateLTC2(device);
     }
 
-    // @TODO: get frame size from viewport
-    const Vector2i frame_size = DVAR_GET_IVEC2(resolution);
-    RenderGraphConfig config;
-    config.frameWidth = frame_size.x;
-    config.frameHeight = frame_size.y;
-
-    RenderGraphBuilderExt builder(config);
+    RenderGraphBuilderExt builder(p_view.viewport_px);
 
     RGTextureId brdf = builder.ImportTexture({ m_brdf });
     RGTextureId ltc1 = builder.ImportTexture({ m_ltc1 });
@@ -360,7 +353,7 @@ auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan,
         .lighting = lighting_outputs.lighting,
         .outline = highlight_outputs.outline,
         .bloom = 0,
-        .out = p_output,
+        .out = p_view.output,
     });
 
     return builder.Compile();
