@@ -8,18 +8,18 @@ namespace cave { class Scene; }
 
 namespace cave::render {
 
-struct ResolvedView {
+struct CameraParams {
     math::Matrix4x4f view;
     math::Matrix4x4f proj;
     math::Matrix4x4f view_inv;
     math::Matrix4x4f proj_inv;
+};
+
+struct ResolvedView {
+    CameraParams cam;
     math::Frustum frustum;
 
-    math::Vector3f position;
-    math::Vector3f up;
-    math::Vector3f front;
-    math::Vector3f right;
-
+    // @TODO: view port
     float vp_w;
     float vp_h;
     float aspect;

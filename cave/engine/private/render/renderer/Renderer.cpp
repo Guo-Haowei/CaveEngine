@@ -124,16 +124,16 @@ static void FillConstantBuffer(const Scene* p_scene, FrameData& p_out_data) {
 
     // camera
     {
-        const auto& cam = p_out_data.resolved_view;
+        const CameraParams& cam = p_out_data.resolved_view.cam;
         cache.c_camView = cam.view;
         cache.c_camProj = cam.proj;
         cache.c_invCamView = cam.view_inv;
         cache.c_invCamProj = cam.proj_inv;
-        cache.c_cameraFovDegree = cam.fovy;
-        cache.c_cameraForward = cam.front;
-        cache.c_cameraRight = cam.right;
-        cache.c_cameraUp = cam.up;
-        cache.c_cameraPosition = cam.position;
+        cache.c_cameraFovDegree = p_out_data.resolved_view.fovy;
+        cache.c_cameraForward = (cam.view_inv * -Vector4f::UnitZ).xyz;
+        cache.c_cameraRight = (cam.view_inv * Vector4f::UnitX).xyz;
+        cache.c_cameraUp = (cam.view_inv * Vector4f::UnitY).xyz;
+        cache.c_cameraPosition = (cam.view_inv * Vector4f::UnitW).xyz;
     }
 
     // Bloom

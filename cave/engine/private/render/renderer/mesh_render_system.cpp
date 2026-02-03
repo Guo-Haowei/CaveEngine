@@ -335,7 +335,8 @@ static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
 static void FillMainPass(const Scene& p_es,
                          const RenderScene& p_rs,
                          FrameData& p_framedata) {
-    const auto& camera = p_framedata.resolved_view;
+    const CameraParams& camera = p_framedata.resolved_view.cam;
+    const Frustum& frustum = p_framedata.resolved_view.frustum;
 
     // main pass
     PerPassConstantBuffer pass_constant;
@@ -352,7 +353,7 @@ static void FillMainPass(const Scene& p_es,
             // only draw visible opaque objects for pre pass
             return p_header.HasFlag(RenderableFlags::Visible) && !p_header.HasFlag(RenderableFlags::Transparent);
         },
-        camera.frustum,
+        frustum,
         p_framedata.commands[std::to_underlying(DrawPhase::DepthPrepass)],
         p_framedata,
         true);
@@ -364,7 +365,7 @@ static void FillMainPass(const Scene& p_es,
             // only draw visible opaque objects for deferred pass
             return p_header.HasFlag(RenderableFlags::Visible) && !p_header.HasFlag(RenderableFlags::Transparent);
         },
-        camera.frustum,
+        frustum,
         p_framedata.commands[std::to_underlying(DrawPhase::Deferred)],
         p_framedata,
         false);
@@ -375,7 +376,7 @@ static void FillMainPass(const Scene& p_es,
         [](const RenderableHeader& p_header) {
             return p_header.HasFlag(RenderableFlags::Visible) && p_header.HasFlag(RenderableFlags::Transparent);
         },
-        camera.frustum,
+        frustum,
         p_framedata.commands[std::to_underlying(DrawPhase::Forward)],
         p_framedata,
         false);
