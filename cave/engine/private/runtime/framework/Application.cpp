@@ -3,6 +3,8 @@
 #include <fstream>
 #include <imgui/imgui.h>
 
+#include "cave/core/time/FrameTime.h"
+
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/logging/Logger.h"
@@ -178,9 +180,13 @@ bool Application::MainLoop() {
 
     m_task_manager->TickMainThread();
 
-    const float dt = UpdateTime();
+    
+    FrameTime time{
+        .dt = UpdateTime(),
+        .frame_index = m_frame_counter++,
+    };
 
-    m_input_system->Tick(dt);
+    m_input_system->Tick(time);
 
     // === Update Phase ===
 
@@ -190,10 +196,10 @@ bool Application::MainLoop() {
     // update layers from back to front
     m_view_manager->BeginFrame();
 
-    m_state_machine.Tick(dt);
+    m_state_machine.Tick(time);
 
     // update scene after ImGui, physics and script updates
-    m_scene_scheduler->Tick(dt);
+    m_scene_scheduler->Tick(time);
 
     std::span<const ResolvedView> views = m_view_manager->EndFrame();
     m_renderer->Tick(views);

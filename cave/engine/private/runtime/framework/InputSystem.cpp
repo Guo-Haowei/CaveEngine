@@ -1,6 +1,8 @@
 #include "InputSystem.h"
 
+#include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/IApplication.h"
+
 #include "engine/private/runtime/framework/ImGuiManager.h"
 
 namespace cave {
@@ -121,7 +123,7 @@ void InputSystem::UpdateActions(const DeviceRouting& p_routing) {
     }
 }
 
-void InputSystem::Tick(float p_dt) {
+void InputSystem::Tick(const FrameTime& p_time) {
     m_input_events.clear();
     m_action_events.clear();
 
@@ -152,7 +154,7 @@ void InputSystem::Tick(float p_dt) {
 
     // *) Raw routing stage (shortcuts, viewport tools, gestures)
     InputFrame input_frame{
-        .dt = p_dt,
+        .dt = p_time.dt,
         .events = m_input_events,
         .keystate = m_key_state,
     };

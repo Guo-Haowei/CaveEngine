@@ -13,6 +13,8 @@
 
 namespace cave {
 
+struct FrameTime;
+
 struct PointerState {
     bool has_pos = false;
     float x = 0.0f, y = 0.0f;
@@ -29,7 +31,7 @@ public:
 
     void AddDevice(std::unique_ptr<IInputDevice> p_device);
 
-    void Tick(float p_dt);
+    void Tick(const FrameTime& p_time);
 
     const KeyState& GetKeyState() const { return m_key_state; }
 

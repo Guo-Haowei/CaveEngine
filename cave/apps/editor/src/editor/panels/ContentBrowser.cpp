@@ -114,7 +114,7 @@ void ContentBrowser::DrawContentBrowser() {
 
     // @TODO: reuse this part
     ImVec2 window_size = ImGui::GetContentRegionAvail();
-    constexpr float desired_icon_size = 224.f;
+    constexpr float desired_icon_size = 280.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
     num_col = glm::max(1, num_col);
 
@@ -131,7 +131,7 @@ void ContentBrowser::DrawContentBrowser() {
     }
     DEV_ASSERT(current->is_dir);
 
-    math::Vector2f thumbnail_size(196);
+    math::Vector2f thumbnail_size(256);
 
     for (const auto& node : current->children) {
         uint64_t handle = 0;

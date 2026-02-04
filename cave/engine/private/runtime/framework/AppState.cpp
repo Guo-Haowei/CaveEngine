@@ -17,8 +17,8 @@ void AppStateMachine::Shutdown() {
     }
 }
 
-void AppStateMachine::Tick(float p_timestep) {
-    m_state->Tick(p_timestep);
+void AppStateMachine::Tick(const FrameTime& p_time) {
+    m_state->Tick(p_time);
 
     if (auto req = m_state->PopRequest(); req.is_some()) {
         SwitchTo(req.unwrap_unchecked());

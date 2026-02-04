@@ -52,7 +52,7 @@ public:
 
     void OnEnter(const StateRequest& p_args) final;
     void OnExit() final;
-    void Tick(float p_timestep) final;
+    void Tick(const FrameTime& p_time) final;
 
     Option<StateRequest> PopRequest() final { return None(); }
 

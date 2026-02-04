@@ -118,12 +118,13 @@ void EditorState::OnExit() {
     UnloadGameModule(m_module);
 }
 
-void EditorState::Tick(float p_dt) {
+void EditorState::Tick(const FrameTime& p_time) {
     CAVE_PROFILE_EVENT();
 
     if (IsPlaying()) {
         GameFrameTime frame;
-        frame.dt = p_dt;
+        frame.frame_index = p_time.frame_index;
+        frame.dt = p_time.dt;
         m_runtime_host->Tick(frame);
     }
 
