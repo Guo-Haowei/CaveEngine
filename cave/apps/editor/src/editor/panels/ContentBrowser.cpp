@@ -8,11 +8,14 @@
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
+#include "editor/services/IconCache.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"
 #include "engine/private/ui/layout.h"
+#include "engine/private/assets/asset_handle.h"
+#include "engine/private/assets/asset_interface.h"
 
 namespace cave {
 
@@ -22,14 +25,14 @@ ContentBrowser::ContentBrowser(EditorState& p_editor)
 }
 
 void ContentBrowser::OnAttach() {
-    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
-    m_folder_iamge = asset_manager.FindImage("folder_icon.png");
-    m_fallback_iamge = asset_manager.FindImage("meta_icon.png");
-    m_thumbnail_lut[".scene"] = asset_manager.FindImage("scene@256x256.png");
-    m_thumbnail_lut[".sprite_anim"] = asset_manager.FindImage("anim@256x256.png");
-    m_thumbnail_lut[".lua"] = asset_manager.FindImage("script@256x256.png");
-    m_thumbnail_lut[".tilemap"] = asset_manager.FindImage("tileset@256x256.png");
-    m_thumbnail_lut[".tileset"] = asset_manager.FindImage("tileset@256x256.png");
+    IconCache& icons = m_editor.IconCache();
+    m_folder_iamge = icons.GetIconHandle(IconName::Folder);
+    m_fallback_iamge = icons.GetIconHandle(IconName::Meta);
+    m_thumbnail_lut[".scene"] = icons.GetIconHandle(IconName::Scene);
+    m_thumbnail_lut[".sprite_anim"] = icons.GetIconHandle(IconName::Anim);
+    m_thumbnail_lut[".lua"] = icons.GetIconHandle(IconName::Lua);
+    m_thumbnail_lut[".tilemap"] = icons.GetIconHandle(IconName::TileMap);
+    m_thumbnail_lut[".tileset"] = icons.GetIconHandle(IconName::TileSet);
 
     DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
 }
@@ -131,23 +134,23 @@ void ContentBrowser::DrawContentBrowser() {
     math::Vector2f thumbnail_size(196);
 
     for (const auto& node : current->children) {
-        ImageAsset* image = nullptr;
+        uint64_t handle = 0;
         if (node->is_dir) {
-            image = m_folder_iamge.get();
+            handle = m_folder_iamge;
         } else {
-            if (!(image = node->thumbnail.Get())) {
+            if (ImageAsset* image = node->thumbnail.Get()) {
+                handle = image->gpu_texture->GetHandle();
+            } else {
                 auto it = m_thumbnail_lut.find(node->extension);
                 if (it == m_thumbnail_lut.end()) {
-                    image = m_fallback_iamge.get();
+                    handle = m_fallback_iamge;
                 } else {
-                    image = it->second.get();
+                    handle = it->second;
                 }
             }
         }
 
-        auto [hovered, clicked] = ui::AssetCard(image->gpu_texture ? image->gpu_texture->GetHandle() : 0,
-                                                node->file_name.data(),
-                                                thumbnail_size);
+        auto [hovered, clicked] = ui::AssetCard(handle, node->file_name.data(), thumbnail_size);
         if (ImGui::BeginPopupContextItem()) {
             ShowPopup(*node, m_editor, []() {
                 LOG_WARN("TODO: rename");

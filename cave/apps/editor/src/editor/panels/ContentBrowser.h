@@ -1,12 +1,9 @@
 #pragma once
-#include "engine/private/assets/asset_handle.h"
-#include "engine/private/assets/asset_interface.h"
 #include "editor/panels/EditorWindow.h"
 
 namespace cave {
 
 struct ContentEntry;
-struct ImageAsset;
 
 class ContentBrowser : public EditorWindow {
 public:
@@ -28,9 +25,9 @@ protected:
 
     std::vector<std::string> m_current_path;
 
-    std::shared_ptr<ImageAsset> m_folder_iamge;
-    std::shared_ptr<ImageAsset> m_fallback_iamge;
-    std::unordered_map<std::string_view, std::shared_ptr<ImageAsset>> m_thumbnail_lut;
+    uint64_t m_folder_iamge;
+    uint64_t m_fallback_iamge;
+    std::unordered_map<std::string_view, uint64_t> m_thumbnail_lut;
 };
 
 }  // namespace cave
