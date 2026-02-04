@@ -9,6 +9,7 @@
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/services/IconCache.h"
+#include "editor/services/ThumbnailService.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
@@ -131,26 +132,28 @@ void ContentBrowser::DrawContentBrowser() {
     }
     DEV_ASSERT(current->is_dir);
 
-    math::Vector2f thumbnail_size(256);
+    constexpr uint32_t thumbnail_size = 256;
+
+    ThumbnailService& thumbnail = m_editor.ThumbnailService();
+
+    auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
+        if (p_entry.is_dir) return m_folder_iamge;
+        ThumbnailKey key{
+            .guid = p_entry.handle.GetGuid(),
+            .size = thumbnail_size,
+        };
+        if (uint64_t handle = thumbnail.GetOrRequest(key)) return handle;
+        if (ImageAsset* image = p_entry.thumbnail.Get()) return image->gpu_texture->GetHandle();
+        if (auto it = m_thumbnail_lut.find(p_entry.extension); it != m_thumbnail_lut.end()) return it->second;
+        return m_fallback_iamge;
+    };
 
     for (const auto& node : current->children) {
-        uint64_t handle = 0;
-        if (node->is_dir) {
-            handle = m_folder_iamge;
-        } else {
-            if (ImageAsset* image = node->thumbnail.Get()) {
-                handle = image->gpu_texture->GetHandle();
-            } else {
-                auto it = m_thumbnail_lut.find(node->extension);
-                if (it == m_thumbnail_lut.end()) {
-                    handle = m_fallback_iamge;
-                } else {
-                    handle = it->second;
-                }
-            }
-        }
+        const uint64_t handle = find_texture(*node);
 
-        auto [hovered, clicked] = ui::AssetCard(handle, node->file_name.data(), thumbnail_size);
+        auto [hovered, clicked] = ui::AssetCard(handle,
+                                                node->file_name.data(),
+                                                math::Vector2f(thumbnail_size));
         if (ImGui::BeginPopupContextItem()) {
             ShowPopup(*node, m_editor, []() {
                 LOG_WARN("TODO: rename");

@@ -32,6 +32,7 @@ class IconCache;
 class PickingService;
 class SelectionService;
 class ShortcutService;
+class ThumbnailService;
 class Workspace;
 
 struct FocusedPreviewScene {
@@ -75,6 +76,7 @@ public:
     PickingService& PickingService() { return *m_picking_service; }
     SelectionService& SelectionService() { return *m_selection_service; }
     ShortcutService& ShortcutService() { return *m_shortcut_service; }
+    ThumbnailService& ThumbnailService() { return *m_thumbnail_service; }
     Workspace& Workspace() { return *m_workspace; }
 
     FocusedPreviewScene GetFocusedPreviewScene();
@@ -101,6 +103,7 @@ private:
     std::unique_ptr<cave::SelectionService> m_selection_service;
     std::unique_ptr<cave::ShortcutService> m_shortcut_service;
     std::unique_ptr<cave::Workspace> m_workspace;
+    std::unique_ptr<cave::ThumbnailService> m_thumbnail_service;
 
     std::shared_ptr<ContentBrowser> m_content_browser;
     std::shared_ptr<FileSystemPanel> m_file_system_panel;

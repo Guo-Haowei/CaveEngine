@@ -13,6 +13,7 @@
 #include "editor/services/PickingService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
+#include "editor/services/ThumbnailService.h"
 #include "editor/services/Workspace.h"
 
 // @TODO: refactor
@@ -52,6 +53,7 @@ EditorState::EditorState(IApplication& p_app)
     m_picking_service = std::make_unique<cave::PickingService>(*this);
     m_selection_service = std::make_unique<cave::SelectionService>(*this);
     m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
+    m_thumbnail_service = std::make_unique<cave::ThumbnailService>(*this);
     m_workspace = std::make_unique<cave::Workspace>(*this);
     m_icon_cache = std::make_unique<cave::IconCache>(*GetApp().GetAssetRegistry(), *GetApp().GetAssetManager());
 
