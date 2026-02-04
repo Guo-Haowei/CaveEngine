@@ -1,4 +1,4 @@
-#include "AssetInspector.h"
+#include "ContentBrowser.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
@@ -16,12 +16,12 @@
 
 namespace cave {
 
-AssetInspector::AssetInspector(EditorState& p_editor)
+ContentBrowser::ContentBrowser(EditorState& p_editor)
     : EditorWindow(p_editor) {
     m_current_path = { "@res://" };
 }
 
-void AssetInspector::OnAttach() {
+void ContentBrowser::OnAttach() {
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
     m_folder_iamge = asset_manager.FindImage("folder_icon.png");
     m_fallback_iamge = asset_manager.FindImage("meta_icon.png");
@@ -34,19 +34,12 @@ void AssetInspector::OnAttach() {
     DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
 }
 
-void AssetInspector::DrawUIImpl() {
+void ContentBrowser::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
-#if 0
-    if (tab) {
-        tab->DrawAssetInspector();
-    } else {
-        DrawContentBrowser();
-    }
-#endif
     DrawContentBrowser();
 }
 
-void AssetInspector::DrawBreadcrumb() {
+void ContentBrowser::DrawBreadcrumb() {
     int clicked = -1;
 
     const int len = static_cast<int>(m_current_path.size());
@@ -64,7 +57,7 @@ void AssetInspector::DrawBreadcrumb() {
     }
 }
 
-const ContentEntry* AssetInspector::Navigate(const ContentEntry* p_node,
+const ContentEntry* ContentBrowser::Navigate(const ContentEntry* p_node,
                                              int p_cur,
                                              int p_max) {
     if (!p_node) {
@@ -92,7 +85,7 @@ const ContentEntry* AssetInspector::Navigate(const ContentEntry* p_node,
     return nullptr;
 }
 
-void AssetInspector::DrawContentBrowser() {
+void ContentBrowser::DrawContentBrowser() {
     std::vector<ToolBarButtonDesc> descs = {
         { ICON_FA_FOLDER_CLOSED, "Placeholder",
           []() {

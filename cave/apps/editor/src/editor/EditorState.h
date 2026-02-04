@@ -20,7 +20,7 @@ namespace cave {
 class RuntimeHost;
 
 // pannels
-class AssetInspector;
+class ContentBrowser;
 class FileSystemPanel;
 class LogPanel;
 class MenuBar;
@@ -66,7 +66,7 @@ public:
     const char* GetDebugName() final { return "EditorState"; }
 #endif
 
-    AssetInspector& GetAssetInspector() { return *m_asset_inspector.get(); }
+    ContentBrowser& GetAssetInspector() { return *m_asset_inspector.get(); }
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
 
@@ -100,7 +100,7 @@ private:
     std::unique_ptr<cave::ShortcutService> m_shortcut_service;
     std::shared_ptr<cave::Workspace> m_workspace;
 
-    std::shared_ptr<AssetInspector> m_asset_inspector;
+    std::shared_ptr<ContentBrowser> m_asset_inspector;
     std::shared_ptr<FileSystemPanel> m_file_system_panel;
     std::shared_ptr<LogPanel> m_log_panel;
     std::shared_ptr<MenuBar> m_menu_bar;

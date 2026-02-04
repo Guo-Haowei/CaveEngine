@@ -5,18 +5,17 @@
 
 namespace cave {
 
-class AssetRegistry;
 struct ContentEntry;
 struct ImageAsset;
 
-class AssetInspector : public EditorWindow {
+class ContentBrowser : public EditorWindow {
 public:
-    AssetInspector(EditorState& p_editor);
+    ContentBrowser(EditorState& p_editor);
 
     void OnAttach() override;
 
     const char* GetWindowId() const override {
-        return "Asset Inspector";
+        return "Content Browser";
     }
 
     void DrawContentBrowser();

@@ -7,9 +7,9 @@
 
 namespace cave {
 
+using math::Matrix4x4f;
 using math::Vector2f;
 using math::Vector3f;
-using math::Matrix4x4f;
 
 CameraController2DEditor::CameraController2DEditor(CameraComponent& p_camera,
                                                    TransformComponent& p_tranform)

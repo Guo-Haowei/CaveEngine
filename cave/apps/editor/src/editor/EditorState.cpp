@@ -31,7 +31,7 @@
 
 #include "editor/edit/EditObjectCmd.h"
 #include "editor/EditorDvars.h"
-#include "editor/panels/AssetInspector.h"
+#include "editor/panels/ContentBrowser.h"
 #include "editor/panels/FileSystemPanel.h"
 #include "editor/panels/HierarchyPanel.h"
 #include "editor/panels/LogPanel.h"
@@ -57,7 +57,7 @@ EditorState::EditorState(IApplication& p_app)
     m_runtime_host = std::make_unique<RuntimeHost>(p_app);
 
     // panels
-    m_asset_inspector = std::make_shared<AssetInspector>(*this);
+    m_asset_inspector = std::make_shared<ContentBrowser>(*this);
     m_menu_bar = std::make_shared<MenuBar>(*this);
     m_log_panel = std::make_shared<LogPanel>(*this);
     m_file_system_panel = std::make_shared<FileSystemPanel>(*this);
