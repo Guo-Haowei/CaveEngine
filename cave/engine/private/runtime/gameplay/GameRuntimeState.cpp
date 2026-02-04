@@ -107,7 +107,7 @@ void GameRuntimeState::OnExit() {
 void GameRuntimeState::Tick(const FrameTime& p_time) {
     GameFrameTime frame;
     frame.frame_index = p_time.frame_index;
-    frame.dt = p_time.dt; // @TODO: game paused
+    frame.dt = p_time.dt;  // @TODO: game paused
     m_runtime_host->Tick(frame);
 
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {

@@ -1,27 +1,59 @@
 #pragma once
+#include "engine/private/renderer/gpu_resource.h"
+
 #include "editor/thumbnail/ThumbnailKey.h"
 
 namespace cave {
 
 class EditorState;
+struct FrameTime;
+
+enum class ThumbnailState : uint8_t {
+    Missing = 0,
+    Pending,
+    Ready,
+    Failed,
+};
+
+struct BusyInfo {
+    uint32_t normal_view_count = 0;
+    bool is_interacting = false;
+};
+
+struct ThumbnailRecord {
+    ThumbnailState state{};
+    GpuTextureId texture{};
+    uint64_t gpu_handle{};
+    uint64_t last_used_frame{};
+    uint64_t submitted_frame{};
+    uint32_t generation{};
+};
 
 class ThumbnailService {
+    struct PendingRequest {
+        ThumbnailKey key{};
+        uint32_t generation = 0;
+    };
+
 public:
     explicit ThumbnailService(EditorState& p_editor) noexcept;
 
-    uint64_t GetOrRequest(const ThumbnailKey& p_guid);
+    uint64_t GetOrRequest(const ThumbnailKey& p_key);
 
-    void BeginFrame();
-
-    void EndFrame();  // call this after rendering, mark cache ready
+    void Tick(const FrameTime& p_time, const BusyInfo& p_info);
 
     void Invalidate(const Guid& p_guid);
 
 private:
-    EditorState& m_editor;
+    void ProcessCompletions();
+    void SubmitRequests(const BusyInfo& p_info);
 
-    std::list<ThumbnailKey> m_pending;
+    EditorState& m_editor;
+    uint64_t m_frame_index{};
+
+    std::list<PendingRequest> m_pending;
     std::list<ThumbnailKey> m_inflight;
+    std::unordered_map<ThumbnailKey, ThumbnailRecord> m_cache;
 };
 
 }  // namespace cave

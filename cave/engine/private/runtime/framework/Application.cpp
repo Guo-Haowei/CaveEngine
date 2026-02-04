@@ -180,7 +180,6 @@ bool Application::MainLoop() {
 
     m_task_manager->TickMainThread();
 
-    
     FrameTime time{
         .dt = UpdateTime(),
         .frame_index = m_frame_counter++,

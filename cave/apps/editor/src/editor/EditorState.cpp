@@ -123,6 +123,9 @@ void EditorState::OnExit() {
 void EditorState::Tick(const FrameTime& p_time) {
     CAVE_PROFILE_EVENT();
 
+    BusyInfo info;
+    m_thumbnail_service->Tick(p_time, info);
+
     if (IsPlaying()) {
         GameFrameTime frame;
         frame.frame_index = p_time.frame_index;
