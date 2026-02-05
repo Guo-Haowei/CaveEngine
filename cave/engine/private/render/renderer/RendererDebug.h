@@ -19,7 +19,7 @@ struct PoolSnapshot {
     std::vector<PoolTextureInfo> textures;
 };
 
-void RendererPoolTextures_Cmd(TransientPool& p_pool, CommandContext& p_ctx, const CommandArgs& p_args);
+void RenderPoolDump_Cmd(TransientPool& p_pool, CommandContext& p_ctx, const CommandArgs& p_args);
 
 }  // namespace cave::render
 #endif

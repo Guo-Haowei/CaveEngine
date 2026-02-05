@@ -207,11 +207,11 @@ auto Renderer::Impl::Initialize() -> Result<void> {
 #if USING(USE_RENDERER_DEBUG)
     CommandRegistry& reg = m_app.CommandRegistry();
     reg.Register({
-        .name = "pool.textures",
+        .name = "render.pool.dump",
         .help = "List textures in transient pool.",
-        .usage = "pool.textures",
+        .usage = "render.pool.dump",
         .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
-            RendererPoolTextures_Cmd(m_pool, p_ctx, p_args);
+            RenderPoolDump_Cmd(m_pool, p_ctx, p_args);
         },
     });
 #endif

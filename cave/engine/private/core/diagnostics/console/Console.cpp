@@ -52,6 +52,39 @@ void Console::SubmitLine(std::string_view p_line) {
             break;
         }
     }
+
+    if (m_history.empty() || m_history.back() != p_line) {
+        m_history.emplace_back(std::string(p_line));
+    }
+    ResetNav();
+}
+
+Option<std::string_view> Console::Prev() {
+    if (m_history.empty()) {
+        return None();
+    }
+
+    --m_index;
+    if (m_index < 0) {
+        m_index = 0;
+    }
+
+    std::string_view history = m_history[m_index];
+    return Some(history);
+}
+
+Option<std::string_view> Console::Next() {
+    if (m_history.empty()) {
+        return None();
+    }
+
+    ++m_index;
+    if (m_index >= (int)m_history.size() - 1) {
+        --m_index;
+    }
+
+    std::string_view history = m_history[m_index];
+    return Some(history);
 }
 
 }  // namespace cave

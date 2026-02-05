@@ -7,9 +7,9 @@
 
 namespace cave::render {
 
-void RendererPoolTextures_Cmd(TransientPool& p_pool,
-                              CommandContext& p_ctx,
-                              const CommandArgs& p_args) {
+void RenderPoolDump_Cmd(TransientPool& p_pool,
+                        CommandContext& p_ctx,
+                        const CommandArgs& p_args) {
     unused(p_args);
 
     const PoolSnapshot snapshot = p_pool.Snapshot();
@@ -17,11 +17,7 @@ void RendererPoolTextures_Cmd(TransientPool& p_pool,
     msg.reserve(512);
     msg.append("Trasient Pool:");
     for (const PoolTextureInfo& info : snapshot.textures) {
-        msg.append(std::format("\n -- name: {}, dim: {}x{}x{}",
-                               info.debug_name,
-                               info.width,
-                               info.height,
-                               info.depth));
+        msg.append(std::format("\n -- name: {}", info.debug_name));
     }
     p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
 }

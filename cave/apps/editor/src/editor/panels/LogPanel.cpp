@@ -27,21 +27,6 @@ std::string_view LogPanel::AutoCompletion::Next() {
 LogPanel::LogPanel(EditorState& p_editor)
     : EditorWindow(p_editor)
     , m_console(p_editor.GetApp().Console()) {
-
-    CommandRegistry& reg = p_editor.GetApp().CommandRegistry();
-    // dummy commands
-    reg.Register({
-        .name = "dump.pool",
-        .fn = [](CommandContext&, const CommandArgs&) {},
-    });
-    reg.Register({
-        .name = "dump.asset",
-        .fn = [](CommandContext&, const CommandArgs&) {},
-    });
-    reg.Register({
-        .name = "dump.what",
-        .fn = [](CommandContext&, const CommandArgs&) {},
-    });
 }
 
 static void DrawLog(const LogEvent& p_log) {
@@ -99,13 +84,13 @@ int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
     const int text_length = p_data->BufTextLen;
     std::string_view line{ buf, buf + text_length };
 
+    std::string_view candidate;
     switch (p_data->EventFlag) {
         case ImGuiInputTextFlags_CallbackCompletion: {
             if (line.empty()) {
                 break;
             }
 
-            std::string_view candidate;
             if (!self->m_ac.Empty()) {
                 candidate = self->m_ac.Next();
             } else {
@@ -116,12 +101,16 @@ int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
                     candidate = self->m_ac.Current();
                 }
             }
-            if (!candidate.empty()) {
-                // @TODO: don't need to delete the previous chars,
-                // maybe save the cursor somewhere
-                StringUtils::Strcpy(self->m_cmd_buffer, candidate);
-                p_data->DeleteChars(0, text_length);
-                p_data->InsertChars(0, self->m_cmd_buffer);
+        } break;
+        case ImGuiInputTextFlags_CallbackHistory: {
+            if (p_data->EventKey == ImGuiKey_UpArrow) {
+                Option<std::string_view> cmd = console.Prev();
+                if (cmd.is_none()) break;
+                candidate = cmd.unwrap_unchecked();
+            } else if (p_data->EventKey == ImGuiKey_DownArrow) {
+                Option<std::string_view> cmd = console.Next();
+                if (cmd.is_none()) break;
+                candidate = cmd.unwrap_unchecked();
             }
         } break;
         case ImGuiInputTextFlags_CallbackEdit: {
@@ -130,6 +119,13 @@ int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
         } break;
         default:
             break;
+    }
+    if (!candidate.empty()) {
+        // @TODO: don't need to delete the previous chars,
+        // also save the draft
+        StringUtils::Strcpy(self->m_cmd_buffer, candidate);
+        p_data->DeleteChars(0, text_length);
+        p_data->InsertChars(0, self->m_cmd_buffer);
     }
     return 0;
 }

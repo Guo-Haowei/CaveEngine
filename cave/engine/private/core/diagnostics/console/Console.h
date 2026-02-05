@@ -13,12 +13,17 @@ public:
         m_reg.FindByPrefix(p_prefix, p_out);
     }
 
-    // @TODO: auto complete
-    // @TODO: history
+    Option<std::string_view> Prev();
+    Option<std::string_view> Next();
+
+    void ResetNav() { m_index = static_cast<int>(m_history.size()) - 1; }
 
 private:
     IApplication& m_app;
     CommandRegistry& m_reg;
+    // @TODO: add draft to history
+    std::vector<std::string> m_history;
+    int m_index;
 };
 
 }  // namespace cave

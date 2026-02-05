@@ -5,16 +5,13 @@
 namespace cave::render {
 
 GpuTextureId TransientPool::AcquireTexture(const TransientTextureDesc& p_desc) {
-    const std::string& key = p_desc.texture.name;
-
     // @TODO: use description hash key
-    // std::string key = std::format("{}@{}x{}",
-    //                              p_desc.texture.name,
-    //                              p_desc.texture.width,
-    //                              p_desc.texture.height);
+    std::string key = std::format("{}@{}x{}",
+                                  p_desc.texture.name,
+                                  p_desc.texture.width,
+                                  p_desc.texture.height);
 
-    DEV_ASSERT(!key.empty());
-    auto [it, inserted] = m_cache.try_emplace(key);
+    auto [it, inserted] = m_cache.try_emplace(std::move(key));
     if (!inserted) {
         return it->second;
     }
