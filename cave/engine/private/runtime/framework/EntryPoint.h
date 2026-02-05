@@ -31,9 +31,15 @@ static void InitializeDvars(int p_argc, const char** p_argv) {
     std::vector<std::string_view> commands;
     commands.reserve(p_argc);
     // skip executable name
+
+    std::string cmd_args;
     for (int i = 1; i < p_argc; ++i) {
         commands.push_back(p_argv[i]);
+        cmd_args.push_back(' ');
+        cmd_args += p_argv[i];
     }
+
+    LOG("command line:{}", cmd_args);
 
     // 2) Deserialize dvars
     DvarCache::Deserialize(DVAR_CACHE_FILE);

@@ -245,26 +245,6 @@ std::string Dvar::ValueToString() const {
     }
 }
 
-void Dvar::PrintValueChange(std::string_view p_source) const {
-    static const char* s_names[] = {
-        "",
-        "int",
-        "float",
-        "string",
-        "Vector2f",
-        "Vector3f",
-        "Vector4f",
-        "Vector2i",
-        "Vector3i",
-        "Vector4i",
-    };
-
-    static_assert(array_length(s_names) == VARIANT_TYPE_MAX);
-
-    std::string value_string = ValueToString();
-    LOG_VERBOSE("[dvar] change dvar '{}'({}) to {} (source: {})", m_name, s_names[m_type], value_string, p_source);
-}
-
 Dvar* Dvar::FindDvar(const std::string& p_name) {
     auto it = s_map.find(p_name);
     if (it == s_map.end()) {

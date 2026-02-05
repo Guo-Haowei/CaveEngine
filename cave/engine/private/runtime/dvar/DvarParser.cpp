@@ -131,17 +131,6 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
         return false;
     }
 
-    // @TODO: refactor
-    switch (m_source) {
-        case Source::Cache:
-            dvar->PrintValueChange("cache");
-            break;
-        case Source::CommandLine:
-            dvar->PrintValueChange("command line");
-            break;
-        default:
-            break;
-    }
     return true;
 }
 

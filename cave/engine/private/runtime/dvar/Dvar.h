@@ -69,7 +69,6 @@ public:
     void UnsetFlag(DvarFlags p_flag) { m_flags &= ~p_flag; }
 
     std::string ValueToString() const;
-    void PrintValueChange(std::string_view p_source) const;
 
     VariantType GetType() const { return m_type; }
     const char* GetDesc() const { return m_desc; }
