@@ -1,6 +1,5 @@
-#include "engine/private/core/dynamic_variable/dynamic_variable_manager.h"
-
 #include "engine/private/core/os/os.h"
+#include "engine/private/runtime/dvar/DvarCache.h"
 
 namespace cave {
 
@@ -10,14 +9,14 @@ using namespace cave::math;
 
 extern void register_test_dvars();
 
-using Commands = std::vector<std::string>;
+using Commands = std::vector<std::string_view>;
 
 TEST(dynamic_variable_parser, invalid_command) {
     register_test_dvars();
 
     Commands commands = { "+abc" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_FALSE(ok);
     EXPECT_EQ(parser.GetError(), "unknown command '+abc'");
@@ -28,7 +27,7 @@ TEST(dynamic_variable_parser, invalid_dvar_name) {
 
     Commands commands = { "+set", "test_int1" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_FALSE(ok);
     EXPECT_EQ(parser.GetError(), "dvar 'test_int1' not found");
@@ -39,7 +38,7 @@ TEST(dynamic_variable_parser, unexpected_eof) {
 
     Commands commands = { "+set", "test_int" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_FALSE(ok);
     EXPECT_EQ(parser.GetError(), "invalid arguments: +set test_int");
@@ -50,7 +49,7 @@ TEST(dynamic_variable_parser, set_int) {
 
     Commands commands = { "+set", "test_int", "1001" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_INT(test_int), 1001);
@@ -61,7 +60,7 @@ TEST(dynamic_variable_parser, set_float) {
 
     Commands commands = { "+set", "test_float", "1001.1" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_FLOAT(test_float), 1001.1f);
@@ -72,7 +71,7 @@ TEST(dynamic_variable_parser, set_string) {
 
     Commands commands = { "+set", "test_string", "1001.1" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_STRING(test_string), "1001.1");
@@ -83,7 +82,7 @@ TEST(dynamic_variable_parser, set_vec2) {
 
     Commands commands = { "+set", "test_vec2", "6", "7" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_VEC2(test_vec2), Vector2f(6, 7));
@@ -92,9 +91,9 @@ TEST(dynamic_variable_parser, set_vec2) {
 TEST(dynamic_variable_parser, set_vec3) {
     register_test_dvars();
 
-    Commands commands = { "+set", "test_vec3", "6", "7", "8" };
+    Commands commands = { "+set", "test_vec3", "6.0", "7.0", "8.0" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_VEC3(test_vec3), Vector3f(6, 7, 8));
@@ -105,7 +104,7 @@ TEST(dynamic_variable_parser, set_vec4) {
 
     Commands commands = { "+set", "test_vec4", "6", "7", "8", "9" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_VEC4(test_vec4), Vector4f(6, 7, 8, 9));
@@ -116,7 +115,7 @@ TEST(dynamic_variable_parser, set_ivec2) {
 
     Commands commands = { "+set", "test_ivec2", "6", "7" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_IVEC2(test_ivec2), Vector2i(6, 7));
@@ -127,7 +126,7 @@ TEST(dynamic_variable_parser, set_ivec3) {
 
     Commands commands = { "+set", "test_ivec3", "6", "7", "8" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_IVEC3(test_ivec3), Vector3i(6, 7, 8));
@@ -138,7 +137,7 @@ TEST(dynamic_variable_parser, set_ivec4) {
 
     Commands commands = { "+set", "test_ivec4", "6", "7", "8", "9" };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_IVEC4(test_ivec4), Vector4i(6, 7, 8, 9));
@@ -154,7 +153,7 @@ TEST(dynamic_variable_parser, multiple_set_success) {
         // clang-format on
     };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
     EXPECT_EQ(DVAR_GET_IVEC4(test_ivec4), Vector4i(7, 8, 9, 10));
@@ -172,7 +171,7 @@ TEST(dynamic_variable_parser, multiple_set_fail) {
         // clang-format on
     };
 
-    DynamicVariableParser parser{ commands, DynamicVariableParser::SOURCE_NONE };
+    DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_FALSE(ok);
     EXPECT_EQ(parser.GetError(), "invalid arguments: +set test_vec4 1");

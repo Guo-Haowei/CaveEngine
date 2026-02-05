@@ -93,7 +93,7 @@ private:
     std::string m_name;
 
     inline static std::unordered_map<std::string, DynamicVariable*> s_map;
-    friend class DynamicVariableManager;
+    friend class DvarCache;
 };
 
 }  // namespace cave
