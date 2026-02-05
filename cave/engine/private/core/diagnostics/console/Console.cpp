@@ -17,14 +17,16 @@ void Console::SubmitLine(std::string_view p_line) {
     if (tokens.empty()) return;
 
     std::span<const CommandDesc> cmds = m_reg.Commands();
+    bool ok = false;
     for (const CommandDesc& cmd : cmds) {
         if (cmd.name == tokens[0]) {
             CommandContext ctx{
                 .logger = CompositeLogger::GetSingleton(),
+                .desc = cmd,
                 .app = m_app,
             };
 
-            cmd.fn(ctx, { tokens });
+            ok = cmd.fn(ctx, { tokens });
             break;
         }
     }
@@ -33,6 +35,11 @@ void Console::SubmitLine(std::string_view p_line) {
         m_history.emplace_back(std::string(p_line));
     }
     ResetNav();
+    if (!ok) {
+        LOG_ERROR("Failed to execute '{}'", p_line);
+    } else {
+        LOG_OK("'{}' executed successfully", p_line);
+    }
 }
 
 Option<std::string_view> Console::Prev() {
@@ -55,7 +62,7 @@ Option<std::string_view> Console::Next() {
     }
 
     ++m_index;
-    if (m_index >= (int)m_history.size() - 1) {
+    if (m_index >= (int)m_history.size()) {
         --m_index;
     }
 

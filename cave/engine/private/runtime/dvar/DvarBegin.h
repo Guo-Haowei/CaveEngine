@@ -3,16 +3,16 @@
 #if USING(ENABLE_DVAR)
 
 #if defined(DEFINE_DVAR)
-#define DVAR_BOOL(name, flags, desc, value)       cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_INT, flags, desc)
-#define DVAR_INT(name, flags, desc, value)        cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_INT, flags, desc)
-#define DVAR_FLOAT(name, flags, desc, value)      cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_FLOAT, flags, desc)
-#define DVAR_STRING(name, flags, desc, value)     cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_STRING, flags, desc)
-#define DVAR_VEC2(name, flags, desc, x, y)        cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_VEC2, flags, desc)
-#define DVAR_VEC3(name, flags, desc, x, y, z)     cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_VEC3, flags, desc)
-#define DVAR_VEC4(name, flags, desc, x, y, z, w)  cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_VEC4, flags, desc)
-#define DVAR_IVEC2(name, flags, desc, x, y)       cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_IVEC2, flags, desc)
-#define DVAR_IVEC3(name, flags, desc, x, y, z)    cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_IVEC3, flags, desc)
-#define DVAR_IVEC4(name, flags, desc, x, y, z, w) cave::DynamicVariable DVAR_##name(cave::VARIANT_TYPE_IVEC4, flags, desc)
+#define DVAR_BOOL(name, flags, desc, value)       cave::Dvar DVAR_##name(cave::VARIANT_TYPE_INT, flags, desc)
+#define DVAR_INT(name, flags, desc, value)        cave::Dvar DVAR_##name(cave::VARIANT_TYPE_INT, flags, desc)
+#define DVAR_FLOAT(name, flags, desc, value)      cave::Dvar DVAR_##name(cave::VARIANT_TYPE_FLOAT, flags, desc)
+#define DVAR_STRING(name, flags, desc, value)     cave::Dvar DVAR_##name(cave::VARIANT_TYPE_STRING, flags, desc)
+#define DVAR_VEC2(name, flags, desc, x, y)        cave::Dvar DVAR_##name(cave::VARIANT_TYPE_VEC2, flags, desc)
+#define DVAR_VEC3(name, flags, desc, x, y, z)     cave::Dvar DVAR_##name(cave::VARIANT_TYPE_VEC3, flags, desc)
+#define DVAR_VEC4(name, flags, desc, x, y, z, w)  cave::Dvar DVAR_##name(cave::VARIANT_TYPE_VEC4, flags, desc)
+#define DVAR_IVEC2(name, flags, desc, x, y)       cave::Dvar DVAR_##name(cave::VARIANT_TYPE_IVEC2, flags, desc)
+#define DVAR_IVEC3(name, flags, desc, x, y, z)    cave::Dvar DVAR_##name(cave::VARIANT_TYPE_IVEC3, flags, desc)
+#define DVAR_IVEC4(name, flags, desc, x, y, z, w) cave::Dvar DVAR_##name(cave::VARIANT_TYPE_IVEC4, flags, desc)
 #endif
 
 #if defined(REGISTER_DVAR)
@@ -29,16 +29,16 @@
 #endif
 
 #if !defined(DEFINE_DVAR) && !defined(REGISTER_DVAR)
-#define DVAR_BOOL(name, ...)   extern cave::DynamicVariable DVAR_##name
-#define DVAR_INT(name, ...)    extern cave::DynamicVariable DVAR_##name
-#define DVAR_FLOAT(name, ...)  extern cave::DynamicVariable DVAR_##name
-#define DVAR_STRING(name, ...) extern cave::DynamicVariable DVAR_##name
-#define DVAR_VEC2(name, ...)   extern cave::DynamicVariable DVAR_##name
-#define DVAR_VEC3(name, ...)   extern cave::DynamicVariable DVAR_##name
-#define DVAR_VEC4(name, ...)   extern cave::DynamicVariable DVAR_##name
-#define DVAR_IVEC2(name, ...)  extern cave::DynamicVariable DVAR_##name
-#define DVAR_IVEC3(name, ...)  extern cave::DynamicVariable DVAR_##name
-#define DVAR_IVEC4(name, ...)  extern cave::DynamicVariable DVAR_##name
+#define DVAR_BOOL(name, ...)   extern cave::Dvar DVAR_##name
+#define DVAR_INT(name, ...)    extern cave::Dvar DVAR_##name
+#define DVAR_FLOAT(name, ...)  extern cave::Dvar DVAR_##name
+#define DVAR_STRING(name, ...) extern cave::Dvar DVAR_##name
+#define DVAR_VEC2(name, ...)   extern cave::Dvar DVAR_##name
+#define DVAR_VEC3(name, ...)   extern cave::Dvar DVAR_##name
+#define DVAR_VEC4(name, ...)   extern cave::Dvar DVAR_##name
+#define DVAR_IVEC2(name, ...)  extern cave::Dvar DVAR_##name
+#define DVAR_IVEC3(name, ...)  extern cave::Dvar DVAR_##name
+#define DVAR_IVEC4(name, ...)  extern cave::Dvar DVAR_##name
 #endif
 
 #else
@@ -69,16 +69,16 @@
 #endif
 
 #if !defined(DEFINE_DVAR) && !defined(REGISTER_DVAR)
-#define DVAR_BOOL(name, ...)   extern cave::DynamicVariable DVAR_##name
-#define DVAR_INT(name, ...)    extern cave::DynamicVariable DVAR_##name
-#define DVAR_FLOAT(name, ...)  extern cave::DynamicVariable DVAR_##name
-#define DVAR_STRING(name, ...) extern cave::DynamicVariable DVAR_##name
-#define DVAR_VEC2(name, ...)   extern cave::DynamicVariable DVAR_##name
-#define DVAR_VEC3(name, ...)   extern cave::DynamicVariable DVAR_##name
-#define DVAR_VEC4(name, ...)   extern cave::DynamicVariable DVAR_##name
-#define DVAR_IVEC2(name, ...)  extern cave::DynamicVariable DVAR_##name
-#define DVAR_IVEC3(name, ...)  extern cave::DynamicVariable DVAR_##name
-#define DVAR_IVEC4(name, ...)  extern cave::DynamicVariable DVAR_##name
+#define DVAR_BOOL(name, ...)   extern cave::Dvar DVAR_##name
+#define DVAR_INT(name, ...)    extern cave::Dvar DVAR_##name
+#define DVAR_FLOAT(name, ...)  extern cave::Dvar DVAR_##name
+#define DVAR_STRING(name, ...) extern cave::Dvar DVAR_##name
+#define DVAR_VEC2(name, ...)   extern cave::Dvar DVAR_##name
+#define DVAR_VEC3(name, ...)   extern cave::Dvar DVAR_##name
+#define DVAR_VEC4(name, ...)   extern cave::Dvar DVAR_##name
+#define DVAR_IVEC2(name, ...)  extern cave::Dvar DVAR_##name
+#define DVAR_IVEC3(name, ...)  extern cave::Dvar DVAR_##name
+#define DVAR_IVEC4(name, ...)  extern cave::Dvar DVAR_##name
 #define DVAR_BOOL(name, ...)   extern int DVAR_##name
 #define DVAR_INT(name, ...)    extern int DVAR_##name
 #define DVAR_FLOAT(name, ...)  extern float DVAR_##name

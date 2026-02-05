@@ -3,17 +3,18 @@
 #include <fstream>
 #include <imgui/imgui.h>
 
+#include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/time/FrameTime.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
 #include "engine/private/core/diagnostics/logger/Logger.h"
-#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/os/threads.h"
+#include "engine/private/core/string/StringUtils.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "engine/private/runtime/dvar/DvarCache.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
@@ -108,6 +109,7 @@ auto Application::SetupModules() -> Result<void> {
 
     m_event_queue.RegisterListener(m_render_device);
 
+    DvarCache::RegisterCmd(*m_cmd_reg);
     return Result<void>();
 }
 
