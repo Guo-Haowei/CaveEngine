@@ -87,9 +87,7 @@ int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
     std::string_view candidate;
     switch (p_data->EventFlag) {
         case ImGuiInputTextFlags_CallbackCompletion: {
-            if (line.empty()) {
-                break;
-            }
+            if (line.empty()) break;
 
             if (!self->m_ac.Empty()) {
                 candidate = self->m_ac.Next();
@@ -154,11 +152,7 @@ void LogPanel::DrawConsole() {
         &InputCallback,
         this);
 
-    // Submit on Enter
     if (submit) {
-#if 0
-        ExecCommand(input);
-#endif
         m_console.SubmitLine(m_cmd_buffer);
         m_cmd_buffer[0] = '\0';
 
