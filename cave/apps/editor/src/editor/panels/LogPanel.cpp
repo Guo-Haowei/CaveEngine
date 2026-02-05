@@ -1,10 +1,11 @@
 #include "LogPanel.h"
 
+#include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/math/Color.h"
-#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/core/diagnostics/console/Console.h"
+#include "engine/private/runtime/string/StringUtils.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/Image.h"
@@ -28,17 +29,18 @@ LogPanel::LogPanel(EditorState& p_editor)
     , m_console(p_editor.GetApp().Console()) {
 
     CommandRegistry& reg = p_editor.GetApp().CommandRegistry();
+    // dummy commands
     reg.Register({
         .name = "dump.pool",
-        .fn = [](const CommandContext&, const CommandArgs&, ConsoleSink&) {},
+        .fn = [](CommandContext&, const CommandArgs&) {},
     });
     reg.Register({
         .name = "dump.asset",
-        .fn = [](const CommandContext&, const CommandArgs&, ConsoleSink&) {},
+        .fn = [](CommandContext&, const CommandArgs&) {},
     });
     reg.Register({
         .name = "dump.what",
-        .fn = [](const CommandContext&, const CommandArgs&, ConsoleSink&) {},
+        .fn = [](CommandContext&, const CommandArgs&) {},
     });
 }
 
@@ -99,30 +101,32 @@ int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
 
     switch (p_data->EventFlag) {
         case ImGuiInputTextFlags_CallbackCompletion: {
+            if (line.empty()) {
+                break;
+            }
+
             std::string_view candidate;
-            if (!line.empty()) {
-                if (self->m_ac.Empty()) {
-                    std::vector<std::string_view> cmds;
-                    console.FindByPrefix(line, cmds);
-                    if (!cmds.empty()) {
-                        self->m_ac.Set(std::move(cmds));
-                        candidate = self->m_ac.Current();
-                    }
-                } else {
-                    candidate = self->m_ac.Next();
+            if (!self->m_ac.Empty()) {
+                candidate = self->m_ac.Next();
+            } else {
+                std::vector<std::string_view> cmds;
+                console.FindByPrefix(line, cmds);
+                if (!cmds.empty()) {
+                    self->m_ac.Set(std::move(cmds));
+                    candidate = self->m_ac.Current();
                 }
-                if (!candidate.empty()) {
-                    strncpy(self->m_cmd_buffer, candidate.data(), candidate.size());
-                    self->m_cmd_buffer[candidate.size()] = '\0';
-                    p_data->DeleteChars(0, text_length);
-                    p_data->InsertChars(0, self->m_cmd_buffer);
-                }
+            }
+            if (!candidate.empty()) {
+                // @TODO: don't need to delete the previous chars,
+                // maybe save the cursor somewhere
+                StringUtils::Strcpy(self->m_cmd_buffer, candidate);
+                p_data->DeleteChars(0, text_length);
+                p_data->InsertChars(0, self->m_cmd_buffer);
             }
         } break;
         case ImGuiInputTextFlags_CallbackEdit: {
-            if (!self->m_ac.Empty()) {
-                self->m_ac.Clear();
-            }
+            // If user typed/edited, invalidate suggestions.
+            self->m_ac.Clear();
         } break;
         default:
             break;

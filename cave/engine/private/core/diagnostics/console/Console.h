@@ -1,12 +1,11 @@
 #pragma once
-#include "CommandRegistry.h"
+#include "cave/core/diagnostics/CommandRegistry.h"
 
 namespace cave {
 
 class Console {
 public:
-    explicit Console(CommandRegistry& p_reg) noexcept
-        : m_reg(p_reg) {}
+    explicit Console(IApplication& p_app) noexcept;
 
     void SubmitLine(std::string_view p_line);
 
@@ -18,6 +17,7 @@ public:
     // @TODO: history
 
 private:
+    IApplication& m_app;
     CommandRegistry& m_reg;
 };
 

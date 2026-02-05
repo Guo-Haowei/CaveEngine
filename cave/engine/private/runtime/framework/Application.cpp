@@ -59,9 +59,8 @@ Result<ImguiManager*> Application::CreateImguiManager() {
 }
 
 auto Application::SetupModules() -> Result<void> {
-    // @TODO: register in a list for auto delete
     m_cmd_reg = new cave::CommandRegistry();
-    m_console = new cave::Console(*m_cmd_reg);
+    m_console = new cave::Console(*this);
 
     m_asset_manager = CreateAssetManager();
     m_asset_registry = new AssetRegistry();

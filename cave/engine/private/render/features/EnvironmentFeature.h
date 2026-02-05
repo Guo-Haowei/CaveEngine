@@ -6,13 +6,15 @@
 namespace cave::render {
 
 struct RenderOptions;
+class IRenderDevice;
 class RenderGraph;
 class TransientPool;
 
 class EnvironmentFeature {
 public:
-    EnvironmentFeature(TransientPool& p_pool)
-        : m_pool(p_pool) {}
+    explicit EnvironmentFeature(TransientPool& p_pool, IRenderDevice& p_device) noexcept
+        : m_pool(p_pool)
+        , m_device(p_device) {}
 
     struct Outputs {
         RGTextureId skybox{};
@@ -24,8 +26,11 @@ public:
 
 private:
     TransientPool& m_pool;
+    IRenderDevice& m_device;
     GpuTextureId m_env_texture{};
-    bool m_generated{ false };
+    GpuTextureId m_env_cube{};
+    GpuTextureId m_diffuse{};
+    GpuTextureId m_specular{};
 };
 
 }  // namespace cave::render

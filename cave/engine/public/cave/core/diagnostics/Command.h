@@ -2,16 +2,19 @@
 
 namespace cave {
 
-class ConsoleSink;
+class IApplication;
+class ILogger;
 
 struct CommandContext {
+    ILogger& logger;
+    IApplication& app;
 };
 
 struct CommandArgs {
     std::span<const std::string_view> tokens;
 };
 
-using CommandFn = void (*)(const CommandContext&, const CommandArgs&, ConsoleSink&);
+using CommandFn = std::function<void(CommandContext&, const CommandArgs&)>;
 
 struct CommandDesc {
     std::string name;

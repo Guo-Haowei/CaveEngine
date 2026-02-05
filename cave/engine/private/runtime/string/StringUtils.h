@@ -60,17 +60,26 @@ public:
         return result;
     }
 
+    static void Strcpy(char* p_dst, size_t p_dst_len, const char* p_src, size_t p_src_len);
+
     template<size_t N>
-    static char* Strcpy(char (&p_buffer)[N], const char* p_string, size_t p_length) {
-        const size_t len = ((N - 1) < p_length) ? (N - 1) : p_length;
-        char* result = strncpy(p_buffer, p_string, len);
-        p_buffer[len] = '\0';
-        return result;
+    static void Strcpy(char (&p_dst)[N], const char* p_src) {
+        StringUtils::Strcpy(p_dst, N, p_src, strlen(p_src));
     }
 
     template<size_t N>
-    static char* Strcpy(char (&p_buffer)[N], const std::string& p_string) {
-        return Strcpy(p_buffer, p_string.c_str(), p_string.size());
+    static void Strcpy(char (&p_dst)[N], const char* p_src, size_t p_src_len) {
+        StringUtils::Strcpy(p_dst, N, p_src, p_src_len);
+    }
+
+    template<size_t N>
+    static void Strcpy(char (&p_dst)[N], const std::string& p_src) {
+        StringUtils::Strcpy(p_dst, N, p_src.c_str(), p_src.size());
+    }
+
+    template<size_t N>
+    static void Strcpy(char (&p_dst)[N], std::string_view p_src) {
+        StringUtils::Strcpy(p_dst, N, p_src.data(), p_src.size());
     }
 
     static constexpr bool IsDigit(const char p_char) {

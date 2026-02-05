@@ -1,4 +1,4 @@
-#include "CommandRegistry.h"
+#include "cave/core/diagnostics/CommandRegistry.h"
 
 namespace cave {
 
