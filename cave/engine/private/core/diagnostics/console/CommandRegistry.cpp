@@ -1,6 +1,6 @@
 #include "CommandRegistry.h"
 
-namespace cave::debug {
+namespace cave {
 
 void CommandRegistry::Register(CommandDesc p_cmd) {
     for (const CommandDesc& cmd : m_cmds) {
@@ -27,9 +27,11 @@ std::span<const CommandDesc> CommandRegistry::Commands() const {
 }
 
 void CommandRegistry::FindByPrefix(std::string_view p_prefix, std::vector<std::string_view>& p_out) const {
-    unused(p_prefix);
-    unused(p_out);
-    // @TODO:
+    for (const CommandDesc& cmd : m_cmds) {
+        if (cmd.name.starts_with(p_prefix)) {
+            p_out.push_back(cmd.name);
+        }
+    }
 }
 
-}  // namespace cave::debug
+}  // namespace cave

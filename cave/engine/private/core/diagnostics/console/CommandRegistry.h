@@ -1,7 +1,7 @@
 #pragma once
 #include "Command.h"
 
-namespace cave::debug {
+namespace cave {
 
 class CommandRegistry {
 public:
@@ -17,4 +17,4 @@ private:
     std::vector<CommandDesc> m_cmds;
 };
 
-}  // namespace cave::debug
+}  // namespace cave

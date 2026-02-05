@@ -1,6 +1,6 @@
 #include "ShadowFeature.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: remove this

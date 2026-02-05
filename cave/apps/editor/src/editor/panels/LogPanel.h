@@ -1,16 +1,17 @@
 #pragma once
-#include "engine/private/core/logging/Logger.h"
+#include "engine/private/core/diagnostics/logger/Logger.h"
 
 #include "editor/panels/EditorWindow.h"
 
-// clang-format off
 struct ImGuiInputTextCallbackData;
-namespace cave::debug { class Console; }
-// clang-format on
 
 namespace cave {
 
+class Console;
+
 class LogPanel : public EditorWindow {
+    static constexpr int kCmdBufferSize = 512;
+
 public:
     explicit LogPanel(EditorState& p_editor);
 
@@ -26,10 +27,33 @@ protected:
 
     static int InputCallback(ImGuiInputTextCallbackData* p_data);
 
-    debug::Console& m_console;
+    Console& m_console;
     bool m_auto_scroll{ true };
     bool m_scroll_to_bottom{ false };
     LogLevel m_filter{ LOG_LEVEL_ALL };
+    char m_cmd_buffer[kCmdBufferSize]{};
+
+    class AutoCompletion {
+    public:
+        [[nodiscard]] std::string_view Current() const;
+        [[nodiscard]] std::string_view Next();
+
+        [[nodiscard]] bool Empty() const { return m_cmds.empty(); }
+
+        void Clear() {
+            m_cmds.clear();
+            m_index = 0;
+        }
+
+        void Set(std::vector<std::string_view>&& p_cmds) {
+            m_cmds = std::move(p_cmds);
+            m_index = 0;
+        }
+
+    private:
+        std::vector<std::string_view> m_cmds;
+        size_t m_index{};
+    } m_ac;
 };
 
 }  // namespace cave

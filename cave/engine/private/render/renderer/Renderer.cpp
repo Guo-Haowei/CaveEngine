@@ -2,7 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/render/features/EnvironmentFeature.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
 #include "engine/private/render/features/ShadowFeature.h"

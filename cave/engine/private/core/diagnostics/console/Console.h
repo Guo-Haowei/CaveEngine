@@ -1,7 +1,7 @@
 #pragma once
 #include "CommandRegistry.h"
 
-namespace cave::debug {
+namespace cave {
 
 class Console {
 public:
@@ -10,6 +10,10 @@ public:
 
     void SubmitLine(std::string_view p_line);
 
+    void FindByPrefix(std::string_view p_prefix, std::vector<std::string_view>& p_out) const {
+        m_reg.FindByPrefix(p_prefix, p_out);
+    }
+
     // @TODO: auto complete
     // @TODO: history
 
@@ -17,4 +21,4 @@ private:
     CommandRegistry& m_reg;
 };
 
-}  // namespace cave::debug
+}  // namespace cave

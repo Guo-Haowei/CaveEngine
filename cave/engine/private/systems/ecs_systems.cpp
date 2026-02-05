@@ -2,7 +2,7 @@
 
 #include "engine/private/assets/mesh_asset.h"
 #include "engine/private/core/base/random.h"
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/systems/job_system/job_system.h"
 

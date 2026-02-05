@@ -1,6 +1,8 @@
 #pragma once
 
-namespace cave::debug {
+namespace cave {
+
+class ConsoleSink;
 
 struct CommandContext {
 };
@@ -9,7 +11,7 @@ struct CommandArgs {
     std::span<const std::string_view> tokens;
 };
 
-using CommandFn = void (*)(const CommandContext&, const CommandArgs&);
+using CommandFn = void (*)(const CommandContext&, const CommandArgs&, ConsoleSink&);
 
 struct CommandDesc {
     std::string name;
@@ -18,4 +20,4 @@ struct CommandDesc {
     CommandFn fn{};
 };
 
-}  // namespace cave::debug
+}  // namespace cave

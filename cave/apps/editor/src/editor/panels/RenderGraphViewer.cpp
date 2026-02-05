@@ -2,7 +2,7 @@
 
 #include <imnodes/imnodes.h>
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "cave/runtime/framework/IApplication.h"

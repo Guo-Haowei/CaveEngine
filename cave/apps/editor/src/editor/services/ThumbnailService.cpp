@@ -2,7 +2,7 @@
 
 #include "cave/core/time/FrameTime.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 
 namespace cave {
 

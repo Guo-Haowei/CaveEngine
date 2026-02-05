@@ -1,7 +1,7 @@
 #pragma once
 #include "EnvironmentFeature.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 #include "engine/private/render/renderer/TransientPool.h"
 

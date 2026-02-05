@@ -2,7 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_device/RenderDevice.h"

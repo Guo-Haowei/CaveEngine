@@ -1,7 +1,7 @@
 
 #include "bullet3_physics_manager.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IScriptManager.h"

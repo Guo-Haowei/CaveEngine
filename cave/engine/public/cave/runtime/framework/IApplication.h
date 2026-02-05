@@ -8,8 +8,6 @@
 #include "cave/core/NonCopyable.h"
 
 // clang-format off
-namespace cave::debug { class CommandRegistry; }
-namespace cave::debug { class Console; }
 namespace cave::render { class Renderer; }
 namespace cave::render { class IRenderDevice; }
 // clang-format on
@@ -22,6 +20,8 @@ enum class Backend : uint8_t;
 class AppStateMachine;
 class AssetRegistry;
 class BootLoadPipeline;
+class CommandRegistry;
+class Console;
 class EventQueue;
 class GameModeFactory;
 class IAssetManager;
@@ -108,8 +108,8 @@ public:
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewManager* GetViewManager() { return m_view_manager; }
 
-    debug::CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
-    debug::Console& Console() { return *m_console; }
+    CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
+    Console& Console() { return *m_console; }
 
     const AppSpec& GetSpecification() const { return m_specification; }
 
@@ -145,8 +145,8 @@ protected:
 
     ViewManager* m_view_manager{ nullptr };
 
-    debug::CommandRegistry* m_cmd_reg{ nullptr };
-    debug::Console* m_console{ nullptr };
+    cave::CommandRegistry* m_cmd_reg{ nullptr };
+    cave::Console* m_console{ nullptr };
 };
 
 }  // namespace cave

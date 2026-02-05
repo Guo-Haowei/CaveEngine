@@ -4,7 +4,7 @@
 
 #include "GLFramebufferCache.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"

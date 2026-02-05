@@ -4,7 +4,7 @@
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/runtime/string/StringUtils.h"
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/VFS.h"
 
