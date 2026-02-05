@@ -5,6 +5,7 @@
 
 #include "cave/core/time/FrameTime.h"
 
+#include "engine/private/core/debugger/console/Console.h"
 #include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/logging/Logger.h"
@@ -58,7 +59,10 @@ Result<ImguiManager*> Application::CreateImguiManager() {
 }
 
 auto Application::SetupModules() -> Result<void> {
-    // @TODO: configure so it's easier for user to override
+    // @TODO: register in a list for auto delete
+    m_cmd_reg = new debug::CommandRegistry();
+    m_console = new debug::Console(*m_cmd_reg);
+
     m_asset_manager = CreateAssetManager();
     m_asset_registry = new AssetRegistry();
     m_script_manager = CreateScriptManager();

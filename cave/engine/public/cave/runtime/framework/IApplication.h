@@ -8,6 +8,8 @@
 #include "cave/core/NonCopyable.h"
 
 // clang-format off
+namespace cave::debug { class CommandRegistry; }
+namespace cave::debug { class Console; }
 namespace cave::render { class Renderer; }
 namespace cave::render { class IRenderDevice; }
 // clang-format on
@@ -106,6 +108,9 @@ public:
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewManager* GetViewManager() { return m_view_manager; }
 
+    debug::CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
+    debug::Console& Console() { return *m_console; }
+
     const AppSpec& GetSpecification() const { return m_specification; }
 
     static void Run(IApplication* p_app);
@@ -139,6 +144,9 @@ protected:
     TaskManager* m_task_manager{ nullptr };
 
     ViewManager* m_view_manager{ nullptr };
+
+    debug::CommandRegistry* m_cmd_reg{ nullptr };
+    debug::Console* m_console{ nullptr };
 };
 
 }  // namespace cave
