@@ -5,7 +5,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/core/string/StringUtils.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 // lua include

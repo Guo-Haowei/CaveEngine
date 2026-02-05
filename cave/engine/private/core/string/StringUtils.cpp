@@ -44,4 +44,28 @@ std::string_view StringUtils::RemoveExtension(std::string_view p_file) {
     return dot_pos == std::string_view::npos ? p_file : p_file.substr(0, dot_pos);
 }
 
+std::vector<std::string_view> StringUtils::Tokenize(std::string_view p_str) {
+    std::vector<std::string_view> out;
+
+    size_t i = 0;
+    while (i < p_str.size()) {
+        // skip spaces
+        while (i < p_str.size() && std::isspace((unsigned char)p_str[i]))
+            ++i;
+
+        if (i >= p_str.size())
+            break;
+
+        size_t start = i;
+
+        // read token
+        while (i < p_str.size() && !std::isspace((unsigned char)p_str[i]))
+            ++i;
+
+        out.emplace_back(p_str.data() + start, i - start);
+    }
+
+    return out;
+}
+
 }  // namespace cave

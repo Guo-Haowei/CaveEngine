@@ -3,7 +3,7 @@
 // =============================================================================
 #include "GameModuleLoader.h"
 
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/core/string/StringUtils.h"
 
 // @TODO: hide platform specific code from loader
 #if USING(PLATFORM_WINDOWS)

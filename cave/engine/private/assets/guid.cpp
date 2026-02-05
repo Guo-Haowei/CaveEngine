@@ -4,7 +4,7 @@
 #include <objbase.h>
 #endif
 
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/core/string/StringUtils.h"
 
 namespace cave {
 

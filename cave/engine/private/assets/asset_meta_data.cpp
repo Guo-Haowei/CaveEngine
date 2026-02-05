@@ -1,6 +1,6 @@
 #include "asset_meta_data.h"
 
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/core/string/StringUtils.h"
 
 #include "engine/private/assets/asset_interface.h"
 #include "engine/private/core/io/file_access.h"

@@ -2,7 +2,7 @@
 
 #if USING(USE_IMPORTER_TINYGLTF)
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/core/string/StringUtils.h"
 
 #include "engine/private/assets/material_asset.h"
 #include "engine/private/assets/mesh_asset.h"
