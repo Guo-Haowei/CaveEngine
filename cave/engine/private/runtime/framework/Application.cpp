@@ -5,9 +5,10 @@
 
 #include "cave/core/time/FrameTime.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "engine/private/core/diagnostics/console/Console.h"
+#include "engine/private/core/diagnostics/logger/Logger.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/core/io/file_access.h"
-#include "engine/private/core/logging/Logger.h"
 #include "engine/private/core/os/threads.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/renderer/graphics_dvars.h"
@@ -58,7 +59,9 @@ Result<ImguiManager*> Application::CreateImguiManager() {
 }
 
 auto Application::SetupModules() -> Result<void> {
-    // @TODO: configure so it's easier for user to override
+    m_cmd_reg = new cave::CommandRegistry();
+    m_console = new cave::Console(*this);
+
     m_asset_manager = CreateAssetManager();
     m_asset_registry = new AssetRegistry();
     m_script_manager = CreateScriptManager();

@@ -1,13 +1,15 @@
 #include "Renderer.h"
 
+#include "cave/core/diagnostics/CommandRegistry.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/debugger/Profiler.h"
 #include "engine/private/render/features/EnvironmentFeature.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
 #include "engine/private/render/features/ShadowFeature.h"
 #include "engine/private/render/features/SsaoFeature.h"
 #include "engine/private/render/renderer/FramePlan.h"
+#include "engine/private/render/renderer/RendererDebug.h"
 #include "engine/private/render/renderer/RenderScene.h"
 #include "engine/private/render/renderer/RenderSceneBuilder.h"
 #include "engine/private/render/renderer/RenderSubmission.h"
@@ -48,7 +50,7 @@ public:
     Impl(IApplication& p_app)
         : m_app(p_app)
         , m_pool(*p_app.GetRenderDevice())
-        , m_env(m_pool)
+        , m_env(m_pool, *p_app.GetRenderDevice())
         , m_ssao(*p_app.GetRenderDevice()) {}
 
     auto Initialize() -> Result<void>;
@@ -201,6 +203,18 @@ static void FillEnvConstants(FrameData& p_out_data) {
 }
 
 auto Renderer::Impl::Initialize() -> Result<void> {
+
+#if USING(USE_RENDERER_DEBUG)
+    CommandRegistry& reg = m_app.CommandRegistry();
+    reg.Register({
+        .name = "render.pool.dump",
+        .help = "List textures in transient pool.",
+        .usage = "render.pool.dump",
+        .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
+            RenderPoolDump_Cmd(m_pool, p_ctx, p_args);
+        },
+    });
+#endif
     return Result<void>();
 }
 

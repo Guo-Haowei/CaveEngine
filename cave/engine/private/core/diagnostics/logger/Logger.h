@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/Print.h"
+#include "cave/core/diagnostics/ILogger.h"
 #include "cave/core/Singleton.h"
 
 namespace cave {
@@ -20,13 +20,6 @@ struct LogEvent {
     uint32_t repeat;
     uint64_t id;
     std::string message;
-};
-
-class ILogger {
-public:
-    virtual ~ILogger() = default;
-
-    virtual void Print(LogLevel p_level, std::string_view p_message) = 0;
 };
 
 class StdLogger : public ILogger {

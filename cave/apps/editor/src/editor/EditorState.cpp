@@ -3,7 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/gameplay/IGameMode.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 

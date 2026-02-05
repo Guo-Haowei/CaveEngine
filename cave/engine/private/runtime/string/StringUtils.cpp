@@ -25,6 +25,20 @@ char* StringUtils::Strdup(const char* p_source) {
 #endif
 }
 
+void StringUtils::Strcpy(char* p_dst, size_t p_dst_len, const char* p_src, size_t p_src_len) {
+    if (!p_dst || p_dst_len == 0) return;
+
+    if (!p_src || p_src_len == 0) {
+        p_dst[0] = '\0';
+        return;
+    }
+
+    const size_t copy_len = (p_dst_len - 1 < p_src_len) ? (p_dst_len - 1) : p_src_len;
+    std::memcpy(p_dst, p_src, copy_len);
+    p_dst[copy_len] = '\0';
+    return;
+}
+
 std::string_view StringUtils::RemoveExtension(std::string_view p_file) {
     size_t dot_pos = p_file.find_last_of('.');
     return dot_pos == std::string_view::npos ? p_file : p_file.substr(0, dot_pos);

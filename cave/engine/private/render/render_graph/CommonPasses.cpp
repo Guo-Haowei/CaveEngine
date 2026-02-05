@@ -2,7 +2,7 @@
 
 #include "engine/private/algorithm/algorithm.h"
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_device/RenderDevice.h"

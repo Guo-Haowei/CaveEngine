@@ -20,6 +20,8 @@ enum class Backend : uint8_t;
 class AppStateMachine;
 class AssetRegistry;
 class BootLoadPipeline;
+class CommandRegistry;
+class Console;
 class EventQueue;
 class GameModeFactory;
 class IAssetManager;
@@ -106,6 +108,9 @@ public:
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewManager* GetViewManager() { return m_view_manager; }
 
+    CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
+    Console& Console() { return *m_console; }
+
     const AppSpec& GetSpecification() const { return m_specification; }
 
     static void Run(IApplication* p_app);
@@ -139,6 +144,9 @@ protected:
     TaskManager* m_task_manager{ nullptr };
 
     ViewManager* m_view_manager{ nullptr };
+
+    cave::CommandRegistry* m_cmd_reg{ nullptr };
+    cave::Console* m_console{ nullptr };
 };
 
 }  // namespace cave

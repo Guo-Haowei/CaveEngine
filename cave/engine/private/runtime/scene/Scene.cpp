@@ -2,7 +2,7 @@
 
 #include "EntityFactory.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/ComponentManager.inl"
 #include "engine/private/runtime/framework/AssetRegistry.h"

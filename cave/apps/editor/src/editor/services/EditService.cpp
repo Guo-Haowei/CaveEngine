@@ -3,7 +3,7 @@
 #include "editor/services/DocumentService.h"
 #include "editor/services/Workspace.h"
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"

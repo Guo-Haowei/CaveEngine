@@ -1,11 +1,33 @@
 #include "LogPanel.h"
 
-#include "engine/private/core/debugger/Profiler.h"
-#include "engine/private/core/math/color.h"
+#include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/framework/IApplication.h"
 
+#include "engine/private/core/math/Color.h"
+#include "engine/private/core/diagnostics/console/Console.h"
+#include "engine/private/runtime/string/StringUtils.h"
+
+#include "editor/EditorState.h"
 #include "editor/widgets/Image.h"
 
 namespace cave {
+
+std::string_view LogPanel::AutoCompletion::Current() const {
+    DEV_ASSERT(!m_cmds.empty());
+    return m_cmds[m_index];
+}
+
+std::string_view LogPanel::AutoCompletion::Next() {
+    const size_t size = m_cmds.size();
+    DEV_ASSERT(size);
+    m_index = (m_index + 1) % size;
+    return m_cmds[m_index];
+}
+
+LogPanel::LogPanel(EditorState& p_editor)
+    : EditorWindow(p_editor)
+    , m_console(p_editor.GetApp().Console()) {
+}
 
 static void DrawLog(const LogEvent& p_log) {
     switch (p_log.level) {
@@ -33,11 +55,113 @@ static void DrawLog(const LogEvent& p_log) {
     ImGui::PopStyleColor();
 }
 
-void LogPanel::DrawUIImpl() {
-    CAVE_PROFILE_EVENT();
+void LogPanel::DrawFilter() {
+    // @TODO: make filter a combo box
+    if (ImGui::SmallButton("All")) {
+        m_filter = LOG_LEVEL_ALL;
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton("No Verbose")) {
+        m_filter = LOG_LEVEL_ALL & (~LOG_LEVEL_VERBOSE);
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Warning")) {
+        m_filter = LOG_LEVEL_WARN;
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Error")) {
+        m_filter = LOG_LEVEL_ERROR;
+    }
+    ImGui::SameLine();
+}
 
-    ImGui::Separator();
+int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
+    LogPanel* self = reinterpret_cast<LogPanel*>(p_data->UserData);
+    DEV_ASSERT(self);
+    Console& console = self->m_console;
 
+    const char* buf = p_data->Buf;
+    const int text_length = p_data->BufTextLen;
+    std::string_view line{ buf, buf + text_length };
+
+    std::string_view candidate;
+    switch (p_data->EventFlag) {
+        case ImGuiInputTextFlags_CallbackCompletion: {
+            if (line.empty()) break;
+
+            if (!self->m_ac.Empty()) {
+                candidate = self->m_ac.Next();
+            } else {
+                std::vector<std::string_view> cmds;
+                console.FindByPrefix(line, cmds);
+                if (!cmds.empty()) {
+                    self->m_ac.Set(std::move(cmds));
+                    candidate = self->m_ac.Current();
+                }
+            }
+        } break;
+        case ImGuiInputTextFlags_CallbackHistory: {
+            if (p_data->EventKey == ImGuiKey_UpArrow) {
+                Option<std::string_view> cmd = console.Prev();
+                if (cmd.is_none()) break;
+                candidate = cmd.unwrap_unchecked();
+            } else if (p_data->EventKey == ImGuiKey_DownArrow) {
+                Option<std::string_view> cmd = console.Next();
+                if (cmd.is_none()) break;
+                candidate = cmd.unwrap_unchecked();
+            }
+        } break;
+        case ImGuiInputTextFlags_CallbackEdit: {
+            // If user typed/edited, invalidate suggestions.
+            self->m_ac.Clear();
+        } break;
+        default:
+            break;
+    }
+    if (!candidate.empty()) {
+        // @TODO: don't need to delete the previous chars,
+        // also save the draft
+        StringUtils::Strcpy(self->m_cmd_buffer, candidate);
+        p_data->DeleteChars(0, text_length);
+        p_data->InsertChars(0, self->m_cmd_buffer);
+    }
+    return 0;
+}
+
+void LogPanel::DrawConsole() {
+    float spacing = 10.0f;
+    ImGui::SetNextItemWidth(70.0f);
+    ImGui::Text(">: cmd");
+    ImGui::SameLine(0.0f, spacing);
+
+    ImGui::SetNextItemWidth(-1.0f);
+
+    const int flags = ImGuiInputTextFlags_CallbackEdit |
+                      ImGuiInputTextFlags_CallbackCompletion |
+                      ImGuiInputTextFlags_CallbackHistory |
+                      ImGuiInputTextFlags_CallbackCharFilter |
+                      ImGuiInputTextFlags_CallbackResize |
+                      ImGuiInputTextFlags_EnterReturnsTrue;
+
+    const bool submit = ImGui::InputTextWithHint(
+        "##ConsoleInput",
+        "Enter Console Command",
+        m_cmd_buffer,
+        IM_ARRAYSIZE(m_cmd_buffer),
+        flags,
+        &InputCallback,
+        this);
+
+    if (submit) {
+        m_console.SubmitLine(m_cmd_buffer);
+        m_cmd_buffer[0] = '\0';
+
+        // Keep keyboard focus on the input (so you can type multiple commands quickly)
+        ImGui::SetKeyboardFocusHere(-1);
+    }
+}
+
+void LogPanel::DrawLogHistroy() {
     // reserve enough left-over height for 1 separator + 1 input text
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false,
@@ -95,26 +219,16 @@ void LogPanel::DrawUIImpl() {
 
     ImGui::PopStyleVar();
     ImGui::EndChild();
-    ImGui::Separator();
+}
 
-    if (ImGui::SmallButton("All")) {
-        m_filter = LOG_LEVEL_ALL;
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("No Verbose")) {
-        m_filter = LOG_LEVEL_ALL & (~LOG_LEVEL_VERBOSE);
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Warning")) {
-        m_filter = LOG_LEVEL_WARN;
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Error")) {
-        m_filter = LOG_LEVEL_ERROR;
-    }
-    ImGui::SameLine();
+void LogPanel::DrawUIImpl() {
+    CAVE_PROFILE_EVENT();
 
+    DrawFilter();
     ImGui::Separator();
+    DrawLogHistroy();
+    ImGui::Separator();
+    DrawConsole();
 
     // Auto-focus on window apparition
     ImGui::SetItemDefaultFocus();

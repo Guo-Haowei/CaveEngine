@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
-#include "engine/private/core/debugger/Profiler.h"
+#include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/CommonDvars.h"

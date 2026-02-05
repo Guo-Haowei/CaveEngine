@@ -8,7 +8,7 @@
 #include "cave/runtime/gameplay/GameSession.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/debugger/DebugIdAllocator.h"
+#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"

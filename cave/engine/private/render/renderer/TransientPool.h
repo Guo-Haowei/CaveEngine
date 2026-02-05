@@ -2,6 +2,8 @@
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/sampler.h"
 
+#include "RendererDebug.h"
+
 namespace cave::render {
 
 class IRenderDevice;
@@ -19,7 +21,9 @@ public:
 
     GpuTextureId AcquireTexture(const TransientTextureDesc& p_desc);
 
-    GpuTextureId TryGetTexture(const std::string& p_key);
+#if USING(USE_RENDERER_DEBUG)
+    PoolSnapshot Snapshot() const;
+#endif
 
 private:
     IRenderDevice& m_device;
