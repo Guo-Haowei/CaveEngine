@@ -13,7 +13,7 @@ public:
     ~ShortcutService();
 
     int GetPriority() const override { return 1000; }
-    void OnEvents(const std::vector<InputEvent>& p_events) override;
+    void OnEvents(const InputFrame& p_input) override;
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 

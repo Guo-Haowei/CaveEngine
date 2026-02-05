@@ -108,7 +108,7 @@ void ProjectBrowserState::DrawUI() {
     DrawRecentProjects();
 }
 
-void ProjectBrowserState::Tick(float) {
+void ProjectBrowserState::Tick(const FrameTime&) {
     if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
         imgui_manager->BeginFrame();
 

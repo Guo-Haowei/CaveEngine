@@ -9,9 +9,11 @@
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
+#include "editor/services/IconCache.h"
 #include "editor/services/PickingService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
+#include "editor/services/ThumbnailService.h"
 #include "editor/services/Workspace.h"
 
 // @TODO: refactor
@@ -31,7 +33,7 @@
 
 #include "editor/edit/EditObjectCmd.h"
 #include "editor/EditorDvars.h"
-#include "editor/panels/AssetInspector.h"
+#include "editor/panels/ContentBrowser.h"
 #include "editor/panels/FileSystemPanel.h"
 #include "editor/panels/HierarchyPanel.h"
 #include "editor/panels/LogPanel.h"
@@ -51,13 +53,15 @@ EditorState::EditorState(IApplication& p_app)
     m_picking_service = std::make_unique<cave::PickingService>(*this);
     m_selection_service = std::make_unique<cave::SelectionService>(*this);
     m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
-    m_workspace = std::make_shared<cave::Workspace>(*this);
+    m_thumbnail_service = std::make_unique<cave::ThumbnailService>(*this);
+    m_workspace = std::make_unique<cave::Workspace>(*this);
+    m_icon_cache = std::make_unique<cave::IconCache>(*GetApp().GetAssetRegistry(), *GetApp().GetAssetManager());
 
     // runtime
     m_runtime_host = std::make_unique<RuntimeHost>(p_app);
 
     // panels
-    m_asset_inspector = std::make_shared<AssetInspector>(*this);
+    m_content_browser = std::make_shared<ContentBrowser>(*this);
     m_menu_bar = std::make_shared<MenuBar>(*this);
     m_log_panel = std::make_shared<LogPanel>(*this);
     m_file_system_panel = std::make_shared<FileSystemPanel>(*this);
@@ -66,7 +70,7 @@ EditorState::EditorState(IApplication& p_app)
     AddPanel(std::make_shared<RendererPanel>(*this));
     AddPanel(std::make_shared<HierarchyPanel>(*this));
     AddPanel(std::make_shared<PropertyPanel>(*this));
-    AddPanel(m_asset_inspector);
+    AddPanel(m_content_browser);
     AddPanel(std::make_shared<RenderGraphViewer>(*this));
     AddPanel(m_file_system_panel);
 }
@@ -88,14 +92,6 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     }
 
     ImNodes::CreateContext();
-
-    {
-        // @TODO: get rid of this
-        auto handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>("@persist://textures/checkerboard");
-        if (handle.is_some()) {
-            context.checkerboard = handle.unwrap_unchecked().Wait();
-        }
-    }
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
@@ -124,12 +120,16 @@ void EditorState::OnExit() {
     UnloadGameModule(m_module);
 }
 
-void EditorState::Tick(float p_dt) {
+void EditorState::Tick(const FrameTime& p_time) {
     CAVE_PROFILE_EVENT();
+
+    BusyInfo info;
+    m_thumbnail_service->Tick(p_time, info);
 
     if (IsPlaying()) {
         GameFrameTime frame;
-        frame.dt = p_dt;
+        frame.frame_index = p_time.frame_index;
+        frame.dt = p_time.dt;
         m_runtime_host->Tick(frame);
     }
 
@@ -145,7 +145,7 @@ void EditorState::Tick(float p_dt) {
     }
 
     m_edit_service->FlushPendingCmds();
-    m_workspace->Tick(p_dt);
+    m_workspace->Tick();
     m_picking_service->Tick();
 
     ImGui::Render();
@@ -163,13 +163,11 @@ void EditorState::CommitModeSwitch() {
     }
 
     // @TODO: refactor
-#if 1
-    {
-        const char* names[2] = { "Editing", "PIE" };
-        LOG("EditorState::CommitModeSwitch: {} -> {}",
-            names[std::to_underlying(m_state)],
-            names[std::to_underlying(FlipState(m_state))]);
-    }
+#if USING(USE_LOG)
+    constexpr const char* names[2] = { "Editing", "PIE" };
+    LOG("EditorState::CommitModeSwitch: {} -> {}",
+        names[std::to_underlying(m_state)],
+        names[std::to_underlying(FlipState(m_state))]);
 #endif
 
     switch (m_state) {
@@ -191,7 +189,7 @@ void EditorState::CommitModeSwitch() {
 }
 
 void EditorState::AddPanel(std::shared_ptr<IEditorItem> p_panel) {
-    m_panels.emplace_back(p_panel);
+    m_panels.emplace_back(std::move(p_panel));
 }
 
 void EditorState::DockSpace() {

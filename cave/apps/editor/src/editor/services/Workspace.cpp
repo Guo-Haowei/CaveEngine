@@ -26,16 +26,8 @@ Workspace::~Workspace() {
     app.GetInputSystem()->Router().Unregister(this);
 }
 
-void Workspace::Tick(float p_dt) {
+void Workspace::Tick() {
     FlushPendingRequests();
-
-    for (auto& it : m_slots) {
-        if (Tab* tab = it.storage.get()) {
-            // @NOTE: tick collapsed?
-            // @NOTE: tick inactive?
-            tab->Tick(p_dt);
-        }
-    }
 
     DrawTabs();
 }
@@ -84,16 +76,16 @@ void Workspace::DrawTabs() {
     }
 }
 
-void Workspace::OnEvents(const std::vector<InputEvent>& p_events) {
+void Workspace::OnEvents(const InputFrame& p_input) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
         if (tab && tab->IsHovered()) {
-            tab->OnInputEvents(p_events);
+            tab->OnInputEvents(p_input);
             break;
         }
     }
 
-    for (const InputEvent& e : p_events) {
+    for (const InputEvent& e : p_input.events) {
         if (e.consumed) continue;
         if (e.type == InputEventType::ButtonDown) {
             const Key key = static_cast<Key>(e.code);

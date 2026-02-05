@@ -1,9 +1,10 @@
 #include "SceneScheduler.h"
 
-#include "Scene.h"
-#include "ISceneRegistry.h"
+#include "cave/core/time/FrameTime.h"
 
 #include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/ISceneRegistry.h"
 
 namespace cave {
 
@@ -40,7 +41,7 @@ bool SceneScheduler::Unregister(ISceneTickContributor* p_contributor) {
     return true;
 }
 
-void SceneScheduler::Tick(float p_dt) {
+void SceneScheduler::Tick(const FrameTime& p_time) {
     std::vector<SceneTickRequest> requests;
     for (ISceneTickContributor* c : m_contributors) {
         if (c == nullptr) continue;
@@ -51,10 +52,10 @@ void SceneScheduler::Tick(float p_dt) {
     for (const SceneTickRequest& req : requests) {
         if (Scene* scene = m_scene_manager.Resolve(req.scene_id)) {
             if (req.mode == SceneTickMode::Simulation) {
-                m_script_manager.Update(*scene, p_dt);
+                m_script_manager.Update(*scene, p_time.dt);
             }
 
-            scene->Update(p_dt);
+            scene->Update(p_time.dt);
         }
     }
 }

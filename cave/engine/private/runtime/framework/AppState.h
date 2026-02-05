@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/time/FrameTime.h"
 
 namespace cave {
 
@@ -28,7 +29,7 @@ public:
 
     virtual void OnExit() = 0;
 
-    virtual void Tick(float p_timestep) = 0;
+    virtual void Tick(const FrameTime& p_time) = 0;
 
     virtual Option<StateRequest> PopRequest() = 0;
 
@@ -53,7 +54,7 @@ public:
 
     void Shutdown();
 
-    void Tick(float p_timestep);
+    void Tick(const FrameTime& p_time);
 
     AppStateId GetStateId() const { return m_state_id; }
 

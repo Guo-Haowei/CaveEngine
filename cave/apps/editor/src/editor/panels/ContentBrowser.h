@@ -1,22 +1,18 @@
 #pragma once
-#include "engine/private/assets/asset_handle.h"
-#include "engine/private/assets/asset_interface.h"
 #include "editor/panels/EditorWindow.h"
 
 namespace cave {
 
-class AssetRegistry;
 struct ContentEntry;
-struct ImageAsset;
 
-class AssetInspector : public EditorWindow {
+class ContentBrowser : public EditorWindow {
 public:
-    AssetInspector(EditorState& p_editor);
+    ContentBrowser(EditorState& p_editor);
 
     void OnAttach() override;
 
     const char* GetWindowId() const override {
-        return "Asset Inspector";
+        return "Content Browser";
     }
 
     void DrawContentBrowser();
@@ -29,9 +25,9 @@ protected:
 
     std::vector<std::string> m_current_path;
 
-    std::shared_ptr<ImageAsset> m_folder_iamge;
-    std::shared_ptr<ImageAsset> m_fallback_iamge;
-    std::unordered_map<std::string_view, std::shared_ptr<ImageAsset>> m_thumbnail_lut;
+    uint64_t m_folder_iamge;
+    uint64_t m_fallback_iamge;
+    std::unordered_map<std::string_view, uint64_t> m_thumbnail_lut;
 };
 
 }  // namespace cave

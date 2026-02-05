@@ -7,17 +7,12 @@ namespace cave {
 
 class CameraComponent;
 class Scene;
-
-struct CameraInputState {
-    math::Vector3f move{ 0, 0, 0 };
-    float zoom_delta{ 0 };
-    math::Vector2f rotation{ 0, 0 };
-};
+struct InputFrame;
 
 class ICameraController {
 public:
     virtual ~ICameraController() = default;
-    virtual void Update(const CameraInputState& p_state) = 0;
+    virtual void Update(const InputFrame& p_input) = 0;
 };
 
 class CameraController2DEditor : public ICameraController {
@@ -25,7 +20,7 @@ public:
     CameraController2DEditor(CameraComponent& p_camera,
                              TransformComponent& p_transform);
 
-    void Update(const CameraInputState& p_state) final;
+    void Update(const InputFrame& p_input) final;
 
 private:
     CameraComponent& m_camera;
@@ -37,7 +32,7 @@ public:
     CameraControllerFPS(CameraComponent& p_camera,
                         TransformComponent& p_transform);
 
-    void Update(const CameraInputState& p_state) final;
+    void Update(const InputFrame& p_input) final;
 
 private:
     CameraComponent& m_camera;

@@ -135,13 +135,13 @@ void ShortcutService::InitShortcuts() {
     }
 }
 
-void ShortcutService::OnEvents(const std::vector<InputEvent>& p_events) {
+void ShortcutService::OnEvents(const InputFrame& p_input) {
     InputSystem* input = m_editor.GetApp().GetInputSystem();
     const bool ctrl = input->GetKeyState().AnyCtrlDown();
     const bool alt = input->GetKeyState().AnyAltDown();
     const bool shift = input->GetKeyState().AnyShiftDown();
 
-    for (const InputEvent& e : p_events) {
+    for (const InputEvent& e : p_input.events) {
         if (e.type != InputEventType::ButtonDown)
             continue;
 

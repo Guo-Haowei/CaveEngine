@@ -4,6 +4,7 @@
 
 namespace cave {
 
+struct FrameTime;
 class ISceneRegistry;
 class IScriptManager;
 
@@ -37,7 +38,7 @@ public:
     bool Register(ISceneTickContributor* p_contributor);
     bool Unregister(ISceneTickContributor* p_contributor);
 
-    void Tick(float p_dt);
+    void Tick(const FrameTime& p_time);
 
 private:
     IScriptManager& m_script_manager;

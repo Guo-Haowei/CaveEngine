@@ -35,9 +35,7 @@ public:
 
     void DrawUI() override;
 
-    virtual void OnInputEvents(const std::vector<InputEvent>&) {}
-
-    virtual void Tick(float);
+    virtual void OnInputEvents(const InputFrame&) {}
 
     DocId GetDocId() const { return m_doc_id; }
 

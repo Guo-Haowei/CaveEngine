@@ -50,6 +50,7 @@ protected:
     void RegisterModule(Module* p_module);
 
     const AppType m_type;
+    uint64_t m_frame_counter{};
 
     AppStateMachine m_state_machine;
     GameModeFactory m_game_mode_factory;

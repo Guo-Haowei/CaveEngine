@@ -1,6 +1,8 @@
 #include "InputSystem.h"
 
+#include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/IApplication.h"
+
 #include "engine/private/runtime/framework/ImGuiManager.h"
 
 namespace cave {
@@ -121,7 +123,7 @@ void InputSystem::UpdateActions(const DeviceRouting& p_routing) {
     }
 }
 
-void InputSystem::Update() {
+void InputSystem::Tick(const FrameTime& p_time) {
     m_input_events.clear();
     m_action_events.clear();
 
@@ -151,7 +153,12 @@ void InputSystem::Update() {
     }
 
     // *) Raw routing stage (shortcuts, viewport tools, gestures)
-    m_router.Dispatch(m_input_events);
+    InputFrame input_frame{
+        .dt = p_time.dt,
+        .events = m_input_events,
+        .keystate = m_key_state,
+    };
+    m_router.Dispatch(input_frame);
 
     // *) Rebuild key state after raw consumption (critical for chords/drag gating)
     m_key_state.BeginFrame();
