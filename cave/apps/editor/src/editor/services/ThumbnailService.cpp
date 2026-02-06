@@ -1,13 +1,15 @@
 #include "ThumbnailService.h"
 
+#include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/time/FrameTime.h"
 
-#include "cave/core/diagnostics/Profiler.h"
+#include "editor/EditorState.h"
 
 namespace cave {
 
 ThumbnailService::ThumbnailService(EditorState& p_editor) noexcept
-    : m_editor(p_editor) {
+    : m_editor(p_editor)
+    , m_builder(p_editor.GetApp()) {
 }
 
 uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
@@ -85,6 +87,15 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
         if (rec.state == ThumbnailState::Ready || rec.state == ThumbnailState::Pending) {
             continue;
         }
+
+        auto res = m_builder.Build({
+            .guid = req.key.guid,
+            .options = {
+                .width = req.key.size,
+                .height = req.key.size,
+            },
+        });
+        unused(res);
 
         // 1) Setup preview scene and camera
         // 2) Prepare render target

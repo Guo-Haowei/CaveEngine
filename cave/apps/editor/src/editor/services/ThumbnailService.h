@@ -2,6 +2,7 @@
 #include "engine/private/renderer/gpu_resource.h"
 
 #include "editor/thumbnail/ThumbnailKey.h"
+#include "editor/thumbnail/PreviewBuilder.h"
 
 namespace cave {
 
@@ -49,6 +50,8 @@ private:
     void SubmitRequests(const BusyInfo& p_info);
 
     EditorState& m_editor;
+    PreviewBuilder m_builder;
+
     uint64_t m_frame_index{};
 
     std::list<PendingRequest> m_pending;
