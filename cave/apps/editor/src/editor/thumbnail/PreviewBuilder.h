@@ -12,7 +12,6 @@ class IApplication;
 class ISceneRegistry;
 
 struct PreviewOptions {
-    // @TODO: geomerty type
     uint32_t width = 256;
     uint32_t height = 256;
     float fov_y_deg = 35.0f;
@@ -25,7 +24,13 @@ struct PreviewBuildRequest {
     PreviewOptions options{};
 };
 
+enum class PreviewBuildStatus : uint8_t {
+    Ok,
+    Error,
+};
+
 struct PreviewBuildResult {
+    PreviewBuildStatus status{};
     SceneId scene_id{};
     CameraComponent camera{};
 };

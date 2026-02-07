@@ -4,8 +4,13 @@
 #include "editor/thumbnail/ThumbnailKey.h"
 #include "editor/thumbnail/PreviewBuilder.h"
 
+// clang-format off
+namespace cave::render { class IRenderDevice; }
+// clang-format on
+
 namespace cave {
 
+class ViewManager;
 class EditorState;
 struct FrameTime;
 
@@ -49,7 +54,8 @@ private:
     void ProcessCompletions();
     void SubmitRequests(const BusyInfo& p_info);
 
-    EditorState& m_editor;
+    ViewManager& m_view_manager;
+    render::IRenderDevice& m_render_device;
     PreviewBuilder m_builder;
 
     uint64_t m_frame_index{};
