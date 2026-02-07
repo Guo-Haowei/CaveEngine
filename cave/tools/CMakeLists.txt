@@ -1,2 +1,1 @@
 # add_subdirectory(texture_writer)
-# add_subdirectory(thumbnail)
