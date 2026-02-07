@@ -29,9 +29,9 @@ enum VariantType {
     VARIANT_TYPE_MAX,
 };
 
-class DynamicVariable {
+class Dvar {
 public:
-    explicit DynamicVariable(VariantType p_type, DvarFlags p_flags, const char* p_desc);
+    explicit Dvar(VariantType p_type, DvarFlags p_flags, const char* p_desc);
 
     void RegisterInt(std::string_view p_key, int p_value);
     void RegisterFloat(std::string_view p_key, float p_value);
@@ -69,14 +69,13 @@ public:
     void UnsetFlag(DvarFlags p_flag) { m_flags &= ~p_flag; }
 
     std::string ValueToString() const;
-    void PrintValueChange(std::string_view p_source) const;
 
     VariantType GetType() const { return m_type; }
     const char* GetDesc() const { return m_desc; }
     uint32_t GetFlags() const { return m_flags; }
 
-    static DynamicVariable* FindDvar(const std::string& p_name);
-    static void RegisterDvar(std::string_view p_key, DynamicVariable* p_dvar);
+    static Dvar* FindDvar(const std::string& p_name);
+    static void RegisterDvar(std::string_view p_key, Dvar* p_dvar);
 
 private:
     const VariantType m_type;
@@ -92,8 +91,8 @@ private:
     std::string m_string;
     std::string m_name;
 
-    inline static std::unordered_map<std::string, DynamicVariable*> s_map;
-    friend class DynamicVariableManager;
+    inline static std::unordered_map<std::string, Dvar*> s_map;
+    friend class DvarCache;
 };
 
 }  // namespace cave

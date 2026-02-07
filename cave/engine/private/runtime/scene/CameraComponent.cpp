@@ -47,6 +47,7 @@ bool CameraComponent::Update(const math::Matrix4x4f& p_transform) {
         m_up = (p_transform * Vector4f::UnitY).xyz;
         m_position = (p_transform * Vector4f::UnitW).xyz;
 
+        // @TOD: should be inverse of transform
         m_view_matrix = LookAtRh(m_position, m_position + m_front, Vector3f::UnitY);
 
         // use gl matrix for frustum culling

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/private/runtime/string/StringUtils.h
+// File: engine/private/core/string/StringUtils.h
 // =============================================================================
 #pragma once
 
@@ -123,6 +123,8 @@ public:
     static constexpr std::string_view Extension(std::string_view p_string) {
         return FindLastOf(p_string, '.');
     }
+
+    static std::vector<std::string_view> Tokenize(std::string_view p_str);
 };
 
 }  // namespace cave

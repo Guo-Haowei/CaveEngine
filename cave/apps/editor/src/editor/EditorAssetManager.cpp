@@ -1,10 +1,10 @@
 #include "EditorAssetManager.h"
 
+#include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/assets/image_asset.h"
-#include "engine/private/runtime/string/StringUtils.h"
-#include "cave/core/diagnostics/Profiler.h"
+#include "engine/private/core/string/StringUtils.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/VFS.h"
 

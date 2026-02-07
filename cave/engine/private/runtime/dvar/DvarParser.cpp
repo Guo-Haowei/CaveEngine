@@ -1,89 +1,28 @@
-#include "dynamic_variable_manager.h"
+#include "DvarParser.h"
 
 #if USING(ENABLE_DVAR)
 
-#include <sstream>
+#include "cave/core/diagnostics/CommandRegistry.h"
+#include "cave/core/diagnostics/ILogger.h"
 
 #include "engine/private/core/io/archive.h"
 
 namespace cave {
 
-void DynamicVariableManager::Serialize(std::string_view p_path) {
-    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
-    if (!res) {
-        LOG_ERROR("{}", ToString(res.error()));
-        return;
-    }
+#define TOKEN_EOF "<EOF>"
 
-    LOG("[dvar] serializing dvars");
-    auto writer = std::move(*res);
-
-    for (auto const& [key, dvar] : DynamicVariable::s_map) {
-        if (dvar->m_flags & DVAR_FLAG_CACHE) {
-            auto line = std::format("+set {} {}\n", dvar->m_name, dvar->ValueToString());
-            writer->WriteBuffer(line.data(), line.length());
-        }
-    }
-
-    writer->Close();
-}
-
-void DynamicVariableManager::Deserialize(std::string_view p_path) {
-    auto res = FileAccess::Open(p_path, FileAccess::READ);
-    if (!res) {
-        if (res.error()->value != ErrorCode::ERR_FILE_NOT_FOUND) {
-            LOG_ERROR("{}", ToString(res.error()));
-        }
-        return;
-    }
-
-    auto reader = std::move(*res);
-    const size_t size = reader->GetLength();
-    std::string buffer;
-    buffer.resize(size);
-    reader->ReadBuffer(buffer.data(), size);
-    reader->Close();
-
-    // @TODO: use string_view instead
-    std::stringstream ss{ buffer };
-    std::vector<std::string> commands;
-    std::string token;
-    while (!ss.eof() && ss >> token) {
-        commands.emplace_back(token);
-    }
-
-    DynamicVariableParser parser(commands, DynamicVariableParser::SOURCE_CACHE);
-    if (!parser.Parse()) {
-        LOG_ERROR("[dvar] Error: {}", parser.GetError());
-    }
-}
-
-void DynamicVariableManager::DumpDvars() {
-    for (const auto& it : DynamicVariable::s_map) {
-        PRINT("-- {}, '{}'", it.first, it.second->GetDesc());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-// Dynamic Varialbe Parser
-//--------------------------------------------------------------------------------------------------
-
-bool DynamicVariableParser::Parse() {
+bool DvarParser::Parse() {
     for (;;) {
-        const std::string& command = Peek();
-        if (command == s_eof) {
+        std::string_view command = Peek();
+        if (command == TOKEN_EOF) {
             return true;
         }
 
         if (command == "+set") {
             Consume();  // pop set
-            if (!ProcessSetCmd()) {
+            if (!ParseSetCmd(m_error)) {
                 return false;
             }
-        } else if (command == "+list") {
-            Consume();
-            ProcessListCmd();
-            return true;
         } else {
             m_error = std::format("unknown command '{}'", command);
             return false;
@@ -91,16 +30,16 @@ bool DynamicVariableParser::Parse() {
     }
 }
 
-bool DynamicVariableParser::ProcessSetCmd() {
-    const std::string& name = Consume();
-    if (name == s_eof) {
-        m_error = "unexpected <EOF>";
+bool DvarParser::ParseSetCmd(std::string& p_out) {
+    std::string_view name = Consume();
+    if (name == TOKEN_EOF) {
+        p_out = "unexpected <EOF>";
         return false;
     }
 
-    DynamicVariable* dvar = DynamicVariable::FindDvar(name);
+    Dvar* dvar = Dvar::FindDvar(std::string(name));
     if (dvar == nullptr) {
-        m_error = std::format("dvar '{}' not found", name);
+        p_out = std::format("dvar '{}' not found", name);
         return false;
     }
 
@@ -184,78 +123,62 @@ bool DynamicVariableParser::ProcessSetCmd() {
     }
 
     if (!ok) {
-        m_error = std::format("invalid arguments: +set {}", name);
+        p_out = std::format("invalid arguments: {}", name);
         for (size_t i = arg_start_index; i < m_commands.size(); ++i) {
-            m_error.push_back(' ');
-            m_error.append(m_commands[i]);
+            p_out.push_back(' ');
+            p_out.append(m_commands[i]);
         }
         return false;
     }
 
-    // @TODO: refactor
-    switch (m_source) {
-        case SOURCE_CACHE:
-            dvar->PrintValueChange("cache");
-            break;
-        case SOURCE_COMMAND_LINE:
-            dvar->PrintValueChange("command line");
-            break;
-        default:
-            break;
-    }
     return true;
 }
 
-bool DynamicVariableParser::ProcessListCmd() {
-    DynamicVariableManager::DumpDvars();
-    return true;
-}
-
-const std::string& DynamicVariableParser::Peek() {
+std::string_view DvarParser::Peek() {
     if (OutOfBound()) {
-        return s_eof;
+        return TOKEN_EOF;
     }
 
     return m_commands[m_cursor];
 }
 
-const std::string& DynamicVariableParser::Consume() {
+std::string_view DvarParser::Consume() {
     if (OutOfBound()) {
-        return s_eof;
+        return TOKEN_EOF;
     }
 
     return m_commands[m_cursor++];
 }
 
-bool DynamicVariableParser::TryGetInt(int& p_out) {
+bool DvarParser::TryGetInt(int& p_out) {
     if (OutOfBound()) {
         return false;
     }
-    const std::string& value = Consume();
+    std::string_view value = Consume();
     if (value == "true") {
         p_out = 1;
     } else if (value == "false") {
         p_out = 0;
     } else {
-        p_out = atoi(value.c_str());
+        p_out = atoi(value.data());
     }
     return true;
 }
 
-bool DynamicVariableParser::TryGetFloat(float& p_out) {
+bool DvarParser::TryGetFloat(float& p_out) {
     if (OutOfBound()) {
         return false;
     }
-    p_out = (float)atof(Consume().c_str());
+    p_out = (float)atof(Consume().data());
     return true;
 }
 
-bool DynamicVariableParser::TryGetString(std::string_view& p_out) {
+bool DvarParser::TryGetString(std::string_view& p_out) {
     if (OutOfBound()) {
         return false;
     }
 
-    const std::string& next = Consume();
+    std::string_view next = Consume();
     if (next.length() >= 2 && next.front() == '"' && next.back() == '"') {
         p_out = std::string_view(next.data() + 1, next.length() - 2);
     } else {
@@ -265,20 +188,9 @@ bool DynamicVariableParser::TryGetString(std::string_view& p_out) {
     return true;
 }
 
-bool DynamicVariableParser::OutOfBound() {
+bool DvarParser::OutOfBound() {
     return m_cursor >= m_commands.size();
 }
 
-// @TODO: avoid using std::vector<std::string>, use string_view instead
-bool DynamicVariableManager::Parse(const std::vector<std::string>& p_commands) {
-    DynamicVariableParser parser(p_commands, DynamicVariableParser::SOURCE_COMMAND_LINE);
-    bool ok = parser.Parse();
-    if (!ok) {
-        LOG_ERROR("[dvar] Error: {}", parser.GetError());
-    }
-    return ok;
-}
-
 }  // namespace cave
-
 #endif

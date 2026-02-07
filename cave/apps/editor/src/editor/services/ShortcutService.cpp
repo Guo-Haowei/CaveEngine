@@ -5,7 +5,7 @@
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/core/string/StringUtils.h"
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 
 #include "editor/services/EditService.h"

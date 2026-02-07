@@ -1,6 +1,6 @@
 #include <regex>
 
-#include "engine/private/runtime/string/StringBuilder.h"
+#include "engine/private/core/string/StringBuilder.h"
 
 namespace cave {
 

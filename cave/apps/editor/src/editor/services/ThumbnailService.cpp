@@ -1,13 +1,23 @@
 #include "ThumbnailService.h"
 
+#include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/time/FrameTime.h"
 
-#include "cave/core/diagnostics/Profiler.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
+#include "engine/private/runtime/framework/ViewManager.h"
+
+#include "editor/EditorState.h"
+
+// @TODO: refactor
+#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/sampler.h"
 
 namespace cave {
 
 ThumbnailService::ThumbnailService(EditorState& p_editor) noexcept
-    : m_editor(p_editor) {
+    : m_view_manager(*p_editor.GetApp().GetViewManager())
+    , m_render_device(*p_editor.GetApp().GetRenderDevice())
+    , m_builder(p_editor.GetApp()) {
 }
 
 uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
@@ -68,16 +78,16 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
 
     int submitted = 0;
     while (!m_pending.empty() && submitted < budget) {
-        const PendingRequest req = m_pending.front();
+        const PendingRequest pending = m_pending.front();
         m_pending.pop_front();
 
-        auto it = m_cache.find(req.key);
+        auto it = m_cache.find(pending.key);
         if (it == m_cache.end()) continue;
 
         ThumbnailRecord& rec = it->second;
 
         // Drop stale requests
-        if (rec.generation != req.generation) {
+        if (rec.generation != pending.generation) {
             continue;
         }
 
@@ -86,18 +96,53 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
             continue;
         }
 
-        // 1) Setup preview scene and camera
-        // 2) Prepare render target
-        // 3) Send view to view manager
-#if 0
-        // Record state
-#endif
+        PreviewBuildRequest req{
+            .guid = pending.key.guid,
+            .options = {
+                .width = pending.key.size,
+                .height = pending.key.size,
+            },
+        };
+
+        PreviewBuildResult res = m_builder.Build(req);
+        if (res.status != PreviewBuildStatus::Ok) {
+            continue;
+        }
+
+        // @TODO: move it to somewhere else
+        {
+            GpuTextureDesc desc{
+                .type = AttachmentType::COLOR_2D,
+                .dimension = Dimension::TEXTURE_2D,
+                .width = req.options.width,
+                .height = req.options.height,
+                .depth = 1,
+                .mipLevels = 0,
+                .arraySize = 1,
+                .format = PixelFormat::R16G16B16A16_FLOAT,
+                .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+                .miscFlags = RESOURCE_MISC_NONE,
+            };
+            rec.texture = m_render_device.CreateTexture(
+                desc,
+                PointClampSampler());
+        }
+
+        render::ViewDesc view;
+        view.viewport_px = { 0, 0, (int)req.options.width, (int)req.options.height };
+        view.scene_id = res.scene_id;
+        view.camera_source = render::CameraSource::Editor(res.camera);
+        view.output = rec.texture;
+        m_view_manager.Submit(view);
+
         rec.state = ThumbnailState::Pending;
         rec.submitted_frame = m_frame_index;
-        // rec.gpu_handle = color_handle;
+        rec.gpu_handle = rec.texture->GetHandle();
 
-        m_inflight.push_back(req.key);
+        m_inflight.push_back(pending.key);
         ++submitted;
+
+        LOG("ThumbnailService::SubmitRequests: job submitted");
     }
 }
 

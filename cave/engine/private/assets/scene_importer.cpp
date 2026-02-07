@@ -1,6 +1,6 @@
 #include "scene_importer.h"
 
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/core/string/StringUtils.h"
 
 #include "engine/private/assets/image_asset.h"
 #include "engine/private/assets/material_asset.h"

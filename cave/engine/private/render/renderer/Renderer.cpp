@@ -212,6 +212,7 @@ auto Renderer::Impl::Initialize() -> Result<void> {
         .usage = "render.pool.dump",
         .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
             RenderPoolDump_Cmd(m_pool, p_ctx, p_args);
+            return true;
         },
     });
 #endif

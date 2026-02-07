@@ -5,7 +5,7 @@
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/Matrix.h"
 
-#include "engine/private/runtime/string/StringUtils.h"
+#include "engine/private/core/string/StringUtils.h"
 
 #include "engine/private/core/io/file_access.h"
 #include "cave/core/math/Box.h"

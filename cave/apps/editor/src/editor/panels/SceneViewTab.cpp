@@ -6,6 +6,7 @@
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 
 #include "editor/edit/EditTransformCmd.h"
@@ -14,11 +15,13 @@
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
+#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/sampler.h"
+
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/render/render_device/RenderDevice.h"
 
 #include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"

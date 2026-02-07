@@ -16,7 +16,7 @@ public:
     Option<std::string_view> Prev();
     Option<std::string_view> Next();
 
-    void ResetNav() { m_index = static_cast<int>(m_history.size()) - 1; }
+    void ResetNav() { m_index = static_cast<int>(m_history.size()); }
 
 private:
     IApplication& m_app;
