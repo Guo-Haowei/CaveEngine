@@ -203,7 +203,6 @@ static void FillEnvConstants(FrameData& p_out_data) {
 }
 
 auto Renderer::Impl::Initialize() -> Result<void> {
-
 #if USING(USE_RENDERER_DEBUG)
     CommandRegistry& reg = m_app.CommandRegistry();
     reg.Register({

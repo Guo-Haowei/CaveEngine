@@ -92,10 +92,10 @@ void SceneViewTab::SubmitView() {
     view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
     if (m_editor.IsPlaying()) {
         view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-        view.camera_source = CameraSource::MainCamera();
+        view.camera_source = CameraSource::FirstCamera();
     } else {
         view.scene_id = m_preview_scene;
-        view.camera_source = CameraSource::Editor(m_camera);
+        view.camera_source = CameraSource::External(m_camera);
 
         SelectionKey key = m_editor.SelectionService().Primary(m_doc_id);
         if (key.scene == m_preview_scene && key.entity.IsValid()) {

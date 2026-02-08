@@ -26,17 +26,17 @@ struct ViewOutputDesc {
 // @TODO: do not pass CameraComponent here
 struct CameraSource {
     enum class Source : uint8_t {
-        Editor,
-        MainCamera,
+        External,
+        FirstCamera,
     } source;
     CameraComponent camera;
 
-    static CameraSource Editor(const CameraComponent& p_camera) {
-        return { Source::Editor, p_camera };
+    static CameraSource External(const CameraComponent& p_camera) {
+        return { Source::External, p_camera };
     }
 
-    static CameraSource MainCamera() {
-        return { Source::MainCamera };
+    static CameraSource FirstCamera() {
+        return { Source::FirstCamera };
     }
 };
 

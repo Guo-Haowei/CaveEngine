@@ -52,10 +52,10 @@ static ResolvedView ResolveView(ViewDesc&& p_view,
 
     const CameraComponent* cam = nullptr;
     switch (p_view.camera_source.source) {
-        case CameraSource::Source::Editor: {
+        case CameraSource::Source::External: {
             cam = &p_view.camera_source.camera;
         } break;
-        case CameraSource::Source::MainCamera: {
+        case CameraSource::Source::FirstCamera: {
             for (auto [id, camera] : p_scene->View<CameraComponent>()) {
                 // @HACK: just use the first camera
                 if (id.IsValid()) {

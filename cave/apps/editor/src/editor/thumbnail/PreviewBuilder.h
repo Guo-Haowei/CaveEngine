@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/scene/CameraComponent.h"
+#include "cave/render/ViewDesc.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/ids/SceneId.h"
 
@@ -32,7 +32,7 @@ enum class PreviewBuildStatus : uint8_t {
 struct PreviewBuildResult {
     PreviewBuildStatus status{};
     SceneId scene_id{};
-    CameraComponent camera{};
+    render::CameraSource camera{};
 };
 
 class PreviewBuilder {
@@ -40,10 +40,11 @@ public:
     explicit PreviewBuilder(IApplication& p_app) noexcept;
     ~PreviewBuilder();
 
-    PreviewBuildResult Build(const PreviewBuildRequest& p_req);
+    PreviewBuildResult Build(const PreviewBuildRequest& p_req) const;
 
 private:
-    PreviewBuildResult BuildMaterial(const AssetHandle& p_handle, const PreviewOptions& p_options);
+    PreviewBuildResult BuildMaterial(const AssetHandle& p_handle, const PreviewOptions& p_options) const;
+    PreviewBuildResult BuildScene(const AssetHandle& p_handle, const PreviewOptions& p_options) const;
 
     AssetRegistry& m_asset_reg;
     ISceneRegistry& m_scene_reg;

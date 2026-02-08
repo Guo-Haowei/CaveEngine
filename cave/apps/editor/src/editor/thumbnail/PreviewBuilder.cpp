@@ -11,6 +11,7 @@ namespace cave {
 
 using math::Matrix4x4f;
 using math::Vector3f;
+using render::CameraSource;
 
 PreviewBuilder::PreviewBuilder(IApplication& p_app) noexcept
     : m_asset_reg(*p_app.GetAssetRegistry())
@@ -18,22 +19,47 @@ PreviewBuilder::PreviewBuilder(IApplication& p_app) noexcept
 
 PreviewBuilder::~PreviewBuilder() = default;
 
-PreviewBuildResult PreviewBuilder::Build(const PreviewBuildRequest& p_req) {
+PreviewBuildResult PreviewBuilder::Build(const PreviewBuildRequest& p_req) const {
     AssetHandle handle = m_asset_reg.FindByGuid(p_req.guid).unwrap();
     switch (handle.GetMeta()->type) {
+        case AssetType::Scene: {
+            return BuildScene(handle, p_req.options);
+        } break;
         case AssetType::Material: {
             return BuildMaterial(handle, p_req.options);
-        } break;
-        case AssetType::Scene: {
-            // @TODO: load scene
         } break;
         default: {
         } break;
     }
     return { PreviewBuildStatus::Error };
 }
+
+PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
+                                              const PreviewOptions& p_options) const {
+    unused(p_options);
+
+    const Scene* source_scene = p_handle.Get<Scene>();
+    DEV_ASSERT(source_scene);
+    auto scene = std::make_unique<Scene>();
+    scene->Copy(*source_scene);
+
+    for (auto [id, cam] : scene->View<CameraComponent>()) {
+        cam.SetAspect(1.0f);
+    }
+    scene->Update(0.0f);
+
+    // @TODO: delete scene
+    SceneId scene_id = m_scene_reg.Register(std::move(scene));
+
+    return {
+        .status = PreviewBuildStatus::Ok,
+        .scene_id = scene_id,
+        .camera = CameraSource::FirstCamera(),
+    };
+}
+
 PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
-                                                 const PreviewOptions& p_options) {
+                                                 const PreviewOptions& p_options) const {
 
     auto scene = std::make_unique<Scene>();
     auto root = EntityFactory::CreateTransformEntity(*scene, "material_test");
@@ -62,19 +88,20 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
 
     scene->Update(0.0f);
 
-    SceneId scene_id = m_scene_reg.Register(std::move(scene));
-
     Matrix4x4f transform = math::Translate(Vector3f(0, 0, 1.5f));
 
-    CameraComponent cam{};
-    cam.SetAspect((float)p_options.width / (float)p_options.height);
-    cam.Update(transform);
-    cam.SetFovy(p_options.fov_y_deg);
+    CameraComponent camera{};
+    camera.SetAspect((float)p_options.width / (float)p_options.height);
+    camera.Update(transform);
+    camera.SetFovy(p_options.fov_y_deg);
+
+    // @TODO: delete scene
+    SceneId scene_id = m_scene_reg.Register(std::move(scene));
 
     return {
         .status = PreviewBuildStatus::Ok,
         .scene_id = scene_id,
-        .camera = cam,
+        .camera = CameraSource::External(camera),
     };
 }
 

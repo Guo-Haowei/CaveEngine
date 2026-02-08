@@ -131,7 +131,7 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
         render::ViewDesc view;
         view.viewport_px = { 0, 0, (int)req.options.width, (int)req.options.height };
         view.scene_id = res.scene_id;
-        view.camera_source = render::CameraSource::Editor(res.camera);
+        view.camera_source = res.camera;
         view.output = tex;
         m_view_manager.Submit(view);
 
