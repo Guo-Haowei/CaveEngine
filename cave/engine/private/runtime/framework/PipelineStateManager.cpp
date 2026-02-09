@@ -65,10 +65,10 @@ Result<void> PipelineStateManager::Initialize() {
         return Result<void>();
     }
     switch (m_backend) {
-        case Backend::EMPTY:
-        case Backend::D3D12:
-        case Backend::METAL:
-        case Backend::VULKAN:
+        case Backend::Null:
+        case Backend::Direct3D12:
+        case Backend::Metal:
+        case Backend::Vulkan:
             return Result<void>();
         default:
             break;
@@ -306,7 +306,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
 
     // @HACK: only support this many shaders
-    if (m_backend != Backend::OPENGL) {
+    if (m_backend != Backend::OpenGL) {
         return Result<void>();
     }
 

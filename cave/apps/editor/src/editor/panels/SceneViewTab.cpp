@@ -249,11 +249,11 @@ void SceneViewTab::DrawMainView() {
     uint64_t handle = m_texture->GetHandle();
     // add image for drawing
     switch (m_editor.GetApp().GetBackend()) {
-        case Backend::D3D11:
-        case Backend::D3D12: {
+        case Backend::Direct3D11:
+        case Backend::Direct3D12: {
             ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max);
         } break;
-        case Backend::OPENGL: {
+        case Backend::OpenGL: {
             ImVec2 uv_min = ImVec2(0, 1);
             ImVec2 uv_max = ImVec2(1, 0);
             // if (gm.GetActiveRenderGraphName() == RenderGraphName::PATHTRACER) {
@@ -262,8 +262,8 @@ void SceneViewTab::DrawMainView() {
             // }
             ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max, uv_min, uv_max);
         } break;
-        case Backend::VULKAN:
-        case Backend::METAL: {
+        case Backend::Vulkan:
+        case Backend::Metal: {
         } break;
         default:
             CRASH_NOW();

@@ -37,7 +37,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
 
     switch (m_backend) {
-        case Backend::OPENGL:
+        case Backend::OpenGL:
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             if (DVAR_GET_BOOL(gfx_gpu_validation)) {
@@ -89,17 +89,17 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
     glfwGetWindowSize(m_window, &m_frameSize.x, &m_frameSize.y);
 
     switch (m_backend) {
-        case Backend::OPENGL:
+        case Backend::OpenGL:
             glfwMakeContextCurrent(m_window);
             break;
-        case Backend::VULKAN:
+        case Backend::Vulkan:
             if (!glfwVulkanSupported()) {
                 return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Vulkan not supported");
             }
             break;
-        case Backend::METAL:
-        case Backend::D3D11:
-        case Backend::D3D12:
+        case Backend::Metal:
+        case Backend::Direct3D11:
+        case Backend::Direct3D12:
             break;
         default:
             return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", ToString(m_backend));
@@ -110,10 +110,10 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
         imgui->SetDisplayCallbacks(
             [this]() {
                 switch (m_backend) {
-                    case Backend::OPENGL:
+                    case Backend::OpenGL:
                         ImGui_ImplGlfw_InitForOpenGL(m_window, false);
                         break;
-                    case Backend::VULKAN:
+                    case Backend::Vulkan:
                         ImGui_ImplGlfw_InitForVulkan(m_window, false);
                         break;
                     default:

@@ -49,7 +49,7 @@ IScriptManager* CreateScriptManager() {
 
 // @TODO: move to RHI
 static IRenderDevice* SelectRenderDevice(Backend p_backend) {
-    if (p_backend == Backend::D3D11) {
+    if (p_backend == Backend::Direct3D11) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d11GraphicsManager;
 #else
@@ -57,7 +57,7 @@ static IRenderDevice* SelectRenderDevice(Backend p_backend) {
 #endif
     }
 
-    if (p_backend == Backend::D3D12) {
+    if (p_backend == Backend::Direct3D12) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d12GraphicsManager;
 #else
@@ -65,7 +65,7 @@ static IRenderDevice* SelectRenderDevice(Backend p_backend) {
 #endif
     }
 
-    if (p_backend == Backend::OPENGL) {
+    if (p_backend == Backend::OpenGL) {
 #if USING(PLATFORM_WINDOWS)
         return new OpenGL4GraphicsManager;
 #elif USING(PLATFORM_WASM)
@@ -75,7 +75,7 @@ static IRenderDevice* SelectRenderDevice(Backend p_backend) {
 #endif
     }
 
-    if (p_backend == Backend::VULKAN) {
+    if (p_backend == Backend::Vulkan) {
 #if USING(PLATFORM_WINDOWS)
         return new VulkanGraphicsManager;
 #else
@@ -83,7 +83,7 @@ static IRenderDevice* SelectRenderDevice(Backend p_backend) {
 #endif
     }
 
-    if (p_backend == Backend::METAL) {
+    if (p_backend == Backend::Metal) {
         return nullptr;
     }
 

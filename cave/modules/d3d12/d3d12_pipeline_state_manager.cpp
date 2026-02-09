@@ -10,7 +10,7 @@ namespace cave::render {
 using Microsoft::WRL::ComPtr;
 
 D3d12PipelineStateManager::D3d12PipelineStateManager(IRenderDevice* p_device) noexcept
-    : PipelineStateManager(Backend::D3D12)
+    : PipelineStateManager(Backend::Direct3D12)
     , m_device(p_device) {
     m_defines.push_back({ "HLSL_LANG", "1" });
     m_defines.push_back({ "HLSL_LANG_D3D12", "1" });

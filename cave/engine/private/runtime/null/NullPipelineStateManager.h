@@ -6,7 +6,7 @@ namespace cave::render {
 class EmptyPipelineStateManager : public PipelineStateManager {
 public:
     explicit EmptyPipelineStateManager() noexcept
-        : PipelineStateManager(Backend::EMPTY) {}
+        : PipelineStateManager(Backend::Null) {}
 
 protected:
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {

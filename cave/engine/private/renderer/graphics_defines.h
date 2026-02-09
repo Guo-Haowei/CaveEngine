@@ -3,30 +3,30 @@
 namespace cave {
 
 // clang-format off
-#define BACKEND_LIST                                \
-    BACKEND_DECLARE(EMPTY,  "Empty",        empty)  \
-    BACKEND_DECLARE(OPENGL, "OpenGL",       opengl) \
-    BACKEND_DECLARE(D3D11,  "Direct3D 11",  d3d11)  \
-    BACKEND_DECLARE(D3D12,  "Direct3D 12",  d3d12)  \
-    BACKEND_DECLARE(VULKAN, "Vulkan",       vulkan) \
-    BACKEND_DECLARE(METAL,  "Metal",        metal)
+#define BACKEND_LIST                                    \
+    BACKEND_DECLARE(Null,       "Null",         null)   \
+    BACKEND_DECLARE(OpenGL,     "OpenGL",       opengl) \
+    BACKEND_DECLARE(Direct3D11, "Direct3D 11",  d3d11)  \
+    BACKEND_DECLARE(Direct3D12, "Direct3D 12",  d3d12)  \
+    BACKEND_DECLARE(Vulkan,     "Vulkan",       vulkan) \
+    BACKEND_DECLARE(Metal,      "Metal",        metal)
 // clang-format on
 
 enum class Backend : uint8_t {
 #define BACKEND_DECLARE(ENUM, ...) ENUM,
     BACKEND_LIST
 #undef BACKEND_DECLARE
-        COUNT,
+        Count,
 };
 
 inline const char* ToString(Backend p_backend) {
-    DEV_ASSERT_INDEX(p_backend, Backend::COUNT);
+    DEV_ASSERT_INDEX(p_backend, Backend::Count);
     static const char* m_table[] = {
 #define BACKEND_DECLARE(ENUM, STR, DVAR) #DVAR,
         BACKEND_LIST
 #undef BACKEND_DECLARE
     };
-    static_assert(array_length(m_table) == std::to_underlying(Backend::COUNT));
+    static_assert(array_length(m_table) == std::to_underlying(Backend::Count));
     return m_table[std::to_underlying(p_backend)];
 }
 

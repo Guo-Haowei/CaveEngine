@@ -25,7 +25,7 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
 
     auto draw_node = [&passes, this](int id, float x, float y) {
         const CompiledPass& pass = passes[id];
-        const bool flip_image = m_backend == Backend::OPENGL;
+        const bool flip_image = m_backend == Backend::OpenGL;
 
         ImNodes::BeginNode(id);
 
@@ -118,8 +118,8 @@ void RenderGraphViewer::DrawUIImpl() {
     m_backend = m_editor.GetApp().GetBackend();
 
     switch (m_backend) {
-        case Backend::VULKAN:
-        case Backend::METAL:
+        case Backend::Vulkan:
+        case Backend::Metal:
             return;
         default:
             break;

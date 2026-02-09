@@ -97,7 +97,7 @@ std::span<const render::ResolvedView> ViewManager::EndFrame() {
     DEV_ASSERT(m_can_submit == true);
     m_can_submit = false;
 
-    const bool is_opengl = m_app->GetBackend() == Backend::OPENGL;
+    const bool is_opengl = m_app->GetBackend() == Backend::OpenGL;
 
     m_views.clear();
     m_views.reserve(m_view_descs.size());
