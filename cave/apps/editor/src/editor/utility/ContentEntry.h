@@ -4,11 +4,11 @@
 namespace cave {
 
 class EditorState;
+class ThumbnailService;
 
 struct ContentEntry {
     AssetType type;
     AssetHandle handle;
-    Handle<ImageAsset> thumbnail;
 
     bool is_dir;
     std::filesystem::path sys_path;
@@ -24,9 +24,9 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const std::filesystem::path& p_sys
                                               ContentEntry* p_parent);
 
 /// tool tip
-void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset);
+void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle);
 
-void ShowAssetToolTip(const ContentEntry& p_node);
+void ShowAssetToolTip(ThumbnailService& p_service, const ContentEntry& p_node);
 
 /// popup
 void ShowPopup(const ContentEntry& p_node,

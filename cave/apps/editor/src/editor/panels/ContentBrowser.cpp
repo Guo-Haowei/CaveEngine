@@ -2,8 +2,9 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "engine/private/assets/image_asset.h"
 #include "cave/core/diagnostics/Profiler.h"
+
+#include "engine/private/assets/image_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/EditorAssetManager.h"
@@ -143,7 +144,6 @@ void ContentBrowser::DrawContentBrowser() {
             .size = thumbnail_size,
         };
         if (uint64_t handle = thumbnail.GetOrRequest(key)) return handle;
-        if (ImageAsset* image = p_entry.thumbnail.Get()) return image->gpu_texture->GetHandle();
         if (auto it = m_thumbnail_lut.find(p_entry.extension); it != m_thumbnail_lut.end()) return it->second;
         return m_fallback_iamge;
     };
@@ -171,7 +171,7 @@ void ContentBrowser::DrawContentBrowser() {
             }
         } else {
             if (hovered) {
-                ShowAssetToolTip(*node);
+                ShowAssetToolTip(thumbnail, *node);
             }
         }
 

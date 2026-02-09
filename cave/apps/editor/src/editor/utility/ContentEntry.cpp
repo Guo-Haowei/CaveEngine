@@ -8,6 +8,7 @@
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
+#include "editor/services/ThumbnailService.h"
 #include "editor/EditorState.h"
 
 namespace cave {
@@ -57,6 +58,7 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
             DEV_ASSERT(meta);
             node->type = meta->type;
             node->extension = StringUtils::Extension(node->file_name);
+#if 0
             if (node->type == AssetType::Image) {
                 node->thumbnail = node->handle;
             } else {
@@ -65,6 +67,7 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
                     node->thumbnail = _handle.unwrap_unchecked();
                 }
             }
+#endif
         } else {
             for (const auto& entry : fs::directory_iterator(p_sys_path)) {
                 auto child = BuildFolderTree(entry.path(), node.get());
@@ -81,37 +84,51 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
     }
 }
 
-void ShowAssetToolTip(const AssetMetaData& p_meta, const IAsset* p_asset) {
+// @TODO: 
+static constexpr int kThumbnailSize = 256;
+
+void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) {
+    const AssetMetaData* meta = p_handle.GetMeta();
+    DEV_ASSERT(meta);
+
     if (ImGui::BeginTooltip()) {
-        ImGui::Text("name: %s", p_meta.name.c_str());
-        ImGui::Text("import_path: %s", p_meta.import_path.c_str());
-        ImGui::Text("type: %s", EnumTraits<AssetType>::ToString(p_meta.type).data());
+        ImGui::Text("name: %s", meta->name.c_str());
+        ImGui::Text("import_path: %s", meta->import_path.c_str());
+        ImGui::Text("type: %s", EnumTraits<AssetType>::ToString(meta->type).data());
 
-        if (p_asset && p_asset->GetType() == AssetType::Image) {
-            auto texture = reinterpret_cast<const ImageAsset&>(*p_asset);
-            const int w = texture.width;
-            const int h = texture.height;
-
-            if (texture.gpu_texture) {
-                float adjusted_w = std::min(256.f, static_cast<float>(w));
-                float adjusted_h = adjusted_w / w * h;
-                ImGui::Image(texture.gpu_texture->GetHandle(), ImVec2(adjusted_w, adjusted_h));
-            }
+        switch (meta->type) {
+            case AssetType::Image: {
+                auto texture = reinterpret_cast<const ImageAsset&>(*p_handle.Get());
+                if (texture.gpu_texture) {
+                    const int w = texture.width;
+                    const int h = texture.height;
+                    const float adjusted_w = (float)std::min(kThumbnailSize, w);
+                    const float adjusted_h = adjusted_w / w * h;
+                    ImGui::Image(texture.gpu_texture->GetHandle(), ImVec2(adjusted_w, adjusted_h));
+                }
+            } break;
+            case AssetType::Material:
+            case AssetType::Scene: {
+                ThumbnailKey key{
+                    .guid = p_handle.GetGuid(),
+                    .size = kThumbnailSize,
+                };
+                const uint64_t texture = p_service.GetOrRequest(key);
+                if (texture) {
+                    ImGui::Image(texture, ImVec2(kThumbnailSize, kThumbnailSize));
+                }
+            } break;
+            default:
+                break;
         }
 
         ImGui::EndTooltip();
     }
 }
 
-void ShowAssetToolTip(const ContentEntry& p_node) {
-    if (p_node.is_dir) {
-        return;
-    }
-
-    const AssetMetaData* meta = p_node.handle.GetMeta();
-    if (meta) {
-        ShowAssetToolTip(*meta, p_node.thumbnail.Get());
-    }
+void ShowAssetToolTip(ThumbnailService& p_service, const ContentEntry& p_node) {
+    if (p_node.is_dir) return;
+    ShowAssetToolTip(p_service, p_node.handle);
 }
 
 static void ShowFolderPopup(const ContentEntry& p_node) {
