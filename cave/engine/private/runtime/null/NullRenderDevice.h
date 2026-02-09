@@ -7,9 +7,9 @@ namespace cave::render {
 WARNING_PUSH()
 WARNING_DISABLE(4100, "-Wunused-parameter")
 
-class EmptyGraphicsManager : public IRenderDevice {
+class NullRenderDevice : public IRenderDevice {
 public:
-    EmptyGraphicsManager(std::string_view p_name = "EmptyRenderDevice")
+    NullRenderDevice(std::string_view p_name = "EmptyRenderDevice")
         : IRenderDevice(p_name) {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
@@ -71,8 +71,6 @@ public:
 
     void RequestTexture(ImageAsset* p_image) override {}
     void RequestMesh(MeshAsset* p_mesh) override {}
-
-    Backend GetBackend() const override { return Backend::EMPTY; }
 
     FrameContext& GetCurrentFrame() override {
         FrameContext* context = nullptr;

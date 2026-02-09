@@ -34,6 +34,7 @@ namespace cave {
 using math::Matrix4x4f;
 using math::Vector2f;
 using math::Vector3f;
+using rhi::Backend;
 
 #if 1
 static constexpr uint32_t kTextureWidth = 1920;
@@ -92,10 +93,10 @@ void SceneViewTab::SubmitView() {
     view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
     if (m_editor.IsPlaying()) {
         view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
-        view.camera_source = CameraSource::MainCamera();
+        view.camera_source = CameraSource::FirstCamera();
     } else {
         view.scene_id = m_preview_scene;
-        view.camera_source = CameraSource::Editor(m_camera);
+        view.camera_source = CameraSource::External(m_camera);
 
         SelectionKey key = m_editor.SelectionService().Primary(m_doc_id);
         if (key.scene == m_preview_scene && key.entity.IsValid()) {
@@ -245,16 +246,15 @@ void SceneViewTab::DrawMainView() {
     m_rect.SetMinMax(Vector2f(min.x, min.y),
                      Vector2f(max.x, max.y));
 
-    // @TODO: add a dummy button
-    const auto& gm = *m_editor.GetApp().GetRenderDevice();
+    // @TODO: move it somewhere else
     uint64_t handle = m_texture->GetHandle();
     // add image for drawing
-    switch (gm.GetBackend()) {
-        case Backend::D3D11:
-        case Backend::D3D12: {
+    switch (m_editor.GetApp().GetBackend()) {
+        case Backend::Direct3D11:
+        case Backend::Direct3D12: {
             ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max);
         } break;
-        case Backend::OPENGL: {
+        case Backend::OpenGL: {
             ImVec2 uv_min = ImVec2(0, 1);
             ImVec2 uv_max = ImVec2(1, 0);
             // if (gm.GetActiveRenderGraphName() == RenderGraphName::PATHTRACER) {
@@ -263,8 +263,8 @@ void SceneViewTab::DrawMainView() {
             // }
             ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max, uv_min, uv_max);
         } break;
-        case Backend::VULKAN:
-        case Backend::METAL: {
+        case Backend::Vulkan:
+        case Backend::Metal: {
         } break;
         default:
             CRASH_NOW();

@@ -1,10 +1,10 @@
 #include "ModuleRegistry.h"
 
 #include "engine/private/assets/asset_manager.h"
-#include "engine/private/empty/empty_display_manager.h"
-#include "engine/private/empty/empty_graphics_manager.h"
-#include "engine/private/empty/empty_physics_manager.h"
-#include "engine/private/empty/empty_script_manager.h"
+#include "engine/private/runtime/null/NullDisplayService.h"
+#include "engine/private/runtime/null/NullRenderDevice.h"
+#include "engine/private/runtime/null/NullPhysicsService.h"
+#include "engine/private/runtime/null/NullScriptManager.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/scripting/lua/lua_script_manager.h"
 
@@ -35,8 +35,8 @@ IAssetManager* CreateAssetManager() {
     return CreateModule<IAssetManager, AssetManager>();
 }
 
-IDisplayManager* CreateDisplayManager() {
-    return CreateModule<IDisplayManager, EmptyDisplayManager>();
+DisplayService* CreateDisplayManager() {
+    return CreateModule<DisplayService, NullDisplayService>();
 }
 
 IPhysicsManager* CreatePhysicsManager() {
@@ -48,8 +48,8 @@ IScriptManager* CreateScriptManager() {
 }
 
 // @TODO: move to RHI
-static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
-    if (p_backend == "d3d11") {
+static IRenderDevice* SelectRenderDevice(Backend p_backend) {
+    if (p_backend == Backend::Direct3D11) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d11GraphicsManager;
 #else
@@ -57,7 +57,7 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
 #endif
     }
 
-    if (p_backend == "d3d12") {
+    if (p_backend == Backend::Direct3D12) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d12GraphicsManager;
 #else
@@ -65,7 +65,7 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
 #endif
     }
 
-    if (p_backend == "opengl") {
+    if (p_backend == Backend::OpenGL) {
 #if USING(PLATFORM_WINDOWS)
         return new OpenGL4GraphicsManager;
 #elif USING(PLATFORM_WASM)
@@ -75,7 +75,7 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
 #endif
     }
 
-    if (p_backend == "vulkan") {
+    if (p_backend == Backend::Vulkan) {
 #if USING(PLATFORM_WINDOWS)
         return new VulkanGraphicsManager;
 #else
@@ -83,25 +83,24 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
 #endif
     }
 
-    if (p_backend == "metal") {
+    if (p_backend == Backend::Metal) {
         return nullptr;
     }
 
-    return new EmptyGraphicsManager;
+    return new NullRenderDevice;
 }
 
-IRenderDevice* CreateRenderDevice() {
+IRenderDevice* CreateRenderDevice(Backend p_backend) {
     if (IRenderDevice::s_createFunc) {
         return IRenderDevice::s_createFunc();
     }
 
-    const std::string& backend = DVAR_GET_STRING(gfx_backend);
-    IRenderDevice* device = SelectGraphicsManager(backend);
+    IRenderDevice* device = SelectRenderDevice(p_backend);
 
     if (!device) {
-        device = new EmptyGraphicsManager;
+        device = new NullRenderDevice;
 
-        LOG_ERROR("backend '{}' not supported, fallback to EmptyGraphicsManager", backend);
+        LOG_ERROR("backend '{}' not supported, fallback to NullRenderDevice", (int)p_backend);
     }
 
     return device;

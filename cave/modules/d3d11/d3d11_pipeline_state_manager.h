@@ -22,7 +22,7 @@ struct D3d11PipelineState : public PipelineState {
 
 class D3d11PipelineStateManager : public PipelineStateManager {
 public:
-    D3d11PipelineStateManager(IRenderDevice* p_graphics_manager);
+    explicit D3d11PipelineStateManager(IRenderDevice* p_device) noexcept;
 
 protected:
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
@@ -33,6 +33,7 @@ protected:
     std::unordered_map<const BlendDesc*, Microsoft::WRL::ComPtr<ID3D11BlendState>> m_blendStates;
 
 private:
+    IRenderDevice* m_device;
     std::vector<D3D_SHADER_MACRO> m_defines;
 };
 

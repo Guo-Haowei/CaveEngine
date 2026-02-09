@@ -7,7 +7,6 @@ struct MaterialConstantBuffer;
 
 namespace cave {
 
-enum class Backend : uint8_t;
 enum ClearFlags : uint32_t;
 enum class Dimension : uint32_t;
 enum PipelineStateName : uint8_t;
@@ -122,8 +121,6 @@ public:
 
     // @TODO: thread safety ?
     virtual void EventReceived(std::shared_ptr<IEvent> p_event) = 0;
-
-    virtual Backend GetBackend() const = 0;
 
     virtual FrameContext& GetCurrentFrame() = 0;
 

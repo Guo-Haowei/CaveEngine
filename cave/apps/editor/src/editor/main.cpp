@@ -102,7 +102,7 @@ IApplication* CreateApp() {
     AppSpec spec{};
     spec.userFolder = user_string;
     spec.name = "Editor";
-    spec.backend = Backend::EMPTY;
+    spec.backend = rhi::Backend::Null;
     spec.decorated = true;
     spec.fullscreen = false;
     spec.vsync = false;
@@ -144,7 +144,7 @@ int main(int p_argc, const char** p_argv) {
     IScriptManager::RegisterCreateFunc([]() -> IScriptManager* {
         return new LuaScriptManager();
     });
-    IDisplayManager::RegisterCreateFunc([]() -> IDisplayManager* {
+    DisplayService::RegisterCreateFunc([]() -> DisplayService* {
         return new GlfwDisplayManager();
     });
 

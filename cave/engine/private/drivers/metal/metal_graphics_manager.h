@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/drivers/empty/empty_graphics_manager.h"
+#include "engine/private/drivers/runtime/null/NullRenderDevice.h"
 
 struct GLFWwindow;
 

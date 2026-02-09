@@ -1,6 +1,7 @@
 #pragma once
+#include "cave/rhi/Backend.h"
+
 #include "editor/panels/EditorWindow.h"
-#include "engine/private/renderer/graphics_defines.h"
 
 namespace cave::render {
 class CompiledGraph;
@@ -21,7 +22,7 @@ protected:
     void DrawNodes(const render::CompiledGraph& p_graph);
 
     bool m_firstFrame{ true };
-    Backend m_backend{ Backend::COUNT };
+    rhi::Backend m_backend{ rhi::Backend::Null };
 };
 
 }  // namespace cave

@@ -52,10 +52,10 @@ static ResolvedView ResolveView(ViewDesc&& p_view,
 
     const CameraComponent* cam = nullptr;
     switch (p_view.camera_source.source) {
-        case CameraSource::Source::Editor: {
+        case CameraSource::Source::External: {
             cam = &p_view.camera_source.camera;
         } break;
-        case CameraSource::Source::MainCamera: {
+        case CameraSource::Source::FirstCamera: {
             for (auto [id, camera] : p_scene->View<CameraComponent>()) {
                 // @HACK: just use the first camera
                 if (id.IsValid()) {
@@ -97,7 +97,7 @@ std::span<const render::ResolvedView> ViewManager::EndFrame() {
     DEV_ASSERT(m_can_submit == true);
     m_can_submit = false;
 
-    const bool is_opengl = m_app->GetRenderDevice()->GetBackend() == Backend::OPENGL;
+    const bool is_opengl = m_app->IsOpenGL();
 
     m_views.clear();
     m_views.reserve(m_view_descs.size());

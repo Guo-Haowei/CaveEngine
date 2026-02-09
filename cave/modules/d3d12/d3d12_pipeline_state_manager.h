@@ -14,13 +14,14 @@ struct D3d12PipelineState : public PipelineState {
 
 class D3d12PipelineStateManager : public PipelineStateManager {
 public:
-    D3d12PipelineStateManager(IRenderDevice* p_graphics_manager);
+    explicit D3d12PipelineStateManager(IRenderDevice* p_graphics_manager) noexcept;
 
 protected:
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
     auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
 
 private:
+    IRenderDevice* m_device;
     std::vector<D3D_SHADER_MACRO> m_defines;
 };
 

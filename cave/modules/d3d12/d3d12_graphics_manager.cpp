@@ -100,13 +100,13 @@ struct D3d12FrameContext : FrameContext {
 };
 
 D3d12GraphicsManager::D3d12GraphicsManager()
-    : RenderDevice("D3d12GraphicsManager", Backend::D3D12, NUM_FRAMES_IN_FLIGHT) {
+    : RenderDevice("D3d12GraphicsManager", NUM_FRAMES_IN_FLIGHT) {
     m_pipelineStateManager = std::make_shared<D3d12PipelineStateManager>(this);
 }
 
 auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
 
-    auto [w, h] = IDisplayManager::GetSingleton().GetWindowSize();
+    auto [w, h] = DisplayService::GetSingleton().GetWindowSize();
     DEV_ASSERT(w > 0 && h > 0);
 
     if (auto res = CreateDevice(); !res) {
@@ -209,7 +209,7 @@ void D3d12GraphicsManager::FinalizeImpl() {
 void D3d12GraphicsManager::Render() {
     ID3D12GraphicsCommandList* cmd_list = m_graphicsCommandList.Get();
 
-    const auto [width, height] = IDisplayManager::GetSingleton().GetWindowSize();
+    const auto [width, height] = DisplayService::GetSingleton().GetWindowSize();
     CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
     cmd_list->RSSetViewports(1, &viewport);
     D3D12_RECT rect{ 0, 0, width, height };
@@ -1216,7 +1216,7 @@ auto D3d12GraphicsManager::CreateDescriptorHeaps() -> Result<void> {
 }
 
 auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) -> Result<void> {
-    auto display_manager = dynamic_cast<GlfwDisplayManager*>(IDisplayManager::GetSingletonPtr());
+    auto display_manager = dynamic_cast<GlfwDisplayManager*>(DisplayService::GetSingletonPtr());
     DEV_ASSERT(display_manager);
 
     // create a struct to hold information about the swap chain

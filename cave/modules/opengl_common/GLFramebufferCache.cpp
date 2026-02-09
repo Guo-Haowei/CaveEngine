@@ -29,7 +29,6 @@ GLuint GLFramebufferCache::GetOrCreateFbo(const RenderTargetDesc& p_desc) {
     if (inserted) {
         it->second = CreateFbo(key);
         ++m_stats.fbo_misses;
-        LOG_WARN("fbo cache miss");
     } else {
         ++m_stats.fbo_hits;
     }

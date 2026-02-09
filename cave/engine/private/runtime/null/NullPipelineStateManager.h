@@ -3,10 +3,12 @@
 
 namespace cave::render {
 
+using rhi::Backend;
+
 class EmptyPipelineStateManager : public PipelineStateManager {
 public:
-    EmptyPipelineStateManager(IRenderDevice* p_graphics_manager)
-        : PipelineStateManager(p_graphics_manager) {}
+    explicit EmptyPipelineStateManager() noexcept
+        : PipelineStateManager(Backend::Null) {}
 
 protected:
     auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {

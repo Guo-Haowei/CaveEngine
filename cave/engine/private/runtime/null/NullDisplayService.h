@@ -1,12 +1,12 @@
 #pragma once
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 
 namespace cave {
 
-class EmptyDisplayManager : public IDisplayManager {
+class NullDisplayService : public DisplayService {
 public:
-    EmptyDisplayManager()
-        : IDisplayManager("EmptyDisplayManager") {}
+    NullDisplayService()
+        : DisplayService("NullDisplayService") {}
 
     void FinalizeImpl() override {}
 

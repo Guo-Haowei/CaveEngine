@@ -15,7 +15,7 @@
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -29,7 +29,7 @@ using Microsoft::WRL::ComPtr;
 static constexpr size_t kMaxRenderTargets = 8;
 
 D3d11GraphicsManager::D3d11GraphicsManager()
-    : RenderDevice("D3d11GraphicsManager", Backend::D3D11, 1) {
+    : RenderDevice("D3d11GraphicsManager", 1) {
     m_pipelineStateManager = std::make_shared<D3d11PipelineStateManager>(this);
 }
 

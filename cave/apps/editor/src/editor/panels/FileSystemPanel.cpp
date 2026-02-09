@@ -80,7 +80,7 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
         DragDropTargetFolder(p_node, asset_manager.GetFolderLut());
 
         if (hovered) {
-            ShowAssetToolTip(p_node);
+            ShowAssetToolTip(m_editor.ThumbnailService(), p_node);
         }
     }
 

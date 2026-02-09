@@ -171,17 +171,6 @@ static void FillConstantBuffer(const Scene* p_scene,
     cache.c_frameIndex = s_frameIndex++;
     // @TODO: fix this
     cache.c_sceneDirty = p_scene ? (p_scene->GetDirtyFlags() != SCENE_DIRTY_NONE) : true;
-
-    // Force fields
-    // int counter = 0;
-    // for (auto [id, force_field_component] : p_scene.m_ForceFieldComponents) {
-    //    ForceField& force_field = cache.c_forceFields[counter++];
-    //    const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
-    //    force_field.position = transform.GetTranslation();
-    //    force_field.strength = force_field_component.strength;
-    //}
-
-    // cache.c_forceFieldsCount = counter;
 }
 
 static void FillEnvConstants(FrameData& p_out_data) {
@@ -203,7 +192,6 @@ static void FillEnvConstants(FrameData& p_out_data) {
 }
 
 auto Renderer::Impl::Initialize() -> Result<void> {
-
 #if USING(USE_RENDERER_DEBUG)
     CommandRegistry& reg = m_app.CommandRegistry();
     reg.Register({
@@ -246,7 +234,7 @@ void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
 FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) {
     FramePlan plan;
 
-    const bool is_opengl = m_app.GetRenderDevice()->GetBackend() == Backend::OPENGL;
+    const bool is_opengl = m_app.IsOpenGL();
     RenderOptions options = {
         .is_opengl = is_opengl,
         .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),
@@ -349,7 +337,7 @@ auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan, const Resolve
     });
 
     auto forward_outputs = builder.AddForwardPass({
-        .skybox = env_outputs.ibl_diffuse,
+        .skybox = env_outputs.skybox,
         .shadow = shadow_outputs.shadow,
         .ibl_diffuse = env_outputs.ibl_diffuse,
         .ibl_prefiltered = env_outputs.ibl_prefiltered,

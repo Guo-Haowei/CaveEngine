@@ -4,7 +4,7 @@
 #pragma once
 
 #include "engine/private/runtime/framework/IAssetManager.h"
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
@@ -14,9 +14,9 @@ namespace cave {
 
 IAssetManager* CreateAssetManager();
 
-IDisplayManager* CreateDisplayManager();
+DisplayService* CreateDisplayManager();
 
-render::IRenderDevice* CreateRenderDevice();
+render::IRenderDevice* CreateRenderDevice(rhi::Backend p_backend);
 
 IPhysicsManager* CreatePhysicsManager();
 

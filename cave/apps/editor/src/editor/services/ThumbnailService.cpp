@@ -110,34 +110,36 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
         }
 
         // @TODO: move it to somewhere else
-        {
-            GpuTextureDesc desc{
-                .type = AttachmentType::COLOR_2D,
-                .dimension = Dimension::TEXTURE_2D,
-                .width = req.options.width,
-                .height = req.options.height,
-                .depth = 1,
-                .mipLevels = 0,
-                .arraySize = 1,
-                .format = PixelFormat::R16G16B16A16_FLOAT,
-                .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
-                .miscFlags = RESOURCE_MISC_NONE,
-            };
-            rec.texture = m_render_device.CreateTexture(
-                desc,
+        GpuTextureDesc tex_desc{
+            .type = AttachmentType::COLOR_2D,
+            .dimension = Dimension::TEXTURE_2D,
+            .width = req.options.width,
+            .height = req.options.height,
+            .depth = 1,
+            .mipLevels = 0,
+            .arraySize = 1,
+            .format = PixelFormat::R16G16B16A16_FLOAT,
+            .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+            .miscFlags = RESOURCE_MISC_NONE,
+        };
+        auto tex =
+            m_render_device.CreateTexture(
+                tex_desc,
                 PointClampSampler());
-        }
 
+        // submit view request
         render::ViewDesc view;
         view.viewport_px = { 0, 0, (int)req.options.width, (int)req.options.height };
         view.scene_id = res.scene_id;
-        view.camera_source = render::CameraSource::Editor(res.camera);
-        view.output = rec.texture;
+        view.camera_source = res.camera;
+        view.output = tex;
         m_view_manager.Submit(view);
 
+        // save record
         rec.state = ThumbnailState::Pending;
         rec.submitted_frame = m_frame_index;
-        rec.gpu_handle = rec.texture->GetHandle();
+        rec.texture = tex;
+        rec.gpu_handle = tex->GetHandle();
 
         m_inflight.push_back(pending.key);
         ++submitted;

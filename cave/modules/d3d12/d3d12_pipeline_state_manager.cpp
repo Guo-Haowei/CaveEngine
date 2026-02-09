@@ -9,15 +9,16 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-D3d12PipelineStateManager::D3d12PipelineStateManager(IRenderDevice* p_graphics_manager)
-    : PipelineStateManager(p_graphics_manager) {
+D3d12PipelineStateManager::D3d12PipelineStateManager(IRenderDevice* p_device) noexcept
+    : PipelineStateManager(Backend::Direct3D12)
+    , m_device(p_device) {
     m_defines.push_back({ "HLSL_LANG", "1" });
     m_defines.push_back({ "HLSL_LANG_D3D12", "1" });
     m_defines.push_back({ nullptr, nullptr });
 }
 
 auto D3d12PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(RenderDevice::GetSingletonPtr());
+    auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(m_device);
 
     auto pipeline_state = std::make_shared<D3d12PipelineState>(p_desc);
 
@@ -34,14 +35,14 @@ auto D3d12PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p
     pso_desc.pRootSignature = graphics_manager->GetRootSignature();
     pso_desc.CS = CD3DX12_SHADER_BYTECODE(cs_blob.Get());
 
-    ID3D12Device4* device = reinterpret_cast<D3d12GraphicsManager*>(RenderDevice::GetSingletonPtr())->GetDevice();
+    ID3D12Device4* device = reinterpret_cast<D3d12GraphicsManager*>(m_device)->GetDevice();
     D3D_FAIL_V(device->CreateComputePipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), CAVE_ERROR(ErrorCode::ERR_CANT_CREATE));
 
     return pipeline_state;
 }
 
 auto D3d12PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(RenderDevice::GetSingletonPtr());
+    auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(m_device);
 
     auto pipeline_state = std::make_shared<D3d12PipelineState>(p_desc);
     ComPtr<ID3DBlob> vs_blob;
@@ -110,7 +111,7 @@ auto D3d12PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     }
     pso_desc.DSVFormat = d3d::Convert(p_desc.dsvFormat);
 
-    ID3D12Device4* device = reinterpret_cast<D3d12GraphicsManager*>(RenderDevice::GetSingletonPtr())->GetDevice();
+    ID3D12Device4* device = reinterpret_cast<D3d12GraphicsManager*>(m_device)->GetDevice();
     D3D_FAIL_V(device->CreateGraphicsPipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), nullptr);
 
     return pipeline_state;

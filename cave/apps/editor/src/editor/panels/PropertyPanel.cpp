@@ -97,7 +97,10 @@ concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
 static_assert(HasSetResourceGuid<LuaScriptComponent>);
 
 template<typename T>
-bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
+bool DrawAsset(const char* p_name,
+               const Guid& p_guid,
+               T* p_component,
+               EditorState& p_editor) {
     auto handle_ = AssetRegistry::GetSingleton().FindByGuid(p_guid);
 
     AssetType type = AssetType::All;
@@ -132,13 +135,13 @@ bool DrawAsset(const char* p_name, const Guid& p_guid, T* p_component) {
 
     ImGui::Columns(1);
     if (hovered && meta) {
-        ShowAssetToolTip(*meta, asset);
+        ShowAssetToolTip(p_editor.ThumbnailService(), handle_.unwrap_unchecked());
     }
     return dirty;
 };
 
 template<typename T>
-bool DrawComponentAuto(T* p_component) {
+bool DrawComponentAuto(T* p_component, EditorState& p_editor) {
     const auto& meta_table = MetaDataTable<T>::GetFields();
 
     int dirty = 0;
@@ -157,7 +160,7 @@ bool DrawComponentAuto(T* p_component) {
             } break;
             case EditorHint::Asset: {
                 const Guid& guid = field->template GetData<Guid>(p_component);
-                dirty |= (int)DrawAsset(field->name, guid, p_component);
+                dirty |= (int)DrawAsset(field->name, guid, p_component, p_editor);
             } break;
             case EditorHint::Translation: {
                 Vector3f& translation = field->template GetData<Vector3f>(p_component);
@@ -287,7 +290,7 @@ void PropertyPanel::DrawUIImpl() {
 
         // @TODO: avoid making a copy
         TransformComponent copy = p_transform;
-        const bool dirty = DrawComponentAuto<TransformComponent>(&copy);
+        const bool dirty = DrawComponentAuto<TransformComponent>(&copy, m_editor);
         if (dirty) {
             math::Matrix4x4f new_transform = copy.GetLocalMatrix();
 
@@ -304,25 +307,25 @@ void PropertyPanel::DrawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Light"), light, [&](LightComponent& p_light) {
-        bool dirty = DrawComponentAuto<LightComponent>(&p_light);
+        bool dirty = DrawComponentAuto<LightComponent>(&p_light, m_editor);
         if (dirty) {
             p_light.SetDirty();
         }
 
         if (material) {
-            DrawComponentAuto<MaterialComponent>(material);
+            DrawComponentAuto<MaterialComponent>(material, m_editor);
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [](LuaScriptComponent& p_script) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [this](LuaScriptComponent& p_script) {
         ui::TextBox("class_name", p_script.GetClassNameRef());
 
-        DrawComponentAuto<LuaScriptComponent>(&p_script);
+        DrawComponentAuto<LuaScriptComponent>(&p_script, m_editor);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent&) {
         const bool was_null = prefab->GetResourceGuid().IsNull();
-        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(prefab);
+        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(prefab, m_editor);
         if (dirty) {
             // don't support remove instantiated entities yet
             DEV_ASSERT(was_null);
@@ -331,7 +334,7 @@ void PropertyPanel::DrawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& p_collider) {
-        DrawComponentAuto<ColliderComponent>(&p_collider);
+        DrawComponentAuto<ColliderComponent>(&p_collider, m_editor);
 
         Shape& shape = p_collider.GetShape();
         DrawEnumDropDown("shape", shape.type, ui::DEFAULT_COLUMN_WIDTH);
@@ -355,7 +358,7 @@ void PropertyPanel::DrawUIImpl() {
     DrawComponent(
         DRAW_COMPONENT_ARGS("SpriteAnimator"),
         scene.GetComponent<SpriteAnimatorComponent>(id),
-        [](SpriteAnimatorComponent& p_animator) {
+        [this](SpriteAnimatorComponent& p_animator) {
             // @TODO: refactor this
             // @TODO: drop down
             const Guid& guid = p_animator.GetResourceGuid();
@@ -371,14 +374,14 @@ void PropertyPanel::DrawUIImpl() {
                 }
             }
 
-            DrawComponentAuto<SpriteAnimatorComponent>(&p_animator);
+            DrawComponentAuto<SpriteAnimatorComponent>(&p_animator, m_editor);
         });
 
     DrawComponent(
         DRAW_COMPONENT_ARGS("SkeletalAnimation"),
         scene.GetComponent<SkeletalAnimationComponent>(id),
-        [](SkeletalAnimationComponent& p_anim) {
-            DrawComponentAuto<SkeletalAnimationComponent>(&p_anim);
+        [this](SkeletalAnimationComponent& p_anim) {
+            DrawComponentAuto<SkeletalAnimationComponent>(&p_anim, m_editor);
             ImGui::Separator();
             const float start = p_anim.GetStart();
             const float end = p_anim.GetEnd();
@@ -392,37 +395,37 @@ void PropertyPanel::DrawUIImpl() {
 
     DrawComponent(DRAW_COMPONENT_ARGS("SpriteRenderer"),
                   scene.GetComponent<SpriteRendererComponent>(id),
-                  [](SpriteRendererComponent& p_sprite_renderer) {
-                      DrawComponentAuto<SpriteRendererComponent>(&p_sprite_renderer);
+                  [this](SpriteRendererComponent& p_renderer) {
+                      DrawComponentAuto<SpriteRendererComponent>(&p_renderer, m_editor);
                   });
 
     DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"),
                   scene.GetComponent<TileMapRendererComponent>(id),
-                  [](TileMapRendererComponent& p_tile_map_renderer) {
-                      DrawComponentAuto<TileMapRendererComponent>(&p_tile_map_renderer);
+                  [this](TileMapRendererComponent& p_renderer) {
+                      DrawComponentAuto<TileMapRendererComponent>(&p_renderer, m_editor);
                   });
 
     MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
-    DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_mesh_renderer) {
-        DrawComponentAuto<MeshRendererComponent>(&p_mesh_renderer);
+    DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_render) {
+        DrawComponentAuto<MeshRendererComponent>(&p_render, m_editor);
 
-        auto& materials = p_mesh_renderer.GetMaterialInstances();
+        auto& materials = p_render.GetMaterialInstances();
         if (ImGui::Button("+")) {
             auto name = std::format("mat_{}", materials.size());
             auto mat_id = EntityFactory::CreateNameEntity(scene, name);
             scene.Create<MaterialComponent>(mat_id);
-            p_mesh_renderer.AddMaterial(mat_id);
+            p_render.AddMaterial(mat_id);
         }
 
-        for (ecs::Entity id : p_mesh_renderer.GetMaterialInstances()) {
+        for (ecs::Entity id : p_render.GetMaterialInstances()) {
             if (MaterialComponent* material = scene.GetComponent<MaterialComponent>(id); material) {
-                DrawComponentAuto<MaterialComponent>(material);
+                DrawComponentAuto<MaterialComponent>(material, m_editor);
             }
         }
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera, [&](CameraComponent& p_camera) {
-        if (DrawComponentAuto<CameraComponent>(&p_camera)) {
+        if (DrawComponentAuto<CameraComponent>(&p_camera, m_editor)) {
             p_camera.SetDirty();
         }
     });

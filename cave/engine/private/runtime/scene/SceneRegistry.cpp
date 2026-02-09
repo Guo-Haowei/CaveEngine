@@ -17,6 +17,7 @@ SceneRegistry::SceneRegistry()
     : ISceneRegistry("SceneRegistry") {
 }
 
+// @TODO: register scene commands
 auto SceneRegistry::InitializeImpl() -> Result<void> {
     return Result<void>();
 }

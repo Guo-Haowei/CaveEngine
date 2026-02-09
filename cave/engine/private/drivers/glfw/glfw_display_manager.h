@@ -1,16 +1,16 @@
 #pragma once
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "cave/rhi/Backend.h"
+
+#include "engine/private/runtime/framework/DisplayService.h"
 
 struct GLFWwindow;
 
 namespace cave {
 
-enum class Backend : uint8_t;
-
-class GlfwDisplayManager : public IDisplayManager {
+class GlfwDisplayManager : public DisplayService {
 public:
     GlfwDisplayManager()
-        : IDisplayManager("GlfwDisplayManager") {}
+        : DisplayService("GlfwDisplayManager") {}
 
     void FinalizeImpl() final;
 
@@ -33,7 +33,7 @@ private:
     static void WindowSizeCallback(GLFWwindow* p_window, int p_width, int p_height);
 
     GLFWwindow* m_window{ nullptr };
-    Backend m_backend;
+    rhi::Backend m_backend;
     std::string m_title;
 };
 

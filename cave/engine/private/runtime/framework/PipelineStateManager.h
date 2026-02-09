@@ -1,15 +1,19 @@
 #pragma once
+#include "cave/rhi/Backend.h"
+
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/renderer/pipeline_state.h"
 
 namespace cave::render {
 
+using rhi::Backend;
+
 class IRenderDevice;
 
 class PipelineStateManager {
 public:
-    PipelineStateManager(IRenderDevice* p_graphics_manager)
-        : m_render_device(p_graphics_manager) {}
+    explicit PipelineStateManager(Backend p_backend) noexcept
+        : m_backend(p_backend) {}
 
     virtual ~PipelineStateManager() = default;
 
@@ -25,7 +29,7 @@ protected:
     virtual auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> = 0;
     virtual auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> = 0;
 
-    IRenderDevice* m_render_device = nullptr;
+    const Backend m_backend;
 
 private:
     auto Create(PipelineStateName p_name, const PipelineStateDesc& p_desc) -> Result<void>;

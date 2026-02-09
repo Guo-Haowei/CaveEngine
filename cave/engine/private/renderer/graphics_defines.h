@@ -3,34 +3,6 @@
 namespace cave {
 
 // clang-format off
-#define BACKEND_LIST                                \
-    BACKEND_DECLARE(EMPTY,  "Empty",        empty)  \
-    BACKEND_DECLARE(OPENGL, "OpenGL",       opengl) \
-    BACKEND_DECLARE(D3D11,  "Direct3D 11",  d3d11)  \
-    BACKEND_DECLARE(D3D12,  "Direct3D 12",  d3d12)  \
-    BACKEND_DECLARE(VULKAN, "Vulkan",       vulkan) \
-    BACKEND_DECLARE(METAL,  "Metal",        metal)
-// clang-format on
-
-enum class Backend : uint8_t {
-#define BACKEND_DECLARE(ENUM, ...) ENUM,
-    BACKEND_LIST
-#undef BACKEND_DECLARE
-        COUNT,
-};
-
-inline const char* ToString(Backend p_backend) {
-    DEV_ASSERT_INDEX(p_backend, Backend::COUNT);
-    static const char* m_table[] = {
-#define BACKEND_DECLARE(ENUM, STR, DVAR) #DVAR,
-        BACKEND_LIST
-#undef BACKEND_DECLARE
-    };
-    static_assert(array_length(m_table) == std::to_underlying(Backend::COUNT));
-    return m_table[std::to_underlying(p_backend)];
-}
-
-// clang-format off
 enum ClearFlags : uint32_t {
     CLEAR_NONE        = 0,
     CLEAR_COLOR_BIT   = BIT(0),

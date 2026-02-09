@@ -13,6 +13,7 @@ namespace cave {
 
 // @TODO: save the nodes position to disk
 // @TODO: find longese path, and arrange nodes
+using rhi::Backend;
 
 RenderGraphViewer::RenderGraphViewer(EditorState& p_editor)
     : EditorWindow(p_editor) {
@@ -25,7 +26,7 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
 
     auto draw_node = [&passes, this](int id, float x, float y) {
         const CompiledPass& pass = passes[id];
-        const bool flip_image = m_backend == Backend::OPENGL;
+        const bool flip_image = m_backend == Backend::OpenGL;
 
         ImNodes::BeginNode(id);
 
@@ -115,14 +116,11 @@ void RenderGraphViewer::DrawUIImpl() {
 
     CAVE_PROFILE_EVENT();
 
-    auto graphics_manager = m_editor.GetApp().GetRenderDevice();
-    if (m_backend == Backend::COUNT) {
-        m_backend = m_editor.GetApp().GetRenderDevice()->GetBackend();
-    }
+    m_backend = m_editor.GetApp().GetBackend();
 
-    switch (graphics_manager->GetBackend()) {
-        case Backend::VULKAN:
-        case Backend::METAL:
+    switch (m_backend) {
+        case Backend::Vulkan:
+        case Backend::Metal:
             return;
         default:
             break;

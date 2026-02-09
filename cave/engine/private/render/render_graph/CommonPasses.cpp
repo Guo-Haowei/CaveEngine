@@ -8,7 +8,7 @@
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 #include "RenderGraphDefines.h"
 #include "RenderPass.h"
 
@@ -50,7 +50,6 @@ constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
 extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
 extern void GbufferPassFunc(RenderPassExcutionContext& p_ctx);
 extern void HighlightPassFunc(RenderPassExcutionContext& p_ctx);
-extern void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx);
 extern void LightingPassFunc(RenderPassExcutionContext& p_ctx);
 extern void ForwardPassFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomSetupFunc(RenderPassExcutionContext& p_ctx);

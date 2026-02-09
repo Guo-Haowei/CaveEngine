@@ -1,4 +1,4 @@
-#include "DisplayManager.h"
+#include "DisplayService.h"
 
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -7,7 +7,9 @@
 
 namespace cave {
 
-Result<void> IDisplayManager::InitializeImpl() {
+using rhi::Backend;
+
+Result<void> DisplayService::InitializeImpl() {
     const auto& spec = m_app->GetSpecification();
 
     std::string title{ spec.name };

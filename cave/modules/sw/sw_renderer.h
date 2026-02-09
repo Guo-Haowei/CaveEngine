@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/empty/empty_graphics_manager.h"
+#include "engine/private/runtime/null/NullRenderDevice.h"
 
 // @TODO: refactor
 #include "render_target.h"
@@ -54,10 +54,10 @@ struct OutTriangle {
     int discarded = false;
 };
 
-class SwGraphicsManager : public render::EmptyGraphicsManager {
+class SwGraphicsManager : public render::NullRenderDevice {
 public:
     SwGraphicsManager()
-        : EmptyGraphicsManager("SwGraphicsManager") {}
+        : NullRenderDevice("SwGraphicsManager") {}
 
     void Clear(const render::RenderTargetDesc& p_target) override;
 
