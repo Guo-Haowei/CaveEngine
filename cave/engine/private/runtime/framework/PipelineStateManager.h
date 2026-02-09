@@ -1,8 +1,12 @@
 #pragma once
+#include "cave/rhi/Backend.h"
+
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/renderer/pipeline_state.h"
 
 namespace cave::render {
+
+using rhi::Backend;
 
 class IRenderDevice;
 

@@ -7,7 +7,9 @@
 
 namespace cave {
 
-Result<void> IDisplayManager::InitializeImpl() {
+using rhi::Backend;
+
+Result<void> DisplayService::InitializeImpl() {
     const auto& spec = m_app->GetSpecification();
 
     std::string title{ spec.name };

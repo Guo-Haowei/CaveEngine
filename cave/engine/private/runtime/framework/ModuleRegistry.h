@@ -14,9 +14,9 @@ namespace cave {
 
 IAssetManager* CreateAssetManager();
 
-IDisplayManager* CreateDisplayManager();
+DisplayService* CreateDisplayManager();
 
-render::IRenderDevice* CreateRenderDevice(Backend p_backend);
+render::IRenderDevice* CreateRenderDevice(rhi::Backend p_backend);
 
 IPhysicsManager* CreatePhysicsManager();
 

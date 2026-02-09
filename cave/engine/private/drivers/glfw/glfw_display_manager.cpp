@@ -23,6 +23,8 @@
 
 namespace cave {
 
+using rhi::Backend;
+
 auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> {
     m_backend = p_spec.backend;
     m_title = p_spec.title;
@@ -59,7 +61,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
 
     glfwSetWindowCloseCallback(m_window, [](GLFWwindow* p_window) {
         glfwSetWindowShouldClose(p_window, GLFW_FALSE);
-        QuitVote vote = IDisplayManager::GetSingleton().GetApp()->OnQuitRequested({ QuitReason::WindowClose });
+        QuitVote vote = DisplayService::GetSingleton().GetApp()->OnQuitRequested({ QuitReason::WindowClose });
         switch (vote) {
             case QuitVote::Allow: {
                 glfwSetWindowShouldClose(p_window, true);
@@ -102,7 +104,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
         case Backend::Direct3D12:
             break;
         default:
-            return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", ToString(m_backend));
+            return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", (int)m_backend);
     }
 
     auto imgui = m_app->GetImguiManager();
@@ -171,7 +173,7 @@ std::tuple<int, int> GlfwDisplayManager::GetWindowSize() { return std::tuple<int
 std::tuple<int, int> GlfwDisplayManager::GetWindowPos() { return std::tuple<int, int>(m_windowPos.x, m_windowPos.y); }
 
 void GlfwDisplayManager::WindowSizeCallback(GLFWwindow*, int p_width, int p_height) {
-    GlfwDisplayManager& window = reinterpret_cast<GlfwDisplayManager&>(IDisplayManager::GetSingleton());
+    GlfwDisplayManager& window = reinterpret_cast<GlfwDisplayManager&>(DisplayService::GetSingleton());
 
     auto event = std::make_shared<ResizeEvent>(p_width, p_height);
     window.m_frameSize.x = p_width;

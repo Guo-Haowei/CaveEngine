@@ -13,6 +13,7 @@ namespace cave {
 
 // @TODO: save the nodes position to disk
 // @TODO: find longese path, and arrange nodes
+using rhi::Backend;
 
 RenderGraphViewer::RenderGraphViewer(EditorState& p_editor)
     : EditorWindow(p_editor) {

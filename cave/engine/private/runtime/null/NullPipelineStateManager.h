@@ -3,6 +3,8 @@
 
 namespace cave::render {
 
+using rhi::Backend;
+
 class EmptyPipelineStateManager : public PipelineStateManager {
 public:
     explicit EmptyPipelineStateManager() noexcept

@@ -1,6 +1,7 @@
 #pragma once
 #include <tuple>
 #include "cave/core/Singleton.h"
+#include "cave/rhi/Backend.h"
 
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/runtime/framework/Module.h"
@@ -13,18 +14,18 @@ struct WindowSpecfication {
     std::string title;
     int width;
     int height;
-    Backend backend;
+    rhi::Backend backend;
     bool decorated;
     bool fullscreen;
     bool vsync;
     bool enableImgui;
 };
 
-class IDisplayManager : public Singleton<IDisplayManager>,
+class DisplayService : public Singleton<DisplayService>,
                         public Module,
-                        public ModuleCreateRegistry<IDisplayManager> {
+                        public ModuleCreateRegistry<DisplayService> {
 public:
-    IDisplayManager(std::string_view p_name)
+    DisplayService(std::string_view p_name)
         : Module(p_name) {}
 
     Result<void> InitializeImpl() final;

@@ -6,6 +6,7 @@
 
 #include "cave/core/Error.h"
 #include "cave/core/NonCopyable.h"
+#include "cave/rhi/Backend.h"
 
 // clang-format off
 namespace cave::render { class Renderer; }
@@ -15,7 +16,6 @@ namespace cave::render { class IRenderDevice; }
 namespace cave {
 
 enum class AppStateId : uint8_t;
-enum class Backend : uint8_t;
 
 class AppStateMachine;
 class AssetRegistry;
@@ -25,7 +25,7 @@ class Console;
 class EventQueue;
 class GameModeFactory;
 class IAssetManager;
-class IDisplayManager;
+class DisplayService;
 class ImguiManager;
 class InputSystem;
 class IPhysicsManager;
@@ -42,7 +42,7 @@ struct AppSpec {
     std::string_view name;
     int width;
     int height;
-    Backend backend;
+    rhi::Backend backend;
     bool decorated;
     bool fullscreen;
     bool vsync;
@@ -102,7 +102,7 @@ public:
     ISceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptManager* GetScriptManager() { return m_script_manager; }
-    IDisplayManager* GetDisplayManager() { return m_display_server; }
+    DisplayService* GetDisplayManager() { return m_display_server; }
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     TaskManager* GetTaskManager() { return m_task_manager; }
@@ -112,7 +112,8 @@ public:
     Console& Console() { return *m_console; }
 
     const AppSpec& GetSpecification() const { return m_spec; }
-    Backend GetBackend() const { return m_spec.backend; }
+    rhi::Backend GetBackend() const { return m_spec.backend; }
+    bool IsOpenGL() const { return m_spec.backend == rhi::Backend::OpenGL; }
 
     static void Run(IApplication* p_app);
 
@@ -135,7 +136,7 @@ protected:
     IPhysicsManager* m_physics_manager{ nullptr };
     IScriptManager* m_script_manager{ nullptr };
 
-    IDisplayManager* m_display_server{ nullptr };
+    DisplayService* m_display_server{ nullptr };
 
     render::Renderer* m_renderer{ nullptr };
     render::IRenderDevice* m_render_device{ nullptr };

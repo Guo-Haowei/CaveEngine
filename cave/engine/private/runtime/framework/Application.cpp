@@ -124,10 +124,10 @@ auto Application::Initialize() -> Result<void> {
         const std::string& backend = DVAR_GET_STRING(gfx_backend);
         if (!backend.empty()) {
             do {
-#define BACKEND_DECLARE(ENUM, STR, DVAR) \
-    if (backend == #DVAR) {              \
-        m_spec.backend = Backend::ENUM;  \
-        break;                           \
+#define BACKEND_DECLARE(ENUM, STR, DVAR)     \
+    if (backend == #DVAR) {                  \
+        m_spec.backend = rhi::Backend::ENUM; \
+        break;                               \
     }
                 BACKEND_LIST
 #undef BACKEND_DECLARE

@@ -34,6 +34,7 @@ namespace cave {
 using math::Matrix4x4f;
 using math::Vector2f;
 using math::Vector3f;
+using rhi::Backend;
 
 #if 1
 static constexpr uint32_t kTextureWidth = 1920;
