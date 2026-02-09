@@ -48,8 +48,8 @@ IScriptManager* CreateScriptManager() {
 }
 
 // @TODO: move to RHI
-static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
-    if (p_backend == "d3d11") {
+static IRenderDevice* SelectRenderDevice(Backend p_backend) {
+    if (p_backend == Backend::D3D11) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d11GraphicsManager;
 #else
@@ -57,7 +57,7 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
 #endif
     }
 
-    if (p_backend == "d3d12") {
+    if (p_backend == Backend::D3D12) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d12GraphicsManager;
 #else
@@ -65,7 +65,7 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
 #endif
     }
 
-    if (p_backend == "opengl") {
+    if (p_backend == Backend::OPENGL) {
 #if USING(PLATFORM_WINDOWS)
         return new OpenGL4GraphicsManager;
 #elif USING(PLATFORM_WASM)
@@ -75,7 +75,7 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
 #endif
     }
 
-    if (p_backend == "vulkan") {
+    if (p_backend == Backend::VULKAN) {
 #if USING(PLATFORM_WINDOWS)
         return new VulkanGraphicsManager;
 #else
@@ -83,27 +83,24 @@ static IRenderDevice* SelectGraphicsManager(const std::string& p_backend) {
 #endif
     }
 
-    if (p_backend == "metal") {
+    if (p_backend == Backend::METAL) {
         return nullptr;
     }
 
-    return new EmptyGraphicsManager;
+    return new NullRenderDevice;
 }
 
-IRenderDevice* CreateRenderDevice() {
+IRenderDevice* CreateRenderDevice(Backend p_backend) {
     if (IRenderDevice::s_createFunc) {
         return IRenderDevice::s_createFunc();
     }
 
-    LOG_WARN("@TODO: instead of reading the dvar, use spec from app");
-
-    const std::string& backend = DVAR_GET_STRING(gfx_backend);
-    IRenderDevice* device = SelectGraphicsManager(backend);
+    IRenderDevice* device = SelectRenderDevice(p_backend);
 
     if (!device) {
-        device = new EmptyGraphicsManager;
+        device = new NullRenderDevice;
 
-        LOG_ERROR("backend '{}' not supported, fallback to EmptyGraphicsManager", backend);
+        LOG_ERROR("backend '{}' not supported, fallback to NullRenderDevice", (int)p_backend);
     }
 
     return device;

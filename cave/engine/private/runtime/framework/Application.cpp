@@ -70,7 +70,7 @@ auto Application::SetupModules() -> Result<void> {
     m_script_manager = CreateScriptManager();
     m_scene_registry = new SceneRegistry();
     m_physics_manager = CreatePhysicsManager();
-    m_render_device = CreateRenderDevice();
+    m_render_device = CreateRenderDevice(m_spec.backend);
     m_display_server = CreateDisplayManager();
     m_input_system = new InputSystem();
     m_renderer = new render::Renderer();
@@ -116,7 +116,6 @@ auto Application::SetupModules() -> Result<void> {
 }
 
 auto Application::Initialize() -> Result<void> {
-    LOG_WARN("TODO: use App::GetBackend instead of GraphicsManager backend");
     LOG_WARN("TODO: dump scene registry command line");
     LOG_WARN("TODO: move thumbnail render target creation to somewhere else");
 

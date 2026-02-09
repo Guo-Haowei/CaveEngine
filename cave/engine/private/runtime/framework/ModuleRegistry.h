@@ -16,7 +16,7 @@ IAssetManager* CreateAssetManager();
 
 IDisplayManager* CreateDisplayManager();
 
-render::IRenderDevice* CreateRenderDevice();
+render::IRenderDevice* CreateRenderDevice(Backend p_backend);
 
 IPhysicsManager* CreatePhysicsManager();
 

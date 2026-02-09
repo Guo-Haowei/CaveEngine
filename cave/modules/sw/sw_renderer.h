@@ -54,10 +54,10 @@ struct OutTriangle {
     int discarded = false;
 };
 
-class SwGraphicsManager : public render::EmptyGraphicsManager {
+class SwGraphicsManager : public render::NullRenderDevice {
 public:
     SwGraphicsManager()
-        : EmptyGraphicsManager("SwGraphicsManager") {}
+        : NullRenderDevice("SwGraphicsManager") {}
 
     void Clear(const render::RenderTargetDesc& p_target) override;
 
