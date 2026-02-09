@@ -73,7 +73,7 @@ struct QuitContext {
 class IApplication : public NonCopyable {
 public:
     IApplication(const AppSpec& p_spec)
-        : m_specification(p_spec) {
+        : m_spec(p_spec) {
     }
 
     virtual ~IApplication();
@@ -111,7 +111,8 @@ public:
     CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
     Console& Console() { return *m_console; }
 
-    const AppSpec& GetSpecification() const { return m_specification; }
+    const AppSpec& GetSpecification() const { return m_spec; }
+    Backend GetBackend() const { return m_spec.backend; }
 
     static void Run(IApplication* p_app);
 
@@ -122,7 +123,7 @@ public:
 protected:
     virtual bool MainLoop() = 0;
 
-    AppSpec m_specification;
+    AppSpec m_spec;
 
     cave::SceneQueryService* m_scene_query_service;
 

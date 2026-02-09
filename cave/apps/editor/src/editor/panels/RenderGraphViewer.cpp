@@ -115,12 +115,9 @@ void RenderGraphViewer::DrawUIImpl() {
 
     CAVE_PROFILE_EVENT();
 
-    auto graphics_manager = m_editor.GetApp().GetRenderDevice();
-    if (m_backend == Backend::COUNT) {
-        m_backend = m_editor.GetApp().GetRenderDevice()->GetBackend();
-    }
+    m_backend = m_editor.GetApp().GetBackend();
 
-    switch (graphics_manager->GetBackend()) {
+    switch (m_backend) {
         case Backend::VULKAN:
         case Backend::METAL:
             return;

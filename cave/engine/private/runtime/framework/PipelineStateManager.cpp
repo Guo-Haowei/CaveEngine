@@ -61,12 +61,10 @@ auto PipelineStateManager::Create(PipelineStateName p_name, const PipelineStateD
 }
 
 Result<void> PipelineStateManager::Initialize() {
-    const Backend backend = m_render_device->GetBackend();
-
     if constexpr (USING(PLATFORM_WASM)) {
         return Result<void>();
     }
-    switch (backend) {
+    switch (m_backend) {
         case Backend::EMPTY:
         case Backend::D3D12:
         case Backend::METAL:
@@ -308,7 +306,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
 
     // @HACK: only support this many shaders
-    if (backend != Backend::OPENGL) {
+    if (m_backend != Backend::OPENGL) {
         return Result<void>();
     }
 

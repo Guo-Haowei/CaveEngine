@@ -72,8 +72,6 @@ public:
     void RequestTexture(ImageAsset* p_image) override {}
     void RequestMesh(MeshAsset* p_mesh) override {}
 
-    Backend GetBackend() const override { return Backend::EMPTY; }
-
     FrameContext& GetCurrentFrame() override {
         FrameContext* context = nullptr;
         return *context;

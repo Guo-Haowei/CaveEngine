@@ -40,10 +40,10 @@
 namespace cave::render {
 
 CommonOpenGLGraphicsManager::CommonOpenGLGraphicsManager()
-    : RenderDevice("CommonOpenGLGraphicsManager", Backend::OPENGL, 1) {
+    : RenderDevice("CommonOpenGLGraphicsManager", 1) {
     m_dummy_vao = 0;
     m_window = nullptr;
-    m_pipelineStateManager = std::make_shared<OpenGlPipelineStateManager>(this);
+    m_pipelineStateManager = std::make_shared<OpenGlPipelineStateManager>();
     m_fbo_cache = std::make_unique<GLFramebufferCache>();
 }
 

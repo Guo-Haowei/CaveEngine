@@ -12,15 +12,16 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-D3d11PipelineStateManager::D3d11PipelineStateManager(IRenderDevice* p_graphics_manager)
-    : PipelineStateManager(p_graphics_manager) {
+D3d11PipelineStateManager::D3d11PipelineStateManager(IRenderDevice* p_device) noexcept
+    : PipelineStateManager(Backend::D3D11)
+    , m_device(p_device) {
     m_defines.push_back({ "HLSL_LANG", "1" });
     m_defines.push_back({ "HLSL_LANG_D3D11", "1" });
     m_defines.push_back({ nullptr, nullptr });
 }
 
 auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(m_render_device);
+    auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(m_device);
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
     if (!device) {

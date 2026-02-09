@@ -153,6 +153,7 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetStencilRef(STENCIL_FLAG_NONE);
 }
 
+#if 0
 void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
@@ -200,7 +201,6 @@ void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
 /// Emitter
 static void EmitterPassFunc(RenderPassExcutionContext& p_ctx) {
     unused(p_ctx);
-#if 0
     RENDER_PASS_FUNC();
 
     auto& cmd = p_ctx.cmd;
@@ -265,8 +265,8 @@ static void EmitterPassFunc(RenderPassExcutionContext& p_ctx) {
             cmd.UnbindTexture(Dimension::TEXTURE_2D, GetBaseColorMapSlot());
         }
     }
-#endif
 }
+#endif
 
 /// Lighting
 void LightingPassFunc(RenderPassExcutionContext& p_ctx) {
@@ -296,8 +296,6 @@ void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
     // draw transparent objects
     gm.SetPipelineState(PSO_FORWARD_TRANSPARENT);
     ExecuteDrawCommands(p_ctx, p_ctx.frameData.commands[std::to_underlying(DrawPhase::Forward)], false);
-
-    EmitterPassFunc(p_ctx);
 }
 
 /// Bloom

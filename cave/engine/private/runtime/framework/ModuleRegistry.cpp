@@ -1,10 +1,10 @@
 #include "ModuleRegistry.h"
 
 #include "engine/private/assets/asset_manager.h"
-#include "engine/private/empty/empty_display_manager.h"
-#include "engine/private/empty/empty_graphics_manager.h"
-#include "engine/private/empty/empty_physics_manager.h"
-#include "engine/private/empty/empty_script_manager.h"
+#include "engine/private/runtime/null/NullDisplayService.h"
+#include "engine/private/runtime/null/NullRenderDevice.h"
+#include "engine/private/runtime/null/NullPhysicsService.h"
+#include "engine/private/runtime/null/NullScriptManager.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/scripting/lua/lua_script_manager.h"
 
@@ -94,6 +94,8 @@ IRenderDevice* CreateRenderDevice() {
     if (IRenderDevice::s_createFunc) {
         return IRenderDevice::s_createFunc();
     }
+
+    LOG_WARN("@TODO: instead of reading the dvar, use spec from app");
 
     const std::string& backend = DVAR_GET_STRING(gfx_backend);
     IRenderDevice* device = SelectGraphicsManager(backend);

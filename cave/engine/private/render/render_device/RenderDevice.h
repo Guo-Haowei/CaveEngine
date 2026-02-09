@@ -44,8 +44,8 @@ class RenderDevice : public IRenderDevice,
 public:
     // @TODO: rename to RenderTarget
 
-    RenderDevice(std::string_view p_name, Backend p_backend, int p_frame_count)
-        : IRenderDevice(p_name), m_backend(p_backend), m_frameCount(p_frame_count) {}
+    RenderDevice(std::string_view p_name, int p_frame_count)
+        : IRenderDevice(p_name), m_frameCount(p_frame_count) {}
 
     auto InitializeImpl() -> Result<void> final;
 
@@ -74,8 +74,6 @@ public:
     void BeginEvent(std::string_view p_event) override { unused(p_event); }
     void EndEvent() override {}
 
-    Backend GetBackend() const override { return m_backend; }
-
     FrameContext& GetCurrentFrame() override { return *(m_frameContexts[m_frameIndex].get()); }
 
     void DrawSkybox() override;
@@ -89,7 +87,6 @@ protected:
     void MoveToNextFrame() override;
     std::shared_ptr<FrameContext> CreateFrameContext() override;
 
-    const Backend m_backend;
     bool m_enableValidationLayer;
 
     ConcurrentQueue<ImageAsset*> m_loadedImages;

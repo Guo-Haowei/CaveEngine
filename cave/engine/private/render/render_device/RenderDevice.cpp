@@ -51,17 +51,13 @@ static auto CreateUniformCheckSize(RenderDevice& p_graphics_manager, uint32_t p_
 auto RenderDevice::InitializeImpl() -> Result<void> {
     m_enableValidationLayer = DVAR_GET_BOOL(gfx_gpu_validation);
 
-    const int num_frames = (GetBackend() == Backend::D3D12) ? NUM_FRAMES_IN_FLIGHT : 1;
+    const int num_frames = (m_app->GetBackend() == Backend::D3D12) ? NUM_FRAMES_IN_FLIGHT : 1;
     m_frameContexts.resize(num_frames);
     for (int i = 0; i < num_frames; ++i) {
         m_frameContexts[i] = CreateFrameContext();
     }
     if (auto res = InitializeInternal(); !res) {
         return CAVE_ERROR(res.error());
-    }
-
-    if (m_backend == Backend::METAL) {
-        return Result<void>();
     }
 
     for (int i = 0; i < num_frames; ++i) {

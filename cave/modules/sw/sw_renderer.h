@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/empty/empty_graphics_manager.h"
+#include "engine/private/runtime/null/NullRenderDevice.h"
 
 // @TODO: refactor
 #include "render_target.h"

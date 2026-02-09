@@ -12,7 +12,6 @@
 #include "engine/private/core/os/threads.h"
 #include "engine/private/core/string/StringUtils.h"
 #include "engine/private/render/renderer/Renderer.h"
-#include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/dvar/DvarCache.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
@@ -29,6 +28,9 @@
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
+// @TODO: remove
+#include "engine/private/renderer/graphics_dvars.h"
+
 #if USING(PLATFORM_WASM)
 static cave::IApplication* s_app = nullptr;
 #endif
@@ -43,7 +45,7 @@ Application::Application(const AppSpec& p_spec, AppType p_type)
     , m_state_machine(*this) {
 
     // @TODO: refactor this select work directory
-    m_vfs.Mount("@user", fs::path(m_specification.userFolder));
+    m_vfs.Mount("@user", fs::path(m_spec.userFolder));
 }
 
 IApplication::~IApplication() = default;
@@ -98,7 +100,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_renderer);
     RegisterModule(m_view_manager);
 
-    if (m_specification.enableImgui) {
+    if (m_spec.enableImgui) {
         auto res = CreateImguiManager();
         if (!res) {
             return CAVE_ERROR(res.error());
@@ -114,16 +116,19 @@ auto Application::SetupModules() -> Result<void> {
 }
 
 auto Application::Initialize() -> Result<void> {
+    LOG_WARN("TODO: use App::GetBackend instead of GraphicsManager backend");
+    LOG_WARN("TODO: dump scene registry command line");
+    LOG_WARN("TODO: move thumbnail render target creation to somewhere else");
 
     // select backend
     {
         const std::string& backend = DVAR_GET_STRING(gfx_backend);
         if (!backend.empty()) {
             do {
-#define BACKEND_DECLARE(ENUM, STR, DVAR)         \
-    if (backend == #DVAR) {                      \
-        m_specification.backend = Backend::ENUM; \
-        break;                                   \
+#define BACKEND_DECLARE(ENUM, STR, DVAR) \
+    if (backend == #DVAR) {              \
+        m_spec.backend = Backend::ENUM;  \
+        break;                           \
     }
                 BACKEND_LIST
 #undef BACKEND_DECLARE

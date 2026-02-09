@@ -21,7 +21,7 @@ protected:
     void DrawNodes(const render::CompiledGraph& p_graph);
 
     bool m_firstFrame{ true };
-    Backend m_backend{ Backend::COUNT };
+    Backend m_backend{ Backend::EMPTY };
 };
 
 }  // namespace cave

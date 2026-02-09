@@ -245,11 +245,10 @@ void SceneViewTab::DrawMainView() {
     m_rect.SetMinMax(Vector2f(min.x, min.y),
                      Vector2f(max.x, max.y));
 
-    // @TODO: add a dummy button
-    const auto& gm = *m_editor.GetApp().GetRenderDevice();
+    // @TODO: move it somewhere else
     uint64_t handle = m_texture->GetHandle();
     // add image for drawing
-    switch (gm.GetBackend()) {
+    switch (m_editor.GetApp().GetBackend()) {
         case Backend::D3D11:
         case Backend::D3D12: {
             ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max);

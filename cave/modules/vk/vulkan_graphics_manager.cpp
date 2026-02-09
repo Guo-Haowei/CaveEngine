@@ -1,9 +1,10 @@
 #include "vulkan_graphics_manager.h"
 
-#include "engine/private/drivers/glfw/glfw_display_manager.h"
-#include "engine/private/empty/empty_pipeline_state_manager.h"
 #include "cave/runtime/framework/IApplication.h"
+
+#include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
+#include "engine/private/runtime/null/NullPipelineStateManager.h"
 #include "vulkan_helpers.h"
 ///////
 #include "imgui/backends/imgui_impl_glfw.h"
@@ -347,8 +348,8 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VulkanGraphicsManager::VulkanGraphicsManager()
-    : RenderDevice("VulkanGraphicsManager", Backend::VULKAN, NUM_FRAMES_IN_FLIGHT) {
-    m_pipelineStateManager = std::make_shared<EmptyPipelineStateManager>(this);
+    : RenderDevice("VulkanGraphicsManager", NUM_FRAMES_IN_FLIGHT) {
+    m_pipelineStateManager = std::make_shared<EmptyPipelineStateManager>();
 }
 
 auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {

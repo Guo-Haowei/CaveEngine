@@ -234,7 +234,7 @@ void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
 FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) {
     FramePlan plan;
 
-    const bool is_opengl = m_app.GetRenderDevice()->GetBackend() == Backend::OPENGL;
+    const bool is_opengl = m_app.GetBackend() == Backend::OPENGL;
     RenderOptions options = {
         .is_opengl = is_opengl,
         .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),
