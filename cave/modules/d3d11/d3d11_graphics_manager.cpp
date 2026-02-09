@@ -15,7 +15,7 @@
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 

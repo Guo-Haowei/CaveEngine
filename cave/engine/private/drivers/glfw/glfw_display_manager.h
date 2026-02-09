@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/rhi/Backend.h"
 
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 
 struct GLFWwindow;
 

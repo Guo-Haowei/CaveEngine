@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 
 namespace cave {
 

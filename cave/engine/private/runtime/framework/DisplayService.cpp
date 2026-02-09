@@ -1,4 +1,4 @@
-#include "DisplayManager.h"
+#include "DisplayService.h"
 
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "cave/runtime/framework/IApplication.h"

@@ -17,7 +17,7 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/ModuleRegistry.h"

@@ -2,7 +2,7 @@
 
 #include "engine/private/assets/blob_asset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "cave/core/math/Vector.h"
 #include "engine/private/runtime/scene/Scene.h"

@@ -22,8 +22,8 @@ struct WindowSpecfication {
 };
 
 class DisplayService : public Singleton<DisplayService>,
-                        public Module,
-                        public ModuleCreateRegistry<DisplayService> {
+                       public Module,
+                       public ModuleCreateRegistry<DisplayService> {
 public:
     DisplayService(std::string_view p_name)
         : Module(p_name) {}

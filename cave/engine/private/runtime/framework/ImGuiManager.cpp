@@ -13,7 +13,7 @@
 #include "engine/private/core/string/StringUtils.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/VFS.h"
 
 namespace cave {

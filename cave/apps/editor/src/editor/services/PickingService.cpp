@@ -3,7 +3,7 @@
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/framework/DisplayManager.h"
+#include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/Scene.h"
 
