@@ -116,6 +116,7 @@ auto Application::SetupModules() -> Result<void> {
 }
 
 auto Application::Initialize() -> Result<void> {
+    LOG_WARN("TODO: fit mesh in camera frustum in thumbnail preview builder");
     LOG_WARN("TODO: dump scene registry command line");
     LOG_WARN("TODO: move thumbnail render target creation to somewhere else");
 

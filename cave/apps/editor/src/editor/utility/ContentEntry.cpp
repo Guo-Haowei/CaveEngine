@@ -108,6 +108,7 @@ void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) 
                 }
             } break;
             case AssetType::Material:
+            case AssetType::Mesh:
             case AssetType::Scene: {
                 ThumbnailKey key{
                     .guid = p_handle.GetGuid(),
