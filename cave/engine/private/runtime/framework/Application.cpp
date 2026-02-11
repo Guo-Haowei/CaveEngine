@@ -117,7 +117,7 @@ auto Application::SetupModules() -> Result<void> {
 
 auto Application::Initialize() -> Result<void> {
     LOG_WARN("TODO: move thumbnail render target creation to somewhere else");
-    LOG_WARN("TODO: add debug name when registering scene");
+    LOG_WARN("TODO: fix image asset thumbnail in content browser");
 
     // select backend
     {
