@@ -40,7 +40,7 @@ static CameraComponent FitAABBToCamera(const math::AABB& p_aabb,
     Matrix4x4f transform = math::Translate(pos);
 
     const float near_z = std::max(0.01f, dist - r * 2.0f);
-    const float far_z= dist + r * 2.0f;
+    const float far_z = dist + r * 2.0f;
 
     camera.SetNear(near_z);
     camera.SetFar(far_z);
@@ -86,7 +86,7 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
     scene->Update(0.0f);
 
     // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register(std::move(scene));
+    SceneId scene_id = m_scene_reg.Register({ "thumbnail scene" }, std::move(scene));
 
     return {
         .status = PreviewBuildStatus::Ok,
@@ -129,7 +129,7 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
     camera.SetFovy(p_options.fov_y_deg);
 
     // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register(std::move(scene));
+    SceneId scene_id = m_scene_reg.Register({ "thumbnail mat" }, std::move(scene));
 
     return {
         .status = PreviewBuildStatus::Ok,
@@ -166,7 +166,7 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, p_options);
 
     // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register(std::move(scene));
+    SceneId scene_id = m_scene_reg.Register({ "thumbnail mesh" }, std::move(scene));
 
     return {
         .status = PreviewBuildStatus::Ok,

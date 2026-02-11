@@ -84,7 +84,7 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
     }
 }
 
-// @TODO: 
+// @TODO:
 static constexpr int kThumbnailSize = 256;
 
 void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) {

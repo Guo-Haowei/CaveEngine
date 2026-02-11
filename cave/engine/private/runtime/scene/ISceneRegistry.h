@@ -8,6 +8,10 @@ namespace cave {
 class Scene;
 class IApplication;
 
+struct SceneDesc {
+    std::string debug_name;
+};
+
 // @TODO: this doesn't have to be an interface,
 // move the implementation to Impl class instead
 class ISceneRegistry : public Module {
@@ -15,11 +19,11 @@ class ISceneRegistry : public Module {
 public:
     using Module::Module;
 
-    virtual SceneId Create() = 0;
+    virtual SceneId Create(SceneDesc p_desc) = 0;
 
-    virtual SceneId Clone(SceneId p_id) = 0;
+    virtual SceneId Register(SceneDesc p_desc, std::unique_ptr<Scene> p_scene) = 0;
 
-    virtual SceneId Register(std::unique_ptr<Scene> p_scene) = 0;
+    virtual SceneId Clone(SceneDesc p_desc, SceneId p_id) = 0;
 
     virtual void Destroy(SceneId p_id) = 0;
 

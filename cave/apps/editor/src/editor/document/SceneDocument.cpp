@@ -13,7 +13,7 @@ SceneDocument::SceneDocument(IApplication& p_app, const Guid& p_guid)
     auto scene = std::make_unique<Scene>();
     scene->Copy(*m_handle.Get<Scene>());
 
-    m_preview_scene = m_scene_reg.Register(std::move(scene));
+    m_preview_scene = m_scene_reg.Register({ "scene doc" }, std::move(scene));
 }
 
 bool SceneDocument::Save() {

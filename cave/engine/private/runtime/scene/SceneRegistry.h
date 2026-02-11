@@ -18,11 +18,11 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    SceneId Create() override;
+    SceneId Create(SceneDesc p_desc) override;
 
-    SceneId Clone(SceneId p_id) override;
+    SceneId Register(SceneDesc p_desc, std::unique_ptr<Scene> p_scene) override;
 
-    SceneId Register(std::unique_ptr<Scene> p_scene) override;
+    SceneId Clone(SceneDesc p_desc, SceneId p_id) override;
 
     void Destroy(SceneId p_id) override;
 
@@ -40,6 +40,7 @@ public:
 
 private:
     bool Dump_Cmd(CommandContext& p_ctx, const CommandArgs& p_args);
+    std::vector<SceneDesc> m_descs;
 };
 
 }  // namespace cave
