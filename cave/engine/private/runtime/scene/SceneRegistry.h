@@ -5,6 +5,8 @@
 namespace cave {
 
 class Scene;
+struct CommandArgs;
+struct CommandContext;
 
 class SceneRegistry : public ISceneRegistry,
                       protected GenIdRegistry<Scene> {
@@ -35,6 +37,9 @@ public:
     bool IsAlive(SceneId p_id) const override {
         return Base::IsAlive(p_id);
     }
+
+private:
+    bool Dump_Cmd(CommandContext& p_ctx, const CommandArgs& p_args);
 };
 
 }  // namespace cave

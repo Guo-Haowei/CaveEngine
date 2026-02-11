@@ -4,6 +4,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/render/features/EnvironmentFeature.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
 #include "engine/private/render/features/ShadowFeature.h"
@@ -20,8 +21,6 @@
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
 // @TODO: cleanup
-#include "engine/private/core/base/random.h"
-#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_graph/CommonPasses.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"

@@ -9,8 +9,7 @@ namespace cave::render {
 
 void RenderPoolDump_Cmd(TransientPool& p_pool,
                         CommandContext& p_ctx,
-                        const CommandArgs& p_args) {
-    unused(p_args);
+                        const CommandArgs&) {
 
     const PoolSnapshot snapshot = p_pool.Snapshot();
     std::string msg;

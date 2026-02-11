@@ -1,5 +1,9 @@
 #include "SceneRegistry.h"
 
+#include "cave/core/diagnostics/CommandRegistry.h"
+#include "cave/core/diagnostics/ILogger.h"
+#include "cave/runtime/framework/IApplication.h"
+
 #include "engine/private/core/os/threads.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -17,8 +21,32 @@ SceneRegistry::SceneRegistry()
     : ISceneRegistry("SceneRegistry") {
 }
 
+bool SceneRegistry::Dump_Cmd(CommandContext& p_ctx, const CommandArgs&) {
+    std::string msg;
+    msg.reserve(512);
+
+    msg.append("Scene Registry:");
+    for (const auto& slot : m_slots) {
+        std::string_view name = "Untitled";
+        msg.append(std::format("\n -- name: {}, id: {}", name, slot.gen));
+    }
+
+    p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
+    return true;
+}
+
 // @TODO: register scene commands
 auto SceneRegistry::InitializeImpl() -> Result<void> {
+    CommandRegistry& reg = m_app->CommandRegistry();
+    reg.Register({
+        .name = "scene.reg.dump",
+        .help = "List registered scenes.",
+        .usage = "scene.reg.dump",
+        .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
+            return Dump_Cmd(p_ctx, p_args);
+        },
+    });
+
     return Result<void>();
 }
 
