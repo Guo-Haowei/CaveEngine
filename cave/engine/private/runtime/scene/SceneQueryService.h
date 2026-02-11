@@ -6,7 +6,7 @@
 
 namespace cave {
 
-class ISceneRegistry;
+class SceneRegistry;
 
 struct RayHit {
     bool hit{ false };
@@ -26,7 +26,7 @@ struct RaycastFilter {
 
 class SceneQueryService {
 public:
-    explicit SceneQueryService(ISceneRegistry& p_scene_reg) noexcept
+    explicit SceneQueryService(SceneRegistry& p_scene_reg) noexcept
         : m_scene_reg(p_scene_reg) {
     }
 
@@ -35,7 +35,7 @@ public:
                    const RaycastFilter& p_filter);
 
 private:
-    ISceneRegistry& m_scene_reg;
+    SceneRegistry& m_scene_reg;
 };
 
 }  // namespace cave

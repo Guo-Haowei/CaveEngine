@@ -9,7 +9,7 @@ namespace cave {
 
 class AssetRegistry;
 class IApplication;
-class ISceneRegistry;
+class SceneRegistry;
 
 struct PreviewOptions {
     uint32_t width = 256;
@@ -46,7 +46,7 @@ private:
     PreviewBuildResult BuildScene(const AssetHandle& p_handle, const PreviewOptions& p_options) const;
 
     AssetRegistry& m_asset_reg;
-    ISceneRegistry& m_scene_reg;
+    SceneRegistry& m_scene_reg;
 };
 
 }  // namespace cave

@@ -12,9 +12,9 @@ struct SceneDesc {
     std::string debug_name;
 };
 
-class ISceneRegistry : public Module {
+class SceneRegistry : public Module {
 public:
-    using Module::Module;
+    SceneRegistry();
 
     SceneId Create(SceneDesc p_desc);
 

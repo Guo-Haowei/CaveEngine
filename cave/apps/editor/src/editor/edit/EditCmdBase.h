@@ -9,7 +9,7 @@
 namespace cave {
 
 class IApplication;
-class ISceneRegistry;
+class SceneRegistry;
 
 class EditCmdBase : public IEditCmd {
 public:
@@ -29,7 +29,7 @@ protected:
     ecs::Entity m_entity;
 
 private:
-    ISceneRegistry& m_scene_reg;
+    SceneRegistry& m_scene_reg;
 };
 
 }  // namespace cave

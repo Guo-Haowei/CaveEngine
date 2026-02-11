@@ -30,7 +30,7 @@ class ImguiManager;
 class InputSystem;
 class IPhysicsManager;
 class IScriptManager;
-class ISceneRegistry;
+class SceneRegistry;
 class SceneQueryService;
 class SceneScheduler;
 class TaskManager;
@@ -99,7 +99,7 @@ public:
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
     InputSystem* GetInputSystem() { return m_input_system; }
-    ISceneRegistry* GetSceneRegistry() { return m_scene_registry; }
+    SceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptManager* GetScriptManager() { return m_script_manager; }
     DisplayService* GetDisplayManager() { return m_display_server; }
@@ -131,7 +131,7 @@ protected:
     // @TODO: differentiate global and state specific managers
     AssetRegistry* m_asset_registry{ nullptr };
     IAssetManager* m_asset_manager{ nullptr };
-    ISceneRegistry* m_scene_registry{ nullptr };
+    SceneRegistry* m_scene_registry{ nullptr };
 
     IPhysicsManager* m_physics_manager{ nullptr };
     IScriptManager* m_script_manager{ nullptr };

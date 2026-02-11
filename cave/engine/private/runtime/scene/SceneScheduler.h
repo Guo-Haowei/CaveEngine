@@ -5,7 +5,7 @@
 namespace cave {
 
 struct FrameTime;
-class ISceneRegistry;
+class SceneRegistry;
 class IScriptManager;
 
 enum class SceneTickMode {
@@ -29,7 +29,7 @@ public:
 
 class SceneScheduler {
 public:
-    SceneScheduler(ISceneRegistry& p_scene_manager,
+    SceneScheduler(SceneRegistry& p_scene_manager,
                    IScriptManager& p_script_manager)
         : m_scene_manager(p_scene_manager)
         , m_script_manager(p_script_manager) {
@@ -42,7 +42,7 @@ public:
 
 private:
     IScriptManager& m_script_manager;
-    ISceneRegistry& m_scene_manager;
+    SceneRegistry& m_scene_manager;
 
     std::vector<ISceneTickContributor*> m_contributors;
 };

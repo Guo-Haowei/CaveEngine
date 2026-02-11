@@ -10,7 +10,7 @@ namespace cave::render { class IRenderDevice; }
 
 namespace cave {
 
-class ISceneRegistry;
+class SceneRegistry;
 class EditorState;
 class ViewManager;
 struct FrameTime;
@@ -57,7 +57,7 @@ private:
     void SubmitRequests(const BusyInfo& p_info);
 
     ViewManager& m_view_manager;
-    ISceneRegistry& m_scene_reg;
+    SceneRegistry& m_scene_reg;
     render::IRenderDevice& m_render_device;
     PreviewBuilder m_builder;
 

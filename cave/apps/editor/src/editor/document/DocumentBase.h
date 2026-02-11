@@ -8,7 +8,7 @@ namespace cave {
 class IApplication;
 
 class AssetRegistry;
-class ISceneRegistry;
+class SceneRegistry;
 
 class DocumentBase : public IDocument {
 public:
@@ -56,7 +56,7 @@ protected:
     void SetUndoLimit(size_t limit) { m_undo_limit = limit; }
 
     AssetRegistry& m_asset_reg;
-    ISceneRegistry& m_scene_reg;
+    SceneRegistry& m_scene_reg;
     Guid m_guid;
 
 private:

@@ -20,7 +20,7 @@ RuntimeHost::~RuntimeHost() {
 }
 
 void RuntimeHost::Start(const RuntimeStartParams& p_params) {
-    ISceneRegistry& scene_manager = *m_app.GetSceneRegistry();
+    SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
 
     switch (p_params.source.type) {
         case SceneSource::Type::FromPath: {
