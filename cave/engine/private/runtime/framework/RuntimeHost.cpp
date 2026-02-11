@@ -5,7 +5,7 @@
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
 

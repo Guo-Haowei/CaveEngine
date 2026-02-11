@@ -1,4 +1,4 @@
-#include "engine/private/core/GenIdRegistry.h"
+#include "engine/private/core/ids/GenIdRegistry.h"
 
 namespace cave {
 

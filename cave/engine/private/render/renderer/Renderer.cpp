@@ -18,7 +18,7 @@
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 // @TODO: cleanup
 #include "engine/private/renderer/graphics_dvars.h"

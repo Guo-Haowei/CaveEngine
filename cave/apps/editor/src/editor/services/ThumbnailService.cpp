@@ -5,7 +5,7 @@
 
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ViewManager.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorState.h"
 

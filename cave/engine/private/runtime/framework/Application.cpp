@@ -68,7 +68,7 @@ auto Application::SetupModules() -> Result<void> {
     m_asset_manager = CreateAssetManager();
     m_asset_registry = new AssetRegistry();
     m_script_manager = CreateScriptManager();
-    m_scene_registry = new SceneRegistry();
+    m_scene_registry = new ISceneRegistry();
     m_physics_manager = CreatePhysicsManager();
     m_render_device = CreateRenderDevice(m_spec.backend);
     m_display_server = CreateDisplayManager();

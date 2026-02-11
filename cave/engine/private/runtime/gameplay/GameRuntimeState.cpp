@@ -14,7 +14,7 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/ViewManager.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"

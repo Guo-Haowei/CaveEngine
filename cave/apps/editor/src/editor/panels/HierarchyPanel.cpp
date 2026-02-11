@@ -6,7 +6,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"

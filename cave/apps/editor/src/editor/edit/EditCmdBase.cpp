@@ -2,7 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
 

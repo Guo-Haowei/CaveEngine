@@ -1,7 +1,7 @@
 #include "SceneDocument.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "editor/undo_redo/UndoStack.h"
 

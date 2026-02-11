@@ -1,6 +1,6 @@
 #include "MaterialDocument.h"
 
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 namespace cave {

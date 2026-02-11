@@ -1,46 +1,43 @@
-#include "ISceneRegistry.h"
+#pragma once
+#include "cave/core/ids/SceneId.h"
 
-#include "engine/private/core/GenIdRegistry.h"
+#include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
 
 class Scene;
-struct CommandArgs;
-struct CommandContext;
+class IApplication;
 
-class SceneRegistry : public ISceneRegistry,
-                      protected GenIdRegistry<Scene> {
-    using Base = GenIdRegistry<Scene>;
+struct SceneDesc {
+    std::string debug_name;
+};
 
+class ISceneRegistry : public Module {
 public:
-    SceneRegistry();
+    using Module::Module;
 
-    auto InitializeImpl() -> Result<void> override;
-    void FinalizeImpl() override;
+    SceneId Create(SceneDesc p_desc);
 
-    SceneId Create(SceneDesc p_desc) override;
+    SceneId Register(SceneDesc p_desc, std::unique_ptr<Scene> p_scene);
 
-    SceneId Register(SceneDesc p_desc, std::unique_ptr<Scene> p_scene) override;
+    SceneId Clone(SceneDesc p_desc, SceneId p_id);
 
-    SceneId Clone(SceneDesc p_desc, SceneId p_id) override;
+    void Destroy(SceneId p_id);
 
-    void Destroy(SceneId p_id) override;
+    Scene* Resolve(SceneId p_id);
 
-    Scene* Resolve(SceneId p_id) override {
-        return Base::Resolve(p_id);
-    }
+    const Scene* Resolve(SceneId p_id) const;
 
-    const Scene* Resolve(SceneId p_id) const override {
-        return Base::Resolve(p_id);
-    }
+    bool IsAlive(SceneId p_id) const;
 
-    bool IsAlive(SceneId p_id) const override {
-        return Base::IsAlive(p_id);
-    }
+protected:
+    auto InitializeImpl() -> Result<void>;
+    void FinalizeImpl();
 
 private:
-    bool Dump_Cmd(CommandContext& p_ctx, const CommandArgs& p_args);
-    std::vector<SceneDesc> m_descs;
+    class Impl;
+
+    std::unique_ptr<Impl> m_impl;
 };
 
 }  // namespace cave
