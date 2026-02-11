@@ -15,8 +15,6 @@ struct PreviewOptions {
     uint32_t width = 256;
     uint32_t height = 256;
     float fov_y_deg = 50.0f;
-
-    math::Vector3f view_dir{ 0, 0, -1 };
 };
 
 struct PreviewBuildRequest {

@@ -7,11 +7,51 @@
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
+// @TODO: refactor
+#include "engine/private/assets/mesh_asset.h"
+
 namespace cave {
 
 using math::Matrix4x4f;
 using math::Vector3f;
+using math::Vector4f;
 using render::CameraSource;
+
+static CameraComponent FitAABBToCamera(const math::AABB& p_aabb,
+                                       const PreviewOptions& p_options,
+                                       float p_padding = 1.15f) {
+    CameraComponent camera;
+    const Vector3f center = p_aabb.Center();
+    const Vector3f extents = p_aabb.HalfExtent();
+
+    const float r = p_padding * math::length(extents);
+    const float aspect = (float)p_options.width / p_options.height;
+
+    Matrix4x4f rotation = math::Rotate(math::Degree(-30.0f), Vector3f::UnitX);
+    Vector3f front = (rotation * Vector4f::UnitZ).xyz;
+
+    const float theta_y = 0.5f * glm::radians<float>(p_options.fov_y_deg);
+    const float theta_x = std::atan(std::tan(theta_y) * aspect);
+
+    const float dist_y = r / std::tan(theta_y);
+    const float dist_x = r / std::tan(theta_x);
+    float dist = glm::max(dist_x, dist_y);
+    dist *= 1.02f;
+
+    const Vector3f pos = center + front * dist;
+    Matrix4x4f transform = math::Translate(pos);
+
+    const float near_z = std::max(0.01f, dist - r * 2.0f);
+    const float far_z= dist + r * 2.0f;
+
+    camera.SetNear(near_z);
+    camera.SetFar(far_z);
+    camera.SetAspect((float)p_options.width / (float)p_options.height);
+    camera.SetFovy(p_options.fov_y_deg);
+
+    camera.Update(transform * rotation);
+    return camera;
+}
 
 PreviewBuilder::PreviewBuilder(IApplication& p_app) noexcept
     : m_asset_reg(*p_app.GetAssetRegistry())
@@ -105,6 +145,9 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
+    const MeshAsset* mesh = p_handle.Get<MeshAsset>();
+    DEV_ASSERT(mesh);
+
     // add mesh
     {
         auto id = EntityFactory::CreateTransformEntity(*scene, "mesh");
@@ -122,14 +165,7 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
 
     scene->Update(0.0f);
 
-    // @TODO: fit mesh in camera frustum
-    Matrix4x4f rotation = math::Rotate(math::Degree(-30.0f), Vector3f::UnitX);
-    Matrix4x4f transform = math::Translate(Vector3f(0, 0.2f, 0.2f));
-
-    CameraComponent camera{};
-    camera.SetAspect((float)p_options.width / (float)p_options.height);
-    camera.Update(transform * rotation);
-    camera.SetFovy(p_options.fov_y_deg);
+    CameraComponent camera = FitAABBToCamera(mesh->localBound, p_options);
 
     // @TODO: delete scene
     SceneId scene_id = m_scene_reg.Register(std::move(scene));
