@@ -1,15 +1,11 @@
 #pragma once
-#include <chrono>
-
-#include "engine/private/assets/asset_type.h"
+#include "engine/private/runtime/assets/AssetType.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/reflection/Meta.h"
 
 namespace cave {
 
 class IAsset;
-
-using TimePoint = std::chrono::system_clock::time_point;
 
 struct AssetMetaData {
     CAVE_META(AssetMetaData)

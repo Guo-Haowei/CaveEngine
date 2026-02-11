@@ -1,7 +1,7 @@
 #include "MaterialEditor.h"
 
-#include "engine/private/assets/image_asset.h"
-#include "engine/private/assets/material_asset.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 

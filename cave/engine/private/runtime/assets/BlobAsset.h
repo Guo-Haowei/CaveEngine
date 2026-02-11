@@ -1,7 +1,7 @@
 #pragma once
-#include "asset_interface.h"
-#include "asset_handle.h"
-#include "asset_meta_data.h"
+#include "AssetInterface.h"
+#include "AssetHandle.h"
+#include "AssetMetaData.h"
 
 namespace cave {
 

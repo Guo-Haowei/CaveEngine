@@ -3,8 +3,9 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui_internal.h>
 
-#include "engine/private/assets/mesh_asset.h"
 #include "cave/core/diagnostics/Profiler.h"
+
+#include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 
 #include "editor/services/DocumentService.h"

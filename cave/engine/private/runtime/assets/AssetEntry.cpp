@@ -1,4 +1,4 @@
-#include "asset_entry.h"
+#include "AssetEntry.h"
 
 namespace cave {
 

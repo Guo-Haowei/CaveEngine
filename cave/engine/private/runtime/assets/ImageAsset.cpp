@@ -1,4 +1,4 @@
-#include "image_asset.h"
+#include "ImageAsset.h"
 
 #include <tinygltf/stb_image.h>
 

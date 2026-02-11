@@ -1,18 +1,18 @@
-#include "asset_manager.h"
+#include "AssetManager.h"
 
 #include <filesystem>
 #include <fstream>
 
 #include "cave/core/time/Stopwatch.h"
 
-#include "engine/private/assets/asset_importer.h"
-#include "engine/private/assets/blob_asset.h"
-#include "engine/private/assets/image_asset.h"
-#include "engine/private/assets/material_asset.h"
-#include "engine/private/assets/mesh_asset.h"
-#include "engine/private/assets/tile_set_asset.h"
-#include "engine/private/assets/sprite_animation_asset.h"
-#include "engine/private/assets/tile_map_asset.h"
+#include "engine/private/runtime/assets/AssetImporter.h"
+#include "engine/private/runtime/assets/BlobAsset.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/assets/MaterialAsset.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/assets/TileSetAsset.h"
+#include "engine/private/runtime/assets/SpriteAnimationAsset.h"
+#include "engine/private/runtime/assets/TileMapAsset.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/os/threads.h"
 #include "engine/private/render/render_device/RenderDevice.h"

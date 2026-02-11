@@ -3,7 +3,7 @@
 #include "cave/core/ids/Guid.h"
 #include "cave/core/ids/SceneId.h"
 
-#include "engine/private/assets/asset_handle.h"
+#include "engine/private/runtime/assets/AssetHandle.h"
 
 namespace cave {
 

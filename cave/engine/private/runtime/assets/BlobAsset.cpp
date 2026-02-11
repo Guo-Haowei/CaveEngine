@@ -1,4 +1,4 @@
-#include "blob_asset.h"
+#include "BlobAsset.h"
 
 #include "engine/private/core/io/file_access.h"
 

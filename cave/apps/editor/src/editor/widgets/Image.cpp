@@ -3,7 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 #include <imgui/imgui.h>
 
-#include "engine/private/assets/image_asset.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
 
 namespace cave::ui {
 

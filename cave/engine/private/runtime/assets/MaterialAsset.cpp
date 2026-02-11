@@ -1,4 +1,4 @@
-#include "material_asset.h"
+#include "MaterialAsset.h"
 
 #include "engine/private/serialization/yaml_include.h"
 

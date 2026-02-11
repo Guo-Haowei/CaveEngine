@@ -3,12 +3,10 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/ISceneRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
-
-// @TODO: refactor
-#include "engine/private/assets/mesh_asset.h"
 
 namespace cave {
 

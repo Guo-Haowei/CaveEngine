@@ -1,8 +1,7 @@
 #pragma once
 #include <variant>
 
-#include "engine/private/core/math/geomath.h"
-#include "engine/private/assets/tile_map_asset.h"
+#include "engine/private/runtime/assets/TileMapAsset.h"
 
 namespace cave {
 

@@ -1,6 +1,6 @@
 #include "animation_system.h"
 
-#include "engine/private/assets/sprite_animation_asset.h"
+#include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {

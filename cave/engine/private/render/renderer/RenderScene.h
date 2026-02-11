@@ -3,8 +3,7 @@
 #include "cave/core/math/AABB.h"
 #include "cave/core/math/Matrix.h"
 
-// @TODO: move MeshAsset away from MeshAsset
-#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
 
 // clang-format off
 namespace cave { struct GpuMesh; }

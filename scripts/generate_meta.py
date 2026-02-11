@@ -15,11 +15,11 @@ print('Project root folder:', get_engine_src_folder())
 # ========= CONFIG ==========
 FILES = [
     # assets
-    'private/assets/asset_meta_data.h',
-    'private/assets/material_asset.h',
-    'private/assets/sprite_animation_asset.h',
-    'private/assets/tile_map_asset.h',
-    'private/assets/tile_set_asset.h',
+    'private/runtime/assets/AssetMetaData.h',
+    'private/runtime/assets/MaterialAsset.h',
+    'private/runtime/assets/SpriteAnimationAsset.h',
+    'private/runtime/assets/TileMapAsset.h',
+    'private/runtime/assets/TileSetAsset.h',
     # components
     'private/runtime/scene/ColliderComponent.h',
     'public/cave/runtime/scene/CameraComponent.h',

@@ -4,8 +4,10 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 
-#include "engine/private/assets/image_asset.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+// #include "engine/private/runtime/assets/asset_handle.h"
+// #include "engine/private/runtime/assets/asset_interface.h"
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
@@ -16,8 +18,6 @@
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"
 #include "engine/private/ui/layout.h"
-#include "engine/private/assets/asset_handle.h"
-#include "engine/private/assets/asset_interface.h"
 
 namespace cave {
 

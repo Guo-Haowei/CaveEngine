@@ -1,6 +1,6 @@
 #include "ModuleRegistry.h"
 
-#include "engine/private/assets/asset_manager.h"
+#include "engine/private/runtime/assets/AssetManager.h"
 #include "engine/private/runtime/null/NullDisplayService.h"
 #include "engine/private/runtime/null/NullRenderDevice.h"
 #include "engine/private/runtime/null/NullPhysicsService.h"

@@ -1,7 +1,6 @@
-#include "asset_handle.h"
+#include "AssetHandle.h"
 
-#include "asset_entry.h"
-
+#include "engine/private/runtime/assets/AssetEntry.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {

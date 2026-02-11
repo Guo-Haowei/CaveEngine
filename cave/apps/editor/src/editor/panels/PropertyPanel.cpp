@@ -1,5 +1,6 @@
 #include "PropertyPanel.h"
 
+#include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/scene/ISceneRegistry.h"
@@ -14,11 +15,9 @@
 #include <ImGuizmo/ImGuizmo.h>
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/private/assets/sprite_animation_asset.h"
-#include "cave/core/diagnostics/Profiler.h"
+#include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/core/string/StringUtils.h"
-#include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/ui/inputs.h"
@@ -411,6 +410,7 @@ void PropertyPanel::DrawUIImpl() {
 
         auto& materials = p_render.GetMaterialInstances();
         if (ImGui::Button("+")) {
+            // @TODO: command
             auto name = std::format("mat_{}", materials.size());
             auto mat_id = EntityFactory::CreateNameEntity(scene, name);
             scene.Create<MaterialComponent>(mat_id);

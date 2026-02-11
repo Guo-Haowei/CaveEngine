@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/private/assets/scene_importer.h"
+#include "engine/private/runtime/assets/SceneImporter.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 struct aiMesh;

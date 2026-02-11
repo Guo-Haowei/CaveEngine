@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
 
 // @TODO: this is coupled with MeshAsset, BAD!
 namespace cave::math {

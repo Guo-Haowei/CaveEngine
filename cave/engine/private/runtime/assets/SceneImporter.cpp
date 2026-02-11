@@ -1,11 +1,10 @@
-#include "scene_importer.h"
+#include "SceneImporter.h"
 
 #include "engine/private/core/string/StringUtils.h"
-
-#include "engine/private/assets/image_asset.h"
-#include "engine/private/assets/material_asset.h"
-#include "engine/private/assets/mesh_asset.h"
 #include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/assets/MaterialAsset.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"

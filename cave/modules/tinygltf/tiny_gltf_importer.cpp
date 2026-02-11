@@ -1,11 +1,11 @@
 #include "tiny_gltf_importer.h"
 
 #if USING(USE_IMPORTER_TINYGLTF)
-#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/core/string/StringUtils.h"
 
-#include "engine/private/assets/material_asset.h"
-#include "engine/private/assets/mesh_asset.h"
+#include "engine/private/runtime/assets/MaterialAsset.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #define TINYGLTF_IMPLEMENTATION

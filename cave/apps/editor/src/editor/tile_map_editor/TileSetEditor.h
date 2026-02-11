@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/assets/asset_handle.h"
+#include "engine/private/runtime/assets/AssetHandle.h"
 
 #include "editor/widgets/SpriteSelector.h"
 

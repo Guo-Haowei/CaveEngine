@@ -1,10 +1,11 @@
 #include "lua_binding.h"
 
-#include "engine/private/assets/blob_asset.h"
+#include "cave/core/math/Vector.h"
+
+#include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "cave/core/math/Vector.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "lua_bridge_include.h"

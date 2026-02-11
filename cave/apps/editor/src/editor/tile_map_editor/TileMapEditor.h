@@ -1,7 +1,7 @@
 #pragma once
-#include "engine/private/assets/asset_handle.h"
 #include "engine/private/core/math/geomath.h"
-#include "engine/private/assets/tile_map_asset.h"
+#include "engine/private/runtime/assets/AssetHandle.h"
+#include "engine/private/runtime/assets/TileMapAsset.h"
 
 #include "editor/widgets/SpriteSelector.h"
 

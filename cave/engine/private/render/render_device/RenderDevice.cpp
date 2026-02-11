@@ -1,19 +1,18 @@
 #include "RenderDevice.h"
 
+#include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/framework/IApplication.h"
+
 #include "engine/private/render/renderer/RenderSubmission.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 
 // @TODO: determine if includes are necessary
-#include "engine/private/assets/image_asset.h"
-#include "engine/private/core/base/random.h"
-#include "cave/core/diagnostics/Profiler.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/core/math/geometry.h"
-#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
-#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 

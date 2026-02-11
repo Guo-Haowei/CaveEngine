@@ -1,9 +1,9 @@
-#include "asset_importer.h"
+#include "AssetImporter.h"
 
-#include "engine/private/assets/blob_asset.h"
-#include "engine/private/assets/image_asset.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/renderer/pixel_format.h"
+#include "engine/private/runtime/assets/BlobAsset.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {

@@ -1,5 +1,5 @@
 #pragma once
-#include "asset_meta_data.h"
+#include "AssetMetaData.h"
 
 namespace cave {
 

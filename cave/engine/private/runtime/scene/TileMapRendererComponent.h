@@ -1,8 +1,8 @@
 #pragma once
 #include "cave/core/reflection/Reflection.h"
-#include "engine/private/assets/asset_handle.h"
 #include "cave/core/math/Box.h"
-#include "engine/private/core/math/geomath.h"
+
+#include "engine/private/runtime/assets/AssetHandle.h"
 
 // @TODO: rename it to TileMapInstanceComponent
 

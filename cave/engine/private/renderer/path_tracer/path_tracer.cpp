@@ -4,10 +4,10 @@
 
 #include "cave/core/time/Stopwatch.h"
 
-#include "engine/private/assets/mesh_asset.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/path_tracer/bvh_accel.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
