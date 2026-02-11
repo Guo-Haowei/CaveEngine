@@ -21,12 +21,10 @@
 #include <imnodes/imnodes.h>
 
 #include "Enums.h"
-#include "engine/private/assets/image_asset.h"
-#include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/ui/layout.h"

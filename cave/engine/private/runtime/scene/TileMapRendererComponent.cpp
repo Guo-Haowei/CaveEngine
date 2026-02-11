@@ -1,10 +1,10 @@
 #include "TileMapRendererComponent.h"
 
-#include "engine/private/assets/tile_map_asset.h"
-#include "engine/private/assets/tile_set_asset.h"
-#include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/runtime/assets/TileMapAsset.h"
+#include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/renderer/gpu_resource.h"
 
 namespace cave {
 

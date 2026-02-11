@@ -13,7 +13,7 @@
 #if USING(USE_IMPORTER_TINYGLTF)
 #include "cave/core/ids/Entity.h"
 
-#include "engine/private/assets/scene_importer.h"
+#include "engine/private/runtime/assets/SceneImporter.h"
 
 namespace tinygltf {
 class Model;

@@ -1,8 +1,8 @@
 #pragma once
 #include "SceneQueryService.h"
 
-#include "engine/private/assets/mesh_asset.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {

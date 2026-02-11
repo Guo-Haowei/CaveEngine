@@ -5,7 +5,7 @@
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
 
@@ -20,14 +20,14 @@ RuntimeHost::~RuntimeHost() {
 }
 
 void RuntimeHost::Start(const RuntimeStartParams& p_params) {
-    ISceneRegistry& scene_manager = *m_app.GetSceneRegistry();
+    SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
 
     switch (p_params.source.type) {
         case SceneSource::Type::FromPath: {
             CRASH_NOW_MSG("TODO");
         } break;
         case SceneSource::Type::FromExisting: {
-            m_scene_id = scene_manager.Clone(p_params.source.existing);
+            m_scene_id = scene_manager.Clone({ "runtime scene" }, p_params.source.existing);
         } break;
     }
 

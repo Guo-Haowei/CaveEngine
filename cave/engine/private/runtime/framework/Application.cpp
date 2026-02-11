@@ -116,8 +116,6 @@ auto Application::SetupModules() -> Result<void> {
 }
 
 auto Application::Initialize() -> Result<void> {
-    LOG_WARN("TODO: fit mesh in camera frustum in thumbnail preview builder");
-    LOG_WARN("TODO: dump scene registry command line");
     LOG_WARN("TODO: move thumbnail render target creation to somewhere else");
 
     // select backend
@@ -182,7 +180,6 @@ bool Application::MainLoop() {
 
     CompositeLogger::GetSingleton().Flush();
 
-    // === Begin Frame ===
     m_display_server->BeginFrame();
     if (m_display_server->ShouldClose()) {
         return false;
@@ -196,8 +193,6 @@ bool Application::MainLoop() {
     };
 
     m_input_system->Tick(time);
-
-    // === Update Phase ===
 
     m_asset_manager->Update();
 

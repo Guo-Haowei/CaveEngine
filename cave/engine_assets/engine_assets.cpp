@@ -1,9 +1,10 @@
 #include "default_textures.h"
 #include "primitive_meshes.h"
 
-#include "engine/private/assets/blob_asset.h"
-#include "engine/private/assets/material_asset.h"
 #include "cave/runtime/framework/IApplication.h"
+
+#include "engine/private/runtime/assets/BlobAsset.h"
+#include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 

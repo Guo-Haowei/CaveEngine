@@ -1,12 +1,9 @@
 #include "CommonPasses.h"
 
-#include "engine/private/algorithm/algorithm.h"
-#include "engine/private/assets/image_asset.h"
-#include "engine/private/core/base/random.h"
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/core/math/MatrixTransform.h"
+
+#include "engine/private/algorithm/algorithm.h"
 #include "engine/private/renderer/frame_data.h"
-#include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/path_tracer_render_system.h"
 #include "engine/private/renderer/renderer_misc.h"
@@ -357,6 +354,7 @@ void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx) {
 }
 
 // @TODO: get rid off this!
+#if 0
 void DebugVoxels(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
@@ -370,6 +368,7 @@ void DebugVoxels(RenderPassExcutionContext& p_ctx) {
     const uint32_t size = DVAR_GET_INT(gfx_voxel_size);
     gm.DrawElementsInstanced(size * size * size, gm.m_boxBuffers->desc.drawCount);
 }
+#endif
 
 /// Tone
 /// Change to post processing?

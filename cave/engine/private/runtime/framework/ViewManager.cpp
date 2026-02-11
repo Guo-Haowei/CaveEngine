@@ -3,7 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 // @TODO: remove
 #include "engine/private/renderer/graphics_defines.h"
 

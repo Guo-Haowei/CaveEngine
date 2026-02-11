@@ -1,6 +1,6 @@
 #include "MaterialDocument.h"
 
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 namespace cave {
@@ -42,7 +42,7 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
         scene->AttachChild(id);
     }
 
-    m_preview_scene = m_scene_reg.Register(std::move(scene));
+    m_preview_scene = m_scene_reg.Register({ "material doc" }, std::move(scene));
 }
 
 }  // namespace cave

@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/core/GenIdRegistry.h"
+#include "engine/private/core/ids/GenIdRegistry.h"
 
 #include "editor/document/DocId.h"
 #include "editor/panels/Tab.h"

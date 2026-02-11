@@ -5,6 +5,7 @@
 
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorState.h"
 
@@ -16,6 +17,7 @@ namespace cave {
 
 ThumbnailService::ThumbnailService(EditorState& p_editor) noexcept
     : m_view_manager(*p_editor.GetApp().GetViewManager())
+    , m_scene_reg(*p_editor.GetApp().GetSceneRegistry())
     , m_render_device(*p_editor.GetApp().GetRenderDevice())
     , m_builder(p_editor.GetApp()) {
 }
@@ -62,6 +64,7 @@ void ThumbnailService::ProcessCompletions() {
         // if (rec.submitted_frame <= completed_frame_index)
         {
             rec.state = ThumbnailState::Ready;
+            m_scene_reg.Destroy(rec.scene_id);
         }
     }
 
@@ -108,6 +111,8 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
         if (res.status != PreviewBuildStatus::Ok) {
             continue;
         }
+
+        rec.scene_id = res.scene_id;
 
         // @TODO: move it to somewhere else
         GpuTextureDesc tex_desc{

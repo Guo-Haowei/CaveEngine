@@ -10,8 +10,9 @@ namespace cave::render { class IRenderDevice; }
 
 namespace cave {
 
-class ViewManager;
+class SceneRegistry;
 class EditorState;
+class ViewManager;
 struct FrameTime;
 
 enum class ThumbnailState : uint8_t {
@@ -27,6 +28,7 @@ struct BusyInfo {
 };
 
 struct ThumbnailRecord {
+    SceneId scene_id;
     ThumbnailState state{};
     GpuTextureId texture{};
     uint64_t gpu_handle{};
@@ -55,6 +57,7 @@ private:
     void SubmitRequests(const BusyInfo& p_info);
 
     ViewManager& m_view_manager;
+    SceneRegistry& m_scene_reg;
     render::IRenderDevice& m_render_device;
     PreviewBuilder m_builder;
 

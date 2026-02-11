@@ -2,8 +2,8 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "engine/private/assets/image_asset.h"
-#include "engine/private/assets/tile_set_asset.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"

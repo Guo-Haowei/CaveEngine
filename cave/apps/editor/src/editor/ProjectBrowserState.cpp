@@ -1,18 +1,17 @@
 #include "ProjectBrowserState.h"
 
-#include <cave/runtime/framework/IApplication.h>
-
 #include <imgui/imgui.h>
 
-#include <engine/private/assets/image_asset.h>
-#include <engine/private/core/diagnostics/logger/Logger.h>
-#include <engine/private/core/math/geomath.h>
-#include <engine/private/runtime/framework/IAssetManager.h>
-#include <engine/private/runtime/framework/AssetRegistry.h>
-#include <engine/private/runtime/framework/BootLoadPipeline.h>
-#include <engine/private/runtime/framework/ImGuiManager.h>
-#include <engine/private/runtime/framework/TaskManager.h>
-#include <engine/private/ui/layout.h>
+#include "cave/runtime/framework/IApplication.h"
+
+#include "engine/private/core/diagnostics/logger/Logger.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/BootLoadPipeline.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
+#include "engine/private/runtime/framework/TaskManager.h"
+#include "engine/private/ui/layout.h"
 
 #include "editor/widgets/Image.h"
 

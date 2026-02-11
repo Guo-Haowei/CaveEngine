@@ -4,8 +4,9 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 
-#include "engine/private/assets/image_asset.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/ui/layout.h"
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
@@ -15,9 +16,6 @@
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"
-#include "engine/private/ui/layout.h"
-#include "engine/private/assets/asset_handle.h"
-#include "engine/private/assets/asset_interface.h"
 
 namespace cave {
 
@@ -139,11 +137,24 @@ void ContentBrowser::DrawContentBrowser() {
 
     auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
         if (p_entry.is_dir) return m_folder_iamge;
-        ThumbnailKey key{
-            .guid = p_entry.handle.GetGuid(),
-            .size = thumbnail_size,
-        };
-        if (uint64_t handle = thumbnail.GetOrRequest(key)) return handle;
+        const AssetMetaData* meta = p_entry.handle.GetMeta();
+        if (meta) {
+            if (meta->type == AssetType::Image) {
+                const ImageAsset* img = p_entry.handle.Get<ImageAsset>();
+                if (img && img->gpu_texture) {
+                    return img->gpu_texture->GetHandle();
+                }
+            }
+
+            ThumbnailKey key{
+                .guid = p_entry.handle.GetGuid(),
+                .size = thumbnail_size,
+            };
+            if (uint64_t handle = thumbnail.GetOrRequest(key)) {
+                return handle;
+            }
+        }
+
         if (auto it = m_thumbnail_lut.find(p_entry.extension); it != m_thumbnail_lut.end()) return it->second;
         return m_fallback_iamge;
     };

@@ -1,7 +1,7 @@
 #pragma once
 // @TODO: move to public
 #include "cave/core/ids/Guid.h"
-#include "engine/private/core/GenIdRegistry.h"
+#include "engine/private/core/ids/GenIdRegistry.h"
 
 #include "editor/document/IDocument.h"
 

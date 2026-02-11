@@ -14,6 +14,12 @@ void WarningIcon();
 
 void ErrorIcon();
 
+void CenteredImage(uint64_t p_handle,
+                   int p_desired_size,
+                   int p_img_width,
+                   int p_img_height,
+                   bool p_flip);
+
 void CenteredImage(const ImageAsset* p_image,
                    const math::Vector2f& p_background_region,
                    uint64_t p_background);

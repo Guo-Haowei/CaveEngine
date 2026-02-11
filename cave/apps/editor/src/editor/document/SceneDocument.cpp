@@ -1,7 +1,7 @@
 #include "SceneDocument.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "editor/undo_redo/UndoStack.h"
 
@@ -13,7 +13,7 @@ SceneDocument::SceneDocument(IApplication& p_app, const Guid& p_guid)
     auto scene = std::make_unique<Scene>();
     scene->Copy(*m_handle.Get<Scene>());
 
-    m_preview_scene = m_scene_reg.Register(std::move(scene));
+    m_preview_scene = m_scene_reg.Register({ "scene doc" }, std::move(scene));
 }
 
 bool SceneDocument::Save() {

@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/NonCopyable.h"
 
-#include "engine/private/assets/asset_interface.h"
+#include "engine/private/runtime/assets/AssetInterface.h"
 #include "engine/private/runtime/ecs/ComponentManager.h"
 #include "engine/private/runtime/ecs/View.h"
 #include "cave/core/math/Ray.h"

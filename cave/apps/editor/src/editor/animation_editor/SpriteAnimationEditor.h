@@ -1,8 +1,8 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
 
-#include "engine/private/assets/asset_handle.h"
-#include "engine/private/assets/sprite_animation_asset.h"
+#include "engine/private/runtime/assets/AssetHandle.h"
+#include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 
 #include "editor/widgets/SpriteSelector.h"
 #include "editor/widgets/ToolBar.h"

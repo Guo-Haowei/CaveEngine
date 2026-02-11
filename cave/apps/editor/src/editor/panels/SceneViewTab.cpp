@@ -20,7 +20,7 @@
 
 #include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
-#include "engine/private/runtime/scene/ISceneRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/renderer/graphics_dvars.h"
 
 #include "editor/document/SceneDocument.h"

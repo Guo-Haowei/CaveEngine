@@ -1,16 +1,11 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
-#include "cave/runtime/framework/IApplication.h"
 #include "cave/core/ids/SceneId.h"
+#include "cave/runtime/framework/IApplication.h"
+
+#include "engine/private/runtime/framework/AppState.h"
 
 #include "editor/document/DocId.h"
-
-// @TODO: check if all the includes are necessary
-#include <engine/private/runtime/framework/AppState.h>
-#include <engine/private/assets/asset_handle.h>
-
-#include "editor/panels/EditorWindow.h"
-#include "editor/services/ShortcutDesc.h"
 
 // @TODO: refactor this
 #include "engine/private/runtime/framework/GameModuleLoader.h"
@@ -18,6 +13,7 @@
 namespace cave {
 
 class RuntimeHost;
+class IEditorItem;
 
 // pannels
 class ContentBrowser;
