@@ -139,11 +139,24 @@ void ContentBrowser::DrawContentBrowser() {
 
     auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
         if (p_entry.is_dir) return m_folder_iamge;
-        ThumbnailKey key{
-            .guid = p_entry.handle.GetGuid(),
-            .size = thumbnail_size,
-        };
-        if (uint64_t handle = thumbnail.GetOrRequest(key)) return handle;
+        const AssetMetaData* meta = p_entry.handle.GetMeta();
+        if (meta) {
+            if (meta->type == AssetType::Image) {
+                const ImageAsset* img = p_entry.handle.Get<ImageAsset>();
+                if (img && img->gpu_texture) {
+                    return img->gpu_texture->GetHandle();
+                }
+            }
+
+            ThumbnailKey key{
+                .guid = p_entry.handle.GetGuid(),
+                .size = thumbnail_size,
+            };
+            if (uint64_t handle = thumbnail.GetOrRequest(key)) {
+                return handle;
+            }
+        }
+
         if (auto it = m_thumbnail_lut.find(p_entry.extension); it != m_thumbnail_lut.end()) return it->second;
         return m_fallback_iamge;
     };

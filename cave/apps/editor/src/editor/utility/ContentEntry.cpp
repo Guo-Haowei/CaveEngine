@@ -6,10 +6,11 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
+#include "editor/EditorState.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/ThumbnailService.h"
-#include "editor/EditorState.h"
+#include "editor/widgets/Image.h"
 
 namespace cave {
 
@@ -100,11 +101,11 @@ void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) 
             case AssetType::Image: {
                 auto texture = reinterpret_cast<const ImageAsset&>(*p_handle.Get());
                 if (texture.gpu_texture) {
-                    const int w = texture.width;
-                    const int h = texture.height;
-                    const float adjusted_w = (float)std::min(kThumbnailSize, w);
-                    const float adjusted_h = adjusted_w / w * h;
-                    ImGui::Image(texture.gpu_texture->GetHandle(), ImVec2(adjusted_w, adjusted_h));
+                    ui::CenteredImage(texture.gpu_texture->GetHandle(),
+                                      kThumbnailSize,
+                                      texture.width,
+                                      texture.height,
+                                      false);
                 }
             } break;
             case AssetType::Material:
@@ -115,9 +116,7 @@ void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) 
                     .size = kThumbnailSize,
                 };
                 const uint64_t texture = p_service.GetOrRequest(key);
-                if (texture) {
-                    ImGui::Image(texture, ImVec2(kThumbnailSize, kThumbnailSize));
-                }
+                ui::CenteredImage(texture, kThumbnailSize, kThumbnailSize, kThumbnailSize, false);
             } break;
             default:
                 break;

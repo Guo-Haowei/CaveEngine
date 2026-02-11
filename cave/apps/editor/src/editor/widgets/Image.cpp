@@ -25,6 +25,21 @@ void ErrorIcon() {
     ImGui::PopStyleColor();
 }
 
+void CenteredImage(uint64_t p_handle,
+                   int p_desired_size,
+                   int p_img_width,
+                   int p_img_height,
+                   bool p_flip) {
+    unused(p_flip);
+
+    if (p_handle == 0) return;
+    const int w = p_img_width;
+    const int h = p_img_height;
+    const float adjusted_w = (float)std::min(p_desired_size, w);
+    const float adjusted_h = adjusted_w / w * h;
+    ImGui::Image(p_handle, ImVec2(adjusted_w, adjusted_h));
+}
+
 void CenteredImage(const ImageAsset* p_image,
                    const math::Vector2f& p_background_region,
                    uint64_t p_background) {
