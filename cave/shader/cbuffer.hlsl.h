@@ -193,7 +193,7 @@ CBUFFER(PerFrameConstantBuffer, 5) {
     float4 _c_ShadowMapResidentHandle;
 
     float3 c_cameraPosition;
-    float c_cameraFovDegree;  // 16
+    float c_camera_fovy;  // 16
     //-----------------------------------------
     float3 c_voxelWorldCenter;
     float c_voxelWorldSizeHalf;  // 16

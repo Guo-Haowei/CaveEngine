@@ -24,7 +24,7 @@ struct ResolvedView {
     math::Frustum frustum;
     math::IntRect viewport_px;
 
-    float fovy;
+    float fovy_rad;
     SceneId scene_id;
     Scene* scene{ nullptr };
 

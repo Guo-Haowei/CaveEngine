@@ -19,7 +19,7 @@ void main() {
     // [-0.5, 0.5]
     vec2 jitter = vec2(Random(seed), Random(seed)) - 0.5f;
 
-    vec3 rayDir;
+    vec3 ray_dir;
     {
         // screen position from [-1, 1]
         vec2 uvJitter = (fPixelCoords + jitter) / dims;
@@ -28,16 +28,17 @@ void main() {
         // adjust for aspect ratio
         vec2 resolution = vec2(float(dims.x), float(dims.y));
         float aspectRatio = resolution.x / resolution.y;
-        screen.y /= aspectRatio;
-        float halfFov = c_cameraFovDegree;
-        float camDistance = tan(halfFov * MY_PI / 180.0);
-        rayDir = vec3(screen, camDistance);
-        rayDir = normalize(mat3(c_cameraRight, c_cameraUp, c_cameraForward) * rayDir);
+        screen.x *= aspectRatio;
+        float tan_half_fovy = tan(0.5f * c_camera_fovy);
+        ray_dir = vec3(screen.x * tan_half_fovy,
+                      screen.y * tan_half_fovy,
+                      1.0f);
+        ray_dir = normalize(mat3(c_cameraRight, c_cameraUp, c_cameraForward) * ray_dir);
     }
 
     Ray ray;
     ray.origin = c_cameraPosition;
-    ray.direction = rayDir;
+    ray.direction = ray_dir;
     ray.invDir = 1.0f / ray.direction;
     ray.t = RAY_T_MAX;
 

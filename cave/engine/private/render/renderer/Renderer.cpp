@@ -141,7 +141,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
         cache.c_camProj = cam.proj;
         cache.c_invCamView = cam.view_inv;
         cache.c_invCamProj = cam.proj_inv;
-        cache.c_cameraFovDegree = p_view.fovy;
+        cache.c_camera_fovy = p_view.fovy_rad;
         cache.c_cameraForward = cam.front;
         cache.c_cameraRight = cam.right;
         cache.c_cameraUp = cam.up;
