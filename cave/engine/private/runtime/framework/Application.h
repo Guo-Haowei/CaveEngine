@@ -1,8 +1,7 @@
 #pragma once
 #include "cave/core/NonCopyable.h"
-#include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/gameplay/GameModeFactory.h"
 #include "cave/core/time/Stopwatch.h"
+#include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
@@ -32,7 +31,6 @@ public:
     BootLoadPipeline& GetBootLoadPipeline() override;
     VFS& GetVFS() override { return m_vfs; }
     EventQueue& GetEventQueue() override { return m_event_queue; }
-    GameModeFactory& GetGameModeFactory() override { return m_game_mode_factory; }
     SceneScheduler& GetSceneScheduler() override { return *m_scene_scheduler; }
 
     AppType GetType() const override { return m_type; }
@@ -53,7 +51,6 @@ protected:
     uint64_t m_frame_counter{};
 
     AppStateMachine m_state_machine;
-    GameModeFactory m_game_mode_factory;
 
     Stopwatch m_stopwatch;
     VFS m_vfs;

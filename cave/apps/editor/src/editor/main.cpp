@@ -3,7 +3,6 @@
 #include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/gameplay/GameRuntimeState.h"
 #include "engine/private/scripting/lua/lua_script_manager.h"
 
 #include "modules/box2d/box2d_physics_manager.h"
@@ -54,11 +53,6 @@ public:
 
         AppStateMachine::RegisterCreateFunc(AppStateId::Editor, [](IApplication& p_app) {
             auto state = std::make_unique<EditorState>(p_app);
-            return std::unique_ptr<AppState>(std::move(state));
-        });
-
-        AppStateMachine::RegisterCreateFunc(AppStateId::GameRuntime, [](IApplication& p_app) {
-            auto state = std::make_unique<GameRuntimeState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 

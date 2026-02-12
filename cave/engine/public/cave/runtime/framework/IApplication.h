@@ -23,7 +23,6 @@ class BootLoadPipeline;
 class CommandRegistry;
 class Console;
 class EventQueue;
-class GameModeFactory;
 class IAssetManager;
 class DisplayService;
 class ImguiManager;
@@ -89,7 +88,6 @@ public:
     virtual BootLoadPipeline& GetBootLoadPipeline() = 0;
     virtual VFS& GetVFS() = 0;
     virtual EventQueue& GetEventQueue() = 0;
-    virtual GameModeFactory& GetGameModeFactory() = 0;
     virtual SceneScheduler& GetSceneScheduler() = 0;
 
     // services

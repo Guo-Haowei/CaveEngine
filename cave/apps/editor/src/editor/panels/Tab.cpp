@@ -5,7 +5,6 @@
 #include "editor/services/Workspace.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {

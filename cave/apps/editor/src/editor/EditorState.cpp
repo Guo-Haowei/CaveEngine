@@ -1,7 +1,6 @@
 #include "EditorState.h"
 
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/gameplay/IGameMode.h"
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
@@ -24,9 +23,8 @@
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/framework/RuntimeHost.h"
 #include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/edit/EditObjectCmd.h"
@@ -55,9 +53,6 @@ EditorState::EditorState(IApplication& p_app)
     m_workspace = std::make_unique<cave::Workspace>(*this);
     m_icon_cache = std::make_unique<cave::IconCache>(*GetApp().GetAssetRegistry(), *GetApp().GetAssetManager());
 
-    // runtime
-    m_runtime_host = std::make_unique<RuntimeHost>(p_app);
-
     // panels
     m_content_browser = std::make_shared<ContentBrowser>(*this);
     m_menu_bar = std::make_shared<MenuBar>(*this);
@@ -81,6 +76,7 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     CAVE_PROFILE_EVENT();
     unused(p_args);
 
+#if 0
     const char* module_name = "game_Debug.dll";
     LoadGameModule(module_name, m_module);
 
@@ -88,6 +84,7 @@ void EditorState::OnEnter(const StateRequest& p_args) {
         GameLoadArgs args{};
         m_module.api->RegisterGame(m_app, args);
     }
+#endif
 
     ImNodes::CreateContext();
 
@@ -110,12 +107,14 @@ void EditorState::OnExit() {
     CAVE_PROFILE_EVENT();
 
     if (IsPlaying()) {
-        m_runtime_host->Stop();
+        LOG("@TODO: stop game module");
     }
 
     ImNodes::DestroyContext();
 
+#if 0
     UnloadGameModule(m_module);
+#endif
 }
 
 void EditorState::Tick(const FrameTime& p_time) {
@@ -125,10 +124,7 @@ void EditorState::Tick(const FrameTime& p_time) {
     m_thumbnail_service->Tick(p_time, info);
 
     if (IsPlaying()) {
-        GameFrameTime frame;
-        frame.frame_index = p_time.frame_index;
-        frame.dt = p_time.dt;
-        m_runtime_host->Tick(frame);
+        LOG("@TODO: tick game module");
     }
 
     ImguiManager* imgui_manager = m_app.GetImguiManager();
@@ -172,13 +168,16 @@ void EditorState::CommitModeSwitch() {
         case cave::EditorState::Mode::Editing: {
             FocusedPreviewScene preview = GetFocusedPreviewScene();
 
+            LOG("@TODO: tick game module");
+#if 0
             RuntimeStartParams params(std::move(SceneSource::FromExisting(preview.scene_id)));
             params.game_mode_id = "chess";
             params.mode = RuntimeStartParams::Mode::PIE;
             m_runtime_host->Start(params);
+#endif
         } break;
         case cave::EditorState::Mode::Playing: {
-            m_runtime_host->Stop();
+            // m_runtime_host->Stop();
         } break;
     }
 
