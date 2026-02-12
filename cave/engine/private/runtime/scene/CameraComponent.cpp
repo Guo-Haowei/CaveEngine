@@ -39,7 +39,7 @@ Matrix4x4f CameraComponent::CalcProjectionGL() const {
 bool CameraComponent::Update(const math::Matrix4x4f& p_transform) {
     // @NOTE: the logic is wrong here,
     // if the transform has changed, the cache must update too
-    if (IsDirty()) {
+    if (IsDirty() || true) {
         SetDirty(false);
 
         m_front = (p_transform * -Vector4f::UnitZ).xyz;

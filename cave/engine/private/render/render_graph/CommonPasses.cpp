@@ -32,8 +32,6 @@ constexpr const char RG_PASS_FORWARD[] = "p:forward";
 constexpr const char RG_PASS_BLOOM_SETUP[] = "p:bloom_setup";
 constexpr const char RG_PASS_POST_PROCESS[] = "p:post_process";
 constexpr const char RG_PASS_OUTLINE[] = "p:outline";
-constexpr const char RG_PASS_PATHTRACER[] = "p:pathtracer";
-constexpr const char RG_PASS_PATHTRACER_PRESENT[] = "p:pathtracer_present";
 
 constexpr const char RG_RES_DEPTH_STENCIL[] = "r:depth";
 constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
@@ -44,7 +42,6 @@ constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
 constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
 constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
 constexpr const char RG_RES_OUTLINE[] = "r:outline";
-constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
 
 extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
 extern void GbufferPassFunc(RenderPassExcutionContext& p_ctx);
@@ -55,8 +52,6 @@ extern void BloomSetupFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void TonePassFunc(RenderPassExcutionContext& p_ctx);
-extern void PathTracerPassFunc(RenderPassExcutionContext& p_ctx);
-extern void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx);
 
 DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
     RenderPass& pass = AddPass(RG_PASS_DEPTH_PREPASS);
@@ -281,48 +276,6 @@ void RenderGraphBuilderExt::AddBloomPass() {
     }
 }
 
-#endif
-
-void RenderGraphBuilderExt::AddPathTracerPass() {
-#if 0
-    GpuTextureDesc texture_desc = BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
-                                                          AttachmentType::COLOR_2D);
-
-    auto& pass = AddPass(RG_PASS_PATHTRACER);
-    pass.Create(RG_RES_PATHTRACER, { texture_desc, LinearClampSampler() })
-        .Read(ResourceAccess::UAV, RG_RES_PATHTRACER)
-        .SetExecuteFunc(PathTracerPassFunc);
-#endif
-}
-
-void RenderGraphBuilderExt::AddPathTracerTonePass() {
-#if 0
-    auto& pass = AddPass(RG_PASS_PATHTRACER_PRESENT);
-
-    pass.Import(RG_RES_POST_PROCESS, []() {
-            return GraphicsManager::GetSingleton().FindTexture(RG_RES_POST_PROCESS);
-        })
-        .Read(ResourceAccess::SRV, RG_RES_PATHTRACER)
-        .Write(ResourceAccess::RTV, RG_RES_POST_PROCESS)
-        .Write(ResourceAccess::DSV, RG_RES_DEPTH_STENCIL)
-        .SetExecuteFunc(PathTracerTonePassFunc);
-#endif
-}
-
-#if 0
-auto RenderGraphBuilderExt::CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>> {
-    p_config.enableBloom = false;
-    p_config.enableIbl = false;
-    p_config.enableVxgi = false;
-    p_config.enableHighlight = false;
-
-    RenderGraphBuilderExt creator(p_config);
-
-    creator.AddPathTracerPass();
-    creator.AddPathTracerTonePass();
-
-    return creator.Compile();
-}
 #endif
 
 }  // namespace cave::render

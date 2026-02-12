@@ -1,8 +1,6 @@
-#include "bvh_accel.h"
+#include "BvhAccel.h"
 
-#include <algorithm>
-
-namespace cave {
+namespace cave::render {
 
 using namespace math;
 
@@ -298,4 +296,4 @@ BvhAccel::Ref BvhAccel::Construct(const std::vector<uint32_t>& p_indices,
     return builder.ConstructHelper(nullptr, triangle_indices);
 }
 
-}  // namespace cave
+}  // namespace cave::render

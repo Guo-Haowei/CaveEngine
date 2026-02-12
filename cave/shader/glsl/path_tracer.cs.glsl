@@ -14,12 +14,12 @@ void main() {
     vec2 fPixelCoords = vec2(float(iPixelCoords.x), float(iPixelCoords.y));
     ivec2 dims = imageSize(u_PathTracerOutputImage);
 
-    uint seed = uint(uint(iPixelCoords.x) * uint(1973) + uint(iPixelCoords.y) * uint(9277) + uint(c_frameIndex) * uint(26699)) | uint(1);
+    uint seed = uint(uint(iPixelCoords.x) * uint(1973) + uint(iPixelCoords.y) * uint(9277) + uint(c_frame_index) * uint(26699)) | uint(1);
 
     // [-0.5, 0.5]
     vec2 jitter = vec2(Random(seed), Random(seed)) - 0.5f;
 
-    vec3 rayDir;
+    vec3 ray_dir;
     {
         // screen position from [-1, 1]
         vec2 uvJitter = (fPixelCoords + jitter) / dims;
@@ -28,16 +28,17 @@ void main() {
         // adjust for aspect ratio
         vec2 resolution = vec2(float(dims.x), float(dims.y));
         float aspectRatio = resolution.x / resolution.y;
-        screen.y /= aspectRatio;
-        float halfFov = c_cameraFovDegree;
-        float camDistance = tan(halfFov * MY_PI / 180.0);
-        rayDir = vec3(screen, camDistance);
-        rayDir = normalize(mat3(c_cameraRight, c_cameraUp, c_cameraForward) * rayDir);
+        screen.x *= aspectRatio;
+        float tan_half_fovy = tan(0.5f * c_camera_fovy);
+        ray_dir = vec3(screen.x * tan_half_fovy,
+                       screen.y * tan_half_fovy,
+                       1.0f);
+        ray_dir = normalize(mat3(c_cameraRight, c_cameraUp, c_cameraForward) * ray_dir);
     }
 
     Ray ray;
     ray.origin = c_cameraPosition;
-    ray.direction = rayDir;
+    ray.direction = ray_dir;
     ray.invDir = 1.0f / ray.direction;
     ray.t = RAY_T_MAX;
 
@@ -45,8 +46,8 @@ void main() {
 
     vec4 final_color = vec4(radiance, 1.0);
 
-#if FORCE_UPDATE == 0
-    if (c_sceneDirty == 0) {
+#if !defined(FORCE_UPDATE)
+    if (c_scene_dirty == CAVE_FALSE) {
         vec4 accumulated = imageLoad(u_PathTracerOutputImage, iPixelCoords);
         float weight = accumulated.a;
         vec3 new_color = radiance + weight * accumulated.rgb;

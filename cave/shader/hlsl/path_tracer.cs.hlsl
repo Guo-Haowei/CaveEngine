@@ -17,31 +17,34 @@ RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
     uint2 dims;
     u_PathTracerOutputImage.GetDimensions(dims.x, dims.y);
 
-    uint seed = uint(uint(uv.x) * uint(1973) + uint(uv.y) * uint(9277) + uint(c_frameIndex) * uint(26699)) | uint(1);
+    uint seed = uint(uint(uv.x) * uint(1973) + uint(uv.y) * uint(9277) + uint(c_frame_index) * uint(26699)) | uint(1);
 
     // [-0.5, 0.5]
     float2 jitter = float2(Random(seed), Random(seed)) - 0.5;
 
-    float3 rayDir;
+    float3 ray_dir;
     {
         // screen position from [-1, 1]
-        float2 uvJitter = (fPixelCoords + jitter) / dims;
+        float2 uvJitter = (fPixelCoords + jitter) / float2(dims);
         float2 screen = 2.0 * uvJitter - 1.0;
+        screen.y = -screen.y;
 
         // adjust for aspect ratio
         float2 resolution = float2(float(dims.x), float(dims.y));
         float aspectRatio = resolution.x / resolution.y;
-        screen.y /= aspectRatio;
-        float halfFov = c_cameraFovDegree;
-        float camDistance = tan(halfFov * MY_PI / 180.0);
-        rayDir = float3(screen, camDistance);
+        screen.x *= aspectRatio;
+        float tan_half_fovy = tan(0.5f * c_camera_fovy);
         float3x3 mat = float3x3(c_cameraRight, c_cameraUp, c_cameraForward);
-        rayDir = normalize(mul(rayDir, mat));
+
+        ray_dir = float3(screen.x * tan_half_fovy,
+                         screen.y * tan_half_fovy,
+                         1.0f);
+        ray_dir = normalize(mul(ray_dir, mat));
     }
 
     Ray ray;
     ray.origin = c_cameraPosition;
-    ray.direction = rayDir;
+    ray.direction = ray_dir;
     ray.invDir = 1.0f / ray.direction;
     ray.t = RAY_T_MAX;
 
@@ -49,8 +52,8 @@ RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
 
     float4 final_color = float4(radiance, 1.0);
 
-#if FORCE_UPDATE == 0
-    if (c_sceneDirty == 0) {
+#if !defined(FORCE_UPDATE)
+    if (c_scene_dirty == CAVE_FALSE) {
         float4 accumulated = u_PathTracerOutputImage[uv];
         float weight = accumulated.a;
         float3 new_color = radiance + weight * accumulated.rgb;

@@ -382,40 +382,4 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.DrawArrays(6);
 }
 
-void PathTracerPassFunc(RenderPassExcutionContext& p_ctx) {
-    // @TODO: refactor this part
-    if (!IsPathTracerActive()) {
-        return;
-    }
-
-    auto& cmd = p_ctx.cmd;
-
-    cmd.SetPipelineState(PSO_PATH_TRACER);
-    const auto& input = p_ctx.pass.uavs[0];
-
-    DEV_ASSERT(input);
-
-    const uint32_t width = input->desc.width;
-    const uint32_t height = input->desc.height;
-    const uint32_t work_group_x = CeilingDivision(width, 16);
-    const uint32_t work_group_y = CeilingDivision(height, 16);
-
-    // @TODO: transition
-    BindPathTracerData(cmd);
-    cmd.Dispatch(work_group_x, work_group_y, 1);
-    UnbindPathTracerData(cmd);
-}
-
-void PathTracerTonePassFunc(RenderPassExcutionContext& p_ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& cmd = p_ctx.cmd;
-    // auto fb = p_ctx.framebuffer;
-
-    // cmd.Clear(fb, CLEAR_COLOR_BIT);
-    cmd.SetPipelineState(PSO_POST_PROCESS);
-    cmd.SetMesh(nullptr);
-    cmd.DrawArrays(6);
-}
-
 }  // namespace cave::render

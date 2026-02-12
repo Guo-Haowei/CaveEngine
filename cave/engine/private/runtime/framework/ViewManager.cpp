@@ -65,10 +65,15 @@ static ResolvedView ResolveView(ViewDesc&& p_view,
             }
         } break;
     }
-    DEV_ASSERT(cam);
+    Matrix4x4f view;
+    Matrix4x4f proj;
+    float fovy_rad = 0.0f;
+    if (cam) {
+        view = cam->GetViewMatrix();
+        proj = cam->GetProjectionMatrix();
+        fovy_rad = glm::radians(cam->GetFovy());
+    }
 
-    Matrix4x4f view = cam->GetViewMatrix();
-    Matrix4x4f proj = cam->GetProjectionMatrix();
     math::Frustum frustum(proj * view);
 
     if (p_is_opengl) {
@@ -85,7 +90,7 @@ static ResolvedView ResolveView(ViewDesc&& p_view,
         },
         .frustum = frustum,
         .viewport_px = p_view.viewport_px,
-        .fovy = cam->GetFovy(),
+        .fovy_rad = fovy_rad,
         .scene_id = p_view.scene_id,
         .scene = p_scene,
         .highlight = std::move(p_view.highlight),

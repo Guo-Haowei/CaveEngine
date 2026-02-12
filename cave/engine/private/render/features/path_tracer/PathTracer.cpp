@@ -1,11 +1,10 @@
-#include "path_tracer.h"
+#include "PathTracer.h"
 
-#include <algorithm>
+#include "BvhAccel.h "
 
 #include "cave/core/time/Stopwatch.h"
 
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/renderer/path_tracer/bvh_accel.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"

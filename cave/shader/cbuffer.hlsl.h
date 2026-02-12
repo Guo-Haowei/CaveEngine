@@ -193,19 +193,19 @@ CBUFFER(PerFrameConstantBuffer, 5) {
     float4 _c_ShadowMapResidentHandle;
 
     float3 c_cameraPosition;
-    float c_cameraFovDegree;  // 16
+    float c_camera_fovy;  // 16
     //-----------------------------------------
     float3 c_voxelWorldCenter;
     float c_voxelWorldSizeHalf;  // 16
 
     float3 c_cameraForward;
-    int c_frameIndex;  // 16
+    uint c_frame_index;  // 16
 
     float3 c_cameraRight;
-    float c_voxelSize;  // 16
+    int c_scene_dirty;  // 16
 
     float3 c_cameraUp;
-    int c_sceneDirty;  // 16
+    float c_voxelSize;  // 16
     //-----------------------------------------
 
     ForceField c_forceFields[MAX_FORCE_FIELD_COUNT];

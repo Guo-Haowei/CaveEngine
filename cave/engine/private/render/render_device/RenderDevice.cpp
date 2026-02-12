@@ -20,9 +20,6 @@ namespace cave {
 #include "shader_resource_defines.hlsl.h"
 }  // namespace cave
 
-// @TODO: refactor
-#include "engine/private/renderer/path_tracer/path_tracer.h"
-
 #ifdef min
 #undef min
 #endif
@@ -384,20 +381,22 @@ void RenderDevice::BeginPass(const CompiledPass& p_pass) {
 
     // @TODO: build render target
     uint32_t width = 0, height = 0;
+    bool has_rt_or_ds = false;
     if (!desc.colors.empty()) {
         width = desc.colors[0].tex->desc.width;
         height = desc.colors[0].tex->desc.height;
+        has_rt_or_ds = true;
     }
     if (desc.depth) {
         width = desc.depth->tex->desc.width;
         height = desc.depth->tex->desc.height;
+        has_rt_or_ds = true;
     }
 
-    // 1. Set Render Target
-    SetRenderTargets(desc);
-
-    // 2. Set Viewport
-    SetViewport(p_pass.viewport ? *p_pass.viewport : Viewport(width, height));
+    if (has_rt_or_ds) {
+        SetRenderTargets(desc);
+        SetViewport(p_pass.viewport ? *p_pass.viewport : Viewport(width, height));
+    }
 }
 
 void RenderDevice::EndPass(const CompiledPass& p_pass) {
