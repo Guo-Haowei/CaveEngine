@@ -14,7 +14,7 @@ void main() {
     vec2 fPixelCoords = vec2(float(iPixelCoords.x), float(iPixelCoords.y));
     ivec2 dims = imageSize(u_PathTracerOutputImage);
 
-    uint seed = uint(uint(iPixelCoords.x) * uint(1973) + uint(iPixelCoords.y) * uint(9277) + uint(c_frameIndex) * uint(26699)) | uint(1);
+    uint seed = uint(uint(iPixelCoords.x) * uint(1973) + uint(iPixelCoords.y) * uint(9277) + uint(c_frame_index) * uint(26699)) | uint(1);
 
     // [-0.5, 0.5]
     vec2 jitter = vec2(Random(seed), Random(seed)) - 0.5f;
@@ -45,8 +45,8 @@ void main() {
 
     vec4 final_color = vec4(radiance, 1.0);
 
-#if FORCE_UPDATE == 0
-    if (c_sceneDirty == 0) {
+#if !defined(FORCE_UPDATE)
+    if (c_scene_dirty == CAVE_FALSE) {
         vec4 accumulated = imageLoad(u_PathTracerOutputImage, iPixelCoords);
         float weight = accumulated.a;
         vec3 new_color = radiance + weight * accumulated.rgb;

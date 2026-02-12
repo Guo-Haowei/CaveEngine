@@ -1,4 +1,6 @@
 #pragma once
+#include "cave/core/time/FrameTime.h"
+
 #include "engine/private/render/renderer/ResolvedView.h"
 #include "engine/private/runtime/framework/Module.h"
 
@@ -15,7 +17,7 @@ public:
     Renderer();
     ~Renderer();
 
-    void Tick(std::span<const ResolvedView> p_views);
+    void Tick(const FrameTime& p_frame, std::span<const ResolvedView> p_views);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

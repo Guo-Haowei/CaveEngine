@@ -13,6 +13,10 @@ struct CameraParams {
     math::Matrix4x4f proj;
     math::Matrix4x4f view_inv;
     math::Matrix4x4f proj_inv;
+    math::Vector3f position;
+    math::Vector3f right;
+    math::Vector3f up;
+    math::Vector3f front;
 };
 
 struct ResolvedView {

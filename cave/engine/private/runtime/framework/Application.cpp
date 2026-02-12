@@ -206,7 +206,7 @@ bool Application::MainLoop() {
     m_scene_scheduler->Tick(time);
 
     std::span<const ResolvedView> views = m_view_manager->EndFrame();
-    m_renderer->Tick(views);
+    m_renderer->Tick(time, views);
 
     return true;
 }

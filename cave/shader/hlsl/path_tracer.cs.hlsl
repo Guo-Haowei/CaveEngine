@@ -17,7 +17,7 @@ RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
     uint2 dims;
     u_PathTracerOutputImage.GetDimensions(dims.x, dims.y);
 
-    uint seed = uint(uint(uv.x) * uint(1973) + uint(uv.y) * uint(9277) + uint(c_frameIndex) * uint(26699)) | uint(1);
+    uint seed = uint(uint(uv.x) * uint(1973) + uint(uv.y) * uint(9277) + uint(c_frame_index) * uint(26699)) | uint(1);
 
     // [-0.5, 0.5]
     float2 jitter = float2(Random(seed), Random(seed)) - 0.5;
@@ -27,6 +27,7 @@ RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
         // screen position from [-1, 1]
         float2 uvJitter = (fPixelCoords + jitter) / dims;
         float2 screen = 2.0 * uvJitter - 1.0;
+        screen.y = -screen.y;
 
         // adjust for aspect ratio
         float2 resolution = float2(float(dims.x), float(dims.y));
@@ -49,8 +50,8 @@ RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
 
     float4 final_color = float4(radiance, 1.0);
 
-#if FORCE_UPDATE == 0
-    if (c_sceneDirty == 0) {
+#if !defined(FORCE_UPDATE)
+    if (c_scene_dirty == CAVE_FALSE) {
         float4 accumulated = u_PathTracerOutputImage[uv];
         float weight = accumulated.a;
         float3 new_color = radiance + weight * accumulated.rgb;

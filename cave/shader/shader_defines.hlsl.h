@@ -10,6 +10,11 @@
 #define MY_TWO_PI 6.283185307179586f
 #endif
 
+#ifndef CAVE_TRUE
+#define CAVE_TRUE  1
+#define CAVE_FALSE 0
+#endif
+
 #define MAX_LIGHT_COUNT              16
 #define MAX_BONE_COUNT               128
 #define MAX_POINT_LIGHT_SHADOW_COUNT 8

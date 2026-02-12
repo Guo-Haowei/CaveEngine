@@ -28,7 +28,7 @@ extern GpuPtMaterial GlobalPtMaterials[];
 #define TRIANGLE_KIND 1
 #define SPHERE_KIND   2
 
-#define FORCE_UPDATE 0
+// #define FORCE_UPDATE
 
 #if defined(GLSL_LANG)
 #define mul(a, b) ((a) * (b))
@@ -190,7 +190,8 @@ HitResult HitScene(inout Ray p_ray) {
 
 float3 RayColor(inout Ray p_ray, inout uint state) {
     float3 radiance = float3(0, 0, 0);
-    float3 throughput = float3(1, 1, 1);
+    // float3 throughput = float3(1, 1, 1);
+    float3 throughput = float3(4, 4, 4);
 
     for (int i = 0; i < MAX_BOUNCE; ++i) {
         // check all objects

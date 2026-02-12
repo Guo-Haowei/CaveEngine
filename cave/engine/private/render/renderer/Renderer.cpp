@@ -53,10 +53,10 @@ public:
 
     auto Initialize() -> Result<void>;
 
-    void Tick(std::span<const ResolvedView> p_views);
+    void Tick(const FrameTime& p_frame, std::span<const ResolvedView> p_views);
 
 private:
-    FramePlan BuildFramePlan(std::span<const ResolvedView> p_views);
+    FramePlan BuildFramePlan(const FrameTime& p_frame, std::span<const ResolvedView> p_views);
     auto BuildRenderGraph(const RenderOptions& p_plan,
                           const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
 
@@ -99,8 +99,8 @@ void Renderer::FinalizeImpl() {
     m_impl.reset();
 }
 
-void Renderer::Tick(std::span<const ResolvedView> p_views) {
-    m_impl->Tick(p_views);
+void Renderer::Tick(const FrameTime& p_frame, std::span<const ResolvedView> p_views) {
+    m_impl->Tick(p_frame, p_views);
 }
 
 // @TODO: remove this
@@ -127,7 +127,8 @@ static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matri
 #endif
 
 // @TODO: refactor
-static void FillConstantBuffer(const Scene* p_scene,
+static void FillConstantBuffer(const FrameTime& p_frame,
+                               const Scene* p_scene,
                                const ResolvedView& p_view,
                                FrameData& p_out_data) {
     const auto& options = p_out_data.options;
@@ -141,10 +142,10 @@ static void FillConstantBuffer(const Scene* p_scene,
         cache.c_invCamView = cam.view_inv;
         cache.c_invCamProj = cam.proj_inv;
         cache.c_cameraFovDegree = p_view.fovy;
-        cache.c_cameraForward = (cam.view_inv * -Vector4f::UnitZ).xyz;
-        cache.c_cameraRight = (cam.view_inv * Vector4f::UnitX).xyz;
-        cache.c_cameraUp = (cam.view_inv * Vector4f::UnitY).xyz;
-        cache.c_cameraPosition = (cam.view_inv * Vector4f::UnitW).xyz;
+        cache.c_cameraForward = cam.front;
+        cache.c_cameraRight = cam.right;
+        cache.c_cameraUp = cam.up;
+        cache.c_cameraPosition = cam.position;
     }
 
     // Bloom
@@ -172,11 +173,8 @@ static void FillConstantBuffer(const Scene* p_scene,
         memcpy(cache.c_ssaoKernel, kernel_data.data(), kernel_size);
     }
 
-    // @TODO: refactor
-    static int s_frameIndex = 0;
-    cache.c_frameIndex = s_frameIndex++;
-    // @TODO: fix this
-    cache.c_sceneDirty = p_scene ? (p_scene->GetDirtyFlags() != SCENE_DIRTY_NONE) : true;
+    cache.c_frame_index = static_cast<uint32_t>(p_frame.frame_index);
+    cache.c_scene_dirty = true;
 }
 
 static void FillEnvConstants(FrameData& p_out_data) {
@@ -213,12 +211,12 @@ auto Renderer::Impl::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
+void Renderer::Impl::Tick(const FrameTime& p_frame, std::span<const ResolvedView> p_views) {
     CAVE_PROFILE_EVENT();
 
     auto submission = std::make_unique<RenderSubmission>();
 
-    FramePlan plan = BuildFramePlan(p_views);
+    FramePlan plan = BuildFramePlan(p_frame, p_views);
     for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {
         const ResolvedView& view = plan.views[idx];
         const FrameData& data = plan.frame_data[idx];
@@ -237,7 +235,7 @@ void Renderer::Impl::Tick(std::span<const ResolvedView> p_views) {
     m_app.GetRenderDevice()->Submit(std::move(submission));
 }
 
-FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) {
+FramePlan Renderer::Impl::BuildFramePlan(const FrameTime& p_frame, std::span<const ResolvedView> p_views) {
     FramePlan plan;
 
     const bool is_opengl = m_app.IsOpenGL();
@@ -268,7 +266,7 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) 
         FrameData& framedata = plan.frame_data[view_idx];
         framedata.options = options;
 
-        FillConstantBuffer(view.scene, view, framedata);
+        FillConstantBuffer(p_frame, view.scene, view, framedata);
 
         RunMeshRenderSystem(*view.scene, render_scene, view, framedata);
         RunTileMapRenderSystem(view.scene, framedata);
