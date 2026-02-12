@@ -37,8 +37,8 @@ RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
         float3x3 mat = float3x3(c_cameraRight, c_cameraUp, c_cameraForward);
 
         ray_dir = float3(screen.x * tan_half_fovy,
-                        screen.y * tan_half_fovy,
-                        1.0f);
+                         screen.y * tan_half_fovy,
+                         1.0f);
         ray_dir = normalize(mul(ray_dir, mat));
     }
 

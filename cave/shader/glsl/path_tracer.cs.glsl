@@ -31,8 +31,8 @@ void main() {
         screen.x *= aspectRatio;
         float tan_half_fovy = tan(0.5f * c_camera_fovy);
         ray_dir = vec3(screen.x * tan_half_fovy,
-                      screen.y * tan_half_fovy,
-                      1.0f);
+                       screen.y * tan_half_fovy,
+                       1.0f);
         ray_dir = normalize(mat3(c_cameraRight, c_cameraUp, c_cameraForward) * ray_dir);
     }
 

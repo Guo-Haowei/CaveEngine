@@ -116,7 +116,10 @@ auto Application::SetupModules() -> Result<void> {
 }
 
 auto Application::Initialize() -> Result<void> {
-    LOG_WARN("TODO: move thumbnail render target creation to somewhere else");
+    LOG_WARN("@TODO: move thumbnail render target creation to somewhere else");
+    LOG_WARN("@TODO: support material in path tracer");
+    LOG_WARN("@TODO: remove global path tracer object");
+    LOG_WARN("@TODO: accumulate path tracer result");
 
     // select backend
     {
