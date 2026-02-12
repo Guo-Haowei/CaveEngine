@@ -44,22 +44,6 @@ static void PathTracerPresentFunc(RenderPassExcutionContext& p_ctx) {
     cmd.DrawArrays(6);
 }
 
-#if 0
-auto RenderGraphBuilderExt::CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>> {
-    p_config.enableBloom = false;
-    p_config.enableIbl = false;
-    p_config.enableVxgi = false;
-    p_config.enableHighlight = false;
-
-    RenderGraphBuilderExt creator(p_config);
-
-    creator.AddPathTracerPass();
-    creator.AddPathTracerTonePass();
-
-    return creator.Compile();
-}
-#endif
-
 PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& p_graph,
                                                     const RenderOptions&,
                                                     const Inputs& p_in) {
