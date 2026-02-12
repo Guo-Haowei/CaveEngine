@@ -70,19 +70,14 @@ struct HighlightOutput {
 
 class RenderGraphBuilderExt : public RenderGraph {
 public:
-    //[[nodiscard]] auto CreatePathTracer(RenderGraphBuilderConfig& p_config) -> Result<std::shared_ptr<RenderGraph>>;
-
     [[nodiscard]] DepthPrepassOutput AddDepthPrepass();
     [[nodiscard]] GbufferOutput AddGbufferPass(const DepthPrepassOutput& p_in);
     [[nodiscard]] LightingOutput AddLightingPass(const LightingInput& p_in);
-    [[nodiscard]] PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
     [[nodiscard]] ForwardOutput AddForwardPass(const ForwardInput& p_in);
     [[nodiscard]] HighlightOutput AddHighlightPass(const HighlightInput& p_in);
+    PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
     // void AddVoxelizationPass();
     // void AddBloomPass();
-
-    void AddPathTracerPass();
-    void AddPathTracerTonePass();
 };
 
 }  // namespace cave::render

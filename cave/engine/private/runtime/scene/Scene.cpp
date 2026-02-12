@@ -76,11 +76,11 @@ void Scene::Update(float p_timestep) {
         }
     }
 
-    // @TODO: refactor
+// @TODO: refactor
 #if 0
     if (DVAR_GET_BOOL(gfx_bvh_generate)) {
         CRASH_NOW();
-        for (auto [entity, mesh] : m_MeshComponents) {
+        for (auto [entity, mesh] : View<MeshRendererComponent>()) {
             if (!mesh.bvh) {
                 mesh.bvh = BvhAccel::Construct(mesh.indices, mesh.positions);
             }

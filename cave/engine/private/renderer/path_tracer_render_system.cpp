@@ -11,7 +11,7 @@ static struct {
     PathTracer pt;
 } s_glob;
 
-void RequestPathTracerUpdate(const CameraComponent&, Scene& p_scene) {
+void RequestPathTracerUpdate(Scene& p_scene) {
     // @TODO: refactor
     s_glob.pt.Update(p_scene);
 }

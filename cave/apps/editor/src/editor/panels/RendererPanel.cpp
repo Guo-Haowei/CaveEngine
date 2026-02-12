@@ -5,7 +5,6 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/path_tracer_render_system.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
@@ -59,22 +58,12 @@ void RendererPanel::DrawUIImpl() {
     });
 
     CollapseWindow("Path Tracer", [&]() {
-#if 0
-        auto& gm = *m_editor.GetApp().GetRenderDevice();
-        int selected = (int)gm.GetActiveRenderGraphName();
-        const int prev_selected = selected;
-        for (int i = 0; i < std::to_underlying(RenderGraphName::COUNT); ++i) {
-            const char* name = ToString(static_cast<RenderGraphName>(i));
-            name = name ? name : "xxx";
-            ImGui::RadioButton(name, &selected, i);
-        }
-        if (prev_selected != selected) {
-            if (gm.SetActiveRenderGraph((RenderGraphName)selected)) {
-                if (selected == (int)RenderGraphName::PATHTRACER) {
-                    SetPathTracerMode(PathTracerMode::INTERACTIVE);
-                } else {
-                    SetPathTracerMode(PathTracerMode::NONE);
-                }
+        bool active = IsPathTracerActive();
+        if (ImGui::Checkbox("start", &active)) {
+            if (active) {
+                SetPathTracerMode(PathTracerMode::INTERACTIVE);
+            } else {
+                SetPathTracerMode(PathTracerMode::NONE);
             }
         }
 
@@ -87,7 +76,6 @@ void RendererPanel::DrawUIImpl() {
         if (ImGui::DragInt("Debug BVH", &bvh_level, 0.1f, -1, 10)) {
             DVAR_SET_INT(gfx_bvh_debug, bvh_level);
         }
-#endif
     });
 }
 

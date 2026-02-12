@@ -7,7 +7,6 @@ class IRenderDevice;
 namespace cave {
 
 // @TODO: entirely refactor this
-class CameraComponent;
 class Scene;
 
 enum class PathTracerMode {
@@ -16,7 +15,7 @@ enum class PathTracerMode {
     TILED,
 };
 
-void RequestPathTracerUpdate(const CameraComponent& p_camera, Scene& p_scene);
+void RequestPathTracerUpdate(Scene& p_scene);
 // path tracer
 void SetPathTracerMode(PathTracerMode p_mode);
 bool IsPathTracerActive();

@@ -5,10 +5,11 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/render/features/EnvironmentFeature.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
-#include "engine/private/render/features/ShadowFeature.h"
-#include "engine/private/render/features/SsaoFeature.h"
+#include "engine/private/render/features/path_tracer/PathTracerFeature.h"
+#include "engine/private/render/features/pbr/EnvironmentFeature.h"
+#include "engine/private/render/features/shadow/ShadowFeature.h"
+#include "engine/private/render/features/ssao/SsaoFeature.h"
 #include "engine/private/render/renderer/FramePlan.h"
 #include "engine/private/render/renderer/RendererDebug.h"
 #include "engine/private/render/renderer/RenderScene.h"
@@ -16,18 +17,17 @@
 #include "engine/private/render/renderer/RenderSubmission.h"
 #include "engine/private/render/renderer/TransientPool.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 // @TODO: cleanup
-#include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/render/render_graph/CommonPasses.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
-// @TODO: remove
-#include "engine/private/runtime/framework/IAssetManager.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/renderer/path_tracer_render_system.h"
 
 namespace cave {
 
@@ -61,6 +61,12 @@ private:
     auto BuildRenderGraph(const RenderOptions& p_plan,
                           const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
 
+    auto BuildRenderGraphDeferred(const RenderOptions& p_plan,
+                                  const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
+
+    auto BuildRenderGraphPathTracer(const RenderOptions& p_plan,
+                                    const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
+
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
 private:
@@ -73,6 +79,8 @@ private:
     EnvironmentFeature m_env;
     ShadowFeature m_shadow;
     SsaoFeature m_ssao;
+    PathTracerFeature m_pt;
+
     GpuTextureId m_brdf{};
     GpuTextureId m_ltc1{};
     GpuTextureId m_ltc2{};
@@ -251,13 +259,14 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) 
     plan.views.reserve(p_views.size());
 
     int view_idx = 0;
+
     for (const ResolvedView& view : p_views) {
         RenderScene& render_scene = GetOrCreateRenderScene(view.scene_id);
         m_scene_builder.BuildFull(*view.scene, render_scene);
 
         plan.views.push_back(view);
 
-        FrameData& framedata = plan.frame_data[view_idx++];
+        FrameData& framedata = plan.frame_data[view_idx];
         framedata.options = options;
 
         FillConstantBuffer(view.scene, view, framedata);
@@ -268,17 +277,27 @@ FramePlan Renderer::Impl::BuildFramePlan(std::span<const ResolvedView> p_views) 
         RunDebugRenderSystem(view.scene, framedata);
         FillEnvConstants(framedata);
 
-        // @TODO: fix path tracer
-        // if (p_scene) {
-        //    RequestPathTracerUpdate(*camera, *p_scene);
-        //}
-        // if (ecs_scene) break;
+        // @HACK: only support first scene
+        if (view_idx == 0) {
+            RequestPathTracerUpdate(*view.scene);
+        }
+
+        ++view_idx;
     }
 
     return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan, const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
+auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan,
+                                      const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
+    if (!IsPathTracerActive()) [[likely]] {
+        return BuildRenderGraphDeferred(p_plan, p_view);
+    }
+    return BuildRenderGraphPathTracer(p_plan, p_view);
+}
+
+auto Renderer::Impl::BuildRenderGraphDeferred(const RenderOptions& p_plan,
+                                              const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
     constexpr const char RG_RES_BRDF[] = "r:brdf";
 
     IRenderDevice& device = *m_app.GetRenderDevice();
@@ -294,20 +313,20 @@ auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan, const Resolve
         m_ltc2 = CreateLTC2(device);
     }
 
-    RenderGraphBuilderExt builder(p_view.viewport_px);
+    RenderGraphBuilderExt graph(p_view.viewport_px);
 
-    RGTextureId brdf = builder.ImportTexture({ m_brdf });
-    RGTextureId ltc1 = builder.ImportTexture({ m_ltc1 });
-    RGTextureId ltc2 = builder.ImportTexture({ m_ltc2 });
+    RGTextureId brdf = graph.ImportTexture({ m_brdf });
+    RGTextureId ltc1 = graph.ImportTexture({ m_ltc1 });
+    RGTextureId ltc2 = graph.ImportTexture({ m_ltc2 });
 
-    auto env_outputs = m_env.Build(builder, p_plan);
+    auto env_outputs = m_env.Build(graph, p_plan);
 
-    auto shadow_outputs = m_shadow.Build(builder, p_plan);
+    auto shadow_outputs = m_shadow.Build(graph, p_plan);
 
     // @TODO: refactor the following
-    auto prepass_outputs = builder.AddDepthPrepass();
+    auto prepass_outputs = graph.AddDepthPrepass();
 
-    auto gbuffer_outputs = builder.AddGbufferPass({
+    auto gbuffer_outputs = graph.AddGbufferPass({
         .depth = prepass_outputs.depth,
     });
 
@@ -318,10 +337,10 @@ auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan, const Resolve
             .normal = gbuffer_outputs.color1,
             .depth = prepass_outputs.depth,
         };
-        ssao_outputs = m_ssao.Build(builder, p_plan, ssao_inputs);
+        ssao_outputs = m_ssao.Build(graph, p_plan, ssao_inputs);
     }
 
-    auto lighting_outputs = builder.AddLightingPass({
+    auto lighting_outputs = graph.AddLightingPass({
         .color0 = gbuffer_outputs.color0,
         .color1 = gbuffer_outputs.color1,
         .color2 = gbuffer_outputs.color2,
@@ -335,7 +354,7 @@ auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan, const Resolve
         .ltc2 = ltc2,
     });
 
-    auto forward_outputs = builder.AddForwardPass({
+    auto forward_outputs = graph.AddForwardPass({
         .skybox = env_outputs.skybox,
         .shadow = shadow_outputs.shadow,
         .ibl_diffuse = env_outputs.ibl_diffuse,
@@ -347,18 +366,27 @@ auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan, const Resolve
         .lighting = lighting_outputs.lighting,
     });
 
-    auto highlight_outputs = builder.AddHighlightPass({
+    auto highlight_outputs = graph.AddHighlightPass({
         .stencil = prepass_outputs.depth,
     });
 
-    auto postprocess_outputs = builder.AddPostProcessPass({
+    graph.AddPostProcessPass({
         .lighting = lighting_outputs.lighting,
         .outline = highlight_outputs.outline,
         .bloom = 0,
         .out = p_view.output,
     });
 
-    return builder.Compile();
+    return graph.Compile();
+}
+
+auto Renderer::Impl::BuildRenderGraphPathTracer(const RenderOptions& p_plan,
+                                                const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
+    RenderGraph graph(p_view.viewport_px);
+
+    m_pt.Build(graph, p_plan, { p_view.output });
+
+    return graph.Compile();
 }
 
 RenderScene& Renderer::Impl::GetOrCreateRenderScene(SceneId p_scene_id) {

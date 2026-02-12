@@ -35,9 +35,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     ExecuteDrawCommands(p_ctx, shadow_commands, false);
 }
 
-ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const RenderOptions& p_plan) {
-    unused(p_plan);
-
+ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const RenderOptions&) {
     constexpr int shadow_res = 1024 * 2;
     DEV_ASSERT(math::IsPowerOfTwo(shadow_res));
     RenderPass& pass = p_graph.AddPass(RG_PASS_SHADOW);
