@@ -20,9 +20,6 @@ namespace cave {
 #include "shader_resource_defines.hlsl.h"
 }  // namespace cave
 
-// @TODO: refactor
-#include "engine/private/renderer/path_tracer/path_tracer.h"
-
 #ifdef min
 #undef min
 #endif

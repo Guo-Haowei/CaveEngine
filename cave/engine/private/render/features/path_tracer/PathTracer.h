@@ -1,12 +1,12 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
+#include "BvhAccel.h"
+#include "PathTracerFeature.h"
 
+#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Box.h"
+
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/path_tracer/bvh_accel.h"
-// @TODO: refactor
-#include "engine/private/renderer/path_tracer_render_system.h"
 
 // @TODO: should not view raw scene
 namespace cave {

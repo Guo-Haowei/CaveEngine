@@ -4,10 +4,14 @@
 
 #include "engine/private/runtime/assets/AssetHandle.h"
 
+// @TODO: refactor
+namespace cave::render {
+struct BvhAccel;
+}  // namespace cave::render
+
 namespace cave {
 
 class Archive;
-struct BvhAccel;
 struct GpuMesh;
 
 enum class VertexAttributeName : uint8_t {
@@ -54,7 +58,7 @@ public:
 
     // Non-serialized
     mutable std::shared_ptr<GpuMesh> gpuResource;
-    mutable std::shared_ptr<BvhAccel> bvh;
+    mutable std::shared_ptr<render::BvhAccel> bvh;
     math::AABB localBound;
 
     mutable std::vector<math::Vector3f> updatePositions;

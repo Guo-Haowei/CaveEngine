@@ -12,7 +12,7 @@
 
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/path_tracer/bvh_accel.h"
+// #include "engine/private/renderer/path_tracer/bvh_accel.h"
 #include "engine/private/serialization/yaml_include.h"
 
 namespace cave::ecs {

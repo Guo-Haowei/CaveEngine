@@ -27,7 +27,6 @@
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/path_tracer_render_system.h"
 
 namespace cave {
 

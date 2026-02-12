@@ -6,7 +6,7 @@
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: refactor
-#include "engine/private/renderer/path_tracer/path_tracer.h"
+#include "PathTracer.h"
 
 namespace cave::render {
 
@@ -87,6 +87,33 @@ PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& p_graph,
         .SetExecuteFunc(PathTracerPresentFunc);
 
     return {};
+}
+
+// @TODO: refactor
+static struct {
+    PathTracer pt;
+} s_glob;
+
+void RequestPathTracerUpdate(Scene& p_scene) {
+    // @TODO: refactor
+    s_glob.pt.Update(p_scene);
+}
+
+// path tracer
+void SetPathTracerMode(PathTracerMode p_mode) {
+    s_glob.pt.SetMode(p_mode);
+}
+
+bool IsPathTracerActive() {
+    return s_glob.pt.IsActive();
+}
+
+void BindPathTracerData(IRenderDevice& p_device) {
+    s_glob.pt.BindData(p_device);
+}
+
+void UnbindPathTracerData(IRenderDevice& p_device) {
+    s_glob.pt.UnbindData(p_device);
 }
 
 }  // namespace cave::render

@@ -3,15 +3,18 @@
 #include <imgui/imgui_internal.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/path_tracer_render_system.h"
 #include "cave/runtime/framework/IApplication.h"
+
+#include "engine/private/render/features/path_tracer/PathTracerFeature.h"
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/EditorDvars.h"
 #include "editor/EditorState.h"
+
+// @TODO: remove
+#include "engine/private/renderer/graphics_dvars.h"
 
 namespace cave {
 
@@ -58,6 +61,7 @@ void RendererPanel::DrawUIImpl() {
     });
 
     CollapseWindow("Path Tracer", [&]() {
+        using namespace render;
         bool active = IsPathTracerActive();
         if (ImGui::Checkbox("start", &active)) {
             if (active) {

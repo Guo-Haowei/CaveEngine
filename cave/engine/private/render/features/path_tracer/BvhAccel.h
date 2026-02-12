@@ -6,7 +6,7 @@ namespace cave {
 #include "structured_buffer.hlsl.h"
 }  // namespace cave
 
-namespace cave {
+namespace cave::render {
 
 struct BvhAccel {
     using Ref = std::shared_ptr<BvhAccel>;
@@ -36,4 +36,4 @@ struct BvhAccel {
     void FillGpuBvhAccel(std::vector<GpuPtBvh>& p_out);
 };
 
-}  // namespace cave
+}  // namespace cave::render
