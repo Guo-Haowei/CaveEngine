@@ -10,7 +10,12 @@ Dll::~Dll() { Unload(); }
 bool Dll::Load(const char* p_path) {
     Unload();
     m_handle = (void*)::LoadLibraryA(p_path);
-    return m_handle != nullptr;
+    if (!m_handle) {
+        DWORD err = ::GetLastError();
+        LOG_ERROR("Dll::Load: Failed to load '{}' (GetLastError={})", p_path, err);
+        return false;
+    }
+    return true;
 }
 
 void Dll::Unload() {

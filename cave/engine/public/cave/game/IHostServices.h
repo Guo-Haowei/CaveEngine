@@ -1,16 +1,16 @@
 // =============================================================================
-// File: engine/public/cave/core/diagnostics/ILogger.h
+// File: engine/public/cave/game/IHostServices.h
 // =============================================================================
 #pragma once
-#include "cave/core/Print.h"
+#include "cave/core/diagnostics/ILogger.h"
 
 namespace cave {
 
-class ILogger {
+class IHostServices {
 public:
-    virtual ~ILogger() = default;
+    virtual ~IHostServices() = default;
 
-    virtual void Print(LogLevel p_level, std::string_view p_message) = 0;
+    virtual ILogger& Log() = 0;
 };
 
 }  // namespace cave

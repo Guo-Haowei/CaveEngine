@@ -4,7 +4,9 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/AppState.h"
+
 #include "editor/document/DocId.h"
+#include "editor/play/PIESession.h"
 
 namespace cave {
 
@@ -82,6 +84,8 @@ private:
 
     Mode m_state{ Mode::Editing };
     bool m_switch_mode_requested{ false };
+
+    PIESession m_pie;
 
     std::unique_ptr<cave::DocumentService> m_document_service;
     std::unique_ptr<cave::EditService> m_edit_service;

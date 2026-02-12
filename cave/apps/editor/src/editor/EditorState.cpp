@@ -42,7 +42,8 @@
 namespace cave {
 
 EditorState::EditorState(IApplication& p_app)
-    : AppState(p_app) {
+    : AppState(p_app)
+    , m_pie(p_app) {
     // services
     m_document_service = std::make_unique<cave::DocumentService>(*this);
     m_edit_service = std::make_unique<cave::EditService>(*this);
@@ -76,15 +77,15 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     CAVE_PROFILE_EVENT();
     unused(p_args);
 
-#if 0
-    const char* module_name = "game_Debug.dll";
-    LoadGameModule(module_name, m_module);
+    // load pie
+    {
+        PIEStartDesc desc{};
+        desc.game_dll = "game_Debug.dll";
+        desc.game_id = "chess";
 
-    if (m_module.api && m_module.api->RegisterGame) {
-        GameLoadArgs args{};
-        m_module.api->RegisterGame(m_app, args);
+        m_pie.Start(desc);
+        // @TODO: call awake
     }
-#endif
 
     ImNodes::CreateContext();
 
@@ -112,9 +113,7 @@ void EditorState::OnExit() {
 
     ImNodes::DestroyContext();
 
-#if 0
-    UnloadGameModule(m_module);
-#endif
+    m_pie.Stop();
 }
 
 void EditorState::Tick(const FrameTime& p_time) {
@@ -124,7 +123,7 @@ void EditorState::Tick(const FrameTime& p_time) {
     m_thumbnail_service->Tick(p_time, info);
 
     if (IsPlaying()) {
-        LOG("@TODO: tick game module");
+        m_pie.Tick(p_time);
     }
 
     ImguiManager* imgui_manager = m_app.GetImguiManager();
@@ -167,8 +166,9 @@ void EditorState::CommitModeSwitch() {
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
             FocusedPreviewScene preview = GetFocusedPreviewScene();
-
-            LOG("@TODO: tick game module");
+            // @TODO: start game
+            CRASH_NOW();
+            LOG("@TODO: start game");
 #if 0
             RuntimeStartParams params(std::move(SceneSource::FromExisting(preview.scene_id)));
             params.game_mode_id = "chess";
@@ -177,6 +177,8 @@ void EditorState::CommitModeSwitch() {
 #endif
         } break;
         case cave::EditorState::Mode::Playing: {
+            CRASH_NOW();
+            LOG("@TODO: stop game");
             // m_runtime_host->Stop();
         } break;
     }
