@@ -33,6 +33,7 @@ using namespace math;
 
 // @TODO: refactor this
 #define COMPONENT_LIST              \
+    COMPONENT_DECL(Camera)          \
     COMPONENT_DECL(LuaScript)       \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \

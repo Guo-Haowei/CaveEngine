@@ -142,10 +142,10 @@ static void FillConstantBuffer(const FrameTime& p_frame,
         cache.c_invCamView = cam.view_inv;
         cache.c_invCamProj = cam.proj_inv;
         cache.c_camera_fovy = p_view.fovy_rad;
-        cache.c_cameraForward = cam.front;
-        cache.c_cameraRight = cam.right;
-        cache.c_cameraUp = cam.up;
-        cache.c_cameraPosition = cam.position;
+        cache.c_cameraForward = (cam.view_inv * -Vector4f::UnitZ).xyz;
+        cache.c_cameraRight = (cam.view_inv * Vector4f::UnitX).xyz;
+        cache.c_cameraUp = (cam.view_inv * Vector4f::UnitY).xyz;
+        cache.c_cameraPosition = (cam.view_inv * Vector4f::UnitW).xyz;
     }
 
     // Bloom
