@@ -1,7 +1,6 @@
-#include "cave/core/reflection/Meta.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 
-#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneEdit.h"
 
 namespace cave {
 
@@ -178,39 +177,14 @@ void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
     CRASH_NOW();
 }
 
-template<ComponentType T>
-static bool ModifyField(Scene& p_scene,
-                        ecs::Entity p_entity,
-                        const FixedString<kPropertyNameMax>& p_property,
-                        const void* p_data,
-                        uint32_t p_data_size) {
-
-    T* component = p_scene.GetComponent<T>(p_entity);
-    if (!component) {
-        return false;
-    }
-
-    const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();
-    for (const FieldMetaBase* field : meta_table) {
-        if (p_property == std::string_view(field->name)) {
-            char* data = reinterpret_cast<char*>(component) + field->offset;
-            std::memcpy(data, p_data, p_data_size);
-            return true;
-        }
-    }
-
-    return false;
-}
-
 void SceneCommandBuffer::DispatchPropertyOp(Scene& p_scene,
                                             ecs::Entity p_entity,
                                             const Payload_Property& p_payload,
                                             const void* p_data) {
     switch (p_payload.type) {
-#define REGISTER_COMPONENT(T, ...)                                                               \
-    case T##_Id: {                                                                               \
-        ModifyField<T>(p_scene, p_entity, p_payload.property_name, p_data, p_payload.data_size); \
-                                                                                                 \
+#define REGISTER_COMPONENT(T, ...)                                                                                 \
+    case T##_Id: {                                                                                                 \
+        SceneEdit::ModifyField<T>(p_scene, p_entity, p_payload.property_name.view(), p_data, p_payload.data_size); \
     } break;
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
