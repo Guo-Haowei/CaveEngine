@@ -2,25 +2,11 @@
 // Auto-generated metadata for SceneComponent.h
 // Check generate_meta.py for more details
 
+#include "engine/private/runtime/scene/SceneComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
-#include "engine/private/runtime/scene/SceneComponent.h"
 
 namespace cave {
-
-// std::string m_name ()
-
-template<>
-const MetaTableFields& MetaDataTable<NameComponent>::GetFields() {
-    static MetaTableFields s_table = {
-        REGISTER_FIELD(NameComponent, "name", m_name, FieldFlag::Serialize, EditorHint::None),
-    };
-
-    return s_table;
-}
-
-// Avoid lazy init
-[[maybe_unused]] static const auto& s_NameComponent_meta = MetaDataTable<NameComponent>::GetFields();
 
 // ecs::Entity parent_id ()
 

@@ -2,9 +2,9 @@
 // Auto-generated metadata for MaterialComponent.h
 // Check generate_meta.py for more details
 
+#include "engine/private/runtime/scene/MaterialComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
-#include "engine/private/runtime/scene/MaterialComponent.h"
 
 namespace cave {
 

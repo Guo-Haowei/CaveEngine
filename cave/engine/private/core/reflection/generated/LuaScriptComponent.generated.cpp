@@ -2,13 +2,13 @@
 // Auto-generated metadata for LuaScriptComponent.h
 // Check generate_meta.py for more details
 
+#include "engine/public/cave/runtime/ecs/LuaScriptComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
-#include "engine/private/runtime/scene/LuaScriptComponent.h"
 
 namespace cave {
 
-// std::string m_class_name ()
+// FixedString<32> m_class_name ()
 // Guid m_source_id (editor = Asset)
 
 template<>

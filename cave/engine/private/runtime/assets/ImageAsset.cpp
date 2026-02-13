@@ -3,7 +3,7 @@
 #include <tinygltf/stb_image.h>
 
 #include "engine/private/core/io/file_access.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 
 namespace cave {
 

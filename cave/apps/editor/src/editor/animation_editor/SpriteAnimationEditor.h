@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
 
-#include "engine/private/runtime/assets/AssetHandle.h"
+#include "cave/runtime/assets/AssetHandle.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 
 #include "editor/widgets/SpriteSelector.h"

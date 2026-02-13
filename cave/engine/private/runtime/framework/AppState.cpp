@@ -32,14 +32,14 @@ void AppStateMachine::SwitchTo(const StateRequest& p_request) {
 
     m_state->OnExit();
     m_state = CreateState(m_app, p_request.next);
-    m_state->OnEnter(p_request);
-
-    m_state_id = p_request.next;
 
 #if USING(DEBUG_BUILD)
     const char* new_state = m_state->GetDebugName();
     LOG("AppStateMachine::SwitchTo: {} -> {}", old_state, new_state);
 #endif
+
+    m_state->OnEnter(p_request);
+    m_state_id = p_request.next;
 }
 
 void AppStateMachine::RegisterCreateFunc(AppStateId p_state_id, CreateFunc p_func) {

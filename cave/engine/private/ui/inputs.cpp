@@ -20,7 +20,8 @@ bool CheckBox(const char* p_name,
 }
 
 bool TextBox(const char* p_label,
-             std::string& p_string,
+             char* p_buf_ptr,
+             uint32_t p_buf_size,
              float p_text_width,
              float p_text_box_width,
              bool p_enter_returns_true) {
@@ -39,17 +40,11 @@ bool TextBox(const char* p_label,
         flags |= ImGuiInputTextFlags_EnterReturnsTrue;
     }
 
-    char buffer[256];
-    strncpy(buffer, p_string.c_str(), sizeof(buffer));
     auto tag = std::format("##{}", p_label ? p_label : "dummy");
     bool dirty = ImGui::InputText(tag.c_str(),
-                                  buffer,
-                                  sizeof(buffer),
+                                  p_buf_ptr,
+                                  p_buf_size,
                                   flags);
-
-    if (dirty) {
-        p_string = buffer;
-    }
 
     ImGui::Columns(1);
     return dirty;
@@ -229,29 +224,31 @@ bool Float3(const char* p_label,
 }
 
 bool ColorPicker3(const char* p_label,
-                  float* p_out,
+                  math::Vector3f& p_out,
                   float p_column_width) {
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, p_column_width);
     ImGui::Text("%s", p_label);
     ImGui::NextColumn();
-    const bool dirty = ImGui::ColorPicker3(p_label, p_out);
-    ImGui::Columns(1);
-    return dirty;
-}
-
-bool ColorPicker4(const char* p_label,
-                  float* p_out,
-                  float p_column_width) {
-    ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
-    ImGui::NextColumn();
-    const bool dirty = ImGui::ColorPicker4(p_label, p_out);
+    const bool dirty = ImGui::ColorPicker3(p_label, &p_out.r);
     ImGui::Columns(1);
     ImGui::Dummy(ImVec2(8, 8));
     return dirty;
 }
+
+bool ColorPicker4(const char* p_label,
+                  math::Vector4f& p_out,
+                  float p_column_width) {
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, p_column_width);
+    ImGui::Text("%s", p_label);
+    ImGui::NextColumn();
+    const bool dirty = ImGui::ColorPicker4(p_label, &p_out.r);
+    ImGui::Columns(1);
+    ImGui::Dummy(ImVec2(8, 8));
+    return dirty;
+}
+
 bool ToggleButton(const char* p_str_id, bool& p_value) {
     ImVec2 p = ImGui::GetCursorScreenPos();
     ImDrawList* draw_list = ImGui::GetWindowDrawList();

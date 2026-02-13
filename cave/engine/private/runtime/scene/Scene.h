@@ -1,25 +1,29 @@
 #pragma once
 #include "cave/core/NonCopyable.h"
+#include "cave/core/math/Ray.h"
+#include "cave/runtime/assets/IAsset.h"
+#include "cave/runtime/ecs/CameraComponent.h"
+#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/runtime/ecs/HierarchyComponent.h"
+#include "cave/runtime/ecs/LuaScriptComponent.h"
+#include "cave/runtime/ecs/NameComponent.h"
+#include "cave/runtime/ecs/TransformComponent.h"
 
-#include "engine/private/runtime/assets/AssetInterface.h"
 #include "engine/private/runtime/ecs/ComponentManager.h"
 #include "engine/private/runtime/ecs/View.h"
-#include "cave/core/math/Ray.h"
 
 // components
-#include "engine/private/runtime/scene/SceneComponent.h"  // @TODO: split this
+// @TODO: split this
+#include "engine/private/runtime/scene/SceneComponent.h"
 
-#include "cave/runtime/scene/CameraComponent.h"
 #include "engine/private/runtime/scene/ColliderComponent.h"
 #include "engine/private/runtime/scene/LightComponent.h"
-#include "engine/private/runtime/scene/LuaScriptComponent.h"
 #include "engine/private/runtime/scene/MaterialComponent.h"
 #include "engine/private/runtime/scene/MeshRendererComponent.h"
 #include "engine/private/runtime/scene/SkeletalAnimationComponent.h"
 #include "engine/private/runtime/scene/SpriteAnimatorComponent.h"
 #include "engine/private/runtime/scene/SpriteRendererComponent.h"
 #include "engine/private/runtime/scene/TileMapRendererComponent.h"
-#include "engine/private/runtime/scene/TransformComponent.h"
 
 namespace cave::jobsystem {
 class Context;
@@ -29,32 +33,6 @@ namespace cave {
 
 // Tags that don't need to be serialized
 struct NoSaveTag {};
-
-#define REGISTER_COMPONENT_SERIALIZED_LIST                                                 \
-    REGISTER_COMPONENT(NameComponent, "World::NameComponent", 0)                           \
-    REGISTER_COMPONENT(HierarchyComponent, "World::HierarchyComponent", 0)                 \
-    REGISTER_COMPONENT(TransformComponent, "World::TransformComponent", 0)                 \
-    REGISTER_COMPONENT(CameraComponent, "World::CameraComponent", 0)                       \
-    REGISTER_COMPONENT(LightComponent, "World::LightComponent", 0)                         \
-    REGISTER_COMPONENT(SkeletalAnimationComponent, "World::SkeletalAnimationComponent", 0) \
-    REGISTER_COMPONENT(SkeletonComponent, "World::SkeletonComponent", 0)                   \
-    REGISTER_COMPONENT(SpriteAnimatorComponent, "World::SpriteAnimatorComponent", 0)       \
-    REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)                   \
-    REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)                   \
-    REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)                 \
-    REGISTER_COMPONENT(PrefabInstanceComponent, "World::PrefabInstanceComponent", 0)       \
-    REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)           \
-    REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)                   \
-    REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)       \
-    REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
-
-// @TODO: use meta table for all components
-#define REGISTER_COMPONENT_LIST                                                \
-    REGISTER_COMPONENT_SERIALIZED_LIST                                         \
-    REGISTER_COMPONENT(RigidBodyComponent, "World::RigidBodyComponent", 0)     \
-    REGISTER_COMPONENT(VoxelGiComponent, "World::VoxelGiComponent", 0)         \
-    REGISTER_COMPONENT(EnvironmentComponent, "World::EnvironmentComponent", 0) \
-    REGISTER_COMPONENT(NoSaveTag, "World::NoSaveTag", 0)
 
 #define REGISTER_COMPONENT(TYPE, ...) \
     template<>                        \

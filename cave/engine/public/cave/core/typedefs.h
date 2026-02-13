@@ -1,3 +1,6 @@
+// =============================================================================
+// File: public/cave/core/typedefs.h
+// =============================================================================
 #pragma once
 
 #define IN_USE     &&
@@ -75,6 +78,23 @@
 #error "Unknown compiler"
 #endif
 
+/// Shared library import/export
+#if defined(_MSC_VER)
+#if defined(CAVE_GAME_DLL)  // defined when building game.dll
+#define CAVE_API __declspec(dllexport)
+#else  // used by host/editor/runtime
+#define CAVE_API __declspec(dllimport)
+#endif
+#else
+/// GCC / Clang visibility
+#if __GNUC__ >= 4
+#define CAVE_API __attribute__((visibility("default")))
+#else
+#define CAVE_API
+#endif
+#endif
+
+/// Trap
 #if USING(PLATFORM_WINDOWS)
 #define GENERATE_TRAP() __debugbreak()
 #elif USING(PLATFORM_APPLE)

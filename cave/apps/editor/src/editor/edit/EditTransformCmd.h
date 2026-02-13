@@ -1,8 +1,7 @@
 #pragma once
 #include "EditCmdBase.h"
 
-// @TODO: move to public
-#include "engine/private/core/math/geomath.h"
+#include "cave/core/math/Matrix.h"
 
 namespace cave {
 

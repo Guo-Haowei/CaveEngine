@@ -6,7 +6,7 @@
 #include "cave/core/diagnostics/ILogger.h"
 
 #include "engine/private/core/io/archive.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 #include "engine/private/runtime/dvar/DvarParser.h"
 
 namespace cave {

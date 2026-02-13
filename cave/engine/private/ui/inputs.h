@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/core/math/geomath.h"
+#include "cave/core/math/Vector.h"
 
 namespace cave::ui {
 
@@ -10,7 +10,8 @@ bool CheckBox(const char* p_name,
               float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool TextBox(const char* p_label,
-             std::string& p_string,
+             char* p_buf_ptr,
+             uint32_t p_buf_size,
              float p_text_width = DEFAULT_COLUMN_WIDTH,
              float p_text_box_width = 0,
              bool p_enter_returns_true = true);
@@ -48,11 +49,11 @@ bool Float3(const char* p_label,
             float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool ColorPicker3(const char* p_label,
-                  float* p_out,
+                  math::Vector3f& p_out,
                   float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool ColorPicker4(const char* p_label,
-                  float* p_out,
+                  math::Vector4f& p_out,
                   float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool ToggleButton(const char* p_str_id, bool& p_value);

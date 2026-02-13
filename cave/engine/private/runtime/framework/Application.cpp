@@ -4,13 +4,13 @@
 #include <imgui/imgui.h>
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/core/string/StringUtils.h"
 #include "cave/core/time/FrameTime.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
 #include "engine/private/core/diagnostics/logger/Logger.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/os/threads.h"
-#include "engine/private/core/string/StringUtils.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/dvar/DvarCache.h"
@@ -22,7 +22,7 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/ModuleRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
@@ -67,7 +67,7 @@ auto Application::SetupModules() -> Result<void> {
 
     m_asset_manager = CreateAssetManager();
     m_asset_registry = new AssetRegistry();
-    m_script_manager = CreateScriptManager();
+    m_script_service = CreateScriptService();
     m_scene_registry = new SceneRegistry();
     m_physics_manager = CreatePhysicsManager();
     m_render_device = CreateRenderDevice(m_spec.backend);
@@ -84,7 +84,7 @@ auto Application::SetupModules() -> Result<void> {
 
     m_scene_scheduler = std::make_unique<SceneScheduler>(
         *m_scene_registry,
-        *m_script_manager);
+        *m_script_service);
 
     m_scene_query_service = new cave::SceneQueryService(*m_scene_registry);
 
@@ -92,7 +92,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);
     RegisterModule(m_scene_registry);
-    RegisterModule(m_script_manager);
+    RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
     RegisterModule(m_input_system);
     RegisterModule(m_display_server);
@@ -120,6 +120,7 @@ auto Application::Initialize() -> Result<void> {
     LOG_WARN("@TODO: support material in path tracer");
     LOG_WARN("@TODO: remove global path tracer object");
     LOG_WARN("@TODO: accumulate path tracer result");
+    LOG_WARN("@TODO: NotifyPropertyChanged, for edit, undo, redo");
 
     // select backend
     {

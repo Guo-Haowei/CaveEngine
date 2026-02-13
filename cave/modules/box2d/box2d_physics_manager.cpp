@@ -83,7 +83,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 #if USING(DEBUG_BUILD)
         const NameComponent* name = p_scene.GetComponent<NameComponent>(id);
         if (name) {
-            body_def.name = name->GetName().c_str();
+            body_def.name = name->GetName().data();
         }
 #endif
 

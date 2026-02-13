@@ -1,7 +1,5 @@
 #pragma once
-#include "AssetInterface.h"
-#include "AssetHandle.h"
-#include "AssetMetaData.h"
+#include "cave/runtime/assets/IAsset.h"
 
 namespace cave {
 
@@ -15,7 +13,7 @@ class BlobAsset : public IAsset {
 public:
     void SetBlob(std::vector<char>&& p_blob);
 
-    const char* GetBufferPoiner() const { return m_blob.data(); }
+    const char* GetBufferPointer() const { return m_blob.data(); }
     size_t GetBufferLength() const { return m_blob_size; }
 
     const char* c_str() const { return m_blob.data() ? m_blob.data() : ""; }

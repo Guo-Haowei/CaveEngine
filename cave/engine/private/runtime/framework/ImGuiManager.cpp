@@ -9,7 +9,7 @@
 #include "cave/runtime/input/InputTypes.h"
 #include "cave/runtime/input/KeyCode.h"
 
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -39,7 +39,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
             ImFontConfig font_cfg;
             font_cfg.FontDataOwnedByAtlas = false;
 
-            void* data = const_cast<char*>(font->GetBufferPoiner());
+            void* data = const_cast<char*>(font->GetBufferPointer());
             if (!io.Fonts->AddFontFromMemoryTTF(data, (int)font->GetBufferLength(), base_font_size, &font_cfg)) {
                 return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create font '{}'", path);
             }
@@ -60,7 +60,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
             icons_config.GlyphMinAdvanceX = icon_font_size;
             icons_config.FontDataOwnedByAtlas = false;
 
-            void* data = const_cast<char*>(font->GetBufferPoiner());
+            void* data = const_cast<char*>(font->GetBufferPointer());
             if (!io.Fonts->AddFontFromMemoryTTF(data, (int)font->GetBufferLength(), base_font_size, &icons_config, icons_ranges)) {
                 return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create font '{}'", path);
             }

@@ -6,13 +6,10 @@
 #include "engine/private/runtime/framework/AppState.h"
 
 #include "editor/document/DocId.h"
-
-// @TODO: refactor this
-#include "engine/private/runtime/framework/GameModuleLoader.h"
+#include "editor/play/PIESession.h"
 
 namespace cave {
 
-class RuntimeHost;
 class IEditorItem;
 
 // pannels
@@ -64,8 +61,6 @@ public:
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
 
-    RuntimeHost& GetRuntimeHost() { return *m_runtime_host; }
-
     DocumentService& DocumentService() { return *m_document_service; }
     EditService& EditService() { return *m_edit_service; }
     IconCache& IconCache() { return *m_icon_cache; }
@@ -90,7 +85,7 @@ private:
     Mode m_state{ Mode::Editing };
     bool m_switch_mode_requested{ false };
 
-    std::unique_ptr<RuntimeHost> m_runtime_host;
+    PIESession m_pie;
 
     std::unique_ptr<cave::DocumentService> m_document_service;
     std::unique_ptr<cave::EditService> m_edit_service;
@@ -107,9 +102,6 @@ private:
     std::shared_ptr<MenuBar> m_menu_bar;
 
     std::vector<std::shared_ptr<IEditorItem>> m_panels;
-
-    // @TODO: refactor game module
-    LoadedGameModule m_module{};
 };
 
 }  // namespace cave

@@ -48,7 +48,7 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
         buffer.resize(256);
         ImGui::Text("%s", icon);
         ImGui::SameLine();
-        if (ui::TextBox(nullptr, buffer)) {
+        if (ui::TextBox(nullptr, buffer.data(), (uint32_t)buffer.size())) {
             fs::path to_path = m_renaming.parent_path();
             to_path = to_path / buffer.c_str();
             if (is_dir) {

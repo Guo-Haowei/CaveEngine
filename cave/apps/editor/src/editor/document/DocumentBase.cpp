@@ -37,7 +37,7 @@ bool DocumentBase::Apply(std::unique_ptr<IEditCmd> p_cmd, uint32_t p_coalesce) {
     }
 
     p_cmd->Do(*this);
-    LOG("DocumentBase::Apply: action '{}' applied", p_cmd->Label());
+    // LOG("DocumentBase::Apply: action '{}' applied", p_cmd->Label());
 
     m_undo.push_back(std::move(p_cmd));
     m_redo.clear();
@@ -55,7 +55,7 @@ bool DocumentBase::Undo() {
     m_undo.pop_back();
 
     cmd->Undo(*this);
-    LOG("DocumentBase::Undo: action '{}' undone", cmd->Label());
+    // LOG("DocumentBase::Undo: action '{}' undone", cmd->Label());
     m_redo.push_back(std::move(cmd));
 
     m_last_coalesce = 0;
@@ -69,7 +69,7 @@ bool DocumentBase::Redo() {
     m_redo.pop_back();
 
     cmd->Do(*this);
-    LOG("DocumentBase::Undo: action '{}' redone", cmd->Label());
+    // LOG("DocumentBase::Undo: action '{}' redone", cmd->Label());
     m_undo.push_back(std::move(cmd));
 
     m_last_coalesce = 0;

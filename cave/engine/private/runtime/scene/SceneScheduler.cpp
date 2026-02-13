@@ -2,7 +2,7 @@
 
 #include "cave/core/time/FrameTime.h"
 
-#include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 

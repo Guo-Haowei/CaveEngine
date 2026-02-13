@@ -2,9 +2,9 @@
 // Auto-generated metadata for MaterialAsset.h
 // Check generate_meta.py for more details
 
+#include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
-#include "engine/private/runtime/assets/MaterialAsset.h"
 
 namespace cave {
 

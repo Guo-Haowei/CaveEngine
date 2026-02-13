@@ -2,7 +2,7 @@
 #include "cave/core/reflection/Reflection.h"
 #include "cave/core/math/Box.h"
 
-#include "engine/private/runtime/assets/AssetHandle.h"
+#include "cave/runtime/assets/AssetHandle.h"
 
 // @TODO: rename it to TileMapInstanceComponent
 

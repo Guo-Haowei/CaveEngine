@@ -1,7 +1,7 @@
 #include "BootLoadPipeline.h"
 
 #include "engine/private/algorithm/algorithm.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 

@@ -14,19 +14,21 @@ print('Project root folder:', get_engine_src_folder())
 
 # ========= CONFIG ==========
 FILES = [
+    # components
+    'public/cave/runtime/ecs/CameraComponent.h',
+    'public/cave/runtime/ecs/NameComponent.h',
+    'public/cave/runtime/ecs/LuaScriptComponent.h',
+    'public/cave/runtime/ecs/TransformComponent.h',
     # assets
-    'private/runtime/assets/AssetMetaData.h',
+    'public/cave/runtime/assets/AssetMetaData.h',
     'private/runtime/assets/MaterialAsset.h',
     'private/runtime/assets/SpriteAnimationAsset.h',
     'private/runtime/assets/TileMapAsset.h',
     'private/runtime/assets/TileSetAsset.h',
     # components
     'private/runtime/scene/ColliderComponent.h',
-    'public/cave/runtime/scene/CameraComponent.h',
     'private/runtime/scene/LightComponent.h',
-    'private/runtime/scene/LuaScriptComponent.h',
     'private/runtime/scene/MaterialComponent.h',
-    'private/runtime/scene/TransformComponent.h',
     'private/runtime/scene/SceneComponent.h',
     'private/runtime/scene/SkeletalAnimationComponent.h',
     'private/runtime/scene/SpriteAnimatorComponent.h',
@@ -166,10 +168,10 @@ def generate_meta_file(base_path, file_path, metas):
         f.write(f"// Auto-generated metadata for {filename}\n")
         f.write(f"// Check {SCRIPT_NAME} for more details\n\n")
 
+        f.write(f'#include "engine/{base_path}"\n')
         f.write('#include "engine/private/core/reflection/MetaEditor.h"\n')
         f.write('#include "engine/private/serialization/yaml_include.h"\n')
-        f.write(f'#include "engine/{base_path}"\n\n')
-        f.write('namespace cave {\n\n')
+        f.write('\nnamespace cave {\n\n')
 
         for class_name, fields in metas.items():
             generate_meta_for_class(f, class_name, fields)

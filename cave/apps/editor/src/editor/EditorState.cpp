@@ -1,7 +1,6 @@
 #include "EditorState.h"
 
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/gameplay/IGameMode.h"
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
@@ -24,9 +23,8 @@
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/framework/RuntimeHost.h"
-#include "engine/private/runtime/framework/IScriptManager.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/edit/EditObjectCmd.h"
@@ -44,7 +42,8 @@
 namespace cave {
 
 EditorState::EditorState(IApplication& p_app)
-    : AppState(p_app) {
+    : AppState(p_app)
+    , m_pie(p_app) {
     // services
     m_document_service = std::make_unique<cave::DocumentService>(*this);
     m_edit_service = std::make_unique<cave::EditService>(*this);
@@ -54,9 +53,6 @@ EditorState::EditorState(IApplication& p_app)
     m_thumbnail_service = std::make_unique<cave::ThumbnailService>(*this);
     m_workspace = std::make_unique<cave::Workspace>(*this);
     m_icon_cache = std::make_unique<cave::IconCache>(*GetApp().GetAssetRegistry(), *GetApp().GetAssetManager());
-
-    // runtime
-    m_runtime_host = std::make_unique<RuntimeHost>(p_app);
 
     // panels
     m_content_browser = std::make_shared<ContentBrowser>(*this);
@@ -81,28 +77,34 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     CAVE_PROFILE_EVENT();
     unused(p_args);
 
-    const char* module_name = "game_Debug.dll";
-    LoadGameModule(module_name, m_module);
-
-    if (m_module.api && m_module.api->RegisterGame) {
-        GameLoadArgs args{};
-        m_module.api->RegisterGame(m_app, args);
-    }
-
     ImNodes::CreateContext();
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
     }
 
+    SceneId edit_scene{};
     if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
         if (auto res = Guid::Parse(asset); res.is_some()) {
             Guid guid = res.unwrap_unchecked();
             if (auto handle = m_app.GetAssetRegistry()->FindByGuid(guid); handle.is_some()) {
                 AssetHandle handle_ = handle.unwrap_unchecked();
-                m_document_service->OpenDoc({ guid, handle_.GetMeta()->type });
+                DocId doc_id = m_document_service->OpenDoc({ guid, handle_.GetMeta()->type });
+                if (IDocument* doc = m_document_service->Resolve(doc_id)) {
+                    edit_scene = doc->GetPreviewScene();
+                }
             }
         }
+    }
+
+    // load pie
+    {
+        PIEStartDesc desc{};
+        desc.game_dll = "game_Debug.dll";
+        desc.game_id = "chess";
+        desc.edit_scene = edit_scene;
+
+        m_pie.Start(desc);
     }
 }
 
@@ -110,12 +112,12 @@ void EditorState::OnExit() {
     CAVE_PROFILE_EVENT();
 
     if (IsPlaying()) {
-        m_runtime_host->Stop();
+        LOG("@TODO: stop game module");
     }
 
     ImNodes::DestroyContext();
 
-    UnloadGameModule(m_module);
+    m_pie.Stop();
 }
 
 void EditorState::Tick(const FrameTime& p_time) {
@@ -125,10 +127,7 @@ void EditorState::Tick(const FrameTime& p_time) {
     m_thumbnail_service->Tick(p_time, info);
 
     if (IsPlaying()) {
-        GameFrameTime frame;
-        frame.frame_index = p_time.frame_index;
-        frame.dt = p_time.dt;
-        m_runtime_host->Tick(frame);
+        m_pie.Tick(p_time);
     }
 
     ImguiManager* imgui_manager = m_app.GetImguiManager();
@@ -171,14 +170,20 @@ void EditorState::CommitModeSwitch() {
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
             FocusedPreviewScene preview = GetFocusedPreviewScene();
-
+            // @TODO: start game
+            CRASH_NOW();
+            LOG("@TODO: start game");
+#if 0
             RuntimeStartParams params(std::move(SceneSource::FromExisting(preview.scene_id)));
             params.game_mode_id = "chess";
             params.mode = RuntimeStartParams::Mode::PIE;
             m_runtime_host->Start(params);
+#endif
         } break;
         case cave::EditorState::Mode::Playing: {
-            m_runtime_host->Stop();
+            CRASH_NOW();
+            LOG("@TODO: stop game");
+            // m_runtime_host->Stop();
         } break;
     }
 

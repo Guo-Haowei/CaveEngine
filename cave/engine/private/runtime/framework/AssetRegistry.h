@@ -2,8 +2,8 @@
 #include "cave/core/Singleton.h"
 
 #include "engine/private/runtime/assets/AssetEntry.h"
-#include "engine/private/runtime/assets/AssetInterface.h"
-#include "engine/private/runtime/assets/AssetHandle.h"
+#include "cave/runtime/assets/IAsset.h"
+#include "cave/runtime/assets/AssetHandle.h"
 #include "engine/private/runtime/framework/Module.h"
 
 namespace cave {

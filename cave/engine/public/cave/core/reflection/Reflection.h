@@ -1,4 +1,8 @@
+// =============================================================================
+// File: public/cave/core/reflection/Reflection.h
+// =============================================================================
 #pragma once
+#include "cave/core/typedefs.h"
 
 // #define USE_REFLECTION USE_IF(!USING(PLATFORM_WASM))
 #define USE_REFLECTION IN_USE

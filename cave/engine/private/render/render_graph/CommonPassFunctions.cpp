@@ -5,7 +5,6 @@
 #include "engine/private/algorithm/algorithm.h"
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/renderer/path_tracer_render_system.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/framework/DisplayService.h"

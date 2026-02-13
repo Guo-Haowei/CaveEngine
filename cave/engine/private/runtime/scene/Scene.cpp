@@ -1,7 +1,5 @@
 #include "Scene.h"
 
-#include "EntityFactory.h"
-
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/ComponentManager.inl"
@@ -12,7 +10,6 @@
 
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"
-// #include "engine/private/renderer/path_tracer/bvh_accel.h"
 #include "engine/private/serialization/yaml_include.h"
 
 namespace cave::ecs {

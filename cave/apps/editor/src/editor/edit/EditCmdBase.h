@@ -25,7 +25,7 @@ public:
     }
 
 protected:
-    Scene* ResolveScene(SceneId p_scene_id);
+    Scene* ResolveScene(SceneId p_scene_id) const;
     ecs::Entity m_entity;
 
 private:

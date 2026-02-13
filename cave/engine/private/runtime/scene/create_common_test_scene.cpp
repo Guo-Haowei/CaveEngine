@@ -1,18 +1,8 @@
-#include "engine/private/core/base/random.h"
-#include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
-
-/*
-@TODO : DELETE THIS FILE!!!
-*/
-
-namespace cave {
-
+// @TODO : DELETE THIS FILE!!!
+#if 0
 Scene* CreateBoxScene() {
     Scene* scene = new Scene;
     CRASH_NOW();
-#if 0
     scene->m_physicsMode = PhysicsMode::SIMULATION;
 
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
@@ -80,13 +70,11 @@ Scene* CreateBoxScene() {
         }
     }
 
-#endif
     return scene;
 }
 
 Scene* CreatePhysicsTestScene() {
     Scene* scene = new Scene;
-#if 0
     scene->m_physicsMode = PhysicsMode::SIMULATION;
 
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
@@ -177,14 +165,12 @@ Scene* CreatePhysicsTestScene() {
         }
         scene->AttachChild(id, world);
     }
-#endif
 
     return scene;
 }
 
 Scene* CreatePbrTestScene() {
     Scene* scene = new Scene;
-#if 0
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
@@ -233,8 +219,6 @@ Scene* CreatePbrTestScene() {
         env->sky.texturePath = "@res://images/ibl/circus.hdr";
     }
 
-#endif
     return scene;
 }
-
-}  // namespace cave
+#endif

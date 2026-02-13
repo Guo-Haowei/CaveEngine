@@ -1,10 +1,9 @@
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/gameplay/GameRuntimeState.h"
-#include "engine/private/scripting/lua/lua_script_manager.h"
+#include "engine/private/runtime/script/lua/LuaScriptService.h"
 
 #include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
@@ -54,11 +53,6 @@ public:
 
         AppStateMachine::RegisterCreateFunc(AppStateId::Editor, [](IApplication& p_app) {
             auto state = std::make_unique<EditorState>(p_app);
-            return std::unique_ptr<AppState>(std::move(state));
-        });
-
-        AppStateMachine::RegisterCreateFunc(AppStateId::GameRuntime, [](IApplication& p_app) {
-            auto state = std::make_unique<GameRuntimeState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 
@@ -141,8 +135,8 @@ int main(int p_argc, const char** p_argv) {
     IAssetManager::RegisterCreateFunc([]() -> IAssetManager* {
         return new EditorAssetManager();
     });
-    IScriptManager::RegisterCreateFunc([]() -> IScriptManager* {
-        return new LuaScriptManager();
+    IScriptService::RegisterCreateFunc([]() -> IScriptService* {
+        return new LuaScriptService();
     });
     DisplayService::RegisterCreateFunc([]() -> DisplayService* {
         return new GlfwDisplayManager();

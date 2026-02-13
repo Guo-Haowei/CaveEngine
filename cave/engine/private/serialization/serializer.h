@@ -4,8 +4,7 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/Matrix.h"
-
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/FixedString.h"
 
 #include "engine/private/core/io/file_access.h"
 #include "cave/core/math/Box.h"
@@ -62,6 +61,11 @@ public:
     ISerializer& Write(const ecs::Entity& p_object);
     ISerializer& Write(const math::Degree& p_object);
     ISerializer& Write(const math::Matrix4x4f& p_object);
+
+    template<size_t N>
+    ISerializer& Write(const FixedString<N>& p_value) {
+        return Write(p_value.data());
+    }
 
     template<ArrayLike T>
     ISerializer& Write(const T& p_array) {
