@@ -12,7 +12,7 @@ EditCmdBase::EditCmdBase(IApplication& p_app,
     , m_entity(p_entity) {
 }
 
-Scene* EditCmdBase::ResolveScene(SceneId p_scene_id) {
+Scene* EditCmdBase::ResolveScene(SceneId p_scene_id) const {
     return m_scene_reg.Resolve(p_scene_id);
 }
 

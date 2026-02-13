@@ -5,14 +5,13 @@
 
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
+#include "editor/edit/EditPropertyCmd.h"
 #include "editor/edit/EditTransformCmd.h"
-#include "editor/edit/EditComponentCmd.h"
+#include "editor/edit/EditComponentCmd.h" // @TODO: refactor this
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
-#include <glm/gtc/quaternion.hpp>
-#include <ImGuizmo/ImGuizmo.h>
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "engine/private/core/reflection/MetaEditor.h"
@@ -144,12 +143,14 @@ bool DrawComponentAuto(T* p_component, EditorState& p_editor) {
     const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();
 
     int dirty = 0;
-    for (const FieldMetaBase* field : meta_table) {
+    for (const auto& field : meta_table) {
         switch (field->editor_hint) {
             case EditorHint::EnumDropDown: {
                 dirty |= (int)field->DrawEditor(p_component, ui::DEFAULT_COLUMN_WIDTH);
             } break;
             case EditorHint::Toggle: {
+
+
                 bool& toggle = field->template GetData<bool>(p_component);
                 dirty |= (int)ui::CheckBox(field->name, toggle);
             } break;
@@ -237,8 +238,18 @@ void PropertyPanel::DrawUIImpl() {
 
     EditService& edit_service = m_editor.EditService();
 
-    FixedString<64>& buf = name_component->GetNameRef();
-    ui::TextBox("Name", buf.data(), buf.size());
+    {
+        FixedString<64> name = name_component->GetNameRef();
+        if (ui::TextBox("Name", name.data(), name.capacity())) {
+            auto cmd = std::make_unique<EditPropertyCmd<NameComponent>>(
+                m_editor.GetApp(),
+                id,
+                "name",
+                name_component->GetNameRef(),
+                name);
+            edit_service.Submit(doc_id, std::move(cmd));
+        }
+    }
 
     ImGui::SameLine();
     ImGui::PushItemWidth(-1);
