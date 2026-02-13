@@ -1,6 +1,6 @@
 #pragma once
 #include "cave/core/math/Angle.h"
-#include "engine/private/core/math/geomath.h"
+#include "cave/core/math/Matrix.h"
 #include "cave/core/reflection/Reflection.h"
 
 namespace cave::math {
@@ -65,7 +65,7 @@ public:
     void UpdateTransformParented(const TransformComponent& p_parent);
 
     bool IsDirty() const { return m_flags & DirtyFlag; }
-    void SetDirty(bool p_dirty = true) { p_dirty ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }
+    void SetDirty(bool p_dirty = true);
     void OnDeserialized() { m_flags |= DirtyFlag; }
 };
 

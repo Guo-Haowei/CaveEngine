@@ -3,7 +3,6 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "editor/undo_redo/UndoStack.h"
 
 namespace cave {
 

@@ -4,13 +4,13 @@
 #include <imgui/imgui.h>
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/core/string/StringUtils.h"
 #include "cave/core/time/FrameTime.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
 #include "engine/private/core/diagnostics/logger/Logger.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/os/threads.h"
-#include "cave/core/string/StringUtils.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/dvar/DvarCache.h"
@@ -120,6 +120,7 @@ auto Application::Initialize() -> Result<void> {
     LOG_WARN("@TODO: support material in path tracer");
     LOG_WARN("@TODO: remove global path tracer object");
     LOG_WARN("@TODO: accumulate path tracer result");
+    LOG_WARN("@TODO: NotifyPropertyChanged, for edit, undo, redo");
 
     // select backend
     {

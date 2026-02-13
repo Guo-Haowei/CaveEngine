@@ -73,4 +73,12 @@ void TransformComponent::UpdateTransformParented(const TransformComponent& p_par
     m_world_matrix = worldMatrixParent * worldMatrix;
 }
 
+void TransformComponent::SetDirty(bool p_dirty) {
+    if (p_dirty) {
+        m_flags |= DirtyFlag;
+    } else {
+        m_flags &= ~DirtyFlag;
+    }
+}
+
 }  // namespace cave

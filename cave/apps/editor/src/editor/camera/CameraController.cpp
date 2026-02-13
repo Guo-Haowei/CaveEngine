@@ -3,6 +3,7 @@
 #include "cave/core/math/Angle.h"
 #include "cave/runtime/ecs/CameraComponent.h"
 
+#include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 
 namespace cave {
