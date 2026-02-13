@@ -1,7 +1,8 @@
 #pragma once
+#include "cave/core/ids/Guid.h"
 #include "cave/core/reflection/Reflection.h"
-
-#include "engine/private/runtime/assets/AssetHandle.h"
+#include "cave/core/string/FixedString.h"
+#include "cave/runtime/assets/AssetHandle.h"
 
 namespace cave {
 
@@ -10,7 +11,7 @@ class LuaScriptComponent {
 
 private:
     CAVE_PROP()
-    std::string m_class_name;
+    FixedString<32> m_class_name;
 
     CAVE_PROP(editor = Asset)
     Guid m_source_id;
@@ -25,8 +26,8 @@ public:
     bool SetResourceGuid(const Guid& p_guid);
     const Guid& GetResourceGuid() const { return m_source_id; }
 
-    const std::string& GetClassName() const { return m_class_name; }
-    std::string& GetClassNameRef() { return m_class_name; }
+    std::string_view GetClassName() const { return m_class_name.view(); }
+    auto& GetClassNameRef() { return m_class_name; }
 
     int GetInstance() const { return m_instance; }
 

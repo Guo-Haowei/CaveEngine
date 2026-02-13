@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/Singleton.h"
 
-#include "engine/private/runtime/assets/AssetInterface.h"
+#include "cave/runtime/assets/IAsset.h"
 #include "engine/private/runtime/framework/Module.h"
 
 namespace cave {

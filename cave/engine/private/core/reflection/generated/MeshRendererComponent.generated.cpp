@@ -2,9 +2,9 @@
 // Auto-generated metadata for MeshRendererComponent.h
 // Check generate_meta.py for more details
 
+#include "engine/private/runtime/scene/MeshRendererComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
-#include "engine/private/runtime/scene/MeshRendererComponent.h"
 
 namespace cave {
 

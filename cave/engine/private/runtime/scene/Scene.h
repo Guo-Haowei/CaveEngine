@@ -1,18 +1,21 @@
 #pragma once
 #include "cave/core/NonCopyable.h"
+#include "cave/core/math/Ray.h"
+#include "cave/runtime/assets/IAsset.h"
+#include "cave/runtime/ecs/CameraComponent.h"
+#include "cave/runtime/ecs/HierarchyComponent.h"
+#include "cave/runtime/ecs/LuaScriptComponent.h"
+#include "cave/runtime/ecs/NameComponent.h"
 
-#include "engine/private/runtime/assets/AssetInterface.h"
 #include "engine/private/runtime/ecs/ComponentManager.h"
 #include "engine/private/runtime/ecs/View.h"
-#include "cave/core/math/Ray.h"
 
 // components
-#include "engine/private/runtime/scene/SceneComponent.h"  // @TODO: split this
+// @TODO: split this
+#include "engine/private/runtime/scene/SceneComponent.h"
 
-#include "cave/runtime/scene/CameraComponent.h"
 #include "engine/private/runtime/scene/ColliderComponent.h"
 #include "engine/private/runtime/scene/LightComponent.h"
-#include "engine/private/runtime/scene/LuaScriptComponent.h"
 #include "engine/private/runtime/scene/MaterialComponent.h"
 #include "engine/private/runtime/scene/MeshRendererComponent.h"
 #include "engine/private/runtime/scene/SkeletalAnimationComponent.h"

@@ -61,7 +61,7 @@ static bool TreeNodeHelper(Scene& p_scene,
                            std::function<void()> p_on_right_click) {
 
     const NameComponent* name_component = p_scene.GetComponent<NameComponent>(p_id);
-    std::string name = name_component->GetName();
+    std::string_view name = name_component->GetName();
     if (name.empty()) {
         name = "Untitled";
     }
@@ -94,7 +94,7 @@ static bool TreeNodeHelper(Scene& p_scene,
     // @TODO: refactor to use DragDrop.h interface
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
         SetPayload(PAYLOAD_SCENE_NODE, p_id);
-        ImGui::Text("entity '%s'", name.c_str());
+        ImGui::Text("entity '%s'", name.data());
         ImGui::EndDragDropSource();
     }
 

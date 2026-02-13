@@ -4,7 +4,7 @@
 #include "cave/core/math/Angle.h"
 #include "cave/core/reflection/Reflection.h"
 
-#include "engine/private/runtime/assets/AssetHandle.h"
+#include "cave/runtime/assets/AssetHandle.h"
 
 namespace cave {
 #include "shader_defines.hlsl.h"
@@ -19,25 +19,6 @@ struct ImageAsset;
 class Archive;
 class FileAccess;
 class Scene;
-
-class NameComponent {
-    CAVE_META(NameComponent)
-
-private:
-    CAVE_PROP()
-    std::string m_name;
-
-public:
-    NameComponent() = default;
-
-    NameComponent(const char* p_name) { m_name = p_name; }
-
-    void SetName(const char* p_name) { m_name = p_name; }
-    void SetName(const std::string& p_name) { m_name = p_name; }
-
-    const std::string& GetName() const { return m_name; }
-    std::string& GetNameRef() { return m_name; }
-};
 
 struct HierarchyComponent {
     CAVE_META(HierarchyComponent)

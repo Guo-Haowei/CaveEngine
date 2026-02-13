@@ -2,7 +2,7 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "cave/runtime/scene/CameraComponent.h"
+#include "cave/runtime/ecs/CameraComponent.h"
 
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"

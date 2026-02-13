@@ -238,7 +238,8 @@ void PropertyPanel::DrawUIImpl() {
 
     EditService& edit_service = m_editor.EditService();
 
-    ui::TextBox("Name", name_component->GetNameRef());
+    FixedString<64>& buf = name_component->GetNameRef();
+    ui::TextBox("Name", buf.data(), buf.size());
 
     ImGui::SameLine();
     ImGui::PushItemWidth(-1);
@@ -318,7 +319,7 @@ void PropertyPanel::DrawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [this](LuaScriptComponent& p_script) {
-        ui::TextBox("class_name", p_script.GetClassNameRef());
+        ui::TextBox("class_name", name.data(), name.size());
 
         DrawComponentAuto<LuaScriptComponent>(&p_script, m_editor);
     });

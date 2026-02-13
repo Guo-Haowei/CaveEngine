@@ -10,7 +10,8 @@ bool CheckBox(const char* p_name,
               float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool TextBox(const char* p_label,
-             std::string& p_string,
+             char* p_buf_ptr,
+             uint32_t p_buf_size,
              float p_text_width = DEFAULT_COLUMN_WIDTH,
              float p_text_box_width = 0,
              bool p_enter_returns_true = true);

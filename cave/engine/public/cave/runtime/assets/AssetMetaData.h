@@ -1,7 +1,13 @@
+// =============================================================================
+// File: engine/public/cave/runtime/assets/AssetMetaData.h
+// =============================================================================
 #pragma once
-#include "engine/private/runtime/assets/AssetType.h"
+#include <map>
+#include <vector>
+#include "cave/core/Option.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/reflection/Meta.h"
+#include "cave/runtime/assets/AssetType.h"
 
 namespace cave {
 

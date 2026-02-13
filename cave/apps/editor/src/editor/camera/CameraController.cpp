@@ -1,7 +1,7 @@
 #include "CameraController.h"
 
 #include "cave/core/math/Angle.h"
-#include "cave/runtime/scene/CameraComponent.h"
+#include "cave/runtime/ecs/CameraComponent.h"
 
 #include "engine/private/runtime/framework/InputSystem.h"
 

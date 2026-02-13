@@ -1,4 +1,9 @@
+// =============================================================================
+// File: engine/public/cave/runtime/assets/AssetType.h
+// =============================================================================
 #pragma once
+#include "cave/core/typedefs.h"
+#include "cave/core/math/Utils.h"
 #include "cave/core/reflection/Reflection.h"
 
 namespace cave {

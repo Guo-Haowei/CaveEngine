@@ -32,7 +32,7 @@ static int CustomSearcher(lua_State* L) {
 
     Handle<BlobAsset> handle = asset.unwrap_unchecked();
     if (const BlobAsset* blob = handle.Get()) {
-        if (luaL_loadbuffer(L, blob->GetBufferPoiner(), blob->GetBufferLength(), path) == LUA_OK) {
+        if (luaL_loadbuffer(L, blob->GetBufferPointer(), blob->GetBufferLength(), path) == LUA_OK) {
             return 1;
         }
 

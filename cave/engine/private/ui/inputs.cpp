@@ -20,7 +20,8 @@ bool CheckBox(const char* p_name,
 }
 
 bool TextBox(const char* p_label,
-             std::string& p_string,
+             char* p_buf_ptr,
+             uint32_t p_buf_size,
              float p_text_width,
              float p_text_box_width,
              bool p_enter_returns_true) {
@@ -39,17 +40,11 @@ bool TextBox(const char* p_label,
         flags |= ImGuiInputTextFlags_EnterReturnsTrue;
     }
 
-    char buffer[256];
-    strncpy(buffer, p_string.c_str(), sizeof(buffer));
     auto tag = std::format("##{}", p_label ? p_label : "dummy");
     bool dirty = ImGui::InputText(tag.c_str(),
-                                  buffer,
-                                  sizeof(buffer),
+                                  p_buf_ptr,
+                                  p_buf_size,
                                   flags);
-
-    if (dirty) {
-        p_string = buffer;
-    }
 
     ImGui::Columns(1);
     return dirty;

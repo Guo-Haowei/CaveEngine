@@ -2,7 +2,7 @@
 
 #include "engine/private/core/io/file_access.h"
 #include "cave/core/string/StringUtils.h"
-#include "engine/private/runtime/assets/AssetInterface.h"
+#include "cave/runtime/assets/IAsset.h"
 #include "engine/private/serialization/yaml_include.h"
 
 namespace cave {

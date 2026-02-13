@@ -1,6 +1,7 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
 #include "cave/core/math/Matrix.h"
+#include "cave/core/string/FixedString.h"
 
 #include "defines.h"
 #include "cave/core/math/Box.h"
@@ -48,6 +49,16 @@ public:
     bool Read(math::Degree& p_object);
     bool Read(Guid& p_object);
     bool Read(math::Matrix4x4f& p_object);
+
+    template<size_t N>
+    bool Read(FixedString<N>& p_value) {
+        std::string s;
+        if (!Read(s)) {
+            return false;
+        }
+        p_value = s;
+        return true;
+    }
 
     template<IsSerializable T>
     bool Read(T& p_value) {

@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/scene/CameraComponent.h"
+#include "cave/runtime/ecs/CameraComponent.h"
 
 namespace cave {
 

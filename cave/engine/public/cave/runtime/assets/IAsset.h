@@ -1,5 +1,9 @@
+// =============================================================================
+// File: engine/public/cave/runtime/assets/IAsset.h
+// =============================================================================
 #pragma once
-#include "AssetMetaData.h"
+#include "cave/core/Error.h"
+#include "cave/runtime/assets/AssetMetaData.h"
 
 namespace cave {
 

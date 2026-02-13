@@ -2,9 +2,9 @@
 // Auto-generated metadata for CameraComponent.h
 // Check generate_meta.py for more details
 
+#include "engine/public/cave/runtime/ecs/CameraComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
-#include "engine/public/cave/runtime/scene/CameraComponent.h"
 
 namespace cave {
 

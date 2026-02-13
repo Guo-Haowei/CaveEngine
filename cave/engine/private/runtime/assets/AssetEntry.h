@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/private/runtime/assets/AssetInterface.h"
-#include "engine/private/runtime/assets/AssetMetaData.h"
+#include "cave/runtime/assets/AssetMetaData.h"
+#include "cave/runtime/assets/IAsset.h"
 
 namespace cave {
 

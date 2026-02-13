@@ -2,7 +2,7 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/core/math/AABB.h"
 
-#include "engine/private/runtime/assets/AssetHandle.h"
+#include "cave/runtime/assets/AssetHandle.h"
 
 // @TODO: refactor
 namespace cave::render {
