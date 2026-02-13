@@ -1,7 +1,7 @@
 #include "AssetMetaData.h"
 
 #include "engine/private/core/io/file_access.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 #include "engine/private/runtime/assets/AssetInterface.h"
 #include "engine/private/serialization/yaml_include.h"
 

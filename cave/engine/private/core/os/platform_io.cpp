@@ -1,6 +1,6 @@
 #include "platform_io.h"
 
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 
 #if USING(PLATFORM_WINDOWS)
 #include "engine/private/drivers/windows/win32_prerequisites.h"

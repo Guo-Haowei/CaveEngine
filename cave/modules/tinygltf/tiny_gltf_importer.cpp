@@ -1,7 +1,7 @@
 #include "tiny_gltf_importer.h"
 
 #if USING(USE_IMPORTER_TINYGLTF)
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"

@@ -5,7 +5,7 @@
 
 #include "engine/private/core/math/Color.h"
 #include "engine/private/core/diagnostics/console/Console.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/Image.h"

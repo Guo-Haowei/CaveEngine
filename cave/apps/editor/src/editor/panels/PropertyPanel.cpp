@@ -17,7 +17,7 @@
 
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/ui/inputs.h"

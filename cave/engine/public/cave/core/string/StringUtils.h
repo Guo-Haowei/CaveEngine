@@ -1,9 +1,11 @@
 // =============================================================================
-// File: engine/private/core/string/StringUtils.h
+// File: engine/public/cave/core/string/StringUtils.h
 // =============================================================================
 #pragma once
+#include <string_view>
 
-// @TODO: move this class to sdk
+#include "cave/core/typedefs.h"
+
 namespace cave {
 
 #if USING(PLATFORM_WINDOWS)

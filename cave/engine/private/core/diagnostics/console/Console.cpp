@@ -3,7 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/diagnostics/logger/Logger.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 
 namespace cave {
 

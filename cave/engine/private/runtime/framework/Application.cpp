@@ -10,7 +10,7 @@
 #include "engine/private/core/diagnostics/logger/Logger.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/os/threads.h"
-#include "engine/private/core/string/StringUtils.h"
+#include "cave/core/string/StringUtils.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/dvar/DvarCache.h"
