@@ -8,7 +8,7 @@
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 
 namespace cave {
 
@@ -20,6 +20,6 @@ render::IRenderDevice* CreateRenderDevice(rhi::Backend p_backend);
 
 IPhysicsManager* CreatePhysicsManager();
 
-IScriptManager* CreateScriptManager();
+IScriptService* CreateScriptService();
 
 }  // namespace cave

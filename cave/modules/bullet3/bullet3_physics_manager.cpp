@@ -4,7 +4,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #pragma warning(push, 0)
@@ -43,8 +43,8 @@ static btTransform ConvertTransform(const TransformComponent& p_transform) {
 
 struct CustomContactResultCallback : btCollisionWorld::ContactResultCallback {
     CustomContactResultCallback(Scene& p_scene,
-                                IScriptManager& p_scriptManager)
-        : m_scene(p_scene), m_scriptManager(p_scriptManager) {
+                                IScriptService& p_script_service)
+        : m_scene(p_scene), m_script_service(p_script_service) {
     }
 
     btScalar addSingleResult(btManifoldPoint&, const btCollisionObjectWrapper* p_wrap_1, int, int, const btCollisionObjectWrapper* p_wrap_2, int, int) override {
@@ -54,12 +54,12 @@ struct CustomContactResultCallback : btCollisionWorld::ContactResultCallback {
         ecs::Entity entity_1{ (uint32_t)(uintptr_t)object_1->getUserPointer() };
         ecs::Entity entity_2{ (uint32_t)(uintptr_t)object_2->getUserPointer() };
 
-        m_scriptManager.OnCollision(m_scene, entity_1, entity_2);
+        m_script_service.OnCollision(m_scene, entity_1, entity_2);
         return 0.0f;
     }
 
     Scene& m_scene;
-    IScriptManager& m_scriptManager;
+    IScriptService& m_script_service;
 };
 
 class CustomCollisionDispatcher : public btCollisionDispatcher {
@@ -235,7 +235,7 @@ void Bullet3PhysicsManager::UpdateCollision(Scene& p_scene) {
                                (rigid_body_2->collisionType & rigid_body_1->collisionMask);
 
             if (check) {
-                CustomContactResultCallback callback(p_scene, *m_app->GetScriptManager());
+                CustomContactResultCallback callback(p_scene, *m_app->ScriptService());
                 context.dynamicWorld->contactPairTest(object_1, object_2, callback);
             }
         }

@@ -1,12 +1,12 @@
 #pragma once
-#include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 
 namespace cave {
 
-class EmptyScriptManager : public IScriptManager {
+class NullScriptService : public IScriptService {
 public:
-    EmptyScriptManager()
-        : IScriptManager("EmptyScriptManager") {}
+    NullScriptService()
+        : IScriptService("NullScriptService") {}
 
     virtual void OnSimBegin(Scene&) {}
     virtual void OnSimEnd() {}

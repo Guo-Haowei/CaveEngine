@@ -1,27 +1,24 @@
-#include "lua_script_manager.h"
+#include "LuaScriptService.h"
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
-// #include "engine/private/core/string/StringUtils.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/Scene.h"
-
-// lua include
-#include "lua_binding.h"
-#include "lua_bridge_include.h"
+#include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
+#include "engine/private/runtime/script/lua/LuaScriptBinding.h"
 
 extern const char* g_lua_always_load;
 
 namespace cave {
 
-auto LuaScriptManager::InitializeImpl() -> Result<void> {
+auto LuaScriptService::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void LuaScriptManager::FinalizeImpl() {
+void LuaScriptService::FinalizeImpl() {
 }
 
 inline int PushArg(lua_State*) {
@@ -85,7 +82,7 @@ static int CreateInstance(const ObjectFunctions& p_meta, lua_State* L, Args&&...
     return luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
-void LuaScriptManager::OnSimBegin(Scene& p_scene) {
+void LuaScriptService::OnSimBegin(Scene& p_scene) {
     m_state = nullptr;
 
     lua_State* L = luaL_newstate();
@@ -126,7 +123,7 @@ void LuaScriptManager::OnSimBegin(Scene& p_scene) {
     return;
 }
 
-void LuaScriptManager::OnSimEnd() {
+void LuaScriptService::OnSimEnd() {
     m_objects_meta.clear();
 
     if (m_state) {
@@ -135,7 +132,7 @@ void LuaScriptManager::OnSimEnd() {
     }
 }
 
-void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
+void LuaScriptService::Update(Scene& p_scene, float p_timestep) {
     CAVE_PROFILE_EVENT();
 
     lua_State* L = m_state;
@@ -155,7 +152,7 @@ void LuaScriptManager::Update(Scene& p_scene, float p_timestep) {
     }
 }
 
-void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) {
+void LuaScriptService::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) {
     lua_State* L = m_state;
     if (DEV_VERIFY(L)) {
         LuaScriptComponent* script_1 = p_scene.GetComponent<LuaScriptComponent>(p_entity_1);
@@ -171,7 +168,7 @@ void LuaScriptManager::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::
     }
 }
 
-Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const Guid& p_guid, const char* p_class_name, ObjectFunctions& p_meta) {
+Result<void> LuaScriptService::LoadMetaTable(lua_State* L, const Guid& p_guid, const char* p_class_name, ObjectFunctions& p_meta) {
     auto asset_registry = m_app->GetAssetRegistry();
     auto _handle = asset_registry->FindByGuid<BlobAsset>(p_guid);
     if (_handle.is_none()) {
@@ -204,7 +201,7 @@ Result<void> LuaScriptManager::LoadMetaTable(lua_State* L, const Guid& p_guid, c
     return Result<void>();
 }
 
-ObjectFunctions LuaScriptManager::FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
+ObjectFunctions LuaScriptService::FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
     auto it = m_objects_meta.find(p_guid);
     if (it != m_objects_meta.end()) {
         return it->second;

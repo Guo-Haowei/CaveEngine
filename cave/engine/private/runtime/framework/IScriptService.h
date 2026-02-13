@@ -6,10 +6,10 @@ namespace cave {
 
 class Scene;
 
-class IScriptManager : public Module,
-                       public ModuleCreateRegistry<IScriptManager> {
+class IScriptService : public Module,
+                       public ModuleCreateRegistry<IScriptService> {
 public:
-    IScriptManager(std::string_view p_name)
+    IScriptService(std::string_view p_name)
         : Module(p_name) {}
 
     virtual void OnSimBegin(Scene& p_scene) = 0;

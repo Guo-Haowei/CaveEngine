@@ -23,7 +23,7 @@
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/ui/layout.h"
 

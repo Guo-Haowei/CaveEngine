@@ -1,6 +1,6 @@
 #pragma once
 #include "cave/core/ids/Guid.h"
-#include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 
 struct lua_State;
 
@@ -12,11 +12,22 @@ struct ObjectFunctions {
     int funcNew{ 0 };
 };
 
-class LuaScriptManager : public IScriptManager {
+struct LuaMethodRefs {
+    int awake_fn = 0;
+    int tick_fn = 0;
+};
+
+struct LuaClassMeta {
+    int class_table_ref = 0;
+    int new_fn = 0;
+    LuaMethodRefs methods{};
+};
+
+class LuaScriptService : public IScriptService {
 
 public:
-    LuaScriptManager()
-        : IScriptManager("LuaScriptManager") {}
+    LuaScriptService()
+        : IScriptService("LuaScriptService") {}
 
     void Update(Scene& p_scene, float p_timestep) override;
     void OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) override;

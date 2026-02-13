@@ -22,7 +22,7 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/ModuleRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/framework/IScriptManager.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
@@ -67,7 +67,7 @@ auto Application::SetupModules() -> Result<void> {
 
     m_asset_manager = CreateAssetManager();
     m_asset_registry = new AssetRegistry();
-    m_script_manager = CreateScriptManager();
+    m_script_service = CreateScriptService();
     m_scene_registry = new SceneRegistry();
     m_physics_manager = CreatePhysicsManager();
     m_render_device = CreateRenderDevice(m_spec.backend);
@@ -84,7 +84,7 @@ auto Application::SetupModules() -> Result<void> {
 
     m_scene_scheduler = std::make_unique<SceneScheduler>(
         *m_scene_registry,
-        *m_script_manager);
+        *m_script_service);
 
     m_scene_query_service = new cave::SceneQueryService(*m_scene_registry);
 
@@ -92,7 +92,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);
     RegisterModule(m_scene_registry);
-    RegisterModule(m_script_manager);
+    RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
     RegisterModule(m_input_system);
     RegisterModule(m_display_server);

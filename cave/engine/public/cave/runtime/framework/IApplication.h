@@ -28,7 +28,7 @@ class DisplayService;
 class ImguiManager;
 class InputSystem;
 class IPhysicsManager;
-class IScriptManager;
+class IScriptService;
 class SceneRegistry;
 class SceneQueryService;
 class SceneScheduler;
@@ -99,7 +99,7 @@ public:
     InputSystem* GetInputSystem() { return m_input_system; }
     SceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
-    IScriptManager* GetScriptManager() { return m_script_manager; }
+    IScriptService* ScriptService() { return m_script_service; }
     DisplayService* GetDisplayManager() { return m_display_server; }
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
@@ -132,7 +132,7 @@ protected:
     SceneRegistry* m_scene_registry{ nullptr };
 
     IPhysicsManager* m_physics_manager{ nullptr };
-    IScriptManager* m_script_manager{ nullptr };
+    IScriptService* m_script_service{ nullptr };
 
     DisplayService* m_display_server{ nullptr };
 

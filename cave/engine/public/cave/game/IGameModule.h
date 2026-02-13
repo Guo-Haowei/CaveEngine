@@ -7,7 +7,9 @@
 
 namespace cave {
 
-enum class AppMode : uint8_t { Client, Server, Editor };
+enum class AppMode : uint8_t { Client,
+                               Server,
+                               Editor };
 
 struct GameInitDesc {
     AppMode mode = AppMode::Client;
@@ -33,7 +35,7 @@ public:
     }
 };
 
-} // namespace cave
+}  // namespace cave
 
 extern "C" {
 __declspec(dllexport) cave::IGameModule* CreateGameModule();

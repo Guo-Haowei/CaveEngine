@@ -33,7 +33,7 @@ public:
     void OnDeserialized();
 
 private:
-    friend class LuaScriptManager;
+    friend class LuaScriptService;
 };
 
 }  // namespace cave

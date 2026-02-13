@@ -1,4 +1,4 @@
-#include "lua_binding.h"
+#include "luaScriptBinding.h"
 
 #include "cave/core/math/Vector.h"
 
@@ -7,8 +7,7 @@
 #include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/Scene.h"
-
-#include "lua_bridge_include.h"
+#include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 
 namespace cave::lua {
 
