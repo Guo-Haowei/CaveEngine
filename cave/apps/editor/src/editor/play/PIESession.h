@@ -2,13 +2,13 @@
 #include "cave/core/NonCopyable.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/time/FrameTime.h"
-#include "cave/game/IGameModule.h"
 #include "cave/game/GameModuleHandle.h"
 
 namespace cave {
 
 class Scene;
 class IApplication;
+class IGameModule;
 
 struct PIEStartDesc {
     std::string game_dll;

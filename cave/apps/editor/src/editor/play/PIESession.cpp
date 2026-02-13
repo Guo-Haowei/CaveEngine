@@ -1,5 +1,7 @@
 #include "PIESession.h"
 
+#include "cave/game/IGameModule.h"
+
 #include "editor/play/PIEHostServices.h"
 
 namespace cave {
