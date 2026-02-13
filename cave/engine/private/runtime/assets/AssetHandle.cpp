@@ -1,4 +1,4 @@
-#include "AssetHandle.h"
+#include "cave/runtime/assets/AssetHandle.h"
 
 #include "engine/private/runtime/assets/AssetEntry.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
