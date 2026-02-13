@@ -2,7 +2,7 @@
 // Auto-generated metadata for TransformComponent.h
 // Check generate_meta.py for more details
 
-#include "engine/private/runtime/scene/TransformComponent.h"
+#include "engine/public/cave/runtime/ecs/TransformComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

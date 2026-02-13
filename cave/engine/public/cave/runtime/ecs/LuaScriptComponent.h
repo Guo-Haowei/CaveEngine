@@ -1,3 +1,6 @@
+// =============================================================================
+// File: engine/public/cave/runtime/ecs/LuaScriptComponent.h
+// =============================================================================
 #pragma once
 #include "cave/core/ids/Guid.h"
 #include "cave/core/reflection/Reflection.h"

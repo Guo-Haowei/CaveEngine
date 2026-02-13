@@ -18,6 +18,7 @@ FILES = [
     'public/cave/runtime/ecs/CameraComponent.h',
     'public/cave/runtime/ecs/NameComponent.h',
     'public/cave/runtime/ecs/LuaScriptComponent.h',
+    'public/cave/runtime/ecs/TransformComponent.h',
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
     'private/runtime/assets/MaterialAsset.h',
@@ -28,7 +29,6 @@ FILES = [
     'private/runtime/scene/ColliderComponent.h',
     'private/runtime/scene/LightComponent.h',
     'private/runtime/scene/MaterialComponent.h',
-    'private/runtime/scene/TransformComponent.h',
     'private/runtime/scene/SceneComponent.h',
     'private/runtime/scene/SkeletalAnimationComponent.h',
     'private/runtime/scene/SpriteAnimatorComponent.h',

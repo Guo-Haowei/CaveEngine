@@ -1,7 +1,6 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
-// @TODO: move to public
-#include "engine/private/runtime/scene/TransformComponent.h"
+#include "cave/runtime/ecs/TransformComponent.h"
 
 namespace cave {
 
