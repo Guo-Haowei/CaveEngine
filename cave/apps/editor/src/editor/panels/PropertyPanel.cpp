@@ -319,6 +319,7 @@ void PropertyPanel::DrawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [this](LuaScriptComponent& p_script) {
+        FixedString<32>& name = p_script.GetClassNameRef();
         ui::TextBox("class_name", name.data(), name.size());
 
         DrawComponentAuto<LuaScriptComponent>(&p_script, m_editor);
@@ -362,6 +363,8 @@ void PropertyPanel::DrawUIImpl() {
         [this](SpriteAnimatorComponent& p_animator) {
             // @TODO: refactor this
             // @TODO: drop down
+            DEV_ASSERT(0);
+#if 0
             const Guid& guid = p_animator.GetResourceGuid();
             if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
                 handle.is_some()) {
@@ -374,6 +377,7 @@ void PropertyPanel::DrawUIImpl() {
                     }
                 }
             }
+#endif
 
             DrawComponentAuto<SpriteAnimatorComponent>(&p_animator, m_editor);
         });

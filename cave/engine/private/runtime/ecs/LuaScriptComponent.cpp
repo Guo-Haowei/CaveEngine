@@ -1,4 +1,4 @@
-#include "LuaScriptComponent.h"
+#include "cave/runtime/ecs/LuaScriptComponent.h"
 
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
