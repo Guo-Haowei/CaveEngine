@@ -77,30 +77,34 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     CAVE_PROFILE_EVENT();
     unused(p_args);
 
-    // load pie
-    {
-        PIEStartDesc desc{};
-        desc.game_dll = "game_Debug.dll";
-        desc.game_id = "chess";
-
-        m_pie.Start(desc);
-        // @TODO: call awake
-    }
-
     ImNodes::CreateContext();
 
     for (auto& panel : m_panels) {
         panel->OnAttach();
     }
 
+    SceneId edit_scene{};
     if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
         if (auto res = Guid::Parse(asset); res.is_some()) {
             Guid guid = res.unwrap_unchecked();
             if (auto handle = m_app.GetAssetRegistry()->FindByGuid(guid); handle.is_some()) {
                 AssetHandle handle_ = handle.unwrap_unchecked();
-                m_document_service->OpenDoc({ guid, handle_.GetMeta()->type });
+                DocId doc_id = m_document_service->OpenDoc({ guid, handle_.GetMeta()->type });
+                if (IDocument* doc = m_document_service->Resolve(doc_id)) {
+                    edit_scene = doc->GetPreviewScene();
+                }
             }
         }
+    }
+
+    // load pie
+    {
+        PIEStartDesc desc{};
+        desc.game_dll = "game_Debug.dll";
+        desc.game_id = "chess";
+        desc.edit_scene = edit_scene;
+
+        m_pie.Start(desc);
     }
 }
 

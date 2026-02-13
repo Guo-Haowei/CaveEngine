@@ -4,7 +4,6 @@
 
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/DragDrop.h"

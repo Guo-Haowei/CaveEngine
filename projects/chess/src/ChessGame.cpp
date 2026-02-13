@@ -6,16 +6,16 @@
 namespace cave {
 
 void ChessGame::RegisterTypes(IHostServices& p_host) {
-    (void)p_host;
+    unused(p_host);
 }
 
 void ChessGame::RegisterSystems(IHostServices& p_host) {
-    p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "hello from ChessGame\n");
+    unused(p_host);
 }
 
 void ChessGame::OnSceneBegin(Scene& p_scene, IHostServices& p_host, const GameInitDesc& p_init) {
+    p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "hello from ChessGame\n");
     unused(p_scene);
-    unused(p_host);
     unused(p_init);
 }
 

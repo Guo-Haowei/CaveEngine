@@ -1,7 +1,7 @@
 #include "PIESession.h"
 
 #include "cave/game/IGameModule.h"
-
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "editor/play/PIEHostServices.h"
 
 namespace cave {
@@ -34,49 +34,30 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
         return false;
     }
 
-    PIEHostServices host(m_app, {});
-
-    if (!m_registered) {
-        m_game->RegisterTypes(host);
-        m_game->RegisterSystems(host);
-        m_registered = true;
-    }
-
     SceneRegistry* reg = m_app.GetSceneRegistry();
     if (!reg) {
         return false;
     }
 
-#if 0
-    // Create PIE scene
-    m_pie_scene_id = reg->CreateScene(/*name*/ "PIE");  // adjust to your API
-    Scene* pie_scene = reg->GetScene(m_pie_scene_id);
-    Scene* edit_scene = reg->GetScene(m_desc.edit_scene);
-    if (!pie_scene || !edit_scene)
+    Scene* scene = reg->Resolve(p_desc.edit_scene);
+    if (!scene) {
         return false;
+    }
 
-    // Rebuild host with actual pie scene id (if you want host to expose it)
-    PIEHostServices pie_host(m_app, m_desc.game_view, m_pie_scene_id);
+    PIEHostServices host(m_app, p_desc.edit_scene);
+    GameInitDesc desc{
+        .mode = AppMode::Editor,
+        .game_id = "MyGame",
+    };
 
-    // Copy edit -> pie (can be no-op for first implementation)
-    BuildPIESceneFromEdit_(*edit_scene, *pie_scene);
-
-    // Call game CreateWorld ONCE
-    GameInitDesc init{};
-    init.mode = AppMode::Editor;
-    init.game_id = m_desc.game_id.c_str();
-    init.map_or_level = m_desc.map_or_level.empty() ? nullptr : m_desc.map_or_level.c_str();
-
-    m_game->CreateWorld(*pie_scene, pie_host, init);
-
-    m_running = true;
-#endif
+    m_game->OnSceneBegin(*scene, host, desc);
     return true;
 }
 
 void PIESession::Stop() {
-    if (!m_running)
+    if (!m_running) {
         return;
+    }
 
 #if 0
     SceneRegistry* reg = m_app.GetSceneRegistry();

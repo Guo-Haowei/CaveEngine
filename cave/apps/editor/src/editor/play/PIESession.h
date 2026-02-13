@@ -25,6 +25,9 @@ public:
     bool Start(const PIEStartDesc& p_desc);
     void Stop();
 
+    void OnSimBegin();
+    void OnSimEnd();
+
     void Tick(const FrameTime& p_time);
 
 private:
@@ -35,7 +38,6 @@ private:
     IApplication& m_app;
 
     bool m_running = false;
-    bool m_registered = false;
 
     PIEStartDesc m_desc{};
 
