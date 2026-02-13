@@ -15,9 +15,8 @@
 #include <ImGuizmo/ImGuizmo.h>
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
-#include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
-#include "cave/core/string/StringUtils.h"
+#include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/ui/inputs.h"
@@ -142,10 +141,10 @@ bool DrawAsset(const char* p_name,
 
 template<typename T>
 bool DrawComponentAuto(T* p_component, EditorState& p_editor) {
-    const auto& meta_table = MetaDataTable<T>::GetFields();
+    const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();
 
     int dirty = 0;
-    for (const auto& field : meta_table) {
+    for (const FieldMetaBase* field : meta_table) {
         switch (field->editor_hint) {
             case EditorHint::EnumDropDown: {
                 dirty |= (int)field->DrawEditor(p_component, ui::DEFAULT_COLUMN_WIDTH);

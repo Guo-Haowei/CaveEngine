@@ -33,7 +33,7 @@ namespace cave {
 
 enum ComponentId : uint32_t {
 #define REGISTER_COMPONENT(TYPE, ...) TYPE##_Id,
-    REGISTER_COMPONENT_LIST
+    REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
         _Count,
 };

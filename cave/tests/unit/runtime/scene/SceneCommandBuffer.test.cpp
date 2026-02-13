@@ -1,24 +1,21 @@
-#include "cave/runtime/ecs/EntityCommandBuffer.h"
+#include "cave/runtime/scene/SceneCommandBuffer.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 
-namespace cave::ecs {
+namespace cave {
 
-using namespace math;
+using ecs::Entity;
+using math::Vector3f;
 
-TEST(EntityCommandBuffer, add_component) {
+TEST(SceneCommandBuffer, add_component) {
     Scene scene;
 
-    EntityCommandBuffer ecb;
+    SceneCommandBuffer ecb;
     Entity temp = ecb.Create();
     std::string_view name = "MyTestComponent";
 
-    {
-        NameComponent name_component;
-        name_component.SetName(name);
-        ecb.Add(temp, NameComponent_Id, name_component);
-    }
-
+    ecb.Add(temp, NameComponent_Id);
+    ecb.SetName(temp, name);
     ecb.Playback(scene);
 
     Entity real = ecb.Resolve(temp);
@@ -27,22 +24,18 @@ TEST(EntityCommandBuffer, add_component) {
     EXPECT_EQ(name_component.GetName(), name);
 }
 
-TEST(EntityCommandBuffer, add_component_to_existing_entity) {
+TEST(SceneCommandBuffer, add_component_to_existing_entity) {
     Scene scene;
     Entity e = scene.CreateEntity();
     scene.Create<NameComponent>(e).SetName("entity from scene");
 
-    EntityCommandBuffer ecb;
+    SceneCommandBuffer ecb;
 
     Vector3f scale = Vector3f::UnitX;
-    {
-        TransformComponent transform;
-        transform.SetScale(scale);
-        ecb.Add(e, TransformComponent_Id, transform);
-    }
+    ecb.Add(e, TransformComponent_Id);
+    ecb.SetScale(e, scale);
 
     ecb.Playback(scene);
-
     Entity real = ecb.Resolve(e);
     EXPECT_EQ(real, e);
     EXPECT_TRUE(scene.Contains<TransformComponent>(real));
@@ -50,4 +43,4 @@ TEST(EntityCommandBuffer, add_component_to_existing_entity) {
     EXPECT_EQ(transform.GetScale(), scale);
 }
 
-}  // namespace cave::ecs
+}  // namespace cave
