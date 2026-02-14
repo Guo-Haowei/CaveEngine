@@ -50,11 +50,6 @@ void Scene::Update(float p_timestep) {
     RunHierarchyUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
 
-    // mesh particles
-    // RunMeshEmitterUpdateSystem(*this, ctx, p_timestep);
-    // particle
-    // RunParticleEmitterUpdateSystem(*this, ctx, p_timestep);
-
     RunSkeletonUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
+#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/ecs/IComponentPool.h"
 
 namespace cave {

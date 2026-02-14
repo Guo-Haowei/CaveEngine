@@ -6,6 +6,7 @@
 #include "engine/private/core/os/threads.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/systems/job_system/job_system.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave::engine {
 
@@ -43,6 +44,14 @@ void FinalizeCore() {
     s_os = nullptr;
 }
 
+static void Transform_OnEdited(Scene& p_scene,
+                               ecs::Entity p_ent,
+                               ComponentId,
+                               PropertyId) {
+    auto* t = (TransformComponent*)p_scene.GetComponent(p_ent, TransformComponent_Id);
+    t->SetDirty();
+}
+
 static void RegisterBuiltinComponents() {
     auto& reg = s_component_reg;
 
@@ -58,6 +67,9 @@ static void RegisterBuiltinComponents() {
 
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
+
+    ecs::ComponentMeta& transform_meta = reg.GetMut(TransformComponent_Id);
+    transform_meta.on_edited = Transform_OnEdited;
 }
 
 ecs::ComponentRegistry& GetComponentRegistry() {

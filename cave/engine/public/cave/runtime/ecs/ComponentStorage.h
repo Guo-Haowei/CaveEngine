@@ -2,8 +2,8 @@
 // File: engine/public/cave/runtime/ecs/ComponentStorage.h
 // =============================================================================
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 class Scene;

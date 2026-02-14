@@ -1,7 +1,7 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Matrix.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 

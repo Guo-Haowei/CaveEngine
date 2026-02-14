@@ -8,12 +8,17 @@
 #include <vector>
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 using PropertyId = std::string_view;
-}
+
+class Scene;
+}  // namespace cave
 
 namespace cave::ecs {
+
+using OnComponentEditedFn = void (*)(Scene&, ecs::Entity, ComponentId, PropertyId);
 
 struct ComponentMeta {
     ComponentId id;
@@ -23,6 +28,7 @@ struct ComponentMeta {
     uint64_t version;
 
     std::span<const FieldMetaBase* const> props;
+    OnComponentEditedFn on_edited{ nullptr };
 
     const FieldMetaBase* Find(PropertyId p_id) const;
 };
@@ -31,6 +37,9 @@ class ComponentRegistry {
 public:
     void Register(const ComponentMeta& p_meta);
     const ComponentMeta* TryGet(ComponentId p_id) const;
+
+    // For mutating on_edited only
+    ComponentMeta& GetMut(ComponentId p_id);
 
 private:
     std::vector<ComponentMeta> m_table;

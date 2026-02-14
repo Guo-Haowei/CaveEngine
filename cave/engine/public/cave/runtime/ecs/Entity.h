@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/ids/Entity.h
+// File: public/cave/runtime/ecs/Entity.h
 // =============================================================================
 #pragma once
 #include <compare>

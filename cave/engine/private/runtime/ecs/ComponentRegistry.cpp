@@ -47,4 +47,9 @@ const ComponentMeta* ComponentRegistry::TryGet(ComponentId p_id) const {
     return &m_table[idx];
 }
 
+ComponentMeta& ComponentRegistry::GetMut(ComponentId p_id) {
+    DEV_ASSERT_INDEX(p_id, m_present.size());
+    return m_table[p_id];
+}
+
 }  // namespace cave::ecs

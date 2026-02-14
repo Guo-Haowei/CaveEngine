@@ -1,10 +1,10 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
+#include "cave/core/math/Box.h"
 #include "cave/core/math/Matrix.h"
 #include "cave/core/string/FixedString.h"
+#include "cave/runtime/ecs/Entity.h"
 
 #include "defines.h"
-#include "cave/core/math/Box.h"
 
 namespace cave::math {
 class Degree;

@@ -34,7 +34,12 @@ bool SceneEdit::ModifyField(ecs::Entity p_ent,
     if (p_old_data) {
         std::memcpy(p_old_data, data, p_data_size);
     }
+
     std::memcpy(data, p_data, p_data_size);
+    if (meta->on_edited) {
+        meta->on_edited(m_scene, p_ent, p_comp_id, p_property);
+    }
+
     return true;
 }
 

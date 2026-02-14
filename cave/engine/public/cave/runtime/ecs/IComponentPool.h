@@ -4,8 +4,8 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
-#include "cave/core/ids/Entity.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave::ecs {
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/Guid.h"
+#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/assets/AssetType.h"
 
 namespace cave {

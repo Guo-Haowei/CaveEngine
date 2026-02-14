@@ -1,9 +1,9 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/AABB.h"
 #include "cave/render/ViewDesc.h"
+#include "cave/runtime/ecs/Entity.h"
 
 #include "engine/private/render/renderer/ResolvedView.h"
 #include "engine/private/render/renderer/RenderPackets.h"
