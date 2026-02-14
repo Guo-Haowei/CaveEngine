@@ -149,9 +149,9 @@ void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
                                              BuildInComponentId p_type_id) {
     if (p_op == Op::AddComponent) {
         switch (p_type_id) {
-#define REGISTER_COMPONENT(T, ...)   \
-    case T##_Id: {                   \
-        p_scene.Create<T>(p_ent); \
+#define REGISTER_COMPONENT(T, ...) \
+    case T##_Id: {                 \
+        p_scene.Create<T>(p_ent);  \
     } break;
             REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
@@ -164,9 +164,9 @@ void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
 
     if (p_op == Op::RemoveComponent) {
         switch (p_type_id) {
-#define REGISTER_COMPONENT(T, ...)   \
-    case T##_Id: {                   \
-        p_scene.Remove<T>(p_ent); \
+#define REGISTER_COMPONENT(T, ...) \
+    case T##_Id: {                 \
+        p_scene.Remove<T>(p_ent);  \
     } break;
             REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
@@ -186,8 +186,8 @@ void SceneCommandBuffer::DispatchPropertyOp(Scene& p_scene,
                                             const void* p_data) {
     SceneEdit edit(p_scene);
     switch (p_payload.type) {
-#define REGISTER_COMPONENT(T, ...)                                                                  \
-    case T##_Id: {                                                                                  \
+#define REGISTER_COMPONENT(T, ...)                                                               \
+    case T##_Id: {                                                                               \
         edit.ModifyField<T>(p_ent, p_payload.property_name.view(), p_data, p_payload.data_size); \
     } break;
         REGISTER_COMPONENT_SERIALIZED_LIST

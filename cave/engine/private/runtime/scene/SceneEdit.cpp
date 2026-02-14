@@ -35,12 +35,12 @@ void SceneEdit::AttachChild(ecs::Entity p_child) {
     m_scene.AttachChild(p_child);
 }
 
-#define MODIFY_FIELD_IMPL(T)                                                                                                                        \
-    template<>                                                                                                                                      \
+#define MODIFY_FIELD_IMPL(T)                                                                                                                     \
+    template<>                                                                                                                                   \
     bool SceneEdit::ModifyField<T>(ecs::Entity p_ent, std::string_view p_property, const void* p_data, uint32_t p_data_size, void* p_old_data) { \
-        const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();                                                                          \
+        const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();                                                                       \
         T* component = m_scene.GetComponent<T>(p_ent);                                                                                           \
-        return ModifyFieldRaw(component, meta_table, p_property, p_data, p_data_size, p_old_data);                                                  \
+        return ModifyFieldRaw(component, meta_table, p_property, p_data, p_data_size, p_old_data);                                               \
     }
 
 #define REGISTER_COMPONENT(T, ...) MODIFY_FIELD_IMPL(T)

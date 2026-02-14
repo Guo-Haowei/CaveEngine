@@ -74,9 +74,9 @@ public:
     }
 
     template<ComponentType T>
-    bool Contains(const ecs::Entity& p_ent) const {
+    bool Has(const ecs::Entity& p_ent) const {
         if (const ecs::IComponentPool* pool = m_storage.TryGet(T::kId)) {
-            return pool->Contains(p_ent);
+            return pool->Has(p_ent);
         }
         return false;
     }
@@ -91,7 +91,7 @@ public:
     }
 
     template<ComponentType T>
-    T& Create(const ecs::Entity& p_ent) { 
+    T& Create(const ecs::Entity& p_ent) {
         ecs::IComponentPool& pool = m_storage.GetOrCreate<T>();
         return *((T*)pool.CreateDefaultRaw(p_ent));
     }

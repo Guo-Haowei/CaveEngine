@@ -36,8 +36,6 @@ public:
 
     void Remove(const Entity& p_ent) override;
 
-    bool Contains(const Entity& p_ent) const override;
-
     T& GetComponentByIndex(size_t p_index);
 
     const T& GetComponentByIndex(size_t p_index) const;
@@ -115,7 +113,7 @@ void ComponentPool<T>::Merge(ComponentPool<T>&& p_other) {
 
     for (size_t i = 0; i < other_count; ++i) {
         Entity entity = p_other.m_entity_array[i];
-        DEV_ASSERT(!Contains(entity));
+        DEV_ASSERT(!Has(entity));
         m_entity_array.push_back(entity);
         m_lookup[entity] = base_count + i;
         m_component_array.push_back(std::move(p_other.m_component_array[i]));
@@ -156,14 +154,6 @@ void ComponentPool<T>::Remove(const Entity& p_ent) {
     m_component_array.pop_back();
     m_entity_array.pop_back();
     m_lookup.erase(it);
-}
-
-template<ComponentType T>
-bool ComponentPool<T>::Contains(const Entity& p_ent) const {
-    if (m_lookup.empty()) {
-        return false;
-    }
-    return m_lookup.find(p_ent) != m_lookup.end();
 }
 
 template<ComponentType T>

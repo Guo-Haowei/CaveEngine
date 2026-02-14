@@ -2,6 +2,13 @@
 
 namespace cave::ecs {
 
+bool IComponentPool::Has(const Entity& p_ent) const {
+    if (m_lookup.empty()) {
+        return false;
+    }
+    return m_lookup.find(p_ent) != m_lookup.end();
+}
+
 void IComponentPool::Remap(const std::unordered_map<Entity, Entity>& p_map) {
     std::unordered_map<Entity, size_t> new_lookup;
 

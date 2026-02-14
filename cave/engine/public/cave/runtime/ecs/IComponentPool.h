@@ -20,9 +20,10 @@ public:
     virtual void Copy(const IComponentPool& p_other) = 0;
     virtual std::unique_ptr<IComponentPool> Clone() const = 0;
 
+    bool Has(const Entity& p_ent) const;
+
     virtual void Merge(IComponentPool&& p_other) = 0;
     virtual void Remove(const Entity& p_ent) = 0;
-    virtual bool Contains(const Entity& p_ent) const = 0;
     virtual size_t GetCount() const = 0;
 
     void Remap(const std::unordered_map<Entity, Entity>& p_map);

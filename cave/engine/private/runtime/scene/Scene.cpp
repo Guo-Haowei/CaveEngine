@@ -97,7 +97,7 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
     for (const auto& it : m_storage.GetEntries()) {
         if (!it.pool) continue;
         for (auto entity : it.pool->GetEntityArray()) {
-            if (Contains<NoSaveTag>(entity)) {
+            if (Has<NoSaveTag>(entity)) {
                 continue;
             }
             entity_set.insert(entity);
@@ -384,7 +384,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     yaml.BeginArray(false);
 
     for (auto entity : entity_array) {
-        if (Contains<NoSaveTag>(entity)) {
+        if (Has<NoSaveTag>(entity)) {
             continue;
         }
 

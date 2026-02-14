@@ -80,7 +80,7 @@ public:
         bool present_in_all_impl(Entity e, std::index_sequence<I...>) const {
             // Safe because view guarantees "no null pools" when m_ents != nullptr.
             bool ok = true;
-            ((ok = ok && std::get<I>(m_pools)->Contains(e)), ...);
+            ((ok = ok && std::get<I>(m_pools)->Has(e)), ...);
             return ok;
         }
 

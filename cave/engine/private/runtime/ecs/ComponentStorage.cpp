@@ -34,7 +34,7 @@ const IComponentPool* ComponentStorage::TryGet(ComponentId p_id) const {
 
 bool ComponentStorage::Has(Entity p_ent, ComponentId p_id) const {
     auto* pool = TryGet(p_id);
-    return pool ? pool->Contains(p_ent) : false;
+    return pool ? pool->Has(p_ent) : false;
 }
 
 void* ComponentStorage::GetRaw(Entity p_ent, ComponentId p_id) {
@@ -50,7 +50,7 @@ void* ComponentStorage::AddDefault(Entity p_ent, ComponentId p_id) {
 bool ComponentStorage::Remove(Entity p_ent, ComponentId p_id) {
     auto* pool = TryGet(p_id);
     if (!pool) return false;
-    if (!pool->Contains(p_ent)) return true;
+    if (!pool->Has(p_ent)) return true;
     pool->Remove(p_ent);
     return true;
 }

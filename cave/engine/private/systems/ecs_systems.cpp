@@ -323,7 +323,7 @@ void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context&, float) {
     AABB bound;
 
     for (auto [id, mesh_renderer] : p_scene.View<MeshRendererComponent>()) {
-        if (!p_scene.Contains<TransformComponent>(id)) {
+        if (!p_scene.Has<TransformComponent>(id)) {
             continue;
         }
 
