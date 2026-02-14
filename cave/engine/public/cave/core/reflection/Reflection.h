@@ -37,7 +37,7 @@ struct FieldMetaBase;
 template<typename T>
 class MetaDataTable;
 
-using MetaTableFields = std::vector<FieldMetaBase*>;
+using MetaTableFields = std::vector<const FieldMetaBase*>;
 
 template<typename T>
 struct EnumTraits;

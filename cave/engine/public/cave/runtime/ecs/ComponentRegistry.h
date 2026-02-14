@@ -4,8 +4,41 @@
 #pragma once
 #include <span>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
+#include "cave/core/ids/StringId.h"
 #include "cave/core/reflection/Reflection.h"
+
+namespace cave::ecs {
+
+using ComponentId = uint16_t;
+using PropertyId = std::string_view;
+
+struct ComponentMeta {
+    ComponentId id;
+    const char* name;
+    StringId name_id;
+    uint32_t size;
+    uint32_t align;
+    uint64_t version;
+
+    std::span<const FieldMetaBase* const> props;
+
+    const FieldMetaBase* Find(PropertyId p_id) const;
+};
+
+class ComponentRegistry {
+public:
+    void Register(const ComponentMeta& p_meta);
+    const ComponentMeta* TryGet(ComponentId p_id) const;
+
+private:
+    std::vector<ComponentMeta> m_table;
+    std::vector<uint8_t> m_present;
+    std::unordered_map<StringId, ComponentId> m_name_to_id;
+};
+
+}  // namespace cave::ecs
 
 // @TODO: move the following list to built-in components
 
@@ -42,32 +75,6 @@ enum BuildInComponentId : uint16_t {
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
         _Count,
-};
-
-using ComponentId = uint16_t;
-
-using PropertyId = std::string_view;
-
-struct ComponentMeta {
-    ComponentId id;
-    const char* name;
-    uint32_t size;
-    uint32_t align;
-    uint64_t version;
-
-    std::span<const FieldMetaBase*> props;
-
-    const FieldMetaBase* Find(PropertyId p_id) const;
-};
-
-class ComponentRegistry {
-public:
-    void Register(const ComponentMeta& p_meta);
-    const ComponentMeta* TryGet(ComponentId p_id) const;
-
-private:
-    std::vector<ComponentMeta> m_table;
-    std::vector<uint8_t> m_present;
 };
 
 }  // namespace cave
