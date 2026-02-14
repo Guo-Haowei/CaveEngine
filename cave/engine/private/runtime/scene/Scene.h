@@ -142,12 +142,6 @@ public:
 
     ecs::Entity FindEntityByName(const char* p_name);
 
-    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
-
-    void AttachChild(ecs::Entity p_child) { AttachChild(p_child, m_root); }
-
-    void RemoveEntity(ecs::Entity p_entity);
-
     ecs::Entity DuplicateEntity(ecs::Entity p_entity);
 
     void InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_entity = ecs::Entity::Null());
@@ -177,14 +171,19 @@ public:
     const auto& GetLibraryEntries() const { return m_component_lib.m_entries; }
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 
+private:
     ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
 
-private:
+    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
+    void AttachChild(ecs::Entity p_child) { AttachChild(p_child, m_root); }
+
     std::vector<ecs::Entity> GetSortedEntityArray() const;
 
     uint32_t m_entity_seed{ 0 };
 
-    friend class EntityFactory;
+    friend class SceneEdit;
+    friend class AssimpImporter;
+    friend class TinyGltfImporter;
 };
 
 }  // namespace cave

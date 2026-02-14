@@ -1,9 +1,12 @@
 #pragma once
 #include "cave/core/reflection/Meta.h"
-
-#include "engine/private/runtime/scene/Scene.h"
+#include "cave/runtime/scene/SceneChangeEvent.h"
 
 namespace cave {
+
+class Scene;
+
+// @TODO: emit events
 
 class SceneEdit {
 public:
@@ -11,22 +14,18 @@ public:
         : m_scene(p_scene) {
     }
 
-    template<ComponentType T>
+    ecs::Entity CreateEntity();
+    void DestroyEntity(ecs::Entity p_entity);
+
+    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
+    void AttachChild(ecs::Entity p_child);
+
+    template<typename T>
     bool ModifyField(ecs::Entity p_entity,
                      std::string_view p_property,
                      const void* p_data,
                      uint32_t p_data_size,
-                     void* p_old_data = nullptr) {
-
-        const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();
-        T* component = m_scene.GetComponent<T>(p_entity);
-        return ModifyFieldRaw(component,
-                              meta_table,
-                              p_property,
-                              p_data,
-                              p_data_size,
-                              p_old_data);
-    }
+                     void* p_old_data = nullptr);
 
 private:
     bool ModifyFieldRaw(void* p_object,

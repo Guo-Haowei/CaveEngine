@@ -4,6 +4,7 @@
 namespace cave {
 
 class Scene;
+class SceneEdit;
 
 template<typename T>
 struct IsComponent : std::false_type {};
@@ -107,6 +108,7 @@ private:
     std::unordered_map<std::string, LibraryEntry> m_entries;
 
     friend class ::cave::Scene;
+    friend class ::cave::SceneEdit;
 };
 
 }  // namespace cave::ecs

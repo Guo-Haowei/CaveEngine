@@ -191,23 +191,6 @@ void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
     hier->parent_id = p_parent;
 }
 
-void Scene::RemoveEntity(ecs::Entity p_entity) {
-    std::vector<ecs::Entity> children;
-    for (auto [child, hierarchy] : View<HierarchyComponent>()) {
-        if (hierarchy.parent_id == p_entity) {
-            children.emplace_back(child);
-        }
-    }
-
-    for (auto child : children) {
-        RemoveEntity(child);
-    }
-
-    for (auto&& [_, component_manager] : m_component_lib.m_entries) {
-        component_manager.manager->Remove(p_entity);
-    }
-}
-
 template<typename T>
 static void DuplicateComponent(Scene& p_scene, ecs::Entity p_source, ecs::Entity p_dest) {
     if (const T* comp = p_scene.GetComponent<T>(p_source)) {

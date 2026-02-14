@@ -1,7 +1,7 @@
 #pragma once
 #include "EditCmdBase.h"
 
-#include "engine/private/runtime/scene/SceneEdit.h"
+#include "cave/runtime/scene/SceneEdit.h"
 
 #include "editor/document/IDocument.h"
 

@@ -1,6 +1,7 @@
 #include "cave/runtime/scene/SceneCommandBuffer.h"
+#include "cave/runtime/scene/SceneEdit.h"
 
-#include "engine/private/runtime/scene/SceneEdit.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
@@ -22,6 +23,8 @@ void SceneCommandBuffer::Playback(Scene& p_scene) {
     const uint8_t* p = m_bytes.data();
     const uint8_t* end = m_bytes.data() + m_bytes.size();
 
+    SceneEdit edit(p_scene);
+
     while (p < end) {
         const Header* header = reinterpret_cast<const Header*>(p);
         const uint8_t* payload = reinterpret_cast<const uint8_t*>(header + 1);
@@ -29,14 +32,14 @@ void SceneCommandBuffer::Playback(Scene& p_scene) {
         switch (header->op) {
             case Op::CreateEntity: {
                 const auto* create = reinterpret_cast<const Payload_Create*>(payload);
-                ecs::Entity real = p_scene.CreateEntity();
+                ecs::Entity real = edit.CreateEntity();
                 SetRemap(create->out_temp, real);
             } break;
             case Op::DestroyEntity: {
                 const auto* destroy = reinterpret_cast<const Payload_Destroy*>(payload);
                 ecs::Entity real = Resolve(destroy->entity);
                 if (DEV_VERIFY(real.IsValid())) {
-                    p_scene.RemoveEntity(real);
+                    edit.DestroyEntity(real);
                 }
             } break;
             case Op::AddComponent:
