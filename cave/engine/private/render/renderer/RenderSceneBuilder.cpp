@@ -4,6 +4,10 @@
 
 #include "engine/private/runtime/scene/Scene.h"
 
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
+#include "engine/private/runtime/scene/SpriteRendererComponent.h"
+
 namespace cave::render {
 
 using math::AABB;

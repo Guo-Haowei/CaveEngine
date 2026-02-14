@@ -3,6 +3,9 @@
 #include "BvhAccel.h "
 
 #include "cave/core/time/Stopwatch.h"
+#include "cave/runtime/ecs/components/MaterialComponent.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/assets/MeshAsset.h"

@@ -8,6 +8,7 @@
 
 // @TODO: refactor
 #include "engine/private/core/math/Geomath.h"
+#include "engine/private/runtime/ecs/components/All.h"
 
 namespace cave {
 
