@@ -1,3 +1,6 @@
+// =============================================================================
+// File: engine/public/cave/runtime/ecs/components/TransformComponent.h
+// =============================================================================
 #pragma once
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/Matrix.h"

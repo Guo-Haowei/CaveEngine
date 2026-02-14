@@ -2,7 +2,7 @@
 // Auto-generated metadata for LuaScriptComponent.h
 // Check generate_meta.py for more details
 
-#include "engine/public/cave/runtime/ecs/LuaScriptComponent.h"
+#include "cave/runtime/ecs/components/LuaScriptComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

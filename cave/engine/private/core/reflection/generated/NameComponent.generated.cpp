@@ -2,7 +2,7 @@
 // Auto-generated metadata for NameComponent.h
 // Check generate_meta.py for more details
 
-#include "engine/public/cave/runtime/ecs/NameComponent.h"
+#include "cave/runtime/ecs/components/NameComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

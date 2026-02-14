@@ -94,7 +94,7 @@ void SceneCommandBuffer::WriteEntityRecord(Op p_op,
 
 void SceneCommandBuffer::WriteComponentRecord(Op p_op,
                                               ecs::Entity p_entity,
-                                              ComponentId p_type) {
+                                              BuildInComponentId p_type) {
     Header header{
         .op = p_op,
         .size = uint16_t(sizeof(Header) + sizeof(Payload_Component)),
@@ -113,7 +113,7 @@ void SceneCommandBuffer::WriteComponentRecord(Op p_op,
 
 void SceneCommandBuffer::WritePropertyRecord(Op p_op,
                                              ecs::Entity p_entity,
-                                             ComponentId p_type,
+                                             BuildInComponentId p_type,
                                              std::string_view p_property,
                                              const void* p_data,
                                              uint32_t p_data_size) {
@@ -146,7 +146,7 @@ void SceneCommandBuffer::WritePropertyRecord(Op p_op,
 void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
                                              Op p_op,
                                              ecs::Entity p_entity,
-                                             ComponentId p_type_id) {
+                                             BuildInComponentId p_type_id) {
     if (p_op == Op::AddComponent) {
         switch (p_type_id) {
 #define REGISTER_COMPONENT(T, ...)   \

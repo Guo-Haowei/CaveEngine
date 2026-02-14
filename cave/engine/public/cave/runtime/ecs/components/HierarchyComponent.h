@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/HierarchyComponent.h
+// File: engine/public/cave/runtime/ecs/components/HierarchyComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/Entity.h"

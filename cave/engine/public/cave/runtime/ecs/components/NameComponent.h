@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/NameComponent.h
+// File: engine/public/cave/runtime/ecs/components/NameComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/reflection/Reflection.h"

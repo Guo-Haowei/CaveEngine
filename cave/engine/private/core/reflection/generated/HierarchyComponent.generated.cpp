@@ -2,7 +2,7 @@
 // Auto-generated metadata for HierarchyComponent.h
 // Check generate_meta.py for more details
 
-#include "engine/public/cave/runtime/ecs/HierarchyComponent.h"
+#include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

@@ -39,12 +39,12 @@ class SceneCommandBuffer {
 
     struct Payload_Component {
         ecs::Entity entity;
-        ComponentId type;
+        BuildInComponentId type;
     };
 
     struct Payload_Property {
         ecs::Entity entity;
-        ComponentId type;
+        BuildInComponentId type;
         FixedString<kPropertyNameMax> property_name;
         uint32_t data_size;
     };
@@ -65,16 +65,16 @@ public:
         WriteEntityRecord(Op::DestroyEntity, &e, sizeof(e));
     }
 
-    void Add(ecs::Entity p_entity, ComponentId p_id) {
+    void Add(ecs::Entity p_entity, BuildInComponentId p_id) {
         WriteComponentRecord(Op::AddComponent, p_entity, p_id);
     }
 
-    void Remove(ecs::Entity p_entity, ComponentId p_id) {
+    void Remove(ecs::Entity p_entity, BuildInComponentId p_id) {
         WriteComponentRecord(Op::RemoveComponent, p_entity, p_id);
     }
 
     template<typename T>
-    void SetProperty(ecs::Entity p_entity, ComponentId p_id, std::string_view p_property, const T& p_value) {
+    void SetProperty(ecs::Entity p_entity, BuildInComponentId p_id, std::string_view p_property, const T& p_value) {
         static_assert(std::is_trivially_copyable_v<T>);
         WritePropertyRecord(Op::ChangeProperty, p_entity, p_id, p_property, &p_value, sizeof(T));
     }
@@ -107,11 +107,11 @@ private:
 
     void WriteComponentRecord(Op p_op,
                               ecs::Entity p_entity,
-                              ComponentId p_type);
+                              BuildInComponentId p_type);
 
     void WritePropertyRecord(Op p_op,
                              ecs::Entity p_entity,
-                             ComponentId p_type,
+                             BuildInComponentId p_type,
                              std::string_view p_property,
                              const void* p_data,
                              uint32_t p_data_size);
@@ -119,7 +119,7 @@ private:
     void DispatchComponentOp(Scene& p_scene,
                              Op p_op,
                              ecs::Entity p_entity,
-                             ComponentId p_type_id);
+                             BuildInComponentId p_type_id);
 
     void DispatchPropertyOp(Scene& p_scene,
                             ecs::Entity p_entity,
