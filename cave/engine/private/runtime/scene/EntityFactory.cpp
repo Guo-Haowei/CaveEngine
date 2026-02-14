@@ -1,7 +1,5 @@
 #include "EntityFactory.h"
 
-#include "cave/runtime/scene/SceneEdit.h"
-
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
@@ -15,8 +13,7 @@ using namespace ::cave::math;
 
 Entity EntityFactory::CreateNameEntity(Scene& p_scene,
                                        const std::string& p_name) {
-    SceneEdit edit(p_scene);
-    Entity entity = edit.CreateEntity();
+    Entity entity = p_scene.CreateEntity();
     p_scene.Create<NameComponent>(entity).SetName(p_name);
     return entity;
 }

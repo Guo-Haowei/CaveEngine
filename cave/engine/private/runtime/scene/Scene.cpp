@@ -164,6 +164,25 @@ ecs::Entity Scene::FindEntityByName(const char* p_name) {
     return ecs::Entity::Null();
 }
 
+void Scene::RemoveEntity(ecs::Entity p_ent) {
+    std::vector<ecs::Entity> children;
+    for (auto [child, hierarchy] : View<HierarchyComponent>()) {
+        if (hierarchy.parent_id == p_ent) {
+            children.emplace_back(child);
+        }
+    }
+
+    for (auto child : children) {
+        RemoveEntity(child);
+    }
+
+    for (auto& e : m_storage.GetEntries()) {
+        if (e.pool) {
+            e.pool->Remove(p_ent);
+        }
+    }
+}
+
 void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
     DEV_ASSERT(p_child != p_parent);
     DEV_ASSERT(p_parent.IsValid());

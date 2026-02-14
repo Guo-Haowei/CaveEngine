@@ -124,6 +124,12 @@ public:
     }
 
 public:
+    ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
+    void RemoveEntity(ecs::Entity p_ent);
+
+    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
+    void AttachChild(ecs::Entity p_child) { AttachChild(p_child, m_root); }
+
     void Update(float p_delta_time);
 
     void Copy(const Scene& p_other);
@@ -159,18 +165,12 @@ public:
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 
 private:
-    ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
-
-    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
-    void AttachChild(ecs::Entity p_child) { AttachChild(p_child, m_root); }
-
     std::vector<ecs::Entity> GetSortedEntityArray() const;
 
     ecs::ComponentStorage m_storage;
 
     uint32_t m_entity_seed{ 0 };
 
-    friend class SceneEdit;
     friend class AssimpImporter;
     friend class TinyGltfImporter;
 };

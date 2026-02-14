@@ -17,9 +17,6 @@ public:
     ecs::Entity CreateEntity();
     void DestroyEntity(ecs::Entity p_ent);
 
-    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
-    void AttachChild(ecs::Entity p_child);
-
     template<typename T>
     bool ModifyField(ecs::Entity p_ent,
                      std::string_view p_property,

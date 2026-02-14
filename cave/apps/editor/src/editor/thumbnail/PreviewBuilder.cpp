@@ -3,7 +3,6 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/scene/SceneEdit.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -102,7 +101,6 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
                                                  const PreviewOptions& p_options) const {
 
     auto scene = std::make_unique<Scene>();
-    SceneEdit edit(*scene);
 
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
@@ -115,13 +113,13 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
         auto material_id = renderer->GetMaterialInstances()[0];
         MaterialComponent* material = scene->GetComponent<MaterialComponent>(material_id);
         material->SetResourceGuid(p_handle.GetGuid());
-        edit.AttachChild(id);
+        scene->AttachChild(id);
     }
 
     // add point light (TODO: maybe area light?)
     {
         auto id = EntityFactory::CreatePointLightEntity(*scene, "light", math::Vector3f(0, 3, 1));
-        edit.AttachChild(id);
+        scene->AttachChild(id);
     }
 
     scene->Update(0.0f);
@@ -145,7 +143,6 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
 
 PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const PreviewOptions& p_options) const {
     auto scene = std::make_unique<Scene>();
-    SceneEdit edit(*scene);
     auto root = EntityFactory::CreateTransformEntity(*scene, "root");
     scene->m_root = root;
 
@@ -158,13 +155,13 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
         MeshRendererComponent& renderer = scene->Create<MeshRendererComponent>(id);
         renderer.SetResourceGuid(p_handle.GetGuid());
         renderer.OnDeserialized();
-        edit.AttachChild(id);
+        scene->AttachChild(id);
     }
 
     // add point light (TODO: maybe area light?)
     {
         auto id = EntityFactory::CreatePointLightEntity(*scene, "light", math::Vector3f(0, 3, 1));
-        edit.AttachChild(id);
+        scene->AttachChild(id);
     }
 
     scene->Update(0.0f);

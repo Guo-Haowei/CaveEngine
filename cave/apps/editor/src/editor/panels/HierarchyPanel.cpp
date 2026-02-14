@@ -4,7 +4,6 @@
 #include <imgui/imgui_internal.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "cave/runtime/scene/SceneEdit.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
@@ -104,8 +103,7 @@ static bool TreeNodeHelper(Scene& p_scene,
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_SCENE_NODE)) {
             Entity child_id = *reinterpret_cast<Entity*>(payload->Data);
             if (child_id != p_id) {
-                SceneEdit edit(p_scene);
-                edit.AttachChild(child_id, p_id);
+                p_scene.AttachChild(child_id, p_id);
 
                 if constexpr (true) {  // @TODO: log macro
                     const NameComponent* child_name = p_scene.GetComponent<NameComponent>(child_id);
