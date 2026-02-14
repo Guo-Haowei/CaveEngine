@@ -181,10 +181,11 @@ void SceneCommandBuffer::DispatchPropertyOp(Scene& p_scene,
                                             ecs::Entity p_entity,
                                             const Payload_Property& p_payload,
                                             const void* p_data) {
+    SceneEdit edit(p_scene);
     switch (p_payload.type) {
-#define REGISTER_COMPONENT(T, ...)                                                                                 \
-    case T##_Id: {                                                                                                 \
-        SceneEdit::ModifyField<T>(p_scene, p_entity, p_payload.property_name.view(), p_data, p_payload.data_size); \
+#define REGISTER_COMPONENT(T, ...)                                                                  \
+    case T##_Id: {                                                                                  \
+        edit.ModifyField<T>(p_entity, p_payload.property_name.view(), p_data, p_payload.data_size); \
     } break;
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT

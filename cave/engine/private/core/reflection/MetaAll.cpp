@@ -2,6 +2,7 @@
 // run generate_meta.py to generate the meta files
 
 #include "generated/CameraComponent.generated.cpp"
+#include "generated/HierarchyComponent.generated.cpp"
 #include "generated/NameComponent.generated.cpp"
 #include "generated/LuaScriptComponent.generated.cpp"
 #include "generated/TransformComponent.generated.cpp"

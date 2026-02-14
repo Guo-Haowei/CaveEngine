@@ -79,8 +79,6 @@ public:
         WritePropertyRecord(Op::ChangeProperty, p_entity, p_id, p_property, &p_value, sizeof(T));
     }
 
-    void Playback(Scene& p_scene);
-
     // -------------------------------------------------------------------------
     // Wrappers
     // -------------------------------------------------------------------------
@@ -91,6 +89,8 @@ public:
     void SetScale(ecs::Entity p_entity, const math::Vector3f& p_value) {
         SetProperty(p_entity, TransformComponent_Id, "scale", p_value);
     }
+
+    void Playback(Scene& p_scene);
 
 private:
     static constexpr uint32_t kTmpBase = 0x80000000u;

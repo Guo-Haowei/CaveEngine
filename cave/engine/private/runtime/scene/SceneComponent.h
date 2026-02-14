@@ -20,13 +20,6 @@ class Archive;
 class FileAccess;
 class Scene;
 
-struct HierarchyComponent {
-    CAVE_META(HierarchyComponent)
-
-    CAVE_PROP()
-    ecs::Entity parent_id;
-};
-
 class PrefabInstanceComponent {
     CAVE_META(PrefabInstanceComponent)
 

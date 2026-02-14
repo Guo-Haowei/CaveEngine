@@ -16,6 +16,7 @@ print('Project root folder:', get_engine_src_folder())
 FILES = [
     # components
     'public/cave/runtime/ecs/CameraComponent.h',
+    'public/cave/runtime/ecs/HierarchyComponent.h',
     'public/cave/runtime/ecs/NameComponent.h',
     'public/cave/runtime/ecs/LuaScriptComponent.h',
     'public/cave/runtime/ecs/TransformComponent.h',

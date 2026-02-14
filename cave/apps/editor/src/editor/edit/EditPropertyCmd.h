@@ -39,11 +39,11 @@ public:
         Scene* scene = ResolveScene(scene_id);
         if (!scene) return false;
 
-        bool res = SceneEdit::ModifyField<T>(*scene,
-                                             m_entity,
-                                             m_property,
-                                             m_new.data(),
-                                             (uint32_t)m_new.size());
+        SceneEdit edit(*scene);
+        bool res = edit.ModifyField<T>(m_entity,
+                                       m_property,
+                                       m_new.data(),
+                                       (uint32_t)m_new.size());
         return res;
     }
 
@@ -53,11 +53,11 @@ public:
         Scene* scene = ResolveScene(scene_id);
         if (!scene) return false;
 
-        bool res = SceneEdit::ModifyField<T>(*scene,
-                                             m_entity,
-                                             m_property,
-                                             m_old.data(),
-                                             (uint32_t)m_old.size());
+        SceneEdit edit(*scene);
+        bool res = edit.ModifyField<T>(m_entity,
+                                       m_property,
+                                       m_old.data(),
+                                       (uint32_t)m_old.size());
         return res;
     }
 
