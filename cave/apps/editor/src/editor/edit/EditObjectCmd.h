@@ -10,9 +10,9 @@ enum class EntityType : uint8_t;
 class AddObjectCmd : public EditCmdBase {
 public:
     AddObjectCmd(IApplication& p_app,
-                 ecs::Entity p_entity,
+                 ecs::Entity p_ent,
                  EntityType p_type)
-        : EditCmdBase(p_app, p_entity)
+        : EditCmdBase(p_app, p_ent)
         , m_type(p_type) {}
 
     const char* Label() const override { return "AddObjectCmd"; }

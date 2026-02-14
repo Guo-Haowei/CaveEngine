@@ -8,10 +8,10 @@ namespace cave {
 class EditTransformCmd : public EditCmdBase {
 public:
     EditTransformCmd(IApplication& p_app,
-                     ecs::Entity p_entity,
+                     ecs::Entity p_ent,
                      const math::Matrix4x4f& p_before,
                      const math::Matrix4x4f& p_after)
-        : EditCmdBase(p_app, p_entity)
+        : EditCmdBase(p_app, p_ent)
         , m_before(p_before)
         , m_after(p_after) {}
 

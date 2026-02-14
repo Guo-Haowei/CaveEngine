@@ -38,6 +38,10 @@ public:
     static void Update(Scene& p_scene, size_t p_index, float p_timestep);
 };
 
+// @TODO: fix
+#pragma warning(push)
+#pragma warning(disable : 4996)
+
 void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_timestep) {
     SkeletalAnimationComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimationComponent>(p_index);
 

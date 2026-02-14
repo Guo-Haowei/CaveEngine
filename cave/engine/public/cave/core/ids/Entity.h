@@ -42,7 +42,7 @@ namespace std {
 
 template<>
 struct hash<cave::ecs::Entity> {
-    std::size_t operator()(const cave::ecs::Entity& p_entity) const { return std::hash<uint32_t>{}(p_entity.GetId()); }
+    std::size_t operator()(const cave::ecs::Entity& p_ent) const { return std::hash<uint32_t>{}(p_ent.GetId()); }
 };
 
 template<>

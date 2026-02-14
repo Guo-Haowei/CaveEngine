@@ -1,28 +1,33 @@
+#include "cave/runtime/ecs/ComponentDefines.h"
+
 #include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
 
 namespace cave {
 
+enum {
+    C1_Id,
+    C2_Id,
+    C3_Id,
+};
+
 struct C1 {
+    CAVE_COMPONENT(C1);
+
     int a = 0;
 };
 
 struct C2 {
+    CAVE_COMPONENT(C2);
+
     float b = 0.0f;
 };
 
 struct C3 {
+    CAVE_COMPONENT(C3);
+
     int c = 0;
 };
-
-template<>
-struct IsComponent<C1> : std::true_type {};
-
-template<>
-struct IsComponent<C2> : std::true_type {};
-
-template<>
-struct IsComponent<C3> : std::true_type {};
 
 }  // namespace cave
 
@@ -31,11 +36,11 @@ namespace cave::ecs {
 template<ComponentType T>
 class MockManager : public ComponentPool<T> {
 public:
-    void Add(Entity p_entity, const T& p_component) {
-        const size_t index = ComponentPool<T>::m_componentArray.size();
-        ComponentPool<T>::m_lookup[p_entity] = index;
-        ComponentPool<T>::m_entityArray.emplace_back(p_entity);
-        ComponentPool<T>::m_componentArray.emplace_back(p_component);
+    void Add(Entity p_ent, const T& p_component) {
+        const size_t index = ComponentPool<T>::m_component_array.size();
+        ComponentPool<T>::m_lookup[p_ent] = index;
+        ComponentPool<T>::m_entityArray.emplace_back(p_ent);
+        ComponentPool<T>::m_component_array.emplace_back(p_component);
     }
 };
 

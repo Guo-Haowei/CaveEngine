@@ -5,6 +5,10 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
 
+namespace cave {
+class Scene;
+}
+
 namespace cave::ecs {
 
 class IComponentPool;
@@ -13,32 +17,30 @@ template<ComponentType T>
 class ComponentPool;
 
 class ComponentStorage {
+    struct Entry {
+        std::unique_ptr<IComponentPool> pool;
+    };
+
 public:
-    ComponentStorage() = default;
+    explicit ComponentStorage() = default;
 
     void ClearAll();
 
     bool IsRegistered(ComponentId p_id) const;
 
-    IComponentPool* TryGet(ComponentId p_id) const;
+    IComponentPool* TryGet(ComponentId p_id);
 
-    // Typed registration: keeps your typed vector storage
-    template<typename ManagerT>
-    ManagerT& Register(ComponentId p_id) {
-        Ensure(p_id);
-        Entry& e = m_entries[p_id];
-        DEV_ASSERT(e.pool == nullptr);
-        e.pool = std::make_unique<ManagerT>();
-        return static_cast<ManagerT&>(*e.pool);
-    }
+    const IComponentPool* TryGet(ComponentId p_id) const;
 
     template<ComponentType T>
-    ComponentPool<T>& RegisterTyped(ComponentId p_id, size_t p_reserve = 0) {
-        auto& pool = Register<ComponentPool<T>>(p_id);
-        if (p_reserve) {
-            pool.Reserve(p_reserve);
+    ComponentPool<T>& GetOrCreate() {
+        constexpr ComponentId id = T::kId;
+        Ensure(id);
+        Entry& e = m_entries[id];
+        if (e.pool == nullptr) {
+            e.pool = std::make_unique<ComponentPool<T>>();
         }
-        return pool;
+        return static_cast<ComponentPool<T>&>(*e.pool);
     }
 
     bool Has(Entity p_ent, ComponentId p_id) const;
@@ -49,14 +51,17 @@ public:
 
     bool Remove(Entity p_ent, ComponentId p_id);
 
+    const auto& GetEntries() const { return m_entries; }
+
 private:
-    struct Entry {
-        std::unique_ptr<IComponentPool> pool;
-    };
+    ComponentStorage(ComponentStorage&) = delete;
+    ComponentStorage& operator=(ComponentStorage&) = delete;
 
     void Ensure(ComponentId p_id);
 
     std::vector<Entry> m_entries;
+
+    friend class ::cave::Scene;
 };
 
 }  // namespace cave::ecs

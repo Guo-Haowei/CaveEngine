@@ -52,14 +52,14 @@ struct BufferCache {
     std::vector<BUFFER> buffer;
     std::unordered_map<ID, uint32_t> lookup;
 
-    uint32_t FindOrAdd(ID p_entity, const BUFFER& p_buffer) {
-        auto it = lookup.find(p_entity);
+    uint32_t FindOrAdd(ID p_ent, const BUFFER& p_buffer) {
+        auto it = lookup.find(p_ent);
         if (it != lookup.end()) {
             return it->second;
         }
 
         uint32_t index = static_cast<uint32_t>(buffer.size());
-        lookup[p_entity] = index;
+        lookup[p_ent] = index;
         buffer.emplace_back(p_buffer);
         return index;
     }

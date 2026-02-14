@@ -76,9 +76,13 @@ void Scene::Update(float p_timestep) {
 }
 
 void Scene::Copy(const Scene& p_other) {
-    for (auto& entry : m_component_lib.m_entries) {
-        const auto& manager = *p_other.m_component_lib.m_entries.find(entry.first)->second.manager;
-        entry.second.manager->Copy(manager);
+    ComponentId idx = 0;
+    for (auto& entry : p_other.m_storage.GetEntries()) {
+        if (entry.pool) {
+            m_storage.Ensure(idx);
+            m_storage.m_entries[idx].pool = std::move(entry.pool->Clone());
+        }
+        ++idx;
     }
 
     m_root = p_other.m_root;
@@ -90,9 +94,9 @@ void Scene::Copy(const Scene& p_other) {
 std::vector<Entity> Scene::GetSortedEntityArray() const {
     std::unordered_set<Entity> entity_set;
 
-    for (const auto& it : m_component_lib.m_entries) {
-        auto& manager = it.second.manager;
-        for (auto entity : manager->GetEntityArray()) {
+    for (const auto& it : m_storage.GetEntries()) {
+        if (!it.pool) continue;
+        for (auto entity : it.pool->GetEntityArray()) {
             if (Contains<NoSaveTag>(entity)) {
                 continue;
             }
@@ -106,7 +110,7 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
     return entity_array;
 }
 
-void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_entity) {
+void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_ent) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid<Scene>(p_prefab.GetResourceGuid());
     if (handle.is_none()) {
         return;
@@ -140,19 +144,22 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
         CRASH_NOW_MSG("remap skin and skeleton");
     }
 
+    DEV_ASSERT(0);
+#if 0
     // remap all entities
-    for (auto&& [key, entry] : copy.m_component_lib.m_entries) {
+    for (auto&& [key, entry] : copy.m_storage.GetEntries()) {
         entry.manager->Remap(mapping);
 
         auto my_entry = m_component_lib.m_entries.find(key);
         CRASH_COND(my_entry == m_component_lib.m_entries.end());
         my_entry->second.manager->Merge(std::move(*entry.manager));
     }
+#endif
 
     // link instance
     Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = Create<HierarchyComponent>(mapped_root);
-    hier.parent_id = p_entity.IsValid() ? p_entity : m_root;
+    hier.parent_id = p_ent.IsValid() ? p_ent : m_root;
 }
 
 ecs::Entity Scene::FindEntityByName(const char* p_name) {
@@ -188,14 +195,14 @@ static void DuplicateComponent(Scene& p_scene, ecs::Entity p_source, ecs::Entity
     }
 }
 
-ecs::Entity Scene::DuplicateEntity(ecs::Entity p_entity) {
-    if (!p_entity.IsValid()) {
-        return p_entity;
+ecs::Entity Scene::DuplicateEntity(ecs::Entity p_ent) {
+    if (!p_ent.IsValid()) {
+        return p_ent;
     }
 
     ecs::Entity entity = CreateEntity();
 
-#define REGISTER_COMPONENT(COMP, ...) DuplicateComponent<COMP>(*this, p_entity, entity);
+#define REGISTER_COMPONENT(COMP, ...) DuplicateComponent<COMP>(*this, p_ent, entity);
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
@@ -341,10 +348,10 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 template<ComponentType T>
 static bool SerializeComponent(ISerializer& p_serializer,
                                const char* p_name,
-                               ecs::Entity p_entity,
+                               ecs::Entity p_ent,
                                const Scene& p_scene) {
 
-    const T* component = p_scene.GetComponent<T>(p_entity);
+    const T* component = p_scene.GetComponent<T>(p_ent);
     if (component) {
         p_serializer.Key(p_name);
         p_serializer.Write(*component);

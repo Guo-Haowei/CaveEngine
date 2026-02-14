@@ -16,11 +16,11 @@ class EditPropertyCmd : public EditCmdBase {
 public:
     template<typename U>
     EditPropertyCmd(IApplication& p_app,
-                    ecs::Entity p_entity,
+                    ecs::Entity p_ent,
                     std::string_view p_property,
                     const U& p_old,
                     const U& p_new)
-        : EditCmdBase(p_app, p_entity)
+        : EditCmdBase(p_app, p_ent)
         , m_property(p_property) {
         static_assert(std::is_trivially_copyable_v<U>);
         m_old.resize(sizeof(p_old));

@@ -36,7 +36,6 @@ protected:
         if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
             if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
                 scene->Remove<T>(m_entity);
-                scene->Get<T>().Remove(m_entity);
             }
         }
         return true;
@@ -46,8 +45,8 @@ protected:
 template<typename T>
 class RemoveComponentCmd : public AddComponentCmd<T> {
 public:
-    RemoveComponentCmd(IApplication& p_app, ecs::Entity p_entity, T& p_origin)
-        : AddComponentCmd<T>(p_app, p_entity)
+    RemoveComponentCmd(IApplication& p_app, ecs::Entity p_ent, T& p_origin)
+        : AddComponentCmd<T>(p_app, p_ent)
         , m_origin(p_origin) {
     }
 

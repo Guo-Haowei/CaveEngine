@@ -20,7 +20,13 @@ bool ComponentStorage::IsRegistered(ComponentId p_id) const {
     return idx < m_entries.size() && m_entries[idx].pool != nullptr;
 }
 
-IComponentPool* ComponentStorage::TryGet(ComponentId p_id) const {
+IComponentPool* ComponentStorage::TryGet(ComponentId p_id) {
+    const size_t idx = (size_t)p_id;
+    if (idx >= m_entries.size()) return nullptr;
+    return m_entries[idx].pool.get();
+}
+
+const IComponentPool* ComponentStorage::TryGet(ComponentId p_id) const {
     const size_t idx = (size_t)p_id;
     if (idx >= m_entries.size()) return nullptr;
     return m_entries[idx].pool.get();

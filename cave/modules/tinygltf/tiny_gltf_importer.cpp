@@ -19,6 +19,10 @@ WARNING_DISABLE(4267, "-Wconversion")
 #include "tinygltf/tiny_gltf.h"
 WARNING_POP()
 
+// @TODO: fix
+#pragma warning(push)
+#pragma warning(disable : 4996)
+
 namespace tinygltf {
 
 static bool DummyLoadImage(Image*,

@@ -5,7 +5,7 @@ namespace cave::ecs {
 void IComponentPool::Remap(const std::unordered_map<Entity, Entity>& p_map) {
     std::unordered_map<Entity, size_t> new_lookup;
 
-    for (Entity& entity : m_entityArray) {
+    for (Entity& entity : m_entity_array) {
         auto it = p_map.find(entity);
         CRASH_COND_MSG(it == p_map.end(), "invalid mapping");
         entity = it->second;

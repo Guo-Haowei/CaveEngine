@@ -8,10 +8,10 @@ ecs::Entity SceneEdit::CreateEntity() {
     return m_scene.CreateEntity();
 }
 
-void SceneEdit::DestroyEntity(ecs::Entity p_entity) {
+void SceneEdit::DestroyEntity(ecs::Entity p_ent) {
     std::vector<ecs::Entity> children;
     for (auto [child, hierarchy] : m_scene.View<HierarchyComponent>()) {
-        if (hierarchy.parent_id == p_entity) {
+        if (hierarchy.parent_id == p_ent) {
             children.emplace_back(child);
         }
     }
@@ -20,8 +20,10 @@ void SceneEdit::DestroyEntity(ecs::Entity p_entity) {
         DestroyEntity(child);
     }
 
-    for (auto&& [_, component_manager] : m_scene.m_component_lib.m_entries) {
-        component_manager.manager->Remove(p_entity);
+    for (auto& e : m_scene.m_storage.GetEntries()) {
+        if (e.pool) {
+            e.pool->Remove(p_ent);
+        }
     }
 }
 
@@ -35,9 +37,9 @@ void SceneEdit::AttachChild(ecs::Entity p_child) {
 
 #define MODIFY_FIELD_IMPL(T)                                                                                                                        \
     template<>                                                                                                                                      \
-    bool SceneEdit::ModifyField<T>(ecs::Entity p_entity, std::string_view p_property, const void* p_data, uint32_t p_data_size, void* p_old_data) { \
+    bool SceneEdit::ModifyField<T>(ecs::Entity p_ent, std::string_view p_property, const void* p_data, uint32_t p_data_size, void* p_old_data) { \
         const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();                                                                          \
-        T* component = m_scene.GetComponent<T>(p_entity);                                                                                           \
+        T* component = m_scene.GetComponent<T>(p_ent);                                                                                           \
         return ModifyFieldRaw(component, meta_table, p_property, p_data, p_data_size, p_old_data);                                                  \
     }
 

@@ -5,10 +5,10 @@
 
 namespace cave {
 
-ecs::Entity SceneCommandBuffer::Resolve(ecs::Entity p_entity) const noexcept {
-    if (!IsTemp(p_entity)) return p_entity;
+ecs::Entity SceneCommandBuffer::Resolve(ecs::Entity p_ent) const noexcept {
+    if (!IsTemp(p_ent)) return p_ent;
 
-    const uint32_t index = p_entity.GetId() - kTmpBase;
+    const uint32_t index = p_ent.GetId() - kTmpBase;
     if (DEV_VERIFY(index < m_remap.size())) {
         return m_remap[index];
     }
@@ -93,7 +93,7 @@ void SceneCommandBuffer::WriteEntityRecord(Op p_op,
 }
 
 void SceneCommandBuffer::WriteComponentRecord(Op p_op,
-                                              ecs::Entity p_entity,
+                                              ecs::Entity p_ent,
                                               BuildInComponentId p_type) {
     Header header{
         .op = p_op,
@@ -107,12 +107,12 @@ void SceneCommandBuffer::WriteComponentRecord(Op p_op,
     std::memcpy(out, &header, sizeof(header));
     out += sizeof(header);
 
-    Payload_Component payload{ p_entity, p_type };
+    Payload_Component payload{ p_ent, p_type };
     std::memcpy(out, &payload, sizeof(payload));
 }
 
 void SceneCommandBuffer::WritePropertyRecord(Op p_op,
-                                             ecs::Entity p_entity,
+                                             ecs::Entity p_ent,
                                              BuildInComponentId p_type,
                                              std::string_view p_property,
                                              const void* p_data,
@@ -132,7 +132,7 @@ void SceneCommandBuffer::WritePropertyRecord(Op p_op,
     out += sizeof(header);
 
     Payload_Property payload{
-        .entity = p_entity,
+        .entity = p_ent,
         .type = p_type,
         .property_name = p_property,
         .data_size = p_data_size,
@@ -145,13 +145,13 @@ void SceneCommandBuffer::WritePropertyRecord(Op p_op,
 
 void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
                                              Op p_op,
-                                             ecs::Entity p_entity,
+                                             ecs::Entity p_ent,
                                              BuildInComponentId p_type_id) {
     if (p_op == Op::AddComponent) {
         switch (p_type_id) {
 #define REGISTER_COMPONENT(T, ...)   \
     case T##_Id: {                   \
-        p_scene.Create<T>(p_entity); \
+        p_scene.Create<T>(p_ent); \
     } break;
             REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
@@ -166,7 +166,7 @@ void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
         switch (p_type_id) {
 #define REGISTER_COMPONENT(T, ...)   \
     case T##_Id: {                   \
-        p_scene.Remove<T>(p_entity); \
+        p_scene.Remove<T>(p_ent); \
     } break;
             REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
@@ -181,14 +181,14 @@ void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
 }
 
 void SceneCommandBuffer::DispatchPropertyOp(Scene& p_scene,
-                                            ecs::Entity p_entity,
+                                            ecs::Entity p_ent,
                                             const Payload_Property& p_payload,
                                             const void* p_data) {
     SceneEdit edit(p_scene);
     switch (p_payload.type) {
 #define REGISTER_COMPONENT(T, ...)                                                                  \
     case T##_Id: {                                                                                  \
-        edit.ModifyField<T>(p_entity, p_payload.property_name.view(), p_data, p_payload.data_size); \
+        edit.ModifyField<T>(p_ent, p_payload.property_name.view(), p_data, p_payload.data_size); \
     } break;
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
