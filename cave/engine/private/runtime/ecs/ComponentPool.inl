@@ -1,10 +1,10 @@
 #pragma once
-#include "ComponentManager.h"
+#include "ComponentPool.h"
 
 namespace cave::ecs {
 
 template<ComponentType T>
-void ComponentManager<T>::Reserve(size_t p_capacity) {
+void ComponentPool<T>::Reserve(size_t p_capacity) {
     if (p_capacity) {
         m_componentArray.reserve(p_capacity);
         m_entityArray.reserve(p_capacity);
@@ -13,14 +13,14 @@ void ComponentManager<T>::Reserve(size_t p_capacity) {
 }
 
 template<ComponentType T>
-void ComponentManager<T>::Clear() {
+void ComponentPool<T>::Clear() {
     m_componentArray.clear();
     m_entityArray.clear();
     m_lookup.clear();
 }
 
 template<ComponentType T>
-void ComponentManager<T>::Copy(const ComponentManager<T>& p_other) {
+void ComponentPool<T>::Copy(const ComponentPool<T>& p_other) {
     Clear();
     m_componentArray = p_other.m_componentArray;
     m_entityArray = p_other.m_entityArray;
@@ -28,12 +28,12 @@ void ComponentManager<T>::Copy(const ComponentManager<T>& p_other) {
 }
 
 template<ComponentType T>
-void ComponentManager<T>::Copy(const IComponentManager& p_other) {
-    Copy((ComponentManager<T>&)p_other);
+void ComponentPool<T>::Copy(const IComponentPool& p_other) {
+    Copy((ComponentPool<T>&)p_other);
 }
 
 template<ComponentType T>
-void ComponentManager<T>::Merge(ComponentManager<T>&& p_other) {
+void ComponentPool<T>::Merge(ComponentPool<T>&& p_other) {
     const size_t base_count = GetCount();
     const size_t other_count = p_other.GetCount();
     const size_t reserved = base_count + other_count;
@@ -53,12 +53,12 @@ void ComponentManager<T>::Merge(ComponentManager<T>&& p_other) {
 }
 
 template<ComponentType T>
-void ComponentManager<T>::Merge(IComponentManager&& p_other) {
-    Merge((ComponentManager<T>&&)p_other);
+void ComponentPool<T>::Merge(IComponentPool&& p_other) {
+    Merge((ComponentPool<T>&&)p_other);
 }
 
 template<ComponentType T>
-void ComponentManager<T>::Remove(const Entity& p_entity) {
+void ComponentPool<T>::Remove(const Entity& p_entity) {
     auto it = m_lookup.find(p_entity);
     if (it == m_lookup.end()) {
         return;
@@ -87,7 +87,7 @@ void ComponentManager<T>::Remove(const Entity& p_entity) {
 }
 
 template<ComponentType T>
-bool ComponentManager<T>::Contains(const Entity& p_entity) const {
+bool ComponentPool<T>::Contains(const Entity& p_entity) const {
     if (m_lookup.empty()) {
         return false;
     }
@@ -95,19 +95,19 @@ bool ComponentManager<T>::Contains(const Entity& p_entity) const {
 }
 
 template<ComponentType T>
-T& ComponentManager<T>::GetComponentByIndex(size_t p_index) {
+T& ComponentPool<T>::GetComponentByIndex(size_t p_index) {
     DEV_ASSERT(p_index < m_componentArray.size());
     return m_componentArray[p_index];
 }
 
 template<ComponentType T>
-const T& ComponentManager<T>::GetComponentByIndex(size_t p_index) const {
+const T& ComponentPool<T>::GetComponentByIndex(size_t p_index) const {
     DEV_ASSERT(p_index < m_componentArray.size());
     return m_componentArray[p_index];
 }
 
 template<ComponentType T>
-T* ComponentManager<T>::GetComponent(const Entity& p_entity) {
+T* ComponentPool<T>::GetComponent(const Entity& p_entity) {
     if (!p_entity.IsValid() || m_lookup.empty()) {
         return nullptr;
     }
@@ -122,7 +122,7 @@ T* ComponentManager<T>::GetComponent(const Entity& p_entity) {
 }
 
 template<ComponentType T>
-T& ComponentManager<T>::Create(const Entity& p_entity) {
+T& ComponentPool<T>::Create(const Entity& p_entity) {
     DEV_ASSERT(p_entity.IsValid());
 
     const size_t componentCount = m_componentArray.size();

@@ -31,6 +31,7 @@ class ComponentRegistry {
 public:
     void Register(const ComponentMeta& p_meta);
     const ComponentMeta* TryGet(ComponentId p_id) const;
+    const ComponentMeta* FindByName(const StringId& p_id) const;
 
 private:
     std::vector<ComponentMeta> m_table;

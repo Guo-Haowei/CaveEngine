@@ -50,4 +50,10 @@ const ComponentMeta* ComponentRegistry::TryGet(ComponentId p_id) const {
     return &m_table[idx];
 }
 
+const ComponentMeta* ComponentRegistry::FindByName(const StringId& p_id) const {
+    auto it = m_name_to_id.find(p_id);
+    if (it == m_name_to_id.end()) return nullptr;
+    return TryGet(it->second);
+}
+
 }  // namespace cave::ecs

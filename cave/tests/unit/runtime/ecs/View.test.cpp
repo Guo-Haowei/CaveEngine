@@ -1,4 +1,4 @@
-#include "engine/private/runtime/ecs/ComponentManager.inl"
+#include "engine/private/runtime/ecs/ComponentPool.inl"
 #include "engine/private/runtime/ecs/View.h"
 
 namespace cave {
@@ -29,13 +29,13 @@ struct IsComponent<C3> : std::true_type {};
 namespace cave::ecs {
 
 template<ComponentType T>
-class MockManager : public ComponentManager<T> {
+class MockManager : public ComponentPool<T> {
 public:
     void Add(Entity p_entity, const T& p_component) {
-        const size_t index = ComponentManager<T>::m_componentArray.size();
-        ComponentManager<T>::m_lookup[p_entity] = index;
-        ComponentManager<T>::m_entityArray.emplace_back(p_entity);
-        ComponentManager<T>::m_componentArray.emplace_back(p_component);
+        const size_t index = ComponentPool<T>::m_componentArray.size();
+        ComponentPool<T>::m_lookup[p_entity] = index;
+        ComponentPool<T>::m_entityArray.emplace_back(p_entity);
+        ComponentPool<T>::m_componentArray.emplace_back(p_component);
     }
 };
 

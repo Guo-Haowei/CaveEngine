@@ -9,7 +9,7 @@
 #include "cave/runtime/ecs/components/NameComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
-#include "engine/private/runtime/ecs/ComponentManager.h"
+#include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
 
 // components
@@ -85,15 +85,15 @@ public:
     inline ecs::Entity GetEntityByIndex(size_t) { return ecs::Entity::Null(); }
 
     template<ComponentType T>
-    inline const ecs::ComponentManager<T>& Get() const {
+    inline const ecs::ComponentPool<T>& Get() const {
         static_assert(0, "this code should never instantiate");
-        return *((ecs::ComponentManager<T>*)nullptr);
+        return *((ecs::ComponentPool<T>*)nullptr);
     }
 
     template<ComponentType T>
-    inline ecs::ComponentManager<T>& Get() {
+    inline ecs::ComponentPool<T>& Get() {
         static_assert(0, "this code should never instantiate");
-        return *((ecs::ComponentManager<T>*)nullptr);
+        return *((ecs::ComponentPool<T>*)nullptr);
     }
 
     template<class... Cs>
@@ -108,7 +108,7 @@ public:
 
 #pragma region WORLD_COMPONENTS_REGISTRY
 #define REGISTER_COMPONENT(T, NAME, VER)                                                                           \
-    ecs::ComponentManager<T>& m_##T##s = m_component_lib.RegisterManager<T>(NAME, VER);                            \
+    ecs::ComponentPool<T>& m_##T##s = m_component_lib.RegisterManager<T>(NAME, VER);                               \
     template<>                                                                                                     \
     inline T& GetComponentByIndex<T>(size_t p_index) { return m_##T##s.m_componentArray[p_index]; }                \
     template<>                                                                                                     \
@@ -126,9 +126,9 @@ public:
     template<>                                                                                                     \
     inline void Remove<T>(const ecs::Entity& p_entity) { return m_##T##s.Remove(p_entity); }                       \
     template<>                                                                                                     \
-    inline const ecs::ComponentManager<T>& Get() const { return m_##T##s; }                                        \
+    inline const ecs::ComponentPool<T>& Get() const { return m_##T##s; }                                           \
     template<>                                                                                                     \
-    inline ecs::ComponentManager<T>& Get() { return m_##T##s; }
+    inline ecs::ComponentPool<T>& Get() { return m_##T##s; }
 
 #pragma endregion WORLD_COMPONENTS_REGISTRY
 

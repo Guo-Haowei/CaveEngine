@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/core/io/archive.h"
-#include "engine/private/runtime/ecs/ComponentManager.inl"
+#include "engine/private/runtime/ecs/ComponentPool.inl"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/systems/animation_system.h"
 #include "engine/private/systems/ecs_systems.h"
@@ -15,7 +15,7 @@
 namespace cave::ecs {
 
 // instantiate ComponentManagers
-#define REGISTER_COMPONENT(TYPE, ...) template class ComponentManager<::cave::TYPE>;
+#define REGISTER_COMPONENT(TYPE, ...) template class ComponentPool<::cave::TYPE>;
 REGISTER_COMPONENT_LIST
 #undef REGISTER_COMPONENT
 

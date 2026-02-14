@@ -1,8 +1,8 @@
-#include "ComponentManager.h"
+#include "cave/runtime/ecs/IComponentPool.h"
 
 namespace cave::ecs {
 
-void IComponentManager::Remap(const std::unordered_map<Entity, Entity>& p_map) {
+void IComponentPool::Remap(const std::unordered_map<Entity, Entity>& p_map) {
     std::unordered_map<Entity, size_t> new_lookup;
 
     for (Entity& entity : m_entityArray) {

@@ -1,4 +1,4 @@
-#include "engine/private/runtime/ecs/ComponentManager.inl"
+#include "engine/private/runtime/ecs/ComponentPool.inl"
 
 namespace cave {
 
@@ -14,7 +14,7 @@ struct IsComponent<Position> : std::true_type {};
 namespace cave::ecs {
 
 TEST(ComponentManagerTest, RemoveByEntity) {
-    ComponentManager<Position> mgr;
+    ComponentPool<Position> mgr;
 
     // Create 3 entities with components
     mgr.Create(Entity(1)) = { 1.0f, 1.0f };

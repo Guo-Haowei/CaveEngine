@@ -1,5 +1,5 @@
 #pragma once
-#include "ComponentManager.h"
+#include "ComponentPool.h"
 
 namespace cave::ecs {
 
@@ -11,7 +11,7 @@ using MaybeRef = std::conditional_t<IsConst, const T&, T&>;
 
 template<bool IsConst, class... Cs>
 class BasicView {
-    using MgrTuple = std::tuple<MaybeConst<IsConst, ComponentManager<Cs>>*...>;
+    using MgrTuple = std::tuple<MaybeConst<IsConst, ComponentPool<Cs>>*...>;
 
 public:
     using value_type = std::tuple<Entity, MaybeRef<IsConst, Cs>...>;
@@ -97,7 +97,7 @@ public:
         MgrTuple m_mgrs{};
     };
 
-    explicit BasicView(MaybeConst<IsConst, ComponentManager<Cs>>&... mgrs)
+    explicit BasicView(MaybeConst<IsConst, ComponentPool<Cs>>&... mgrs)
         : m_mgrs{ (&mgrs)... } {
         pick_baseline();
     }
