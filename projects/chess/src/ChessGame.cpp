@@ -21,7 +21,6 @@ void ChessGame::OnSceneBegin(Scene& p_scene, IHostServices& p_host, const GameIn
 
     SceneCommandBuffer cb;
     ecs::Entity root = cb.Create();
-    cb.Add();
     cb.Playback(p_scene);
 }
 

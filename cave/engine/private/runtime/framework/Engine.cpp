@@ -9,14 +9,14 @@
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
 
-namespace cave {
+namespace cave::engine {
 
 static OS* s_os;
 static ecs::ComponentRegistry s_component_reg;
 
 static void RegisterBuiltinComponents();
 
-bool engine::InitializeCore() {
+bool InitializeCore() {
     if (s_os) {
         return true;
     }
@@ -32,7 +32,7 @@ bool engine::InitializeCore() {
     return true;
 }
 
-void engine::FinalizeCore() {
+void FinalizeCore() {
     if (!s_os) {
         return;
     }
@@ -67,4 +67,4 @@ ecs::ComponentRegistry& GetComponentRegistry() {
     return s_component_reg;
 }
 
-}  // namespace cave
+}  // namespace cave::engine

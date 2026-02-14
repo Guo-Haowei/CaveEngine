@@ -1,5 +1,6 @@
 #pragma once
 #include <optional>
+#include "cave/core/ErrorMacros.h"
 
 namespace cave {
 

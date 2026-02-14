@@ -1,4 +1,4 @@
-#include "engine/private/runtime/ecs/ComponentPool.inl"
+#include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
 
 namespace cave {

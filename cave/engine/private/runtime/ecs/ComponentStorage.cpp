@@ -1,7 +1,6 @@
 #include "cave/runtime/ecs/ComponentStorage.h"
 
 #include "ComponentPool.h"
-#include "ComponentPool.inl"
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/Engine.h"

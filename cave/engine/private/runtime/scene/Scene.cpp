@@ -2,7 +2,6 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/core/io/archive.h"
-#include "engine/private/runtime/ecs/ComponentPool.inl"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/systems/animation_system.h"
 #include "engine/private/systems/ecs_systems.h"

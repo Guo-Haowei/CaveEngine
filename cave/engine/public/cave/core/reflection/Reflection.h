@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include "cave/core/typedefs.h"
+#include "cave/core/Option.h"
 
 // #define USE_REFLECTION USE_IF(!USING(PLATFORM_WASM))
 #define USE_REFLECTION IN_USE
