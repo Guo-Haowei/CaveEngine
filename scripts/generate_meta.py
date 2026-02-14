@@ -47,7 +47,7 @@ META_CPP_ALL = 'MetaAll.cpp'
 
 # ========= REGEX ==========
 
-meta_regex = re.compile(r"CAVE_META\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)")
+meta_regex = re.compile(r"CAVE_(?:META|COMPONENT)\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)")
 prop_regex = re.compile(r"CAVE_PROP\s*\((.*?)\)")
 field_regex = re.compile(r"([a-zA-Z_][\w:]*)\s+([a-zA-Z_]\w*)\s*;")
 

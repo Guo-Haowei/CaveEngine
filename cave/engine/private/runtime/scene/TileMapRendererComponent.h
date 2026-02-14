@@ -1,8 +1,7 @@
 #pragma once
-#include "cave/core/reflection/Reflection.h"
 #include "cave/core/math/Box.h"
-
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 // @TODO: rename it to TileMapInstanceComponent
 
@@ -11,7 +10,7 @@ namespace cave {
 struct GpuMesh;
 
 class TileMapRendererComponent {
-    CAVE_META(TileMapRendererComponent)
+    CAVE_COMPONENT(TileMapRendererComponent)
 
 private:
     CAVE_PROP(editor = Asset, tooltip = "tile map")

@@ -1,13 +1,13 @@
 #pragma once
 #include "cave/core/math/Vector.h"
-#include "cave/core/reflection/Reflection.h"
 
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
 struct MaterialComponent {
-    CAVE_META(MaterialComponent)
+    CAVE_COMPONENT(MaterialComponent)
 
     CAVE_PROP(editor = Color)
     math::Vector4f base_color = math::Vector4f::One;

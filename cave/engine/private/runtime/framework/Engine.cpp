@@ -52,7 +52,6 @@ static void RegisterBuiltinComponents() {
     reg.Register({                              \
         .id = T##_Id,                           \
         .name = #T,                             \
-        .name_id = StringId(#T),                \
         .size = sizeof(T),                      \
         .align = alignof(T),                    \
         .version = 0,                           \

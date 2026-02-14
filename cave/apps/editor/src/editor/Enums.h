@@ -13,9 +13,7 @@ enum class GizmoAction : uint8_t {
 #define ENTITY_TYPE_LIST               \
     ENTITY_TYPE(InfiniteLight,  false) \
     ENTITY_TYPE(PointLight,     false) \
-    ENTITY_TYPE(Environment,    false) \
     ENTITY_TYPE(AreaLight,      true ) \
-    ENTITY_TYPE(VoxelGi,        true ) \
     ENTITY_TYPE(Transform,      false) \
     ENTITY_TYPE(Plane,          false) \
     ENTITY_TYPE(Cube,           false) \

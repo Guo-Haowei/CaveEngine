@@ -2,9 +2,8 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/core/math/AABB.h"
 #include "cave/core/math/Angle.h"
-#include "cave/core/reflection/Reflection.h"
-
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 #include "shader_defines.hlsl.h"
@@ -20,8 +19,12 @@ class Archive;
 class FileAccess;
 class Scene;
 
+struct NoSaveTag {
+    CAVE_COMPONENT(NoSaveTag)
+};
+
 class PrefabInstanceComponent {
-    CAVE_META(PrefabInstanceComponent)
+    CAVE_COMPONENT(PrefabInstanceComponent)
 
 private:
     CAVE_PROP(editor = Asset)
@@ -33,7 +36,7 @@ public:
 };
 
 struct VelocityComponent {
-    CAVE_META(VelocityComponent)
+    CAVE_COMPONENT(VelocityComponent)
 
     CAVE_PROP(editor = Translation)
     math::Vector3f linear = math::Vector3f::Zero;
@@ -80,6 +83,7 @@ struct RigidBodyComponent : CollisionObjectBase {
 
 #pragma endregion COLLISION_OBJECT_COMPONENT
 
+#if 0
 #pragma region ENVIRONMENT_COMPONENT
 struct EnvironmentComponent {
     enum Type : uint32_t {
@@ -100,23 +104,8 @@ struct EnvironmentComponent {
 
     void Serialize(Archive& p_archive, uint32_t p_version);
 };
-
-struct VoxelGiComponent {
-    enum : uint32_t {
-        ENABLED = BIT(1),
-        SHOW_DEBUG_BOX = BIT(2),
-    };
-
-    uint32_t flags = 0;
-    // Non-serialized
-    math::AABB region;
-
-    bool Enabled() const { return flags & ENABLED; }
-    bool ShowDebugBox() const { return flags & SHOW_DEBUG_BOX; }
-
-    void Serialize(Archive& p_archive, uint32_t p_version);
-};
 #pragma endregion ENVIRONMENT_COMPONENT
+#endif
 
 // @TODO: move to particle system
 #pragma region PARTICLE_EMITTER_COMPONENT

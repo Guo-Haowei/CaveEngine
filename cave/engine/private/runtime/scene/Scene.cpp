@@ -61,17 +61,6 @@ void Scene::Update(float p_timestep) {
         }
     }
 
-    for (auto [entity, voxel_gi] : View<VoxelGiComponent>()) {
-        auto transform = GetComponent<TransformComponent>(entity);
-        if (DEV_VERIFY(transform)) {
-            const auto& matrix = transform->GetWorldMatrix();
-            Vector3f center{ matrix[3].x, matrix[3].y, matrix[3].z };
-            Vector3f scale = transform->GetScale();
-            const float size = glm::max(scale.x, glm::max(scale.y, scale.z));
-            voxel_gi.region = AABB::FromCenterSize(center, Vector3f(size));
-        }
-    }
-
 // @TODO: refactor
 #if 0
     if (DVAR_GET_BOOL(gfx_bvh_generate)) {

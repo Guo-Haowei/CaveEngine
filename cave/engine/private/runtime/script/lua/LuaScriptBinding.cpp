@@ -9,6 +9,9 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 
+// @TODO: refactor
+#include "engine/private/core/math/Geomath.h"
+
 namespace cave::lua {
 
 using namespace cave::math;
@@ -283,9 +286,6 @@ bool OpenSceneLib(lua_State* L) {
         })
         .addFunction("get_camera", [](Scene* p_scene, uint32_t p_entity) {
             return p_scene->GetComponent<CameraComponent>(ecs::Entity(p_entity));
-        })
-        .addFunction("get_rigid_body", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<RigidBodyComponent>(ecs::Entity(p_entity));
         })
         .addFunction("find_entity_by_name", [](Scene* p_scene, const char* p_name) {
             return p_scene->FindEntityByName(p_name).GetId();

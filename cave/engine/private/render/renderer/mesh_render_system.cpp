@@ -287,53 +287,6 @@ static void FillLightBuffer(const RenderScene& p_rs,
     }
 }
 
-static void FillVoxelPass(const Scene& p_scene, FrameData& p_framedata) {
-    bool enabled = false;
-    bool show_debug = false;
-    p_framedata.voxel_gi_bound.Invalidate();
-    int counter = 0;
-    for (auto [entity, voxel_gi] : p_scene.View<VoxelGiComponent>()) {
-        p_framedata.voxel_gi_bound = voxel_gi.region;
-        if (!p_framedata.voxel_gi_bound.IsValid()) {
-            return;
-        }
-
-        show_debug = voxel_gi.ShowDebugBox();
-        enabled = voxel_gi.Enabled();
-        DEV_ASSERT_MSG(counter++ == 0, "Only support one ");
-    }
-
-    // if (show_debug) {
-    //     AddDebugCube(p_framedata, p_framedata.voxel_gi_bound, Color(0.5f, 0.3f, 0.6f, 0.5f));
-    // }
-
-    auto& cache = p_framedata.perFrameCache;
-    cache.c_enableVxgi = enabled;
-    // @HACK: DONT use pass_idx
-    if (!enabled) {
-        p_framedata.voxelPass.pass_idx = -1;
-        return;
-    }
-    p_framedata.voxelPass.pass_idx = 0;
-
-    // @TODO: refactor the following
-    const int voxel_texture_size = p_framedata.options.voxelTextureSize;
-    DEV_ASSERT(IsPowerOfTwo(voxel_texture_size));
-    DEV_ASSERT(voxel_texture_size <= 256);
-
-    const auto voxel_world_center = p_framedata.voxel_gi_bound.Center();
-    auto voxel_world_size = p_framedata.voxel_gi_bound.Size().x;
-
-    const float texel_size = 1.0f / static_cast<float>(voxel_texture_size);
-    const float voxel_size = voxel_world_size * texel_size;
-
-    // this code is a bit mess here
-    cache.c_voxelWorldCenter = voxel_world_center;
-    cache.c_voxelWorldSizeHalf = 0.5f * voxel_world_size;
-    cache.c_texelSize = texel_size;
-    cache.c_voxelSize = voxel_size;
-}
-
 static void FillMainPass(const Scene& p_es,
                          const RenderScene& p_rs,
                          const ResolvedView& p_view,
@@ -393,7 +346,6 @@ void RunMeshRenderSystem(const Scene& p_scene,
                          const ResolvedView& p_view,
                          FrameData& p_framedata) {
     FillLightBuffer(p_rscene, p_scene, p_view, p_framedata);
-    FillVoxelPass(p_scene, p_framedata);
     FillMainPass(p_scene, p_rscene, p_view, p_framedata);
 }
 

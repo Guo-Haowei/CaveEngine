@@ -106,21 +106,6 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
     return id;
 }
 
-Entity EntityFactory::CreateEnvironmentEntity(Scene& p_scene,
-                                              const std::string& p_name) {
-    Entity entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<EnvironmentComponent>(entity);
-    return entity;
-}
-
-Entity EntityFactory::CreateVoxelGiEntity(Scene& p_scene,
-                                          const std::string& p_name) {
-    auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<VoxelGiComponent>(entity);
-    p_scene.Create<TransformComponent>(entity);
-    return entity;
-}
-
 static Entity CreateMeshEntity(const std::string& p_asset_path,
                                Scene& p_scene,
                                const std::string& p_name,

@@ -6,6 +6,9 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/systems/job_system/job_system.h"
 
+// @TODO: refactor
+#include "engine/private/core/math/Geomath.h"
+
 namespace cave {
 
 using namespace cave::math;

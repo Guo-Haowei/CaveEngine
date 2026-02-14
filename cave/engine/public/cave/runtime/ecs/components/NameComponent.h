@@ -2,13 +2,13 @@
 // File: engine/public/cave/runtime/ecs/components/NameComponent.h
 // =============================================================================
 #pragma once
-#include "cave/core/reflection/Reflection.h"
 #include "cave/core/string/FixedString.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
 class NameComponent {
-    CAVE_META(NameComponent)
+    CAVE_COMPONENT(NameComponent)
 
 private:
     CAVE_PROP()

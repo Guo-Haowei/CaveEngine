@@ -31,15 +31,6 @@ class Context;
 
 namespace cave {
 
-// Tags that don't need to be serialized
-struct NoSaveTag {};
-
-#define REGISTER_COMPONENT(TYPE, ...) \
-    template<>                        \
-    struct IsComponent<TYPE> : std::true_type {};
-REGISTER_COMPONENT_LIST
-#undef REGISTER_COMPONENT
-
 // @TODO: refactor
 struct PhysicsWorldContext;
 

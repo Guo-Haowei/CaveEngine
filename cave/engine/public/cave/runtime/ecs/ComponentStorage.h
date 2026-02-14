@@ -3,7 +3,6 @@
 // =============================================================================
 #pragma once
 #include "cave/core/ids/Entity.h"
-#include "cave/runtime/ecs/ComponentDefines.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
 
 namespace cave::ecs {
@@ -22,8 +21,6 @@ public:
     bool IsRegistered(ComponentId p_id) const;
 
     IComponentPool* TryGet(ComponentId p_id) const;
-
-    IComponentPool* FindByName(const StringId& p_id) const;
 
     // Typed registration: keeps your typed vector storage
     template<typename ManagerT>

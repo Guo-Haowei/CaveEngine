@@ -339,7 +339,7 @@ void PropertyPanel::DrawUIImpl() {
     CameraComponent* camera = scene.GetComponent<CameraComponent>(id);
     PrefabInstanceComponent* prefab = scene.GetComponent<PrefabInstanceComponent>(id);
 
-    RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
+    // RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
@@ -484,6 +484,7 @@ void PropertyPanel::DrawUIImpl() {
         }
     });
 
+#if 0
     DrawComponent(DRAW_COMPONENT_ARGS("RigidBody"), rigid_body_component, [](RigidBodyComponent& p_rigid_body) {
         const auto& size = p_rigid_body.size;
         switch (p_rigid_body.shape) {
@@ -499,6 +500,7 @@ void PropertyPanel::DrawUIImpl() {
                 break;
         }
     });
+#endif
 
 #if 0
     VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);

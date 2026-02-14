@@ -1,13 +1,12 @@
 #pragma once
 #include "cave/core/math/Box.h"
-#include "cave/core/reflection/Reflection.h"
-
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
 class SpriteRendererComponent {
-    CAVE_META(SpriteRendererComponent)
+    CAVE_COMPONENT(SpriteRendererComponent)
 
 private:
     CAVE_PROP(editor = Asset)

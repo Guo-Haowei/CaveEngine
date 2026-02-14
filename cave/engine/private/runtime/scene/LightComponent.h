@@ -1,8 +1,7 @@
 #pragma once
 #include "cave/core/math/AABB.h"
-#include "cave/core/reflection/Reflection.h"
-
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
@@ -18,7 +17,7 @@ enum class LightType : uint8_t {
 DECLARE_ENUM_TRAITS(LightType, "infinite", "point", "spot", "area");
 
 class LightComponent {
-    CAVE_META(LightComponent)
+    CAVE_COMPONENT(LightComponent)
 
 private:
     CAVE_PROP(editor = EnumDropDown)

@@ -26,14 +26,6 @@ IComponentPool* ComponentStorage::TryGet(ComponentId p_id) const {
     return m_entries[idx].pool.get();
 }
 
-IComponentPool* ComponentStorage::FindByName(const StringId& p_id) const {
-    auto& reg = engine::GetComponentRegistry();
-    if (const ComponentMeta* meta = reg.FindByName(p_id)) {
-        return TryGet(meta->id);
-    }
-    return nullptr;
-}
-
 bool ComponentStorage::Has(Entity p_ent, ComponentId p_id) const {
     auto* pool = TryGet(p_id);
     return pool ? pool->Contains(p_ent) : false;
