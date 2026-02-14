@@ -2,7 +2,9 @@
 #include "bullet3_physics_manager.h"
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/Scene.h"

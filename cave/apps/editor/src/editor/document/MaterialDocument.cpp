@@ -1,5 +1,8 @@
 #include "MaterialDocument.h"
 
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/MaterialComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/SceneEdit.h"
 
 #include "engine/private/runtime/scene/SceneRegistry.h"

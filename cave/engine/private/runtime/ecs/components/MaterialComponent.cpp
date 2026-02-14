@@ -1,4 +1,4 @@
-#include "MaterialComponent.h"
+#include "cave/runtime/ecs/components/MaterialComponent.h"
 
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"

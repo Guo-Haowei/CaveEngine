@@ -1,5 +1,7 @@
 #include "PreviewBuilder.h"
 
+#include "cave/runtime/ecs/components/MaterialComponent.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneEdit.h"
 

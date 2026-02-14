@@ -2,6 +2,8 @@
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/runtime/scene/Scene.h"
 
+#include "engine/private/runtime/ecs/components/All.h"
+
 namespace cave {
 
 using namespace cave::math;

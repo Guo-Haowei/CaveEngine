@@ -1,5 +1,6 @@
 #include "cave/runtime/scene/SceneEdit.h"
 
+#include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {

@@ -17,8 +17,11 @@ FILES = [
     # components
     'public/cave/runtime/ecs/components/CameraComponent.h',
     'public/cave/runtime/ecs/components/HierarchyComponent.h',
-    'public/cave/runtime/ecs/components/NameComponent.h',
+    'public/cave/runtime/ecs/components/LightComponent.h',
     'public/cave/runtime/ecs/components/LuaScriptComponent.h',
+    'public/cave/runtime/ecs/components/MaterialComponent.h',
+    'public/cave/runtime/ecs/components/MeshRendererComponent.h',
+    'public/cave/runtime/ecs/components/NameComponent.h',
     'public/cave/runtime/ecs/components/TransformComponent.h',
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
@@ -28,13 +31,10 @@ FILES = [
     'private/runtime/assets/TileSetAsset.h',
     # components
     'private/runtime/scene/ColliderComponent.h',
-    'private/runtime/scene/LightComponent.h',
-    'private/runtime/scene/MaterialComponent.h',
     'private/runtime/scene/SceneComponent.h',
     'private/runtime/scene/SkeletalAnimationComponent.h',
     'private/runtime/scene/SpriteAnimatorComponent.h',
     # renderers
-    'private/runtime/scene/MeshRendererComponent.h',
     'private/runtime/scene/SpriteRendererComponent.h',
     'private/runtime/scene/TileMapRendererComponent.h',
 ]

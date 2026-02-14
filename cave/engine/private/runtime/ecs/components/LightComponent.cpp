@@ -1,4 +1,4 @@
-#include "LightComponent.h"
+#include "cave/runtime/ecs/components/LightComponent.h"
 
 namespace cave {
 

@@ -6,6 +6,9 @@
 #include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
 
+// @TODO: refactor
+#include "engine/private/runtime/ecs/components/All.h"
+
 namespace cave {
 
 using namespace cave::math;

@@ -8,6 +8,18 @@
 
 namespace cave {
 
+
+template<>
+const MetaTableFields& MetaDataTable<NoSaveTag>::GetFields() {
+    static MetaTableFields s_table = {
+    };
+
+    return s_table;
+}
+
+// Avoid lazy init
+[[maybe_unused]] static const auto& s_NoSaveTag_meta = MetaDataTable<NoSaveTag>::GetFields();
+
 // Guid m_prefab_id (editor = Asset)
 
 template<>

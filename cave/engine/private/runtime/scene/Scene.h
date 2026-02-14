@@ -1,31 +1,12 @@
 #pragma once
 #include "cave/core/NonCopyable.h"
+#include "cave/core/math/AABB.h"
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/assets/IAsset.h"
 #include "cave/runtime/ecs/ComponentStorage.h"
 
 #include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
-
-// @TODO: refactor this
-#include "cave/runtime/ecs/components/CameraComponent.h"
-#include "cave/runtime/ecs/components/HierarchyComponent.h"
-#include "cave/runtime/ecs/components/LuaScriptComponent.h"
-#include "cave/runtime/ecs/components/NameComponent.h"
-#include "cave/runtime/ecs/components/TransformComponent.h"
-
-// components
-// @TODO: split this
-#include "engine/private/runtime/scene/SceneComponent.h"
-
-#include "engine/private/runtime/scene/ColliderComponent.h"
-#include "engine/private/runtime/scene/LightComponent.h"
-#include "engine/private/runtime/scene/MaterialComponent.h"
-#include "engine/private/runtime/scene/MeshRendererComponent.h"
-#include "engine/private/runtime/scene/SkeletalAnimationComponent.h"
-#include "engine/private/runtime/scene/SpriteAnimatorComponent.h"
-#include "engine/private/runtime/scene/SpriteRendererComponent.h"
-#include "engine/private/runtime/scene/TileMapRendererComponent.h"
 
 namespace cave::jobsystem {
 class Context;
@@ -35,6 +16,7 @@ namespace cave {
 
 // @TODO: refactor
 struct PhysicsWorldContext;
+class PrefabInstanceComponent;
 
 enum class PhysicsMode : uint8_t {
     NONE = 0,

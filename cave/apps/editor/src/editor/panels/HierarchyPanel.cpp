@@ -7,6 +7,7 @@
 #include "cave/runtime/scene/SceneEdit.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/services/DocumentService.h"

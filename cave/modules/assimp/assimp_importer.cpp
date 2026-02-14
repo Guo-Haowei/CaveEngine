@@ -4,6 +4,11 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 
+#include "cave/runtime/ecs/components/MaterialComponent.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
+
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"

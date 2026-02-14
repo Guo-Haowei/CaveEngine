@@ -196,7 +196,6 @@ TEST(View, baseline_is_smallest_set) {
 }
 
 TEST(View, skip_if_any_pool_is_null) {
-
 }
 
 }  // namespace cave::ecs

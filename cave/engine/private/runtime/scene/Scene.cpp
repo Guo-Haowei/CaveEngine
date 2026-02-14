@@ -1,7 +1,9 @@
 #include "Scene.h"
 
 #include "cave/core/diagnostics/Profiler.h"
+
 #include "engine/private/core/io/archive.h"
+#include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/systems/animation_system.h"
 #include "engine/private/systems/ecs_systems.h"
@@ -10,15 +12,6 @@
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/serialization/yaml_include.h"
-
-namespace cave::ecs {
-
-// instantiate ComponentManagers
-#define REGISTER_COMPONENT(TYPE, ...) template class ComponentPool<::cave::TYPE>;
-REGISTER_COMPONENT_LIST
-#undef REGISTER_COMPONENT
-
-}  // namespace cave::ecs
 
 namespace cave {
 
@@ -325,6 +318,7 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
         d.Read((uint32_t&)id);
         d.LeaveKey();
 
+        // @TODO: use component registry instead of this
 #define REGISTER_COMPONENT(a, ...)                 \
     do {                                           \
         DeserializeComponent<a>(d, #a, id, *this); \

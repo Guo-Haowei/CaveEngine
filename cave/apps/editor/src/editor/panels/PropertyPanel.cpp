@@ -5,6 +5,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
+#include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/edit/EditPropertyCmd.h"

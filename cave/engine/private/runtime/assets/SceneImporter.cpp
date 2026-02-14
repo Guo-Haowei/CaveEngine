@@ -1,6 +1,8 @@
 #include "SceneImporter.h"
 
 #include "cave/core/string/StringUtils.h"
+#include "cave/runtime/ecs/components/NameComponent.h"
+
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"

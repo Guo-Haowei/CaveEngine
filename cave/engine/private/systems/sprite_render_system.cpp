@@ -1,3 +1,5 @@
+#include "cave/runtime/ecs/components/TransformComponent.h"
+
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
