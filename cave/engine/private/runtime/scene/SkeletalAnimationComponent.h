@@ -1,12 +1,12 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
-#include "engine/private/core/math/geomath.h"
-#include "cave/core/reflection/Reflection.h"
+#include "cave/core/math/Matrix.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
 struct SkeletonComponent {
-    CAVE_META(SkeletonComponent)
+    CAVE_COMPONENT(SkeletonComponent)
 
     CAVE_PROP()
     std::vector<ecs::Entity> bone_collection;
@@ -51,7 +51,7 @@ struct SkeletalAnimationSampler {
 };
 
 class SkeletalAnimationComponent {
-    CAVE_META(SkeletalAnimationComponent)
+    CAVE_COMPONENT(SkeletalAnimationComponent)
 
 private:
     CAVE_PROP(editor = Toggle)

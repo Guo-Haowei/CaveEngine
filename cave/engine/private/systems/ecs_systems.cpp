@@ -6,6 +6,10 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/systems/job_system/job_system.h"
 
+// @TODO: refactor
+#include "engine/private/core/math/Geomath.h"
+#include "engine/private/runtime/ecs/components/All.h"
+
 namespace cave {
 
 using namespace cave::math;
@@ -34,6 +38,10 @@ class SkeletalAnimationSystem {
 public:
     static void Update(Scene& p_scene, size_t p_index, float p_timestep);
 };
+
+// @TODO: fix
+#pragma warning(push)
+#pragma warning(disable : 4996)
 
 void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_timestep) {
     SkeletalAnimationComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimationComponent>(p_index);
@@ -316,7 +324,7 @@ void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context&, float) {
     AABB bound;
 
     for (auto [id, mesh_renderer] : p_scene.View<MeshRendererComponent>()) {
-        if (!p_scene.Contains<TransformComponent>(id)) {
+        if (!p_scene.Has<TransformComponent>(id)) {
             continue;
         }
 

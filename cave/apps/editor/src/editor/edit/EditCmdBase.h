@@ -14,7 +14,7 @@ class SceneRegistry;
 class EditCmdBase : public IEditCmd {
 public:
     EditCmdBase(IApplication& p_app,
-                ecs::Entity p_entity);
+                ecs::Entity p_ent);
 
     bool CanCoalesceWith(const IEditCmd*) const override {
         return false;

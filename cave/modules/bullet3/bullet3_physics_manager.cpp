@@ -2,7 +2,9 @@
 #include "bullet3_physics_manager.h"
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -96,7 +98,9 @@ void Bullet3PhysicsManager::FinalizeImpl() {
 }
 
 void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
+    unused(p_timestep);
     CAVE_PROFILE_EVENT();
+    CRASH_NOW();
 
     PhysicsWorldContext& context = *p_scene.m_physicsWorld;
 
@@ -112,6 +116,9 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
             }
         }
     }
+    CRASH_NOW();
+
+#if 0
 
     context.dynamicWorld->stepSimulation(p_timestep, 10);
 
@@ -144,9 +151,7 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
             continue;
         }
 
-        CRASH_NOW();
 
-#if 0
         if (btSoftBody* body = btSoftBody::upcast(collision_object); body) {
             if (id.IsValid()) {
                 // hack: wind
@@ -173,16 +178,19 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
             }
             continue;
         }
-#endif
     }
+#endif
 }
 
 void Bullet3PhysicsManager::UpdateCollision(Scene& p_scene) {
+    CRASH_NOW();
+
     CAVE_PROFILE_EVENT();
 
     PhysicsWorldContext& context = *p_scene.m_physicsWorld;
     // set positions
     for (int j = context.dynamicWorld->getNumCollisionObjects() - 1; j >= 0; j--) {
+#if 0
         btCollisionObject* collision_object = context.dynamicWorld->getCollisionObjectArray()[j];
         uint32_t handle = (uint32_t)(uintptr_t)collision_object->getUserPointer();
         ecs::Entity id{ handle };
@@ -207,6 +215,7 @@ void Bullet3PhysicsManager::UpdateCollision(Scene& p_scene) {
             continue;
         }
 
+#endif
         CRASH_NOW();
     }
 
@@ -224,6 +233,9 @@ void Bullet3PhysicsManager::UpdateCollision(Scene& p_scene) {
                 continue;
             }
 
+            CRASH_NOW();
+#if 0
+
             const RigidBodyComponent* rigid_body_1 = p_scene.GetComponent<RigidBodyComponent>(entity_1);
             const RigidBodyComponent* rigid_body_2 = p_scene.GetComponent<RigidBodyComponent>(entity_2);
 
@@ -238,6 +250,7 @@ void Bullet3PhysicsManager::UpdateCollision(Scene& p_scene) {
                 CustomContactResultCallback callback(p_scene, *m_app->ScriptService());
                 context.dynamicWorld->contactPairTest(object_1, object_2, callback);
             }
+#endif
         }
     }
 }
@@ -288,7 +301,10 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
     }
 
     PhysicsWorldContext& context = *p_scene.m_physicsWorld;
+    unused(context);
 
+    CRASH_NOW();
+#if 0
     for (auto [id, component] : p_scene.View<RigidBodyComponent>()) {
         if (component.physicsObject) {
             continue;
@@ -345,7 +361,6 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
         }
     }
 
-#if 0
     for (auto [id, component] : p_scene.m_ClothComponents) {
         if (component.physicsObject) {
             continue;

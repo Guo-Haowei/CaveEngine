@@ -1,6 +1,9 @@
 #pragma once
 #include "SceneQueryService.h"
 
+#include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"

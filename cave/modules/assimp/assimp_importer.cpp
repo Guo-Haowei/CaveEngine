@@ -4,6 +4,11 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 
+#include "cave/runtime/ecs/components/MaterialComponent.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
+
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
@@ -173,7 +178,7 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
         }
     }
 
-    DEV_ASSERT(m_scene->Contains<TransformComponent>(entity));
+    DEV_ASSERT(m_scene->Has<TransformComponent>(entity));
 
     const aiMatrix4x4& local = p_node->mTransformation;                           // row major matrix
     Matrix4x4f localTransformColumnMajor(local.a1, local.b1, local.c1, local.d1,  // x0 y0 z0 w0

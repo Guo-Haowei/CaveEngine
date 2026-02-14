@@ -84,22 +84,16 @@ struct FieldMetaBase {
     virtual ~FieldMetaBase() = default;
 
     template<typename T>
-    const T& GetData(const void* p_object) const {
-        char* ptr = (char*)p_object + offset;
-        return *reinterpret_cast<T*>(ptr);
-    }
-
-    template<typename T>
-    T& GetData(void* p_object) {
+    T& GetData(const void* p_object) const {
         char* ptr = (char*)p_object + offset;
         return *reinterpret_cast<T*>(ptr);
     }
 
     virtual ISerializer& Write(ISerializer& p_serializer, const void* p_object) const = 0;
-    virtual bool Read(IDeserializer& p_deserializer, void* p_object) = 0;
+    virtual bool Read(IDeserializer& p_deserializer, void* p_object) const = 0;
 
 #if USING(USE_EDITOR)
-    virtual bool DrawEditor(void*, float) = 0;
+    virtual bool DrawEditor(void*, float) const = 0;
 #endif
 };
 
@@ -108,10 +102,10 @@ struct FieldMeta : FieldMetaBase {
     using FieldMetaBase::FieldMetaBase;
 
     ISerializer& Write(ISerializer& p_serializer, const void* p_object) const override;
-    bool Read(IDeserializer& p_deserializer, void* p_object) override;
+    bool Read(IDeserializer& p_deserializer, void* p_object) const override;
 
 #if USING(USE_EDITOR)
-    bool DrawEditor(void* p_object, float p_column_width) override;
+    bool DrawEditor(void* p_object, float p_column_width) const override;
 #endif
 };
 

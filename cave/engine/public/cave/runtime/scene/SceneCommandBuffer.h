@@ -39,12 +39,12 @@ class SceneCommandBuffer {
 
     struct Payload_Component {
         ecs::Entity entity;
-        ComponentId type;
+        BuildInComponentId type;
     };
 
     struct Payload_Property {
         ecs::Entity entity;
-        ComponentId type;
+        BuildInComponentId type;
         FixedString<kPropertyNameMax> property_name;
         uint32_t data_size;
     };
@@ -58,39 +58,39 @@ public:
         return e.out_temp;
     }
 
-    ecs::Entity Resolve(ecs::Entity p_entity) const noexcept;
+    ecs::Entity Resolve(ecs::Entity p_ent) const noexcept;
 
-    void Destroy(ecs::Entity p_entity) {
-        Payload_Destroy e{ p_entity };
+    void Destroy(ecs::Entity p_ent) {
+        Payload_Destroy e{ p_ent };
         WriteEntityRecord(Op::DestroyEntity, &e, sizeof(e));
     }
 
-    void Add(ecs::Entity p_entity, ComponentId p_id) {
-        WriteComponentRecord(Op::AddComponent, p_entity, p_id);
+    void Add(ecs::Entity p_ent, BuildInComponentId p_id) {
+        WriteComponentRecord(Op::AddComponent, p_ent, p_id);
     }
 
-    void Remove(ecs::Entity p_entity, ComponentId p_id) {
-        WriteComponentRecord(Op::RemoveComponent, p_entity, p_id);
+    void Remove(ecs::Entity p_ent, BuildInComponentId p_id) {
+        WriteComponentRecord(Op::RemoveComponent, p_ent, p_id);
     }
 
     template<typename T>
-    void SetProperty(ecs::Entity p_entity, ComponentId p_id, std::string_view p_property, const T& p_value) {
+    void SetProperty(ecs::Entity p_ent, BuildInComponentId p_id, std::string_view p_property, const T& p_value) {
         static_assert(std::is_trivially_copyable_v<T>);
-        WritePropertyRecord(Op::ChangeProperty, p_entity, p_id, p_property, &p_value, sizeof(T));
+        WritePropertyRecord(Op::ChangeProperty, p_ent, p_id, p_property, &p_value, sizeof(T));
     }
-
-    void Playback(Scene& p_scene);
 
     // -------------------------------------------------------------------------
     // Wrappers
     // -------------------------------------------------------------------------
-    void SetName(ecs::Entity p_entity, std::string_view p_value) {
-        SetProperty(p_entity, NameComponent_Id, "name", FixedString<64>(p_value));
+    void SetName(ecs::Entity p_ent, std::string_view p_value) {
+        SetProperty(p_ent, NameComponent_Id, "name", FixedString<64>(p_value));
     }
 
-    void SetScale(ecs::Entity p_entity, const math::Vector3f& p_value) {
-        SetProperty(p_entity, TransformComponent_Id, "scale", p_value);
+    void SetScale(ecs::Entity p_ent, const math::Vector3f& p_value) {
+        SetProperty(p_ent, TransformComponent_Id, "scale", p_value);
     }
+
+    void Playback(Scene& p_scene);
 
 private:
     static constexpr uint32_t kTmpBase = 0x80000000u;
@@ -106,23 +106,23 @@ private:
                            uint16_t p_payload_size);
 
     void WriteComponentRecord(Op p_op,
-                              ecs::Entity p_entity,
-                              ComponentId p_type);
+                              ecs::Entity p_ent,
+                              BuildInComponentId p_type);
 
     void WritePropertyRecord(Op p_op,
-                             ecs::Entity p_entity,
-                             ComponentId p_type,
+                             ecs::Entity p_ent,
+                             BuildInComponentId p_type,
                              std::string_view p_property,
                              const void* p_data,
                              uint32_t p_data_size);
 
     void DispatchComponentOp(Scene& p_scene,
                              Op p_op,
-                             ecs::Entity p_entity,
-                             ComponentId p_type_id);
+                             ecs::Entity p_ent,
+                             BuildInComponentId p_type_id);
 
     void DispatchPropertyOp(Scene& p_scene,
-                            ecs::Entity p_entity,
+                            ecs::Entity p_ent,
                             const Payload_Property& p_payload,
                             const void* p_data);
 

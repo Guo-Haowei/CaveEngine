@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include "cave/core/typedefs.h"
+#include "cave/core/Option.h"
 
 // #define USE_REFLECTION USE_IF(!USING(PLATFORM_WASM))
 #define USE_REFLECTION IN_USE
@@ -37,7 +38,7 @@ struct FieldMetaBase;
 template<typename T>
 class MetaDataTable;
 
-using MetaTableFields = std::vector<FieldMetaBase*>;
+using MetaTableFields = std::vector<const FieldMetaBase*>;
 
 template<typename T>
 struct EnumTraits;

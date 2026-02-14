@@ -1,10 +1,10 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/CameraComponent.h
+// File: engine/public/cave/runtime/ecs/components/CameraComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/math/Vector.h"
 #include "cave/core/math/Matrix.h"
-#include "cave/core/reflection/Reflection.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
@@ -17,7 +17,7 @@ enum class ProjectionType : uint8_t {
 DECLARE_ENUM_TRAITS(ProjectionType, "perspective", "orthographic");
 
 class CameraComponent {
-    CAVE_META(CameraComponent)
+    CAVE_COMPONENT(CameraComponent)
 
     enum Flags : uint32_t {
         None = 0,

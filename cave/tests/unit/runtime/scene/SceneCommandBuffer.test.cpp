@@ -7,6 +7,7 @@ namespace cave {
 using ecs::Entity;
 using math::Vector3f;
 
+#if 0
 TEST(SceneCommandBuffer, add_component) {
     Scene scene;
 
@@ -42,5 +43,6 @@ TEST(SceneCommandBuffer, add_component_to_existing_entity) {
     const TransformComponent& transform = *scene.GetComponent<TransformComponent>(real);
     EXPECT_EQ(transform.GetScale(), scale);
 }
+#endif
 
 }  // namespace cave

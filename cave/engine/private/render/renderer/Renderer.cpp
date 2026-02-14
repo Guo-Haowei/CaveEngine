@@ -2,6 +2,7 @@
 
 #include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/math/MatrixTransform.h"

@@ -2,6 +2,8 @@
 
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SpriteAnimatorComponent.h"
+#include "engine/private/runtime/scene/SpriteRendererComponent.h"
 
 namespace cave {
 

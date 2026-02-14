@@ -8,19 +8,17 @@
 
 namespace cave {
 
-// ecs::Entity parent_id ()
 
 template<>
-const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<NoSaveTag>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(HierarchyComponent, "parent_id", parent_id, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_HierarchyComponent_meta = MetaDataTable<HierarchyComponent>::GetFields();
+[[maybe_unused]] static const auto& s_NoSaveTag_meta = MetaDataTable<NoSaveTag>::GetFields();
 
 // Guid m_prefab_id (editor = Asset)
 

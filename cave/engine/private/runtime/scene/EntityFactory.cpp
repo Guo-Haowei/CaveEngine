@@ -1,7 +1,10 @@
 #include "EntityFactory.h"
 
+#include "cave/runtime/scene/SceneEdit.h"
+
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -12,7 +15,8 @@ using namespace ::cave::math;
 
 Entity EntityFactory::CreateNameEntity(Scene& p_scene,
                                        const std::string& p_name) {
-    Entity entity = p_scene.CreateEntity();
+    SceneEdit edit(p_scene);
+    Entity entity = edit.CreateEntity();
     p_scene.Create<NameComponent>(entity).SetName(p_name);
     return entity;
 }
@@ -101,21 +105,6 @@ Entity EntityFactory::CreateAreaLightEntity(Scene& p_scene,
     auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
     renderer.SetResourceGuid(handle.GetGuid());
     return id;
-}
-
-Entity EntityFactory::CreateEnvironmentEntity(Scene& p_scene,
-                                              const std::string& p_name) {
-    Entity entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<EnvironmentComponent>(entity);
-    return entity;
-}
-
-Entity EntityFactory::CreateVoxelGiEntity(Scene& p_scene,
-                                          const std::string& p_name) {
-    auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<VoxelGiComponent>(entity);
-    p_scene.Create<TransformComponent>(entity);
-    return entity;
 }
 
 static Entity CreateMeshEntity(const std::string& p_asset_path,

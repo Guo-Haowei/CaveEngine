@@ -34,6 +34,15 @@ struct Hash {
         (Add(h, p_vs), ...);
         return h;
     }
+
+    static constexpr inline uint64_t Hash64(std::string_view s) {
+        uint64_t h = 14695981039346656037ull;
+        for (unsigned char c : s) {
+            h ^= (uint64_t)c;
+            h *= 1099511628211ull;
+        }
+        return h;
+    }
 };
 
 }  // namespace cave

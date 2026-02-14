@@ -1,13 +1,15 @@
 #include "cave/runtime/scene/SceneCommandBuffer.h"
+#include "cave/runtime/scene/SceneEdit.h"
 
-#include "engine/private/runtime/scene/SceneEdit.h"
+#include "engine/private/runtime/ecs/components/All.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
-ecs::Entity SceneCommandBuffer::Resolve(ecs::Entity p_entity) const noexcept {
-    if (!IsTemp(p_entity)) return p_entity;
+ecs::Entity SceneCommandBuffer::Resolve(ecs::Entity p_ent) const noexcept {
+    if (!IsTemp(p_ent)) return p_ent;
 
-    const uint32_t index = p_entity.GetId() - kTmpBase;
+    const uint32_t index = p_ent.GetId() - kTmpBase;
     if (DEV_VERIFY(index < m_remap.size())) {
         return m_remap[index];
     }
@@ -22,6 +24,8 @@ void SceneCommandBuffer::Playback(Scene& p_scene) {
     const uint8_t* p = m_bytes.data();
     const uint8_t* end = m_bytes.data() + m_bytes.size();
 
+    SceneEdit edit(p_scene);
+
     while (p < end) {
         const Header* header = reinterpret_cast<const Header*>(p);
         const uint8_t* payload = reinterpret_cast<const uint8_t*>(header + 1);
@@ -29,14 +33,14 @@ void SceneCommandBuffer::Playback(Scene& p_scene) {
         switch (header->op) {
             case Op::CreateEntity: {
                 const auto* create = reinterpret_cast<const Payload_Create*>(payload);
-                ecs::Entity real = p_scene.CreateEntity();
+                ecs::Entity real = edit.CreateEntity();
                 SetRemap(create->out_temp, real);
             } break;
             case Op::DestroyEntity: {
                 const auto* destroy = reinterpret_cast<const Payload_Destroy*>(payload);
                 ecs::Entity real = Resolve(destroy->entity);
                 if (DEV_VERIFY(real.IsValid())) {
-                    p_scene.RemoveEntity(real);
+                    edit.DestroyEntity(real);
                 }
             } break;
             case Op::AddComponent:
@@ -90,8 +94,8 @@ void SceneCommandBuffer::WriteEntityRecord(Op p_op,
 }
 
 void SceneCommandBuffer::WriteComponentRecord(Op p_op,
-                                              ecs::Entity p_entity,
-                                              ComponentId p_type) {
+                                              ecs::Entity p_ent,
+                                              BuildInComponentId p_type) {
     Header header{
         .op = p_op,
         .size = uint16_t(sizeof(Header) + sizeof(Payload_Component)),
@@ -104,13 +108,13 @@ void SceneCommandBuffer::WriteComponentRecord(Op p_op,
     std::memcpy(out, &header, sizeof(header));
     out += sizeof(header);
 
-    Payload_Component payload{ p_entity, p_type };
+    Payload_Component payload{ p_ent, p_type };
     std::memcpy(out, &payload, sizeof(payload));
 }
 
 void SceneCommandBuffer::WritePropertyRecord(Op p_op,
-                                             ecs::Entity p_entity,
-                                             ComponentId p_type,
+                                             ecs::Entity p_ent,
+                                             BuildInComponentId p_type,
                                              std::string_view p_property,
                                              const void* p_data,
                                              uint32_t p_data_size) {
@@ -129,7 +133,7 @@ void SceneCommandBuffer::WritePropertyRecord(Op p_op,
     out += sizeof(header);
 
     Payload_Property payload{
-        .entity = p_entity,
+        .entity = p_ent,
         .type = p_type,
         .property_name = p_property,
         .data_size = p_data_size,
@@ -142,13 +146,13 @@ void SceneCommandBuffer::WritePropertyRecord(Op p_op,
 
 void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
                                              Op p_op,
-                                             ecs::Entity p_entity,
-                                             ComponentId p_type_id) {
+                                             ecs::Entity p_ent,
+                                             BuildInComponentId p_type_id) {
     if (p_op == Op::AddComponent) {
         switch (p_type_id) {
-#define REGISTER_COMPONENT(T, ...)   \
-    case T##_Id: {                   \
-        p_scene.Create<T>(p_entity); \
+#define REGISTER_COMPONENT(T, ...) \
+    case T##_Id: {                 \
+        p_scene.Create<T>(p_ent);  \
     } break;
             REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
@@ -161,9 +165,9 @@ void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
 
     if (p_op == Op::RemoveComponent) {
         switch (p_type_id) {
-#define REGISTER_COMPONENT(T, ...)   \
-    case T##_Id: {                   \
-        p_scene.Remove<T>(p_entity); \
+#define REGISTER_COMPONENT(T, ...) \
+    case T##_Id: {                 \
+        p_scene.Remove<T>(p_ent);  \
     } break;
             REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
@@ -178,13 +182,14 @@ void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
 }
 
 void SceneCommandBuffer::DispatchPropertyOp(Scene& p_scene,
-                                            ecs::Entity p_entity,
+                                            ecs::Entity p_ent,
                                             const Payload_Property& p_payload,
                                             const void* p_data) {
+    SceneEdit edit(p_scene);
     switch (p_payload.type) {
-#define REGISTER_COMPONENT(T, ...)                                                                                 \
-    case T##_Id: {                                                                                                 \
-        SceneEdit::ModifyField<T>(p_scene, p_entity, p_payload.property_name.view(), p_data, p_payload.data_size); \
+#define REGISTER_COMPONENT(T, ...)                                                               \
+    case T##_Id: {                                                                               \
+        edit.ModifyField<T>(p_ent, p_payload.property_name.view(), p_data, p_payload.data_size); \
     } break;
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT

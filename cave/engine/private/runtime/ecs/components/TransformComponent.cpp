@@ -1,5 +1,5 @@
 #include "cave/core/math/Angle.h"
-#include "cave/runtime/ecs/TransformComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "engine/private/core/math/MatrixTransform.h"
 
 namespace cave {

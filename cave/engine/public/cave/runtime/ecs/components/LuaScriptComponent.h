@@ -1,16 +1,16 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/LuaScriptComponent.h
+// File: engine/public/cave/runtime/ecs/components/LuaScriptComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/Guid.h"
-#include "cave/core/reflection/Reflection.h"
 #include "cave/core/string/FixedString.h"
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
 class LuaScriptComponent {
-    CAVE_META(LuaScriptComponent)
+    CAVE_COMPONENT(LuaScriptComponent)
 
 private:
     CAVE_PROP()

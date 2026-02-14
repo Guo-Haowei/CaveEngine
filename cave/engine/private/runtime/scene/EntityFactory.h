@@ -34,12 +34,6 @@ public:
                                             const Vector3f& p_color = Vector3f(1),
                                             const float p_emissive = 5.0f);
 
-    static Entity CreateEnvironmentEntity(Scene& p_scene,
-                                          const std::string& p_name);
-
-    static Entity CreateVoxelGiEntity(Scene& p_scene,
-                                      const std::string& p_name);
-
     static Entity CreatePlaneEntity(Scene& p_scene,
                                     const std::string& p_name,
                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));

@@ -9,6 +9,10 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 
+// @TODO: refactor
+#include "engine/private/core/math/Geomath.h"
+#include "engine/private/runtime/ecs/components/All.h"
+
 namespace cave::lua {
 
 using namespace cave::math;
@@ -265,36 +269,33 @@ bool OpenSceneLib(lua_State* L) {
 
     luabridge::getGlobalNamespace(L)
         .beginClass<Scene>("Scene")
-        .addFunction("get_name", [](Scene* p_scene, uint32_t p_entity) {
-            auto ret = p_scene->GetComponent<NameComponent>(ecs::Entity(p_entity));
+        .addFunction("get_name", [](Scene* p_scene, uint32_t p_ent) {
+            auto ret = p_scene->GetComponent<NameComponent>(ecs::Entity(p_ent));
             return ret->GetName();
         })
-        .addFunction("get_transform", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<TransformComponent>(ecs::Entity(p_entity));
+        .addFunction("get_transform", [](Scene* p_scene, uint32_t p_ent) {
+            return p_scene->GetComponent<TransformComponent>(ecs::Entity(p_ent));
         })
-        .addFunction("get_animator", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<SpriteAnimatorComponent>(ecs::Entity(p_entity));
+        .addFunction("get_animator", [](Scene* p_scene, uint32_t p_ent) {
+            return p_scene->GetComponent<SpriteAnimatorComponent>(ecs::Entity(p_ent));
         })
-        .addFunction("get_velocity", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<VelocityComponent>(ecs::Entity(p_entity));
+        .addFunction("get_velocity", [](Scene* p_scene, uint32_t p_ent) {
+            return p_scene->GetComponent<VelocityComponent>(ecs::Entity(p_ent));
         })
-        .addFunction("get_mesh_renderer", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<MeshRendererComponent>(ecs::Entity(p_entity));
+        .addFunction("get_mesh_renderer", [](Scene* p_scene, uint32_t p_ent) {
+            return p_scene->GetComponent<MeshRendererComponent>(ecs::Entity(p_ent));
         })
-        .addFunction("get_camera", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<CameraComponent>(ecs::Entity(p_entity));
-        })
-        .addFunction("get_rigid_body", [](Scene* p_scene, uint32_t p_entity) {
-            return p_scene->GetComponent<RigidBodyComponent>(ecs::Entity(p_entity));
+        .addFunction("get_camera", [](Scene* p_scene, uint32_t p_ent) {
+            return p_scene->GetComponent<CameraComponent>(ecs::Entity(p_ent));
         })
         .addFunction("find_entity_by_name", [](Scene* p_scene, const char* p_name) {
             return p_scene->FindEntityByName(p_name).GetId();
         })
-        //.addFunction("GetMeshEmitter", [](Scene* p_scene, uint32_t p_entity) {
-        //    return p_scene->GetComponent<MeshEmitterComponent>(ecs::Entity(p_entity));
+        //.addFunction("GetMeshEmitter", [](Scene* p_scene, uint32_t p_ent) {
+        //    return p_scene->GetComponent<MeshEmitterComponent>(ecs::Entity(p_ent));
         //})
-        //.addFunction("GetScript", [](Scene* p_scene, uint32_t p_entity) {
-        //    return p_scene->GetComponent<LuaScriptComponent>(ecs::Entity(p_entity));
+        //.addFunction("GetScript", [](Scene* p_scene, uint32_t p_ent) {
+        //    return p_scene->GetComponent<LuaScriptComponent>(ecs::Entity(p_ent));
         //})
         //.addFunction("GetAllLuaScripts", lua_GetAllLuaScripts)
         .endClass();

@@ -2,11 +2,18 @@
 
 #if USING(USE_IMPORTER_TINYGLTF)
 #include "cave/core/string/StringUtils.h"
+#include "cave/runtime/ecs/components/MaterialComponent.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
+
+// @TODO: refactor
+#include "engine/private/runtime/scene/SkeletalAnimationComponent.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define TINYGLTF_NO_STB_IMAGE
@@ -18,6 +25,10 @@ WARNING_DISABLE(4018, "-Wconversion")
 WARNING_DISABLE(4267, "-Wconversion")
 #include "tinygltf/tiny_gltf.h"
 WARNING_POP()
+
+// @TODO: fix
+#pragma warning(push)
+#pragma warning(disable : 4996)
 
 namespace tinygltf {
 

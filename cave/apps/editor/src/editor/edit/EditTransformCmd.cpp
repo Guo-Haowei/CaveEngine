@@ -1,5 +1,7 @@
 #include "EditTransformCmd.h"
 
+#include "cave/runtime/ecs/components/TransformComponent.h"
+
 #include "editor/document/IDocument.h"
 
 namespace cave {

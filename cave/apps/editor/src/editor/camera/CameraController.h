@@ -1,6 +1,6 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
-#include "cave/runtime/ecs/TransformComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 
 namespace cave {
 

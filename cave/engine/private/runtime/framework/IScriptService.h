@@ -16,7 +16,7 @@ public:
     virtual void OnSimEnd() = 0;
 
     virtual void Update(Scene& p_scene, float p_timestep) = 0;
-    virtual void OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) = 0;
+    virtual void OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Entity p_ent_2) = 0;
 };
 
 }  // namespace cave

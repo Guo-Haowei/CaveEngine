@@ -1,6 +1,7 @@
 #include "LuaScriptService.h"
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/ecs/components/LuaScriptComponent.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
@@ -152,18 +153,18 @@ void LuaScriptService::Update(Scene& p_scene, float p_timestep) {
     }
 }
 
-void LuaScriptService::OnCollision(Scene& p_scene, ecs::Entity p_entity_1, ecs::Entity p_entity_2) {
+void LuaScriptService::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Entity p_ent_2) {
     lua_State* L = m_state;
     if (DEV_VERIFY(L)) {
-        LuaScriptComponent* script_1 = p_scene.GetComponent<LuaScriptComponent>(p_entity_1);
-        LuaScriptComponent* script_2 = p_scene.GetComponent<LuaScriptComponent>(p_entity_2);
+        LuaScriptComponent* script_1 = p_scene.GetComponent<LuaScriptComponent>(p_ent_1);
+        LuaScriptComponent* script_2 = p_scene.GetComponent<LuaScriptComponent>(p_ent_2);
 
         if (script_1 && script_1->m_instance) {
-            EntityCall(L, script_1->m_instance, "_on_collision", p_entity_2.GetId());
+            EntityCall(L, script_1->m_instance, "_on_collision", p_ent_2.GetId());
         }
 
         if (script_2 && script_2->m_instance) {
-            EntityCall(L, script_2->m_instance, "_on_collision", p_entity_1.GetId());
+            EntityCall(L, script_2->m_instance, "_on_collision", p_ent_1.GetId());
         }
     }
 }

@@ -15,10 +15,14 @@ print('Project root folder:', get_engine_src_folder())
 # ========= CONFIG ==========
 FILES = [
     # components
-    'public/cave/runtime/ecs/CameraComponent.h',
-    'public/cave/runtime/ecs/NameComponent.h',
-    'public/cave/runtime/ecs/LuaScriptComponent.h',
-    'public/cave/runtime/ecs/TransformComponent.h',
+    'public/cave/runtime/ecs/components/CameraComponent.h',
+    'public/cave/runtime/ecs/components/HierarchyComponent.h',
+    'public/cave/runtime/ecs/components/LightComponent.h',
+    'public/cave/runtime/ecs/components/LuaScriptComponent.h',
+    'public/cave/runtime/ecs/components/MaterialComponent.h',
+    'public/cave/runtime/ecs/components/MeshRendererComponent.h',
+    'public/cave/runtime/ecs/components/NameComponent.h',
+    'public/cave/runtime/ecs/components/TransformComponent.h',
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
     'private/runtime/assets/MaterialAsset.h',
@@ -27,13 +31,10 @@ FILES = [
     'private/runtime/assets/TileSetAsset.h',
     # components
     'private/runtime/scene/ColliderComponent.h',
-    'private/runtime/scene/LightComponent.h',
-    'private/runtime/scene/MaterialComponent.h',
     'private/runtime/scene/SceneComponent.h',
     'private/runtime/scene/SkeletalAnimationComponent.h',
     'private/runtime/scene/SpriteAnimatorComponent.h',
     # renderers
-    'private/runtime/scene/MeshRendererComponent.h',
     'private/runtime/scene/SpriteRendererComponent.h',
     'private/runtime/scene/TileMapRendererComponent.h',
 ]
@@ -46,7 +47,7 @@ META_CPP_ALL = 'MetaAll.cpp'
 
 # ========= REGEX ==========
 
-meta_regex = re.compile(r"CAVE_META\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)")
+meta_regex = re.compile(r"CAVE_(?:META|COMPONENT)\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)")
 prop_regex = re.compile(r"CAVE_PROP\s*\((.*?)\)")
 field_regex = re.compile(r"([a-zA-Z_][\w:]*)\s+([a-zA-Z_]\w*)\s*;")
 
@@ -168,7 +169,11 @@ def generate_meta_file(base_path, file_path, metas):
         f.write(f"// Auto-generated metadata for {filename}\n")
         f.write(f"// Check {SCRIPT_NAME} for more details\n\n")
 
-        f.write(f'#include "engine/{base_path}"\n')
+        short_path = f'engine/{base_path}'
+        if (short_path.startswith('engine/public/')):
+            short_path = short_path[len('engine/public/'):]
+
+        f.write(f'#include "{short_path}"\n')
         f.write('#include "engine/private/core/reflection/MetaEditor.h"\n')
         f.write('#include "engine/private/serialization/yaml_include.h"\n')
         f.write('\nnamespace cave {\n\n')

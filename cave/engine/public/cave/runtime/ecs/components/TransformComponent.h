@@ -1,7 +1,10 @@
+// =============================================================================
+// File: engine/public/cave/runtime/ecs/components/TransformComponent.h
+// =============================================================================
 #pragma once
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/Matrix.h"
-#include "cave/core/reflection/Reflection.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave::math {
 class Degree;
@@ -10,7 +13,7 @@ class Degree;
 namespace cave {
 
 class TransformComponent {
-    CAVE_META(TransformComponent)
+    CAVE_COMPONENT(TransformComponent)
 
     enum Flags : uint32_t {
         None = 0,

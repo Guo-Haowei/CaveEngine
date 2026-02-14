@@ -1,11 +1,18 @@
-#include "ComponentManager.h"
+#include "cave/runtime/ecs/IComponentPool.h"
 
 namespace cave::ecs {
 
-void IComponentManager::Remap(const std::unordered_map<Entity, Entity>& p_map) {
+bool IComponentPool::Has(const Entity& p_ent) const {
+    if (m_lookup.empty()) {
+        return false;
+    }
+    return m_lookup.find(p_ent) != m_lookup.end();
+}
+
+void IComponentPool::Remap(const std::unordered_map<Entity, Entity>& p_map) {
     std::unordered_map<Entity, size_t> new_lookup;
 
-    for (Entity& entity : m_entityArray) {
+    for (Entity& entity : m_entity_array) {
         auto it = p_map.find(entity);
         CRASH_COND_MSG(it == p_map.end(), "invalid mapping");
         entity = it->second;

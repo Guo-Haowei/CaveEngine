@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/private/core/math/geomath.h"
-#include "cave/core/reflection/Reflection.h"
+#include "cave/core/math/Vector.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 #define FLAG_GETTER_SETTER(FLAG, DATA)             \
     bool Has##FLAG() const { return DATA & FLAG; } \
@@ -58,7 +58,7 @@ ISerializer& WriteObject(ISerializer& s, const Shape& p_shape);
 bool ReadObject(IDeserializer& d, Shape& p_shape);
 
 class ColliderComponent {
-    CAVE_META(ColliderComponent)
+    CAVE_COMPONENT(ColliderComponent)
 
     enum : uint32_t {
         None = 0,

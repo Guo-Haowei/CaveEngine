@@ -1,13 +1,13 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
-#include "cave/core/reflection/Reflection.h"
 
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
 class MeshRendererComponent {
-    CAVE_META(MeshRendererComponent)
+    CAVE_COMPONENT(MeshRendererComponent)
 
 private:
     CAVE_PROP(editor = Toggle)

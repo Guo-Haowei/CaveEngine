@@ -1,8 +1,9 @@
 #include "Scene.h"
 
 #include "cave/core/diagnostics/Profiler.h"
+
 #include "engine/private/core/io/archive.h"
-#include "engine/private/runtime/ecs/ComponentManager.inl"
+#include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/systems/animation_system.h"
 #include "engine/private/systems/ecs_systems.h"
@@ -11,15 +12,6 @@
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/serialization/yaml_include.h"
-
-namespace cave::ecs {
-
-// instantiate ComponentManagers
-#define REGISTER_COMPONENT(TYPE, ...) template class ComponentManager<::cave::TYPE>;
-REGISTER_COMPONENT_LIST
-#undef REGISTER_COMPONENT
-
-}  // namespace cave::ecs
 
 namespace cave {
 
@@ -62,17 +54,6 @@ void Scene::Update(float p_timestep) {
         }
     }
 
-    for (auto [entity, voxel_gi] : View<VoxelGiComponent>()) {
-        auto transform = GetComponent<TransformComponent>(entity);
-        if (DEV_VERIFY(transform)) {
-            const auto& matrix = transform->GetWorldMatrix();
-            Vector3f center{ matrix[3].x, matrix[3].y, matrix[3].z };
-            Vector3f scale = transform->GetScale();
-            const float size = glm::max(scale.x, glm::max(scale.y, scale.z));
-            voxel_gi.region = AABB::FromCenterSize(center, Vector3f(size));
-        }
-    }
-
 // @TODO: refactor
 #if 0
     if (DVAR_GET_BOOL(gfx_bvh_generate)) {
@@ -88,9 +69,13 @@ void Scene::Update(float p_timestep) {
 }
 
 void Scene::Copy(const Scene& p_other) {
-    for (auto& entry : m_component_lib.m_entries) {
-        const auto& manager = *p_other.m_component_lib.m_entries.find(entry.first)->second.manager;
-        entry.second.manager->Copy(manager);
+    ComponentId idx = 0;
+    for (auto& entry : p_other.m_storage.GetEntries()) {
+        if (entry.pool) {
+            m_storage.Ensure(idx);
+            m_storage.m_entries[idx].pool = std::move(entry.pool->Clone());
+        }
+        ++idx;
     }
 
     m_root = p_other.m_root;
@@ -102,10 +87,10 @@ void Scene::Copy(const Scene& p_other) {
 std::vector<Entity> Scene::GetSortedEntityArray() const {
     std::unordered_set<Entity> entity_set;
 
-    for (const auto& it : m_component_lib.m_entries) {
-        auto& manager = it.second.manager;
-        for (auto entity : manager->GetEntityArray()) {
-            if (Contains<NoSaveTag>(entity)) {
+    for (const auto& it : m_storage.GetEntries()) {
+        if (!it.pool) continue;
+        for (auto entity : it.pool->GetEntityArray()) {
+            if (Has<NoSaveTag>(entity)) {
                 continue;
             }
             entity_set.insert(entity);
@@ -118,7 +103,7 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
     return entity_array;
 }
 
-void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_entity) {
+void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_ent) {
     auto handle = AssetRegistry::GetSingleton().FindByGuid<Scene>(p_prefab.GetResourceGuid());
     if (handle.is_none()) {
         return;
@@ -152,19 +137,22 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
         CRASH_NOW_MSG("remap skin and skeleton");
     }
 
+    DEV_ASSERT(0);
+#if 0
     // remap all entities
-    for (auto&& [key, entry] : copy.m_component_lib.m_entries) {
+    for (auto&& [key, entry] : copy.m_storage.GetEntries()) {
         entry.manager->Remap(mapping);
 
         auto my_entry = m_component_lib.m_entries.find(key);
         CRASH_COND(my_entry == m_component_lib.m_entries.end());
         my_entry->second.manager->Merge(std::move(*entry.manager));
     }
+#endif
 
     // link instance
     Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = Create<HierarchyComponent>(mapped_root);
-    hier.parent_id = p_entity.IsValid() ? p_entity : m_root;
+    hier.parent_id = p_ent.IsValid() ? p_ent : m_root;
 }
 
 ecs::Entity Scene::FindEntityByName(const char* p_name) {
@@ -191,23 +179,6 @@ void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
     hier->parent_id = p_parent;
 }
 
-void Scene::RemoveEntity(ecs::Entity p_entity) {
-    std::vector<ecs::Entity> children;
-    for (auto [child, hierarchy] : View<HierarchyComponent>()) {
-        if (hierarchy.parent_id == p_entity) {
-            children.emplace_back(child);
-        }
-    }
-
-    for (auto child : children) {
-        RemoveEntity(child);
-    }
-
-    for (auto&& [_, component_manager] : m_component_lib.m_entries) {
-        component_manager.manager->Remove(p_entity);
-    }
-}
-
 template<typename T>
 static void DuplicateComponent(Scene& p_scene, ecs::Entity p_source, ecs::Entity p_dest) {
     if (const T* comp = p_scene.GetComponent<T>(p_source)) {
@@ -217,14 +188,14 @@ static void DuplicateComponent(Scene& p_scene, ecs::Entity p_source, ecs::Entity
     }
 }
 
-ecs::Entity Scene::DuplicateEntity(ecs::Entity p_entity) {
-    if (!p_entity.IsValid()) {
-        return p_entity;
+ecs::Entity Scene::DuplicateEntity(ecs::Entity p_ent) {
+    if (!p_ent.IsValid()) {
+        return p_ent;
     }
 
     ecs::Entity entity = CreateEntity();
 
-#define REGISTER_COMPONENT(COMP, ...) DuplicateComponent<COMP>(*this, p_entity, entity);
+#define REGISTER_COMPONENT(COMP, ...) DuplicateComponent<COMP>(*this, p_ent, entity);
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
@@ -347,6 +318,7 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
         d.Read((uint32_t&)id);
         d.LeaveKey();
 
+        // @TODO: use component registry instead of this
 #define REGISTER_COMPONENT(a, ...)                 \
     do {                                           \
         DeserializeComponent<a>(d, #a, id, *this); \
@@ -370,10 +342,10 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 template<ComponentType T>
 static bool SerializeComponent(ISerializer& p_serializer,
                                const char* p_name,
-                               ecs::Entity p_entity,
+                               ecs::Entity p_ent,
                                const Scene& p_scene) {
 
-    const T* component = p_scene.GetComponent<T>(p_entity);
+    const T* component = p_scene.GetComponent<T>(p_ent);
     if (component) {
         p_serializer.Key(p_name);
         p_serializer.Write(*component);
@@ -406,7 +378,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     yaml.BeginArray(false);
 
     for (auto entity : entity_array) {
-        if (Contains<NoSaveTag>(entity)) {
+        if (Has<NoSaveTag>(entity)) {
             continue;
         }
 

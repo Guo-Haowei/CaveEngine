@@ -83,14 +83,4 @@ void RigidBodyComponent::Serialize(Archive& p_archive, uint32_t p_version) {
     p_archive.ArchiveValue(mass);
 }
 
-void EnvironmentComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(sky.type);
-    p_archive.ArchiveValue(sky.texturePath);
-    p_archive.ArchiveValue(ambient.color);
-}
-
-void VoxelGiComponent::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(flags);
-}
-
 }  // namespace cave

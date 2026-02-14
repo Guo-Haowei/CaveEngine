@@ -2,7 +2,7 @@
 // Auto-generated metadata for AssetMetaData.h
 // Check generate_meta.py for more details
 
-#include "engine/public/cave/runtime/assets/AssetMetaData.h"
+#include "cave/runtime/assets/AssetMetaData.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

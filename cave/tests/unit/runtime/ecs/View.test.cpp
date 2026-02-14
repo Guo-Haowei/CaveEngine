@@ -1,46 +1,51 @@
-#include "engine/private/runtime/ecs/ComponentManager.inl"
+#include "cave/runtime/ecs/ComponentDefines.h"
+
+#include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
 
 namespace cave {
 
+enum {
+    C1_Id,
+    C2_Id,
+    C3_Id,
+};
+
 struct C1 {
+    CAVE_COMPONENT(C1);
+
     int a = 0;
 };
 
 struct C2 {
+    CAVE_COMPONENT(C2);
+
     float b = 0.0f;
 };
 
 struct C3 {
+    CAVE_COMPONENT(C3);
+
     int c = 0;
 };
-
-template<>
-struct IsComponent<C1> : std::true_type {};
-
-template<>
-struct IsComponent<C2> : std::true_type {};
-
-template<>
-struct IsComponent<C3> : std::true_type {};
 
 }  // namespace cave
 
 namespace cave::ecs {
 
 template<ComponentType T>
-class MockManager : public ComponentManager<T> {
+class MockPool : public ComponentPool<T> {
 public:
-    void Add(Entity p_entity, const T& p_component) {
-        const size_t index = ComponentManager<T>::m_componentArray.size();
-        ComponentManager<T>::m_lookup[p_entity] = index;
-        ComponentManager<T>::m_entityArray.emplace_back(p_entity);
-        ComponentManager<T>::m_componentArray.emplace_back(p_component);
+    void Add(Entity p_ent, const T& p_component) {
+        const size_t index = ComponentPool<T>::m_component_array.size();
+        ComponentPool<T>::m_lookup[p_ent] = index;
+        ComponentPool<T>::m_entity_array.emplace_back(p_ent);
+        ComponentPool<T>::m_component_array.emplace_back(p_component);
     }
 };
 
-TEST(view, single_manager) {
-    MockManager<C1> m1;
+TEST(View, single_manager) {
+    MockPool<C1> m1;
 
     // m1: {1,2,3,5}
     m1.Add(Entity(1), C1{ 10 });
@@ -48,7 +53,7 @@ TEST(view, single_manager) {
     m1.Add(Entity(3), C1{ 30 });
     m1.Add(Entity(5), C1{ 50 });
 
-    View<C1> v(m1);
+    View<C1> v(&m1);
     std::vector<std::tuple<Entity, int, float>> got;
 
     for (auto [e, c1] : v) {
@@ -62,9 +67,9 @@ TEST(view, single_manager) {
     EXPECT_EQ(m1.GetComponent(Entity(5))->a, 51);
 }
 
-TEST(view, intersection_two_managers) {
-    MockManager<C1> m1;
-    MockManager<C2> m2;
+TEST(View, intersection_two_managers) {
+    MockPool<C1> m1;
+    MockPool<C2> m2;
 
     // m1: {1,2,3,5}
     m1.Add(Entity(1), C1{ 10 });
@@ -78,7 +83,7 @@ TEST(view, intersection_two_managers) {
     m2.Add(Entity(4), C2{ 4.0f });
 
     // Intersection: {2,3}, baseline is m2 (smaller)
-    View<C1, C2> v(m1, m2);
+    View<C1, C2> v(&m1, &m2);
 
     std::vector<std::tuple<Entity, int, float>> got;
     for (auto [e, c1, c2] : v) {
@@ -103,10 +108,10 @@ TEST(view, intersection_two_managers) {
     EXPECT_FLOAT_EQ(m2.GetComponentByIndex(m2.FindIndex(Entity(3)).unwrap()).b, 3.5f);
 }
 
-TEST(view, intersection_three_managers) {
-    MockManager<C1> m1;
-    MockManager<C2> m2;
-    MockManager<C3> m3;
+TEST(View, intersection_three_managers) {
+    MockPool<C1> m1;
+    MockPool<C2> m2;
+    MockPool<C3> m3;
 
     // m1: {10,11,12}
     m1.Add(Entity(10), C1{ 1 });
@@ -120,7 +125,7 @@ TEST(view, intersection_three_managers) {
     m3.Add(Entity(12), C3{ 42 });
     m3.Add(Entity(14), C3{ 99 });
 
-    View<C1, C2, C3> v(m1, m2, m3);
+    View<C1, C2, C3> v(&m1, &m2, &m3);
     std::vector<std::tuple<Entity, int, float, int>> got;
     for (auto [e, c1, c2, c3] : v) {
         got.emplace_back(e, c1.a, c2.b, c3.c);
@@ -132,13 +137,13 @@ TEST(view, intersection_three_managers) {
     EXPECT_EQ(std::get<3>(got[0]), 42);
 }
 
-TEST(view, const_view_is_read_only) {
-    MockManager<C1> m1;
-    MockManager<C2> m2;
+TEST(View, const_view_is_read_only) {
+    MockPool<C1> m1;
+    MockPool<C2> m2;
     m1.Add(Entity(1), C1{ 5 });
     m2.Add(Entity(1), C2{ 7.0f });
 
-    ConstView<C1, C2> cv(m1, m2);
+    ConstView<C1, C2> cv(&m1, &m2);
     for (auto [e, c1, c2] : cv) {
         (void)e;
         static_assert(std::is_const_v<std::remove_reference_t<decltype(c1)>>, "c1 must be const");
@@ -149,15 +154,15 @@ TEST(view, const_view_is_read_only) {
     }
 }
 
-TEST(view, empty_intersection) {
-    MockManager<C1> m1;
-    MockManager<C2> m2;
+TEST(View, empty_intersection) {
+    MockPool<C1> m1;
+    MockPool<C2> m2;
     m1.Add(Entity(1), C1{});
     m1.Add(Entity(2), C1{});
     m2.Add(Entity(3), C2{});
     m2.Add(Entity(4), C2{});
 
-    View<C1, C2> v(m1, m2);
+    View<C1, C2> v(&m1, &m2);
     std::size_t count = 0;
     for (auto&& item : v) {
         (void)item;
@@ -166,9 +171,9 @@ TEST(view, empty_intersection) {
     EXPECT_EQ(count, 0u);
 }
 
-TEST(view, baseline_is_smallest_set) {
-    MockManager<C1> m1;
-    MockManager<C2> m2;
+TEST(View, baseline_is_smallest_set) {
+    MockPool<C1> m1;
+    MockPool<C2> m2;
 
     for (uint32_t e = 1; e <= 5; ++e) {
         m1.Add(Entity(e), C1{ int(e) });
@@ -177,7 +182,7 @@ TEST(view, baseline_is_smallest_set) {
     m2.Add(Entity(2), C2{ 2.0f });
     m2.Add(Entity(4), C2{ 4.0f });
 
-    View<C1, C2> v(m1, m2);
+    View<C1, C2> v(&m1, &m2);
     std::vector<Entity> got;
     for (auto [e, c1, c2] : v) {
         got.push_back(e);
@@ -188,6 +193,9 @@ TEST(view, baseline_is_smallest_set) {
     ASSERT_EQ(got.size(), 2u);
     EXPECT_EQ(got[0], Entity(2));
     EXPECT_EQ(got[1], Entity(4));
+}
+
+TEST(View, skip_if_any_pool_is_null) {
 }
 
 }  // namespace cave::ecs

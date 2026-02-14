@@ -4,6 +4,10 @@
 
 #include "engine/private/runtime/scene/Scene.h"
 
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
+#include "engine/private/runtime/scene/SpriteRendererComponent.h"
+
 namespace cave::render {
 
 using math::AABB;
@@ -69,34 +73,34 @@ void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scen
     }
 }
 
-void RenderSceneBuilder::OnEntityAdded(const Scene& p_scene, ecs::Entity p_entity, RenderScene& p_out_scene) {
+void RenderSceneBuilder::OnEntityAdded(const Scene& p_scene, ecs::Entity p_ent, RenderScene& p_out_scene) {
     unused(p_scene);
-    unused(p_entity);
+    unused(p_ent);
     unused(p_out_scene);
 }
 
-void RenderSceneBuilder::OnEntityRemoved(ecs::Entity p_entity, RenderScene& p_out_scene) {
-    unused(p_entity);
+void RenderSceneBuilder::OnEntityRemoved(ecs::Entity p_ent, RenderScene& p_out_scene) {
+    unused(p_ent);
     unused(p_out_scene);
 }
 
-void RenderSceneBuilder::OnTransformChanged(ecs::Entity p_entity, RenderScene& p_out_scene) {
-    unused(p_entity);
+void RenderSceneBuilder::OnTransformChanged(ecs::Entity p_ent, RenderScene& p_out_scene) {
+    unused(p_ent);
     unused(p_out_scene);
 }
 
-void RenderSceneBuilder::OnMeshChanged(ecs::Entity p_entity, RenderScene& p_out_scene) {
-    unused(p_entity);
+void RenderSceneBuilder::OnMeshChanged(ecs::Entity p_ent, RenderScene& p_out_scene) {
+    unused(p_ent);
     unused(p_out_scene);
 }
 
-void RenderSceneBuilder::OnMaterialChanged(ecs::Entity p_entity, RenderScene& p_out_scene) {
-    unused(p_entity);
+void RenderSceneBuilder::OnMaterialChanged(ecs::Entity p_ent, RenderScene& p_out_scene) {
+    unused(p_ent);
     unused(p_out_scene);
 }
 
-void RenderSceneBuilder::OnSkeletonChanged(ecs::Entity p_entity, RenderScene& p_out_scene) {
-    unused(p_entity);
+void RenderSceneBuilder::OnSkeletonChanged(ecs::Entity p_ent, RenderScene& p_out_scene) {
+    unused(p_ent);
     unused(p_out_scene);
 }
 

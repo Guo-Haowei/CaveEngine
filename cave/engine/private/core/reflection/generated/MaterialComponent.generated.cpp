@@ -2,7 +2,7 @@
 // Auto-generated metadata for MaterialComponent.h
 // Check generate_meta.py for more details
 
-#include "engine/private/runtime/scene/MaterialComponent.h"
+#include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

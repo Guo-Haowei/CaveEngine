@@ -68,7 +68,7 @@ private:
 };
 
 template<typename T>
-bool FieldMeta<T>::Read(IDeserializer& p_deserializer, void* p_object) {
+bool FieldMeta<T>::Read(IDeserializer& p_deserializer, void* p_object) const {
     T& data = FieldMetaBase::GetData<T>(p_object);
 
     return p_deserializer.Read(data);

@@ -1,7 +1,7 @@
 #pragma once
 #include "EditCmdBase.h"
 
-#include "engine/private/runtime/scene/SceneEdit.h"
+#include "cave/runtime/scene/SceneEdit.h"
 
 #include "editor/document/IDocument.h"
 
@@ -16,11 +16,11 @@ class EditPropertyCmd : public EditCmdBase {
 public:
     template<typename U>
     EditPropertyCmd(IApplication& p_app,
-                    ecs::Entity p_entity,
+                    ecs::Entity p_ent,
                     std::string_view p_property,
                     const U& p_old,
                     const U& p_new)
-        : EditCmdBase(p_app, p_entity)
+        : EditCmdBase(p_app, p_ent)
         , m_property(p_property) {
         static_assert(std::is_trivially_copyable_v<U>);
         m_old.resize(sizeof(p_old));
@@ -39,11 +39,11 @@ public:
         Scene* scene = ResolveScene(scene_id);
         if (!scene) return false;
 
-        bool res = SceneEdit::ModifyField<T>(*scene,
-                                             m_entity,
-                                             m_property,
-                                             m_new.data(),
-                                             (uint32_t)m_new.size());
+        SceneEdit edit(*scene);
+        bool res = edit.ModifyField<T>(m_entity,
+                                       m_property,
+                                       m_new.data(),
+                                       (uint32_t)m_new.size());
         return res;
     }
 
@@ -53,11 +53,11 @@ public:
         Scene* scene = ResolveScene(scene_id);
         if (!scene) return false;
 
-        bool res = SceneEdit::ModifyField<T>(*scene,
-                                             m_entity,
-                                             m_property,
-                                             m_old.data(),
-                                             (uint32_t)m_old.size());
+        SceneEdit edit(*scene);
+        bool res = edit.ModifyField<T>(m_entity,
+                                       m_property,
+                                       m_old.data(),
+                                       (uint32_t)m_old.size());
         return res;
     }
 
