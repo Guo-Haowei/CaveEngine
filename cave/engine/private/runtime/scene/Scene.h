@@ -39,20 +39,17 @@ class Scene : public NonCopyable, public IAsset {
 public:
     static constexpr const char* EXTENSION = ".scene";
 
+    void* GetComponent(ecs::Entity p_ent, ComponentId p_id);
+    const void* GetComponent(ecs::Entity p_ent, ComponentId p_id) const;
+
     template<ComponentType T>
-    const T* GetComponent(const ecs::Entity& p_ent) const {
-        if (const auto* pool = (ecs::ComponentPool<T>*)m_storage.TryGet(T::kId)) {
-            return pool->GetComponent(p_ent);
-        }
-        return nullptr;
+    T* GetComponent(ecs::Entity p_ent) {
+        return (T*)GetComponent(p_ent, T::kId);
     }
 
     template<ComponentType T>
-    T* GetComponent(const ecs::Entity& p_ent) {
-        if (auto* pool = (ecs::ComponentPool<T>*)m_storage.TryGet(T::kId)) {
-            return pool->GetComponent(p_ent);
-        }
-        return nullptr;
+    const T* GetComponent(ecs::Entity p_ent) const {
+        return (const T*)GetComponent(p_ent, T::kId);
     }
 
     template<ComponentType T>

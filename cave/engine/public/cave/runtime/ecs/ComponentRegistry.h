@@ -9,9 +9,11 @@
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 
-namespace cave::ecs {
-
+namespace cave {
 using PropertyId = std::string_view;
+}
+
+namespace cave::ecs {
 
 struct ComponentMeta {
     ComponentId id;

@@ -1,45 +1,41 @@
 #include "cave/runtime/scene/SceneEdit.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
+#include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
-#define MODIFY_FIELD_IMPL(T)                                                                                                                     \
-    template<>                                                                                                                                   \
-    bool SceneEdit::ModifyField<T>(ecs::Entity p_ent, std::string_view p_property, const void* p_data, uint32_t p_data_size, void* p_old_data) { \
-        const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();                                                                       \
-        T* component = m_scene.GetComponent<T>(p_ent);                                                                                           \
-        return ModifyFieldRaw(component, meta_table, p_property, p_data, p_data_size, p_old_data);                                               \
-    }
+SceneEdit::SceneEdit(Scene& p_scene) noexcept
+    : m_scene(p_scene)
+    , m_reg(engine::GetComponentRegistry()) {
+}
 
-#define REGISTER_COMPONENT(T, ...) MODIFY_FIELD_IMPL(T)
-REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-
-bool SceneEdit::ModifyFieldRaw(void* p_object,
-                               const MetaTableFields& p_fields,
-                               std::string_view p_property,
-                               const void* p_data,
-                               uint32_t p_data_size,
-                               void* p_old_data) {
-    if (!p_object) {
+bool SceneEdit::ModifyField(ecs::Entity p_ent,
+                            ComponentId p_comp_id,
+                            PropertyId p_property,
+                            const void* p_data,
+                            uint32_t p_data_size,
+                            void* p_old_data) {
+    const ecs::ComponentMeta* meta = m_reg.TryGet(p_comp_id);
+    if (!meta) {
+        LOG_WARN("Can't find meta for component {}", p_comp_id);
         return false;
     }
 
-    for (const FieldMetaBase* field : p_fields) {
-        if (p_property == field->name) {
-            char* data = reinterpret_cast<char*>(p_object) + field->offset;
-            if (p_old_data) {
-                std::memcpy(p_old_data, data, p_data_size);
-            }
-            std::memcpy(data, p_data, p_data_size);
-            return true;
-        }
+    const FieldMetaBase* field = meta->Find(p_property);
+    if (!field) {
+        LOG_WARN("Can't find field '{}' for component {}", p_property, p_comp_id);
+        return false;
     }
 
-    LOG_ERROR("SceneEdit::ModifyFieldRaw: field '{}' not found");
-    return false;
+    void* comp = m_scene.GetComponent(p_ent, p_comp_id);
+    char* data = reinterpret_cast<char*>(comp) + field->offset;
+    if (p_old_data) {
+        std::memcpy(p_old_data, data, p_data_size);
+    }
+    std::memcpy(data, p_data, p_data_size);
+    return true;
 }
 
 }  // namespace cave

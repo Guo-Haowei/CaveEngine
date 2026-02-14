@@ -1,15 +1,10 @@
 #pragma once
 #include "EditCmdBase.h"
 
-#include "cave/runtime/scene/SceneEdit.h"
-
-#include "editor/document/IDocument.h"
-
 namespace cave {
 
 class Scene;
 
-template<typename T>
 class EditPropertyCmd : public EditCmdBase {
     using Self = EditPropertyCmd;
 
@@ -17,10 +12,12 @@ public:
     template<typename U>
     EditPropertyCmd(IApplication& p_app,
                     ecs::Entity p_ent,
+                    ComponentId p_id,
                     std::string_view p_property,
                     const U& p_old,
                     const U& p_new)
         : EditCmdBase(p_app, p_ent)
+        , m_id(p_id)
         , m_property(p_property) {
         static_assert(std::is_trivially_copyable_v<U>);
         m_old.resize(sizeof(p_old));
@@ -33,49 +30,17 @@ public:
         return "EditPropertyCmd";
     }
 
-    bool Do(IDocument& p_doc) override {
-        SceneId scene_id = p_doc.GetPreviewScene();
-        if (!scene_id.IsValid()) return false;
-        Scene* scene = ResolveScene(scene_id);
-        if (!scene) return false;
+    bool Do(IDocument& p_doc) override;
 
-        SceneEdit edit(*scene);
-        bool res = edit.ModifyField<T>(m_entity,
-                                       m_property,
-                                       m_new.data(),
-                                       (uint32_t)m_new.size());
-        return res;
-    }
+    bool Undo(IDocument& p_doc) override;
 
-    bool Undo(IDocument& p_doc) override {
-        SceneId scene_id = p_doc.GetPreviewScene();
-        if (!scene_id.IsValid()) return false;
-        Scene* scene = ResolveScene(scene_id);
-        if (!scene) return false;
+    bool CanCoalesceWith(const IEditCmd* p_cmd) const override;
 
-        SceneEdit edit(*scene);
-        bool res = edit.ModifyField<T>(m_entity,
-                                       m_property,
-                                       m_old.data(),
-                                       (uint32_t)m_old.size());
-        return res;
-    }
-
-    bool CanCoalesceWith(const IEditCmd* p_cmd) const override {
-        if (const Self* cmd = dynamic_cast<const Self*>(p_cmd)) {
-            return cmd->m_entity == cmd->m_entity &&
-                   m_property == cmd->m_property;
-        }
-        return false;
-    }
-
-    void CoalesceFrom(std::unique_ptr<IEditCmd> p_cmd) override {
-        Self& cmd = dynamic_cast<Self&>(*p_cmd);
-        m_new = std::move(cmd.m_new);
-    }
+    void CoalesceFrom(std::unique_ptr<IEditCmd> p_cmd) override;
 
 private:
-    std::string_view m_property;
+    const ComponentId m_id;
+    const std::string_view m_property;
 
     std::vector<uint8_t> m_old;
     std::vector<uint8_t> m_new;

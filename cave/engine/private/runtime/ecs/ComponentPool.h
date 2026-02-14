@@ -58,6 +58,10 @@ public:
         return (void*)GetComponent(p_ent);
     }
 
+    const void* GetRaw(Entity p_ent) const override {
+        return (const void*)GetComponent(p_ent);
+    }
+
     void* CreateDefaultRaw(Entity p_ent) override {
         T& c = Create(p_ent);
         return (void*)&c;

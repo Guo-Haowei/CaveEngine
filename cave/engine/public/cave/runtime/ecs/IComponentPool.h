@@ -30,6 +30,8 @@ public:
 
     // --- required for pools ---
     virtual void* GetRaw(Entity p_ent) = 0;
+    virtual const void* GetRaw(Entity p_ent) const = 0;
+
     virtual void* CreateDefaultRaw(Entity p_ent) = 0;
 
     const std::vector<Entity>& GetEntityArray() const {

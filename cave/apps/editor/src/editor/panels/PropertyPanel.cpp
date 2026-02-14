@@ -155,12 +155,12 @@ bool EditAndSubmit(const DrawComponentCtx& p_ctx,
         return false;
     }
 
-    auto cmd = std::make_unique<EditPropertyCmd<ComponentT>>(
-        p_ctx.app,
-        p_ctx.entity,
-        p_field->name,
-        old_v,
-        new_v);
+    auto cmd = std::make_unique<EditPropertyCmd>(p_ctx.app,
+                                                 p_ctx.entity,
+                                                 p_component->GetId(),
+                                                 p_field->name,
+                                                 old_v,
+                                                 new_v);
     p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
     return true;
 }
@@ -297,9 +297,10 @@ void PropertyPanel::DrawUIImpl() {
     {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
-            auto cmd = std::make_unique<EditPropertyCmd<NameComponent>>(
+            auto cmd = std::make_unique<EditPropertyCmd>(
                 m_editor.GetApp(),
                 id,
+                NameComponent_Id,
                 "name",
                 name_component->GetNameRef(),
                 name);

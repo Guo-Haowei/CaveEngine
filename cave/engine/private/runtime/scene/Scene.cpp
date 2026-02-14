@@ -18,6 +18,20 @@ namespace cave {
 using ecs::Entity;
 using namespace cave::math;
 
+void* Scene::GetComponent(ecs::Entity p_ent, ComponentId p_id) {
+    if (auto* pool = m_storage.TryGet(p_id)) {
+        return pool->GetRaw(p_ent);
+    }
+    return nullptr;
+}
+
+const void* Scene::GetComponent(ecs::Entity p_ent, ComponentId p_id) const {
+    if (const auto* pool = m_storage.TryGet(p_id)) {
+        return pool->GetRaw(p_ent);
+    }
+    return nullptr;
+}
+
 void Scene::Update(float p_timestep) {
     CAVE_PROFILE_EVENT();
 

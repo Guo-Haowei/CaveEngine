@@ -1,5 +1,6 @@
 #pragma once
 #include "cave/core/reflection/Meta.h"
+#include "cave/runtime/ecs/ComponentRegistry.h"
 #include "cave/runtime/scene/SceneChangeEvent.h"
 
 namespace cave {
@@ -10,29 +11,18 @@ class Scene;
 
 class SceneEdit {
 public:
-    explicit SceneEdit(Scene& p_scene) noexcept
-        : m_scene(p_scene) {
-    }
+    explicit SceneEdit(Scene& p_scene) noexcept;
 
-    ecs::Entity CreateEntity();
-    void DestroyEntity(ecs::Entity p_ent);
-
-    template<typename T>
     bool ModifyField(ecs::Entity p_ent,
-                     std::string_view p_property,
+                     ComponentId p_comp_id,
+                     PropertyId p_property,
                      const void* p_data,
                      uint32_t p_data_size,
                      void* p_old_data = nullptr);
 
 private:
-    bool ModifyFieldRaw(void* p_object,
-                        const MetaTableFields& p_fields,
-                        std::string_view p_property,
-                        const void* p_data,
-                        uint32_t p_data_size,
-                        void* p_old_data);
-
     Scene& m_scene;
+    const ecs::ComponentRegistry& m_reg;
 };
 
 }  // namespace cave
