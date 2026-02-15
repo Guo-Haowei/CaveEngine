@@ -17,6 +17,12 @@ Entity SceneExt::CreateNameObject(SceneCommandBuffer& p_cb, std::string_view p_n
     return e;
 }
 
+Entity SceneExt::CreateRootObject(SceneCommandBuffer& p_cb, std::string_view p_name) {
+    Entity e = CreateNameObject(p_cb, p_name);
+    p_cb.Add(e, TransformComponent_Id);
+    return e;
+}
+
 Entity SceneExt::CreateTransformObject(SceneCommandBuffer& p_cb, std::string_view p_name) {
     Entity e = CreateNameObject(p_cb, p_name);
     p_cb.Add(e, TransformComponent_Id);
@@ -37,7 +43,6 @@ Entity SceneExt::CreatePointLightObject(SceneCommandBuffer& p_cb,
     SceneCommandBuffer cb;
 
     Entity e = CreateTransformObject(p_cb, p_name);
-    p_cb.Add(e, MeshRendererComponent_Id);
     p_cb.Add(e, LightComponent_Id);
     p_cb.Add(e, MaterialComponent_Id);
 

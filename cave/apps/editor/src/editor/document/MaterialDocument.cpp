@@ -17,7 +17,7 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     : DocumentBase(p_app, p_guid) {
 
     SceneCommandBuffer cb;
-    Entity root = SceneExt::CreateTransformObject(cb, "root");
+    Entity root = SceneExt::CreateRootObject(cb);
 
     if constexpr (1) {
         Entity light = SceneExt::CreatePointLightObject(cb, "point_light", math::Vector3f(0, 3, 1));
@@ -34,6 +34,8 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     cb.Playback(mut);
 
     scene->m_root = cb.Resolve(root);
+    scene->Update(0.0f);
+
     m_preview_scene = m_scene_reg.Register({ "material doc" }, std::move(scene));
 }
 

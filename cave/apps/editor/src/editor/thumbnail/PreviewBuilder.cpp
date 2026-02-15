@@ -104,7 +104,7 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
                                                  const PreviewOptions& p_options) const {
 
     SceneCommandBuffer cb;
-    Entity root = SceneExt::CreateTransformObject(cb, "root");
+    Entity root = SceneExt::CreateRootObject(cb);
 
     if constexpr (1) {
         Entity light = SceneExt::CreatePointLightObject(cb, "light", math::Vector3f(0, 3, 1));
@@ -144,7 +144,7 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
 PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const PreviewOptions& p_options) const {
 
     SceneCommandBuffer cb;
-    Entity root = SceneExt::CreateTransformObject(cb, "root");
+    Entity root = SceneExt::CreateRootObject(cb);
 
     const MeshAsset* mesh = p_handle.Get<MeshAsset>();
     DEV_ASSERT(mesh);

@@ -167,7 +167,7 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
 
             if ((hierarchy = p_scene.GetComponent<HierarchyComponent>(parent)) != nullptr) {
                 parent = hierarchy->parent_id;
-                //DEV_ASSERT(parent.IsValid() || );
+                // DEV_ASSERT(parent.IsValid() || );
             } else {
                 parent.MakeInvalid();
             }

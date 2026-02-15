@@ -14,6 +14,7 @@ struct SceneExt {
     using Vector3f = math::Vector3f;
     using Vector4f = math::Vector4f;
 
+    static Entity CreateRootObject(SceneCommandBuffer& p_cb, std::string_view p_name = "root");
     static Entity CreateNameObject(SceneCommandBuffer& p_cb, std::string_view p_name);
 
     static Entity CreateTransformObject(SceneCommandBuffer& p_cb, std::string_view p_name);
