@@ -20,7 +20,7 @@ void SceneMutator::RemoveEntity(ecs::Entity p_ent) {
 }
 
 void* SceneMutator::AddComponent(ecs::Entity p_ent, ComponentId p_id) {
-    return m_scene.Storage().AddDefault(p_ent, p_id);
+    return m_scene.Storage().CreateRaw(p_ent, p_id);
 }
 
 bool SceneMutator::RemoveComponent(ecs::Entity p_ent, ComponentId p_id) {

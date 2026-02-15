@@ -70,9 +70,9 @@ const void* ComponentStorage::GetRaw(Entity p_ent, ComponentId p_id) const {
     return pool ? pool->GetRaw(p_ent) : nullptr;
 }
 
-void* ComponentStorage::AddDefault(Entity p_ent, ComponentId p_id) {
+void* ComponentStorage::CreateRaw(Entity p_ent, ComponentId p_id) {
     auto& pool = GetOrCreate(p_id);
-    return pool.CreateDefaultRaw(p_ent);
+    return pool.CreateRaw(p_ent);
 }
 
 bool ComponentStorage::Remove(Entity p_ent, ComponentId p_id) {

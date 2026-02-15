@@ -20,6 +20,7 @@ public:
 
     void Clear() override;
 
+    // @TODO: refactor
     std::unique_ptr<IComponentPool> Clone() const override {
         std::unique_ptr<IComponentPool> clone = std::make_unique<ComponentPool<T>>();
         clone->Copy(*this);
@@ -27,22 +28,24 @@ public:
     }
 
     void Copy(const ComponentPool<T>& p_other);
-
     void Copy(const IComponentPool& p_other) override;
 
     void Merge(ComponentPool<T>&& p_other);
-
     void Merge(IComponentPool&& p_other) override;
 
-    void Remove(const Entity& p_ent) override;
+    T& Create(Entity p_ent);
+    void* CreateRaw(Entity p_ent) override;
+    void Remove(Entity p_ent) override;
+
+    void* GetRaw(Entity p_ent) override;
+    const void* GetRaw(Entity p_ent) const override;
+
+    T* GetComponent(Entity p_ent);
+
+    const T* GetComponent(Entity p_ent) const;
 
     T& GetComponentByIndex(size_t p_index);
-
     const T& GetComponentByIndex(size_t p_index) const;
-
-    T* GetComponent(const Entity& p_ent);
-
-    const T* GetComponent(const Entity& p_ent) const;
 
     size_t GetCount() const override { return m_component_array.size(); }
 
@@ -50,21 +53,6 @@ public:
         auto it = m_lookup.find(p_ent);
         if (it == m_lookup.end()) return None();
         return Some(it->second);
-    }
-
-    T& Create(const Entity& p_ent);
-
-    void* GetRaw(Entity p_ent) override {
-        return (void*)GetComponent(p_ent);
-    }
-
-    const void* GetRaw(Entity p_ent) const override {
-        return (const void*)GetComponent(p_ent);
-    }
-
-    void* CreateDefaultRaw(Entity p_ent) override {
-        T& c = Create(p_ent);
-        return (void*)&c;
     }
 
     std::vector<T>& GetComponentArray() {
@@ -132,7 +120,38 @@ void ComponentPool<T>::Merge(IComponentPool&& p_other) {
 }
 
 template<ComponentType T>
-void ComponentPool<T>::Remove(const Entity& p_ent) {
+T& ComponentPool<T>::Create(Entity p_ent) {
+    DEV_ASSERT(p_ent.IsValid());
+
+    const size_t componentCount = m_component_array.size();
+    DEV_ASSERT(m_lookup.find(p_ent) == m_lookup.end());
+    DEV_ASSERT(m_entity_array.size() == componentCount);
+    DEV_ASSERT(m_lookup.size() == componentCount);
+
+    m_lookup[p_ent] = componentCount;
+    m_component_array.emplace_back();
+    m_entity_array.push_back(p_ent);
+    return m_component_array.back();
+}
+
+template<ComponentType T>
+void* ComponentPool<T>::CreateRaw(Entity p_ent) {
+    T& c = Create(p_ent);
+    return (void*)&c;
+}
+
+template<ComponentType T>
+void* ComponentPool<T>::GetRaw(Entity p_ent) {
+    return (void*)this->GetComponent(p_ent);
+}
+
+template<ComponentType T>
+const void* ComponentPool<T>::GetRaw(Entity p_ent) const {
+    return (const void*)this->GetComponent(p_ent);
+}
+
+template<ComponentType T>
+void ComponentPool<T>::Remove(Entity p_ent) {
     auto it = m_lookup.find(p_ent);
     if (it == m_lookup.end()) {
         return;
@@ -173,7 +192,7 @@ const T& ComponentPool<T>::GetComponentByIndex(size_t p_index) const {
 }
 
 template<ComponentType T>
-T* ComponentPool<T>::GetComponent(const Entity& p_ent) {
+T* ComponentPool<T>::GetComponent(Entity p_ent) {
     if (!p_ent.IsValid() || m_lookup.empty()) {
         return nullptr;
     }
@@ -188,7 +207,7 @@ T* ComponentPool<T>::GetComponent(const Entity& p_ent) {
 }
 
 template<ComponentType T>
-const T* ComponentPool<T>::GetComponent(const Entity& p_ent) const {
+const T* ComponentPool<T>::GetComponent(Entity p_ent) const {
     if (!p_ent.IsValid() || m_lookup.empty()) {
         return nullptr;
     }
@@ -200,21 +219,6 @@ const T* ComponentPool<T>::GetComponent(const Entity& p_ent) const {
     }
 
     return &m_component_array[it->second];
-}
-
-template<ComponentType T>
-T& ComponentPool<T>::Create(const Entity& p_ent) {
-    DEV_ASSERT(p_ent.IsValid());
-
-    const size_t componentCount = m_component_array.size();
-    DEV_ASSERT(m_lookup.find(p_ent) == m_lookup.end());
-    DEV_ASSERT(m_entity_array.size() == componentCount);
-    DEV_ASSERT(m_lookup.size() == componentCount);
-
-    m_lookup[p_ent] = componentCount;
-    m_component_array.emplace_back();
-    m_entity_array.push_back(p_ent);
-    return m_component_array.back();
 }
 
 }  // namespace cave::ecs

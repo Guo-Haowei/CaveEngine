@@ -39,15 +39,13 @@ class Scene : public NonCopyable, public IAsset {
 public:
     static constexpr const char* EXTENSION = ".scene";
 
-    void* Create(ecs::Entity p_ent, ComponentId p_id);
-
     template<ComponentType T>
-    T& Create(const ecs::Entity& p_ent) {
-        return *((T*)Create(p_ent, T::kId));
+    T& Create(ecs::Entity p_ent) {
+        return *((T*)m_storage.CreateRaw(p_ent, T::kId));
     }
 
     template<ComponentType T>
-    bool Has(const ecs::Entity& p_ent) const {
+    bool Has(ecs::Entity p_ent) const {
         return m_storage.Has(p_ent, T::kId);
     }
 
@@ -62,7 +60,7 @@ public:
     }
 
     template<ComponentType T>
-    bool Remove(const ecs::Entity& p_ent) {
+    bool Remove(ecs::Entity p_ent) {
         return m_storage.Remove(p_ent, T::kId);
     }
 

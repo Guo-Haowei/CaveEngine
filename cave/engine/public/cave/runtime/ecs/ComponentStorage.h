@@ -45,7 +45,7 @@ public:
 
     const void* GetRaw(Entity p_ent, ComponentId p_id) const;
 
-    void* AddDefault(Entity p_ent, ComponentId p_id);
+    void* CreateRaw(Entity p_ent, ComponentId p_id);
 
     bool Remove(Entity p_ent, ComponentId p_id);
 
