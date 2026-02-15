@@ -23,6 +23,8 @@ public:
         : m_asset_reg(p_reg) {
     }
 
+    static Entity FindEntityByName(const Scene& p_scene, std::string_view p_name);
+
     Entity CreateRootObject(SceneCommandBuffer& p_cb, std::string_view p_name = "root");
     Entity CreateNameObject(SceneCommandBuffer& p_cb, std::string_view p_name);
 
@@ -45,6 +47,11 @@ public:
                                      std::string_view p_name,
                                      const Vector3f& p_color = Vector3f(1),
                                      float p_emissive = 5.0f);
+
+    Entity CreateMeshObject(const std::string& p_asset_path,
+                            SceneCommandBuffer& p_cb,
+                            std::string_view p_name,
+                            const Guid* p_mat_guid);
 
     Entity CreatePlaneObject(SceneCommandBuffer& p_cb,
                              std::string_view p_name,
@@ -73,11 +80,6 @@ public:
     Entity CreateTileMapObject(SceneCommandBuffer& p_cb, std::string_view p_name);
 
 private:
-    Entity CreateMeshObject(const std::string& p_asset_path,
-                            SceneCommandBuffer& p_cb,
-                            std::string_view p_name,
-                            const Guid* p_mat_guid);
-
     AssetRegistry& m_asset_reg;
 };
 

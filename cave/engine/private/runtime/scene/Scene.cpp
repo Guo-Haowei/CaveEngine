@@ -160,7 +160,7 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
     hier.parent_id = p_ent.IsValid() ? p_ent : m_root;
 }
 
-ecs::Entity Scene::FindEntityByName(const char* p_name) {
+ecs::Entity Scene::FindEntityByName(std::string_view p_name) const {
     for (auto [entity, name] : View<NameComponent>()) {
         if (name.GetName() == p_name) {
             return entity;

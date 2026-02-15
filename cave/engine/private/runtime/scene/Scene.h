@@ -126,8 +126,6 @@ public:
 
     void Copy(const Scene& p_other);
 
-    ecs::Entity FindEntityByName(const char* p_name);
-
     ecs::Entity DuplicateEntity(ecs::Entity p_ent);
 
     void InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_ent = ecs::Entity::Null());
@@ -149,6 +147,11 @@ public:
 
     // @TODO: refactor
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
+
+    // -------------------------------------------------------------------------
+    // Utility
+    // -------------------------------------------------------------------------
+    ecs::Entity FindEntityByName(std::string_view p_name) const;
 
     // -------------------------------------------------------------------------
     // IAsset

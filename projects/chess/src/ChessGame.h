@@ -17,6 +17,9 @@ public:
     void OnSceneEnd(Scene& p_scene, IHostServices& p_host) override;
 
     void Tick(Scene& p_scene, IHostServices& p_host, const FrameTime& p_time) override;
+
+private:
+    void CreatePieces(IHostServices& p_host, SceneCommandBuffer& p_cb);
 };
 
 }  // namespace cave

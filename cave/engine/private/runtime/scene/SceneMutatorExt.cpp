@@ -5,10 +5,15 @@
 
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
 using ecs::Entity;
+
+Entity SceneExt::FindEntityByName(const Scene& p_scene, std::string_view p_name) {
+    return p_scene.FindEntityByName(p_name);
+}
 
 Entity SceneExt::CreateNameObject(SceneCommandBuffer& p_cb, std::string_view p_name) {
     Entity e = p_cb.Create();
