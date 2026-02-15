@@ -1,7 +1,5 @@
 #include "AnsiLogger.h"
 
-#include "engine/private/core/base/ring_buffer.h"
-
 namespace cave {
 
 void AnsiLogger::Print(LogLevel p_level, std::string_view p_message) {

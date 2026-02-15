@@ -1,13 +1,19 @@
 #include "PIESession.h"
 
 #include "cave/game/IGameModule.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneMutator.h"
+#include "engine/private/core/diagnostics/DebugIdAllocator.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
 #include "editor/play/PIEHostServices.h"
 
 namespace cave {
 
 PIESession::PIESession(IApplication& p_app)
-    : m_app(p_app) {
+    : m_app(p_app)
+    , m_debug_id(MakeDebugId(this)) {
 }
 
 bool PIESession::EnsureGameModuleLoaded() {
@@ -50,7 +56,12 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
         .game_id = "MyGame",
     };
 
-    m_game->OnSceneBegin(*scene, host, desc);
+    SceneCommandWriter cb(*m_app.GetAssetRegistry());
+    m_game->OnSceneBegin(*scene, host, desc, cb);
+    if (!cb.Empty()) {
+        SceneMutator mut(*scene);
+        cb.Playback(mut);
+    }
     return true;
 }
 
@@ -58,6 +69,8 @@ void PIESession::Stop() {
     if (!m_running) {
         return;
     }
+
+    OnSimEnd();
 
 #if 0
     SceneRegistry* reg = m_app.GetSceneRegistry();
@@ -80,6 +93,39 @@ void PIESession::Stop() {
     // Option B: unload on stop:
     // m_game_handle.Unload(); m_game = nullptr; m_registered = false;
 #endif
+}
+
+void PIESession::OnSimBegin(SceneId p_scene_id) {
+    SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
+
+    m_scene_id = scene_manager.Clone(p_scene_id);
+
+    Scene* scene = scene_manager.Resolve(m_scene_id);
+    DEV_ASSERT(scene);
+    m_app.ScriptService()->OnSimBegin(*scene);
+
+    m_app.GetSceneScheduler().Register(this);
+
+    m_running = true;
+}
+
+void PIESession::OnSimEnd() {
+    SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
+
+    m_running = false;
+
+    if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_scene_id)) {
+        m_app.ScriptService()->OnSimEnd();
+    }
+
+    m_app.GetSceneScheduler().Unregister(this);
+
+    scene_manager.Destroy(m_scene_id);
+    m_scene_id = {};
+}
+
+void PIESession::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
+    p_out.push_back({ SceneTickMode::Simulation, m_scene_id });
 }
 
 void PIESession::Tick(const FrameTime& p_time) {

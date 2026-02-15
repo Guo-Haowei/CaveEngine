@@ -6,6 +6,7 @@
 #include "engine/private/core/os/threads.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/systems/job_system/job_system.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave::engine {
 
@@ -43,6 +44,46 @@ void FinalizeCore() {
     s_os = nullptr;
 }
 
+static void Transform_OnEdited(Scene& p_scene,
+                               ecs::Entity p_ent,
+                               ComponentId,
+                               const PropertyId&,
+                               const void*,
+                               uint32_t) {
+    auto* t = (TransformComponent*)p_scene.Storage().GetRaw(p_ent, TransformComponent_Id);
+    if (DEV_VERIFY(t)) {
+        t->SetDirty();
+    }
+}
+
+static void MeshRenderer_OnEdited(Scene& p_scene,
+                                  ecs::Entity p_ent,
+                                  ComponentId,
+                                  const PropertyId& p_prop_id,
+                                  const void*,
+                                  uint32_t) {
+    if (p_prop_id == StringId("mesh_id")) {
+        auto* mesh = (MeshRendererComponent*)p_scene.Storage().GetRaw(p_ent, MeshRendererComponent_Id);
+        if (DEV_VERIFY(mesh)) {
+            mesh->OnDeserialized();
+        }
+    }
+}
+
+static void Materail_OnEdited(Scene& p_scene,
+                              ecs::Entity p_ent,
+                              ComponentId,
+                              const PropertyId& p_prop_id,
+                              const void*,
+                              uint32_t) {
+    if (p_prop_id == StringId("material_id")) {
+        auto* m = (MaterialComponent*)p_scene.Storage().GetRaw(p_ent, MaterialComponent_Id);
+        if (DEV_VERIFY(m)) {
+            m->OnDeserialized();
+        }
+    }
+}
+
 static void RegisterBuiltinComponents() {
     auto& reg = s_component_reg;
 
@@ -58,6 +99,19 @@ static void RegisterBuiltinComponents() {
 
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
+
+    {
+        ecs::ComponentMeta& meta = reg.GetMut(TransformComponent_Id);
+        meta.on_edited = Transform_OnEdited;
+    }
+    {
+        ecs::ComponentMeta& meta = reg.GetMut(MeshRendererComponent_Id);
+        meta.on_edited = MeshRenderer_OnEdited;
+    }
+    {
+        ecs::ComponentMeta& meta = reg.GetMut(MaterialComponent_Id);
+        meta.on_edited = Materail_OnEdited;
+    }
 }
 
 ecs::ComponentRegistry& GetComponentRegistry() {

@@ -9,13 +9,11 @@ namespace cave::ecs {
 TEST(ComponentStorage, add_get_remove) {
     ecs::ComponentStorage storage;
 
-    storage.GetOrCreate<NameComponent>();
-
     ecs::Entity e1{ 1 }, e2{ 2 }, e3{ 3 };
 
-    storage.AddDefault(e1, NameComponent_Id);
-    storage.AddDefault(e2, NameComponent_Id);
-    storage.AddDefault(e3, NameComponent_Id);
+    storage.CreateRaw(e1, NameComponent_Id);
+    storage.CreateRaw(e2, NameComponent_Id);
+    storage.CreateRaw(e3, NameComponent_Id);
 
     EXPECT_TRUE(storage.Has(e1, NameComponent_Id));
     EXPECT_TRUE(storage.Has(e2, NameComponent_Id));

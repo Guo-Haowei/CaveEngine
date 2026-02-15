@@ -33,7 +33,7 @@ private:
     // Non-serialized attributes
     math::Matrix4x4f m_world_matrix;
 
-    uint32_t m_flags{};
+    uint32_t m_flags = DirtyFlag;
 
 public:
     TransformComponent();

@@ -1,13 +1,18 @@
+// =============================================================================
+// File: engine/public/cave/runtime/ecs/components/MeshRendererComponent.h
+// =============================================================================
 #pragma once
-#include "cave/core/ids/Entity.h"
-
+#include "cave/core/containers/FixedStack.h"
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 
 class MeshRendererComponent {
     CAVE_COMPONENT(MeshRendererComponent)
+
+    static constexpr int kMaxMaterial = 8;
 
 private:
     CAVE_PROP(editor = Toggle)
@@ -23,7 +28,7 @@ private:
     Guid m_mesh_id;
 
     CAVE_PROP()
-    std::vector<ecs::Entity> m_materials;
+    FixedStack<ecs::Entity, kMaxMaterial> m_materials;
 
     CAVE_PROP()
     ecs::Entity m_skeleton_id;

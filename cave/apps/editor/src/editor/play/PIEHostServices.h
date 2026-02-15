@@ -10,6 +10,8 @@ public:
     PIEHostServices(IApplication& p_app, SceneId p_pie_scene);
 
     ILogger& Log() override;
+    cave::AssetRegistry& AssetRegistry() override;
+    ecs::ComponentRegistry& ComponentRegistry() override;
 
 private:
     IApplication& m_app;

@@ -19,7 +19,6 @@
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 
@@ -155,14 +154,107 @@ bool EditAndSubmit(const DrawComponentCtx& p_ctx,
         return false;
     }
 
-    auto cmd = std::make_unique<EditPropertyCmd<ComponentT>>(
-        p_ctx.app,
-        p_ctx.entity,
-        p_field->name,
-        old_v,
-        new_v);
+    auto cmd = std::make_unique<EditPropertyCmd>(p_ctx.app,
+                                                 p_ctx.entity,
+                                                 p_component->GetId(),
+                                                 p_field->id,
+                                                 old_v,
+                                                 new_v);
     p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
     return true;
+}
+
+template<typename T>
+bool DrawPropertyAuto(const FieldMetaBase* p_property,
+                      T* p_component,
+                      const DrawComponentCtx& p_ctx) {
+    switch (p_property->editor_hint) {
+        case EditorHint::EnumDropDown:
+            return p_property->DrawEditor(p_component, ui::DEFAULT_COLUMN_WIDTH);
+        case EditorHint::Toggle:
+            return EditAndSubmit<T, bool>(
+                p_ctx, p_component, p_property,
+                [](const char* p_label, bool& p_value) {
+                    return ui::CheckBox(p_label, p_value);
+                });
+        case EditorHint::InputInt:
+            return (int)EditAndSubmit<T, int>(
+                p_ctx, p_component, p_property,
+                [](const char* p_label, int& p_value) {
+                    return ui::InputInt(p_label, p_value);
+                });
+        case EditorHint::InputFloat:
+            return EditAndSubmit<T, float>(
+                p_ctx, p_component, p_property,
+                [](const char* p_label, float& p_value) {
+                    return ui::InputFloat(p_label, p_value);
+                });
+        case EditorHint::DragInt:
+            BreakIfDebug();
+            return false;
+        case EditorHint::DragFloat:
+            return EditAndSubmit<T, float>(
+                p_ctx, p_component, p_property,
+                [&](const char* p_label, float& p_value) {
+                    return ui::DragFloat(p_label,
+                                         p_value,
+                                         0.01f,
+                                         p_property->v_min,
+                                         p_property->v_max);
+                });
+        case EditorHint::Color:
+            return EditAndSubmit<T, Vector4f>(
+                p_ctx, p_component, p_property,
+                [](const char* p_label, Vector4f& p_value) {
+                    return ui::ColorPicker4(p_label, p_value);
+                });
+        case EditorHint::Translation:
+            return EditAndSubmit<T, Vector3f>(
+                p_ctx, p_component, p_property,
+                [](const char* p_label, Vector3f& p_value) {
+                    return ui::Float3(p_label, p_value, 0.0f);
+                });
+        case EditorHint::Scale:
+            return EditAndSubmit<T, Vector3f>(
+                p_ctx, p_component, p_property,
+                [](const char* p_label, Vector3f& p_value) {
+                    return ui::Float3(p_label, p_value, 1.0f);
+                });
+        case EditorHint::Rotation: {
+            // @TODO: fix this
+            Vector4f& q = p_property->template GetData<Vector4f>(p_component);
+            glm::vec3 euler_ = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
+            Vector3f euler = *reinterpret_cast<Vector3f*>(&euler_);
+            constexpr float RAD_TO_DEG = 180.0f / glm::pi<float>();
+            constexpr float DEG_TO_RAD = glm::pi<float>() / 180.0f;
+            euler *= RAD_TO_DEG;
+
+            if (!ui::Float3(p_property->name, euler, 0.0f)) {
+                return false;
+            }
+
+            euler *= DEG_TO_RAD;
+            glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
+
+            Vector4f old_v = q;
+            Vector4f new_v = Vector4f(q2.x, q2.y, q2.z, q2.w);
+
+            auto cmd = std::make_unique<EditPropertyCmd>(p_ctx.app,
+                                                         p_ctx.entity,
+                                                         p_component->GetId(),
+                                                         p_property->id,
+                                                         old_v,
+                                                         new_v);
+            p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
+            return true;
+        } break;
+        case EditorHint::Asset: {
+            const Guid& guid = p_property->template GetData<Guid>(p_component);
+            return DrawAsset(p_property->name, guid, p_component, p_ctx);
+        } break;
+        default:
+            return false;
+    }
 }
 
 template<typename T>
@@ -171,93 +263,9 @@ bool DrawComponentAuto(T* p_component, const DrawComponentCtx& p_ctx) {
 
     int dirty = 0;
     for (const auto& field : meta_table) {
-        switch (field->editor_hint) {
-            case EditorHint::EnumDropDown: {
-                dirty |= (int)field->DrawEditor(p_component, ui::DEFAULT_COLUMN_WIDTH);
-            } break;
-            case EditorHint::Toggle: {
-                dirty |= (int)EditAndSubmit<T, bool>(
-                    p_ctx, p_component, field,
-                    [](const char* p_label, bool& p_value) {
-                        return ui::CheckBox(p_label, p_value);
-                    });
-            } break;
-            case EditorHint::InputInt: {
-                dirty |= (int)EditAndSubmit<T, int>(
-                    p_ctx, p_component, field,
-                    [](const char* p_label, int& p_value) {
-                        return ui::InputInt(p_label, p_value);
-                    });
-            } break;
-            case EditorHint::InputFloat: {
-                dirty |= (int)EditAndSubmit<T, float>(
-                    p_ctx, p_component, field,
-                    [](const char* p_label, float& p_value) {
-                        return ui::InputFloat(p_label, p_value);
-                    });
-            } break;
-            case EditorHint::DragInt: {
-                BreakIfDebug();
-            } break;
-            case EditorHint::DragFloat: {
-                dirty |= (int)EditAndSubmit<T, float>(
-                    p_ctx, p_component, field,
-                    [&](const char* p_label, float& p_value) {
-                        return ui::DragFloat(p_label,
-                                             p_value,
-                                             0.01f,
-                                             field->v_min,
-                                             field->v_max);
-                    });
-            } break;
-            case EditorHint::Color: {
-                dirty |= (int)EditAndSubmit<T, Vector4f>(
-                    p_ctx, p_component, field,
-                    [](const char* p_label, Vector4f& p_value) {
-                        return ui::ColorPicker4(p_label, p_value);
-                    });
-            } break;
-            case EditorHint::Translation: {
-                dirty |= (int)EditAndSubmit<T, Vector3f>(
-                    p_ctx, p_component, field,
-                    [](const char* p_label, Vector3f& p_value) {
-                        return ui::Float3(p_label, p_value, 0.0f);
-                    });
-            } break;
-            case EditorHint::Scale: {
-                dirty |= (int)EditAndSubmit<T, Vector3f>(
-                    p_ctx, p_component, field,
-                    [](const char* p_label, Vector3f& p_value) {
-                        return ui::Float3(p_label, p_value, 1.0f);
-                    });
-            } break;
-            case EditorHint::Rotation: {
-                // @TODO: fix this
-                Vector4f& q = field->template GetData<Vector4f>(p_component);
-                glm::vec3 euler_ = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
-                Vector3f euler = *reinterpret_cast<Vector3f*>(&euler_);
-                constexpr float RAD_TO_DEG = 180.0f / glm::pi<float>();
-                constexpr float DEG_TO_RAD = glm::pi<float>() / 180.0f;
-                euler *= RAD_TO_DEG;
-
-                if (ui::Float3(field->name,
-                               euler,
-                               0.0f)) {
-                    euler *= DEG_TO_RAD;
-                    glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
-                    q = Vector4f(q2.x, q2.y, q2.z, q2.w);
-                    dirty |= 1;
-                }
-            } break;
-            case EditorHint::Asset: {
-                const Guid& guid = field->template GetData<Guid>(p_component);
-                dirty |= (int)DrawAsset(field->name, guid, p_component, p_ctx);
-            } break;
-            default:
-                break;
-        }
+        dirty |= (int)DrawPropertyAuto(field, p_component, p_ctx);
     }
-    return (bool)dirty;
+    return (int)dirty;
 }
 
 void PropertyPanel::DrawUIImpl() {
@@ -297,10 +305,11 @@ void PropertyPanel::DrawUIImpl() {
     {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
-            auto cmd = std::make_unique<EditPropertyCmd<NameComponent>>(
+            auto cmd = std::make_unique<EditPropertyCmd>(
                 m_editor.GetApp(),
                 id,
-                "name",
+                NameComponent_Id,
+                StringId("name"),
                 name_component->GetNameRef(),
                 name);
             edit_service.Submit(doc_id, std::move(cmd));
@@ -461,13 +470,16 @@ void PropertyPanel::DrawUIImpl() {
     DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_render) {
         DrawComponentAuto<MeshRendererComponent>(&p_render, ctx);
 
-        auto& materials = p_render.GetMaterialInstances();
         if (ImGui::Button("+")) {
             // @TODO: command
+            DEV_ASSERT(0 && "should go through cb");
+#if 0
+            auto& materials = p_render.GetMaterialInstances();
             auto name = std::format("mat_{}", materials.size());
             auto mat_id = EntityFactory::CreateNameEntity(scene, name);
             scene.Create<MaterialComponent>(mat_id);
             p_render.AddMaterial(mat_id);
+#endif
         }
 
         for (ecs::Entity id : p_render.GetMaterialInstances()) {

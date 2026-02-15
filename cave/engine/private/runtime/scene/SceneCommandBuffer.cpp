@@ -1,5 +1,5 @@
 #include "cave/runtime/scene/SceneCommandBuffer.h"
-#include "cave/runtime/scene/SceneEdit.h"
+#include "cave/runtime/scene/SceneMutator.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -17,14 +17,12 @@ ecs::Entity SceneCommandBuffer::Resolve(ecs::Entity p_ent) const noexcept {
     return ecs::Entity::Null();
 }
 
-void SceneCommandBuffer::Playback(Scene& p_scene) {
+void SceneCommandBuffer::Playback(SceneMutator& p_mut) {
     m_remap.clear();
     m_remap.resize(m_next_entity - kTmpBase, ecs::Entity::Null());
 
     const uint8_t* p = m_bytes.data();
     const uint8_t* end = m_bytes.data() + m_bytes.size();
-
-    SceneEdit edit(p_scene);
 
     while (p < end) {
         const Header* header = reinterpret_cast<const Header*>(p);
@@ -33,39 +31,52 @@ void SceneCommandBuffer::Playback(Scene& p_scene) {
         switch (header->op) {
             case Op::CreateEntity: {
                 const auto* create = reinterpret_cast<const Payload_Create*>(payload);
-                ecs::Entity real = edit.CreateEntity();
+                ecs::Entity real = p_mut.CreateEntity();
                 SetRemap(create->out_temp, real);
             } break;
             case Op::DestroyEntity: {
                 const auto* destroy = reinterpret_cast<const Payload_Destroy*>(payload);
-                ecs::Entity real = Resolve(destroy->entity);
-                if (DEV_VERIFY(real.IsValid())) {
-                    edit.DestroyEntity(real);
-                }
+                p_mut.RemoveEntity(Resolve(destroy->ent));
             } break;
-            case Op::AddComponent:
+            case Op::AddComponent: {
+                const auto* pc = reinterpret_cast<const Payload_Component*>(payload);
+                p_mut.AddComponent(Resolve(pc->ent), pc->type);
+            } break;
             case Op::RemoveComponent: {
                 const auto* pc = reinterpret_cast<const Payload_Component*>(payload);
-                ecs::Entity real = Resolve(pc->entity);
-                DispatchComponentOp(p_scene,
-                                    header->op,
-                                    real,
-                                    pc->type);
+                p_mut.RemoveComponent(Resolve(pc->ent), pc->type);
             } break;
             case Op::ChangeProperty: {
                 const auto* pp = reinterpret_cast<const Payload_Property*>(payload);
-                ecs::Entity real = Resolve(pp->entity);
                 const void* data = reinterpret_cast<const void*>(pp + 1);
-                DispatchPropertyOp(p_scene,
-                                   real,
-                                   *pp,
-                                   data);
+                p_mut.ChangeProperty(Resolve(pp->ent),
+                                     pp->type,
+                                     pp->prop_id,
+                                     data,
+                                     pp->data_size);
+            } break;
+            case Op::AttachRoot: {
+                const auto* attach = reinterpret_cast<const Payload_AttachRoot*>(payload);
+                p_mut.GetScene().AttachChild(Resolve(attach->ent));
             } break;
             default: {
                 CRASH_NOW_MSG("Invalid opcode");
             } break;
         }
         p += header->size;
+    }
+
+    Scene& scene = p_mut.GetScene();
+    // @NOTE: resolve mesh and hierachy
+    for (auto [ent, hier] : scene.View<HierarchyComponent>()) {
+        hier.parent_id = Resolve(hier.parent_id);
+    }
+    for (auto [ent, mesh] : scene.View<MeshRendererComponent>()) {
+        auto& mats = mesh.GetMaterialInstances();
+        for (ecs::Entity& mat : mats) {
+            mat = Resolve(mat);
+        }
+        mesh.SetSkeletonId(Resolve(mesh.GetSkeletonId()));
     }
 
     m_bytes.clear();
@@ -115,11 +126,9 @@ void SceneCommandBuffer::WriteComponentRecord(Op p_op,
 void SceneCommandBuffer::WritePropertyRecord(Op p_op,
                                              ecs::Entity p_ent,
                                              BuildInComponentId p_type,
-                                             std::string_view p_property,
+                                             PropertyId p_prop_id,
                                              const void* p_data,
                                              uint32_t p_data_size) {
-    DEV_ASSERT_MSG(p_property.size() < kPropertyNameMax, "Property name overflow");
-
     Header header{
         .op = p_op,
         .size = uint16_t(sizeof(Header) + sizeof(Payload_Property) + p_data_size),
@@ -133,70 +142,15 @@ void SceneCommandBuffer::WritePropertyRecord(Op p_op,
     out += sizeof(header);
 
     Payload_Property payload{
-        .entity = p_ent,
+        .ent = p_ent,
         .type = p_type,
-        .property_name = p_property,
+        .prop_id = p_prop_id,
         .data_size = p_data_size,
     };
     std::memcpy(out, &payload, sizeof(payload));
 
     out += sizeof(payload);
     std::memcpy(out, p_data, p_data_size);
-}
-
-void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
-                                             Op p_op,
-                                             ecs::Entity p_ent,
-                                             BuildInComponentId p_type_id) {
-    if (p_op == Op::AddComponent) {
-        switch (p_type_id) {
-#define REGISTER_COMPONENT(T, ...) \
-    case T##_Id: {                 \
-        p_scene.Create<T>(p_ent);  \
-    } break;
-            REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-            default: {
-                CRASH_NOW_MSG("Unknown component type");
-            } break;
-        }
-        return;
-    }
-
-    if (p_op == Op::RemoveComponent) {
-        switch (p_type_id) {
-#define REGISTER_COMPONENT(T, ...) \
-    case T##_Id: {                 \
-        p_scene.Remove<T>(p_ent);  \
-    } break;
-            REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-            default: {
-                CRASH_NOW_MSG("Unknown component type");
-            } break;
-        }
-        return;
-    }
-
-    CRASH_NOW();
-}
-
-void SceneCommandBuffer::DispatchPropertyOp(Scene& p_scene,
-                                            ecs::Entity p_ent,
-                                            const Payload_Property& p_payload,
-                                            const void* p_data) {
-    SceneEdit edit(p_scene);
-    switch (p_payload.type) {
-#define REGISTER_COMPONENT(T, ...)                                                               \
-    case T##_Id: {                                                                               \
-        edit.ModifyField<T>(p_ent, p_payload.property_name.view(), p_data, p_payload.data_size); \
-    } break;
-        REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-        default: {
-            CRASH_NOW_MSG("Unknown component type");
-        } break;
-    }
 }
 
 }  // namespace cave

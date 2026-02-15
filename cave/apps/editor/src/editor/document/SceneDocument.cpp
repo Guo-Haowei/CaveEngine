@@ -9,10 +9,10 @@ namespace cave {
 SceneDocument::SceneDocument(IApplication& p_app, const Guid& p_guid)
     : DocumentBase(p_app, p_guid) {
 
-    auto scene = std::make_unique<Scene>();
+    auto scene = std::make_unique<Scene>(std::format("preview-scene-{}", p_guid.ToString()));
     scene->Copy(*m_handle.Get<Scene>());
 
-    m_preview_scene = m_scene_reg.Register({ "scene doc" }, std::move(scene));
+    m_preview_scene = m_scene_reg.Register(std::move(scene));
 }
 
 bool SceneDocument::Save() {

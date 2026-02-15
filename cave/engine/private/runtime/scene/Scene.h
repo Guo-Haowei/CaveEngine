@@ -8,9 +8,10 @@
 #include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
 
-namespace cave::jobsystem {
-class Context;
-}
+// clang-format off
+namespace cave::jobsystem { class Context; }
+namespace cave::ecs { class ComponentRegistry; }
+// clang-format on
 
 namespace cave {
 
@@ -33,34 +34,39 @@ enum SceneDirtyFlags : uint32_t {
 };
 DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 
-class Scene : public NonCopyable, public IAsset {
+class Scene final : public NonCopyable, public IAsset {
     CAVE_ASSET(Scene, AssetType::Scene, 0)
 
 public:
     static constexpr const char* EXTENSION = ".scene";
 
+    explicit Scene(std::string p_name, ecs::ComponentRegistry& p_reg) noexcept;
+    explicit Scene(std::string p_name) noexcept;
+    ~Scene() = default;
+
     template<ComponentType T>
-    const T* GetComponent(const ecs::Entity& p_ent) const {
-        if (const auto* pool = (ecs::ComponentPool<T>*)m_storage.TryGet(T::kId)) {
-            return pool->GetComponent(p_ent);
-        }
-        return nullptr;
+    T& Create(ecs::Entity p_ent) {
+        return *((T*)m_storage.CreateRaw(p_ent, T::kId));
     }
 
     template<ComponentType T>
-    T* GetComponent(const ecs::Entity& p_ent) {
-        if (auto* pool = (ecs::ComponentPool<T>*)m_storage.TryGet(T::kId)) {
-            return pool->GetComponent(p_ent);
-        }
-        return nullptr;
+    bool Has(ecs::Entity p_ent) const {
+        return m_storage.Has(p_ent, T::kId);
     }
 
     template<ComponentType T>
-    bool Has(const ecs::Entity& p_ent) const {
-        if (const ecs::IComponentPool* pool = m_storage.TryGet(T::kId)) {
-            return pool->Has(p_ent);
-        }
-        return false;
+    T* GetComponent(ecs::Entity p_ent) {
+        return (T*)m_storage.GetRaw(p_ent, T::kId);
+    }
+
+    template<ComponentType T>
+    const T* GetComponent(ecs::Entity p_ent) const {
+        return (const T*)m_storage.GetRaw(p_ent, T::kId);
+    }
+
+    template<ComponentType T>
+    bool Remove(ecs::Entity p_ent) {
+        return m_storage.Remove(p_ent, T::kId);
     }
 
     template<ComponentType T>
@@ -70,19 +76,6 @@ public:
         }
 
         return 0;
-    }
-
-    template<ComponentType T>
-    T& Create(const ecs::Entity& p_ent) {
-        ecs::IComponentPool& pool = m_storage.GetOrCreate<T>();
-        return *((T*)pool.CreateDefaultRaw(p_ent));
-    }
-
-    template<ComponentType T>
-    void Remove(const ecs::Entity& p_ent) {
-        if (ecs::IComponentPool* pool = m_storage.TryGet(T::kId)) {
-            pool->Remove(p_ent);
-        }
     }
 
     template<ComponentType T>
@@ -123,22 +116,19 @@ public:
         return ecs::ConstView<Cs...>(Get<Cs>()...);
     }
 
-public:
+    ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
+    void RemoveEntity(ecs::Entity p_ent);
+
+    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
+    void AttachChild(ecs::Entity p_child) { AttachChild(p_child, m_root); }
+
     void Update(float p_delta_time);
 
     void Copy(const Scene& p_other);
 
-    ecs::Entity FindEntityByName(const char* p_name);
-
     ecs::Entity DuplicateEntity(ecs::Entity p_ent);
 
     void InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_ent = ecs::Entity::Null());
-
-    auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
-
-    auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
-
-    virtual std::vector<Guid> GetDependencies() const override;
 
     const math::AABB& GetBound() const { return m_bound; }
 
@@ -158,19 +148,37 @@ public:
     // @TODO: refactor
     SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 
+    // -------------------------------------------------------------------------
+    // Utility
+    // -------------------------------------------------------------------------
+    ecs::Entity FindEntityByName(std::string_view p_name) const;
+
+    // -------------------------------------------------------------------------
+    // IAsset
+    // -------------------------------------------------------------------------
+    auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
+
+    auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
+
+    virtual std::vector<Guid> GetDependencies() const override;
+
+    // -------------------------------------------------------------------------
+    // Accessor
+    // -------------------------------------------------------------------------
+    ecs::ComponentStorage& Storage() noexcept { return m_storage; }
+    const ecs::ComponentStorage& Storage() const noexcept { return m_storage; }
+
+    std::string_view Name() const { return m_name; }
+
 private:
-    ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
-
-    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
-    void AttachChild(ecs::Entity p_child) { AttachChild(p_child, m_root); }
-
     std::vector<ecs::Entity> GetSortedEntityArray() const;
 
+    ecs::ComponentRegistry& m_reg;
+    std::string m_name;
     ecs::ComponentStorage m_storage;
 
     uint32_t m_entity_seed{ 0 };
 
-    friend class SceneEdit;
     friend class AssimpImporter;
     friend class TinyGltfImporter;
 };

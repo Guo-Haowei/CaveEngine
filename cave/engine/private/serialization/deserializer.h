@@ -1,10 +1,12 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
-#include "cave/core/math/Matrix.h"
-#include "cave/core/string/FixedString.h"
-
+// @TODO: refactor defines.h
 #include "defines.h"
+
 #include "cave/core/math/Box.h"
+#include "cave/core/math/Matrix.h"
+#include "cave/core/containers/FixedStack.h"
+#include "cave/core/containers/FixedString.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave::math {
 class Degree;
@@ -57,6 +59,22 @@ public:
             return false;
         }
         p_value = s;
+        return true;
+    }
+
+    template<typename T, size_t N>
+    bool Read(FixedStack<T, N>& p_array) {
+        const auto size = ArraySize().unwrap_or(-1);
+        ERR_FAIL_COND_V_MSG(size < 0, false, "expect array[]");
+        ERR_FAIL_COND_V_MSG(size > p_array.capacity(), false, "array overflow");
+
+        p_array.resize(size);
+        for (int i = 0; i < size; ++i) {
+            TryEnterIndex(i);
+            Read(p_array[i]);
+            LeaveIndex();
+        }
+
         return true;
     }
 

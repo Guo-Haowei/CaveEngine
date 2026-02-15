@@ -3,16 +3,18 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/scene/SceneEdit.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneMutator.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 
 namespace cave {
 
+using ecs::Entity;
 using math::Matrix4x4f;
 using math::Vector3f;
 using math::Vector4f;
@@ -80,7 +82,10 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
 
     const Scene* source_scene = p_handle.Get<Scene>();
     DEV_ASSERT(source_scene);
-    auto scene = std::make_unique<Scene>();
+    const AssetMetaData* meta = p_handle.GetMeta();
+    DEV_ASSERT(meta);
+
+    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
     scene->Copy(*source_scene);
 
     for (auto [id, cam] : scene->View<CameraComponent>()) {
@@ -88,12 +93,9 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
     }
     scene->Update(0.0f);
 
-    // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register({ "thumbnail scene" }, std::move(scene));
-
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_id,
+        .scene_id = m_scene_reg.Register(std::move(scene)),
         .camera = CameraSource::FirstCamera(),
     };
 }
@@ -101,29 +103,28 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
 PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
                                                  const PreviewOptions& p_options) const {
 
-    auto scene = std::make_unique<Scene>();
-    SceneEdit edit(*scene);
+    SceneCommandWriter cb(m_asset_reg);
+    Entity root = cb.CreateRootObject();
 
-    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
-    scene->m_root = root;
-
-    // add sphere
-    {
-        auto id = EntityFactory::CreateSphereEntity(*scene, "sphere");
-        MeshRendererComponent* renderer = scene->GetComponent<MeshRendererComponent>(id);
-        DEV_ASSERT(renderer);
-        auto material_id = renderer->GetMaterialInstances()[0];
-        MaterialComponent* material = scene->GetComponent<MaterialComponent>(material_id);
-        material->SetResourceGuid(p_handle.GetGuid());
-        edit.AttachChild(id);
+    if constexpr (1) {
+        Entity light = cb.CreatePointLightObject("light", math::Vector3f(0, 3, 1));
+        cb.AttachChild(light, root);
     }
 
-    // add point light (TODO: maybe area light?)
-    {
-        auto id = EntityFactory::CreatePointLightEntity(*scene, "light", math::Vector3f(0, 3, 1));
-        edit.AttachChild(id);
+    if constexpr (1) {
+        Guid guid = p_handle.GetGuid();
+        Entity sphere = cb.CreateSphereObject("sphere", &guid);
+        cb.AttachChild(sphere, root);
     }
 
+    const AssetMetaData* meta = p_handle.GetMeta();
+    DEV_ASSERT(meta);
+    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
+
+    SceneMutator mut(*scene);
+    cb.Playback(mut);
+
+    scene->m_root = cb.Resolve(root);
     scene->Update(0.0f);
 
     Matrix4x4f transform = math::Translate(Vector3f(0, 0, 1.5f));
@@ -133,50 +134,47 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
     camera.Update(transform);
     camera.SetFovy(p_options.fov_y_deg);
 
-    // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register({ "thumbnail mat" }, std::move(scene));
-
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_id,
+        .scene_id = m_scene_reg.Register(std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }
 
 PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const PreviewOptions& p_options) const {
-    auto scene = std::make_unique<Scene>();
-    SceneEdit edit(*scene);
-    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
-    scene->m_root = root;
+
+    SceneCommandWriter cb(m_asset_reg);
+    Entity root = cb.CreateRootObject();
 
     const MeshAsset* mesh = p_handle.Get<MeshAsset>();
     DEV_ASSERT(mesh);
 
-    // add mesh
-    {
-        auto id = EntityFactory::CreateTransformEntity(*scene, "mesh");
-        MeshRendererComponent& renderer = scene->Create<MeshRendererComponent>(id);
-        renderer.SetResourceGuid(p_handle.GetGuid());
-        renderer.OnDeserialized();
-        edit.AttachChild(id);
+    if constexpr (1) {
+        Entity light = cb.CreatePointLightObject("light", math::Vector3f(0, 3, 1));
+        cb.AttachChild(light, root);
     }
 
-    // add point light (TODO: maybe area light?)
-    {
-        auto id = EntityFactory::CreatePointLightEntity(*scene, "light", math::Vector3f(0, 3, 1));
-        edit.AttachChild(id);
+    if constexpr (1) {
+        Entity e = cb.CreateTransformObject("mesh");
+        cb.Add(e, MeshRendererComponent_Id);
+        cb.SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), p_handle.GetGuid());
+        cb.AttachChild(e, root);
     }
 
+    const AssetMetaData* meta = p_handle.GetMeta();
+    DEV_ASSERT(meta);
+    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
+
+    SceneMutator mut(*scene);
+    cb.Playback(mut);
+    scene->m_root = cb.Resolve(root);
     scene->Update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, p_options);
 
-    // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register({ "thumbnail mesh" }, std::move(scene));
-
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_id,
+        .scene_id = m_scene_reg.Register(std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }

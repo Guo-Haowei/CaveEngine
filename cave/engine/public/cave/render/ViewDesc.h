@@ -2,9 +2,9 @@
 // File: public/cave/render/ViewDesc.h
 // =============================================================================
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/math/Rect.h"
+#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
 
 namespace cave {

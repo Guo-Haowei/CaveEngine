@@ -1,6 +1,6 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/SceneId.h"
+#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/AppState.h"
@@ -57,6 +57,11 @@ public:
     const char* GetDebugName() final { return "EditorState"; }
 #endif
 
+    FocusedPreviewScene GetFocusedPreviewScene();
+
+    // @TODO: move it to utility
+    void OpenAddEntityPopup(ecs::Entity p_parent);
+
     ContentBrowser& GetAssetInspector() { return *m_content_browser.get(); }
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
@@ -69,11 +74,7 @@ public:
     ShortcutService& ShortcutService() { return *m_shortcut_service; }
     ThumbnailService& ThumbnailService() { return *m_thumbnail_service; }
     Workspace& Workspace() { return *m_workspace; }
-
-    FocusedPreviewScene GetFocusedPreviewScene();
-
-    // @TODO: move it to utility
-    void OpenAddEntityPopup(ecs::Entity p_parent);
+    PIESession& PIE() { return m_pie; }
 
 private:
     void DockSpace();

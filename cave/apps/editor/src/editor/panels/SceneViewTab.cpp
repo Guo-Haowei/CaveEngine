@@ -8,6 +8,7 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/edit/EditTransformCmd.h"
 #include "editor/services/EditService.h"
@@ -18,7 +19,6 @@
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/sampler.h"
 
-#include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/renderer/graphics_dvars.h"
 
@@ -91,11 +91,8 @@ void SceneViewTab::SubmitView() {
     ViewDesc view;
     view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
     if (m_editor.IsPlaying()) {
-        CRASH_NOW();
-#if 0
-        view.scene_id = m_editor.GetRuntimeHost().GetSceneId();
+        view.scene_id = m_editor.PIE().GetSceneId();
         view.camera_source = CameraSource::FirstCamera();
-#endif
     } else {
         view.scene_id = m_preview_scene;
         view.camera_source = CameraSource::External(m_camera);

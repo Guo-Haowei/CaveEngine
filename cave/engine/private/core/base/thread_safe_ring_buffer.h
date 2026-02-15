@@ -1,5 +1,5 @@
 #pragma once
-#include "ring_buffer.h"
+#include "cave/core/containers/RingBuffer.h"
 
 namespace cave {
 

@@ -1,9 +1,10 @@
+// =============================================================================
+// File: engine/public/cave/core/containers/FixedStack.h
+// =============================================================================
 #pragma once
 #include <initializer_list>
 
-#include "linear_iterator.h"
-#include "prerequisites.h"
-#include "reverse_iterator.h"
+#include "cave/core/containers/Iterators.h"
 
 namespace cave {
 

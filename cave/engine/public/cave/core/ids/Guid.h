@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include <string>
+#include "cave/core/Option.h"
 
 namespace cave {
 

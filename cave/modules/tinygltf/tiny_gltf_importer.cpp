@@ -10,7 +10,7 @@
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/SkeletalAnimationComponent.h"
@@ -67,7 +67,7 @@ Result<void> TinyGltfImporter::Import() {
         return CAVE_ERROR(res.error());
     }
 
-    m_scene = std::make_shared<Scene>();
+    m_scene = std::make_shared<Scene>("import-gltf");
 
     tinygltf::TinyGLTF loader;
     std::string err;
@@ -511,8 +511,11 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 #endif
 
     if (node.mesh >= 0) {
-        ecs::Entity mesh_instance = EntityFactory::CreateMeshInstance(*m_scene, "Node::" + node.name);
-        MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(mesh_instance);
+        ecs::Entity mesh_instance = m_scene->CreateEntity();
+        m_scene->Create<NameComponent>(mesh_instance).SetName("Node::" + node.name);
+        m_scene->Create<TransformComponent>(mesh_instance);
+
+        MeshRendererComponent& renderer = m_scene->Create<MeshRendererComponent>(mesh_instance);
         renderer.SetResourceGuid(m_meshes.at(node.mesh));
 
         const tinygltf::Mesh& mesh = m_model->meshes[node.mesh];
@@ -601,7 +604,8 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 
 void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
     std::string tag = p_anim.name.empty() ? GenerateAnimationName() : p_anim.name;
-    auto entity = EntityFactory::CreateNameEntity(*m_scene, tag);
+    auto entity = m_scene->CreateEntity();
+    m_scene->Create<NameComponent>(entity).SetName(tag);
 
     // @TODO: make animation asset instead
     m_scene->AttachChild(entity);

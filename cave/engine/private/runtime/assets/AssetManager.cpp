@@ -22,7 +22,6 @@
 #include "engine/private/runtime/framework/TaskContext.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/VFS.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "modules/tinygltf/tiny_gltf_importer.h"
 
@@ -59,7 +58,7 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
         case AssetType::Scene:
-            return std::make_shared<Scene>();
+            return std::make_shared<Scene>("");
         default:
             return nullptr;
     }

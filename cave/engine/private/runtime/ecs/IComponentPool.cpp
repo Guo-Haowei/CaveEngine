@@ -2,7 +2,7 @@
 
 namespace cave::ecs {
 
-bool IComponentPool::Has(const Entity& p_ent) const {
+bool IComponentPool::Has(Entity p_ent) const {
     if (m_lookup.empty()) {
         return false;
     }

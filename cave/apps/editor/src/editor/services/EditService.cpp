@@ -5,7 +5,6 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorState.h"

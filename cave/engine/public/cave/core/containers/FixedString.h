@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/string/FixedString.h
+// File: engine/public/cave/core/containers/FixedString.h
 // =============================================================================
 #pragma once
 #include <cstdint>
@@ -23,7 +23,7 @@ public:
         m_size = 0;
     }
 
-    FixedString(std::string_view sv) noexcept {
+    constexpr FixedString(std::string_view sv) noexcept {
         assign(sv);
     }
 
@@ -73,10 +73,10 @@ public:
         return *this;
     }
 
-    void assign(std::string_view sv) noexcept {
+    constexpr void assign(std::string_view sv) noexcept {
         const size_type n = (size_type)std::min<size_t>(sv.size(), capacity());
-        if (n > 0) {
-            std::memcpy(m_data, sv.data(), n);
+        for (size_type i = 0; i < n; ++i) {
+            m_data[i] = sv[i];
         }
         m_data[n] = '\0';
         m_size = n;

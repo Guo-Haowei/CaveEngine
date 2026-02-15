@@ -2,7 +2,7 @@
 // File: public/cave/runtime/input/InputTypes.h
 // =============================================================================
 #pragma once
-#include "cave/core/ids/StringId.h"
+#include "cave/core/string/StringId.h"
 
 namespace cave {
 
@@ -84,8 +84,8 @@ enum class ActionEventType : uint8_t {
 };
 
 struct ActionEvent {
-    StringId action;
-    ActionEventType type;
+    StringId action{};
+    ActionEventType type{};
     int player = 0;
 
     float x = 0.0f;

@@ -1,13 +1,15 @@
 #pragma once
+// @TODO: refactor defines.h
 #include "defines.h"
 
-#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Angle.h"
+#include "cave/core/math/Box.h"
 #include "cave/core/math/Matrix.h"
-#include "cave/core/string/FixedString.h"
+#include "cave/core/containers/FixedStack.h"
+#include "cave/core/containers/FixedString.h"
+#include "cave/runtime/ecs/Entity.h"
 
 #include "engine/private/core/io/file_access.h"
-#include "cave/core/math/Box.h"
 
 namespace cave {
 
@@ -67,13 +69,20 @@ public:
         return Write(p_value.data());
     }
 
+    template<typename T, size_t N>
+    ISerializer& Write(const FixedStack<T, N>& p_array) {
+        const size_t len = std::ranges::size(p_array);
+        BeginArray(len < SINGLE_LINE_MAX_ELEMENT);
+        for (const T& val : p_array) Write(val);
+        EndArray();
+        return *this;
+    }
+
     template<ArrayLike T>
     ISerializer& Write(const T& p_array) {
         const size_t len = std::ranges::size(p_array);
         BeginArray(len < SINGLE_LINE_MAX_ELEMENT);
-        for (const auto& val : p_array) {
-            Write(val);
-        }
+        for (const auto& val : p_array) Write(val);
         EndArray();
         return *this;
     }

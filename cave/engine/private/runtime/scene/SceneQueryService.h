@@ -1,8 +1,8 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/math/Vector.h"
 #include "cave/core/math/Ray.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 

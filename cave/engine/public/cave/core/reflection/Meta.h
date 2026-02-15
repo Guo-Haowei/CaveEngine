@@ -1,5 +1,8 @@
+// =============================================================================
+// File: public/cave/core/reflection/Meta.h
+// =============================================================================
 #pragma once
-#include "Reflection.h"
+#include "cave/core/reflection/Reflection.h"
 
 #if USING(USE_REFLECTION)
 
@@ -59,21 +62,23 @@ class IDeserializer;
 struct FieldMetaBase {
     const char* const name;
     const char* const type;
+    const PropertyId id;
     const size_t offset;
     const FieldFlag flags;
     const EditorHint editor_hint;
     const float v_min;
     const float v_max;
 
-    FieldMetaBase(const char* p_name,
-                  const char* p_type,
-                  size_t p_offset,
-                  FieldFlag p_flags,
-                  EditorHint p_hint,
-                  float p_min,
-                  float p_max)
+    constexpr FieldMetaBase(const char* p_name,
+                            const char* p_type,
+                            size_t p_offset,
+                            FieldFlag p_flags,
+                            EditorHint p_hint,
+                            float p_min,
+                            float p_max) noexcept
         : name(p_name)
         , type(p_type)
+        , id(PropertyId(p_name))
         , offset(p_offset)
         , flags(p_flags)
         , editor_hint(p_hint)

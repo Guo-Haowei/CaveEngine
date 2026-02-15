@@ -1,15 +1,16 @@
 #include "EditObjectCmd.h"
 
-#include "cave/runtime/scene/SceneEdit.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneMutator.h"
 
-#include "engine/private/runtime/scene/EntityFactory.h"
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/Enums.h"
 
 namespace cave {
 
-// @TODO: refactor
-static std::string GenerateName(std::string_view p_name) {
+[[maybe_unused]] static std::string GenerateName(std::string_view p_name) {
     static int s_counter = 0;
     return std::format("{}-{}", p_name, ++s_counter);
 }
@@ -17,11 +18,12 @@ static std::string GenerateName(std::string_view p_name) {
 bool AddObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            SceneEdit edit(*scene);
+            SceneCommandWriter cb(AssetRegistry::GetSingleton());
+            ecs::Entity created{};
             switch (m_type) {
-#define ENTITY_TYPE(NAME, ...)                                                        \
-    case EntityType::NAME: {                                                          \
-        m_created = EntityFactory::Create##NAME##Entity(*scene, GenerateName(#NAME)); \
+#define ENTITY_TYPE(NAME, ...)                                  \
+    case EntityType::NAME: {                                    \
+        created = cb.Create##NAME##Object(GenerateName(#NAME)); \
     } break;
                 ENTITY_TYPE_LIST
 #undef ENTITY_TYPE
@@ -30,12 +32,17 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
                     break;
             }
 
+            SceneMutator mut(*scene);
+            cb.Playback(mut);
+            m_created = cb.Resolve(created);
+
             ecs::Entity parent = m_entity;
             if (scene->m_root.IsValid()) {
-                edit.AttachChild(m_created, parent.IsValid() ? parent : scene->m_root);
+                scene->AttachChild(m_created, parent.IsValid() ? parent : scene->m_root);
             } else {
                 scene->m_root = m_created;
             }
+
             return true;
         }
     }
@@ -46,8 +53,7 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
 bool AddObjectCmd::Undo(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            SceneEdit edit(*scene);
-            edit.DestroyEntity(m_created);
+            scene->RemoveEntity(m_created);
             m_created = ecs::Entity::Null();
             return true;
         }
@@ -58,8 +64,7 @@ bool AddObjectCmd::Undo(IDocument& p_doc) {
 bool DeleteObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            SceneEdit edit(*scene);
-            edit.DestroyEntity(m_entity);
+            scene->RemoveEntity(m_entity);
             return true;
         }
     }

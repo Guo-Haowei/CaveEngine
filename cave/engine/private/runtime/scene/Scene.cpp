@@ -5,6 +5,7 @@
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/systems/animation_system.h"
 #include "engine/private/systems/ecs_systems.h"
 #include "engine/private/systems/job_system/job_system.h"
@@ -17,6 +18,15 @@ namespace cave {
 
 using ecs::Entity;
 using namespace cave::math;
+
+Scene::Scene(std::string p_name, ecs::ComponentRegistry& p_reg) noexcept
+    : m_name(std::move(p_name))
+    , m_reg(p_reg) {
+}
+
+Scene::Scene(std::string p_name) noexcept
+    : Scene(std::move(p_name), engine::GetComponentRegistry()) {
+}
 
 void Scene::Update(float p_timestep) {
     CAVE_PROFILE_EVENT();
@@ -35,11 +45,6 @@ void Scene::Update(float p_timestep) {
     // hierarchy, update world matrix based on hierarchy
     RunHierarchyUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
-
-    // mesh particles
-    // RunMeshEmitterUpdateSystem(*this, ctx, p_timestep);
-    // particle
-    // RunParticleEmitterUpdateSystem(*this, ctx, p_timestep);
 
     RunSkeletonUpdateSystem(*this, ctx, p_timestep);
     ctx.Wait();
@@ -111,7 +116,7 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
 
     const Scene* source = handle.unwrap_unchecked().Get();
     DEV_ASSERT(source);
-    Scene copy;
+    Scene copy("prefab");
     copy.Copy(*source);
 
     auto new_entities = copy.GetSortedEntityArray();
@@ -155,13 +160,33 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
     hier.parent_id = p_ent.IsValid() ? p_ent : m_root;
 }
 
-ecs::Entity Scene::FindEntityByName(const char* p_name) {
+ecs::Entity Scene::FindEntityByName(std::string_view p_name) const {
     for (auto [entity, name] : View<NameComponent>()) {
         if (name.GetName() == p_name) {
             return entity;
         }
     }
     return ecs::Entity::Null();
+}
+
+void Scene::RemoveEntity(ecs::Entity p_ent) {
+    if (!p_ent.IsValid()) return;
+    std::vector<ecs::Entity> children;
+    for (auto [child, hierarchy] : View<HierarchyComponent>()) {
+        if (hierarchy.parent_id == p_ent) {
+            children.emplace_back(child);
+        }
+    }
+
+    for (auto child : children) {
+        RemoveEntity(child);
+    }
+
+    for (auto& e : m_storage.GetEntries()) {
+        if (e.pool) {
+            e.pool->Remove(p_ent);
+        }
+    }
 }
 
 void Scene::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {

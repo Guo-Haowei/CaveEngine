@@ -4,6 +4,7 @@
 #pragma once
 #include "cave/core/typedefs.h"
 #include "cave/core/Option.h"
+#include "cave/core/string/StringId.h"
 
 // #define USE_REFLECTION USE_IF(!USING(PLATFORM_WASM))
 #define USE_REFLECTION IN_USE
@@ -23,6 +24,8 @@ public:                                     \
 #define CAVE_PROP(...)
 
 namespace cave {
+
+using PropertyId = StringId;
 
 struct MetaTag {
     explicit constexpr MetaTag() = default;

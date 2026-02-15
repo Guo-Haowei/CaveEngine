@@ -9,10 +9,17 @@ public:
     void RegisterTypes(IHostServices& p_host) override;
     void RegisterSystems(IHostServices& p_host) override;
 
-    void OnSceneBegin(Scene& p_scene, IHostServices& p_host, const GameInitDesc& p_init) override;
+    void OnSceneBegin(Scene& p_scene,
+                      IHostServices& p_host,
+                      const GameInitDesc& p_init,
+                      SceneCommandWriter& p_cb) override;
+
     void OnSceneEnd(Scene& p_scene, IHostServices& p_host) override;
 
     void Tick(Scene& p_scene, IHostServices& p_host, const FrameTime& p_time) override;
+
+private:
+    void CreatePieces(Scene& p_scene, IHostServices& p_host, SceneCommandWriter& p_cb);
 };
 
 }  // namespace cave

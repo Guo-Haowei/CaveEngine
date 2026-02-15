@@ -12,9 +12,9 @@ namespace cave::ecs {
 #define DEBUG_PRINT(...) ((void)0)
 #endif
 
-const FieldMetaBase* ComponentMeta::Find(PropertyId p_id) const {
+const FieldMetaBase* ComponentMeta::Find(const PropertyId& p_id) const {
     for (const FieldMetaBase* meta : props) {
-        if (meta->name == p_id) {
+        if (meta->id == p_id) {
             return meta;
         }
     }
@@ -45,6 +45,11 @@ const ComponentMeta* ComponentRegistry::TryGet(ComponentId p_id) const {
     const size_t idx = (size_t)p_id;
     if (idx >= m_present.size() || m_present[idx] == 0) return nullptr;
     return &m_table[idx];
+}
+
+ComponentMeta& ComponentRegistry::GetMut(ComponentId p_id) {
+    DEV_ASSERT_INDEX(p_id, m_present.size());
+    return m_table[p_id];
 }
 
 }  // namespace cave::ecs

@@ -1,15 +1,15 @@
 #pragma once
 #include "IEditCmd.h"
 
-#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/SceneId.h"
-
-#include "engine/private/runtime/scene/Scene.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 
 class IApplication;
 class SceneRegistry;
+
+class Scene;
 
 class EditCmdBase : public IEditCmd {
 public:

@@ -4,16 +4,14 @@
 #pragma once
 #include <type_traits>
 #include <vector>
-#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Vector.h"
-#include "cave/core/string/FixedString.h"
+#include "cave/core/containers/FixedString.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 
-class Scene;
-
-constexpr size_t kPropertyNameMax = 32;
+class SceneMutator;
 
 class SceneCommandBuffer {
     enum class Op : uint16_t {
@@ -22,6 +20,9 @@ class SceneCommandBuffer {
         AddComponent,
         RemoveComponent,
         ChangeProperty,
+
+        // high level commands
+        AttachRoot,
     };
 
     struct Header {
@@ -34,19 +35,23 @@ class SceneCommandBuffer {
     };
 
     struct Payload_Destroy {
-        ecs::Entity entity;
+        ecs::Entity ent;
     };
 
     struct Payload_Component {
-        ecs::Entity entity;
+        ecs::Entity ent;
         BuildInComponentId type;
     };
 
     struct Payload_Property {
-        ecs::Entity entity;
+        ecs::Entity ent;
         BuildInComponentId type;
-        FixedString<kPropertyNameMax> property_name;
+        PropertyId prop_id;
         uint32_t data_size;
+    };
+
+    struct Payload_AttachRoot {
+        ecs::Entity ent;
     };
 
 public:
@@ -61,8 +66,7 @@ public:
     ecs::Entity Resolve(ecs::Entity p_ent) const noexcept;
 
     void Destroy(ecs::Entity p_ent) {
-        Payload_Destroy e{ p_ent };
-        WriteEntityRecord(Op::DestroyEntity, &e, sizeof(e));
+        WriteEntityRecord(Op::DestroyEntity, &p_ent, sizeof(p_ent));
     }
 
     void Add(ecs::Entity p_ent, BuildInComponentId p_id) {
@@ -73,24 +77,19 @@ public:
         WriteComponentRecord(Op::RemoveComponent, p_ent, p_id);
     }
 
+    void AttachRoot(ecs::Entity p_ent) {
+        WriteEntityRecord(Op::AttachRoot, &p_ent, sizeof(p_ent));
+    }
+
     template<typename T>
-    void SetProperty(ecs::Entity p_ent, BuildInComponentId p_id, std::string_view p_property, const T& p_value) {
+    void SetProperty(ecs::Entity p_ent, BuildInComponentId p_id, const PropertyId& p_prop_id, const T& p_value) {
         static_assert(std::is_trivially_copyable_v<T>);
-        WritePropertyRecord(Op::ChangeProperty, p_ent, p_id, p_property, &p_value, sizeof(T));
+        WritePropertyRecord(Op::ChangeProperty, p_ent, p_id, p_prop_id, &p_value, sizeof(T));
     }
 
-    // -------------------------------------------------------------------------
-    // Wrappers
-    // -------------------------------------------------------------------------
-    void SetName(ecs::Entity p_ent, std::string_view p_value) {
-        SetProperty(p_ent, NameComponent_Id, "name", FixedString<64>(p_value));
-    }
+    void Playback(SceneMutator& p_mut);
 
-    void SetScale(ecs::Entity p_ent, const math::Vector3f& p_value) {
-        SetProperty(p_ent, TransformComponent_Id, "scale", p_value);
-    }
-
-    void Playback(Scene& p_scene);
+    bool Empty() const { return m_bytes.empty(); }
 
 private:
     static constexpr uint32_t kTmpBase = 0x80000000u;
@@ -112,19 +111,9 @@ private:
     void WritePropertyRecord(Op p_op,
                              ecs::Entity p_ent,
                              BuildInComponentId p_type,
-                             std::string_view p_property,
+                             PropertyId p_prop_id,
                              const void* p_data,
                              uint32_t p_data_size);
-
-    void DispatchComponentOp(Scene& p_scene,
-                             Op p_op,
-                             ecs::Entity p_ent,
-                             BuildInComponentId p_type_id);
-
-    void DispatchPropertyOp(Scene& p_scene,
-                            ecs::Entity p_ent,
-                            const Payload_Property& p_payload,
-                            const void* p_data);
 
     uint32_t m_next_entity = kTmpBase;
     std::vector<uint8_t> m_bytes;

@@ -2,8 +2,8 @@
 // File: engine/public/cave/runtime/ecs/ComponentStorage.h
 // =============================================================================
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 class Scene;
@@ -28,26 +28,24 @@ public:
 
     bool IsRegistered(ComponentId p_id) const;
 
+    IComponentPool& GetOrCreate(ComponentId p_id);
+
+    template<ComponentType T>
+    IComponentPool& GetOrCreate() {
+        return GetOrCreate(T::kId);
+    }
+
     IComponentPool* TryGet(ComponentId p_id);
 
     const IComponentPool* TryGet(ComponentId p_id) const;
-
-    template<ComponentType T>
-    ComponentPool<T>& GetOrCreate() {
-        constexpr ComponentId id = T::kId;
-        Ensure(id);
-        Entry& e = m_entries[id];
-        if (e.pool == nullptr) {
-            e.pool = std::make_unique<ComponentPool<T>>();
-        }
-        return static_cast<ComponentPool<T>&>(*e.pool);
-    }
 
     bool Has(Entity p_ent, ComponentId p_id) const;
 
     void* GetRaw(Entity p_ent, ComponentId p_id);
 
-    void* AddDefault(Entity p_ent, ComponentId p_id);
+    const void* GetRaw(Entity p_ent, ComponentId p_id) const;
+
+    void* CreateRaw(Entity p_ent, ComponentId p_id);
 
     bool Remove(Entity p_ent, ComponentId p_id);
 
