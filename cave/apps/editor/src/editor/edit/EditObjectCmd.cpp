@@ -1,7 +1,9 @@
 #include "EditObjectCmd.h"
 
-#include "engine/private/runtime/scene/Scene.h"
 #include "cave/runtime/scene/SceneMutatorExt.h"
+
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/Enums.h"
 
@@ -15,12 +17,13 @@ namespace cave {
 bool AddObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+            SceneExt scene_ext(AssetRegistry::GetSingleton());
             SceneCommandBuffer cb;
             ecs::Entity created{};
             switch (m_type) {
 #define ENTITY_TYPE(NAME, ...)                                             \
     case EntityType::NAME: {                                               \
-        created = SceneExt::Create##NAME##Object(cb, GenerateName(#NAME)); \
+        created = scene_ext.Create##NAME##Object(cb, GenerateName(#NAME)); \
     } break;
                 ENTITY_TYPE_LIST
 #undef ENTITY_TYPE

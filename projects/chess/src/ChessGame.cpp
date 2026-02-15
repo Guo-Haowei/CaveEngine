@@ -2,8 +2,7 @@
 
 #include "cave/core/diagnostics/ILogger.h"
 #include "cave/game/IHostServices.h"
-#include "cave/runtime/scene/SceneCommandBuffer.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneMutatorExt.h"
 
 namespace cave {
 
@@ -21,7 +20,10 @@ void ChessGame::OnSceneBegin(Scene& p_scene, IHostServices& p_host, const GameIn
     p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "hello from ChessGame\n");
 
     SceneCommandBuffer cb;
-    ecs::Entity root = cb.Create();
+
+    ecs::Entity cube = SceneExt::CreateAreaLightObject(cb, "my-light");
+    cb.AttachRoot(cube);
+
     SceneMutator mut(p_scene);
     cb.Playback(mut);
 }

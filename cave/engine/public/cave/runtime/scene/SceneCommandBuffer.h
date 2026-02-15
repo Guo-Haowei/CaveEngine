@@ -20,6 +20,9 @@ class SceneCommandBuffer {
         AddComponent,
         RemoveComponent,
         ChangeProperty,
+
+        // high level commands
+        AttachRoot,
     };
 
     struct Header {
@@ -32,19 +35,23 @@ class SceneCommandBuffer {
     };
 
     struct Payload_Destroy {
-        ecs::Entity entity;
+        ecs::Entity ent;
     };
 
     struct Payload_Component {
-        ecs::Entity entity;
+        ecs::Entity ent;
         BuildInComponentId type;
     };
 
     struct Payload_Property {
-        ecs::Entity entity;
+        ecs::Entity ent;
         BuildInComponentId type;
         PropertyId prop_id;
         uint32_t data_size;
+    };
+
+    struct Payload_AttachRoot {
+        ecs::Entity ent;
     };
 
 public:
@@ -59,8 +66,7 @@ public:
     ecs::Entity Resolve(ecs::Entity p_ent) const noexcept;
 
     void Destroy(ecs::Entity p_ent) {
-        Payload_Destroy e{ p_ent };
-        WriteEntityRecord(Op::DestroyEntity, &e, sizeof(e));
+        WriteEntityRecord(Op::DestroyEntity, &p_ent, sizeof(p_ent));
     }
 
     void Add(ecs::Entity p_ent, BuildInComponentId p_id) {
@@ -71,6 +77,10 @@ public:
         WriteComponentRecord(Op::RemoveComponent, p_ent, p_id);
     }
 
+    void AttachRoot(ecs::Entity p_ent) {
+        WriteEntityRecord(Op::AttachRoot, &p_ent, sizeof(p_ent));
+    }
+
     template<typename T>
     void SetProperty(ecs::Entity p_ent, BuildInComponentId p_id, const PropertyId& p_prop_id, const T& p_value) {
         static_assert(std::is_trivially_copyable_v<T>);
@@ -78,6 +88,8 @@ public:
     }
 
     void Playback(SceneMutator& p_mut);
+
+    bool Empty() const { return m_bytes.empty(); }
 
 private:
     static constexpr uint32_t kTmpBase = 0x80000000u;

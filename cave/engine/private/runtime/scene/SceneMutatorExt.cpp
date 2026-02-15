@@ -92,7 +92,7 @@ Entity SceneExt::CreateAreaLightObject(SceneCommandBuffer& p_cb,
     p_cb.SetProperty(e, MaterialComponent_Id, StringId("base_color"), Vector4f(p_color, 1.0f));
     p_cb.SetProperty(e, MaterialComponent_Id, StringId("emissive"), p_emissive);
 
-    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
+    auto handle = m_asset_reg.FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ e };
     p_cb.SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), handle.GetGuid());
@@ -101,16 +101,16 @@ Entity SceneExt::CreateAreaLightObject(SceneCommandBuffer& p_cb,
     return e;
 }
 
-static Entity CreateMeshObject(const std::string& p_asset_path,
-                               SceneCommandBuffer& p_cb,
-                               std::string_view p_name,
-                               const Guid* p_mat_guid) {
+Entity SceneExt::CreateMeshObject(const std::string& p_asset_path,
+                                  SceneCommandBuffer& p_cb,
+                                  std::string_view p_name,
+                                  const Guid* p_mat_guid) {
 
-    Entity e = SceneExt::CreateTransformObject(p_cb, p_name);
+    Entity e = CreateTransformObject(p_cb, p_name);
 
     p_cb.Add(e, MeshRendererComponent_Id);
 
-    Entity mat = SceneExt::CreateNameObject(p_cb, std::format("{}:mat", p_name));
+    Entity mat = CreateNameObject(p_cb, std::format("{}:mat", p_name));
     {
         p_cb.Add(mat, MaterialComponent_Id);
         if (p_mat_guid) {
@@ -118,7 +118,7 @@ static Entity CreateMeshObject(const std::string& p_asset_path,
         }
     }
 
-    auto handle = AssetRegistry::GetSingleton().FindByPath<MeshAsset>(p_asset_path).unwrap();
+    auto handle = m_asset_reg.FindByPath<MeshAsset>(p_asset_path).unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ mat };
     p_cb.SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), handle.GetGuid());

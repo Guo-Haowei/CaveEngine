@@ -36,24 +36,28 @@ void SceneCommandBuffer::Playback(SceneMutator& p_mut) {
             } break;
             case Op::DestroyEntity: {
                 const auto* destroy = reinterpret_cast<const Payload_Destroy*>(payload);
-                p_mut.RemoveEntity(Resolve(destroy->entity));
+                p_mut.RemoveEntity(Resolve(destroy->ent));
             } break;
             case Op::AddComponent: {
                 const auto* pc = reinterpret_cast<const Payload_Component*>(payload);
-                p_mut.AddComponent(Resolve(pc->entity), pc->type);
+                p_mut.AddComponent(Resolve(pc->ent), pc->type);
             } break;
             case Op::RemoveComponent: {
                 const auto* pc = reinterpret_cast<const Payload_Component*>(payload);
-                p_mut.RemoveComponent(Resolve(pc->entity), pc->type);
+                p_mut.RemoveComponent(Resolve(pc->ent), pc->type);
             } break;
             case Op::ChangeProperty: {
                 const auto* pp = reinterpret_cast<const Payload_Property*>(payload);
                 const void* data = reinterpret_cast<const void*>(pp + 1);
-                p_mut.ChangeProperty(Resolve(pp->entity),
+                p_mut.ChangeProperty(Resolve(pp->ent),
                                      pp->type,
                                      pp->prop_id,
                                      data,
                                      pp->data_size);
+            } break;
+            case Op::AttachRoot: {
+                const auto* attach = reinterpret_cast<const Payload_AttachRoot*>(payload);
+                p_mut.GetScene().AttachChild(Resolve(attach->ent));
             } break;
             default: {
                 CRASH_NOW_MSG("Invalid opcode");
@@ -138,7 +142,7 @@ void SceneCommandBuffer::WritePropertyRecord(Op p_op,
     out += sizeof(header);
 
     Payload_Property payload{
-        .entity = p_ent,
+        .ent = p_ent,
         .type = p_type,
         .prop_id = p_prop_id,
         .data_size = p_data_size,

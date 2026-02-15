@@ -4,65 +4,81 @@
 #pragma once
 #include <string_view>
 #include "cave/core/math/Vector.h"
+#include "cave/core/ids/Guid.h"
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 #include "cave/runtime/scene/SceneMutator.h"
 
 namespace cave {
 
-struct SceneExt {
+class AssetRegistry;
+
+class SceneExt {
     using Entity = ecs::Entity;
     using Vector3f = math::Vector3f;
     using Vector4f = math::Vector4f;
 
-    static Entity CreateRootObject(SceneCommandBuffer& p_cb, std::string_view p_name = "root");
-    static Entity CreateNameObject(SceneCommandBuffer& p_cb, std::string_view p_name);
+public:
+    explicit SceneExt(AssetRegistry& p_reg) noexcept
+        : m_asset_reg(p_reg) {
+    }
 
-    static Entity CreateTransformObject(SceneCommandBuffer& p_cb, std::string_view p_name);
+    Entity CreateRootObject(SceneCommandBuffer& p_cb, std::string_view p_name = "root");
+    Entity CreateNameObject(SceneCommandBuffer& p_cb, std::string_view p_name);
 
-    static void AttachChild(SceneCommandBuffer& p_cb, Entity p_child, Entity p_parent);
+    Entity CreateTransformObject(SceneCommandBuffer& p_cb, std::string_view p_name);
 
-    static Entity CreatePointLightObject(SceneCommandBuffer& p_cb,
-                                         std::string_view p_name,
-                                         const Vector3f& p_position = Vector3f(0.0f, 1.0f, 0.0f),
-                                         const Vector3f& p_color = Vector3f(1.0f),
-                                         float p_emissive = 5.0f);
+    void AttachChild(SceneCommandBuffer& p_cb, Entity p_child, Entity p_parent);
 
-    static Entity CreateAreaLightObject(SceneCommandBuffer& p_cb,
-                                        std::string_view p_name,
-                                        const Vector3f& p_color = Vector3f(1),
-                                        float p_emissive = 5.0f);
+    Entity CreatePointLightObject(SceneCommandBuffer& p_cb,
+                                  std::string_view p_name,
+                                  const Vector3f& p_position = Vector3f(0.0f, 1.0f, 0.0f),
+                                  const Vector3f& p_color = Vector3f(1.0f),
+                                  float p_emissive = 5.0f);
 
-    static Entity CreateInfiniteLightObject(SceneCommandBuffer& p_cb,
-                                            std::string_view p_name,
-                                            const Vector3f& p_color = Vector3f(1),
-                                            float p_emissive = 5.0f);
+    Entity CreateAreaLightObject(SceneCommandBuffer& p_cb,
+                                 std::string_view p_name,
+                                 const Vector3f& p_color = Vector3f(1),
+                                 float p_emissive = 5.0f);
 
-    static Entity CreatePlaneObject(SceneCommandBuffer& p_cb,
-                                    std::string_view p_name,
-                                    const Guid* p_mat_id = nullptr);
-
-    static Entity CreateCubeObject(SceneCommandBuffer& p_cb,
-                                   std::string_view p_name,
-                                   const Guid* p_mat_guid = nullptr);
-
-    static Entity CreateSphereObject(SceneCommandBuffer& p_cb,
+    Entity CreateInfiniteLightObject(SceneCommandBuffer& p_cb,
                                      std::string_view p_name,
-                                     const Guid* p_mat_guid = nullptr);
+                                     const Vector3f& p_color = Vector3f(1),
+                                     float p_emissive = 5.0f);
 
-    static Entity CreateCylinderObject(SceneCommandBuffer& p_cb,
-                                       std::string_view p_name,
-                                       const Guid* p_mat_id = nullptr);
+    Entity CreatePlaneObject(SceneCommandBuffer& p_cb,
+                             std::string_view p_name,
+                             const Guid* p_mat_id = nullptr);
 
-    static Entity CreateConeObject(SceneCommandBuffer& p_cb,
-                                   std::string_view p_name,
-                                   const Guid* p_mat_id = nullptr);
+    Entity CreateCubeObject(SceneCommandBuffer& p_cb,
+                            std::string_view p_name,
+                            const Guid* p_mat_guid = nullptr);
 
-    static Entity CreateTorusObject(SceneCommandBuffer& p_cb,
-                                    std::string_view p_name,
-                                    const Guid* p_mat_id = nullptr);
+    Entity CreateSphereObject(SceneCommandBuffer& p_cb,
+                              std::string_view p_name,
+                              const Guid* p_mat_guid = nullptr);
 
-    static Entity CreateTileMapObject(SceneCommandBuffer& p_cb, std::string_view p_name);
+    Entity CreateCylinderObject(SceneCommandBuffer& p_cb,
+                                std::string_view p_name,
+                                const Guid* p_mat_id = nullptr);
+
+    Entity CreateConeObject(SceneCommandBuffer& p_cb,
+                            std::string_view p_name,
+                            const Guid* p_mat_id = nullptr);
+
+    Entity CreateTorusObject(SceneCommandBuffer& p_cb,
+                             std::string_view p_name,
+                             const Guid* p_mat_id = nullptr);
+
+    Entity CreateTileMapObject(SceneCommandBuffer& p_cb, std::string_view p_name);
+
+private:
+    Entity CreateMeshObject(const std::string& p_asset_path,
+                            SceneCommandBuffer& p_cb,
+                            std::string_view p_name,
+                            const Guid* p_mat_guid);
+
+    AssetRegistry& m_asset_reg;
 };
 
 }  // namespace cave
