@@ -3,8 +3,8 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneMutator.h"
-#include "cave/runtime/scene/SceneMutatorExt.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -103,19 +103,18 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
 PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
                                                  const PreviewOptions& p_options) const {
 
-    SceneCommandBuffer cb;
-    SceneExt scene_ext(m_asset_reg);
-    Entity root = scene_ext.CreateRootObject(cb);
+    SceneCommandWriter cb(m_asset_reg);
+    Entity root = cb.CreateRootObject();
 
     if constexpr (1) {
-        Entity light = scene_ext.CreatePointLightObject(cb, "light", math::Vector3f(0, 3, 1));
-        scene_ext.AttachChild(cb, light, root);
+        Entity light = cb.CreatePointLightObject("light", math::Vector3f(0, 3, 1));
+        cb.AttachChild(light, root);
     }
 
     if constexpr (1) {
         Guid guid = p_handle.GetGuid();
-        Entity sphere = scene_ext.CreateSphereObject(cb, "sphere", &guid);
-        scene_ext.AttachChild(cb, sphere, root);
+        Entity sphere = cb.CreateSphereObject("sphere", &guid);
+        cb.AttachChild(sphere, root);
     }
 
     const AssetMetaData* meta = p_handle.GetMeta();
@@ -144,23 +143,22 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
 
 PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const PreviewOptions& p_options) const {
 
-    SceneCommandBuffer cb;
-    SceneExt scene_ext(m_asset_reg);
-    Entity root = scene_ext.CreateRootObject(cb);
+    SceneCommandWriter cb(m_asset_reg);
+    Entity root = cb.CreateRootObject();
 
     const MeshAsset* mesh = p_handle.Get<MeshAsset>();
     DEV_ASSERT(mesh);
 
     if constexpr (1) {
-        Entity light = scene_ext.CreatePointLightObject(cb, "light", math::Vector3f(0, 3, 1));
-        scene_ext.AttachChild(cb, light, root);
+        Entity light = cb.CreatePointLightObject("light", math::Vector3f(0, 3, 1));
+        cb.AttachChild(light, root);
     }
 
     if constexpr (1) {
-        Entity e = scene_ext.CreateTransformObject(cb, "mesh");
+        Entity e = cb.CreateTransformObject("mesh");
         cb.Add(e, MeshRendererComponent_Id);
         cb.SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), p_handle.GetGuid());
-        scene_ext.AttachChild(cb, e, root);
+        cb.AttachChild(e, root);
     }
 
     const AssetMetaData* meta = p_handle.GetMeta();

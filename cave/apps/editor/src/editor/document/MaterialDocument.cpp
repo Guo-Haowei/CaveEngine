@@ -4,8 +4,8 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneMutator.h"
-#include "cave/runtime/scene/SceneMutatorExt.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -17,18 +17,17 @@ using ecs::Entity;
 MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     : DocumentBase(p_app, p_guid) {
 
-    SceneCommandBuffer cb;
-    SceneExt scene_ext(*p_app.GetAssetRegistry());
-    Entity root = scene_ext.CreateRootObject(cb);
+    SceneCommandWriter cb(*p_app.GetAssetRegistry());
+    Entity root = cb.CreateRootObject();
 
     if constexpr (1) {
-        Entity light = scene_ext.CreatePointLightObject(cb, "point_light", math::Vector3f(0, 3, 1));
-        scene_ext.AttachChild(cb, light, root);
+        Entity light = cb.CreatePointLightObject("point_light", math::Vector3f(0, 3, 1));
+        cb.AttachChild(light, root);
     }
 
     if constexpr (1) {
-        Entity sphere = scene_ext.CreateSphereObject(cb, "sphere", &p_guid);
-        scene_ext.AttachChild(cb, sphere, root);
+        Entity sphere = cb.CreateSphereObject("sphere", &p_guid);
+        cb.AttachChild(sphere, root);
     }
 
     auto scene = std::make_unique<Scene>(std::format("preview-material-{}", p_guid.ToString()));

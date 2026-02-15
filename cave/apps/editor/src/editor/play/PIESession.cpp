@@ -1,7 +1,7 @@
 #include "PIESession.h"
 
 #include "cave/game/IGameModule.h"
-#include "cave/runtime/scene/SceneCommandBuffer.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneMutator.h"
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/IScriptService.h"
@@ -56,7 +56,7 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
         .game_id = "MyGame",
     };
 
-    SceneCommandBuffer cb;
+    SceneCommandWriter cb(*m_app.GetAssetRegistry());
     m_game->OnSceneBegin(*scene, host, desc, cb);
     if (!cb.Empty()) {
         SceneMutator mut(*scene);
