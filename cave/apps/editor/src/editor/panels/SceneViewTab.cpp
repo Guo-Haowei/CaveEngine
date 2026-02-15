@@ -91,7 +91,7 @@ void SceneViewTab::SubmitView() {
     ViewDesc view;
     view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
     if (m_editor.IsPlaying()) {
-        view.scene_id = m_editor.PIE().GetSceneId();
+        view.scene_id = m_editor.PIE().GetPIESceneId();
         view.camera_source = CameraSource::FirstCamera();
     } else {
         view.scene_id = m_preview_scene;

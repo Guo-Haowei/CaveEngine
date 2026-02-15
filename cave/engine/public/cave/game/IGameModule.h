@@ -13,11 +13,6 @@ enum class AppMode : uint8_t {
     Editor,
 };
 
-struct GameInitDesc {
-    AppMode mode = AppMode::Client;
-    const char* game_id = nullptr;
-};
-
 class IHostServices;
 class Scene;
 class SceneCommandWriter;
@@ -26,16 +21,12 @@ class IGameModule {
 public:
     virtual ~IGameModule() = default;
 
-    virtual void RegisterTypes(IHostServices& p_host) = 0;
-    virtual void RegisterSystems(IHostServices& p_host) = 0;
+    virtual void OnModuleLoaded(IHostServices&,
+                                Scene&,
+                                SceneCommandWriter&) {}
 
-    virtual void OnSceneBegin(Scene& p_scene,
-                              IHostServices& p_host,
-                              const GameInitDesc& p_init,
-                              SceneCommandWriter& p_cb) = 0;
-    virtual void OnSceneEnd(Scene& p_scene, IHostServices& p_host) = 0;
-
-    virtual void Tick(Scene& p_scene, IHostServices& p_host, const FrameTime& p_time) = 0;
+    virtual void Tick(IHostServices& p_host,
+                      const FrameTime& p_time) = 0;
 };
 
 }  // namespace cave

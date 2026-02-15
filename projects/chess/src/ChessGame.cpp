@@ -1,47 +1,17 @@
 #include "ChessGame.h"
 
-#include "Piece.h"
+#include "core/Piece.h"
 
 #include "cave/core/diagnostics/ILogger.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
-namespace cave {
+namespace cave::chess {
 
 using math::Vector3f;
 using math::Vector4f;
 
-void ChessGame::RegisterTypes(IHostServices& p_host) {
-    unused(p_host);
-}
-
-void ChessGame::RegisterSystems(IHostServices& p_host) {
-    unused(p_host);
-}
-
-void ChessGame::OnSceneBegin(Scene& p_scene,
-                             IHostServices& p_host,
-                             const GameInitDesc& p_init,
-                             SceneCommandWriter& p_cb) {
-    unused(p_init);
-
-    p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "hello from ChessGame\n");
-
-    CreatePieces(p_scene, p_host, p_cb);
-}
-
-void ChessGame::OnSceneEnd(Scene& p_scene, IHostServices& p_host) {
-    unused(p_scene);
-    unused(p_host);
-}
-
-void ChessGame::Tick(Scene& p_scene, IHostServices& p_host, const FrameTime& p_time) {
-    unused(p_scene);
-    unused(p_host);
-    unused(p_time);
-}
-
-static constexpr const char* kPieceNameTable[std::to_underlying(PieceType::_Count)]{
+static constexpr const char* kPieceNameTable[kPieceTypeMax]{
     "pawn",
     "knight",
     "bishop",
@@ -69,12 +39,12 @@ struct ChessSpawner {
 
     void SpawnPiece(Piece p_piece, int p_file, int p_rank, int p_id) {
         const PieceType piece_type = GetType(p_piece);
-        const PieceColor piece_color = GetColor(p_piece);
+        const Color piece_color = GetColor(p_piece);
         DEV_ASSERT(piece_type != PieceType::Null);
-        DEV_ASSERT(piece_color != PieceColor::Null);
+        DEV_ASSERT(piece_color != Color::Null);
 
         const char* piece_name = kPieceNameTable[std::to_underlying(piece_type)];
-        const char* color = (piece_color == PieceColor::White ? "white" : "black");
+        const char* color = (piece_color == Color::White ? "white" : "black");
 
         auto name = std::format("{}_{}_{}",
                                 color,
@@ -90,7 +60,7 @@ struct ChessSpawner {
 
         cb.SetProperty(piece, TransformComponent_Id, kScaleId, kScale);
         cb.SetProperty(piece, TransformComponent_Id, kTranslationId, translation);
-        if (piece_color == PieceColor::Black) {
+        if (piece_color == Color::Black) {
             cb.SetProperty(piece, TransformComponent_Id, kRotationId, Vector4f(0, 1, 0, 0));
         }
 
@@ -109,19 +79,39 @@ static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
     { Piece::BR, Piece::BN, Piece::BB, Piece::BQ, Piece::BK, Piece::BB, Piece::BN, Piece::BR },
 } };
 
-void ChessGame::CreatePieces(Scene& p_scene, IHostServices& p_host, SceneCommandWriter& p_cb) {
+}  // namespace cave::chess
+
+namespace cave {
+
+void ChessGame::OnModuleLoaded(IHostServices& p_host,
+                               Scene& p_scene,
+                               SceneCommandWriter& p_cb) {
+
+    p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "ChessGame Loaded\n");
+
+    // @TODO: split to spawn pieces and place pieces
+    SpawnPieces(p_scene, p_host, p_cb);
+}
+
+void ChessGame::Tick(IHostServices& p_host, const FrameTime& p_time) {
+    unused(p_host);
+    unused(p_time);
+}
+
+void ChessGame::SpawnPieces(Scene& p_scene, IHostServices& p_host, SceneCommandWriter& p_cb) {
+    using chess::Piece;
     using ecs::Entity;
 
     Entity offset_node = SceneCommandWriter::FindEntityByName(p_scene, "transform");
 
     p_cb.SetNoSave(true);
-    ChessSpawner spawner(p_cb, offset_node);
+    chess::ChessSpawner spawner(p_cb, offset_node);
 
-    std::array<int, std::to_underlying(Piece::Null)> counter{ 0 };
+    std::array<int, chess::kPieceMax> counter{ 0 };
 
     for (int rank = 0; rank < 8; ++rank) {
         for (int file = 0; file < 8; ++file) {
-            const Piece p = kInitialBoard[rank][file];
+            const Piece p = chess::kInitialBoard[rank][file];
             if (p == Piece::Null) continue;
             spawner.SpawnPiece(p, file, rank, ++counter[std::to_underlying(p)]);
         }
