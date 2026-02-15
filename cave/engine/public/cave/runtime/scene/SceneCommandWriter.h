@@ -73,8 +73,11 @@ public:
 
     Entity CreateTileMapObject(std::string_view p_name);
 
+    void SetNoSave(bool p_value) { m_no_save = p_value; }
+
 private:
     AssetRegistry& m_asset_reg;
+    bool m_no_save{ false };
 };
 
 }  // namespace cave

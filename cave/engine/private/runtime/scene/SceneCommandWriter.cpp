@@ -19,6 +19,9 @@ Entity SceneCommandWriter::FindEntityByName(const Scene& p_scene, std::string_vi
 Entity SceneCommandWriter::CreateNameObject(std::string_view p_name) {
     Entity e = Create();
     Add(e, NameComponent_Id);
+    if (m_no_save) {
+        Add(e, NoSaveTag_Id);
+    }
     SetProperty(e, NameComponent_Id, StringId("name"), FixedString<64>(p_name));
     return e;
 }

@@ -57,7 +57,7 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
     };
 
     SceneCommandWriter cb(*m_app.GetAssetRegistry());
-    m_game->OnSceneBegin(*scene, host, desc, cb);
+    //m_game->OnSceneBegin(*scene, host, desc, cb);
     if (!cb.Empty()) {
         SceneMutator mut(*scene);
         cb.Playback(mut);
