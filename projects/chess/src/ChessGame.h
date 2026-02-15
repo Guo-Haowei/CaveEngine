@@ -19,7 +19,7 @@ public:
     void Tick(Scene& p_scene, IHostServices& p_host, const FrameTime& p_time) override;
 
 private:
-    void CreatePieces(IHostServices& p_host, SceneCommandBuffer& p_cb);
+    void CreatePieces(Scene& p_scene, IHostServices& p_host, SceneCommandBuffer& p_cb);
 };
 
 }  // namespace cave

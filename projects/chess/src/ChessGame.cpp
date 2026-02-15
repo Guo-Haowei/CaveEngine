@@ -16,7 +16,7 @@ void ChessGame::RegisterSystems(IHostServices& p_host) {
     unused(p_host);
 }
 
-void ChessGame::OnSceneBegin(Scene&,
+void ChessGame::OnSceneBegin(Scene& p_scene,
                              IHostServices& p_host,
                              const GameInitDesc& p_init,
                              SceneCommandBuffer& p_cb) {
@@ -24,7 +24,7 @@ void ChessGame::OnSceneBegin(Scene&,
 
     p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "hello from ChessGame\n");
 
-    CreatePieces(p_host, p_cb);
+    CreatePieces(p_scene, p_host, p_cb);
 }
 
 void ChessGame::OnSceneEnd(Scene& p_scene, IHostServices& p_host) {
@@ -76,38 +76,43 @@ static constexpr const char* kPieceNameTable[std::to_underlying(PieceType::_Coun
     "king",
 };
 
-void ChessGame::CreatePieces(IHostServices& p_host, SceneCommandBuffer& p_cb) {
+void ChessGame::CreatePieces(Scene& p_scene, IHostServices& p_host, SceneCommandBuffer& p_cb) {
+    using ecs::Entity;
+
     SceneExt scene_ext(p_host.AssetRegistry());
 
-    if (&p_host != nullptr) {
-        return;
-    }
+    Entity offset_node = SceneExt::FindEntityByName(p_scene, "transform");
 
-    // generate white pawns
-    const float offset = -3.5f;
-    const int rank = 1;
-    PieceType piece_type = PieceType::Pawn;
-    for (int file = 0; file < 8; ++file) {
-
+    auto create_piece = [&](PieceType piece_type, int file, int rank, int id) {
         const char* piece_name = kPieceNameTable[std::to_underlying(piece_type)];
-        auto name = std::format("white_{}_{}", piece_name, file + 1);
-        ecs::Entity piece = scene_ext.CreateMeshObject(
+        auto name = std::format("white_{}_{}", piece_name, id);
+        Entity piece = scene_ext.CreateMeshObject(
             std::format("@res://models/{}.mesh", piece_name),
             p_cb,
             name,
-            nullptr);
+            "@res://materials/white.mat");
 
         Vector3f pos(rank, 0, file);
         Vector3f scale(9);
-        pos.x += offset;
-        pos.z += offset;
 
         p_cb.Add(piece, NoSaveTag_Id);
 
         p_cb.SetProperty(piece, TransformComponent_Id, StringId("scale"), scale);
         p_cb.SetProperty(piece, TransformComponent_Id, StringId("translation"), pos);
 
-        p_cb.AttachRoot(piece);
+        scene_ext.AttachChild(p_cb, piece, offset_node);
+    };
+
+    // generate white pawns
+    PieceType piece_type = PieceType::Pawn;
+    for (int file = 0, id = 1; file < 8; ++file) {
+        const int rank = 1;
+        create_piece(PieceType::Pawn, file, rank, id++);
+    }
+
+    for (int file = 0, id = 1; file < 8; file += 7) {
+        const int rank = 0;
+        create_piece(PieceType::Rook, file, rank, id++);
     }
 }
 

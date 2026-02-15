@@ -3,6 +3,7 @@
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 #include "cave/runtime/scene/SceneMutatorExt.h"
 
+#include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -106,7 +107,7 @@ Entity SceneExt::CreateAreaLightObject(SceneCommandBuffer& p_cb,
     return e;
 }
 
-Entity SceneExt::CreateMeshObject(const std::string& p_asset_path,
+Entity SceneExt::CreateMeshObject(const std::string& p_mesh_path,
                                   SceneCommandBuffer& p_cb,
                                   std::string_view p_name,
                                   const Guid* p_mat_guid) {
@@ -123,13 +124,26 @@ Entity SceneExt::CreateMeshObject(const std::string& p_asset_path,
         }
     }
 
-    auto handle = m_asset_reg.FindByPath<MeshAsset>(p_asset_path).unwrap();
+    auto handle = m_asset_reg.FindByPath<MeshAsset>(p_mesh_path).unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ mat };
     p_cb.SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), handle.GetGuid());
     p_cb.SetProperty(e, MeshRendererComponent_Id, StringId("materials"), materials);
 
     return e;
+}
+
+Entity SceneExt::CreateMeshObject(const std::string& p_mesh_path,
+                                  SceneCommandBuffer& p_cb,
+                                  std::string_view p_name,
+                                  const std::string& p_mat_path) {
+    auto handle = m_asset_reg.FindByPath<MaterialAsset>(p_mat_path);
+    if (handle.is_some()) {
+        const Guid guid = handle.unwrap_unchecked().GetGuid();
+        return CreateMeshObject(p_mesh_path, p_cb, p_name, &guid);
+    }
+
+    return CreateMeshObject(p_mesh_path, p_cb, p_name, nullptr);
 }
 
 Entity SceneExt::CreatePlaneObject(SceneCommandBuffer& p_cb,

@@ -48,10 +48,15 @@ public:
                                      const Vector3f& p_color = Vector3f(1),
                                      float p_emissive = 5.0f);
 
-    Entity CreateMeshObject(const std::string& p_asset_path,
+    Entity CreateMeshObject(const std::string& p_mesh_path,
                             SceneCommandBuffer& p_cb,
                             std::string_view p_name,
                             const Guid* p_mat_guid);
+
+    Entity CreateMeshObject(const std::string& p_mesh_path,
+                            SceneCommandBuffer& p_cb,
+                            std::string_view p_name,
+                            const std::string& p_mat_path);
 
     Entity CreatePlaneObject(SceneCommandBuffer& p_cb,
                              std::string_view p_name,
