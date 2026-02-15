@@ -11,6 +11,7 @@ public:
 
     ILogger& Log() override;
     cave::AssetRegistry& AssetRegistry() override;
+    ecs::ComponentRegistry& ComponentRegistry() override;
 
 private:
     IApplication& m_app;

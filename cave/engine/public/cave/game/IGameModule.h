@@ -20,6 +20,7 @@ struct GameInitDesc {
 
 class IHostServices;
 class Scene;
+class SceneCommandBuffer;
 
 class IGameModule {
 public:
@@ -28,7 +29,10 @@ public:
     virtual void RegisterTypes(IHostServices& p_host) = 0;
     virtual void RegisterSystems(IHostServices& p_host) = 0;
 
-    virtual void OnSceneBegin(Scene& p_scene, IHostServices& p_host, const GameInitDesc& p_init) = 0;
+    virtual void OnSceneBegin(Scene& p_scene,
+                              IHostServices& p_host,
+                              const GameInitDesc& p_init,
+                              SceneCommandBuffer& p_cb) = 0;
     virtual void OnSceneEnd(Scene& p_scene, IHostServices& p_host) = 0;
 
     virtual void Tick(Scene& p_scene, IHostServices& p_host, const FrameTime& p_time) = 0;

@@ -12,6 +12,7 @@ class Scene;
 
 class SceneMutator {
 public:
+    explicit SceneMutator(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept;
     explicit SceneMutator(Scene& p_scene) noexcept;
 
     ecs::Entity CreateEntity();

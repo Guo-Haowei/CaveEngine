@@ -6,6 +6,11 @@
 
 namespace cave {
 
+SceneMutator::SceneMutator(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept
+    : m_scene(p_scene)
+    , m_reg(p_reg) {
+}
+
 SceneMutator::SceneMutator(Scene& p_scene) noexcept
     : m_scene(p_scene)
     , m_reg(engine::GetComponentRegistry()) {

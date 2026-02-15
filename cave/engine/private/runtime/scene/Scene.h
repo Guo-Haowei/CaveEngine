@@ -42,6 +42,7 @@ public:
 
     explicit Scene(std::string p_name, ecs::ComponentRegistry& p_reg) noexcept;
     explicit Scene(std::string p_name) noexcept;
+    ~Scene() = default;
 
     template<ComponentType T>
     T& Create(ecs::Entity p_ent) {

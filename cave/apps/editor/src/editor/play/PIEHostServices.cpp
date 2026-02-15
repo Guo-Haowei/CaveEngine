@@ -1,7 +1,8 @@
 #include "PIEHostServices.h"
 
-#include "engine/private/core/diagnostics/logger/Logger.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "engine/private/core/diagnostics/logger/Logger.h"
+#include "engine/private/runtime/framework/Engine.h"
 
 namespace cave {
 
@@ -16,6 +17,10 @@ ILogger& PIEHostServices::Log() {
 
 AssetRegistry& PIEHostServices::AssetRegistry() {
     return *m_app.GetAssetRegistry();
+}
+
+ecs::ComponentRegistry& PIEHostServices::ComponentRegistry() {
+    return engine::GetComponentRegistry();
 }
 
 }  // namespace cave

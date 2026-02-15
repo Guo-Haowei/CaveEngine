@@ -14,19 +14,18 @@ void ChessGame::RegisterSystems(IHostServices& p_host) {
     unused(p_host);
 }
 
-void ChessGame::OnSceneBegin(Scene& p_scene, IHostServices& p_host, const GameInitDesc& p_init) {
+void ChessGame::OnSceneBegin(Scene& p_scene,
+                             IHostServices& p_host,
+                             const GameInitDesc& p_init,
+                             SceneCommandBuffer& p_cb) {
     unused(p_init);
+    unused(p_scene);
 
     p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "hello from ChessGame\n");
 
-    SceneCommandBuffer cb;
-
     SceneExt scene_ext(p_host.AssetRegistry());
-    ecs::Entity cube = scene_ext.CreateCubeObject(cb, "my-light");
-    cb.AttachRoot(cube);
-
-    SceneMutator mut(p_scene);
-    cb.Playback(mut);
+    ecs::Entity cube = scene_ext.CreateCubeObject(p_cb, "my-light");
+    p_cb.AttachRoot(cube);
 }
 
 void ChessGame::OnSceneEnd(Scene& p_scene, IHostServices& p_host) {

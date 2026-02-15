@@ -1,6 +1,8 @@
 #include "PIESession.h"
 
 #include "cave/game/IGameModule.h"
+#include "cave/runtime/scene/SceneCommandBuffer.h"
+#include "cave/runtime/scene/SceneMutator.h"
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -54,7 +56,12 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
         .game_id = "MyGame",
     };
 
-    m_game->OnSceneBegin(*scene, host, desc);
+    SceneCommandBuffer cb;
+    m_game->OnSceneBegin(*scene, host, desc, cb);
+    if (!cb.Empty()) {
+        SceneMutator mut(*scene);
+        cb.Playback(mut);
+    }
     return true;
 }
 
@@ -62,6 +69,8 @@ void PIESession::Stop() {
     if (!m_running) {
         return;
     }
+
+    OnSimEnd();
 
 #if 0
     SceneRegistry* reg = m_app.GetSceneRegistry();
@@ -96,14 +105,23 @@ void PIESession::OnSimBegin(SceneId p_scene_id) {
     m_app.ScriptService()->OnSimBegin(*scene);
 
     m_app.GetSceneScheduler().Register(this);
+
+    m_running = true;
 }
 
 void PIESession::OnSimEnd() {
-    m_app.GetSceneScheduler().Unregister(this);
+    SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
+
+    m_running = false;
 
     if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_scene_id)) {
         m_app.ScriptService()->OnSimEnd();
     }
+
+    m_app.GetSceneScheduler().Unregister(this);
+
+    scene_manager.Destroy(m_scene_id);
+    m_scene_id = {};
 }
 
 void PIESession::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
