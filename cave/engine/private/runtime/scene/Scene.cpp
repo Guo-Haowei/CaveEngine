@@ -5,6 +5,7 @@
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/systems/animation_system.h"
 #include "engine/private/systems/ecs_systems.h"
 #include "engine/private/systems/job_system/job_system.h"
@@ -17,6 +18,15 @@ namespace cave {
 
 using ecs::Entity;
 using namespace cave::math;
+
+Scene::Scene(std::string p_name, ecs::ComponentRegistry& p_reg) noexcept
+    : m_name(std::move(p_name))
+    , m_reg(p_reg) {
+}
+
+Scene::Scene(std::string p_name) noexcept
+    : Scene(std::move(p_name), engine::GetComponentRegistry()) {
+}
 
 void Scene::Update(float p_timestep) {
     CAVE_PROFILE_EVENT();
@@ -106,7 +116,7 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
 
     const Scene* source = handle.unwrap_unchecked().Get();
     DEV_ASSERT(source);
-    Scene copy;
+    Scene copy("prefab");
     copy.Copy(*source);
 
     auto new_entities = copy.GetSortedEntityArray();

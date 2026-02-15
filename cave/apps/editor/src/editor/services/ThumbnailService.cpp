@@ -3,6 +3,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/time/FrameTime.h"
 
+#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -149,7 +150,11 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
         m_inflight.push_back(pending.key);
         ++submitted;
 
-        LOG("ThumbnailService::SubmitRequests: job submitted");
+#if USING(USE_LOG)
+        auto handle = AssetRegistry::GetSingleton().FindByGuid(req.guid);
+        const AssetMetaData* meta = handle.unwrap().GetMeta();
+        LOG_VERBOSE("ThumbnailService::SubmitRequests: '{}' job submitted", meta->name);
+#endif
     }
 }
 

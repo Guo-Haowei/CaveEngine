@@ -29,14 +29,14 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
         SceneExt::AttachChild(cb, sphere, root);
     }
 
-    auto scene = std::make_unique<Scene>();
+    auto scene = std::make_unique<Scene>(std::format("preview-material-{}", p_guid.ToString()));
     SceneMutator mut(*scene);
     cb.Playback(mut);
 
     scene->m_root = cb.Resolve(root);
     scene->Update(0.0f);
 
-    m_preview_scene = m_scene_reg.Register({ "material doc" }, std::move(scene));
+    m_preview_scene = m_scene_reg.Register(std::move(scene));
 }
 
 }  // namespace cave

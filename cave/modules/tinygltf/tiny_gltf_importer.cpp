@@ -67,7 +67,7 @@ Result<void> TinyGltfImporter::Import() {
         return CAVE_ERROR(res.error());
     }
 
-    m_scene = std::make_shared<Scene>();
+    m_scene = std::make_shared<Scene>("import-gltf");
 
     tinygltf::TinyGLTF loader;
     std::string err;

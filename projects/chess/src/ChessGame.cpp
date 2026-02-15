@@ -3,6 +3,7 @@
 #include "cave/core/diagnostics/ILogger.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
+#include "cave/runtime/scene/SceneMutator.h"
 
 namespace cave {
 
@@ -21,7 +22,8 @@ void ChessGame::OnSceneBegin(Scene& p_scene, IHostServices& p_host, const GameIn
 
     SceneCommandBuffer cb;
     ecs::Entity root = cb.Create();
-    cb.Playback(p_scene);
+    SceneMutator mut(p_scene);
+    cb.Playback(mut);
 }
 
 void ChessGame::OnSceneEnd(Scene& p_scene, IHostServices& p_host) {

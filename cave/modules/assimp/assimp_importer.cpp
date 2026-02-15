@@ -25,7 +25,7 @@ Result<void> AssimpImporter::Import() {
         return CAVE_ERROR(res.error());
     }
 
-    m_scene = std::make_shared<Scene>();
+    m_scene = std::make_shared<Scene>("assimp-import");
 
     Assimp::Importer importer;
 

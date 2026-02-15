@@ -82,7 +82,10 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
 
     const Scene* source_scene = p_handle.Get<Scene>();
     DEV_ASSERT(source_scene);
-    auto scene = std::make_unique<Scene>();
+    const AssetMetaData* meta = p_handle.GetMeta();
+    DEV_ASSERT(meta);
+
+    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
     scene->Copy(*source_scene);
 
     for (auto [id, cam] : scene->View<CameraComponent>()) {
@@ -90,12 +93,10 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
     }
     scene->Update(0.0f);
 
-    // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register({ "thumbnail scene" }, std::move(scene));
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_id,
+        .scene_id = m_scene_reg.Register(std::move(scene)),
         .camera = CameraSource::FirstCamera(),
     };
 }
@@ -117,7 +118,10 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
         SceneExt::AttachChild(cb, sphere, root);
     }
 
-    auto scene = std::make_unique<Scene>();
+    const AssetMetaData* meta = p_handle.GetMeta();
+    DEV_ASSERT(meta);
+    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
+
     SceneMutator mut(*scene);
     cb.Playback(mut);
 
@@ -131,12 +135,9 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
     camera.Update(transform);
     camera.SetFovy(p_options.fov_y_deg);
 
-    // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register({ "thumbnail mat" }, std::move(scene));
-
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_id,
+        .scene_id = m_scene_reg.Register(std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }
@@ -161,7 +162,9 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
         SceneExt::AttachChild(cb, e, root);
     }
 
-    auto scene = std::make_unique<Scene>();
+    const AssetMetaData* meta = p_handle.GetMeta();
+    DEV_ASSERT(meta);
+    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
     SceneMutator mut(*scene);
     cb.Playback(mut);
@@ -170,12 +173,9 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, p_options);
 
-    // @TODO: delete scene
-    SceneId scene_id = m_scene_reg.Register({ "thumbnail mesh" }, std::move(scene));
-
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_id,
+        .scene_id = m_scene_reg.Register(std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }

@@ -8,19 +8,15 @@ namespace cave {
 class Scene;
 class IApplication;
 
-struct SceneDesc {
-    std::string debug_name;
-};
-
 class SceneRegistry : public Module {
 public:
     SceneRegistry();
 
-    SceneId Create(SceneDesc p_desc);
+    SceneId Create(std::string p_name);
 
-    SceneId Register(SceneDesc p_desc, std::unique_ptr<Scene> p_scene);
+    SceneId Register(std::unique_ptr<Scene> p_scene);
 
-    SceneId Clone(SceneDesc p_desc, SceneId p_id);
+    SceneId Clone(SceneId p_id);
 
     void Destroy(SceneId p_id);
 
