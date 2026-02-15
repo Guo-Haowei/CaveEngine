@@ -158,7 +158,7 @@ bool EditAndSubmit(const DrawComponentCtx& p_ctx,
     auto cmd = std::make_unique<EditPropertyCmd>(p_ctx.app,
                                                  p_ctx.entity,
                                                  p_component->GetId(),
-                                                 p_field->name,
+                                                 p_field->id,
                                                  old_v,
                                                  new_v);
     p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
@@ -301,7 +301,7 @@ void PropertyPanel::DrawUIImpl() {
                 m_editor.GetApp(),
                 id,
                 NameComponent_Id,
-                "name",
+                StringId("name"),
                 name_component->GetNameRef(),
                 name);
             edit_service.Submit(doc_id, std::move(cmd));

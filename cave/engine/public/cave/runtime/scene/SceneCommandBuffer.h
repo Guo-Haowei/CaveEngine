@@ -72,9 +72,9 @@ public:
     }
 
     template<typename T>
-    void SetProperty(ecs::Entity p_ent, BuildInComponentId p_id, std::string_view p_property, const T& p_value) {
+    void SetProperty(ecs::Entity p_ent, BuildInComponentId p_id, const PropertyId& p_prop_id, const T& p_value) {
         static_assert(std::is_trivially_copyable_v<T>);
-        WritePropertyRecord(Op::ChangeProperty, p_ent, p_id, p_property, &p_value, sizeof(T));
+        WritePropertyRecord(Op::ChangeProperty, p_ent, p_id, p_prop_id, &p_value, sizeof(T));
     }
 
     void Playback(SceneMutator& p_mut);

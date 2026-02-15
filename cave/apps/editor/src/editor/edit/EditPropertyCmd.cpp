@@ -15,7 +15,7 @@ bool EditPropertyCmd::Do(IDocument& p_doc) {
     SceneMutator mut(*scene);
     bool res = mut.ChangeProperty(m_entity,
                                   m_id,
-                                  m_property,
+                                  m_prop_id,
                                   m_new.data(),
                                   (uint32_t)m_new.size());
     return res;
@@ -30,7 +30,7 @@ bool EditPropertyCmd::Undo(IDocument& p_doc) {
     SceneMutator mut(*scene);
     bool res = mut.ChangeProperty(m_entity,
                                   m_id,
-                                  m_property,
+                                  m_prop_id,
                                   m_old.data(),
                                   (uint32_t)m_old.size());
     return res;
@@ -39,7 +39,7 @@ bool EditPropertyCmd::Undo(IDocument& p_doc) {
 bool EditPropertyCmd::CanCoalesceWith(const IEditCmd* p_cmd) const {
     if (const Self* cmd = dynamic_cast<const Self*>(p_cmd)) {
         return cmd->m_entity == cmd->m_entity &&
-               m_property == cmd->m_property;
+               m_prop_id == cmd->m_prop_id;
     }
     return false;
 }

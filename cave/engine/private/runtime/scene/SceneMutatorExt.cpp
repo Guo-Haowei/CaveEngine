@@ -8,7 +8,7 @@ using ecs::Entity;
 Entity CreateNameObject(SceneCommandBuffer& p_cb, std::string_view p_name) {
     Entity e = p_cb.Create();
     p_cb.Add(e, NameComponent_Id);
-    p_cb.SetProperty(e, NameComponent_Id, "name", FixedString<64>(p_name));
+    p_cb.SetProperty(e, NameComponent_Id, StringId("name"), FixedString<64>(p_name));
     return e;
 }
 
@@ -26,4 +26,3 @@ Entity CreateMeshObject(SceneCommandBuffer& p_cb, std::string_view p_name) {
 }
 
 }  // namespace cave
-

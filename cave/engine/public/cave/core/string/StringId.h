@@ -12,11 +12,10 @@ namespace cave {
 
 class StringId {
 public:
-    constexpr StringId() = default;
+    explicit constexpr StringId() = default;
 
-    constexpr StringId(std::string_view p_str)
-        : m_hash(Hash::Hash64(p_str))
-    {
+    explicit constexpr StringId(std::string_view p_str)
+        : m_hash(Hash::Hash64(p_str)) {
 #if USING(STRING_ID_KEEKP_SOURCE)
         m_debug.assign(p_str);
 #endif

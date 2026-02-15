@@ -13,12 +13,12 @@ public:
     EditPropertyCmd(IApplication& p_app,
                     ecs::Entity p_ent,
                     ComponentId p_id,
-                    std::string_view p_property,
+                    const PropertyId& p_prop_id,
                     const U& p_old,
                     const U& p_new)
         : EditCmdBase(p_app, p_ent)
         , m_id(p_id)
-        , m_property(p_property) {
+        , m_prop_id(p_prop_id) {
         static_assert(std::is_trivially_copyable_v<U>);
         m_old.resize(sizeof(p_old));
         m_new.resize(sizeof(p_new));
@@ -40,7 +40,7 @@ public:
 
 private:
     const ComponentId m_id;
-    const std::string_view m_property;
+    const PropertyId m_prop_id;
 
     std::vector<uint8_t> m_old;
     std::vector<uint8_t> m_new;
