@@ -1,6 +1,7 @@
 #include "EditObjectCmd.h"
 
 #include "engine/private/runtime/scene/Scene.h"
+#include "cave/runtime/scene/SceneMutatorExt.h"
 
 #include "editor/Enums.h"
 
@@ -14,12 +15,12 @@ namespace cave {
 bool AddObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            DEV_ASSERT(0);
-#if 0
+            SceneCommandBuffer cb;
+            ecs::Entity created{};
             switch (m_type) {
-#define ENTITY_TYPE(NAME, ...)                                                        \
-    case EntityType::NAME: {                                                          \
-        m_created = EntityFactory::Create##NAME##Entity(*scene, GenerateName(#NAME)); \
+#define ENTITY_TYPE(NAME, ...)                                             \
+    case EntityType::NAME: {                                               \
+        created = SceneExt::Create##NAME##Object(cb, GenerateName(#NAME)); \
     } break;
                 ENTITY_TYPE_LIST
 #undef ENTITY_TYPE
@@ -28,13 +29,17 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
                     break;
             }
 
+            SceneMutator mut(*scene);
+            cb.Playback(mut);
+            m_created = cb.Resolve(created);
+
             ecs::Entity parent = m_entity;
             if (scene->m_root.IsValid()) {
                 scene->AttachChild(m_created, parent.IsValid() ? parent : scene->m_root);
             } else {
                 scene->m_root = m_created;
             }
-#endif
+
             return true;
         }
     }

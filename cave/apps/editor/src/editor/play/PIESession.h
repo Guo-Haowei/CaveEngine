@@ -4,6 +4,8 @@
 #include "cave/core/time/FrameTime.h"
 #include "cave/game/GameModuleHandle.h"
 
+#include "engine/private/runtime/scene/SceneScheduler.h"
+
 namespace cave {
 
 class Scene;
@@ -16,26 +18,31 @@ struct PIEStartDesc {
     SceneId edit_scene;
 };
 
-class PIESession : public NonCopyable {
+class PIESession : public NonCopyable,
+                   public ISceneTickContributor {
 public:
     explicit PIESession(IApplication& p_app);
-
-    bool IsRunning() const { return m_running; }
 
     bool Start(const PIEStartDesc& p_desc);
     void Stop();
 
-    void OnSimBegin();
+    void OnSimBegin(SceneId p_scene_id);
     void OnSimEnd();
 
     void Tick(const FrameTime& p_time);
+
+    bool IsRunning() const { return m_running; }
+    SceneId GetSceneId() const { return m_scene_id; }
+
+    void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
+    DebugId GetDebugId() override { return m_debug_id; }
 
 private:
     bool EnsureGameModuleLoaded();
     void BuildPIESceneFromEdit(Scene& p_edit, Scene& p_pie);
 
-private:
     IApplication& m_app;
+    const DebugId m_debug_id;
 
     bool m_running = false;
 
@@ -44,7 +51,7 @@ private:
     GameModuleHandle m_game_handle;
     IGameModule* m_game = nullptr;
 
-    SceneId m_pie_scene_id{};
+    SceneId m_scene_id{};
 };
 
 }  // namespace cave

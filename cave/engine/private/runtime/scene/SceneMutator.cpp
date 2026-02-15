@@ -33,6 +33,7 @@ bool SceneMutator::ChangeProperty(ecs::Entity p_ent,
                                   const void* p_data,
                                   uint32_t p_data_size,
                                   void* p_old_data) {
+
     const ecs::ComponentMeta* meta = m_reg.TryGet(p_comp_id);
     if (!meta) {
         LOG_WARN("Can't find meta for component {}", p_comp_id);

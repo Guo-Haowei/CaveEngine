@@ -1,13 +1,17 @@
 #include "PIESession.h"
 
 #include "cave/game/IGameModule.h"
+#include "engine/private/core/diagnostics/DebugIdAllocator.h"
+#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
 #include "editor/play/PIEHostServices.h"
 
 namespace cave {
 
 PIESession::PIESession(IApplication& p_app)
-    : m_app(p_app) {
+    : m_app(p_app)
+    , m_debug_id(MakeDebugId(this)) {
 }
 
 bool PIESession::EnsureGameModuleLoaded() {
@@ -80,6 +84,30 @@ void PIESession::Stop() {
     // Option B: unload on stop:
     // m_game_handle.Unload(); m_game = nullptr; m_registered = false;
 #endif
+}
+
+void PIESession::OnSimBegin(SceneId p_scene_id) {
+    SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
+
+    m_scene_id = scene_manager.Clone(p_scene_id);
+
+    Scene* scene = scene_manager.Resolve(m_scene_id);
+    DEV_ASSERT(scene);
+    m_app.ScriptService()->OnSimBegin(*scene);
+
+    m_app.GetSceneScheduler().Register(this);
+}
+
+void PIESession::OnSimEnd() {
+    m_app.GetSceneScheduler().Unregister(this);
+
+    if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_scene_id)) {
+        m_app.ScriptService()->OnSimEnd();
+    }
+}
+
+void PIESession::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
+    p_out.push_back({ SceneTickMode::Simulation, m_scene_id });
 }
 
 void PIESession::Tick(const FrameTime& p_time) {

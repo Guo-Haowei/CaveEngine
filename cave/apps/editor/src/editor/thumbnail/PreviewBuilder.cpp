@@ -93,7 +93,6 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
     }
     scene->Update(0.0f);
 
-
     return {
         .status = PreviewBuildStatus::Ok,
         .scene_id = m_scene_reg.Register(std::move(scene)),

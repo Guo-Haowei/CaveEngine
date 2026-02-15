@@ -26,6 +26,8 @@ public:
     }
 
 #if USING(STRING_ID_KEEKP_SOURCE)
+    std::string_view Source() const { return m_debug.view(); }
+
     bool operator==(const StringId& p_other) const;
 #else
     constexpr bool operator==(const StringId& p_other) const {
