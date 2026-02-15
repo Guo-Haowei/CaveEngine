@@ -16,7 +16,12 @@ class Scene;
 
 namespace cave::ecs {
 
-using OnComponentEditedFn = void (*)(Scene&, ecs::Entity, ComponentId, PropertyId);
+using OnComponentEditedFn = void (*)(Scene&,
+                                     ecs::Entity,
+                                     ComponentId,
+                                     const PropertyId&,
+                                     const void*,
+                                     uint32_t);
 
 struct ComponentMeta {
     ComponentId id;

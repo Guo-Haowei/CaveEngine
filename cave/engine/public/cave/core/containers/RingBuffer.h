@@ -1,8 +1,11 @@
+// =============================================================================
+// File: public/cave/core/containers/RingBuffer.h
+// =============================================================================
 #pragma once
 #include <cassert>
 #include <initializer_list>
 
-#include "reverse_iterator.h"
+#include "cave/core/containers/Iterators.h"
 
 namespace cave {
 

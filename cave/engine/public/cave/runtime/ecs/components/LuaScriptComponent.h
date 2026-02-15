@@ -3,7 +3,7 @@
 // =============================================================================
 #pragma once
 #include "cave/core/ids/Guid.h"
-#include "cave/core/string/FixedString.h"
+#include "cave/core/containers/FixedString.h"
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 

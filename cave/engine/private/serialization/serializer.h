@@ -4,7 +4,7 @@
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/Box.h"
 #include "cave/core/math/Matrix.h"
-#include "cave/core/string/FixedString.h"
+#include "cave/core/containers/FixedString.h"
 #include "cave/runtime/ecs/Entity.h"
 
 #include "engine/private/core/io/file_access.h"

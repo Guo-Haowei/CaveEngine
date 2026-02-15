@@ -4,7 +4,7 @@
 #pragma once
 #include "cave/core/typedefs.h"
 #include "cave/core/hash/Hash.h"
-#include "cave/core/string/FixedString.h"
+#include "cave/core/containers/FixedString.h"
 
 #define STRING_ID_KEEKP_SOURCE IN_USE
 

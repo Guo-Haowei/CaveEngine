@@ -47,10 +47,27 @@ void FinalizeCore() {
 static void Transform_OnEdited(Scene& p_scene,
                                ecs::Entity p_ent,
                                ComponentId,
-                               PropertyId) {
+                               const PropertyId&,
+                               const void*,
+                               uint32_t) {
     auto* t = (TransformComponent*)p_scene.Storage().GetRaw(p_ent, TransformComponent_Id);
     if (DEV_VERIFY(t)) {
         t->SetDirty();
+    }
+}
+
+static void MeshRenderer_OnEdited(Scene& p_scene,
+                                  ecs::Entity p_ent,
+                                  ComponentId,
+                                  const PropertyId& p_prop_id,
+                                  const void* p_data,
+                                  uint32_t p_data_size) {
+    if (p_prop_id == StringId("mesh_id")) {
+        auto* m = (MeshRendererComponent*)p_scene.Storage().GetRaw(p_ent, MeshRendererComponent_Id);
+        if (DEV_VERIFY(m)) {
+            DEV_ASSERT(p_data_size == sizeof(Guid));
+            m->SetResourceGuid(*((const Guid*)p_data));
+        }
     }
 }
 
@@ -70,8 +87,14 @@ static void RegisterBuiltinComponents() {
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
-    ecs::ComponentMeta& transform_meta = reg.GetMut(TransformComponent_Id);
-    transform_meta.on_edited = Transform_OnEdited;
+    {
+        ecs::ComponentMeta& meta = reg.GetMut(TransformComponent_Id);
+        meta.on_edited = Transform_OnEdited;
+    }
+    {
+        ecs::ComponentMeta& meta = reg.GetMut(MeshRendererComponent_Id);
+        meta.on_edited = MeshRenderer_OnEdited;
+    }
 }
 
 ecs::ComponentRegistry& GetComponentRegistry() {

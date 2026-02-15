@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <vector>
 #include "cave/core/math/Vector.h"
-#include "cave/core/string/FixedString.h"
+#include "cave/core/containers/FixedString.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
 #include "cave/runtime/ecs/Entity.h"
 

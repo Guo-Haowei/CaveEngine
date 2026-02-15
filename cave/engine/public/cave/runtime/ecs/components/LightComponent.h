@@ -24,13 +24,13 @@ private:
     LightType m_type = LightType::Infinite;
 
     CAVE_PROP(editor = DragFloat, min = 0, max = 1)
-    float m_atten_constant;
+    float m_atten_constant = 1.0f;
 
     CAVE_PROP(editor = DragFloat, min = 0, max = 1)
-    float m_atten_linear;
+    float m_atten_linear = 0.0f;
 
     CAVE_PROP(editor = DragFloat, min = 0, max = 1)
-    float m_atten_quadratic;
+    float m_atten_quadratic = 0.0f;
 
     CAVE_PROP()
     math::AABB m_shadow_region;
@@ -70,8 +70,6 @@ public:
     const auto& GetMatrices() const { return m_light_space_matrices; }
 
     void OnDeserialized();
-
-    friend class EntityFactory;
 };
 
 }  // namespace cave

@@ -53,7 +53,7 @@ bool SceneMutator::ChangeProperty(ecs::Entity p_ent,
 
     std::memcpy(data, p_data, p_data_size);
     if (meta->on_edited) {
-        meta->on_edited(m_scene, p_ent, p_comp_id, p_prop_id);
+        meta->on_edited(m_scene, p_ent, p_comp_id, p_prop_id, p_data, p_data_size);
     }
 
     return true;

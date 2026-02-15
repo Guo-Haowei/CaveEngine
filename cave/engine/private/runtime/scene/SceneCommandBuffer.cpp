@@ -50,10 +50,10 @@ void SceneCommandBuffer::Playback(SceneMutator& p_mut) {
                 const auto* pp = reinterpret_cast<const Payload_Property*>(payload);
                 const void* data = reinterpret_cast<const void*>(pp + 1);
                 p_mut.ChangeProperty(Resolve(pp->entity),
-                                   pp->type,
-                                   pp->prop_id,
-                                   data,
-                                   pp->data_size);
+                                     pp->type,
+                                     pp->prop_id,
+                                     data,
+                                     pp->data_size);
             } break;
             default: {
                 CRASH_NOW_MSG("Invalid opcode");

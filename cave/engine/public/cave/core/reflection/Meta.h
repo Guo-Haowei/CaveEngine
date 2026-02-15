@@ -70,12 +70,12 @@ struct FieldMetaBase {
     const float v_max;
 
     constexpr FieldMetaBase(const char* p_name,
-                  const char* p_type,
-                  size_t p_offset,
-                  FieldFlag p_flags,
-                  EditorHint p_hint,
-                  float p_min,
-                  float p_max) noexcept
+                            const char* p_type,
+                            size_t p_offset,
+                            FieldFlag p_flags,
+                            EditorHint p_hint,
+                            float p_min,
+                            float p_max) noexcept
         : name(p_name)
         , type(p_type)
         , id(PropertyId(p_name))

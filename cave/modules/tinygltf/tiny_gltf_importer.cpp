@@ -511,7 +511,9 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 #endif
 
     if (node.mesh >= 0) {
-        ecs::Entity mesh_instance = EntityFactory::CreateMeshInstance(*m_scene, "Node::" + node.name);
+        ecs::Entity mesh_instance = EntityFactory::CreateTransformEntity(*m_scene, "Node::" + node.name);
+        m_scene->Create<MeshRendererComponent>(mesh_instance);
+
         MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(mesh_instance);
         renderer.SetResourceGuid(m_meshes.at(node.mesh));
 

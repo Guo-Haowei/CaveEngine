@@ -154,7 +154,8 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
     ecs::Entity entity;
 
     if (p_node->mNumMeshes == 1) {  // geometry node
-        entity = EntityFactory::CreateMeshInstance(*m_scene, "Geometry::" + key);
+        entity = EntityFactory::CreateTransformEntity(*m_scene, "Geometry::" + key);
+        m_scene->Create<MeshRendererComponent>(entity);
 
         MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(entity);
         const uint32_t mesh_idx = p_node->mMeshes[0];
@@ -169,7 +170,9 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
         entity = EntityFactory::CreateTransformEntity(*m_scene, "Node::" + key);
         for (uint32_t i = 0; i < p_node->mNumMeshes; ++i) {
             DEV_ASSERT(0);
-            ecs::Entity child = EntityFactory::CreateMeshInstance(*m_scene, "");
+            ecs::Entity child = EntityFactory::CreateTransformEntity(*m_scene, "");
+            m_scene->Create<MeshRendererComponent>(child);
+
             auto tagComponent = m_scene->GetComponent<NameComponent>(child);
             tagComponent->SetName("SubGeometry_" + std::to_string(child.GetId()));
             MeshRendererComponent& renderer = m_scene->Create<MeshRendererComponent>(child);
