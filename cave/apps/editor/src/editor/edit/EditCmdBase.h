@@ -4,12 +4,12 @@
 #include "cave/core/ids/SceneId.h"
 #include "cave/runtime/ecs/Entity.h"
 
-#include "engine/private/runtime/scene/Scene.h"
-
 namespace cave {
 
 class IApplication;
 class SceneRegistry;
+
+class Scene;
 
 class EditCmdBase : public IEditCmd {
 public:

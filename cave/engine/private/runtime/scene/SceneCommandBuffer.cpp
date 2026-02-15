@@ -62,6 +62,19 @@ void SceneCommandBuffer::Playback(SceneMutator& p_mut) {
         p += header->size;
     }
 
+    Scene& scene = p_mut.GetScene();
+    // @NOTE: resolve mesh and hierachy
+    for (auto [ent, hier] : scene.View<HierarchyComponent>()) {
+        hier.parent_id = Resolve(hier.parent_id);
+    }
+    for (auto [ent, mesh] : scene.View<MeshRendererComponent>()) {
+        auto& mats = mesh.GetMaterialInstances();
+        for (ecs::Entity& mat : mats) {
+            mat = Resolve(mat);
+        }
+        mesh.SetSkeletonId(Resolve(mesh.GetSkeletonId()));
+    }
+
     m_bytes.clear();
     m_next_entity = kTmpBase;
 }

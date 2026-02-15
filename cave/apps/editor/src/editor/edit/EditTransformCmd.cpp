@@ -1,6 +1,7 @@
 #include "EditTransformCmd.h"
 
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/document/IDocument.h"
 

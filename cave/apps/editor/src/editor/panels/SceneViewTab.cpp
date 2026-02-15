@@ -8,6 +8,7 @@
 #include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/edit/EditTransformCmd.h"
 #include "editor/services/EditService.h"
@@ -18,7 +19,6 @@
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/sampler.h"
 
-#include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/renderer/graphics_dvars.h"
 

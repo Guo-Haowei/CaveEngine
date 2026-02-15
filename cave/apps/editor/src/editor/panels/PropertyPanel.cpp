@@ -19,7 +19,6 @@
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 
@@ -462,13 +461,16 @@ void PropertyPanel::DrawUIImpl() {
     DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_render) {
         DrawComponentAuto<MeshRendererComponent>(&p_render, ctx);
 
-        auto& materials = p_render.GetMaterialInstances();
         if (ImGui::Button("+")) {
             // @TODO: command
+            DEV_ASSERT(0 && "should go through cb");
+#if 0
+            auto& materials = p_render.GetMaterialInstances();
             auto name = std::format("mat_{}", materials.size());
             auto mat_id = EntityFactory::CreateNameEntity(scene, name);
             scene.Create<MaterialComponent>(mat_id);
             p_render.AddMaterial(mat_id);
+#endif
         }
 
         for (ecs::Entity id : p_render.GetMaterialInstances()) {

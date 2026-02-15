@@ -1,13 +1,12 @@
 #include "EditObjectCmd.h"
 
-#include "engine/private/runtime/scene/EntityFactory.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/Enums.h"
 
 namespace cave {
 
-// @TODO: refactor
-static std::string GenerateName(std::string_view p_name) {
+[[maybe_unused]] static std::string GenerateName(std::string_view p_name) {
     static int s_counter = 0;
     return std::format("{}-{}", p_name, ++s_counter);
 }
@@ -15,6 +14,8 @@ static std::string GenerateName(std::string_view p_name) {
 bool AddObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+            DEV_ASSERT(0);
+#if 0
             switch (m_type) {
 #define ENTITY_TYPE(NAME, ...)                                                        \
     case EntityType::NAME: {                                                          \
@@ -33,6 +34,7 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
             } else {
                 scene->m_root = m_created;
             }
+#endif
             return true;
         }
     }

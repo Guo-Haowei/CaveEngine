@@ -28,6 +28,8 @@ public:
                         uint32_t p_data_size,
                         void* p_old_data = nullptr);
 
+    Scene& GetScene() { return m_scene; }
+
 private:
     Scene& m_scene;
     const ecs::ComponentRegistry& m_reg;

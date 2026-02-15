@@ -22,7 +22,6 @@
 #include "engine/private/runtime/framework/TaskContext.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/VFS.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 
 #include "modules/tinygltf/tiny_gltf_importer.h"
 

@@ -3,15 +3,18 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneMutatorExt.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
 
 namespace cave {
 
+using ecs::Entity;
 using math::Matrix4x4f;
 using math::Vector3f;
 using math::Vector4f;
@@ -100,28 +103,25 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
 PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
                                                  const PreviewOptions& p_options) const {
 
+    SceneCommandBuffer cb;
+    Entity root = SceneExt::CreateTransformObject(cb, "root");
+
+    if constexpr (1) {
+        Entity light = SceneExt::CreatePointLightObject(cb, "light", math::Vector3f(0, 3, 1));
+        SceneExt::AttachChild(cb, light, root);
+    }
+
+    if constexpr (1) {
+        Guid guid = p_handle.GetGuid();
+        Entity sphere = SceneExt::CreateSphereObject(cb, "sphere", &guid);
+        SceneExt::AttachChild(cb, sphere, root);
+    }
+
     auto scene = std::make_unique<Scene>();
+    SceneMutator mut(*scene);
+    cb.Playback(mut);
 
-    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
-    scene->m_root = root;
-
-    // add sphere
-    {
-        auto id = EntityFactory::CreateSphereEntity(*scene, "sphere");
-        MeshRendererComponent* renderer = scene->GetComponent<MeshRendererComponent>(id);
-        DEV_ASSERT(renderer);
-        auto material_id = renderer->GetMaterialInstances()[0];
-        MaterialComponent* material = scene->GetComponent<MaterialComponent>(material_id);
-        material->SetResourceGuid(p_handle.GetGuid());
-        scene->AttachChild(id);
-    }
-
-    // add point light (TODO: maybe area light?)
-    {
-        auto id = EntityFactory::CreatePointLightEntity(*scene, "light", math::Vector3f(0, 3, 1));
-        scene->AttachChild(id);
-    }
-
+    scene->m_root = cb.Resolve(root);
     scene->Update(0.0f);
 
     Matrix4x4f transform = math::Translate(Vector3f(0, 0, 1.5f));
@@ -142,28 +142,30 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
 }
 
 PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const PreviewOptions& p_options) const {
-    auto scene = std::make_unique<Scene>();
-    auto root = EntityFactory::CreateTransformEntity(*scene, "root");
-    scene->m_root = root;
+
+    SceneCommandBuffer cb;
+    Entity root = SceneExt::CreateTransformObject(cb, "root");
 
     const MeshAsset* mesh = p_handle.Get<MeshAsset>();
     DEV_ASSERT(mesh);
 
-    // add mesh
-    {
-        auto id = EntityFactory::CreateTransformEntity(*scene, "mesh");
-        MeshRendererComponent& renderer = scene->Create<MeshRendererComponent>(id);
-        renderer.SetResourceGuid(p_handle.GetGuid());
-        renderer.OnDeserialized();
-        scene->AttachChild(id);
+    if constexpr (1) {
+        Entity light = SceneExt::CreatePointLightObject(cb, "light", math::Vector3f(0, 3, 1));
+        SceneExt::AttachChild(cb, light, root);
     }
 
-    // add point light (TODO: maybe area light?)
-    {
-        auto id = EntityFactory::CreatePointLightEntity(*scene, "light", math::Vector3f(0, 3, 1));
-        scene->AttachChild(id);
+    if constexpr (1) {
+        Entity e = SceneExt::CreateTransformObject(cb, "mesh");
+        cb.Add(e, MeshRendererComponent_Id);
+        cb.SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), p_handle.GetGuid());
+        SceneExt::AttachChild(cb, e, root);
     }
 
+    auto scene = std::make_unique<Scene>();
+
+    SceneMutator mut(*scene);
+    cb.Playback(mut);
+    scene->m_root = cb.Resolve(root);
     scene->Update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, p_options);

@@ -71,6 +71,21 @@ static void MeshRenderer_OnEdited(Scene& p_scene,
     }
 }
 
+static void Materail_OnEdited(Scene& p_scene,
+                              ecs::Entity p_ent,
+                              ComponentId,
+                              const PropertyId& p_prop_id,
+                              const void* p_data,
+                              uint32_t p_data_size) {
+    if (p_prop_id == StringId("material_id")) {
+        auto* m = (MaterialComponent*)p_scene.Storage().GetRaw(p_ent, MeshRendererComponent_Id);
+        if (DEV_VERIFY(m)) {
+            DEV_ASSERT(p_data_size == sizeof(Guid));
+            m->SetResourceGuid(*((const Guid*)p_data));
+        }
+    }
+}
+
 static void RegisterBuiltinComponents() {
     auto& reg = s_component_reg;
 
@@ -94,6 +109,10 @@ static void RegisterBuiltinComponents() {
     {
         ecs::ComponentMeta& meta = reg.GetMut(MeshRendererComponent_Id);
         meta.on_edited = MeshRenderer_OnEdited;
+    }
+    {
+        ecs::ComponentMeta& meta = reg.GetMut(MaterialComponent_Id);
+        meta.on_edited = Materail_OnEdited;
     }
 }
 

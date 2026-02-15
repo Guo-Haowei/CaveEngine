@@ -1,6 +1,8 @@
 #pragma once
 #include "EditCmdBase.h"
 
+#include "cave/runtime/ecs/ComponentDefines.h"
+
 namespace cave {
 
 class Scene;

@@ -1,5 +1,4 @@
 #pragma once
-#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 

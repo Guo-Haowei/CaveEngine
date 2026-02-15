@@ -10,10 +10,15 @@ MeshRendererComponent::MeshRendererComponent() {
 }
 
 bool MeshRendererComponent::SetResourceGuid(const Guid& p_guid) {
-    return AssetHandle::ReplaceGuidAndHandle(AssetType::Mesh,
-                                             p_guid,
-                                             m_mesh_id,
-                                             m_mesh_handle.RawHandle());
+    if (!AssetHandle::ReplaceGuidAndHandle(AssetType::Mesh,
+                                           p_guid,
+                                           m_mesh_id,
+                                           m_mesh_handle.RawHandle())) {
+        return false;
+    }
+
+    OnDeserialized();
+    return true;
 }
 
 void MeshRendererComponent::AddMaterial(ecs::Entity p_material) {

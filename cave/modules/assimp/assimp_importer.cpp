@@ -13,7 +13,7 @@
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/scene/EntityFactory.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
@@ -151,13 +151,13 @@ Guid AssimpImporter::ProcessMesh(const aiMesh& p_mesh) {
 ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_parent) {
     const auto key = std::string(p_node->mName.C_Str());
 
-    ecs::Entity entity;
+    ecs::Entity entity = m_scene->CreateEntity();
 
     if (p_node->mNumMeshes == 1) {  // geometry node
-        entity = EntityFactory::CreateTransformEntity(*m_scene, "Geometry::" + key);
-        m_scene->Create<MeshRendererComponent>(entity);
+        m_scene->Create<NameComponent>(entity).SetName("Geometry::" + key);
+        m_scene->Create<TransformComponent>(entity);
 
-        MeshRendererComponent& renderer = *m_scene->GetComponent<MeshRendererComponent>(entity);
+        MeshRendererComponent& renderer = m_scene->Create<MeshRendererComponent>(entity);
         const uint32_t mesh_idx = p_node->mMeshes[0];
         const aiMesh* mesh = m_raw_scene->mMeshes[mesh_idx];
 
@@ -167,9 +167,13 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
         renderer.SetResourceGuid(m_meshes[mesh_idx]);
         renderer.GetMaterialInstances().push_back(entity);
     } else {  // else make it a transform/bone node
-        entity = EntityFactory::CreateTransformEntity(*m_scene, "Node::" + key);
+        DEV_ASSERT(0);
+
+        m_scene->Create<NameComponent>(entity).SetName("Node::" + key);
+        m_scene->Create<TransformComponent>(entity);
+
         for (uint32_t i = 0; i < p_node->mNumMeshes; ++i) {
-            DEV_ASSERT(0);
+#if 0
             ecs::Entity child = EntityFactory::CreateTransformEntity(*m_scene, "");
             m_scene->Create<MeshRendererComponent>(child);
 
@@ -178,6 +182,7 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
             MeshRendererComponent& renderer = m_scene->Create<MeshRendererComponent>(child);
             renderer.SetResourceGuid(m_meshes[p_node->mMeshes[i]]);
             m_scene->AttachChild(child, entity);
+#endif
         }
     }
 
