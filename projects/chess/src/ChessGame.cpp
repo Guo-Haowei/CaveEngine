@@ -21,7 +21,8 @@ void ChessGame::OnSceneBegin(Scene& p_scene, IHostServices& p_host, const GameIn
 
     SceneCommandBuffer cb;
 
-    ecs::Entity cube = SceneExt::CreateAreaLightObject(cb, "my-light");
+    SceneExt scene_ext(p_host.AssetRegistry());
+    ecs::Entity cube = scene_ext.CreateCubeObject(cb, "my-light");
     cb.AttachRoot(cube);
 
     SceneMutator mut(p_scene);

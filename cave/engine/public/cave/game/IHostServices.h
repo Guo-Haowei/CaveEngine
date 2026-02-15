@@ -6,11 +6,14 @@
 
 namespace cave {
 
+class AssetRegistry;
+
 class IHostServices {
 public:
     virtual ~IHostServices() = default;
 
     virtual ILogger& Log() = 0;
+    virtual AssetRegistry& AssetRegistry() = 0;
 };
 
 }  // namespace cave
