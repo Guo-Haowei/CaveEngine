@@ -62,7 +62,7 @@ public:
     }
 
     template<ComponentType T>
-    void Remove(const ecs::Entity& p_ent) {
+    bool Remove(const ecs::Entity& p_ent) {
         return m_storage.Remove(p_ent, T::kId);
     }
 

@@ -76,6 +76,7 @@ void* ComponentStorage::AddDefault(Entity p_ent, ComponentId p_id) {
 }
 
 bool ComponentStorage::Remove(Entity p_ent, ComponentId p_id) {
+    if (!p_ent.IsValid()) return false;
     auto* pool = TryGet(p_id);
     if (!pool) return false;
     if (!pool->Has(p_ent)) return true;

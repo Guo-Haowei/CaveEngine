@@ -160,6 +160,7 @@ ecs::Entity Scene::FindEntityByName(const char* p_name) {
 }
 
 void Scene::RemoveEntity(ecs::Entity p_ent) {
+    if (!p_ent.IsValid()) return;
     std::vector<ecs::Entity> children;
     for (auto [child, hierarchy] : View<HierarchyComponent>()) {
         if (hierarchy.parent_id == p_ent) {

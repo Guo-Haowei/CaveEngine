@@ -33,33 +33,29 @@ void SceneCommandBuffer::Playback(Scene& p_scene) {
         switch (header->op) {
             case Op::CreateEntity: {
                 const auto* create = reinterpret_cast<const Payload_Create*>(payload);
-                ecs::Entity real = p_scene.CreateEntity();
+                ecs::Entity real = mut.CreateEntity();
                 SetRemap(create->out_temp, real);
             } break;
             case Op::DestroyEntity: {
                 const auto* destroy = reinterpret_cast<const Payload_Destroy*>(payload);
-                ecs::Entity real = Resolve(destroy->entity);
-                if (DEV_VERIFY(real.IsValid())) {
-                    p_scene.RemoveEntity(real);
-                }
+                mut.RemoveEntity(Resolve(destroy->entity));
             } break;
-            case Op::AddComponent:
+            case Op::AddComponent: {
+                const auto* pc = reinterpret_cast<const Payload_Component*>(payload);
+                mut.AddComponent(Resolve(pc->entity), pc->type);
+            } break;
             case Op::RemoveComponent: {
                 const auto* pc = reinterpret_cast<const Payload_Component*>(payload);
-                ecs::Entity real = Resolve(pc->entity);
-                DispatchComponentOp(p_scene,
-                                    header->op,
-                                    real,
-                                    pc->type);
+                mut.RemoveComponent(Resolve(pc->entity), pc->type);
             } break;
             case Op::ChangeProperty: {
                 const auto* pp = reinterpret_cast<const Payload_Property*>(payload);
-                ecs::Entity real = Resolve(pp->entity);
                 const void* data = reinterpret_cast<const void*>(pp + 1);
-                DispatchPropertyOp(p_scene,
-                                   real,
-                                   *pp,
-                                   data);
+                mut.ChangeProperty(Resolve(pp->entity),
+                                   pp->type,
+                                   pp->property_name,
+                                   data,
+                                   pp->data_size);
             } break;
             default: {
                 CRASH_NOW_MSG("Invalid opcode");
@@ -142,56 +138,6 @@ void SceneCommandBuffer::WritePropertyRecord(Op p_op,
 
     out += sizeof(payload);
     std::memcpy(out, p_data, p_data_size);
-}
-
-void SceneCommandBuffer::DispatchComponentOp(Scene& p_scene,
-                                             Op p_op,
-                                             ecs::Entity p_ent,
-                                             BuildInComponentId p_type_id) {
-    if (p_op == Op::AddComponent) {
-        p_scene.Create(p_ent, p_type_id);
-        switch (p_type_id) {
-#define REGISTER_COMPONENT(T, ...) \
-    case T##_Id: {                 \
-        p_scene.Create<T>(p_ent);  \
-    } break;
-            REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-            default: {
-                CRASH_NOW_MSG("Unknown component type");
-            } break;
-        }
-        return;
-    }
-
-    if (p_op == Op::RemoveComponent) {
-        switch (p_type_id) {
-#define REGISTER_COMPONENT(T, ...) \
-    case T##_Id: {                 \
-        p_scene.Remove<T>(p_ent);  \
-    } break;
-            REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-            default: {
-                CRASH_NOW_MSG("Unknown component type");
-            } break;
-        }
-        return;
-    }
-
-    CRASH_NOW();
-}
-
-void SceneCommandBuffer::DispatchPropertyOp(Scene& p_scene,
-                                            ecs::Entity p_ent,
-                                            const Payload_Property& p_payload,
-                                            const void* p_data) {
-    SceneMutator edit(p_scene);
-    switch (p_payload.type) {
-        default: {
-            CRASH_NOW_MSG("Unknown component type");
-        } break;
-    }
 }
 
 }  // namespace cave

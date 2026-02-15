@@ -13,11 +13,11 @@ bool EditPropertyCmd::Do(IDocument& p_doc) {
     if (!scene) return false;
 
     SceneMutator mut(*scene);
-    bool res = mut.ModifyField(m_entity,
-                                m_id,
-                                m_property,
-                                m_new.data(),
-                                (uint32_t)m_new.size());
+    bool res = mut.ChangeProperty(m_entity,
+                                  m_id,
+                                  m_property,
+                                  m_new.data(),
+                                  (uint32_t)m_new.size());
     return res;
 }
 
@@ -28,11 +28,11 @@ bool EditPropertyCmd::Undo(IDocument& p_doc) {
     if (!scene) return false;
 
     SceneMutator mut(*scene);
-    bool res = mut.ModifyField(m_entity,
-                                m_id,
-                                m_property,
-                                m_old.data(),
-                                (uint32_t)m_old.size());
+    bool res = mut.ChangeProperty(m_entity,
+                                  m_id,
+                                  m_property,
+                                  m_old.data(),
+                                  (uint32_t)m_old.size());
     return res;
 }
 

@@ -11,12 +11,28 @@ SceneMutator::SceneMutator(Scene& p_scene) noexcept
     , m_reg(engine::GetComponentRegistry()) {
 }
 
-bool SceneMutator::ModifyField(ecs::Entity p_ent,
-                            ComponentId p_comp_id,
-                            PropertyId p_property,
-                            const void* p_data,
-                            uint32_t p_data_size,
-                            void* p_old_data) {
+ecs::Entity SceneMutator::CreateEntity() {
+    return m_scene.CreateEntity();
+}
+
+void SceneMutator::RemoveEntity(ecs::Entity p_ent) {
+    m_scene.RemoveEntity(p_ent);
+}
+
+void* SceneMutator::AddComponent(ecs::Entity p_ent, ComponentId p_id) {
+    return m_scene.Storage().AddDefault(p_ent, p_id);
+}
+
+bool SceneMutator::RemoveComponent(ecs::Entity p_ent, ComponentId p_id) {
+    return m_scene.Storage().Remove(p_ent, p_id);
+}
+
+bool SceneMutator::ChangeProperty(ecs::Entity p_ent,
+                                  ComponentId p_comp_id,
+                                  PropertyId p_property,
+                                  const void* p_data,
+                                  uint32_t p_data_size,
+                                  void* p_old_data) {
     const ecs::ComponentMeta* meta = m_reg.TryGet(p_comp_id);
     if (!meta) {
         LOG_WARN("Can't find meta for component {}", p_comp_id);
@@ -29,7 +45,7 @@ bool SceneMutator::ModifyField(ecs::Entity p_ent,
         return false;
     }
 
-    void* comp = m_scene.GetComponent(p_ent, p_comp_id);
+    void* comp = m_scene.Storage().GetRaw(p_ent, p_comp_id);
     char* data = reinterpret_cast<char*>(comp) + field->offset;
     if (p_old_data) {
         std::memcpy(p_old_data, data, p_data_size);

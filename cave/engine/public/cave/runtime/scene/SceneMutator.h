@@ -11,12 +11,19 @@ class SceneMutator {
 public:
     explicit SceneMutator(Scene& p_scene) noexcept;
 
-    bool ModifyField(ecs::Entity p_ent,
-                     ComponentId p_comp_id,
-                     PropertyId p_property,
-                     const void* p_data,
-                     uint32_t p_data_size,
-                     void* p_old_data = nullptr);
+    ecs::Entity CreateEntity();
+    void RemoveEntity(ecs::Entity p_ent);
+
+    void* AddComponent(ecs::Entity p_ent, ComponentId p_id);
+
+    bool RemoveComponent(ecs::Entity p_ent, ComponentId p_id);
+
+    bool ChangeProperty(ecs::Entity p_ent,
+                        ComponentId p_comp_id,
+                        PropertyId p_property,
+                        const void* p_data,
+                        uint32_t p_data_size,
+                        void* p_old_data = nullptr);
 
 private:
     Scene& m_scene;

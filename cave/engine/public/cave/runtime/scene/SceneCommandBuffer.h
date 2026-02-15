@@ -117,16 +117,6 @@ private:
                              const void* p_data,
                              uint32_t p_data_size);
 
-    void DispatchComponentOp(Scene& p_scene,
-                             Op p_op,
-                             ecs::Entity p_ent,
-                             BuildInComponentId p_type_id);
-
-    void DispatchPropertyOp(Scene& p_scene,
-                            ecs::Entity p_ent,
-                            const Payload_Property& p_payload,
-                            const void* p_data);
-
     uint32_t m_next_entity = kTmpBase;
     std::vector<uint8_t> m_bytes;
     std::vector<ecs::Entity> m_remap;
