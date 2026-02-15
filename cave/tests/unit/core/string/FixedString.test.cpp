@@ -3,7 +3,7 @@
 namespace cave::string {
 
 TEST(FixedString, default_constructor) {
-    FixedString<32> str;
+    constexpr FixedString<32> str;
 
     EXPECT_EQ(str.capacity(), 31);
     EXPECT_EQ(str.size(), 0);
@@ -13,7 +13,7 @@ TEST(FixedString, default_constructor) {
 }
 
 TEST(FixedString, construct_from_string_view) {
-    FixedString<32> str(std::string_view("hello"));
+    constexpr FixedString<32> str(std::string_view("hello"));
 
     EXPECT_FALSE(str.empty());
     EXPECT_EQ(str.size(), 5);

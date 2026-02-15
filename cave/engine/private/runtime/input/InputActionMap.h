@@ -2,9 +2,8 @@
 // File: engine/private/runtime/input/InputActionMap.h
 // =============================================================================
 #pragma once
+#include "cave/core/string/StringId.h"
 #include "cave/runtime/input/InputTypes.h"
-
-#include "cave/core/ids/StringId.h"
 #include "cave/runtime/input/KeyCode.h"
 
 namespace cave {

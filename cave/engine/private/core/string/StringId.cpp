@@ -1,4 +1,4 @@
-#include "cave/core/ids/StringId.h"
+#include "cave/core/string/StringId.h"
 
 namespace cave {
 
@@ -8,11 +8,11 @@ bool StringId::operator==(const StringId& p_other) const {
         return false;
     }
 
-    if (p_other.m_source != m_source) {
+    if (p_other.m_debug != m_debug) {
         LOG_FATAL("StringId:: hash '{}' collision detected - '{}' and '{}'",
                   m_hash,
-                  m_source,
-                  p_other.m_source);
+                  m_debug.view(),
+                  p_other.m_debug.view());
         return false;
     }
     return true;

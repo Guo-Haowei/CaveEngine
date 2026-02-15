@@ -11,8 +11,6 @@
 #include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
-using PropertyId = std::string_view;
-
 class Scene;
 }  // namespace cave
 
@@ -30,7 +28,7 @@ struct ComponentMeta {
     std::span<const FieldMetaBase* const> props;
     OnComponentEditedFn on_edited{ nullptr };
 
-    const FieldMetaBase* Find(PropertyId p_id) const;
+    const FieldMetaBase* Find(const PropertyId& p_id) const;
 };
 
 class ComponentRegistry {

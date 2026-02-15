@@ -29,7 +29,7 @@ bool SceneMutator::RemoveComponent(ecs::Entity p_ent, ComponentId p_id) {
 
 bool SceneMutator::ChangeProperty(ecs::Entity p_ent,
                                   ComponentId p_comp_id,
-                                  PropertyId p_property,
+                                  const PropertyId& p_prop_id,
                                   const void* p_data,
                                   uint32_t p_data_size,
                                   void* p_old_data) {
@@ -39,9 +39,9 @@ bool SceneMutator::ChangeProperty(ecs::Entity p_ent,
         return false;
     }
 
-    const FieldMetaBase* field = meta->Find(p_property);
+    const FieldMetaBase* field = meta->Find(p_prop_id);
     if (!field) {
-        LOG_WARN("Can't find field '{}' for component {}", p_property, p_comp_id);
+        LOG_WARN("Can't find field '{}' for component {}", p_prop_id.GetHash(), p_comp_id);
         return false;
     }
 
@@ -53,7 +53,7 @@ bool SceneMutator::ChangeProperty(ecs::Entity p_ent,
 
     std::memcpy(data, p_data, p_data_size);
     if (meta->on_edited) {
-        meta->on_edited(m_scene, p_ent, p_comp_id, p_property);
+        meta->on_edited(m_scene, p_ent, p_comp_id, p_prop_id);
     }
 
     return true;

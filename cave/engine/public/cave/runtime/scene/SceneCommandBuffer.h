@@ -11,10 +11,7 @@
 
 namespace cave {
 
-class Scene;
-
-// @TODO: use StringID
-constexpr size_t kPropertyNameMax = 32;
+class SceneMutator;
 
 class SceneCommandBuffer {
     enum class Op : uint16_t {
@@ -46,7 +43,7 @@ class SceneCommandBuffer {
     struct Payload_Property {
         ecs::Entity entity;
         BuildInComponentId type;
-        FixedString<kPropertyNameMax> property_name;
+        PropertyId prop_id;
         uint32_t data_size;
     };
 
@@ -80,18 +77,7 @@ public:
         WritePropertyRecord(Op::ChangeProperty, p_ent, p_id, p_property, &p_value, sizeof(T));
     }
 
-    // -------------------------------------------------------------------------
-    // Wrappers
-    // -------------------------------------------------------------------------
-    void SetName(ecs::Entity p_ent, std::string_view p_value) {
-        SetProperty(p_ent, NameComponent_Id, "name", FixedString<64>(p_value));
-    }
-
-    void SetScale(ecs::Entity p_ent, const math::Vector3f& p_value) {
-        SetProperty(p_ent, TransformComponent_Id, "scale", p_value);
-    }
-
-    void Playback(Scene& p_scene);
+    void Playback(SceneMutator& p_mut);
 
 private:
     static constexpr uint32_t kTmpBase = 0x80000000u;
@@ -113,7 +99,7 @@ private:
     void WritePropertyRecord(Op p_op,
                              ecs::Entity p_ent,
                              BuildInComponentId p_type,
-                             std::string_view p_property,
+                             PropertyId p_prop_id,
                              const void* p_data,
                              uint32_t p_data_size);
 

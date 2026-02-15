@@ -1,5 +1,9 @@
 #include "EntityFactory.h"
 
+#include "cave/runtime/scene/SceneCommandBuffer.h"
+#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneMutatorExt.h"
+
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
@@ -11,18 +15,22 @@ namespace cave {
 using ecs::Entity;
 using namespace ::cave::math;
 
-Entity EntityFactory::CreateNameEntity(Scene& p_scene,
-                                       const std::string& p_name) {
-    Entity entity = p_scene.CreateEntity();
-    p_scene.Create<NameComponent>(entity).SetName(p_name);
-    return entity;
+Entity EntityFactory::CreateNameEntity(Scene& p_scene, std::string_view p_name) {
+    SceneCommandBuffer cb;
+    Entity e = CreateNameObject(cb, p_name);
+
+    SceneMutator mut(p_scene);
+    cb.Playback(mut);
+    return cb.Resolve(e);
 }
 
-Entity EntityFactory::CreateTransformEntity(Scene& p_scene,
-                                            const std::string& p_name) {
-    Entity entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<TransformComponent>(entity);
-    return entity;
+Entity EntityFactory::CreateTransformEntity(Scene& p_scene, std::string_view p_name) {
+    SceneCommandBuffer cb;
+    Entity e = CreateTransformObject(cb, p_name);
+
+    SceneMutator mut(p_scene);
+    cb.Playback(mut);
+    return cb.Resolve(e);
 }
 
 Entity EntityFactory::CreateMeshInstance(Scene& p_scene,
@@ -159,32 +167,6 @@ Entity EntityFactory::CreateTorusEntity(Scene& p_scene,
                                         const Matrix4x4f& p_transform) {
     return CreateMeshEntity("@persist://meshes/torus", p_scene, p_name, p_transform);
 }
-
-#if 0
-
-Entity EntityFactory::CreateEmitterEntity(Scene& p_scene,
-                                          const std::string& p_name,
-                                          const Matrix4x4f& p_transform) {
-    LOG_WARN("TODO: fix");
-    auto entity = CreateTransformEntity(p_scene, p_name);
-    p_scene.Create<ParticleEmitterComponent>(entity);
-
-    TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(entity);
-    transform.MatrixTransform(p_transform);
-    return entity;
-}
-
-Entity EntityFactory::CreateMeshEmitterEntity(Scene& p_scene,
-                                              const std::string& p_name,
-                                              const Vector3f& p_translation) {
-    LOG_WARN("TODO: fix");
-    auto entity = CreateNameEntity(p_scene, p_name);
-    p_scene.Create<TransformComponent>(entity).SetTranslation(p_translation);
-    p_scene.Create<MeshEmitterComponent>(entity);
-    return entity;
-}
-
-#endif
 
 Entity EntityFactory::CreateTileMapEntity(Scene& p_scene,
                                           const std::string& p_name,

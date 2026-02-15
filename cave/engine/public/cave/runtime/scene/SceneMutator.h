@@ -1,3 +1,6 @@
+// =============================================================================
+// File: public/cave/runtime/scene/SceneMutator.h
+// =============================================================================
 #pragma once
 #include "cave/core/reflection/Meta.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
@@ -20,7 +23,7 @@ public:
 
     bool ChangeProperty(ecs::Entity p_ent,
                         ComponentId p_comp_id,
-                        PropertyId p_property,
+                        const PropertyId& p_prop_id,
                         const void* p_data,
                         uint32_t p_data_size,
                         void* p_old_data = nullptr);

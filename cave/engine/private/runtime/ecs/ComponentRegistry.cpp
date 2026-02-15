@@ -12,9 +12,9 @@ namespace cave::ecs {
 #define DEBUG_PRINT(...) ((void)0)
 #endif
 
-const FieldMetaBase* ComponentMeta::Find(PropertyId p_id) const {
+const FieldMetaBase* ComponentMeta::Find(const PropertyId& p_id) const {
     for (const FieldMetaBase* meta : props) {
-        if (meta->name == p_id) {
+        if (meta->id == p_id) {
             return meta;
         }
     }

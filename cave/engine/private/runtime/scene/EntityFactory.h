@@ -9,11 +9,9 @@ class EntityFactory {
     using Matrix4x4f = cave::math::Matrix4x4f;
 
 public:
-    static Entity CreateNameEntity(Scene& p_scene,
-                                   const std::string& p_name);
+    static Entity CreateNameEntity(Scene& p_scene, std::string_view p_name);
 
-    static Entity CreateTransformEntity(Scene& p_scene,
-                                        const std::string& p_name);
+    static Entity CreateTransformEntity(Scene& p_scene, std::string_view p_name);
 
     static Entity CreateMeshInstance(Scene& p_scene,
                                      const std::string& p_name);
@@ -57,20 +55,6 @@ public:
     static Entity CreateTorusEntity(Scene& p_scene,
                                     const std::string& p_name,
                                     const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-#if 0
-    static Entity CreateEmitterEntity(Scene& p_scene,
-                                      const std::string& p_name,
-                                      const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-
-    static Entity CreateMeshEmitterEntity(Scene& p_scene,
-                                          const std::string& p_name,
-                                          const Vector3f& p_translation = Vector3f::Zero);
-
-    static Entity CreateForceFieldEntity(Scene& p_scene,
-                                         const std::string& p_name,
-                                         const Matrix4x4f& p_transform = Matrix4x4f(1.0f));
-#endif
 
     static Entity CreateTileMapEntity(Scene& p_scene,
                                       const std::string& p_name,
