@@ -39,25 +39,31 @@ class Scene : public NonCopyable, public IAsset {
 public:
     static constexpr const char* EXTENSION = ".scene";
 
-    void* GetComponent(ecs::Entity p_ent, ComponentId p_id);
-    const void* GetComponent(ecs::Entity p_ent, ComponentId p_id) const;
+    void* Create(ecs::Entity p_ent, ComponentId p_id);
 
     template<ComponentType T>
-    T* GetComponent(ecs::Entity p_ent) {
-        return (T*)GetComponent(p_ent, T::kId);
-    }
-
-    template<ComponentType T>
-    const T* GetComponent(ecs::Entity p_ent) const {
-        return (const T*)GetComponent(p_ent, T::kId);
+    T& Create(const ecs::Entity& p_ent) {
+        return *((T*)Create(p_ent, T::kId));
     }
 
     template<ComponentType T>
     bool Has(const ecs::Entity& p_ent) const {
-        if (const ecs::IComponentPool* pool = m_storage.TryGet(T::kId)) {
-            return pool->Has(p_ent);
-        }
-        return false;
+        return m_storage.Has(p_ent, T::kId);
+    }
+
+    template<ComponentType T>
+    T* GetComponent(ecs::Entity p_ent) {
+        return (T*)m_storage.GetRaw(p_ent, T::kId);
+    }
+
+    template<ComponentType T>
+    const T* GetComponent(ecs::Entity p_ent) const {
+        return (const T*)m_storage.GetRaw(p_ent, T::kId);
+    }
+
+    template<ComponentType T>
+    void Remove(const ecs::Entity& p_ent) {
+        return m_storage.Remove(p_ent, T::kId);
     }
 
     template<ComponentType T>
@@ -67,19 +73,6 @@ public:
         }
 
         return 0;
-    }
-
-    template<ComponentType T>
-    T& Create(const ecs::Entity& p_ent) {
-        ecs::IComponentPool& pool = m_storage.GetOrCreate<T>();
-        return *((T*)pool.CreateDefaultRaw(p_ent));
-    }
-
-    template<ComponentType T>
-    void Remove(const ecs::Entity& p_ent) {
-        if (ecs::IComponentPool* pool = m_storage.TryGet(T::kId)) {
-            pool->Remove(p_ent);
-        }
     }
 
     template<ComponentType T>
@@ -119,6 +112,10 @@ public:
     inline auto View() const {
         return ecs::ConstView<Cs...>(Get<Cs>()...);
     }
+
+    // @NOTE: only use for commands like Create(ent, comp_id)
+    ecs::ComponentStorage& Storage() noexcept { return m_storage; }
+    const ecs::ComponentStorage& Storage() const noexcept { return m_storage; }
 
 public:
     ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }

@@ -1,4 +1,4 @@
-#include "cave/runtime/scene/SceneEdit.h"
+#include "cave/runtime/scene/SceneMutator.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/Engine.h"
@@ -6,12 +6,12 @@
 
 namespace cave {
 
-SceneEdit::SceneEdit(Scene& p_scene) noexcept
+SceneMutator::SceneMutator(Scene& p_scene) noexcept
     : m_scene(p_scene)
     , m_reg(engine::GetComponentRegistry()) {
 }
 
-bool SceneEdit::ModifyField(ecs::Entity p_ent,
+bool SceneMutator::ModifyField(ecs::Entity p_ent,
                             ComponentId p_comp_id,
                             PropertyId p_property,
                             const void* p_data,

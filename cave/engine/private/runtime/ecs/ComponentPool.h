@@ -5,7 +5,7 @@
 namespace cave {
 
 class Scene;
-class SceneEdit;
+class SceneMutator;
 
 }  // namespace cave
 

@@ -7,11 +7,9 @@ namespace cave {
 
 class Scene;
 
-// @TODO: emit events
-
-class SceneEdit {
+class SceneMutator {
 public:
-    explicit SceneEdit(Scene& p_scene) noexcept;
+    explicit SceneMutator(Scene& p_scene) noexcept;
 
     bool ModifyField(ecs::Entity p_ent,
                      ComponentId p_comp_id,

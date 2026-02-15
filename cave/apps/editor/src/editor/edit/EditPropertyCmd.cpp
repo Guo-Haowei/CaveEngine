@@ -1,7 +1,7 @@
 #pragma once
 #include "EditPropertyCmd.h"
 
-#include "cave/runtime/scene/SceneEdit.h"
+#include "cave/runtime/scene/SceneMutator.h"
 #include "editor/document/IDocument.h"
 
 namespace cave {
@@ -12,8 +12,8 @@ bool EditPropertyCmd::Do(IDocument& p_doc) {
     Scene* scene = ResolveScene(scene_id);
     if (!scene) return false;
 
-    SceneEdit edit(*scene);
-    bool res = edit.ModifyField(m_entity,
+    SceneMutator mut(*scene);
+    bool res = mut.ModifyField(m_entity,
                                 m_id,
                                 m_property,
                                 m_new.data(),
@@ -27,8 +27,8 @@ bool EditPropertyCmd::Undo(IDocument& p_doc) {
     Scene* scene = ResolveScene(scene_id);
     if (!scene) return false;
 
-    SceneEdit edit(*scene);
-    bool res = edit.ModifyField(m_entity,
+    SceneMutator mut(*scene);
+    bool res = mut.ModifyField(m_entity,
                                 m_id,
                                 m_property,
                                 m_old.data(),

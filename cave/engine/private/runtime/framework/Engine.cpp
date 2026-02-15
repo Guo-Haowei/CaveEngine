@@ -48,8 +48,10 @@ static void Transform_OnEdited(Scene& p_scene,
                                ecs::Entity p_ent,
                                ComponentId,
                                PropertyId) {
-    auto* t = (TransformComponent*)p_scene.GetComponent(p_ent, TransformComponent_Id);
-    t->SetDirty();
+    auto* t = (TransformComponent*)p_scene.Storage().GetRaw(p_ent, TransformComponent_Id);
+    if (DEV_VERIFY(t)) {
+        t->SetDirty();
+    }
 }
 
 static void RegisterBuiltinComponents() {
