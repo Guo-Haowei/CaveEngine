@@ -35,6 +35,8 @@ public:
     const IDocument* Resolve(DocId p_id) const { return Base::Resolve(p_id); }
     bool IsAlive(DocId p_id) const { return Base::IsAlive(p_id); }
 
+    bool Save(const Guid& p_guid);
+
 private:
     std::unordered_map<Guid, DocId> m_doc_cache;
 

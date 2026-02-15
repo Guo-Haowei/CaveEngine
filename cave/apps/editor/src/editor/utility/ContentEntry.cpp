@@ -197,7 +197,8 @@ void ShowPopup(const ContentEntry& p_node,
             p_editor.DocumentService().OpenDoc(desc);
         }
         if (ImGui::MenuItem("Save")) {
-            AssetRegistry::GetSingleton().SaveAsset(p_node.handle.GetGuid());
+            const Guid guid = p_node.handle.GetGuid();
+            p_editor.DocumentService().Save(guid);
         }
     }
 
