@@ -32,9 +32,9 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
                     break;
             }
 
-            SceneCommandExecutor mut(*scene);
-            cb.Playback(mut);
-            m_created = cb.Resolve(created);
+            SceneCommandExecutor executor(*scene);
+            executor.Playback(cb);
+            m_created = executor.Resolve(created);
 
             ecs::Entity parent = m_entity;
             if (scene->m_root.IsValid()) {

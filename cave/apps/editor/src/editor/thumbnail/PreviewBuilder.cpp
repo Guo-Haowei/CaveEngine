@@ -121,10 +121,10 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
     DEV_ASSERT(meta);
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
-    SceneCommandExecutor mut(*scene);
-    cb.Playback(mut);
+    SceneCommandExecutor executor(*scene);
+    executor.Playback(cb);
 
-    scene->m_root = cb.Resolve(root);
+    scene->m_root = executor.Resolve(root);
     scene->Update(0.0f);
 
     Matrix4x4f transform = math::Translate(Vector3f(0, 0, 1.5f));
@@ -165,9 +165,9 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
     DEV_ASSERT(meta);
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
-    SceneCommandExecutor mut(*scene);
-    cb.Playback(mut);
-    scene->m_root = cb.Resolve(root);
+    SceneCommandExecutor executor(*scene);
+    executor.Playback(cb);
+    scene->m_root = executor.Resolve(root);
     scene->Update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, p_options);

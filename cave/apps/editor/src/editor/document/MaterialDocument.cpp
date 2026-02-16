@@ -31,10 +31,10 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     }
 
     auto scene = std::make_unique<Scene>(std::format("preview-material-{}", p_guid.ToString()));
-    SceneCommandExecutor mut(*scene);
-    cb.Playback(mut);
+    SceneCommandExecutor executor(*scene);
+    executor.Playback(cb);
 
-    scene->m_root = cb.Resolve(root);
+    scene->m_root = executor.Resolve(root);
     scene->Update(0.0f);
 
     m_preview_scene = m_scene_reg.Register(std::move(scene));

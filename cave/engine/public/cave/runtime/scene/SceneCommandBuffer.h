@@ -14,6 +14,8 @@ namespace cave {
 
 class SceneCommandExecutor;
 
+constexpr uint32_t kSceneCmdTmpBase = 0x80000000u;
+
 enum class SceneCmd_Op : uint8_t {
     CreateEntity,
     DestroyEntity,
@@ -101,20 +103,13 @@ public:
                             SceneCmd_PropType::PlainData);
     }
 
-    ecs::Entity Resolve(ecs::Entity p_ent) const noexcept;
+    const uint8_t* Data() const { return m_bytes.data(); }
+    const size_t Size() const { return m_bytes.size(); }
 
-    void Playback(SceneCommandExecutor& p_mut);
-
-    bool Empty() const { return m_bytes.empty(); }
+    uint32_t GetAllocationCount() const noexcept { return m_next_entity - kSceneCmdTmpBase; }
 
 private:
-    static constexpr uint32_t kTmpBase = 0x80000000u;
-
-    static bool IsTemp(ecs::Entity p_id) noexcept { return p_id.GetId() >= kTmpBase; }
-
     ecs::Entity AllocateTempEntity() noexcept { return ecs::Entity(m_next_entity++); }
-
-    void SetRemap(ecs::Entity p_temp, ecs::Entity p_real);
 
     void WriteEntityRecord(SceneCmd_Op p_op, ecs::Entity p_ent);
 
@@ -148,9 +143,8 @@ private:
                             1);
     }
 
-    uint32_t m_next_entity = kTmpBase;
+    uint32_t m_next_entity = kSceneCmdTmpBase;
     std::vector<uint8_t> m_bytes;
-    std::vector<ecs::Entity> m_remap;
 };
 
 }  // namespace cave

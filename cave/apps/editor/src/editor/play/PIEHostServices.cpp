@@ -31,9 +31,10 @@ ILogger& PIEHostServices::Log() {
 }
 
 void PIEHostServices::FlushSceneCommands() {
-    if (!SceneWriter().Empty()) {
-        SceneCommandExecutor mut(m_scene);
-        SceneWriter().Playback(mut);
+    SceneCommandBuffer& cb = SceneWriter();
+    if (cb.Data()) {
+        SceneCommandExecutor executor(m_scene);
+        executor.Playback(cb);
     }
 }
 
