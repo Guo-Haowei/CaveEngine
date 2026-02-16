@@ -42,13 +42,12 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
     Scene* scene = reg->Resolve(p_desc.edit_scene);
     if (!scene) return false;
 
-    PIEHostServices host(m_app, p_desc.edit_scene);
+    PIEHostServices host(m_app, *scene);
 
-    SceneCommandWriter cb(*m_app.GetAssetRegistry());
-    m_game->OnModuleLoaded(host, *scene, cb);
-    if (!cb.Empty()) {
+    m_game->OnModuleLoaded(host);
+    if (!host.SceneWriter().Empty()) {
         SceneMutator mut(*scene);
-        cb.Playback(mut);
+        host.SceneWriter().Playback(mut);
     }
     return true;
 }

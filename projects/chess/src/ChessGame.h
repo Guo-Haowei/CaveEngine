@@ -6,16 +6,12 @@ namespace cave {
 
 class ChessGame final : public IGameModule {
 public:
-    void OnModuleLoaded(IHostServices& p_host,
-                        Scene& p_scene,
-                        SceneCommandWriter& p_cb) override;
+    void OnModuleLoaded(IHostServices& p_host) override;
 
     void Tick(IHostServices& p_host, const FrameTime& p_time) override;
 
 private:
-    void SpawnPieces(Scene& p_scene,
-                      IHostServices& p_host,
-                      SceneCommandWriter& p_cb);
+    void SpawnPieces(IHostServices& p_host);
 };
 
 }  // namespace cave

@@ -6,9 +6,10 @@
 
 namespace cave {
 
-PIEHostServices::PIEHostServices(IApplication& p_app, SceneId p_pie_scene)
+PIEHostServices::PIEHostServices(IApplication& p_app, Scene& p_scene) noexcept
     : m_app(p_app)
-    , m_pie_scene(p_pie_scene) {
+    , m_query(p_scene)
+    , m_writer(*p_app.GetAssetRegistry()) {
 }
 
 ILogger& PIEHostServices::Log() {

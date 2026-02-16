@@ -12,10 +12,6 @@ namespace cave {
 
 using ecs::Entity;
 
-Entity SceneCommandWriter::FindEntityByName(const Scene& p_scene, std::string_view p_name) {
-    return p_scene.FindEntityByName(p_name);
-}
-
 Entity SceneCommandWriter::CreateNameObject(std::string_view p_name) {
     Entity e = Create();
     Add(e, NameComponent_Id);

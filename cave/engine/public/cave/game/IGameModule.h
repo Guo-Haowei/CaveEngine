@@ -14,16 +14,12 @@ enum class AppMode : uint8_t {
 };
 
 class IHostServices;
-class Scene;
-class SceneCommandWriter;
 
 class IGameModule {
 public:
     virtual ~IGameModule() = default;
 
-    virtual void OnModuleLoaded(IHostServices&,
-                                Scene&,
-                                SceneCommandWriter&) {}
+    virtual void OnModuleLoaded(IHostServices&) {}
 
     virtual void Tick(IHostServices& p_host,
                       const FrameTime& p_time) = 0;

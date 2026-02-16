@@ -5,6 +5,7 @@
 #include "cave/core/diagnostics/ILogger.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 namespace cave::chess {
 
@@ -83,14 +84,12 @@ static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
 
 namespace cave {
 
-void ChessGame::OnModuleLoaded(IHostServices& p_host,
-                               Scene& p_scene,
-                               SceneCommandWriter& p_cb) {
+void ChessGame::OnModuleLoaded(IHostServices& p_host) {
 
     p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "ChessGame Loaded\n");
 
     // @TODO: split to spawn pieces and place pieces
-    SpawnPieces(p_scene, p_host, p_cb);
+    SpawnPieces(p_host);
 }
 
 void ChessGame::Tick(IHostServices& p_host, const FrameTime& p_time) {
@@ -98,14 +97,16 @@ void ChessGame::Tick(IHostServices& p_host, const FrameTime& p_time) {
     unused(p_time);
 }
 
-void ChessGame::SpawnPieces(Scene& p_scene, IHostServices& p_host, SceneCommandWriter& p_cb) {
+void ChessGame::SpawnPieces(IHostServices& p_host) {
     using chess::Piece;
     using ecs::Entity;
 
-    Entity offset_node = SceneCommandWriter::FindEntityByName(p_scene, "transform");
+    Entity offset_node = p_host.SceneQuery().FindEntityByName("transform");
+    DEV_ASSERT(offset_node.IsValid());
 
-    p_cb.SetNoSave(true);
-    chess::ChessSpawner spawner(p_cb, offset_node);
+    SceneCommandWriter& writer = p_host.SceneWriter();
+    writer.SetNoSave(true);
+    chess::ChessSpawner spawner(writer, offset_node);
 
     std::array<int, chess::kPieceMax> counter{ 0 };
 

@@ -22,9 +22,6 @@ public:
         : m_asset_reg(p_reg) {
     }
 
-    // @NOTE: this should not be here, the command writer shouldn't know about scene
-    static Entity FindEntityByName(const Scene& p_scene, std::string_view p_name);
-
     Entity CreateRootObject(std::string_view p_name = "root");
     Entity CreateNameObject(std::string_view p_name);
 
