@@ -1,8 +1,8 @@
 #include "cave/runtime/ecs/ComponentRegistry.h"
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
-#include "cave/runtime/scene/SceneCommandExecutor.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave::scene {

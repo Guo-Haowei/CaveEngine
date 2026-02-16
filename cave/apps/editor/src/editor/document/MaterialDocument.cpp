@@ -8,6 +8,7 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {

@@ -5,7 +5,7 @@
 #include <vector>
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
-#include "cave/runtime/scene/SceneCommandExecutor.h"
+#include "cave/runtime/scene/ISceneCommandExecutor.h"
 
 namespace cave {
 
@@ -22,7 +22,7 @@ private:
 };
 
 void SceneCommandPlayback(SceneCommandBuffer& p_cb,
-                          SceneCommandExecutor& p_exe,
+                          ISceneCommandExecutor& p_exe,
                           EntityMap& p_map);
 
 }  // namespace cave

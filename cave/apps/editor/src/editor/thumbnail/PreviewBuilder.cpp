@@ -10,6 +10,7 @@
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {

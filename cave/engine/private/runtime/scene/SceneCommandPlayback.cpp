@@ -29,7 +29,7 @@ void EntityMap::SetRemap(Entity p_temp, Entity p_real) {
 }
 
 void SceneCommandPlayback(SceneCommandBuffer& p_cb,
-                          SceneCommandExecutor& p_exe,
+                          ISceneCommandExecutor& p_exe,
                           EntityMap& p_map) {
     const uint8_t* p = p_cb.Data();
     if (p == nullptr) {

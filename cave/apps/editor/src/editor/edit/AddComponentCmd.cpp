@@ -1,6 +1,6 @@
 #include "AddComponentCmd.h"
 
-#include "cave/runtime/scene/SceneCommandExecutor.h"
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "editor/document/SceneDocument.h"
 
 namespace cave {

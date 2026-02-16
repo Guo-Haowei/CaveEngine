@@ -1,7 +1,7 @@
 #pragma once
 #include "EditPropertyCmd.h"
 
-#include "cave/runtime/scene/SceneCommandExecutor.h"
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "editor/document/IDocument.h"
 
 namespace cave {

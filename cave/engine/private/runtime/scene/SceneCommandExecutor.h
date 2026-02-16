@@ -1,0 +1,33 @@
+#pragma once
+#include "cave/runtime/scene/ISceneCommandExecutor.h"
+#include "cave/runtime/ecs/ComponentRegistry.h"
+
+namespace cave {
+
+class Scene;
+
+class SceneCommandExecutor : public ISceneCommandExecutor {
+public:
+    explicit SceneCommandExecutor(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept;
+    explicit SceneCommandExecutor(Scene& p_scene) noexcept;
+
+    ecs::Entity CreateEntity() override;
+
+    void RemoveEntity(ecs::Entity p_ent) override;
+
+    void* AddComponent(ecs::Entity p_ent, ComponentId p_id) override;
+
+    bool RemoveComponent(ecs::Entity p_ent, ComponentId p_id) override;
+
+    bool ChangeProperty(ecs::Entity p_ent,
+                        ComponentId p_cid,
+                        const PropertyId& p_pid,
+                        const void* p_data,
+                        uint32_t p_data_size) override;
+
+private:
+    Scene& m_scene;
+    const ecs::ComponentRegistry& m_reg;
+};
+
+}  // namespace cave

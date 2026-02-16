@@ -1,6 +1,6 @@
-#include "cave/runtime/scene/SceneCommandBuffer.h"
-#include "cave/runtime/scene/SceneCommandExecutor.h"
+#include "SceneCommandExecutor.h"
 
+#include "cave/runtime/scene/SceneCommandBuffer.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/runtime/scene/Scene.h"
