@@ -33,25 +33,25 @@ bool SceneMutator::RemoveComponent(ecs::Entity p_ent, ComponentId p_id) {
 }
 
 bool SceneMutator::ChangeProperty(ecs::Entity p_ent,
-                                  ComponentId p_comp_id,
-                                  const PropertyId& p_prop_id,
+                                  ComponentId p_cid,
+                                  const PropertyId& p_pid,
                                   const void* p_data,
                                   uint32_t p_data_size,
                                   void* p_old_data) {
 
-    const ecs::ComponentMeta* meta = m_reg.TryGet(p_comp_id);
+    const ecs::ComponentMeta* meta = m_reg.TryGet(p_cid);
     if (!meta) {
-        LOG_WARN("Can't find meta for component {}", p_comp_id);
+        LOG_WARN("Can't find meta for component {}", p_cid);
         return false;
     }
 
-    const FieldMetaBase* field = meta->Find(p_prop_id);
+    const FieldMetaBase* field = meta->Find(p_pid);
     if (!field) {
-        LOG_WARN("Can't find field '{}' for component {}", p_prop_id.GetHash(), p_comp_id);
+        LOG_WARN("Can't find field '{}' for component {}", p_pid.GetHash(), p_cid);
         return false;
     }
 
-    void* comp = m_scene.Storage().GetRaw(p_ent, p_comp_id);
+    void* comp = m_scene.Storage().GetRaw(p_ent, p_cid);
     char* data = reinterpret_cast<char*>(comp) + field->offset;
     if (p_old_data) {
         std::memcpy(p_old_data, data, p_data_size);
@@ -59,7 +59,7 @@ bool SceneMutator::ChangeProperty(ecs::Entity p_ent,
 
     std::memcpy(data, p_data, p_data_size);
     if (meta->on_edited) {
-        meta->on_edited(m_scene, p_ent, p_comp_id, p_prop_id, p_data, p_data_size);
+        meta->on_edited(m_scene, p_ent, p_cid, p_pid, p_data, p_data_size);
     }
 
     return true;

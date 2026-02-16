@@ -23,8 +23,8 @@ public:
     bool RemoveComponent(ecs::Entity p_ent, ComponentId p_id);
 
     bool ChangeProperty(ecs::Entity p_ent,
-                        ComponentId p_comp_id,
-                        const PropertyId& p_prop_id,
+                        ComponentId p_cid,
+                        const PropertyId& p_pid,
                         const void* p_data,
                         uint32_t p_data_size,
                         void* p_old_data = nullptr);
