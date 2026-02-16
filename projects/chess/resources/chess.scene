@@ -10,9 +10,9 @@ entities:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-    LuaScriptComponent:
-      class_name: Game
-      source_id: 4F81F684-0A03-CA4B-846FE39F40F0B5B3
+    # LuaScriptComponent:
+    #   class_name: Game
+    #   source_id: 4F81F684-0A03-CA4B-846FE39F40F0B5B3
   - id: 2
     NameComponent:
       name: light

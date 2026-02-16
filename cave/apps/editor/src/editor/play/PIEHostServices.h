@@ -7,6 +7,8 @@
 
 namespace cave {
 
+class Scene;
+
 class PIEHostServices final : public IHostServices {
 public:
     explicit PIEHostServices(IApplication& p_app, Scene& p_scene) noexcept;
@@ -18,8 +20,11 @@ public:
     cave::SceneQuery& SceneQuery() override { return m_query; }
     SceneCommandWriter& SceneWriter() override { return m_writer; }
 
+    void FlushSceneCommands();
+
 private:
     IApplication& m_app;
+    Scene& m_scene;
     cave::SceneQuery m_query;
     SceneCommandWriter m_writer;
 };

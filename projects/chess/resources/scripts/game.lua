@@ -161,24 +161,24 @@ end
 
 function Game:_process(timestep)
     -- @TODO: refactor this part
-    if Input.is_action_just_pressed('ui_right') == 1 then
-        self.selector:move_focus(1, 0)
-    end
-    if Input.is_action_just_pressed('ui_left') == 1 then
-        self.selector:move_focus(-1, 0)
-    end
-    if Input.is_action_just_pressed('ui_up') == 1 then
-        self.selector:move_focus(0, 1)
-    end
-    if Input.is_action_just_pressed('ui_down') == 1 then
-        self.selector:move_focus(0, -1)
-    end
-    if Input.is_action_just_pressed('ui_accept') == 1 then
-        self.selector:confirm()
-    end
-    if Input.is_action_just_pressed('ui_back') == 1 then
-        self.selector:cancel()
-    end
+    -- if Input.is_action_just_pressed('ui_right') == 1 then
+    --     self.selector:move_focus(1, 0)
+    -- end
+    -- if Input.is_action_just_pressed('ui_left') == 1 then
+    --     self.selector:move_focus(-1, 0)
+    -- end
+    -- if Input.is_action_just_pressed('ui_up') == 1 then
+    --     self.selector:move_focus(0, 1)
+    -- end
+    -- if Input.is_action_just_pressed('ui_down') == 1 then
+    --     self.selector:move_focus(0, -1)
+    -- end
+    -- if Input.is_action_just_pressed('ui_accept') == 1 then
+    --     self.selector:confirm()
+    -- end
+    -- if Input.is_action_just_pressed('ui_back') == 1 then
+    --     self.selector:cancel()
+    -- end
 
     local dx = Input.get_action_strength('ui_axis_x')
     local dy = Input.get_action_strength('ui_axis_y')

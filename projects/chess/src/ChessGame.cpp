@@ -8,10 +8,14 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
-namespace cave::chess {
+constexpr uint8_t kColMax = 8;
+constexpr uint8_t kRowMax = 8;
+using cave::ecs::Entity;
+using cave::math::Vector2i;
+using cave::math::Vector3f;
+using cave::math::Vector4f;
 
-using math::Vector3f;
-using math::Vector4f;
+namespace cave::chess {
 
 static constexpr const char* kPieceNameTable[kPieceTypeMax]{
     "pawn",
@@ -70,7 +74,7 @@ struct ChessSpawner {
     }
 };
 
-static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
+static constexpr std::array<std::array<Piece, kRowMax>, kColMax> kInitialBoard = { {
     { Piece::WR, Piece::WN, Piece::WB, Piece::WQ, Piece::WK, Piece::WB, Piece::WN, Piece::WR },
     { Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP },
     { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
@@ -91,17 +95,60 @@ void ChessGame::OnModuleLoaded(IHostServices& p_host) {
 
     // @TODO: split to spawn pieces and place pieces
     SpawnPieces(p_host);
+
+}
+
+void ChessGame::OnModuleUnloaded(IHostServices& p_host) {
+    unused(p_host);
+}
+
+void ChessGame::OnGameBegin(IHostServices& p_host) {
+    GridSelectController::Callbacks cb{
+        .can_select = [](uint32_t, uint32_t) { return true; },
+        .on_select = [](uint32_t, uint32_t) { LOG("on select"); },
+    };
+
+    m_selector = std::make_unique<GridSelectController>(
+        math::Vector2i(kRowMax, kColMax),
+        std::move(cb));
+
+    // @TODO: cache entities
+}
+
+void ChessGame::OnGameEnd(IHostServices& p_host) {
+    m_selector.reset();
 }
 
 void ChessGame::Tick(IHostServices& p_host, const FrameTime& p_time) {
     unused(p_time);
 
     IInputService& input = p_host.Input();
-    if (input.IsActionJustPressed(StringId("ui_up"))) {
-        p_host.Log().Print(LOG_LEVEL_NORMAL, "ui_up just pressed");
+
+    const Vector2i old_focus = m_selector->GetFocused();
+
+    if (input.IsActionJustPressed(StringId("ui_right"))) {
+        m_selector->MoveFocus(Vector2i(1, 0));
     }
-    if (input.IsActionPressed(StringId("ui_down"))) {
-        p_host.Log().Print(LOG_LEVEL_NORMAL, "ui_down pressed");
+    if (input.IsActionJustPressed(StringId("ui_left"))) {
+        m_selector->MoveFocus(Vector2i(-1, 0));
+    }
+    if (input.IsActionJustPressed(StringId("ui_up"))) {
+        m_selector->MoveFocus(Vector2i(0, 1));
+    }
+    if (input.IsActionJustPressed(StringId("ui_down"))) {
+        m_selector->MoveFocus(Vector2i(0, -1));
+    }
+
+    const Vector2i& focus = m_selector->GetFocused();
+    if (focus != old_focus) {
+        SceneQuery& query = p_host.SceneQuery();
+        Entity selector = query.FindEntityByName("grid_selector");
+
+        SceneCommandWriter& writer = p_host.SceneWriter();
+        // writer.SetProperty(selector, MeshRendererComponent_Id, StringId("visibility"), true);
+
+        Vector3f pos(focus.y, 0, focus.x);
+        writer.SetProperty(selector, TransformComponent_Id, StringId("translation"), pos);
     }
 }
 

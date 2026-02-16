@@ -45,10 +45,7 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
     PIEHostServices host(m_app, *scene);
 
     m_game->OnModuleLoaded(host);
-    if (!host.SceneWriter().Empty()) {
-        SceneMutator mut(*scene);
-        host.SceneWriter().Playback(mut);
-    }
+    host.FlushSceneCommands();
     return true;
 }
 
@@ -73,6 +70,10 @@ void PIESession::OnSimBegin(SceneId p_scene_id) {
 
     m_app.GetSceneScheduler().Register(this);
 
+    PIEHostServices host(m_app, *scene);
+    m_game->OnGameBegin(host);
+    host.FlushSceneCommands();
+
     m_running = true;
 }
 
@@ -83,6 +84,9 @@ void PIESession::OnSimEnd() {
 
     if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_pie_scene)) {
         m_app.ScriptService()->OnSimEnd();
+
+        PIEHostServices host(m_app, *scene);
+        m_game->OnGameEnd(host);
     }
 
     m_app.GetSceneScheduler().Unregister(this);
@@ -106,6 +110,7 @@ void PIESession::Tick(const FrameTime& p_time) {
 
     PIEHostServices host(m_app, *scene);
     m_game->Tick(host, p_time);
+    host.FlushSceneCommands();
 }
 
 void PIESession::BuildPIESceneFromEdit(Scene& p_edit, Scene& p_pie) {
