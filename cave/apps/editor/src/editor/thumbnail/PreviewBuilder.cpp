@@ -156,7 +156,7 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
 
     if constexpr (1) {
         Entity e = cb.CreateTransformObject("mesh");
-        cb.Add(e, MeshRendererComponent_Id);
+        cb.AddComponent(e, MeshRendererComponent_Id);
         cb.SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), p_handle.GetGuid());
         cb.AttachChild(e, root);
     }

@@ -120,6 +120,7 @@ void ChessGame::SpawnPieces(IHostServices& p_host) {
 
     for (int rank = 0; rank < 8; ++rank) {
         for (int file = 0; file < 8; ++file) {
+
             const Piece p = chess::kInitialBoard[rank][file];
             if (p == Piece::Null) continue;
             spawner.SpawnPiece(p, file, rank, ++counter[std::to_underlying(p)]);

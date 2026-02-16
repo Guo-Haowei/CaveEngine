@@ -1,6 +1,8 @@
+#include "cave/core/reflection/Meta.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
 
-#include "cave/core/reflection/Meta.h"
+#include "engine/private/runtime/ecs/components/All.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave::ecs {
 
@@ -50,6 +52,74 @@ const ComponentMeta* ComponentRegistry::TryGet(ComponentId p_id) const {
 ComponentMeta& ComponentRegistry::GetMut(ComponentId p_id) {
     DEV_ASSERT_INDEX(p_id, m_present.size());
     return m_table[p_id];
+}
+
+static void Transform_OnEdited(Scene& p_scene,
+                               ecs::Entity p_ent,
+                               ComponentId,
+                               const PropertyId&,
+                               const void*,
+                               uint32_t) {
+    auto* t = (TransformComponent*)p_scene.Storage().GetRaw(p_ent, TransformComponent_Id);
+    if (DEV_VERIFY(t)) {
+        t->SetDirty();
+    }
+}
+
+static void MeshRenderer_OnEdited(Scene& p_scene,
+                                  ecs::Entity p_ent,
+                                  ComponentId,
+                                  const PropertyId& p_prop_id,
+                                  const void*,
+                                  uint32_t) {
+    if (p_prop_id == StringId("mesh_id")) {
+        auto* mesh = (MeshRendererComponent*)p_scene.Storage().GetRaw(p_ent, MeshRendererComponent_Id);
+        if (DEV_VERIFY(mesh)) {
+            mesh->OnDeserialized();
+        }
+    }
+}
+
+static void Materail_OnEdited(Scene& p_scene,
+                              ecs::Entity p_ent,
+                              ComponentId,
+                              const PropertyId& p_prop_id,
+                              const void*,
+                              uint32_t) {
+    if (p_prop_id == StringId("material_id")) {
+        auto* m = (MaterialComponent*)p_scene.Storage().GetRaw(p_ent, MaterialComponent_Id);
+        if (DEV_VERIFY(m)) {
+            m->OnDeserialized();
+        }
+    }
+}
+
+void ComponentRegistry::Builtin(ComponentRegistry& p_out) {
+#define REGISTER_COMPONENT(T, ...)              \
+    p_out.Register({                            \
+        .id = T##_Id,                           \
+        .name = #T,                             \
+        .size = sizeof(T),                      \
+        .align = alignof(T),                    \
+        .version = 0,                           \
+        .props = MetaDataTable<T>::GetFields(), \
+    });
+
+    REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+
+    {
+        ecs::ComponentMeta& meta = p_out.GetMut(TransformComponent_Id);
+        meta.on_edited = Transform_OnEdited;
+    }
+    {
+        ecs::ComponentMeta& meta = p_out.GetMut(MeshRendererComponent_Id);
+        meta.on_edited = MeshRenderer_OnEdited;
+    }
+    {
+        ecs::ComponentMeta& meta = p_out.GetMut(MaterialComponent_Id);
+        meta.on_edited = Materail_OnEdited;
+    }
 }
 
 }  // namespace cave::ecs

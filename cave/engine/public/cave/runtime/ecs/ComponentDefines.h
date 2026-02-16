@@ -43,7 +43,7 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT_SERIALIZED_LIST \
     REGISTER_COMPONENT(NoSaveTag, "World::NoSaveTag", 0)
 
-enum BuildInComponentId : ComponentId {
+enum BuiltinComponentId : ComponentId {
 #define REGISTER_COMPONENT(TYPE, ...) TYPE##_Id,
     REGISTER_COMPONENT_LIST
 #undef REGISTER_COMPONENT

@@ -13,7 +13,7 @@ constexpr inline bool IS_DEBUG_BUILD = true;
 constexpr inline bool IS_DEBUG_BUILD = false;
 #endif
 
-inline void assert_out_of_range() { CRASH_NOW_MSG("index out of range"); }
+inline void assert_out_of_range() { assert(0 && "index out of range"); }
 
 constexpr std::size_t check_out_of_range(size_t i, size_t range) {
     return i < range ? i : (assert_out_of_range(), i);
