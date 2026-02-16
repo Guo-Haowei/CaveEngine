@@ -11,12 +11,13 @@
 #include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
-#include "editor/edit/EditTransformCmd.h"
+#include "editor/edit/EditPropertyCmd.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
+#include "engine/private/core/math/Geomath.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/sampler.h"
 
@@ -34,6 +35,7 @@ namespace cave {
 using math::Matrix4x4f;
 using math::Vector2f;
 using math::Vector3f;
+using math::Vector4f;
 using rhi::Backend;
 
 #if 1
@@ -315,11 +317,42 @@ void SceneViewTab::DrawGizmo() {
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
 
-                auto cmd = std::make_unique<EditTransformCmd>(m_editor.GetApp(),
-                                                              id,
-                                                              before,
-                                                              after);
-                edit_service.Submit(doc_id, std::move(cmd));
+                Vector3f scale_1, scale_2;
+                Vector3f pos_1, pos_2;
+                Vector4f rot_1, rot_2;
+                math::Decompose(before, scale_1, rot_1, pos_1);
+                math::Decompose(after, scale_2, rot_2, pos_2);
+
+                IApplication& app = m_editor.GetApp();
+
+                if (p_operation & ImGuizmo::TRANSLATE) {
+                    auto cmd = std::make_unique<EditPropertyCmd>(
+                        app,
+                        id,
+                        TransformComponent_Id,
+                        StringId("translation"),
+                        pos_1,
+                        pos_2);
+                    edit_service.Submit(doc_id, std::move(cmd));
+                } else if (p_operation & ImGuizmo::ROTATE) {
+                    auto cmd = std::make_unique<EditPropertyCmd>(
+                        app,
+                        id,
+                        TransformComponent_Id,
+                        StringId("rotation"),
+                        rot_1,
+                        rot_2);
+                    edit_service.Submit(doc_id, std::move(cmd));
+                } else if (p_operation & ImGuizmo::SCALE) {
+                    auto cmd = (std::make_unique<EditPropertyCmd>(
+                        app,
+                        id,
+                        TransformComponent_Id,
+                        StringId("scale"),
+                        scale_1,
+                        scale_2));
+                    edit_service.Submit(doc_id, std::move(cmd));
+                }
             }
         }
     };

@@ -170,6 +170,7 @@ ecs::Entity Scene::FindEntityByName(std::string_view p_name) const {
 }
 
 void Scene::RemoveEntity(ecs::Entity p_ent) {
+    // @TODO: move it to SceneCommandExecutor
     if (!p_ent.IsValid()) return;
     std::vector<ecs::Entity> children;
     for (auto [child, hierarchy] : View<HierarchyComponent>()) {

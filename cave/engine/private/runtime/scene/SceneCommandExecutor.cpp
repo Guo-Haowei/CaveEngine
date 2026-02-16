@@ -106,6 +106,7 @@ void SceneCommandExecutor::Playback(SceneCommandBuffer& p_cb) {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
                 Entity real = CreateEntity();
                 SetRemap(e, real);
+                // @TODO: generate Undoable Command CreateWidthId
             } break;
             case SceneCmd_Op::DestroyEntity: {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
@@ -114,10 +115,12 @@ void SceneCommandExecutor::Playback(SceneCommandBuffer& p_cb) {
             case SceneCmd_Op::AddComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
                 AddComponent(Resolve(payload->ent), payload->cid);
+                // @TODO: generate Undoable Command AddComponent
             } break;
             case SceneCmd_Op::RemoveComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
                 RemoveComponent(Resolve(payload->ent), payload->cid);
+                // @TODO: generate Undoable Command RemoveComponent
             } break;
             case SceneCmd_Op::AssignProperty: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadProperty*>(payload_raw);
@@ -139,6 +142,7 @@ void SceneCommandExecutor::Playback(SceneCommandBuffer& p_cb) {
                     } break;
                 }
 
+                // @TODO: generate Undoable Command ChangeProperty
                 ChangeProperty(Resolve(payload->ent),
                                payload->cid,
                                payload->pid,

@@ -9,7 +9,6 @@
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/edit/EditPropertyCmd.h"
-#include "editor/edit/EditTransformCmd.h"
 #include "editor/edit/EditComponentCmd.h"  // @TODO: refactor this
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
