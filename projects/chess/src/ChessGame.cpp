@@ -4,6 +4,7 @@
 
 #include "cave/core/diagnostics/ILogger.h"
 #include "cave/game/IHostServices.h"
+#include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
@@ -93,8 +94,15 @@ void ChessGame::OnModuleLoaded(IHostServices& p_host) {
 }
 
 void ChessGame::Tick(IHostServices& p_host, const FrameTime& p_time) {
-    unused(p_host);
     unused(p_time);
+
+    IInputService& input = p_host.Input();
+    if (input.IsActionJustPressed(StringId("ui_up"))) {
+        p_host.Log().Print(LOG_LEVEL_NORMAL, "ui_up just pressed");
+    }
+    if (input.IsActionPressed(StringId("ui_down"))) {
+        p_host.Log().Print(LOG_LEVEL_NORMAL, "ui_down pressed");
+    }
 }
 
 void ChessGame::SpawnPieces(IHostServices& p_host) {

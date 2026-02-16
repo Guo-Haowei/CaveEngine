@@ -100,22 +100,12 @@ void PIESession::Tick(const FrameTime& p_time) {
         return;
     }
 
-    unused(p_time);
-
-#if 0
     SceneRegistry* reg = m_app.GetSceneRegistry();
-    Scene* pie_scene = reg ? reg->GetScene(m_pie_scene_id) : nullptr;
-    if (!pie_scene)
-        return;
+    Scene* scene = reg->Resolve(m_pie_scene);
+    if (!scene) return;
 
-    PIEHostServices pie_host(m_app, m_desc.game_view, m_pie_scene_id);
-
-    GameTime t{};
-    t.dt = p_dt;
-    t.frame_index = 0;  // you can pass app frame index if you have it
-
-    m_game->Tick(*pie_scene, pie_host, t);
-#endif
+    PIEHostServices host(m_app, *scene);
+    m_game->Tick(host, p_time);
 }
 
 void PIESession::BuildPIESceneFromEdit(Scene& p_edit, Scene& p_pie) {

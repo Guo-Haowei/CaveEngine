@@ -12,16 +12,20 @@ PIEHostServices::PIEHostServices(IApplication& p_app, Scene& p_scene) noexcept
     , m_writer(*p_app.GetAssetRegistry()) {
 }
 
-ILogger& PIEHostServices::Log() {
-    return CompositeLogger::GetSingleton();
-}
-
 AssetRegistry& PIEHostServices::AssetRegistry() {
     return *m_app.GetAssetRegistry();
 }
 
 ecs::ComponentRegistry& PIEHostServices::ComponentRegistry() {
     return engine::GetComponentRegistry();
+}
+
+IInputService& PIEHostServices::Input() {
+    return *m_app.InputService();
+}
+
+ILogger& PIEHostServices::Log() {
+    return CompositeLogger::GetSingleton();
 }
 
 }  // namespace cave

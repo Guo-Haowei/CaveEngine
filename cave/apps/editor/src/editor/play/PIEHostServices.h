@@ -11,9 +11,10 @@ class PIEHostServices final : public IHostServices {
 public:
     explicit PIEHostServices(IApplication& p_app, Scene& p_scene) noexcept;
 
-    ILogger& Log() override;
     cave::AssetRegistry& AssetRegistry() override;
     cave::ecs::ComponentRegistry& ComponentRegistry() override;
+    IInputService& Input() override;
+    ILogger& Log() override;
     cave::SceneQuery& SceneQuery() override { return m_query; }
     SceneCommandWriter& SceneWriter() override { return m_writer; }
 
