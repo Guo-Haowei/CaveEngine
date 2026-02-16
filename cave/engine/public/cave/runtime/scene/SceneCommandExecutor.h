@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/scene/SceneMutator.h
+// File: public/cave/runtime/scene/SceneCommandExecutor.h
 // =============================================================================
 #pragma once
 #include "cave/core/reflection/Meta.h"
@@ -9,11 +9,12 @@
 namespace cave {
 
 class Scene;
+class SceneCommandBuffer;
 
-class SceneMutator {
+class SceneCommandExecutor {
 public:
-    explicit SceneMutator(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept;
-    explicit SceneMutator(Scene& p_scene) noexcept;
+    explicit SceneCommandExecutor(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept;
+    explicit SceneCommandExecutor(Scene& p_scene) noexcept;
 
     ecs::Entity CreateEntity();
     void RemoveEntity(ecs::Entity p_ent);
@@ -26,10 +27,9 @@ public:
                         ComponentId p_cid,
                         const PropertyId& p_pid,
                         const void* p_data,
-                        uint32_t p_data_size,
-                        void* p_old_data = nullptr);
+                        uint32_t p_data_size);
 
-    Scene& GetScene() { return m_scene; }
+    void Playback(SceneCommandBuffer& p_cb);
 
 private:
     Scene& m_scene;

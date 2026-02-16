@@ -5,7 +5,7 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneCommandExecutor.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -31,7 +31,7 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     }
 
     auto scene = std::make_unique<Scene>(std::format("preview-material-{}", p_guid.ToString()));
-    SceneMutator mut(*scene);
+    SceneCommandExecutor mut(*scene);
     cb.Playback(mut);
 
     scene->m_root = cb.Resolve(root);

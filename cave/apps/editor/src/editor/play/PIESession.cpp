@@ -2,7 +2,7 @@
 
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"

@@ -1,7 +1,7 @@
 #include "EditObjectCmd.h"
 
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneCommandExecutor.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -32,7 +32,7 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
                     break;
             }
 
-            SceneMutator mut(*scene);
+            SceneCommandExecutor mut(*scene);
             cb.Playback(mut);
             m_created = cb.Resolve(created);
 

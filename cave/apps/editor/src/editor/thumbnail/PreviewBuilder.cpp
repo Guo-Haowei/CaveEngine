@@ -4,7 +4,7 @@
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneCommandExecutor.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -121,7 +121,7 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
     DEV_ASSERT(meta);
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
-    SceneMutator mut(*scene);
+    SceneCommandExecutor mut(*scene);
     cb.Playback(mut);
 
     scene->m_root = cb.Resolve(root);
@@ -165,7 +165,7 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
     DEV_ASSERT(meta);
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
-    SceneMutator mut(*scene);
+    SceneCommandExecutor mut(*scene);
     cb.Playback(mut);
     scene->m_root = cb.Resolve(root);
     scene->Update(0.0f);

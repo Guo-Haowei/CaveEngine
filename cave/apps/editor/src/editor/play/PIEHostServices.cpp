@@ -1,7 +1,7 @@
 #include "PIEHostServices.h"
 
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/core/diagnostics/logger/Logger.h"
 #include "engine/private/runtime/framework/Engine.h"
 
@@ -32,7 +32,7 @@ ILogger& PIEHostServices::Log() {
 
 void PIEHostServices::FlushSceneCommands() {
     if (!SceneWriter().Empty()) {
-        SceneMutator mut(m_scene);
+        SceneCommandExecutor mut(m_scene);
         SceneWriter().Playback(mut);
     }
 }

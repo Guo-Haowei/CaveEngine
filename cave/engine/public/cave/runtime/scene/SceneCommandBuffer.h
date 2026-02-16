@@ -5,34 +5,56 @@
 #include <type_traits>
 #include <vector>
 #include "cave/core/math/Vector.h"
+#include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
 #include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 
-class SceneMutator;
+class SceneCommandExecutor;
 
-enum class SceneCommandOp : uint8_t {
+enum class SceneCmd_Op : uint8_t {
     CreateEntity,
     DestroyEntity,
+
     AddComponent,
     RemoveComponent,
-    ChangeProperty,
+
+    // @TODO: array, map?
+    AssignProperty,
+};
+
+enum class SceneCmd_PropType : uint8_t {
+    PlainData,
+    Entity,  // Need resolve if entity
+};
+
+struct SceneCmd_Header {
+    SceneCmd_Op op;
+    uint8_t flags;
+    uint16_t size;
+};
+
+struct SceneCmd_PayloadEntity {
+    ecs::Entity ent;
+};
+
+struct SceneCmd_PayloadComponent {
+    ecs::Entity ent;
+    BuiltinComponentId cid;
+};
+
+struct SceneCmd_PayloadProperty {
+    ecs::Entity ent;
+    BuiltinComponentId cid;
+    SceneCmd_PropType ptype;
+    PropertyId pid;
+    uint32_t data_size;
+    uint32_t ele_count;
 };
 
 class SceneCommandBuffer {
-    enum class PropType : uint8_t {
-        PlainData,
-        Entity,
-        EntityArray,
-    };
-
-    struct Header;
-    struct Payload_Entity;
-    struct Payload_Component;
-    struct Payload_Property;
-
 public:
     explicit SceneCommandBuffer() = default;
 
@@ -49,24 +71,39 @@ public:
                      const PropertyId& p_pid,
                      const ecs::Entity& p_value);
 
+    template<size_t N>
+    void SetProperty(ecs::Entity p_ent,
+                     BuiltinComponentId p_cid,
+                     const PropertyId& p_pid,
+                     const FixedStack<ecs::Entity, N>& p_value) {
+        WritePropertyRecord(SceneCmd_Op::AssignProperty,
+                            p_ent,
+                            p_cid,
+                            p_pid,
+                            &p_value,
+                            sizeof(p_value),
+                            SceneCmd_PropType::Entity,
+                            static_cast<uint32_t>(p_value.size()));
+    }
+
     template<typename T>
     void SetProperty(ecs::Entity p_ent,
                      BuiltinComponentId p_cid,
                      const PropertyId& p_pid,
                      const T& p_value) {
         static_assert(std::is_trivially_copyable_v<T>);
-        WritePropertyRecord(SceneCommandOp::ChangeProperty,
+        WritePropertyRecord(SceneCmd_Op::AssignProperty,
                             p_ent,
                             p_cid,
                             p_pid,
                             &p_value,
-                            sizeof(T),
-                            PropType::PlainData);
+                            sizeof(p_value),
+                            SceneCmd_PropType::PlainData);
     }
 
     ecs::Entity Resolve(ecs::Entity p_ent) const noexcept;
 
-    void Playback(SceneMutator& p_mut);
+    void Playback(SceneCommandExecutor& p_mut);
 
     bool Empty() const { return m_bytes.empty(); }
 
@@ -79,19 +116,37 @@ private:
 
     void SetRemap(ecs::Entity p_temp, ecs::Entity p_real);
 
-    void WriteEntityRecord(SceneCommandOp p_op, ecs::Entity p_ent);
+    void WriteEntityRecord(SceneCmd_Op p_op, ecs::Entity p_ent);
 
-    void WriteComponentRecord(SceneCommandOp p_op,
+    void WriteComponentRecord(SceneCmd_Op p_op,
                               ecs::Entity p_ent,
                               BuiltinComponentId p_cid);
 
-    void WritePropertyRecord(SceneCommandOp p_op,
+    void WritePropertyRecord(SceneCmd_Op p_op,
                              ecs::Entity p_ent,
                              BuiltinComponentId p_cid,
                              PropertyId p_pid,
                              const void* p_data,
                              uint32_t p_data_size,
-                             PropType p_ptype);
+                             SceneCmd_PropType p_ptype,
+                             uint32_t p_ele_count);
+
+    void WritePropertyRecord(SceneCmd_Op p_op,
+                             ecs::Entity p_ent,
+                             BuiltinComponentId p_cid,
+                             PropertyId p_pid,
+                             const void* p_data,
+                             uint32_t p_data_size,
+                             SceneCmd_PropType p_ptype) {
+        WritePropertyRecord(p_op,
+                            p_ent,
+                            p_cid,
+                            p_pid,
+                            p_data,
+                            p_data_size,
+                            p_ptype,
+                            1);
+    }
 
     uint32_t m_next_entity = kTmpBase;
     std::vector<uint8_t> m_bytes;

@@ -1,5 +1,5 @@
 #include "cave/runtime/scene/SceneCommandBuffer.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneCommandExecutor.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -8,58 +8,35 @@ namespace cave {
 
 using ecs::Entity;
 
-struct SceneCommandBuffer::Header {
-    SceneCommandOp op;
-    uint8_t flags;
-    uint16_t size;
-};
-
-struct SceneCommandBuffer::Payload_Entity {
-    Entity ent;
-};
-
-struct SceneCommandBuffer::Payload_Component {
-    Entity ent;
-    BuiltinComponentId cid;
-};
-
-struct SceneCommandBuffer::Payload_Property {
-    Entity ent;
-    BuiltinComponentId cid;
-    PropType ptype;
-    PropertyId pid;
-    uint32_t data_size;
-};
-
 Entity SceneCommandBuffer::CreateEntity() {
     Entity e = AllocateTempEntity();
-    WriteEntityRecord(SceneCommandOp::CreateEntity, e);
+    WriteEntityRecord(SceneCmd_Op::CreateEntity, e);
     return e;
 }
 
 void SceneCommandBuffer::DestroyEntity(Entity p_ent) {
-    WriteEntityRecord(SceneCommandOp::DestroyEntity, p_ent);
+    WriteEntityRecord(SceneCmd_Op::DestroyEntity, p_ent);
 }
 
 void SceneCommandBuffer::AddComponent(Entity p_ent, BuiltinComponentId p_id) {
-    WriteComponentRecord(SceneCommandOp::AddComponent, p_ent, p_id);
+    WriteComponentRecord(SceneCmd_Op::AddComponent, p_ent, p_id);
 }
 
 void SceneCommandBuffer::RemoveComponent(Entity p_ent, BuiltinComponentId p_id) {
-    WriteComponentRecord(SceneCommandOp::RemoveComponent, p_ent, p_id);
+    WriteComponentRecord(SceneCmd_Op::RemoveComponent, p_ent, p_id);
 }
 
 void SceneCommandBuffer::SetProperty(Entity p_ent,
                                      BuiltinComponentId p_cid,
                                      const PropertyId& p_pid,
                                      const Entity& p_value) {
-    WritePropertyRecord(SceneCommandOp::ChangeProperty,
+    WritePropertyRecord(SceneCmd_Op::AssignProperty,
                         p_ent,
                         p_cid,
                         p_pid,
                         &p_value,
                         sizeof(Entity),
-                        PropType::Entity);
+                        SceneCmd_PropType::Entity);
 }
 
 Entity SceneCommandBuffer::Resolve(Entity p_ent) const noexcept {
@@ -73,7 +50,7 @@ Entity SceneCommandBuffer::Resolve(Entity p_ent) const noexcept {
     return Entity::Null();
 }
 
-void SceneCommandBuffer::Playback(SceneMutator& p_mut) {
+void SceneCommandBuffer::Playback(SceneCommandExecutor& p_mut) {
     m_remap.clear();
     m_remap.resize(m_next_entity - kTmpBase, Entity::Null());
 
@@ -81,42 +58,41 @@ void SceneCommandBuffer::Playback(SceneMutator& p_mut) {
     const uint8_t* end = m_bytes.data() + m_bytes.size();
 
     while (p < end) {
-        const Header* header = reinterpret_cast<const Header*>(p);
+        const SceneCmd_Header* header = reinterpret_cast<const SceneCmd_Header*>(p);
         const uint8_t* payload_raw = reinterpret_cast<const uint8_t*>(header + 1);
 
         switch (header->op) {
-            case SceneCommandOp::CreateEntity: {
+            case SceneCmd_Op::CreateEntity: {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
                 Entity real = p_mut.CreateEntity();
                 SetRemap(e, real);
             } break;
-            case SceneCommandOp::DestroyEntity: {
+            case SceneCmd_Op::DestroyEntity: {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
                 p_mut.RemoveEntity(Resolve(e));
             } break;
-            case SceneCommandOp::AddComponent: {
-                const auto* payload = reinterpret_cast<const Payload_Component*>(payload_raw);
+            case SceneCmd_Op::AddComponent: {
+                const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
                 p_mut.AddComponent(Resolve(payload->ent), payload->cid);
             } break;
-            case SceneCommandOp::RemoveComponent: {
-                const auto* payload = reinterpret_cast<const Payload_Component*>(payload_raw);
+            case SceneCmd_Op::RemoveComponent: {
+                const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
                 p_mut.RemoveComponent(Resolve(payload->ent), payload->cid);
             } break;
-            case SceneCommandOp::ChangeProperty: {
-                const auto* payload = reinterpret_cast<const Payload_Property*>(payload_raw);
+            case SceneCmd_Op::AssignProperty: {
+                const auto* payload = reinterpret_cast<const SceneCmd_PayloadProperty*>(payload_raw);
                 const void* data = reinterpret_cast<const void*>(payload + 1);
 
-                Entity resolved;
                 switch (payload->ptype) {
-                    case PropType::PlainData: {
+                    case SceneCmd_PropType::PlainData: {
                     } break;
-                    case PropType::Entity: {
-                        DEV_ASSERT(payload->data_size == sizeof(Entity));
-                        resolved = Resolve(*reinterpret_cast<const Entity*>(data));
-                        data = &resolved;
-                    } break;
-                    case PropType::EntityArray: {
-                        // @TODO: resolve
+                    case SceneCmd_PropType::Entity: {
+                        DEV_ASSERT(payload->data_size >= payload->ele_count * sizeof(Entity));
+                        // @HACK: cast away const to resolve entity
+                        Entity* e = const_cast<Entity*>((Entity*)data);
+                        for (uint32_t i = 0; i < payload->ele_count; ++i) {
+                            e[i] = Resolve(e[i]);
+                        }
                     } break;
                     default: {
                         CRASH_NOW();
@@ -136,17 +112,6 @@ void SceneCommandBuffer::Playback(SceneMutator& p_mut) {
         p += header->size;
     }
 
-    Scene& scene = p_mut.GetScene();
-
-    // @NOTE: resolve mesh and hierachy
-    for (auto [ent, mesh] : scene.View<MeshRendererComponent>()) {
-        auto& mats = mesh.GetMaterialInstances();
-        for (Entity& mat : mats) {
-            mat = Resolve(mat);
-        }
-        mesh.SetSkeletonId(Resolve(mesh.GetSkeletonId()));
-    }
-
     m_bytes.clear();
     m_next_entity = kTmpBase;
 }
@@ -157,11 +122,11 @@ void SceneCommandBuffer::SetRemap(Entity p_temp, Entity p_real) {
     m_remap[index] = p_real;
 }
 
-void SceneCommandBuffer::WriteEntityRecord(SceneCommandOp p_op, Entity p_ent) {
-    Header header{
+void SceneCommandBuffer::WriteEntityRecord(SceneCmd_Op p_op, Entity p_ent) {
+    SceneCmd_Header header{
         .op = p_op,
         .flags = 0,
-        .size = uint16_t(sizeof(Header) + sizeof(p_ent)),
+        .size = uint16_t(sizeof(SceneCmd_Header) + sizeof(p_ent)),
     };
 
     const size_t old = m_bytes.size();
@@ -171,13 +136,13 @@ void SceneCommandBuffer::WriteEntityRecord(SceneCommandOp p_op, Entity p_ent) {
     std::memcpy(m_bytes.data() + old + sizeof(header), &p_ent, sizeof(p_ent));
 }
 
-void SceneCommandBuffer::WriteComponentRecord(SceneCommandOp p_op,
+void SceneCommandBuffer::WriteComponentRecord(SceneCmd_Op p_op,
                                               Entity p_ent,
                                               BuiltinComponentId p_cid) {
-    Header header{
+    SceneCmd_Header header{
         .op = p_op,
         .flags = 0,
-        .size = uint16_t(sizeof(Header) + sizeof(Payload_Component)),
+        .size = uint16_t(sizeof(SceneCmd_Header) + sizeof(SceneCmd_PayloadComponent)),
     };
 
     const size_t old = m_bytes.size();
@@ -187,21 +152,23 @@ void SceneCommandBuffer::WriteComponentRecord(SceneCommandOp p_op,
     std::memcpy(out, &header, sizeof(header));
     out += sizeof(header);
 
-    Payload_Component payload{ p_ent, p_cid };
+    SceneCmd_PayloadComponent payload{ p_ent, p_cid };
     std::memcpy(out, &payload, sizeof(payload));
 }
 
-void SceneCommandBuffer::WritePropertyRecord(SceneCommandOp p_op,
+void SceneCommandBuffer::WritePropertyRecord(SceneCmd_Op p_op,
                                              Entity p_ent,
                                              BuiltinComponentId p_cid,
                                              PropertyId p_pid,
                                              const void* p_data,
                                              uint32_t p_data_size,
-                                             PropType p_ptype) {
-    Header header{
+                                             SceneCmd_PropType p_ptype,
+                                             uint32_t p_ele_count) {
+
+    SceneCmd_Header header{
         .op = p_op,
         .flags = 0,
-        .size = uint16_t(sizeof(Header) + sizeof(Payload_Property) + p_data_size),
+        .size = uint16_t(sizeof(SceneCmd_Header) + sizeof(SceneCmd_PayloadProperty) + p_data_size),
     };
 
     const size_t old = m_bytes.size();
@@ -211,12 +178,13 @@ void SceneCommandBuffer::WritePropertyRecord(SceneCommandOp p_op,
     std::memcpy(out, &header, sizeof(header));
     out += sizeof(header);
 
-    Payload_Property payload{
+    SceneCmd_PayloadProperty payload{
         .ent = p_ent,
         .cid = p_cid,
         .ptype = p_ptype,
         .pid = p_pid,
         .data_size = p_data_size,
+        .ele_count = p_ele_count,
     };
     std::memcpy(out, &payload, sizeof(payload));
 
