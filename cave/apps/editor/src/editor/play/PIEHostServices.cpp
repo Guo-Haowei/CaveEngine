@@ -2,6 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneCommandExecutor.h"
+#include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "engine/private/core/diagnostics/logger/Logger.h"
 #include "engine/private/runtime/framework/Engine.h"
 
@@ -34,7 +35,8 @@ void PIEHostServices::FlushSceneCommands() {
     SceneCommandBuffer& cb = SceneWriter();
     if (cb.Data()) {
         SceneCommandExecutor executor(m_scene);
-        executor.Playback(cb);
+        EntityMap map(cb.GetAllocationCount());
+        SceneCommandPlayback(cb, executor, map);
     }
 }
 

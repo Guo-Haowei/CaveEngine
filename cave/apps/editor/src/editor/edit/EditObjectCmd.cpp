@@ -1,7 +1,7 @@
 #include "EditObjectCmd.h"
 
+#include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneCommandExecutor.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -33,8 +33,10 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
             }
 
             SceneCommandExecutor executor(*scene);
-            executor.Playback(cb);
-            m_created = executor.Resolve(created);
+            EntityMap map(cb.GetAllocationCount());
+            SceneCommandPlayback(cb, executor, map);
+
+            m_created = map.Resolve(created);
 
             ecs::Entity parent = m_ent;
             if (scene->m_root.IsValid()) {

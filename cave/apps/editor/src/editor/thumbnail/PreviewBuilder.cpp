@@ -3,8 +3,8 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneCommandExecutor.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -122,9 +122,10 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
     SceneCommandExecutor executor(*scene);
-    executor.Playback(cb);
+    EntityMap map(cb.GetAllocationCount());
+    SceneCommandPlayback(cb, executor, map);
 
-    scene->m_root = executor.Resolve(root);
+    scene->m_root = map.Resolve(root);
     scene->Update(0.0f);
 
     Matrix4x4f transform = math::Translate(Vector3f(0, 0, 1.5f));
@@ -166,8 +167,10 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
     SceneCommandExecutor executor(*scene);
-    executor.Playback(cb);
-    scene->m_root = executor.Resolve(root);
+    EntityMap map(cb.GetAllocationCount());
+    SceneCommandPlayback(cb, executor, map);
+
+    scene->m_root = map.Resolve(root);
     scene->Update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, p_options);

@@ -4,8 +4,8 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneCommandExecutor.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -31,10 +31,11 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     }
 
     auto scene = std::make_unique<Scene>(std::format("preview-material-{}", p_guid.ToString()));
-    SceneCommandExecutor executor(*scene);
-    executor.Playback(cb);
 
-    scene->m_root = executor.Resolve(root);
+    SceneCommandExecutor executor(*scene);
+    EntityMap map(cb.GetAllocationCount());
+    SceneCommandPlayback(cb, executor, map);
+    scene->m_root = map.Resolve(root);
     scene->Update(0.0f);
 
     m_preview_scene = m_scene_reg.Register(std::move(scene));
