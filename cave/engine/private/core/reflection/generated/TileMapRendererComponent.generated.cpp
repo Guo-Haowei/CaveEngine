@@ -2,7 +2,7 @@
 // Auto-generated metadata for TileMapRendererComponent.h
 // Check generate_meta.py for more details
 
-#include "engine/private/runtime/scene/TileMapRendererComponent.h"
+#include "cave/runtime/ecs/components/TileMapRendererComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

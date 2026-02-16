@@ -1,4 +1,4 @@
-#include "TileMapRendererComponent.h"
+#include "cave/runtime/ecs/components/TileMapRendererComponent.h"
 
 #include "engine/private/runtime/assets/TileMapAsset.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"

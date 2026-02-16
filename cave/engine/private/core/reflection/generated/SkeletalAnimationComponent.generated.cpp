@@ -2,7 +2,7 @@
 // Auto-generated metadata for SkeletalAnimationComponent.h
 // Check generate_meta.py for more details
 
-#include "engine/private/runtime/scene/SkeletalAnimationComponent.h"
+#include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

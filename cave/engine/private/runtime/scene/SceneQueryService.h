@@ -1,28 +1,10 @@
 #pragma once
 #include "cave/core/ids/SceneId.h"
-#include "cave/core/math/Vector.h"
-#include "cave/core/math/Ray.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 namespace cave {
 
 class SceneRegistry;
-
-struct RayHit {
-    bool hit{ false };
-    ecs::Entity entity{};
-    float t{ 0.0f };
-    math::Vector3f position{ 0 };
-    math::Vector3f normal{ 0 };
-    uint32_t submesh = 0;
-    uint32_t triangle = 0;
-};
-
-struct RaycastFilter {
-    uint32_t layer_mask = 0xFFFFFFFFu;
-    bool backface_cull = true;
-    bool closest_only = true;
-};
 
 class SceneQueryService {
 public:

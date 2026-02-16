@@ -1,4 +1,4 @@
-#include "ColliderComponent.h"
+#include "cave/runtime/ecs/components/ColliderComponent.h"
 
 #include "engine/private/serialization/yaml_include.h"
 

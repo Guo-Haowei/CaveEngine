@@ -13,7 +13,7 @@ public:
     void Tick(IHostServices& p_host, const FrameTime& p_time) override;
 
 private:
-    void CreatePieces(Scene& p_scene,
+    void SpawnPieces(Scene& p_scene,
                       IHostServices& p_host,
                       SceneCommandWriter& p_cb);
 };

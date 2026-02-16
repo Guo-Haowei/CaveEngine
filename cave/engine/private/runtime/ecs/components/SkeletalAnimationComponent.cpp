@@ -1,4 +1,4 @@
-#include "SkeletalAnimationComponent.h"
+#include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 
 #include "engine/private/serialization/yaml_include.h"
 

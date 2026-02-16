@@ -16,12 +16,17 @@ print('Project root folder:', get_engine_src_folder())
 FILES = [
     # components
     'public/cave/runtime/ecs/components/CameraComponent.h',
+    'public/cave/runtime/ecs/components/ColliderComponent.h',
     'public/cave/runtime/ecs/components/HierarchyComponent.h',
     'public/cave/runtime/ecs/components/LightComponent.h',
     'public/cave/runtime/ecs/components/LuaScriptComponent.h',
     'public/cave/runtime/ecs/components/MaterialComponent.h',
     'public/cave/runtime/ecs/components/MeshRendererComponent.h',
     'public/cave/runtime/ecs/components/NameComponent.h',
+    'public/cave/runtime/ecs/components/SkeletalAnimationComponent.h',
+    'public/cave/runtime/ecs/components/SpriteAnimatorComponent.h',
+    'public/cave/runtime/ecs/components/SpriteRendererComponent.h',
+    'public/cave/runtime/ecs/components/TileMapRendererComponent.h',
     'public/cave/runtime/ecs/components/TransformComponent.h',
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
@@ -30,13 +35,7 @@ FILES = [
     'private/runtime/assets/TileMapAsset.h',
     'private/runtime/assets/TileSetAsset.h',
     # components
-    'private/runtime/scene/ColliderComponent.h',
     'private/runtime/scene/SceneComponent.h',
-    'private/runtime/scene/SkeletalAnimationComponent.h',
-    'private/runtime/scene/SpriteAnimatorComponent.h',
-    # renderers
-    'private/runtime/scene/SpriteRendererComponent.h',
-    'private/runtime/scene/TileMapRendererComponent.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'private/core/reflection/generated')

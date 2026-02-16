@@ -1,4 +1,4 @@
-#include "SpriteAnimatorComponent.h"
+#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

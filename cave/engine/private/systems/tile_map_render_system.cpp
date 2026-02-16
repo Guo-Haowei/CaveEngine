@@ -3,7 +3,7 @@
 #include "engine/private/renderer/frame_data.h"
 
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "engine/private/runtime/scene/TileMapRendererComponent.h"
+#include "cave/runtime/ecs/components/TileMapRendererComponent.h"
 
 namespace cave {
 
