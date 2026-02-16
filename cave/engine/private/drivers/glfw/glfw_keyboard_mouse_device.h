@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/runtime/input/IInputDevice.h"
+#include "cave/runtime/input/IInputDevice.h"
 
 struct GLFWwindow;
 

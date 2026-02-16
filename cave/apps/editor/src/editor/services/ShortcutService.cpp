@@ -1,11 +1,11 @@
 #include "ShortcutService.h"
 
-#include "cave/runtime/input/KeyCode.h"
+#include "cave/core/string/StringUtils.h"
+#include "cave/runtime/input/KeyState.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/input/InputService.h"
-#include "cave/core/string/StringUtils.h"
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 
 #include "editor/services/EditService.h"
@@ -18,19 +18,15 @@ ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
 
-    InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
-    router.Register(this);
-
+    m_editor.GetApp().InputService()->Register(this);
     InitShortcuts();
 }
 
 ShortcutService::~ShortcutService() {
-    InputRouter& router = m_editor.GetApp().GetInputSystem()->Router();
-    router.Unregister(this);
+    m_editor.GetApp().InputService()->Unregister(this);
 }
 
 void ShortcutService::InitShortcuts() {
-
     m_shortcuts[std::to_underlying(Shortcut::SaveAs)] = {
         "Save As..",
         "Ctrl+Shift+S",
@@ -136,7 +132,7 @@ void ShortcutService::InitShortcuts() {
 }
 
 void ShortcutService::OnEvents(const InputFrame& p_input) {
-    InputSystem* input = m_editor.GetApp().GetInputSystem();
+    IInputService* input = m_editor.GetApp().InputService();
     const bool ctrl = input->GetKeyState().AnyCtrlDown();
     const bool alt = input->GetKeyState().AnyAltDown();
     const bool shift = input->GetKeyState().AnyShiftDown();

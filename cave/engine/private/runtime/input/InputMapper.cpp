@@ -4,7 +4,7 @@
 #include "InputMapper.h"
 
 #include "AxisState.h"
-#include "KeyState.h"
+#include "cave/runtime/input/KeyState.h"
 
 namespace cave {
 

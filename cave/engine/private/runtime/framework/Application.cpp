@@ -19,12 +19,12 @@
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
-#include "engine/private/runtime/input/InputService.h"
-#include "engine/private/runtime/framework/ModuleRegistry.h"
+#include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
@@ -72,7 +72,7 @@ auto Application::SetupModules() -> Result<void> {
     m_physics_manager = CreatePhysicsService();
     m_render_device = CreateRenderDevice(m_spec.backend);
     m_display_server = CreateDisplayService();
-    m_input_system = new InputSystem();
+    m_input_service = new cave::InputService();
     m_renderer = new render::Renderer();
     m_view_manager = new ViewManager();
     m_task_manager = new TaskManager();
@@ -94,7 +94,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_scene_registry);
     RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
-    RegisterModule(m_input_system);
+    RegisterModule(m_input_service);
     RegisterModule(m_display_server);
     RegisterModule(m_render_device);
     RegisterModule(m_renderer);
@@ -196,7 +196,7 @@ bool Application::MainLoop() {
         .frame_index = m_frame_counter++,
     };
 
-    m_input_system->Tick(time);
+    m_input_service->Tick(time);
 
     m_asset_manager->Update();
 

@@ -1,11 +1,11 @@
 #include "luaScriptBinding.h"
 
 #include "cave/core/math/Vector.h"
+#include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/DisplayService.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 
@@ -109,16 +109,16 @@ bool OpenInputLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Input")
         .addFunction("is_action_pressed", [](const char* p_str_id) -> int {
-            return InputSystem::GetSingleton().IsActionPressed(StringId(p_str_id));
+            return IInputService::GetSingleton().IsActionPressed(StringId(p_str_id));
         })
         .addFunction("is_action_just_pressed", [](const char* p_str_id) -> int {
-            return InputSystem::GetSingleton().IsActionJustPressed(StringId(p_str_id));
+            return IInputService::GetSingleton().IsActionJustPressed(StringId(p_str_id));
         })
         .addFunction("is_action_just_released", [](const char* p_str_id) -> int {
-            return InputSystem::GetSingleton().IsActionJustReleased(StringId(p_str_id));
+            return IInputService::GetSingleton().IsActionJustReleased(StringId(p_str_id));
         })
         .addFunction("get_action_strength", [](const char* p_str_id) -> float {
-            return InputSystem::GetSingleton().GetActionStrength(StringId(p_str_id));
+            return IInputService::GetSingleton().GetActionStrength(StringId(p_str_id));
         })
         .endNamespace();
     return true;

@@ -1,7 +1,9 @@
 // =============================================================================
-// File: engine/private/runtime/input/KeyState.h
+// File: engine/public/cave/runtime/input/KeyState.h
 // =============================================================================
 #pragma once
+#include <bitset>
+#include <unordered_map>
 #include "cave/runtime/input/InputTypes.h"
 #include "cave/runtime/input/KeyCode.h"
 

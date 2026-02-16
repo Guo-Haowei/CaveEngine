@@ -3,9 +3,10 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/input/KeyState.h"
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -200,7 +201,7 @@ void SceneViewTab::OnInputEvents(const InputFrame& p_input) {
         return;
     }
 
-    const KeyState& st = m_editor.GetApp().GetInputSystem()->GetKeyState();
+    const KeyState& st = m_editor.GetApp().InputService()->GetKeyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
         return;
     }

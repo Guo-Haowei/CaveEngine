@@ -26,7 +26,7 @@ class EventQueue;
 class IAssetManager;
 class DisplayService;
 class ImguiManager;
-class InputSystem;
+class IInputService;
 class IPhysicsManager;
 class IScriptService;
 class SceneRegistry;
@@ -96,7 +96,7 @@ public:
     // @TODO: return reference instead
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
-    InputSystem* GetInputSystem() { return m_input_system; }
+    IInputService* InputService() { return m_input_service; }
     SceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptService* ScriptService() { return m_script_service; }
@@ -140,7 +140,7 @@ protected:
     render::IRenderDevice* m_render_device{ nullptr };
 
     ImguiManager* m_imgui_manager{ nullptr };
-    InputSystem* m_input_system{ nullptr };
+    IInputService* m_input_service{ nullptr };
     TaskManager* m_task_manager{ nullptr };
 
     ViewManager* m_view_manager{ nullptr };

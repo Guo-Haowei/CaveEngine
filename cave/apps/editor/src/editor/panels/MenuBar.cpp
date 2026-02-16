@@ -1,7 +1,8 @@
 #include "MenuBar.h"
 
+#include "cave/runtime/framework/IInputService.h"
+
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/EditorState.h"

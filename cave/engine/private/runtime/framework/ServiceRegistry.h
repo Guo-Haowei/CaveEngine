@@ -7,8 +7,8 @@
 #include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/framework/IScriptService.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
 
