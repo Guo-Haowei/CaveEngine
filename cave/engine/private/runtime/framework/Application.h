@@ -11,7 +11,7 @@
 
 namespace cave {
 
-class Module;
+class IService;
 
 // @TODO: make this an impl class instead of virtual
 class Application : public IApplication {
@@ -45,7 +45,7 @@ protected:
     // @TODO: add CreateXXXManager for all managers
     virtual Result<ImguiManager*> CreateImguiManager();
 
-    void RegisterModule(Module* p_module);
+    void RegisterModule(IService* p_module);
 
     const AppType m_type;
     uint64_t m_frame_counter{};
@@ -56,7 +56,7 @@ protected:
     VFS m_vfs;
 
     EventQueue m_event_queue;
-    std::vector<Module*> m_modules;
+    std::vector<IService*> m_modules;
 
     std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
     std::unique_ptr<SceneScheduler> m_scene_scheduler;

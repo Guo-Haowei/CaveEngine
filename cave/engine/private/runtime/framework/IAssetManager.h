@@ -2,7 +2,7 @@
 #include "cave/core/Singleton.h"
 
 #include "cave/runtime/assets/IAsset.h"
-#include "engine/private/runtime/framework/Module.h"
+#include "cave/runtime/framework/IService.h"
 
 namespace cave {
 
@@ -23,11 +23,11 @@ struct SceneImportRequest {
 };
 
 class IAssetManager : public Singleton<IAssetManager>,
-                      public Module,
-                      public ModuleCreateRegistry<IAssetManager> {
+                      public IService,
+                      public ServiceCreateRegistry<IAssetManager> {
 public:
     IAssetManager()
-        : Module("AssetManager") {}
+        : IService("AssetManager") {}
 
     virtual void Update() = 0;
 

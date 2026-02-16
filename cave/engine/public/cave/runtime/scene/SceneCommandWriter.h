@@ -22,9 +22,6 @@ public:
         : m_asset_reg(p_reg) {
     }
 
-    // @NOTE: this should not be here, the command writer shouldn't know about scene
-    static Entity FindEntityByName(const Scene& p_scene, std::string_view p_name);
-
     Entity CreateRootObject(std::string_view p_name = "root");
     Entity CreateNameObject(std::string_view p_name);
 
@@ -73,8 +70,11 @@ public:
 
     Entity CreateTileMapObject(std::string_view p_name);
 
+    void SetNoSave(bool p_value) { m_no_save = p_value; }
+
 private:
     AssetRegistry& m_asset_reg;
+    bool m_no_save{ false };
 };
 
 }  // namespace cave

@@ -1,7 +1,9 @@
 #include "Workspace.h"
 
+#include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/input/KeyCode.h"
+
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
-#include "engine/private/runtime/framework/InputSystem.h"
 
 #include "editor/EditorState.h"
 #include "editor/services/DocumentService.h"
@@ -16,14 +18,11 @@ namespace cave {
 Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    IApplication& app = m_editor.GetApp();
-    app.GetInputSystem()->Router().Register(this);
+    m_editor.GetApp().InputService()->Register(this);
 }
 
 Workspace::~Workspace() {
-    IApplication& app = m_editor.GetApp();
-
-    app.GetInputSystem()->Router().Unregister(this);
+    m_editor.GetApp().InputService()->Unregister(this);
 }
 
 void Workspace::Tick() {

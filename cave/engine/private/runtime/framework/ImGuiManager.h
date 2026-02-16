@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/runtime/framework/Module.h"
+#include "cave/runtime/framework/IService.h"
 
 enum ImGuiKey : int;
 
@@ -9,12 +9,12 @@ enum class Key : uint16_t;
 
 struct InputEvent;
 
-class ImguiManager : public Module {
+class ImguiManager : public IService {
     using Callback = std::function<void()>;
 
 public:
     ImguiManager()
-        : Module("ImguiManager") {}
+        : IService("ImguiManager") {}
 
     auto InitializeImpl() -> Result<void> final;
     void FinalizeImpl() final;

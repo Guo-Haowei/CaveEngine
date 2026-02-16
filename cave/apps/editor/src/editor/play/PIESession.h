@@ -32,7 +32,7 @@ public:
     void Tick(const FrameTime& p_time);
 
     bool IsRunning() const { return m_running; }
-    SceneId GetSceneId() const { return m_scene_id; }
+    SceneId GetPIESceneId() const { return m_pie_scene; }
 
     void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
     DebugId GetDebugId() override { return m_debug_id; }
@@ -51,7 +51,7 @@ private:
     GameModuleHandle m_game_handle;
     IGameModule* m_game = nullptr;
 
-    SceneId m_scene_id{};
+    SceneId m_pie_scene{};
 };
 
 }  // namespace cave

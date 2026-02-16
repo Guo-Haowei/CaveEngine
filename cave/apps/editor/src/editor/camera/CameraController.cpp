@@ -2,9 +2,13 @@
 
 #include "cave/core/math/Angle.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
+#include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/runtime/framework/InputSystem.h"
+
+// @TODO: refactor
+#include "cave/runtime/input/IInputConsumer.h"
+#include "cave/runtime/input/KeyState.h"
 
 namespace cave {
 

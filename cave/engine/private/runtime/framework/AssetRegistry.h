@@ -1,17 +1,17 @@
 #pragma once
 #include "cave/core/Singleton.h"
-
-#include "engine/private/runtime/assets/AssetEntry.h"
 #include "cave/runtime/assets/IAsset.h"
 #include "cave/runtime/assets/AssetHandle.h"
-#include "engine/private/runtime/framework/Module.h"
+#include "cave/runtime/framework/IService.h"
+
+#include "engine/private/runtime/assets/AssetEntry.h"
 
 namespace cave {
 
-class AssetRegistry : public Singleton<AssetRegistry>, public Module {
+class AssetRegistry : public Singleton<AssetRegistry>, public IService {
 public:
     AssetRegistry()
-        : Module("AssetRegistry") {}
+        : IService("AssetRegistry") {}
 
     Option<AssetHandle> FindByGuid(const Guid& p_guid, AssetType p_type = AssetType::All);
     Option<AssetHandle> FindByPath(const std::string& p_path, AssetType p_type = AssetType::All);

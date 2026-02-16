@@ -1,4 +1,4 @@
-#include "SpriteRendererComponent.h"
+#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
 
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

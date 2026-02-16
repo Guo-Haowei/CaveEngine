@@ -13,79 +13,58 @@ namespace cave {
 
 class SceneMutator;
 
+enum class SceneCommandOp : uint8_t {
+    CreateEntity,
+    DestroyEntity,
+    AddComponent,
+    RemoveComponent,
+    ChangeProperty,
+};
+
 class SceneCommandBuffer {
-    enum class Op : uint16_t {
-        CreateEntity,
-        DestroyEntity,
-        AddComponent,
-        RemoveComponent,
-        ChangeProperty,
-
-        // high level commands
-        AttachRoot,
+    enum class PropType : uint8_t {
+        PlainData,
+        Entity,
+        EntityArray,
     };
 
-    struct Header {
-        Op op;
-        uint16_t size;
-    };
-
-    struct Payload_Create {
-        ecs::Entity out_temp;
-    };
-
-    struct Payload_Destroy {
-        ecs::Entity ent;
-    };
-
-    struct Payload_Component {
-        ecs::Entity ent;
-        BuildInComponentId type;
-    };
-
-    struct Payload_Property {
-        ecs::Entity ent;
-        BuildInComponentId type;
-        PropertyId prop_id;
-        uint32_t data_size;
-    };
-
-    struct Payload_AttachRoot {
-        ecs::Entity ent;
-    };
+    struct Header;
+    struct Payload_Entity;
+    struct Payload_Component;
+    struct Payload_Property;
 
 public:
     explicit SceneCommandBuffer() = default;
 
-    ecs::Entity Create() {
-        Payload_Create e{ AllocateTempEntity() };
-        WriteEntityRecord(Op::CreateEntity, &e, sizeof(e));
-        return e.out_temp;
+    ecs::Entity CreateEntity();
+
+    void DestroyEntity(ecs::Entity p_ent);
+
+    void AddComponent(ecs::Entity p_ent, BuiltinComponentId p_id);
+
+    void RemoveComponent(ecs::Entity p_ent, BuiltinComponentId p_id);
+
+    void SetProperty(ecs::Entity p_ent,
+                     BuiltinComponentId p_cid,
+                     const PropertyId& p_pid,
+                     const ecs::Entity& p_value);
+
+    template<typename T>
+    void SetProperty(ecs::Entity p_ent,
+                     BuiltinComponentId p_cid,
+                     const PropertyId& p_pid,
+                     const T& p_value) {
+        static_assert(std::is_trivially_copyable_v<T>);
+        WritePropertyRecord(SceneCommandOp::ChangeProperty,
+                            p_ent,
+                            p_cid,
+                            p_pid,
+                            &p_value,
+                            sizeof(T),
+                            PropType::PlainData);
     }
 
     ecs::Entity Resolve(ecs::Entity p_ent) const noexcept;
-
-    void Destroy(ecs::Entity p_ent) {
-        WriteEntityRecord(Op::DestroyEntity, &p_ent, sizeof(p_ent));
-    }
-
-    void Add(ecs::Entity p_ent, BuildInComponentId p_id) {
-        WriteComponentRecord(Op::AddComponent, p_ent, p_id);
-    }
-
-    void Remove(ecs::Entity p_ent, BuildInComponentId p_id) {
-        WriteComponentRecord(Op::RemoveComponent, p_ent, p_id);
-    }
-
-    void AttachRoot(ecs::Entity p_ent) {
-        WriteEntityRecord(Op::AttachRoot, &p_ent, sizeof(p_ent));
-    }
-
-    template<typename T>
-    void SetProperty(ecs::Entity p_ent, BuildInComponentId p_id, const PropertyId& p_prop_id, const T& p_value) {
-        static_assert(std::is_trivially_copyable_v<T>);
-        WritePropertyRecord(Op::ChangeProperty, p_ent, p_id, p_prop_id, &p_value, sizeof(T));
-    }
 
     void Playback(SceneMutator& p_mut);
 
@@ -100,20 +79,19 @@ private:
 
     void SetRemap(ecs::Entity p_temp, ecs::Entity p_real);
 
-    void WriteEntityRecord(Op p_op,
-                           const void* p_payload,
-                           uint16_t p_payload_size);
+    void WriteEntityRecord(SceneCommandOp p_op, ecs::Entity p_ent);
 
-    void WriteComponentRecord(Op p_op,
+    void WriteComponentRecord(SceneCommandOp p_op,
                               ecs::Entity p_ent,
-                              BuildInComponentId p_type);
+                              BuiltinComponentId p_cid);
 
-    void WritePropertyRecord(Op p_op,
+    void WritePropertyRecord(SceneCommandOp p_op,
                              ecs::Entity p_ent,
-                             BuildInComponentId p_type,
-                             PropertyId p_prop_id,
+                             BuiltinComponentId p_cid,
+                             PropertyId p_pid,
                              const void* p_data,
-                             uint32_t p_data_size);
+                             uint32_t p_data_size,
+                             PropType p_ptype);
 
     uint32_t m_next_entity = kTmpBase;
     std::vector<uint8_t> m_bytes;

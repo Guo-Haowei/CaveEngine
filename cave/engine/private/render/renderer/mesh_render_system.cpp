@@ -3,6 +3,7 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/LightComponent.h"
+#include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
@@ -11,7 +12,6 @@
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SkeletalAnimationComponent.h"
 
 // @TODO: enventually get rid of this file
 namespace cave::render {

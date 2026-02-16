@@ -10,9 +10,9 @@ entities:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-    LuaScriptComponent:
-      class_name: Game
-      source_id: 4F81F684-0A03-CA4B-846FE39F40F0B5B3
+    # LuaScriptComponent:
+    #   class_name: Game
+    #   source_id: 4F81F684-0A03-CA4B-846FE39F40F0B5B3
   - id: 2
     NameComponent:
       name: light
@@ -37,22 +37,6 @@ entities:
       roughness: 1
       emissive: 5
       material_id: 00000000-0000-0000-0000000000000000
-  - id: 3
-    NameComponent:
-      name: white_bishop_1
-    HierarchyComponent:
-      parent_id: 85
-    TransformComponent:
-      translation: [0, 0, 2]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: B27A2079-81CA-1C4E-BFFB846060FC62AD
-      materials: [4]
-      skeleton_id: 0
   - id: 4
     NameComponent:
       name: mat_0
@@ -62,22 +46,6 @@ entities:
       roughness: 1
       emissive: 0
       material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
-  - id: 5
-    NameComponent:
-      name: white_bishop_2
-    HierarchyComponent:
-      parent_id: 85
-    TransformComponent:
-      translation: [0, 0, 5]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: B27A2079-81CA-1C4E-BFFB846060FC62AD
-      materials: [6]
-      skeleton_id: 0
   - id: 6
     NameComponent:
       name: mat_0
@@ -87,22 +55,6 @@ entities:
       roughness: 1
       emissive: 0
       material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
-  - id: 7
-    NameComponent:
-      name: white_king_1
-    HierarchyComponent:
-      parent_id: 85
-    TransformComponent:
-      translation: [0, 0, 4]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 80B0EAC1-0D35-F94C-A8D301CC3AB0FB8C
-      materials: [8]
-      skeleton_id: 0
   - id: 8
     NameComponent:
       name: mat_0
@@ -112,38 +64,6 @@ entities:
       roughness: 1
       emissive: 0
       material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
-  - id: 9
-    NameComponent:
-      name: white_knight_1
-    HierarchyComponent:
-      parent_id: 85
-    TransformComponent:
-      translation: [0, 0, 1]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 61ED0337-FA7C-734E-B64E5811F2FEF67F
-      materials: [11]
-      skeleton_id: 0
-  - id: 10
-    NameComponent:
-      name: white_knight_2
-    HierarchyComponent:
-      parent_id: 85
-    TransformComponent:
-      translation: [0, 0, 6]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 61ED0337-FA7C-734E-B64E5811F2FEF67F
-      materials: [23]
-      skeleton_id: 0
   - id: 11
     NameComponent:
       name: mat_0
@@ -153,22 +73,6 @@ entities:
       roughness: 1
       emissive: 0
       material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
-  - id: 20
-    NameComponent:
-      name: white_queen_1
-    HierarchyComponent:
-      parent_id: 85
-    TransformComponent:
-      translation: [0, 0, 3]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: C6ADB600-4501-AD41-A394C80CECF893E4
-      materials: [29]
-      skeleton_id: 0
   - id: 23
     NameComponent:
       name: mat_0
@@ -178,22 +82,6 @@ entities:
       roughness: 1
       emissive: 0
       material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
-  - id: 24
-    NameComponent:
-      name: black_bishop_1
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [7, 0, 2]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: B27A2079-81CA-1C4E-BFFB846060FC62AD
-      materials: [26]
-      skeleton_id: 0
   - id: 25
     NameComponent:
       name: mat_0
@@ -212,22 +100,6 @@ entities:
       roughness: 1
       emissive: 0
       material_id: C779E33D-C328-F94C-A97296D6897B7F7D
-  - id: 27
-    NameComponent:
-      name: black_bishop_2
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [7, 0, 5]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: B27A2079-81CA-1C4E-BFFB846060FC62AD
-      materials: [28]
-      skeleton_id: 0
   - id: 28
     NameComponent:
       name: mat_0
@@ -264,230 +136,6 @@ entities:
       roughness: 1
       emissive: 0
       material_id: EA5A3661-4E63-C446-8ABE5E2BB26FE9BF
-  - id: 32
-    NameComponent:
-      name: black_king_1
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [7, 0, 4]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 80B0EAC1-0D35-F94C-A8D301CC3AB0FB8C
-      materials: [56]
-      skeleton_id: 0
-  - id: 33
-    NameComponent:
-      name: black_knight_1
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [7, 0, 1]
-      rotation: [-4.37113883e-08, 1, -4.37113883e-08, 1.91068547e-15]
-      scale: [9.00000095, 9, 9.00000095]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 61ED0337-FA7C-734E-B64E5811F2FEF67F
-      materials: [61]
-      skeleton_id: 0
-  - id: 34
-    NameComponent:
-      name: black_knight_2
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [7, 0, 6]
-      rotation: [-4.37113883e-08, 1, -4.37113883e-08, 1.91068547e-15]
-      scale: [8.99999237, 9, 8.99999237]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 61ED0337-FA7C-734E-B64E5811F2FEF67F
-      materials: [60]
-      skeleton_id: 0
-  - id: 35
-    NameComponent:
-      name: black_pawn_1
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [6, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 7E03F077-F485-304C-93C86FD16C68042E
-      materials: [67]
-      skeleton_id: 0
-  - id: 36
-    NameComponent:
-      name: black_pawn_2
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [6, 0, 1]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 7E03F077-F485-304C-93C86FD16C68042E
-      materials: [68]
-      skeleton_id: 0
-  - id: 37
-    NameComponent:
-      name: black_pawn_3
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [6, 0, 2]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 7E03F077-F485-304C-93C86FD16C68042E
-      materials: [69]
-      skeleton_id: 0
-  - id: 38
-    NameComponent:
-      name: black_pawn_4
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [6, 0, 3]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 7E03F077-F485-304C-93C86FD16C68042E
-      materials: [66]
-      skeleton_id: 0
-  - id: 39
-    NameComponent:
-      name: black_pawn_5
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [6, 0, 4]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 7E03F077-F485-304C-93C86FD16C68042E
-      materials: [65]
-      skeleton_id: 0
-  - id: 40
-    NameComponent:
-      name: black_pawn_6
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [6, 0, 5]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 7E03F077-F485-304C-93C86FD16C68042E
-      materials: [64]
-      skeleton_id: 0
-  - id: 41
-    NameComponent:
-      name: black_pawn_7
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [6, 0, 6]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 7E03F077-F485-304C-93C86FD16C68042E
-      materials: [63]
-      skeleton_id: 0
-  - id: 42
-    NameComponent:
-      name: black_pawn_8
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [6, 0, 7]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 7E03F077-F485-304C-93C86FD16C68042E
-      materials: [62]
-      skeleton_id: 0
-  - id: 43
-    NameComponent:
-      name: black_queen_1
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [7, 0, 3]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: C6ADB600-4501-AD41-A394C80CECF893E4
-      materials: [59]
-      skeleton_id: 0
-  - id: 44
-    NameComponent:
-      name: black_rook_1
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [7, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 06139F3F-F634-7E45-BC12D11CD1A05F00
-      materials: [57]
-      skeleton_id: 0
-  - id: 45
-    NameComponent:
-      name: black_rook_2
-    HierarchyComponent:
-      parent_id: 86
-    TransformComponent:
-      translation: [7, 0, 7]
-      rotation: [0, 0, 0, 1]
-      scale: [9, 9, 9]
-    MeshRendererComponent:
-      visibility: true
-      cast_shadow: true
-      transparency: false
-      mesh_id: 06139F3F-F634-7E45-BC12D11CD1A05F00
-      materials: [58]
-      skeleton_id: 0
   - id: 46
     NameComponent:
       name: chess_board
@@ -760,24 +408,6 @@ entities:
       parent_id: 1
     TransformComponent:
       translation: [-3.5, 0, -3.5]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-  - id: 85
-    NameComponent:
-      name: white
-    HierarchyComponent:
-      parent_id: 81
-    TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-  - id: 86
-    NameComponent:
-      name: black
-    HierarchyComponent:
-      parent_id: 81
-    TransformComponent:
-      translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
   - id: 91

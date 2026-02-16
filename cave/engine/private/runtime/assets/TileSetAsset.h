@@ -4,7 +4,7 @@
 
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/assets/IAsset.h"
-#include "engine/private/runtime/scene/ColliderComponent.h"
+#include "cave/runtime/ecs/components/ColliderComponent.h"
 
 // @TODO: move layer & mask to shape, and rename it collision shape
 

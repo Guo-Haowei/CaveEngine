@@ -1,12 +1,12 @@
 #pragma once
 #include "cave/render/ViewDesc.h"
+#include "cave/runtime/framework/IService.h"
 
 #include "engine/private/render/renderer/ResolvedView.h"
-#include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
 
-class ViewManager : public Module {
+class ViewManager : public IService {
 public:
     ViewManager();
 

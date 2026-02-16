@@ -4,7 +4,11 @@
 #include <fstream>
 
 #include "cave/core/time/Stopwatch.h"
+#include "cave/runtime/framework/IApplication.h"
 
+#include "engine/private/core/io/file_access.h"
+#include "engine/private/core/os/threads.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/assets/AssetImporter.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
@@ -13,20 +17,17 @@
 #include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/assets/TileMapAsset.h"
-#include "engine/private/core/io/file_access.h"
-#include "engine/private/core/os/threads.h"
-#include "engine/private/render/render_device/RenderDevice.h"
-#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IAsyncTask.h"
 #include "engine/private/runtime/framework/TaskContext.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/VFS.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #include "modules/tinygltf/tiny_gltf_importer.h"
 
 #if USING(PLATFORM_WINDOWS) && defined(CAVE_BUILD_ASSIMP)
-#define USE_IMPORTER_ASSIMP IN_USE
+#define USE_IMPORTER_ASSIMP NOT_IN_USE
 #else
 #define USE_IMPORTER_ASSIMP NOT_IN_USE
 #endif

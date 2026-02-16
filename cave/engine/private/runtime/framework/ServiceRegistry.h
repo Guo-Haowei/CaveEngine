@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/private/runtime/framework/ModuleRegistry.h
+// File: engine/private/runtime/framework/ServiceRegistry.h
 // =============================================================================
 #pragma once
 
@@ -7,18 +7,18 @@
 #include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/framework/IScriptService.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
 
-IAssetManager* CreateAssetManager();
+IAssetManager* CreateAssetService();
 
-DisplayService* CreateDisplayManager();
+DisplayService* CreateDisplayService();
 
 render::IRenderDevice* CreateRenderDevice(rhi::Backend p_backend);
 
-IPhysicsManager* CreatePhysicsManager();
+IPhysicsManager* CreatePhysicsService();
 
 IScriptService* CreateScriptService();
 

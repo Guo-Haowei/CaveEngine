@@ -1,4 +1,4 @@
-#include "ModuleRegistry.h"
+#include "ServiceRegistry.h"
 
 #include "engine/private/runtime/assets/AssetManager.h"
 #include "engine/private/runtime/null/NullDisplayService.h"
@@ -31,15 +31,15 @@ inline T1* CreateModule() {
     return new FALLBACK;
 }
 
-IAssetManager* CreateAssetManager() {
+IAssetManager* CreateAssetService() {
     return CreateModule<IAssetManager, AssetManager>();
 }
 
-DisplayService* CreateDisplayManager() {
+DisplayService* CreateDisplayService() {
     return CreateModule<DisplayService, NullDisplayService>();
 }
 
-IPhysicsManager* CreatePhysicsManager() {
+IPhysicsManager* CreatePhysicsService() {
     return CreateModule<IPhysicsManager, EmptyPhysicsManager>();
 }
 

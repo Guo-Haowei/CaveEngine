@@ -30,81 +30,49 @@ bool PIESession::EnsureGameModuleLoaded() {
 }
 
 bool PIESession::Start(const PIEStartDesc& p_desc) {
-    if (m_running) {
-        Stop();
-    }
+    DEV_ASSERT(m_running == false);
 
     m_desc = p_desc;
 
-    if (!EnsureGameModuleLoaded()) {
-        return false;
-    }
+    if (!EnsureGameModuleLoaded()) return false;
 
     SceneRegistry* reg = m_app.GetSceneRegistry();
-    if (!reg) {
-        return false;
-    }
+    if (!reg) return false;
 
     Scene* scene = reg->Resolve(p_desc.edit_scene);
-    if (!scene) {
-        return false;
-    }
+    if (!scene) return false;
 
-    PIEHostServices host(m_app, p_desc.edit_scene);
-    GameInitDesc desc{
-        .mode = AppMode::Editor,
-        .game_id = "MyGame",
-    };
+    PIEHostServices host(m_app, *scene);
 
-    SceneCommandWriter cb(*m_app.GetAssetRegistry());
-    m_game->OnSceneBegin(*scene, host, desc, cb);
-    if (!cb.Empty()) {
-        SceneMutator mut(*scene);
-        cb.Playback(mut);
-    }
+    m_game->OnModuleLoaded(host);
+    host.FlushSceneCommands();
     return true;
 }
 
 void PIESession::Stop() {
-    if (!m_running) {
-        return;
+    if (m_running) {
+        OnSimEnd();
+        m_running = false;
     }
 
-    OnSimEnd();
-
-#if 0
-    SceneRegistry* reg = m_app.GetSceneRegistry();
-    Scene* pie_scene = reg ? reg->GetScene(m_pie_scene_id) : nullptr;
-
-    if (m_game && pie_scene) {
-        PIEHostServices pie_host(m_app, m_desc.game_view, m_pie_scene_id);
-        m_game->ShutdownWorld(*pie_scene, pie_host);
-    }
-
-    // Destroy PIE scene
-    if (reg && m_pie_scene_id != 0) {
-        reg->DestroyScene(m_pie_scene_id);  // adjust to your API
-    }
-
-    m_pie_scene_id = 0;
-    m_running = false;
-
-    // Option A: keep DLL loaded for faster Play
-    // Option B: unload on stop:
-    // m_game_handle.Unload(); m_game = nullptr; m_registered = false;
-#endif
+    m_game_handle.Unload();
+    m_game = nullptr;
 }
 
 void PIESession::OnSimBegin(SceneId p_scene_id) {
     SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
 
-    m_scene_id = scene_manager.Clone(p_scene_id);
+    m_pie_scene = scene_manager.Clone(p_scene_id);
 
-    Scene* scene = scene_manager.Resolve(m_scene_id);
+    Scene* scene = scene_manager.Resolve(m_pie_scene);
     DEV_ASSERT(scene);
     m_app.ScriptService()->OnSimBegin(*scene);
 
     m_app.GetSceneScheduler().Register(this);
+
+    PIEHostServices host(m_app, *scene);
+    m_game->OnGameBegin(host);
+    host.FlushSceneCommands();
 
     m_running = true;
 }
@@ -114,18 +82,21 @@ void PIESession::OnSimEnd() {
 
     m_running = false;
 
-    if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_scene_id)) {
+    if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_pie_scene)) {
         m_app.ScriptService()->OnSimEnd();
+
+        PIEHostServices host(m_app, *scene);
+        m_game->OnGameEnd(host);
     }
 
     m_app.GetSceneScheduler().Unregister(this);
 
-    scene_manager.Destroy(m_scene_id);
-    m_scene_id = {};
+    scene_manager.Destroy(m_pie_scene);
+    m_pie_scene = {};
 }
 
 void PIESession::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
-    p_out.push_back({ SceneTickMode::Simulation, m_scene_id });
+    p_out.push_back({ SceneTickMode::Simulation, m_pie_scene });
 }
 
 void PIESession::Tick(const FrameTime& p_time) {
@@ -133,22 +104,13 @@ void PIESession::Tick(const FrameTime& p_time) {
         return;
     }
 
-    unused(p_time);
-
-#if 0
     SceneRegistry* reg = m_app.GetSceneRegistry();
-    Scene* pie_scene = reg ? reg->GetScene(m_pie_scene_id) : nullptr;
-    if (!pie_scene)
-        return;
+    Scene* scene = reg->Resolve(m_pie_scene);
+    if (!scene) return;
 
-    PIEHostServices pie_host(m_app, m_desc.game_view, m_pie_scene_id);
-
-    GameTime t{};
-    t.dt = p_dt;
-    t.frame_index = 0;  // you can pass app frame index if you have it
-
-    m_game->Tick(*pie_scene, pie_host, t);
-#endif
+    PIEHostServices host(m_app, *scene);
+    m_game->Tick(host, p_time);
+    host.FlushSceneCommands();
 }
 
 void PIESession::BuildPIESceneFromEdit(Scene& p_edit, Scene& p_pie) {

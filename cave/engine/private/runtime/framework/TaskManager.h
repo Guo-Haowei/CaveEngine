@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/runtime/framework/Module.h"
+#include "cave/runtime/framework/IService.h"
 #include "engine/private/runtime/framework/TaskContext.h"
 
 namespace cave {
@@ -38,7 +38,7 @@ struct TaskSubmitOptions {
     bool start_immediately = true;  // if false, task stays queued until ResumeTask()
 };
 
-class TaskManager : public Module {
+class TaskManager : public IService {
 
     // Completion callback: always invoked on main thread via MainThreadQueue.
     using TaskCompletionCallback = std::function<void(uint64_t, TaskSnapshot)>;

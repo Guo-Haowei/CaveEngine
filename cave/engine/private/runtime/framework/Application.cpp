@@ -19,12 +19,12 @@
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
-#include "engine/private/runtime/framework/InputSystem.h"
-#include "engine/private/runtime/framework/ModuleRegistry.h"
+#include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
@@ -51,7 +51,7 @@ Application::Application(const AppSpec& p_spec, AppType p_type)
 IApplication::~IApplication() = default;
 Application::~Application() = default;
 
-void Application::RegisterModule(Module* p_module) {
+void Application::RegisterModule(IService* p_module) {
     DEV_ASSERT(p_module);
     p_module->SetApp(this);
     m_modules.push_back(p_module);
@@ -65,14 +65,14 @@ auto Application::SetupModules() -> Result<void> {
     m_cmd_reg = new cave::CommandRegistry();
     m_console = new cave::Console(*this);
 
-    m_asset_manager = CreateAssetManager();
+    m_asset_manager = CreateAssetService();
     m_asset_registry = new AssetRegistry();
     m_script_service = CreateScriptService();
     m_scene_registry = new SceneRegistry();
-    m_physics_manager = CreatePhysicsManager();
+    m_physics_manager = CreatePhysicsService();
     m_render_device = CreateRenderDevice(m_spec.backend);
-    m_display_server = CreateDisplayManager();
-    m_input_system = new InputSystem();
+    m_display_server = CreateDisplayService();
+    m_input_service = new cave::InputService();
     m_renderer = new render::Renderer();
     m_view_manager = new ViewManager();
     m_task_manager = new TaskManager();
@@ -94,7 +94,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_scene_registry);
     RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
-    RegisterModule(m_input_system);
+    RegisterModule(m_input_service);
     RegisterModule(m_display_server);
     RegisterModule(m_render_device);
     RegisterModule(m_renderer);
@@ -143,7 +143,7 @@ auto Application::Initialize() -> Result<void> {
         return CAVE_ERROR(res.error());
     }
 
-    for (Module* module : m_modules) {
+    for (IService* module : m_modules) {
         m_stopwatch.Restart();
         if (auto res = module->Initialize(); !res) {
             LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
@@ -164,7 +164,7 @@ void Application::Finalize() {
     thread::RequestShutdown();
 
     for (int index = (int)m_modules.size() - 1; index >= 0; --index) {
-        Module* module = m_modules[index];
+        IService* module = m_modules[index];
         module->Finalize();
         LOG_VERBOSE("module '{}' finalized", module->GetName());
         delete module;
@@ -196,7 +196,7 @@ bool Application::MainLoop() {
         .frame_index = m_frame_counter++,
     };
 
-    m_input_system->Tick(time);
+    m_input_service->Tick(time);
 
     m_asset_manager->Update();
 

@@ -48,4 +48,14 @@ CloseRequestResult DocumentService::Close(DocId p_doc_id) {
     return {};
 }
 
+bool DocumentService::Save(const Guid& p_guid) {
+    auto it = m_doc_cache.find(p_guid);
+    if (it == m_doc_cache.end()) return false;
+
+    if (IDocument* doc = Resolve(it->second)) {
+        return doc->Save();
+    }
+    return false;
+}
+
 }  // namespace cave

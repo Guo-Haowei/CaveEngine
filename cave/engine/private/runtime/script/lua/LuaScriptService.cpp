@@ -3,10 +3,10 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ecs/components/LuaScriptComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/InputSystem.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 #include "engine/private/runtime/script/lua/LuaScriptBinding.h"

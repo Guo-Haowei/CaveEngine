@@ -4,12 +4,12 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/renderer/graphics_dvars.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/IInputService.h"
+
+#include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/EventQueue.h"
-#include "engine/private/runtime/framework/InputSystem.h"
-
 #include "engine/private/drivers/glfw/glfw_gamepad_device.h"
 #include "engine/private/drivers/glfw/glfw_keyboard_mouse_device.h"
 
@@ -72,7 +72,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
         }
     });
 
-    InputSystem& input = *m_app->GetInputSystem();
+    IInputService& input = *m_app->InputService();
     {
         InputDeviceId kb_id = InputDeviceId::NextId();
         auto keyboard_mouse_device = std::make_unique<GlfwKeyboardMouseDevice>(kb_id);

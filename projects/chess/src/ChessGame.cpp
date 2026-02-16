@@ -1,79 +1,23 @@
 #include "ChessGame.h"
 
+#include "core/Piece.h"
+
 #include "cave/core/diagnostics/ILogger.h"
 #include "cave/game/IHostServices.h"
+#include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
-namespace cave {
+constexpr uint8_t kColMax = 8;
+constexpr uint8_t kRowMax = 8;
+using cave::ecs::Entity;
+using cave::math::Vector2i;
+using cave::math::Vector3f;
+using cave::math::Vector4f;
 
-using math::Vector3f;
+namespace cave::chess {
 
-void ChessGame::RegisterTypes(IHostServices& p_host) {
-    unused(p_host);
-}
-
-void ChessGame::RegisterSystems(IHostServices& p_host) {
-    unused(p_host);
-}
-
-void ChessGame::OnSceneBegin(Scene& p_scene,
-                             IHostServices& p_host,
-                             const GameInitDesc& p_init,
-                             SceneCommandWriter& p_cb) {
-    unused(p_init);
-
-    p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "hello from ChessGame\n");
-
-    CreatePieces(p_scene, p_host, p_cb);
-}
-
-void ChessGame::OnSceneEnd(Scene& p_scene, IHostServices& p_host) {
-    unused(p_scene);
-    unused(p_host);
-}
-
-void ChessGame::Tick(Scene& p_scene, IHostServices& p_host, const FrameTime& p_time) {
-    unused(p_scene);
-    unused(p_host);
-    unused(p_time);
-}
-
-enum class PieceColor : uint8_t {
-    White,
-    Black,
-    Null,
-};
-
-enum class PieceType : uint8_t {
-    Pawn,
-    Knight,
-    Bishop,
-    Rook,
-    Queen,
-    King,
-
-    _Count,
-    Null,
-};
-
-enum class Piece : uint8_t {
-    WPawn,
-    WKnight,
-    WBishop,
-    WRook,
-    WQueen,
-    WKing,
-    BPawn,
-    BKnight,
-    BBishop,
-    BRook,
-    BQueen,
-    BKing,
-
-    Null,
-};
-
-static constexpr const char* kPieceNameTable[std::to_underlying(PieceType::_Count)]{
+static constexpr const char* kPieceNameTable[kPieceTypeMax]{
     "pawn",
     "knight",
     "bishop",
@@ -82,51 +26,10 @@ static constexpr const char* kPieceNameTable[std::to_underlying(PieceType::_Coun
     "king",
 };
 
-constexpr PieceType GetType(Piece p_piece) {
-    if (p_piece == Piece::Null) return PieceType::Null;
-    constexpr uint8_t kPieceTypeCount = std::to_underlying(PieceType::_Count);
-    const uint8_t type = std::to_underlying(p_piece) % kPieceTypeCount;
-    return static_cast<PieceType>(type);
-}
-
-constexpr PieceColor GetColor(Piece p_piece) {
-    if (p_piece == Piece::Null) return PieceColor::Null;
-    constexpr uint8_t kPieceTypeCount = std::to_underlying(PieceType::_Count);
-    const uint8_t type = (std::to_underlying(p_piece)) / kPieceTypeCount;
-    return static_cast<PieceColor>(type);
-}
-
-static_assert(GetType(Piece::Null) == PieceType::Null);
-static_assert(GetType(Piece::WPawn) == PieceType::Pawn);
-static_assert(GetType(Piece::WKnight) == PieceType::Knight);
-static_assert(GetType(Piece::WBishop) == PieceType::Bishop);
-static_assert(GetType(Piece::WRook) == PieceType::Rook);
-static_assert(GetType(Piece::WQueen) == PieceType::Queen);
-static_assert(GetType(Piece::WKing) == PieceType::King);
-static_assert(GetType(Piece::BPawn) == PieceType::Pawn);
-static_assert(GetType(Piece::BKnight) == PieceType::Knight);
-static_assert(GetType(Piece::BBishop) == PieceType::Bishop);
-static_assert(GetType(Piece::BRook) == PieceType::Rook);
-static_assert(GetType(Piece::BQueen) == PieceType::Queen);
-static_assert(GetType(Piece::BKing) == PieceType::King);
-
-static_assert(GetColor(Piece::Null) == PieceColor::Null);
-static_assert(GetColor(Piece::WPawn) == PieceColor::White);
-static_assert(GetColor(Piece::WKnight) == PieceColor::White);
-static_assert(GetColor(Piece::WBishop) == PieceColor::White);
-static_assert(GetColor(Piece::WRook) == PieceColor::White);
-static_assert(GetColor(Piece::WQueen) == PieceColor::White);
-static_assert(GetColor(Piece::WKing) == PieceColor::White);
-static_assert(GetColor(Piece::BPawn) == PieceColor::Black);
-static_assert(GetColor(Piece::BKnight) == PieceColor::Black);
-static_assert(GetColor(Piece::BBishop) == PieceColor::Black);
-static_assert(GetColor(Piece::BRook) == PieceColor::Black);
-static_assert(GetColor(Piece::BQueen) == PieceColor::Black);
-static_assert(GetColor(Piece::BKing) == PieceColor::Black);
-
 struct ChessSpawner {
     static constexpr StringId kScaleId = StringId("scale");
     static constexpr StringId kTranslationId = StringId("translation");
+    static constexpr StringId kRotationId = StringId("rotation");
     static constexpr Vector3f kScale = Vector3f(9);
 
     SceneCommandWriter& cb;
@@ -142,12 +45,12 @@ struct ChessSpawner {
 
     void SpawnPiece(Piece p_piece, int p_file, int p_rank, int p_id) {
         const PieceType piece_type = GetType(p_piece);
-        const PieceColor piece_color = GetColor(p_piece);
+        const Color piece_color = GetColor(p_piece);
         DEV_ASSERT(piece_type != PieceType::Null);
-        DEV_ASSERT(piece_color != PieceColor::Null);
+        DEV_ASSERT(piece_color != Color::Null);
 
         const char* piece_name = kPieceNameTable[std::to_underlying(piece_type)];
-        const char* color = (piece_color == PieceColor::White ? "white" : "black");
+        const char* color = (piece_color == Color::White ? "white" : "black");
 
         auto name = std::format("{}_{}_{}",
                                 color,
@@ -161,28 +64,114 @@ struct ChessSpawner {
 
         Vector3f translation(p_rank, 0, p_file);
 
-        cb.Add(piece, NoSaveTag_Id);
         cb.SetProperty(piece, TransformComponent_Id, kScaleId, kScale);
         cb.SetProperty(piece, TransformComponent_Id, kTranslationId, translation);
+        if (piece_color == Color::Black) {
+            cb.SetProperty(piece, TransformComponent_Id, kRotationId, Vector4f(0, 1, 0, 0));
+        }
 
         cb.AttachChild(piece, parent);
     }
 };
 
-void ChessGame::CreatePieces(Scene& p_scene, IHostServices& p_host, SceneCommandWriter& p_cb) {
-    using ecs::Entity;
+static constexpr std::array<std::array<Piece, kRowMax>, kColMax> kInitialBoard = { {
+    { Piece::WR, Piece::WN, Piece::WB, Piece::WQ, Piece::WK, Piece::WB, Piece::WN, Piece::WR },
+    { Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP },
+    { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
+    { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
+    { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
+    { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
+    { Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP },
+    { Piece::BR, Piece::BN, Piece::BB, Piece::BQ, Piece::BK, Piece::BB, Piece::BN, Piece::BR },
+} };
 
-    Entity offset_node = SceneCommandWriter::FindEntityByName(p_scene, "transform");
-    ChessSpawner spawner(p_cb, offset_node);
+}  // namespace cave::chess
 
-    for (int file = 0, id = 1; file < 8; ++file) {
-        const int rank = 1;
-        spawner.SpawnPiece(Piece::WPawn, file, rank, id++);
+namespace cave {
+
+void ChessGame::OnModuleLoaded(IHostServices& p_host) {
+
+    p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "ChessGame Loaded\n");
+
+    // @TODO: split to spawn pieces and place pieces
+    SpawnPieces(p_host);
+
+}
+
+void ChessGame::OnModuleUnloaded(IHostServices& p_host) {
+    unused(p_host);
+}
+
+void ChessGame::OnGameBegin(IHostServices& p_host) {
+    GridSelectController::Callbacks cb{
+        .can_select = [](uint32_t, uint32_t) { return true; },
+        .on_select = [](uint32_t, uint32_t) { LOG("on select"); },
+    };
+
+    m_selector = std::make_unique<GridSelectController>(
+        math::Vector2i(kRowMax, kColMax),
+        std::move(cb));
+
+    // @TODO: cache entities
+}
+
+void ChessGame::OnGameEnd(IHostServices& p_host) {
+    m_selector.reset();
+}
+
+void ChessGame::Tick(IHostServices& p_host, const FrameTime& p_time) {
+    unused(p_time);
+
+    IInputService& input = p_host.Input();
+
+    const Vector2i old_focus = m_selector->GetFocused();
+
+    if (input.IsActionJustPressed(StringId("ui_right"))) {
+        m_selector->MoveFocus(Vector2i(1, 0));
+    }
+    if (input.IsActionJustPressed(StringId("ui_left"))) {
+        m_selector->MoveFocus(Vector2i(-1, 0));
+    }
+    if (input.IsActionJustPressed(StringId("ui_up"))) {
+        m_selector->MoveFocus(Vector2i(0, 1));
+    }
+    if (input.IsActionJustPressed(StringId("ui_down"))) {
+        m_selector->MoveFocus(Vector2i(0, -1));
     }
 
-    for (int file = 0, id = 1; file < 8; file += 7) {
-        const int rank = 0;
-        spawner.SpawnPiece(Piece::BRook, file, rank, id++);
+    const Vector2i& focus = m_selector->GetFocused();
+    if (focus != old_focus) {
+        SceneQuery& query = p_host.SceneQuery();
+        Entity selector = query.FindEntityByName("grid_selector");
+
+        SceneCommandWriter& writer = p_host.SceneWriter();
+        // writer.SetProperty(selector, MeshRendererComponent_Id, StringId("visibility"), true);
+
+        Vector3f pos(focus.y, 0, focus.x);
+        writer.SetProperty(selector, TransformComponent_Id, StringId("translation"), pos);
+    }
+}
+
+void ChessGame::SpawnPieces(IHostServices& p_host) {
+    using chess::Piece;
+    using ecs::Entity;
+
+    Entity offset_node = p_host.SceneQuery().FindEntityByName("transform");
+    DEV_ASSERT(offset_node.IsValid());
+
+    SceneCommandWriter& writer = p_host.SceneWriter();
+    writer.SetNoSave(true);
+    chess::ChessSpawner spawner(writer, offset_node);
+
+    std::array<int, chess::kPieceMax> counter{ 0 };
+
+    for (int rank = 0; rank < 8; ++rank) {
+        for (int file = 0; file < 8; ++file) {
+
+            const Piece p = chess::kInitialBoard[rank][file];
+            if (p == Piece::Null) continue;
+            spawner.SpawnPiece(p, file, rank, ++counter[std::to_underlying(p)]);
+        }
     }
 }
 

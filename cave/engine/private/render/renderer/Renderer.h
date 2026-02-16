@@ -1,8 +1,8 @@
 #pragma once
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/framework/IService.h"
 
 #include "engine/private/render/renderer/ResolvedView.h"
-#include "engine/private/runtime/framework/Module.h"
 
 // clang-format off
 namespace cave { struct FrameData; }
@@ -10,7 +10,7 @@ namespace cave { struct FrameData; }
 
 namespace cave::render {
 
-class Renderer : public Module {
+class Renderer : public IService {
     class Impl;
 
 public:

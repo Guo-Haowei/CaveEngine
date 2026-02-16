@@ -44,6 +44,14 @@ public:
     // For mutating on_edited only
     ComponentMeta& GetMut(ComponentId p_id);
 
+    static void Builtin(ComponentRegistry& p_out);
+
+    static ComponentRegistry Builtin() {
+        ComponentRegistry reg;
+        Builtin(reg);
+        return reg;
+    }
+
 private:
     std::vector<ComponentMeta> m_table;
     std::vector<uint8_t> m_present;

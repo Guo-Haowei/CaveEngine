@@ -1,16 +1,16 @@
 #pragma once
 #include "cave/runtime/ecs/Entity.h"
-#include "engine/private/runtime/framework/Module.h"
+#include "cave/runtime/framework/IService.h"
 
 namespace cave {
 
 class Scene;
 
-class IScriptService : public Module,
-                       public ModuleCreateRegistry<IScriptService> {
+class IScriptService : public IService,
+                       public ServiceCreateRegistry<IScriptService> {
 public:
     IScriptService(std::string_view p_name)
-        : Module(p_name) {}
+        : IService(p_name) {}
 
     virtual void OnSimBegin(Scene& p_scene) = 0;
     virtual void OnSimEnd() = 0;

@@ -12,27 +12,26 @@ namespace cave {
 
 using ecs::Entity;
 
-Entity SceneCommandWriter::FindEntityByName(const Scene& p_scene, std::string_view p_name) {
-    return p_scene.FindEntityByName(p_name);
-}
-
 Entity SceneCommandWriter::CreateNameObject(std::string_view p_name) {
-    Entity e = Create();
-    Add(e, NameComponent_Id);
+    Entity e = CreateEntity();
+    AddComponent(e, NameComponent_Id);
+    if (m_no_save) {
+        AddComponent(e, NoSaveTag_Id);
+    }
     SetProperty(e, NameComponent_Id, StringId("name"), FixedString<64>(p_name));
     return e;
 }
 
 Entity SceneCommandWriter::CreateRootObject(std::string_view p_name) {
     Entity e = CreateNameObject(p_name);
-    Add(e, TransformComponent_Id);
+    AddComponent(e, TransformComponent_Id);
     return e;
 }
 
 Entity SceneCommandWriter::CreateTransformObject(std::string_view p_name) {
     Entity e = CreateNameObject(p_name);
-    Add(e, TransformComponent_Id);
-    Add(e, HierarchyComponent_Id);
+    AddComponent(e, TransformComponent_Id);
+    AddComponent(e, HierarchyComponent_Id);
     return e;
 }
 
@@ -49,8 +48,8 @@ Entity SceneCommandWriter::CreatePointLightObject(
     SceneCommandBuffer cb;
 
     Entity e = CreateTransformObject(p_name);
-    Add(e, LightComponent_Id);
-    Add(e, MaterialComponent_Id);
+    AddComponent(e, LightComponent_Id);
+    AddComponent(e, MaterialComponent_Id);
 
     SetProperty(e, TransformComponent_Id, StringId("translation"), p_position);
 
@@ -69,8 +68,8 @@ Entity SceneCommandWriter::CreateInfiniteLightObject(std::string_view p_name,
                                                      const Vector3f& p_color,
                                                      float p_emissive) {
     Entity e = CreateTransformObject(p_name);
-    Add(e, LightComponent_Id);
-    Add(e, MaterialComponent_Id);
+    AddComponent(e, LightComponent_Id);
+    AddComponent(e, MaterialComponent_Id);
 
     SetProperty(e, LightComponent_Id, StringId("type"), LightType::Infinite);
     SetProperty(e, MaterialComponent_Id, StringId("base_color"), Vector4f(p_color, 1.0f));
@@ -83,9 +82,9 @@ Entity SceneCommandWriter::CreateAreaLightObject(std::string_view p_name,
                                                  const Vector3f& p_color,
                                                  float p_emissive) {
     Entity e = CreateTransformObject(p_name);
-    Add(e, MeshRendererComponent_Id);
-    Add(e, LightComponent_Id);
-    Add(e, MaterialComponent_Id);
+    AddComponent(e, MeshRendererComponent_Id);
+    AddComponent(e, LightComponent_Id);
+    AddComponent(e, MaterialComponent_Id);
 
     SetProperty(e, LightComponent_Id, StringId("type"), LightType::Area);
     SetProperty(e, LightComponent_Id, StringId("atten_constant"), 1.0f);
@@ -110,11 +109,11 @@ Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
                                             const Guid* p_mat_guid) {
     Entity e = CreateTransformObject(p_name);
 
-    Add(e, MeshRendererComponent_Id);
+    AddComponent(e, MeshRendererComponent_Id);
 
     Entity mat = CreateNameObject(std::format("{}:mat", p_name));
     {
-        Add(mat, MaterialComponent_Id);
+        AddComponent(mat, MaterialComponent_Id);
         if (p_mat_guid) {
             SetProperty(mat, MaterialComponent_Id, StringId("material_id"), *p_mat_guid);
         }
@@ -167,7 +166,7 @@ Entity SceneCommandWriter::CreateTorusObject(std::string_view p_name, const Guid
 
 Entity SceneCommandWriter::CreateTileMapObject(std::string_view p_name) {
     Entity e = CreateTransformObject(p_name);
-    Add(e, TileMapRendererComponent_Id);
+    AddComponent(e, TileMapRendererComponent_Id);
     return e;
 }
 

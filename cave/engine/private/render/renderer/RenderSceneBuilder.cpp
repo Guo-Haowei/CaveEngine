@@ -2,11 +2,11 @@
 
 #include "RenderScene.h"
 
-#include "engine/private/runtime/scene/Scene.h"
-
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "engine/private/runtime/scene/SpriteRendererComponent.h"
+
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave::render {
 
