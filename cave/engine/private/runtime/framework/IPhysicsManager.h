@@ -1,17 +1,17 @@
 #pragma once
-#include "engine/private/runtime/framework/Module.h"
+#include "cave/runtime/framework/IService.h"
 
 namespace cave {
 
 class Scene;
 
-class IPhysicsManager : public Module,
-                        public ModuleCreateRegistry<IPhysicsManager> {
+class IPhysicsManager : public IService,
+                        public ServiceCreateRegistry<IPhysicsManager> {
 public:
     using CreateFunc = IPhysicsManager* (*)();
 
     IPhysicsManager(std::string_view p_name)
-        : Module(p_name) {}
+        : IService(p_name) {}
 
     virtual void Update(Scene& p_scene, float p_timestep) = 0;
 

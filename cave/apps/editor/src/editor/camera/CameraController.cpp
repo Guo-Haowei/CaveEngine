@@ -4,7 +4,7 @@
 #include "cave/runtime/ecs/components/CameraComponent.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/input/InputService.h"
 
 namespace cave {
 

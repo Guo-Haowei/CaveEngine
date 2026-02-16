@@ -8,7 +8,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/EventQueue.h"
-#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/input/InputService.h"
 
 #include "engine/private/drivers/glfw/glfw_gamepad_device.h"
 #include "engine/private/drivers/glfw/glfw_keyboard_mouse_device.h"

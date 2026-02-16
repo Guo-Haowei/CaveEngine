@@ -87,7 +87,7 @@ private:
 };
 
 Renderer::Renderer()
-    : Module("Render") {}
+    : IService("Render") {}
 
 Renderer::~Renderer() = default;
 

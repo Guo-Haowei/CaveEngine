@@ -16,7 +16,7 @@ static float Clamp01(float v) {
 }
 
 TaskManager::TaskManager()
-    : Module("TaskManager")
+    : IService("TaskManager")
     , m_task_queue(std::make_unique<TaskQueue>()) {
 }
 

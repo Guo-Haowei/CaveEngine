@@ -1,14 +1,19 @@
+// =============================================================================
+// File: engine/public/cave/runtime/framework/IService.h
+// =============================================================================
 #pragma once
+#include <string_view>
+#include "cave/core/Error.h"
 
 namespace cave {
 
 class IApplication;
 
-class Module {
+class IService {
 public:
-    Module(std::string_view p_name)
+    IService(std::string_view p_name)
         : m_initialized(false), m_name(p_name) {}
-    virtual ~Module() = default;
+    virtual ~IService() = default;
 
     auto Initialize() -> Result<void>;
     void Finalize();
@@ -28,7 +33,7 @@ protected:
 };
 
 template<class T>
-class ModuleCreateRegistry {
+class ServiceCreateRegistry {
 public:
     using CreateFunc = T* (*)();
 

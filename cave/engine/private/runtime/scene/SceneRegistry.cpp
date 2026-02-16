@@ -60,7 +60,7 @@ private:
 };
 
 SceneRegistry::SceneRegistry()
-    : Module("SceneRegistry")
+    : IService("SceneRegistry")
     , m_impl(std::make_unique<Impl>()) {
 }
 

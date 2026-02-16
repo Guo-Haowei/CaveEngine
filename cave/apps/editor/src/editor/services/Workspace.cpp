@@ -1,7 +1,7 @@
 #include "Workspace.h"
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
-#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/input/InputService.h"
 
 #include "editor/EditorState.h"
 #include "editor/services/DocumentService.h"

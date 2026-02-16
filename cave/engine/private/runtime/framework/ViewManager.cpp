@@ -14,7 +14,7 @@ using render::ResolvedView;
 using render::ViewDesc;
 
 ViewManager::ViewManager()
-    : Module("ViewManager") {}
+    : IService("ViewManager") {}
 
 auto ViewManager::InitializeImpl() -> Result<void> {
     return Result<void>();

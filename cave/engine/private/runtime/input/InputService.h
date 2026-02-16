@@ -1,8 +1,8 @@
 #pragma once
 #include "cave/core/Singleton.h"
 #include "cave/core/string/StringId.h"
+#include "cave/runtime/framework/IInputService.h"
 
-#include "engine/private/runtime/framework/Module.h"
 #include "engine/private/runtime/input/ActionState.h"
 #include "engine/private/runtime/input/AxisState.h"
 #include "engine/private/runtime/input/IInputDevice.h"
@@ -21,10 +21,10 @@ struct PointerState {
     float dx = 0.0f, dy = 0.0f;
 };
 
-class InputSystem : public Module,
-                    public Singleton<InputSystem> {
+class InputService : public IInputService,
+                     public Singleton<InputService> {
 public:
-    InputSystem();
+    InputService();
 
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;

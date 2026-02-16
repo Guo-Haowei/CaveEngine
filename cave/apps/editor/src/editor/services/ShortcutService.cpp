@@ -4,7 +4,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "cave/core/string/StringUtils.h"
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 

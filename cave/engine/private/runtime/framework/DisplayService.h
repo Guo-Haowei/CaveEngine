@@ -2,9 +2,9 @@
 #include <tuple>
 #include "cave/core/Singleton.h"
 #include "cave/rhi/Backend.h"
+#include "cave/runtime/framework/IService.h"
 
 #include "engine/private/renderer/graphics_defines.h"
-#include "engine/private/runtime/framework/Module.h"
 
 namespace cave {
 
@@ -22,11 +22,11 @@ struct WindowSpecfication {
 };
 
 class DisplayService : public Singleton<DisplayService>,
-                       public Module,
-                       public ModuleCreateRegistry<DisplayService> {
+                       public IService,
+                       public ServiceCreateRegistry<DisplayService> {
 public:
     DisplayService(std::string_view p_name)
-        : Module(p_name) {}
+        : IService(p_name) {}
 
     Result<void> InitializeImpl() final;
 

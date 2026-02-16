@@ -1,17 +1,16 @@
-#include "InputSystem.h"
-
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/ImGuiManager.h"
+#include "engine/private/runtime/input/InputService.h"
 
 namespace cave {
 
-InputSystem::InputSystem()
-    : Module("InputSystem")
+InputService::InputService()
+    : IInputService("InputService")
     , m_mapper(m_input_action_map) {}
 
-auto InputSystem::InitializeImpl() -> Result<void> {
+auto InputService::InitializeImpl() -> Result<void> {
     // @TODO: config from asset
     InputActionMap& map = ActionMap();
 
@@ -61,7 +60,7 @@ auto InputSystem::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void InputSystem::FinalizeImpl() {
+void InputService::FinalizeImpl() {
 }
 
 static const char* InputDeviceTypeToString(InputDeviceType p_type) {
@@ -75,16 +74,16 @@ static const char* InputDeviceTypeToString(InputDeviceType p_type) {
     }
 }
 
-void InputSystem::AddDevice(std::unique_ptr<IInputDevice> p_device) {
+void InputService::AddDevice(std::unique_ptr<IInputDevice> p_device) {
     DEV_ASSERT(p_device);
 
-    LOG_VERBOSE("InputSystem::AddDevice: device '{}' (type: {}) added",
+    LOG_VERBOSE("InputService::AddDevice: device '{}' (type: {}) added",
                 p_device->Id().value,
                 InputDeviceTypeToString(p_device->Type()));
     m_devices.emplace_back(std::move(p_device));
 }
 
-void InputSystem::UpdatePointers(std::vector<InputEvent>& p_events) {
+void InputService::UpdatePointers(std::vector<InputEvent>& p_events) {
     for (auto& [_, ps] : m_pointers) {
         ps.dx = 0.0f;
         ps.dy = 0.0f;
@@ -113,7 +112,7 @@ void InputSystem::UpdatePointers(std::vector<InputEvent>& p_events) {
     }
 }
 
-void InputSystem::UpdateActions(const DeviceRouting& p_routing) {
+void InputService::UpdateActions(const DeviceRouting& p_routing) {
     m_action_events.clear();
     m_mapper.Map(m_input_events, m_key_state, m_axis_state, p_routing, m_action_events);
 
@@ -123,7 +122,7 @@ void InputSystem::UpdateActions(const DeviceRouting& p_routing) {
     }
 }
 
-void InputSystem::Tick(const FrameTime& p_time) {
+void InputService::Tick(const FrameTime& p_time) {
     m_input_events.clear();
     m_action_events.clear();
 

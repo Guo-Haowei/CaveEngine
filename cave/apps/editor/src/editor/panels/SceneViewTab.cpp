@@ -5,7 +5,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
-#include "engine/private/runtime/framework/InputSystem.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/Scene.h"

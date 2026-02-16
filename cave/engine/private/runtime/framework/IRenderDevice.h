@@ -1,6 +1,6 @@
 #pragma once
+#include "cave/runtime/framework/IService.h"
 #include "engine/private/runtime/framework/EventQueue.h"
-#include "engine/private/runtime/framework/Module.h"
 
 // @TODO: refactor
 struct MaterialConstantBuffer;
@@ -38,15 +38,15 @@ struct RenderSubmission;
 struct CompiledPass;
 
 // @TODO: split this class to RenderDevice and RHI
-class IRenderDevice : public Module,
+class IRenderDevice : public IService,
                       public EventListener,
-                      public ModuleCreateRegistry<IRenderDevice> {
+                      public ServiceCreateRegistry<IRenderDevice> {
 public:
     static constexpr int NUM_FRAMES_IN_FLIGHT = 2;
     static constexpr int NUM_BACK_BUFFERS = 2;
 
     IRenderDevice(std::string_view p_name)
-        : Module(p_name) {}
+        : IService(p_name) {}
 
     virtual auto InitializeImpl() -> Result<void> = 0;
 

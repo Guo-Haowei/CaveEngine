@@ -1,14 +1,13 @@
 #pragma once
 #include "cave/core/ids/SceneId.h"
-
-#include "engine/private/runtime/framework/Module.h"
+#include "cave/runtime/framework/IService.h"
 
 namespace cave {
 
 class Scene;
 class IApplication;
 
-class SceneRegistry : public Module {
+class SceneRegistry : public IService {
 public:
     SceneRegistry();
 

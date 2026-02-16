@@ -1,8 +1,8 @@
-#include "module.h"
+#include "cave/runtime/framework/IService.h"
 
 namespace cave {
 
-auto Module::Initialize() -> Result<void> {
+auto IService::Initialize() -> Result<void> {
     if (DEV_VERIFY(!m_initialized)) {
         auto res = InitializeImpl();
         if (!res) {
@@ -15,7 +15,7 @@ auto Module::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Module::Finalize() {
+void IService::Finalize() {
     if (m_initialized) {
         FinalizeImpl();
 
