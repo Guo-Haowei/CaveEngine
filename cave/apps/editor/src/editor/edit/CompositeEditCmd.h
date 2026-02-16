@@ -16,7 +16,7 @@ public:
     void CoalesceFrom(std::unique_ptr<IEditCmd>) override {}
 
 private:
-	std::vector<std::unique_ptr<IEditCmd>> m_child;
+    std::vector<std::unique_ptr<IEditCmd>> m_child;
 };
 
 }  // namespace cave

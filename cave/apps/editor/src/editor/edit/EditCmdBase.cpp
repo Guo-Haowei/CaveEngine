@@ -6,10 +6,9 @@
 
 namespace cave {
 
-EditCmdBase::EditCmdBase(IApplication& p_app,
-                         ecs::Entity p_ent)
+EditCmdBase::EditCmdBase(IApplication& p_app, ecs::Entity p_ent)
     : m_scene_reg(*p_app.GetSceneRegistry())
-    , m_entity(p_ent) {
+    , m_ent(p_ent) {
 }
 
 Scene* EditCmdBase::ResolveScene(SceneId p_scene_id) const {

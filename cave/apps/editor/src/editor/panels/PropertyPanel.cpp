@@ -9,7 +9,8 @@
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/edit/EditPropertyCmd.h"
-#include "editor/edit/EditComponentCmd.h"  // @TODO: refactor this
+#include "editor/edit/AddComponentCmd.h"
+#include "editor/edit/RemoveComponentCmd.h"
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
 
@@ -35,7 +36,6 @@ using namespace math;
     COMPONENT_DECL(LuaScript)       \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
-    COMPONENT_DECL(Velocity)        \
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
     COMPONENT_DECL(TileMapRenderer) \
@@ -321,16 +321,28 @@ void PropertyPanel::DrawUIImpl() {
         ImGui::OpenPopup("AddComponentPopup");
     }
 
+    auto create_component = [&](BuiltinComponentId cid) {
+        if (scene.Storage().Has(id, cid)) {
+            LOG_ERROR("object {} already has component {}",
+                      name_component->GetName(),
+                      std::to_underlying(cid));
+            return;
+        }
+        auto cmd = std::make_unique<AddComponentCmd>(m_editor.GetApp(),
+                                                     id,
+                                                     cid);
+        edit_service.Submit(doc_id, std::move(cmd));
+    };
+
     if (ImGui::BeginPopup("AddComponentPopup")) {
         if (ImGui::MenuItem("Rigid Body")) {
             LOG_ERROR("TODO: implement add component");
             ImGui::CloseCurrentPopup();
         }
 
-#define COMPONENT_DECL(NAME)                                                                  \
-    if (ImGui::MenuItem(#NAME)) {                                                             \
-        auto cmd = std::make_unique<AddComponentCmd<NAME##Component>>(m_editor.GetApp(), id); \
-        edit_service.Submit(doc_id, std::move(cmd));                                          \
+#define COMPONENT_DECL(NAME)                  \
+    if (ImGui::MenuItem(#NAME)) {             \
+        create_component(NAME##Component_Id); \
     }
         COMPONENT_LIST
 #undef COMPONENT_DECL

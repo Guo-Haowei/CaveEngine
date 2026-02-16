@@ -36,7 +36,7 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
             executor.Playback(cb);
             m_created = executor.Resolve(created);
 
-            ecs::Entity parent = m_entity;
+            ecs::Entity parent = m_ent;
             if (scene->m_root.IsValid()) {
                 scene->AttachChild(m_created, parent.IsValid() ? parent : scene->m_root);
             } else {
@@ -64,7 +64,7 @@ bool AddObjectCmd::Undo(IDocument& p_doc) {
 bool DeleteObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            scene->RemoveEntity(m_entity);
+            scene->RemoveEntity(m_ent);
             return true;
         }
     }
@@ -79,7 +79,7 @@ bool DeleteObjectCmd::Undo(IDocument&) {
 bool CloneObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            scene->DuplicateEntity(m_entity);
+            scene->DuplicateEntity(m_ent);
             return true;
         }
     }

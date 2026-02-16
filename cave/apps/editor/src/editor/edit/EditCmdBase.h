@@ -13,8 +13,7 @@ class Scene;
 
 class EditCmdBase : public IEditCmd {
 public:
-    EditCmdBase(IApplication& p_app,
-                ecs::Entity p_ent);
+    EditCmdBase(IApplication& p_app, ecs::Entity p_ent);
 
     bool CanCoalesceWith(const IEditCmd*) const override {
         return false;
@@ -26,7 +25,7 @@ public:
 
 protected:
     Scene* ResolveScene(SceneId p_scene_id) const;
-    ecs::Entity m_entity;
+    ecs::Entity m_ent;
 
 private:
     SceneRegistry& m_scene_reg;
