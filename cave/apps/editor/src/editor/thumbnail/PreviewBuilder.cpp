@@ -114,7 +114,7 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
 
     if constexpr (1) {
         Guid guid = p_handle.GetGuid();
-        Entity sphere = cb.CreateSphereObject("sphere", &guid);
+        Entity sphere = cb.CreateSphereObject("sphere", { &guid });
         cb.AttachChild(sphere, root);
     }
 

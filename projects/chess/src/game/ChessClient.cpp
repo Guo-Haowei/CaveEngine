@@ -12,14 +12,14 @@ namespace chess {
 
 using namespace cave;
 
-using chess::core::Color;
-using chess::core::Square;
-using chess::core::Piece;
-using chess::core::PieceType;
 using cave::ecs::Entity;
 using cave::math::Vector2i;
 using cave::math::Vector3f;
 using cave::math::Vector4f;
+using chess::core::Color;
+using chess::core::Piece;
+using chess::core::PieceType;
+using chess::core::Square;
 
 struct ChessSpawner {
     static constexpr StringId kScaleId = StringId("scale");
@@ -27,13 +27,15 @@ struct ChessSpawner {
     static constexpr StringId kRotationId = StringId("rotation");
 
     SceneCommandWriter& cb;
-    ecs::Entity parent;
+    ecs::Entity piece_parent;
     ecs::Entity tile_parent;
     const char* materials[2];
 
-    ChessSpawner(SceneCommandWriter& p_cb, ecs::Entity p_parent)
+    ChessSpawner(SceneCommandWriter& p_cb,
+                 ecs::Entity p_tile_parent, ecs::Entity p_piece_parent)
         : cb(p_cb)
-        , parent(p_parent) {
+        , piece_parent(p_piece_parent)
+        , tile_parent(p_tile_parent) {
         materials[0] = "@res://materials/white.mat";
         materials[1] = "@res://materials/black.mat";
     }
@@ -45,11 +47,12 @@ struct ChessSpawner {
         constexpr Vector3f scale(1.0f, 0.05f, 1.0f);
         Vector3f offset((float)p_rank, 0.05f, (float)p_file);
 
-        ecs::Entity tile = cb.CreateCubeObject(name);
+        constexpr Vector4f color(0.0f, 1.f, 0.0980392173f, 0.501960814f);
+        ecs::Entity tile = cb.CreateCubeObject(name, { nullptr, color });
         cb.SetProperty(tile, TransformComponent_Id, kScaleId, scale);
         cb.SetProperty(tile, TransformComponent_Id, kTranslationId, offset);
 
-        cb.AttachChild(tile, parent);
+        cb.AttachChild(tile, tile_parent);
     }
 
     void SpawnPiece(Piece p_piece, int p_file, int p_rank, int p_id) {
@@ -80,7 +83,7 @@ struct ChessSpawner {
             cb.SetProperty(piece, TransformComponent_Id, kRotationId, Vector4f(0, 1, 0, 0));
         }
 
-        cb.AttachChild(piece, parent);
+        cb.AttachChild(piece, piece_parent);
     }
 };
 
@@ -130,10 +133,16 @@ void ChessClient::SpawnObjects(IHostServices& p_host) {
 
     SceneCommandWriter& writer = p_host.SceneWriter();
     writer.SetNoSave(true);
-    chess::ChessSpawner spawner(writer, offset_node);
+
+    Entity tile_parent = writer.CreateTransformObject("tiles");
+    Entity piece_parent = writer.CreateTransformObject("pieces");
+
+    writer.AttachChild(tile_parent, offset_node);
+    writer.AttachChild(piece_parent, offset_node);
 
     std::array<int, core::kPieceMax> counter{ 0 };
 
+    chess::ChessSpawner spawner(writer, tile_parent, piece_parent);
     for (int rank = 0; rank < 8; ++rank) {
         for (int file = 0; file < 8; ++file) {
             spawner.SpawnTiles(file, rank);
@@ -141,7 +150,6 @@ void ChessClient::SpawnObjects(IHostServices& p_host) {
             const Piece p = chess::kInitialBoard[rank][file];
             if (p == Piece::Null) continue;
             spawner.SpawnPiece(p, file, rank, ++counter[std::to_underlying(p)]);
-
         }
     }
 }

@@ -106,7 +106,7 @@ Entity SceneCommandWriter::CreateAreaLightObject(std::string_view p_name,
 
 Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
                                             std::string_view p_name,
-                                            const Guid* p_mat_guid) {
+                                            const MaterialContext& p_mat_ctx) {
     Entity e = CreateTransformObject(p_name);
 
     AddComponent(e, MeshRendererComponent_Id);
@@ -114,8 +114,11 @@ Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
     Entity mat = CreateNameObject(std::format("{}:mat", p_name));
     {
         AddComponent(mat, MaterialComponent_Id);
-        if (p_mat_guid) {
-            SetProperty(mat, MaterialComponent_Id, StringId("material_id"), *p_mat_guid);
+        if (p_mat_ctx.guid) {
+            SetProperty(mat, MaterialComponent_Id, StringId("material_id"), *p_mat_ctx.guid);
+        }
+        if (p_mat_ctx.base_color != Vector4f::One) {
+            SetProperty(mat, MaterialComponent_Id, StringId("base_color"), p_mat_ctx.base_color);
         }
     }
 
@@ -134,34 +137,34 @@ Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
     auto handle = m_asset_reg.FindByPath<MaterialAsset>(p_mat_path);
     if (handle.is_some()) {
         const Guid guid = handle.unwrap_unchecked().GetGuid();
-        return CreateMeshObject(p_mesh_path, p_name, &guid);
+        return CreateMeshObject(p_mesh_path, p_name, { &guid });
     }
 
-    return CreateMeshObject(p_mesh_path, p_name, nullptr);
+    return CreateMeshObject(p_mesh_path, p_name, MaterialContext{ nullptr });
 }
 
-Entity SceneCommandWriter::CreatePlaneObject(std::string_view p_name, const Guid* p_mat_guid) {
-    return CreateMeshObject("@persist://meshes/plane", p_name, p_mat_guid);
+Entity SceneCommandWriter::CreatePlaneObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
+    return CreateMeshObject("@persist://meshes/plane", p_name, p_mat_ctx);
 }
 
-Entity SceneCommandWriter::CreateCubeObject(std::string_view p_name, const Guid* p_mat_guid) {
-    return CreateMeshObject("@persist://meshes/cube", p_name, p_mat_guid);
+Entity SceneCommandWriter::CreateCubeObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
+    return CreateMeshObject("@persist://meshes/cube", p_name, p_mat_ctx);
 }
 
-Entity SceneCommandWriter::CreateSphereObject(std::string_view p_name, const Guid* p_mat_guid) {
-    return CreateMeshObject("@persist://meshes/sphere", p_name, p_mat_guid);
+Entity SceneCommandWriter::CreateSphereObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
+    return CreateMeshObject("@persist://meshes/sphere", p_name, p_mat_ctx);
 }
 
-Entity SceneCommandWriter::CreateCylinderObject(std::string_view p_name, const Guid* p_mat_guid) {
-    return CreateMeshObject("@persist://meshes/cylinder", p_name, p_mat_guid);
+Entity SceneCommandWriter::CreateCylinderObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
+    return CreateMeshObject("@persist://meshes/cylinder", p_name, p_mat_ctx);
 }
 
-Entity SceneCommandWriter::CreateConeObject(std::string_view p_name, const Guid* p_mat_guid) {
-    return CreateMeshObject("@persist://meshes/cone", p_name, p_mat_guid);
+Entity SceneCommandWriter::CreateConeObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
+    return CreateMeshObject("@persist://meshes/cone", p_name, p_mat_ctx);
 }
 
-Entity SceneCommandWriter::CreateTorusObject(std::string_view p_name, const Guid* p_mat_guid) {
-    return CreateMeshObject("@persist://meshes/torus", p_name, p_mat_guid);
+Entity SceneCommandWriter::CreateTorusObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
+    return CreateMeshObject("@persist://meshes/torus", p_name, p_mat_ctx);
 }
 
 Entity SceneCommandWriter::CreateTileMapObject(std::string_view p_name) {
