@@ -44,7 +44,7 @@ bool SceneCommandExecutor_Undo::ChangeProperty(Entity p_ent,
         p_ent,
         p_cid,
         p_pid,
-        nullptr, // composite command, don't care about old value
+        nullptr,  // composite command, don't care about old value
         p_data,
         p_data_size);
 

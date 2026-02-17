@@ -4,6 +4,7 @@
 #include <imgui/imgui_internal.h>
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
@@ -35,7 +36,7 @@ public:
         std::vector<HierarchyNode*> children;
     };
 
-    HierarchyCreator(const FocusedPreviewScene& p_preview, SelectionService& p_selection)
+    HierarchyCreator(const PreviewScene& p_preview, SelectionService& p_selection)
         : m_preview(p_preview), m_selection(p_selection) {}
 
     void Update() {
@@ -52,7 +53,7 @@ private:
 
     std::map<Entity, std::shared_ptr<HierarchyNode>> m_nodes;
     HierarchyNode* m_root = nullptr;
-    const FocusedPreviewScene& m_preview;
+    const PreviewScene& m_preview;
     SelectionService& m_selection;
 };
 
@@ -208,7 +209,7 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
 
 void HierarchyPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
-    FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
+    PreviewScene preview = m_editor.Workspace().FocusedPreviewScene();
     if (preview.scene) {
         HierarchyCreator creator(preview, m_editor.SelectionService());
         DrawPopup(preview);
@@ -216,14 +217,19 @@ void HierarchyPanel::DrawUIImpl() {
     }
 }
 
-void HierarchyPanel::DrawPopup(const FocusedPreviewScene& p_ctx) {
-
+void HierarchyPanel::DrawPopup(const PreviewScene& p_ctx) {
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
         SelectionKey selection = m_editor.SelectionService().Primary(p_ctx.doc_id);
         DEV_ASSERT(selection.doc == p_ctx.doc_id);
         ecs::Entity selected = selection.entity;
 
-        m_editor.OpenAddEntityPopup(selected);
+        ecs::Entity parent = selected.IsValid() ? selected : p_ctx.scene->m_root;
+
+        if (ImGui::BeginMenu("Add")) {
+            OpenAddEntityPopupImpl(p_ctx.doc_id, parent);
+            ImGui::EndMenu();
+        }
+
         EditService& edit = m_editor.EditService();
 
         if (ImGui::MenuItem("Copy")) {
@@ -243,6 +249,45 @@ void HierarchyPanel::DrawPopup(const FocusedPreviewScene& p_ctx) {
         }
         ImGui::EndPopup();
     }
+}
+
+// clang-format off
+#define OBJECT_LIST                      \
+    DEFINE_OBJECT(InfiniteLight,  false) \
+    DEFINE_OBJECT(PointLight,     false) \
+    DEFINE_OBJECT(AreaLight,      true ) \
+    DEFINE_OBJECT(Transform,      false) \
+    DEFINE_OBJECT(Plane,          false) \
+    DEFINE_OBJECT(Cube,           false) \
+    DEFINE_OBJECT(Sphere,         false) \
+    DEFINE_OBJECT(Cylinder,       false) \
+    DEFINE_OBJECT(Cone,           false) \
+    DEFINE_OBJECT(Torus,          true )
+// clang-format on
+
+void HierarchyPanel::OpenAddEntityPopupImpl(DocId p_doc_id, ecs::Entity p_parent) {
+    DEV_ASSERT(p_parent.IsValid());
+
+    using CreateFunc = Entity (*)(SceneCommandWriter& p_cb, std::string_view p_name);
+    auto add_object = [&](const char* p_name, bool p_separator, CreateFunc p_func) {
+        if (ImGui::MenuItem(p_name)) {
+            m_editor.EditService().Submit(p_doc_id, [&](SceneCommandWriter& cb) {
+                Entity temp = p_func(cb, p_name);
+                cb.AttachChild(temp, p_parent);
+            });
+        }
+
+        if (p_separator) {
+            ImGui::Separator();
+        }
+    };
+
+#define DEFINE_OBJECT(NAME, SEP) add_object( \
+    #NAME,                                   \
+    SEP,                                     \
+    [](SceneCommandWriter& p_cb, std::string_view p_name) { return p_cb.Create##NAME##Object(p_name); });
+    OBJECT_LIST
+#undef DEFINE_OBJECT
 }
 
 }  // namespace cave

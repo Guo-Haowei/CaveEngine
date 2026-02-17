@@ -9,6 +9,7 @@
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 
 #include "editor/services/EditService.h"
+#include "editor/services/Workspace.h"
 
 #include "editor/EditorState.h"
 
@@ -55,8 +56,7 @@ void ShortcutService::InitShortcuts() {
     };
 
     auto active_document = [this]() -> DocId {
-        FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
-        return preview.doc_id;
+        return m_editor.Workspace().FocusedDoc();
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Redo)] = {

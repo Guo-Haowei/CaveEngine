@@ -43,9 +43,6 @@ void MenuBar::DrawUI() {
         }
         ImGui::EndMenu();
     }
-    ImGui::Separator();
-
-    m_editor.OpenAddEntityPopup(ecs::Entity::Null());
 
     ImGui::Separator();
     if (ImGui::BeginMenu("Debug")) {

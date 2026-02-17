@@ -13,6 +13,7 @@
 #include "editor/edit/RemoveComponentCmd.h"
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
+#include "editor/services/Workspace.h"
 
 // @TODO: refactor
 
@@ -275,7 +276,7 @@ bool DrawComponentAuto(T* p_component, const DrawComponentCtx& p_ctx) {
 void PropertyPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 
-    FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
+    PreviewScene preview = m_editor.Workspace().FocusedPreviewScene();
     if (!preview.scene) {
         return;
     }

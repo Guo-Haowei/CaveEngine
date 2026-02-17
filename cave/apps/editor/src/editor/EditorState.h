@@ -28,12 +28,6 @@ class ShortcutService;
 class ThumbnailService;
 class Workspace;
 
-struct FocusedPreviewScene {
-    DocId doc_id{};
-    SceneId scene_id{};
-    Scene* scene{ nullptr };
-};
-
 class EditorState final : public AppState {
     enum class Mode : uint8_t {
         Editing = 0,
@@ -57,12 +51,6 @@ public:
     const char* GetDebugName() final { return "EditorState"; }
 #endif
 
-    FocusedPreviewScene GetFocusedPreviewScene();
-    DocId GetFocusedDoc();
-
-    // @TODO: move it to utility
-    void OpenAddEntityPopup(ecs::Entity p_parent);
-
     ContentBrowser& GetAssetInspector() { return *m_content_browser.get(); }
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
     LogPanel& GetLogPanel() { return *m_log_panel.get(); }
@@ -83,8 +71,6 @@ private:
 
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
     void CommitModeSwitch();
-
-    void OpenAddEntityPopupImpl(ecs::Entity p_parent);
 
     Mode m_state{ Mode::Editing };
     bool m_switch_mode_requested{ false };
