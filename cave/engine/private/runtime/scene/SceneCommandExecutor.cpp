@@ -19,10 +19,6 @@ SceneCommandExecutor::SceneCommandExecutor(Scene& p_scene) noexcept
     , m_reg(engine::GetComponentRegistry()) {
 }
 
-void SceneCommandExecutor::RemoveEntity(Entity p_ent) {
-    m_scene.RemoveEntity(p_ent);
-}
-
 void SceneCommandExecutor::AddComponent(Entity p_ent, ComponentId p_id) {
     m_scene.Storage().CreateRaw(p_ent, p_id);
     return;

@@ -15,11 +15,6 @@ SceneCommandExecutor_Undo::SceneCommandExecutor_Undo(SceneRegistry& p_scene_reg)
 
 SceneCommandExecutor_Undo::~SceneCommandExecutor_Undo() = default;
 
-void SceneCommandExecutor_Undo::RemoveEntity(Entity p_ent) {
-    unused(p_ent);
-    CRASH_NOW_MSG("not implemented");
-}
-
 void SceneCommandExecutor_Undo::AddComponent(Entity p_ent, ComponentId p_cid) {
     auto cmd = std::make_unique<AddComponentCmd>(m_scene_reg,
                                                  p_ent,

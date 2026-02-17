@@ -11,8 +11,6 @@ public:
     explicit SceneCommandExecutor(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept;
     explicit SceneCommandExecutor(Scene& p_scene) noexcept;
 
-    void RemoveEntity(ecs::Entity p_ent) override;
-
     void AddComponent(ecs::Entity p_ent, ComponentId p_id) override;
 
     bool RemoveComponent(ecs::Entity p_ent, ComponentId p_id) override;
