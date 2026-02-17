@@ -5,27 +5,6 @@
 
 namespace cave {
 
-enum class EntityType : uint8_t;
-
-class AddObjectCmd : public EditCmdBase {
-public:
-    AddObjectCmd(IApplication& p_app,
-                 ecs::Entity p_ent,
-                 EntityType p_type)
-        : EditCmdBase(p_app, p_ent)
-        , m_type(p_type) {}
-
-    const char* Label() const override { return "AddObjectCmd"; }
-
-    bool Do(IDocument& p_doc) override;
-
-    bool Undo(IDocument&) override;
-
-protected:
-    EntityType m_type;
-    ecs::Entity m_created;
-};
-
 class DeleteObjectCmd : public EditCmdBase {
 public:
     using EditCmdBase::EditCmdBase;

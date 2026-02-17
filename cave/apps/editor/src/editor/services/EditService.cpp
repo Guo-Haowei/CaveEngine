@@ -1,15 +1,16 @@
 #include "EditService.h"
 
-#include "editor/services/DocumentService.h"
-#include "editor/services/Workspace.h"
-
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/scene/SceneCommandPlayback.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
+
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorState.h"
-
-#include "../Enums.h"
+#include "editor/edit/SceneCommandExecutor_Undo.h"
+#include "editor/services/DocumentService.h"
+#include "editor/services/Workspace.h"
 
 namespace cave {
 
@@ -18,6 +19,31 @@ EditService::EditService(EditorState& p_editor)
 
 void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd> p_cmd) {
     m_pending_cmds[p_doc_id].emplace_back(std::move(p_cmd));
+}
+
+void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
+    IApplication& p_app = m_editor.GetApp();
+
+    SceneRegistry& p_scene_reg = *p_app.GetSceneRegistry();
+
+    Scene* scene = nullptr;
+    if (IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id)) {
+        SceneId scene_id = doc->GetPreviewScene();
+        scene = p_scene_reg.Resolve(scene_id);
+    }
+
+    if (!scene) {
+        return;
+    }
+
+    SceneCommandWriter cb(*p_app.GetAssetRegistry());
+    p_func(cb);
+
+    EntityMap map(cb.GetAllocationCount());
+    SceneCommandExecutor_Undo executor(*p_app.GetSceneRegistry());
+    SceneCommandPlayback::Play(cb, executor, { map, *scene });
+
+    Submit(p_doc_id, std::move(executor.MoveCommand()));
 }
 
 void EditService::Undo(DocId p_doc_id) {

@@ -4,7 +4,6 @@
 #include "engine/private/renderer/frame_data.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/pipeline_state.h"
-#include "engine/private/runtime/scene/SceneComponent.h"
 #include "RenderGraphPredefined.h"
 
 namespace cave::render {

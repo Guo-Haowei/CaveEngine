@@ -165,7 +165,7 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
         material.SetResourceGuid(m_materials[mesh->mMaterialIndex]);
 
         renderer.SetResourceGuid(m_meshes[mesh_idx]);
-        renderer.GetMaterialInstances().push_back(entity);
+        renderer.AddMaterial(entity);
     } else {  // else make it a transform/bone node
         DEV_ASSERT(0);
 

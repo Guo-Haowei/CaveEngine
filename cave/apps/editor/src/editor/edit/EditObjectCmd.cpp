@@ -1,9 +1,10 @@
 #include "EditObjectCmd.h"
 
+#include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneMutator.h"
 
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/Enums.h"
@@ -15,56 +16,10 @@ namespace cave {
     return std::format("{}-{}", p_name, ++s_counter);
 }
 
-bool AddObjectCmd::Do(IDocument& p_doc) {
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            SceneCommandWriter cb(AssetRegistry::GetSingleton());
-            ecs::Entity created{};
-            switch (m_type) {
-#define ENTITY_TYPE(NAME, ...)                                  \
-    case EntityType::NAME: {                                    \
-        created = cb.Create##NAME##Object(GenerateName(#NAME)); \
-    } break;
-                ENTITY_TYPE_LIST
-#undef ENTITY_TYPE
-                default:
-                    LOG_FATAL("Entity type {} not supported", static_cast<int>(m_type));
-                    break;
-            }
-
-            SceneMutator mut(*scene);
-            cb.Playback(mut);
-            m_created = cb.Resolve(created);
-
-            ecs::Entity parent = m_entity;
-            if (scene->m_root.IsValid()) {
-                scene->AttachChild(m_created, parent.IsValid() ? parent : scene->m_root);
-            } else {
-                scene->m_root = m_created;
-            }
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool AddObjectCmd::Undo(IDocument& p_doc) {
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            scene->RemoveEntity(m_created);
-            m_created = ecs::Entity::Null();
-            return true;
-        }
-    }
-    return false;
-}
-
 bool DeleteObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            scene->RemoveEntity(m_entity);
+            scene->RemoveEntity(m_ent);
             return true;
         }
     }
@@ -79,7 +34,7 @@ bool DeleteObjectCmd::Undo(IDocument&) {
 bool CloneObjectCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
-            scene->DuplicateEntity(m_entity);
+            scene->DuplicateEntity(m_ent);
             return true;
         }
     }

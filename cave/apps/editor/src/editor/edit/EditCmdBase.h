@@ -6,15 +6,12 @@
 
 namespace cave {
 
-class IApplication;
-class SceneRegistry;
-
 class Scene;
+class SceneRegistry;
 
 class EditCmdBase : public IEditCmd {
 public:
-    EditCmdBase(IApplication& p_app,
-                ecs::Entity p_ent);
+    EditCmdBase(SceneRegistry& p_scene_reg, ecs::Entity p_ent);
 
     bool CanCoalesceWith(const IEditCmd*) const override {
         return false;
@@ -26,7 +23,7 @@ public:
 
 protected:
     Scene* ResolveScene(SceneId p_scene_id) const;
-    ecs::Entity m_entity;
+    ecs::Entity m_ent;
 
 private:
     SceneRegistry& m_scene_reg;

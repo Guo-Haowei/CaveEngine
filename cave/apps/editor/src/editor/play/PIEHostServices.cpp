@@ -1,9 +1,10 @@
 #include "PIEHostServices.h"
 
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "engine/private/core/diagnostics/logger/Logger.h"
 #include "engine/private/runtime/framework/Engine.h"
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 
 namespace cave {
 
@@ -31,9 +32,11 @@ ILogger& PIEHostServices::Log() {
 }
 
 void PIEHostServices::FlushSceneCommands() {
-    if (!SceneWriter().Empty()) {
-        SceneMutator mut(m_scene);
-        SceneWriter().Playback(mut);
+    SceneCommandBuffer& cb = SceneWriter();
+    if (cb.Data()) {
+        SceneCommandExecutor executor(m_scene);
+        EntityMap map(cb.GetAllocationCount());
+        SceneCommandPlayback::Play(cb, executor, { map, m_scene });
     }
 }
 

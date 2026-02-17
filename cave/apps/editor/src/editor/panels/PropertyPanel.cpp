@@ -8,11 +8,12 @@
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
-#include "editor/edit/EditPropertyCmd.h"
-#include "editor/edit/EditTransformCmd.h"
-#include "editor/edit/EditComponentCmd.h"  // @TODO: refactor this
+#include "editor/edit/ChangePropertyCmd.h"
+#include "editor/edit/AddComponentCmd.h"
+#include "editor/edit/RemoveComponentCmd.h"
 #include "editor/services/EditService.h"
 #include "editor/services/SelectionService.h"
+#include "editor/services/Workspace.h"
 
 // @TODO: refactor
 
@@ -36,7 +37,6 @@ using namespace math;
     COMPONENT_DECL(LuaScript)       \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
-    COMPONENT_DECL(Velocity)        \
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
     COMPONENT_DECL(TileMapRenderer) \
@@ -75,7 +75,10 @@ static void DrawComponent(const std::string& p_name,
 
         if (ImGui::BeginPopup("ComponentSettings")) {
             if (ImGui::MenuItem("remove component")) {
-                auto cmd = std::make_unique<RemoveComponentCmd<T>>(ctx.app, ctx.entity, *p_component);
+                auto cmd = std::make_unique<RemoveComponentCmd<T>>(
+                    *ctx.app.GetSceneRegistry(),
+                    ctx.entity,
+                    *p_component);
                 ctx.edit.Submit(ctx.doc_id, std::move(cmd));
             }
 
@@ -154,12 +157,13 @@ bool EditAndSubmit(const DrawComponentCtx& p_ctx,
         return false;
     }
 
-    auto cmd = std::make_unique<EditPropertyCmd>(p_ctx.app,
-                                                 p_ctx.entity,
-                                                 p_component->GetId(),
-                                                 p_field->id,
-                                                 old_v,
-                                                 new_v);
+    auto cmd = std::make_unique<ChangePropertyCmd>(
+        *p_ctx.app.GetSceneRegistry(),
+        p_ctx.entity,
+        p_component->GetId(),
+        p_field->id,
+        old_v,
+        new_v);
     p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
     return true;
 }
@@ -239,12 +243,13 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
             Vector4f old_v = q;
             Vector4f new_v = Vector4f(q2.x, q2.y, q2.z, q2.w);
 
-            auto cmd = std::make_unique<EditPropertyCmd>(p_ctx.app,
-                                                         p_ctx.entity,
-                                                         p_component->GetId(),
-                                                         p_property->id,
-                                                         old_v,
-                                                         new_v);
+            auto cmd = std::make_unique<ChangePropertyCmd>(
+                *p_ctx.app.GetSceneRegistry(),
+                p_ctx.entity,
+                p_component->GetId(),
+                p_property->id,
+                old_v,
+                new_v);
             p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
             return true;
         } break;
@@ -271,7 +276,7 @@ bool DrawComponentAuto(T* p_component, const DrawComponentCtx& p_ctx) {
 void PropertyPanel::DrawUIImpl() {
     CAVE_PROFILE_EVENT();
 
-    FocusedPreviewScene preview = m_editor.GetFocusedPreviewScene();
+    PreviewScene preview = m_editor.Workspace().FocusedPreviewScene();
     if (!preview.scene) {
         return;
     }
@@ -305,8 +310,8 @@ void PropertyPanel::DrawUIImpl() {
     {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
-            auto cmd = std::make_unique<EditPropertyCmd>(
-                m_editor.GetApp(),
+            auto cmd = std::make_unique<ChangePropertyCmd>(
+                *m_editor.GetApp().GetSceneRegistry(),
                 id,
                 NameComponent_Id,
                 StringId("name"),
@@ -322,16 +327,29 @@ void PropertyPanel::DrawUIImpl() {
         ImGui::OpenPopup("AddComponentPopup");
     }
 
+    auto create_component = [&](BuiltinComponentId cid) {
+        if (scene.Storage().Has(id, cid)) {
+            LOG_ERROR("object {} already has component {}",
+                      name_component->GetName(),
+                      std::to_underlying(cid));
+            return;
+        }
+        auto cmd = std::make_unique<AddComponentCmd>(
+            *m_editor.GetApp().GetSceneRegistry(),
+            id,
+            cid);
+        edit_service.Submit(doc_id, std::move(cmd));
+    };
+
     if (ImGui::BeginPopup("AddComponentPopup")) {
         if (ImGui::MenuItem("Rigid Body")) {
             LOG_ERROR("TODO: implement add component");
             ImGui::CloseCurrentPopup();
         }
 
-#define COMPONENT_DECL(NAME)                                                                  \
-    if (ImGui::MenuItem(#NAME)) {                                                             \
-        auto cmd = std::make_unique<AddComponentCmd<NAME##Component>>(m_editor.GetApp(), id); \
-        edit_service.Submit(doc_id, std::move(cmd));                                          \
+#define COMPONENT_DECL(NAME)                  \
+    if (ImGui::MenuItem(#NAME)) {             \
+        create_component(NAME##Component_Id); \
     }
         COMPONENT_LIST
 #undef COMPONENT_DECL

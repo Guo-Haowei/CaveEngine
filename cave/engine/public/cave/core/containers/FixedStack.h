@@ -75,8 +75,8 @@ public:
     void emplace_back(const T& v) { push_back(v); }
 
 protected:
-    size_t m_size = 0;
     T m_data[N];
+    size_t m_size = 0;
 };
 
 }  // namespace cave

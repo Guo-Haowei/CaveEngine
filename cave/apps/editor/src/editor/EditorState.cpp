@@ -1,9 +1,9 @@
 #include "EditorState.h"
 
-#include "cave/runtime/framework/IApplication.h"
-
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
+
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
 
@@ -23,8 +23,6 @@
 #include "Enums.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/IScriptService.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/edit/EditObjectCmd.h"
@@ -40,6 +38,8 @@
 #include "editor/widgets/Image.h"
 
 namespace cave {
+
+using ecs::Entity;
 
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app)
@@ -169,7 +169,7 @@ void EditorState::CommitModeSwitch() {
 
     switch (m_state) {
         case cave::EditorState::Mode::Editing: {
-            FocusedPreviewScene preview = GetFocusedPreviewScene();
+            PreviewScene preview = m_workspace->FocusedPreviewScene();
             m_pie.OnSimBegin(preview.scene_id);
         } break;
         case cave::EditorState::Mode::Playing: {
@@ -210,36 +210,6 @@ void EditorState::DockSpace() {
     });
 
     return;
-}
-
-FocusedPreviewScene EditorState::GetFocusedPreviewScene() {
-    FocusedPreviewScene ret;
-    if (Tab* tab = m_workspace->GetFocusedTab()) {
-        ret.doc_id = tab->GetDocId();
-        if (IDocument* doc = m_document_service->Resolve(ret.doc_id)) {
-            ret.scene_id = doc->GetPreviewScene();
-            ret.scene = m_app.GetSceneRegistry()->Resolve(ret.scene_id);
-        }
-    }
-    return ret;
-}
-
-void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
-    if (ImGui::BeginMenu("Add")) {
-        FocusedPreviewScene preview = GetFocusedPreviewScene();
-        DocId doc_id = preview.doc_id;
-#define ENTITY_TYPE(NAME, SEP)                                                           \
-    if (ImGui::MenuItem(#NAME)) {                                                        \
-        auto cmd = std::make_unique<AddObjectCmd>(GetApp(), p_parent, EntityType::NAME); \
-        m_edit_service->Submit(doc_id, std::move(cmd));                                  \
-    }                                                                                    \
-    if constexpr (SEP) {                                                                 \
-        ImGui::Separator();                                                              \
-    }
-        ENTITY_TYPE_LIST
-#undef ENTITY_TYPE
-        ImGui::EndMenu();
-    }
 }
 
 }  // namespace cave

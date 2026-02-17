@@ -8,14 +8,16 @@
 namespace cave {
 
 class EditorState;
-
-enum class EntityType : uint8_t;
+class SceneCommandWriter;
+using SceneCommandWriterFn = std::function<void(SceneCommandWriter&)>;
 
 class EditService {
 public:
     EditService(EditorState& p_editor);
 
     void Submit(DocId p_doc_id, std::unique_ptr<IEditCmd> p_cmd);
+
+    void Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func);
 
     void Undo(DocId p_doc_id);
     void Redo(DocId p_doc_id);

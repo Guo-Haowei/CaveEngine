@@ -28,12 +28,6 @@ class ShortcutService;
 class ThumbnailService;
 class Workspace;
 
-struct FocusedPreviewScene {
-    DocId doc_id{};
-    SceneId scene_id{};
-    Scene* scene{ nullptr };
-};
-
 class EditorState final : public AppState {
     enum class Mode : uint8_t {
         Editing = 0,
@@ -56,11 +50,6 @@ public:
 #if USING(DEBUG_BUILD)
     const char* GetDebugName() final { return "EditorState"; }
 #endif
-
-    FocusedPreviewScene GetFocusedPreviewScene();
-
-    // @TODO: move it to utility
-    void OpenAddEntityPopup(ecs::Entity p_parent);
 
     ContentBrowser& GetAssetInspector() { return *m_content_browser.get(); }
     FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }

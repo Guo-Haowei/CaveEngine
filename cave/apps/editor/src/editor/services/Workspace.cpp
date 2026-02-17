@@ -4,6 +4,7 @@
 #include "cave/runtime/input/KeyCode.h"
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorState.h"
 #include "editor/services/DocumentService.h"
@@ -29,6 +30,21 @@ void Workspace::Tick() {
     FlushPendingRequests();
 
     DrawTabs();
+}
+
+DocId Workspace::FocusedDoc() {
+    Tab* tab = FocusedTab();
+    return tab ? tab->GetDocId() : DocId{};
+}
+
+PreviewScene Workspace::FocusedPreviewScene() {
+    PreviewScene ret;
+    ret.doc_id = FocusedDoc();
+    if (IDocument* doc = m_editor.DocumentService().Resolve(ret.doc_id)) {
+        ret.scene_id = doc->GetPreviewScene();
+        ret.scene = m_editor.GetApp().GetSceneRegistry()->Resolve(ret.scene_id);
+    }
+    return ret;
 }
 
 void Workspace::Submit(WorkspaceRequest p_req) {

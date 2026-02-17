@@ -57,6 +57,12 @@ struct WorkspaceRequest {
     }
 };
 
+struct PreviewScene {
+    DocId doc_id{};
+    SceneId scene_id{};
+    Scene* scene{ nullptr };
+};
+
 class Workspace final : protected GenIdRegistry<Tab>,
                         public IInputConsumer {
 public:
@@ -67,9 +73,13 @@ public:
 
     void Submit(WorkspaceRequest p_req);
 
-    TabId GetFocusedTabId() const { return m_focused_tab; }
+    TabId FocusedTabId() const { return m_focused_tab; }
 
-    Tab* GetFocusedTab() { return Resolve(m_focused_tab); }
+    Tab* FocusedTab() { return Resolve(m_focused_tab); }
+
+    DocId FocusedDoc();
+
+    PreviewScene FocusedPreviewScene();
 
     void OnEvents(const InputFrame& p_input) final;
 

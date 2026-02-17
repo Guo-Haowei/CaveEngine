@@ -1,8 +1,8 @@
 #include "cave/runtime/ecs/ComponentRegistry.h"
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
-#include "cave/runtime/scene/SceneCommandBuffer.h"
-#include "cave/runtime/scene/SceneMutator.h"
+#include "cave/runtime/scene/SceneCommandPlayback.h"
 
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave::scene {
@@ -27,11 +27,13 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     cb.SetProperty(e2, HierarchyComponent_Id, StringId("parent_id"), e1);
 
     ComponentRegistry reg = ComponentRegistry::Builtin();
-    SceneMutator mut(scene, reg);
-    cb.Playback(mut);
 
-    Entity r1 = cb.Resolve(e1);
-    Entity r2 = cb.Resolve(e2);
+    SceneCommandExecutor executor(scene, reg);
+    EntityMap map(cb.GetAllocationCount());
+    SceneCommandPlayback::Play(cb, executor, { map, scene });
+
+    Entity r1 = map.Resolve(e1);
+    Entity r2 = map.Resolve(e2);
 
     const HierarchyComponent* hier2 = scene.GetComponent<HierarchyComponent>(r2);
     ASSERT_TRUE(hier2);

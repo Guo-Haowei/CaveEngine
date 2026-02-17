@@ -17,4 +17,4 @@
 
 // components
 // @TODO: split this
-#include "engine/private/runtime/scene/SceneComponent.h"
+#include "engine/private/runtime/ecs/components/SceneComponents.h"
