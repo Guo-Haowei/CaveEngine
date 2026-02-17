@@ -12,6 +12,11 @@ namespace cave {
 
 class AssetRegistry;
 
+struct MaterialContext {
+    const Guid* guid{ nullptr };
+    math::Vector4f base_color{ 1 };
+};
+
 class SceneCommandWriter : public SceneCommandBuffer {
     using Entity = ecs::Entity;
     using Vector3f = math::Vector3f;
@@ -44,29 +49,29 @@ public:
 
     Entity CreateMeshObject(const std::string& p_mesh_path,
                             std::string_view p_name,
-                            const Guid* p_mat_guid);
+                            const MaterialContext& p_mat_ctx);
 
     Entity CreateMeshObject(const std::string& p_mesh_path,
                             std::string_view p_name,
                             const std::string& p_mat_path);
 
     Entity CreatePlaneObject(std::string_view p_name,
-                             const Guid* p_mat_id = nullptr);
+                             const MaterialContext& p_mat_ctx = {});
 
     Entity CreateCubeObject(std::string_view p_name,
-                            const Guid* p_mat_guid = nullptr);
+                            const MaterialContext& p_mat_ctx = {});
 
     Entity CreateSphereObject(std::string_view p_name,
-                              const Guid* p_mat_guid = nullptr);
+                              const MaterialContext& p_mat_ctx = {});
 
     Entity CreateCylinderObject(std::string_view p_name,
-                                const Guid* p_mat_id = nullptr);
+                                const MaterialContext& p_mat_ctx = {});
 
     Entity CreateConeObject(std::string_view p_name,
-                            const Guid* p_mat_id = nullptr);
+                            const MaterialContext& p_mat_ctx = {});
 
     Entity CreateTorusObject(std::string_view p_name,
-                             const Guid* p_mat_id = nullptr);
+                             const MaterialContext& p_mat_ctx = {});
 
     Entity CreateTileMapObject(std::string_view p_name);
 

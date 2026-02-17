@@ -16,6 +16,7 @@ set_target_properties(${TARGET_NAME}
 
 target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/cave/public
+    ${CMAKE_CURRENT_SOURCE_DIR}/
 )
 
 set_target_properties(${TARGET_NAME}
@@ -34,3 +35,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE engine)
 target_compile_definitions(${TARGET_NAME} PRIVATE
     CAVE_GAME_DLL=1
 )
+
+if(CAVE_BUILD_TESTS)
+    add_subdirectory(core)
+endif()

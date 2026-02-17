@@ -51,21 +51,18 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& p_cb,
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
                 Entity real = p_ctx.scene.CreateEntity();
                 map.SetRemap(e, real);
-                // @TODO: generate Undoable Command CreateWidthId
             } break;
             case SceneCmd_Op::DestroyEntity: {
-                const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
-                p_exe.RemoveEntity(map.Resolve(e));
+                // const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
+                CRASH_NOW_MSG("not supported");
             } break;
             case SceneCmd_Op::AddComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
                 p_exe.AddComponent(map.Resolve(payload->ent), payload->cid);
-                // @TODO: generate Undoable Command AddComponent
             } break;
             case SceneCmd_Op::RemoveComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
                 p_exe.RemoveComponent(map.Resolve(payload->ent), payload->cid);
-                // @TODO: generate Undoable Command RemoveComponent
             } break;
             case SceneCmd_Op::AssignProperty: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadProperty*>(payload_raw);

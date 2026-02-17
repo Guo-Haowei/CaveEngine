@@ -2,12 +2,13 @@
 #include <array>
 #include <cstdint>
 
-namespace cave::chess {
+namespace chess::core {
 
 enum class Color : uint8_t {
     White,
     Black,
     Null,
+    Both = Null,
 };
 
 enum class PieceType : uint8_t {
@@ -40,6 +41,12 @@ constexpr uint8_t kColorMax = std::to_underlying(Color::Null);
 constexpr uint8_t kPieceMax = std::to_underlying(Piece::Null);
 constexpr uint8_t kPieceTypeMax = std::to_underlying(PieceType::Null);
 
+static constexpr Color FlipColor(Color p_color) {
+    if (p_color == Color::White) return Color::Black;
+    if (p_color == Color::Black) return Color::White;
+    return Color::Null;
+}
+
 static constexpr PieceType GetType(Piece p_piece) {
     if (p_piece == Piece::Null) return PieceType::Null;
     const uint8_t type = std::to_underlying(p_piece) % kPieceTypeMax;
@@ -52,20 +59,11 @@ static constexpr Color GetColor(Piece p_piece) {
     return static_cast<Color>(type);
 }
 
-static_assert(GetType(Piece::Null) == PieceType::Null);
-static_assert(GetType(Piece::WP) == PieceType::Pawn);
-static_assert(GetType(Piece::WB) == PieceType::Bishop);
-static_assert(GetType(Piece::WK) == PieceType::King);
-static_assert(GetType(Piece::BP) == PieceType::Pawn);
-static_assert(GetType(Piece::BN) == PieceType::Knight);
-static_assert(GetType(Piece::BK) == PieceType::King);
+Piece BuildPiece(PieceType p_type, Color p_color);
 
-static_assert(GetColor(Piece::Null) == Color::Null);
-static_assert(GetColor(Piece::WP) == Color::White);
-static_assert(GetColor(Piece::WQ) == Color::White);
-static_assert(GetColor(Piece::WK) == Color::White);
-static_assert(GetColor(Piece::BP) == Color::Black);
-static_assert(GetColor(Piece::BB) == Color::Black);
-static_assert(GetColor(Piece::BK) == Color::Black);
+Piece ParsePieceChar(char p_char);
+char GetPieceChar(Piece p_piece);
+const char* GetPieceTypeName(PieceType p_type);
+const char* GetPieceName(Piece p_piece);
 
-}  // namespace cave::chess
+}  // namespace chess::core

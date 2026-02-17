@@ -14,8 +14,6 @@ public:
 
     ~SceneCommandExecutor_Undo();
 
-    void RemoveEntity(ecs::Entity p_ent) override;
-
     void AddComponent(ecs::Entity p_ent, ComponentId p_cid) override;
 
     bool RemoveComponent(ecs::Entity p_ent, ComponentId p_cid) override;

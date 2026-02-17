@@ -27,7 +27,7 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     }
 
     if constexpr (1) {
-        Entity sphere = cb.CreateSphereObject("sphere", &p_guid);
+        Entity sphere = cb.CreateSphereObject("sphere", { &p_guid });
         cb.AttachChild(sphere, root);
     }
 

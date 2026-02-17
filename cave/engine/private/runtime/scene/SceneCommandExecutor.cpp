@@ -19,10 +19,6 @@ SceneCommandExecutor::SceneCommandExecutor(Scene& p_scene) noexcept
     , m_reg(engine::GetComponentRegistry()) {
 }
 
-void SceneCommandExecutor::RemoveEntity(Entity p_ent) {
-    m_scene.RemoveEntity(p_ent);
-}
-
 void SceneCommandExecutor::AddComponent(Entity p_ent, ComponentId p_id) {
     m_scene.Storage().CreateRaw(p_ent, p_id);
     return;
@@ -30,22 +26,6 @@ void SceneCommandExecutor::AddComponent(Entity p_ent, ComponentId p_id) {
 
 bool SceneCommandExecutor::RemoveComponent(Entity p_ent, ComponentId p_id) {
     return m_scene.Storage().Remove(p_ent, p_id);
-}
-
-void* SceneCommandExecutor::ReadProperty(ecs::Entity p_ent,
-                                         const ecs::ComponentMeta* p_meta,
-                                         const PropertyId& p_pid) {
-    if (!p_meta) {
-        return nullptr;
-    }
-
-    const FieldMetaBase* field = p_meta->Find(p_pid);
-    if (!field) return nullptr;
-
-    void* comp = m_scene.Storage().GetRaw(p_ent, p_meta->cid);
-    if (!comp) return nullptr;
-    char* data = reinterpret_cast<char*>(comp) + field->offset;
-    return data;
 }
 
 bool SceneCommandExecutor::ChangeProperty(Entity p_ent,
@@ -59,12 +39,19 @@ bool SceneCommandExecutor::ChangeProperty(Entity p_ent,
         return false;
     }
 
-    void* data = ReadProperty(p_ent, meta, p_pid);
-    if (!data) {
-        LOG_WARN("Can't find property '{}' for component {}", p_pid.GetHash(), meta->name);
+    void* comp = m_scene.Storage().GetRaw(p_ent, meta->cid);
+    if (!comp) {
+        LOG_WARN("Can't find '{}' for ent {}", meta->name, p_ent.GetId());
         return false;
     }
 
+    const FieldMetaBase* field = meta->Find(p_pid);
+    if (!field) {
+        LOG_WARN("Can't find '{}.{}' for ent {}", meta->name, p_pid.DebugName(), p_ent.GetId());
+        return false;
+    }
+
+    char* data = reinterpret_cast<char*>(comp) + field->offset;
     std::memcpy(data, p_data, p_data_size);
     if (meta->on_edited) {
         meta->on_edited(m_scene, p_ent, p_cid, p_pid, p_data, p_data_size);
