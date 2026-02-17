@@ -5,20 +5,17 @@
 namespace chess {
 
 using core::Color;
+using core::Move;
 using core::Square;
 
 bool ChessGridSelectorAdapter::CanSelect(int x, int y) {
     const Square sq = Square::From((uint8_t)x, (uint8_t)y);
 
-    const auto& pos = m_game.Position();
-    const Color sq_color = pos.ColorAt(sq);
-    if (pos.SideToMove() == sq_color) {
-        printf("can select %s\n", sq.ToString());
-        return true;
+    if (m_cached_moves.empty()) {
+        m_cached_moves = m_game.LegalMovesFromSquare(sq);
     }
 
-    printf("can't select %s\n", sq.ToString());
-    return false;
+    return !m_cached_moves.empty();
 }
 
 void ChessGridSelectorAdapter::OnSelect(int x, int y) {

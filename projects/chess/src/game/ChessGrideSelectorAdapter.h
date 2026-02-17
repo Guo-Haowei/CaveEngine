@@ -1,4 +1,6 @@
 #pragma once
+#include <span>
+#include "core/Move.h"
 
 namespace chess {
 
@@ -19,6 +21,8 @@ public:
 
 private:
     ChessGame& m_game;
+
+    std::span<const core::Move> m_cached_moves;
 };
 
 }  // namespace chess

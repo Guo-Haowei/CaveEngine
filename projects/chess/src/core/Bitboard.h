@@ -1,52 +1,65 @@
 #pragma once
-#include <cstdint>
-#include <tuple>
+#include <bit>
+#include "Square.h"
 
 namespace chess::core {
 
-class Square {
+class BitboardSquares {
 public:
-    explicit Square(uint8_t p_val) noexcept
-        : m_val(p_val) {
-    }
+    explicit constexpr BitboardSquares(uint64_t p_bb)
+        : m_remaining(p_bb) {}
 
-    static Square From(uint8_t file, uint8_t rank) {
-        const uint8_t val = rank * 8 + file;
-        return Square(val);
-    }
+    struct Iterator {
+        uint64_t remaining = 0;
 
-    bool IsValid() const { return m_val < 64; }
+        Square operator*() const {
+            // remaining must be non-zero
+            const uint8_t tz = static_cast<uint8_t>(std::countr_zero(remaining));
+            return Square(tz);
+        }
 
-    uint8_t AsU8() const { return m_val; }
+        Iterator& operator++() {
+            // clear LSB
+            remaining &= (remaining - 1);
+            return *this;
+        }
 
-    std::tuple<uint8_t, uint8_t> FileRank() const;
+        constexpr bool operator!=(const Iterator& rhs) const {
+            return remaining != rhs.remaining;
+        }
+    };
 
-    const char* ToString() const;
+    constexpr Iterator begin() const { return Iterator{ m_remaining }; }
+    constexpr Iterator end() const { return Iterator{ 0 }; }
 
 private:
-    uint8_t m_val;
+    uint64_t m_remaining = 0;
 };
 
 class Bitboard {
 public:
     constexpr Bitboard()
-        : m_val(0) {}
+        : m_bits(0) {}
 
-    explicit constexpr Bitboard(uint64_t p_val)
-        : m_val(p_val) {}
+    explicit constexpr Bitboard(uint64_t p_bits)
+        : m_bits(p_bits) {}
 
-    constexpr bool Empty() const { return m_val == 0; }
-    constexpr bool Any() const { return m_val != 0; }
+    constexpr bool Empty() const { return m_bits == 0; }
+    constexpr bool Any() const { return m_bits != 0; }
 
     bool Test(Square p_sq) const;
     void Set(Square p_sq);
 
     Bitboard operator|(const Bitboard& p_other) const {
-        return Bitboard(m_val | p_other.m_val);
+        return Bitboard(m_bits | p_other.m_bits);
+    }
+
+    constexpr BitboardSquares Squares() const {
+        return BitboardSquares(m_bits);
     }
 
 private:
-    uint64_t m_val;
+    uint64_t m_bits;
 };
 
 }  // namespace chess::core

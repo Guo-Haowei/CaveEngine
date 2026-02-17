@@ -297,6 +297,14 @@ TEST(ParseBoard, should_parse_default_fen_correctly) {
     EXPECT_EQ(pretty, expect);
 }
 
+TEST(Position, piece_at) {
+    Position pos = Position::Default();
+
+    EXPECT_EQ(pos.PieceAt(Square(0)), Piece::WR);
+    EXPECT_EQ(pos.PieceAt(Square(48)), Piece::BP);
+    EXPECT_EQ(pos.PieceAt(Square(63)), Piece::BR);
+}
+
 #endif
 
 }  // namespace chess::core

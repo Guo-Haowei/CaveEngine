@@ -37,11 +37,6 @@ enum class Piece : uint8_t {
     Null,
 };
 
-Piece ParsePieceChar(char p_char);
-char GetPieceChar(Piece p_piece);
-const char* GetPieceTypeName(PieceType p_type);
-const char* GetPieceName(Piece p_piece);
-
 constexpr uint8_t kColorMax = std::to_underlying(Color::Null);
 constexpr uint8_t kPieceMax = std::to_underlying(Piece::Null);
 constexpr uint8_t kPieceTypeMax = std::to_underlying(PieceType::Null);
@@ -63,5 +58,12 @@ static constexpr Color GetColor(Piece p_piece) {
     const uint8_t type = (std::to_underlying(p_piece)) / kPieceTypeMax;
     return static_cast<Color>(type);
 }
+
+Piece BuildPiece(PieceType p_type, Color p_color);
+
+Piece ParsePieceChar(char p_char);
+char GetPieceChar(Piece p_piece);
+const char* GetPieceTypeName(PieceType p_type);
+const char* GetPieceName(Piece p_piece);
 
 }  // namespace chess::core

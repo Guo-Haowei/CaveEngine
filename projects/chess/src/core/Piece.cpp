@@ -4,7 +4,15 @@
 
 #include "cave/core/containers/EnumArray.h"
 
+#define CHESS_ASSERT assert
+
 namespace chess::core {
+
+Piece BuildPiece(PieceType p_type, Color p_color) {
+    CHESS_ASSERT(p_color == Color::White || p_color == Color::Black);
+    const uint8_t p = std::to_underlying(p_type) + ((p_color == Color::White) ? 0 : kPieceTypeMax);
+    return static_cast<Piece>(p);
+}
 
 Piece ParsePieceChar(char p_char) {
     // clang-format off

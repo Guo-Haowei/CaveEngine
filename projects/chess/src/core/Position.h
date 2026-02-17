@@ -63,6 +63,10 @@ public:
 
     std::string DebugBoardString() const;
 
+    Bitboard Bitboard(Piece p_piece) const {
+        return m_board[p_piece];
+    }
+
 private:
     void UpdateCache();
 

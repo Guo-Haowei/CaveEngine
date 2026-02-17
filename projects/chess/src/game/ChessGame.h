@@ -1,6 +1,10 @@
 #pragma once
 #include <cstdint>
+#include <span>
+#include <unordered_map>
+#include <unordered_set>
 #include "core/Position.h"
+#include "core/Move.h"
 
 namespace chess {
 
@@ -37,10 +41,17 @@ class ChessGame {
 public:
     void ResetBoard();
 
-    const core::Position& Position() const { return m_pos; }
+    std::span<const core::Move> LegalMoves() const { return m_moves; }
+
+    std::span<const core::Move> LegalMovesFromSquare(core::Square p_sq);
 
 private:
+    void OnPositionChange();
+
     core::Position m_pos;
+
+    core::MoveList m_moves;
+    std::unordered_map<core::Square, std::vector<core::Move>> m_move_cache;
 };
 
 }  // namespace chess
