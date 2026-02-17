@@ -2,10 +2,6 @@
 #include "cave/runtime/ecs/ComponentRegistry.h"
 #include "cave/runtime/scene/ISceneCommandExecutor.h"
 
-namespace cave::ecs {
-struct ComponentMeta;
-}
-
 namespace cave {
 
 class Scene;
@@ -28,10 +24,6 @@ public:
                         uint32_t p_data_size) override;
 
 protected:
-    void* ReadProperty(ecs::Entity p_ent,
-                       const ecs::ComponentMeta* p_meta,
-                       const PropertyId& p_pid);
-
     Scene& m_scene;
     const ecs::ComponentRegistry& m_reg;
 };
