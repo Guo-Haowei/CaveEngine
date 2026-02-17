@@ -61,11 +61,13 @@ public:
 
     std::string Fen() const;
 
+    std::string DebugBoardString() const;
+
 private:
     void UpdateCache();
 
-    Board m_board;
-    Color m_side_to_move = Color::White;
+    Board m_board{};
+    Color m_side_to_move{ Color::White };
     UndoState m_state;
 };
 

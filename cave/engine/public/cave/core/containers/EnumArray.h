@@ -26,4 +26,4 @@ struct EnumArray {
     static constexpr size_t size() noexcept { return N; }
 };
 
-} // namespace cave
+}  // namespace cave

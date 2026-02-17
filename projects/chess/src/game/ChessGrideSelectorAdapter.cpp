@@ -13,9 +13,11 @@ bool ChessGridSelectorAdapter::CanSelect(int x, int y) {
     const auto& pos = m_game.Position();
     const Color sq_color = pos.ColorAt(sq);
     if (pos.SideToMove() == sq_color) {
+        printf("can select %s\n", sq.ToString());
         return true;
     }
 
+    printf("can't select %s\n", sq.ToString());
     return false;
 }
 

@@ -29,6 +29,7 @@ ChessMode::ChessMode()
 
 void ChessMode::OnGameBegin(cave::IHostServices& p_host) {
     m_presenter.OnGameBegin(p_host.SceneQuery());
+    m_game.ResetBoard();
 }
 
 void ChessMode::OnGameEnd(cave::IHostServices& p_host) {
@@ -61,6 +62,9 @@ void ChessMode::ProcessInput(cave::IInputService& p_input) {
     }
     if (p_input.IsActionJustPressed(StringId("ui_up"))) {
         m_selector->MoveFocus(Vector2i(0, 1));
+    }
+    if (p_input.IsActionJustPressed(StringId("ui_down"))) {
+        m_selector->MoveFocus(Vector2i(0, -1));
     }
     if (p_input.IsActionJustPressed(StringId("ui_accept"))) {
         m_selector->Confirm();

@@ -46,7 +46,10 @@ Color Position::ColorAt(Square p_sq) const {
 }
 
 Position Position::Default() {
-    Position pos{};
+    auto res = FromFen(kDefaultFen);
+    DEV_ASSERT(res.has_value());
+
+    Position pos = *res;
     return pos;
 }
 
@@ -66,6 +69,7 @@ std::expected<Position, FenError> Position::FromFen(std::string_view p_fen) {
         return std::unexpected(FenError::InvalidBoard);
     }
 
+    pos.UpdateCache();
     return pos;
 }
 
@@ -121,6 +125,13 @@ pub fn update_cache(pos: &mut Position) -> bool {
     true
 }
 #endif
+}
+std::string Position::Fen() const {
+    return "TODO";
+}
+
+std::string Position::DebugBoardString() const {
+    return chess::core::DebugBoardString(m_board);
 }
 
 static bool SplitFen6(std::string_view fen,

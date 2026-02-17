@@ -35,6 +35,8 @@ struct ChessEvent {
 
 class ChessGame {
 public:
+    void ResetBoard();
+
     const core::Position& Position() const { return m_pos; }
 
 private:
