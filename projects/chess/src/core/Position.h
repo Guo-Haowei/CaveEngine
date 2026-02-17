@@ -6,8 +6,9 @@
 #include "cave/core/Option.h"
 #include "cave/core/containers/EnumArray.h"
 
-#include "Piece.h"
 #include "Bitboard.h"
+#include "Move.h"
+#include "Piece.h"
 
 namespace chess::core {
 
@@ -38,8 +39,8 @@ struct UndoState {
     cave::EnumArray<Color, Bitboard, 3> occupancies;
     cave::EnumArray<Color, Bitboard, 2> attack_mask;
 
-    // @TODO: captured piece
-    // pub captured_piece: Piece,
+    Piece captured_piece;
+
     // pub checkers: [CheckerList; Color::COUNT],
     // pub king_squares: [Square; Color::COUNT],
 };
@@ -56,19 +57,19 @@ public:
     static std::expected<Position, FenError> FromFen(std::string_view p_fen);
 
     Piece PieceAt(Square p_sq) const;
-
     Color ColorAt(Square p_sq) const;
+
+    bool MakeMove(Move p_mv, UndoState& p_state);
+    bool UnmakeMove(Move p_mv, UndoState& p_state);
 
     std::string Fen() const;
 
     std::string DebugBoardString() const;
 
-    Bitboard Bitboard(Piece p_piece) const {
-        return m_board[p_piece];
-    }
+    Bitboard Bitboard(Piece p_piece) const { return m_board[p_piece]; }
 
 private:
-    void UpdateCache();
+    bool UpdateCache();
 
     Board m_board{};
     Color m_side_to_move{ Color::White };

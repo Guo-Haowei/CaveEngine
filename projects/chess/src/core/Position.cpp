@@ -1,6 +1,10 @@
 #include "Position.h"
 
+#include "cave/core/typedefs.h"
+
 namespace chess::core {
+
+using cave::unused;
 
 static constexpr const char kDefaultFen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -45,6 +49,139 @@ Color Position::ColorAt(Square p_sq) const {
     return Color::Null;
 }
 
+static void MovePiece(Bitboard& p_board, Square p_src, Square p_to) {
+    DEV_ASSERT_MSG(p_board.Test(p_src), "No piece found on 'src' square");
+    p_board.Unset(p_src);
+    p_board.Set(p_to);
+}
+
+bool Position::MakeMove(Move p_mv, UndoState& p_state) {
+    const Square src_sq = p_mv.from;
+    const Square dst_sq = p_mv.to;
+
+    const Piece src_piece = PieceAt(src_sq);
+    const Piece dst_piece = PieceAt(dst_sq);
+
+    const PieceType src_piece_type = GetType(src_piece);
+
+    const Color my_color = GetColor(src_piece);
+    const Color their_color = FlipColor(my_color);
+
+    const bool is_pawn = src_piece_type == PieceType::Pawn;
+    const Piece their_pawn = BuildPiece(PieceType::Pawn, their_color);
+
+    const auto [src_file, src_rank] = src_sq.FileRank();
+    const auto [dst_file, dst_rank] = dst_sq.FileRank();
+
+    const MoveType move_type = p_mv.GetType();
+
+    DEV_ASSERT_MSG(src_piece != Piece::Null, "No piece found on 'from' square");
+    DEV_ASSERT_MSG(SideToMove() == my_color, "Trying to move a piece of the wrong color");
+
+#if 0
+    // check if the move will change the castling rights
+    let castling_rights =
+        castling_right_mask(pos.state.castling_rights, src_sq, dst_sq, src_piece, dst_piece);
+
+    // check if the move will generate an en passant square
+    let mut en_passant_sq: Option<Square> = None;
+    if is_mover_pawn {
+        let dy = dst_rank.diff(src_rank).abs();
+        debug_assert!(dy <= 2, "Pawn move must be 1 or 2 squares");
+        if dy == 2 {
+            let enemy_pawns = pos.bitboards[enemy_pawn.as_usize()];
+            if (PAWN_EN_PASSANT_MASKS[mover_color.as_usize()][dst_sq.as_usize()] & enemy_pawns)
+                .any()
+            {
+                en_passant_sq = Some(Square::make(src_file, Rank((src_rank.0 + dst_rank.0) / 2)));
+            }
+        }
+    }
+#endif
+
+    // -------------- Update Board Start --------------
+
+    m_state.captured_piece = dst_piece;
+    p_state = m_state;  // save old state as undo state
+
+    DEV_ASSERT(m_state.occupancies[SideToMove()].Test(src_sq));
+
+    MovePiece(m_board[src_piece], src_sq, dst_sq);
+
+    unused(their_pawn);
+    unused(is_pawn);
+
+    const bool captured_something = dst_piece != Piece::Null;
+    if (captured_something) {
+        m_board[dst_piece].Unset(dst_sq);
+    }
+
+    switch (move_type) {
+        case MoveType::Castling: {
+        } break;
+        case MoveType::EnPassant: {
+        } break;
+        case MoveType::Promotion: {
+        } break;
+        default: {
+        } break;
+    }
+#if 0
+    // special move handling
+    match move_type {
+        MoveType::Castling => {
+            // Castling move, we need to move the king and rook
+            debug_assert!(src_piece_type == PieceType::KING, "Castling must be a king move");
+            debug_assert!(dst_piece == Piece::NONE, "Castling must not capture any piece");
+
+            // king already moved to the destination square, only need to move the rook
+            let index = castling_type(src_piece, src_sq, dst_sq);
+            debug_assert!(index != CastlingType::None, "Invalid castling move");
+            // move rook position
+            let (piece, src_sq, to_sq) = CASTLING_ROOK_SQUARES[index as usize];
+            move_piece(&mut pos.bitboards[piece.as_usize()], src_sq, to_sq);
+        }
+        MoveType::Promotion => {
+            debug_assert!(src_piece_type == PieceType::PAWN);
+            let promotion = Piece::get_piece(mover_color, mv.get_promotion().unwrap());
+            pos.bitboards[src_piece_idx].unset(dst_sq.as_u8()); // Remove the pawn from the board
+            pos.bitboards[promotion.as_usize()].set(dst_sq.as_u8()); // Place the promoted piece on the board
+        }
+        MoveType::EnPassant => {
+            debug_assert!(src_piece_type == PieceType::PAWN, "En passant must be a pawn move");
+            let enemy_sq = Square::make(dst_file, src_rank);
+            let enemy = Piece::get_piece(enemy_color, PieceType::PAWN);
+
+            pos.bitboards[enemy.as_usize()].unset(enemy_sq.as_u8());
+        }
+        _ => {}
+    }
+#endif
+
+    // -------------- Update Board End --------------
+    m_side_to_move = FlipColor(m_side_to_move);
+
+#if 0
+    pos.state.castling_rights = castling_rights;
+    pos.state.en_passant = en_passant_sq;
+    if captured_something || is_mover_pawn {
+        pos.state.halfmove_clock = 0; // reset halfmove clock if a piece was captured or a non-pawn moved
+    } else {
+        pos.state.halfmove_clock += 1; // increment halfmove clock for a pawn move
+    }
+#endif
+
+    m_state.fullmove_number += my_color == Color::Black;  // increase after black moves
+
+    return UpdateCache();
+}
+
+bool Position::UnmakeMove(Move p_mv, UndoState& p_state) {
+    unused(p_mv);
+    unused(p_state);
+    return true;
+}
+
 Position Position::Default() {
     auto res = FromFen(kDefaultFen);
     DEV_ASSERT(res.has_value());
@@ -73,7 +210,7 @@ std::expected<Position, FenError> Position::FromFen(std::string_view p_fen) {
     return pos;
 }
 
-void Position::UpdateCache() {
+bool Position::UpdateCache() {
     m_state.occupancies[Color::White] =
         m_board[Piece::WP] |
         m_board[Piece::WN] |
@@ -125,6 +262,7 @@ pub fn update_cache(pos: &mut Position) -> bool {
     true
 }
 #endif
+    return true;
 }
 std::string Position::Fen() const {
     return "TODO";
