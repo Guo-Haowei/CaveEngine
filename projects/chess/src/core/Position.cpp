@@ -196,7 +196,7 @@ static bool ParseBoard(std::string_view board,
         if (file >= 8) return false;
 
         const uint8_t rank = fen_rank - 1;
-        const Square sq = Square::From(file, rank);
+        const Square sq = Square::FromFileRank(file, rank);
 
         // Set bit in the piece board.
         p_out[p].Set(sq);
@@ -232,7 +232,7 @@ static std::string DebugBoardString(const Position::Board& p_board) {
 
         for (uint8_t file = 0; file < 8; ++file) {
             // If your Square is different, adapt this line:
-            const Square sq = Square::From(file, rank);
+            const Square sq = Square::FromFileRank(file, rank);
 
             const Piece piece = get_piece(sq);
             out.push_back(GetPieceChar(piece));

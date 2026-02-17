@@ -6,8 +6,8 @@
 
 namespace chess {
 
-using cave::math::Vector3f;
 using cave::StringId;
+using cave::math::Vector3f;
 
 constexpr StringId kTranslationId = StringId("translation");
 
@@ -32,9 +32,18 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
 
     Vector3f position = SquareToPosition(p_ctx.selected);
     writer.SetProperty(m_selector,
-        cave::TransformComponent_Id,
-        kTranslationId,
-        position);
+                       cave::TransformComponent_Id,
+                       kTranslationId,
+                       position);
+}
+
+void ChessPresenter::HighlightSquare(core::Square p_sq,
+                                     HighlightHint p_hint) {
+    (void)p_sq;
+
+    if (p_hint == HighlightHint::LegalMove) {
+        return;
+    }
 }
 
 }  // namespace chess

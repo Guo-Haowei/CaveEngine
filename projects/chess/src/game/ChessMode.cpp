@@ -6,12 +6,13 @@
 
 namespace chess {
 
-using cave::math::Vector2i;
 using cave::unused;
+using cave::math::Vector2i;
 
 ChessMode::ChessMode()
     : m_game{}
-    , m_grid_adapter{ m_game } {
+    , m_presenter{}
+    , m_grid_adapter{ m_game, m_presenter } {
 
     cave::GridSelectController::Callbacks cbs = {
         .can_select = [this](int x, int y) { return m_grid_adapter.CanSelect(x, y); },
@@ -44,7 +45,7 @@ void ChessMode::Tick(cave::IHostServices& p_host) {
 
     PresentationContext ctx{
         .host = p_host,
-        .selected = core::Square::From((uint8_t)focused.x, (uint8_t)focused.y),
+        .selected = core::Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y),
     };
 
     m_presenter.Present(ctx);

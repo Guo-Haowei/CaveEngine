@@ -10,7 +10,7 @@ public:
         : m_index(p_index) {
     }
 
-    static Square From(uint8_t file, uint8_t rank) {
+    static Square FromFileRank(uint8_t file, uint8_t rank) {
         const uint8_t val = rank * 8 + file;
         return Square(val);
     }

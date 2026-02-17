@@ -19,7 +19,7 @@ public:
     void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) override;
 
 private:
-    void SpawnPieces(cave::IHostServices& p_host);
+    void SpawnObjects(cave::IHostServices& p_host);
 
     ChessMode m_chess_mode;
 };

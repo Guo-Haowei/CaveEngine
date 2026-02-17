@@ -15,6 +15,11 @@ struct PresentationContext {
     core::Square selected;
 };
 
+enum class HighlightHint {
+    LegalMove,
+    Selected,
+};
+
 class ChessPresenter {
     using Entity = cave::ecs::Entity;
 
@@ -23,6 +28,9 @@ public:
 
     void OnGameBegin(cave::SceneQuery& p_query);
     void OnGameEnd();
+
+    void HighlightSquare(core::Square p_sq,
+                         HighlightHint p_hint = HighlightHint::LegalMove);
 
 private:
     Entity m_selector;

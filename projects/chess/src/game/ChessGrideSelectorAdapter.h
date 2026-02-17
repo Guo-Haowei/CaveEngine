@@ -5,11 +5,15 @@
 namespace chess {
 
 class ChessGame;
+class ChessPresenter;
 
 class ChessGridSelectorAdapter {
 public:
-    explicit ChessGridSelectorAdapter(ChessGame& p_game) noexcept
-        : m_game(p_game) {
+    explicit ChessGridSelectorAdapter(
+        ChessGame& p_game,
+        ChessPresenter& p_presenter) noexcept
+        : m_game(p_game)
+        , m_presenter(p_presenter) {
     }
 
     bool CanSelect(int x, int y);
@@ -21,8 +25,7 @@ public:
 
 private:
     ChessGame& m_game;
-
-    std::span<const core::Move> m_cached_moves;
+    ChessPresenter& m_presenter;
 };
 
 }  // namespace chess

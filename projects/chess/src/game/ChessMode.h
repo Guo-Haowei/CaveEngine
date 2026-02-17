@@ -26,8 +26,8 @@ private:
     void ProcessInput(cave::IInputService& p_input);
 
     ChessGame m_game;
-    ChessGridSelectorAdapter m_grid_adapter;
     ChessPresenter m_presenter;
+    ChessGridSelectorAdapter m_grid_adapter;
     std::unique_ptr<cave::GridSelectController> m_selector;
 };
 

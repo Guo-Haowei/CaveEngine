@@ -13,6 +13,7 @@ namespace chess {
 using namespace cave;
 
 using chess::core::Color;
+using chess::core::Square;
 using chess::core::Piece;
 using chess::core::PieceType;
 using cave::ecs::Entity;
@@ -24,10 +25,10 @@ struct ChessSpawner {
     static constexpr StringId kScaleId = StringId("scale");
     static constexpr StringId kTranslationId = StringId("translation");
     static constexpr StringId kRotationId = StringId("rotation");
-    static constexpr Vector3f kScale = Vector3f(9);
 
     SceneCommandWriter& cb;
     ecs::Entity parent;
+    ecs::Entity tile_parent;
     const char* materials[2];
 
     ChessSpawner(SceneCommandWriter& p_cb, ecs::Entity p_parent)
@@ -35,6 +36,20 @@ struct ChessSpawner {
         , parent(p_parent) {
         materials[0] = "@res://materials/white.mat";
         materials[1] = "@res://materials/black.mat";
+    }
+
+    void SpawnTiles(uint8_t p_file, uint8_t p_rank) {
+        const Square sq = Square::FromFileRank(p_file, p_rank);
+        const char* name = sq.ToString();
+
+        constexpr Vector3f scale(1.0f, 0.05f, 1.0f);
+        Vector3f offset((float)p_rank, 0.05f, (float)p_file);
+
+        ecs::Entity tile = cb.CreateCubeObject(name);
+        cb.SetProperty(tile, TransformComponent_Id, kScaleId, scale);
+        cb.SetProperty(tile, TransformComponent_Id, kTranslationId, offset);
+
+        cb.AttachChild(tile, parent);
     }
 
     void SpawnPiece(Piece p_piece, int p_file, int p_rank, int p_id) {
@@ -57,8 +72,9 @@ struct ChessSpawner {
             materials[std::to_underlying(piece_color)]);
 
         Vector3f translation(p_rank, 0, p_file);
+        constexpr Vector3f scale = Vector3f(9);
 
-        cb.SetProperty(piece, TransformComponent_Id, kScaleId, kScale);
+        cb.SetProperty(piece, TransformComponent_Id, kScaleId, scale);
         cb.SetProperty(piece, TransformComponent_Id, kTranslationId, translation);
         if (piece_color == Color::Black) {
             cb.SetProperty(piece, TransformComponent_Id, kRotationId, Vector4f(0, 1, 0, 0));
@@ -84,7 +100,7 @@ void ChessClient::OnModuleLoaded(IHostServices& p_host) {
     p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "ChessClient Loaded\n");
 
     // @TODO: move it to present layer
-    SpawnPieces(p_host);
+    SpawnObjects(p_host);
 }
 
 void ChessClient::OnModuleUnloaded(IHostServices& p_host) {
@@ -105,7 +121,7 @@ void ChessClient::Tick(IHostServices& p_host, const FrameTime& p_time) {
     m_chess_mode.Tick(p_host);
 }
 
-void ChessClient::SpawnPieces(IHostServices& p_host) {
+void ChessClient::SpawnObjects(IHostServices& p_host) {
     using chess::Piece;
     using ecs::Entity;
 
@@ -120,9 +136,12 @@ void ChessClient::SpawnPieces(IHostServices& p_host) {
 
     for (int rank = 0; rank < 8; ++rank) {
         for (int file = 0; file < 8; ++file) {
+            spawner.SpawnTiles(file, rank);
+
             const Piece p = chess::kInitialBoard[rank][file];
             if (p == Piece::Null) continue;
             spawner.SpawnPiece(p, file, rank, ++counter[std::to_underlying(p)]);
+
         }
     }
 }

@@ -41,6 +41,10 @@ class ChessGame {
 public:
     void ResetBoard();
 
+    core::Color ColorAt(core::Square p_sq) const { return m_pos.ColorAt(p_sq); }
+
+    core::Color SideToMove() const { return m_pos.SideToMove(); }
+
     std::span<const core::Move> LegalMoves() const { return m_moves; }
 
     std::span<const core::Move> LegalMovesFromSquare(core::Square p_sq);
