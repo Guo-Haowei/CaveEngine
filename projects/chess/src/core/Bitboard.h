@@ -1,12 +1,28 @@
 #pragma once
 #include <cstdint>
+#include <tuple>
 
-namespace cave::chess {
+namespace chess::core {
 
 struct Square {
     uint8_t val;
 
+    explicit Square(uint8_t p_val) noexcept
+        : val(p_val) {
+    }
+
     bool IsValid() const { return val < 64; }
+
+    static Square From(uint8_t file, uint8_t rank) {
+        const uint8_t val = rank * 8 + file;
+        return Square(val);
+    }
+
+    std::tuple<uint8_t, uint8_t> FileRank() const {
+        const uint8_t file = val & 7;
+        const uint8_t rank = val >> 3;
+        return std::make_tuple(file, rank);
+    }
 };
 
 class Bitboard {
@@ -27,4 +43,4 @@ private:
     uint64_t m_val;
 };
 
-}  // namespace cave::chess
+}  // namespace chess::core

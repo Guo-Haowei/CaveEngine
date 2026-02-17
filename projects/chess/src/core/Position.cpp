@@ -1,6 +1,6 @@
 #include "Position.h"
 
-namespace cave::chess {
+namespace chess::core {
 
 Position Position::FromFEN(std::string_view p_fen) {
     (void)p_fen;
@@ -8,4 +8,13 @@ Position Position::FromFEN(std::string_view p_fen) {
     return pos;
 }
 
-}  // namespace cave::chess
+#if defined(CAVE_TEST)
+
+TEST(Position, get_side_to_move) {
+    Position pos;
+    EXPECT_EQ(pos.SideToMove(), Color::White);
+}
+
+#endif
+
+}  // namespace chess::core

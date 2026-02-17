@@ -2,8 +2,8 @@ name: Windows CI
 run-name: CI/CD Tests triggered by ${{ github.actor }}
 on:
   push:
-    # branches:
-    #   - master
+    branches:
+      - master
 jobs:
   format:
     name: Check Formatting

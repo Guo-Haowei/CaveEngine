@@ -45,18 +45,4 @@ struct hash<cave::ecs::Entity> {
     std::size_t operator()(const cave::ecs::Entity& p_ent) const { return std::hash<uint32_t>{}(p_ent.GetId()); }
 };
 
-template<>
-struct less<cave::ecs::Entity> {
-    constexpr bool operator()(const cave::ecs::Entity& p_lhs, const cave::ecs::Entity& p_rhs) const {
-        return p_lhs.GetId() < p_rhs.GetId();
-    }
-};
-
-template<>
-struct equal_to<cave::ecs::Entity> {
-    constexpr bool operator()(const cave::ecs::Entity& p_lhs, const cave::ecs::Entity& p_rhs) const {
-        return p_lhs.GetId() == p_rhs.GetId();
-    }
-};
-
 }  // namespace std

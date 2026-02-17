@@ -2,7 +2,7 @@
 
 #include "cave/core/ErrorMacros.h"
 
-namespace cave::chess {
+namespace chess::core {
 
 bool Bitboard::Test(Square p_sq) const {
     DEV_ASSERT_MSG(p_sq.IsValid(), "square out of bounds");
@@ -14,4 +14,15 @@ void Bitboard::Set(Square p_sq) {
     m_val |= (1llu << p_sq.val);
 }
 
-}  // namespace cave::chess
+#if defined(CAVE_TEST)
+
+TEST(Bitboard, test_square) {
+    Bitboard bb;
+    bb.Set(Square(0));
+
+    EXPECT_TRUE(bb.Test(Square(0)));
+}
+
+#endif
+
+}  // namespace chess::core
