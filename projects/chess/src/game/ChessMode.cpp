@@ -62,8 +62,11 @@ void ChessMode::ProcessInput(cave::IInputService& p_input) {
     if (p_input.IsActionJustPressed(StringId("ui_up"))) {
         m_selector->MoveFocus(Vector2i(0, 1));
     }
-    if (p_input.IsActionJustPressed(StringId("ui_down"))) {
-        m_selector->MoveFocus(Vector2i(0, -1));
+    if (p_input.IsActionJustPressed(StringId("ui_accept"))) {
+        m_selector->Confirm();
+    }
+    if (p_input.IsActionJustPressed(StringId("ui_cancel"))) {
+        m_selector->Cancel();
     }
 }
 

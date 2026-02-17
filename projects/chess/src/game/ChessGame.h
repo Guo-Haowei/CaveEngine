@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "core/Position.h"
 
 namespace chess {
 
@@ -34,7 +35,10 @@ struct ChessEvent {
 
 class ChessGame {
 public:
+    const core::Position& Position() const { return m_pos; }
+
 private:
+    core::Position m_pos;
 };
 
 }  // namespace chess

@@ -11,8 +11,8 @@ using cave::StringId;
 
 constexpr StringId kTranslationId = StringId("translation");
 
-static Vector3f SquareToPosition(const core::Square& p_square) {
-    auto [file, rank] = p_square.FileRank();
+static Vector3f SquareToPosition(const core::Square& p_sq) {
+    auto [file, rank] = p_sq.FileRank();
 
     return Vector3f((float)rank, 0.0f, (float)file);
 }

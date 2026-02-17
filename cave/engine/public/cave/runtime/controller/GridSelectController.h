@@ -49,10 +49,11 @@ public:
 
     void Confirm() { SelectTile(m_focus.x, m_focus.y); }
 
+    void Cancel();
+
     const Vector2i& GetFocused() const { return m_focus; }
 
 private:
-    void Cancel();
     void SelectTile(int tx, int ty);
 
     void StateIdle(int tx, int ty);

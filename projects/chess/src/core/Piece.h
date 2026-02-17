@@ -8,6 +8,7 @@ enum class Color : uint8_t {
     White,
     Black,
     Null,
+    Both = Null,
 };
 
 enum class PieceType : uint8_t {
@@ -36,12 +37,20 @@ enum class Piece : uint8_t {
     Null,
 };
 
+Piece ParsePieceChar(char p_char);
+char GetPieceChar(Piece p_piece);
 const char* GetPieceTypeName(PieceType p_type);
 const char* GetPieceName(Piece p_piece);
 
 constexpr uint8_t kColorMax = std::to_underlying(Color::Null);
 constexpr uint8_t kPieceMax = std::to_underlying(Piece::Null);
 constexpr uint8_t kPieceTypeMax = std::to_underlying(PieceType::Null);
+
+static constexpr Color FlipColor(Color p_color) {
+    if (p_color == Color::White) return Color::Black;
+    if (p_color == Color::Black) return Color::White;
+    return Color::Null;
+}
 
 static constexpr PieceType GetType(Piece p_piece) {
     if (p_piece == Piece::Null) return PieceType::Null;
