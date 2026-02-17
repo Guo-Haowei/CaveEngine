@@ -61,11 +61,15 @@ void MoveGen::PseudoFrom(const Position& p_pos,
                          Piece p_piece,
                          MoveList& p_out) {
     // @NOTE: assume all pieces moves like rooks
-    (void)p_pos;
     (void)p_piece;
 
     const auto [file, rank] = p_from.FileRank();
-    const Bitboard bb = MASK_FILES[file] | MASK_RANKS[rank];
+    Bitboard bb = MASK_FILES[file] | MASK_RANKS[rank];
+
+    const Color color = p_pos.SideToMove();
+    const Bitboard friendly = p_pos.m_state.occupancies[color];
+
+    bb = bb & ~friendly;
 
     for (Square sq : bb.Squares()) {
         p_out.push_back({ p_from, sq });

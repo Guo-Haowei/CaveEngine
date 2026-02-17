@@ -50,8 +50,16 @@ public:
     bool Test(Square p_sq) const;
     void Set(Square p_sq);
 
-    Bitboard operator|(const Bitboard& p_other) const {
-        return Bitboard(m_bits | p_other.m_bits);
+    Bitboard operator|(const Bitboard& p_rhs) const {
+        return Bitboard(m_bits | p_rhs.m_bits);
+    }
+
+    Bitboard operator&(const Bitboard& p_rhs) const {
+        return Bitboard(m_bits & p_rhs.m_bits);
+    }
+
+    Bitboard operator~() const {
+        return Bitboard(~m_bits);
     }
 
     constexpr BitboardSquares Squares() const {

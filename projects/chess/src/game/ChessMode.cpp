@@ -70,7 +70,7 @@ void ChessMode::ProcessInput(cave::IInputService& p_input) {
     if (p_input.IsActionJustPressed(StringId("ui_accept"))) {
         m_selector->Confirm();
     }
-    if (p_input.IsActionJustPressed(StringId("ui_cancel"))) {
+    if (p_input.IsActionJustPressed(StringId("ui_back"))) {
         m_selector->Cancel();
     }
 }

@@ -25,6 +25,9 @@ struct ChessSpawner {
     static constexpr StringId kScaleId = StringId("scale");
     static constexpr StringId kTranslationId = StringId("translation");
     static constexpr StringId kRotationId = StringId("rotation");
+    static constexpr StringId kVisibility = StringId("visibility");
+    static constexpr StringId kCastShadow = StringId("cast_shadow");
+    static constexpr StringId kTransparency = StringId("transparency");
 
     SceneCommandWriter& cb;
     ecs::Entity piece_parent;
@@ -51,6 +54,10 @@ struct ChessSpawner {
         ecs::Entity tile = cb.CreateCubeObject(name, { nullptr, color });
         cb.SetProperty(tile, TransformComponent_Id, kScaleId, scale);
         cb.SetProperty(tile, TransformComponent_Id, kTranslationId, offset);
+
+        cb.SetProperty(tile, MeshRendererComponent_Id, kVisibility, false);
+        cb.SetProperty(tile, MeshRendererComponent_Id, kCastShadow, false);
+        cb.SetProperty(tile, MeshRendererComponent_Id, kTransparency, true);
 
         cb.AttachChild(tile, tile_parent);
     }
@@ -134,11 +141,11 @@ void ChessClient::SpawnObjects(IHostServices& p_host) {
     SceneCommandWriter& writer = p_host.SceneWriter();
     writer.SetNoSave(true);
 
-    Entity tile_parent = writer.CreateTransformObject("tiles");
     Entity piece_parent = writer.CreateTransformObject("pieces");
+    Entity tile_parent = writer.CreateTransformObject("tiles");
 
-    writer.AttachChild(tile_parent, offset_node);
     writer.AttachChild(piece_parent, offset_node);
+    writer.AttachChild(tile_parent, offset_node);
 
     std::array<int, core::kPieceMax> counter{ 0 };
 

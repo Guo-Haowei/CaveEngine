@@ -73,6 +73,8 @@ private:
     Board m_board{};
     Color m_side_to_move{ Color::White };
     UndoState m_state;
+
+    friend class MoveGen;
 };
 
 #if 0

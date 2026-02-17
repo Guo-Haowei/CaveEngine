@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include "cave/runtime/ecs/Entity.h"
 
 #include "core/Bitboard.h"
@@ -15,11 +16,6 @@ struct PresentationContext {
     core::Square selected;
 };
 
-enum class HighlightHint {
-    LegalMove,
-    Selected,
-};
-
 class ChessPresenter {
     using Entity = cave::ecs::Entity;
 
@@ -29,11 +25,14 @@ public:
     void OnGameBegin(cave::SceneQuery& p_query);
     void OnGameEnd();
 
-    void HighlightSquare(core::Square p_sq,
-                         HighlightHint p_hint = HighlightHint::LegalMove);
+    void HighlightSquares(core::Bitboard p_bb);
 
 private:
     Entity m_selector;
+
+    std::array<Entity, 64> m_tiles;
+
+    core::Bitboard m_highlights;
 };
 
 }  // namespace chess

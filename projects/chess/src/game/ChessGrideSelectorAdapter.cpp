@@ -17,13 +17,14 @@ bool ChessGridSelectorAdapter::CanSelect(int x, int y) {
 
 void ChessGridSelectorAdapter::OnSelect(int x, int y) {
     const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
-    (void)sq;
 
     std::span<const Move> moves = m_game.LegalMovesFromSquare(sq);
 
+    core::Bitboard bb;
     for (Move mv : moves) {
-        m_presenter.HighlightSquare(mv.to);
+        bb.Set(mv.to);
     }
+    m_presenter.HighlightSquares(bb);
 }
 
 bool ChessGridSelectorAdapter::CanDrop(int sx, int sy, int dx, int dy) {
@@ -31,7 +32,7 @@ bool ChessGridSelectorAdapter::CanDrop(int sx, int sy, int dx, int dy) {
     (void)sy;
     (void)dx;
     (void)dy;
-    return true;
+    return false;
 }
 
 void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
@@ -42,6 +43,7 @@ void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::OnCancel() {
+    m_presenter.HighlightSquares({});
 }
 
 void ChessGridSelectorAdapter::OnInvalid(int sx, int sy, int dx, int dy) {
