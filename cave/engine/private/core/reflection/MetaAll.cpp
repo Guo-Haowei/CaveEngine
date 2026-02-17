@@ -19,4 +19,4 @@
 #include "generated/SpriteAnimationAsset.generated.cpp"
 #include "generated/TileMapAsset.generated.cpp"
 #include "generated/TileSetAsset.generated.cpp"
-#include "generated/SceneComponent.generated.cpp"
+#include "generated/SceneComponents.generated.cpp"

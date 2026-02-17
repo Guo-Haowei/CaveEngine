@@ -35,7 +35,7 @@ FILES = [
     'private/runtime/assets/TileMapAsset.h',
     'private/runtime/assets/TileSetAsset.h',
     # components
-    'private/runtime/scene/SceneComponent.h',
+    'private/runtime/ecs/components/SceneComponents.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'private/core/reflection/generated')
