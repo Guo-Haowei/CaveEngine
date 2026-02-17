@@ -58,6 +58,7 @@ public:
 #endif
 
     FocusedPreviewScene GetFocusedPreviewScene();
+    DocId GetFocusedDoc();
 
     // @TODO: move it to utility
     void OpenAddEntityPopup(ecs::Entity p_parent);
@@ -82,6 +83,8 @@ private:
 
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
     void CommitModeSwitch();
+
+    void OpenAddEntityPopupImpl(ecs::Entity p_parent);
 
     Mode m_state{ Mode::Editing };
     bool m_switch_mode_requested{ false };

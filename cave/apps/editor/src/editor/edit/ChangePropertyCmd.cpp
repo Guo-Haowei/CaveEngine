@@ -26,7 +26,9 @@ ChangePropertyCmd::ChangePropertyCmd(SceneRegistry& p_scene_reg,
     , m_pid(p_pid) {
     m_old.resize(p_data_size);
     m_new.resize(p_data_size);
-    std::memcpy(m_old.data(), p_old_data, p_data_size);
+
+    const void* old = p_old_data ? p_old_data : p_new_data;
+    std::memcpy(m_old.data(), old, p_data_size);
     std::memcpy(m_new.data(), p_new_data, p_data_size);
 }
 

@@ -142,7 +142,7 @@ void ChessGame::Tick(IHostServices& p_host, const FrameTime& p_time) {
     const Vector2i& focus = m_selector->GetFocused();
     if (focus != old_focus) {
         SceneQuery& query = p_host.SceneQuery();
-        Entity selector = query.FindEntityByName("grid_selector");
+        Entity selector = query.FindFirstEntity("grid_selector");
 
         SceneCommandWriter& writer = p_host.SceneWriter();
         // writer.SetProperty(selector, MeshRendererComponent_Id, StringId("visibility"), true);
@@ -156,7 +156,7 @@ void ChessGame::SpawnPieces(IHostServices& p_host) {
     using chess::Piece;
     using ecs::Entity;
 
-    Entity offset_node = p_host.SceneQuery().FindEntityByName("transform");
+    Entity offset_node = p_host.SceneQuery().FindFirstEntity("transform");
     DEV_ASSERT(offset_node.IsValid());
 
     SceneCommandWriter& writer = p_host.SceneWriter();

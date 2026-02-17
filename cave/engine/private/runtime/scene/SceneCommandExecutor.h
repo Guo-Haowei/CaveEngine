@@ -1,6 +1,6 @@
 #pragma once
-#include "cave/runtime/scene/ISceneCommandExecutor.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/runtime/scene/ISceneCommandExecutor.h"
 
 namespace cave::ecs {
 struct ComponentMeta;

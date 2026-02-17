@@ -1,11 +1,13 @@
 #include "EditorState.h"
 
-#include "cave/runtime/framework/IApplication.h"
-
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
+
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
@@ -40,6 +42,8 @@
 #include "editor/widgets/Image.h"
 
 namespace cave {
+
+using ecs::Entity;
 
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app)
@@ -212,33 +216,69 @@ void EditorState::DockSpace() {
     return;
 }
 
+DocId EditorState::GetFocusedDoc() {
+    if (Tab* tab = m_workspace->GetFocusedTab()) {
+        return tab->GetDocId();
+    }
+    return {};
+}
+
 FocusedPreviewScene EditorState::GetFocusedPreviewScene() {
     FocusedPreviewScene ret;
-    if (Tab* tab = m_workspace->GetFocusedTab()) {
-        ret.doc_id = tab->GetDocId();
-        if (IDocument* doc = m_document_service->Resolve(ret.doc_id)) {
-            ret.scene_id = doc->GetPreviewScene();
-            ret.scene = m_app.GetSceneRegistry()->Resolve(ret.scene_id);
-        }
+    ret.doc_id = GetFocusedDoc();
+    if (IDocument* doc = m_document_service->Resolve(ret.doc_id)) {
+        ret.scene_id = doc->GetPreviewScene();
+        ret.scene = m_app.GetSceneRegistry()->Resolve(ret.scene_id);
     }
     return ret;
 }
 
-void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
-    if (ImGui::BeginMenu("Add")) {
-        FocusedPreviewScene preview = GetFocusedPreviewScene();
-        DocId doc_id = preview.doc_id;
-        SceneRegistry& scene_reg = *GetApp().GetSceneRegistry();
-#define ENTITY_TYPE(NAME, SEP)                                                            \
-    if (ImGui::MenuItem(#NAME)) {                                                         \
-        auto cmd = std::make_unique<AddObjectCmd>(scene_reg, p_parent, EntityType::NAME); \
-        m_edit_service->Submit(doc_id, std::move(cmd));                                   \
-    }                                                                                     \
-    if constexpr (SEP) {                                                                  \
-        ImGui::Separator();                                                               \
+// clang-format off
+#define OBJECT_LIST                      \
+    DEFINE_OBJECT(InfiniteLight,  false) \
+    DEFINE_OBJECT(PointLight,     false) \
+    DEFINE_OBJECT(AreaLight,      true ) \
+    DEFINE_OBJECT(Transform,      false) \
+    DEFINE_OBJECT(Plane,          false) \
+    DEFINE_OBJECT(Cube,           false) \
+    DEFINE_OBJECT(Sphere,         false) \
+    DEFINE_OBJECT(Cylinder,       false) \
+    DEFINE_OBJECT(Cone,           false) \
+    DEFINE_OBJECT(Torus,          true )
+// clang-format on
+
+void EditorState::OpenAddEntityPopupImpl(ecs::Entity p_parent) {
+    if (!p_parent.IsValid()) {
+        return;
     }
-        ENTITY_TYPE_LIST
-#undef ENTITY_TYPE
+
+    DocId doc_id = GetFocusedDoc();
+
+    using CreateFunc = Entity (*)(SceneCommandWriter& p_cb, std::string_view p_name);
+    auto add_object = [&](const char* p_name, bool p_separator, CreateFunc p_func) {
+        if (ImGui::MenuItem(p_name)) {
+            m_edit_service->Submit(doc_id, [&](SceneCommandWriter& cb) {
+                Entity temp = p_func(cb, p_name);
+                cb.AttachChild(temp, p_parent);
+            });
+        }
+
+        if (p_separator) {
+            ImGui::Separator();
+        }
+    };
+
+#define DEFINE_OBJECT(NAME, SEP) add_object( \
+    #NAME,                                   \
+    SEP,                                     \
+    [](SceneCommandWriter& p_cb, std::string_view p_name) { return p_cb.Create##NAME##Object(p_name); });
+    OBJECT_LIST
+#undef DEFINE_OBJECT
+}
+
+void EditorState::OpenAddEntityPopup(Entity p_parent) {
+    if (ImGui::BeginMenu("Add")) {
+        OpenAddEntityPopupImpl(p_parent);
         ImGui::EndMenu();
     }
 }

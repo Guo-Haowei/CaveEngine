@@ -31,7 +31,7 @@ public:
     explicit SceneQuery(const Scene& p_scene) noexcept
         : m_scene(p_scene) {}
 
-    ecs::Entity FindEntityByName(std::string_view p_name);
+    ecs::Entity FindFirstEntity(std::string_view p_name);
 
     RayHit Raycast(math::Ray& p_ray, const RaycastFilter& p_filter);
 

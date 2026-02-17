@@ -1,6 +1,5 @@
 #include "SceneCommandExecutor_Undo.h"
 
-#include "engine/private/runtime/scene/Scene.h"
 #include "editor/edit/AddComponentCmd.h"
 #include "editor/edit/ChangePropertyCmd.h"  // @TODO: rename to Edit
 #include "editor/edit/CompositeEditCmd.h"
@@ -9,9 +8,8 @@ namespace cave {
 
 using ecs::Entity;
 
-SceneCommandExecutor_Undo::SceneCommandExecutor_Undo(Scene& p_scene, SceneRegistry& p_scene_reg) noexcept
-    : SceneCommandExecutor(p_scene)
-    , m_scene_reg(p_scene_reg) {
+SceneCommandExecutor_Undo::SceneCommandExecutor_Undo(SceneRegistry& p_scene_reg) noexcept
+    : m_scene_reg(p_scene_reg) {
     m_cmd = std::make_unique<CompositeEditCmd>();
 }
 
@@ -41,28 +39,21 @@ bool SceneCommandExecutor_Undo::ChangeProperty(Entity p_ent,
                                                const PropertyId& p_pid,
                                                const void* p_data,
                                                uint32_t p_data_size) {
-    const ecs::ComponentMeta* meta = m_reg.TryGet(p_cid);
-    if (!meta) {
-        LOG_WARN("Can't find meta for component '{}'", p_cid);
-        return false;
-    }
+    auto cmd = std::make_unique<ChangePropertyCmd>(
+        m_scene_reg,
+        p_ent,
+        p_cid,
+        p_pid,
+        nullptr, // composite command, don't care about old value
+        p_data,
+        p_data_size);
 
-    const void* old = ReadProperty(p_ent, meta, p_pid);
-    if (DEV_VERIFY(old)) {
-        auto cmd = std::make_unique<ChangePropertyCmd>(
-            m_scene_reg,
-            p_ent,
-            p_cid,
-            p_pid,
-            old,
-            p_data,
-            p_data_size);
+    m_cmd->AddCommand(std::move(cmd));
+    return true;
+}
 
-        m_cmd->AddCommand(std::move(cmd));
-        return true;
-    }
-
-    return false;
+std::unique_ptr<IEditCmd> SceneCommandExecutor_Undo::MoveCommand() {
+    return std::move(m_cmd);
 }
 
 }  // namespace cave

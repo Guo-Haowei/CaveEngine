@@ -9,7 +9,7 @@ namespace cave {
 
 using namespace math;
 
-ecs::Entity SceneQuery::FindEntityByName(std::string_view p_name) {
+ecs::Entity SceneQuery::FindFirstEntity(std::string_view p_name) {
     return m_scene.FindEntityByName(p_name);
 }
 

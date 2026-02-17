@@ -1,15 +1,16 @@
 #pragma once
-#include "engine/private/runtime/scene/SceneCommandExecutor.h"
+#include "cave/runtime/scene/ISceneCommandExecutor.h"
 
 namespace cave {
 
-class SceneRegistry;
 class CompositeEditCmd;
+class IEditCmd;
 class IApplication;
+class SceneRegistry;
 
-class SceneCommandExecutor_Undo final : public SceneCommandExecutor {
+class SceneCommandExecutor_Undo final : public ISceneCommandExecutor {
 public:
-    explicit SceneCommandExecutor_Undo(Scene& p_scene, SceneRegistry& p_scene_reg) noexcept;
+    explicit SceneCommandExecutor_Undo(SceneRegistry& p_scene_reg) noexcept;
 
     ~SceneCommandExecutor_Undo();
 
@@ -24,6 +25,8 @@ public:
                         const PropertyId& p_pid,
                         const void* p_data,
                         uint32_t p_data_size) override;
+
+    std::unique_ptr<IEditCmd> MoveCommand();
 
 private:
     SceneRegistry& m_scene_reg;
