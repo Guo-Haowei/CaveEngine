@@ -30,7 +30,7 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
 
     SceneCommandExecutor executor(scene, reg);
     EntityMap map(cb.GetAllocationCount());
-    SceneCommandPlayback(cb, executor, map);
+    SceneCommandPlayback::Play(cb, executor, { map, scene });
 
     Entity r1 = map.Resolve(e1);
     Entity r2 = map.Resolve(e2);

@@ -1,5 +1,7 @@
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 
+#include "engine/private/runtime/scene/Scene.h"
+
 namespace cave {
 
 using ecs::Entity;
@@ -28,15 +30,17 @@ void EntityMap::SetRemap(Entity p_temp, Entity p_real) {
     m_remap[index] = p_real;
 }
 
-void SceneCommandPlayback(SceneCommandBuffer& p_cb,
-                          ISceneCommandExecutor& p_exe,
-                          EntityMap& p_map) {
+void SceneCommandPlayback::Play(SceneCommandBuffer& p_cb,
+                                ISceneCommandExecutor& p_exe,
+                                const Context& p_ctx) {
     const uint8_t* p = p_cb.Data();
     if (p == nullptr) {
         return;
     }
 
     const uint8_t* end = p + p_cb.Size();
+
+    auto& map = p_ctx.map;
 
     while (p < end) {
         const SceneCmd_Header* header = reinterpret_cast<const SceneCmd_Header*>(p);
@@ -45,22 +49,22 @@ void SceneCommandPlayback(SceneCommandBuffer& p_cb,
         switch (header->op) {
             case SceneCmd_Op::CreateEntity: {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
-                Entity real = p_exe.CreateEntity();
-                p_map.SetRemap(e, real);
+                Entity real = p_ctx.scene.CreateEntity();
+                map.SetRemap(e, real);
                 // @TODO: generate Undoable Command CreateWidthId
             } break;
             case SceneCmd_Op::DestroyEntity: {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
-                p_exe.RemoveEntity(p_map.Resolve(e));
+                p_exe.RemoveEntity(map.Resolve(e));
             } break;
             case SceneCmd_Op::AddComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
-                p_exe.AddComponent(p_map.Resolve(payload->ent), payload->cid);
+                p_exe.AddComponent(map.Resolve(payload->ent), payload->cid);
                 // @TODO: generate Undoable Command AddComponent
             } break;
             case SceneCmd_Op::RemoveComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
-                p_exe.RemoveComponent(p_map.Resolve(payload->ent), payload->cid);
+                p_exe.RemoveComponent(map.Resolve(payload->ent), payload->cid);
                 // @TODO: generate Undoable Command RemoveComponent
             } break;
             case SceneCmd_Op::AssignProperty: {
@@ -75,7 +79,7 @@ void SceneCommandPlayback(SceneCommandBuffer& p_cb,
                         // @HACK: cast away const to resolve entity
                         Entity* e = const_cast<Entity*>((Entity*)data);
                         for (uint32_t i = 0; i < payload->ele_count; ++i) {
-                            e[i] = p_map.Resolve(e[i]);
+                            e[i] = map.Resolve(e[i]);
                         }
                     } break;
                     default: {
@@ -84,7 +88,7 @@ void SceneCommandPlayback(SceneCommandBuffer& p_cb,
                 }
 
                 // @TODO: generate Undoable Command ChangeProperty
-                p_exe.ChangeProperty(p_map.Resolve(payload->ent),
+                p_exe.ChangeProperty(map.Resolve(payload->ent),
                                      payload->cid,
                                      payload->pid,
                                      data,

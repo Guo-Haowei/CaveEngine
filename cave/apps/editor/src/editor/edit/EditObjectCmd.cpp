@@ -17,6 +17,7 @@ namespace cave {
 }
 
 bool AddObjectCmd::Do(IDocument& p_doc) {
+
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
         if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
             SceneCommandWriter cb(AssetRegistry::GetSingleton());
@@ -35,7 +36,7 @@ bool AddObjectCmd::Do(IDocument& p_doc) {
 
             SceneCommandExecutor executor(*scene);
             EntityMap map(cb.GetAllocationCount());
-            SceneCommandPlayback(cb, executor, map);
+            SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
             m_created = map.Resolve(created);
 

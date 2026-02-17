@@ -124,7 +124,7 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());
-    SceneCommandPlayback(cb, executor, map);
+    SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->m_root = map.Resolve(root);
     scene->Update(0.0f);
@@ -169,7 +169,7 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());
-    SceneCommandPlayback(cb, executor, map);
+    SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->m_root = map.Resolve(root);
     scene->Update(0.0f);

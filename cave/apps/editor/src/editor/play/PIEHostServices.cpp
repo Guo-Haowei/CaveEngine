@@ -36,7 +36,7 @@ void PIEHostServices::FlushSceneCommands() {
     if (cb.Data()) {
         SceneCommandExecutor executor(m_scene);
         EntityMap map(cb.GetAllocationCount());
-        SceneCommandPlayback(cb, executor, map);
+        SceneCommandPlayback::Play(cb, executor, { map, m_scene });
     }
 }
 

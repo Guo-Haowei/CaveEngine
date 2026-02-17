@@ -11,7 +11,7 @@
 #include "engine/private/runtime/framework/ViewManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
-#include "editor/edit/EditPropertyCmd.h"
+#include "editor/edit/ChangePropertyCmd.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
 #include "editor/services/SelectionService.h"
@@ -323,11 +323,10 @@ void SceneViewTab::DrawGizmo() {
                 math::Decompose(before, scale_1, rot_1, pos_1);
                 math::Decompose(after, scale_2, rot_2, pos_2);
 
-                IApplication& app = m_editor.GetApp();
-
+                SceneRegistry& scene_reg = *m_editor.GetApp().GetSceneRegistry();
                 if (p_operation & ImGuizmo::TRANSLATE) {
-                    auto cmd = std::make_unique<EditPropertyCmd>(
-                        app,
+                    auto cmd = std::make_unique<ChangePropertyCmd>(
+                        scene_reg,
                         id,
                         TransformComponent_Id,
                         StringId("translation"),
@@ -335,8 +334,8 @@ void SceneViewTab::DrawGizmo() {
                         pos_2);
                     edit_service.Submit(doc_id, std::move(cmd));
                 } else if (p_operation & ImGuizmo::ROTATE) {
-                    auto cmd = std::make_unique<EditPropertyCmd>(
-                        app,
+                    auto cmd = std::make_unique<ChangePropertyCmd>(
+                        scene_reg,
                         id,
                         TransformComponent_Id,
                         StringId("rotation"),
@@ -344,8 +343,8 @@ void SceneViewTab::DrawGizmo() {
                         rot_2);
                     edit_service.Submit(doc_id, std::move(cmd));
                 } else if (p_operation & ImGuizmo::SCALE) {
-                    auto cmd = (std::make_unique<EditPropertyCmd>(
-                        app,
+                    auto cmd = (std::make_unique<ChangePropertyCmd>(
+                        scene_reg,
                         id,
                         TransformComponent_Id,
                         StringId("scale"),

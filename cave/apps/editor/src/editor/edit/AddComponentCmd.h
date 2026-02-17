@@ -7,9 +7,9 @@ namespace cave {
 
 class AddComponentCmd : public EditCmdBase {
 public:
-    AddComponentCmd(IApplication& p_app,
+    AddComponentCmd(SceneRegistry& p_scene_reg,
                     ecs::Entity p_ent,
-                    BuiltinComponentId p_cid);
+                    ComponentId p_cid);
 
     const char* Label() const override { return "AddComponentCmd"; }
 
@@ -17,7 +17,7 @@ public:
     bool Undo(IDocument& p_doc) override;
 
 private:
-    BuiltinComponentId m_cid;
+    ComponentId m_cid;
 };
 
 }  // namespace cave

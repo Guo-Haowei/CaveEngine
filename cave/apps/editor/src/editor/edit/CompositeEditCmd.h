@@ -1,5 +1,5 @@
 #pragma once
-#include "EditCmdBase.h"
+#include "editor/edit/IEditCmd.h"
 
 namespace cave {
 

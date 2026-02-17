@@ -235,7 +235,9 @@ void HierarchyPanel::DrawPopup(const FocusedPreviewScene& p_ctx) {
         }
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
-                auto cmd = std::make_unique<DeleteObjectCmd>(m_editor.GetApp(), selected);
+                auto cmd = std::make_unique<DeleteObjectCmd>(
+                    *m_editor.GetApp().GetSceneRegistry(),
+                    selected);
                 edit.Submit(p_ctx.doc_id, std::move(cmd));
             }
         }

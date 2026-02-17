@@ -35,7 +35,7 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());
-    SceneCommandPlayback(cb, executor, map);
+    SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->m_root = map.Resolve(root);
     scene->Update(0.0f);
 

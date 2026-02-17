@@ -64,9 +64,9 @@ public:
 
     void DestroyEntity(ecs::Entity p_ent);
 
-    void AddComponent(ecs::Entity p_ent, BuiltinComponentId p_id);
+    void AddComponent(ecs::Entity p_ent, BuiltinComponentId p_cid);
 
-    void RemoveComponent(ecs::Entity p_ent, BuiltinComponentId p_id);
+    void RemoveComponent(ecs::Entity p_ent, BuiltinComponentId p_cid);
 
     void SetProperty(ecs::Entity p_ent,
                      BuiltinComponentId p_cid,

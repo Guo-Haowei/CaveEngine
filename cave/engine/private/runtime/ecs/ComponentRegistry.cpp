@@ -6,7 +6,7 @@
 
 namespace cave::ecs {
 
-#define DEBUG_COMPONENT_REGISTRY IN_USE
+#define DEBUG_COMPONENT_REGISTRY NOT_IN_USE
 // #define DEBUG_COMPONENT_REGISTRY NOT_IN_USE
 #if USING(DEBUG_COMPONENT_REGISTRY)
 #define DEBUG_PRINT(...) LOG_VERBOSE(__VA_ARGS__)
@@ -24,7 +24,7 @@ const FieldMetaBase* ComponentMeta::Find(const PropertyId& p_id) const {
 }
 
 void ComponentRegistry::Register(const ComponentMeta& p_meta) {
-    const size_t idx = p_meta.id;
+    const size_t idx = p_meta.cid;
 
     if (m_table.size() <= idx) {
         m_table.resize(idx + 1);
@@ -33,14 +33,14 @@ void ComponentRegistry::Register(const ComponentMeta& p_meta) {
 
     if (m_present[idx]) {
         LOG_FATAL("ComponentRegistry::Register: component '{}'(id:{}) already registered",
-                  p_meta.name, p_meta.id);
+                  p_meta.name, p_meta.cid);
         return;
     }
     DEV_ASSERT(m_present[idx] == 0);
     m_table[idx] = p_meta;
     m_present[idx] = 1;
 
-    DEBUG_PRINT("Registered component '{}', id: {}", p_meta.name, p_meta.id);
+    DEBUG_PRINT("Registered component '{}', id: {}", p_meta.name, p_meta.cid);
 }
 
 const ComponentMeta* ComponentRegistry::TryGet(ComponentId p_id) const {
@@ -97,7 +97,7 @@ static void Materail_OnEdited(Scene& p_scene,
 void ComponentRegistry::Builtin(ComponentRegistry& p_out) {
 #define REGISTER_COMPONENT(T, ...)              \
     p_out.Register({                            \
-        .id = T##_Id,                           \
+        .cid = T##_Id,                          \
         .name = #T,                             \
         .size = sizeof(T),                      \
         .align = alignof(T),                    \

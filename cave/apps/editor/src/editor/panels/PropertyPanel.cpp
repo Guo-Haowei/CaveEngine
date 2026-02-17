@@ -8,7 +8,7 @@
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
-#include "editor/edit/EditPropertyCmd.h"
+#include "editor/edit/ChangePropertyCmd.h"
 #include "editor/edit/AddComponentCmd.h"
 #include "editor/edit/RemoveComponentCmd.h"
 #include "editor/services/EditService.h"
@@ -74,7 +74,10 @@ static void DrawComponent(const std::string& p_name,
 
         if (ImGui::BeginPopup("ComponentSettings")) {
             if (ImGui::MenuItem("remove component")) {
-                auto cmd = std::make_unique<RemoveComponentCmd<T>>(ctx.app, ctx.entity, *p_component);
+                auto cmd = std::make_unique<RemoveComponentCmd<T>>(
+                    *ctx.app.GetSceneRegistry(),
+                    ctx.entity,
+                    *p_component);
                 ctx.edit.Submit(ctx.doc_id, std::move(cmd));
             }
 
@@ -153,12 +156,13 @@ bool EditAndSubmit(const DrawComponentCtx& p_ctx,
         return false;
     }
 
-    auto cmd = std::make_unique<EditPropertyCmd>(p_ctx.app,
-                                                 p_ctx.entity,
-                                                 p_component->GetId(),
-                                                 p_field->id,
-                                                 old_v,
-                                                 new_v);
+    auto cmd = std::make_unique<ChangePropertyCmd>(
+        *p_ctx.app.GetSceneRegistry(),
+        p_ctx.entity,
+        p_component->GetId(),
+        p_field->id,
+        old_v,
+        new_v);
     p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
     return true;
 }
@@ -238,12 +242,13 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
             Vector4f old_v = q;
             Vector4f new_v = Vector4f(q2.x, q2.y, q2.z, q2.w);
 
-            auto cmd = std::make_unique<EditPropertyCmd>(p_ctx.app,
-                                                         p_ctx.entity,
-                                                         p_component->GetId(),
-                                                         p_property->id,
-                                                         old_v,
-                                                         new_v);
+            auto cmd = std::make_unique<ChangePropertyCmd>(
+                *p_ctx.app.GetSceneRegistry(),
+                p_ctx.entity,
+                p_component->GetId(),
+                p_property->id,
+                old_v,
+                new_v);
             p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
             return true;
         } break;
@@ -304,8 +309,8 @@ void PropertyPanel::DrawUIImpl() {
     {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
-            auto cmd = std::make_unique<EditPropertyCmd>(
-                m_editor.GetApp(),
+            auto cmd = std::make_unique<ChangePropertyCmd>(
+                *m_editor.GetApp().GetSceneRegistry(),
                 id,
                 NameComponent_Id,
                 StringId("name"),
@@ -328,9 +333,10 @@ void PropertyPanel::DrawUIImpl() {
                       std::to_underlying(cid));
             return;
         }
-        auto cmd = std::make_unique<AddComponentCmd>(m_editor.GetApp(),
-                                                     id,
-                                                     cid);
+        auto cmd = std::make_unique<AddComponentCmd>(
+            *m_editor.GetApp().GetSceneRegistry(),
+            id,
+            cid);
         edit_service.Submit(doc_id, std::move(cmd));
     };
 

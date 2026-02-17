@@ -24,7 +24,7 @@ using OnComponentEditedFn = void (*)(Scene&,
                                      uint32_t);
 
 struct ComponentMeta {
-    ComponentId id;
+    ComponentId cid;
     const char* name;
     uint32_t size;
     uint32_t align;

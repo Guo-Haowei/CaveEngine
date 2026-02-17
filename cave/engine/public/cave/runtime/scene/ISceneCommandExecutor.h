@@ -11,13 +11,11 @@ class ISceneCommandExecutor {
 public:
     virtual ~ISceneCommandExecutor() = default;
 
-    virtual ecs::Entity CreateEntity() = 0;
-
     virtual void RemoveEntity(ecs::Entity p_ent) = 0;
 
-    virtual void* AddComponent(ecs::Entity p_ent, ComponentId p_id) = 0;
+    virtual void AddComponent(ecs::Entity p_ent, ComponentId p_cid) = 0;
 
-    virtual bool RemoveComponent(ecs::Entity p_ent, ComponentId p_id) = 0;
+    virtual bool RemoveComponent(ecs::Entity p_ent, ComponentId p_cid) = 0;
 
     virtual bool ChangeProperty(ecs::Entity p_ent,
                                 ComponentId p_cid,

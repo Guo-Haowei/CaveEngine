@@ -6,11 +6,12 @@
 
 namespace cave {
 
+// @TODO: register default, copy, move constructor and destructor in meta table
 template<typename T>
 class RemoveComponentCmd : public EditCmdBase {
 public:
-    RemoveComponentCmd(IApplication& p_app, ecs::Entity p_ent, T& p_origin)
-        : EditCmdBase(p_app, p_ent)
+    RemoveComponentCmd(SceneRegistry& p_scene_reg, ecs::Entity p_ent, T& p_origin)
+        : EditCmdBase(p_scene_reg, p_ent)
         , m_origin(p_origin) {
     }
 

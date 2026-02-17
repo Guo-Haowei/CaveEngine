@@ -2,6 +2,10 @@
 #include "cave/runtime/scene/ISceneCommandExecutor.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
 
+namespace cave::ecs {
+struct ComponentMeta;
+}
+
 namespace cave {
 
 class Scene;
@@ -11,11 +15,9 @@ public:
     explicit SceneCommandExecutor(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept;
     explicit SceneCommandExecutor(Scene& p_scene) noexcept;
 
-    ecs::Entity CreateEntity() override;
-
     void RemoveEntity(ecs::Entity p_ent) override;
 
-    void* AddComponent(ecs::Entity p_ent, ComponentId p_id) override;
+    void AddComponent(ecs::Entity p_ent, ComponentId p_id) override;
 
     bool RemoveComponent(ecs::Entity p_ent, ComponentId p_id) override;
 
@@ -25,7 +27,11 @@ public:
                         const void* p_data,
                         uint32_t p_data_size) override;
 
-private:
+protected:
+    void* ReadProperty(ecs::Entity p_ent,
+                       const ecs::ComponentMeta* p_meta,
+                       const PropertyId& p_pid);
+
     Scene& m_scene;
     const ecs::ComponentRegistry& m_reg;
 };

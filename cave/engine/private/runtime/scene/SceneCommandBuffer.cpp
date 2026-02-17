@@ -17,12 +17,12 @@ void SceneCommandBuffer::DestroyEntity(Entity p_ent) {
     WriteEntityRecord(SceneCmd_Op::DestroyEntity, p_ent);
 }
 
-void SceneCommandBuffer::AddComponent(Entity p_ent, BuiltinComponentId p_id) {
-    WriteComponentRecord(SceneCmd_Op::AddComponent, p_ent, p_id);
+void SceneCommandBuffer::AddComponent(Entity p_ent, BuiltinComponentId p_cid) {
+    WriteComponentRecord(SceneCmd_Op::AddComponent, p_ent, p_cid);
 }
 
-void SceneCommandBuffer::RemoveComponent(Entity p_ent, BuiltinComponentId p_id) {
-    WriteComponentRecord(SceneCmd_Op::RemoveComponent, p_ent, p_id);
+void SceneCommandBuffer::RemoveComponent(Entity p_ent, BuiltinComponentId p_cid) {
+    WriteComponentRecord(SceneCmd_Op::RemoveComponent, p_ent, p_cid);
 }
 
 void SceneCommandBuffer::SetProperty(Entity p_ent,

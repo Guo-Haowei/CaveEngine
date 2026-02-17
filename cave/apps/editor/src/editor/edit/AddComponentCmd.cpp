@@ -5,10 +5,10 @@
 
 namespace cave {
 
-AddComponentCmd::AddComponentCmd(IApplication& p_app,
+AddComponentCmd::AddComponentCmd(SceneRegistry& p_scene_reg,
                                  ecs::Entity p_ent,
-                                 BuiltinComponentId p_cid)
-    : EditCmdBase(p_app, p_ent)
+                                 ComponentId p_cid)
+    : EditCmdBase(p_scene_reg, p_ent)
     , m_cid(p_cid) {
 }
 

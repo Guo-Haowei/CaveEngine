@@ -228,13 +228,14 @@ void EditorState::OpenAddEntityPopup(ecs::Entity p_parent) {
     if (ImGui::BeginMenu("Add")) {
         FocusedPreviewScene preview = GetFocusedPreviewScene();
         DocId doc_id = preview.doc_id;
-#define ENTITY_TYPE(NAME, SEP)                                                           \
-    if (ImGui::MenuItem(#NAME)) {                                                        \
-        auto cmd = std::make_unique<AddObjectCmd>(GetApp(), p_parent, EntityType::NAME); \
-        m_edit_service->Submit(doc_id, std::move(cmd));                                  \
-    }                                                                                    \
-    if constexpr (SEP) {                                                                 \
-        ImGui::Separator();                                                              \
+        SceneRegistry& scene_reg = *GetApp().GetSceneRegistry();
+#define ENTITY_TYPE(NAME, SEP)                                                            \
+    if (ImGui::MenuItem(#NAME)) {                                                         \
+        auto cmd = std::make_unique<AddObjectCmd>(scene_reg, p_parent, EntityType::NAME); \
+        m_edit_service->Submit(doc_id, std::move(cmd));                                   \
+    }                                                                                     \
+    if constexpr (SEP) {                                                                  \
+        ImGui::Separator();                                                               \
     }
         ENTITY_TYPE_LIST
 #undef ENTITY_TYPE

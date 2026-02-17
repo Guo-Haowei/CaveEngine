@@ -9,6 +9,8 @@
 
 namespace cave {
 
+class Scene;
+
 class EntityMap {
 public:
     explicit EntityMap(uint32_t p_reserve);
@@ -21,8 +23,15 @@ private:
     std::vector<ecs::Entity> m_remap;
 };
 
-void SceneCommandPlayback(SceneCommandBuffer& p_cb,
-                          ISceneCommandExecutor& p_exe,
-                          EntityMap& p_map);
+struct SceneCommandPlayback {
+    struct Context {
+        EntityMap& map;
+        Scene& scene;
+    };
+
+    static void Play(SceneCommandBuffer& p_cb,
+                     ISceneCommandExecutor& p_exe,
+                     const Context& p_ctx);
+};
 
 }  // namespace cave
