@@ -55,9 +55,9 @@ static void MovePiece(Bitboard& p_board, Square p_src, Square p_to) {
     p_board.Set(p_to);
 }
 
-bool Position::MakeMove(Move p_mv, UndoState& p_state) {
-    const Square src_sq = p_mv.from;
-    const Square dst_sq = p_mv.to;
+bool Position::MakeMove(Move p_move, UndoState& p_state) {
+    const Square src_sq = p_move.from;
+    const Square dst_sq = p_move.to;
 
     const Piece src_piece = PieceAt(src_sq);
     const Piece dst_piece = PieceAt(dst_sq);
@@ -73,7 +73,7 @@ bool Position::MakeMove(Move p_mv, UndoState& p_state) {
     const auto [src_file, src_rank] = src_sq.FileRank();
     const auto [dst_file, dst_rank] = dst_sq.FileRank();
 
-    const MoveType move_type = p_mv.GetType();
+    const MoveType move_type = p_move.GetType();
 
     DEV_ASSERT_MSG(src_piece != Piece::Null, "No piece found on 'from' square");
     DEV_ASSERT_MSG(SideToMove() == my_color, "Trying to move a piece of the wrong color");

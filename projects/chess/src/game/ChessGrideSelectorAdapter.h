@@ -12,7 +12,7 @@ public:
     explicit ChessGridSelectorAdapter(
         ChessGameClient& p_game,
         ChessPresenter& p_presenter) noexcept
-        : m_game(p_game)
+        : m_client(p_game)
         , m_presenter(p_presenter) {
     }
 
@@ -24,7 +24,7 @@ public:
     void OnInvalid(int sx, int sy, int dx, int dy);
 
 private:
-    ChessGameClient& m_game;
+    ChessGameClient& m_client;
     ChessPresenter& m_presenter;
 };
 

@@ -11,9 +11,10 @@ enum class MoveType {
     Promotion = 3,
 };
 
+// @TODO: pack move
 struct Move {
-    Square from;
-    Square to;
+    Square from{ 0 };
+    Square to{ 0 };
 
     MoveType GetType() const { return MoveType::Normal; }
 };
