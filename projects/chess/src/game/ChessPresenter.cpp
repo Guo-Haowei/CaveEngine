@@ -3,12 +3,16 @@
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
+#include "core/Position.h"
 
 namespace chess {
 
-using cave::StringId;
+using namespace cave;
+
 using cave::math::Vector3f;
-using chess::core::Square;
+using core::Bitboard;
+using core::Piece;
+using core::Square;
 
 constexpr StringId kTranslationId = StringId("translation");
 
@@ -23,18 +27,42 @@ void ChessPresenter::OnGameBegin(cave::SceneQuery& p_query) {
 
     m_selector = p_query.FindFirstEntity("grid_selector");
 
+    // set up tiles
     for (uint8_t i = 0; i < 64; ++i) {
         const char* name = Square(i).ToString();
         m_tiles[i] = p_query.FindFirstEntity(name);
     }
+
+    // set up pieces
+    auto add_piece = [&](Piece p_type, std::string_view p_name, int p_count) {
+        const uint8_t idx = std::to_underlying(p_type);
+        m_piece_pools[idx].reserve(p_count);
+        for (int i = 1; i <= p_count; ++i) {
+            std::string name = std::format("{}_{}", p_name, i);
+            Entity id = p_query.FindFirstEntity(name);
+            m_piece_pools[idx].push_back(id);
+        }
+    };
+
+    add_piece(Piece::WP, "white_pawn", 8);
+    add_piece(Piece::WN, "white_knight", 2);
+    add_piece(Piece::WB, "white_bishop", 2);
+    add_piece(Piece::WR, "white_rook", 2);
+    add_piece(Piece::WQ, "white_queen", 1);
+    add_piece(Piece::WK, "white_king", 1);
+    add_piece(Piece::BP, "black_pawn", 8);
+    add_piece(Piece::BN, "black_knight", 2);
+    add_piece(Piece::BB, "black_bishop", 2);
+    add_piece(Piece::BR, "black_rook", 2);
+    add_piece(Piece::BQ, "black_queen", 1);
+    add_piece(Piece::BK, "black_king", 1);
 }
 
 void ChessPresenter::OnGameEnd() {
-    m_selector = Entity::Null();
-    for (Entity& e : m_tiles) e = Entity::Null();
 }
 
 void ChessPresenter::Present(const PresentationContext& p_ctx) {
+
     cave::SceneQuery& query = p_ctx.host.SceneQuery();
 
     auto& writer = p_ctx.host.SceneWriter();
@@ -52,6 +80,34 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
                            cave::MeshRendererComponent_Id,
                            StringId("visibility"),
                            vis);
+    }
+}
+
+void ChessPresenter::RedrawPosition(cave::IHostServices& p_host, const core::Position& p_position) {
+    // @TODO: refactor
+    static constexpr StringId kTranslationId = StringId("translation");
+    static constexpr StringId kVisibility = StringId("visibility");
+
+    auto& writer = p_host.SceneWriter();
+
+    // update pieces
+    for (uint8_t p = 0; p < core::kPieceMax; ++p) {
+        const Piece piece = static_cast<Piece>(p);
+        const Bitboard bb = p_position.Bitboard(piece);
+        auto& pool = m_piece_pools[p];
+
+        int idx = 0;
+        for (Square sq : bb.Squares()) {
+            const auto [file, rank] = sq.FileRank();
+            Vector3f translation(rank, 0, file);
+            Entity e = pool[idx++];
+            writer.SetProperty(e, TransformComponent_Id, kTranslationId, translation);
+            writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, true);
+        }
+        for (; idx < pool.size(); ++idx) {
+            Entity e = pool[idx];
+            writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
+        }
     }
 }
 

@@ -40,6 +40,8 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
                 core::UndoState undo;
                 m_replica.MakeMove(e.move, undo);
                 OnPositionChange();
+                // redraw board
+                m_presenter.RedrawPosition(p_host, m_replica);
             } break;
             default: {
                 assert(0);
@@ -47,7 +49,10 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
         }
     }
 
-    PresentationContext ctx{ p_host };
+    PresentationContext ctx{
+        .host = p_host,
+    };
+
     m_presenter.Present(ctx);
 }
 

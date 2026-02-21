@@ -2,7 +2,7 @@
 #include <array>
 #include "cave/runtime/ecs/Entity.h"
 
-#include "core/Bitboard.h"
+#include "core/Position.h"
 
 // clang-format off
 namespace cave { class SceneQuery; }
@@ -20,6 +20,7 @@ class ChessPresenter {
 
 public:
     void Present(const PresentationContext& p_ctx);
+    void RedrawPosition(cave::IHostServices& p_host, const core::Position& p_position);
 
     void OnGameBegin(cave::SceneQuery& p_query);
     void OnGameEnd();
@@ -36,6 +37,7 @@ private:
     Entity m_selector;
 
     std::array<Entity, 64> m_tiles;
+    std::array<std::vector<Entity>, core::kPieceMax> m_piece_pools;
 
     core::Square m_selected{ 0 };
     core::Bitboard m_highlights;
