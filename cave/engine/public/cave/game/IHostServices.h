@@ -4,9 +4,9 @@
 #pragma once
 #include "cave/core/diagnostics/ILogger.h"
 
-namespace cave::ecs {
-class ComponentRegistry;
-}
+// clang-format off
+namespace cave::ecs { class ComponentRegistry; }
+// clang-format on
 
 namespace cave {
 

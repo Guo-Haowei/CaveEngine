@@ -14,7 +14,23 @@ void Bitboard::Set(Square p_sq) {
     m_bits |= (1llu << p_sq.Index());
 }
 
+void Bitboard::Unset(Square p_sq) {
+    DEV_ASSERT_MSG(p_sq.IsValid(), "square out of bounds");
+    m_bits &= ~(1llu << p_sq.Index());
+}
+
 #if defined(CAVE_TEST)
+
+TEST(Bitboard, set_and_unset_same_square_does_nothing) {
+    Bitboard bb{};
+    EXPECT_TRUE(bb.Empty());
+
+    bb.Set(Square(9));
+    EXPECT_TRUE(bb.Any());
+
+    bb.Unset(Square(9));
+    EXPECT_TRUE(bb.Empty());
+}
 
 TEST(Bitboard, test_iterator) {
     constexpr Bitboard MASK_E{ 0x1010101010101010 };
