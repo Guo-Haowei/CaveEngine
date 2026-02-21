@@ -35,12 +35,14 @@ jobs:
       - run: echo "Building project..."
       - run: python .\scripts\generate_meta.py
       - run: .\scripts\ci_build_job.bat Debug
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-debug-results
-          path: ./build/bin/Debug/unit_tests.exe
-          retention-days: 1
+      - run: ./build/bin/Debug/unit_tests.exe
+      - run: ./build/bin/Debug/chess_tests.exe
+      # - name: Upload Build Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build-debug-results
+      #     path: ./build/bin/Debug/unit_tests.exe
+      #     retention-days: 1
 
   # build_release:
   #   name: Build Release
@@ -53,17 +55,17 @@ jobs:
   #     - run: python .\scripts\generate_meta.py
   #     - run: .\scripts\ci_build_job.bat Release
 
-  test_job:
-    name: Unit Tests
-    needs: build_debug
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-debug-results
-          path: build-out
+  # test_job:
+  #   name: Unit Tests
+  #   needs: build_debug
+  #   runs-on: self-hosted
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Download build artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: build-debug-results
+  #         path: build-out
 
-      - name: Run executable
-        run: .\build-out\unit_tests.exe
+  #     - name: Run executable
+  #       run: .\build-out\unit_tests.exe
