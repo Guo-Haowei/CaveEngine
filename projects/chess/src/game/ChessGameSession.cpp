@@ -1,4 +1,4 @@
-#include "ChessMode.h"
+#include "ChessGameSession.h"
 
 #include "cave/core/typedefs.h"
 #include "cave/game/IHostServices.h"
@@ -9,7 +9,7 @@ namespace chess {
 using cave::unused;
 using cave::math::Vector2i;
 
-ChessMode::ChessMode()
+ChessGameSession::ChessGameSession()
     : m_game{}
     , m_presenter{}
     , m_grid_adapter{ m_game, m_presenter } {
@@ -28,17 +28,17 @@ ChessMode::ChessMode()
         std::move(cbs));
 }
 
-void ChessMode::OnGameBegin(cave::IHostServices& p_host) {
+void ChessGameSession::OnGameBegin(cave::IHostServices& p_host) {
     m_presenter.OnGameBegin(p_host.SceneQuery());
     m_game.ResetBoard();
 }
 
-void ChessMode::OnGameEnd(cave::IHostServices& p_host) {
+void ChessGameSession::OnGameEnd(cave::IHostServices& p_host) {
     unused(p_host);
     m_presenter.OnGameEnd();
 }
 
-void ChessMode::Tick(cave::IHostServices& p_host) {
+void ChessGameSession::Tick(cave::IHostServices& p_host) {
     ProcessInput(p_host.Input());
 
     const Vector2i focused = m_selector->GetFocused();
@@ -51,7 +51,7 @@ void ChessMode::Tick(cave::IHostServices& p_host) {
     m_presenter.Present(ctx);
 }
 
-void ChessMode::ProcessInput(cave::IInputService& p_input) {
+void ChessGameSession::ProcessInput(cave::IInputService& p_input) {
     using cave::StringId;
     using cave::math::Vector2i;
 

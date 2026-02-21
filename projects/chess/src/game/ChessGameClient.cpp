@@ -1,4 +1,4 @@
-#include "ChessGame.h"
+#include "ChessGameClient.h"
 
 #include "core/MoveGen.h"
 
@@ -8,13 +8,13 @@ using core::Position;
 using core::Move;
 using core::MoveGen;
 
-void ChessGame::ResetBoard() {
+void ChessGameClient::ResetBoard() {
     m_pos = Position::Default();
 
     OnPositionChange();
 }
 
-void ChessGame::OnPositionChange() {
+void ChessGameClient::OnPositionChange() {
     MoveGen::Pseudo(m_pos, m_moves);
 
     m_move_cache.clear();
@@ -23,7 +23,7 @@ void ChessGame::OnPositionChange() {
     }
 }
 
-std::span<const core::Move> ChessGame::LegalMovesFromSquare(core::Square p_sq) {
+std::span<const core::Move> ChessGameClient::LegalMovesFromSquare(core::Square p_sq) {
     auto it = m_move_cache.find(p_sq);
     if (it == m_move_cache.end()) {
         return {};

@@ -1,5 +1,5 @@
 #pragma once
-#include "ChessGame.h"
+#include "ChessGameClient.h"
 #include "ChessGrideSelectorAdapter.h"
 #include "ChessPresenter.h"
 
@@ -12,9 +12,9 @@ namespace cave { class IInputService; }
 
 namespace chess {
 
-class ChessMode {
+class ChessGameSession {
 public:
-    ChessMode();
+    ChessGameSession();
 
     void OnGameBegin(cave::IHostServices& p_host);
 
@@ -25,7 +25,7 @@ public:
 private:
     void ProcessInput(cave::IInputService& p_input);
 
-    ChessGame m_game;
+    ChessGameClient m_client;
     ChessPresenter m_presenter;
     ChessGridSelectorAdapter m_grid_adapter;
     std::unique_ptr<cave::GridSelectController> m_selector;

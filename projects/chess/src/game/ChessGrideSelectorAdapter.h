@@ -4,13 +4,13 @@
 
 namespace chess {
 
-class ChessGame;
+class ChessGameClient;
 class ChessPresenter;
 
 class ChessGridSelectorAdapter {
 public:
     explicit ChessGridSelectorAdapter(
-        ChessGame& p_game,
+        ChessGameClient& p_game,
         ChessPresenter& p_presenter) noexcept
         : m_game(p_game)
         , m_presenter(p_presenter) {
@@ -24,7 +24,7 @@ public:
     void OnInvalid(int sx, int sy, int dx, int dy);
 
 private:
-    ChessGame& m_game;
+    ChessGameClient& m_game;
     ChessPresenter& m_presenter;
 };
 

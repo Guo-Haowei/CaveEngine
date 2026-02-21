@@ -1,6 +1,6 @@
 #include "ChessGrideSelectorAdapter.h"
 
-#include "ChessGame.h"
+#include "ChessGameClient.h"
 #include "ChessPresenter.h"
 
 namespace chess {

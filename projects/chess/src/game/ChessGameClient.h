@@ -37,7 +37,7 @@ struct ChessEvent {
     // include Move, captured piece, result, etc.
 };
 
-class ChessGame {
+class ChessGameClient {
 public:
     void ResetBoard();
 
