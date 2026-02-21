@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 
+namespace chess {
+
 using PlayerId = uint8_t;
 
 class IPlayerAgent {
@@ -11,3 +13,5 @@ public:
 
     virtual PlayerId GetPlayer() const = 0;
 };
+
+}  // namespace chess

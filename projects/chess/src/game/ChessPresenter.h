@@ -13,7 +13,6 @@ namespace chess {
 
 struct PresentationContext {
     cave::IHostServices& host;
-    core::Square selected;
 };
 
 class ChessPresenter {
@@ -25,13 +24,20 @@ public:
     void OnGameBegin(cave::SceneQuery& p_query);
     void OnGameEnd();
 
-    void HighlightSquares(core::Bitboard p_bb);
+    void SetSelectedSquare(core::Square p_sq) {
+        m_selected = p_sq;
+    }
+
+    void SetHighlightSquares(core::Bitboard p_bb) {
+        m_highlights = p_bb;
+    }
 
 private:
     Entity m_selector;
 
     std::array<Entity, 64> m_tiles;
 
+    core::Square m_selected{ 0 };
     core::Bitboard m_highlights;
 };
 

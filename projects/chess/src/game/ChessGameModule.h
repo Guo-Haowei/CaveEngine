@@ -4,12 +4,15 @@
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/controller/GridSelectController.h"
 
-#include "ChessGameSession.h"
-
 namespace chess {
+
+class ChessGameSession;
 
 class ChessGameModule final : public cave::IGameModule {
 public:
+    ChessGameModule();
+    ~ChessGameModule();
+
     void OnModuleLoaded(cave::IHostServices& p_host) override;
     void OnModuleUnloaded(cave::IHostServices& p_host) override;
 
@@ -21,7 +24,7 @@ public:
 private:
     void SpawnObjects(cave::IHostServices& p_host);
 
-    ChessGameSession m_session;
+    std::unique_ptr<ChessGameSession> m_session;
 };
 
 }  // namespace chess

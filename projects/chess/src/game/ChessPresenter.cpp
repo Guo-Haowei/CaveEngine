@@ -39,7 +39,7 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
 
     auto& writer = p_ctx.host.SceneWriter();
 
-    Vector3f position = SquareToPosition(p_ctx.selected);
+    Vector3f position = SquareToPosition(m_selected);
     writer.SetProperty(m_selector,
                        cave::TransformComponent_Id,
                        kTranslationId,
@@ -53,10 +53,6 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
                            StringId("visibility"),
                            vis);
     }
-}
-
-void ChessPresenter::HighlightSquares(core::Bitboard p_bb) {
-    m_highlights = p_bb;
 }
 
 }  // namespace chess

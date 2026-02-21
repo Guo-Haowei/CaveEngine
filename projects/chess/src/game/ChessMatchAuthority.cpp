@@ -3,22 +3,37 @@
 namespace chess {
 
 using core::Color;
+using core::Position;
+
+ChessMatchAuthority::ChessMatchAuthority() {
+    m_pos = Position::Default();
+}
 
 void ChessMatchAuthority::Tick() {
     const int player = (m_pos.SideToMove() == Color::White) ? 0 : 1;
 
     PlayerIntent intent;
     while (m_inbox[player].Pop(intent)) {
-        if (HandleIntent(player, intent)) break;
+        if (HandleIntent(player, intent)) {
+            break;
+        }
     }
+}
+
+bool ChessMatchAuthority::Pop(AuthorityEvent& p_out) {
+    if (m_events.empty()) return false;
+
+    p_out = m_events.front();
+    m_events.pop_front();
+    return true;
 }
 
 bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
                                         core::Move p_move) {
-    (void)p_player_id;
-
     core::UndoState undo;
     const bool ok = m_pos.MakeMove(p_move, undo);
+
+    m_events.push_back({ AuthorityEventType ::MoveCommitted, p_player_id, p_move });
     return ok;
 }
 
@@ -34,20 +49,9 @@ bool ChessMatchAuthority::HandleIntent(PlayerId p_player_id, const PlayerIntent&
     switch (p_intent.type) {
         case IntentType::AttemptMove:
             if (!TryCommitMove(p_player_id, p_intent.move)) {
-                __debugbreak();
-                if (m_sink) {
-                    // @NOTE: only player controller for now,
-                    // invalid moves should be rejected already
-                    // m_sink->OnMoveRejected(p, i.move);
-                }
                 return false;  // state unchanged
             }
-            if (m_sink) {
-                m_sink->OnMoveCommitted(p_intent.move);
-            }
-            // advance side-to-move (real code should do this based on position)
             return true;
-
         case IntentType::OfferDraw:
             OfferDraw(p_player_id);
             return true;

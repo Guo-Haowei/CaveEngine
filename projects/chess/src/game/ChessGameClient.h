@@ -4,21 +4,19 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "core/Position.h"
-#include "ChessGrideSelectorAdapter.h"
 #include "ChessPresenter.h"
-
-#include "cave/runtime/controller/GridSelectController.h"
 
 // clang-format off
 namespace cave { class IHostServices; }
-namespace cave { class IInputService; }
 // clang-format on
 
 namespace chess {
 
+class ChessMatchAuthority;
+
 class ChessGameClient {
 public:
-    ChessGameClient();
+    ChessGameClient(ChessMatchAuthority& p_auth);
 
     void OnGameBegin(cave::IHostServices& p_host);
 
@@ -30,24 +28,22 @@ public:
 
     std::span<const core::Move> LegalMovesFromSquare(core::Square p_sq);
 
-    const core::Position& Pos() const { return m_replicated; }
+    const core::Position& Pos() const { return m_replica; }
+
+    ChessPresenter& Presenter() { return m_presenter; }
 
 private:
     void OnPositionChange();
 
-    // @TODO: fix
-    void ProcessInput(cave::IInputService& p_input);
-
     void ResetBoard();
 
-    core::Position m_replicated;  // replicated position of auth
+    ChessMatchAuthority& m_auth;
+    ChessPresenter m_presenter;
+
+    core::Position m_replica;  // replicated position of auth
 
     core::MoveList m_moves;
     std::unordered_map<core::Square, std::vector<core::Move>> m_move_cache;
-
-    ChessPresenter m_presenter;
-    ChessGridSelectorAdapter m_grid_adapter;
-    std::unique_ptr<cave::GridSelectController> m_selector;
 };
 
 }  // namespace chess

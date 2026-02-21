@@ -5,26 +5,31 @@
 
 namespace chess {
 
-class IAuthoritySink {
-public:
-    virtual ~IAuthoritySink() = default;
-    virtual void OnMoveCommitted(const core::Move& p_mv) = 0;
-    // Add reject move
-    // Add draw
-    // Add resign
+enum class AuthorityEventType : uint8_t {
+    MoveCommitted,
+    MoveRejected,
+    GameOver,
+};
+
+struct AuthorityEvent {
+    AuthorityEventType type{};
+    PlayerId player{};
+    core::Move move{};
 };
 
 class ChessMatchAuthority {
     using Color = core::Color;
 
 public:
-    void SetSink(IAuthoritySink* sink) { m_sink = sink; }
+    ChessMatchAuthority();
 
     IntentInbox& Inbox(PlayerId p_player_id) {
         return m_inbox[p_player_id];
     }
 
     void Tick();
+
+    bool Pop(AuthorityEvent& p_out);
 
 private:
     bool TryCommitMove(PlayerId p_player_id,
@@ -35,11 +40,11 @@ private:
 
     bool HandleIntent(PlayerId p, const PlayerIntent& p_intent);
 
-private:
     core::Position m_pos;
 
     IntentInbox m_inbox[2]{};
-    IAuthoritySink* m_sink = nullptr;
+
+    std::deque<AuthorityEvent> m_events;
 };
 
 }  // namespace chess

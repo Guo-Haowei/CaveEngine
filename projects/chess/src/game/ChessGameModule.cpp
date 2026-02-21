@@ -1,12 +1,13 @@
 #include "ChessGameModule.h"
 
-#include "core/Bitboard.h"
-#include "core/Piece.h"
-
 #include "cave/core/diagnostics/ILogger.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
+
+#include "core/Bitboard.h"
+#include "core/Piece.h"
+#include "ChessGameSession.h"
 
 namespace chess {
 
@@ -106,6 +107,9 @@ static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
     { Piece::BR, Piece::BN, Piece::BB, Piece::BQ, Piece::BK, Piece::BB, Piece::BN, Piece::BR },
 } };
 
+ChessGameModule::ChessGameModule() = default;
+ChessGameModule::~ChessGameModule() = default;
+
 void ChessGameModule::OnModuleLoaded(IHostServices& p_host) {
     p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "ChessClient Loaded\n");
 
@@ -118,17 +122,19 @@ void ChessGameModule::OnModuleUnloaded(IHostServices& p_host) {
 }
 
 void ChessGameModule::OnGameBegin(IHostServices& p_host) {
-    m_session.OnGameBegin(p_host);
+    m_session = std::make_unique<ChessGameSession>();
+    m_session->OnGameBegin(p_host);
 }
 
 void ChessGameModule::OnGameEnd(IHostServices& p_host) {
-    m_session.OnGameEnd(p_host);
+    m_session->OnGameEnd(p_host);
+    m_session.reset();
 }
 
 void ChessGameModule::Tick(IHostServices& p_host, const FrameTime& p_time) {
     unused(p_time);
 
-    m_session.Tick(p_host);
+    m_session->Tick(p_host);
 }
 
 void ChessGameModule::SpawnObjects(IHostServices& p_host) {

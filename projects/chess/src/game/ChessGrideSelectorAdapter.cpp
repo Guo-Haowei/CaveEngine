@@ -1,8 +1,13 @@
 #include "ChessGrideSelectorAdapter.h"
 
+#include "cave/game/IHostServices.h"
+#include "cave/runtime/controller/GridSelectController.h"
+#include "cave/runtime/framework/IInputService.h"
+
 #include "ChessGameClient.h"
 #include "ChessMatchAuthority.h"
 #include "ChessPresenter.h"
+#include "LocalHumanAgent.h"
 
 namespace chess {
 
@@ -26,7 +31,7 @@ void ChessGridSelectorAdapter::OnSelect(int x, int y) {
     for (Move mv : moves) {
         bb.Set(mv.to);
     }
-    m_presenter.HighlightSquares(bb);
+    m_presenter.SetHighlightSquares(bb);
 }
 
 bool ChessGridSelectorAdapter::CanDrop(int sx, int sy, int dx, int dy) {
@@ -46,23 +51,27 @@ bool ChessGridSelectorAdapter::CanDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
-    m_presenter.HighlightSquares({});
+    m_presenter.SetHighlightSquares({});
 
     const core::Position& pos = m_client.Pos();
-
-    Move move{
-        Square::FromFileRank((uint8_t)sx, (uint8_t)sy),
-        Square::FromFileRank((uint8_t)dx, (uint8_t)dy),
-    };
-
     const PlayerId id = pos.SideToMove() == core::Color::White ? 0 : 1;
+    if (m_players[id]) {
+        Move move{
+            Square::FromFileRank((uint8_t)sx, (uint8_t)sy),
+            Square::FromFileRank((uint8_t)dx, (uint8_t)dy),
+        };
 
-    core::UndoState undo;
-    pos.MakeMove(move, undo);
+        auto& inbox = m_players[id]->LocalInbox();
+        PlayerIntent intent = {
+            IntentType::AttemptMove,
+            move,
+        };
+        inbox.Push(intent);
+    }
 }
 
 void ChessGridSelectorAdapter::OnCancel() {
-    m_presenter.HighlightSquares({});
+    m_presenter.SetHighlightSquares({});
 }
 
 void ChessGridSelectorAdapter::OnInvalid(int sx, int sy, int dx, int dy) {
@@ -70,6 +79,30 @@ void ChessGridSelectorAdapter::OnInvalid(int sx, int sy, int dx, int dy) {
     (void)sy;
     (void)dx;
     (void)dy;
+}
+
+void ChessGridSelectorAdapter::Tick(cave::IInputService& p_input) {
+    using cave::StringId;
+    using cave::math::Vector2i;
+
+    if (p_input.IsActionJustPressed(StringId("ui_right"))) {
+        m_controller->MoveFocus(Vector2i(1, 0));
+    }
+    if (p_input.IsActionJustPressed(StringId("ui_left"))) {
+        m_controller->MoveFocus(Vector2i(-1, 0));
+    }
+    if (p_input.IsActionJustPressed(StringId("ui_up"))) {
+        m_controller->MoveFocus(Vector2i(0, 1));
+    }
+    if (p_input.IsActionJustPressed(StringId("ui_down"))) {
+        m_controller->MoveFocus(Vector2i(0, -1));
+    }
+    if (p_input.IsActionJustPressed(StringId("ui_accept"))) {
+        m_controller->Confirm();
+    }
+    if (p_input.IsActionJustPressed(StringId("ui_back"))) {
+        m_controller->Cancel();
+    }
 }
 
 }  // namespace chess
