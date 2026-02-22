@@ -27,6 +27,10 @@ void ChessGridSelectorAdapter::OnSelect(int x, int y) {
 
     std::span<const Move> moves = m_client.LegalMovesFromSquare(sq);
 
+    if (moves.size() >= 4) {
+        __debugbreak();
+    }
+
     core::Bitboard bb;
     for (Move mv : moves) {
         bb.Set(mv.to);
@@ -42,7 +46,7 @@ bool ChessGridSelectorAdapter::CanDrop(int sx, int sy, int dx, int dy) {
         const auto [from_file, from_rank] = mv.from.FileRank();
         const auto [to_file, to_rank] = mv.to.FileRank();
 
-        if (from_file == sx && from_rank == sy && to_file == dx && to_rank && dy) {
+        if (from_file == sx && from_rank == sy && to_file == dx && to_rank == dy) {
             return true;
         }
     }

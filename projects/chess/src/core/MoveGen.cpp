@@ -111,13 +111,24 @@ static Bitboard PawnMask(const Position& p_pos, Square p_sq) {
     }
 
     constexpr int8_t offset = is_white ? 8 : -8;
-    constexpr Bitboard rank = is_white ? MASK_4 : MASK_5;
-    const Bitboard empty_mask = ~occupancies[Color::Both];
-    Bitboard advance_once(1llu << ((int8_t)p_sq.Index() + offset));
-    advance_once &= empty_mask;
+    const int8_t advance_once_bit = (int8_t)p_sq.Index() + offset;
 
-    Bitboard advance_twice((1llu << ((int8_t)p_sq.Index() + 2 * offset)));
-    advance_twice &= empty_mask & rank;
+    const Bitboard empty_mask = ~occupancies[Color::Both];
+    Bitboard advance_once(0);
+    if (advance_once_bit >= 0 && advance_once_bit < 64) {
+        advance_once.Set(Square(advance_once_bit));
+        advance_once &= empty_mask;
+    }
+
+    Bitboard advance_twice(0);
+    if (advance_once.Any()) {
+        const int8_t advance_twice_bit = (int8_t)p_sq.Index() + 2 * offset;
+        if (advance_twice_bit >= 0 && advance_twice_bit < 64) {
+            advance_twice.Set(Square(advance_twice_bit));
+            advance_twice &= empty_mask;
+            advance_twice &= (is_white ? MASK_4 : MASK_5);
+        }
+    }
 
     return advance_once | advance_twice | capture_mask;
 }
@@ -198,7 +209,11 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
         return;
     }
     if (p_piece == Piece::BP) {
-        PawnMoves<1 /* white */, MV_TYPE_MOVE>(p_pos, p_from, p_move_list);
+        PawnMoves<1 /* black */, MV_TYPE_MOVE>(p_pos, p_from, p_move_list);
+        return;
+    }
+
+    if (p_piece != Piece::Null) {
         return;
     }
 
