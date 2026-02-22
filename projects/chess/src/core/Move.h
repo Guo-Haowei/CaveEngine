@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 #include "Square.h"
 
@@ -17,6 +18,8 @@ struct Move {
     Square to{ 0 };
 
     MoveType GetType() const { return MoveType::Normal; }
+
+    std::string Uci() const;
 };
 
 using MoveList = std::vector<Move>;

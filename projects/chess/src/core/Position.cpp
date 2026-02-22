@@ -55,7 +55,7 @@ static void MovePiece(Bitboard& p_board, Square p_src, Square p_to) {
     p_board.Set(p_to);
 }
 
-bool Position::MakeMove(Move p_move, UndoState& p_state) {
+bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     const Square src_sq = p_move.from;
     const Square dst_sq = p_move.to;
 
@@ -102,7 +102,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_state) {
     // -------------- Update Board Start --------------
 
     m_state.captured_piece = dst_piece;
-    p_state = m_state;  // save old state as undo state
+    p_undo = m_state;  // save old state as undo state
 
     DEV_ASSERT(m_state.occupancies[SideToMove()].Test(src_sq));
 
@@ -176,9 +176,38 @@ bool Position::MakeMove(Move p_move, UndoState& p_state) {
     return UpdateCache();
 }
 
-bool Position::UnmakeMove(Move p_mv, UndoState& p_state) {
-    unused(p_mv);
-    unused(p_state);
+bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
+    const Square src_sq = p_move.from;
+    const Square dst_sq = p_move.to;
+
+    const Piece src_piece = PieceAt(dst_sq);
+
+    const Color my_color = GetColor(src_piece);
+    const Color their_color = FlipColor(my_color);
+    const Piece their_pawn = BuildPiece(PieceType::Pawn, their_color);
+
+    MovePiece(m_board[src_piece], dst_sq, src_sq);
+
+    const Piece captured_piece = p_undo.captured_piece;
+    if (captured_piece != Piece::Null) {
+        m_board[captured_piece].Set(dst_sq);
+    }
+
+    const MoveType move_type = p_move.GetType();
+    switch (move_type) {
+        case MoveType::Castling: {
+        } break;
+        case MoveType::EnPassant: {
+            (void)their_pawn;
+        } break;
+        case MoveType::Promotion: {
+        } break;
+        default:
+            break;
+    }
+
+    m_side_to_move = FlipColor(m_side_to_move);
+    m_state = p_undo;
     return true;
 }
 

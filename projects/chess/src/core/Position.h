@@ -32,14 +32,14 @@ enum class FenError {
 
 struct UndoState {
     Castling castling;
-    cave::Option<Square> en_passant;
+    cave::Option<Square> en_passant{};
     uint32_t halfmove_clock;
     uint32_t fullmove_number;
 
     cave::EnumArray<Color, Bitboard, 3> occupancies;
     cave::EnumArray<Color, Bitboard, 2> attack_mask;
 
-    Piece captured_piece;
+    Piece captured_piece{ Piece::Null };
 
     // pub checkers: [CheckerList; Color::COUNT],
     // pub king_squares: [Square; Color::COUNT],
