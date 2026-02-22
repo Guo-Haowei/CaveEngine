@@ -40,9 +40,9 @@ struct UndoState {
     cave::EnumArray<Color, Bitboard, 2> attack_mask;
 
     Piece captured_piece{ Piece::Null };
+    cave::EnumArray<Color, Square, 2> king_squares;
 
     // pub checkers: [CheckerList; Color::COUNT],
-    // pub king_squares: [Square; Color::COUNT],
 };
 
 class Position {
@@ -68,6 +68,8 @@ public:
 
     Bitboard Bitboard(Piece p_piece) const { return m_board[p_piece]; }
     const UndoState& State() const { return m_state; }
+
+    Square GetKing(Color p_color) const { return m_state.king_squares[p_color]; }
 
 private:
     bool UpdateCache();

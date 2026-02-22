@@ -260,11 +260,13 @@ bool Position::UpdateCache() {
 
     Color prev_color = FlipColor(m_side_to_move);
     (void)prev_color;
+
+    const auto wk_bb = m_board[Piece::WK];
+    const auto bk_bb = m_board[Piece::BK];
+    m_state.king_squares[Color::White] = Square(std::countr_zero(wk_bb.Bits()));
+    m_state.king_squares[Color::Black] = Square(std::countr_zero(bk_bb.Bits()));
+
 #if 0
-pub fn update_cache(pos: &mut Position) -> bool {
-
-    let prev_color = pos.side_to_move.flip();
-
     // update attack maps
     let (white_attack_map, white_checkers) = move_gen::calc_attack_map_and_checker::<0>(pos);
     let (black_attack_map, black_checkers) = move_gen::calc_attack_map_and_checker::<1>(pos);

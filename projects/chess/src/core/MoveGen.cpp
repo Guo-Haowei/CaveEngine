@@ -322,16 +322,64 @@ static Bitboard QueenMask(Square p_from_sq,
     }
 }
 
-void MoveGen::Pseudo(const Position& p_pos,
-                     MoveList& p_move_list) {
+#if 0
+fn pseudo_legal_move_king<const COLOR: u8, const MASK_TYPE: u8>(
+    move_list: &mut MoveList,
+    sq: Square,
+    pos: &Position,
+) {
+    let mask = king_mask::<COLOR, MASK_TYPE>(sq, pos);
+    for dst_sq in mask.iter() {
+        // check if it's a castling move
+        let (src_file, _) = sq.file_rank();
+        let (dst_file, _) = dst_sq.file_rank();
+        let diff = src_file.diff(dst_file);
+        let move_type = match diff.abs() {
+            0 | 1 => MoveType::Normal,
+            2 => MoveType::Castling,
+            _ => panic!("Invalid castling move from {} to {}", sq, dst_sq),
+        };
+
+        move_list.add(Move::new(sq, dst_sq, move_type, None));
+    }
+}
+
+#endif
+
+MoveList MoveGen::Pseudo(const Position& p_pos) {
+    MoveList moves;
+    moves.reserve(128);
+
     const Color stm = p_pos.SideToMove();
+    const Square king_sq = p_pos.GetKing(stm);
+
+
+    #if 0
+    let color = pos.side_to_move;
+    let king_sq = pos.get_king_square(color);
+    let (start, end) = if color == Color::WHITE {
+        pseudo_legal_move_king::<0, MASK>(&mut move_list, king_sq, pos);
+        (Piece::W_START, Piece::W_END)
+    } else {
+        pseudo_legal_move_king::<1, MASK>(&mut move_list, king_sq, pos);
+        (Piece::B_START, Piece::B_END)
+    };
+
+    // early return if double check
+    let checkers = &pos.state.checkers[color.as_usize()];
+    if checkers.count() == 2 {
+        return move_list;
+    }
+
+    #endif
 
     for (uint8_t i = 0; i < kPieceTypeMax; ++i) {
         const Piece piece = BuildPiece(static_cast<PieceType>(i), stm);
         for (Square sq : p_pos.Bitboard(piece).Squares()) {
-            PseudoFromSquare(p_pos, sq, piece, p_move_list);
+            PseudoFromSquare(p_pos, sq, piece, moves);
         }
     }
+    return moves;
 }
 
 void MoveGen::PseudoFromSquare(const Position& p_pos,
