@@ -222,8 +222,7 @@ static void PawnMoves(const Position& p_pos,
 }
 
 template<MoveMaskType MV_TYPE>
-static Bitboard KnightMask(const Position& p_pos,
-                           Square p_from_sq,
+static Bitboard KnightMask(Square p_from_sq,
                            Bitboard p_friendly,
                            Bitboard p_enemy) {
     const Bitboard mask = kKnightMasks[p_from_sq.Index()];
@@ -232,33 +231,97 @@ static Bitboard KnightMask(const Position& p_pos,
         case MoveMaskType::Move:
             return mask & (~p_friendly);
         case MoveMaskType::Capture:
-            return mask & (~p_friendly) & p_enemy;
+            return mask & p_enemy;
         case MoveMaskType::Attack:
         default:
             return mask;
     }
 }
 
-#if 0
-fn knight_mask<const MASK: u8>(
-    sq: Square,
-    my_occupancy: BitBoard,
-    enemy_occupancy: BitBoard,
-) -> BitBoard {
-    let mut mask = KNIGHT_MASKS[sq.as_usize()];
-    if MASK == MV_MASK_ATTACK {
-        return mask;
-    }
-    mask &= !my_occupancy;
-    if MASK == MV_MASK_MOVE {
-        return mask;
-    }
-    if MASK == MV_MASK_CAPTURE {
-        return mask & enemy_occupancy;
-    }
-    unreachable!();
+static Bitboard GenRay(Square p_from_sq,
+                       Bitboard p_friendly,
+                       Bitboard p_enemy,
+                       int8_t p_dx,
+                       int8_t p_dy) {
+    Bitboard mask(0);
+
+    auto [file, rank] = p_from_sq.FileRank();
+    for (;;) {
+        file += p_dx;
+        rank += p_dy;
+        if (file >= 8 || rank >= 8) break;
+        const Square sq = Square::FromFileRank(file, rank);
+        if (p_friendly.Test(sq)) break;
+        mask.Set(sq);
+        if (p_enemy.Test(sq)) break;
+    } 
+
+    return mask;
 }
-#endif
+
+template<MoveMaskType MV_TYPE>
+static Bitboard BishopMask(Square p_from_sq,
+                           Bitboard p_friendly,
+                           Bitboard p_enemy) {
+    Bitboard mask = GenRay(p_from_sq, p_friendly, p_enemy, -1, -1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, -1, 1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, -1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 1);
+
+    switch (MV_TYPE) {
+        case MoveMaskType::Move:
+            return mask & (~p_friendly);
+        case MoveMaskType::Capture:
+            return mask & p_enemy;
+        case MoveMaskType::Attack:
+        default:
+            return mask;
+    }
+}
+
+template<MoveMaskType MV_TYPE>
+static Bitboard RookMask(Square p_from_sq,
+                         Bitboard p_friendly,
+                         Bitboard p_enemy) {
+    Bitboard mask = GenRay(p_from_sq, p_friendly, p_enemy, 0, -1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, 0, 1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, -1, 0);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 0);
+
+    switch (MV_TYPE) {
+        case MoveMaskType::Move:
+            return mask & (~p_friendly);
+        case MoveMaskType::Capture:
+            return mask & p_enemy;
+        case MoveMaskType::Attack:
+        default:
+            return mask;
+    }
+}
+
+template<MoveMaskType MV_TYPE>
+static Bitboard QueenMask(Square p_from_sq,
+                          Bitboard p_friendly,
+                          Bitboard p_enemy) {
+    Bitboard mask = GenRay(p_from_sq, p_friendly, p_enemy, 0, -1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, 0, 1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, -1, 0);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 0);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, -1, -1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, -1, 1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, -1);
+    mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 1);
+
+    switch (MV_TYPE) {
+        case MoveMaskType::Move:
+            return mask & (~p_friendly);
+        case MoveMaskType::Capture:
+            return mask & p_enemy;
+        case MoveMaskType::Attack:
+        default:
+            return mask;
+    }
+}
 
 void MoveGen::Pseudo(const Position& p_pos,
                      MoveList& p_move_list) {
@@ -294,7 +357,16 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
     Bitboard mask(0);
     switch (piece_type) {
         case PieceType::Knight: {
-            mask = KnightMask<MV_TYPE>(p_pos, p_from, friendly, enemy);
+            mask = KnightMask<MV_TYPE>(p_from, friendly, enemy);
+        } break;
+        case PieceType::Bishop: {
+            mask = BishopMask<MV_TYPE>(p_from, friendly, enemy);
+        } break;
+        case PieceType::Rook: {
+            mask = RookMask<MV_TYPE>(p_from, friendly, enemy);
+        } break;
+        case PieceType::Queen: {
+            mask = QueenMask<MV_TYPE>(p_from, friendly, enemy);
         } break;
         default: {
         } break;
