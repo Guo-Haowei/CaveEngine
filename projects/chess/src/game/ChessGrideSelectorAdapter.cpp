@@ -87,22 +87,36 @@ void ChessGridSelectorAdapter::Tick(cave::IInputService& p_input) {
 
     // @TODO: player
     if (p_input.IsActionJustPressed(StringId("ui_right"))) {
-        m_controller->MoveFocus(Vector2i(1, 0));
+        m_controller->MoveFocus(1, 0);
     }
     if (p_input.IsActionJustPressed(StringId("ui_left"))) {
-        m_controller->MoveFocus(Vector2i(-1, 0));
+        m_controller->MoveFocus(-1, 0);
     }
     if (p_input.IsActionJustPressed(StringId("ui_up"))) {
-        m_controller->MoveFocus(Vector2i(0, 1));
+        m_controller->MoveFocus(0, 1);
     }
     if (p_input.IsActionJustPressed(StringId("ui_down"))) {
-        m_controller->MoveFocus(Vector2i(0, -1));
+        m_controller->MoveFocus(0, -1);
     }
     if (p_input.IsActionJustPressed(StringId("ui_accept"))) {
         m_controller->Confirm();
     }
     if (p_input.IsActionJustPressed(StringId("ui_back"))) {
         m_controller->Cancel();
+    }
+
+    const float dx = p_input.GetActionStrength(StringId("ui_axis_x"));
+    const float dy = p_input.GetActionStrength(StringId("ui_axis_y"));
+    if (dx > 0.5f) {
+        m_controller->MoveFocus(1, 0);
+    } else if (dx < -0.5f) {
+        m_controller->MoveFocus(-1, 0);
+    }
+
+    if (dy > 0.5f) {
+        m_controller->MoveFocus(0, 1);
+    } else if (dy < -0.5f) {
+        m_controller->MoveFocus(0, -1);
     }
 }
 

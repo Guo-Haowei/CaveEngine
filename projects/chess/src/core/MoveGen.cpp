@@ -176,9 +176,9 @@ static void PawnMoves(const Position& p_pos,
                       // @TODO: checker
                       // @TODO: king
                       MoveList& p_move_list) {
-    const Bitboard pawn_mask = PawnMask<COLOR, MV_TYPE>(p_pos, p_from_sq);
-
     constexpr bool NOT_IN_CHECK = true;
+
+    const Bitboard pawn_mask = PawnMask<COLOR, MV_TYPE>(p_pos, p_from_sq);
 
     for (Square to_sq : pawn_mask.Squares()) {
         // @TODO: promotion
@@ -197,8 +197,7 @@ static void PawnMoves(const Position& p_pos,
         } else
 #endif
         {
-            // if (NOT_IN_CHECK || ResolveCheck)
-            {
+            if (NOT_IN_CHECK /* || ResolveCheck */) {
                 p_move_list.push_back(Move{ p_from_sq, to_sq });
             }
         }

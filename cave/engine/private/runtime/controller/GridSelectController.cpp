@@ -9,15 +9,25 @@ GridSelectController::GridSelectController(
     , m_cbs(std::move(p_cbs)) {
 }
 
-void GridSelectController::SetFocus(const Vector2i& p_focus) {
-    m_focus = math::clamp(p_focus,
+void GridSelectController::Clamp() {
+    m_focus = math::clamp(m_focus,
                           Vector2i::Zero,
                           m_bounds - Vector2i::One);
 }
 
-void GridSelectController::MoveFocus(const Vector2i& p_delta) {
+void GridSelectController::SetFocus(int p_x, int p_y) {
     if (m_enabled) {
-        SetFocus(m_focus + p_delta);
+        m_focus.x = p_x;
+        m_focus.y = p_y;
+        Clamp();
+    }
+}
+
+void GridSelectController::MoveFocus(int p_x, int p_y) {
+    if (m_enabled) {
+        m_focus.x += p_x;
+        m_focus.y += p_y;
+        Clamp();
     }
 }
 

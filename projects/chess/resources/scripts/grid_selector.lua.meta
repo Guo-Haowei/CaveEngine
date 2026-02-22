@@ -1,9 +1,0 @@
-type: blob
-guid: 944E1E6F-906C-F540-8C112875D5010802
-name: ""
-import_path: "@res://scripts/grid_selector.lua"
-dependencies: []
-source_created_time: ""
-source_last_modified: ""
-import_settings:
-  {}
