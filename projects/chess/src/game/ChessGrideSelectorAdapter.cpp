@@ -17,19 +17,14 @@ using core::Square;
 
 bool ChessGridSelectorAdapter::CanSelect(int x, int y) {
     const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
+    std::span<const Move> moves = m_client.LegalMovesFromSquare(sq);
 
-    const core::Position& pos = m_client.Pos();
-    return pos.SideToMove() == pos.ColorAt(sq);
+    return !moves.empty();
 }
 
 void ChessGridSelectorAdapter::OnSelect(int x, int y) {
     const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
-
     std::span<const Move> moves = m_client.LegalMovesFromSquare(sq);
-
-    if (moves.size() >= 4) {
-        __debugbreak();
-    }
 
     core::Bitboard bb;
     for (Move mv : moves) {
@@ -83,12 +78,14 @@ void ChessGridSelectorAdapter::OnInvalid(int sx, int sy, int dx, int dy) {
     (void)sy;
     (void)dx;
     (void)dy;
+    LOG_ERROR("can't select/drop");
 }
 
 void ChessGridSelectorAdapter::Tick(cave::IInputService& p_input) {
     using cave::StringId;
     using cave::math::Vector2i;
 
+    // @TODO: player
     if (p_input.IsActionJustPressed(StringId("ui_right"))) {
         m_controller->MoveFocus(Vector2i(1, 0));
     }

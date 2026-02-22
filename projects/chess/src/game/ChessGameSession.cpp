@@ -55,7 +55,7 @@ void ChessGameSession::Tick(cave::IHostServices& p_host) {
     m_black_player->Tick();
 
     Vector2i focused = m_selector->GetFocused();
-    m_client.Presenter().SetSelectedSquare(
+    m_client.Presenter().SetFocusedSquare(
         Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y));
 
     m_client.Tick(p_host);

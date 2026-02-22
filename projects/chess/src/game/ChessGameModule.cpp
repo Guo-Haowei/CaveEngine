@@ -32,35 +32,38 @@ struct ChessSpawner {
 
     SceneCommandWriter& cb;
     ecs::Entity piece_parent;
-    ecs::Entity tile_parent;
     const char* materials[2];
 
-    ChessSpawner(SceneCommandWriter& p_cb,
-                 ecs::Entity p_tile_parent, ecs::Entity p_piece_parent)
+    ChessSpawner(SceneCommandWriter& p_cb, ecs::Entity p_piece_parent)
         : cb(p_cb)
-        , piece_parent(p_piece_parent)
-        , tile_parent(p_tile_parent) {
+        , piece_parent(p_piece_parent) {
         materials[0] = "@res://materials/white.mat";
         materials[1] = "@res://materials/black.mat";
     }
 
-    void SpawnTiles(uint8_t p_file, uint8_t p_rank) {
-        const Square sq = Square::FromFileRank(p_file, p_rank);
-        const char* name = sq.ToString();
+    struct TileInitInfo {
+        Vector4f color;
+        const char* name;
+        bool visible;
+        Entity parent;
+    };
 
+    void SpawnTile(uint8_t p_file,
+                   uint8_t p_rank,
+                   const TileInitInfo& p_info) {
         constexpr Vector3f scale(1.0f, 0.05f, 1.0f);
         Vector3f offset((float)p_rank, 0.05f, (float)p_file);
 
-        constexpr Vector4f color(0.0f, 1.f, 0.0980392173f, 0.501960814f);
-        ecs::Entity tile = cb.CreateCubeObject(name, { nullptr, color });
+        const Square sq = Square::FromFileRank(p_file, p_rank);
+        ecs::Entity tile = cb.CreateCubeObject(p_info.name ? p_info.name : sq.ToString(), { nullptr, p_info.color });
         cb.SetProperty(tile, TransformComponent_Id, kScaleId, scale);
         cb.SetProperty(tile, TransformComponent_Id, kTranslationId, offset);
 
-        cb.SetProperty(tile, MeshRendererComponent_Id, kVisibility, false);
+        cb.SetProperty(tile, MeshRendererComponent_Id, kVisibility, p_info.visible);
         cb.SetProperty(tile, MeshRendererComponent_Id, kCastShadow, false);
         cb.SetProperty(tile, MeshRendererComponent_Id, kTransparency, true);
 
-        cb.AttachChild(tile, tile_parent);
+        cb.AttachChild(tile, p_info.parent);
     }
 
     void SpawnPiece(Piece p_piece, int p_file, int p_rank, int p_id) {
@@ -155,16 +158,28 @@ void ChessGameModule::SpawnObjects(IHostServices& p_host) {
 
     std::array<int, core::kPieceMax> counter{ 0 };
 
-    chess::ChessSpawner spawner(writer, tile_parent, piece_parent);
+    chess::ChessSpawner spawner(writer, piece_parent);
     for (int rank = 0; rank < 8; ++rank) {
         for (int file = 0; file < 8; ++file) {
-            spawner.SpawnTiles(file, rank);
+            spawner.SpawnTile(file, rank, {
+                                              Vector4f(0.0f, 1.0f, 0.0f, 0.5f),
+                                              nullptr,
+                                              false,
+                                              tile_parent,
+                                          });
 
             const Piece p = chess::kInitialBoard[rank][file];
             if (p == Piece::Null) continue;
             spawner.SpawnPiece(p, file, rank, ++counter[std::to_underlying(p)]);
         }
     }
+
+    spawner.SpawnTile(0, 0, {
+                                Vector4f(1.0f, 0.0f, 0.0f, 0.5f),
+                                "grid_selector",
+                                true,
+                                offset_node,
+                            });
 }
 
 }  // namespace chess
