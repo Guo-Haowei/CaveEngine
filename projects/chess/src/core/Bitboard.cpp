@@ -4,21 +4,6 @@
 
 namespace chess::core {
 
-bool Bitboard::Test(Square p_sq) const {
-    DEV_ASSERT_MSG(p_sq.IsValid(), "square out of bounds");
-    return m_bits & (1llu << p_sq.Index());
-}
-
-void Bitboard::Set(Square p_sq) {
-    DEV_ASSERT_MSG(p_sq.IsValid(), "square out of bounds");
-    m_bits |= (1llu << p_sq.Index());
-}
-
-void Bitboard::Unset(Square p_sq) {
-    DEV_ASSERT_MSG(p_sq.IsValid(), "square out of bounds");
-    m_bits &= ~(1llu << p_sq.Index());
-}
-
 #if defined(CAVE_TEST)
 
 TEST(Bitboard, set_and_unset_same_square_does_nothing) {

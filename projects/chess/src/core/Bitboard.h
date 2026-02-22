@@ -47,24 +47,50 @@ public:
     constexpr bool Empty() const { return m_bits == 0; }
     constexpr bool Any() const { return m_bits != 0; }
 
-    bool Test(Square p_sq) const;
-    void Set(Square p_sq);
-    void Unset(Square p_sq);
+    constexpr bool Test(Square p_sq) const {
+        return m_bits & (1llu << p_sq.Index());
+    }
 
-    Bitboard operator|(const Bitboard& p_rhs) const {
+    constexpr void Set(Square p_sq) {
+        m_bits |= (1llu << p_sq.Index());
+    }
+
+    constexpr void Unset(Square p_sq) {
+        m_bits &= ~(1llu << p_sq.Index());
+    }
+
+    constexpr bool operator==(const Bitboard& p_rhs) const {
+        return m_bits == p_rhs.m_bits;
+    }
+
+    constexpr Bitboard operator|(const Bitboard& p_rhs) const {
         return Bitboard(m_bits | p_rhs.m_bits);
     }
 
-    Bitboard operator&(const Bitboard& p_rhs) const {
+    constexpr Bitboard& operator|=(const Bitboard& p_rhs) {
+        m_bits |= p_rhs.m_bits;
+        return *this;
+    }
+
+    constexpr Bitboard operator&(const Bitboard& p_rhs) const {
         return Bitboard(m_bits & p_rhs.m_bits);
     }
 
-    Bitboard operator~() const {
+    constexpr Bitboard& operator&=(const Bitboard& p_rhs) {
+        m_bits &= p_rhs.m_bits;
+        return *this;
+    }
+
+    constexpr Bitboard operator~() const {
         return Bitboard(~m_bits);
     }
 
     constexpr BitboardSquares Squares() const {
         return BitboardSquares(m_bits);
+    }
+
+    constexpr uint64_t Bits() const {
+        return m_bits;
     }
 
 private:

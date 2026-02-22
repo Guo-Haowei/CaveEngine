@@ -67,20 +67,24 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
 
     auto& writer = p_ctx.host.SceneWriter();
 
-    Vector3f position = SquareToPosition(m_selected);
-    writer.SetProperty(m_selector,
-                       cave::TransformComponent_Id,
-                       kTranslationId,
-                       position);
-
     for (uint8_t i = 0; i < 64; ++i) {
-        const bool vis = m_highlights.Test(Square(i));
+        const Square sq(i);
+        bool visible = m_highlights.Test(sq);
+        if (sq == m_focused) {
+            visible = false;
+        }
         const Entity tile = m_tiles[i];
         writer.SetProperty(tile,
                            cave::MeshRendererComponent_Id,
                            StringId("visibility"),
-                           vis);
+                           visible);
     }
+
+    Vector3f position = SquareToPosition(m_focused);
+    writer.SetProperty(m_selector,
+                       cave::TransformComponent_Id,
+                       kTranslationId,
+                       position);
 }
 
 void ChessPresenter::RedrawPosition(cave::IHostServices& p_host, const core::Position& p_position) {

@@ -25,8 +25,8 @@ public:
     void OnGameBegin(cave::SceneQuery& p_query);
     void OnGameEnd();
 
-    void SetSelectedSquare(core::Square p_sq) {
-        m_selected = p_sq;
+    void SetFocusedSquare(core::Square p_sq) {
+        m_focused = p_sq;
     }
 
     void SetHighlightSquares(core::Bitboard p_bb) {
@@ -39,7 +39,7 @@ private:
     std::array<Entity, 64> m_tiles;
     std::array<std::vector<Entity>, core::kPieceMax> m_piece_pools;
 
-    core::Square m_selected{ 0 };
+    core::Square m_focused{ 0 };
     core::Bitboard m_highlights;
 };
 
