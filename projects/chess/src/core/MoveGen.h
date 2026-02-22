@@ -9,12 +9,12 @@ class Position;
 
 struct MoveGen {
     static void Pseudo(const Position& p_pos,
-                       MoveList& p_out);
+                       MoveList& p_move_list);
 
-    static void PseudoFrom(const Position& p_pos,
+    static void PseudoFromSquare(const Position& p_pos,
                            Square p_from,
                            Piece p_piece,
-                           MoveList& p_out);
+                           MoveList& p_move_list);
 };
 
 }  // namespace chess::core

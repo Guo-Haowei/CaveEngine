@@ -44,36 +44,172 @@ static constexpr std::array<Bitboard, 8> MASK_RANKS = {
     MASK_8,
 };
 
+static constexpr uint8_t MV_TYPE_MOVE = 0;
+static constexpr uint8_t MV_TYPE_CAPTURE = 1;
+static constexpr uint8_t MV_TYPE_ATTACK = 2;
+
+template<bool IS_WHITE>
+static constexpr Bitboard BuildPawnAttackMask(uint8_t file, uint8_t rank) {
+    Bitboard mask(0);
+
+    if (rank == 0 || rank == 7) {
+        return mask;  // No pawn moves on the first or last rank
+    }
+    if constexpr (IS_WHITE) {
+        if (file > 0) {
+            mask.Set(Square::FromFileRank(file - 1, rank + 1));
+        }
+        if (file < 7) {
+            mask.Set(Square::FromFileRank(file + 1, rank + 1));
+        }
+    } else {
+        if (file > 0) {
+            mask.Set(Square::FromFileRank(file - 1, rank - 1));
+        }
+        if (file < 7) {
+            mask.Set(Square::FromFileRank(file + 1, rank - 1));
+        }
+    }
+    return mask;
+}
+
+static constexpr auto BuildPawnAttackMasks() -> std::array<std::array<Bitboard, 64>, 2> {
+    std::array<std::array<Bitboard, 64>, 2> masks;
+
+    uint8_t sq = 0;
+    while (sq < 64) {
+        uint8_t file = sq % 8;
+        uint8_t rank = sq / 8;
+
+        masks[0][sq] = BuildPawnAttackMask<true>(file, rank);
+        masks[1][sq] = BuildPawnAttackMask<false>(file, rank);
+
+        sq += 1;
+    }
+
+    return masks;
+}
+
+static constexpr std::array<std::array<Bitboard, 64>, 2> kPawnAttackMasks = BuildPawnAttackMasks();
+
+template<uint8_t COLOR, uint8_t MV_TYPE>
+static Bitboard PawnMask(const Position& p_pos, Square p_sq) {
+    constexpr uint8_t OPPONENT = COLOR ^ 1;
+
+    constexpr bool is_white = COLOR == 0;
+
+    const Bitboard attack_mask = kPawnAttackMasks[COLOR][p_sq.Index()];
+
+    if constexpr (MV_TYPE == MV_TYPE_ATTACK) {
+        return attack_mask;
+    }
+
+    const auto& occupancies = p_pos.State().occupancies;
+    const Bitboard capture_mask = attack_mask & occupancies[static_cast<Color>(OPPONENT)];
+    if constexpr (MV_TYPE == MV_TYPE_CAPTURE) {
+        return capture_mask;
+    }
+
+    constexpr int8_t offset = is_white ? 8 : -8;
+    constexpr Bitboard rank = is_white ? MASK_4 : MASK_5;
+    const Bitboard empty_mask = ~occupancies[Color::Both];
+    Bitboard advance_once(1llu << ((int8_t)p_sq.Index() + offset));
+    advance_once &= empty_mask;
+
+    Bitboard advance_twice((1llu << ((int8_t)p_sq.Index() + 2 * offset)));
+    advance_twice &= empty_mask & rank;
+
+    return advance_once | advance_twice | capture_mask;
+}
+
+template<uint8_t COLOR, uint8_t MV_TYPE>
+static void PawnMoves(const Position& p_pos,
+                          Square p_from_sq,
+                          // @TODO: checker
+                          // @TODO: king
+                          MoveList& p_move_list) {
+    const Bitboard pawn_mask = PawnMask<COLOR, MV_TYPE>(p_pos, p_from_sq);
+
+    constexpr bool NOT_IN_CHECK = true;
+
+    for (Square to_sq : pawn_mask.Squares()) {
+        // @TODO: promotion
+#if 0
+        let sq_mask = 1u64 << dst_sq.as_u8();
+        let promo_rank = if COLOR == 0 { BitBoard::MASK_8 } else { BitBoard::MASK_1 };
+        if sq_mask & promo_rank != 0 {
+            // Promotion move
+            let promotion_types =
+                [PieceType::QUEEN, PieceType::ROOK, PieceType::BISHOP, PieceType::KNIGHT];
+            for &promotion in &promotion_types {
+                if NOT_IN_CHECK || resolve_check(dst_sq, checker_sq, king_sq) {
+                    move_list.add(Move::new(sq, dst_sq, MoveType::Promotion, Some(promotion)));
+                }
+            }
+        } else
+#endif
+        {
+            // if (NOT_IN_CHECK || ResolveCheck)
+            {
+                p_move_list.push_back(Move{ p_from_sq, to_sq });
+            }
+        }
+    }
+
+    // @TODO: en passant
+#if 0
+    if let Some(ep_sq) = pos.state.en_passant {
+        let attack_mask = pawn_mask::<{ COLOR }, MV_MASK_ATTACK>(sq, pos);
+        // if attach mask and ep square overlap, then it's an en passant capture
+        if attack_mask.test_sq(ep_sq) {
+            // if we can make an en passant capture, it means the enemy just moved the pawn,
+            // and the pawn formed capture,
+            // so if we can take out the pawn just pushed, then it's a legal move
+            if NOT_IN_CHECK || checker_type == PieceType::PAWN {
+                move_list.add(Move::new(sq, ep_sq, MoveType::EnPassant, None));
+            }
+        }
+    }
+#endif
+}
+
 void MoveGen::Pseudo(const Position& p_pos,
-                     MoveList& p_out) {
+                     MoveList& p_move_list) {
     const Color stm = p_pos.SideToMove();
 
     for (uint8_t i = 0; i < kPieceTypeMax; ++i) {
         const Piece piece = BuildPiece(static_cast<PieceType>(i), stm);
         for (Square sq : p_pos.Bitboard(piece).Squares()) {
-            PseudoFrom(p_pos, sq, piece, p_out);
+            PseudoFromSquare(p_pos, sq, piece, p_move_list);
         }
     }
 }
 
-void MoveGen::PseudoFrom(const Position& p_pos,
-                         Square p_from,
-                         Piece p_piece,
-                         MoveList& p_out) {
-    // @NOTE: assume all pieces moves like rooks
-    (void)p_piece;
-
-    const auto [file, rank] = p_from.FileRank();
-    Bitboard bb = MASK_FILES[file] | MASK_RANKS[rank];
+void MoveGen::PseudoFromSquare(const Position& p_pos,
+                               Square p_from,
+                               Piece p_piece,
+                               MoveList& p_move_list) {
+    constexpr uint8_t MV_TYPE = MV_TYPE_MOVE;
 
     const Color color = p_pos.SideToMove();
     const Bitboard friendly = p_pos.m_state.occupancies[color];
+    if (p_piece == Piece::WP) {
+        PawnMoves<0 /* white */, MV_TYPE_MOVE>(p_pos, p_from, p_move_list);
+        return;
+    }
+    if (p_piece == Piece::BP) {
+        PawnMoves<1 /* white */, MV_TYPE_MOVE>(p_pos, p_from, p_move_list);
+        return;
+    }
 
+    const auto [file, rank] = p_from.FileRank();
+    Bitboard bb = MASK_FILES[file] | MASK_RANKS[rank];
     bb = bb & ~friendly;
-
     for (Square sq : bb.Squares()) {
-        p_out.push_back({ p_from, sq });
+        p_move_list.push_back({ p_from, sq });
     }
 }
+
+static_assert(kPawnAttackMasks[0][8] == Bitboard(1llu << 17));
 
 }  // namespace chess::core

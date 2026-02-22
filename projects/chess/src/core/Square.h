@@ -6,18 +6,18 @@ namespace chess::core {
 
 class Square {
 public:
-    explicit Square(uint8_t p_index) noexcept
+    explicit constexpr Square(uint8_t p_index) noexcept
         : m_index(p_index) {
     }
 
-    static Square FromFileRank(uint8_t file, uint8_t rank) {
+    static constexpr Square FromFileRank(uint8_t file, uint8_t rank) {
         const uint8_t val = rank * 8 + file;
         return Square(val);
     }
 
     bool IsValid() const { return m_index < 64; }
 
-    uint8_t Index() const { return m_index; }
+    constexpr uint8_t Index() const { return m_index; }
 
     std::tuple<uint8_t, uint8_t> FileRank() const;
 
