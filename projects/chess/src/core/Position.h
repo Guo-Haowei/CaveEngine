@@ -37,7 +37,7 @@ enum class FenError {
 
 struct UndoState {
     CastlingRight castling{ CastlingRight::None };
-    cave::Option<Square> en_passant{};
+    cave::Option<Square> ep{};
     uint32_t halfmove_clock;
     uint32_t fullmove_number;
 

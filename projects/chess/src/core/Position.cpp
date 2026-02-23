@@ -24,6 +24,8 @@ static bool ParseBoard(std::string_view board,
 
 static bool ParseCastling(std::string_view p_str, CastlingRight& p_out);
 
+static cave::Option<Square> ParseEnpassant(std::string_view p_str);
+
 static std::string DebugBoardString(const Position::Board& p_board);
 
 Piece Position::PieceAt(Square p_sq) const {
@@ -141,6 +143,34 @@ static CastlingType ConvertCastlingType(Piece src_piece, Square src_sq, Square d
     return CastlingType::None;
 }
 
+static constexpr Bitboard BuildEpMask(uint8_t file, uint8_t rank) {
+    Bitboard mask(0);
+    if (file > 0) {
+        mask.Set(Square::FromFileRank(file - 1, rank));
+    }
+    if (file < 7) {
+        mask.Set(Square::FromFileRank(file + 1, rank));
+    }
+    return mask;
+}
+
+static constexpr auto BuildEpMasks() -> std::array<std::array<Bitboard, 64>, 2> {
+    std::array<std::array<Bitboard, 64>, 2> masks;
+    for (uint8_t sq = 0; sq < 64; ++sq) {
+        const uint8_t file = sq % 8;
+        const uint8_t rank = sq / 8;
+        if (rank == 3) {
+            masks[0][sq] = BuildEpMask(file, rank);
+        }
+        if (rank == 4) {
+            masks[1][sq] = BuildEpMask(file, rank);
+        }
+    }
+    return masks;
+}
+
+static constexpr auto kEpMasks = BuildEpMasks();
+
 bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     const Square src_sq = p_move.From();
     const Square dst_sq = p_move.To();
@@ -166,22 +196,20 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
 
     // check if the move will change the castling rights
     const CastlingRight castling = UpdateCastling(m_state.castling, src_sq, dst_sq, src_piece, dst_piece);
-#if 0
+
     // check if the move will generate an en passant square
-    let mut en_passant_sq: Option<Square> = None;
-    if is_mover_pawn {
-        let dy = dst_rank.diff(src_rank).abs();
-        debug_assert!(dy <= 2, "Pawn move must be 1 or 2 squares");
-        if dy == 2 {
-            let enemy_pawns = pos.bitboards[enemy_pawn.as_usize()];
-            if (PAWN_EN_PASSANT_MASKS[mover_color.as_usize()][dst_sq.as_usize()] & enemy_pawns)
-                .any()
-            {
-                en_passant_sq = Some(Square::make(src_file, Rank((src_rank.0 + dst_rank.0) / 2)));
+    cave::Option<Square> ep_sq = cave::None();
+    if (is_pawn) {
+        const int dy = std::abs((int)dst_rank - (int)src_rank);
+        assert((dy <= 2) && "Pawn move must be 1 or 2 squares");
+        if (dy == 2) {
+            const auto enemy_pawn = m_board[their_pawn];
+            if ((kEpMasks[std::to_underlying(my_color)][dst_sq.Index()] & enemy_pawn).Any()) {
+                Square ep_sq_ = Square::FromFileRank(src_file, (src_rank + dst_rank) / 2);
+                ep_sq = cave::Some(ep_sq_);
             }
         }
     }
-#endif
 
     // -------------- Update Board Start --------------
     m_state.captured_piece = dst_piece;
@@ -191,11 +219,8 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
 
     MovePiece(m_board[src_piece], src_sq, dst_sq);
 
-    unused(their_pawn);
-    unused(is_pawn);
-
-    const bool captured_something = dst_piece != Piece::Null;
-    if (captured_something) {
+    const bool piece_captured = dst_piece != Piece::Null;
+    if (piece_captured) {
         m_board[dst_piece].Unset(dst_sq);
     }
 
@@ -213,9 +238,12 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
             const auto [rook, src_sq, rook_sq] = kCastlingRookSquares[std::to_underlying(castling_type)];
             MovePiece(m_board[rook], src_sq, rook_sq);
         } break;
-        case MoveType::EnPassant: {
+        case MoveType::Enpassant: {
         } break;
         case MoveType::Promotion: {
+            assert(src_piece_type == PieceType::Pawn);
+            const Square enemy_sq = Square::FromFileRank(dst_file, src_rank);
+            m_board[their_pawn].Unset(enemy_sq);
         } break;
         default: {
         } break;
@@ -229,13 +257,6 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
             pos.bitboards[src_piece_idx].unset(dst_sq.as_u8()); // Remove the pawn from the board
             pos.bitboards[promotion.as_usize()].set(dst_sq.as_u8()); // Place the promoted piece on the board
         }
-        MoveType::EnPassant => {
-            debug_assert!(src_piece_type == PieceType::PAWN, "En passant must be a pawn move");
-            let enemy_sq = Square::make(dst_file, src_rank);
-            let enemy = Piece::get_piece(enemy_color, PieceType::PAWN);
-
-            pos.bitboards[enemy.as_usize()].unset(enemy_sq.as_u8());
-        }
         _ => {}
     }
 #endif
@@ -243,16 +264,14 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     // -------------- Update Board End --------------
     m_side_to_move = FlipColor(m_side_to_move);
 
-#if 0
-    pos.state.en_passant = en_passant_sq;
-    if captured_something || is_mover_pawn {
-        pos.state.halfmove_clock = 0; // reset halfmove clock if a piece was captured or a non-pawn moved
+    if (piece_captured || is_pawn) {
+        m_state.halfmove_clock = 0;  // reset halfmove clock if a piece was captured or a non-pawn moved
     } else {
-        pos.state.halfmove_clock += 1; // increment halfmove clock for a pawn move
+        m_state.halfmove_clock += 1;  // increment halfmove clock for a pawn move
     }
-#endif
 
     m_state.castling = castling;
+    m_state.ep = ep_sq;
     m_state.fullmove_number += my_color == Color::Black;  // increase after black moves
 
     return UpdateCache();
@@ -287,8 +306,11 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
             const auto [rook, src_sq, rook_sq] = kCastlingRookSquares[std::to_underlying(castling_type)];
             MovePiece(m_board[rook], rook_sq, src_sq);
         } break;
-        case MoveType::EnPassant: {
-            (void)their_pawn;
+        case MoveType::Enpassant: {
+            const auto [_from_file, from_rank] = src_sq.FileRank();
+            const auto [to_file, _to_rank] = dst_sq.FileRank();
+            const Square enemy_sq = Square::FromFileRank(to_file, from_rank);
+            m_board[their_pawn].Set(enemy_sq);
         } break;
         case MoveType::Promotion: {
         } break;
@@ -337,7 +359,7 @@ std::expected<Position, FenError> Position::FromFen(std::string_view p_fen) {
         return std::unexpected(FenError::InvalidCastling);
     }
 
-    // @TODO: en passant
+    pos.m_state.ep = ParseEnpassant(ep);
 
     pos.UpdateCache();
     return pos;
@@ -497,6 +519,21 @@ static bool ParseCastling(std::string_view p_str, CastlingRight& p_out) {
     }
     return true;
 }
+
+static cave::Option<Square> ParseEnpassant(std::string_view p_str) {
+    if (p_str == "-" || p_str.size() != 2) return cave::None();
+
+    const char f = p_str[0];
+    const char r = p_str[1];
+
+    if (f < 'a' || f > 'h' || r < '1' || r > '8')
+        return cave::None();
+
+    const int8_t file = f - 'a';
+    const int8_t rank = r - '1';
+    return cave::Some(Square::FromFileRank(file, rank));
+}
+
 #pragma endregion FEN_PARSING
 
 static std::string DebugBoardString(const Position::Board& p_board) {

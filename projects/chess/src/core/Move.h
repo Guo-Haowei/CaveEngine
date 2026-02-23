@@ -9,7 +9,7 @@ namespace chess::core {
 enum class MoveType : uint8_t {
     Normal = 0,
     Castling = 1,
-    EnPassant = 2,
+    Enpassant = 2,
     Promotion = 3,
 };
 
@@ -57,6 +57,10 @@ public:
         return Move(from, to, MoveType::Castling, PieceType::Null);
     }
 
+    static Move Enpassant(Square from, Square to) {
+        return Move(from, to, MoveType::Enpassant, PieceType::Null);
+    }
+
 private:
     uint16_t m_from : 6;
     uint16_t m_to : 6;
@@ -80,7 +84,7 @@ public:
 
 private:
     std::array<Move, 256> m_moves{};
-    uint32_t m_count{0};
+    uint32_t m_count{ 0 };
 };
 
 }  // namespace chess::core

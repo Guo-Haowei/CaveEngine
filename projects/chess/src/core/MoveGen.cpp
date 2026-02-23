@@ -234,8 +234,6 @@ static void PawnMoves(Color p_color,
                       PieceType p_checker_type) {
     const Bitboard pawn_mask = PawnMask<MV_TYPE>(p_color, p_pos, p_from_sq);
 
-    (void)p_checker_type;  // @TODO: pawn cares about checker type
-
     for (Square to_sq : pawn_mask.Squares()) {
         // @TODO: promotion
 #if 0
@@ -259,21 +257,20 @@ static void PawnMoves(Color p_color,
         }
     }
 
-    // @TODO: en passant
-#if 0
-    if let Some(ep_sq) = pos.state.en_passant {
-        let attack_mask = pawn_mask::<{ COLOR }, MV_MASK_ATTACK>(sq, pos);
-        // if attach mask and ep square overlap, then it's an en passant capture
-        if attack_mask.test_sq(ep_sq) {
-            // if we can make an en passant capture, it means the enemy just moved the pawn,
-            // and the pawn formed capture,
-            // so if we can take out the pawn just pushed, then it's a legal move
-            if NOT_IN_CHECK || checker_type == PieceType::PAWN {
-                move_list.add(Move::new(sq, ep_sq, MoveType::EnPassant, None));
+    if (p_pos.State().ep.is_some()) {
+        const Square ep_sq = p_pos.State().ep.unwrap_unchecked();
+        const Bitboard attack_mask = PawnMask<MoveMaskType::Attack>(p_color, p_pos, p_from_sq);
+        if (attack_mask.Test(ep_sq)) {
+            // if we can make an en passant capture,
+            // it means the enemy just moved the pawn.
+            // and the pawn is capture the king,
+            // so if we can take eliminate the pawn just pushed
+            // then capture is resolved
+            if (!p_in_check || p_checker_type == PieceType::Pawn) {
+                p_move_list.Add(Move::Enpassant(p_from_sq, ep_sq));
             }
         }
     }
-#endif
 }
 
 template<MoveMaskType MV_TYPE>
