@@ -254,7 +254,7 @@ static void PawnMoves(Color p_color,
 #endif
         {
             if (!p_in_check || ResolveCheck(to_sq, p_checker_sq, p_king_sq)) {
-                p_move_list.push_back(Move(p_from_sq, to_sq, MoveType::Normal, PieceType::Null));
+                p_move_list.Add(Move(p_from_sq, to_sq, MoveType::Normal));
             }
         }
     }
@@ -377,7 +377,7 @@ static void KingMoves(Color p_color,
         if (diff == 2 || diff == -2) {
             type = MoveType::Castling;
         }
-        p_move_list.push_back(Move(p_src_sq, dst_sq, type, PieceType::Null));
+        p_move_list.Add(Move(p_src_sq, dst_sq, type));
     }
 }
 
@@ -389,7 +389,6 @@ static void KingMoves(Color p_color,
 
 MoveList MoveGen::PseudoMove(const Position& p_pos) {
     MoveList moves;
-    moves.reserve(128);
 
     const Color color = p_pos.SideToMove();
     const Square king_sq = p_pos.GetKing(color);
@@ -437,8 +436,7 @@ MoveList MoveGen::LegalMove(const Position& p_pos) {
     Position copy = p_pos;
     for (Move mv : pseudo) {
         if (IsMoveLegal(copy, mv)) {
-            moves.push_back(mv);
-        } else {
+            moves.Add(mv);
         }
     }
     return moves;
@@ -491,7 +489,7 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
 
     for (Square sq : mask.Squares()) {
         if (!p_in_check || ResolveCheck(sq, p_checker_sq, p_king_sq)) {
-            p_move_list.push_back(Move(p_from, sq, MoveType::Normal, PieceType::Null));
+            p_move_list.Add(Move(p_from, sq, MoveType::Normal));
         }
     }
 }

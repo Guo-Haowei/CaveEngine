@@ -1,5 +1,6 @@
 #include "Move.h"
 
+#include <cassert>
 #include <format>
 
 namespace chess::core {
@@ -34,6 +35,15 @@ Move::Move(Square p_from, Square p_to, MoveType p_type, PieceType p_promotion) n
 
 std::string Move::Uci() const {
     return std::format("{}{}", From().ToString(), To().ToString());
+}
+
+void MoveList::Add(Move p_move) {
+    assert(m_count < m_moves.size());
+    m_moves[m_count++] = p_move;
+}
+
+void MoveList::Clear() {
+    m_count = 0;
 }
 
 }  // namespace chess::core

@@ -94,7 +94,7 @@ static bool ParseMoveUci(const Position& p_pos, std::string_view p_uci, Move& p_
 static uint64_t Perft(Position& p_pos, int p_depth) {
     if (p_depth <= 0) return 1;
 
-    std::vector<Move> moves = MoveGen::LegalMove(p_pos);
+    const MoveList moves = MoveGen::LegalMove(p_pos);
 
     uint64_t nodes = 0;
     for (Move mv : moves) {
@@ -113,12 +113,12 @@ static uint64_t Perft(Position& p_pos, int p_depth) {
 
     // Copy once to a mutable local for move generation.
     Position pos = p_pos;
-    std::vector<Move> moves = MoveGen::LegalMove(pos);
+    const MoveList moves = MoveGen::LegalMove(pos);
 
     std::vector<std::future<uint64_t>> futs;
-    futs.reserve(moves.size());
+    futs.reserve(moves.Size());
 
-    for (const Move& mv : moves) {
+    for (Move mv : moves) {
         futs.emplace_back(std::async(std::launch::async, [p_pos, mv, p_depth]() mutable -> uint64_t {
             Position local = p_pos;  // copy for this task
             UndoState undo{};
@@ -135,10 +135,10 @@ static uint64_t Perft(Position& p_pos, int p_depth) {
 }
 
 static uint64_t PerftDivide(Position& pos, int depth) {
-    std::vector<Move> moves = MoveGen::LegalMove(pos);
+    const MoveList moves = MoveGen::LegalMove(pos);
 
     uint64_t nodes = 0;
-    for (const Move& mv : moves) {
+    for (Move mv : moves) {
         UndoState undo{};
         pos.MakeMove(mv, undo);
         const uint64_t n = (depth <= 1) ? 1ULL : Perft(pos, depth - 1);

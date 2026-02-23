@@ -51,6 +51,23 @@ private:
     uint16_t m_promo : 2;
 };
 
-using MoveList = std::vector<Move>;
+class MoveList {
+public:
+    void Add(Move p_move);
+    void Clear();
+
+    bool IsEmpty() const { return m_count == 0; }
+    uint32_t Size() const { return m_count; }
+
+    Move* begin() { return m_moves.data(); }
+    Move* end() { return m_moves.data() + m_count; }
+
+    const Move* begin() const { return m_moves.data(); }
+    const Move* end() const { return m_moves.data() + m_count; }
+
+private:
+    std::array<Move, 256> m_moves{};
+    uint32_t m_count{0};
+};
 
 }  // namespace chess::core
