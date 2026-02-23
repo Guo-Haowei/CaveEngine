@@ -8,10 +8,10 @@ TEST(Bitboard, set_and_unset_same_square_does_nothing) {
     Bitboard bb{};
     EXPECT_TRUE(bb.Empty());
 
-    bb.Set(Square(9));
+    bb.Set(Square::B2);
     EXPECT_TRUE(bb.Any());
 
-    bb.Unset(Square(9));
+    bb.Unset(Square::B2);
     EXPECT_TRUE(bb.Empty());
 }
 

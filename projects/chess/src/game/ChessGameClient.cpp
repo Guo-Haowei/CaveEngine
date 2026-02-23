@@ -57,11 +57,11 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
 }
 
 void ChessGameClient::OnPositionChange() {
-    core::MoveList moves = MoveGen::LegalMove(m_replica);
+    const core::MoveList moves = MoveGen::LegalMove(m_replica);
 
     m_move_cache.clear();
-    for (Move mv : moves) {
-        m_move_cache[mv.from].push_back(mv);
+    for (Move move : moves) {
+        m_move_cache[move.From()].push_back(move);
     }
 }
 
