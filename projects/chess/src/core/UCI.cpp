@@ -309,11 +309,10 @@ static void PerftTestHelper(const char* p_fen,
         const uint64_t nodes = PerftRootParallel(pos, i);
         printf("depth %d: %llu nodes\n", i, nodes);
 
-        if (nodes != p_expect[i]) {
-            // Do a divide to localize the bug:
-            Position pos2 = *Position::FromFen(p_fen);
-            PerftDivide(pos2, i);
-        }
+        // if (nodes != p_expect[i]) {
+        //     Position pos2 = *Position::FromFen(p_fen);
+        //     PerftDivide(pos2, i);
+        // }
 
         EXPECT_EQ(nodes, p_expect[i]);
     }
@@ -331,8 +330,7 @@ TEST(MoveGen, perft_test_initial_position) {
         3195901860,  // depth 7
     };
 
-    // @TODO: implement king move
-    constexpr uint8_t depth = 4;
+    constexpr uint8_t depth = 5;
 
     PerftTestHelper("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
                     depth,
@@ -350,11 +348,89 @@ TEST(MoveGen, perft_test_position2) {
         8031647685,
     };
 
-    constexpr uint8_t depth = 2;
+    constexpr uint8_t depth = 3;
     PerftTestHelper("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
                     depth,
                     tests);
 }
+
+// @TODO: implement promotion
+#if 0
+TEST(MoveGen, perft_test_position3) {
+    std::array<uint64_t, 8> tests{
+        1,
+        14,
+        191,
+        2812,
+        43238,
+        674624,
+        11030083,
+        178633661,   // depth 7
+    };
+
+    constexpr uint8_t depth = 4;
+    PerftTestHelper("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
+                    depth,
+                    tests);
+}
+#endif
+
+TEST(MoveGen, test_position4) {
+    std::array<uint64_t, 8> tests{
+        1,
+        6,
+        264,
+        9467,
+        422333,
+        15833292,
+        706045033,
+    };
+
+    constexpr uint8_t depth = 1;
+    PerftTestHelper(
+        "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1",
+        depth,
+        tests);
+}
+
+#if 0
+TEST(MoveGen, test_position5) {
+    std::array<uint64_t, 8> tests{
+        1,
+        44,
+        1486,
+        62379,
+        2103487,
+        89941194,
+    };
+
+    constexpr uint8_t depth = 1;
+    PerftTestHelper(
+        "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
+        depth,
+        tests);
+}
+#endif
+
+TEST(MoveGen, test_position6) {
+    std::array<uint64_t, 8> tests{
+        1,
+        46,
+        2079,
+        89890,
+        3894594,
+        164075551,
+        6923051137,
+        287188994746,
+    };
+
+    constexpr uint8_t depth = 3;
+    PerftTestHelper(
+        "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
+        depth,
+        tests);
+}
+
 #endif
 
 }  // namespace chess::uci
