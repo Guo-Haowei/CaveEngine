@@ -32,8 +32,6 @@ void ChessAIAgent::Tick() {
         assert(idx < count);
         const Move move = moves[idx];
 
-        printf("generate move %s%s\n", move.From().ToString(), move.To().ToString());
-
         PlayerIntent intent = {
             IntentType::AttemptMove,
             move,

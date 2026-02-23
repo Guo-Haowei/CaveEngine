@@ -80,7 +80,7 @@ public:
     void Add(Move p_move);
     void Clear();
 
-    bool IsEmpty() const { return m_count == 0; }
+    bool Empty() const { return m_count == 0; }
     uint32_t Size() const { return m_count; }
 
     Move* begin() { return m_moves.data(); }

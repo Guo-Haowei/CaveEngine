@@ -1,9 +1,13 @@
 #include "ChessMatchAuthority.h"
 
+#include "core/MoveGen.h"
+
 namespace chess {
 
 using core::Color;
 using core::Position;
+using core::MoveGen;
+using core::MoveList;
 
 ChessMatchAuthority::ChessMatchAuthority() {
     m_pos = Position::Startpos();
@@ -31,10 +35,23 @@ bool ChessMatchAuthority::Pop(AuthorityEvent& p_out) {
 bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
                                         core::Move p_move) {
     core::UndoState undo;
-    const bool ok = m_pos.MakeMove(p_move, undo);
+    Position copy = m_pos;
+    const bool ok = copy.MakeMove(p_move, undo);
+    if (!ok) {
+        m_events.push_back({ AuthorityEventType::MoveRejected, p_player_id, p_move });
+        return false;
+    }
 
-    m_events.push_back({ AuthorityEventType ::MoveCommitted, p_player_id, p_move });
-    return ok;
+    m_pos = copy;
+    m_events.push_back({ AuthorityEventType::MoveCommitted, p_player_id, p_move });
+
+    // @TODO: check legal moves
+    const MoveList moves = MoveGen::LegalMove(m_pos);
+    if (moves.Empty()) {
+        m_events.push_back({ AuthorityEventType::GameOver, p_player_id, p_move });
+    }
+
+    return true;
 }
 
 void ChessMatchAuthority::OfferDraw(PlayerId p_player_id) {

@@ -35,6 +35,16 @@ void ChessGameClient::OnGameEnd(cave::IHostServices& p_host) {
 void ChessGameClient::Tick(cave::IHostServices& p_host) {
     AuthorityEvent e;
     while (m_auth.Pop(e)) {
+        const Move mv = e.move;
+
+        const char* type = "Committed";
+        if (e.type == AuthorityEventType::GameOver) {
+            type = "GameOver";
+        }
+        printf("Auth event %s\n", type);
+        printf("move %s%s\n", mv.From().ToString(), mv.To().ToString());
+        printf("player id %d\n", e.player);
+
         switch (e.type) {
             case AuthorityEventType::MoveCommitted: {
                 core::UndoState undo;
@@ -42,6 +52,12 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
                 OnPositionChange();
                 // redraw board
                 m_presenter.RedrawPosition(p_host, m_replica);
+            } break;
+            case AuthorityEventType::MoveRejected: {
+                // @TODO: do something
+            } break;
+            case AuthorityEventType::GameOver: {
+                // @TODO: do something
             } break;
             default: {
                 assert(0);
