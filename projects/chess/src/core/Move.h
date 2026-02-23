@@ -32,10 +32,7 @@ class Move {
 public:
     Move() noexcept;
 
-    explicit Move(Square p_from, Square p_to, MoveType p_type, PieceType p_promotion) noexcept;
-
-    explicit Move(Square p_from, Square p_to, MoveType p_type) noexcept
-        : Move(p_from, p_to, p_type, PieceType::Null) {}
+    Move(Square p_from, Square p_to, MoveType p_type, PieceType p_promotion) noexcept;
 
     MoveType GetType() const { return static_cast<MoveType>(m_flag); }
 
@@ -50,6 +47,14 @@ public:
 
     static Move Null() {
         return Move();
+    }
+
+    static Move Normal(Square from, Square to) {
+        return Move(from, to, MoveType::Normal, PieceType::Null);
+    }
+
+    static Move Castle(Square from, Square to) {
+        return Move(from, to, MoveType::Castling, PieceType::Null);
     }
 
 private:

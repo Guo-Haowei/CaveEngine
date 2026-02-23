@@ -254,7 +254,7 @@ static void PawnMoves(Color p_color,
 #endif
         {
             if (!p_in_check || ResolveCheck(to_sq, p_checker_sq, p_king_sq)) {
-                p_move_list.Add(Move(p_from_sq, to_sq, MoveType::Normal));
+                p_move_list.Add(Move::Normal(p_from_sq, to_sq));
             }
         }
     }
@@ -432,11 +432,11 @@ static void KingMoves(Color p_color,
         const auto [src_file, src_rank] = p_src_sq.FileRank();
         const auto [dst_file, dst_rank] = dst_sq.FileRank();
         int8_t diff = (int8_t)src_file - (int8_t)dst_file;
-        MoveType type = MoveType::Normal;
         if (diff == 2 || diff == -2) {
-            type = MoveType::Castling;
+            p_move_list.Add(Move::Castle(p_src_sq, dst_sq));
+        } else {
+            p_move_list.Add(Move::Normal(p_src_sq, dst_sq));
         }
-        p_move_list.Add(Move(p_src_sq, dst_sq, type));
     }
 }
 
@@ -542,7 +542,7 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
 
     for (Square sq : mask.Squares()) {
         if (!p_in_check || ResolveCheck(sq, p_checker_sq, p_king_sq)) {
-            p_move_list.Add(Move(p_from, sq, MoveType::Normal));
+            p_move_list.Add(Move::Normal(p_from, sq));
         }
     }
 }
