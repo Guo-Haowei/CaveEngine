@@ -38,8 +38,6 @@ target_compile_definitions(${TEST_NAME} PRIVATE
 
 target_precompile_headers(${TEST_NAME} PRIVATE pch.h)
 
-target_set_warning_level(${TEST_NAME})
-
 ### UCI
 add_executable(${UCI_NAME} ${SRC})
 
