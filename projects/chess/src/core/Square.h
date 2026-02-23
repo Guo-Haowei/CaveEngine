@@ -31,6 +31,78 @@ public:
 
     const char* ToString() const;
 
+    static const Square A1;
+    static const Square B1;
+    static const Square C1;
+    static const Square D1;
+    static const Square E1;
+    static const Square F1;
+    static const Square G1;
+    static const Square H1;
+
+    static const Square A2;
+    static const Square B2;
+    static const Square C2;
+    static const Square D2;
+    static const Square E2;
+    static const Square F2;
+    static const Square G2;
+    static const Square H2;
+
+    static const Square A3;
+    static const Square B3;
+    static const Square C3;
+    static const Square D3;
+    static const Square E3;
+    static const Square F3;
+    static const Square G3;
+    static const Square H3;
+
+    static const Square A4;
+    static const Square B4;
+    static const Square C4;
+    static const Square D4;
+    static const Square E4;
+    static const Square F4;
+    static const Square G4;
+    static const Square H4;
+
+    static const Square A5;
+    static const Square B5;
+    static const Square C5;
+    static const Square D5;
+    static const Square E5;
+    static const Square F5;
+    static const Square G5;
+    static const Square H5;
+
+    static const Square A6;
+    static const Square B6;
+    static const Square C6;
+    static const Square D6;
+    static const Square E6;
+    static const Square F6;
+    static const Square G6;
+    static const Square H6;
+
+    static const Square A7;
+    static const Square B7;
+    static const Square C7;
+    static const Square D7;
+    static const Square E7;
+    static const Square F7;
+    static const Square G7;
+    static const Square H7;
+
+    static const Square A8;
+    static const Square B8;
+    static const Square C8;
+    static const Square D8;
+    static const Square E8;
+    static const Square F8;
+    static const Square G8;
+    static const Square H8;
+
 private:
     uint8_t m_index;
 };

@@ -51,85 +51,85 @@ const char* Square::ToString() const {
     return kSquareLookUp[m_index];
 }
 
+constexpr Square Square::A1(0);
+constexpr Square Square::B1(1);
+constexpr Square Square::C1(2);
+constexpr Square Square::D1(3);
+constexpr Square Square::E1(4);
+constexpr Square Square::F1(5);
+constexpr Square Square::G1(6);
+constexpr Square Square::H1(7);
+
+constexpr Square Square::A2(8);
+constexpr Square Square::B2(9);
+constexpr Square Square::C2(10);
+constexpr Square Square::D2(11);
+constexpr Square Square::E2(12);
+constexpr Square Square::F2(13);
+constexpr Square Square::G2(14);
+constexpr Square Square::H2(15);
+
+constexpr Square Square::A3(16);
+constexpr Square Square::B3(17);
+constexpr Square Square::C3(18);
+constexpr Square Square::D3(19);
+constexpr Square Square::E3(20);
+constexpr Square Square::F3(21);
+constexpr Square Square::G3(22);
+constexpr Square Square::H3(23);
+
+constexpr Square Square::A4(24);
+constexpr Square Square::B4(25);
+constexpr Square Square::C4(26);
+constexpr Square Square::D4(27);
+constexpr Square Square::E4(28);
+constexpr Square Square::F4(29);
+constexpr Square Square::G4(30);
+constexpr Square Square::H4(31);
+
+constexpr Square Square::A5(32);
+constexpr Square Square::B5(33);
+constexpr Square Square::C5(34);
+constexpr Square Square::D5(35);
+constexpr Square Square::E5(36);
+constexpr Square Square::F5(37);
+constexpr Square Square::G5(38);
+constexpr Square Square::H5(39);
+
+constexpr Square Square::A6(40);
+constexpr Square Square::B6(41);
+constexpr Square Square::C6(42);
+constexpr Square Square::D6(43);
+constexpr Square Square::E6(44);
+constexpr Square Square::F6(45);
+constexpr Square Square::G6(46);
+constexpr Square Square::H6(47);
+
+constexpr Square Square::A7(48);
+constexpr Square Square::B7(49);
+constexpr Square Square::C7(50);
+constexpr Square Square::D7(51);
+constexpr Square Square::E7(52);
+constexpr Square Square::F7(53);
+constexpr Square Square::G7(54);
+constexpr Square Square::H7(55);
+
+constexpr Square Square::A8(56);
+constexpr Square Square::B8(57);
+constexpr Square Square::C8(58);
+constexpr Square Square::D8(59);
+constexpr Square Square::E8(60);
+constexpr Square Square::F8(61);
+constexpr Square Square::G8(62);
+constexpr Square Square::H8(63);
+
 #if defined(CAVE_TEST)
-
-[[maybe_unused]] static constexpr Square A1(0);
-[[maybe_unused]] static constexpr Square B1(1);
-[[maybe_unused]] static constexpr Square C1(2);
-[[maybe_unused]] static constexpr Square D1(3);
-[[maybe_unused]] static constexpr Square E1(4);
-[[maybe_unused]] static constexpr Square F1(5);
-[[maybe_unused]] static constexpr Square G1(6);
-[[maybe_unused]] static constexpr Square H1(7);
-
-[[maybe_unused]] static constexpr Square A2(8);
-[[maybe_unused]] static constexpr Square B2(9);
-[[maybe_unused]] static constexpr Square C2(10);
-[[maybe_unused]] static constexpr Square D2(11);
-[[maybe_unused]] static constexpr Square E2(12);
-[[maybe_unused]] static constexpr Square F2(13);
-[[maybe_unused]] static constexpr Square G2(14);
-[[maybe_unused]] static constexpr Square H2(15);
-
-[[maybe_unused]] static constexpr Square A3(16);
-[[maybe_unused]] static constexpr Square B3(17);
-[[maybe_unused]] static constexpr Square C3(18);
-[[maybe_unused]] static constexpr Square D3(19);
-[[maybe_unused]] static constexpr Square E3(20);
-[[maybe_unused]] static constexpr Square F3(21);
-[[maybe_unused]] static constexpr Square G3(22);
-[[maybe_unused]] static constexpr Square H3(23);
-
-[[maybe_unused]] static constexpr Square A4(24);
-[[maybe_unused]] static constexpr Square B4(25);
-[[maybe_unused]] static constexpr Square C4(26);
-[[maybe_unused]] static constexpr Square D4(27);
-[[maybe_unused]] static constexpr Square E4(28);
-[[maybe_unused]] static constexpr Square F4(29);
-[[maybe_unused]] static constexpr Square G4(30);
-[[maybe_unused]] static constexpr Square H4(31);
-
-[[maybe_unused]] static constexpr Square A5(32);
-[[maybe_unused]] static constexpr Square B5(33);
-[[maybe_unused]] static constexpr Square C5(34);
-[[maybe_unused]] static constexpr Square D5(35);
-[[maybe_unused]] static constexpr Square E5(36);
-[[maybe_unused]] static constexpr Square F5(37);
-[[maybe_unused]] static constexpr Square G5(38);
-[[maybe_unused]] static constexpr Square H5(39);
-
-[[maybe_unused]] static constexpr Square A6(40);
-[[maybe_unused]] static constexpr Square B6(41);
-[[maybe_unused]] static constexpr Square C6(42);
-[[maybe_unused]] static constexpr Square D6(43);
-[[maybe_unused]] static constexpr Square E6(44);
-[[maybe_unused]] static constexpr Square F6(45);
-[[maybe_unused]] static constexpr Square G6(46);
-[[maybe_unused]] static constexpr Square H6(47);
-
-[[maybe_unused]] static constexpr Square A7(48);
-[[maybe_unused]] static constexpr Square B7(49);
-[[maybe_unused]] static constexpr Square C7(50);
-[[maybe_unused]] static constexpr Square D7(51);
-[[maybe_unused]] static constexpr Square E7(52);
-[[maybe_unused]] static constexpr Square F7(53);
-[[maybe_unused]] static constexpr Square G7(54);
-[[maybe_unused]] static constexpr Square H7(55);
-
-[[maybe_unused]] static constexpr Square A8(56);
-[[maybe_unused]] static constexpr Square B8(57);
-[[maybe_unused]] static constexpr Square C8(58);
-[[maybe_unused]] static constexpr Square D8(59);
-[[maybe_unused]] static constexpr Square E8(60);
-[[maybe_unused]] static constexpr Square F8(61);
-[[maybe_unused]] static constexpr Square G8(62);
-[[maybe_unused]] static constexpr Square H8(63);
 
 TEST(Square, SameLineDiagonal) {
     {
-        const Square a = A1;
-        const Square b = B2;
-        const Square c = C3;
+        const Square a = Square::A1;
+        const Square b = Square::B2;
+        const Square c = Square::C3;
 
         EXPECT_FALSE(a.SameLineInclusive(b, c));
         EXPECT_TRUE(b.SameLineInclusive(a, c));
@@ -137,9 +137,9 @@ TEST(Square, SameLineDiagonal) {
     }
 
     {
-        const Square a = A1;
-        const Square b = B1;
-        const Square c = C3;
+        const Square a = Square::A1;
+        const Square b = Square::B1;
+        const Square c = Square::C3;
 
         EXPECT_FALSE(a.SameLineInclusive(b, c));
         EXPECT_FALSE(b.SameLineInclusive(a, c));
@@ -148,9 +148,9 @@ TEST(Square, SameLineDiagonal) {
 }
 
 TEST(Square, SameLineOverlapping) {
-    const Square a = B2;
-    const Square b = B2;
-    const Square c = D8;
+    const Square a = Square::B2;
+    const Square b = Square::B2;
+    const Square c = Square::D8;
 
     EXPECT_FALSE(c.SameLineInclusive(a, b));
     EXPECT_TRUE(a.SameLineInclusive(b, c));
@@ -158,9 +158,9 @@ TEST(Square, SameLineOverlapping) {
 }
 
 TEST(Square, SameLineHorizontal) {
-    const Square a = C1;
-    const Square b = C2;
-    const Square c = C5;
+    const Square a = Square::C1;
+    const Square b = Square::C2;
+    const Square c = Square::C5;
 
     EXPECT_FALSE(a.SameLineInclusive(b, c));
     EXPECT_TRUE(b.SameLineInclusive(a, c));
@@ -168,9 +168,9 @@ TEST(Square, SameLineHorizontal) {
 }
 
 TEST(Square, SameLineVertical) {
-    const Square a = A1;
-    const Square b = A8;
-    const Square c = A3;
+    const Square a = Square::A1;
+    const Square b = Square::A8;
+    const Square c = Square::A3;
 
     EXPECT_FALSE(a.SameLineInclusive(b, c));
     EXPECT_FALSE(b.SameLineInclusive(a, c));
@@ -178,12 +178,12 @@ TEST(Square, SameLineVertical) {
 }
 
 TEST(Square, MoreSameLineTest) {
-    const Square a = G8;
-    const Square b = B3;
+    const Square a = Square::G8;
+    const Square b = Square::B3;
 
-    EXPECT_TRUE(F7.SameLineInclusive(a, b));
-    EXPECT_TRUE(D5.SameLineInclusive(a, b));
-    EXPECT_TRUE(C4.SameLineInclusive(a, b));
+    EXPECT_TRUE(Square::F7.SameLineInclusive(a, b));
+    EXPECT_TRUE(Square::D5.SameLineInclusive(a, b));
+    EXPECT_TRUE(Square::C4.SameLineInclusive(a, b));
 }
 #endif
 

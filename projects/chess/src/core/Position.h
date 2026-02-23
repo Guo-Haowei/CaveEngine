@@ -4,6 +4,7 @@
 #include <string_view>
 
 #include "cave/core/containers/EnumArray.h"
+#include "cave/core/typedefs.h"
 
 #include "Bitboard.h"
 #include "CheckerList.h"
@@ -12,12 +13,16 @@
 
 namespace chess::core {
 
-enum class Castling {
-    WK,
-    WQ,
-    BK,
-    BQ,
+enum class CastlingRight : uint8_t {
+    None = 0,
+    K = 1,
+    Q = 2,
+    k = 4,
+    q = 8,
+    KQ = K | Q,
+    kq = k | q,
 };
+DEFINE_ENUM_BITWISE_OPERATIONS(CastlingRight);
 
 enum class FenError {
     Ok,
@@ -31,7 +36,7 @@ enum class FenError {
 };
 
 struct UndoState {
-    Castling castling;
+    CastlingRight castling{ CastlingRight::None };
     cave::Option<Square> en_passant{};
     uint32_t halfmove_clock;
     uint32_t fullmove_number;

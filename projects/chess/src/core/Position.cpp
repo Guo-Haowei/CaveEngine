@@ -22,6 +22,8 @@ static bool SplitFen6(std::string_view fen,
 static bool ParseBoard(std::string_view board,
                        cave::EnumArray<Piece, Bitboard, kPieceMax>& p_out);
 
+static bool ParseCastling(std::string_view p_str, CastlingRight& p_out);
+
 static std::string DebugBoardString(const Position::Board& p_board);
 
 Piece Position::PieceAt(Square p_sq) const {
@@ -58,6 +60,87 @@ static void MovePiece(Bitboard& p_board, Square p_src, Square p_to) {
     p_board.Set(p_to);
 }
 
+static const std::tuple<Piece, Square, Square> kCastlingRookSquares[4] = {
+    std::make_tuple(Piece::WR, Square::H1, Square::F1),  // White King-side
+    std::make_tuple(Piece::WR, Square::A1, Square::D1),  // White Queen-side
+    std::make_tuple(Piece::BR, Square::H8, Square::F8),  // Black King-side
+    std::make_tuple(Piece::BR, Square::A8, Square::D8),  // Black Queen-side
+};
+
+enum class CastlingType : uint8_t {
+    WhiteKingSide,
+    WhiteQueenSide,
+    BlackKingSide,
+    BlackQueenSide,
+    None,
+};
+
+// if castling rights are already disabled, return
+// if king moved, disable castling rights, return
+// if rook moved, disable castling rights, return
+// if rook captured, disable castling rights, return
+static CastlingRight UpdateCastling(CastlingRight p_old,
+                               Square p_src_sq,
+                               Square p_dst_sq,
+                               Piece p_src_piece,
+                               Piece p_dst_piece) {
+    auto disable_castle_right = [](uint8_t p_bit,
+                                   Square p_src_sq,
+                                   Square p_dst_sq,
+                                   Piece p_src_piece,
+                                   Piece p_dst_piece) -> bool {
+        CastlingRight mask = static_cast<CastlingRight>(1 << p_bit);
+        const auto [rook, rook_sq, _] = kCastlingRookSquares[p_bit];
+
+        // if the rook is moving away, the castling rights are disabled
+        if (p_src_piece == rook && p_src_sq == rook_sq) {
+            return true;
+        }
+
+        // if the rook was captured, the castling rights are disabled
+        if (p_dst_piece == rook && p_dst_sq == rook_sq) {
+            return true;
+        }
+
+        if (p_src_piece == Piece::WK && ((mask & CastlingRight::KQ) != CastlingRight::None)) {
+            return true;
+        }
+
+        if (p_src_piece == Piece::BK && ((mask & CastlingRight::kq) != CastlingRight::None)) {
+            return true;
+        }
+
+        return false;
+    };
+
+    CastlingRight new_mask = p_old;
+    for (uint8_t i = 0; i < 4; ++i) {
+        const CastlingRight flag = static_cast<CastlingRight>(1 << i);
+        if ((new_mask & flag) == CastlingRight::None) {
+            continue;  // if the castling right already disabled, continue
+        }
+        if (disable_castle_right(i, p_src_sq, p_dst_sq, p_src_piece, p_dst_piece)) {
+            new_mask &= ~flag;
+        }
+    }
+    return new_mask;
+}
+
+static CastlingType ConvertCastlingType(Piece src_piece, Square src_sq, Square dst_sq) {
+    if (src_piece == Piece::WK && src_sq == Square::E1) {
+        if (dst_sq == Square::G1) return CastlingType::WhiteKingSide;
+        if (dst_sq == Square::C1) return CastlingType::WhiteQueenSide;
+        return CastlingType::None;
+    }
+    if (src_piece == Piece::BK && src_sq == Square::E8) {
+        if (dst_sq == Square::G8) return CastlingType::BlackKingSide;
+        if (dst_sq == Square::C8) return CastlingType::BlackQueenSide;
+        return CastlingType::None;
+    }
+
+    return CastlingType::None;
+}
+
 bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     const Square src_sq = p_move.From();
     const Square dst_sq = p_move.To();
@@ -81,11 +164,9 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     assert((src_piece != Piece::Null) && "No piece found on 'from' square");
     assert((SideToMove() == my_color) && "Trying to move a piece of the wrong color");
 
-#if 0
     // check if the move will change the castling rights
-    let castling_rights =
-        castling_right_mask(pos.state.castling_rights, src_sq, dst_sq, src_piece, dst_piece);
-
+    const CastlingRight castling = UpdateCastling(m_state.castling, src_sq, dst_sq, src_piece, dst_piece);
+#if 0
     // check if the move will generate an en passant square
     let mut en_passant_sq: Option<Square> = None;
     if is_mover_pawn {
@@ -103,7 +184,6 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
 #endif
 
     // -------------- Update Board Start --------------
-
     m_state.captured_piece = dst_piece;
     p_undo = m_state;  // save old state as undo state
 
@@ -121,6 +201,17 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
 
     switch (move_type) {
         case MoveType::Castling: {
+            assert((src_piece_type == PieceType::King) && "Castling must be a king move");
+            assert((dst_piece == Piece::Null) && "Castling must not capture any piece");
+
+            // Castling move, we need to move the king and rook
+            // king already moved to the destination square,
+            // only need to move the rook
+            const CastlingType castling_type = ConvertCastlingType(src_piece, src_sq, dst_sq);
+            assert((castling_type != CastlingType::None) && "Invalid castling move");
+            // move rook position
+            const auto [rook, src_sq, rook_sq] = kCastlingRookSquares[std::to_underlying(castling_type)];
+            MovePiece(m_board[rook], src_sq, rook_sq);
         } break;
         case MoveType::EnPassant: {
         } break;
@@ -132,18 +223,6 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
 #if 0
     // special move handling
     match move_type {
-        MoveType::Castling => {
-            // Castling move, we need to move the king and rook
-            debug_assert!(src_piece_type == PieceType::KING, "Castling must be a king move");
-            debug_assert!(dst_piece == Piece::NONE, "Castling must not capture any piece");
-
-            // king already moved to the destination square, only need to move the rook
-            let index = castling_type(src_piece, src_sq, dst_sq);
-            debug_assert!(index != CastlingType::None, "Invalid castling move");
-            // move rook position
-            let (piece, src_sq, to_sq) = CASTLING_ROOK_SQUARES[index as usize];
-            move_piece(&mut pos.bitboards[piece.as_usize()], src_sq, to_sq);
-        }
         MoveType::Promotion => {
             debug_assert!(src_piece_type == PieceType::PAWN);
             let promotion = Piece::get_piece(mover_color, mv.get_promotion().unwrap());
@@ -165,7 +244,6 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     m_side_to_move = FlipColor(m_side_to_move);
 
 #if 0
-    pos.state.castling_rights = castling_rights;
     pos.state.en_passant = en_passant_sq;
     if captured_something || is_mover_pawn {
         pos.state.halfmove_clock = 0; // reset halfmove clock if a piece was captured or a non-pawn moved
@@ -174,6 +252,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     }
 #endif
 
+    m_state.castling = castling;
     m_state.fullmove_number += my_color == Color::Black;  // increase after black moves
 
     return UpdateCache();
@@ -199,6 +278,14 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
     const MoveType move_type = p_move.GetType();
     switch (move_type) {
         case MoveType::Castling: {
+            assert(GetType(src_piece) == PieceType::King);
+
+            // Restore Rook position
+            CastlingType castling_type = ConvertCastlingType(src_piece, src_sq, dst_sq);
+            assert(castling_type != CastlingType::None);
+
+            const auto [rook, src_sq, rook_sq] = kCastlingRookSquares[std::to_underlying(castling_type)];
+            MovePiece(m_board[rook], rook_sq, src_sq);
         } break;
         case MoveType::EnPassant: {
             (void)their_pawn;
@@ -237,6 +324,20 @@ std::expected<Position, FenError> Position::FromFen(std::string_view p_fen) {
     if (!ParseBoard(board, pos.m_board)) {
         return std::unexpected(FenError::InvalidBoard);
     }
+
+    if (stm == "w") {
+        pos.m_side_to_move = Color::White;
+    } else if (stm == "b") {
+        pos.m_side_to_move = Color::Black;
+    } else {
+        return std::unexpected(FenError::InvalidSideToMove);
+    }
+
+    if (!ParseCastling(castling, pos.m_state.castling)) {
+        return std::unexpected(FenError::InvalidCastling);
+    }
+
+    // @TODO: en passant
 
     pos.UpdateCache();
     return pos;
@@ -296,6 +397,7 @@ std::string Position::DebugBoardString() const {
     return chess::core::DebugBoardString(m_board);
 }
 
+#pragma region FEN_PARSING
 static bool SplitFen6(std::string_view fen,
                       std::string_view& board,
                       std::string_view& stm,
@@ -329,13 +431,13 @@ static bool SplitFen6(std::string_view fen,
     return true;
 }
 
-static bool ParseBoard(std::string_view board,
+static bool ParseBoard(std::string_view p_str,
                        cave::EnumArray<Piece, Bitboard, kPieceMax>& p_out) {
     uint8_t fen_rank = 8;  // 8 down to 1
     uint8_t file = 0;
 
-    for (size_t i = 0; i < board.size(); ++i) {
-        const char c = board[i];
+    for (size_t i = 0; i < p_str.size(); ++i) {
+        const char c = p_str[i];
 
         if (c == '/') {
             if (file != 8) return false;
@@ -369,6 +471,33 @@ static bool ParseBoard(std::string_view board,
 
     return (fen_rank == 1) && (file == 8);
 }
+
+static bool ParseCastling(std::string_view p_str, CastlingRight& p_out) {
+    p_out = CastlingRight::None;
+    if (p_str == "-") return true;
+    if (p_str.empty()) return false;
+
+    for (char c : p_str) {
+        switch (c) {
+            case 'K': {
+                p_out |= CastlingRight::K;
+            } break;
+            case 'Q': {
+                p_out |= CastlingRight::Q;
+            } break;
+            case 'k': {
+                p_out |= CastlingRight::k;
+            } break;
+            case 'q': {
+                p_out |= CastlingRight::q;
+            } break;
+            default:
+                return false;
+        }
+    }
+    return true;
+}
+#pragma endregion FEN_PARSING
 
 static std::string DebugBoardString(const Position::Board& p_board) {
     std::string out;
