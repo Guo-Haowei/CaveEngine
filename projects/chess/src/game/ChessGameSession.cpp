@@ -1,6 +1,7 @@
 #include "ChessGameSession.h"
 
 #include "cave/game/IHostServices.h"
+#include "ChessAIAgent.h"
 #include "LocalHumanAgent.h"
 
 namespace chess {
@@ -31,9 +32,9 @@ ChessGameSession::ChessGameSession()
     // @TODO: this is bad, fix
     // @NOTE: maybe use lambda instead
     LocalHumanAgent* white = new LocalHumanAgent(0, m_auth);
-    LocalHumanAgent* black = new LocalHumanAgent(1, m_auth);
+    ChessAIAgent* black = new ChessAIAgent(1, m_auth, m_client);
     m_grid_adapter.SetPlayer(0, white);
-    m_grid_adapter.SetPlayer(1, black);
+    // m_grid_adapter.SetPlayer(1, black);
 
     m_white_player.reset(white);
     m_black_player.reset(black);

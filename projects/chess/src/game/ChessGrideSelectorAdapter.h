@@ -42,10 +42,12 @@ public:
 
 private:
     ChessGameClient& m_client;
+
     // @TODO: do not pass presenter here, instead query highlight
     ChessPresenter& m_presenter;
+
     cave::GridSelectController* m_controller;
-    LocalHumanAgent* m_players[2]{};
+    LocalHumanAgent* m_players[2]{ nullptr, nullptr };
 };
 
 }  // namespace chess

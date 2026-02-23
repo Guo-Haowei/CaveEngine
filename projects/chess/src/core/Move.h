@@ -89,6 +89,9 @@ public:
     const Move* begin() const { return m_moves.data(); }
     const Move* end() const { return m_moves.data() + m_count; }
 
+    Move& operator[](size_t idx) { return m_moves[idx]; }
+    const Move& operator[](size_t idx) const { return m_moves[idx]; }
+
 private:
     std::array<Move, 256> m_moves{};
     uint32_t m_count{ 0 };

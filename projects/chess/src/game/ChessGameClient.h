@@ -26,7 +26,7 @@ public:
 
     std::span<const core::Move> LegalMovesFromSquare(core::Square p_sq);
 
-    const core::Position& Pos() const { return m_replica; }
+    const core::Position& Replica() const { return m_replica; }
 
     ChessPresenter& Presenter() { return m_presenter; }
 

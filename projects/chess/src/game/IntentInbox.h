@@ -12,6 +12,8 @@ public:
 
     void Clear();
 
+    uint32_t Size() const { return m_deque.size(); }
+
 private:
     std::deque<PlayerIntent> m_deque;
 };

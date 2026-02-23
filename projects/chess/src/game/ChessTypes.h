@@ -5,7 +5,6 @@
 namespace chess {
 
 enum class IntentType : uint8_t {
-    SelectSquare,
     AttemptMove,
     OfferDraw,
     Resign,
