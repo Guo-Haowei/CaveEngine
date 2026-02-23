@@ -57,7 +57,7 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
 }
 
 void ChessGameClient::OnPositionChange() {
-    core::MoveList moves = MoveGen::Pseudo(m_replica);
+    core::MoveList moves = MoveGen::LegalMove(m_replica);
 
     m_move_cache.clear();
     for (Move mv : moves) {

@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "cave/runtime/controller/GridSelectController.h"
 
 #include "ChessGameClient.h"

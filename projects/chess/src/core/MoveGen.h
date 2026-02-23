@@ -11,7 +11,11 @@ class Position;
 
 class MoveGen {
 public:
-    static MoveList Pseudo(const Position& p_pos);
+    static MoveList PseudoMove(const Position& p_pos);
+
+    static MoveList LegalMove(const Position& p_pos);
+
+    static bool IsMoveLegal(Position& p_pos, Move p_move);
 
     static void AttackMapAndCheckers(const Position& p_pos,
                                      Color p_color,

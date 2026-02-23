@@ -381,7 +381,13 @@ static void KingMoves(Color p_color,
     }
 }
 
-MoveList MoveGen::Pseudo(const Position& p_pos) {
+//pub fn is_pseudo_move_legal(pos : &mut Position, mv : Move) -> bool {
+//    let(undo_state, ok) = pos.make_move(mv);
+//    pos.unmake_move(mv, &undo_state);
+//    ok
+//}
+
+MoveList MoveGen::PseudoMove(const Position& p_pos) {
     MoveList moves;
     moves.reserve(128);
 
@@ -413,6 +419,26 @@ MoveList MoveGen::Pseudo(const Position& p_pos) {
         const Piece piece = BuildPiece(static_cast<PieceType>(i), color);
         for (Square sq : p_pos.Bitboard(piece).Squares()) {
             PseudoFromSquare(p_pos, sq, piece, moves, king_sq, in_check, checker_sq, checker_type);
+        }
+    }
+    return moves;
+}
+
+bool MoveGen::IsMoveLegal(Position& p_pos, Move p_move) {
+    UndoState undo;
+    const bool ok = p_pos.MakeMove(p_move, undo);
+    p_pos.UnmakeMove(p_move, undo);
+    return ok;
+}
+
+MoveList MoveGen::LegalMove(const Position& p_pos) {
+    MoveList pseudo = PseudoMove(p_pos);
+    MoveList moves;
+    Position copy = p_pos;
+    for (Move mv : pseudo) {
+        if (IsMoveLegal(copy, mv)) {
+            moves.push_back(mv);
+        } else {
         }
     }
     return moves;
@@ -562,7 +588,7 @@ static_assert(kPawnAttackMasks[0][8] == Bitboard(1llu << 17));
 static uint64_t Perft(Position& p_pos, uint8_t p_depth) {
     if (p_depth <= 0) return 1;
 
-    std::vector<Move> moves = MoveGen::Pseudo(p_pos);
+    std::vector<Move> moves = MoveGen::PseudoMove(p_pos);
 
     uint64_t nodes = 0;
     for (Move mv : moves) {
@@ -579,7 +605,7 @@ static uint64_t Perft(Position& p_pos, uint8_t p_depth) {
 static std::vector<std::pair<std::string, uint64_t>> PerftDivide(Position& pos, uint8_t depth) {
     std::vector<std::pair<std::string, uint64_t>> out;
 
-    std::vector<Move> moves = MoveGen::Pseudo(pos);
+    std::vector<Move> moves = MoveGen::PseudoMove(pos);
 
     for (const Move& mv : moves) {
         UndoState undo{};

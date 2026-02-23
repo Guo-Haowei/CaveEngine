@@ -59,8 +59,8 @@ public:
     Piece PieceAt(Square p_sq) const;
     Color ColorAt(Square p_sq) const;
 
-    bool MakeMove(Move p_mv, UndoState& p_state);
-    bool UnmakeMove(Move p_mv, UndoState& p_state);
+    bool MakeMove(Move p_mv, UndoState& p_undo);
+    bool UnmakeMove(Move p_mv, UndoState& p_undo);
 
     std::string Fen() const;
 

@@ -275,7 +275,6 @@ bool Position::UpdateCache() {
                                   m_state.checkers[Color::White]);
 
     if (m_state.checkers[prev_color].Count() > 0) {
-        assert(0 && "check not resolved");
         return false;
     }
 
