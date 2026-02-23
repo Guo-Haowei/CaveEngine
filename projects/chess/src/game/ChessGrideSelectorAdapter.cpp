@@ -13,6 +13,8 @@ namespace chess {
 
 using core::Color;
 using core::Move;
+using core::MoveType;
+using core::Piece;
 using core::Square;
 
 bool ChessGridSelectorAdapter::CanSelect(int x, int y) {
@@ -55,11 +57,18 @@ void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
     const core::Position& pos = m_client.Pos();
     const PlayerId id = pos.SideToMove() == core::Color::White ? 0 : 1;
     if (m_players[id]) {
-        Move move(
-            Square::FromFileRank((uint8_t)sx, (uint8_t)sy),
-            Square::FromFileRank((uint8_t)dx, (uint8_t)dy),
-            core::MoveType::Normal,
-            core::PieceType::Null);
+        const Square from = Square::FromFileRank((uint8_t)sx, (uint8_t)sy);
+        const Square to = Square::FromFileRank((uint8_t)dx, (uint8_t)dy);
+
+        std::span<const Move> moves = m_client.LegalMovesFromSquare(from);
+        Move move = Move::Null();
+        for (Move mv : moves) {
+            if (mv.To() == to) {
+                move = mv;
+                break;
+            }
+        }
+        assert(move.IsValid());
 
         auto& inbox = m_players[id]->LocalInbox();
         PlayerIntent intent = {

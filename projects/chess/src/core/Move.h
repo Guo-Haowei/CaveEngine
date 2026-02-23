@@ -44,6 +44,14 @@ public:
     Square From() const { return Square((uint8_t)m_from); }
     Square To() const { return Square((uint8_t)m_to); }
 
+    bool operator==(const Move& p_rhs) const = default;
+
+    bool IsValid() const { return *this != Null(); }
+
+    static Move Null() {
+        return Move();
+    }
+
 private:
     uint16_t m_from : 6;
     uint16_t m_to : 6;

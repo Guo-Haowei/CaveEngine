@@ -345,6 +345,48 @@ static Bitboard QueenMask(Square p_from_sq,
     return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
+static const uint64_t B1_MASK = 1llu << Square::B1.Index();
+static const uint64_t C1_MASK = 1llu << Square::C1.Index();
+static const uint64_t D1_MASK = 1llu << Square::D1.Index();
+static const uint64_t E1_MASK = 1llu << Square::E1.Index();
+static const uint64_t F1_MASK = 1llu << Square::F1.Index();
+static const uint64_t G1_MASK = 1llu << Square::G1.Index();
+
+static const uint64_t B8_MASK = 1llu << Square::B8.Index();
+static const uint64_t C8_MASK = 1llu << Square::C8.Index();
+static const uint64_t D8_MASK = 1llu << Square::D8.Index();
+static const uint64_t E8_MASK = 1llu << Square::E8.Index();
+static const uint64_t F8_MASK = 1llu << Square::F8.Index();
+static const uint64_t G8_MASK = 1llu << Square::G8.Index();
+
+static const Bitboard kCastlingClearMasks[4] = {
+    Bitboard(F1_MASK | G1_MASK),            // White kingside
+    Bitboard(B1_MASK | C1_MASK | D1_MASK),  // White queenside
+    Bitboard(F8_MASK | G8_MASK),            // Black kingside
+    Bitboard(B8_MASK | C8_MASK | D8_MASK),  // Black queenside
+};
+
+static const Bitboard kCastlingSafeMasks[4] = {
+    Bitboard(E1_MASK | F1_MASK | G1_MASK),  // White kingside
+    Bitboard(C1_MASK | D1_MASK | E1_MASK),  // White queenside
+    Bitboard(E8_MASK | F8_MASK | G8_MASK),  // Black kingside
+    Bitboard(C8_MASK | D8_MASK | E8_MASK),  // Black queenside
+};
+
+static const Square kCastlingKingDests[4] = {
+    Square::G1,  // White kingside
+    Square::C1,  // White queenside
+    Square::G8,  // Black kingside
+    Square::C8,  // Black queenside
+};
+
+static const Square kCastlingRookDests[4] = {
+    Square::H1,  // White kingside
+    Square::A1,  // White queenside
+    Square::H8,  // Black kingside
+    Square::A8,  // Black queenside
+};
+
 template<MoveMaskType MV_TYPE>
 static Bitboard KingMask(Color p_color,
                          Square p_square,
@@ -357,7 +399,24 @@ static Bitboard KingMask(Color p_color,
         mask &= ~p_pos.State().occupancies[p_color];
         // exclude pieces that are under attack
         mask &= ~p_pos.State().attack_mask[FlipColor(p_color)];
-        // @TODO: castling
+
+        // castling
+        const uint8_t offset = p_color == Color::White ? 0 : 2;
+        for (uint8_t i = 0; i < 2; ++i) {
+            const uint8_t bit = i + offset;
+            const CastlingRight flag = static_cast<CastlingRight>(1 << bit);
+            if ((flag & p_pos.State().castling) == CastlingRight::None) {
+                continue;
+            }
+
+            const bool path_clear = (kCastlingClearMasks[bit] & p_pos.State().occupancies[Color::Both]).Empty();
+            const bool path_safe = (kCastlingSafeMasks[bit] & p_pos.State().attack_mask[FlipColor(p_color)]).Empty();
+            const bool rook_not_moved = p_pos.Bitboard(BuildPiece(PieceType::Rook, p_color)).Test(kCastlingRookDests[bit]);
+
+            if (path_clear && path_safe && rook_not_moved) {
+                mask.Set(kCastlingKingDests[bit]);
+            }
+        }
     }
 
     return mask;
@@ -380,12 +439,6 @@ static void KingMoves(Color p_color,
         p_move_list.Add(Move(p_src_sq, dst_sq, type));
     }
 }
-
-//pub fn is_pseudo_move_legal(pos : &mut Position, mv : Move) -> bool {
-//    let(undo_state, ok) = pos.make_move(mv);
-//    pos.unmake_move(mv, &undo_state);
-//    ok
-//}
 
 MoveList MoveGen::PseudoMove(const Position& p_pos) {
     MoveList moves;
@@ -502,7 +555,7 @@ void MoveGen::AttackMapAndCheckers(const Position& p_pos,
 
     const Color enemy_color = FlipColor(p_color);
     const Bitboard enemy_king_mask = p_pos.Bitboard(BuildPiece(PieceType::King, enemy_color));
-    
+
     const Piece pawn = BuildPiece(PieceType::Pawn, p_color);
     const Piece knight = BuildPiece(PieceType::Knight, p_color);
     const Piece bishop = BuildPiece(PieceType::Bishop, p_color);
