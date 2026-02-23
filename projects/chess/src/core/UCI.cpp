@@ -14,10 +14,11 @@
 #include "MoveGen.h"
 #include "UCI.h"
 
-#include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <cctype>
 #include <cstdint>
+#include <future>
 #include <iostream>
 #include <optional>
 #include <sstream>
@@ -62,18 +63,18 @@ static bool ParseMoveUci(const Position& p_pos, std::string_view p_uci, Move& p_
     if (p_uci.size() < 4)
         return false;
 
-    auto file_to_int = [](char f) -> int {
+    auto file_to_int = [](char f) -> int8_t {
         return f - 'a';
     };
 
-    auto rank_to_int = [](char r) -> int {
+    auto rank_to_int = [](char r) -> int8_t {
         return r - '1';
     };
 
-    const int src_file = file_to_int(p_uci[0]);
-    const int src_rank = rank_to_int(p_uci[1]);
-    const int dst_file = file_to_int(p_uci[2]);
-    const int dst_rank = rank_to_int(p_uci[3]);
+    const int8_t src_file = file_to_int(p_uci[0]);
+    const int8_t src_rank = rank_to_int(p_uci[1]);
+    const int8_t dst_file = file_to_int(p_uci[2]);
+    const int8_t dst_rank = rank_to_int(p_uci[3]);
 
     if (src_file < 0 || src_file > 7 ||
         dst_file < 0 || dst_file > 7 ||
@@ -105,6 +106,32 @@ static uint64_t Perft(Position& p_pos, int p_depth) {
     }
 
     return nodes;
+}
+
+[[maybe_unused]] static uint64_t PerftRootParallel(const Position& rootPos, int depth) {
+    if (depth <= 0) return 1;
+
+    // Copy once to a mutable local for move generation.
+    Position pos = rootPos;
+    std::vector<Move> rootMoves = MoveGen::LegalMove(pos);
+
+    std::vector<std::future<uint64_t>> futs;
+    futs.reserve(rootMoves.size());
+
+    for (const Move& mv : rootMoves) {
+        futs.emplace_back(std::async(std::launch::async, [rootPos, mv, depth]() mutable -> uint64_t {
+            Position local = rootPos;  // copy for this task
+            UndoState undo{};
+            local.MakeMove(mv, undo);
+            const uint64_t n = Perft(local, depth - 1);
+            // local.UnmakeMove(mv, undo); // not needed, local is thrown away
+            return n;
+        }));
+    }
+
+    uint64_t total = 0;
+    for (auto& f : futs) total += f.get();
+    return total;
 }
 
 static uint64_t PerftDivide(Position& pos, int depth) {
@@ -279,7 +306,7 @@ static void PerftTestHelper(const char* p_fen,
 
     printf("testing position: '%s'\n", p_fen);
     for (uint8_t i = 0; i <= p_depth; ++i) {
-        const uint64_t nodes = Perft(pos, i);
+        const uint64_t nodes = PerftRootParallel(pos, i);
         printf("depth %d: %llu nodes\n", i, nodes);
 
         if (nodes != p_expect[i]) {
