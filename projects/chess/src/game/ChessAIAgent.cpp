@@ -28,7 +28,11 @@ void ChessAIAgent::Tick() {
     if (count) {
         std::uniform_int_distribution<uint32_t> dist(0, count - 1);
 
-        const Move move = moves[dist(rng)];
+        const uint32_t idx = dist(rng);
+        assert(idx < count);
+        const Move move = moves[idx];
+
+        printf("generate move %s%s\n", move.From().ToString(), move.To().ToString());
 
         PlayerIntent intent = {
             IntentType::AttemptMove,

@@ -59,8 +59,8 @@ void ChessGameSession::Tick(cave::IHostServices& p_host) {
     m_client.Presenter().SetFocusedSquare(
         Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y));
 
-    m_client.Tick(p_host);
     m_auth.Tick();
+    m_client.Tick(p_host);
     // @TODO: post tick
 }
 
