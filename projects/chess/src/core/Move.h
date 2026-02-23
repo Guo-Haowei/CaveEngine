@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "cave/core/Option.h"
 #include "Piece.h"
 #include "Square.h"
 
@@ -36,6 +37,8 @@ public:
 
     MoveType GetType() const { return static_cast<MoveType>(m_flag); }
 
+    cave::Option<PieceType> GetPromo() const;
+
     std::string Uci() const;
 
     Square From() const { return Square((uint8_t)m_from); }
@@ -59,6 +62,10 @@ public:
 
     static Move Enpassant(Square from, Square to) {
         return Move(from, to, MoveType::Enpassant, PieceType::Null);
+    }
+
+    static Move Promotion(Square from, Square to, PieceType type) {
+        return Move(from, to, MoveType::Promotion, type);
     }
 
 private:

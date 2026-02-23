@@ -234,23 +234,21 @@ static void PawnMoves(Color p_color,
                       PieceType p_checker_type) {
     const Bitboard pawn_mask = PawnMask<MV_TYPE>(p_color, p_pos, p_from_sq);
 
+    const Bitboard promo_rank = p_color == Color::White ? MASK_8 : MASK_1;
     for (Square to_sq : pawn_mask.Squares()) {
-        // @TODO: promotion
-#if 0
-        let sq_mask = 1u64 << dst_sq.as_u8();
-        let promo_rank = if COLOR == 0 { BitBoard::MASK_8 } else { BitBoard::MASK_1 };
-        if sq_mask & promo_rank != 0 {
-            // Promotion move
-            let promotion_types =
-                [PieceType::QUEEN, PieceType::ROOK, PieceType::BISHOP, PieceType::KNIGHT];
-            for &promotion in &promotion_types {
-                if NOT_IN_CHECK || resolve_check(dst_sq, checker_sq, king_sq) {
-                    move_list.add(Move::new(sq, dst_sq, MoveType::Promotion, Some(promotion)));
+        if (promo_rank.Test(to_sq)) {
+            static constexpr std::array<PieceType, 4> kPromoTypes = {
+                PieceType::Queen,
+                PieceType::Rook,
+                PieceType::Bishop,
+                PieceType::Knight,
+            };
+            for (PieceType piece_type : kPromoTypes) {
+                if (!p_in_check || ResolveCheck(to_sq, p_checker_sq, p_king_sq)) {
+                    p_move_list.Add(Move::Promotion(p_from_sq, to_sq, piece_type));
                 }
             }
-        } else
-#endif
-        {
+        } else {
             if (!p_in_check || ResolveCheck(to_sq, p_checker_sq, p_king_sq)) {
                 p_move_list.Add(Move::Normal(p_from_sq, to_sq));
             }
