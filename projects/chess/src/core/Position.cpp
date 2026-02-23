@@ -59,8 +59,8 @@ static void MovePiece(Bitboard& p_board, Square p_src, Square p_to) {
 }
 
 bool Position::MakeMove(Move p_move, UndoState& p_undo) {
-    const Square src_sq = p_move.from;
-    const Square dst_sq = p_move.to;
+    const Square src_sq = p_move.From();
+    const Square dst_sq = p_move.To();
 
     const Piece src_piece = PieceAt(src_sq);
     const Piece dst_piece = PieceAt(dst_sq);
@@ -180,8 +180,8 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
 }
 
 bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
-    const Square src_sq = p_move.from;
-    const Square dst_sq = p_move.to;
+    const Square src_sq = p_move.From();
+    const Square dst_sq = p_move.To();
 
     const Piece src_piece = PieceAt(dst_sq);
 

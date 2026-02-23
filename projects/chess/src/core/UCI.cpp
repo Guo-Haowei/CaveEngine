@@ -108,22 +108,22 @@ static uint64_t Perft(Position& p_pos, int p_depth) {
     return nodes;
 }
 
-[[maybe_unused]] static uint64_t PerftRootParallel(const Position& rootPos, int depth) {
-    if (depth <= 0) return 1;
+[[maybe_unused]] static uint64_t PerftRootParallel(const Position& p_pos, int p_depth) {
+    if (p_depth <= 0) return 1;
 
     // Copy once to a mutable local for move generation.
-    Position pos = rootPos;
-    std::vector<Move> rootMoves = MoveGen::LegalMove(pos);
+    Position pos = p_pos;
+    std::vector<Move> moves = MoveGen::LegalMove(pos);
 
     std::vector<std::future<uint64_t>> futs;
-    futs.reserve(rootMoves.size());
+    futs.reserve(moves.size());
 
-    for (const Move& mv : rootMoves) {
-        futs.emplace_back(std::async(std::launch::async, [rootPos, mv, depth]() mutable -> uint64_t {
-            Position local = rootPos;  // copy for this task
+    for (const Move& mv : moves) {
+        futs.emplace_back(std::async(std::launch::async, [p_pos, mv, p_depth]() mutable -> uint64_t {
+            Position local = p_pos;  // copy for this task
             UndoState undo{};
             local.MakeMove(mv, undo);
-            const uint64_t n = Perft(local, depth - 1);
+            const uint64_t n = Perft(local, p_depth - 1);
             // local.UnmakeMove(mv, undo); // not needed, local is thrown away
             return n;
         }));
