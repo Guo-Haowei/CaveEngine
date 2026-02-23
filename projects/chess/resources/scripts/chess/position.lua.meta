@@ -1,9 +1,0 @@
-type: blob
-guid: 49702AB3-3659-4B42-AEB2F731841992C8
-name: ""
-import_path: "@res://scripts/chess/position.lua"
-dependencies: []
-source_created_time: ""
-source_last_modified: ""
-import_settings:
-  {}

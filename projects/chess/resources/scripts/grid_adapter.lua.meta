@@ -1,9 +1,0 @@
-type: blob
-guid: B0C57DC4-DE24-E146-933D56FD3853A89C
-name: ""
-import_path: "@res://scripts/grid_adapter.lua"
-dependencies: []
-source_created_time: ""
-source_last_modified: ""
-import_settings:
-  {}

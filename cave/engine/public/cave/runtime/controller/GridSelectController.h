@@ -41,9 +41,9 @@ public:
 
     explicit GridSelectController(const Vector2i& p_size, Callbacks&& p_cbs) noexcept;
 
-    void SetFocus(const Vector2i& p_focus);
+    void SetFocus(int p_x, int p_y);
 
-    void MoveFocus(const Vector2i& p_delta);
+    void MoveFocus(int p_x, int p_y);
 
     bool IsArmed() const { return m_state == State::Armed; }
 
@@ -55,6 +55,7 @@ public:
 
 private:
     void SelectTile(int tx, int ty);
+    void Clamp();
 
     void StateIdle(int tx, int ty);
     void StateArmed(int dest_x, int dest_y);

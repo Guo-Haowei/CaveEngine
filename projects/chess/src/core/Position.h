@@ -3,10 +3,10 @@
 #include <expected>
 #include <string_view>
 
-#include "cave/core/Option.h"
 #include "cave/core/containers/EnumArray.h"
 
 #include "Bitboard.h"
+#include "CheckerList.h"
 #include "Move.h"
 #include "Piece.h"
 
@@ -32,17 +32,17 @@ enum class FenError {
 
 struct UndoState {
     Castling castling;
-    cave::Option<Square> en_passant;
+    cave::Option<Square> en_passant{};
     uint32_t halfmove_clock;
     uint32_t fullmove_number;
+
+    Piece captured_piece{ Piece::Null };
 
     cave::EnumArray<Color, Bitboard, 3> occupancies;
     cave::EnumArray<Color, Bitboard, 2> attack_mask;
 
-    Piece captured_piece;
-
-    // pub checkers: [CheckerList; Color::COUNT],
-    // pub king_squares: [Square; Color::COUNT],
+    cave::EnumArray<Color, Square, 2> king_squares;
+    cave::EnumArray<Color, CheckerList, 2> checkers;
 };
 
 class Position {
@@ -53,14 +53,14 @@ public:
 
     Color SideToMove() const { return m_side_to_move; }
 
-    static Position Default();
+    static Position Startpos();
     static std::expected<Position, FenError> FromFen(std::string_view p_fen);
 
     Piece PieceAt(Square p_sq) const;
     Color ColorAt(Square p_sq) const;
 
-    bool MakeMove(Move p_mv, UndoState& p_state);
-    bool UnmakeMove(Move p_mv, UndoState& p_state);
+    bool MakeMove(Move p_mv, UndoState& p_undo);
+    bool UnmakeMove(Move p_mv, UndoState& p_undo);
 
     std::string Fen() const;
 
@@ -69,6 +69,8 @@ public:
     Bitboard Bitboard(Piece p_piece) const { return m_board[p_piece]; }
     const UndoState& State() const { return m_state; }
 
+    Square GetKing(Color p_color) const { return m_state.king_squares[p_color]; }
+
 private:
     bool UpdateCache();
 
@@ -76,7 +78,7 @@ private:
     Color m_side_to_move{ Color::White };
     UndoState m_state;
 
-    friend struct MoveGen;
+    friend class MoveGen;
 };
 
 #if 0

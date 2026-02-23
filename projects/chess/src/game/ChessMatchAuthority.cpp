@@ -6,7 +6,7 @@ using core::Color;
 using core::Position;
 
 ChessMatchAuthority::ChessMatchAuthority() {
-    m_pos = Position::Default();
+    m_pos = Position::Startpos();
 }
 
 void ChessMatchAuthority::Tick() {

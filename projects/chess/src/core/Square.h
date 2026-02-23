@@ -6,6 +6,9 @@ namespace chess::core {
 
 class Square {
 public:
+    constexpr Square() noexcept
+        : m_index(64) {}
+
     explicit constexpr Square(uint8_t p_index) noexcept
         : m_index(p_index) {
     }
@@ -22,6 +25,9 @@ public:
     std::tuple<uint8_t, uint8_t> FileRank() const;
 
     std::strong_ordering operator<=>(const Square&) const = default;
+
+    // only returns true if square is between A and B
+    bool SameLineInclusive(Square a, Square b) const;
 
     const char* ToString() const;
 

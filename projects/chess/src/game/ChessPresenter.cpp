@@ -91,6 +91,7 @@ void ChessPresenter::RedrawPosition(cave::IHostServices& p_host, const core::Pos
     // @TODO: refactor
     static constexpr StringId kTranslationId = StringId("translation");
     static constexpr StringId kVisibility = StringId("visibility");
+    static constexpr StringId kCastShadow = StringId("cast_shadow");
 
     auto& writer = p_host.SceneWriter();
 
@@ -107,10 +108,12 @@ void ChessPresenter::RedrawPosition(cave::IHostServices& p_host, const core::Pos
             Entity e = pool[idx++];
             writer.SetProperty(e, TransformComponent_Id, kTranslationId, translation);
             writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, true);
+            writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, true);
         }
         for (; idx < pool.size(); ++idx) {
             Entity e = pool[idx];
             writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
+            writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
         }
     }
 }

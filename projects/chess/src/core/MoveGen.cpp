@@ -1,5 +1,7 @@
 #include "MoveGen.h"
 
+#include <cassert>
+
 #include "Position.h"
 
 namespace chess::core {
@@ -45,11 +47,11 @@ static constexpr std::array<Bitboard, 8> MASK_RANKS = {
 };
 
 enum class MoveMaskType {
-    Move = 0,     // pseudo legal move
-    Capture = 1,  // capture moves
-    Attack = 2,   // tiles the piece protect
+    Move = 0,    // pseudo legal move
+    Attack = 1,  // tiles the piece protect
 };
 
+#pragma region COMPILE_TIME_MASK
 template<bool IS_WHITE>
 static constexpr Bitboard BuildPawnAttackMask(uint8_t file, uint8_t rank) {
     Bitboard mask(0);
@@ -126,28 +128,79 @@ static constexpr auto BuildKnightMasks() -> std::array<Bitboard, 64> {
     return masks;
 }
 
+static constexpr Bitboard BuildKingMask(uint8_t file, uint8_t rank) {
+    Bitboard mask(0);
+
+    constexpr std::array<std::pair<int8_t, int8_t>, 8> OFFSETS = {
+        std::make_pair(+0, +1),
+        std::make_pair(+0, -1),
+        std::make_pair(-1, +0),
+        std::make_pair(+1, +0),
+
+        std::make_pair(-1, -1),
+        std::make_pair(-1, +1),
+        std::make_pair(+1, -1),
+        std::make_pair(+1, +1),
+    };
+
+    for (size_t idx = 0; idx < OFFSETS.size(); ++idx) {
+        const auto [df, dr] = OFFSETS[idx];
+        const int8_t new_file = file + df;
+        const int8_t new_rank = rank + dr;
+        if (new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8) {
+            mask.Set(Square::FromFileRank(new_file, new_rank));
+        }
+    }
+    return mask;
+}
+
+static constexpr auto BuildKingMasks() -> std::array<Bitboard, 64> {
+    std::array<Bitboard, 64> masks;
+
+    for (uint8_t sq = 0; sq < 64; ++sq) {
+        const uint8_t file = sq % 8;
+        const uint8_t rank = sq / 8;
+        masks[sq] = BuildKingMask(file, rank);
+    }
+
+    return masks;
+}
+
 static constexpr std::array<std::array<Bitboard, 64>, 2> kPawnAttackMasks = BuildPawnAttackMasks();
 static constexpr std::array<Bitboard, 64> kKnightMasks = BuildKnightMasks();
+static constexpr std::array<Bitboard, 64> kKingMasks = BuildKingMasks();
+#pragma endregion COMPILE_TIME_MASK
 
-template<uint8_t COLOR, MoveMaskType MV_TYPE>
-static Bitboard PawnMask(const Position& p_pos, Square p_sq) {
-    constexpr uint8_t OPPONENT = COLOR ^ 1;
+static bool ResolveCheck(Square p_dst_sq, Square p_checker_sq, Square p_king_sq) {
+    // 1) eliminate checker
+    if (p_dst_sq == p_checker_sq) {
+        return true;
+    }
+    // 2) block attacker
+    if (p_dst_sq.SameLineInclusive(p_checker_sq, p_king_sq)) {
+        return true;
+    }
 
-    constexpr bool is_white = COLOR == 0;
+    return false;
+}
 
-    const Bitboard attack_mask = kPawnAttackMasks[COLOR][p_sq.Index()];
+template<MoveMaskType MV_TYPE>
+static Bitboard PawnMask(Color p_color, const Position& p_pos, Square p_sq) {
+    const uint8_t OPPONENT = std::to_underlying(p_color) ^ 1;
 
-    if constexpr (MV_TYPE == MoveMaskType::Attack) {
+    const bool is_white = p_color == Color::White;
+
+    const Bitboard attack_mask = kPawnAttackMasks[std::to_underlying(p_color)][p_sq.Index()];
+
+    // @NOTE: assign to variable to avoid compiler warning
+    if (MoveMaskType type = MV_TYPE; type == MoveMaskType::Attack) {
         return attack_mask;
     }
 
     const auto& occupancies = p_pos.State().occupancies;
     const Bitboard capture_mask = attack_mask & occupancies[static_cast<Color>(OPPONENT)];
-    if constexpr (MV_TYPE == MoveMaskType::Capture) {
-        return capture_mask;
-    }
 
-    constexpr int8_t offset = is_white ? 8 : -8;
+    const int8_t offset = is_white ? 8 : -8;
     const int8_t advance_once_bit = (int8_t)p_sq.Index() + offset;
 
     const Bitboard empty_mask = ~occupancies[Color::Both];
@@ -170,15 +223,18 @@ static Bitboard PawnMask(const Position& p_pos, Square p_sq) {
     return advance_once | advance_twice | capture_mask;
 }
 
-template<uint8_t COLOR, MoveMaskType MV_TYPE>
-static void PawnMoves(const Position& p_pos,
+template<MoveMaskType MV_TYPE>
+static void PawnMoves(Color p_color,
+                      const Position& p_pos,
                       Square p_from_sq,
-                      // @TODO: checker
-                      // @TODO: king
-                      MoveList& p_move_list) {
-    const Bitboard pawn_mask = PawnMask<COLOR, MV_TYPE>(p_pos, p_from_sq);
+                      MoveList& p_move_list,
+                      Square p_king_sq,
+                      bool p_in_check,
+                      Square p_checker_sq,
+                      PieceType p_checker_type) {
+    const Bitboard pawn_mask = PawnMask<MV_TYPE>(p_color, p_pos, p_from_sq);
 
-    constexpr bool NOT_IN_CHECK = true;
+    (void)p_checker_type;  // @TODO: pawn cares about checker type
 
     for (Square to_sq : pawn_mask.Squares()) {
         // @TODO: promotion
@@ -197,9 +253,8 @@ static void PawnMoves(const Position& p_pos,
         } else
 #endif
         {
-            // if (NOT_IN_CHECK || ResolveCheck)
-            {
-                p_move_list.push_back(Move{ p_from_sq, to_sq });
+            if (!p_in_check || ResolveCheck(to_sq, p_checker_sq, p_king_sq)) {
+                p_move_list.push_back(Move(p_from_sq, to_sq, MoveType::Normal, PieceType::Null));
             }
         }
     }
@@ -223,19 +278,10 @@ static void PawnMoves(const Position& p_pos,
 
 template<MoveMaskType MV_TYPE>
 static Bitboard KnightMask(Square p_from_sq,
-                           Bitboard p_friendly,
-                           Bitboard p_enemy) {
+                           Bitboard p_friendly) {
     const Bitboard mask = kKnightMasks[p_from_sq.Index()];
 
-    switch (MV_TYPE) {
-        case MoveMaskType::Move:
-            return mask & (~p_friendly);
-        case MoveMaskType::Capture:
-            return mask & p_enemy;
-        case MoveMaskType::Attack:
-        default:
-            return mask;
-    }
+    return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
 static Bitboard GenRay(Square p_from_sq,
@@ -254,7 +300,7 @@ static Bitboard GenRay(Square p_from_sq,
         if (p_friendly.Test(sq)) break;
         mask.Set(sq);
         if (p_enemy.Test(sq)) break;
-    } 
+    }
 
     return mask;
 }
@@ -268,15 +314,7 @@ static Bitboard BishopMask(Square p_from_sq,
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, -1);
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 1);
 
-    switch (MV_TYPE) {
-        case MoveMaskType::Move:
-            return mask & (~p_friendly);
-        case MoveMaskType::Capture:
-            return mask & p_enemy;
-        case MoveMaskType::Attack:
-        default:
-            return mask;
-    }
+    return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
 template<MoveMaskType MV_TYPE>
@@ -288,15 +326,7 @@ static Bitboard RookMask(Square p_from_sq,
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, -1, 0);
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 0);
 
-    switch (MV_TYPE) {
-        case MoveMaskType::Move:
-            return mask & (~p_friendly);
-        case MoveMaskType::Capture:
-            return mask & p_enemy;
-        case MoveMaskType::Attack:
-        default:
-            return mask;
-    }
+    return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
 template<MoveMaskType MV_TYPE>
@@ -312,52 +342,139 @@ static Bitboard QueenMask(Square p_from_sq,
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, -1);
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 1);
 
-    switch (MV_TYPE) {
-        case MoveMaskType::Move:
-            return mask & (~p_friendly);
-        case MoveMaskType::Capture:
-            return mask & p_enemy;
-        case MoveMaskType::Attack:
-        default:
-            return mask;
+    return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
+}
+
+template<MoveMaskType MV_TYPE>
+static Bitboard KingMask(Color p_color,
+                         Square p_square,
+                         const Position& p_pos) {
+
+    Bitboard mask = kKingMasks[p_square.Index()];
+
+    if constexpr (MV_TYPE == MoveMaskType::Move) {
+        // exclude friendly pieces
+        mask &= ~p_pos.State().occupancies[p_color];
+        // exclude pieces that are under attack
+        mask &= ~p_pos.State().attack_mask[FlipColor(p_color)];
+        // @TODO: castling
+    }
+
+    return mask;
+}
+
+template<MoveMaskType MV_TYPE>
+static void KingMoves(Color p_color,
+                      Square p_src_sq,
+                      const Position& p_pos,
+                      MoveList& p_move_list) {
+    const Bitboard mask = KingMask<MV_TYPE>(p_color, p_src_sq, p_pos);
+    for (Square dst_sq : mask.Squares()) {
+        const auto [src_file, src_rank] = p_src_sq.FileRank();
+        const auto [dst_file, dst_rank] = dst_sq.FileRank();
+        int8_t diff = (int8_t)src_file - (int8_t)dst_file;
+        MoveType type = MoveType::Normal;
+        if (diff == 2 || diff == -2) {
+            type = MoveType::Castling;
+        }
+        p_move_list.push_back(Move(p_src_sq, dst_sq, type, PieceType::Null));
     }
 }
 
-void MoveGen::Pseudo(const Position& p_pos,
-                     MoveList& p_move_list) {
-    const Color stm = p_pos.SideToMove();
+//pub fn is_pseudo_move_legal(pos : &mut Position, mv : Move) -> bool {
+//    let(undo_state, ok) = pos.make_move(mv);
+//    pos.unmake_move(mv, &undo_state);
+//    ok
+//}
+
+MoveList MoveGen::PseudoMove(const Position& p_pos) {
+    MoveList moves;
+    moves.reserve(128);
+
+    const Color color = p_pos.SideToMove();
+    const Square king_sq = p_pos.GetKing(color);
+
+    // generate king moves first
+    KingMoves<MoveMaskType::Move>(color, king_sq, p_pos, moves);
+
+    // if two pieces check the king,
+    // only moving king can resolve the check
+    // no need to check other pieces
+    const CheckerList& checkers = p_pos.State().checkers[color];
+    const uint8_t checker_count = checkers.Count();
+    if (checker_count == 2) {
+        return moves;
+    }
+
+    const bool in_check = checker_count == 1;
+    Square checker_sq{};
+    PieceType checker_type{ PieceType::Null };
+    if (in_check) {
+        const auto checker = checkers.Get(0).unwrap();
+        checker_sq = checker.square;
+        checker_type = checker.type;
+    }
 
     for (uint8_t i = 0; i < kPieceTypeMax; ++i) {
-        const Piece piece = BuildPiece(static_cast<PieceType>(i), stm);
+        const Piece piece = BuildPiece(static_cast<PieceType>(i), color);
         for (Square sq : p_pos.Bitboard(piece).Squares()) {
-            PseudoFromSquare(p_pos, sq, piece, p_move_list);
+            PseudoFromSquare(p_pos, sq, piece, moves, king_sq, in_check, checker_sq, checker_type);
         }
     }
+    return moves;
+}
+
+bool MoveGen::IsMoveLegal(Position& p_pos, Move p_move) {
+    UndoState undo;
+    const bool ok = p_pos.MakeMove(p_move, undo);
+    p_pos.UnmakeMove(p_move, undo);
+    return ok;
+}
+
+MoveList MoveGen::LegalMove(const Position& p_pos) {
+    MoveList pseudo = PseudoMove(p_pos);
+    MoveList moves;
+    Position copy = p_pos;
+    for (Move mv : pseudo) {
+        if (IsMoveLegal(copy, mv)) {
+            moves.push_back(mv);
+        } else {
+        }
+    }
+    return moves;
 }
 
 void MoveGen::PseudoFromSquare(const Position& p_pos,
                                Square p_from,
                                Piece p_piece,
-                               MoveList& p_move_list) {
+                               MoveList& p_move_list,
+                               Square p_king_sq,
+                               bool p_in_check,
+                               Square p_checker_sq,
+                               PieceType p_checker_type) {
     constexpr MoveMaskType MV_TYPE = MoveMaskType::Move;
 
     const Color color = p_pos.SideToMove();
     const Bitboard friendly = p_pos.m_state.occupancies[color];
     const Bitboard enemy = p_pos.m_state.occupancies[FlipColor(color)];
-    if (p_piece == Piece::WP) {
-        PawnMoves<0 /* white */, MV_TYPE>(p_pos, p_from, p_move_list);
-        return;
-    }
-    if (p_piece == Piece::BP) {
-        PawnMoves<1 /* black */, MV_TYPE>(p_pos, p_from, p_move_list);
+    const PieceType piece_type = GetType(p_piece);
+
+    if (piece_type == PieceType::Pawn) {
+        PawnMoves<MV_TYPE>(color,
+                           p_pos,
+                           p_from,
+                           p_move_list,
+                           p_king_sq,
+                           p_in_check,
+                           p_checker_sq,
+                           p_checker_type);
         return;
     }
 
-    const PieceType piece_type = GetType(p_piece);
     Bitboard mask(0);
     switch (piece_type) {
         case PieceType::Knight: {
-            mask = KnightMask<MV_TYPE>(p_from, friendly, enemy);
+            mask = KnightMask<MV_TYPE>(p_from, friendly);
         } break;
         case PieceType::Bishop: {
             mask = BishopMask<MV_TYPE>(p_from, friendly, enemy);
@@ -373,9 +490,95 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
     }
 
     for (Square sq : mask.Squares()) {
-        // if not in check or move resolve check
-        p_move_list.push_back({ p_from, sq });
+        if (!p_in_check || ResolveCheck(sq, p_checker_sq, p_king_sq)) {
+            p_move_list.push_back(Move(p_from, sq, MoveType::Normal, PieceType::Null));
+        }
     }
+}
+
+void MoveGen::AttackMapAndCheckers(const Position& p_pos,
+                                   Color p_color,
+                                   Bitboard& p_out_attack,
+                                   CheckerList& p_out_checkers) {
+    p_out_checkers.Clear();
+
+    const Color enemy_color = FlipColor(p_color);
+    const Bitboard enemy_king_mask = p_pos.Bitboard(BuildPiece(PieceType::King, enemy_color));
+    
+    const Piece pawn = BuildPiece(PieceType::Pawn, p_color);
+    const Piece knight = BuildPiece(PieceType::Knight, p_color);
+    const Piece bishop = BuildPiece(PieceType::Bishop, p_color);
+    const Piece rook = BuildPiece(PieceType::Rook, p_color);
+    const Piece queen = BuildPiece(PieceType::Queen, p_color);
+    const Piece king = BuildPiece(PieceType::King, p_color);
+
+    const Bitboard friendly = p_pos.State().occupancies[p_color];
+    const Bitboard enemy = p_pos.State().occupancies[enemy_color];
+
+    cave::EnumArray<PieceType, Bitboard, 6> masks;
+
+    for (Square sq : p_pos.Bitboard(pawn).Squares()) {
+        constexpr PieceType type = PieceType::Pawn;
+        Bitboard attack_mask = PawnMask<MoveMaskType::Attack>(p_color, p_pos, sq);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(knight).Squares()) {
+        constexpr PieceType type = PieceType::Knight;
+        Bitboard attack_mask = KnightMask<MoveMaskType::Attack>(sq, friendly);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(bishop).Squares()) {
+        constexpr PieceType type = PieceType::Bishop;
+        Bitboard attack_mask = BishopMask<MoveMaskType::Attack>(sq, friendly, enemy);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(rook).Squares()) {
+        constexpr PieceType type = PieceType::Rook;
+        Bitboard attack_mask = RookMask<MoveMaskType::Attack>(sq, friendly, enemy);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(queen).Squares()) {
+        constexpr PieceType type = PieceType::Queen;
+        Bitboard attack_mask = QueenMask<MoveMaskType::Attack>(sq, friendly, enemy);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(king).Squares()) {
+        constexpr PieceType type = PieceType::King;
+        Bitboard attack_mask = KingMask<MoveMaskType::Attack>(
+            p_color,
+            sq,
+            p_pos);
+        masks[type] |= attack_mask;
+        // impossible to capture king with king,
+        // no need to add king as a checker
+    }
+
+    p_out_attack = masks[PieceType::Pawn] |
+                   masks[PieceType::Knight] |
+                   masks[PieceType::Bishop] |
+                   masks[PieceType::Rook] |
+                   masks[PieceType::Queen] |
+                   masks[PieceType::King];
 }
 
 static_assert(kPawnAttackMasks[0][8] == Bitboard(1llu << 17));

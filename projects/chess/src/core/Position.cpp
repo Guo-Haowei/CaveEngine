@@ -1,12 +1,15 @@
 #include "Position.h"
 
+#include <cassert>
 #include "cave/core/typedefs.h"
+
+#include "MoveGen.h"
 
 namespace chess::core {
 
 using cave::unused;
 
-static constexpr const char kDefaultFen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+static constexpr const char kStartPosFen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 static bool SplitFen6(std::string_view fen,
                       std::string_view& board,
@@ -35,7 +38,7 @@ Piece Position::PieceAt(Square p_sq) const {
         }
     }
 
-    CRASH_NOW_MSG("should not reach here");
+    assert(0 && "should not reach here");
     return Piece::Null;
 }
 
@@ -50,12 +53,12 @@ Color Position::ColorAt(Square p_sq) const {
 }
 
 static void MovePiece(Bitboard& p_board, Square p_src, Square p_to) {
-    DEV_ASSERT_MSG(p_board.Test(p_src), "No piece found on 'src' square");
+    assert(p_board.Test(p_src) && "No piece found on 'src' square");
     p_board.Unset(p_src);
     p_board.Set(p_to);
 }
 
-bool Position::MakeMove(Move p_move, UndoState& p_state) {
+bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     const Square src_sq = p_move.from;
     const Square dst_sq = p_move.to;
 
@@ -75,8 +78,8 @@ bool Position::MakeMove(Move p_move, UndoState& p_state) {
 
     const MoveType move_type = p_move.GetType();
 
-    DEV_ASSERT_MSG(src_piece != Piece::Null, "No piece found on 'from' square");
-    DEV_ASSERT_MSG(SideToMove() == my_color, "Trying to move a piece of the wrong color");
+    assert((src_piece != Piece::Null) && "No piece found on 'from' square");
+    assert((SideToMove() == my_color) && "Trying to move a piece of the wrong color");
 
 #if 0
     // check if the move will change the castling rights
@@ -102,9 +105,9 @@ bool Position::MakeMove(Move p_move, UndoState& p_state) {
     // -------------- Update Board Start --------------
 
     m_state.captured_piece = dst_piece;
-    p_state = m_state;  // save old state as undo state
+    p_undo = m_state;  // save old state as undo state
 
-    DEV_ASSERT(m_state.occupancies[SideToMove()].Test(src_sq));
+    assert(m_state.occupancies[SideToMove()].Test(src_sq));
 
     MovePiece(m_board[src_piece], src_sq, dst_sq);
 
@@ -176,15 +179,44 @@ bool Position::MakeMove(Move p_move, UndoState& p_state) {
     return UpdateCache();
 }
 
-bool Position::UnmakeMove(Move p_mv, UndoState& p_state) {
-    unused(p_mv);
-    unused(p_state);
+bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
+    const Square src_sq = p_move.from;
+    const Square dst_sq = p_move.to;
+
+    const Piece src_piece = PieceAt(dst_sq);
+
+    const Color my_color = GetColor(src_piece);
+    const Color their_color = FlipColor(my_color);
+    const Piece their_pawn = BuildPiece(PieceType::Pawn, their_color);
+
+    MovePiece(m_board[src_piece], dst_sq, src_sq);
+
+    const Piece captured_piece = p_undo.captured_piece;
+    if (captured_piece != Piece::Null) {
+        m_board[captured_piece].Set(dst_sq);
+    }
+
+    const MoveType move_type = p_move.GetType();
+    switch (move_type) {
+        case MoveType::Castling: {
+        } break;
+        case MoveType::EnPassant: {
+            (void)their_pawn;
+        } break;
+        case MoveType::Promotion: {
+        } break;
+        default:
+            break;
+    }
+
+    m_side_to_move = FlipColor(m_side_to_move);
+    m_state = p_undo;
     return true;
 }
 
-Position Position::Default() {
-    auto res = FromFen(kDefaultFen);
-    DEV_ASSERT(res.has_value());
+Position Position::Startpos() {
+    auto res = FromFen(kStartPosFen);
+    assert(res.has_value());
 
     Position pos = *res;
     return pos;
@@ -230,42 +262,34 @@ bool Position::UpdateCache() {
         m_state.occupancies[Color::Black];
 
     Color prev_color = FlipColor(m_side_to_move);
-    (void)prev_color;
-#if 0
-pub fn update_cache(pos: &mut Position) -> bool {
 
-    let prev_color = pos.side_to_move.flip();
+    // NOTE: when white to move,
+    // it cares about black pieces that check its king
+    MoveGen::AttackMapAndCheckers(*this,
+                                  Color::White,
+                                  m_state.attack_mask[Color::White],
+                                  m_state.checkers[Color::Black]);
+    MoveGen::AttackMapAndCheckers(*this,
+                                  Color::Black,
+                                  m_state.attack_mask[Color::Black],
+                                  m_state.checkers[Color::White]);
 
-    // update attack maps
-    let (white_attack_map, white_checkers) = move_gen::calc_attack_map_and_checker::<0>(pos);
-    let (black_attack_map, black_checkers) = move_gen::calc_attack_map_and_checker::<1>(pos);
-
-    pos.state.attack_mask[Color::WHITE.as_usize()] = white_attack_map;
-    pos.state.attack_mask[Color::BLACK.as_usize()] = black_attack_map;
-    // note that for black to move, it needs to check if there are any white checkers
-    pos.state.checkers[Color::WHITE.as_usize()] = black_checkers;
-    pos.state.checkers[Color::BLACK.as_usize()] = white_checkers;
-
-    // the previous player didn't resolve the check, so the move was illegal
-    if pos.state.checkers[prev_color.as_usize()].count() > 0 {
+    if (m_state.checkers[prev_color].Count() > 0) {
         return false;
     }
 
-    // update the king squares
-    let white_king_mask = pos.bitboards[Piece::W_KING.as_usize()].get();
-    let black_king_mask = pos.bitboards[Piece::B_KING.as_usize()].get();
-    debug_assert!(white_king_mask.count_ones() == 1);
-    debug_assert!(black_king_mask.count_ones() == 1);
-    pos.state.king_squares[0] = Square::new(white_king_mask.trailing_zeros() as u8);
-    pos.state.king_squares[1] = Square::new(black_king_mask.trailing_zeros() as u8);
+    // update king squares after AttackMapAndCheckers
+    const auto wk_bb = m_board[Piece::WK];
+    const auto bk_bb = m_board[Piece::BK];
+    m_state.king_squares[Color::White] = Square((uint8_t)std::countr_zero(wk_bb.Bits()));
+    m_state.king_squares[Color::Black] = Square((uint8_t)std::countr_zero(bk_bb.Bits()));
 
-    true
-}
-#endif
     return true;
 }
+
 std::string Position::Fen() const {
-    return "TODO";
+    assert(0 && "TODO");
+    return "";
 }
 
 std::string Position::DebugBoardString() const {
@@ -400,7 +424,7 @@ TEST(SplitFen6, should_split_default_fen_correctly) {
     std::string_view half;
     std::string_view full;
 
-    ASSERT_TRUE(SplitFen6(kDefaultFen,
+    ASSERT_TRUE(SplitFen6(kStartPosFen,
                           board,
                           stm,
                           castling,
@@ -436,7 +460,7 @@ TEST(ParseBoard, should_parse_default_fen_correctly) {
 }
 
 TEST(Position, piece_at) {
-    Position pos = Position::Default();
+    Position pos = Position::Startpos();
 
     EXPECT_EQ(pos.PieceAt(Square(0)), Piece::WR);
     EXPECT_EQ(pos.PieceAt(Square(48)), Piece::BP);

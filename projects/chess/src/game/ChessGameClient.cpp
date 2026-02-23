@@ -17,7 +17,7 @@ ChessGameClient::ChessGameClient(ChessMatchAuthority& p_auth)
 }
 
 void ChessGameClient::ResetBoard() {
-    m_replica = Position::Default();
+    m_replica = Position::Startpos();
 
     OnPositionChange();
 }
@@ -57,8 +57,7 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
 }
 
 void ChessGameClient::OnPositionChange() {
-    core::MoveList moves;
-    MoveGen::Pseudo(m_replica, moves);
+    core::MoveList moves = MoveGen::LegalMove(m_replica);
 
     m_move_cache.clear();
     for (Move mv : moves) {
