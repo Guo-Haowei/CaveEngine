@@ -28,7 +28,7 @@ void ChessGridSelectorAdapter::OnSelect(int x, int y) {
 
     core::Bitboard bb;
     for (Move mv : moves) {
-        bb.Set(mv.to);
+        bb.Set(mv.To());
     }
     m_presenter.SetHighlightSquares(bb);
 }
@@ -38,8 +38,8 @@ bool ChessGridSelectorAdapter::CanDrop(int sx, int sy, int dx, int dy) {
 
     std::span<const Move> moves = m_client.LegalMovesFromSquare(sq);
     for (Move mv : moves) {
-        const auto [from_file, from_rank] = mv.from.FileRank();
-        const auto [to_file, to_rank] = mv.to.FileRank();
+        const auto [from_file, from_rank] = mv.From().FileRank();
+        const auto [to_file, to_rank] = mv.To().FileRank();
 
         if (from_file == sx && from_rank == sy && to_file == dx && to_rank == dy) {
             return true;
