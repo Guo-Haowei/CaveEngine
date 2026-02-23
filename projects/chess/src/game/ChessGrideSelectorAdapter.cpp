@@ -55,10 +55,11 @@ void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
     const core::Position& pos = m_client.Pos();
     const PlayerId id = pos.SideToMove() == core::Color::White ? 0 : 1;
     if (m_players[id]) {
-        Move move{
+        Move move(
             Square::FromFileRank((uint8_t)sx, (uint8_t)sy),
             Square::FromFileRank((uint8_t)dx, (uint8_t)dy),
-        };
+            core::MoveType::Normal,
+            core::PieceType::Null);
 
         auto& inbox = m_players[id]->LocalInbox();
         PlayerIntent intent = {

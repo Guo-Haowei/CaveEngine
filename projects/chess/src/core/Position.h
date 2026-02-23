@@ -3,10 +3,10 @@
 #include <expected>
 #include <string_view>
 
-#include "cave/core/Option.h"
 #include "cave/core/containers/EnumArray.h"
 
 #include "Bitboard.h"
+#include "CheckerList.h"
 #include "Move.h"
 #include "Piece.h"
 
@@ -36,13 +36,13 @@ struct UndoState {
     uint32_t halfmove_clock;
     uint32_t fullmove_number;
 
+    Piece captured_piece{ Piece::Null };
+
     cave::EnumArray<Color, Bitboard, 3> occupancies;
     cave::EnumArray<Color, Bitboard, 2> attack_mask;
 
-    Piece captured_piece{ Piece::Null };
     cave::EnumArray<Color, Square, 2> king_squares;
-
-    // pub checkers: [CheckerList; Color::COUNT],
+    cave::EnumArray<Color, CheckerList, 2> checkers;
 };
 
 class Position {

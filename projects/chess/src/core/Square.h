@@ -6,6 +6,9 @@ namespace chess::core {
 
 class Square {
 public:
+    constexpr Square() noexcept
+        : m_index(64) {}
+
     explicit constexpr Square(uint8_t p_index) noexcept
         : m_index(p_index) {
     }

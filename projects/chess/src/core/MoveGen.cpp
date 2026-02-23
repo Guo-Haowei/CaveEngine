@@ -45,11 +45,11 @@ static constexpr std::array<Bitboard, 8> MASK_RANKS = {
 };
 
 enum class MoveMaskType {
-    Move = 0,     // pseudo legal move
-    Capture = 1,  // capture moves
-    Attack = 2,   // tiles the piece protect
+    Move = 0,    // pseudo legal move
+    Attack = 1,  // tiles the piece protect
 };
 
+#pragma region COMPILE_TIME_MASK
 template<bool IS_WHITE>
 static constexpr Bitboard BuildPawnAttackMask(uint8_t file, uint8_t rank) {
     Bitboard mask(0);
@@ -126,8 +126,48 @@ static constexpr auto BuildKnightMasks() -> std::array<Bitboard, 64> {
     return masks;
 }
 
+static constexpr Bitboard BuildKingMask(uint8_t file, uint8_t rank) {
+    Bitboard mask(0);
+
+    constexpr std::array<std::pair<int8_t, int8_t>, 8> OFFSETS = {
+        std::make_pair(+0, +1),
+        std::make_pair(+0, -1),
+        std::make_pair(-1, +0),
+        std::make_pair(+1, +0),
+
+        std::make_pair(-1, -1),
+        std::make_pair(-1, +1),
+        std::make_pair(+1, -1),
+        std::make_pair(+1, +1),
+    };
+
+    for (size_t idx = 0; idx < OFFSETS.size(); ++idx) {
+        const auto [df, dr] = OFFSETS[idx];
+        const int8_t new_file = file + df;
+        const int8_t new_rank = rank + dr;
+        if (new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8) {
+            mask.Set(Square::FromFileRank(new_file, new_rank));
+        }
+    }
+    return mask;
+}
+
+static constexpr auto BuildKingMasks() -> std::array<Bitboard, 64> {
+    std::array<Bitboard, 64> masks;
+
+    for (uint8_t sq = 0; sq < 64; ++sq) {
+        const uint8_t file = sq % 8;
+        const uint8_t rank = sq / 8;
+        masks[sq] = BuildKingMask(file, rank);
+    }
+
+    return masks;
+}
+
 static constexpr std::array<std::array<Bitboard, 64>, 2> kPawnAttackMasks = BuildPawnAttackMasks();
 static constexpr std::array<Bitboard, 64> kKnightMasks = BuildKnightMasks();
+static constexpr std::array<Bitboard, 64> kKingMasks = BuildKingMasks();
+#pragma endregion COMPILE_TIME_MASK
 
 template<uint8_t COLOR, MoveMaskType MV_TYPE>
 static Bitboard PawnMask(const Position& p_pos, Square p_sq) {
@@ -137,15 +177,13 @@ static Bitboard PawnMask(const Position& p_pos, Square p_sq) {
 
     const Bitboard attack_mask = kPawnAttackMasks[COLOR][p_sq.Index()];
 
-    if constexpr (MV_TYPE == MoveMaskType::Attack) {
+    // @NOTE: assign to variable to avoid compiler warning
+    if (MoveMaskType type = MV_TYPE; type == MoveMaskType::Attack) {
         return attack_mask;
     }
 
     const auto& occupancies = p_pos.State().occupancies;
     const Bitboard capture_mask = attack_mask & occupancies[static_cast<Color>(OPPONENT)];
-    if constexpr (MV_TYPE == MoveMaskType::Capture) {
-        return capture_mask;
-    }
 
     constexpr int8_t offset = is_white ? 8 : -8;
     const int8_t advance_once_bit = (int8_t)p_sq.Index() + offset;
@@ -198,7 +236,7 @@ static void PawnMoves(const Position& p_pos,
 #endif
         {
             if (NOT_IN_CHECK /* || ResolveCheck */) {
-                p_move_list.push_back(Move{ p_from_sq, to_sq });
+                p_move_list.push_back(Move(p_from_sq, to_sq, MoveType::Normal, PieceType::Null));
             }
         }
     }
@@ -222,19 +260,10 @@ static void PawnMoves(const Position& p_pos,
 
 template<MoveMaskType MV_TYPE>
 static Bitboard KnightMask(Square p_from_sq,
-                           Bitboard p_friendly,
-                           Bitboard p_enemy) {
+                           Bitboard p_friendly) {
     const Bitboard mask = kKnightMasks[p_from_sq.Index()];
 
-    switch (MV_TYPE) {
-        case MoveMaskType::Move:
-            return mask & (~p_friendly);
-        case MoveMaskType::Capture:
-            return mask & p_enemy;
-        case MoveMaskType::Attack:
-        default:
-            return mask;
-    }
+    return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
 static Bitboard GenRay(Square p_from_sq,
@@ -253,7 +282,7 @@ static Bitboard GenRay(Square p_from_sq,
         if (p_friendly.Test(sq)) break;
         mask.Set(sq);
         if (p_enemy.Test(sq)) break;
-    } 
+    }
 
     return mask;
 }
@@ -267,15 +296,7 @@ static Bitboard BishopMask(Square p_from_sq,
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, -1);
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 1);
 
-    switch (MV_TYPE) {
-        case MoveMaskType::Move:
-            return mask & (~p_friendly);
-        case MoveMaskType::Capture:
-            return mask & p_enemy;
-        case MoveMaskType::Attack:
-        default:
-            return mask;
-    }
+    return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
 template<MoveMaskType MV_TYPE>
@@ -287,15 +308,7 @@ static Bitboard RookMask(Square p_from_sq,
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, -1, 0);
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 0);
 
-    switch (MV_TYPE) {
-        case MoveMaskType::Move:
-            return mask & (~p_friendly);
-        case MoveMaskType::Capture:
-            return mask & p_enemy;
-        case MoveMaskType::Attack:
-        default:
-            return mask;
-    }
+    return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
 template<MoveMaskType MV_TYPE>
@@ -311,70 +324,65 @@ static Bitboard QueenMask(Square p_from_sq,
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, -1);
     mask |= GenRay(p_from_sq, p_friendly, p_enemy, 1, 1);
 
-    switch (MV_TYPE) {
-        case MoveMaskType::Move:
-            return mask & (~p_friendly);
-        case MoveMaskType::Capture:
-            return mask & p_enemy;
-        case MoveMaskType::Attack:
-        default:
-            return mask;
-    }
+    return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
-#if 0
-fn pseudo_legal_move_king<const COLOR: u8, const MASK_TYPE: u8>(
-    move_list: &mut MoveList,
-    sq: Square,
-    pos: &Position,
-) {
-    let mask = king_mask::<COLOR, MASK_TYPE>(sq, pos);
-    for dst_sq in mask.iter() {
-        // check if it's a castling move
-        let (src_file, _) = sq.file_rank();
-        let (dst_file, _) = dst_sq.file_rank();
-        let diff = src_file.diff(dst_file);
-        let move_type = match diff.abs() {
-            0 | 1 => MoveType::Normal,
-            2 => MoveType::Castling,
-            _ => panic!("Invalid castling move from {} to {}", sq, dst_sq),
-        };
+template<MoveMaskType MV_TYPE>
+static Bitboard KingMask(Color p_color,
+                         Square p_square,
+                         const Position& p_pos) {
 
-        move_list.add(Move::new(sq, dst_sq, move_type, None));
+    Bitboard mask = kKingMasks[p_square.Index()];
+
+    if constexpr (MV_TYPE == MoveMaskType::Move) {
+        // exclude friendly pieces
+        mask &= ~p_pos.State().occupancies[p_color];
+        // exclude pieces that are under attack
+        mask &= ~p_pos.State().attack_mask[FlipColor(p_color)];
+        // @TODO: castling
     }
+
+    return mask;
 }
 
-#endif
+template<MoveMaskType MV_TYPE>
+static void KingMoves(Color p_color,
+                      Square p_src_sq,
+                      const Position& p_pos,
+                      MoveList& p_move_list) {
+    const Bitboard mask = KingMask<MV_TYPE>(p_color, p_src_sq, p_pos);
+    for (Square dst_sq : mask.Squares()) {
+        const auto [src_file, src_rank] = p_src_sq.FileRank();
+        const auto [dst_file, dst_rank] = dst_sq.FileRank();
+        int8_t diff = (int8_t)src_file - (int8_t)dst_file;
+        MoveType type = MoveType::Normal;
+        if (diff == 2 || diff == -2) {
+            type = MoveType::Castling;
+        }
+        p_move_list.push_back(Move(p_src_sq, dst_sq, type, PieceType::Null));
+    }
+}
 
 MoveList MoveGen::Pseudo(const Position& p_pos) {
     MoveList moves;
     moves.reserve(128);
 
-    const Color stm = p_pos.SideToMove();
-    const Square king_sq = p_pos.GetKing(stm);
+    const Color color = p_pos.SideToMove();
+    const Square king_sq = p_pos.GetKing(color);
 
+    // generate king moves first
+    KingMoves<MoveMaskType::Move>(color, king_sq, p_pos, moves);
 
-    #if 0
-    let color = pos.side_to_move;
-    let king_sq = pos.get_king_square(color);
-    let (start, end) = if color == Color::WHITE {
-        pseudo_legal_move_king::<0, MASK>(&mut move_list, king_sq, pos);
-        (Piece::W_START, Piece::W_END)
-    } else {
-        pseudo_legal_move_king::<1, MASK>(&mut move_list, king_sq, pos);
-        (Piece::B_START, Piece::B_END)
-    };
-
-    // early return if double check
-    let checkers = &pos.state.checkers[color.as_usize()];
-    if checkers.count() == 2 {
-        return move_list;
+    // if two pieces check the king,
+    // only moving king can resolve the check
+    // no need to check other pieces
+    const CheckerList& checkers = p_pos.State().checkers[color];
+    if (checkers.Count() == 2) {
+        return moves;
     }
 
-    #endif
-
     for (uint8_t i = 0; i < kPieceTypeMax; ++i) {
-        const Piece piece = BuildPiece(static_cast<PieceType>(i), stm);
+        const Piece piece = BuildPiece(static_cast<PieceType>(i), color);
         for (Square sq : p_pos.Bitboard(piece).Squares()) {
             PseudoFromSquare(p_pos, sq, piece, moves);
         }
@@ -404,7 +412,7 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
     Bitboard mask(0);
     switch (piece_type) {
         case PieceType::Knight: {
-            mask = KnightMask<MV_TYPE>(p_from, friendly, enemy);
+            mask = KnightMask<MV_TYPE>(p_from, friendly);
         } break;
         case PieceType::Bishop: {
             mask = BishopMask<MV_TYPE>(p_from, friendly, enemy);
@@ -421,8 +429,91 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
 
     for (Square sq : mask.Squares()) {
         // if not in check or move resolve check
-        p_move_list.push_back({ p_from, sq });
+        p_move_list.push_back(Move(p_from, sq, MoveType::Normal, PieceType::Null));
     }
+}
+
+void MoveGen::AttackMapAndCheckers(const Position& p_pos,
+                                   Color p_color,
+                                   Bitboard& p_out_attack,
+                                   CheckerList& p_out_checkers) {
+    const Color enemy_color = FlipColor(p_color);
+    const Bitboard enemy_king_mask = p_pos.Bitboard(BuildPiece(PieceType::King, enemy_color));
+    
+    const Piece pawn = BuildPiece(PieceType::Pawn, p_color);
+    const Piece knight = BuildPiece(PieceType::Knight, p_color);
+    const Piece bishop = BuildPiece(PieceType::Bishop, p_color);
+    const Piece rook = BuildPiece(PieceType::Rook, p_color);
+    const Piece queen = BuildPiece(PieceType::Queen, p_color);
+    const Piece king = BuildPiece(PieceType::King, p_color);
+
+    const Bitboard friendly = p_pos.State().occupancies[p_color];
+    const Bitboard enemy = p_pos.State().occupancies[enemy_color];
+
+    cave::EnumArray<PieceType, Bitboard, 6> masks;
+
+    for (Square sq : p_pos.Bitboard(pawn).Squares()) {
+        constexpr PieceType type = PieceType::Pawn;
+        Bitboard attack_mask = (p_color == Color::White) ? PawnMask<0, MoveMaskType::Attack>(p_pos, sq) : PawnMask<1, MoveMaskType::Attack>(p_pos, sq);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(knight).Squares()) {
+        constexpr PieceType type = PieceType::Knight;
+        Bitboard attack_mask = KnightMask<MoveMaskType::Attack>(sq, friendly);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(bishop).Squares()) {
+        constexpr PieceType type = PieceType::Bishop;
+        Bitboard attack_mask = BishopMask<MoveMaskType::Attack>(sq, friendly, enemy);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(rook).Squares()) {
+        constexpr PieceType type = PieceType::Rook;
+        Bitboard attack_mask = RookMask<MoveMaskType::Attack>(sq, friendly, enemy);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(queen).Squares()) {
+        constexpr PieceType type = PieceType::Queen;
+        Bitboard attack_mask = QueenMask<MoveMaskType::Attack>(sq, friendly, enemy);
+        masks[type] |= attack_mask;
+        if ((attack_mask & enemy_king_mask).Any()) {
+            p_out_checkers.Add(sq, type);
+        }
+    }
+
+    for (Square sq : p_pos.Bitboard(king).Squares()) {
+        constexpr PieceType type = PieceType::King;
+        Bitboard attack_mask = KingMask<MoveMaskType::Attack>(
+            p_color,
+            sq,
+            p_pos);
+        masks[type] |= attack_mask;
+        // impossible to capture king with king,
+        // no need to add king as a checker
+    }
+
+    p_out_attack = masks[PieceType::Pawn] |
+                   masks[PieceType::Knight] |
+                   masks[PieceType::Bishop] |
+                   masks[PieceType::Rook] |
+                   masks[PieceType::Queen] |
+                   masks[PieceType::King];
 }
 
 static_assert(kPawnAttackMasks[0][8] == Bitboard(1llu << 17));
@@ -432,9 +523,7 @@ static_assert(kPawnAttackMasks[0][8] == Bitboard(1llu << 17));
 static uint64_t Perft(Position& p_pos, uint8_t p_depth) {
     if (p_depth <= 0) return 1;
 
-    std::vector<Move> moves;
-    moves.reserve(128);
-    MoveGen::Pseudo(p_pos, moves);
+    std::vector<Move> moves = MoveGen::Pseudo(p_pos);
 
     uint64_t nodes = 0;
     for (Move mv : moves) {
@@ -451,11 +540,7 @@ static uint64_t Perft(Position& p_pos, uint8_t p_depth) {
 static std::vector<std::pair<std::string, uint64_t>> PerftDivide(Position& pos, uint8_t depth) {
     std::vector<std::pair<std::string, uint64_t>> out;
 
-    std::vector<Move> moves;
-    moves.reserve(128);
-    MoveGen::Pseudo(pos, moves);
-
-    out.reserve(moves.size());
+    std::vector<Move> moves = MoveGen::Pseudo(pos);
 
     for (const Move& mv : moves) {
         UndoState undo{};

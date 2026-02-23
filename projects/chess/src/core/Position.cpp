@@ -1,6 +1,9 @@
 #include "Position.h"
 
+#include <cassert>
 #include "cave/core/typedefs.h"
+
+#include "MoveGen.h"
 
 namespace chess::core {
 
@@ -259,44 +262,34 @@ bool Position::UpdateCache() {
         m_state.occupancies[Color::Black];
 
     Color prev_color = FlipColor(m_side_to_move);
-    (void)prev_color;
 
     const auto wk_bb = m_board[Piece::WK];
     const auto bk_bb = m_board[Piece::BK];
-    m_state.king_squares[Color::White] = Square(std::countr_zero(wk_bb.Bits()));
-    m_state.king_squares[Color::Black] = Square(std::countr_zero(bk_bb.Bits()));
+    m_state.king_squares[Color::White] = Square((uint8_t)std::countr_zero(wk_bb.Bits()));
+    m_state.king_squares[Color::Black] = Square((uint8_t)std::countr_zero(bk_bb.Bits()));
 
-#if 0
-    // update attack maps
-    let (white_attack_map, white_checkers) = move_gen::calc_attack_map_and_checker::<0>(pos);
-    let (black_attack_map, black_checkers) = move_gen::calc_attack_map_and_checker::<1>(pos);
+    // NOTE: when white to move,
+    // it cares about black pieces that check its king
+    MoveGen::AttackMapAndCheckers(*this,
+                                  Color::White,
+                                  m_state.attack_mask[Color::White],
+                                  m_state.checkers[Color::Black]);
+    MoveGen::AttackMapAndCheckers(*this,
+                                  Color::Black,
+                                  m_state.attack_mask[Color::Black],
+                                  m_state.checkers[Color::White]);
 
-    pos.state.attack_mask[Color::WHITE.as_usize()] = white_attack_map;
-    pos.state.attack_mask[Color::BLACK.as_usize()] = black_attack_map;
-    // note that for black to move, it needs to check if there are any white checkers
-    pos.state.checkers[Color::WHITE.as_usize()] = black_checkers;
-    pos.state.checkers[Color::BLACK.as_usize()] = white_checkers;
-
-    // the previous player didn't resolve the check, so the move was illegal
-    if pos.state.checkers[prev_color.as_usize()].count() > 0 {
+    if (m_state.checkers[prev_color].Count() > 0) {
+        assert(0 && "check not resolved");
         return false;
     }
 
-    // update the king squares
-    let white_king_mask = pos.bitboards[Piece::W_KING.as_usize()].get();
-    let black_king_mask = pos.bitboards[Piece::B_KING.as_usize()].get();
-    debug_assert!(white_king_mask.count_ones() == 1);
-    debug_assert!(black_king_mask.count_ones() == 1);
-    pos.state.king_squares[0] = Square::new(white_king_mask.trailing_zeros() as u8);
-    pos.state.king_squares[1] = Square::new(black_king_mask.trailing_zeros() as u8);
-
-    true
-}
-#endif
     return true;
 }
+
 std::string Position::Fen() const {
-    return "TODO";
+    assert(0 && "TODO");
+    return "";
 }
 
 std::string Position::DebugBoardString() const {
