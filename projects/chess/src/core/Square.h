@@ -26,6 +26,9 @@ public:
 
     std::strong_ordering operator<=>(const Square&) const = default;
 
+    // only returns true if square is between A and B
+    bool SameLineInclusive(Square a, Square b) const;
+
     const char* ToString() const;
 
 private:

@@ -15,7 +15,9 @@ class CheckerList {
 public:
     CheckerList();
 
-    auto Get(int p_idx) const;
+    void Clear();
+
+    cave::Option<Val> Get(int p_idx) const;
 
     bool Add(Square p_square, PieceType p_type);
 

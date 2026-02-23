@@ -78,7 +78,7 @@ private:
     Color m_side_to_move{ Color::White };
     UndoState m_state;
 
-    friend struct MoveGen;
+    friend class MoveGen;
 };
 
 #if 0

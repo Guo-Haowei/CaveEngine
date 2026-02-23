@@ -1,7 +1,5 @@
 #include "Bitboard.h"
 
-#include "cave/core/ErrorMacros.h"
-
 namespace chess::core {
 
 #if defined(CAVE_TEST)

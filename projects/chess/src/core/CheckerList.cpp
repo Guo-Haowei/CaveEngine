@@ -4,9 +4,14 @@
 
 namespace chess::core {
 
-CheckerList::CheckerList()
-    : m_squares{ cave::None(), cave::None() }
-    , m_count{ 0 } {
+CheckerList::CheckerList() {
+    Clear();
+}
+
+void CheckerList::Clear() {
+    m_count = 0;
+    m_squares[0] = cave::None();
+    m_squares[1] = cave::None();
 }
 
 bool CheckerList::Add(Square p_square, PieceType p_type) {
@@ -16,7 +21,7 @@ bool CheckerList::Add(Square p_square, PieceType p_type) {
     return true;
 }
 
-auto CheckerList::Get(int p_idx) const {
+cave::Option<CheckerList::Val> CheckerList::Get(int p_idx) const {
     assert(p_idx < 2);
     return m_squares[p_idx];
 }

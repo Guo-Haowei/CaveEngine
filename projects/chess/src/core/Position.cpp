@@ -38,7 +38,7 @@ Piece Position::PieceAt(Square p_sq) const {
         }
     }
 
-    CRASH_NOW_MSG("should not reach here");
+    assert(0 && "should not reach here");
     return Piece::Null;
 }
 
@@ -53,7 +53,7 @@ Color Position::ColorAt(Square p_sq) const {
 }
 
 static void MovePiece(Bitboard& p_board, Square p_src, Square p_to) {
-    DEV_ASSERT_MSG(p_board.Test(p_src), "No piece found on 'src' square");
+    assert(p_board.Test(p_src) && "No piece found on 'src' square");
     p_board.Unset(p_src);
     p_board.Set(p_to);
 }
@@ -78,8 +78,8 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
 
     const MoveType move_type = p_move.GetType();
 
-    DEV_ASSERT_MSG(src_piece != Piece::Null, "No piece found on 'from' square");
-    DEV_ASSERT_MSG(SideToMove() == my_color, "Trying to move a piece of the wrong color");
+    assert((src_piece != Piece::Null) && "No piece found on 'from' square");
+    assert((SideToMove() == my_color) && "Trying to move a piece of the wrong color");
 
 #if 0
     // check if the move will change the castling rights
@@ -107,7 +107,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     m_state.captured_piece = dst_piece;
     p_undo = m_state;  // save old state as undo state
 
-    DEV_ASSERT(m_state.occupancies[SideToMove()].Test(src_sq));
+    assert(m_state.occupancies[SideToMove()].Test(src_sq));
 
     MovePiece(m_board[src_piece], src_sq, dst_sq);
 
@@ -216,7 +216,7 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
 
 Position Position::Default() {
     auto res = FromFen(kDefaultFen);
-    DEV_ASSERT(res.has_value());
+    assert(res.has_value());
 
     Position pos = *res;
     return pos;
@@ -263,11 +263,6 @@ bool Position::UpdateCache() {
 
     Color prev_color = FlipColor(m_side_to_move);
 
-    const auto wk_bb = m_board[Piece::WK];
-    const auto bk_bb = m_board[Piece::BK];
-    m_state.king_squares[Color::White] = Square((uint8_t)std::countr_zero(wk_bb.Bits()));
-    m_state.king_squares[Color::Black] = Square((uint8_t)std::countr_zero(bk_bb.Bits()));
-
     // NOTE: when white to move,
     // it cares about black pieces that check its king
     MoveGen::AttackMapAndCheckers(*this,
@@ -283,6 +278,12 @@ bool Position::UpdateCache() {
         assert(0 && "check not resolved");
         return false;
     }
+
+    // update king squares after AttackMapAndCheckers
+    const auto wk_bb = m_board[Piece::WK];
+    const auto bk_bb = m_board[Piece::BK];
+    m_state.king_squares[Color::White] = Square((uint8_t)std::countr_zero(wk_bb.Bits()));
+    m_state.king_squares[Color::Black] = Square((uint8_t)std::countr_zero(bk_bb.Bits()));
 
     return true;
 }

@@ -10,7 +10,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 add_executable(${TARGET_NAME} ${SRC})
 
 target_include_directories(${TARGET_NAME} PRIVATE
-    ${PROJECT_SOURCE_DIR}/cave/engine/
+    ${PROJECT_SOURCE_DIR}/cave/engine/public/
     ${PROJECT_SOURCE_DIR}/thirdparty/googletest/googletest/include
 )
 
@@ -25,7 +25,6 @@ set_target_properties(${TARGET_NAME}
 )
 
 set(TARGET_LIBS
-    engine
     gtest_main
 )
 

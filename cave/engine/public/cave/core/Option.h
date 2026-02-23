@@ -1,6 +1,6 @@
 #pragma once
 #include <optional>
-#include "cave/core/ErrorMacros.h"
+#include <cassert>
 
 namespace cave {
 
@@ -41,12 +41,12 @@ public:
     bool is_none() const { return !m_opt.has_value(); }
 
     T& unwrap() {
-        if (!m_opt) CRASH_NOW_MSG("Called unwrap() on None");
+        if (!m_opt) assert(0 && "Called unwrap() on None");
         return *m_opt;
     }
 
     const T& unwrap() const {
-        if (!m_opt) CRASH_NOW_MSG("Called unwrap() on None");
+        if (!m_opt) assert(0 && "Called unwrap() on None");
         return *m_opt;
     }
 
