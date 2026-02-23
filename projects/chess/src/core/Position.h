@@ -53,7 +53,7 @@ public:
 
     Color SideToMove() const { return m_side_to_move; }
 
-    static Position Default();
+    static Position Startpos();
     static std::expected<Position, FenError> FromFen(std::string_view p_fen);
 
     Piece PieceAt(Square p_sq) const;

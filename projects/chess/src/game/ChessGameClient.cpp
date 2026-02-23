@@ -17,7 +17,7 @@ ChessGameClient::ChessGameClient(ChessMatchAuthority& p_auth)
 }
 
 void ChessGameClient::ResetBoard() {
-    m_replica = Position::Default();
+    m_replica = Position::Startpos();
 
     OnPositionChange();
 }

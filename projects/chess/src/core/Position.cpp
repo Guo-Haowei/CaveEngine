@@ -9,7 +9,7 @@ namespace chess::core {
 
 using cave::unused;
 
-static constexpr const char kDefaultFen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+static constexpr const char kStartPosFen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 static bool SplitFen6(std::string_view fen,
                       std::string_view& board,
@@ -214,8 +214,8 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
     return true;
 }
 
-Position Position::Default() {
-    auto res = FromFen(kDefaultFen);
+Position Position::Startpos() {
+    auto res = FromFen(kStartPosFen);
     assert(res.has_value());
 
     Position pos = *res;
@@ -424,7 +424,7 @@ TEST(SplitFen6, should_split_default_fen_correctly) {
     std::string_view half;
     std::string_view full;
 
-    ASSERT_TRUE(SplitFen6(kDefaultFen,
+    ASSERT_TRUE(SplitFen6(kStartPosFen,
                           board,
                           stm,
                           castling,
@@ -460,7 +460,7 @@ TEST(ParseBoard, should_parse_default_fen_correctly) {
 }
 
 TEST(Position, piece_at) {
-    Position pos = Position::Default();
+    Position pos = Position::Startpos();
 
     EXPECT_EQ(pos.PieceAt(Square(0)), Piece::WR);
     EXPECT_EQ(pos.PieceAt(Square(48)), Piece::BP);
