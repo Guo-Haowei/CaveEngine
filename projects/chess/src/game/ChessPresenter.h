@@ -22,8 +22,7 @@ public:
     void Present(const PresentationContext& p_ctx);
     void RedrawPosition(cave::IHostServices& p_host, const core::Position& p_position);
 
-    void OnGameBegin(cave::SceneQuery& p_query);
-    void OnGameEnd();
+    void OnBoot(cave::SceneQuery& p_query);
 
     void SetFocusedSquare(core::Square p_sq) {
         m_focused = p_sq;

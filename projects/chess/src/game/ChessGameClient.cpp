@@ -22,14 +22,9 @@ void ChessGameClient::ResetBoard() {
     OnPositionChange();
 }
 
-void ChessGameClient::OnGameBegin(cave::IHostServices& p_host) {
-    m_presenter.OnGameBegin(p_host.SceneQuery());
+void ChessGameClient::OnBoot(cave::IHostServices& p_host) {
+    m_presenter.OnBoot(p_host.SceneQuery());
     ResetBoard();
-}
-
-void ChessGameClient::OnGameEnd(cave::IHostServices& p_host) {
-    unused(p_host);
-    m_presenter.OnGameEnd();
 }
 
 void ChessGameClient::Tick(cave::IHostServices& p_host) {

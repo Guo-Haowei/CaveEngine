@@ -127,11 +127,9 @@ void ChessGameModule::OnModuleUnloaded(IHostServices& p_host) {
 
 void ChessGameModule::OnGameBegin(IHostServices& p_host) {
     m_session = std::make_unique<ChessGameSession>();
-    m_session->OnGameBegin(p_host);
 }
 
 void ChessGameModule::OnGameEnd(IHostServices& p_host) {
-    m_session->OnGameEnd(p_host);
     m_session.reset();
 }
 

@@ -18,9 +18,7 @@ class ChessGameClient {
 public:
     ChessGameClient(ChessMatchAuthority& p_auth);
 
-    void OnGameBegin(cave::IHostServices& p_host);
-
-    void OnGameEnd(cave::IHostServices& p_host);
+    void OnBoot(cave::IHostServices& p_host);
 
     void Tick(cave::IHostServices& p_host);
 

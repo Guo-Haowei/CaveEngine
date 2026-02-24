@@ -45,9 +45,10 @@ bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
     m_pos = copy;
     m_events.push_back({ AuthorityEventType::MoveCommitted, p_player_id, p_move });
 
-    // @TODO: check legal moves
+    // @TODO: figure out if draw or not
     const MoveList moves = MoveGen::LegalMove(m_pos);
     if (moves.Empty()) {
+        m_game_over = true;
         m_events.push_back({ AuthorityEventType::GameOver, p_player_id, p_move });
     }
 

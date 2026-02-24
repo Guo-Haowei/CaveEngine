@@ -22,7 +22,7 @@ static Vector3f SquareToPosition(const core::Square& p_sq) {
     return Vector3f((float)rank, 0.0f, (float)file);
 }
 
-void ChessPresenter::OnGameBegin(cave::SceneQuery& p_query) {
+void ChessPresenter::OnBoot(cave::SceneQuery& p_query) {
     m_highlights = {};
 
     m_selector = p_query.FindFirstEntity("grid_selector");
@@ -56,9 +56,6 @@ void ChessPresenter::OnGameBegin(cave::SceneQuery& p_query) {
     add_piece(Piece::BR, "black_rook", 2);
     add_piece(Piece::BQ, "black_queen", 1);
     add_piece(Piece::BK, "black_king", 1);
-}
-
-void ChessPresenter::OnGameEnd() {
 }
 
 void ChessPresenter::Present(const PresentationContext& p_ctx) {
@@ -105,6 +102,8 @@ void ChessPresenter::RedrawPosition(cave::IHostServices& p_host, const core::Pos
         for (Square sq : bb.Squares()) {
             const auto [file, rank] = sq.FileRank();
             Vector3f translation(rank, 0, file);
+            // @TODO: properly handle not enough entities in pool caused by promotion
+            if (idx >= pool.size()) break;
             Entity e = pool[idx++];
             writer.SetProperty(e, TransformComponent_Id, kTranslationId, translation);
             writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, true);
