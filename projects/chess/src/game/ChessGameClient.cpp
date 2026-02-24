@@ -41,9 +41,13 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
         if (e.type == AuthorityEventType::GameOver) {
             type = "GameOver";
         }
-        printf("Auth event %s\n", type);
-        printf("move %s%s\n", mv.From().ToString(), mv.To().ToString());
-        printf("player id %d\n", e.player);
+
+        using namespace cave;
+        // @TODO: display text instead
+        ILogger& logger = p_host.Log();
+        logger.Print(LOG_LEVEL_NORMAL, std::format("Event received {}\n", type));
+        logger.Print(LOG_LEVEL_NORMAL, std::format("  move: {}{}\n", mv.From().ToString(), mv.To().ToString()));
+        logger.Print(LOG_LEVEL_NORMAL, std::format("  player id: {}", e.player));
 
         switch (e.type) {
             case AuthorityEventType::MoveCommitted: {
@@ -54,10 +58,10 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
                 m_presenter.RedrawPosition(p_host, m_replica);
             } break;
             case AuthorityEventType::MoveRejected: {
-                // @TODO: do something
+                logger.Print(LOG_LEVEL_NORMAL, "Invalid move!");
             } break;
             case AuthorityEventType::GameOver: {
-                // @TODO: do something
+                logger.Print(LOG_LEVEL_NORMAL, "Game over! Press 'space' to restart a game");
             } break;
             default: {
                 assert(0);
