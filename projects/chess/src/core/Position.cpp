@@ -239,27 +239,19 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
             MovePiece(m_board[rook], src_sq, rook_sq);
         } break;
         case MoveType::Enpassant: {
-        } break;
-        case MoveType::Promotion: {
             assert(src_piece_type == PieceType::Pawn);
             const Square enemy_sq = Square::FromFileRank(dst_file, src_rank);
             m_board[their_pawn].Unset(enemy_sq);
         } break;
+        case MoveType::Promotion: {
+            assert(src_piece_type == PieceType::Pawn);
+            const Piece promotion = BuildPiece(p_move.GetPromo().unwrap(), my_color);
+            m_board[src_piece].Unset(dst_sq);
+            m_board[promotion].Set(dst_sq);
+        } break;
         default: {
         } break;
     }
-#if 0
-    // special move handling
-    match move_type {
-        MoveType::Promotion => {
-            debug_assert!(src_piece_type == PieceType::PAWN);
-            let promotion = Piece::get_piece(mover_color, mv.get_promotion().unwrap());
-            pos.bitboards[src_piece_idx].unset(dst_sq.as_u8()); // Remove the pawn from the board
-            pos.bitboards[promotion.as_usize()].set(dst_sq.as_u8()); // Place the promoted piece on the board
-        }
-        _ => {}
-    }
-#endif
 
     // -------------- Update Board End --------------
     m_side_to_move = FlipColor(m_side_to_move);
@@ -313,6 +305,10 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
             m_board[their_pawn].Set(enemy_sq);
         } break;
         case MoveType::Promotion: {
+            const Piece promotion = BuildPiece(p_move.GetPromo().unwrap(), my_color);
+            const Piece my_pawn = BuildPiece(PieceType::Pawn, my_color);
+            m_board[my_pawn].Set(src_sq);
+            m_board[promotion].Unset(src_sq);
         } break;
         default:
             break;

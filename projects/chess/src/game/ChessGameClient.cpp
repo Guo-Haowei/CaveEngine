@@ -22,19 +22,19 @@ void ChessGameClient::ResetBoard() {
     OnPositionChange();
 }
 
-void ChessGameClient::OnGameBegin(cave::IHostServices& p_host) {
-    m_presenter.OnGameBegin(p_host.SceneQuery());
+void ChessGameClient::OnBoot(cave::IHostServices& p_host) {
+    m_presenter.OnBoot(p_host.SceneQuery());
     ResetBoard();
-}
 
-void ChessGameClient::OnGameEnd(cave::IHostServices& p_host) {
-    unused(p_host);
-    m_presenter.OnGameEnd();
+    m_presenter.RedrawPosition(p_host, m_replica);
 }
 
 void ChessGameClient::Tick(cave::IHostServices& p_host) {
     AuthorityEvent e;
     while (m_auth.Pop(e)) {
+        using namespace cave;
+
+        ILogger& logger = p_host.Log();
         switch (e.type) {
             case AuthorityEventType::MoveCommitted: {
                 core::UndoState undo;
@@ -42,6 +42,11 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
                 OnPositionChange();
                 // redraw board
                 m_presenter.RedrawPosition(p_host, m_replica);
+            } break;
+            case AuthorityEventType::MoveRejected: {
+                logger.Print(LOG_LEVEL_NORMAL, "Invalid move!");
+            } break;
+            case AuthorityEventType::GameOver: {
             } break;
             default: {
                 assert(0);

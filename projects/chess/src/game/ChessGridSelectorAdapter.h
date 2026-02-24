@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <span>
 #include "core/Move.h"
 #include "IPlayerAgent.h"
@@ -15,6 +16,8 @@ class ChessPresenter;
 class LocalHumanAgent;
 
 class ChessGridSelectorAdapter {
+    using GetPlayerFunc = std::function<LocalHumanAgent*(PlayerId)>;
+
 public:
     explicit ChessGridSelectorAdapter(
         ChessGameClient& p_game,
@@ -36,16 +39,18 @@ public:
         m_controller = p_controller;
     }
 
-    void SetPlayer(PlayerId p_player_id, LocalHumanAgent* p_player) {
-        m_players[p_player_id] = p_player;
+    void SetGetPlayerFunc(GetPlayerFunc&& p_func) {
+        m_get_player_func = std::move(p_func);
     }
 
 private:
     ChessGameClient& m_client;
+
     // @TODO: do not pass presenter here, instead query highlight
     ChessPresenter& m_presenter;
+
     cave::GridSelectController* m_controller;
-    LocalHumanAgent* m_players[2]{};
+    GetPlayerFunc m_get_player_func;
 };
 
 }  // namespace chess

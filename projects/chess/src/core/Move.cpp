@@ -33,6 +33,21 @@ Move::Move(Square p_from, Square p_to, MoveType p_type, PieceType p_promotion) n
     }
 }
 
+cave::Option<PieceType> Move::GetPromo() const {
+    if (GetType() != MoveType::Promotion) return cave::None();
+    switch (m_promo) {
+        case 0:
+            return cave::Some(PieceType::Knight);
+        case 1:
+            return cave::Some(PieceType::Bishop);
+        case 2:
+            return cave::Some(PieceType::Rook);
+        case 3:
+        default:
+            return cave::Some(PieceType::Queen);
+    }
+}
+
 std::string Move::Uci() const {
     return std::format("{}{}", From().ToString(), To().ToString());
 }

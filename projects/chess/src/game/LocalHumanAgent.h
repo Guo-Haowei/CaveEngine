@@ -8,10 +8,10 @@ class ChessMatchAuthority;
 
 class LocalHumanAgent final : public IPlayerAgent {
 public:
-    LocalHumanAgent(PlayerId p_player,
-                    ChessMatchAuthority& p_authority)
+    explicit LocalHumanAgent(PlayerId p_player,
+                             ChessMatchAuthority& p_authority) noexcept
         : m_player(p_player)
-        , m_authority(p_authority) {
+        , m_auth(p_authority) {
     }
 
     PlayerId GetPlayer() const override { return m_player; }
@@ -22,7 +22,7 @@ public:
 
 private:
     PlayerId m_player{};
-    ChessMatchAuthority& m_authority;
+    ChessMatchAuthority& m_auth;
 
     IntentInbox m_local_inbox;
 };

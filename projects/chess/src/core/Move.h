@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "cave/core/Option.h"
 #include "Piece.h"
 #include "Square.h"
 
@@ -36,6 +37,8 @@ public:
 
     MoveType GetType() const { return static_cast<MoveType>(m_flag); }
 
+    cave::Option<PieceType> GetPromo() const;
+
     std::string Uci() const;
 
     Square From() const { return Square((uint8_t)m_from); }
@@ -61,6 +64,10 @@ public:
         return Move(from, to, MoveType::Enpassant, PieceType::Null);
     }
 
+    static Move Promotion(Square from, Square to, PieceType type) {
+        return Move(from, to, MoveType::Promotion, type);
+    }
+
 private:
     uint16_t m_from : 6;
     uint16_t m_to : 6;
@@ -73,7 +80,7 @@ public:
     void Add(Move p_move);
     void Clear();
 
-    bool IsEmpty() const { return m_count == 0; }
+    bool Empty() const { return m_count == 0; }
     uint32_t Size() const { return m_count; }
 
     Move* begin() { return m_moves.data(); }
@@ -81,6 +88,9 @@ public:
 
     const Move* begin() const { return m_moves.data(); }
     const Move* end() const { return m_moves.data() + m_count; }
+
+    Move& operator[](size_t idx) { return m_moves[idx]; }
+    const Move& operator[](size_t idx) const { return m_moves[idx]; }
 
 private:
     std::array<Move, 256> m_moves{};
