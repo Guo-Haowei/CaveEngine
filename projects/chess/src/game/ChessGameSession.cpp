@@ -12,6 +12,7 @@
 
 namespace chess {
 
+using cave::StringId;
 using cave::math::Vector2i;
 using core::Square;
 
@@ -55,7 +56,7 @@ void ChessGameSession::Cleanup() {
     m_agents[1].reset();
 }
 
-void ChessGameSession::EnterBoot(cave::IHostServices& p_host) {
+void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
 
@@ -96,7 +97,7 @@ void ChessGameSession::EnterBoot(cave::IHostServices& p_host) {
 }
 
 void ChessGameSession::TickBoot(cave::IHostServices& p_host) {
-    EnterBoot(p_host);
+    OnEnterBoot(p_host);
 
     m_state = SessionState::Playing;
 }
@@ -117,22 +118,31 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
     }
 
     m_auth->Tick();
-    if (m_auth->GameOver()) {
-        m_state = SessionState::GameOver;
-        return;
-    }
 
     m_client->Tick(p_host);
+
+    if (m_auth->GameOver()) {
+        m_state = SessionState::GameOver;
+        OnEnterGameOver(p_host);
+    }
+}
+
+void ChessGameSession::OnEnterGameOver(cave::IHostServices& p_host) {
+    using namespace cave;
+    ILogger& logger = p_host.Log();
+
+    // @TODO: use button and text
+    logger.Print(LOG_LEVEL_OK, "Game Over! Press 'ui_accept' to start a new match\n");
+}
+
+void ChessGameSession::OnLeaveGameOver(cave::IHostServices& p_host) {
+    Cleanup();
 }
 
 void ChessGameSession::TickGameOver(cave::IHostServices& p_host) {
-    using namespace cave;
-
-    p_host.Log().Print(LOG_LEVEL_OK, "Game Over! Press 'ui_accept' to start a new match");
-
     if (p_host.Input().IsActionJustPressed(StringId("ui_accept"))) {
+        OnLeaveGameOver(p_host);
         m_state = SessionState::Boot;
-        Cleanup();
     }
 }
 

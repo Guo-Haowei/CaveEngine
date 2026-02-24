@@ -59,7 +59,6 @@ void ChessPresenter::OnBoot(cave::SceneQuery& p_query) {
 }
 
 void ChessPresenter::Present(const PresentationContext& p_ctx) {
-
     cave::SceneQuery& query = p_ctx.host.SceneQuery();
 
     auto& writer = p_ctx.host.SceneWriter();

@@ -52,7 +52,9 @@ private:
                                                PlayerKind p_kind);
 
     void Cleanup();
-    void EnterBoot(cave::IHostServices& p_host);
+    void OnEnterBoot(cave::IHostServices& p_host);
+    void OnEnterGameOver(cave::IHostServices& p_host);
+    void OnLeaveGameOver(cave::IHostServices& p_host);
 
     void TickBoot(cave::IHostServices& p_host);
     void TickPlaying(cave::IHostServices& p_host);

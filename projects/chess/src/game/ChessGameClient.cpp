@@ -25,6 +25,8 @@ void ChessGameClient::ResetBoard() {
 void ChessGameClient::OnBoot(cave::IHostServices& p_host) {
     m_presenter.OnBoot(p_host.SceneQuery());
     ResetBoard();
+
+    m_presenter.RedrawPosition(p_host, m_replica);
 }
 
 void ChessGameClient::Tick(cave::IHostServices& p_host) {
@@ -45,7 +47,6 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
                 logger.Print(LOG_LEVEL_NORMAL, "Invalid move!");
             } break;
             case AuthorityEventType::GameOver: {
-                logger.Print(LOG_LEVEL_NORMAL, "Game over! Press 'space' to restart a game");
             } break;
             default: {
                 assert(0);
