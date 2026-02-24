@@ -2,6 +2,7 @@
 
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
+#include "cave/runtime/framework/IInputService.h"
 
 #include "ChessAIAgent.h"
 #include "ChessGameClient.h"
@@ -16,10 +17,6 @@ using core::Square;
 
 ChessGameSession::ChessGameSession() noexcept = default;
 ChessGameSession::~ChessGameSession() = default;
-
-#if 0
-
-#endif
 
 void ChessGameSession::Tick(cave::IHostServices& p_host) {
     switch (m_state) {
@@ -36,7 +33,7 @@ void ChessGameSession::Tick(cave::IHostServices& p_host) {
 }
 
 std::unique_ptr<IPlayerAgent> ChessGameSession::CreatePlayer(PlayerId p_id,
-                                           PlayerKind p_kind) {
+                                                             PlayerKind p_kind) {
     switch (p_kind) {
         case PlayerKind::LocalHuman:
             return std::make_unique<LocalHumanAgent>(p_id, *m_auth);
@@ -49,6 +46,15 @@ std::unique_ptr<IPlayerAgent> ChessGameSession::CreatePlayer(PlayerId p_id,
     }
 }
 
+void ChessGameSession::Cleanup() {
+    m_auth.reset();
+    m_client.reset();
+    m_selector.reset();
+    m_grid_adapter.reset();
+    m_agents[0].reset();
+    m_agents[1].reset();
+}
+
 void ChessGameSession::EnterBoot(cave::IHostServices& p_host) {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
@@ -59,8 +65,8 @@ void ChessGameSession::EnterBoot(cave::IHostServices& p_host) {
     const PlayerKind white = config.white.kind;
     const PlayerKind black = config.black.kind;
 
-    m_white_player = CreatePlayer(0, white);
-    m_black_player = CreatePlayer(1, black);
+    m_agents[0] = CreatePlayer(0, white);
+    m_agents[1] = CreatePlayer(1, black);
 
     const bool any_human = white == PlayerKind::LocalHuman || black == PlayerKind::LocalHuman;
     if (any_human) {
@@ -82,7 +88,7 @@ void ChessGameSession::EnterBoot(cave::IHostServices& p_host) {
         m_grid_adapter->SetController(m_selector.get());
 
         m_grid_adapter->SetGetPlayerFunc([this](PlayerId p_id) -> LocalHumanAgent* {
-            return dynamic_cast<LocalHumanAgent*>(p_id == 0 ? m_white_player.get() : m_black_player.get());
+            return dynamic_cast<LocalHumanAgent*>(m_agents[p_id].get());
         });
     }
 
@@ -100,8 +106,9 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
         m_grid_adapter->Tick(p_host.Input());
     }
 
-    m_white_player->Tick();
-    m_black_player->Tick();
+    for (std::unique_ptr<IPlayerAgent>& agent : m_agents) {
+        agent->Tick();
+    }
 
     if (m_selector) {
         Vector2i focused = m_selector->GetFocused();
@@ -121,7 +128,12 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
 void ChessGameSession::TickGameOver(cave::IHostServices& p_host) {
     using namespace cave;
 
-    p_host.Log().Print(LOG_LEVEL_OK, "GameOver!");
+    p_host.Log().Print(LOG_LEVEL_OK, "Game Over! Press 'ui_accept' to start a new match");
+
+    if (p_host.Input().IsActionJustPressed(StringId("ui_accept"))) {
+        m_state = SessionState::Boot;
+        Cleanup();
+    }
 }
 
 }  // namespace chess

@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <memory>
 #include "IPlayerAgent.h"
 
@@ -50,6 +51,7 @@ private:
     std::unique_ptr<IPlayerAgent> CreatePlayer(PlayerId p_id,
                                                PlayerKind p_kind);
 
+    void Cleanup();
     void EnterBoot(cave::IHostServices& p_host);
 
     void TickBoot(cave::IHostServices& p_host);
@@ -64,8 +66,7 @@ private:
     std::unique_ptr<cave::GridSelectController> m_selector;
     std::unique_ptr<ChessGridSelectorAdapter> m_grid_adapter;
 
-    std::unique_ptr<IPlayerAgent> m_white_player;
-    std::unique_ptr<IPlayerAgent> m_black_player;
+    std::array<std::unique_ptr<IPlayerAgent>, 2> m_agents;
 };
 
 }  // namespace chess

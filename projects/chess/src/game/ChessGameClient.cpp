@@ -30,20 +30,9 @@ void ChessGameClient::OnBoot(cave::IHostServices& p_host) {
 void ChessGameClient::Tick(cave::IHostServices& p_host) {
     AuthorityEvent e;
     while (m_auth.Pop(e)) {
-        const Move mv = e.move;
-
-        const char* type = "Committed";
-        if (e.type == AuthorityEventType::GameOver) {
-            type = "GameOver";
-        }
-
         using namespace cave;
-        // @TODO: display text instead
-        ILogger& logger = p_host.Log();
-        logger.Print(LOG_LEVEL_NORMAL, std::format("Event received {}\n", type));
-        logger.Print(LOG_LEVEL_NORMAL, std::format("  move: {}{}\n", mv.From().ToString(), mv.To().ToString()));
-        logger.Print(LOG_LEVEL_NORMAL, std::format("  player id: {}", e.player));
 
+        ILogger& logger = p_host.Log();
         switch (e.type) {
             case AuthorityEventType::MoveCommitted: {
                 core::UndoState undo;
