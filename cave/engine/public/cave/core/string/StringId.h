@@ -6,7 +6,7 @@
 #include "cave/core/hash/Hash.h"
 #include "cave/core/containers/FixedString.h"
 
-#define STRING_ID_KEEKP_SOURCE IN_USE
+#define STRING_ID_KEEP_SOURCE IN_USE
 
 namespace cave {
 
@@ -16,7 +16,7 @@ public:
 
     explicit constexpr StringId(std::string_view p_str)
         : m_hash(Hash::Hash64(p_str)) {
-#if USING(STRING_ID_KEEKP_SOURCE)
+#if USING(STRING_ID_KEEP_SOURCE)
         m_debug.assign(p_str);
 #endif
     }
@@ -25,7 +25,7 @@ public:
         return m_hash <=> p_other.m_hash;
     }
 
-#if USING(STRING_ID_KEEKP_SOURCE)
+#if USING(STRING_ID_KEEP_SOURCE)
     std::string_view DebugName() const { return m_debug.view(); }
 
     bool operator==(const StringId& p_other) const;
@@ -41,7 +41,7 @@ public:
 
 private:
     uint64_t m_hash{ 0 };
-#if USING(STRING_ID_KEEKP_SOURCE)
+#if USING(STRING_ID_KEEP_SOURCE)
     FixedString<32> m_debug;
 #endif
 };

@@ -2,43 +2,128 @@
 
 namespace cave::string_utils {
 
-#if USING(STRING_ID_KEEKP_SOURCE)
-#define CONSTEXPR
-#else
-#define CONSTEXPR constexpr
+TEST(StringId, default_constructed_id_has_zero_hash) {
+    StringId id;
+
+    EXPECT_EQ(id.GetHash(), 0u);
+}
+
+#if !USING(STRING_ID_KEEP_SOURCE)
+TEST(StringId, can_be_constructed_at_compile_time) {
+    constexpr StringId id1("abcd");
+    constexpr StringId id2("abcd");
+    constexpr StringId id3("efgh");
+
+    static_assert(id1.GetHash() != 0);
+    static_assert(id1 == id2);
+    static_assert(id1 != id3);
+}
 #endif
 
-TEST(StringId, comparison) {
-    CONSTEXPR StringId id1("ui_left");
-    CONSTEXPR StringId id2("ui_left");
-    CONSTEXPR StringId id3("ui_right");
+TEST(StringId, same_string_is_equal) {
+    struct Case {
+        std::string_view value;
+    };
 
-    EXPECT_EQ(id1, id2);
-    EXPECT_NE(id1, id3);
+    const Case cases[] = {
+        { "ui_left" },
+        { "super_long_id_1@#$%" },
+    };
+
+    for (const Case& c : cases) {
+        SCOPED_TRACE(c.value);
+
+        StringId id1(c.value);
+        StringId id2(c.value);
+
+        EXPECT_EQ(id1, id2);
+    }
 }
 
-TEST(StringId, use_with_unordered_map) {
-    std::unordered_map<StringId, int> map;
-    map[StringId("ui_up")] = 1;
-    map[StringId("ui_down")] = 2;
-    EXPECT_EQ(map.size(), 2);
-    map[StringId("ui_down")] = 3;
-    EXPECT_EQ(map.size(), 2);
-    map[StringId("ui_right")] = 4;
-    EXPECT_EQ(map.size(), 3);
-    EXPECT_EQ(map[StringId("ui_down")], 3);
+TEST(StringId, different_strings_are_not_equal) {
+    struct Case {
+        std::string_view a;
+        std::string_view b;
+    };
+
+    const Case cases[] = {
+        { "ui_left", "ui_right" },
+        { "super_long_id", "super_long_id_1@#$%" },
+    };
+
+    for (const Case& c : cases) {
+        SCOPED_TRACE(c.a);
+
+        StringId id1(c.a);
+        StringId id2(c.b);
+
+        EXPECT_NE(id1, id2);
+    }
 }
 
-TEST(StringId, use_with_map) {
-    std::map<StringId, int> map;
-    map[StringId("ui_up")] = 1;
-    map[StringId("ui_down")] = 2;
-    EXPECT_EQ(map.size(), 2);
-    map[StringId("ui_down")] = 3;
-    EXPECT_EQ(map.size(), 2);
-    map[StringId("ui_right")] = 4;
-    EXPECT_EQ(map.size(), 3);
-    EXPECT_EQ(map[StringId("ui_down")], 3);
+TEST(StringId, same_string_has_same_hash) {
+    struct Case {
+        std::string_view value;
+    };
+
+    const Case cases[] = {
+        { "jump_released" },
+        { "1231&*)@#$%" },
+    };
+
+    for (const Case& c : cases) {
+        SCOPED_TRACE(c.value);
+
+        StringId id1(c.value);
+        StringId id2(c.value);
+
+        EXPECT_EQ(id1.GetHash(), id2.GetHash());
+    }
 }
+
+TEST(StringId, different_strings_usually_have_different_hashes) {
+    struct Case {
+        std::string_view a;
+        std::string_view b;
+    };
+
+    const Case cases[] = {
+        { "jump_released", "jump_pressed" },
+        { "random string", "1231&*)@#$%" },
+    };
+
+    for (const Case& c : cases) {
+        SCOPED_TRACE(c.a);
+
+        StringId id1(c.a);
+        StringId id2(c.b);
+
+        EXPECT_NE(id1.GetHash(), id2.GetHash());
+    }
+
+}
+
+TEST(StringId, std_hash_returns_string_id_hash) {
+    StringId id("ui_left");
+
+    EXPECT_EQ(std::hash<StringId>{}(id), id.GetHash());
+}
+
+#if USING(STRING_ID_KEEP_SOURCE)
+TEST(StringId, debug_name_preserves_source_string) {
+    StringId id("ui_left");
+
+    EXPECT_EQ(id.DebugName(), "ui_left");
+}
+
+TEST(StringId, debug_name_trims_long_source_string) {
+    StringId id1("this_is_a_very_long_string_id_name_that_exceeds_32_chars");
+    StringId id2("this_is_a_very_long_string_id_n");
+
+    EXPECT_FALSE(id1.DebugName().empty());
+    EXPECT_NE(id1.GetHash(), id2.GetHash());
+    EXPECT_EQ(id1.DebugName(), id2.DebugName());
+}
+#endif
 
 }  // namespace cave::string_utils
