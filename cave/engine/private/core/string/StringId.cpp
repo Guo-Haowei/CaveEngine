@@ -2,7 +2,7 @@
 
 namespace cave {
 
-#if USING(STRING_ID_KEEKP_SOURCE)
+#if USING(STRING_ID_KEEP_SOURCE)
 bool StringId::operator==(const StringId& p_other) const {
     if (p_other.m_hash != m_hash) {
         return false;
