@@ -21,6 +21,8 @@ public:
     void OnExit(IHostServices& p_host) final;
     void Tick(IHostServices& p_host, const FrameTime& p_time) final;
 
+    void SetPendingState(std::unique_ptr<IChessGameState>&& p_pending);
+
 private:
     void CommitStateChange(cave::IHostServices& p_host);
 

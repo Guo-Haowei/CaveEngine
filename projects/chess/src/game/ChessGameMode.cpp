@@ -6,6 +6,7 @@
 #include "cave/core/ErrorMacros.h"
 #include "cave/core/typedefs.h"
 #include "cave/game/IHostServices.h"
+#include "cave/runtime/framework/IInputService.h"
 
 #include "ChessGameSession.h"
 
@@ -15,6 +16,9 @@ using namespace cave;
 
 class IChessGameState {
 public:
+    IChessGameState(ChessGameMode& p_game)
+        : m_game(p_game) {}
+
     virtual ~IChessGameState() = default;
 
     virtual void OnEnter(cave::IHostServices& p_host) {}
@@ -23,19 +27,42 @@ public:
     virtual void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) = 0;
 
     virtual const char* DebugName() = 0;
+
+protected:
+    ChessGameMode& m_game;
 };
 
-// =============================================================================
-// MainMenuState
-// =============================================================================
 class MainMenuState final : public IChessGameState {
 public:
+    using IChessGameState::IChessGameState;
+
+    void OnEnter(cave::IHostServices& p_host) final;
+
     void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) final;
 
     const char* DebugName() final {
         return "MainMenu";
     }
 };
+
+class GameplayState final : public IChessGameState {
+public:
+    using IChessGameState::IChessGameState;
+
+    void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) final;
+
+    const char* DebugName() final {
+        return "GamePlay";
+    }
+};
+
+// =============================================================================
+// MainMenuState
+// =============================================================================
+
+void MainMenuState::OnEnter(cave::IHostServices& p_host) {
+    p_host.Log().Print(LogLevel::LOG_LEVEL_NORMAL, "Press 'Enter' to play!");
+}
 
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
     unused(p_host);
@@ -44,19 +71,15 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
     // @TODO: show menu buttons
     // @TODO: transit to gameplay once play button is clicked
     // @TODO: configure player (AI vs human)
+    if (p_host.Input().IsActionJustPressed(StringId("ui_accept"))) {
+        auto gameplay = std::make_unique<GameplayState>(m_game);
+        m_game.SetPendingState(std::move(gameplay));
+    }
 }
 
 // =============================================================================
 // GameplayState
 // =============================================================================
-class GameplayState final : public IChessGameState {
-public:
-    void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) final;
-
-    const char* DebugName() final {
-        return "GamePlay";
-    }
-};
 
 void GameplayState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
     // @TODO: move session here
@@ -75,7 +98,7 @@ void ChessGameMode::OnEnter(IHostServices& p_host) {
     // @TODO: move session to PlayState
     m_session = std::make_unique<ChessGameSession>();
 
-    m_pending_state = std::make_unique<MainMenuState>();
+    m_pending_state = std::make_unique<MainMenuState>(*this);
 }
 
 void ChessGameMode::OnExit(IHostServices& p_host) {
@@ -92,6 +115,10 @@ void ChessGameMode::Tick(IHostServices& p_host, const FrameTime& p_time) {
     }
 
     m_current_state->Tick(p_host, p_time);
+}
+
+void ChessGameMode::SetPendingState(std::unique_ptr<IChessGameState>&& p_pending) {
+    m_pending_state = std::move(p_pending);
 }
 
 void ChessGameMode::CommitStateChange(cave::IHostServices& p_host) {
