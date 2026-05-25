@@ -9,7 +9,6 @@ namespace chess {
 using cave::FrameTime;
 using cave::IHostServices;
 
-class ChessGameSession;
 class IChessGameState;
 
 class ChessGameMode final : public cave::IGameMode {
@@ -28,8 +27,6 @@ private:
 
     std::unique_ptr<IChessGameState> m_current_state;
     std::unique_ptr<IChessGameState> m_pending_state;
-
-    std::unique_ptr<ChessGameSession> m_session;
 };
 
 }  // namespace chess

@@ -49,19 +49,23 @@ class GameplayState final : public IChessGameState {
 public:
     using IChessGameState::IChessGameState;
 
+    void OnEnter(cave::IHostServices& p_host) final;
+
     void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) final;
 
     const char* DebugName() final {
         return "GamePlay";
     }
+
+private:
+    std::unique_ptr<ChessGameSession> m_session;
 };
 
 // =============================================================================
 // MainMenuState
 // =============================================================================
-
 void MainMenuState::OnEnter(cave::IHostServices& p_host) {
-    p_host.Log().Print(LogLevel::LOG_LEVEL_NORMAL, "Press 'Enter' to play!");
+    p_host.Log().Print(LogLevel::LOG_LEVEL_NORMAL, "Press 'Enter' to play.\n");
 }
 
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
@@ -80,11 +84,14 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
 // =============================================================================
 // GameplayState
 // =============================================================================
+void GameplayState::OnEnter(cave::IHostServices& p_host) {
+    m_session = std::make_unique<ChessGameSession>();
+}
 
 void GameplayState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
-    // @TODO: move session here
-    unused(p_host);
     unused(p_time);
+
+    m_session->Tick(p_host);
 }
 
 // =============================================================================
@@ -95,21 +102,14 @@ ChessGameMode::ChessGameMode() = default;
 ChessGameMode::~ChessGameMode() = default;
 
 void ChessGameMode::OnEnter(IHostServices& p_host) {
-    // @TODO: move session to PlayState
-    m_session = std::make_unique<ChessGameSession>();
-
     m_pending_state = std::make_unique<MainMenuState>(*this);
 }
 
 void ChessGameMode::OnExit(IHostServices& p_host) {
     unused(p_host);
-
-    m_session.reset();
 }
 
 void ChessGameMode::Tick(IHostServices& p_host, const FrameTime& p_time) {
-    m_session->Tick(p_host);
-
     if (m_pending_state) {
         CommitStateChange(p_host);
     }
@@ -125,7 +125,7 @@ void ChessGameMode::CommitStateChange(cave::IHostServices& p_host) {
     DEV_ASSERT(m_pending_state != nullptr);
     const char* current_name = m_current_state ? m_current_state->DebugName() : "(null)";
     const char* pending_name = m_pending_state->DebugName();
-    p_host.Log().Print(LogLevel::LOG_LEVEL_NORMAL, std::format("ChessGameMode::CommitStateChange: {} -> {}", current_name, pending_name));
+    p_host.Log().Print(LogLevel::LOG_LEVEL_NORMAL, std::format("ChessGameMode::CommitStateChange: {} -> {}\n", current_name, pending_name));
 
     if (m_current_state) {
         m_current_state->OnExit(p_host);
