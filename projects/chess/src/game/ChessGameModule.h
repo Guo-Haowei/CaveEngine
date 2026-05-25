@@ -6,7 +6,7 @@
 
 namespace chess {
 
-class ChessGameSession;
+class ChessGameMode;
 
 class ChessGameModule final : public cave::IGameModule {
 public:
@@ -16,6 +16,8 @@ public:
     void OnModuleLoaded(cave::IHostServices& p_host) override;
     void OnModuleUnloaded(cave::IHostServices& p_host) override;
 
+    // @TODO: move these to ChessGameMode,
+    // ChessGameModule should only be responsible for DLL loading
     void OnGameBegin(cave::IHostServices& p_host) override;
     void OnGameEnd(cave::IHostServices& p_host) override;
 
@@ -24,7 +26,7 @@ public:
 private:
     void SpawnObjects(cave::IHostServices& p_host);
 
-    std::unique_ptr<ChessGameSession> m_session;
+    std::unique_ptr<ChessGameMode> m_game;
 };
 
 }  // namespace chess

@@ -8,7 +8,7 @@
 
 #include "core/Bitboard.h"
 #include "core/Piece.h"
-#include "ChessGameSession.h"
+#include "ChessGameMode.h"
 
 namespace chess {
 
@@ -99,7 +99,7 @@ struct ChessSpawner {
     }
 };
 
-// @TODO: use Position instead
+// @TODO: use FEN instead
 static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
     { Piece::WR, Piece::WN, Piece::WB, Piece::WQ, Piece::WK, Piece::WB, Piece::WN, Piece::WR },
     { Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP },
@@ -126,19 +126,22 @@ void ChessGameModule::OnModuleUnloaded(IHostServices& p_host) {
 }
 
 void ChessGameModule::OnGameBegin(IHostServices& p_host) {
-    m_session = std::make_unique<ChessGameSession>();
+    m_game = std::make_unique<ChessGameMode>();
+    m_game->OnEnter(p_host);
 }
 
 void ChessGameModule::OnGameEnd(IHostServices& p_host) {
-    m_session.reset();
+    m_game->OnExit(p_host);
+    m_game.reset();
 }
 
 void ChessGameModule::Tick(IHostServices& p_host, const FrameTime& p_time) {
-    unused(p_time);
-
-    m_session->Tick(p_host);
+    m_game->Tick(p_host, p_time);
 }
 
+// @TODO: extract it,
+// because other than starting pos,
+// it can be used for any pos, for example, for puzzle mode
 void ChessGameModule::SpawnObjects(IHostServices& p_host) {
     using chess::Piece;
     using ecs::Entity;
