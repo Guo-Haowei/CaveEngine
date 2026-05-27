@@ -1,13 +1,13 @@
 #pragma once
-#include "cave/runtime/framework/IUIService.h"
+#include "cave/runtime/framework/IUIRuntime.h"
 #include "cave/ui/UIDrawCommand.h"
 
 namespace cave {
 
-class UIRuntime final : public IUIService {
+class UIRuntime final : public IUIRuntime {
 public:
     UIRuntime()
-        : IUIService("UIRuntime") {}
+        : IUIRuntime("UIRuntime") {}
 
     void BeginFrame(const UIInput& p_input) override;
     void EndFrame() override;

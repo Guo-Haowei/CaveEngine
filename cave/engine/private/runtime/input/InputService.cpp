@@ -128,14 +128,10 @@ UIInput InputService::BuildUIInput() {
     const InputDeviceId device_id{ 0 };
     const int player_id = 0;
 
-    // Pointer
-    for (const auto& [_device_id, pointer] : m_pointers) {
-        if (!pointer.has_pos) {
-            continue;
-        }
-
+    const auto it = m_pointers.find(device_id.value);
+    if (it != m_pointers.end()) {
+        const PointerState pointer = it->second;
         input.mouse_pos = math::Vector2f(pointer.x, pointer.y);
-        break;
     }
 
     // Mouse buttons
@@ -193,8 +189,8 @@ void InputService::Tick(const FrameTime& p_time) {
     m_router.Dispatch(input_frame);
 
     // *) Rebuild key state after raw consumption (critical for chords/drag gating)
-    m_key_state.BeginFrame();
-    m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+    // m_key_state.BeginFrame();
+    // m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
 
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
     DeviceRouting routing;

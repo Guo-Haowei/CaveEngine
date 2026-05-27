@@ -7,6 +7,7 @@
 #include "cave/core/typedefs.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/framework/IUIRuntime.h"
 
 #include "ChessGameSession.h"
 
@@ -71,7 +72,10 @@ void MainMenuState::OnEnter(cave::IHostServices& p_host) {
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
     unused(p_time);
 
-    cave::IUIService& ui_runtime = p_host.UI();
+    cave::IUIRuntime& ui_runtime = p_host.UI();
+    if (ui_runtime.Button(1, { 100, 100, 800, 600 })) {
+        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button clicked");
+    }
 
     // @TODO: show menu buttons
     // @TODO: transit to gameplay once play button is clicked

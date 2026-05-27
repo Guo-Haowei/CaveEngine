@@ -27,7 +27,7 @@ class IAssetManager;
 class DisplayService;
 class ImguiManager;
 class IInputService;
-class IUIService;
+class IUIRuntime;
 class IPhysicsManager;
 class IScriptService;
 class SceneRegistry;
@@ -98,7 +98,7 @@ public:
     // @TODO: return reference instead
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
-    IUIService* UIService() { return m_ui_service; }
+    IUIRuntime* UIService() { return m_ui_service; }
     SceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptService* ScriptService() { return m_script_service; }
@@ -142,7 +142,7 @@ protected:
     render::IRenderDevice* m_render_device{ nullptr };
 
     ImguiManager* m_imgui_manager{ nullptr };
-    IUIService* m_ui_service{ nullptr };
+    IUIRuntime* m_ui_service{ nullptr };
     TaskManager* m_task_manager{ nullptr };
 
     ViewManager* m_view_manager{ nullptr };

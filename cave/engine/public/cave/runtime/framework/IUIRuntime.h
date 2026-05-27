@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/framework/IUIService.h
+// File: engine/public/cave/runtime/framework/IUIRuntime.h
 // =============================================================================
 #pragma once
 #include "cave/runtime/framework/IService.h"
@@ -8,7 +8,7 @@
 
 namespace cave {
 
-class IUIService : public IService {
+class IUIRuntime : public IService {
 public:
     using IService::IService;
 

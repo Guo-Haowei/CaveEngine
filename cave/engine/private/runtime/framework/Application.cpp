@@ -169,6 +169,7 @@ void Application::Finalize() {
         IService* module = m_modules[index];
         module->Finalize();
         LOG_VERBOSE("module '{}' finalized", module->GetName());
+        // @TODO: use smart pointer
         delete module;
     }
 }

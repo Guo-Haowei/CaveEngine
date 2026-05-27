@@ -27,7 +27,7 @@ IInputService& PIEHostServices::Input() {
     return m_app.InputService();
 }
 
-IUIService& PIEHostServices::UI() {
+IUIRuntime& PIEHostServices::UI() {
     return *m_app.UIService();
 }
 
