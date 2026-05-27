@@ -12,6 +12,7 @@ namespace cave {
 
 class AssetRegistry;
 class IInputService;
+class IUIService;
 class SceneCommandWriter;
 class SceneQuery;
 
@@ -22,6 +23,7 @@ public:
     virtual AssetRegistry& AssetRegistry() = 0;
     virtual ecs::ComponentRegistry& ComponentRegistry() = 0;
     virtual IInputService& Input() = 0;
+    virtual IUIService& UI() = 0;
     virtual ILogger& Log() = 0;
     virtual SceneQuery& SceneQuery() = 0;
     virtual SceneCommandWriter& SceneWriter() = 0;

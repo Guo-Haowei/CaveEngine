@@ -11,7 +11,7 @@ InputService::InputService()
     , m_mapper(m_input_action_map) {}
 
 auto InputService::InitializeImpl() -> Result<void> {
-    // @TODO: config from asset
+    // @TODO: read it from config file
     InputActionMap& map = ActionMap();
 
     map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
@@ -122,6 +122,39 @@ void InputService::UpdateActions(const DeviceRouting& p_routing) {
     }
 }
 
+UIInput InputService::BuildUIInput() {
+    UIInput input{};
+
+    const InputDeviceId device_id{ 0 };
+    const int player_id = 0;
+
+    // Pointer
+    for (const auto& [_device_id, pointer] : m_pointers) {
+        if (!pointer.has_pos) {
+            continue;
+        }
+
+        input.mouse_pos = math::Vector2f(pointer.x, pointer.y);
+        break;
+    }
+
+    // Mouse buttons
+    input.mouse_down = m_key_state.Down(device_id, Key::LMB);
+    input.mouse_pressed = m_key_state.PressedThisFrame(device_id, Key::LMB);
+    input.mouse_released = m_key_state.ReleasedThisFrame(device_id, Key::LMB);
+
+    // Mapped UI actions
+    input.submit_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_accept"));
+    input.cancel_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_back"));
+
+    input.left_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_left"));
+    input.right_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_right"));
+    input.up_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_up"));
+    input.down_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_down"));
+
+    return input;
+}
+
 void InputService::Tick(const FrameTime& p_time) {
     m_input_events.clear();
     m_action_events.clear();
@@ -166,6 +199,13 @@ void InputService::Tick(const FrameTime& p_time) {
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
     DeviceRouting routing;
     UpdateActions(routing);
+
+    // *) Build UI Input
+    m_ui_input = BuildUIInput();
+
+    if (m_ui_input.mouse_down) {
+        LOG("mouse down");
+    }
 }
 
 }  // namespace cave

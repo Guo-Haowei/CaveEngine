@@ -3,7 +3,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/math/Color.h"
+#include "cave/core/Color.h"
 #include "engine/private/core/diagnostics/console/Console.h"
 #include "cave/core/string/StringUtils.h"
 
@@ -43,7 +43,7 @@ static void DrawLog(const LogEvent& p_log) {
             break;
     }
 
-    Color color = Color::Hex(p_log.level == LOG_LEVEL_VERBOSE ? ColorCode::COLOR_SILVER : ColorCode::COLOR_WHITE);
+    Color color = Color::Hex(p_log.level == LOG_LEVEL_VERBOSE ? ColorCode::Silver : ColorCode::White);
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, 1.0f));
     ImGui::SameLine();

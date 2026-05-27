@@ -8,7 +8,7 @@
 #include "engine/private/render/renderer/ResolvedView.h"
 #include "engine/private/render/renderer/RenderPackets.h"
 
-#include "engine/private/core/math/color.h"
+#include "cave/core/Color.h"
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/debug_draw.h"
 #include "engine/private/renderer/gpu_resource.h"

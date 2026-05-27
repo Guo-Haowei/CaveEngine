@@ -1,6 +1,7 @@
 #pragma once
 #include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/input/KeyState.h"
+#include "cave/ui/UIInput.h"
 
 #include "engine/private/runtime/input/ActionState.h"
 #include "engine/private/runtime/input/AxisState.h"
@@ -65,9 +66,12 @@ public:
         return m_action_state.GetVector(p_player, p_neg_x, p_pos_x, p_neg_y, p_pos_y);
     }
 
+    const UIInput& GetUIInput() const { return m_ui_input; }
+
 private:
     void UpdatePointers(std::vector<InputEvent>& p_events);
     void UpdateActions(const DeviceRouting& p_routing);
+    UIInput BuildUIInput();
 
     std::vector<std::unique_ptr<IInputDevice>> m_devices{};
 
@@ -84,6 +88,7 @@ private:
 
     InputActionMap m_input_action_map;
     InputMapper m_mapper;
+    UIInput m_ui_input;
 };
 
 };  // namespace cave

@@ -27,6 +27,10 @@ IInputService& PIEHostServices::Input() {
     return *m_app.InputService();
 }
 
+IUIService& PIEHostServices::UI() {
+    return *m_app.UIService();
+}
+
 ILogger& PIEHostServices::Log() {
     return CompositeLogger::GetSingleton();
 }

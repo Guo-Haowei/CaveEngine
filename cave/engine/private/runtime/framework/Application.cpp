@@ -27,6 +27,7 @@
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
+#include "engine/private/ui/UIRuntime.h"
 
 // @TODO: remove
 #include "engine/private/renderer/graphics_dvars.h"
@@ -73,6 +74,7 @@ auto Application::SetupModules() -> Result<void> {
     m_render_device = CreateRenderDevice(m_spec.backend);
     m_display_server = CreateDisplayService();
     m_input_service = new cave::InputService();
+    m_ui_service = new UIRuntime();
     m_renderer = new render::Renderer();
     m_view_manager = new ViewManager();
     m_task_manager = new TaskManager();
@@ -99,6 +101,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_render_device);
     RegisterModule(m_renderer);
     RegisterModule(m_view_manager);
+    RegisterModule(m_ui_service);
 
     if (m_spec.enableImgui) {
         auto res = CreateImguiManager();

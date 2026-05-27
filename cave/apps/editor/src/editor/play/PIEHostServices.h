@@ -16,6 +16,7 @@ public:
     cave::AssetRegistry& AssetRegistry() override;
     cave::ecs::ComponentRegistry& ComponentRegistry() override;
     IInputService& Input() override;
+    IUIService& UI() override;
     ILogger& Log() override;
     cave::SceneQuery& SceneQuery() override { return m_query; }
     SceneCommandWriter& SceneWriter() override { return m_writer; }
