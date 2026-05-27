@@ -24,7 +24,7 @@ ecs::ComponentRegistry& PIEHostServices::ComponentRegistry() {
 }
 
 IInputService& PIEHostServices::Input() {
-    return *m_app.InputService();
+    return m_app.InputService();
 }
 
 IUIService& PIEHostServices::UI() {

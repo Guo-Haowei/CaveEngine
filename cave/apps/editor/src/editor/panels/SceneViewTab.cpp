@@ -203,7 +203,7 @@ void SceneViewTab::OnInputEvents(const InputFrame& p_input) {
         return;
     }
 
-    const KeyState& st = m_editor.GetApp().InputService()->GetKeyState();
+    const KeyState& st = m_editor.GetApp().InputService().GetKeyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
         return;
     }

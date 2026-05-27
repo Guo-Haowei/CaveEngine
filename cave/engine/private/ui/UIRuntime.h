@@ -1,6 +1,5 @@
 #pragma once
 #include "cave/runtime/framework/IUIService.h"
-#include "cave/ui/UIInput.h"
 #include "cave/ui/UIDrawCommand.h"
 
 namespace cave {
@@ -10,8 +9,8 @@ public:
     UIRuntime()
         : IUIService("UIRuntime") {}
 
-    void BeginFrame(const UIInput& p_input);
-    void EndFrame();
+    void BeginFrame(const UIInput& p_input) override;
+    void EndFrame() override;
 
     bool Button(UIId p_id, UIRect p_rect) override;
 

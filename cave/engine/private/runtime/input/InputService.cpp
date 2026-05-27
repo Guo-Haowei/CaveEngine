@@ -202,10 +202,6 @@ void InputService::Tick(const FrameTime& p_time) {
 
     // *) Build UI Input
     m_ui_input = BuildUIInput();
-
-    if (m_ui_input.mouse_down) {
-        LOG("mouse down");
-    }
 }
 
 }  // namespace cave

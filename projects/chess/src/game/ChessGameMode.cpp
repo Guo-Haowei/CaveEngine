@@ -69,8 +69,9 @@ void MainMenuState::OnEnter(cave::IHostServices& p_host) {
 }
 
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
-    unused(p_host);
     unused(p_time);
+
+    cave::IUIService& ui_runtime = p_host.UI();
 
     // @TODO: show menu buttons
     // @TODO: transit to gameplay once play button is clicked

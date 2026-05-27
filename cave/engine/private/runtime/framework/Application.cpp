@@ -24,7 +24,6 @@
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/ViewManager.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/ui/UIRuntime.h"
@@ -201,6 +200,8 @@ bool Application::MainLoop() {
 
     m_input_service->Tick(time);
 
+    m_ui_service->BeginFrame(m_input_service->GetUIInput());
+
     m_asset_manager->Update();
 
     // layer should set active scene
@@ -211,6 +212,8 @@ bool Application::MainLoop() {
 
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->Tick(time);
+
+    m_ui_service->EndFrame();
 
     std::span<const ResolvedView> views = m_view_manager->EndFrame();
     m_renderer->Tick(time, views);

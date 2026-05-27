@@ -19,11 +19,11 @@ namespace cave {
 Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    m_editor.GetApp().InputService()->Register(this);
+    m_editor.GetApp().InputService().Register(this);
 }
 
 Workspace::~Workspace() {
-    m_editor.GetApp().InputService()->Unregister(this);
+    m_editor.GetApp().InputService().Unregister(this);
 }
 
 void Workspace::Tick() {

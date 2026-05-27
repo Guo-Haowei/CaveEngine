@@ -90,6 +90,7 @@ public:
     virtual VFS& GetVFS() = 0;
     virtual EventQueue& GetEventQueue() = 0;
     virtual SceneScheduler& GetSceneScheduler() = 0;
+    virtual IInputService& InputService() = 0;
 
     // services
     SceneQueryService& SceneQueryService() { return *m_scene_query_service; }
@@ -97,7 +98,6 @@ public:
     // @TODO: return reference instead
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
-    IInputService* InputService() { return m_input_service; }
     IUIService* UIService() { return m_ui_service; }
     SceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
@@ -142,7 +142,6 @@ protected:
     render::IRenderDevice* m_render_device{ nullptr };
 
     ImguiManager* m_imgui_manager{ nullptr };
-    IInputService* m_input_service{ nullptr };
     IUIService* m_ui_service{ nullptr };
     TaskManager* m_task_manager{ nullptr };
 

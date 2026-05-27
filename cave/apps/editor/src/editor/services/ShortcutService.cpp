@@ -19,12 +19,12 @@ ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
 
-    m_editor.GetApp().InputService()->Register(this);
+    m_editor.GetApp().InputService().Register(this);
     InitShortcuts();
 }
 
 ShortcutService::~ShortcutService() {
-    m_editor.GetApp().InputService()->Unregister(this);
+    m_editor.GetApp().InputService().Unregister(this);
 }
 
 void ShortcutService::InitShortcuts() {
@@ -132,10 +132,10 @@ void ShortcutService::InitShortcuts() {
 }
 
 void ShortcutService::OnEvents(const InputFrame& p_input) {
-    IInputService* input = m_editor.GetApp().InputService();
-    const bool ctrl = input->GetKeyState().AnyCtrlDown();
-    const bool alt = input->GetKeyState().AnyAltDown();
-    const bool shift = input->GetKeyState().AnyShiftDown();
+    IInputService& input = m_editor.GetApp().InputService();
+    const bool ctrl = input.GetKeyState().AnyCtrlDown();
+    const bool alt = input.GetKeyState().AnyAltDown();
+    const bool shift = input.GetKeyState().AnyShiftDown();
 
     for (const InputEvent& e : p_input.events) {
         if (e.type != InputEventType::ButtonDown)
