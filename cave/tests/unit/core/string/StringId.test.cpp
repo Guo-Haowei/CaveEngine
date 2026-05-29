@@ -100,7 +100,6 @@ TEST(StringId, different_strings_usually_have_different_hashes) {
 
         EXPECT_NE(id1.GetHash(), id2.GetHash());
     }
-
 }
 
 TEST(StringId, std_hash_returns_string_id_hash) {

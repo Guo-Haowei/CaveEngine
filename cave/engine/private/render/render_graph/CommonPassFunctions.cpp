@@ -369,6 +369,10 @@ void DebugVoxels(RenderPassExcutionContext& p_ctx) {
 }
 #endif
 
+static void UIOverlayPassFunc(RenderPassExcutionContext& p_ctx) {
+    unused(p_ctx);
+}
+
 /// Tone
 /// Change to post processing?
 void TonePassFunc(RenderPassExcutionContext& p_ctx) {
@@ -379,6 +383,9 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetPipelineState(PSO_POST_PROCESS);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
+
+    // @TODO: draw UI Overlay here
+    UIOverlayPassFunc(p_ctx);
 }
 
 }  // namespace cave::render
