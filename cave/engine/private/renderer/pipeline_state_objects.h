@@ -24,6 +24,13 @@ static const InputLayoutDesc s_input_layout_sprite = {
     }
 };
 
+static const InputLayoutDesc s_input_layout_ui = {
+    .elements = {
+        { "POSITION", 0, PixelFormat::R32G32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, PixelFormat::R32G32B32A32_FLOAT, 0, 8, InputClassification::PER_VERTEX_DATA, 0 },
+    }
+};
+
 static const InputLayoutDesc s_input_layout_position = {
     .elements = {
         { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
@@ -39,19 +46,19 @@ static const InputLayoutDesc s_input_layout_debug = {
 };
 
 /// rasterizer states
-static const RasterizerDesc s_rasterizerFrontFace = {
+static const RasterizerDesc s_rasterizer_cull_back = {
     .fillMode = FillMode::SOLID,
     .cullMode = CullMode::BACK,
     .frontCounterClockwise = true,
 };
 
-static const RasterizerDesc s_rasterizerBackFace = {
+static const RasterizerDesc s_rasterizer_cull_front = {
     .fillMode = FillMode::SOLID,
     .cullMode = CullMode::FRONT,
     .frontCounterClockwise = true,
 };
 
-static const RasterizerDesc s_rasterizerDoubleSided = {
+static const RasterizerDesc s_rasterizer_double_sided = {
     .fillMode = FillMode::SOLID,
     .cullMode = CullMode::NONE,
     .frontCounterClockwise = true,

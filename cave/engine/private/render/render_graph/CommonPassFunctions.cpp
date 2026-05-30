@@ -3,7 +3,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 
 #include "engine/private/algorithm/algorithm.h"
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
@@ -352,22 +352,20 @@ void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Dispatch(work_group_x, work_group_y, 1);
 }
 
-// @TODO: get rid off this!
-#if 0
-void DebugVoxels(RenderPassExcutionContext& p_ctx) {
-    CAVE_PROFILE_EVENT();
+static void UIOverlayPassFunc(RenderPassExcutionContext& p_ctx) {
+    const UIBatch& batch = p_ctx.frameData.ui_batch;
+    if (batch.index_count == 0) {
+        return;
+    }
 
-    auto& gm = p_ctx.cmd;
-    // auto p_framebuffer = p_ctx.framebuffer;
-    // gm.Clear(p_framebuffer, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, IRenderDevice::DEFAULT_CLEAR_COLOR, 0.0f);
+    const auto& mesh = p_ctx.frameData.ui_buffer;
+    DEV_ASSERT(mesh);
 
-    p_ctx.cmd.SetPipelineState(PSO_DEBUG_VOXEL);
-
-    gm.SetMesh(gm.m_boxBuffers.get());
-    const uint32_t size = DVAR_GET_INT(gfx_voxel_size);
-    gm.DrawElementsInstanced(size * size * size, gm.m_boxBuffers->desc.drawCount);
+    auto& cmd = p_ctx.cmd;
+    cmd.SetPipelineState(PSO_UI_OVERLAY);
+    cmd.SetMesh(mesh.get());
+    cmd.DrawElements(mesh->desc.drawCount);
 }
-#endif
 
 /// Tone
 /// Change to post processing?
@@ -379,6 +377,9 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetPipelineState(PSO_POST_PROCESS);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
+
+    // @TODO: move UI overlay to a different pass
+    UIOverlayPassFunc(p_ctx);
 }
 
 }  // namespace cave::render

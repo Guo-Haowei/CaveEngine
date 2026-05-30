@@ -1,6 +1,6 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ecs/components/TileMapRendererComponent.h"

@@ -1,14 +1,15 @@
 #pragma once
+#include "cave/core/Color.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/AABB.h"
 #include "cave/render/ViewDesc.h"
 #include "cave/runtime/ecs/Entity.h"
 
-#include "engine/private/render/renderer/ResolvedView.h"
-#include "engine/private/render/renderer/RenderPackets.h"
+#include "ResolvedView.h"
+#include "RenderPackets.h"
+#include "UIRenderer.h"
 
-#include "engine/private/core/math/color.h"
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/debug_draw.h"
 #include "engine/private/renderer/gpu_resource.h"
@@ -118,6 +119,10 @@ struct FrameData {
 
     DebugDraw& GetDebugDraw() { return m_debug_draw; }
     const DebugDraw& GetDebugDraw() const { return m_debug_draw; }
+
+    // UI stuff
+    render::UIBatch ui_batch;
+    std::shared_ptr<GpuMesh> ui_buffer;
 
 private:
     DebugDraw m_debug_draw;

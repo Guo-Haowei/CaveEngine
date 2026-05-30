@@ -124,21 +124,21 @@ void DebugDraw::Batch() {
     DEV_ASSERT((uint32_t)indices.size() == item_count * 6);
     GpuBufferDesc buffer_descs[3];
     buffer_descs[0] = {
-        .type = GpuBufferType::VERTEX,
+        .type = GpuBufferType::Vertex,
         .slot = 0,
         .element_size = sizeof(Vector3f),
         .element_count = item_count * 4,
         .initial_data = positions.data(),
     };
     buffer_descs[1] = {
-        .type = GpuBufferType::VERTEX,
+        .type = GpuBufferType::Vertex,
         .slot = 1,
         .element_size = sizeof(Vector2f),
         .element_count = item_count * 4,
         .initial_data = uvs.data(),
     };
     buffer_descs[2] = {
-        .type = GpuBufferType::VERTEX,
+        .type = GpuBufferType::Vertex,
         .slot = 2,
         .element_size = sizeof(Vector4f),
         .element_count = item_count * 4,
@@ -146,7 +146,7 @@ void DebugDraw::Batch() {
     };
 
     GpuBufferDesc index_desc = {
-        .type = GpuBufferType::INDEX,
+        .type = GpuBufferType::Index,
         .element_size = sizeof(uint32_t),
         .element_count = item_count * 6,
         .initial_data = indices.data(),

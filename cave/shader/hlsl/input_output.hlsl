@@ -38,3 +38,14 @@ struct VS_OUTPUT_MESH {
     float3 T : TANGENT;
     float3 B : BITANGENT;
 };
+
+// UI
+struct VS_INPUT_UI {
+    float2 position : POSITION;
+    float4 color : COLOR;
+};
+
+struct VS_OUTPUT_UI {
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};

@@ -27,8 +27,10 @@ auto RenderGraph::Compile() -> Result<std::shared_ptr<CompiledGraph>> {
     for (const auto& pass : m_passes) {
         DEBUG_PRINT("found pass: {}", pass.GetName());
 
-        auto helper = [this](const char* p_string, std::span<const RenderPassBuilder::Resource> p_resources) {
-            if (p_resources.empty()) return;
+        auto helper = [this](const char* p_string, std::span<const RenderPass::Resource> p_resources) {
+            if (p_resources.empty()) {
+                return;
+            }
             DEBUG_PRINT("  {}", p_string);
             for (const auto& res : p_resources) {
                 const RGTextureNode* node = GetLogicalTexture(res.handle);

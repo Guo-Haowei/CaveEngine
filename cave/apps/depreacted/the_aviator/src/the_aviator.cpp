@@ -1,7 +1,7 @@
 #if 0
 //  @TODO: refactor
 #include "engine/private/core/base/random.h"
-#include "engine/private/core/math/color.h"
+#include "cave/core/Color.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/scene/CameraController.h"

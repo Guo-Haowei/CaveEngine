@@ -1,10 +1,13 @@
 #pragma once
 #include "cave/core/NonCopyable.h"
 #include "cave/core/ids/SceneId.h"
+#include "cave/core/ids/ViewId.h"
 #include "cave/core/time/FrameTime.h"
 #include "cave/game/GameModuleHandle.h"
 
 #include "engine/private/runtime/scene/SceneScheduler.h"
+
+#include "editor/play/PIEHostServices.h"
 
 namespace cave {
 
@@ -26,7 +29,7 @@ public:
     bool Start(const PIEStartDesc& p_desc);
     void Stop();
 
-    void OnSimBegin(SceneId p_scene_id);
+    void OnSimBegin(SceneId p_scene_id, ViewId p_view_id);
     void OnSimEnd();
 
     void Tick(const FrameTime& p_time);
@@ -35,7 +38,7 @@ public:
     SceneId GetPIESceneId() const { return m_pie_scene; }
 
     void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
-    DebugId GetDebugId() override { return m_debug_id; }
+    DebugId GetDebugId() const override { return m_debug_id; }
 
 private:
     bool EnsureGameModuleLoaded();
@@ -52,6 +55,7 @@ private:
     IGameModule* m_game = nullptr;
 
     SceneId m_pie_scene{};
+    std::unique_ptr<PIEHostServices> m_host;
 };
 
 }  // namespace cave

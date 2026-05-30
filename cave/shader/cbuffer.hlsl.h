@@ -180,7 +180,7 @@ CBUFFER(PerFrameConstantBuffer, 5) {
     int c_enableVxgi;
     float c_texelSize;  // 16
 
-    int2 c_tileOffset;
+    float2 c_screen_size;
     float c_ssaoKernalRadius;
     int c_ptObjectCount;
     //-----------------------------------------

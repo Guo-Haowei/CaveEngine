@@ -778,10 +778,10 @@ auto D3d11GraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> Result<s
 
     uint32_t flags = 0;
     switch (p_desc.type) {
-        case GpuBufferType::VERTEX:
+        case GpuBufferType::Vertex:
             flags |= D3D11_BIND_VERTEX_BUFFER;
             break;
-        case GpuBufferType::INDEX:
+        case GpuBufferType::Index:
             flags |= D3D11_BIND_INDEX_BUFFER;
             break;
         default:

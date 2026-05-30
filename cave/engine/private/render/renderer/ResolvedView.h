@@ -16,6 +16,7 @@ struct CameraParams {
 };
 
 struct ResolvedView {
+    ViewId view_id;
     CameraParams cam;
     math::Frustum frustum;
     math::IntRect viewport_px;

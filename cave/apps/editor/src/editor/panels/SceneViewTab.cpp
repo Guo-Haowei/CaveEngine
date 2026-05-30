@@ -92,6 +92,7 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
 void SceneViewTab::SubmitView() {
     using namespace render;
     ViewDesc view;
+    view.view_id = m_view_id;
     view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
     if (m_editor.IsPlaying()) {
         view.scene_id = m_editor.PIE().GetPIESceneId();
@@ -127,13 +128,17 @@ void SceneViewTab::OnCreate() {
     m_camera.Update(m_camera_transform.GetWorldMatrix());
 
     IApplication& app = m_editor.GetApp();
+
     app.GetSceneScheduler().Register(this);
     m_editor.PickingService().Register(this);
+    m_view_id = app.GetViewManager()->Create();
 }
 
 void SceneViewTab::OnDestroy() {
-    m_editor.PickingService().Register(this);
     IApplication& app = m_editor.GetApp();
+
+    app.GetViewManager()->Destroy(m_view_id);
+    m_editor.PickingService().Register(this);
     app.GetSceneScheduler().Unregister(this);
 }
 
@@ -203,7 +208,7 @@ void SceneViewTab::OnInputEvents(const InputFrame& p_input) {
         return;
     }
 
-    const KeyState& st = m_editor.GetApp().InputService()->GetKeyState();
+    const KeyState& st = m_editor.GetApp().InputService().GetKeyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
         return;
     }

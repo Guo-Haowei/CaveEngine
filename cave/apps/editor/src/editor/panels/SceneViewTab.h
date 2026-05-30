@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/ids/ViewId.h"
 #include "cave/core/math/Box.h"
 #include "cave/render/ViewDesc.h"
 
@@ -37,7 +38,9 @@ public:
 
     void OnInputEvents(const InputFrame& p_input) override;
 
-    DebugId GetDebugId() final { return m_debug_id; }
+    ViewId GetViewId() const override { return m_view_id; }
+
+    DebugId GetDebugId() const final { return m_debug_id; }
 
 protected:
     void SubmitView();
@@ -73,6 +76,7 @@ protected:
     CameraComponent m_camera;
     TransformComponent m_camera_transform;
     GpuTextureId m_texture;
+    ViewId m_view_id;
 };
 
 }  // namespace cave

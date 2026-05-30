@@ -24,7 +24,7 @@ public:
 
     virtual void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) = 0;
 
-    virtual DebugId GetDebugId() = 0;
+    virtual DebugId GetDebugId() const = 0;
 };
 
 class SceneScheduler {

@@ -11,7 +11,7 @@ InputService::InputService()
     , m_mapper(m_input_action_map) {}
 
 auto InputService::InitializeImpl() -> Result<void> {
-    // @TODO: config from asset
+    // @TODO: read it from config file
     InputActionMap& map = ActionMap();
 
     map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
@@ -122,6 +122,35 @@ void InputService::UpdateActions(const DeviceRouting& p_routing) {
     }
 }
 
+UIInput InputService::BuildUIInput() {
+    UIInput input{};
+
+    const InputDeviceId device_id{ 0 };
+    const int player_id = 0;
+
+    const auto it = m_pointers.find(device_id.value);
+    if (it != m_pointers.end()) {
+        const PointerState pointer = it->second;
+        input.mouse_pos = math::Vector2f(pointer.x, pointer.y);
+    }
+
+    // Mouse buttons
+    input.mouse_down = m_key_state.Down(device_id, Key::LMB);
+    input.mouse_pressed = m_key_state.PressedThisFrame(device_id, Key::LMB);
+    input.mouse_released = m_key_state.ReleasedThisFrame(device_id, Key::LMB);
+
+    // Mapped UI actions
+    input.submit_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_accept"));
+    input.cancel_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_back"));
+
+    input.left_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_left"));
+    input.right_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_right"));
+    input.up_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_up"));
+    input.down_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_down"));
+
+    return input;
+}
+
 void InputService::Tick(const FrameTime& p_time) {
     m_input_events.clear();
     m_action_events.clear();
@@ -160,12 +189,15 @@ void InputService::Tick(const FrameTime& p_time) {
     m_router.Dispatch(input_frame);
 
     // *) Rebuild key state after raw consumption (critical for chords/drag gating)
-    m_key_state.BeginFrame();
-    m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+    // m_key_state.BeginFrame();
+    // m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
 
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
     DeviceRouting routing;
     UpdateActions(routing);
+
+    // *) Build UI Input
+    m_ui_input = BuildUIInput();
 }
 
 }  // namespace cave

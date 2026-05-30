@@ -19,11 +19,11 @@ namespace cave {
 Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    m_editor.GetApp().InputService()->Register(this);
+    m_editor.GetApp().InputService().Register(this);
 }
 
 Workspace::~Workspace() {
-    m_editor.GetApp().InputService()->Unregister(this);
+    m_editor.GetApp().InputService().Unregister(this);
 }
 
 void Workspace::Tick() {
@@ -38,7 +38,13 @@ DocId Workspace::FocusedDoc() {
 }
 
 PreviewScene Workspace::FocusedPreviewScene() {
+    Tab* tab = FocusedTab();
+
     PreviewScene ret;
+    if (tab) {
+        ret.doc_id = tab->GetDocId();
+        ret.view_id = tab->GetViewId();
+    }
     ret.doc_id = FocusedDoc();
     if (IDocument* doc = m_editor.DocumentService().Resolve(ret.doc_id)) {
         ret.scene_id = doc->GetPreviewScene();

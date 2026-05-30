@@ -9,7 +9,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 
 namespace cave::render {
 

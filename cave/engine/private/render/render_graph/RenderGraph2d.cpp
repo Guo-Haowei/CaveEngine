@@ -1,7 +1,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/pipeline_state.h"
 #include "RenderGraphPredefined.h"

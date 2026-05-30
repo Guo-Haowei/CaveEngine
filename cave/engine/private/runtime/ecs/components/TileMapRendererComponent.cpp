@@ -136,9 +136,9 @@ void TileMapRendererComponent::CreateRenderData() {
 
     uint32_t count = (uint32_t)indices.size();
 
-    GpuBufferDesc buffers[2];
+    std::array<GpuBufferDesc, 2> buffers;
     GpuBufferDesc buffer_desc;
-    buffer_desc.type = GpuBufferType::VERTEX;
+    buffer_desc.type = GpuBufferType::Vertex;
     buffer_desc.element_size = sizeof(Vector2f);
     buffer_desc.element_count = (uint32_t)vertices.size();
     buffer_desc.initial_data = vertices.data();
@@ -149,7 +149,7 @@ void TileMapRendererComponent::CreateRenderData() {
     buffers[1] = buffer_desc;
 
     GpuBufferDesc index_desc;
-    index_desc.type = GpuBufferType::INDEX;
+    index_desc.type = GpuBufferType::Index;
     index_desc.element_size = sizeof(uint32_t);
     index_desc.element_count = count;
     index_desc.initial_data = indices.data();
@@ -162,7 +162,7 @@ void TileMapRendererComponent::CreateRenderData() {
 
     // @TODO: refactor this part
     // @NOTE: shouldn't call RenderDevice here
-    auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, 2, buffers, &index_desc);
+    auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, 2, buffers.data(), &index_desc);
 
     m_cache.mesh = *mesh;
 

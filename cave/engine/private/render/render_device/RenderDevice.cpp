@@ -9,7 +9,7 @@
 // @TODO: determine if includes are necessary
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/core/math/geometry.h"
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
@@ -75,8 +75,7 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
 
     // create meshes
     // @TODO: refactor
-    m_skyboxBuffers = *CreateMesh(MakeSkyBoxMesh());
-    m_boxBuffers = *CreateMesh(MakeBoxMesh());
+    m_skybox_buffers = *CreateMesh(MakeSkyBoxMesh());
 
     m_initialized = true;
     return Result<void>();
@@ -147,7 +146,7 @@ auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
 
         auto& buffer_desc = vb_descs[index];
         buffer_desc.slot = index;
-        buffer_desc.type = GpuBufferType::VERTEX;
+        buffer_desc.type = GpuBufferType::Vertex;
         buffer_desc.element_count = in.elementCount;
         buffer_desc.element_size = in.strideInByte;
         buffer_desc.initial_data = data[index];
@@ -158,7 +157,7 @@ auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
     GpuBufferDesc* ib_desc_ptr = nullptr;
     if (!p_mesh.indices.empty()) {
         ib_desc = GpuBufferDesc{
-            .type = GpuBufferType::INDEX,
+            .type = GpuBufferType::Index,
             .element_size = sizeof(uint32_t),
             .element_count = (uint32_t)p_mesh.indices.size(),
             .initial_data = p_mesh.indices.data(),
@@ -354,8 +353,8 @@ void RenderDevice::UpdateEmitters(const Scene& p_scene) {
 }
 
 void RenderDevice::DrawSkybox() {
-    SetMesh(m_skyboxBuffers.get());
-    DrawElements(m_skyboxBuffers->desc.drawCount);
+    SetMesh(m_skybox_buffers.get());
+    DrawElements(m_skybox_buffers->desc.drawCount);
 }
 
 void RenderDevice::BeginPass(const CompiledPass& p_pass) {

@@ -19,12 +19,12 @@ enum BUFFER_TYPE : uint32_t {
 
 static inline BUFFER_TYPE Convert(GpuBufferType p_type) {
     switch (p_type) {
-        case GpuBufferType::VERTEX:
+        case GpuBufferType::Vertex:
             return ARRAY_BUFFER;
-        case GpuBufferType::INDEX:
+        case GpuBufferType::Index:
             return INDEX_BUFFER;
-        case GpuBufferType::CONSTANT:
-        case GpuBufferType::STRUCTURED:
+        case GpuBufferType::Constant:
+        case GpuBufferType::Structured:
         default:
             CRASH_NOW();
             return ARRAY_BUFFER;

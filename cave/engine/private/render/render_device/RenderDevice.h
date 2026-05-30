@@ -58,11 +58,6 @@ public:
 
     auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> override;
 
-    virtual auto CreateMeshImpl(const GpuMeshDesc& p_desc,
-                                uint32_t p_count,
-                                const GpuBufferDesc* p_vb_descs,
-                                const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> = 0;
-
     void SetPipelineState(PipelineStateName p_name) override;
 
     std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) override;
@@ -98,7 +93,7 @@ protected:
     const int m_frameCount;
 
     std::shared_ptr<GpuMesh> m_screenQuadBuffers;
-    std::shared_ptr<GpuMesh> m_skyboxBuffers;
+    std::shared_ptr<GpuMesh> m_skybox_buffers;
 
     // auto InitializeInternal() -> Result<void> final;
     // std::shared_ptr<GpuTexture> CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) final;

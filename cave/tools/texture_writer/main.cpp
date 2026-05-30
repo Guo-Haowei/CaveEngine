@@ -6,7 +6,7 @@
 #include "engine/private/systems/job_system/job_system.h"
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/runtime/framework/Engine.h"
-#include "engine/private/core/math/color.h"
+#include "cave/core/Color.h"
 #include "cave/core/math/Vector.h"
 
 // @TODO: refactor

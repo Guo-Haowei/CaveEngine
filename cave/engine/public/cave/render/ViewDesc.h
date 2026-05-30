@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include "cave/core/ids/SceneId.h"
+#include "cave/core/ids/ViewId.h"
 #include "cave/core/math/Rect.h"
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
@@ -45,12 +46,13 @@ struct ViewHighlight {
 };
 
 struct ViewDesc {
-    CameraSource camera_source;
-    SceneId scene_id;
-    math::IntRect viewport_px;
+    CameraSource camera_source{};
+    SceneId scene_id{};
+    ViewId view_id{};
+    math::IntRect viewport_px{};
 
-    ViewHighlight highlight;
-    GpuTextureId output;
+    ViewHighlight highlight{};
+    GpuTextureId output{};
 };
 
 }  // namespace cave::render

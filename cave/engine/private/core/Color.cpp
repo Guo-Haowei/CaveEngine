@@ -1,4 +1,4 @@
-#include "color.h"
+#include "cave/core/Color.h"
 
 namespace cave {
 
@@ -22,23 +22,15 @@ uint32_t Color::ToRgba() const {
     return c;
 }
 
-// Color Color::Hex(uint32_t hex) {
-//     float b = (hex & 0xFF) / 255.0f;
-//     hex >>= 8;
-//     float g = (hex & 0xFF) / 255.0f;
-//     hex >>= 8;
-//     float r = (hex & 0xFF) / 255.0f;
-//     return Color(r, g, b, 1.0f);
-// }
-
-Color Color::HexRgba(uint32_t hex) {
-    float a = (hex & 0xFF) / 255.0f;
+Color Color::HexRgba(ColorCode p_hex) {
+    uint32_t hex = std::to_underlying(p_hex);
+    const float a = (hex & 0xFF) / 255.0f;
     hex >>= 8;
-    float b = (hex & 0xFF) / 255.0f;
+    const float b = (hex & 0xFF) / 255.0f;
     hex >>= 8;
-    float g = (hex & 0xFF) / 255.0f;
+    const float g = (hex & 0xFF) / 255.0f;
     hex >>= 8;
-    float r = (hex & 0xFF) / 255.0f;
+    const float r = (hex & 0xFF) / 255.0f;
     return Color(r, g, b, a);
 }
 

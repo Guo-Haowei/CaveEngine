@@ -14,13 +14,19 @@ struct Rect {
     T w{};
     T h{};
 
-    T Left() const { return x; }
-    T Right() const { return x + w; }
-    T Top() const { return y; }
-    T Bottom() const { return y + h; }
+    inline constexpr T Left() const { return x; }
+    inline constexpr T Right() const { return x + w; }
+    inline constexpr T Top() const { return y; }
+    inline constexpr T Bottom() const { return y + h; }
+    inline constexpr T Width() const { return w; }
+    inline constexpr T Height() const { return h; }
 
-    static Rect<T> FromMinMax(T min_x, T min_y, T max_x, T max_y) {
-        return { min_x, min_y, max_x - min_x, max_y - min_y };
+    static Rect<T> FromMinMax(T p_min_x, T p_min_y, T p_max_x, T p_max_y) {
+        return { p_min_x, p_min_y, p_max_x - p_min_x, p_max_y - p_min_y };
+    }
+
+    inline constexpr bool Contains(T p_x, T p_y) const {
+        return p_x >= Left() && p_x < Right() && p_y >= Top() && p_y < Bottom();
     }
 };
 

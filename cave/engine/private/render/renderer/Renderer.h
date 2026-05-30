@@ -6,6 +6,7 @@
 
 // clang-format off
 namespace cave { struct FrameData; }
+namespace cave { struct UIFrameDrawData; }
 // clang-format on
 
 namespace cave::render {
@@ -17,7 +18,9 @@ public:
     Renderer();
     ~Renderer();
 
-    void Tick(const FrameTime& p_frame, std::span<const ResolvedView> p_views);
+    void Tick(const FrameTime& p_frame,
+              std::span<const ResolvedView> p_views,
+              const UIFrameDrawData& p_ui_data);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

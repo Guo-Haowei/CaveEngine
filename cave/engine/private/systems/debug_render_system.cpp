@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "engine/private/runtime/ecs/components/All.h"

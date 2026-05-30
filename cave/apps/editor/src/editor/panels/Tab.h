@@ -1,10 +1,11 @@
 #pragma once
-#include "editor/panels/EditorWindow.h"
-
+#include "cave/core/ids/ViewId.h"
 #include "cave/runtime/input/IInputConsumer.h"
+
 #include "engine/private/runtime/scene/SceneScheduler.h"
 
 #include "editor/document/DocId.h"
+#include "editor/panels/EditorWindow.h"
 
 // @TODO: remove
 #include "editor/widgets/ToolBar.h"
@@ -38,6 +39,7 @@ public:
     virtual void OnInputEvents(const InputFrame&) {}
 
     DocId GetDocId() const { return m_doc_id; }
+    virtual ViewId GetViewId() const { return ViewId{}; }
 
     TabId GetTabId() const { return m_tab_id; }
     void SetTabId(TabId p_tab_id) { m_tab_id = p_tab_id; }
