@@ -1,7 +1,7 @@
 #pragma once
 #include "ResolvedView.h"
 // @TODO: fix
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 
 namespace cave::render {
 

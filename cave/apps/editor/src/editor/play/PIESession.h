@@ -7,6 +7,8 @@
 
 #include "engine/private/runtime/scene/SceneScheduler.h"
 
+#include "editor/play/PIEHostServices.h"
+
 namespace cave {
 
 class Scene;
@@ -53,6 +55,7 @@ private:
     IGameModule* m_game = nullptr;
 
     SceneId m_pie_scene{};
+    std::unique_ptr<PIEHostServices> m_host;
 };
 
 }  // namespace cave

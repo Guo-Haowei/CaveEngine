@@ -15,7 +15,7 @@ void UIRuntime::FinalizeImpl() {
 
 void UIRuntime::BeginFrame(const UIInput& p_input) {
     m_input = p_input;
-    m_draw_list.Clear();
+    m_draw_data.Clear();
     m_hot = 0;
 }
 
@@ -23,9 +23,23 @@ void UIRuntime::EndFrame() {
     if (!m_input.mouse_down) {
         m_active = 0;
     }
+
+    DEV_ASSERT(m_stack == 0);
+}
+
+void UIRuntime::BeginView(ViewId p_view_id) {
+    ++m_stack;
+    m_current_view = p_view_id;
+}
+
+void UIRuntime::EndView() {
+    DEV_ASSERT(m_stack > 0);
+    --m_stack;
 }
 
 bool UIRuntime::Button(UIId p_id, UIRect p_rect) {
+    DEV_ASSERT(m_stack > 0);
+
     const bool hovered = p_rect.Contains(m_input.mouse_pos.x, m_input.mouse_pos.y);
 
     if (hovered) {
@@ -49,7 +63,7 @@ bool UIRuntime::Button(UIId p_id, UIRect p_rect) {
         color = kButtonHover;
     }
 
-    m_draw_list.AddRect(p_rect, color);
+    m_draw_data.draw_lists[m_current_view].AddRect(p_rect, color);
 
     return clicked;
 }

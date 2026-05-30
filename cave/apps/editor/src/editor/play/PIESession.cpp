@@ -7,7 +7,6 @@
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
-#include "editor/play/PIEHostServices.h"
 
 namespace cave {
 
@@ -42,7 +41,7 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
     Scene* scene = reg->Resolve(p_desc.edit_scene);
     if (!scene) return false;
 
-    PIEHostServices host(m_app, *scene);
+    PIEHostServices host(m_app, *scene, {});
 
     m_game->OnModuleLoaded(host);
     host.FlushSceneCommands();
@@ -60,8 +59,6 @@ void PIESession::Stop() {
 }
 
 void PIESession::OnSimBegin(SceneId p_scene_id, ViewId p_view_id) {
-    unused(p_view_id);
-
     SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
 
     m_pie_scene = scene_manager.Clone(p_scene_id);
@@ -72,9 +69,9 @@ void PIESession::OnSimBegin(SceneId p_scene_id, ViewId p_view_id) {
 
     m_app.GetSceneScheduler().Register(this);
 
-    PIEHostServices host(m_app, *scene);
-    m_game->OnGameBegin(host);
-    host.FlushSceneCommands();
+    m_host = std::make_unique<PIEHostServices>(m_app, *scene, p_view_id);
+    m_game->OnGameBegin(*m_host);
+    m_host->FlushSceneCommands();
 
     m_running = true;
 }
@@ -87,8 +84,7 @@ void PIESession::OnSimEnd() {
     if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_pie_scene)) {
         m_app.ScriptService()->OnSimEnd();
 
-        PIEHostServices host(m_app, *scene);
-        m_game->OnGameEnd(host);
+        m_game->OnGameEnd(*m_host);
     }
 
     m_app.GetSceneScheduler().Unregister(this);
@@ -110,9 +106,8 @@ void PIESession::Tick(const FrameTime& p_time) {
     Scene* scene = reg->Resolve(m_pie_scene);
     if (!scene) return;
 
-    PIEHostServices host(m_app, *scene);
-    m_game->Tick(host, p_time);
-    host.FlushSceneCommands();
+    m_game->Tick(*m_host, p_time);
+    m_host->FlushSceneCommands();
 }
 
 void PIESession::BuildPIESceneFromEdit(Scene& p_edit, Scene& p_pie) {

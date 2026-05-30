@@ -4,6 +4,15 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/IUIRuntime.h"
+
+#include "FramePlan.h"
+#include "RendererDebug.h"
+#include "RenderScene.h"
+#include "RenderSceneBuilder.h"
+#include "RenderSubmission.h"
+#include "TransientPool.h"
+#include "UIRenderer.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
@@ -11,12 +20,6 @@
 #include "engine/private/render/features/pbr/EnvironmentFeature.h"
 #include "engine/private/render/features/shadow/ShadowFeature.h"
 #include "engine/private/render/features/ssao/SsaoFeature.h"
-#include "engine/private/render/renderer/FramePlan.h"
-#include "engine/private/render/renderer/RendererDebug.h"
-#include "engine/private/render/renderer/RenderScene.h"
-#include "engine/private/render/renderer/RenderSceneBuilder.h"
-#include "engine/private/render/renderer/RenderSubmission.h"
-#include "engine/private/render/renderer/TransientPool.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
@@ -54,10 +57,14 @@ public:
 
     auto Initialize() -> Result<void>;
 
-    void Tick(const FrameTime& p_frame, std::span<const ResolvedView> p_views);
+    void Tick(const FrameTime& p_frame,
+              std::span<const ResolvedView> p_views,
+              const UIFrameDrawData& p_ui_data);
 
 private:
-    FramePlan BuildFramePlan(const FrameTime& p_frame, std::span<const ResolvedView> p_views);
+    FramePlan BuildFramePlan(const FrameTime& p_frame,
+                             std::span<const ResolvedView> p_views);
+
     auto BuildRenderGraph(const RenderOptions& p_plan,
                           const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
 
@@ -100,8 +107,10 @@ void Renderer::FinalizeImpl() {
     m_impl.reset();
 }
 
-void Renderer::Tick(const FrameTime& p_frame, std::span<const ResolvedView> p_views) {
-    m_impl->Tick(p_frame, p_views);
+void Renderer::Tick(const FrameTime& p_frame,
+                    std::span<const ResolvedView> p_views,
+                    const UIFrameDrawData& p_ui_data) {
+    m_impl->Tick(p_frame, p_views, p_ui_data);
 }
 
 // @TODO: remove this
@@ -212,15 +221,22 @@ auto Renderer::Impl::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Renderer::Impl::Tick(const FrameTime& p_frame, std::span<const ResolvedView> p_views) {
+void Renderer::Impl::Tick(const FrameTime& p_frame,
+                          std::span<const ResolvedView> p_views,
+                          const UIFrameDrawData& p_ui_data) {
     CAVE_PROFILE_EVENT();
 
     auto submission = std::make_unique<RenderSubmission>();
 
     FramePlan plan = BuildFramePlan(p_frame, p_views);
+
+    const BuiltUIData ui_data = BuildUIData(p_views, p_ui_data);
+    DEV_ASSERT(ui_data.batches.size() == p_views.size());
+
     for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {
         const ResolvedView& view = plan.views[idx];
-        const FrameData& data = plan.frame_data[idx];
+        FrameData& data = plan.frame_data[idx];
+        data.ui_batch = ui_data.batches[idx];
 
         if (auto res = BuildRenderGraph(data.options, view); !res) {
             CRASH_NOW();
@@ -231,12 +247,14 @@ void Renderer::Impl::Tick(const FrameTime& p_frame, std::span<const ResolvedView
             submission->render_graph.push_back(graph);
         }
     }
+
     submission->frame_data = std::move(plan.frame_data);
 
     m_app.GetRenderDevice()->Submit(std::move(submission));
 }
 
-FramePlan Renderer::Impl::BuildFramePlan(const FrameTime& p_frame, std::span<const ResolvedView> p_views) {
+FramePlan Renderer::Impl::BuildFramePlan(const FrameTime& p_frame,
+                                         std::span<const ResolvedView> p_views) {
     FramePlan plan;
 
     const bool is_opengl = m_app.IsOpenGL();

@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/ids/ViewId.h"
 
 // clang-format off
 namespace cave::ecs { class ComponentRegistry; }
@@ -27,6 +28,8 @@ public:
     virtual ILogger& Log() = 0;
     virtual SceneQuery& SceneQuery() = 0;
     virtual SceneCommandWriter& SceneWriter() = 0;
+
+    virtual ViewId GetViewId() const = 0;
 };
 
 }  // namespace cave

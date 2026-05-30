@@ -73,7 +73,7 @@ auto Application::SetupModules() -> Result<void> {
     m_render_device = CreateRenderDevice(m_spec.backend);
     m_display_server = CreateDisplayService();
     m_input_service = new cave::InputService();
-    m_ui_service = new UIRuntime();
+    m_ui = new UIRuntime();
     m_renderer = new render::Renderer();
     m_view_manager = new ViewManager();
     m_task_manager = new TaskManager();
@@ -100,7 +100,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_render_device);
     RegisterModule(m_renderer);
     RegisterModule(m_view_manager);
-    RegisterModule(m_ui_service);
+    RegisterModule(m_ui);
 
     if (m_spec.enableImgui) {
         auto res = CreateImguiManager();
@@ -201,7 +201,7 @@ bool Application::MainLoop() {
 
     m_input_service->Tick(time);
 
-    m_ui_service->BeginFrame(m_input_service->GetUIInput());
+    m_ui->BeginFrame(m_input_service->GetUIInput());
 
     m_asset_manager->Update();
 
@@ -214,10 +214,11 @@ bool Application::MainLoop() {
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->Tick(time);
 
-    m_ui_service->EndFrame();
+    m_ui->EndFrame();
 
     std::span<const ResolvedView> views = m_view_manager->EndFrame();
-    m_renderer->Tick(time, views);
+    auto ui_draw_data = m_ui->TakeDrawData();
+    m_renderer->Tick(time, views, ui_draw_data);
 
     return true;
 }

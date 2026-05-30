@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/ids/ViewId.h"
 #include "cave/runtime/framework/IUIRuntime.h"
 #include "cave/ui/UIDrawCommand.h"
 
@@ -12,7 +13,14 @@ public:
     void BeginFrame(const UIInput& p_input) override;
     void EndFrame() override;
 
+    void BeginView(ViewId p_view_id) override;
+    void EndView() override;
+
     bool Button(UIId p_id, UIRect p_rect) override;
+
+    UIFrameDrawData TakeDrawData() override {
+        return std::move(m_draw_data);
+    }
 
 protected:
     auto InitializeImpl() -> Result<void> override;
@@ -20,10 +28,13 @@ protected:
 
 private:
     UIInput m_input;
-    UIDrawList m_draw_list;
+    UIFrameDrawData m_draw_data;
+    ViewId m_current_view{};
 
     UIId m_hot = 0;     // hovered this frame
     UIId m_active = 0;  // pressed/captured this frame
+
+    int m_stack = 0;
 };
 
 }  // namespace cave

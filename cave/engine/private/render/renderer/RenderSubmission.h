@@ -2,7 +2,7 @@
 
 #include "engine/private/render/render_graph/CompiledGraph.h"
 // @TODO: refactor frame_data
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 
 namespace cave::render {
 

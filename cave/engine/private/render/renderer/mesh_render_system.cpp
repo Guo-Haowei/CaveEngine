@@ -7,7 +7,7 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

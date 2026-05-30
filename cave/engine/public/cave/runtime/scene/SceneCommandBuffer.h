@@ -60,6 +60,11 @@ class SceneCommandBuffer {
 public:
     explicit SceneCommandBuffer() = default;
 
+    void Reset() {
+        m_next_entity = kSceneCmdTmpBase;
+        m_bytes.clear();
+    }
+
     ecs::Entity CreateEntity();
 
     void DestroyEntity(ecs::Entity p_ent);

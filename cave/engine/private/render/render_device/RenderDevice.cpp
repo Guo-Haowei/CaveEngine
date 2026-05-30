@@ -9,7 +9,7 @@
 // @TODO: determine if includes are necessary
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/core/math/geometry.h"
-#include "engine/private/renderer/frame_data.h"
+#include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"

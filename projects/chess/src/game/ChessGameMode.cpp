@@ -72,10 +72,16 @@ void MainMenuState::OnEnter(cave::IHostServices& p_host) {
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
     unused(p_time);
 
-    cave::IUIRuntime& ui_runtime = p_host.UI();
-    if (ui_runtime.Button(1, { 100, 100, 800, 600 })) {
+    cave::IUIRuntime& ui = p_host.UI();
+
+    ui.BeginView(p_host.GetViewId());
+    if (ui.Button(1, { 0, 0, 800, 600 })) {
         p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button clicked");
     }
+    if (ui.Button(2, { 800, 600, 800, 600 })) {
+        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button clicked");
+    }
+    ui.EndView();
 
     // @TODO: show menu buttons
     // @TODO: transit to gameplay once play button is clicked
