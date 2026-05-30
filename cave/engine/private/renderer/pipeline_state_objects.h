@@ -46,19 +46,19 @@ static const InputLayoutDesc s_input_layout_debug = {
 };
 
 /// rasterizer states
-static const RasterizerDesc s_rasterizerFrontFace = {
+static const RasterizerDesc s_rasterizer_cull_back = {
     .fillMode = FillMode::SOLID,
     .cullMode = CullMode::BACK,
     .frontCounterClockwise = true,
 };
 
-static const RasterizerDesc s_rasterizerBackFace = {
+static const RasterizerDesc s_rasterizer_cull_front = {
     .fillMode = FillMode::SOLID,
     .cullMode = CullMode::FRONT,
     .frontCounterClockwise = true,
 };
 
-static const RasterizerDesc s_rasterizerDoubleSided = {
+static const RasterizerDesc s_rasterizer_double_sided = {
     .fillMode = FillMode::SOLID,
     .cullMode = CullMode::NONE,
     .frontCounterClockwise = true,

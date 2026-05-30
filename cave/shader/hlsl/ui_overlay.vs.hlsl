@@ -1,21 +1,15 @@
 /// File: ui_overlay.vs.hlsl
 #include "cbuffer.hlsl.h"
+#include "hlsl/input_output.hlsl"
 
-struct VS_INPUT_COLOR {
-    float2 position : POSITION;
-    float4 color : COLOR;
-};
+VS_OUTPUT_UI main(VS_INPUT_UI input) {
+    float2 pos2 = input.position;
+    pos2 = pos2 / c_screen_size * 2.0f - 1.0f;
+    pos2.y = -pos2.y;
+    float4 pos = float4(pos2, 0.0, 1.0);
 
-struct VS_OUTPUT_COLOR {
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
-};
-
-VS_OUTPUT_COLOR main(VS_INPUT_COLOR input) {
-    float4 position = float4(input.position, 0.0, 1.0);
-
-    VS_OUTPUT_COLOR output;
-    output.position = position;
+    VS_OUTPUT_UI output;
+    output.position = pos;
     output.color = input.color;
     return output;
 }

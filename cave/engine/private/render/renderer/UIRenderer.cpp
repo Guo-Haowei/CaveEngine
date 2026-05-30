@@ -14,7 +14,7 @@ static void AppendUIRect(BuiltUIData& p_out,
     const float y1 = p_rect.Bottom();
 
     const Vector4f tmp_color = p_color.ToVector4f();
-    
+
     const UIColor color{ p_color.r, p_color.g, p_color.b, p_color.a };
 
     const uint32_t base_vertex = static_cast<uint32_t>(p_out.vertices.size());

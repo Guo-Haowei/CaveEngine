@@ -149,6 +149,9 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     const auto& options = p_out_data.options;
     auto& cache = p_out_data.perFrameCache;
 
+    cache.c_screen_size.x = (float)p_view.viewport_px.w;
+    cache.c_screen_size.y = (float)p_view.viewport_px.h;
+
     // camera
     {
         const CameraParams& cam = p_view.cam;

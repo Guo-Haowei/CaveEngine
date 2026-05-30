@@ -75,11 +75,15 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
     cave::IUIRuntime& ui = p_host.UI();
 
     ui.BeginView(p_host.GetViewId());
-    if (ui.Button(1, { 0, 0, 800, 600 })) {
-        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button clicked");
+    const float offset_x = 400.0f;
+    if (ui.Button(1, { offset_x, 100, 400, 100 })) {
+        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 0 clicked");
     }
-    if (ui.Button(2, { 800, 600, 800, 600 })) {
-        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button clicked");
+    if (ui.Button(2, { offset_x, 300, 400, 100 })) {
+        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 1 clicked");
+    }
+    if (ui.Button(3, { offset_x, 500, 400, 100 })) {
+        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 2 clicked");
     }
     ui.EndView();
 

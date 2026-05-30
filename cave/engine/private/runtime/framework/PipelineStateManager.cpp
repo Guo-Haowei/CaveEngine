@@ -82,7 +82,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_PREPASS,
                {
                    .vs = "mesh.vs",
-                   .rasterizerDesc = &s_rasterizerFrontFace,
+                   .rasterizerDesc = &s_rasterizer_cull_back,
                    .depthStencilDesc = &s_depthReversedStencilEnabled,
                    .inputLayoutDesc = &s_input_layout_mesh,
                    .blendDesc = &s_blendStateDefault,
@@ -95,7 +95,7 @@ Result<void> PipelineStateManager::Initialize() {
                {
                    .vs = "mesh.vs",
                    .ps = "gbuffer.ps",
-                   .rasterizerDesc = &s_rasterizerFrontFace,
+                   .rasterizerDesc = &s_rasterizer_cull_back,
                    .depthStencilDesc = &s_depthReversedStencilDisabled,
                    .inputLayoutDesc = &s_input_layout_mesh,
                    .blendDesc = &s_blendStateDefault,
@@ -111,7 +111,7 @@ Result<void> PipelineStateManager::Initialize() {
                {
                    .vs = "mesh.vs",
                    .ps = "gbuffer.ps",
-                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .rasterizerDesc = &s_rasterizer_double_sided,
                    .depthStencilDesc = &s_depthReversedStencilDisabled,
                    .inputLayoutDesc = &s_input_layout_mesh,
                    .blendDesc = &s_blendStateDefault,
@@ -127,7 +127,7 @@ Result<void> PipelineStateManager::Initialize() {
                {
                    .vs = "mesh.vs",
                    .ps = "forward.ps",
-                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .rasterizerDesc = &s_rasterizer_double_sided,
                    .depthStencilDesc = &s_depthReversedStencilDisabled,
                    .inputLayoutDesc = &s_input_layout_mesh,
                    .blendDesc = &s_transparent,
@@ -139,7 +139,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_DPETH, {
                               .vs = "shadow.vs",
                               .ps = "depth.ps",
-                              .rasterizerDesc = &s_rasterizerBackFace,
+                              .rasterizerDesc = &s_rasterizer_cull_front,
                               .depthStencilDesc = &s_depthStencilDefault,
                               .inputLayoutDesc = &s_input_layout_mesh,
                               .blendDesc = &s_blendStateDefault,
@@ -150,7 +150,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_LIGHTING, {
                                  .vs = "screenspace_quad.vs",
                                  .ps = "lighting.ps",
-                                 .rasterizerDesc = &s_rasterizerFrontFace,
+                                 .rasterizerDesc = &s_rasterizer_cull_back,
                                  .depthStencilDesc = &s_depthStencilDisabled,
                                  .blendDesc = &s_blendStateDefault,
                                  .numRenderTargets = 1,
@@ -166,7 +166,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_PARTICLE_RENDERING, {
                                            .vs = "particle_draw.vs",
                                            .ps = "particle_draw.ps",
-                                           .rasterizerDesc = &s_rasterizerDoubleSided,
+                                           .rasterizerDesc = &s_rasterizer_double_sided,
                                            .depthStencilDesc = &s_depthReversedStencilDisabled,
                                            .inputLayoutDesc = &s_input_layout_mesh,
                                            .blendDesc = &s_transparent,
@@ -179,7 +179,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_POINT_SHADOW, {
                                      .vs = "shadowmap_point.vs",
                                      .ps = "shadowmap_point.ps",
-                                     .rasterizerDesc = &s_rasterizerBackFace,
+                                     .rasterizerDesc = &s_rasterizer_cull_front,
                                      .depthStencilDesc = &s_depthStencilDefault,
                                      .inputLayoutDesc = &s_input_layout_mesh,
                                      .blendDesc = &s_blendStateDefault,
@@ -190,7 +190,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_HIGHLIGHT, {
                                   .vs = "screenspace_quad.vs",
                                   .ps = "highlight.ps",
-                                  .rasterizerDesc = &s_rasterizerFrontFace,
+                                  .rasterizerDesc = &s_rasterizer_cull_back,
                                   .depthStencilDesc = &s_depthReversedStencilEnabledHighlight,
                                   .blendDesc = &s_blendStateDefault,
                                   .numRenderTargets = 1,
@@ -201,7 +201,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_SSAO, {
                              .vs = "screenspace_quad.vs",
                              .ps = "ssao.ps",
-                             .rasterizerDesc = &s_rasterizerFrontFace,
+                             .rasterizerDesc = &s_rasterizer_cull_back,
                              .depthStencilDesc = &s_depthStencilDisabled,
                              .blendDesc = &s_blendStateDefault,
                              .numRenderTargets = 1,
@@ -211,7 +211,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_POST_PROCESS, {
                                      .vs = "screenspace_quad.vs",
                                      .ps = "post_process.ps",
-                                     .rasterizerDesc = &s_rasterizerFrontFace,
+                                     .rasterizerDesc = &s_rasterizer_cull_back,
                                      .depthStencilDesc = &s_depthStencilDisabled,
                                      .blendDesc = &s_blendStateDefault,
                                      .numRenderTargets = 1,
@@ -222,7 +222,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_UI_OVERLAY, {
                                    .vs = "ui_overlay.vs",
                                    .ps = "ui_overlay.ps",
-                                   .rasterizerDesc = &s_rasterizerFrontFace,
+                                   .rasterizerDesc = &s_rasterizer_double_sided,
                                    .depthStencilDesc = &s_depthStencilDisabled,
                                    .inputLayoutDesc = &s_input_layout_ui,
                                    .blendDesc = &s_transparent,
@@ -240,7 +240,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_ENV_SKYBOX, {
                                    .vs = "skybox.vs",
                                    .ps = "skybox.ps",
-                                   .rasterizerDesc = &s_rasterizerFrontFace,
+                                   .rasterizerDesc = &s_rasterizer_cull_back,
                                    .depthStencilDesc = &s_depthStencilSkybox,
                                    .inputLayoutDesc = &s_input_layout_mesh,
                                    .blendDesc = &s_blendStateDefault,
@@ -253,7 +253,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_ENV_SKYBOX_TO_CUBE_MAP, {
                                                .vs = "cube_map.vs",
                                                .ps = "to_cube_map.ps",
-                                               .rasterizerDesc = &s_rasterizerFrontFace,
+                                               .rasterizerDesc = &s_rasterizer_cull_back,
                                                .depthStencilDesc = &s_depthStencilDefault,
                                                .inputLayoutDesc = &s_input_layout_mesh,
                                                .blendDesc = &s_blendStateDefault,
@@ -262,7 +262,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_DIFFUSE_IRRADIANCE, {
                                            .vs = "cube_map.vs",
                                            .ps = "diffuse_irradiance.ps",
-                                           .rasterizerDesc = &s_rasterizerFrontFace,
+                                           .rasterizerDesc = &s_rasterizer_cull_back,
                                            .depthStencilDesc = &s_depthStencilDefault,
                                            .inputLayoutDesc = &s_input_layout_mesh,
                                            .blendDesc = &s_blendStateDefault,
@@ -271,7 +271,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_PREFILTER, {
                                   .vs = "cube_map.vs",
                                   .ps = "prefilter.ps",
-                                  .rasterizerDesc = &s_rasterizerFrontFace,
+                                  .rasterizerDesc = &s_rasterizer_cull_back,
                                   .depthStencilDesc = &s_depthStencilDefault,
                                   .inputLayoutDesc = &s_input_layout_mesh,
                                   .blendDesc = &s_blendStateDefault,
@@ -282,7 +282,7 @@ Result<void> PipelineStateManager::Initialize() {
                {
                    .vs = "sprite.vs",
                    .ps = "sprite.ps",
-                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .rasterizerDesc = &s_rasterizer_double_sided,
                    .depthStencilDesc = &s_depthReversedStencilEnabled,
                    .inputLayoutDesc = &s_input_layout_sprite,
                    .blendDesc = &s_transparent,
@@ -295,7 +295,7 @@ Result<void> PipelineStateManager::Initialize() {
                {
                    .vs = "sprite_no_vert.vs",
                    .ps = "sprite.ps",
-                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .rasterizerDesc = &s_rasterizer_double_sided,
                    .depthStencilDesc = &s_depthReversedStencilEnabled,
                    .blendDesc = &s_transparent,
                    .numRenderTargets = 1,
@@ -307,7 +307,7 @@ Result<void> PipelineStateManager::Initialize() {
                {
                    .vs = "debug_draw.vs",
                    .ps = "debug_draw.ps",
-                   .rasterizerDesc = &s_rasterizerDoubleSided,
+                   .rasterizerDesc = &s_rasterizer_double_sided,
                    .depthStencilDesc = &s_depthReversedStencilDisabled,
                    .inputLayoutDesc = &s_input_layout_debug,
                    .blendDesc = &s_transparent,
@@ -331,7 +331,7 @@ Result<void> PipelineStateManager::Initialize() {
                                      .vs = "voxelization.vs",
                                      .ps = "voxelization.ps",
                                      .gs = "voxelization.gs",
-                                     .rasterizerDesc = &s_rasterizerDoubleSided,
+                                     .rasterizerDesc = &s_rasterizer_double_sided,
                                      .depthStencilDesc = &s_depthStencilDisabled,
                                      .blendDesc = &s_blendStateDisable,
                                  });
@@ -339,7 +339,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_DEBUG_VOXEL, {
                                     .vs = "visualization.vs",
                                     .ps = "visualization.ps",
-                                    .rasterizerDesc = &s_rasterizerFrontFace,
+                                    .rasterizerDesc = &s_rasterizer_cull_back,
                                     .depthStencilDesc = &s_depthReversedStencilDisabled,
                                     .blendDesc = &s_blendStateDefault,
                                 });
@@ -349,7 +349,7 @@ Result<void> PipelineStateManager::Initialize() {
     CREATE_PSO(PSO_BILLBOARD, {
                                   .vs = "billboard.vs",
                                   .ps = "texture.ps",
-                                  .rasterizerDesc = &s_rasterizerDoubleSided,
+                                  .rasterizerDesc = &s_rasterizer_double_sided,
                                   .depthStencilDesc = &s_depthStencilDefault,
                                   .blendDesc = &s_blendStateDefault,
                               });
