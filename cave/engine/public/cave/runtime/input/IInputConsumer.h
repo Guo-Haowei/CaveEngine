@@ -21,7 +21,7 @@ public:
 
     virtual int GetPriority() const = 0;
     virtual void OnEvents(const InputFrame& p_input) = 0;
-    virtual DebugId GetDebugId() = 0;
+    virtual DebugId GetDebugId() const = 0;
 };
 
 }  // namespace cave

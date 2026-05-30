@@ -59,7 +59,9 @@ void PIESession::Stop() {
     m_game = nullptr;
 }
 
-void PIESession::OnSimBegin(SceneId p_scene_id) {
+void PIESession::OnSimBegin(SceneId p_scene_id, ViewId p_view_id) {
+    unused(p_view_id);
+
     SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
 
     m_pie_scene = scene_manager.Clone(p_scene_id);

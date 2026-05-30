@@ -45,7 +45,7 @@ public:
     Option<StateRequest> PopRequest() final { return None(); }
 
     void RequestModeSwitch();
-    bool IsPlaying() const { return m_state == Mode::Playing; }
+    bool IsPlaying() const { return m_mode == Mode::Playing; }
 
 #if USING(DEBUG_BUILD)
     const char* GetDebugName() final { return "EditorState"; }
@@ -72,7 +72,7 @@ private:
     static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
     void CommitModeSwitch();
 
-    Mode m_state{ Mode::Editing };
+    Mode m_mode{ Mode::Editing };
     bool m_switch_mode_requested{ false };
 
     PIESession m_pie;

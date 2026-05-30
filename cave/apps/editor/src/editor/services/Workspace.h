@@ -59,6 +59,7 @@ struct WorkspaceRequest {
 
 struct PreviewScene {
     DocId doc_id{};
+    ViewId view_id{};
     SceneId scene_id{};
     Scene* scene{ nullptr };
 };
@@ -85,7 +86,7 @@ public:
 
     int GetPriority() const final { return 10; }
 
-    DebugId GetDebugId() final { return m_debug_id; }
+    DebugId GetDebugId() const final { return m_debug_id; }
 
     bool OnCloseRequested();
 

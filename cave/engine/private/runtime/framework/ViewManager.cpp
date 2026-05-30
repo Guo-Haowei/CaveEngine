@@ -125,4 +125,15 @@ void ViewManager::Submit(const render::ViewDesc& p_view_desc) {
     m_view_descs.emplace_back(p_view_desc);
 }
 
+ViewId ViewManager::Create() {
+    const ViewId id = Base::Create(nullptr);
+    LOG_VERBOSE("ViewManager: ViewId({},{}) created.", id.index, id.gen);
+    return id;
+}
+
+void ViewManager::Destroy(ViewId p_view_id) {
+    Base::Destroy(p_view_id);
+    LOG_VERBOSE("ViewManager: ViewId({},{}) destroyed.", p_view_id.index, p_view_id.gen);
+}
+
 }  // namespace cave

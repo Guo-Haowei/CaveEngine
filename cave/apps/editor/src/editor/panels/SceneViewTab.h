@@ -38,7 +38,9 @@ public:
 
     void OnInputEvents(const InputFrame& p_input) override;
 
-    DebugId GetDebugId() final { return m_debug_id; }
+    ViewId GetViewId() const override { return m_view_id; }
+
+    DebugId GetDebugId() const final { return m_debug_id; }
 
 protected:
     void SubmitView();

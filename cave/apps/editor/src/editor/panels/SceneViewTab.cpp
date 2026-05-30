@@ -131,7 +131,7 @@ void SceneViewTab::OnCreate() {
 
     app.GetSceneScheduler().Register(this);
     m_editor.PickingService().Register(this);
-    m_view_id = app.GetViewManager()->Create(nullptr);
+    m_view_id = app.GetViewManager()->Create();
 }
 
 void SceneViewTab::OnDestroy() {

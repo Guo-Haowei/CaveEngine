@@ -9,7 +9,9 @@
 namespace cave {
 
 class ViewManager : public IService,
-                    public GenIdRegistry<internal::View> {
+                    protected GenIdRegistry<internal::View> {
+    using Base = GenIdRegistry<internal::View>;
+
 public:
     ViewManager();
 
@@ -17,6 +19,9 @@ public:
     std::span<const render::ResolvedView> EndFrame();
 
     void Submit(const render::ViewDesc& p_view_desc);
+
+    ViewId Create();
+    void Destroy(ViewId p_view_id);
 
 protected:
     auto InitializeImpl() -> Result<void> override;

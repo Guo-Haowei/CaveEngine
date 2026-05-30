@@ -159,25 +159,26 @@ void EditorState::CommitModeSwitch() {
         return;
     }
 
-    // @TODO: refactor
-#if USING(USE_LOG)
-    constexpr const char* names[2] = { "Editing", "PIE" };
-    LOG("EditorState::CommitModeSwitch: {} -> {}",
-        names[std::to_underlying(m_state)],
-        names[std::to_underlying(FlipState(m_state))]);
-#endif
+    const EditorState::Mode old_mode = m_mode;
+    m_mode = FlipState(m_mode);
 
-    switch (m_state) {
+    switch (old_mode) {
         case cave::EditorState::Mode::Editing: {
             PreviewScene preview = m_workspace->FocusedPreviewScene();
-            m_pie.OnSimBegin(preview.scene_id);
+            m_pie.OnSimBegin(preview.scene_id, preview.view_id);
         } break;
         case cave::EditorState::Mode::Playing: {
             m_pie.OnSimEnd();
         } break;
     }
 
-    m_state = FlipState(m_state);
+#if USING(USE_LOG)
+    constexpr const char* names[2] = { "Editing", "PIE" };
+    LOG("EditorState::CommitModeSwitch: {} -> {}",
+        names[std::to_underlying(old_mode)],
+        names[std::to_underlying(m_mode)]);
+#endif
+
     m_switch_mode_requested = false;
 }
 

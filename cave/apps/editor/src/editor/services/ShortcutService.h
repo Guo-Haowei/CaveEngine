@@ -17,7 +17,7 @@ public:
 
     const auto& GetShortcuts() const { return m_shortcuts; }
 
-    DebugId GetDebugId() override { return m_debug_id; }
+    DebugId GetDebugId() const override { return m_debug_id; }
 
 private:
     void InitShortcuts();

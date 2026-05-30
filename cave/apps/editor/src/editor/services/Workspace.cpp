@@ -38,7 +38,13 @@ DocId Workspace::FocusedDoc() {
 }
 
 PreviewScene Workspace::FocusedPreviewScene() {
+    Tab* tab = FocusedTab();
+
     PreviewScene ret;
+    if (tab) {
+        ret.doc_id = tab->GetDocId();
+        ret.view_id = tab->GetViewId();
+    }
     ret.doc_id = FocusedDoc();
     if (IDocument* doc = m_editor.DocumentService().Resolve(ret.doc_id)) {
         ret.scene_id = doc->GetPreviewScene();
