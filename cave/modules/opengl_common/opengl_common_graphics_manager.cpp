@@ -170,8 +170,6 @@ auto CommonOpenGLGraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> R
     glBufferData(type, p_desc.element_count * p_desc.element_size, p_desc.initial_data, usage);
     glBindBuffer(type, 0);
 
-    // glNamedBufferStorage(handle, p_desc.elementCount * p_desc.elementSize, p_desc.initialData, usage);
-
     auto buffer = std::make_shared<OpenGlBuffer>(p_desc);
     buffer->handle = handle;
     buffer->type = type;

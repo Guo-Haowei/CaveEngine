@@ -43,6 +43,7 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 
 namespace cave::render {
 
+using math::Vector2f;
 using math::Vector2i;
 using math::Vector3f;
 using math::Vector4f;
@@ -76,8 +77,7 @@ private:
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
-    void CreateOrUpdateUIBuffers(const std::vector<UIVertex>& p_vertices,
-                                 const std::vector<uint32_t> p_indices);
+    void CreateOrUpdateUIBuffers(const BuiltUIData& p_ui_data);
 
 private:
     IApplication& m_app;
@@ -230,8 +230,18 @@ auto Renderer::Impl::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Renderer::Impl::CreateOrUpdateUIBuffers(const std::vector<UIVertex>& p_vertices,
-                                             const std::vector<uint32_t> p_indices) {
+template<typename T>
+static GpuBufferDesc FillDesc(const std::vector<T>& p_data) {
+    GpuBufferDesc desc{};
+    desc.type = GpuBufferType::Vertex;
+    desc.dynamic = true;
+    desc.element_size = sizeof(T);
+    desc.element_count = static_cast<uint32_t>(p_data.size());
+    desc.initial_data = p_data.data();
+    return desc;
+}
+
+void Renderer::Impl::CreateOrUpdateUIBuffers(const BuiltUIData& p_data) {
     IRenderDevice& device = *m_app.GetRenderDevice();
 
     if (m_ui_buffers) {
@@ -239,27 +249,19 @@ void Renderer::Impl::CreateOrUpdateUIBuffers(const std::vector<UIVertex>& p_vert
         return;
     }
 
-    std::array<GpuBufferDesc, 1> vb_desc{};
-    vb_desc[0].type = GpuBufferType::Vertex;
-    vb_desc[0].dynamic = true;
-    vb_desc[0].element_size = sizeof(UIVertex);
-    vb_desc[0].element_count = static_cast<uint32_t>(p_vertices.size());
-    vb_desc[0].initial_data = p_vertices.data();
+    std::array<GpuBufferDesc, 2> vb_desc{};
+    vb_desc[0] = FillDesc(p_data.positions);
+    vb_desc[1] = FillDesc(p_data.colors);
 
-    GpuBufferDesc ib_desc{};
+    GpuBufferDesc ib_desc = FillDesc(p_data.indices);
     ib_desc.type = GpuBufferType::Index;
-    ib_desc.dynamic = true;
-    ib_desc.element_size = sizeof(uint32_t);
-    ib_desc.element_count = static_cast<uint32_t>(p_indices.size());
-    ib_desc.initial_data = p_indices.data();
 
     GpuMeshDesc mesh_desc{};
     mesh_desc.drawCount = ib_desc.element_count;
-    mesh_desc.enabledVertexCount = 2;
-    mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(UIVertex), 0 };
-    mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 0, sizeof(UIVertex), sizeof(math::Vector2f) };
+    mesh_desc.enabledVertexCount = (uint32_t)vb_desc.size();
+    mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vector2f), 0 };
+    mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Color), 0 };
 
-    // @TODO: use span instead
     m_ui_buffers = device.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
 }
 
@@ -275,7 +277,7 @@ void Renderer::Impl::Tick(const FrameTime& p_frame,
     const BuiltUIData ui_data = BuildUIData(p_views, p_ui_data);
     DEV_ASSERT(ui_data.batches.size() == p_views.size());
     if (!ui_data.indices.empty()) {
-        CreateOrUpdateUIBuffers(ui_data.vertices, ui_data.indices);
+        CreateOrUpdateUIBuffers(ui_data);
     }
 
     for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {

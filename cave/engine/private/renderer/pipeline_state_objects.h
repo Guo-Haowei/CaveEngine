@@ -27,7 +27,7 @@ static const InputLayoutDesc s_input_layout_sprite = {
 static const InputLayoutDesc s_input_layout_ui = {
     .elements = {
         { "POSITION", 0, PixelFormat::R32G32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, PixelFormat::R32G32B32A32_FLOAT, 0, 8, InputClassification::PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, PixelFormat::R32G32B32A32_FLOAT, 1, 0, InputClassification::PER_VERTEX_DATA, 0 },
     }
 };
 

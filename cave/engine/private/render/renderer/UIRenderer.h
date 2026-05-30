@@ -7,16 +7,6 @@
 
 namespace cave::render {
 
-// math::Vector4f is 16 byte aligned
-struct UIColor {
-    float r, g, b, a;
-};
-
-struct UIVertex {
-    math::Vector2f pos;
-    UIColor color;
-};
-
 struct UIBatch {
     ViewId view_id{};
     uint32_t first_index{};
@@ -24,7 +14,8 @@ struct UIBatch {
 };
 
 struct BuiltUIData {
-    std::vector<UIVertex> vertices;
+    std::vector<math::Vector2f> positions;
+    std::vector<Color> colors;
     std::vector<uint32_t> indices;
     std::vector<UIBatch> batches;
 };
