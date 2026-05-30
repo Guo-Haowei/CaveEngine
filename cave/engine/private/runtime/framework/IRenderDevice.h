@@ -143,10 +143,6 @@ protected:
     virtual void OnWindowResize(int p_width, int p_height) = 0;
     virtual void SetPipelineStateImpl(PipelineStateName p_name) = 0;
 
-public:
-    // @TODO: make private
-    std::shared_ptr<GpuMesh> m_boxBuffers;
-
 protected:
     virtual void UpdateEmitters(const Scene& p_scene) = 0;
 };

@@ -76,7 +76,6 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
     // create meshes
     // @TODO: refactor
     m_skyboxBuffers = *CreateMesh(MakeSkyBoxMesh());
-    m_boxBuffers = *CreateMesh(MakeBoxMesh());
 
     m_initialized = true;
     return Result<void>();

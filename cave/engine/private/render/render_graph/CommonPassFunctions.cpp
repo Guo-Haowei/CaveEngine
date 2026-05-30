@@ -352,25 +352,15 @@ void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Dispatch(work_group_x, work_group_y, 1);
 }
 
-// @TODO: get rid off this!
-#if 0
-void DebugVoxels(RenderPassExcutionContext& p_ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& gm = p_ctx.cmd;
-    // auto p_framebuffer = p_ctx.framebuffer;
-    // gm.Clear(p_framebuffer, CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, IRenderDevice::DEFAULT_CLEAR_COLOR, 0.0f);
-
-    p_ctx.cmd.SetPipelineState(PSO_DEBUG_VOXEL);
-
-    gm.SetMesh(gm.m_boxBuffers.get());
-    const uint32_t size = DVAR_GET_INT(gfx_voxel_size);
-    gm.DrawElementsInstanced(size * size * size, gm.m_boxBuffers->desc.drawCount);
-}
-#endif
-
 static void UIOverlayPassFunc(RenderPassExcutionContext& p_ctx) {
-    unused(p_ctx);
+    const UIBatch& batch = p_ctx.frameData.ui_batch;
+    if (batch.index_count == 0) {
+        return;
+    }
+
+    auto& cmd = p_ctx.cmd;
+    //cmd.SetPipelineState();
+    //cmd.SetMesh();
 }
 
 /// Tone
@@ -384,7 +374,7 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
 
-    // @TODO: draw UI Overlay here
+    // @TODO: move UI overlay to a different pass
     UIOverlayPassFunc(p_ctx);
 }
 
