@@ -26,8 +26,7 @@ public:
     void SetViewport(const Viewport& p_viewport) override {}
 
     auto CreateMeshImpl(const GpuMeshDesc& p_desc,
-                        uint32_t p_count,
-                        const GpuBufferDesc* p_vb_descs,
+                        std::span<const GpuBufferDesc> p_vb_descs,
                         const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> final {
         return nullptr;
     }

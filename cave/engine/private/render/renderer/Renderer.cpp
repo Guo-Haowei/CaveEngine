@@ -239,12 +239,12 @@ void Renderer::Impl::CreateOrUpdateUIBuffers(const std::vector<UIVertex>& p_vert
         return;
     }
 
-    GpuBufferDesc vb_desc{};
-    vb_desc.type = GpuBufferType::Vertex;
-    vb_desc.dynamic = true;
-    vb_desc.element_size = sizeof(UIVertex);
-    vb_desc.element_count = static_cast<uint32_t>(p_vertices.size());
-    vb_desc.initial_data = p_vertices.data();
+    std::array<GpuBufferDesc, 1> vb_desc{};
+    vb_desc[0].type = GpuBufferType::Vertex;
+    vb_desc[0].dynamic = true;
+    vb_desc[0].element_size = sizeof(UIVertex);
+    vb_desc[0].element_count = static_cast<uint32_t>(p_vertices.size());
+    vb_desc[0].initial_data = p_vertices.data();
 
     GpuBufferDesc ib_desc{};
     ib_desc.type = GpuBufferType::Index;
@@ -260,7 +260,7 @@ void Renderer::Impl::CreateOrUpdateUIBuffers(const std::vector<UIVertex>& p_vert
     mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 0, sizeof(UIVertex), sizeof(math::Vector2f) };
 
     // @TODO: use span instead
-    m_ui_buffers = device.CreateMeshImpl(mesh_desc, 1, &vb_desc, &ib_desc).value();
+    m_ui_buffers = device.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
 }
 
 void Renderer::Impl::Tick(const FrameTime& p_frame,

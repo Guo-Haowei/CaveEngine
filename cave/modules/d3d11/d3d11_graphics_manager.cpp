@@ -808,12 +808,11 @@ auto D3d11GraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> Result<s
 }
 
 auto D3d11GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
-                                          uint32_t p_count,
-                                          const GpuBufferDesc* p_vb_descs,
+                                          std::span<const GpuBufferDesc> p_vb_descs,
                                           const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
     auto ret = std::make_shared<D3d11MeshBuffers>(p_desc);
 
-    for (uint32_t index = 0; index < p_count; ++index) {
+    for (uint32_t index = 0; index < (uint32_t)p_vb_descs.size(); ++index) {
         if (!p_vb_descs[index].element_count) {
             continue;
         }

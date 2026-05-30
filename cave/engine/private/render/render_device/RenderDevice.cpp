@@ -165,7 +165,7 @@ auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
         ib_desc_ptr = &ib_desc;
     }
 
-    auto ret = CreateMeshImpl(desc, count, vb_descs.data(), ib_desc_ptr);
+    auto ret = CreateMeshImpl(desc, vb_descs, ib_desc_ptr);
     if (!ret) {
         return CAVE_ERROR(ret.error());
     }
