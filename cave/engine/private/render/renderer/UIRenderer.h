@@ -7,9 +7,14 @@
 
 namespace cave::render {
 
+// math::Vector4f is 16 byte aligned
+struct UIColor {
+    float r, g, b, a;
+};
+
 struct UIVertex {
     math::Vector2f pos;
-    math::Vector4f color;
+    UIColor color;
 };
 
 struct UIBatch {

@@ -358,9 +358,13 @@ static void UIOverlayPassFunc(RenderPassExcutionContext& p_ctx) {
         return;
     }
 
+    const auto& mesh = p_ctx.frameData.ui_buffer;
+    DEV_ASSERT(mesh);
+
     auto& cmd = p_ctx.cmd;
-    //cmd.SetPipelineState();
-    //cmd.SetMesh();
+    cmd.SetPipelineState(PSO_UI_OVERLAY);
+    cmd.SetMesh(mesh.get());
+    cmd.DrawElements(mesh->desc.drawCount);
 }
 
 /// Tone

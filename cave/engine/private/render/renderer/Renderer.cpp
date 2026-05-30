@@ -76,8 +76,8 @@ private:
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
-    void CreateOrUpdateUIBuffer(const std::vector<UIVertex>& p_vertices,
-                                const std::vector<uint32_t> p_indices);
+    void CreateOrUpdateUIBuffers(const std::vector<UIVertex>& p_vertices,
+                                 const std::vector<uint32_t> p_indices);
 
 private:
     IApplication& m_app;
@@ -95,8 +95,7 @@ private:
     GpuTextureId m_ltc1{};
     GpuTextureId m_ltc2{};
 
-    std::shared_ptr<GpuBuffer> m_ui_vertex_buffer;
-    std::shared_ptr<GpuBuffer> m_ui_index_buffer;
+    std::shared_ptr<GpuMesh> m_ui_buffers;
 };
 
 Renderer::Renderer()
@@ -228,42 +227,37 @@ auto Renderer::Impl::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Renderer::Impl::CreateOrUpdateUIBuffer(const std::vector<UIVertex>& p_vertices,
-                                            const std::vector<uint32_t> p_indices) {
+void Renderer::Impl::CreateOrUpdateUIBuffers(const std::vector<UIVertex>& p_vertices,
+                                             const std::vector<uint32_t> p_indices) {
     IRenderDevice& device = *m_app.GetRenderDevice();
-    {
-        GpuBufferDesc desc{};
-        desc.type = GpuBufferType::Vertex;
-        desc.dynamic = true;
-        desc.element_size = sizeof(UIVertex);
-        desc.element_count = static_cast<uint32_t>(p_vertices.size());
-        desc.initial_data = p_vertices.data();
-        if (!m_ui_vertex_buffer) {
-            m_ui_vertex_buffer = device.CreateBuffer(desc).value();
-        } else {
-            if (m_ui_vertex_buffer->desc.element_count > desc.element_count) {
-                CRASH_NOW_MSG("handle overflow");
-            }
-            device.UpdateBuffer(desc, m_ui_vertex_buffer.get());
-        }
-    }
-    {
-        GpuBufferDesc desc{};
-        desc.type = GpuBufferType::Index;
-        desc.dynamic = true;
-        desc.element_size = sizeof(uint32_t);
-        desc.element_count = static_cast<uint32_t>(p_indices.size());
-        desc.initial_data = p_indices.data();
 
-        if (!m_ui_index_buffer) {
-            m_ui_index_buffer = device.CreateBuffer(desc).value();
-        } else {
-            if (m_ui_index_buffer->desc.element_count > desc.element_count) {
-                CRASH_NOW_MSG("handle overflow");
-            }
-            device.UpdateBuffer(desc, m_ui_index_buffer.get());
-        }
+    if (m_ui_buffers) {
+        // @TODO: update buffers instead of creating new ones
+        return;
     }
+
+    GpuBufferDesc vb_desc{};
+    vb_desc.type = GpuBufferType::Vertex;
+    vb_desc.dynamic = true;
+    vb_desc.element_size = sizeof(UIVertex);
+    vb_desc.element_count = static_cast<uint32_t>(p_vertices.size());
+    vb_desc.initial_data = p_vertices.data();
+
+    GpuBufferDesc ib_desc{};
+    ib_desc.type = GpuBufferType::Index;
+    ib_desc.dynamic = true;
+    ib_desc.element_size = sizeof(uint32_t);
+    ib_desc.element_count = static_cast<uint32_t>(p_indices.size());
+    ib_desc.initial_data = p_indices.data();
+
+    GpuMeshDesc mesh_desc{};
+    mesh_desc.drawCount = ib_desc.element_count;
+    mesh_desc.enabledVertexCount = 2;
+    mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(UIVertex), 0 };
+    mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 0, sizeof(UIVertex), sizeof(math::Vector2f) };
+
+    // @TODO: use span instead
+    m_ui_buffers = device.CreateMeshImpl(mesh_desc, 1, &vb_desc, &ib_desc).value();
 }
 
 void Renderer::Impl::Tick(const FrameTime& p_frame,
@@ -278,13 +272,14 @@ void Renderer::Impl::Tick(const FrameTime& p_frame,
     const BuiltUIData ui_data = BuildUIData(p_views, p_ui_data);
     DEV_ASSERT(ui_data.batches.size() == p_views.size());
     if (!ui_data.indices.empty()) {
-        CreateOrUpdateUIBuffer(ui_data.vertices, ui_data.indices);
+        CreateOrUpdateUIBuffers(ui_data.vertices, ui_data.indices);
     }
 
     for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {
         const ResolvedView& view = plan.views[idx];
         FrameData& data = plan.frame_data[idx];
         data.ui_batch = ui_data.batches[idx];
+        data.ui_buffer = m_ui_buffers;
 
         if (auto res = BuildRenderGraph(data.options, view); !res) {
             CRASH_NOW();

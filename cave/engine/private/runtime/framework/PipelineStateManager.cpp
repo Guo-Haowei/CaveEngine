@@ -219,6 +219,18 @@ Result<void> PipelineStateManager::Initialize() {
                                      .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                                  });
 
+    CREATE_PSO(PSO_UI_OVERLAY, {
+                                   .vs = "ui_overlay.vs",
+                                   .ps = "ui_overlay.ps",
+                                   .rasterizerDesc = &s_rasterizerFrontFace,
+                                   .depthStencilDesc = &s_depthStencilDisabled,
+                                   .inputLayoutDesc = &s_input_layout_ui,
+                                   .blendDesc = &s_transparent,
+                                   .numRenderTargets = 1,
+                                   .rtvFormats = { RT_FMT_TONE },
+                                   .dsvFormat = PixelFormat::D32_FLOAT_S8X24_UINT,
+                               });
+
 #pragma region PSO_BLOOM
     CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
     CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });

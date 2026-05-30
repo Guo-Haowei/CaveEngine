@@ -2,9 +2,9 @@
 
 namespace cave {
 
-constexpr UIColor kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
-constexpr UIColor kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
-constexpr UIColor kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
+constexpr Color kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
+constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
+constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
 
 auto UIRuntime::InitializeImpl() -> Result<void> {
     return Result<void>();
@@ -56,7 +56,7 @@ bool UIRuntime::Button(UIId p_id, UIRect p_rect) {
         clicked = hovered;
     }
 
-    UIColor color = kButtonNormal;
+    Color color = kButtonNormal;
     if (m_active == p_id) {
         color = kButtonActive;
     } else if (m_hot == p_id) {

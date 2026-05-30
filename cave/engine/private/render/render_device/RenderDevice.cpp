@@ -75,7 +75,7 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
 
     // create meshes
     // @TODO: refactor
-    m_skyboxBuffers = *CreateMesh(MakeSkyBoxMesh());
+    m_skybox_buffers = *CreateMesh(MakeSkyBoxMesh());
 
     m_initialized = true;
     return Result<void>();
@@ -353,8 +353,8 @@ void RenderDevice::UpdateEmitters(const Scene& p_scene) {
 }
 
 void RenderDevice::DrawSkybox() {
-    SetMesh(m_skyboxBuffers.get());
-    DrawElements(m_skyboxBuffers->desc.drawCount);
+    SetMesh(m_skybox_buffers.get());
+    DrawElements(m_skybox_buffers->desc.drawCount);
 }
 
 void RenderDevice::BeginPass(const CompiledPass& p_pass) {

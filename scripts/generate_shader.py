@@ -41,8 +41,8 @@ input_shaders = [
     'sprite_no_vert.vs',
     'sprite.vs',
     'sprite.ps',
-    # 'voxelization_post.cs',
-    # 'voxelization_pre.cs',
+    'ui_overlay.vs',
+    'ui_overlay.ps',
 ]
 
 def insert_file_name(file_path):
