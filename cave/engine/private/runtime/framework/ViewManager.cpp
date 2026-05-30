@@ -82,6 +82,7 @@ static ResolvedView ResolveView(ViewDesc&& p_view,
     reverse_z(proj);
 
     return {
+        .view_id = p_view.view_id,
         .cam = {
             .view = view,
             .proj = proj,

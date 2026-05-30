@@ -35,6 +35,7 @@ uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
     }
 
     ThumbnailRecord& rec = it->second;
+    rec.view_id = m_view_manager.Create(nullptr);
     rec.state = ThumbnailState::Missing;
     rec.last_used_frame = m_frame_index;
     rec.generation = 1;
@@ -65,6 +66,7 @@ void ThumbnailService::ProcessCompletions() {
         // if (rec.submitted_frame <= completed_frame_index)
         {
             rec.state = ThumbnailState::Ready;
+            m_view_manager.Destroy(rec.view_id);
             m_scene_reg.Destroy(rec.scene_id);
         }
     }
@@ -135,6 +137,7 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
 
         // submit view request
         render::ViewDesc view;
+        view.view_id = rec.view_id;
         view.viewport_px = { 0, 0, (int)req.options.width, (int)req.options.height };
         view.scene_id = res.scene_id;
         view.camera_source = res.camera;

@@ -29,6 +29,7 @@ struct BusyInfo {
 
 struct ThumbnailRecord {
     SceneId scene_id;
+    ViewId view_id;
     ThumbnailState state{};
     GpuTextureId texture{};
     uint64_t gpu_handle{};

@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/ids/ViewId.h"
 #include "cave/core/math/Box.h"
 #include "cave/render/ViewDesc.h"
 
@@ -73,6 +74,7 @@ protected:
     CameraComponent m_camera;
     TransformComponent m_camera_transform;
     GpuTextureId m_texture;
+    ViewId m_view_id;
 };
 
 }  // namespace cave

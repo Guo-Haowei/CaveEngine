@@ -1,12 +1,15 @@
 #pragma once
+#include "cave/core/ids/ViewId.h"
 #include "cave/render/ViewDesc.h"
 #include "cave/runtime/framework/IService.h"
 
+#include "engine/private/core/ids/GenIdRegistry.h"
 #include "engine/private/render/renderer/ResolvedView.h"
 
 namespace cave {
 
-class ViewManager : public IService {
+class ViewManager : public IService,
+                    public GenIdRegistry<internal::View> {
 public:
     ViewManager();
 
