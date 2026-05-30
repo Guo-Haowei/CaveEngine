@@ -76,6 +76,9 @@ private:
 
     RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
 
+    void CreateOrUpdateUIBuffer(const std::vector<UIVertex>& p_vertices,
+                                const std::vector<uint32_t> p_indices);
+
 private:
     IApplication& m_app;
     RenderSceneBuilder m_scene_builder;
@@ -91,6 +94,9 @@ private:
     GpuTextureId m_brdf{};
     GpuTextureId m_ltc1{};
     GpuTextureId m_ltc2{};
+
+    std::shared_ptr<GpuBuffer> m_ui_vertex_buffer;
+    std::shared_ptr<GpuBuffer> m_ui_index_buffer;
 };
 
 Renderer::Renderer()
@@ -218,7 +224,46 @@ auto Renderer::Impl::Initialize() -> Result<void> {
         },
     });
 #endif
+
     return Result<void>();
+}
+
+void Renderer::Impl::CreateOrUpdateUIBuffer(const std::vector<UIVertex>& p_vertices,
+                                            const std::vector<uint32_t> p_indices) {
+    IRenderDevice& device = *m_app.GetRenderDevice();
+    {
+        GpuBufferDesc desc{};
+        desc.type = GpuBufferType::Vertex;
+        desc.dynamic = true;
+        desc.element_size = sizeof(UIVertex);
+        desc.element_count = static_cast<uint32_t>(p_vertices.size());
+        desc.initial_data = p_vertices.data();
+        if (!m_ui_vertex_buffer) {
+            m_ui_vertex_buffer = device.CreateBuffer(desc).value();
+        } else {
+            if (m_ui_vertex_buffer->desc.element_count > desc.element_count) {
+                CRASH_NOW_MSG("handle overflow");
+            }
+            device.UpdateBuffer(desc, m_ui_vertex_buffer.get());
+        }
+    }
+    {
+        GpuBufferDesc desc{};
+        desc.type = GpuBufferType::Index;
+        desc.dynamic = true;
+        desc.element_size = sizeof(uint32_t);
+        desc.element_count = static_cast<uint32_t>(p_indices.size());
+        desc.initial_data = p_indices.data();
+
+        if (!m_ui_index_buffer) {
+            m_ui_index_buffer = device.CreateBuffer(desc).value();
+        } else {
+            if (m_ui_index_buffer->desc.element_count > desc.element_count) {
+                CRASH_NOW_MSG("handle overflow");
+            }
+            device.UpdateBuffer(desc, m_ui_index_buffer.get());
+        }
+    }
 }
 
 void Renderer::Impl::Tick(const FrameTime& p_frame,
@@ -232,6 +277,9 @@ void Renderer::Impl::Tick(const FrameTime& p_frame,
 
     const BuiltUIData ui_data = BuildUIData(p_views, p_ui_data);
     DEV_ASSERT(ui_data.batches.size() == p_views.size());
+    if (!ui_data.indices.empty()) {
+        CreateOrUpdateUIBuffer(ui_data.vertices, ui_data.indices);
+    }
 
     for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {
         const ResolvedView& view = plan.views[idx];

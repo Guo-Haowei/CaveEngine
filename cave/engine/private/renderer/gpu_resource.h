@@ -98,15 +98,15 @@ struct GpuTextureDesc {
 };
 
 enum class GpuBufferType : uint8_t {
-    UNKNOWN,
-    VERTEX,
-    INDEX,
-    CONSTANT,
-    STRUCTURED,
+    Unknown,
+    Vertex,
+    Index,
+    Constant,
+    Structured,
 };
 
 struct GpuBufferDesc {
-    GpuBufferType type{ GpuBufferType::UNKNOWN };
+    GpuBufferType type{ GpuBufferType::Unknown };
     // @TODO: need better flags than this
     bool dynamic{ false };
     uint32_t slot{ 0 };  // remove this if possible

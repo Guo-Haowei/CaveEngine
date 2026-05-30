@@ -147,7 +147,7 @@ auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
 
         auto& buffer_desc = vb_descs[index];
         buffer_desc.slot = index;
-        buffer_desc.type = GpuBufferType::VERTEX;
+        buffer_desc.type = GpuBufferType::Vertex;
         buffer_desc.element_count = in.elementCount;
         buffer_desc.element_size = in.strideInByte;
         buffer_desc.initial_data = data[index];
@@ -158,7 +158,7 @@ auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
     GpuBufferDesc* ib_desc_ptr = nullptr;
     if (!p_mesh.indices.empty()) {
         ib_desc = GpuBufferDesc{
-            .type = GpuBufferType::INDEX,
+            .type = GpuBufferType::Index,
             .element_size = sizeof(uint32_t),
             .element_count = (uint32_t)p_mesh.indices.size(),
             .initial_data = p_mesh.indices.data(),
