@@ -131,13 +131,16 @@ void SceneViewTab::OnCreate() {
 
     app.GetSceneScheduler().Register(this);
     m_editor.PickingService().Register(this);
-    m_view_id = app.GetViewManager()->Create("SceneView");
+
+    m_view_id = app.GetViewManager()->CreateView(
+        "SceneView",
+        { 0, 0, kTextureWidth, kTextureHeight });
 }
 
 void SceneViewTab::OnDestroy() {
     IApplication& app = m_editor.GetApp();
 
-    app.GetViewManager()->Destroy(m_view_id);
+    app.GetViewManager()->DestroyView(m_view_id);
     m_editor.PickingService().Register(this);
     app.GetSceneScheduler().Unregister(this);
 }

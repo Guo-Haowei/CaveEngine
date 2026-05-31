@@ -11,9 +11,7 @@ struct ViewRecord {
     std::string debug_name;
 
     math::FloatRect rect{};  // view rect in screen space
-
-    //// Last render target dimensions / region.
-    // math::IntRect viewport_px{};
+    math::IntRect viewport_px{};
 
     //// Optional: last submitted output.
     // GpuTextureId output{};

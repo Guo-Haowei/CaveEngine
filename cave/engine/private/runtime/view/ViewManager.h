@@ -20,8 +20,9 @@ public:
     void BeginFrame();
     std::span<const ResolvedView> EndFrame();
 
-    ViewId Create(std::string_view p_debug_name);
-    void Destroy(ViewId p_view_id);
+    ViewId CreateView(std::string_view p_debug_name,
+                      const math::IntRect& p_viewport_px);
+    void DestroyView(ViewId p_view_id);
 
     void Submit(const ViewDesc& p_view_desc);
     ViewRecord* Resolve(ViewId p_view_id) {

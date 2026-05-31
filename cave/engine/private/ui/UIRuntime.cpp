@@ -50,12 +50,17 @@ bool UIRuntime::Button(UIId p_id, UIRect p_rect) {
     const ViewRecord* view = m_view_manager->Resolve(m_current_view);
     DEV_ASSERT(view);
 
-    const Vector2f ndc = view->ScreenToNDC(m_input.cursor_screen);
+    const Vector2f extent{ view->viewport_px.w, view->viewport_px.y };
 
-    const bool hovered = glm::abs(ndc.x) < .5f && glm::abs(ndc.y < .5);
+    const auto& rect = view->rect;
+    Vector2f cursor = m_input.cursor_screen - rect.Min();  // view space
+    cursor /= rect.Extent();                               // [0, 1)
+    cursor.x *= view->viewport_px.w;
+    cursor.y *= view->viewport_px.h;
+
+    const bool hovered = p_rect.Contains(cursor.x, cursor.y);
     if (hovered) {
         m_hot = p_id;
-        LOG("hovered");
     }
 
     if (hovered && m_input.mouse_pressed) {

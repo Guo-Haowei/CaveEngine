@@ -67,12 +67,13 @@ uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
         PointClampSampler());
 
     ThumbnailRecord& rec = it->second;
+    math::IntRect vp = { 0, 0, (int)w, (int)h };
     rec = {
         .view_desc = {
-            .view_id = m_view_manager.Create("ThumbnailView"),
+            .view_id = m_view_manager.CreateView("ThumbnailView", vp),
             .scene_id = res.scene_id,
             .camera_source = res.camera,
-            .viewport_px = { 0, 0, (int)w, (int)h },
+            .viewport_px = vp,
             .highlight = {},
             .output = tex,
         },
@@ -109,7 +110,7 @@ void ThumbnailService::ProcessCompletions() {
         // if (rec.submitted_frame <= completed_frame_index)
         {
             rec.state = ThumbnailState::Ready;
-            m_view_manager.Destroy(rec.view_desc.view_id);
+            m_view_manager.DestroyView(rec.view_desc.view_id);
             m_scene_reg.Destroy(rec.view_desc.scene_id);
         }
     }
