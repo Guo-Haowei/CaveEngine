@@ -44,9 +44,10 @@ struct ViewHighlight {
 };
 
 struct ViewDesc {
-    CameraSource camera_source{};
-    SceneId scene_id{};
     ViewId view_id{};
+    SceneId scene_id{};
+
+    CameraSource camera_source{};
     math::IntRect viewport_px{};
 
     ViewHighlight highlight{};
