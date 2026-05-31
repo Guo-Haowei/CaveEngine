@@ -26,10 +26,8 @@ void PickingService::Submit(PickRequest p_req) {
 }
 
 void PickingService::Raycast(const PickData& p_pick_data) {
-    Vector2f ndc = (p_pick_data.cursor / p_pick_data.extent) * 2.0f - 1.0f;
-    ndc.y = -ndc.y;
-    Vector4f clip_near{ ndc, 0.0f, 1.0f };
-    Vector4f clip_far{ ndc, 1.0f, 1.0f };
+    Vector4f clip_near{ p_pick_data.cursor_ndc, 0.0f, 1.0f };
+    Vector4f clip_far{ p_pick_data.cursor_ndc, 1.0f, 1.0f };
 
     const Matrix4x4f inv_pv = glm::inverse(p_pick_data.proj_view);
 

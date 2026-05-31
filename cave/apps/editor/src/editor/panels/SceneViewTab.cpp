@@ -151,8 +151,7 @@ Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& p_pos_screen) {
 
     return Some(PickData{
         .proj_view = m_camera.GetProjectionViewMatrix(),
-        .cursor = Vector2f(p_pos_screen.x - rect.Left(), p_pos_screen.y - rect.Top()),
-        .extent = Vector2f(rect.w, rect.h),
+        .cursor_ndc = view->ScreenToNDC(p_pos_screen),
         .scene_id = m_preview_scene,
         .doc_id = m_doc_id,
     });
@@ -242,7 +241,7 @@ static void FitAspect(float p_aspect, float& p_width, float& p_height) {
 }
 
 void SceneViewTab::UpdateRect(math::FloatRect& p_out_rect) {
-    ImVec2 cursor_pos = ImGui::GetCursorPos();  // cursor to window pos
+    ImVec2 cursor_pos = ImGui::GetCursorPos();  // cursor to screen pos
     ImVec2 cursor_screen_pos = ImGui::GetCursorScreenPos();
     ImVec2 size = ImGui::GetWindowSize();
     {
@@ -262,7 +261,7 @@ void SceneViewTab::UpdateRect(math::FloatRect& p_out_rect) {
 
 // @TODO: instead of asking for image, provide an image to renderer
 void SceneViewTab::DrawMainView(const math::FloatRect& p_rect) {
-    const ImVec2 min{ p_rect.Left(), p_rect.Top() };
+    const ImVec2 min{ p_rect.x, p_rect.y };
     const ImVec2 max{ p_rect.Right(), p_rect.Bottom() };
 
     // @TODO: move it somewhere else
