@@ -210,6 +210,7 @@ bool Application::MainLoop() {
     m_view_manager->BeginFrame();
 
     m_state_machine.Tick(time);
+    m_intent_dispatcher.Flush();
 
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->Tick(time);

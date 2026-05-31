@@ -27,6 +27,7 @@ class IAssetManager;
 class DisplayService;
 class ImguiManager;
 class IInputService;
+class IntentDispatcher;
 class IUIRuntime;
 class IPhysicsManager;
 class IScriptService;
@@ -91,6 +92,7 @@ public:
     virtual EventQueue& GetEventQueue() = 0;
     virtual SceneScheduler& GetSceneScheduler() = 0;
     virtual IInputService& InputService() = 0;
+    virtual IntentDispatcher& GetIntentDispatcher() = 0;
 
     // services
     SceneQueryService& SceneQueryService() { return *m_scene_query_service; }
