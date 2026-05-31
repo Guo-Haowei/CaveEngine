@@ -1,10 +1,10 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
-#include "cave/render/ViewDesc.h"
+#include "cave/runtime/view/ViewDesc.h"
 #include "cave/runtime/framework/IService.h"
 
 #include "engine/private/core/ids/GenIdRegistry.h"
-#include "engine/private/render/renderer/ResolvedView.h"
+#include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave {
 
@@ -16,9 +16,9 @@ public:
     ViewManager();
 
     void BeginFrame();
-    std::span<const render::ResolvedView> EndFrame();
+    std::span<const ResolvedView> EndFrame();
 
-    void Submit(const render::ViewDesc& p_view_desc);
+    void Submit(const ViewDesc& p_view_desc);
 
     ViewId Create();
     void Destroy(ViewId p_view_id);
@@ -28,8 +28,8 @@ protected:
     void FinalizeImpl() override;
 
 private:
-    std::vector<render::ViewDesc> m_view_descs;
-    std::vector<render::ResolvedView> m_views;
+    std::vector<ViewDesc> m_view_descs;
+    std::vector<ResolvedView> m_views;
     bool m_can_submit{ false };
 };
 

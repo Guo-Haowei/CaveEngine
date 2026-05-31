@@ -5,7 +5,7 @@
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorState.h"
@@ -136,7 +136,7 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
                 PointClampSampler());
 
         // submit view request
-        render::ViewDesc view;
+        ViewDesc view;
         view.view_id = rec.view_id;
         view.viewport_px = { 0, 0, (int)req.options.width, (int)req.options.height };
         view.scene_id = res.scene_id;

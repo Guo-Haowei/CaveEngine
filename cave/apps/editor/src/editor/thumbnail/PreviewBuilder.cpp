@@ -19,7 +19,6 @@ using ecs::Entity;
 using math::Matrix4x4f;
 using math::Vector3f;
 using math::Vector4f;
-using render::CameraSource;
 
 static CameraComponent FitAABBToCamera(const math::AABB& p_aabb,
                                        const PreviewOptions& p_options,

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/render/ViewDesc.h
+// File: public/cave/runtime/view/ViewDesc.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/SceneId.h"
@@ -9,12 +9,9 @@
 #include "cave/runtime/ecs/components/CameraComponent.h"
 
 namespace cave {
+
 struct GpuTexture;
 using GpuTextureId = std::shared_ptr<GpuTexture>;
-}  // namespace cave
-
-namespace cave::render {
-
 using RenderTargetId = uint32_t;
 
 struct ViewOutputDesc {
@@ -55,4 +52,4 @@ struct ViewDesc {
     GpuTextureId output{};
 };
 
-}  // namespace cave::render
+}  // namespace cave

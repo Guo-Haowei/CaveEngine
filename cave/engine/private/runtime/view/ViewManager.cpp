@@ -9,10 +9,6 @@
 
 namespace cave {
 
-using render::CameraSource;
-using render::ResolvedView;
-using render::ViewDesc;
-
 ViewManager::ViewManager()
     : IService("ViewManager") {}
 
@@ -99,7 +95,7 @@ static ResolvedView ResolveView(ViewDesc&& p_view,
     };
 }
 
-std::span<const render::ResolvedView> ViewManager::EndFrame() {
+std::span<const ResolvedView> ViewManager::EndFrame() {
     DEV_ASSERT(m_can_submit == true);
     m_can_submit = false;
 
@@ -120,7 +116,7 @@ std::span<const render::ResolvedView> ViewManager::EndFrame() {
     return m_views;
 }
 
-void ViewManager::Submit(const render::ViewDesc& p_view_desc) {
+void ViewManager::Submit(const ViewDesc& p_view_desc) {
     DEV_ASSERT(m_can_submit);
     m_view_descs.emplace_back(p_view_desc);
 }

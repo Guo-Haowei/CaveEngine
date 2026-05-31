@@ -1,12 +1,10 @@
 #pragma once
 #include "cave/core/math/Frustum.h"
-#include "cave/render/ViewDesc.h"
+#include "cave/runtime/view/ViewDesc.h"
 
-// clang-format off
-namespace cave { class Scene; }
-// clang-format on
+namespace cave {
 
-namespace cave::render {
+class Scene;
 
 struct CameraParams {
     math::Matrix4x4f view;
@@ -29,4 +27,4 @@ struct ResolvedView {
     GpuTextureId output;
 };
 
-}  // namespace cave::render
+}  // namespace cave

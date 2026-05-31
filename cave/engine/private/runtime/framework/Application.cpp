@@ -23,7 +23,7 @@
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
-#include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/ui/UIRuntime.h"

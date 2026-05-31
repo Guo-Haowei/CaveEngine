@@ -5,7 +5,7 @@
 #include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/runtime/framework/ImGuiManager.h"
-#include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/view/ViewManager.h"
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"

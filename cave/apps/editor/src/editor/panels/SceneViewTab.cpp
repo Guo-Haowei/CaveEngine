@@ -8,7 +8,7 @@
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/edit/ChangePropertyCmd.h"

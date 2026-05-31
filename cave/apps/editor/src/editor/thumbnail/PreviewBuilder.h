@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/render/ViewDesc.h"
+#include "cave/runtime/view/ViewDesc.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/ids/SceneId.h"
 
@@ -30,7 +30,7 @@ enum class PreviewBuildStatus : uint8_t {
 struct PreviewBuildResult {
     PreviewBuildStatus status{};
     SceneId scene_id{};
-    render::CameraSource camera{};
+    CameraSource camera{};
 };
 
 class PreviewBuilder {

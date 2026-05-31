@@ -2,7 +2,7 @@
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/IService.h"
 
-#include "engine/private/render/renderer/ResolvedView.h"
+#include "engine/private/runtime/view/ResolvedView.h"
 
 // clang-format off
 namespace cave { struct FrameData; }

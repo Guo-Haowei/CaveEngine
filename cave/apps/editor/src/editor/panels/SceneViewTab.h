@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
 #include "cave/core/math/Box.h"
-#include "cave/render/ViewDesc.h"
+#include "cave/runtime/view/ViewDesc.h"
 
 #include "editor/document/SceneDocument.h"
 #include "editor/panels/Tab.h"

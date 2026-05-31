@@ -3,7 +3,7 @@
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/framework/IUIRuntime.h"
 
-#include "ResolvedView.h"
+#include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave::render {
 
