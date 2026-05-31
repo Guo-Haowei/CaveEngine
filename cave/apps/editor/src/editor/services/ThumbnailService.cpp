@@ -35,7 +35,7 @@ uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
     }
 
     ThumbnailRecord& rec = it->second;
-    rec.view_id = m_view_manager.Create();
+    rec.view_id = m_view_manager.Create("ThumbnailView");
     rec.state = ThumbnailState::Missing;
     rec.last_used_frame = m_frame_index;
     rec.generation = 1;

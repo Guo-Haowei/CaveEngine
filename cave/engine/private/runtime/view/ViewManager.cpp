@@ -121,9 +121,11 @@ void ViewManager::Submit(const ViewDesc& p_view_desc) {
     m_view_descs.emplace_back(p_view_desc);
 }
 
-ViewId ViewManager::Create() {
-    const ViewId id = Base::Create(nullptr);
-    LOG_VERBOSE("ViewManager: ViewId({},{}) created.", id.index, id.gen);
+ViewId ViewManager::Create(std::string_view p_debug_name) {
+    auto view = std::make_unique<ViewRecord>();
+    view->debug_name = p_debug_name;
+    const ViewId id = Base::Create(std::move(view));
+    LOG_VERBOSE("ViewManager: View '{}'({},{}) created.", p_debug_name, id.index, id.gen);
     return id;
 }
 

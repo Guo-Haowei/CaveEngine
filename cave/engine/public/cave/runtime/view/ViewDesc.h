@@ -2,6 +2,7 @@
 // File: public/cave/runtime/view/ViewDesc.h
 // =============================================================================
 #pragma once
+#include <string_view>
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/ids/ViewId.h"
 #include "cave/core/math/Rect.h"

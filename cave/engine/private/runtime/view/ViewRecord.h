@@ -6,7 +6,7 @@ namespace cave {
 struct ViewRecord {
     ViewId view_id;
 
-    // std::string debug_name;
+    std::string debug_name;
 
     //// Where the view is displayed in application/window space.
     //// Used for mouse -> view-local conversion.
