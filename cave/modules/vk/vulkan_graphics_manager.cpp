@@ -2,7 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/drivers/glfw/glfw_display_manager.h"
+#include "engine/private/runtime/display/GlfwDisplayManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/null/NullPipelineStateManager.h"
 #include "vulkan_helpers.h"

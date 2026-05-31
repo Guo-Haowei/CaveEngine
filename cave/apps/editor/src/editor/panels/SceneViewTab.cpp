@@ -149,8 +149,9 @@ Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& p_pos_screen) {
     if (!IsVisible()) return None();
 
     const ViewRecord* view = m_view_manager.Resolve(m_view_id);
-    const math::FloatRect& rect = view->rect;
-    if (!rect.Contains(p_pos_screen.x, p_pos_screen.y)) return None();
+    if (!view->display_rect_os.Contains(p_pos_screen.x, p_pos_screen.y)) {
+        return None();
+    }
 
     return Some(PickData{
         .proj_view = m_camera.GetProjectionViewMatrix(),
@@ -225,11 +226,11 @@ void SceneViewTab::DrawUIImpl() {
     ViewRecord* view = m_view_manager.Resolve(m_view_id);
     DEV_ASSERT(view);
 
-    UpdateRect(view->rect);
-    DrawMainView(view->rect);
+    UpdateRect(view->display_rect_os);
+    DrawMainView(view->display_rect_os);
 
     if (!m_editor.IsPlaying()) {
-        DrawGizmo(view->rect);
+        DrawGizmo(view->display_rect_os);
     }
 
     SubmitView();

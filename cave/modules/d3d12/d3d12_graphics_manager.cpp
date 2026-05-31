@@ -8,14 +8,15 @@
 #undef max
 #endif
 
+#include "cave/core/string/StringUtils.h"
+#include "cave/runtime/framework/IApplication.h"
+
 #include "../d3d_common/d3d_common.h"
 #include "d3d12_pipeline_state_manager.h"
-#include "cave/core/string/StringUtils.h"
-#include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
-#include "cave/runtime/framework/IApplication.h"
+#include "engine/private/runtime/display/GlfwDisplayManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 

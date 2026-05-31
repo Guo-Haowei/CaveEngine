@@ -1,7 +1,7 @@
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/framework/DisplayService.h"
+#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/input/InputService.h"
 
@@ -134,8 +134,8 @@ UIInput InputService::BuildUIInput() {
     const auto it = m_pointers.find(device_id.value);
     if (it != m_pointers.end()) {
         const PointerState pointer = it->second;
-        const auto [wx, wy] = display_service.GetWindowPos();
-        input.cursor_screen = math::Vector2f(pointer.x + wx, pointer.y + wy);
+        const auto [x_win, y_win] = display_service.GetWindowPos();
+        input.cursor_os = math::Vector2f(pointer.x + x_win, pointer.y + y_win);
     }
 
     // Mouse buttons
