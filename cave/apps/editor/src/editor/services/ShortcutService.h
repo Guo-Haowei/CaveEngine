@@ -1,11 +1,14 @@
 #pragma once
 #include "cave/runtime/input/IInputConsumer.h"
+#include "cave/runtime/intent/IIntentHandler.h"
 
 #include "ShortcutDesc.h"
 
 namespace cave {
 
 class EditorState;
+
+class SaveIntentHandler;
 
 class ShortcutService final : public IInputConsumer {
 public:
@@ -26,6 +29,8 @@ private:
     const DebugId m_debug_id;
 
     std::array<ShortcutDesc, kShortcutCount> m_shortcuts;
+
+    std::unique_ptr<SaveIntentHandler> m_save_handler;
 };
 
 }  // namespace cave

@@ -6,16 +6,11 @@
 
 namespace cave {
 
-enum class IntentResult {
-    Ignored,
-    Consumed,
-};
-
 class IIntentHandler {
 public:
     virtual ~IIntentHandler() = default;
 
-    virtual IntentResult HandleIntent(const Intent& intent) = 0;
+    virtual void HandleIntent(const Intent& p_intent) = 0;
 };
 
 }  // namespace cave

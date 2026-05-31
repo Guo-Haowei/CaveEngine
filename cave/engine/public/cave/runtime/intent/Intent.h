@@ -18,4 +18,10 @@ public:
     virtual std::string_view GetDebugName() const = 0;
 };
 
+#define CAVE_DECLARE_INTENT(STR)                               \
+public:                                                        \
+    inline static constexpr StringId TypeId{ STR };            \
+    IntentTypeId GetTypeId() const override { return TypeId; } \
+    std::string_view GetDebugName() const override { return TypeId.DebugName(); }
+
 }  // namespace cave

@@ -14,8 +14,11 @@ void IntentDispatcher::AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_ha
 }
 
 void IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler) {
-    unused(p_intent_id);
-    unused(p_handler);
+    auto it = m_handlers.find(p_intent_id);
+    if (it == m_handlers.end()) return;
+    std::vector<IIntentHandler*>& handlers = it->second;
+    auto it2 = std::remove(handlers.begin(), handlers.end(), p_handler);
+    handlers.erase(it2, handlers.end());
 }
 
 void IntentDispatcher::Flush() {
@@ -33,7 +36,8 @@ void IntentDispatcher::DispatchOne(const Intent& p_intent) {
     }
 
     for (IIntentHandler* handler : it->second) {
-        handler->HandleIntent(p_intent);
+        if (DEV_VERIFY(handler))
+            handler->HandleIntent(p_intent);
     }
 }
 

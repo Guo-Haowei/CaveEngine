@@ -2,6 +2,7 @@
 
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/input/KeyState.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
 
@@ -11,20 +12,44 @@
 #include "editor/services/EditService.h"
 #include "editor/services/Workspace.h"
 
+#include "editor/EditorIntent.h"
 #include "editor/EditorState.h"
 
 namespace cave {
+
+class SaveIntentHandler : public IIntentHandler {
+public:
+    void HandleIntent(const Intent& p_intent) override {
+        auto intent = dynamic_cast<const SaveIntent*>(&p_intent);
+        DEV_ASSERT(intent);
+
+        const bool save_as = intent->SaveAs();
+        LOG_OK(save_as ? "Ctrl+Shift+S" : "Ctrl+S");
+        // AssetRegistry::GetSingleton().SaveAllAssets();
+        // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(true));
+        // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(false));
+    }
+};
 
 ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
 
-    m_editor.GetApp().InputService().Register(this);
+    IApplication& app = m_editor.GetApp();
+
+    m_save_handler = std::make_unique<SaveIntentHandler>();
+
+    app.InputService().Register(this);
+    app.GetIntentDispatcher().AddHandler<SaveIntent>(m_save_handler.get());
+
     InitShortcuts();
 }
 
 ShortcutService::~ShortcutService() {
-    m_editor.GetApp().InputService().Unregister(this);
+    IApplication& app = m_editor.GetApp();
+
+    app.GetIntentDispatcher().RemoveHandler<SaveIntent>(m_save_handler.get());
+    app.InputService().Unregister(this);
 }
 
 void ShortcutService::InitShortcuts() {
@@ -32,17 +57,14 @@ void ShortcutService::InitShortcuts() {
         "Save As..",
         "Ctrl+Shift+S",
         [this]() {
-            LOG_WARN("Ctrl+Shift+S");
-            // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(true));
+            m_editor.GetApp().GetIntentDispatcher().PushIntent<SaveIntent>(true);
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [this]() {
-            LOG_WARN("Ctrl+S");
-            // AssetRegistry::GetSingleton().SaveAllAssets();
-            // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(false));
+            m_editor.GetApp().GetIntentDispatcher().PushIntent<SaveIntent>(false);
         },
     };
 

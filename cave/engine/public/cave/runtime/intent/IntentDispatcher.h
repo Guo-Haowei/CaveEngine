@@ -16,6 +16,16 @@ public:
     void AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
     void RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
 
+    template<typename T>
+    void AddHandler(IIntentHandler* p_handler) {
+        AddHandler(T::TypeId, p_handler);
+    }
+
+    template<typename T>
+    void RemoveHandler(IIntentHandler* p_handler) {
+        RemoveHandler(T::TypeId, p_handler);
+    }
+
     template<typename T, typename... Args>
     auto PushIntent(Args&&... args) -> T& {
         auto intent = std::make_unique<T>(std::forward<Args>(args)...);
