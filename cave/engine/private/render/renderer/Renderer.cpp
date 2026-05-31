@@ -241,11 +241,42 @@ static GpuBufferDesc FillDesc(const std::vector<T>& p_data) {
     return desc;
 }
 
+template<typename T>
+static bool UpdateUIBuffer(IRenderDevice& p_device,
+                           const std::vector<T>& p_data,
+                           GpuBuffer* p_buffer) {
+    if (p_data.size() > p_buffer->desc.element_count) {
+        return false;
+    }
+
+    GpuBufferDesc desc = p_buffer->desc;
+    desc.element_count = (uint32_t)p_data.size();
+    desc.initial_data = p_data.data();
+    p_device.UpdateBuffer(desc, p_buffer);
+    return true;
+}
+
+static bool UpdateAllUIBuffer(IRenderDevice& p_device,
+                              const BuiltUIData& p_data,
+                              GpuMesh& p_mesh) {
+    if (!UpdateUIBuffer(p_device, p_data.indices, p_mesh.indexBuffer.get()))
+        return false;
+    if (!UpdateUIBuffer(p_device, p_data.positions, p_mesh.vertexBuffers.at(0).get()))
+        return false;
+    if (!UpdateUIBuffer(p_device, p_data.colors, p_mesh.vertexBuffers.at(1).get()))
+        return false;
+    return true;
+}
+
 void Renderer::Impl::CreateOrUpdateUIBuffers(const BuiltUIData& p_data) {
     IRenderDevice& device = *m_app.GetRenderDevice();
 
     if (m_ui_buffers) {
-        // @TODO: update buffers instead of creating new ones
+        if (!UpdateAllUIBuffer(device, p_data, *m_ui_buffers)) {
+            // @TODO: proper error handling
+            CRASH_NOW_MSG("Failed to update UI buffer");
+        }
+        // @TODO: if failed to update buffer, create a new one
         return;
     }
 
