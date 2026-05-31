@@ -50,7 +50,7 @@ void PickingService::Raycast(const PickData& p_pick_data) {
 }
 
 void PickingService::Tick() {
-    auto [win_x, win_y] = m_editor.GetApp().GetDisplayManager()->GetWindowPos();
+    auto [win_x, win_y] = m_editor.GetApp().GetDisplayService()->GetWindowPos();
 
     if (m_request.is_none()) {
         return;

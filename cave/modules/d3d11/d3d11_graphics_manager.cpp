@@ -76,7 +76,7 @@ void D3d11GraphicsManager::Render() {
     m_deviceContext->ClearRenderTargetView(m_windowRtv.Get(), clear_color);
 
     // @TODO: refactor this
-    const auto [width, height] = m_app->GetDisplayManager()->GetWindowSize();
+    const auto [width, height] = m_app->GetDisplayService()->GetWindowSize();
 
     if (m_app->IsRuntime()) {
         CRASH_NOW();
@@ -173,7 +173,7 @@ auto D3d11GraphicsManager::CreateDevice() -> Result<void> {
 }
 
 auto D3d11GraphicsManager::CreateSwapChain() -> Result<void> {
-    void* hwnd = m_app->GetDisplayManager()->GetNativeWindow();
+    void* hwnd = m_app->GetDisplayService()->GetNativeWindow();
     DEV_ASSERT(hwnd);
 
     DXGI_MODE_DESC buffer_desc{};

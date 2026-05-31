@@ -641,7 +641,7 @@ void CommonOpenGLGraphicsManager::Render() {
 
     // @TODO: refactor this
     if (m_app->IsRuntime()) {
-        const auto [width, height] = m_app->GetDisplayManager()->GetWindowSize();
+        const auto [width, height] = m_app->GetDisplayService()->GetWindowSize();
         unused(width);
         unused(height);
         CRASH_NOW();

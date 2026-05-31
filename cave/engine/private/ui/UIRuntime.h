@@ -5,6 +5,8 @@
 
 namespace cave {
 
+class ViewManager;
+
 class UIRuntime final : public IUIRuntime {
 public:
     UIRuntime()
@@ -27,8 +29,9 @@ protected:
     void FinalizeImpl() override;
 
 private:
-    UIInput m_input;
-    UIFrameDrawData m_draw_data;
+    ViewManager* m_view_manager{};
+    UIInput m_input{};
+    UIFrameDrawData m_draw_data{};
     ViewId m_current_view{};
 
     UIId m_hot = 0;     // hovered this frame
