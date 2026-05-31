@@ -1,5 +1,6 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
+#include "cave/core/math/Box.h"
 
 namespace cave {
 
@@ -8,9 +9,7 @@ struct ViewRecord {
 
     std::string debug_name;
 
-    //// Where the view is displayed in application/window space.
-    //// Used for mouse -> view-local conversion.
-    // math::FloatRect screen_rect{};
+    math::FloatRect rect{};  // view rect in window space
 
     //// Last render target dimensions / region.
     // math::IntRect viewport_px{};

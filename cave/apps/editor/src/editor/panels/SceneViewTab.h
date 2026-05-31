@@ -1,6 +1,6 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
-#include "cave/core/math/Box.h"
+#include "cave/core/math/Rect.h"
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "editor/document/SceneDocument.h"
@@ -13,12 +13,13 @@
 
 namespace cave {
 
+class KeyState;
+class ViewManager;
+
 enum ViewDimension : uint8_t {
     DIMENSION_2,
     DIMENSION_3,
 };
-
-class KeyState;
 
 class SceneViewTab : public Tab,
                      public IPickConsumer,
@@ -47,8 +48,9 @@ protected:
 
     void DrawUIImpl() override;
 
-    void DrawMainView();
-    void DrawGizmo();
+    void UpdateRect(math::FloatRect& p_out_rect);
+    void DrawMainView(const math::FloatRect& p_rect);
+    void DrawGizmo(const math::FloatRect& p_rect);
 
     Scene* GetResolvedScene();
     // void OnCreateInternal(const Guid& p_guid) final;
@@ -58,6 +60,7 @@ protected:
     // const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
     const DebugId m_debug_id;
+    ViewManager& m_view_manager;
     GizmoAction m_gizmo_action{ GizmoAction::Translate };
 
     SceneId m_preview_scene;
@@ -69,7 +72,6 @@ protected:
 
     ViewDimension m_dim;
     int m_button_index{ 0 };
-    math::Box2 m_rect;
 
     // @TODO: move to input controller
     std::unique_ptr<ICameraController> m_camera_controller;

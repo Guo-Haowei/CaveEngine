@@ -24,6 +24,9 @@ public:
     void Destroy(ViewId p_view_id);
 
     void Submit(const ViewDesc& p_view_desc);
+    ViewRecord* Resolve(ViewId p_view_id) {
+        return Base::Resolve(p_view_id);
+    }
 
 protected:
     auto InitializeImpl() -> Result<void> override;
