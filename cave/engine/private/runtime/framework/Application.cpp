@@ -23,7 +23,7 @@
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
-#include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/ui/UIRuntime.h"
@@ -71,7 +71,7 @@ auto Application::SetupModules() -> Result<void> {
     m_scene_registry = new SceneRegistry();
     m_physics_manager = CreatePhysicsService();
     m_render_device = CreateRenderDevice(m_spec.backend);
-    m_display_server = CreateDisplayService();
+    m_display_service = CreateDisplayService();
     m_input_service = new cave::InputService();
     m_ui = new UIRuntime();
     m_renderer = new render::Renderer();
@@ -96,7 +96,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
     RegisterModule(m_input_service);
-    RegisterModule(m_display_server);
+    RegisterModule(m_display_service);
     RegisterModule(m_render_device);
     RegisterModule(m_renderer);
     RegisterModule(m_view_manager);
@@ -187,8 +187,8 @@ bool Application::MainLoop() {
 
     CompositeLogger::GetSingleton().Flush();
 
-    m_display_server->BeginFrame();
-    if (m_display_server->ShouldClose()) {
+    m_display_service->BeginFrame();
+    if (m_display_service->ShouldClose()) {
         return false;
     }
 

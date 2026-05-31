@@ -60,6 +60,12 @@ def insert_file_name(file_path):
 
     return
 
+def run_command(command):
+    proc = subprocess.run(command)
+    if (proc.returncode != 0):
+        print(f'running: {' '.join(command)}')
+        raise RuntimeError(f'Failed to run command: {" ".join(command)}')
+
 def generate(hlsl_source):
     full_input_path = os.path.join(
         project_dir,
@@ -83,19 +89,13 @@ def generate(hlsl_source):
     # generate shader
     include_path = os.path.join(project_dir, shader_source_dir)
 
-    spv_command = [dxc_path, full_input_path, '-T', shader_model, '-E', 'main', '-Fo', output_spv, '-spirv', '-I', include_path, '-D HLSL_LANG=1', '-D HLSL_LANG_D3D11=1', '-D HLSL_2_GLSL']
+    spv_command = [dxc_path, full_input_path, '-T', shader_model, '-E', 'main', '-Fo', output_spv, '-spirv', '-I', include_path, '-DENABLE_SPIRV_CODEGEN=ON', '-D HLSL_LANG=1', '-D HLSL_LANG_D3D11=1', '-D HLSL_2_GLSL']
     generate_files = [ { 'filename': glsl_file, 'command' : spv_command } ]
 
     for generate_file in generate_files:
         generated_file_name = generate_file['filename']
-        proc = subprocess.run(generate_file['command'])
-        if (proc.returncode != 0):
-            print(f'running: {' '.join(generate_file['command'])}')
-            raise RuntimeError(f'Failed to generate "{generated_file_name}"')
-        proc = subprocess.run([spriv_cross_path, output_spv, '--version', '450', '--output', generated_file_name])
-        if (proc.returncode != 0):
-            print(f'running: {' '.join(generate_file['command'])}')
-            raise RuntimeError(f'Failed to generate "{generated_file_name}"')
+        run_command(generate_file['command'])
+        run_command([spriv_cross_path, output_spv, '--version', '450', '--output', generated_file_name])
         print(f'file "{generated_file_name}" generated')
         insert_file_name(generated_file_name)
     return

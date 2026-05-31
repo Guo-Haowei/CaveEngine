@@ -300,7 +300,7 @@ void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
                 float x = static_cast<float>(e.x);
                 float y = static_cast<float>(e.y);
                 if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-                    auto [window_x, window_y] = m_app->GetDisplayManager()->GetWindowPos();
+                    auto [window_x, window_y] = m_app->GetDisplayService()->GetWindowPos();
                     x += window_x;
                     y += window_y;
                 }

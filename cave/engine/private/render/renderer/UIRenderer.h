@@ -3,19 +3,9 @@
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/framework/IUIRuntime.h"
 
-#include "ResolvedView.h"
+#include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave::render {
-
-// math::Vector4f is 16 byte aligned
-struct UIColor {
-    float r, g, b, a;
-};
-
-struct UIVertex {
-    math::Vector2f pos;
-    UIColor color;
-};
 
 struct UIBatch {
     ViewId view_id{};
@@ -24,7 +14,8 @@ struct UIBatch {
 };
 
 struct BuiltUIData {
-    std::vector<UIVertex> vertices;
+    std::vector<math::Vector2f> positions;
+    std::vector<Color> colors;
     std::vector<uint32_t> indices;
     std::vector<UIBatch> batches;
 };

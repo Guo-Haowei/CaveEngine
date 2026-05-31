@@ -10,8 +10,7 @@ namespace cave {
 
 struct PickData {
     math::Matrix4x4f proj_view;
-    math::Vector2f cursor;  // cursor in viewport space
-    math::Vector2f extent;  // viewport extent
+    math::Vector2f cursor_ndc;
     SceneId scene_id;
     DocId doc_id;
 };

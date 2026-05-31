@@ -102,7 +102,7 @@ public:
     SceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptService* ScriptService() { return m_script_service; }
-    DisplayService* GetDisplayManager() { return m_display_server; }
+    DisplayService* GetDisplayService() { return m_display_service; }
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     TaskManager* GetTaskManager() { return m_task_manager; }
@@ -136,7 +136,7 @@ protected:
     IPhysicsManager* m_physics_manager{ nullptr };
     IScriptService* m_script_service{ nullptr };
 
-    DisplayService* m_display_server{ nullptr };
+    DisplayService* m_display_service{ nullptr };
 
     render::Renderer* m_renderer{ nullptr };
     render::IRenderDevice* m_render_device{ nullptr };

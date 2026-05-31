@@ -61,8 +61,8 @@ public:
     }
 
     void Finalize() final {
-        if (m_display_server) {
-            [[maybe_unused]] auto [w, h] = m_display_server->GetWindowSize();
+        if (m_display_service) {
+            [[maybe_unused]] auto [w, h] = m_display_service->GetWindowSize();
             DVAR_SET_IVEC2(window_resolution, w, h);
         }
 

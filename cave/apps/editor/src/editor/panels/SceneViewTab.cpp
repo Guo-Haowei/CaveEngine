@@ -8,7 +8,7 @@
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/edit/ChangePropertyCmd.h"
@@ -19,16 +19,15 @@
 // @TODO: refactor
 #include "engine/private/core/math/Geomath.h"
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/sampler.h"
-
-#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/renderer/sampler.h"
+#include "engine/private/runtime/view/ViewManager.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/document/SceneDocument.h"
+#include "editor/EditorDvars.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"
-
-#include "editor/EditorDvars.h"
 
 namespace cave {
 
@@ -52,6 +51,7 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
                            ViewDimension p_dimension)
     : Tab(p_editor, p_doc_id)
     , m_debug_id(MakeDebugId(this))
+    , m_view_manager(*p_editor.GetApp().GetViewManager())
     , m_dim(p_dimension)
     , m_preview_scene(p_preview_scene_id)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
@@ -131,25 +131,30 @@ void SceneViewTab::OnCreate() {
 
     app.GetSceneScheduler().Register(this);
     m_editor.PickingService().Register(this);
-    m_view_id = app.GetViewManager()->Create();
+
+    m_view_id = app.GetViewManager()->CreateView(
+        "SceneView",
+        { 0, 0, kTextureWidth, kTextureHeight });
 }
 
 void SceneViewTab::OnDestroy() {
     IApplication& app = m_editor.GetApp();
 
-    app.GetViewManager()->Destroy(m_view_id);
+    app.GetViewManager()->DestroyView(m_view_id);
     m_editor.PickingService().Register(this);
     app.GetSceneScheduler().Unregister(this);
 }
 
 Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& p_pos_screen) {
     if (!IsVisible()) return None();
-    if (!m_rect.Contains(p_pos_screen)) return None();
+
+    const ViewRecord* view = m_view_manager.Resolve(m_view_id);
+    const math::FloatRect& rect = view->rect;
+    if (!rect.Contains(p_pos_screen.x, p_pos_screen.y)) return None();
 
     return Some(PickData{
         .proj_view = m_camera.GetProjectionViewMatrix(),
-        .cursor = p_pos_screen - m_rect.Min(),
-        .extent = m_rect.Size(),
+        .cursor_ndc = view->ScreenToNDC(p_pos_screen),
         .scene_id = m_preview_scene,
         .doc_id = m_doc_id,
     });
@@ -217,10 +222,14 @@ void SceneViewTab::OnInputEvents(const InputFrame& p_input) {
 }
 
 void SceneViewTab::DrawUIImpl() {
-    DrawMainView();
+    ViewRecord* view = m_view_manager.Resolve(m_view_id);
+    DEV_ASSERT(view);
+
+    UpdateRect(view->rect);
+    DrawMainView(view->rect);
 
     if (!m_editor.IsPlaying()) {
-        DrawGizmo();
+        DrawGizmo(view->rect);
     }
 
     SubmitView();
@@ -234,9 +243,8 @@ static void FitAspect(float p_aspect, float& p_width, float& p_height) {
     }
 }
 
-// @TODO: instead of asking for image, provide an image to renderer
-void SceneViewTab::DrawMainView() {
-    ImVec2 cursor_pos = ImGui::GetCursorPos();  // cursor to window pos
+void SceneViewTab::UpdateRect(math::FloatRect& p_out_rect) {
+    ImVec2 cursor_pos = ImGui::GetCursorPos();  // cursor to screen pos
     ImVec2 cursor_screen_pos = ImGui::GetCursorScreenPos();
     ImVec2 size = ImGui::GetWindowSize();
     {
@@ -247,11 +255,17 @@ void SceneViewTab::DrawMainView() {
         FitAspect(aspect, size.x, size.y);
     }
 
-    const ImVec2& min = cursor_screen_pos;
-    ImVec2 max(min.x + size.x, min.y + size.y);
+    p_out_rect = math::FloatRect::FromMinMax(
+        cursor_screen_pos.x,
+        cursor_screen_pos.y,
+        cursor_screen_pos.x + size.x,
+        cursor_screen_pos.y + size.y);
+}
 
-    m_rect.SetMinMax(Vector2f(min.x, min.y),
-                     Vector2f(max.x, max.y));
+// @TODO: instead of asking for image, provide an image to renderer
+void SceneViewTab::DrawMainView(const math::FloatRect& p_rect) {
+    const ImVec2 min{ p_rect.x, p_rect.y };
+    const ImVec2 max{ p_rect.Right(), p_rect.Bottom() };
 
     // @TODO: move it somewhere else
     uint64_t handle = m_texture->GetHandle();
@@ -276,7 +290,7 @@ void SceneViewTab::DrawMainView() {
     }
 
     // @TODO: drop target
-    ImGui::Dummy(size);
+    ImGui::Dummy({ p_rect.w, p_rect.h });
     // ImGui::InvisibleButton("###DropTarget", size);
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CAVE/Asset")) {
@@ -286,7 +300,7 @@ void SceneViewTab::DrawMainView() {
 }
 
 // @TODO: move this to gizmo
-void SceneViewTab::DrawGizmo() {
+void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
     DEV_ASSERT(!m_camera.IsDirty());
     DocId doc_id = GetDocId();
 
@@ -298,9 +312,7 @@ void SceneViewTab::DrawGizmo() {
     ImGuizmo::BeginFrame();
 
     ImGuizmo::SetDrawlist();
-    Vector2f min = m_rect.Min();
-    Vector2f size = m_rect.Size();
-    ImGuizmo::SetRect(min.x, min.y, size.x, size.y);
+    ImGuizmo::SetRect(p_rect.x, p_rect.y, p_rect.w, p_rect.h);
 
     SelectionKey selection = m_editor.SelectionService().Primary(m_doc_id);
     ecs::Entity id = selection.entity;

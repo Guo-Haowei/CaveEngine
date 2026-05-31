@@ -27,12 +27,10 @@ struct BusyInfo {
     bool is_interacting = false;
 };
 
-// @TODO: add a View structure, for thumbnail, game, editor
 struct ThumbnailRecord {
-    SceneId scene_id;
-    ViewId view_id;
+    ViewDesc view_desc;
     ThumbnailState state{};
-    GpuTextureId texture{};
+
     uint64_t gpu_handle{};
     uint64_t last_used_frame{};
     uint64_t submitted_frame{};

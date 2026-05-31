@@ -38,8 +38,7 @@ public:
     void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) override;
 
     auto CreateMeshImpl(const GpuMeshDesc& p_desc,
-                        uint32_t p_count,
-                        const GpuBufferDesc* p_vb_descs,
+                        std::span<const GpuBufferDesc> p_vb_descs,
                         const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> override;
 
     void SetMesh(const GpuMesh* p_mesh) override;

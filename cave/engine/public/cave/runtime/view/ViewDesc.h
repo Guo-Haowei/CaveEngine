@@ -1,7 +1,8 @@
 // =============================================================================
-// File: public/cave/render/ViewDesc.h
+// File: public/cave/runtime/view/ViewDesc.h
 // =============================================================================
 #pragma once
+#include <string_view>
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/ids/ViewId.h"
 #include "cave/core/math/Rect.h"
@@ -9,12 +10,9 @@
 #include "cave/runtime/ecs/components/CameraComponent.h"
 
 namespace cave {
+
 struct GpuTexture;
 using GpuTextureId = std::shared_ptr<GpuTexture>;
-}  // namespace cave
-
-namespace cave::render {
-
 using RenderTargetId = uint32_t;
 
 struct ViewOutputDesc {
@@ -46,13 +44,14 @@ struct ViewHighlight {
 };
 
 struct ViewDesc {
-    CameraSource camera_source{};
-    SceneId scene_id{};
     ViewId view_id{};
+    SceneId scene_id{};
+
+    CameraSource camera_source{};
     math::IntRect viewport_px{};
 
     ViewHighlight highlight{};
     GpuTextureId output{};
 };
 
-}  // namespace cave::render
+}  // namespace cave

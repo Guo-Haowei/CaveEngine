@@ -1,12 +1,19 @@
 #include "UIRuntime.h"
 
+#include "cave/runtime/framework/IApplication.h"
+
+#include "engine/private/runtime/view/ViewManager.h"
+
 namespace cave {
+
+using math::Vector2f;
 
 constexpr Color kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
 constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
 constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
 
 auto UIRuntime::InitializeImpl() -> Result<void> {
+    m_view_manager = m_app->GetViewManager();
     return Result<void>();
 }
 
@@ -40,8 +47,12 @@ void UIRuntime::EndView() {
 bool UIRuntime::Button(UIId p_id, UIRect p_rect) {
     DEV_ASSERT(m_stack > 0);
 
-    const bool hovered = p_rect.Contains(m_input.mouse_pos.x, m_input.mouse_pos.y);
+    const ViewRecord* view = m_view_manager->Resolve(m_current_view);
+    DEV_ASSERT(view);
 
+    const Vector2f point = view->ScreenToPixel(m_input.cursor_screen);
+
+    const bool hovered = p_rect.Contains(point.x, point.y);
     if (hovered) {
         m_hot = p_id;
     }

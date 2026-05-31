@@ -3,10 +3,9 @@
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/AABB.h"
-#include "cave/render/ViewDesc.h"
+#include "cave/runtime/view/ViewDesc.h"
 #include "cave/runtime/ecs/Entity.h"
 
-#include "ResolvedView.h"
 #include "RenderPackets.h"
 #include "UIRenderer.h"
 
@@ -14,6 +13,7 @@
 #include "engine/private/renderer/debug_draw.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_defines.h"
+#include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave {
 #include "cbuffer.hlsl.h"

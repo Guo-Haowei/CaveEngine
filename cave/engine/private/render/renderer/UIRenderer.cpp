@@ -13,31 +13,17 @@ static void AppendUIRect(BuiltUIData& p_out,
     const float x1 = p_rect.Right();
     const float y1 = p_rect.Bottom();
 
-    const Vector4f tmp_color = p_color.ToVector4f();
+    const uint32_t base_vertex = static_cast<uint32_t>(p_out.positions.size());
 
-    const UIColor color{ p_color.r, p_color.g, p_color.b, p_color.a };
+    p_out.positions.push_back(Vector2f(x0, y0));
+    p_out.positions.push_back(Vector2f(x1, y0));
+    p_out.positions.push_back(Vector2f(x1, y1));
+    p_out.positions.push_back(Vector2f(x0, y1));
 
-    const uint32_t base_vertex = static_cast<uint32_t>(p_out.vertices.size());
-
-    p_out.vertices.push_back(UIVertex{
-        .pos = Vector2f(x0, y0),
-        .color = color,
-    });
-
-    p_out.vertices.push_back(UIVertex{
-        .pos = Vector2f(x1, y0),
-        .color = color,
-    });
-
-    p_out.vertices.push_back(UIVertex{
-        .pos = Vector2f(x1, y1),
-        .color = color,
-    });
-
-    p_out.vertices.push_back(UIVertex{
-        .pos = Vector2f(x0, y1),
-        .color = color,
-    });
+    p_out.colors.push_back(p_color);
+    p_out.colors.push_back(p_color);
+    p_out.colors.push_back(p_color);
+    p_out.colors.push_back(p_color);
 
     p_out.indices.push_back(base_vertex + 0);
     p_out.indices.push_back(base_vertex + 1);

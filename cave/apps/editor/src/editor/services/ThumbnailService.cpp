@@ -5,7 +5,7 @@
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/runtime/framework/ViewManager.h"
+#include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorState.h"
@@ -34,11 +34,55 @@ uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
         return 0;
     }
 
+    const uint32_t w = p_key.size;
+    const uint32_t h = p_key.size;
+
+    PreviewBuildRequest req = {
+        .guid = p_key.guid,
+        .options = {
+            .width = w,
+            .height = h,
+        },
+    };
+
+    PreviewBuildResult res = m_builder.Build(req);
+    if (res.status != PreviewBuildStatus::Ok) {
+        return 0;
+    }
+
+    GpuTextureDesc tex_desc{
+        .type = AttachmentType::COLOR_2D,
+        .dimension = Dimension::TEXTURE_2D,
+        .width = w,
+        .height = h,
+        .depth = 1,
+        .mipLevels = 0,
+        .arraySize = 1,
+        .format = PixelFormat::R16G16B16A16_FLOAT,
+        .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+        .miscFlags = RESOURCE_MISC_NONE,
+    };
+    auto tex = m_render_device.CreateTexture(
+        tex_desc,
+        PointClampSampler());
+
     ThumbnailRecord& rec = it->second;
-    rec.view_id = m_view_manager.Create();
-    rec.state = ThumbnailState::Missing;
-    rec.last_used_frame = m_frame_index;
-    rec.generation = 1;
+    math::IntRect vp = { 0, 0, (int)w, (int)h };
+    rec = {
+        .view_desc = {
+            .view_id = m_view_manager.CreateView("ThumbnailView", vp),
+            .scene_id = res.scene_id,
+            .camera_source = res.camera,
+            .viewport_px = vp,
+            .highlight = {},
+            .output = tex,
+        },
+        .state = ThumbnailState::Missing,
+        .gpu_handle = tex->GetHandle(),
+        .last_used_frame = m_frame_index,
+        .submitted_frame = 0,
+        .generation = 1,
+    };
 
     m_pending.emplace_back(PendingRequest{ p_key, rec.generation });
     return 0;
@@ -66,8 +110,8 @@ void ThumbnailService::ProcessCompletions() {
         // if (rec.submitted_frame <= completed_frame_index)
         {
             rec.state = ThumbnailState::Ready;
-            m_view_manager.Destroy(rec.view_id);
-            m_scene_reg.Destroy(rec.scene_id);
+            m_view_manager.DestroyView(rec.view_desc.view_id);
+            m_scene_reg.Destroy(rec.view_desc.scene_id);
         }
     }
 
@@ -92,69 +136,25 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
 
         ThumbnailRecord& rec = it->second;
 
-        // Drop stale requests
         if (rec.generation != pending.generation) {
             continue;
         }
 
-        // Skip pending requests
         if (rec.state == ThumbnailState::Ready || rec.state == ThumbnailState::Pending) {
             continue;
         }
 
-        PreviewBuildRequest req{
-            .guid = pending.key.guid,
-            .options = {
-                .width = pending.key.size,
-                .height = pending.key.size,
-            },
-        };
-
-        PreviewBuildResult res = m_builder.Build(req);
-        if (res.status != PreviewBuildStatus::Ok) {
-            continue;
-        }
-
-        rec.scene_id = res.scene_id;
-
-        // @TODO: move it to somewhere else
-        GpuTextureDesc tex_desc{
-            .type = AttachmentType::COLOR_2D,
-            .dimension = Dimension::TEXTURE_2D,
-            .width = req.options.width,
-            .height = req.options.height,
-            .depth = 1,
-            .mipLevels = 0,
-            .arraySize = 1,
-            .format = PixelFormat::R16G16B16A16_FLOAT,
-            .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
-            .miscFlags = RESOURCE_MISC_NONE,
-        };
-        auto tex =
-            m_render_device.CreateTexture(
-                tex_desc,
-                PointClampSampler());
-
-        // submit view request
-        render::ViewDesc view;
-        view.view_id = rec.view_id;
-        view.viewport_px = { 0, 0, (int)req.options.width, (int)req.options.height };
-        view.scene_id = res.scene_id;
-        view.camera_source = res.camera;
-        view.output = tex;
-        m_view_manager.Submit(view);
+        m_view_manager.Submit(rec.view_desc);
 
         // save record
         rec.state = ThumbnailState::Pending;
         rec.submitted_frame = m_frame_index;
-        rec.texture = tex;
-        rec.gpu_handle = tex->GetHandle();
 
         m_inflight.push_back(pending.key);
         ++submitted;
 
 #if USING(USE_LOG)
-        auto handle = AssetRegistry::GetSingleton().FindByGuid(req.guid);
+        auto handle = AssetRegistry::GetSingleton().FindByGuid(pending.key.guid);
         const AssetMetaData* meta = handle.unwrap().GetMeta();
         LOG_VERBOSE("ThumbnailService::SubmitRequests: '{}' job submitted", meta->name);
 #endif

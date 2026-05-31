@@ -170,8 +170,6 @@ auto CommonOpenGLGraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> R
     glBufferData(type, p_desc.element_count * p_desc.element_size, p_desc.initial_data, usage);
     glBindBuffer(type, 0);
 
-    // glNamedBufferStorage(handle, p_desc.elementCount * p_desc.elementSize, p_desc.initialData, usage);
-
     auto buffer = std::make_shared<OpenGlBuffer>(p_desc);
     buffer->handle = handle;
     buffer->type = type;
@@ -179,8 +177,7 @@ auto CommonOpenGLGraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> R
 }
 
 auto CommonOpenGLGraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
-                                                 uint32_t p_count,
-                                                 const GpuBufferDesc* p_vb_descs,
+                                                 std::span<const GpuBufferDesc> p_vb_descs,
                                                  const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
     // create VAO
     uint32_t vao;
@@ -202,7 +199,7 @@ auto CommonOpenGLGraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     }
 
-    for (uint32_t slot = 0; slot < p_count; ++slot) {
+    for (uint32_t slot = 0; slot < (uint32_t)p_vb_descs.size(); ++slot) {
         if (p_vb_descs[slot].element_count == 0) {
             continue;
         }
@@ -644,7 +641,7 @@ void CommonOpenGLGraphicsManager::Render() {
 
     // @TODO: refactor this
     if (m_app->IsRuntime()) {
-        const auto [width, height] = m_app->GetDisplayManager()->GetWindowSize();
+        const auto [width, height] = m_app->GetDisplayService()->GetWindowSize();
         unused(width);
         unused(height);
         CRASH_NOW();

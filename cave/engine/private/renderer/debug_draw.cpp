@@ -122,7 +122,7 @@ void DebugDraw::Batch() {
     }
 
     DEV_ASSERT((uint32_t)indices.size() == item_count * 6);
-    GpuBufferDesc buffer_descs[3];
+    std::array<GpuBufferDesc, 3> buffer_descs;
     buffer_descs[0] = {
         .type = GpuBufferType::Vertex,
         .slot = 0,
@@ -159,7 +159,7 @@ void DebugDraw::Batch() {
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vector2f), 0 };
     desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vector4f), 0 };
 
-    auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, 3, buffer_descs, &index_desc);
+    auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, buffer_descs, &index_desc);
     m_mesh = *mesh;
 }
 

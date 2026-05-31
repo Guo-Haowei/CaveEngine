@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include <concepts>
+#include "cave/core/math/impl/Vector2.h"
 
 namespace cave::math {
 
@@ -27,6 +28,18 @@ struct Rect {
 
     inline constexpr bool Contains(T p_x, T p_y) const {
         return p_x >= Left() && p_x < Right() && p_y >= Top() && p_y < Bottom();
+    }
+
+    constexpr Vector<T, 2> Min() const {
+        return { x, y };
+    }
+
+    constexpr Vector<T, 2> Max() const {
+        return { x + w, y + h };
+    }
+
+    constexpr Vector<T, 2> Extent() const {
+        return { w, h };
     }
 };
 

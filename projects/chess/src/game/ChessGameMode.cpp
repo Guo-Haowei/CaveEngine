@@ -75,25 +75,21 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
     cave::IUIRuntime& ui = p_host.UI();
 
     ui.BeginView(p_host.GetViewId());
-    const float offset_x = 400.0f;
-    if (ui.Button(1, { offset_x, 100, 400, 100 })) {
-        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 0 clicked");
-    }
-    if (ui.Button(2, { offset_x, 300, 400, 100 })) {
-        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 1 clicked");
-    }
-    if (ui.Button(3, { offset_x, 500, 400, 100 })) {
-        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 2 clicked");
-    }
-    ui.EndView();
+    const float offset_x = 760.0f;
+    const float offset_y = 200.0f;
+    if (ui.Button(1, { offset_x, offset_y, 400, 100 })) {
+        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 0 clicked\n");
 
-    // @TODO: show menu buttons
-    // @TODO: transit to gameplay once play button is clicked
-    // @TODO: configure player (AI vs human)
-    if (p_host.Input().IsActionJustPressed(StringId("ui_accept"))) {
         auto gameplay = std::make_unique<GameplayState>(m_game);
         m_game.SetPendingState(std::move(gameplay));
     }
+    if (ui.Button(2, { offset_x, offset_y + 200, 400, 100 })) {
+        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 1 clicked\n");
+    }
+    if (ui.Button(3, { offset_x, offset_y + 400, 400, 100 })) {
+        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 2 clicked\n");
+    }
+    ui.EndView();
 }
 
 // =============================================================================

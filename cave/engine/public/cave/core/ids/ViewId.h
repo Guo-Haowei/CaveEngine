@@ -6,10 +6,7 @@
 
 namespace cave {
 
-namespace internal {
-class View {};
-}  // namespace internal
-
-using ViewId = GenId<internal::View>;
+struct ViewRecord;
+using ViewId = GenId<ViewRecord>;
 
 }  // namespace cave
