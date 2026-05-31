@@ -13,9 +13,9 @@ Vector2f ViewRecord::ScreenToNDC(const math::Vector2f& p_point) const {
 
 Vector2f ViewRecord::ScreenToPixel(const math::Vector2f& p_point) const {
     Vector2f point = p_point - rect.Min();  // view space
-    point /= rect.Extent(); // x & y are [0, 1]
-    point.x *= viewport_px.Width();
-    point.y *= viewport_px.Height(); // to viewport space
+    point /= rect.Extent();                 // x & y are [0, 1]
+    point.x *= viewport_px.Width();         // to viewport space
+    point.y *= viewport_px.Height(); 
     return point;
 }
 
