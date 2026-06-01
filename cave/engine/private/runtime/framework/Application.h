@@ -2,7 +2,6 @@
 #include "cave/core/NonCopyable.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
@@ -35,7 +34,6 @@ public:
     EventQueue& GetEventQueue() override { return m_event_queue; }
     SceneScheduler& GetSceneScheduler() override { return *m_scene_scheduler; }
     IInputService& InputService() override { return *m_input_service; }
-    IntentDispatcher& GetIntentDispatcher() override { return m_intent_dispatcher; }
 
     AppType GetType() const override { return m_type; }
 
@@ -58,7 +56,6 @@ protected:
 
     Stopwatch m_stopwatch;
     VFS m_vfs;
-    IntentDispatcher m_intent_dispatcher;
 
     EventQueue m_event_queue;
     std::vector<IService*> m_modules;

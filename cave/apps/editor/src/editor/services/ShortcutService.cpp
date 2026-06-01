@@ -40,7 +40,7 @@ ShortcutService::ShortcutService(EditorState& p_editor)
     m_save_handler = std::make_unique<SaveIntentHandler>();
 
     app.InputService().Register(this);
-    app.GetIntentDispatcher().AddHandler<SaveIntent>(m_save_handler.get());
+    app.GetIntentDispatcher()->AddHandler<SaveIntent>(m_save_handler.get());
 
     InitShortcuts();
 }
@@ -48,7 +48,7 @@ ShortcutService::ShortcutService(EditorState& p_editor)
 ShortcutService::~ShortcutService() {
     IApplication& app = m_editor.GetApp();
 
-    app.GetIntentDispatcher().RemoveHandler<SaveIntent>(m_save_handler.get());
+    app.GetIntentDispatcher()->RemoveHandler<SaveIntent>(m_save_handler.get());
     app.InputService().Unregister(this);
 }
 
@@ -57,14 +57,14 @@ void ShortcutService::InitShortcuts() {
         "Save As..",
         "Ctrl+Shift+S",
         [this]() {
-            m_editor.GetApp().GetIntentDispatcher().PushIntent<SaveIntent>(true);
+            m_editor.GetApp().GetIntentDispatcher()->PushIntent<SaveIntent>(true);
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [this]() {
-            m_editor.GetApp().GetIntentDispatcher().PushIntent<SaveIntent>(false);
+            m_editor.GetApp().GetIntentDispatcher()->PushIntent<SaveIntent>(false);
         },
     };
 

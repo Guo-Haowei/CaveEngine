@@ -6,13 +6,20 @@
 #include <unordered_map>
 #include <vector>
 
-#include "IIntentHandler.h"
-#include "Intent.h"
+#include "cave/runtime/framework/IService.h"
+#include "cave/runtime/intent/IIntentHandler.h"
+#include "cave/runtime/intent/Intent.h"
 
 namespace cave {
 
-class IntentDispatcher {
+struct CommandArgs;
+struct CommandContext;
+
+class IntentDispatcher : public IService {
 public:
+    IntentDispatcher()
+        : IService("IntentDispatcher") {}
+
     void AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
     void RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
 
@@ -37,12 +44,15 @@ public:
 
     void Flush();
 
+protected:
+    auto InitializeImpl() -> Result<void> final;
+    void FinalizeImpl() final;
+
 private:
     void DispatchOne(const Intent& p_intent);
+    void IntentDispatcherDump_Cmd(CommandContext& p_ctx, const CommandArgs& p_args);
 
-private:
     std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;
-
     std::vector<std::unique_ptr<Intent>> m_intents;
 };
 

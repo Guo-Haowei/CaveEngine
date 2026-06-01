@@ -16,9 +16,6 @@ public:
     ImguiManager()
         : IService("ImguiManager") {}
 
-    auto InitializeImpl() -> Result<void> final;
-    void FinalizeImpl() final;
-
     void Feed(std::vector<InputEvent>& p_events);
 
     bool WantKeyboard() const;
@@ -39,6 +36,10 @@ public:
     }
 
     void BeginFrame();
+
+protected:
+    auto InitializeImpl() -> Result<void> final;
+    void FinalizeImpl() final;
 
 private:
     static ImGuiKey ToImGuiKey(Key k);

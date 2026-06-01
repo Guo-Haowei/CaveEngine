@@ -12,9 +12,12 @@ Vector2f ViewRecord::ScreenToNDC(const math::Vector2f& p_point_os) const {
 }
 
 Vector2f ViewRecord::ScreenToFrameBufferPixel(const math::Vector2f& p_point_os) const {
-    Vector2f point = p_point_os - display_rect_os.Min();  // view space
-    point /= display_rect_os.Extent();                    // x & y are [0, 1]
-    point.x *= viewport_fb.Width();                    // to viewport space
+    // Convert to view space
+    Vector2f point = p_point_os - display_rect_os.Min();
+    // Convert to (0, 1) range
+    point /= display_rect_os.Extent();
+    // to viewport space
+    point.x *= viewport_fb.Width();
     point.y *= viewport_fb.Height();
     return point;
 }

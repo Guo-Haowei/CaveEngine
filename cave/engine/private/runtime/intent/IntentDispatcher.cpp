@@ -1,6 +1,32 @@
+#include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
+#if USING(DEBUG_BUILD)
+#include "cave/core/diagnostics/CommandRegistry.h"
+#include "cave/core/diagnostics/ILogger.h"
+#endif
+
 namespace cave {
+
+auto IntentDispatcher::InitializeImpl() -> Result<void> {
+#if USING(DEBUG_BUILD)
+    CommandRegistry& reg = m_app->CommandRegistry();
+    reg.Register({
+        .name = "intent.dump",
+        .help = "List all registered intent handlers.",
+        .usage = "intent.dump",
+        .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
+            IntentDispatcherDump_Cmd(p_ctx, p_args);
+            return true;
+        },
+    });
+#endif
+
+    return Result<void>();
+}
+
+void IntentDispatcher::FinalizeImpl() {
+}
 
 void IntentDispatcher::AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler) {
     DEV_ASSERT(p_handler);
@@ -39,6 +65,20 @@ void IntentDispatcher::DispatchOne(const Intent& p_intent) {
         if (DEV_VERIFY(handler))
             handler->HandleIntent(p_intent);
     }
+}
+
+void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const CommandArgs&) {
+#if USING(DEBUG_BUILD)
+    std::string msg;
+    msg.reserve(512);
+    msg.append("Registered Intent:\n");
+    for (const auto& it : m_handlers) {
+        msg.append(std::format("'{}' has {} handlers\n", it.first.DebugName(), it.second.size()));
+    }
+    p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
+#else
+    unused(p_ctx);
+#endif
 }
 
 }  // namespace cave
