@@ -2,7 +2,8 @@
 // File: engine/public/cave/framework/intent/IntentHandler.h
 // =============================================================================
 #pragma once
-#include "Intent.h"
+#include "cave/core/ids/DebugId.h"
+#include "cave/runtime/intent/Intent.h"
 
 namespace cave {
 
@@ -11,6 +12,8 @@ public:
     virtual ~IIntentHandler() = default;
 
     virtual void HandleIntent(const Intent& p_intent) = 0;
+
+    virtual DebugId GetDebugId() const = 0;
 };
 
 }  // namespace cave

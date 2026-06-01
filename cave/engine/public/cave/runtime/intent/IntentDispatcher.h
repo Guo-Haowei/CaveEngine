@@ -20,8 +20,8 @@ public:
     IntentDispatcher()
         : IService("IntentDispatcher") {}
 
-    void AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
-    void RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
+    bool AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
+    bool RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
 
     template<typename T>
     void AddHandler(IIntentHandler* p_handler) {

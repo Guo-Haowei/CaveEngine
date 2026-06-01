@@ -16,4 +16,14 @@ private:
     const bool m_save_as{ false };
 };
 
+class UndoIntent : public Intent {
+public:
+    CAVE_DECLARE_INTENT("cave.editor.undo");
+};
+
+class RedoIntent : public Intent {
+public:
+    CAVE_DECLARE_INTENT("cave.editor.redo");
+};
+
 }  // namespace cave

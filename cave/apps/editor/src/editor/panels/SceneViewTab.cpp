@@ -21,7 +21,6 @@
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/document/SceneDocument.h"

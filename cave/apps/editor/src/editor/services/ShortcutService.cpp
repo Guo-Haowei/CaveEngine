@@ -6,8 +6,8 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
 
-#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/services/EditService.h"
 #include "editor/services/Workspace.h"
@@ -17,19 +17,48 @@
 
 namespace cave {
 
-class SaveIntentHandler : public IIntentHandler {
+class ShortcutIntentHandler : public IIntentHandler {
 public:
-    void HandleIntent(const Intent& p_intent) override {
-        auto intent = dynamic_cast<const SaveIntent*>(&p_intent);
-        DEV_ASSERT(intent);
+    ShortcutIntentHandler(ShortcutService& p_shortcut)
+        : m_shortcut(p_shortcut)
+        , m_debug_id(MakeDebugId(this)) {}
 
+    void HandleIntent(const Intent& p_intent) override;
+
+    DebugId GetDebugId() const override { return m_debug_id; }
+
+private:
+    ShortcutService& m_shortcut;
+    const DebugId m_debug_id;
+};
+
+void ShortcutIntentHandler::HandleIntent(const Intent& p_intent) {
+    if (auto intent = dynamic_cast<const SaveIntent*>(&p_intent)) {
         const bool save_as = intent->SaveAs();
         LOG_OK(save_as ? "Ctrl+Shift+S" : "Ctrl+S");
+
+        // @TODO: actually save the document
         // AssetRegistry::GetSingleton().SaveAllAssets();
         // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(true));
         // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(false));
+        return;
     }
-};
+
+    EditorState& editor = m_shortcut.m_editor;
+    if (auto intent = dynamic_cast<const UndoIntent*>(&p_intent)) {
+        DocId active_doc = editor.Workspace().FocusedDoc();
+        editor.EditService().Undo(active_doc);
+        return;
+    }
+
+    if (auto intent = dynamic_cast<const RedoIntent*>(&p_intent)) {
+        DocId active_doc = editor.Workspace().FocusedDoc();
+        editor.EditService().Redo(active_doc);
+        return;
+    }
+
+    LOG_ERROR("Can't handle {}", p_intent.GetDebugName());
+}
 
 ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor)
@@ -37,10 +66,12 @@ ShortcutService::ShortcutService(EditorState& p_editor)
 
     IApplication& app = m_editor.GetApp();
 
-    m_save_handler = std::make_unique<SaveIntentHandler>();
+    m_intent_handler = std::make_unique<ShortcutIntentHandler>(*this);
 
     app.InputService().Register(this);
-    app.GetIntentDispatcher()->AddHandler<SaveIntent>(m_save_handler.get());
+    app.GetIntentDispatcher()->AddHandler<SaveIntent>(m_intent_handler.get());
+    app.GetIntentDispatcher()->AddHandler<UndoIntent>(m_intent_handler.get());
+    app.GetIntentDispatcher()->AddHandler<RedoIntent>(m_intent_handler.get());
 
     InitShortcuts();
 }
@@ -48,7 +79,9 @@ ShortcutService::ShortcutService(EditorState& p_editor)
 ShortcutService::~ShortcutService() {
     IApplication& app = m_editor.GetApp();
 
-    app.GetIntentDispatcher()->RemoveHandler<SaveIntent>(m_save_handler.get());
+    app.GetIntentDispatcher()->RemoveHandler<SaveIntent>(m_intent_handler.get());
+    app.GetIntentDispatcher()->RemoveHandler<UndoIntent>(m_intent_handler.get());
+    app.GetIntentDispatcher()->RemoveHandler<RedoIntent>(m_intent_handler.get());
     app.InputService().Unregister(this);
 }
 
@@ -84,14 +117,18 @@ void ShortcutService::InitShortcuts() {
     m_shortcuts[std::to_underlying(Shortcut::Redo)] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [active_document, this]() { m_editor.EditService().Redo(active_document()); },
+        [active_document, this]() {
+            m_editor.GetApp().GetIntentDispatcher()->PushIntent<RedoIntent>();
+        },
         [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Undo)] = {
         "Undo",
         "Ctrl+Z",
-        [active_document, this]() { m_editor.EditService().Undo(active_document()); },
+        [active_document, this]() {
+            m_editor.GetApp().GetIntentDispatcher()->PushIntent<UndoIntent>();
+        },
         [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
     };
 

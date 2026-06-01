@@ -6,6 +6,8 @@
 #include "cave/core/diagnostics/ILogger.h"
 #endif
 
+#include <algorithm>
+
 namespace cave {
 
 auto IntentDispatcher::InitializeImpl() -> Result<void> {
@@ -28,23 +30,37 @@ auto IntentDispatcher::InitializeImpl() -> Result<void> {
 void IntentDispatcher::FinalizeImpl() {
 }
 
-void IntentDispatcher::AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler) {
+bool IntentDispatcher::AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler) {
     DEV_ASSERT(p_handler);
 
     auto [it, inserted] = m_handlers.try_emplace(p_intent_id);
     if (!inserted) {
-        [[maybe_unused]] const bool no_collision = it->first == p_intent_id;
+        if (it->first != p_intent_id) {
+            LOG_FATAL("IntentDispatcher::AddHandler: hash collision");
+            return false;
+        }
     }
 
-    it->second.push_back(p_handler);
+    std::vector<IIntentHandler*>& handlers = it->second;
+
+    auto it2 = std::find(handlers.begin(), handlers.end(), p_handler);
+    if (it2 != handlers.end()) {
+        LOG_ERROR("IntentDispatcher::AddHandler: handler '{}' already registered", p_handler->GetDebugId().type);
+        return false;
+    }
+
+    handlers.push_back(p_handler);
+    return true;
 }
 
-void IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler) {
+bool IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler) {
     auto it = m_handlers.find(p_intent_id);
-    if (it == m_handlers.end()) return;
+    if (it == m_handlers.end()) return false;
     std::vector<IIntentHandler*>& handlers = it->second;
     auto it2 = std::remove(handlers.begin(), handlers.end(), p_handler);
+    if (it2 == handlers.end()) return false;
     handlers.erase(it2, handlers.end());
+    return true;
 }
 
 void IntentDispatcher::Flush() {
@@ -73,7 +89,11 @@ void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const Com
     msg.reserve(512);
     msg.append("Registered Intent:\n");
     for (const auto& it : m_handlers) {
-        msg.append(std::format("'{}' has {} handlers\n", it.first.DebugName(), it.second.size()));
+        msg.append(std::format("'{}' - ", it.first.DebugName()));
+        for (const IIntentHandler* handler : it.second) {
+            msg.append(std::format("{},", handler->GetDebugId().type));
+        }
+        msg[msg.size() - 1] = '\n'; // replace ',' with new line
     }
     p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
 #else

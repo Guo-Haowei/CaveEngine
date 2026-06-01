@@ -8,7 +8,7 @@ namespace cave {
 
 class EditorState;
 
-class SaveIntentHandler;
+class ShortcutIntentHandler;
 
 class ShortcutService final : public IInputConsumer {
 public:
@@ -30,7 +30,9 @@ private:
 
     std::array<ShortcutDesc, kShortcutCount> m_shortcuts;
 
-    std::unique_ptr<SaveIntentHandler> m_save_handler;
+    std::unique_ptr<ShortcutIntentHandler> m_intent_handler;
+
+    friend class ShortcutIntentHandler;
 };
 
 }  // namespace cave
