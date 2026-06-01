@@ -2,11 +2,14 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
+#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
+#include "editor/EditorIntent.h"
 #include "editor/EditorState.h"
 #include "editor/edit/SceneCommandExecutor_Undo.h"
 #include "editor/services/DocumentService.h"
@@ -15,10 +18,17 @@
 namespace cave {
 
 EditService::EditService(EditorState& p_editor)
-    : m_editor(p_editor) {}
+    : m_editor(p_editor)
+    , m_debug_id(MakeDebugId(this)) {
+    m_editor.GetApp().GetIntentDispatcher()->AddHandler<EditIntent>(this);
+}
 
-void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd> p_cmd) {
-    m_pending_cmds[p_doc_id].emplace_back(std::move(p_cmd));
+EditService::~EditService() {
+    m_editor.GetApp().GetIntentDispatcher()->RemoveHandler<EditIntent>(this);
+}
+
+void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd) {
+    m_editor.GetApp().GetIntentDispatcher()->PushIntent<EditIntent>(p_doc_id, std::move(p_cmd));
 }
 
 void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
@@ -90,19 +100,15 @@ bool EditService::Save(DocId p_doc_id) {
     return false;
 }
 
-void EditService::FlushPendingCmds() {
-    CAVE_PROFILE_EVENT();
-
-    for (auto&& [doc_id, pending] : m_pending_cmds) {
-        IDocument* doc = ResolveDoc(doc_id);
+void EditService::HandleIntent(Intent& p_intent) {
+    if (auto intent = dynamic_cast<EditIntent*>(&p_intent)) {
+        IDocument* doc = ResolveDoc(intent->doc_id);
         if (DEV_VERIFY(doc)) {
-            for (int i = (int)pending.size() - 1; i >= 0; --i) {
-                doc->Apply(std::move(pending[i]), 0);
-            }
+            doc->Apply(std::move(intent->cmd), 0);
         }
-    }
 
-    m_pending_cmds.clear();
+        return;
+    }
 }
 
 const IDocument* EditService::ResolveDoc(DocId p_doc_id) const {

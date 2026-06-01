@@ -17,22 +17,27 @@
 
 namespace cave {
 
-class ShortcutIntentHandler : public IIntentHandler {
-public:
-    ShortcutIntentHandler(ShortcutService& p_shortcut)
-        : m_shortcut(p_shortcut)
-        , m_debug_id(MakeDebugId(this)) {}
+ShortcutService::ShortcutService(EditorState& p_editor)
+    : m_editor(p_editor)
+    , m_intent_dispatcher(*p_editor.GetApp().GetIntentDispatcher())
+    , m_debug_id(MakeDebugId(this)) {
 
-    void HandleIntent(const Intent& p_intent) override;
+    m_editor.GetApp().InputService().Register(this);
+    m_intent_dispatcher.AddHandler<SaveIntent>(this);
+    m_intent_dispatcher.AddHandler<UndoIntent>(this);
+    m_intent_dispatcher.AddHandler<RedoIntent>(this);
 
-    DebugId GetDebugId() const override { return m_debug_id; }
+    InitShortcuts();
+}
 
-private:
-    ShortcutService& m_shortcut;
-    const DebugId m_debug_id;
-};
+ShortcutService::~ShortcutService() {
+    m_intent_dispatcher.RemoveHandler<SaveIntent>(this);
+    m_intent_dispatcher.RemoveHandler<UndoIntent>(this);
+    m_intent_dispatcher.RemoveHandler<RedoIntent>(this);
+    m_editor.GetApp().InputService().Unregister(this);
+}
 
-void ShortcutIntentHandler::HandleIntent(const Intent& p_intent) {
+void ShortcutService::HandleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<const SaveIntent*>(&p_intent)) {
         const bool save_as = intent->SaveAs();
         LOG_OK(save_as ? "Ctrl+Shift+S" : "Ctrl+S");
@@ -44,46 +49,46 @@ void ShortcutIntentHandler::HandleIntent(const Intent& p_intent) {
         return;
     }
 
-    EditorState& editor = m_shortcut.m_editor;
     if (auto intent = dynamic_cast<const UndoIntent*>(&p_intent)) {
-        DocId active_doc = editor.Workspace().FocusedDoc();
-        editor.EditService().Undo(active_doc);
+        DocId active_doc = m_editor.Workspace().FocusedDoc();
+        m_editor.EditService().Undo(active_doc);
         return;
     }
 
     if (auto intent = dynamic_cast<const RedoIntent*>(&p_intent)) {
-        DocId active_doc = editor.Workspace().FocusedDoc();
-        editor.EditService().Redo(active_doc);
+        DocId active_doc = m_editor.Workspace().FocusedDoc();
+        m_editor.EditService().Redo(active_doc);
         return;
     }
 
     LOG_ERROR("Can't handle {}", p_intent.GetDebugName());
 }
 
-ShortcutService::ShortcutService(EditorState& p_editor)
-    : m_editor(p_editor)
-    , m_intent_dispatcher(*p_editor.GetApp().GetIntentDispatcher())
-    , m_debug_id(MakeDebugId(this)) {
+void ShortcutService::OnEvents(const InputFrame& p_input) {
+    IInputService& input = m_editor.GetApp().InputService();
+    const bool ctrl = input.GetKeyState().AnyCtrlDown();
+    const bool alt = input.GetKeyState().AnyAltDown();
+    const bool shift = input.GetKeyState().AnyShiftDown();
 
-    IApplication& app = m_editor.GetApp();
+    for (const InputEvent& e : p_input.events) {
+        if (e.type != InputEventType::ButtonDown)
+            continue;
 
-    m_intent_handler = std::make_unique<ShortcutIntentHandler>(*this);
+        for (const ShortcutDesc& desc : m_shortcuts) {
+            if (static_cast<uint32_t>(desc.key) != e.code) continue;
+            if (desc.ctrl)
+                if (!ctrl) continue;
+            if (desc.shift)
+                if (!shift) continue;
+            if (desc.alt)
+                if (!alt) continue;
 
-    app.InputService().Register(this);
-    m_intent_dispatcher.AddHandler<SaveIntent>(m_intent_handler.get());
-    m_intent_dispatcher.AddHandler<UndoIntent>(m_intent_handler.get());
-    m_intent_dispatcher.AddHandler<RedoIntent>(m_intent_handler.get());
-
-    InitShortcuts();
-}
-
-ShortcutService::~ShortcutService() {
-    IApplication& app = m_editor.GetApp();
-
-    m_intent_dispatcher.RemoveHandler<SaveIntent>(m_intent_handler.get());
-    m_intent_dispatcher.RemoveHandler<UndoIntent>(m_intent_handler.get());
-    m_intent_dispatcher.RemoveHandler<RedoIntent>(m_intent_handler.get());
-    app.InputService().Unregister(this);
+            // LOG_VERBOSE("ShortcutService::OnEvents: shortcut '{}' fired", desc.shortcut);
+            desc.execute_func();
+            e.consumed = true;
+            break;
+        }
+    }
 }
 
 void ShortcutService::InitShortcuts() {
@@ -187,33 +192,6 @@ void ShortcutService::InitShortcuts() {
                 DEV_ASSERT(it != keyMapping.end());
                 shortcut.key = it->second;
             }
-        }
-    }
-}
-
-void ShortcutService::OnEvents(const InputFrame& p_input) {
-    IInputService& input = m_editor.GetApp().InputService();
-    const bool ctrl = input.GetKeyState().AnyCtrlDown();
-    const bool alt = input.GetKeyState().AnyAltDown();
-    const bool shift = input.GetKeyState().AnyShiftDown();
-
-    for (const InputEvent& e : p_input.events) {
-        if (e.type != InputEventType::ButtonDown)
-            continue;
-
-        for (const ShortcutDesc& desc : m_shortcuts) {
-            if (static_cast<uint32_t>(desc.key) != e.code) continue;
-            if (desc.ctrl)
-                if (!ctrl) continue;
-            if (desc.shift)
-                if (!shift) continue;
-            if (desc.alt)
-                if (!alt) continue;
-
-            // LOG_VERBOSE("ShortcutService::OnEvents: shortcut '{}' fired", desc.shortcut);
-            desc.execute_func();
-            e.consumed = true;
-            break;
         }
     }
 }

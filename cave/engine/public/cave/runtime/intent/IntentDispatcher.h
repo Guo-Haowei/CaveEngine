@@ -49,7 +49,7 @@ protected:
     void FinalizeImpl() final;
 
 private:
-    void DispatchOne(const Intent& p_intent);
+    void DispatchOne(Intent& p_intent);
     void IntentDispatcherDump_Cmd(CommandContext& p_ctx, const CommandArgs& p_args);
 
     std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;

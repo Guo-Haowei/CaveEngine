@@ -141,7 +141,6 @@ void EditorState::Tick(const FrameTime& p_time) {
         panel->DrawUI();
     }
 
-    m_edit_service->FlushPendingCmds();
     m_workspace->Tick();
     m_picking_service->Tick();
 

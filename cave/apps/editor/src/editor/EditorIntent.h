@@ -1,6 +1,8 @@
 #pragma once
 #include "cave/runtime/intent/Intent.h"
 
+#include "editor/edit/IEditCmd.h"
+
 namespace cave {
 
 class SaveIntent : public Intent {
@@ -24,6 +26,18 @@ public:
 class RedoIntent : public Intent {
 public:
     CAVE_DECLARE_INTENT("cave.editor.redo");
+};
+
+class EditIntent : public Intent {
+public:
+    CAVE_DECLARE_INTENT("cave.editor.edit");
+
+    EditIntent(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd)
+        : doc_id(p_doc_id)
+        , cmd(std::move(p_cmd)) {}
+
+    DocId doc_id;
+    std::unique_ptr<IEditCmd> cmd;
 };
 
 }  // namespace cave

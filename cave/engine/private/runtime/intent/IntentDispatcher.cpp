@@ -8,6 +8,12 @@
 
 #include <algorithm>
 
+#if 1
+#define DEBUG_PRINT(...) LOG_VERBOSE(__VA_ARGS__)
+#else
+#define DEBUG_PRINT(...) ((void)0)
+#endif
+
 namespace cave {
 
 auto IntentDispatcher::InitializeImpl() -> Result<void> {
@@ -64,13 +70,14 @@ bool IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p
 }
 
 void IntentDispatcher::Flush() {
-    for (const auto& intent : m_intents) {
+    for (auto& intent : m_intents) {
+        DEBUG_PRINT("IntentDispatcher::Flush: handle intent '{}'", intent->GetDebugName());
         DispatchOne(*intent);
     }
     m_intents.clear();
 }
 
-void IntentDispatcher::DispatchOne(const Intent& p_intent) {
+void IntentDispatcher::DispatchOne(Intent& p_intent) {
     auto it = m_handlers.find(p_intent.GetTypeId());
     if (it == m_handlers.end()) {
         LOG_WARN("IntentDispatcher::DispatchOne: no handlers found for intent '{}'", p_intent.GetDebugName());
@@ -93,7 +100,7 @@ void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const Com
         for (const IIntentHandler* handler : it.second) {
             msg.append(std::format("{},", handler->GetDebugId().type));
         }
-        msg[msg.size() - 1] = '\n'; // replace ',' with new line
+        msg[msg.size() - 1] = '\n';  // replace ',' with new line
     }
     p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
 #else
