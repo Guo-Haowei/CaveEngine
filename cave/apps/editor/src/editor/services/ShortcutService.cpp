@@ -62,6 +62,7 @@ void ShortcutIntentHandler::HandleIntent(const Intent& p_intent) {
 
 ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor)
+    , m_intent_dispatcher(*p_editor.GetApp().GetIntentDispatcher())
     , m_debug_id(MakeDebugId(this)) {
 
     IApplication& app = m_editor.GetApp();
@@ -69,9 +70,9 @@ ShortcutService::ShortcutService(EditorState& p_editor)
     m_intent_handler = std::make_unique<ShortcutIntentHandler>(*this);
 
     app.InputService().Register(this);
-    app.GetIntentDispatcher()->AddHandler<SaveIntent>(m_intent_handler.get());
-    app.GetIntentDispatcher()->AddHandler<UndoIntent>(m_intent_handler.get());
-    app.GetIntentDispatcher()->AddHandler<RedoIntent>(m_intent_handler.get());
+    m_intent_dispatcher.AddHandler<SaveIntent>(m_intent_handler.get());
+    m_intent_dispatcher.AddHandler<UndoIntent>(m_intent_handler.get());
+    m_intent_dispatcher.AddHandler<RedoIntent>(m_intent_handler.get());
 
     InitShortcuts();
 }
@@ -79,9 +80,9 @@ ShortcutService::ShortcutService(EditorState& p_editor)
 ShortcutService::~ShortcutService() {
     IApplication& app = m_editor.GetApp();
 
-    app.GetIntentDispatcher()->RemoveHandler<SaveIntent>(m_intent_handler.get());
-    app.GetIntentDispatcher()->RemoveHandler<UndoIntent>(m_intent_handler.get());
-    app.GetIntentDispatcher()->RemoveHandler<RedoIntent>(m_intent_handler.get());
+    m_intent_dispatcher.RemoveHandler<SaveIntent>(m_intent_handler.get());
+    m_intent_dispatcher.RemoveHandler<UndoIntent>(m_intent_handler.get());
+    m_intent_dispatcher.RemoveHandler<RedoIntent>(m_intent_handler.get());
     app.InputService().Unregister(this);
 }
 
@@ -90,14 +91,14 @@ void ShortcutService::InitShortcuts() {
         "Save As..",
         "Ctrl+Shift+S",
         [this]() {
-            m_editor.GetApp().GetIntentDispatcher()->PushIntent<SaveIntent>(true);
+            m_intent_dispatcher.PushIntent<SaveIntent>(true);
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [this]() {
-            m_editor.GetApp().GetIntentDispatcher()->PushIntent<SaveIntent>(false);
+            m_intent_dispatcher.PushIntent<SaveIntent>(false);
         },
     };
 
@@ -118,7 +119,7 @@ void ShortcutService::InitShortcuts() {
         "Redo",
         "Ctrl+Shift+Z",
         [active_document, this]() {
-            m_editor.GetApp().GetIntentDispatcher()->PushIntent<RedoIntent>();
+            m_intent_dispatcher.PushIntent<RedoIntent>();
         },
         [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
     };
@@ -127,7 +128,7 @@ void ShortcutService::InitShortcuts() {
         "Undo",
         "Ctrl+Z",
         [active_document, this]() {
-            m_editor.GetApp().GetIntentDispatcher()->PushIntent<UndoIntent>();
+            m_intent_dispatcher.PushIntent<UndoIntent>();
         },
         [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
     };

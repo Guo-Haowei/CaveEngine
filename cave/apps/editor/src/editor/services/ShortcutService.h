@@ -7,6 +7,7 @@
 namespace cave {
 
 class EditorState;
+class IntentDispatcher;
 
 class ShortcutIntentHandler;
 
@@ -26,6 +27,7 @@ private:
     void InitShortcuts();
 
     EditorState& m_editor;
+    IntentDispatcher& m_intent_dispatcher;
     const DebugId m_debug_id;
 
     std::array<ShortcutDesc, kShortcutCount> m_shortcuts;
