@@ -15,21 +15,17 @@ namespace cave {
     LOG_LEVEL_COLOR(LOG_LEVEL_FATAL,    "[FATAL]",  "\033[101;30m", 0xC)
 // clang-format on
 
-struct LogEvent {
-    LogLevel level;
-    uint32_t repeat;
-    uint64_t id;
-    std::string message;
-};
+// @TODO: fix this
+using LogEvent = Log;
 
 class StdLogger : public ILogger {
 public:
-    virtual void Print(LogLevel p_level, std::string_view p_message) override;
+    virtual void Print(const Log& p_log) override;
 };
 
 class CompositeLogger : public ILogger, public Singleton<CompositeLogger> {
 public:
-    void Print(LogLevel p_level, std::string_view p_message) override;
+    void Print(const Log& p_log) override;
 
     void AddLogger(std::shared_ptr<ILogger> p_logger);
     void AddChannel(LogLevel p_log) { m_channels |= p_log; }
@@ -66,5 +62,7 @@ private:
     std::atomic_uint32_t m_channels{ LOG_LEVEL_ALL };
     std::atomic_uint64_t m_log_id{ 0 };
 };
+
+const char* ToString(LogLevel p_level);
 
 }  // namespace cave

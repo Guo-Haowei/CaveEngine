@@ -16,10 +16,10 @@ static WORD FindColorAttribute(LogLevel p_level) {
     }
 }
 
-void Win32Logger::Print(LogLevel p_level, std::string_view p_message) {
+void Win32Logger::Print(const Log& p_log) {
     const HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO buffer_info;
-    const WORD new_color = FindColorAttribute(p_level);
+    const WORD new_color = FindColorAttribute(p_log.level);
 
     // @TODO: stderr vs stdout
     FILE* file = stdout;
@@ -29,7 +29,7 @@ void Win32Logger::Print(LogLevel p_level, std::string_view p_message) {
     GetConsoleScreenBufferInfo(stdout_handle, &buffer_info);
     const WORD old_color_attrs = buffer_info.wAttributes;
     SetConsoleTextAttribute(stdout_handle, new_color);
-    fprintf(file, "%.*s", static_cast<int>(p_message.length()), p_message.data());
+    fprintf(file, "%s", p_log.message.c_str());
     SetConsoleTextAttribute(stdout_handle, old_color_attrs);
     fflush(file);
     m_consoleMutex.unlock();

@@ -8,14 +8,11 @@ namespace cave {
 
 class DebugConsoleLogger : public ILogger {
 public:
-    void Print(LogLevel p_level, std::string_view p_message) override;
+    void Print(const Log& p_log) override;
 };
 
-void DebugConsoleLogger::Print(LogLevel p_level, std::string_view p_message) {
-    unused(p_level);
-
-    std::string message{ p_message };
-    OutputDebugStringA(message.c_str());
+void DebugConsoleLogger::Print(const Log& p_log) {
+    OutputDebugStringA(p_log.message.c_str());
 }
 
 void OS::Initialize() {

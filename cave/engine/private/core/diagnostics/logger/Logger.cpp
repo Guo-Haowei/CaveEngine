@@ -10,24 +10,19 @@ namespace cave {
 #define ASSERT_OPERATION_THREAD() ((void)0)
 #endif
 
-void StdLogger::Print(LogLevel p_level, std::string_view p_message) {
-    const char* tag = "";
-    switch (p_level) {
-#define LOG_LEVEL_COLOR(LEVEL, TAG, ANSI, WINCOLOR) \
-    case LEVEL:                                     \
-        tag = TAG;                                  \
-        break;
-        LOG_LEVEL_COLOR_LIST
-#undef LOG_LEVEL_COLOR
-        default:
-            break;
-    }
+void ILogger::Print(LogLevel p_level, std::string p_message) {
+    Log log = BuildLog(p_level, std::move(p_message));
+    Print(log);
+}
+
+void StdLogger::Print(const Log& p_log) {
+    const char* tag = ToString(p_log.level);
 
     // @TODO: stderr vs stdout
     FILE* file = stdout;
     fflush(file);
 
-    fprintf(file, "%s%.*s", tag, static_cast<int>(p_message.length()), p_message.data());
+    fprintf(file, "%s%s", tag, p_log.message.c_str());
     fflush(file);
 }
 
@@ -47,25 +42,18 @@ void CompositeLogger::AddLogger(std::shared_ptr<ILogger> p_logger) {
     m_loggers.emplace_back(p_logger);
 }
 
-void CompositeLogger::Print(LogLevel p_level, std::string_view p_message) {
+void CompositeLogger::Print(const Log& p_log) {
     // @TODO: set verbose
-    if (!(m_channels & p_level)) {
+    if (!(m_channels & p_log.level)) {
         return;
     }
 
     for (auto& logger : m_loggers) {
-        logger->Print(p_level, p_message);
+        logger->Print(p_log);
     }
 
-    LogEvent log = {
-        .level = p_level,
-        .repeat = 1,
-        .id = m_log_id.fetch_add(1),
-        .message = std::string(p_message),
-    };
-
     m_buffer.mutex.lock();
-    m_buffer.buffer.emplace_back(std::move(log));
+    m_buffer.buffer.emplace_back(p_log);
     m_buffer.mutex.unlock();
 }
 
@@ -113,6 +101,18 @@ const std::vector<LogEvent>& CompositeLogger::GetWarningLogs() const {
 const std::vector<LogEvent>& CompositeLogger::GetErrorLogs() const {
     ASSERT_OPERATION_THREAD();
     return m_errors.logs;
+}
+
+const char* ToString(LogLevel p_level) {
+    switch (p_level) {
+#define LOG_LEVEL_COLOR(LEVEL, TAG, ANSI, WINCOLOR) \
+    case LEVEL:                                     \
+        return TAG;                                 
+        LOG_LEVEL_COLOR_LIST
+#undef LOG_LEVEL_COLOR
+        default:
+            return "";
+    }
 }
 
 }  // namespace cave

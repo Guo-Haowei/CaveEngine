@@ -32,4 +32,4 @@
 #include "cave/core/typedefs.h"
 #include "cave/core/ErrorMacros.h"
 #include "cave/core/Option.h"
-#include "cave/core/Print.h"
+#include "cave/core/diagnostics/Log.h"
