@@ -1,4 +1,4 @@
-#include "glfw_display_manager.h"
+#include "GlfwDisplayManager.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -10,8 +10,8 @@
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/EventQueue.h"
-#include "engine/private/drivers/glfw/glfw_gamepad_device.h"
-#include "engine/private/drivers/glfw/glfw_keyboard_mouse_device.h"
+#include "engine/private/runtime/input/GlfwGamepadDevice.h"
+#include "engine/private/runtime/input/GlfwKeyboardMouseDevice.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/ImGuiManager.h"

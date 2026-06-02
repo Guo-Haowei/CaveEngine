@@ -2,11 +2,14 @@
 
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "engine/private/runtime/framework/DisplayService.h"
+#include "engine/private/core/diagnostics/DebugIdAllocator.h"
+#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/Scene.h"
 
+#include "editor/EditorIntent.h"
 #include "editor/EditorState.h"
 #include "editor/services/SelectionService.h"
 
@@ -17,12 +20,18 @@ using math::Vector2f;
 using math::Vector3f;
 using math::Vector4f;
 
-PickingService::PickingService(EditorState& p_editor) noexcept
-    : m_editor(p_editor) {
+PickingService::PickingService(EditorState& p_editor)
+    : m_editor(p_editor)
+    , m_debug_id(MakeDebugId(this)) {
+    m_editor.GetApp().IntentDispatcher()->AddHandler<PickIntent>(this);
 }
 
-void PickingService::Submit(PickRequest p_req) {
-    m_request = Some(std::move(p_req));
+PickingService::~PickingService() {
+    m_editor.GetApp().IntentDispatcher()->RemoveHandler<PickIntent>(this);
+}
+
+void PickingService::Pick(math::Vector2f p_point_win) {
+    m_editor.GetApp().IntentDispatcher()->PushIntent<PickIntent>(p_point_win);
 }
 
 void PickingService::Raycast(const PickData& p_pick_data) {
@@ -49,29 +58,28 @@ void PickingService::Raycast(const PickData& p_pick_data) {
     m_editor.SelectionService().Set(p_pick_data.doc_id, key);
 }
 
-void PickingService::Tick() {
-    auto [win_x, win_y] = m_editor.GetApp().GetDisplayService()->GetWindowPos();
+bool PickingService::HandleIntent(Intent& p_intent) {
+    if (auto intent = dynamic_cast<PickIntent*>(&p_intent)) {
+        IApplication& app = m_editor.GetApp();
+        auto [win_x, win_y] = app.GetDisplayService()->GetWindowPos();
+        const Vector2f pos_screen = intent->pointer + Vector2f(win_x, win_y);
 
-    if (m_request.is_none()) {
-        return;
+        for (IPickConsumer* p : m_consumers) {
+            DEV_ASSERT(p);
+            if (!p) continue;
+            auto opt = p->GetPickData(pos_screen);
+            if (opt.is_none()) continue;
+
+            PickData data = opt.unwrap_unchecked();
+            Raycast(data);
+
+            // @TODO: this doesn't work with overlay
+            break;
+        }
+        return true;
     }
 
-    const Vector2f pos_screen = m_request.unwrap_unchecked().cursor + Vector2f(win_x, win_y);
-
-    for (IPickConsumer* p : m_consumers) {
-        DEV_ASSERT(p);
-        if (!p) continue;
-        auto opt = p->GetPickData(pos_screen);
-        if (opt.is_none()) continue;
-
-        PickData data = opt.unwrap_unchecked();
-        Raycast(data);
-
-        // @TODO: this doesn't work with overlay
-        break;
-    }
-
-    m_request = None();
+    return false;
 }
 
 void PickingService::Register(IPickConsumer* p_consumer) {

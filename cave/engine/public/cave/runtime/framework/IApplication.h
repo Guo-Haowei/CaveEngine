@@ -27,6 +27,7 @@ class IAssetManager;
 class DisplayService;
 class ImguiManager;
 class IInputService;
+class IntentDispatcher;
 class IUIRuntime;
 class IPhysicsManager;
 class IScriptService;
@@ -105,6 +106,7 @@ public:
     DisplayService* GetDisplayService() { return m_display_service; }
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
+    IntentDispatcher* IntentDispatcher() { return m_intent_dispatcher; }
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewManager* GetViewManager() { return m_view_manager; }
 
@@ -129,23 +131,24 @@ protected:
     cave::SceneQueryService* m_scene_query_service;
 
     // @TODO: differentiate global and state specific managers
-    AssetRegistry* m_asset_registry{ nullptr };
-    IAssetManager* m_asset_manager{ nullptr };
-    SceneRegistry* m_scene_registry{ nullptr };
+    AssetRegistry* m_asset_registry{};
+    IAssetManager* m_asset_manager{};
+    SceneRegistry* m_scene_registry{};
 
-    IPhysicsManager* m_physics_manager{ nullptr };
-    IScriptService* m_script_service{ nullptr };
+    IPhysicsManager* m_physics_manager{};
+    IScriptService* m_script_service{};
 
-    DisplayService* m_display_service{ nullptr };
+    DisplayService* m_display_service{};
 
-    render::Renderer* m_renderer{ nullptr };
-    render::IRenderDevice* m_render_device{ nullptr };
+    render::Renderer* m_renderer{};
+    render::IRenderDevice* m_render_device{};
 
-    ImguiManager* m_imgui_manager{ nullptr };
-    IUIRuntime* m_ui{ nullptr };
-    TaskManager* m_task_manager{ nullptr };
+    ImguiManager* m_imgui_manager{};
+    cave::IntentDispatcher* m_intent_dispatcher{};
+    IUIRuntime* m_ui{};
+    TaskManager* m_task_manager{};
 
-    ViewManager* m_view_manager{ nullptr };
+    ViewManager* m_view_manager{};
 
     cave::CommandRegistry* m_cmd_reg{ nullptr };
     cave::Console* m_console{ nullptr };

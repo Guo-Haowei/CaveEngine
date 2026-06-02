@@ -125,7 +125,7 @@ ViewId ViewManager::CreateView(std::string_view p_debug_name,
                                const math::IntRect& p_viewport_px) {
     auto view = std::make_unique<ViewRecord>();
     view->debug_name = p_debug_name;
-    view->viewport_px = p_viewport_px;
+    view->viewport_fb = p_viewport_px;
     const ViewId id = Base::Create(std::move(view));
     LOG_VERBOSE("ViewManager: View '{}'({},{}) created.", p_debug_name, id.index, id.gen);
     return id;

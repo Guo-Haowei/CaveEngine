@@ -50,9 +50,9 @@ bool UIRuntime::Button(UIId p_id, UIRect p_rect) {
     const ViewRecord* view = m_view_manager->Resolve(m_current_view);
     DEV_ASSERT(view);
 
-    const Vector2f point = view->ScreenToPixel(m_input.cursor_screen);
+    const Vector2f point_fb = view->ScreenToFrameBufferPixel(m_input.cursor_os);
 
-    const bool hovered = p_rect.Contains(point.x, point.y);
+    const bool hovered = p_rect.Contains(point_fb.x, point_fb.y);
     if (hovered) {
         m_hot = p_id;
     }

@@ -2,10 +2,12 @@
 
 #include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/input/KeyCode.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
+#include "editor/EditorIntent.h"
 #include "editor/EditorState.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
@@ -19,16 +21,20 @@ namespace cave {
 Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    m_editor.GetApp().InputService().Register(this);
+    IApplication& app = m_editor.GetApp();
+    app.InputService().Register(this);
+    app.IntentDispatcher()->AddHandler<OpenDocIntent>(this);
+    app.IntentDispatcher()->AddHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
-    m_editor.GetApp().InputService().Unregister(this);
+    IApplication& app = m_editor.GetApp();
+    app.InputService().Unregister(this);
+    app.IntentDispatcher()->RemoveHandler<OpenDocIntent>(this);
+    app.IntentDispatcher()->RemoveHandler<CloseDocIntent>(this);
 }
 
 void Workspace::Tick() {
-    FlushPendingRequests();
-
     DrawTabs();
 }
 
@@ -53,28 +59,12 @@ PreviewScene Workspace::FocusedPreviewScene() {
     return ret;
 }
 
-void Workspace::Submit(WorkspaceRequest p_req) {
-    m_pending_reqs.emplace_back(std::move(p_req));
+void Workspace::RequestOpen(DocId p_doc_id) {
+    m_editor.GetApp().IntentDispatcher()->PushIntent<OpenDocIntent>(p_doc_id);
 }
 
-void Workspace::FlushPendingRequests() {
-    for (WorkspaceRequest& req : m_pending_reqs) {
-        switch (req.type) {
-            case WorkspaceRequest::Type::OpenDoc: {
-                OpenOrFocusDoc(req.doc_id);
-            } break;
-            case WorkspaceRequest::Type::FocusDoc: {
-                // OpenOrFocusDoc(req.doc_id);
-            } break;
-            case WorkspaceRequest::Type::CloseDoc: {
-                CloseDoc(req.doc_id);
-            } break;
-            default:
-                break;
-        }
-    }
-
-    m_pending_reqs.clear();
+void Workspace::RequestClose(DocId p_doc_id) {
+    m_editor.GetApp().IntentDispatcher()->PushIntent<CloseDocIntent>(p_doc_id);
 }
 
 void Workspace::DrawTabs() {
@@ -97,6 +87,20 @@ void Workspace::DrawTabs() {
     }
 }
 
+bool Workspace::HandleIntent(Intent& p_intent) {
+    if (auto open_doc = dynamic_cast<OpenDocIntent*>(&p_intent)) {
+        OpenOrFocusDoc(open_doc->doc_id);
+        return true;
+    }
+
+    if (auto open_doc = dynamic_cast<CloseDocIntent*>(&p_intent)) {
+        CloseDoc(open_doc->doc_id);
+        return true;
+    }
+
+    return false;
+}
+
 void Workspace::OnEvents(const InputFrame& p_input) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
@@ -111,7 +115,7 @@ void Workspace::OnEvents(const InputFrame& p_input) {
         if (e.type == InputEventType::ButtonDown) {
             const Key key = static_cast<Key>(e.code);
             if (key == Key::RMB) {
-                m_editor.PickingService().Submit({ math::Vector2f{ e.x, e.y } });
+                m_editor.PickingService().Pick({ e.x, e.y });
                 e.consumed = true;
                 break;
             }
@@ -194,8 +198,7 @@ bool Workspace::CloseDoc(DocId p_doc_id) {
     Destroy(tab_id);
     m_doc_to_tab.erase(p_doc_id);
 
-    // close doc
-    m_editor.DocumentService().Close(p_doc_id);
+    m_editor.DocumentService().CloseDoc(p_doc_id);
     return true;
 }
 

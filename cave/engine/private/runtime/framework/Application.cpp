@@ -6,6 +6,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
 #include "engine/private/core/diagnostics/logger/Logger.h"
@@ -17,7 +18,7 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/runtime/framework/DisplayService.h"
+#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
@@ -77,6 +78,7 @@ auto Application::SetupModules() -> Result<void> {
     m_renderer = new render::Renderer();
     m_view_manager = new ViewManager();
     m_task_manager = new TaskManager();
+    m_intent_dispatcher = new cave::IntentDispatcher();
 
     m_boot_load_pipeline = std::make_unique<BootLoadPipeline>(
         *m_task_manager,
@@ -101,6 +103,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_renderer);
     RegisterModule(m_view_manager);
     RegisterModule(m_ui);
+    RegisterModule(m_intent_dispatcher);
 
     if (m_spec.enableImgui) {
         auto res = CreateImguiManager();
@@ -210,6 +213,7 @@ bool Application::MainLoop() {
     m_view_manager->BeginFrame();
 
     m_state_machine.Tick(time);
+    m_intent_dispatcher->Flush();
 
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->Tick(time);

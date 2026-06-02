@@ -11,9 +11,9 @@
 
 #include "cave/core/string/StringUtils.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
+#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/DisplayService.h"
 #include "engine/private/runtime/framework/VFS.h"
 
 namespace cave {

@@ -10,19 +10,16 @@ struct ViewRecord {
 
     std::string debug_name;
 
-    math::FloatRect rect{};  // view rect in screen space
-    math::IntRect viewport_px{};
+    // Where the view is displayed inside the window.
+    // Used for input hit testing
+    // The x, y are in OS/screen space
+    math::FloatRect display_rect_os{};
+    // Region inside the GPU output texture/framebuffer
+    math::IntRect viewport_fb{};
 
-    //// Optional: last submitted output.
-    // GpuTextureId output{};
+    math::Vector2f ScreenToNDC(const math::Vector2f& p_point_os) const;
 
-    uint64_t last_submitted_frame = 0;
-    uint64_t last_visible_frame = 0;
-
-    math::Vector2f ScreenToNDC(const math::Vector2f& p_point) const;
-
-    // to pixel in viewport, not view rect
-    math::Vector2f ScreenToPixel(const math::Vector2f& p_point) const;
+    math::Vector2f ScreenToFrameBufferPixel(const math::Vector2f& p_point_os) const;
 };
 
 }  // namespace cave

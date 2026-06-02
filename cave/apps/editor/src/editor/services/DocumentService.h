@@ -27,9 +27,9 @@ class DocumentService : protected GenIdRegistry<IDocument> {
 public:
     DocumentService(EditorState& p_editor);
 
-    DocId OpenDoc(OpenDocDesc p_desc);
+    DocId OpenDoc(const OpenDocDesc& p_desc);
 
-    CloseRequestResult Close(DocId p_id);
+    CloseRequestResult CloseDoc(DocId p_id);
 
     IDocument* Resolve(DocId p_id) { return Base::Resolve(p_id); }
     const IDocument* Resolve(DocId p_id) const { return Base::Resolve(p_id); }

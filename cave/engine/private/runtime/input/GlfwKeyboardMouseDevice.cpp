@@ -1,4 +1,4 @@
-#include "glfw_keyboard_mouse_device.h"
+#include "GlfwKeyboardMouseDevice.h"
 
 #include <glfw/glfw3.h>
 

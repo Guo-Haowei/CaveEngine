@@ -30,6 +30,8 @@ public:
 
     bool operator==(const StringId& p_other) const;
 #else
+    std::string_view DebugName() const { return ""; }
+
     constexpr bool operator==(const StringId& p_other) const {
         return m_hash == p_other.m_hash;
     }

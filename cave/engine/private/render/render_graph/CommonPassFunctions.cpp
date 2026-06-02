@@ -7,7 +7,7 @@
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/renderer_misc.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/runtime/framework/DisplayService.h"
+#include "engine/private/runtime/display/DisplayService.h"
 #include "RenderGraphDefines.h"
 #include "RenderPass.h"
 
