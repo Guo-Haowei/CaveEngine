@@ -1,32 +1,34 @@
 #pragma once
+#include "cave/runtime/intent/IIntentHandler.h"
+
 #include "IPickConsumer.h"
 
 namespace cave {
 
 class EditorState;
 
-struct PickRequest {
-    math::Vector2f cursor;  // cursor in window space
-};
-
-class PickingService {
+class PickingService final : public IIntentHandler {
 public:
-    PickingService(EditorState& p_editor) noexcept;
+    PickingService(EditorState& p_editor);
+    ~PickingService();
 
-    void Submit(PickRequest p_req);
-
-    void Tick();
+    void Pick(math::Vector2f p_point_win);
 
     void Register(IPickConsumer* p_consumer);
     void Unregister(IPickConsumer* p_consumer);
+
+    bool HandleIntent(Intent& p_intent) override;
+
+    DebugId GetDebugId() const override { return m_debug_id; }
 
 private:
     void Raycast(const PickData& data);
 
     EditorState& m_editor;
 
-    Option<PickRequest> m_request;
     std::vector<IPickConsumer*> m_consumers;
+
+    const DebugId m_debug_id;
 };
 
 }  // namespace cave

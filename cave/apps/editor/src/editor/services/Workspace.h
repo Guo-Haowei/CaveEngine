@@ -11,25 +11,6 @@ namespace cave {
 class EditorState;
 class Guid;
 
-enum class SaveDialogResponse {
-    Save,
-    Discard,
-    Cancel,
-};
-
-enum class DocKind : uint8_t {
-    Scene,
-    Script,
-    Material,
-    Mesh,
-    Texture,
-    Audio,
-    Prefab,
-    Shader,
-
-    _Count,
-};
-
 struct PreviewScene {
     DocId doc_id{};
     ViewId view_id{};
@@ -81,12 +62,12 @@ private:
     void DrawTabs();
 
     EditorState& m_editor;
-    const DebugId m_debug_id;
 
     TabId m_focused_tab{};
     TabId m_focused_req{};
 
     std::unordered_map<DocId, TabId> m_doc_to_tab;
+    const DebugId m_debug_id;
 };
 
 }  // namespace cave

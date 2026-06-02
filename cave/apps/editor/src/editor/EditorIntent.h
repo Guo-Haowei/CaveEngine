@@ -1,26 +1,14 @@
 #pragma once
+#include "cave/core/math/Vector.h"
 #include "cave/runtime/intent/Intent.h"
 
 #include "editor/edit/IEditCmd.h"
 
 namespace cave {
 
-class SaveIntent : public Intent {
-public:
-    CAVE_DECLARE_INTENT("cave.editor.save");
-
-    SaveIntent(bool p_save_as)
-        : m_save_as(p_save_as) {}
-
-    bool SaveAs() const { return m_save_as; }
-
-private:
-    const bool m_save_as{ false };
-};
-
 class UndoIntent : public Intent {
 public:
-    CAVE_DECLARE_INTENT("cave.editor.undo");
+    CAVE_DECLARE_INTENT("editor.undo");
 
     UndoIntent(DocId p_doc_id)
         : doc_id(p_doc_id) {}
@@ -30,7 +18,7 @@ public:
 
 class RedoIntent : public Intent {
 public:
-    CAVE_DECLARE_INTENT("cave.editor.redo");
+    CAVE_DECLARE_INTENT("editor.redo");
 
     RedoIntent(DocId p_doc_id)
         : doc_id(p_doc_id) {}
@@ -40,7 +28,7 @@ public:
 
 class EditIntent : public Intent {
 public:
-    CAVE_DECLARE_INTENT("cave.editor.edit");
+    CAVE_DECLARE_INTENT("editor.edit");
 
     EditIntent(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd)
         : doc_id(p_doc_id)
@@ -52,7 +40,7 @@ public:
 
 class OpenDocIntent : public Intent {
 public:
-    CAVE_DECLARE_INTENT("cave.doc.open");
+    CAVE_DECLARE_INTENT("editor.doc.open");
 
     OpenDocIntent(DocId p_doc_id)
         : doc_id(p_doc_id) {}
@@ -62,12 +50,32 @@ public:
 
 class CloseDocIntent : public Intent {
 public:
-    CAVE_DECLARE_INTENT("cave.doc.close");
+    CAVE_DECLARE_INTENT("editor.doc.close");
 
     CloseDocIntent(DocId p_doc_id)
         : doc_id(p_doc_id) {}
 
     const DocId doc_id;
+};
+
+class SaveIntent : public Intent {
+public:
+    CAVE_DECLARE_INTENT("editor.doc.save");
+
+    SaveIntent(bool p_save_as)
+        : save_as(p_save_as) {}
+
+    const bool save_as;
+};
+
+class PickIntent : public Intent {
+public:
+    CAVE_DECLARE_INTENT("editor.view.pick");
+
+    PickIntent(math::Vector2f p_pointer)
+        : pointer(p_pointer) {}
+
+    const math::Vector2f pointer;
 };
 
 }  // namespace cave

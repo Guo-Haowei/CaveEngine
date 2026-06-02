@@ -142,7 +142,6 @@ void EditorState::Tick(const FrameTime& p_time) {
     }
 
     m_workspace->Tick();
-    m_picking_service->Tick();
 
     ImGui::Render();
 

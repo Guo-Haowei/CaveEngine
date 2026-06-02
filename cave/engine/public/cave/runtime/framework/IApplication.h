@@ -106,7 +106,7 @@ public:
     DisplayService* GetDisplayService() { return m_display_service; }
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
-    IntentDispatcher* GetIntentDispatcher() { return m_intent_dispatcher; }
+    IntentDispatcher* IntentDispatcher() { return m_intent_dispatcher; }
     TaskManager* GetTaskManager() { return m_task_manager; }
     ViewManager* GetViewManager() { return m_view_manager; }
 
@@ -144,7 +144,7 @@ protected:
     render::IRenderDevice* m_render_device{};
 
     ImguiManager* m_imgui_manager{};
-    IntentDispatcher* m_intent_dispatcher{};
+    cave::IntentDispatcher* m_intent_dispatcher{};
     IUIRuntime* m_ui{};
     TaskManager* m_task_manager{};
 

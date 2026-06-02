@@ -19,7 +19,7 @@ namespace cave {
 
 ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor)
-    , m_intent_dispatcher(*p_editor.GetApp().GetIntentDispatcher())
+    , m_intent_dispatcher(*p_editor.GetApp().IntentDispatcher())
     , m_debug_id(MakeDebugId(this)) {
 
     m_editor.GetApp().InputService().Register(this);
@@ -39,7 +39,7 @@ ShortcutService::~ShortcutService() {
 
 bool ShortcutService::HandleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<const SaveIntent*>(&p_intent)) {
-        const bool save_as = intent->SaveAs();
+        const bool save_as = intent->save_as;
         LOG_OK(save_as ? "Ctrl+Shift+S" : "Ctrl+S");
 
         // @TODO: actually save the document
@@ -121,17 +121,24 @@ void ShortcutService::InitShortcuts() {
     m_shortcuts[std::to_underlying(Shortcut::Redo)] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [active_document, this]() { m_intent_dispatcher.PushIntent<RedoIntent>(active_document()); },
+        [active_document, this]() {
+            if (m_editor.EditService().CanRedo(active_document()))
+                m_intent_dispatcher.PushIntent<RedoIntent>(active_document());
+        },
         [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Undo)] = {
         "Undo",
         "Ctrl+Z",
-        [active_document, this]() { m_intent_dispatcher.PushIntent<UndoIntent>(active_document()); },
+        [active_document, this]() {
+            if (m_editor.EditService().CanUndo(active_document()))
+                m_intent_dispatcher.PushIntent<UndoIntent>(active_document());
+        },
         [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
     };
 
+    // @TODO: make this an intent
     m_shortcuts[std::to_underlying(Shortcut::Debug)] = {
         "Start Debugging",
         "F5",

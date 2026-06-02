@@ -78,7 +78,7 @@ auto Application::SetupModules() -> Result<void> {
     m_renderer = new render::Renderer();
     m_view_manager = new ViewManager();
     m_task_manager = new TaskManager();
-    m_intent_dispatcher = new IntentDispatcher();
+    m_intent_dispatcher = new cave::IntentDispatcher();
 
     m_boot_load_pipeline = std::make_unique<BootLoadPipeline>(
         *m_task_manager,

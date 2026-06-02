@@ -23,15 +23,15 @@ Workspace::Workspace(EditorState& p_editor)
     , m_debug_id(MakeDebugId(this)) {
     IApplication& app = m_editor.GetApp();
     app.InputService().Register(this);
-    app.GetIntentDispatcher()->AddHandler<OpenDocIntent>(this);
-    app.GetIntentDispatcher()->AddHandler<CloseDocIntent>(this);
+    app.IntentDispatcher()->AddHandler<OpenDocIntent>(this);
+    app.IntentDispatcher()->AddHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
     IApplication& app = m_editor.GetApp();
     app.InputService().Unregister(this);
-    app.GetIntentDispatcher()->RemoveHandler<OpenDocIntent>(this);
-    app.GetIntentDispatcher()->RemoveHandler<CloseDocIntent>(this);
+    app.IntentDispatcher()->RemoveHandler<OpenDocIntent>(this);
+    app.IntentDispatcher()->RemoveHandler<CloseDocIntent>(this);
 }
 
 void Workspace::Tick() {
@@ -60,11 +60,11 @@ PreviewScene Workspace::FocusedPreviewScene() {
 }
 
 void Workspace::RequestOpen(DocId p_doc_id) {
-    m_editor.GetApp().GetIntentDispatcher()->PushIntent<OpenDocIntent>(p_doc_id);
+    m_editor.GetApp().IntentDispatcher()->PushIntent<OpenDocIntent>(p_doc_id);
 }
 
 void Workspace::RequestClose(DocId p_doc_id) {
-    m_editor.GetApp().GetIntentDispatcher()->PushIntent<CloseDocIntent>(p_doc_id);
+    m_editor.GetApp().IntentDispatcher()->PushIntent<CloseDocIntent>(p_doc_id);
 }
 
 void Workspace::DrawTabs() {
@@ -115,7 +115,7 @@ void Workspace::OnEvents(const InputFrame& p_input) {
         if (e.type == InputEventType::ButtonDown) {
             const Key key = static_cast<Key>(e.code);
             if (key == Key::RMB) {
-                m_editor.PickingService().Submit({ math::Vector2f{ e.x, e.y } });
+                m_editor.PickingService().Pick({ e.x, e.y });
                 e.consumed = true;
                 break;
             }
