@@ -5,12 +5,12 @@
 
 namespace cave {
 
-enum class LogChannel : uint16_t {
-    Default,
+enum class LogChannel : uint8_t {
+    Default = 0,
 };
 
 // @TODO: refactor
-static inline int64_t GetTimestampMs() {
+static int64_t GetTimestampMs() {
     using namespace std::chrono;
 
     return duration_cast<milliseconds>(
@@ -18,14 +18,48 @@ static inline int64_t GetTimestampMs() {
         .count();
 }
 
+// @TODO: refactor
+static void TimestampMsToHHMMSS(int64_t timestamp_ms,
+                                char* out,
+                                size_t out_size) {
+    using namespace std::chrono;
+
+    if (out_size < Log::kMaxTimeString) {
+        if (out_size > 0) {
+            out[0] = '\0';
+        }
+        return;
+    }
+
+    auto tp = system_clock::time_point{ milliseconds{ timestamp_ms } };
+    auto seconds_tp = time_point_cast<seconds>(tp);
+
+    std::time_t t = system_clock::to_time_t(tp);
+
+    std::tm local_tm{};
+#ifdef _WIN32
+    localtime_s(&local_tm, &t);
+#else
+    localtime_r(&t, &local_tm);
+#endif
+
+    std::snprintf(out,
+                  out_size,
+                  "%02d:%02d:%02d",
+                  local_tm.tm_hour,
+                  local_tm.tm_min,
+                  local_tm.tm_sec);
+}
+
 Log BuildLog(LogLevel p_level, std::string p_message) {
-    return {
-        .level = p_level,
-        .channel = LogChannel::Default,
-        .repeat = 1,
-        .timestamp_ms = GetTimestampMs(),
-        .message = std::move(p_message),
-    };
+    Log log;
+    log.level = p_level;
+    log.channel = LogChannel::Default;
+    log.timestamp_ms = GetTimestampMs();
+    TimestampMsToHHMMSS(log.timestamp_ms, log.time_str, sizeof(log.time_str));
+    log.repeat = 1;
+    log.message = std::move(p_message);
+    return log;
 }
 
 void LogImpl(LogLevel p_level, std::string p_message) {

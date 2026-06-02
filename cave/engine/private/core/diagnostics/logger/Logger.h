@@ -3,16 +3,18 @@
 #include "cave/core/Singleton.h"
 
 namespace cave {
+// @TODO: rename the level
+
 // WORD is flags of FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 // clang-format off
-//                  Level,              TAG         Ansi            DWORD
-#define LOG_LEVEL_COLOR_LIST                                             \
-    LOG_LEVEL_COLOR(LOG_LEVEL_VERBOSE,  "",         "\033[90m",     0x8) \
-    LOG_LEVEL_COLOR(LOG_LEVEL_NORMAL,   "",         "\033[0m",      0x7) \
-    LOG_LEVEL_COLOR(LOG_LEVEL_OK,       "[OK]",     "\033[92m",     0xA) \
-    LOG_LEVEL_COLOR(LOG_LEVEL_WARN,     "[WARN] ",  "\033[93m",     0xE) \
-    LOG_LEVEL_COLOR(LOG_LEVEL_ERROR,    "[ERROR]",  "\033[91m",     0xC) \
-    LOG_LEVEL_COLOR(LOG_LEVEL_FATAL,    "[FATAL]",  "\033[101;30m", 0xC)
+//                  Level,              TAG       Ansi            DWORD
+#define LOG_LEVEL_COLOR_LIST                                           \
+    LOG_LEVEL_COLOR(LOG_LEVEL_VERBOSE,  "TRACE",  "\033[90m",     0x8) \
+    LOG_LEVEL_COLOR(LOG_LEVEL_NORMAL,   "INFO ",  "\033[0m",      0x7) \
+    LOG_LEVEL_COLOR(LOG_LEVEL_OK,       "OK   ",  "\033[92m",     0xA) \
+    LOG_LEVEL_COLOR(LOG_LEVEL_WARN,     "WARN ",  "\033[93m",     0xE) \
+    LOG_LEVEL_COLOR(LOG_LEVEL_ERROR,    "ERROR",  "\033[91m",     0xC) \
+    LOG_LEVEL_COLOR(LOG_LEVEL_FATAL,    "FATAL",  "\033[101;30m", 0xC)
 // clang-format on
 
 // @TODO: fix this

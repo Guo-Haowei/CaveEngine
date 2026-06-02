@@ -29,7 +29,10 @@ void Win32Logger::Print(const Log& p_log) {
     GetConsoleScreenBufferInfo(stdout_handle, &buffer_info);
     const WORD old_color_attrs = buffer_info.wAttributes;
     SetConsoleTextAttribute(stdout_handle, new_color);
-    fprintf(file, "%s", p_log.message.c_str());
+    fprintf(file, "%s  %s  [Default] %s\n",
+            p_log.time_str,
+            ToString(p_log.level),
+            p_log.message.c_str());
     SetConsoleTextAttribute(stdout_handle, old_color_attrs);
     fflush(file);
     m_consoleMutex.unlock();

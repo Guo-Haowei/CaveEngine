@@ -155,7 +155,7 @@ auto Application::Initialize() -> Result<void> {
             return CAVE_ERROR(res.error());
         }
         m_stopwatch.Stop();
-        LOG_OK("module '{}' initialized in {}", module->GetName(), m_stopwatch.Elapsed().ToString());
+        LOG_OK("+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
     }
 
     m_stopwatch.Restart();
