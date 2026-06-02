@@ -50,14 +50,12 @@ bool ShortcutService::HandleIntent(Intent& p_intent) {
     }
 
     if (auto intent = dynamic_cast<const UndoIntent*>(&p_intent)) {
-        DocId active_doc = m_editor.Workspace().FocusedDoc();
-        m_editor.EditService().Undo(active_doc);
+        m_editor.EditService().Undo(intent->doc_id);
         return true;
     }
 
     if (auto intent = dynamic_cast<const RedoIntent*>(&p_intent)) {
-        DocId active_doc = m_editor.Workspace().FocusedDoc();
-        m_editor.EditService().Redo(active_doc);
+        m_editor.EditService().Redo(intent->doc_id);
         return true;
     }
 
@@ -123,18 +121,14 @@ void ShortcutService::InitShortcuts() {
     m_shortcuts[std::to_underlying(Shortcut::Redo)] = {
         "Redo",
         "Ctrl+Shift+Z",
-        [active_document, this]() {
-            m_intent_dispatcher.PushIntent<RedoIntent>();
-        },
+        [active_document, this]() { m_intent_dispatcher.PushIntent<RedoIntent>(active_document()); },
         [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Undo)] = {
         "Undo",
         "Ctrl+Z",
-        [active_document, this]() {
-            m_intent_dispatcher.PushIntent<UndoIntent>();
-        },
+        [active_document, this]() { m_intent_dispatcher.PushIntent<UndoIntent>(active_document()); },
         [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
     };
 

@@ -21,11 +21,21 @@ private:
 class UndoIntent : public Intent {
 public:
     CAVE_DECLARE_INTENT("cave.editor.undo");
+
+    UndoIntent(DocId p_doc_id)
+        : doc_id(p_doc_id) {}
+
+    DocId doc_id;
 };
 
 class RedoIntent : public Intent {
 public:
     CAVE_DECLARE_INTENT("cave.editor.redo");
+
+    RedoIntent(DocId p_doc_id)
+        : doc_id(p_doc_id) {}
+
+    DocId doc_id;
 };
 
 class EditIntent : public Intent {
