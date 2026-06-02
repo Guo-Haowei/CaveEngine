@@ -16,7 +16,7 @@ static WORD FindColorAttribute(LogLevel p_level) {
     }
 }
 
-void Win32Logger::Print(const Log& p_log) {
+void Win32Logger::Print(const LogEvent& p_log) {
     const HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO buffer_info;
     const WORD new_color = FindColorAttribute(p_log.level);

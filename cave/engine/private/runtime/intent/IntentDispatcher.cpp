@@ -9,7 +9,7 @@
 #include <algorithm>
 
 #if 1
-#define DEBUG_PRINT(...) LOG_VERBOSE(__VA_ARGS__)
+#define DEBUG_PRINT(...) LOG_TRACE(__VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
@@ -107,7 +107,7 @@ void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const Com
         }
         msg[msg.size() - 1] = '\n';  // replace ',' with new line
     }
-    p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
+    p_ctx.logger.Print(LogLevel::LOG_LEVEL_TRACE, msg);
 #else
     unused(p_ctx);
 #endif

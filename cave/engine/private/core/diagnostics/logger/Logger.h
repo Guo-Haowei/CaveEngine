@@ -9,25 +9,22 @@ namespace cave {
 // clang-format off
 //                  Level,              TAG       Ansi            DWORD
 #define LOG_LEVEL_COLOR_LIST                                           \
-    LOG_LEVEL_COLOR(LOG_LEVEL_VERBOSE,  "DEBUG",  "\033[90m",     0x8) \
-    LOG_LEVEL_COLOR(LOG_LEVEL_NORMAL,   "INFO ",  "\033[0m",      0x7) \
+    LOG_LEVEL_COLOR(LOG_LEVEL_TRACE,    "TRACE",  "\033[90m",     0x8) \
+    LOG_LEVEL_COLOR(LOG_LEVEL_INFO,     "INFO ",  "\033[0m",      0x7) \
     LOG_LEVEL_COLOR(LOG_LEVEL_OK,       "OK   ",  "\033[92m",     0xA) \
     LOG_LEVEL_COLOR(LOG_LEVEL_WARN,     "WARN ",  "\033[93m",     0xE) \
     LOG_LEVEL_COLOR(LOG_LEVEL_ERROR,    "ERROR",  "\033[91m",     0xC) \
     LOG_LEVEL_COLOR(LOG_LEVEL_FATAL,    "FATAL",  "\033[101;30m", 0xC)
 // clang-format on
 
-// @TODO: fix this
-using LogEvent = Log;
-
 class StdLogger : public ILogger {
 public:
-    virtual void Print(const Log& p_log) override;
+    virtual void Print(const LogEvent& p_log) override;
 };
 
 class CompositeLogger : public ILogger, public Singleton<CompositeLogger> {
 public:
-    void Print(const Log& p_log) override;
+    void Print(const LogEvent& p_log) override;
 
     void AddLogger(std::shared_ptr<ILogger> p_logger);
     void AddChannel(LogLevel p_log) { m_channels |= p_log; }

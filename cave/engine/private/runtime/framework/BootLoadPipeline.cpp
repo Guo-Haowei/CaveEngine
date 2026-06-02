@@ -66,7 +66,7 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
                 meta.import_path = key;
             }
 
-            LOG_VERBOSE("'{}' detected, loading...", meta_path);
+            LOG_TRACE("'{}' detected, loading...", meta_path);
             assets.emplace_back(std::move(meta));
             continue;
         }
@@ -84,7 +84,7 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
             return CAVE_ERROR(res.error());
         }
 
-        LOG_VERBOSE("'{}' not detected, creating", meta_path);
+        LOG_TRACE("'{}' not detected, creating", meta_path);
         assets.emplace_back(std::move(meta2));
     }
 

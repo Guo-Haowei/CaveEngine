@@ -5,7 +5,7 @@ namespace cave {
 
 class Win32Logger : public ILogger {
 public:
-    void Print(const Log& p_log) override;
+    void Print(const LogEvent& p_log) override;
 
 private:
     std::mutex m_consoleMutex;

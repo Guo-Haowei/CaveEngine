@@ -116,7 +116,7 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
 
     if (m_enableValidationLayer) {
         if (EnableDebugLayer()) {
-            LOG("[GraphicsManager_DX12] Debug layer enabled");
+            LOG_INFO("[GraphicsManager_DX12] Debug layer enabled");
         } else {
             LOG_ERROR("[GraphicsManager_DX12] Debug layer not enabled");
         }
@@ -1070,10 +1070,10 @@ auto D3d12GraphicsManager::CreateDevice() -> Result<void> {
     featureLevel = featLevels.MaxSupportedFeatureLevel;
     switch (featureLevel) {
         case D3D_FEATURE_LEVEL_12_0:
-            LOG("[DX12] Device Feature Level: 12.0");
+            LOG_INFO("[DX12] Device Feature Level: 12.0");
             break;
         case D3D_FEATURE_LEVEL_12_1:
-            LOG("[DX12] Device Feature Level: 12.1");
+            LOG_INFO("[DX12] Device Feature Level: 12.1");
             break;
         default:
             CRASH_NOW();

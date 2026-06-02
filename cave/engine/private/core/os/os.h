@@ -10,7 +10,7 @@ public:
     void Initialize();
     void Finalize();
 
-    virtual void Print(const Log& p_log);
+    virtual void Print(const LogEvent& p_log);
 
     void AddLogger(std::shared_ptr<ILogger> p_logger);
 

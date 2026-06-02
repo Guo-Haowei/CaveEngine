@@ -18,7 +18,7 @@ void DvarCache::Serialize(std::string_view p_path) {
         return;
     }
 
-    LOG("[dvar] serializing dvars");
+    LOG_INFO("[dvar] serializing dvars");
     auto writer = std::move(*res);
 
     for (auto const& [key, dvar] : Dvar::s_map) {
@@ -100,7 +100,7 @@ void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
             }
             msg.push_back('\n');
 
-            p_ctx.logger.Print(LogLevel::LOG_LEVEL_NORMAL, msg);
+            p_ctx.logger.Print(LogLevel::LOG_LEVEL_INFO, msg);
             return true;
         },
     });

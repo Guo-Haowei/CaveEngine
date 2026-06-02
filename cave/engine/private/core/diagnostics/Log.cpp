@@ -24,7 +24,7 @@ inline void TimestampMsToHHMMSSmm(int64_t timestamp_ms,
                                   size_t out_size) {
     using namespace std::chrono;
 
-    if (out_size < Log::kMaxTimeString) {
+    if (out_size < LogEvent::kMaxTimeString) {
         if (out_size > 0) {
             out[0] = '\0';
         }
@@ -53,8 +53,8 @@ inline void TimestampMsToHHMMSSmm(int64_t timestamp_ms,
                   static_cast<long long>(ms_part));
 }
 
-Log BuildLog(LogLevel p_level, std::string p_message) {
-    Log log;
+LogEvent BuildLog(LogLevel p_level, std::string p_message) {
+    LogEvent log;
     log.level = p_level;
     log.channel = LogChannel::Default;
     log.timestamp_ms = GetTimestampMs();
@@ -65,7 +65,7 @@ Log BuildLog(LogLevel p_level, std::string p_message) {
 }
 
 void LogImpl(LogLevel p_level, std::string p_message) {
-    Log log = BuildLog(p_level, std::move(p_message));
+    LogEvent log = BuildLog(p_level, std::move(p_message));
 
     if (OS* os = OS::GetSingletonPtr()) [[likely]] {
         // using namespace std::chrono;

@@ -39,7 +39,7 @@ static void InitializeDvars(int p_argc, const char** p_argv) {
         cmd_args += p_argv[i];
     }
 
-    LOG("command line:{}", cmd_args);
+    LOG_INFO("command line:{}", cmd_args);
 
     // 2) Deserialize dvars
     DvarCache::Deserialize(DVAR_CACHE_FILE);

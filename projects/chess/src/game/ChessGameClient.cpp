@@ -44,7 +44,7 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
                 m_presenter.RedrawPosition(p_host, m_replica);
             } break;
             case AuthorityEventType::MoveRejected: {
-                logger.Print(LOG_LEVEL_NORMAL, "Invalid move!");
+                logger.Print(LOG_LEVEL_INFO, "Invalid move!");
             } break;
             case AuthorityEventType::GameOver: {
             } break;

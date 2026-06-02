@@ -11,11 +11,11 @@ namespace cave {
 #endif
 
 void ILogger::Print(LogLevel p_level, std::string p_message) {
-    Log log = BuildLog(p_level, std::move(p_message));
+    LogEvent log = BuildLog(p_level, std::move(p_message));
     Print(log);
 }
 
-void StdLogger::Print(const Log& p_log) {
+void StdLogger::Print(const LogEvent& p_log) {
     const char* tag = ToString(p_log.level);
 
     // @TODO: stderr vs stdout
@@ -42,7 +42,7 @@ void CompositeLogger::AddLogger(std::shared_ptr<ILogger> p_logger) {
     m_loggers.emplace_back(p_logger);
 }
 
-void CompositeLogger::Print(const Log& p_log) {
+void CompositeLogger::Print(const LogEvent& p_log) {
     // @TODO: set verbose
     if (!(m_channels & p_log.level)) {
         return;

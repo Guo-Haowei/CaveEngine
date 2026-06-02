@@ -11,7 +11,7 @@ void OS::AddLogger(std::shared_ptr<ILogger> p_logger) {
     m_logger.AddLogger(p_logger);
 }
 
-void OS::Print(const Log& p_log) {
+void OS::Print(const LogEvent& p_log) {
     m_logger.Print(p_log);
     if (p_log.level & LOG_LEVEL_FATAL) {
         GENERATE_TRAP();

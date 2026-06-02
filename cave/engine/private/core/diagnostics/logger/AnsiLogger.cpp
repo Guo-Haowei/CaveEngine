@@ -2,7 +2,7 @@
 
 namespace cave {
 
-void AnsiLogger::Print(const Log& p_log) {
+void AnsiLogger::Print(const LogEvent& p_log) {
     unused(p_log);
     DEV_ASSERT(0);
 

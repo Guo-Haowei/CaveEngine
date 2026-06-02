@@ -8,10 +8,10 @@ namespace cave {
 
 class DebugConsoleLogger : public ILogger {
 public:
-    void Print(const Log& p_log) override;
+    void Print(const LogEvent& p_log) override;
 };
 
-void DebugConsoleLogger::Print(const Log& p_log) {
+void DebugConsoleLogger::Print(const LogEvent& p_log) {
     OutputDebugStringA(p_log.message.c_str());
 }
 

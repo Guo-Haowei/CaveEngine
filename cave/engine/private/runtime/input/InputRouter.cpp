@@ -17,7 +17,7 @@ void InputRouter::Register(IInputConsumer* p_consumer) {
 
 #if USING(USE_LOG)
     DebugId id = p_consumer->GetDebugId();
-    LOG_VERBOSE("InputRouter::Register: register input consumer '{}(id:{})'", id.type, id.uid);
+    LOG_TRACE("InputRouter::Register: register input consumer '{}(id:{})'", id.type, id.uid);
 #endif
 }
 
@@ -28,7 +28,7 @@ void InputRouter::Unregister(IInputConsumer* p_consumer) {
 
 #if USING(USE_LOG)
     DebugId id = p_consumer->GetDebugId();
-    LOG_VERBOSE("InputRouter::Unegister: unregister input consumer '{}(id:{})'", id.type, id.uid);
+    LOG_TRACE("InputRouter::Unegister: unregister input consumer '{}(id:{})'", id.type, id.uid);
 #endif
 }
 

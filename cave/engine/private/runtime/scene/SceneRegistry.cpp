@@ -152,7 +152,7 @@ bool SceneRegistry::Impl::Dump_Cmd(CommandContext& p_ctx, const CommandArgs&) {
                                slot.gen));
     }
 
-    p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
+    p_ctx.logger.Print(LogLevel::LOG_LEVEL_TRACE, msg);
     return true;
 }
 

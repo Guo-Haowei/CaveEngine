@@ -10,7 +10,7 @@ class ILogger {
 public:
     virtual ~ILogger() = default;
 
-    virtual void Print(const Log& p_log) = 0;
+    virtual void Print(const LogEvent& p_log) = 0;
 
     void Print(LogLevel p_level, std::string p_message);
 };

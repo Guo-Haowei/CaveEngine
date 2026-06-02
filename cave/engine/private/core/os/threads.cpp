@@ -51,10 +51,10 @@ bool Initialize() {
                 SetThreadId(p_object->id);
 
                 latch.count_down();
-                LOG_VERBOSE("[threads] +{}#{}", p_object->name, p_object->id);
+                LOG_TRACE("[threads] +{}#{}", p_object->name, p_object->id);
                 CAVE_PROFILE_THREAD(p_object->name);
                 p_object->threadFunc();
-                LOG_VERBOSE("[threads] -{}#{}", p_object->name, p_object->id);
+                LOG_TRACE("[threads] -{}#{}", p_object->name, p_object->id);
             },
             &thread);
 

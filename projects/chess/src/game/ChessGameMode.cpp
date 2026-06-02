@@ -66,7 +66,7 @@ private:
 // MainMenuState
 // =============================================================================
 void MainMenuState::OnEnter(cave::IHostServices& p_host) {
-    p_host.Log().Print(LogLevel::LOG_LEVEL_NORMAL, "Press 'Enter' to play.\n");
+    p_host.Log().Print(LogLevel::LOG_LEVEL_INFO, "Press 'Enter' to play.\n");
 }
 
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
@@ -136,7 +136,7 @@ void ChessGameMode::CommitStateChange(cave::IHostServices& p_host) {
     DEV_ASSERT(m_pending_state != nullptr);
     const char* current_name = m_current_state ? m_current_state->DebugName() : "(null)";
     const char* pending_name = m_pending_state->DebugName();
-    p_host.Log().Print(LogLevel::LOG_LEVEL_NORMAL, std::format("ChessGameMode::CommitStateChange: {} -> {}\n", current_name, pending_name));
+    p_host.Log().Print(LogLevel::LOG_LEVEL_INFO, std::format("ChessGameMode::CommitStateChange: {} -> {}\n", current_name, pending_name));
 
     if (m_current_state) {
         m_current_state->OnExit(p_host);

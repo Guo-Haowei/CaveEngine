@@ -253,10 +253,10 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     m_ptIndexBuffer = *CreateBuffer(gm, GetGlobalPtIndicesSlot(), gpu_scene.indices);
 
     stopwatch.Stop();
-    LOG("Path tracer scene loaded in {}, contains {} triangles, {} BVH",
-        stopwatch.Elapsed().ToString(),
-        triangle_count,
-        bvh_count);
+    LOG_INFO("Path tracer scene loaded in {}, contains {} triangles, {} BVH",
+             stopwatch.Elapsed().ToString(),
+             triangle_count,
+             bvh_count);
 
 #if 0
     /// materials

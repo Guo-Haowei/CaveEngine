@@ -64,7 +64,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReport(VkDebugReportFlagsEXT p_flags,
     unused(p_userdata);
     unused(p_layer_prefix);
 
-    LogLevel level = LOG_LEVEL_VERBOSE;
+    LogLevel level = LOG_LEVEL_TRACE;
     if (p_flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         level = LOG_LEVEL_ERROR;
     } else if (p_flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
