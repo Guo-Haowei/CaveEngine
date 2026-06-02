@@ -107,7 +107,7 @@ const char* ToString(LogLevel p_level) {
     switch (p_level) {
 #define LOG_LEVEL_COLOR(LEVEL, TAG, ANSI, WINCOLOR) \
     case LEVEL:                                     \
-        return TAG;                                 
+        return TAG;
         LOG_LEVEL_COLOR_LIST
 #undef LOG_LEVEL_COLOR
         default:

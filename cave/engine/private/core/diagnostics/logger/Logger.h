@@ -9,7 +9,7 @@ namespace cave {
 // clang-format off
 //                  Level,              TAG       Ansi            DWORD
 #define LOG_LEVEL_COLOR_LIST                                           \
-    LOG_LEVEL_COLOR(LOG_LEVEL_VERBOSE,  "TRACE",  "\033[90m",     0x8) \
+    LOG_LEVEL_COLOR(LOG_LEVEL_VERBOSE,  "DEBUG",  "\033[90m",     0x8) \
     LOG_LEVEL_COLOR(LOG_LEVEL_NORMAL,   "INFO ",  "\033[0m",      0x7) \
     LOG_LEVEL_COLOR(LOG_LEVEL_OK,       "OK   ",  "\033[92m",     0xA) \
     LOG_LEVEL_COLOR(LOG_LEVEL_WARN,     "WARN ",  "\033[93m",     0xE) \

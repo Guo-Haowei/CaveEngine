@@ -171,7 +171,7 @@ void Application::Finalize() {
     for (int index = (int)m_modules.size() - 1; index >= 0; --index) {
         IService* module = m_modules[index];
         module->Finalize();
-        LOG_VERBOSE("module '{}' finalized", module->GetName());
+        LOG_VERBOSE("-{}", module->GetName());
         // @TODO: use smart pointer
         delete module;
     }
@@ -229,9 +229,7 @@ bool Application::MainLoop() {
 
 // @TODO: get rid of this
 void IApplication::Run(IApplication* p_app) {
-    LOG("\n********************************************************************************"
-        "\nMain Loop"
-        "\n********************************************************************************");
+    LOG("----------- Enter Main Loop -----------");
 
 #if USING(PLATFORM_WASM)
     s_app = p_app;
@@ -243,9 +241,7 @@ void IApplication::Run(IApplication* p_app) {
     while (p_app->MainLoop());
 #endif
 
-    LOG("\n********************************************************************************"
-        "\nMain Loop"
-        "\n********************************************************************************");
+    LOG("----------- Exit Main Loop -----------");
 }
 
 AppStateId Application::GetStateId() const {

@@ -28,7 +28,7 @@
 
 namespace cave {
 
-enum LogLevel : uint8_t {
+enum LogLevel : uint16_t {
     LOG_LEVEL_VERBOSE = BIT(1),
     LOG_LEVEL_NORMAL = BIT(2),
     LOG_LEVEL_OK = BIT(3),
@@ -44,13 +44,13 @@ enum LogLevel : uint8_t {
 };
 DEFINE_ENUM_BITWISE_OPERATIONS(LogLevel);
 
-enum class LogChannel : uint8_t;
+enum class LogChannel : uint16_t;
 
 struct Log {
-    static inline constexpr int kMaxTimeString = 10;
+    static inline constexpr int kMaxTimeString = 12;
     LogLevel level;
     LogChannel channel;
-    char time_str[kMaxTimeString];  // HH:MM:SS
+    char time_str[kMaxTimeString];  // HH:MM:SS.mm
     uint32_t repeat;
     int64_t timestamp_ms;
     std::string message;
