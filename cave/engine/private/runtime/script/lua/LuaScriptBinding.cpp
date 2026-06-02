@@ -4,8 +4,8 @@
 #include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/display/DisplayService.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 
