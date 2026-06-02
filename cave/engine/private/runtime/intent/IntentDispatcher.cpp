@@ -85,8 +85,13 @@ void IntentDispatcher::DispatchOne(Intent& p_intent) {
     }
 
     for (IIntentHandler* handler : it->second) {
-        if (DEV_VERIFY(handler))
-            handler->HandleIntent(p_intent);
+        if (DEV_VERIFY(handler)) {
+            if (!handler->HandleIntent(p_intent)) [[unlikely]] {
+                LOG_ERROR("IntentDispatcher: handler '{}' cant handle '{}'",
+                          handler->GetDebugId().type,
+                          p_intent.GetDebugName());
+            }
+        }
     }
 }
 

@@ -36,8 +36,28 @@ public:
         : doc_id(p_doc_id)
         , cmd(std::move(p_cmd)) {}
 
-    DocId doc_id;
+    const DocId doc_id;
     std::unique_ptr<IEditCmd> cmd;
+};
+
+class OpenDocIntent : public Intent {
+public:
+    CAVE_DECLARE_INTENT("cave.doc.open");
+
+    OpenDocIntent(DocId p_doc_id)
+        : doc_id(p_doc_id) {}
+
+    DocId doc_id;
+};
+
+class CloseDocIntent : public Intent {
+public:
+    CAVE_DECLARE_INTENT("cave.doc.close");
+
+    CloseDocIntent(DocId p_doc_id)
+        : doc_id(p_doc_id) {}
+
+    const DocId doc_id;
 };
 
 }  // namespace cave

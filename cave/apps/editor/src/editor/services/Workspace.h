@@ -1,4 +1,6 @@
 #pragma once
+#include "cave/runtime/intent/IIntentHandler.h"
+
 #include "engine/private/core/ids/GenIdRegistry.h"
 
 #include "editor/document/DocId.h"
@@ -28,35 +30,6 @@ enum class DocKind : uint8_t {
     _Count,
 };
 
-struct WorkspaceRequest {
-    enum class Type {
-        OpenDoc,
-        OpenPath,
-        NewDoc,
-        CloseDoc,
-        CloseAll,
-        FocusDoc,
-    } type;
-
-    DocKind kind{};
-    DocId doc_id{};
-    std::string path;
-
-    static WorkspaceRequest Open(DocId p_doc_id) {
-        WorkspaceRequest req{};
-        req.type = Type::OpenDoc;
-        req.doc_id = p_doc_id;
-        return req;
-    }
-
-    static WorkspaceRequest Close(DocId p_doc_id) {
-        WorkspaceRequest req{};
-        req.type = Type::CloseDoc;
-        req.doc_id = p_doc_id;
-        return req;
-    }
-};
-
 struct PreviewScene {
     DocId doc_id{};
     ViewId view_id{};
@@ -65,14 +38,16 @@ struct PreviewScene {
 };
 
 class Workspace final : protected GenIdRegistry<Tab>,
-                        public IInputConsumer {
+                        public IInputConsumer,
+                        public IIntentHandler {
 public:
     Workspace(EditorState& p_editor);
     ~Workspace();
 
     void Tick();
 
-    void Submit(WorkspaceRequest p_req);
+    void RequestOpen(DocId p_doc_id);
+    void RequestClose(DocId p_doc_id);
 
     TabId FocusedTabId() const { return m_focused_tab; }
 
@@ -82,11 +57,12 @@ public:
 
     PreviewScene FocusedPreviewScene();
 
-    void OnEvents(const InputFrame& p_input) final;
+    bool HandleIntent(Intent& p_intent) override;
+    void OnEvents(const InputFrame& p_input) override;
 
-    int GetPriority() const final { return 10; }
+    int GetPriority() const override { return 10; }
 
-    DebugId GetDebugId() const final { return m_debug_id; }
+    DebugId GetDebugId() const override { return m_debug_id; }
 
     bool OnCloseRequested();
 
@@ -102,7 +78,6 @@ private:
     // Focus/activate
     bool FocusDoc(DocId doc_id);
 
-    void FlushPendingRequests();
     void DrawTabs();
 
     EditorState& m_editor;
@@ -111,7 +86,6 @@ private:
     TabId m_focused_tab{};
     TabId m_focused_req{};
 
-    std::vector<WorkspaceRequest> m_pending_reqs;
     std::unordered_map<DocId, TabId> m_doc_to_tab;
 };
 

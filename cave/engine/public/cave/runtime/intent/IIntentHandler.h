@@ -11,7 +11,8 @@ class IIntentHandler {
 public:
     virtual ~IIntentHandler() = default;
 
-    virtual void HandleIntent(Intent& p_intent) = 0;
+    [[nodiscard]]
+    virtual bool HandleIntent(Intent& p_intent) = 0;
 
     virtual DebugId GetDebugId() const = 0;
 };

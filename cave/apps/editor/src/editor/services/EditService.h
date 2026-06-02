@@ -30,7 +30,7 @@ public:
     bool IsDirty(DocId p_doc_id) const;
     bool Save(DocId p_doc_id);
 
-    void HandleIntent(Intent& p_intent) override;
+    bool HandleIntent(Intent& p_intent) override;
 
     DebugId GetDebugId() const override { return m_debug_id; }
 

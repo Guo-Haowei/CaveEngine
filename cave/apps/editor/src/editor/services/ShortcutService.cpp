@@ -37,7 +37,7 @@ ShortcutService::~ShortcutService() {
     m_editor.GetApp().InputService().Unregister(this);
 }
 
-void ShortcutService::HandleIntent(Intent& p_intent) {
+bool ShortcutService::HandleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<const SaveIntent*>(&p_intent)) {
         const bool save_as = intent->SaveAs();
         LOG_OK(save_as ? "Ctrl+Shift+S" : "Ctrl+S");
@@ -46,22 +46,22 @@ void ShortcutService::HandleIntent(Intent& p_intent) {
         // AssetRegistry::GetSingleton().SaveAllAssets();
         // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(true));
         // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(false));
-        return;
+        return true;
     }
 
     if (auto intent = dynamic_cast<const UndoIntent*>(&p_intent)) {
         DocId active_doc = m_editor.Workspace().FocusedDoc();
         m_editor.EditService().Undo(active_doc);
-        return;
+        return true;
     }
 
     if (auto intent = dynamic_cast<const RedoIntent*>(&p_intent)) {
         DocId active_doc = m_editor.Workspace().FocusedDoc();
         m_editor.EditService().Redo(active_doc);
-        return;
+        return true;
     }
 
-    LOG_ERROR("Can't handle {}", p_intent.GetDebugName());
+    return false;
 }
 
 void ShortcutService::OnEvents(const InputFrame& p_input) {

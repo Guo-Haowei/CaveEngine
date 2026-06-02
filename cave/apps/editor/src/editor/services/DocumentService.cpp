@@ -1,10 +1,9 @@
 #include "DocumentService.h"
 
-#include "editor/document/MaterialDocument.h"
-#include "editor/document/SceneDocument.h"
-
 #include "cave/runtime/framework/IApplication.h"
 
+#include "editor/document/MaterialDocument.h"
+#include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
 #include "editor/services/Workspace.h"
 
@@ -25,7 +24,7 @@ static std::unique_ptr<IDocument> CreateDoc(IApplication& p_app, const OpenDocDe
     }
 }
 
-DocId DocumentService::OpenDoc(OpenDocDesc p_desc) {
+DocId DocumentService::OpenDoc(const OpenDocDesc& p_desc) {
     DocId doc_id;
     if (auto it = m_doc_cache.find(p_desc.guid); it != m_doc_cache.end()) {
         doc_id = it->second;
@@ -35,11 +34,11 @@ DocId DocumentService::OpenDoc(OpenDocDesc p_desc) {
         m_doc_cache[p_desc.guid] = doc_id;
     }
 
-    m_editor.Workspace().Submit(WorkspaceRequest::Open(doc_id));
+    m_editor.Workspace().RequestOpen(doc_id);
     return doc_id;
 }
 
-CloseRequestResult DocumentService::Close(DocId p_doc_id) {
+CloseRequestResult DocumentService::CloseDoc(DocId p_doc_id) {
     IDocument* doc = Resolve(p_doc_id);
     DEV_ASSERT(doc);
     auto handle = doc->GetHandleRaw();

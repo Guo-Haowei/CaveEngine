@@ -15,7 +15,7 @@ public:
     ShortcutService(EditorState& p_editor);
     ~ShortcutService();
 
-    void HandleIntent(Intent& p_intent) override;
+    bool HandleIntent(Intent& p_intent) override;
     void OnEvents(const InputFrame& p_input) override;
 
     const auto& GetShortcuts() const { return m_shortcuts; }
