@@ -68,7 +68,6 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
                 meta.import_path = key;
             }
 
-            LOG_TRACE(LogChannel::Asset, "'{}' detected, loading...", meta_path);
             assets.emplace_back(std::move(meta));
             continue;
         }

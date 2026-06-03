@@ -155,7 +155,7 @@ auto Application::Initialize() -> Result<void> {
             return CAVE_ERROR(res.error());
         }
         m_stopwatch.Stop();
-        LOG_OK(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
+        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
     }
 
     m_stopwatch.Restart();
@@ -229,7 +229,7 @@ bool Application::MainLoop() {
 
 // @TODO: get rid of this
 void IApplication::Run(IApplication* p_app) {
-    LOG_INFO("----------- Enter Main Loop -----------");
+    LOG_INFO(LogChannel::App, "----------- Enter Main Loop -----------");
 
 #if USING(PLATFORM_WASM)
     s_app = p_app;

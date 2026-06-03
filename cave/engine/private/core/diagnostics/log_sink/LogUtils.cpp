@@ -61,7 +61,7 @@ LogEvent BuildLog(LogLevel p_level, LogChannel p_channel, std::string p_message)
 }
 
 std::string FormatLog(const LogEvent& p_log) {
-    auto log = std::format("{}  {}  [{}] {}\n",
+    auto log = std::format("{}  {}  {} {}\n",
                            p_log.time_str,
                            detail::ToString(p_log.level),
                            detail::ToString(p_log.channel),
@@ -85,7 +85,7 @@ const char* ToString(LogLevel p_level) {
 const char* ToString(LogChannel p_channel) {
     DEV_ASSERT_INDEX(p_channel, LogChannel::Count);
     static constexpr const char* s_channels[] = {
-#define CAVE_LOG_CHANNEL(x) #x,
+#define CAVE_LOG_CHANNEL(ENUM, STR) STR,
         CAVE_LOG_CHANNEL_LIST
 #undef CAVE_LOG_CHANNEL
     };

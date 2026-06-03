@@ -10,10 +10,16 @@ namespace cave {
 #define ASSERT_OPERATION_THREAD() ((void)0)
 #endif
 
+bool operator==(const LogEvent& p_lhs, const LogEvent& p_rhs) {
+    return p_lhs.level == p_rhs.level &&
+           p_lhs.channel == p_rhs.channel &&
+           p_lhs.message == p_rhs.message;
+}
+
 void CompositeLogger::GroupedLog::Add(LogEvent p_log) {
     if (!logs.empty()) {
         LogEvent& log = logs.back();
-        if (log.message == p_log.message && log.level == p_log.level) {
+        if (log == p_log) {
             ++log.repeat;
             return;
         }

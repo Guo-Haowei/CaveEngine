@@ -79,7 +79,8 @@ static const char* InputDeviceTypeToString(InputDeviceType p_type) {
 void InputService::AddDevice(std::unique_ptr<IInputDevice> p_device) {
     DEV_ASSERT(p_device);
 
-    LOG_INFO("+{}#{}",
+    LOG_INFO(LogChannel::Input,
+             "+{}#{}",
              InputDeviceTypeToString(p_device->Type()),
              p_device->Id().value);
     m_devices.emplace_back(std::move(p_device));

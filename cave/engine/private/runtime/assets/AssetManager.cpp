@@ -287,7 +287,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     }
 
     stopwatch.Stop();
-    LOG_TRACE("'{}' loaded in {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
+    LOG_TRACE(LogChannel::Asset, "Loaded {} {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
     entry->MarkLoaded(asset);
     return asset;
 }
