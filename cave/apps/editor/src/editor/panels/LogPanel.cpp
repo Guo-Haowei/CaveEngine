@@ -75,11 +75,11 @@ static void DrawLog(const LogEvent& p_log) {
 }
 
 void LogPanel::DrawFilter() {
+    SearchBar();
+    ImGui::SameLine();
     VerbosityDropDown();
     ImGui::SameLine();
     ChannelDropDown();
-    ImGui::SameLine();
-    SearchBar();
 }
 
 void LogPanel::VerbosityDropDown() {
@@ -144,8 +144,10 @@ void LogPanel::ChannelDropDown() {
 }
 
 void LogPanel::SearchBar() {
+    ImGui::Text(ICON_FA_MAGNIFYING_GLASS);
+    ImGui::SameLine();
     ImGui::SetNextItemWidth(200.0f);
-    ImGui::InputTextWithHint(ICON_FA_MAGNIFYING_GLASS "##LogSearch", "Search...", m_search.data(), m_search.capacity());
+    ImGui::InputTextWithHint("##LogSearch", "Search...", m_search.data(), m_search.capacity());
 }
 
 int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
@@ -239,6 +241,7 @@ bool LogPanel::PassSearchFilter(const LogEvent& p_log) const {
         return true;
     }
 
+    // @TODO: better string matching
     auto contains = [this](std::string_view p_msg) {
         const bool found = p_msg.find(m_search.c_str()) != std::string::npos;
         return found;
@@ -295,10 +298,11 @@ void LogPanel::DrawLogHistroy() {
         ImVec2 text_size = ImGui::CalcTextSize(log.message.c_str());
         text_size.x = std::max(text_size.x, window_size.x);
         text_size.y += padding * 3;
+        const float rect_w = text_pos.x + text_size.x + 100.f;
 
         ImGui::GetWindowDrawList()->AddRectFilled(
             text_pos,
-            ImVec2(text_pos.x + text_size.x, text_pos.y + text_size.y),
+            ImVec2(rect_w, text_pos.y + text_size.y),
             colors[color_index]);
 
         color_index ^= 1;

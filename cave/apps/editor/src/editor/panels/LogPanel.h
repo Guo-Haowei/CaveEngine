@@ -43,7 +43,7 @@ protected:
     char m_cmd_buffer[kCmdBufferSize]{};
     FixedString<128> m_search;
 
-    // @TODO: this should goes to console
+    // @TODO: move console to a different place
     class AutoCompletion {
     public:
         [[nodiscard]] std::string_view Current() const;
