@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/containers/FixedString.h"
 #include "cave/core/diagnostics/Log.h"
 
 #include "editor/panels/EditorWindow.h"
@@ -25,9 +26,12 @@ protected:
     void DrawLogHistroy();
     void DrawConsole();
 
+    bool AllChannels() const { return m_channel_filter == LogChannel::Count; }
+    bool PassSearchFilter(const LogEvent& p_log) const;
+
     void VerbosityDropDown();
     void ChannelDropDown();
-    bool AllChannels() const { return m_channel_filter == LogChannel::Count; }
+    void SearchBar();
 
     static int InputCallback(ImGuiInputTextCallbackData* p_data);
 
@@ -37,7 +41,9 @@ protected:
     LogLevel m_level_filter{ LOG_LEVEL_ALL };
     LogChannel m_channel_filter{ LogChannel::Count };
     char m_cmd_buffer[kCmdBufferSize]{};
+    FixedString<128> m_search;
 
+    // @TODO: this should goes to console
     class AutoCompletion {
     public:
         [[nodiscard]] std::string_view Current() const;

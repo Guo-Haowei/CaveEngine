@@ -96,10 +96,10 @@ void ProjectBrowserState::DrawUI() {
     ImGui::SeparatorText("MY PROJECTS");
 
     // Right-aligned search box
-    float searchW = 260.0f;
+    float search_w = 260.0f;
     ImGui::SameLine();
-    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - searchW);
-    ImGui::SetNextItemWidth(searchW);
+    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - search_w);
+    ImGui::SetNextItemWidth(search_w);
     ImGui::InputTextWithHint("##search", "Search Projects", search, sizeof(search));
 
     ImGui::Spacing();

@@ -1,5 +1,7 @@
 #include "LogPanel.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
 #include "cave/core/Color.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/string/StringUtils.h"
@@ -76,6 +78,8 @@ void LogPanel::DrawFilter() {
     VerbosityDropDown();
     ImGui::SameLine();
     ChannelDropDown();
+    ImGui::SameLine();
+    SearchBar();
 }
 
 void LogPanel::VerbosityDropDown() {
@@ -137,6 +141,11 @@ void LogPanel::ChannelDropDown() {
 
         ImGui::EndCombo();
     }
+}
+
+void LogPanel::SearchBar() {
+    ImGui::SetNextItemWidth(200.0f);
+    ImGui::InputTextWithHint(ICON_FA_MAGNIFYING_GLASS "##LogSearch", "Search...", m_search.data(), m_search.capacity());
 }
 
 int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
@@ -225,6 +234,19 @@ void LogPanel::DrawConsole() {
     }
 }
 
+bool LogPanel::PassSearchFilter(const LogEvent& p_log) const {
+    if (m_search[0] == '\0') {
+        return true;
+    }
+
+    auto contains = [this](std::string_view p_msg) {
+        const bool found = p_msg.find(m_search.c_str()) != std::string::npos;
+        return found;
+    };
+
+    return contains(p_log.message) || contains(p_log.time_str);
+}
+
 void LogPanel::DrawLogHistroy() {
     // reserve enough left-over height for 1 separator + 1 input text
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
@@ -262,6 +284,10 @@ void LogPanel::DrawLogHistroy() {
         }
 
         if (!AllChannels() && log.channel != m_channel_filter) {
+            continue;
+        }
+
+        if (!PassSearchFilter(log)) {
             continue;
         }
 
