@@ -18,7 +18,7 @@ void RenderPoolDump_Cmd(TransientPool& p_pool,
     for (const PoolTextureInfo& info : snapshot.textures) {
         msg.append(std::format(" -- name: {}\n", info.debug_name));
     }
-    p_ctx.sink.Submit(LogLevel::LOG_LEVEL_TRACE, msg);
+    p_ctx.log.Info(LogChannel::Console, std::move(msg));
 }
 
 }  // namespace cave::render

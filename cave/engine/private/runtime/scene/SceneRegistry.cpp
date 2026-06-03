@@ -152,7 +152,7 @@ bool SceneRegistry::Impl::Dump_Cmd(CommandContext& p_ctx, const CommandArgs&) {
                                slot.gen));
     }
 
-    p_ctx.sink.Submit(LogLevel::LOG_LEVEL_TRACE, msg);
+    p_ctx.log.Info(LogChannel::Console, std::move(msg));
     return true;
 }
 

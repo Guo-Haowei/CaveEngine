@@ -121,7 +121,7 @@ void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const Com
         }
         msg[msg.size() - 1] = '\n';  // replace ',' with new line
     }
-    p_ctx.sink.Submit(LogLevel::LOG_LEVEL_TRACE, msg);
+    p_ctx.log.Info(LogChannel::Console, std::move(msg));
 #else
     unused(p_ctx);
 #endif

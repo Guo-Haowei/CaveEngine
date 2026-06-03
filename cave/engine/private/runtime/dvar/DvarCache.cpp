@@ -14,11 +14,11 @@ namespace cave {
 void DvarCache::Serialize(std::string_view p_path) {
     auto res = FileAccess::Open(p_path, FileAccess::WRITE);
     if (!res) {
-        LOG_ERROR("{}", ToString(res.error()));
+        LOG_ERROR(LogChannel::Dvar, "{}", ToString(res.error()));
         return;
     }
 
-    LOG_INFO("[dvar] serializing dvars");
+    LOG_INFO(LogChannel::Dvar, "Serializing");
     auto writer = std::move(*res);
 
     for (auto const& [key, dvar] : Dvar::s_map) {
@@ -35,7 +35,7 @@ void DvarCache::Deserialize(std::string_view p_path) {
     auto res = FileAccess::Open(p_path, FileAccess::READ);
     if (!res) {
         if (res.error()->value != ErrorCode::ERR_FILE_NOT_FOUND) {
-            LOG_ERROR("{}", ToString(res.error()));
+            LOG_ERROR(LogChannel::Dvar, "{}", ToString(res.error()));
         }
         return;
     }
@@ -50,7 +50,7 @@ void DvarCache::Deserialize(std::string_view p_path) {
     std::vector<std::string_view> commands = StringUtils::Tokenize(buffer);
     DvarParser parser(commands, DvarParser::Source::Cache);
     if (!parser.Parse()) {
-        LOG_ERROR("[dvar] Error: {}", parser.GetError());
+        LOG_ERROR(LogChannel::Dvar, "Error: {}", parser.GetError());
     }
 }
 
@@ -58,7 +58,7 @@ bool DvarCache::Parse(std::span<const std::string_view> p_commands) {
     DvarParser parser(p_commands, DvarParser::Source::CommandLine);
     bool ok = parser.Parse();
     if (!ok) {
-        LOG_ERROR("[dvar] Error: {}", parser.GetError());
+        LOG_ERROR(LogChannel::Dvar, "Error: {}", parser.GetError());
     }
     return ok;
 }
@@ -70,7 +70,7 @@ void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
         .usage = "Usage: dvar.set name [value]",
         .fn = [](CommandContext& p_ctx, const CommandArgs& p_args) {
             if (p_args.tokens.empty()) {
-                p_ctx.sink.Submit(LOG_LEVEL_ERROR, p_ctx.desc.usage);
+                p_ctx.log.Error(LogChannel::Console, std::string(p_ctx.desc.usage));
                 return false;
             }
             std::span<const std::string_view> args = p_args.tokens.subspan(1);
@@ -79,7 +79,7 @@ void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
             std::string err;
             if (parser.ParseSetCmd(err)) return true;
 
-            p_ctx.sink.Submit(LOG_LEVEL_ERROR, err);
+            p_ctx.log.Error(LogChannel::Console, std::move(err));
             return false;
         },
     });
@@ -100,7 +100,7 @@ void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
             }
             msg.push_back('\n');
 
-            p_ctx.sink.Submit(LogLevel::LOG_LEVEL_INFO, msg);
+            p_ctx.log.Info(LogChannel::Console, std::move(msg));
             return true;
         },
     });

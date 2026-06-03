@@ -95,7 +95,7 @@ Result<void> Bullet3PhysicsManager::InitializeImpl() {
 
 void Bullet3PhysicsManager::FinalizeImpl() {
     // CleanWorld();
-    LOG_WARN("PhysicsManager:: unload world properly");
+    LOG_WARN(LogChannel::Physics, "Unload world properly");
 }
 
 void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {

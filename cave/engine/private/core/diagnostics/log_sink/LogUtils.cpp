@@ -61,7 +61,7 @@ LogEvent BuildLog(LogLevel p_level, LogChannel p_channel, std::string p_message)
 }
 
 std::string FormatLog(const LogEvent& p_log) {
-    auto log = std::format("{}  {}  {} {}\n",
+    auto log = std::format("{}  {}  {}  {}\n",
                            p_log.time_str,
                            detail::ToString(p_log.level),
                            detail::ToString(p_log.channel),

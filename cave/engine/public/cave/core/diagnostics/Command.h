@@ -2,6 +2,7 @@
 // File: engine/public/cave/core/diagnostics/Command.h
 // =============================================================================
 #pragma once
+#include "cave/core/diagnostics/LogWrapper.h"
 
 namespace cave {
 
@@ -10,7 +11,7 @@ class ILogSink;
 struct CommandDesc;
 
 struct CommandContext {
-    ILogSink& sink;
+    LogWrapper log;
     const CommandDesc& desc;
     IApplication& app;
 };

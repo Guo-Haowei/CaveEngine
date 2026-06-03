@@ -12,6 +12,7 @@ PIEHostServices::PIEHostServices(IApplication& p_app,
                                  Scene& p_scene,
                                  ViewId p_view_id) noexcept
     : m_app(p_app)
+    , m_logger(CompositeLogger::GetSingleton())
     , m_scene(p_scene)
     , m_view_id(p_view_id)
     , m_query(p_scene)
@@ -32,10 +33,6 @@ IInputService& PIEHostServices::Input() {
 
 IUIRuntime& PIEHostServices::UI() {
     return *m_app.UIService();
-}
-
-ILogSink& PIEHostServices::Log() {
-    return CompositeLogger::GetSingleton();
 }
 
 void PIEHostServices::FlushSceneCommands() {

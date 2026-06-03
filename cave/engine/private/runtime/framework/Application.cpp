@@ -241,7 +241,7 @@ void IApplication::Run(IApplication* p_app) {
     while (p_app->MainLoop());
 #endif
 
-    LOG_INFO("----------- Exit Main Loop -----------");
+    LOG_INFO(LogChannel::App, "----------- Exit Main Loop -----------");
 }
 
 AppStateId Application::GetStateId() const {

@@ -21,7 +21,7 @@ void Console::SubmitLine(std::string_view p_line) {
     for (const CommandDesc& cmd : cmds) {
         if (cmd.name == tokens[0]) {
             CommandContext ctx{
-                .sink = CompositeLogger::GetSingleton(),
+                .log = LogWrapper(CompositeLogger::GetSingleton()),
                 .desc = cmd,
                 .app = m_app,
             };

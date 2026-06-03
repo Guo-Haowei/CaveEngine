@@ -2,7 +2,7 @@
 // File: engine/public/cave/game/IHostServices.h
 // =============================================================================
 #pragma once
-#include "cave/core/diagnostics/ILogSink.h"
+#include "cave/core/diagnostics/LogWrapper.h"
 #include "cave/core/ids/ViewId.h"
 
 // clang-format off
@@ -25,7 +25,7 @@ public:
     virtual ecs::ComponentRegistry& ComponentRegistry() = 0;
     virtual IInputService& Input() = 0;
     virtual IUIRuntime& UI() = 0;
-    virtual ILogSink& Log() = 0;
+    virtual LogWrapper& Log() = 0;
     virtual SceneQuery& SceneQuery() = 0;
     virtual SceneCommandWriter& SceneWriter() = 0;
 

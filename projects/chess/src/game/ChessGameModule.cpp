@@ -115,7 +115,7 @@ ChessGameModule::ChessGameModule() = default;
 ChessGameModule::~ChessGameModule() = default;
 
 void ChessGameModule::OnModuleLoaded(IHostServices& p_host) {
-    p_host.Log().Submit(LogLevel::LOG_LEVEL_OK, "ChessClient Loaded\n");
+    p_host.Log().Ok(LogChannel::Game, "ChessClient Loaded");
 
     // @TODO: move it to present layer
     SpawnObjects(p_host);
