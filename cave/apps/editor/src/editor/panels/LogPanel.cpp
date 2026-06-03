@@ -1,11 +1,13 @@
 #include "LogPanel.h"
 
+#include "cave/core/Color.h"
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/core/string/StringUtils.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "cave/core/Color.h"
 #include "engine/private/core/diagnostics/console/Console.h"
-#include "cave/core/string/StringUtils.h"
+#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/Image.h"
@@ -30,24 +32,34 @@ LogPanel::LogPanel(EditorState& p_editor)
 }
 
 static void DrawLog(const LogEvent& p_log) {
+    Color color = Color::Hex(ColorCode::Silver);
     switch (p_log.level) {
         case LOG_LEVEL_WARN:
             ui::WarningIcon();
+            color = Color::Hex(ColorCode::Yellow);
             break;
         case LOG_LEVEL_ERROR:
         case LOG_LEVEL_FATAL:
+            color = Color::Hex(ColorCode::Red);
             ui::ErrorIcon();
+            break;
+        case LOG_LEVEL_OK:
+            color = Color::Hex(ColorCode::Palegreen);
+            ui::OkIcon();
+            break;
+        case LOG_LEVEL_INFO:
+            color = Color::Hex(ColorCode::White);
+            ui::OkIcon();
             break;
         default:
             ui::OkIcon();
             break;
     }
 
-    Color color = Color::Hex(p_log.level == LOG_LEVEL_TRACE ? ColorCode::Silver : ColorCode::White);
-
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, 1.0f));
+    std::string log = detail::FormatLog(p_log);
     ImGui::SameLine();
-    ImGui::Text("  %s", p_log.message.c_str());
+    ImGui::Text("  %s", log.c_str());
     if (p_log.repeat > 1) {
         ImGui::SameLine();
         ImGui::Text(" [ x%u ]", p_log.repeat);

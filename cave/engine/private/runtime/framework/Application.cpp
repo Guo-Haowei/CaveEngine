@@ -9,7 +9,7 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
-#include "engine/private/core/diagnostics/log_sink/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/os/threads.h"
 #include "engine/private/render/renderer/Renderer.h"

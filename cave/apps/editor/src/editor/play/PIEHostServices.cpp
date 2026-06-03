@@ -2,7 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
-#include "engine/private/core/diagnostics/log_sink/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
 

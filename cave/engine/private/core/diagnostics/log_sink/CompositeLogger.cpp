@@ -1,4 +1,4 @@
-#include "Logger.h"
+#include "CompositeLogger.h"
 
 #include "engine/private/core/os/threads.h"
 

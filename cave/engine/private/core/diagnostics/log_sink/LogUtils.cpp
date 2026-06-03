@@ -1,7 +1,5 @@
 #include "LogUtils.h"
 
-#include "Logger.h"
-
 namespace cave {
 
 enum class LogChannel : uint16_t {

@@ -4,7 +4,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/diagnostics/log_sink/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

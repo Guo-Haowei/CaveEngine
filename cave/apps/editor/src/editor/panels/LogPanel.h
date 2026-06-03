@@ -1,6 +1,4 @@
 #pragma once
-#include "engine/private/core/diagnostics/log_sink/Logger.h"
-
 #include "editor/panels/EditorWindow.h"
 
 struct ImGuiInputTextCallbackData;

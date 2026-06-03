@@ -4,6 +4,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
 
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/view/ViewManager.h"
 

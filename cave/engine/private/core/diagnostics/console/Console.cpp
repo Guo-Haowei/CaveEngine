@@ -2,7 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/diagnostics/log_sink/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "cave/core/string/StringUtils.h"
 
 namespace cave {
