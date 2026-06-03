@@ -1,5 +1,6 @@
 #include "cave/core/ErrorMacros.h"
 
+#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
 #include "engine/private/core/os/os.h"
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
@@ -52,8 +53,8 @@ void ReportErrorImpl(std::string_view p_function,
                                p_file,
                                p_line);
     if (auto os = OS::GetSingletonPtr()) {
-        DEV_ASSERT(0);
-        // os->Print(LOG_LEVEL_ERROR, message);
+        LogEvent log = detail::BuildLog(LOG_LEVEL_ERROR, LogChannel::Default, std::move(message));
+        os->Print(std::move(log));
     } else {
         fprintf(stdout, "%s", message.c_str());
         fflush(stdout);

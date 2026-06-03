@@ -7,17 +7,11 @@
 namespace cave {
 
 void LogImpl(LogLevel p_level, LogChannel p_channel, std::string p_message) {
-    LogEvent log = detail::BuildLog(p_level, p_channel, std::move(p_message));
-
     if (OS* os = OS::GetSingletonPtr()) [[likely]] {
-        // using namespace std::chrono;
-
-        // auto now = floor<seconds>(system_clock::now());
-        // auto local = zoned_time{ current_zone(), now };
-        // auto message = std::format("[{:%H:%M:%S}] {}\n", local, p_message);
-        os->Print(log);
+        LogEvent log = detail::BuildLog(p_level, p_channel, std::move(p_message));
+        os->Print(std::move(log));
     } else {
-        printf("%s\n", log.message.c_str());
+        printf("%s\n", p_message.c_str());
     }
 }
 
