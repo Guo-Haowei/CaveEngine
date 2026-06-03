@@ -1,4 +1,4 @@
-#include "logger.h"
+#include "Logger.h"
 
 #include "engine/private/core/os/threads.h"
 
@@ -9,22 +9,6 @@ namespace cave {
 #else
 #define ASSERT_OPERATION_THREAD() ((void)0)
 #endif
-
-void ILogger::Print(LogLevel p_level, std::string p_message) {
-    LogEvent log = BuildLog(p_level, std::move(p_message));
-    Print(log);
-}
-
-void StdLogger::Print(const LogEvent& p_log) {
-    const char* tag = ToString(p_log.level);
-
-    // @TODO: stderr vs stdout
-    FILE* file = stdout;
-    fflush(file);
-
-    fprintf(file, "%s%s", tag, p_log.message.c_str());
-    fflush(file);
-}
 
 void CompositeLogger::GroupedLog::Add(LogEvent p_log) {
     if (!logs.empty()) {
@@ -38,18 +22,18 @@ void CompositeLogger::GroupedLog::Add(LogEvent p_log) {
     logs.push_back(std::move(p_log));
 }
 
-void CompositeLogger::AddLogger(std::shared_ptr<ILogger> p_logger) {
+void CompositeLogger::AddLogger(std::shared_ptr<ILogSink> p_logger) {
     m_loggers.emplace_back(p_logger);
 }
 
-void CompositeLogger::Print(const LogEvent& p_log) {
+void CompositeLogger::Submit(const LogEvent& p_log) {
     // @TODO: set verbose
     if (!(m_channels & p_log.level)) {
         return;
     }
 
     for (auto& logger : m_loggers) {
-        logger->Print(p_log);
+        logger->Submit(p_log);
     }
 
     m_buffer.mutex.lock();
@@ -101,18 +85,6 @@ const std::vector<LogEvent>& CompositeLogger::GetWarningLogs() const {
 const std::vector<LogEvent>& CompositeLogger::GetErrorLogs() const {
     ASSERT_OPERATION_THREAD();
     return m_errors.logs;
-}
-
-const char* ToString(LogLevel p_level) {
-    switch (p_level) {
-#define LOG_LEVEL_COLOR(LEVEL, TAG, ANSI, WINCOLOR) \
-    case LEVEL:                                     \
-        return TAG;
-        LOG_LEVEL_COLOR_LIST
-#undef LOG_LEVEL_COLOR
-        default:
-            return "";
-    }
 }
 
 }  // namespace cave

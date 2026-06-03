@@ -2,7 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/diagnostics/logger/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/Logger.h"
 #include "cave/core/string/StringUtils.h"
 
 namespace cave {
@@ -21,7 +21,7 @@ void Console::SubmitLine(std::string_view p_line) {
     for (const CommandDesc& cmd : cmds) {
         if (cmd.name == tokens[0]) {
             CommandContext ctx{
-                .logger = CompositeLogger::GetSingleton(),
+                .sink = CompositeLogger::GetSingleton(),
                 .desc = cmd,
                 .app = m_app,
             };

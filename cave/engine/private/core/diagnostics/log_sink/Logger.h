@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 #include "cave/core/Singleton.h"
 
 namespace cave {
@@ -17,16 +17,11 @@ namespace cave {
     LOG_LEVEL_COLOR(LOG_LEVEL_FATAL,    "FATAL",  "\033[101;30m", 0xC)
 // clang-format on
 
-class StdLogger : public ILogger {
+class CompositeLogger : public ILogSink, public Singleton<CompositeLogger> {
 public:
-    virtual void Print(const LogEvent& p_log) override;
-};
+    void Submit(const LogEvent& p_log) override;
 
-class CompositeLogger : public ILogger, public Singleton<CompositeLogger> {
-public:
-    void Print(const LogEvent& p_log) override;
-
-    void AddLogger(std::shared_ptr<ILogger> p_logger);
+    void AddLogger(std::shared_ptr<ILogSink> p_logger);
     void AddChannel(LogLevel p_log) { m_channels |= p_log; }
     void RemoveChannel(LogLevel p_log) { m_channels &= ~p_log; }
 
@@ -50,7 +45,7 @@ private:
         void Clear() { logs.clear(); }
     };
 
-    std::vector<std::shared_ptr<ILogger>> m_loggers;
+    std::vector<std::shared_ptr<ILogSink>> m_loggers;
 
     GroupedLog m_all_logs;
     GroupedLog m_errors;
@@ -61,7 +56,5 @@ private:
     std::atomic_uint32_t m_channels{ LOG_LEVEL_ALL };
     std::atomic_uint64_t m_log_id{ 0 };
 };
-
-const char* ToString(LogLevel p_level);
 
 }  // namespace cave

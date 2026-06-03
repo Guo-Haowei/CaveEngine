@@ -2,7 +2,7 @@
 
 namespace cave {
 
-class TestLogger : public ILogger {
+class TestLogger : public ILogSink {
 public:
     virtual void Print(LogLevel, std::string_view message) override { m_buffer.append(message); }
     const std::string& GetBuffer() const { return m_buffer; }

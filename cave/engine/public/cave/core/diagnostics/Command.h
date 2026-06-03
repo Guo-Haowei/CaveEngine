@@ -6,11 +6,11 @@
 namespace cave {
 
 class IApplication;
-class ILogger;
+class ILogSink;
 struct CommandDesc;
 
 struct CommandContext {
-    ILogger& logger;
+    ILogSink& sink;
     const CommandDesc& desc;
     IApplication& app;
 };

@@ -129,7 +129,7 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
 
 void ChessGameSession::OnEnterGameOver(cave::IHostServices& p_host) {
     using namespace cave;
-    ILogger& logger = p_host.Log();
+    ILogSink& logger = p_host.Log();
 
     // @TODO: use button and text
     logger.Print(LOG_LEVEL_OK, "Game Over! Press 'ui_accept' to start a new match\n");

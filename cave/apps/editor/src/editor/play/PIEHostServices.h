@@ -19,7 +19,7 @@ public:
     cave::ecs::ComponentRegistry& ComponentRegistry() override;
     IInputService& Input() override;
     IUIRuntime& UI() override;
-    ILogger& Log() override;
+    ILogSink& Log() override;
     cave::SceneQuery& SceneQuery() override { return m_query; }
     SceneCommandWriter& SceneWriter() override { return m_writer; }
 

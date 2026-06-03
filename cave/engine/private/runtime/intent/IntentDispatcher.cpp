@@ -3,7 +3,7 @@
 
 #if USING(DEBUG_BUILD)
 #include "cave/core/diagnostics/CommandRegistry.h"
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 #endif
 
 #include <algorithm>
@@ -107,7 +107,7 @@ void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const Com
         }
         msg[msg.size() - 1] = '\n';  // replace ',' with new line
     }
-    p_ctx.logger.Print(LogLevel::LOG_LEVEL_TRACE, msg);
+    p_ctx.sink.Submit(LogLevel::LOG_LEVEL_TRACE, msg);
 #else
     unused(p_ctx);
 #endif

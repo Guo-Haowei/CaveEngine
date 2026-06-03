@@ -1,19 +1,11 @@
-#include "engine/private/core/diagnostics/logger/AnsiLogger.h"
+#include "engine/private/core/diagnostics/log_sink/AnsiLogSink.h"
 #include "engine/private/core/io/file_access_unix.h"
 #include "engine/private/core/os/os.h"
-#include "win32_logger.h"
-#include "win32_prerequisites.h"
+#include "engine/private/drivers/windows/Win32ConsoleSink.h"
+#include "engine/private/drivers/windows/Win32DebuggerSink.h"
+#include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {
-
-class DebugConsoleLogger : public ILogger {
-public:
-    void Print(const LogEvent& p_log) override;
-};
-
-void DebugConsoleLogger::Print(const LogEvent& p_log) {
-    OutputDebugStringA(p_log.message.c_str());
-}
 
 void OS::Initialize() {
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_RESOURCE);

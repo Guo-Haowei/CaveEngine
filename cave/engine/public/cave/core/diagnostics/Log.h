@@ -56,8 +56,6 @@ struct LogEvent {
     std::string message;
 };
 
-LogEvent BuildLog(LogLevel p_level, std::string p_message);
-
 void LogImpl(LogLevel p_level, std::string p_message);
 
 template<typename... Args>

@@ -2,7 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
-#include "engine/private/core/diagnostics/logger/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/Logger.h"
 #include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
 
@@ -34,7 +34,7 @@ IUIRuntime& PIEHostServices::UI() {
     return *m_app.UIService();
 }
 
-ILogger& PIEHostServices::Log() {
+ILogSink& PIEHostServices::Log() {
     return CompositeLogger::GetSingleton();
 }
 

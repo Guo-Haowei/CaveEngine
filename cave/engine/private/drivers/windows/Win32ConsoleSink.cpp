@@ -1,5 +1,6 @@
-#include "win32_logger.h"
+#include "Win32ConsoleSink.h"
 
+#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {
@@ -16,7 +17,7 @@ static WORD FindColorAttribute(LogLevel p_level) {
     }
 }
 
-void Win32Logger::Print(const LogEvent& p_log) {
+void Win32Logger::Submit(const LogEvent& p_log) {
     const HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO buffer_info;
     const WORD new_color = FindColorAttribute(p_log.level);
@@ -25,17 +26,17 @@ void Win32Logger::Print(const LogEvent& p_log) {
     FILE* file = stdout;
     fflush(file);
 
-    m_consoleMutex.lock();
+    m_console_mutex.lock();
     GetConsoleScreenBufferInfo(stdout_handle, &buffer_info);
     const WORD old_color_attrs = buffer_info.wAttributes;
     SetConsoleTextAttribute(stdout_handle, new_color);
     fprintf(file, "%s  %s  [Default] %s\n",
             p_log.time_str,
-            ToString(p_log.level),
+            detail::ToString(p_log.level),
             p_log.message.c_str());
     SetConsoleTextAttribute(stdout_handle, old_color_attrs);
     fflush(file);
-    m_consoleMutex.unlock();
+    m_console_mutex.unlock();
 }
 
 }  // namespace cave

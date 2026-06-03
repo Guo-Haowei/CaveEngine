@@ -3,7 +3,7 @@
 #if USING(ENABLE_DVAR)
 
 #include "cave/core/diagnostics/CommandRegistry.h"
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 
 #include "engine/private/core/io/archive.h"
 #include "cave/core/string/StringUtils.h"
@@ -70,7 +70,7 @@ void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
         .usage = "Usage: dvar.set name [value]",
         .fn = [](CommandContext& p_ctx, const CommandArgs& p_args) {
             if (p_args.tokens.empty()) {
-                p_ctx.logger.Print(LOG_LEVEL_ERROR, p_ctx.desc.usage);
+                p_ctx.sink.Submit(LOG_LEVEL_ERROR, p_ctx.desc.usage);
                 return false;
             }
             std::span<const std::string_view> args = p_args.tokens.subspan(1);
@@ -79,7 +79,7 @@ void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
             std::string err;
             if (parser.ParseSetCmd(err)) return true;
 
-            p_ctx.logger.Print(LOG_LEVEL_ERROR, err);
+            p_ctx.sink.Submit(LOG_LEVEL_ERROR, err);
             return false;
         },
     });
@@ -100,7 +100,7 @@ void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
             }
             msg.push_back('\n');
 
-            p_ctx.logger.Print(LogLevel::LOG_LEVEL_INFO, msg);
+            p_ctx.sink.Submit(LogLevel::LOG_LEVEL_INFO, msg);
             return true;
         },
     });

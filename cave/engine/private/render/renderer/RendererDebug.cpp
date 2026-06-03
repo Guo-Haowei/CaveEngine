@@ -1,7 +1,7 @@
 #include "RendererDebug.h"
 
 #if USING(USE_RENDERER_DEBUG)
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 
 #include "engine/private/render/renderer/TransientPool.h"
 
@@ -18,7 +18,7 @@ void RenderPoolDump_Cmd(TransientPool& p_pool,
     for (const PoolTextureInfo& info : snapshot.textures) {
         msg.append(std::format(" -- name: {}\n", info.debug_name));
     }
-    p_ctx.logger.Print(LogLevel::LOG_LEVEL_TRACE, msg);
+    p_ctx.sink.Submit(LogLevel::LOG_LEVEL_TRACE, msg);
 }
 
 }  // namespace cave::render

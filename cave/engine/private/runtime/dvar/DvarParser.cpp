@@ -3,7 +3,7 @@
 #if USING(ENABLE_DVAR)
 
 #include "cave/core/diagnostics/CommandRegistry.h"
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 
 #include "engine/private/core/io/archive.h"
 

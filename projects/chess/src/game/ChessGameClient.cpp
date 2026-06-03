@@ -34,7 +34,7 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
     while (m_auth.Pop(e)) {
         using namespace cave;
 
-        ILogger& logger = p_host.Log();
+        ILogSink& logger = p_host.Log();
         switch (e.type) {
             case AuthorityEventType::MoveCommitted: {
                 core::UndoState undo;

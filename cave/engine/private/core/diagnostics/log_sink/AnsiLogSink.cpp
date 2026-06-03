@@ -1,8 +1,8 @@
-#include "AnsiLogger.h"
+#include "AnsiLogSink.h"
 
 namespace cave {
 
-void AnsiLogger::Print(const LogEvent& p_log) {
+void AnsiLogger::Submit(const LogEvent& p_log) {
     unused(p_log);
     DEV_ASSERT(0);
 
