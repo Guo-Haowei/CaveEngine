@@ -21,9 +21,6 @@ ChessGameSession::~ChessGameSession() = default;
 
 void ChessGameSession::Tick(cave::IHostServices& p_host) {
     switch (m_state) {
-        case SessionState::Boot:
-            TickBoot(p_host);
-            break;
         case SessionState::Playing:
             TickPlaying(p_host);
             break;
@@ -99,12 +96,6 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
     m_client->OnBoot(p_host);
 }
 
-void ChessGameSession::TickBoot(cave::IHostServices& p_host) {
-    OnEnterBoot(p_host);
-
-    m_state = SessionState::Playing;
-}
-
 void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
     m_client->Tick(p_host);
 
@@ -139,7 +130,7 @@ void ChessGameSession::OnLeaveGameOver(cave::IHostServices& p_host) {
 void ChessGameSession::TickGameOver(cave::IHostServices& p_host) {
     if (p_host.Input().IsActionJustPressed(StringId("ui_accept"))) {
         OnLeaveGameOver(p_host);
-        m_state = SessionState::Boot;
+        assert(0 && "TODO");
     }
 }
 

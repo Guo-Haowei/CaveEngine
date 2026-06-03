@@ -37,7 +37,7 @@ void AppStateMachine::SwitchTo(const StateRequest& p_request) {
 
 #if USING(DEBUG_BUILD)
     const char* new_state = m_state->GetDebugName();
-    LOG_INFO(LogChannel::App, "state {} -> {}", old_state, new_state);
+    LOG_INFO(LogChannel::App, "State {} -> {}", old_state, new_state);
 #endif
 
     m_state->OnEnter(p_request);

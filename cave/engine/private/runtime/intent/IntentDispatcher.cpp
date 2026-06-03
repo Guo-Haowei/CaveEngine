@@ -84,7 +84,7 @@ bool IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p
 
 void IntentDispatcher::Flush() {
     for (auto& intent : m_intents) {
-        DEBUG_PRINT(LogChannel::Intent, "{}", intent->GetDebugName());
+        DEBUG_PRINT(LogChannel::Intent, "{} {}", intent->GetDebugName(), intent->DebugString());
         DispatchOne(*intent);
     }
     m_intents.clear();

@@ -173,7 +173,7 @@ void EditorState::CommitModeSwitch() {
 
 #if USING(USE_LOG)
     constexpr const char* names[2] = { "Editing", "PIE" };
-    LOG_INFO("EditorState::CommitModeSwitch: {} -> {}",
+    LOG_INFO(LogChannel::Editor, "State {} -> {}",
              names[std::to_underlying(old_mode)],
              names[std::to_underlying(m_mode)]);
 #endif

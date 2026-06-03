@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <format>
 
 #include "core/Move.h"
 
@@ -16,6 +17,12 @@ public:
     MoveIntent(PlayerId p_player, core::Move p_mv) noexcept
         : player(p_player)
         , mv(p_mv) {}
+
+#if USING(DEBUG_BUILD)
+    std::string DebugString() const override {
+        return std::format("player={} move={}", player, mv.Uci());
+    }
+#endif
 
     const PlayerId player;
     const core::Move mv;
