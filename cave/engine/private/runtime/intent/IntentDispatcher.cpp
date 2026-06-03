@@ -113,13 +113,15 @@ void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const Com
 #if USING(DEBUG_BUILD)
     std::string msg;
     msg.reserve(512);
-    msg.append("Registered Intent:\n");
+    msg.append("Registered Intent:");
     for (const auto& it : m_handlers) {
-        msg.append(std::format("'{}' - ", it.first.DebugName()));
+        msg.append(std::format("\n'{}' - ", it.first.DebugName()));
+        DEV_ASSERT(!it.second.empty());
         for (const IIntentHandler* handler : it.second) {
-            msg.append(std::format("{},", handler->GetDebugId().type));
+            const DebugId id = handler->GetDebugId();
+            msg.append(std::format("{}#{},", id.type, id.uid));
         }
-        msg[msg.size() - 1] = '\n';  // replace ',' with new line
+        msg.pop_back();
     }
     p_ctx.log.Info(LogChannel::Console, std::move(msg));
 #else

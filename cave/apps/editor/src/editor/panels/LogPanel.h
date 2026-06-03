@@ -25,12 +25,17 @@ protected:
     void DrawLogHistroy();
     void DrawConsole();
 
+    void VerbosityDropDown();
+    void ChannelDropDown();
+    bool AllChannels() const { return m_channel_filter == LogChannel::Count; }
+
     static int InputCallback(ImGuiInputTextCallbackData* p_data);
 
     Console& m_console;
     bool m_auto_scroll{ true };
     bool m_scroll_to_bottom{ false };
-    LogLevel m_filter{ LOG_LEVEL_ALL };
+    LogLevel m_level_filter{ LOG_LEVEL_ALL };
+    LogChannel m_channel_filter{ LogChannel::Count };
     char m_cmd_buffer[kCmdBufferSize]{};
 
     class AutoCompletion {

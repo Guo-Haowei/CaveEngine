@@ -36,9 +36,7 @@ void Console::SubmitLine(std::string_view p_line) {
     }
     ResetNav();
     if (!ok) {
-        LOG_ERROR("Failed to execute '{}'", p_line);
-    } else {
-        LOG_OK("'{}' executed successfully", p_line);
+        LOG_ERROR(LogChannel::Console, "Failed to execute '{}'", p_line);
     }
 }
 

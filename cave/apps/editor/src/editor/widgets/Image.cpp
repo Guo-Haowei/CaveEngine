@@ -7,22 +7,46 @@
 
 namespace cave::ui {
 
-void OkIcon() {
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.502f, 0.878f, 0.502f, 1.0f));
-    ImGui::Text(ICON_FA_CIRCLE_CHECK);
+void ColorIcon(Color p_color, IconType p_icon) {
+    const ImVec4 color{ p_color.r, p_color.g, p_color.b, 1.0f };
+
+    const char* icon = nullptr;
+    switch (p_icon) {
+        case IconType::Check:
+            icon = ICON_FA_CIRCLE_CHECK;
+            break;
+        case IconType::Exclamation:
+            icon = ICON_FA_CIRCLE_EXCLAMATION;
+            break;
+        case IconType::Info:
+        default:
+            icon = ICON_FA_CIRCLE_INFO;
+            break;
+    }
+
+    ImGui::PushStyleColor(ImGuiCol_Text, color);
+    ImGui::Text("%s", icon);
     ImGui::PopStyleColor();
+}
+
+void TraceIcon() {
+    ColorIcon(ColorCode::Silver, IconType::Info);
+}
+
+void InfoIcon() {
+    ColorIcon(ColorCode::White, IconType::Info);
+}
+
+void OkIcon() {
+    ColorIcon(ColorCode::Palegreen, IconType::Check);
 }
 
 void WarningIcon() {
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.75f, 0.0f, 1.0f));
-    ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION);
-    ImGui::PopStyleColor();
+    ColorIcon(ColorCode::Yellow, IconType::Exclamation);
 }
 
 void ErrorIcon() {
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
-    ImGui::Text(ICON_FA_CIRCLE_EXCLAMATION);
-    ImGui::PopStyleColor();
+    ColorIcon(ColorCode::Red, IconType::Exclamation);
 }
 
 void CenteredImage(uint64_t p_handle,

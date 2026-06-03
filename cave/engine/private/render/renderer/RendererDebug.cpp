@@ -14,9 +14,9 @@ void RenderPoolDump_Cmd(TransientPool& p_pool,
     const PoolSnapshot snapshot = p_pool.Snapshot();
     std::string msg;
     msg.reserve(512);
-    msg.append("Trasient Pool:\n");
+    msg.append("Trasient Pool:");
     for (const PoolTextureInfo& info : snapshot.textures) {
-        msg.append(std::format(" -- name: {}\n", info.debug_name));
+        msg.append(std::format("\n-- name: {}", info.debug_name));
     }
     p_ctx.log.Info(LogChannel::Console, std::move(msg));
 }

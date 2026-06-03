@@ -14,6 +14,8 @@
 
 namespace cave {
 
+static constexpr float kLogFilterWidth = 150.0f;
+
 std::string_view LogPanel::AutoCompletion::Current() const {
     DEV_ASSERT(!m_cmds.empty());
     return m_cmds[m_index];
@@ -32,31 +34,34 @@ LogPanel::LogPanel(EditorState& p_editor)
 }
 
 static void DrawLog(const LogEvent& p_log) {
-    Color color = Color::Hex(ColorCode::Silver);
+    using ui::IconType;
+
+    ColorCode color = ColorCode::Silver;
+    IconType type = IconType::Info;
     switch (p_log.level) {
         case LOG_LEVEL_WARN:
-            ui::WarningIcon();
-            color = Color::Hex(ColorCode::Yellow);
+            type = IconType::Exclamation;
+            color = ColorCode::Yellow;
             break;
         case LOG_LEVEL_ERROR:
         case LOG_LEVEL_FATAL:
-            color = Color::Hex(ColorCode::Red);
-            ui::ErrorIcon();
+            color = ColorCode::Red;
+            type = IconType::Exclamation;
             break;
         case LOG_LEVEL_OK:
-            color = Color::Hex(ColorCode::Palegreen);
-            ui::OkIcon();
+            color = ColorCode::Palegreen;
+            type = IconType::Check;
             break;
         case LOG_LEVEL_INFO:
-            color = Color::Hex(ColorCode::White);
-            ui::OkIcon();
+            color = ColorCode::White;
             break;
         default:
-            ui::OkIcon();
             break;
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, 1.0f));
+    Color c = Color::Hex(color);
+    ui::ColorIcon(c, type);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(c.r, c.g, c.b, 1.0f));
     std::string log = detail::FormatLog(p_log);
     ImGui::SameLine();
     ImGui::Text("  %s", log.c_str());
@@ -68,23 +73,70 @@ static void DrawLog(const LogEvent& p_log) {
 }
 
 void LogPanel::DrawFilter() {
-    // @TODO: make filter a combo box
-    if (ImGui::SmallButton("All")) {
-        m_filter = LOG_LEVEL_ALL;
-    }
+    VerbosityDropDown();
     ImGui::SameLine();
-    if (ImGui::SmallButton("No Verbose")) {
-        m_filter = LOG_LEVEL_ALL & (~LOG_LEVEL_TRACE);
+    ChannelDropDown();
+}
+
+void LogPanel::VerbosityDropDown() {
+    ImGui::SetNextItemWidth(kLogFilterWidth);
+
+    if (ImGui::BeginCombo("##Level", "Verbosity")) {
+        bool all = m_level_filter == LOG_LEVEL_ALL;
+        if (ImGui::Checkbox("All", &all)) {
+            if (all) {
+                m_level_filter = LOG_LEVEL_ALL;
+            } else {
+                m_level_filter = static_cast<LogLevel>(0);
+            }
+        }
+
+        ImGui::Separator();
+
+        auto filter_level = [this](LogLevel level, const char* label) {
+            bool flag = m_level_filter & level;
+            if (ImGui::Checkbox(label, &flag)) {
+                if (flag) {
+                    m_level_filter |= level;
+                } else {
+                    m_level_filter &= ~level;
+                }
+            }
+        };
+#define LOG_LEVEL_COLOR(LEVEL, LABEL, ...) filter_level(LEVEL, LABEL);
+        LOG_LEVEL_COLOR_LIST
+#undef LOG_LEVEL_COLOR
+
+        ImGui::EndCombo();
     }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Warning")) {
-        m_filter = LOG_LEVEL_WARN;
+}
+
+void LogPanel::ChannelDropDown() {
+    static constexpr const char* s_channels[] = {
+#define CAVE_LOG_CHANNEL(x, ...) #x,
+        CAVE_LOG_CHANNEL_LIST
+#undef CAVE_LOG_CHANNEL
+    };
+
+    ImGui::SetNextItemWidth(kLogFilterWidth);
+
+    const char* preview = AllChannels() ? "All Channels" : s_channels[(int)m_channel_filter];
+    if (ImGui::BeginCombo("##Channel", preview)) {
+        if (ImGui::RadioButton("All", AllChannels())) {
+            m_channel_filter = LogChannel::Count;
+        }
+
+        ImGui::Separator();
+
+        for (uint16_t i = 0; i < std::to_underlying(LogChannel::Count); ++i) {
+            const LogChannel channel = static_cast<LogChannel>(i);
+            if (ImGui::RadioButton(s_channels[i], m_channel_filter == channel)) {
+                m_channel_filter = channel;
+            }
+        }
+
+        ImGui::EndCombo();
     }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Error")) {
-        m_filter = LOG_LEVEL_ERROR;
-    }
-    ImGui::SameLine();
 }
 
 int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
@@ -193,7 +245,7 @@ void LogPanel::DrawLogHistroy() {
     int color_index = 0;
 
     const std::vector<LogEvent>* logs = &CompositeLogger::GetSingleton().GetAllLogs();
-    switch (m_filter) {
+    switch (m_level_filter) {
         case cave::LOG_LEVEL_WARN:
             logs = &CompositeLogger::GetSingleton().GetWarningLogs();
             break;
@@ -205,23 +257,29 @@ void LogPanel::DrawLogHistroy() {
     }
 
     for (const LogEvent& log : (*logs)) {
-        if (log.level & m_filter) {
-            ImVec2 text_pos = ImGui::GetCursorScreenPos();
-            ImVec2 text_size = ImGui::CalcTextSize(log.message.c_str());
-            text_size.x = std::max(text_size.x, window_size.x);
-            text_size.y += padding * 3;
-
-            ImGui::GetWindowDrawList()->AddRectFilled(
-                text_pos,
-                ImVec2(text_pos.x + text_size.x, text_pos.y + text_size.y),
-                colors[color_index]);
-
-            color_index ^= 1;
-
-            ImGui::Dummy(ImVec2(padding, padding));
-            DrawLog(log);
-            ImGui::Dummy(ImVec2(padding, padding));
+        if (!(log.level & m_level_filter)) {
+            continue;
         }
+
+        if (!AllChannels() && log.channel != m_channel_filter) {
+            continue;
+        }
+
+        ImVec2 text_pos = ImGui::GetCursorScreenPos();
+        ImVec2 text_size = ImGui::CalcTextSize(log.message.c_str());
+        text_size.x = std::max(text_size.x, window_size.x);
+        text_size.y += padding * 3;
+
+        ImGui::GetWindowDrawList()->AddRectFilled(
+            text_pos,
+            ImVec2(text_pos.x + text_size.x, text_pos.y + text_size.y),
+            colors[color_index]);
+
+        color_index ^= 1;
+
+        ImGui::Dummy(ImVec2(padding, padding));
+        DrawLog(log);
+        ImGui::Dummy(ImVec2(padding, padding));
     }
 
     if (m_scroll_to_bottom || (m_auto_scroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
