@@ -1,4 +1,6 @@
 #pragma once
+#include "cave/core/diagnostics/Log.h"
+
 #include "editor/panels/EditorWindow.h"
 
 struct ImGuiInputTextCallbackData;

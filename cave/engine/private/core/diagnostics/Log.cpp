@@ -6,8 +6,8 @@
 
 namespace cave {
 
-void LogImpl(LogLevel p_level, std::string p_message) {
-    LogEvent log = detail::BuildLog(p_level, std::move(p_message));
+void LogImpl(LogLevel p_level, LogChannel p_channel, std::string p_message) {
+    LogEvent log = detail::BuildLog(p_level, p_channel, std::move(p_message));
 
     if (OS* os = OS::GetSingletonPtr()) [[likely]] {
         // using namespace std::chrono;

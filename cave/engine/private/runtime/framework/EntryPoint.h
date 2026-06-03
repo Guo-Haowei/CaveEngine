@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/dvar/DvarCache.h"
@@ -39,7 +40,7 @@ static void InitializeDvars(int p_argc, const char** p_argv) {
         cmd_args += p_argv[i];
     }
 
-    LOG_INFO("command line:{}", cmd_args);
+    LOG_INFO(LogChannel::App, "command line:{}", cmd_args);
 
     // 2) Deserialize dvars
     DvarCache::Deserialize(DVAR_CACHE_FILE);

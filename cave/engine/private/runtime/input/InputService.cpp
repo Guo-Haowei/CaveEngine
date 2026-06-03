@@ -1,3 +1,4 @@
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/IApplication.h"
 

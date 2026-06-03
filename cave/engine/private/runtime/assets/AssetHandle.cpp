@@ -1,5 +1,7 @@
 #include "cave/runtime/assets/AssetHandle.h"
 
+#include "cave/core/diagnostics/Log.h"
+
 #include "engine/private/runtime/assets/AssetEntry.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 

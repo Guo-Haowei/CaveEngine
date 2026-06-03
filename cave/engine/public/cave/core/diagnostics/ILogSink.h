@@ -12,7 +12,7 @@ public:
 
     virtual void Submit(const LogEvent& p_log) = 0;
 
-    void Submit(LogLevel p_level, std::string p_message);
+    void Submit(LogLevel p_level, std::string p_message, LogChannel p_channel = LogChannel::Default);
 };
 
 }  // namespace cave

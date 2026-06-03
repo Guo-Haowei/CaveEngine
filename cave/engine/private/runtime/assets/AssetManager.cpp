@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/framework/IApplication.h"
 

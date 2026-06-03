@@ -1,6 +1,8 @@
 #include "cave/platform/Dll.h"
 
 #if USING(PLATFORM_WINDOWS)
+#include "cave/core/diagnostics/Log.h"
+
 #include <Windows.h>
 
 namespace cave {

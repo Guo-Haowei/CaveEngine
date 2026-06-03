@@ -1,5 +1,7 @@
 #include "AppState.h"
 
+#include "cave/core/diagnostics/Log.h"
+
 namespace cave {
 
 void AppStateMachine::Init(AppStateId p_initial_state) {

@@ -1,5 +1,7 @@
 #include "file_access_unix.h"
 
+#include "cave/core/diagnostics/Log.h"
+
 namespace cave {
 
 namespace fs = std::filesystem;

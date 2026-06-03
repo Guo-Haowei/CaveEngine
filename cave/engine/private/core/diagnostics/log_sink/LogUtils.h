@@ -15,10 +15,11 @@
 
 namespace cave::detail {
 
-LogEvent BuildLog(LogLevel p_level, std::string p_message);
+LogEvent BuildLog(LogLevel p_level, LogChannel p_channel, std::string p_message);
 
 std::string FormatLog(const LogEvent& p_log);
 
 const char* ToString(LogLevel p_level);
+const char* ToString(LogChannel p_channel);
 
 }  // namespace cave::detail

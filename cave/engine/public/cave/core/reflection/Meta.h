@@ -51,7 +51,7 @@ enum class EditorHint {
 
 enum class FieldFlag : uint32_t {
     None = 0,
-    Serialize = BIT(0),
+    Serialize = 1,
 };
 
 DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);

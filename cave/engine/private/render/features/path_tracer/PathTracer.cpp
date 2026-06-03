@@ -2,6 +2,7 @@
 
 #include "BvhAccel.h "
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"

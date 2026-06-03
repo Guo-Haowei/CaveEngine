@@ -1,6 +1,7 @@
 #include "Dvar.h"
 
 #if USING(ENABLE_DVAR)
+#include "cave/core/diagnostics/Log.h"
 
 namespace cave {
 

@@ -7,6 +7,7 @@
 
 #include "cave/core/typedefs.h"
 #include "cave/core/math/Utils.h"
+#include "cave/core/diagnostics/LogChannel.h"
 
 #define USE_LOG IN_USE
 
@@ -56,12 +57,22 @@ struct LogEvent {
     std::string message;
 };
 
-void LogImpl(LogLevel p_level, std::string p_message);
+void LogImpl(LogLevel p_level, LogChannel p_channel, std::string p_message);
+
+static inline void LogImpl(LogLevel p_level, std::string p_message) {
+    return LogImpl(p_level, LogChannel::Default, std::move(p_message));
+}
 
 template<typename... Args>
 inline void LogImpl(LogLevel p_level, std::format_string<Args...> p_format, Args&&... p_args) {
     std::string message = std::format(p_format, std::forward<Args>(p_args)...);
     LogImpl(p_level, std::move(message));
+}
+
+template<typename... Args>
+inline void LogImpl(LogLevel p_level, LogChannel p_channel, std::format_string<Args...> p_format, Args&&... p_args) {
+    std::string message = std::format(p_format, std::forward<Args>(p_args)...);
+    LogImpl(p_level, p_channel, std::move(message));
 }
 
 }  // namespace cave

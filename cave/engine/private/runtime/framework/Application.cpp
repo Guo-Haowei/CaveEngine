@@ -155,7 +155,7 @@ auto Application::Initialize() -> Result<void> {
             return CAVE_ERROR(res.error());
         }
         m_stopwatch.Stop();
-        LOG_OK("+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
+        LOG_OK(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
     }
 
     m_stopwatch.Restart();
@@ -171,7 +171,7 @@ void Application::Finalize() {
     for (int index = (int)m_modules.size() - 1; index >= 0; --index) {
         IService* module = m_modules[index];
         module->Finalize();
-        LOG_TRACE("-{}", module->GetName());
+        LOG_TRACE(LogChannel::App, "-{}", module->GetName());
         // @TODO: use smart pointer
         delete module;
     }
