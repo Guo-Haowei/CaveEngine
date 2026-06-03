@@ -1,12 +1,12 @@
 #include "EditService.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorIntent.h"

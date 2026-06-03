@@ -71,12 +71,7 @@ void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
         }
         assert(move.IsValid());
 
-        auto& inbox = agent->LocalInbox();
-        PlayerIntent intent = {
-            IntentType::AttemptMove,
-            move,
-        };
-        inbox.Push(intent);
+        m_intent.PushIntent<MoveIntent>(id, move);
     }
 }
 

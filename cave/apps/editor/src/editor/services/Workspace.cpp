@@ -1,10 +1,10 @@
 #include "Workspace.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/input/KeyCode.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorIntent.h"

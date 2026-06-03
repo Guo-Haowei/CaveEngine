@@ -1,12 +1,12 @@
 #include "ShortcutService.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/input/KeyState.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
 
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/services/EditService.h"

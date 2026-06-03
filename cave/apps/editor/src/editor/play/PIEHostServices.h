@@ -17,6 +17,7 @@ public:
 
     cave::AssetRegistry& AssetRegistry() override;
     cave::ecs::ComponentRegistry& ComponentRegistry() override;
+    IntentDispatcher& Intent() override;
     IInputService& Input() override;
     IUIRuntime& UI() override;
     LogWrapper& Log() override { return m_logger; }

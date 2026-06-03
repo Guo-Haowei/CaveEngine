@@ -1,6 +1,5 @@
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
-
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 
 namespace cave {
 

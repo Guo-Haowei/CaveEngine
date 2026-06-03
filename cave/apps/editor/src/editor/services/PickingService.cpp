@@ -1,10 +1,10 @@
 #include "PickingService.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/Scene.h"

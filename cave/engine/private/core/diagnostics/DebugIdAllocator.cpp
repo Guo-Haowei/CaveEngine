@@ -1,4 +1,4 @@
-#include "DebugIdAllocator.h"
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 
 namespace cave::detail {
 

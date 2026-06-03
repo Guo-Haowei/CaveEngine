@@ -2,6 +2,8 @@
 
 #include "core/MoveGen.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
+
 namespace chess {
 
 using core::Color;
@@ -9,19 +11,24 @@ using core::Position;
 using core::MoveGen;
 using core::MoveList;
 
-ChessMatchAuthority::ChessMatchAuthority() {
+ChessMatchAuthority::ChessMatchAuthority(cave::IHostServices& p_host)
+    : m_intent(p_host.Intent())
+    , m_debug_id(cave::MakeDebugId(this)) {
+    m_intent.AddHandler<MoveIntent>(this);
     m_pos = Position::Startpos();
 }
 
-void ChessMatchAuthority::Tick() {
-    const int player = (m_pos.SideToMove() == Color::White) ? 0 : 1;
+ChessMatchAuthority::~ChessMatchAuthority() {
+    m_intent.RemoveHandler<MoveIntent>(this);
+}
 
-    PlayerIntent intent;
-    while (m_inbox[player].Pop(intent)) {
-        if (HandleIntent(player, intent)) {
-            break;
-        }
+bool ChessMatchAuthority::HandleIntent(cave::Intent& p_intent) {
+    if (auto intent = dynamic_cast<MoveIntent*>(&p_intent)) {
+        TryCommitMove(intent->player, intent->mv);
+        return true;
     }
+
+    return false;
 }
 
 bool ChessMatchAuthority::Pop(AuthorityEvent& p_out) {
@@ -34,6 +41,12 @@ bool ChessMatchAuthority::Pop(AuthorityEvent& p_out) {
 
 bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
                                         core::Move p_move) {
+
+    const PlayerId side = std::to_underlying(m_pos.SideToMove());
+    if (side != p_player_id) {
+        return false;
+    }
+
     core::UndoState undo;
     Position copy = m_pos;
     const bool ok = copy.MakeMove(p_move, undo);
@@ -61,24 +74,6 @@ void ChessMatchAuthority::OfferDraw(PlayerId p_player_id) {
 
 void ChessMatchAuthority::Resign(PlayerId p_player_id) {
     (void)p_player_id;
-}
-
-bool ChessMatchAuthority::HandleIntent(PlayerId p_player_id, const PlayerIntent& p_intent) {
-    switch (p_intent.type) {
-        case IntentType::AttemptMove:
-            if (!TryCommitMove(p_player_id, p_intent.move)) {
-                return false;  // state unchanged
-            }
-            return true;
-        case IntentType::OfferDraw:
-            OfferDraw(p_player_id);
-            return true;
-
-        case IntentType::Resign:
-            Resign(p_player_id);
-            return true;
-    }
-    return false;
 }
 
 }  // namespace chess

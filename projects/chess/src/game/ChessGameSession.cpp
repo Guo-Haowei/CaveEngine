@@ -60,7 +60,7 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
 
-    m_auth = std::make_unique<ChessMatchAuthority>();
+    m_auth = std::make_unique<ChessMatchAuthority>(p_host);
     m_client = std::make_unique<ChessGameClient>(*m_auth);
 
     const PlayerKind white = config.white.kind;
@@ -71,7 +71,10 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
 
     const bool any_human = white == PlayerKind::LocalHuman || black == PlayerKind::LocalHuman;
     if (any_human) {
-        m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(*m_client, m_client->Presenter());
+        m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
+            p_host.Intent(),
+            *m_client,
+            m_client->Presenter());
 
         cave::GridSelectController::Callbacks cbs = {
             .can_select = [this](int x, int y) { return m_grid_adapter->CanSelect(x, y); },
@@ -103,27 +106,25 @@ void ChessGameSession::TickBoot(cave::IHostServices& p_host) {
 }
 
 void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
+    m_client->Tick(p_host);
+
+    if (m_auth->GameOver()) {
+        m_state = SessionState::GameOver;
+        OnEnterGameOver(p_host);
+    }
+
     if (m_grid_adapter) {
         m_grid_adapter->Tick(p_host.Input());
     }
 
     for (std::unique_ptr<IPlayerAgent>& agent : m_agents) {
-        agent->Tick();
+        agent->Tick(p_host);
     }
 
     if (m_selector) {
         Vector2i focused = m_selector->GetFocused();
         Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
         m_client->Presenter().SetFocusedSquare(focused_sq);
-    }
-
-    m_auth->Tick();
-
-    m_client->Tick(p_host);
-
-    if (m_auth->GameOver()) {
-        m_state = SessionState::GameOver;
-        OnEnterGameOver(p_host);
     }
 }
 
