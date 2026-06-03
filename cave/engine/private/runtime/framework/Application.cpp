@@ -9,7 +9,7 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
-#include "engine/private/core/diagnostics/logger/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/os/threads.h"
 #include "engine/private/render/renderer/Renderer.h"
@@ -155,7 +155,7 @@ auto Application::Initialize() -> Result<void> {
             return CAVE_ERROR(res.error());
         }
         m_stopwatch.Stop();
-        LOG_OK("module '{}' initialized in {}", module->GetName(), m_stopwatch.Elapsed().ToString());
+        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
     }
 
     m_stopwatch.Restart();
@@ -171,7 +171,7 @@ void Application::Finalize() {
     for (int index = (int)m_modules.size() - 1; index >= 0; --index) {
         IService* module = m_modules[index];
         module->Finalize();
-        LOG_VERBOSE("module '{}' finalized", module->GetName());
+        LOG_TRACE(LogChannel::App, "-{}", module->GetName());
         // @TODO: use smart pointer
         delete module;
     }
@@ -229,9 +229,7 @@ bool Application::MainLoop() {
 
 // @TODO: get rid of this
 void IApplication::Run(IApplication* p_app) {
-    LOG("\n********************************************************************************"
-        "\nMain Loop"
-        "\n********************************************************************************");
+    LOG_INFO(LogChannel::App, "----------- Enter Main Loop -----------");
 
 #if USING(PLATFORM_WASM)
     s_app = p_app;
@@ -243,9 +241,7 @@ void IApplication::Run(IApplication* p_app) {
     while (p_app->MainLoop());
 #endif
 
-    LOG("\n********************************************************************************"
-        "\nMain Loop"
-        "\n********************************************************************************");
+    LOG_INFO(LogChannel::App, "----------- Exit Main Loop -----------");
 }
 
 AppStateId Application::GetStateId() const {

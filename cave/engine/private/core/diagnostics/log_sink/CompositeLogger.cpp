@@ -1,4 +1,4 @@
-#include "logger.h"
+#include "CompositeLogger.h"
 
 #include "engine/private/core/os/threads.h"
 
@@ -10,31 +10,16 @@ namespace cave {
 #define ASSERT_OPERATION_THREAD() ((void)0)
 #endif
 
-void StdLogger::Print(LogLevel p_level, std::string_view p_message) {
-    const char* tag = "";
-    switch (p_level) {
-#define LOG_LEVEL_COLOR(LEVEL, TAG, ANSI, WINCOLOR) \
-    case LEVEL:                                     \
-        tag = TAG;                                  \
-        break;
-        LOG_LEVEL_COLOR_LIST
-#undef LOG_LEVEL_COLOR
-        default:
-            break;
-    }
-
-    // @TODO: stderr vs stdout
-    FILE* file = stdout;
-    fflush(file);
-
-    fprintf(file, "%s%.*s", tag, static_cast<int>(p_message.length()), p_message.data());
-    fflush(file);
+bool operator==(const LogEvent& p_lhs, const LogEvent& p_rhs) {
+    return p_lhs.level == p_rhs.level &&
+           p_lhs.channel == p_rhs.channel &&
+           p_lhs.message == p_rhs.message;
 }
 
 void CompositeLogger::GroupedLog::Add(LogEvent p_log) {
     if (!logs.empty()) {
         LogEvent& log = logs.back();
-        if (log.message == p_log.message && log.level == p_log.level) {
+        if (log == p_log) {
             ++log.repeat;
             return;
         }
@@ -43,29 +28,22 @@ void CompositeLogger::GroupedLog::Add(LogEvent p_log) {
     logs.push_back(std::move(p_log));
 }
 
-void CompositeLogger::AddLogger(std::shared_ptr<ILogger> p_logger) {
+void CompositeLogger::AddLogger(std::shared_ptr<ILogSink> p_logger) {
     m_loggers.emplace_back(p_logger);
 }
 
-void CompositeLogger::Print(LogLevel p_level, std::string_view p_message) {
+void CompositeLogger::Submit(const LogEvent& p_log) {
     // @TODO: set verbose
-    if (!(m_channels & p_level)) {
+    if (!(m_channels & p_log.level)) {
         return;
     }
 
     for (auto& logger : m_loggers) {
-        logger->Print(p_level, p_message);
+        logger->Submit(p_log);
     }
 
-    LogEvent log = {
-        .level = p_level,
-        .repeat = 1,
-        .id = m_log_id.fetch_add(1),
-        .message = std::string(p_message),
-    };
-
     m_buffer.mutex.lock();
-    m_buffer.buffer.emplace_back(std::move(log));
+    m_buffer.buffer.emplace_back(p_log);
     m_buffer.mutex.unlock();
 }
 

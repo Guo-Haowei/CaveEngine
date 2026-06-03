@@ -1,4 +1,5 @@
 #include "cave/core/diagnostics/CommandRegistry.h"
+#include "cave/core/diagnostics/Log.h"
 
 namespace cave {
 

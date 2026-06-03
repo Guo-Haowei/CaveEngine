@@ -1,10 +1,12 @@
 #include "threads.h"
 
+#include "cave/core/diagnostics/Log.h"
+#include "cave/core/diagnostics/Profiler.h"
+
+#include "engine/private/drivers/windows/win32_prerequisites.h"
+
 #include <latch>
 #include <thread>
-
-#include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave::thread {
 
@@ -51,10 +53,10 @@ bool Initialize() {
                 SetThreadId(p_object->id);
 
                 latch.count_down();
-                LOG_VERBOSE("[threads] thread '{}'(id: {}) starts.", p_object->name, p_object->id);
+                LOG_TRACE(LogChannel::Thread, "+{}#{}", p_object->name, p_object->id);
                 CAVE_PROFILE_THREAD(p_object->name);
                 p_object->threadFunc();
-                LOG_VERBOSE("[threads] thread '{}'(id: {}) ends.", p_object->name, p_object->id);
+                LOG_TRACE(LogChannel::Thread, "-{}#{}", p_object->name, p_object->id);
             },
             &thread);
 

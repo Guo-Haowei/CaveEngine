@@ -110,7 +110,7 @@ static bool TreeNodeHelper(Scene& p_scene,
                 if constexpr (true) {  // @TODO: log macro
                     const NameComponent* child_name = p_scene.GetComponent<NameComponent>(child_id);
                     DEV_ASSERT(child_name);
-                    LOG_VERBOSE("moved '{}' under '{}'", child_name->GetName(), name);
+                    LOG_TRACE("moved '{}' under '{}'", child_name->GetName(), name);
                 }
             }
         }

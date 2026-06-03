@@ -2,7 +2,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
-#include "engine/private/core/diagnostics/logger/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
 
@@ -12,6 +12,7 @@ PIEHostServices::PIEHostServices(IApplication& p_app,
                                  Scene& p_scene,
                                  ViewId p_view_id) noexcept
     : m_app(p_app)
+    , m_logger(CompositeLogger::GetSingleton())
     , m_scene(p_scene)
     , m_view_id(p_view_id)
     , m_query(p_scene)
@@ -32,10 +33,6 @@ IInputService& PIEHostServices::Input() {
 
 IUIRuntime& PIEHostServices::UI() {
     return *m_app.UIService();
-}
-
-ILogger& PIEHostServices::Log() {
-    return CompositeLogger::GetSingleton();
 }
 
 void PIEHostServices::FlushSceneCommands() {

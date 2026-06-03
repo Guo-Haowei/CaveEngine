@@ -1,3 +1,4 @@
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/reflection/Meta.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
 

@@ -1,5 +1,7 @@
 #include "AssetImporter.h"
 
+#include "cave/core/diagnostics/Log.h"
+
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/renderer/pixel_format.h"
 #include "engine/private/runtime/assets/BlobAsset.h"

@@ -1,5 +1,6 @@
 #include "luaScriptBinding.h"
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/framework/IInputService.h"
 
@@ -139,7 +140,7 @@ bool OpenLogLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("logger")
         .addFunction("trace", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_VERBOSE, "-- {}", p_message);
+            LogImpl(LOG_LEVEL_TRACE, "-- {}", p_message);
         })
         .addFunction("error", [](const char* p_file, int p_line, const char* p_error) {
             ReportErrorImpl("lua_function", p_file, p_line, p_error);

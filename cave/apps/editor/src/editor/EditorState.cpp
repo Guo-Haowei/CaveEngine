@@ -4,6 +4,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
 
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/view/ViewManager.h"
 
@@ -112,7 +113,7 @@ void EditorState::OnExit() {
     CAVE_PROFILE_EVENT();
 
     if (IsPlaying()) {
-        LOG("@TODO: stop game module");
+        LOG_INFO("@TODO: stop game module");
     }
 
     ImNodes::DestroyContext();
@@ -172,9 +173,9 @@ void EditorState::CommitModeSwitch() {
 
 #if USING(USE_LOG)
     constexpr const char* names[2] = { "Editing", "PIE" };
-    LOG("EditorState::CommitModeSwitch: {} -> {}",
-        names[std::to_underlying(old_mode)],
-        names[std::to_underlying(m_mode)]);
+    LOG_INFO("EditorState::CommitModeSwitch: {} -> {}",
+             names[std::to_underlying(old_mode)],
+             names[std::to_underlying(m_mode)]);
 #endif
 
     m_switch_mode_requested = false;

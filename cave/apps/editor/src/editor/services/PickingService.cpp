@@ -93,7 +93,7 @@ void PickingService::Register(IPickConsumer* p_consumer) {
 
 #if USING(USE_LOG)
     DebugId id = p_consumer->GetDebugId();
-    LOG_VERBOSE("PickingService::Register: register picking consumer '{}(id:{})'", id.type, id.uid);
+    LOG_TRACE(LogChannel::Picking, "+{}#{}", id.type, id.uid);
 #endif
 }
 
@@ -104,7 +104,7 @@ void PickingService::Unregister(IPickConsumer* p_consumer) {
 
 #if USING(USE_LOG)
     DebugId id = p_consumer->GetDebugId();
-    LOG_VERBOSE("PickingService::Unegister: unregister picking consumer '{}(id:{})'", id.type, id.uid);
+    LOG_TRACE(LogChannel::Picking, "-{}#{}", id.type, id.uid);
 #endif
 }
 

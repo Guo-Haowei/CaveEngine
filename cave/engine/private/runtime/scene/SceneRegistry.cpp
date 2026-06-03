@@ -1,7 +1,7 @@
 #include "SceneRegistry.h"
 
 #include "cave/core/diagnostics/CommandRegistry.h"
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/ids/GenIdRegistry.h"
@@ -152,7 +152,7 @@ bool SceneRegistry::Impl::Dump_Cmd(CommandContext& p_ctx, const CommandArgs&) {
                                slot.gen));
     }
 
-    p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
+    p_ctx.log.Info(LogChannel::Console, std::move(msg));
     return true;
 }
 

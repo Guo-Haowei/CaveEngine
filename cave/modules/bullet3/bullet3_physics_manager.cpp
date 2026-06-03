@@ -1,6 +1,7 @@
 
 #include "bullet3_physics_manager.h"
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -94,7 +95,7 @@ Result<void> Bullet3PhysicsManager::InitializeImpl() {
 
 void Bullet3PhysicsManager::FinalizeImpl() {
     // CleanWorld();
-    LOG_WARN("PhysicsManager:: unload world properly");
+    LOG_WARN(LogChannel::Physics, "Unload world properly");
 }
 
 void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {

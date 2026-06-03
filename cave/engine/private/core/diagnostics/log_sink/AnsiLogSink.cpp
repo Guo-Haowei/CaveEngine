@@ -1,8 +1,12 @@
-#include "AnsiLogger.h"
+#include "AnsiLogSink.h"
 
 namespace cave {
 
-void AnsiLogger::Print(LogLevel p_level, std::string_view p_message) {
+void AnsiLogger::Submit(const LogEvent& p_log) {
+    unused(p_log);
+    DEV_ASSERT(0);
+
+#if 0
     const char* color = "\033[0m";
     switch (p_level) {
 #define LOG_LEVEL_COLOR(LEVEL, TAG, ANSI, WINCOLOR) \
@@ -20,6 +24,7 @@ void AnsiLogger::Print(LogLevel p_level, std::string_view p_message) {
     fflush(file);
     fprintf(file, "%s%.*s\033[0m", color, static_cast<int>(p_message.length()), p_message.data());
     fflush(file);
+#endif
 }
 
 }  // namespace cave

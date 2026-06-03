@@ -34,7 +34,6 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
     while (m_auth.Pop(e)) {
         using namespace cave;
 
-        ILogger& logger = p_host.Log();
         switch (e.type) {
             case AuthorityEventType::MoveCommitted: {
                 core::UndoState undo;
@@ -44,7 +43,7 @@ void ChessGameClient::Tick(cave::IHostServices& p_host) {
                 m_presenter.RedrawPosition(p_host, m_replica);
             } break;
             case AuthorityEventType::MoveRejected: {
-                logger.Print(LOG_LEVEL_NORMAL, "Invalid move!");
+                p_host.Log().Info(LogChannel::Game, "Invalid move!");
             } break;
             case AuthorityEventType::GameOver: {
             } break;

@@ -30,10 +30,10 @@ struct Nanoseconds {
 
     std::string ToString() const {
         if (value < (kNsPerSec / 10)) {
-            return std::format("{:.2f} ms", ToMilliseconds());
+            return std::format("{:.2f}ms", ToMilliseconds());
         }
 
-        return std::format("{:.2f} seconds", ToSeconds());
+        return std::format("{:.2f}seconds", ToSeconds());
     }
 
     Nanoseconds operator+(const Nanoseconds& p_other) const {

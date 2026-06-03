@@ -4,7 +4,7 @@
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/diagnostics/logger/Logger.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -96,10 +96,10 @@ void ProjectBrowserState::DrawUI() {
     ImGui::SeparatorText("MY PROJECTS");
 
     // Right-aligned search box
-    float searchW = 260.0f;
+    float search_w = 260.0f;
     ImGui::SameLine();
-    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - searchW);
-    ImGui::SetNextItemWidth(searchW);
+    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - search_w);
+    ImGui::SetNextItemWidth(search_w);
     ImGui::InputTextWithHint("##search", "Search Projects", search, sizeof(search));
 
     ImGui::Spacing();

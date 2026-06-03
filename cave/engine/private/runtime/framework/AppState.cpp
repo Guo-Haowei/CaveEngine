@@ -1,5 +1,7 @@
 #include "AppState.h"
 
+#include "cave/core/diagnostics/Log.h"
+
 namespace cave {
 
 void AppStateMachine::Init(AppStateId p_initial_state) {
@@ -35,7 +37,7 @@ void AppStateMachine::SwitchTo(const StateRequest& p_request) {
 
 #if USING(DEBUG_BUILD)
     const char* new_state = m_state->GetDebugName();
-    LOG("AppStateMachine::SwitchTo: {} -> {}", old_state, new_state);
+    LOG_INFO(LogChannel::App, "state {} -> {}", old_state, new_state);
 #endif
 
     m_state->OnEnter(p_request);

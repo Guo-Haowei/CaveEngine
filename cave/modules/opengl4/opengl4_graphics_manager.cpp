@@ -27,8 +27,8 @@ auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
-    LOG_VERBOSE("[opengl] renderer: {}", (const char*)glGetString(GL_RENDERER));
-    LOG_VERBOSE("[opengl] version: {}", (const char*)glGetString(GL_VERSION));
+    LOG_TRACE("[opengl] renderer: {}", (const char*)glGetString(GL_RENDERER));
+    LOG_TRACE("[opengl] version: {}", (const char*)glGetString(GL_VERSION));
 
     if (m_enableValidationLayer) {
         int flags;
@@ -38,7 +38,7 @@ auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
             glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
             glDebugMessageCallback(DebugCallback, nullptr);
             glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-            LOG_VERBOSE("[opengl] debug callback enabled");
+            LOG_TRACE("[opengl] debug callback enabled");
         }
     }
 
@@ -181,7 +181,7 @@ void APIENTRY DebugCallback(GLenum p_source,
             break;
     }
 
-    LogLevel level = LOG_LEVEL_NORMAL;
+    LogLevel level = LOG_LEVEL_INFO;
     switch (p_severity) {
         case GL_DEBUG_SEVERITY_HIGH:
             level = LOG_LEVEL_ERROR;

@@ -1,53 +1,63 @@
 #include "LogPanel.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
+#include "cave/core/Color.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "cave/core/Color.h"
-#include "engine/private/core/diagnostics/console/Console.h"
-#include "cave/core/string/StringUtils.h"
+#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/Image.h"
 
+// @TODO: refactor
+#include "ConsolePanel.h"
+
 namespace cave {
 
-std::string_view LogPanel::AutoCompletion::Current() const {
-    DEV_ASSERT(!m_cmds.empty());
-    return m_cmds[m_index];
-}
-
-std::string_view LogPanel::AutoCompletion::Next() {
-    const size_t size = m_cmds.size();
-    DEV_ASSERT(size);
-    m_index = (m_index + 1) % size;
-    return m_cmds[m_index];
-}
+static constexpr float kLogFilterWidth = 150.0f;
 
 LogPanel::LogPanel(EditorState& p_editor)
-    : EditorWindow(p_editor)
-    , m_console(p_editor.GetApp().Console()) {
+    : EditorWindow(p_editor) {
+    m_console = std::make_unique<ConsolePanel>(p_editor);
 }
 
+LogPanel::~LogPanel() = default;
+
 static void DrawLog(const LogEvent& p_log) {
+    using ui::IconType;
+
+    ColorCode color = ColorCode::Silver;
+    IconType type = IconType::Info;
     switch (p_log.level) {
         case LOG_LEVEL_WARN:
-            ui::WarningIcon();
+            type = IconType::Exclamation;
+            color = ColorCode::Yellow;
             break;
         case LOG_LEVEL_ERROR:
         case LOG_LEVEL_FATAL:
-            ui::ErrorIcon();
+            color = ColorCode::Red;
+            type = IconType::Exclamation;
+            break;
+        case LOG_LEVEL_OK:
+            color = ColorCode::Palegreen;
+            type = IconType::Check;
+            break;
+        case LOG_LEVEL_INFO:
+            color = ColorCode::White;
             break;
         default:
-            ui::OkIcon();
             break;
     }
 
-    Color color = Color::Hex(p_log.level == LOG_LEVEL_VERBOSE ? ColorCode::Silver : ColorCode::White);
-
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, 1.0f));
+    Color c = Color::Hex(color);
+    ui::ColorIcon(c, type);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(c.r, c.g, c.b, 1.0f));
+    std::string log = detail::FormatLog(p_log);
     ImGui::SameLine();
-    ImGui::Text("  %s", p_log.message.c_str());
+    ImGui::Text("  %s", log.c_str());
     if (p_log.repeat > 1) {
         ImGui::SameLine();
         ImGui::Text(" [ x%u ]", p_log.repeat);
@@ -56,109 +66,93 @@ static void DrawLog(const LogEvent& p_log) {
 }
 
 void LogPanel::DrawFilter() {
-    // @TODO: make filter a combo box
-    if (ImGui::SmallButton("All")) {
-        m_filter = LOG_LEVEL_ALL;
-    }
+    SearchBar();
     ImGui::SameLine();
-    if (ImGui::SmallButton("No Verbose")) {
-        m_filter = LOG_LEVEL_ALL & (~LOG_LEVEL_VERBOSE);
-    }
+    VerbosityDropDown();
     ImGui::SameLine();
-    if (ImGui::SmallButton("Warning")) {
-        m_filter = LOG_LEVEL_WARN;
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Error")) {
-        m_filter = LOG_LEVEL_ERROR;
-    }
-    ImGui::SameLine();
+    ChannelDropDown();
 }
 
-int LogPanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
-    LogPanel* self = reinterpret_cast<LogPanel*>(p_data->UserData);
-    DEV_ASSERT(self);
-    Console& console = self->m_console;
+void LogPanel::VerbosityDropDown() {
+    ImGui::SetNextItemWidth(kLogFilterWidth);
 
-    const char* buf = p_data->Buf;
-    const int text_length = p_data->BufTextLen;
-    std::string_view line{ buf, buf + text_length };
-
-    std::string_view candidate;
-    switch (p_data->EventFlag) {
-        case ImGuiInputTextFlags_CallbackCompletion: {
-            if (line.empty()) break;
-
-            if (!self->m_ac.Empty()) {
-                candidate = self->m_ac.Next();
+    if (ImGui::BeginCombo("##Level", "Verbosity")) {
+        bool all = m_level_filter == LOG_LEVEL_ALL;
+        if (ImGui::Checkbox("All", &all)) {
+            if (all) {
+                m_level_filter = LOG_LEVEL_ALL;
             } else {
-                std::vector<std::string_view> cmds;
-                console.FindByPrefix(line, cmds);
-                if (!cmds.empty()) {
-                    self->m_ac.Set(std::move(cmds));
-                    candidate = self->m_ac.Current();
+                m_level_filter = static_cast<LogLevel>(0);
+            }
+        }
+
+        ImGui::Separator();
+
+        auto filter_level = [this](LogLevel level, const char* label) {
+            bool flag = m_level_filter & level;
+            if (ImGui::Checkbox(label, &flag)) {
+                if (flag) {
+                    m_level_filter |= level;
+                } else {
+                    m_level_filter &= ~level;
                 }
             }
-        } break;
-        case ImGuiInputTextFlags_CallbackHistory: {
-            if (p_data->EventKey == ImGuiKey_UpArrow) {
-                Option<std::string_view> cmd = console.Prev();
-                if (cmd.is_none()) break;
-                candidate = cmd.unwrap_unchecked();
-            } else if (p_data->EventKey == ImGuiKey_DownArrow) {
-                Option<std::string_view> cmd = console.Next();
-                if (cmd.is_none()) break;
-                candidate = cmd.unwrap_unchecked();
-            }
-        } break;
-        case ImGuiInputTextFlags_CallbackEdit: {
-            // If user typed/edited, invalidate suggestions.
-            self->m_ac.Clear();
-        } break;
-        default:
-            break;
+        };
+#define LOG_LEVEL_COLOR(LEVEL, LABEL, ...) filter_level(LEVEL, LABEL);
+        LOG_LEVEL_COLOR_LIST
+#undef LOG_LEVEL_COLOR
+
+        ImGui::EndCombo();
     }
-    if (!candidate.empty()) {
-        // @TODO: don't need to delete the previous chars,
-        // also save the draft
-        StringUtils::Strcpy(self->m_cmd_buffer, candidate);
-        p_data->DeleteChars(0, text_length);
-        p_data->InsertChars(0, self->m_cmd_buffer);
-    }
-    return 0;
 }
 
-void LogPanel::DrawConsole() {
-    float spacing = 10.0f;
-    ImGui::SetNextItemWidth(70.0f);
-    ImGui::Text(">: cmd");
-    ImGui::SameLine(0.0f, spacing);
+void LogPanel::ChannelDropDown() {
+    static constexpr const char* s_channels[] = {
+#define CAVE_LOG_CHANNEL(x, ...) #x,
+        CAVE_LOG_CHANNEL_LIST
+#undef CAVE_LOG_CHANNEL
+    };
 
-    ImGui::SetNextItemWidth(-1.0f);
+    ImGui::SetNextItemWidth(kLogFilterWidth);
 
-    const int flags = ImGuiInputTextFlags_CallbackEdit |
-                      ImGuiInputTextFlags_CallbackCompletion |
-                      ImGuiInputTextFlags_CallbackHistory |
-                      ImGuiInputTextFlags_CallbackCharFilter |
-                      ImGuiInputTextFlags_CallbackResize |
-                      ImGuiInputTextFlags_EnterReturnsTrue;
+    const char* preview = AllChannels() ? "All Channels" : s_channels[(int)m_channel_filter];
+    if (ImGui::BeginCombo("##Channel", preview)) {
+        if (ImGui::RadioButton("All", AllChannels())) {
+            m_channel_filter = LogChannel::Count;
+        }
 
-    const bool submit = ImGui::InputTextWithHint(
-        "##ConsoleInput",
-        "Enter Console Command",
-        m_cmd_buffer,
-        IM_ARRAYSIZE(m_cmd_buffer),
-        flags,
-        &InputCallback,
-        this);
+        ImGui::Separator();
 
-    if (submit) {
-        m_console.SubmitLine(m_cmd_buffer);
-        m_cmd_buffer[0] = '\0';
+        for (uint16_t i = 0; i < std::to_underlying(LogChannel::Count); ++i) {
+            const LogChannel channel = static_cast<LogChannel>(i);
+            if (ImGui::RadioButton(s_channels[i], m_channel_filter == channel)) {
+                m_channel_filter = channel;
+            }
+        }
 
-        // Keep keyboard focus on the input (so you can type multiple commands quickly)
-        ImGui::SetKeyboardFocusHere(-1);
+        ImGui::EndCombo();
     }
+}
+
+void LogPanel::SearchBar() {
+    ImGui::Text(ICON_FA_MAGNIFYING_GLASS);
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(200.0f);
+    ImGui::InputTextWithHint("##LogSearch", "Search...", m_search.data(), m_search.capacity());
+}
+
+bool LogPanel::PassSearchFilter(const LogEvent& p_log) const {
+    if (m_search[0] == '\0') {
+        return true;
+    }
+
+    // @TODO: better string matching
+    auto contains = [this](std::string_view p_msg) {
+        const bool found = p_msg.find(m_search.c_str()) != std::string::npos;
+        return found;
+    };
+
+    return contains(p_log.message) || contains(p_log.time_str);
 }
 
 void LogPanel::DrawLogHistroy() {
@@ -181,7 +175,7 @@ void LogPanel::DrawLogHistroy() {
     int color_index = 0;
 
     const std::vector<LogEvent>* logs = &CompositeLogger::GetSingleton().GetAllLogs();
-    switch (m_filter) {
+    switch (m_level_filter) {
         case cave::LOG_LEVEL_WARN:
             logs = &CompositeLogger::GetSingleton().GetWarningLogs();
             break;
@@ -193,23 +187,34 @@ void LogPanel::DrawLogHistroy() {
     }
 
     for (const LogEvent& log : (*logs)) {
-        if (log.level & m_filter) {
-            ImVec2 text_pos = ImGui::GetCursorScreenPos();
-            ImVec2 text_size = ImGui::CalcTextSize(log.message.c_str());
-            text_size.x = std::max(text_size.x, window_size.x);
-            text_size.y += padding * 3;
-
-            ImGui::GetWindowDrawList()->AddRectFilled(
-                text_pos,
-                ImVec2(text_pos.x + text_size.x, text_pos.y + text_size.y),
-                colors[color_index]);
-
-            color_index ^= 1;
-
-            ImGui::Dummy(ImVec2(padding, padding));
-            DrawLog(log);
-            ImGui::Dummy(ImVec2(padding, padding));
+        if (!(log.level & m_level_filter)) {
+            continue;
         }
+
+        if (!AllChannels() && log.channel != m_channel_filter) {
+            continue;
+        }
+
+        if (!PassSearchFilter(log)) {
+            continue;
+        }
+
+        ImVec2 text_pos = ImGui::GetCursorScreenPos();
+        ImVec2 text_size = ImGui::CalcTextSize(log.message.c_str());
+        text_size.x = std::max(text_size.x, window_size.x);
+        text_size.y += padding * 3;
+        const float rect_w = text_pos.x + text_size.x + 100.f;
+
+        ImGui::GetWindowDrawList()->AddRectFilled(
+            text_pos,
+            ImVec2(rect_w, text_pos.y + text_size.y),
+            colors[color_index]);
+
+        color_index ^= 1;
+
+        ImGui::Dummy(ImVec2(padding, padding));
+        DrawLog(log);
+        ImGui::Dummy(ImVec2(padding, padding));
     }
 
     if (m_scroll_to_bottom || (m_auto_scroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
@@ -228,7 +233,7 @@ void LogPanel::DrawUIImpl() {
     ImGui::Separator();
     DrawLogHistroy();
     ImGui::Separator();
-    DrawConsole();
+    m_console->DrawConsole();
 
     // Auto-focus on window apparition
     ImGui::SetItemDefaultFocus();

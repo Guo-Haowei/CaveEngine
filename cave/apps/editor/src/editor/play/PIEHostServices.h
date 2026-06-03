@@ -19,7 +19,7 @@ public:
     cave::ecs::ComponentRegistry& ComponentRegistry() override;
     IInputService& Input() override;
     IUIRuntime& UI() override;
-    ILogger& Log() override;
+    LogWrapper& Log() override { return m_logger; }
     cave::SceneQuery& SceneQuery() override { return m_query; }
     SceneCommandWriter& SceneWriter() override { return m_writer; }
 
@@ -29,6 +29,7 @@ public:
 
 private:
     IApplication& m_app;
+    LogWrapper m_logger;
     Scene& m_scene;
     ViewId m_view_id;
     cave::SceneQuery m_query;

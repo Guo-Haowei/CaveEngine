@@ -7,9 +7,9 @@ public:
     TestOS(std::string* buffer = nullptr)
         : m_buffer(buffer) {}
 
-    void Print(LogLevel, std::string_view message) override {
+    void Print(const LogEvent& p_log) override {
         if (m_buffer) {
-            *m_buffer = message;
+            *m_buffer = p_log.message;
         }
     }
 

@@ -1,7 +1,7 @@
 #include "RendererDebug.h"
 
 #if USING(USE_RENDERER_DEBUG)
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 
 #include "engine/private/render/renderer/TransientPool.h"
 
@@ -14,11 +14,11 @@ void RenderPoolDump_Cmd(TransientPool& p_pool,
     const PoolSnapshot snapshot = p_pool.Snapshot();
     std::string msg;
     msg.reserve(512);
-    msg.append("Trasient Pool:\n");
+    msg.append("Trasient Pool:");
     for (const PoolTextureInfo& info : snapshot.textures) {
-        msg.append(std::format(" -- name: {}\n", info.debug_name));
+        msg.append(std::format("\n-- name: {}", info.debug_name));
     }
-    p_ctx.logger.Print(LogLevel::LOG_LEVEL_VERBOSE, msg);
+    p_ctx.log.Info(LogChannel::Console, std::move(msg));
 }
 
 }  // namespace cave::render

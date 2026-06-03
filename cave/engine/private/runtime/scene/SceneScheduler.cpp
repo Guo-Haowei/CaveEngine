@@ -1,5 +1,6 @@
 #include "SceneScheduler.h"
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/FrameTime.h"
 
 #include "engine/private/runtime/framework/IScriptService.h"
@@ -18,8 +19,8 @@ bool SceneScheduler::Register(ISceneTickContributor* p_contributor) {
     m_contributors.push_back(p_contributor);
 
 #if USING(USE_LOG)
-    DebugId id = p_contributor->GetDebugId();
-    LOG_VERBOSE("SceneScheduler::Register: register scene contributor '{}(id:{})'", id.type, id.uid);
+    const DebugId id = p_contributor->GetDebugId();
+    LOG_TRACE(LogChannel::Scene, "+{}#{}", id.type, id.uid);
 #endif
     return true;
 }
@@ -35,8 +36,8 @@ bool SceneScheduler::Unregister(ISceneTickContributor* p_contributor) {
     m_contributors.erase(it);
 
 #if USING(USE_LOG)
-    DebugId id = p_contributor->GetDebugId();
-    LOG_VERBOSE("SceneScheduler::Unregister: unregister scene contributor '{}(id:{})'", id.type, id.uid);
+    const DebugId id = p_contributor->GetDebugId();
+    LOG_TRACE(LogChannel::Scene, "-{}#{}", id.type, id.uid);
 #endif
     return true;
 }

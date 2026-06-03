@@ -1,5 +1,7 @@
 #include "TileSetAsset.h"
 
+#include "cave/core/diagnostics/Log.h"
+
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -43,7 +45,7 @@ void TileSetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     if (image) {
         Guid guid = m_image_handle.GetGuid();
         if (guid != m_image_guid) {
-            LOG("TileSetAsset: GUID changed from {} to {}", m_image_guid.ToString(), guid.ToString());
+            LOG_INFO("TileSetAsset: GUID changed from {} to {}", m_image_guid.ToString(), guid.ToString());
             m_image_guid = guid;
         }
 

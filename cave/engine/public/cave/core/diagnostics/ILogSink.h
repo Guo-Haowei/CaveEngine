@@ -1,16 +1,16 @@
 // =============================================================================
-// File: engine/public/cave/core/diagnostics/ILogger.h
+// File: engine/public/cave/core/diagnostics/ILogSink.h
 // =============================================================================
 #pragma once
-#include "cave/core/Print.h"
+#include "cave/core/diagnostics/Log.h"
 
 namespace cave {
 
-class ILogger {
+class ILogSink {
 public:
-    virtual ~ILogger() = default;
+    virtual ~ILogSink() = default;
 
-    virtual void Print(LogLevel p_level, std::string_view p_message) = 0;
+    virtual void Submit(const LogEvent& p_log) = 0;
 };
 
 }  // namespace cave

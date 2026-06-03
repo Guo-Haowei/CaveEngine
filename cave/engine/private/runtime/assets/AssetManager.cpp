@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/framework/IApplication.h"
 
@@ -286,7 +287,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     }
 
     stopwatch.Stop();
-    LOG_VERBOSE("'{}' loaded in {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
+    LOG_TRACE(LogChannel::Asset, "Loaded {} {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
     entry->MarkLoaded(asset);
     return asset;
 }

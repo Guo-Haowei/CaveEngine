@@ -2,9 +2,12 @@
 
 namespace cave {
 
-class TestLogger : public ILogger {
+class TestLogger : public ILogSink {
 public:
-    virtual void Print(LogLevel, std::string_view message) override { m_buffer.append(message); }
+    void Submit(const LogEvent& p_log) override {
+        m_buffer.append(p_log.message);
+    }
+
     const std::string& GetBuffer() const { return m_buffer; }
     void ClearBuffer() { m_buffer.clear(); }
 
@@ -17,7 +20,7 @@ TEST(print, PrintImpl) {
     auto logger = std::make_shared<TestLogger>();
     dummy_os.AddLogger(logger);
 
-    PrintImpl(LOG_LEVEL_ERROR, "{}, {}, {}", 1, 'c', "200");
+    LogImpl(LOG_LEVEL_ERROR, "{}, {}, {}", 1, 'c', "200");
     EXPECT_EQ(logger->GetBuffer(), "1, c, 200");
 }
 

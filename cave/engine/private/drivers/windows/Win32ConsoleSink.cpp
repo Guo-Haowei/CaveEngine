@@ -1,5 +1,6 @@
-#include "win32_logger.h"
+#include "Win32ConsoleSink.h"
 
+#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {
@@ -16,23 +17,27 @@ static WORD FindColorAttribute(LogLevel p_level) {
     }
 }
 
-void Win32Logger::Print(LogLevel p_level, std::string_view p_message) {
+void Win32Logger::Submit(const LogEvent& p_log) {
     const HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO buffer_info;
-    const WORD new_color = FindColorAttribute(p_level);
+    const WORD new_color = FindColorAttribute(p_log.level);
 
     // @TODO: stderr vs stdout
     FILE* file = stdout;
     fflush(file);
 
-    m_consoleMutex.lock();
+    m_console_mutex.lock();
     GetConsoleScreenBufferInfo(stdout_handle, &buffer_info);
     const WORD old_color_attrs = buffer_info.wAttributes;
     SetConsoleTextAttribute(stdout_handle, new_color);
-    fprintf(file, "%.*s", static_cast<int>(p_message.length()), p_message.data());
+    fprintf(file, "%s  %s  %s  %s\n",
+            p_log.time_str,
+            detail::ToString(p_log.level),
+            detail::ToString(p_log.channel),
+            p_log.message.c_str());
     SetConsoleTextAttribute(stdout_handle, old_color_attrs);
     fflush(file);
-    m_consoleMutex.unlock();
+    m_console_mutex.unlock();
 }
 
 }  // namespace cave

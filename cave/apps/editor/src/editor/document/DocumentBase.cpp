@@ -6,7 +6,7 @@
 
 #define DEBUG_DOC IN_USE
 #if USING(DEBUG_DOC)
-#define DEBUG_DOC_LOG(...) LOG_VERBOSE(__VA_ARGS__)
+#define DEBUG_DOC_LOG(...) LOG_TRACE(__VA_ARGS__)
 #else
 #define DEBUG_DOC_LOG(...) (void)0
 #endif
