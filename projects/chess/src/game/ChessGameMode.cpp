@@ -2,7 +2,7 @@
 
 #include <format>
 
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 #include "cave/core/ErrorMacros.h"
 #include "cave/core/typedefs.h"
 #include "cave/game/IHostServices.h"
@@ -66,7 +66,7 @@ private:
 // MainMenuState
 // =============================================================================
 void MainMenuState::OnEnter(cave::IHostServices& p_host) {
-    p_host.Log().Print(LogLevel::LOG_LEVEL_INFO, "Press 'Enter' to play.\n");
+    p_host.Log().Submit(LOG_LEVEL_INFO, "Press 'Enter' to play.\n");
 }
 
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
@@ -78,16 +78,16 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
     const float offset_x = 760.0f;
     const float offset_y = 200.0f;
     if (ui.Button(1, { offset_x, offset_y, 400, 100 })) {
-        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 0 clicked\n");
+        p_host.Log().Submit(LOG_LEVEL_OK, "UI Button 0 clicked\n");
 
         auto gameplay = std::make_unique<GameplayState>(m_game);
         m_game.SetPendingState(std::move(gameplay));
     }
     if (ui.Button(2, { offset_x, offset_y + 200, 400, 100 })) {
-        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 1 clicked\n");
+        p_host.Log().Submit(LOG_LEVEL_OK, "UI Button 1 clicked\n");
     }
     if (ui.Button(3, { offset_x, offset_y + 400, 400, 100 })) {
-        p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "UI Button 2 clicked\n");
+        p_host.Log().Submit(LOG_LEVEL_OK, "UI Button 2 clicked\n");
     }
     ui.EndView();
 }
@@ -136,7 +136,7 @@ void ChessGameMode::CommitStateChange(cave::IHostServices& p_host) {
     DEV_ASSERT(m_pending_state != nullptr);
     const char* current_name = m_current_state ? m_current_state->DebugName() : "(null)";
     const char* pending_name = m_pending_state->DebugName();
-    p_host.Log().Print(LogLevel::LOG_LEVEL_INFO, std::format("ChessGameMode::CommitStateChange: {} -> {}\n", current_name, pending_name));
+    p_host.Log().Submit(LogLevel::LOG_LEVEL_INFO, std::format("ChessGameMode::CommitStateChange: {} -> {}\n", current_name, pending_name));
 
     if (m_current_state) {
         m_current_state->OnExit(p_host);

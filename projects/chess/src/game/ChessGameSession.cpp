@@ -132,7 +132,7 @@ void ChessGameSession::OnEnterGameOver(cave::IHostServices& p_host) {
     ILogSink& logger = p_host.Log();
 
     // @TODO: use button and text
-    logger.Print(LOG_LEVEL_OK, "Game Over! Press 'ui_accept' to start a new match\n");
+    logger.Submit(LOG_LEVEL_OK, "Game Over! Press 'ui_accept' to start a new match\n");
 }
 
 void ChessGameSession::OnLeaveGameOver(cave::IHostServices& p_host) {

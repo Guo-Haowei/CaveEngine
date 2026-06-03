@@ -1,6 +1,6 @@
 #include "ChessGameModule.h"
 
-#include "cave/core/diagnostics/ILogger.h"
+#include "cave/core/diagnostics/ILogSink.h"
 #include "cave/core/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
@@ -115,7 +115,7 @@ ChessGameModule::ChessGameModule() = default;
 ChessGameModule::~ChessGameModule() = default;
 
 void ChessGameModule::OnModuleLoaded(IHostServices& p_host) {
-    p_host.Log().Print(LogLevel::LOG_LEVEL_OK, "ChessClient Loaded\n");
+    p_host.Log().Submit(LogLevel::LOG_LEVEL_OK, "ChessClient Loaded\n");
 
     // @TODO: move it to present layer
     SpawnObjects(p_host);
