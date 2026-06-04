@@ -31,7 +31,7 @@ PickingService::~PickingService() {
 }
 
 void PickingService::Pick(math::Vector2f p_point_win) {
-    m_editor.GetApp().IntentDispatcher()->PushIntent<PickIntent>(p_point_win);
+    m_editor.GetApp().IntentDispatcher()->Queue<PickIntent>(p_point_win);
 }
 
 void PickingService::Raycast(const PickData& p_pick_data) {

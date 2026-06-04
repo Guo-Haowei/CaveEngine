@@ -60,11 +60,11 @@ PreviewScene Workspace::FocusedPreviewScene() {
 }
 
 void Workspace::RequestOpen(DocId p_doc_id) {
-    m_editor.GetApp().IntentDispatcher()->PushIntent<OpenDocIntent>(p_doc_id);
+    m_editor.GetApp().IntentDispatcher()->Queue<OpenDocIntent>(p_doc_id);
 }
 
 void Workspace::RequestClose(DocId p_doc_id) {
-    m_editor.GetApp().IntentDispatcher()->PushIntent<CloseDocIntent>(p_doc_id);
+    m_editor.GetApp().IntentDispatcher()->Queue<CloseDocIntent>(p_doc_id);
 }
 
 void Workspace::DrawTabs() {

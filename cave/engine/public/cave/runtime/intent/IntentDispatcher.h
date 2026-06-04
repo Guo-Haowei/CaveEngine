@@ -34,11 +34,11 @@ public:
     }
 
     template<IntentType T, typename... Args>
-    auto PushIntent(Args&&... args) -> T& {
+    auto Queue(Args&&... args) -> T& {
         auto intent = std::make_unique<T>(std::forward<Args>(args)...);
         T& ref = *intent;
 
-        m_intents.emplace_back(std::move(intent));
+        m_pending.emplace_back(std::move(intent));
         return ref;
     }
 
@@ -53,7 +53,7 @@ private:
     void IntentDispatcherDump_Cmd(CommandContext& p_ctx, const CommandArgs& p_args);
 
     std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;
-    std::vector<std::unique_ptr<Intent>> m_intents;
+    std::vector<std::unique_ptr<Intent>> m_pending;
 };
 
 }  // namespace cave

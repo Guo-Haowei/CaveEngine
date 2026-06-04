@@ -98,14 +98,14 @@ void ShortcutService::InitShortcuts() {
         "Save As..",
         "Ctrl+Shift+S",
         [active_document, this]() {
-            m_intent_dispatcher.PushIntent<SaveIntent>(active_document(), true);
+            m_intent_dispatcher.Queue<SaveIntent>(active_document(), true);
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [active_document, this]() {
-            m_intent_dispatcher.PushIntent<SaveIntent>(active_document(), false);
+            m_intent_dispatcher.Queue<SaveIntent>(active_document(), false);
         },
     };
 
@@ -123,7 +123,7 @@ void ShortcutService::InitShortcuts() {
         "Ctrl+Shift+Z",
         [active_document, this]() {
             if (m_editor.EditService().CanRedo(active_document()))
-                m_intent_dispatcher.PushIntent<RedoIntent>(active_document());
+                m_intent_dispatcher.Queue<RedoIntent>(active_document());
         },
         [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
     };
@@ -133,7 +133,7 @@ void ShortcutService::InitShortcuts() {
         "Ctrl+Z",
         [active_document, this]() {
             if (m_editor.EditService().CanUndo(active_document()))
-                m_intent_dispatcher.PushIntent<UndoIntent>(active_document());
+                m_intent_dispatcher.Queue<UndoIntent>(active_document());
         },
         [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
     };

@@ -8,15 +8,17 @@
 
 #include <algorithm>
 
-#if 1
-#define DEBUG_PRINT(...) LOG_TRACE(__VA_ARGS__)
+#if USING(USE_IF(USING(USE_LOG)))
+#define TRACE_INTENT(...) LOG_TRACE(LogChannel::Intent, __VA_ARGS__)
 #else
-#define DEBUG_PRINT(...) ((void)0)
+#define TRACE_INTENT(...) ((void)0)
 #endif
 
 namespace cave {
 
 auto IntentDispatcher::InitializeImpl() -> Result<void> {
+    // @TODO: move it to somewhere else
+    // IntentDispatcher doesn't need to be a Service
 #if USING(DEBUG_BUILD)
     CommandRegistry& reg = m_app->CommandRegistry();
     reg.Register({
@@ -56,10 +58,8 @@ bool IntentDispatcher::AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_ha
     }
 
     handlers.push_back(p_handler);
-#if USING(USE_LOG)
-    const DebugId id = p_handler->GetDebugId();
-    LOG_TRACE(LogChannel::Intent, "Bind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
-#endif
+    [[maybe_unused]] const DebugId id = p_handler->GetDebugId();
+    TRACE_INTENT("Bind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
     return true;
 }
 
@@ -75,19 +75,19 @@ bool IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p
     }
     handlers.erase(it2, handlers.end());
 
-#if USING(USE_LOG)
-    const DebugId id = p_handler->GetDebugId();
-    LOG_TRACE(LogChannel::Intent, "Unbind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
-#endif
+    [[maybe_unused]] const DebugId id = p_handler->GetDebugId();
+    TRACE_INTENT("Unbind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
     return true;
 }
 
 void IntentDispatcher::Flush() {
-    for (auto& intent : m_intents) {
-        DEBUG_PRINT(LogChannel::Intent, "{} {}", intent->GetDebugName(), intent->DebugString());
+    std::vector<std::unique_ptr<Intent>> processing;
+    std::swap(processing, m_pending);
+
+    for (auto& intent : processing) {
+        TRACE_INTENT("{} {}", intent->GetDebugName(), intent->DebugString());
         DispatchOne(*intent);
     }
-    m_intents.clear();
 }
 
 void IntentDispatcher::DispatchOne(Intent& p_intent) {

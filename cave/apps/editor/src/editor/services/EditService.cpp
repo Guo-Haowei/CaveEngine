@@ -28,7 +28,7 @@ EditService::~EditService() {
 }
 
 void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd) {
-    m_editor.GetApp().IntentDispatcher()->PushIntent<EditIntent>(p_doc_id, std::move(p_cmd));
+    m_editor.GetApp().IntentDispatcher()->Queue<EditIntent>(p_doc_id, std::move(p_cmd));
 }
 
 void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
