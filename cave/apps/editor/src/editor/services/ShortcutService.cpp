@@ -90,18 +90,22 @@ void ShortcutService::OnEvents(const InputFrame& p_input) {
 }
 
 void ShortcutService::InitShortcuts() {
+    auto active_document = [this]() -> DocId {
+        return m_editor.Workspace().FocusedDoc();
+    };
+
     m_shortcuts[std::to_underlying(Shortcut::SaveAs)] = {
         "Save As..",
         "Ctrl+Shift+S",
-        [this]() {
-            m_intent_dispatcher.PushIntent<SaveIntent>(true);
+        [active_document, this]() {
+            m_intent_dispatcher.PushIntent<SaveIntent>(active_document(), true);
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
-        [this]() {
-            m_intent_dispatcher.PushIntent<SaveIntent>(false);
+        [active_document, this]() {
+            m_intent_dispatcher.PushIntent<SaveIntent>(active_document(), false);
         },
     };
 
@@ -112,10 +116,6 @@ void ShortcutService::InitShortcuts() {
             LOG_WARN("Ctrl+O");
             // m_editor.BufferCommand(std::make_shared<OpenProjectCommand>(true));
         },
-    };
-
-    auto active_document = [this]() -> DocId {
-        return m_editor.Workspace().FocusedDoc();
     };
 
     m_shortcuts[std::to_underlying(Shortcut::Redo)] = {

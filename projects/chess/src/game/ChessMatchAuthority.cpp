@@ -1,5 +1,6 @@
 #include "ChessMatchAuthority.h"
 
+#include "ChessIntent.h"
 #include "core/MoveGen.h"
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
@@ -14,16 +15,16 @@ using core::MoveList;
 ChessMatchAuthority::ChessMatchAuthority(cave::IHostServices& p_host)
     : m_intent(p_host.Intent())
     , m_debug_id(cave::MakeDebugId(this)) {
-    m_intent.AddHandler<MoveIntent>(this);
+    m_intent.AddHandler<ChessMoveIntent>(this);
     m_pos = Position::Startpos();
 }
 
 ChessMatchAuthority::~ChessMatchAuthority() {
-    m_intent.RemoveHandler<MoveIntent>(this);
+    m_intent.RemoveHandler<ChessMoveIntent>(this);
 }
 
 bool ChessMatchAuthority::HandleIntent(cave::Intent& p_intent) {
-    if (auto intent = dynamic_cast<MoveIntent*>(&p_intent)) {
+    if (auto intent = dynamic_cast<ChessMoveIntent*>(&p_intent)) {
         TryCommitMove(intent->player, intent->mv);
         return true;
     }

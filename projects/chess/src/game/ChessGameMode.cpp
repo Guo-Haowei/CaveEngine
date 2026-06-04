@@ -11,38 +11,12 @@
 #include "cave/runtime/framework/IUIRuntime.h"
 
 #include "ChessGameSession.h"
+#include "ChessIntent.h"
+#include "IChessGameState.h"
 
 namespace chess {
 
 using namespace cave;
-
-class ChessStateIntent : public Intent {
-public:
-    CAVE_DECLARE_INTENT("chess.state");
-
-    ChessStateIntent(std::unique_ptr<IChessGameState> p_state)
-        : state(std::move(p_state)) {}
-
-    std::unique_ptr<IChessGameState> state;
-};
-
-class IChessGameState {
-public:
-    IChessGameState(ChessGameMode& p_game)
-        : m_game(p_game) {}
-
-    virtual ~IChessGameState() = default;
-
-    virtual void OnEnter(cave::IHostServices& p_host) {}
-    virtual void OnExit(cave::IHostServices& p_host) {}
-
-    virtual void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) = 0;
-
-    virtual const char* DebugName() = 0;
-
-protected:
-    ChessGameMode& m_game;
-};
 
 class MainMenuState final : public IChessGameState {
 public:
@@ -164,11 +138,6 @@ void ChessGameMode::CommitStateChange(std::unique_ptr<IChessGameState>&& p_new_s
     DEV_ASSERT(p_new_state != nullptr);
     const char* current_name = m_state ? m_state->DebugName() : "(null)";
     const char* pending_name = p_new_state->DebugName();
-
-#if USING(USE_LOG)
-    std::string msg = std::format("State {} -> {}", current_name, pending_name);
-    m_host.Log().Info(LogChannel::Game, std::move(msg));
-#endif
 
     if (m_state) {
         m_state->OnExit(m_host);

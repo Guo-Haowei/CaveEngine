@@ -4,6 +4,7 @@
 
 #include "core/MoveGen.h"
 #include "ChessGameClient.h"
+#include "ChessIntent.h"
 #include "ChessMatchAuthority.h"
 
 #include "cave/runtime/intent/IntentDispatcher.h"
@@ -33,7 +34,7 @@ void ChessAIAgent::Tick(cave::IHostServices& p_host) {
         assert(idx < count);
         const Move move = moves[idx];
 
-        p_host.Intent().PushIntent<MoveIntent>(m_player, move);
+        p_host.Intent().PushIntent<ChessMoveIntent>(m_player, move);
     }
 }
 

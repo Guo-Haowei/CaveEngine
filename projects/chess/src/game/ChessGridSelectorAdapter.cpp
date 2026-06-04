@@ -5,6 +5,7 @@
 #include "cave/runtime/framework/IInputService.h"
 
 #include "ChessGameClient.h"
+#include "ChessIntent.h"
 #include "ChessMatchAuthority.h"
 #include "ChessPresenter.h"
 #include "LocalHumanAgent.h"
@@ -71,7 +72,7 @@ void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
         }
         assert(move.IsValid());
 
-        m_intent.PushIntent<MoveIntent>(id, move);
+        m_intent.PushIntent<ChessMoveIntent>(id, move);
     }
 }
 
