@@ -1,10 +1,10 @@
 #include "PickingService.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -31,7 +31,7 @@ PickingService::~PickingService() {
 }
 
 void PickingService::Pick(math::Vector2f p_point_win) {
-    m_editor.GetApp().IntentDispatcher()->PushIntent<PickIntent>(p_point_win);
+    m_editor.GetApp().IntentDispatcher()->Queue<PickIntent>(p_point_win);
 }
 
 void PickingService::Raycast(const PickData& p_pick_data) {

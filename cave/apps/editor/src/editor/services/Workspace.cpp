@@ -1,10 +1,10 @@
 #include "Workspace.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/input/KeyCode.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorIntent.h"
@@ -60,11 +60,11 @@ PreviewScene Workspace::FocusedPreviewScene() {
 }
 
 void Workspace::RequestOpen(DocId p_doc_id) {
-    m_editor.GetApp().IntentDispatcher()->PushIntent<OpenDocIntent>(p_doc_id);
+    m_editor.GetApp().IntentDispatcher()->Queue<OpenDocIntent>(p_doc_id);
 }
 
 void Workspace::RequestClose(DocId p_doc_id) {
-    m_editor.GetApp().IntentDispatcher()->PushIntent<CloseDocIntent>(p_doc_id);
+    m_editor.GetApp().IntentDispatcher()->Queue<CloseDocIntent>(p_doc_id);
 }
 
 void Workspace::DrawTabs() {

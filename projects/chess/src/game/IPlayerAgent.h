@@ -1,15 +1,15 @@
 #pragma once
-#include <cstdint>
+#include "ChessTypes.h"
+
+#include "cave/game/IHostServices.h"
 
 namespace chess {
-
-using PlayerId = uint8_t;
 
 class IPlayerAgent {
 public:
     virtual ~IPlayerAgent() = default;
 
-    virtual void Tick() = 0;
+    virtual void Tick(cave::IHostServices& p_host) = 0;
 
     virtual PlayerId GetPlayer() const = 0;
 };

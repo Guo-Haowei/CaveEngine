@@ -1,5 +1,4 @@
 #pragma once
-#include "IntentInbox.h"
 #include "IPlayerAgent.h"
 
 namespace chess {
@@ -16,15 +15,11 @@ public:
 
     PlayerId GetPlayer() const override { return m_player; }
 
-    IntentInbox& LocalInbox() { return m_local_inbox; }
-
-    void Tick() override;
+    void Tick(cave::IHostServices& p_host) override;
 
 private:
     PlayerId m_player{};
     ChessMatchAuthority& m_auth;
-
-    IntentInbox m_local_inbox;
 };
 
 }  // namespace chess

@@ -126,7 +126,7 @@ void ChessGameModule::OnModuleUnloaded(IHostServices& p_host) {
 }
 
 void ChessGameModule::OnGameBegin(IHostServices& p_host) {
-    m_game = std::make_unique<ChessGameMode>();
+    m_game = std::make_unique<ChessGameMode>(p_host);
     m_game->OnEnter(p_host);
 }
 

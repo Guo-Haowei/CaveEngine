@@ -1,19 +1,14 @@
 #pragma once
 #include <cstdint>
+#include <format>
+
 #include "core/Move.h"
+
+#include "cave/runtime/intent/Intent.h"
 
 namespace chess {
 
-enum class IntentType : uint8_t {
-    AttemptMove,
-    OfferDraw,
-    Resign,
-};
-
-struct PlayerIntent {
-    IntentType type{};
-    core::Move move;
-};
+using PlayerId = uint8_t;
 
 enum class ChessEventType : uint8_t {
     SelectionChanged,
@@ -23,11 +18,6 @@ enum class ChessEventType : uint8_t {
     Check,
     PromotionRequested,
     GameOver,
-};
-
-struct ChessEvent {
-    ChessEventType type{};
-    // include Move, captured piece, result, etc.
 };
 
 }  // namespace chess

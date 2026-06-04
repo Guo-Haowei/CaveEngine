@@ -1,12 +1,12 @@
 #include "ShortcutService.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/input/KeyState.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
 
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/services/EditService.h"
@@ -90,18 +90,22 @@ void ShortcutService::OnEvents(const InputFrame& p_input) {
 }
 
 void ShortcutService::InitShortcuts() {
+    auto active_document = [this]() -> DocId {
+        return m_editor.Workspace().FocusedDoc();
+    };
+
     m_shortcuts[std::to_underlying(Shortcut::SaveAs)] = {
         "Save As..",
         "Ctrl+Shift+S",
-        [this]() {
-            m_intent_dispatcher.PushIntent<SaveIntent>(true);
+        [active_document, this]() {
+            m_intent_dispatcher.Queue<SaveIntent>(active_document(), true);
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
-        [this]() {
-            m_intent_dispatcher.PushIntent<SaveIntent>(false);
+        [active_document, this]() {
+            m_intent_dispatcher.Queue<SaveIntent>(active_document(), false);
         },
     };
 
@@ -114,16 +118,12 @@ void ShortcutService::InitShortcuts() {
         },
     };
 
-    auto active_document = [this]() -> DocId {
-        return m_editor.Workspace().FocusedDoc();
-    };
-
     m_shortcuts[std::to_underlying(Shortcut::Redo)] = {
         "Redo",
         "Ctrl+Shift+Z",
         [active_document, this]() {
             if (m_editor.EditService().CanRedo(active_document()))
-                m_intent_dispatcher.PushIntent<RedoIntent>(active_document());
+                m_intent_dispatcher.Queue<RedoIntent>(active_document());
         },
         [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
     };
@@ -133,7 +133,7 @@ void ShortcutService::InitShortcuts() {
         "Ctrl+Z",
         [active_document, this]() {
             if (m_editor.EditService().CanUndo(active_document()))
-                m_intent_dispatcher.PushIntent<UndoIntent>(active_document());
+                m_intent_dispatcher.Queue<UndoIntent>(active_document());
         },
         [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
     };

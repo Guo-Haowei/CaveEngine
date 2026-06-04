@@ -6,7 +6,7 @@ namespace chess {
 class ChessGameClient;
 class ChessMatchAuthority;
 
-class ChessAIAgent : public IPlayerAgent {
+class ChessAIAgent final : public IPlayerAgent {
 public:
     explicit ChessAIAgent(PlayerId p_player,
                           ChessMatchAuthority& p_authority,
@@ -18,7 +18,7 @@ public:
 
     PlayerId GetPlayer() const override { return m_player; }
 
-    void Tick() override;
+    void Tick(cave::IHostServices& p_host) override;
 
 private:
     PlayerId m_player{};

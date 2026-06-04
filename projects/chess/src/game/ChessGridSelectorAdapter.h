@@ -4,6 +4,8 @@
 #include "core/Move.h"
 #include "IPlayerAgent.h"
 
+#include "cave/runtime/intent/IntentDispatcher.h"
+
 // clang-format off
 namespace cave { class GridSelectController; }
 namespace cave { class IInputService; }
@@ -19,10 +21,11 @@ class ChessGridSelectorAdapter {
     using GetPlayerFunc = std::function<LocalHumanAgent*(PlayerId)>;
 
 public:
-    explicit ChessGridSelectorAdapter(
-        ChessGameClient& p_game,
-        ChessPresenter& p_presenter) noexcept
-        : m_client(p_game)
+    explicit ChessGridSelectorAdapter(cave::IntentDispatcher& p_intent,
+                                      ChessGameClient& p_game,
+                                      ChessPresenter& p_presenter) noexcept
+        : m_intent(p_intent)
+        , m_client(p_game)
         , m_presenter(p_presenter) {
     }
 
@@ -44,6 +47,7 @@ public:
     }
 
 private:
+    cave::IntentDispatcher& m_intent;
     ChessGameClient& m_client;
 
     // @TODO: do not pass presenter here, instead query highlight

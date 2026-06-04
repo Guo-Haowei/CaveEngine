@@ -27,6 +27,10 @@ ecs::ComponentRegistry& PIEHostServices::ComponentRegistry() {
     return engine::GetComponentRegistry();
 }
 
+IntentDispatcher& PIEHostServices::Intent() {
+    return *m_app.IntentDispatcher();
+}
+
 IInputService& PIEHostServices::Input() {
     return m_app.InputService();
 }

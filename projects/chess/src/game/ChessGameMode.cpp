@@ -2,6 +2,7 @@
 
 #include <format>
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/ILogSink.h"
 #include "cave/core/ErrorMacros.h"
 #include "cave/core/typedefs.h"
@@ -10,28 +11,12 @@
 #include "cave/runtime/framework/IUIRuntime.h"
 
 #include "ChessGameSession.h"
+#include "ChessIntent.h"
+#include "IChessGameState.h"
 
 namespace chess {
 
 using namespace cave;
-
-class IChessGameState {
-public:
-    IChessGameState(ChessGameMode& p_game)
-        : m_game(p_game) {}
-
-    virtual ~IChessGameState() = default;
-
-    virtual void OnEnter(cave::IHostServices& p_host) {}
-    virtual void OnExit(cave::IHostServices& p_host) {}
-
-    virtual void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) = 0;
-
-    virtual const char* DebugName() = 0;
-
-protected:
-    ChessGameMode& m_game;
-};
 
 class MainMenuState final : public IChessGameState {
 public:
@@ -51,6 +36,7 @@ public:
     using IChessGameState::IChessGameState;
 
     void OnEnter(cave::IHostServices& p_host) final;
+    void OnExit(cave::IHostServices& p_host) final;
 
     void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) final;
 
@@ -79,7 +65,7 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
     const float offset_y = 200.0f;
     if (ui.Button(1, { offset_x, offset_y, 400, 100 })) {
         auto gameplay = std::make_unique<GameplayState>(m_game);
-        m_game.SetPendingState(std::move(gameplay));
+        p_host.Intent().Queue<ChessStateIntent>(std::move(gameplay));
     }
     if (ui.Button(2, { offset_x, offset_y + 200, 400, 100 })) {
         p_host.Log().Ok(LogChannel::Game, "UI Button 2 clicked");
@@ -95,6 +81,13 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
 // =============================================================================
 void GameplayState::OnEnter(cave::IHostServices& p_host) {
     m_session = std::make_unique<ChessGameSession>();
+    m_session->OnEnterBoot(p_host);
+}
+
+void GameplayState::OnExit(cave::IHostServices& p_host) {
+    unused(p_host);
+
+    m_session.reset();
 }
 
 void GameplayState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
@@ -106,12 +99,20 @@ void GameplayState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
 // =============================================================================
 // ChessGameMode
 // =============================================================================
-ChessGameMode::ChessGameMode() = default;
+ChessGameMode::ChessGameMode(IHostServices& p_host)
+    : m_host(p_host)
+    , m_intent(p_host.Intent())
+    , m_debug_id(MakeDebugId(this)) {
+    m_intent.AddHandler<ChessStateIntent>(this);
+}
 
-ChessGameMode::~ChessGameMode() = default;
+ChessGameMode::~ChessGameMode() {
+    m_intent.RemoveHandler<ChessStateIntent>(this);
+}
 
 void ChessGameMode::OnEnter(IHostServices& p_host) {
-    m_pending_state = std::make_unique<MainMenuState>(*this);
+    m_state = std::make_unique<MainMenuState>(*this);
+    m_state->OnEnter(p_host);
 }
 
 void ChessGameMode::OnExit(IHostServices& p_host) {
@@ -119,29 +120,31 @@ void ChessGameMode::OnExit(IHostServices& p_host) {
 }
 
 void ChessGameMode::Tick(IHostServices& p_host, const FrameTime& p_time) {
-    if (m_pending_state) {
-        CommitStateChange(p_host);
+    if (DEV_VERIFY(m_state)) {
+        m_state->Tick(p_host, p_time);
     }
-
-    m_current_state->Tick(p_host, p_time);
 }
 
-void ChessGameMode::SetPendingState(std::unique_ptr<IChessGameState>&& p_pending) {
-    m_pending_state = std::move(p_pending);
-}
-
-void ChessGameMode::CommitStateChange(cave::IHostServices& p_host) {
-    DEV_ASSERT(m_pending_state != nullptr);
-    const char* current_name = m_current_state ? m_current_state->DebugName() : "(null)";
-    const char* pending_name = m_pending_state->DebugName();
-    p_host.Log().Info(LogChannel::Game, std::format("ChessGameMode::CommitStateChange: {} -> {}", current_name, pending_name));
-
-    if (m_current_state) {
-        m_current_state->OnExit(p_host);
+bool ChessGameMode::HandleIntent(cave::Intent& p_intent) {
+    if (auto intent = dynamic_cast<ChessStateIntent*>(&p_intent)) {
+        CommitStateChange(std::move(intent->state));
+        return true;
     }
 
-    m_current_state = std::move(m_pending_state);
-    m_current_state->OnEnter(p_host);
+    return false;
+}
+
+void ChessGameMode::CommitStateChange(std::unique_ptr<IChessGameState>&& p_new_state) {
+    DEV_ASSERT(p_new_state != nullptr);
+    const char* current_name = m_state ? m_state->DebugName() : "(null)";
+    const char* pending_name = p_new_state->DebugName();
+
+    if (m_state) {
+        m_state->OnExit(m_host);
+    }
+
+    m_state = std::move(p_new_state);
+    m_state->OnEnter(m_host);
 }
 
 }  // namespace chess

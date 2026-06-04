@@ -6,17 +6,33 @@
 #include "cave/core/diagnostics/ILogSink.h"
 #endif
 
+#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
+#include "engine/private/core/os/os.h"
+
 #include <algorithm>
 
-#if 1
-#define DEBUG_PRINT(...) LOG_TRACE(__VA_ARGS__)
+// @TODO: figure out a better way to print log
+#define WANT_TRACE_INTENT USE_IF(USING(USE_LOG))
+#if USING(WANT_TRACE_INTENT)
+#define TRACE_INTENT(...)                                                                 \
+    do {                                                                                  \
+        std::string msg = std::format(__VA_ARGS__);                                       \
+        auto log = detail::BuildLog(LOG_LEVEL_TRACE, LogChannel::Intent, std::move(msg)); \
+        m_os.Print(std::move(log));                                                       \
+    } while (0)
 #else
-#define DEBUG_PRINT(...) ((void)0)
+#define TRACE_INTENT(...) ((void)0)
 #endif
 
 namespace cave {
 
+IntentDispatcher::IntentDispatcher()
+    : IService("IntentDispatcher")
+    , m_os(OS::GetSingleton()) {}
+
 auto IntentDispatcher::InitializeImpl() -> Result<void> {
+    // @TODO: move it to somewhere else
+    // IntentDispatcher doesn't need to be a Service
 #if USING(DEBUG_BUILD)
     CommandRegistry& reg = m_app->CommandRegistry();
     reg.Register({
@@ -56,10 +72,8 @@ bool IntentDispatcher::AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_ha
     }
 
     handlers.push_back(p_handler);
-#if USING(USE_LOG)
-    const DebugId id = p_handler->GetDebugId();
-    LOG_TRACE(LogChannel::Intent, "Bind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
-#endif
+    [[maybe_unused]] const DebugId id = p_handler->GetDebugId();
+    TRACE_INTENT("Bind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
     return true;
 }
 
@@ -75,19 +89,22 @@ bool IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p
     }
     handlers.erase(it2, handlers.end());
 
-#if USING(USE_LOG)
-    const DebugId id = p_handler->GetDebugId();
-    LOG_TRACE(LogChannel::Intent, "Unbind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
-#endif
+    [[maybe_unused]] const DebugId id = p_handler->GetDebugId();
+    TRACE_INTENT("Unbind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
     return true;
 }
 
 void IntentDispatcher::Flush() {
-    for (auto& intent : m_intents) {
-        DEBUG_PRINT(LogChannel::Intent, "{}", intent->GetDebugName());
+    if (m_pending.empty()) {
+        return;
+    }
+
+    std::vector<std::unique_ptr<Intent>> processing;
+    std::swap(processing, m_pending);
+
+    for (auto& intent : processing) {
         DispatchOne(*intent);
     }
-    m_intents.clear();
 }
 
 void IntentDispatcher::DispatchOne(Intent& p_intent) {
@@ -104,7 +121,13 @@ void IntentDispatcher::DispatchOne(Intent& p_intent) {
                           "IntentDispatcher: handler '{}' cant handle '{}'",
                           handler->GetDebugId().type,
                           p_intent.GetDebugName());
+                continue;
             }
+
+            TRACE_INTENT("{} {} [{}]",
+                         p_intent.GetDebugName(),
+                         p_intent.DebugString(),
+                         handler->GetDebugId().type);
         }
     }
 }

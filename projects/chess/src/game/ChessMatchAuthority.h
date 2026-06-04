@@ -1,37 +1,26 @@
 #pragma once
+#include <deque>
+
 #include "core/Position.h"
-#include "IntentInbox.h"
 #include "IPlayerAgent.h"
+
+#include "cave/runtime/intent/IIntentHandler.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 
 namespace chess {
 
-enum class AuthorityEventType : uint8_t {
-    MoveCommitted,
-    MoveRejected,
-    GameOver,
-};
-
-struct AuthorityEvent {
-    AuthorityEventType type{};
-    PlayerId player{};
-    core::Move move{};
-};
-
-class ChessMatchAuthority {
+class ChessMatchAuthority : public cave::IIntentHandler {
     using Color = core::Color;
 
 public:
-    ChessMatchAuthority();
-
-    IntentInbox& Inbox(PlayerId p_player_id) {
-        return m_inbox[p_player_id];
-    }
-
-    void Tick();
-
-    bool Pop(AuthorityEvent& p_out);
+    ChessMatchAuthority(cave::IHostServices& p_host);
+    ~ChessMatchAuthority();
 
     bool GameOver() const { return m_game_over; }
+
+    bool HandleIntent(cave::Intent& p_intent) override;
+
+    cave::DebugId GetDebugId() const override { return m_debug_id; }
 
 private:
     bool TryCommitMove(PlayerId p_player_id,
@@ -40,14 +29,12 @@ private:
     void OfferDraw(PlayerId p_player_id);
     void Resign(PlayerId p_player_id);
 
-    bool HandleIntent(PlayerId p, const PlayerIntent& p_intent);
-
     core::Position m_pos;
 
-    IntentInbox m_inbox[2]{};
-
-    std::deque<AuthorityEvent> m_events;
     bool m_game_over = false;
+
+    cave::IntentDispatcher& m_intent;
+    const cave::DebugId m_debug_id;
 };
 
 }  // namespace chess

@@ -5,6 +5,7 @@
 #include "cave/runtime/framework/IInputService.h"
 
 #include "ChessGameClient.h"
+#include "ChessIntent.h"
 #include "ChessMatchAuthority.h"
 #include "ChessPresenter.h"
 #include "LocalHumanAgent.h"
@@ -71,12 +72,7 @@ void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
         }
         assert(move.IsValid());
 
-        auto& inbox = agent->LocalInbox();
-        PlayerIntent intent = {
-            IntentType::AttemptMove,
-            move,
-        };
-        inbox.Push(intent);
+        m_intent.Queue<ChessMoveIntent>(id, move);
     }
 }
 
@@ -97,6 +93,7 @@ void ChessGridSelectorAdapter::Tick(cave::IInputService& p_input) {
     using cave::math::Vector2i;
 
     // @TODO: player
+    // @TODO: consume action instead
     if (p_input.IsActionJustPressed(StringId("ui_right"))) {
         m_controller->MoveFocus(1, 0);
     }

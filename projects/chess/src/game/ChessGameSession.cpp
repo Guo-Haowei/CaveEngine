@@ -21,9 +21,6 @@ ChessGameSession::~ChessGameSession() = default;
 
 void ChessGameSession::Tick(cave::IHostServices& p_host) {
     switch (m_state) {
-        case SessionState::Boot:
-            TickBoot(p_host);
-            break;
         case SessionState::Playing:
             TickPlaying(p_host);
             break;
@@ -60,8 +57,8 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
 
-    m_auth = std::make_unique<ChessMatchAuthority>();
-    m_client = std::make_unique<ChessGameClient>(*m_auth);
+    m_auth = std::make_unique<ChessMatchAuthority>(p_host);
+    m_client = std::make_unique<ChessGameClient>(p_host, *m_auth);
 
     const PlayerKind white = config.white.kind;
     const PlayerKind black = config.black.kind;
@@ -71,7 +68,10 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
 
     const bool any_human = white == PlayerKind::LocalHuman || black == PlayerKind::LocalHuman;
     if (any_human) {
-        m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(*m_client, m_client->Presenter());
+        m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
+            p_host.Intent(),
+            *m_client,
+            m_client->Presenter());
 
         cave::GridSelectController::Callbacks cbs = {
             .can_select = [this](int x, int y) { return m_grid_adapter->CanSelect(x, y); },
@@ -96,34 +96,37 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
     m_client->OnBoot(p_host);
 }
 
-void ChessGameSession::TickBoot(cave::IHostServices& p_host) {
-    OnEnterBoot(p_host);
-
-    m_state = SessionState::Playing;
-}
-
 void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
+    auto& intent_dispatcher = p_host.Intent();
+
     if (m_grid_adapter) {
         m_grid_adapter->Tick(p_host.Input());
     }
 
+    // poll player intents
     for (std::unique_ptr<IPlayerAgent>& agent : m_agents) {
-        agent->Tick();
+        agent->Tick(p_host);
     }
 
-    if (m_selector) {
-        Vector2i focused = m_selector->GetFocused();
-        Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
-        m_client->Presenter().SetFocusedSquare(focused_sq);
-    }
-
-    m_auth->Tick();
-
-    m_client->Tick(p_host);
+    // player intents -> auth events
+    intent_dispatcher.Flush();
 
     if (m_auth->GameOver()) {
         m_state = SessionState::GameOver;
         OnEnterGameOver(p_host);
+    }
+
+    // auth events -> client updates
+    intent_dispatcher.Flush();
+
+    // update client visual
+    m_client->Tick(p_host);
+
+    // @TODO: refactor this part
+    if (m_selector) {
+        Vector2i focused = m_selector->GetFocused();
+        Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
+        m_client->Presenter().SetFocusedSquare(focused_sq);
     }
 }
 
@@ -138,7 +141,7 @@ void ChessGameSession::OnLeaveGameOver(cave::IHostServices& p_host) {
 void ChessGameSession::TickGameOver(cave::IHostServices& p_host) {
     if (p_host.Input().IsActionJustPressed(StringId("ui_accept"))) {
         OnLeaveGameOver(p_host);
-        m_state = SessionState::Boot;
+        assert(0 && "TODO");
     }
 }
 

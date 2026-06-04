@@ -2,11 +2,11 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/input/KeyState.h"
 
-#include "engine/private/core/diagnostics/DebugIdAllocator.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/Scene.h"

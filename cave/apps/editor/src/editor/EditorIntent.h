@@ -6,66 +6,68 @@
 
 namespace cave {
 
-class UndoIntent : public Intent {
+class BaseDocIntent : public Intent {
+public:
+    BaseDocIntent(DocId p_doc_id)
+        : doc_id(p_doc_id) {}
+
+    DocId doc_id;
+
+#if USING(DEBUG_BUILD)
+    std::string DebugString() const override {
+        return std::format("id=({},{})", doc_id.index, doc_id.gen);
+    }
+#endif
+};
+
+class OpenDocIntent : public BaseDocIntent {
+public:
+    CAVE_DECLARE_INTENT("editor.doc.open");
+
+    using BaseDocIntent::BaseDocIntent;
+};
+
+class CloseDocIntent : public BaseDocIntent {
+public:
+    CAVE_DECLARE_INTENT("editor.doc.close");
+
+    using BaseDocIntent::BaseDocIntent;
+};
+
+class UndoIntent : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.undo");
 
-    UndoIntent(DocId p_doc_id)
-        : doc_id(p_doc_id) {}
-
-    DocId doc_id;
+    using BaseDocIntent::BaseDocIntent;
 };
 
-class RedoIntent : public Intent {
+class RedoIntent : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.redo");
 
-    RedoIntent(DocId p_doc_id)
-        : doc_id(p_doc_id) {}
-
-    DocId doc_id;
+    using BaseDocIntent::BaseDocIntent;
 };
 
-class EditIntent : public Intent {
+class SaveIntent : public BaseDocIntent {
+public:
+    CAVE_DECLARE_INTENT("editor.doc.save");
+
+    SaveIntent(DocId p_doc_id, bool p_save_as)
+        : BaseDocIntent(p_doc_id)
+        , save_as(p_save_as) {}
+
+    const bool save_as;
+};
+
+class EditIntent : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.edit");
 
     EditIntent(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd)
-        : doc_id(p_doc_id)
+        : BaseDocIntent(p_doc_id)
         , cmd(std::move(p_cmd)) {}
 
-    const DocId doc_id;
     std::unique_ptr<IEditCmd> cmd;
-};
-
-class OpenDocIntent : public Intent {
-public:
-    CAVE_DECLARE_INTENT("editor.doc.open");
-
-    OpenDocIntent(DocId p_doc_id)
-        : doc_id(p_doc_id) {}
-
-    DocId doc_id;
-};
-
-class CloseDocIntent : public Intent {
-public:
-    CAVE_DECLARE_INTENT("editor.doc.close");
-
-    CloseDocIntent(DocId p_doc_id)
-        : doc_id(p_doc_id) {}
-
-    const DocId doc_id;
-};
-
-class SaveIntent : public Intent {
-public:
-    CAVE_DECLARE_INTENT("editor.doc.save");
-
-    SaveIntent(bool p_save_as)
-        : save_as(p_save_as) {}
-
-    const bool save_as;
 };
 
 class PickIntent : public Intent {
@@ -74,6 +76,12 @@ public:
 
     PickIntent(math::Vector2f p_pointer)
         : pointer(p_pointer) {}
+
+#if USING(DEBUG_BUILD)
+    std::string DebugString() const override {
+        return std::format("p=({},{})", pointer.x, pointer.y);
+    }
+#endif
 
     const math::Vector2f pointer;
 };

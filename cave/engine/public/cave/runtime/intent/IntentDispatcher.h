@@ -14,31 +14,31 @@ namespace cave {
 
 struct CommandArgs;
 struct CommandContext;
+class OS;
 
 class IntentDispatcher : public IService {
 public:
-    IntentDispatcher()
-        : IService("IntentDispatcher") {}
+    IntentDispatcher();
 
     bool AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
     bool RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
 
-    template<typename T>
+    template<IntentType T>
     void AddHandler(IIntentHandler* p_handler) {
         AddHandler(T::TypeId, p_handler);
     }
 
-    template<typename T>
+    template<IntentType T>
     void RemoveHandler(IIntentHandler* p_handler) {
         RemoveHandler(T::TypeId, p_handler);
     }
 
-    template<typename T, typename... Args>
-    auto PushIntent(Args&&... args) -> T& {
+    template<IntentType T, typename... Args>
+    auto Queue(Args&&... args) -> T& {
         auto intent = std::make_unique<T>(std::forward<Args>(args)...);
         T& ref = *intent;
 
-        m_intents.emplace_back(std::move(intent));
+        m_pending.emplace_back(std::move(intent));
         return ref;
     }
 
@@ -53,7 +53,9 @@ private:
     void IntentDispatcherDump_Cmd(CommandContext& p_ctx, const CommandArgs& p_args);
 
     std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;
-    std::vector<std::unique_ptr<Intent>> m_intents;
+    std::vector<std::unique_ptr<Intent>> m_pending;
+
+    OS& m_os;
 };
 
 }  // namespace cave

@@ -15,7 +15,6 @@ class ChessGridSelectorAdapter;
 class ChessMatchAuthority;
 
 enum class SessionState : uint8_t {
-    Boot,
     Playing,
     GameOver,
 };
@@ -47,20 +46,20 @@ public:
 
     void Tick(cave::IHostServices& p_host);
 
+    void OnEnterBoot(cave::IHostServices& p_host);
+
 private:
     std::unique_ptr<IPlayerAgent> CreatePlayer(PlayerId p_id,
                                                PlayerKind p_kind);
 
     void Cleanup();
-    void OnEnterBoot(cave::IHostServices& p_host);
     void OnEnterGameOver(cave::IHostServices& p_host);
     void OnLeaveGameOver(cave::IHostServices& p_host);
 
-    void TickBoot(cave::IHostServices& p_host);
     void TickPlaying(cave::IHostServices& p_host);
     void TickGameOver(cave::IHostServices& p_host);
 
-    SessionState m_state = SessionState::Boot;
+    SessionState m_state = SessionState::Playing;
 
     std::unique_ptr<ChessMatchAuthority> m_auth;
     std::unique_ptr<ChessGameClient> m_client;
