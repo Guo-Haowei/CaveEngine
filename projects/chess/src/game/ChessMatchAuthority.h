@@ -9,26 +9,12 @@
 
 namespace chess {
 
-enum class AuthorityEventType : uint8_t {
-    MoveCommitted,
-    MoveRejected,
-    GameOver,
-};
-
-struct AuthorityEvent {
-    AuthorityEventType type{};
-    PlayerId player{};
-    core::Move move{};
-};
-
 class ChessMatchAuthority : public cave::IIntentHandler {
     using Color = core::Color;
 
 public:
     ChessMatchAuthority(cave::IHostServices& p_host);
     ~ChessMatchAuthority();
-
-    bool Pop(AuthorityEvent& p_out);
 
     bool GameOver() const { return m_game_over; }
 
@@ -45,7 +31,6 @@ private:
 
     core::Position m_pos;
 
-    std::deque<AuthorityEvent> m_events;
     bool m_game_over = false;
 
     cave::IntentDispatcher& m_intent;

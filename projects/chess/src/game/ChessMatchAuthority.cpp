@@ -8,9 +8,9 @@
 namespace chess {
 
 using core::Color;
-using core::Position;
 using core::MoveGen;
 using core::MoveList;
+using core::Position;
 
 ChessMatchAuthority::ChessMatchAuthority(cave::IHostServices& p_host)
     : m_intent(p_host.Intent())
@@ -32,14 +32,6 @@ bool ChessMatchAuthority::HandleIntent(cave::Intent& p_intent) {
     return false;
 }
 
-bool ChessMatchAuthority::Pop(AuthorityEvent& p_out) {
-    if (m_events.empty()) return false;
-
-    p_out = m_events.front();
-    m_events.pop_front();
-    return true;
-}
-
 bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
                                         core::Move p_move) {
 
@@ -52,18 +44,18 @@ bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
     Position copy = m_pos;
     const bool ok = copy.MakeMove(p_move, undo);
     if (!ok) {
-        m_events.push_back({ AuthorityEventType::MoveRejected, p_player_id, p_move });
+        m_intent.Queue<AuthMoveRejected>(p_player_id, p_move);
         return false;
     }
 
     m_pos = copy;
-    m_events.push_back({ AuthorityEventType::MoveCommitted, p_player_id, p_move });
+    m_intent.Queue<AuthMoveCommitted>(p_player_id, p_move);
 
     // @TODO: figure out if draw or not
     const MoveList moves = MoveGen::LegalMove(m_pos);
     if (moves.Empty()) {
         m_game_over = true;
-        m_events.push_back({ AuthorityEventType::GameOver, p_player_id, p_move });
+        m_intent.Queue<AuthGameOver>(p_player_id, p_move);
     }
 
     return true;

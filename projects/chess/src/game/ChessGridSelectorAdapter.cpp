@@ -93,6 +93,7 @@ void ChessGridSelectorAdapter::Tick(cave::IInputService& p_input) {
     using cave::math::Vector2i;
 
     // @TODO: player
+    // @TODO: consume action instead
     if (p_input.IsActionJustPressed(StringId("ui_right"))) {
         m_controller->MoveFocus(1, 0);
     }

@@ -19,11 +19,16 @@ public:
 #endif
 
     std::unique_ptr<IChessGameState> state;
+
+private:
+#if USING(DEBUG_BUILD)
+    const std::string m_debug_name;
+#endif
 };
 
 class ChessMoveIntent : public cave::Intent {
 public:
-    CAVE_DECLARE_INTENT("chess.move");
+    CAVE_DECLARE_INTENT("move.attempt");
 
     ChessMoveIntent(PlayerId p_player, core::Move p_mv) noexcept
         : player(p_player)
@@ -36,5 +41,39 @@ public:
     const PlayerId player;
     const core::Move mv;
 };
+
+class AuthMoveCommitted : public ChessMoveIntent {
+public:
+    CAVE_DECLARE_INTENT("auth.accepted");
+
+    using ChessMoveIntent::ChessMoveIntent;
+
+#if USING(DEBUG_BUILD)
+    std::string DebugString() const override;
+#endif
+};
+
+class AuthMoveRejected : public ChessMoveIntent {
+public:
+    CAVE_DECLARE_INTENT("auth.rejected");
+
+    using ChessMoveIntent::ChessMoveIntent;
+
+#if USING(DEBUG_BUILD)
+    std::string DebugString() const override;
+#endif
+};
+
+class AuthGameOver : public ChessMoveIntent {
+public:
+    CAVE_DECLARE_INTENT("auth.gameover");
+
+    using ChessMoveIntent::ChessMoveIntent;
+
+#if USING(DEBUG_BUILD)
+    std::string DebugString() const override;
+#endif
+};
+
 
 }  // namespace chess

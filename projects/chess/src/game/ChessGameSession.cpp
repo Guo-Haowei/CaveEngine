@@ -58,7 +58,7 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
     config.black = { PlayerKind::LocalAI };
 
     m_auth = std::make_unique<ChessMatchAuthority>(p_host);
-    m_client = std::make_unique<ChessGameClient>(*m_auth);
+    m_client = std::make_unique<ChessGameClient>(p_host, *m_auth);
 
     const PlayerKind white = config.white.kind;
     const PlayerKind black = config.black.kind;
@@ -103,10 +103,12 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
         m_grid_adapter->Tick(p_host.Input());
     }
 
+    // poll player intents
     for (std::unique_ptr<IPlayerAgent>& agent : m_agents) {
         agent->Tick(p_host);
     }
 
+    // player intents -> auth events
     intent_dispatcher.Flush();
 
     if (m_auth->GameOver()) {
@@ -114,8 +116,10 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
         OnEnterGameOver(p_host);
     }
 
-    // intent_dispatcher.Flush();
+    // auth events -> client updates
+    intent_dispatcher.Flush();
 
+    // update client visual
     m_client->Tick(p_host);
 
     // @TODO: refactor this part

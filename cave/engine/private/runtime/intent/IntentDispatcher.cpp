@@ -12,7 +12,8 @@
 #include <algorithm>
 
 // @TODO: figure out a better way to print log
-#if USING(USE_IF(USING(USE_LOG)))
+#define WANT_TRACE_INTENT USE_IF(USING(USE_LOG))
+#if USING(WANT_TRACE_INTENT)
 #define TRACE_INTENT(...)                                                                 \
     do {                                                                                  \
         std::string msg = std::format(__VA_ARGS__);                                       \
@@ -30,7 +31,6 @@ IntentDispatcher::IntentDispatcher()
     , m_os(OS::GetSingleton()) {}
 
 auto IntentDispatcher::InitializeImpl() -> Result<void> {
-
     // @TODO: move it to somewhere else
     // IntentDispatcher doesn't need to be a Service
 #if USING(DEBUG_BUILD)
@@ -103,7 +103,6 @@ void IntentDispatcher::Flush() {
     std::swap(processing, m_pending);
 
     for (auto& intent : processing) {
-        TRACE_INTENT("{} {}", intent->GetDebugName(), intent->DebugString());
         DispatchOne(*intent);
     }
 }
@@ -122,7 +121,13 @@ void IntentDispatcher::DispatchOne(Intent& p_intent) {
                           "IntentDispatcher: handler '{}' cant handle '{}'",
                           handler->GetDebugId().type,
                           p_intent.GetDebugName());
+                continue;
             }
+
+            TRACE_INTENT("{} {} [{}]",
+                         p_intent.GetDebugName(),
+                         p_intent.DebugString(),
+                         handler->GetDebugId().type);
         }
     }
 }
