@@ -28,7 +28,7 @@ private:
 
 class ChessMoveIntent : public cave::Intent {
 public:
-    CAVE_DECLARE_INTENT("move.attempt");
+    CAVE_DECLARE_INTENT("move.submitted");
 
     ChessMoveIntent(PlayerId p_player, core::Move p_mv) noexcept
         : player(p_player)
@@ -44,7 +44,7 @@ public:
 
 class AuthMoveCommitted : public ChessMoveIntent {
 public:
-    CAVE_DECLARE_INTENT("auth.accepted");
+    CAVE_DECLARE_INTENT("move.accepted");
 
     using ChessMoveIntent::ChessMoveIntent;
 
@@ -55,7 +55,7 @@ public:
 
 class AuthMoveRejected : public ChessMoveIntent {
 public:
-    CAVE_DECLARE_INTENT("auth.rejected");
+    CAVE_DECLARE_INTENT("move.rejected");
 
     using ChessMoveIntent::ChessMoveIntent;
 
@@ -66,7 +66,7 @@ public:
 
 class AuthGameOver : public ChessMoveIntent {
 public:
-    CAVE_DECLARE_INTENT("auth.gameover");
+    CAVE_DECLARE_INTENT("game.over");
 
     using ChessMoveIntent::ChessMoveIntent;
 

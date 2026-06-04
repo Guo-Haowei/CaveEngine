@@ -24,15 +24,15 @@ std::string ChessMoveIntent::DebugString() const {
 }
 
 std::string AuthMoveCommitted::DebugString() const {
-    return "Commited";
+    return "";
 }
 
 std::string AuthMoveRejected::DebugString() const {
-    return "Rejected";
+    return "";
 }
 
 std::string AuthGameOver::DebugString() const {
-    return "AuthGameOver";
+    return "";
 }
 #endif
 
