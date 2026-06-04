@@ -72,7 +72,7 @@ void ChessGridSelectorAdapter::OnDrop(int sx, int sy, int dx, int dy) {
         }
         assert(move.IsValid());
 
-        m_intent.PushIntent<ChessMoveIntent>(id, move);
+        m_intent.Queue<ChessMoveIntent>(id, move);
     }
 }
 

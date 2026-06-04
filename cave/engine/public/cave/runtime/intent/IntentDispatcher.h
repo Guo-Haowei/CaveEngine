@@ -14,11 +14,11 @@ namespace cave {
 
 struct CommandArgs;
 struct CommandContext;
+class OS;
 
 class IntentDispatcher : public IService {
 public:
-    IntentDispatcher()
-        : IService("IntentDispatcher") {}
+    IntentDispatcher();
 
     bool AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
     bool RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
@@ -54,6 +54,8 @@ private:
 
     std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;
     std::vector<std::unique_ptr<Intent>> m_pending;
+
+    OS& m_os;
 };
 
 }  // namespace cave

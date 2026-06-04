@@ -97,12 +97,7 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
 }
 
 void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
-    m_client->Tick(p_host);
-
-    if (m_auth->GameOver()) {
-        m_state = SessionState::GameOver;
-        OnEnterGameOver(p_host);
-    }
+    auto& intent_dispatcher = p_host.Intent();
 
     if (m_grid_adapter) {
         m_grid_adapter->Tick(p_host.Input());
@@ -112,6 +107,18 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
         agent->Tick(p_host);
     }
 
+    intent_dispatcher.Flush();
+
+    if (m_auth->GameOver()) {
+        m_state = SessionState::GameOver;
+        OnEnterGameOver(p_host);
+    }
+
+    // intent_dispatcher.Flush();
+
+    m_client->Tick(p_host);
+
+    // @TODO: refactor this part
     if (m_selector) {
         Vector2i focused = m_selector->GetFocused();
         Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);

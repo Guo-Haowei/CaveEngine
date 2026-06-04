@@ -34,7 +34,7 @@ void ChessAIAgent::Tick(cave::IHostServices& p_host) {
         assert(idx < count);
         const Move move = moves[idx];
 
-        p_host.Intent().PushIntent<ChessMoveIntent>(m_player, move);
+        p_host.Intent().Queue<ChessMoveIntent>(m_player, move);
     }
 }
 

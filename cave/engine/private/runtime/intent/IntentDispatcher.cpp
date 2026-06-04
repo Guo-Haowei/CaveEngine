@@ -6,17 +6,31 @@
 #include "cave/core/diagnostics/ILogSink.h"
 #endif
 
+#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
+#include "engine/private/core/os/os.h"
+
 #include <algorithm>
 
+// @TODO: figure out a better way to print log
 #if USING(USE_IF(USING(USE_LOG)))
-#define TRACE_INTENT(...) LOG_TRACE(LogChannel::Intent, __VA_ARGS__)
+#define TRACE_INTENT(...)                                                                 \
+    do {                                                                                  \
+        std::string msg = std::format(__VA_ARGS__);                                       \
+        auto log = detail::BuildLog(LOG_LEVEL_TRACE, LogChannel::Intent, std::move(msg)); \
+        m_os.Print(std::move(log));                                                       \
+    } while (0)
 #else
 #define TRACE_INTENT(...) ((void)0)
 #endif
 
 namespace cave {
 
+IntentDispatcher::IntentDispatcher()
+    : IService("IntentDispatcher")
+    , m_os(OS::GetSingleton()) {}
+
 auto IntentDispatcher::InitializeImpl() -> Result<void> {
+
     // @TODO: move it to somewhere else
     // IntentDispatcher doesn't need to be a Service
 #if USING(DEBUG_BUILD)
@@ -81,6 +95,10 @@ bool IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p
 }
 
 void IntentDispatcher::Flush() {
+    if (m_pending.empty()) {
+        return;
+    }
+
     std::vector<std::unique_ptr<Intent>> processing;
     std::swap(processing, m_pending);
 
