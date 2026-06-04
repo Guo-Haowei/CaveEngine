@@ -23,9 +23,16 @@ public:
 #endif
 };
 
+template<typename T>
+concept IntentType =
+    std::derived_from<T, Intent> &&
+    requires {
+        { T::TypeId } -> std::convertible_to<IntentTypeId>;
+    };
+
 #define CAVE_DECLARE_INTENT(STR)                                       \
 public:                                                                \
-    inline static constexpr ::cave::StringId TypeId{ STR };            \
+    inline static constexpr ::cave::IntentTypeId TypeId{ STR };        \
     ::cave::IntentTypeId GetTypeId() const override { return TypeId; } \
     std::string_view GetDebugName() const override { return TypeId.DebugName(); }
 
