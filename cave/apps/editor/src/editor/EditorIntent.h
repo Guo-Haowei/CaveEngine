@@ -67,7 +67,6 @@ public:
         : BaseDocIntent(p_doc_id)
         , cmd(std::move(p_cmd)) {}
 
-    const DocId doc_id;
     std::unique_ptr<IEditCmd> cmd;
 };
 
