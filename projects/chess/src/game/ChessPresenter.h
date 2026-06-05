@@ -5,8 +5,9 @@
 #include "core/Position.h"
 
 // clang-format off
-namespace cave { class SceneQuery; }
 namespace cave { class IHostServices; }
+namespace cave { class SceneCommandWriter; }
+namespace cave { class SceneQuery; }
 // clang-format on
 
 namespace chess {
@@ -42,9 +43,12 @@ public:
     }
 
 private:
-    void SetEntityAt(core::Square p_sq, Entity p_ent);
+    void SetEntityAt(cave::SceneCommandWriter& p_writer,
+                     core::Square p_sq,
+                     Entity p_ent);
 
-    void ClearSquare(core::Square p_sq);
+    void ClearSquare(cave::SceneCommandWriter& p_writer,
+                     core::Square p_sq);
 
     cave::IHostServices& m_host;
     Entity m_selector;
