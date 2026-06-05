@@ -10,4 +10,6 @@ class Scene;
 
 void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
 
+void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+
 }  // namespace cave

@@ -8,13 +8,14 @@
 namespace chess {
 
 using namespace cave;
+using namespace cave::literals;
 
 using cave::math::Vector3f;
 using core::Bitboard;
 using core::Piece;
 using core::Square;
 
-constexpr StringId kTranslationId = StringId("translation");
+constexpr StringId kTranslationId = "translation"_sid;
 
 static Vector3f SquareToPosition(const core::Square& p_sq) {
     auto [file, rank] = p_sq.FileRank();
@@ -72,7 +73,7 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
         const Entity tile = m_tiles[i];
         writer.SetProperty(tile,
                            cave::MeshRendererComponent_Id,
-                           StringId("visibility"),
+                           "visibility"_sid,
                            visible);
     }
 
@@ -85,9 +86,9 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
 
 void ChessPresenter::RedrawPosition(cave::IHostServices& p_host, const core::Position& p_position) {
     // @TODO: refactor
-    static constexpr StringId kTranslationId = StringId("translation");
-    static constexpr StringId kVisibility = StringId("visibility");
-    static constexpr StringId kCastShadow = StringId("cast_shadow");
+    static constexpr StringId kTranslationId = "translation"_sid;
+    static constexpr StringId kVisibility = "visibility"_sid;
+    static constexpr StringId kCastShadow = "cast_shadow"_sid;
 
     auto& writer = p_host.SceneWriter();
 

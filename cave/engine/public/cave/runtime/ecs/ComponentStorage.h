@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/ComponentStorage.h
+// File: cave/runtime/ecs/ComponentStorage.h
 // =============================================================================
 #pragma once
 #include "cave/runtime/ecs/ComponentRegistry.h"

@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/runtime/ecs/components/SpriteAnimatorComponent.h
+// =============================================================================
 #pragma once
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/ComponentDefines.h"

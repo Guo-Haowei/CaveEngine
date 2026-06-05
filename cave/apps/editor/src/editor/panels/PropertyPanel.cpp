@@ -29,7 +29,8 @@
 
 namespace cave {
 
-using namespace math;
+using namespace ::cave::literals;
+using namespace ::cave::math;
 
 // @TODO: refactor this
 #define COMPONENT_LIST              \
@@ -314,7 +315,7 @@ void PropertyPanel::DrawUIImpl() {
                 *m_editor.GetApp().GetSceneRegistry(),
                 id,
                 NameComponent_Id,
-                StringId("name"),
+                "name"_sid,
                 name_component->GetNameRef(),
                 name);
             edit_service.Submit(doc_id, std::move(cmd));

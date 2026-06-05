@@ -7,6 +7,7 @@
 
 namespace cave::scene {
 
+using namespace cave::literals;
 using namespace ecs;
 
 TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
@@ -18,13 +19,13 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     Entity e2 = cb.CreateEntity();
 
     cb.AddComponent(e1, NameComponent_Id);
-    cb.SetProperty(e1, NameComponent_Id, StringId("name"), FixedString<64>("e1"));
+    cb.SetProperty(e1, NameComponent_Id, "name"_sid, FixedString<64>("e1"));
 
     cb.AddComponent(e2, NameComponent_Id);
     cb.AddComponent(e2, HierarchyComponent_Id);
 
-    cb.SetProperty(e2, NameComponent_Id, StringId("name"), FixedString<64>("e2"));
-    cb.SetProperty(e2, HierarchyComponent_Id, StringId("parent_id"), e1);
+    cb.SetProperty(e2, NameComponent_Id, "name"_sid, FixedString<64>("e2"));
+    cb.SetProperty(e2, HierarchyComponent_Id, "parent_id"_sid, e1);
 
     ComponentRegistry reg = ComponentRegistry::Builtin();
 

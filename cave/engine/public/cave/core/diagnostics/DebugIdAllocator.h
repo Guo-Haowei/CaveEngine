@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/diagnostics/DebugIdAllocator.h
+// File: cave/core/diagnostics/DebugIdAllocator.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/DebugId.h"

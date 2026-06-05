@@ -6,7 +6,7 @@
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/Engine.h"
-#include "engine/private/systems/animation_system.h"
+#include "engine/private/systems/AnimationSystem.h"
 #include "engine/private/systems/ecs_systems.h"
 #include "engine/private/systems/job_system/job_system.h"
 
@@ -35,6 +35,7 @@ void Scene::Update(float p_timestep) {
 
     jobsystem::Context ctx;
     // animation
+    RunTransformAnimationSystem(*this, ctx, p_timestep);
     RunSpriteAnimationSystem(*this, ctx, p_timestep);
     RunLightUpdateSystem(*this, ctx, p_timestep);
     RunAnimationUpdateSystem(*this, ctx, p_timestep);

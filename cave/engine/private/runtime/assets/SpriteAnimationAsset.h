@@ -47,7 +47,7 @@ class SpriteAnimationAsset : public IAsset {
     CAVE_META(SpriteAnimationAsset)
 
 private:
-    CAVE_PROP(type = guid, tooltip = "image id")
+    CAVE_PROP(editor = Asset, tooltip = "image id")
     Guid m_image_guid;
 
     CAVE_PROP()

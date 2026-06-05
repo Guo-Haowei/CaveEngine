@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/components/TransformComponent.h
+// File: cave/runtime/ecs/components/TransformComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/math/Angle.h"

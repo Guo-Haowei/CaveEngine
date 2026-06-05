@@ -17,6 +17,12 @@ namespace chess {
 
 class ChessMatchAuthority;
 
+enum class ChessClientState {
+    Idle,
+    PendingPromotion,
+    AnimatingMove,
+};
+
 class ChessGameClient : public cave::IIntentHandler {
 public:
     ChessGameClient(cave::IHostServices& p_host, ChessMatchAuthority& p_auth);
@@ -32,11 +38,22 @@ public:
 
     ChessPresenter& Presenter() { return m_presenter; }
 
+    bool CanAcceptMoveInput() const {
+        return m_state == ChessClientState::Idle;
+    }
+
+    bool IsAnimating() const {
+        return m_state == ChessClientState::AnimatingMove;
+    }
+
     bool HandleIntent(cave::Intent& p_intent) override;
 
     cave::DebugId GetDebugId() const override { return m_debug_id; }
 
 private:
+    void OnMoveCommitted(core::Move p_mv);
+    void OnMoveRejected(core::Move p_mv);
+
     void OnPositionChange();
 
     void ResetBoard();
@@ -47,6 +64,7 @@ private:
     core::Position m_replica;  // replicated position of auth
 
     std::unordered_map<core::Square, std::vector<core::Move>> m_move_cache;
+    ChessClientState m_state = ChessClientState::Idle;
 
     cave::IHostServices& m_host;
     cave::IntentDispatcher& m_intent;

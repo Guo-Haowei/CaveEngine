@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/components/NameComponent.h
+// File: cave/runtime/ecs/components/NameComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/containers/FixedString.h"

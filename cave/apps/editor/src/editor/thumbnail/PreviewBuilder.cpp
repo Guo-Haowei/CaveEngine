@@ -15,6 +15,7 @@
 
 namespace cave {
 
+using namespace literals;
 using ecs::Entity;
 using math::Matrix4x4f;
 using math::Vector3f;
@@ -158,7 +159,7 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
     if constexpr (1) {
         Entity e = cb.CreateTransformObject("mesh");
         cb.AddComponent(e, MeshRendererComponent_Id);
-        cb.SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), p_handle.GetGuid());
+        cb.SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, p_handle.GetGuid());
         cb.AttachChild(e, root);
     }
 

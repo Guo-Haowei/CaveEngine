@@ -27,6 +27,7 @@ FILES = [
     'public/cave/runtime/ecs/components/SpriteAnimatorComponent.h',
     'public/cave/runtime/ecs/components/SpriteRendererComponent.h',
     'public/cave/runtime/ecs/components/TileMapRendererComponent.h',
+    'public/cave/runtime/ecs/components/TransformAnimationComponent.h',
     'public/cave/runtime/ecs/components/TransformComponent.h',
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',

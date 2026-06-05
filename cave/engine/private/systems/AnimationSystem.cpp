@@ -1,7 +1,9 @@
-#include "animation_system.h"
+#include "AnimationSystem.h"
 
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformAnimationComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -74,6 +76,17 @@ void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, flo
 
     for (auto [id, animator, renderer] : view) {
         AnimationSystem::UpdateSpriteAnimation(p_timestep, animator, renderer);
+    }
+}
+
+void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
+    unused(p_context);
+    unused(p_timestep);
+
+    auto view = p_scene.View<TransformAnimationComponent, TransformComponent>();
+
+    for (auto [id, anim, trans] : view) {
+        // @TODO: play animation
     }
 }
 

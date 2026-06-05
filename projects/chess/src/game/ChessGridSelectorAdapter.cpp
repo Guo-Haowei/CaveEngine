@@ -12,6 +12,7 @@
 
 namespace chess {
 
+using namespace cave::literals;
 using core::Color;
 using core::Move;
 using core::MoveType;
@@ -94,27 +95,27 @@ void ChessGridSelectorAdapter::Tick(cave::IInputService& p_input) {
 
     // @TODO: player
     // @TODO: consume action instead
-    if (p_input.IsActionJustPressed(StringId("ui_right"))) {
+    if (p_input.IsActionJustPressed("ui_right"_sid)) {
         m_controller->MoveFocus(1, 0);
     }
-    if (p_input.IsActionJustPressed(StringId("ui_left"))) {
+    if (p_input.IsActionJustPressed("ui_left"_sid)) {
         m_controller->MoveFocus(-1, 0);
     }
-    if (p_input.IsActionJustPressed(StringId("ui_up"))) {
+    if (p_input.IsActionJustPressed("ui_up"_sid)) {
         m_controller->MoveFocus(0, 1);
     }
-    if (p_input.IsActionJustPressed(StringId("ui_down"))) {
+    if (p_input.IsActionJustPressed("ui_down"_sid)) {
         m_controller->MoveFocus(0, -1);
     }
-    if (p_input.IsActionJustPressed(StringId("ui_accept"))) {
+    if (p_input.IsActionJustPressed("ui_accept"_sid)) {
         m_controller->Confirm();
     }
-    if (p_input.IsActionJustPressed(StringId("ui_back"))) {
+    if (p_input.IsActionJustPressed("ui_back"_sid)) {
         m_controller->Cancel();
     }
 
-    const float dx = p_input.GetActionStrength(StringId("ui_axis_x"));
-    const float dy = p_input.GetActionStrength(StringId("ui_axis_y"));
+    const float dx = p_input.GetActionStrength("ui_axis_x"_sid);
+    const float dy = p_input.GetActionStrength("ui_axis_y"_sid);
     if (dx > 0.5f) {
         m_controller->MoveFocus(1, 0);
     } else if (dx < -0.5f) {

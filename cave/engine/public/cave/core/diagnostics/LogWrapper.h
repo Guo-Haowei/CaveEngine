@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/diagnostics/LogWrapper.h
+// File: cave/core/diagnostics/LogWrapper.h
 // =============================================================================
 #pragma once
 #include "cave/core/diagnostics/ILogSink.h"

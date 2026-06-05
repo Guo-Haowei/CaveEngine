@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/diagnostics/Log.h
+// File: cave/core/diagnostics/Log.h
 // =============================================================================
 #pragma once
 #include <format>

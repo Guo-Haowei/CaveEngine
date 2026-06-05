@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/input/IInputDevice.h
+// File: cave/runtime/input/IInputDevice.h
 // =============================================================================
 #pragma once
 #include <vector>

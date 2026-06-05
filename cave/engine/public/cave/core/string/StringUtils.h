@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/string/StringUtils.h
+// File: cave/core/string/StringUtils.h
 // =============================================================================
 #pragma once
 #include <string_view>

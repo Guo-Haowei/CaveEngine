@@ -26,13 +26,13 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_SpriteAnimationClip_meta = MetaDataTable<SpriteAnimationClip>::GetFields();
 
-// Guid m_image_guid (type = guid, tooltip = "image id")
+// Guid m_image_guid (editor = Asset, tooltip = "image id")
 // std::map<std::string, SpriteAnimationClip> m_clips ()
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SpriteAnimationAsset, "image_guid", m_image_guid, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimationAsset, "image_guid", m_image_guid, FieldFlag::Serialize, EditorHint::Asset),
         REGISTER_FIELD(SpriteAnimationAsset, "clips", m_clips, FieldFlag::Serialize, EditorHint::None),
     };
 

@@ -6,8 +6,7 @@
 
 namespace cave {
 
-class BaseDocIntent : public Intent {
-public:
+struct BaseDocIntent : public Intent {
     BaseDocIntent(DocId p_doc_id)
         : doc_id(p_doc_id) {}
 

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/input/KeyState.h
+// File: cave/runtime/input/KeyState.h
 // =============================================================================
 #pragma once
 #include <bitset>

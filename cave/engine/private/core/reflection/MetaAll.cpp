@@ -13,6 +13,7 @@
 #include "generated/SpriteAnimatorComponent.generated.cpp"
 #include "generated/SpriteRendererComponent.generated.cpp"
 #include "generated/TileMapRendererComponent.generated.cpp"
+#include "generated/TransformAnimationComponent.generated.cpp"
 #include "generated/TransformComponent.generated.cpp"
 #include "generated/AssetMetaData.generated.cpp"
 #include "generated/MaterialAsset.generated.cpp"

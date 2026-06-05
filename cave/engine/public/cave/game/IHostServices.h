@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/game/IHostServices.h
+// File: cave/game/IHostServices.h
 // =============================================================================
 #pragma once
 #include "cave/core/diagnostics/LogWrapper.h"

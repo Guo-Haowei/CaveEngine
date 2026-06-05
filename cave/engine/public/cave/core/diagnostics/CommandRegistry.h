@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/diagnostics/CommandRegistry.h
+// File: cave/core/diagnostics/CommandRegistry.h
 // =============================================================================
 #pragma once
 #include "Command.h"

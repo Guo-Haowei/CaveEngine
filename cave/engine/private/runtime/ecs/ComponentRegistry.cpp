@@ -7,6 +7,8 @@
 
 namespace cave::ecs {
 
+using namespace cave::literals;
+
 #define DEBUG_COMPONENT_REGISTRY NOT_IN_USE
 // #define DEBUG_COMPONENT_REGISTRY NOT_IN_USE
 #if USING(DEBUG_COMPONENT_REGISTRY)
@@ -73,7 +75,7 @@ static void MeshRenderer_OnEdited(Scene& p_scene,
                                   const PropertyId& p_prop_id,
                                   const void*,
                                   uint32_t) {
-    if (p_prop_id == StringId("mesh_id")) {
+    if (p_prop_id == "mesh_id"_sid) {
         auto* mesh = (MeshRendererComponent*)p_scene.Storage().GetRaw(p_ent, MeshRendererComponent_Id);
         if (DEV_VERIFY(mesh)) {
             mesh->OnDeserialized();
@@ -87,7 +89,7 @@ static void Materail_OnEdited(Scene& p_scene,
                               const PropertyId& p_prop_id,
                               const void*,
                               uint32_t) {
-    if (p_prop_id == StringId("material_id")) {
+    if (p_prop_id == "material_id"_sid) {
         auto* m = (MaterialComponent*)p_scene.Storage().GetRaw(p_ent, MaterialComponent_Id);
         if (DEV_VERIFY(m)) {
             m->OnDeserialized();

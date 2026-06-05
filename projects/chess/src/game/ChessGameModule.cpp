@@ -13,6 +13,7 @@
 namespace chess {
 
 using namespace cave;
+using namespace cave::literals;
 
 using cave::ecs::Entity;
 using cave::math::Vector2i;
@@ -24,12 +25,12 @@ using chess::core::PieceType;
 using chess::core::Square;
 
 struct ChessSpawner {
-    static constexpr StringId kScaleId = StringId("scale");
-    static constexpr StringId kTranslationId = StringId("translation");
-    static constexpr StringId kRotationId = StringId("rotation");
-    static constexpr StringId kVisibility = StringId("visibility");
-    static constexpr StringId kCastShadow = StringId("cast_shadow");
-    static constexpr StringId kTransparency = StringId("transparency");
+    static constexpr StringId kScaleId = "scale"_sid;
+    static constexpr StringId kTranslationId = "translation"_sid;
+    static constexpr StringId kRotationId = "rotation"_sid;
+    static constexpr StringId kVisibility = "visibility"_sid;
+    static constexpr StringId kCastShadow = "cast_shadow"_sid;
+    static constexpr StringId kTransparency = "transparency"_sid;
 
     SceneCommandWriter& cb;
     ecs::Entity piece_parent;

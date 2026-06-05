@@ -7,9 +7,12 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
 
 namespace chess {
 
+using namespace cave;
+using namespace cave::literals;
 using core::Move;
 using core::MoveGen;
 using core::Position;
@@ -46,21 +49,17 @@ void ChessGameClient::OnBoot(cave::IHostServices& p_host) {
 }
 
 bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
-    if (auto i = dynamic_cast<AuthMoveCommitted*>(&p_intent)) {
-        core::UndoState undo;
-        m_replica.MakeMove(i->mv, undo);
-        OnPositionChange();
-        // redraw board
-        m_presenter.RedrawPosition(m_host, m_replica);
+    if (auto intent = dynamic_cast<AuthMoveCommitted*>(&p_intent)) {
+        OnMoveCommitted(intent->mv);
         return true;
     }
 
-    if (auto i = dynamic_cast<AuthMoveRejected*>(&p_intent)) {
-        m_host.Log().Info(cave::LogChannel::Game, "Invalid move!");
+    if (auto intent = dynamic_cast<AuthMoveRejected*>(&p_intent)) {
+        OnMoveRejected(intent->mv);
         return true;
     }
 
-    if (auto i = dynamic_cast<AuthGameOver*>(&p_intent)) {
+    if (auto intenti = dynamic_cast<AuthGameOver*>(&p_intent)) {
         m_host.Log().Info(cave::LogChannel::Game, "Game over!");
         return true;
     }
@@ -68,8 +67,31 @@ bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
     return false;
 }
 
+void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
+    core::UndoState undo;
+    m_replica.MakeMove(p_mv, undo);
+    OnPositionChange();
+    // redraw board
+    m_presenter.RedrawPosition(m_host, m_replica);
+
+    m_state = ChessClientState::AnimatingMove;
+
+    // @TODO: animate the piece
+    SceneCommandWriter& writer = m_host.SceneWriter();
+
+    ecs::Entity e;
+    constexpr auto cid = TransformAnimationComponent_Id;
+    writer.AddComponent(e, cid);
+    writer.SetProperty(e, cid, "begin"_sid, math::Vector3f());
+    writer.SetProperty(e, cid, "end"_sid, math::Vector3f());
+}
+
+void ChessGameClient::OnMoveRejected(core::Move p_mv) {
+    m_host.Log().Info(cave::LogChannel::Game, "Invalid move!");
+}
+
 void ChessGameClient::Tick(cave::IHostServices& p_host) {
-    PresentationContext ctx{
+    PresentationContext ctx = {
         .host = p_host,
     };
 

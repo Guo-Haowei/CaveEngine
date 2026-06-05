@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/containers/FixedString.h
+// File: cave/core/containers/FixedString.h
 // =============================================================================
 #pragma once
 #include <cstdint>

@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/runtime/ecs/components/SkeletalAnimationComponent.h
+// =============================================================================
 #pragma once
 #include <vector>
 #include "cave/core/math/Matrix.h"

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/containers/FixedStack.h
+// File: cave/core/containers/FixedStack.h
 // =============================================================================
 #pragma once
 #include <initializer_list>
