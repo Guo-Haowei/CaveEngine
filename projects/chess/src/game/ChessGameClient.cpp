@@ -18,7 +18,7 @@ using core::MoveGen;
 using core::Position;
 
 ChessGameClient::ChessGameClient(cave::IHostServices& p_host, ChessMatchAuthority& p_auth)
-    : m_presenter{}
+    : m_presenter(p_host)
     , m_auth(p_auth)
     , m_host(p_host)
     , m_intent(p_host.Intent())
@@ -45,7 +45,7 @@ void ChessGameClient::OnBoot(cave::IHostServices& p_host) {
     m_presenter.OnBoot(p_host.SceneQuery());
     ResetBoard();
 
-    m_presenter.RedrawPosition(p_host, m_replica);
+    m_presenter.InitBoard(m_replica);
 }
 
 bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
@@ -68,22 +68,22 @@ bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
 }
 
 void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
+    m_presenter.ApplyMove(p_mv);
+
     core::UndoState undo;
     m_replica.MakeMove(p_mv, undo);
     OnPositionChange();
-    // redraw board
-    m_presenter.RedrawPosition(m_host, m_replica);
 
-    m_state = ChessClientState::AnimatingMove;
+    // m_state = ChessClientState::AnimatingMove;
 
     // @TODO: animate the piece
-    SceneCommandWriter& writer = m_host.SceneWriter();
+    // SceneCommandWriter& writer = m_host.SceneWriter();
 
-    ecs::Entity e;
-    constexpr auto cid = TransformAnimationComponent_Id;
-    writer.AddComponent(e, cid);
-    writer.SetProperty(e, cid, "begin"_sid, math::Vector3f());
-    writer.SetProperty(e, cid, "end"_sid, math::Vector3f());
+    // ecs::Entity e;
+    // constexpr auto cid = TransformAnimationComponent_Id;
+    // writer.AddComponent(e, cid);
+    // writer.SetProperty(e, cid, "begin"_sid, math::Vector3f());
+    // writer.SetProperty(e, cid, "end"_sid, math::Vector3f());
 }
 
 void ChessGameClient::OnMoveRejected(core::Move p_mv) {
@@ -91,11 +91,7 @@ void ChessGameClient::OnMoveRejected(core::Move p_mv) {
 }
 
 void ChessGameClient::Tick(cave::IHostServices& p_host) {
-    PresentationContext ctx = {
-        .host = p_host,
-    };
-
-    m_presenter.Present(ctx);
+    m_presenter.Present();
 }
 
 void ChessGameClient::OnPositionChange() {

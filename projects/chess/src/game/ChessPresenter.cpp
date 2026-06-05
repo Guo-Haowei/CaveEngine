@@ -1,5 +1,7 @@
 #include "ChessPresenter.h"
 
+#include <cassert>
+
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
@@ -15,7 +17,9 @@ using core::Bitboard;
 using core::Piece;
 using core::Square;
 
-constexpr StringId kTranslationId = "translation"_sid;
+static constexpr StringId kTranslationId = "translation"_sid;
+static constexpr StringId kVisibility = "visibility"_sid;
+static constexpr StringId kCastShadow = "cast_shadow"_sid;
 
 static Vector3f SquareToPosition(const core::Square& p_sq) {
     auto [file, rank] = p_sq.FileRank();
@@ -59,10 +63,10 @@ void ChessPresenter::OnBoot(cave::SceneQuery& p_query) {
     add_piece(Piece::BK, "black_king", 1);
 }
 
-void ChessPresenter::Present(const PresentationContext& p_ctx) {
-    cave::SceneQuery& query = p_ctx.host.SceneQuery();
+void ChessPresenter::Present() {
+    cave::SceneQuery& query = m_host.SceneQuery();
 
-    auto& writer = p_ctx.host.SceneWriter();
+    auto& writer = m_host.SceneWriter();
 
     for (uint8_t i = 0; i < 64; ++i) {
         const Square sq(i);
@@ -73,7 +77,7 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
         const Entity tile = m_tiles[i];
         writer.SetProperty(tile,
                            cave::MeshRendererComponent_Id,
-                           "visibility"_sid,
+                           kVisibility,
                            visible);
     }
 
@@ -84,13 +88,13 @@ void ChessPresenter::Present(const PresentationContext& p_ctx) {
                        position);
 }
 
-void ChessPresenter::RedrawPosition(cave::IHostServices& p_host, const core::Position& p_position) {
-    // @TODO: refactor
-    static constexpr StringId kTranslationId = "translation"_sid;
-    static constexpr StringId kVisibility = "visibility"_sid;
-    static constexpr StringId kCastShadow = "cast_shadow"_sid;
+static inline Vector3f Square2Vec(Square p_sq) {
+    const auto [file, rank] = p_sq.FileRank();
+    return Vector3f{ rank, (uint8_t)0, file };
+}
 
-    auto& writer = p_host.SceneWriter();
+void ChessPresenter::InitBoard(const core::Position& p_position) {
+    auto& writer = m_host.SceneWriter();
 
     // update pieces
     for (uint8_t p = 0; p < core::kPieceMax; ++p) {
@@ -100,21 +104,65 @@ void ChessPresenter::RedrawPosition(cave::IHostServices& p_host, const core::Pos
 
         int idx = 0;
         for (Square sq : bb.Squares()) {
-            const auto [file, rank] = sq.FileRank();
-            Vector3f translation(rank, 0, file);
             // @TODO: properly handle not enough entities in pool caused by promotion
-            if (idx >= pool.size()) break;
+            if (idx >= pool.size()) {
+                break;
+            }
+            Vector3f translation = Square2Vec(sq);
             Entity e = pool[idx++];
             writer.SetProperty(e, TransformComponent_Id, kTranslationId, translation);
             writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, true);
             writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, true);
+
+            SetEntityAt(sq, e);
         }
+
+        // set the reset of the pieces invisible
         for (; idx < pool.size(); ++idx) {
             Entity e = pool[idx];
             writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
             writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
         }
     }
+}
+
+void ChessPresenter::SetEntityAt(core::Square p_sq, Entity p_ent) {
+    m_board[p_sq.Index()] = p_ent;
+}
+
+void ChessPresenter::ClearSquare(core::Square p_sq) {
+    auto& writer = m_host.SceneWriter();
+
+    const Entity e = m_board[p_sq.Index()];
+    m_board[p_sq.Index()] = Entity::Null();
+
+    // Just move the piece to far away from the screen
+    writer.SetProperty(e, TransformComponent_Id, kTranslationId, Vector3f(-10));
+    writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
+    writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
+}
+
+void ChessPresenter::ApplyMove(core::Move p_mv) {
+    const Square from = p_mv.From();
+    const Square to = p_mv.To();
+    Entity src_piece = GetEntityAt(from);
+    
+    assert(src_piece.IsValid());
+
+    auto& writer = m_host.SceneWriter();
+
+    if (Entity captured_piece = GetEntityAt(to); captured_piece.IsValid()) {
+        ClearSquare(to);
+    }
+
+    m_board[from.Index()] = Entity::Null();
+    m_board[to.Index()] = src_piece;
+
+    Vector3f translation = Square2Vec(to);
+    writer.SetProperty(src_piece, TransformComponent_Id, kTranslationId, translation);
+    // @TODO: handle castling
+    // @TODO: handle en passant
+    // @TODO: handle promotion
 }
 
 }  // namespace chess

@@ -11,19 +11,28 @@ namespace cave { class IHostServices; }
 
 namespace chess {
 
-struct PresentationContext {
-    cave::IHostServices& host;
-};
-
 class ChessPresenter {
     using Entity = cave::ecs::Entity;
 
 public:
-    void Present(const PresentationContext& p_ctx);
-    void RedrawPosition(cave::IHostServices& p_host, const core::Position& p_position);
+    ChessPresenter(cave::IHostServices& p_host) noexcept
+        : m_host(p_host) {
+    }
 
+    void Present();
+
+    // ==== Board Representation ====
     void OnBoot(cave::SceneQuery& p_query);
 
+    void InitBoard(const core::Position& p_position);
+
+    void ApplyMove(core::Move p_mv);
+
+    Entity GetEntityAt(core::Square p_sq) const {
+        return m_board[p_sq.Index()];
+    }
+
+    // ==== Grid ====
     void SetFocusedSquare(core::Square p_sq) {
         m_focused = p_sq;
     }
@@ -33,6 +42,11 @@ public:
     }
 
 private:
+    void SetEntityAt(core::Square p_sq, Entity p_ent);
+
+    void ClearSquare(core::Square p_sq);
+
+    cave::IHostServices& m_host;
     Entity m_selector;
 
     std::array<Entity, 64> m_tiles;
@@ -40,6 +54,8 @@ private:
 
     core::Square m_focused{ 0 };
     core::Bitboard m_highlights;
+
+    std::array<Entity, 64> m_board;
 };
 
 }  // namespace chess
