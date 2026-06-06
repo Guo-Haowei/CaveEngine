@@ -13,7 +13,7 @@ namespace cave { class SceneQuery; }
 namespace chess {
 
 class ChessPresenter {
-    using Entity = cave::ecs::Entity;
+    using Entity = ::cave::ecs::Entity;
 
 public:
     ChessPresenter(cave::IHostServices& p_host) noexcept
@@ -25,7 +25,7 @@ public:
     // ==== Board Representation ====
     void OnBoot(cave::SceneQuery& p_query);
 
-    void InitBoard(const core::Position& p_position);
+    void RedrawBoard(const core::Position& p_position);
 
     void ApplyMove(core::Move p_mv);
 
@@ -45,6 +45,8 @@ public:
 private:
     void ClearSquare(cave::SceneCommandWriter& p_writer,
                      core::Square p_sq);
+
+    void MovePiece(Entity p_ent, core::Square p_from, core::Square p_to);
 
     cave::IHostServices& m_host;
     Entity m_selector;

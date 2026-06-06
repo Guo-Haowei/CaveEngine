@@ -1,5 +1,6 @@
 #include "ChessGameClient.h"
 
+#include "ChessGameSession.h"
 #include "ChessIntent.h"
 #include "ChessMatchAuthority.h"
 #include "core/MoveGen.h"
@@ -18,8 +19,11 @@ using core::Move;
 using core::MoveGen;
 using core::Position;
 
-ChessGameClient::ChessGameClient(cave::IHostServices& p_host, ChessMatchAuthority& p_auth)
+ChessGameClient::ChessGameClient(cave::IHostServices& p_host,
+                    ChessGameSession& p_session,
+                                 ChessMatchAuthority& p_auth)
     : m_presenter(p_host)
+    , m_session(p_session)
     , m_auth(p_auth)
     , m_host(p_host)
     , m_intent(p_host.Intent())
@@ -46,7 +50,7 @@ void ChessGameClient::OnBoot() {
     m_presenter.OnBoot(m_host.SceneQuery());
     ResetBoard();
 
-    m_presenter.InitBoard(m_replica);
+    m_presenter.RedrawBoard(m_replica);
 }
 
 bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
@@ -61,7 +65,6 @@ bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
     }
 
     if (auto intenti = dynamic_cast<AuthGameOver*>(&p_intent)) {
-        m_host.Log().Info(cave::LogChannel::Game, "Game over!");
         return true;
     }
 
@@ -75,20 +78,14 @@ void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
     m_replica.MakeMove(p_mv, undo);
     OnPositionChange();
 
-    m_state = ChessClientState::AnimatingMove;
+    m_session.SetState(SessionState::ResolvingMove);
 }
 
 void ChessGameClient::OnMoveRejected(core::Move p_mv) {
     m_host.Log().Info(cave::LogChannel::Game, "Invalid move!");
 }
 
-void ChessGameClient::Tick() {
-    auto& query = m_host.SceneQuery();
-    const bool no_animation = query.GetComponentCount(TransformAnimationComponent_Id) == 0;
-    if (no_animation) {
-        m_state = ChessClientState::Idle;
-    }
-
+void ChessGameClient::Present() {
     m_presenter.Present();
 }
 

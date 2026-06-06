@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "cave/core/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
@@ -84,7 +85,7 @@ void ChessPresenter::Present() {
                        position);
 }
 
-void ChessPresenter::InitBoard(const core::Position& p_position) {
+void ChessPresenter::RedrawBoard(const core::Position& p_position) {
     auto& writer = m_host.SceneWriter();
 
     // update pieces
@@ -102,6 +103,11 @@ void ChessPresenter::InitBoard(const core::Position& p_position) {
 
             Entity e = pool[idx++];
             m_board[sq.Index()] = e;
+
+            Vector3f translation = SquareToVec(sq);
+            writer.SetProperty(e, TransformComponent_Id, kTranslationId, translation);
+            writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, true);
+            writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, true);
         }
 
         // set the reset of the pieces invisible
@@ -113,17 +119,6 @@ void ChessPresenter::InitBoard(const core::Position& p_position) {
     }
 }
 
-// void ChessPresenter::SetEntityAt(SceneCommandWriter& p_writer,
-//                                  core::Square p_sq,
-//                                  Entity p_ent) {
-//     m_board[p_sq.Index()] = p_ent;
-//
-//     Vector3f translation = SquareToVec(p_sq);
-//     p_writer.SetProperty(p_ent, TransformComponent_Id, kTranslationId, translation);
-//     p_writer.SetProperty(p_ent, MeshRendererComponent_Id, kVisibility, true);
-//     p_writer.SetProperty(p_ent, MeshRendererComponent_Id, kCastShadow, true);
-// }
-
 void ChessPresenter::ClearSquare(SceneCommandWriter& p_writer,
                                  core::Square p_sq) {
     const Entity e = m_board[p_sq.Index()];
@@ -132,6 +127,43 @@ void ChessPresenter::ClearSquare(SceneCommandWriter& p_writer,
     // Just move the piece to far away from the screen
     p_writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
     p_writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
+}
+
+void ChessPresenter::MovePiece(Entity p_ent, core::Square p_from, core::Square p_to) {
+    m_board[p_from.Index()] = Entity::Null();
+    m_board[p_to.Index()] = p_ent;
+
+    constexpr auto cid = TransformAnimationComponent_Id;
+    auto& writer = m_host.SceneWriter();
+    writer.AddComponent(p_ent, cid);
+    writer.SetProperty(p_ent, cid, "begin"_sid, SquareToVec(p_from));
+    writer.SetProperty(p_ent, cid, "end"_sid, SquareToVec(p_to));
+    writer.SetProperty(p_ent, cid, "duration"_sid, 0.25f);
+    writer.SetProperty(p_ent, cid, "playing"_sid, true);
+    writer.SetProperty(p_ent, cid, "destroy_on_finish"_sid, true);
+}
+
+struct CastleRookMove {
+    Square from;
+    Square to;
+};
+
+CastleRookMove GetCastleRookMove(Square from, Square to) {
+    if (from == Square::E1) {
+        if (to == Square::G1)
+            return { Square::H1, Square::F1 };
+        if (to == Square::C1)
+            return { Square::A1, Square::D1 };
+    }
+    if (from == Square::E8) {
+        if (to == Square::G8)
+            return { Square::H8, Square::F8 };
+        if (to == Square::C8)
+            return { Square::A8, Square::D8 };
+    }
+
+    CRASH_NOW_MSG("Invalid castling");
+    return {};
 }
 
 void ChessPresenter::ApplyMove(core::Move p_mv) {
@@ -147,23 +179,15 @@ void ChessPresenter::ApplyMove(core::Move p_mv) {
         ClearSquare(writer, to);
     }
 
-    m_board[from.Index()] = Entity::Null();
-    m_board[to.Index()] = src_piece;
-
-    constexpr auto cid = TransformAnimationComponent_Id;
-    writer.AddComponent(src_piece, cid);
-    writer.SetProperty(src_piece, cid, "begin"_sid, SquareToVec(from));
-    writer.SetProperty(src_piece, cid, "end"_sid, SquareToVec(to));
-    writer.SetProperty(src_piece, cid, "duration"_sid, 0.25f);
-    writer.SetProperty(src_piece, cid, "playing"_sid, true);
-    writer.SetProperty(src_piece, cid, "destroy_on_finish"_sid, true);
+    MovePiece(src_piece, from, to);
 
     switch (p_mv.GetType()) {
         case MoveType::Normal:
             break;
-        case MoveType::Castling:
-            m_host.Log().Warn(LogChannel::Game, "Handle castling");
-            break;
+        case MoveType::Castling: {
+            CastleRookMove rook = GetCastleRookMove(from, to);
+            MovePiece(m_board[rook.from.Index()], rook.from, rook.to);
+        } break;
         case MoveType::Enpassant:
             m_host.Log().Warn(LogChannel::Game, "Handle enpassant");
             break;

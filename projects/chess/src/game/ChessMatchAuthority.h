@@ -22,6 +22,8 @@ public:
 
     cave::DebugId GetDebugId() const override { return m_debug_id; }
 
+    PlayerId CurrentPlayer() const { return (PlayerId)m_pos.SideToMove(); }
+
 private:
     bool TryCommitMove(PlayerId p_player_id,
                        core::Move p_move);

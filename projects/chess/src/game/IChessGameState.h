@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/typedefs.h"
 
 // clang-format off
 namespace cave { class IHostServices; }
@@ -11,9 +12,6 @@ class ChessGameMode;
 
 class IChessGameState {
 public:
-    IChessGameState(ChessGameMode& p_game)
-        : m_game(p_game) {}
-
     virtual ~IChessGameState() = default;
 
     virtual void OnEnter(cave::IHostServices&) {}
@@ -24,9 +22,6 @@ public:
 #if USING(DEBUG_BUILD)
     virtual const char* DebugName() const = 0;
 #endif
-
-protected:
-    ChessGameMode& m_game;
 };
 
 }  // namespace chess
