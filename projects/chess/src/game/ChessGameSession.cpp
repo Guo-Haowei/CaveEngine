@@ -59,6 +59,7 @@ void ChessGameSession::Tick() {
 }
 
 void ChessGameSession::TickAwaitPlayerInput() {
+    // @TODO: grid adapter should be owned by client/player?
     if (m_grid_adapter) {
         m_grid_adapter->Tick(m_host.Input());
     }
@@ -108,6 +109,7 @@ std::unique_ptr<IPlayerAgent> ChessGameSession::CreatePlayer(PlayerId p_id,
     }
 }
 
+// @TODO: this should be configured by MainMenu?
 void ChessGameSession::OnEnterBoot() {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
