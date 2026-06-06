@@ -98,6 +98,10 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
 }
 
 void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
+    // check if there's running animation,
+    // if no, switch to idle
+    m_client->SyncState();
+
     auto& intent_dispatcher = p_host.Intent();
 
     if (m_client->CanAcceptMoveInput()) {
@@ -106,9 +110,8 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
         }
 
         // poll player intents
-        for (std::unique_ptr<IPlayerAgent>& agent : m_agents) {
-            agent->Tick(p_host);
-        }
+        const PlayerId player = m_auth->CurrentPlayer();
+        m_agents[player]->Tick(p_host);
 
         // player intents -> auth events
         intent_dispatcher.Flush();
@@ -123,7 +126,7 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
     intent_dispatcher.Flush();
 
     // update client visual
-    m_client->Tick();
+    m_client->Present();
 
     // @TODO: refactor this part
     if (m_selector) {

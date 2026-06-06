@@ -17,7 +17,7 @@ namespace chess {
 
 class ChessMatchAuthority;
 
-enum class ChessClientState {
+enum class ChessClientState : uint8_t {
     Idle,
     PendingPromotion,
     AnimatingMove,
@@ -30,7 +30,8 @@ public:
 
     void OnBoot();
 
-    void Tick();
+    void Present();
+    void SyncState();
 
     std::span<const core::Move> LegalMovesFromSquare(core::Square p_sq);
 
@@ -55,6 +56,7 @@ private:
     void OnMoveRejected(core::Move p_mv);
 
     void OnPositionChange();
+    void SetState(ChessClientState p_state);
 
     void ResetBoard();
 
