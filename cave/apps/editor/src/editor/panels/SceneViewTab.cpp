@@ -30,6 +30,7 @@
 
 namespace cave {
 
+using namespace cave::literals;
 using math::Matrix4x4f;
 using math::Vector2f;
 using math::Vector3f;
@@ -346,7 +347,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
                         scene_reg,
                         id,
                         TransformComponent_Id,
-                        StringId("translation"),
+                        "translation"_sid,
                         pos_1,
                         pos_2);
                     edit_service.Submit(doc_id, std::move(cmd));
@@ -355,7 +356,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
                         scene_reg,
                         id,
                         TransformComponent_Id,
-                        StringId("rotation"),
+                        "rotation"_sid,
                         rot_1,
                         rot_2);
                     edit_service.Submit(doc_id, std::move(cmd));
@@ -364,7 +365,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
                         scene_reg,
                         id,
                         TransformComponent_Id,
-                        StringId("scale"),
+                        "scale"_sid,
                         scale_1,
                         scale_2));
                     edit_service.Submit(doc_id, std::move(cmd));

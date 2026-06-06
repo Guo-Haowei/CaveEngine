@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/framework/intent/IntentHandler.h
+// File: cave/framework/intent/IntentHandler.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/DebugId.h"

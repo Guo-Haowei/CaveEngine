@@ -12,8 +12,9 @@
 
 namespace chess {
 
-using cave::StringId;
+using namespace cave::literals;
 using cave::math::Vector2i;
+using cave::StringId;
 using core::Square;
 
 ChessGameSession::ChessGameSession() noexcept = default;
@@ -93,23 +94,25 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
         });
     }
 
-    m_client->OnBoot(p_host);
+    m_client->OnBoot();
 }
 
 void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
     auto& intent_dispatcher = p_host.Intent();
 
-    if (m_grid_adapter) {
-        m_grid_adapter->Tick(p_host.Input());
-    }
+    if (m_client->CanAcceptMoveInput()) {
+        if (m_grid_adapter) {
+            m_grid_adapter->Tick(p_host.Input());
+        }
 
-    // poll player intents
-    for (std::unique_ptr<IPlayerAgent>& agent : m_agents) {
-        agent->Tick(p_host);
-    }
+        // poll player intents
+        for (std::unique_ptr<IPlayerAgent>& agent : m_agents) {
+            agent->Tick(p_host);
+        }
 
-    // player intents -> auth events
-    intent_dispatcher.Flush();
+        // player intents -> auth events
+        intent_dispatcher.Flush();
+    }
 
     if (m_auth->GameOver()) {
         m_state = SessionState::GameOver;
@@ -120,7 +123,7 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
     intent_dispatcher.Flush();
 
     // update client visual
-    m_client->Tick(p_host);
+    m_client->Tick();
 
     // @TODO: refactor this part
     if (m_selector) {
@@ -139,7 +142,7 @@ void ChessGameSession::OnLeaveGameOver(cave::IHostServices& p_host) {
 }
 
 void ChessGameSession::TickGameOver(cave::IHostServices& p_host) {
-    if (p_host.Input().IsActionJustPressed(StringId("ui_accept"))) {
+    if (p_host.Input().IsActionJustPressed("ui_accept"_sid)) {
         OnLeaveGameOver(p_host);
         assert(0 && "TODO");
     }

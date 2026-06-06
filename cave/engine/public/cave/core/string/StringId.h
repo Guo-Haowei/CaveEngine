@@ -48,6 +48,14 @@ private:
 #endif
 };
 
+namespace literals {
+
+constexpr StringId operator"" _sid(const char* p_str, std::size_t p_len) {
+    return StringId{ std::string_view{ p_str, p_len } };
+}
+
+}  // namespace literals
+
 }  // namespace cave
 
 namespace std {

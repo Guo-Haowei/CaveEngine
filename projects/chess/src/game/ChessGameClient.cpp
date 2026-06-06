@@ -7,15 +7,19 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 namespace chess {
 
+using namespace cave;
+using namespace cave::literals;
 using core::Move;
 using core::MoveGen;
 using core::Position;
 
 ChessGameClient::ChessGameClient(cave::IHostServices& p_host, ChessMatchAuthority& p_auth)
-    : m_presenter{}
+    : m_presenter(p_host)
     , m_auth(p_auth)
     , m_host(p_host)
     , m_intent(p_host.Intent())
@@ -38,29 +42,25 @@ void ChessGameClient::ResetBoard() {
     OnPositionChange();
 }
 
-void ChessGameClient::OnBoot(cave::IHostServices& p_host) {
-    m_presenter.OnBoot(p_host.SceneQuery());
+void ChessGameClient::OnBoot() {
+    m_presenter.OnBoot(m_host.SceneQuery());
     ResetBoard();
 
-    m_presenter.RedrawPosition(p_host, m_replica);
+    m_presenter.InitBoard(m_replica);
 }
 
 bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
-    if (auto i = dynamic_cast<AuthMoveCommitted*>(&p_intent)) {
-        core::UndoState undo;
-        m_replica.MakeMove(i->mv, undo);
-        OnPositionChange();
-        // redraw board
-        m_presenter.RedrawPosition(m_host, m_replica);
+    if (auto intent = dynamic_cast<AuthMoveCommitted*>(&p_intent)) {
+        OnMoveCommitted(intent->mv);
         return true;
     }
 
-    if (auto i = dynamic_cast<AuthMoveRejected*>(&p_intent)) {
-        m_host.Log().Info(cave::LogChannel::Game, "Invalid move!");
+    if (auto intent = dynamic_cast<AuthMoveRejected*>(&p_intent)) {
+        OnMoveRejected(intent->mv);
         return true;
     }
 
-    if (auto i = dynamic_cast<AuthGameOver*>(&p_intent)) {
+    if (auto intenti = dynamic_cast<AuthGameOver*>(&p_intent)) {
         m_host.Log().Info(cave::LogChannel::Game, "Game over!");
         return true;
     }
@@ -68,12 +68,28 @@ bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
     return false;
 }
 
-void ChessGameClient::Tick(cave::IHostServices& p_host) {
-    PresentationContext ctx{
-        .host = p_host,
-    };
+void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
+    m_presenter.ApplyMove(p_mv);
 
-    m_presenter.Present(ctx);
+    core::UndoState undo;
+    m_replica.MakeMove(p_mv, undo);
+    OnPositionChange();
+
+    m_state = ChessClientState::AnimatingMove;
+}
+
+void ChessGameClient::OnMoveRejected(core::Move p_mv) {
+    m_host.Log().Info(cave::LogChannel::Game, "Invalid move!");
+}
+
+void ChessGameClient::Tick() {
+    auto& query = m_host.SceneQuery();
+    const bool no_animation = query.GetComponentCount(TransformAnimationComponent_Id) == 0;
+    if (no_animation) {
+        m_state = ChessClientState::Idle;
+    }
+
+    m_presenter.Present();
 }
 
 void ChessGameClient::OnPositionChange() {

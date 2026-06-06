@@ -22,27 +22,27 @@ class MainMenuState final : public IChessGameState {
 public:
     using IChessGameState::IChessGameState;
 
-    void OnEnter(cave::IHostServices& p_host) final;
+    void OnEnter(cave::IHostServices& p_host) override;
 
-    void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) final;
+    void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) override;
 
-    const char* DebugName() final {
-        return "MainMenu";
-    }
+#if USING(DEBUG_BUILD)
+    const char* DebugName() const override { return "MainMenu"; }
+#endif
 };
 
 class GameplayState final : public IChessGameState {
 public:
     using IChessGameState::IChessGameState;
 
-    void OnEnter(cave::IHostServices& p_host) final;
-    void OnExit(cave::IHostServices& p_host) final;
+    void OnEnter(cave::IHostServices& p_host) override;
+    void OnExit(cave::IHostServices& p_host) override;
 
-    void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) final;
+    void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) override;
 
-    const char* DebugName() final {
-        return "GamePlay";
-    }
+#if USING(DEBUG_BUILD)
+    const char* DebugName() const override { return "GamePlay"; }
+#endif
 
 private:
     std::unique_ptr<ChessGameSession> m_session;
@@ -51,8 +51,7 @@ private:
 // =============================================================================
 // MainMenuState
 // =============================================================================
-void MainMenuState::OnEnter(cave::IHostServices& p_host) {
-    p_host.Log().Info(LogChannel::Game, "Press 'Enter' to play.");
+void MainMenuState::OnEnter(cave::IHostServices&) {
 }
 
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {

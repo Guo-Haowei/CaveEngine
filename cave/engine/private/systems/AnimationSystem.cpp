@@ -1,7 +1,9 @@
-#include "animation_system.h"
+#include "AnimationSystem.h"
 
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformAnimationComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -74,6 +76,37 @@ void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, flo
 
     for (auto [id, animator, renderer] : view) {
         AnimationSystem::UpdateSpriteAnimation(p_timestep, animator, renderer);
+    }
+}
+
+void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
+    unused(p_context);
+
+    auto view = p_scene.View<TransformAnimationComponent, TransformComponent>();
+
+    std::vector<ecs::Entity> pending_removes;
+
+    for (auto [id, anim, trans] : view) {
+        if (!anim.playing) {
+            continue;
+        }
+        anim.elapsed += p_timestep;
+        const float t = anim.elapsed / anim.duration;
+        if (t >= 1.0f) {
+            trans.SetTranslation(anim.end);
+            anim.playing = false;
+            if (anim.destroy_on_finish) {
+                pending_removes.push_back(id);
+            }
+            continue;
+        }
+
+        const math::Vector3f pos = t * anim.end + (1 - t) * anim.begin;
+        trans.SetTranslation(pos);
+    }
+
+    for (ecs::Entity e : pending_removes) {
+        p_scene.Remove<TransformAnimationComponent>(e);
     }
 }
 

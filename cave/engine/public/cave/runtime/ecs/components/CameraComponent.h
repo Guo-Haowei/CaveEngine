@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/components/CameraComponent.h
+// File: cave/runtime/ecs/components/CameraComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/math/Vector.h"

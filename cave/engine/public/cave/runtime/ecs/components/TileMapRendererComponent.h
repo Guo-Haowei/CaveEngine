@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/runtime/ecs/components/TileMapRendererComponent.h
+// =============================================================================
 #pragma once
 #include "cave/core/math/Box.h"
 #include "cave/runtime/assets/AssetHandle.h"

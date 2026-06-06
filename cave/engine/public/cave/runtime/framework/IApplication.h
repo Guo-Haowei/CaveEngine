@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/framework/IApplication.h
+// File: cave/runtime/framework/IApplication.h
 // =============================================================================
 #pragma once
 #include <string_view>

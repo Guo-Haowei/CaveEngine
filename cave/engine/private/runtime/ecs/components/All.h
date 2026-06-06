@@ -13,6 +13,7 @@
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TileMapRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
 // components

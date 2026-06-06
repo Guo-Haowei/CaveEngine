@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/diagnostics/Profiler.h
+// File: cave/core/diagnostics/Profiler.h
 // =============================================================================
 #pragma once
 

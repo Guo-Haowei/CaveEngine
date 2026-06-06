@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/core/diagnostics/LogChannel.h
+// File: cave/core/diagnostics/LogChannel.h
 // =============================================================================
 #pragma once
 #include <cstdint>

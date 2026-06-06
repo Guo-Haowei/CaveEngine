@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/components/LuaScriptComponent.h
+// File: cave/runtime/ecs/components/LuaScriptComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/Guid.h"

@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/runtime/ecs/components/LightComponent.h
+// =============================================================================
 #pragma once
 #include "cave/core/math/AABB.h"
 #include "cave/runtime/assets/AssetHandle.h"

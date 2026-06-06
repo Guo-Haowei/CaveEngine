@@ -10,6 +10,7 @@
 
 namespace cave {
 
+using namespace cave::literals;
 using ecs::Entity;
 
 Entity SceneCommandWriter::CreateNameObject(std::string_view p_name) {
@@ -18,7 +19,7 @@ Entity SceneCommandWriter::CreateNameObject(std::string_view p_name) {
     if (m_no_save) {
         AddComponent(e, NoSaveTag_Id);
     }
-    SetProperty(e, NameComponent_Id, StringId("name"), FixedString<64>(p_name));
+    SetProperty(e, NameComponent_Id, "name"_sid, FixedString<64>(p_name));
     return e;
 }
 
@@ -37,7 +38,7 @@ Entity SceneCommandWriter::CreateTransformObject(std::string_view p_name) {
 
 void SceneCommandWriter::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
     DEV_ASSERT(p_child.IsValid() && p_parent.IsValid());
-    SetProperty(p_child, HierarchyComponent_Id, StringId("parent_id"), p_parent);
+    SetProperty(p_child, HierarchyComponent_Id, "parent_id"_sid, p_parent);
 }
 
 Entity SceneCommandWriter::CreatePointLightObject(
@@ -51,15 +52,15 @@ Entity SceneCommandWriter::CreatePointLightObject(
     AddComponent(e, LightComponent_Id);
     AddComponent(e, MaterialComponent_Id);
 
-    SetProperty(e, TransformComponent_Id, StringId("translation"), p_position);
+    SetProperty(e, TransformComponent_Id, "translation"_sid, p_position);
 
-    SetProperty(e, LightComponent_Id, StringId("type"), LightType::Point);
-    SetProperty(e, LightComponent_Id, StringId("atten_constant"), 1.0f);
-    SetProperty(e, LightComponent_Id, StringId("atten_linear"), 0.2f);
-    SetProperty(e, LightComponent_Id, StringId("atten_quadratic"), 0.05f);
+    SetProperty(e, LightComponent_Id, "type"_sid, LightType::Point);
+    SetProperty(e, LightComponent_Id, "atten_constant"_sid, 1.0f);
+    SetProperty(e, LightComponent_Id, "atten_linear"_sid, 0.2f);
+    SetProperty(e, LightComponent_Id, "atten_quadratic"_sid, 0.05f);
 
-    SetProperty(e, MaterialComponent_Id, StringId("base_color"), Vector4f(p_color, 1.0f));
-    SetProperty(e, MaterialComponent_Id, StringId("emissive"), p_emissive);
+    SetProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(p_color, 1.0f));
+    SetProperty(e, MaterialComponent_Id, "emissive"_sid, p_emissive);
 
     return e;
 }
@@ -71,9 +72,9 @@ Entity SceneCommandWriter::CreateInfiniteLightObject(std::string_view p_name,
     AddComponent(e, LightComponent_Id);
     AddComponent(e, MaterialComponent_Id);
 
-    SetProperty(e, LightComponent_Id, StringId("type"), LightType::Infinite);
-    SetProperty(e, MaterialComponent_Id, StringId("base_color"), Vector4f(p_color, 1.0f));
-    SetProperty(e, MaterialComponent_Id, StringId("emissive"), p_emissive);
+    SetProperty(e, LightComponent_Id, "type"_sid, LightType::Infinite);
+    SetProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(p_color, 1.0f));
+    SetProperty(e, MaterialComponent_Id, "emissive"_sid, p_emissive);
 
     return e;
 }
@@ -86,20 +87,20 @@ Entity SceneCommandWriter::CreateAreaLightObject(std::string_view p_name,
     AddComponent(e, LightComponent_Id);
     AddComponent(e, MaterialComponent_Id);
 
-    SetProperty(e, LightComponent_Id, StringId("type"), LightType::Area);
-    SetProperty(e, LightComponent_Id, StringId("atten_constant"), 1.0f);
-    SetProperty(e, LightComponent_Id, StringId("atten_linear"), 0.09f);
-    SetProperty(e, LightComponent_Id, StringId("atten_quadratic"), 0.032f);
+    SetProperty(e, LightComponent_Id, "type"_sid, LightType::Area);
+    SetProperty(e, LightComponent_Id, "atten_constant"_sid, 1.0f);
+    SetProperty(e, LightComponent_Id, "atten_linear"_sid, 0.09f);
+    SetProperty(e, LightComponent_Id, "atten_quadratic"_sid, 0.032f);
 
-    SetProperty(e, LightComponent_Id, StringId("type"), LightType::Infinite);
-    SetProperty(e, MaterialComponent_Id, StringId("base_color"), Vector4f(p_color, 1.0f));
-    SetProperty(e, MaterialComponent_Id, StringId("emissive"), p_emissive);
+    SetProperty(e, LightComponent_Id, "type"_sid, LightType::Infinite);
+    SetProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(p_color, 1.0f));
+    SetProperty(e, MaterialComponent_Id, "emissive"_sid, p_emissive);
 
     auto handle = m_asset_reg.FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ e };
-    SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), handle.GetGuid());
-    SetProperty(e, MeshRendererComponent_Id, StringId("materials"), materials);
+    SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.GetGuid());
+    SetProperty(e, MeshRendererComponent_Id, "materials"_sid, materials);
 
     return e;
 }
@@ -115,18 +116,18 @@ Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
     {
         AddComponent(mat, MaterialComponent_Id);
         if (p_mat_ctx.guid) {
-            SetProperty(mat, MaterialComponent_Id, StringId("material_id"), *p_mat_ctx.guid);
+            SetProperty(mat, MaterialComponent_Id, "material_id"_sid, *p_mat_ctx.guid);
         }
         if (p_mat_ctx.base_color != Vector4f::One) {
-            SetProperty(mat, MaterialComponent_Id, StringId("base_color"), p_mat_ctx.base_color);
+            SetProperty(mat, MaterialComponent_Id, "base_color"_sid, p_mat_ctx.base_color);
         }
     }
 
     auto handle = m_asset_reg.FindByPath<MeshAsset>(p_mesh_path).unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ mat };
-    SetProperty(e, MeshRendererComponent_Id, StringId("mesh_id"), handle.GetGuid());
-    SetProperty(e, MeshRendererComponent_Id, StringId("materials"), materials);
+    SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.GetGuid());
+    SetProperty(e, MeshRendererComponent_Id, "materials"_sid, materials);
 
     return e;
 }

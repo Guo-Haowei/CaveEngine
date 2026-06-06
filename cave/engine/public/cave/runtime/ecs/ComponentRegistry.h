@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/ComponentRegistry.h
+// File: cave/runtime/ecs/ComponentRegistry.h
 // =============================================================================
 #pragma once
 #include <span>

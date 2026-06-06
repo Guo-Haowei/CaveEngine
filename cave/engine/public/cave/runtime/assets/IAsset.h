@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/assets/IAsset.h
+// File: cave/runtime/assets/IAsset.h
 // =============================================================================
 #pragma once
 #include "cave/core/Error.h"

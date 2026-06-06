@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/framework/intent/IntentDispatcher.h
+// File: cave/framework/intent/IntentDispatcher.h
 // =============================================================================
 #pragma once
 #include <memory>

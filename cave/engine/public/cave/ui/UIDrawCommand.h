@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/ui/UIDrawCommand.h
+// File: cave/ui/UIDrawCommand.h
 // =============================================================================
 #pragma once
 #include <vector>

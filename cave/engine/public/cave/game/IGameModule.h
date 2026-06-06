@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/game/IGameModule.h
+// File: cave/game/IGameModule.h
 // =============================================================================
 #pragma once
 #include <cstdint>

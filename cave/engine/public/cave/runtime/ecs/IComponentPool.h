@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/IComponentPool.h
+// File: cave/runtime/ecs/IComponentPool.h
 // =============================================================================
 #pragma once
 #include <vector>

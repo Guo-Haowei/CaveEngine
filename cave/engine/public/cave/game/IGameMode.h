@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/game/IGameMode.h
+// File: cave/game/IGameMode.h
 // =============================================================================
 #pragma once
 #include "cave/core/time/FrameTime.h"

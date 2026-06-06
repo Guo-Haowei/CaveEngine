@@ -6,7 +6,7 @@
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/Engine.h"
-#include "engine/private/systems/animation_system.h"
+#include "engine/private/systems/AnimationSystem.h"
 #include "engine/private/systems/ecs_systems.h"
 #include "engine/private/systems/job_system/job_system.h"
 
@@ -35,6 +35,7 @@ void Scene::Update(float p_timestep) {
 
     jobsystem::Context ctx;
     // animation
+    RunTransformAnimationSystem(*this, ctx, p_timestep);
     RunSpriteAnimationSystem(*this, ctx, p_timestep);
     RunLightUpdateSystem(*this, ctx, p_timestep);
     RunAnimationUpdateSystem(*this, ctx, p_timestep);
@@ -158,6 +159,22 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
     Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = Create<HierarchyComponent>(mapped_root);
     hier.parent_id = p_ent.IsValid() ? p_ent : m_root;
+}
+
+bool Scene::Has(ComponentId p_cid, ecs::Entity p_ent) const {
+    return m_storage.Has(p_ent, p_cid);
+}
+
+size_t Scene::GetCount(ComponentId p_cid) const {
+    if (const ecs::IComponentPool* pool = m_storage.TryGet(p_cid)) {
+        return pool->GetCount();
+    }
+
+    return 0;
+}
+
+bool Scene::Remove(ComponentId p_cid, ecs::Entity p_ent) {
+    return m_storage.Remove(p_ent, p_cid);
 }
 
 ecs::Entity Scene::FindEntityByName(std::string_view p_name) const {

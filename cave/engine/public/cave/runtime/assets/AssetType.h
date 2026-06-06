@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/assets/AssetType.h
+// File: cave/runtime/assets/AssetType.h
 // =============================================================================
 #pragma once
 #include "cave/core/typedefs.h"

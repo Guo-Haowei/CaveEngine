@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/assets/AssetMetaData.h
+// File: cave/runtime/assets/AssetMetaData.h
 // =============================================================================
 #pragma once
 #include <map>

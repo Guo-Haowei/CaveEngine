@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/framework/intent/Intent.h
+// File: cave/framework/intent/Intent.h
 // =============================================================================
 #pragma once
 #include <string_view>

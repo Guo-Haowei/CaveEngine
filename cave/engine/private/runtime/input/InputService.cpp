@@ -8,6 +8,8 @@
 
 namespace cave {
 
+using namespace cave::literals;
+
 InputService::InputService()
     : IInputService("InputService")
     , m_mapper(m_input_action_map) {}
@@ -16,48 +18,48 @@ auto InputService::InitializeImpl() -> Result<void> {
     // @TODO: read it from config file
     InputActionMap& map = ActionMap();
 
-    map.AddAction(StringId("ui_accept"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_accept"), Key::Enter);
-    map.BindDigital(StringId("ui_accept"), Key::Space);
-    map.BindDigital(StringId("ui_accept"), Key::PadA);
+    map.AddAction("ui_accept"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_accept"_sid, Key::Enter);
+    map.BindDigital("ui_accept"_sid, Key::Space);
+    map.BindDigital("ui_accept"_sid, Key::PadA);
 
-    map.AddAction(StringId("ui_back"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_back"), Key::Backspace);
-    map.BindDigital(StringId("ui_back"), Key::PadB);
+    map.AddAction("ui_back"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_back"_sid, Key::Backspace);
+    map.BindDigital("ui_back"_sid, Key::PadB);
 
-    map.AddAction(StringId("ui_left"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_left"), Key::A);
-    map.BindDigital(StringId("ui_left"), Key::Left);
-    map.BindDigital(StringId("ui_left"), Key::PadLeft);
+    map.AddAction("ui_left"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_left"_sid, Key::A);
+    map.BindDigital("ui_left"_sid, Key::Left);
+    map.BindDigital("ui_left"_sid, Key::PadLeft);
 
-    map.AddAction(StringId("ui_right"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_right"), Key::D);
-    map.BindDigital(StringId("ui_right"), Key::Right);
-    map.BindDigital(StringId("ui_right"), Key::PadRight);
+    map.AddAction("ui_right"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_right"_sid, Key::D);
+    map.BindDigital("ui_right"_sid, Key::Right);
+    map.BindDigital("ui_right"_sid, Key::PadRight);
 
-    map.AddAction(StringId("ui_up"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_up"), Key::W);
-    map.BindDigital(StringId("ui_up"), Key::Up);
-    map.BindDigital(StringId("ui_up"), Key::PadUp);
+    map.AddAction("ui_up"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_up"_sid, Key::W);
+    map.BindDigital("ui_up"_sid, Key::Up);
+    map.BindDigital("ui_up"_sid, Key::PadUp);
 
-    map.AddAction(StringId("ui_down"), ActionValueType::Digital);
-    map.BindDigital(StringId("ui_down"), Key::S);
-    map.BindDigital(StringId("ui_down"), Key::Down);
-    map.BindDigital(StringId("ui_down"), Key::PadDown);
+    map.AddAction("ui_down"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_down"_sid, Key::S);
+    map.BindDigital("ui_down"_sid, Key::Down);
+    map.BindDigital("ui_down"_sid, Key::PadDown);
 
     // Movement scalar axes
-    map.AddAction(StringId("ui_axis_x"), ActionValueType::Scalar);
-    map.AddAction(StringId("ui_axis_y"), ActionValueType::Scalar);
+    map.AddAction("ui_axis_x"_sid, ActionValueType::Scalar);
+    map.AddAction("ui_axis_y"_sid, ActionValueType::Scalar);
 
     // Keyboard contributes scalar when held
-    // map.BindScalar(StringId("ui_axis_x"), Key::A, -1.0f);
-    // map.BindScalar(StringId("ui_axis_x"), Key::D, +1.0f);
-    // map.BindScalar(StringId("ui_axis_y"), Key::S, -1.0f);
-    // map.BindScalar(StringId("ui_axis_y"), Key::W, +1.0f);
+    // map.BindScalar("ui_axis_x"_sid, Key::A, -1.0f);
+    // map.BindScalar("ui_axis_x"_sid, Key::D, +1.0f);
+    // map.BindScalar("ui_axis_y"_sid, Key::S, -1.0f);
+    // map.BindScalar("ui_axis_y"_sid, Key::W, +1.0f);
 
     // Gamepad axes contribute scalar too
-    map.BindScalar(StringId("ui_axis_x"), AxisCode::LX, 1.0f, 0.2f);
-    map.BindScalar(StringId("ui_axis_y"), AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
+    map.BindScalar("ui_axis_x"_sid, AxisCode::LX, 1.0f, 0.2f);
+    map.BindScalar("ui_axis_y"_sid, AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
 
     return Result<void>();
 }
@@ -146,13 +148,13 @@ UIInput InputService::BuildUIInput() {
     input.mouse_released = m_key_state.ReleasedThisFrame(device_id, Key::LMB);
 
     // Mapped UI actions
-    input.submit_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_accept"));
-    input.cancel_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_back"));
+    input.submit_pressed = m_action_state.IsJustPressed(player_id, "ui_accept"_sid);
+    input.cancel_pressed = m_action_state.IsJustPressed(player_id, "ui_back"_sid);
 
-    input.left_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_left"));
-    input.right_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_right"));
-    input.up_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_up"));
-    input.down_pressed = m_action_state.IsJustPressed(player_id, StringId("ui_down"));
+    input.left_pressed = m_action_state.IsJustPressed(player_id, "ui_left"_sid);
+    input.right_pressed = m_action_state.IsJustPressed(player_id, "ui_right"_sid);
+    input.up_pressed = m_action_state.IsJustPressed(player_id, "ui_up"_sid);
+    input.down_pressed = m_action_state.IsJustPressed(player_id, "ui_down"_sid);
 
     return input;
 }

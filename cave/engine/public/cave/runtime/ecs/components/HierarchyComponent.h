@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/runtime/ecs/components/HierarchyComponent.h
+// File: cave/runtime/ecs/components/HierarchyComponent.h
 // =============================================================================
 #pragma once
 #include "cave/runtime/ecs/ComponentDefines.h"

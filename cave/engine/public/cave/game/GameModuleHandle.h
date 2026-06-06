@@ -1,5 +1,5 @@
 // =============================================================================
-// File: engine/public/cave/game/GameModuleHandle.h
+// File: cave/game/GameModuleHandle.h
 // =============================================================================
 #pragma once
 #include <memory>
