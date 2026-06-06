@@ -79,8 +79,8 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_t
 // GameplayState
 // =============================================================================
 void GameplayState::OnEnter(cave::IHostServices& p_host) {
-    m_session = std::make_unique<ChessGameSession>();
-    m_session->OnEnterBoot(p_host);
+    m_session = std::make_unique<ChessGameSession>(p_host);
+    m_session->OnEnterBoot();
 }
 
 void GameplayState::OnExit(cave::IHostServices& p_host) {
@@ -89,10 +89,9 @@ void GameplayState::OnExit(cave::IHostServices& p_host) {
     m_session.reset();
 }
 
-void GameplayState::Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) {
-    unused(p_time);
+void GameplayState::Tick(cave::IHostServices&, const cave::FrameTime&) {
 
-    m_session->Tick(p_host);
+    m_session->Tick();
 }
 
 // =============================================================================

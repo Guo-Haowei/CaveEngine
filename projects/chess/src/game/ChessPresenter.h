@@ -13,7 +13,7 @@ namespace cave { class SceneQuery; }
 namespace chess {
 
 class ChessPresenter {
-    using Entity = cave::ecs::Entity;
+    using Entity = ::cave::ecs::Entity;
 
 public:
     ChessPresenter(cave::IHostServices& p_host) noexcept
@@ -45,6 +45,8 @@ public:
 private:
     void ClearSquare(cave::SceneCommandWriter& p_writer,
                      core::Square p_sq);
+
+    void AnimatePiece(Entity p_ent, core::Square p_from, core::Square p_to);
 
     cave::IHostServices& m_host;
     Entity m_selector;

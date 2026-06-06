@@ -14,9 +14,17 @@ class ChessGameClient;
 class ChessGridSelectorAdapter;
 class ChessMatchAuthority;
 
+#define SESSION_STATE_LIST          \
+    SESSION_STATE(AwaitPlayerInput) \
+    SESSION_STATE(ResolvingMove)    \
+    SESSION_STATE(Animating)        \
+    SESSION_STATE(GameOver)
+
 enum class SessionState : uint8_t {
-    Playing,
-    GameOver,
+#define SESSION_STATE(Enum) Enum,
+    SESSION_STATE_LIST
+#undef SESSION_STATE
+        Count,
 };
 
 enum class SessionMode : uint8_t {
@@ -41,25 +49,30 @@ struct MatchConfig {
 
 class ChessGameSession {
 public:
-    explicit ChessGameSession() noexcept;
+    explicit ChessGameSession(cave::IHostServices& p_host) noexcept;
     ~ChessGameSession();
 
-    void Tick(cave::IHostServices& p_host);
+    void Tick();
 
-    void OnEnterBoot(cave::IHostServices& p_host);
+    void OnEnterBoot();
+
+    void SetState(SessionState p_state);
 
 private:
     std::unique_ptr<IPlayerAgent> CreatePlayer(PlayerId p_id,
                                                PlayerKind p_kind);
 
     void Cleanup();
-    void OnEnterGameOver(cave::IHostServices& p_host);
-    void OnLeaveGameOver(cave::IHostServices& p_host);
+    void OnEnterGameOver();
+    void OnLeaveGameOver();
 
-    void TickPlaying(cave::IHostServices& p_host);
-    void TickGameOver(cave::IHostServices& p_host);
+    void TickAwaitPlayerInput();
+    void TickResolvingMove();
+    void TickAnimating();
+    void TickGameOver();
 
-    SessionState m_state = SessionState::Playing;
+    cave::IHostServices& m_host;
+    SessionState m_state;
 
     std::unique_ptr<ChessMatchAuthority> m_auth;
     std::unique_ptr<ChessGameClient> m_client;

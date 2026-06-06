@@ -15,6 +15,7 @@ namespace cave { class IHostServices; }
 
 namespace chess {
 
+class ChessGameSession;
 class ChessMatchAuthority;
 
 enum class ChessClientState : uint8_t {
@@ -25,13 +26,14 @@ enum class ChessClientState : uint8_t {
 
 class ChessGameClient : public cave::IIntentHandler {
 public:
-    ChessGameClient(cave::IHostServices& p_host, ChessMatchAuthority& p_auth);
+    ChessGameClient(cave::IHostServices& p_host,
+                    ChessGameSession& p_session,
+                    ChessMatchAuthority& p_auth);
     ~ChessGameClient();
 
     void OnBoot();
 
     void Present();
-    void SyncState();
 
     std::span<const core::Move> LegalMovesFromSquare(core::Square p_sq);
 
@@ -56,11 +58,11 @@ private:
     void OnMoveRejected(core::Move p_mv);
 
     void OnPositionChange();
-    void SetState(ChessClientState p_state);
 
     void ResetBoard();
 
     ChessMatchAuthority& m_auth;
+    ChessGameSession& m_session;
     ChessPresenter m_presenter;
 
     core::Position m_replica;  // replicated position of auth

@@ -1,5 +1,6 @@
 #include "ChessGameClient.h"
 
+#include "ChessGameSession.h"
 #include "ChessIntent.h"
 #include "ChessMatchAuthority.h"
 #include "core/MoveGen.h"
@@ -18,8 +19,11 @@ using core::Move;
 using core::MoveGen;
 using core::Position;
 
-ChessGameClient::ChessGameClient(cave::IHostServices& p_host, ChessMatchAuthority& p_auth)
+ChessGameClient::ChessGameClient(cave::IHostServices& p_host,
+                    ChessGameSession& p_session,
+                                 ChessMatchAuthority& p_auth)
     : m_presenter(p_host)
+    , m_session(p_session)
     , m_auth(p_auth)
     , m_host(p_host)
     , m_intent(p_host.Intent())
@@ -68,28 +72,6 @@ bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
     return false;
 }
 
-static const char* ToString(ChessClientState p_state) {
-    switch (p_state) {
-        case ChessClientState::Idle:
-            return "Idle";
-        case ChessClientState::PendingPromotion:
-            return "PendingPromotion";
-        case ChessClientState::AnimatingMove:
-            return "AnimatingMove";
-        default:
-            return "?";
-    }
-}
-
-void ChessGameClient::SetState(ChessClientState p_state) {
-    if (p_state == m_state) return;
-
-    m_host.Log().Trace(LogChannel::Game,
-                       std::format("ChessState {} -> {}", ToString(m_state), ToString(p_state)));
-
-    m_state = p_state;
-}
-
 void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
     m_presenter.ApplyMove(p_mv);
 
@@ -97,23 +79,11 @@ void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
     m_replica.MakeMove(p_mv, undo);
     OnPositionChange();
 
-    SetState(ChessClientState::AnimatingMove);
+    m_session.SetState(SessionState::ResolvingMove);
 }
 
 void ChessGameClient::OnMoveRejected(core::Move p_mv) {
     m_host.Log().Info(cave::LogChannel::Game, "Invalid move!");
-}
-
-void ChessGameClient::SyncState() {
-    auto& query = m_host.SceneQuery();
-    const bool no_animation = query.GetComponentCount(TransformAnimationComponent_Id) == 0;
-
-    // @TODO: refactor this part
-    if (no_animation) {
-        SetState(ChessClientState::Idle);
-    } else {
-        SetState(ChessClientState::AnimatingMove);
-    }
 }
 
 void ChessGameClient::Present() {

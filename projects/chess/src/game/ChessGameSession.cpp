@@ -3,6 +3,8 @@
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
 #include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 #include "ChessAIAgent.h"
 #include "ChessGameClient.h"
@@ -12,22 +14,98 @@
 
 namespace chess {
 
-using namespace cave::literals;
+using namespace ::cave::literals;
+using namespace ::cave;
 using cave::math::Vector2i;
-using cave::StringId;
 using core::Square;
 
-ChessGameSession::ChessGameSession() noexcept = default;
+ChessGameSession::ChessGameSession(cave::IHostServices& p_host) noexcept
+    : m_host(p_host)
+    , m_state(SessionState::AwaitPlayerInput) {}
+
 ChessGameSession::~ChessGameSession() = default;
 
-void ChessGameSession::Tick(cave::IHostServices& p_host) {
+static const char* ToString(SessionState p_state) {
+    switch (p_state) {
+#define SESSION_STATE(Enum)  \
+    case SessionState::Enum: \
+        return #Enum;
+        SESSION_STATE_LIST
+#undef SESSION_STATE
+        default:
+            return "?";
+    }
+}
+
+void ChessGameSession::SetState(SessionState p_state) {
+    if (p_state == m_state) {
+        return;
+    }
+
+#if USING(DEBUG_BUILD)
+    auto msg = std::format("ChessState {} -> {}", ToString(m_state), ToString(p_state));
+    m_host.Log().Trace(LogChannel::Game, std::move(msg));
+#endif
+
+    m_state = p_state;
+}
+
+void ChessGameSession::Tick() {
     switch (m_state) {
-        case SessionState::Playing:
-            TickPlaying(p_host);
-            break;
-        case SessionState::GameOver:
-            TickGameOver(p_host);
-            break;
+#define SESSION_STATE(Enum)  \
+    case SessionState::Enum: \
+        Tick##Enum();        \
+        break;
+        SESSION_STATE_LIST
+#undef SESSION_STATE
+    }
+
+    // @TODO: check game over
+    // if (m_auth->GameOver()) {
+    //     SetState(SessionState::GameOver);
+    //     OnEnterGameOver(p_host);
+    // }
+
+    m_host.Intent().Flush();
+
+    // update client visual
+    m_client->Present();
+
+    // @TODO: refactor this part
+    if (m_selector) {
+        Vector2i focused = m_selector->GetFocused();
+        Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
+        m_client->Presenter().SetFocusedSquare(focused_sq);
+    }
+}
+
+void ChessGameSession::TickAwaitPlayerInput() {
+    if (m_grid_adapter) {
+        m_grid_adapter->Tick(m_host.Input());
+    }
+
+    // poll player intents
+    const PlayerId player = m_auth->CurrentPlayer();
+    m_agents[player]->Tick(m_host);
+}
+
+void ChessGameSession::TickResolvingMove() {
+    SetState(SessionState::Animating);
+}
+
+void ChessGameSession::TickAnimating() {
+    auto& query = m_host.SceneQuery();
+    const bool no_animation = query.GetComponentCount(TransformAnimationComponent_Id) == 0;
+
+    if (no_animation) {
+        SetState(SessionState::AwaitPlayerInput);
+    }
+}
+
+void ChessGameSession::TickGameOver() {
+    if (m_host.Input().IsActionJustPressed("ui_accept"_sid)) {
+        OnLeaveGameOver();
+        assert(0 && "TODO");
     }
 }
 
@@ -54,12 +132,12 @@ void ChessGameSession::Cleanup() {
     m_agents[1].reset();
 }
 
-void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
+void ChessGameSession::OnEnterBoot() {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
 
-    m_auth = std::make_unique<ChessMatchAuthority>(p_host);
-    m_client = std::make_unique<ChessGameClient>(p_host, *m_auth);
+    m_auth = std::make_unique<ChessMatchAuthority>(m_host);
+    m_client = std::make_unique<ChessGameClient>(m_host, *this, *m_auth);
 
     const PlayerKind white = config.white.kind;
     const PlayerKind black = config.black.kind;
@@ -70,7 +148,7 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
     const bool any_human = white == PlayerKind::LocalHuman || black == PlayerKind::LocalHuman;
     if (any_human) {
         m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
-            p_host.Intent(),
+            m_host.Intent(),
             *m_client,
             m_client->Presenter());
 
@@ -97,58 +175,12 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
     m_client->OnBoot();
 }
 
-void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
-    // check if there's running animation,
-    // if no, switch to idle
-    m_client->SyncState();
-
-    auto& intent_dispatcher = p_host.Intent();
-
-    if (m_client->CanAcceptMoveInput()) {
-        if (m_grid_adapter) {
-            m_grid_adapter->Tick(p_host.Input());
-        }
-
-        // poll player intents
-        const PlayerId player = m_auth->CurrentPlayer();
-        m_agents[player]->Tick(p_host);
-
-        // player intents -> auth events
-        intent_dispatcher.Flush();
-    }
-
-    if (m_auth->GameOver()) {
-        m_state = SessionState::GameOver;
-        OnEnterGameOver(p_host);
-    }
-
-    // auth events -> client updates
-    intent_dispatcher.Flush();
-
-    // update client visual
-    m_client->Present();
-
-    // @TODO: refactor this part
-    if (m_selector) {
-        Vector2i focused = m_selector->GetFocused();
-        Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
-        m_client->Presenter().SetFocusedSquare(focused_sq);
-    }
+void ChessGameSession::OnEnterGameOver() {
+    m_host.Log().Ok(cave::LogChannel::Game, "Game Over! Press 'ui_accept' to start a new match");
 }
 
-void ChessGameSession::OnEnterGameOver(cave::IHostServices& p_host) {
-    p_host.Log().Ok(cave::LogChannel::Game, "Game Over! Press 'ui_accept' to start a new match");
-}
-
-void ChessGameSession::OnLeaveGameOver(cave::IHostServices& p_host) {
+void ChessGameSession::OnLeaveGameOver() {
     Cleanup();
-}
-
-void ChessGameSession::TickGameOver(cave::IHostServices& p_host) {
-    if (p_host.Input().IsActionJustPressed("ui_accept"_sid)) {
-        OnLeaveGameOver(p_host);
-        assert(0 && "TODO");
-    }
 }
 
 }  // namespace chess

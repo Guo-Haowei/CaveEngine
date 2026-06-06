@@ -134,6 +134,20 @@ void ChessPresenter::ClearSquare(SceneCommandWriter& p_writer,
     p_writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
 }
 
+void ChessPresenter::AnimatePiece(Entity p_ent,
+                                  core::Square p_from,
+                                  core::Square p_to) {
+    constexpr auto cid = TransformAnimationComponent_Id;
+
+    auto& writer = m_host.SceneWriter();
+    writer.AddComponent(p_ent, cid);
+    writer.SetProperty(p_ent, cid, "begin"_sid, SquareToVec(p_from));
+    writer.SetProperty(p_ent, cid, "end"_sid, SquareToVec(p_to));
+    writer.SetProperty(p_ent, cid, "duration"_sid, 0.25f);
+    writer.SetProperty(p_ent, cid, "playing"_sid, true);
+    writer.SetProperty(p_ent, cid, "destroy_on_finish"_sid, true);
+}
+
 void ChessPresenter::ApplyMove(core::Move p_mv) {
     const Square from = p_mv.From();
     const Square to = p_mv.To();
@@ -150,19 +164,13 @@ void ChessPresenter::ApplyMove(core::Move p_mv) {
     m_board[from.Index()] = Entity::Null();
     m_board[to.Index()] = src_piece;
 
-    constexpr auto cid = TransformAnimationComponent_Id;
-    writer.AddComponent(src_piece, cid);
-    writer.SetProperty(src_piece, cid, "begin"_sid, SquareToVec(from));
-    writer.SetProperty(src_piece, cid, "end"_sid, SquareToVec(to));
-    writer.SetProperty(src_piece, cid, "duration"_sid, 0.25f);
-    writer.SetProperty(src_piece, cid, "playing"_sid, true);
-    writer.SetProperty(src_piece, cid, "destroy_on_finish"_sid, true);
+    AnimatePiece(src_piece, from, to);
 
     switch (p_mv.GetType()) {
         case MoveType::Normal:
             break;
         case MoveType::Castling:
-            m_host.Log().Warn(LogChannel::Game, "Handle castling");
+            // @TODO: move castle as well
             break;
         case MoveType::Enpassant:
             m_host.Log().Warn(LogChannel::Game, "Handle enpassant");
