@@ -1,6 +1,5 @@
 #include "AnimationSystem.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformAnimationComponent.h"
@@ -102,9 +101,7 @@ void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, 
             continue;
         }
 
-        auto& p = trans.GetTranslation();
-        LOG_OK("pos: {} {} {}, t: {}", p.x, p.y, p.z, t);
-        math::Vector3f pos = t * anim.end + (1 - t) * anim.begin;
+        const math::Vector3f pos = t * anim.end + (1 - t) * anim.begin;
         trans.SetTranslation(pos);
     }
 

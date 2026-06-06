@@ -94,7 +94,7 @@ void ChessGameSession::OnEnterBoot(cave::IHostServices& p_host) {
         });
     }
 
-    m_client->OnBoot(p_host);
+    m_client->OnBoot();
 }
 
 void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
@@ -123,7 +123,7 @@ void ChessGameSession::TickPlaying(cave::IHostServices& p_host) {
     intent_dispatcher.Flush();
 
     // update client visual
-    m_client->Tick(p_host);
+    m_client->Tick();
 
     // @TODO: refactor this part
     if (m_selector) {

@@ -154,7 +154,7 @@ void ChessPresenter::ApplyMove(core::Move p_mv) {
     writer.AddComponent(src_piece, cid);
     writer.SetProperty(src_piece, cid, "begin"_sid, SquareToVec(from));
     writer.SetProperty(src_piece, cid, "end"_sid, SquareToVec(to));
-    writer.SetProperty(src_piece, cid, "duration"_sid, 0.5f);
+    writer.SetProperty(src_piece, cid, "duration"_sid, 0.25f);
     writer.SetProperty(src_piece, cid, "playing"_sid, true);
     writer.SetProperty(src_piece, cid, "destroy_on_finish"_sid, true);
 
