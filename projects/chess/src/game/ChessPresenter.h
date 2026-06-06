@@ -25,7 +25,7 @@ public:
     // ==== Board Representation ====
     void OnBoot(cave::SceneQuery& p_query);
 
-    void InitBoard(const core::Position& p_position);
+    void RedrawBoard(const core::Position& p_position);
 
     void ApplyMove(core::Move p_mv);
 

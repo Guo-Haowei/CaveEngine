@@ -62,14 +62,12 @@ private:
     std::unique_ptr<IPlayerAgent> CreatePlayer(PlayerId p_id,
                                                PlayerKind p_kind);
 
-    void Cleanup();
-    void OnEnterGameOver();
-    void OnLeaveGameOver();
-
     void TickAwaitPlayerInput();
     void TickResolvingMove();
     void TickAnimating();
     void TickGameOver();
+
+    bool IsAnimating() const;
 
     cave::IHostServices& m_host;
     SessionState m_state;

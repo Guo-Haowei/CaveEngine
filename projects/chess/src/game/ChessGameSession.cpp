@@ -5,11 +5,14 @@
 #include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "ChessAIAgent.h"
 #include "ChessGameClient.h"
 #include "ChessGridSelectorAdapter.h"
+#include "ChessIntent.h"
 #include "ChessMatchAuthority.h"
+#include "GameOverState.h"
 #include "LocalHumanAgent.h"
 
 namespace chess {
@@ -19,36 +22,13 @@ using namespace ::cave;
 using cave::math::Vector2i;
 using core::Square;
 
+static const char* ToString(SessionState p_state);
+
 ChessGameSession::ChessGameSession(cave::IHostServices& p_host) noexcept
     : m_host(p_host)
     , m_state(SessionState::AwaitPlayerInput) {}
 
 ChessGameSession::~ChessGameSession() = default;
-
-static const char* ToString(SessionState p_state) {
-    switch (p_state) {
-#define SESSION_STATE(Enum)  \
-    case SessionState::Enum: \
-        return #Enum;
-        SESSION_STATE_LIST
-#undef SESSION_STATE
-        default:
-            return "?";
-    }
-}
-
-void ChessGameSession::SetState(SessionState p_state) {
-    if (p_state == m_state) {
-        return;
-    }
-
-#if USING(DEBUG_BUILD)
-    auto msg = std::format("ChessState {} -> {}", ToString(m_state), ToString(p_state));
-    m_host.Log().Trace(LogChannel::Game, std::move(msg));
-#endif
-
-    m_state = p_state;
-}
 
 void ChessGameSession::Tick() {
     switch (m_state) {
@@ -60,11 +40,10 @@ void ChessGameSession::Tick() {
 #undef SESSION_STATE
     }
 
-    // @TODO: check game over
-    // if (m_auth->GameOver()) {
-    //     SetState(SessionState::GameOver);
-    //     OnEnterGameOver(p_host);
-    // }
+    if (m_auth->GameOver()) {
+        SetState(SessionState::GameOver);
+        return;
+    }
 
     m_host.Intent().Flush();
 
@@ -94,19 +73,25 @@ void ChessGameSession::TickResolvingMove() {
 }
 
 void ChessGameSession::TickAnimating() {
-    auto& query = m_host.SceneQuery();
-    const bool no_animation = query.GetComponentCount(TransformAnimationComponent_Id) == 0;
-
-    if (no_animation) {
-        SetState(SessionState::AwaitPlayerInput);
+    if (IsAnimating()) {
+        return;
     }
+
+    SetState(SessionState::AwaitPlayerInput);
 }
 
 void ChessGameSession::TickGameOver() {
-    if (m_host.Input().IsActionJustPressed("ui_accept"_sid)) {
-        OnLeaveGameOver();
-        assert(0 && "TODO");
+    if (IsAnimating()) {
+        return;
     }
+
+    auto state = std::make_unique<GameOverState>();
+    m_host.Intent().Queue<ChessStateIntent>(std::move(state));
+}
+
+bool ChessGameSession::IsAnimating() const {
+    auto& query = m_host.SceneQuery();
+    return query.GetComponentCount(TransformAnimationComponent_Id) != 0;
 }
 
 std::unique_ptr<IPlayerAgent> ChessGameSession::CreatePlayer(PlayerId p_id,
@@ -121,15 +106,6 @@ std::unique_ptr<IPlayerAgent> ChessGameSession::CreatePlayer(PlayerId p_id,
         default:
             return nullptr;
     }
-}
-
-void ChessGameSession::Cleanup() {
-    m_auth.reset();
-    m_client.reset();
-    m_selector.reset();
-    m_grid_adapter.reset();
-    m_agents[0].reset();
-    m_agents[1].reset();
 }
 
 void ChessGameSession::OnEnterBoot() {
@@ -175,12 +151,31 @@ void ChessGameSession::OnEnterBoot() {
     m_client->OnBoot();
 }
 
-void ChessGameSession::OnEnterGameOver() {
-    m_host.Log().Ok(cave::LogChannel::Game, "Game Over! Press 'ui_accept' to start a new match");
+#if USING(DEBUG_BUILD)
+static const char* ToString(SessionState p_state) {
+    switch (p_state) {
+#define SESSION_STATE(Enum)  \
+    case SessionState::Enum: \
+        return #Enum;
+        SESSION_STATE_LIST
+#undef SESSION_STATE
+        default:
+            return "?";
+    }
 }
+#endif
 
-void ChessGameSession::OnLeaveGameOver() {
-    Cleanup();
+void ChessGameSession::SetState(SessionState p_state) {
+    if (p_state == m_state) {
+        return;
+    }
+
+#if USING(DEBUG_BUILD)
+    auto msg = std::format("ChessState {} -> {}", ToString(m_state), ToString(p_state));
+    m_host.Log().Trace(LogChannel::Game, std::move(msg));
+#endif
+
+    m_state = p_state;
 }
 
 }  // namespace chess

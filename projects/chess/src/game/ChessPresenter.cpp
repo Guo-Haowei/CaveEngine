@@ -85,7 +85,7 @@ void ChessPresenter::Present() {
                        position);
 }
 
-void ChessPresenter::InitBoard(const core::Position& p_position) {
+void ChessPresenter::RedrawBoard(const core::Position& p_position) {
     auto& writer = m_host.SceneWriter();
 
     // update pieces
@@ -103,6 +103,11 @@ void ChessPresenter::InitBoard(const core::Position& p_position) {
 
             Entity e = pool[idx++];
             m_board[sq.Index()] = e;
+
+            Vector3f translation = SquareToVec(sq);
+            writer.SetProperty(e, TransformComponent_Id, kTranslationId, translation);
+            writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, true);
+            writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, true);
         }
 
         // set the reset of the pieces invisible
@@ -113,17 +118,6 @@ void ChessPresenter::InitBoard(const core::Position& p_position) {
         }
     }
 }
-
-// void ChessPresenter::SetEntityAt(SceneCommandWriter& p_writer,
-//                                  core::Square p_sq,
-//                                  Entity p_ent) {
-//     m_board[p_sq.Index()] = p_ent;
-//
-//     Vector3f translation = SquareToVec(p_sq);
-//     p_writer.SetProperty(p_ent, TransformComponent_Id, kTranslationId, translation);
-//     p_writer.SetProperty(p_ent, MeshRendererComponent_Id, kVisibility, true);
-//     p_writer.SetProperty(p_ent, MeshRendererComponent_Id, kCastShadow, true);
-// }
 
 void ChessPresenter::ClearSquare(SceneCommandWriter& p_writer,
                                  core::Square p_sq) {

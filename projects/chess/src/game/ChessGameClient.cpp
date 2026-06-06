@@ -50,7 +50,7 @@ void ChessGameClient::OnBoot() {
     m_presenter.OnBoot(m_host.SceneQuery());
     ResetBoard();
 
-    m_presenter.InitBoard(m_replica);
+    m_presenter.RedrawBoard(m_replica);
 }
 
 bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
@@ -65,7 +65,6 @@ bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
     }
 
     if (auto intenti = dynamic_cast<AuthGameOver*>(&p_intent)) {
-        m_host.Log().Info(cave::LogChannel::Game, "Game over!");
         return true;
     }
 
