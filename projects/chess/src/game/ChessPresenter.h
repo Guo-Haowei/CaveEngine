@@ -46,7 +46,7 @@ private:
     void ClearSquare(cave::SceneCommandWriter& p_writer,
                      core::Square p_sq);
 
-    void AnimatePiece(Entity p_ent, core::Square p_from, core::Square p_to);
+    void MovePiece(Entity p_ent, core::Square p_from, core::Square p_to);
 
     cave::IHostServices& m_host;
     Entity m_selector;

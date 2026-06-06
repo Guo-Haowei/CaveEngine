@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "cave/core/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
@@ -134,11 +135,11 @@ void ChessPresenter::ClearSquare(SceneCommandWriter& p_writer,
     p_writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
 }
 
-void ChessPresenter::AnimatePiece(Entity p_ent,
-                                  core::Square p_from,
-                                  core::Square p_to) {
-    constexpr auto cid = TransformAnimationComponent_Id;
+void ChessPresenter::MovePiece(Entity p_ent, core::Square p_from, core::Square p_to) {
+    m_board[p_from.Index()] = Entity::Null();
+    m_board[p_to.Index()] = p_ent;
 
+    constexpr auto cid = TransformAnimationComponent_Id;
     auto& writer = m_host.SceneWriter();
     writer.AddComponent(p_ent, cid);
     writer.SetProperty(p_ent, cid, "begin"_sid, SquareToVec(p_from));
@@ -146,6 +147,29 @@ void ChessPresenter::AnimatePiece(Entity p_ent,
     writer.SetProperty(p_ent, cid, "duration"_sid, 0.25f);
     writer.SetProperty(p_ent, cid, "playing"_sid, true);
     writer.SetProperty(p_ent, cid, "destroy_on_finish"_sid, true);
+}
+
+struct CastleRookMove {
+    Square from;
+    Square to;
+};
+
+CastleRookMove GetCastleRookMove(Square from, Square to) {
+    if (from == Square::E1) {
+        if (to == Square::G1)
+            return { Square::H1, Square::F1 };
+        if (to == Square::C1)
+            return { Square::A1, Square::D1 };
+    }
+    if (from == Square::E8) {
+        if (to == Square::G8)
+            return { Square::H8, Square::F8 };
+        if (to == Square::C8)
+            return { Square::A8, Square::D8 };
+    }
+
+    CRASH_NOW_MSG("Invalid castling");
+    return {};
 }
 
 void ChessPresenter::ApplyMove(core::Move p_mv) {
@@ -161,17 +185,15 @@ void ChessPresenter::ApplyMove(core::Move p_mv) {
         ClearSquare(writer, to);
     }
 
-    m_board[from.Index()] = Entity::Null();
-    m_board[to.Index()] = src_piece;
-
-    AnimatePiece(src_piece, from, to);
+    MovePiece(src_piece, from, to);
 
     switch (p_mv.GetType()) {
         case MoveType::Normal:
             break;
-        case MoveType::Castling:
-            // @TODO: move castle as well
-            break;
+        case MoveType::Castling: {
+            CastleRookMove rook = GetCastleRookMove(from, to);
+            MovePiece(m_board[rook.from.Index()], rook.from, rook.to);
+        } break;
         case MoveType::Enpassant:
             m_host.Log().Warn(LogChannel::Game, "Handle enpassant");
             break;
