@@ -161,6 +161,22 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
     hier.parent_id = p_ent.IsValid() ? p_ent : m_root;
 }
 
+bool Scene::Has(ComponentId p_cid, ecs::Entity p_ent) const {
+    return m_storage.Has(p_ent, p_cid);
+}
+
+size_t Scene::GetCount(ComponentId p_cid) const {
+    if (const ecs::IComponentPool* pool = m_storage.TryGet(p_cid)) {
+        return pool->GetCount();
+    }
+
+    return 0;
+}
+
+bool Scene::Remove(ComponentId p_cid, ecs::Entity p_ent) {
+    return m_storage.Remove(p_ent, p_cid);
+}
+
 ecs::Entity Scene::FindEntityByName(std::string_view p_name) const {
     for (auto [entity, name] : View<NameComponent>()) {
         if (name.GetName() == p_name) {

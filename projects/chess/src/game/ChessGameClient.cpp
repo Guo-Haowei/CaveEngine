@@ -8,6 +8,7 @@
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 namespace chess {
 
@@ -41,8 +42,8 @@ void ChessGameClient::ResetBoard() {
     OnPositionChange();
 }
 
-void ChessGameClient::OnBoot(cave::IHostServices& p_host) {
-    m_presenter.OnBoot(p_host.SceneQuery());
+void ChessGameClient::OnBoot() {
+    m_presenter.OnBoot(m_host.SceneQuery());
     ResetBoard();
 
     m_presenter.InitBoard(m_replica);
@@ -74,23 +75,20 @@ void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
     m_replica.MakeMove(p_mv, undo);
     OnPositionChange();
 
-    // m_state = ChessClientState::AnimatingMove;
-
-    // @TODO: animate the piece
-    // SceneCommandWriter& writer = m_host.SceneWriter();
-
-    // ecs::Entity e;
-    // constexpr auto cid = TransformAnimationComponent_Id;
-    // writer.AddComponent(e, cid);
-    // writer.SetProperty(e, cid, "begin"_sid, math::Vector3f());
-    // writer.SetProperty(e, cid, "end"_sid, math::Vector3f());
+    m_state = ChessClientState::AnimatingMove;
 }
 
 void ChessGameClient::OnMoveRejected(core::Move p_mv) {
     m_host.Log().Info(cave::LogChannel::Game, "Invalid move!");
 }
 
-void ChessGameClient::Tick(cave::IHostServices& p_host) {
+void ChessGameClient::Tick() {
+    auto& query = m_host.SceneQuery();
+    const bool no_animation = query.GetComponentCount(TransformAnimationComponent_Id) == 0;
+    if (no_animation) {
+        m_state = ChessClientState::Idle;
+    }
+
     m_presenter.Present();
 }
 

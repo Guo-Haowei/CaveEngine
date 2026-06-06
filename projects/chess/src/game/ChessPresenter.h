@@ -43,10 +43,6 @@ public:
     }
 
 private:
-    void SetEntityAt(cave::SceneCommandWriter& p_writer,
-                     core::Square p_sq,
-                     Entity p_ent);
-
     void ClearSquare(cave::SceneCommandWriter& p_writer,
                      core::Square p_sq);
 

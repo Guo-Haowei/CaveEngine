@@ -9,6 +9,7 @@
 namespace cave {
 
 class Scene;
+using ComponentId = uint16_t;
 
 struct RayHit {
     bool hit{ false };
@@ -32,6 +33,8 @@ public:
         : m_scene(p_scene) {}
 
     ecs::Entity FindFirstEntity(std::string_view p_name);
+
+    size_t GetComponentCount(ComponentId p_cid);
 
     RayHit Raycast(math::Ray& p_ray, const RaycastFilter& p_filter);
 

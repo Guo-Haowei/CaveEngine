@@ -13,6 +13,10 @@ ecs::Entity SceneQuery::FindFirstEntity(std::string_view p_name) {
     return m_scene.FindEntityByName(p_name);
 }
 
+size_t SceneQuery::GetComponentCount(ComponentId p_cid) {
+    return m_scene.GetCount(p_cid);
+}
+
 static bool RaycastHelper(Ray& p_ray,
                           const MeshRendererComponent& p_mesh,
                           const TransformComponent& p_trans) {

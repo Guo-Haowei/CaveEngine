@@ -50,11 +50,6 @@ public:
     }
 
     template<ComponentType T>
-    bool Has(ecs::Entity p_ent) const {
-        return m_storage.Has(p_ent, T::kId);
-    }
-
-    template<ComponentType T>
     T* GetComponent(ecs::Entity p_ent) {
         return (T*)m_storage.GetRaw(p_ent, T::kId);
     }
@@ -64,20 +59,18 @@ public:
         return (const T*)m_storage.GetRaw(p_ent, T::kId);
     }
 
-    template<ComponentType T>
-    bool Remove(ecs::Entity p_ent) {
-        return m_storage.Remove(p_ent, T::kId);
-    }
+    bool Has(ComponentId p_cid, ecs::Entity p_ent) const;
+    size_t GetCount(ComponentId p_cid) const;
+    bool Remove(ComponentId p_cid, ecs::Entity p_ent);
 
     template<ComponentType T>
-    size_t GetCount() const {
-        if (const ecs::IComponentPool* pool = m_storage.TryGet(T::kId)) {
-            return pool->GetCount();
-        }
+    bool Has(ecs::Entity p_ent) const { return Has(T::kId, p_ent); }
+    template<ComponentType T>
+    size_t GetCount() const { return GetCount(T::kId); }
+    template<ComponentType T>
+    bool Remove(ecs::Entity p_ent) { return Remove(T::kId, p_ent); }
 
-        return 0;
-    }
-
+    // @TODO: remove depracated
     template<ComponentType T>
     [[deprecated]] T& GetComponentByIndex(size_t p_idx) {
         if (auto* pool = (ecs::ComponentPool<T>*)m_storage.TryGet(T::kId)) {

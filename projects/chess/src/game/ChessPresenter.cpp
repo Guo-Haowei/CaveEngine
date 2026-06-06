@@ -18,10 +18,9 @@ static constexpr StringId kTranslationId = "translation"_sid;
 static constexpr StringId kVisibility = "visibility"_sid;
 static constexpr StringId kCastShadow = "cast_shadow"_sid;
 
-static Vector3f SquareToPosition(const core::Square& p_sq) {
-    auto [file, rank] = p_sq.FileRank();
-
-    return Vector3f((float)rank, 0.0f, (float)file);
+static inline Vector3f SquareToVec(Square p_sq) {
+    const auto [file, rank] = p_sq.FileRank();
+    return Vector3f{ (float)rank, 0.0f, (float)file };
 }
 
 void ChessPresenter::OnBoot(cave::SceneQuery& p_query) {
@@ -78,16 +77,11 @@ void ChessPresenter::Present() {
                            visible);
     }
 
-    Vector3f position = SquareToPosition(m_focused);
+    Vector3f position = SquareToVec(m_focused);
     writer.SetProperty(m_selector,
                        cave::TransformComponent_Id,
                        kTranslationId,
                        position);
-}
-
-static inline Vector3f Square2Vec(Square p_sq) {
-    const auto [file, rank] = p_sq.FileRank();
-    return Vector3f{ rank, (uint8_t)0, file };
 }
 
 void ChessPresenter::InitBoard(const core::Position& p_position) {
@@ -107,7 +101,7 @@ void ChessPresenter::InitBoard(const core::Position& p_position) {
             }
 
             Entity e = pool[idx++];
-            SetEntityAt(writer, sq, e);
+            m_board[sq.Index()] = e;
         }
 
         // set the reset of the pieces invisible
@@ -119,16 +113,16 @@ void ChessPresenter::InitBoard(const core::Position& p_position) {
     }
 }
 
-void ChessPresenter::SetEntityAt(SceneCommandWriter& p_writer,
-                                 core::Square p_sq,
-                                 Entity p_ent) {
-    m_board[p_sq.Index()] = p_ent;
-
-    Vector3f translation = Square2Vec(p_sq);
-    p_writer.SetProperty(p_ent, TransformComponent_Id, kTranslationId, translation);
-    p_writer.SetProperty(p_ent, MeshRendererComponent_Id, kVisibility, true);
-    p_writer.SetProperty(p_ent, MeshRendererComponent_Id, kCastShadow, true);
-}
+// void ChessPresenter::SetEntityAt(SceneCommandWriter& p_writer,
+//                                  core::Square p_sq,
+//                                  Entity p_ent) {
+//     m_board[p_sq.Index()] = p_ent;
+//
+//     Vector3f translation = SquareToVec(p_sq);
+//     p_writer.SetProperty(p_ent, TransformComponent_Id, kTranslationId, translation);
+//     p_writer.SetProperty(p_ent, MeshRendererComponent_Id, kVisibility, true);
+//     p_writer.SetProperty(p_ent, MeshRendererComponent_Id, kCastShadow, true);
+// }
 
 void ChessPresenter::ClearSquare(SceneCommandWriter& p_writer,
                                  core::Square p_sq) {
@@ -136,7 +130,6 @@ void ChessPresenter::ClearSquare(SceneCommandWriter& p_writer,
     m_board[p_sq.Index()] = Entity::Null();
 
     // Just move the piece to far away from the screen
-    p_writer.SetProperty(e, TransformComponent_Id, kTranslationId, Vector3f(-10));
     p_writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
     p_writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
 }
@@ -154,8 +147,16 @@ void ChessPresenter::ApplyMove(core::Move p_mv) {
         ClearSquare(writer, to);
     }
 
-    ClearSquare(writer, from);
-    SetEntityAt(writer, to, src_piece);
+    m_board[from.Index()] = Entity::Null();
+    m_board[to.Index()] = src_piece;
+
+    constexpr auto cid = TransformAnimationComponent_Id;
+    writer.AddComponent(src_piece, cid);
+    writer.SetProperty(src_piece, cid, "begin"_sid, SquareToVec(from));
+    writer.SetProperty(src_piece, cid, "end"_sid, SquareToVec(to));
+    writer.SetProperty(src_piece, cid, "duration"_sid, 0.5f);
+    writer.SetProperty(src_piece, cid, "playing"_sid, true);
+    writer.SetProperty(src_piece, cid, "destroy_on_finish"_sid, true);
 
     switch (p_mv.GetType()) {
         case MoveType::Normal:

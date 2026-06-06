@@ -28,9 +28,9 @@ public:
     ChessGameClient(cave::IHostServices& p_host, ChessMatchAuthority& p_auth);
     ~ChessGameClient();
 
-    void OnBoot(cave::IHostServices& p_host);
+    void OnBoot();
 
-    void Tick(cave::IHostServices& p_host);
+    void Tick();
 
     std::span<const core::Move> LegalMovesFromSquare(core::Square p_sq);
 
