@@ -16,7 +16,6 @@ public:
     void tick(cave::IHostServices& host) override;
 
 private:
-    PlayerId player_{};
     ChessGameClient& client_;
 };
 
