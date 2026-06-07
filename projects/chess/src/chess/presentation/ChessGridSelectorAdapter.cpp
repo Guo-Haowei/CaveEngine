@@ -163,10 +163,13 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
 
     const int file = (int)std::roundf(p.z);
     const int rank = (int)std::roundf(p.x);
-    const char f = 'A' + file;
-    const char r = '1' + rank;
-
-    host_.log().Ok(LogChannel::Game, std::format("{}{}", f, r));
+    controller_->SetFocus(file, rank);
+    if (input.isJustPressed("ui_accept"_sid)) {
+        controller_->Confirm();
+    }
+    if (input.isJustPressed("ui_back"_sid)) {
+        controller_->Cancel();
+    }
 }
 
 void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {

@@ -21,7 +21,7 @@ void GameInput::initialize() {
     map.addAction("ui_back"_sid, ActionValueType::Digital);
     map.bindDigital("ui_back"_sid, Key::Backspace);
     map.bindDigital("ui_back"_sid, Key::PadB);
-    map.bindDigital("ui_accept"_sid, Key::RMB);
+    map.bindDigital("ui_back"_sid, Key::RMB);
 
     map.addAction("ui_left"_sid, ActionValueType::Digital);
     map.bindDigital("ui_left"_sid, Key::A);
