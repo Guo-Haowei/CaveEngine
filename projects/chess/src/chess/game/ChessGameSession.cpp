@@ -95,7 +95,7 @@ void ChessGameSession::TickGameOver() {
 
 bool ChessGameSession::IsAnimating() const {
     auto& query = m_host.sceneQuery();
-    return query.GetComponentCount(TransformAnimationComponent_Id) != 0;
+    return query.componentCount(TransformAnimationComponent_Id) != 0;
 }
 
 std::unique_ptr<IPlayerAgent> ChessGameSession::CreatePlayer(PlayerId p_id,

@@ -1,9 +1,14 @@
 #include "ChessGridSelectorAdapter.h"
 
+#include <cassert>
+
+#include "cave/core/math/Plane.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
 #include "cave/runtime/display/DisplayService.h"
+#include "cave/runtime/ecs/components/CameraComponent.h"
 #include "cave/runtime/input/IGameInput.h"
+#include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/view/ViewQuery.h"
 
 #include "chess/agents/LocalHumanAgent.h"
@@ -18,6 +23,17 @@ using namespace ::cave;
 using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
+
+ChessGridSelectorAdapter::ChessGridSelectorAdapter(cave::IHostServices& host,
+                                                   ChessGameClient& game,
+                                                   ChessPresenter& presenter) noexcept
+    : host_(host)
+    , client_(game)
+    , presenter_(presenter) {
+
+    camera_id_ = host_.sceneQuery().findFirstByName("game_camera");
+    assert(camera_id_.IsValid());
+}
 
 bool ChessGridSelectorAdapter::canSelect(int x, int y) {
     const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
@@ -89,22 +105,68 @@ void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
     LOG_ERROR("can't select/drop");
 }
 
+// @TODO: refactor
+static bool intersectPlaneRay(const Plane& plane, Ray& ray) {
+    const Vector3f origin = ray.start();
+    const Vector3f dir = ray.Direction();
+
+    const float denom = math::dot(plane.normal, dir);
+
+    if (math::abs(denom) < 1e-6f) {
+        return false; // parallel
+    }
+
+    const float t = -(math::dot(plane.normal, origin) + plane.dist) / denom;
+    if (t < 0.0f) {
+        return false;  // behind ray
+    }
+
+    ray.SetDist(t);
+    return true;
+}
+
 void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
     const PointerState& pointer = input.pointerState();
 
     // @TODO: project ray
     const DisplayService& display = host_.displayService();
-    Vector2f pos = pointer.pos_win + display.windowPos();
 
     const ViewRecord* view = host_.viewQuery().resolve(host_.viewId());
-
-    if (pointer.delta.x > 1) {
-        if (view) {
-            pos = view->screenToNDC(pos);
-            auto msg = std::format("pointer: {} {}", pos.x, pos.y);
-            host_.log().Info(LogChannel::Game, std::move(msg));
-        }
+    if (!view) {
+        return;
     }
+
+    Vector2f pos_os = pointer.pos_win + display.windowPos();
+    if (!view->display_rect_os.Contains(pos_os.x, pos_os.y)) {
+        return;
+    }
+
+    Vector2f ndc = view->screenToNDC(pos_os);
+
+    auto camera = (const CameraComponent*)host_.sceneQuery().component(CameraComponent_Id, camera_id_);
+    assert(camera);
+
+    Ray ray = Ray::Unproject(camera->GetProjectionViewMatrix(), ndc);
+
+    Plane plane = {
+        Vector3f::UnitY,
+        0.0f
+    };
+
+    if (!intersectPlaneRay(plane, ray)) {
+        return;
+    }
+
+    Vector3f p = ray.start() + ray.GetDist() * ray.Direction();
+    constexpr Vector3f offset{ -3.5f, 0.0f, -3.5f };
+    p -= offset;
+
+    const int file = (int)std::roundf(p.z);
+    const int rank = (int)std::roundf(p.x);
+    const char f = 'A' + file;
+    const char r = '1' + rank;
+
+    host_.log().Ok(LogChannel::Game, std::format("{}{}", f, r));
 }
 
 void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {

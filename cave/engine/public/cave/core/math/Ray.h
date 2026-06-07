@@ -24,10 +24,13 @@ public:
         return TestIntersection::RayTriangle(p_a, p_b, p_c, *this);
     }
 
+    static Ray Unproject(const Matrix4x4f& p_proj_view, const Vector2f& p_ndc);
+
     float GetDist() const { return m_dist; }
     void SetDist(float p_dist) { m_dist = p_dist; }
 
-    static Ray Unproject(const Matrix4x4f& p_proj_view, const Vector2f& p_ndc);
+    const Vector3f& start() const { return m_start; }
+    const Vector3f& end() const { return m_end; }
 
 private:
     const Vector3f m_start;

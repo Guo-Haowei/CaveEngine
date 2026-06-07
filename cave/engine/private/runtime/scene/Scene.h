@@ -174,6 +174,7 @@ private:
 
     friend class AssimpImporter;
     friend class TinyGltfImporter;
+    friend class SceneQuery;
 };
 
 }  // namespace cave

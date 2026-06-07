@@ -145,17 +145,17 @@ void SceneViewTab::OnDestroy() {
     app.GetSceneScheduler().Unregister(this);
 }
 
-Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& p_pos_screen) {
+Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& pointer_os) {
     if (!IsVisible()) return None();
 
     const ViewRecord* view = m_view_manager.Resolve(m_view_id);
-    if (!view->display_rect_os.Contains(p_pos_screen.x, p_pos_screen.y)) {
+    if (!view->display_rect_os.Contains(pointer_os.x, pointer_os.y)) {
         return None();
     }
 
     return Some(PickData{
         .proj_view = m_camera.GetProjectionViewMatrix(),
-        .cursor_ndc = view->screenToNDC(p_pos_screen),
+        .cursor_ndc = view->screenToNDC(pointer_os),
         .scene_id = m_preview_scene,
         .doc_id = m_doc_id,
     });

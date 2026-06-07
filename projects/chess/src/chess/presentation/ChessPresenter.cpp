@@ -28,12 +28,12 @@ void ChessPresenter::onBoot() {
     highlights_ = {};
 
     auto& query = host_.sceneQuery();
-    selector_ = query.FindFirstEntity("grid_selector");
+    selector_ = query.findFirstByName("grid_selector");
 
     // set up tiles
     for (uint8_t i = 0; i < 64; ++i) {
         const char* name = Square(i).ToString();
-        tiles_[i] = query.FindFirstEntity(name);
+        tiles_[i] = query.findFirstByName(name);
     }
 
     // set up pieces
@@ -41,7 +41,7 @@ void ChessPresenter::onBoot() {
         const uint8_t idx = std::to_underlying(type);
         piece_pools_[idx].reserve(count);
         for (int i = 1; i <= count; ++i) {
-            Entity id = query.FindFirstEntity(std::format("{}_{}", name, i));
+            Entity id = query.findFirstByName(std::format("{}_{}", name, i));
             piece_pools_[idx].push_back(id);
         }
     };
