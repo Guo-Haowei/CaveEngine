@@ -25,7 +25,7 @@ ChessMatchAuthority::~ChessMatchAuthority() {
 
 bool ChessMatchAuthority::HandleIntent(cave::Intent& p_intent) {
     if (auto intent = dynamic_cast<ChessMoveIntent*>(&p_intent)) {
-        TryCommitMove(intent->player, intent->mv);
+        TryCommitMove(intent->player(), intent->move());
         return true;
     }
 
@@ -35,8 +35,7 @@ bool ChessMatchAuthority::HandleIntent(cave::Intent& p_intent) {
 bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
                                         core::Move p_move) {
 
-    const PlayerId side = std::to_underlying(m_pos.SideToMove());
-    if (side != p_player_id) {
+    if (m_pos.SideToMove() != p_player_id) {
         return false;
     }
 

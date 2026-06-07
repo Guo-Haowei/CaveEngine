@@ -11,18 +11,18 @@ class ChessStateIntent : public cave::Intent {
 public:
     CAVE_DECLARE_INTENT("chess.state");
 
-    ChessStateIntent(std::unique_ptr<IChessGameState> p_state);
+    ChessStateIntent(std::unique_ptr<IChessGameState> state);
     ~ChessStateIntent();
 
 #if USING(DEBUG_BUILD)
     std::string DebugString() const override;
 #endif
 
-    std::unique_ptr<IChessGameState> state;
+    std::unique_ptr<IChessGameState> state_;
 
 private:
 #if USING(DEBUG_BUILD)
-    const std::string m_debug_name;
+    const std::string debug_name_;
 #endif
 };
 
@@ -30,16 +30,20 @@ class ChessMoveIntent : public cave::Intent {
 public:
     CAVE_DECLARE_INTENT("move.submitted");
 
-    ChessMoveIntent(PlayerId p_player, core::Move p_mv) noexcept
-        : player(p_player)
-        , mv(p_mv) {}
+    ChessMoveIntent(PlayerId player, core::Move mv) noexcept
+        : player_(player)
+        , mv_(mv) {}
+
+    PlayerId player() const { return player_; };
+    core::Move move() const { return mv_; }
 
 #if USING(DEBUG_BUILD)
     std::string DebugString() const override;
 #endif
 
-    const PlayerId player;
-    const core::Move mv;
+private:
+    PlayerId player_;
+    core::Move mv_;
 };
 
 class AuthMoveCommitted : public ChessMoveIntent {

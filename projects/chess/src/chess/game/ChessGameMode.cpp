@@ -44,7 +44,7 @@ void ChessGameMode::Tick(IHostServices& p_host, const FrameTime& p_time) {
 
 bool ChessGameMode::HandleIntent(cave::Intent& p_intent) {
     if (auto intent = dynamic_cast<ChessStateIntent*>(&p_intent)) {
-        CommitStateChange(std::move(intent->state));
+        CommitStateChange(std::move(intent->state_));
         return true;
     }
 

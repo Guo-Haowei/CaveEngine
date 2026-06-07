@@ -54,12 +54,12 @@ void ChessGameClient::OnBoot() {
 
 bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
     if (auto intent = dynamic_cast<AuthMoveCommitted*>(&p_intent)) {
-        OnMoveCommitted(intent->mv);
+        OnMoveCommitted(intent->move());
         return true;
     }
 
     if (auto intent = dynamic_cast<AuthMoveRejected*>(&p_intent)) {
-        OnMoveRejected(intent->mv);
+        OnMoveRejected(intent->move());
         return true;
     }
 

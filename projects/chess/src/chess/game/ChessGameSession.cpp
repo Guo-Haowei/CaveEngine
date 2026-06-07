@@ -20,6 +20,7 @@ namespace chess {
 using namespace ::cave::literals;
 using namespace ::cave;
 using cave::math::Vector2i;
+using core::Color;
 using core::Square;
 
 static const char* ToString(SessionState p_state);
@@ -66,7 +67,7 @@ void ChessGameSession::TickAwaitPlayerInput() {
 
     // poll player intents
     const PlayerId player = m_auth->CurrentPlayer();
-    m_agents[player]->tick(m_host);
+    m_agents[std::to_underlying(player)]->tick(m_host);
 }
 
 void ChessGameSession::TickResolvingMove() {
@@ -122,8 +123,8 @@ void ChessGameSession::OnEnterBoot() {
     const PlayerKind white = config.white.kind;
     const PlayerKind black = config.black.kind;
 
-    m_agents[0] = CreatePlayer(0, white);
-    m_agents[1] = CreatePlayer(1, black);
+    m_agents[0] = CreatePlayer(Color::White, white);
+    m_agents[1] = CreatePlayer(Color::Black, black);
 
     const bool any_human = white == PlayerKind::LocalHuman || black == PlayerKind::LocalHuman;
     if (any_human) {
@@ -147,8 +148,8 @@ void ChessGameSession::OnEnterBoot() {
 
         m_grid_adapter->setController(m_selector.get());
 
-        m_grid_adapter->setPlayerCb([this](PlayerId p_id) -> LocalHumanAgent* {
-            return dynamic_cast<LocalHumanAgent*>(m_agents[p_id].get());
+        m_grid_adapter->setPlayerCb([this](PlayerId id) -> LocalHumanAgent* {
+            return dynamic_cast<LocalHumanAgent*>(m_agents[std::to_underlying(id)].get());
         });
     }
 

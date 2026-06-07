@@ -1,14 +1,14 @@
 #pragma once
-#include "chess/game/ChessTypes.h"
-
 #include "cave/game/IHostServices.h"
+
+#include "chess/game/ChessTypes.h"
 
 namespace chess {
 
 class IPlayerAgent {
 public:
-    IPlayerAgent(PlayerId p_player) noexcept
-        : player_(p_player) {}
+    IPlayerAgent(PlayerId player) noexcept
+        : player_(player) {}
 
     virtual ~IPlayerAgent() = default;
 

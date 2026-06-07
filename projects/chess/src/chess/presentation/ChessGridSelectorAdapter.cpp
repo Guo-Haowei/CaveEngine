@@ -57,7 +57,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
     presenter_.SetHighlightSquares({});
 
     const core::Position& pos = client_.Replica();
-    const PlayerId id = pos.SideToMove() == core::Color::White ? 0 : 1;
+    const PlayerId id = pos.SideToMove();
 
     if (LocalHumanAgent* agent = get_player_cb_(id)) {
         const Square from = Square::FromFileRank((uint8_t)sx, (uint8_t)sy);
