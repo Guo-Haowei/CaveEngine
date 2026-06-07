@@ -1,51 +1,48 @@
-// =============================================================================
-// File: engine/private/runtime/input/InputRouter.cpp
-// =============================================================================
 #include "InputRouter.h"
 
 #include "cave/core/diagnostics/Log.h"
 
 namespace cave {
 
-void InputRouter::Register(IInputConsumer* p_consumer) {
-    DEV_ASSERT(p_consumer);
-    if (!p_consumer) return;
+void InputRouter::addConsumer(IInputConsumer* consumer) {
+    DEV_ASSERT(consumer);
+    if (!consumer) return;
 
-    auto it = std::ranges::find(m_consumers, p_consumer);
-    if (it != m_consumers.end()) return;
+    auto it = std::ranges::find(consumers_, consumer);
+    if (it != consumers_.end()) return;
 
-    m_consumers.push_back(p_consumer);
-    Sort();
+    consumers_.push_back(consumer);
+    sortByPriority();
 
 #if USING(USE_LOG)
-    DebugId id = p_consumer->GetDebugId();
+    const DebugId id = consumer->debugId();
     LOG_TRACE(LogChannel::Input, "+{}#{}", id.type, id.uid);
 #endif
 }
 
-void InputRouter::Unregister(IInputConsumer* p_consumer) {
-    m_consumers.erase(
-        std::remove(m_consumers.begin(), m_consumers.end(), p_consumer),
-        m_consumers.end());
+void InputRouter::removeConsumer(IInputConsumer* consumer) {
+    consumers_.erase(
+        std::remove(consumers_.begin(), consumers_.end(), consumer),
+        consumers_.end());
 
 #if USING(USE_LOG)
-    DebugId id = p_consumer->GetDebugId();
+    const DebugId id = consumer->debugId();
     LOG_TRACE(LogChannel::Input, "-{}#{}", id.type, id.uid);
 #endif
 }
 
-void InputRouter::Dispatch(const InputFrame& p_input) {
-    for (auto* c : m_consumers) {
+void InputRouter::dispatch(const InputFrame& input) {
+    for (auto* c : consumers_) {
         if (DEV_VERIFY(c)) {
-            c->OnEvents(p_input);
+            c->onEvents(input);
         }
     }
 }
 
-void InputRouter::Sort() {
-    std::sort(m_consumers.begin(), m_consumers.end(),
+void InputRouter::sortByPriority() {
+    std::sort(consumers_.begin(), consumers_.end(),
               [](const IInputConsumer* a, const IInputConsumer* b) {
-                  return a->GetPriority() > b->GetPriority();
+                  return a->priority() > b->priority();
               });
 }
 

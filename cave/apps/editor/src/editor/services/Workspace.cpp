@@ -101,7 +101,7 @@ bool Workspace::HandleIntent(Intent& p_intent) {
     return false;
 }
 
-void Workspace::OnEvents(const InputFrame& p_input) {
+void Workspace::onEvents(const InputFrame& p_input) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
         if (tab && tab->IsHovered()) {

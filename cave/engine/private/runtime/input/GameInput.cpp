@@ -13,39 +13,39 @@ void GameInput::initialize() {
     InputActionMap& map = input_action_map_;
 
     // @TODO: read bindings from config file
-    map.AddAction("ui_accept"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_accept"_sid, Key::Enter);
-    map.BindDigital("ui_accept"_sid, Key::PadA);
-    map.BindDigital("ui_accept"_sid, Key::LMB);
+    map.addAction("ui_accept"_sid, ActionValueType::Digital);
+    map.bindDigital("ui_accept"_sid, Key::Enter);
+    map.bindDigital("ui_accept"_sid, Key::PadA);
+    map.bindDigital("ui_accept"_sid, Key::LMB);
 
-    map.AddAction("ui_back"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_back"_sid, Key::Backspace);
-    map.BindDigital("ui_back"_sid, Key::PadB);
-    map.BindDigital("ui_accept"_sid, Key::RMB);
+    map.addAction("ui_back"_sid, ActionValueType::Digital);
+    map.bindDigital("ui_back"_sid, Key::Backspace);
+    map.bindDigital("ui_back"_sid, Key::PadB);
+    map.bindDigital("ui_accept"_sid, Key::RMB);
 
-    map.AddAction("ui_left"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_left"_sid, Key::A);
-    map.BindDigital("ui_left"_sid, Key::Left);
-    map.BindDigital("ui_left"_sid, Key::PadLeft);
+    map.addAction("ui_left"_sid, ActionValueType::Digital);
+    map.bindDigital("ui_left"_sid, Key::A);
+    map.bindDigital("ui_left"_sid, Key::Left);
+    map.bindDigital("ui_left"_sid, Key::PadLeft);
 
-    map.AddAction("ui_right"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_right"_sid, Key::D);
-    map.BindDigital("ui_right"_sid, Key::Right);
-    map.BindDigital("ui_right"_sid, Key::PadRight);
+    map.addAction("ui_right"_sid, ActionValueType::Digital);
+    map.bindDigital("ui_right"_sid, Key::D);
+    map.bindDigital("ui_right"_sid, Key::Right);
+    map.bindDigital("ui_right"_sid, Key::PadRight);
 
-    map.AddAction("ui_up"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_up"_sid, Key::W);
-    map.BindDigital("ui_up"_sid, Key::Up);
-    map.BindDigital("ui_up"_sid, Key::PadUp);
+    map.addAction("ui_up"_sid, ActionValueType::Digital);
+    map.bindDigital("ui_up"_sid, Key::W);
+    map.bindDigital("ui_up"_sid, Key::Up);
+    map.bindDigital("ui_up"_sid, Key::PadUp);
 
-    map.AddAction("ui_down"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_down"_sid, Key::S);
-    map.BindDigital("ui_down"_sid, Key::Down);
-    map.BindDigital("ui_down"_sid, Key::PadDown);
+    map.addAction("ui_down"_sid, ActionValueType::Digital);
+    map.bindDigital("ui_down"_sid, Key::S);
+    map.bindDigital("ui_down"_sid, Key::Down);
+    map.bindDigital("ui_down"_sid, Key::PadDown);
 
     // Movement scalar axes
-    map.AddAction("ui_axis_x"_sid, ActionValueType::Scalar);
-    map.AddAction("ui_axis_y"_sid, ActionValueType::Scalar);
+    map.addAction("ui_axis_x"_sid, ActionValueType::Scalar);
+    map.addAction("ui_axis_y"_sid, ActionValueType::Scalar);
 
     // Keyboard contributes scalar when held
     // map.BindScalar("ui_axis_x"_sid, Key::A, -1.0f);
@@ -54,8 +54,8 @@ void GameInput::initialize() {
     // map.BindScalar("ui_axis_y"_sid, Key::W, +1.0f);
 
     // Gamepad axes contribute scalar too
-    map.BindScalar("ui_axis_x"_sid, AxisCode::LX, 1.0f, 0.2f);
-    map.BindScalar("ui_axis_y"_sid, AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
+    map.bindScalar("ui_axis_x"_sid, AxisCode::LX, 1.0f, 0.2f);
+    map.bindScalar("ui_axis_y"_sid, AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
 }
 
 bool GameInput::isPressed(StringId action, int player) const {
@@ -107,7 +107,7 @@ void GameInput::updateActions(const std::vector<InputEvent>& input_events,
                               const AxisState& axis_state,
                               const DeviceRouting& routing) {
     action_events_.clear();
-    mapper_.Map(input_events, key_state, axis_state, routing, action_events_);
+    mapper_.map(input_events, key_state, axis_state, routing, action_events_);
 
     beginFrame();
     for (const auto& action : action_events_) {

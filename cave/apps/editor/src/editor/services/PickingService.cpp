@@ -83,7 +83,7 @@ void PickingService::Register(IPickConsumer* p_consumer) {
     m_consumers.push_back(p_consumer);
 
 #if USING(USE_LOG)
-    DebugId id = p_consumer->GetDebugId();
+    DebugId id = p_consumer->debugId();
     LOG_TRACE(LogChannel::Picking, "+{}#{}", id.type, id.uid);
 #endif
 }
@@ -94,7 +94,7 @@ void PickingService::Unregister(IPickConsumer* p_consumer) {
         m_consumers.end());
 
 #if USING(USE_LOG)
-    DebugId id = p_consumer->GetDebugId();
+    DebugId id = p_consumer->debugId();
     LOG_TRACE(LogChannel::Picking, "-{}#{}", id.type, id.uid);
 #endif
 }

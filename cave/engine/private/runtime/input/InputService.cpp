@@ -41,8 +41,8 @@ void InputService::addDevice(std::unique_ptr<IInputDevice> device) {
 
     LOG_INFO(LogChannel::Input,
              "+{}#{}",
-             inputDeviceTypeToString(device->Type()),
-             device->Id().value);
+             inputDeviceTypeToString(device->type()),
+             device->id().value);
     devices_.emplace_back(std::move(device));
 }
 
@@ -101,7 +101,7 @@ void InputService::tick(const FrameTime& time) {
 
     // *) Poll devices -> raw events
     for (auto& d : devices_) {
-        d->Poll(input_events_);
+        d->poll(input_events_);
     }
 
     // *) Update pointers
@@ -130,7 +130,7 @@ void InputService::tick(const FrameTime& time) {
         .events = input_events_,
         .keystate = key_state_,
     };
-    router_.Dispatch(input_frame);
+    router_.dispatch(input_frame);
 
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
     DeviceRouting routing;

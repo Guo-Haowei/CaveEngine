@@ -1,6 +1,3 @@
-// =============================================================================
-// File: engine/private/runtime/input/InputRouter.h
-// =============================================================================
 #pragma once
 #include "cave/runtime/input/IInputConsumer.h"
 
@@ -10,15 +7,15 @@ struct InputEvent;
 
 class InputRouter {
 public:
-    void Register(IInputConsumer* p_consumer);
-    void Unregister(IInputConsumer* p_consumer);
+    void addConsumer(IInputConsumer* consumer);
+    void removeConsumer(IInputConsumer* consumer);
 
-    void Dispatch(const InputFrame& p_input);
+    void dispatch(const InputFrame& input);
 
 private:
-    void Sort();
+    void sortByPriority();
 
-    std::vector<IInputConsumer*> m_consumers;
+    std::vector<IInputConsumer*> consumers_;
 };
 
 }  // namespace cave

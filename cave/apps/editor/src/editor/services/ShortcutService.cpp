@@ -61,7 +61,7 @@ bool ShortcutService::HandleIntent(Intent& p_intent) {
     return false;
 }
 
-void ShortcutService::OnEvents(const InputFrame& p_input) {
+void ShortcutService::onEvents(const InputFrame& p_input) {
     InputService& input = m_editor.GetApp().InputService();
     const bool ctrl = input.keyState().anyCtrlDown();
     const bool alt = input.keyState().anyAltDown();

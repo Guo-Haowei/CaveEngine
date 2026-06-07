@@ -44,7 +44,7 @@ private:
         KeyArray released{};
     };
 
-    std::unordered_map<uint32_t, PerDeviceState> m_states;
+    std::unordered_map<uint32_t, PerDeviceState> states_;
 };
 
 }  // namespace cave

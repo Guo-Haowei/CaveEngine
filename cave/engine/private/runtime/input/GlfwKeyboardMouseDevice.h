@@ -9,34 +9,34 @@ enum class Key : uint16_t;
 
 class GlfwKeyboardMouseDevice : public IInputDevice {
 public:
-    GlfwKeyboardMouseDevice(InputDeviceId p_dev_id);
+    GlfwKeyboardMouseDevice(InputDeviceId dev_id);
 
-    InputDeviceType Type() const override { return InputDeviceType::KeyboardMouse; }
-    InputDeviceId Id() const override { return m_dev_id; }
+    InputDeviceType type() const override { return InputDeviceType::KeyboardMouse; }
+    InputDeviceId id() const override { return dev_id_; }
 
-    void Poll(std::vector<InputEvent>& p_out_events) override;
+    void poll(std::vector<InputEvent>& out_events) override;
 
-    void InstallCallbacks(GLFWwindow* p_window);
+    void InstallCallbacks(GLFWwindow* window);
 
 private:
-    Key MapGlfwKeyToCode(int p_glfw_key);
-    Key MapGlfwMouseButtonToCode(int p_glfw_button);
+    Key mapGlfwKeyToCode(int key);
+    Key mapGlfwMouseButtonToCode(int button);
 
-    static GlfwKeyboardMouseDevice* Get(GLFWwindow* p_window);
+    static GlfwKeyboardMouseDevice* getDevice(GLFWwindow* window);
 
-    static void KeyCallback(GLFWwindow* p_window, int p_key, int p_scancode, int p_action, int p_mods);
-    static void CharCallback(GLFWwindow* p_window, unsigned int p_codepoint);
-    static void MouseButtonCallback(GLFWwindow* p_window, int p_button, int p_action, int p_mods);
-    static void CursorPosCallback(GLFWwindow* p_window, double p_x, double p_y);
-    static void ScrollCallback(GLFWwindow* p_window, double p_x_offset, double p_y_offset);
+    static void keyCb(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void charCb(GLFWwindow* window, unsigned int codepoint);
+    static void mouseButtonCb(GLFWwindow* window, int button, int action, int mods);
+    static void cursorPosCb(GLFWwindow* window, double x, double y);
+    static void scrollCb(GLFWwindow* window, double dx, double dy);
 
-    void Push(InputEvent e);
+    void queueEvent(const InputEvent& e);
 
-    InputDeviceId m_dev_id{};
+    InputDeviceId dev_id_{};
 
-    std::vector<GLFWwindow*> m_windows;
-    std::deque<InputEvent> m_queue;
-    std::unordered_map<int, Key> m_key_mapping;
+    std::vector<GLFWwindow*> windows_;
+    std::deque<InputEvent> event_queue_;
+    std::unordered_map<int, Key> key_mapping_;
 };
 
 }  // namespace cave

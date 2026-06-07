@@ -33,11 +33,11 @@ public:
     }
 
     void addConsumer(IInputConsumer* consumer) {
-        router_.Register(consumer);
+        router_.addConsumer(consumer);
     }
 
     void removeConsumer(IInputConsumer* consumer) {
-        router_.Unregister(consumer);
+        router_.removeConsumer(consumer);
     }
 
     const UIInput& getUIInput() const { return ui_input_; }

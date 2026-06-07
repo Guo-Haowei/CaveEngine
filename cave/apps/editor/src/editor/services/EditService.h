@@ -32,7 +32,7 @@ public:
 
     bool HandleIntent(Intent& p_intent) override;
 
-    DebugId GetDebugId() const override { return m_debug_id; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     IDocument* ResolveDoc(DocId p_doc_id);

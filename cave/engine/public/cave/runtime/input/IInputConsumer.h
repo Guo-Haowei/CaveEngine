@@ -19,9 +19,9 @@ class IInputConsumer {
 public:
     virtual ~IInputConsumer() = default;
 
-    virtual int GetPriority() const = 0;
-    virtual void OnEvents(const InputFrame& p_input) = 0;
-    virtual DebugId GetDebugId() const = 0;
+    virtual void onEvents(const InputFrame& input) = 0;
+    virtual int priority() const = 0;
+    virtual DebugId debugId() const = 0;
 };
 
 }  // namespace cave

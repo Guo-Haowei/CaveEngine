@@ -41,7 +41,7 @@ public:
 
     ViewId GetViewId() const override { return m_view_id; }
 
-    DebugId GetDebugId() const final { return m_debug_id; }
+    DebugId debugId() const final { return m_debug_id; }
 
 protected:
     void SubmitView();

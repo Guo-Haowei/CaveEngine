@@ -16,35 +16,35 @@ public:
 
 class InputMapper {
 public:
-    explicit InputMapper(const InputActionMap& p_map)
-        : m_map(p_map) {}
+    explicit InputMapper(const InputActionMap& map)
+        : action_map_(map) {}
 
-    void Map(const std::vector<InputEvent>& p_events,
-             const KeyState& p_key_state,
-             const AxisState& p_axis_state,
-             const DeviceRouting& p_routing,
-             std::vector<ActionEvent>& p_out_actions) const;
+    void map(const std::vector<InputEvent>& events,
+             const KeyState& key_state,
+             const AxisState& axis_state,
+             const DeviceRouting& routing,
+             std::vector<ActionEvent>& out_actions) const;
 
 private:
-    void MapDigital(const StringId& p_str_id,
-                    const ActionDef& p_def,
-                    const std::vector<InputEvent>& p_events,
-                    const DeviceRouting& p_routing,
-                    std::vector<ActionEvent>& p_out_actions) const;
+    void mapDigital(const StringId& action,
+                    const ActionDef& def,
+                    const std::vector<InputEvent>& events,
+                    const DeviceRouting& routing,
+                    std::vector<ActionEvent>& out_actions) const;
 
-    void MapScalar(const StringId& p_str_id,
-                   const ActionDef& p_def,
-                   const KeyState& p_key_state,
-                   const DeviceRouting& p_routing,
-                   std::vector<ActionEvent>& p_out_actions) const;
+    void mapScalar(const StringId& action,
+                   const ActionDef& def,
+                   const KeyState& key_state,
+                   const DeviceRouting& routing,
+                   std::vector<ActionEvent>& out_actions) const;
 
-    void MapScalar(const StringId& p_str_id,
-                   const ActionDef& p_def,
-                   const AxisState& p_axis_state,
-                   const DeviceRouting& p_routing,
-                   std::vector<ActionEvent>& p_out_actions) const;
+    void mapScalar(const StringId& action,
+                   const ActionDef& def,
+                   const AxisState& axis_state,
+                   const DeviceRouting& routing,
+                   std::vector<ActionEvent>& out_actions) const;
 
-    const InputActionMap& m_map;
+    const InputActionMap& action_map_;
 };
 
 }  // namespace cave

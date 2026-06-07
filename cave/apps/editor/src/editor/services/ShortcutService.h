@@ -12,15 +12,16 @@ class IntentDispatcher;
 class ShortcutService final : public IInputConsumer,
                               public IIntentHandler {
 public:
-    ShortcutService(EditorState& p_editor);
+    ShortcutService(EditorState& editor);
     ~ShortcutService();
 
-    bool HandleIntent(Intent& p_intent) override;
-    void OnEvents(const InputFrame& p_input) override;
+    bool HandleIntent(Intent& intent) override;
 
-    const auto& GetShortcuts() const { return m_shortcuts; }
-    int GetPriority() const override { return 1000; }
-    DebugId GetDebugId() const override { return m_debug_id; }
+    const auto& getShortcuts() const { return m_shortcuts; }
+
+    void onEvents(const InputFrame& input) override;
+    int priority() const override { return 1000; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     void InitShortcuts();
