@@ -6,7 +6,7 @@
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
-#include "core/Position.h"
+#include "chess/core/Position.h"
 
 namespace chess {
 

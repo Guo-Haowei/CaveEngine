@@ -1,7 +1,8 @@
 #pragma once
 #include <array>
 #include <memory>
-#include "IPlayerAgent.h"
+
+#include "chess/agents/chess/agents/IPlayerAgent.h"
 
 // clang-format off
 namespace cave { class IHostServices; }

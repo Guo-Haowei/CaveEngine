@@ -1,5 +1,5 @@
 #pragma once
-#include "IPlayerAgent.h"
+#include "chess/agents/IPlayerAgent.h"
 
 namespace chess {
 

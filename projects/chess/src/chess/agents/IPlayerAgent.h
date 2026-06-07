@@ -1,5 +1,5 @@
 #pragma once
-#include "ChessTypes.h"
+#include "chess/game/ChessTypes.h"
 
 #include "cave/game/IHostServices.h"
 

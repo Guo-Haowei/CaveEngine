@@ -6,9 +6,9 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
-#include "core/Bitboard.h"
-#include "core/Piece.h"
-#include "ChessGameMode.h"
+#include "chess/core/Bitboard.h"
+#include "chess/core/Piece.h"
+#include "chess/game/ChessGameMode.h"
 
 namespace chess {
 

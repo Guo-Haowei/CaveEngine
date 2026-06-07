@@ -1,11 +1,11 @@
 #pragma once
 #include <deque>
 
-#include "core/Position.h"
-#include "IPlayerAgent.h"
-
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
+
+#include "chess/chess/core/Position.h"
+#include "chess/agents/chess/agents/IPlayerAgent.h"
 
 namespace chess {
 

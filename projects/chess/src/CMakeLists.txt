@@ -37,5 +37,5 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
 )
 
 if(CAVE_BUILD_TESTS)
-    add_subdirectory(core)
+    add_subdirectory(chess/core)
 endif()

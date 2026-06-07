@@ -1,0 +1,64 @@
+#pragma once
+#include <functional>
+#include <span>
+
+#include "cave/runtime/intent/IntentDispatcher.h"
+
+#include "chess/agents/IPlayerAgent.h"
+#include "chess/core/Move.h"
+
+// clang-format off
+namespace cave { class GridSelectController; }
+namespace cave { class IGameInput; }
+// clang-format on
+
+namespace chess {
+
+class ChessGameClient;
+class ChessPresenter;
+class LocalHumanAgent;
+
+class ChessGridSelectorAdapter {
+    using GetPlayerFunc = std::function<LocalHumanAgent*(PlayerId)>;
+
+public:
+    explicit ChessGridSelectorAdapter(cave::IntentDispatcher& intent,
+                                      ChessGameClient& game,
+                                      ChessPresenter& presenter) noexcept
+        : intent_(intent)
+        , client_(game)
+        , presenter_(presenter) {
+    }
+
+    bool canSelect(int x, int y);
+    void onSelect(int x, int y);
+    bool canDrop(int sx, int sy, int dx, int dy);
+    void onDrop(int sx, int sy, int dx, int dy);
+    void onCancel();
+    void onInvalid(int sx, int sy, int dx, int dy);
+
+    void tick(const cave::IGameInput& input);
+
+    void setController(cave::GridSelectController* controller) {
+        controller_ = controller;
+    }
+
+    void setPlayerCb(GetPlayerFunc&& func) {
+        get_player_cb_ = std::move(func);
+    }
+
+private:
+    void tickPointer(const cave::IGameInput& input);
+    void tickKeyboard(const cave::IGameInput& input);
+
+    cave::IntentDispatcher& intent_;
+    ChessGameClient& client_;
+
+    // @TODO: do not pass presenter here, instead query highlight
+    ChessPresenter& presenter_;
+
+    cave::GridSelectController* controller_;
+    GetPlayerFunc get_player_cb_;
+};
+
+}  // namespace chess

@@ -2,7 +2,7 @@
 #include <array>
 #include "cave/runtime/ecs/Entity.h"
 
-#include "core/Position.h"
+#include "chess/core/Position.h"
 
 // clang-format off
 namespace cave { class IHostServices; }

@@ -19,7 +19,7 @@
         if (!m_os) break;                                                                 \
         std::string msg = std::format(__VA_ARGS__);                                       \
         auto log = detail::BuildLog(LOG_LEVEL_TRACE, LogChannel::Intent, std::move(msg)); \
-        m_os->Print(std::move(log));                                                       \
+        m_os->Print(std::move(log));                                                      \
     } while (0)
 #else
 #define TRACE_INTENT(...) ((void)0)

@@ -61,7 +61,7 @@ void ChessGameSession::Tick() {
 void ChessGameSession::TickAwaitPlayerInput() {
     // @TODO: grid adapter should be owned by client/player?
     if (m_grid_adapter) {
-        m_grid_adapter->Tick(m_host.Input());
+        m_grid_adapter->tick(m_host.Input());
     }
 
     // poll player intents
@@ -133,21 +133,21 @@ void ChessGameSession::OnEnterBoot() {
             m_client->Presenter());
 
         cave::GridSelectController::Callbacks cbs = {
-            .can_select = [this](int x, int y) { return m_grid_adapter->CanSelect(x, y); },
-            .on_select = [this](int x, int y) { m_grid_adapter->OnSelect(x, y); },
-            .can_drop = [this](int sx, int sy, int dx, int dy) { return m_grid_adapter->CanDrop(sx, sy, dx, dy); },
-            .on_drop = [this](int sx, int sy, int dx, int dy) { m_grid_adapter->OnDrop(sx, sy, dx, dy); },
-            .on_cancel = [this]() { m_grid_adapter->OnCancel(); },
-            .on_invalid = [this](int sx, int sy, int dx, int dy) { m_grid_adapter->OnInvalid(sx, sy, dx, dy); }
+            .can_select = [this](int x, int y) { return m_grid_adapter->canSelect(x, y); },
+            .on_select = [this](int x, int y) { m_grid_adapter->onSelect(x, y); },
+            .can_drop = [this](int sx, int sy, int dx, int dy) { return m_grid_adapter->canDrop(sx, sy, dx, dy); },
+            .on_drop = [this](int sx, int sy, int dx, int dy) { m_grid_adapter->onDrop(sx, sy, dx, dy); },
+            .on_cancel = [this]() { m_grid_adapter->onCancel(); },
+            .on_invalid = [this](int sx, int sy, int dx, int dy) { m_grid_adapter->onInvalid(sx, sy, dx, dy); }
         };
 
         m_selector = std::make_unique<cave::GridSelectController>(
             Vector2i(8, 8),
             std::move(cbs));
 
-        m_grid_adapter->SetController(m_selector.get());
+        m_grid_adapter->setController(m_selector.get());
 
-        m_grid_adapter->SetGetPlayerFunc([this](PlayerId p_id) -> LocalHumanAgent* {
+        m_grid_adapter->setPlayerCb([this](PlayerId p_id) -> LocalHumanAgent* {
             return dynamic_cast<LocalHumanAgent*>(m_agents[p_id].get());
         });
     }

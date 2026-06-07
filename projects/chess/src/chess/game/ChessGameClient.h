@@ -3,11 +3,12 @@
 #include <span>
 #include <unordered_map>
 #include <unordered_set>
-#include "core/Position.h"
-#include "ChessPresenter.h"
 
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
+
+#include "chess/chess/core/Position.h"
+#include "chess/presentation/ChessPresenter.h"
 
 // clang-format off
 namespace cave { class IHostServices; }

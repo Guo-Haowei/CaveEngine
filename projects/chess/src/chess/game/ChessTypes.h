@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <format>
 
-#include "core/Move.h"
+#include "chess/core/Move.h"
 
 #include "cave/runtime/intent/Intent.h"
 
