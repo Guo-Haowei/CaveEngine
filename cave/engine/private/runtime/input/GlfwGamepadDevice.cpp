@@ -6,8 +6,8 @@
 
 namespace cave {
 
-static Key ToKeyFromGlfwButton(int p_button) {
-    switch (p_button) {
+static Key toKeyFromGlfwButton(int button) {
+    switch (button) {
         case GLFW_GAMEPAD_BUTTON_A:
             return Key::PadA;
         case GLFW_GAMEPAD_BUTTON_B:
@@ -46,53 +46,53 @@ static Key ToKeyFromGlfwButton(int p_button) {
     }
 }
 
-static void EmitAxis(std::vector<InputEvent>& p_out,
-                     InputDeviceId p_dev_id,
-                     AxisCode p_axis,
-                     float p_value) {
-    InputEvent e(InputEventType::Axis, p_dev_id);
-    e.code = std::to_underlying(p_axis);
-    e.x = p_value;
-    p_out.push_back(e);
+static void EmitAxis(std::vector<InputEvent>& out,
+                     InputDeviceId dev_id,
+                     AxisCode axis,
+                     float value) {
+    InputEvent e{ InputEventType::Axis, dev_id };
+    e.code = std::to_underlying(axis);
+    e.x = value;
+    out.push_back(e);
 }
 
-void GlfwGamepadDevice::Poll(std::vector<InputEvent>& p_out_events) {
-    if (!glfwJoystickPresent(m_joy)) {
+void GlfwGamepadDevice::poll(std::vector<InputEvent>& out_events) {
+    if (!glfwJoystickPresent(joy_id_)) {
         return;
     }
 
     // Require gamepad mapping (best for PS5 / Xbox style pads)
     GLFWgamepadstate s{};
-    if (!glfwGetGamepadState(m_joy, &s)) {
+    if (!glfwGetGamepadState(joy_id_, &s)) {
         return;
     }
 
     const int last = GLFW_GAMEPAD_BUTTON_LAST;
     for (int b = 0; b <= last; ++b) {
         const uint8_t now = (uint8_t)s.buttons[b];
-        const uint8_t prev = m_prev_buttons[(size_t)b];
+        const uint8_t prev = prev_buttons_[(size_t)b];
 
         if (now == prev) {
             continue;
         }
 
-        m_prev_buttons[b] = now;
+        prev_buttons_[b] = now;
 
-        if (const Key k = ToKeyFromGlfwButton(b); k != Key::None) {
+        if (const Key k = toKeyFromGlfwButton(b); k != Key::None) {
             InputEvent e((now == GLFW_PRESS) ? InputEventType::ButtonDown
                                              : InputEventType::ButtonUp,
-                         m_id);
+                         id_);
             e.code = std::to_underlying(k);
-            p_out_events.push_back(e);
+            out_events.push_back(e);
         }
     }
 
-    EmitAxis(p_out_events, m_id, AxisCode::LX, s.axes[GLFW_GAMEPAD_AXIS_LEFT_X]);
-    EmitAxis(p_out_events, m_id, AxisCode::LY, s.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
-    EmitAxis(p_out_events, m_id, AxisCode::RX, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_X]);
-    EmitAxis(p_out_events, m_id, AxisCode::RY, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
-    EmitAxis(p_out_events, m_id, AxisCode::LT, s.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]);
-    EmitAxis(p_out_events, m_id, AxisCode::RT, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
+    EmitAxis(out_events, id_, AxisCode::LX, s.axes[GLFW_GAMEPAD_AXIS_LEFT_X]);
+    EmitAxis(out_events, id_, AxisCode::LY, s.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
+    EmitAxis(out_events, id_, AxisCode::RX, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_X]);
+    EmitAxis(out_events, id_, AxisCode::RY, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+    EmitAxis(out_events, id_, AxisCode::LT, s.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]);
+    EmitAxis(out_events, id_, AxisCode::RT, s.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
 }
 
 }  // namespace cave

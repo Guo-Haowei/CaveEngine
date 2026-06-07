@@ -27,7 +27,7 @@ void UIRuntime::BeginFrame(const UIInput& p_input) {
 }
 
 void UIRuntime::EndFrame() {
-    if (!m_input.mouse_down) {
+    if (!m_input.submit_down) {
         m_active = 0;
     }
 
@@ -50,20 +50,20 @@ bool UIRuntime::Button(UIId p_id, UIRect p_rect) {
     const ViewRecord* view = m_view_manager->Resolve(m_current_view);
     DEV_ASSERT(view);
 
-    const Vector2f point_fb = view->ScreenToFrameBufferPixel(m_input.cursor_os);
+    const Vector2f point_fb = view->screenToFrameBufferPixel(m_input.cursor_os);
 
     const bool hovered = p_rect.Contains(point_fb.x, point_fb.y);
     if (hovered) {
         m_hot = p_id;
     }
 
-    if (hovered && m_input.mouse_pressed) {
+    if (hovered && m_input.submit_pressed) {
         m_active = p_id;
     }
 
     bool clicked = false;
 
-    if (m_active == p_id && m_input.mouse_released) {
+    if (m_active == p_id && m_input.submit_released) {
         clicked = hovered;
     }
 

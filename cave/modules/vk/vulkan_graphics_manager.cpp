@@ -3,7 +3,7 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/display/GlfwDisplayManager.h"
+#include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/null/NullPipelineStateManager.h"
 #include "vulkan_helpers.h"
@@ -354,7 +354,7 @@ VulkanGraphicsManager::VulkanGraphicsManager()
 }
 
 auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {
-    auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayService());
+    auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->GetDisplayService());
     DEV_ASSERT(display_manager);
     if (!display_manager) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");

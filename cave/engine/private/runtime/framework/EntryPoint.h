@@ -43,12 +43,12 @@ static void InitializeDvars(int p_argc, const char** p_argv) {
     LOG_INFO(LogChannel::App, "command line:{}", cmd_args);
 
     // 2) Deserialize dvars
-    DvarCache::Deserialize(DVAR_CACHE_FILE);
+    DvarCache::deserialize(DVAR_CACHE_FILE);
     // 3) Parse from command line, so command line will override cache
-    DvarCache::Parse(commands);
+    DvarCache::parse(commands);
 }
 #define INITIALIZE_DVARS(...) ::cave::InitializeDvars(__VA_ARGS__)
-#define FINALIZE_DVARS()      ::cave::DvarCache::Serialize(DVAR_CACHE_FILE)
+#define FINALIZE_DVARS()      ::cave::DvarCache::serialize(DVAR_CACHE_FILE)
 
 #else
 #define INITIALIZE_DVARS(...) (void)0

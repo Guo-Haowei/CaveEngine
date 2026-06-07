@@ -19,7 +19,7 @@ public:
 
     bool HandleIntent(Intent& p_intent) override;
 
-    DebugId GetDebugId() const override { return m_debug_id; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     void Raycast(const PickData& data);

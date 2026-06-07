@@ -4,6 +4,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/view/ViewQuery.h"
 
 namespace cave {
 
@@ -11,30 +12,35 @@ class Scene;
 
 class PIEHostServices final : public IHostServices {
 public:
-    explicit PIEHostServices(IApplication& p_app,
-                             Scene& p_scene,
-                             ViewId p_view_id) noexcept;
+    explicit PIEHostServices(IApplication& app,
+                             Scene& scene,
+                             ViewId view_id) noexcept;
 
-    cave::AssetRegistry& AssetRegistry() override;
-    cave::ecs::ComponentRegistry& ComponentRegistry() override;
-    IntentDispatcher& Intent() override;
-    IInputService& Input() override;
-    IUIRuntime& UI() override;
-    LogWrapper& Log() override { return m_logger; }
-    cave::SceneQuery& SceneQuery() override { return m_query; }
-    SceneCommandWriter& SceneWriter() override { return m_writer; }
+    AssetRegistry& assetRegistry() override;
+    ecs::ComponentRegistry& componentRegistry() override;
+    DisplayService& displayService() override;
+    IntentDispatcher& intentDispatcher() override;
+    const IGameInput& gameInput() const override;
+    IUIRuntime& ui() override;
+    LogWrapper& log() override { return logger_; }
+    SceneCommandWriter& sceneWriter() override { return writer_; }
 
-    ViewId GetViewId() const override { return m_view_id; }
+    ViewId viewId() const override { return view_id_; }
 
-    void FlushSceneCommands();
+    const SceneQuery& sceneQuery() const override { return scene_query_; }
+    const ViewQuery& viewQuery() const override { return view_query_; }
+
+    void flushSceneCommands();
 
 private:
-    IApplication& m_app;
-    LogWrapper m_logger;
-    Scene& m_scene;
-    ViewId m_view_id;
-    cave::SceneQuery m_query;
-    SceneCommandWriter m_writer;
+    IApplication& app_;
+    LogWrapper logger_;
+    Scene& scene_;
+    ViewId view_id_;
+    SceneCommandWriter writer_;
+
+    SceneQuery scene_query_;
+    ViewQuery view_query_;
 };
 
 }  // namespace cave

@@ -1,0 +1,22 @@
+#pragma once
+#include "chess/agents/IPlayerAgent.h"
+
+namespace chess {
+
+class ChessGameClient;
+
+class ChessAIAgent final : public IPlayerAgent {
+public:
+    explicit ChessAIAgent(PlayerId player,
+                          ChessGameClient& client) noexcept
+        : IPlayerAgent(player)
+        , client_(client) {
+    }
+
+    void tick(cave::IHostServices& host) override;
+
+private:
+    ChessGameClient& client_;
+};
+
+}  // namespace chess

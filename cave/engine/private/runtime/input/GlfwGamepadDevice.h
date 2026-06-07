@@ -8,18 +8,18 @@ class AxisState;
 class GlfwGamepadDevice final : public IInputDevice {
 public:
     GlfwGamepadDevice(InputDeviceId p_id, int p_joystick_id)
-        : m_id(p_id), m_joy(p_joystick_id) {}
+        : id_(p_id), joy_id_(p_joystick_id) {}
 
-    InputDeviceId Id() const final { return m_id; }
-    InputDeviceType Type() const final { return InputDeviceType::Gamepad; }
+    InputDeviceType type() const override { return InputDeviceType::Gamepad; }
+    InputDeviceId id() const override { return id_; }
 
-    void Poll(std::vector<InputEvent>& p_out_events) final;
+    void poll(std::vector<InputEvent>& out_events) override;
 
 private:
-    InputDeviceId m_id;
-    int m_joy = 0;
+    InputDeviceId id_;
+    int joy_id_ = 0;
 
-    std::array<uint8_t, 16> m_prev_buttons{};  // GLFW_GAMEPAD_BUTTON_LAST
+    std::array<uint8_t, 16> prev_buttons_{};  // GLFW_GAMEPAD_BUTTON_LAST
 };
 
 }  // namespace cave

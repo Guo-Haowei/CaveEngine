@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/containers/Iterators.h
+// File: cave/core/containers/Iterators.h
 // =============================================================================
 #pragma once
 #include <cassert>

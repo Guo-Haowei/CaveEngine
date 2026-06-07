@@ -8,10 +8,10 @@ class CommandRegistry;
 
 class DvarCache {
 public:
-    static void Serialize(std::string_view p_path);
-    static void Deserialize(std::string_view p_path);
-    static bool Parse(std::span<const std::string_view> p_commands);
-    static void RegisterCmd(CommandRegistry& p_reg);
+    static void serialize(std::string_view path);
+    static void deserialize(std::string_view path);
+    static bool parse(std::span<const std::string_view> commands);
+    static void registerCmd(CommandRegistry& reg);
 };
 
 }  // namespace cave

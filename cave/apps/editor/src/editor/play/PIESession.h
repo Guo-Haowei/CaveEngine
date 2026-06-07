@@ -38,7 +38,7 @@ public:
     SceneId GetPIESceneId() const { return m_pie_scene; }
 
     void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
-    DebugId GetDebugId() const override { return m_debug_id; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     bool EnsureGameModuleLoaded();

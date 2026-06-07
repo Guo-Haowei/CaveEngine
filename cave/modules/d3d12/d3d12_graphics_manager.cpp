@@ -17,7 +17,7 @@
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/runtime/display/GlfwDisplayManager.h"
+#include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -107,8 +107,8 @@ D3d12GraphicsManager::D3d12GraphicsManager()
 }
 
 auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
-
-    auto [w, h] = DisplayService::GetSingleton().GetWindowSize();
+    const int w = DisplayService::GetSingleton().windowSize().x;
+    const int h = DisplayService::GetSingleton().windowSize().y;
     DEV_ASSERT(w > 0 && h > 0);
 
     if (auto res = CreateDevice(); !res) {
@@ -211,10 +211,10 @@ void D3d12GraphicsManager::FinalizeImpl() {
 void D3d12GraphicsManager::Render() {
     ID3D12GraphicsCommandList* cmd_list = m_graphicsCommandList.Get();
 
-    const auto [width, height] = DisplayService::GetSingleton().GetWindowSize();
-    CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
+    Vector2i dim = DisplayService::GetSingleton().windowSize();
+    CD3DX12_VIEWPORT viewport(0.0f, 0.0f, (float)dim.x, (float)dim.y);
     cmd_list->RSSetViewports(1, &viewport);
-    D3D12_RECT rect{ 0, 0, width, height };
+    D3D12_RECT rect{ 0, 0, dim.x, dim.y };
     cmd_list->RSSetScissorRects(1, &rect);
 
     // bind the frame buffer
@@ -1217,7 +1217,7 @@ auto D3d12GraphicsManager::CreateDescriptorHeaps() -> Result<void> {
 }
 
 auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) -> Result<void> {
-    auto display_manager = dynamic_cast<GlfwDisplayManager*>(DisplayService::GetSingletonPtr());
+    auto display_manager = dynamic_cast<GlfwDisplayService*>(DisplayService::GetSingletonPtr());
     DEV_ASSERT(display_manager);
 
     // create a struct to hold information about the swap chain
@@ -1240,7 +1240,7 @@ auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) 
 
     D3D_FAIL(m_factory->CreateSwapChainForHwnd(
                  m_graphicsCommandQueue.Get(),
-                 static_cast<HWND>(display_manager->GetNativeWindow()),
+                 static_cast<HWND>(display_manager->nativeWindow()),
                  &scd,
                  NULL,
                  NULL,

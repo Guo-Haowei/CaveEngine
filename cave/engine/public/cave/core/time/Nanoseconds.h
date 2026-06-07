@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/time/Nanoseconds.h
+// File: cave/core/time/Nanoseconds.h
 // =============================================================================
 #pragma once
 #include <cstdint>

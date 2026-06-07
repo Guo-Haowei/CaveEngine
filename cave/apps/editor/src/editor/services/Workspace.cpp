@@ -1,10 +1,10 @@
 #include "Workspace.h"
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
-#include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/input/KeyCode.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorIntent.h"
@@ -22,14 +22,14 @@ Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
     IApplication& app = m_editor.GetApp();
-    app.InputService().Register(this);
+    app.InputService().addConsumer(this);
     app.IntentDispatcher()->AddHandler<OpenDocIntent>(this);
     app.IntentDispatcher()->AddHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
     IApplication& app = m_editor.GetApp();
-    app.InputService().Unregister(this);
+    app.InputService().removeConsumer(this);
     app.IntentDispatcher()->RemoveHandler<OpenDocIntent>(this);
     app.IntentDispatcher()->RemoveHandler<CloseDocIntent>(this);
 }
@@ -101,7 +101,7 @@ bool Workspace::HandleIntent(Intent& p_intent) {
     return false;
 }
 
-void Workspace::OnEvents(const InputFrame& p_input) {
+void Workspace::onEvents(const InputFrame& p_input) {
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
         if (tab && tab->IsHovered()) {

@@ -39,13 +39,12 @@ public:
     PreviewScene FocusedPreviewScene();
 
     bool HandleIntent(Intent& p_intent) override;
-    void OnEvents(const InputFrame& p_input) override;
-
-    int GetPriority() const override { return 10; }
-
-    DebugId GetDebugId() const override { return m_debug_id; }
 
     bool OnCloseRequested();
+
+    void onEvents(const InputFrame& p_input) override;
+    int priority() const override { return 10; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     void OpenOrFocusDoc(DocId p_doc_id);

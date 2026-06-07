@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/math/impl/VectorMathSSE.h
+// File: cave/core/math/impl/VectorMathSSE.h
 // =============================================================================
 #pragma once
 #include <xmmintrin.h>

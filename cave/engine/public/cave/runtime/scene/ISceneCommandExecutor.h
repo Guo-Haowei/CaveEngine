@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/scene/ISceneCommandExecutor.h
+// File: cave/runtime/scene/ISceneCommandExecutor.h
 // =============================================================================
 #pragma once
 #include "cave/runtime/ecs/ComponentDefines.h"

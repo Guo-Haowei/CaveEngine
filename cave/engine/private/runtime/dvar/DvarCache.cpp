@@ -11,8 +11,8 @@
 
 namespace cave {
 
-void DvarCache::Serialize(std::string_view p_path) {
-    auto res = FileAccess::Open(p_path, FileAccess::WRITE);
+void DvarCache::serialize(std::string_view path) {
+    auto res = FileAccess::Open(path, FileAccess::WRITE);
     if (!res) {
         LOG_ERROR(LogChannel::Dvar, "{}", ToString(res.error()));
         return;
@@ -31,14 +31,16 @@ void DvarCache::Serialize(std::string_view p_path) {
     writer->Close();
 }
 
-void DvarCache::Deserialize(std::string_view p_path) {
-    auto res = FileAccess::Open(p_path, FileAccess::READ);
+void DvarCache::deserialize(std::string_view path) {
+    auto res = FileAccess::Open(path, FileAccess::READ);
     if (!res) {
         if (res.error()->value != ErrorCode::ERR_FILE_NOT_FOUND) {
             LOG_ERROR(LogChannel::Dvar, "{}", ToString(res.error()));
         }
         return;
     }
+
+    LOG_INFO(LogChannel::Dvar, "Deserializing");
 
     auto reader = std::move(*res);
     const size_t size = reader->GetLength();
@@ -54,8 +56,8 @@ void DvarCache::Deserialize(std::string_view p_path) {
     }
 }
 
-bool DvarCache::Parse(std::span<const std::string_view> p_commands) {
-    DvarParser parser(p_commands, DvarParser::Source::CommandLine);
+bool DvarCache::parse(std::span<const std::string_view> commands) {
+    DvarParser parser(commands, DvarParser::Source::CommandLine);
     bool ok = parser.Parse();
     if (!ok) {
         LOG_ERROR(LogChannel::Dvar, "Error: {}", parser.GetError());
@@ -63,8 +65,8 @@ bool DvarCache::Parse(std::span<const std::string_view> p_commands) {
     return ok;
 }
 
-void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
-    p_reg.Register({
+void DvarCache::registerCmd(CommandRegistry& reg) {
+    reg.Register({
         .name = "dvar.set",
         .help = "List registered dvars.",
         .usage = "Usage: dvar.set name [value]",
@@ -83,7 +85,7 @@ void DvarCache::RegisterCmd(CommandRegistry& p_reg) {
             return false;
         },
     });
-    p_reg.Register({
+    reg.Register({
         .name = "dvar.dump",
         .help = "Dump all registered dvars.",
         .usage = "dvar.dump",

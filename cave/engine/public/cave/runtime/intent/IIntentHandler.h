@@ -14,7 +14,7 @@ public:
     [[nodiscard]]
     virtual bool HandleIntent(Intent& p_intent) = 0;
 
-    virtual DebugId GetDebugId() const = 0;
+    virtual DebugId debugId() const = 0;
 };
 
 }  // namespace cave

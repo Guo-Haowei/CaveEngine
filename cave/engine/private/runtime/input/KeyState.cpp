@@ -2,22 +2,22 @@
 
 namespace cave {
 
-size_t KeyState::Index(Key p_key) {
-    const size_t idx = static_cast<size_t>(static_cast<uint16_t>(p_key));
+size_t KeyState::index(Key key) {
+    const size_t idx = static_cast<size_t>(static_cast<uint16_t>(key));
     return (idx < kKeyCount) ? idx : 0;
 }
 
-void KeyState::BeginFrame() {
+void KeyState::beginFrame() {
     // Clear pressed/released for all devices
-    for (auto& [_, st] : m_states) {
+    for (auto& [_, st] : states_) {
         st.pressed.reset();
         st.released.reset();
     }
 }
 
-void KeyState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
-    for (size_t i = 0; i < p_count; ++i) {
-        const InputEvent& e = p_events[i];
+void KeyState::updateFromEvents(const InputEvent* events, size_t count) {
+    for (size_t i = 0; i < count; ++i) {
+        const InputEvent& e = events[i];
         if (e.consumed) {
             continue;
         }
@@ -28,9 +28,9 @@ void KeyState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
         }
 
         const Key key = static_cast<Key>(e.code);
-        const size_t idx = Index(key);
+        const size_t idx = index(key);
 
-        auto& st = m_states[e.device_id.value];  // auto-creates if missing
+        auto& st = states_[e.dev_id.value];  // auto-creates if missing
 
         if (e.type == InputEventType::ButtonDown) {
             if (!st.down[idx]) {
@@ -48,25 +48,25 @@ void KeyState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
 
 // --- Queries ---
 
-bool KeyState::Down(InputDeviceId p_device, Key p_key) const {
-    if (auto it = m_states.find(p_device.value); it != m_states.end()) {
-        return it->second.down.test(Index(p_key));
+bool KeyState::down(InputDeviceId dev_id, Key key) const {
+    if (auto it = states_.find(dev_id.value); it != states_.end()) {
+        return it->second.down.test(index(key));
     }
 
     return false;
 }
 
-bool KeyState::PressedThisFrame(InputDeviceId p_device, Key p_key) const {
-    if (auto it = m_states.find(p_device.value); it != m_states.end()) {
-        return it->second.pressed.test(Index(p_key)) != 0;
+bool KeyState::pressedThisFrame(InputDeviceId dev_id, Key key) const {
+    if (auto it = states_.find(dev_id.value); it != states_.end()) {
+        return it->second.pressed.test(index(key)) != 0;
     }
 
     return false;
 }
 
-bool KeyState::ReleasedThisFrame(InputDeviceId p_device, Key p_key) const {
-    if (auto it = m_states.find(p_device.value); it != m_states.end()) {
-        return it->second.released.test(Index(p_key)) != 0;
+bool KeyState::releasedThisFrame(InputDeviceId dev_id, Key key) const {
+    if (auto it = states_.find(dev_id.value); it != states_.end()) {
+        return it->second.released.test(index(key)) != 0;
     }
 
     return false;
@@ -74,55 +74,55 @@ bool KeyState::ReleasedThisFrame(InputDeviceId p_device, Key p_key) const {
 
 // --- Modifiers ---
 
-bool KeyState::CtrlDown(InputDeviceId p_device) const {
-    return Down(p_device, Key::LeftCtrl) || Down(p_device, Key::RightCtrl);
+bool KeyState::ctrlDown(InputDeviceId dev_id) const {
+    return down(dev_id, Key::LeftCtrl) || down(dev_id, Key::RightCtrl);
 }
 
-bool KeyState::ShiftDown(InputDeviceId p_device) const {
-    return Down(p_device, Key::LeftShift) || Down(p_device, Key::RightShift);
+bool KeyState::shiftDown(InputDeviceId dev_id) const {
+    return down(dev_id, Key::LeftShift) || down(dev_id, Key::RightShift);
 }
 
-bool KeyState::AltDown(InputDeviceId p_device) const {
-    return Down(p_device, Key::LeftAlt) || Down(p_device, Key::RightAlt);
+bool KeyState::altDown(InputDeviceId dev_id) const {
+    return down(dev_id, Key::LeftAlt) || down(dev_id, Key::RightAlt);
 }
 
-bool KeyState::AnyCtrlDown() const {
-    for (const auto& [_, st] : m_states) {
-        if (st.down[Index(Key::LeftCtrl)] ||
-            st.down[Index(Key::RightCtrl)]) {
+bool KeyState::anyCtrlDown() const {
+    for (const auto& [_, st] : states_) {
+        if (st.down[index(Key::LeftCtrl)] ||
+            st.down[index(Key::RightCtrl)]) {
             return true;
         }
     }
     return false;
 }
 
-bool KeyState::AnyShiftDown() const {
-    for (const auto& [_, st] : m_states) {
-        if (st.down[Index(Key::LeftShift)] ||
-            st.down[Index(Key::RightShift)]) {
+bool KeyState::anyShiftDown() const {
+    for (const auto& [_, st] : states_) {
+        if (st.down[index(Key::LeftShift)] ||
+            st.down[index(Key::RightShift)]) {
             return true;
         }
     }
     return false;
 }
 
-bool KeyState::AnyAltDown() const {
-    for (const auto& [_, st] : m_states) {
-        if (st.down[Index(Key::LeftAlt)] ||
-            st.down[Index(Key::RightAlt)]) {
+bool KeyState::anyAltDown() const {
+    for (const auto& [_, st] : states_) {
+        if (st.down[index(Key::LeftAlt)] ||
+            st.down[index(Key::RightAlt)]) {
             return true;
         }
     }
     return false;
 }
 
-void KeyState::ClearDevice(InputDeviceId p_device) {
-    m_states.erase(p_device.value);
+void KeyState::clearDevice(InputDeviceId dev_id) {
+    states_.erase(dev_id.value);
 }
 
-std::vector<InputDeviceId> KeyState::ActiveDevices() const {
+std::vector<InputDeviceId> KeyState::activeDevices() const {
     std::vector<InputDeviceId> devices;
-    for (const auto& [key, _] : m_states) {
+    for (const auto& [key, _] : states_) {
         devices.push_back(InputDeviceId{ key });
     }
     return devices;

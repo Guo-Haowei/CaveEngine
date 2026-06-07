@@ -1,8 +1,7 @@
 #include "MenuBar.h"
 
-#include "cave/runtime/framework/IInputService.h"
-
 #include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/EditorState.h"
@@ -13,7 +12,7 @@
 namespace cave {
 
 void MenuBar::DrawUI() {
-    const auto& shortcuts = m_editor.ShortcutService().GetShortcuts();
+    const auto& shortcuts = m_editor.ShortcutService().getShortcuts();
     auto build_menu_item = [&](Shortcut p_index) {
         const auto& it = shortcuts[std ::to_underlying(p_index)];
         const bool enabled = it.enabled_func ? it.enabled_func() : true;

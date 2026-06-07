@@ -4,12 +4,12 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/input/KeyState.h"
 
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/runtime/view/ViewManager.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/view/ViewManager.h"
 
 #include "editor/edit/ChangePropertyCmd.h"
 #include "editor/services/EditService.h"
@@ -155,7 +155,7 @@ Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& p_pos_screen) {
 
     return Some(PickData{
         .proj_view = m_camera.GetProjectionViewMatrix(),
-        .cursor_ndc = view->ScreenToNDC(p_pos_screen),
+        .cursor_ndc = view->screenToNDC(p_pos_screen),
         .scene_id = m_preview_scene,
         .doc_id = m_doc_id,
     });
@@ -214,8 +214,8 @@ void SceneViewTab::OnInputEvents(const InputFrame& p_input) {
         return;
     }
 
-    const KeyState& st = m_editor.GetApp().InputService().GetKeyState();
-    if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
+    const KeyState& st = m_editor.GetApp().InputService().keyState();
+    if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return;
     }
 

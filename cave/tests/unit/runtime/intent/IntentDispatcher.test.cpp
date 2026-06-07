@@ -3,6 +3,8 @@
 
 namespace cave {
 
+using namespace ::cave::literals;
+
 class TestIntentHandler : public IIntentHandler {
 public:
     TestIntentHandler()
@@ -10,7 +12,7 @@ public:
 
     bool HandleIntent(Intent&) override { return true; }
 
-    DebugId GetDebugId() const {
+    DebugId debugId() const {
         return m_debug_id;
     }
 

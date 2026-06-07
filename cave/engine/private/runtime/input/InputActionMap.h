@@ -68,32 +68,29 @@ struct ActionDef {
 
 class InputActionMap {
 public:
-    void AddAction(const StringId& p_str_id, ActionValueType p_type);
+    void addAction(const StringId& action, ActionValueType type);
 
-    bool HasAction(const StringId& p_str_id) const;
+    bool hasAction(const StringId& action) const;
 
-    // Digital: key press/release generates events
-    void BindDigital(const StringId& p_str_id,
-                     Key p_key);
+    void bindDigital(const StringId& action,
+                     Key key);
 
-    // ScalarButton: key contributes scale while held
-    void BindScalar(const StringId& p_str_id,
-                    Key p_key,
-                    float p_scale);
+    void bindScalar(const StringId& action,
+                    Key key,
+                    float scale);
 
-    // ScalarAxis: axis contributes scale
-    void BindScalar(const StringId& p_str_id,
-                    AxisCode p_axis,
-                    float p_scale,
-                    float p_deadzone = 0.0f,
-                    bool p_invert = false);
+    void bindScalar(const StringId& action,
+                    AxisCode axis,
+                    float scale,
+                    float deadzone = 0.0f,
+                    bool invert = false);
 
-    const ActionDef* Find(const StringId& p_str_id) const;
+    const ActionDef* findDef(const StringId& action) const;
 
-    const auto& GetActions() const { return m_actions; }
+    const auto& GetActions() const { return action_defs_; }
 
 private:
-    std::unordered_map<StringId, ActionDef> m_actions;
+    std::unordered_map<StringId, ActionDef> action_defs_;
 };
 
 }  // namespace cave

@@ -21,7 +21,7 @@ public:
 
     virtual Option<PickData> GetPickData(const math::Vector2f& p_pos_screen) = 0;
 
-    virtual DebugId GetDebugId() const = 0;
+    virtual DebugId debugId() const = 0;
 };
 
 }  // namespace cave

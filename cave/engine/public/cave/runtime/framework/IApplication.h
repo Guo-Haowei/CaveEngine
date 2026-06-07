@@ -26,7 +26,7 @@ class EventQueue;
 class IAssetManager;
 class DisplayService;
 class ImguiManager;
-class IInputService;
+class InputService;
 class IntentDispatcher;
 class IUIRuntime;
 class IPhysicsManager;
@@ -91,7 +91,7 @@ public:
     virtual VFS& GetVFS() = 0;
     virtual EventQueue& GetEventQueue() = 0;
     virtual SceneScheduler& GetSceneScheduler() = 0;
-    virtual IInputService& InputService() = 0;
+    virtual cave::InputService& InputService() = 0;
 
     // services
     SceneQueryService& SceneQueryService() { return *m_scene_query_service; }

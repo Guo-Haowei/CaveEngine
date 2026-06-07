@@ -9,11 +9,11 @@ namespace cave {
 
 using namespace math;
 
-ecs::Entity SceneQuery::FindFirstEntity(std::string_view p_name) {
+ecs::Entity SceneQuery::FindFirstEntity(std::string_view p_name) const {
     return m_scene.FindEntityByName(p_name);
 }
 
-size_t SceneQuery::GetComponentCount(ComponentId p_cid) {
+size_t SceneQuery::GetComponentCount(ComponentId p_cid) const {
     return m_scene.GetCount(p_cid);
 }
 
@@ -43,8 +43,7 @@ static bool RaycastHelper(Ray& p_ray,
     return false;
 }
 
-RayHit SceneQuery::Raycast(math::Ray& p_ray, const RaycastFilter& p_filter) {
-    unused(p_filter);
+RayHit SceneQuery::Raycast(math::Ray& p_ray, const RaycastFilter&) const {
 
     RayHit res{};
     for (auto [entity, mesh, transform] : m_scene.View<MeshRendererComponent, TransformComponent>()) {

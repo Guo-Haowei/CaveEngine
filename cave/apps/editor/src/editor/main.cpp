@@ -1,6 +1,6 @@
 #include "cave/core/string/StringUtils.h"
 
-#include "engine/private/runtime/display/GlfwDisplayManager.h"
+#include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -63,8 +63,8 @@ public:
 
     void Finalize() final {
         if (m_display_service) {
-            [[maybe_unused]] auto [w, h] = m_display_service->GetWindowSize();
-            DVAR_SET_IVEC2(window_resolution, w, h);
+            [[maybe_unused]] auto window_size = m_display_service->windowSize();
+            DVAR_SET_IVEC2(window_resolution, window_size.x, window_size.y);
         }
 
         Application::Finalize();
@@ -140,7 +140,7 @@ int main(int p_argc, const char** p_argv) {
         return new LuaScriptService();
     });
     DisplayService::RegisterCreateFunc([]() -> DisplayService* {
-        return new GlfwDisplayManager();
+        return new GlfwDisplayService();
     });
 
     // @TODO: figure out a way to create it cleanly

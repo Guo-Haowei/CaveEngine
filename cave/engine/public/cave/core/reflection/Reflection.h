@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/reflection/Reflection.h
+// File: cave/core/reflection/Reflection.h
 // =============================================================================
 #pragma once
 #include "cave/core/typedefs.h"

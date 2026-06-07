@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/scene/SceneQuery.h
+// File: cave/runtime/scene/SceneQuery.h
 // =============================================================================
 #pragma once
 #include "cave/core/math/Ray.h"
@@ -32,11 +32,11 @@ public:
     explicit SceneQuery(const Scene& p_scene) noexcept
         : m_scene(p_scene) {}
 
-    ecs::Entity FindFirstEntity(std::string_view p_name);
+    ecs::Entity FindFirstEntity(std::string_view p_name) const;
 
-    size_t GetComponentCount(ComponentId p_cid);
+    size_t GetComponentCount(ComponentId p_cid) const;
 
-    RayHit Raycast(math::Ray& p_ray, const RaycastFilter& p_filter);
+    RayHit Raycast(math::Ray& p_ray, const RaycastFilter& p_filter) const;
 
 private:
     const Scene& m_scene;

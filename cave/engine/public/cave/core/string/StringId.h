@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/string/StringId.h
+// File: cave/core/string/StringId.h
 // =============================================================================
 #pragma once
 #include "cave/core/typedefs.h"

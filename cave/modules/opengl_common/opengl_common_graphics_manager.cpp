@@ -10,7 +10,7 @@
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/runtime/display/GlfwDisplayManager.h"
+#include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -642,14 +642,14 @@ void CommonOpenGLGraphicsManager::Render() {
 
     // @TODO: refactor this
     if (m_app->IsRuntime()) {
-        const auto [width, height] = m_app->GetDisplayService()->GetWindowSize();
-        unused(width);
-        unused(height);
         CRASH_NOW();
-        // RenderGraphBuilder::DrawDebugImages(*GetRenderData(),
-        //                                               width,
-        //                                               height,
-        //                                               *this);
+        // const auto [width, height] = m_app->GetDisplayService()->windowSize();
+        // unused(width);
+        // unused(height);
+        //  RenderGraphBuilder::DrawDebugImages(*GetRenderData(),
+        //                                                width,
+        //                                                height,
+        //                                                *this);
     }
 
     if (m_app->GetSpecification().enableImgui) {

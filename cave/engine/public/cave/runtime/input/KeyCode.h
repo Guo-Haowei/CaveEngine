@@ -108,14 +108,14 @@ enum class AxisCode : uint16_t {
 constexpr uint16_t kKeyCount = std::to_underlying(Key::_Max);
 constexpr uint16_t kAxisCount = std::to_underlying(AxisCode::_Max);
 
-constexpr inline bool IsMouseButton(Key p_key) {
-    return std::to_underlying(p_key) >= std::to_underlying(Key::_FirstMouseButton) &&
-           std::to_underlying(p_key) <= std::to_underlying(Key::_LastMouseButton);
+constexpr inline bool IsMouseButton(Key key) {
+    return std::to_underlying(key) >= std::to_underlying(Key::_FirstMouseButton) &&
+           std::to_underlying(key) <= std::to_underlying(Key::_LastMouseButton);
 }
 
-constexpr inline bool IsKey(Key p_key) {
-    return std::to_underlying(p_key) >= std::to_underlying(Key::_FirstKey) &&
-           std::to_underlying(p_key) <= std::to_underlying(Key::_LastKey);
+constexpr inline bool IsKey(Key key) {
+    return std::to_underlying(key) >= std::to_underlying(Key::_FirstKey) &&
+           std::to_underlying(key) <= std::to_underlying(Key::_LastKey);
 }
 
 }  // namespace cave

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/scene/SceneCommandBuffer.h
+// File: cave/runtime/scene/SceneCommandBuffer.h
 // =============================================================================
 #pragma once
 #include <type_traits>

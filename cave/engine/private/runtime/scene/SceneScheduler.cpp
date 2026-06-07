@@ -19,7 +19,7 @@ bool SceneScheduler::Register(ISceneTickContributor* p_contributor) {
     m_contributors.push_back(p_contributor);
 
 #if USING(USE_LOG)
-    const DebugId id = p_contributor->GetDebugId();
+    const DebugId id = p_contributor->debugId();
     LOG_TRACE(LogChannel::Scene, "+{}#{}", id.type, id.uid);
 #endif
     return true;
@@ -36,7 +36,7 @@ bool SceneScheduler::Unregister(ISceneTickContributor* p_contributor) {
     m_contributors.erase(it);
 
 #if USING(USE_LOG)
-    const DebugId id = p_contributor->GetDebugId();
+    const DebugId id = p_contributor->debugId();
     LOG_TRACE(LogChannel::Scene, "-{}#{}", id.type, id.uid);
 #endif
     return true;

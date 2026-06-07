@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/reflection/Meta.h
+// File: cave/core/reflection/Meta.h
 // =============================================================================
 #pragma once
 #include "cave/core/reflection/Reflection.h"

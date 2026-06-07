@@ -6,6 +6,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
@@ -18,12 +19,12 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -116,7 +117,7 @@ auto Application::SetupModules() -> Result<void> {
 
     m_event_queue.RegisterListener(m_render_device);
 
-    DvarCache::RegisterCmd(*m_cmd_reg);
+    DvarCache::registerCmd(*m_cmd_reg);
     return Result<void>();
 }
 
@@ -190,8 +191,8 @@ bool Application::MainLoop() {
 
     CompositeLogger::GetSingleton().Flush();
 
-    m_display_service->BeginFrame();
-    if (m_display_service->ShouldClose()) {
+    m_display_service->beginFrame();
+    if (m_display_service->shouldClose()) {
         return false;
     }
 
@@ -202,9 +203,9 @@ bool Application::MainLoop() {
         .frame_index = m_frame_counter++,
     };
 
-    m_input_service->Tick(time);
+    m_input_service->tick(time);
 
-    m_ui->BeginFrame(m_input_service->GetUIInput());
+    m_ui->BeginFrame(m_input_service->getUIInput());
 
     m_asset_manager->Update();
 

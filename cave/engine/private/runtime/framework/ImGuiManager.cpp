@@ -7,12 +7,12 @@
 
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/string/StringUtils.h"
+#include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/input/InputTypes.h"
 #include "cave/runtime/input/KeyCode.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
-#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/VFS.h"
@@ -301,9 +301,9 @@ void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
                 float x = static_cast<float>(e.x);
                 float y = static_cast<float>(e.y);
                 if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-                    auto [window_x, window_y] = m_app->GetDisplayService()->GetWindowPos();
-                    x += window_x;
-                    y += window_y;
+                    math::Vector2f window_pos = m_app->GetDisplayService()->windowPos();
+                    x += window_pos.x;
+                    y += window_pos.y;
                 }
                 io.AddMousePosEvent(x, y);
             } break;
