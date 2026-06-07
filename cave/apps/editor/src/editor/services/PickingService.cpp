@@ -35,17 +35,7 @@ void PickingService::Pick(math::Vector2f p_point_win) {
 }
 
 void PickingService::Raycast(const PickData& p_pick_data) {
-    Vector4f clip_near{ p_pick_data.cursor_ndc, 0.0f, 1.0f };
-    Vector4f clip_far{ p_pick_data.cursor_ndc, 1.0f, 1.0f };
-
-    const Matrix4x4f inv_pv = glm::inverse(p_pick_data.proj_view);
-
-    Vector4f world_near = inv_pv * clip_near;
-    Vector4f world_far = inv_pv * clip_far;
-    world_near /= world_near.w;
-    world_far /= world_far.w;
-
-    math::Ray ray(world_near.xyz, world_far.xyz);
+    auto ray = math::Ray::Unproject(p_pick_data.proj_view, p_pick_data.cursor_ndc);
 
     auto result = m_editor.GetApp().SceneQueryService().Raycast(p_pick_data.scene_id, ray, {});
 
@@ -55,6 +45,7 @@ void PickingService::Raycast(const PickData& p_pick_data) {
         .scene = p_pick_data.scene_id,
         .entity = result.entity,
     };
+
     m_editor.SelectionService().Set(p_pick_data.doc_id, key);
 }
 

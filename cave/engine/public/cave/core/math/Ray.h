@@ -27,6 +27,8 @@ public:
     float GetDist() const { return m_dist; }
     void SetDist(float p_dist) { m_dist = p_dist; }
 
+    static Ray Unproject(const Matrix4x4f& p_proj_view, const Vector2f& p_ndc);
+
 private:
     const Vector3f m_start;
     const Vector3f m_end;
