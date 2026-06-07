@@ -1,8 +1,8 @@
-#include "DisplayService.h"
-
+#include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
+
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/runtime/display/GlfwDisplayManager.h"
+#include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 
 namespace cave {
@@ -43,7 +43,7 @@ Result<void> DisplayService::InitializeImpl() {
         .enableImgui = spec.enableImgui,
     };
 
-    return InitializeWindow(info);
+    return initializeWindow(info);
 }
 
 }  // namespace cave

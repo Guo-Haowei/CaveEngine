@@ -130,6 +130,7 @@ void ChessGameSession::OnEnterBoot() {
     if (any_human) {
         m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
             m_host.intentDispatcher(),
+            m_host.log(),
             *m_client,
             m_client->Presenter());
 

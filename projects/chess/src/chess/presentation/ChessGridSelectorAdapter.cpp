@@ -3,6 +3,7 @@
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
 #include "cave/runtime/input/IGameInput.h"
+#include "cave/runtime/display/DisplayService.h"
 
 #include "chess/agents/LocalHumanAgent.h"
 #include "chess/game/ChessGameClient.h"
@@ -12,7 +13,9 @@
 
 namespace chess {
 
+using namespace cave;
 using namespace cave::literals;
+using namespace cave::math;
 using core::Color;
 using core::Move;
 using core::MoveType;
@@ -73,7 +76,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
         }
         assert(move.IsValid());
 
-        intent_.Queue<ChessMoveIntent>(id, move);
+        host_.intentDispatcher().Queue<ChessMoveIntent>(id, move);
     }
 }
 
@@ -89,14 +92,20 @@ void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
     LOG_ERROR("can't select/drop");
 }
 
-void ChessGridSelectorAdapter::tickPointer(const cave::IGameInput& input) {
+void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
+    const PointerState& pointer = input.pointerState();
 
+    // @TODO: project ray
+    const DisplayService& display = host_.displayService();
+    Vector2f pos_os = pointer.pos_win + display.windowPos();
+
+    if (pointer.delta.x > 1) {
+        auto msg = std::format("pointer: {} {}", pos_os.x, pos_os.y);
+        host_.log().Info(LogChannel::Game, std::move(msg));
+    }
 }
 
-void ChessGridSelectorAdapter::tickKeyboard(const cave::IGameInput& input) {
-
-    // @TODO: player
-    // @TODO: consume action instead
+void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
     if (input.isJustPressed("ui_right"_sid)) {
         controller_->MoveFocus(1, 0);
     }
@@ -131,7 +140,8 @@ void ChessGridSelectorAdapter::tickKeyboard(const cave::IGameInput& input) {
     }
 }
 
-void ChessGridSelectorAdapter::tick(const cave::IGameInput& input) {
+void ChessGridSelectorAdapter::tick() {
+    const IGameInput& input = host_.gameInput();
     tickPointer(input);
     tickKeyboard(input);
 }

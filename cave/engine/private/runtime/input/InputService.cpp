@@ -1,8 +1,8 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/input/InputService.h"
 
@@ -89,9 +89,8 @@ UIInput InputService::buildUIInput() {
     DisplayService& display_service = *m_app->GetDisplayService();
 
     const PointerState& pointer = pointers_[device_id.value];
-    const auto [window_pos_x, window_pos_y] = display_service.GetWindowPos();
-    input.cursor_os.x = pointer.pos_win.x + window_pos_x;
-    input.cursor_os.y = pointer.pos_win.y + window_pos_y;
+    Vector2f window_pos = display_service.windowPos();
+    input.cursor_os = pointer.pos_win + window_pos;
 
     return input;
 }

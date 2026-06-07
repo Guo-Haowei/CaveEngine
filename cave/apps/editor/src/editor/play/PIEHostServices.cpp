@@ -28,6 +28,10 @@ ecs::ComponentRegistry& PIEHostServices::componentRegistry() {
     return engine::GetComponentRegistry();
 }
 
+DisplayService& PIEHostServices::displayService() {
+    return *app_.GetDisplayService();
+}
+
 IntentDispatcher& PIEHostServices::intentDispatcher() {
     return *app_.IntentDispatcher();
 }

@@ -2,9 +2,9 @@
 
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/math/Vector.h"
+#include "cave/runtime/display/DisplayService.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
-#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"

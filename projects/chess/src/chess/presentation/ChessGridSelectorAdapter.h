@@ -10,6 +10,7 @@
 // clang-format off
 namespace cave { class GridSelectController; }
 namespace cave { class IGameInput; }
+namespace cave { class IHostServices; }
 // clang-format on
 
 namespace chess {
@@ -22,10 +23,10 @@ class ChessGridSelectorAdapter {
     using GetPlayerFunc = std::function<LocalHumanAgent*(PlayerId)>;
 
 public:
-    explicit ChessGridSelectorAdapter(cave::IntentDispatcher& intent,
+    explicit ChessGridSelectorAdapter(cave::IHostServices host,
                                       ChessGameClient& game,
                                       ChessPresenter& presenter) noexcept
-        : intent_(intent)
+        : host_(host)
         , client_(game)
         , presenter_(presenter) {
     }
@@ -37,7 +38,7 @@ public:
     void onCancel();
     void onInvalid(int sx, int sy, int dx, int dy);
 
-    void tick(const cave::IGameInput& input);
+    void tick();
 
     void setController(cave::GridSelectController* controller) {
         controller_ = controller;
@@ -51,13 +52,12 @@ private:
     void tickPointer(const cave::IGameInput& input);
     void tickKeyboard(const cave::IGameInput& input);
 
-    cave::IntentDispatcher& intent_;
-    ChessGameClient& client_;
+    cave::IHostServices& host_;
+    cave::GridSelectController* controller_{};
 
-    // @TODO: do not pass presenter here, instead query highlight
+    ChessGameClient& client_;
     ChessPresenter& presenter_;
 
-    cave::GridSelectController* controller_;
     GetPlayerFunc get_player_cb_;
 };
 

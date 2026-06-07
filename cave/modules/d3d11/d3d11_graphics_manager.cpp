@@ -2,6 +2,9 @@
 
 #include <imgui/backends/imgui_impl_dx11.h>
 
+#include "cave/runtime/display/DisplayService.h"
+#include "cave/runtime/framework/IApplication.h"
+
 #include "D3D11ViewCache.h"
 
 // @TODO: refactor
@@ -14,8 +17,6 @@
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
-#include "cave/runtime/framework/IApplication.h"
-#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -76,7 +77,7 @@ void D3d11GraphicsManager::Render() {
     m_deviceContext->ClearRenderTargetView(m_windowRtv.Get(), clear_color);
 
     // @TODO: refactor this
-    const auto [width, height] = m_app->GetDisplayService()->GetWindowSize();
+    // const auto [width, height] = m_app->GetDisplayService()->windowSize();
 
     if (m_app->IsRuntime()) {
         CRASH_NOW();
@@ -173,7 +174,7 @@ auto D3d11GraphicsManager::CreateDevice() -> Result<void> {
 }
 
 auto D3d11GraphicsManager::CreateSwapChain() -> Result<void> {
-    void* hwnd = m_app->GetDisplayService()->GetNativeWindow();
+    void* hwnd = m_app->GetDisplayService()->nativeWindow();
     DEV_ASSERT(hwnd);
 
     DXGI_MODE_DESC buffer_desc{};

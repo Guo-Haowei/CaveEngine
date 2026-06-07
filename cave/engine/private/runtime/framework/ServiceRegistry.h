@@ -1,5 +1,6 @@
 #pragma once
-#include "engine/private/runtime/display/DisplayService.h"
+#include "cave/runtime/display/DisplayService.h"
+
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"

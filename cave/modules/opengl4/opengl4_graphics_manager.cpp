@@ -7,7 +7,7 @@
 #include "../opengl_common/opengl_helpers.h"
 #include "../opengl_common/opengl_prerequisites.h"
 #include "../opengl_common/opengl_resources.h"
-#include "engine/private/runtime/display/GlfwDisplayManager.h"
+#include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 
 namespace cave::render {

@@ -1,7 +1,6 @@
 #pragma once
 #include "cave/rhi/Backend.h"
-
-#include "engine/private/runtime/display/DisplayService.h"
+#include "cave/runtime/display/DisplayService.h"
 
 struct GLFWwindow;
 
@@ -14,21 +13,18 @@ public:
 
     void FinalizeImpl() final;
 
-    bool ShouldClose() final;
+    bool shouldClose() final;
 
-    std::tuple<int, int> GetWindowSize() final;
-    std::tuple<int, int> GetWindowPos() final;
+    void beginFrame() final;
 
-    void BeginFrame() final;
-
-    void* GetNativeWindow() final;
+    void* nativeWindow() final;
     GLFWwindow* GetGlfwWindow() const { return m_window; }
 
-    std::string_view GetTitle() override;
-    void SetTitle(std::string_view p_title) override;
+    std::string_view title() override;
+    void title(std::string_view p_title) override;
 
 private:
-    auto InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> final;
+    auto initializeWindow(const WindowSpecfication& p_spec) -> Result<void> final;
 
     static void WindowSizeCallback(GLFWwindow* p_window, int p_width, int p_height);
 

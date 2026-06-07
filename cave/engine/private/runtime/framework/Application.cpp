@@ -6,6 +6,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
@@ -14,7 +15,6 @@
 #include "engine/private/core/os/threads.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/dvar/DvarCache.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -191,8 +191,8 @@ bool Application::MainLoop() {
 
     CompositeLogger::GetSingleton().Flush();
 
-    m_display_service->BeginFrame();
-    if (m_display_service->ShouldClose()) {
+    m_display_service->beginFrame();
+    if (m_display_service->shouldClose()) {
         return false;
     }
 

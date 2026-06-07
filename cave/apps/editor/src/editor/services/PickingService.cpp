@@ -2,10 +2,10 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/math/Ray.h"
+#include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -52,8 +52,7 @@ void PickingService::Raycast(const PickData& p_pick_data) {
 bool PickingService::HandleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<PickIntent*>(&p_intent)) {
         IApplication& app = m_editor.GetApp();
-        auto [win_x, win_y] = app.GetDisplayService()->GetWindowPos();
-        const Vector2f pos_screen = intent->pointer + Vector2f(win_x, win_y);
+        const Vector2f pos_screen = intent->pointer + app.GetDisplayService()->windowPos();
 
         for (IPickConsumer* p : m_consumers) {
             DEV_ASSERT(p);

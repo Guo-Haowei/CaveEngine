@@ -1,4 +1,4 @@
-#include "GlfwDisplayManager.h"
+#include "GlfwDisplayService.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -26,7 +26,7 @@ namespace cave {
 
 using rhi::Backend;
 
-auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> Result<void> {
+auto GlfwDisplayManager::initializeWindow(const WindowSpecfication& p_spec) -> Result<void> {
     m_backend = p_spec.backend;
     m_title = p_spec.title;
 
@@ -89,7 +89,7 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
     }
 
     glfwSetWindowPos(m_window, 200, 200);
-    glfwGetWindowSize(m_window, &m_frameSize.x, &m_frameSize.y);
+    glfwGetWindowSize(m_window, &frame_size_.x, &frame_size_.y);
 
     switch (m_backend) {
         case Backend::OpenGL:
@@ -144,24 +144,27 @@ void GlfwDisplayManager::FinalizeImpl() {
     glfwTerminate();
 }
 
-bool GlfwDisplayManager::ShouldClose() {
+bool GlfwDisplayManager::shouldClose() {
     return glfwWindowShouldClose(m_window);
 }
 
-void GlfwDisplayManager::BeginFrame() {
+void GlfwDisplayManager::beginFrame() {
     glfwPollEvents();
-    glfwGetWindowPos(m_window, &m_windowPos.x, &m_windowPos.y);
+    int x, y;
+    glfwGetWindowPos(m_window, &x, &y);
+    window_pos_.x = (float)x;
+    window_pos_.y = (float)y;
 }
 
-std::string_view GlfwDisplayManager::GetTitle() {
+std::string_view GlfwDisplayManager::title() {
     return glfwGetWindowTitle(m_window);
 }
 
-void GlfwDisplayManager::SetTitle(std::string_view p_title) {
+void GlfwDisplayManager::title(std::string_view p_title) {
     glfwSetWindowTitle(m_window, p_title.data());
 }
 
-void* GlfwDisplayManager::GetNativeWindow() {
+void* GlfwDisplayManager::nativeWindow() {
 #if USING(PLATFORM_WINDOWS)
     return glfwGetWin32Window(m_window);
 #else
@@ -169,16 +172,12 @@ void* GlfwDisplayManager::GetNativeWindow() {
 #endif
 }
 
-std::tuple<int, int> GlfwDisplayManager::GetWindowSize() { return std::tuple<int, int>(m_frameSize.x, m_frameSize.y); }
-
-std::tuple<int, int> GlfwDisplayManager::GetWindowPos() { return std::tuple<int, int>(m_windowPos.x, m_windowPos.y); }
-
 void GlfwDisplayManager::WindowSizeCallback(GLFWwindow*, int p_width, int p_height) {
     GlfwDisplayManager& window = reinterpret_cast<GlfwDisplayManager&>(DisplayService::GetSingleton());
 
     auto event = std::make_shared<ResizeEvent>(p_width, p_height);
-    window.m_frameSize.x = p_width;
-    window.m_frameSize.y = p_height;
+    window.frame_size_.x = p_width;
+    window.frame_size_.y = p_height;
     window.m_app->GetEventQueue().DispatchEvent(event);
 }
 

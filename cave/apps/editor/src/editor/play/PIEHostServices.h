@@ -17,6 +17,7 @@ public:
 
     AssetRegistry& assetRegistry() override;
     ecs::ComponentRegistry& componentRegistry() override;
+    DisplayService& displayService() override;
     IntentDispatcher& intentDispatcher() override;
     const IGameInput& gameInput() const override;
     IUIRuntime& ui() override;
