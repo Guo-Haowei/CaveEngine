@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/math/impl/Swizzle.h
+// File: cave/core/math/impl/Swizzle.h
 // =============================================================================
 #pragma once
 #include "Forward.h"

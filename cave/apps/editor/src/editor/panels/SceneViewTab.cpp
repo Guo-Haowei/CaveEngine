@@ -155,7 +155,7 @@ Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& p_pos_screen) {
 
     return Some(PickData{
         .proj_view = m_camera.GetProjectionViewMatrix(),
-        .cursor_ndc = view->ScreenToNDC(p_pos_screen),
+        .cursor_ndc = view->screenToNDC(p_pos_screen),
         .scene_id = m_preview_scene,
         .doc_id = m_doc_id,
     });

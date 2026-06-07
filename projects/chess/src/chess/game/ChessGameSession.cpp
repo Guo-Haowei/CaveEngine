@@ -62,7 +62,7 @@ void ChessGameSession::Tick() {
 void ChessGameSession::TickAwaitPlayerInput() {
     // @TODO: grid adapter should be owned by client/player?
     if (m_grid_adapter) {
-        m_grid_adapter->tick(m_host.gameInput());
+        m_grid_adapter->tick();
     }
 
     // poll player intents
@@ -129,8 +129,7 @@ void ChessGameSession::OnEnterBoot() {
     const bool any_human = white == PlayerKind::LocalHuman || black == PlayerKind::LocalHuman;
     if (any_human) {
         m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
-            m_host.intentDispatcher(),
-            m_host.log(),
+            m_host,
             *m_client,
             m_client->Presenter());
 

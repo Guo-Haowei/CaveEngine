@@ -23,7 +23,7 @@ class ChessGridSelectorAdapter {
     using GetPlayerFunc = std::function<LocalHumanAgent*(PlayerId)>;
 
 public:
-    explicit ChessGridSelectorAdapter(cave::IHostServices host,
+    explicit ChessGridSelectorAdapter(cave::IHostServices& host,
                                       ChessGameClient& game,
                                       ChessPresenter& presenter) noexcept
         : host_(host)

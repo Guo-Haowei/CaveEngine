@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/math/impl/Vector2.h
+// File: cave/core/math/impl/Vector2.h
 // =============================================================================
 #pragma once
 #include "Swizzle.h"

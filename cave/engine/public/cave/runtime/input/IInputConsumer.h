@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/input/IInputConsumer.h
+// File: cave/runtime/input/IInputConsumer.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/DebugId.h"

@@ -4,6 +4,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/view/ViewQuery.h"
 
 namespace cave {
 
@@ -22,10 +23,12 @@ public:
     const IGameInput& gameInput() const override;
     IUIRuntime& ui() override;
     LogWrapper& log() override { return logger_; }
-    SceneQuery& sceneQuery() override { return query_; }
     SceneCommandWriter& sceneWriter() override { return writer_; }
 
     ViewId viewId() const override { return view_id_; }
+
+    const SceneQuery& sceneQuery() const override { return scene_query_; }
+    const ViewQuery& viewQuery() const override { return view_query_; }
 
     void flushSceneCommands();
 
@@ -34,8 +37,10 @@ private:
     LogWrapper logger_;
     Scene& scene_;
     ViewId view_id_;
-    cave::SceneQuery query_;
     SceneCommandWriter writer_;
+
+    SceneQuery scene_query_;
+    ViewQuery view_query_;
 };
 
 }  // namespace cave

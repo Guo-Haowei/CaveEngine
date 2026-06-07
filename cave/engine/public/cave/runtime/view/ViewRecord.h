@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/view/ViewRecord.h
+// File: cave/runtime/view/ViewRecord.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/ViewId.h"
@@ -20,9 +20,9 @@ struct ViewRecord {
     // Region inside the GPU output texture/framebuffer
     math::IntRect viewport_fb{};
 
-    math::Vector2f ScreenToNDC(const math::Vector2f& p_point_os) const;
+    math::Vector2f screenToNDC(const math::Vector2f& point_os) const;
 
-    math::Vector2f ScreenToFrameBufferPixel(const math::Vector2f& p_point_os) const;
+    math::Vector2f screenToFrameBufferPixel(const math::Vector2f& point_os) const;
 };
 
 }  // namespace cave

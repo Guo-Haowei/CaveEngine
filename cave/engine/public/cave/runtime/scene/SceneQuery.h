@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/scene/SceneQuery.h
+// File: cave/runtime/scene/SceneQuery.h
 // =============================================================================
 #pragma once
 #include "cave/core/math/Ray.h"

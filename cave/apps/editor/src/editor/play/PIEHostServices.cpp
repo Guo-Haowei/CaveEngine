@@ -16,8 +16,9 @@ PIEHostServices::PIEHostServices(IApplication& app,
     , logger_(CompositeLogger::GetSingleton())
     , scene_(scene)
     , view_id_(view_id)
-    , query_(scene)
-    , writer_(*app.GetAssetRegistry()) {
+    , writer_(*app.GetAssetRegistry())
+    , scene_query_(scene)
+    , view_query_(*app.GetViewManager()) {
 }
 
 AssetRegistry& PIEHostServices::assetRegistry() {

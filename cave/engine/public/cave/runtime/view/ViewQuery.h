@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/view/ViewQuery.h
+// File: cave/runtime/view/ViewQuery.h
 // =============================================================================
 #pragma once
 #include "cave/core/Option.h"
@@ -11,13 +11,13 @@ class ViewManager;
 
 class ViewQuery {
 public:
-    ViewQuery(ViewManager& p_view) noexcept
-        : m_view(p_view) {}
+    ViewQuery(ViewManager& view) noexcept
+        : view_(view) {}
 
-    const ViewRecord* Resolve(ViewId p_view_id) const;
+    const ViewRecord* resolve(ViewId view_id) const;
 
 private:
-    const ViewManager& m_view;
+    const ViewManager& view_;
 };
 
 }  // namespace cave

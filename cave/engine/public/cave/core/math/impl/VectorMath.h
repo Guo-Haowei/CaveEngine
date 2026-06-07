@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/math/impl/VectorMath.h
+// File: cave/core/math/impl/VectorMath.h
 // =============================================================================
 #pragma once
 #include "../Scalar.h"

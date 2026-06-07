@@ -140,7 +140,7 @@ int main(int p_argc, const char** p_argv) {
         return new LuaScriptService();
     });
     DisplayService::RegisterCreateFunc([]() -> DisplayService* {
-        return new GlfwDisplayManager();
+        return new GlfwDisplayService();
     });
 
     // @TODO: figure out a way to create it cleanly

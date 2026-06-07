@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/view/ViewDesc.h
+// File: cave/runtime/view/ViewDesc.h
 // =============================================================================
 #pragma once
 #include <string_view>

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/input/PointerState.h
+// File: cave/runtime/input/PointerState.h
 // =============================================================================
 #pragma once
 #include "cave/core/math/Vector.h"

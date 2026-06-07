@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/input/IGameInput.h
+// File: cave/runtime/input/IGameInput.h
 // =============================================================================
 #pragma once
 #include <utility>

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/containers/RingBuffer.h
+// File: cave/core/containers/RingBuffer.h
 // =============================================================================
 #pragma once
 #include <cassert>

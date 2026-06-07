@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/math/impl/Forward.h
+// File: cave/core/math/impl/Forward.h
 // =============================================================================
 #pragma once
 #include "cave/core/typedefs.h"

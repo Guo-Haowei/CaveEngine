@@ -2,8 +2,9 @@
 
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
-#include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/display/DisplayService.h"
+#include "cave/runtime/input/IGameInput.h"
+#include "cave/runtime/view/ViewQuery.h"
 
 #include "chess/agents/LocalHumanAgent.h"
 #include "chess/game/ChessGameClient.h"
@@ -13,14 +14,10 @@
 
 namespace chess {
 
-using namespace cave;
-using namespace cave::literals;
-using namespace cave::math;
-using core::Color;
-using core::Move;
-using core::MoveType;
-using core::Piece;
-using core::Square;
+using namespace ::cave;
+using namespace ::cave::literals;
+using namespace ::cave::math;
+using namespace ::chess::core;
 
 bool ChessGridSelectorAdapter::canSelect(int x, int y) {
     const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
@@ -97,11 +94,16 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
 
     // @TODO: project ray
     const DisplayService& display = host_.displayService();
-    Vector2f pos_os = pointer.pos_win + display.windowPos();
+    Vector2f pos = pointer.pos_win + display.windowPos();
+
+    const ViewRecord* view = host_.viewQuery().resolve(host_.viewId());
 
     if (pointer.delta.x > 1) {
-        auto msg = std::format("pointer: {} {}", pos_os.x, pos_os.y);
-        host_.log().Info(LogChannel::Game, std::move(msg));
+        if (view) {
+            pos = view->screenToNDC(pos);
+            auto msg = std::format("pointer: {} {}", pos.x, pos.y);
+            host_.log().Info(LogChannel::Game, std::move(msg));
+        }
     }
 }
 

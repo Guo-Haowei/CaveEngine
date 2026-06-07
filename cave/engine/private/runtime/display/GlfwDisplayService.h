@@ -6,31 +6,31 @@ struct GLFWwindow;
 
 namespace cave {
 
-class GlfwDisplayManager : public DisplayService {
+class GlfwDisplayService final : public DisplayService {
 public:
-    GlfwDisplayManager()
-        : DisplayService("GlfwDisplayManager") {}
+    GlfwDisplayService()
+        : DisplayService("GlfwDisplayService") {}
 
-    void FinalizeImpl() final;
+    void FinalizeImpl() override;
 
-    bool shouldClose() final;
+    bool shouldClose() override;
 
-    void beginFrame() final;
+    void beginFrame() override;
 
-    void* nativeWindow() final;
-    GLFWwindow* GetGlfwWindow() const { return m_window; }
+    void* nativeWindow() override;
+    GLFWwindow* GetGlfwWindow() const { return window_; }
 
     std::string_view title() override;
-    void title(std::string_view p_title) override;
+    void title(std::string_view title) override;
 
 private:
-    auto initializeWindow(const WindowSpecfication& p_spec) -> Result<void> final;
+    auto initializeWindow(const WindowSpecfication& spec) -> Result<void> override;
 
-    static void WindowSizeCallback(GLFWwindow* p_window, int p_width, int p_height);
+    static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
-    GLFWwindow* m_window{ nullptr };
-    rhi::Backend m_backend;
-    std::string m_title;
+    GLFWwindow* window_{ nullptr };
+    rhi::Backend backend_;
+    std::string title_;
 };
 
 }  // namespace cave

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/scene/SceneCommandWriter.h
+// File: cave/runtime/scene/SceneCommandWriter.h
 // =============================================================================
 #pragma once
 #include <string_view>

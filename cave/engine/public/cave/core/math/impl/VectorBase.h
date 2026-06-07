@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/core/math/impl/VectorBase.h
+// File: cave/core/math/impl/VectorBase.h
 // =============================================================================
 #pragma once
 #include "Forward.h"

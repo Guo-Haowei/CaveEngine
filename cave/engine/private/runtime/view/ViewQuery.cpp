@@ -4,8 +4,8 @@
 
 namespace cave {
 
-const ViewRecord* ViewQuery::Resolve(ViewId p_view_id) const {
-    return m_view.Resolve(p_view_id);
+const ViewRecord* ViewQuery::resolve(ViewId view_id) const {
+    return view_.Resolve(view_id);
 }
 
 }  // namespace cave

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: public/cave/runtime/scene/SceneCommandPlayback.h
+// File: cave/runtime/scene/SceneCommandPlayback.h
 // =============================================================================
 #pragma once
 #include <vector>

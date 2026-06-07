@@ -1217,7 +1217,7 @@ auto D3d12GraphicsManager::CreateDescriptorHeaps() -> Result<void> {
 }
 
 auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) -> Result<void> {
-    auto display_manager = dynamic_cast<GlfwDisplayManager*>(DisplayService::GetSingletonPtr());
+    auto display_manager = dynamic_cast<GlfwDisplayService*>(DisplayService::GetSingletonPtr());
     DEV_ASSERT(display_manager);
 
     // create a struct to hold information about the swap chain
