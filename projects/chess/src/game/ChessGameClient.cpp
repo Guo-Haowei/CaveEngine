@@ -7,7 +7,6 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/game/IHostServices.h"
-#include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 

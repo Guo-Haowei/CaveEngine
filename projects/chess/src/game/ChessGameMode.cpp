@@ -7,7 +7,6 @@
 #include "cave/core/ErrorMacros.h"
 #include "cave/core/typedefs.h"
 #include "cave/game/IHostServices.h"
-#include "cave/runtime/framework/IInputService.h"
 
 #include "ChessGameSession.h"
 #include "ChessIntent.h"

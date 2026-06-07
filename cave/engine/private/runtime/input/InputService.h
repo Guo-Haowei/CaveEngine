@@ -31,30 +31,30 @@ public:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    void addDevice(std::unique_ptr<IInputDevice> p_device);
+    void addDevice(std::unique_ptr<IInputDevice> device);
 
-    void tick(const FrameTime& p_time);
+    void tick(const FrameTime& time);
 
     const KeyState& keyState() const {
-        return keyState_;
+        return key_state_;
     }
 
-    void addConsumer(IInputConsumer* p_consumer) {
-        router_.Register(p_consumer);
+    void addConsumer(IInputConsumer* consumer) {
+        router_.Register(consumer);
     }
 
-    void removeConsumer(IInputConsumer* p_consumer) {
-        router_.Unregister(p_consumer);
+    void removeConsumer(IInputConsumer* consumer) {
+        router_.Unregister(consumer);
     }
 
-    InputActionMap& actionMap() { return inputActionMap_; }
+    InputActionMap& actionMap() { return input_action_map_; }
 
-    const UIInput& getUIInput() const { return uiInput_; }
-    const GameInput& gameInput() const { return gameInput_; }
+    const UIInput& getUIInput() const { return ui_input_; }
+    const GameInput& gameInput() const { return game_input_; }
 
 private:
-    void updatePointers(std::vector<InputEvent>& p_events);
-    void updateActions(const DeviceRouting& p_routing);
+    void updatePointers(std::vector<InputEvent>& events);
+    void updateActions(const DeviceRouting& routing);
     UIInput buildUIInput();
 
     std::vector<std::unique_ptr<IInputDevice>> devices_{};
@@ -64,16 +64,16 @@ private:
 
     std::unordered_map<uint32_t, PointerState> pointers_;
 
-    KeyState keyState_;
-    AxisState axisState_;
-    ActionState actionState_;
+    KeyState key_state_;
+    AxisState axis_state_;
+    ActionState action_state_;
 
-    GameInput gameInput_;
+    GameInput game_input_;
     InputRouter router_;
 
-    InputActionMap inputActionMap_;
+    InputActionMap input_action_map_;
     InputMapper mapper_;
-    UIInput uiInput_;
+    UIInput ui_input_;
 };
 
 };  // namespace cave

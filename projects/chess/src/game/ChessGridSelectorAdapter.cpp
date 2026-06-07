@@ -2,7 +2,7 @@
 
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
-#include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/input/IGameInput.h"
 
 #include "ChessGameClient.h"
 #include "ChessIntent.h"
@@ -89,33 +89,33 @@ void ChessGridSelectorAdapter::OnInvalid(int sx, int sy, int dx, int dy) {
     LOG_ERROR("can't select/drop");
 }
 
-void ChessGridSelectorAdapter::Tick(cave::IInputService& p_input) {
+void ChessGridSelectorAdapter::Tick(const cave::IGameInput& p_input) {
     using cave::StringId;
     using cave::math::Vector2i;
 
     // @TODO: player
     // @TODO: consume action instead
-    if (p_input.IsActionJustPressed("ui_right"_sid)) {
+    if (p_input.isJustPressed("ui_right"_sid)) {
         m_controller->MoveFocus(1, 0);
     }
-    if (p_input.IsActionJustPressed("ui_left"_sid)) {
+    if (p_input.isJustPressed("ui_left"_sid)) {
         m_controller->MoveFocus(-1, 0);
     }
-    if (p_input.IsActionJustPressed("ui_up"_sid)) {
+    if (p_input.isJustPressed("ui_up"_sid)) {
         m_controller->MoveFocus(0, 1);
     }
-    if (p_input.IsActionJustPressed("ui_down"_sid)) {
+    if (p_input.isJustPressed("ui_down"_sid)) {
         m_controller->MoveFocus(0, -1);
     }
-    if (p_input.IsActionJustPressed("ui_accept"_sid)) {
+    if (p_input.isJustPressed("ui_accept"_sid)) {
         m_controller->Confirm();
     }
-    if (p_input.IsActionJustPressed("ui_back"_sid)) {
+    if (p_input.isJustPressed("ui_back"_sid)) {
         m_controller->Cancel();
     }
 
-    const float dx = p_input.GetActionStrength("ui_axis_x"_sid);
-    const float dy = p_input.GetActionStrength("ui_axis_y"_sid);
+    const float dx = p_input.getStrength("ui_axis_x"_sid);
+    const float dy = p_input.getStrength("ui_axis_y"_sid);
     if (dx > 0.5f) {
         m_controller->MoveFocus(1, 0);
     } else if (dx < -0.5f) {

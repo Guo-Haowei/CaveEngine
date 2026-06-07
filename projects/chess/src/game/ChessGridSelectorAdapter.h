@@ -8,7 +8,7 @@
 
 // clang-format off
 namespace cave { class GridSelectController; }
-namespace cave { class IInputService; }
+namespace cave { class IGameInput; }
 // clang-format on
 
 namespace chess {
@@ -36,7 +36,7 @@ public:
     void OnCancel();
     void OnInvalid(int sx, int sy, int dx, int dy);
 
-    void Tick(cave::IInputService& p_input);
+    void Tick(const cave::IGameInput& p_input);
 
     void SetController(cave::GridSelectController* p_controller) {
         m_controller = p_controller;

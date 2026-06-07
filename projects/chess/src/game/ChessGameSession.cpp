@@ -2,10 +2,10 @@
 
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
-#include "cave/runtime/framework/IInputService.h"
+#include "cave/runtime/input/IGameInput.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "ChessAIAgent.h"
 #include "ChessGameClient.h"
