@@ -55,7 +55,7 @@ private:
     std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;
     std::vector<std::unique_ptr<Intent>> m_pending;
 
-    OS& m_os;
+    OS* m_os{};
 };
 
 }  // namespace cave

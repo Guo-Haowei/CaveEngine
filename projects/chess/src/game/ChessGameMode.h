@@ -8,6 +8,7 @@
 
 namespace chess {
 
+using cave::DebugId;
 using cave::FrameTime;
 using cave::IHostServices;
 
@@ -25,14 +26,14 @@ public:
 
     bool HandleIntent(cave::Intent& p_intent) override;
 
-    cave::DebugId GetDebugId() const override { return m_debug_id; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     void CommitStateChange(std::unique_ptr<IChessGameState>&& p_new_state);
 
     IHostServices& m_host;
     cave::IntentDispatcher& m_intent;
-    const cave::DebugId m_debug_id;
+    const DebugId m_debug_id;
 
     std::unique_ptr<IChessGameState> m_state;
 };

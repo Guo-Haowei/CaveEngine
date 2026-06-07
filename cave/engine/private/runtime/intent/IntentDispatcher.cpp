@@ -16,9 +16,10 @@
 #if USING(WANT_TRACE_INTENT)
 #define TRACE_INTENT(...)                                                                 \
     do {                                                                                  \
+        if (!m_os) break;                                                                 \
         std::string msg = std::format(__VA_ARGS__);                                       \
         auto log = detail::BuildLog(LOG_LEVEL_TRACE, LogChannel::Intent, std::move(msg)); \
-        m_os.Print(std::move(log));                                                       \
+        m_os->Print(std::move(log));                                                       \
     } while (0)
 #else
 #define TRACE_INTENT(...) ((void)0)
@@ -28,7 +29,7 @@ namespace cave {
 
 IntentDispatcher::IntentDispatcher()
     : IService("IntentDispatcher")
-    , m_os(OS::GetSingleton()) {}
+    , m_os(OS::GetSingletonPtr()) {}
 
 auto IntentDispatcher::InitializeImpl() -> Result<void> {
     // @TODO: move it to somewhere else

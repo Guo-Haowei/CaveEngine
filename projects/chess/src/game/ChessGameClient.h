@@ -37,7 +37,7 @@ public:
 
     bool HandleIntent(cave::Intent& p_intent) override;
 
-    cave::DebugId GetDebugId() const override { return m_debug_id; }
+    cave::DebugId debugId() const override { return m_debug_id; }
 
 private:
     void OnMoveCommitted(core::Move p_mv);
