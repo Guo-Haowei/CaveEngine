@@ -3,7 +3,7 @@
 #include "ChessGameSession.h"
 #include "ChessIntent.h"
 #include "ChessMatchAuthority.h"
-#include "core/MoveGen.h"
+#include "chess/core/MoveGen.h"
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/game/IHostServices.h"

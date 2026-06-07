@@ -1,10 +1,9 @@
 #include "LocalHumanAgent.h"
 
-#include "ChessMatchAuthority.h"
-
 namespace chess {
 
-void LocalHumanAgent::Tick(cave::IHostServices&) {
+void LocalHumanAgent::tick(cave::IHostServices&) {
+    // @TODO: move grid here?
 }
 
 }  // namespace chess

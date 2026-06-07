@@ -7,13 +7,13 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
-#include "ChessAIAgent.h"
-#include "ChessGameClient.h"
-#include "ChessGridSelectorAdapter.h"
-#include "ChessIntent.h"
-#include "ChessMatchAuthority.h"
-#include "GameOverState.h"
-#include "LocalHumanAgent.h"
+#include "chess/agents/ChessAIAgent.h"
+#include "chess/agents/LocalHumanAgent.h"
+#include "chess/game/ChessGameClient.h"
+#include "chess/game/ChessIntent.h"
+#include "chess/game/ChessMatchAuthority.h"
+#include "chess/presentation/ChessGridSelectorAdapter.h"
+#include "chess/states/GameOverState.h"
 
 namespace chess {
 
@@ -66,7 +66,7 @@ void ChessGameSession::TickAwaitPlayerInput() {
 
     // poll player intents
     const PlayerId player = m_auth->CurrentPlayer();
-    m_agents[player]->Tick(m_host);
+    m_agents[player]->tick(m_host);
 }
 
 void ChessGameSession::TickResolvingMove() {
@@ -101,9 +101,9 @@ std::unique_ptr<IPlayerAgent> ChessGameSession::CreatePlayer(PlayerId p_id,
                                                              PlayerKind p_kind) {
     switch (p_kind) {
         case PlayerKind::LocalHuman:
-            return std::make_unique<LocalHumanAgent>(p_id, *m_auth);
+            return std::make_unique<LocalHumanAgent>(p_id);
         case PlayerKind::LocalAI:
-            return std::make_unique<ChessAIAgent>(p_id, *m_auth, *m_client);
+            return std::make_unique<ChessAIAgent>(p_id, *m_client);
         case PlayerKind::RemoteNetwork:
             return nullptr;
         default:

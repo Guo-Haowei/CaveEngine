@@ -1,6 +1,6 @@
 #include "GameplayState.h"
 
-#include "ChessGameSession.h"
+#include "chess/game/ChessGameSession.h"
 
 namespace chess {
 

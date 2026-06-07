@@ -4,8 +4,8 @@
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "chess/chess/core/Position.h"
-#include "chess/agents/chess/agents/IPlayerAgent.h"
+#include "chess/agents/IPlayerAgent.h"
+#include "chess/core/Position.h"
 
 namespace chess {
 

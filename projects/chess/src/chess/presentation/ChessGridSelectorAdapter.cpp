@@ -4,11 +4,11 @@
 #include "cave/runtime/controller/GridSelectController.h"
 #include "cave/runtime/input/IGameInput.h"
 
-#include "ChessGameClient.h"
-#include "ChessIntent.h"
-#include "ChessMatchAuthority.h"
-#include "ChessPresenter.h"
-#include "LocalHumanAgent.h"
+#include "chess/agents/LocalHumanAgent.h"
+#include "chess/game/ChessGameClient.h"
+#include "chess/game/ChessIntent.h"
+#include "chess/game/ChessMatchAuthority.h"
+#include "chess/presentation/ChessPresenter.h"
 
 namespace chess {
 

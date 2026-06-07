@@ -1,7 +1,7 @@
 #include "ChessMatchAuthority.h"
 
 #include "ChessIntent.h"
-#include "core/MoveGen.h"
+#include "chess/core/MoveGen.h"
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 

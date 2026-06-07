@@ -4,8 +4,8 @@
 #include "cave/runtime/framework/IUIRuntime.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "MainMenuState.h"
-#include "ChessIntent.h"
+#include "chess/game/ChessIntent.h"
+#include "chess/states/MainMenuState.h"
 
 namespace chess {
 

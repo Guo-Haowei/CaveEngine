@@ -2,7 +2,7 @@
 #include <array>
 #include <memory>
 
-#include "chess/agents/chess/agents/IPlayerAgent.h"
+#include "chess/agents/IPlayerAgent.h"
 
 // clang-format off
 namespace cave { class IHostServices; }

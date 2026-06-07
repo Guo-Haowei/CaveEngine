@@ -7,7 +7,7 @@
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "chess/chess/core/Position.h"
+#include "chess/core/Position.h"
 #include "chess/presentation/ChessPresenter.h"
 
 // clang-format off

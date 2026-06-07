@@ -2,12 +2,12 @@
 
 #include <random>
 
-#include "core/MoveGen.h"
-#include "ChessGameClient.h"
-#include "ChessIntent.h"
-#include "ChessMatchAuthority.h"
-
 #include "cave/runtime/intent/IntentDispatcher.h"
+
+#include "chess/core/MoveGen.h"
+#include "chess/game/ChessGameClient.h"
+#include "chess/game/ChessIntent.h"
+#include "chess/game/ChessMatchAuthority.h"
 
 namespace chess {
 
@@ -15,9 +15,9 @@ using core::Move;
 using core::MoveGen;
 using core::Position;
 
-void ChessAIAgent::Tick(cave::IHostServices& p_host) {
-    const Position& replica = m_client.Replica();
-    const bool my_turn = std::to_underlying(replica.SideToMove()) == m_player;
+void ChessAIAgent::tick(cave::IHostServices& host) {
+    const Position& replica = client_.Replica();
+    const bool my_turn = std::to_underlying(replica.SideToMove()) == player_;
     if (!my_turn) {
         return;
     }
@@ -34,7 +34,7 @@ void ChessAIAgent::Tick(cave::IHostServices& p_host) {
         assert(idx < count);
         const Move move = moves[idx];
 
-        p_host.Intent().Queue<ChessMoveIntent>(m_player, move);
+        host.Intent().Queue<ChessMoveIntent>(player_, move);
     }
 }
 

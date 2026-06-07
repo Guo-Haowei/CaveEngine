@@ -1,6 +1,6 @@
 #include "ChessIntent.h"
 
-#include "IChessGameState.h"
+#include "chess/states/IChessGameState.h"
 
 namespace chess {
 

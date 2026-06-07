@@ -8,9 +8,9 @@
 #include "cave/core/typedefs.h"
 #include "cave/game/IHostServices.h"
 
-#include "ChessGameSession.h"
-#include "ChessIntent.h"
-#include "MainMenuState.h"
+#include "chess/game/ChessGameSession.h"
+#include "chess/game/ChessIntent.h"
+#include "chess/states/MainMenuState.h"
 
 namespace chess {
 
