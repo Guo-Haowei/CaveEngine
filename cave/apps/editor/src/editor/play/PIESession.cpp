@@ -71,7 +71,7 @@ void PIESession::OnSimBegin(SceneId p_scene_id, ViewId p_view_id) {
 
     m_host = std::make_unique<PIEHostServices>(m_app, *scene, p_view_id);
     m_game->OnGameBegin(*m_host);
-    m_host->FlushSceneCommands();
+    m_host->flushSceneCommands();
 
     m_running = true;
 }
@@ -107,7 +107,7 @@ void PIESession::Tick(const FrameTime& p_time) {
     if (!scene) return;
 
     m_game->Tick(*m_host, p_time);
-    m_host->FlushSceneCommands();
+    m_host->flushSceneCommands();
 }
 
 void PIESession::BuildPIESceneFromEdit(Scene& p_edit, Scene& p_pie) {

@@ -117,7 +117,7 @@ auto Application::SetupModules() -> Result<void> {
 
     m_event_queue.RegisterListener(m_render_device);
 
-    DvarCache::RegisterCmd(*m_cmd_reg);
+    DvarCache::registerCmd(*m_cmd_reg);
     return Result<void>();
 }
 
