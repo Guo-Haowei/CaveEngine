@@ -11,12 +11,12 @@ namespace cave {
 using namespace cave::literals;
 
 InputService::InputService()
-    : IInputService("InputService")
-    , m_mapper(m_input_action_map) {}
+    : IService("InputService")
+    , mapper_(inputActionMap_) {}
 
 auto InputService::InitializeImpl() -> Result<void> {
     // @TODO: read it from config file
-    InputActionMap& map = ActionMap();
+    InputActionMap& map = actionMap();
 
     map.AddAction("ui_accept"_sid, ActionValueType::Digital);
     map.BindDigital("ui_accept"_sid, Key::Enter);
@@ -67,7 +67,8 @@ auto InputService::InitializeImpl() -> Result<void> {
 void InputService::FinalizeImpl() {
 }
 
-static const char* InputDeviceTypeToString(InputDeviceType p_type) {
+#if USING(USE_LOG)
+static const char* inputDeviceTypeToString(InputDeviceType p_type) {
     switch (p_type) {
         case cave::InputDeviceType::KeyboardMouse:
             return "KeyboardMouse";
@@ -77,19 +78,20 @@ static const char* InputDeviceTypeToString(InputDeviceType p_type) {
             return "None";
     }
 }
+#endif
 
-void InputService::AddDevice(std::unique_ptr<IInputDevice> p_device) {
+void InputService::addDevice(std::unique_ptr<IInputDevice> p_device) {
     DEV_ASSERT(p_device);
 
     LOG_INFO(LogChannel::Input,
              "+{}#{}",
-             InputDeviceTypeToString(p_device->Type()),
+             inputDeviceTypeToString(p_device->Type()),
              p_device->Id().value);
-    m_devices.emplace_back(std::move(p_device));
+    devices_.emplace_back(std::move(p_device));
 }
 
-void InputService::UpdatePointers(std::vector<InputEvent>& p_events) {
-    for (auto& [_, ps] : m_pointers) {
+void InputService::updatePointers(std::vector<InputEvent>& p_events) {
+    for (auto& [_, ps] : pointers_) {
         ps.dx = 0.0f;
         ps.dy = 0.0f;
     }
@@ -98,7 +100,7 @@ void InputService::UpdatePointers(std::vector<InputEvent>& p_events) {
         if (e.consumed) continue;
         if (e.type != InputEventType::MouseMove) continue;
 
-        auto& ps = m_pointers[e.device_id.value];
+        auto& ps = pointers_[e.device_id.value];
 
         const float new_x = e.x;
         const float new_y = e.y;
@@ -117,71 +119,43 @@ void InputService::UpdatePointers(std::vector<InputEvent>& p_events) {
     }
 }
 
-void InputService::UpdateActions(const DeviceRouting& p_routing) {
-    m_action_events.clear();
-    m_mapper.Map(m_input_events, m_key_state, m_axis_state, p_routing, m_action_events);
+void InputService::updateActions(const DeviceRouting& p_routing) {
+    actionEvents_.clear();
+    mapper_.Map(inputEvents_, keyState_, axisState_, p_routing, actionEvents_);
 
-    m_action_state.BeginFrame();
-    for (const auto& action : m_action_events) {
-        m_action_state.Apply(action);
+    gameInput_.m_state.BeginFrame();
+    for (const auto& action : actionEvents_) {
+        gameInput_.m_state.Apply(action);
     }
 }
 
-UIInput InputService::BuildUIInput() {
-    UIInput input{};
-
-    const InputDeviceId device_id{ 0 };
-    const int player_id = 0;
-
-    DisplayService& display_service = *m_app->GetDisplayService();
-
-    const auto it = m_pointers.find(device_id.value);
-    if (it != m_pointers.end()) {
-        const PointerState pointer = it->second;
-        const auto [x_win, y_win] = display_service.GetWindowPos();
-        input.cursor_os = math::Vector2f(pointer.x + x_win, pointer.y + y_win);
-    }
-
-    // Mouse buttons
-    input.mouse_down = m_key_state.Down(device_id, Key::LMB);
-    input.mouse_pressed = m_key_state.PressedThisFrame(device_id, Key::LMB);
-    input.mouse_released = m_key_state.ReleasedThisFrame(device_id, Key::LMB);
-
-    // Mapped UI actions
-    input.submit_pressed = m_action_state.IsJustPressed(player_id, "ui_accept"_sid);
-    input.cancel_pressed = m_action_state.IsJustPressed(player_id, "ui_back"_sid);
-
-    input.left_pressed = m_action_state.IsJustPressed(player_id, "ui_left"_sid);
-    input.right_pressed = m_action_state.IsJustPressed(player_id, "ui_right"_sid);
-    input.up_pressed = m_action_state.IsJustPressed(player_id, "ui_up"_sid);
-    input.down_pressed = m_action_state.IsJustPressed(player_id, "ui_down"_sid);
-
-    return input;
+UIInput InputService::buildUIInput() {
+    return gameInput_.BuildUIInput();
 }
 
-void InputService::Tick(const FrameTime& p_time) {
-    m_input_events.clear();
-    m_action_events.clear();
+void InputService::tick(const FrameTime& p_time) {
+    inputEvents_.clear();
+    actionEvents_.clear();
 
     // *) Poll devices -> raw events
-    for (auto& d : m_devices) {
-        d->Poll(m_input_events);
+    for (auto& d : devices_) {
+        d->Poll(inputEvents_);
     }
 
     // *) Update pointers
-    UpdatePointers(m_input_events);
+    updatePointers(inputEvents_);
 
     // *) Build key/button state for this frame (from unconsumed events)
-    m_key_state.BeginFrame();
-    m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+    keyState_.BeginFrame();
+    keyState_.UpdateFromEvents(inputEvents_.data(), inputEvents_.size());
 
     // *) Build axis state for this frame (from unconsumed events)
-    m_axis_state.BeginFrame();
-    m_axis_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
+    axisState_.BeginFrame();
+    axisState_.UpdateFromEvents(inputEvents_.data(), inputEvents_.size());
 
     // *) Feed ImGui from remaining raw events
     if (ImguiManager* imgui = m_app->GetImguiManager()) {
-        imgui->Feed(m_input_events);
+        imgui->Feed(inputEvents_);
 
         // Gate gameplay/editor mapping based on ImGui capture
         // const bool blockKeyboard = imgui->WantKeyboard();
@@ -191,10 +165,10 @@ void InputService::Tick(const FrameTime& p_time) {
     // *) Raw routing stage (shortcuts, viewport tools, gestures)
     InputFrame input_frame{
         .dt = p_time.dt,
-        .events = m_input_events,
-        .keystate = m_key_state,
+        .events = inputEvents_,
+        .keystate = keyState_,
     };
-    m_router.Dispatch(input_frame);
+    router_.Dispatch(input_frame);
 
     // *) Rebuild key state after raw consumption (critical for chords/drag gating)
     // m_key_state.BeginFrame();
@@ -202,10 +176,10 @@ void InputService::Tick(const FrameTime& p_time) {
 
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
     DeviceRouting routing;
-    UpdateActions(routing);
+    updateActions(routing);
 
     // *) Build UI Input
-    m_ui_input = BuildUIInput();
+    uiInput_ = buildUIInput();
 }
 
 }  // namespace cave

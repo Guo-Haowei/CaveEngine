@@ -18,7 +18,7 @@ public:
     cave::AssetRegistry& AssetRegistry() override;
     cave::ecs::ComponentRegistry& ComponentRegistry() override;
     IntentDispatcher& Intent() override;
-    IInputService& Input() override;
+    const IGameInput& Input() const override;
     IUIRuntime& UI() override;
     LogWrapper& Log() override { return m_logger; }
     cave::SceneQuery& SceneQuery() override { return m_query; }

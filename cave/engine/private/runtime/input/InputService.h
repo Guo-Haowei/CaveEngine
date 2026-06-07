@@ -1,15 +1,22 @@
 #pragma once
-#include "cave/runtime/framework/IInputService.h"
+#include "cave/core/Singleton.h"
+#include "cave/core/string/StringId.h"
+#include "cave/runtime/framework/IService.h"
+#include "cave/runtime/input/IInputDevice.h"
 #include "cave/runtime/input/KeyState.h"
 #include "cave/ui/UIInput.h"
 
-#include "engine/private/runtime/input/ActionState.h"
 #include "engine/private/runtime/input/AxisState.h"
+#include "engine/private/runtime/input/GameInput.h"
 #include "engine/private/runtime/input/InputActionMap.h"
 #include "engine/private/runtime/input/InputMapper.h"
 #include "engine/private/runtime/input/InputRouter.h"
 
 namespace cave {
+
+struct FrameTime;
+class IInputConsumer;
+class KeyState;
 
 struct PointerState {
     bool has_pos = false;
@@ -17,78 +24,56 @@ struct PointerState {
     float dx = 0.0f, dy = 0.0f;
 };
 
-class InputService : public IInputService {
+class InputService : public IService {
 public:
     InputService();
 
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    void AddDevice(std::unique_ptr<IInputDevice> p_device) override;
+    void addDevice(std::unique_ptr<IInputDevice> p_device);
 
-    void Tick(const FrameTime& p_time) override;
+    void tick(const FrameTime& p_time);
 
-    const KeyState& GetKeyState() const override {
-        return m_key_state;
+    const KeyState& keyState() const {
+        return keyState_;
     }
 
-    void Register(IInputConsumer* p_consumer) override {
-        m_router.Register(p_consumer);
+    void addConsumer(IInputConsumer* p_consumer) {
+        router_.Register(p_consumer);
     }
 
-    void Unregister(IInputConsumer* p_consumer) override {
-        m_router.Unregister(p_consumer);
+    void removeConsumer(IInputConsumer* p_consumer) {
+        router_.Unregister(p_consumer);
     }
 
-    InputActionMap& ActionMap() { return m_input_action_map; }
+    InputActionMap& actionMap() { return inputActionMap_; }
 
-    bool IsActionPressed(int p_player, const StringId& p_action) const override {
-        return m_action_state.IsPressed(p_player, p_action);
-    }
-
-    bool IsActionJustPressed(int p_player, const StringId& p_action) const override {
-        return m_action_state.IsJustPressed(p_player, p_action);
-    }
-
-    bool IsActionJustReleased(int p_player, const StringId& p_action) const override {
-        return m_action_state.IsJustReleased(p_player, p_action);
-    }
-
-    float GetActionStrength(int p_player, const StringId& p_action) const override {
-        return m_action_state.GetStrength(p_player, p_action);
-    }
-
-    auto GetVector(int p_player,
-                   const StringId& p_neg_x,
-                   const StringId& p_pos_x,
-                   const StringId& p_neg_y,
-                   const StringId& p_pos_y) const {
-        return m_action_state.GetVector(p_player, p_neg_x, p_pos_x, p_neg_y, p_pos_y);
-    }
-
-    const UIInput& GetUIInput() const { return m_ui_input; }
+    const UIInput& getUIInput() const { return uiInput_; }
+    const GameInput& gameInput() const { return gameInput_; }
 
 private:
-    void UpdatePointers(std::vector<InputEvent>& p_events);
-    void UpdateActions(const DeviceRouting& p_routing);
-    UIInput BuildUIInput();
+    void updatePointers(std::vector<InputEvent>& p_events);
+    void updateActions(const DeviceRouting& p_routing);
+    UIInput buildUIInput();
 
-    std::vector<std::unique_ptr<IInputDevice>> m_devices{};
+    std::vector<std::unique_ptr<IInputDevice>> devices_{};
 
-    std::vector<InputEvent> m_input_events;
-    std::vector<ActionEvent> m_action_events;
+    std::vector<InputEvent> inputEvents_;
+    std::vector<ActionEvent> actionEvents_;
 
-    std::unordered_map<uint32_t, PointerState> m_pointers;
+    std::unordered_map<uint32_t, PointerState> pointers_;
 
-    KeyState m_key_state;
-    AxisState m_axis_state;
-    ActionState m_action_state;
+    KeyState keyState_;
+    AxisState axisState_;
+    ActionState actionState_;
 
-    InputRouter m_router;
+    GameInput gameInput_;
+    InputRouter router_;
 
-    InputActionMap m_input_action_map;
-    InputMapper m_mapper;
-    UIInput m_ui_input;
+    InputActionMap inputActionMap_;
+    InputMapper mapper_;
+    UIInput uiInput_;
 };
 
 };  // namespace cave

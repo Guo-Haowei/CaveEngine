@@ -5,13 +5,12 @@
 #include "cave/runtime/input/KeyState.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/input/InputService.h"
 
 #include "editor/services/EditService.h"
 #include "editor/services/Workspace.h"
-
 #include "editor/EditorIntent.h"
 #include "editor/EditorState.h"
 
@@ -22,7 +21,7 @@ ShortcutService::ShortcutService(EditorState& p_editor)
     , m_intent_dispatcher(*p_editor.GetApp().IntentDispatcher())
     , m_debug_id(MakeDebugId(this)) {
 
-    m_editor.GetApp().InputService().Register(this);
+    m_editor.GetApp().InputService().addConsumer(this);
     m_intent_dispatcher.AddHandler<SaveIntent>(this);
     m_intent_dispatcher.AddHandler<UndoIntent>(this);
     m_intent_dispatcher.AddHandler<RedoIntent>(this);
@@ -34,7 +33,7 @@ ShortcutService::~ShortcutService() {
     m_intent_dispatcher.RemoveHandler<SaveIntent>(this);
     m_intent_dispatcher.RemoveHandler<UndoIntent>(this);
     m_intent_dispatcher.RemoveHandler<RedoIntent>(this);
-    m_editor.GetApp().InputService().Unregister(this);
+    m_editor.GetApp().InputService().removeConsumer(this);
 }
 
 bool ShortcutService::HandleIntent(Intent& p_intent) {
@@ -63,10 +62,10 @@ bool ShortcutService::HandleIntent(Intent& p_intent) {
 }
 
 void ShortcutService::OnEvents(const InputFrame& p_input) {
-    IInputService& input = m_editor.GetApp().InputService();
-    const bool ctrl = input.GetKeyState().AnyCtrlDown();
-    const bool alt = input.GetKeyState().AnyAltDown();
-    const bool shift = input.GetKeyState().AnyShiftDown();
+    InputService& input = m_editor.GetApp().InputService();
+    const bool ctrl = input.keyState().AnyCtrlDown();
+    const bool alt = input.keyState().AnyAltDown();
+    const bool shift = input.keyState().AnyShiftDown();
 
     for (const InputEvent& e : p_input.events) {
         if (e.type != InputEventType::ButtonDown)

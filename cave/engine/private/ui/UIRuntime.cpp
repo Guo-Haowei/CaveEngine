@@ -27,7 +27,8 @@ void UIRuntime::BeginFrame(const UIInput& p_input) {
 }
 
 void UIRuntime::EndFrame() {
-    if (!m_input.mouse_down) {
+    CRASH_NOW();
+    if (!m_input.submit_pressed) {
         m_active = 0;
     }
 
@@ -57,15 +58,17 @@ bool UIRuntime::Button(UIId p_id, UIRect p_rect) {
         m_hot = p_id;
     }
 
-    if (hovered && m_input.mouse_pressed) {
+    CRASH_NOW();
+    if (hovered && m_input.submit_pressed) {
         m_active = p_id;
     }
 
     bool clicked = false;
 
-    if (m_active == p_id && m_input.mouse_released) {
-        clicked = hovered;
-    }
+    CRASH_NOW();
+    // if (m_active == p_id && m_input.mouse_released) {
+    //     clicked = hovered;
+    // }
 
     Color color = kButtonNormal;
     if (m_active == p_id) {

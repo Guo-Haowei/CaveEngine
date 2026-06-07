@@ -4,6 +4,7 @@
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/framework/Engine.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
 
 namespace cave {
@@ -31,8 +32,8 @@ IntentDispatcher& PIEHostServices::Intent() {
     return *m_app.IntentDispatcher();
 }
 
-IInputService& PIEHostServices::Input() {
-    return m_app.InputService();
+const IGameInput& PIEHostServices::Input() const {
+    return m_app.InputService().gameInput();
 }
 
 IUIRuntime& PIEHostServices::UI() {

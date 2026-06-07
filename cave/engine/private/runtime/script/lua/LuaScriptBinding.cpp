@@ -2,11 +2,11 @@
 
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/math/Vector.h"
-#include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 
@@ -109,17 +109,29 @@ bool OpenMathLib(lua_State* L) {
 bool OpenInputLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Input")
-        .addFunction("is_action_pressed", [](const char* p_str_id) -> int {
-            return IInputService::GetSingleton().IsActionPressed(StringId(p_str_id));
+        .addFunction("is_action_pressed", [](const char* p_action) -> int {
+            unused(p_action);
+            LOG_WARN(LogChannel::Input, "TODO");
+            // return InputService::GetSingleton().IsActionPressed(StringId(p_str_id));
+            return 0;
         })
-        .addFunction("is_action_just_pressed", [](const char* p_str_id) -> int {
-            return IInputService::GetSingleton().IsActionJustPressed(StringId(p_str_id));
+        .addFunction("is_action_just_pressed", [](const char* p_action) -> int {
+            unused(p_action);
+            LOG_WARN(LogChannel::Input, "TODO");
+            // return InputService::GetSingleton().IsActionJustPressed(StringId(p_str_id));
+            return 0;
         })
-        .addFunction("is_action_just_released", [](const char* p_str_id) -> int {
-            return IInputService::GetSingleton().IsActionJustReleased(StringId(p_str_id));
+        .addFunction("is_action_just_released", [](const char* p_action) -> int {
+            unused(p_action);
+            LOG_WARN(LogChannel::Input, "TODO");
+            // return InputService::GetSingleton().IsActionJustReleased(StringId(p_str_id));
+            return 0;
         })
-        .addFunction("get_action_strength", [](const char* p_str_id) -> float {
-            return IInputService::GetSingleton().GetActionStrength(StringId(p_str_id));
+        .addFunction("get_action_strength", [](const char* p_action) -> float {
+            unused(p_action);
+            LOG_WARN(LogChannel::Input, "TODO");
+            return 0;
+            // return InputService::GetSingleton().GetActionStrength(StringId(p_str_id));
         })
         .endNamespace();
     return true;

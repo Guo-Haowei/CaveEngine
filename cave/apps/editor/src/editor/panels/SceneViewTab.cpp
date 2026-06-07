@@ -4,12 +4,12 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/framework/IInputService.h"
 #include "cave/runtime/input/KeyState.h"
 
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/runtime/view/ViewManager.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/view/ViewManager.h"
 
 #include "editor/edit/ChangePropertyCmd.h"
 #include "editor/services/EditService.h"
@@ -214,7 +214,7 @@ void SceneViewTab::OnInputEvents(const InputFrame& p_input) {
         return;
     }
 
-    const KeyState& st = m_editor.GetApp().InputService().GetKeyState();
+    const KeyState& st = m_editor.GetApp().InputService().keyState();
     if (st.AnyAltDown() || st.AnyCtrlDown() || st.AnyShiftDown()) {
         return;
     }

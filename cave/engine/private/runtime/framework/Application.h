@@ -7,7 +7,6 @@
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 
 namespace cave {
@@ -33,7 +32,7 @@ public:
     VFS& GetVFS() override { return m_vfs; }
     EventQueue& GetEventQueue() override { return m_event_queue; }
     SceneScheduler& GetSceneScheduler() override { return *m_scene_scheduler; }
-    IInputService& InputService() override { return *m_input_service; }
+    cave::InputService& InputService() override { return *m_input_service; }
 
     AppType GetType() const override { return m_type; }
 

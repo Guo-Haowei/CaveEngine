@@ -6,13 +6,13 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/framework/IInputService.h"
 
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/input/GlfwGamepadDevice.h"
 #include "engine/private/runtime/input/GlfwKeyboardMouseDevice.h"
+#include "engine/private/runtime/input/InputService.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/ImGuiManager.h"
@@ -73,17 +73,17 @@ auto GlfwDisplayManager::InitializeWindow(const WindowSpecfication& p_spec) -> R
         }
     });
 
-    IInputService& input = m_app->InputService();
+    InputService& input = m_app->InputService();
     {
         InputDeviceId kb_id = InputDeviceId::NextId();
         auto keyboard_mouse_device = std::make_unique<GlfwKeyboardMouseDevice>(kb_id);
         keyboard_mouse_device->InstallCallbacks(m_window);
-        input.AddDevice(std::move(keyboard_mouse_device));
+        input.addDevice(std::move(keyboard_mouse_device));
     }
     {
         InputDeviceId pad_id = InputDeviceId::NextId();
         auto keyboard_mouse_device = std::make_unique<GlfwGamepadDevice>(pad_id, GLFW_JOYSTICK_1);
-        input.AddDevice(std::move(keyboard_mouse_device));
+        input.addDevice(std::move(keyboard_mouse_device));
 
         // input.Router;
     }

@@ -3,6 +3,8 @@
 
 namespace cave {
 
+using namespace ::cave::literals;
+
 class TestIntentHandler : public IIntentHandler {
 public:
     TestIntentHandler()

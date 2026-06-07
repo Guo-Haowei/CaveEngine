@@ -14,16 +14,17 @@
 #include "engine/private/core/os/threads.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/dvar/DvarCache.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/runtime/display/DisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -202,9 +203,9 @@ bool Application::MainLoop() {
         .frame_index = m_frame_counter++,
     };
 
-    m_input_service->Tick(time);
+    m_input_service->tick(time);
 
-    m_ui->BeginFrame(m_input_service->GetUIInput());
+    m_ui->BeginFrame(m_input_service->getUIInput());
 
     m_asset_manager->Update();
 

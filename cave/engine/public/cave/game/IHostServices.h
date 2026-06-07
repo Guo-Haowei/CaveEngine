@@ -12,7 +12,7 @@ namespace cave::ecs { class ComponentRegistry; }
 namespace cave {
 
 class AssetRegistry;
-class IInputService;
+class IGameInput;
 class IntentDispatcher;
 class IUIRuntime;
 class SceneCommandWriter;
@@ -24,7 +24,7 @@ public:
 
     virtual AssetRegistry& AssetRegistry() = 0;
     virtual ecs::ComponentRegistry& ComponentRegistry() = 0;
-    virtual IInputService& Input() = 0;
+    virtual const IGameInput& Input() const = 0;
     virtual IntentDispatcher& Intent() = 0;
     virtual IUIRuntime& UI() = 0;
     virtual LogWrapper& Log() = 0;
