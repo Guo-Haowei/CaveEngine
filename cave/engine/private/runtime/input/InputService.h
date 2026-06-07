@@ -4,6 +4,7 @@
 #include "cave/runtime/framework/IService.h"
 #include "cave/runtime/input/IInputDevice.h"
 #include "cave/runtime/input/KeyState.h"
+#include "cave/runtime/input/PointerState.h"
 #include "cave/ui/UIInput.h"
 
 #include "engine/private/runtime/input/GameInput.h"
@@ -15,12 +16,6 @@ namespace cave {
 struct FrameTime;
 class IInputConsumer;
 class KeyState;
-
-struct PointerState {
-    bool has_pos = false;
-    float x = 0.0f, y = 0.0f;
-    float dx = 0.0f, dy = 0.0f;
-};
 
 class InputService : public IService {
 public:
@@ -55,7 +50,7 @@ private:
     std::vector<std::unique_ptr<IInputDevice>> devices_{};
     std::vector<InputEvent> input_events_;
 
-    std::unordered_map<uint32_t, PointerState> pointers_;
+    std::array<PointerState, InputDeviceId::kMax> pointers_;
 
     KeyState key_state_;
     AxisState axis_state_;

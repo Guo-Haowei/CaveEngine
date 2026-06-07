@@ -161,7 +161,7 @@ void GlfwKeyboardMouseDevice::KeyCallback(GLFWwindow* p_window,
 
 void GlfwKeyboardMouseDevice::CharCallback(GLFWwindow* p_window, unsigned int p_code) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        self->Push(InputEvent::TextInput(self->m_dev_id, p_code));
+        self->Push(InputEvent::textInput(self->m_dev_id, p_code));
     }
 }
 
@@ -193,7 +193,7 @@ void GlfwKeyboardMouseDevice::MouseButtonCallback(GLFWwindow* p_window, int p_bu
 
 void GlfwKeyboardMouseDevice::CursorPosCallback(GLFWwindow* p_window, double p_x, double p_y) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        self->Push(InputEvent::MouseMove(self->m_dev_id,
+        self->Push(InputEvent::mouseMove(self->m_dev_id,
                                          static_cast<float>(p_x),
                                          static_cast<float>(p_y)));
     }
@@ -201,7 +201,7 @@ void GlfwKeyboardMouseDevice::CursorPosCallback(GLFWwindow* p_window, double p_x
 
 void GlfwKeyboardMouseDevice::ScrollCallback(GLFWwindow* p_window, double p_x_offset, double p_y_offset) {
     if (GlfwKeyboardMouseDevice* self = Get(p_window)) {
-        self->Push(InputEvent::MouseWheel(self->m_dev_id,
+        self->Push(InputEvent::mouseWheel(self->m_dev_id,
                                           static_cast<float>(p_x_offset),
                                           static_cast<float>(p_y_offset)));
     }

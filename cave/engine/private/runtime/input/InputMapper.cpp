@@ -1,6 +1,3 @@
-// =============================================================================
-// File: engine/private/runtime/input/InputMapper.cpp
-// =============================================================================
 #include "InputMapper.h"
 
 #include "AxisState.h"
@@ -55,7 +52,7 @@ void InputMapper::MapDigital(const StringId& p_str_id,
             action.type = (e.type == InputEventType::ButtonDown)
                               ? ActionEventType::Pressed
                               : ActionEventType::Released;
-            action.player = p_routing.PlayerFor(e.device_id);
+            action.player = p_routing.PlayerFor(e.dev_id);
 
             p_out_actions.push_back(action);
             break;
@@ -68,8 +65,8 @@ void InputMapper::MapScalar(const StringId& p_str_id, const ActionDef& p_def,
                             const DeviceRouting& p_routing,
                             std::vector<ActionEvent>& p_out_actions) const {
 
-    for (InputDeviceId dev_id : p_keys.ActiveDevices()) {
-        // Typical editor rule: don�t drive movement while Ctrl/Alt are down
+    for (InputDeviceId dev_id : p_keys.activeDevices()) {
+        // Typical editor rule: don't drive movement while Ctrl/Alt are down
         // (Put your own gating elsewhere if you prefer)
         // if (keys.CtrlDown(dev) || keys.AltDown(dev)) continue;
 
@@ -81,7 +78,7 @@ void InputMapper::MapScalar(const StringId& p_str_id, const ActionDef& p_def,
             }
 
             if (binding.source.type == BindingSourceType::Key) {
-                if (p_keys.Down(dev_id, binding.source.key)) {
+                if (p_keys.down(dev_id, binding.source.key)) {
                     value += binding.scale;
                 }
             }

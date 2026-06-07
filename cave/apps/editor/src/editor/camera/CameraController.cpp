@@ -25,7 +25,7 @@ CameraController2DEditor::CameraController2DEditor(CameraComponent& p_camera,
 void CameraController2DEditor::Update(const InputFrame& p_input) {
     constexpr Key drag_key = Key::MMB;
     const InputDeviceId id{ 0 };
-    const bool drag_key_down = p_input.keystate.Down(id, drag_key);
+    const bool drag_key_down = p_input.keystate.down(id, drag_key);
     float dx = 0.0f;
     float dy = 0.0f;
     float zoom = 0.0f;
@@ -90,10 +90,10 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
     constexpr Key kDragKey = Key::MMB;
     const InputDeviceId id{ 0 };
     auto& ks = p_input.keystate;
-    const bool drag_button = ks.Down(id, kDragKey);
-    const int _dx = ks.Down(id, Key::D) - ks.Down(id, Key::A);
-    const int _dy = ks.Down(id, Key::E) - ks.Down(id, Key::Q);
-    const int _dz = ks.Down(id, Key::W) - ks.Down(id, Key::S);
+    const bool drag_button = ks.down(id, kDragKey);
+    const int _dx = ks.down(id, Key::D) - ks.down(id, Key::A);
+    const int _dy = ks.down(id, Key::E) - ks.down(id, Key::Q);
+    const int _dz = ks.down(id, Key::W) - ks.down(id, Key::S);
 
     Vector2f rotation = Vector2f::Zero;
 

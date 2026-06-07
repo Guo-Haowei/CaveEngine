@@ -12,17 +12,6 @@ enum class InputDeviceType : uint8_t {
     Gamepad,
 };
 
-struct InputDeviceId {
-    uint32_t value{ 0 };
-    constexpr bool operator==(const InputDeviceId& p_other) const { return value == p_other.value; }
-    constexpr bool operator!=(const InputDeviceId& p_other) const { return value != p_other.value; }
-
-    static InputDeviceId NextId() {
-        static std::atomic<uint32_t> s_id{ 0 };
-        return InputDeviceId{ s_id++ };
-    }
-};
-
 enum class InputEventType : uint8_t {
     ButtonDown,
     ButtonUp,
@@ -34,53 +23,60 @@ enum class InputEventType : uint8_t {
     DeviceRemoved,
 };
 
+enum class ActionEventType : uint8_t {
+    Pressed,
+    Released,
+    Axis1D,
+    Axis2D
+};
+
+struct InputDeviceId {
+    uint32_t value{ 0 };
+
+    constexpr bool operator==(const InputDeviceId& rhs) const { return value == rhs.value; }
+    constexpr bool operator!=(const InputDeviceId& rhs) const { return value != rhs.value; }
+
+    inline static constexpr uint8_t kMax = 8;
+
+    static InputDeviceId nextId() {
+        static std::atomic<uint32_t> s_id{ 0 };
+        return InputDeviceId{ s_id++ };
+    }
+};
+
 struct InputEvent {
     const InputEventType type{};
-    const InputDeviceId device_id{};
+    const InputDeviceId dev_id{};
     mutable bool consumed{ false };
 
     uint32_t code{ 0 };  // Key / Button / Axis index / char / etc.
     float x = 0.0f, y = 0.0f;
     float dx = 0.0f, dy = 0.0f;
 
-    InputEvent(InputEventType p_type, InputDeviceId p_dev_id)
-        : type(p_type)
-        , device_id(p_dev_id) {
-    }
-
-    static InputEvent MouseMove(InputDeviceId p_dev_id,
-                                float p_x,
-                                float p_y) {
-        InputEvent e(InputEventType::MouseMove, p_dev_id);
-        e.x = p_x;
-        e.y = p_y;
+    static InputEvent mouseMove(InputDeviceId dev_id,
+                                float x,
+                                float y) {
+        InputEvent e{ InputEventType::MouseMove, dev_id };
+        e.x = x;
+        e.y = y;
         return e;
     }
 
-    static InputEvent MouseWheel(InputDeviceId p_dev_id,
-                                 float p_x_offset,
-                                 float p_y_offset) {
-        InputEvent e(InputEventType::MouseWheel, p_dev_id);
-
-        e.x = e.dx = p_x_offset;
-        e.y = e.dy = p_y_offset;
+    static InputEvent mouseWheel(InputDeviceId dev_id,
+                                 float dx,
+                                 float dy) {
+        InputEvent e{ InputEventType::MouseWheel, dev_id };
+        e.x = e.dx = dx;
+        e.y = e.dy = dy;
         return e;
     }
 
-    static InputEvent TextInput(InputDeviceId p_dev_id,
-                                uint32_t p_code) {
-        InputEvent e(InputEventType::TextInput, p_dev_id);
-
-        e.code = p_code;
+    static InputEvent textInput(InputDeviceId dev_id,
+                                uint32_t code) {
+        InputEvent e{ InputEventType::TextInput, dev_id };
+        e.code = code;
         return e;
     }
-};
-
-enum class ActionEventType : uint8_t {
-    Pressed,
-    Released,
-    Axis1D,
-    Axis2D
 };
 
 struct ActionEvent {

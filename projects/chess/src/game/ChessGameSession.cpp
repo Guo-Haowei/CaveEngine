@@ -86,6 +86,8 @@ void ChessGameSession::TickGameOver() {
         return;
     }
 
+    m_host.Log().Info(LogChannel::Game, "Game Over!");
+
     auto state = std::make_unique<GameOverState>();
     m_host.Intent().Queue<ChessStateIntent>(std::move(state));
 }

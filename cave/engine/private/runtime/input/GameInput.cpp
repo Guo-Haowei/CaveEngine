@@ -4,8 +4,9 @@ namespace cave {
 
 using namespace ::cave::literals;
 
-GameInput::GameInput()
-    : mapper_(input_action_map_) {
+GameInput::GameInput(const PointerState* pointers)
+    : pointers_(pointers)
+    , mapper_(input_action_map_) {
 }
 
 void GameInput::initialize() {
@@ -93,6 +94,12 @@ auto GameInput::getVector(StringId neg_x,
     float x = getStrength(pos_x, player) - getStrength(neg_x, player);
     float y = getStrength(pos_y, player) - getStrength(neg_y, player);
     return { x, y };
+}
+
+const PointerState& GameInput::pointerState() const {
+    DEV_ASSERT(pointers_ != nullptr);
+    // @HACK: just return the first pointer for now
+    return *pointers_;
 }
 
 void GameInput::updateActions(const std::vector<InputEvent>& input_events,

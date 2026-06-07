@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "cave/core/string/StringId.h"
+#include "cave/runtime/input/PointerState.h"
 
 namespace cave {
 
@@ -25,6 +26,8 @@ public:
                            StringId neg_y,
                            StringId pos_y,
                            int player = 0) const -> std::pair<float, float> = 0;
+
+    virtual const PointerState& pointerState() const = 0;
 };
 
 }  // namespace cave

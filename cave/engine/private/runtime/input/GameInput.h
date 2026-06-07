@@ -11,7 +11,7 @@ namespace cave {
 
 class GameInput final : public IGameInput {
 public:
-    GameInput();
+    GameInput(const PointerState* pointers);
 
     void initialize();
 
@@ -34,6 +34,8 @@ public:
                        const AxisState& axis_state,
                        const DeviceRouting& routing);
 
+    const PointerState& pointerState() const override;
+
 private:
     struct Entry {
         bool down = false;
@@ -49,6 +51,7 @@ private:
 
     const Entry* findEntry(int player, StringId action) const;
 
+    const PointerState* pointers_{ nullptr };
     InputActionMap input_action_map_;
     InputMapper mapper_;
     std::vector<ActionEvent> action_events_;

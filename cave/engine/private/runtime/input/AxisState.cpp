@@ -22,7 +22,7 @@ void AxisState::updateFromEvents(const InputEvent* events, size_t count) {
         }
 
         AxisCode axis = static_cast<AxisCode>(e.code);
-        auto& dev = devices_[e.device_id.value];
+        auto& dev = devices_[e.dev_id.value];
         dev.axes[std::to_underlying(axis)].value = e.x;
     }
 }

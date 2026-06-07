@@ -9,9 +9,11 @@
 namespace cave {
 
 using namespace cave::literals;
+using namespace cave::math;
 
 InputService::InputService()
-    : IService("InputService") {}
+    : IService("InputService")
+    , game_input_(pointers_.data()) {}
 
 auto InputService::InitializeImpl() -> Result<void> {
     game_input_.initialize();
@@ -45,31 +47,27 @@ void InputService::addDevice(std::unique_ptr<IInputDevice> device) {
 }
 
 void InputService::updatePointers(std::vector<InputEvent>& events) {
-    for (auto& [_, ps] : pointers_) {
-        ps.dx = 0.0f;
-        ps.dy = 0.0f;
+    for (PointerState& pointer : pointers_) {
+        pointer.delta = Vector2f::Zero;
     }
 
     for (InputEvent& e : events) {
         if (e.consumed) continue;
         if (e.type != InputEventType::MouseMove) continue;
 
-        auto& ps = pointers_[e.device_id.value];
+        PointerState& pointer = pointers_[e.dev_id.value];
 
-        const float new_x = e.x;
-        const float new_y = e.y;
+        Vector2f new_pos{ e.x, e.y };
 
-        if (ps.has_pos) {
-            ps.dx = new_x - ps.x;
-            ps.dy = new_y - ps.y;
+        if (pointer.has_pos) {
+            pointer.delta = new_pos - pointer.pos_win;
 
-            e.dx = ps.dx;
-            e.dy = ps.dy;
+            e.dx = pointer.delta.x;
+            e.dy = pointer.delta.y;
         }
 
-        ps.x = new_x;
-        ps.y = new_y;
-        ps.has_pos = true;
+        pointer.pos_win = new_pos;
+        pointer.has_pos = true;
     }
 }
 
@@ -90,12 +88,10 @@ UIInput InputService::buildUIInput() {
 
     DisplayService& display_service = *m_app->GetDisplayService();
 
-    const auto it = pointers_.find(device_id.value);
-    if (it != pointers_.end()) {
-        const PointerState pointer = it->second;
-        const auto [x_win, y_win] = display_service.GetWindowPos();
-        input.cursor_os = math::Vector2f(pointer.x + x_win, pointer.y + y_win);
-    }
+    const PointerState& pointer = pointers_[device_id.value];
+    const auto [window_pos_x, window_pos_y] = display_service.GetWindowPos();
+    input.cursor_os.x = pointer.pos_win.x + window_pos_x;
+    input.cursor_os.y = pointer.pos_win.y + window_pos_y;
 
     return input;
 }
@@ -112,12 +108,12 @@ void InputService::tick(const FrameTime& time) {
     updatePointers(input_events_);
 
     // *) Build key/button state for this frame (from unconsumed events)
-    key_state_.BeginFrame();
-    key_state_.UpdateFromEvents(input_events_.data(), input_events_.size());
+    key_state_.beginFrame();
+    key_state_.updateFromEvents(input_events_.data(), input_events_.size());
 
     // *) Build axis state for this frame (from unconsumed events)
-    axis_state_.BeginFrame();
-    axis_state_.UpdateFromEvents(input_events_.data(), input_events_.size());
+    axis_state_.beginFrame();
+    axis_state_.updateFromEvents(input_events_.data(), input_events_.size());
 
     // *) Feed ImGui from remaining raw events
     if (ImguiManager* imgui = m_app->GetImguiManager()) {
