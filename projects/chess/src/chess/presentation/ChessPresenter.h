@@ -16,48 +16,48 @@ class ChessPresenter {
     using Entity = ::cave::ecs::Entity;
 
 public:
-    ChessPresenter(cave::IHostServices& p_host) noexcept
-        : m_host(p_host) {
+    ChessPresenter(cave::IHostServices& host) noexcept
+        : host_(host) {
     }
 
-    void Present();
+    void present();
 
     // ==== Board Representation ====
-    void OnBoot(cave::SceneQuery& p_query);
+    void onBoot();
 
-    void RedrawBoard(const core::Position& p_position);
+    void redrawBoard(const core::Position& position);
 
-    void ApplyMove(core::Move p_mv);
+    void applyMove(core::Move mv);
 
-    Entity GetEntityAt(core::Square p_sq) const {
-        return m_board[p_sq.Index()];
+    Entity getEntityAt(core::Square square) const {
+        return board_[square.Index()];
     }
 
     // ==== Grid ====
-    void SetFocusedSquare(core::Square p_sq) {
-        m_focused = p_sq;
+    void setFocusedSquare(core::Square square) {
+        focused_sq = square;
     }
 
-    void SetHighlightSquares(core::Bitboard p_bb) {
-        m_highlights = p_bb;
+    void setHighlightSquares(core::Bitboard bb) {
+        highlights_ = bb;
     }
 
 private:
-    void ClearSquare(cave::SceneCommandWriter& p_writer,
-                     core::Square p_sq);
+    void clearSquare(cave::SceneCommandWriter& writer,
+                     core::Square square);
 
-    void MovePiece(Entity p_ent, core::Square p_from, core::Square p_to);
+    void movePiece(Entity ent, core::Square from, core::Square to);
 
-    cave::IHostServices& m_host;
-    Entity m_selector;
+    cave::IHostServices& host_;
+    Entity selector_;
 
-    std::array<Entity, 64> m_tiles;
-    std::array<std::vector<Entity>, core::kPieceMax> m_piece_pools;
+    std::array<Entity, 64> tiles_;
+    std::array<std::vector<Entity>, core::kPieceMax> piece_pools_;
 
-    core::Square m_focused{ 0 };
-    core::Bitboard m_highlights;
+    core::Square focused_sq{ 0 };
+    core::Bitboard highlights_;
 
-    std::array<Entity, 64> m_board;
+    std::array<Entity, 64> board_;
 };
 
 }  // namespace chess

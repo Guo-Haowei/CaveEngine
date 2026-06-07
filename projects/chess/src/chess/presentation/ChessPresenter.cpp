@@ -24,25 +24,25 @@ static inline Vector3f SquareToVec(Square p_sq) {
     return Vector3f{ (float)rank, 0.0f, (float)file };
 }
 
-void ChessPresenter::OnBoot(cave::SceneQuery& p_query) {
-    m_highlights = {};
+void ChessPresenter::onBoot() {
+    highlights_ = {};
 
-    m_selector = p_query.FindFirstEntity("grid_selector");
+    auto& query = host_.sceneQuery();
+    selector_ = query.FindFirstEntity("grid_selector");
 
     // set up tiles
     for (uint8_t i = 0; i < 64; ++i) {
         const char* name = Square(i).ToString();
-        m_tiles[i] = p_query.FindFirstEntity(name);
+        tiles_[i] = query.FindFirstEntity(name);
     }
 
     // set up pieces
-    auto add_piece = [&](Piece p_type, std::string_view p_name, int p_count) {
-        const uint8_t idx = std::to_underlying(p_type);
-        m_piece_pools[idx].reserve(p_count);
-        for (int i = 1; i <= p_count; ++i) {
-            std::string name = std::format("{}_{}", p_name, i);
-            Entity id = p_query.FindFirstEntity(name);
-            m_piece_pools[idx].push_back(id);
+    auto add_piece = [&](Piece type, std::string_view name, int count) {
+        const uint8_t idx = std::to_underlying(type);
+        piece_pools_[idx].reserve(count);
+        for (int i = 1; i <= count; ++i) {
+            Entity id = query.FindFirstEntity(std::format("{}_{}", name, i));
+            piece_pools_[idx].push_back(id);
         }
     };
 
@@ -60,39 +60,37 @@ void ChessPresenter::OnBoot(cave::SceneQuery& p_query) {
     add_piece(Piece::BK, "black_king", 1);
 }
 
-void ChessPresenter::Present() {
-    cave::SceneQuery& query = m_host.sceneQuery();
-
-    auto& writer = m_host.sceneWriter();
+void ChessPresenter::present() {
+    auto& writer = host_.sceneWriter();
 
     for (uint8_t i = 0; i < 64; ++i) {
         const Square sq(i);
-        bool visible = m_highlights.Test(sq);
-        if (sq == m_focused) {
+        bool visible = highlights_.Test(sq);
+        if (sq == focused_sq) {
             visible = false;
         }
-        const Entity tile = m_tiles[i];
+        const Entity tile = tiles_[i];
         writer.SetProperty(tile,
                            cave::MeshRendererComponent_Id,
                            kVisibility,
                            visible);
     }
 
-    Vector3f position = SquareToVec(m_focused);
-    writer.SetProperty(m_selector,
+    Vector3f position = SquareToVec(focused_sq);
+    writer.SetProperty(selector_,
                        cave::TransformComponent_Id,
                        kTranslationId,
                        position);
 }
 
-void ChessPresenter::RedrawBoard(const core::Position& p_position) {
-    auto& writer = m_host.sceneWriter();
+void ChessPresenter::redrawBoard(const Position& position) {
+    auto& writer = host_.sceneWriter();
 
     // update pieces
-    for (uint8_t p = 0; p < core::kPieceMax; ++p) {
+    for (uint8_t p = 0; p < kPieceMax; ++p) {
         const Piece piece = static_cast<Piece>(p);
-        const Bitboard bb = p_position.Bitboard(piece);
-        auto& pool = m_piece_pools[p];
+        const Bitboard bb = position.Bitboard(piece);
+        auto& pool = piece_pools_[p];
 
         int idx = 0;
         for (Square sq : bb.Squares()) {
@@ -102,7 +100,7 @@ void ChessPresenter::RedrawBoard(const core::Position& p_position) {
             }
 
             Entity e = pool[idx++];
-            m_board[sq.Index()] = e;
+            board_[sq.Index()] = e;
 
             Vector3f translation = SquareToVec(sq);
             writer.SetProperty(e, TransformComponent_Id, kTranslationId, translation);
@@ -119,28 +117,27 @@ void ChessPresenter::RedrawBoard(const core::Position& p_position) {
     }
 }
 
-void ChessPresenter::ClearSquare(SceneCommandWriter& p_writer,
-                                 core::Square p_sq) {
-    const Entity e = m_board[p_sq.Index()];
-    m_board[p_sq.Index()] = Entity::Null();
+void ChessPresenter::clearSquare(SceneCommandWriter& writer,
+                                 Square square) {
+    const Entity e = board_[square.Index()];
+    board_[square.Index()] = Entity::Null();
 
-    // Just move the piece to far away from the screen
-    p_writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
-    p_writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
+    writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
+    writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
 }
 
-void ChessPresenter::MovePiece(Entity p_ent, core::Square p_from, core::Square p_to) {
-    m_board[p_from.Index()] = Entity::Null();
-    m_board[p_to.Index()] = p_ent;
+void ChessPresenter::movePiece(Entity ent, Square from, Square to) {
+    board_[from.Index()] = Entity::Null();
+    board_[to.Index()] = ent;
 
     constexpr auto cid = TransformAnimationComponent_Id;
-    auto& writer = m_host.sceneWriter();
-    writer.AddComponent(p_ent, cid);
-    writer.SetProperty(p_ent, cid, "begin"_sid, SquareToVec(p_from));
-    writer.SetProperty(p_ent, cid, "end"_sid, SquareToVec(p_to));
-    writer.SetProperty(p_ent, cid, "duration"_sid, 0.25f);
-    writer.SetProperty(p_ent, cid, "playing"_sid, true);
-    writer.SetProperty(p_ent, cid, "destroy_on_finish"_sid, true);
+    auto& writer = host_.sceneWriter();
+    writer.AddComponent(ent, cid);
+    writer.SetProperty(ent, cid, "begin"_sid, SquareToVec(from));
+    writer.SetProperty(ent, cid, "end"_sid, SquareToVec(to));
+    writer.SetProperty(ent, cid, "duration"_sid, 0.25f);
+    writer.SetProperty(ent, cid, "playing"_sid, true);
+    writer.SetProperty(ent, cid, "destroy_on_finish"_sid, true);
 }
 
 struct CastleRookMove {
@@ -166,33 +163,33 @@ CastleRookMove GetCastleRookMove(Square from, Square to) {
     return {};
 }
 
-void ChessPresenter::ApplyMove(core::Move p_mv) {
-    const Square from = p_mv.From();
-    const Square to = p_mv.To();
-    Entity src_piece = GetEntityAt(from);
+void ChessPresenter::applyMove(Move move) {
+    const Square from = move.From();
+    const Square to = move.To();
+    Entity src_piece = getEntityAt(from);
 
     assert(src_piece.IsValid());
 
-    auto& writer = m_host.sceneWriter();
+    auto& writer = host_.sceneWriter();
 
-    if (Entity captured_piece = GetEntityAt(to); captured_piece.IsValid()) {
-        ClearSquare(writer, to);
+    if (Entity captured_piece = getEntityAt(to); captured_piece.IsValid()) {
+        clearSquare(writer, to);
     }
 
-    MovePiece(src_piece, from, to);
+    movePiece(src_piece, from, to);
 
-    switch (p_mv.GetType()) {
+    switch (move.GetType()) {
         case MoveType::Normal:
             break;
         case MoveType::Castling: {
             CastleRookMove rook = GetCastleRookMove(from, to);
-            MovePiece(m_board[rook.from.Index()], rook.from, rook.to);
+            movePiece(board_[rook.from.Index()], rook.from, rook.to);
         } break;
         case MoveType::Enpassant:
-            m_host.log().Warn(LogChannel::Game, "Handle enpassant");
+            host_.log().Warn(LogChannel::Game, "Handle enpassant");
             break;
         case MoveType::Promotion:
-            m_host.log().Warn(LogChannel::Game, "Handle promotion");
+            host_.log().Warn(LogChannel::Game, "Handle promotion");
             break;
     }
 }

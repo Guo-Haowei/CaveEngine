@@ -55,7 +55,7 @@ void ChessGameSession::Tick() {
     if (m_selector) {
         Vector2i focused = m_selector->GetFocused();
         Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
-        m_client->Presenter().SetFocusedSquare(focused_sq);
+        m_client->Presenter().setFocusedSquare(focused_sq);
     }
 }
 

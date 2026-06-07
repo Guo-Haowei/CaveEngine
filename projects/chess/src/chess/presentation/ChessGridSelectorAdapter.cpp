@@ -34,7 +34,7 @@ void ChessGridSelectorAdapter::onSelect(int x, int y) {
     for (Move mv : moves) {
         bb.Set(mv.To());
     }
-    presenter_.SetHighlightSquares(bb);
+    presenter_.setHighlightSquares(bb);
 }
 
 bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
@@ -54,7 +54,7 @@ bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
-    presenter_.SetHighlightSquares({});
+    presenter_.setHighlightSquares({});
 
     const core::Position& pos = client_.Replica();
     const PlayerId id = pos.SideToMove();
@@ -78,7 +78,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::onCancel() {
-    presenter_.SetHighlightSquares({});
+    presenter_.setHighlightSquares({});
 }
 
 void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
