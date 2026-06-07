@@ -6,10 +6,8 @@
 #include "cave/runtime/input/KeyState.h"
 #include "cave/ui/UIInput.h"
 
-#include "engine/private/runtime/input/AxisState.h"
 #include "engine/private/runtime/input/GameInput.h"
 #include "engine/private/runtime/input/InputActionMap.h"
-#include "engine/private/runtime/input/InputMapper.h"
 #include "engine/private/runtime/input/InputRouter.h"
 
 namespace cave {
@@ -47,32 +45,24 @@ public:
         router_.Unregister(consumer);
     }
 
-    InputActionMap& actionMap() { return input_action_map_; }
-
     const UIInput& getUIInput() const { return ui_input_; }
     const GameInput& gameInput() const { return game_input_; }
 
 private:
     void updatePointers(std::vector<InputEvent>& events);
-    void updateActions(const DeviceRouting& routing);
     UIInput buildUIInput();
 
     std::vector<std::unique_ptr<IInputDevice>> devices_{};
-
-    std::vector<InputEvent> inputEvents_;
-    std::vector<ActionEvent> actionEvents_;
+    std::vector<InputEvent> input_events_;
 
     std::unordered_map<uint32_t, PointerState> pointers_;
 
     KeyState key_state_;
     AxisState axis_state_;
-    ActionState action_state_;
 
     GameInput game_input_;
     InputRouter router_;
 
-    InputActionMap input_action_map_;
-    InputMapper mapper_;
     UIInput ui_input_;
 };
 

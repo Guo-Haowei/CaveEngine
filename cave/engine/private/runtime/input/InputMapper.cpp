@@ -102,7 +102,7 @@ void InputMapper::MapScalar(const StringId& p_str_id, const ActionDef& p_def,
                             const DeviceRouting& p_routing,
                             std::vector<ActionEvent>& p_out_actions) const {
 
-    for (InputDeviceId dev_id : p_axis_state.ActiveDevices()) {
+    for (InputDeviceId dev_id : p_axis_state.activeDevices()) {
         float value = 0.0f;
 
         for (const ActionBinding& b : p_def.bindings) {
@@ -111,7 +111,7 @@ void InputMapper::MapScalar(const StringId& p_str_id, const ActionDef& p_def,
             }
 
             if (b.source.type == BindingSourceType::Axis) {
-                float v = p_axis_state.Get(dev_id, b.source.axis);
+                float v = p_axis_state.get(dev_id, b.source.axis);
                 if (b.invert) v = -v;
                 if (std::abs(v) < b.deadzone) v = 0.0f;
                 value += v * b.scale;

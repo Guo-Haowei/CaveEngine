@@ -4,22 +4,161 @@ namespace cave {
 
 using namespace ::cave::literals;
 
-UIInput GameInput::buildUIInput() {
-    constexpr int player_id = 0;
+GameInput::GameInput()
+    : mapper_(input_action_map_) {
+}
 
-    UIInput input{};
+void GameInput::initialize() {
+    InputActionMap& map = input_action_map_;
 
-    // Mapped UI actions
-    input.submit_down = m_state.IsPressed(player_id, "ui_accept"_sid);
-    input.submit_pressed = m_state.IsJustPressed(player_id, "ui_accept"_sid);
-    input.submit_released = m_state.IsJustReleased(player_id, "ui_accept"_sid);
+    // @TODO: read bindings from config file
+    map.AddAction("ui_accept"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_accept"_sid, Key::Enter);
+    map.BindDigital("ui_accept"_sid, Key::PadA);
+    map.BindDigital("ui_accept"_sid, Key::LMB);
 
-    input.left_pressed = m_state.IsJustPressed(player_id, "ui_left"_sid);
-    input.right_pressed = m_state.IsJustPressed(player_id, "ui_right"_sid);
-    input.up_pressed = m_state.IsJustPressed(player_id, "ui_up"_sid);
-    input.down_pressed = m_state.IsJustPressed(player_id, "ui_down"_sid);
+    map.AddAction("ui_back"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_back"_sid, Key::Backspace);
+    map.BindDigital("ui_back"_sid, Key::PadB);
+    map.BindDigital("ui_accept"_sid, Key::RMB);
 
-    return input;
+    map.AddAction("ui_left"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_left"_sid, Key::A);
+    map.BindDigital("ui_left"_sid, Key::Left);
+    map.BindDigital("ui_left"_sid, Key::PadLeft);
+
+    map.AddAction("ui_right"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_right"_sid, Key::D);
+    map.BindDigital("ui_right"_sid, Key::Right);
+    map.BindDigital("ui_right"_sid, Key::PadRight);
+
+    map.AddAction("ui_up"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_up"_sid, Key::W);
+    map.BindDigital("ui_up"_sid, Key::Up);
+    map.BindDigital("ui_up"_sid, Key::PadUp);
+
+    map.AddAction("ui_down"_sid, ActionValueType::Digital);
+    map.BindDigital("ui_down"_sid, Key::S);
+    map.BindDigital("ui_down"_sid, Key::Down);
+    map.BindDigital("ui_down"_sid, Key::PadDown);
+
+    // Movement scalar axes
+    map.AddAction("ui_axis_x"_sid, ActionValueType::Scalar);
+    map.AddAction("ui_axis_y"_sid, ActionValueType::Scalar);
+
+    // Keyboard contributes scalar when held
+    // map.BindScalar("ui_axis_x"_sid, Key::A, -1.0f);
+    // map.BindScalar("ui_axis_x"_sid, Key::D, +1.0f);
+    // map.BindScalar("ui_axis_y"_sid, Key::S, -1.0f);
+    // map.BindScalar("ui_axis_y"_sid, Key::W, +1.0f);
+
+    // Gamepad axes contribute scalar too
+    map.BindScalar("ui_axis_x"_sid, AxisCode::LX, 1.0f, 0.2f);
+    map.BindScalar("ui_axis_y"_sid, AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
+}
+
+bool GameInput::isPressed(StringId action, int player) const {
+    if (auto entry = findEntry(player, action)) {
+        return entry->down;
+    }
+    return false;
+}
+
+bool GameInput::isJustPressed(StringId action, int player) const {
+    if (auto entry = findEntry(player, action)) {
+        return entry->just_pressed;
+    }
+    return false;
+}
+
+bool GameInput::isJustReleased(StringId action, int player) const {
+    if (auto entry = findEntry(player, action)) {
+        return entry->just_released;
+    }
+    return false;
+}
+
+float GameInput::getStrength(StringId action, int player) const {
+    if (auto entry = findEntry(player, action)) {
+        return entry->x;
+    }
+    return 0.0f;
+}
+
+auto GameInput::getVector(StringId neg_x,
+                          StringId pos_x,
+                          StringId neg_y,
+                          StringId pos_y,
+                          int player) const -> std::pair<float, float> {
+    float x = getStrength(pos_x, player) - getStrength(neg_x, player);
+    float y = getStrength(pos_y, player) - getStrength(neg_y, player);
+    return { x, y };
+}
+
+void GameInput::updateActions(const std::vector<InputEvent>& input_events,
+                              const KeyState& key_state,
+                              const AxisState& axis_state,
+                              const DeviceRouting& routing) {
+    action_events_.clear();
+    mapper_.Map(input_events, key_state, axis_state, routing, action_events_);
+
+    beginFrame();
+    for (const auto& action : action_events_) {
+        apply(action);
+    }
+}
+
+void GameInput::beginFrame() {
+    for (auto& [player, map] : entries_) {
+        for (auto& [_, entry] : map) {
+            entry.just_pressed = false;
+            entry.just_released = false;
+            entry.x = 0.0f;
+            entry.y = 0.0f;
+            // NOTE: a.down persists; it will be updated by events/axes.
+        }
+    }
+}
+
+void GameInput::apply(const ActionEvent& event) {
+    auto& entry = entries_[event.player][event.action];
+
+    switch (event.type) {
+        case ActionEventType::Pressed: {
+            if (!entry.down) {
+                entry.just_pressed = true;
+            }
+            entry.down = true;
+        } break;
+        case ActionEventType::Released: {
+            if (entry.down) {
+                entry.just_released = true;
+            }
+            entry.down = false;
+        } break;
+        case ActionEventType::Axis1D: {
+            entry.x = event.x;
+            entry.down = (event.x != 0.0f);
+        } break;
+        case ActionEventType::Axis2D: {
+            entry.x = event.x;
+            entry.y = event.y;
+            entry.down = (event.x != 0.0f || event.y != 0.0f);
+        } break;
+    }
+}
+
+const GameInput::Entry* GameInput::findEntry(int player, StringId action) const {
+    auto it_player = entries_.find(player);
+    if (it_player == entries_.end()) {
+        return nullptr;
+    }
+
+    auto it_action = it_player->second.find(action);
+    if (it_action == it_player->second.end()) {
+        return nullptr;
+    }
+    return &it_action->second;
 }
 
 }  // namespace cave

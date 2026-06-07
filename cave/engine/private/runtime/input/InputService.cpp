@@ -11,58 +11,10 @@ namespace cave {
 using namespace cave::literals;
 
 InputService::InputService()
-    : IService("InputService")
-    , mapper_(input_action_map_) {}
+    : IService("InputService") {}
 
 auto InputService::InitializeImpl() -> Result<void> {
-    // @TODO: read it from config file
-    InputActionMap& map = actionMap();
-
-    map.AddAction("ui_accept"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_accept"_sid, Key::Enter);
-    map.BindDigital("ui_accept"_sid, Key::Space);
-    map.BindDigital("ui_accept"_sid, Key::PadA);
-    map.BindDigital("ui_accept"_sid, Key::LMB);
-
-    map.AddAction("ui_back"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_back"_sid, Key::Backspace);
-    map.BindDigital("ui_back"_sid, Key::PadB);
-    map.BindDigital("ui_accept"_sid, Key::RMB);
-
-    map.AddAction("ui_left"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_left"_sid, Key::A);
-    map.BindDigital("ui_left"_sid, Key::Left);
-    map.BindDigital("ui_left"_sid, Key::PadLeft);
-
-    map.AddAction("ui_right"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_right"_sid, Key::D);
-    map.BindDigital("ui_right"_sid, Key::Right);
-    map.BindDigital("ui_right"_sid, Key::PadRight);
-
-    map.AddAction("ui_up"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_up"_sid, Key::W);
-    map.BindDigital("ui_up"_sid, Key::Up);
-    map.BindDigital("ui_up"_sid, Key::PadUp);
-
-    map.AddAction("ui_down"_sid, ActionValueType::Digital);
-    map.BindDigital("ui_down"_sid, Key::S);
-    map.BindDigital("ui_down"_sid, Key::Down);
-    map.BindDigital("ui_down"_sid, Key::PadDown);
-
-    // Movement scalar axes
-    map.AddAction("ui_axis_x"_sid, ActionValueType::Scalar);
-    map.AddAction("ui_axis_y"_sid, ActionValueType::Scalar);
-
-    // Keyboard contributes scalar when held
-    // map.BindScalar("ui_axis_x"_sid, Key::A, -1.0f);
-    // map.BindScalar("ui_axis_x"_sid, Key::D, +1.0f);
-    // map.BindScalar("ui_axis_y"_sid, Key::S, -1.0f);
-    // map.BindScalar("ui_axis_y"_sid, Key::W, +1.0f);
-
-    // Gamepad axes contribute scalar too
-    map.BindScalar("ui_axis_x"_sid, AxisCode::LX, 1.0f, 0.2f);
-    map.BindScalar("ui_axis_y"_sid, AxisCode::LY, 1.0f, 0.2f, /*invert=*/true);
-
+    game_input_.initialize();
     return Result<void>();
 }
 
@@ -121,20 +73,20 @@ void InputService::updatePointers(std::vector<InputEvent>& events) {
     }
 }
 
-void InputService::updateActions(const DeviceRouting& routing) {
-    actionEvents_.clear();
-    mapper_.Map(inputEvents_, key_state_, axis_state_, routing, actionEvents_);
-
-    game_input_.m_state.BeginFrame();
-    for (const auto& action : actionEvents_) {
-        game_input_.m_state.Apply(action);
-    }
-}
-
 UIInput InputService::buildUIInput() {
     const InputDeviceId device_id{ 0 };
+    constexpr int player_id = 0;
 
-    UIInput input = game_input_.buildUIInput();
+    UIInput input{};
+
+    input.submit_down = game_input_.isPressed("ui_accept"_sid, player_id);
+    input.submit_pressed = game_input_.isJustPressed("ui_accept"_sid, player_id);
+    input.submit_released = game_input_.isJustReleased("ui_accept"_sid, player_id);
+
+    input.left_pressed = game_input_.isJustPressed("ui_left"_sid, player_id);
+    input.right_pressed = game_input_.isJustPressed("ui_right"_sid, player_id);
+    input.up_pressed = game_input_.isJustPressed("ui_up"_sid, player_id);
+    input.down_pressed = game_input_.isJustPressed("ui_down"_sid, player_id);
 
     DisplayService& display_service = *m_app->GetDisplayService();
 
@@ -149,28 +101,27 @@ UIInput InputService::buildUIInput() {
 }
 
 void InputService::tick(const FrameTime& time) {
-    inputEvents_.clear();
-    actionEvents_.clear();
+    input_events_.clear();
 
     // *) Poll devices -> raw events
     for (auto& d : devices_) {
-        d->Poll(inputEvents_);
+        d->Poll(input_events_);
     }
 
     // *) Update pointers
-    updatePointers(inputEvents_);
+    updatePointers(input_events_);
 
     // *) Build key/button state for this frame (from unconsumed events)
     key_state_.BeginFrame();
-    key_state_.UpdateFromEvents(inputEvents_.data(), inputEvents_.size());
+    key_state_.UpdateFromEvents(input_events_.data(), input_events_.size());
 
     // *) Build axis state for this frame (from unconsumed events)
     axis_state_.BeginFrame();
-    axis_state_.UpdateFromEvents(inputEvents_.data(), inputEvents_.size());
+    axis_state_.UpdateFromEvents(input_events_.data(), input_events_.size());
 
     // *) Feed ImGui from remaining raw events
     if (ImguiManager* imgui = m_app->GetImguiManager()) {
-        imgui->Feed(inputEvents_);
+        imgui->Feed(input_events_);
 
         // Gate gameplay/editor mapping based on ImGui capture
         // const bool blockKeyboard = imgui->WantKeyboard();
@@ -180,18 +131,17 @@ void InputService::tick(const FrameTime& time) {
     // *) Raw routing stage (shortcuts, viewport tools, gestures)
     InputFrame input_frame{
         .dt = time.dt,
-        .events = inputEvents_,
+        .events = input_events_,
         .keystate = key_state_,
     };
     router_.Dispatch(input_frame);
 
-    // *) Rebuild key state after raw consumption (critical for chords/drag gating)
-    // m_key_state.BeginFrame();
-    // m_key_state.UpdateFromEvents(m_input_events.data(), m_input_events.size());
-
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
     DeviceRouting routing;
-    updateActions(routing);
+    game_input_.updateActions(input_events_,
+                              key_state_,
+                              axis_state_,
+                              routing);
 
     // *) Build UI Input
     ui_input_ = buildUIInput();

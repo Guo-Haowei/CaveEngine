@@ -5,8 +5,8 @@
 
 namespace cave {
 
-void AxisState::BeginFrame() {
-    for (auto& [_, dev] : m_devices) {
+void AxisState::beginFrame() {
+    for (auto& [_, dev] : devices_) {
         for (auto& a : dev.axes) {
             a.delta = 0.0f;
         }
@@ -14,38 +14,38 @@ void AxisState::BeginFrame() {
     }
 }
 
-void AxisState::UpdateFromEvents(const InputEvent* p_events, size_t p_count) {
-    for (size_t i = 0; i < p_count; ++i) {
-        const InputEvent& e = p_events[i];
+void AxisState::updateFromEvents(const InputEvent* events, size_t count) {
+    for (size_t i = 0; i < count; ++i) {
+        const InputEvent& e = events[i];
         if (e.type != InputEventType::Axis) {
             continue;
         }
 
         AxisCode axis = static_cast<AxisCode>(e.code);
-        auto& dev = m_devices[e.device_id.value];
+        auto& dev = devices_[e.device_id.value];
         dev.axes[std::to_underlying(axis)].value = e.x;
     }
 }
 
-float AxisState::Get(InputDeviceId p_dev_id, AxisCode p_axis) const {
-    auto it = m_devices.find(p_dev_id.value);
-    if (it == m_devices.end()) {
+float AxisState::get(InputDeviceId dev_id, AxisCode axis) const {
+    auto it = devices_.find(dev_id.value);
+    if (it == devices_.end()) {
         return 0.0f;
     }
-    return it->second.axes[std::to_underlying(p_axis)].value;
+    return it->second.axes[std::to_underlying(axis)].value;
 }
 
-float AxisState::GetDelta(InputDeviceId p_dev_id, AxisCode p_axis) const {
-    auto it = m_devices.find(p_dev_id.value);
-    if (it == m_devices.end()) {
+float AxisState::getDelta(InputDeviceId dev_id, AxisCode axis) const {
+    auto it = devices_.find(dev_id.value);
+    if (it == devices_.end()) {
         return 0.0f;
     }
-    return it->second.axes[std::to_underlying(p_axis)].delta;
+    return it->second.axes[std::to_underlying(axis)].delta;
 }
 
-std::vector<InputDeviceId> AxisState::ActiveDevices() const {
+std::vector<InputDeviceId> AxisState::activeDevices() const {
     std::vector<InputDeviceId> devices;
-    for (const auto& [key, _] : m_devices) {
+    for (const auto& [key, _] : devices_) {
         devices.push_back(InputDeviceId{ key });
     }
     return devices;

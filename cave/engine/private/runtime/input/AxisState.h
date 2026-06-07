@@ -1,6 +1,3 @@
-// =============================================================================
-// File: engine/private/runtime/input/AxisState.h
-// =============================================================================
 #pragma once
 #include "cave/runtime/input/InputTypes.h"
 #include "cave/runtime/input/KeyCode.h"
@@ -19,18 +16,18 @@ struct AxisDeviceState {
 
 class AxisState {
 public:
-    void BeginFrame();
+    void beginFrame();
 
-    void UpdateFromEvents(const InputEvent* p_events, size_t p_count);
+    void updateFromEvents(const InputEvent* events, size_t count);
 
-    float Get(InputDeviceId p_dev_id, AxisCode p_axis) const;
+    float get(InputDeviceId dev_id, AxisCode axis) const;
 
-    float GetDelta(InputDeviceId p_dev_id, AxisCode p_axis) const;
+    float getDelta(InputDeviceId dev_id, AxisCode axis) const;
 
-    std::vector<InputDeviceId> ActiveDevices() const;
+    std::vector<InputDeviceId> activeDevices() const;
 
 private:
-    std::unordered_map<uint32_t, AxisDeviceState> m_devices;
+    std::unordered_map<uint32_t, AxisDeviceState> devices_;
 };
 
 }  // namespace cave
