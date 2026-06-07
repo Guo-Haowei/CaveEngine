@@ -1,5 +1,5 @@
 #pragma once
-#include "ViewRecord.h"
+#include "cave/runtime/view/ViewRecord.h"
 
 namespace cave {
 

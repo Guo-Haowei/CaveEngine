@@ -1,3 +1,6 @@
+// =============================================================================
+// File: public/cave/runtime/view/ViewRecord.h
+// =============================================================================
 #pragma once
 #include "cave/core/ids/ViewId.h"
 #include "cave/core/math/Rect.h"

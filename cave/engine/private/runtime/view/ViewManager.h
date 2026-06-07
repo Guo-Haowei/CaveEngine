@@ -1,10 +1,10 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
-#include "cave/runtime/view/ViewDesc.h"
 #include "cave/runtime/framework/IService.h"
+#include "cave/runtime/view/ViewDesc.h"
+#include "cave/runtime/view/ViewRecord.h"
 
 #include "ResolvedView.h"
-#include "ViewRecord.h"
 
 #include "engine/private/core/ids/GenIdRegistry.h"
 
@@ -25,7 +25,12 @@ public:
     void DestroyView(ViewId p_view_id);
 
     void Submit(const ViewDesc& p_view_desc);
+
     ViewRecord* Resolve(ViewId p_view_id) {
+        return Base::Resolve(p_view_id);
+    }
+
+    const ViewRecord* Resolve(ViewId p_view_id) const {
         return Base::Resolve(p_view_id);
     }
 
