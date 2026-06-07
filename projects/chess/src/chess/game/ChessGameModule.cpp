@@ -116,7 +116,7 @@ ChessGameModule::ChessGameModule() = default;
 ChessGameModule::~ChessGameModule() = default;
 
 void ChessGameModule::OnModuleLoaded(IHostServices& p_host) {
-    p_host.Log().Ok(LogChannel::Game, "ChessClient Loaded");
+    p_host.log().Ok(LogChannel::Game, "ChessClient Loaded");
 
     // @TODO: move it to present layer
     SpawnObjects(p_host);
@@ -147,10 +147,10 @@ void ChessGameModule::SpawnObjects(IHostServices& p_host) {
     using chess::Piece;
     using ecs::Entity;
 
-    Entity offset_node = p_host.SceneQuery().FindFirstEntity("transform");
+    Entity offset_node = p_host.sceneQuery().FindFirstEntity("transform");
     DEV_ASSERT(offset_node.IsValid());
 
-    SceneCommandWriter& writer = p_host.SceneWriter();
+    SceneCommandWriter& writer = p_host.sceneWriter();
     writer.SetNoSave(true);
 
     Entity piece_parent = writer.CreateTransformObject("pieces");

@@ -18,7 +18,7 @@ using namespace cave;
 
 ChessGameMode::ChessGameMode(IHostServices& p_host)
     : m_host(p_host)
-    , m_intent(p_host.Intent())
+    , m_intent(p_host.intentDispatcher())
     , m_debug_id(MakeDebugId(this)) {
     m_intent.AddHandler<ChessStateIntent>(this);
 }

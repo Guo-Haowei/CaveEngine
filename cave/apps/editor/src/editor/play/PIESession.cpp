@@ -44,7 +44,7 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
     PIEHostServices host(m_app, *scene, {});
 
     m_game->OnModuleLoaded(host);
-    host.FlushSceneCommands();
+    host.flushSceneCommands();
     return true;
 }
 

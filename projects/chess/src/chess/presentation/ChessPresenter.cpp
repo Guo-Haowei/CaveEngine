@@ -61,9 +61,9 @@ void ChessPresenter::OnBoot(cave::SceneQuery& p_query) {
 }
 
 void ChessPresenter::Present() {
-    cave::SceneQuery& query = m_host.SceneQuery();
+    cave::SceneQuery& query = m_host.sceneQuery();
 
-    auto& writer = m_host.SceneWriter();
+    auto& writer = m_host.sceneWriter();
 
     for (uint8_t i = 0; i < 64; ++i) {
         const Square sq(i);
@@ -86,7 +86,7 @@ void ChessPresenter::Present() {
 }
 
 void ChessPresenter::RedrawBoard(const core::Position& p_position) {
-    auto& writer = m_host.SceneWriter();
+    auto& writer = m_host.sceneWriter();
 
     // update pieces
     for (uint8_t p = 0; p < core::kPieceMax; ++p) {
@@ -134,7 +134,7 @@ void ChessPresenter::MovePiece(Entity p_ent, core::Square p_from, core::Square p
     m_board[p_to.Index()] = p_ent;
 
     constexpr auto cid = TransformAnimationComponent_Id;
-    auto& writer = m_host.SceneWriter();
+    auto& writer = m_host.sceneWriter();
     writer.AddComponent(p_ent, cid);
     writer.SetProperty(p_ent, cid, "begin"_sid, SquareToVec(p_from));
     writer.SetProperty(p_ent, cid, "end"_sid, SquareToVec(p_to));
@@ -173,7 +173,7 @@ void ChessPresenter::ApplyMove(core::Move p_mv) {
 
     assert(src_piece.IsValid());
 
-    auto& writer = m_host.SceneWriter();
+    auto& writer = m_host.sceneWriter();
 
     if (Entity captured_piece = GetEntityAt(to); captured_piece.IsValid()) {
         ClearSquare(writer, to);
@@ -189,10 +189,10 @@ void ChessPresenter::ApplyMove(core::Move p_mv) {
             MovePiece(m_board[rook.from.Index()], rook.from, rook.to);
         } break;
         case MoveType::Enpassant:
-            m_host.Log().Warn(LogChannel::Game, "Handle enpassant");
+            m_host.log().Warn(LogChannel::Game, "Handle enpassant");
             break;
         case MoveType::Promotion:
-            m_host.Log().Warn(LogChannel::Game, "Handle promotion");
+            m_host.log().Warn(LogChannel::Game, "Handle promotion");
             break;
     }
 }

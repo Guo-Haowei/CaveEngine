@@ -12,17 +12,17 @@ namespace chess {
 using namespace cave;
 
 void GameOverState::Tick(cave::IHostServices& p_host, const cave::FrameTime&) {
-    cave::IUIRuntime& ui = p_host.UI();
+    cave::IUIRuntime& ui = p_host.ui();
 
-    ui.BeginView(p_host.GetViewId());
+    ui.BeginView(p_host.viewId());
     const float offset_x = 760.0f;
     const float offset_y = 200.0f;
     if (ui.Button(4, { offset_x, offset_y, 400, 100 })) {
         auto gameplay = std::make_unique<MainMenuState>();
-        p_host.Intent().Queue<ChessStateIntent>(std::move(gameplay));
+        p_host.intentDispatcher().Queue<ChessStateIntent>(std::move(gameplay));
     }
     if (ui.Button(5, { offset_x, offset_y + 200, 400, 100 })) {
-        p_host.Log().Ok(LogChannel::Game, "UI Button 2 clicked");
+        p_host.log().Ok(LogChannel::Game, "UI Button 2 clicked");
     }
     ui.EndView();
 }

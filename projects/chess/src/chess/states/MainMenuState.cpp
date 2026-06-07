@@ -15,20 +15,20 @@ void MainMenuState::OnEnter(cave::IHostServices&) {
 }
 
 void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime&) {
-    IUIRuntime& ui = p_host.UI();
+    IUIRuntime& ui = p_host.ui();
 
-    ui.BeginView(p_host.GetViewId());
+    ui.BeginView(p_host.viewId());
     const float offset_x = 760.0f;
     const float offset_y = 200.0f;
     if (ui.Button(1, { offset_x, offset_y, 400, 100 })) {
         auto gameplay = std::make_unique<GameplayState>();
-        p_host.Intent().Queue<ChessStateIntent>(std::move(gameplay));
+        p_host.intentDispatcher().Queue<ChessStateIntent>(std::move(gameplay));
     }
     if (ui.Button(2, { offset_x, offset_y + 200, 400, 100 })) {
-        p_host.Log().Ok(LogChannel::Game, "UI Button 2 clicked");
+        p_host.log().Ok(LogChannel::Game, "UI Button 2 clicked");
     }
     if (ui.Button(3, { offset_x, offset_y + 400, 400, 100 })) {
-        p_host.Log().Ok(LogChannel::Game, "UI Button 3 clicked");
+        p_host.log().Ok(LogChannel::Game, "UI Button 3 clicked");
     }
     ui.EndView();
 }

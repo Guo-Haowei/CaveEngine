@@ -25,7 +25,7 @@ ChessGameClient::ChessGameClient(cave::IHostServices& p_host,
     , m_session(p_session)
     , m_auth(p_auth)
     , m_host(p_host)
-    , m_intent(p_host.Intent())
+    , m_intent(p_host.intentDispatcher())
     , m_debug_id(cave::MakeDebugId(this)) {
 
     m_intent.AddHandler<AuthMoveCommitted>(this);
@@ -46,7 +46,7 @@ void ChessGameClient::ResetBoard() {
 }
 
 void ChessGameClient::OnBoot() {
-    m_presenter.OnBoot(m_host.SceneQuery());
+    m_presenter.OnBoot(m_host.sceneQuery());
     ResetBoard();
 
     m_presenter.RedrawBoard(m_replica);
@@ -81,7 +81,7 @@ void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
 }
 
 void ChessGameClient::OnMoveRejected(core::Move p_mv) {
-    m_host.Log().Info(cave::LogChannel::Game, "Invalid move!");
+    m_host.log().Info(cave::LogChannel::Game, "Invalid move!");
 }
 
 void ChessGameClient::Present() {

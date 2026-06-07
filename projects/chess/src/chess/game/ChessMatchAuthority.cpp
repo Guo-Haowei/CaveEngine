@@ -13,7 +13,7 @@ using core::MoveList;
 using core::Position;
 
 ChessMatchAuthority::ChessMatchAuthority(cave::IHostServices& p_host)
-    : m_intent(p_host.Intent())
+    : m_intent(p_host.intentDispatcher())
     , m_debug_id(cave::MakeDebugId(this)) {
     m_intent.AddHandler<ChessMoveIntent>(this);
     m_pos = Position::Startpos();

@@ -9,43 +9,43 @@
 
 namespace cave {
 
-PIEHostServices::PIEHostServices(IApplication& p_app,
-                                 Scene& p_scene,
-                                 ViewId p_view_id) noexcept
-    : m_app(p_app)
-    , m_logger(CompositeLogger::GetSingleton())
-    , m_scene(p_scene)
-    , m_view_id(p_view_id)
-    , m_query(p_scene)
-    , m_writer(*p_app.GetAssetRegistry()) {
+PIEHostServices::PIEHostServices(IApplication& app,
+                                 Scene& scene,
+                                 ViewId view_id) noexcept
+    : app_(app)
+    , logger_(CompositeLogger::GetSingleton())
+    , scene_(scene)
+    , view_id_(view_id)
+    , query_(scene)
+    , writer_(*app.GetAssetRegistry()) {
 }
 
-AssetRegistry& PIEHostServices::AssetRegistry() {
-    return *m_app.GetAssetRegistry();
+AssetRegistry& PIEHostServices::assetRegistry() {
+    return *app_.GetAssetRegistry();
 }
 
-ecs::ComponentRegistry& PIEHostServices::ComponentRegistry() {
+ecs::ComponentRegistry& PIEHostServices::componentRegistry() {
     return engine::GetComponentRegistry();
 }
 
-IntentDispatcher& PIEHostServices::Intent() {
-    return *m_app.IntentDispatcher();
+IntentDispatcher& PIEHostServices::intentDispatcher() {
+    return *app_.IntentDispatcher();
 }
 
-const IGameInput& PIEHostServices::Input() const {
-    return m_app.InputService().gameInput();
+const IGameInput& PIEHostServices::gameInput() const {
+    return app_.InputService().gameInput();
 }
 
-IUIRuntime& PIEHostServices::UI() {
-    return *m_app.UIService();
+IUIRuntime& PIEHostServices::ui() {
+    return *app_.UIService();
 }
 
-void PIEHostServices::FlushSceneCommands() {
-    SceneCommandBuffer& cb = SceneWriter();
+void PIEHostServices::flushSceneCommands() {
+    SceneCommandBuffer& cb = sceneWriter();
     if (cb.Data()) {
-        SceneCommandExecutor executor(m_scene);
+        SceneCommandExecutor executor(scene_);
         EntityMap map(cb.GetAllocationCount());
-        SceneCommandPlayback::Play(cb, executor, { map, m_scene });
+        SceneCommandPlayback::Play(cb, executor, { map, scene_ });
         cb.Reset();
     }
 }

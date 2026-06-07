@@ -46,7 +46,7 @@ void ChessGameSession::Tick() {
         return;
     }
 
-    m_host.Intent().Flush();
+    m_host.intentDispatcher().Flush();
 
     // update client visual
     m_client->Present();
@@ -62,7 +62,7 @@ void ChessGameSession::Tick() {
 void ChessGameSession::TickAwaitPlayerInput() {
     // @TODO: grid adapter should be owned by client/player?
     if (m_grid_adapter) {
-        m_grid_adapter->tick(m_host.Input());
+        m_grid_adapter->tick(m_host.gameInput());
     }
 
     // poll player intents
@@ -87,14 +87,14 @@ void ChessGameSession::TickGameOver() {
         return;
     }
 
-    m_host.Log().Info(LogChannel::Game, "Game Over!");
+    m_host.log().Info(LogChannel::Game, "Game Over!");
 
     auto state = std::make_unique<GameOverState>();
-    m_host.Intent().Queue<ChessStateIntent>(std::move(state));
+    m_host.intentDispatcher().Queue<ChessStateIntent>(std::move(state));
 }
 
 bool ChessGameSession::IsAnimating() const {
-    auto& query = m_host.SceneQuery();
+    auto& query = m_host.sceneQuery();
     return query.GetComponentCount(TransformAnimationComponent_Id) != 0;
 }
 
@@ -129,7 +129,7 @@ void ChessGameSession::OnEnterBoot() {
     const bool any_human = white == PlayerKind::LocalHuman || black == PlayerKind::LocalHuman;
     if (any_human) {
         m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
-            m_host.Intent(),
+            m_host.intentDispatcher(),
             *m_client,
             m_client->Presenter());
 
@@ -177,7 +177,7 @@ void ChessGameSession::SetState(SessionState p_state) {
 
 #if USING(DEBUG_BUILD)
     auto msg = std::format("ChessState {} -> {}", ToString(m_state), ToString(p_state));
-    m_host.Log().Trace(LogChannel::Game, std::move(msg));
+    m_host.log().Trace(LogChannel::Game, std::move(msg));
 #endif
 
     m_state = p_state;

@@ -90,6 +90,7 @@ void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::tickPointer(const cave::IGameInput& input) {
+
 }
 
 void ChessGridSelectorAdapter::tickKeyboard(const cave::IGameInput& input) {

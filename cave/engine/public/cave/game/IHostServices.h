@@ -22,16 +22,16 @@ class IHostServices {
 public:
     virtual ~IHostServices() = default;
 
-    virtual AssetRegistry& AssetRegistry() = 0;
-    virtual ecs::ComponentRegistry& ComponentRegistry() = 0;
-    virtual const IGameInput& Input() const = 0;
-    virtual IntentDispatcher& Intent() = 0;
-    virtual IUIRuntime& UI() = 0;
-    virtual LogWrapper& Log() = 0;
-    virtual SceneQuery& SceneQuery() = 0;
-    virtual SceneCommandWriter& SceneWriter() = 0;
+    virtual AssetRegistry& assetRegistry() = 0;
+    virtual ecs::ComponentRegistry& componentRegistry() = 0;
+    virtual const IGameInput& gameInput() const = 0;
+    virtual IntentDispatcher& intentDispatcher() = 0;
+    virtual IUIRuntime& ui() = 0;
+    virtual LogWrapper& log() = 0;
+    virtual SceneQuery& sceneQuery() = 0;
+    virtual SceneCommandWriter& sceneWriter() = 0;
 
-    virtual ViewId GetViewId() const = 0;
+    virtual ViewId viewId() const = 0;
 };
 
 }  // namespace cave
