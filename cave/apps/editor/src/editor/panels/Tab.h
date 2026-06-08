@@ -25,35 +25,35 @@ enum class CloseDecision {
 
 class Tab : public EditorWindow {
 public:
-    Tab(EditorState& p_editor, DocId p_doc_id);
+    Tab(EditorState& editor, DocId doc_id);
 
-    const char* GetWindowId() const override { return m_window_id.c_str(); }
-
-    void SetTitleAndId(std::string_view p_title, uint32_t p_idx);
-
-    virtual void OnCreate();
-    virtual void OnDestroy();
+    void setTitleAndId(std::string_view title, uint32_t idx);
 
     void DrawUI() override;
 
-    virtual void OnInputEvents(const InputFrame&) {}
+    const char* GetWindowId() const override { return window_id_.c_str(); }
 
-    DocId GetDocId() const { return m_doc_id; }
-    virtual ViewId GetViewId() const { return ViewId{}; }
+    virtual void onCreate();
+    virtual void onDestroy();
 
-    TabId GetTabId() const { return m_tab_id; }
-    void SetTabId(TabId p_tab_id) { m_tab_id = p_tab_id; }
+    virtual void onInputEvents(const InputFrame&) {}
+
+    DocId docId() const { return doc_id_; }
+    virtual ViewId viewId() const { return ViewId{}; }
+
+    TabId tabId() const { return tab_id_; }
+    void tabId(TabId tab_id) { tab_id_ = tab_id; }
 
 protected:
     void DrawUIImpl() override {}
 
     // virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const;
 
-    DocId m_doc_id;
-    TabId m_tab_id;
-    uint32_t m_idx{ 0 };
-    std::string m_window_id;
-    std::string m_title;
+    DocId doc_id_;
+    TabId tab_id_;
+    uint32_t idx_{ 0 };
+    std::string window_id_;
+    std::string title_;
 };
 
 }  // namespace cave

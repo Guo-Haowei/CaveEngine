@@ -9,12 +9,16 @@
 
 namespace cave {
 
+Tab::Tab(EditorState& editor, DocId doc_id)
+    : EditorWindow(editor)
+    , doc_id_(doc_id) {}
+
 // @TODO: move to Dialog Service
-CloseDecision AskCloseUnsaved(const char* p_title) {
+CloseDecision AskCloseUnsaved(const char* title) {
     int result = MessageBoxA(
         NULL,
         "You have unsaved changes.\n\nDo you want to save before closing?",
-        p_title,
+        title,
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON1);
 
     switch (result) {
@@ -27,12 +31,8 @@ CloseDecision AskCloseUnsaved(const char* p_title) {
     }
 }
 
-Tab::Tab(EditorState& p_editor, DocId p_doc_id)
-    : EditorWindow(p_editor)
-    , m_doc_id(p_doc_id) {}
-
 void Tab::DrawUI() {
-    if (const bool dirty = m_editor.EditService().IsDirty(m_doc_id)) {
+    if (const bool dirty = m_editor.EditService().IsDirty(doc_id_)) {
         m_flags |= ImGuiWindowFlags_UnsavedDocument;
     } else {
         m_flags &= ~ImGuiWindowFlags_UnsavedDocument;
@@ -47,7 +47,7 @@ void Tab::DrawUI() {
     ImGui::End();
 
     if (!open) {
-        const bool dirty = m_editor.EditService().IsDirty(m_doc_id);
+        const bool dirty = m_editor.EditService().IsDirty(doc_id_);
         bool should_save = false;
         if (dirty) {
             switch (AskCloseUnsaved("Warning")) {
@@ -62,23 +62,23 @@ void Tab::DrawUI() {
             }
         }
         if (should_save) {
-            m_editor.EditService().Save(m_doc_id);
+            m_editor.EditService().Save(doc_id_);
         }
 
-        m_editor.Workspace().RequestClose(m_doc_id);
+        m_editor.Workspace().RequestClose(doc_id_);
     }
 }
 
-void Tab::SetTitleAndId(std::string_view p_title, uint32_t p_idx) {
-    m_idx = p_idx;
-    m_title = p_title.empty() ? "Untitled" : p_title;
-    m_window_id = std::format("{}###WorkspaceTab{}", m_title, m_idx);
+void Tab::setTitleAndId(std::string_view title, uint32_t idx) {
+    idx_ = idx;
+    title_ = title.empty() ? "Untitled" : title;
+    window_id_ = std::format("{}###WorkspaceTab{}", title_, idx_);
 }
 
-void Tab::OnCreate() {
+void Tab::onCreate() {
 }
 
-void Tab::OnDestroy() {
+void Tab::onDestroy() {
 }
 
 }  // namespace cave
