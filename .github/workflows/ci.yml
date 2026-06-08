@@ -44,6 +44,7 @@ jobs:
       - run: echo "Building project..."
       - run: python .\scripts\generate_meta.py
       - run: .\scripts\ci_build_job.bat Debug
+      - run: echo "Testing project..."
       - run: ./build/bin/Debug/unit_tests.exe
       - run: ./build/bin/Debug/chess_tests.exe
       # - name: Upload Build Artifacts
