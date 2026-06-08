@@ -16,7 +16,7 @@ using core::MoveGen;
 using core::Position;
 
 void ChessAIAgent::tick(cave::IHostServices& host) {
-    const Position& replica = client_.Replica();
+    const Position& replica = client_.replica();
     const bool my_turn = replica.SideToMove() == playerId();
     if (!my_turn) {
         return;

@@ -37,14 +37,14 @@ ChessGridSelectorAdapter::ChessGridSelectorAdapter(cave::IHostServices& host,
 
 bool ChessGridSelectorAdapter::canSelect(int x, int y) {
     const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
-    std::span<const Move> moves = client_.LegalMovesFromSquare(sq);
+    std::span<const Move> moves = client_.legalMoves(sq);
 
     return !moves.empty();
 }
 
 void ChessGridSelectorAdapter::onSelect(int x, int y) {
     const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
-    std::span<const Move> moves = client_.LegalMovesFromSquare(sq);
+    std::span<const Move> moves = client_.legalMoves(sq);
 
     core::Bitboard bb;
     for (Move mv : moves) {
@@ -56,7 +56,7 @@ void ChessGridSelectorAdapter::onSelect(int x, int y) {
 bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
     const Square sq = Square::FromFileRank((uint8_t)sx, (uint8_t)sy);
 
-    std::span<const Move> moves = client_.LegalMovesFromSquare(sq);
+    std::span<const Move> moves = client_.legalMoves(sq);
     for (Move mv : moves) {
         const auto [from_file, from_rank] = mv.From().FileRank();
         const auto [to_file, to_rank] = mv.To().FileRank();
@@ -72,14 +72,14 @@ bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
 void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
     presenter_.setHighlightSquares({});
 
-    const core::Position& pos = client_.Replica();
+    const core::Position& pos = client_.replica();
     const PlayerId id = pos.SideToMove();
 
     if (LocalHumanAgent* agent = get_player_cb_(id)) {
         const Square from = Square::FromFileRank((uint8_t)sx, (uint8_t)sy);
         const Square to = Square::FromFileRank((uint8_t)dx, (uint8_t)dy);
 
-        std::span<const Move> moves = client_.LegalMovesFromSquare(from);
+        std::span<const Move> moves = client_.legalMoves(from);
         Move move = Move::Null();
         for (Move mv : moves) {
             if (mv.To() == to) {

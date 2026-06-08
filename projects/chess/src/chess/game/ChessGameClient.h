@@ -21,44 +21,44 @@ class ChessMatchAuthority;
 
 class ChessGameClient : public cave::IIntentHandler {
 public:
-    ChessGameClient(cave::IHostServices& p_host,
-                    ChessGameSession& p_session,
-                    ChessMatchAuthority& p_auth);
+    ChessGameClient(cave::IHostServices& host,
+                    ChessGameSession& session,
+                    ChessMatchAuthority& auth);
     ~ChessGameClient();
 
-    void OnBoot();
+    void onBoot();
 
-    void Present();
+    void present();
 
-    std::span<const core::Move> LegalMovesFromSquare(core::Square p_sq);
+    std::span<const core::Move> legalMoves(core::Square square) const;
 
-    const core::Position& Replica() const { return m_replica; }
+    const core::Position& replica() const { return replica_; }
 
-    ChessPresenter& Presenter() { return m_presenter; }
+    ChessPresenter& presenter() { return presenter_; }
 
-    bool HandleIntent(cave::Intent& p_intent) override;
+    bool HandleIntent(cave::Intent& intent) override;
 
-    cave::DebugId debugId() const override { return m_debug_id; }
+    cave::DebugId debugId() const override { return debug_id_; }
 
 private:
-    void OnMoveCommitted(core::Move p_mv);
-    void OnMoveRejected(core::Move p_mv);
+    void onMoveCommitted(core::Move move);
+    void onMoveRejected(core::Move move);
 
-    void OnPositionChange();
+    void onPositionChange();
 
-    void ResetBoard();
+    void resetBoard();
 
-    ChessMatchAuthority& m_auth;
-    ChessGameSession& m_session;
-    ChessPresenter m_presenter;
+    ChessMatchAuthority& auth_;
+    ChessGameSession& session_;
+    ChessPresenter presenter_;
 
-    core::Position m_replica;  // replicated position of auth
+    core::Position replica_;
 
-    std::unordered_map<core::Square, std::vector<core::Move>> m_move_cache;
+    cave::IHostServices& host_;
+    cave::IntentDispatcher& intent_dispatcher_;
+    const cave::DebugId debug_id_;
 
-    cave::IHostServices& m_host;
-    cave::IntentDispatcher& m_intent;
-    const cave::DebugId m_debug_id;
+    std::unordered_map<core::Square, std::vector<core::Move>> move_cache_;
 };
 
 }  // namespace chess

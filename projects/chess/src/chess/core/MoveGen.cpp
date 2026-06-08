@@ -94,19 +94,19 @@ static constexpr auto BuildPawnAttackMasks() -> std::array<std::array<Bitboard, 
 static constexpr Bitboard BuildKnightMask(uint8_t file, uint8_t rank) {
     Bitboard mask(0);
 
-    constexpr std::array<std::pair<int8_t, int8_t>, 8> OFFSETS = {
-        std::make_pair(2, 1),
-        std::make_pair(2, -1),
-        std::make_pair(-2, 1),
-        std::make_pair(-2, -1),
-        std::make_pair(1, 2),
-        std::make_pair(1, -2),
-        std::make_pair(-1, 2),
-        std::make_pair(-1, -2),
+    constexpr std::array<std::pair<int8_t, int8_t>, 8> offsets = {
+        std::make_pair<int8_t, int8_t>(+2, +1),
+        std::make_pair<int8_t, int8_t>(+2, -1),
+        std::make_pair<int8_t, int8_t>(-2, +1),
+        std::make_pair<int8_t, int8_t>(-2, -1),
+        std::make_pair<int8_t, int8_t>(+1, +2),
+        std::make_pair<int8_t, int8_t>(+1, -2),
+        std::make_pair<int8_t, int8_t>(-1, +2),
+        std::make_pair<int8_t, int8_t>(-1, -2),
     };
 
-    for (size_t idx = 0; idx < OFFSETS.size(); ++idx) {
-        const auto [df, dr] = OFFSETS[idx];
+    for (size_t idx = 0; idx < offsets.size(); ++idx) {
+        const auto [df, dr] = offsets[idx];
         const int8_t new_file = file + df;
         const int8_t new_rank = rank + dr;
         if (new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8) {
@@ -131,20 +131,20 @@ static constexpr auto BuildKnightMasks() -> std::array<Bitboard, 64> {
 static constexpr Bitboard BuildKingMask(uint8_t file, uint8_t rank) {
     Bitboard mask(0);
 
-    constexpr std::array<std::pair<int8_t, int8_t>, 8> OFFSETS = {
-        std::make_pair(+0, +1),
-        std::make_pair(+0, -1),
-        std::make_pair(-1, +0),
-        std::make_pair(+1, +0),
+    constexpr std::array<std::pair<int8_t, int8_t>, 8> offsets = {
+        std::make_pair<int8_t, int8_t>(+0, +1),
+        std::make_pair<int8_t, int8_t>(+0, -1),
+        std::make_pair<int8_t, int8_t>(-1, +0),
+        std::make_pair<int8_t, int8_t>(+1, +0),
 
-        std::make_pair(-1, -1),
-        std::make_pair(-1, +1),
-        std::make_pair(+1, -1),
-        std::make_pair(+1, +1),
+        std::make_pair<int8_t, int8_t>(-1, -1),
+        std::make_pair<int8_t, int8_t>(-1, +1),
+        std::make_pair<int8_t, int8_t>(+1, -1),
+        std::make_pair<int8_t, int8_t>(+1, +1),
     };
 
-    for (size_t idx = 0; idx < OFFSETS.size(); ++idx) {
-        const auto [df, dr] = OFFSETS[idx];
+    for (size_t idx = 0; idx < offsets.size(); ++idx) {
+        const auto [df, dr] = offsets[idx];
         const int8_t new_file = file + df;
         const int8_t new_rank = rank + dr;
         if (new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8) {

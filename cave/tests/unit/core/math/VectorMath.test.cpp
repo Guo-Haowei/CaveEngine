@@ -329,30 +329,30 @@ TEST(vector_math, normalize) {
 TEST(vector_math, radians) {
     {
         constexpr float a = 90.0f;
-        EXPECT_FLOAT_EQ(Radians(a), HalfPi());
+        EXPECT_FLOAT_EQ(radians(a), halfPi());
     }
     {
         constexpr float a = 180.0f;
-        EXPECT_FLOAT_EQ(Radians(a), Pi());
+        EXPECT_FLOAT_EQ(radians(a), pi());
     }
     {
         constexpr float a = 360.0f;
-        EXPECT_FLOAT_EQ(Radians(a), TwoPi());
+        EXPECT_FLOAT_EQ(radians(a), twoPi());
     }
 }
 
 TEST(vector_math, degrees) {
     {
-        constexpr float a = HalfPi();
-        EXPECT_FLOAT_EQ(Degrees(a), 90.0f);
+        constexpr float a = halfPi();
+        EXPECT_FLOAT_EQ(degrees(a), 90.0f);
     }
     {
-        constexpr float a = Pi();
-        EXPECT_FLOAT_EQ(Degrees(a), 180.0f);
+        constexpr float a = pi();
+        EXPECT_FLOAT_EQ(degrees(a), 180.0f);
     }
     {
-        constexpr float a = TwoPi();
-        EXPECT_FLOAT_EQ(Degrees(a), 360.0f);
+        constexpr float a = twoPi();
+        EXPECT_FLOAT_EQ(degrees(a), 360.0f);
     }
 }
 

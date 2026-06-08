@@ -17,7 +17,7 @@ bool TestIntersection::aabbAabb(const AABB& aabb1, const AABB& aabb2) {
 
 bool TestIntersection::planeRay(const Plane& plane, Ray& ray) {
     const float denom = math::dot(plane.normal(), ray.direction());
-    if (math::abs(denom) < 1e-6f) {
+    if (math::abs(denom) < epsilon()) {
         return false;  // parallel
     }
 
@@ -63,7 +63,7 @@ bool TestIntersection::triangleRay(const Vector3f& a,
     const Vector3f ac = c - a;
     Vector3f P = cross(direction, ac);
     const float det = dot(ab, P);
-    if (det < Epsilon()) {
+    if (det < epsilon()) {
         return false;
     }
 
@@ -79,7 +79,7 @@ bool TestIntersection::triangleRay(const Vector3f& a,
     }
 
     const float t = dot(ac, q) * inv_det;
-    if (t < Epsilon() || t >= ray.hit_distance_) {
+    if (t < epsilon() || t >= ray.hit_distance_) {
         return false;
     }
 

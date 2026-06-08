@@ -12,54 +12,53 @@
 
 namespace chess {
 
-using namespace cave;
-using namespace cave::literals;
-using core::Move;
-using core::MoveGen;
-using core::Position;
+using namespace ::cave;
+using namespace ::cave::literals;
+using namespace ::chess::core;
 
-ChessGameClient::ChessGameClient(cave::IHostServices& p_host,
-                    ChessGameSession& p_session,
-                                 ChessMatchAuthority& p_auth)
-    : m_presenter(p_host)
-    , m_session(p_session)
-    , m_auth(p_auth)
-    , m_host(p_host)
-    , m_intent(p_host.intentDispatcher())
-    , m_debug_id(cave::MakeDebugId(this)) {
+ChessGameClient::ChessGameClient(IHostServices& host,
+                                 ChessGameSession& session,
+                                 ChessMatchAuthority& auth)
+    : presenter_(host)
+    , session_(session)
+    , auth_(auth)
+    , host_(host)
+    , intent_dispatcher_(host.intentDispatcher())
+    , debug_id_(MakeDebugId(this)) {
 
-    m_intent.AddHandler<AuthMoveCommitted>(this);
-    m_intent.AddHandler<AuthMoveRejected>(this);
-    m_intent.AddHandler<AuthGameOver>(this);
+    intent_dispatcher_.AddHandler<AuthMoveCommitted>(this);
+    intent_dispatcher_.AddHandler<AuthMoveRejected>(this);
+    intent_dispatcher_.AddHandler<AuthGameOver>(this);
 }
 
 ChessGameClient::~ChessGameClient() {
-    m_intent.RemoveHandler<AuthMoveCommitted>(this);
-    m_intent.RemoveHandler<AuthMoveRejected>(this);
-    m_intent.RemoveHandler<AuthGameOver>(this);
+    intent_dispatcher_.RemoveHandler<AuthMoveCommitted>(this);
+    intent_dispatcher_.RemoveHandler<AuthMoveRejected>(this);
+    intent_dispatcher_.RemoveHandler<AuthGameOver>(this);
 }
 
-void ChessGameClient::ResetBoard() {
-    m_replica = Position::Startpos();
+// @TODO: revisit this logic
+void ChessGameClient::resetBoard() {
+    replica_ = Position::Startpos();
 
-    OnPositionChange();
+    onPositionChange();
 }
 
-void ChessGameClient::OnBoot() {
-    m_presenter.onBoot();
-    ResetBoard();
+void ChessGameClient::onBoot() {
+    presenter_.onBoot();
+    resetBoard();
 
-    m_presenter.redrawBoard(m_replica);
+    presenter_.redrawBoard(replica_);
 }
 
-bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
+bool ChessGameClient::HandleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<AuthMoveCommitted*>(&p_intent)) {
-        OnMoveCommitted(intent->move());
+        onMoveCommitted(intent->move());
         return true;
     }
 
     if (auto intent = dynamic_cast<AuthMoveRejected*>(&p_intent)) {
-        OnMoveRejected(intent->move());
+        onMoveRejected(intent->move());
         return true;
     }
 
@@ -70,36 +69,36 @@ bool ChessGameClient::HandleIntent(cave::Intent& p_intent) {
     return false;
 }
 
-void ChessGameClient::OnMoveCommitted(core::Move p_mv) {
-    m_presenter.applyMove(p_mv);
+void ChessGameClient::onMoveCommitted(Move p_mv) {
+    presenter_.applyMove(p_mv);
 
-    core::UndoState undo;
-    m_replica.MakeMove(p_mv, undo);
-    OnPositionChange();
+    UndoState undo;
+    replica_.MakeMove(p_mv, undo);
+    onPositionChange();
 
-    m_session.SetState(SessionState::ResolvingMove);
+    session_.SetState(SessionState::ResolvingMove);
 }
 
-void ChessGameClient::OnMoveRejected(core::Move p_mv) {
-    m_host.log().Info(cave::LogChannel::Game, "Invalid move!");
+void ChessGameClient::onMoveRejected(Move) {
+    host_.log().Info(cave::LogChannel::Game, "Invalid move!");
 }
 
-void ChessGameClient::Present() {
-    m_presenter.present();
+void ChessGameClient::present() {
+    presenter_.present();
 }
 
-void ChessGameClient::OnPositionChange() {
-    const core::MoveList moves = MoveGen::LegalMove(m_replica);
+void ChessGameClient::onPositionChange() {
+    const MoveList moves = MoveGen::LegalMove(replica_);
 
-    m_move_cache.clear();
+    move_cache_.clear();
     for (Move move : moves) {
-        m_move_cache[move.From()].push_back(move);
+        move_cache_[move.From()].push_back(move);
     }
 }
 
-std::span<const core::Move> ChessGameClient::LegalMovesFromSquare(core::Square p_sq) {
-    auto it = m_move_cache.find(p_sq);
-    if (it == m_move_cache.end()) {
+std::span<const Move> ChessGameClient::legalMoves(Square square) const {
+    auto it = move_cache_.find(square);
+    if (it == move_cache_.end()) {
         return {};
     }
 

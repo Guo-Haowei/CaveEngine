@@ -9,6 +9,7 @@
 #include "chess/core/Bitboard.h"
 #include "chess/core/Piece.h"
 #include "chess/game/ChessGameMode.h"
+#include "chess/presentation/ChessViewFactory.h"
 
 namespace chess {
 
@@ -23,82 +24,6 @@ using chess::core::Color;
 using chess::core::Piece;
 using chess::core::PieceType;
 using chess::core::Square;
-
-struct ChessSpawner {
-    static constexpr StringId kScaleId = "scale"_sid;
-    static constexpr StringId kTranslationId = "translation"_sid;
-    static constexpr StringId kRotationId = "rotation"_sid;
-    static constexpr StringId kVisibility = "visibility"_sid;
-    static constexpr StringId kCastShadow = "cast_shadow"_sid;
-    static constexpr StringId kTransparency = "transparency"_sid;
-
-    SceneCommandWriter& cb;
-    ecs::Entity piece_parent;
-    const char* materials[2];
-
-    ChessSpawner(SceneCommandWriter& p_cb, ecs::Entity p_piece_parent)
-        : cb(p_cb)
-        , piece_parent(p_piece_parent) {
-        materials[0] = "@res://materials/white.mat";
-        materials[1] = "@res://materials/black.mat";
-    }
-
-    struct TileInitInfo {
-        Vector4f color;
-        const char* name;
-        bool visible;
-        Entity parent;
-    };
-
-    void SpawnTile(uint8_t p_file,
-                   uint8_t p_rank,
-                   const TileInitInfo& p_info) {
-        constexpr Vector3f scale(1.0f, 0.05f, 1.0f);
-        Vector3f offset((float)p_rank, 0.05f, (float)p_file);
-
-        const Square sq = Square::FromFileRank(p_file, p_rank);
-        ecs::Entity tile = cb.CreateCubeObject(p_info.name ? p_info.name : sq.ToString(), { nullptr, p_info.color });
-        cb.SetProperty(tile, TransformComponent_Id, kScaleId, scale);
-        cb.SetProperty(tile, TransformComponent_Id, kTranslationId, offset);
-
-        cb.SetProperty(tile, MeshRendererComponent_Id, kVisibility, p_info.visible);
-        cb.SetProperty(tile, MeshRendererComponent_Id, kCastShadow, false);
-        cb.SetProperty(tile, MeshRendererComponent_Id, kTransparency, true);
-
-        cb.AttachChild(tile, p_info.parent);
-    }
-
-    void SpawnPiece(Piece p_piece, int p_file, int p_rank, int p_id) {
-        const PieceType piece_type = GetType(p_piece);
-        const Color piece_color = GetColor(p_piece);
-        DEV_ASSERT(piece_type != PieceType::Null);
-        DEV_ASSERT(piece_color != Color::Null);
-
-        const char* piece_name = core::GetPieceTypeName(piece_type);
-        const char* color = (piece_color == Color::White ? "white" : "black");
-
-        auto name = std::format("{}_{}_{}",
-                                color,
-                                piece_name,
-                                p_id);
-
-        ecs::Entity piece = cb.CreateMeshObject(
-            std::format("@res://models/{}.mesh", piece_name),
-            name,
-            materials[std::to_underlying(piece_color)]);
-
-        Vector3f translation(p_rank, 0, p_file);
-        constexpr Vector3f scale = Vector3f(9);
-
-        cb.SetProperty(piece, TransformComponent_Id, kScaleId, scale);
-        cb.SetProperty(piece, TransformComponent_Id, kTranslationId, translation);
-        if (piece_color == Color::Black) {
-            cb.SetProperty(piece, TransformComponent_Id, kRotationId, Vector4f(0, 1, 0, 0));
-        }
-
-        cb.AttachChild(piece, piece_parent);
-    }
-};
 
 // @TODO: use FEN instead
 static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
@@ -162,8 +87,8 @@ void ChessGameModule::SpawnObjects(IHostServices& p_host) {
     std::array<int, core::kPieceMax> counter{ 0 };
 
     chess::ChessSpawner spawner(writer, piece_parent);
-    for (int rank = 0; rank < 8; ++rank) {
-        for (int file = 0; file < 8; ++file) {
+    for (uint8_t rank = 0; rank < 8; ++rank) {
+        for (uint8_t file = 0; file < 8; ++file) {
             spawner.SpawnTile(file, rank, {
                                               Vector4f(0.0f, 1.0f, 0.0f, 0.5f),
                                               nullptr,

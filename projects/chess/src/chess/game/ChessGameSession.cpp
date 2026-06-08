@@ -49,13 +49,13 @@ void ChessGameSession::Tick() {
     m_host.intentDispatcher().Flush();
 
     // update client visual
-    m_client->Present();
+    m_client->present();
 
     // @TODO: refactor this part
     if (m_selector) {
         Vector2i focused = m_selector->GetFocused();
         Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
-        m_client->Presenter().setFocusedSquare(focused_sq);
+        m_client->presenter().setFocusedSquare(focused_sq);
     }
 }
 
@@ -131,7 +131,7 @@ void ChessGameSession::OnEnterBoot() {
         m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
             m_host,
             *m_client,
-            m_client->Presenter());
+            m_client->presenter());
 
         cave::GridSelectController::Callbacks cbs = {
             .can_select = [this](int x, int y) { return m_grid_adapter->canSelect(x, y); },
@@ -153,7 +153,7 @@ void ChessGameSession::OnEnterBoot() {
         });
     }
 
-    m_client->OnBoot();
+    m_client->onBoot();
 }
 
 #if USING(DEBUG_BUILD)
