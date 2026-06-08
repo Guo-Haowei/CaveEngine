@@ -18,7 +18,7 @@ bool TestIntersection::aabbAabb(const AABB& aabb1, const AABB& aabb2) {
 bool TestIntersection::planeRay(const Plane& plane, Ray& ray) {
     const float denom = math::dot(plane.normal(), ray.direction());
     if (math::abs(denom) < 1e-6f) {
-        return false; // parallel
+        return false;  // parallel
     }
 
     const float t = -plane.distance(ray.origin_) / denom;
