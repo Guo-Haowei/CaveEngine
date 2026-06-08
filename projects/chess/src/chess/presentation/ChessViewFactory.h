@@ -3,6 +3,7 @@
 #include "cave/runtime/ecs/Entity.h"
 
 #include "chess/core/Piece.h"
+#include "chess/core/Square.h"
 
 // clang-format off
 namespace cave { class SceneCommandWriter; }
@@ -10,28 +11,36 @@ namespace cave { class SceneCommandWriter; }
 
 namespace chess {
 
-class ChessSpawner {
+// @TODO: factory and registry
+
+class ChessViewFactory {
     using Entity = ::cave::ecs::Entity;
+
 public:
-
-    ChessSpawner(cave::SceneCommandWriter& writer, Entity parent);
-
+    // @TODO: refactor
     struct TileInitInfo {
         cave::math::Vector4f color;
         const char* name;
-        bool visible;
         Entity parent;
     };
 
-    void SpawnTile(uint8_t p_file,
-                   uint8_t p_rank,
-                   const TileInitInfo& p_info);
+    ChessViewFactory(cave::SceneCommandWriter& writer, Entity parent);
 
-    void SpawnPiece(core::Piece p_piece, int p_file, int p_rank, int p_id);
+    Entity createPiece(core::Square square, core::Piece piece);
 
+    // @TODO: refactor this
+    Entity createTile(core::Square square, const TileInitInfo& info);
+
+    void setVisible(bool visible) { visible_ = visible; }
+
+private:
     cave::SceneCommandWriter& writer_;
-    Entity piece_parent;
-    const char* materials[2];
+    Entity parent_;
+    const char* materials_[2];
+
+    std::array<uint8_t, core::kPieceMax> piece_counters_{ 0 };
+
+    bool visible_{ true };
 };
 
 }  // namespace chess

@@ -13,17 +13,11 @@
 
 namespace chess {
 
-using namespace cave;
-using namespace cave::literals;
-
+using namespace ::cave;
+using namespace ::cave::literals;
+using namespace ::cave::math;
+using namespace ::chess::core;
 using cave::ecs::Entity;
-using cave::math::Vector2i;
-using cave::math::Vector3f;
-using cave::math::Vector4f;
-using chess::core::Color;
-using chess::core::Piece;
-using chess::core::PieceType;
-using chess::core::Square;
 
 // @TODO: use FEN instead
 static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
@@ -40,42 +34,41 @@ static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
 ChessGameModule::ChessGameModule() = default;
 ChessGameModule::~ChessGameModule() = default;
 
-void ChessGameModule::OnModuleLoaded(IHostServices& p_host) {
-    p_host.log().Ok(LogChannel::Game, "ChessClient Loaded");
+void ChessGameModule::onModuleLoaded(IHostServices& host) {
+    host.log().Ok(LogChannel::Game, "ChessClient Loaded");
 
     // @TODO: move it to present layer
-    SpawnObjects(p_host);
+    spawnObjects(host);
 }
 
-void ChessGameModule::OnModuleUnloaded(IHostServices& p_host) {
-    unused(p_host);
+void ChessGameModule::onModuleUnloaded(IHostServices&) {
 }
 
-void ChessGameModule::OnGameBegin(IHostServices& p_host) {
-    m_game = std::make_unique<ChessGameMode>(p_host);
-    m_game->OnEnter(p_host);
+void ChessGameModule::onGameBegin(IHostServices& host) {
+    game_ = std::make_unique<ChessGameMode>(host);
+    game_->OnEnter(host);
 }
 
-void ChessGameModule::OnGameEnd(IHostServices& p_host) {
-    m_game->OnExit(p_host);
-    m_game.reset();
+void ChessGameModule::onGameEnd(IHostServices& host) {
+    game_->OnExit(host);
+    game_.reset();
 }
 
-void ChessGameModule::Tick(IHostServices& p_host, const FrameTime& p_time) {
-    m_game->Tick(p_host, p_time);
+void ChessGameModule::tick(IHostServices& host, const FrameTime& time) {
+    game_->Tick(host, time);
 }
 
 // @TODO: extract it,
 // because other than starting pos,
 // it can be used for any pos, for example, for puzzle mode
-void ChessGameModule::SpawnObjects(IHostServices& p_host) {
+void ChessGameModule::spawnObjects(IHostServices& host) {
     using chess::Piece;
     using ecs::Entity;
 
-    Entity offset_node = p_host.sceneQuery().findFirstByName("transform");
+    Entity offset_node = host.sceneQuery().findFirstByName("transform");
     DEV_ASSERT(offset_node.IsValid());
 
-    SceneCommandWriter& writer = p_host.sceneWriter();
+    SceneCommandWriter& writer = host.sceneWriter();
     writer.SetNoSave(true);
 
     Entity piece_parent = writer.CreateTransformObject("pieces");
@@ -84,30 +77,47 @@ void ChessGameModule::SpawnObjects(IHostServices& p_host) {
     writer.AttachChild(piece_parent, offset_node);
     writer.AttachChild(tile_parent, offset_node);
 
-    std::array<int, core::kPieceMax> counter{ 0 };
+    chess::ChessViewFactory factory(writer, piece_parent);
 
-    chess::ChessSpawner spawner(writer, piece_parent);
+    // Create regular pieces
     for (uint8_t rank = 0; rank < 8; ++rank) {
         for (uint8_t file = 0; file < 8; ++file) {
-            spawner.SpawnTile(file, rank, {
-                                              Vector4f(0.0f, 1.0f, 0.0f, 0.5f),
-                                              nullptr,
-                                              false,
-                                              tile_parent,
-                                          });
-
+            Square square = Square::FromFileRank(file, rank);
             const Piece p = chess::kInitialBoard[rank][file];
             if (p == Piece::Null) continue;
-            spawner.SpawnPiece(p, file, rank, ++counter[std::to_underlying(p)]);
+            factory.createPiece(square, p);
         }
     }
 
-    spawner.SpawnTile(0, 0, {
-                                Vector4f(1.0f, 0.0f, 0.0f, 0.5f),
-                                "grid_selector",
-                                true,
-                                offset_node,
-                            });
+    // Create selector
+    factory.createTile(Square::A1, {
+                                      Vector4f(1.0f, 0.0f, 0.0f, 0.5f),
+                                      "grid_selector",
+                                      offset_node,
+                                  });
+
+    factory.setVisible(false);
+
+    // Create extra pieces for promotion
+    const std::array<Piece, 8> extra_pieces = {
+        Piece::WN, Piece::WB, Piece::WR, Piece::WQ,
+        Piece::BN, Piece::BB, Piece::BR, Piece::BQ
+    };
+
+    for (Piece piece : extra_pieces) {
+        for (int i = 0; i < 8; ++i) {
+            factory.createPiece(Square::A1, piece);
+        }
+    }
+
+    // Create tiles
+    for (uint8_t i = 0; i < 64; ++i) {
+        factory.createTile(Square(i), {
+                                       Vector4f(0.0f, 1.0f, 0.0f, 0.5f),
+                                       nullptr,
+                                       tile_parent,
+                                   });
+    }
 }
 
 }  // namespace chess

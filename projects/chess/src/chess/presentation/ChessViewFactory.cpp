@@ -20,60 +20,66 @@ static constexpr StringId kVisibility = "visibility"_sid;
 static constexpr StringId kCastShadow = "cast_shadow"_sid;
 static constexpr StringId kTransparency = "transparency"_sid;
 
-ChessSpawner::ChessSpawner(SceneCommandWriter& writer, Entity parent)
+ChessViewFactory::ChessViewFactory(SceneCommandWriter& writer, Entity parent)
     : writer_(writer)
-    , piece_parent(parent) {
-    materials[0] = "@res://materials/white.mat";
-    materials[1] = "@res://materials/black.mat";
+    , parent_(parent) {
+    materials_[0] = "@res://materials/white.mat";
+    materials_[1] = "@res://materials/black.mat";
 }
 
-void ChessSpawner::SpawnTile(uint8_t file,
-                             uint8_t rank,
-                             const TileInitInfo& info) {
+ecs::Entity ChessViewFactory::createTile(Square square, const TileInitInfo& info) {
     constexpr Vector3f scale(1.0f, 0.05f, 1.0f);
+
+    const auto [file, rank] = square.FileRank();
+
     Vector3f offset((float)rank, 0.05f, (float)file);
 
-    const Square sq = Square::FromFileRank(file, rank);
-    ecs::Entity tile = writer_.CreateCubeObject(info.name ? info.name : sq.ToString(), { nullptr, info.color });
-    writer_.SetProperty(tile, TransformComponent_Id, kScaleId, scale);
-    writer_.SetProperty(tile, TransformComponent_Id, kTranslationId, offset);
+    Entity ent = writer_.CreateCubeObject(info.name ? info.name : square.ToString(), { nullptr, info.color });
+    writer_.SetProperty(ent, TransformComponent_Id, kScaleId, scale);
+    writer_.SetProperty(ent, TransformComponent_Id, kTranslationId, offset);
 
-    writer_.SetProperty(tile, MeshRendererComponent_Id, kVisibility, info.visible);
-    writer_.SetProperty(tile, MeshRendererComponent_Id, kCastShadow, false);
-    writer_.SetProperty(tile, MeshRendererComponent_Id, kTransparency, true);
+    writer_.SetProperty(ent, MeshRendererComponent_Id, kVisibility, visible_);
+    writer_.SetProperty(ent, MeshRendererComponent_Id, kCastShadow, false);
+    writer_.SetProperty(ent, MeshRendererComponent_Id, kTransparency, true);
 
-    writer_.AttachChild(tile, info.parent);
+    writer_.AttachChild(ent, info.parent);
+    return ent;
 }
 
-void ChessSpawner::SpawnPiece(Piece p_piece, int p_file, int p_rank, int p_id) {
-    const PieceType piece_type = GetType(p_piece);
-    const Color piece_color = GetColor(p_piece);
+ecs::Entity ChessViewFactory::createPiece(Square square, Piece piece) {
+    const PieceType piece_type = GetType(piece);
+    const Color piece_color = GetColor(piece);
     DEV_ASSERT(piece_type != PieceType::Null);
     DEV_ASSERT(piece_color != Color::Null);
 
     const char* piece_name = core::GetPieceTypeName(piece_type);
     const char* color = (piece_color == Color::White ? "white" : "black");
 
-    auto name = std::format("{}_{}_{}",
-                            color,
-                            piece_name,
-                            p_id);
+    const int id = ++piece_counters_[std::to_underlying(piece)];
 
-    ecs::Entity piece = writer_.CreateMeshObject(
+    auto name = std::format("{}_{}_{}", color, piece_name, id);
+
+    Entity ent = writer_.CreateMeshObject(
         std::format("@res://models/{}.mesh", piece_name),
         name,
-        materials[std::to_underlying(piece_color)]);
+        materials_[std::to_underlying(piece_color)]);
 
-    Vector3f translation(p_rank, 0, p_file);
+    const auto [file, rank] = square.FileRank();
+    Vector3f translation(rank, 0, file);
     constexpr Vector3f scale = Vector3f(9);
 
-    writer_.SetProperty(piece, TransformComponent_Id, kScaleId, scale);
-    writer_.SetProperty(piece, TransformComponent_Id, kTranslationId, translation);
+    writer_.SetProperty(ent, TransformComponent_Id, kScaleId, scale);
+    writer_.SetProperty(ent, TransformComponent_Id, kTranslationId, translation);
     if (piece_color == Color::Black) {
-        writer_.SetProperty(piece, TransformComponent_Id, kRotationId, Vector4f(0, 1, 0, 0));
+        writer_.SetProperty(ent, TransformComponent_Id, kRotationId, Vector4f::UnitY);
     }
+    writer_.SetProperty(ent, MeshRendererComponent_Id, kVisibility, visible_);
+    writer_.SetProperty(ent, MeshRendererComponent_Id, kCastShadow, visible_);
 
-    writer_.AttachChild(piece, piece_parent);
+    writer_.AttachChild(ent, parent_);
+
+    printf("created %s\n", name.c_str());
+    return ent;
 }
 
 }  // namespace chess

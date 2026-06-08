@@ -43,7 +43,7 @@ bool PIESession::Start(const PIEStartDesc& p_desc) {
 
     PIEHostServices host(m_app, *scene, {});
 
-    m_game->OnModuleLoaded(host);
+    m_game->onModuleLoaded(host);
     host.flushSceneCommands();
     return true;
 }
@@ -70,7 +70,7 @@ void PIESession::OnSimBegin(SceneId p_scene_id, ViewId p_view_id) {
     m_app.GetSceneScheduler().Register(this);
 
     m_host = std::make_unique<PIEHostServices>(m_app, *scene, p_view_id);
-    m_game->OnGameBegin(*m_host);
+    m_game->onGameBegin(*m_host);
     m_host->flushSceneCommands();
 
     m_running = true;
@@ -84,7 +84,7 @@ void PIESession::OnSimEnd() {
     if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_pie_scene)) {
         m_app.ScriptService()->OnSimEnd();
 
-        m_game->OnGameEnd(*m_host);
+        m_game->onGameEnd(*m_host);
     }
 
     m_app.GetSceneScheduler().Unregister(this);
@@ -106,7 +106,7 @@ void PIESession::Tick(const FrameTime& p_time) {
     Scene* scene = reg->Resolve(m_pie_scene);
     if (!scene) return;
 
-    m_game->Tick(*m_host, p_time);
+    m_game->tick(*m_host, p_time);
     m_host->flushSceneCommands();
 }
 

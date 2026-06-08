@@ -19,13 +19,13 @@ class IGameModule {
 public:
     virtual ~IGameModule() = default;
 
-    virtual void OnModuleLoaded(IHostServices& p_host) = 0;
-    virtual void OnModuleUnloaded(IHostServices& p_host) = 0;
+    virtual void onModuleLoaded(IHostServices& host) = 0;
+    virtual void onModuleUnloaded(IHostServices& host) = 0;
 
-    virtual void OnGameBegin(IHostServices& p_host) = 0;
-    virtual void OnGameEnd(IHostServices& p_host) = 0;
+    virtual void onGameBegin(IHostServices& host) = 0;
+    virtual void onGameEnd(IHostServices& host) = 0;
 
-    virtual void Tick(IHostServices& p_host, const FrameTime& p_time) = 0;
+    virtual void tick(IHostServices& host, const FrameTime& time) = 0;
 };
 
 }  // namespace cave

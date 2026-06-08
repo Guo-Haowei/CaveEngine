@@ -13,20 +13,20 @@ public:
     ChessGameModule();
     ~ChessGameModule();
 
-    void OnModuleLoaded(cave::IHostServices& p_host) override;
-    void OnModuleUnloaded(cave::IHostServices& p_host) override;
+    void onModuleLoaded(cave::IHostServices& host) override;
+    void onModuleUnloaded(cave::IHostServices& host) override;
 
     // @TODO: move these to ChessGameMode,
     // ChessGameModule should only be responsible for DLL loading
-    void OnGameBegin(cave::IHostServices& p_host) override;
-    void OnGameEnd(cave::IHostServices& p_host) override;
+    void onGameBegin(cave::IHostServices& host) override;
+    void onGameEnd(cave::IHostServices& host) override;
 
-    void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) override;
+    void tick(cave::IHostServices& host, const cave::FrameTime& time) override;
 
 private:
-    void SpawnObjects(cave::IHostServices& p_host);
+    void spawnObjects(cave::IHostServices& host);
 
-    std::unique_ptr<ChessGameMode> m_game;
+    std::unique_ptr<ChessGameMode> game_;
 };
 
 }  // namespace chess
