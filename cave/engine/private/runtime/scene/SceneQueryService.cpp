@@ -16,7 +16,7 @@ RayHit SceneQueryService::Raycast(SceneId p_scene_id,
     DEV_ASSERT(scene);
 
     SceneQuery query(*scene);
-    return query.Raycast(p_ray, p_filter);
+    return query.raycast(p_ray, p_filter);
 }
 
 }  // namespace cave

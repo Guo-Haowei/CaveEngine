@@ -57,7 +57,6 @@ concept HasEnumTraits = requires(T value) {
     struct EnumTraits<EnumType> {                                                          \
         static constexpr std::string_view s_mappings[] = { __VA_ARGS__ };                  \
         static std::string_view ToString(EnumType p_type) {                                \
-            DEV_ASSERT_INDEX(p_type, EnumType::Count);                                     \
             return s_mappings[std::to_underlying(p_type)];                                 \
         }                                                                                  \
         static Option<EnumType> FromString(std::string_view p_val) {                       \

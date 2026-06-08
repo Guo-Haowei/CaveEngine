@@ -3,14 +3,16 @@
 
 namespace cave::math {
 
-class Ray;
 class AABB;
+class Plane;
+class Ray;
 
 class TestIntersection {
 public:
-    static bool AabbAabb(const AABB& p_aabb1, const AABB& p_aabb2);
-    static bool RayAabb(const AABB& p_aabb, Ray& p_ray);
-    static bool RayTriangle(const Vector3f& p_a, const Vector3f& p_b, const Vector3f& p_c, Ray& p_ray);
+    static bool aabbAabb(const AABB& aabb1, const AABB& aabb2);
+    static bool planeRay(const Plane& plane, Ray& ray);
+    static bool aabbRay(const AABB& aabb, Ray& ray);
+    static bool triangleRay(const Vector3f& a, const Vector3f& b, const Vector3f& c, Ray& ray);
 };
 
 }  // namespace cave::math

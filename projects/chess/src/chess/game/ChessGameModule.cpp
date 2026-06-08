@@ -147,7 +147,7 @@ void ChessGameModule::SpawnObjects(IHostServices& p_host) {
     using chess::Piece;
     using ecs::Entity;
 
-    Entity offset_node = p_host.sceneQuery().FindFirstEntity("transform");
+    Entity offset_node = p_host.sceneQuery().findFirstByName("transform");
     DEV_ASSERT(offset_node.IsValid());
 
     SceneCommandWriter& writer = p_host.sceneWriter();

@@ -2,6 +2,7 @@
 #include <functional>
 #include <span>
 
+#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "chess/agents/IPlayerAgent.h"
@@ -20,16 +21,13 @@ class ChessPresenter;
 class LocalHumanAgent;
 
 class ChessGridSelectorAdapter {
+    using Entity = cave::ecs::Entity;
     using GetPlayerFunc = std::function<LocalHumanAgent*(PlayerId)>;
 
 public:
-    explicit ChessGridSelectorAdapter(cave::IHostServices& host,
-                                      ChessGameClient& game,
-                                      ChessPresenter& presenter) noexcept
-        : host_(host)
-        , client_(game)
-        , presenter_(presenter) {
-    }
+    ChessGridSelectorAdapter(cave::IHostServices& host,
+                             ChessGameClient& game,
+                             ChessPresenter& presenter) noexcept;
 
     bool canSelect(int x, int y);
     void onSelect(int x, int y);
@@ -54,6 +52,7 @@ private:
 
     cave::IHostServices& host_;
     cave::GridSelectController* controller_{};
+    Entity camera_id_;
 
     ChessGameClient& client_;
     ChessPresenter& presenter_;

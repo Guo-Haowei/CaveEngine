@@ -34,19 +34,19 @@ void PickingService::Pick(math::Vector2f p_point_win) {
     m_editor.GetApp().IntentDispatcher()->Queue<PickIntent>(p_point_win);
 }
 
-void PickingService::Raycast(const PickData& p_pick_data) {
-    auto ray = math::Ray::Unproject(p_pick_data.proj_view, p_pick_data.cursor_ndc);
+void PickingService::Raycast(const PickData& pick_data) {
+    auto ray = math::Ray::unproject(pick_data.proj_view, pick_data.cursor_ndc);
 
-    auto result = m_editor.GetApp().SceneQueryService().Raycast(p_pick_data.scene_id, ray, {});
+    auto result = m_editor.GetApp().SceneQueryService().Raycast(pick_data.scene_id, ray, {});
 
     SelectionKey key{
         .kind = SelectionKind::Entity,
-        .doc = p_pick_data.doc_id,
-        .scene = p_pick_data.scene_id,
+        .doc = pick_data.doc_id,
+        .scene = pick_data.scene_id,
         .entity = result.entity,
     };
 
-    m_editor.SelectionService().Set(p_pick_data.doc_id, key);
+    m_editor.SelectionService().Set(pick_data.doc_id, key);
 }
 
 bool PickingService::HandleIntent(Intent& p_intent) {

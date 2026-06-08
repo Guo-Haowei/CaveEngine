@@ -30,16 +30,16 @@ public:
                  SceneId p_preview_scene_id,
                  ViewDimension p_dim);
 
-    void OnCreate() override;
-    void OnDestroy() override;
+    void onCreate() override;
+    void onDestroy() override;
 
     void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
 
     Option<PickData> GetPickData(const math::Vector2f& p_pos_screen) override;
 
-    void OnInputEvents(const InputFrame& p_input) override;
+    void onInputEvents(const InputFrame& p_input) override;
 
-    ViewId GetViewId() const override { return m_view_id; }
+    ViewId viewId() const override { return m_view_id; }
 
     DebugId debugId() const final { return m_debug_id; }
 

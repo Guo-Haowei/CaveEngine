@@ -29,17 +29,19 @@ struct RaycastFilter {
 
 class SceneQuery {
 public:
-    explicit SceneQuery(const Scene& p_scene) noexcept
-        : m_scene(p_scene) {}
+    explicit SceneQuery(const Scene& scene) noexcept
+        : scene_(scene) {}
 
-    ecs::Entity FindFirstEntity(std::string_view p_name) const;
+    ecs::Entity findFirstByName(std::string_view name) const;
 
-    size_t GetComponentCount(ComponentId p_cid) const;
+    const void* component(ComponentId cid, ecs::Entity ent) const;
 
-    RayHit Raycast(math::Ray& p_ray, const RaycastFilter& p_filter) const;
+    size_t componentCount(ComponentId cid) const;
+
+    RayHit raycast(math::Ray& ray, const RaycastFilter& filter) const;
 
 private:
-    const Scene& m_scene;
+    const Scene& scene_;
 };
 
 }  // namespace cave

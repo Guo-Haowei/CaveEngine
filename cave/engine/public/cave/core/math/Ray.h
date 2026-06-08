@@ -9,30 +9,40 @@ namespace cave::math {
 
 class Ray {
 public:
-    Ray(const Vector3f& p_start, const Vector3f& p_end)
-        : m_start(p_start), m_end(p_end), m_dist(1.0f) {}
+    Ray(const Vector3f& start, const Vector3f& end)
+        : origin_(start), end_(end), hit_distance_(1.0f) {}
 
-    Ray Inverse(const Matrix4x4f& p_inverse_matrix) const;
+    Ray inverse(const Matrix4x4f& inverse_matrix) const;
 
-    Vector3f Direction() const;
+    Vector3f direction() const;
 
-    bool Intersects(const AABB& p_aabb) { return TestIntersection::RayAabb(p_aabb, *this); }
-
-    bool Intersects(const Vector3f& p_a,
-                    const Vector3f& p_b,
-                    const Vector3f& p_c) {
-        return TestIntersection::RayTriangle(p_a, p_b, p_c, *this);
+    bool intersects(const AABB& aabb) {
+        return TestIntersection::aabbRay(aabb, *this);
     }
 
-    float GetDist() const { return m_dist; }
-    void SetDist(float p_dist) { m_dist = p_dist; }
+    bool intersects(const Plane& plane) {
+        return TestIntersection::planeRay(plane, *this);
+    }
 
-    static Ray Unproject(const Matrix4x4f& p_proj_view, const Vector2f& p_ndc);
+    bool intersects(const Vector3f& a,
+                    const Vector3f& b,
+                    const Vector3f& c) {
+        return TestIntersection::triangleRay(a, b, c, *this);
+    }
+
+    Vector3f hitPoint() const {
+        return origin_ + hit_distance_ * direction();
+    }
+
+    float distance() const { return hit_distance_; }
+    void distance(float dist) { hit_distance_ = dist; }
+
+    static Ray unproject(const Matrix4x4f& proj_view, const Vector2f& ndc);
 
 private:
-    const Vector3f m_start;
-    const Vector3f m_end;
-    float m_dist;  // hit distance
+    const Vector3f origin_;
+    const Vector3f end_;
+    float hit_distance_;
 
     friend class TestIntersection;
 };

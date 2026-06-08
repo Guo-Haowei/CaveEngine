@@ -9,49 +9,52 @@ namespace cave {
 
 using namespace math;
 
-ecs::Entity SceneQuery::FindFirstEntity(std::string_view p_name) const {
-    return m_scene.FindEntityByName(p_name);
+ecs::Entity SceneQuery::findFirstByName(std::string_view p_name) const {
+    return scene_.FindEntityByName(p_name);
 }
 
-size_t SceneQuery::GetComponentCount(ComponentId p_cid) const {
-    return m_scene.GetCount(p_cid);
+const void* SceneQuery::component(ComponentId cid, ecs::Entity ent) const {
+    return scene_.m_storage.GetRaw(ent, cid);
 }
 
-static bool RaycastHelper(Ray& p_ray,
-                          const MeshRendererComponent& p_mesh,
-                          const TransformComponent& p_trans) {
-    MeshAsset* mesh = p_mesh.GetMeshHandle().Get();
-    if (!mesh) return false;
+size_t SceneQuery::componentCount(ComponentId cid) const {
+    return scene_.GetCount(cid);
+}
 
-    Matrix4x4f model_inv = glm::inverse(p_trans.GetWorldMatrix());
-    Ray ray_inv = p_ray.Inverse(model_inv);
+static bool RaycastHelper(Ray& ray,
+                          const MeshAsset& mesh,
+                          const TransformComponent& transform) {
+
+    Matrix4x4f model_inv = glm::inverse(transform.GetWorldMatrix());
+    Ray ray_inv = ray.inverse(model_inv);
     // make a copy, so aabb test doesn't change t
-    if (!Ray(ray_inv).Intersects(mesh->localBound)) {
+    if (!Ray(ray_inv).intersects(mesh.localBound)) {
         return false;
     }
 
     // Test every single triange
-    for (size_t i = 0; i < mesh->indices.size(); i += 3) {
-        const Vector3f& A = mesh->positions[mesh->indices[i]];
-        const Vector3f& B = mesh->positions[mesh->indices[i + 1]];
-        const Vector3f& C = mesh->positions[mesh->indices[i + 2]];
-        if (ray_inv.Intersects(A, B, C)) {
-            p_ray.SetDist(ray_inv.GetDist());
+    for (size_t i = 0; i < mesh.indices.size(); i += 3) {
+        const Vector3f& A = mesh.positions[mesh.indices[i]];
+        const Vector3f& B = mesh.positions[mesh.indices[i + 1]];
+        const Vector3f& C = mesh.positions[mesh.indices[i + 2]];
+        if (ray_inv.intersects(A, B, C)) {
+            ray.distance(ray_inv.distance());
             return true;
         }
     }
     return false;
 }
 
-RayHit SceneQuery::Raycast(math::Ray& p_ray, const RaycastFilter&) const {
+RayHit SceneQuery::raycast(math::Ray& ray, const RaycastFilter&) const {
 
     RayHit res{};
-    for (auto [entity, mesh, transform] : m_scene.View<MeshRendererComponent, TransformComponent>()) {
-        if (RaycastHelper(p_ray, mesh, transform)) {
-            res.hit = true;
-            res.entity = entity;
-            res.t = p_ray.GetDist();
-        }
+    for (auto [entity, mesh, transform] : scene_.View<MeshRendererComponent, TransformComponent>()) {
+        MeshAsset* mesh_asset = mesh.GetMeshHandle().Get();
+        if (!mesh_asset) continue;
+        if (!RaycastHelper(ray, *mesh_asset, transform)) continue;
+        res.hit = true;
+        res.entity = entity;
+        res.t = ray.distance();
     }
 
     return res;

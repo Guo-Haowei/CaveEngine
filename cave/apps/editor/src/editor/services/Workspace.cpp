@@ -40,7 +40,7 @@ void Workspace::Tick() {
 
 DocId Workspace::FocusedDoc() {
     Tab* tab = FocusedTab();
-    return tab ? tab->GetDocId() : DocId{};
+    return tab ? tab->docId() : DocId{};
 }
 
 PreviewScene Workspace::FocusedPreviewScene() {
@@ -48,8 +48,8 @@ PreviewScene Workspace::FocusedPreviewScene() {
 
     PreviewScene ret;
     if (tab) {
-        ret.doc_id = tab->GetDocId();
-        ret.view_id = tab->GetViewId();
+        ret.doc_id = tab->docId();
+        ret.view_id = tab->viewId();
     }
     ret.doc_id = FocusedDoc();
     if (IDocument* doc = m_editor.DocumentService().Resolve(ret.doc_id)) {
@@ -72,7 +72,7 @@ void Workspace::DrawTabs() {
         auto& slot = m_slots[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
-            TabId current_id = tab.GetTabId();
+            TabId current_id = tab.tabId();
             DEV_ASSERT(current_id == TabId(idx, slot.gen));
             if (m_focused_req == current_id) {
                 ImGui::SetNextWindowFocus();
@@ -101,16 +101,20 @@ bool Workspace::HandleIntent(Intent& p_intent) {
     return false;
 }
 
-void Workspace::onEvents(const InputFrame& p_input) {
+void Workspace::onEvents(const InputFrame& input) {
+    if (m_editor.IsPlaying()) {
+        return;
+    }
+
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
         if (tab && tab->IsHovered()) {
-            tab->OnInputEvents(p_input);
+            tab->onInputEvents(input);
             break;
         }
     }
 
-    for (const InputEvent& e : p_input.events) {
+    for (const InputEvent& e : input.events) {
         if (e.consumed) continue;
         if (e.type == InputEventType::ButtonDown) {
             const Key key = static_cast<Key>(e.code);
@@ -157,9 +161,9 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
     const TabId tab_id = Create(std::move(tab));
 
     Tab* tab_raw = (m_slots[tab_id.index].storage).get();
-    tab_raw->SetTabId(tab_id);
-    tab_raw->SetTitleAndId(meta->name, tab_id.index);
-    tab_raw->OnCreate();
+    tab_raw->tabId(tab_id);
+    tab_raw->setTitleAndId(meta->name, tab_id.index);
+    tab_raw->onCreate();
     m_focused_req = tab_id;
     m_doc_to_tab[p_doc_id] = tab_id;
 
@@ -193,8 +197,8 @@ bool Workspace::CloseDoc(DocId p_doc_id) {
 
     const TabId tab_id = it->second;
     Tab* tab = Resolve(tab_id);
-    DEV_ASSERT(tab->GetDocId() == p_doc_id);
-    tab->OnDestroy();
+    DEV_ASSERT(tab->docId() == p_doc_id);
+    tab->onDestroy();
     Destroy(tab_id);
     m_doc_to_tab.erase(p_doc_id);
 
@@ -212,7 +216,7 @@ bool Workspace::OnCloseRequested() {
         auto& slot = m_slots[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
-            DocId doc = tab.GetDocId();
+            DocId doc = tab.docId();
             if (edit.IsDirty(doc)) {
                 unsaved.push_back(doc);
             }

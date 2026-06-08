@@ -101,7 +101,7 @@ void SceneViewTab::SubmitView() {
         view.scene_id = m_preview_scene;
         view.camera_source = CameraSource::External(m_camera);
 
-        SelectionKey key = m_editor.SelectionService().Primary(m_doc_id);
+        SelectionKey key = m_editor.SelectionService().Primary(doc_id_);
         if (key.scene == m_preview_scene && key.entity.IsValid()) {
             view.highlight.entities.insert(key.entity);
         }
@@ -110,7 +110,7 @@ void SceneViewTab::SubmitView() {
     m_editor.GetApp().GetViewManager()->Submit(view);
 }
 
-void SceneViewTab::OnCreate() {
+void SceneViewTab::onCreate() {
     m_camera.SetAspect((float)kTextureWidth / (float)kTextureHeight);
     m_camera.SetDirty();
     switch (m_dim) {
@@ -137,7 +137,7 @@ void SceneViewTab::OnCreate() {
         { 0, 0, kTextureWidth, kTextureHeight });
 }
 
-void SceneViewTab::OnDestroy() {
+void SceneViewTab::onDestroy() {
     IApplication& app = m_editor.GetApp();
 
     app.GetViewManager()->DestroyView(m_view_id);
@@ -145,19 +145,19 @@ void SceneViewTab::OnDestroy() {
     app.GetSceneScheduler().Unregister(this);
 }
 
-Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& p_pos_screen) {
+Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& pointer_os) {
     if (!IsVisible()) return None();
 
     const ViewRecord* view = m_view_manager.Resolve(m_view_id);
-    if (!view->display_rect_os.Contains(p_pos_screen.x, p_pos_screen.y)) {
+    if (!view->display_rect_os.Contains(pointer_os.x, pointer_os.y)) {
         return None();
     }
 
     return Some(PickData{
         .proj_view = m_camera.GetProjectionViewMatrix(),
-        .cursor_ndc = view->screenToNDC(p_pos_screen),
+        .cursor_ndc = view->screenToNDC(pointer_os),
         .scene_id = m_preview_scene,
-        .doc_id = m_doc_id,
+        .doc_id = doc_id_,
     });
 }
 
@@ -170,7 +170,7 @@ void SceneViewTab::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
     }
 }
 
-void SceneViewTab::OnInputEvents(const InputFrame& p_input) {
+void SceneViewTab::onInputEvents(const InputFrame& p_input) {
     if (!IsHovered()) {
         return;
     }
@@ -303,7 +303,7 @@ void SceneViewTab::DrawMainView(const math::FloatRect& p_rect) {
 // @TODO: move this to gizmo
 void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
     DEV_ASSERT(!m_camera.IsDirty());
-    DocId doc_id = GetDocId();
+    DocId doc_id = docId();
 
     const Matrix4x4f& view_matrix = m_camera.GetViewMatrix();
     const Matrix4x4f& proj_matrix = m_camera.GetProjectionMatrix();
@@ -315,7 +315,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(p_rect.x, p_rect.y, p_rect.w, p_rect.h);
 
-    SelectionKey selection = m_editor.SelectionService().Primary(m_doc_id);
+    SelectionKey selection = m_editor.SelectionService().Primary(doc_id_);
     ecs::Entity id = selection.entity;
 
     Scene* scene = GetResolvedScene();

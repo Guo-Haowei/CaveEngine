@@ -1,12 +1,13 @@
 #include "cave/core/math/AABB.h"
-#include "cave/core/math/Ray.h"
 #include "cave/core/math/Intersection.h"
+#include "cave/core/math/Plane.h"
+#include "cave/core/math/Ray.h"
 
 namespace cave::math {
 
-bool TestIntersection::AabbAabb(const AABB& p_aabb1, const AABB& p_aabb2) {
-    AABB tmp{ p_aabb1 };
-    tmp.IntersectBox(p_aabb2);
+bool TestIntersection::aabbAabb(const AABB& aabb1, const AABB& aabb2) {
+    AABB tmp{ aabb1 };
+    tmp.IntersectBox(aabb2);
     bool result = true;
     result = result && tmp.m_min.x < tmp.m_max.x;
     result = result && tmp.m_min.y < tmp.m_max.y;
@@ -14,12 +15,27 @@ bool TestIntersection::AabbAabb(const AABB& p_aabb1, const AABB& p_aabb2) {
     return result;
 }
 
-bool TestIntersection::RayAabb(const AABB& p_aabb, Ray& p_ray) {
-    const Vector3f direction = p_ray.m_end - p_ray.m_start;
+bool TestIntersection::planeRay(const Plane& plane, Ray& ray) {
+    const float denom = math::dot(plane.normal(), ray.direction());
+    if (math::abs(denom) < 1e-6f) {
+        return false;  // parallel
+    }
+
+    const float t = -plane.distance(ray.origin_) / denom;
+    if (t < 0.0f) {
+        return false;  // behind ray
+    }
+
+    ray.distance(t);
+    return true;
+}
+
+bool TestIntersection::aabbRay(const AABB& aabb, Ray& ray) {
+    const Vector3f direction = ray.end_ - ray.origin_;
 
     Vector3f inv_d = 1.0f / direction;
-    Vector3f t0s = (p_aabb.m_min - p_ray.m_start) * inv_d;
-    Vector3f t1s = (p_aabb.m_max - p_ray.m_start) * inv_d;
+    Vector3f t0s = (aabb.m_min - ray.origin_) * inv_d;
+    Vector3f t1s = (aabb.m_max - ray.origin_) * inv_d;
 
     Vector3f tsmaller = min(t0s, t1s);
     Vector3f tbigger = max(t0s, t1s);
@@ -28,20 +44,23 @@ bool TestIntersection::RayAabb(const AABB& p_aabb, Ray& p_ray) {
     const float tmax = min(FLT_MAX, min(tbigger.x, min(tbigger.y, tbigger.z)));
 
     // check bounding box
-    if (tmin >= tmax || tmin <= 0.0f || tmin >= p_ray.m_dist) {
+    if (tmin >= tmax || tmin <= 0.0f || tmin >= ray.hit_distance_) {
         return false;
     }
 
-    p_ray.m_dist = tmin;
+    ray.hit_distance_ = tmin;
     return true;
 }
 
-bool TestIntersection::RayTriangle(const Vector3f& p_a, const Vector3f& p_b, const Vector3f& p_c, Ray& p_ray) {
+bool TestIntersection::triangleRay(const Vector3f& a,
+                                   const Vector3f& b,
+                                   const Vector3f& c,
+                                   Ray& ray) {
     // P = A + u(B - A) + v(C - A) => O - A = -tD + u(B - A) + v(C - A)
     // -tD + uAB + vAC = AO
-    const Vector3f direction = p_ray.m_end - p_ray.m_start;
-    const Vector3f ab = p_b - p_a;
-    const Vector3f ac = p_c - p_a;
+    const Vector3f direction = ray.end_ - ray.origin_;
+    const Vector3f ab = b - a;
+    const Vector3f ac = c - a;
     Vector3f P = cross(direction, ac);
     const float det = dot(ab, P);
     if (det < Epsilon()) {
@@ -49,7 +68,7 @@ bool TestIntersection::RayTriangle(const Vector3f& p_a, const Vector3f& p_b, con
     }
 
     const float inv_det = 1.0f / det;
-    const Vector3f AO = p_ray.m_start - p_a;
+    const Vector3f AO = ray.origin_ - a;
 
     const Vector3f q = cross(AO, ab);
     const float u = dot(AO, P) * inv_det;
@@ -60,11 +79,11 @@ bool TestIntersection::RayTriangle(const Vector3f& p_a, const Vector3f& p_b, con
     }
 
     const float t = dot(ac, q) * inv_det;
-    if (t < Epsilon() || t >= p_ray.m_dist) {
+    if (t < Epsilon() || t >= ray.hit_distance_) {
         return false;
     }
 
-    p_ray.m_dist = t;
+    ray.hit_distance_ = t;
     return true;
 }
 

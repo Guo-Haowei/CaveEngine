@@ -12,6 +12,7 @@
                 "${workspaceRoot}/thirdparty/optick/",
                 "${workspaceRoot}/thirdparty/",
                 "${workspaceRoot}/cave/engine/public/",
+                "${workspaceRoot}/cave/apps/editor/src/",
                 "${workspaceRoot}/cave/shader/",
                 "${workspaceRoot}/cave"
             ],
