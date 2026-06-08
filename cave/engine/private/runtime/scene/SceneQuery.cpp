@@ -26,9 +26,9 @@ static bool RaycastHelper(Ray& ray,
                           const TransformComponent& transform) {
 
     Matrix4x4f model_inv = glm::inverse(transform.GetWorldMatrix());
-    Ray ray_inv = ray.Inverse(model_inv);
+    Ray ray_inv = ray.inverse(model_inv);
     // make a copy, so aabb test doesn't change t
-    if (!Ray(ray_inv).Intersects(mesh.localBound)) {
+    if (!Ray(ray_inv).intersects(mesh.localBound)) {
         return false;
     }
 
@@ -37,8 +37,8 @@ static bool RaycastHelper(Ray& ray,
         const Vector3f& A = mesh.positions[mesh.indices[i]];
         const Vector3f& B = mesh.positions[mesh.indices[i + 1]];
         const Vector3f& C = mesh.positions[mesh.indices[i + 2]];
-        if (ray_inv.Intersects(A, B, C)) {
-            ray.SetDist(ray_inv.GetDist());
+        if (ray_inv.intersects(A, B, C)) {
+            ray.distance(ray_inv.distance());
             return true;
         }
     }
@@ -54,7 +54,7 @@ RayHit SceneQuery::raycast(math::Ray& ray, const RaycastFilter&) const {
         if (!RaycastHelper(ray, *mesh_asset, transform)) continue;
         res.hit = true;
         res.entity = entity;
-        res.t = ray.GetDist();
+        res.t = ray.distance();
     }
 
     return res;

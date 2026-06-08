@@ -91,7 +91,7 @@ static void FillPass(const RenderScene& p_rs,
 
     for (const RenderableHeader& header : p_rs.m_renderables) {
         if (!p_filter(header)) continue;
-        if (!p_frustum.Intersects(header.world_bound)) continue;
+        if (!p_frustum.intersects(header.world_bound)) continue;
         if (header.payload.kind != PayloadKind::Mesh) continue;
         if (header.payload.index == kInvalidPayload) continue;
         const MeshPayload& mesh = p_rs.m_meshes[header.payload.index];
@@ -141,7 +141,7 @@ static void FillPass(const RenderScene& p_rs,
             // @TODO: cache world bound
             AABB aabb2 = subset.local_bound;
             aabb2.ApplyMatrix(header.world);
-            if (!p_frustum.Intersects(aabb2)) continue;
+            if (!p_frustum.intersects(aabb2)) continue;
 
             ecs::Entity material_id = mesh.materials[idx];
             const MaterialComponent* material = p_es.GetComponent<MaterialComponent>(material_id);

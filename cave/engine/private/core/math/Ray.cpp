@@ -4,23 +4,23 @@
 
 namespace cave::math {
 
-Vector3f Ray::Direction() const {
-    return normalize(m_end - m_start);
+Vector3f Ray::direction() const {
+    return normalize(end_ - origin_);
 }
 
-Ray Ray::Inverse(const Matrix4x4f& p_inverse_matrix) const {
-    Vector4f inversed_start = p_inverse_matrix * Vector4f(m_start, 1.0f);
-    Vector4f inversed_end = p_inverse_matrix * Vector4f(m_end, 1.0f);
+Ray Ray::inverse(const Matrix4x4f& inverse_matrix) const {
+    Vector4f inversed_start = inverse_matrix * Vector4f(origin_, 1.0f);
+    Vector4f inversed_end = inverse_matrix * Vector4f(end_, 1.0f);
     Ray inversed_ray(Vector3f(inversed_start.xyz), Vector3f(inversed_end.xyz));
-    inversed_ray.m_dist = m_dist;
+    inversed_ray.hit_distance_ = hit_distance_;
     return inversed_ray;
 }
 
-Ray Ray::Unproject(const Matrix4x4f& p_proj_view, const Vector2f& p_ndc) {
-    const Vector4f clip_near{ p_ndc, 0.0f, 1.0f };
-    const Vector4f clip_far{ p_ndc, 1.0f, 1.0f };
+Ray Ray::unproject(const Matrix4x4f& proj_view, const Vector2f& ndc) {
+    const Vector4f clip_near{ ndc, 0.0f, 1.0f };
+    const Vector4f clip_far{ ndc, 1.0f, 1.0f };
 
-    const Matrix4x4f inv_pv = glm::inverse(p_proj_view);
+    const Matrix4x4f inv_pv = glm::inverse(proj_view);
 
     Vector4f world_near = inv_pv * clip_near;
     Vector4f world_far = inv_pv * clip_far;

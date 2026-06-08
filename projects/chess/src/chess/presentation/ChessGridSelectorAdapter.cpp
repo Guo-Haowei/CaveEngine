@@ -105,26 +105,6 @@ void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
     LOG_ERROR("can't select/drop");
 }
 
-// @TODO: refactor
-static bool intersectPlaneRay(const Plane& plane, Ray& ray) {
-    const Vector3f origin = ray.start();
-    const Vector3f dir = ray.Direction();
-
-    const float denom = math::dot(plane.normal, dir);
-
-    if (math::abs(denom) < 1e-6f) {
-        return false; // parallel
-    }
-
-    const float t = -(math::dot(plane.normal, origin) + plane.dist) / denom;
-    if (t < 0.0f) {
-        return false;  // behind ray
-    }
-
-    ray.SetDist(t);
-    return true;
-}
-
 void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
     const PointerState& pointer = input.pointerState();
 
@@ -146,18 +126,13 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
     auto camera = (const CameraComponent*)host_.sceneQuery().component(CameraComponent_Id, camera_id_);
     assert(camera);
 
-    Ray ray = Ray::Unproject(camera->GetProjectionViewMatrix(), ndc);
+    Ray ray = Ray::unproject(camera->GetProjectionViewMatrix(), ndc);
 
-    Plane plane = {
-        Vector3f::UnitY,
-        0.0f
-    };
-
-    if (!intersectPlaneRay(plane, ray)) {
+    if (!ray.intersects(Plane::xz())) {
         return;
     }
 
-    Vector3f p = ray.start() + ray.GetDist() * ray.Direction();
+    Vector3f p = ray.hitPoint();
     constexpr Vector3f offset{ -3.5f, 0.0f, -3.5f };
     p -= offset;
 
