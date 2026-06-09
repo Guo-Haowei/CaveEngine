@@ -24,7 +24,7 @@ public:
     void OnExit(IHostServices& p_host) final;
     void Tick(IHostServices& p_host, const FrameTime& p_time) final;
 
-    bool HandleIntent(cave::Intent& p_intent) override;
+    bool handleIntent(cave::Intent& p_intent) override;
 
     DebugId debugId() const override { return m_debug_id; }
 

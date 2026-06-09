@@ -91,7 +91,7 @@ static std::pair<Square, Square> GetCastleRookMove(Square from, Square to) {
     return {};
 }
 
-void ChessPresenter::applyMove(core::Color stm, Move move) {
+void ChessPresenter::applyMove(const core::Position& position, Move move) {
     const Square from = move.from();
     const Square to = move.to();
 
@@ -114,7 +114,7 @@ void ChessPresenter::applyMove(core::Color stm, Move move) {
         case MoveType::Promotion: {
             piece_view_.removePiece(to); // remove pawn
             const PieceType promo_type = move.promo().unwrap();
-            const Piece promoted = BuildPiece(promo_type, stm);
+            const Piece promoted = BuildPiece(promo_type, position.SideToMove());
             piece_view_.spawnPiece(promoted, to);
         } break;
     }

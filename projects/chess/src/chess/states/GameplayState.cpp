@@ -10,7 +10,7 @@ GameplayState::~GameplayState() = default;
 
 void GameplayState::OnEnter(cave::IHostServices& p_host) {
     m_session = std::make_unique<ChessGameSession>(p_host);
-    m_session->OnEnterBoot();
+    m_session->onEnterBoot();
 }
 
 void GameplayState::OnExit(cave::IHostServices& p_host) {
@@ -21,7 +21,7 @@ void GameplayState::OnExit(cave::IHostServices& p_host) {
 
 void GameplayState::Tick(cave::IHostServices&, const cave::FrameTime&) {
 
-    m_session->Tick();
+    m_session->tick();
 }
 
 }  // namespace chess

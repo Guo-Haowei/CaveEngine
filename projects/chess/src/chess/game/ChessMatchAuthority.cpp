@@ -23,7 +23,7 @@ ChessMatchAuthority::~ChessMatchAuthority() {
     m_intent.RemoveHandler<ChessMoveIntent>(this);
 }
 
-bool ChessMatchAuthority::HandleIntent(cave::Intent& p_intent) {
+bool ChessMatchAuthority::handleIntent(cave::Intent& p_intent) {
     if (auto intent = dynamic_cast<ChessMoveIntent*>(&p_intent)) {
         TryCommitMove(intent->player(), intent->move());
         return true;

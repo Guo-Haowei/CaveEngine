@@ -18,7 +18,7 @@ public:
 
     bool GameOver() const { return m_game_over; }
 
-    bool HandleIntent(cave::Intent& p_intent) override;
+    bool handleIntent(cave::Intent& p_intent) override;
 
     cave::DebugId debugId() const override { return m_debug_id; }
 

@@ -36,7 +36,7 @@ public:
 
     ChessPresenter& presenter() { return presenter_; }
 
-    bool HandleIntent(cave::Intent& intent) override;
+    bool handleIntent(cave::Intent& intent) override;
 
     cave::DebugId debugId() const override { return debug_id_; }
 

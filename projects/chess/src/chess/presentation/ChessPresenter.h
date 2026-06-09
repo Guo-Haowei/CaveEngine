@@ -25,7 +25,7 @@ public:
 
     void redrawBoard(const core::Position& position);
 
-    void applyMove(core::Color stm, core::Move mv);
+    void applyMove(const core::Position& position, core::Move mv);
 
     void setFocusedSquare(core::Square square) {
         focused_sq = square;

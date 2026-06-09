@@ -17,7 +17,7 @@ public:
     void Register(IPickConsumer* p_consumer);
     void Unregister(IPickConsumer* p_consumer);
 
-    bool HandleIntent(Intent& p_intent) override;
+    bool handleIntent(Intent& p_intent) override;
 
     DebugId debugId() const override { return m_debug_id; }
 

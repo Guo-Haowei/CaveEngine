@@ -15,7 +15,7 @@ public:
     ShortcutService(EditorState& editor);
     ~ShortcutService();
 
-    bool HandleIntent(Intent& intent) override;
+    bool handleIntent(Intent& intent) override;
 
     const auto& getShortcuts() const { return m_shortcuts; }
 

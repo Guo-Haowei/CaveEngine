@@ -49,7 +49,7 @@ void PickingService::Raycast(const PickData& pick_data) {
     m_editor.SelectionService().Set(pick_data.doc_id, key);
 }
 
-bool PickingService::HandleIntent(Intent& p_intent) {
+bool PickingService::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<PickIntent*>(&p_intent)) {
         IApplication& app = m_editor.GetApp();
         const Vector2f pos_screen = intent->pointer + app.GetDisplayService()->windowPos();
