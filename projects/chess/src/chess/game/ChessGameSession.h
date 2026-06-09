@@ -50,7 +50,7 @@ struct MatchConfig {
 
 class ChessGameSession {
 public:
-    explicit ChessGameSession(cave::IHostServices& p_host) noexcept;
+    explicit ChessGameSession(cave::IHostServices& host) noexcept;
     ~ChessGameSession();
 
     void tick();
@@ -60,7 +60,7 @@ public:
     void setPhase(SessionPhase phase);
 
 private:
-    std::unique_ptr<IPlayerAgent> createPlayer(PlayerId id, PlayerKind kind);
+    auto createPlayer(core::Color side, PlayerKind kind) -> std::unique_ptr<IPlayerAgent>;
 
     void tickAwaitPlayerInput();
     void tickResolvingMove();
@@ -72,13 +72,13 @@ private:
     cave::IHostServices& host_;
     SessionPhase phase_{ SessionPhase::AwaitPlayerInput };
 
-    std::unique_ptr<ChessMatchAuthority> auth_{};
-    std::unique_ptr<ChessGameClient> client_{};
+    std::unique_ptr<ChessMatchAuthority> auth_;
+    std::unique_ptr<ChessGameClient> client_;
 
-    std::unique_ptr<cave::GridSelectController> selector_{};
-    std::unique_ptr<ChessGridSelectorAdapter> grid_adapter_{};
+    std::unique_ptr<cave::GridSelectController> selector_;
+    std::unique_ptr<ChessGridSelectorAdapter> grid_adapter_;
 
-    std::array<std::unique_ptr<IPlayerAgent>, 2> agents_{};
+    std::array<std::unique_ptr<IPlayerAgent>, 2> agents_;
 };
 
 }  // namespace chess

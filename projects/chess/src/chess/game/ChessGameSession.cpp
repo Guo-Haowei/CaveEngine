@@ -23,8 +23,8 @@ using cave::math::Vector2i;
 using core::Color;
 using core::Square;
 
-ChessGameSession::ChessGameSession(cave::IHostServices& p_host) noexcept
-    : host_(p_host)
+ChessGameSession::ChessGameSession(cave::IHostServices& host) noexcept
+    : host_(host)
     , phase_(SessionPhase::AwaitPlayerInput) {}
 
 ChessGameSession::~ChessGameSession() = default;
@@ -39,7 +39,7 @@ void ChessGameSession::tick() {
 #undef SESSION_PHASE
     }
 
-    if (auth_->GameOver()) {
+    if (auth_->gameOver()) {
         setPhase(SessionPhase::GameOver);
         return;
     }
@@ -64,8 +64,8 @@ void ChessGameSession::tickAwaitPlayerInput() {
     }
 
     // poll player intents
-    const PlayerId player = auth_->CurrentPlayer();
-    agents_[std::to_underlying(player)]->tick(host_);
+    auto side = auth_->sideToMove();
+    agents_[std::to_underlying(side)]->tick(host_);
 }
 
 void ChessGameSession::tickResolvingMove() {
@@ -96,13 +96,13 @@ bool ChessGameSession::isAnimating() const {
     return query.componentCount(TransformAnimationComponent_Id) != 0;
 }
 
-std::unique_ptr<IPlayerAgent> ChessGameSession::createPlayer(PlayerId p_id,
-                                                             PlayerKind p_kind) {
-    switch (p_kind) {
+auto ChessGameSession::createPlayer(Color side, PlayerKind kind)
+    -> std::unique_ptr<IPlayerAgent> {
+    switch (kind) {
         case PlayerKind::LocalHuman:
-            return std::make_unique<LocalHumanAgent>(p_id);
+            return std::make_unique<LocalHumanAgent>(side);
         case PlayerKind::LocalAI:
-            return std::make_unique<ChessAIAgent>(p_id, *client_);
+            return std::make_unique<ChessAIAgent>(side, *client_);
         case PlayerKind::RemoteNetwork:
             return nullptr;
         default:
@@ -146,8 +146,8 @@ void ChessGameSession::onEnterBoot() {
 
         grid_adapter_->setController(selector_.get());
 
-        grid_adapter_->setPlayerCb([this](PlayerId id) -> LocalHumanAgent* {
-            return dynamic_cast<LocalHumanAgent*>(agents_[std::to_underlying(id)].get());
+        grid_adapter_->setPlayerCb([this](Color side) -> LocalHumanAgent* {
+            return dynamic_cast<LocalHumanAgent*>(agents_[std::to_underlying(side)].get());
         });
     }
 

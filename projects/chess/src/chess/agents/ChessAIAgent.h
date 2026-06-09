@@ -7,7 +7,7 @@ class ChessGameClient;
 
 class ChessAIAgent final : public IPlayerAgent {
 public:
-    explicit ChessAIAgent(PlayerId player,
+    explicit ChessAIAgent(core::Color player,
                           ChessGameClient& client) noexcept
         : IPlayerAgent(player)
         , client_(client) {

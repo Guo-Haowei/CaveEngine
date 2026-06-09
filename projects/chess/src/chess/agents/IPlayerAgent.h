@@ -7,17 +7,17 @@ namespace chess {
 
 class IPlayerAgent {
 public:
-    IPlayerAgent(PlayerId player) noexcept
-        : player_(player) {}
+    IPlayerAgent(core::Color side) noexcept
+        : side_(side) {}
 
     virtual ~IPlayerAgent() = default;
 
     virtual void tick(cave::IHostServices& host) = 0;
 
-    PlayerId playerId() const { return player_; }
+    core::Color side() const { return side_; }
 
 private:
-    PlayerId player_{};
+    core::Color side_{};
 };
 
 }  // namespace chess

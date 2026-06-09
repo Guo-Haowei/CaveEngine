@@ -22,7 +22,7 @@ class LocalHumanAgent;
 
 class ChessGridSelectorAdapter {
     using Entity = cave::ecs::Entity;
-    using GetPlayerFunc = std::function<LocalHumanAgent*(PlayerId)>;
+    using GetPlayerFunc = std::function<LocalHumanAgent*(core::Color)>;
 
 public:
     ChessGridSelectorAdapter(cave::IHostServices& host,

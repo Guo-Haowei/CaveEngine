@@ -20,7 +20,7 @@ std::string ChessStateIntent::DebugString() const {
 }
 
 std::string ChessMoveIntent::DebugString() const {
-    return std::format("p={} mv={}", std::to_underlying(player_), mv_.uci());
+    return std::format("p={} mv={}", std::to_underlying(side_), move_.uci());
 }
 
 std::string AuthMoveCommitted::DebugString() const {
