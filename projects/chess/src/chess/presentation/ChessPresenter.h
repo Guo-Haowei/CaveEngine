@@ -23,18 +23,12 @@ public:
 
     void present();
 
-    // ==== Board Representation ====
-    void onBoot();
+    void initialize();
 
     void redrawBoard(const core::Position& position);
 
     void applyMove(core::Move mv);
 
-    Entity getEntityAt(core::Square square) const {
-        return board_[square.Index()];
-    }
-
-    // ==== Grid ====
     void setFocusedSquare(core::Square square) {
         focused_sq = square;
     }
@@ -44,11 +38,6 @@ public:
     }
 
 private:
-    void clearSquare(cave::SceneCommandWriter& writer,
-                     core::Square square);
-
-    void movePiece(Entity ent, core::Square from, core::Square to);
-
     cave::IHostServices& host_;
     Entity selector_;
 
@@ -56,9 +45,8 @@ private:
     core::Bitboard highlights_;
 
     std::array<Entity, 64> tiles_;
-    std::array<Entity, 64> board_;
 
-    ChessPieceRegistry reg_;
+    ChessPieceView piece_view_;
 };
 
 }  // namespace chess

@@ -45,7 +45,7 @@ void ChessGameClient::resetBoard() {
 }
 
 void ChessGameClient::onBoot() {
-    presenter_.onBoot();
+    presenter_.initialize();
     resetBoard();
 
     presenter_.redrawBoard(replica_);
@@ -69,11 +69,11 @@ bool ChessGameClient::HandleIntent(Intent& p_intent) {
     return false;
 }
 
-void ChessGameClient::onMoveCommitted(Move p_mv) {
-    presenter_.applyMove(p_mv);
+void ChessGameClient::onMoveCommitted(Move move) {
+    presenter_.applyMove(move);
 
     UndoState undo;
-    replica_.MakeMove(p_mv, undo);
+    replica_.MakeMove(move, undo);
     onPositionChange();
 
     session_.SetState(SessionState::ResolvingMove);
@@ -92,7 +92,7 @@ void ChessGameClient::onPositionChange() {
 
     move_cache_.clear();
     for (Move move : moves) {
-        move_cache_[move.From()].push_back(move);
+        move_cache_[move.from()].push_back(move);
     }
 }
 

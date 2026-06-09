@@ -26,7 +26,7 @@ void ChessAIAgent::tick(cave::IHostServices& host) {
 
     static std::mt19937 rng(std::random_device{}());
 
-    const uint32_t count = moves.Size();
+    const uint32_t count = moves.size();
     if (count) {
         std::uniform_int_distribution<uint32_t> dist(0, count - 1);
 
