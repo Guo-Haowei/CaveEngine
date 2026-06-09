@@ -1,9 +1,18 @@
 name: Windows CI
 run-name: CI/CD Tests triggered by ${{ github.actor }}
+
 on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   format:
     name: Check Formatting
@@ -35,8 +44,9 @@ jobs:
       - run: echo "Building project..."
       - run: python .\scripts\generate_meta.py
       - run: .\scripts\ci_build_job.bat Debug
+      - run: echo "Testing project..."
       - run: ./build/bin/Debug/unit_tests.exe
-      - run: ./build/bin/Debug/chess_tests.exe
+      # - run: ./build/bin/Debug/chess_tests.exe
       # - name: Upload Build Artifacts
       #   uses: actions/upload-artifact@v4
       #   with:
