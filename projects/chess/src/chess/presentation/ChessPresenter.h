@@ -3,9 +3,7 @@
 #include "cave/runtime/ecs/Entity.h"
 
 #include "chess/core/Position.h"
-
-// @TODO: refactor?
-#include "chess/presentation/ChessPieceRegistry.h"
+#include "chess/presentation/ChessPieceView.h"
 
 // clang-format off
 namespace cave { class IHostServices; }
@@ -27,7 +25,7 @@ public:
 
     void redrawBoard(const core::Position& position);
 
-    void applyMove(core::Move mv);
+    void applyMove(core::Color stm, core::Move mv);
 
     void setFocusedSquare(core::Square square) {
         focused_sq = square;

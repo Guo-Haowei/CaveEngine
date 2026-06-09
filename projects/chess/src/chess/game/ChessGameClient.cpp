@@ -70,7 +70,7 @@ bool ChessGameClient::HandleIntent(Intent& p_intent) {
 }
 
 void ChessGameClient::onMoveCommitted(Move move) {
-    presenter_.applyMove(move);
+    presenter_.applyMove(replica_.SideToMove(), move);
 
     UndoState undo;
     replica_.MakeMove(move, undo);

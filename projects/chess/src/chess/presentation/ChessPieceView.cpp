@@ -1,4 +1,4 @@
-#include "ChessPieceRegistry.h"
+#include "ChessPieceView.h"
 
 #include "cave/core/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
