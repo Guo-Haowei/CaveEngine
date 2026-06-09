@@ -3,6 +3,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -10,109 +11,104 @@
 
 namespace cave {
 
-PIESession::PIESession(IApplication& p_app)
-    : m_app(p_app)
-    , m_debug_id(MakeDebugId(this)) {
+PIESession::PIESession(IApplication& app)
+    : app_(app)
+    , debug_id_(MakeDebugId(this)) {
 }
 
-bool PIESession::EnsureGameModuleLoaded() {
-    if (m_game) {
+bool PIESession::ensureGameModuleLoaded() {
+    if (game_module_) {
         return true;
     }
 
-    if (!m_game_handle.LoadFromDll(m_desc.game_dll.c_str())) {
+    if (!game_module_handle_.LoadFromDll(start_desc_.game_dll.c_str())) {
         return false;
     }
 
-    m_game = m_game_handle.Get();
-    return m_game != nullptr;
+    game_module_ = game_module_handle_.Get();
+    return game_module_ != nullptr;
 }
 
-bool PIESession::Start(const PIEStartDesc& p_desc) {
-    DEV_ASSERT(m_running == false);
+bool PIESession::start(PIEStartDesc start_desc) {
+    DEV_ASSERT(running_ == false);
 
-    m_desc = p_desc;
+    start_desc_ = std::move(start_desc);
 
-    if (!EnsureGameModuleLoaded()) return false;
+    if (!ensureGameModuleLoaded()) return false;
 
-    SceneRegistry* reg = m_app.GetSceneRegistry();
+    SceneRegistry* reg = app_.GetSceneRegistry();
     if (!reg) return false;
 
-    Scene* scene = reg->Resolve(p_desc.edit_scene);
+    Scene* scene = reg->Resolve(start_desc_.edit_scene);
     if (!scene) return false;
 
-    PIEHostServices host(m_app, *scene, {});
+    PIEHostServices host(app_, *scene, {});
 
-    m_game->onModuleLoaded(host);
+    game_module_->onModuleLoaded(host);
     host.flushSceneCommands();
     return true;
 }
 
-void PIESession::Stop() {
-    if (m_running) {
-        OnSimEnd();
-        m_running = false;
+void PIESession::stop() {
+    if (running_) {
+        onSimEnd();
+        running_ = false;
     }
 
-    m_game_handle.Unload();
-    m_game = nullptr;
+    game_module_handle_.Unload();
+    game_module_ = nullptr;
 }
 
-void PIESession::OnSimBegin(SceneId p_scene_id, ViewId p_view_id) {
-    SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
+void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
+    SceneRegistry& scene_manager = *app_.GetSceneRegistry();
 
-    m_pie_scene = scene_manager.Clone(p_scene_id);
+    pie_scene_ = scene_manager.Clone(scene_id);
 
-    Scene* scene = scene_manager.Resolve(m_pie_scene);
+    Scene* scene = scene_manager.Resolve(pie_scene_);
     DEV_ASSERT(scene);
-    m_app.ScriptService()->OnSimBegin(*scene);
+    app_.ScriptService()->OnSimBegin(*scene);
 
-    m_app.GetSceneScheduler().Register(this);
+    app_.GetSceneScheduler().Register(this);
 
-    m_host = std::make_unique<PIEHostServices>(m_app, *scene, p_view_id);
-    m_game->onGameBegin(*m_host);
-    m_host->flushSceneCommands();
+    host_ = std::make_unique<PIEHostServices>(app_, *scene, view_id);
+    game_module_->onGameBegin(*host_);
+    host_->flushSceneCommands();
 
-    m_running = true;
+    running_ = true;
 }
 
-void PIESession::OnSimEnd() {
-    SceneRegistry& scene_manager = *m_app.GetSceneRegistry();
+void PIESession::onSimEnd() {
+    SceneRegistry& scene_manager = *app_.GetSceneRegistry();
 
-    m_running = false;
+    running_ = false;
 
-    if (Scene* scene = m_app.GetSceneRegistry()->Resolve(m_pie_scene)) {
-        m_app.ScriptService()->OnSimEnd();
+    if (Scene* scene = app_.GetSceneRegistry()->Resolve(pie_scene_)) {
+        app_.ScriptService()->OnSimEnd();
 
-        m_game->onGameEnd(*m_host);
+        game_module_->onGameEnd(*host_);
     }
 
-    m_app.GetSceneScheduler().Unregister(this);
+    app_.GetSceneScheduler().Unregister(this);
 
-    scene_manager.Destroy(m_pie_scene);
-    m_pie_scene = {};
+    scene_manager.Destroy(pie_scene_);
+    pie_scene_ = {};
 }
 
-void PIESession::CollectSceneTicks(std::vector<SceneTickRequest>& p_out) {
-    p_out.push_back({ SceneTickMode::Simulation, m_pie_scene });
+void PIESession::CollectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
+    out_requests.push_back({ SceneTickMode::Simulation, pie_scene_ });
 }
 
-void PIESession::Tick(const FrameTime& p_time) {
-    if (!m_running || !m_game) {
+void PIESession::tick(const FrameTime& time) {
+    if (!running_ || !game_module_) {
         return;
     }
 
-    SceneRegistry* reg = m_app.GetSceneRegistry();
-    Scene* scene = reg->Resolve(m_pie_scene);
+    SceneRegistry* reg = app_.GetSceneRegistry();
+    Scene* scene = reg->Resolve(pie_scene_);
     if (!scene) return;
 
-    m_game->tick(*m_host, p_time);
-    m_host->flushSceneCommands();
-}
-
-void PIESession::BuildPIESceneFromEdit(Scene& p_edit, Scene& p_pie) {
-    (void)p_edit;
-    (void)p_pie;
+    game_module_->tick(*host_, time);
+    host_->flushSceneCommands();
 }
 
 }  // namespace cave
