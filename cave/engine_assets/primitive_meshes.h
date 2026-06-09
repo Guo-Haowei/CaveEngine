@@ -202,14 +202,14 @@ static std::shared_ptr<MeshAsset> CreateCubeMesh(const Vector3f& p_scale) {
         Vector3f(0, 1, 0),
     };
 
-    for (int i = 0; i < array_length(indices); i += 3) {
+    for (size_t i = 0; i < std::size(indices); i += 3) {
         mesh->indices.emplace_back(indices[i]);
         mesh->indices.emplace_back(indices[i + 2]);
         mesh->indices.emplace_back(indices[i + 1]);
     }
 
     MeshAsset::MeshSubset subset;
-    subset.index_count = array_length(indices);
+    subset.index_count = std::size(indices);
     subset.index_offset = 0;
     mesh->subsets.emplace_back(subset);
 

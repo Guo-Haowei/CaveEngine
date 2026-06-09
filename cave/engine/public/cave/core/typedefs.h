@@ -157,11 +157,6 @@ constexpr inline size_t KB = 1024;
 constexpr inline size_t MB = 1024 * KB;
 constexpr inline size_t GB = 1024 * MB;
 
-template<typename T, int N>
-constexpr inline int array_length(T (&)[N]) {
-    return N;
-}
-
 template<typename T>
 void unused(T&) {}
 

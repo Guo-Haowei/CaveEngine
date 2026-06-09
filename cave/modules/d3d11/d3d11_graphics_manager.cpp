@@ -719,7 +719,7 @@ void D3d11GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_target) {
 
 void D3d11GraphicsManager::UnsetRenderTargets() {
     ID3D11RenderTargetView* rtvs[kMaxRenderTargets]{ nullptr };
-    m_deviceContext->OMSetRenderTargets(array_length(rtvs), rtvs, nullptr);
+    m_deviceContext->OMSetRenderTargets(std::size(rtvs), rtvs, nullptr);
 }
 
 void D3d11GraphicsManager::Clear(const RenderTargetDesc& p_target) {

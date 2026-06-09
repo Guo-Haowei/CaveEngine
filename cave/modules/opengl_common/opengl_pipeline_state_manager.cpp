@@ -246,7 +246,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
 
     // set constants
     glUseProgram(program_id);
-    for (int i = 0; i < array_length(s_textureSots); ++i) {
+    for (uint32_t i = 0; i < std::size(s_textureSots); ++i) {
         const int location = glGetUniformLocation(program_id, s_textureSots[i].name);
         if (location != -1) {
             glUniform1i(location, s_textureSots[i].slot);

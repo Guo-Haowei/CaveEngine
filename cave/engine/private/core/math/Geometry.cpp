@@ -111,7 +111,7 @@ MeshAsset MakeTetrahedronMesh(float p_size) {
 
     MeshAsset mesh;
 
-    for (int i = 0; i < array_length(indices); i += 3) {
+    for (uint32_t i = 0; i < std::size(indices); i += 3) {
         Vector3f A = vertices[indices[i]];
         Vector3f B = vertices[indices[i + 1]];
         Vector3f C = vertices[indices[i + 2]];
@@ -224,7 +224,7 @@ MeshAsset MakeGrassBillboard(const Vector3f& p_scale) {
             mesh.texcoords_0.emplace_back(uvs[j]);
         }
 
-        for (int j = 0; j < array_length(indices); ++j) {
+        for (size_t j = 0; j < std::size(indices); ++j) {
             mesh.indices.emplace_back(indices[j] + offset);
         }
     }

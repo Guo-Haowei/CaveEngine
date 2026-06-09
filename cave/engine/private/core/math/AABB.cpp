@@ -45,10 +45,10 @@ void AABB::ApplyMatrix(const Matrix4x4f& p_mat4) {
                                 Vector4f(m_min.x, m_max.y, m_min.z, 1.0f), Vector4f(m_min.x, m_max.y, m_max.z, 1.0f),
                                 Vector4f(m_max.x, m_min.y, m_min.z, 1.0f), Vector4f(m_max.x, m_min.y, m_max.z, 1.0f),
                                 Vector4f(m_max.x, m_max.y, m_min.z, 1.0f), Vector4f(m_max.x, m_max.y, m_max.z, 1.0f) };
-    static_assert(array_length(points) == 8);
+    static_assert(std::size(points) == 8);
 
     AABB new_box;
-    for (size_t i = 0; i < array_length(points); ++i) {
+    for (size_t i = 0; i < std::size(points); ++i) {
         auto point = p_mat4 * points[i];
         new_box.ExpandPoint(Vector3f(point.x, point.y, point.z));
     }
