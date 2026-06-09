@@ -29,6 +29,8 @@ set_target_properties(${TARGET_NAME}
     FOLDER games
 )
 
+target_set_warning_level(${TARGET_NAME})
+
 # @TODO: do not link the entire engine in the game DLL in the future.
 target_link_libraries(${TARGET_NAME} PRIVATE engine)
 

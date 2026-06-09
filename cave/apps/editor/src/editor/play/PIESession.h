@@ -11,9 +11,9 @@
 
 namespace cave {
 
-class Scene;
 class IApplication;
 class IGameModule;
+class Scene;
 
 struct PIEStartDesc {
     std::string game_dll;
@@ -24,38 +24,37 @@ struct PIEStartDesc {
 class PIESession : public NonCopyable,
                    public ISceneTickContributor {
 public:
-    explicit PIESession(IApplication& p_app);
+    explicit PIESession(IApplication& app);
 
-    bool Start(const PIEStartDesc& p_desc);
-    void Stop();
+    bool start(PIEStartDesc desc);
+    void stop();
 
-    void OnSimBegin(SceneId p_scene_id, ViewId p_view_id);
-    void OnSimEnd();
+    void onSimBegin(SceneId scene_id, ViewId view_id);
+    void onSimEnd();
 
-    void Tick(const FrameTime& p_time);
+    void tick(const FrameTime& time);
 
-    bool IsRunning() const { return m_running; }
-    SceneId GetPIESceneId() const { return m_pie_scene; }
+    bool running() const { return running_; }
+    SceneId getPIESceneId() const { return pie_scene_; }
 
-    void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
-    DebugId debugId() const override { return m_debug_id; }
+    void CollectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
+    DebugId debugId() const override { return debug_id_; }
 
 private:
-    bool EnsureGameModuleLoaded();
-    void BuildPIESceneFromEdit(Scene& p_edit, Scene& p_pie);
+    bool ensureGameModuleLoaded();
 
-    IApplication& m_app;
-    const DebugId m_debug_id;
+    IApplication& app_;
+    const DebugId debug_id_;
 
-    bool m_running = false;
+    bool running_{ false };
 
-    PIEStartDesc m_desc{};
+    PIEStartDesc start_desc_{};
 
-    GameModuleHandle m_game_handle;
-    IGameModule* m_game = nullptr;
+    GameModuleHandle game_module_handle_;
+    IGameModule* game_module_{ nullptr };
 
-    SceneId m_pie_scene{};
-    std::unique_ptr<PIEHostServices> m_host;
+    SceneId pie_scene_{};
+    std::unique_ptr<PIEHostServices> host_;
 };
 
 }  // namespace cave

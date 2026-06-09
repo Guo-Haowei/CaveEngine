@@ -16,7 +16,7 @@ using core::MoveGen;
 using core::Position;
 
 void ChessAIAgent::tick(cave::IHostServices& host) {
-    const Position& replica = client_.Replica();
+    const Position& replica = client_.replica();
     const bool my_turn = replica.SideToMove() == playerId();
     if (!my_turn) {
         return;
@@ -26,7 +26,7 @@ void ChessAIAgent::tick(cave::IHostServices& host) {
 
     static std::mt19937 rng(std::random_device{}());
 
-    const uint32_t count = moves.Size();
+    const uint32_t count = moves.size();
     if (count) {
         std::uniform_int_distribution<uint32_t> dist(0, count - 1);
 

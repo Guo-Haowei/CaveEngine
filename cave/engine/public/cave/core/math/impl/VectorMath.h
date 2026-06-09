@@ -2,6 +2,7 @@
 // File: cave/core/math/impl/VectorMath.h
 // =============================================================================
 #pragma once
+#include <cmath>
 #include "../Scalar.h"
 #include "Vector2.h"
 #include "Vector3.h"
@@ -21,9 +22,9 @@
 namespace cave::math {
 
 template<Arithmetic T, int N>
-constexpr bool operator==(const Vector<T, N>& p_lhs, const Vector<T, N>& p_rhs) {
+constexpr bool operator==(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
     for (int i = 0; i < N; ++i) {
-        if (p_lhs[i] != p_rhs[i]) {
+        if (lhs[i] != rhs[i]) {
             return false;
         }
     }
@@ -461,60 +462,60 @@ FORCE_INLINE constexpr Vector<T, 4> operator-(const Vector<T, 4>& v) {
 #pragma endregion VECTOR_NEGATION
 
 template<Arithmetic T, int N>
-constexpr inline Vector<T, N> min(const Vector<T, N>& p_lhs, const Vector<T, N>& p_rhs) {
+constexpr inline Vector<T, N> min(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
     Vector<T, N> result;
-    result.x = min(p_lhs.x, p_rhs.x);
-    result.y = min(p_lhs.y, p_rhs.y);
+    result.x = min(lhs.x, rhs.x);
+    result.y = min(lhs.y, rhs.y);
     if constexpr (N >= 3) {
-        result.z = min(p_lhs.z, p_rhs.z);
+        result.z = min(lhs.z, rhs.z);
     }
     if constexpr (N >= 4) {
-        result.w = min(p_lhs.w, p_rhs.w);
+        result.w = min(lhs.w, rhs.w);
     }
     return result;
 }
 
 template<Arithmetic T, int N>
-constexpr inline Vector<T, N> max(const Vector<T, N>& p_lhs, const Vector<T, N>& p_rhs) {
+constexpr inline Vector<T, N> max(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
     Vector<T, N> result;
-    result.x = max(p_lhs.x, p_rhs.x);
-    result.y = max(p_lhs.y, p_rhs.y);
+    result.x = max(lhs.x, rhs.x);
+    result.y = max(lhs.y, rhs.y);
     if constexpr (N >= 3) {
-        result.z = max(p_lhs.z, p_rhs.z);
+        result.z = max(lhs.z, rhs.z);
     }
     if constexpr (N >= 4) {
-        result.w = max(p_lhs.w, p_rhs.w);
+        result.w = max(lhs.w, rhs.w);
     }
     return result;
 }
 
 template<Arithmetic T, int N>
-constexpr inline Vector<T, N> abs(const Vector<T, N>& p_lhs) {
+constexpr inline Vector<T, N> abs(const Vector<T, N>& lhs) {
     Vector<T, N> result;
-    result.x = abs(p_lhs.x);
-    result.y = abs(p_lhs.y);
+    result.x = abs(lhs.x);
+    result.y = abs(lhs.y);
     if constexpr (N >= 3) {
-        result.z = abs(p_lhs.z);
+        result.z = abs(lhs.z);
     }
     if constexpr (N >= 4) {
-        result.w = abs(p_lhs.w);
+        result.w = abs(lhs.w);
     }
     return result;
 }
 
 template<Arithmetic T, int N>
-constexpr inline Vector<T, N> clamp(const Vector<T, N>& p_value, const Vector<T, N>& p_min, const Vector<T, N>& p_max) {
-    return max(p_min, min(p_value, p_max));
+constexpr inline Vector<T, N> clamp(const Vector<T, N>& value, const Vector<T, N>& low, const Vector<T, N>& high) {
+    return max(low, min(value, high));
 }
 
 template<FloatingPoint T, int N>
-constexpr inline Vector<T, N> lerp(const Vector<T, N>& p_x, const Vector<T, N>& p_y, float p_s) {
-    return (static_cast<T>(1) - p_s) * p_x + p_s * p_y;
+constexpr inline Vector<T, N> lerp(const Vector<T, N>& x, const Vector<T, N>& y, float s) {
+    return (static_cast<T>(1) - s) * x + s * y;
 }
 
 template<Arithmetic T, int N>
-constexpr inline T dot(const Vector<T, N>& p_lhs, const Vector<T, N>& p_rhs) {
-    Vector<T, N> tmp(p_lhs * p_rhs);
+constexpr inline T dot(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
+    Vector<T, N> tmp(lhs * rhs);
     T result = tmp.x + tmp.y;
     if constexpr (N >= 3) {
         result += tmp.z;
@@ -527,23 +528,23 @@ constexpr inline T dot(const Vector<T, N>& p_lhs, const Vector<T, N>& p_rhs) {
 
 template<Arithmetic T, int N>
     requires(std::is_floating_point_v<T>)
-constexpr inline T length(const Vector<T, N>& p_lhs) {
-    return std::sqrt(dot(p_lhs, p_lhs));
+constexpr inline T length(const Vector<T, N>& lhs) {
+    return std::sqrt(dot(lhs, lhs));
 }
 
 template<Arithmetic T, int N>
     requires(std::is_floating_point_v<T>)
-constexpr inline Vector<T, N> normalize(const Vector<T, N>& p_lhs) {
-    const auto inverse_length = static_cast<T>(1) / length(p_lhs);
-    return p_lhs * inverse_length;
+constexpr inline Vector<T, N> normalize(const Vector<T, N>& lhs) {
+    const auto inverse_length = static_cast<T>(1) / length(lhs);
+    return lhs * inverse_length;
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 3> cross(const Vector<T, 3>& p_lhs, const Vector<T, 3>& p_rhs) {
+FORCE_INLINE constexpr Vector<T, 3> cross(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
     return {
-        p_lhs.y * p_rhs.z - p_rhs.y * p_lhs.z,
-        p_lhs.z * p_rhs.x - p_rhs.z * p_lhs.x,
-        p_lhs.x * p_rhs.y - p_rhs.x * p_lhs.y
+        lhs.y * rhs.z - rhs.y * lhs.z,
+        lhs.z * rhs.x - rhs.z * lhs.x,
+        lhs.x * rhs.y - rhs.x * lhs.y
     };
 }
 

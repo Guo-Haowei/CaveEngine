@@ -94,19 +94,19 @@ static constexpr auto BuildPawnAttackMasks() -> std::array<std::array<Bitboard, 
 static constexpr Bitboard BuildKnightMask(uint8_t file, uint8_t rank) {
     Bitboard mask(0);
 
-    constexpr std::array<std::pair<int8_t, int8_t>, 8> OFFSETS = {
-        std::make_pair(2, 1),
-        std::make_pair(2, -1),
-        std::make_pair(-2, 1),
-        std::make_pair(-2, -1),
-        std::make_pair(1, 2),
-        std::make_pair(1, -2),
-        std::make_pair(-1, 2),
-        std::make_pair(-1, -2),
+    constexpr std::array<std::pair<int8_t, int8_t>, 8> offsets = {
+        std::make_pair<int8_t, int8_t>(+2, +1),
+        std::make_pair<int8_t, int8_t>(+2, -1),
+        std::make_pair<int8_t, int8_t>(-2, +1),
+        std::make_pair<int8_t, int8_t>(-2, -1),
+        std::make_pair<int8_t, int8_t>(+1, +2),
+        std::make_pair<int8_t, int8_t>(+1, -2),
+        std::make_pair<int8_t, int8_t>(-1, +2),
+        std::make_pair<int8_t, int8_t>(-1, -2),
     };
 
-    for (size_t idx = 0; idx < OFFSETS.size(); ++idx) {
-        const auto [df, dr] = OFFSETS[idx];
+    for (size_t idx = 0; idx < offsets.size(); ++idx) {
+        const auto [df, dr] = offsets[idx];
         const int8_t new_file = file + df;
         const int8_t new_rank = rank + dr;
         if (new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8) {
@@ -131,20 +131,20 @@ static constexpr auto BuildKnightMasks() -> std::array<Bitboard, 64> {
 static constexpr Bitboard BuildKingMask(uint8_t file, uint8_t rank) {
     Bitboard mask(0);
 
-    constexpr std::array<std::pair<int8_t, int8_t>, 8> OFFSETS = {
-        std::make_pair(+0, +1),
-        std::make_pair(+0, -1),
-        std::make_pair(-1, +0),
-        std::make_pair(+1, +0),
+    constexpr std::array<std::pair<int8_t, int8_t>, 8> offsets = {
+        std::make_pair<int8_t, int8_t>(+0, +1),
+        std::make_pair<int8_t, int8_t>(+0, -1),
+        std::make_pair<int8_t, int8_t>(-1, +0),
+        std::make_pair<int8_t, int8_t>(+1, +0),
 
-        std::make_pair(-1, -1),
-        std::make_pair(-1, +1),
-        std::make_pair(+1, -1),
-        std::make_pair(+1, +1),
+        std::make_pair<int8_t, int8_t>(-1, -1),
+        std::make_pair<int8_t, int8_t>(-1, +1),
+        std::make_pair<int8_t, int8_t>(+1, -1),
+        std::make_pair<int8_t, int8_t>(+1, +1),
     };
 
-    for (size_t idx = 0; idx < OFFSETS.size(); ++idx) {
-        const auto [df, dr] = OFFSETS[idx];
+    for (size_t idx = 0; idx < offsets.size(); ++idx) {
+        const auto [df, dr] = offsets[idx];
         const int8_t new_file = file + df;
         const int8_t new_rank = rank + dr;
         if (new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8) {
@@ -245,12 +245,12 @@ static void PawnMoves(Color p_color,
             };
             for (PieceType piece_type : kPromoTypes) {
                 if (!p_in_check || ResolveCheck(to_sq, p_checker_sq, p_king_sq)) {
-                    p_move_list.Add(Move::Promotion(p_from_sq, to_sq, piece_type));
+                    p_move_list.addMove(Move::promotion(p_from_sq, to_sq, piece_type));
                 }
             }
         } else {
             if (!p_in_check || ResolveCheck(to_sq, p_checker_sq, p_king_sq)) {
-                p_move_list.Add(Move::Normal(p_from_sq, to_sq));
+                p_move_list.addMove(Move::normal(p_from_sq, to_sq));
             }
         }
     }
@@ -265,7 +265,7 @@ static void PawnMoves(Color p_color,
             // so if we can take eliminate the pawn just pushed
             // then capture is resolved
             if (!p_in_check || p_checker_type == PieceType::Pawn) {
-                p_move_list.Add(Move::Enpassant(p_from_sq, ep_sq));
+                p_move_list.addMove(Move::enpassant(p_from_sq, ep_sq));
             }
         }
     }
@@ -428,9 +428,9 @@ static void KingMoves(Color p_color,
         const auto [dst_file, dst_rank] = dst_sq.FileRank();
         int8_t diff = (int8_t)src_file - (int8_t)dst_file;
         if (diff == 2 || diff == -2) {
-            p_move_list.Add(Move::Castle(p_src_sq, dst_sq));
+            p_move_list.addMove(Move::castle(p_src_sq, dst_sq));
         } else {
-            p_move_list.Add(Move::Normal(p_src_sq, dst_sq));
+            p_move_list.addMove(Move::normal(p_src_sq, dst_sq));
         }
     }
 }
@@ -484,7 +484,7 @@ MoveList MoveGen::LegalMove(const Position& p_pos) {
     Position copy = p_pos;
     for (Move mv : pseudo) {
         if (IsMoveLegal(copy, mv)) {
-            moves.Add(mv);
+            moves.addMove(mv);
         }
     }
     return moves;
@@ -537,7 +537,7 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
 
     for (Square sq : mask.Squares()) {
         if (!p_in_check || ResolveCheck(sq, p_checker_sq, p_king_sq)) {
-            p_move_list.Add(Move::Normal(p_from, sq));
+            p_move_list.addMove(Move::normal(p_from, sq));
         }
     }
 }

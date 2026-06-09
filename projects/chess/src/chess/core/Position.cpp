@@ -172,8 +172,8 @@ static constexpr auto BuildEpMasks() -> std::array<std::array<Bitboard, 64>, 2> 
 static constexpr auto kEpMasks = BuildEpMasks();
 
 bool Position::MakeMove(Move p_move, UndoState& p_undo) {
-    const Square src_sq = p_move.From();
-    const Square dst_sq = p_move.To();
+    const Square src_sq = p_move.from();
+    const Square dst_sq = p_move.to();
 
     const Piece src_piece = PieceAt(src_sq);
     const Piece dst_piece = PieceAt(dst_sq);
@@ -189,7 +189,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     const auto [src_file, src_rank] = src_sq.FileRank();
     const auto [dst_file, dst_rank] = dst_sq.FileRank();
 
-    const MoveType move_type = p_move.GetType();
+    const MoveType move_type = p_move.type();
 
     assert((src_piece != Piece::Null) && "No piece found on 'from' square");
     assert((SideToMove() == my_color) && "Trying to move a piece of the wrong color");
@@ -235,8 +235,9 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
             const CastlingType castling_type = ConvertCastlingType(src_piece, src_sq, dst_sq);
             assert((castling_type != CastlingType::None) && "Invalid castling move");
             // move rook position
-            const auto [rook, src_sq, rook_sq] = kCastlingRookSquares[std::to_underlying(castling_type)];
-            MovePiece(m_board[rook], src_sq, rook_sq);
+            // @TODO: the logic duplicates with presentation layer castling
+            const auto [rook, src_sq2, rook_sq] = kCastlingRookSquares[std::to_underlying(castling_type)];
+            MovePiece(m_board[rook], src_sq2, rook_sq);
         } break;
         case MoveType::Enpassant: {
             assert(src_piece_type == PieceType::Pawn);
@@ -245,7 +246,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
         } break;
         case MoveType::Promotion: {
             assert(src_piece_type == PieceType::Pawn);
-            const Piece promotion = BuildPiece(p_move.GetPromo().unwrap(), my_color);
+            const Piece promotion = BuildPiece(p_move.promo().unwrap(), my_color);
             m_board[src_piece].Unset(dst_sq);
             m_board[promotion].Set(dst_sq);
         } break;
@@ -270,8 +271,8 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
 }
 
 bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
-    const Square src_sq = p_move.From();
-    const Square dst_sq = p_move.To();
+    const Square src_sq = p_move.from();
+    const Square dst_sq = p_move.to();
 
     const Piece src_piece = PieceAt(dst_sq);
 
@@ -286,7 +287,7 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
         m_board[captured_piece].Set(dst_sq);
     }
 
-    const MoveType move_type = p_move.GetType();
+    const MoveType move_type = p_move.type();
     switch (move_type) {
         case MoveType::Castling: {
             assert(GetType(src_piece) == PieceType::King);
@@ -295,8 +296,8 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
             CastlingType castling_type = ConvertCastlingType(src_piece, src_sq, dst_sq);
             assert(castling_type != CastlingType::None);
 
-            const auto [rook, src_sq, rook_sq] = kCastlingRookSquares[std::to_underlying(castling_type)];
-            MovePiece(m_board[rook], rook_sq, src_sq);
+            const auto [rook, src_sq2, rook_sq] = kCastlingRookSquares[std::to_underlying(castling_type)];
+            MovePiece(m_board[rook], rook_sq, src_sq2);
         } break;
         case MoveType::Enpassant: {
             const auto [_from_file, from_rank] = src_sq.FileRank();
@@ -305,7 +306,7 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
             m_board[their_pawn].Set(enemy_sq);
         } break;
         case MoveType::Promotion: {
-            const Piece promotion = BuildPiece(p_move.GetPromo().unwrap(), my_color);
+            const Piece promotion = BuildPiece(p_move.promo().unwrap(), my_color);
             const Piece my_pawn = BuildPiece(PieceType::Pawn, my_color);
             m_board[my_pawn].Set(src_sq);
             m_board[promotion].Unset(src_sq);

@@ -105,7 +105,7 @@ void EditorState::OnEnter(const StateRequest& p_args) {
         desc.game_id = "chess";
         desc.edit_scene = edit_scene;
 
-        m_pie.Start(desc);
+        m_pie.start(std::move(desc));
     }
 }
 
@@ -118,7 +118,7 @@ void EditorState::OnExit() {
 
     ImNodes::DestroyContext();
 
-    m_pie.Stop();
+    m_pie.stop();
 }
 
 void EditorState::Tick(const FrameTime& p_time) {
@@ -128,7 +128,7 @@ void EditorState::Tick(const FrameTime& p_time) {
     m_thumbnail_service->Tick(p_time, info);
 
     if (IsPlaying()) {
-        m_pie.Tick(p_time);
+        m_pie.tick(p_time);
     }
 
     ImguiManager* imgui_manager = m_app.GetImguiManager();
@@ -164,10 +164,10 @@ void EditorState::CommitModeSwitch() {
     switch (old_mode) {
         case cave::EditorState::Mode::Editing: {
             PreviewScene preview = m_workspace->FocusedPreviewScene();
-            m_pie.OnSimBegin(preview.scene_id, preview.view_id);
+            m_pie.onSimBegin(preview.scene_id, preview.view_id);
         } break;
         case cave::EditorState::Mode::Playing: {
-            m_pie.OnSimEnd();
+            m_pie.onSimEnd();
         } break;
     }
 

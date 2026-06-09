@@ -117,7 +117,7 @@ static uint64_t Perft(Position& p_pos, int p_depth) {
     const MoveList moves = MoveGen::LegalMove(pos);
 
     std::vector<std::future<uint64_t>> futs;
-    futs.reserve(moves.Size());
+    futs.reserve(moves.size());
 
     for (Move mv : moves) {
         futs.emplace_back(std::async(std::launch::async, [p_pos, mv, p_depth]() mutable -> uint64_t {
@@ -144,7 +144,7 @@ static uint64_t PerftDivide(Position& pos, int depth) {
         pos.MakeMove(mv, undo);
         const uint64_t n = (depth <= 1) ? 1ULL : Perft(pos, depth - 1);
         pos.UnmakeMove(mv, undo);
-        std::cout << mv.Uci() << ": " << n << std::endl;
+        std::cout << mv.uci() << ": " << n << std::endl;
         nodes += n;
     }
     return nodes;

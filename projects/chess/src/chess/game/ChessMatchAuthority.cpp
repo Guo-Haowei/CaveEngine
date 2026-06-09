@@ -52,7 +52,7 @@ bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
 
     // @TODO: figure out if draw or not
     const MoveList moves = MoveGen::LegalMove(m_pos);
-    if (moves.Empty()) {
+    if (moves.empty()) {
         m_game_over = true;
         m_intent.Queue<AuthGameOver>(p_player_id, p_move);
     }

@@ -33,68 +33,68 @@ class Move {
 public:
     Move() noexcept;
 
-    Move(Square p_from, Square p_to, MoveType p_type, PieceType p_promotion) noexcept;
+    Move(Square from, Square to, MoveType type, PieceType promo) noexcept;
 
-    MoveType GetType() const { return static_cast<MoveType>(m_flag); }
+    MoveType type() const { return static_cast<MoveType>(flag_); }
 
-    cave::Option<PieceType> GetPromo() const;
+    cave::Option<PieceType> promo() const;
 
-    std::string Uci() const;
+    std::string uci() const;
 
-    Square From() const { return Square((uint8_t)m_from); }
-    Square To() const { return Square((uint8_t)m_to); }
+    Square from() const { return Square((uint8_t)from_); }
+    Square to() const { return Square((uint8_t)to_); }
 
-    bool operator==(const Move& p_rhs) const = default;
+    bool operator==(const Move& rhs) const = default;
 
-    bool IsValid() const { return *this != Null(); }
+    bool isValid() const { return *this != null(); }
 
-    static Move Null() {
+    static Move null() {
         return Move();
     }
 
-    static Move Normal(Square from, Square to) {
+    static Move normal(Square from, Square to) {
         return Move(from, to, MoveType::Normal, PieceType::Null);
     }
 
-    static Move Castle(Square from, Square to) {
+    static Move castle(Square from, Square to) {
         return Move(from, to, MoveType::Castling, PieceType::Null);
     }
 
-    static Move Enpassant(Square from, Square to) {
+    static Move enpassant(Square from, Square to) {
         return Move(from, to, MoveType::Enpassant, PieceType::Null);
     }
 
-    static Move Promotion(Square from, Square to, PieceType type) {
+    static Move promotion(Square from, Square to, PieceType type) {
         return Move(from, to, MoveType::Promotion, type);
     }
 
 private:
-    uint16_t m_from : 6;
-    uint16_t m_to : 6;
-    uint16_t m_flag : 2;
-    uint16_t m_promo : 2;
+    uint16_t from_ : 6;
+    uint16_t to_ : 6;
+    uint16_t flag_ : 2;
+    uint16_t promo_ : 2;
 };
 
 class MoveList {
 public:
-    void Add(Move p_move);
-    void Clear();
+    void addMove(Move move);
+    void clear();
 
-    bool Empty() const { return m_count == 0; }
-    uint32_t Size() const { return m_count; }
+    bool empty() const { return size_ == 0; }
+    uint32_t size() const { return size_; }
 
-    Move* begin() { return m_moves.data(); }
-    Move* end() { return m_moves.data() + m_count; }
+    Move* begin() { return moves_.data(); }
+    Move* end() { return moves_.data() + size_; }
 
-    const Move* begin() const { return m_moves.data(); }
-    const Move* end() const { return m_moves.data() + m_count; }
+    const Move* begin() const { return moves_.data(); }
+    const Move* end() const { return moves_.data() + size_; }
 
-    Move& operator[](size_t idx) { return m_moves[idx]; }
-    const Move& operator[](size_t idx) const { return m_moves[idx]; }
+    Move& operator[](size_t idx) { return moves_[idx]; }
+    const Move& operator[](size_t idx) const { return moves_[idx]; }
 
 private:
-    std::array<Move, 256> m_moves{};
-    uint32_t m_count{ 0 };
+    std::array<Move, 256> moves_{};
+    uint32_t size_{ 0 };
 };
 
 }  // namespace chess::core

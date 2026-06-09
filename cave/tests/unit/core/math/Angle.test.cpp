@@ -6,7 +6,7 @@ namespace cave::math {
 TEST(Degree, constructor) {
     Degree a(90.0f);
     EXPECT_FLOAT_EQ(a.GetDegree(), 90.0f);
-    EXPECT_FLOAT_EQ(a.GetRadians(), HalfPi());
+    EXPECT_FLOAT_EQ(a.GetRadians(), halfPi());
 }
 
 TEST(Degree, clamp) {

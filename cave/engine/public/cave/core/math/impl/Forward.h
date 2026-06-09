@@ -2,6 +2,7 @@
 // File: cave/core/math/impl/Forward.h
 // =============================================================================
 #pragma once
+#include <type_traits>
 #include "cave/core/typedefs.h"
 
 #define MATH_ENABLE_SIMD_SSE  NOT_IN_USE
