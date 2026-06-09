@@ -77,8 +77,6 @@ ecs::Entity ChessViewFactory::createPiece(Square square, Piece piece) {
     writer_.SetProperty(ent, MeshRendererComponent_Id, kCastShadow, visible_);
 
     writer_.AttachChild(ent, parent_);
-
-    printf("created %s\n", name.c_str());
     return ent;
 }
 

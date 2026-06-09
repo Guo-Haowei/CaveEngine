@@ -19,6 +19,12 @@ static constexpr StringId kTranslationId = "translation"_sid;
 static constexpr StringId kVisibility = "visibility"_sid;
 static constexpr StringId kCastShadow = "cast_shadow"_sid;
 
+ChessPresenter::ChessPresenter(IHostServices& host) noexcept
+    : host_(host)
+    , reg_(host) {
+}
+
+    // @TODO: refactor this
 static inline Vector3f SquareToVec(Square p_sq) {
     const auto [file, rank] = p_sq.FileRank();
     return Vector3f{ (float)rank, 0.0f, (float)file };
@@ -36,28 +42,7 @@ void ChessPresenter::onBoot() {
         tiles_[i] = query.findFirstByName(name);
     }
 
-    // set up pieces
-    auto add_piece = [&](Piece type, std::string_view name, int count) {
-        const uint8_t idx = std::to_underlying(type);
-        piece_pools_[idx].reserve(count);
-        for (int i = 1; i <= count; ++i) {
-            Entity id = query.findFirstByName(std::format("{}_{}", name, i));
-            piece_pools_[idx].push_back(id);
-        }
-    };
-
-    add_piece(Piece::WP, "white_pawn", 8);
-    add_piece(Piece::WN, "white_knight", 2);
-    add_piece(Piece::WB, "white_bishop", 2);
-    add_piece(Piece::WR, "white_rook", 2);
-    add_piece(Piece::WQ, "white_queen", 1);
-    add_piece(Piece::WK, "white_king", 1);
-    add_piece(Piece::BP, "black_pawn", 8);
-    add_piece(Piece::BN, "black_knight", 2);
-    add_piece(Piece::BB, "black_bishop", 2);
-    add_piece(Piece::BR, "black_rook", 2);
-    add_piece(Piece::BQ, "black_queen", 1);
-    add_piece(Piece::BK, "black_king", 1);
+    reg_.initPool();
 }
 
 void ChessPresenter::present() {
@@ -90,16 +75,9 @@ void ChessPresenter::redrawBoard(const Position& position) {
     for (uint8_t p = 0; p < kPieceMax; ++p) {
         const Piece piece = static_cast<Piece>(p);
         const Bitboard bb = position.Bitboard(piece);
-        auto& pool = piece_pools_[p];
 
-        int idx = 0;
         for (Square sq : bb.Squares()) {
-            // @TODO: properly handle not enough entities in pool caused by promotion
-            if (idx >= pool.size()) {
-                break;
-            }
-
-            Entity e = pool[idx++];
+            Entity e = reg_.allocate(piece);
             board_[sq.Index()] = e;
 
             Vector3f translation = SquareToVec(sq);
@@ -108,12 +86,13 @@ void ChessPresenter::redrawBoard(const Position& position) {
             writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, true);
         }
 
-        // set the reset of the pieces invisible
-        for (; idx < pool.size(); ++idx) {
-            Entity e = pool[idx];
-            writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
-            writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
-        }
+        // @TODO: hide inactive pieces
+        //// set the reset of the pieces invisible
+        // for (; idx < pool.size(); ++idx) {
+        //     Entity e = pool[idx];
+        //     writer.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
+        //     writer.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
+        // }
     }
 }
 

@@ -99,9 +99,16 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
     factory.setVisible(false);
 
     // Create extra pieces for promotion
-    const std::array<Piece, 8> extra_pieces = {
-        Piece::WN, Piece::WB, Piece::WR, Piece::WQ,
-        Piece::BN, Piece::BB, Piece::BR, Piece::BQ
+    // @NOTE: only supports promote to queen
+    const Piece extra_pieces[] = {
+        // Piece::WN,
+        // Piece::WB,
+        // Piece::WR,
+        Piece::WQ,
+        // Piece::BN,
+        // Piece::BB,
+        // Piece::BR,
+        Piece::BQ,
     };
 
     for (Piece piece : extra_pieces) {

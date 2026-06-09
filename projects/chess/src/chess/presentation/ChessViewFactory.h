@@ -17,18 +17,16 @@ class ChessViewFactory {
     using Entity = ::cave::ecs::Entity;
 
 public:
-    // @TODO: refactor
+    ChessViewFactory(cave::SceneCommandWriter& writer, Entity parent);
+
+    Entity createPiece(core::Square square, core::Piece piece);
+
+    // @TODO: move tile creation to somewhere else
     struct TileInitInfo {
         cave::math::Vector4f color;
         const char* name;
         Entity parent;
     };
-
-    ChessViewFactory(cave::SceneCommandWriter& writer, Entity parent);
-
-    Entity createPiece(core::Square square, core::Piece piece);
-
-    // @TODO: refactor this
     Entity createTile(core::Square square, const TileInitInfo& info);
 
     void setVisible(bool visible) { visible_ = visible; }

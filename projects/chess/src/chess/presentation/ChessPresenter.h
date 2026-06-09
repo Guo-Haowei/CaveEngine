@@ -4,6 +4,9 @@
 
 #include "chess/core/Position.h"
 
+// @TODO: refactor?
+#include "chess/presentation/ChessPieceRegistry.h"
+
 // clang-format off
 namespace cave { class IHostServices; }
 namespace cave { class SceneCommandWriter; }
@@ -16,9 +19,7 @@ class ChessPresenter {
     using Entity = ::cave::ecs::Entity;
 
 public:
-    ChessPresenter(cave::IHostServices& host) noexcept
-        : host_(host) {
-    }
+    ChessPresenter(cave::IHostServices& host) noexcept;
 
     void present();
 
@@ -51,13 +52,13 @@ private:
     cave::IHostServices& host_;
     Entity selector_;
 
-    std::array<Entity, 64> tiles_;
-    std::array<std::vector<Entity>, core::kPieceMax> piece_pools_;
-
     core::Square focused_sq{ 0 };
     core::Bitboard highlights_;
 
+    std::array<Entity, 64> tiles_;
     std::array<Entity, 64> board_;
+
+    ChessPieceRegistry reg_;
 };
 
 }  // namespace chess
