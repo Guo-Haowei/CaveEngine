@@ -49,7 +49,7 @@ Application::Application(const AppSpec& p_spec, AppType p_type)
     , m_state_machine(*this) {
 
     // @TODO: refactor this select work directory
-    m_vfs.Mount("@user", fs::path(m_spec.userFolder));
+    vfs_.Mount("@user", fs::path(m_spec.userFolder));
 }
 
 IApplication::~IApplication() = default;
@@ -89,10 +89,17 @@ auto Application::SetupModules() -> Result<void> {
 
     m_scene_query_service = new cave::SceneQueryService(*m_scene_registry);
 
+    // @TODO: dependency injection?
+    project_manager_ = std::make_unique<ProjectManager>(vfs_,
+                                                        *m_task_manager,
+                                                        *m_asset_manager,
+                                                        *m_asset_registry);
+
     // setup app services
-    project_manager_ = std::make_unique<ProjectManager>(*this);
+    services_.vfs_ = &vfs_;
     services_.project_manager_ = project_manager_.get();
 
+    // register subsystems
     RegisterModule(m_task_manager);
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);

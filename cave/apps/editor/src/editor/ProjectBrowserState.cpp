@@ -67,7 +67,7 @@ void ProjectBrowserState::drawRecentProjects() {
         }
 
         if (clicked && !request_fired_) {
-            request_ = Some(StateRequest{ AppStateId::Editor, project.path });
+            request_ = Some(StateRequest{ AppStateId::Editor, project.start_scene });
             project_manager_.loadProject(project);
             request_fired_ = true;
         }
@@ -207,7 +207,7 @@ auto scanProjects(const std::filesystem::path& root) -> std::vector<ProjectInfo>
             std::string path = entry.path().string();
             std::replace(path.begin(), path.end(), '/', '\\');
 
-            LOG_TRACE(LogChannel::Editor, "Discovered @{}", path);
+            LOG_TRACE(LogChannel::Asset, "Found @{}", path);
 
             ProjectInfo info;
 

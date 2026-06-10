@@ -157,7 +157,7 @@ Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const s
 }
 
 std::string AssetManager::ResolvePath(const fs::path& p_path) {
-    return m_app->GetVFS().Resolve("@res", p_path);
+    return m_app->services().vfs().Resolve("@res", p_path);
 }
 
 uint64_t AssetManager::SubmitLoadAsset(const AssetLoadRequest& p_request) {

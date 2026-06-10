@@ -25,7 +25,6 @@ public:
 
     QuitVote OnQuitRequested(const QuitContext&) override { return QuitVote::Allow; }
 
-    VFS& GetVFS() override { return m_vfs; }
     EventQueue& GetEventQueue() override { return m_event_queue; }
     SceneScheduler& GetSceneScheduler() override { return *m_scene_scheduler; }
     cave::InputService& InputService() override { return *m_input_service; }
@@ -50,15 +49,15 @@ protected:
     AppStateMachine m_state_machine;
 
     Stopwatch m_stopwatch;
-    VFS m_vfs;
 
     EventQueue m_event_queue;
     std::vector<IService*> m_modules;
 
-    // @TODO: split AppServices
     cave::InputService* m_input_service;
     std::unique_ptr<SceneScheduler> m_scene_scheduler;
 
+    // @TODO: move above to AppServices
+    VFS vfs_;
     std::unique_ptr<ProjectManager> project_manager_;
 };
 

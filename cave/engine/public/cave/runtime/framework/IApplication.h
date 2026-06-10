@@ -7,6 +7,7 @@
 #include "cave/core/Error.h"
 #include "cave/core/NonCopyable.h"
 #include "cave/rhi/Backend.h"
+#include "cave/runtime/framework/AppServices.h"
 
 // clang-format off
 namespace cave::render { class Renderer; }
@@ -31,12 +32,10 @@ class IntentDispatcher;
 class IUIRuntime;
 class IPhysicsManager;
 class IScriptService;
-class ProjectManager;
 class SceneRegistry;
 class SceneQueryService;
 class SceneScheduler;
 class TaskManager;
-class VFS;
 class ViewManager;
 
 struct AppSpec {
@@ -72,12 +71,6 @@ struct QuitContext {
     QuitReason reason;
 };
 
-struct AppServices {
-    ProjectManager* project_manager_ = nullptr;
-
-    ProjectManager& projectManager() { return *project_manager_; }
-};
-
 class IApplication : public NonCopyable {
 public:
     IApplication(const AppSpec& p_spec)
@@ -92,7 +85,6 @@ public:
     virtual QuitVote OnQuitRequested(const QuitContext& p_quit) = 0;
 
     virtual AppStateId GetStateId() const = 0;
-    virtual VFS& GetVFS() = 0;
     virtual EventQueue& GetEventQueue() = 0;
     virtual SceneScheduler& GetSceneScheduler() = 0;
     virtual cave::InputService& InputService() = 0;

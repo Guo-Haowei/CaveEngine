@@ -10,11 +10,16 @@ class VFS;
 
 class ProjectManager {
 public:
-    ProjectManager(IApplication& app) noexcept;
+    ProjectManager(VFS& vfs,
+                   TaskManager& task_manager,
+                   IAssetManager& asset_manager,
+                   AssetRegistry& asset_registry) noexcept;
 
     void loadProject(const ProjectInfo& project);
 
-    void unloadProject(const ProjectInfo& project);
+    bool hasProject() const { return project_.is_some(); }
+
+    const ProjectInfo& project() const { return project_.unwrap(); }
 
     // @TODO: better snapshot
     TaskSnapshot snapshot() const { return boot_load_pipeline_.RootSnapshot(); }
@@ -22,6 +27,8 @@ public:
 private:
     VFS& vfs_;
     BootLoadPipeline boot_load_pipeline_;
+
+    Option<ProjectInfo> project_;
 };
 
 }  // namespace cave

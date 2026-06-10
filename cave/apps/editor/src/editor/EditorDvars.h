@@ -1,8 +1,5 @@
 #include "engine/private/runtime/dvar/DvarBegin.h"
 
-// @TODO: open all tabs, or maybe save editor settings as json/yaml
-DVAR_STRING(last_open_asset, DVAR_FLAG_CACHE, "Last asset opened", "");
-
 DVAR_BOOL(show_editor, DVAR_FLAG_CACHE, "Show editor", true);
 
 DVAR_BOOL(is_world_2d, DVAR_FLAG_NONE, "Is 2D World", false);

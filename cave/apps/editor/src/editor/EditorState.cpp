@@ -1,6 +1,7 @@
 #include "EditorState.h"
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
@@ -28,7 +29,6 @@
 #include "engine/private/ui/layout.h"
 
 #include "editor/edit/EditObjectCmd.h"
-#include "editor/EditorDvars.h"
 #include "editor/panels/ContentBrowser.h"
 #include "editor/panels/FileSystemPanel.h"
 #include "editor/panels/HierarchyPanel.h"
@@ -76,9 +76,8 @@ EditorState::~EditorState() {
     m_panels.clear();
 }
 
-void EditorState::onEnter(const StateRequest& p_args) {
+void EditorState::onEnter(const StateRequest& request) {
     CAVE_PROFILE_EVENT();
-    unused(p_args);
 
     ImNodes::CreateContext();
 
@@ -87,28 +86,23 @@ void EditorState::onEnter(const StateRequest& p_args) {
     }
 
     SceneId edit_scene{};
-    if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
-        if (auto res = Guid::Parse(asset); res.is_some()) {
-            Guid guid = res.unwrap_unchecked();
-            if (auto handle = app_.GetAssetRegistry()->FindByGuid(guid); handle.is_some()) {
-                AssetHandle handle_ = handle.unwrap_unchecked();
-                DocId doc_id = m_document_service->OpenDoc({ guid, handle_.GetMeta()->type });
-                if (IDocument* doc = m_document_service->Resolve(doc_id)) {
-                    edit_scene = doc->GetPreviewScene();
-                }
+    if (!request.arg0.empty()) {
+        if (auto handle = app_.GetAssetRegistry()->FindByPath(request.arg0); handle.is_some()) {
+            AssetHandle handle_ = handle.unwrap_unchecked();
+            DocId doc_id = m_document_service->OpenDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
+            if (IDocument* doc = m_document_service->Resolve(doc_id)) {
+                edit_scene = doc->GetPreviewScene();
             }
         }
     }
 
     // load pie
-    {
-        PIEStartDesc desc{};
-        desc.game_dll = "game_Debug.dll";
-        desc.game_id = "chess";
-        desc.edit_scene = edit_scene;
+    PIEStartDesc desc{};
+    desc.game_dll = "game_Debug.dll";
+    desc.game_id = "chess";
+    desc.edit_scene = edit_scene;
 
-        m_pie.start(std::move(desc));
-    }
+    m_pie.start(std::move(desc));
 }
 
 void EditorState::onExit() {

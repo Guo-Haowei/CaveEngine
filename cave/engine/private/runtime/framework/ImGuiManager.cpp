@@ -68,7 +68,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
         }
     }
 
-    fs::path ini_path = m_app->GetVFS().Resolve("@user://imgui.ini");
+    fs::path ini_path = m_app->services().vfs().Resolve("@user://imgui.ini");
     m_imguiSettingsPath = ini_path.string();
     LOG_TRACE(LogChannel::ImGui, "Settings {}", m_imguiSettingsPath);
     io.IniFilename = m_imguiSettingsPath.c_str();

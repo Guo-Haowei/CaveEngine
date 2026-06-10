@@ -23,7 +23,7 @@ FileSystemPanel::FileSystemPanel(EditorState& p_editor)
 }
 
 void FileSystemPanel::OnAttach() {
-    m_root = m_editor.app().GetVFS().GetMount("@res");
+    m_root = m_editor.app().services().vfs().GetMount("@res");
 }
 
 void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {

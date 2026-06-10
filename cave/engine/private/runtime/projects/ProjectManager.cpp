@@ -1,18 +1,18 @@
 #include "ProjectManager.h"
 
 #include "cave/core/diagnostics/Log.h"
-#include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/VFS.h"
 
 namespace cave {
 
 namespace fs = std::filesystem;
 
-ProjectManager::ProjectManager(IApplication& app) noexcept
-    : vfs_(app.GetVFS())
-    , boot_load_pipeline_(*app.GetTaskManager(),
-                          *app.GetAssetManager(),
-                          *app.GetAssetRegistry()) {
+ProjectManager::ProjectManager(VFS& vfs,
+                               TaskManager& task_manager,
+                               IAssetManager& asset_manager,
+                               AssetRegistry& asset_registry) noexcept
+    : vfs_(vfs)
+    , boot_load_pipeline_(task_manager, asset_manager, asset_registry) {
 }
 
 void ProjectManager::loadProject(const ProjectInfo& project) {
@@ -24,10 +24,6 @@ void ProjectManager::loadProject(const ProjectInfo& project) {
 
     LOG_INFO(LogChannel::Asset, "+ @{}", resource_folder.string());
     boot_load_pipeline_.RequestProject(resource_folder);
-}
-
-void ProjectManager::unloadProject(const ProjectInfo& project) {
-    unused(project);
 }
 
 }  // namespace cave
