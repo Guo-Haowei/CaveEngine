@@ -80,7 +80,7 @@ static void DrawComponent(const std::string& p_name,
                     ctx.app.services().sceneRegistry(),
                     ctx.entity,
                     *p_component);
-                ctx.edit.Submit(ctx.doc_id, std::move(cmd));
+                ctx.edit.submit(ctx.doc_id, std::move(cmd));
             }
 
             ImGui::EndPopup();
@@ -165,7 +165,7 @@ bool EditAndSubmit(const DrawComponentCtx& p_ctx,
         p_field->id,
         old_v,
         new_v);
-    p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
+    p_ctx.edit.submit(p_ctx.doc_id, std::move(cmd));
     return true;
 }
 
@@ -251,7 +251,7 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
                 p_property->id,
                 old_v,
                 new_v);
-            p_ctx.edit.Submit(p_ctx.doc_id, std::move(cmd));
+            p_ctx.edit.submit(p_ctx.doc_id, std::move(cmd));
             return true;
         } break;
         case EditorHint::Asset: {
@@ -318,7 +318,7 @@ void PropertyPanel::drawUIImpl() {
                 "name"_sid,
                 name_component->GetNameRef(),
                 name);
-            edit_service.Submit(doc_id, std::move(cmd));
+            edit_service.submit(doc_id, std::move(cmd));
         }
     }
 
@@ -339,7 +339,7 @@ void PropertyPanel::drawUIImpl() {
             services_.sceneRegistry(),
             id,
             cid);
-        edit_service.Submit(doc_id, std::move(cmd));
+        edit_service.submit(doc_id, std::move(cmd));
     };
 
     if (ImGui::BeginPopup("AddComponentPopup")) {

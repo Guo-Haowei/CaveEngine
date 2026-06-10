@@ -352,7 +352,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                         "translation"_sid,
                         pos_1,
                         pos_2);
-                    edit_service.Submit(doc_id, std::move(cmd));
+                    edit_service.submit(doc_id, std::move(cmd));
                 } else if (p_operation & ImGuizmo::ROTATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
@@ -361,7 +361,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                         "rotation"_sid,
                         rot_1,
                         rot_2);
-                    edit_service.Submit(doc_id, std::move(cmd));
+                    edit_service.submit(doc_id, std::move(cmd));
                 } else if (p_operation & ImGuizmo::SCALE) {
                     auto cmd = (std::make_unique<ChangePropertyCmd>(
                         scene_reg,
@@ -370,7 +370,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                         "scale"_sid,
                         scale_1,
                         scale_2));
-                    edit_service.Submit(doc_id, std::move(cmd));
+                    edit_service.submit(doc_id, std::move(cmd));
                 }
             }
         }

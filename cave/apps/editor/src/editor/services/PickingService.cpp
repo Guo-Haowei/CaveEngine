@@ -52,7 +52,7 @@ void PickingService::Raycast(const PickData& pick_data) {
 bool PickingService::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<PickIntent*>(&p_intent)) {
         IApplication& app = m_editor.app();
-        const Vector2f pos_screen = intent->pointer + app.GetDisplayService()->windowPos();
+        const Vector2f pos_screen = intent->pointer() + app.GetDisplayService()->windowPos();
 
         for (IPickConsumer* p : m_consumers) {
             DEV_ASSERT(p);

@@ -89,12 +89,12 @@ void Workspace::drawTabs() {
 
 bool Workspace::handleIntent(Intent& intent) {
     if (auto open_doc = dynamic_cast<OpenDocIntent*>(&intent)) {
-        openOrFocusDoc(open_doc->doc_id);
+        openOrFocusDoc(open_doc->doc_id());
         return true;
     }
 
     if (auto close_doc = dynamic_cast<CloseDocIntent*>(&intent)) {
-        closeDoc(close_doc->doc_id);
+        closeDoc(close_doc->doc_id());
         return true;
     }
 
@@ -221,7 +221,7 @@ bool Workspace::onCloseRequested() {
         if (slot.storage) {
             Tab& tab = *slot.storage;
             DocId doc = tab.docId();
-            if (edit.IsDirty(doc)) {
+            if (edit.isDirty(doc)) {
                 unsaved.push_back(doc);
             }
         }
@@ -241,7 +241,7 @@ bool Workspace::onCloseRequested() {
             return false;
     }
     for (DocId doc : unsaved) {
-        edit.Save(doc);
+        edit.save(doc);
     }
     return true;
 }

@@ -32,7 +32,7 @@ CloseDecision AskCloseUnsaved(const char* title) {
 }
 
 void Tab::drawUI() {
-    if (const bool dirty = m_editor.EditService().IsDirty(doc_id_)) {
+    if (const bool dirty = m_editor.EditService().isDirty(doc_id_)) {
         m_flags |= ImGuiWindowFlags_UnsavedDocument;
     } else {
         m_flags &= ~ImGuiWindowFlags_UnsavedDocument;
@@ -47,7 +47,7 @@ void Tab::drawUI() {
     ImGui::End();
 
     if (!open) {
-        const bool dirty = m_editor.EditService().IsDirty(doc_id_);
+        const bool dirty = m_editor.EditService().isDirty(doc_id_);
         bool should_save = false;
         if (dirty) {
             switch (AskCloseUnsaved("Warning")) {
@@ -62,7 +62,7 @@ void Tab::drawUI() {
             }
         }
         if (should_save) {
-            m_editor.EditService().Save(doc_id_);
+            m_editor.EditService().save(doc_id_);
         }
 
         m_editor.Workspace().requestClose(doc_id_);

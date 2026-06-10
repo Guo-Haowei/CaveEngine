@@ -244,7 +244,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& p_ctx) {
                 auto cmd = std::make_unique<DeleteObjectCmd>(
                     services_.sceneRegistry(),
                     selected);
-                edit.Submit(p_ctx.doc_id, std::move(cmd));
+                edit.submit(p_ctx.doc_id, std::move(cmd));
             }
         }
         ImGui::EndPopup();
@@ -271,7 +271,7 @@ void HierarchyPanel::openAddEntityPopupImpl(DocId p_doc_id, ecs::Entity p_parent
     using CreateFunc = Entity (*)(SceneCommandWriter& p_cb, std::string_view p_name);
     auto add_object = [&](const char* p_name, bool p_separator, CreateFunc p_func) {
         if (ImGui::MenuItem(p_name)) {
-            m_editor.EditService().Submit(p_doc_id, [&](SceneCommandWriter& cb) {
+            m_editor.EditService().submit(p_doc_id, [&](SceneCommandWriter& cb) {
                 Entity temp = p_func(cb, p_name);
                 cb.AttachChild(temp, p_parent);
             });
