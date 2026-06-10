@@ -57,7 +57,7 @@ bool PickingService::handleIntent(Intent& p_intent) {
         for (IPickConsumer* p : m_consumers) {
             DEV_ASSERT(p);
             if (!p) continue;
-            auto opt = p->GetPickData(pos_screen);
+            auto opt = p->getPickData(pos_screen);
             if (opt.is_none()) continue;
 
             PickData data = opt.unwrap_unchecked();

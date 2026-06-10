@@ -16,10 +16,8 @@
 #include "editor/services/SelectionService.h"
 
 // @TODO: refactor
-#include "engine/private/core/math/Geomath.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
-#include "editor/document/SceneDocument.h"
 #include "editor/EditorDvars.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"
@@ -74,7 +72,7 @@ void SceneViewTab::onDestroy() {
     m_editor.PickingService().Register(this);
 }
 
-Option<PickData> SceneViewTab::GetPickData(const Vector2f& pointer_os) {
+Option<PickData> SceneViewTab::getPickData(const Vector2f& pointer_os) {
     if (!IsVisible()) return None();
 
     const ViewRecord* view = view_manager_.resolve(view_id_);

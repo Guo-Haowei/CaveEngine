@@ -6,6 +6,7 @@
 
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"
+#include "engine/private/runtime/input/InputService.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/DragDrop.h"
@@ -47,7 +48,7 @@ void TileMapEditor::onDestroy() {
     ViewTabBase::onDestroy();
 }
 
-Option<PickData> TileMapEditor::GetPickData(const Vector2f& pointer_os) {
+Option<PickData> TileMapEditor::getPickData(const Vector2f& pointer_os) {
     unused(pointer_os);
 
     return None();
@@ -72,8 +73,16 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    unused(input);
-    // @TODO: impl
+    if (m_editor.IsPlaying()) {
+        return;
+    }
+
+    const KeyState& st = services_.inputService().keyState();
+    if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
+        return;
+    }
+
+    camera_controller_->Update(input);
 }
 
 void TileMapEditor::drawUIImpl() {
@@ -87,25 +96,6 @@ void TileMapEditor::drawUIImpl() {
 }
 
 #if 0
-void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
-
-    auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
-    DEV_ASSERT(scene_manager);
-
-    m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
-        auto scene = std::make_shared<Scene>();
-        auto root = EntityFactory::CreateTransformEntity(*scene, "tile_map_test_scene");
-        scene->m_root = root;
-
-        auto id = EntityFactory::CreateTileMapEntity(*scene, "tile_map");
-        scene->AttachChild(id);
-
-        TileMapRendererComponent* tile_map_renderer = scene->GetComponent<TileMapRendererComponent>(id);
-        tile_map_renderer->SetResourceGuid(p_guid);
-        return scene;
-    });
-}
-
 void TileMapEditor::DrawAssetInspector() {
     TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
     TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
@@ -285,10 +275,6 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
             ImGui::PopStyleColor();
         }
     }
-}
-
-const std::vector<const ToolBarButtonDesc*> TileMapEditor::GetToolBarButtons() const {
-    return { &m_brush_desc };
 }
 #endif
 
