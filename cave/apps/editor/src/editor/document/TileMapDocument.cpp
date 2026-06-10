@@ -12,6 +12,7 @@
 
 namespace cave {
 
+using namespace ::cave::literals;
 using ecs::Entity;
 
 TileMapDocument::TileMapDocument(IApplication& app, const Guid& guid)
@@ -22,6 +23,7 @@ TileMapDocument::TileMapDocument(IApplication& app, const Guid& guid)
 
     Entity ent = cb.CreateTileMapObject("tilemap");
     cb.AttachChild(ent, root);
+    cb.SetProperty(ent, TileMapRendererComponent_Id, "tile_map_id"_sid, guid);
 
     auto scene = std::make_unique<Scene>(std::format("preview-tile-map-{}", guid.ToString()));
 

@@ -65,17 +65,13 @@ void SceneViewTab::submitView() {
 void SceneViewTab::onCreate() {
     ViewTabBase::onCreate();
 
-    IApplication& app = m_editor.app();
-    app.services().sceneScheduler().add(this);
     m_editor.PickingService().Register(this);
 }
 
 void SceneViewTab::onDestroy() {
     ViewTabBase::onDestroy();
 
-    IApplication& app = m_editor.app();
     m_editor.PickingService().Register(this);
-    app.services().sceneScheduler().remove(this);
 }
 
 Option<PickData> SceneViewTab::GetPickData(const Vector2f& pointer_os) {

@@ -69,10 +69,16 @@ void ViewTabBase::onCreate() {
     view_id_ = view_manager_.createView(
         "SceneView",
         { 0, 0, kTextureWidth, kTextureHeight });
+
+    IApplication& app = m_editor.app();
+    app.services().sceneScheduler().add(this);
 }
 
 void ViewTabBase::onDestroy() {
     view_manager_.destroyView(view_id_);
+
+    IApplication& app = m_editor.app();
+    app.services().sceneScheduler().remove(this);
 }
 
 void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {

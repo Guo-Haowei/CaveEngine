@@ -1,5 +1,4 @@
 #pragma once
-#include "cave/core/math/Rect.h"
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "editor/document/SceneDocument.h"
@@ -8,7 +7,6 @@
 
 // @TODO: refactor
 #include "editor/Enums.h"
-#include "editor/camera/CameraController.h"
 
 namespace cave {
 
