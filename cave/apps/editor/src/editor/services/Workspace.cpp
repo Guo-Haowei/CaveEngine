@@ -22,14 +22,14 @@ Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
     IApplication& app = m_editor.app();
-    app.InputService().addConsumer(this);
+    app.services().inputService().addConsumer(this);
     app.IntentDispatcher()->AddHandler<OpenDocIntent>(this);
     app.IntentDispatcher()->AddHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
     IApplication& app = m_editor.app();
-    app.InputService().removeConsumer(this);
+    app.services().inputService().removeConsumer(this);
     app.IntentDispatcher()->RemoveHandler<OpenDocIntent>(this);
     app.IntentDispatcher()->RemoveHandler<CloseDocIntent>(this);
 }
@@ -54,7 +54,7 @@ PreviewScene Workspace::FocusedPreviewScene() {
     ret.doc_id = FocusedDoc();
     if (IDocument* doc = m_editor.DocumentService().Resolve(ret.doc_id)) {
         ret.scene_id = doc->GetPreviewScene();
-        ret.scene = m_editor.app().GetSceneRegistry()->Resolve(ret.scene_id);
+        ret.scene = m_editor.app().services().sceneRegistry().Resolve(ret.scene_id);
     }
     return ret;
 }

@@ -37,7 +37,7 @@ void PickingService::Pick(math::Vector2f p_point_win) {
 void PickingService::Raycast(const PickData& pick_data) {
     auto ray = math::Ray::unproject(pick_data.proj_view, pick_data.cursor_ndc);
 
-    auto result = m_editor.app().SceneQueryService().Raycast(pick_data.scene_id, ray, {});
+    auto result = m_editor.app().services().sceneQuery().raycast(pick_data.scene_id, ray, {});
 
     SelectionKey key{
         .kind = SelectionKind::Entity,

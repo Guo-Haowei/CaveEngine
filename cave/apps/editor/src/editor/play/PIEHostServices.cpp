@@ -18,7 +18,7 @@ PIEHostServices::PIEHostServices(IApplication& app,
     , view_id_(view_id)
     , writer_(*app.GetAssetRegistry())
     , scene_query_(scene)
-    , view_query_(*app.GetViewManager()) {
+    , view_query_(app.services().viewManager()) {
 }
 
 AssetRegistry& PIEHostServices::assetRegistry() {
@@ -38,11 +38,11 @@ IntentDispatcher& PIEHostServices::intentDispatcher() {
 }
 
 const IGameInput& PIEHostServices::gameInput() const {
-    return app_.InputService().gameInput();
+    return app_.services().inputService().gameInput();
 }
 
 IUIRuntime& PIEHostServices::ui() {
-    return *app_.UIService();
+    return app_.services().ui();
 }
 
 void PIEHostServices::flushSceneCommands() {

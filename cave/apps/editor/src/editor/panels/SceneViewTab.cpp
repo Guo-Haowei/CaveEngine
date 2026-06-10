@@ -51,7 +51,7 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
                            ViewDimension p_dimension)
     : Tab(p_editor, p_doc_id)
     , m_debug_id(MakeDebugId(this))
-    , m_view_manager(*p_editor.app().GetViewManager())
+    , m_view_manager(p_editor.app().services().viewManager())
     , m_dim(p_dimension)
     , m_preview_scene(p_preview_scene_id)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
@@ -107,7 +107,7 @@ void SceneViewTab::SubmitView() {
         }
     }
     view.output = m_texture;
-    m_editor.app().GetViewManager()->Submit(view);
+    m_view_manager.submit(view);
 }
 
 void SceneViewTab::onCreate() {
@@ -129,10 +129,10 @@ void SceneViewTab::onCreate() {
 
     IApplication& app = m_editor.app();
 
-    app.GetSceneScheduler().Register(this);
+    app.services().sceneScheduler().Register(this);
     m_editor.PickingService().Register(this);
 
-    m_view_id = app.GetViewManager()->CreateView(
+    m_view_id = m_view_manager.createView(
         "SceneView",
         { 0, 0, kTextureWidth, kTextureHeight });
 }
@@ -140,15 +140,15 @@ void SceneViewTab::onCreate() {
 void SceneViewTab::onDestroy() {
     IApplication& app = m_editor.app();
 
-    app.GetViewManager()->DestroyView(m_view_id);
+    m_view_manager.destroyView(m_view_id);
     m_editor.PickingService().Register(this);
-    app.GetSceneScheduler().Unregister(this);
+    app.services().sceneScheduler().Unregister(this);
 }
 
 Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& pointer_os) {
     if (!IsVisible()) return None();
 
-    const ViewRecord* view = m_view_manager.Resolve(m_view_id);
+    const ViewRecord* view = m_view_manager.resolve(m_view_id);
     if (!view->display_rect_os.Contains(pointer_os.x, pointer_os.y)) {
         return None();
     }
@@ -214,7 +214,7 @@ void SceneViewTab::onInputEvents(const InputFrame& p_input) {
         return;
     }
 
-    const KeyState& st = m_editor.app().InputService().keyState();
+    const KeyState& st = m_editor.app().services().inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return;
     }
@@ -223,7 +223,7 @@ void SceneViewTab::onInputEvents(const InputFrame& p_input) {
 }
 
 void SceneViewTab::DrawUIImpl() {
-    ViewRecord* view = m_view_manager.Resolve(m_view_id);
+    ViewRecord* view = m_view_manager.resolve(m_view_id);
     DEV_ASSERT(view);
 
     UpdateRect(view->display_rect_os);
@@ -341,7 +341,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
                 math::Decompose(before, scale_1, rot_1, pos_1);
                 math::Decompose(after, scale_2, rot_2, pos_2);
 
-                SceneRegistry& scene_reg = *m_editor.app().GetSceneRegistry();
+                SceneRegistry& scene_reg = m_editor.app().services().sceneRegistry();
                 if (p_operation & ImGuizmo::TRANSLATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
@@ -407,7 +407,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
 // }
 
 Scene* SceneViewTab::GetResolvedScene() {
-    return m_editor.app().GetSceneRegistry()->Resolve(m_preview_scene);
+    return m_editor.app().services().sceneRegistry().Resolve(m_preview_scene);
 }
 
 }  // namespace cave

@@ -36,10 +36,7 @@ bool PIESession::start(PIEStartDesc start_desc) {
 
     if (!ensureGameModuleLoaded()) return false;
 
-    SceneRegistry* reg = app_.GetSceneRegistry();
-    if (!reg) return false;
-
-    Scene* scene = reg->Resolve(start_desc_.edit_scene);
+    Scene* scene = app_.services().sceneRegistry().Resolve(start_desc_.edit_scene);
     if (!scene) return false;
 
     PIEHostServices host(app_, *scene, {});
@@ -60,15 +57,15 @@ void PIESession::stop() {
 }
 
 void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
-    SceneRegistry& scene_manager = *app_.GetSceneRegistry();
+    SceneRegistry& scene_reg = app_.services().sceneRegistry();
 
-    pie_scene_ = scene_manager.Clone(scene_id);
+    pie_scene_ = scene_reg.Clone(scene_id);
 
-    Scene* scene = scene_manager.Resolve(pie_scene_);
+    Scene* scene = scene_reg.Resolve(pie_scene_);
     DEV_ASSERT(scene);
     app_.ScriptService()->OnSimBegin(*scene);
 
-    app_.GetSceneScheduler().Register(this);
+    app_.services().sceneScheduler().Register(this);
 
     host_ = std::make_unique<PIEHostServices>(app_, *scene, view_id);
     game_module_->onGameBegin(*host_);
@@ -78,19 +75,19 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
 }
 
 void PIESession::onSimEnd() {
-    SceneRegistry& scene_manager = *app_.GetSceneRegistry();
+    SceneRegistry& scene_reg = app_.services().sceneRegistry();
 
     running_ = false;
 
-    if (Scene* scene = app_.GetSceneRegistry()->Resolve(pie_scene_)) {
+    if (Scene* scene = scene_reg.Resolve(pie_scene_)) {
         app_.ScriptService()->OnSimEnd();
 
         game_module_->onGameEnd(*host_);
     }
 
-    app_.GetSceneScheduler().Unregister(this);
+    app_.services().sceneScheduler().Unregister(this);
 
-    scene_manager.Destroy(pie_scene_);
+    scene_reg.Destroy(pie_scene_);
     pie_scene_ = {};
 }
 
@@ -103,8 +100,8 @@ void PIESession::tick(const FrameTime& time) {
         return;
     }
 
-    SceneRegistry* reg = app_.GetSceneRegistry();
-    Scene* scene = reg->Resolve(pie_scene_);
+    SceneRegistry& scene_reg = app_.services().sceneRegistry();
+    Scene* scene = scene_reg.Resolve(pie_scene_);
     if (!scene) return;
 
     game_module_->tick(*host_, time);

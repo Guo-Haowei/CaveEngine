@@ -60,26 +60,25 @@ private:
 };
 
 SceneRegistry::SceneRegistry()
-    : IService("SceneRegistry")
-    , m_impl(std::make_unique<Impl>()) {
+    : m_impl(std::make_unique<Impl>()) {
 }
 
-auto SceneRegistry::InitializeImpl() -> Result<void> {
-    CommandRegistry& reg = m_app->CommandRegistry();
-    reg.Register({
-        .name = "scene.reg.dump",
-        .help = "List registered scenes.",
-        .usage = "scene.reg.dump",
-        .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
-            return m_impl->Dump_Cmd(p_ctx, p_args);
-        },
-    });
+SceneRegistry::~SceneRegistry() = default;
 
-    return Result<void>();
-}
-
-void SceneRegistry::FinalizeImpl() {
-}
+// @TODO: move it to a single place
+// auto SceneRegistry::InitializeImpl() -> Result<void> {
+//     CommandRegistry& reg = m_app->CommandRegistry();
+//     reg.Register({
+//         .name = "scene.reg.dump",
+//         .help = "List registered scenes.",
+//         .usage = "scene.reg.dump",
+//         .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
+//             return m_impl->Dump_Cmd(p_ctx, p_args);
+//         },
+//     });
+//
+//     return Result<void>();
+// }
 
 SceneId SceneRegistry::Create(std::string p_name) {
     return m_impl->Create(std::move(p_name));

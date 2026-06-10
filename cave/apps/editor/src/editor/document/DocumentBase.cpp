@@ -15,7 +15,7 @@ namespace cave {
 
 DocumentBase::DocumentBase(IApplication& p_app, const Guid& p_guid)
     : m_asset_reg(*p_app.GetAssetRegistry())
-    , m_scene_reg(*p_app.GetSceneRegistry())
+    , m_scene_reg(p_app.services().sceneRegistry())
     , m_guid(p_guid) {
 
     m_handle = m_asset_reg.FindByGuid(p_guid).unwrap();

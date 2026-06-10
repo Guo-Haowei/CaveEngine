@@ -28,9 +28,6 @@
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/runtime/view/ViewManager.h"
-#include "engine/private/runtime/scene/SceneQueryService.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/ui/UIRuntime.h"
 
 // @TODO: remove
 #include "engine/private/renderer/graphics_dvars.h"
@@ -72,46 +69,49 @@ auto Application::SetupModules() -> Result<void> {
     m_asset_manager = CreateAssetService();
     m_asset_registry = new AssetRegistry();
     m_script_service = CreateScriptService();
-    m_scene_registry = new SceneRegistry();
     m_physics_manager = CreatePhysicsService();
     m_render_device = CreateRenderDevice(m_spec.backend);
     m_display_service = CreateDisplayService();
-    m_input_service = new cave::InputService();
-    m_ui = new UIRuntime();
+    input_service_ = new cave::InputService();
     m_renderer = new render::Renderer();
-    m_view_manager = new ViewManager();
-    m_task_manager = new TaskManager();
+    task_manager_ = new TaskManager();
     m_intent_dispatcher = new cave::IntentDispatcher();
 
-    m_scene_scheduler = std::make_unique<SceneScheduler>(
-        *m_scene_registry,
+    scene_scheduler_ = std::make_unique<SceneScheduler>(
+        scene_registry_,
         *m_script_service);
 
-    m_scene_query_service = new cave::SceneQueryService(*m_scene_registry);
-
     // @TODO: dependency injection?
+    scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
+    view_manager_ = std::make_unique<ViewManager>(scene_registry_,
+                                                  IsOpenGL());
     project_manager_ = std::make_unique<ProjectManager>(vfs_,
-                                                        *m_task_manager,
+                                                        *task_manager_,
                                                         *m_asset_manager,
                                                         *m_asset_registry);
+    ui_ = std::make_unique<UIRuntime>(*view_manager_);
 
     // setup app services
-    services_.vfs_ = &vfs_;
     services_.project_manager_ = project_manager_.get();
+    services_.scene_scheduler_ = scene_scheduler_.get();
+    services_.view_manager_ = view_manager_.get();
+    services_.ui_ = ui_.get();
+
+    services_.input_service_ = input_service_;
+    services_.task_manager_ = task_manager_;
+
+    services_.vfs_ = &vfs_;
 
     // register subsystems
-    RegisterModule(m_task_manager);
+    RegisterModule(task_manager_);
     RegisterModule(m_asset_manager);
     RegisterModule(m_asset_registry);
-    RegisterModule(m_scene_registry);
     RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
-    RegisterModule(m_input_service);
+    RegisterModule(input_service_);
     RegisterModule(m_display_service);
     RegisterModule(m_render_device);
     RegisterModule(m_renderer);
-    RegisterModule(m_view_manager);
-    RegisterModule(m_ui);
     RegisterModule(m_intent_dispatcher);
 
     if (m_spec.enableImgui) {
@@ -204,34 +204,33 @@ bool Application::MainLoop() {
         return false;
     }
 
-    m_task_manager->TickMainThread();
+    task_manager_->TickMainThread();
 
     FrameTime time{
         .dt = UpdateTime(),
         .frame_index = m_frame_counter++,
     };
 
-    m_input_service->tick(time);
+    input_service_->tick(time);
 
-    m_ui->BeginFrame(m_input_service->getUIInput());
+    ui_->beginFrame(input_service_->getUIInput());
 
     m_asset_manager->Update();
 
     // layer should set active scene
     // update layers from back to front
-    m_view_manager->BeginFrame();
+    view_manager_->beginFrame();
 
     m_state_machine.tick(time);
     m_intent_dispatcher->Flush();
 
     // update scene after ImGui, physics and script updates
-    m_scene_scheduler->Tick(time);
+    scene_scheduler_->Tick(time);
 
-    m_ui->EndFrame();
+    ui_->endFrame();
 
-    std::span<const ResolvedView> views = m_view_manager->EndFrame();
-    auto ui_draw_data = m_ui->TakeDrawData();
-    m_renderer->Tick(time, views, ui_draw_data);
+    std::span<const ResolvedView> views = view_manager_->endFrame();
+    m_renderer->Tick(time, views, ui_->takeDrawData());
 
     return true;
 }

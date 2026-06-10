@@ -6,7 +6,10 @@
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
+#include "engine/private/runtime/scene/SceneQueryService.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
+#include "engine/private/ui/UIRuntime.h"
 
 namespace cave {
 
@@ -15,7 +18,7 @@ class IService;
 // @TODO: make this an impl class instead of virtual
 class Application : public IApplication {
 public:
-    Application(const AppSpec& p_spec, AppType p_type);
+    Application(const AppSpec& spec, AppType type);
     ~Application();
 
     AppStateId GetStateId() const override;
@@ -23,11 +26,11 @@ public:
     Result<void> Initialize() override;
     void Finalize() override;
 
-    QuitVote OnQuitRequested(const QuitContext&) override { return QuitVote::Allow; }
+    QuitVote OnQuitRequested(const QuitContext&) override {
+        return QuitVote::Allow;
+    }
 
     EventQueue& GetEventQueue() override { return m_event_queue; }
-    SceneScheduler& GetSceneScheduler() override { return *m_scene_scheduler; }
-    cave::InputService& InputService() override { return *m_input_service; }
 
     AppType GetType() const override { return m_type; }
 
@@ -53,12 +56,18 @@ protected:
     EventQueue m_event_queue;
     std::vector<IService*> m_modules;
 
-    cave::InputService* m_input_service;
-    std::unique_ptr<SceneScheduler> m_scene_scheduler;
-
     // @TODO: move above to AppServices
-    VFS vfs_;
     std::unique_ptr<ProjectManager> project_manager_;
+    std::unique_ptr<SceneQueryService> scene_query_;
+    std::unique_ptr<SceneScheduler> scene_scheduler_;
+    std::unique_ptr<ViewManager> view_manager_;
+    std::unique_ptr<UIRuntime> ui_;
+
+    VFS vfs_;
+    SceneRegistry scene_registry_;
+
+    InputService* input_service_;
+    TaskManager* task_manager_;
 };
 
 }  // namespace cave

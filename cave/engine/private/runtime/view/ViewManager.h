@@ -1,6 +1,5 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
-#include "cave/runtime/framework/IService.h"
 #include "cave/runtime/view/ViewDesc.h"
 #include "cave/runtime/view/ViewRecord.h"
 
@@ -10,38 +9,38 @@
 
 namespace cave {
 
-class ViewManager : public IService,
-                    protected GenIdRegistry<ViewRecord> {
+class SceneRegistry;
+
+class ViewManager : protected GenIdRegistry<ViewRecord> {
     using Base = GenIdRegistry<ViewRecord>;
 
 public:
-    ViewManager();
+    ViewManager(SceneRegistry& scene_reg, bool is_opengl) noexcept;
 
-    void BeginFrame();
-    std::span<const ResolvedView> EndFrame();
+    void beginFrame();
+    std::span<const ResolvedView> endFrame();
 
-    ViewId CreateView(std::string_view p_debug_name,
-                      const math::IntRect& p_viewport_px);
-    void DestroyView(ViewId p_view_id);
+    ViewId createView(std::string_view debug_name,
+                      const math::IntRect& viewport_px);
+    void destroyView(ViewId view_id);
 
-    void Submit(const ViewDesc& p_view_desc);
+    void submit(const ViewDesc& view_desc);
 
-    ViewRecord* Resolve(ViewId p_view_id) {
-        return Base::Resolve(p_view_id);
+    ViewRecord* resolve(ViewId view_id) {
+        return Base::Resolve(view_id);
     }
 
-    const ViewRecord* Resolve(ViewId p_view_id) const {
-        return Base::Resolve(p_view_id);
+    const ViewRecord* resolve(ViewId view_id) const {
+        return Base::Resolve(view_id);
     }
-
-protected:
-    auto InitializeImpl() -> Result<void> override;
-    void FinalizeImpl() override;
 
 private:
-    std::vector<ViewDesc> m_view_descs;
-    std::vector<ResolvedView> m_views;
-    bool m_can_submit{ false };
+    SceneRegistry& scene_reg_;
+    const bool is_opengl_;
+
+    std::vector<ViewDesc> view_descs_;
+    std::vector<ResolvedView> resolved_views_;
+    bool can_submit_{ false };
 };
 
 }  // namespace cave

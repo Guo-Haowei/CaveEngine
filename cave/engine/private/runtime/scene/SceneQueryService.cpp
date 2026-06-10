@@ -7,16 +7,14 @@ namespace cave {
 
 using namespace math;
 
-RayHit SceneQueryService::Raycast(SceneId p_scene_id,
-                                  math::Ray& p_ray,
-                                  const RaycastFilter& p_filter) {
-    unused(p_filter);
-
-    const Scene* scene = m_scene_reg.Resolve(p_scene_id);
+RayHit SceneQueryService::raycast(SceneId scene_id,
+                                  math::Ray& ray,
+                                  const RaycastFilter& filter) {
+    const Scene* scene = scene_registry_.Resolve(scene_id);
     DEV_ASSERT(scene);
 
     SceneQuery query(*scene);
-    return query.raycast(p_ray, p_filter);
+    return query.raycast(ray, filter);
 }
 
 }  // namespace cave

@@ -7,6 +7,7 @@
 namespace cave {
 
 class EditorState;
+class InputService;
 class IntentDispatcher;
 
 class ShortcutService final : public IInputConsumer,
@@ -27,6 +28,7 @@ private:
     void InitShortcuts();
 
     EditorState& m_editor;
+    InputService& input_service_;
     IntentDispatcher& m_intent_dispatcher;
 
     std::array<ShortcutDesc, kShortcutCount> m_shortcuts;

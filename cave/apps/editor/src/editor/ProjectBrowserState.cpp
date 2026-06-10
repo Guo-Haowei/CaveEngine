@@ -152,7 +152,7 @@ Option<StateRequest> ProjectBrowserState::popRequest() {
         return None();
     }
 
-    if (app_.GetTaskManager()->HasPendingWork()) {
+    if (app_.services().taskManager().HasPendingWork()) {
         return None();
     }
 

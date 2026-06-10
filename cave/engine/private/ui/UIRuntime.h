@@ -9,35 +9,31 @@ class ViewManager;
 
 class UIRuntime final : public IUIRuntime {
 public:
-    UIRuntime()
-        : IUIRuntime("UIRuntime") {}
+    UIRuntime(ViewManager& view_manager) noexcept
+        : view_manager_(view_manager) {}
 
-    void BeginFrame(const UIInput& p_input) override;
-    void EndFrame() override;
+    void beginFrame(const UIInput& input) override;
+    void endFrame() override;
 
-    void BeginView(ViewId p_view_id) override;
-    void EndView() override;
+    void beginView(ViewId view_id) override;
+    void endView() override;
 
-    bool Button(UIId p_id, UIRect p_rect) override;
+    bool button(UIId id, UIRect rect) override;
 
-    UIFrameDrawData TakeDrawData() override {
-        return std::move(m_draw_data);
+    UIFrameDrawData takeDrawData() override {
+        return std::move(draw_data_);
     }
 
-protected:
-    auto InitializeImpl() -> Result<void> override;
-    void FinalizeImpl() override;
-
 private:
-    ViewManager* m_view_manager{};
-    UIInput m_input{};
-    UIFrameDrawData m_draw_data{};
-    ViewId m_current_view{};
+    ViewManager& view_manager_;
+    UIInput ui_input_{};
+    UIFrameDrawData draw_data_{};
+    ViewId current_view_{};
 
-    UIId m_hot = 0;     // hovered this frame
-    UIId m_active = 0;  // pressed/captured this frame
+    UIId hot_ = 0;     // hovered this frame
+    UIId active_ = 0;  // pressed/captured this frame
 
-    int m_stack = 0;
+    int stack_ = 0;
 };
 
 }  // namespace cave

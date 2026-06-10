@@ -1,33 +1,29 @@
 #pragma once
 #include "cave/core/ids/SceneId.h"
-#include "cave/runtime/framework/IService.h"
 
 namespace cave {
 
 class Scene;
 class IApplication;
 
-class SceneRegistry : public IService {
+class SceneRegistry {
 public:
     SceneRegistry();
+    ~SceneRegistry();
 
-    SceneId Create(std::string p_name);
+    SceneId Create(std::string name);
 
-    SceneId Register(std::unique_ptr<Scene> p_scene);
+    SceneId Register(std::unique_ptr<Scene> scene);
 
-    SceneId Clone(SceneId p_id);
+    SceneId Clone(SceneId sid);
 
-    void Destroy(SceneId p_id);
+    void Destroy(SceneId sid);
 
-    Scene* Resolve(SceneId p_id);
+    Scene* Resolve(SceneId sid);
 
-    const Scene* Resolve(SceneId p_id) const;
+    const Scene* Resolve(SceneId sid) const;
 
-    bool IsAlive(SceneId p_id) const;
-
-protected:
-    auto InitializeImpl() -> Result<void>;
-    void FinalizeImpl();
+    bool IsAlive(SceneId sid) const;
 
 private:
     class Impl;

@@ -18,10 +18,11 @@ namespace cave {
 
 ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor)
+    , input_service_(p_editor.app().services().inputService())
     , m_intent_dispatcher(*p_editor.app().IntentDispatcher())
     , m_debug_id(MakeDebugId(this)) {
 
-    m_editor.app().InputService().addConsumer(this);
+    input_service_.addConsumer(this);
     m_intent_dispatcher.AddHandler<SaveIntent>(this);
     m_intent_dispatcher.AddHandler<UndoIntent>(this);
     m_intent_dispatcher.AddHandler<RedoIntent>(this);
@@ -33,7 +34,7 @@ ShortcutService::~ShortcutService() {
     m_intent_dispatcher.RemoveHandler<SaveIntent>(this);
     m_intent_dispatcher.RemoveHandler<UndoIntent>(this);
     m_intent_dispatcher.RemoveHandler<RedoIntent>(this);
-    m_editor.app().InputService().removeConsumer(this);
+    input_service_.removeConsumer(this);
 }
 
 bool ShortcutService::handleIntent(Intent& p_intent) {
@@ -62,10 +63,9 @@ bool ShortcutService::handleIntent(Intent& p_intent) {
 }
 
 void ShortcutService::onEvents(const InputFrame& p_input) {
-    InputService& input = m_editor.app().InputService();
-    const bool ctrl = input.keyState().anyCtrlDown();
-    const bool alt = input.keyState().anyAltDown();
-    const bool shift = input.keyState().anyShiftDown();
+    const bool ctrl = input_service_.keyState().anyCtrlDown();
+    const bool alt = input_service_.keyState().anyAltDown();
+    const bool shift = input_service_.keyState().anyShiftDown();
 
     for (const InputEvent& e : p_input.events) {
         if (e.type != InputEventType::ButtonDown)

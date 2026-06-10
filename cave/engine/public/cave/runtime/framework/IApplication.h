@@ -27,16 +27,10 @@ class EventQueue;
 class IAssetManager;
 class DisplayService;
 class ImguiManager;
-class InputService;
 class IntentDispatcher;
-class IUIRuntime;
 class IPhysicsManager;
 class IScriptService;
 class SceneRegistry;
-class SceneQueryService;
-class SceneScheduler;
-class TaskManager;
-class ViewManager;
 
 struct AppSpec {
     std::string_view userFolder;
@@ -86,25 +80,16 @@ public:
 
     virtual AppStateId GetStateId() const = 0;
     virtual EventQueue& GetEventQueue() = 0;
-    virtual SceneScheduler& GetSceneScheduler() = 0;
-    virtual cave::InputService& InputService() = 0;
-
-    // services
-    SceneQueryService& SceneQueryService() { return *m_scene_query_service; }
 
     // @TODO: return reference instead
     AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
     IAssetManager* GetAssetManager() { return m_asset_manager; }
-    IUIRuntime* UIService() { return m_ui; }
-    SceneRegistry* GetSceneRegistry() { return m_scene_registry; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptService* ScriptService() { return m_script_service; }
     DisplayService* GetDisplayService() { return m_display_service; }
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
     IntentDispatcher* IntentDispatcher() { return m_intent_dispatcher; }
-    TaskManager* GetTaskManager() { return m_task_manager; }
-    ViewManager* GetViewManager() { return m_view_manager; }
 
     CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
     Console& Console() { return *m_console; }
@@ -126,12 +111,9 @@ protected:
 
     AppSpec m_spec;
 
-    cave::SceneQueryService* m_scene_query_service;
-
     // @TODO: differentiate global and state specific managers
     AssetRegistry* m_asset_registry{};
     IAssetManager* m_asset_manager{};
-    SceneRegistry* m_scene_registry{};
 
     IPhysicsManager* m_physics_manager{};
     IScriptService* m_script_service{};
@@ -143,10 +125,6 @@ protected:
 
     ImguiManager* m_imgui_manager{};
     cave::IntentDispatcher* m_intent_dispatcher{};
-    IUIRuntime* m_ui{};
-    TaskManager* m_task_manager{};
-
-    ViewManager* m_view_manager{};
 
     cave::CommandRegistry* m_cmd_reg{ nullptr };
     cave::Console* m_console{ nullptr };

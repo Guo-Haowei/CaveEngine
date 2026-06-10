@@ -32,25 +32,25 @@ void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd) {
 }
 
 void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
-    IApplication& p_app = m_editor.app();
+    IApplication& app = m_editor.app();
 
-    SceneRegistry& p_scene_reg = *p_app.GetSceneRegistry();
+    SceneRegistry& scene_reg = app.services().sceneRegistry();
 
     Scene* scene = nullptr;
     if (IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id)) {
         SceneId scene_id = doc->GetPreviewScene();
-        scene = p_scene_reg.Resolve(scene_id);
+        scene = scene_reg.Resolve(scene_id);
     }
 
     if (!scene) {
         return;
     }
 
-    SceneCommandWriter cb(*p_app.GetAssetRegistry());
+    SceneCommandWriter cb(*app.GetAssetRegistry());
     p_func(cb);
 
     EntityMap map(cb.GetAllocationCount());
-    SceneCommandExecutor_Undo executor(*p_app.GetSceneRegistry());
+    SceneCommandExecutor_Undo executor(scene_reg);
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     Submit(p_doc_id, std::move(executor.MoveCommand()));

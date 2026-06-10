@@ -28,12 +28,12 @@ struct UIDrawCommand {
 struct UIDrawList {
     std::vector<UIDrawCommand> cmds;
 
-    void AddRect(const UIRect& p_rect, const Color& p_color) {
+    void addRect(const UIRect& rect, const Color& color) {
         UIDrawCommand cmd{
             .type = UIDrawCommandType::Rect,
             .rect = {
-                .rect = p_rect,
-                .color = p_color,
+                .rect = rect,
+                .color = color,
             },
         };
         cmds.push_back(cmd);
