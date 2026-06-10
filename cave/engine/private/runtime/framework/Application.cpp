@@ -37,6 +37,10 @@ static cave::IApplication* s_app = nullptr;
 
 namespace cave {
 
+#if USING(USE_COMMAND)
+extern void registerCommands(CommandRegistry& cmd_reg);
+#endif
+
 namespace fs = std::filesystem;
 
 Application::Application(const AppSpec& p_spec, AppType p_type)
@@ -72,14 +76,14 @@ auto Application::SetupModules() -> Result<void> {
     m_render_device = CreateRenderDevice(m_spec.backend);
     m_display_service = CreateDisplayService();
     input_service_ = new cave::InputService();
-    m_renderer = new render::Renderer();
+    renderer_ = new render::Renderer();
     task_manager_ = new TaskManager();
 
+    // @TODO: dependency injection?
     scene_scheduler_ = std::make_unique<SceneScheduler>(
         scene_registry_,
         *m_script_service);
 
-    // @TODO: dependency injection?
     scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
     view_manager_ = std::make_unique<ViewManager>(scene_registry_,
                                                   IsOpenGL());
@@ -109,7 +113,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(input_service_);
     RegisterModule(m_display_service);
     RegisterModule(m_render_device);
-    RegisterModule(m_renderer);
+    RegisterModule(renderer_);
 
     if (m_spec.enableImgui) {
         auto res = CreateImguiManager();
@@ -122,7 +126,10 @@ auto Application::SetupModules() -> Result<void> {
 
     m_event_queue.RegisterListener(m_render_device);
 
+    // @TODO: move to registerCommands
     DvarCache::registerCmd(*m_cmd_reg);
+
+    registerCommands(*m_cmd_reg);
     return Result<void>();
 }
 
@@ -227,7 +234,7 @@ bool Application::MainLoop() {
     ui_->endFrame();
 
     std::span<const ResolvedView> views = view_manager_->endFrame();
-    m_renderer->Tick(time, views, ui_->takeDrawData());
+    renderer_->tick(time, views, ui_->takeDrawData());
 
     return true;
 }

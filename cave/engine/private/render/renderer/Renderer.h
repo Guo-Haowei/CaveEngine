@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/diagnostics/Command.h"
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/IService.h"
 
@@ -18,9 +19,13 @@ public:
     Renderer();
     ~Renderer();
 
-    void Tick(const FrameTime& p_frame,
-              std::span<const ResolvedView> p_views,
-              const UIFrameDrawData& p_ui_data);
+    void tick(const FrameTime& frame,
+              std::span<const ResolvedView> views,
+              const UIFrameDrawData& ui_data);
+
+#if USING(USE_COMMAND)
+    bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
+#endif
 
 protected:
     auto InitializeImpl() -> Result<void> override;

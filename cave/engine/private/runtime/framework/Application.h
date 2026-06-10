@@ -70,6 +70,9 @@ protected:
 
     InputService* input_service_;
     TaskManager* task_manager_;
+
+    // @TODO: make it unique_ptr
+    render::Renderer* renderer_;
 };
 
 }  // namespace cave

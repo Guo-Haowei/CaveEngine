@@ -4,6 +4,10 @@
 // =============================================================================
 #pragma once
 
+// clang-format off
+namespace cave::render { class Renderer; }
+// clang-format on
+
 namespace cave {
 
 class InputService;
@@ -28,6 +32,7 @@ struct AppServices {
     TaskManager* task_manager_{};
     ViewManager* view_manager_{};
     VFS* vfs_{};
+    render::Renderer* renderer_{};
 
     InputService& inputService() { return *input_service_; }
     IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
@@ -39,6 +44,7 @@ struct AppServices {
     TaskManager& taskManager() { return *task_manager_; }
     ViewManager& viewManager() { return *view_manager_; }
     VFS& vfs() { return *vfs_; }
+    render::Renderer& renderer() { return *renderer_; };
 };
 
 }  // namespace cave

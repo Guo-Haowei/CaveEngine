@@ -62,6 +62,10 @@ public:
               std::span<const ResolvedView> p_views,
               const UIFrameDrawData& p_ui_data);
 
+#if USING(USE_COMMAND)
+    bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
+#endif
+
 private:
     FramePlan BuildFramePlan(const FrameTime& p_frame,
                              std::span<const ResolvedView> p_views);
@@ -112,7 +116,7 @@ void Renderer::FinalizeImpl() {
     m_impl.reset();
 }
 
-void Renderer::Tick(const FrameTime& p_frame,
+void Renderer::tick(const FrameTime& p_frame,
                     std::span<const ResolvedView> p_views,
                     const UIFrameDrawData& p_ui_data) {
     m_impl->Tick(p_frame, p_views, p_ui_data);
@@ -211,23 +215,6 @@ static void FillEnvConstants(FrameData& p_out_data) {
             batch.c_envPassRoughness = (float)mip_idx / (float)(IBL_MIP_CHAIN_MAX - 1);
         }
     }
-}
-
-auto Renderer::Impl::Initialize() -> Result<void> {
-#if USING(USE_RENDERER_DEBUG)
-    CommandRegistry& reg = m_app.CommandRegistry();
-    reg.Register({
-        .name = "render.pool.dump",
-        .help = "List textures in transient pool.",
-        .usage = "render.pool.dump",
-        .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
-            RenderPoolDump_Cmd(m_pool, p_ctx, p_args);
-            return true;
-        },
-    });
-#endif
-
-    return Result<void>();
 }
 
 template<typename T>
@@ -487,5 +474,16 @@ auto Renderer::Impl::BuildRenderGraphPathTracer(const RenderOptions& p_plan,
 RenderScene& Renderer::Impl::GetOrCreateRenderScene(SceneId p_scene_id) {
     return m_scene_cache[p_scene_id];
 }
+
+#if USING(USE_COMMAND)
+bool Renderer::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
+    return m_impl->Cmd_dump(ctx, args);
+}
+
+bool Renderer::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
+    RenderPoolDump_Cmd(m_pool, ctx, args);
+    return true;
+}
+#endif
 
 }  // namespace cave::render

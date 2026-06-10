@@ -118,7 +118,6 @@ protected:
 
     DisplayService* m_display_service{};
 
-    render::Renderer* m_renderer{};
     render::IRenderDevice* m_render_device{};
 
     ImguiManager* m_imgui_manager{};

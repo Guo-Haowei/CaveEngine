@@ -2,6 +2,7 @@
 // File: cave/core/diagnostics/Command.h
 // =============================================================================
 #pragma once
+#include <span>
 #include "cave/core/typedefs.h"
 #include "cave/core/diagnostics/LogWrapper.h"
 
@@ -23,7 +24,8 @@ struct CommandArgs {
     std::span<const std::string_view> tokens;
 };
 
-using CommandFn = std::function<bool(CommandContext&, const CommandArgs&)>;
+using CommandFn = bool (*)(CommandContext&, const CommandArgs&);
+;
 
 struct CommandDesc {
     std::string name;

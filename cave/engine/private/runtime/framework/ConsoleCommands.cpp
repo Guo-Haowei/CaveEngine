@@ -2,11 +2,23 @@
 #include "cave/runtime/framework/AppServices.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
+#include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
 
 #if USING(USE_COMMAND)
+static void registerRendererCommands(CommandRegistry& cmd_reg) {
+    cmd_reg.Register({
+        .name = "render.pool.dump",
+        .help = "List textures in transient pool.",
+        .usage = "render.pool.dump",
+        .fn = [](CommandContext& ctx, const CommandArgs& args) {
+            return ctx.services.renderer().Cmd_dump(ctx, args);
+        },
+    });
+}
+
 static void registerIntentCommands(CommandRegistry& cmd_reg) {
     cmd_reg.Register({
         .name = "intent.dump",
@@ -30,6 +42,7 @@ static void registerSceneCommands(CommandRegistry& cmd_reg) {
 }
 
 void registerCommands(CommandRegistry& cmd_reg) {
+    registerRendererCommands(cmd_reg);
     registerIntentCommands(cmd_reg);
     registerSceneCommands(cmd_reg);
 }
