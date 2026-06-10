@@ -13,12 +13,12 @@ using namespace ::chess::core;
 ChessMatchAuthority::ChessMatchAuthority(IHostServices& host)
     : intent_dispatcher(host.intentDispatcher())
     , debug_id_(MakeDebugId(this)) {
-    intent_dispatcher.AddHandler<ChessMoveIntent>(this);
+    intent_dispatcher.addHandler<ChessMoveIntent>(this);
     pos_ = Position::Startpos();
 }
 
 ChessMatchAuthority::~ChessMatchAuthority() {
-    intent_dispatcher.RemoveHandler<ChessMoveIntent>(this);
+    intent_dispatcher.removeHandler<ChessMoveIntent>(this);
 }
 
 bool ChessMatchAuthority::handleIntent(cave::Intent& intent) {
@@ -39,18 +39,18 @@ bool ChessMatchAuthority::tryCommitMove(Color side, Move move) {
     Position copy = pos_;
     const bool ok = copy.MakeMove(move, undo);
     if (!ok) {
-        intent_dispatcher.Queue<AuthMoveRejected>(side, move);
+        intent_dispatcher.queue<AuthMoveRejected>(side, move);
         return false;
     }
 
     pos_ = copy;
-    intent_dispatcher.Queue<AuthMoveCommitted>(side, move);
+    intent_dispatcher.queue<AuthMoveCommitted>(side, move);
 
     // @TODO: figure out if draw or not
     const MoveList moves = MoveGen::LegalMove(pos_);
     if (moves.empty()) {
         game_over_ = true;
-        intent_dispatcher.Queue<AuthGameOver>(side, move);
+        intent_dispatcher.queue<AuthGameOver>(side, move);
     }
 
     return true;

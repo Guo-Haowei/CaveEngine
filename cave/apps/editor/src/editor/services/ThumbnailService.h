@@ -56,7 +56,7 @@ private:
     void ProcessCompletions();
     void SubmitRequests(const BusyInfo& p_info);
 
-    ViewManager& m_view_manager;
+    ViewManager& view_manager_;
     SceneRegistry& m_scene_reg;
     render::IRenderDevice& m_render_device;
     PreviewBuilder m_builder;

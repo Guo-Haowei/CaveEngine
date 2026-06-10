@@ -157,7 +157,7 @@ Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const s
 }
 
 std::string AssetManager::ResolvePath(const fs::path& p_path) {
-    return m_app->GetVFS().Resolve("@res", p_path);
+    return m_app->services().vfs().Resolve("@res", p_path);
 }
 
 uint64_t AssetManager::SubmitLoadAsset(const AssetLoadRequest& p_request) {
@@ -195,8 +195,8 @@ uint64_t AssetManager::SubmitLoadAsset(const AssetLoadRequest& p_request) {
     opt.priority = TaskPriority::Normal;
     opt.start_immediately = true;
 
-    return m_app->GetTaskManager()->Submit(std::make_unique<LoadAssetTask>(*this, p_request.guid),
-                                           opt);
+    return m_app->services().taskManager().Submit(std::make_unique<LoadAssetTask>(*this, p_request.guid),
+                                                  opt);
 }
 
 uint64_t AssetManager::SubmitImportScene(const SceneImportRequest& p_request) {
@@ -241,7 +241,7 @@ uint64_t AssetManager::SubmitImportScene(const SceneImportRequest& p_request) {
         fs::path m_dest;
     };
 
-    return m_app->GetTaskManager()->Submit(
+    return m_app->services().taskManager().Submit(
         std::make_unique<ImportAssetTask>(*this,
                                           p_request.source_path,
                                           p_request.dest_dir),

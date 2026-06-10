@@ -44,7 +44,7 @@ void ChessGameSession::tick() {
         return;
     }
 
-    host_.intentDispatcher().Flush();
+    host_.intentDispatcher().flush();
 
     // update client visual
     client_->present();
@@ -88,7 +88,7 @@ void ChessGameSession::tickGameOver() {
     host_.log().Info(LogChannel::Game, "Game Over!");
 
     auto state = std::make_unique<GameOverState>();
-    host_.intentDispatcher().Queue<ChessStateIntent>(std::move(state));
+    host_.intentDispatcher().queue<ChessStateIntent>(std::move(state));
 }
 
 bool ChessGameSession::isAnimating() const {

@@ -20,37 +20,37 @@ namespace cave {
 EditService::EditService(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    m_editor.GetApp().IntentDispatcher()->AddHandler<EditIntent>(this);
+    m_editor.app().services().intentDispatcher().addHandler<EditIntent>(this);
 }
 
 EditService::~EditService() {
-    m_editor.GetApp().IntentDispatcher()->RemoveHandler<EditIntent>(this);
+    m_editor.app().services().intentDispatcher().removeHandler<EditIntent>(this);
 }
 
 void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd) {
-    m_editor.GetApp().IntentDispatcher()->Queue<EditIntent>(p_doc_id, std::move(p_cmd));
+    m_editor.app().services().intentDispatcher().queue<EditIntent>(p_doc_id, std::move(p_cmd));
 }
 
 void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
-    IApplication& p_app = m_editor.GetApp();
+    IApplication& app = m_editor.app();
 
-    SceneRegistry& p_scene_reg = *p_app.GetSceneRegistry();
+    SceneRegistry& scene_reg = app.services().sceneRegistry();
 
     Scene* scene = nullptr;
     if (IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id)) {
         SceneId scene_id = doc->GetPreviewScene();
-        scene = p_scene_reg.Resolve(scene_id);
+        scene = scene_reg.resolve(scene_id);
     }
 
     if (!scene) {
         return;
     }
 
-    SceneCommandWriter cb(*p_app.GetAssetRegistry());
+    SceneCommandWriter cb(*app.GetAssetRegistry());
     p_func(cb);
 
     EntityMap map(cb.GetAllocationCount());
-    SceneCommandExecutor_Undo executor(*p_app.GetSceneRegistry());
+    SceneCommandExecutor_Undo executor(scene_reg);
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     Submit(p_doc_id, std::move(executor.MoveCommand()));

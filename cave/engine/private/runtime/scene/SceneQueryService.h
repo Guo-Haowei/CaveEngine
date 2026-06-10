@@ -8,16 +8,16 @@ class SceneRegistry;
 
 class SceneQueryService {
 public:
-    explicit SceneQueryService(SceneRegistry& p_scene_reg) noexcept
-        : m_scene_reg(p_scene_reg) {
+    explicit SceneQueryService(SceneRegistry& scene_registry) noexcept
+        : scene_registry_(scene_registry) {
     }
 
-    RayHit Raycast(SceneId p_scene_id,
-                   math::Ray& p_ray,
-                   const RaycastFilter& p_filter);
+    RayHit raycast(SceneId scene_id,
+                   math::Ray& ray,
+                   const RaycastFilter& filter);
 
 private:
-    SceneRegistry& m_scene_reg;
+    SceneRegistry& scene_registry_;
 };
 
 }  // namespace cave

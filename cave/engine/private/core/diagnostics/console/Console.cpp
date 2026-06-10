@@ -23,7 +23,7 @@ void Console::SubmitLine(std::string_view p_line) {
             CommandContext ctx{
                 .log = LogWrapper(CompositeLogger::GetSingleton()),
                 .desc = cmd,
-                .app = m_app,
+                .services = m_app.services(),
             };
 
             ok = cmd.fn(ctx, { tokens });

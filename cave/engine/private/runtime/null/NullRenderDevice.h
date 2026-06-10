@@ -10,7 +10,7 @@ WARNING_DISABLE(4100, "-Wunused-parameter")
 class NullRenderDevice : public IRenderDevice {
 public:
     NullRenderDevice(std::string_view p_name = "EmptyRenderDevice")
-        : IRenderDevice(p_name) {}
+        : IRenderDevice(p_name, rhi::Backend::Null) {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}

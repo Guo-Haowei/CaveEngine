@@ -4,54 +4,51 @@
 
 namespace cave {
 
-void AppStateMachine::Init(AppStateId p_initial_state) {
+void AppStateMachine::initialize(AppStateId p_initial_state) {
     StateRequest req{ p_initial_state };
-    m_state = CreateState(m_app, req.next);
-    m_state->OnEnter(req);
+    state_ = createState(app_, req.next);
+    state_->onEnter(req);
 
-    m_state_id = p_initial_state;
+    state_id_ = p_initial_state;
 }
 
-void AppStateMachine::Shutdown() {
-    if (DEV_VERIFY(m_state)) {
-        m_state->OnExit();
-        m_state.reset();
+void AppStateMachine::shutdown() {
+    if (DEV_VERIFY(state_)) {
+        state_->onExit();
+        state_.reset();
     }
 }
 
-void AppStateMachine::Tick(const FrameTime& p_time) {
-    m_state->Tick(p_time);
+void AppStateMachine::tick(const FrameTime& p_time) {
+    state_->tick(p_time);
 
-    if (auto req = m_state->PopRequest(); req.is_some()) {
-        SwitchTo(req.unwrap_unchecked());
+    if (auto req = state_->popRequest(); req.is_some()) {
+        switchTo(req.unwrap_unchecked());
     }
 }
 
-void AppStateMachine::SwitchTo(const StateRequest& p_request) {
+void AppStateMachine::switchTo(const StateRequest& p_request) {
 #if USING(DEBUG_BUILD)
-    const char* old_state = m_state->GetDebugName();
+    std::string_view old_state = state_->debugId().type;
 #endif
 
-    m_state->OnExit();
-    m_state = CreateState(m_app, p_request.next);
+    state_->onExit();
+    state_ = createState(app_, p_request.next);
 
-#if USING(DEBUG_BUILD)
-    const char* new_state = m_state->GetDebugName();
-    LOG_INFO(LogChannel::App, "State {} -> {}", old_state, new_state);
-#endif
+    LOG_INFO(LogChannel::App, "State {} -> {}", old_state, state_->debugId().type);
 
-    m_state->OnEnter(p_request);
-    m_state_id = p_request.next;
+    state_->onEnter(p_request);
+    state_id_ = p_request.next;
 }
 
-void AppStateMachine::RegisterCreateFunc(AppStateId p_state_id, CreateFunc p_func) {
+void AppStateMachine::registerCreateFunc(AppStateId p_state_id, CreateFunc p_func) {
     const uint8_t index = std::to_underlying(p_state_id);
     DEV_ASSERT(s_create_funcs[index] == nullptr);
 
     s_create_funcs[index] = p_func;
 }
 
-std::unique_ptr<AppState> AppStateMachine::CreateState(IApplication& p_app, AppStateId p_state_id) {
+std::unique_ptr<AppState> AppStateMachine::createState(IApplication& p_app, AppStateId p_state_id) {
     const uint8_t index = std::to_underlying(p_state_id);
     if (index >= std::to_underlying(AppStateId::Count) || s_create_funcs[index] == nullptr) {
         return nullptr;

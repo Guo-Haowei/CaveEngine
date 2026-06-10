@@ -1,5 +1,7 @@
 #include "EditorState.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
@@ -27,7 +29,6 @@
 #include "engine/private/ui/layout.h"
 
 #include "editor/edit/EditObjectCmd.h"
-#include "editor/EditorDvars.h"
 #include "editor/panels/ContentBrowser.h"
 #include "editor/panels/FileSystemPanel.h"
 #include "editor/panels/HierarchyPanel.h"
@@ -44,7 +45,8 @@ using ecs::Entity;
 
 EditorState::EditorState(IApplication& p_app)
     : AppState(p_app)
-    , m_pie(p_app) {
+    , m_pie(p_app)
+    , debug_id_(MakeDebugId(this)) {
     // services
     m_document_service = std::make_unique<cave::DocumentService>(*this);
     m_edit_service = std::make_unique<cave::EditService>(*this);
@@ -53,7 +55,7 @@ EditorState::EditorState(IApplication& p_app)
     m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
     m_thumbnail_service = std::make_unique<cave::ThumbnailService>(*this);
     m_workspace = std::make_unique<cave::Workspace>(*this);
-    m_icon_cache = std::make_unique<cave::IconCache>(*GetApp().GetAssetRegistry(), *GetApp().GetAssetManager());
+    m_icon_cache = std::make_unique<cave::IconCache>(*app().GetAssetRegistry(), *app().GetAssetManager());
 
     // panels
     m_content_browser = std::make_shared<ContentBrowser>(*this);
@@ -74,9 +76,8 @@ EditorState::~EditorState() {
     m_panels.clear();
 }
 
-void EditorState::OnEnter(const StateRequest& p_args) {
+void EditorState::onEnter(const StateRequest& request) {
     CAVE_PROFILE_EVENT();
-    unused(p_args);
 
     ImNodes::CreateContext();
 
@@ -85,31 +86,26 @@ void EditorState::OnEnter(const StateRequest& p_args) {
     }
 
     SceneId edit_scene{};
-    if (auto asset = DVAR_GET_STRING(last_open_asset); !asset.empty()) {
-        if (auto res = Guid::Parse(asset); res.is_some()) {
-            Guid guid = res.unwrap_unchecked();
-            if (auto handle = m_app.GetAssetRegistry()->FindByGuid(guid); handle.is_some()) {
-                AssetHandle handle_ = handle.unwrap_unchecked();
-                DocId doc_id = m_document_service->OpenDoc({ guid, handle_.GetMeta()->type });
-                if (IDocument* doc = m_document_service->Resolve(doc_id)) {
-                    edit_scene = doc->GetPreviewScene();
-                }
+    if (!request.arg0.empty()) {
+        if (auto handle = app_.GetAssetRegistry()->FindByPath(request.arg0); handle.is_some()) {
+            AssetHandle handle_ = handle.unwrap_unchecked();
+            DocId doc_id = m_document_service->OpenDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
+            if (IDocument* doc = m_document_service->Resolve(doc_id)) {
+                edit_scene = doc->GetPreviewScene();
             }
         }
     }
 
     // load pie
-    {
-        PIEStartDesc desc{};
-        desc.game_dll = "game_Debug.dll";
-        desc.game_id = "chess";
-        desc.edit_scene = edit_scene;
+    PIEStartDesc desc{};
+    desc.game_dll = "game_Debug.dll";
+    desc.game_id = "chess";
+    desc.edit_scene = edit_scene;
 
-        m_pie.start(std::move(desc));
-    }
+    m_pie.start(std::move(desc));
 }
 
-void EditorState::OnExit() {
+void EditorState::onExit() {
     CAVE_PROFILE_EVENT();
 
     if (IsPlaying()) {
@@ -121,7 +117,7 @@ void EditorState::OnExit() {
     m_pie.stop();
 }
 
-void EditorState::Tick(const FrameTime& p_time) {
+void EditorState::tick(const FrameTime& p_time) {
     CAVE_PROFILE_EVENT();
 
     BusyInfo info;
@@ -131,7 +127,7 @@ void EditorState::Tick(const FrameTime& p_time) {
         m_pie.tick(p_time);
     }
 
-    ImguiManager* imgui_manager = m_app.GetImguiManager();
+    ImguiManager* imgui_manager = app_.GetImguiManager();
     DEV_ASSERT(imgui_manager);
 
     // @TODO: refactor this

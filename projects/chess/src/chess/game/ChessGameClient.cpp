@@ -27,15 +27,15 @@ ChessGameClient::ChessGameClient(IHostServices& host,
     , intent_dispatcher_(host.intentDispatcher())
     , debug_id_(MakeDebugId(this)) {
 
-    intent_dispatcher_.AddHandler<AuthMoveCommitted>(this);
-    intent_dispatcher_.AddHandler<AuthMoveRejected>(this);
-    intent_dispatcher_.AddHandler<AuthGameOver>(this);
+    intent_dispatcher_.addHandler<AuthMoveCommitted>(this);
+    intent_dispatcher_.addHandler<AuthMoveRejected>(this);
+    intent_dispatcher_.addHandler<AuthGameOver>(this);
 }
 
 ChessGameClient::~ChessGameClient() {
-    intent_dispatcher_.RemoveHandler<AuthMoveCommitted>(this);
-    intent_dispatcher_.RemoveHandler<AuthMoveRejected>(this);
-    intent_dispatcher_.RemoveHandler<AuthGameOver>(this);
+    intent_dispatcher_.removeHandler<AuthMoveCommitted>(this);
+    intent_dispatcher_.removeHandler<AuthMoveRejected>(this);
+    intent_dispatcher_.removeHandler<AuthGameOver>(this);
 }
 
 // @TODO: revisit this logic

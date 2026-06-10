@@ -16,10 +16,10 @@
 #if USING(WANT_TRACE_INTENT)
 #define TRACE_INTENT(...)                                                                 \
     do {                                                                                  \
-        if (!m_os) break;                                                                 \
+        if (!os_) break;                                                                  \
         std::string msg = std::format(__VA_ARGS__);                                       \
         auto log = detail::BuildLog(LOG_LEVEL_TRACE, LogChannel::Intent, std::move(msg)); \
-        m_os->Print(std::move(log));                                                      \
+        os_->Print(std::move(log));                                                       \
     } while (0)
 #else
 #define TRACE_INTENT(...) ((void)0)
@@ -28,37 +28,15 @@
 namespace cave {
 
 IntentDispatcher::IntentDispatcher()
-    : IService("IntentDispatcher")
-    , m_os(OS::GetSingletonPtr()) {}
+    // @TODO: refactor this part
+    : os_(OS::GetSingletonPtr()) {}
 
-auto IntentDispatcher::InitializeImpl() -> Result<void> {
-    // @TODO: move it to somewhere else
-    // IntentDispatcher doesn't need to be a Service
-#if USING(DEBUG_BUILD)
-    CommandRegistry& reg = m_app->CommandRegistry();
-    reg.Register({
-        .name = "intent.dump",
-        .help = "List all registered intent handlers.",
-        .usage = "intent.dump",
-        .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
-            IntentDispatcherDump_Cmd(p_ctx, p_args);
-            return true;
-        },
-    });
-#endif
+bool IntentDispatcher::addHandler(IntentTypeId type_id, IIntentHandler* handler) {
+    DEV_ASSERT(handler);
 
-    return Result<void>();
-}
-
-void IntentDispatcher::FinalizeImpl() {
-}
-
-bool IntentDispatcher::AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler) {
-    DEV_ASSERT(p_handler);
-
-    auto [it, inserted] = m_handlers.try_emplace(p_intent_id);
+    auto [it, inserted] = handlers_.try_emplace(type_id);
     if (!inserted) {
-        if (it->first != p_intent_id) {
+        if (it->first != type_id) {
             LOG_FATAL(LogChannel::Intent, "handler hash collision");
             return false;
         }
@@ -66,79 +44,79 @@ bool IntentDispatcher::AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_ha
 
     std::vector<IIntentHandler*>& handlers = it->second;
 
-    auto it2 = std::find(handlers.begin(), handlers.end(), p_handler);
+    auto it2 = std::find(handlers.begin(), handlers.end(), handler);
     if (it2 != handlers.end()) {
-        LOG_ERROR(LogChannel::Intent, "handler '{}' already registered", p_handler->debugId().type);
+        LOG_ERROR(LogChannel::Intent, "handler '{}' already registered", handler->debugId().type);
         return false;
     }
 
-    handlers.push_back(p_handler);
-    [[maybe_unused]] const DebugId id = p_handler->debugId();
-    TRACE_INTENT("Bind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
+    handlers.push_back(handler);
+    [[maybe_unused]] const DebugId id = handler->debugId();
+    TRACE_INTENT("Bind {}#{} -> {}", id.type, id.uid, type_id.DebugName());
     return true;
 }
 
-bool IntentDispatcher::RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler) {
-    auto it = m_handlers.find(p_intent_id);
-    if (it == m_handlers.end()) {
+bool IntentDispatcher::removeHandler(IntentTypeId type_id, IIntentHandler* handler) {
+    auto it = handlers_.find(type_id);
+    if (it == handlers_.end()) {
         return false;
     }
     std::vector<IIntentHandler*>& handlers = it->second;
-    auto it2 = std::remove(handlers.begin(), handlers.end(), p_handler);
+    auto it2 = std::remove(handlers.begin(), handlers.end(), handler);
     if (it2 == handlers.end()) {
         return false;
     }
     handlers.erase(it2, handlers.end());
 
-    [[maybe_unused]] const DebugId id = p_handler->debugId();
-    TRACE_INTENT("Unbind {}#{} -> {}", id.type, id.uid, p_intent_id.DebugName());
+    [[maybe_unused]] const DebugId id = handler->debugId();
+    TRACE_INTENT("Unbind {}#{} -> {}", id.type, id.uid, type_id.DebugName());
     return true;
 }
 
-void IntentDispatcher::Flush() {
-    if (m_pending.empty()) {
+void IntentDispatcher::flush() {
+    if (pending_.empty()) {
         return;
     }
 
     std::vector<std::unique_ptr<Intent>> processing;
-    std::swap(processing, m_pending);
+    std::swap(processing, pending_);
 
     for (auto& intent : processing) {
-        DispatchOne(*intent);
+        dispatchOne(*intent);
     }
 }
 
-void IntentDispatcher::DispatchOne(Intent& p_intent) {
-    auto it = m_handlers.find(p_intent.GetTypeId());
-    if (it == m_handlers.end()) {
-        LOG_WARN(LogChannel::Intent, "IntentDispatcher::DispatchOne: no handlers found for intent '{}'", p_intent.GetDebugName());
+void IntentDispatcher::dispatchOne(Intent& intent) {
+    auto it = handlers_.find(intent.GetTypeId());
+    if (it == handlers_.end()) {
+        LOG_WARN(LogChannel::Intent, "IntentDispatcher::DispatchOne: no handlers found for intent '{}'", intent.GetDebugName());
         return;
     }
 
     for (IIntentHandler* handler : it->second) {
         if (DEV_VERIFY(handler)) {
-            if (!handler->handleIntent(p_intent)) [[unlikely]] {
+            if (!handler->handleIntent(intent)) [[unlikely]] {
                 LOG_ERROR(LogChannel::Intent,
                           "IntentDispatcher: handler '{}' cant handle '{}'",
                           handler->debugId().type,
-                          p_intent.GetDebugName());
+                          intent.GetDebugName());
                 continue;
             }
 
             TRACE_INTENT("{} {} [{}]",
-                         p_intent.GetDebugName(),
-                         p_intent.DebugString(),
+                         intent.GetDebugName(),
+                         intent.DebugString(),
                          handler->debugId().type);
         }
     }
 }
 
-void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const CommandArgs&) {
-#if USING(DEBUG_BUILD)
+#if USING(USE_COMMAND)
+bool IntentDispatcher::Cmd_dump(CommandContext& ctx, const CommandArgs&) {
     std::string msg;
     msg.reserve(512);
     msg.append("Registered Intent:");
-    for (const auto& it : m_handlers) {
+    for (const auto& it : handlers_) {
         msg.append(std::format("\n'{}' - ", it.first.DebugName()));
         DEV_ASSERT(!it.second.empty());
         for (const IIntentHandler* handler : it.second) {
@@ -147,10 +125,9 @@ void IntentDispatcher::IntentDispatcherDump_Cmd(CommandContext& p_ctx, const Com
         }
         msg.pop_back();
     }
-    p_ctx.log.Info(LogChannel::Console, std::move(msg));
-#else
-    unused(p_ctx);
-#endif
+    ctx.log.Info(LogChannel::Console, std::move(msg));
+    return true;
 }
+#endif
 
 }  // namespace cave

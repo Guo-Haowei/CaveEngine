@@ -1,38 +1,39 @@
 #pragma once
+#include "cave/core/diagnostics/Command.h"
 #include "cave/core/ids/SceneId.h"
-#include "cave/runtime/framework/IService.h"
 
 namespace cave {
 
 class Scene;
 class IApplication;
 
-class SceneRegistry : public IService {
+class SceneRegistry {
 public:
     SceneRegistry();
+    ~SceneRegistry();
 
-    SceneId Create(std::string p_name);
+    SceneId createScene(std::string name);
 
-    SceneId Register(std::unique_ptr<Scene> p_scene);
+    SceneId registerScene(std::unique_ptr<Scene> scene);
 
-    SceneId Clone(SceneId p_id);
+    SceneId cloneScene(SceneId scene_id);
 
-    void Destroy(SceneId p_id);
+    void destroyScene(SceneId scene_id);
 
-    Scene* Resolve(SceneId p_id);
+    Scene* resolve(SceneId scene_id);
 
-    const Scene* Resolve(SceneId p_id) const;
+    const Scene* resolve(SceneId scene_id) const;
 
-    bool IsAlive(SceneId p_id) const;
+    bool isAlive(SceneId scene_id) const;
 
-protected:
-    auto InitializeImpl() -> Result<void>;
-    void FinalizeImpl();
+#if USING(USE_COMMAND)
+    bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
+#endif
 
 private:
     class Impl;
 
-    std::unique_ptr<Impl> m_impl;
+    std::unique_ptr<Impl> impl_;
 };
 
 }  // namespace cave

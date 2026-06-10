@@ -5,7 +5,7 @@
 namespace cave {
 
 const ViewRecord* ViewQuery::resolve(ViewId view_id) const {
-    return view_.Resolve(view_id);
+    return view_.resolve(view_id);
 }
 
 }  // namespace cave

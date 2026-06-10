@@ -23,7 +23,7 @@ FileSystemPanel::FileSystemPanel(EditorState& p_editor)
 }
 
 void FileSystemPanel::OnAttach() {
-    m_root = m_editor.GetApp().GetVFS().GetMount("@res");
+    m_root = services_.vfs().GetMount("@res");
 }
 
 void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
@@ -54,7 +54,7 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
             if (is_dir) {
                 fs::rename(m_renaming, to_path);
             } else {
-                m_editor.GetApp().GetAssetManager()->MoveAsset(m_renaming, to_path);
+                m_editor.app().GetAssetManager()->MoveAsset(m_renaming, to_path);
             }
             m_renaming = "";
         }

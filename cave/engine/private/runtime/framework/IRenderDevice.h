@@ -1,5 +1,6 @@
 #pragma once
 #include "cave/runtime/framework/IService.h"
+#include "cave/rhi/Backend.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 
 // @TODO: refactor
@@ -45,8 +46,9 @@ public:
     static constexpr int NUM_FRAMES_IN_FLIGHT = 2;
     static constexpr int NUM_BACK_BUFFERS = 2;
 
-    IRenderDevice(std::string_view p_name)
-        : IService(p_name) {}
+    IRenderDevice(std::string_view name, rhi::Backend backend)
+        : IService(name)
+        , backend_(backend) {}
 
     virtual auto InitializeImpl() -> Result<void> = 0;
 
@@ -130,6 +132,8 @@ public:
 
     virtual void DrawSkybox() = 0;
 
+    rhi::Backend backend() const { return backend_; }
+
 protected:
     virtual std::shared_ptr<GpuTexture> CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) = 0;
 
@@ -149,6 +153,9 @@ protected:
 
 protected:
     virtual void UpdateEmitters(const Scene& p_scene) = 0;
+
+private:
+    rhi::Backend backend_;
 };
 
 }  // namespace cave::render

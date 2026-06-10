@@ -18,22 +18,23 @@ namespace cave {
 
 ShortcutService::ShortcutService(EditorState& p_editor)
     : m_editor(p_editor)
-    , m_intent_dispatcher(*p_editor.GetApp().IntentDispatcher())
+    , input_service_(p_editor.app().services().inputService())
+    , intent_dispatcher_(p_editor.app().services().intentDispatcher())
     , m_debug_id(MakeDebugId(this)) {
 
-    m_editor.GetApp().InputService().addConsumer(this);
-    m_intent_dispatcher.AddHandler<SaveIntent>(this);
-    m_intent_dispatcher.AddHandler<UndoIntent>(this);
-    m_intent_dispatcher.AddHandler<RedoIntent>(this);
+    input_service_.addConsumer(this);
+    intent_dispatcher_.addHandler<SaveIntent>(this);
+    intent_dispatcher_.addHandler<UndoIntent>(this);
+    intent_dispatcher_.addHandler<RedoIntent>(this);
 
     InitShortcuts();
 }
 
 ShortcutService::~ShortcutService() {
-    m_intent_dispatcher.RemoveHandler<SaveIntent>(this);
-    m_intent_dispatcher.RemoveHandler<UndoIntent>(this);
-    m_intent_dispatcher.RemoveHandler<RedoIntent>(this);
-    m_editor.GetApp().InputService().removeConsumer(this);
+    intent_dispatcher_.removeHandler<SaveIntent>(this);
+    intent_dispatcher_.removeHandler<UndoIntent>(this);
+    intent_dispatcher_.removeHandler<RedoIntent>(this);
+    input_service_.removeConsumer(this);
 }
 
 bool ShortcutService::handleIntent(Intent& p_intent) {
@@ -62,10 +63,9 @@ bool ShortcutService::handleIntent(Intent& p_intent) {
 }
 
 void ShortcutService::onEvents(const InputFrame& p_input) {
-    InputService& input = m_editor.GetApp().InputService();
-    const bool ctrl = input.keyState().anyCtrlDown();
-    const bool alt = input.keyState().anyAltDown();
-    const bool shift = input.keyState().anyShiftDown();
+    const bool ctrl = input_service_.keyState().anyCtrlDown();
+    const bool alt = input_service_.keyState().anyAltDown();
+    const bool shift = input_service_.keyState().anyShiftDown();
 
     for (const InputEvent& e : p_input.events) {
         if (e.type != InputEventType::ButtonDown)
@@ -97,14 +97,14 @@ void ShortcutService::InitShortcuts() {
         "Save As..",
         "Ctrl+Shift+S",
         [active_document, this]() {
-            m_intent_dispatcher.Queue<SaveIntent>(active_document(), true);
+            intent_dispatcher_.queue<SaveIntent>(active_document(), true);
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [active_document, this]() {
-            m_intent_dispatcher.Queue<SaveIntent>(active_document(), false);
+            intent_dispatcher_.queue<SaveIntent>(active_document(), false);
         },
     };
 
@@ -122,7 +122,7 @@ void ShortcutService::InitShortcuts() {
         "Ctrl+Shift+Z",
         [active_document, this]() {
             if (m_editor.EditService().CanRedo(active_document()))
-                m_intent_dispatcher.Queue<RedoIntent>(active_document());
+                intent_dispatcher_.queue<RedoIntent>(active_document());
         },
         [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
     };
@@ -132,7 +132,7 @@ void ShortcutService::InitShortcuts() {
         "Ctrl+Z",
         [active_document, this]() {
             if (m_editor.EditService().CanUndo(active_document()))
-                m_intent_dispatcher.Queue<UndoIntent>(active_document());
+                intent_dispatcher_.queue<UndoIntent>(active_document());
         },
         [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
     };

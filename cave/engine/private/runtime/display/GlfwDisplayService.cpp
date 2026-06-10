@@ -74,7 +74,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
         }
     });
 
-    InputService& input = m_app->InputService();
+    InputService& input = m_app->services().inputService();
     {
         InputDeviceId kb_id = InputDeviceId::nextId();
         auto keyboard_mouse_device = std::make_unique<GlfwKeyboardMouseDevice>(kb_id);

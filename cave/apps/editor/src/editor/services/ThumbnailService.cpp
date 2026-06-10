@@ -17,10 +17,10 @@
 namespace cave {
 
 ThumbnailService::ThumbnailService(EditorState& p_editor) noexcept
-    : m_view_manager(*p_editor.GetApp().GetViewManager())
-    , m_scene_reg(*p_editor.GetApp().GetSceneRegistry())
-    , m_render_device(*p_editor.GetApp().GetRenderDevice())
-    , m_builder(p_editor.GetApp()) {
+    : view_manager_(p_editor.app().services().viewManager())
+    , m_scene_reg(p_editor.app().services().sceneRegistry())
+    , m_render_device(*p_editor.app().GetRenderDevice())
+    , m_builder(p_editor.app()) {
 }
 
 uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
@@ -70,7 +70,7 @@ uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
     math::IntRect vp = { 0, 0, (int)w, (int)h };
     rec = {
         .view_desc = {
-            .view_id = m_view_manager.CreateView("ThumbnailView", vp),
+            .view_id = view_manager_.createView("ThumbnailView", vp),
             .scene_id = res.scene_id,
             .camera_source = res.camera,
             .viewport_px = vp,
@@ -110,8 +110,8 @@ void ThumbnailService::ProcessCompletions() {
         // if (rec.submitted_frame <= completed_frame_index)
         {
             rec.state = ThumbnailState::Ready;
-            m_view_manager.DestroyView(rec.view_desc.view_id);
-            m_scene_reg.Destroy(rec.view_desc.scene_id);
+            view_manager_.destroyView(rec.view_desc.view_id);
+            m_scene_reg.destroyScene(rec.view_desc.scene_id);
         }
     }
 
@@ -144,7 +144,7 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
             continue;
         }
 
-        m_view_manager.Submit(rec.view_desc);
+        view_manager_.submit(rec.view_desc);
 
         // save record
         rec.state = ThumbnailState::Pending;

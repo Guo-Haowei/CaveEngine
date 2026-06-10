@@ -51,7 +51,7 @@ void SceneScheduler::Tick(const FrameTime& p_time) {
 
     // @TODO: merge same scenes from different contributors
     for (const SceneTickRequest& req : requests) {
-        if (Scene* scene = m_scene_manager.Resolve(req.scene_id)) {
+        if (Scene* scene = m_scene_manager.resolve(req.scene_id)) {
             if (req.mode == SceneTickMode::Simulation) {
                 m_script_manager.Update(*scene, p_time.dt);
             }

@@ -50,17 +50,19 @@ using math::Vector4f;
 
 class Renderer::Impl {
 public:
-    Impl(IApplication& p_app)
-        : m_app(p_app)
-        , m_pool(*p_app.GetRenderDevice())
-        , m_env(m_pool, *p_app.GetRenderDevice())
-        , m_ssao(*p_app.GetRenderDevice()) {}
-
-    auto Initialize() -> Result<void>;
+    Impl(IRenderDevice& device)
+        : device_(device)
+        , m_pool(device)
+        , m_env(m_pool, device)
+        , m_ssao(device) {}
 
     void Tick(const FrameTime& p_frame,
               std::span<const ResolvedView> p_views,
               const UIFrameDrawData& p_ui_data);
+
+#if USING(USE_COMMAND)
+    bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
+#endif
 
 private:
     FramePlan BuildFramePlan(const FrameTime& p_frame,
@@ -80,7 +82,7 @@ private:
     void CreateOrUpdateUIBuffers(const BuiltUIData& p_ui_data);
 
 private:
-    IApplication& m_app;
+    IRenderDevice& device_;
     RenderSceneBuilder m_scene_builder;
     std::unordered_map<SceneId, RenderScene> m_scene_cache;
 
@@ -98,24 +100,15 @@ private:
     std::shared_ptr<GpuMesh> m_ui_buffers;
 };
 
-Renderer::Renderer()
-    : IService("Render") {}
+Renderer::Renderer(IRenderDevice& device)
+    : impl_(std::make_unique<Impl>(device)) {}
 
 Renderer::~Renderer() = default;
 
-auto Renderer::InitializeImpl() -> Result<void> {
-    m_impl = std::make_unique<Impl>(*m_app);
-    return m_impl->Initialize();
-}
-
-void Renderer::FinalizeImpl() {
-    m_impl.reset();
-}
-
-void Renderer::Tick(const FrameTime& p_frame,
+void Renderer::tick(const FrameTime& p_frame,
                     std::span<const ResolvedView> p_views,
                     const UIFrameDrawData& p_ui_data) {
-    m_impl->Tick(p_frame, p_views, p_ui_data);
+    impl_->Tick(p_frame, p_views, p_ui_data);
 }
 
 // @TODO: remove this
@@ -213,23 +206,6 @@ static void FillEnvConstants(FrameData& p_out_data) {
     }
 }
 
-auto Renderer::Impl::Initialize() -> Result<void> {
-#if USING(USE_RENDERER_DEBUG)
-    CommandRegistry& reg = m_app.CommandRegistry();
-    reg.Register({
-        .name = "render.pool.dump",
-        .help = "List textures in transient pool.",
-        .usage = "render.pool.dump",
-        .fn = [this](CommandContext& p_ctx, const CommandArgs& p_args) {
-            RenderPoolDump_Cmd(m_pool, p_ctx, p_args);
-            return true;
-        },
-    });
-#endif
-
-    return Result<void>();
-}
-
 template<typename T>
 static GpuBufferDesc FillDesc(const std::vector<T>& p_data) {
     GpuBufferDesc desc{};
@@ -269,10 +245,8 @@ static bool UpdateAllUIBuffer(IRenderDevice& p_device,
 }
 
 void Renderer::Impl::CreateOrUpdateUIBuffers(const BuiltUIData& p_data) {
-    IRenderDevice& device = *m_app.GetRenderDevice();
-
     if (m_ui_buffers) {
-        if (!UpdateAllUIBuffer(device, p_data, *m_ui_buffers)) {
+        if (!UpdateAllUIBuffer(device_, p_data, *m_ui_buffers)) {
             // @TODO: proper error handling
             CRASH_NOW_MSG("Failed to update UI buffer");
         }
@@ -293,7 +267,7 @@ void Renderer::Impl::CreateOrUpdateUIBuffers(const BuiltUIData& p_data) {
     mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vector2f), 0 };
     mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Color), 0 };
 
-    m_ui_buffers = device.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
+    m_ui_buffers = device_.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
 }
 
 void Renderer::Impl::Tick(const FrameTime& p_frame,
@@ -329,14 +303,14 @@ void Renderer::Impl::Tick(const FrameTime& p_frame,
 
     submission->frame_data = std::move(plan.frame_data);
 
-    m_app.GetRenderDevice()->Submit(std::move(submission));
+    device_.Submit(std::move(submission));
 }
 
 FramePlan Renderer::Impl::BuildFramePlan(const FrameTime& p_frame,
                                          std::span<const ResolvedView> p_views) {
     FramePlan plan;
 
-    const bool is_opengl = m_app.IsOpenGL();
+    const bool is_opengl = device_.backend() == rhi::Backend::OpenGL;
     RenderOptions options = {
         .is_opengl = is_opengl,
         .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),
@@ -395,17 +369,15 @@ auto Renderer::Impl::BuildRenderGraphDeferred(const RenderOptions& p_plan,
                                               const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
     constexpr const char RG_RES_BRDF[] = "r:brdf";
 
-    IRenderDevice& device = *m_app.GetRenderDevice();
-
     if (!m_brdf) {
         std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
-        m_brdf = device.CreateTexture(image.get());
+        m_brdf = device_.CreateTexture(image.get());
     }
     if (!m_ltc1) {
-        m_ltc1 = CreateLTC1(device);
+        m_ltc1 = CreateLTC1(device_);
     }
     if (!m_ltc2) {
-        m_ltc2 = CreateLTC2(device);
+        m_ltc2 = CreateLTC2(device_);
     }
 
     RenderGraphBuilderExt graph(p_view.viewport_px);
@@ -487,5 +459,16 @@ auto Renderer::Impl::BuildRenderGraphPathTracer(const RenderOptions& p_plan,
 RenderScene& Renderer::Impl::GetOrCreateRenderScene(SceneId p_scene_id) {
     return m_scene_cache[p_scene_id];
 }
+
+#if USING(USE_COMMAND)
+bool Renderer::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
+    return impl_->Cmd_dump(ctx, args);
+}
+
+bool Renderer::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
+    RenderPoolDump_Cmd(m_pool, ctx, args);
+    return true;
+}
+#endif
 
 }  // namespace cave::render

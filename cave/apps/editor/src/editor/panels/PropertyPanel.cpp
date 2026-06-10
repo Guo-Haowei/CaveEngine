@@ -77,7 +77,7 @@ static void DrawComponent(const std::string& p_name,
         if (ImGui::BeginPopup("ComponentSettings")) {
             if (ImGui::MenuItem("remove component")) {
                 auto cmd = std::make_unique<RemoveComponentCmd<T>>(
-                    *ctx.app.GetSceneRegistry(),
+                    ctx.app.services().sceneRegistry(),
                     ctx.entity,
                     *p_component);
                 ctx.edit.Submit(ctx.doc_id, std::move(cmd));
@@ -159,7 +159,7 @@ bool EditAndSubmit(const DrawComponentCtx& p_ctx,
     }
 
     auto cmd = std::make_unique<ChangePropertyCmd>(
-        *p_ctx.app.GetSceneRegistry(),
+        p_ctx.app.services().sceneRegistry(),
         p_ctx.entity,
         p_component->GetId(),
         p_field->id,
@@ -245,7 +245,7 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
             Vector4f new_v = Vector4f(q2.x, q2.y, q2.z, q2.w);
 
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                *p_ctx.app.GetSceneRegistry(),
+                p_ctx.app.services().sceneRegistry(),
                 p_ctx.entity,
                 p_component->GetId(),
                 p_property->id,
@@ -300,7 +300,7 @@ void PropertyPanel::DrawUIImpl() {
     EditService& edit_service = m_editor.EditService();
 
     const DrawComponentCtx ctx{
-        .app = m_editor.GetApp(),
+        .app = m_editor.app(),
         .edit = edit_service,
         .thumbnail = m_editor.ThumbnailService(),
         .scene = &scene,
@@ -312,7 +312,7 @@ void PropertyPanel::DrawUIImpl() {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                *m_editor.GetApp().GetSceneRegistry(),
+                services_.sceneRegistry(),
                 id,
                 NameComponent_Id,
                 "name"_sid,
@@ -336,7 +336,7 @@ void PropertyPanel::DrawUIImpl() {
             return;
         }
         auto cmd = std::make_unique<AddComponentCmd>(
-            *m_editor.GetApp().GetSceneRegistry(),
+            services_.sceneRegistry(),
             id,
             cid);
         edit_service.Submit(doc_id, std::move(cmd));

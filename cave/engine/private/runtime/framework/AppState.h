@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/ids/DebugId.h"
 #include "cave/core/time/FrameTime.h"
 
 namespace cave {
@@ -15,63 +16,64 @@ enum class AppStateId : uint8_t {
 
 struct StateRequest {
     AppStateId next{ AppStateId::ProjectBrowser };
-    std::string arg0;  // e.g. project path, error message
+    std::string arg0;
 };
 
 class AppState {
 public:
-    AppState(IApplication& p_app)
-        : m_app(p_app) {}
+    AppState(IApplication& app)
+        : app_(app) {}
 
     virtual ~AppState() = default;
 
-    virtual void OnEnter(const StateRequest& p_args) = 0;
+    virtual void onEnter(const StateRequest& args) = 0;
 
-    virtual void OnExit() = 0;
+    virtual void onExit() = 0;
 
-    virtual void Tick(const FrameTime& p_time) = 0;
+    virtual void tick(const FrameTime& time) = 0;
 
-    virtual Option<StateRequest> PopRequest() = 0;
+    virtual Option<StateRequest> popRequest() = 0;
 
 #if USING(DEBUG_BUILD)
-    virtual const char* GetDebugName() = 0;
+    virtual DebugId debugId() const = 0;
 #endif
 
-    IApplication& GetApp() { return m_app; }
+    IApplication& app() { return app_; }
 
 protected:
-    IApplication& m_app;
+    IApplication& app_;
 };
 
 class AppStateMachine {
 public:
     using CreateFunc = std::unique_ptr<AppState> (*)(IApplication&);
 
-    AppStateMachine(IApplication& p_app)
-        : m_app(p_app) {}
+    AppStateMachine(IApplication& app)
+        : app_(app) {}
 
-    void Init(AppStateId p_initial_state);
+    void initialize(AppStateId initial_state);
 
-    void Shutdown();
+    void shutdown();
 
-    void Tick(const FrameTime& p_time);
+    void tick(const FrameTime& time);
 
-    AppStateId GetStateId() const { return m_state_id; }
+    AppStateId stateId() const { return state_id_; }
 
-    AppState* GetAppState() const { return m_state.get(); }
+    AppState* appState() const { return state_.get(); }
 
-    static void RegisterCreateFunc(AppStateId p_state_id, CreateFunc p_func);
+    static void registerCreateFunc(AppStateId state_id, CreateFunc func);
 
-    static std::unique_ptr<AppState> CreateState(IApplication& p_app, AppStateId p_state_id);
+    static auto createState(IApplication& app, AppStateId state_id)
+        -> std::unique_ptr<AppState>;
 
 private:
-    void SwitchTo(const StateRequest& p_request);
+    void switchTo(const StateRequest& request);
 
     inline static CreateFunc s_create_funcs[std::to_underlying(AppStateId::Count)];
 
-    IApplication& m_app;
-    std::unique_ptr<AppState> m_state;
-    AppStateId m_state_id;
+    IApplication& app_;
+    std::unique_ptr<AppState> state_;
+    AppStateId state_id_;
 };
 
 }  // namespace cave

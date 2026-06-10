@@ -2,6 +2,7 @@
 // File: cave/rhi/Backend.h
 // =============================================================================
 #pragma once
+#include <cstdint>
 
 namespace cave::rhi {
 
