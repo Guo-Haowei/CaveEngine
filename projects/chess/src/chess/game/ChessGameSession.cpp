@@ -52,8 +52,8 @@ void ChessGameSession::tick() {
     // @TODO: refactor this part
     if (selector_) {
         Vector2i focused = selector_->GetFocused();
-        Square focused_sq = Square::fromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
-        client_->presenter().setFocusedSquare(focused_sq);
+        Square square = Square::fromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
+        client_->presenter().board_view_.setHovered(square);
     }
 }
 
@@ -129,7 +129,7 @@ void ChessGameSession::onEnterBoot() {
         grid_adapter_ = std::make_unique<ChessGridSelectorAdapter>(
             host_,
             *client_,
-            client_->presenter());
+            client_->presenter().board_view_);
 
         cave::GridSelectController::Callbacks cbs = {
             .can_select = [this](int x, int y) { return grid_adapter_->canSelect(x, y); },

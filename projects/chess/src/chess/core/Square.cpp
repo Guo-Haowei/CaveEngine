@@ -2,12 +2,6 @@
 
 namespace chess::core {
 
-std::tuple<uint8_t, uint8_t> Square::fileRank() const {
-    const uint8_t file = index_ & 7;
-    const uint8_t rank = index_ >> 3;
-    return std::make_tuple(file, rank);
-}
-
 // Shoelace Formula (also called the Surveyor's Formula) for the area of a triangle in 2D space.
 // area = [ Ax * (By - Cy) + Bx * (Cy - Ay) + Cx * (Ay - By) ] / 2
 // but we only cares about the sign of the area, so we can skip the division by 2.

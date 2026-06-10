@@ -26,12 +26,12 @@ ecs::Entity ChessPieceView::Entry::getAndAdvance() {
     return pool[cursor++];
 }
 
-ChessPieceView::ChessPieceView(cave::IHostServices& host) noexcept
+ChessPieceView::ChessPieceView(IHostServices& host) noexcept
     : host_(host)
     , writer_(host.sceneWriter()) {
 }
 
-void ChessPieceView::initializePieces() {
+void ChessPieceView::initialize() {
     auto& query = host_.sceneQuery();
 
     auto add_piece = [&](Piece type, std::string_view name) {
@@ -112,13 +112,12 @@ void ChessPieceView::movePiece(Square from, Square to) {
     board_[to.index()] = ent;
 
     constexpr auto cid = TransformAnimationComponent_Id;
-    auto& writer = host_.sceneWriter();
-    writer.AddComponent(ent, cid);
-    writer.SetProperty(ent, cid, "begin"_sid, squareToVec(from));
-    writer.SetProperty(ent, cid, "end"_sid, squareToVec(to));
-    writer.SetProperty(ent, cid, "duration"_sid, 0.25f);
-    writer.SetProperty(ent, cid, "playing"_sid, true);
-    writer.SetProperty(ent, cid, "destroy_on_finish"_sid, true);
+    writer_.AddComponent(ent, cid);
+    writer_.SetProperty(ent, cid, "begin"_sid, squareToVec(from));
+    writer_.SetProperty(ent, cid, "end"_sid, squareToVec(to));
+    writer_.SetProperty(ent, cid, "duration"_sid, 0.25f);
+    writer_.SetProperty(ent, cid, "playing"_sid, true);
+    writer_.SetProperty(ent, cid, "destroy_on_finish"_sid, true);
 }
 
 }  // namespace chess

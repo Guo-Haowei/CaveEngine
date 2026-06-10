@@ -28,7 +28,7 @@ public:
 
     Entity entityAt(core::Square square) const { return board_[square.index()]; }
 
-    void initializePieces();
+    void initialize();
 private:
     struct Entry {
         std::vector<Entity> pool{};

@@ -11,61 +11,21 @@
 namespace chess {
 
 using namespace ::cave;
-using namespace ::cave::literals;
-using namespace ::cave::math;
 using namespace ::chess::core;
-
-static constexpr StringId kTranslationId = "translation"_sid;
-static constexpr StringId kVisibility = "visibility"_sid;
 
 ChessPresenter::ChessPresenter(IHostServices& host) noexcept
     : host_(host)
+    , board_view_(host)
     , piece_view_(host) {
 }
 
-// @TODO: refactor this
-static inline Vector3f squareToVec(Square square) {
-    const auto [file, rank] = square.fileRank();
-    return Vector3f{ (float)rank, 0.0f, (float)file };
-}
-
 void ChessPresenter::initialize() {
-    highlights_ = {};
-
-    auto& query = host_.sceneQuery();
-    selector_ = query.findFirstByName("grid_selector");
-
-    // tiles
-    for (uint8_t i = 0; i < 64; ++i) {
-        const char* name = Square(i).uci();
-        tiles_[i] = query.findFirstByName(name);
-    }
-
-    // pieces
-    piece_view_.initializePieces();
+    board_view_.initialize();
+    piece_view_.initialize();
 }
 
 void ChessPresenter::present() {
-    auto& writer = host_.sceneWriter();
-
-    for (uint8_t i = 0; i < 64; ++i) {
-        const Square sq(i);
-        bool visible = highlights_.Test(sq);
-        if (sq == focused_sq) {
-            visible = false;
-        }
-        const Entity tile = tiles_[i];
-        writer.SetProperty(tile,
-                           cave::MeshRendererComponent_Id,
-                           kVisibility,
-                           visible);
-    }
-
-    Vector3f position = squareToVec(focused_sq);
-    writer.SetProperty(selector_,
-                       cave::TransformComponent_Id,
-                       kTranslationId,
-                       position);
+    board_view_.drawBoard();
 }
 
 void ChessPresenter::redrawBoard(const Position& position) {
@@ -91,12 +51,16 @@ static std::pair<Square, Square> GetCastleRookMove(Square from, Square to) {
     return {};
 }
 
+static Square enpassantCapturedSquare(Move move) {
+    return Square::fromFileRank(move.to().file(), move.from().rank());
+}
+
 void ChessPresenter::applyMove(const Position& position, Move move) {
     const Square from = move.from();
     const Square to = move.to();
     const Color stm = position.SideToMove();
 
-    if (Entity captured_piece = piece_view_.entityAt(to); captured_piece.IsValid()) {
+    if (ecs::Entity captured_piece = piece_view_.entityAt(to); captured_piece.IsValid()) {
         piece_view_.removePiece(to);
     }
 
@@ -110,13 +74,10 @@ void ChessPresenter::applyMove(const Position& position, Move move) {
             piece_view_.movePiece(rook_from, rook_to);
         } break;
         case MoveType::Enpassant: {
-            Square ep = position.State().ep.unwrap();
-            auto [file, rank] = ep.fileRank();
-            rank = rank + (stm == Color::White ? -1 : 1);
-            piece_view_.removePiece(Square::fromFileRank(file, rank));
+            piece_view_.removePiece(enpassantCapturedSquare(move));
         } break;
         case MoveType::Promotion: {
-            piece_view_.removePiece(to); // remove pawn
+            piece_view_.removePiece(to);  // remove pawn
             const PieceType promo_type = move.promo().unwrap();
             const Piece promoted = BuildPiece(promo_type, stm);
             piece_view_.spawnPiece(promoted, to);

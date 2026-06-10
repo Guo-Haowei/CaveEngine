@@ -26,7 +26,11 @@ public:
 
     constexpr uint8_t index() const { return index_; }
 
-    std::tuple<uint8_t, uint8_t> fileRank() const;
+    uint8_t file() const { return index_ & 7; }
+    uint8_t rank() const { return index_ >> 3; }
+    auto fileRank() const -> std::tuple<uint8_t, uint8_t> {
+        return std::make_tuple(file(), rank());
+    }
 
     std::strong_ordering operator<=>(const Square&) const = default;
 

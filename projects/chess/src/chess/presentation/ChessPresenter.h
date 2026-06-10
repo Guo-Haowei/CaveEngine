@@ -3,19 +3,16 @@
 #include "cave/runtime/ecs/Entity.h"
 
 #include "chess/core/Position.h"
+#include "chess/presentation/ChessBoardView.h"
 #include "chess/presentation/ChessPieceView.h"
 
 // clang-format off
 namespace cave { class IHostServices; }
-namespace cave { class SceneCommandWriter; }
-namespace cave { class SceneQuery; }
 // clang-format on
 
 namespace chess {
 
 class ChessPresenter {
-    using Entity = ::cave::ecs::Entity;
-
 public:
     ChessPresenter(cave::IHostServices& host) noexcept;
 
@@ -27,23 +24,10 @@ public:
 
     void applyMove(const core::Position& position, core::Move mv);
 
-    // @TODO: refactor the tiles
-    void setFocusedSquare(core::Square square) {
-        focused_sq = square;
-    }
-
-    void setHighlightSquares(core::Bitboard bb) {
-        highlights_ = bb;
-    }
-
+    // @TODO: refactor
+    ChessBoardView board_view_;
 private:
     cave::IHostServices& host_;
-    Entity selector_;
-
-    core::Square focused_sq{ 0 };
-    core::Bitboard highlights_;
-
-    std::array<Entity, 64> tiles_;
 
     ChessPieceView piece_view_;
 };

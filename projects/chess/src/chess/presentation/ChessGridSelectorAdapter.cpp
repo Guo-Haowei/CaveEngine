@@ -15,7 +15,7 @@
 #include "chess/game/ChessGameClient.h"
 #include "chess/game/ChessIntent.h"
 #include "chess/game/ChessMatchAuthority.h"
-#include "chess/presentation/ChessPresenter.h"
+#include "chess/presentation/ChessBoardView.h"
 
 namespace chess {
 
@@ -24,12 +24,12 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
 
-ChessGridSelectorAdapter::ChessGridSelectorAdapter(cave::IHostServices& host,
+ChessGridSelectorAdapter::ChessGridSelectorAdapter(IHostServices& host,
                                                    ChessGameClient& game,
-                                                   ChessPresenter& presenter) noexcept
+                                                   ChessBoardView& board_view) noexcept
     : host_(host)
     , client_(game)
-    , presenter_(presenter) {
+    , board_view_(board_view) {
 
     camera_id_ = host_.sceneQuery().findFirstByName("game_camera");
     assert(camera_id_.IsValid());
@@ -50,7 +50,7 @@ void ChessGridSelectorAdapter::onSelect(int x, int y) {
     for (Move mv : moves) {
         bb.Set(mv.to());
     }
-    presenter_.setHighlightSquares(bb);
+    board_view_.setHighlight(bb);
 }
 
 bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
@@ -70,7 +70,7 @@ bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
-    presenter_.setHighlightSquares({});
+    board_view_.setHighlight({});
 
     const Position& pos = client_.replica();
     const Color id = pos.SideToMove();
@@ -94,7 +94,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::onCancel() {
-    presenter_.setHighlightSquares({});
+    board_view_.setHighlight({});
 }
 
 void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {

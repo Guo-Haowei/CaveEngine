@@ -16,8 +16,8 @@ namespace cave { class IHostServices; }
 
 namespace chess {
 
+class ChessBoardView;
 class ChessGameClient;
-class ChessPresenter;
 class LocalHumanAgent;
 
 class ChessGridSelectorAdapter {
@@ -27,7 +27,7 @@ class ChessGridSelectorAdapter {
 public:
     ChessGridSelectorAdapter(cave::IHostServices& host,
                              ChessGameClient& game,
-                             ChessPresenter& presenter) noexcept;
+                             ChessBoardView& board_view) noexcept;
 
     bool canSelect(int x, int y);
     void onSelect(int x, int y);
@@ -55,7 +55,7 @@ private:
     Entity camera_id_;
 
     ChessGameClient& client_;
-    ChessPresenter& presenter_;
+    ChessBoardView& board_view_;
 
     GetPlayerFunc get_player_cb_;
 };
