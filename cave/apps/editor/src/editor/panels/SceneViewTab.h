@@ -32,7 +32,7 @@ public:
     void onCreate() override;
     void onDestroy() override;
 
-    void CollectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
+    void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
 
     Option<PickData> GetPickData(const math::Vector2f& pos_screen) override;
 

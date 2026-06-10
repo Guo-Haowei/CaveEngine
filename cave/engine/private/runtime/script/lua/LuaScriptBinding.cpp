@@ -152,7 +152,16 @@ bool OpenLogLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("logger")
         .addFunction("trace", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_TRACE, "-- {}", p_message);
+            LogImpl(LOG_LEVEL_TRACE, LogChannel::Lua, "-- {}", p_message);
+        })
+        .addFunction("info", [](const char* p_message) {
+            LogImpl(LOG_LEVEL_INFO, LogChannel::Lua, "-- {}", p_message);
+        })
+        .addFunction("ok", [](const char* p_message) {
+            LogImpl(LOG_LEVEL_OK, LogChannel::Lua, "-- {}", p_message);
+        })
+        .addFunction("warn", [](const char* p_message) {
+            LogImpl(LOG_LEVEL_WARN, LogChannel::Lua, "-- {}", p_message);
         })
         .addFunction("error", [](const char* p_file, int p_line, const char* p_error) {
             ReportErrorImpl("lua_function", p_file, p_line, p_error);

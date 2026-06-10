@@ -234,7 +234,7 @@ bool Application::MainLoop() {
     intent_dispatcher_.flush();
 
     // update scene after ImGui, physics and script updates
-    scene_scheduler_->Tick(time);
+    scene_scheduler_->tick(time);
 
     ui_->endFrame();
 

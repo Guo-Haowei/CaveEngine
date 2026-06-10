@@ -22,29 +22,29 @@ class ISceneTickContributor {
 public:
     virtual ~ISceneTickContributor() = default;
 
-    virtual void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) = 0;
+    virtual void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) = 0;
 
     virtual DebugId debugId() const = 0;
 };
 
 class SceneScheduler {
 public:
-    SceneScheduler(SceneRegistry& p_scene_manager,
-                   IScriptService& p_script_manager)
-        : m_scene_manager(p_scene_manager)
-        , m_script_manager(p_script_manager) {
+    SceneScheduler(SceneRegistry& scene_manager,
+                   IScriptService& script_manager) noexcept
+        : scene_manager_(scene_manager)
+        , script_manager_(script_manager) {
     }
 
-    bool Register(ISceneTickContributor* p_contributor);
-    bool Unregister(ISceneTickContributor* p_contributor);
+    bool add(ISceneTickContributor* contributor);
+    bool remove(ISceneTickContributor* contributor);
 
-    void Tick(const FrameTime& p_time);
+    void tick(const FrameTime& time);
 
 private:
-    IScriptService& m_script_manager;
-    SceneRegistry& m_scene_manager;
+    IScriptService& script_manager_;
+    SceneRegistry& scene_manager_;
 
-    std::vector<ISceneTickContributor*> m_contributors;
+    std::vector<ISceneTickContributor*> contributors_;
 };
 
 }  // namespace cave

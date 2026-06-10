@@ -65,7 +65,7 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
     DEV_ASSERT(scene);
     app_.ScriptService()->OnSimBegin(*scene);
 
-    app_.services().sceneScheduler().Register(this);
+    app_.services().sceneScheduler().add(this);
 
     if (game_module_) {
         host_ = std::make_unique<PIEHostServices>(app_, *scene, view_id);
@@ -89,13 +89,13 @@ void PIESession::onSimEnd() {
         }
     }
 
-    app_.services().sceneScheduler().Unregister(this);
+    app_.services().sceneScheduler().remove(this);
 
     scene_reg.destroyScene(pie_scene_);
     pie_scene_ = {};
 }
 
-void PIESession::CollectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
+void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
     out_requests.push_back({ SceneTickMode::Simulation, pie_scene_ });
 }
 

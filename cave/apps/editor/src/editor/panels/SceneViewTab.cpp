@@ -130,7 +130,7 @@ void SceneViewTab::onCreate() {
 
     IApplication& app = m_editor.app();
 
-    app.services().sceneScheduler().Register(this);
+    app.services().sceneScheduler().add(this);
     m_editor.PickingService().Register(this);
 
     view_id_ = view_manager_.createView(
@@ -143,7 +143,7 @@ void SceneViewTab::onDestroy() {
 
     view_manager_.destroyView(view_id_);
     m_editor.PickingService().Register(this);
-    app.services().sceneScheduler().Unregister(this);
+    app.services().sceneScheduler().remove(this);
 }
 
 Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& pointer_os) {
@@ -162,7 +162,7 @@ Option<PickData> SceneViewTab::GetPickData(const math::Vector2f& pointer_os) {
     });
 }
 
-void SceneViewTab::CollectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
+void SceneViewTab::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
     if (!m_editor.IsPlaying()) {
         out_requests.push_back(SceneTickRequest{
             SceneTickMode::Editor,
