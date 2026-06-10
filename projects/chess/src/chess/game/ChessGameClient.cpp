@@ -19,9 +19,10 @@ using namespace ::chess::core;
 ChessGameClient::ChessGameClient(IHostServices& host,
                                  ChessGameSession& session,
                                  ChessMatchAuthority& auth)
-    : presenter_(host)
-    , session_(session)
+    : session_(session)
     , auth_(auth)
+    , board_view_(host)
+    , piece_view_(host)
     , host_(host)
     , intent_dispatcher_(host.intentDispatcher())
     , debug_id_(MakeDebugId(this)) {
@@ -45,10 +46,12 @@ void ChessGameClient::resetBoard() {
 }
 
 void ChessGameClient::onBoot() {
-    presenter_.initialize();
+    board_view_.initialize();
+    piece_view_.initialize();
+
     resetBoard();
 
-    presenter_.redrawBoard(replica_);
+    piece_view_.redrawPieces(replica_);
 }
 
 bool ChessGameClient::handleIntent(Intent& intent) {
@@ -70,7 +73,7 @@ bool ChessGameClient::handleIntent(Intent& intent) {
 }
 
 void ChessGameClient::onMoveCommitted(Move move) {
-    presenter_.applyMove(replica_, move);
+    piece_view_.applyMove(replica_, move);
 
     UndoState undo;
     replica_.MakeMove(move, undo);
@@ -84,7 +87,7 @@ void ChessGameClient::onMoveRejected(Move) {
 }
 
 void ChessGameClient::present() {
-    presenter_.present();
+    board_view_.drawBoard();
 }
 
 void ChessGameClient::onPositionChange() {

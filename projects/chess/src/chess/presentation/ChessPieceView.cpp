@@ -22,6 +22,30 @@ static inline Vector3f squareToVec(Square square) {
     return Vector3f{ (float)rank, 0.0f, (float)file };
 }
 
+// @TODO: refactor this
+static std::pair<Square, Square> GetCastleRookMove(Square from, Square to) {
+    if (from == Square::E1) {
+        if (to == Square::G1)
+            return { Square::H1, Square::F1 };
+        if (to == Square::C1)
+            return { Square::A1, Square::D1 };
+    }
+    if (from == Square::E8) {
+        if (to == Square::G8)
+            return { Square::H8, Square::F8 };
+        if (to == Square::C8)
+            return { Square::A8, Square::D8 };
+    }
+
+    CRASH_NOW_MSG("Invalid castling");
+    return {};
+}
+
+// @TODO: refactor this
+static Square enpassantCapturedSquare(Move move) {
+    return Square::fromFileRank(move.to().file(), move.from().rank());
+}
+
 ecs::Entity ChessPieceView::Entry::getAndAdvance() {
     return pool[cursor++];
 }
@@ -62,7 +86,7 @@ void ChessPieceView::initialize() {
     add_piece(Piece::BK, "black_king");
 }
 
-void ChessPieceView::redrawBoard(const Position& position) {
+void ChessPieceView::redrawPieces(const Position& position) {
     for (uint8_t p = 0; p < kPieceMax; ++p) {
         const Piece piece = static_cast<Piece>(p);
         const Bitboard bb = position.Bitboard(piece);
@@ -118,6 +142,36 @@ void ChessPieceView::movePiece(Square from, Square to) {
     writer_.SetProperty(ent, cid, "duration"_sid, 0.25f);
     writer_.SetProperty(ent, cid, "playing"_sid, true);
     writer_.SetProperty(ent, cid, "destroy_on_finish"_sid, true);
+}
+
+void ChessPieceView::applyMove(const Position& position, Move move) {
+    const Square from = move.from();
+    const Square to = move.to();
+    const Color stm = position.SideToMove();
+
+    if (ecs::Entity captured_piece = entityAt(to); captured_piece.IsValid()) {
+        removePiece(to);
+    }
+
+    movePiece(from, to);
+
+    switch (move.type()) {
+        case MoveType::Normal:
+            break;
+        case MoveType::Castling: {
+            const auto [rook_from, rook_to] = GetCastleRookMove(from, to);
+            movePiece(rook_from, rook_to);
+        } break;
+        case MoveType::Enpassant: {
+            removePiece(enpassantCapturedSquare(move));
+        } break;
+        case MoveType::Promotion: {
+            removePiece(to);  // remove pawn
+            const PieceType promo_type = move.promo().unwrap();
+            const Piece promoted = BuildPiece(promo_type, stm);
+            spawnPiece(promoted, to);
+        } break;
+    }
 }
 
 }  // namespace chess

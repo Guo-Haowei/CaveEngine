@@ -8,7 +8,8 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "chess/core/Position.h"
-#include "chess/presentation/ChessPresenter.h"
+#include "chess/presentation/ChessBoardView.h"
+#include "chess/presentation/ChessPieceView.h"
 
 // clang-format off
 namespace cave { class IHostServices; }
@@ -34,11 +35,11 @@ public:
 
     const core::Position& replica() const { return replica_; }
 
-    ChessPresenter& presenter() { return presenter_; }
-
     bool handleIntent(cave::Intent& intent) override;
 
     cave::DebugId debugId() const override { return debug_id_; }
+
+    ChessBoardView& board_view() { return board_view_; }
 
 private:
     void onMoveCommitted(core::Move move);
@@ -50,7 +51,9 @@ private:
 
     ChessMatchAuthority& auth_;
     ChessGameSession& session_;
-    ChessPresenter presenter_;
+
+    ChessBoardView board_view_;
+    ChessPieceView piece_view_;
 
     core::Position replica_;
 

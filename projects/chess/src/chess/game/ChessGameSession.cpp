@@ -53,7 +53,7 @@ void ChessGameSession::tick() {
     if (selector_) {
         Vector2i focused = selector_->GetFocused();
         Square square = Square::fromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
-        client_->presenter().board_view_.setHovered(square);
+        client_->board_view().setHovered(square);
     }
 }
 
@@ -113,7 +113,7 @@ auto ChessGameSession::createPlayer(Color side, PlayerKind kind)
 // @TODO: this should be configured by MainMenu?
 void ChessGameSession::onEnterBoot() {
     MatchConfig config{};
-    // config.black = { PlayerKind::LocalAI };
+    config.black = { PlayerKind::LocalAI };
 
     auth_ = std::make_unique<ChessMatchAuthority>(host_);
     client_ = std::make_unique<ChessGameClient>(host_, *this, *auth_);
@@ -129,7 +129,7 @@ void ChessGameSession::onEnterBoot() {
         grid_adapter_ = std::make_unique<ChessGridSelectorAdapter>(
             host_,
             *client_,
-            client_->presenter().board_view_);
+            client_->board_view());
 
         cave::GridSelectController::Callbacks cbs = {
             .can_select = [this](int x, int y) { return grid_adapter_->canSelect(x, y); },

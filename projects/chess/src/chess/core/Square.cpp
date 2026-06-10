@@ -119,15 +119,15 @@ constexpr Square Square::H8(63);
 
 #if defined(CAVE_TEST)
 
-TEST(Square, SameLineDiagonal) {
+TEST(Square, same_line_diagonal) {
     {
         const Square a = Square::A1;
         const Square b = Square::B2;
         const Square c = Square::C3;
 
-        EXPECT_FALSE(a.SameLineInclusive(b, c));
-        EXPECT_TRUE(b.SameLineInclusive(a, c));
-        EXPECT_FALSE(c.SameLineInclusive(a, b));
+        EXPECT_FALSE(a.sameLineInclusive(b, c));
+        EXPECT_TRUE(b.sameLineInclusive(a, c));
+        EXPECT_FALSE(c.sameLineInclusive(a, b));
     }
 
     {
@@ -135,49 +135,49 @@ TEST(Square, SameLineDiagonal) {
         const Square b = Square::B1;
         const Square c = Square::C3;
 
-        EXPECT_FALSE(a.SameLineInclusive(b, c));
-        EXPECT_FALSE(b.SameLineInclusive(a, c));
-        EXPECT_FALSE(c.SameLineInclusive(a, b));
+        EXPECT_FALSE(a.sameLineInclusive(b, c));
+        EXPECT_FALSE(b.sameLineInclusive(a, c));
+        EXPECT_FALSE(c.sameLineInclusive(a, b));
     }
 }
 
-TEST(Square, SameLineOverlapping) {
+TEST(Square, same_line_overlapping) {
     const Square a = Square::B2;
     const Square b = Square::B2;
     const Square c = Square::D8;
 
-    EXPECT_FALSE(c.SameLineInclusive(a, b));
-    EXPECT_TRUE(a.SameLineInclusive(b, c));
-    EXPECT_TRUE(b.SameLineInclusive(a, c));
+    EXPECT_FALSE(c.sameLineInclusive(a, b));
+    EXPECT_TRUE(a.sameLineInclusive(b, c));
+    EXPECT_TRUE(b.sameLineInclusive(a, c));
 }
 
-TEST(Square, SameLineHorizontal) {
+TEST(Square, same_line_horizontal) {
     const Square a = Square::C1;
     const Square b = Square::C2;
     const Square c = Square::C5;
 
-    EXPECT_FALSE(a.SameLineInclusive(b, c));
-    EXPECT_TRUE(b.SameLineInclusive(a, c));
-    EXPECT_FALSE(c.SameLineInclusive(a, b));
+    EXPECT_FALSE(a.sameLineInclusive(b, c));
+    EXPECT_TRUE(b.sameLineInclusive(a, c));
+    EXPECT_FALSE(c.sameLineInclusive(a, b));
 }
 
-TEST(Square, SameLineVertical) {
+TEST(Square, same_line_vertical) {
     const Square a = Square::A1;
     const Square b = Square::A8;
     const Square c = Square::A3;
 
-    EXPECT_FALSE(a.SameLineInclusive(b, c));
-    EXPECT_FALSE(b.SameLineInclusive(a, c));
-    EXPECT_TRUE(c.SameLineInclusive(a, b));
+    EXPECT_FALSE(a.sameLineInclusive(b, c));
+    EXPECT_FALSE(b.sameLineInclusive(a, c));
+    EXPECT_TRUE(c.sameLineInclusive(a, b));
 }
 
-TEST(Square, MoreSameLineTest) {
+TEST(Square, more_same_line_test) {
     const Square a = Square::G8;
     const Square b = Square::B3;
 
-    EXPECT_TRUE(Square::F7.SameLineInclusive(a, b));
-    EXPECT_TRUE(Square::D5.SameLineInclusive(a, b));
-    EXPECT_TRUE(Square::C4.SameLineInclusive(a, b));
+    EXPECT_TRUE(Square::F7.sameLineInclusive(a, b));
+    EXPECT_TRUE(Square::D5.sameLineInclusive(a, b));
+    EXPECT_TRUE(Square::C4.sameLineInclusive(a, b));
 }
 #endif
 
