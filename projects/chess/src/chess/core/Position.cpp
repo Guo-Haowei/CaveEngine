@@ -241,8 +241,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
         } break;
         case MoveType::Enpassant: {
             assert(src_piece_type == PieceType::Pawn);
-            const Square enemy_sq = Square::fromFileRank(dst_file, src_rank);
-            m_board[their_pawn].Unset(enemy_sq);
+            m_board[their_pawn].Unset(enpassantCapturedSquare(src_sq, dst_sq));
         } break;
         case MoveType::Promotion: {
             assert(src_piece_type == PieceType::Pawn);
@@ -300,10 +299,7 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
             MovePiece(m_board[rook], rook_sq, src_sq2);
         } break;
         case MoveType::Enpassant: {
-            const auto [_from_file, from_rank] = src_sq.fileRank();
-            const auto [to_file, _to_rank] = dst_sq.fileRank();
-            const Square enemy_sq = Square::fromFileRank(to_file, from_rank);
-            m_board[their_pawn].Set(enemy_sq);
+            m_board[their_pawn].Set(enpassantCapturedSquare(src_sq, dst_sq));
         } break;
         case MoveType::Promotion: {
             const Piece promotion = BuildPiece(p_move.promo().unwrap(), my_color);

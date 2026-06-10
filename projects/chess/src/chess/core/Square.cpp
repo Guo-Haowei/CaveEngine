@@ -45,6 +45,10 @@ const char* Square::uci() const {
     return kSquareLookUp[index_];
 }
 
+Square enpassantCapturedSquare(Square from, Square to) {
+    return Square::fromFileRank(to.file(), from.rank());
+}
+
 constexpr Square Square::A1(0);
 constexpr Square Square::B1(1);
 constexpr Square Square::C1(2);

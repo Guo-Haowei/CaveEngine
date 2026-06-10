@@ -5,25 +5,14 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
+#include "chess/presentation/ChessUtils.h"
+
 namespace chess {
 
 using namespace ::cave;
-using namespace ::cave::literals;
-using namespace ::cave::math;
 using namespace ::chess::core;
 
-static constexpr StringId kTranslationId = "translation"_sid;
-static constexpr StringId kVisibility = "visibility"_sid;
-static constexpr StringId kCastShadow = "cast_shadow"_sid;
-
-// @TODO: refactor this
-static inline Vector3f squareToVec(Square square) {
-    const auto [file, rank] = square.fileRank();
-    return Vector3f{ (float)rank, 0.0f, (float)file };
-}
-
-// @TODO: refactor this
-static std::pair<Square, Square> GetCastleRookMove(Square from, Square to) {
+static std::pair<Square, Square> castleRookMove(Square from, Square to) {
     if (from == Square::E1) {
         if (to == Square::G1)
             return { Square::H1, Square::F1 };
@@ -39,11 +28,6 @@ static std::pair<Square, Square> GetCastleRookMove(Square from, Square to) {
 
     CRASH_NOW_MSG("Invalid castling");
     return {};
-}
-
-// @TODO: refactor this
-static Square enpassantCapturedSquare(Move move) {
-    return Square::fromFileRank(move.to().file(), move.from().rank());
 }
 
 ecs::Entity ChessPieceView::Entry::getAndAdvance() {
@@ -159,11 +143,11 @@ void ChessPieceView::applyMove(const Position& position, Move move) {
         case MoveType::Normal:
             break;
         case MoveType::Castling: {
-            const auto [rook_from, rook_to] = GetCastleRookMove(from, to);
+            const auto [rook_from, rook_to] = castleRookMove(from, to);
             movePiece(rook_from, rook_to);
         } break;
         case MoveType::Enpassant: {
-            removePiece(enpassantCapturedSquare(move));
+            removePiece(enpassantCapturedSquare(from, to));
         } break;
         case MoveType::Promotion: {
             removePiece(to);  // remove pawn

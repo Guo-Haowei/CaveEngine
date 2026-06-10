@@ -4,15 +4,12 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
+#include "chess/presentation/ChessUtils.h"
+
 namespace chess {
 
 using namespace ::cave;
-using namespace ::cave::literals;
-using namespace ::cave::math;
 using namespace ::chess::core;
-
-static constexpr StringId kVisibility = "visibility"_sid;
-static constexpr StringId kTranslationId = "translation"_sid;
 
 ChessBoardView::ChessBoardView(IHostServices& host) noexcept
     : host_(host)
@@ -28,12 +25,6 @@ void ChessBoardView::initialize() {
         const char* name = Square(i).uci();
         tiles_[i] = query.findFirstByName(name);
     }
-}
-
-// @TODO: refactor this
-static inline Vector3f squareToVec(Square square) {
-    const auto [file, rank] = square.fileRank();
-    return Vector3f{ (float)rank, 0.0f, (float)file };
 }
 
 void ChessBoardView::drawBoard() {
