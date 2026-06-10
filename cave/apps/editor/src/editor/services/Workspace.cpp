@@ -54,7 +54,7 @@ PreviewScene Workspace::focusedPreviewScene() {
     }
     ret.doc_id = focusedDoc();
     if (IDocument* doc = editor_.DocumentService().resolve(ret.doc_id)) {
-        ret.scene_id = doc->GetPreviewScene();
+        ret.scene_id = doc->previewScene();
         ret.scene = services_.sceneRegistry().resolve(ret.scene_id);
     }
     return ret;
@@ -81,7 +81,7 @@ void Workspace::drawTabs() {
             }
             tab.drawUI();
 
-            if (tab.IsFocused()) {
+            if (tab.isFocused()) {
                 focused_tab_ = current_id;
             }
         }
@@ -109,7 +109,7 @@ void Workspace::onEvents(const InputFrame& input) {
 
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
-        if (tab && tab->IsHovered()) {
+        if (tab && tab->isHovered()) {
             tab->onInputEvents(input);
             break;
         }
@@ -135,7 +135,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         return;
     }
 
-    const AssetMetaData* meta = doc->GetHandleRaw().GetMeta();
+    const AssetMetaData* meta = doc->rawHandle().GetMeta();
     if (!meta) {
         return;
     }
@@ -154,13 +154,13 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         case AssetType::Material: {
             tab = std::make_unique<SceneViewTab>(editor_,
                                                  doc_id,
-                                                 doc->GetPreviewScene(),
+                                                 doc->previewScene(),
                                                  dim);
         } break;
         case AssetType::TileMap: {
             tab = std::make_unique<TileMapEditor>(editor_,
                                                   doc_id,
-                                                  doc->GetPreviewScene());
+                                                  doc->previewScene());
         } break;
         default: {
             tab = std::make_unique<Tab>(editor_, doc_id);

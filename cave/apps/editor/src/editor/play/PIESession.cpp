@@ -39,10 +39,12 @@ bool PIESession::start(PIEStartDesc start_desc) {
     Scene* scene = app_.services().sceneRegistry().resolve(start_desc_.edit_scene);
     if (!scene) return false;
 
-    PIEHostServices host(app_, *scene, {});
+    if (game_module_) {
+        PIEHostServices host(app_, *scene, {});
 
-    game_module_->onModuleLoaded(host);
-    host.flushSceneCommands();
+        game_module_->onModuleLoaded(host);
+        host.flushSceneCommands();
+    }
     return true;
 }
 

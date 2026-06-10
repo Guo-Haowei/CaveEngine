@@ -39,7 +39,7 @@ MaterialDocument::MaterialDocument(IApplication& app, const Guid& guid)
     scene->m_root = map.Resolve(root);
     scene->Update(0.0f);
 
-    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
+    preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }
 
 }  // namespace cave

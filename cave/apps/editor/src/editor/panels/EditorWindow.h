@@ -12,25 +12,25 @@ struct WindowState {
 
 class EditorWindow : public IEditorItem {
 public:
-    EditorWindow(EditorState& p_editor);
+    EditorWindow(EditorState& editor);
 
     void drawUI() override;
 
     virtual const char* windowId() const = 0;
 
-    bool IsOpen() const { return m_state.open; }
-    bool IsVisible() const { return m_state.visible; }
-    bool IsFocused() const { return m_state.focused; }
-    bool IsHovered() const { return m_state.hovered; }
+    bool isOpen() const { return state_.open; }
+    bool isVisible() const { return state_.visible; }
+    bool isFocused() const { return state_.focused; }
+    bool isHovered() const { return state_.hovered; }
 
 protected:
     virtual void drawUIImpl() = 0;
-    void ResetState();
-    void UpdateState();
+    void resetState();
+    void updateState();
 
-    WindowState m_state;
+    WindowState state_;
 
-    int m_flags{ 0 };
+    int flags_{ 0 };
 };
 
 }  // namespace cave

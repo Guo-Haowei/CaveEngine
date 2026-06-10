@@ -73,7 +73,7 @@ void SceneViewTab::onDestroy() {
 }
 
 Option<PickData> SceneViewTab::getPickData(const Vector2f& pointer_os) {
-    if (!IsVisible()) return None();
+    if (!isVisible()) return None();
 
     const ViewRecord* view = view_manager_.resolve(view_id_);
     if (!view->display_rect_os.Contains(pointer_os.x, pointer_os.y)) {
@@ -89,7 +89,7 @@ Option<PickData> SceneViewTab::getPickData(const Vector2f& pointer_os) {
 }
 
 void SceneViewTab::onInputEvents(const InputFrame& input) {
-    if (!IsHovered()) {
+    if (!isHovered()) {
         return;
     }
 

@@ -38,7 +38,7 @@ void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
 
     Scene* scene = nullptr;
     if (IDocument* doc = editor_.DocumentService().resolve(doc_id)) {
-        SceneId scene_id = doc->GetPreviewScene();
+        SceneId scene_id = doc->previewScene();
         scene = scene_reg.resolve(scene_id);
     }
 
@@ -58,19 +58,19 @@ void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
 
 void EditService::undo(DocId doc_id) {
     if (IDocument* doc = resolve(doc_id)) {
-        doc->Undo();
+        doc->undo();
     }
 }
 
 void EditService::redo(DocId doc_id) {
     if (IDocument* doc = resolve(doc_id)) {
-        doc->Redo();
+        doc->redo();
     }
 }
 
 bool EditService::canUndo(DocId doc_id) const {
     if (const IDocument* doc = resolve(doc_id)) {
-        return doc->CanUndo();
+        return doc->canUndo();
     }
 
     return false;
@@ -78,7 +78,7 @@ bool EditService::canUndo(DocId doc_id) const {
 
 bool EditService::canRedo(DocId doc_id) const {
     if (const IDocument* doc = resolve(doc_id)) {
-        return doc->CanRedo();
+        return doc->canRedo();
     }
 
     return false;
@@ -86,7 +86,7 @@ bool EditService::canRedo(DocId doc_id) const {
 
 bool EditService::isDirty(DocId doc_id) const {
     if (const IDocument* doc = resolve(doc_id)) {
-        return doc->IsDirty();
+        return doc->isDirty();
     }
 
     return false;
@@ -94,7 +94,7 @@ bool EditService::isDirty(DocId doc_id) const {
 
 bool EditService::save(DocId doc_id) {
     if (IDocument* doc = resolve(doc_id)) {
-        return doc->Save();
+        return doc->save();
     }
 
     return false;
@@ -104,7 +104,7 @@ bool EditService::handleIntent(Intent& intent) {
     if (auto edit_intent = dynamic_cast<EditIntent*>(&intent)) {
         IDocument* doc = resolve(edit_intent->doc_id());
         if (DEV_VERIFY(doc)) {
-            doc->Apply(std::move(edit_intent->cmd_), 0);
+            doc->apply(std::move(edit_intent->cmd_), 0);
         }
 
         return true;

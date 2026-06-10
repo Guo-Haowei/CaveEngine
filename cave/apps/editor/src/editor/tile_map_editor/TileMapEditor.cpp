@@ -26,15 +26,15 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
     , debug_id_(MakeDebugId(this))
-    , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
+    , sprite_selector_(SpriteSelector::SelectionMode::Single) {
 
-    m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
-                                      [&]() {
-                                          LOG_WARN("TODO");
-                                      } };
+    // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
+    //                                   [&]() {
+    //                                       LOG_WARN("TODO");
+    //                                   } };
+
+    // @TODO: use Intent for editing tiles?
 }
-
-TileMapEditor::~TileMapEditor() = default;
 
 void TileMapEditor::submitView() {
     ViewTabBase::submitView(false);
@@ -69,7 +69,7 @@ Option<PickData> TileMapEditor::getPickData(const Vector2f& pointer_os) {
 }
 
 void TileMapEditor::onInputEvents(const InputFrame& input) {
-    if (!IsHovered()) {
+    if (!isHovered()) {
         return;
     }
 
@@ -157,7 +157,6 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     return true;
 }
 
-#if 0
 bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
     DEV_ASSERT(0);
     unused(p_input_event);
@@ -186,7 +185,6 @@ bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
 
     return false;
 }
-#endif
 
 void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {

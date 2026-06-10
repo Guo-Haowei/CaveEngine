@@ -33,15 +33,15 @@ CloseDecision AskCloseUnsaved(const char* title) {
 
 void Tab::drawUI() {
     if (const bool dirty = m_editor.EditService().isDirty(doc_id_)) {
-        m_flags |= ImGuiWindowFlags_UnsavedDocument;
+        flags_ |= ImGuiWindowFlags_UnsavedDocument;
     } else {
-        m_flags &= ~ImGuiWindowFlags_UnsavedDocument;
+        flags_ &= ~ImGuiWindowFlags_UnsavedDocument;
     }
 
-    ResetState();
+    resetState();
     bool open = true;
-    if (ImGui::Begin(windowId(), &open, m_flags)) {
-        UpdateState();
+    if (ImGui::Begin(windowId(), &open, flags_)) {
+        updateState();
         drawUIImpl();
     }
     ImGui::End();

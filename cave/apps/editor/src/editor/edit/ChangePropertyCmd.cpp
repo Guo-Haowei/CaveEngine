@@ -33,7 +33,7 @@ ChangePropertyCmd::ChangePropertyCmd(SceneRegistry& p_scene_reg,
 }
 
 bool ChangePropertyCmd::Do(IDocument& p_doc) {
-    SceneId scene_id = p_doc.GetPreviewScene();
+    SceneId scene_id = p_doc.previewScene();
     if (!scene_id.IsValid()) return false;
     Scene* scene = ResolveScene(scene_id);
     if (!scene) return false;
@@ -49,7 +49,7 @@ bool ChangePropertyCmd::Do(IDocument& p_doc) {
 }
 
 bool ChangePropertyCmd::Undo(IDocument& p_doc) {
-    SceneId scene_id = p_doc.GetPreviewScene();
+    SceneId scene_id = p_doc.previewScene();
     if (!scene_id.IsValid()) return false;
     Scene* scene = ResolveScene(scene_id);
     if (!scene) return false;

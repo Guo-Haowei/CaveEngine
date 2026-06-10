@@ -91,15 +91,15 @@ void EditorState::onEnter(const StateRequest& request) {
             AssetHandle handle_ = handle.unwrap_unchecked();
             DocId doc_id = m_document_service->openDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
             if (IDocument* doc = m_document_service->resolve(doc_id)) {
-                edit_scene = doc->GetPreviewScene();
+                edit_scene = doc->previewScene();
             }
         }
     }
 
-    LOG_ERROR("Fix this part");
     // load pie
     PIEStartDesc desc{};
-    // desc.game_dll = "game_Debug.dll";
+    LOG_ERROR("Do not load hard coded dll");
+    desc.game_dll = "chess_Debug.dll";
     desc.game_id = "chess";
     desc.edit_scene = edit_scene;
 

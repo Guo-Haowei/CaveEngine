@@ -13,103 +13,100 @@
 
 namespace cave {
 
-DocumentBase::DocumentBase(IApplication& p_app, const Guid& p_guid)
-    : m_asset_reg(*p_app.GetAssetRegistry())
-    , m_scene_reg(p_app.services().sceneRegistry())
-    , m_guid(p_guid) {
+DocumentBase::DocumentBase(IApplication& app, const Guid& guid)
+    : asset_reg_(*app.GetAssetRegistry())
+    , scene_reg_(app.services().sceneRegistry())
+    , guid_(guid) {
 
-    m_handle = m_asset_reg.FindByGuid(p_guid).unwrap();
-    m_asset = m_handle.Wait();
+    handle_ = asset_reg_.FindByGuid(guid).unwrap();
+    asset_ = handle_.Wait();
 }
 
-bool DocumentBase::Apply(std::unique_ptr<IEditCmd> p_cmd, uint32_t p_coalesce) {
-    if (!p_cmd) return false;
+bool DocumentBase::apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) {
+    if (!cmd) return false;
 
-    if (!m_undo.empty() /*&& p_coalesce != 0 && m_last_coalesce == p_coalesce*/) {
-        IEditCmd* last = m_undo.back().get();
-        if (last && last->CanCoalesceWith(p_cmd.get())) {
-            p_cmd->Do(*this);
-            last->CoalesceFrom(std::move(p_cmd));
-            m_redo.clear();
-            TouchDirtyAfterEdit();
+    if (!undo_.empty() /*&& coalesce != 0 && last_coalesce_ == coalesce*/) {
+        IEditCmd* last = undo_.back().get();
+        if (last && last->CanCoalesceWith(cmd.get())) {
+            cmd->Do(*this);
+            last->CoalesceFrom(std::move(cmd));
+            redo_.clear();
+            touchDirtyAfterEdit();
             return true;
         }
     }
 
-    p_cmd->Do(*this);
-    // LOG("DocumentBase::Apply: action '{}' applied", p_cmd->Label());
+    cmd->Do(*this);
 
-    m_undo.push_back(std::move(p_cmd));
-    m_redo.clear();
+    undo_.push_back(std::move(cmd));
+    redo_.clear();
 
-    m_last_coalesce = p_coalesce;
-    TouchDirtyAfterEdit();
-    TrimUndoIfNeeded();
+    last_coalesce_ = coalesce;
+    touchDirtyAfterEdit();
+    trimUndoIfNeeded();
 
     return true;
 }
 
-bool DocumentBase::Undo() {
-    if (m_undo.empty()) return false;
-    auto cmd = std::move(m_undo.back());
-    m_undo.pop_back();
+bool DocumentBase::undo() {
+    if (undo_.empty()) return false;
+    auto cmd = std::move(undo_.back());
+    undo_.pop_back();
 
     cmd->Undo(*this);
-    // LOG("DocumentBase::Undo: action '{}' undone", cmd->Label());
-    m_redo.push_back(std::move(cmd));
+    redo_.push_back(std::move(cmd));
 
-    m_last_coalesce = 0;
-    RecomputeDirtyAfterHistoryMove();
+    last_coalesce_ = 0;
+    recomputeDirtyAfterHistoryMove();
     return true;
 }
 
-bool DocumentBase::Redo() {
-    if (m_redo.empty()) return false;
-    auto cmd = std::move(m_redo.back());
-    m_redo.pop_back();
+bool DocumentBase::redo() {
+    if (redo_.empty()) return false;
+    auto cmd = std::move(redo_.back());
+    redo_.pop_back();
 
     cmd->Do(*this);
-    // LOG("DocumentBase::Undo: action '{}' redone", cmd->Label());
-    m_undo.push_back(std::move(cmd));
+    undo_.push_back(std::move(cmd));
 
-    m_last_coalesce = 0;
-    RecomputeDirtyAfterHistoryMove();
+    last_coalesce_ = 0;
+    recomputeDirtyAfterHistoryMove();
     return true;
 }
 
-void DocumentBase::GetUndoLabels(std::vector<std::string>& p_out, int p_max_items) const {
-    p_out.clear();
+void DocumentBase::undoLabels(std::vector<std::string>& out, int max_items) const {
+    out.clear();
     int count = 0;
-    for (auto it = m_undo.rbegin(); it != m_undo.rend() && count < p_max_items; ++it, ++count) {
-        p_out.emplace_back((*it)->Label());
+    for (auto it = undo_.rbegin(); it != undo_.rend() && count < max_items; ++it, ++count) {
+        out.emplace_back((*it)->Label());
     }
 }
 
-void DocumentBase::GetRedoLabels(std::vector<std::string>& p_out, int p_max_items) const {
-    p_out.clear();
+void DocumentBase::redoLabels(std::vector<std::string>& out, int max_items) const {
+    out.clear();
     int count = 0;
-    for (auto it = m_redo.rbegin(); it != m_redo.rend() && count < p_max_items; ++it, ++count) {
-        p_out.emplace_back((*it)->Label());
+    for (auto it = redo_.rbegin(); it != redo_.rend() && count < max_items; ++it, ++count) {
+        out.emplace_back((*it)->Label());
     }
 }
 
-void DocumentBase::TrimUndoIfNeeded() {
-    if (m_undo_limit == 0) return;
-    while (m_undo.size() > m_undo_limit) {
+void DocumentBase::trimUndoIfNeeded() {
+    if (undo_limit_ == 0) return;
+    while (undo_.size() > undo_limit_) {
         // If we drop history older than the save marker,
         // we must shift the marker accordingly to preserve meaning.
-        m_undo.pop_front();
-        if (m_saved_undo_size > 0) {
-            m_saved_undo_size -= 1;
+        undo_.pop_front();
+        if (saved_undo_size_ > 0) {
+            saved_undo_size_ -= 1;
         }
     }
 }
 
-bool DocumentBase::Save() {
-    return m_asset_reg.SaveAsset(m_guid);
+bool DocumentBase::save() {
+    return asset_reg_.SaveAsset(guid_);
 }
 
-bool DocumentBase::SaveAs(std::string_view) {
+bool DocumentBase::saveAs(std::string_view) {
     return false;
 }
 

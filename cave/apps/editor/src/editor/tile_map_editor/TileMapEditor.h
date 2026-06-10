@@ -20,7 +20,6 @@ public:
     TileMapEditor(EditorState& editor,
                   DocId doc_id,
                   SceneId preview_scene_id);
-    ~TileMapEditor();
 
     void onCreate() override;
     void onDestroy() override;
@@ -41,9 +40,7 @@ protected:
 
     const DebugId debug_id_;
 
-    ToolBarButtonDesc m_brush_desc;
-
-    SpriteSelector m_sprite_selector;
+    SpriteSelector sprite_selector_;
 };
 
 }  // namespace cave

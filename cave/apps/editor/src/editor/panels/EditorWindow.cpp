@@ -2,27 +2,27 @@
 
 namespace cave {
 
-EditorWindow::EditorWindow(EditorState& p_editor)
-    : IEditorItem(p_editor) {}
+EditorWindow::EditorWindow(EditorState& editor)
+    : IEditorItem(editor) {}
 
 void EditorWindow::drawUI() {
-    ResetState();
-    if (ImGui::Begin(windowId(), nullptr, m_flags)) {
-        UpdateState();
+    resetState();
+    if (ImGui::Begin(windowId(), nullptr, flags_)) {
+        updateState();
         drawUIImpl();
     }
     ImGui::End();
 }
 
-void EditorWindow::ResetState() {
-    m_state = {};
+void EditorWindow::resetState() {
+    state_ = {};
 }
 
-void EditorWindow::UpdateState() {
-    m_state.open = true;
-    m_state.visible = !ImGui::IsWindowCollapsed();
-    m_state.focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
-    m_state.hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+void EditorWindow::updateState() {
+    state_.open = true;
+    state_.visible = !ImGui::IsWindowCollapsed();
+    state_.focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    state_.hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
     // ImVec2 pos = ImGui::GetWindowPos();
     // ImVec2 size = ImGui::GetWindowSize();
