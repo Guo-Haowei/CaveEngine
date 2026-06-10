@@ -4,6 +4,8 @@
 
 namespace cave {
 
+class ProjectManager;
+
 class ProjectBrowserState final : public AppState {
 public:
     ProjectBrowserState(IApplication& app);
@@ -25,6 +27,7 @@ private:
     void drawRecentProjects();
     void drawSideBar();
 
+    ProjectManager& project_manager_;
     std::vector<ProjectInfo> project_list_{};
 
     bool request_fired_{ false };

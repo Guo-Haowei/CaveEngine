@@ -4,7 +4,6 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/AppState.h"
-#include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
@@ -26,9 +25,6 @@ public:
 
     QuitVote OnQuitRequested(const QuitContext&) override { return QuitVote::Allow; }
 
-    void RequestProject(std::string_view p_path) override;
-
-    BootLoadPipeline& GetBootLoadPipeline() override;
     VFS& GetVFS() override { return m_vfs; }
     EventQueue& GetEventQueue() override { return m_event_queue; }
     SceneScheduler& GetSceneScheduler() override { return *m_scene_scheduler; }
@@ -61,8 +57,9 @@ protected:
 
     // @TODO: split AppServices
     cave::InputService* m_input_service;
-    std::unique_ptr<BootLoadPipeline> m_boot_load_pipeline;
     std::unique_ptr<SceneScheduler> m_scene_scheduler;
+
+    std::unique_ptr<ProjectManager> project_manager_;
 };
 
 }  // namespace cave

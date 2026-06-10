@@ -12,6 +12,7 @@
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
+#include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/serialization/yaml_include.h"
 #include "engine/private/ui/layout.h"
 
@@ -25,6 +26,7 @@ static auto scanProjects(const std::filesystem::path& root) -> std::vector<Proje
 
 ProjectBrowserState::ProjectBrowserState(IApplication& app)
     : AppState(app)
+    , project_manager_(app.services().projectManager())
     , debug_id_(MakeDebugId(this)) {
 }
 
@@ -50,23 +52,23 @@ void ProjectBrowserState::drawRecentProjects() {
     std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("scene@256x256.png");
     GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
-    for (const auto& item : project_list_) {
+    for (const ProjectInfo& project : project_list_) {
         auto [hovered, clicked] = ui::AssetCard(texture ? texture->GetHandle() : 0,
-                                                item.name.c_str(),
+                                                project.name.c_str(),
                                                 thumbnail_size);
         ImGui::TableNextColumn();
 
         if (hovered) {
             ImGui::BeginTooltip();
-            ImGui::Text("version: %d", item.version);
-            ImGui::Text("path: %s", item.path.c_str());
-            ImGui::Text("start_scene: %s", item.start_scene.c_str());
+            ImGui::Text("version: %d", project.version);
+            ImGui::Text("path: %s", project.path.c_str());
+            ImGui::Text("start_scene: %s", project.start_scene.c_str());
             ImGui::EndTooltip();
         }
 
         if (clicked && !request_fired_) {
-            request_ = Some(StateRequest{ AppStateId::Editor, item.path });
-            app_.RequestProject(item.path);
+            request_ = Some(StateRequest{ AppStateId::Editor, project.path });
+            project_manager_.loadProject(project);
             request_fired_ = true;
         }
     }
@@ -113,7 +115,7 @@ void ProjectBrowserState::tick(const FrameTime&) {
 
         if (ImGui::Begin("Project Location")) {
             if (request_fired_) {
-                TaskSnapshot root = app_.GetBootLoadPipeline().RootSnapshot();
+                TaskSnapshot root = project_manager_.snapshot();
 
                 if (root.indeterminate) {
                     ImGui::ProgressBar(-1.0f, ImVec2(-1.0f, 0.0f));
@@ -140,7 +142,7 @@ void ProjectBrowserState::drawSideBar() {
     const char* ptr2 = strchr(ptr1, ']');
     ptr2 = ptr2 ? (ptr2 + 1) : ptr1;
 
-    TaskSnapshot root = app_.GetBootLoadPipeline().RootSnapshot();
+    TaskSnapshot root = project_manager_.snapshot();
 
     ImGui::Text("[%d%%] %s", static_cast<int>(root.progress01 * 100), ptr2);
 }

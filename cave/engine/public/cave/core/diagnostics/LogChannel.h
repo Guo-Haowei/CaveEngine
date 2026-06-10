@@ -14,6 +14,7 @@
     CAVE_LOG_CHANNEL(Game,    "[Game]   ") \
     CAVE_LOG_CHANNEL(Console, "[Console]") \
     CAVE_LOG_CHANNEL(Picking, "[Picking]") \
+    CAVE_LOG_CHANNEL(FS,      "[FS]     ") \
     CAVE_LOG_CHANNEL(Asset,   "[Asset]  ") \
     CAVE_LOG_CHANNEL(Scene,   "[Scene]  ") \
     CAVE_LOG_CHANNEL(Thumb,   "[Thumb]  ") \

@@ -31,6 +31,7 @@ class IntentDispatcher;
 class IUIRuntime;
 class IPhysicsManager;
 class IScriptService;
+class ProjectManager;
 class SceneRegistry;
 class SceneQueryService;
 class SceneScheduler;
@@ -71,6 +72,12 @@ struct QuitContext {
     QuitReason reason;
 };
 
+struct AppServices {
+    ProjectManager* project_manager_ = nullptr;
+
+    ProjectManager& projectManager() { return *project_manager_; }
+};
+
 class IApplication : public NonCopyable {
 public:
     IApplication(const AppSpec& p_spec)
@@ -84,10 +91,7 @@ public:
 
     virtual QuitVote OnQuitRequested(const QuitContext& p_quit) = 0;
 
-    virtual void RequestProject(std::string_view p_path) = 0;
-
     virtual AppStateId GetStateId() const = 0;
-    virtual BootLoadPipeline& GetBootLoadPipeline() = 0;
     virtual VFS& GetVFS() = 0;
     virtual EventQueue& GetEventQueue() = 0;
     virtual SceneScheduler& GetSceneScheduler() = 0;
@@ -112,6 +116,8 @@ public:
 
     CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
     Console& Console() { return *m_console; }
+
+    AppServices& services() { return services_; }
 
     const AppSpec& GetSpecification() const { return m_spec; }
     rhi::Backend GetBackend() const { return m_spec.backend; }
@@ -152,6 +158,8 @@ protected:
 
     cave::CommandRegistry* m_cmd_reg{ nullptr };
     cave::Console* m_console{ nullptr };
+
+    AppServices services_;
 };
 
 }  // namespace cave

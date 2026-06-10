@@ -16,15 +16,17 @@
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/dvar/DvarCache.h"
-#include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/input/InputService.h"
+#include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -81,16 +83,15 @@ auto Application::SetupModules() -> Result<void> {
     m_task_manager = new TaskManager();
     m_intent_dispatcher = new cave::IntentDispatcher();
 
-    m_boot_load_pipeline = std::make_unique<BootLoadPipeline>(
-        *m_task_manager,
-        *m_asset_manager,
-        *m_asset_registry);
-
     m_scene_scheduler = std::make_unique<SceneScheduler>(
         *m_scene_registry,
         *m_script_service);
 
     m_scene_query_service = new cave::SceneQueryService(*m_scene_registry);
+
+    // setup app services
+    project_manager_ = std::make_unique<ProjectManager>(*this);
+    services_.project_manager_ = project_manager_.get();
 
     RegisterModule(m_task_manager);
     RegisterModule(m_asset_manager);
@@ -249,26 +250,21 @@ AppStateId Application::GetStateId() const {
     return m_state_machine.stateId();
 }
 
-void Application::RequestProject(std::string_view p_path) {
-    DEV_ASSERT(!p_path.empty());
-    DEV_ASSERT_MSG(!m_vfs.HasMount("@res"), "resource folder already mounted");
-
-    fs::path resource_folder = fs::path(p_path) / "resources";
-    m_vfs.Mount("@res", resource_folder);
-
-    fs::path project_setting = fs::path(p_path) / "project.yaml";
-
-    std::ifstream file(project_setting.string());
-    if (file.is_open()) {
-        // @TODO: load stuff
-    }
-
-    m_boot_load_pipeline->RequestProject(resource_folder);
-}
-
-BootLoadPipeline& Application::GetBootLoadPipeline() {
-    DEV_ASSERT(m_boot_load_pipeline);
-    return *m_boot_load_pipeline;
-}
+// void Application::RequestProject(std::string_view p_path) {
+//     DEV_ASSERT(!p_path.empty());
+//     DEV_ASSERT_MSG(!m_vfs.HasMount("@res"), "resource folder already mounted");
+//
+//     fs::path resource_folder = fs::path(p_path) / "resources";
+//     m_vfs.Mount("@res", resource_folder);
+//
+//     fs::path project_setting = fs::path(p_path) / "project.yaml";
+//
+//     std::ifstream file(project_setting.string());
+//     if (file.is_open()) {
+//         // @TODO: load stuff
+//     }
+//
+//     m_boot_load_pipeline->RequestProject(resource_folder);
+// }
 
 }  // namespace cave
