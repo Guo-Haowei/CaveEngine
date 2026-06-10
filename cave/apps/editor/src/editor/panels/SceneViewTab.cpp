@@ -51,7 +51,7 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
                            ViewDimension p_dimension)
     : Tab(p_editor, p_doc_id)
     , m_debug_id(MakeDebugId(this))
-    , m_view_manager(*p_editor.GetApp().GetViewManager())
+    , m_view_manager(*p_editor.app().GetViewManager())
     , m_dim(p_dimension)
     , m_preview_scene(p_preview_scene_id)
     , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
@@ -82,7 +82,7 @@ SceneViewTab::SceneViewTab(EditorState& p_editor,
             .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
             .miscFlags = RESOURCE_MISC_NONE,
         };
-        m_texture = m_editor.GetApp().GetRenderDevice()->CreateTexture(
+        m_texture = m_editor.app().GetRenderDevice()->CreateTexture(
             desc,
             PointClampSampler());
     }
@@ -107,7 +107,7 @@ void SceneViewTab::SubmitView() {
         }
     }
     view.output = m_texture;
-    m_editor.GetApp().GetViewManager()->Submit(view);
+    m_editor.app().GetViewManager()->Submit(view);
 }
 
 void SceneViewTab::onCreate() {
@@ -127,7 +127,7 @@ void SceneViewTab::onCreate() {
     m_camera_transform.UpdateTransform();
     m_camera.Update(m_camera_transform.GetWorldMatrix());
 
-    IApplication& app = m_editor.GetApp();
+    IApplication& app = m_editor.app();
 
     app.GetSceneScheduler().Register(this);
     m_editor.PickingService().Register(this);
@@ -138,7 +138,7 @@ void SceneViewTab::onCreate() {
 }
 
 void SceneViewTab::onDestroy() {
-    IApplication& app = m_editor.GetApp();
+    IApplication& app = m_editor.app();
 
     app.GetViewManager()->DestroyView(m_view_id);
     m_editor.PickingService().Register(this);
@@ -214,7 +214,7 @@ void SceneViewTab::onInputEvents(const InputFrame& p_input) {
         return;
     }
 
-    const KeyState& st = m_editor.GetApp().InputService().keyState();
+    const KeyState& st = m_editor.app().InputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return;
     }
@@ -271,7 +271,7 @@ void SceneViewTab::DrawMainView(const math::FloatRect& p_rect) {
     // @TODO: move it somewhere else
     uint64_t handle = m_texture->GetHandle();
     // add image for drawing
-    switch (m_editor.GetApp().GetBackend()) {
+    switch (m_editor.app().GetBackend()) {
         case Backend::Direct3D11:
         case Backend::Direct3D12: {
             ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max);
@@ -341,7 +341,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
                 math::Decompose(before, scale_1, rot_1, pos_1);
                 math::Decompose(after, scale_2, rot_2, pos_2);
 
-                SceneRegistry& scene_reg = *m_editor.GetApp().GetSceneRegistry();
+                SceneRegistry& scene_reg = *m_editor.app().GetSceneRegistry();
                 if (p_operation & ImGuizmo::TRANSLATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
@@ -407,7 +407,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
 // }
 
 Scene* SceneViewTab::GetResolvedScene() {
-    return m_editor.GetApp().GetSceneRegistry()->Resolve(m_preview_scene);
+    return m_editor.app().GetSceneRegistry()->Resolve(m_preview_scene);
 }
 
 }  // namespace cave

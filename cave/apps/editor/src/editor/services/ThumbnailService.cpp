@@ -17,10 +17,10 @@
 namespace cave {
 
 ThumbnailService::ThumbnailService(EditorState& p_editor) noexcept
-    : m_view_manager(*p_editor.GetApp().GetViewManager())
-    , m_scene_reg(*p_editor.GetApp().GetSceneRegistry())
-    , m_render_device(*p_editor.GetApp().GetRenderDevice())
-    , m_builder(p_editor.GetApp()) {
+    : m_view_manager(*p_editor.app().GetViewManager())
+    , m_scene_reg(*p_editor.app().GetSceneRegistry())
+    , m_render_device(*p_editor.app().GetRenderDevice())
+    , m_builder(p_editor.app()) {
 }
 
 uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {

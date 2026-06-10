@@ -47,17 +47,17 @@ public:
 #else
         const AppStateId initial_state = AppStateId::ProjectBrowser;
 #endif
-        AppStateMachine::RegisterCreateFunc(AppStateId::ProjectBrowser, [](IApplication& p_app) {
+        AppStateMachine::registerCreateFunc(AppStateId::ProjectBrowser, [](IApplication& p_app) {
             auto state = std::make_unique<ProjectBrowserState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 
-        AppStateMachine::RegisterCreateFunc(AppStateId::Editor, [](IApplication& p_app) {
+        AppStateMachine::registerCreateFunc(AppStateId::Editor, [](IApplication& p_app) {
             auto state = std::make_unique<EditorState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 
-        m_state_machine.Init(initial_state);
+        m_state_machine.initialize(initial_state);
         return Result<void>();
     }
 
@@ -71,7 +71,7 @@ public:
     }
 
     QuitVote OnQuitRequested(const QuitContext&) override {
-        if (EditorState* editor = dynamic_cast<EditorState*>(m_state_machine.GetAppState())) {
+        if (EditorState* editor = dynamic_cast<EditorState*>(m_state_machine.appState())) {
             const bool should_quit = editor->Workspace().OnCloseRequested();
             if (!should_quit) {
                 return QuitVote::Deny;

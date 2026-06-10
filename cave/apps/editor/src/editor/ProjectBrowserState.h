@@ -1,37 +1,36 @@
 #pragma once
 #include "engine/private/runtime/framework/AppState.h"
+#include "engine/private/runtime/projects/ProjectInfo.h"
 
 namespace cave {
 
-class ProjectBrowserState : public AppState {
-    struct ProjectItem {
-        std::string name;
-        std::string path;
-    };
-
+class ProjectBrowserState final : public AppState {
 public:
-    ProjectBrowserState(IApplication& p_app);
+    ProjectBrowserState(IApplication& app);
 
-    void OnEnter(const StateRequest& p_args) final;
+    void onEnter(const StateRequest& args) override;
 
-    void OnExit() final;
+    void onExit() override;
 
-    void Tick(const FrameTime& p_time) final;
+    void tick(const FrameTime& time) override;
 
-    Option<StateRequest> PopRequest() final;
+    Option<StateRequest> popRequest() override;
 
 #if USING(DEBUG_BUILD)
-    const char* GetDebugName() final { return "ProjectBrowser"; }
+    DebugId debugId() const { return debug_id_; }
 #endif
 
 private:
-    void DrawUI();
-    void DrawRecentProjects();
-    void DrawSideBar();
+    void drawUI();
+    void drawRecentProjects();
+    void drawSideBar();
 
-    std::vector<ProjectItem> m_projects{};
-    bool m_request_fired{ false };
-    Option<StateRequest> m_request{};
+    std::vector<ProjectInfo> project_list_{};
+
+    bool request_fired_{ false };
+    Option<StateRequest> request_{};
+
+    const DebugId debug_id_;
 };
 
 }  // namespace cave

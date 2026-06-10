@@ -9,7 +9,7 @@
 namespace cave {
 
 ConsolePanel::ConsolePanel(EditorState& p_editor)
-    : m_console(p_editor.GetApp().Console()) {
+    : m_console(p_editor.app().Console()) {
 }
 
 void ConsolePanel::DrawConsole() {

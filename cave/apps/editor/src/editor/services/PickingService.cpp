@@ -23,21 +23,21 @@ using math::Vector4f;
 PickingService::PickingService(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    m_editor.GetApp().IntentDispatcher()->AddHandler<PickIntent>(this);
+    m_editor.app().IntentDispatcher()->AddHandler<PickIntent>(this);
 }
 
 PickingService::~PickingService() {
-    m_editor.GetApp().IntentDispatcher()->RemoveHandler<PickIntent>(this);
+    m_editor.app().IntentDispatcher()->RemoveHandler<PickIntent>(this);
 }
 
 void PickingService::Pick(math::Vector2f p_point_win) {
-    m_editor.GetApp().IntentDispatcher()->Queue<PickIntent>(p_point_win);
+    m_editor.app().IntentDispatcher()->Queue<PickIntent>(p_point_win);
 }
 
 void PickingService::Raycast(const PickData& pick_data) {
     auto ray = math::Ray::unproject(pick_data.proj_view, pick_data.cursor_ndc);
 
-    auto result = m_editor.GetApp().SceneQueryService().Raycast(pick_data.scene_id, ray, {});
+    auto result = m_editor.app().SceneQueryService().Raycast(pick_data.scene_id, ray, {});
 
     SelectionKey key{
         .kind = SelectionKind::Entity,
@@ -51,7 +51,7 @@ void PickingService::Raycast(const PickData& pick_data) {
 
 bool PickingService::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<PickIntent*>(&p_intent)) {
-        IApplication& app = m_editor.GetApp();
+        IApplication& app = m_editor.app();
         const Vector2f pos_screen = intent->pointer + app.GetDisplayService()->windowPos();
 
         for (IPickConsumer* p : m_consumers) {

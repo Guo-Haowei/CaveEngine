@@ -38,17 +38,17 @@ public:
     EditorState(IApplication& p_app);
     ~EditorState();
 
-    void OnEnter(const StateRequest& p_args) final;
-    void OnExit() final;
-    void Tick(const FrameTime& p_time) final;
+    void onEnter(const StateRequest& p_args) override;
+    void onExit() override;
+    void tick(const FrameTime& p_time) override;
 
-    Option<StateRequest> PopRequest() final { return None(); }
+    Option<StateRequest> popRequest() override { return None(); }
 
     void RequestModeSwitch();
     bool IsPlaying() const { return m_mode == Mode::Playing; }
 
 #if USING(DEBUG_BUILD)
-    const char* GetDebugName() final { return "EditorState"; }
+    DebugId debugId() const override { return debug_id_; }
 #endif
 
     ContentBrowser& GetAssetInspector() { return *m_content_browser.get(); }
@@ -92,6 +92,7 @@ private:
     std::shared_ptr<MenuBar> m_menu_bar;
 
     std::vector<std::shared_ptr<IEditorItem>> m_panels;
+    const DebugId debug_id_;
 };
 
 }  // namespace cave

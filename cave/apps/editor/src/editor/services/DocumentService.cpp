@@ -29,7 +29,7 @@ DocId DocumentService::OpenDoc(const OpenDocDesc& p_desc) {
     if (auto it = m_doc_cache.find(p_desc.guid); it != m_doc_cache.end()) {
         doc_id = it->second;
     } else {
-        auto doc = CreateDoc(m_editor.GetApp(), p_desc);
+        auto doc = CreateDoc(m_editor.app(), p_desc);
         doc_id = Base::Create(std::move(doc));
         m_doc_cache[p_desc.guid] = doc_id;
     }

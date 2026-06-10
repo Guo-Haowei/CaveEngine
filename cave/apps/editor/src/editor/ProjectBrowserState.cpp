@@ -2,6 +2,7 @@
 
 #include <imgui/imgui.h>
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
@@ -11,48 +12,30 @@
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
+#include "engine/private/serialization/yaml_include.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/widgets/Image.h"
 
-namespace fs = std::filesystem;
-
 namespace cave {
 
-ProjectBrowserState::ProjectBrowserState(IApplication& p_app)
-    : AppState(p_app) {
+namespace fs = std::filesystem;
+
+static auto scanProjects(const std::filesystem::path& root) -> std::vector<ProjectInfo>;
+
+ProjectBrowserState::ProjectBrowserState(IApplication& app)
+    : AppState(app)
+    , debug_id_(MakeDebugId(this)) {
 }
 
-void ProjectBrowserState::OnEnter(const StateRequest&) {
-    fs::path project_root{ ROOT_FOLDER "projects" };
-    if (!fs::exists(project_root) || !fs::is_directory(project_root)) {
-        return;
-    }
-
-    for (const auto& entry : fs::directory_iterator(project_root)) {
-        if (!entry.is_directory()) {
-            continue;
-        }
-
-        fs::path project_file = entry.path() / "project.yaml";
-
-        if (!fs::exists(project_file)) {
-            continue;
-        }
-
-        std::string name = entry.path().filename().string();
-        std::string path = entry.path().string();
-
-        std::replace(path.begin(), path.end(), '/', '\\');
-
-        m_projects.push_back({ std::move(name), std::move(path) });
-    }
+void ProjectBrowserState::onEnter(const StateRequest&) {
+    project_list_ = scanProjects(fs::path(ROOT_FOLDER) / "projects");
 }
 
-void ProjectBrowserState::OnExit() {
+void ProjectBrowserState::onExit() {
 }
 
-void ProjectBrowserState::DrawRecentProjects() {
+void ProjectBrowserState::drawRecentProjects() {
     ImVec2 window_size = ImGui::GetContentRegionAvail();
     constexpr float desired_icon_size = 296.f;
     int num_col = static_cast<int>(glm::floor(window_size.x / desired_icon_size));
@@ -67,7 +50,7 @@ void ProjectBrowserState::DrawRecentProjects() {
     std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("scene@256x256.png");
     GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
-    for (const auto& item : m_projects) {
+    for (const auto& item : project_list_) {
         auto [hovered, clicked] = ui::AssetCard(texture ? texture->GetHandle() : 0,
                                                 item.name.c_str(),
                                                 thumbnail_size);
@@ -75,21 +58,23 @@ void ProjectBrowserState::DrawRecentProjects() {
 
         if (hovered) {
             ImGui::BeginTooltip();
+            ImGui::Text("version: %d", item.version);
             ImGui::Text("path: %s", item.path.c_str());
+            ImGui::Text("start_scene: %s", item.start_scene.c_str());
             ImGui::EndTooltip();
         }
 
-        if (clicked && !m_request_fired) {
-            m_request = Some(StateRequest{ AppStateId::Editor, item.path });
-            m_app.RequestProject(item.path);
-            m_request_fired = true;
+        if (clicked && !request_fired_) {
+            request_ = Some(StateRequest{ AppStateId::Editor, item.path });
+            app_.RequestProject(item.path);
+            request_fired_ = true;
         }
     }
 
     ImGui::EndTable();
 }
 
-void ProjectBrowserState::DrawUI() {
+void ProjectBrowserState::drawUI() {
     static int selectedIndex = -1;
     static char search[128] = "";
 
@@ -104,21 +89,21 @@ void ProjectBrowserState::DrawUI() {
 
     ImGui::Spacing();
 
-    DrawRecentProjects();
+    drawRecentProjects();
 }
 
-void ProjectBrowserState::Tick(const FrameTime&) {
-    if (ImguiManager* imgui_manager = m_app.GetImguiManager()) {
+void ProjectBrowserState::tick(const FrameTime&) {
+    if (ImguiManager* imgui_manager = app_.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
         ui::DockSpace({ "DockSpaceRoot",
                         nullptr,
                         [this]() {
-                            DrawSideBar();
+                            drawSideBar();
                         } });
 
         if (ImGui::Begin("Recent Projects")) {
-            DrawUI();
+            drawUI();
         }
         ImGui::End();
 
@@ -127,8 +112,8 @@ void ProjectBrowserState::Tick(const FrameTime&) {
         ImGui::End();
 
         if (ImGui::Begin("Project Location")) {
-            if (m_request_fired) {
-                TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
+            if (request_fired_) {
+                TaskSnapshot root = app_.GetBootLoadPipeline().RootSnapshot();
 
                 if (root.indeterminate) {
                     ImGui::ProgressBar(-1.0f, ImVec2(-1.0f, 0.0f));
@@ -143,7 +128,7 @@ void ProjectBrowserState::Tick(const FrameTime&) {
     }
 }
 
-void ProjectBrowserState::DrawSideBar() {
+void ProjectBrowserState::drawSideBar() {
     const std::vector<LogEvent>& logs = CompositeLogger::GetSingleton().GetAllLogs();
     if (logs.empty()) {
         return;
@@ -155,23 +140,86 @@ void ProjectBrowserState::DrawSideBar() {
     const char* ptr2 = strchr(ptr1, ']');
     ptr2 = ptr2 ? (ptr2 + 1) : ptr1;
 
-    TaskSnapshot root = m_app.GetBootLoadPipeline().RootSnapshot();
+    TaskSnapshot root = app_.GetBootLoadPipeline().RootSnapshot();
 
     ImGui::Text("[%d%%] %s", static_cast<int>(root.progress01 * 100), ptr2);
 }
 
-Option<StateRequest> ProjectBrowserState::PopRequest() {
-    if (!m_request_fired) {
+Option<StateRequest> ProjectBrowserState::popRequest() {
+    if (!request_fired_) {
         return None();
     }
 
-    if (m_app.GetTaskManager()->HasPendingWork()) {
+    if (app_.GetTaskManager()->HasPendingWork()) {
         return None();
     }
 
-    auto request = m_request;
-    m_request = None();
+    auto request = request_;
+    request_ = None();
     return request;
+}
+
+template<typename T>
+static bool tryReadYaml(const YAML::Node& node, const char* key, T& out) {
+    try {
+        const YAML::Node value = node[key];
+        if (!value || value.IsNull()) {
+            return false;
+        }
+
+        out = value.as<T>();
+        return true;
+    } catch (const YAML::Exception&) {
+        return false;
+    }
+}
+
+static bool parseProject(const std::filesystem::path& path, ProjectInfo& out_info) {
+    YAML::Node node;
+    if (auto res = LoadYaml(path.string(), node); !res) {
+        DEV_ASSERT(0 && "TODO: error reporting");
+        return false;
+    }
+
+    tryReadYaml(node, "name", out_info.name);
+    tryReadYaml(node, "start_scene", out_info.start_scene);
+    tryReadYaml(node, "thumbnail", out_info.thumbnail);
+    return true;
+}
+
+auto scanProjects(const std::filesystem::path& root) -> std::vector<ProjectInfo> {
+    std::vector<ProjectInfo> projects;
+
+    if (fs::exists(root) && fs::is_directory(root)) {
+        for (const auto& entry : fs::directory_iterator(root)) {
+            if (!entry.is_directory()) {
+                continue;
+            }
+
+            fs::path project_file = entry.path() / "project.yaml";
+
+            if (!fs::exists(project_file)) {
+                continue;
+            }
+
+            std::string path = entry.path().string();
+            std::replace(path.begin(), path.end(), '/', '\\');
+
+            LOG_TRACE(LogChannel::Editor, "Discovered @{}", path);
+
+            ProjectInfo info;
+
+            if (!parseProject(project_file, info)) {
+                continue;
+            }
+
+            info.path = std::move(path);
+
+            projects.emplace_back(std::move(info));
+        }
+    }
+
+    return projects;
 }
 
 }  // namespace cave

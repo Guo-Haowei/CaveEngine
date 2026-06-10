@@ -164,7 +164,7 @@ auto Application::Initialize() -> Result<void> {
 }
 
 void Application::Finalize() {
-    m_state_machine.Shutdown();
+    m_state_machine.shutdown();
 
     // @TODO: move it to request shutdown
     thread::RequestShutdown();
@@ -213,7 +213,7 @@ bool Application::MainLoop() {
     // update layers from back to front
     m_view_manager->BeginFrame();
 
-    m_state_machine.Tick(time);
+    m_state_machine.tick(time);
     m_intent_dispatcher->Flush();
 
     // update scene after ImGui, physics and script updates
@@ -246,7 +246,7 @@ void IApplication::Run(IApplication* p_app) {
 }
 
 AppStateId Application::GetStateId() const {
-    return m_state_machine.GetStateId();
+    return m_state_machine.stateId();
 }
 
 void Application::RequestProject(std::string_view p_path) {

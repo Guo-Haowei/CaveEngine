@@ -21,14 +21,14 @@ namespace cave {
 Workspace::Workspace(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    IApplication& app = m_editor.GetApp();
+    IApplication& app = m_editor.app();
     app.InputService().addConsumer(this);
     app.IntentDispatcher()->AddHandler<OpenDocIntent>(this);
     app.IntentDispatcher()->AddHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
-    IApplication& app = m_editor.GetApp();
+    IApplication& app = m_editor.app();
     app.InputService().removeConsumer(this);
     app.IntentDispatcher()->RemoveHandler<OpenDocIntent>(this);
     app.IntentDispatcher()->RemoveHandler<CloseDocIntent>(this);
@@ -54,17 +54,17 @@ PreviewScene Workspace::FocusedPreviewScene() {
     ret.doc_id = FocusedDoc();
     if (IDocument* doc = m_editor.DocumentService().Resolve(ret.doc_id)) {
         ret.scene_id = doc->GetPreviewScene();
-        ret.scene = m_editor.GetApp().GetSceneRegistry()->Resolve(ret.scene_id);
+        ret.scene = m_editor.app().GetSceneRegistry()->Resolve(ret.scene_id);
     }
     return ret;
 }
 
 void Workspace::RequestOpen(DocId p_doc_id) {
-    m_editor.GetApp().IntentDispatcher()->Queue<OpenDocIntent>(p_doc_id);
+    m_editor.app().IntentDispatcher()->Queue<OpenDocIntent>(p_doc_id);
 }
 
 void Workspace::RequestClose(DocId p_doc_id) {
-    m_editor.GetApp().IntentDispatcher()->Queue<CloseDocIntent>(p_doc_id);
+    m_editor.app().IntentDispatcher()->Queue<CloseDocIntent>(p_doc_id);
 }
 
 void Workspace::DrawTabs() {

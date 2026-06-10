@@ -300,7 +300,7 @@ void PropertyPanel::DrawUIImpl() {
     EditService& edit_service = m_editor.EditService();
 
     const DrawComponentCtx ctx{
-        .app = m_editor.GetApp(),
+        .app = m_editor.app(),
         .edit = edit_service,
         .thumbnail = m_editor.ThumbnailService(),
         .scene = &scene,
@@ -312,7 +312,7 @@ void PropertyPanel::DrawUIImpl() {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                *m_editor.GetApp().GetSceneRegistry(),
+                *m_editor.app().GetSceneRegistry(),
                 id,
                 NameComponent_Id,
                 "name"_sid,
@@ -336,7 +336,7 @@ void PropertyPanel::DrawUIImpl() {
             return;
         }
         auto cmd = std::make_unique<AddComponentCmd>(
-            *m_editor.GetApp().GetSceneRegistry(),
+            *m_editor.app().GetSceneRegistry(),
             id,
             cid);
         edit_service.Submit(doc_id, std::move(cmd));
