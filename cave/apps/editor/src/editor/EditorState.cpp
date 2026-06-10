@@ -89,8 +89,8 @@ void EditorState::onEnter(const StateRequest& request) {
     if (!request.arg0.empty()) {
         if (auto handle = app_.GetAssetRegistry()->FindByPath(request.arg0); handle.is_some()) {
             AssetHandle handle_ = handle.unwrap_unchecked();
-            DocId doc_id = m_document_service->OpenDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
-            if (IDocument* doc = m_document_service->Resolve(doc_id)) {
+            DocId doc_id = m_document_service->openDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
+            if (IDocument* doc = m_document_service->resolve(doc_id)) {
                 edit_scene = doc->GetPreviewScene();
             }
         }

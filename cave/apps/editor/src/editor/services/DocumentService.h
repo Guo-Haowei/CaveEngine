@@ -1,6 +1,7 @@
 #pragma once
-// @TODO: move to public
 #include "cave/core/ids/Guid.h"
+
+// @TODO: move to public
 #include "engine/private/core/ids/GenIdRegistry.h"
 
 #include "editor/document/IDocument.h"
@@ -25,22 +26,24 @@ class DocumentService : protected GenIdRegistry<IDocument> {
     using Base = GenIdRegistry<IDocument>;
 
 public:
-    DocumentService(EditorState& p_editor);
+    DocumentService(EditorState& editor);
 
-    DocId OpenDoc(const OpenDocDesc& p_desc);
+    DocId openDoc(const OpenDocDesc& desc);
 
-    CloseRequestResult CloseDoc(DocId p_id);
+    CloseRequestResult closeDoc(DocId doc_id);
 
-    IDocument* Resolve(DocId p_id) { return Base::Resolve(p_id); }
-    const IDocument* Resolve(DocId p_id) const { return Base::Resolve(p_id); }
-    bool IsAlive(DocId p_id) const { return Base::IsAlive(p_id); }
+    bool isAlive(DocId doc_id) const { return Base::IsAlive(doc_id); }
 
-    bool Save(const Guid& p_guid);
+    IDocument* resolve(DocId doc_id) { return Base::Resolve(doc_id); }
+    const IDocument* resolve(DocId doc_id) const { return Base::Resolve(doc_id); }
+
+    bool save(DocId doc_id);
+    bool save(const Guid& guid);
 
 private:
-    std::unordered_map<Guid, DocId> m_doc_cache;
+    std::unordered_map<Guid, DocId> guid_to_doc_;
 
-    EditorState& m_editor;
+    EditorState& editor_;
 };
 
 }  // namespace cave

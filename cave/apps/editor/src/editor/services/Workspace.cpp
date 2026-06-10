@@ -52,7 +52,7 @@ PreviewScene Workspace::focusedPreviewScene() {
         ret.view_id = tab->viewId();
     }
     ret.doc_id = focusedDoc();
-    if (IDocument* doc = editor_.DocumentService().Resolve(ret.doc_id)) {
+    if (IDocument* doc = editor_.DocumentService().resolve(ret.doc_id)) {
         ret.scene_id = doc->GetPreviewScene();
         ret.scene = services_.sceneRegistry().resolve(ret.scene_id);
     }
@@ -129,7 +129,7 @@ void Workspace::onEvents(const InputFrame& input) {
 
 // @TODO: probably want to refactor this
 void Workspace::openOrFocusDoc(DocId doc_id) {
-    IDocument* doc = editor_.DocumentService().Resolve(doc_id);
+    IDocument* doc = editor_.DocumentService().resolve(doc_id);
     if (!doc) {
         return;
     }
@@ -205,7 +205,7 @@ bool Workspace::closeDoc(DocId doc_id) {
     Destroy(tab_id);
     doc_to_tab_.erase(doc_id);
 
-    editor_.DocumentService().CloseDoc(doc_id);
+    editor_.DocumentService().closeDoc(doc_id);
     return true;
 }
 

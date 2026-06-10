@@ -37,7 +37,7 @@ void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
     SceneRegistry& scene_reg = app.services().sceneRegistry();
 
     Scene* scene = nullptr;
-    if (IDocument* doc = editor_.DocumentService().Resolve(doc_id)) {
+    if (IDocument* doc = editor_.DocumentService().resolve(doc_id)) {
         SceneId scene_id = doc->GetPreviewScene();
         scene = scene_reg.resolve(scene_id);
     }
@@ -114,11 +114,11 @@ bool EditService::handleIntent(Intent& intent) {
 }
 
 IDocument* EditService::resolve(DocId doc_id) {
-    return editor_.DocumentService().Resolve(doc_id);
+    return editor_.DocumentService().resolve(doc_id);
 }
 
 const IDocument* EditService::resolve(DocId doc_id) const {
-    return editor_.DocumentService().Resolve(doc_id);
+    return editor_.DocumentService().resolve(doc_id);
 }
 
 }  // namespace cave

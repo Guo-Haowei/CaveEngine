@@ -9,6 +9,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/input/InputService.h"
 
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/Workspace.h"
 #include "editor/EditorIntent.h"
@@ -37,38 +38,40 @@ ShortcutService::~ShortcutService() {
     input_service_.removeConsumer(this);
 }
 
-bool ShortcutService::handleIntent(Intent& p_intent) {
-    if (auto intent = dynamic_cast<const SaveIntent*>(&p_intent)) {
-        const bool save_all = intent->save_all();
+bool ShortcutService::handleIntent(Intent& intent) {
+    if (auto save = dynamic_cast<const SaveIntent*>(&intent)) {
+        const bool save_all = save->save_all();
 
+        AssetRegistry& asset_reg = *editor_.app().GetAssetRegistry();
         if (save_all) {
-            editor_.app().GetAssetRegistry()->SaveAllAssets();
+            // @TODO: fix this
+            asset_reg.SaveAllAssets();
         } else {
-            LOG_ERROR("Ctrl+S not implemented");
+            editor_.DocumentService().save(save->doc_id());
         }
 
         return true;
     }
 
-    if (auto intent = dynamic_cast<const UndoIntent*>(&p_intent)) {
-        editor_.EditService().undo(intent->doc_id());
+    if (auto undo = dynamic_cast<const UndoIntent*>(&intent)) {
+        editor_.EditService().undo(undo->doc_id());
         return true;
     }
 
-    if (auto intent = dynamic_cast<const RedoIntent*>(&p_intent)) {
-        editor_.EditService().redo(intent->doc_id());
+    if (auto redo = dynamic_cast<const RedoIntent*>(&intent)) {
+        editor_.EditService().redo(redo->doc_id());
         return true;
     }
 
     return false;
 }
 
-void ShortcutService::onEvents(const InputFrame& p_input) {
+void ShortcutService::onEvents(const InputFrame& input) {
     const bool ctrl = input_service_.keyState().anyCtrlDown();
     const bool alt = input_service_.keyState().anyAltDown();
     const bool shift = input_service_.keyState().anyShiftDown();
 
-    for (const InputEvent& e : p_input.events) {
+    for (const InputEvent& e : input.events) {
         if (e.type != InputEventType::ButtonDown)
             continue;
 
