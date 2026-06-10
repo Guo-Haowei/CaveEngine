@@ -96,7 +96,6 @@ public:
 
     const AppSpec& GetSpecification() const { return m_spec; }
     rhi::Backend GetBackend() const { return m_spec.backend; }
-    bool IsOpenGL() const { return m_spec.backend == rhi::Backend::OpenGL; }
 
     static void Run(IApplication* p_app);
 

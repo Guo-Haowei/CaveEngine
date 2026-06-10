@@ -44,8 +44,8 @@ class RenderDevice : public IRenderDevice,
 public:
     // @TODO: rename to RenderTarget
 
-    RenderDevice(std::string_view p_name, int p_frame_count)
-        : IRenderDevice(p_name), m_frameCount(p_frame_count) {}
+    RenderDevice(std::string_view name, rhi::Backend backend, int frame_count)
+        : IRenderDevice(name, backend), m_frameCount(frame_count) {}
 
     auto InitializeImpl() -> Result<void> final;
 

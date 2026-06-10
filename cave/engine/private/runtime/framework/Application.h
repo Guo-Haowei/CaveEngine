@@ -62,6 +62,7 @@ protected:
     VFS vfs_;
     SceneRegistry scene_registry_;
 
+    std::unique_ptr<render::Renderer> renderer_;
     std::unique_ptr<ProjectManager> project_manager_;
     std::unique_ptr<SceneQueryService> scene_query_;
     std::unique_ptr<SceneScheduler> scene_scheduler_;
@@ -70,9 +71,6 @@ protected:
 
     InputService* input_service_;
     TaskManager* task_manager_;
-
-    // @TODO: make it unique_ptr
-    render::Renderer* renderer_;
 };
 
 }  // namespace cave

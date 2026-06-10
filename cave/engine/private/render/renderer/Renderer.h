@@ -1,7 +1,6 @@
 #pragma once
 #include "cave/core/diagnostics/Command.h"
 #include "cave/core/time/FrameTime.h"
-#include "cave/runtime/framework/IService.h"
 
 #include "engine/private/runtime/view/ResolvedView.h"
 
@@ -12,11 +11,11 @@ namespace cave { struct UIFrameDrawData; }
 
 namespace cave::render {
 
-class Renderer : public IService {
-    class Impl;
+class IRenderDevice;
 
+class Renderer {
 public:
-    Renderer();
+    Renderer(IRenderDevice& device);
     ~Renderer();
 
     void tick(const FrameTime& frame,
@@ -27,11 +26,10 @@ public:
     bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
 #endif
 
-protected:
-    auto InitializeImpl() -> Result<void> override;
-    void FinalizeImpl() override;
+private:
+    class Impl;
 
-    std::unique_ptr<Impl> m_impl;
+    std::unique_ptr<Impl> impl_;
 };
 
 }  // namespace cave::render

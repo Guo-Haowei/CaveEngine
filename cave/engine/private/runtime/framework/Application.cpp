@@ -76,17 +76,17 @@ auto Application::SetupModules() -> Result<void> {
     m_render_device = CreateRenderDevice(m_spec.backend);
     m_display_service = CreateDisplayService();
     input_service_ = new cave::InputService();
-    renderer_ = new render::Renderer();
     task_manager_ = new TaskManager();
 
     // @TODO: dependency injection?
+    renderer_ = std::make_unique<render::Renderer>(*m_render_device);
     scene_scheduler_ = std::make_unique<SceneScheduler>(
         scene_registry_,
         *m_script_service);
 
     scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
     view_manager_ = std::make_unique<ViewManager>(scene_registry_,
-                                                  IsOpenGL());
+                                                  m_render_device->backend() == rhi::Backend::OpenGL);
     project_manager_ = std::make_unique<ProjectManager>(vfs_,
                                                         *task_manager_,
                                                         *m_asset_manager,
@@ -94,15 +94,17 @@ auto Application::SetupModules() -> Result<void> {
     ui_ = std::make_unique<UIRuntime>(*view_manager_);
 
     // setup app services
-    services_.project_manager_ = project_manager_.get();
-    services_.scene_scheduler_ = scene_scheduler_.get();
-    services_.view_manager_ = view_manager_.get();
-    services_.ui_ = ui_.get();
-
     services_.input_service_ = input_service_;
+    services_.intent_dispatcher_ = &intent_dispatcher_;
+    services_.ui_ = ui_.get();
+    services_.project_manager_ = project_manager_.get();
+    services_.scene_query_ = scene_query_.get();
+    services_.scene_registry_ = &scene_registry_;
+    services_.scene_scheduler_ = scene_scheduler_.get();
     services_.task_manager_ = task_manager_;
-
+    services_.view_manager_ = view_manager_.get();
     services_.vfs_ = &vfs_;
+    services_.renderer_ = renderer_.get();
 
     // register subsystems
     RegisterModule(task_manager_);
@@ -113,7 +115,6 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(input_service_);
     RegisterModule(m_display_service);
     RegisterModule(m_render_device);
-    RegisterModule(renderer_);
 
     if (m_spec.enableImgui) {
         auto res = CreateImguiManager();
