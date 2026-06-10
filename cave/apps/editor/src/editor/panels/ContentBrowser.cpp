@@ -37,7 +37,7 @@ void ContentBrowser::OnAttach() {
     DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
 }
 
-void ContentBrowser::DrawUIImpl() {
+void ContentBrowser::drawUIImpl() {
     CAVE_PROFILE_EVENT();
     DrawContentBrowser();
 }

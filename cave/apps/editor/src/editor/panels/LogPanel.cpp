@@ -226,7 +226,7 @@ void LogPanel::DrawLogHistroy() {
     ImGui::EndChild();
 }
 
-void LogPanel::DrawUIImpl() {
+void LogPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
 
     DrawFilter();

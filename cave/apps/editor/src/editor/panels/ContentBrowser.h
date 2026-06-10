@@ -11,14 +11,14 @@ public:
 
     void OnAttach() override;
 
-    const char* GetWindowId() const override {
+    const char* windowId() const override {
         return "Content Browser";
     }
 
     void DrawContentBrowser();
 
 protected:
-    void DrawUIImpl() override;
+    void drawUIImpl() override;
 
     const ContentEntry* Navigate(const ContentEntry* p_node, int p_cur, int p_max);
     void DrawBreadcrumb();

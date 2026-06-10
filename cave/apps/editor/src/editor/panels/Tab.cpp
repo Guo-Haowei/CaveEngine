@@ -31,7 +31,7 @@ CloseDecision AskCloseUnsaved(const char* title) {
     }
 }
 
-void Tab::DrawUI() {
+void Tab::drawUI() {
     if (const bool dirty = m_editor.EditService().IsDirty(doc_id_)) {
         m_flags |= ImGuiWindowFlags_UnsavedDocument;
     } else {
@@ -40,9 +40,9 @@ void Tab::DrawUI() {
 
     ResetState();
     bool open = true;
-    if (ImGui::Begin(GetWindowId(), &open, m_flags)) {
+    if (ImGui::Begin(windowId(), &open, m_flags)) {
         UpdateState();
-        DrawUIImpl();
+        drawUIImpl();
     }
     ImGui::End();
 
@@ -65,7 +65,7 @@ void Tab::DrawUI() {
             m_editor.EditService().Save(doc_id_);
         }
 
-        m_editor.Workspace().RequestClose(doc_id_);
+        m_editor.Workspace().requestClose(doc_id_);
     }
 }
 

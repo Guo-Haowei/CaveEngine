@@ -5,11 +5,11 @@ namespace cave {
 EditorWindow::EditorWindow(EditorState& p_editor)
     : IEditorItem(p_editor) {}
 
-void EditorWindow::DrawUI() {
+void EditorWindow::drawUI() {
     ResetState();
-    if (ImGui::Begin(GetWindowId(), nullptr, m_flags)) {
+    if (ImGui::Begin(windowId(), nullptr, m_flags)) {
         UpdateState();
-        DrawUIImpl();
+        drawUIImpl();
     }
     ImGui::End();
 }

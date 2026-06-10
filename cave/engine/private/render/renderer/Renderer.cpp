@@ -122,7 +122,7 @@ void Renderer::setMode(bool is_2d) {
 }
 
 // @TODO: remove this
-extern void RunMeshRenderSystem(const Scene& scene,
+extern void runMeshRenderSystem(const Scene& scene,
                                 const RenderScene& rscene,
                                 const ResolvedView& view,
                                 FrameData& out_data);
@@ -145,7 +145,7 @@ static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matri
 #endif
 
 // @TODO: refactor
-static void FillConstantBuffer(const FrameTime& p_frame,
+static void fillConstantBuffer(const FrameTime& p_frame,
                                const Scene* p_scene,
                                const ResolvedView& p_view,
                                FrameData& p_out_data) {
@@ -198,7 +198,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     cache.c_scene_dirty = true;
 }
 
-static void FillEnvConstants(FrameData& out_data) {
+static void fillEnvConstants(FrameData& out_data) {
     constexpr int count = IBL_MIP_CHAIN_MAX * 6;
     if (out_data.batchCache.buffer.size() < count) {
         out_data.batchCache.buffer.resize(count);
@@ -225,6 +225,7 @@ static GpuBufferDesc fillDesc(const std::vector<T>& data) {
     return desc;
 }
 
+// @TODO: move to UIRenderer
 template<typename T>
 static bool updateUIBuffer(IRenderDevice& device,
                            const std::vector<T>& data,
@@ -240,7 +241,7 @@ static bool updateUIBuffer(IRenderDevice& device,
     return true;
 }
 
-static bool UpdateAllUIBuffer(IRenderDevice& p_device,
+static bool updateAllUIBuffer(IRenderDevice& p_device,
                               const BuiltUIData& p_data,
                               GpuMesh& p_mesh) {
     if (!updateUIBuffer(p_device, p_data.indices, p_mesh.indexBuffer.get()))
@@ -255,7 +256,7 @@ static bool UpdateAllUIBuffer(IRenderDevice& p_device,
 // @TODO: consider move to UIRenderer
 void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
     if (ui_buffers_) {
-        if (!UpdateAllUIBuffer(device_, ui_data, *ui_buffers_)) {
+        if (!updateAllUIBuffer(device_, ui_data, *ui_buffers_)) {
             // @TODO: proper error handling
             CRASH_NOW_MSG("Failed to update UI buffer");
         }
@@ -347,13 +348,13 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         FrameData& framedata = plan.frame_data[view_idx];
         framedata.options = options;
 
-        FillConstantBuffer(time, view.scene, view, framedata);
+        fillConstantBuffer(time, view.scene, view, framedata);
 
-        RunMeshRenderSystem(*view.scene, render_scene, view, framedata);
+        runMeshRenderSystem(*view.scene, render_scene, view, framedata);
         RunTileMapRenderSystem(view.scene, framedata);
         RunSpriteRenderSystem(view.scene, framedata);
         RunDebugRenderSystem(view.scene, framedata);
-        FillEnvConstants(framedata);
+        fillEnvConstants(framedata);
 
         // @HACK: only support first scene
         if (view_idx == 0) {
@@ -475,8 +476,8 @@ auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
     return graph.Compile();
 }
 
-RenderScene& Renderer::Impl::getOrCreateRenderScene(SceneId p_scene_id) {
-    return scene_cache_[p_scene_id];
+RenderScene& Renderer::Impl::getOrCreateRenderScene(SceneId scene_id) {
+    return scene_cache_[scene_id];
 }
 
 #if USING(USE_COMMAND)

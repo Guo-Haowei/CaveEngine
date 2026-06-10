@@ -67,9 +67,11 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
 
     app_.services().sceneScheduler().Register(this);
 
-    host_ = std::make_unique<PIEHostServices>(app_, *scene, view_id);
-    game_module_->onGameBegin(*host_);
-    host_->flushSceneCommands();
+    if (game_module_) {
+        host_ = std::make_unique<PIEHostServices>(app_, *scene, view_id);
+        game_module_->onGameBegin(*host_);
+        host_->flushSceneCommands();
+    }
 
     running_ = true;
 }
@@ -82,7 +84,9 @@ void PIESession::onSimEnd() {
     if (Scene* scene = scene_reg.resolve(pie_scene_)) {
         app_.ScriptService()->OnSimEnd();
 
-        game_module_->onGameEnd(*host_);
+        if (game_module_) {
+            game_module_->onGameEnd(*host_);
+        }
     }
 
     app_.services().sceneScheduler().Unregister(this);

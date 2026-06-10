@@ -13,72 +13,71 @@
 
 namespace cave {
 
-class KeyState;
 class ViewManager;
 
-enum ViewDimension : uint8_t {
-    DIMENSION_2,
-    DIMENSION_3,
+enum class ViewDimension : uint8_t {
+    Dim2,
+    Dim3,
 };
 
 class SceneViewTab : public Tab,
                      public IPickConsumer,
                      public ISceneTickContributor {
 public:
-    SceneViewTab(EditorState& p_editor,
-                 DocId p_doc_id,
-                 SceneId p_preview_scene_id,
-                 ViewDimension p_dim);
+    SceneViewTab(EditorState& editor,
+                 DocId doc_id,
+                 SceneId preview_scene_id,
+                 ViewDimension dim);
 
     void onCreate() override;
     void onDestroy() override;
 
-    void CollectSceneTicks(std::vector<SceneTickRequest>& p_out) override;
+    void CollectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
 
-    Option<PickData> GetPickData(const math::Vector2f& p_pos_screen) override;
+    Option<PickData> GetPickData(const math::Vector2f& pos_screen) override;
 
-    void onInputEvents(const InputFrame& p_input) override;
+    void onInputEvents(const InputFrame& input) override;
 
-    ViewId viewId() const override { return m_view_id; }
+    ViewId viewId() const override { return view_id_; }
 
-    DebugId debugId() const final { return m_debug_id; }
+    DebugId debugId() const final { return debug_id_; }
 
 protected:
-    void SubmitView();
+    void submitView();
 
-    void DrawUIImpl() override;
+    void drawUIImpl() override;
 
-    void UpdateRect(math::FloatRect& p_out_rect);
-    void DrawMainView(const math::FloatRect& p_rect);
-    void DrawGizmo(const math::FloatRect& p_rect);
+    void updateRect(math::FloatRect& out_rect);
+    void drawMainView(const math::FloatRect& rect);
+    void drawGizmo(const math::FloatRect& rect);
 
-    Scene* GetResolvedScene();
+    Scene* getResolvedScene();
     // void OnCreateInternal(const Guid& p_guid) final;
 
     // void OnActivateInternal() final;
 
     // const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
 
-    const DebugId m_debug_id;
-    ViewManager& m_view_manager;
-    GizmoAction m_gizmo_action{ GizmoAction::Translate };
+    ViewManager& view_manager_;
+    const ViewDimension dim_;
+    const DebugId debug_id_;
+    GizmoAction gizmo_action_{ GizmoAction::Translate };
 
-    SceneId m_preview_scene;
+    SceneId preview_scene_id_;
 
-    std::array<const char*, 2> m_button_displays;
-    std::array<const char*, 2> m_button_tooltips;
+    std::array<const char*, 2> button_displays_;
+    std::array<const char*, 2> button_tooltips_;
 
-    ToolBarButtonDesc m_play_button;
+    ToolBarButtonDesc play_button_;
 
-    ViewDimension m_dim;
-    int m_button_index{ 0 };
+    int button_index_{ 0 };
 
     // @TODO: move to input controller
-    std::unique_ptr<ICameraController> m_camera_controller;
-    CameraComponent m_camera;
-    TransformComponent m_camera_transform;
-    GpuTextureId m_texture;
-    ViewId m_view_id;
+    std::unique_ptr<ICameraController> camera_controller_;
+    CameraComponent camera_;
+    TransformComponent camera_transform_;
+    GpuTextureId texture_;
+    ViewId view_id_;
 };
 
 }  // namespace cave

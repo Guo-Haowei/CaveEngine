@@ -14,16 +14,16 @@ public:
     HierarchyPanel(EditorState& editor)
         : EditorWindow(editor) {}
 
-    const char* GetWindowId() const override {
+    const char* windowId() const override {
         return "Hierarchy";
     }
 
 protected:
-    void DrawUIImpl() override;
+    void drawUIImpl() override;
 
 private:
-    void DrawPopup(const PreviewScene& p_ctx);
-    void OpenAddEntityPopupImpl(DocId p_doc_id, ecs::Entity p_parent);
+    void drawPopup(const PreviewScene& ctx);
+    void openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent);
 };
 
 }  // namespace cave

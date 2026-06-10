@@ -90,7 +90,7 @@ void ShortcutService::onEvents(const InputFrame& p_input) {
 
 void ShortcutService::InitShortcuts() {
     auto active_document = [this]() -> DocId {
-        return m_editor.Workspace().FocusedDoc();
+        return m_editor.Workspace().focusedDoc();
     };
 
     m_shortcuts[std::to_underlying(Shortcut::SaveAs)] = {

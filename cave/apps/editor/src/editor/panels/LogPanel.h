@@ -14,12 +14,12 @@ public:
     explicit LogPanel(EditorState& p_editor);
     ~LogPanel();
 
-    const char* GetWindowId() const override {
+    const char* windowId() const override {
         return "Output Log";
     }
 
 protected:
-    void DrawUIImpl() override;
+    void drawUIImpl() override;
     void DrawFilter();
     void DrawLogHistroy();
 

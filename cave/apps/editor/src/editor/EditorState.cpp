@@ -136,10 +136,10 @@ void EditorState::tick(const FrameTime& p_time) {
 
     DockSpace();
     for (auto& panel : m_panels) {
-        panel->DrawUI();
+        panel->drawUI();
     }
 
-    m_workspace->Tick();
+    m_workspace->tick();
 
     ImGui::Render();
 
@@ -160,7 +160,7 @@ void EditorState::CommitModeSwitch() {
 
     switch (old_mode) {
         case cave::EditorState::Mode::Editing: {
-            PreviewScene preview = m_workspace->FocusedPreviewScene();
+            PreviewScene preview = m_workspace->focusedPreviewScene();
             m_pie.onSimBegin(preview.scene_id, preview.view_id);
         } break;
         case cave::EditorState::Mode::Playing: {
@@ -187,7 +187,7 @@ void EditorState::DockSpace() {
 
     ui::DockSpace({
         "DockSpace Demo",
-        [this]() { m_menu_bar->DrawUI(); },
+        [this]() { m_menu_bar->drawUI(); },
         [this]() {
             CompositeLogger& logger = CompositeLogger::GetSingleton();
             const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());

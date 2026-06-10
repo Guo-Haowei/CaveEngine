@@ -72,7 +72,7 @@ public:
 
     QuitVote OnQuitRequested(const QuitContext&) override {
         if (EditorState* editor = dynamic_cast<EditorState*>(m_state_machine.appState())) {
-            const bool should_quit = editor->Workspace().OnCloseRequested();
+            const bool should_quit = editor->Workspace().onCloseRequested();
             if (!should_quit) {
                 return QuitVote::Deny;
             }

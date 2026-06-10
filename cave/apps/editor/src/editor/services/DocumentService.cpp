@@ -34,7 +34,7 @@ DocId DocumentService::OpenDoc(const OpenDocDesc& p_desc) {
         m_doc_cache[p_desc.guid] = doc_id;
     }
 
-    m_editor.Workspace().RequestOpen(doc_id);
+    m_editor.Workspace().requestOpen(doc_id);
     return doc_id;
 }
 

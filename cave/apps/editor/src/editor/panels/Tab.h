@@ -29,9 +29,9 @@ public:
 
     void setTitleAndId(std::string_view title, uint32_t idx);
 
-    void DrawUI() override;
+    void drawUI() override;
 
-    const char* GetWindowId() const override { return window_id_.c_str(); }
+    const char* windowId() const override { return window_id_.c_str(); }
 
     virtual void onCreate();
     virtual void onDestroy();
@@ -45,7 +45,7 @@ public:
     void tabId(TabId tab_id) { tab_id_ = tab_id; }
 
 protected:
-    void DrawUIImpl() override {}
+    void drawUIImpl() override {}
 
     // virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const;
 

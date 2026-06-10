@@ -14,9 +14,9 @@ class EditorWindow : public IEditorItem {
 public:
     EditorWindow(EditorState& p_editor);
 
-    void DrawUI() override;
+    void drawUI() override;
 
-    virtual const char* GetWindowId() const = 0;
+    virtual const char* windowId() const = 0;
 
     bool IsOpen() const { return m_state.open; }
     bool IsVisible() const { return m_state.visible; }
@@ -24,7 +24,7 @@ public:
     bool IsHovered() const { return m_state.hovered; }
 
 protected:
-    virtual void DrawUIImpl() = 0;
+    virtual void drawUIImpl() = 0;
     void ResetState();
     void UpdateState();
 
