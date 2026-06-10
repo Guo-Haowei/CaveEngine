@@ -25,7 +25,7 @@ public:
     bool IsNull() const { return *this == Guid{}; }
 
     bool operator==(const Guid& p_rhs) const {
-        for (int i = 0; i < array_length(m_data); ++i) {
+        for (size_t i = 0; i < std::size(m_data); ++i) {
             if (m_data[i] != p_rhs.m_data[i]) {
                 return false;
             }

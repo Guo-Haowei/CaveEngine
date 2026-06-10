@@ -13,30 +13,29 @@ class ChessMatchAuthority : public cave::IIntentHandler {
     using Color = core::Color;
 
 public:
-    ChessMatchAuthority(cave::IHostServices& p_host);
+    ChessMatchAuthority(cave::IHostServices& host);
     ~ChessMatchAuthority();
 
-    bool GameOver() const { return m_game_over; }
+    bool gameOver() const { return game_over_; }
 
-    bool HandleIntent(cave::Intent& p_intent) override;
+    bool handleIntent(cave::Intent& intent) override;
 
-    cave::DebugId debugId() const override { return m_debug_id; }
+    cave::DebugId debugId() const override { return debug_id_; }
 
-    PlayerId CurrentPlayer() const { return (PlayerId)m_pos.SideToMove(); }
+    Color sideToMove() const { return pos_.SideToMove(); }
 
 private:
-    bool TryCommitMove(PlayerId p_player_id,
-                       core::Move p_move);
+    bool tryCommitMove(Color side, core::Move move);
 
-    void OfferDraw(PlayerId p_player_id);
-    void Resign(PlayerId p_player_id);
+    void offerDraw(Color side);
+    void resign(Color side);
 
-    core::Position m_pos;
+    core::Position pos_;
 
-    bool m_game_over = false;
+    bool game_over_{ false };
 
-    cave::IntentDispatcher& m_intent;
-    const cave::DebugId m_debug_id;
+    cave::IntentDispatcher& intent_dispatcher;
+    const cave::DebugId debug_id_;
 };
 
 }  // namespace chess

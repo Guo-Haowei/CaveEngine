@@ -2,19 +2,13 @@
 
 namespace chess::core {
 
-std::tuple<uint8_t, uint8_t> Square::FileRank() const {
-    const uint8_t file = m_index & 7;
-    const uint8_t rank = m_index >> 3;
-    return std::make_tuple(file, rank);
-}
-
 // Shoelace Formula (also called the Surveyor's Formula) for the area of a triangle in 2D space.
 // area = [ Ax * (By - Cy) + Bx * (Cy - Ay) + Cx * (Ay - By) ] / 2
 // but we only cares about the sign of the area, so we can skip the division by 2.
-bool Square::SameLineInclusive(Square a, Square b) const {
-    const auto [ax, ay] = a.FileRank();
-    const auto [bx, by] = b.FileRank();
-    const auto [cx, cy] = FileRank();
+bool Square::sameLineInclusive(Square a, Square b) const {
+    const auto [ax, ay] = a.fileRank();
+    const auto [bx, by] = b.fileRank();
+    const auto [cx, cy] = fileRank();
 
     const int two_signed_area =
         (int)ax * ((int)by - (int)cy) +
@@ -34,7 +28,7 @@ bool Square::SameLineInclusive(Square a, Square b) const {
     return between_x && between_y;
 }
 
-const char* Square::ToString() const {
+const char* Square::uci() const {
     static constexpr const char kSquareLookUp[64][3] = {
         // clang-format off
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
@@ -48,7 +42,11 @@ const char* Square::ToString() const {
         // clang-format on
     };
 
-    return kSquareLookUp[m_index];
+    return kSquareLookUp[index_];
+}
+
+Square enpassantCapturedSquare(Square from, Square to) {
+    return Square::fromFileRank(to.file(), from.rank());
 }
 
 constexpr Square Square::A1(0);
@@ -125,15 +123,15 @@ constexpr Square Square::H8(63);
 
 #if defined(CAVE_TEST)
 
-TEST(Square, SameLineDiagonal) {
+TEST(Square, same_line_diagonal) {
     {
         const Square a = Square::A1;
         const Square b = Square::B2;
         const Square c = Square::C3;
 
-        EXPECT_FALSE(a.SameLineInclusive(b, c));
-        EXPECT_TRUE(b.SameLineInclusive(a, c));
-        EXPECT_FALSE(c.SameLineInclusive(a, b));
+        EXPECT_FALSE(a.sameLineInclusive(b, c));
+        EXPECT_TRUE(b.sameLineInclusive(a, c));
+        EXPECT_FALSE(c.sameLineInclusive(a, b));
     }
 
     {
@@ -141,49 +139,49 @@ TEST(Square, SameLineDiagonal) {
         const Square b = Square::B1;
         const Square c = Square::C3;
 
-        EXPECT_FALSE(a.SameLineInclusive(b, c));
-        EXPECT_FALSE(b.SameLineInclusive(a, c));
-        EXPECT_FALSE(c.SameLineInclusive(a, b));
+        EXPECT_FALSE(a.sameLineInclusive(b, c));
+        EXPECT_FALSE(b.sameLineInclusive(a, c));
+        EXPECT_FALSE(c.sameLineInclusive(a, b));
     }
 }
 
-TEST(Square, SameLineOverlapping) {
+TEST(Square, same_line_overlapping) {
     const Square a = Square::B2;
     const Square b = Square::B2;
     const Square c = Square::D8;
 
-    EXPECT_FALSE(c.SameLineInclusive(a, b));
-    EXPECT_TRUE(a.SameLineInclusive(b, c));
-    EXPECT_TRUE(b.SameLineInclusive(a, c));
+    EXPECT_FALSE(c.sameLineInclusive(a, b));
+    EXPECT_TRUE(a.sameLineInclusive(b, c));
+    EXPECT_TRUE(b.sameLineInclusive(a, c));
 }
 
-TEST(Square, SameLineHorizontal) {
+TEST(Square, same_line_horizontal) {
     const Square a = Square::C1;
     const Square b = Square::C2;
     const Square c = Square::C5;
 
-    EXPECT_FALSE(a.SameLineInclusive(b, c));
-    EXPECT_TRUE(b.SameLineInclusive(a, c));
-    EXPECT_FALSE(c.SameLineInclusive(a, b));
+    EXPECT_FALSE(a.sameLineInclusive(b, c));
+    EXPECT_TRUE(b.sameLineInclusive(a, c));
+    EXPECT_FALSE(c.sameLineInclusive(a, b));
 }
 
-TEST(Square, SameLineVertical) {
+TEST(Square, same_line_vertical) {
     const Square a = Square::A1;
     const Square b = Square::A8;
     const Square c = Square::A3;
 
-    EXPECT_FALSE(a.SameLineInclusive(b, c));
-    EXPECT_FALSE(b.SameLineInclusive(a, c));
-    EXPECT_TRUE(c.SameLineInclusive(a, b));
+    EXPECT_FALSE(a.sameLineInclusive(b, c));
+    EXPECT_FALSE(b.sameLineInclusive(a, c));
+    EXPECT_TRUE(c.sameLineInclusive(a, b));
 }
 
-TEST(Square, MoreSameLineTest) {
+TEST(Square, more_same_line_test) {
     const Square a = Square::G8;
     const Square b = Square::B3;
 
-    EXPECT_TRUE(Square::F7.SameLineInclusive(a, b));
-    EXPECT_TRUE(Square::D5.SameLineInclusive(a, b));
-    EXPECT_TRUE(Square::C4.SameLineInclusive(a, b));
+    EXPECT_TRUE(Square::F7.sameLineInclusive(a, b));
+    EXPECT_TRUE(Square::D5.sameLineInclusive(a, b));
+    EXPECT_TRUE(Square::C4.sameLineInclusive(a, b));
 }
 #endif
 

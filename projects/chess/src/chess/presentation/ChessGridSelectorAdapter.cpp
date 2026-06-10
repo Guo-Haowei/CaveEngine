@@ -15,7 +15,7 @@
 #include "chess/game/ChessGameClient.h"
 #include "chess/game/ChessIntent.h"
 #include "chess/game/ChessMatchAuthority.h"
-#include "chess/presentation/ChessPresenter.h"
+#include "chess/presentation/ChessBoardView.h"
 
 namespace chess {
 
@@ -24,42 +24,42 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
 
-ChessGridSelectorAdapter::ChessGridSelectorAdapter(cave::IHostServices& host,
+ChessGridSelectorAdapter::ChessGridSelectorAdapter(IHostServices& host,
                                                    ChessGameClient& game,
-                                                   ChessPresenter& presenter) noexcept
+                                                   ChessBoardView& board_view) noexcept
     : host_(host)
     , client_(game)
-    , presenter_(presenter) {
+    , board_view_(board_view) {
 
     camera_id_ = host_.sceneQuery().findFirstByName("game_camera");
     assert(camera_id_.IsValid());
 }
 
 bool ChessGridSelectorAdapter::canSelect(int x, int y) {
-    const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
+    const Square sq = Square::fromFileRank((uint8_t)x, (uint8_t)y);
     std::span<const Move> moves = client_.legalMoves(sq);
 
     return !moves.empty();
 }
 
 void ChessGridSelectorAdapter::onSelect(int x, int y) {
-    const Square sq = Square::FromFileRank((uint8_t)x, (uint8_t)y);
+    const Square sq = Square::fromFileRank((uint8_t)x, (uint8_t)y);
     std::span<const Move> moves = client_.legalMoves(sq);
 
     core::Bitboard bb;
     for (Move mv : moves) {
         bb.Set(mv.to());
     }
-    presenter_.setHighlightSquares(bb);
+    board_view_.setHighlight(bb);
 }
 
 bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
-    const Square sq = Square::FromFileRank((uint8_t)sx, (uint8_t)sy);
+    const Square sq = Square::fromFileRank((uint8_t)sx, (uint8_t)sy);
 
     std::span<const Move> moves = client_.legalMoves(sq);
     for (Move mv : moves) {
-        const auto [from_file, from_rank] = mv.from().FileRank();
-        const auto [to_file, to_rank] = mv.to().FileRank();
+        const auto [from_file, from_rank] = mv.from().fileRank();
+        const auto [to_file, to_rank] = mv.to().fileRank();
 
         if (from_file == sx && from_rank == sy && to_file == dx && to_rank == dy) {
             return true;
@@ -70,14 +70,14 @@ bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
-    presenter_.setHighlightSquares({});
+    board_view_.setHighlight({});
 
-    const core::Position& pos = client_.replica();
-    const PlayerId id = pos.SideToMove();
+    const Position& pos = client_.replica();
+    const Color id = pos.SideToMove();
 
     if (LocalHumanAgent* agent = get_player_cb_(id)) {
-        const Square from = Square::FromFileRank((uint8_t)sx, (uint8_t)sy);
-        const Square to = Square::FromFileRank((uint8_t)dx, (uint8_t)dy);
+        const Square from = Square::fromFileRank((uint8_t)sx, (uint8_t)sy);
+        const Square to = Square::fromFileRank((uint8_t)dx, (uint8_t)dy);
 
         std::span<const Move> moves = client_.legalMoves(from);
         Move move = Move::null();
@@ -94,7 +94,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::onCancel() {
-    presenter_.setHighlightSquares({});
+    board_view_.setHighlight({});
 }
 
 void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {

@@ -117,7 +117,7 @@ void IntentDispatcher::DispatchOne(Intent& p_intent) {
 
     for (IIntentHandler* handler : it->second) {
         if (DEV_VERIFY(handler)) {
-            if (!handler->HandleIntent(p_intent)) [[unlikely]] {
+            if (!handler->handleIntent(p_intent)) [[unlikely]] {
                 LOG_ERROR(LogChannel::Intent,
                           "IntentDispatcher: handler '{}' cant handle '{}'",
                           handler->debugId().type,

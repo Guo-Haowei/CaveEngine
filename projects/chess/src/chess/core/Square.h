@@ -6,30 +6,38 @@ namespace chess::core {
 
 class Square {
 public:
-    constexpr Square() noexcept
-        : m_index(64) {}
+    enum {
+        kInvalid = 64
+    };
 
-    explicit constexpr Square(uint8_t p_index) noexcept
-        : m_index(p_index) {
+    constexpr Square() noexcept
+        : index_(kInvalid) {}
+
+    explicit constexpr Square(uint8_t index) noexcept
+        : index_(index) {
     }
 
-    static constexpr Square FromFileRank(uint8_t file, uint8_t rank) {
+    static constexpr Square fromFileRank(uint8_t file, uint8_t rank) {
         const uint8_t val = rank * 8 + file;
         return Square(val);
     }
 
-    bool IsValid() const { return m_index < 64; }
+    bool isValid() const { return index_ < kInvalid; }
 
-    constexpr uint8_t Index() const { return m_index; }
+    constexpr uint8_t index() const { return index_; }
 
-    std::tuple<uint8_t, uint8_t> FileRank() const;
+    uint8_t file() const { return index_ & 7; }
+    uint8_t rank() const { return index_ >> 3; }
+    auto fileRank() const -> std::tuple<uint8_t, uint8_t> {
+        return std::make_tuple(file(), rank());
+    }
 
     std::strong_ordering operator<=>(const Square&) const = default;
 
     // only returns true if square is between A and B
-    bool SameLineInclusive(Square a, Square b) const;
+    bool sameLineInclusive(Square a, Square b) const;
 
-    const char* ToString() const;
+    const char* uci() const;
 
     static const Square A1;
     static const Square B1;
@@ -104,8 +112,10 @@ public:
     static const Square H8;
 
 private:
-    uint8_t m_index;
+    uint8_t index_;
 };
+
+Square enpassantCapturedSquare(Square from, Square to);
 
 }  // namespace chess::core
 
@@ -113,8 +123,8 @@ namespace std {
 
 template<>
 struct hash<chess::core::Square> {
-    std::size_t operator()(const chess::core::Square& p_sq) const {
-        return std::hash<uint8_t>{}(p_sq.Index());
+    std::size_t operator()(const chess::core::Square& square) const {
+        return std::hash<uint8_t>{}(square.index());
     }
 };
 

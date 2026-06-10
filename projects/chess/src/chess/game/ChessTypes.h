@@ -8,8 +8,6 @@
 
 namespace chess {
 
-using PlayerId = core::Color;
-
 enum class ChessEventType : uint8_t {
     SelectionChanged,
     MoveRejected,

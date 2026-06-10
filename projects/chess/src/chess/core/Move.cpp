@@ -13,8 +13,8 @@ Move::Move() noexcept {
 }
 
 Move::Move(Square from, Square to, MoveType type, PieceType promo) noexcept
-    : from_(from.Index())
-    , to_(to.Index())
+    : from_(from.index())
+    , to_(to.index())
     , flag_(std::to_underlying(type)) {
     switch (promo) {
         case PieceType::Knight: {
@@ -49,7 +49,7 @@ cave::Option<PieceType> Move::promo() const {
 }
 
 std::string Move::uci() const {
-    return std::format("{}{}", from().ToString(), to().ToString());
+    return std::format("{}{}", from().uci(), to().uci());
 }
 
 void MoveList::addMove(Move move) {

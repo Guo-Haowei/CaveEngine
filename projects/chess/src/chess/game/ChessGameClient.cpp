@@ -19,9 +19,10 @@ using namespace ::chess::core;
 ChessGameClient::ChessGameClient(IHostServices& host,
                                  ChessGameSession& session,
                                  ChessMatchAuthority& auth)
-    : presenter_(host)
-    , session_(session)
+    : session_(session)
     , auth_(auth)
+    , board_view_(host)
+    , piece_view_(host)
     , host_(host)
     , intent_dispatcher_(host.intentDispatcher())
     , debug_id_(MakeDebugId(this)) {
@@ -45,24 +46,26 @@ void ChessGameClient::resetBoard() {
 }
 
 void ChessGameClient::onBoot() {
-    presenter_.initialize();
+    board_view_.initialize();
+    piece_view_.initialize();
+
     resetBoard();
 
-    presenter_.redrawBoard(replica_);
+    piece_view_.redrawPieces(replica_);
 }
 
-bool ChessGameClient::HandleIntent(Intent& p_intent) {
-    if (auto intent = dynamic_cast<AuthMoveCommitted*>(&p_intent)) {
-        onMoveCommitted(intent->move());
+bool ChessGameClient::handleIntent(Intent& intent) {
+    if (auto move_commited = dynamic_cast<AuthMoveCommitted*>(&intent)) {
+        onMoveCommitted(move_commited->move());
         return true;
     }
 
-    if (auto intent = dynamic_cast<AuthMoveRejected*>(&p_intent)) {
-        onMoveRejected(intent->move());
+    if (auto move_rejected = dynamic_cast<AuthMoveRejected*>(&intent)) {
+        onMoveRejected(move_rejected->move());
         return true;
     }
 
-    if (auto intenti = dynamic_cast<AuthGameOver*>(&p_intent)) {
+    if (auto game_over = dynamic_cast<AuthGameOver*>(&intent)) {
         return true;
     }
 
@@ -70,13 +73,13 @@ bool ChessGameClient::HandleIntent(Intent& p_intent) {
 }
 
 void ChessGameClient::onMoveCommitted(Move move) {
-    presenter_.applyMove(replica_.SideToMove(), move);
+    piece_view_.applyMove(replica_, move);
 
     UndoState undo;
     replica_.MakeMove(move, undo);
     onPositionChange();
 
-    session_.SetState(SessionState::ResolvingMove);
+    session_.setPhase(SessionPhase::ResolvingMove);
 }
 
 void ChessGameClient::onMoveRejected(Move) {
@@ -84,7 +87,7 @@ void ChessGameClient::onMoveRejected(Move) {
 }
 
 void ChessGameClient::present() {
-    presenter_.present();
+    board_view_.drawBoard();
 }
 
 void ChessGameClient::onPositionChange() {

@@ -65,15 +65,4 @@ TEST(enum_bitwise_operation, test_bitwise_flip) {
     EXPECT_EQ(flag2, flag3);
 }
 
-TEST(array_length, test_int_array) {
-    int arr[] = { 1, 2, 3, 5 };
-    EXPECT_EQ(array_length(arr), 4);
-}
-
-TEST(array_length, test_struct_array) {
-    struct A {};
-    A arr[] = { {}, {} };
-    EXPECT_EQ(array_length(arr), 2);
-}
-
 }  // namespace cave

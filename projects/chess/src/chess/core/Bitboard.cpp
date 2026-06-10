@@ -24,14 +24,14 @@ TEST(Bitboard, test_iterator) {
     }
 
     ASSERT_EQ(squares.size(), 8);
-    EXPECT_STREQ(squares[0].ToString(), "e1");
-    EXPECT_STREQ(squares[1].ToString(), "e2");
-    EXPECT_STREQ(squares[2].ToString(), "e3");
-    EXPECT_STREQ(squares[3].ToString(), "e4");
-    EXPECT_STREQ(squares[4].ToString(), "e5");
-    EXPECT_STREQ(squares[5].ToString(), "e6");
-    EXPECT_STREQ(squares[6].ToString(), "e7");
-    EXPECT_STREQ(squares[7].ToString(), "e8");
+    EXPECT_STREQ(squares[0].uci(), "e1");
+    EXPECT_STREQ(squares[1].uci(), "e2");
+    EXPECT_STREQ(squares[2].uci(), "e3");
+    EXPECT_STREQ(squares[3].uci(), "e4");
+    EXPECT_STREQ(squares[4].uci(), "e5");
+    EXPECT_STREQ(squares[5].uci(), "e6");
+    EXPECT_STREQ(squares[6].uci(), "e7");
+    EXPECT_STREQ(squares[7].uci(), "e8");
 }
 
 #endif

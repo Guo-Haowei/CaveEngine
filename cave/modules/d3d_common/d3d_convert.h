@@ -230,7 +230,7 @@ static inline auto Convert(const BlendDesc* p_in) {
     D3D_(BLEND_DESC)
     desc;
     ZeroMemory(&desc, sizeof(desc));
-    for (int i = 0; i < array_length(p_in->renderTargets); ++i) {
+    for (uint32_t i = 0; i < std::size(p_in->renderTargets); ++i) {
         auto& out = desc.RenderTarget[i];
         const auto& in = p_in->renderTargets[i];
         out.BlendEnable = in.blendEnabled;

@@ -205,7 +205,7 @@ CopyContext::CopyCommand CopyContext::Allocate(uint32_t p_staging_size) {
 void CopyContext::Submit(CopyCommand p_cmd) {
     D3D_CALL(p_cmd.commandList->Close());
     ID3D12CommandList* commandLists[] = { p_cmd.commandList.Get() };
-    m_queue->ExecuteCommandLists(array_length(commandLists), commandLists);
+    m_queue->ExecuteCommandLists(std::size(commandLists), commandLists);
     D3D_CALL(m_queue->Signal(p_cmd.fence.Get(), 1));
     D3D_CALL(p_cmd.fence->SetEventOnCompletion(1, NULL));
     D3D_CALL(p_cmd.fence->Signal(0));

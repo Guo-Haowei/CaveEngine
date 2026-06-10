@@ -41,14 +41,14 @@ struct EnumTraits<AssetType> {
     };
 
     static std::string_view ToString(AssetType p_type) {
-        for (int i = 0; i < array_length(s_mappings); ++i) {
+        for (size_t i = 0; i < std::size(s_mappings); ++i) {
             if (p_type == s_mappings[i].first) return s_mappings[i].second;
         }
         return "unknown";
     }
 
     static Option<AssetType> FromString(std::string_view p_val) {
-        for (int i = 0; i < array_length(s_mappings); ++i) {
+        for (size_t i = 0; i < std::size(s_mappings); ++i) {
             if (p_val == s_mappings[i].second) return Some(s_mappings[i].first);
         }
         return None();

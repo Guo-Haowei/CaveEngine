@@ -7,65 +7,59 @@
 
 namespace chess {
 
-using core::Color;
-using core::MoveGen;
-using core::MoveList;
-using core::Position;
+using namespace ::cave;
+using namespace ::chess::core;
 
-ChessMatchAuthority::ChessMatchAuthority(cave::IHostServices& p_host)
-    : m_intent(p_host.intentDispatcher())
-    , m_debug_id(cave::MakeDebugId(this)) {
-    m_intent.AddHandler<ChessMoveIntent>(this);
-    m_pos = Position::Startpos();
+ChessMatchAuthority::ChessMatchAuthority(IHostServices& host)
+    : intent_dispatcher(host.intentDispatcher())
+    , debug_id_(MakeDebugId(this)) {
+    intent_dispatcher.AddHandler<ChessMoveIntent>(this);
+    pos_ = Position::Startpos();
 }
 
 ChessMatchAuthority::~ChessMatchAuthority() {
-    m_intent.RemoveHandler<ChessMoveIntent>(this);
+    intent_dispatcher.RemoveHandler<ChessMoveIntent>(this);
 }
 
-bool ChessMatchAuthority::HandleIntent(cave::Intent& p_intent) {
-    if (auto intent = dynamic_cast<ChessMoveIntent*>(&p_intent)) {
-        TryCommitMove(intent->player(), intent->move());
+bool ChessMatchAuthority::handleIntent(cave::Intent& intent) {
+    if (auto move_intent = dynamic_cast<ChessMoveIntent*>(&intent)) {
+        tryCommitMove(move_intent->side(), move_intent->move());
         return true;
     }
 
     return false;
 }
 
-bool ChessMatchAuthority::TryCommitMove(PlayerId p_player_id,
-                                        core::Move p_move) {
-
-    if (m_pos.SideToMove() != p_player_id) {
+bool ChessMatchAuthority::tryCommitMove(Color side, Move move) {
+    if (pos_.SideToMove() != side) {
         return false;
     }
 
     core::UndoState undo;
-    Position copy = m_pos;
-    const bool ok = copy.MakeMove(p_move, undo);
+    Position copy = pos_;
+    const bool ok = copy.MakeMove(move, undo);
     if (!ok) {
-        m_intent.Queue<AuthMoveRejected>(p_player_id, p_move);
+        intent_dispatcher.Queue<AuthMoveRejected>(side, move);
         return false;
     }
 
-    m_pos = copy;
-    m_intent.Queue<AuthMoveCommitted>(p_player_id, p_move);
+    pos_ = copy;
+    intent_dispatcher.Queue<AuthMoveCommitted>(side, move);
 
     // @TODO: figure out if draw or not
-    const MoveList moves = MoveGen::LegalMove(m_pos);
+    const MoveList moves = MoveGen::LegalMove(pos_);
     if (moves.empty()) {
-        m_game_over = true;
-        m_intent.Queue<AuthGameOver>(p_player_id, p_move);
+        game_over_ = true;
+        intent_dispatcher.Queue<AuthGameOver>(side, move);
     }
 
     return true;
 }
 
-void ChessMatchAuthority::OfferDraw(PlayerId p_player_id) {
-    (void)p_player_id;
+void ChessMatchAuthority::offerDraw(Color) {
 }
 
-void ChessMatchAuthority::Resign(PlayerId p_player_id) {
-    (void)p_player_id;
+void ChessMatchAuthority::resign(Color) {
 }
 
 }  // namespace chess

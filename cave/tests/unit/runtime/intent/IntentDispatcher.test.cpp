@@ -10,7 +10,7 @@ public:
     TestIntentHandler()
         : m_debug_id(MakeDebugId(this)) {}
 
-    bool HandleIntent(Intent&) override { return true; }
+    bool handleIntent(Intent&) override { return true; }
 
     DebugId debugId() const {
         return m_debug_id;

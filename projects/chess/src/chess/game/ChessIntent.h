@@ -30,20 +30,20 @@ class ChessMoveIntent : public cave::Intent {
 public:
     CAVE_DECLARE_INTENT("move.submitted");
 
-    ChessMoveIntent(PlayerId player, core::Move mv) noexcept
-        : player_(player)
-        , mv_(mv) {}
+    ChessMoveIntent(core::Color side, core::Move move) noexcept
+        : side_(side)
+        , move_(move) {}
 
-    PlayerId player() const { return player_; };
-    core::Move move() const { return mv_; }
+    core::Color side() const { return side_; };
+    core::Move move() const { return move_; }
 
 #if USING(DEBUG_BUILD)
     std::string DebugString() const override;
 #endif
 
 private:
-    PlayerId player_;
-    core::Move mv_;
+    core::Color side_;
+    core::Move move_;
 };
 
 class AuthMoveCommitted : public ChessMoveIntent {

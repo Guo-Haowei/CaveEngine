@@ -139,7 +139,7 @@ static inline const char* EnumToString(PipelineStateName p_name) {
         PSO_NAME_LIST
 #undef PSO_NAME
     };
-    static_assert(array_length(s_table) == std::to_underlying(PipelineStateName::PSO_NAME_MAX));
+    static_assert(std::size(s_table) == std::to_underlying(PipelineStateName::PSO_NAME_MAX));
     return s_table[p_name];
 }
 

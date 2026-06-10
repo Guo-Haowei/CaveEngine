@@ -146,10 +146,10 @@ static CastlingType ConvertCastlingType(Piece src_piece, Square src_sq, Square d
 static constexpr Bitboard BuildEpMask(uint8_t file, uint8_t rank) {
     Bitboard mask(0);
     if (file > 0) {
-        mask.Set(Square::FromFileRank(file - 1, rank));
+        mask.Set(Square::fromFileRank(file - 1, rank));
     }
     if (file < 7) {
-        mask.Set(Square::FromFileRank(file + 1, rank));
+        mask.Set(Square::fromFileRank(file + 1, rank));
     }
     return mask;
 }
@@ -186,8 +186,8 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     const bool is_pawn = src_piece_type == PieceType::Pawn;
     const Piece their_pawn = BuildPiece(PieceType::Pawn, their_color);
 
-    const auto [src_file, src_rank] = src_sq.FileRank();
-    const auto [dst_file, dst_rank] = dst_sq.FileRank();
+    const auto [src_file, src_rank] = src_sq.fileRank();
+    const auto [dst_file, dst_rank] = dst_sq.fileRank();
 
     const MoveType move_type = p_move.type();
 
@@ -204,8 +204,8 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
         assert((dy <= 2) && "Pawn move must be 1 or 2 squares");
         if (dy == 2) {
             const auto enemy_pawn = m_board[their_pawn];
-            if ((kEpMasks[std::to_underlying(my_color)][dst_sq.Index()] & enemy_pawn).Any()) {
-                Square ep_sq_ = Square::FromFileRank(src_file, (src_rank + dst_rank) / 2);
+            if ((kEpMasks[std::to_underlying(my_color)][dst_sq.index()] & enemy_pawn).Any()) {
+                Square ep_sq_ = Square::fromFileRank(src_file, (src_rank + dst_rank) / 2);
                 ep_sq = cave::Some(ep_sq_);
             }
         }
@@ -241,8 +241,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
         } break;
         case MoveType::Enpassant: {
             assert(src_piece_type == PieceType::Pawn);
-            const Square enemy_sq = Square::FromFileRank(dst_file, src_rank);
-            m_board[their_pawn].Unset(enemy_sq);
+            m_board[their_pawn].Unset(enpassantCapturedSquare(src_sq, dst_sq));
         } break;
         case MoveType::Promotion: {
             assert(src_piece_type == PieceType::Pawn);
@@ -300,10 +299,7 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
             MovePiece(m_board[rook], rook_sq, src_sq2);
         } break;
         case MoveType::Enpassant: {
-            const auto [_from_file, from_rank] = src_sq.FileRank();
-            const auto [to_file, _to_rank] = dst_sq.FileRank();
-            const Square enemy_sq = Square::FromFileRank(to_file, from_rank);
-            m_board[their_pawn].Set(enemy_sq);
+            m_board[their_pawn].Set(enpassantCapturedSquare(src_sq, dst_sq));
         } break;
         case MoveType::Promotion: {
             const Piece promotion = BuildPiece(p_move.promo().unwrap(), my_color);
@@ -479,7 +475,7 @@ static bool ParseBoard(std::string_view p_str,
         if (file >= 8) return false;
 
         const uint8_t rank = fen_rank - 1;
-        const Square sq = Square::FromFileRank(file, rank);
+        const Square sq = Square::fromFileRank(file, rank);
 
         // Set bit in the piece board.
         p_out[p].Set(sq);
@@ -528,7 +524,7 @@ static cave::Option<Square> ParseEnpassant(std::string_view p_str) {
 
     const int8_t file = f - 'a';
     const int8_t rank = r - '1';
-    return cave::Some(Square::FromFileRank(file, rank));
+    return cave::Some(Square::fromFileRank(file, rank));
 }
 
 #pragma endregion FEN_PARSING
@@ -557,7 +553,7 @@ static std::string DebugBoardString(const Position::Board& p_board) {
 
         for (uint8_t file = 0; file < 8; ++file) {
             // If your Square is different, adapt this line:
-            const Square sq = Square::FromFileRank(file, rank);
+            const Square sq = Square::fromFileRank(file, rank);
 
             const Piece piece = get_piece(sq);
             out.push_back(GetPieceChar(piece));

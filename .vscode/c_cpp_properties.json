@@ -14,7 +14,8 @@
                 "${workspaceRoot}/cave/engine/public/",
                 "${workspaceRoot}/cave/apps/editor/src/",
                 "${workspaceRoot}/cave/shader/",
-                "${workspaceRoot}/cave"
+                "${workspaceRoot}/cave",
+                "${workspaceRoot}/projects/chess/src/"
             ],
             "forcedInclude": [
                 "${workspaceRoot}/cave/engine/private/pch.h",

@@ -30,11 +30,11 @@ ChessViewFactory::ChessViewFactory(SceneCommandWriter& writer, Entity parent)
 ecs::Entity ChessViewFactory::createTile(Square square, const TileInitInfo& info) {
     constexpr Vector3f scale(1.0f, 0.05f, 1.0f);
 
-    const auto [file, rank] = square.FileRank();
+    const auto [file, rank] = square.fileRank();
 
     Vector3f offset((float)rank, 0.05f, (float)file);
 
-    Entity ent = writer_.CreateCubeObject(info.name ? info.name : square.ToString(), { nullptr, info.color });
+    Entity ent = writer_.CreateCubeObject(info.name ? info.name : square.uci(), { nullptr, info.color });
     writer_.SetProperty(ent, TransformComponent_Id, kScaleId, scale);
     writer_.SetProperty(ent, TransformComponent_Id, kTranslationId, offset);
 
@@ -64,7 +64,7 @@ ecs::Entity ChessViewFactory::createPiece(Square square, Piece piece) {
         name,
         materials_[std::to_underlying(piece_color)]);
 
-    const auto [file, rank] = square.FileRank();
+    const auto [file, rank] = square.fileRank();
     Vector3f translation(rank, 0, file);
     constexpr Vector3f scale = Vector3f(9);
 

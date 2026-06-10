@@ -100,7 +100,7 @@ bool EditService::Save(DocId p_doc_id) {
     return false;
 }
 
-bool EditService::HandleIntent(Intent& p_intent) {
+bool EditService::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<EditIntent*>(&p_intent)) {
         IDocument* doc = ResolveDoc(intent->doc_id);
         if (DEV_VERIFY(doc)) {

@@ -87,7 +87,7 @@ void Workspace::DrawTabs() {
     }
 }
 
-bool Workspace::HandleIntent(Intent& p_intent) {
+bool Workspace::handleIntent(Intent& p_intent) {
     if (auto open_doc = dynamic_cast<OpenDocIntent*>(&p_intent)) {
         OpenOrFocusDoc(open_doc->doc_id);
         return true;

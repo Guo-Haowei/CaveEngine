@@ -63,7 +63,7 @@ Scene* CreateBoxScene() {
             { "wall_back", Rotate(Degree(+90.0f), Vector3f::UnitX) * Translate(Vector3f(0, -s, 0)), create_material("white") },
         };
 
-        for (int i = 0; i < array_length(wall_info); ++i) {
+        for (size_t i = 0; i < std::size(wall_info); ++i) {
             const auto& info = wall_info[i];
             auto wall = EntityFactory::CreateCubeEntity(*scene, info.name, info.material, Vector3f(s, 0.2f, s), info.transform);
             scene->AttachChild(wall, world);

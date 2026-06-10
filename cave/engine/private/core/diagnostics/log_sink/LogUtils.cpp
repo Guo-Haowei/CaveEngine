@@ -89,7 +89,7 @@ const char* ToString(LogChannel p_channel) {
         CAVE_LOG_CHANNEL_LIST
 #undef CAVE_LOG_CHANNEL
     };
-    static_assert(array_length(s_channels) == std::to_underlying(LogChannel::Count));
+    static_assert(std::size(s_channels) == std::to_underlying(LogChannel::Count));
     return s_channels[std::to_underlying(p_channel)];
 }
 

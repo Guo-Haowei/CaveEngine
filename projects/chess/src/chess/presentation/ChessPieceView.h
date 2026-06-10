@@ -16,26 +16,29 @@ namespace chess {
 class ChessPieceView {
     using Entity = ::cave::ecs::Entity;
 
-public:
-    ChessPieceView(cave::IHostServices& host) noexcept;
-
-    void redrawBoard(const core::Position& position);
-
-    void spawnPiece(core::Piece piece, core::Square square);
-    void removePiece(core::Square square);
-
-    void movePiece(core::Square from, core::Square to);
-
-    Entity entityAt(core::Square square) const { return board_[square.Index()]; }
-
-    void initializePieces();
-private:
     struct Entry {
         std::vector<Entity> pool{};
         uint8_t cursor{ 0 };
 
         Entity getAndAdvance();
     };
+
+public:
+    ChessPieceView(cave::IHostServices& host) noexcept;
+
+    void initialize();
+
+    void redrawPieces(const core::Position& position);
+
+    void spawnPiece(core::Piece piece, core::Square square);
+    void removePiece(core::Square square);
+
+    void movePiece(core::Square from, core::Square to);
+
+    void applyMove(const core::Position& position, core::Move mv);
+
+private:
+    Entity entityAt(core::Square square) const { return board_[square.index()]; }
 
     cave::IHostServices& host_;
     cave::SceneCommandWriter& writer_;

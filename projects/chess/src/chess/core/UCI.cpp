@@ -84,8 +84,8 @@ static bool ParseMoveUci(const Position& p_pos, std::string_view p_uci, Move& p_
         return false;
     }
 
-    const Square from = Square::FromFileRank(src_file, src_rank);
-    const Square to = Square::FromFileRank(dst_file, dst_rank);
+    const Square from = Square::fromFileRank(src_file, src_rank);
+    const Square to = Square::fromFileRank(dst_file, dst_rank);
 
     p_move = Move(from, to, MoveType::Normal, PieceType::Null);
     return true;

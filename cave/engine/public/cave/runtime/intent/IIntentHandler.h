@@ -12,7 +12,7 @@ public:
     virtual ~IIntentHandler() = default;
 
     [[nodiscard]]
-    virtual bool HandleIntent(Intent& p_intent) = 0;
+    virtual bool handleIntent(Intent& intent) = 0;
 
     virtual DebugId debugId() const = 0;
 };

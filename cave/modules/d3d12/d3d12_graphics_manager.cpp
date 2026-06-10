@@ -288,7 +288,7 @@ void D3d12GraphicsManager::BeginFrame() {
 void D3d12GraphicsManager::EndFrame() {
     D3D_CALL(m_graphicsCommandList->Close());
     ID3D12CommandList* cmdLists[] = { m_graphicsCommandList.Get() };
-    m_graphicsCommandQueue->ExecuteCommandLists(array_length(cmdLists), cmdLists);
+    m_graphicsCommandQueue->ExecuteCommandLists(std::size(cmdLists), cmdLists);
 }
 
 void D3d12GraphicsManager::MoveToNextFrame() {
@@ -844,7 +844,7 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::CreateTextureImpl(const GpuTex
 
         // Execute the copy
         ID3D12CommandList* command_lists[] = { command_list.Get() };
-        copy_queue->ExecuteCommandLists(array_length(command_lists), command_lists);
+        copy_queue->ExecuteCommandLists(std::size(command_lists), command_lists);
         copy_queue->Signal(fence.Get(), 1);
 
         // Wait for everything to complete
@@ -1064,7 +1064,7 @@ auto D3d12GraphicsManager::CreateDevice() -> Result<void> {
 
     D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_12_1, D3D_FEATURE_LEVEL_12_0 };
 
-    D3D12_FEATURE_DATA_FEATURE_LEVELS featLevels = { array_length(featureLevels), featureLevels, D3D_FEATURE_LEVEL_12_0 };
+    D3D12_FEATURE_DATA_FEATURE_LEVELS featLevels = { std::size(featureLevels), featureLevels, D3D_FEATURE_LEVEL_12_0 };
 
     D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_12_0;
     D3D_CALL(m_device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels)));
@@ -1195,7 +1195,7 @@ auto D3d12GraphicsManager::EnableDebugLayer() -> Result<void> {
 
     D3D12_INFO_QUEUE_FILTER filter = {};
     filter.DenyList.pIDList = ignore_list;
-    filter.DenyList.NumIDs = array_length(ignore_list);
+    filter.DenyList.NumIDs = std::size(ignore_list);
     info_queue->AddRetrievalFilterEntries(&filter);
     info_queue->AddStorageFilterEntries(&filter);
 #endif

@@ -38,7 +38,7 @@ public:
 
     PreviewScene FocusedPreviewScene();
 
-    bool HandleIntent(Intent& p_intent) override;
+    bool handleIntent(Intent& p_intent) override;
 
     bool OnCloseRequested();
 

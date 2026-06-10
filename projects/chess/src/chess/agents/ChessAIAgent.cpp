@@ -17,7 +17,7 @@ using core::Position;
 
 void ChessAIAgent::tick(cave::IHostServices& host) {
     const Position& replica = client_.replica();
-    const bool my_turn = replica.SideToMove() == playerId();
+    const bool my_turn = replica.SideToMove() == side();
     if (!my_turn) {
         return;
     }
@@ -34,7 +34,7 @@ void ChessAIAgent::tick(cave::IHostServices& host) {
         assert(idx < count);
         const Move move = moves[idx];
 
-        host.intentDispatcher().Queue<ChessMoveIntent>(playerId(), move);
+        host.intentDispatcher().Queue<ChessMoveIntent>(side(), move);
     }
 }
 

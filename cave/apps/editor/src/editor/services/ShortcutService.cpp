@@ -36,7 +36,7 @@ ShortcutService::~ShortcutService() {
     m_editor.GetApp().InputService().removeConsumer(this);
 }
 
-bool ShortcutService::HandleIntent(Intent& p_intent) {
+bool ShortcutService::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<const SaveIntent*>(&p_intent)) {
         const bool save_as = intent->save_as;
         LOG_OK(save_as ? "Ctrl+Shift+S" : "Ctrl+S");
