@@ -2,6 +2,8 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
+
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"
 
@@ -11,29 +13,217 @@
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 #include "editor/utility/ImGuizmo.h"
-#include "editor/tile_map_editor/TileMapDocument.h"
+
+// @TODO: remove
+#include "engine/private/renderer/sampler.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
+#include "engine/private/runtime/view/ViewManager.h"
+#include "editor/services/PickingService.h"
 
 namespace cave {
 
-#if 0
-TileMapEditor::TileMapEditor(EditorState& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, {}, p_viewer, DIMENSION_2)
+using namespace ::cave::math;
+
+// @TODO: refactor this
+#if 1
+static constexpr uint32_t kTextureWidth = 1920;
+static constexpr uint32_t kTextureHeight = 1080;
+#else
+static constexpr uint32_t kTextureWidth = 640;
+static constexpr uint32_t kTextureHeight = 480;
+#endif
+
+TileMapEditor::TileMapEditor(EditorState& editor,
+                             DocId doc_id,
+                             SceneId scene_id)
+    : Tab(editor, doc_id)
+    , view_manager_(editor.app().services().viewManager())
+    , debug_id_(MakeDebugId(this))
+    , preview_scene_id_(scene_id)
     , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
 
     m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
                                       [&]() {
                                           LOG_WARN("TODO");
                                       } };
+
+    {
+        GpuTextureDesc desc{
+            .type = AttachmentType::COLOR_2D,
+            .dimension = Dimension::TEXTURE_2D,
+            .width = kTextureWidth,
+            .height = kTextureHeight,
+            .depth = 1,
+            .mipLevels = 0,
+            .arraySize = 1,
+            .format = PixelFormat::R16G16B16A16_FLOAT,
+            .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+            .miscFlags = RESOURCE_MISC_NONE,
+        };
+        texture_ = m_editor.app().GetRenderDevice()->CreateTexture(
+            desc,
+            PointClampSampler());
+    }
 }
 
 TileMapEditor::~TileMapEditor() = default;
 
-void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
-    unused(p_guid);
-    DEV_ASSERT(0);
-#if 0
+void TileMapEditor::submitView() {
+    using namespace render;
+    ViewDesc view;
+    view.view_id = view_id_;
+    view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
+    view.scene_id = preview_scene_id_;
+    view.camera_source = CameraSource::External(camera_);
 
-    m_document = std::make_unique<TileMapDocument>(p_guid, *this);
+    view.output = texture_;
+    view_manager_.submit(view);
+}
+
+void TileMapEditor::onCreate() {
+    camera_.SetAspect((float)kTextureWidth / (float)kTextureHeight);
+    camera_.SetDirty();
+    camera_.SetProjection(ProjectionType::Orthographic);
+    camera_transform_.Translate(Vector3f(0, 0, 4));
+    camera_controller_ = std::make_unique<CameraController2DEditor>(camera_, camera_transform_);
+
+    camera_transform_.UpdateTransform();
+    camera_.Update(camera_transform_.GetWorldMatrix());
+
+    IApplication& app = m_editor.app();
+
+    app.services().sceneScheduler().add(this);
+    m_editor.PickingService().Register(this);
+
+    view_id_ = view_manager_.createView(
+        "SceneView",
+        { 0, 0, kTextureWidth, kTextureHeight });
+}
+
+void TileMapEditor::onDestroy() {
+    IApplication& app = m_editor.app();
+
+    view_manager_.destroyView(view_id_);
+    m_editor.PickingService().Register(this);
+    app.services().sceneScheduler().remove(this);
+}
+
+Option<PickData> TileMapEditor::GetPickData(const Vector2f& pointer_os) {
+    unused(pointer_os);
+
+    return None();
+
+    // if (!IsVisible()) return None();
+
+    // const ViewRecord* view = view_manager_.resolve(view_id_);
+    // if (!view->display_rect_os.Contains(pointer_os.x, pointer_os.y)) {
+    //     return None();
+    // }
+
+    // return Some(PickData{
+    //     .proj_view = camera_.GetProjectionViewMatrix(),
+    //     .cursor_ndc = view->screenToNDC(pointer_os),
+    //     .scene_id = preview_scene_id_,
+    //     .doc_id = doc_id_,
+    // });
+}
+
+void TileMapEditor::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
+    if (!m_editor.IsPlaying()) {
+        out_requests.push_back(SceneTickRequest{
+            SceneTickMode::Editor,
+            preview_scene_id_,
+        });
+    }
+}
+
+void TileMapEditor::onInputEvents(const InputFrame& input) {
+    if (!IsHovered()) {
+        return;
+    }
+
+    unused(input);
+    // @TODO: impl
+}
+
+void TileMapEditor::drawUIImpl() {
+    ViewRecord* view = view_manager_.resolve(view_id_);
+    DEV_ASSERT(view);
+
+    updateRect(view->display_rect_os);
+    drawMainView(view->display_rect_os);
+
+    submitView();
+}
+
+// @TODO: instead of asking for image, provide an image to renderer
+void TileMapEditor::drawMainView(const math::FloatRect& rect) {
+    const ImVec2 min{ rect.x, rect.y };
+    const ImVec2 max{ rect.Right(), rect.Bottom() };
+
+    using rhi::Backend;
+
+    // @TODO: move it somewhere else
+    uint64_t handle = texture_->GetHandle();
+    // add image for drawing
+    switch (m_editor.app().GetBackend()) {
+        case Backend::Direct3D11:
+        case Backend::Direct3D12: {
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max);
+        } break;
+        case Backend::OpenGL: {
+            // @TODO: add p_flip
+            ImVec2 uv_min = ImVec2(0, 1);
+            ImVec2 uv_max = ImVec2(1, 0);
+            ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max, uv_min, uv_max);
+        } break;
+        case Backend::Vulkan:
+        case Backend::Metal: {
+        } break;
+        default:
+            CRASH_NOW();
+            break;
+    }
+
+    // @TODO: drop target
+    ImGui::Dummy({ rect.w, rect.h });
+    // ImGui::InvisibleButton("###DropTarget", size);
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CAVE/Asset")) {
+        }
+        ImGui::EndDragDropTarget();
+    }
+}
+
+// @TODO: refactor
+static void fitAspect(float aspect, float& w, float& h) {
+    if (aspect * h > w) {
+        h = w / aspect;
+    } else {
+        w = h * aspect;
+    }
+}
+
+void TileMapEditor::updateRect(math::FloatRect& out_rect) {
+    ImVec2 cursor_pos = ImGui::GetCursorPos();  // cursor to screen pos
+    ImVec2 cursor_screen_pos = ImGui::GetCursorScreenPos();
+    ImVec2 size = ImGui::GetWindowSize();
+    {
+        size.x -= 2 * cursor_pos.x;
+        size.y -= 1.2f * cursor_pos.y;
+
+        const float aspect = camera_.GetAspect();
+        fitAspect(aspect, size.x, size.y);
+    }
+
+    out_rect = math::FloatRect::FromMinMax(
+        cursor_screen_pos.x,
+        cursor_screen_pos.y,
+        cursor_screen_pos.x + size.x,
+        cursor_screen_pos.y + size.y);
+}
+#if 0
+void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
 
     auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
     DEV_ASSERT(scene_manager);
@@ -50,37 +240,6 @@ void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
         tile_map_renderer->SetResourceGuid(p_guid);
         return scene;
     });
-#endif
-}
-
-void TileMapEditor::OnDestroy() {
-    m_tmp_scene.reset();
-}
-
-void TileMapEditor::OnActivateInternal() {
-    // auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
-    // scene_manager->OpenTempScene(m_tmp_scene);
-    DEV_ASSERT(0);
-}
-
-void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {
-    const Matrix4x4f proj_view = p_camera.GetProjectionViewMatrix();
-
-    const Vector2f& canvas_min = m_viewer.GetCanvasMin();
-    const Vector2f& canvas_size = m_viewer.GetCanvasSize();
-
-    ImGuizmo::SetOrthographic(true);
-    ImGuizmo::BeginFrame();
-
-    ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
-
-    Matrix4x4f identity(1.0f);
-    ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XY);
-
-    // @NOTE: shouldn't do it here,
-    // move it do somewhere else
-    m_document->FlushCommands();
 }
 
 void TileMapEditor::DrawAssetInspector() {

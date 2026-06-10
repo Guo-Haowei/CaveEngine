@@ -3,6 +3,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "editor/document/MaterialDocument.h"
+#include "editor/document/TileMapDocument.h"
 #include "editor/document/SceneDocument.h"
 #include "editor/EditorState.h"
 #include "editor/services/Workspace.h"
@@ -19,6 +20,8 @@ static std::unique_ptr<IDocument> CreateDoc(IApplication& app, const OpenDocDesc
             return std::make_unique<SceneDocument>(app, desc.guid);
         case AssetType::Material:
             return std::make_unique<MaterialDocument>(app, desc.guid);
+        case AssetType::TileMap:
+            return std::make_unique<TileMapDocument>(app, desc.guid);
         default:
             return std::make_unique<DocumentBase>(app, desc.guid);
     }

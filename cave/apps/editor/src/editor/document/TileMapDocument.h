@@ -1,9 +1,21 @@
 #pragma once
-#include <variant>
+#include "DocumentBase.h"
 
 #include "engine/private/runtime/assets/TileMapAsset.h"
 
 namespace cave {
+
+class TileMapDocument : public DocumentBase {
+public:
+    TileMapDocument(IApplication& app, const Guid& guid);
+
+    SceneId GetPreviewScene() const override {
+        return m_preview_scene;
+    }
+
+protected:
+    SceneId m_preview_scene{};
+};
 
 #if 0
 class TileMapEditor;

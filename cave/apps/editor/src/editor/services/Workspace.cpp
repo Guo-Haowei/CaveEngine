@@ -13,6 +13,7 @@
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
+#include "editor/tile_map_editor/TileMapEditor.h"
 
 // @TODO: delete
 #include "editor/panels/SceneViewTab.h"
@@ -155,6 +156,11 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
                                                  doc_id,
                                                  doc->GetPreviewScene(),
                                                  dim);
+        } break;
+        case AssetType::TileMap: {
+            tab = std::make_unique<TileMapEditor>(editor_,
+                                                  doc_id,
+                                                  doc->GetPreviewScene());
         } break;
         default: {
             tab = std::make_unique<Tab>(editor_, doc_id);
