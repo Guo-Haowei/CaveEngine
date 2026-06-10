@@ -34,7 +34,7 @@ void ChessAIAgent::tick(cave::IHostServices& host) {
         assert(idx < count);
         const Move move = moves[idx];
 
-        host.intentDispatcher().Queue<ChessMoveIntent>(side(), move);
+        host.intentDispatcher().queue<ChessMoveIntent>(side(), move);
     }
 }
 

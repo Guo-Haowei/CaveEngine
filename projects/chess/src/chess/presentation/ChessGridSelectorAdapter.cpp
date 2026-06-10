@@ -89,7 +89,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
         }
         assert(move.isValid());
 
-        host_.intentDispatcher().Queue<ChessMoveIntent>(id, move);
+        host_.intentDispatcher().queue<ChessMoveIntent>(id, move);
     }
 }
 

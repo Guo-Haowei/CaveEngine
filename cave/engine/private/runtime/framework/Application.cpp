@@ -7,7 +7,6 @@
 #include "cave/core/string/StringUtils.h"
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/display/DisplayService.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
 #include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
@@ -75,7 +74,6 @@ auto Application::SetupModules() -> Result<void> {
     input_service_ = new cave::InputService();
     m_renderer = new render::Renderer();
     task_manager_ = new TaskManager();
-    m_intent_dispatcher = new cave::IntentDispatcher();
 
     scene_scheduler_ = std::make_unique<SceneScheduler>(
         scene_registry_,
@@ -112,7 +110,6 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_display_service);
     RegisterModule(m_render_device);
     RegisterModule(m_renderer);
-    RegisterModule(m_intent_dispatcher);
 
     if (m_spec.enableImgui) {
         auto res = CreateImguiManager();
@@ -222,7 +219,7 @@ bool Application::MainLoop() {
     view_manager_->beginFrame();
 
     m_state_machine.tick(time);
-    m_intent_dispatcher->Flush();
+    intent_dispatcher_.flush();
 
     // update scene after ImGui, physics and script updates
     scene_scheduler_->Tick(time);

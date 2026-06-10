@@ -27,7 +27,6 @@ class EventQueue;
 class IAssetManager;
 class DisplayService;
 class ImguiManager;
-class IntentDispatcher;
 class IPhysicsManager;
 class IScriptService;
 class SceneRegistry;
@@ -67,8 +66,8 @@ struct QuitContext {
 
 class IApplication : public NonCopyable {
 public:
-    IApplication(const AppSpec& p_spec)
-        : m_spec(p_spec) {
+    IApplication(const AppSpec& spec)
+        : m_spec(spec) {
     }
 
     virtual ~IApplication();
@@ -76,7 +75,7 @@ public:
     virtual Result<void> Initialize() = 0;
     virtual void Finalize() = 0;
 
-    virtual QuitVote OnQuitRequested(const QuitContext& p_quit) = 0;
+    virtual QuitVote OnQuitRequested(const QuitContext& quit) = 0;
 
     virtual AppStateId GetStateId() const = 0;
     virtual EventQueue& GetEventQueue() = 0;
@@ -89,7 +88,6 @@ public:
     DisplayService* GetDisplayService() { return m_display_service; }
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
-    IntentDispatcher* IntentDispatcher() { return m_intent_dispatcher; }
 
     CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
     Console& Console() { return *m_console; }
@@ -124,7 +122,6 @@ protected:
     render::IRenderDevice* m_render_device{};
 
     ImguiManager* m_imgui_manager{};
-    cave::IntentDispatcher* m_intent_dispatcher{};
 
     cave::CommandRegistry* m_cmd_reg{ nullptr };
     cave::Console* m_console{ nullptr };

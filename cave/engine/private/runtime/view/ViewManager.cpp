@@ -99,7 +99,7 @@ std::span<const ResolvedView> ViewManager::endFrame() {
     resolved_views_.reserve(view_descs_.size());
     for (ViewDesc& desc : view_descs_) {
         SceneId id = desc.scene_id;
-        if (Scene* scene = scene_reg_.Resolve(id)) {
+        if (Scene* scene = scene_reg_.resolve(id)) {
             resolved_views_.emplace_back(ResolveView(std::move(desc), scene, is_opengl_));
         } else {
             LOG_ERROR(LogChannel::View, "can't resolve {}#{}", id.index, id.gen);

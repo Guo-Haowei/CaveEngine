@@ -23,15 +23,15 @@ using math::Vector4f;
 PickingService::PickingService(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    m_editor.app().IntentDispatcher()->AddHandler<PickIntent>(this);
+    m_editor.app().services().intentDispatcher().addHandler<PickIntent>(this);
 }
 
 PickingService::~PickingService() {
-    m_editor.app().IntentDispatcher()->RemoveHandler<PickIntent>(this);
+    m_editor.app().services().intentDispatcher().removeHandler<PickIntent>(this);
 }
 
 void PickingService::Pick(math::Vector2f p_point_win) {
-    m_editor.app().IntentDispatcher()->Queue<PickIntent>(p_point_win);
+    m_editor.app().services().intentDispatcher().queue<PickIntent>(p_point_win);
 }
 
 void PickingService::Raycast(const PickData& pick_data) {

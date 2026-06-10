@@ -20,11 +20,11 @@ ChessGameMode::ChessGameMode(IHostServices& p_host)
     : m_host(p_host)
     , m_intent(p_host.intentDispatcher())
     , m_debug_id(MakeDebugId(this)) {
-    m_intent.AddHandler<ChessStateIntent>(this);
+    m_intent.addHandler<ChessStateIntent>(this);
 }
 
 ChessGameMode::~ChessGameMode() {
-    m_intent.RemoveHandler<ChessStateIntent>(this);
+    m_intent.removeHandler<ChessStateIntent>(this);
 }
 
 void ChessGameMode::OnEnter(IHostServices& p_host) {

@@ -407,7 +407,7 @@ void SceneViewTab::DrawGizmo(const math::FloatRect& p_rect) {
 // }
 
 Scene* SceneViewTab::GetResolvedScene() {
-    return m_editor.app().services().sceneRegistry().Resolve(m_preview_scene);
+    return m_editor.app().services().sceneRegistry().resolve(m_preview_scene);
 }
 
 }  // namespace cave

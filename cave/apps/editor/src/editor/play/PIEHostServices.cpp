@@ -34,7 +34,7 @@ DisplayService& PIEHostServices::displayService() {
 }
 
 IntentDispatcher& PIEHostServices::intentDispatcher() {
-    return *app_.IntentDispatcher();
+    return app_.services().intentDispatcher();
 }
 
 const IGameInput& PIEHostServices::gameInput() const {

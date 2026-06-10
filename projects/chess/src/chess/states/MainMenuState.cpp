@@ -22,7 +22,7 @@ void MainMenuState::Tick(cave::IHostServices& p_host, const cave::FrameTime&) {
     const float offset_y = 200.0f;
     if (ui.button(1, { offset_x, offset_y, 400, 100 })) {
         auto gameplay = std::make_unique<GameplayState>();
-        p_host.intentDispatcher().Queue<ChessStateIntent>(std::move(gameplay));
+        p_host.intentDispatcher().queue<ChessStateIntent>(std::move(gameplay));
     }
     if (ui.button(2, { offset_x, offset_y + 200, 400, 100 })) {
         p_host.log().Ok(LogChannel::Game, "UI Button 2 clicked");

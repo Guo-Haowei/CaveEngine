@@ -29,7 +29,7 @@ private:
 
     EditorState& m_editor;
     InputService& input_service_;
-    IntentDispatcher& m_intent_dispatcher;
+    IntentDispatcher& intent_dispatcher_;
 
     std::array<ShortcutDesc, kShortcutCount> m_shortcuts;
 

@@ -12,12 +12,12 @@ SceneDocument::SceneDocument(IApplication& p_app, const Guid& p_guid)
     auto scene = std::make_unique<Scene>(std::format("preview-scene-{}", p_guid.ToString()));
     scene->Copy(*m_handle.Get<Scene>());
 
-    m_preview_scene = m_scene_reg.Register(std::move(scene));
+    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
 }
 
 bool SceneDocument::Save() {
     Scene* source = m_handle.Get<Scene>();
-    Scene* tmp = m_scene_reg.Resolve(m_preview_scene);
+    Scene* tmp = m_scene_reg.resolve(m_preview_scene);
     source->Copy(*tmp);
     return m_asset_reg.SaveAsset(m_guid);
 }

@@ -2,6 +2,7 @@
 #include "cave/core/NonCopyable.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
@@ -57,14 +58,15 @@ protected:
     std::vector<IService*> m_modules;
 
     // @TODO: move above to AppServices
+    IntentDispatcher intent_dispatcher_;
+    VFS vfs_;
+    SceneRegistry scene_registry_;
+
     std::unique_ptr<ProjectManager> project_manager_;
     std::unique_ptr<SceneQueryService> scene_query_;
     std::unique_ptr<SceneScheduler> scene_scheduler_;
     std::unique_ptr<ViewManager> view_manager_;
     std::unique_ptr<UIRuntime> ui_;
-
-    VFS vfs_;
-    SceneRegistry scene_registry_;
 
     InputService* input_service_;
     TaskManager* task_manager_;

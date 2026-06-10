@@ -3,6 +3,8 @@
 
 namespace cave {
 
+class IApplication;
+
 class Console {
 public:
     explicit Console(IApplication& p_app) noexcept;

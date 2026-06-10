@@ -36,7 +36,7 @@ bool PIESession::start(PIEStartDesc start_desc) {
 
     if (!ensureGameModuleLoaded()) return false;
 
-    Scene* scene = app_.services().sceneRegistry().Resolve(start_desc_.edit_scene);
+    Scene* scene = app_.services().sceneRegistry().resolve(start_desc_.edit_scene);
     if (!scene) return false;
 
     PIEHostServices host(app_, *scene, {});
@@ -59,9 +59,9 @@ void PIESession::stop() {
 void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
     SceneRegistry& scene_reg = app_.services().sceneRegistry();
 
-    pie_scene_ = scene_reg.Clone(scene_id);
+    pie_scene_ = scene_reg.cloneScene(scene_id);
 
-    Scene* scene = scene_reg.Resolve(pie_scene_);
+    Scene* scene = scene_reg.resolve(pie_scene_);
     DEV_ASSERT(scene);
     app_.ScriptService()->OnSimBegin(*scene);
 
@@ -79,7 +79,7 @@ void PIESession::onSimEnd() {
 
     running_ = false;
 
-    if (Scene* scene = scene_reg.Resolve(pie_scene_)) {
+    if (Scene* scene = scene_reg.resolve(pie_scene_)) {
         app_.ScriptService()->OnSimEnd();
 
         game_module_->onGameEnd(*host_);
@@ -87,7 +87,7 @@ void PIESession::onSimEnd() {
 
     app_.services().sceneScheduler().Unregister(this);
 
-    scene_reg.Destroy(pie_scene_);
+    scene_reg.destroyScene(pie_scene_);
     pie_scene_ = {};
 }
 
@@ -101,7 +101,7 @@ void PIESession::tick(const FrameTime& time) {
     }
 
     SceneRegistry& scene_reg = app_.services().sceneRegistry();
-    Scene* scene = scene_reg.Resolve(pie_scene_);
+    Scene* scene = scene_reg.resolve(pie_scene_);
     if (!scene) return;
 
     game_module_->tick(*host_, time);

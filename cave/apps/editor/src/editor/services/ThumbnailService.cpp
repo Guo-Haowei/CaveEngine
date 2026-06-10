@@ -18,7 +18,7 @@ namespace cave {
 
 ThumbnailService::ThumbnailService(EditorState& p_editor) noexcept
     : view_manager_(p_editor.app().services().viewManager())
-    , m_scene_reg(*p_editor.app().GetSceneRegistry())
+    , m_scene_reg(p_editor.app().services().sceneRegistry())
     , m_render_device(*p_editor.app().GetRenderDevice())
     , m_builder(p_editor.app()) {
 }
@@ -111,7 +111,7 @@ void ThumbnailService::ProcessCompletions() {
         {
             rec.state = ThumbnailState::Ready;
             view_manager_.destroyView(rec.view_desc.view_id);
-            m_scene_reg.Destroy(rec.view_desc.scene_id);
+            m_scene_reg.destroyScene(rec.view_desc.scene_id);
         }
     }
 

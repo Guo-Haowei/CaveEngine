@@ -24,13 +24,13 @@ TEST(IntentDispatcher, can_only_add_intent_handler_once_per_intent) {
     IntentDispatcher dispatcher;
     TestIntentHandler handler;
 
-    bool ok = dispatcher.AddHandler("test"_sid, &handler);
+    bool ok = dispatcher.addHandler("test"_sid, &handler);
     EXPECT_TRUE(ok);
-    ok = dispatcher.AddHandler("test"_sid, &handler);
+    ok = dispatcher.addHandler("test"_sid, &handler);
     EXPECT_FALSE(ok);
-    ok = dispatcher.RemoveHandler("test"_sid, &handler);
+    ok = dispatcher.removeHandler("test"_sid, &handler);
     EXPECT_TRUE(ok);
-    ok = dispatcher.RemoveHandler("test"_sid, &handler);
+    ok = dispatcher.removeHandler("test"_sid, &handler);
     EXPECT_FALSE(ok);
 }
 
@@ -39,13 +39,13 @@ TEST(IntentDispatcher, can_add_different_handlers_to_same_intent) {
     TestIntentHandler handler1;
     TestIntentHandler handler2;
 
-    bool ok = dispatcher.AddHandler("test"_sid, &handler1);
+    bool ok = dispatcher.addHandler("test"_sid, &handler1);
     EXPECT_TRUE(ok);
-    ok = dispatcher.AddHandler("test"_sid, &handler2);
+    ok = dispatcher.addHandler("test"_sid, &handler2);
     EXPECT_TRUE(ok);
-    ok = dispatcher.RemoveHandler("test"_sid, &handler1);
+    ok = dispatcher.removeHandler("test"_sid, &handler1);
     EXPECT_TRUE(ok);
-    ok = dispatcher.RemoveHandler("test"_sid, &handler2);
+    ok = dispatcher.removeHandler("test"_sid, &handler2);
     EXPECT_TRUE(ok);
 }
 

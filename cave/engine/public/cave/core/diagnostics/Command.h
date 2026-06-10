@@ -2,18 +2,21 @@
 // File: cave/core/diagnostics/Command.h
 // =============================================================================
 #pragma once
+#include "cave/core/typedefs.h"
 #include "cave/core/diagnostics/LogWrapper.h"
+
+#define USE_COMMAND IN_USE
 
 namespace cave {
 
-class IApplication;
-class ILogSink;
+struct AppServices;
 struct CommandDesc;
+class ILogSink;
 
 struct CommandContext {
     LogWrapper log;
     const CommandDesc& desc;
-    IApplication& app;
+    AppServices& services;
 };
 
 struct CommandArgs {

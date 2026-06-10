@@ -7,6 +7,7 @@
 namespace cave {
 
 class InputService;
+class IntentDispatcher;
 class IUIRuntime;
 class ProjectManager;
 class SceneRegistry;
@@ -18,6 +19,7 @@ class ViewManager;
 
 struct AppServices {
     InputService* input_service_{};
+    IntentDispatcher* intent_dispatcher_{};
     IUIRuntime* ui_{};
     ProjectManager* project_manager_{};
     SceneQueryService* scene_query_{};
@@ -28,6 +30,7 @@ struct AppServices {
     VFS* vfs_{};
 
     InputService& inputService() { return *input_service_; }
+    IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
     IUIRuntime& ui() { return *ui_; }
     ProjectManager& projectManager() { return *project_manager_; }
     SceneQueryService& sceneQuery() { return *scene_query_; }

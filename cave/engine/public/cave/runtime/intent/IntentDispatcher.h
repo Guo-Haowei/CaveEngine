@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "cave/runtime/framework/IService.h"
+#include "cave/core/diagnostics/Command.h"
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/Intent.h"
 
@@ -16,46 +16,46 @@ struct CommandArgs;
 struct CommandContext;
 class OS;
 
-class IntentDispatcher : public IService {
+class IntentDispatcher {
 public:
     IntentDispatcher();
 
-    bool AddHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
-    bool RemoveHandler(IntentTypeId p_intent_id, IIntentHandler* p_handler);
+    bool addHandler(IntentTypeId type_id, IIntentHandler* handler);
+    bool removeHandler(IntentTypeId type_id, IIntentHandler* handler);
 
     template<IntentType T>
-    void AddHandler(IIntentHandler* p_handler) {
-        AddHandler(T::TypeId, p_handler);
+    void addHandler(IIntentHandler* handler) {
+        addHandler(T::TypeId, handler);
     }
 
     template<IntentType T>
-    void RemoveHandler(IIntentHandler* p_handler) {
-        RemoveHandler(T::TypeId, p_handler);
+    void removeHandler(IIntentHandler* handler) {
+        removeHandler(T::TypeId, handler);
     }
 
     template<IntentType T, typename... Args>
-    auto Queue(Args&&... args) -> T& {
+    auto queue(Args&&... args) -> T& {
         auto intent = std::make_unique<T>(std::forward<Args>(args)...);
         T& ref = *intent;
 
-        m_pending.emplace_back(std::move(intent));
+        pending_.emplace_back(std::move(intent));
         return ref;
     }
 
-    void Flush();
+    void flush();
 
-protected:
-    auto InitializeImpl() -> Result<void> final;
-    void FinalizeImpl() final;
+#if USING(USE_COMMAND)
+    bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
+#endif
 
 private:
-    void DispatchOne(Intent& p_intent);
-    void IntentDispatcherDump_Cmd(CommandContext& p_ctx, const CommandArgs& p_args);
+    void dispatchOne(Intent& intent);
 
-    std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;
-    std::vector<std::unique_ptr<Intent>> m_pending;
+    std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> handlers_;
+    std::vector<std::unique_ptr<Intent>> pending_;
 
-    OS* m_os{};
+    // @TODO: refactor this
+    OS* os_{};
 };
 
 }  // namespace cave

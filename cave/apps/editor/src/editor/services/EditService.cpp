@@ -20,15 +20,15 @@ namespace cave {
 EditService::EditService(EditorState& p_editor)
     : m_editor(p_editor)
     , m_debug_id(MakeDebugId(this)) {
-    m_editor.app().IntentDispatcher()->AddHandler<EditIntent>(this);
+    m_editor.app().services().intentDispatcher().addHandler<EditIntent>(this);
 }
 
 EditService::~EditService() {
-    m_editor.app().IntentDispatcher()->RemoveHandler<EditIntent>(this);
+    m_editor.app().services().intentDispatcher().removeHandler<EditIntent>(this);
 }
 
 void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd) {
-    m_editor.app().IntentDispatcher()->Queue<EditIntent>(p_doc_id, std::move(p_cmd));
+    m_editor.app().services().intentDispatcher().queue<EditIntent>(p_doc_id, std::move(p_cmd));
 }
 
 void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
@@ -39,7 +39,7 @@ void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
     Scene* scene = nullptr;
     if (IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id)) {
         SceneId scene_id = doc->GetPreviewScene();
-        scene = scene_reg.Resolve(scene_id);
+        scene = scene_reg.resolve(scene_id);
     }
 
     if (!scene) {

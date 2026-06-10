@@ -2,7 +2,7 @@
 // File: cave/core/diagnostics/CommandRegistry.h
 // =============================================================================
 #pragma once
-#include "Command.h"
+#include "cave/core/diagnostics/Command.h"
 
 namespace cave {
 

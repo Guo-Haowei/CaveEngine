@@ -59,7 +59,7 @@ static CameraComponent FitAABBToCamera(const math::AABB& p_aabb,
 
 PreviewBuilder::PreviewBuilder(IApplication& p_app) noexcept
     : m_asset_reg(*p_app.GetAssetRegistry())
-    , m_scene_reg(*p_app.GetSceneRegistry()) {}
+    , m_scene_reg(p_app.services().sceneRegistry()) {}
 
 PreviewBuilder::~PreviewBuilder() = default;
 
@@ -96,7 +96,7 @@ PreviewBuildResult PreviewBuilder::BuildScene(const AssetHandle& p_handle,
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = m_scene_reg.Register(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(std::move(scene)),
         .camera = CameraSource::FirstCamera(),
     };
 }
@@ -138,7 +138,7 @@ PreviewBuildResult PreviewBuilder::BuildMaterial(const AssetHandle& p_handle,
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = m_scene_reg.Register(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }
@@ -178,7 +178,7 @@ PreviewBuildResult PreviewBuilder::BuildMesh(const AssetHandle& p_handle, const 
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = m_scene_reg.Register(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }
