@@ -1,6 +1,7 @@
 #include "ProjectManager.h"
 
 #include "cave/core/diagnostics/Log.h"
+#include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/runtime/framework/VFS.h"
 
 namespace cave {
@@ -10,9 +11,11 @@ namespace fs = std::filesystem;
 ProjectManager::ProjectManager(VFS& vfs,
                                TaskManager& task_manager,
                                IAssetManager& asset_manager,
-                               AssetRegistry& asset_registry) noexcept
+                               AssetRegistry& asset_registry,
+                               render::Renderer& renderer) noexcept
     : vfs_(vfs)
-    , boot_load_pipeline_(task_manager, asset_manager, asset_registry) {
+    , boot_load_pipeline_(task_manager, asset_manager, asset_registry)
+    , renderer_(renderer) {
 }
 
 void ProjectManager::loadProject(const ProjectInfo& project) {
@@ -24,6 +27,9 @@ void ProjectManager::loadProject(const ProjectInfo& project) {
 
     LOG_INFO(LogChannel::Asset, "+ @{}", resource_folder.string());
     boot_load_pipeline_.RequestProject(resource_folder);
+
+    project_ = Some(project);
+    renderer_.setMode(project.is_2d);
 }
 
 }  // namespace cave

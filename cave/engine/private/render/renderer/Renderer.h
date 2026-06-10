@@ -22,6 +22,9 @@ public:
               std::span<const ResolvedView> views,
               const UIFrameDrawData& ui_data);
 
+    // @TODO: instead, create renderer after project selected
+    void setMode(bool is_2d);
+
 #if USING(USE_COMMAND)
     bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
 #endif

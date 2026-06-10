@@ -186,6 +186,7 @@ static bool parseProject(const std::filesystem::path& path, ProjectInfo& out_inf
     tryReadYaml(node, "name", out_info.name);
     tryReadYaml(node, "start_scene", out_info.start_scene);
     tryReadYaml(node, "thumbnail", out_info.thumbnail);
+    tryReadYaml(node, "is_2d", out_info.is_2d);
     return true;
 }
 

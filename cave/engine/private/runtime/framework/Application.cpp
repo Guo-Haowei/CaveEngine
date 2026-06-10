@@ -80,17 +80,21 @@ auto Application::SetupModules() -> Result<void> {
 
     // @TODO: dependency injection?
     renderer_ = std::make_unique<render::Renderer>(*m_render_device);
+
     scene_scheduler_ = std::make_unique<SceneScheduler>(
         scene_registry_,
         *m_script_service);
 
     scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
+
     view_manager_ = std::make_unique<ViewManager>(scene_registry_,
                                                   m_render_device->backend() == rhi::Backend::OpenGL);
+
     project_manager_ = std::make_unique<ProjectManager>(vfs_,
                                                         *task_manager_,
                                                         *m_asset_manager,
-                                                        *m_asset_registry);
+                                                        *m_asset_registry,
+                                                        *renderer_);
     ui_ = std::make_unique<UIRuntime>(*view_manager_);
 
     // setup app services

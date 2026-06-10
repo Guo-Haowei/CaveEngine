@@ -96,9 +96,10 @@ void EditorState::onEnter(const StateRequest& request) {
         }
     }
 
+    LOG_ERROR("Fix this part");
     // load pie
     PIEStartDesc desc{};
-    desc.game_dll = "game_Debug.dll";
+    // desc.game_dll = "game_Debug.dll";
     desc.game_id = "chess";
     desc.edit_scene = edit_scene;
 

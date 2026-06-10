@@ -1,3 +1,4 @@
 name: cave boy
-# start_scene: "@res://start.scene"
+start_scene: "@res://scenes/level_1.scene"
+is_2d: true
 # thumbnail: "@res://thumbnail.png"
