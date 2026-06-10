@@ -26,7 +26,7 @@ public:
 
     void movePiece(core::Square from, core::Square to);
 
-    Entity entityAt(core::Square square) const { return board_[square.Index()]; }
+    Entity entityAt(core::Square square) const { return board_[square.index()]; }
 
     void initializePieces();
 private:

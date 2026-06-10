@@ -2,19 +2,19 @@
 
 namespace chess::core {
 
-std::tuple<uint8_t, uint8_t> Square::FileRank() const {
-    const uint8_t file = m_index & 7;
-    const uint8_t rank = m_index >> 3;
+std::tuple<uint8_t, uint8_t> Square::fileRank() const {
+    const uint8_t file = index_ & 7;
+    const uint8_t rank = index_ >> 3;
     return std::make_tuple(file, rank);
 }
 
 // Shoelace Formula (also called the Surveyor's Formula) for the area of a triangle in 2D space.
 // area = [ Ax * (By - Cy) + Bx * (Cy - Ay) + Cx * (Ay - By) ] / 2
 // but we only cares about the sign of the area, so we can skip the division by 2.
-bool Square::SameLineInclusive(Square a, Square b) const {
-    const auto [ax, ay] = a.FileRank();
-    const auto [bx, by] = b.FileRank();
-    const auto [cx, cy] = FileRank();
+bool Square::sameLineInclusive(Square a, Square b) const {
+    const auto [ax, ay] = a.fileRank();
+    const auto [bx, by] = b.fileRank();
+    const auto [cx, cy] = fileRank();
 
     const int two_signed_area =
         (int)ax * ((int)by - (int)cy) +
@@ -34,7 +34,7 @@ bool Square::SameLineInclusive(Square a, Square b) const {
     return between_x && between_y;
 }
 
-const char* Square::ToString() const {
+const char* Square::uci() const {
     static constexpr const char kSquareLookUp[64][3] = {
         // clang-format off
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
@@ -48,7 +48,7 @@ const char* Square::ToString() const {
         // clang-format on
     };
 
-    return kSquareLookUp[m_index];
+    return kSquareLookUp[index_];
 }
 
 constexpr Square Square::A1(0);

@@ -82,7 +82,7 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
     // Create regular pieces
     for (uint8_t rank = 0; rank < 8; ++rank) {
         for (uint8_t file = 0; file < 8; ++file) {
-            Square square = Square::FromFileRank(file, rank);
+            Square square = Square::fromFileRank(file, rank);
             const Piece p = chess::kInitialBoard[rank][file];
             if (p == Piece::Null) continue;
             factory.createPiece(square, p);

@@ -18,7 +18,7 @@ static constexpr StringId kCastShadow = "cast_shadow"_sid;
 
 // @TODO: refactor this
 static inline Vector3f squareToVec(Square square) {
-    const auto [file, rank] = square.FileRank();
+    const auto [file, rank] = square.fileRank();
     return Vector3f{ (float)rank, 0.0f, (float)file };
 }
 
@@ -93,23 +93,23 @@ void ChessPieceView::spawnPiece(Piece piece, Square square) {
     writer_.SetProperty(ent, MeshRendererComponent_Id, kVisibility, true);
     writer_.SetProperty(ent, MeshRendererComponent_Id, kCastShadow, true);
 
-    board_[square.Index()] = ent;
+    board_[square.index()] = ent;
 }
 
 void ChessPieceView::removePiece(core::Square square) {
-    const Entity e = board_[square.Index()];
-    board_[square.Index()] = Entity::Null();
+    const Entity e = board_[square.index()];
+    board_[square.index()] = Entity::Null();
 
     writer_.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
     writer_.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
 }
 
 void ChessPieceView::movePiece(Square from, Square to) {
-    Entity ent = board_[from.Index()];
+    Entity ent = board_[from.index()];
     DEV_ASSERT(ent.IsValid());
 
-    board_[from.Index()] = Entity::Null();
-    board_[to.Index()] = ent;
+    board_[from.index()] = Entity::Null();
+    board_[to.index()] = ent;
 
     constexpr auto cid = TransformAnimationComponent_Id;
     auto& writer = host_.sceneWriter();

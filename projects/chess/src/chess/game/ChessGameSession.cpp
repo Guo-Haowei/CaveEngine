@@ -52,7 +52,7 @@ void ChessGameSession::tick() {
     // @TODO: refactor this part
     if (selector_) {
         Vector2i focused = selector_->GetFocused();
-        Square focused_sq = Square::FromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
+        Square focused_sq = Square::fromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
         client_->presenter().setFocusedSquare(focused_sq);
     }
 }
@@ -113,7 +113,7 @@ auto ChessGameSession::createPlayer(Color side, PlayerKind kind)
 // @TODO: this should be configured by MainMenu?
 void ChessGameSession::onEnterBoot() {
     MatchConfig config{};
-    config.black = { PlayerKind::LocalAI };
+    // config.black = { PlayerKind::LocalAI };
 
     auth_ = std::make_unique<ChessMatchAuthority>(host_);
     client_ = std::make_unique<ChessGameClient>(host_, *this, *auth_);

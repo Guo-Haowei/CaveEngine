@@ -25,7 +25,7 @@ ChessPresenter::ChessPresenter(IHostServices& host) noexcept
 
 // @TODO: refactor this
 static inline Vector3f squareToVec(Square square) {
-    const auto [file, rank] = square.FileRank();
+    const auto [file, rank] = square.fileRank();
     return Vector3f{ (float)rank, 0.0f, (float)file };
 }
 
@@ -37,7 +37,7 @@ void ChessPresenter::initialize() {
 
     // tiles
     for (uint8_t i = 0; i < 64; ++i) {
-        const char* name = Square(i).ToString();
+        const char* name = Square(i).uci();
         tiles_[i] = query.findFirstByName(name);
     }
 
@@ -91,9 +91,10 @@ static std::pair<Square, Square> GetCastleRookMove(Square from, Square to) {
     return {};
 }
 
-void ChessPresenter::applyMove(const core::Position& position, Move move) {
+void ChessPresenter::applyMove(const Position& position, Move move) {
     const Square from = move.from();
     const Square to = move.to();
+    const Color stm = position.SideToMove();
 
     if (Entity captured_piece = piece_view_.entityAt(to); captured_piece.IsValid()) {
         piece_view_.removePiece(to);
@@ -108,13 +109,16 @@ void ChessPresenter::applyMove(const core::Position& position, Move move) {
             const auto [rook_from, rook_to] = GetCastleRookMove(from, to);
             piece_view_.movePiece(rook_from, rook_to);
         } break;
-        case MoveType::Enpassant:
-            host_.log().Warn(LogChannel::Game, "Handle enpassant");
-            break;
+        case MoveType::Enpassant: {
+            Square ep = position.State().ep.unwrap();
+            auto [file, rank] = ep.fileRank();
+            rank = rank + (stm == Color::White ? -1 : 1);
+            piece_view_.removePiece(Square::fromFileRank(file, rank));
+        } break;
         case MoveType::Promotion: {
             piece_view_.removePiece(to); // remove pawn
             const PieceType promo_type = move.promo().unwrap();
-            const Piece promoted = BuildPiece(promo_type, position.SideToMove());
+            const Piece promoted = BuildPiece(promo_type, stm);
             piece_view_.spawnPiece(promoted, to);
         } break;
     }

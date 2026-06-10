@@ -61,17 +61,17 @@ static constexpr Bitboard BuildPawnAttackMask(uint8_t file, uint8_t rank) {
     }
     if constexpr (IS_WHITE) {
         if (file > 0) {
-            mask.Set(Square::FromFileRank(file - 1, rank + 1));
+            mask.Set(Square::fromFileRank(file - 1, rank + 1));
         }
         if (file < 7) {
-            mask.Set(Square::FromFileRank(file + 1, rank + 1));
+            mask.Set(Square::fromFileRank(file + 1, rank + 1));
         }
     } else {
         if (file > 0) {
-            mask.Set(Square::FromFileRank(file - 1, rank - 1));
+            mask.Set(Square::fromFileRank(file - 1, rank - 1));
         }
         if (file < 7) {
-            mask.Set(Square::FromFileRank(file + 1, rank - 1));
+            mask.Set(Square::fromFileRank(file + 1, rank - 1));
         }
     }
     return mask;
@@ -110,7 +110,7 @@ static constexpr Bitboard BuildKnightMask(uint8_t file, uint8_t rank) {
         const int8_t new_file = file + df;
         const int8_t new_rank = rank + dr;
         if (new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8) {
-            mask.Set(Square::FromFileRank(new_file, new_rank));
+            mask.Set(Square::fromFileRank(new_file, new_rank));
         }
     }
     return mask;
@@ -148,7 +148,7 @@ static constexpr Bitboard BuildKingMask(uint8_t file, uint8_t rank) {
         const int8_t new_file = file + df;
         const int8_t new_rank = rank + dr;
         if (new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8) {
-            mask.Set(Square::FromFileRank(new_file, new_rank));
+            mask.Set(Square::fromFileRank(new_file, new_rank));
         }
     }
     return mask;
@@ -177,7 +177,7 @@ static bool ResolveCheck(Square p_dst_sq, Square p_checker_sq, Square p_king_sq)
         return true;
     }
     // 2) block attacker
-    if (p_dst_sq.SameLineInclusive(p_checker_sq, p_king_sq)) {
+    if (p_dst_sq.sameLineInclusive(p_checker_sq, p_king_sq)) {
         return true;
     }
 
@@ -190,7 +190,7 @@ static Bitboard PawnMask(Color p_color, const Position& p_pos, Square p_sq) {
 
     const bool is_white = p_color == Color::White;
 
-    const Bitboard attack_mask = kPawnAttackMasks[std::to_underlying(p_color)][p_sq.Index()];
+    const Bitboard attack_mask = kPawnAttackMasks[std::to_underlying(p_color)][p_sq.index()];
 
     // @NOTE: assign to variable to avoid compiler warning
     if (MoveMaskType type = MV_TYPE; type == MoveMaskType::Attack) {
@@ -201,7 +201,7 @@ static Bitboard PawnMask(Color p_color, const Position& p_pos, Square p_sq) {
     const Bitboard capture_mask = attack_mask & occupancies[static_cast<Color>(OPPONENT)];
 
     const int8_t offset = is_white ? 8 : -8;
-    const int8_t advance_once_bit = (int8_t)p_sq.Index() + offset;
+    const int8_t advance_once_bit = (int8_t)p_sq.index() + offset;
 
     const Bitboard empty_mask = ~occupancies[Color::Both];
     Bitboard advance_once(0);
@@ -212,7 +212,7 @@ static Bitboard PawnMask(Color p_color, const Position& p_pos, Square p_sq) {
 
     Bitboard advance_twice(0);
     if (advance_once.Any()) {
-        const int8_t advance_twice_bit = (int8_t)p_sq.Index() + 2 * offset;
+        const int8_t advance_twice_bit = (int8_t)p_sq.index() + 2 * offset;
         if (advance_twice_bit >= 0 && advance_twice_bit < 64) {
             advance_twice.Set(Square(advance_twice_bit));
             advance_twice &= empty_mask;
@@ -274,7 +274,7 @@ static void PawnMoves(Color p_color,
 template<MoveMaskType MV_TYPE>
 static Bitboard KnightMask(Square p_from_sq,
                            Bitboard p_friendly) {
-    const Bitboard mask = kKnightMasks[p_from_sq.Index()];
+    const Bitboard mask = kKnightMasks[p_from_sq.index()];
 
     return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
@@ -286,12 +286,12 @@ static Bitboard GenRay(Square p_from_sq,
                        int8_t p_dy) {
     Bitboard mask(0);
 
-    auto [file, rank] = p_from_sq.FileRank();
+    auto [file, rank] = p_from_sq.fileRank();
     for (;;) {
         file += p_dx;
         rank += p_dy;
         if (file >= 8 || rank >= 8) break;
-        const Square sq = Square::FromFileRank(file, rank);
+        const Square sq = Square::fromFileRank(file, rank);
         if (p_friendly.Test(sq)) break;
         mask.Set(sq);
         if (p_enemy.Test(sq)) break;
@@ -340,19 +340,19 @@ static Bitboard QueenMask(Square p_from_sq,
     return (MV_TYPE == MoveMaskType::Move) ? (mask & (~p_friendly)) : mask;
 }
 
-static const uint64_t B1_MASK = 1llu << Square::B1.Index();
-static const uint64_t C1_MASK = 1llu << Square::C1.Index();
-static const uint64_t D1_MASK = 1llu << Square::D1.Index();
-static const uint64_t E1_MASK = 1llu << Square::E1.Index();
-static const uint64_t F1_MASK = 1llu << Square::F1.Index();
-static const uint64_t G1_MASK = 1llu << Square::G1.Index();
+static const uint64_t B1_MASK = 1llu << Square::B1.index();
+static const uint64_t C1_MASK = 1llu << Square::C1.index();
+static const uint64_t D1_MASK = 1llu << Square::D1.index();
+static const uint64_t E1_MASK = 1llu << Square::E1.index();
+static const uint64_t F1_MASK = 1llu << Square::F1.index();
+static const uint64_t G1_MASK = 1llu << Square::G1.index();
 
-static const uint64_t B8_MASK = 1llu << Square::B8.Index();
-static const uint64_t C8_MASK = 1llu << Square::C8.Index();
-static const uint64_t D8_MASK = 1llu << Square::D8.Index();
-static const uint64_t E8_MASK = 1llu << Square::E8.Index();
-static const uint64_t F8_MASK = 1llu << Square::F8.Index();
-static const uint64_t G8_MASK = 1llu << Square::G8.Index();
+static const uint64_t B8_MASK = 1llu << Square::B8.index();
+static const uint64_t C8_MASK = 1llu << Square::C8.index();
+static const uint64_t D8_MASK = 1llu << Square::D8.index();
+static const uint64_t E8_MASK = 1llu << Square::E8.index();
+static const uint64_t F8_MASK = 1llu << Square::F8.index();
+static const uint64_t G8_MASK = 1llu << Square::G8.index();
 
 static const Bitboard kCastlingClearMasks[4] = {
     Bitboard(F1_MASK | G1_MASK),            // White kingside
@@ -387,7 +387,7 @@ static Bitboard KingMask(Color p_color,
                          Square p_square,
                          const Position& p_pos) {
 
-    Bitboard mask = kKingMasks[p_square.Index()];
+    Bitboard mask = kKingMasks[p_square.index()];
 
     if constexpr (MV_TYPE == MoveMaskType::Move) {
         // exclude friendly pieces
@@ -424,8 +424,8 @@ static void KingMoves(Color p_color,
                       MoveList& p_move_list) {
     const Bitboard mask = KingMask<MV_TYPE>(p_color, p_src_sq, p_pos);
     for (Square dst_sq : mask.Squares()) {
-        const auto [src_file, src_rank] = p_src_sq.FileRank();
-        const auto [dst_file, dst_rank] = dst_sq.FileRank();
+        const auto [src_file, src_rank] = p_src_sq.fileRank();
+        const auto [dst_file, dst_rank] = dst_sq.fileRank();
         int8_t diff = (int8_t)src_file - (int8_t)dst_file;
         if (diff == 2 || diff == -2) {
             p_move_list.addMove(Move::castle(p_src_sq, dst_sq));

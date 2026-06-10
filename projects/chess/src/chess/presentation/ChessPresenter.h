@@ -27,6 +27,7 @@ public:
 
     void applyMove(const core::Position& position, core::Move mv);
 
+    // @TODO: refactor the tiles
     void setFocusedSquare(core::Square square) {
         focused_sq = square;
     }

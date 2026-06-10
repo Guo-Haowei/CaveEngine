@@ -48,15 +48,15 @@ public:
     constexpr bool Any() const { return m_bits != 0; }
 
     constexpr bool Test(Square p_sq) const {
-        return m_bits & (1llu << p_sq.Index());
+        return m_bits & (1llu << p_sq.index());
     }
 
     constexpr void Set(Square p_sq) {
-        m_bits |= (1llu << p_sq.Index());
+        m_bits |= (1llu << p_sq.index());
     }
 
     constexpr void Unset(Square p_sq) {
-        m_bits &= ~(1llu << p_sq.Index());
+        m_bits &= ~(1llu << p_sq.index());
     }
 
     constexpr bool operator==(const Bitboard& p_rhs) const {
