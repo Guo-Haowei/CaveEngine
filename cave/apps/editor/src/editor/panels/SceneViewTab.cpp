@@ -22,10 +22,6 @@
 #include "editor/EditorState.h"
 #include "editor/utility/ImGuizmo.h"
 
-// @TODO: remove
-#include "engine/private/renderer/sampler.h"
-#include "engine/private/runtime/framework/IRenderDevice.h"
-
 namespace cave {
 
 using namespace cave::literals;
