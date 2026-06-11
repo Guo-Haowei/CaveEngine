@@ -14,7 +14,7 @@ AddComponentCmd::AddComponentCmd(SceneRegistry& p_scene_reg,
 
 bool AddComponentCmd::Do(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+        if (Scene* scene = ResolveScene(scene_doc->previewScene())) {
             SceneCommandExecutor executor(*scene);
             executor.AddComponent(m_ent, m_cid);
             return true;
@@ -25,7 +25,7 @@ bool AddComponentCmd::Do(IDocument& p_doc) {
 
 bool AddComponentCmd::Undo(IDocument& p_doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->GetPreviewScene())) {
+        if (Scene* scene = ResolveScene(scene_doc->previewScene())) {
             SceneCommandExecutor executor(*scene);
             executor.RemoveComponent(m_ent, m_cid);
             return true;

@@ -2,87 +2,100 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
+
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"
+#include "engine/private/runtime/input/InputService.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
-#include "editor/utility/ImGuizmo.h"
-#include "editor/tile_map_editor/TileMapDocument.h"
+
+// @TODO: remove
+#include "engine/private/runtime/view/ViewManager.h"
 
 namespace cave {
 
+using namespace ::cave::math;
+
+TileMapEditor::TileMapEditor(EditorState& editor,
+                             DocId doc_id,
+                             SceneId scene_id)
+    : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
+    , debug_id_(MakeDebugId(this))
+    , sprite_selector_(SpriteSelector::SelectionMode::Single) {
+
+    // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
+    //                                   [&]() {
+    //                                       LOG_WARN("TODO");
+    //                                   } };
+
+    // @TODO: use Intent for editing tiles?
+}
+
+void TileMapEditor::submitView() {
+    ViewTabBase::submitView(false);
+}
+
+void TileMapEditor::onCreate() {
+    ViewTabBase::onCreate();
+}
+
+void TileMapEditor::onDestroy() {
+    ViewTabBase::onDestroy();
+}
+
+Option<PickData> TileMapEditor::getPickData(const Vector2f& pointer_os) {
+    unused(pointer_os);
+
+    return None();
+
+    // if (!IsVisible()) return None();
+
+    // const ViewRecord* view = view_manager_.resolve(view_id_);
+    // if (!view->display_rect_os.Contains(pointer_os.x, pointer_os.y)) {
+    //     return None();
+    // }
+
+    // return Some(PickData{
+    //     .proj_view = camera_.GetProjectionViewMatrix(),
+    //     .cursor_ndc = view->screenToNDC(pointer_os),
+    //     .scene_id = preview_scene_id_,
+    //     .doc_id = doc_id_,
+    // });
+}
+
+void TileMapEditor::onInputEvents(const InputFrame& input) {
+    if (!isHovered()) {
+        return;
+    }
+
+    if (m_editor.IsPlaying()) {
+        return;
+    }
+
+    const KeyState& st = services_.inputService().keyState();
+    if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
+        return;
+    }
+
+    camera_controller_->Update(input);
+}
+
+void TileMapEditor::drawUIImpl() {
+    ViewRecord* view = view_manager_.resolve(view_id_);
+    DEV_ASSERT(view);
+
+    updateRect(view->display_rect_os);
+    drawMainView(view->display_rect_os);
+
+    submitView();
+}
+
 #if 0
-TileMapEditor::TileMapEditor(EditorState& p_editor, Viewer& p_viewer)
-    : ViewerTab(p_editor, {}, p_viewer, DIMENSION_2)
-    , m_sprite_selector(SpriteSelector::SelectionMode::Single) {
-
-    m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
-                                      [&]() {
-                                          LOG_WARN("TODO");
-                                      } };
-}
-
-TileMapEditor::~TileMapEditor() = default;
-
-void TileMapEditor::OnCreateInternal(const Guid& p_guid) {
-    unused(p_guid);
-    DEV_ASSERT(0);
-#if 0
-
-    m_document = std::make_unique<TileMapDocument>(p_guid, *this);
-
-    auto scene_manager = static_cast<EditorSceneManager*>(SceneManager::GetSingletonPtr());
-    DEV_ASSERT(scene_manager);
-
-    m_tmp_scene = scene_manager->CreateTempScene(p_guid, [&]() {
-        auto scene = std::make_shared<Scene>();
-        auto root = EntityFactory::CreateTransformEntity(*scene, "tile_map_test_scene");
-        scene->m_root = root;
-
-        auto id = EntityFactory::CreateTileMapEntity(*scene, "tile_map");
-        scene->AttachChild(id);
-
-        TileMapRendererComponent* tile_map_renderer = scene->GetComponent<TileMapRendererComponent>(id);
-        tile_map_renderer->SetResourceGuid(p_guid);
-        return scene;
-    });
-#endif
-}
-
-void TileMapEditor::OnDestroy() {
-    m_tmp_scene.reset();
-}
-
-void TileMapEditor::OnActivateInternal() {
-    // auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
-    // scene_manager->OpenTempScene(m_tmp_scene);
-    DEV_ASSERT(0);
-}
-
-void TileMapEditor::DrawMainView(const CameraComponent& p_camera) {
-    const Matrix4x4f proj_view = p_camera.GetProjectionViewMatrix();
-
-    const Vector2f& canvas_min = m_viewer.GetCanvasMin();
-    const Vector2f& canvas_size = m_viewer.GetCanvasSize();
-
-    ImGuizmo::SetOrthographic(true);
-    ImGuizmo::BeginFrame();
-
-    ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(canvas_min.x, canvas_min.y, canvas_size.x, canvas_size.y);
-
-    Matrix4x4f identity(1.0f);
-    ImGuizmo::DrawGrid(proj_view, identity, 10.0f, ImGuizmo::GridPlane::XY);
-
-    // @NOTE: shouldn't do it here,
-    // move it do somewhere else
-    m_document->FlushCommands();
-}
-
 void TileMapEditor::DrawAssetInspector() {
     TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
     TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
@@ -144,7 +157,6 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     return true;
 }
 
-#if 0
 bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
     DEV_ASSERT(0);
     unused(p_input_event);
@@ -173,7 +185,6 @@ bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
 
     return false;
 }
-#endif
 
 void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
     if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
@@ -262,10 +273,6 @@ void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
             ImGui::PopStyleColor();
         }
     }
-}
-
-const std::vector<const ToolBarButtonDesc*> TileMapEditor::GetToolBarButtons() const {
-    return { &m_brush_desc };
 }
 #endif
 

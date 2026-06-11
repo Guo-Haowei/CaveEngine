@@ -15,10 +15,10 @@ namespace cave {
 
 using ecs::Entity;
 
-MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
-    : DocumentBase(p_app, p_guid) {
+MaterialDocument::MaterialDocument(IApplication& app, const Guid& guid)
+    : DocumentBase(app, guid) {
 
-    SceneCommandWriter cb(*p_app.GetAssetRegistry());
+    SceneCommandWriter cb(*app.GetAssetRegistry());
     Entity root = cb.CreateRootObject();
 
     if constexpr (1) {
@@ -27,11 +27,11 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     }
 
     if constexpr (1) {
-        Entity sphere = cb.CreateSphereObject("sphere", { &p_guid });
+        Entity sphere = cb.CreateSphereObject("sphere", { &guid });
         cb.AttachChild(sphere, root);
     }
 
-    auto scene = std::make_unique<Scene>(std::format("preview-material-{}", p_guid.ToString()));
+    auto scene = std::make_unique<Scene>(std::format("preview-material-{}", guid.ToString()));
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());
@@ -39,7 +39,7 @@ MaterialDocument::MaterialDocument(IApplication& p_app, const Guid& p_guid)
     scene->m_root = map.Resolve(root);
     scene->Update(0.0f);
 
-    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
+    preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }
 
 }  // namespace cave

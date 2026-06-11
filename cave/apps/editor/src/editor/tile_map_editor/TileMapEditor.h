@@ -1,48 +1,46 @@
 #pragma once
-#include "engine/private/core/math/geomath.h"
-#include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/view/ViewDesc.h"
+
 #include "engine/private/runtime/assets/TileMapAsset.h"
 
+#include "editor/document/SceneDocument.h"
+#include "editor/panels/ViewTabBase.h"
 #include "editor/widgets/SpriteSelector.h"
+#include "editor/services/IPickConsumer.h"
 
 namespace cave {
 
-#if 0
 class AssetRegistry;
 class Scene;
 class TileMapDocument;
 
-class TileMapEditor {
+class TileMapEditor final : public ViewTabBase,
+                            public IPickConsumer {
 public:
-    TileMapEditor(EditorState& p_editor, Viewer& p_viewer);
-    ~TileMapEditor();
+    TileMapEditor(EditorState& editor,
+                  DocId doc_id,
+                  SceneId preview_scene_id);
 
-    void OnDestroy() final;
+    void onCreate() override;
+    void onDestroy() override;
 
-    void DrawMainView(const CameraComponent& p_camera) final;
+    Option<PickData> getPickData(const math::Vector2f& pos_screen) override;
 
-    void DrawAssetInspector() final;
+    void onInputEvents(const InputFrame& input) override;
 
-    bool CursorToTile(const Vector2f& p_in, TileIndex& p_out) const;
+    DebugId debugId() const override { return debug_id_; }
 
 protected:
-    void OnCreateInternal(const Guid& p_guid) final;
+    void submitView();
 
-    void OnActivateInternal() final;
-
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const override;
+    void drawUIImpl() override;
 
     // @TODO: refactor
     void TileMapLayerOverview(TileMapAsset& p_tile_map);
 
-    std::shared_ptr<Scene> m_tmp_scene;
+    const DebugId debug_id_;
 
-    std::unique_ptr<CameraComponent> m_camera;
-    std::unique_ptr<TileMapDocument> m_document;
-    ToolBarButtonDesc m_brush_desc;
-
-    SpriteSelector m_sprite_selector;
+    SpriteSelector sprite_selector_;
 };
-#endif
 
 }  // namespace cave

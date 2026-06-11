@@ -39,10 +39,12 @@ bool PIESession::start(PIEStartDesc start_desc) {
     Scene* scene = app_.services().sceneRegistry().resolve(start_desc_.edit_scene);
     if (!scene) return false;
 
-    PIEHostServices host(app_, *scene, {});
+    if (game_module_) {
+        PIEHostServices host(app_, *scene, {});
 
-    game_module_->onModuleLoaded(host);
-    host.flushSceneCommands();
+        game_module_->onModuleLoaded(host);
+        host.flushSceneCommands();
+    }
     return true;
 }
 
@@ -65,11 +67,13 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
     DEV_ASSERT(scene);
     app_.ScriptService()->OnSimBegin(*scene);
 
-    app_.services().sceneScheduler().Register(this);
+    app_.services().sceneScheduler().add(this);
 
-    host_ = std::make_unique<PIEHostServices>(app_, *scene, view_id);
-    game_module_->onGameBegin(*host_);
-    host_->flushSceneCommands();
+    if (game_module_) {
+        host_ = std::make_unique<PIEHostServices>(app_, *scene, view_id);
+        game_module_->onGameBegin(*host_);
+        host_->flushSceneCommands();
+    }
 
     running_ = true;
 }
@@ -82,16 +86,18 @@ void PIESession::onSimEnd() {
     if (Scene* scene = scene_reg.resolve(pie_scene_)) {
         app_.ScriptService()->OnSimEnd();
 
-        game_module_->onGameEnd(*host_);
+        if (game_module_) {
+            game_module_->onGameEnd(*host_);
+        }
     }
 
-    app_.services().sceneScheduler().Unregister(this);
+    app_.services().sceneScheduler().remove(this);
 
     scene_reg.destroyScene(pie_scene_);
     pie_scene_ = {};
 }
 
-void PIESession::CollectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
+void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
     out_requests.push_back({ SceneTickMode::Simulation, pie_scene_ });
 }
 

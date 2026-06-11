@@ -9,54 +9,54 @@
 
 namespace cave {
 
-bool SceneScheduler::Register(ISceneTickContributor* p_contributor) {
-    DEV_ASSERT(p_contributor);
-    if (!p_contributor) return false;
+bool SceneScheduler::add(ISceneTickContributor* contributor) {
+    DEV_ASSERT(contributor);
+    if (!contributor) return false;
 
-    auto it = std::ranges::find(m_contributors, p_contributor);
-    if (it != m_contributors.end()) return false;
+    auto it = std::ranges::find(contributors_, contributor);
+    if (it != contributors_.end()) return false;
 
-    m_contributors.push_back(p_contributor);
+    contributors_.push_back(contributor);
 
 #if USING(USE_LOG)
-    const DebugId id = p_contributor->debugId();
+    const DebugId id = contributor->debugId();
     LOG_TRACE(LogChannel::Scene, "+{}#{}", id.type, id.uid);
 #endif
     return true;
 }
 
-bool SceneScheduler::Unregister(ISceneTickContributor* p_contributor) {
-    DEV_ASSERT(p_contributor);
+bool SceneScheduler::remove(ISceneTickContributor* contributor) {
+    DEV_ASSERT(contributor);
 
-    auto it = std::ranges::find(m_contributors, p_contributor);
-    if (it == m_contributors.end()) {
+    auto it = std::ranges::find(contributors_, contributor);
+    if (it == contributors_.end()) {
         return false;
     }
 
-    m_contributors.erase(it);
+    contributors_.erase(it);
 
 #if USING(USE_LOG)
-    const DebugId id = p_contributor->debugId();
+    const DebugId id = contributor->debugId();
     LOG_TRACE(LogChannel::Scene, "-{}#{}", id.type, id.uid);
 #endif
     return true;
 }
 
-void SceneScheduler::Tick(const FrameTime& p_time) {
+void SceneScheduler::tick(const FrameTime& time) {
     std::vector<SceneTickRequest> requests;
-    for (ISceneTickContributor* c : m_contributors) {
+    for (ISceneTickContributor* c : contributors_) {
         if (c == nullptr) continue;
-        c->CollectSceneTicks(requests);
+        c->collectSceneTicks(requests);
     }
 
     // @TODO: merge same scenes from different contributors
     for (const SceneTickRequest& req : requests) {
-        if (Scene* scene = m_scene_manager.resolve(req.scene_id)) {
+        if (Scene* scene = scene_manager_.resolve(req.scene_id)) {
             if (req.mode == SceneTickMode::Simulation) {
-                m_script_manager.Update(*scene, p_time.dt);
+                script_manager_.Update(*scene, time.dt);
             }
 
-            scene->Update(p_time.dt);
+            scene->Update(time.dt);
         }
     }
 }

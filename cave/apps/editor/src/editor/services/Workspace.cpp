@@ -5,6 +5,7 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/runtime/input/InputService.h"
+#include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorIntent.h"
@@ -12,89 +13,89 @@
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
+#include "editor/tile_map_editor/TileMapEditor.h"
 
 // @TODO: delete
 #include "editor/panels/SceneViewTab.h"
 
 namespace cave {
 
-Workspace::Workspace(EditorState& p_editor)
-    : m_editor(p_editor)
-    , m_debug_id(MakeDebugId(this)) {
-    AppServices& services = m_editor.app().services();
-    services.inputService().addConsumer(this);
-    services.intentDispatcher().addHandler<OpenDocIntent>(this);
-    services.intentDispatcher().addHandler<CloseDocIntent>(this);
+Workspace::Workspace(EditorState& editor)
+    : editor_(editor)
+    , services_(editor.app().services())
+    , debug_id_(MakeDebugId(this)) {
+    services_.inputService().addConsumer(this);
+    services_.intentDispatcher().addHandler<OpenDocIntent>(this);
+    services_.intentDispatcher().addHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
-    AppServices& services = m_editor.app().services();
-    services.inputService().removeConsumer(this);
-    services.intentDispatcher().removeHandler<OpenDocIntent>(this);
-    services.intentDispatcher().removeHandler<CloseDocIntent>(this);
+    services_.inputService().removeConsumer(this);
+    services_.intentDispatcher().removeHandler<OpenDocIntent>(this);
+    services_.intentDispatcher().removeHandler<CloseDocIntent>(this);
 }
 
-void Workspace::Tick() {
-    DrawTabs();
+void Workspace::tick() {
+    drawTabs();
 }
 
-DocId Workspace::FocusedDoc() {
-    Tab* tab = FocusedTab();
+DocId Workspace::focusedDoc() {
+    Tab* tab = focusedTab();
     return tab ? tab->docId() : DocId{};
 }
 
-PreviewScene Workspace::FocusedPreviewScene() {
-    Tab* tab = FocusedTab();
+PreviewScene Workspace::focusedPreviewScene() {
+    Tab* tab = focusedTab();
 
     PreviewScene ret;
     if (tab) {
         ret.doc_id = tab->docId();
         ret.view_id = tab->viewId();
     }
-    ret.doc_id = FocusedDoc();
-    if (IDocument* doc = m_editor.DocumentService().Resolve(ret.doc_id)) {
-        ret.scene_id = doc->GetPreviewScene();
-        ret.scene = m_editor.app().services().sceneRegistry().resolve(ret.scene_id);
+    ret.doc_id = focusedDoc();
+    if (IDocument* doc = editor_.DocumentService().resolve(ret.doc_id)) {
+        ret.scene_id = doc->previewScene();
+        ret.scene = services_.sceneRegistry().resolve(ret.scene_id);
     }
     return ret;
 }
 
-void Workspace::RequestOpen(DocId p_doc_id) {
-    m_editor.app().services().intentDispatcher().queue<OpenDocIntent>(p_doc_id);
+void Workspace::requestOpen(DocId doc_id) {
+    services_.intentDispatcher().queue<OpenDocIntent>(doc_id);
 }
 
-void Workspace::RequestClose(DocId p_doc_id) {
-    m_editor.app().services().intentDispatcher().queue<CloseDocIntent>(p_doc_id);
+void Workspace::requestClose(DocId doc_id) {
+    services_.intentDispatcher().queue<CloseDocIntent>(doc_id);
 }
 
-void Workspace::DrawTabs() {
+void Workspace::drawTabs() {
     for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
         auto& slot = m_slots[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
             TabId current_id = tab.tabId();
             DEV_ASSERT(current_id == TabId(idx, slot.gen));
-            if (m_focused_req == current_id) {
+            if (request_focus_ == current_id) {
                 ImGui::SetNextWindowFocus();
-                m_focused_req = TabId();
+                request_focus_ = TabId();
             }
-            tab.DrawUI();
+            tab.drawUI();
 
-            if (tab.IsFocused()) {
-                m_focused_tab = current_id;
+            if (tab.isFocused()) {
+                focused_tab_ = current_id;
             }
         }
     }
 }
 
-bool Workspace::handleIntent(Intent& p_intent) {
-    if (auto open_doc = dynamic_cast<OpenDocIntent*>(&p_intent)) {
-        OpenOrFocusDoc(open_doc->doc_id);
+bool Workspace::handleIntent(Intent& intent) {
+    if (auto open_doc = dynamic_cast<OpenDocIntent*>(&intent)) {
+        openOrFocusDoc(open_doc->doc_id());
         return true;
     }
 
-    if (auto open_doc = dynamic_cast<CloseDocIntent*>(&p_intent)) {
-        CloseDoc(open_doc->doc_id);
+    if (auto close_doc = dynamic_cast<CloseDocIntent*>(&intent)) {
+        closeDoc(close_doc->doc_id());
         return true;
     }
 
@@ -102,13 +103,13 @@ bool Workspace::handleIntent(Intent& p_intent) {
 }
 
 void Workspace::onEvents(const InputFrame& input) {
-    if (m_editor.IsPlaying()) {
+    if (editor_.IsPlaying()) {
         return;
     }
 
     for (size_t i = 0; i < m_slots.size(); ++i) {
         Tab* tab = m_slots[i].storage.get();
-        if (tab && tab->IsHovered()) {
+        if (tab && tab->isHovered()) {
             tab->onInputEvents(input);
             break;
         }
@@ -119,7 +120,7 @@ void Workspace::onEvents(const InputFrame& input) {
         if (e.type == InputEventType::ButtonDown) {
             const Key key = static_cast<Key>(e.code);
             if (key == Key::RMB) {
-                m_editor.PickingService().Pick({ e.x, e.y });
+                editor_.PickingService().Pick({ e.x, e.y });
                 e.consumed = true;
                 break;
             }
@@ -128,33 +129,41 @@ void Workspace::onEvents(const InputFrame& input) {
 }
 
 // @TODO: probably want to refactor this
-void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
-    IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id);
+void Workspace::openOrFocusDoc(DocId doc_id) {
+    IDocument* doc = editor_.DocumentService().resolve(doc_id);
     if (!doc) {
         return;
     }
 
-    const AssetMetaData* meta = doc->GetHandleRaw().GetMeta();
+    const AssetMetaData* meta = doc->rawHandle().GetMeta();
     if (!meta) {
         return;
     }
 
-    if (auto it = m_doc_to_tab.find(p_doc_id); it != m_doc_to_tab.end()) {
-        m_focused_req = it->second;
+    if (auto it = doc_to_tab_.find(doc_id); it != doc_to_tab_.end()) {
+        request_focus_ = it->second;
         return;
     }
+
+    ProjectManager& project_mgr = services_.projectManager();
+    const ViewDimension dim = project_mgr.project().is_2d ? ViewDimension::Dim2 : ViewDimension::Dim3;
 
     std::unique_ptr<Tab> tab;
     switch (meta->type) {
         case AssetType::Scene:
         case AssetType::Material: {
-            tab = std::make_unique<SceneViewTab>(m_editor,
-                                                 p_doc_id,
-                                                 doc->GetPreviewScene(),
-                                                 ViewDimension::DIMENSION_3);
+            tab = std::make_unique<SceneViewTab>(editor_,
+                                                 doc_id,
+                                                 doc->previewScene(),
+                                                 dim);
+        } break;
+        case AssetType::TileMap: {
+            tab = std::make_unique<TileMapEditor>(editor_,
+                                                  doc_id,
+                                                  doc->previewScene());
         } break;
         default: {
-            tab = std::make_unique<Tab>(m_editor, p_doc_id);
+            tab = std::make_unique<Tab>(editor_, doc_id);
         } break;
     }
 
@@ -164,8 +173,8 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
     tab_raw->tabId(tab_id);
     tab_raw->setTitleAndId(meta->name, tab_id.index);
     tab_raw->onCreate();
-    m_focused_req = tab_id;
-    m_doc_to_tab[p_doc_id] = tab_id;
+    request_focus_ = tab_id;
+    doc_to_tab_[doc_id] = tab_id;
 
 #if 0
     // @TODO: create a new tab
@@ -191,25 +200,26 @@ void Workspace::OpenOrFocusDoc(DocId p_doc_id) {
 #endif
 }
 
-bool Workspace::CloseDoc(DocId p_doc_id) {
-    auto it = m_doc_to_tab.find(p_doc_id);
-    DEV_ASSERT(it != m_doc_to_tab.end());
+bool Workspace::closeDoc(DocId doc_id) {
+    auto it = doc_to_tab_.find(doc_id);
+    DEV_ASSERT(it != doc_to_tab_.end());
 
     const TabId tab_id = it->second;
     Tab* tab = Resolve(tab_id);
-    DEV_ASSERT(tab->docId() == p_doc_id);
+    DEV_ASSERT(tab->docId() == doc_id);
     tab->onDestroy();
     Destroy(tab_id);
-    m_doc_to_tab.erase(p_doc_id);
+    doc_to_tab_.erase(doc_id);
 
-    m_editor.DocumentService().CloseDoc(p_doc_id);
+    editor_.DocumentService().closeDoc(doc_id);
     return true;
 }
 
-extern CloseDecision AskCloseUnsaved(const char* p_title);
+// @TODO: refactor this part
+extern CloseDecision AskCloseUnsaved(const char* title);
 
-bool Workspace::OnCloseRequested() {
-    EditService& edit = m_editor.EditService();
+bool Workspace::onCloseRequested() {
+    EditService& edit = editor_.EditService();
 
     std::vector<DocId> unsaved;
     for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
@@ -217,7 +227,7 @@ bool Workspace::OnCloseRequested() {
         if (slot.storage) {
             Tab& tab = *slot.storage;
             DocId doc = tab.docId();
-            if (edit.IsDirty(doc)) {
+            if (edit.isDirty(doc)) {
                 unsaved.push_back(doc);
             }
         }
@@ -237,7 +247,7 @@ bool Workspace::OnCloseRequested() {
             return false;
     }
     for (DocId doc : unsaved) {
-        edit.Save(doc);
+        edit.save(doc);
     }
     return true;
 }

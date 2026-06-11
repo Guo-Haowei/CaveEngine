@@ -382,4 +382,51 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     UIOverlayPassFunc(p_ctx);
 }
 
+void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
+    CAVE_PROFILE_EVENT();
+
+    auto& cmd = p_ctx.cmd;
+
+    const bool nothing_to_draw = p_ctx.frameData.tile_maps.empty() && p_ctx.frameData.sprites.empty();
+    if (nothing_to_draw) {
+        return;
+    }
+
+    auto& frame = cmd.GetCurrentFrame();
+    const PassContext& pass = p_ctx.frameData.mainPass;
+    cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+
+    cmd.SetPipelineState(PSO_SPRITE);
+    for (const DrawItem& draw : p_ctx.frameData.tile_maps) {
+        const auto tile = draw.mesh_data;
+        if (draw.texture) {
+            cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
+        }
+        cmd.SetMesh(tile);
+        cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
+        cmd.DrawElementsInstanced(1, draw.index.count);
+    }
+
+    cmd.SetMesh(nullptr);
+    cmd.SetPipelineState(PSO_SPRITE_NO_VERT);
+    for (const DrawItem& draw : p_ctx.frameData.sprites) {
+        DEV_ASSERT(draw.mesh_data == nullptr);
+        if (draw.texture) {
+            cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
+        }
+        cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
+        cmd.DrawArrays(draw.index.count);
+    }
+
+    // draw debug stuff
+    // @TODO: should probably make a new pass for it
+    const DebugDraw& debug_draw = p_ctx.frameData.GetDebugDraw();
+    const GpuMesh* mesh = debug_draw.GetGpuMesh();
+    if (mesh) {
+        cmd.SetMesh(mesh);
+        cmd.SetPipelineState(PSO_DEBUG_DRAW);
+        // @TODO: bind texture
+        cmd.DrawElements(mesh->desc.drawCount);
+    }
+}
 }  // namespace cave::render

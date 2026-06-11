@@ -86,20 +86,20 @@ void EditorState::onEnter(const StateRequest& request) {
     }
 
     SceneId edit_scene{};
-    if (!request.arg0.empty()) {
-        if (auto handle = app_.GetAssetRegistry()->FindByPath(request.arg0); handle.is_some()) {
+    if (!request.arg1.empty()) {
+        if (auto handle = app_.GetAssetRegistry()->FindByPath(request.arg1); handle.is_some()) {
             AssetHandle handle_ = handle.unwrap_unchecked();
-            DocId doc_id = m_document_service->OpenDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
-            if (IDocument* doc = m_document_service->Resolve(doc_id)) {
-                edit_scene = doc->GetPreviewScene();
+            DocId doc_id = m_document_service->openDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
+            if (IDocument* doc = m_document_service->resolve(doc_id)) {
+                edit_scene = doc->previewScene();
             }
         }
     }
 
     // load pie
     PIEStartDesc desc{};
-    desc.game_dll = "game_Debug.dll";
-    desc.game_id = "chess";
+    desc.game_id = request.arg0;
+    desc.game_dll = std::format("{}_Debug.dll", desc.game_id);
     desc.edit_scene = edit_scene;
 
     m_pie.start(std::move(desc));
@@ -135,10 +135,10 @@ void EditorState::tick(const FrameTime& p_time) {
 
     DockSpace();
     for (auto& panel : m_panels) {
-        panel->DrawUI();
+        panel->drawUI();
     }
 
-    m_workspace->Tick();
+    m_workspace->tick();
 
     ImGui::Render();
 
@@ -159,7 +159,7 @@ void EditorState::CommitModeSwitch() {
 
     switch (old_mode) {
         case cave::EditorState::Mode::Editing: {
-            PreviewScene preview = m_workspace->FocusedPreviewScene();
+            PreviewScene preview = m_workspace->focusedPreviewScene();
             m_pie.onSimBegin(preview.scene_id, preview.view_id);
         } break;
         case cave::EditorState::Mode::Playing: {
@@ -186,7 +186,7 @@ void EditorState::DockSpace() {
 
     ui::DockSpace({
         "DockSpace Demo",
-        [this]() { m_menu_bar->DrawUI(); },
+        [this]() { m_menu_bar->drawUI(); },
         [this]() {
             CompositeLogger& logger = CompositeLogger::GetSingleton();
             const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());

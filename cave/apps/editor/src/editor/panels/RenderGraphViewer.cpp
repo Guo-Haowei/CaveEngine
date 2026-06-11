@@ -110,7 +110,7 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
     // }
 }
 
-void RenderGraphViewer::DrawUIImpl() {
+void RenderGraphViewer::drawUIImpl() {
     render::CompiledGraph* graph = nullptr;
     if (!graph) return;
 

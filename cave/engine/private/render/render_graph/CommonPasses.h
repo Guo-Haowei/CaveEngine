@@ -17,7 +17,7 @@ struct PostProcessInput {
     RGTextureId lighting{};
     RGTextureId outline{};
     RGTextureId bloom{};
-    GpuTextureId out{};
+    GpuTextureId color_attachment{};
 };
 
 struct PostProcessOutput {
@@ -68,16 +68,32 @@ struct HighlightOutput {
     RGTextureId outline{};
 };
 
+struct TwoDInput {
+    GpuTextureId color_attachment{};
+};
+
 class RenderGraphBuilderExt : public RenderGraph {
 public:
-    [[nodiscard]] DepthPrepassOutput AddDepthPrepass();
-    [[nodiscard]] GbufferOutput AddGbufferPass(const DepthPrepassOutput& p_in);
-    [[nodiscard]] LightingOutput AddLightingPass(const LightingInput& p_in);
-    [[nodiscard]] ForwardOutput AddForwardPass(const ForwardInput& p_in);
-    [[nodiscard]] HighlightOutput AddHighlightPass(const HighlightInput& p_in);
-    PostProcessOutput AddPostProcessPass(const PostProcessInput& p_in);
+    [[nodiscard]]
+    DepthPrepassOutput addDepthPrepass();
+
+    [[nodiscard]]
+    GbufferOutput addGbufferPass(const DepthPrepassOutput& in);
+
+    [[nodiscard]]
+    LightingOutput addLightingPass(const LightingInput& in);
+
+    [[nodiscard]]
+    ForwardOutput addForwardPass(const ForwardInput& in);
+
+    [[nodiscard]]
+    HighlightOutput addHighlightPass(const HighlightInput& in);
+
+    PostProcessOutput addPostProcessPass(const PostProcessInput& p_in);
     // void AddVoxelizationPass();
     // void AddBloomPass();
+
+    void add2dPass(const TwoDInput& in);
 };
 
 }  // namespace cave::render

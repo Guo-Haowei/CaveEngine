@@ -17,28 +17,28 @@
 
 namespace cave {
 
-EditService::EditService(EditorState& p_editor)
-    : m_editor(p_editor)
-    , m_debug_id(MakeDebugId(this)) {
-    m_editor.app().services().intentDispatcher().addHandler<EditIntent>(this);
+EditService::EditService(EditorState& editor)
+    : editor_(editor)
+    , debug_id_(MakeDebugId(this)) {
+    editor_.app().services().intentDispatcher().addHandler<EditIntent>(this);
 }
 
 EditService::~EditService() {
-    m_editor.app().services().intentDispatcher().removeHandler<EditIntent>(this);
+    editor_.app().services().intentDispatcher().removeHandler<EditIntent>(this);
 }
 
-void EditService::Submit(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd) {
-    m_editor.app().services().intentDispatcher().queue<EditIntent>(p_doc_id, std::move(p_cmd));
+void EditService::submit(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd) {
+    editor_.app().services().intentDispatcher().queue<EditIntent>(doc_id, std::move(cmd));
 }
 
-void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
-    IApplication& app = m_editor.app();
+void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
+    IApplication& app = editor_.app();
 
     SceneRegistry& scene_reg = app.services().sceneRegistry();
 
     Scene* scene = nullptr;
-    if (IDocument* doc = m_editor.DocumentService().Resolve(p_doc_id)) {
-        SceneId scene_id = doc->GetPreviewScene();
+    if (IDocument* doc = editor_.DocumentService().resolve(doc_id)) {
+        SceneId scene_id = doc->previewScene();
         scene = scene_reg.resolve(scene_id);
     }
 
@@ -47,64 +47,64 @@ void EditService::Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func) {
     }
 
     SceneCommandWriter cb(*app.GetAssetRegistry());
-    p_func(cb);
+    func(cb);
 
     EntityMap map(cb.GetAllocationCount());
     SceneCommandExecutor_Undo executor(scene_reg);
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    Submit(p_doc_id, std::move(executor.MoveCommand()));
+    submit(doc_id, std::move(executor.MoveCommand()));
 }
 
-void EditService::Undo(DocId p_doc_id) {
-    if (IDocument* doc = ResolveDoc(p_doc_id)) {
-        doc->Undo();
+void EditService::undo(DocId doc_id) {
+    if (IDocument* doc = resolve(doc_id)) {
+        doc->undo();
     }
 }
 
-void EditService::Redo(DocId p_doc_id) {
-    if (IDocument* doc = ResolveDoc(p_doc_id)) {
-        doc->Redo();
+void EditService::redo(DocId doc_id) {
+    if (IDocument* doc = resolve(doc_id)) {
+        doc->redo();
     }
 }
 
-bool EditService::CanUndo(DocId p_doc_id) const {
-    if (const IDocument* doc = ResolveDoc(p_doc_id)) {
-        return doc->CanUndo();
-    }
-
-    return false;
-}
-
-bool EditService::CanRedo(DocId p_doc_id) const {
-    if (const IDocument* doc = ResolveDoc(p_doc_id)) {
-        return doc->CanRedo();
+bool EditService::canUndo(DocId doc_id) const {
+    if (const IDocument* doc = resolve(doc_id)) {
+        return doc->canUndo();
     }
 
     return false;
 }
 
-bool EditService::IsDirty(DocId p_doc_id) const {
-    if (const IDocument* doc = ResolveDoc(p_doc_id)) {
-        return doc->IsDirty();
+bool EditService::canRedo(DocId doc_id) const {
+    if (const IDocument* doc = resolve(doc_id)) {
+        return doc->canRedo();
     }
 
     return false;
 }
 
-bool EditService::Save(DocId p_doc_id) {
-    if (IDocument* doc = ResolveDoc(p_doc_id)) {
-        return doc->Save();
+bool EditService::isDirty(DocId doc_id) const {
+    if (const IDocument* doc = resolve(doc_id)) {
+        return doc->isDirty();
     }
 
     return false;
 }
 
-bool EditService::handleIntent(Intent& p_intent) {
-    if (auto intent = dynamic_cast<EditIntent*>(&p_intent)) {
-        IDocument* doc = ResolveDoc(intent->doc_id);
+bool EditService::save(DocId doc_id) {
+    if (IDocument* doc = resolve(doc_id)) {
+        return doc->save();
+    }
+
+    return false;
+}
+
+bool EditService::handleIntent(Intent& intent) {
+    if (auto edit_intent = dynamic_cast<EditIntent*>(&intent)) {
+        IDocument* doc = resolve(edit_intent->doc_id());
         if (DEV_VERIFY(doc)) {
-            doc->Apply(std::move(intent->cmd), 0);
+            doc->apply(std::move(edit_intent->cmd_), 0);
         }
 
         return true;
@@ -113,12 +113,12 @@ bool EditService::handleIntent(Intent& p_intent) {
     return false;
 }
 
-const IDocument* EditService::ResolveDoc(DocId p_doc_id) const {
-    return m_editor.DocumentService().Resolve(p_doc_id);
+IDocument* EditService::resolve(DocId doc_id) {
+    return editor_.DocumentService().resolve(doc_id);
 }
 
-IDocument* EditService::ResolveDoc(DocId p_doc_id) {
-    return m_editor.DocumentService().Resolve(p_doc_id);
+const IDocument* EditService::resolve(DocId doc_id) const {
+    return editor_.DocumentService().resolve(doc_id);
 }
 
 }  // namespace cave

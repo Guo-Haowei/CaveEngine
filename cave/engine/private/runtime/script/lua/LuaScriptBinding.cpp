@@ -109,29 +109,17 @@ bool OpenMathLib(lua_State* L) {
 bool OpenInputLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Input")
-        .addFunction("is_action_pressed", [](const char* p_action) -> int {
-            unused(p_action);
-            LOG_WARN(LogChannel::Input, "TODO");
-            // return InputService::GetSingleton().IsActionPressed(StringId(p_str_id));
-            return 0;
+        .addFunction("is_action_pressed", [](const char* action) -> int {
+            return InputService::GetSingleton().gameInput().isPressed(StringId(action), 0);
         })
-        .addFunction("is_action_just_pressed", [](const char* p_action) -> int {
-            unused(p_action);
-            LOG_WARN(LogChannel::Input, "TODO");
-            // return InputService::GetSingleton().IsActionJustPressed(StringId(p_str_id));
-            return 0;
+        .addFunction("is_action_just_pressed", [](const char* action) -> int {
+            return InputService::GetSingleton().gameInput().isJustPressed(StringId(action), 0);
         })
-        .addFunction("is_action_just_released", [](const char* p_action) -> int {
-            unused(p_action);
-            LOG_WARN(LogChannel::Input, "TODO");
-            // return InputService::GetSingleton().IsActionJustReleased(StringId(p_str_id));
-            return 0;
+        .addFunction("is_action_just_released", [](const char* action) -> int {
+            return InputService::GetSingleton().gameInput().isJustReleased(StringId(action), 0);
         })
-        .addFunction("get_action_strength", [](const char* p_action) -> float {
-            unused(p_action);
-            LOG_WARN(LogChannel::Input, "TODO");
-            return 0;
-            // return InputService::GetSingleton().GetActionStrength(StringId(p_str_id));
+        .addFunction("get_action_strength", [](const char* action) -> float {
+            return InputService::GetSingleton().gameInput().getStrength(StringId(action), 0);
         })
         .endNamespace();
     return true;
@@ -150,9 +138,18 @@ bool OpenDisplayLib(lua_State* L) {
 
 bool OpenLogLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
-        .beginNamespace("logger")
+        .beginNamespace("Log")
         .addFunction("trace", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_TRACE, "-- {}", p_message);
+            LogImpl(LOG_LEVEL_TRACE, LogChannel::Lua, "-- {}", p_message);
+        })
+        .addFunction("info", [](const char* p_message) {
+            LogImpl(LOG_LEVEL_INFO, LogChannel::Lua, "-- {}", p_message);
+        })
+        .addFunction("ok", [](const char* p_message) {
+            LogImpl(LOG_LEVEL_OK, LogChannel::Lua, "-- {}", p_message);
+        })
+        .addFunction("warn", [](const char* p_message) {
+            LogImpl(LOG_LEVEL_WARN, LogChannel::Lua, "-- {}", p_message);
         })
         .addFunction("error", [](const char* p_file, int p_line, const char* p_error) {
             ReportErrorImpl("lua_function", p_file, p_line, p_error);

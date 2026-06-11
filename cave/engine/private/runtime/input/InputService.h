@@ -17,7 +17,8 @@ struct FrameTime;
 class IInputConsumer;
 class KeyState;
 
-class InputService : public IService {
+class InputService : public IService,
+                     public Singleton<InputService> {
 public:
     InputService();
 

@@ -52,52 +52,58 @@ class Renderer::Impl {
 public:
     Impl(IRenderDevice& device)
         : device_(device)
-        , m_pool(device)
-        , m_env(m_pool, device)
-        , m_ssao(device) {}
+        , transient_pool_(device)
+        , env_(transient_pool_, device)
+        , ssao_(device) {}
 
-    void Tick(const FrameTime& p_frame,
-              std::span<const ResolvedView> p_views,
-              const UIFrameDrawData& p_ui_data);
+    void tick(const FrameTime& time,
+              std::span<const ResolvedView> views,
+              const UIFrameDrawData& ui_draw_data);
+
+    void setMode(bool is_2d) { is_2d_ = is_2d; }
 
 #if USING(USE_COMMAND)
     bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
 #endif
 
 private:
-    FramePlan BuildFramePlan(const FrameTime& p_frame,
-                             std::span<const ResolvedView> p_views);
+    FramePlan buildFramePlan(const FrameTime& frame,
+                             std::span<const ResolvedView> views);
 
-    auto BuildRenderGraph(const RenderOptions& p_plan,
-                          const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
+    auto buildRenderGraph(const RenderOptions& plan,
+                          const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>>;
 
-    auto BuildRenderGraphDeferred(const RenderOptions& p_plan,
-                                  const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
+    auto buildRenderGraphDeferred(const RenderOptions& plan,
+                                  const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>>;
 
-    auto BuildRenderGraphPathTracer(const RenderOptions& p_plan,
-                                    const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>>;
+    auto buildRenderGraphPt(const RenderOptions& plan,
+                            const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>>;
 
-    RenderScene& GetOrCreateRenderScene(SceneId p_scene_id);
+    auto buildRenderGraph2d(const RenderOptions& plan,
+                            const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>>;
 
-    void CreateOrUpdateUIBuffers(const BuiltUIData& p_ui_data);
+    RenderScene& getOrCreateRenderScene(SceneId scene_id);
+
+    void createOrUpdateUIBuffers(const BuiltUIData& ui_data);
 
 private:
     IRenderDevice& device_;
     RenderSceneBuilder m_scene_builder;
-    std::unordered_map<SceneId, RenderScene> m_scene_cache;
+    std::unordered_map<SceneId, RenderScene> scene_cache_;
 
     // features
-    TransientPool m_pool;
-    EnvironmentFeature m_env;
-    ShadowFeature m_shadow;
-    SsaoFeature m_ssao;
-    PathTracerFeature m_pt;
+    TransientPool transient_pool_;
+    EnvironmentFeature env_;
+    ShadowFeature shadow_;
+    SsaoFeature ssao_;
+    PathTracerFeature pathtracer_;
 
-    GpuTextureId m_brdf{};
-    GpuTextureId m_ltc1{};
-    GpuTextureId m_ltc2{};
+    GpuTextureId brdf_{};
+    GpuTextureId ltc1_{};
+    GpuTextureId ltc2_{};
+    bool is_2d_{ false };
 
-    std::shared_ptr<GpuMesh> m_ui_buffers;
+    std::shared_ptr<GpuMesh> ui_buffers_;
 };
 
 Renderer::Renderer(IRenderDevice& device)
@@ -108,14 +114,18 @@ Renderer::~Renderer() = default;
 void Renderer::tick(const FrameTime& p_frame,
                     std::span<const ResolvedView> p_views,
                     const UIFrameDrawData& p_ui_data) {
-    impl_->Tick(p_frame, p_views, p_ui_data);
+    impl_->tick(p_frame, p_views, p_ui_data);
+}
+
+void Renderer::setMode(bool is_2d) {
+    impl_->setMode(is_2d);
 }
 
 // @TODO: remove this
-extern void RunMeshRenderSystem(const Scene& p_scene,
-                                const RenderScene& p_rscene,
-                                const ResolvedView& p_view,
-                                FrameData& p_framedata);
+extern void runMeshRenderSystem(const Scene& scene,
+                                const RenderScene& rscene,
+                                const ResolvedView& view,
+                                FrameData& out_data);
 
 #if 0
 static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matrix) {
@@ -135,7 +145,7 @@ static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matri
 #endif
 
 // @TODO: refactor
-static void FillConstantBuffer(const FrameTime& p_frame,
+static void fillConstantBuffer(const FrameTime& p_frame,
                                const Scene* p_scene,
                                const ResolvedView& p_view,
                                FrameData& p_out_data) {
@@ -188,18 +198,16 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     cache.c_scene_dirty = true;
 }
 
-static void FillEnvConstants(FrameData& p_out_data) {
-    // @TODO: return if necessary
-
+static void fillEnvConstants(FrameData& out_data) {
     constexpr int count = IBL_MIP_CHAIN_MAX * 6;
-    if (p_out_data.batchCache.buffer.size() < count) {
-        p_out_data.batchCache.buffer.resize(count);
+    if (out_data.batchCache.buffer.size() < count) {
+        out_data.batchCache.buffer.resize(count);
     }
 
-    auto matrices = p_out_data.options.is_opengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vector3f(0)) : BuildCubeMapViewProjectionMatrix(Vector3f(0));
+    auto matrices = out_data.options.is_opengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vector3f(0)) : BuildCubeMapViewProjectionMatrix(Vector3f(0));
     for (int mip_idx = 0; mip_idx < IBL_MIP_CHAIN_MAX; ++mip_idx) {
         for (int face_id = 0; face_id < 6; ++face_id) {
-            auto& batch = p_out_data.batchCache.buffer[mip_idx * 6 + face_id];
+            auto& batch = out_data.batchCache.buffer[mip_idx * 6 + face_id];
             batch.c_cubeProjectionViewMatrix = matrices[face_id];
             batch.c_envPassRoughness = (float)mip_idx / (float)(IBL_MIP_CHAIN_MAX - 1);
         }
@@ -207,46 +215,48 @@ static void FillEnvConstants(FrameData& p_out_data) {
 }
 
 template<typename T>
-static GpuBufferDesc FillDesc(const std::vector<T>& p_data) {
+static GpuBufferDesc fillDesc(const std::vector<T>& data) {
     GpuBufferDesc desc{};
     desc.type = GpuBufferType::Vertex;
     desc.dynamic = true;
     desc.element_size = sizeof(T);
-    desc.element_count = static_cast<uint32_t>(p_data.size());
-    desc.initial_data = p_data.data();
+    desc.element_count = static_cast<uint32_t>(data.size());
+    desc.initial_data = data.data();
     return desc;
 }
 
+// @TODO: move to UIRenderer
 template<typename T>
-static bool UpdateUIBuffer(IRenderDevice& p_device,
-                           const std::vector<T>& p_data,
-                           GpuBuffer* p_buffer) {
-    if (p_data.size() > p_buffer->desc.element_count) {
+static bool updateUIBuffer(IRenderDevice& device,
+                           const std::vector<T>& data,
+                           GpuBuffer* gpu_buffer) {
+    if (data.size() > gpu_buffer->desc.element_count) {
         return false;
     }
 
-    GpuBufferDesc desc = p_buffer->desc;
-    desc.element_count = (uint32_t)p_data.size();
-    desc.initial_data = p_data.data();
-    p_device.UpdateBuffer(desc, p_buffer);
+    GpuBufferDesc desc = gpu_buffer->desc;
+    desc.element_count = (uint32_t)data.size();
+    desc.initial_data = data.data();
+    device.UpdateBuffer(desc, gpu_buffer);
     return true;
 }
 
-static bool UpdateAllUIBuffer(IRenderDevice& p_device,
+static bool updateAllUIBuffer(IRenderDevice& p_device,
                               const BuiltUIData& p_data,
                               GpuMesh& p_mesh) {
-    if (!UpdateUIBuffer(p_device, p_data.indices, p_mesh.indexBuffer.get()))
+    if (!updateUIBuffer(p_device, p_data.indices, p_mesh.indexBuffer.get()))
         return false;
-    if (!UpdateUIBuffer(p_device, p_data.positions, p_mesh.vertexBuffers.at(0).get()))
+    if (!updateUIBuffer(p_device, p_data.positions, p_mesh.vertexBuffers.at(0).get()))
         return false;
-    if (!UpdateUIBuffer(p_device, p_data.colors, p_mesh.vertexBuffers.at(1).get()))
+    if (!updateUIBuffer(p_device, p_data.colors, p_mesh.vertexBuffers.at(1).get()))
         return false;
     return true;
 }
 
-void Renderer::Impl::CreateOrUpdateUIBuffers(const BuiltUIData& p_data) {
-    if (m_ui_buffers) {
-        if (!UpdateAllUIBuffer(device_, p_data, *m_ui_buffers)) {
+// @TODO: consider move to UIRenderer
+void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
+    if (ui_buffers_) {
+        if (!updateAllUIBuffer(device_, ui_data, *ui_buffers_)) {
             // @TODO: proper error handling
             CRASH_NOW_MSG("Failed to update UI buffer");
         }
@@ -255,10 +265,10 @@ void Renderer::Impl::CreateOrUpdateUIBuffers(const BuiltUIData& p_data) {
     }
 
     std::array<GpuBufferDesc, 2> vb_desc{};
-    vb_desc[0] = FillDesc(p_data.positions);
-    vb_desc[1] = FillDesc(p_data.colors);
+    vb_desc[0] = fillDesc(ui_data.positions);
+    vb_desc[1] = fillDesc(ui_data.colors);
 
-    GpuBufferDesc ib_desc = FillDesc(p_data.indices);
+    GpuBufferDesc ib_desc = fillDesc(ui_data.indices);
     ib_desc.type = GpuBufferType::Index;
 
     GpuMeshDesc mesh_desc{};
@@ -267,35 +277,35 @@ void Renderer::Impl::CreateOrUpdateUIBuffers(const BuiltUIData& p_data) {
     mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vector2f), 0 };
     mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Color), 0 };
 
-    m_ui_buffers = device_.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
+    ui_buffers_ = device_.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
 }
 
-void Renderer::Impl::Tick(const FrameTime& p_frame,
-                          std::span<const ResolvedView> p_views,
-                          const UIFrameDrawData& p_ui_data) {
+void Renderer::Impl::tick(const FrameTime& time,
+                          std::span<const ResolvedView> views,
+                          const UIFrameDrawData& ui_draw_data) {
     CAVE_PROFILE_EVENT();
 
     auto submission = std::make_unique<RenderSubmission>();
 
-    FramePlan plan = BuildFramePlan(p_frame, p_views);
+    FramePlan plan = buildFramePlan(time, views);
 
-    const BuiltUIData ui_data = BuildUIData(p_views, p_ui_data);
-    DEV_ASSERT(ui_data.batches.size() == p_views.size());
+    const BuiltUIData ui_data = BuildUIData(views, ui_draw_data);
+    DEV_ASSERT(ui_data.batches.size() == views.size());
     if (!ui_data.indices.empty()) {
-        CreateOrUpdateUIBuffers(ui_data);
+        createOrUpdateUIBuffers(ui_data);
     }
 
     for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {
         const ResolvedView& view = plan.views[idx];
         FrameData& data = plan.frame_data[idx];
         data.ui_batch = ui_data.batches[idx];
-        data.ui_buffer = m_ui_buffers;
+        data.ui_buffer = ui_buffers_;
 
-        if (auto res = BuildRenderGraph(data.options, view); !res) {
+        if (auto res = buildRenderGraph(data.options, view); !res) {
             CRASH_NOW();
         } else {
             auto graph = *res;
-            graph->Resolve(m_pool);
+            graph->Resolve(transient_pool_);
 
             submission->render_graph.push_back(graph);
         }
@@ -306,8 +316,8 @@ void Renderer::Impl::Tick(const FrameTime& p_frame,
     device_.Submit(std::move(submission));
 }
 
-FramePlan Renderer::Impl::BuildFramePlan(const FrameTime& p_frame,
-                                         std::span<const ResolvedView> p_views) {
+FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
+                                         std::span<const ResolvedView> views) {
     FramePlan plan;
 
     const bool is_opengl = device_.backend() == rhi::Backend::OpenGL;
@@ -324,13 +334,13 @@ FramePlan Renderer::Impl::BuildFramePlan(const FrameTime& p_frame,
         .ssaoKernelRadius = DVAR_GET_FLOAT(gfx_ssao_radius),
     };
 
-    plan.frame_data.resize(p_views.size());
-    plan.views.reserve(p_views.size());
+    plan.frame_data.resize(views.size());
+    plan.views.reserve(views.size());
 
     int view_idx = 0;
 
-    for (const ResolvedView& view : p_views) {
-        RenderScene& render_scene = GetOrCreateRenderScene(view.scene_id);
+    for (const ResolvedView& view : views) {
+        RenderScene& render_scene = getOrCreateRenderScene(view.scene_id);
         m_scene_builder.BuildFull(*view.scene, render_scene);
 
         plan.views.push_back(view);
@@ -338,13 +348,13 @@ FramePlan Renderer::Impl::BuildFramePlan(const FrameTime& p_frame,
         FrameData& framedata = plan.frame_data[view_idx];
         framedata.options = options;
 
-        FillConstantBuffer(p_frame, view.scene, view, framedata);
+        fillConstantBuffer(time, view.scene, view, framedata);
 
-        RunMeshRenderSystem(*view.scene, render_scene, view, framedata);
+        runMeshRenderSystem(*view.scene, render_scene, view, framedata);
         RunTileMapRenderSystem(view.scene, framedata);
         RunSpriteRenderSystem(view.scene, framedata);
         RunDebugRenderSystem(view.scene, framedata);
-        FillEnvConstants(framedata);
+        fillEnvConstants(framedata);
 
         // @HACK: only support first scene
         if (view_idx == 0) {
@@ -357,57 +367,56 @@ FramePlan Renderer::Impl::BuildFramePlan(const FrameTime& p_frame,
     return plan;
 }
 
-auto Renderer::Impl::BuildRenderGraph(const RenderOptions& p_plan,
-                                      const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
-    if (!IsPathTracerActive()) [[likely]] {
-        return BuildRenderGraphDeferred(p_plan, p_view);
+auto Renderer::Impl::buildRenderGraph(const RenderOptions& plan,
+                                      const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
+    if (IsPathTracerActive()) [[unlikely]] {
+        return buildRenderGraphPt(plan, view);
     }
-    return BuildRenderGraphPathTracer(p_plan, p_view);
+
+    return is_2d_ ? buildRenderGraph2d(plan, view) : buildRenderGraphDeferred(plan, view);
 }
 
-auto Renderer::Impl::BuildRenderGraphDeferred(const RenderOptions& p_plan,
-                                              const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
-    constexpr const char RG_RES_BRDF[] = "r:brdf";
-
-    if (!m_brdf) {
+auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan_,
+                                              const ResolvedView& view_) -> Result<std::shared_ptr<CompiledGraph>> {
+    if (!brdf_) {
         std::shared_ptr<ImageAsset> image = IAssetManager::GetSingleton().FindImage("brdf.hdr");
-        m_brdf = device_.CreateTexture(image.get());
+        brdf_ = device_.CreateTexture(image.get());
     }
-    if (!m_ltc1) {
-        m_ltc1 = CreateLTC1(device_);
+    if (!ltc1_) {
+        ltc1_ = CreateLTC1(device_);
     }
-    if (!m_ltc2) {
-        m_ltc2 = CreateLTC2(device_);
+    if (!ltc2_) {
+        ltc2_ = CreateLTC2(device_);
     }
 
-    RenderGraphBuilderExt graph(p_view.viewport_px);
+    RenderGraphBuilderExt graph(view_.viewport_px);
 
-    RGTextureId brdf = graph.ImportTexture({ m_brdf });
-    RGTextureId ltc1 = graph.ImportTexture({ m_ltc1 });
-    RGTextureId ltc2 = graph.ImportTexture({ m_ltc2 });
+    RGTextureId brdf = graph.ImportTexture({ brdf_ });
+    RGTextureId ltc1 = graph.ImportTexture({ ltc1_ });
+    RGTextureId ltc2 = graph.ImportTexture({ ltc2_ });
 
-    auto env_outputs = m_env.Build(graph, p_plan);
+    auto env_outputs = env_.Build(graph, plan_);
 
-    auto shadow_outputs = m_shadow.Build(graph, p_plan);
+    auto shadow_outputs = shadow_.Build(graph, plan_);
 
     // @TODO: refactor the following
-    auto prepass_outputs = graph.AddDepthPrepass();
+    auto prepass_outputs = graph.addDepthPrepass();
 
-    auto gbuffer_outputs = graph.AddGbufferPass({
+    auto gbuffer_outputs = graph.addGbufferPass({
         .depth = prepass_outputs.depth,
     });
 
     SsaoFeature::Outputs ssao_outputs{};
 
-    if (p_plan.enable_ssao) {
+    if (plan_.enable_ssao) {
         SsaoFeature::Inputs ssao_inputs{
             .normal = gbuffer_outputs.color1,
             .depth = prepass_outputs.depth,
         };
-        ssao_outputs = m_ssao.Build(graph, p_plan, ssao_inputs);
+        ssao_outputs = ssao_.Build(graph, plan_, ssao_inputs);
     }
 
-    auto lighting_outputs = graph.AddLightingPass({
+    auto lighting_outputs = graph.addLightingPass({
         .color0 = gbuffer_outputs.color0,
         .color1 = gbuffer_outputs.color1,
         .color2 = gbuffer_outputs.color2,
@@ -421,7 +430,7 @@ auto Renderer::Impl::BuildRenderGraphDeferred(const RenderOptions& p_plan,
         .ltc2 = ltc2,
     });
 
-    auto forward_outputs = graph.AddForwardPass({
+    auto forward_outputs = graph.addForwardPass({
         .skybox = env_outputs.skybox,
         .shadow = shadow_outputs.shadow,
         .ibl_diffuse = env_outputs.ibl_diffuse,
@@ -433,31 +442,42 @@ auto Renderer::Impl::BuildRenderGraphDeferred(const RenderOptions& p_plan,
         .lighting = lighting_outputs.lighting,
     });
 
-    auto highlight_outputs = graph.AddHighlightPass({
+    auto highlight_outputs = graph.addHighlightPass({
         .stencil = prepass_outputs.depth,
     });
 
-    graph.AddPostProcessPass({
+    graph.addPostProcessPass({
         .lighting = lighting_outputs.lighting,
         .outline = highlight_outputs.outline,
         .bloom = 0,
-        .out = p_view.output,
+        .color_attachment = view_.output,
     });
 
     return graph.Compile();
 }
 
-auto Renderer::Impl::BuildRenderGraphPathTracer(const RenderOptions& p_plan,
-                                                const ResolvedView& p_view) -> Result<std::shared_ptr<CompiledGraph>> {
-    RenderGraph graph(p_view.viewport_px);
+auto Renderer::Impl::buildRenderGraph2d(const RenderOptions& plan,
+                                        const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
+    unused(plan);
 
-    m_pt.Build(graph, p_plan, { p_view.output });
+    RenderGraphBuilderExt graph(view.viewport_px);
+
+    graph.add2dPass({ .color_attachment = view.output });
 
     return graph.Compile();
 }
 
-RenderScene& Renderer::Impl::GetOrCreateRenderScene(SceneId p_scene_id) {
-    return m_scene_cache[p_scene_id];
+auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
+                                        const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
+    RenderGraph graph(view.viewport_px);
+
+    pathtracer_.Build(graph, plan, { view.output });
+
+    return graph.Compile();
+}
+
+RenderScene& Renderer::Impl::getOrCreateRenderScene(SceneId scene_id) {
+    return scene_cache_[scene_id];
 }
 
 #if USING(USE_COMMAND)
@@ -466,7 +486,7 @@ bool Renderer::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
 }
 
 bool Renderer::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
-    RenderPoolDump_Cmd(m_pool, ctx, args);
+    RenderPoolDump_Cmd(transient_pool_, ctx, args);
     return true;
 }
 #endif

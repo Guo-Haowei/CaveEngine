@@ -8,6 +8,7 @@
 
 namespace cave {
 
+struct AppServices;
 class EditorState;
 class Guid;
 
@@ -22,51 +23,45 @@ class Workspace final : protected GenIdRegistry<Tab>,
                         public IInputConsumer,
                         public IIntentHandler {
 public:
-    Workspace(EditorState& p_editor);
+    Workspace(EditorState& editor);
     ~Workspace();
 
-    void Tick();
+    void tick();
 
-    void RequestOpen(DocId p_doc_id);
-    void RequestClose(DocId p_doc_id);
+    void requestOpen(DocId doc_id);
+    void requestClose(DocId doc_id);
 
-    TabId FocusedTabId() const { return m_focused_tab; }
+    TabId focusedTabId() const { return focused_tab_; }
 
-    Tab* FocusedTab() { return Resolve(m_focused_tab); }
+    Tab* focusedTab() { return Resolve(focused_tab_); }
 
-    DocId FocusedDoc();
+    DocId focusedDoc();
 
-    PreviewScene FocusedPreviewScene();
+    PreviewScene focusedPreviewScene();
 
-    bool handleIntent(Intent& p_intent) override;
+    bool handleIntent(Intent& intent) override;
 
-    bool OnCloseRequested();
+    bool onCloseRequested();
 
-    void onEvents(const InputFrame& p_input) override;
+    void onEvents(const InputFrame& input) override;
     int priority() const override { return 10; }
-    DebugId debugId() const override { return m_debug_id; }
+    DebugId debugId() const override { return debug_id_; }
 
 private:
-    void OpenOrFocusDoc(DocId p_doc_id);
+    void openOrFocusDoc(DocId doc_id);
 
-    bool CloseDoc(DocId p_doc_id);
+    bool closeDoc(DocId doc_id);
 
-    bool RequestCloseAll();
+    void drawTabs();
 
-    DocId GetActiveDoc() const;
+    EditorState& editor_;
+    AppServices& services_;
+    const DebugId debug_id_;
 
-    // Focus/activate
-    bool FocusDoc(DocId doc_id);
+    TabId focused_tab_{};
+    TabId request_focus_{};
 
-    void DrawTabs();
-
-    EditorState& m_editor;
-
-    TabId m_focused_tab{};
-    TabId m_focused_req{};
-
-    std::unordered_map<DocId, TabId> m_doc_to_tab;
-    const DebugId m_debug_id;
+    std::unordered_map<DocId, TabId> doc_to_tab_;
 };
 
 }  // namespace cave

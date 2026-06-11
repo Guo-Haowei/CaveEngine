@@ -13,12 +13,12 @@ class RenderGraphViewer : public EditorWindow {
 public:
     RenderGraphViewer(EditorState& p_editor);
 
-    const char* GetWindowId() const override {
+    const char* windowId() const override {
         return "Render Graph";
     }
 
 protected:
-    void DrawUIImpl() override;
+    void drawUIImpl() override;
     void DrawNodes(const render::CompiledGraph& p_graph);
 
     bool m_firstFrame{ true };

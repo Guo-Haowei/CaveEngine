@@ -37,7 +37,7 @@ public:
     bool running() const { return running_; }
     SceneId getPIESceneId() const { return pie_scene_; }
 
-    void CollectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
+    void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
     DebugId debugId() const override { return debug_id_; }
 
 private:

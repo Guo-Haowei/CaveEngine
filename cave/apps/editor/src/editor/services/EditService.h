@@ -14,33 +14,32 @@ using SceneCommandWriterFn = std::function<void(SceneCommandWriter&)>;
 
 class EditService final : public IIntentHandler {
 public:
-    EditService(EditorState& p_editor);
+    EditService(EditorState& editor);
     ~EditService();
 
-    void Submit(DocId p_doc_id, std::unique_ptr<IEditCmd>&& p_cmd);
+    void submit(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd);
 
-    void Submit(DocId p_doc_id, SceneCommandWriterFn&& p_func);
+    void submit(DocId doc_id, SceneCommandWriterFn&& func);
 
-    void Undo(DocId p_doc_id);
-    void Redo(DocId p_doc_id);
+    void undo(DocId doc_id);
+    void redo(DocId doc_id);
 
-    bool CanUndo(DocId p_doc_id) const;
-    bool CanRedo(DocId p_doc_id) const;
+    bool canUndo(DocId doc_id) const;
+    bool canRedo(DocId doc_id) const;
 
-    bool IsDirty(DocId p_doc_id) const;
-    bool Save(DocId p_doc_id);
+    bool isDirty(DocId doc_id) const;
+    bool save(DocId doc_id);
 
-    bool handleIntent(Intent& p_intent) override;
+    bool handleIntent(Intent& intent) override;
 
-    DebugId debugId() const override { return m_debug_id; }
+    DebugId debugId() const override { return debug_id_; }
 
 private:
-    IDocument* ResolveDoc(DocId p_doc_id);
-    const IDocument* ResolveDoc(DocId p_doc_id) const;
+    IDocument* resolve(DocId doc_id);
+    const IDocument* resolve(DocId doc_id) const;
 
-    EditorState& m_editor;
-
-    const DebugId m_debug_id;
+    EditorState& editor_;
+    const DebugId debug_id_;
 };
 
 }  // namespace cave

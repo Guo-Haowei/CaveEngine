@@ -194,11 +194,11 @@ void ShowPopup(const ContentEntry& p_node,
             OpenDocDesc desc;
             desc.guid = p_node.handle.GetGuid();
             desc.asset_type = p_node.handle.GetMeta()->type;
-            p_editor.DocumentService().OpenDoc(desc);
+            p_editor.DocumentService().openDoc(desc);
         }
         if (ImGui::MenuItem("Save")) {
             const Guid guid = p_node.handle.GetGuid();
-            p_editor.DocumentService().Save(guid);
+            p_editor.DocumentService().save(guid);
         }
     }
 

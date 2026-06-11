@@ -3,6 +3,10 @@
 
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 
+// clang-format off
+namespace cave::render { class Renderer; }
+// clang-format on
+
 namespace cave {
 
 class IApplication;
@@ -13,7 +17,8 @@ public:
     ProjectManager(VFS& vfs,
                    TaskManager& task_manager,
                    IAssetManager& asset_manager,
-                   AssetRegistry& asset_registry) noexcept;
+                   AssetRegistry& asset_registry,
+                   render::Renderer& renderer) noexcept;
 
     void loadProject(const ProjectInfo& project);
 
@@ -27,6 +32,7 @@ public:
 private:
     VFS& vfs_;
     BootLoadPipeline boot_load_pipeline_;
+    render::Renderer& renderer_;
 
     Option<ProjectInfo> project_;
 };

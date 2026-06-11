@@ -67,7 +67,11 @@ void ProjectBrowserState::drawRecentProjects() {
         }
 
         if (clicked && !request_fired_) {
-            request_ = Some(StateRequest{ AppStateId::Editor, project.start_scene });
+            request_ = Some(StateRequest{
+                .next = AppStateId::Editor,
+                .arg0 = project.name,
+                .arg1 = project.start_scene,
+            });
             project_manager_.loadProject(project);
             request_fired_ = true;
         }
@@ -186,6 +190,7 @@ static bool parseProject(const std::filesystem::path& path, ProjectInfo& out_inf
     tryReadYaml(node, "name", out_info.name);
     tryReadYaml(node, "start_scene", out_info.start_scene);
     tryReadYaml(node, "thumbnail", out_info.thumbnail);
+    tryReadYaml(node, "is_2d", out_info.is_2d);
     return true;
 }
 

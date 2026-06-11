@@ -207,17 +207,17 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
     return true;
 }
 
-void HierarchyPanel::DrawUIImpl() {
+void HierarchyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
-    PreviewScene preview = m_editor.Workspace().FocusedPreviewScene();
+    PreviewScene preview = m_editor.Workspace().focusedPreviewScene();
     if (preview.scene) {
         HierarchyCreator creator(preview, m_editor.SelectionService());
-        DrawPopup(preview);
+        drawPopup(preview);
         creator.Update();
     }
 }
 
-void HierarchyPanel::DrawPopup(const PreviewScene& p_ctx) {
+void HierarchyPanel::drawPopup(const PreviewScene& p_ctx) {
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
         SelectionKey selection = m_editor.SelectionService().Primary(p_ctx.doc_id);
         DEV_ASSERT(selection.doc == p_ctx.doc_id);
@@ -226,7 +226,7 @@ void HierarchyPanel::DrawPopup(const PreviewScene& p_ctx) {
         ecs::Entity parent = selected.IsValid() ? selected : p_ctx.scene->m_root;
 
         if (ImGui::BeginMenu("Add")) {
-            OpenAddEntityPopupImpl(p_ctx.doc_id, parent);
+            openAddEntityPopupImpl(p_ctx.doc_id, parent);
             ImGui::EndMenu();
         }
 
@@ -244,7 +244,7 @@ void HierarchyPanel::DrawPopup(const PreviewScene& p_ctx) {
                 auto cmd = std::make_unique<DeleteObjectCmd>(
                     services_.sceneRegistry(),
                     selected);
-                edit.Submit(p_ctx.doc_id, std::move(cmd));
+                edit.submit(p_ctx.doc_id, std::move(cmd));
             }
         }
         ImGui::EndPopup();
@@ -265,13 +265,13 @@ void HierarchyPanel::DrawPopup(const PreviewScene& p_ctx) {
     DEFINE_OBJECT(Torus,          true )
 // clang-format on
 
-void HierarchyPanel::OpenAddEntityPopupImpl(DocId p_doc_id, ecs::Entity p_parent) {
+void HierarchyPanel::openAddEntityPopupImpl(DocId p_doc_id, ecs::Entity p_parent) {
     DEV_ASSERT(p_parent.IsValid());
 
     using CreateFunc = Entity (*)(SceneCommandWriter& p_cb, std::string_view p_name);
     auto add_object = [&](const char* p_name, bool p_separator, CreateFunc p_func) {
         if (ImGui::MenuItem(p_name)) {
-            m_editor.EditService().Submit(p_doc_id, [&](SceneCommandWriter& cb) {
+            m_editor.EditService().submit(p_doc_id, [&](SceneCommandWriter& cb) {
                 Entity temp = p_func(cb, p_name);
                 cb.AttachChild(temp, p_parent);
             });

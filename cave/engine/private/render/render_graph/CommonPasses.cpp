@@ -53,7 +53,7 @@ extern void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx);
 extern void TonePassFunc(RenderPassExcutionContext& p_ctx);
 
-DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
+DepthPrepassOutput RenderGraphBuilderExt::addDepthPrepass() {
     RenderPass& pass = AddPass(RG_PASS_DEPTH_PREPASS);
 
     DepthPrepassOutput out{
@@ -69,7 +69,7 @@ DepthPrepassOutput RenderGraphBuilderExt::AddDepthPrepass() {
     return out;
 }
 
-GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_in) {
+GbufferOutput RenderGraphBuilderExt::addGbufferPass(const DepthPrepassOutput& p_in) {
     RenderPass& pass = AddPass(RG_PASS_GBUFFER);
 
     GbufferOutput out{
@@ -96,7 +96,7 @@ GbufferOutput RenderGraphBuilderExt::AddGbufferPass(const DepthPrepassOutput& p_
     return out;
 }
 
-LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in) {
+LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in) {
 
     RGTextureId out = CreateTexture({
         RG_RES_LIGHTING,
@@ -122,7 +122,7 @@ LightingOutput RenderGraphBuilderExt::AddLightingPass(const LightingInput& p_in)
     return { out };
 }
 
-ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
+ForwardOutput RenderGraphBuilderExt::addForwardPass(const ForwardInput& p_in) {
     RenderPass& pass = AddPass(RG_PASS_FORWARD);
     pass.Read(ResourceAccess::SRV, p_in.skybox)
         .Read(ResourceAccess::SRV, p_in.shadow)
@@ -139,7 +139,7 @@ ForwardOutput RenderGraphBuilderExt::AddForwardPass(const ForwardInput& p_in) {
     return ForwardOutput{};
 }
 
-HighlightOutput RenderGraphBuilderExt::AddHighlightPass(const HighlightInput& p_in) {
+HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_in) {
     RenderPass& pass = AddPass(RG_PASS_OUTLINE);
 
     HighlightOutput out = {
@@ -157,23 +157,44 @@ HighlightOutput RenderGraphBuilderExt::AddHighlightPass(const HighlightInput& p_
     return out;
 }
 
-PostProcessOutput RenderGraphBuilderExt::AddPostProcessPass(const PostProcessInput& p_in) {
+PostProcessOutput RenderGraphBuilderExt::addPostProcessPass(const PostProcessInput& in) {
     RenderPass& pass = AddPass(RG_PASS_POST_PROCESS);
-    auto desc = BuildDefaultTextureDesc(RT_FMT_TONE, AttachmentType::COLOR_2D);
+    auto desc = BuildDefaultTextureDesc(RT_FMT_TONE,
+                                        AttachmentType::COLOR_2D);
     desc.bindFlags |= BIND_SHADER_RESOURCE;
 
     PostProcessOutput out{
-        .processed = ImportTexture({ p_in.out }),
+        .processed = ImportTexture({ in.color_attachment }),
     };
 
-    pass.Read(ResourceAccess::SRV, p_in.lighting)
-        .Read(ResourceAccess::SRV, p_in.outline)
-        .Read(ResourceAccess::SRV, p_in.bloom);
+    pass.Read(ResourceAccess::SRV, in.lighting)
+        .Read(ResourceAccess::SRV, in.outline)
+        .Read(ResourceAccess::SRV, in.bloom);
 
     pass.WriteColor(out.processed, {}, LoadOp::Clear)
         .SetExecuteFunc(TonePassFunc);
 
     return out;
+}
+
+extern void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx);
+
+void RenderGraphBuilderExt::add2dPass(const TwoDInput& in) {
+    RenderPass& pass = AddPass(RG_PASS_2D);
+    auto desc = BuildDefaultTextureDesc(DEFAULT_SURFACE_FORMAT,
+                                        AttachmentType::COLOR_2D);
+    desc.bindFlags |= BIND_SHADER_RESOURCE;
+
+    RGTextureId depth = CreateTexture({
+        RG_RES_DEPTH_STENCIL,
+        BuildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
+    });
+
+    RGTextureId color = ImportTexture({ in.color_attachment });
+
+    pass.WriteColor(color, {}, LoadOp::Clear)
+        .WriteDepth(depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear)
+        .SetExecuteFunc(Pass2DDrawFunc);
 }
 
 #if 0

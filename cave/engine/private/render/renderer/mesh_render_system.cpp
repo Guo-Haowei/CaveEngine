@@ -347,7 +347,7 @@ static void FillMainPass(const Scene& p_es,
         false);
 }
 
-void RunMeshRenderSystem(const Scene& p_scene,
+void runMeshRenderSystem(const Scene& p_scene,
                          const RenderScene& p_rscene,
                          const ResolvedView& p_view,
                          FrameData& p_framedata) {

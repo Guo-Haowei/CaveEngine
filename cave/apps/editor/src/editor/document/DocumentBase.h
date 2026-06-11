@@ -12,61 +12,66 @@ class SceneRegistry;
 
 class DocumentBase : public IDocument {
 public:
-    DocumentBase(IApplication& p_app, const Guid& p_guid);
+    DocumentBase(IApplication& app, const Guid& guid);
 
-    bool Apply(std::unique_ptr<IEditCmd> p_cmd, uint32_t p_coalesce) override;
+    bool apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) override;
 
-    bool CanUndo() const override { return !m_undo.empty(); }
-    bool CanRedo() const override { return !m_redo.empty(); }
+    bool canUndo() const override { return !undo_.empty(); }
+    bool canRedo() const override { return !redo_.empty(); }
 
-    bool Undo() override;
+    bool undo() override;
 
-    bool Redo() override;
+    bool redo() override;
 
-    void MarkSaved() override {
+    void markSaved() override {
         // Save marker is "undo stack size at time of save".
         // If user undoes/redoes to exactly this size again => not dirty.
-        m_saved_undo_size = m_undo.size();
+        saved_undo_size_ = undo_.size();
     }
 
-    bool IsDirty() const override {
-        return m_saved_undo_size != m_undo.size();
+    bool isDirty() const override {
+        return saved_undo_size_ != undo_.size();
     }
 
-    void GetUndoLabels(std::vector<std::string>& p_out, int p_max_items) const override;
+    void undoLabels(std::vector<std::string>& out, int max_items) const override;
 
-    void GetRedoLabels(std::vector<std::string>& p_out, int p_max_items) const override;
+    void redoLabels(std::vector<std::string>& out, int max_items) const override;
 
-    bool Save() override;
-    bool SaveAs(std::string_view) override;
+    bool save() override;
+    bool saveAs(std::string_view) override;
+
+    SceneId previewScene() const override {
+        return preview_scene_;
+    }
 
 private:
-    void TouchDirtyAfterEdit() {
+    void touchDirtyAfterEdit() {
         // nothing required here beyond marker comparison;
         // kept as a hook in case you later add "modified time", etc.
     }
 
-    void RecomputeDirtyAfterHistoryMove() {
+    void recomputeDirtyAfterHistoryMove() {
         // IsDirty uses marker compare; nothing to recompute.
     }
 
-    void TrimUndoIfNeeded();
+    void trimUndoIfNeeded();
 
 protected:
-    void SetUndoLimit(size_t limit) { m_undo_limit = limit; }
+    void undoLimit(size_t limit) { undo_limit_ = limit; }
 
-    AssetRegistry& m_asset_reg;
-    SceneRegistry& m_scene_reg;
-    Guid m_guid;
+    SceneId preview_scene_{};
+    AssetRegistry& asset_reg_;
+    SceneRegistry& scene_reg_;
+    Guid guid_;
 
 private:
-    std::deque<std::unique_ptr<IEditCmd>> m_undo;
-    std::deque<std::unique_ptr<IEditCmd>> m_redo;
+    std::deque<std::unique_ptr<IEditCmd>> undo_;
+    std::deque<std::unique_ptr<IEditCmd>> redo_;
 
-    size_t m_undo_limit = 0;       // 0 = unlimited
-    size_t m_saved_undo_size = 0;  // save marker
+    size_t undo_limit_ = 0;       // 0 = unlimited
+    size_t saved_undo_size_ = 0;  // save marker
 
-    uint32_t m_last_coalesce = 0;
+    uint32_t last_coalesce_ = 0;
 };
 
 }  // namespace cave

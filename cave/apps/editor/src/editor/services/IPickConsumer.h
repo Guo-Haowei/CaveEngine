@@ -19,7 +19,7 @@ class IPickConsumer {
 public:
     virtual ~IPickConsumer() = default;
 
-    virtual Option<PickData> GetPickData(const math::Vector2f& p_pos_screen) = 0;
+    virtual Option<PickData> getPickData(const math::Vector2f& p_pos_screen) = 0;
 
     virtual DebugId debugId() const = 0;
 };

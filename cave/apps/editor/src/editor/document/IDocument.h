@@ -20,49 +20,41 @@ class IDocument {
 public:
     virtual ~IDocument() = default;
 
-    // --- Editing (commands mutate document state) ---
-    // Apply pushes onto undo stack; clears redo stack.
-    // Returns false if rejected (invalid command for current doc state).
-    virtual bool Apply(std::unique_ptr<IEditCmd> p_cmd,
-                       uint32_t p_coalesce) = 0;
+    virtual bool apply(std::unique_ptr<IEditCmd> cmd,
+                       uint32_t coalesce) = 0;
 
-    virtual bool CanUndo() const = 0;
-    virtual bool CanRedo() const = 0;
+    virtual bool canUndo() const = 0;
+    virtual bool canRedo() const = 0;
 
-    virtual bool Undo() = 0;
-    virtual bool Redo() = 0;
+    virtual bool undo() = 0;
+    virtual bool redo() = 0;
 
-    // --- Dirty tracking ---
-    // Marks current state as "saved" (typically after successful Save()).
-    virtual void MarkSaved() = 0;
-    virtual bool IsDirty() const = 0;
+    virtual void markSaved() = 0;
+    virtual bool isDirty() const = 0;
 
-    virtual bool Save() = 0;
-    virtual bool SaveAs(std::string_view p_new_path) = 0;
+    virtual bool save() = 0;
+    virtual bool saveAs(std::string_view new_path) = 0;
 
-    //// --- Optional: for UI ---
-    virtual void GetUndoLabels(std::vector<std::string>& p_out, int p_max_items) const = 0;
-    virtual void GetRedoLabels(std::vector<std::string>& p_out, int p_max_items) const = 0;
+    virtual void undoLabels(std::vector<std::string>& out, int max_items) const = 0;
+    virtual void redoLabels(std::vector<std::string>& out, int max_items) const = 0;
 
-    AssetHandle GetHandleRaw() const {
-        return m_handle;
+    AssetHandle rawHandle() const {
+        return handle_;
     }
 
     template<typename T>
-    Handle<T> GetHandle() const {
+    Handle<T> handle() const {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
-        AssetHandle copy = m_handle;
+        AssetHandle copy = handle_;
         return Handle<T>(std::move(copy));
     }
 
     // @TODO: remove this, not all doc is related to scene
-    virtual SceneId GetPreviewScene() const {
-        return {};
-    }
+    virtual SceneId previewScene() const { return {}; }
 
 protected:
-    AssetHandle m_handle;
-    AssetRef m_asset;
+    AssetHandle handle_;
+    AssetRef asset_;
 };
 
 }  // namespace cave

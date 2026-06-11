@@ -11,12 +11,12 @@ public:
 
     void OnAttach() override;
 
-    const char* GetWindowId() const override {
+    const char* windowId() const override {
         return "File System";
     }
 
 protected:
-    void DrawUIImpl() override;
+    void drawUIImpl() override;
 
     void DrawFolderTreeNode(const ContentEntry& p_node);
 

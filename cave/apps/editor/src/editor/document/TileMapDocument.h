@@ -1,13 +1,16 @@
 #pragma once
-#include <variant>
+#include "DocumentBase.h"
 
 #include "engine/private/runtime/assets/TileMapAsset.h"
 
 namespace cave {
 
-#if 0
-class TileMapEditor;
+class TileMapDocument : public DocumentBase {
+public:
+    TileMapDocument(IApplication& app, const Guid& guid);
+};
 
+#if 0
 struct CommandAddTile {
     TileIndex tile;
     TileId id;

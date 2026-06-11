@@ -1,4 +1,4 @@
-set(TARGET_NAME chess_dll)
+set(TARGET_NAME chess)
 
 file(GLOB_RECURSE SRC
     "*.h"
@@ -8,11 +8,6 @@ file(GLOB_RECURSE SRC
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 
 add_library(${TARGET_NAME} SHARED ${SRC})
-
-set_target_properties(${TARGET_NAME}
-    PROPERTIES
-    OUTPUT_NAME "game"
-)
 
 target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/cave/public

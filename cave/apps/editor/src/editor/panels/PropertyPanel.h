@@ -8,12 +8,12 @@ public:
     PropertyPanel(EditorState& p_editor)
         : EditorWindow(p_editor) {}
 
-    const char* GetWindowId() const override {
+    const char* windowId() const override {
         return "Properties";
     }
 
 protected:
-    void DrawUIImpl() override;
+    void drawUIImpl() override;
 };
 
 }  // namespace cave

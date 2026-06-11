@@ -9,6 +9,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/input/InputService.h"
 
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/Workspace.h"
 #include "editor/EditorIntent.h"
@@ -17,17 +18,17 @@
 namespace cave {
 
 ShortcutService::ShortcutService(EditorState& p_editor)
-    : m_editor(p_editor)
+    : editor_(p_editor)
     , input_service_(p_editor.app().services().inputService())
     , intent_dispatcher_(p_editor.app().services().intentDispatcher())
-    , m_debug_id(MakeDebugId(this)) {
+    , debug_id_(MakeDebugId(this)) {
 
     input_service_.addConsumer(this);
     intent_dispatcher_.addHandler<SaveIntent>(this);
     intent_dispatcher_.addHandler<UndoIntent>(this);
     intent_dispatcher_.addHandler<RedoIntent>(this);
 
-    InitShortcuts();
+    initShortcuts();
 }
 
 ShortcutService::~ShortcutService() {
@@ -37,41 +38,44 @@ ShortcutService::~ShortcutService() {
     input_service_.removeConsumer(this);
 }
 
-bool ShortcutService::handleIntent(Intent& p_intent) {
-    if (auto intent = dynamic_cast<const SaveIntent*>(&p_intent)) {
-        const bool save_as = intent->save_as;
-        LOG_OK(save_as ? "Ctrl+Shift+S" : "Ctrl+S");
+bool ShortcutService::handleIntent(Intent& intent) {
+    if (auto save = dynamic_cast<const SaveIntent*>(&intent)) {
+        const bool save_all = save->save_all();
 
-        // @TODO: actually save the document
-        // AssetRegistry::GetSingleton().SaveAllAssets();
-        // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(true));
-        // m_editor.GetEditService().BufferCommand(std::make_shared<SaveProjectCommand>(false));
+        AssetRegistry& asset_reg = *editor_.app().GetAssetRegistry();
+        if (save_all) {
+            // @TODO: fix this
+            asset_reg.SaveAllAssets();
+        } else {
+            editor_.DocumentService().save(save->doc_id());
+        }
+
         return true;
     }
 
-    if (auto intent = dynamic_cast<const UndoIntent*>(&p_intent)) {
-        m_editor.EditService().Undo(intent->doc_id);
+    if (auto undo = dynamic_cast<const UndoIntent*>(&intent)) {
+        editor_.EditService().undo(undo->doc_id());
         return true;
     }
 
-    if (auto intent = dynamic_cast<const RedoIntent*>(&p_intent)) {
-        m_editor.EditService().Redo(intent->doc_id);
+    if (auto redo = dynamic_cast<const RedoIntent*>(&intent)) {
+        editor_.EditService().redo(redo->doc_id());
         return true;
     }
 
     return false;
 }
 
-void ShortcutService::onEvents(const InputFrame& p_input) {
+void ShortcutService::onEvents(const InputFrame& input) {
     const bool ctrl = input_service_.keyState().anyCtrlDown();
     const bool alt = input_service_.keyState().anyAltDown();
     const bool shift = input_service_.keyState().anyShiftDown();
 
-    for (const InputEvent& e : p_input.events) {
+    for (const InputEvent& e : input.events) {
         if (e.type != InputEventType::ButtonDown)
             continue;
 
-        for (const ShortcutDesc& desc : m_shortcuts) {
+        for (const ShortcutDesc& desc : shortcuts_) {
             if (static_cast<uint32_t>(desc.key) != e.code) continue;
             if (desc.ctrl)
                 if (!ctrl) continue;
@@ -88,19 +92,19 @@ void ShortcutService::onEvents(const InputFrame& p_input) {
     }
 }
 
-void ShortcutService::InitShortcuts() {
+void ShortcutService::initShortcuts() {
     auto active_document = [this]() -> DocId {
-        return m_editor.Workspace().FocusedDoc();
+        return editor_.Workspace().focusedDoc();
     };
 
-    m_shortcuts[std::to_underlying(Shortcut::SaveAs)] = {
+    shortcuts_[std::to_underlying(Shortcut::SaveAs)] = {
         "Save As..",
         "Ctrl+Shift+S",
         [active_document, this]() {
             intent_dispatcher_.queue<SaveIntent>(active_document(), true);
         },
     };
-    m_shortcuts[std::to_underlying(Shortcut::Save)] = {
+    shortcuts_[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [active_document, this]() {
@@ -108,7 +112,7 @@ void ShortcutService::InitShortcuts() {
         },
     };
 
-    m_shortcuts[std::to_underlying(Shortcut::Open)] = {
+    shortcuts_[std::to_underlying(Shortcut::Open)] = {
         "Open",
         "Ctrl+O",
         [this]() {
@@ -117,31 +121,31 @@ void ShortcutService::InitShortcuts() {
         },
     };
 
-    m_shortcuts[std::to_underlying(Shortcut::Redo)] = {
+    shortcuts_[std::to_underlying(Shortcut::Redo)] = {
         "Redo",
         "Ctrl+Shift+Z",
         [active_document, this]() {
-            if (m_editor.EditService().CanRedo(active_document()))
+            if (editor_.EditService().canRedo(active_document()))
                 intent_dispatcher_.queue<RedoIntent>(active_document());
         },
-        [active_document, this]() { return m_editor.EditService().CanRedo(active_document()); },
+        [active_document, this]() { return editor_.EditService().canRedo(active_document()); },
     };
 
-    m_shortcuts[std::to_underlying(Shortcut::Undo)] = {
+    shortcuts_[std::to_underlying(Shortcut::Undo)] = {
         "Undo",
         "Ctrl+Z",
         [active_document, this]() {
-            if (m_editor.EditService().CanUndo(active_document()))
+            if (editor_.EditService().canUndo(active_document()))
                 intent_dispatcher_.queue<UndoIntent>(active_document());
         },
-        [active_document, this]() { return m_editor.EditService().CanUndo(active_document()); },
+        [active_document, this]() { return editor_.EditService().canUndo(active_document()); },
     };
 
     // @TODO: make this an intent
-    m_shortcuts[std::to_underlying(Shortcut::Debug)] = {
+    shortcuts_[std::to_underlying(Shortcut::Debug)] = {
         "Start Debugging",
         "F5",
-        [this]() { m_editor.RequestModeSwitch(); },
+        [this]() { editor_.RequestModeSwitch(); },
         []() { return true; },
     };
 
@@ -177,7 +181,7 @@ void ShortcutService::InitShortcuts() {
     };
 
     // @TODO: compile time
-    for (ShortcutDesc& shortcut : m_shortcuts) {
+    for (ShortcutDesc& shortcut : shortcuts_) {
         StringSplitter split(shortcut.shortcut);
         while (split.CanAdvance()) {
             std::string_view sv = split.Advance('+');

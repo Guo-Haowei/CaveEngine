@@ -143,17 +143,20 @@ void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
         CRASH_NOW_MSG("remap skin and skeleton");
     }
 
-    DEV_ASSERT(0);
-#if 0
     // remap all entities
-    for (auto&& [key, entry] : copy.m_storage.GetEntries()) {
-        entry.manager->Remap(mapping);
+    for (uint16_t cid = 0; cid < (uint16_t)copy.m_storage.m_entries.size(); ++cid) {
+        auto& entry = copy.m_storage.m_entries[cid];
+        if (!entry.pool) continue;
+        entry.pool->Remap(mapping);
 
-        auto my_entry = m_component_lib.m_entries.find(key);
-        CRASH_COND(my_entry == m_component_lib.m_entries.end());
-        my_entry->second.manager->Merge(std::move(*entry.manager));
+        CRASH_COND(cid >= m_storage.m_entries.size());
+        auto& my_entry = m_storage.m_entries[cid];
+
+        if (!my_entry.pool) {
+            m_storage.GetOrCreate(cid);
+        }
+        my_entry.pool->Merge(std::move(*entry.pool));
     }
-#endif
 
     // link instance
     Entity mapped_root = mapping[copy.m_root];

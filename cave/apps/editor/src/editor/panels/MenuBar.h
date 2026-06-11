@@ -5,10 +5,10 @@ namespace cave {
 
 class MenuBar : public IEditorItem {
 public:
-    MenuBar(EditorState& p_editor)
-        : IEditorItem(p_editor) {}
+    MenuBar(EditorState& editor)
+        : IEditorItem(editor) {}
 
-    void DrawUI() override;
+    void drawUI() override;
 };
 
 }  // namespace cave
