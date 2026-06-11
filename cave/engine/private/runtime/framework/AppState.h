@@ -17,6 +17,7 @@ enum class AppStateId : uint8_t {
 struct StateRequest {
     AppStateId next{ AppStateId::ProjectBrowser };
     std::string arg0;
+    std::string arg1;
 };
 
 class AppState {

@@ -67,7 +67,11 @@ void ProjectBrowserState::drawRecentProjects() {
         }
 
         if (clicked && !request_fired_) {
-            request_ = Some(StateRequest{ AppStateId::Editor, project.start_scene });
+            request_ = Some(StateRequest{
+                .next = AppStateId::Editor,
+                .arg0 = project.name,
+                .arg1 = project.start_scene,
+            });
             project_manager_.loadProject(project);
             request_fired_ = true;
         }

@@ -86,8 +86,8 @@ void EditorState::onEnter(const StateRequest& request) {
     }
 
     SceneId edit_scene{};
-    if (!request.arg0.empty()) {
-        if (auto handle = app_.GetAssetRegistry()->FindByPath(request.arg0); handle.is_some()) {
+    if (!request.arg1.empty()) {
+        if (auto handle = app_.GetAssetRegistry()->FindByPath(request.arg1); handle.is_some()) {
             AssetHandle handle_ = handle.unwrap_unchecked();
             DocId doc_id = m_document_service->openDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
             if (IDocument* doc = m_document_service->resolve(doc_id)) {
@@ -98,9 +98,8 @@ void EditorState::onEnter(const StateRequest& request) {
 
     // load pie
     PIEStartDesc desc{};
-    LOG_ERROR("Do not load hard coded dll");
-    desc.game_dll = "chess_Debug.dll";
-    desc.game_id = "chess";
+    desc.game_id = request.arg0;
+    desc.game_dll = std::format("{}_Debug.dll", desc.game_id);
     desc.edit_scene = edit_scene;
 
     m_pie.start(std::move(desc));
