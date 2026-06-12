@@ -5,10 +5,10 @@ namespace cave {
 
 class Win32Logger : public ILogSink {
 public:
-    void Submit(const LogEvent& p_log) override;
+    void Submit(const LogEvent& log) override;
 
 private:
-    std::mutex m_console_mutex;
+    std::mutex console_mutex_;
 };
 
 }  // namespace cave

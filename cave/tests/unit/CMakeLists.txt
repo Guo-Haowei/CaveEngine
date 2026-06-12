@@ -1,5 +1,3 @@
-include(${PROJECT_SOURCE_DIR}/cmake/target_helpers.cmake)
-
 set(TARGET_NAME unit_tests)
 
 file(GLOB_RECURSE SRC
@@ -36,5 +34,3 @@ target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_LIBS})
 target_precompile_headers(${TARGET_NAME} PRIVATE pch.h)
 
 target_set_warning_level(${TARGET_NAME})
-
-cave_copy_runtime_dll(unit_tests engine_core)

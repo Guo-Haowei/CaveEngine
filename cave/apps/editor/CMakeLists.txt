@@ -1,5 +1,3 @@
-include(${PROJECT_SOURCE_DIR}/cmake/target_helpers.cmake)
-
 set(TARGET_NAME editor)
 
 file(GLOB_RECURSE SRC
@@ -37,5 +35,3 @@ set_target_properties(${TARGET_NAME}
 
 target_precompile_headers(${TARGET_NAME} PRIVATE src/editor/pch.h)
 target_set_warning_level(${TARGET_NAME})
-
-cave_copy_runtime_dll(editor engine_core)

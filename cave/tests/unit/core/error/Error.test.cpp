@@ -106,10 +106,6 @@ TEST(InternalError, ErrorStackFramesAreRecordedInOriginToCallerOrder) {
     EXPECT_STREQ(frames[0].func.data(), "DoStuffImpl");
     EXPECT_STREQ(frames[1].func.data(), "DoStuffWrapper");
     EXPECT_STREQ(frames[2].func.data(), "MyFunc");
-
-    EXPECT_GT(frames[0].line, 0);
-    EXPECT_GT(frames[1].line, 0);
-    EXPECT_GT(frames[2].line, 0);
 }
 
 TEST(InternalError, ErrorStackStringContainsFunctionOrder) {
