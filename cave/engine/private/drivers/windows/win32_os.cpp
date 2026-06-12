@@ -18,6 +18,8 @@ void OS::Initialize() {
     // }
 
     AddLogger(std::make_shared<DebugConsoleLogger>());
+
+    SetLogger(&logger_);
 }
 
 bool IsAnsiSupported() {

@@ -29,6 +29,8 @@
 
 namespace cave {
 
+class ILogSink;
+
 enum LogLevel : uint16_t {
     LOG_LEVEL_TRACE = 0x0001,
     LOG_LEVEL_INFO = 0x0002,
@@ -56,6 +58,10 @@ struct LogEvent {
     int64_t timestamp_ms;
     std::string message;
 };
+
+CAVE_CORE_API void SetLogger(ILogSink* logger);
+
+CAVE_CORE_API void RemoveLogger(ILogSink* logger);
 
 CAVE_CORE_API void LogImpl(LogLevel level, LogChannel channel, std::string message);
 

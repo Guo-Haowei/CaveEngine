@@ -5,14 +5,15 @@
 namespace cave {
 
 void OS::Finalize() {
+    RemoveLogger(&logger_);
 }
 
-void OS::AddLogger(std::shared_ptr<ILogSink> p_logger) {
-    m_logger.AddLogger(p_logger);
+void OS::AddLogger(std::shared_ptr<ILogSink> logger) {
+    logger_.AddLogger(logger);
 }
 
 void OS::Print(const LogEvent& p_log) {
-    m_logger.Submit(p_log);
+    logger_.Submit(p_log);
     if (p_log.level & LOG_LEVEL_FATAL) {
         GENERATE_TRAP();
     }

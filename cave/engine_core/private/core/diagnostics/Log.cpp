@@ -1,13 +1,27 @@
 #include "cave/core/diagnostics/Log.h"
+#include "cave/core/diagnostics/ILogSink.h"
 
 #include <chrono>
 
 namespace cave {
 
-namespace {
+static struct {
+    ILogSink* logger;
+} s_log_glob;
+
+void SetLogger(ILogSink* logger) {
+    // @TODO: thread safe?
+    s_log_glob.logger = logger;
+}
+
+void RemoveLogger(ILogSink* logger) {
+    if (s_log_glob.logger == logger) {
+        s_log_glob.logger = nullptr;
+    }
+}
 
 // @TODO: move to time util?
-int64_t GetTimestampMs() {
+static int64_t GetTimestampMs() {
     using namespace std::chrono;
 
     auto time = system_clock::now().time_since_epoch();
@@ -15,9 +29,9 @@ int64_t GetTimestampMs() {
 }
 
 // @TODO: move to time util?
-void TimestampMsToHHMMSSmm(int64_t timestamp_ms,
-                           char* out,
-                           size_t out_size) {
+static void TimestampMsToHHMMSSmm(int64_t timestamp_ms,
+                                  char* out,
+                                  size_t out_size) {
     using namespace std::chrono;
 
     if (out_size < LogEvent::kMaxTimeString) {
@@ -49,7 +63,7 @@ void TimestampMsToHHMMSSmm(int64_t timestamp_ms,
                   static_cast<long long>(ms_part));
 }
 
-LogEvent BuildLog(LogLevel level, LogChannel channel, std::string message) {
+static LogEvent BuildLog(LogLevel level, LogChannel channel, std::string message) {
     LogEvent log;
     log.level = level;
     log.channel = channel;
@@ -60,17 +74,17 @@ LogEvent BuildLog(LogLevel level, LogChannel channel, std::string message) {
     return log;
 }
 
-}  // namespace
-
 void LogImpl(LogLevel level, LogChannel channel, std::string message) {
-    printf("%d %d %s\n", level, channel, message.c_str());
+    if (s_log_glob.logger) {
+        LogEvent log = BuildLog(level, channel, std::move(message));
+        s_log_glob.logger->Submit(log);
+    } else {
+        printf("%s\n", message.c_str());
+    }
 
-    // if (OS* os = OS::GetSingletonPtr()) [[likely]] {
-    //     LogEvent log = detail::BuildLog(p_level, p_channel, std::move(p_message));
-    //     os->Print(std::move(log));
-    // } else {
-    //     printf("%s\n", p_message.c_str());
-    // }
+    if (level & LOG_LEVEL_FATAL) {
+        GENERATE_TRAP();
+    }
 }
 
 }  // namespace cave

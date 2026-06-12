@@ -10,12 +10,12 @@ public:
     void Initialize();
     void Finalize();
 
-    virtual void Print(const LogEvent& p_log);
+    virtual void Print(const LogEvent& log);
 
-    void AddLogger(std::shared_ptr<ILogSink> p_logger);
+    void AddLogger(std::shared_ptr<ILogSink> logger);
 
 protected:
-    CompositeLogger m_logger;
+    CompositeLogger logger_;
 };
 
 bool IsAnsiSupported();

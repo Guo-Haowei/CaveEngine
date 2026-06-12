@@ -19,19 +19,19 @@ namespace cave {
 
 static constexpr float kLogFilterWidth = 150.0f;
 
-LogPanel::LogPanel(EditorState& p_editor)
-    : EditorWindow(p_editor) {
-    m_console = std::make_unique<ConsolePanel>(p_editor);
+LogPanel::LogPanel(EditorState& editor)
+    : EditorWindow(editor) {
+    m_console = std::make_unique<ConsolePanel>(editor);
 }
 
 LogPanel::~LogPanel() = default;
 
-static void DrawLog(const LogEvent& p_log) {
+static void DrawLog(const LogEvent& log) {
     using ui::IconType;
 
     ColorCode color = ColorCode::Silver;
     IconType type = IconType::Info;
-    switch (p_log.level) {
+    switch (log.level) {
         case LOG_LEVEL_WARN:
             type = IconType::Exclamation;
             color = ColorCode::Yellow;
@@ -55,12 +55,12 @@ static void DrawLog(const LogEvent& p_log) {
     Color c = Color::Hex(color);
     ui::ColorIcon(c, type);
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(c.r, c.g, c.b, 1.0f));
-    std::string log = detail::FormatLog(p_log);
+    std::string formatted = FormatLog(log);
     ImGui::SameLine();
-    ImGui::Text("  %s", log.c_str());
-    if (p_log.repeat > 1) {
+    ImGui::Text("  %s", formatted.c_str());
+    if (log.repeat > 1) {
         ImGui::SameLine();
-        ImGui::Text(" [ x%u ]", p_log.repeat);
+        ImGui::Text(" [ x%u ]", log.repeat);
     }
     ImGui::PopStyleColor();
 }
