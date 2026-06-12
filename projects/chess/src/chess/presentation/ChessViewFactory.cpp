@@ -1,6 +1,6 @@
 #include "ChessViewFactory.h"
 
-#include "cave/core/ErrorMacros.h"
+#include "cave/core/error/ErrorMacros.h"
 #include "cave/core/string/StringId.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
