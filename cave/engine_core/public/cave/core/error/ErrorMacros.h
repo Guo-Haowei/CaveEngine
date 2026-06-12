@@ -1,5 +1,9 @@
+// =============================================================================
+// File: cave/core/error/ErrorMacros.h
+// =============================================================================
 #pragma once
-#include "cave/core/Error.h"
+#include "Error.h"
+
 #include "cave/core/typedefs.h"
 #include "cave/core/IntrusiveList.h"
 
