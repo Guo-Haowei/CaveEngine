@@ -2,7 +2,6 @@
 // File: cave/game/IHostServices.h
 // =============================================================================
 #pragma once
-#include "cave/core/diagnostics/LogWrapper.h"
 #include "cave/core/ids/ViewId.h"
 
 // clang-format off
@@ -30,7 +29,6 @@ public:
     virtual const IGameInput& gameInput() const = 0;
     virtual IntentDispatcher& intentDispatcher() = 0;
     virtual IUIRuntime& ui() = 0;
-    virtual LogWrapper& log() = 0;
     virtual SceneCommandWriter& sceneWriter() = 0;
 
     virtual ViewId viewId() const = 0;

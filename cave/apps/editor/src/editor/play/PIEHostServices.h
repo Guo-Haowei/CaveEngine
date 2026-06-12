@@ -22,7 +22,6 @@ public:
     IntentDispatcher& intentDispatcher() override;
     const IGameInput& gameInput() const override;
     IUIRuntime& ui() override;
-    LogWrapper& log() override { return logger_; }
     SceneCommandWriter& sceneWriter() override { return writer_; }
 
     ViewId viewId() const override { return view_id_; }
@@ -34,7 +33,6 @@ public:
 
 private:
     IApplication& app_;
-    LogWrapper logger_;
     Scene& scene_;
     ViewId view_id_;
     SceneCommandWriter writer_;

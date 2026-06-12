@@ -6,10 +6,10 @@
 
 namespace cave {
 
-class LogWrapper {
+class CAVE_CORE_API LogWrapper {
 public:
     explicit LogWrapper(ILogSink& p_sink) noexcept
-        : m_sink(p_sink) {}
+        : sink_(p_sink) {}
 
     void Trace(LogChannel p_channel, std::string&& p_message) {
         Log(LOG_LEVEL_TRACE, p_channel, std::move(p_message));
@@ -34,7 +34,7 @@ public:
 private:
     void Log(LogLevel p_level, LogChannel p_channel, std::string&& p_message);
 
-    ILogSink& m_sink;
+    ILogSink& sink_;
 };
 
 }  // namespace cave

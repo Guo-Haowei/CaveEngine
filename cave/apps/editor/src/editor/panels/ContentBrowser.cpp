@@ -2,6 +2,7 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 
 #include "engine/private/runtime/assets/ImageAsset.h"

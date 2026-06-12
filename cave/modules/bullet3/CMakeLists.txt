@@ -59,6 +59,7 @@ target_include_directories(${TARGET_NAME} PRIVATE
     ${bullet_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
+    ${PROJECT_SOURCE_DIR}/cave/engine_core/public
     ${PROJECT_SOURCE_DIR}/cave/engine/public
     ${PROJECT_SOURCE_DIR}/cave/shader
     ${PROJECT_SOURCE_DIR}/cave

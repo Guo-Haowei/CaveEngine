@@ -13,7 +13,6 @@ PIEHostServices::PIEHostServices(IApplication& app,
                                  Scene& scene,
                                  ViewId view_id) noexcept
     : app_(app)
-    , logger_(CompositeLogger::GetSingleton())
     , scene_(scene)
     , view_id_(view_id)
     , writer_(*app.GetAssetRegistry())

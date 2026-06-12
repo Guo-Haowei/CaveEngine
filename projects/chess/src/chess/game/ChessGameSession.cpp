@@ -85,7 +85,7 @@ void ChessGameSession::tickGameOver() {
         return;
     }
 
-    host_.log().Info(LogChannel::Game, "Game Over!");
+    LOG_INFO(LogChannel::Game, "Game Over!");
 
     auto state = std::make_unique<GameOverState>();
     host_.intentDispatcher().queue<ChessStateIntent>(std::move(state));
@@ -175,7 +175,7 @@ void ChessGameSession::setPhase(SessionPhase phase) {
 
 #if USING(DEBUG_BUILD)
     auto msg = std::format("SessionPhase {} -> {}", toString(phase_), toString(phase));
-    host_.log().Trace(LogChannel::Game, std::move(msg));
+    LOG_TRACE(LogChannel::Game, std::move(msg));
 #endif
 
     phase_ = phase;

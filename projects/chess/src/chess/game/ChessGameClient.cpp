@@ -83,7 +83,7 @@ void ChessGameClient::onMoveCommitted(Move move) {
 }
 
 void ChessGameClient::onMoveRejected(Move) {
-    host_.log().Info(cave::LogChannel::Game, "Invalid move!");
+    LOG_INFO(cave::LogChannel::Game, "Invalid move!");
 }
 
 void ChessGameClient::present() {

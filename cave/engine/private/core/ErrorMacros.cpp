@@ -1,6 +1,5 @@
 #include "cave/core/ErrorMacros.h"
 
-#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
 #include "engine/private/core/os/os.h"
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
@@ -19,53 +18,45 @@ void BreakIfDebug() {
 #endif
 }
 
-bool AddErrorHandler(ErrorHandler* p_handler) {
+bool AddErrorHandler(ErrorHandler* handler) {
     // if the handler already exists, remove it
-    RemoveErrorHandler(p_handler);
+    RemoveErrorHandler(handler);
 
     GlobalLock();
-    s_errorHandlers.node_push_front(p_handler);
+    s_errorHandlers.node_push_front(handler);
     GlobalUnlock();
     return true;
 }
 
-bool RemoveErrorHandler(const ErrorHandler* p_handler) {
+bool RemoveErrorHandler(const ErrorHandler* handler) {
     GlobalLock();
-    s_errorHandlers.node_remove(p_handler);
+    s_errorHandlers.node_remove(handler);
     GlobalUnlock();
     return true;
 }
 
-void ReportErrorImpl(std::string_view p_function,
-                     std::string_view p_file,
-                     int p_line,
-                     std::string_view p_error,
-                     std::string_view p_detail) {
+void ReportErrorImpl(std::string_view function,
+                     std::string_view file,
+                     int line,
+                     std::string_view error,
+                     std::string_view detail) {
     std::string extra;
-    if (!p_detail.empty()) {
-        extra = std::format("\nDetail: {}", p_detail);
+    if (!detail.empty()) {
+        extra = std::format("\nDetail: {}", detail);
     }
 
     auto message = std::format("ERROR: {}{}\n    at {} ({}:{})\n",
-                               p_error,
+                               error,
                                extra,
-                               p_function,
-                               p_file,
-                               p_line);
-    if (auto os = OS::GetSingletonPtr()) {
-        LogEvent log = detail::BuildLog(LOG_LEVEL_ERROR, LogChannel::Default, std::move(message));
-        os->Print(std::move(log));
-    } else {
-        fprintf(stdout, "%s", message.c_str());
-        fflush(stdout);
-    }
+                               function,
+                               file,
+                               line);
+    LogImpl(LOG_LEVEL_ERROR, std::move(message));
 
     GlobalLock();
-
     for (auto& handler : s_errorHandlers) {
-        handler.errorFunc(handler.userdata, p_function, p_file, p_line, p_error);
+        handler.errorFunc(handler.userdata, function, file, line, error);
     }
-
     GlobalUnlock();
 }
 

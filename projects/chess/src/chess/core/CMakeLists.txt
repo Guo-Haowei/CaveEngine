@@ -12,6 +12,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 add_executable(${TEST_NAME} ${SRC})
 
 target_include_directories(${TEST_NAME} PRIVATE
+    ${PROJECT_SOURCE_DIR}/cave/engine_core/public/
     ${PROJECT_SOURCE_DIR}/cave/engine/public/
     ${PROJECT_SOURCE_DIR}/thirdparty/googletest/googletest/include
 )
@@ -42,6 +43,7 @@ target_precompile_headers(${TEST_NAME} PRIVATE pch.h)
 add_executable(${UCI_NAME} ${SRC})
 
 target_include_directories(${UCI_NAME} PRIVATE
+    ${PROJECT_SOURCE_DIR}/cave/engine_core/public/
     ${PROJECT_SOURCE_DIR}/cave/engine/public/
     ${PROJECT_SOURCE_DIR}/thirdparty/googletest/googletest/include
 )
