@@ -14,7 +14,6 @@ namespace cave {
 void DvarCache::serialize(std::string_view path) {
     auto res = FileAccess::Open(path, FileAccess::WRITE);
     if (!res) {
-        LOG_ERROR(LogChannel::Dvar, "{}", ToString(res.error()));
         return;
     }
 
@@ -34,7 +33,7 @@ void DvarCache::serialize(std::string_view path) {
 void DvarCache::deserialize(std::string_view path) {
     auto res = FileAccess::Open(path, FileAccess::READ);
     if (!res) {
-        if (res.error()->value != ErrorCode::ERR_FILE_NOT_FOUND) {
+        if (res.error().value() != ErrorCode::ERR_FILE_NOT_FOUND) {
             LOG_ERROR(LogChannel::Dvar, "{}", ToString(res.error()));
         }
         return;

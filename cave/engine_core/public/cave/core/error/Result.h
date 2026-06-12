@@ -23,8 +23,8 @@ template<typename T>
 [[nodiscard]] constexpr inline auto CreateErrorArg(std::string_view file,
                                                    std::string_view function,
                                                    int line,
-                                                   InternalError<T>&& error) {
-    return std::unexpected(InternalError<T>(file, function, line, error));
+                                                   InternalError<T>& error) {
+    return std::unexpected(InternalError<T>(file, function, line, std::move(error)));
 };
 
 template<typename T, typename... Args>

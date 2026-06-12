@@ -46,4 +46,3 @@ function(copy_runtime_dll target dll_target)
 endfunction()
 
 copy_runtime_dll(editor engine_core)
-# copy_runtime_dll(chess_game engine_core)

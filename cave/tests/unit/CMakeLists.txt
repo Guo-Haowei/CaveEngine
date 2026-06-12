@@ -34,3 +34,14 @@ target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_LIBS})
 target_precompile_headers(${TARGET_NAME} PRIVATE pch.h)
 
 target_set_warning_level(${TARGET_NAME})
+
+# @TODO: refactor
+function(copy_runtime_dll target dll_target)
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:${dll_target}>
+            $<TARGET_FILE_DIR:${target}>
+    )
+endfunction()
+
+copy_runtime_dll(unit_tests engine_core)

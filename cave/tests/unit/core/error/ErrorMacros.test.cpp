@@ -1,5 +1,5 @@
 #include "cave/core/diagnostics/ILogSink.h"
-#include "cave/core/ErrorMacros.h"
+#include "cave/core/error/ErrorMacros.h"
 
 namespace cave {
 

@@ -3,12 +3,13 @@
 // =============================================================================
 #pragma once
 #include <format>
-#include <memory>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "ErrorCode.h"
+#include "cave/core/CoreExport.h"
+#include "cave/core/error/ErrorCode.h"
 
 namespace cave {
 
@@ -41,7 +42,7 @@ public:
     }
 
     InternalError(std::string_view filepath,
-                  std::string_view function,
+                  std::string_view func,
                   int line,
                   InternalError<T>&& other)
         : value_(std::move(other.value_))
@@ -49,12 +50,14 @@ public:
         , frames_(std::move(other.frames_)) {
         frames_.push_back(ErrorFrame{
             .filepath = filepath,
-            .function = function,
+            .func = func,
             .line = line,
         });
     }
 
-    std::string ToString() const;
+    const T& value() const { return value_; }
+    std::string_view message() const { return message_; }
+    std::span<const ErrorFrame> frames() const { return frames_; }
 
 private:
     T value_{};
@@ -63,5 +66,7 @@ private:
 };
 
 using Error = InternalError<ErrorCode>;
+
+CAVE_CORE_API std::string ToString(const Error& error);
 
 }  // namespace cave

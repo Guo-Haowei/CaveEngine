@@ -2,7 +2,7 @@
 // File: cave/runtime/assets/IAsset.h
 // =============================================================================
 #pragma once
-#include "cave/core/Error.h"
+#include "cave/core/error/Result.h"
 #include "cave/runtime/assets/AssetMetaData.h"
 
 namespace cave {

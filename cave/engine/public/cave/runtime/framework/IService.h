@@ -2,8 +2,7 @@
 // File: cave/runtime/framework/IService.h
 // =============================================================================
 #pragma once
-#include <string_view>
-#include "cave/core/Error.h"
+#include "cave/core/error/Result.h"
 
 namespace cave {
 

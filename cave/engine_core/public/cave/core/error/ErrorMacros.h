@@ -2,14 +2,13 @@
 // File: cave/core/error/ErrorMacros.h
 // =============================================================================
 #pragma once
-#include "Error.h"
+#include "Result.h"
 
+#include "cave/core/CoreExport.h"
 #include "cave/core/typedefs.h"
 #include "cave/core/IntrusiveList.h"
 
 namespace cave {
-
-void BreakIfDebug();
 
 using ErrorHandlerFunc = void (*)(void* p_userdata,
                                   std::string_view p_function,
@@ -24,31 +23,33 @@ struct ErrorHandlerListNode {
 
 using ErrorHandler = IntrusiveList<ErrorHandlerListNode>::Node;
 
-bool AddErrorHandler(ErrorHandler* p_handler);
-bool RemoveErrorHandler(const ErrorHandler* p_handler);
+CAVE_CORE_API void BreakIfDebug();
 
-void ReportErrorImpl(std::string_view p_function,
-                     std::string_view p_file,
-                     int p_line,
-                     std::string_view p_error,
-                     std::string_view p_optional_message);
+CAVE_CORE_API bool AddErrorHandler(ErrorHandler* handler);
+CAVE_CORE_API bool RemoveErrorHandler(const ErrorHandler* handler);
 
-inline void ReportErrorImpl(std::string_view p_function,
-                            std::string_view p_file,
-                            int p_line,
-                            std::string_view p_error) {
-    return ReportErrorImpl(p_function, p_file, p_line, p_error, "");
+CAVE_CORE_API void ReportErrorImpl(std::string_view func,
+                                   std::string_view file,
+                                   int line,
+                                   std::string_view error,
+                                   std::string_view optional_message);
+
+inline void ReportErrorImpl(std::string_view func,
+                            std::string_view file,
+                            int line,
+                            std::string_view error) {
+    return ReportErrorImpl(func, file, line, error, "");
 }
 
-void ReportErrorIndexImpl(std::string_view p_function,
-                          std::string_view p_file,
-                          int p_line,
-                          std::string_view p_prefix,
-                          int64_t p_index,
-                          int64_t p_bound,
-                          std::string_view p_index_string,
-                          std::string_view p_bound_string,
-                          std::string_view p_detail);
+CAVE_CORE_API void ReportErrorIndexImpl(std::string_view func,
+                                        std::string_view file,
+                                        int line,
+                                        std::string_view prefix,
+                                        int64_t index,
+                                        int64_t bound,
+                                        std::string_view index_string,
+                                        std::string_view bound_string,
+                                        std::string_view detail);
 
 #define ERR_FAIL_V_MSG_INTERNAL(RET, MSG, EXTRA)                                                         \
     do {                                                                                                 \

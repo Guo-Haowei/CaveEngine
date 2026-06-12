@@ -2,12 +2,13 @@
 
 namespace cave {
 
-template<>
-std::string InternalError<ErrorCode>::ToString() const {
-    auto ret = std::format("Error \"{}\" occured, \"{}\".", ErrorToString(value_), message_);
+std::string ToString(const Error& error) {
+    auto ret = std::format("Error \"{}\" occured, \"{}\".",
+                           ErrorToString(error.value()),
+                           error.message());
 
     bool first = true;
-    for (const ErrorFrame& frame : frames_) {
+    for (const ErrorFrame& frame : error.frames()) {
         auto stack_trace = std::format("\n    {}at {} ({}:{})",
                                        first ? "" : "propagated ",
                                        frame.func,
