@@ -6,7 +6,8 @@
 
 namespace cave {
 
-class LogWrapper {
+// @TODO: get rid of this class
+class CAVE_CORE_API LogWrapper {
 public:
     explicit LogWrapper(ILogSink& p_sink) noexcept
         : m_sink(p_sink) {}

@@ -1,7 +1,7 @@
 #pragma once
-#include "Error.h"
-#include "typedefs.h"
-#include "IntrusiveList.h"
+#include "cave/core/Error.h"
+#include "cave/core/typedefs.h"
+#include "cave/core/IntrusiveList.h"
 
 namespace cave {
 

@@ -4,14 +4,14 @@
 
 namespace cave {
 
-void StdLogger::Submit(const LogEvent& p_log) {
-    const char* tag = detail::ToString(p_log.level);
+void StdLogger::Submit(const LogEvent& log) {
+    const char* tag = ToString(log.level);
 
     // @TODO: stderr vs stdout
     FILE* file = stdout;
     fflush(file);
 
-    fprintf(file, "%s%s", tag, p_log.message.c_str());
+    fprintf(file, "%s%s", tag, log.message.c_str());
     fflush(file);
 }
 

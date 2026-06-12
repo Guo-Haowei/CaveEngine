@@ -13,7 +13,7 @@
 
 // @TODO: figure out a better way to print log
 #define WANT_TRACE_INTENT USE_IF(USING(USE_LOG))
-#if USING(WANT_TRACE_INTENT)
+#if !USING(WANT_TRACE_INTENT)
 #define TRACE_INTENT(...)                                                                 \
     do {                                                                                  \
         if (!os_) break;                                                                  \

@@ -74,6 +74,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/thirdparty/optick
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/
+    ${PROJECT_SOURCE_DIR}/cave/engine_core/public/
     ${PROJECT_SOURCE_DIR}/cave/engine/public/
     ${PROJECT_SOURCE_DIR}/cave/shader
     ${PROJECT_SOURCE_DIR}/cave/
@@ -88,6 +89,7 @@ target_compile_definitions(${TARGET_NAME} PUBLIC
 )
 
 set(TARGET_LIBS
+    engine_core
     engine_assets
     imgui
     glm::glm

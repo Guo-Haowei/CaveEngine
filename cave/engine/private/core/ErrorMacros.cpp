@@ -53,8 +53,9 @@ void ReportErrorImpl(std::string_view p_function,
                                p_file,
                                p_line);
     if (auto os = OS::GetSingletonPtr()) {
-        LogEvent log = detail::BuildLog(LOG_LEVEL_ERROR, LogChannel::Default, std::move(message));
-        os->Print(std::move(log));
+        CRASH_NOW();
+        // LogEvent log = detail::BuildLog(LOG_LEVEL_ERROR, LogChannel::Default, std::move(message));
+        // os->Print(std::move(log));
     } else {
         fprintf(stdout, "%s", message.c_str());
         fflush(stdout);

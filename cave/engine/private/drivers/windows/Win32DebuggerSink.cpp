@@ -6,7 +6,7 @@
 namespace cave {
 
 void DebugConsoleLogger::Submit(const LogEvent& p_log) {
-    auto log = detail::FormatLog(p_log);
+    auto log = FormatLog(p_log);
 
     OutputDebugStringA(log.c_str());
 }
