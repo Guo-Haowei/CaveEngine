@@ -14,7 +14,6 @@ namespace cave {
 
 struct CommandArgs;
 struct CommandContext;
-class OS;
 
 class IntentDispatcher {
 public:
@@ -53,9 +52,6 @@ private:
 
     std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> handlers_;
     std::vector<std::unique_ptr<Intent>> pending_;
-
-    // @TODO: refactor this
-    OS* os_{};
 };
 
 }  // namespace cave

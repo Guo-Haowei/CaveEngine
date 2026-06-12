@@ -7,19 +7,14 @@
 #endif
 
 #include "engine/private/core/diagnostics/log_sink/LogUtils.h"
-#include "engine/private/core/os/os.h"
 
 #include <algorithm>
 
-// @TODO: figure out a better way to print log
 #define WANT_TRACE_INTENT USE_IF(USING(USE_LOG))
-#if !USING(WANT_TRACE_INTENT)
-#define TRACE_INTENT(...)                                                                 \
-    do {                                                                                  \
-        if (!os_) break;                                                                  \
-        std::string msg = std::format(__VA_ARGS__);                                       \
-        auto log = detail::BuildLog(LOG_LEVEL_TRACE, LogChannel::Intent, std::move(msg)); \
-        os_->Print(std::move(log));                                                       \
+#if USING(WANT_TRACE_INTENT)
+#define TRACE_INTENT(...)       \
+    do {                        \
+        LOG_TRACE(__VA_ARGS__); \
     } while (0)
 #else
 #define TRACE_INTENT(...) ((void)0)
@@ -27,9 +22,7 @@
 
 namespace cave {
 
-IntentDispatcher::IntentDispatcher()
-    // @TODO: refactor this part
-    : os_(OS::GetSingletonPtr()) {}
+IntentDispatcher::IntentDispatcher() = default;
 
 bool IntentDispatcher::addHandler(IntentTypeId type_id, IIntentHandler* handler) {
     DEV_ASSERT(handler);

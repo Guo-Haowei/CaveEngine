@@ -30,7 +30,6 @@ public:
     virtual const IGameInput& gameInput() const = 0;
     virtual IntentDispatcher& intentDispatcher() = 0;
     virtual IUIRuntime& ui() = 0;
-    virtual LogWrapper& log() = 0;
     virtual SceneCommandWriter& sceneWriter() = 0;
 
     virtual ViewId viewId() const = 0;

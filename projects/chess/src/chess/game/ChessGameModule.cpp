@@ -35,7 +35,7 @@ ChessGameModule::ChessGameModule() = default;
 ChessGameModule::~ChessGameModule() = default;
 
 void ChessGameModule::onModuleLoaded(IHostServices& host) {
-    host.log().Ok(LogChannel::Game, "ChessClient Loaded");
+    LOG_OK(LogChannel::Game, "ChessClient Loaded");
 
     // @TODO: move it to present layer
     spawnObjects(host);

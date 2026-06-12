@@ -22,7 +22,7 @@ void GameOverState::Tick(cave::IHostServices& p_host, const cave::FrameTime&) {
         p_host.intentDispatcher().queue<ChessStateIntent>(std::move(gameplay));
     }
     if (ui.button(5, { offset_x, offset_y + 200, 400, 100 })) {
-        p_host.log().Ok(LogChannel::Game, "UI Button 2 clicked");
+        LOG_OK(LogChannel::Game, "UI Button 2 clicked");
     }
     ui.endView();
 }

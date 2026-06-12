@@ -10,8 +10,6 @@ public:
     void Initialize();
     void Finalize();
 
-    virtual void Print(const LogEvent& log);
-
     void AddLogger(std::shared_ptr<ILogSink> logger);
 
 protected:
