@@ -84,7 +84,7 @@ void LogImpl(LogLevel level, LogChannel channel, std::string message) {
         LogEvent log = BuildLog(level, channel, std::move(message));
         s_log_glob.logger->Submit(log);
     } else {
-        printf("%s\n", message.c_str());
+        fprintf(stdout, "%s\n", message.c_str());
     }
 
     if (level & LOG_LEVEL_FATAL) {
