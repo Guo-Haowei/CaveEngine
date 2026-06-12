@@ -61,7 +61,7 @@ struct LogEvent {
 
 CAVE_CORE_API void SetLogger(ILogSink* logger);
 
-CAVE_CORE_API void RemoveLogger(ILogSink* logger);
+CAVE_CORE_API std::string FormatLog(const LogEvent& log);
 
 CAVE_CORE_API void LogImpl(LogLevel level, LogChannel channel, std::string message);
 
@@ -103,14 +103,6 @@ static inline const char* ToString(LogChannel channel) {
     };
     static_assert(std::size(channels) == std::to_underlying(LogChannel::Count));
     return channels[std::to_underlying(channel)];
-}
-
-static inline std::string FormatLog(const LogEvent& log) {
-    return std::format("{}  {}  {}  {}\n",
-                       log.time_str,
-                       ToString(log.level),
-                       ToString(log.channel),
-                       log.message);
 }
 
 }  // namespace cave

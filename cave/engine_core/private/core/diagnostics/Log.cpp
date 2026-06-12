@@ -2,22 +2,19 @@
 #include "cave/core/diagnostics/ILogSink.h"
 
 #include <chrono>
+#include <mutex>
 
 namespace cave {
 
 static struct {
+    std::mutex guard;
     ILogSink* logger;
 } s_log_glob;
 
 void SetLogger(ILogSink* logger) {
-    // @TODO: thread safe?
+    s_log_glob.guard.lock();
     s_log_glob.logger = logger;
-}
-
-void RemoveLogger(ILogSink* logger) {
-    if (s_log_glob.logger == logger) {
-        s_log_glob.logger = nullptr;
-    }
+    s_log_glob.guard.unlock();
 }
 
 // @TODO: move to time util?
@@ -72,6 +69,14 @@ static LogEvent BuildLog(LogLevel level, LogChannel channel, std::string message
     log.repeat = 1;
     log.message = std::move(message);
     return log;
+}
+
+std::string FormatLog(const LogEvent& log) {
+    return std::format("[{}]  {}  {}  {}\n",
+                       log.time_str,
+                       ToString(log.level),
+                       ToString(log.channel),
+                       log.message);
 }
 
 void LogImpl(LogLevel level, LogChannel channel, std::string message) {
