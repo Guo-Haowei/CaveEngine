@@ -4,7 +4,7 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/ILogSink.h"
-#include "cave/core/ErrorMacros.h"
+#include "cave/core/error/ErrorMacros.h"
 #include "cave/core/typedefs.h"
 #include "cave/game/IHostServices.h"
 

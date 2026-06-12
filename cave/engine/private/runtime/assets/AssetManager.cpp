@@ -265,7 +265,9 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     auto res = LoadAsset(entry);
     if (!res) {
         entry->MarkFailed();
-        LOG_ERROR("Failed to load asset '{}', reason {}", entry->metadata.import_path, ToString(res.error()));
+        LOG_ERROR("Failed to load asset '{}', reason {}",
+                  entry->metadata.import_path,
+                  ToString(res.error()));
         return nullptr;
     }
 

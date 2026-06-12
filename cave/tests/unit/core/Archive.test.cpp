@@ -10,7 +10,7 @@ TEST(archive, open_read) {
 
     Archive archive;
     auto err = archive.OpenRead("path_that_does_not_exist").error();
-    EXPECT_EQ(err->value, ErrorCode::ERR_FILE_NOT_FOUND);
+    EXPECT_EQ(err.value(), ErrorCode::ERR_FILE_NOT_FOUND);
 }
 
 TEST(archive, open_write) {

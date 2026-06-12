@@ -35,15 +35,3 @@ set_target_properties(${TARGET_NAME}
 
 target_precompile_headers(${TARGET_NAME} PRIVATE src/editor/pch.h)
 target_set_warning_level(${TARGET_NAME})
-
-# @TODO: refactor
-function(copy_runtime_dll target dll_target)
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:${dll_target}>
-            $<TARGET_FILE_DIR:${target}>
-    )
-endfunction()
-
-copy_runtime_dll(editor engine_core)
-# copy_runtime_dll(chess_game engine_core)

@@ -1,7 +1,5 @@
-#include "cave/core/ErrorMacros.h"
-
-#include "engine/private/core/os/os.h"
-#include "engine/private/drivers/windows/win32_prerequisites.h"
+#include "cave/core/diagnostics/Log.h"
+#include "cave/core/error/ErrorMacros.h"
 
 namespace cave {
 
@@ -11,11 +9,7 @@ void GlobalLock() {}
 void GlobalUnlock() {}
 
 void BreakIfDebug() {
-#if USING(PLATFORM_WINDOWS)
-    if (IsDebuggerPresent()) {
-        GENERATE_TRAP();
-    }
-#endif
+    GENERATE_TRAP();
 }
 
 bool AddErrorHandler(ErrorHandler* handler) {

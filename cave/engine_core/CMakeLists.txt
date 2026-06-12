@@ -8,6 +8,11 @@ file(GLOB_RECURSE SRC
 
 add_library(${TARGET_NAME} SHARED ${SRC})
 
+set_target_properties(${TARGET_NAME}
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 
 target_include_directories(${TARGET_NAME}

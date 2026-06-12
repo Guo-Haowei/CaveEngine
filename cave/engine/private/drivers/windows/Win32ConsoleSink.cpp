@@ -27,18 +27,18 @@ void Win32Logger::Submit(const LogEvent& log) {
     FILE* file = stdout;
     fflush(file);
 
-    m_console_mutex.lock();
+    console_mutex_.lock();
     GetConsoleScreenBufferInfo(stdout_handle, &buffer_info);
     const WORD old_color_attrs = buffer_info.wAttributes;
     SetConsoleTextAttribute(stdout_handle, new_color);
-    fprintf(file, "%s  %s  %s  %s\n",
+    fprintf(file, "[%s]  %s  %s  %s\n",
             log.time_str,
             ToString(log.level),
             ToString(log.channel),
             log.message.c_str());
     SetConsoleTextAttribute(stdout_handle, old_color_attrs);
     fflush(file);
-    m_console_mutex.unlock();
+    console_mutex_.unlock();
 }
 
 }  // namespace cave
