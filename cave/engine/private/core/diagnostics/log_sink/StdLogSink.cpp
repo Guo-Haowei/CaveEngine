@@ -1,7 +1,5 @@
 #include "StdLogSink.h"
 
-#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
-
 namespace cave {
 
 void StdLogger::Submit(const LogEvent& log) {

@@ -2,7 +2,6 @@
 // File: cave/game/IHostServices.h
 // =============================================================================
 #pragma once
-#include "cave/core/diagnostics/LogWrapper.h"
 #include "cave/core/ids/ViewId.h"
 
 // clang-format off

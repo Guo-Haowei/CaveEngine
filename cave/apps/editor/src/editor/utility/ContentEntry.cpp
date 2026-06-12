@@ -1,7 +1,9 @@
 #include "ContentEntry.h"
 
-#include "engine/private/core/os/platform_io.h"
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/string/StringUtils.h"
+
+#include "engine/private/core/os/platform_io.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

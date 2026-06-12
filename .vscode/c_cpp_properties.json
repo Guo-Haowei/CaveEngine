@@ -11,6 +11,7 @@
                 "${workspaceRoot}/thirdparty/glm/",
                 "${workspaceRoot}/thirdparty/optick/",
                 "${workspaceRoot}/thirdparty/",
+                "${workspaceRoot}/cave/engine_core/public/",
                 "${workspaceRoot}/cave/engine/public/",
                 "${workspaceRoot}/cave/apps/editor/src/",
                 "${workspaceRoot}/cave/shader/",

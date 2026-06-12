@@ -3,10 +3,10 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "cave/core/Color.h"
+#include "cave/core/diagnostics/LogPresentation.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
 #include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 
 #include "editor/EditorState.h"

@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
@@ -5,10 +7,6 @@
 #include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/core/diagnostics/ILogSink.h"
 #endif
-
-#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
-
-#include <algorithm>
 
 #define WANT_TRACE_INTENT USE_IF(USING(USE_LOG))
 #if USING(WANT_TRACE_INTENT)

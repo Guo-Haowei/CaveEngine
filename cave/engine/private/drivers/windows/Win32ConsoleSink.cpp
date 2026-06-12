@@ -1,6 +1,7 @@
 #include "Win32ConsoleSink.h"
 
-#include "engine/private/core/diagnostics/log_sink/LogUtils.h"
+#include "cave/core/diagnostics/LogPresentation.h"
+
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
 namespace cave {

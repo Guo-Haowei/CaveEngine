@@ -104,7 +104,6 @@ TEST_F(ErrorMacrosTest, DEV_VERIFY_check_pass) {
 }
 
 TEST_F(ErrorMacrosTest, DEV_VERIFY_no_check_pass) {
-
     int a = 1;
     if (DEV_VERIFY_NO_CHECK(a == 1)) {
         SUCCEED();
