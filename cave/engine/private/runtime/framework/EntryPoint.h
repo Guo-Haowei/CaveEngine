@@ -1,5 +1,4 @@
 #pragma once
-#include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/dvar/DvarCache.h"

@@ -1,6 +1,5 @@
 #include "EditorAssetManager.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/framework/IApplication.h"

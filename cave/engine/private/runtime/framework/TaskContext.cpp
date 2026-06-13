@@ -1,7 +1,5 @@
 #include "TaskContext.h"
 
-#include "cave/core/diagnostics/Log.h"
-
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/TaskQueue.h"
 

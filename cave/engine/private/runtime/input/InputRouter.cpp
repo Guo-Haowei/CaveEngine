@@ -1,7 +1,5 @@
 #include "InputRouter.h"
 
-#include "cave/core/diagnostics/Log.h"
-
 namespace cave {
 
 void InputRouter::addConsumer(IInputConsumer* consumer) {

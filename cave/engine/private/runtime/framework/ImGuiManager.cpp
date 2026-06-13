@@ -5,7 +5,6 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <filesystem>
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"

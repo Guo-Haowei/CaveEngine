@@ -1,6 +1,5 @@
 #pragma once
 #include "cave/core/containers/FixedString.h"
-#include "cave/core/diagnostics/Log.h"
 
 #include "editor/panels/EditorWindow.h"
 

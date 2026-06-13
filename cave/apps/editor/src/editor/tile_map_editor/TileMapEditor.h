@@ -9,12 +9,14 @@
 
 namespace cave {
 
-class AssetRegistry;
-class Scene;
-class TileMapDocument;
-
 class TileMapEditor final : public ViewTabBase,
                             public IPickConsumer {
+    enum class Mode : uint8_t {
+        None,
+        Painting,
+        Erasing,
+    };
+
 public:
     TileMapEditor(EditorState& editor,
                   DocId doc_id,
@@ -30,11 +32,20 @@ public:
     DebugId debugId() const override { return debug_id_; }
 
 protected:
-    void submitView();
-
     void drawUIImpl() override;
 
+    void submitView();
+    void changeMode(Mode mode);
+    bool canHandleInput(const InputFrame& input);
+    bool updateEditMode(const InputFrame& input);
+    void applayEditorTool();
+
     const DebugId debug_id_;
+
+    Mode mode_{ Mode::None };
+    bool lb_down_{ false };
+    bool rb_down_{ false };
+    math::Vector2f cursor_;
 };
 
 }  // namespace cave

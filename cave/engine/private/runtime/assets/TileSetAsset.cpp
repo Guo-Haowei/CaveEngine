@@ -1,7 +1,5 @@
 #include "TileSetAsset.h"
 
-#include "cave/core/diagnostics/Log.h"
-
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

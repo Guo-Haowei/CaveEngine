@@ -1,6 +1,5 @@
 #include "ContentEntry.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/string/StringUtils.h"
 
 #include "engine/private/core/os/platform_io.h"

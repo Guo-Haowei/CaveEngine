@@ -1,6 +1,5 @@
 #include "vulkan_graphics_manager.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/display/GlfwDisplayService.h"

@@ -1,7 +1,5 @@
 #include "opengl_pipeline_state_manager.h"
 
-#include "cave/core/diagnostics/Log.h"
-
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "opengl_helpers.h"

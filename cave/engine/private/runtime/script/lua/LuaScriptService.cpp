@@ -1,6 +1,5 @@
 #include "LuaScriptService.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ecs/components/LuaScriptComponent.h"
 #include "cave/runtime/framework/IApplication.h"

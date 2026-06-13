@@ -62,21 +62,112 @@ Option<PickData> TileMapEditor::getPickData(const Vector2f& pointer_os) {
     // });
 }
 
-void TileMapEditor::onInputEvents(const InputFrame& input) {
+void TileMapEditor::changeMode(Mode mode) {
+    if (mode != mode_) {
+        // LOG_INFO("change mode from {} to {}", (int)mode_, (int)mode);
+        mode_ = mode;
+    }
+}
+
+bool TileMapEditor::canHandleInput(const InputFrame& input) {
+    unused(input);
+
     if (!isHovered()) {
-        return;
+        return false;
     }
 
     if (m_editor.IsPlaying()) {
-        return;
+        return false;
     }
 
     const KeyState& st = app_services_.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool TileMapEditor::updateEditMode(const InputFrame& input) {
+    bool should_apply = false;
+
+    for (const InputEvent& event : input.events) {
+        Key key = static_cast<Key>(event.code);
+        switch (event.type) {
+            case InputEventType::ButtonDown: {
+                if (key == Key::LMB) {
+                    lb_down_ = true;
+                    event.consumed = true;
+                    should_apply = true;
+                    cursor_ = { event.x, event.y };
+                } else if (key == Key::RMB) {
+                    rb_down_ = true;
+                    event.consumed = true;
+                    should_apply = true;
+                    cursor_ = { event.x, event.y };
+                }
+            } break;
+            case InputEventType::ButtonUp: {
+                if (key == Key::LMB) {
+                    lb_down_ = false;
+                    event.consumed = true;
+                } else if (key == Key::RMB) {
+                    rb_down_ = false;
+                    event.consumed = true;
+                }
+            } break;
+            case InputEventType::MouseMove: {
+                should_apply = true;
+                cursor_ = { event.x, event.y };
+            } break;
+            default: {
+            } break;
+        }
+    }
+
+    if (!(lb_down_ ^ rb_down_))
+        changeMode(Mode::None);
+    else if (lb_down_)
+        changeMode(Mode::Painting);
+    else if (rb_down_)
+        changeMode(Mode::Erasing);
+
+    return should_apply && mode_ != Mode::None;
+}
+
+void TileMapEditor::applayEditorTool() {
+    // auto selections = m_sprite_selector.GetSelections();
+    // if (!selections.empty()) {
+    //     // @TODO: support multi tile editing
+    //     auto [x, y] = selections[0];
+    //     if (x >= 0 && y >= 0) {
+    //         TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
+    //         TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+    //         uint32_t idx = y * tile_set->GetCol() + x;
+    //         m_document->RequestAdd(e->GetPos(), TileId(idx));
+    //     }
+    // }
+
+    if (mode_ == Mode::Painting) {
+        LOG_OK("TODO: paint");
+        // @TODO: add tile
+    } else if (mode_ == Mode::Erasing) {
+        LOG_OK("TODO: erase");
+        // @TODO: earse tile
+    }
+}
+
+void TileMapEditor::onInputEvents(const InputFrame& input) {
+    if (!canHandleInput(input)) {
         return;
     }
 
     camera_controller_->Update(input);
+
+    const bool should_apply_edit = updateEditMode(input);
+    if (should_apply_edit) {
+        applayEditorTool();
+    }
 }
 
 void TileMapEditor::drawUIImpl() {
@@ -110,35 +201,6 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     p_out.y = static_cast<int16_t>(std::floor(position.y));
 
     return true;
-}
-
-bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
-    DEV_ASSERT(0);
-    unused(p_input_event);
-    if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
-        if (!e->IsModiferPressed()) {
-            if (e->IsButtonDown(MouseButton::LEFT)) {
-                auto selections = m_sprite_selector.GetSelections();
-                if (!selections.empty()) {
-                    // @TODO: support multi tile editing
-                    auto [x, y] = selections[0];
-                    if (x >= 0 && y >= 0) {
-                        TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-                        TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-                        uint32_t idx = y * tile_set->GetCol() + x;
-                        m_document->RequestAdd(e->GetPos(), TileId(idx));
-                    }
-                }
-                return true;
-            }
-            if (e->IsButtonDown(MouseButton::RIGHT)) {
-                m_document->RequestErase(e->GetPos());
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
 #endif
 

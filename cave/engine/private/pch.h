@@ -29,6 +29,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/core/typedefs.h"
 #include "cave/core/math/Utils.h"

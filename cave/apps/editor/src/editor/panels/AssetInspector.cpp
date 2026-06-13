@@ -1,8 +1,6 @@
 #include "AssetInspector.h"
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "cave/core/diagnostics/Log.h"
-
 #include "editor/document/TileMapDocument.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/IconCache.h"
