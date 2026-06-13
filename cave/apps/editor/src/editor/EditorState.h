@@ -13,6 +13,7 @@ namespace cave {
 class IEditorItem;
 
 // pannels
+class AssetInspector;
 class ContentBrowser;
 class FileSystemPanel;
 class LogPanel;
@@ -45,15 +46,15 @@ public:
     Option<StateRequest> popRequest() override { return None(); }
 
     void RequestModeSwitch();
-    bool IsPlaying() const { return m_mode == Mode::Playing; }
+    bool IsPlaying() const { return mode_ == Mode::Playing; }
 
 #if USING(DEBUG_BUILD)
     DebugId debugId() const override { return debug_id_; }
 #endif
 
-    ContentBrowser& GetAssetInspector() { return *m_content_browser.get(); }
-    FileSystemPanel& GetFileSystemPanel() { return *m_file_system_panel.get(); }
-    LogPanel& GetLogPanel() { return *m_log_panel.get(); }
+    ContentBrowser& GetAssetInspector() { return *content_browser_.get(); }
+    FileSystemPanel& GetFileSystemPanel() { return *file_system_panel_.get(); }
+    LogPanel& GetLogPanel() { return *log_panel_.get(); }
 
     DocumentService& DocumentService() { return *m_document_service; }
     EditService& EditService() { return *m_edit_service; }
@@ -63,20 +64,21 @@ public:
     ShortcutService& ShortcutService() { return *m_shortcut_service; }
     ThumbnailService& ThumbnailService() { return *m_thumbnail_service; }
     Workspace& Workspace() { return *m_workspace; }
-    PIESession& PIE() { return m_pie; }
+    PIESession& PIE() { return pie_; }
 
 private:
-    void DockSpace();
-    void AddPanel(std::shared_ptr<IEditorItem> p_panel);
+    void dockSpace();
+    void addPanel(std::shared_ptr<IEditorItem> panel);
 
-    static Mode FlipState(Mode p_state) { return static_cast<Mode>(1 - std::to_underlying(p_state)); }
-    void CommitModeSwitch();
+    static Mode flipMode(Mode mode) { return static_cast<Mode>(1 - std::to_underlying(mode)); }
+    void commitModeSwitch();
 
-    Mode m_mode{ Mode::Editing };
-    bool m_switch_mode_requested{ false };
+    Mode mode_{ Mode::Editing };
+    bool switch_mode_requested_{ false };
 
-    PIESession m_pie;
+    PIESession pie_;
 
+    // @TODO: move to EditorServices
     std::unique_ptr<cave::DocumentService> m_document_service;
     std::unique_ptr<cave::EditService> m_edit_service;
     std::unique_ptr<cave::IconCache> m_icon_cache;
@@ -86,10 +88,12 @@ private:
     std::unique_ptr<cave::Workspace> m_workspace;
     std::unique_ptr<cave::ThumbnailService> m_thumbnail_service;
 
-    std::shared_ptr<ContentBrowser> m_content_browser;
-    std::shared_ptr<FileSystemPanel> m_file_system_panel;
-    std::shared_ptr<LogPanel> m_log_panel;
-    std::shared_ptr<MenuBar> m_menu_bar;
+    // @TODO: use unique_ptr
+    std::shared_ptr<AssetInspector> asset_inspector_;
+    std::shared_ptr<ContentBrowser> content_browser_;
+    std::shared_ptr<FileSystemPanel> file_system_panel_;
+    std::shared_ptr<LogPanel> log_panel_;
+    std::shared_ptr<MenuBar> menu_bar_;
 
     std::vector<std::shared_ptr<IEditorItem>> m_panels;
     const DebugId debug_id_;

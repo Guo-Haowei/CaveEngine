@@ -7,21 +7,19 @@ struct ContentEntry;
 
 class FileSystemPanel : public EditorWindow {
 public:
-    FileSystemPanel(EditorState& p_editor);
+    FileSystemPanel(EditorState& editor);
 
     void OnAttach() override;
 
-    const char* windowId() const override {
-        return "File System";
-    }
+    const char* windowId() const override;
 
 protected:
     void drawUIImpl() override;
 
-    void DrawFolderTreeNode(const ContentEntry& p_node);
+    void drawFolderTreeNode(const ContentEntry& node);
 
-    std::filesystem::path m_root;
-    std::filesystem::path m_renaming;
+    std::filesystem::path root_;
+    std::filesystem::path renaming_;
 };
 
 }  // namespace cave

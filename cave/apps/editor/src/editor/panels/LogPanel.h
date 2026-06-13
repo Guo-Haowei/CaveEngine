@@ -9,35 +9,35 @@ namespace cave {
 class ConsolePanel;
 
 class LogPanel : public EditorWindow {
-
 public:
-    explicit LogPanel(EditorState& p_editor);
+    explicit LogPanel(EditorState& editor);
     ~LogPanel();
 
-    const char* windowId() const override {
-        return "Output Log";
-    }
+    const char* windowId() const override;
 
 protected:
     void drawUIImpl() override;
-    void DrawFilter();
-    void DrawLogHistroy();
+    void drawFilter();
+    void drawLogHistroy();
 
-    bool AllChannels() const { return m_channel_filter == LogChannel::Count; }
-    bool PassSearchFilter(const LogEvent& p_log) const;
+    bool allChannels() const {
+        return channel_filter_ == LogChannel::Count;
+    }
 
-    void VerbosityDropDown();
-    void ChannelDropDown();
-    void SearchBar();
+    bool passSearchFilter(const LogEvent& log) const;
 
-    bool m_auto_scroll{ true };
-    bool m_scroll_to_bottom{ false };
-    LogLevel m_level_filter{ LOG_LEVEL_ALL };
-    LogChannel m_channel_filter{ LogChannel::Count };
-    FixedString<128> m_search;
+    void verbosityDropDown();
+    void channelDropDown();
+    void searchBar();
+
+    bool auto_scroll_{ true };
+    bool scroll_to_bottom_{ false };
+    LogLevel level_filter_{ LOG_LEVEL_ALL };
+    LogChannel channel_filter_{ LogChannel::Count };
+    FixedString<128> search_buffer_;
 
     // @TODO: make it a standalone window
-    std::unique_ptr<ConsolePanel> m_console;
+    std::unique_ptr<ConsolePanel> console_;
 };
 
 }  // namespace cave

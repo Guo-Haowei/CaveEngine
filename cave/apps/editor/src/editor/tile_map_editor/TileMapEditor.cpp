@@ -1,12 +1,6 @@
 #include "TileMapEditor.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
-
 #include "cave/core/diagnostics/DebugIdAllocator.h"
-
-#include "engine/private/runtime/assets/ImageAsset.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
-#include "engine/private/runtime/input/InputService.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/DragDrop.h"
@@ -15,7 +9,12 @@
 #include "engine/private/ui/layout.h"
 
 // @TODO: remove
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/assets/TileSetAsset.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
+
+#include <IconsFontAwesome/IconsFontAwesome6.h >
 
 namespace cave {
 

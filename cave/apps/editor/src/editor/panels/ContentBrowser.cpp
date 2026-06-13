@@ -5,10 +5,6 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 
-#include "engine/private/runtime/assets/ImageAsset.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/ui/layout.h"
-
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/services/IconCache.h"
@@ -18,50 +14,59 @@
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"
 
+// @TODO: refactor
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/ui/layout.h"
+
 namespace cave {
 
-ContentBrowser::ContentBrowser(EditorState& p_editor)
-    : EditorWindow(p_editor) {
-    m_current_path = { "@res://" };
+ContentBrowser::ContentBrowser(EditorState& editor)
+    : EditorWindow(editor) {
+    current_path_ = { "@res://" };
+}
+
+const char* ContentBrowser::windowId() const {
+    return ICON_FA_FOLDER_CLOSED "  Content Browser";
 }
 
 void ContentBrowser::OnAttach() {
     IconCache& icons = m_editor.IconCache();
-    m_folder_iamge = icons.GetIconHandle(IconName::Folder);
-    m_fallback_iamge = icons.GetIconHandle(IconName::Meta);
-    m_thumbnail_lut[".scene"] = icons.GetIconHandle(IconName::Scene);
-    m_thumbnail_lut[".sprite_anim"] = icons.GetIconHandle(IconName::Anim);
-    m_thumbnail_lut[".lua"] = icons.GetIconHandle(IconName::Lua);
-    m_thumbnail_lut[".tilemap"] = icons.GetIconHandle(IconName::TileMap);
-    m_thumbnail_lut[".tileset"] = icons.GetIconHandle(IconName::TileSet);
+    folder_iamge_ = icons.GetIconHandle(IconName::Folder);
+    fallback_iamge_ = icons.GetIconHandle(IconName::Meta);
+    thumbnail_lut_[".scene"] = icons.GetIconHandle(IconName::Scene);
+    thumbnail_lut_[".sprite_anim"] = icons.GetIconHandle(IconName::Anim);
+    thumbnail_lut_[".lua"] = icons.GetIconHandle(IconName::Lua);
+    thumbnail_lut_[".tilemap"] = icons.GetIconHandle(IconName::TileMap);
+    thumbnail_lut_[".tileset"] = icons.GetIconHandle(IconName::TileSet);
 
-    DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
+    DEV_ASSERT(folder_iamge_ && fallback_iamge_);
 }
 
 void ContentBrowser::drawUIImpl() {
     CAVE_PROFILE_EVENT();
-    DrawContentBrowser();
+    drawContentBrowser();
 }
 
-void ContentBrowser::DrawBreadcrumb() {
+void ContentBrowser::drawBreadcrumb() {
     int clicked = -1;
 
-    const int len = static_cast<int>(m_current_path.size());
+    const int len = static_cast<int>(current_path_.size());
     for (int i = 0; i < len; ++i) {
         if (i != 0) {
             ImGui::SameLine(0.0f, 4.0f);
         }
 
-        if (ImGui::Button(m_current_path[i].c_str())) {
+        if (ImGui::Button(current_path_[i].c_str())) {
             clicked = i;
         }
     }
     if (clicked != -1) {
-        m_current_path.resize(clicked + 1);
+        current_path_.resize(clicked + 1);
     }
 }
 
-const ContentEntry* ContentBrowser::Navigate(const ContentEntry* p_node,
+const ContentEntry* ContentBrowser::navigate(const ContentEntry* p_node,
                                              int p_cur,
                                              int p_max) {
     if (!p_node) {
@@ -70,7 +75,7 @@ const ContentEntry* ContentBrowser::Navigate(const ContentEntry* p_node,
 
     DEV_ASSERT(p_cur <= p_max);
 
-    const auto& current = m_current_path[p_cur];
+    const auto& current = current_path_[p_cur];
     if (current != p_node->file_name) {
         return nullptr;
     }
@@ -80,7 +85,7 @@ const ContentEntry* ContentBrowser::Navigate(const ContentEntry* p_node,
     }
 
     for (const auto& child : p_node->children) {
-        const ContentEntry* match = Navigate(child.get(), p_cur + 1, p_max);
+        const ContentEntry* match = navigate(child.get(), p_cur + 1, p_max);
         if (match) {
             return match;
         }
@@ -89,7 +94,7 @@ const ContentEntry* ContentBrowser::Navigate(const ContentEntry* p_node,
     return nullptr;
 }
 
-void ContentBrowser::DrawContentBrowser() {
+void ContentBrowser::drawContentBrowser() {
     std::vector<ToolBarButtonDesc> descs = {
         { ICON_FA_FOLDER_CLOSED, "Placeholder",
           []() {
@@ -109,7 +114,7 @@ void ContentBrowser::DrawContentBrowser() {
 
     DrawToolBar(d);
 
-    DrawBreadcrumb();
+    drawBreadcrumb();
 
     // thumbnails
 
@@ -124,10 +129,10 @@ void ContentBrowser::DrawContentBrowser() {
 
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
     const auto& root = asset_manager.GetAssetRoot();
-    const int max = static_cast<int>(m_current_path.size()) - 1;
-    const ContentEntry* current = Navigate(root.get(), 0, max);
+    const int max = static_cast<int>(current_path_.size()) - 1;
+    const ContentEntry* current = navigate(root.get(), 0, max);
     if (!current) {
-        m_current_path = { "@res://" };
+        current_path_ = { "@res://" };
         current = root.get();
     }
     DEV_ASSERT(current->is_dir);
@@ -137,7 +142,7 @@ void ContentBrowser::DrawContentBrowser() {
     ThumbnailService& thumbnail = m_editor.ThumbnailService();
 
     auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
-        if (p_entry.is_dir) return m_folder_iamge;
+        if (p_entry.is_dir) return folder_iamge_;
         const AssetMetaData* meta = p_entry.handle.GetMeta();
         if (meta) {
             if (meta->type == AssetType::Image) {
@@ -156,8 +161,8 @@ void ContentBrowser::DrawContentBrowser() {
             }
         }
 
-        if (auto it = m_thumbnail_lut.find(p_entry.extension); it != m_thumbnail_lut.end()) return it->second;
-        return m_fallback_iamge;
+        if (auto it = thumbnail_lut_.find(p_entry.extension); it != thumbnail_lut_.end()) return it->second;
+        return fallback_iamge_;
     };
 
     for (const auto& node : current->children) {
@@ -179,7 +184,7 @@ void ContentBrowser::DrawContentBrowser() {
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-                m_current_path.push_back(std::string(node->file_name));
+                current_path_.push_back(std::string(node->file_name));
             }
         } else {
             if (hovered) {
