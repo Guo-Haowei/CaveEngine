@@ -5,14 +5,13 @@
 
 namespace cave {
 
-class IApplication;
-
+struct AppServices;
 class AssetRegistry;
 class SceneRegistry;
 
 class DocumentBase : public IDocument {
 public:
-    DocumentBase(IApplication& app, const Guid& guid);
+    DocumentBase(AppServices& services, const Guid& guid);
 
     bool apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) override;
 

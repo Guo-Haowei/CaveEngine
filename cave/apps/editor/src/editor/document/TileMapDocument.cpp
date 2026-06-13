@@ -15,10 +15,10 @@ namespace cave {
 using namespace ::cave::literals;
 using ecs::Entity;
 
-TileMapDocument::TileMapDocument(IApplication& app, const Guid& guid)
-    : DocumentBase(app, guid) {
+TileMapDocument::TileMapDocument(AppServices& services, const Guid& guid)
+    : DocumentBase(services, guid) {
 
-    SceneCommandWriter cb(*app.GetAssetRegistry());
+    SceneCommandWriter cb(services.assetRegistry());
     Entity root = cb.CreateRootObject();
 
     Entity ent = cb.CreateTileMapObject("tilemap");

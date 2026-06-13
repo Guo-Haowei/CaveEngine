@@ -5,30 +5,32 @@
 
 namespace cave {
 
-class EditorState;
+struct AppServices;
+struct EditorServices;
 
 class PickingService final : public IIntentHandler {
 public:
-    PickingService(EditorState& p_editor);
+    PickingService(AppServices& app_services,
+                   EditorServices& editor_services);
     ~PickingService();
 
-    void Pick(math::Vector2f p_point_win);
+    void pick(math::Vector2f point_win);
 
-    void Register(IPickConsumer* p_consumer);
-    void Unregister(IPickConsumer* p_consumer);
+    void addConsumer(IPickConsumer* consumer);
+    void removeConsumer(IPickConsumer* consumer);
 
-    bool handleIntent(Intent& p_intent) override;
+    bool handleIntent(Intent& intent) override;
 
-    DebugId debugId() const override { return m_debug_id; }
+    DebugId debugId() const override { return debug_id_; }
 
 private:
-    void Raycast(const PickData& data);
+    void raycast(const PickData& data);
 
-    EditorState& m_editor;
+    AppServices& app_services_;
+    EditorServices& editor_services_;
+    const DebugId debug_id_;
 
     std::vector<IPickConsumer*> m_consumers;
-
-    const DebugId m_debug_id;
 };
 
 }  // namespace cave

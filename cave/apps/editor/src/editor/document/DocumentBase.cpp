@@ -1,6 +1,6 @@
 #include "DocumentBase.h"
 
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/AppServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -13,9 +13,9 @@
 
 namespace cave {
 
-DocumentBase::DocumentBase(IApplication& app, const Guid& guid)
-    : asset_reg_(*app.GetAssetRegistry())
-    , scene_reg_(app.services().sceneRegistry())
+DocumentBase::DocumentBase(AppServices& services, const Guid& guid)
+    : asset_reg_(services.assetRegistry())
+    , scene_reg_(services.sceneRegistry())
     , guid_(guid) {
 
     handle_ = asset_reg_.FindByGuid(guid).unwrap();

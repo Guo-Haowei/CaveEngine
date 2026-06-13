@@ -38,8 +38,8 @@ static AssetRef LoadBlob(const unsigned char* p_data, unsigned int p_length) {
     return blob;
 }
 
-static void RegisterPersistentFonts(IApplication* p_app) {
-    auto& asset_registry = *p_app->GetAssetRegistry();
+static void RegisterPersistentFonts(IApplication* app) {
+    auto& asset_registry = app->services().assetRegistry();
 
     {
         asset_registry.RegisterPersistentAsset("fonts/DroidSans.ttf",
@@ -53,9 +53,9 @@ static void RegisterPersistentFonts(IApplication* p_app) {
     }
 }
 
-static void RegisterPersistentImages(IApplication* p_app) {
-    auto& asset_registry = *p_app->GetAssetRegistry();
-    auto& graphics_manager = *p_app->GetRenderDevice();
+static void RegisterPersistentImages(IApplication* app) {
+    auto& asset_registry = app->services().assetRegistry();
+    auto& graphics_manager = *app->GetRenderDevice();
     {
         auto texture = CreateCheckerBoardImage();
         asset_registry.RegisterPersistentAsset("textures/checkerboard",
@@ -65,9 +65,9 @@ static void RegisterPersistentImages(IApplication* p_app) {
     }
 }
 
-static void RegisterPersistentMeshes(IApplication* p_app) {
-    auto& asset_registry = *p_app->GetAssetRegistry();
-    auto& graphics_manager = *p_app->GetRenderDevice();
+static void RegisterPersistentMeshes(IApplication* app) {
+    auto& asset_registry = app->services().assetRegistry();
+    auto& graphics_manager = *app->GetRenderDevice();
     {
         auto mesh = CreatePlaneMesh(Vector3f(0.5f));
         asset_registry.RegisterPersistentAsset("meshes/plane",
@@ -112,8 +112,8 @@ static void RegisterPersistentMeshes(IApplication* p_app) {
     }
 }
 
-static void RegisterPersistentMaterials(IApplication* p_app) {
-    auto& asset_registry = *p_app->GetAssetRegistry();
+static void RegisterPersistentMaterials(IApplication* app) {
+    auto& asset_registry = app->services().assetRegistry();
     auto material = std::make_shared<MaterialAsset>();
     material->base_color = Vector4f(1.0f, 0.0f, 1.0f, 1.0f);
     asset_registry.RegisterPersistentAsset("materials/default", TO_GUID(GUID10), material);

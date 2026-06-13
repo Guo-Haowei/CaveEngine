@@ -9,7 +9,7 @@ class FileSystemPanel : public EditorWindow {
 public:
     FileSystemPanel(EditorState& editor);
 
-    void OnAttach() override;
+    void onAttach() override;
 
     const char* windowId() const override;
 

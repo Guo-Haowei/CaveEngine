@@ -17,27 +17,27 @@
 
 namespace cave {
 
-EditService::EditService(EditorState& editor)
-    : editor_(editor)
+EditService::EditService(AppServices& app_services,
+                         EditorServices& editor_services)
+    : app_services_(app_services)
+    , editor_services_(editor_services)
     , debug_id_(MakeDebugId(this)) {
-    editor_.app().services().intentDispatcher().addHandler<EditIntent>(this);
+    app_services_.intentDispatcher().addHandler<EditIntent>(this);
 }
 
 EditService::~EditService() {
-    editor_.app().services().intentDispatcher().removeHandler<EditIntent>(this);
+    app_services_.intentDispatcher().removeHandler<EditIntent>(this);
 }
 
 void EditService::submit(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd) {
-    editor_.app().services().intentDispatcher().queue<EditIntent>(doc_id, std::move(cmd));
+    app_services_.intentDispatcher().queue<EditIntent>(doc_id, std::move(cmd));
 }
 
 void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
-    IApplication& app = editor_.app();
-
-    SceneRegistry& scene_reg = app.services().sceneRegistry();
+    SceneRegistry& scene_reg = app_services_.sceneRegistry();
 
     Scene* scene = nullptr;
-    if (IDocument* doc = editor_.DocumentService().resolve(doc_id)) {
+    if (IDocument* doc = editor_services_.document().resolve(doc_id)) {
         SceneId scene_id = doc->previewScene();
         scene = scene_reg.resolve(scene_id);
     }
@@ -114,11 +114,11 @@ bool EditService::handleIntent(Intent& intent) {
 }
 
 IDocument* EditService::resolve(DocId doc_id) {
-    return editor_.DocumentService().resolve(doc_id);
+    return editor_services_.document().resolve(doc_id);
 }
 
 const IDocument* EditService::resolve(DocId doc_id) const {
-    return editor_.DocumentService().resolve(doc_id);
+    return editor_services_.document().resolve(doc_id);
 }
 
 }  // namespace cave

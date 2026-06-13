@@ -1,29 +1,25 @@
 #include "DocumentService.h"
 
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/AppServices.h"
 
 #include "editor/document/MaterialDocument.h"
 #include "editor/document/TileMapDocument.h"
 #include "editor/document/SceneDocument.h"
-#include "editor/EditorState.h"
+#include "editor/EditorServices.h"
 #include "editor/services/Workspace.h"
 
 namespace cave {
 
-DocumentService::DocumentService(EditorState& editor)
-    : editor_(editor) {
-}
-
-static std::unique_ptr<IDocument> CreateDoc(IApplication& app, const OpenDocDesc& desc) {
+static std::unique_ptr<IDocument> CreateDoc(AppServices& services, const OpenDocDesc& desc) {
     switch (desc.asset_type) {
         case AssetType::Scene:
-            return std::make_unique<SceneDocument>(app, desc.guid);
+            return std::make_unique<SceneDocument>(services, desc.guid);
         case AssetType::Material:
-            return std::make_unique<MaterialDocument>(app, desc.guid);
+            return std::make_unique<MaterialDocument>(services, desc.guid);
         case AssetType::TileMap:
-            return std::make_unique<TileMapDocument>(app, desc.guid);
+            return std::make_unique<TileMapDocument>(services, desc.guid);
         default:
-            return std::make_unique<DocumentBase>(app, desc.guid);
+            return std::make_unique<DocumentBase>(services, desc.guid);
     }
 }
 
@@ -32,12 +28,12 @@ DocId DocumentService::openDoc(const OpenDocDesc& desc) {
     if (auto it = guid_to_doc_.find(desc.guid); it != guid_to_doc_.end()) {
         doc_id = it->second;
     } else {
-        auto doc = CreateDoc(editor_.app(), desc);
+        auto doc = CreateDoc(app_services_, desc);
         doc_id = Base::Create(std::move(doc));
         guid_to_doc_[desc.guid] = doc_id;
     }
 
-    editor_.Workspace().requestOpen(doc_id);
+    editor_services_.workspace().requestOpen(doc_id);
     return doc_id;
 }
 

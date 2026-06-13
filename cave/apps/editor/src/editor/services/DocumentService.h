@@ -8,7 +8,8 @@
 
 namespace cave {
 
-class EditorState;
+struct AppServices;
+struct EditorServices;
 
 struct CloseRequestResult {
     bool ok{ false };
@@ -26,7 +27,10 @@ class DocumentService : protected GenIdRegistry<IDocument> {
     using Base = GenIdRegistry<IDocument>;
 
 public:
-    DocumentService(EditorState& editor);
+    DocumentService(AppServices& app_services,
+                    EditorServices& editor_services) noexcept
+        : app_services_(app_services)
+        , editor_services_(editor_services) {}
 
     DocId openDoc(const OpenDocDesc& desc);
 
@@ -41,9 +45,10 @@ public:
     bool save(const Guid& guid);
 
 private:
-    std::unordered_map<Guid, DocId> guid_to_doc_;
+    AppServices& app_services_;
+    EditorServices& editor_services_;
 
-    EditorState& editor_;
+    std::unordered_map<Guid, DocId> guid_to_doc_;
 };
 
 }  // namespace cave

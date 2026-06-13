@@ -3,10 +3,11 @@
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/AppServices.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
+// @TODO: no private include
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -15,10 +16,10 @@ namespace cave {
 
 using ecs::Entity;
 
-MaterialDocument::MaterialDocument(IApplication& app, const Guid& guid)
-    : DocumentBase(app, guid) {
+MaterialDocument::MaterialDocument(AppServices& services, const Guid& guid)
+    : DocumentBase(services, guid) {
 
-    SceneCommandWriter cb(*app.GetAssetRegistry());
+    SceneCommandWriter cb(services.assetRegistry());
     Entity root = cb.CreateRootObject();
 
     if constexpr (1) {

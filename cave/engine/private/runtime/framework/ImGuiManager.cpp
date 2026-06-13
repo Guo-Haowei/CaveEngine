@@ -31,9 +31,10 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
     const float base_font_size = 16.0f * scale;
     const float icon_font_size = base_font_size * 2.0f / 3.0f;
 
+    AssetRegistry& asset_reg = m_app->services().assetRegistry();
     {
         const std::string path = "@persist://fonts/DroidSans.ttf";
-        auto res = m_app->GetAssetRegistry()->FindByPath<BlobAsset>(path).unwrap();
+        auto res = asset_reg.FindByPath<BlobAsset>(path).unwrap();
         BlobAsset* font = res.Get();
 
         if (DEV_VERIFY(font)) {
@@ -49,7 +50,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
 
     {
         const std::string path = "@persist://fonts/fa-solid-900.ttf";
-        auto res = m_app->GetAssetRegistry()->FindByPath<BlobAsset>(path).unwrap();
+        auto res = asset_reg.FindByPath<BlobAsset>(path).unwrap();
         BlobAsset* font = res.Get();
 
         if (DEV_VERIFY(font)) {
@@ -301,7 +302,7 @@ void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
                 float x = static_cast<float>(e.x);
                 float y = static_cast<float>(e.y);
                 if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-                    math::Vector2f window_pos = m_app->GetDisplayService()->windowPos();
+                    math::Vector2f window_pos = m_app->services().displayService().windowPos();
                     x += window_pos.x;
                     y += window_pos.y;
                 }

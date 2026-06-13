@@ -37,26 +37,33 @@
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
 
-//#include "editor/edit/EditObjectCmd.h"
+// #include "editor/edit/EditObjectCmd.h"
 #include "editor/widgets/Image.h"
 
 namespace cave {
 
 using ecs::Entity;
 
-EditorState::EditorState(IApplication& p_app)
-    : AppState(p_app)
-    , pie_(p_app)
+EditorState::EditorState(IApplication& app)
+    : AppState(app)
+    , pie_(app)
     , debug_id_(MakeDebugId(this)) {
+
+    AppServices& app_services = app.services();
+
     // services
-    m_document_service = std::make_unique<cave::DocumentService>(*this);
-    m_edit_service = std::make_unique<cave::EditService>(*this);
-    m_picking_service = std::make_unique<cave::PickingService>(*this);
-    m_selection_service = std::make_unique<cave::SelectionService>(*this);
-    m_shortcut_service = std::make_unique<cave::ShortcutService>(*this);
-    m_thumbnail_service = std::make_unique<cave::ThumbnailService>(*this);
-    m_workspace = std::make_unique<cave::Workspace>(*this);
-    m_icon_cache = std::make_unique<cave::IconCache>(*app().GetAssetRegistry(), *app().GetAssetManager());
+    document_ = std::make_unique<cave::DocumentService>(app_services,
+                                                        services_);
+    edit_ = std::make_unique<cave::EditService>(app_services,
+                                                services_);
+    picking_ = std::make_unique<cave::PickingService>(app_services,
+                                                      services_);
+    selection_ = std::make_unique<cave::SelectionService>(*this);
+    shortcut_ = std::make_unique<cave::ShortcutService>(*this);
+    thumbnail_ = std::make_unique<cave::ThumbnailService>(*this);
+    workspace_ = std::make_unique<cave::Workspace>(*this);
+    icon_cache_ = std::make_unique<cave::IconCache>(app_services.assetRegistry(),
+                                                    app_services.assetManager());
 
     // panels
     content_browser_ = std::make_shared<ContentBrowser>(*this);
@@ -64,6 +71,15 @@ EditorState::EditorState(IApplication& p_app)
     log_panel_ = std::make_shared<LogPanel>(*this);
     file_system_panel_ = std::make_shared<FileSystemPanel>(*this);
     asset_inspector_ = std::make_shared<AssetInspector>(*this);
+
+    services_.document_ = document_.get();
+    services_.edit_ = edit_.get();
+    services_.icon_cache_ = icon_cache_.get();
+    services_.picking_ = picking_.get();
+    services_.selection_ = selection_.get();
+    services_.shortcut_ = shortcut_.get();
+    services_.thumbnail_ = thumbnail_.get();
+    services_.workspace_ = workspace_.get();
 
     addPanel(log_panel_);
     addPanel(asset_inspector_);
@@ -85,15 +101,15 @@ void EditorState::onEnter(const StateRequest& request) {
     ImNodes::CreateContext();
 
     for (auto& panel : m_panels) {
-        panel->OnAttach();
+        panel->onAttach();
     }
 
     SceneId edit_scene{};
     if (!request.arg1.empty()) {
-        if (auto handle = app_.GetAssetRegistry()->FindByPath(request.arg1); handle.is_some()) {
+        if (auto handle = app_.services().assetRegistry().FindByPath(request.arg1); handle.is_some()) {
             AssetHandle handle_ = handle.unwrap_unchecked();
-            DocId doc_id = m_document_service->openDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
-            if (IDocument* doc = m_document_service->resolve(doc_id)) {
+            DocId doc_id = document_->openDoc({ handle_.GetGuid(), handle_.GetMeta()->type });
+            if (IDocument* doc = document_->resolve(doc_id)) {
                 edit_scene = doc->previewScene();
             }
         }
@@ -124,7 +140,7 @@ void EditorState::tick(const FrameTime& p_time) {
     CAVE_PROFILE_EVENT();
 
     BusyInfo info;
-    m_thumbnail_service->Tick(p_time, info);
+    thumbnail_->Tick(p_time, info);
 
     if (IsPlaying()) {
         pie_.tick(p_time);
@@ -141,7 +157,7 @@ void EditorState::tick(const FrameTime& p_time) {
         panel->drawUI();
     }
 
-    m_workspace->tick();
+    workspace_->tick();
 
     ImGui::Render();
 
@@ -162,7 +178,7 @@ void EditorState::commitModeSwitch() {
 
     switch (old_mode) {
         case cave::EditorState::Mode::Editing: {
-            PreviewScene preview = m_workspace->focusedPreviewScene();
+            PreviewScene preview = workspace_->focusedPreviewScene();
             pie_.onSimBegin(preview.scene_id, preview.view_id);
         } break;
         case cave::EditorState::Mode::Playing: {

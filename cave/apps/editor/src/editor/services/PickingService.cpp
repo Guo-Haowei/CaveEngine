@@ -3,14 +3,14 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/display/DisplayService.h"
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/AppServices.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/EditorIntent.h"
-#include "editor/EditorState.h"
+#include "editor/EditorServices.h"
 #include "editor/services/SelectionService.h"
 
 namespace cave {
@@ -20,24 +20,27 @@ using math::Vector2f;
 using math::Vector3f;
 using math::Vector4f;
 
-PickingService::PickingService(EditorState& p_editor)
-    : m_editor(p_editor)
-    , m_debug_id(MakeDebugId(this)) {
-    m_editor.app().services().intentDispatcher().addHandler<PickIntent>(this);
+PickingService::PickingService(AppServices& app_services,
+                               EditorServices& editor_services)
+    : app_services_(app_services)
+    , editor_services_(editor_services)
+    , debug_id_(MakeDebugId(this)) {
+
+    app_services_.intentDispatcher().addHandler<PickIntent>(this);
 }
 
 PickingService::~PickingService() {
-    m_editor.app().services().intentDispatcher().removeHandler<PickIntent>(this);
+    app_services_.intentDispatcher().removeHandler<PickIntent>(this);
 }
 
-void PickingService::Pick(math::Vector2f p_point_win) {
-    m_editor.app().services().intentDispatcher().queue<PickIntent>(p_point_win);
+void PickingService::pick(math::Vector2f point_win) {
+    app_services_.intentDispatcher().queue<PickIntent>(point_win);
 }
 
-void PickingService::Raycast(const PickData& pick_data) {
+void PickingService::raycast(const PickData& pick_data) {
     auto ray = math::Ray::unproject(pick_data.proj_view, pick_data.cursor_ndc);
 
-    auto result = m_editor.app().services().sceneQuery().raycast(pick_data.scene_id, ray, {});
+    auto result = app_services_.sceneQuery().raycast(pick_data.scene_id, ray, {});
 
     SelectionKey key{
         .kind = SelectionKind::Entity,
@@ -46,13 +49,12 @@ void PickingService::Raycast(const PickData& pick_data) {
         .entity = result.entity,
     };
 
-    m_editor.SelectionService().Set(pick_data.doc_id, key);
+    editor_services_.selection().Set(pick_data.doc_id, key);
 }
 
 bool PickingService::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<PickIntent*>(&p_intent)) {
-        IApplication& app = m_editor.app();
-        const Vector2f pos_screen = intent->pointer() + app.GetDisplayService()->windowPos();
+        const Vector2f pos_screen = intent->pointer() + app_services_.displayService().windowPos();
 
         for (IPickConsumer* p : m_consumers) {
             DEV_ASSERT(p);
@@ -61,7 +63,7 @@ bool PickingService::handleIntent(Intent& p_intent) {
             if (opt.is_none()) continue;
 
             PickData data = opt.unwrap_unchecked();
-            Raycast(data);
+            raycast(data);
 
             // @TODO: this doesn't work with overlay
             break;
@@ -72,28 +74,28 @@ bool PickingService::handleIntent(Intent& p_intent) {
     return false;
 }
 
-void PickingService::Register(IPickConsumer* p_consumer) {
-    DEV_ASSERT(p_consumer);
-    if (!p_consumer) return;
+void PickingService::addConsumer(IPickConsumer* consumer) {
+    DEV_ASSERT(consumer);
+    if (!consumer) return;
 
-    auto it = std::ranges::find(m_consumers, p_consumer);
+    auto it = std::ranges::find(m_consumers, consumer);
     if (it != m_consumers.end()) return;
 
-    m_consumers.push_back(p_consumer);
+    m_consumers.push_back(consumer);
 
 #if USING(USE_LOG)
-    DebugId id = p_consumer->debugId();
+    DebugId id = consumer->debugId();
     LOG_TRACE(LogChannel::Picking, "+{}#{}", id.type, id.uid);
 #endif
 }
 
-void PickingService::Unregister(IPickConsumer* p_consumer) {
+void PickingService::removeConsumer(IPickConsumer* consumer) {
     m_consumers.erase(
-        std::remove(m_consumers.begin(), m_consumers.end(), p_consumer),
+        std::remove(m_consumers.begin(), m_consumers.end(), consumer),
         m_consumers.end());
 
 #if USING(USE_LOG)
-    DebugId id = p_consumer->debugId();
+    DebugId id = consumer->debugId();
     LOG_TRACE(LogChannel::Picking, "-{}#{}", id.type, id.uid);
 #endif
 }

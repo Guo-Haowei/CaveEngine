@@ -26,8 +26,8 @@ const char* FileSystemPanel::windowId() const {
     return ICON_FA_FOLDER_CLOSED "  File System";
 }
 
-void FileSystemPanel::OnAttach() {
-    root_ = services_.vfs().GetMount("@res");
+void FileSystemPanel::onAttach() {
+    root_ = app_services_.vfs().GetMount("@res");
 }
 
 void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
@@ -58,7 +58,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
             if (is_dir) {
                 fs::rename(renaming_, to_path);
             } else {
-                m_editor.app().GetAssetManager()->MoveAsset(renaming_, to_path);
+                app_services_.assetManager().MoveAsset(renaming_, to_path);
             }
             renaming_ = "";
         }
@@ -84,7 +84,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
         DragDropTargetFolder(entry, asset_manager.GetFolderLut());
 
         if (hovered) {
-            ShowAssetToolTip(m_editor.ThumbnailService(), entry);
+            ShowAssetToolTip(editor_services_.thumbnail(), entry);
         }
     }
 

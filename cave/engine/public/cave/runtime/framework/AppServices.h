@@ -10,6 +10,9 @@ namespace cave::render { class Renderer; }
 
 namespace cave {
 
+class AssetRegistry;
+class DisplayService;
+class IAssetManager;
 class InputService;
 class IntentDispatcher;
 class IUIRuntime;
@@ -22,6 +25,9 @@ class VFS;
 class ViewManager;
 
 struct AppServices {
+    AssetRegistry* asset_registry_{};
+    DisplayService* display_service_{};
+    IAssetManager* asset_manager_{};
     InputService* input_service_{};
     IntentDispatcher* intent_dispatcher_{};
     IUIRuntime* ui_{};
@@ -34,6 +40,9 @@ struct AppServices {
     VFS* vfs_{};
     render::Renderer* renderer_{};
 
+    AssetRegistry& assetRegistry() { return *asset_registry_; }
+    DisplayService& displayService() { return *display_service_; }
+    IAssetManager& assetManager() { return *asset_manager_; }
     InputService& inputService() { return *input_service_; }
     IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
     IUIRuntime& ui() { return *ui_; }

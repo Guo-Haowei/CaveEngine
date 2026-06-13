@@ -76,7 +76,7 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    const KeyState& st = services_.inputService().keyState();
+    const KeyState& st = app_services_.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return;
     }

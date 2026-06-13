@@ -69,12 +69,12 @@ auto Application::SetupModules() -> Result<void> {
     m_cmd_reg = new cave::CommandRegistry();
     m_console = new cave::Console(*this);
 
-    m_asset_manager = CreateAssetService();
-    m_asset_registry = new AssetRegistry();
+    asset_manager_ = CreateAssetService();
+    asset_registry_ = new AssetRegistry();
     m_script_service = CreateScriptService();
     m_physics_manager = CreatePhysicsService();
     m_render_device = CreateRenderDevice(m_spec.backend);
-    m_display_service = CreateDisplayService();
+    display_service_ = CreateDisplayService();
     input_service_ = new cave::InputService();
     task_manager_ = new TaskManager();
 
@@ -92,12 +92,15 @@ auto Application::SetupModules() -> Result<void> {
 
     project_manager_ = std::make_unique<ProjectManager>(vfs_,
                                                         *task_manager_,
-                                                        *m_asset_manager,
-                                                        *m_asset_registry,
+                                                        *asset_manager_,
+                                                        *asset_registry_,
                                                         *renderer_);
     ui_ = std::make_unique<UIRuntime>(*view_manager_);
 
     // setup app services
+    services_.asset_manager_ = asset_manager_;
+    services_.asset_registry_ = asset_registry_;
+    services_.display_service_ = display_service_;
     services_.input_service_ = input_service_;
     services_.intent_dispatcher_ = &intent_dispatcher_;
     services_.ui_ = ui_.get();
@@ -112,12 +115,12 @@ auto Application::SetupModules() -> Result<void> {
 
     // register subsystems
     RegisterModule(task_manager_);
-    RegisterModule(m_asset_manager);
-    RegisterModule(m_asset_registry);
+    RegisterModule(asset_manager_);
+    RegisterModule(asset_registry_);
     RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
     RegisterModule(input_service_);
-    RegisterModule(m_display_service);
+    RegisterModule(display_service_);
     RegisterModule(m_render_device);
 
     if (m_spec.enableImgui) {
@@ -208,8 +211,8 @@ bool Application::MainLoop() {
 
     CompositeLogger::GetSingleton().Flush();
 
-    m_display_service->beginFrame();
-    if (m_display_service->shouldClose()) {
+    display_service_->beginFrame();
+    if (display_service_->shouldClose()) {
         return false;
     }
 
@@ -224,7 +227,7 @@ bool Application::MainLoop() {
 
     ui_->beginFrame(input_service_->getUIInput());
 
-    m_asset_manager->Update();
+    asset_manager_->Update();
 
     // layer should set active scene
     // update layers from back to front

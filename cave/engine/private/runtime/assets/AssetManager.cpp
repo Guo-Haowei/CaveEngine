@@ -152,7 +152,7 @@ Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const s
         return CAVE_ERROR(ErrorCode::ERR_FILE_NO_PERMISSION, "{}", e.what());
     }
 
-    m_app->GetAssetRegistry()->MoveAsset(std::move(old_path), std::move(new_path));
+    m_app->services().assetRegistry().MoveAsset(std::move(old_path), std::move(new_path));
     return Result<void>();
 }
 
@@ -260,7 +260,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
 
     Stopwatch stopwatch;
     stopwatch.Start();
-    auto entry = m_app->GetAssetRegistry()->GetEntry(p_guid);
+    auto entry = m_app->services().assetRegistry().GetEntry(p_guid);
 
     auto res = LoadAsset(entry);
     if (!res) {

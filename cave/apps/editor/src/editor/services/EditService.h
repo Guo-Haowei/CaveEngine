@@ -8,13 +8,15 @@
 
 namespace cave {
 
-class EditorState;
+struct AppServices;
+struct EditorServices;
 class SceneCommandWriter;
 using SceneCommandWriterFn = std::function<void(SceneCommandWriter&)>;
 
 class EditService final : public IIntentHandler {
 public:
-    EditService(EditorState& editor);
+    EditService(AppServices& app_services,
+                EditorServices& editor_services);
     ~EditService();
 
     void submit(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd);
@@ -38,7 +40,8 @@ private:
     IDocument* resolve(DocId doc_id);
     const IDocument* resolve(DocId doc_id) const;
 
-    EditorState& editor_;
+    AppServices& app_services_;
+    EditorServices& editor_services_;
     const DebugId debug_id_;
 };
 

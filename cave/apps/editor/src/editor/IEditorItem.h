@@ -13,16 +13,19 @@ public:
 
     IEditorItem(EditorState& editor)
         : m_editor(editor)
-        , services_(editor.app().services()) {}
+        , app_services_(editor.app().services())
+        , editor_services_(editor.services()) {}
 
     virtual ~IEditorItem() = default;
 
-    virtual void OnAttach() {}
+    virtual void onAttach() {}
     virtual void drawUI() = 0;
 
 protected:
+    // @TODO: deperecate m_editor
     EditorState& m_editor;
-    AppServices& services_;
+    AppServices& app_services_;
+    EditorServices& editor_services_;
 };
 
 }  // namespace cave

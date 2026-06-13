@@ -15,13 +15,13 @@ PIEHostServices::PIEHostServices(IApplication& app,
     : app_(app)
     , scene_(scene)
     , view_id_(view_id)
-    , writer_(*app.GetAssetRegistry())
+    , writer_(app.services().assetRegistry())
     , scene_query_(scene)
     , view_query_(app.services().viewManager()) {
 }
 
 AssetRegistry& PIEHostServices::assetRegistry() {
-    return *app_.GetAssetRegistry();
+    return app_.services().assetRegistry();
 }
 
 ecs::ComponentRegistry& PIEHostServices::componentRegistry() {
@@ -29,7 +29,7 @@ ecs::ComponentRegistry& PIEHostServices::componentRegistry() {
 }
 
 DisplayService& PIEHostServices::displayService() {
-    return *app_.GetDisplayService();
+    return app_.services().displayService();
 }
 
 IntentDispatcher& PIEHostServices::intentDispatcher() {

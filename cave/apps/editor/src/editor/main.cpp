@@ -62,8 +62,8 @@ public:
     }
 
     void Finalize() final {
-        if (m_display_service) {
-            [[maybe_unused]] auto window_size = m_display_service->windowSize();
+        if (display_service_) {
+            [[maybe_unused]] auto window_size = display_service_->windowSize();
             DVAR_SET_IVEC2(window_resolution, window_size.x, window_size.y);
         }
 
@@ -72,7 +72,7 @@ public:
 
     QuitVote OnQuitRequested(const QuitContext&) override {
         if (EditorState* editor = dynamic_cast<EditorState*>(m_state_machine.appState())) {
-            const bool should_quit = editor->Workspace().onCloseRequested();
+            const bool should_quit = editor->services().workspace().onCloseRequested();
             if (!should_quit) {
                 return QuitVote::Deny;
             }

@@ -9,7 +9,7 @@ class ContentBrowser : public EditorWindow {
 public:
     ContentBrowser(EditorState& editor);
 
-    void OnAttach() override;
+    void onAttach() override;
 
     const char* windowId() const override;
 

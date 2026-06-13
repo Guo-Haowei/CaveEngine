@@ -30,8 +30,8 @@ const char* ContentBrowser::windowId() const {
     return ICON_FA_FOLDER_CLOSED "  Content Browser";
 }
 
-void ContentBrowser::OnAttach() {
-    IconCache& icons = m_editor.IconCache();
+void ContentBrowser::onAttach() {
+    IconCache& icons = editor_services_.iconCache();
     folder_iamge_ = icons.GetIconHandle(IconName::Folder);
     fallback_iamge_ = icons.GetIconHandle(IconName::Meta);
     thumbnail_lut_[".scene"] = icons.GetIconHandle(IconName::Scene);
@@ -139,8 +139,7 @@ void ContentBrowser::drawContentBrowser() {
 
     constexpr uint32_t thumbnail_size = 256;
 
-    ThumbnailService& thumbnail = m_editor.ThumbnailService();
-
+    ThumbnailService& thumbnail = editor_services_.thumbnail();
     auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
         if (p_entry.is_dir) return folder_iamge_;
         const AssetMetaData* meta = p_entry.handle.GetMeta();

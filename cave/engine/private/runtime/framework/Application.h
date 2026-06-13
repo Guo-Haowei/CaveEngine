@@ -69,8 +69,11 @@ protected:
     std::unique_ptr<ViewManager> view_manager_;
     std::unique_ptr<UIRuntime> ui_;
 
-    InputService* input_service_;
-    TaskManager* task_manager_;
+    DisplayService* display_service_{};
+    InputService* input_service_{};
+    TaskManager* task_manager_{};
+    AssetRegistry* asset_registry_{};
+    IAssetManager* asset_manager_{};
 };
 
 }  // namespace cave

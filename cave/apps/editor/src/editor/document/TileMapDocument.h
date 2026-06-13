@@ -7,7 +7,7 @@ namespace cave {
 
 class TileMapDocument : public DocumentBase {
 public:
-    TileMapDocument(IApplication& app, const Guid& guid);
+    TileMapDocument(AppServices& services, const Guid& guid);
 };
 
 #if 0

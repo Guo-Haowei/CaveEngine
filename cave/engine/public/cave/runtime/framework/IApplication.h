@@ -25,7 +25,6 @@ class CommandRegistry;
 class Console;
 class EventQueue;
 class IAssetManager;
-class DisplayService;
 class ImguiManager;
 class IPhysicsManager;
 class IScriptService;
@@ -81,11 +80,8 @@ public:
     virtual EventQueue& GetEventQueue() = 0;
 
     // @TODO: return reference instead
-    AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
-    IAssetManager* GetAssetManager() { return m_asset_manager; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptService* ScriptService() { return m_script_service; }
-    DisplayService* GetDisplayService() { return m_display_service; }
     render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
 
@@ -109,16 +105,9 @@ protected:
     AppSpec m_spec;
 
     // @TODO: differentiate global and state specific managers
-    AssetRegistry* m_asset_registry{};
-    IAssetManager* m_asset_manager{};
-
     IPhysicsManager* m_physics_manager{};
     IScriptService* m_script_service{};
-
-    DisplayService* m_display_service{};
-
     render::IRenderDevice* m_render_device{};
-
     ImguiManager* m_imgui_manager{};
 
     cave::CommandRegistry* m_cmd_reg{ nullptr };
