@@ -7,8 +7,8 @@
 
 namespace cave {
 
+struct AppServices;
 class AssetRegistry;
-class IApplication;
 class SceneRegistry;
 
 struct PreviewOptions {
@@ -35,18 +35,18 @@ struct PreviewBuildResult {
 
 class PreviewBuilder {
 public:
-    explicit PreviewBuilder(IApplication& p_app) noexcept;
+    explicit PreviewBuilder(AppServices& app) noexcept;
     ~PreviewBuilder();
 
-    PreviewBuildResult Build(const PreviewBuildRequest& p_req) const;
+    PreviewBuildResult build(const PreviewBuildRequest& req) const;
 
 private:
-    PreviewBuildResult BuildMaterial(const AssetHandle& p_handle, const PreviewOptions& p_options) const;
-    PreviewBuildResult BuildMesh(const AssetHandle& p_handle, const PreviewOptions& p_options) const;
-    PreviewBuildResult BuildScene(const AssetHandle& p_handle, const PreviewOptions& p_options) const;
+    PreviewBuildResult buildMaterial(const AssetHandle& handle, const PreviewOptions& options) const;
+    PreviewBuildResult buildMesh(const AssetHandle& handle, const PreviewOptions& options) const;
+    PreviewBuildResult buildScene(const AssetHandle& handle, const PreviewOptions& options) const;
 
-    AssetRegistry& m_asset_reg;
-    SceneRegistry& m_scene_reg;
+    AssetRegistry& asset_reg_;
+    SceneRegistry& scene_reg_;
 };
 
 }  // namespace cave

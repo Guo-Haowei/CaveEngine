@@ -10,10 +10,10 @@ namespace cave::render { class IRenderDevice; }
 
 namespace cave {
 
-class SceneRegistry;
-class EditorState;
-class ViewManager;
+struct AppServices;
 struct FrameTime;
+class SceneRegistry;
+class ViewManager;
 
 enum class ThumbnailState : uint8_t {
     Missing = 0,
@@ -44,7 +44,7 @@ class ThumbnailService {
     };
 
 public:
-    explicit ThumbnailService(EditorState& p_editor) noexcept;
+    explicit ThumbnailService(AppServices& services) noexcept;
 
     uint64_t GetOrRequest(const ThumbnailKey& p_key);
 

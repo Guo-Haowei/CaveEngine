@@ -272,17 +272,18 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     }
 
     AssetRef asset = *res;
+    auto& device = m_app->services().renderDevice();
 
     // @TODO: based on render, create asset on work threads
     DEV_ASSERT(asset);
     switch (asset->GetType()) {
         case AssetType::Image: {
             auto image = std::dynamic_pointer_cast<ImageAsset>(asset);
-            m_app->GetRenderDevice()->RequestTexture(image.get());
+            device.RequestTexture(image.get());
         } break;
         case AssetType::Mesh: {
             auto mesh = std::dynamic_pointer_cast<MeshAsset>(asset);
-            m_app->GetRenderDevice()->RequestMesh(mesh.get());
+            device.RequestMesh(mesh.get());
         } break;
         default:
             break;

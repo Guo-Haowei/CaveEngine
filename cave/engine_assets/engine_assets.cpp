@@ -38,24 +38,20 @@ static AssetRef LoadBlob(const unsigned char* p_data, unsigned int p_length) {
     return blob;
 }
 
-static void RegisterPersistentFonts(IApplication* app) {
-    auto& asset_registry = app->services().assetRegistry();
+static void RegisterPersistentFonts(AppServices& services) {
+    auto& asset_reg = services.assetRegistry();
 
-    {
-        asset_registry.RegisterPersistentAsset("fonts/DroidSans.ttf",
-                                               TO_GUID(GUID1),
-                                               LoadBlob(DroidSans_ttf, DroidSans_ttf_len));
-    }
-    {
-        asset_registry.RegisterPersistentAsset("fonts/fa-solid-900.ttf",
-                                               TO_GUID(GUID2),
-                                               LoadBlob(fa_solid_900_ttf, fa_solid_900_ttf_len));
-    }
+    asset_reg.RegisterPersistentAsset("fonts/DroidSans.ttf",
+                                      TO_GUID(GUID1),
+                                      LoadBlob(DroidSans_ttf, DroidSans_ttf_len));
+    asset_reg.RegisterPersistentAsset("fonts/fa-solid-900.ttf",
+                                      TO_GUID(GUID2),
+                                      LoadBlob(fa_solid_900_ttf, fa_solid_900_ttf_len));
 }
 
-static void RegisterPersistentImages(IApplication* app) {
-    auto& asset_registry = app->services().assetRegistry();
-    auto& graphics_manager = *app->GetRenderDevice();
+static void RegisterPersistentImages(AppServices& services) {
+    auto& asset_registry = services.assetRegistry();
+    auto& graphics_manager = services.renderDevice();
     {
         auto texture = CreateCheckerBoardImage();
         asset_registry.RegisterPersistentAsset("textures/checkerboard",
@@ -65,9 +61,9 @@ static void RegisterPersistentImages(IApplication* app) {
     }
 }
 
-static void RegisterPersistentMeshes(IApplication* app) {
-    auto& asset_registry = app->services().assetRegistry();
-    auto& graphics_manager = *app->GetRenderDevice();
+static void RegisterPersistentMeshes(AppServices& services) {
+    auto& asset_registry = services.assetRegistry();
+    auto& graphics_manager = services.renderDevice();
     {
         auto mesh = CreatePlaneMesh(Vector3f(0.5f));
         asset_registry.RegisterPersistentAsset("meshes/plane",
@@ -112,18 +108,18 @@ static void RegisterPersistentMeshes(IApplication* app) {
     }
 }
 
-static void RegisterPersistentMaterials(IApplication* app) {
-    auto& asset_registry = app->services().assetRegistry();
+static void RegisterPersistentMaterials(AppServices& services) {
+    auto& asset_registry = services.assetRegistry();
     auto material = std::make_shared<MaterialAsset>();
     material->base_color = Vector4f(1.0f, 0.0f, 1.0f, 1.0f);
     asset_registry.RegisterPersistentAsset("materials/default", TO_GUID(GUID10), material);
 }
 
-void RegisterAllPersistentAssets(IApplication* p_app) {
-    RegisterPersistentFonts(p_app);
-    RegisterPersistentImages(p_app);
-    RegisterPersistentMaterials(p_app);
-    RegisterPersistentMeshes(p_app);
+void RegisterAllPersistentAssets(AppServices& services) {
+    RegisterPersistentFonts(services);
+    RegisterPersistentImages(services);
+    RegisterPersistentMaterials(services);
+    RegisterPersistentMeshes(services);
 }
 
 }  // namespace cave

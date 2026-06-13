@@ -73,13 +73,13 @@ auto Application::SetupModules() -> Result<void> {
     asset_registry_ = new AssetRegistry();
     m_script_service = CreateScriptService();
     m_physics_manager = CreatePhysicsService();
-    m_render_device = CreateRenderDevice(m_spec.backend);
+    render_device_ = CreateRenderDevice(m_spec.backend);
     display_service_ = CreateDisplayService();
     input_service_ = new cave::InputService();
     task_manager_ = new TaskManager();
 
     // @TODO: dependency injection?
-    renderer_ = std::make_unique<render::Renderer>(*m_render_device);
+    renderer_ = std::make_unique<render::Renderer>(*render_device_);
 
     scene_scheduler_ = std::make_unique<SceneScheduler>(
         scene_registry_,
@@ -88,7 +88,7 @@ auto Application::SetupModules() -> Result<void> {
     scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
 
     view_manager_ = std::make_unique<ViewManager>(scene_registry_,
-                                                  m_render_device->backend() == rhi::Backend::OpenGL);
+                                                  render_device_->backend() == rhi::Backend::OpenGL);
 
     project_manager_ = std::make_unique<ProjectManager>(vfs_,
                                                         *task_manager_,
@@ -121,7 +121,7 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(m_physics_manager);
     RegisterModule(input_service_);
     RegisterModule(display_service_);
-    RegisterModule(m_render_device);
+    RegisterModule(render_device_);
 
     if (m_spec.enableImgui) {
         auto res = CreateImguiManager();
@@ -132,7 +132,7 @@ auto Application::SetupModules() -> Result<void> {
         RegisterModule(m_imgui_manager);
     }
 
-    m_event_queue.RegisterListener(m_render_device);
+    m_event_queue.RegisterListener(render_device_);
 
     // @TODO: move to registerCommands
     DvarCache::registerCmd(*m_cmd_reg);

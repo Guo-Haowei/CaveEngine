@@ -22,17 +22,18 @@ namespace cave {
 
 Workspace::Workspace(EditorState& editor)
     : editor_(editor)
-    , services_(editor.app().services())
+    , app_services_(editor.app().services())
+    , editor_services_(editor.services())
     , debug_id_(MakeDebugId(this)) {
-    services_.inputService().addConsumer(this);
-    services_.intentDispatcher().addHandler<OpenDocIntent>(this);
-    services_.intentDispatcher().addHandler<CloseDocIntent>(this);
+    app_services_.inputService().addConsumer(this);
+    app_services_.intentDispatcher().addHandler<OpenDocIntent>(this);
+    app_services_.intentDispatcher().addHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
-    services_.inputService().removeConsumer(this);
-    services_.intentDispatcher().removeHandler<OpenDocIntent>(this);
-    services_.intentDispatcher().removeHandler<CloseDocIntent>(this);
+    app_services_.inputService().removeConsumer(this);
+    app_services_.intentDispatcher().removeHandler<OpenDocIntent>(this);
+    app_services_.intentDispatcher().removeHandler<CloseDocIntent>(this);
 }
 
 void Workspace::tick() {
@@ -53,19 +54,19 @@ PreviewScene Workspace::focusedPreviewScene() {
         ret.view_id = tab->viewId();
     }
     ret.doc_id = focusedDoc();
-    if (IDocument* doc = editor_.DocumentService().resolve(ret.doc_id)) {
+    if (IDocument* doc = editor_services_.document().resolve(ret.doc_id)) {
         ret.scene_id = doc->previewScene();
-        ret.scene = services_.sceneRegistry().resolve(ret.scene_id);
+        ret.scene = app_services_.sceneRegistry().resolve(ret.scene_id);
     }
     return ret;
 }
 
 void Workspace::requestOpen(DocId doc_id) {
-    services_.intentDispatcher().queue<OpenDocIntent>(doc_id);
+    app_services_.intentDispatcher().queue<OpenDocIntent>(doc_id);
 }
 
 void Workspace::requestClose(DocId doc_id) {
-    services_.intentDispatcher().queue<CloseDocIntent>(doc_id);
+    app_services_.intentDispatcher().queue<CloseDocIntent>(doc_id);
 }
 
 void Workspace::drawTabs() {
@@ -120,7 +121,7 @@ void Workspace::onEvents(const InputFrame& input) {
         if (e.type == InputEventType::ButtonDown) {
             const Key key = static_cast<Key>(e.code);
             if (key == Key::RMB) {
-                editor_.PickingService().Pick({ e.x, e.y });
+                editor_services_.picking().pick({ e.x, e.y });
                 e.consumed = true;
                 break;
             }
@@ -130,7 +131,7 @@ void Workspace::onEvents(const InputFrame& input) {
 
 // @TODO: probably want to refactor this
 void Workspace::openOrFocusDoc(DocId doc_id) {
-    IDocument* doc = editor_.DocumentService().resolve(doc_id);
+    IDocument* doc = editor_services_.document().resolve(doc_id);
     if (!doc) {
         return;
     }
@@ -145,7 +146,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         return;
     }
 
-    ProjectManager& project_mgr = services_.projectManager();
+    ProjectManager& project_mgr = app_services_.projectManager();
     const ViewDimension dim = project_mgr.project().is_2d ? ViewDimension::Dim2 : ViewDimension::Dim3;
 
     std::unique_ptr<Tab> tab;
@@ -211,7 +212,7 @@ bool Workspace::closeDoc(DocId doc_id) {
     Destroy(tab_id);
     doc_to_tab_.erase(doc_id);
 
-    editor_.DocumentService().closeDoc(doc_id);
+    editor_services_.document().closeDoc(doc_id);
     return true;
 }
 
@@ -219,15 +220,13 @@ bool Workspace::closeDoc(DocId doc_id) {
 extern CloseDecision AskCloseUnsaved(const char* title);
 
 bool Workspace::onCloseRequested() {
-    EditService& edit = editor_.EditService();
-
     std::vector<DocId> unsaved;
     for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
         auto& slot = m_slots[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
             DocId doc = tab.docId();
-            if (edit.isDirty(doc)) {
+            if (editor_services_.edit().isDirty(doc)) {
                 unsaved.push_back(doc);
             }
         }
@@ -247,7 +246,7 @@ bool Workspace::onCloseRequested() {
             return false;
     }
     for (DocId doc : unsaved) {
-        edit.save(doc);
+        editor_services_.edit().save(doc);
     }
     return true;
 }

@@ -46,7 +46,7 @@ void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
         return;
     }
 
-    SceneCommandWriter cb(*app.GetAssetRegistry());
+    SceneCommandWriter cb(app_services_.assetRegistry());
     func(cb);
 
     EntityMap map(cb.GetAllocationCount());

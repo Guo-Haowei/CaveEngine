@@ -6,6 +6,7 @@
 
 // clang-format off
 namespace cave::render { class Renderer; }
+namespace cave::render { class IRenderDevice; }
 // clang-format on
 
 namespace cave {
@@ -38,6 +39,8 @@ struct AppServices {
     TaskManager* task_manager_{};
     ViewManager* view_manager_{};
     VFS* vfs_{};
+
+    render::IRenderDevice* render_device_{};
     render::Renderer* renderer_{};
 
     AssetRegistry& assetRegistry() { return *asset_registry_; }
@@ -53,7 +56,9 @@ struct AppServices {
     TaskManager& taskManager() { return *task_manager_; }
     ViewManager& viewManager() { return *view_manager_; }
     VFS& vfs() { return *vfs_; }
+
     render::Renderer& renderer() { return *renderer_; };
+    render::IRenderDevice& renderDevice() { return *render_device_; };
 };
 
 }  // namespace cave

@@ -11,10 +11,10 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-extern void RegisterAllPersistentAssets(IApplication* p_app);
+extern void RegisterAllPersistentAssets(AppServices& services);
 
 auto AssetRegistry::InitializeImpl() -> Result<void> {
-    RegisterAllPersistentAssets(m_app);
+    RegisterAllPersistentAssets(m_app->services());
     return Result<void>();
 }
 

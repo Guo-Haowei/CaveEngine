@@ -62,18 +62,19 @@ protected:
     VFS vfs_;
     SceneRegistry scene_registry_;
 
-    std::unique_ptr<render::Renderer> renderer_;
     std::unique_ptr<ProjectManager> project_manager_;
     std::unique_ptr<SceneQueryService> scene_query_;
     std::unique_ptr<SceneScheduler> scene_scheduler_;
     std::unique_ptr<ViewManager> view_manager_;
     std::unique_ptr<UIRuntime> ui_;
+    std::unique_ptr<render::Renderer> renderer_;
 
     DisplayService* display_service_{};
     InputService* input_service_{};
     TaskManager* task_manager_{};
     AssetRegistry* asset_registry_{};
     IAssetManager* asset_manager_{};
+    render::IRenderDevice* render_device_{};
 };
 
 }  // namespace cave

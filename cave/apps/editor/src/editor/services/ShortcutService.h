@@ -6,9 +6,11 @@
 
 namespace cave {
 
+struct AppServices;
+struct EditorServices;
+
+// @TODO: remove this
 class EditorState;
-class InputService;
-class IntentDispatcher;
 
 class ShortcutService final : public IInputConsumer,
                               public IIntentHandler {
@@ -28,8 +30,8 @@ private:
     void initShortcuts();
 
     EditorState& editor_;
-    InputService& input_service_;
-    IntentDispatcher& intent_dispatcher_;
+    AppServices& app_services_;
+    EditorServices& editor_services_;
     const DebugId debug_id_;
 
     std::array<ShortcutDesc, kShortcutCount> shortcuts_;

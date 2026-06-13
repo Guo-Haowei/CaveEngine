@@ -43,7 +43,7 @@ ViewTabBase::ViewTabBase(EditorState& editor,
         .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .miscFlags = RESOURCE_MISC_NONE,
     };
-    texture_ = m_editor.app().GetRenderDevice()->CreateTexture(
+    texture_ = m_editor.app().services().renderDevice().CreateTexture(
         desc,
         PointClampSampler());
 }

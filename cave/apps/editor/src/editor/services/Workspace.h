@@ -9,6 +9,8 @@
 namespace cave {
 
 struct AppServices;
+struct EditorServices;
+
 class EditorState;
 class Guid;
 
@@ -55,7 +57,8 @@ private:
     void drawTabs();
 
     EditorState& editor_;
-    AppServices& services_;
+    AppServices& app_services_;
+    EditorServices& editor_services_;
     const DebugId debug_id_;
 
     TabId focused_tab_{};
