@@ -89,7 +89,7 @@ EditorState::EditorState(IApplication& app)
     addPanel(std::make_shared<HierarchyPanel>(*this));
     addPanel(std::make_shared<PropertyPanel>(*this));
     addPanel(content_browser_);
-    addPanel(std::make_shared<RenderGraphViewer>(*this));
+    // addPanel(std::make_shared<RenderGraphViewer>(*this));
     addPanel(file_system_panel_);
 }
 

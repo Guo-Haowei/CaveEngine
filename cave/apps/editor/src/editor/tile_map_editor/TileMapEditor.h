@@ -5,7 +5,6 @@
 
 #include "editor/document/SceneDocument.h"
 #include "editor/panels/ViewTabBase.h"
-#include "editor/widgets/SpriteSelector.h"
 #include "editor/services/IPickConsumer.h"
 
 namespace cave {
@@ -36,8 +35,6 @@ protected:
     void drawUIImpl() override;
 
     const DebugId debug_id_;
-
-    SpriteSelector sprite_selector_;
 };
 
 }  // namespace cave

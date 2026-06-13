@@ -20,8 +20,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              DocId doc_id,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
-    , debug_id_(MakeDebugId(this))
-    , sprite_selector_(SpriteSelector::SelectionMode::Single) {
+    , debug_id_(MakeDebugId(this)) {
 
     // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
     //                                   [&]() {

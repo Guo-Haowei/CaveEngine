@@ -1,5 +1,6 @@
 #pragma once
 #include "editor/panels/EditorWindow.h"
+#include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
 
@@ -27,6 +28,7 @@ protected:
     void tileMapLayerOverview(TileMapAsset& tile_map);
 
     EditorServices& editor_services_;
+    SpriteSelector sprite_selector_;
 
     uint64_t checkerboard_{};
 };
