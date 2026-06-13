@@ -71,7 +71,8 @@ EditorState::EditorState(IApplication& app)
     menu_bar_ = std::make_shared<MenuBar>(*this);
     log_panel_ = std::make_shared<LogPanel>(*this);
     file_system_panel_ = std::make_shared<FileSystemPanel>(*this);
-    asset_inspector_ = std::make_shared<AssetInspector>(*this);
+    asset_inspector_ = std::make_shared<AssetInspector>(*this,
+                                                        services_);
 
     services_.document_ = document_.get();
     services_.edit_ = edit_.get();

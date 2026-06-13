@@ -98,7 +98,8 @@ protected:
 
     AppSpec m_spec;
 
-    // @TODO: differentiate global and state specific managers
+    // @TODO: move the following to services
+    // also need subsystems
     IPhysicsManager* m_physics_manager{};
     IScriptService* m_script_service{};
     ImguiManager* m_imgui_manager{};

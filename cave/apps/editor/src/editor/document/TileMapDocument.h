@@ -5,9 +5,16 @@
 
 namespace cave {
 
+class TileMapAsset;
+
 class TileMapDocument : public DocumentBase {
 public:
     TileMapDocument(AppServices& services, const Guid& guid);
+
+    void drawAssetInspector() override;
+
+private:
+    void tileMapLayerOverview(TileMapAsset& tile_map);
 };
 
 #if 0

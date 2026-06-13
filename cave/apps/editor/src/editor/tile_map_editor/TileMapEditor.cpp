@@ -5,12 +5,8 @@
 #include "editor/EditorState.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
-#include "engine/private/ui/inputs.h"
-#include "engine/private/ui/layout.h"
 
 // @TODO: remove
-#include "engine/private/runtime/assets/ImageAsset.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
 
@@ -96,42 +92,6 @@ void TileMapEditor::drawUIImpl() {
 
 #if 0
 void TileMapEditor::DrawAssetInspector() {
-    TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-    TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-
-    std::vector<AssetChildPanel> descs = {
-        {
-            "LayerOverview",
-            720,
-            [&]() {
-                if (ImGui::BeginTabBar("##MyTabs1")) {
-                    if (ImGui::BeginTabItem("Layer")) {
-                        TileMapLayerOverview(*tile_map);
-                        ImGui::EndTabItem();
-                    }
-                    ImGui::EndTabBar();
-                }
-            },
-        },
-        {
-            "PaintTab",
-            0,
-            [&]() {
-                if (tile_set) {
-                    auto handle = tile_set->GetHandle();
-                    const int column = tile_set->GetCol();
-                    const int row = tile_set->GetRow();
-                    if (auto image = handle.Get(); image) {
-                        m_sprite_selector.SelectSprite(*image, &column, &row);
-                    }
-                }
-            },
-        }
-    };
-
-    const float full_width = ImGui::GetContentRegionAvail().x;
-
-    ui::DrawContents(full_width, descs);
 }
 
 bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
@@ -185,94 +145,7 @@ bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
     return false;
 }
 
-void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
-    if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
-        // p_tile_map.AddLayer("untitled layer");
-    }
-    ImGui::Separator();
 
-    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
-    DEV_ASSERT(tool);
-
-    for (int layer_id = 0; layer_id < 1; ++layer_id) {
-        TileMapAsset& layer = p_tile_map;
-        const bool is_layer_selected = true;
-
-        ImGui::PushID(layer_id);
-
-        if (is_layer_selected) {
-            auto& style = ImGui::GetStyle();
-            auto& colors = style.Colors;
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, colors[ImGuiCol_FrameBgHovered]);
-        }
-
-        ImGui::BeginGroup();
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
-
-        ImGui::BeginGroup();
-
-        ImGui::Dummy(ImVec2(8, 8));
-
-        if (ui::TextBox("layer", layer.GetName())) {
-            // @TODO: notify dirty
-        }
-
-        ImGui::SameLine();
-
-        const bool is_visible = layer.IsVisible();
-        const char* label = is_visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
-        if (ImGui::Button(label)) {
-            layer.SetVisible(!is_visible);
-        }
-
-        ImGui::SameLine();
-
-        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
-            LOG_WARN("TODO: DELETE");
-        }
-
-        // next line
-
-        {
-
-            const ImageAsset* image = nullptr;
-            if (auto image_handle = layer.GetTileSetHandle().Get(); image_handle) {
-                image = image_handle->GetHandle().Get();
-            }
-
-            auto checkerboard = m_editor.context.checkerboard;
-            DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
-
-            Vector2f region_size(128, 128);
-            ui::CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
-
-            if (ImGui::IsItemClicked()) {
-                // tool->SetActiveLayer(layer_id);
-            }
-
-            // @TODO: make an asset drop region
-            // accept same type of assets, show tooltips, etc
-            if (auto _handle = DragDropTarget(AssetType::TileSet); _handle.is_some()) {
-                layer.SetTileSetGuid(_handle.unwrap_unchecked().GetGuid());
-            }
-        }
-
-        ImGui::Dummy(ImVec2(8, 8));
-
-        ImGui::EndGroup();
-        ImGui::Separator();
-
-        ImGui::PopStyleVar(2);
-        ImGui::PopID();
-        ImGui::EndGroup();
-
-        if (is_layer_selected) {
-            ImGui::PopStyleColor();
-        }
-    }
-}
 #endif
 
 }  // namespace cave

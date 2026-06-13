@@ -35,9 +35,6 @@ protected:
 
     void drawUIImpl() override;
 
-    // @TODO: refactor
-    void TileMapLayerOverview(TileMapAsset& p_tile_map);
-
     const DebugId debug_id_;
 
     SpriteSelector sprite_selector_;

@@ -5,7 +5,7 @@
 #include "editor/document/MaterialDocument.h"
 #include "editor/document/TileMapDocument.h"
 #include "editor/document/SceneDocument.h"
-#include "editor/EditorServices.h"
+#include "editor/services/EditorServices.h"
 #include "editor/services/Workspace.h"
 
 namespace cave {

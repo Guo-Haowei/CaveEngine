@@ -52,6 +52,8 @@ public:
     // @TODO: remove this, not all doc is related to scene
     virtual SceneId previewScene() const { return {}; }
 
+    virtual void drawAssetInspector() {}
+
 protected:
     AssetHandle handle_;
     AssetRef asset_;

@@ -6,8 +6,8 @@
 #include "engine/private/runtime/framework/AppState.h"
 
 #include "editor/document/DocId.h"
-#include "editor/EditorServices.h"
 #include "editor/play/PIESession.h"
+#include "editor/services/EditorServices.h"
 
 namespace cave {
 

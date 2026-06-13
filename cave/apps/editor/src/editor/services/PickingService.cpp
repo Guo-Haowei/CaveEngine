@@ -10,7 +10,7 @@
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/EditorIntent.h"
-#include "editor/EditorServices.h"
+#include "editor/services/EditorServices.h"
 #include "editor/services/SelectionService.h"
 
 namespace cave {
