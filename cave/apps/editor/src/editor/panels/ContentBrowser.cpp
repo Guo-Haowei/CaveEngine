@@ -171,7 +171,7 @@ void ContentBrowser::drawContentBrowser() {
                                                 node->file_name.data(),
                                                 math::Vector2f(thumbnail_size));
         if (ImGui::BeginPopupContextItem()) {
-            ShowPopup(*node, m_editor, []() {
+            ShowPopup(*node, editor_services_.document(), []() {
                 LOG_WARN("TODO: rename");
             });
             ImGui::EndPopup();

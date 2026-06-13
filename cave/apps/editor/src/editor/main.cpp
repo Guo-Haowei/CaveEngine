@@ -57,7 +57,7 @@ public:
             return std::unique_ptr<AppState>(std::move(state));
         });
 
-        m_state_machine.initialize(initial_state);
+        state_machine_.initialize(initial_state);
         return Result<void>();
     }
 
@@ -71,7 +71,7 @@ public:
     }
 
     QuitVote OnQuitRequested(const QuitContext&) override {
-        if (EditorState* editor = dynamic_cast<EditorState*>(m_state_machine.appState())) {
+        if (EditorState* editor = dynamic_cast<EditorState*>(state_machine_.appState())) {
             const bool should_quit = editor->services().workspace().onCloseRequested();
             if (!should_quit) {
                 return QuitVote::Deny;

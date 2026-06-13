@@ -3,7 +3,7 @@
 
 namespace cave {
 
-class EditorState;
+class DocumentService;
 class ThumbnailService;
 
 struct ContentEntry {
@@ -20,17 +20,17 @@ struct ContentEntry {
     std::vector<std::unique_ptr<ContentEntry>> children;
 };
 
-std::unique_ptr<ContentEntry> BuildFolderTree(const std::filesystem::path& p_sys_path,
-                                              ContentEntry* p_parent);
+auto BuildFolderTree(const std::filesystem::path& sys_path,
+                     ContentEntry* parent) -> std::unique_ptr<ContentEntry>;
 
 /// tool tip
-void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle);
+void ShowAssetToolTip(ThumbnailService& service, const AssetHandle& handle);
 
-void ShowAssetToolTip(ThumbnailService& p_service, const ContentEntry& p_node);
+void ShowAssetToolTip(ThumbnailService& service, const ContentEntry& node);
 
 /// popup
-void ShowPopup(const ContentEntry& p_node,
-               EditorState& p_editor,
-               std::function<void(void)> p_rename_cb = nullptr);
+void ShowPopup(const ContentEntry& node,
+               DocumentService& document,
+               std::function<void(void)> rename_cb = nullptr);
 
 }  // namespace cave

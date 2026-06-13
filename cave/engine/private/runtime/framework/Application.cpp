@@ -45,8 +45,8 @@ namespace fs = std::filesystem;
 
 Application::Application(const AppSpec& p_spec, AppType p_type)
     : IApplication(p_spec)
-    , m_type(p_type)
-    , m_state_machine(*this) {
+    , type_(p_type)
+    , state_machine_(*this) {
 
     // @TODO: refactor this select work directory
     vfs_.Mount("@user", fs::path(m_spec.userFolder));
@@ -58,7 +58,7 @@ Application::~Application() = default;
 void Application::RegisterModule(IService* p_module) {
     DEV_ASSERT(p_module);
     p_module->SetApp(this);
-    m_modules.push_back(p_module);
+    subsystems_.push_back(p_module);
 }
 
 Result<ImguiManager*> Application::CreateImguiManager() {
@@ -111,6 +111,7 @@ auto Application::SetupModules() -> Result<void> {
     services_.task_manager_ = task_manager_;
     services_.view_manager_ = view_manager_.get();
     services_.vfs_ = &vfs_;
+    services_.render_device_ = render_device_;
     services_.renderer_ = renderer_.get();
 
     // register subsystems
@@ -132,7 +133,7 @@ auto Application::SetupModules() -> Result<void> {
         RegisterModule(m_imgui_manager);
     }
 
-    m_event_queue.RegisterListener(render_device_);
+    event_queue_.RegisterListener(render_device_);
 
     // @TODO: move to registerCommands
     DvarCache::registerCmd(*m_cmd_reg);
@@ -169,28 +170,28 @@ auto Application::Initialize() -> Result<void> {
         return CAVE_ERROR(res.error());
     }
 
-    for (IService* module : m_modules) {
-        m_stopwatch.Restart();
+    for (IService* module : subsystems_) {
+        stopwatch_.Restart();
         if (auto res = module->Initialize(); !res) {
             LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
             return CAVE_ERROR(res.error());
         }
-        m_stopwatch.Stop();
-        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
+        stopwatch_.Stop();
+        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), stopwatch_.Elapsed().ToString());
     }
 
-    m_stopwatch.Restart();
+    stopwatch_.Restart();
     return Result<void>();
 }
 
 void Application::Finalize() {
-    m_state_machine.shutdown();
+    state_machine_.shutdown();
 
     // @TODO: move it to request shutdown
     thread::RequestShutdown();
 
-    for (int index = (int)m_modules.size() - 1; index >= 0; --index) {
-        IService* module = m_modules[index];
+    for (int index = (int)subsystems_.size() - 1; index >= 0; --index) {
+        IService* module = subsystems_[index];
         module->Finalize();
         LOG_TRACE(LogChannel::App, "-{}", module->GetName());
         // @TODO: use smart pointer
@@ -199,7 +200,7 @@ void Application::Finalize() {
 }
 
 float Application::UpdateTime() {
-    const Nanoseconds elapsed = m_stopwatch.Restart();
+    const Nanoseconds elapsed = stopwatch_.Restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
     return math::min(elapsed_sec, 0.5f);
@@ -220,7 +221,7 @@ bool Application::MainLoop() {
 
     FrameTime time{
         .dt = UpdateTime(),
-        .frame_index = m_frame_counter++,
+        .frame_index = frame_counter_++,
     };
 
     input_service_->tick(time);
@@ -233,7 +234,7 @@ bool Application::MainLoop() {
     // update layers from back to front
     view_manager_->beginFrame();
 
-    m_state_machine.tick(time);
+    state_machine_.tick(time);
     intent_dispatcher_.flush();
 
     // update scene after ImGui, physics and script updates
@@ -265,7 +266,7 @@ void IApplication::Run(IApplication* p_app) {
 }
 
 AppStateId Application::GetStateId() const {
-    return m_state_machine.stateId();
+    return state_machine_.stateId();
 }
 
 // void Application::RequestProject(std::string_view p_path) {

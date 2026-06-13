@@ -3,16 +3,18 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/core/os/platform_io.h"
-#include "engine/private/runtime/framework/IAssetManager.h"
-#include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/runtime/framework/VFS.h"
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/widgets/DragDrop.h"
 #include "engine/private/ui/inputs.h"
+
+// @TODO: remove private include
+#include "engine/private/core/os/platform_io.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/VFS.h"
 
 namespace cave {
 
@@ -71,7 +73,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
         const bool hovered = ImGui::IsItemHovered();
 
         if (ImGui::BeginPopupContextItem()) {
-            ShowPopup(entry, m_editor, [&]() {
+            ShowPopup(entry, editor_services_.document(), [&]() {
                 renaming_ = entry.sys_path;
             });
             ImGui::EndPopup();

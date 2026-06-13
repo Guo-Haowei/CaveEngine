@@ -52,18 +52,19 @@ EditorState::EditorState(IApplication& app)
     AppServices& app_services = app.services();
 
     // services
-    document_ = std::make_unique<cave::DocumentService>(app_services,
-                                                        services_);
-    edit_ = std::make_unique<cave::EditService>(app_services,
+    document_ = std::make_unique<DocumentService>(app_services,
+                                                  services_);
+    edit_ = std::make_unique<EditService>(app_services,
+                                          services_);
+    picking_ = std::make_unique<PickingService>(app_services,
                                                 services_);
-    picking_ = std::make_unique<cave::PickingService>(app_services,
-                                                      services_);
-    selection_ = std::make_unique<cave::SelectionService>(*this);
-    shortcut_ = std::make_unique<cave::ShortcutService>(*this);
-    thumbnail_ = std::make_unique<cave::ThumbnailService>(*this);
-    workspace_ = std::make_unique<cave::Workspace>(*this);
-    icon_cache_ = std::make_unique<cave::IconCache>(app_services.assetRegistry(),
-                                                    app_services.assetManager());
+    thumbnail_ = std::make_unique<ThumbnailService>(app_services);
+    icon_cache_ = std::make_unique<IconCache>(app_services.assetRegistry(),
+                                              app_services.assetManager());
+
+    selection_ = std::make_unique<SelectionService>(*this);
+    shortcut_ = std::make_unique<ShortcutService>(*this);
+    workspace_ = std::make_unique<Workspace>(*this);
 
     // panels
     content_browser_ = std::make_shared<ContentBrowser>(*this);
@@ -177,11 +178,11 @@ void EditorState::commitModeSwitch() {
     mode_ = flipMode(mode_);
 
     switch (old_mode) {
-        case cave::EditorState::Mode::Editing: {
+        case EditorState::Mode::Editing: {
             PreviewScene preview = workspace_->focusedPreviewScene();
             pie_.onSimBegin(preview.scene_id, preview.view_id);
         } break;
-        case cave::EditorState::Mode::Playing: {
+        case EditorState::Mode::Playing: {
             pie_.onSimEnd();
         } break;
     }

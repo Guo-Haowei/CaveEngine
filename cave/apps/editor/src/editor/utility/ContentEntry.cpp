@@ -8,7 +8,6 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
-#include "editor/EditorState.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/ThumbnailService.h"
@@ -18,15 +17,15 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
-                                              ContentEntry* p_parent) {
+auto BuildFolderTree(const fs::path& sys_path,
+                     ContentEntry* parent) -> std::unique_ptr<ContentEntry> {
     try {
-        if (!fs::exists(p_sys_path)) {
+        if (!fs::exists(sys_path)) {
             return nullptr;
         }
 
-        const bool is_dir = fs::is_directory(p_sys_path);
-        const bool is_file = fs::is_regular_file(p_sys_path);
+        const bool is_dir = fs::is_directory(sys_path);
+        const bool is_file = fs::is_regular_file(sys_path);
         if (!is_dir && !is_file) {
             return nullptr;
         }
@@ -35,10 +34,10 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
         node->type = AssetType::Unknown;
         node->extension = "";
         node->is_dir = is_dir;
-        node->sys_path = p_sys_path;
-        node->parent = p_parent;
-        if (p_parent) {
-            node->virtual_path = IAssetManager::GetSingleton().ResolvePath(p_sys_path);
+        node->sys_path = sys_path;
+        node->parent = parent;
+        if (parent) {
+            node->virtual_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
             node->file_name = StringUtils::FileName(node->virtual_path, '/');
         } else {
             node->virtual_path = "@res://";
@@ -72,7 +71,7 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
             }
 #endif
         } else {
-            for (const auto& entry : fs::directory_iterator(p_sys_path)) {
+            for (const auto& entry : fs::directory_iterator(sys_path)) {
                 auto child = BuildFolderTree(entry.path(), node.get());
                 if (child) {
                     node->children.push_back(std::move(child));
@@ -90,8 +89,8 @@ std::unique_ptr<ContentEntry> BuildFolderTree(const fs::path& p_sys_path,
 // @TODO:
 static constexpr int kThumbnailSize = 256;
 
-void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) {
-    const AssetMetaData* meta = p_handle.GetMeta();
+void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
+    const AssetMetaData* meta = handle.GetMeta();
     DEV_ASSERT(meta);
 
     if (ImGui::BeginTooltip()) {
@@ -101,7 +100,7 @@ void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) 
 
         switch (meta->type) {
             case AssetType::Image: {
-                auto texture = reinterpret_cast<const ImageAsset&>(*p_handle.Get());
+                auto texture = reinterpret_cast<const ImageAsset&>(*handle.Get());
                 if (texture.gpu_texture) {
                     ui::CenteredImage(texture.gpu_texture->GetHandle(),
                                       kThumbnailSize,
@@ -114,10 +113,10 @@ void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) 
             case AssetType::Mesh:
             case AssetType::Scene: {
                 ThumbnailKey key{
-                    .guid = p_handle.GetGuid(),
+                    .guid = handle.GetGuid(),
                     .size = kThumbnailSize,
                 };
-                const uint64_t texture = p_service.GetOrRequest(key);
+                const uint64_t texture = thumbnail.GetOrRequest(key);
                 ui::CenteredImage(texture, kThumbnailSize, kThumbnailSize, kThumbnailSize, false);
             } break;
             default:
@@ -128,9 +127,9 @@ void ShowAssetToolTip(ThumbnailService& p_service, const AssetHandle& p_handle) 
     }
 }
 
-void ShowAssetToolTip(ThumbnailService& p_service, const ContentEntry& p_node) {
-    if (p_node.is_dir) return;
-    ShowAssetToolTip(p_service, p_node.handle);
+void ShowAssetToolTip(ThumbnailService& thumbnail, const ContentEntry& node) {
+    if (node.is_dir) return;
+    ShowAssetToolTip(thumbnail, node.handle);
 }
 
 static void ShowFolderPopup(const ContentEntry& p_node) {
@@ -180,32 +179,32 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
     }
 }
 
-void ShowPopup(const ContentEntry& p_node,
-               EditorState& p_editor,
-               std::function<void(void)> p_rename_cb) {
+void ShowPopup(const ContentEntry& node,
+               DocumentService& document,
+               std::function<void(void)> rename_cb) {
     if (ImGui::MenuItem("Rename")) {
-        if (p_rename_cb) {
-            p_rename_cb();
+        if (rename_cb) {
+            rename_cb();
         }
     }
 
-    if (p_node.is_dir) {
-        ShowFolderPopup(p_node);
+    if (node.is_dir) {
+        ShowFolderPopup(node);
     } else {
         if (ImGui::MenuItem("Edit")) {
             OpenDocDesc desc;
-            desc.guid = p_node.handle.GetGuid();
-            desc.asset_type = p_node.handle.GetMeta()->type;
-            p_editor.DocumentService().openDoc(desc);
+            desc.guid = node.handle.GetGuid();
+            desc.asset_type = node.handle.GetMeta()->type;
+            document.openDoc(desc);
         }
         if (ImGui::MenuItem("Save")) {
-            const Guid guid = p_node.handle.GetGuid();
-            p_editor.DocumentService().save(guid);
+            const Guid guid = node.handle.GetGuid();
+            document.save(guid);
         }
     }
 
     if (ImGui::MenuItem("Reveal In File Explorer")) {
-        cave::os::RevealInFolder(p_node.sys_path);
+        cave::os::RevealInFolder(node.sys_path);
     }
 }
 
