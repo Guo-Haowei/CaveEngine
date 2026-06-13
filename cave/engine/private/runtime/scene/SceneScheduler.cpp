@@ -1,6 +1,5 @@
 #include "SceneScheduler.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/FrameTime.h"
 
 #include "engine/private/runtime/framework/IScriptService.h"

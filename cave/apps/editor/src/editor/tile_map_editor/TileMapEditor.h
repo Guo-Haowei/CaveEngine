@@ -5,17 +5,18 @@
 
 #include "editor/document/SceneDocument.h"
 #include "editor/panels/ViewTabBase.h"
-#include "editor/widgets/SpriteSelector.h"
 #include "editor/services/IPickConsumer.h"
 
 namespace cave {
 
-class AssetRegistry;
-class Scene;
-class TileMapDocument;
-
 class TileMapEditor final : public ViewTabBase,
                             public IPickConsumer {
+    enum class Mode : uint8_t {
+        None,
+        Painting,
+        Erasing,
+    };
+
 public:
     TileMapEditor(EditorState& editor,
                   DocId doc_id,
@@ -31,16 +32,20 @@ public:
     DebugId debugId() const override { return debug_id_; }
 
 protected:
-    void submitView();
-
     void drawUIImpl() override;
 
-    // @TODO: refactor
-    void TileMapLayerOverview(TileMapAsset& p_tile_map);
+    void submitView();
+    void changeMode(Mode mode);
+    bool canHandleInput(const InputFrame& input);
+    bool updateEditMode(const InputFrame& input);
+    void applayEditorTool();
 
     const DebugId debug_id_;
 
-    SpriteSelector sprite_selector_;
+    Mode mode_{ Mode::None };
+    bool lb_down_{ false };
+    bool rb_down_{ false };
+    math::Vector2f cursor_;
 };
 
 }  // namespace cave

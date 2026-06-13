@@ -4,10 +4,9 @@
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
+// @TODO: remove private #include
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
-
-#include "editor/tile_map_editor/TileMapEditor.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
@@ -15,10 +14,10 @@ namespace cave {
 using namespace ::cave::literals;
 using ecs::Entity;
 
-TileMapDocument::TileMapDocument(IApplication& app, const Guid& guid)
-    : DocumentBase(app, guid) {
+TileMapDocument::TileMapDocument(AppServices& services, const Guid& guid)
+    : DocumentBase(services, guid) {
 
-    SceneCommandWriter cb(*app.GetAssetRegistry());
+    SceneCommandWriter cb(services.assetRegistry());
     Entity root = cb.CreateRootObject();
 
     Entity ent = cb.CreateTileMapObject("tilemap");
@@ -35,6 +34,7 @@ TileMapDocument::TileMapDocument(IApplication& app, const Guid& guid)
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }
+
 #if 0
 // @TODO: abstract brush class
 class SetTileCommand : public UndoCommand {

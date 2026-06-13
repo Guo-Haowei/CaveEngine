@@ -26,7 +26,7 @@ ViewTabBase::ViewTabBase(EditorState& editor,
                          SceneId scene_id,
                          ViewDimension dim)
     : Tab(editor, doc_id)
-    , view_manager_(services_.viewManager())
+    , view_manager_(app_services_.viewManager())
     , dim_(dim)
     , preview_scene_id_(scene_id) {
 
@@ -43,7 +43,7 @@ ViewTabBase::ViewTabBase(EditorState& editor,
         .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .miscFlags = RESOURCE_MISC_NONE,
     };
-    texture_ = m_editor.app().GetRenderDevice()->CreateTexture(
+    texture_ = m_editor.app().services().renderDevice().CreateTexture(
         desc,
         PointClampSampler());
 }
@@ -70,13 +70,13 @@ void ViewTabBase::onCreate() {
         "SceneView",
         { 0, 0, kTextureWidth, kTextureHeight });
 
-    services_.sceneScheduler().add(this);
+    app_services_.sceneScheduler().add(this);
 }
 
 void ViewTabBase::onDestroy() {
     view_manager_.destroyView(view_id_);
 
-    services_.sceneScheduler().remove(this);
+    app_services_.sceneScheduler().remove(this);
 }
 
 void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
@@ -100,7 +100,7 @@ void ViewTabBase::submitView(bool support_pie) {
         view.scene_id = preview_scene_id_;
         view.camera_source = CameraSource::External(camera_);
 
-        SelectionKey key = m_editor.SelectionService().Primary(doc_id_);
+        SelectionKey key = editor_services_.selection().Primary(doc_id_);
         if (key.scene == preview_scene_id_ && key.entity.IsValid()) {
             view.highlight.entities.insert(key.entity);
         }

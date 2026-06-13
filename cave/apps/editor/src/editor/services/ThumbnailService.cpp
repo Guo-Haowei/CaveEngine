@@ -2,13 +2,12 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/framework/AppServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-
-#include "editor/EditorState.h"
 
 // @TODO: refactor
 #include "engine/private/renderer/gpu_resource.h"
@@ -16,11 +15,11 @@
 
 namespace cave {
 
-ThumbnailService::ThumbnailService(EditorState& p_editor) noexcept
-    : view_manager_(p_editor.app().services().viewManager())
-    , m_scene_reg(p_editor.app().services().sceneRegistry())
-    , m_render_device(*p_editor.app().GetRenderDevice())
-    , m_builder(p_editor.app()) {
+ThumbnailService::ThumbnailService(AppServices& services) noexcept
+    : view_manager_(services.viewManager())
+    , m_scene_reg(services.sceneRegistry())
+    , m_render_device(services.renderDevice())
+    , m_builder(services) {
 }
 
 uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
@@ -45,7 +44,7 @@ uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
         },
     };
 
-    PreviewBuildResult res = m_builder.Build(req);
+    PreviewBuildResult res = m_builder.build(req);
     if (res.status != PreviewBuildStatus::Ok) {
         return 0;
     }

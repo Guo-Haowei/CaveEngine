@@ -7,13 +7,12 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
-
 #include "editor/EditorState.h"
 #include "editor/widgets/Image.h"
 
 // @TODO: refactor
 #include "ConsolePanel.h"
+#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 
 namespace cave {
 
@@ -21,10 +20,14 @@ static constexpr float kLogFilterWidth = 150.0f;
 
 LogPanel::LogPanel(EditorState& editor)
     : EditorWindow(editor) {
-    m_console = std::make_unique<ConsolePanel>(editor);
+    console_ = std::make_unique<ConsolePanel>(editor);
 }
 
 LogPanel::~LogPanel() = default;
+
+const char* LogPanel::windowId() const {
+    return ICON_FA_TERMINAL "  Output Log";
+}
 
 static void DrawLog(const LogEvent& log) {
     using ui::IconType;
@@ -65,36 +68,36 @@ static void DrawLog(const LogEvent& log) {
     ImGui::PopStyleColor();
 }
 
-void LogPanel::DrawFilter() {
-    SearchBar();
+void LogPanel::drawFilter() {
+    searchBar();
     ImGui::SameLine();
-    VerbosityDropDown();
+    verbosityDropDown();
     ImGui::SameLine();
-    ChannelDropDown();
+    channelDropDown();
 }
 
-void LogPanel::VerbosityDropDown() {
+void LogPanel::verbosityDropDown() {
     ImGui::SetNextItemWidth(kLogFilterWidth);
 
     if (ImGui::BeginCombo("##Level", "Verbosity")) {
-        bool all = m_level_filter == LOG_LEVEL_ALL;
+        bool all = level_filter_ == LOG_LEVEL_ALL;
         if (ImGui::Checkbox("All", &all)) {
             if (all) {
-                m_level_filter = LOG_LEVEL_ALL;
+                level_filter_ = LOG_LEVEL_ALL;
             } else {
-                m_level_filter = static_cast<LogLevel>(0);
+                level_filter_ = static_cast<LogLevel>(0);
             }
         }
 
         ImGui::Separator();
 
         auto filter_level = [this](LogLevel level, const char* label) {
-            bool flag = m_level_filter & level;
+            bool flag = level_filter_ & level;
             if (ImGui::Checkbox(label, &flag)) {
                 if (flag) {
-                    m_level_filter |= level;
+                    level_filter_ |= level;
                 } else {
-                    m_level_filter &= ~level;
+                    level_filter_ &= ~level;
                 }
             }
         };
@@ -106,7 +109,7 @@ void LogPanel::VerbosityDropDown() {
     }
 }
 
-void LogPanel::ChannelDropDown() {
+void LogPanel::channelDropDown() {
     static constexpr const char* s_channels[] = {
 #define CAVE_LOG_CHANNEL(x, ...) #x,
         CAVE_LOG_CHANNEL_LIST
@@ -115,18 +118,18 @@ void LogPanel::ChannelDropDown() {
 
     ImGui::SetNextItemWidth(kLogFilterWidth);
 
-    const char* preview = AllChannels() ? "All Channels" : s_channels[(int)m_channel_filter];
+    const char* preview = allChannels() ? "All Channels" : s_channels[(int)channel_filter_];
     if (ImGui::BeginCombo("##Channel", preview)) {
-        if (ImGui::RadioButton("All", AllChannels())) {
-            m_channel_filter = LogChannel::Count;
+        if (ImGui::RadioButton("All", allChannels())) {
+            channel_filter_ = LogChannel::Count;
         }
 
         ImGui::Separator();
 
         for (uint16_t i = 0; i < std::to_underlying(LogChannel::Count); ++i) {
             const LogChannel channel = static_cast<LogChannel>(i);
-            if (ImGui::RadioButton(s_channels[i], m_channel_filter == channel)) {
-                m_channel_filter = channel;
+            if (ImGui::RadioButton(s_channels[i], channel_filter_ == channel)) {
+                channel_filter_ = channel;
             }
         }
 
@@ -134,28 +137,28 @@ void LogPanel::ChannelDropDown() {
     }
 }
 
-void LogPanel::SearchBar() {
+void LogPanel::searchBar() {
     ImGui::Text(ICON_FA_MAGNIFYING_GLASS);
     ImGui::SameLine();
     ImGui::SetNextItemWidth(200.0f);
-    ImGui::InputTextWithHint("##LogSearch", "Search...", m_search.data(), m_search.capacity());
+    ImGui::InputTextWithHint("##LogSearch", "Search...", search_buffer_.data(), search_buffer_.capacity());
 }
 
-bool LogPanel::PassSearchFilter(const LogEvent& p_log) const {
-    if (m_search[0] == '\0') {
+bool LogPanel::passSearchFilter(const LogEvent& log) const {
+    if (search_buffer_[0] == '\0') {
         return true;
     }
 
     // @TODO: better string matching
     auto contains = [this](std::string_view p_msg) {
-        const bool found = p_msg.find(m_search.c_str()) != std::string::npos;
+        const bool found = p_msg.find(search_buffer_.c_str()) != std::string::npos;
         return found;
     };
 
-    return contains(p_log.message) || contains(p_log.time_str);
+    return contains(log.message) || contains(log.time_str);
 }
 
-void LogPanel::DrawLogHistroy() {
+void LogPanel::drawLogHistroy() {
     // reserve enough left-over height for 1 separator + 1 input text
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false,
@@ -175,7 +178,7 @@ void LogPanel::DrawLogHistroy() {
     int color_index = 0;
 
     const std::vector<LogEvent>* logs = &CompositeLogger::GetSingleton().GetAllLogs();
-    switch (m_level_filter) {
+    switch (level_filter_) {
         case cave::LOG_LEVEL_WARN:
             logs = &CompositeLogger::GetSingleton().GetWarningLogs();
             break;
@@ -187,15 +190,15 @@ void LogPanel::DrawLogHistroy() {
     }
 
     for (const LogEvent& log : (*logs)) {
-        if (!(log.level & m_level_filter)) {
+        if (!(log.level & level_filter_)) {
             continue;
         }
 
-        if (!AllChannels() && log.channel != m_channel_filter) {
+        if (!allChannels() && log.channel != channel_filter_) {
             continue;
         }
 
-        if (!PassSearchFilter(log)) {
+        if (!passSearchFilter(log)) {
             continue;
         }
 
@@ -217,10 +220,10 @@ void LogPanel::DrawLogHistroy() {
         ImGui::Dummy(ImVec2(padding, padding));
     }
 
-    if (m_scroll_to_bottom || (m_auto_scroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
+    if (scroll_to_bottom_ || (auto_scroll_ && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
         ImGui::SetScrollHereY(1.0f);
     }
-    m_scroll_to_bottom = false;
+    scroll_to_bottom_ = false;
 
     ImGui::PopStyleVar();
     ImGui::EndChild();
@@ -229,11 +232,11 @@ void LogPanel::DrawLogHistroy() {
 void LogPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
 
-    DrawFilter();
+    drawFilter();
     ImGui::Separator();
-    DrawLogHistroy();
+    drawLogHistroy();
     ImGui::Separator();
-    m_console->DrawConsole();
+    console_->DrawConsole();
 
     // Auto-focus on window apparition
     ImGui::SetItemDefaultFocus();

@@ -1,6 +1,5 @@
 #include "EditObjectCmd.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 

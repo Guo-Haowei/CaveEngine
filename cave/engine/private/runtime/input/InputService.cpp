@@ -1,4 +1,3 @@
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -86,10 +85,8 @@ UIInput InputService::buildUIInput() {
     input.up_pressed = game_input_.isJustPressed("ui_up"_sid, player_id);
     input.down_pressed = game_input_.isJustPressed("ui_down"_sid, player_id);
 
-    DisplayService& display_service = *m_app->GetDisplayService();
-
     const PointerState& pointer = pointers_[device_id.value];
-    Vector2f window_pos = display_service.windowPos();
+    Vector2f window_pos = m_app->services().displayService().windowPos();
     input.cursor_os = pointer.pos_win + window_pos;
 
     return input;

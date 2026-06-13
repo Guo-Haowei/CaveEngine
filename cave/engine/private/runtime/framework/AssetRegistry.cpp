@@ -1,6 +1,5 @@
 #include "AssetRegistry.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 
@@ -11,10 +10,10 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-extern void RegisterAllPersistentAssets(IApplication* p_app);
+extern void RegisterAllPersistentAssets(AppServices& services);
 
 auto AssetRegistry::InitializeImpl() -> Result<void> {
-    RegisterAllPersistentAssets(m_app);
+    RegisterAllPersistentAssets(m_app->services());
     return Result<void>();
 }
 
@@ -30,7 +29,7 @@ uint64_t AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta) {
         ok = ok && m_path_map.try_emplace(entry->metadata.import_path, entry->metadata.guid).second;
     }
     if (ok) {
-        return m_app->GetAssetManager()->SubmitLoadAsset({ entry->metadata.guid });
+        return m_app->services().assetManager().SubmitLoadAsset({ entry->metadata.guid });
     }
 
     return 0;

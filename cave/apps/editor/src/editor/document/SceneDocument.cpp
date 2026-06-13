@@ -6,8 +6,8 @@
 
 namespace cave {
 
-SceneDocument::SceneDocument(IApplication& p_app, const Guid& p_guid)
-    : DocumentBase(p_app, p_guid) {
+SceneDocument::SceneDocument(AppServices& services, const Guid& p_guid)
+    : DocumentBase(services, p_guid) {
 
     auto scene = std::make_unique<Scene>(std::format("preview-scene-{}", p_guid.ToString()));
     scene->Copy(*handle_.Get<Scene>());

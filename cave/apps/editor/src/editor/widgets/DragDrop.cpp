@@ -1,7 +1,5 @@
 #include "DragDrop.h"
 
-#include "cave/core/diagnostics/Log.h"
-
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 #include "editor/utility/ContentEntry.h"

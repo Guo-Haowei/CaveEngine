@@ -1,6 +1,5 @@
 #include "EditorAssetManager.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -193,7 +192,7 @@ Result<void> EditorAssetManager::AddAlwaysLoadImages() {
             }
             auto image = *res;
             m_images[file_name.string()] = image;
-            m_app->GetRenderDevice()->RequestTexture(image.get());
+            m_app->services().renderDevice().RequestTexture(image.get());
         }
     }
 

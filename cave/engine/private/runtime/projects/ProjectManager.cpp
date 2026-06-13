@@ -1,6 +1,5 @@
 #include "ProjectManager.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/runtime/framework/VFS.h"
 

@@ -7,27 +7,25 @@ struct ContentEntry;
 
 class ContentBrowser : public EditorWindow {
 public:
-    ContentBrowser(EditorState& p_editor);
+    ContentBrowser(EditorState& editor);
 
-    void OnAttach() override;
+    void onAttach() override;
 
-    const char* windowId() const override {
-        return "Content Browser";
-    }
-
-    void DrawContentBrowser();
+    const char* windowId() const override;
 
 protected:
     void drawUIImpl() override;
 
-    const ContentEntry* Navigate(const ContentEntry* p_node, int p_cur, int p_max);
-    void DrawBreadcrumb();
+    void drawContentBrowser();
+    void drawBreadcrumb();
 
-    std::vector<std::string> m_current_path;
+    const ContentEntry* navigate(const ContentEntry* node, int cur, int p_max);
 
-    uint64_t m_folder_iamge;
-    uint64_t m_fallback_iamge;
-    std::unordered_map<std::string_view, uint64_t> m_thumbnail_lut;
+    std::vector<std::string> current_path_;
+
+    uint64_t folder_iamge_;
+    uint64_t fallback_iamge_;
+    std::unordered_map<std::string_view, uint64_t> thumbnail_lut_;
 };
 
 }  // namespace cave

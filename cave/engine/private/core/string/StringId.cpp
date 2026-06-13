@@ -1,7 +1,5 @@
 #include "cave/core/string/StringId.h"
 
-#include "cave/core/diagnostics/Log.h"
-
 namespace cave {
 
 #if USING(STRING_ID_KEEP_SOURCE)

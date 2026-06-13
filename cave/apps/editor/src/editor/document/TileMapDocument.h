@@ -1,13 +1,13 @@
 #pragma once
 #include "DocumentBase.h"
 
-#include "engine/private/runtime/assets/TileMapAsset.h"
-
 namespace cave {
+
+class TileMapAsset;
 
 class TileMapDocument : public DocumentBase {
 public:
-    TileMapDocument(IApplication& app, const Guid& guid);
+    TileMapDocument(AppServices& services, const Guid& guid);
 };
 
 #if 0

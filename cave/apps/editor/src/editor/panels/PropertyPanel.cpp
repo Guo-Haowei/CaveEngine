@@ -277,12 +277,12 @@ bool DrawComponentAuto(T* p_component, const DrawComponentCtx& p_ctx) {
 void PropertyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
 
-    PreviewScene preview = m_editor.Workspace().focusedPreviewScene();
+    PreviewScene preview = editor_services_.workspace().focusedPreviewScene();
     if (!preview.scene) {
         return;
     }
 
-    SelectionKey selection = m_editor.SelectionService().Primary(preview.doc_id);
+    SelectionKey selection = editor_services_.selection().Primary(preview.doc_id);
 
     ecs::Entity id = selection.entity;
     if (!id.IsValid()) {
@@ -297,12 +297,12 @@ void PropertyPanel::drawUIImpl() {
         return;
     }
 
-    EditService& edit_service = m_editor.EditService();
+    EditService& edit_service = editor_services_.edit();
 
     const DrawComponentCtx ctx{
         .app = m_editor.app(),
         .edit = edit_service,
-        .thumbnail = m_editor.ThumbnailService(),
+        .thumbnail = editor_services_.thumbnail(),
         .scene = &scene,
         .entity = id,
         .doc_id = doc_id,
@@ -312,7 +312,7 @@ void PropertyPanel::drawUIImpl() {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                services_.sceneRegistry(),
+                app_services_.sceneRegistry(),
                 id,
                 NameComponent_Id,
                 "name"_sid,
@@ -336,7 +336,7 @@ void PropertyPanel::drawUIImpl() {
             return;
         }
         auto cmd = std::make_unique<AddComponentCmd>(
-            services_.sceneRegistry(),
+            app_services_.sceneRegistry(),
             id,
             cid);
         edit_service.submit(doc_id, std::move(cmd));

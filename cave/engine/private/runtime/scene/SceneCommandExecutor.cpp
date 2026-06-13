@@ -1,4 +1,3 @@
-#include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 
 #include "engine/private/runtime/ecs/components/All.h"

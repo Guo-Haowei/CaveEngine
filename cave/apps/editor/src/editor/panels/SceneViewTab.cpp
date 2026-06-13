@@ -59,13 +59,13 @@ void SceneViewTab::submitView() {
 void SceneViewTab::onCreate() {
     ViewTabBase::onCreate();
 
-    m_editor.PickingService().Register(this);
+    editor_services_.picking().addConsumer(this);
 }
 
 void SceneViewTab::onDestroy() {
     ViewTabBase::onDestroy();
 
-    m_editor.PickingService().Register(this);
+    editor_services_.picking().addConsumer(this);
 }
 
 Option<PickData> SceneViewTab::getPickData(const Vector2f& pointer_os) {
@@ -128,7 +128,7 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    const KeyState& st = services_.inputService().keyState();
+    const KeyState& st = app_services_.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return;
     }
@@ -166,13 +166,13 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(rect.x, rect.y, rect.w, rect.h);
 
-    SelectionKey selection = m_editor.SelectionService().Primary(doc_id_);
+    SelectionKey selection = editor_services_.selection().Primary(doc_id_);
     ecs::Entity id = selection.entity;
 
     Scene* scene = getResolvedScene();
     TransformComponent* transform_component = scene->GetComponent<TransformComponent>(id);
 
-    EditService& edit_service = m_editor.EditService();
+    EditService& edit_service = editor_services_.edit();
 
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {
@@ -192,7 +192,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                 math::Decompose(before, scale_1, rot_1, pos_1);
                 math::Decompose(after, scale_2, rot_2, pos_2);
 
-                SceneRegistry& scene_reg = services_.sceneRegistry();
+                SceneRegistry& scene_reg = app_services_.sceneRegistry();
                 if (p_operation & ImGuizmo::TRANSLATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
@@ -258,7 +258,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 // }
 
 Scene* SceneViewTab::getResolvedScene() {
-    return services_.sceneRegistry().resolve(preview_scene_id_);
+    return app_services_.sceneRegistry().resolve(preview_scene_id_);
 }
 
 }  // namespace cave

@@ -174,7 +174,7 @@ auto D3d11GraphicsManager::CreateDevice() -> Result<void> {
 }
 
 auto D3d11GraphicsManager::CreateSwapChain() -> Result<void> {
-    void* hwnd = m_app->GetDisplayService()->nativeWindow();
+    void* hwnd = m_app->services().displayService().nativeWindow();
     DEV_ASSERT(hwnd);
 
     DXGI_MODE_DESC buffer_desc{};

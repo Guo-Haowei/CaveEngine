@@ -31,9 +31,9 @@ public:
         return QuitVote::Allow;
     }
 
-    EventQueue& GetEventQueue() override { return m_event_queue; }
+    EventQueue& GetEventQueue() override { return event_queue_; }
 
-    AppType GetType() const override { return m_type; }
+    AppType GetType() const override { return type_; }
 
 protected:
     [[nodiscard]] auto SetupModules() -> Result<void>;
@@ -45,32 +45,34 @@ protected:
     // @TODO: add CreateXXXManager for all managers
     virtual Result<ImguiManager*> CreateImguiManager();
 
-    void RegisterModule(IService* p_module);
+    void RegisterModule(IService* module);
 
-    const AppType m_type;
-    uint64_t m_frame_counter{};
+    const AppType type_;
+    uint64_t frame_counter_{};
+    AppStateMachine state_machine_;
+    Stopwatch stopwatch_;
 
-    AppStateMachine m_state_machine;
+    EventQueue event_queue_;
+    std::vector<IService*> subsystems_;
 
-    Stopwatch m_stopwatch;
-
-    EventQueue m_event_queue;
-    std::vector<IService*> m_modules;
-
-    // @TODO: move above to AppServices
     IntentDispatcher intent_dispatcher_;
     VFS vfs_;
     SceneRegistry scene_registry_;
 
-    std::unique_ptr<render::Renderer> renderer_;
     std::unique_ptr<ProjectManager> project_manager_;
     std::unique_ptr<SceneQueryService> scene_query_;
     std::unique_ptr<SceneScheduler> scene_scheduler_;
     std::unique_ptr<ViewManager> view_manager_;
     std::unique_ptr<UIRuntime> ui_;
+    std::unique_ptr<render::Renderer> renderer_;
 
-    InputService* input_service_;
-    TaskManager* task_manager_;
+    // @TODO: do not use raw pointers
+    DisplayService* display_service_{};
+    InputService* input_service_{};
+    TaskManager* task_manager_{};
+    AssetRegistry* asset_registry_{};
+    IAssetManager* asset_manager_{};
+    render::IRenderDevice* render_device_{};
 };
 
 }  // namespace cave

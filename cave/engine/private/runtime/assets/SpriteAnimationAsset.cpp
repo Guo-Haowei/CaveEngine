@@ -1,7 +1,5 @@
 #include "SpriteAnimationAsset.h"
 
-#include "cave/core/diagnostics/Log.h"
-
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/serialization/yaml_include.h"

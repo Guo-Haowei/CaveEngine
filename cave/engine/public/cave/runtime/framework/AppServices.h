@@ -6,10 +6,14 @@
 
 // clang-format off
 namespace cave::render { class Renderer; }
+namespace cave::render { class IRenderDevice; }
 // clang-format on
 
 namespace cave {
 
+class AssetRegistry;
+class DisplayService;
+class IAssetManager;
 class InputService;
 class IntentDispatcher;
 class IUIRuntime;
@@ -22,6 +26,9 @@ class VFS;
 class ViewManager;
 
 struct AppServices {
+    AssetRegistry* asset_registry_{};
+    DisplayService* display_service_{};
+    IAssetManager* asset_manager_{};
     InputService* input_service_{};
     IntentDispatcher* intent_dispatcher_{};
     IUIRuntime* ui_{};
@@ -32,8 +39,13 @@ struct AppServices {
     TaskManager* task_manager_{};
     ViewManager* view_manager_{};
     VFS* vfs_{};
+
+    render::IRenderDevice* render_device_{};
     render::Renderer* renderer_{};
 
+    AssetRegistry& assetRegistry() { return *asset_registry_; }
+    DisplayService& displayService() { return *display_service_; }
+    IAssetManager& assetManager() { return *asset_manager_; }
     InputService& inputService() { return *input_service_; }
     IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
     IUIRuntime& ui() { return *ui_; }
@@ -44,7 +56,9 @@ struct AppServices {
     TaskManager& taskManager() { return *task_manager_; }
     ViewManager& viewManager() { return *view_manager_; }
     VFS& vfs() { return *vfs_; }
+
     render::Renderer& renderer() { return *renderer_; };
+    render::IRenderDevice& renderDevice() { return *render_device_; };
 };
 
 }  // namespace cave

@@ -1,7 +1,6 @@
 
 #include "bullet3_physics_manager.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/IApplication.h"

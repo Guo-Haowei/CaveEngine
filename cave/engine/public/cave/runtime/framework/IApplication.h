@@ -9,11 +9,6 @@
 #include "cave/rhi/Backend.h"
 #include "cave/runtime/framework/AppServices.h"
 
-// clang-format off
-namespace cave::render { class Renderer; }
-namespace cave::render { class IRenderDevice; }
-// clang-format on
-
 namespace cave {
 
 enum class AppStateId : uint8_t;
@@ -25,7 +20,6 @@ class CommandRegistry;
 class Console;
 class EventQueue;
 class IAssetManager;
-class DisplayService;
 class ImguiManager;
 class IPhysicsManager;
 class IScriptService;
@@ -81,12 +75,8 @@ public:
     virtual EventQueue& GetEventQueue() = 0;
 
     // @TODO: return reference instead
-    AssetRegistry* GetAssetRegistry() { return m_asset_registry; }
-    IAssetManager* GetAssetManager() { return m_asset_manager; }
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     IScriptService* ScriptService() { return m_script_service; }
-    DisplayService* GetDisplayService() { return m_display_service; }
-    render::IRenderDevice* GetRenderDevice() { return m_render_device; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
 
     CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
@@ -108,17 +98,10 @@ protected:
 
     AppSpec m_spec;
 
-    // @TODO: differentiate global and state specific managers
-    AssetRegistry* m_asset_registry{};
-    IAssetManager* m_asset_manager{};
-
+    // @TODO: move the following to services
+    // also need subsystems
     IPhysicsManager* m_physics_manager{};
     IScriptService* m_script_service{};
-
-    DisplayService* m_display_service{};
-
-    render::IRenderDevice* m_render_device{};
-
     ImguiManager* m_imgui_manager{};
 
     cave::CommandRegistry* m_cmd_reg{ nullptr };

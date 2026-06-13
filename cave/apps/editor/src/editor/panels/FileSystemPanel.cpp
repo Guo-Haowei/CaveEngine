@@ -3,10 +3,6 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/core/os/platform_io.h"
-#include "engine/private/runtime/framework/IAssetManager.h"
-#include "engine/private/runtime/framework/CommonDvars.h"
-#include "engine/private/runtime/framework/VFS.h"
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
@@ -14,26 +10,36 @@
 #include "editor/widgets/DragDrop.h"
 #include "engine/private/ui/inputs.h"
 
+// @TODO: remove private include
+#include "engine/private/core/os/platform_io.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/VFS.h"
+
 namespace cave {
 
 namespace fs = std::filesystem;
 
-FileSystemPanel::FileSystemPanel(EditorState& p_editor)
-    : EditorWindow(p_editor) {
+FileSystemPanel::FileSystemPanel(EditorState& editor)
+    : EditorWindow(editor) {
 }
 
-void FileSystemPanel::OnAttach() {
-    m_root = services_.vfs().GetMount("@res");
+const char* FileSystemPanel::windowId() const {
+    return ICON_FA_FOLDER_CLOSED "  File System";
 }
 
-void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
-    const bool is_dir = p_node.is_dir;
+void FileSystemPanel::onAttach() {
+    root_ = app_services_.vfs().GetMount("@res");
+}
+
+void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
+    const bool is_dir = entry.is_dir;
 
     int flags = 0;
     flags |= ImGuiTreeNodeFlags_DefaultOpen;
     flags |= !is_dir ? ImGuiTreeNodeFlags_Leaf : 0;
 
-    auto id = std::format("##{}", p_node.virtual_path);
+    auto id = std::format("##{}", entry.virtual_path);
 
     const bool node_open = ImGui::TreeNodeEx(id.c_str(), flags);
     const char* icon = ICON_FA_CUBE;
@@ -43,50 +49,50 @@ void FileSystemPanel::DrawFolderTreeNode(const ContentEntry& p_node) {
 
     ImGui::SameLine();
 
-    if (m_renaming == p_node.sys_path) {
+    if (renaming_ == entry.sys_path) {
         std::string buffer;
         buffer.resize(256);
         ImGui::Text("%s", icon);
         ImGui::SameLine();
         if (ui::TextBox(nullptr, buffer.data(), (uint32_t)buffer.size())) {
-            fs::path to_path = m_renaming.parent_path();
+            fs::path to_path = renaming_.parent_path();
             to_path = to_path / buffer.c_str();
             if (is_dir) {
-                fs::rename(m_renaming, to_path);
+                fs::rename(renaming_, to_path);
             } else {
-                m_editor.app().GetAssetManager()->MoveAsset(m_renaming, to_path);
+                app_services_.assetManager().MoveAsset(renaming_, to_path);
             }
-            m_renaming = "";
+            renaming_ = "";
         }
         if (!ImGui::IsItemActive() && ImGui::IsMouseClicked(0)) {
-            m_renaming = "";
+            renaming_ = "";
         }
     } else {
-        auto text = std::format("{} {}", icon, p_node.file_name);
+        auto text = std::format("{} {}", icon, entry.file_name);
         ImGui::Selectable(text.c_str());
         const bool hovered = ImGui::IsItemHovered();
 
         if (ImGui::BeginPopupContextItem()) {
-            ShowPopup(p_node, m_editor, [&]() {
-                m_renaming = p_node.sys_path;
+            ShowPopup(entry, editor_services_.document(), [&]() {
+                renaming_ = entry.sys_path;
             });
             ImGui::EndPopup();
         }
 
-        DragDropSourceContentEntry(p_node);
+        DragDropSourceContentEntry(entry);
 
         auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
 
-        DragDropTargetFolder(p_node, asset_manager.GetFolderLut());
+        DragDropTargetFolder(entry, asset_manager.GetFolderLut());
 
         if (hovered) {
-            ShowAssetToolTip(m_editor.ThumbnailService(), p_node);
+            ShowAssetToolTip(editor_services_.thumbnail(), entry);
         }
     }
 
     if (node_open) {
-        for (const auto& node : p_node.children) {
-            DrawFolderTreeNode(*node);
+        for (const auto& sub_folder : entry.children) {
+            drawFolderTreeNode(*sub_folder);
         }
 
         ImGui::TreePop();
@@ -98,7 +104,7 @@ void FileSystemPanel::drawUIImpl() {
 
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
 
-    DrawFolderTreeNode(*asset_manager.GetAssetRoot());
+    drawFolderTreeNode(*asset_manager.GetAssetRoot());
 }
 
 }  // namespace cave

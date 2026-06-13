@@ -1,7 +1,6 @@
 #pragma once
 #include "rid.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/IntrusiveList.h"
 
 #include "engine/private/core/os/spin_lock.h"

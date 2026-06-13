@@ -1,7 +1,6 @@
 #include "tiny_gltf_importer.h"
 
 #if USING(USE_IMPORTER_TINYGLTF)
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"

@@ -1,7 +1,5 @@
 #include "d3d_common.h"
 
-#include "cave/core/diagnostics/Log.h"
-
 #include <d3d11.h>
 #include <d3d12.h>
 #include <d3dcompiler.h>

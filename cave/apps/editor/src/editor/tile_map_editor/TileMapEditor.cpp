@@ -1,21 +1,16 @@
 #include "TileMapEditor.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
-
 #include "cave/core/diagnostics/DebugIdAllocator.h"
-
-#include "engine/private/runtime/assets/ImageAsset.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
-#include "engine/private/runtime/input/InputService.h"
 
 #include "editor/EditorState.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
-#include "engine/private/ui/inputs.h"
-#include "engine/private/ui/layout.h"
 
 // @TODO: remove
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
+
+#include <IconsFontAwesome/IconsFontAwesome6.h >
 
 namespace cave {
 
@@ -25,8 +20,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              DocId doc_id,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
-    , debug_id_(MakeDebugId(this))
-    , sprite_selector_(SpriteSelector::SelectionMode::Single) {
+    , debug_id_(MakeDebugId(this)) {
 
     // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
     //                                   [&]() {
@@ -68,21 +62,112 @@ Option<PickData> TileMapEditor::getPickData(const Vector2f& pointer_os) {
     // });
 }
 
-void TileMapEditor::onInputEvents(const InputFrame& input) {
+void TileMapEditor::changeMode(Mode mode) {
+    if (mode != mode_) {
+        // LOG_INFO("change mode from {} to {}", (int)mode_, (int)mode);
+        mode_ = mode;
+    }
+}
+
+bool TileMapEditor::canHandleInput(const InputFrame& input) {
+    unused(input);
+
     if (!isHovered()) {
-        return;
+        return false;
     }
 
     if (m_editor.IsPlaying()) {
-        return;
+        return false;
     }
 
-    const KeyState& st = services_.inputService().keyState();
+    const KeyState& st = app_services_.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool TileMapEditor::updateEditMode(const InputFrame& input) {
+    bool should_apply = false;
+
+    for (const InputEvent& event : input.events) {
+        Key key = static_cast<Key>(event.code);
+        switch (event.type) {
+            case InputEventType::ButtonDown: {
+                if (key == Key::LMB) {
+                    lb_down_ = true;
+                    event.consumed = true;
+                    should_apply = true;
+                    cursor_ = { event.x, event.y };
+                } else if (key == Key::RMB) {
+                    rb_down_ = true;
+                    event.consumed = true;
+                    should_apply = true;
+                    cursor_ = { event.x, event.y };
+                }
+            } break;
+            case InputEventType::ButtonUp: {
+                if (key == Key::LMB) {
+                    lb_down_ = false;
+                    event.consumed = true;
+                } else if (key == Key::RMB) {
+                    rb_down_ = false;
+                    event.consumed = true;
+                }
+            } break;
+            case InputEventType::MouseMove: {
+                should_apply = true;
+                cursor_ = { event.x, event.y };
+            } break;
+            default: {
+            } break;
+        }
+    }
+
+    if (!(lb_down_ ^ rb_down_))
+        changeMode(Mode::None);
+    else if (lb_down_)
+        changeMode(Mode::Painting);
+    else if (rb_down_)
+        changeMode(Mode::Erasing);
+
+    return should_apply && mode_ != Mode::None;
+}
+
+void TileMapEditor::applayEditorTool() {
+    // auto selections = m_sprite_selector.GetSelections();
+    // if (!selections.empty()) {
+    //     // @TODO: support multi tile editing
+    //     auto [x, y] = selections[0];
+    //     if (x >= 0 && y >= 0) {
+    //         TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
+    //         TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+    //         uint32_t idx = y * tile_set->GetCol() + x;
+    //         m_document->RequestAdd(e->GetPos(), TileId(idx));
+    //     }
+    // }
+
+    if (mode_ == Mode::Painting) {
+        LOG_OK("TODO: paint");
+        // @TODO: add tile
+    } else if (mode_ == Mode::Erasing) {
+        LOG_OK("TODO: erase");
+        // @TODO: earse tile
+    }
+}
+
+void TileMapEditor::onInputEvents(const InputFrame& input) {
+    if (!canHandleInput(input)) {
         return;
     }
 
     camera_controller_->Update(input);
+
+    const bool should_apply_edit = updateEditMode(input);
+    if (should_apply_edit) {
+        applayEditorTool();
+    }
 }
 
 void TileMapEditor::drawUIImpl() {
@@ -96,45 +181,6 @@ void TileMapEditor::drawUIImpl() {
 }
 
 #if 0
-void TileMapEditor::DrawAssetInspector() {
-    TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-    TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-
-    std::vector<AssetChildPanel> descs = {
-        {
-            "LayerOverview",
-            720,
-            [&]() {
-                if (ImGui::BeginTabBar("##MyTabs1")) {
-                    if (ImGui::BeginTabItem("Layer")) {
-                        TileMapLayerOverview(*tile_map);
-                        ImGui::EndTabItem();
-                    }
-                    ImGui::EndTabBar();
-                }
-            },
-        },
-        {
-            "PaintTab",
-            0,
-            [&]() {
-                if (tile_set) {
-                    auto handle = tile_set->GetHandle();
-                    const int column = tile_set->GetCol();
-                    const int row = tile_set->GetRow();
-                    if (auto image = handle.Get(); image) {
-                        m_sprite_selector.SelectSprite(*image, &column, &row);
-                    }
-                }
-            },
-        }
-    };
-
-    const float full_width = ImGui::GetContentRegionAvail().x;
-
-    ui::DrawContents(full_width, descs);
-}
-
 bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     auto res = m_viewer.CursorToNDC(p_in);
     if (res.is_none()) {
@@ -155,124 +201,6 @@ bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     p_out.y = static_cast<int16_t>(std::floor(position.y));
 
     return true;
-}
-
-bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
-    DEV_ASSERT(0);
-    unused(p_input_event);
-    if (auto e = dynamic_cast<const InputEventMouse*>(p_input_event); e) {
-        if (!e->IsModiferPressed()) {
-            if (e->IsButtonDown(MouseButton::LEFT)) {
-                auto selections = m_sprite_selector.GetSelections();
-                if (!selections.empty()) {
-                    // @TODO: support multi tile editing
-                    auto [x, y] = selections[0];
-                    if (x >= 0 && y >= 0) {
-                        TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-                        TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-                        uint32_t idx = y * tile_set->GetCol() + x;
-                        m_document->RequestAdd(e->GetPos(), TileId(idx));
-                    }
-                }
-                return true;
-            }
-            if (e->IsButtonDown(MouseButton::RIGHT)) {
-                m_document->RequestErase(e->GetPos());
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-void TileMapEditor::TileMapLayerOverview(TileMapAsset& p_tile_map) {
-    if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
-        // p_tile_map.AddLayer("untitled layer");
-    }
-    ImGui::Separator();
-
-    auto tool = dynamic_cast<TileMapEditor*>(m_editor.GetViewer().GetActiveTab());
-    DEV_ASSERT(tool);
-
-    for (int layer_id = 0; layer_id < 1; ++layer_id) {
-        TileMapAsset& layer = p_tile_map;
-        const bool is_layer_selected = true;
-
-        ImGui::PushID(layer_id);
-
-        if (is_layer_selected) {
-            auto& style = ImGui::GetStyle();
-            auto& colors = style.Colors;
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, colors[ImGuiCol_FrameBgHovered]);
-        }
-
-        ImGui::BeginGroup();
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
-
-        ImGui::BeginGroup();
-
-        ImGui::Dummy(ImVec2(8, 8));
-
-        if (ui::TextBox("layer", layer.GetName())) {
-            // @TODO: notify dirty
-        }
-
-        ImGui::SameLine();
-
-        const bool is_visible = layer.IsVisible();
-        const char* label = is_visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
-        if (ImGui::Button(label)) {
-            layer.SetVisible(!is_visible);
-        }
-
-        ImGui::SameLine();
-
-        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
-            LOG_WARN("TODO: DELETE");
-        }
-
-        // next line
-
-        {
-
-            const ImageAsset* image = nullptr;
-            if (auto image_handle = layer.GetTileSetHandle().Get(); image_handle) {
-                image = image_handle->GetHandle().Get();
-            }
-
-            auto checkerboard = m_editor.context.checkerboard;
-            DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
-
-            Vector2f region_size(128, 128);
-            ui::CenteredImage(image, region_size, checkerboard->gpu_texture->GetHandle());
-
-            if (ImGui::IsItemClicked()) {
-                // tool->SetActiveLayer(layer_id);
-            }
-
-            // @TODO: make an asset drop region
-            // accept same type of assets, show tooltips, etc
-            if (auto _handle = DragDropTarget(AssetType::TileSet); _handle.is_some()) {
-                layer.SetTileSetGuid(_handle.unwrap_unchecked().GetGuid());
-            }
-        }
-
-        ImGui::Dummy(ImVec2(8, 8));
-
-        ImGui::EndGroup();
-        ImGui::Separator();
-
-        ImGui::PopStyleVar(2);
-        ImGui::PopID();
-        ImGui::EndGroup();
-
-        if (is_layer_selected) {
-            ImGui::PopStyleColor();
-        }
-    }
 }
 #endif
 

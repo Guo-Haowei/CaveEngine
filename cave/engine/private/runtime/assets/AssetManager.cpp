@@ -3,7 +3,6 @@
 #include <filesystem>
 #include <fstream>
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/framework/IApplication.h"
 
@@ -152,7 +151,7 @@ Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const s
         return CAVE_ERROR(ErrorCode::ERR_FILE_NO_PERMISSION, "{}", e.what());
     }
 
-    m_app->GetAssetRegistry()->MoveAsset(std::move(old_path), std::move(new_path));
+    m_app->services().assetRegistry().MoveAsset(std::move(old_path), std::move(new_path));
     return Result<void>();
 }
 
@@ -260,7 +259,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
 
     Stopwatch stopwatch;
     stopwatch.Start();
-    auto entry = m_app->GetAssetRegistry()->GetEntry(p_guid);
+    auto entry = m_app->services().assetRegistry().GetEntry(p_guid);
 
     auto res = LoadAsset(entry);
     if (!res) {
@@ -272,17 +271,18 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     }
 
     AssetRef asset = *res;
+    auto& device = m_app->services().renderDevice();
 
     // @TODO: based on render, create asset on work threads
     DEV_ASSERT(asset);
     switch (asset->GetType()) {
         case AssetType::Image: {
             auto image = std::dynamic_pointer_cast<ImageAsset>(asset);
-            m_app->GetRenderDevice()->RequestTexture(image.get());
+            device.RequestTexture(image.get());
         } break;
         case AssetType::Mesh: {
             auto mesh = std::dynamic_pointer_cast<MeshAsset>(asset);
-            m_app->GetRenderDevice()->RequestMesh(mesh.get());
+            device.RequestMesh(mesh.get());
         } break;
         default:
             break;

@@ -45,8 +45,8 @@ namespace fs = std::filesystem;
 
 Application::Application(const AppSpec& p_spec, AppType p_type)
     : IApplication(p_spec)
-    , m_type(p_type)
-    , m_state_machine(*this) {
+    , type_(p_type)
+    , state_machine_(*this) {
 
     // @TODO: refactor this select work directory
     vfs_.Mount("@user", fs::path(m_spec.userFolder));
@@ -58,7 +58,7 @@ Application::~Application() = default;
 void Application::RegisterModule(IService* p_module) {
     DEV_ASSERT(p_module);
     p_module->SetApp(this);
-    m_modules.push_back(p_module);
+    subsystems_.push_back(p_module);
 }
 
 Result<ImguiManager*> Application::CreateImguiManager() {
@@ -69,17 +69,17 @@ auto Application::SetupModules() -> Result<void> {
     m_cmd_reg = new cave::CommandRegistry();
     m_console = new cave::Console(*this);
 
-    m_asset_manager = CreateAssetService();
-    m_asset_registry = new AssetRegistry();
+    asset_manager_ = CreateAssetService();
+    asset_registry_ = new AssetRegistry();
     m_script_service = CreateScriptService();
     m_physics_manager = CreatePhysicsService();
-    m_render_device = CreateRenderDevice(m_spec.backend);
-    m_display_service = CreateDisplayService();
+    render_device_ = CreateRenderDevice(m_spec.backend);
+    display_service_ = CreateDisplayService();
     input_service_ = new cave::InputService();
     task_manager_ = new TaskManager();
 
     // @TODO: dependency injection?
-    renderer_ = std::make_unique<render::Renderer>(*m_render_device);
+    renderer_ = std::make_unique<render::Renderer>(*render_device_);
 
     scene_scheduler_ = std::make_unique<SceneScheduler>(
         scene_registry_,
@@ -88,16 +88,19 @@ auto Application::SetupModules() -> Result<void> {
     scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
 
     view_manager_ = std::make_unique<ViewManager>(scene_registry_,
-                                                  m_render_device->backend() == rhi::Backend::OpenGL);
+                                                  render_device_->backend() == rhi::Backend::OpenGL);
 
     project_manager_ = std::make_unique<ProjectManager>(vfs_,
                                                         *task_manager_,
-                                                        *m_asset_manager,
-                                                        *m_asset_registry,
+                                                        *asset_manager_,
+                                                        *asset_registry_,
                                                         *renderer_);
     ui_ = std::make_unique<UIRuntime>(*view_manager_);
 
     // setup app services
+    services_.asset_manager_ = asset_manager_;
+    services_.asset_registry_ = asset_registry_;
+    services_.display_service_ = display_service_;
     services_.input_service_ = input_service_;
     services_.intent_dispatcher_ = &intent_dispatcher_;
     services_.ui_ = ui_.get();
@@ -108,17 +111,18 @@ auto Application::SetupModules() -> Result<void> {
     services_.task_manager_ = task_manager_;
     services_.view_manager_ = view_manager_.get();
     services_.vfs_ = &vfs_;
+    services_.render_device_ = render_device_;
     services_.renderer_ = renderer_.get();
 
     // register subsystems
     RegisterModule(task_manager_);
-    RegisterModule(m_asset_manager);
-    RegisterModule(m_asset_registry);
+    RegisterModule(asset_manager_);
+    RegisterModule(asset_registry_);
     RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
     RegisterModule(input_service_);
-    RegisterModule(m_display_service);
-    RegisterModule(m_render_device);
+    RegisterModule(display_service_);
+    RegisterModule(render_device_);
 
     if (m_spec.enableImgui) {
         auto res = CreateImguiManager();
@@ -129,7 +133,7 @@ auto Application::SetupModules() -> Result<void> {
         RegisterModule(m_imgui_manager);
     }
 
-    m_event_queue.RegisterListener(m_render_device);
+    event_queue_.RegisterListener(render_device_);
 
     // @TODO: move to registerCommands
     DvarCache::registerCmd(*m_cmd_reg);
@@ -166,28 +170,28 @@ auto Application::Initialize() -> Result<void> {
         return CAVE_ERROR(res.error());
     }
 
-    for (IService* module : m_modules) {
-        m_stopwatch.Restart();
+    for (IService* module : subsystems_) {
+        stopwatch_.Restart();
         if (auto res = module->Initialize(); !res) {
             LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
             return CAVE_ERROR(res.error());
         }
-        m_stopwatch.Stop();
-        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
+        stopwatch_.Stop();
+        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), stopwatch_.Elapsed().ToString());
     }
 
-    m_stopwatch.Restart();
+    stopwatch_.Restart();
     return Result<void>();
 }
 
 void Application::Finalize() {
-    m_state_machine.shutdown();
+    state_machine_.shutdown();
 
     // @TODO: move it to request shutdown
     thread::RequestShutdown();
 
-    for (int index = (int)m_modules.size() - 1; index >= 0; --index) {
-        IService* module = m_modules[index];
+    for (int index = (int)subsystems_.size() - 1; index >= 0; --index) {
+        IService* module = subsystems_[index];
         module->Finalize();
         LOG_TRACE(LogChannel::App, "-{}", module->GetName());
         // @TODO: use smart pointer
@@ -196,7 +200,7 @@ void Application::Finalize() {
 }
 
 float Application::UpdateTime() {
-    const Nanoseconds elapsed = m_stopwatch.Restart();
+    const Nanoseconds elapsed = stopwatch_.Restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
     return math::min(elapsed_sec, 0.5f);
@@ -208,8 +212,8 @@ bool Application::MainLoop() {
 
     CompositeLogger::GetSingleton().Flush();
 
-    m_display_service->beginFrame();
-    if (m_display_service->shouldClose()) {
+    display_service_->beginFrame();
+    if (display_service_->shouldClose()) {
         return false;
     }
 
@@ -217,20 +221,20 @@ bool Application::MainLoop() {
 
     FrameTime time{
         .dt = UpdateTime(),
-        .frame_index = m_frame_counter++,
+        .frame_index = frame_counter_++,
     };
 
     input_service_->tick(time);
 
     ui_->beginFrame(input_service_->getUIInput());
 
-    m_asset_manager->Update();
+    asset_manager_->Update();
 
     // layer should set active scene
     // update layers from back to front
     view_manager_->beginFrame();
 
-    m_state_machine.tick(time);
+    state_machine_.tick(time);
     intent_dispatcher_.flush();
 
     // update scene after ImGui, physics and script updates
@@ -262,7 +266,7 @@ void IApplication::Run(IApplication* p_app) {
 }
 
 AppStateId Application::GetStateId() const {
-    return m_state_machine.stateId();
+    return state_machine_.stateId();
 }
 
 // void Application::RequestProject(std::string_view p_path) {

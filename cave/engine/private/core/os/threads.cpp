@@ -1,6 +1,5 @@
 #include "threads.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 
 #include "engine/private/drivers/windows/win32_prerequisites.h"

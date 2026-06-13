@@ -1,6 +1,5 @@
 #include "LuaScriptService.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ecs/components/LuaScriptComponent.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -170,16 +169,19 @@ void LuaScriptService::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Ent
     }
 }
 
-Result<void> LuaScriptService::LoadMetaTable(lua_State* L, const Guid& p_guid, const char* p_class_name, ObjectFunctions& p_meta) {
-    auto asset_registry = m_app->GetAssetRegistry();
-    auto _handle = asset_registry->FindByGuid<BlobAsset>(p_guid);
+Result<void> LuaScriptService::LoadMetaTable(lua_State* L,
+                                             const Guid& guid,
+                                             const char* class_name,
+                                             ObjectFunctions& meta) {
+    auto& asset_reg = m_app->services().assetRegistry();
+    auto _handle = asset_reg.FindByGuid<BlobAsset>(guid);
     if (_handle.is_none()) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", p_guid.ToString());
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.ToString());
     }
 
     const BlobAsset* blob = _handle.unwrap_unchecked().Get();
     if (!blob) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not loaded", p_guid.ToString());
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not loaded", guid.ToString());
     }
 
     if (luaL_dostring(L, blob->c_str()) != LUA_OK) {
@@ -188,7 +190,7 @@ Result<void> LuaScriptService::LoadMetaTable(lua_State* L, const Guid& p_guid, c
     }
 
     // check if function exists
-    lua_getglobal(L, p_class_name);
+    lua_getglobal(L, class_name);
     if (!lua_istable(L, -1)) {
         CRASH_NOW();
     }
@@ -199,7 +201,7 @@ Result<void> LuaScriptService::LoadMetaTable(lua_State* L, const Guid& p_guid, c
         CRASH_NOW();
     }
 
-    p_meta.funcNew = ref;
+    meta.funcNew = ref;
     return Result<void>();
 }
 
