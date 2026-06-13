@@ -1,8 +1,6 @@
 #pragma once
 #include "DocumentBase.h"
 
-#include "engine/private/runtime/assets/TileMapAsset.h"
-
 namespace cave {
 
 class TileMapAsset;
@@ -10,11 +8,6 @@ class TileMapAsset;
 class TileMapDocument : public DocumentBase {
 public:
     TileMapDocument(AppServices& services, const Guid& guid);
-
-    void drawAssetInspector() override;
-
-private:
-    void tileMapLayerOverview(TileMapAsset& tile_map);
 };
 
 #if 0

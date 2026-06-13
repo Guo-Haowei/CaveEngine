@@ -5,6 +5,9 @@ namespace cave {
 
 struct EditorServices;
 
+class TileMapAsset;
+class TileMapDocument;
+
 class AssetInspector : public EditorWindow {
 public:
     AssetInspector(EditorState& editor,
@@ -14,10 +17,18 @@ public:
         return "Asset Inspector";
     }
 
+    void onAttach() override;
+
 protected:
     void drawUIImpl() override;
 
+    void drawDocument(TileMapDocument& doc);
+
+    void tileMapLayerOverview(TileMapAsset& tile_map);
+
     EditorServices& editor_services_;
+
+    uint64_t checkerboard_{};
 };
 
 }  // namespace cave

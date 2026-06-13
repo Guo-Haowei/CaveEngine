@@ -91,9 +91,6 @@ void TileMapEditor::drawUIImpl() {
 }
 
 #if 0
-void TileMapEditor::DrawAssetInspector() {
-}
-
 bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
     auto res = m_viewer.CursorToNDC(p_in);
     if (res.is_none()) {
@@ -144,8 +141,6 @@ bool TileMapEditor::HandleInput(const OldInputEvent* p_input_event) {
 
     return false;
 }
-
-
 #endif
 
 }  // namespace cave
