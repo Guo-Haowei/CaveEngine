@@ -6,6 +6,7 @@
 #include "editor/document/SceneDocument.h"
 #include "editor/panels/ViewTabBase.h"
 #include "editor/services/IPickConsumer.h"
+#include "editor/tile_map_editor/TileMapEditorContext.h"
 
 namespace cave {
 
@@ -40,6 +41,7 @@ protected:
     bool updateEditMode(const InputFrame& input);
     void applayEditorTool();
 
+    TileMapEditorContext& ctx_;
     const DebugId debug_id_;
 
     Mode mode_{ Mode::None };

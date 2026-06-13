@@ -1,5 +1,6 @@
 #pragma once
 #include "editor/panels/EditorWindow.h"
+#include "editor/tile_map_editor/TileMapEditorContext.h"
 #include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
@@ -20,6 +21,8 @@ public:
 
     void onAttach() override;
 
+    TileMapEditorContext& tileMapContext() { return tile_map_ctx_; }
+
 protected:
     void drawUIImpl() override;
 
@@ -28,9 +31,10 @@ protected:
     void tileMapLayerOverview(TileMapAsset& tile_map);
 
     EditorServices& editor_services_;
-    SpriteSelector sprite_selector_;
 
     uint64_t checkerboard_{};
+
+    TileMapEditorContext tile_map_ctx_;
 };
 
 }  // namespace cave

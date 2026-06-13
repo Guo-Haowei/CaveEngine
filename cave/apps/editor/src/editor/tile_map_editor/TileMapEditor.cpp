@@ -3,12 +3,15 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 
 #include "editor/EditorState.h"
+#include "editor/panels/AssetInspector.h"
+#include "editor/services/DocumentService.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 
 // @TODO: remove
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
+#include "engine/private/runtime/assets/TileSetAsset.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
@@ -20,7 +23,9 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              DocId doc_id,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
-    , debug_id_(MakeDebugId(this)) {
+    , ctx_(editor.assetInspector().tileMapContext())
+    , debug_id_(MakeDebugId(this))
+{
 
     // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
     //                                   [&]() {
@@ -136,21 +141,22 @@ bool TileMapEditor::updateEditMode(const InputFrame& input) {
 }
 
 void TileMapEditor::applayEditorTool() {
-    // auto selections = m_sprite_selector.GetSelections();
-    // if (!selections.empty()) {
-    //     // @TODO: support multi tile editing
-    //     auto [x, y] = selections[0];
-    //     if (x >= 0 && y >= 0) {
-    //         TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-    //         TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-    //         uint32_t idx = y * tile_set->GetCol() + x;
-    //         m_document->RequestAdd(e->GetPos(), TileId(idx));
-    //     }
-    // }
+    IDocument* doc = editor_services_.document().resolve(doc_id_);
+    DEV_ASSERT(doc);
 
     if (mode_ == Mode::Painting) {
-        LOG_OK("TODO: paint");
-        // @TODO: add tile
+        auto selections = ctx_.sprite_selector.GetSelections();
+        if (!selections.empty()) {
+            auto [x, y] = selections[0];
+            if (x >= 0 && y >= 0) {
+                TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
+                TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+                uint32_t idx = y * tile_set->GetCol() + x;
+                LOG_OK("TODO: add {} {}", x, y);
+                unused(idx);
+                // m_document->RequestAdd(e->GetPos(), TileId(idx));
+            }
+        }
     } else if (mode_ == Mode::Erasing) {
         LOG_OK("TODO: erase");
         // @TODO: earse tile

@@ -44,9 +44,7 @@ public:
 #endif
 
     // @TODO: dependency injection?
-    ContentBrowser& GetAssetInspector() { return *content_browser_.get(); }
-    FileSystemPanel& GetFileSystemPanel() { return *file_system_panel_.get(); }
-    LogPanel& GetLogPanel() { return *log_panel_.get(); }
+    AssetInspector& assetInspector() { return *asset_inspector_; }
 
     EditorServices& services() { return services_; }
 
@@ -65,14 +63,14 @@ private:
     PIESession pie_;
 
     // @TODO: move to EditorServices
-    std::unique_ptr<cave::DocumentService> document_;
-    std::unique_ptr<cave::EditService> edit_;
-    std::unique_ptr<cave::IconCache> icon_cache_;
-    std::unique_ptr<cave::PickingService> picking_;
-    std::unique_ptr<cave::SelectionService> selection_;
-    std::unique_ptr<cave::ShortcutService> shortcut_;
-    std::unique_ptr<cave::Workspace> workspace_;
-    std::unique_ptr<cave::ThumbnailService> thumbnail_;
+    std::unique_ptr<DocumentService> document_;
+    std::unique_ptr<EditService> edit_;
+    std::unique_ptr<IconCache> icon_cache_;
+    std::unique_ptr<PickingService> picking_;
+    std::unique_ptr<SelectionService> selection_;
+    std::unique_ptr<ShortcutService> shortcut_;
+    std::unique_ptr<Workspace> workspace_;
+    std::unique_ptr<ThumbnailService> thumbnail_;
 
     // @TODO: use unique_ptr
     std::shared_ptr<AssetInspector> asset_inspector_;
