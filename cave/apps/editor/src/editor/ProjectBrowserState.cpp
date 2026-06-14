@@ -5,6 +5,10 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IApplication.h"
 
+#include "editor/EditorDvars.h"
+#include "editor/widgets/Image.h"
+
+// @TODO: remove private includes
 #include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
@@ -15,8 +19,6 @@
 #include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/serialization/yaml_include.h"
 #include "engine/private/ui/layout.h"
-
-#include "editor/widgets/Image.h"
 
 namespace cave {
 
@@ -67,17 +69,35 @@ void ProjectBrowserState::drawRecentProjects() {
         }
 
         if (clicked && !request_fired_) {
-            request_ = Some(StateRequest{
-                .next = AppStateId::Editor,
-                .arg0 = project.name,
-                .arg1 = project.start_scene,
-            });
-            project_manager_.loadProject(project);
-            request_fired_ = true;
+            selectProject(project);
+            DVAR_SET_STRING(last_opened_project, project.path);
         }
     }
 
     ImGui::EndTable();
+}
+
+void ProjectBrowserState::selectProject(const ProjectInfo& project) {
+    DEV_ASSERT(!request_fired_);
+    request_ = Some(StateRequest{
+        .next = AppStateId::Editor,
+        .arg0 = project.name,
+        .arg1 = project.start_scene,
+    });
+    project_manager_.loadProject(project);
+    request_fired_ = true;
+}
+
+void ProjectBrowserState::selectProject(std::string_view path) {
+    if (request_fired_) {
+        return;
+    }
+    for (const ProjectInfo& project : project_list_) {
+        if (project.path == path) {
+            selectProject(project);
+            break;
+        }
+    }
 }
 
 void ProjectBrowserState::drawUI() {
@@ -99,6 +119,10 @@ void ProjectBrowserState::drawUI() {
 }
 
 void ProjectBrowserState::tick(const FrameTime&) {
+    if (DVAR_GET_BOOL(auto_open_last_project)) {
+        selectProject(DVAR_GET_STRING(last_opened_project));
+    }
+
     if (ImguiManager* imgui_manager = app_.GetImguiManager()) {
         imgui_manager->BeginFrame();
 
@@ -165,6 +189,7 @@ Option<StateRequest> ProjectBrowserState::popRequest() {
     return request;
 }
 
+// @TODO: refactor this
 template<typename T>
 static bool tryReadYaml(const YAML::Node& node, const char* key, T& out) {
     try {

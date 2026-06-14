@@ -23,6 +23,9 @@ public:
 #endif
 
 private:
+    void selectProject(const ProjectInfo& project);
+    void selectProject(std::string_view path);
+
     void drawUI();
     void drawRecentProjects();
     void drawSideBar();
