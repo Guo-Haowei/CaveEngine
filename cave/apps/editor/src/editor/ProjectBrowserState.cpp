@@ -159,7 +159,7 @@ void ProjectBrowserState::tick(const FrameTime&) {
 }
 
 void ProjectBrowserState::drawSideBar() {
-    const std::vector<LogEvent>& logs = CompositeLogger::singleton().GetAllLogs();
+    auto logs = CompositeLogger::singleton().allLogs();
     if (logs.empty()) {
         return;
     }

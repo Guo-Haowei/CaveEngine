@@ -209,8 +209,8 @@ void EditorState::dockSpace() {
         [this]() { menu_bar_->drawUI(); },
         [this]() {
             CompositeLogger& logger = CompositeLogger::singleton();
-            const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
-            const uint32_t warning_count = static_cast<uint32_t>(logger.GetWarningLogs().size());
+            const uint32_t error_count = static_cast<uint32_t>(logger.errorLogs().size());
+            const uint32_t warning_count = static_cast<uint32_t>(logger.warningLogs().size());
 
             ui::ErrorIcon();
 

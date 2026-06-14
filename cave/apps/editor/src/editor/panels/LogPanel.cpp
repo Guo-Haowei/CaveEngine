@@ -177,19 +177,19 @@ void LogPanel::drawLogHistroy() {
 
     int color_index = 0;
 
-    const std::vector<LogEvent>* logs = &CompositeLogger::singleton().GetAllLogs();
+    auto logs = CompositeLogger::singleton().allLogs();
     switch (level_filter_) {
         case cave::LOG_LEVEL_WARN:
-            logs = &CompositeLogger::singleton().GetWarningLogs();
+            logs = CompositeLogger::singleton().warningLogs();
             break;
         case cave::LOG_LEVEL_ERROR:
-            logs = &CompositeLogger::singleton().GetErrorLogs();
+            logs = CompositeLogger::singleton().errorLogs();
             break;
         default:
             break;
     }
 
-    for (const LogEvent& log : (*logs)) {
+    for (const LogEvent& log : logs) {
         if (!(log.level & level_filter_)) {
             continue;
         }
