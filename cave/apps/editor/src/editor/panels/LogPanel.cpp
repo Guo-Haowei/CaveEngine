@@ -12,7 +12,7 @@
 
 // @TODO: refactor
 #include "ConsolePanel.h"
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
+#include "cave/core/diagnostics/CompositeLogger.h"
 
 namespace cave {
 

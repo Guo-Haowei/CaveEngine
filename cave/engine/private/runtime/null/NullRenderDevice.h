@@ -15,7 +15,7 @@ public:
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}
 
-    void Submit(std::unique_ptr<render::RenderSubmission>&&) override {}
+    void submit(std::unique_ptr<render::RenderSubmission>&&) override {}
 
     // resource
     auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> override { return nullptr; }

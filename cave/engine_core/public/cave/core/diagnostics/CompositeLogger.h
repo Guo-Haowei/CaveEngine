@@ -1,48 +1,41 @@
+// =============================================================================
+// File: cave/core/diagnostics/CompositeLogger.h
+// =============================================================================
 #pragma once
-#include <mutex>
+#include <memory>
+#include <span>
 
+#include "cave/core/CoreExport.h"
 #include "cave/core/diagnostics/ILogSink.h"
-#include "cave/core/base/Singleton.h"
 
 namespace cave {
 
-class CompositeLogger : public ILogSink, public Singleton<CompositeLogger> {
+class CAVE_CORE_API CompositeLogger : public ILogSink {
 public:
-    void Submit(const LogEvent& log) override;
+    explicit CompositeLogger();
+    ~CompositeLogger();
 
-    void AddLogger(std::shared_ptr<ILogSink> logger);
-    void AddChannel(LogLevel log) { m_channels |= log; }
-    void RemoveChannel(LogLevel log) { m_channels &= ~log; }
+    void submit(const LogEvent& log) override;
 
-    void Flush();
+    void addLogger(std::unique_ptr<ILogSink>&& logger);
 
-    void ClearLog();
+    void addLevel(LogLevel level);
+    void removeLevel(LogLevel level);
 
-    const std::vector<LogEvent>& GetAllLogs() const;
-    const std::vector<LogEvent>& GetWarningLogs() const;
-    const std::vector<LogEvent>& GetErrorLogs() const;
+    void flush();
+
+    void clearLog();
+
+    std::span<const LogEvent> allLogs() const;
+    std::span<const LogEvent> warningLogs() const;
+    std::span<const LogEvent> errorLogs() const;
+
+    static CompositeLogger& singleton();
 
 private:
-    struct Buffer {
-        std::vector<LogEvent> buffer;
-        std::mutex mutex;
-    };
+    class Impl;
 
-    struct GroupedLog {
-        std::vector<LogEvent> logs;
-        void Add(LogEvent log);
-        void Clear() { logs.clear(); }
-    };
-
-    std::vector<std::shared_ptr<ILogSink>> m_loggers;
-
-    GroupedLog m_all_logs;
-    GroupedLog m_errors;
-    GroupedLog m_warnings;
-
-    Buffer m_buffer;
-
-    std::atomic_uint32_t m_channels{ LOG_LEVEL_ALL };
+    Impl* impl_{};
 };
 
 }  // namespace cave

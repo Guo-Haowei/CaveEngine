@@ -5,7 +5,7 @@ namespace cave {
 
 class StdLogger : public ILogSink {
 public:
-    void Submit(const LogEvent& log) override;
+    void submit(const LogEvent& log) override;
 };
 
 }  // namespace cave

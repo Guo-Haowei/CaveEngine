@@ -3,6 +3,7 @@
 #include <fstream>
 #include <imgui/imgui.h>
 
+#include "cave/core/diagnostics/CompositeLogger.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/core/threading/Threads.h"
@@ -10,7 +11,6 @@
 #include "cave/runtime/display/DisplayService.h"
 
 #include "engine/private/core/diagnostics/console/Console.h"
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
@@ -210,7 +210,7 @@ bool Application::MainLoop() {
     using namespace render;
     CAVE_PROFILE_FRAME("MainThread");
 
-    CompositeLogger::singleton().Flush();
+    CompositeLogger::singleton().flush();
 
     display_service_->beginFrame();
     if (display_service_->shouldClose()) {

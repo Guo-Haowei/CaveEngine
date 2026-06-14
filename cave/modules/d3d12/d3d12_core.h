@@ -138,7 +138,7 @@ public:
 
     CopyCommand Allocate(uint32_t p_staging_size);
 
-    void Submit(CopyCommand p_cmd);
+    void submit(CopyCommand p_cmd);
 
 private:
     D3d12GraphicsManager* m_device = nullptr;

@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/core/threading/JobSystem.h
+// =============================================================================
 #pragma once
 #include <functional>
 
@@ -5,11 +8,12 @@
 
 namespace cave::jobsystem {
 
-bool Initialize();
+class Context;
 
+bool Initialize();
 void Finalize();
 
-class Context;
+void WorkerMain();
 
 struct JobArgs {
     uint32_t jobIndex;
@@ -42,7 +46,5 @@ private:
     void Wait() {}
 #endif
 };
-
-void WorkerMain();
 
 }  // namespace cave::jobsystem

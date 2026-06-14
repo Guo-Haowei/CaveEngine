@@ -1,9 +1,8 @@
 #include "Console.h"
 
-#include "cave/runtime/framework/IApplication.h"
-
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
+#include "cave/core/diagnostics/CompositeLogger.h"
 #include "cave/core/string/StringUtils.h"
+#include "cave/runtime/framework/IApplication.h"
 
 namespace cave {
 

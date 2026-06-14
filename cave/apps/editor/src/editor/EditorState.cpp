@@ -1,5 +1,6 @@
 #include "EditorState.h"
 
+#include "cave/core/diagnostics/CompositeLogger.h"
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -31,7 +32,6 @@
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/ui/layout.h"
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"

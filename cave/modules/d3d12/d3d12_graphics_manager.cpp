@@ -464,7 +464,7 @@ ID3D12Resource* D3d12GraphicsManager::UploadBuffer(uint32_t p_byte_size, const v
 
     auto cmd = m_copyContext.Allocate(p_byte_size);
     UpdateSubresources<1>(cmd.commandList.Get(), p_out_buffer, cmd.uploadBuffer.buffer.Get(), 0, 0, 1, &sub_resource_data);
-    m_copyContext.Submit(cmd);
+    m_copyContext.submit(cmd);
     return p_out_buffer;
 };
 

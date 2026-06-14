@@ -24,8 +24,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
     , ctx_(editor.assetInspector().tileMapContext())
-    , debug_id_(MakeDebugId(this))
-{
+    , debug_id_(MakeDebugId(this)) {
 
     // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
     //                                   [&]() {

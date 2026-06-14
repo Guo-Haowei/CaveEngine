@@ -313,7 +313,7 @@ void Renderer::Impl::tick(const FrameTime& time,
 
     submission->frame_data = std::move(plan.frame_data);
 
-    device_.Submit(std::move(submission));
+    device_.submit(std::move(submission));
 }
 
 FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,

@@ -2,7 +2,7 @@
 
 namespace cave {
 
-void StdLogger::Submit(const LogEvent& log) {
+void StdLogger::submit(const LogEvent& log) {
     const char* tag = ToString(log.level);
 
     // @TODO: stderr vs stdout

@@ -228,7 +228,7 @@ std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(ImageAsset* p_image) {
     return p_image->gpu_texture;
 }
 
-void RenderDevice::Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) {
+void RenderDevice::submit(std::unique_ptr<render::RenderSubmission>&& p_submission) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: make it a function

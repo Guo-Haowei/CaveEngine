@@ -29,7 +29,7 @@ std::string FormatLog(const LogEvent& log) {
 void LogImpl(LogLevel level, LogChannel channel, std::string message) {
     if (s_log_glob.logger) {
         LogEvent log = detail::BuildLog(level, channel, std::move(message));
-        s_log_glob.logger->Submit(log);
+        s_log_glob.logger->submit(log);
     } else {
         fprintf(stdout, "%s\n", message.c_str());
     }

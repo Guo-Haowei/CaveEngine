@@ -4,7 +4,7 @@ namespace cave {
 
 class TestLogSink final : public ILogSink {
 public:
-    void Submit(const LogEvent& log) override {
+    void submit(const LogEvent& log) override {
         logs.push_back(log);
     }
 

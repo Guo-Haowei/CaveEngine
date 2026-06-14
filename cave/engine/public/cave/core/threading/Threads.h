@@ -1,6 +1,10 @@
+// =============================================================================
+// File: cave/core/threading/Threads.h
+// =============================================================================
 #pragma once
 #include <string_view>
 #include <thread>
+
 #include "cave/core/PlatformDefines.h"
 
 namespace cave::thread {
@@ -25,19 +29,15 @@ enum : uint32_t {
 };
 
 bool Initialize();
-
 void Finailize();
 
 bool ShutdownRequested();
-
 void RequestShutdown();
 
 bool IsMainThread();
-
 uint32_t GetThreadId();
 
 bool SetThreadName(std::thread& thread, std::string_view name);
-
 void SetThreadId(uint32_t id);
 
 }  // namespace cave::thread
