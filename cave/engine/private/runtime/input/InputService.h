@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/Singleton.h"
+#include "cave/core/base/Singleton.h"
 #include "cave/core/string/StringId.h"
 #include "cave/runtime/framework/IService.h"
 #include "cave/runtime/input/IInputDevice.h"

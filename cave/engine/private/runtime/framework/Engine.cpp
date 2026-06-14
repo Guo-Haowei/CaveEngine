@@ -1,10 +1,10 @@
 #include "Engine.h"
 
+#include "cave/core/threading/JobSystem.h"
+#include "cave/core/threading/Threads.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
 
 #include "engine/private/core/os/os.h"
-#include "engine/private/core/os/threads.h"
-#include "engine/private/systems/job_system/job_system.h"
 
 namespace cave::engine {
 

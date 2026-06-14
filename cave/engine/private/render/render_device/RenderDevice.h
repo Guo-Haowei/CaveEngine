@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/Singleton.h"
+#include "cave/core/base/Singleton.h"
 
 #include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"

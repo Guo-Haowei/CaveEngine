@@ -23,7 +23,7 @@ bool TileMapRendererComponent::SetResourceGuid(const Guid& p_guid) {
 }
 
 void TileMapRendererComponent::OnDeserialized() {
-    auto res = AssetRegistry::GetSingleton().FindByGuid<TileMapAsset>(m_tile_map_id);
+    auto res = AssetRegistry::singleton().FindByGuid<TileMapAsset>(m_tile_map_id);
     m_handle = std::move(res.unwrap());
 }
 
@@ -42,7 +42,7 @@ void TileMapRendererComponent::CreateRenderData() {
 
     // @TODO: update guid
     if (m_cache.tile_set_handle.GetGuid() == Guid::Null()) {
-        auto tile_set_handle = AssetRegistry::GetSingleton().FindByGuid<TileSetAsset>(tile_map->GetTileSetGuid());
+        auto tile_set_handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(tile_map->GetTileSetGuid());
         if (tile_set_handle.is_some()) {
             m_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
         }
@@ -162,7 +162,7 @@ void TileMapRendererComponent::CreateRenderData() {
 
     // @TODO: refactor this part
     // @NOTE: shouldn't call RenderDevice here
-    auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, buffers, &index_desc);
+    auto mesh = RenderDevice::singleton().CreateMeshImpl(desc, buffers, &index_desc);
 
     m_cache.mesh = *mesh;
 

@@ -15,7 +15,7 @@ bool SpriteRendererComponent::SetResourceGuid(const Guid& p_guid) {
 void SpriteRendererComponent::OnDeserialized() {
     if (!m_image_id.IsNull()) {
         m_image_handle =
-            AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_id).unwrap();
+            AssetRegistry::singleton().FindByGuid<ImageAsset>(m_image_id).unwrap();
     }
 }
 

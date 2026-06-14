@@ -127,7 +127,7 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
 }
 
 auto D3d11PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(RenderDevice::GetSingletonPtr());
+    auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(RenderDevice::singletonPtr());
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
 

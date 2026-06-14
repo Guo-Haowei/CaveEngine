@@ -40,7 +40,7 @@ bool AssetHandle::ReplaceGuidAndHandle(AssetType p_type,
 
     p_out_id = p_guid;
 
-    auto res = AssetRegistry::GetSingleton().FindByGuid(p_guid, p_type);
+    auto res = AssetRegistry::singleton().FindByGuid(p_guid, p_type);
     if (res.is_none()) {
         LOG_WARN("asset '{}' not found", p_guid.ToString());
         return false;

@@ -1,16 +1,18 @@
 #pragma once
+#include <mutex>
+
 #include "cave/core/diagnostics/ILogSink.h"
-#include "cave/core/Singleton.h"
+#include "cave/core/base/Singleton.h"
 
 namespace cave {
 
 class CompositeLogger : public ILogSink, public Singleton<CompositeLogger> {
 public:
-    void Submit(const LogEvent& p_log) override;
+    void Submit(const LogEvent& log) override;
 
-    void AddLogger(std::shared_ptr<ILogSink> p_logger);
-    void AddChannel(LogLevel p_log) { m_channels |= p_log; }
-    void RemoveChannel(LogLevel p_log) { m_channels &= ~p_log; }
+    void AddLogger(std::shared_ptr<ILogSink> logger);
+    void AddChannel(LogLevel log) { m_channels |= log; }
+    void RemoveChannel(LogLevel log) { m_channels &= ~log; }
 
     void Flush();
 
@@ -28,7 +30,7 @@ private:
 
     struct GroupedLog {
         std::vector<LogEvent> logs;
-        void Add(LogEvent p_log);
+        void Add(LogEvent log);
         void Clear() { logs.clear(); }
     };
 

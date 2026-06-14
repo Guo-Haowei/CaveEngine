@@ -106,8 +106,8 @@ D3d12GraphicsManager::D3d12GraphicsManager()
 }
 
 auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
-    const int w = DisplayService::GetSingleton().windowSize().x;
-    const int h = DisplayService::GetSingleton().windowSize().y;
+    const int w = DisplayService::singleton().windowSize().x;
+    const int h = DisplayService::singleton().windowSize().y;
     DEV_ASSERT(w > 0 && h > 0);
 
     if (auto res = CreateDevice(); !res) {
@@ -210,7 +210,7 @@ void D3d12GraphicsManager::FinalizeImpl() {
 void D3d12GraphicsManager::Render() {
     ID3D12GraphicsCommandList* cmd_list = m_graphicsCommandList.Get();
 
-    Vector2i dim = DisplayService::GetSingleton().windowSize();
+    Vector2i dim = DisplayService::singleton().windowSize();
     CD3DX12_VIEWPORT viewport(0.0f, 0.0f, (float)dim.x, (float)dim.y);
     cmd_list->RSSetViewports(1, &viewport);
     D3D12_RECT rect{ 0, 0, dim.x, dim.y };
@@ -1216,7 +1216,7 @@ auto D3d12GraphicsManager::CreateDescriptorHeaps() -> Result<void> {
 }
 
 auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) -> Result<void> {
-    auto display_manager = dynamic_cast<GlfwDisplayService*>(DisplayService::GetSingletonPtr());
+    auto display_manager = dynamic_cast<GlfwDisplayService*>(DisplayService::singletonPtr());
     DEV_ASSERT(display_manager);
 
     // create a struct to hold information about the swap chain

@@ -71,7 +71,7 @@ void MaterialAsset::OnDeserialized() {
         const auto& path = textures[i].path;
         if (!path.empty()) {
             DEV_ASSERT(0);
-            // AssetRegistry::GetSingleton().RequestAssetAsync(path);
+            // AssetRegistry::singleton().RequestAssetAsync(path);
         }
     }
 #endif

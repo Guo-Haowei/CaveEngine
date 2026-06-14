@@ -18,6 +18,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})
 target_include_directories(${TARGET_NAME}
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/public
+        ${PROJECT_SOURCE_DIR}/thirdparty/optick
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/private
 )
@@ -29,5 +30,12 @@ target_compile_definitions(${TARGET_NAME}
         _CRT_SECURE_NO_WARNINGS
         ROOT_FOLDER="${PROJECT_SOURCE_DIR}/"
 )
+
+if(WIN32)
+    target_link_libraries(${TARGET_NAME}
+        PUBLIC
+            optick
+    )
+endif()
 
 target_set_warning_level(${TARGET_NAME})

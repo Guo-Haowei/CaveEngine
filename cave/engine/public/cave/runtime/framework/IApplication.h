@@ -5,7 +5,7 @@
 #include <string_view>
 
 #include "cave/core/error/Result.h"
-#include "cave/core/NonCopyable.h"
+#include "cave/core/base/NonCopyable.h"
 #include "cave/rhi/Backend.h"
 #include "cave/runtime/framework/AppServices.h"
 

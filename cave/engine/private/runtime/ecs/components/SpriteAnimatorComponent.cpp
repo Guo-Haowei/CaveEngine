@@ -19,7 +19,7 @@ bool SpriteAnimatorComponent::SetResourceGuid(const Guid& p_guid) {
 void SpriteAnimatorComponent::OnDeserialized() {
     if (!m_anim_id.IsNull()) {
         m_anim_handle =
-            AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(m_anim_id).unwrap();
+            AssetRegistry::singleton().FindByGuid<SpriteAnimationAsset>(m_anim_id).unwrap();
     }
 }
 

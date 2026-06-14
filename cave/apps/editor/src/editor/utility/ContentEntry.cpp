@@ -36,7 +36,7 @@ auto BuildFolderTree(const fs::path& sys_path,
         node->sys_path = sys_path;
         node->parent = parent;
         if (parent) {
-            node->virtual_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+            node->virtual_path = IAssetManager::singleton().ResolvePath(sys_path);
             node->file_name = StringUtils::FileName(node->virtual_path, '/');
         } else {
             node->virtual_path = "@res://";
@@ -49,7 +49,7 @@ auto BuildFolderTree(const fs::path& sys_path,
         }
 
         if (is_file) {
-            auto handle = AssetRegistry::GetSingleton().FindByPath(node->virtual_path);
+            auto handle = AssetRegistry::singleton().FindByPath(node->virtual_path);
             if (handle.is_none()) {
                 return nullptr;
             }
@@ -64,7 +64,7 @@ auto BuildFolderTree(const fs::path& sys_path,
                 node->thumbnail = node->handle;
             } else {
                 std::string thumbnail_path = std::format("@res://_cache/{}@256x256.png", meta->guid.ToString());
-                if (auto _handle = AssetRegistry::GetSingleton().FindByPath<ImageAsset>(thumbnail_path); _handle.is_some()) {
+                if (auto _handle = AssetRegistry::singleton().FindByPath<ImageAsset>(thumbnail_path); _handle.is_some()) {
                     node->thumbnail = _handle.unwrap_unchecked();
                 }
             }
@@ -132,7 +132,7 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const ContentEntry& node) {
 }
 
 static void ShowFolderPopup(const ContentEntry& p_node) {
-    auto& asset_manager = IAssetManager::GetSingleton();
+    auto& asset_manager = IAssetManager::singleton();
 
     if (ImGui::BeginMenu("Add")) {
         if (ImGui::MenuItem("Folder")) {
@@ -168,7 +168,7 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
 
             if (auto path = os::OpenFileDialog(filter); path.is_some()) {
                 fs::path dest = p_node.sys_path;
-                IAssetManager::GetSingleton().SubmitImportScene({ path.unwrap_unchecked(), dest });
+                IAssetManager::singleton().SubmitImportScene({ path.unwrap_unchecked(), dest });
             }
         }
         ImGui::EndMenu();

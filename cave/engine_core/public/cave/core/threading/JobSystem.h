@@ -1,6 +1,7 @@
 #pragma once
+#include <functional>
 
-#define ENABLE_JOB_SYSTEM USE_IF(!USING(PLATFORM_WASM))
+#include "cave/core/PlatformDefines.h"
 
 namespace cave::jobsystem {
 

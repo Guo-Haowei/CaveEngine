@@ -75,7 +75,7 @@ bool TileMapAsset::RemoveTile(TileIndex p_index) {
 void TileMapAsset::SetTileSetGuid(const Guid& p_guid, bool p_force) {
     const bool should_update = p_force || m_tile_set_id != p_guid;
     if (should_update) {
-        if (auto handle = AssetRegistry::GetSingleton().FindByGuid<TileSetAsset>(p_guid); handle.is_some()) {
+        if (auto handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(p_guid); handle.is_some()) {
             m_tile_set_id = p_guid;
             m_tile_set_handle = std::move(handle.unwrap());
         } else {

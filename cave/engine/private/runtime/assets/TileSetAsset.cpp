@@ -53,7 +53,7 @@ void TileSetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
 }
 
 void TileSetAsset::SetImage(const Guid& p_guid) {
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(p_guid);
+    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(p_guid);
     if (handle.is_some()) {
         SetHandle(std::move(handle.unwrap_unchecked()));
     }
@@ -138,7 +138,7 @@ auto TileSetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     }
 
     // @TODO: post load?
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
+    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(m_image_guid);
     if (handle.is_some()) {
         SetHandle(std::move(handle.unwrap_unchecked()));
     }

@@ -1,9 +1,7 @@
-#include "job_system.h"
-
-#include "engine/private/core/base/thread_safe_ring_buffer.h"
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/core/os/threads.h"
-#include "engine/private/core/math/geomath.h"
+#include "cave/core/threading/ConcurrentRingBuffer.h"
+#include "cave/core/threading/JobSystem.h"
+#include "cave/core/threading/Threads.h"
 
 namespace cave::jobsystem {
 
@@ -70,7 +68,7 @@ void Context::Dispatch(uint32_t p_job_count, uint32_t p_group_size, const std::f
         job.task = p_task;
         job.groupId = group_id;
         job.groupJobOffset = group_id * p_group_size;
-        job.groupJobEnd = glm::min(job.groupJobOffset + p_group_size, p_job_count);
+        job.groupJobEnd = std::min(job.groupJobOffset + p_group_size, p_job_count);
 
         while (!s_glob.jobQueue.push_back(job)) {
             // if job queue is full, notify all and let main thread do the work as well

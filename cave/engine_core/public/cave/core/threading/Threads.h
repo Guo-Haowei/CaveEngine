@@ -1,5 +1,7 @@
 #pragma once
-#include "engine/private/systems/job_system/job_system.h"
+#include <string_view>
+#include <thread>
+#include "cave/core/PlatformDefines.h"
 
 namespace cave::thread {
 
@@ -34,8 +36,8 @@ bool IsMainThread();
 
 uint32_t GetThreadId();
 
-void SetThreadName(std::thread& p_thread, std::string_view p_name);
+bool SetThreadName(std::thread& thread, std::string_view name);
 
-void SetThreadId(uint32_t p_id);
+void SetThreadId(uint32_t id);
 
 }  // namespace cave::thread

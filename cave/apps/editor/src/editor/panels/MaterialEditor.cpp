@@ -15,7 +15,7 @@ void MaterialEditor::OnDestroy() {
 }
 
 void MaterialEditor::OnActivateInternal() {
-    // auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::GetSingletonPtr());
+    // auto scene_manager = static_cast<EditorSceneManager*>(ISceneManager::singletonPtr());
     // scene_manager->OpenTempScene(m_tmp_scene);
     DEV_ASSERT(0);
 }
@@ -57,7 +57,7 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
     for (size_t i = 0; i < p_material.textures.size(); ++i) {
         Guid& material = p_material.textures[i];
 
-        auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(material).unwrap_or(Handle<ImageAsset>());
+        auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(material).unwrap_or(Handle<ImageAsset>());
 
         const ImageAsset* image = handle.Get();
 

@@ -54,7 +54,7 @@ void SpriteAnimationAsset::SetGuid(const Guid& p_guid) {
 }
 
 void SpriteAnimationAsset::OnDeserialized() {
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(m_image_guid);
+    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(m_image_guid);
     if (handle.is_some()) {
         m_image_handle = handle.unwrap_unchecked();
     }

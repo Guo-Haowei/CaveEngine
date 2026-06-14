@@ -106,7 +106,7 @@ bool DrawAsset(const char* p_name,
                const Guid& p_guid,
                T* p_component,
                const DrawComponentCtx& p_context) {
-    auto handle_ = AssetRegistry::GetSingleton().FindByGuid(p_guid);
+    auto handle_ = AssetRegistry::singleton().FindByGuid(p_guid);
 
     AssetType type = AssetType::All;
     const AssetMetaData* meta = nullptr;
@@ -441,7 +441,7 @@ void PropertyPanel::drawUIImpl() {
             // @TODO: drop down
             DEV_ASSERT(0);
             const Guid& guid = p_animator.GetResourceGuid();
-            if (auto handle = AssetRegistry::GetSingleton().FindByGuid<SpriteAnimationAsset>(guid);
+            if (auto handle = AssetRegistry::singleton().FindByGuid<SpriteAnimationAsset>(guid);
                 handle.is_some()) {
                 SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
                 std::string clip_name = p_animator.GetCurrentClip();

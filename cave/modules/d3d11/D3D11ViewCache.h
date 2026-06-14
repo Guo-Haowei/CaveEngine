@@ -3,7 +3,7 @@
 
 #include "D3D11ViewKeys.h"
 
-#include "cave/core/NonCopyable.h"
+#include "cave/core/base/NonCopyable.h"
 
 namespace cave::render {
 

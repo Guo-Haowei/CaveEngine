@@ -18,7 +18,7 @@ void MaterialComponent::OnDeserializedHelper(Handle<MaterialAsset>& p_handle, bo
 
     m_images.reserve(mat->textures.size());
     for (const Guid& guid : mat->textures) {
-        m_images.push_back(AssetRegistry::GetSingleton().FindByGuid<ImageAsset>(guid).unwrap_or(Handle<ImageAsset>()));
+        m_images.push_back(AssetRegistry::singleton().FindByGuid<ImageAsset>(guid).unwrap_or(Handle<ImageAsset>()));
     }
 }
 
@@ -34,7 +34,7 @@ bool MaterialComponent::SetResourceGuid(const Guid& p_guid) {
 }
 
 void MaterialComponent::OnDeserialized() {
-    if (auto handle = AssetRegistry::GetSingleton().FindByGuid<MaterialAsset>(m_material_id); handle.is_some()) {
+    if (auto handle = AssetRegistry::singleton().FindByGuid<MaterialAsset>(m_material_id); handle.is_some()) {
         m_material_handle = handle.unwrap_unchecked();
         OnDeserializedHelper(m_material_handle, false);
     }

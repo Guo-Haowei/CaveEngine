@@ -26,7 +26,7 @@ void MeshRendererComponent::AddMaterial(ecs::Entity p_material) {
 }
 
 void MeshRendererComponent::OnDeserialized() {
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<MeshAsset>(m_mesh_id);
+    auto handle = AssetRegistry::singleton().FindByGuid<MeshAsset>(m_mesh_id);
     if (handle.is_some()) {
         m_mesh_handle = handle.unwrap_unchecked();
     }

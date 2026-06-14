@@ -30,7 +30,7 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 
     CAVE_PROFILE_EVENT();
 
-    auto& gm = IRenderDevice::GetSingleton();
+    auto& gm = IRenderDevice::singleton();
     auto& frame = gm.GetCurrentFrame();
 
     for (const auto& instance : p_instances) {
@@ -246,7 +246,7 @@ static void EmitterPassFunc(RenderPassExcutionContext& p_ctx) {
 
         bool use_texture = false;
         if (!emitter.texture.empty()) {
-            const ImageAsset* image = AssetRegistry::GetSingleton().Request<ImageAsset>(emitter.texture);
+            const ImageAsset* image = AssetRegistry::singleton().Request<ImageAsset>(emitter.texture);
             if (image && image->gpu_texture) {
                 cmd.BindTexture(Dimension::TEXTURE_2D, image->gpu_texture->GetHandle(), GetBaseColorMapSlot());
                 use_texture = true;

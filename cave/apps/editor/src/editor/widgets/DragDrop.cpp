@@ -43,7 +43,7 @@ Option<AssetHandle> DragDropTarget(AssetType p_mask) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
             DEV_ASSERT(data.kind == DragKind::Asset);
-            auto handle = AssetRegistry::GetSingleton().FindByGuid(data.guid, p_mask);
+            auto handle = AssetRegistry::singleton().FindByGuid(data.guid, p_mask);
             if (handle.is_some()) {
                 return Some(handle.unwrap_unchecked());
             }

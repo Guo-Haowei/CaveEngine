@@ -62,7 +62,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
 
     glfwSetWindowCloseCallback(window_, [](GLFWwindow* window) {
         glfwSetWindowShouldClose(window, GLFW_FALSE);
-        QuitVote vote = DisplayService::GetSingleton().GetApp()->OnQuitRequested({ QuitReason::WindowClose });
+        QuitVote vote = DisplayService::singleton().GetApp()->OnQuitRequested({ QuitReason::WindowClose });
         switch (vote) {
             case QuitVote::Allow: {
                 glfwSetWindowShouldClose(window, true);
@@ -172,7 +172,7 @@ void* GlfwDisplayService::nativeWindow() {
 }
 
 void GlfwDisplayService::windowSizeCallback(GLFWwindow*, int w, int h) {
-    GlfwDisplayService& window = reinterpret_cast<GlfwDisplayService&>(DisplayService::GetSingleton());
+    GlfwDisplayService& window = reinterpret_cast<GlfwDisplayService&>(DisplayService::singleton());
 
     auto event = std::make_shared<ResizeEvent>(w, h);
     window.frame_size_.x = w;

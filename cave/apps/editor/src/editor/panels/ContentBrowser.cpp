@@ -126,7 +126,7 @@ void ContentBrowser::drawContentBrowser() {
     ImGui::BeginTable("Inner", num_col);
     ImGui::TableNextColumn();
 
-    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
     const auto& root = asset_manager.GetAssetRoot();
     const int max = static_cast<int>(current_path_.size()) - 1;
     const ContentEntry* current = navigate(root.get(), 0, max);

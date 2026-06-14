@@ -1,6 +1,7 @@
-#include "CompositeLogger.h"
+#include "cave/core/diagnostics/CompositeLogger.h"
+#include "cave/core/threading/Threads.h"
 
-#include "engine/private/core/os/threads.h"
+#include "cave/core/error/ErrorMacros.h"
 
 namespace cave {
 
@@ -10,10 +11,10 @@ namespace cave {
 #define ASSERT_OPERATION_THREAD() ((void)0)
 #endif
 
-bool operator==(const LogEvent& p_lhs, const LogEvent& p_rhs) {
-    return p_lhs.level == p_rhs.level &&
-           p_lhs.channel == p_rhs.channel &&
-           p_lhs.message == p_rhs.message;
+bool operator==(const LogEvent& lhs, const LogEvent& rhs) {
+    return lhs.level == rhs.level &&
+           lhs.channel == rhs.channel &&
+           lhs.message == rhs.message;
 }
 
 void CompositeLogger::GroupedLog::Add(LogEvent p_log) {

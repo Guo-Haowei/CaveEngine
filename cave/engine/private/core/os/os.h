@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/Singleton.h"
+#include "cave/core/base/Singleton.h"
 
 #include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 
