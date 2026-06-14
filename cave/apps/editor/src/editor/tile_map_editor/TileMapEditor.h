@@ -40,6 +40,7 @@ protected:
     bool canHandleInput(const InputFrame& input);
     bool updateEditMode(const InputFrame& input);
     void applayEditorTool();
+    Option<TileIndex> pointToTile(math::Vector2f point_os);
 
     TileMapEditorContext& ctx_;
     const DebugId debug_id_;
