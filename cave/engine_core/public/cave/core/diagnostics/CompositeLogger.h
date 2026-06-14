@@ -30,8 +30,6 @@ public:
     std::span<const LogEvent> warningLogs() const;
     std::span<const LogEvent> errorLogs() const;
 
-    static CompositeLogger& singleton();
-
 private:
     class Impl;
 

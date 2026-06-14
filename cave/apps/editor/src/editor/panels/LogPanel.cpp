@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "cave/core/Color.h"
+#include "cave/core/diagnostics/CompositeLogger.h"
 #include "cave/core/diagnostics/LogPresentation.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -12,7 +13,8 @@
 
 // @TODO: refactor
 #include "ConsolePanel.h"
-#include "cave/core/diagnostics/CompositeLogger.h"
+
+#include "engine/private/core/os/os.h"
 
 namespace cave {
 
@@ -177,13 +179,14 @@ void LogPanel::drawLogHistroy() {
 
     int color_index = 0;
 
-    auto logs = CompositeLogger::singleton().allLogs();
+    CompositeLogger& logger = OS::singleton().logger();
+    auto logs = logger.allLogs();
     switch (level_filter_) {
         case cave::LOG_LEVEL_WARN:
-            logs = CompositeLogger::singleton().warningLogs();
+            logs = logger.warningLogs();
             break;
         case cave::LOG_LEVEL_ERROR:
-            logs = CompositeLogger::singleton().errorLogs();
+            logs = logger.errorLogs();
             break;
         default:
             break;

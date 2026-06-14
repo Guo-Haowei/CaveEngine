@@ -1,3 +1,5 @@
+#include "cave/core/diagnostics/CompositeLogger.h"
+
 #include "engine/private/core/diagnostics/log_sink/AnsiLogSink.h"
 #include "engine/private/core/io/file_access_unix.h"
 #include "engine/private/core/os/os.h"

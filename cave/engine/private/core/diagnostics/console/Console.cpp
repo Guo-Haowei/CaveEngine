@@ -4,6 +4,8 @@
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/framework/IApplication.h"
 
+#include "engine/private/core/os/os.h"
+
 namespace cave {
 
 Console::Console(IApplication& p_app) noexcept
@@ -20,7 +22,7 @@ void Console::SubmitLine(std::string_view p_line) {
     for (const CommandDesc& cmd : cmds) {
         if (cmd.name == tokens[0]) {
             CommandContext ctx{
-                .log = LogWrapper(CompositeLogger::singleton()),
+                .log = LogWrapper(OS::singleton().logger()),
                 .desc = cmd,
                 .services = m_app.services(),
             };

@@ -11,6 +11,8 @@ public:
 
     void addLogger(std::unique_ptr<ILogSink>&& logger);
 
+    CompositeLogger& logger() { return logger_; }
+
 protected:
     CompositeLogger logger_;
 };

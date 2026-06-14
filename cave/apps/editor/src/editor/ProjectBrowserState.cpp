@@ -2,7 +2,6 @@
 
 #include <imgui/imgui.h>
 
-#include "cave/core/diagnostics/CompositeLogger.h"
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IApplication.h"
 
@@ -10,6 +9,7 @@
 #include "editor/widgets/Image.h"
 
 // @TODO: remove private includes
+#include "engine/private/core/os/os.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -159,7 +159,7 @@ void ProjectBrowserState::tick(const FrameTime&) {
 }
 
 void ProjectBrowserState::drawSideBar() {
-    auto logs = CompositeLogger::singleton().allLogs();
+    auto logs = OS::singleton().logger().allLogs();
     if (logs.empty()) {
         return;
     }

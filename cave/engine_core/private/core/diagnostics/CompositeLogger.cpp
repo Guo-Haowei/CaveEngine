@@ -69,12 +69,6 @@ private:
     uint32_t level_filter_{ LOG_LEVEL_ALL };
 };
 
-static CompositeLogger g_logger;
-
-CompositeLogger& CompositeLogger::singleton() {
-    return g_logger;
-}
-
 CompositeLogger::CompositeLogger()
     : impl_(new Impl()) {
 }
