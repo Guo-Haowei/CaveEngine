@@ -2,6 +2,7 @@
 // File: cave/runtime/scene/SceneQuery.h
 // =============================================================================
 #pragma once
+#include <string_view>
 #include "cave/core/math/Ray.h"
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/ecs/Entity.h"

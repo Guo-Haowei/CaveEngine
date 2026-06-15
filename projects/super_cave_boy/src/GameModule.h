@@ -5,6 +5,7 @@
 
 namespace super_cave_boy {
 
+class CameraController;
 class PlayerController;
 
 class GameModule final : public cave::IGameModule {
@@ -22,6 +23,7 @@ public:
 
 private:
     std::unique_ptr<PlayerController> controller_;
+    std::unique_ptr<CameraController> camera_;
 };
 
 }  // namespace super_cave_boy

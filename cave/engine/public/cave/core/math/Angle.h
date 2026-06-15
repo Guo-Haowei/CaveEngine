@@ -68,9 +68,9 @@ public:
     void Clamp(float p_a, float p_b) { m_value = clamp(m_value, p_a, p_b); }
     constexpr float GetRadians() const { return radians(m_value); }
     constexpr float GetDegree() const { return m_value; }
-    float Sin() const { return std::sin(GetRadians()); }
-    float Cos() const { return std::cos(GetRadians()); }
-    float Tan() const { return std::tan(GetRadians()); }
+    float Sin() const;
+    float Cos() const;
+    float Tan() const;
 
 private:
     float m_value;
@@ -120,9 +120,9 @@ public:
     // @TODO: rename for consistancy
     float ToDegree() const { return degrees(m_value); }
     float GetRad() const { return m_value; }
-    float Sin() const { return std::sin(m_value); }
-    float Cos() const { return std::cos(m_value); }
-    float Tan() const { return std::tan(m_value); }
+    float Sin() const;
+    float Cos() const;
+    float Tan() const;
 
 private:
     float m_value;

@@ -2,6 +2,7 @@
 // File: cave/core/hash/Hash.h
 // =============================================================================
 #pragma once
+#include <string_view>
 #include <type_traits>
 
 namespace cave {
