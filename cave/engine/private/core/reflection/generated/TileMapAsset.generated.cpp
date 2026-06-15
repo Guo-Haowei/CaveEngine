@@ -2,7 +2,7 @@
 // Auto-generated metadata for TileMapAsset.h
 // Check generate_meta.py for more details
 
-#include "engine/private/runtime/assets/TileMapAsset.h"
+#include "cave/runtime/assets/TileMapAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 

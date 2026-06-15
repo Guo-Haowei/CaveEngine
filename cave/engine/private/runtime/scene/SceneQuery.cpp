@@ -13,6 +13,10 @@ ecs::Entity SceneQuery::findFirstByName(std::string_view p_name) const {
     return scene_.FindEntityByName(p_name);
 }
 
+void* SceneQuery::component(ComponentId cid, ecs::Entity ent) {
+    return scene_.m_storage.GetRaw(ent, cid);
+}
+
 const void* SceneQuery::component(ComponentId cid, ecs::Entity ent) const {
     return scene_.m_storage.GetRaw(ent, cid);
 }

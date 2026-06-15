@@ -18,7 +18,7 @@ ISerializer& ISerializer::Write(const ecs::Entity& p_object) {
 }
 
 ISerializer& ISerializer::Write(const math::Degree& p_object) {
-    return Write(p_object.GetDegree());
+    return Write(p_object.degrees());
 }
 
 ISerializer& ISerializer::Write(const math::Matrix4x4f& p_object) {

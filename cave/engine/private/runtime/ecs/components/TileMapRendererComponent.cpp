@@ -1,6 +1,6 @@
+#include "cave/runtime/assets/TileMapAsset.h"
 #include "cave/runtime/ecs/components/TileMapRendererComponent.h"
 
-#include "engine/private/runtime/assets/TileMapAsset.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/render/render_device/RenderDevice.h"
@@ -38,7 +38,7 @@ void TileMapRendererComponent::CreateRenderData() {
         return;
     }
 
-    m_is_visible = tile_map->IsVisible();
+    m_is_visible = tile_map->visible();
 
     // @TODO: update guid
     if (m_cache.tile_set_handle.GetGuid() == Guid::Null()) {
@@ -59,7 +59,7 @@ void TileMapRendererComponent::CreateRenderData() {
         need_update = true;
     }
 
-    if (tile_map->GetRevision() != m_revision) {
+    if (tile_map->revision() != m_revision) {
         need_update = true;
     }
 
@@ -73,7 +73,7 @@ void TileMapRendererComponent::CreateRenderData() {
     std::vector<Vector2f> uvs;
     std::vector<uint32_t> indices;
 
-    const auto& chunks = tile_map->GetTiles().chunks;
+    const auto& chunks = tile_map->tiles().chunks;
     if (chunks.empty()) {
         m_is_visible = false;
         return;
@@ -81,14 +81,14 @@ void TileMapRendererComponent::CreateRenderData() {
 
     const auto& frames = tile_set->GetFrames();
 
-    vertices.reserve((TILE_CHUNK_SIZE * TILE_CHUNK_SIZE));
+    vertices.reserve((kTileChunkSize * kTileChunkSize));
     for (const auto& [key, chunk_ptr] : chunks) {
-        const int16_t offset_x = key.x * TILE_CHUNK_SIZE;
-        const int16_t offset_y = key.y * TILE_CHUNK_SIZE;
+        const int16_t offset_x = key.x * kTileChunkSize;
+        const int16_t offset_y = key.y * kTileChunkSize;
 
         const auto& chunk = chunk_ptr->tiles;
-        for (int16_t y = offset_y; y < offset_y + TILE_CHUNK_SIZE; ++y) {
-            for (int16_t x = offset_x; x < offset_x + TILE_CHUNK_SIZE; ++x) {
+        for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
+            for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
                 const TileId& tile_id = chunk[y - offset_y][x - offset_x];
                 if ((int)frames.size() <= tile_id) {
                     continue;
@@ -166,7 +166,7 @@ void TileMapRendererComponent::CreateRenderData() {
 
     m_cache.mesh = *mesh;
 
-    m_revision = tile_map->GetRevision();
+    m_revision = tile_map->revision();
 }
 
 }  // namespace cave

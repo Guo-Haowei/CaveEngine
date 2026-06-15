@@ -2,7 +2,8 @@
 // File: cave/core/math/Matrix.h
 // =============================================================================
 #pragma once
-#include "Vector.h"
+#include "cave/core/typedefs.h"
+#include "cave/core/math/Vector.h"
 
 WARNING_PUSH()
 WARNING_DISABLE(4201, "-Wunused-parameter")

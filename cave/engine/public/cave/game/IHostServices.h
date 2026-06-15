@@ -30,10 +30,10 @@ public:
     virtual IntentDispatcher& intentDispatcher() = 0;
     virtual IUIRuntime& ui() = 0;
     virtual SceneCommandWriter& sceneWriter() = 0;
+    virtual SceneQuery& sceneQuery() = 0;
 
     virtual ViewId viewId() const = 0;
 
-    virtual const SceneQuery& sceneQuery() const = 0;
     virtual const ViewQuery& viewQuery() const = 0;
 };
 

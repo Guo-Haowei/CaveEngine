@@ -82,10 +82,10 @@ enum class CastlingType : uint8_t {
 // if rook moved, disable castling rights, return
 // if rook captured, disable castling rights, return
 static CastlingRight UpdateCastling(CastlingRight p_old,
-                               Square p_src_sq,
-                               Square p_dst_sq,
-                               Piece p_src_piece,
-                               Piece p_dst_piece) {
+                                    Square p_src_sq,
+                                    Square p_dst_sq,
+                                    Piece p_src_piece,
+                                    Piece p_dst_piece) {
     auto disable_castle_right = [](uint8_t p_bit,
                                    Square p_src_sq,
                                    Square p_dst_sq,

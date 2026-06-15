@@ -19,18 +19,6 @@ using namespace ::cave::math;
 using namespace ::chess::core;
 using cave::ecs::Entity;
 
-// @TODO: use FEN instead
-static constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
-    { Piece::WR, Piece::WN, Piece::WB, Piece::WQ, Piece::WK, Piece::WB, Piece::WN, Piece::WR },
-    { Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP },
-    { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
-    { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
-    { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
-    { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
-    { Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP },
-    { Piece::BR, Piece::BN, Piece::BB, Piece::BQ, Piece::BK, Piece::BB, Piece::BN, Piece::BR },
-} };
-
 ChessGameModule::ChessGameModule() = default;
 ChessGameModule::~ChessGameModule() = default;
 
@@ -62,6 +50,18 @@ void ChessGameModule::tick(IHostServices& host, const FrameTime& time) {
 // because other than starting pos,
 // it can be used for any pos, for example, for puzzle mode
 void ChessGameModule::spawnObjects(IHostServices& host) {
+    // @TODO: use FEN instead
+    constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
+        { Piece::WR, Piece::WN, Piece::WB, Piece::WQ, Piece::WK, Piece::WB, Piece::WN, Piece::WR },
+        { Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP, Piece::WP },
+        { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
+        { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
+        { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
+        { Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null, Piece::Null },
+        { Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP, Piece::BP },
+        { Piece::BR, Piece::BN, Piece::BB, Piece::BQ, Piece::BK, Piece::BB, Piece::BN, Piece::BR },
+    } };
+
     using chess::Piece;
     using ecs::Entity;
 
@@ -83,7 +83,7 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
     for (uint8_t rank = 0; rank < 8; ++rank) {
         for (uint8_t file = 0; file < 8; ++file) {
             Square square = Square::fromFileRank(file, rank);
-            const Piece p = chess::kInitialBoard[rank][file];
+            const Piece p = kInitialBoard[rank][file];
             if (p == Piece::Null) continue;
             factory.createPiece(square, p);
         }
@@ -91,10 +91,10 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
 
     // Create selector
     factory.createTile(Square::A1, {
-                                      Vector4f(1.0f, 0.0f, 0.0f, 0.5f),
-                                      "grid_selector",
-                                      offset_node,
-                                  });
+                                       Vector4f(1.0f, 0.0f, 0.0f, 0.5f),
+                                       "grid_selector",
+                                       offset_node,
+                                   });
 
     factory.setVisible(false);
 
@@ -120,10 +120,10 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
     // Create tiles
     for (uint8_t i = 0; i < 64; ++i) {
         factory.createTile(Square(i), {
-                                       Vector4f(0.0f, 1.0f, 0.0f, 0.5f),
-                                       nullptr,
-                                       tile_parent,
-                                   });
+                                          Vector4f(0.0f, 1.0f, 0.0f, 0.5f),
+                                          nullptr,
+                                          tile_parent,
+                                      });
     }
 }
 

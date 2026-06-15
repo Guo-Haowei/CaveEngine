@@ -1,6 +1,8 @@
 #include "AssetInspector.h"
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "cave/runtime/assets/TileMapAsset.h"
+
 #include "editor/document/TileMapDocument.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/IconCache.h"
@@ -12,7 +14,6 @@
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
-#include "engine/private/runtime/assets/TileMapAsset.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"
 
 #include "editor/EditorState.h"
@@ -65,10 +66,10 @@ void AssetInspector::tileMapLayerOverview(TileMapAsset& p_tile_map) {
 
         ImGui::SameLine();
 
-        const bool is_visible = layer.IsVisible();
+        const bool is_visible = layer.visible();
         const char* label = is_visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
         if (ImGui::Button(label)) {
-            layer.SetVisible(!is_visible);
+            layer.visible(!is_visible);
         }
 
         ImGui::SameLine();
@@ -80,7 +81,7 @@ void AssetInspector::tileMapLayerOverview(TileMapAsset& p_tile_map) {
         {
 
             const ImageAsset* image = nullptr;
-            if (auto image_handle = layer.GetTileSetHandle().Get(); image_handle) {
+            if (auto image_handle = layer.tileSetHandle().Get(); image_handle) {
                 image = image_handle->GetHandle().Get();
             }
 
@@ -113,10 +114,9 @@ void AssetInspector::tileMapLayerOverview(TileMapAsset& p_tile_map) {
     }
 }
 
-void AssetInspector::drawDocument(TileMapDocument& doc) {
+void AssetInspector::drawTileMap(TileMapDocument& doc) {
     TileMapAsset* tile_map = doc.handle<TileMapAsset>().Get();
-
-    TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+    DEV_ASSERT(tile_map);
 
     if (ImGui::BeginTabBar("##MyTabs1")) {
         if (ImGui::BeginTabItem("Layer")) {
@@ -128,6 +128,7 @@ void AssetInspector::drawDocument(TileMapDocument& doc) {
 
     ImGui::Separator();
 
+    TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
     if (tile_set) {
         auto handle = tile_set->GetHandle();
         const int column = tile_set->GetCol();
@@ -138,13 +139,102 @@ void AssetInspector::drawDocument(TileMapDocument& doc) {
     }
 }
 
+static void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
+    int index = -1;
+    if (auto selected = sprite_selector.GetSelections(); !selected.empty()) {
+        auto [x, y] = selected.front();
+        index = tile_set.GetCol() * y + x;
+    }
+
+    ToolBarButtonDesc add_square_button_desc = { ICON_FA_SQUARE " Box", "Add box collider",
+                                                 [&]() {
+                                                     if (tile_set.AddBoxCollider(index)) {
+                                                         LOG_OK("Box collider added for {}", index);
+                                                     } else {
+                                                         LOG_ERROR("Failed to add box collider for {}", index);
+                                                     }
+                                                 } };
+
+    ToolBarButtonDesc add_polygon_button_desc = { ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
+                                                  [&]() {
+                                                      LOG_WARN("Not implemented");
+                                                  } };
+
+    ToolBarButtonDesc add_circle_button_desc = { ICON_FA_CIRCLE " Circle", "Add circle collider",
+                                                 [&]() {
+                                                     LOG_WARN("Not implemented");
+                                                 } };
+
+    std::vector<const ToolBarButtonDesc*> tool_bar = {
+        &add_square_button_desc,
+        &add_polygon_button_desc,
+        &add_circle_button_desc,
+    };
+
+    DrawToolBar(tool_bar);
+    ImGui::Separator();
+}
+
+void AssetInspector::drawTileSet(IDocument& doc) {
+    TileSetAsset* tile_set = doc.handle<TileSetAsset>().Get();
+    DEV_ASSERT(tile_set);
+    if (!tile_set) {
+        return;
+    }
+
+    auto& sprite_selector = tile_map_ctx_.sprite_selector;
+    {
+        int column = tile_set->GetCol();
+        int row = tile_set->GetRow();
+        if (sprite_selector.EditSprite(&column, &row)) {
+            tile_set->SetCol(column);
+            tile_set->SetRow(row);
+        }
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::BeginTabBar("TileSetPhysics")) {
+        if (ImGui::BeginTabItem("Physics Layer")) {
+            DrawPhysicsTab(*tile_set, sprite_selector);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::Separator();
+    if (tile_set) {
+        auto handle = tile_set->GetHandle();
+        const int column = tile_set->GetCol();
+        const int row = tile_set->GetRow();
+        if (auto image = handle.Get(); image) {
+            sprite_selector.SelectSprite(*image, &column, &row);
+        }
+    }
+}
+
 void AssetInspector::drawUIImpl() {
     DocId doc_id = editor_services_.workspace().focusedDoc();
     IDocument* doc = editor_services_.document().resolve(doc_id);
+    if (!doc) {
+        return;
+    }
 
     if (auto tilemap = dynamic_cast<TileMapDocument*>(doc)) {
-        drawDocument(*tilemap);
+        drawTileMap(*tilemap);
         return;
+    }
+
+    IAsset* asset = doc->rawHandle().Get();
+    switch (asset->GetType()) {
+        case AssetType::TileMap: {
+            drawTileMap(*static_cast<TileMapDocument*>(doc));
+        } break;
+        case AssetType::TileSet: {
+            drawTileSet(*doc);
+        } break;
+        default:
+            break;
     }
 }
 

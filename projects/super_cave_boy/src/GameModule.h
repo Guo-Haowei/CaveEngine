@@ -3,35 +3,33 @@
 #include "cave/core/typedefs.h"
 #include "cave/game/IGameModule.h"
 
-namespace chess {
+namespace super_cave_boy {
 
-class ChessGameMode;
+class CameraController;
+class PlayerController;
 
-class ChessGameModule final : public cave::IGameModule {
+class GameModule final : public cave::IGameModule {
 public:
-    ChessGameModule();
-    ~ChessGameModule();
+    GameModule();
+    ~GameModule();
 
     void onModuleLoaded(cave::IHostServices& host) override;
     void onModuleUnloaded(cave::IHostServices& host) override;
 
-    // @TODO: move these to ChessGameMode,
-    // ChessGameModule should only be responsible for DLL loading
     void onGameBegin(cave::IHostServices& host) override;
     void onGameEnd(cave::IHostServices& host) override;
 
     void tick(cave::IHostServices& host, const cave::FrameTime& time) override;
 
 private:
-    void spawnObjects(cave::IHostServices& host);
-
-    std::unique_ptr<ChessGameMode> game_;
+    std::unique_ptr<PlayerController> controller_;
+    std::unique_ptr<CameraController> camera_;
 };
 
-}  // namespace chess
+}  // namespace super_cave_boy
 
 extern "C" {
 CAVE_API cave::IGameModule* CreateGameModule() {
-    return new ::chess::ChessGameModule();
+    return new ::super_cave_boy::GameModule();
 }
 }

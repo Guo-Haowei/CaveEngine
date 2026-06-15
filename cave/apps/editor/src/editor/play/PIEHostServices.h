@@ -26,7 +26,7 @@ public:
 
     ViewId viewId() const override { return view_id_; }
 
-    const SceneQuery& sceneQuery() const override { return scene_query_; }
+    SceneQuery& sceneQuery() override { return scene_query_; }
     const ViewQuery& viewQuery() const override { return view_query_; }
 
     void flushSceneCommands();

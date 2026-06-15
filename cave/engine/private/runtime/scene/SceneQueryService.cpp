@@ -10,7 +10,7 @@ using namespace math;
 RayHit SceneQueryService::raycast(SceneId scene_id,
                                   math::Ray& ray,
                                   const RaycastFilter& filter) {
-    const Scene* scene = scene_registry_.resolve(scene_id);
+    Scene* scene = scene_registry_.resolve(scene_id);
     DEV_ASSERT(scene);
 
     SceneQuery query(*scene);

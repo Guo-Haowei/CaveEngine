@@ -48,11 +48,11 @@ static inline Matrix4x4f Scale(const Vector3f& p_vec) {
 }
 
 static inline Matrix4x4f Rotate(const Degree& p_degree, const Vector3f& p_axis) {
-    return glm::rotate(p_degree.GetRadians(), glm::vec3(p_axis.x, p_axis.y, p_axis.z));
+    return glm::rotate(p_degree.radians(), glm::vec3(p_axis.x, p_axis.y, p_axis.z));
 }
 
 static inline Matrix4x4f Rotate(const Radian& p_radians, const Vector3f& p_axis) {
-    return glm::rotate(p_radians.GetRad(), glm::vec3(p_axis.x, p_axis.y, p_axis.z));
+    return glm::rotate(p_radians.radians(), glm::vec3(p_axis.x, p_axis.y, p_axis.z));
 }
 
 }  // namespace cave::math

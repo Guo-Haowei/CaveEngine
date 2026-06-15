@@ -163,6 +163,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
                                                   doc_id,
                                                   doc->previewScene());
         } break;
+        case AssetType::TileSet:
         default: {
             tab = std::make_unique<Tab>(editor_, doc_id);
         } break;
@@ -176,29 +177,6 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
     tab_raw->onCreate();
     request_focus_ = tab_id;
     doc_to_tab_[doc_id] = tab_id;
-
-#if 0
-    // @TODO: create a new tab
-    switch (meta->type) {
-        case AssetType::Scene: {
-        } break;
-        // case AssetType::TileSet: {
-        //     tab.reset(new TileSetEditor(m_editor, *this));
-        // } break;
-        // case AssetType::TileMap: {
-        //     tab.reset(new TileMapEditor(m_editor, *this));
-        // } break;
-        // case AssetType::SpriteAnimation: {
-        //     tab.reset(new SpriteAnimationEditor(m_editor, *this));
-        // } break;
-        // case AssetType::Material: {
-        //     tab.reset(new MaterialEditor(m_editor, *this));
-        // } break;
-        default: {
-            CRASH_NOW_MSG("not supported");
-        } break;
-    }
-#endif
 }
 
 bool Workspace::closeDoc(DocId doc_id) {

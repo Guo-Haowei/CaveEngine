@@ -31,9 +31,10 @@ FILES = [
     'public/cave/runtime/ecs/components/TransformComponent.h',
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
+    'public/cave/runtime/assets/TileMapAsset.h',
+
     'private/runtime/assets/MaterialAsset.h',
     'private/runtime/assets/SpriteAnimationAsset.h',
-    'private/runtime/assets/TileMapAsset.h',
     'private/runtime/assets/TileSetAsset.h',
     # components
     'private/runtime/ecs/components/SceneComponents.h',

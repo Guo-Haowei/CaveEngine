@@ -138,47 +138,47 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
 
     const int file = (int)std::roundf(p.z);
     const int rank = (int)std::roundf(p.x);
-    controller_->SetFocus(file, rank);
+    controller_->focus(file, rank);
     if (input.isJustPressed("ui_accept"_sid)) {
-        controller_->Confirm();
+        controller_->confirm();
     }
     if (input.isJustPressed("ui_back"_sid)) {
-        controller_->Cancel();
+        controller_->cancel();
     }
 }
 
 void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
     if (input.isJustPressed("ui_right"_sid)) {
-        controller_->MoveFocus(1, 0);
+        controller_->moveFocus(1, 0);
     }
     if (input.isJustPressed("ui_left"_sid)) {
-        controller_->MoveFocus(-1, 0);
+        controller_->moveFocus(-1, 0);
     }
     if (input.isJustPressed("ui_up"_sid)) {
-        controller_->MoveFocus(0, 1);
+        controller_->moveFocus(0, 1);
     }
     if (input.isJustPressed("ui_down"_sid)) {
-        controller_->MoveFocus(0, -1);
+        controller_->moveFocus(0, -1);
     }
     if (input.isJustPressed("ui_accept"_sid)) {
-        controller_->Confirm();
+        controller_->confirm();
     }
     if (input.isJustPressed("ui_back"_sid)) {
-        controller_->Cancel();
+        controller_->cancel();
     }
 
     const float dx = input.getStrength("ui_axis_x"_sid);
     const float dy = input.getStrength("ui_axis_y"_sid);
     if (dx > 0.5f) {
-        controller_->MoveFocus(1, 0);
+        controller_->moveFocus(1, 0);
     } else if (dx < -0.5f) {
-        controller_->MoveFocus(-1, 0);
+        controller_->moveFocus(-1, 0);
     }
 
     if (dy > 0.5f) {
-        controller_->MoveFocus(0, 1);
+        controller_->moveFocus(0, 1);
     } else if (dy < -0.5f) {
-        controller_->MoveFocus(0, -1);
+        controller_->moveFocus(0, -1);
     }
 }
 

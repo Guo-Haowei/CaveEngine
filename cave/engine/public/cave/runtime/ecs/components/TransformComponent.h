@@ -17,7 +17,7 @@ class TransformComponent {
 
     enum Flags : uint32_t {
         None = 0,
-        DirtyFlag = BIT(0),
+        DirtyFlag = 1,
     };
 
 private:
@@ -58,9 +58,9 @@ public:
     void Scale(const math::Vector3f& p_scale);
     void Translate(const math::Vector3f& p_translation);
     void Rotate(const math::Vector3f& p_euler);
-    void RotateX(const math::Degree& p_degree) { Rotate(math::Vector3f(p_degree.GetRadians(), 0.0f, 0.0f)); }
-    void RotateY(const math::Degree& p_degree) { Rotate(math::Vector3f(0.0f, p_degree.GetRadians(), 0.0f)); }
-    void RotateZ(const math::Degree& p_degree) { Rotate(math::Vector3f(0.0f, 0.0f, p_degree.GetRadians())); }
+    void RotateX(const math::Degree& p_degree) { Rotate(math::Vector3f(p_degree.radians(), 0.0f, 0.0f)); }
+    void RotateY(const math::Degree& p_degree) { Rotate(math::Vector3f(0.0f, p_degree.radians(), 0.0f)); }
+    void RotateZ(const math::Degree& p_degree) { Rotate(math::Vector3f(0.0f, 0.0f, p_degree.radians())); }
 
     void SetLocalTransform(const math::Matrix4x4f& p_matrix);
     void MatrixTransform(const math::Matrix4x4f& p_matrix);

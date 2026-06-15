@@ -67,7 +67,7 @@ void CameraController2DEditor::Update(const InputFrame& p_input) {
     }
 
     if (zoom != 0.0f) {
-        float ortho_height = m_camera.GetOrthoHeight() + 8.0f * (zoom * dt);
+        float ortho_height = m_camera.GetOrthoHeight() + 16.0f * (zoom * dt);
         ortho_height = glm::clamp(ortho_height, 0.1f, 100.0f);
         m_camera.SetOrthoHeight(ortho_height);
         need_update = true;

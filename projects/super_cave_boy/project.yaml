@@ -1,4 +1,4 @@
-name: cave boy
+name: super_cave_boy
 start_scene: "@res://scenes/level_1.scene"
 is_2d: true
 # thumbnail: "@res://thumbnail.png"

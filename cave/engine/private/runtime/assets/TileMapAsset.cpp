@@ -1,4 +1,4 @@
-#include "TileMapAsset.h"
+#include "cave/runtime/assets/TileMapAsset.h"
 
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"
@@ -7,32 +7,32 @@
 
 namespace cave {
 
-static int16_t DivFloor(int16_t a, int16_t b = TILE_CHUNK_SIZE) {
+static int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
     return (a >= 0) ? (a / b) : ((a - b + 1) / b);
 }
 
-TileIndex TileMapAsset::ConvertIndex(TileIndex p_index) const {
+TileIndex TileMapAsset::convertIndex(TileIndex p_index) const {
     return TileIndex{ DivFloor(p_index.x), DivFloor(p_index.y) };
 }
 
-Option<TileId> TileMapAsset::GetTile(TileIndex p_index) const {
-    TileIndex index = ConvertIndex(p_index);
+Option<TileId> TileMapAsset::tileAt(TileIndex p_index) const {
+    TileIndex index = convertIndex(p_index);
 
     auto it = m_tiles.chunks.find(index);
     if (it == m_tiles.chunks.end()) {
         return None();
     }
 
-    const int16_t x = p_index.x - index.x * TILE_CHUNK_SIZE;
-    const int16_t y = p_index.y - index.y * TILE_CHUNK_SIZE;
-    DEV_ASSERT_INDEX(x, TILE_CHUNK_SIZE);
-    DEV_ASSERT_INDEX(y, TILE_CHUNK_SIZE);
+    const int16_t x = p_index.x - index.x * kTileChunkSize;
+    const int16_t y = p_index.y - index.y * kTileChunkSize;
+    DEV_ASSERT_INDEX(x, kTileChunkSize);
+    DEV_ASSERT_INDEX(y, kTileChunkSize);
 
     return Some(it->second->tiles[y][x]);
 }
 
-bool TileMapAsset::AddTile(TileIndex p_index, TileId p_id) {
-    TileIndex index = ConvertIndex(p_index);
+bool TileMapAsset::addTile(TileIndex p_index, TileId p_id) {
+    TileIndex index = convertIndex(p_index);
 
     auto& chunk = m_tiles.chunks[index];
     if (chunk == nullptr) {
@@ -40,8 +40,8 @@ bool TileMapAsset::AddTile(TileIndex p_index, TileId p_id) {
         std::memset(chunk.get(), 0xFFFFFFFF, sizeof(TileChunk));
     }
 
-    const int16_t x = p_index.x - index.x * TILE_CHUNK_SIZE;
-    const int16_t y = p_index.y - index.y * TILE_CHUNK_SIZE;
+    const int16_t x = p_index.x - index.x * kTileChunkSize;
+    const int16_t y = p_index.y - index.y * kTileChunkSize;
 
     TileId& tile_id = chunk->tiles[y][x];
     if (tile_id == p_id) {
@@ -52,23 +52,23 @@ bool TileMapAsset::AddTile(TileIndex p_index, TileId p_id) {
     return true;
 }
 
-bool TileMapAsset::RemoveTile(TileIndex p_index) {
-    TileIndex index = ConvertIndex(p_index);
+bool TileMapAsset::removeTile(TileIndex p_index) {
+    TileIndex index = convertIndex(p_index);
 
     auto it = m_tiles.chunks.find(index);
     if (it == m_tiles.chunks.end()) {
         return false;
     }
 
-    const int16_t x = p_index.x - index.x * TILE_CHUNK_SIZE;
-    const int16_t y = p_index.y - index.y * TILE_CHUNK_SIZE;
+    const int16_t x = p_index.x - index.x * kTileChunkSize;
+    const int16_t y = p_index.y - index.y * kTileChunkSize;
 
     TileId& tile = it->second->tiles[y][x];
-    if (tile == TILE_ID_EMPTY) {
+    if (tile == kEmptyTileId) {
         return false;
     }
 
-    tile = TILE_ID_EMPTY;
+    tile = kEmptyTileId;
     return true;
 }
 
@@ -83,7 +83,7 @@ void TileMapAsset::SetTileSetGuid(const Guid& p_guid, bool p_force) {
             m_tile_set_handle.Invalidate();
         }
 
-        IncRevision();
+        incRevision();
     }
 }
 
@@ -95,9 +95,9 @@ ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data) {
     s.BeginArray(false);
 
     auto chunk_empty = [](const TileChunk& p_chunk) {
-        for (int y = 0; y < TILE_CHUNK_SIZE; ++y) {
-            for (int x = 0; x < TILE_CHUNK_SIZE; ++x) {
-                if (p_chunk.tiles[y][x] != TILE_ID_EMPTY) {
+        for (int y = 0; y < kTileChunkSize; ++y) {
+            for (int x = 0; x < kTileChunkSize; ++x) {
+                if (p_chunk.tiles[y][x] != kEmptyTileId) {
                     return false;
                 }
             }
@@ -118,8 +118,8 @@ ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data) {
             .Key("tiles")
             .BeginArray(true);
 
-        for (int y = 0; y < TILE_CHUNK_SIZE; ++y) {
-            for (int x = 0; x < TILE_CHUNK_SIZE; ++x) {
+        for (int y = 0; y < kTileChunkSize; ++y) {
+            for (int x = 0; x < kTileChunkSize; ++x) {
                 s.Write(chunk->tiles[y][x]);
             }
         }
@@ -156,11 +156,11 @@ bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
                 auto& tiles = chunk->tiles;
                 p_tile_data.chunks[TileIndex(x, y)] = std::move(chunk);
 
-                constexpr int TILE_COUNT = TILE_CHUNK_SIZE * TILE_CHUNK_SIZE;
+                constexpr int TILE_COUNT = kTileChunkSize * kTileChunkSize;
                 DEV_ASSERT(d.ArraySize().unwrap_or(0) == TILE_COUNT);
                 for (int tile_idx = 0; tile_idx < TILE_COUNT; ++tile_idx) {
                     DEV_ASSERT(d.TryEnterIndex(tile_idx));
-                    d.Read(tiles[tile_idx / TILE_CHUNK_SIZE][tile_idx % TILE_CHUNK_SIZE]);
+                    d.Read(tiles[tile_idx / kTileChunkSize][tile_idx % kTileChunkSize]);
                     d.LeaveIndex();
                 }
                 d.LeaveKey();
