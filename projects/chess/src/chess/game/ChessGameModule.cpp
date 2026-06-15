@@ -91,10 +91,10 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
 
     // Create selector
     factory.createTile(Square::A1, {
-                                      Vector4f(1.0f, 0.0f, 0.0f, 0.5f),
-                                      "grid_selector",
-                                      offset_node,
-                                  });
+                                       Vector4f(1.0f, 0.0f, 0.0f, 0.5f),
+                                       "grid_selector",
+                                       offset_node,
+                                   });
 
     factory.setVisible(false);
 
@@ -120,10 +120,10 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
     // Create tiles
     for (uint8_t i = 0; i < 64; ++i) {
         factory.createTile(Square(i), {
-                                       Vector4f(0.0f, 1.0f, 0.0f, 0.5f),
-                                       nullptr,
-                                       tile_parent,
-                                   });
+                                          Vector4f(0.0f, 1.0f, 0.0f, 0.5f),
+                                          nullptr,
+                                          tile_parent,
+                                      });
     }
 }
 

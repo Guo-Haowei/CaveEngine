@@ -79,5 +79,4 @@ public:
 #endif
 };
 
-
 }  // namespace chess

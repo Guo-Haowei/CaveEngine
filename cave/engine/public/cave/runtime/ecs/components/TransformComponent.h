@@ -17,7 +17,7 @@ class TransformComponent {
 
     enum Flags : uint32_t {
         None = 0,
-        DirtyFlag = BIT(0),
+        DirtyFlag = 1,
     };
 
 private:

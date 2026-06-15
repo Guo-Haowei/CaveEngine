@@ -3,6 +3,10 @@
 #include "cave/core/typedefs.h"
 #include "cave/game/IGameModule.h"
 
+namespace super_cave_boy {
+
+class PlayerController;
+
 class GameModule final : public cave::IGameModule {
 public:
     GameModule();
@@ -17,10 +21,13 @@ public:
     void tick(cave::IHostServices& host, const cave::FrameTime& time) override;
 
 private:
+    std::unique_ptr<PlayerController> controller_;
 };
+
+}  // namespace super_cave_boy
 
 extern "C" {
 CAVE_API cave::IGameModule* CreateGameModule() {
-    return new ::GameModule();
+    return new ::super_cave_boy::GameModule();
 }
 }

@@ -129,4 +129,3 @@ struct hash<chess::core::Square> {
 };
 
 }  // namespace std
-
