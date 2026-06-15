@@ -3,12 +3,12 @@
 // =============================================================================
 #pragma once
 #include <cmath>
-#include "../Scalar.h"
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
+#include "cave/core/math/Scalar.h"
+#include "cave/core/math/impl/Vector2.h"
+#include "cave/core/math/impl/Vector3.h"
+#include "cave/core/math/impl/Vector4.h"
 #if USING(MATH_ENABLE_SIMD_SSE)
-#include "VectorMathSSE.h"
+#include "cave/core/math/impl/VectorMathSSE.h"
 #endif
 
 #if defined(min)

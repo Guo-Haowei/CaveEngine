@@ -4,10 +4,10 @@
 #pragma once
 #include <xmmintrin.h>
 
-#include "../Scalar.h"
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
+#include "cave/core/math/Scalar.h"
+#include "cave/core/math/impl/Vector2.h"
+#include "cave/core/math/impl/Vector3.h"
+#include "cave/core/math/impl/Vector4.h"
 
 namespace cave::math {
 

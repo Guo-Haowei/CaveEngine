@@ -6,6 +6,7 @@ namespace super_cave_boy {
 
 class PlayerController {
     using Entity = cave::ecs::Entity;
+
 public:
     void onCreate(cave::IHostServices& host);
     void onDestroy(cave::IHostServices& host);
