@@ -6,12 +6,12 @@
 #include "editor/document/SceneDocument.h"
 #include "editor/panels/ViewTabBase.h"
 #include "editor/services/IPickConsumer.h"
+#include "editor/tile_map_editor/SetTileCommand.h"
 #include "editor/tile_map_editor/TileMapEditorContext.h"
 
 namespace cave {
 
-class TileMapEditor final : public ViewTabBase,
-                            public IPickConsumer {
+class TileMapEditor final : public ViewTabBase {
     enum class Mode : uint8_t {
         None,
         Painting,
@@ -25,8 +25,6 @@ public:
 
     void onCreate() override;
     void onDestroy() override;
-
-    Option<PickData> getPickData(const math::Vector2f& pos_screen) override;
 
     void onInputEvents(const InputFrame& input) override;
 
