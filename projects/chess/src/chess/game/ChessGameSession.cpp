@@ -51,7 +51,7 @@ void ChessGameSession::tick() {
 
     // @TODO: refactor this part
     if (selector_) {
-        Vector2i focused = selector_->GetFocused();
+        Vector2i focused = selector_->focus();
         Square square = Square::fromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
         client_->board_view().setHovered(square);
     }

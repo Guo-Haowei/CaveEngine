@@ -2,6 +2,7 @@
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
+#include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
@@ -27,9 +28,16 @@ void PlayerController::onUpdate(IHostServices& host, const FrameTime& time) {
     const SceneQuery& query = host.sceneQuery();
     Entity ent = query.findFirstByName("player");
 
+    const IGameInput& input = host.gameInput();
+
+    const int move_x = (int)input.isPressed("ui_right"_sid) - (int)input.isPressed("ui_left"_sid);
+    if (move_x == 0) {
+        return;
+    }
+
     auto transform = static_cast<const TransformComponent*>(query.component(TransformComponent_Id, ent));
     Vector3f pos = transform->GetTranslation();
-    pos.x += 0.01f;
+    pos.x += time.dt * move_x;
 
     SceneCommandWriter& writer = host.sceneWriter();
     writer.SetProperty(ent, TransformComponent_Id, "translation"_sid, pos);

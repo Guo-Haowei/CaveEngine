@@ -3,88 +3,88 @@
 namespace cave {
 
 GridSelectController::GridSelectController(
-    const Vector2i& p_size,
-    Callbacks&& p_cbs) noexcept
-    : m_bounds(p_size)
-    , m_cbs(std::move(p_cbs)) {
+    const Vector2i& size,
+    Callbacks&& callbacks) noexcept
+    : bounds_(size)
+    , callbacks_(std::move(callbacks)) {
 }
 
-void GridSelectController::Clamp() {
-    m_focus = math::clamp(m_focus,
-                          Vector2i::Zero,
-                          m_bounds - Vector2i::One);
+void GridSelectController::clamp() {
+    focus_ = math::clamp(focus_,
+                         Vector2i::Zero,
+                         bounds_ - Vector2i::One);
 }
 
-void GridSelectController::SetFocus(int p_x, int p_y) {
-    if (m_enabled) {
-        m_focus.x = p_x;
-        m_focus.y = p_y;
-        Clamp();
+void GridSelectController::focus(int x, int y) {
+    if (enabled_) {
+        focus_.x = x;
+        focus_.y = y;
+        clamp();
     }
 }
 
-void GridSelectController::MoveFocus(int p_x, int p_y) {
-    if (m_enabled) {
-        m_focus.x += p_x;
-        m_focus.y += p_y;
-        Clamp();
+void GridSelectController::moveFocus(int x, int y) {
+    if (enabled_) {
+        focus_.x += x;
+        focus_.y += y;
+        clamp();
     }
 }
 
-void GridSelectController::Cancel() {
-    m_state = State::Idle;
-    m_selected = None();
-    if (m_cbs.on_cancel) {
-        m_cbs.on_cancel();
+void GridSelectController::cancel() {
+    state_ = State::Idle;
+    selected_ = None();
+    if (callbacks_.on_cancel) {
+        callbacks_.on_cancel();
     }
 }
 
-void GridSelectController::SelectTile(int tx, int ty) {
-    if (!m_enabled) return;
-    if (tx >= m_bounds.x || ty >= m_bounds.y) return;
+void GridSelectController::selectTile(int tx, int ty) {
+    if (!enabled_) return;
+    if (tx >= bounds_.x || ty >= bounds_.y) return;
 
-    switch (m_state) {
+    switch (state_) {
         case GridSelectController::State::Idle: {
-            StateIdle(tx, ty);
+            stateIdle(tx, ty);
         } break;
         case GridSelectController::State::Armed: {
-            StateArmed(tx, ty);
+            stateArmed(tx, ty);
         } break;
     }
 }
 
-void GridSelectController::StateIdle(int tx, int ty) {
-    if (m_cbs.can_select && !m_cbs.can_select(tx, ty)) {
-        if (m_cbs.on_invalid) {
-            m_cbs.on_invalid(tx, ty, 0, 0);
+void GridSelectController::stateIdle(int tx, int ty) {
+    if (callbacks_.can_select && !callbacks_.can_select(tx, ty)) {
+        if (callbacks_.on_invalid) {
+            callbacks_.on_invalid(tx, ty, 0, 0);
         }
         return;
     }
 
-    m_selected = Some(Vector2i(tx, ty));
-    m_state = State::Armed;
+    selected_ = Some(Vector2i(tx, ty));
+    state_ = State::Armed;
 
-    if (m_cbs.on_select) {
-        m_cbs.on_select(tx, ty);
+    if (callbacks_.on_select) {
+        callbacks_.on_select(tx, ty);
     }
 }
 
-void GridSelectController::StateArmed(int dest_x, int dest_y) {
-    DEV_ASSERT(m_selected.is_some());
-    const int src_x = m_selected.unwrap_unchecked().x;
-    const int src_y = m_selected.unwrap_unchecked().y;
+void GridSelectController::stateArmed(int dest_x, int dest_y) {
+    DEV_ASSERT(selected_.is_some());
+    const int src_x = selected_.unwrap_unchecked().x;
+    const int src_y = selected_.unwrap_unchecked().y;
 
-    if (m_cbs.can_drop && !m_cbs.can_drop(src_x, src_y, dest_x, dest_y)) {
-        if (m_cbs.on_invalid) {
-            m_cbs.on_invalid(src_x, src_y, dest_x, dest_y);
+    if (callbacks_.can_drop && !callbacks_.can_drop(src_x, src_y, dest_x, dest_y)) {
+        if (callbacks_.on_invalid) {
+            callbacks_.on_invalid(src_x, src_y, dest_x, dest_y);
         }
         return;
     }
 
-    if (m_cbs.on_drop) {
-        m_cbs.on_drop(src_x, src_y, dest_x, dest_y);
+    if (callbacks_.on_drop) {
+        callbacks_.on_drop(src_x, src_y, dest_x, dest_y);
     }
-    Cancel();
+    cancel();
 }
 
 }  // namespace cave

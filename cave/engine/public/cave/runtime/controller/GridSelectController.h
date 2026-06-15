@@ -39,35 +39,35 @@ public:
         std::function<void(int, int, int, int)> on_invalid{};
     };
 
-    explicit GridSelectController(const Vector2i& p_size, Callbacks&& p_cbs) noexcept;
+    explicit GridSelectController(const Vector2i& size, Callbacks&& callbacks) noexcept;
 
-    void SetFocus(int p_x, int p_y);
+    void focus(int x, int y);
 
-    void MoveFocus(int p_x, int p_y);
+    void moveFocus(int x, int y);
 
-    bool IsArmed() const { return m_state == State::Armed; }
+    bool isArmed() const { return state_ == State::Armed; }
 
-    void Confirm() { SelectTile(m_focus.x, m_focus.y); }
+    void confirm() { selectTile(focus_.x, focus_.y); }
 
-    void Cancel();
+    void cancel();
 
-    const Vector2i& GetFocused() const { return m_focus; }
+    const Vector2i& focus() const { return focus_; }
 
 private:
-    void SelectTile(int tx, int ty);
-    void Clamp();
+    void selectTile(int tx, int ty);
+    void clamp();
 
-    void StateIdle(int tx, int ty);
-    void StateArmed(int dest_x, int dest_y);
+    void stateIdle(int tx, int ty);
+    void stateArmed(int dest_x, int dest_y);
 
-    const Vector2i m_bounds;
-    Vector2i m_focus{ 0 };
-    Callbacks m_cbs{};
+    const Vector2i bounds_;
+    Vector2i focus_{ 0 };
+    Callbacks callbacks_{};
 
-    State m_state{ State::Idle };
-    bool m_enabled{ true };
+    State state_{ State::Idle };
+    bool enabled_{ true };
 
-    Option<Vector2i> m_selected;
+    Option<Vector2i> selected_;
 };
 
 }  // namespace cave
