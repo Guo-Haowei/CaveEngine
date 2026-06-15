@@ -3,7 +3,7 @@
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/assets/IAsset.h"
 
-#include "engine/private/serialization/concept.h"
+#include "cave/core/serialization/Concepts.h"
 
 namespace cave {
 
@@ -11,8 +11,8 @@ class ISerializer;
 class IDeserializer;
 
 using TileId = uint16_t;
-constexpr TileId TILE_ID_EMPTY = 0xFFFF;
-constexpr int16_t TILE_CHUNK_SIZE = 32;  // 32x32 tiles per chunk
+constexpr TileId kEmptyTileId = 0xFFFF;
+constexpr int16_t kTileChunkSize = 32;  // 32x32 tiles per chunk
 
 struct TileIndex {
     int16_t x, y;
@@ -23,7 +23,7 @@ struct TileIndex {
 };
 
 struct TileChunk {
-    TileId tiles[TILE_CHUNK_SIZE][TILE_CHUNK_SIZE];
+    TileId tiles[kTileChunkSize][kTileChunkSize];
 };
 
 struct TileIndexHasher {
@@ -70,36 +70,36 @@ private:
     uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
-    Option<TileId> GetTile(TileIndex p_index) const;
+    Option<TileId> tileAt(TileIndex index) const;
 
-    bool AddTile(TileIndex p_index, TileId p_id);
+    bool addTile(TileIndex index, TileId id);
 
-    bool RemoveTile(TileIndex p_index);
+    bool removeTile(TileIndex index);
 
-    const Handle<TileSetAsset>& GetTileSetHandle() const { return m_tile_set_handle; }
+    const Handle<TileSetAsset>& tileSetHandle() const { return m_tile_set_handle; }
 
-    std::string& GetName() { return m_name; }
-    const std::string& GetName() const { return m_name; }
-    void SetName(std::string&& p_name) { m_name = std::move(p_name); }
+    std::string& name() { return m_name; }
+    const std::string& name() const { return m_name; }
+    void name(std::string&& name) { m_name = std::move(name); }
 
     const Guid& GetTileSetGuid() const { return m_tile_set_id; }
-    void SetTileSetGuid(const Guid& p_guid, bool p_force = false);
+    void SetTileSetGuid(const Guid& guid, bool force = false);
 
-    const auto& GetTiles() const { return m_tiles; }
+    const TileData& tiles() const { return m_tiles; }
 
-    uint32_t GetRevision() const { return m_revision; }
-    void IncRevision() { ++m_revision; }
+    uint32_t revision() const { return m_revision; }
+    void incRevision() { ++m_revision; }
 
-    bool IsVisible() const { return m_visibility; }
-    void SetVisible(bool p_visible) { m_visibility = p_visible; }
+    bool visible() const { return m_visibility; }
+    void visible(bool visible) { m_visibility = visible; }
 
-    Result<void> SaveToDisk(const AssetMetaData& p_meta) const override;
-    Result<void> LoadFromDisk(const AssetMetaData& p_meta) override;
+    Result<void> SaveToDisk(const AssetMetaData& meta) const override;
+    Result<void> LoadFromDisk(const AssetMetaData& meta) override;
 
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    TileIndex ConvertIndex(TileIndex p_index) const;
+    TileIndex convertIndex(TileIndex index) const;
 };
 
 }  // namespace cave

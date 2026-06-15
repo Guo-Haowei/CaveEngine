@@ -163,6 +163,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
                                                   doc_id,
                                                   doc->previewScene());
         } break;
+        case AssetType::TileSet:
         default: {
             tab = std::make_unique<Tab>(editor_, doc_id);
         } break;

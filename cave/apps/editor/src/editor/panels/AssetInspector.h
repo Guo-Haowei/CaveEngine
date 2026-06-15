@@ -8,6 +8,8 @@ namespace cave {
 struct EditorServices;
 
 class TileMapAsset;
+class TileSetAsset;
+class IDocument;
 class TileMapDocument;
 
 class AssetInspector : public EditorWindow {
@@ -26,7 +28,8 @@ public:
 protected:
     void drawUIImpl() override;
 
-    void drawDocument(TileMapDocument& doc);
+    void drawTileMap(TileMapDocument& doc);
+    void drawTileSet(IDocument& doc);
 
     void tileMapLayerOverview(TileMapAsset& tile_map);
 

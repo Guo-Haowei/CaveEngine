@@ -2,12 +2,13 @@
 
 #include <box2d/box2d.h>
 
-#include "engine/private/runtime/assets/TileMapAsset.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
-#include "engine/private/runtime/scene/Scene.h"
+#include "cave/runtime/assets/TileMapAsset.h"
 
 // @TODO: refactor
+#include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
+#include "engine/private/runtime/scene/Scene.h"
+
 
 namespace cave {
 
@@ -126,19 +127,19 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
     for (auto [id, tile_map_renderer, transform] : p_scene.View<TileMapRendererComponent, TransformComponent>()) {
         const TileMapAsset* tile_map = tile_map_renderer.GetTileMapHandle().Get();
         if (!tile_map) continue;
-        const TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+        const TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
         if (!tile_set) continue;
 
         Vector4f position = transform.GetWorldMatrix() * Vector4f::UnitW;
 
         const auto& colliders = tile_set->GetColliders();
-        const auto& chunks = tile_map->GetTiles().chunks;
+        const auto& chunks = tile_map->tiles().chunks;
         for (const auto& [key, chunk_ptr] : chunks) {
-            const int16_t offset_x = key.x * TILE_CHUNK_SIZE;
-            const int16_t offset_y = key.y * TILE_CHUNK_SIZE;
+            const int16_t offset_x = key.x * kTileChunkSize;
+            const int16_t offset_y = key.y * kTileChunkSize;
             const auto& chunk = chunk_ptr->tiles;
-            for (int16_t y = offset_y; y < offset_y + TILE_CHUNK_SIZE; ++y) {
-                for (int16_t x = offset_x; x < offset_x + TILE_CHUNK_SIZE; ++x) {
+            for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
+                for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
                     const TileId& tile_id = chunk[y - offset_y][x - offset_x];
                     auto it = colliders.find(tile_id);
                     if (it == colliders.end()) continue;

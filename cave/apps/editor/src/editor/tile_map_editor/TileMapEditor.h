@@ -1,7 +1,6 @@
 #pragma once
+#include "cave/runtime/assets/TileMapAsset.h"
 #include "cave/runtime/view/ViewDesc.h"
-
-#include "engine/private/runtime/assets/TileMapAsset.h"
 
 #include "editor/document/SceneDocument.h"
 #include "editor/panels/ViewTabBase.h"

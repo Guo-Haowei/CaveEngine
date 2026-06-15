@@ -135,15 +135,15 @@ void TileMapEditor::applayEditorTool() {
 
     TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
 
-    Option<TileId> old_tile = tile_map->GetTile(tile_index);
-    Option<TileId> new_tile = Some(TILE_ID_EMPTY);
+    Option<TileId> old_tile = tile_map->tileAt(tile_index);
+    Option<TileId> new_tile = Some(kEmptyTileId);
 
     if (mode_ == Mode::Painting) {
         auto selections = ctx_.sprite_selector.GetSelections();
         if (!selections.empty()) {
             auto [x, y] = selections[0];
             if (x >= 0 && y >= 0) {
-                TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+                TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
                 const uint32_t tile_id = y * tile_set->GetCol() + x;
                 new_tile = Some(TileId(tile_id));
             }

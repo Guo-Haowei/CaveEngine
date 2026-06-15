@@ -12,7 +12,7 @@ entities:
       scale: [1, 1, 1]
   - id: 2
     NameComponent:
-      name: cave
+      name: platformer
     HierarchyComponent:
       parent_id: 1
     TransformComponent:

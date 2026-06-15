@@ -1,7 +1,7 @@
 #pragma once
-#include "editor/edit/EditCmdBase.h"
+#include "cave/runtime/assets/TileMapAsset.h"
 
-#include "engine/private/runtime/assets/TileMapAsset.h"
+#include "editor/edit/EditCmdBase.h"
 
 namespace cave {
 

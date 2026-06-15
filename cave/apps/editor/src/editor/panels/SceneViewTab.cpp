@@ -65,7 +65,7 @@ void SceneViewTab::onCreate() {
 void SceneViewTab::onDestroy() {
     ViewTabBase::onDestroy();
 
-    editor_services_.picking().addConsumer(this);
+    editor_services_.picking().removeConsumer(this);
 }
 
 Option<PickData> SceneViewTab::getPickData(const Vector2f& point_os) {

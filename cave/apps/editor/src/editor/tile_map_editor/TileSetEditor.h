@@ -1,37 +1,20 @@
 #pragma once
 #include "cave/runtime/assets/AssetHandle.h"
 
+#include "editor/panels/Tab.h"
 #include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
 
-#if 0
-
-class TileSetEditor {
+class TileSetEditor : public Tab {
 public:
-    TileSetEditor(EditorState& p_editor, Viewer& p_viewer);
+    TileSetEditor(EditorState& editor,
+                  DocId doc_id);
+
     ~TileSetEditor();
 
-    void OnDestroy() final;
-
-    void DrawMainView(const CameraComponent& p_camera) final;
-
-    void DrawAssetInspector() final;
-
-protected:
-    void OnCreateInternal(const Guid& p_guid) final;
-
-    void OnActivateInternal() final;
-
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
-
-    void DrawPhysicsTab(TileSetAsset& p_tile_set);
-
-    std::unique_ptr<OldDocument> m_document;
-
-    SpriteSelector m_sprite_selector;
+    void onCreate() override;
+    void onDestroy() override;
 };
-
-#endif
 
 }  // namespace cave

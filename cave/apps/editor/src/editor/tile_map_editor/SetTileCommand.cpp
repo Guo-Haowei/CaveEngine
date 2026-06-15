@@ -14,12 +14,12 @@ bool SetTileCommand::setTile(IDocument& doc, Option<TileId> tile) {
 
     bool ok;
     if (tile.is_some()) {
-        ok = tile_map->AddTile(index_, tile.unwrap_unchecked());
+        ok = tile_map->addTile(index_, tile.unwrap_unchecked());
     } else {
-        ok = tile_map->RemoveTile(index_);
+        ok = tile_map->removeTile(index_);
     }
 
-    tile_map->IncRevision();
+    tile_map->incRevision();
     return ok;
 }
 
