@@ -132,9 +132,11 @@ void TileMapEditor::applayEditorTool() {
     }
 
     TileIndex tile_index = res.unwrap_unchecked();
-    EditService& edit = editor_services_.edit();
 
     TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
+
+    Option<TileId> old_tile = tile_map->GetTile(tile_index);
+    Option<TileId> new_tile = Some(TILE_ID_EMPTY);
 
     if (mode_ == Mode::Painting) {
         auto selections = ctx_.sprite_selector.GetSelections();
@@ -142,24 +144,22 @@ void TileMapEditor::applayEditorTool() {
             auto [x, y] = selections[0];
             if (x >= 0 && y >= 0) {
                 TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-                uint32_t tile_id = y * tile_set->GetCol() + x;
-
-                auto cmd = std::make_unique<SetTileCommand>(app_services_.sceneRegistry(),
-                                                            ecs::Entity::Null(),
-                                                            tile_index,
-                                                            tile_map->GetTile(tile_index),
-                                                            Some(TileId(tile_id)));
-                edit.submit(doc_id_, std::move(cmd));
+                const uint32_t tile_id = y * tile_set->GetCol() + x;
+                new_tile = Some(TileId(tile_id));
             }
         }
-    } else if (mode_ == Mode::Erasing) {
-        auto cmd = std::make_unique<SetTileCommand>(app_services_.sceneRegistry(),
-                                                    ecs::Entity::Null(),
-                                                    tile_index,
-                                                    tile_map->GetTile(tile_index),
-                                                    None());
-        edit.submit(doc_id_, std::move(cmd));
     }
+
+    if (old_tile == new_tile) {
+        return;  // no op if the tiles are the same
+    }
+
+    auto cmd = std::make_unique<SetTileCommand>(app_services_.sceneRegistry(),
+                                                ecs::Entity::Null(),
+                                                tile_index,
+                                                old_tile,
+                                                new_tile);
+    editor_services_.edit().submit(doc_id_, std::move(cmd));
 }
 
 void TileMapEditor::onInputEvents(const InputFrame& input) {
