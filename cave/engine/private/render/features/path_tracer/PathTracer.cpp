@@ -125,7 +125,7 @@ static void AppendBvhs(const std::vector<GpuPtBvh>& p_source, std::vector<GpuPtB
 void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
     const auto dirty_flag = p_scene.GetDirtyFlags();
     // @TODO: refactor
-    auto gm = RenderDevice::GetSingletonPtr();
+    auto gm = RenderDevice::singletonPtr();
 
     std::map<ecs::Entity, int> materials_lookup;
     {
@@ -209,7 +209,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     DEV_ASSERT(m_ptVertexBuffer == nullptr);
 
     // @TODO: refactor
-    auto gm = RenderDevice::GetSingletonPtr();
+    auto gm = RenderDevice::singletonPtr();
     GpuScene gpu_scene;
 
     Stopwatch stopwatch;
@@ -262,7 +262,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     /// materials
     for (auto [entity, material] : p_scene.m_MaterialComponents) {
         auto fill_texture = [&](int p_index, int& p_out_enabled, sampler2D& p_out_handle) {
-            const ImageAsset* image = AssetRegistry::GetSingleton().GetAssetByHandle<ImageAsset>(material.textures[p_index].path);
+            const ImageAsset* image = AssetRegistry::singleton().GetAssetByHandle<ImageAsset>(material.textures[p_index].path);
             if (image && image->gpu_texture) {
                 uint64_t handle = image->gpu_texture->GetResidentHandle();
                 if (handle) {

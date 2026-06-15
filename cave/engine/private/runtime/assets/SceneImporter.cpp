@@ -49,8 +49,8 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
 
     fs::path image_path = m_dest_dir / name;
 
-    std::string virtual_path = IAssetManager::GetSingleton().ResolvePath(image_path);
-    if (auto res = AssetRegistry::GetSingleton().FindByPath<ImageAsset>(virtual_path); res.is_some()) {
+    std::string virtual_path = IAssetManager::singleton().ResolvePath(image_path);
+    if (auto res = AssetRegistry::singleton().FindByPath<ImageAsset>(virtual_path); res.is_some()) {
         return res.unwrap_unchecked().GetGuid();
     }
 
@@ -78,9 +78,9 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
 
     Guid guid = meta.guid;
 
-    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), nullptr);
+    AssetRegistry::singleton().RegisterAsset(std::move(meta), nullptr);
 
-    IAssetManager::GetSingleton().LoadAssetSync(guid);
+    IAssetManager::singleton().LoadAssetSync(guid);
 
     return guid;
 }
@@ -95,13 +95,13 @@ Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,
     meta.type = AssetType::Material;
     meta.name = std::move(p_name);
     meta.guid = guid;
-    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+    meta.import_path = IAssetManager::singleton().ResolvePath(sys_path);
 
     if (auto res = p_material->SaveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), p_material);
+    AssetRegistry::singleton().RegisterAsset(std::move(meta), p_material);
 
     // @TODO: request textures
 
@@ -117,16 +117,16 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
     meta.type = AssetType::Mesh;
     meta.name = std::move(p_name);
     meta.guid = guid;
-    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+    meta.import_path = IAssetManager::singleton().ResolvePath(sys_path);
 
     if (auto res = p_mesh->SaveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), p_mesh);
+    AssetRegistry::singleton().RegisterAsset(std::move(meta), p_mesh);
 
     // @TODO: move it to somewhere else, if it's headless, no need to create gpu data
-    RenderDevice::GetSingleton().RequestMesh(p_mesh.get());
+    RenderDevice::singleton().RequestMesh(p_mesh.get());
 
     return Result<Guid>(guid);
 }
@@ -141,12 +141,12 @@ Result<void> SceneImporter::RegisterScene(ecs::Entity p_root) {
     meta.type = AssetType::Scene;
     meta.name = m_file_name;
     meta.guid = Guid::Create();
-    meta.import_path = IAssetManager::GetSingleton().ResolvePath(sys_path);
+    meta.import_path = IAssetManager::singleton().ResolvePath(sys_path);
     if (auto res = m_scene->SaveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::GetSingleton().RegisterAsset(std::move(meta), m_scene);
+    AssetRegistry::singleton().RegisterAsset(std::move(meta), m_scene);
     return Result<void>();
 }
 

@@ -83,7 +83,7 @@ Guid AssimpImporter::ProcessMaterial(aiMaterial& p_material) {
     if (!path.empty()) {
         DEV_ASSERT(0);
         // materialComponent->textures[MaterialComponent::TEXTURE_BASE].path = path;
-        // AssetRegistry::GetSingleton().RequestAssetSync(path);
+        // AssetRegistry::singleton().RequestAssetSync(path);
     }
 
     path = get_material_path(aiTextureType_NORMALS, 0);
@@ -94,7 +94,7 @@ Guid AssimpImporter::ProcessMaterial(aiMaterial& p_material) {
     if (!path.empty()) {
         DEV_ASSERT(0);
         // materialComponent->textures[MaterialComponent::TEXTURE_NORMAL].path = path;
-        // AssetRegistry::GetSingleton().RequestAssetSync(path);
+        // AssetRegistry::singleton().RequestAssetSync(path);
     }
 
     return RegisterMaterial(std::move(name), std::move(mat_asset)).value();

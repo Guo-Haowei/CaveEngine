@@ -1,7 +1,7 @@
 #pragma once
 #include "rid.h"
 
-#include "cave/core/IntrusiveList.h"
+#include "cave/core/containers/IntrusiveList.h"
 
 #include "engine/private/core/os/spin_lock.h"
 

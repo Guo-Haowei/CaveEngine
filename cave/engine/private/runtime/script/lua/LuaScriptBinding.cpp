@@ -29,7 +29,7 @@ struct Quat {
 static int CustomSearcher(lua_State* L) {
     const char* path = luaL_checkstring(L, 1);
 
-    auto asset = AssetRegistry::GetSingleton().FindByPath<BlobAsset>(std::format("{}", path));
+    auto asset = AssetRegistry::singleton().FindByPath<BlobAsset>(std::format("{}", path));
     if (asset.is_none()) {
         return 0;
     }
@@ -109,16 +109,16 @@ bool OpenInputLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Input")
         .addFunction("is_action_pressed", [](const char* action) -> int {
-            return InputService::GetSingleton().gameInput().isPressed(StringId(action), 0);
+            return InputService::singleton().gameInput().isPressed(StringId(action), 0);
         })
         .addFunction("is_action_just_pressed", [](const char* action) -> int {
-            return InputService::GetSingleton().gameInput().isJustPressed(StringId(action), 0);
+            return InputService::singleton().gameInput().isJustPressed(StringId(action), 0);
         })
         .addFunction("is_action_just_released", [](const char* action) -> int {
-            return InputService::GetSingleton().gameInput().isJustReleased(StringId(action), 0);
+            return InputService::singleton().gameInput().isJustReleased(StringId(action), 0);
         })
         .addFunction("get_action_strength", [](const char* action) -> float {
-            return InputService::GetSingleton().gameInput().getStrength(StringId(action), 0);
+            return InputService::singleton().gameInput().getStrength(StringId(action), 0);
         })
         .endNamespace();
     return true;
@@ -128,7 +128,7 @@ bool OpenDisplayLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Display")
         //.addFunction("GetWindowSize", []() -> Vector2f {
-        //    auto [width, height] = DisplayManager::GetSingleton().GetWindowSize();
+        //    auto [width, height] = DisplayManager::singleton().GetWindowSize();
         //    return Vector2f(width, height);
         //})
         .endNamespace();

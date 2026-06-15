@@ -40,7 +40,7 @@ auto FileAccess::Open(std::string_view p_path, ModeFlags p_mode_flags) -> Result
 
 // @TODO: refactor this part
 std::string FileAccess::FixPath(AccessType, std::string_view p_path) {
-    VFS* vfs = VFS::GetSingletonPtr();
+    VFS* vfs = VFS::singletonPtr();
     return vfs ? vfs->Resolve(p_path) : std::string(p_path);
 }
 

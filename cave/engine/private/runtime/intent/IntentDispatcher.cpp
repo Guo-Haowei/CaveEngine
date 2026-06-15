@@ -8,7 +8,8 @@
 #include "cave/core/diagnostics/ILogSink.h"
 #endif
 
-#define WANT_TRACE_INTENT USE_IF(USING(USE_LOG))
+// #define WANT_TRACE_INTENT USE_IF(USING(USE_LOG))
+#define WANT_TRACE_INTENT NOT_IN_USE
 #if USING(WANT_TRACE_INTENT)
 #define TRACE_INTENT(...)       \
     do {                        \

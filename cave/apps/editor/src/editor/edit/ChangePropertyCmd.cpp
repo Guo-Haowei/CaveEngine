@@ -32,48 +32,48 @@ ChangePropertyCmd::ChangePropertyCmd(SceneRegistry& p_scene_reg,
     std::memcpy(m_new.data(), p_new_data, p_data_size);
 }
 
-bool ChangePropertyCmd::Do(IDocument& p_doc) {
+bool ChangePropertyCmd::apply(IDocument& p_doc) {
     SceneId scene_id = p_doc.previewScene();
     if (!scene_id.IsValid()) return false;
-    Scene* scene = ResolveScene(scene_id);
+    Scene* scene = resolveScene(scene_id);
     if (!scene) return false;
 
     SceneCommandExecutor executor(*scene);
-    bool res = executor.ChangeProperty(m_ent,
+    bool res = executor.ChangeProperty(ent_,
                                        m_cid,
                                        m_pid,
                                        m_new.data(),
                                        (uint32_t)m_new.size());
-    DEBUG_PRINT("Do: changed '{}' of entity {}", m_pid.DebugName(), m_ent.GetId());
+    DEBUG_PRINT("Do: changed '{}' of entity {}", m_pid.DebugName(), ent_.GetId());
     return res;
 }
 
-bool ChangePropertyCmd::Undo(IDocument& p_doc) {
+bool ChangePropertyCmd::undo(IDocument& p_doc) {
     SceneId scene_id = p_doc.previewScene();
     if (!scene_id.IsValid()) return false;
-    Scene* scene = ResolveScene(scene_id);
+    Scene* scene = resolveScene(scene_id);
     if (!scene) return false;
 
     SceneCommandExecutor executor(*scene);
-    bool res = executor.ChangeProperty(m_ent,
+    bool res = executor.ChangeProperty(ent_,
                                        m_cid,
                                        m_pid,
                                        m_old.data(),
                                        (uint32_t)m_old.size());
-    DEBUG_PRINT("Undo: changed '{}' of entity {}", m_pid.DebugName(), m_ent.GetId());
+    DEBUG_PRINT("Undo: changed '{}' of entity {}", m_pid.DebugName(), ent_.GetId());
     return res;
 }
 
-bool ChangePropertyCmd::CanCoalesceWith(const IEditCmd* p_cmd) const {
+bool ChangePropertyCmd::canCoalesceWith(const IEditCmd* p_cmd) const {
     if (const Self* cmd = dynamic_cast<const Self*>(p_cmd)) {
-        return cmd->m_ent == cmd->m_ent &&
+        return cmd->ent_ == cmd->ent_ &&
                m_cid == cmd->m_cid &&
                m_pid == cmd->m_pid;
     }
     return false;
 }
 
-void ChangePropertyCmd::CoalesceFrom(std::unique_ptr<IEditCmd> p_cmd) {
+void ChangePropertyCmd::coalesceFrom(std::unique_ptr<IEditCmd> p_cmd) {
     Self& cmd = dynamic_cast<Self&>(*p_cmd);
     m_new = std::move(cmd.m_new);
 }

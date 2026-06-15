@@ -1,9 +1,16 @@
-#include "threads.h"
+#include "cave/core/threading/Threads.h"
+#include "cave/core/threading/JobSystem.h"
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/diagnostics/Profiler.h"
 
-#include "engine/private/drivers/windows/win32_prerequisites.h"
+#if USING(PLATFORM_WINDOWS)
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
 
+#include <array>
 #include <latch>
 #include <thread>
 
@@ -18,12 +25,12 @@ struct ThreadObject {
     std::thread threadObject{};
 };
 
-static thread_local uint32_t g_thread_id;
+static thread_local uint32_t s_thread_id;
 
 static struct {
     std::atomic_bool shutdownRequested;
     std::array<ThreadObject, THREAD_MAX> threads = {
-        ThreadObject{ "THREAD_MAIN", []() {} },
+        ThreadObject{ "THREAD_MAIN", nullptr },
 #if USING(ENABLE_JOB_SYSTEM)
         ThreadObject{ "THREAD_JOBSYSTEM_WORKER_1", jobsystem::WorkerMain },
         ThreadObject{ "THREAD_JOBSYSTEM_WORKER_2", jobsystem::WorkerMain },
@@ -47,15 +54,15 @@ bool Initialize() {
         ThreadObject& thread = s_threadGlob.threads[id];
         thread.id = id;
         thread.threadObject = std::thread(
-            [&](ThreadObject* p_object) {
+            [&](ThreadObject* object) {
                 // set thread id
-                SetThreadId(p_object->id);
+                SetThreadId(object->id);
 
                 latch.count_down();
-                LOG_TRACE(LogChannel::Thread, "+{}#{}", p_object->name, p_object->id);
-                CAVE_PROFILE_THREAD(p_object->name);
-                p_object->threadFunc();
-                LOG_TRACE(LogChannel::Thread, "-{}#{}", p_object->name, p_object->id);
+                LOG_TRACE(LogChannel::Thread, "+{}#{}", object->name, object->id);
+                CAVE_PROFILE_THREAD(object->name);
+                object->threadFunc();
+                LOG_TRACE(LogChannel::Thread, "-{}#{}", object->name, object->id);
             },
             &thread);
 
@@ -85,25 +92,26 @@ void RequestShutdown() {
 }
 
 bool IsMainThread() {
-    return g_thread_id == THREAD_MAIN;
+    return s_thread_id == THREAD_MAIN;
 }
 
 uint32_t GetThreadId() {
-    return g_thread_id;
+    return s_thread_id;
 }
 
-void SetThreadName(std::thread& p_thread, std::string_view p_name) {
+bool SetThreadName(std::thread& thread, std::string_view name) {
 #if USING(PLATFORM_WINDOWS)
-    HANDLE handle = (HANDLE)p_thread.native_handle();
+    HANDLE handle = (HANDLE)thread.native_handle();
 
-    std::wstring name(p_name.begin(), p_name.end());
-    HRESULT hr = ::SetThreadDescription(handle, name.c_str());
-    DEV_ASSERT(!FAILED(hr));
+    std::wstring wname(name.begin(), name.end());
+    HRESULT hr = ::SetThreadDescription(handle, wname.c_str());
+    return !FAILED(hr);
 #endif
+    return true;
 }
 
-void SetThreadId(uint32_t p_id) {
-    g_thread_id = p_id;
+void SetThreadId(uint32_t id) {
+    s_thread_id = id;
 }
 
 }  // namespace cave::thread

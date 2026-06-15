@@ -10,25 +10,25 @@ namespace cave {
 template<typename T>
 class RemoveComponentCmd : public EditCmdBase {
 public:
-    RemoveComponentCmd(SceneRegistry& p_scene_reg, ecs::Entity p_ent, T& p_origin)
-        : EditCmdBase(p_scene_reg, p_ent)
-        , m_origin(p_origin) {
+    RemoveComponentCmd(SceneRegistry& scene_reg, ecs::Entity ent, T& origin)
+        : EditCmdBase(scene_reg, ent)
+        , origin_(origin) {
     }
 
-    const char* Label() const override { return "RemoveComponentCmd"; }
+    const char* label() const override { return "RemoveComponentCmd"; }
 
-    bool Do(IDocument& p_doc) override { return Remove(p_doc); }
+    bool apply(IDocument& doc) override { return Remove(doc); }
 
-    bool Undo(IDocument& p_doc) override { return Add(p_doc, &m_origin); }
+    bool undo(IDocument& doc) override { return Add(doc, &origin_); }
 
 protected:
-    bool Add(IDocument& p_doc, T* p_value) {
-        if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-            if (Scene* scene = ResolveScene(scene_doc->previewScene())) {
-                if (scene->GetComponent<T>(m_ent) == nullptr) {
-                    T& comp = scene->Create<T>(m_ent);
-                    if (p_value) {
-                        comp = *p_value;
+    bool Add(IDocument& doc, T* value) {
+        if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
+            if (Scene* scene = resolveScene(scene_doc->previewScene())) {
+                if (scene->GetComponent<T>(ent_) == nullptr) {
+                    T& comp = scene->Create<T>(ent_);
+                    if (value) {
+                        comp = *value;
                     }
                     return true;
                 }
@@ -37,16 +37,16 @@ protected:
         return false;
     }
 
-    bool Remove(IDocument& p_doc) {
-        if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-            if (Scene* scene = ResolveScene(scene_doc->previewScene())) {
-                scene->Remove<T>(m_ent);
+    bool Remove(IDocument& doc) {
+        if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
+            if (Scene* scene = resolveScene(scene_doc->previewScene())) {
+                scene->Remove<T>(ent_);
             }
         }
         return true;
     }
 
-    T m_origin;
+    T origin_;
 };
 
 }  // namespace cave

@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/NonCopyable.h"
+#include "cave/core/base/NonCopyable.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/ids/ViewId.h"
 #include "cave/core/time/FrameTime.h"

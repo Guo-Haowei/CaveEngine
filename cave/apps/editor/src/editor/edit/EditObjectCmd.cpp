@@ -11,37 +11,37 @@
 
 namespace cave {
 
-[[maybe_unused]] static std::string GenerateName(std::string_view p_name) {
+[[maybe_unused]] static std::string GenerateName(std::string_view name) {
     static int s_counter = 0;
-    return std::format("{}-{}", p_name, ++s_counter);
+    return std::format("{}-{}", name, ++s_counter);
 }
 
-bool DeleteObjectCmd::Do(IDocument& p_doc) {
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->previewScene())) {
-            scene->RemoveEntity(m_ent);
+bool DeleteObjectCmd::apply(IDocument& doc) {
+    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
+        if (Scene* scene = resolveScene(scene_doc->previewScene())) {
+            scene->RemoveEntity(ent_);
             return true;
         }
     }
     return false;
 }
 
-bool DeleteObjectCmd::Undo(IDocument&) {
+bool DeleteObjectCmd::undo(IDocument&) {
     LOG_WARN("TODO: implement DeleteObjectCmd::Undo");
     return false;
 }
 
-bool CloneObjectCmd::Do(IDocument& p_doc) {
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->previewScene())) {
-            scene->DuplicateEntity(m_ent);
+bool CloneObjectCmd::apply(IDocument& doc) {
+    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
+        if (Scene* scene = resolveScene(scene_doc->previewScene())) {
+            scene->DuplicateEntity(ent_);
             return true;
         }
     }
     return true;
 }
 
-bool CloneObjectCmd::Undo(IDocument&) {
+bool CloneObjectCmd::undo(IDocument&) {
     LOG_WARN("TODO: implement CloneObjectCmd::Undo");
     return false;
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/NonCopyable.h"
+#include "cave/core/base/NonCopyable.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentDispatcher.h"

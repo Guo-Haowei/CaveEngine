@@ -1,5 +1,6 @@
 #include "EditorState.h"
 
+#include "cave/core/diagnostics/CompositeLogger.h"
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -28,13 +29,13 @@
 #include <imnodes/imnodes.h>
 
 #include "Enums.h"
+#include "engine/private/core/os/os.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/ui/layout.h"
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
+#include "engine/private/ui/layout.h"
 
 // #include "editor/edit/EditObjectCmd.h"
 #include "editor/widgets/Image.h"
@@ -208,9 +209,9 @@ void EditorState::dockSpace() {
         "DockSpace Demo",
         [this]() { menu_bar_->drawUI(); },
         [this]() {
-            CompositeLogger& logger = CompositeLogger::GetSingleton();
-            const uint32_t error_count = static_cast<uint32_t>(logger.GetErrorLogs().size());
-            const uint32_t warning_count = static_cast<uint32_t>(logger.GetWarningLogs().size());
+            CompositeLogger& logger = OS::singleton().logger();
+            const uint32_t error_count = static_cast<uint32_t>(logger.errorLogs().size());
+            const uint32_t warning_count = static_cast<uint32_t>(logger.warningLogs().size());
 
             ui::ErrorIcon();
 

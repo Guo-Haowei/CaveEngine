@@ -22,7 +22,7 @@ LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view p_class_na
 }
 
 void LuaScriptComponent::OnDeserialized() {
-    auto res = AssetRegistry::GetSingleton().FindByGuid<BlobAsset>(m_source_id);
+    auto res = AssetRegistry::singleton().FindByGuid<BlobAsset>(m_source_id);
     m_source_handle = std::move(res.unwrap());
 }
 

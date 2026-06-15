@@ -1,3 +1,5 @@
+#include "cave/core/diagnostics/CompositeLogger.h"
+
 #include "engine/private/core/diagnostics/log_sink/AnsiLogSink.h"
 #include "engine/private/core/io/file_access_unix.h"
 #include "engine/private/core/os/os.h"
@@ -12,12 +14,14 @@ void OS::Initialize() {
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_USERDATA);
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);
 
-    AddLogger(std::make_shared<Win32Logger>());
-    // if (EnableAnsi()) {
-    //     AddLogger(std::make_shared<AnsiLogger>());
-    // }
+    addLogger(std::make_unique<Win32Logger>());
+    addLogger(std::make_unique<DebugConsoleLogger>());
 
-    AddLogger(std::make_shared<DebugConsoleLogger>());
+#if 0
+    if (EnableAnsi()) {
+        addLogger(std::make_unique<AnsiLogger>());
+    }
+#endif
 
     SetLogger(&logger_);
 }

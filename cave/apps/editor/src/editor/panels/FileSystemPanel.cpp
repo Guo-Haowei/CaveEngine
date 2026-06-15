@@ -81,7 +81,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
 
         DragDropSourceContentEntry(entry);
 
-        auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+        auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
 
         DragDropTargetFolder(entry, asset_manager.GetFolderLut());
 
@@ -102,7 +102,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
 void FileSystemPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
 
-    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::GetSingleton());
+    auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
 
     drawFolderTreeNode(*asset_manager.GetAssetRoot());
 }

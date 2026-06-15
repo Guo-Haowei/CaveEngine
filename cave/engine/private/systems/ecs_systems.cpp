@@ -4,7 +4,7 @@
 
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/systems/job_system/job_system.h"
+#include "cave/core/threading/JobSystem.h"
 
 // @TODO: refactor
 #include "engine/private/core/math/Geomath.h"
@@ -265,7 +265,7 @@ static void UpdateLight(float p_timestep,
 #if 0
                     constexpr float near_plane = LIGHT_SHADOW_MIN_DISTANCE;
                     const float far_plane = p_light.m_maxDistance;
-                    const bool is_opengl = IRenderDevice::GetSingleton().GetBackend() == Backend::OPENGL;
+                    const bool is_opengl = IRenderDevice::singleton().GetBackend() == Backend::OPENGL;
                     auto matrices = is_opengl ? BuildOpenGlPointLightCubeMapViewProjectionMatrix(p_light.m_position, near_plane, far_plane)
                                               : BuildPointLightCubeMapViewProjectionMatrix(p_light.m_position, near_plane, far_plane);
 

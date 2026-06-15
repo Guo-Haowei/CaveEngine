@@ -71,7 +71,6 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${luabridge3_SOURCE_DIR}/Source
     ${PROJECT_SOURCE_DIR}/thirdparty/lua
     ${PROJECT_SOURCE_DIR}/thirdparty/imgui
-    ${PROJECT_SOURCE_DIR}/thirdparty/optick
     ${PROJECT_SOURCE_DIR}/thirdparty/glm
     ${PROJECT_SOURCE_DIR}/thirdparty/
     ${PROJECT_SOURCE_DIR}/cave/engine_core/public/
@@ -105,7 +104,6 @@ endif()
 if(WIN32)
     list(APPEND TARGET_LIBS
         glfw
-        optick
         opengl_4_backend
         d3d11_backend
         d3d12_backend

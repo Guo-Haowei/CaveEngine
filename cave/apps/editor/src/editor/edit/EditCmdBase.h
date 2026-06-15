@@ -11,22 +11,22 @@ class SceneRegistry;
 
 class EditCmdBase : public IEditCmd {
 public:
-    EditCmdBase(SceneRegistry& p_scene_reg, ecs::Entity p_ent);
+    EditCmdBase(SceneRegistry& scene_reg, ecs::Entity ent);
 
-    bool CanCoalesceWith(const IEditCmd*) const override {
+    bool canCoalesceWith(const IEditCmd*) const override {
         return false;
     }
 
-    void CoalesceFrom(std::unique_ptr<IEditCmd>) override {
+    void coalesceFrom(std::unique_ptr<IEditCmd>) override {
         return;
     }
 
 protected:
-    Scene* ResolveScene(SceneId p_scene_id) const;
-    ecs::Entity m_ent;
+    Scene* resolveScene(SceneId scene_id) const;
+    ecs::Entity ent_;
 
 private:
-    SceneRegistry& m_scene_reg;
+    SceneRegistry& scene_reg_;
 };
 
 }  // namespace cave

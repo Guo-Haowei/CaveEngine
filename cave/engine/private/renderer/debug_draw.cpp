@@ -159,7 +159,7 @@ void DebugDraw::Batch() {
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vector2f), 0 };
     desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vector4f), 0 };
 
-    auto mesh = RenderDevice::GetSingleton().CreateMeshImpl(desc, buffer_descs, &index_desc);
+    auto mesh = RenderDevice::singleton().CreateMeshImpl(desc, buffer_descs, &index_desc);
     m_mesh = *mesh;
 }
 

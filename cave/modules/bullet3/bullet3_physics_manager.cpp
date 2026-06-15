@@ -428,7 +428,7 @@ void Bullet3PhysicsManager::OnSimBegin(Scene& p_scene) {
 
                 mesh.CreateRenderData();
                 mesh.flags |= MeshComponent::DYNAMIC;
-                mesh.gpuResource = *IRenderDevice::GetSingleton().CreateMesh(mesh);
+                mesh.gpuResource = *IRenderDevice::singleton().CreateMesh(mesh);
             }
 
             context.dynamicWorld->addSoftBody(cloth);

@@ -52,7 +52,7 @@ public:
 
     virtual auto InitializeImpl() -> Result<void> = 0;
 
-    virtual void Submit(std::unique_ptr<RenderSubmission>&& p_submission) = 0;
+    virtual void submit(std::unique_ptr<RenderSubmission>&& p_submission) = 0;
 
     // resource
     virtual auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> = 0;

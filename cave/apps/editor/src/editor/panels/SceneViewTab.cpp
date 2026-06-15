@@ -68,17 +68,17 @@ void SceneViewTab::onDestroy() {
     editor_services_.picking().addConsumer(this);
 }
 
-Option<PickData> SceneViewTab::getPickData(const Vector2f& pointer_os) {
+Option<PickData> SceneViewTab::getPickData(const Vector2f& point_os) {
     if (!isVisible()) return None();
 
     const ViewRecord* view = view_manager_.resolve(view_id_);
-    if (!view->display_rect_os.Contains(pointer_os.x, pointer_os.y)) {
+    if (!view->display_rect_os.Contains(point_os.x, point_os.y)) {
         return None();
     }
 
     return Some(PickData{
         .proj_view = camera_.GetProjectionViewMatrix(),
-        .cursor_ndc = view->screenToNDC(pointer_os),
+        .cursor_ndc = view->screenToNDC(point_os),
         .scene_id = preview_scene_id_,
         .doc_id = doc_id_,
     });

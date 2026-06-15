@@ -24,8 +24,7 @@ using namespace ::cave::math;
 AssetInspector::AssetInspector(EditorState& editor,
                                EditorServices& editor_services)
     : EditorWindow(editor)
-    , editor_services_(editor_services)
-    , sprite_selector_(SpriteSelector::SelectionMode::Single) {
+    , editor_services_(editor_services) {
 }
 void AssetInspector::onAttach() {
     IconCache& icons = editor_services_.iconCache();
@@ -134,7 +133,7 @@ void AssetInspector::drawDocument(TileMapDocument& doc) {
         const int column = tile_set->GetCol();
         const int row = tile_set->GetRow();
         if (auto image = handle.Get(); image) {
-            sprite_selector_.SelectSprite(*image, &column, &row);
+            tile_map_ctx_.sprite_selector.SelectSprite(*image, &column, &row);
         }
     }
 }

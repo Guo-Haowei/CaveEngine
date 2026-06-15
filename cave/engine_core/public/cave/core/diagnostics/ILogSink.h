@@ -11,7 +11,7 @@ class CAVE_CORE_API ILogSink {
 public:
     virtual ~ILogSink() = default;
 
-    virtual void Submit(const LogEvent& log) = 0;
+    virtual void submit(const LogEvent& log) = 0;
 };
 
 }  // namespace cave

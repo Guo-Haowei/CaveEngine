@@ -1,9 +1,10 @@
 #include "Console.h"
 
+#include "cave/core/diagnostics/CompositeLogger.h"
+#include "cave/core/string/StringUtils.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
-#include "cave/core/string/StringUtils.h"
+#include "engine/private/core/os/os.h"
 
 namespace cave {
 
@@ -21,7 +22,7 @@ void Console::SubmitLine(std::string_view p_line) {
     for (const CommandDesc& cmd : cmds) {
         if (cmd.name == tokens[0]) {
             CommandContext ctx{
-                .log = LogWrapper(CompositeLogger::GetSingleton()),
+                .log = LogWrapper(OS::singleton().logger()),
                 .desc = cmd,
                 .services = m_app.services(),
             };

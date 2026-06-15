@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "cave/core/Color.h"
+#include "cave/core/diagnostics/CompositeLogger.h"
 #include "cave/core/diagnostics/LogPresentation.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -12,7 +13,8 @@
 
 // @TODO: refactor
 #include "ConsolePanel.h"
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
+
+#include "engine/private/core/os/os.h"
 
 namespace cave {
 
@@ -177,19 +179,20 @@ void LogPanel::drawLogHistroy() {
 
     int color_index = 0;
 
-    const std::vector<LogEvent>* logs = &CompositeLogger::GetSingleton().GetAllLogs();
+    CompositeLogger& logger = OS::singleton().logger();
+    auto logs = logger.allLogs();
     switch (level_filter_) {
         case cave::LOG_LEVEL_WARN:
-            logs = &CompositeLogger::GetSingleton().GetWarningLogs();
+            logs = logger.warningLogs();
             break;
         case cave::LOG_LEVEL_ERROR:
-            logs = &CompositeLogger::GetSingleton().GetErrorLogs();
+            logs = logger.errorLogs();
             break;
         default:
             break;
     }
 
-    for (const LogEvent& log : (*logs)) {
+    for (const LogEvent& log : logs) {
         if (!(log.level & level_filter_)) {
             continue;
         }

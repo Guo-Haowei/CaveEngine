@@ -8,7 +8,7 @@
 #include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/systems/AnimationSystem.h"
 #include "engine/private/systems/ecs_systems.h"
-#include "engine/private/systems/job_system/job_system.h"
+#include "cave/core/threading/JobSystem.h"
 
 // @TODO: refactor
 #include "engine/private/renderer/graphics_dvars.h"
@@ -110,7 +110,7 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
 }
 
 void Scene::InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_ent) {
-    auto handle = AssetRegistry::GetSingleton().FindByGuid<Scene>(p_prefab.GetResourceGuid());
+    auto handle = AssetRegistry::singleton().FindByGuid<Scene>(p_prefab.GetResourceGuid());
     if (handle.is_none()) {
         return;
     }

@@ -202,7 +202,7 @@ CopyContext::CopyCommand CopyContext::Allocate(uint32_t p_staging_size) {
     return cmd;
 }
 
-void CopyContext::Submit(CopyCommand p_cmd) {
+void CopyContext::submit(CopyCommand p_cmd) {
     D3D_CALL(p_cmd.commandList->Close());
     ID3D12CommandList* commandLists[] = { p_cmd.commandList.Get() };
     m_queue->ExecuteCommandLists(std::size(commandLists), commandLists);

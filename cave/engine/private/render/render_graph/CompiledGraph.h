@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/NonCopyable.h"
+#include "cave/core/base/NonCopyable.h"
 
 #include "CompiledPass.h"
 #include "RenderGraphTypes.h"

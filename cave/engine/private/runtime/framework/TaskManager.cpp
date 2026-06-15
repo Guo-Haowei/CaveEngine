@@ -1,6 +1,7 @@
 #include "TaskManager.h"
 
-#include "engine/private/core/os/threads.h"
+#include "cave/core/threading/Threads.h"
+
 #include "engine/private/runtime/framework/IAsyncTask.h"
 #include "engine/private/runtime/framework/TaskContext.h"
 #include "engine/private/runtime/framework/TaskQueue.h"
@@ -56,7 +57,7 @@ void TaskManager::Stop() {
     m_workers.clear();
 }
 
-uint64_t TaskManager::Submit(std::unique_ptr<IAsyncTask> p_task,
+uint64_t TaskManager::submit(std::unique_ptr<IAsyncTask> p_task,
                              TaskSubmitOptions p_opt,
                              TaskCompletionCallback p_on_done) {
     if (!p_task) {

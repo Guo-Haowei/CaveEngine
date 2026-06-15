@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/Singleton.h"
+#include "cave/core/base/Singleton.h"
 
 #include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
@@ -49,7 +49,7 @@ public:
 
     auto InitializeImpl() -> Result<void> final;
 
-    void Submit(std::unique_ptr<render::RenderSubmission>&& p_submission) final;
+    void submit(std::unique_ptr<render::RenderSubmission>&& p_submission) final;
 
     // resource
     void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) override;

@@ -153,7 +153,7 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
         ++submitted;
 
 #if USING(USE_LOG)
-        auto handle = AssetRegistry::GetSingleton().FindByGuid(pending.key.guid);
+        auto handle = AssetRegistry::singleton().FindByGuid(pending.key.guid);
         const AssetMetaData* meta = handle.unwrap().GetMeta();
         LOG_TRACE(LogChannel::Thumb, "Submit '{}'", meta->name);
 #endif

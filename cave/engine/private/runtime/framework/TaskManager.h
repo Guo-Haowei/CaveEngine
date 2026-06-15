@@ -50,7 +50,7 @@ public:
     void Stop();
 
     // Long task submission
-    uint64_t Submit(std::unique_ptr<IAsyncTask> p_task,
+    uint64_t submit(std::unique_ptr<IAsyncTask> p_task,
                     TaskSubmitOptions p_opt = {},
                     TaskCompletionCallback p_on_done = nullptr);
 

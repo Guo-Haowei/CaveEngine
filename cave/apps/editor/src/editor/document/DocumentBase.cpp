@@ -27,16 +27,16 @@ bool DocumentBase::apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) {
 
     if (!undo_.empty() /*&& coalesce != 0 && last_coalesce_ == coalesce*/) {
         IEditCmd* last = undo_.back().get();
-        if (last && last->CanCoalesceWith(cmd.get())) {
-            cmd->Do(*this);
-            last->CoalesceFrom(std::move(cmd));
+        if (last && last->canCoalesceWith(cmd.get())) {
+            cmd->apply(*this);
+            last->coalesceFrom(std::move(cmd));
             redo_.clear();
             touchDirtyAfterEdit();
             return true;
         }
     }
 
-    cmd->Do(*this);
+    cmd->apply(*this);
 
     undo_.push_back(std::move(cmd));
     redo_.clear();
@@ -53,7 +53,7 @@ bool DocumentBase::undo() {
     auto cmd = std::move(undo_.back());
     undo_.pop_back();
 
-    cmd->Undo(*this);
+    cmd->undo(*this);
     redo_.push_back(std::move(cmd));
 
     last_coalesce_ = 0;
@@ -66,7 +66,7 @@ bool DocumentBase::redo() {
     auto cmd = std::move(redo_.back());
     redo_.pop_back();
 
-    cmd->Do(*this);
+    cmd->apply(*this);
     undo_.push_back(std::move(cmd));
 
     last_coalesce_ = 0;
@@ -78,7 +78,7 @@ void DocumentBase::undoLabels(std::vector<std::string>& out, int max_items) cons
     out.clear();
     int count = 0;
     for (auto it = undo_.rbegin(); it != undo_.rend() && count < max_items; ++it, ++count) {
-        out.emplace_back((*it)->Label());
+        out.emplace_back((*it)->label());
     }
 }
 
@@ -86,7 +86,7 @@ void DocumentBase::redoLabels(std::vector<std::string>& out, int max_items) cons
     out.clear();
     int count = 0;
     for (auto it = redo_.rbegin(); it != redo_.rend() && count < max_items; ++it, ++count) {
-        out.emplace_back((*it)->Label());
+        out.emplace_back((*it)->label());
     }
 }
 

@@ -1,9 +1,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <tinygltf/stb_image_write.h>
 
-#include "engine/private/core/os/threads.h"
+#include "cave/core/threading/Threads.h"
 #include "engine/private/core/os/timer.h"
-#include "engine/private/systems/job_system/job_system.h"
+#include "cave/core/threading/JobSystem.h"
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/runtime/framework/Engine.h"
 #include "cave/core/Color.h"

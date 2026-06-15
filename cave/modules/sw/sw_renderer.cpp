@@ -3,7 +3,7 @@
 #include "cave/core/math/Box.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
-#include "engine/private/systems/job_system/job_system.h"
+#include "cave/core/threading/JobSystem.h"
 
 namespace cave {
 

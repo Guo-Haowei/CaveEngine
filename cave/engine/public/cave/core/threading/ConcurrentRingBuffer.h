@@ -1,4 +1,9 @@
+// =============================================================================
+// File: cave/core/threading/ConcurrentRingBuffer.h
+// =============================================================================
 #pragma once
+#include <mutex>
+
 #include "cave/core/containers/RingBuffer.h"
 
 namespace cave {
@@ -30,4 +35,5 @@ struct ThreadSafeRingBuffer {
         return true;
     }
 };
+
 }  // namespace cave

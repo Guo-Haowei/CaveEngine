@@ -6,7 +6,7 @@
 
 #include "cave/core/CoreExport.h"
 #include "cave/core/typedefs.h"
-#include "cave/core/IntrusiveList.h"
+#include "cave/core/containers/IntrusiveList.h"
 
 namespace cave {
 

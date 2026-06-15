@@ -7,17 +7,17 @@ namespace cave {
 
 class AddComponentCmd : public EditCmdBase {
 public:
-    AddComponentCmd(SceneRegistry& p_scene_reg,
-                    ecs::Entity p_ent,
-                    ComponentId p_cid);
+    AddComponentCmd(SceneRegistry& scene_reg,
+                    ecs::Entity ent,
+                    ComponentId cid);
 
-    const char* Label() const override { return "AddComponentCmd"; }
+    const char* label() const override { return "AddComponentCmd"; }
 
-    bool Do(IDocument& p_doc) override;
-    bool Undo(IDocument& p_doc) override;
+    bool apply(IDocument& doc) override;
+    bool undo(IDocument& doc) override;
 
 private:
-    ComponentId m_cid;
+    ComponentId cid_;
 };
 
 }  // namespace cave

@@ -66,7 +66,7 @@ void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t p_version) {
 void MeshAsset::OnDeserialized() {
     CreateRenderData();
 
-    RenderDevice* graphics_manager = RenderDevice::GetSingletonPtr();
+    RenderDevice* graphics_manager = RenderDevice::singletonPtr();
     if (graphics_manager) {
         graphics_manager->RequestMesh(this);
     }

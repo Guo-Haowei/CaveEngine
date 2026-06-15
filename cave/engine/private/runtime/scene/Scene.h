@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/NonCopyable.h"
+#include "cave/core/base/NonCopyable.h"
 #include "cave/core/math/AABB.h"
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/assets/IAsset.h"

@@ -1,14 +1,19 @@
+// =============================================================================
+// File: cave/core/threading/JobSystem.h
+// =============================================================================
 #pragma once
+#include <functional>
 
-#define ENABLE_JOB_SYSTEM USE_IF(!USING(PLATFORM_WASM))
+#include "cave/core/PlatformDefines.h"
 
 namespace cave::jobsystem {
 
-bool Initialize();
+class Context;
 
+bool Initialize();
 void Finalize();
 
-class Context;
+void WorkerMain();
 
 struct JobArgs {
     uint32_t jobIndex;
@@ -41,7 +46,5 @@ private:
     void Wait() {}
 #endif
 };
-
-void WorkerMain();
 
 }  // namespace cave::jobsystem

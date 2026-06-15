@@ -1,7 +1,6 @@
 #pragma once
-#include "cave/core/Singleton.h"
-
-#include "engine/private/core/diagnostics/log_sink/CompositeLogger.h"
+#include "cave/core/base/Singleton.h"
+#include "cave/core/diagnostics/CompositeLogger.h"
 
 namespace cave {
 
@@ -10,7 +9,9 @@ public:
     void Initialize();
     void Finalize();
 
-    void AddLogger(std::shared_ptr<ILogSink> logger);
+    void addLogger(std::unique_ptr<ILogSink>&& logger);
+
+    CompositeLogger& logger() { return logger_; }
 
 protected:
     CompositeLogger logger_;

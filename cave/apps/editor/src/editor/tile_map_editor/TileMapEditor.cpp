@@ -1,16 +1,21 @@
 #include "TileMapEditor.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h >
+
 #include "cave/core/diagnostics/DebugIdAllocator.h"
+#include "cave/runtime/display/DisplayService.h"
 
 #include "editor/EditorState.h"
+#include "editor/panels/AssetInspector.h"
+#include "editor/services/EditService.h"
+#include "editor/services/DocumentService.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 
 // @TODO: remove
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
-
-#include <IconsFontAwesome/IconsFontAwesome6.h >
+#include "engine/private/runtime/assets/TileSetAsset.h"
 
 namespace cave {
 
@@ -20,6 +25,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              DocId doc_id,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
+    , ctx_(editor.assetInspector().tileMapContext())
     , debug_id_(MakeDebugId(this)) {
 
     // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
@@ -40,26 +46,6 @@ void TileMapEditor::onCreate() {
 
 void TileMapEditor::onDestroy() {
     ViewTabBase::onDestroy();
-}
-
-Option<PickData> TileMapEditor::getPickData(const Vector2f& pointer_os) {
-    unused(pointer_os);
-
-    return None();
-
-    // if (!IsVisible()) return None();
-
-    // const ViewRecord* view = view_manager_.resolve(view_id_);
-    // if (!view->display_rect_os.Contains(pointer_os.x, pointer_os.y)) {
-    //     return None();
-    // }
-
-    // return Some(PickData{
-    //     .proj_view = camera_.GetProjectionViewMatrix(),
-    //     .cursor_ndc = view->screenToNDC(pointer_os),
-    //     .scene_id = preview_scene_id_,
-    //     .doc_id = doc_id_,
-    // });
 }
 
 void TileMapEditor::changeMode(Mode mode) {
@@ -136,25 +122,44 @@ bool TileMapEditor::updateEditMode(const InputFrame& input) {
 }
 
 void TileMapEditor::applayEditorTool() {
-    // auto selections = m_sprite_selector.GetSelections();
-    // if (!selections.empty()) {
-    //     // @TODO: support multi tile editing
-    //     auto [x, y] = selections[0];
-    //     if (x >= 0 && y >= 0) {
-    //         TileMapAsset* tile_map = m_document->GetHandle<TileMapAsset>().Get();
-    //         TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
-    //         uint32_t idx = y * tile_set->GetCol() + x;
-    //         m_document->RequestAdd(e->GetPos(), TileId(idx));
-    //     }
-    // }
+    IDocument* doc = editor_services_.document().resolve(doc_id_);
+    DEV_ASSERT(doc);
+
+    Vector2f point_os = cursor_ + app_services_.displayService().windowPos();
+    auto res = pointToTile(point_os);
+    if (res.is_none()) {
+        return;
+    }
+
+    TileIndex tile_index = res.unwrap_unchecked();
+
+    TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
+
+    Option<TileId> old_tile = tile_map->GetTile(tile_index);
+    Option<TileId> new_tile = Some(TILE_ID_EMPTY);
 
     if (mode_ == Mode::Painting) {
-        LOG_OK("TODO: paint");
-        // @TODO: add tile
-    } else if (mode_ == Mode::Erasing) {
-        LOG_OK("TODO: erase");
-        // @TODO: earse tile
+        auto selections = ctx_.sprite_selector.GetSelections();
+        if (!selections.empty()) {
+            auto [x, y] = selections[0];
+            if (x >= 0 && y >= 0) {
+                TileSetAsset* tile_set = tile_map->GetTileSetHandle().Get();
+                const uint32_t tile_id = y * tile_set->GetCol() + x;
+                new_tile = Some(TileId(tile_id));
+            }
+        }
     }
+
+    if (old_tile == new_tile) {
+        return;  // no op if the tiles are the same
+    }
+
+    auto cmd = std::make_unique<SetTileCommand>(app_services_.sceneRegistry(),
+                                                ecs::Entity::Null(),
+                                                tile_index,
+                                                old_tile,
+                                                new_tile);
+    editor_services_.edit().submit(doc_id_, std::move(cmd));
 }
 
 void TileMapEditor::onInputEvents(const InputFrame& input) {
@@ -180,28 +185,25 @@ void TileMapEditor::drawUIImpl() {
     submitView();
 }
 
-#if 0
-bool TileMapEditor::CursorToTile(const Vector2f& p_in, TileIndex& p_out) const {
-    auto res = m_viewer.CursorToNDC(p_in);
-    if (res.is_none()) {
-        return false;
+Option<TileIndex> TileMapEditor::pointToTile(math::Vector2f point_os) {
+    if (!isVisible()) return None();
+
+    const ViewRecord* view = view_manager_.resolve(view_id_);
+    if (!view->display_rect_os.Contains(point_os.x, point_os.y)) {
+        return None();
     }
 
-    auto ndc_2 = res.unwrap_unchecked();
-    Vector4f ndc{ ndc_2.x, ndc_2.y, 0.0f, 1.0f };
+    Vector2f ndc = view->screenToNDC(point_os);
 
-    DEV_ASSERT(0);
-    CameraComponent cam;
-    const auto inv_proj_view = glm::inverse(cam.GetProjectionViewMatrix());
+    Matrix4x4f pv_inv = glm::inverse(camera_.GetProjectionViewMatrix());
 
-    Vector4f position = inv_proj_view * ndc;
-    position /= position.w;
+    Vector4f pos = pv_inv * Vector4f(ndc, 0.0f, 1.0f);
+    pos /= pos.w;
 
-    p_out.x = static_cast<int16_t>(std::floor(position.x));
-    p_out.y = static_cast<int16_t>(std::floor(position.y));
-
-    return true;
+    TileIndex index;
+    index.x = static_cast<int16_t>(std::floor(pos.x));
+    index.y = static_cast<int16_t>(std::floor(pos.y));
+    return Some(index);
 }
-#endif
 
 }  // namespace cave
