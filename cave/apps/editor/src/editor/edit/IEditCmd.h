@@ -8,11 +8,11 @@ class IDocument;
 class IEditCmd {
 public:
     virtual ~IEditCmd() = default;
-    virtual const char* Label() const = 0;
-    virtual bool Do(IDocument& p_doc) = 0;
-    virtual bool Undo(IDocument& p_doc) = 0;
-    virtual bool CanCoalesceWith(const IEditCmd* p_cmd) const = 0;
-    virtual void CoalesceFrom(std::unique_ptr<IEditCmd> p_cmd) = 0;
+    virtual const char* label() const = 0;
+    virtual bool apply(IDocument& doc) = 0;
+    virtual bool undo(IDocument& doc) = 0;
+    virtual bool canCoalesceWith(const IEditCmd* cmd) const = 0;
+    virtual void coalesceFrom(std::unique_ptr<IEditCmd> cmd) = 0;
 };
 
 }  // namespace cave

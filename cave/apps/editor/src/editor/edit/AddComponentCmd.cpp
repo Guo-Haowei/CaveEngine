@@ -5,29 +5,29 @@
 
 namespace cave {
 
-AddComponentCmd::AddComponentCmd(SceneRegistry& p_scene_reg,
-                                 ecs::Entity p_ent,
-                                 ComponentId p_cid)
-    : EditCmdBase(p_scene_reg, p_ent)
-    , m_cid(p_cid) {
+AddComponentCmd::AddComponentCmd(SceneRegistry& scene_reg,
+                                 ecs::Entity ent,
+                                 ComponentId cid)
+    : EditCmdBase(scene_reg, ent)
+    , cid_(cid) {
 }
 
-bool AddComponentCmd::Do(IDocument& p_doc) {
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->previewScene())) {
+bool AddComponentCmd::apply(IDocument& doc) {
+    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
+        if (Scene* scene = resolveScene(scene_doc->previewScene())) {
             SceneCommandExecutor executor(*scene);
-            executor.AddComponent(m_ent, m_cid);
+            executor.AddComponent(ent_, cid_);
             return true;
         }
     }
     return false;
 }
 
-bool AddComponentCmd::Undo(IDocument& p_doc) {
-    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&p_doc)) {
-        if (Scene* scene = ResolveScene(scene_doc->previewScene())) {
+bool AddComponentCmd::undo(IDocument& doc) {
+    if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
+        if (Scene* scene = resolveScene(scene_doc->previewScene())) {
             SceneCommandExecutor executor(*scene);
-            executor.RemoveComponent(m_ent, m_cid);
+            executor.RemoveComponent(ent_, cid_);
             return true;
         }
     }

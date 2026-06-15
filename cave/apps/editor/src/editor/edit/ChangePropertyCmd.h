@@ -34,17 +34,17 @@ public:
         static_assert(std::is_trivially_copyable_v<U>);
     }
 
-    const char* Label() const override {
+    const char* label() const override {
         return "ChangePropertyCmd";
     }
 
-    bool Do(IDocument& p_doc) override;
+    bool apply(IDocument& p_doc) override;
 
-    bool Undo(IDocument& p_doc) override;
+    bool undo(IDocument& p_doc) override;
 
-    bool CanCoalesceWith(const IEditCmd* p_cmd) const override;
+    bool canCoalesceWith(const IEditCmd* p_cmd) const override;
 
-    void CoalesceFrom(std::unique_ptr<IEditCmd> p_cmd) override;
+    void coalesceFrom(std::unique_ptr<IEditCmd> p_cmd) override;
 
 private:
     const ComponentId m_cid;

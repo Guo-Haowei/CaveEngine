@@ -18,19 +18,19 @@ public:
         , new_tile_(new_tile) {
     }
 
-    const char* Label() const override { return "SetTileCommand"; }
+    const char* label() const override { return "SetTileCommand"; }
 
-    bool Do(IDocument& doc) override {
+    bool apply(IDocument& doc) override {
         return setTile(doc, new_tile_);
     }
 
-    bool Undo(IDocument& doc) override {
+    bool undo(IDocument& doc) override {
         return setTile(doc, old_tile_);
     }
 
-    bool CanCoalesceWith(const IEditCmd* cmd) const override;
+    bool canCoalesceWith(const IEditCmd* cmd) const override;
 
-    void CoalesceFrom(std::unique_ptr<IEditCmd> cmd) override;
+    void coalesceFrom(std::unique_ptr<IEditCmd> cmd) override;
 
 private:
     bool setTile(IDocument& doc, Option<TileId> tile);

@@ -11,13 +11,13 @@ public:
                     ecs::Entity ent,
                     ComponentId cid);
 
-    const char* Label() const override { return "AddComponentCmd"; }
+    const char* label() const override { return "AddComponentCmd"; }
 
-    bool Do(IDocument& doc) override;
-    bool Undo(IDocument& doc) override;
+    bool apply(IDocument& doc) override;
+    bool undo(IDocument& doc) override;
 
 private:
-    ComponentId m_cid;
+    ComponentId cid_;
 };
 
 }  // namespace cave
