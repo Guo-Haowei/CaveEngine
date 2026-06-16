@@ -43,10 +43,10 @@ extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
 
 namespace cave::render {
 
-using math::Vector2f;
-using math::Vector2i;
-using math::Vector3f;
-using math::Vector4f;
+using math::Vec2f;
+using math::Vec2i;
+using math::Vec3f;
+using math::Vec4f;
 
 class Renderer::Impl {
 public:
@@ -163,10 +163,10 @@ static void fillConstantBuffer(const FrameTime& p_frame,
         cache.c_invCamView = cam.view_inv;
         cache.c_invCamProj = cam.proj_inv;
         cache.c_camera_fovy = p_view.fovy_rad;
-        cache.c_cameraForward = (cam.view_inv * -Vector4f::UnitZ).xyz;
-        cache.c_cameraRight = (cam.view_inv * Vector4f::UnitX).xyz;
-        cache.c_cameraUp = (cam.view_inv * Vector4f::UnitY).xyz;
-        cache.c_cameraPosition = (cam.view_inv * Vector4f::UnitW).xyz;
+        cache.c_cameraForward = (cam.view_inv * -Vec4f::UnitZ).xyz;
+        cache.c_cameraRight = (cam.view_inv * Vec4f::UnitX).xyz;
+        cache.c_cameraUp = (cam.view_inv * Vec4f::UnitY).xyz;
+        cache.c_cameraPosition = (cam.view_inv * Vec4f::UnitW).xyz;
     }
 
     // Bloom
@@ -204,7 +204,7 @@ static void fillEnvConstants(FrameData& out_data) {
         out_data.batchCache.buffer.resize(count);
     }
 
-    auto matrices = out_data.options.is_opengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vector3f(0)) : BuildCubeMapViewProjectionMatrix(Vector3f(0));
+    auto matrices = out_data.options.is_opengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vec3f(0)) : BuildCubeMapViewProjectionMatrix(Vec3f(0));
     for (int mip_idx = 0; mip_idx < IBL_MIP_CHAIN_MAX; ++mip_idx) {
         for (int face_id = 0; face_id < 6; ++face_id) {
             auto& batch = out_data.batchCache.buffer[mip_idx * 6 + face_id];
@@ -274,7 +274,7 @@ void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
     GpuMeshDesc mesh_desc{};
     mesh_desc.drawCount = ib_desc.element_count;
     mesh_desc.enabledVertexCount = (uint32_t)vb_desc.size();
-    mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vector2f), 0 };
+    mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec2f), 0 };
     mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Color), 0 };
 
     ui_buffers_ = device_.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();

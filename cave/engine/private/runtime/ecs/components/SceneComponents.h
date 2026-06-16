@@ -39,7 +39,7 @@ struct VelocityComponent {
     CAVE_COMPONENT(VelocityComponent)
 
     CAVE_PROP(editor = Translation)
-    math::Vector3f linear = math::Vector3f::Zero;
+    math::Vec3f linear = math::Vec3f::Zero;
 };
 
 #pragma region COLLISION_OBJECT_COMPONENT
@@ -69,10 +69,10 @@ struct RigidBodyComponent : CollisionObjectBase {
 
     CollisionShape shape{ SHAPE_UNKNOWN };
     ObjectType objectType{ DYNAMIC };
-    math::Vector3f size;
+    math::Vec3f size;
     float mass{ 1.0f };
 
-    RigidBodyComponent& InitCube(const math::Vector3f& p_half_size);
+    RigidBodyComponent& InitCube(const math::Vec3f& p_half_size);
 
     RigidBodyComponent& InitSphere(float p_radius);
 

@@ -2,8 +2,8 @@
 
 namespace cave::render {
 
-using math::Vector2f;
-using math::Vector4f;
+using math::Vec2f;
+using math::Vec4f;
 
 static void AppendUIRect(BuiltUIData& p_out,
                          const UIRect& p_rect,
@@ -15,10 +15,10 @@ static void AppendUIRect(BuiltUIData& p_out,
 
     const uint32_t base_vertex = static_cast<uint32_t>(p_out.positions.size());
 
-    p_out.positions.push_back(Vector2f(x0, y0));
-    p_out.positions.push_back(Vector2f(x1, y0));
-    p_out.positions.push_back(Vector2f(x1, y1));
-    p_out.positions.push_back(Vector2f(x0, y1));
+    p_out.positions.push_back(Vec2f(x0, y0));
+    p_out.positions.push_back(Vec2f(x1, y0));
+    p_out.positions.push_back(Vec2f(x1, y1));
+    p_out.positions.push_back(Vec2f(x0, y1));
 
     p_out.colors.push_back(p_color);
     p_out.colors.push_back(p_color);

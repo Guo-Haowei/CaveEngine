@@ -40,14 +40,14 @@ public:
     virtual std::string_view title() = 0;
     virtual void title(std::string_view title) = 0;
 
-    math::Vector2i windowSize() const { return frame_size_; }
-    math::Vector2f windowPos() const { return window_pos_; }
+    math::Vec2i windowSize() const { return frame_size_; }
+    math::Vec2f windowPos() const { return window_pos_; }
 
 protected:
     virtual auto initializeWindow(const WindowSpecfication& spec) -> Result<void> = 0;
 
-    math::Vector2i frame_size_;
-    math::Vector2f window_pos_;
+    math::Vec2i frame_size_;
+    math::Vec2f window_pos_;
 };
 
 }  // namespace cave

@@ -18,7 +18,7 @@ bool PrefabInstanceComponent::SetResourceGuid(const Guid& p_guid) {
 }
 
 #pragma region RIGID_BODY_COMPONENT
-RigidBodyComponent& RigidBodyComponent::InitCube(const Vector3f& p_half_size) {
+RigidBodyComponent& RigidBodyComponent::InitCube(const Vec3f& p_half_size) {
     shape = SHAPE_CUBE;
     size = p_half_size;
     return *this;

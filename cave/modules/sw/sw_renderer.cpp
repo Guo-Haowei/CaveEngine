@@ -25,7 +25,7 @@ static constexpr int TILE_SIZE = 32;
  * Perspective correct linear interpolation
  * https://stackoverflow.com/questions/24441631/how-exactly-does-opengl-do-perspectively-correct-linear-interpolation
  */
-static void NdcToViewport(Vector4f& p_position) {
+static void NdcToViewport(Vec4f& p_position) {
     DEV_ASSERT(p_position.w != 0.0f);
     float inv_w = 1.0f / p_position.w;
     p_position.x *= inv_w;
@@ -60,9 +60,9 @@ OutTriangle SwGraphicsManager::ProcessTriangle(const VSInput& vs_in0,
     NdcToViewport(vs_out2.position);
 
     // face culling
-    Vector3f ab3d(vs_out0.position.x - vs_out1.position.x, vs_out0.position.y - vs_out1.position.y, vs_out0.position.z - vs_out1.position.z);
-    Vector3f ac3d(vs_out0.position.x - vs_out2.position.x, vs_out0.position.y - vs_out2.position.y, vs_out0.position.z - vs_out2.position.z);
-    Vector3f normal = cross(ab3d, ac3d);
+    Vec3f ab3d(vs_out0.position.x - vs_out1.position.x, vs_out0.position.y - vs_out1.position.y, vs_out0.position.z - vs_out1.position.z);
+    Vec3f ac3d(vs_out0.position.x - vs_out2.position.x, vs_out0.position.y - vs_out2.position.y, vs_out0.position.z - vs_out2.position.z);
+    Vec3f normal = cross(ab3d, ac3d);
 
     if (normal.z < 0.0f) {  // Cull backface
         OutTriangle triangle;
@@ -88,14 +88,14 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     const VSOutput& vs_out0 = vs_out.p0;
     const VSOutput& vs_out1 = vs_out.p1;
     const VSOutput& vs_out2 = vs_out.p2;
-    const Vector2f a(vs_out0.position.x * width, vs_out0.position.y * height);
-    const Vector2f b(vs_out1.position.x * width, vs_out1.position.y * height);
-    const Vector2f c(vs_out2.position.x * width, vs_out2.position.y * height);
+    const Vec2f a(vs_out0.position.x * width, vs_out0.position.y * height);
+    const Vec2f b(vs_out1.position.x * width, vs_out1.position.y * height);
+    const Vec2f c(vs_out2.position.x * width, vs_out2.position.y * height);
 
     // discard if A, B and C are on the same line
-    const Vector2f BA = a - b;
-    const Vector2f CA = a - c;
-    const Vector2f CB = b - c;
+    const Vec2f BA = a - b;
+    const Vec2f CA = a - c;
+    const Vec2f CB = b - c;
     if (BA.x * CA.y == BA.y * CA.x) {
         return;
     }
@@ -104,7 +104,7 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     auto& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = pipeline->GetVaryingFlags();
 
-    const Box2 screenBox(Vector2f::Zero, Vector2f(width, height));
+    const Box2 screenBox(Vec2f::Zero, Vector2f(width, height));
     Box2 aabb{};
     aabb.ExpandPoint(a);
     aabb.ExpandPoint(b);
@@ -117,23 +117,23 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     }
 
     // rasterization
-    Vector2f min = aabb.Min();
+    Vec2f min = aabb.Min();
     min.x = std::floor(min.x);
     min.y = std::floor(min.y);
-    Vector2f max = aabb.Max();
+    Vec2f max = aabb.Max();
     max.x = std::ceil(max.x);
     max.y = std::ceil(max.y);
     for (int _y = (int)min.y; _y < (int)max.y; ++_y) {
         for (int _x = (int)min.x; _x < (int)max.x; ++_x) {
-            Vector3f a_(CA.x, CB.x, c.x - _x);
-            Vector3f b_(CA.y, CB.y, c.y - _y);
-            Vector3f uvw = cross(a_, b_);
+            Vec3f a_(CA.x, CB.x, c.x - _x);
+            Vec3f b_(CA.y, CB.y, c.y - _y);
+            Vec3f uvw = cross(a_, b_);
             if (uvw.z == 0.0f) {
                 continue;
             }
             uvw /= uvw.z;
             uvw.z -= (uvw.x + uvw.y);
-            Vector3f bCoord = uvw;
+            Vec3f bCoord = uvw;
 
             static const float epsilon = glm::epsilon<float>();
             const float sum = bCoord.x + bCoord.y + bCoord.z;

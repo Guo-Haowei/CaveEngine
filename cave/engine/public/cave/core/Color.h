@@ -29,8 +29,8 @@ public:
     uint32_t ToRgb() const;
     uint32_t ToRgba() const;
 
-    math::Vector4f ToVector4f() const {
-        return math::Vector4f(r, g, b, a);
+    math::Vec4f ToVec4f() const {
+        return math::Vec4f(r, g, b, a);
     }
 
     static constexpr Color Hex(ColorCode p_hex) {

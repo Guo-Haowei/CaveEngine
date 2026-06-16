@@ -101,7 +101,7 @@ void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, 
             continue;
         }
 
-        const math::Vector3f pos = t * anim.end + (1 - t) * anim.begin;
+        const math::Vec3f pos = t * anim.end + (1 - t) * anim.begin;
         trans.SetTranslation(pos);
     }
 

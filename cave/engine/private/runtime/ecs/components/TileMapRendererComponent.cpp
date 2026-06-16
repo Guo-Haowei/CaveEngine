@@ -11,7 +11,7 @@ namespace cave {
 using namespace math;
 using namespace render;
 
-void TileMapRendererComponent::SetTintColor(const Vector4f& p_tint_color) {
+void TileMapRendererComponent::SetTintColor(const Vec4f& p_tint_color) {
     m_tint_color = p_tint_color;
 }
 
@@ -69,8 +69,8 @@ void TileMapRendererComponent::CreateRenderData() {
 
     m_cache.image = tile_set->GetHandle();
 
-    std::vector<Vector2f> vertices;
-    std::vector<Vector2f> uvs;
+    std::vector<Vec2f> vertices;
+    std::vector<Vec2f> uvs;
     std::vector<uint32_t> indices;
 
     const auto& chunks = tile_map->tiles().chunks;
@@ -99,18 +99,18 @@ void TileMapRendererComponent::CreateRenderData() {
                 float y0 = s * y;
                 float x1 = s * (x + 1);
                 float y1 = s * (y + 1);
-                Vector2f bottom_left{ x0, y0 };
-                Vector2f bottom_right{ x1, y0 };
-                Vector2f top_left{ x0, y1 };
-                Vector2f top_right{ x1, y1 };
-                Vector2f uv_min = frames[tile_id].Min();
-                Vector2f uv_max = frames[tile_id].Max();
+                Vec2f bottom_left{ x0, y0 };
+                Vec2f bottom_right{ x1, y0 };
+                Vec2f top_left{ x0, y1 };
+                Vec2f top_right{ x1, y1 };
+                Vec2f uv_min = frames[tile_id].Min();
+                Vec2f uv_max = frames[tile_id].Max();
 
                 // manually flip y here
-                Vector2f uv0 = { uv_min.x, uv_max.y };
-                Vector2f uv1 = { uv_max.x, uv_max.y };
-                Vector2f uv2 = { uv_min.x, uv_min.y };
-                Vector2f uv3 = { uv_max.x, uv_min.y };
+                Vec2f uv0 = { uv_min.x, uv_max.y };
+                Vec2f uv1 = { uv_max.x, uv_max.y };
+                Vec2f uv2 = { uv_min.x, uv_min.y };
+                Vec2f uv3 = { uv_max.x, uv_min.y };
 
                 const uint32_t offset = (uint32_t)vertices.size();
                 vertices.push_back(bottom_left);
@@ -139,7 +139,7 @@ void TileMapRendererComponent::CreateRenderData() {
     std::array<GpuBufferDesc, 2> buffers;
     GpuBufferDesc buffer_desc;
     buffer_desc.type = GpuBufferType::Vertex;
-    buffer_desc.element_size = sizeof(Vector2f);
+    buffer_desc.element_size = sizeof(Vec2f);
     buffer_desc.element_count = (uint32_t)vertices.size();
     buffer_desc.initial_data = vertices.data();
 
@@ -157,8 +157,8 @@ void TileMapRendererComponent::CreateRenderData() {
     GpuMeshDesc desc;
     desc.drawCount = count;
     desc.enabledVertexCount = 2;
-    desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vector2f), 0 };
-    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vector2f), 0 };
+    desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec2f), 0 };
+    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
 
     // @TODO: refactor this part
     // @NOTE: shouldn't call RenderDevice here

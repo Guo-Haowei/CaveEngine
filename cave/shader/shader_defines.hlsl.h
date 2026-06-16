@@ -63,17 +63,17 @@ VCT_CONST float LUT_BIAS = 0.5 / LUT_SIZE;
 #if defined(__cplusplus)
 
 using uint = unsigned int;
-using uint2 = ::cave::math::Vector2u;
-using uint3 = ::cave::math::Vector3u;
-using uint4 = ::cave::math::Vector4u;
+using uint2 = ::cave::math::Vec2u;
+using uint3 = ::cave::math::Vec3u;
+using uint4 = ::cave::math::Vec4u;
 
-using int2 = ::cave::math::Vector2i;
-using int3 = ::cave::math::Vector3i;
-using int4 = ::cave::math::Vector4i;
+using int2 = ::cave::math::Vec2i;
+using int3 = ::cave::math::Vec3i;
+using int4 = ::cave::math::Vec4i;
 
-using float2 = ::cave::math::Vector2f;
-using float3 = ::cave::math::Vector3f;
-using float4 = ::cave::math::Vector4f;
+using float2 = ::cave::math::Vec2f;
+using float3 = ::cave::math::Vec3f;
+using float4 = ::cave::math::Vec4f;
 
 using float4x4 = ::cave::math::Matrix4x4f;
 

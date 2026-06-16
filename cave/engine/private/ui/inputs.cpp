@@ -210,21 +210,21 @@ static bool Float3Impl(int type,
     return is_dirty;
 }
 bool Float2(const char* p_label,
-            math::Vector2f& p_out,
+            math::Vec2f& p_out,
             float p_reset_value,
             float p_column_width) {
     return Float3Impl<2>(TYPE_TRANSFORM, p_label, &p_out.x, p_reset_value, p_column_width);
 }
 
 bool Float3(const char* p_label,
-            math::Vector3f& p_out_vec3,
+            math::Vec3f& p_out_vec3,
             float p_reset_value,
             float p_column_width) {
     return Float3Impl<3>(TYPE_TRANSFORM, p_label, &p_out_vec3.x, p_reset_value, p_column_width);
 }
 
 bool ColorPicker3(const char* p_label,
-                  math::Vector3f& p_out,
+                  math::Vec3f& p_out,
                   float p_column_width) {
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, p_column_width);
@@ -237,7 +237,7 @@ bool ColorPicker3(const char* p_label,
 }
 
 bool ColorPicker4(const char* p_label,
-                  math::Vector4f& p_out,
+                  math::Vec4f& p_out,
                   float p_column_width) {
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, p_column_width);

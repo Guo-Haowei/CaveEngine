@@ -31,7 +31,7 @@ struct BvhAccel {
     bool isLeaf{ false };
 
     static Ref Construct(const std::vector<uint32_t>& p_indices,
-                         const std::vector<math::Vector3f>& p_vertices);
+                         const std::vector<math::Vec3f>& p_vertices);
 
     void FillGpuBvhAccel(std::vector<GpuPtBvh>& p_out);
 };

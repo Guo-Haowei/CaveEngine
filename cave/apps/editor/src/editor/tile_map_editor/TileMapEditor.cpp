@@ -125,7 +125,7 @@ void TileMapEditor::applayEditorTool() {
     IDocument* doc = editor_services_.document().resolve(doc_id_);
     DEV_ASSERT(doc);
 
-    Vector2f point_os = cursor_ + app_services_.displayService().windowPos();
+    Vec2f point_os = cursor_ + app_services_.displayService().windowPos();
     auto res = pointToTile(point_os);
     if (res.is_none()) {
         return;
@@ -185,7 +185,7 @@ void TileMapEditor::drawUIImpl() {
     submitView();
 }
 
-Option<TileIndex> TileMapEditor::pointToTile(math::Vector2f point_os) {
+Option<TileIndex> TileMapEditor::pointToTile(math::Vec2f point_os) {
     if (!isVisible()) return None();
 
     const ViewRecord* view = view_manager_.resolve(view_id_);
@@ -193,11 +193,11 @@ Option<TileIndex> TileMapEditor::pointToTile(math::Vector2f point_os) {
         return None();
     }
 
-    Vector2f ndc = view->screenToNDC(point_os);
+    Vec2f ndc = view->screenToNDC(point_os);
 
     Matrix4x4f pv_inv = glm::inverse(camera_.GetProjectionViewMatrix());
 
-    Vector4f pos = pv_inv * Vector4f(ndc, 0.0f, 1.0f);
+    Vec4f pos = pv_inv * Vector4f(ndc, 0.0f, 1.0f);
     pos /= pos.w;
 
     TileIndex index;

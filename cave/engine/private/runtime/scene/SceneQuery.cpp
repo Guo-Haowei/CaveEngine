@@ -38,9 +38,9 @@ static bool RaycastHelper(Ray& ray,
 
     // Test every single triange
     for (size_t i = 0; i < mesh.indices.size(); i += 3) {
-        const Vector3f& A = mesh.positions[mesh.indices[i]];
-        const Vector3f& B = mesh.positions[mesh.indices[i + 1]];
-        const Vector3f& C = mesh.positions[mesh.indices[i + 2]];
+        const Vec3f& A = mesh.positions[mesh.indices[i]];
+        const Vec3f& B = mesh.positions[mesh.indices[i + 1]];
+        const Vec3f& C = mesh.positions[mesh.indices[i + 2]];
         if (ray_inv.intersects(A, B, C)) {
             ray.distance(ray_inv.distance());
             return true;

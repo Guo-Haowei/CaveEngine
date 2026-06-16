@@ -21,7 +21,7 @@ namespace cave {
 
 namespace cave::render {
 
-using math::Vector2f;
+using math::Vec2f;
 
 constexpr const char RG_PASS_2D[] = "p:2d";
 constexpr const char RG_PASS_DEPTH_PREPASS[] = "p:early_z";

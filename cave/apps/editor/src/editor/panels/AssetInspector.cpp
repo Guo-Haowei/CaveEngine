@@ -85,7 +85,7 @@ void AssetInspector::tileMapLayerOverview(TileMapAsset& p_tile_map) {
                 image = image_handle->GetHandle().Get();
             }
 
-            Vector2f region_size(128, 128);
+            Vec2f region_size(128, 128);
             ui::CenteredImage(image, region_size, checkerboard_);
 
             if (ImGui::IsItemClicked()) {

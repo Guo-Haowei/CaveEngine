@@ -57,7 +57,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
         b2Vec2 position = b2Body_GetPosition(body_id);
         [[maybe_unused]] b2Rot rotation = b2Body_GetRotation(body_id);
 
-        Vector3f translation = transform.GetTranslation();
+        Vec3f translation = transform.GetTranslation();
         translation.x = position.x;
         translation.y = position.y;
         transform.SetTranslation(translation);
@@ -79,7 +79,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
     m_world_id = Some(std::bit_cast<uint32_t>(world_id));
 
     for (auto [id, collider, transform] : p_scene.View<ColliderComponent, TransformComponent>()) {
-        Vector4f position = transform.GetWorldMatrix() * Vector4f::UnitW;
+        Vec4f position = transform.GetWorldMatrix() * Vec4f::UnitW;
         b2BodyDef body_def = b2DefaultBodyDef();
         body_def.position = { position.x, position.y };
         body_def.fixedRotation = true;
@@ -129,7 +129,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
         const TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
         if (!tile_set) continue;
 
-        Vector4f position = transform.GetWorldMatrix() * Vector4f::UnitW;
+        Vec4f position = transform.GetWorldMatrix() * Vec4f::UnitW;
 
         const auto& colliders = tile_set->GetColliders();
         const auto& chunks = tile_map->tiles().chunks;

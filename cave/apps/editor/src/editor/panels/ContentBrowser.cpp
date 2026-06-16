@@ -168,7 +168,7 @@ void ContentBrowser::drawContentBrowser() {
 
         auto [hovered, clicked] = ui::AssetCard(handle,
                                                 node->file_name.data(),
-                                                math::Vector2f(thumbnail_size));
+                                                math::Vec2f(thumbnail_size));
         if (ImGui::BeginPopupContextItem()) {
             ShowPopup(*node, editor_services_.document(), []() {
                 LOG_WARN("TODO: rename");

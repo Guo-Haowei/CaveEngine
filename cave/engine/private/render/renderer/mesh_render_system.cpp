@@ -33,7 +33,7 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
     cb.c_heightMapHandle = 0;
 
     if (!p_material) {
-        cb.c_baseColor = Vector4f(1, 0, 1, 1);
+        cb.c_baseColor = Vec4f(1, 0, 1, 1);
         cb.c_metallic = 0.5f;
         cb.c_roughness = 0.5f;
         cb.c_emissivePower = 0.0f;
@@ -187,7 +187,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
                 Matrix4x4f light_local_matrix = light_transform->GetLocalMatrix();
-                Vector3f light_dir((light_local_matrix * Vector4f(0, 0, 1, 1)).xyz);
+                Vec3f light_dir((light_local_matrix * Vec4f(0, 0, 1, 1)).xyz);
                 light_dir = normalize(light_dir);
                 cache.c_sunPosition = light_dir;
                 light.cast_shadow = cast_shadow;
@@ -199,13 +199,13 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 if (!world_bound.IsValid()) {
                     world_bound = p_scene.GetBound();
                 }
-                Vector3f center = world_bound.Center();
-                Vector3f extents = world_bound.Size();
+                Vec3f center = world_bound.Center();
+                Vec3f extents = world_bound.Size();
 
                 const float size = 0.7f * max(extents.x, max(extents.y, extents.z));
-                Vector3f tmp;
-                tmp.Set(&light_dir.x);
-                light.view_matrix = LookAtRh(center + tmp * size, center, Vector3f::UnitY);
+                Vec3f tmp;
+                tmp.set(&light_dir.x);
+                light.view_matrix = LookAtRh(center + tmp * size, center, Vec3f::UnitY);
 
                 if (p_framedata.options.is_opengl) {
                     light.projection_matrix = BuildOpenGlOrthoRH(-size, size, -size, size, -size, 3.0f * size);
@@ -280,10 +280,10 @@ static void FillLightBuffer(const RenderScene& p_rs,
             case LIGHT_TYPE_AREA: {
                 Matrix4x4f transform = light_transform->GetWorldMatrix();
                 constexpr float s = 0.5f;
-                light.points[0] = transform * Vector4f(-s, +s, 0.0f, 1.0f);
-                light.points[1] = transform * Vector4f(-s, -s, 0.0f, 1.0f);
-                light.points[2] = transform * Vector4f(+s, -s, 0.0f, 1.0f);
-                light.points[3] = transform * Vector4f(+s, +s, 0.0f, 1.0f);
+                light.points[0] = transform * Vec4f(-s, +s, 0.0f, 1.0f);
+                light.points[1] = transform * Vec4f(-s, -s, 0.0f, 1.0f);
+                light.points[2] = transform * Vec4f(+s, -s, 0.0f, 1.0f);
+                light.points[3] = transform * Vec4f(+s, +s, 0.0f, 1.0f);
             } break;
             default:
                 CRASH_NOW();

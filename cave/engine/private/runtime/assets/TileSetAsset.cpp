@@ -31,7 +31,7 @@ void TileSetAsset::SetScale(float p_scale) {
 
 bool TileSetAsset::AddBoxCollider(uint32_t p_id) {
     if (p_id < static_cast<uint32_t>(m_frames.size())) {
-        m_colliders[p_id] = Shape::MakeBox(math::Vector2f(0.5f));
+        m_colliders[p_id] = Shape::MakeBox(math::Vec2f(0.5f));
         return true;
     }
     return false;

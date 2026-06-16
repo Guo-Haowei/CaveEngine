@@ -31,42 +31,42 @@ enum VariantType {
 
 class Dvar {
 public:
-    explicit Dvar(VariantType p_type, DvarFlags p_flags, const char* p_desc);
+    explicit Dvar(VariantType type, DvarFlags flags, const char* desc);
 
-    void RegisterInt(std::string_view p_key, int p_value);
-    void RegisterFloat(std::string_view p_key, float p_value);
-    void RegisterString(std::string_view p_key, std::string_view p_value);
-    void RegisterVector2f(std::string_view p_key, float p_x, float p_y);
-    void RegisterVector3f(std::string_view p_key, float p_x, float p_y, float p_z);
-    void RegisterVector4f(std::string_view p_key, float p_x, float p_y, float p_z, float p_w);
-    void RegisterVector2i(std::string_view p_key, int p_x, int p_y);
-    void RegisterVector3i(std::string_view p_key, int p_x, int p_y, int p_z);
-    void RegisterVector4i(std::string_view p_key, int p_x, int p_y, int p_z, int p_w);
+    void RegisterInt(std::string_view key, int value);
+    void RegisterFloat(std::string_view key, float value);
+    void RegisterString(std::string_view key, std::string_view value);
+    void RegisterVector2f(std::string_view key, float x, float y);
+    void RegisterVector3f(std::string_view key, float x, float y, float z);
+    void RegisterVector4f(std::string_view key, float x, float y, float z, float w);
+    void RegisterVector2i(std::string_view key, int x, int y);
+    void RegisterVector3i(std::string_view key, int x, int y, int z);
+    void RegisterVector4i(std::string_view key, int x, int y, int z, int w);
 
     [[nodiscard]] int AsInt() const;
     [[nodiscard]] float AsFloat() const;
     [[nodiscard]] const std::string& AsString() const;
-    [[nodiscard]] math::Vector2f AsVector2f() const;
-    [[nodiscard]] math::Vector3f AsVector3f() const;
-    [[nodiscard]] math::Vector4f AsVector4f() const;
-    [[nodiscard]] math::Vector2i AsVector2i() const;
-    [[nodiscard]] math::Vector3i AsVector3i() const;
-    [[nodiscard]] math::Vector4i AsVector4i() const;
+    [[nodiscard]] math::Vec2f asVec2f() const;
+    [[nodiscard]] math::Vec3f asVec3f() const;
+    [[nodiscard]] math::Vec4f asVec4f() const;
+    [[nodiscard]] math::Vec2i asVec2i() const;
+    [[nodiscard]] math::Vec3i asVec3i() const;
+    [[nodiscard]] math::Vec4i asVec4i() const;
     [[nodiscard]] void* AsPointer();
 
-    bool SetInt(int p_value);
-    bool SetFloat(float p_value);
-    bool SetString(const std::string& p_value);
-    bool SetString(std::string_view p_value);
-    bool SetVector2f(float p_x, float p_y);
-    bool SetVector3f(float p_x, float p_y, float p_z);
-    bool SetVector4f(float p_x, float p_y, float p_z, float p_w);
-    bool SetVector2i(int p_x, int p_y);
-    bool SetVector3i(int p_x, int p_y, int p_z);
-    bool SetVector4i(int p_x, int p_y, int p_z, int p_w);
+    bool SetInt(int value);
+    bool SetFloat(float value);
+    bool SetString(const std::string& value);
+    bool SetString(std::string_view value);
+    bool SetVector2f(float x, float y);
+    bool SetVector3f(float x, float y, float z);
+    bool SetVector4f(float x, float y, float z, float w);
+    bool SetVector2i(int x, int y);
+    bool SetVector3i(int x, int y, int z);
+    bool SetVector4i(int x, int y, int z, int w);
 
-    void SetFlag(DvarFlags p_flag) { m_flags |= p_flag; }
-    void UnsetFlag(DvarFlags p_flag) { m_flags &= ~p_flag; }
+    void SetFlag(DvarFlags flag) { m_flags |= flag; }
+    void UnsetFlag(DvarFlags flag) { m_flags &= ~flag; }
 
     std::string ValueToString() const;
 
@@ -74,8 +74,8 @@ public:
     const char* GetDesc() const { return m_desc; }
     uint32_t GetFlags() const { return m_flags; }
 
-    static Dvar* FindDvar(const std::string& p_name);
-    static void RegisterDvar(std::string_view p_key, Dvar* p_dvar);
+    static Dvar* FindDvar(const std::string& name);
+    static void RegisterDvar(std::string_view key, Dvar* dvar);
 
 private:
     const VariantType m_type;
@@ -85,8 +85,8 @@ private:
     union {
         int m_int;
         float m_float;
-        math::Vector4f m_vec;
-        math::Vector4i m_ivec;
+        math::Vec4f m_vec;
+        math::Vec4i m_ivec;
     };
     std::string m_string;
     std::string m_name;
@@ -101,12 +101,12 @@ private:
 #define DVAR_GET_INT(name)     (DVAR_##name).AsInt()
 #define DVAR_GET_FLOAT(name)   (DVAR_##name).AsFloat()
 #define DVAR_GET_STRING(name)  (DVAR_##name).AsString()
-#define DVAR_GET_VEC2(name)    (DVAR_##name).AsVector2f()
-#define DVAR_GET_VEC3(name)    (DVAR_##name).AsVector3f()
-#define DVAR_GET_VEC4(name)    (DVAR_##name).AsVector4f()
-#define DVAR_GET_IVEC2(name)   (DVAR_##name).AsVector2i()
-#define DVAR_GET_IVEC3(name)   (DVAR_##name).AsVector3i()
-#define DVAR_GET_IVEC4(name)   (DVAR_##name).AsVector4i()
+#define DVAR_GET_VEC2(name)    (DVAR_##name).asVec2f()
+#define DVAR_GET_VEC3(name)    (DVAR_##name).asVec3f()
+#define DVAR_GET_VEC4(name)    (DVAR_##name).asVec4f()
+#define DVAR_GET_IVEC2(name)   (DVAR_##name).asVec2i()
+#define DVAR_GET_IVEC3(name)   (DVAR_##name).asVec3i()
+#define DVAR_GET_IVEC4(name)   (DVAR_##name).asVec4i()
 #define DVAR_GET_POINTER(name) (DVAR_##name).AsPointer()
 
 #define DVAR_SET_BOOL(name, value)       (DVAR_##name).SetInt(!!(value))

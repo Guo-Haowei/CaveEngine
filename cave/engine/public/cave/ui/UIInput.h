@@ -7,7 +7,7 @@
 namespace cave {
 
 struct UIInput {
-    math::Vector2f cursor_os{ 0.0f, 0.0f };  // cursor in screen space
+    math::Vec2f cursor_os{ 0.0f, 0.0f };  // cursor in screen space
 
     bool submit_pressed = false;
     bool submit_released = false;

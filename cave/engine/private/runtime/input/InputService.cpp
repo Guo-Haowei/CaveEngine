@@ -47,7 +47,7 @@ void InputService::addDevice(std::unique_ptr<IInputDevice> device) {
 
 void InputService::updatePointers(std::vector<InputEvent>& events) {
     for (PointerState& pointer : pointers_) {
-        pointer.delta = Vector2f::Zero;
+        pointer.delta = Vec2f::Zero;
     }
 
     for (InputEvent& e : events) {
@@ -56,7 +56,7 @@ void InputService::updatePointers(std::vector<InputEvent>& events) {
 
         PointerState& pointer = pointers_[e.dev_id.value];
 
-        Vector2f new_pos{ e.x, e.y };
+        Vec2f new_pos{ e.x, e.y };
 
         if (pointer.has_pos) {
             pointer.delta = new_pos - pointer.pos_win;
@@ -86,7 +86,7 @@ UIInput InputService::buildUIInput() {
     input.down_pressed = game_input_.isJustPressed("ui_down"_sid, player_id);
 
     const PointerState& pointer = pointers_[device_id.value];
-    Vector2f window_pos = m_app->services().displayService().windowPos();
+    Vec2f window_pos = m_app->services().displayService().windowPos();
     input.cursor_os = pointer.pos_win + window_pos;
 
     return input;

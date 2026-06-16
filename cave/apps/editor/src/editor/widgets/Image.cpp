@@ -65,7 +65,7 @@ void CenteredImage(uint64_t p_handle,
 }
 
 void CenteredImage(const ImageAsset* p_image,
-                   const math::Vector2f& p_background_region,
+                   const math::Vec2f& p_background_region,
                    uint64_t p_background) {
 
     ImVec2 background_region(p_background_region.x, p_background_region.y);
@@ -120,7 +120,7 @@ void CenteredImage(const ImageAsset* p_image,
 
 auto AssetCard(uint64_t p_texture_id,
                const char* p_name,
-               const math::Vector2f& p_image_size) -> std::tuple<bool, bool> {
+               const math::Vec2f& p_image_size) -> std::tuple<bool, bool> {
 
     ImDrawList* draw = ImGui::GetWindowDrawList();
     ImVec2 pos = ImGui::GetCursorScreenPos();

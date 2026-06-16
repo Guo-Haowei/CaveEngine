@@ -14,7 +14,7 @@ struct UIBatch {
 };
 
 struct BuiltUIData {
-    std::vector<math::Vector2f> positions;
+    std::vector<math::Vec2f> positions;
     std::vector<Color> colors;
     std::vector<uint32_t> indices;
     std::vector<UIBatch> batches;

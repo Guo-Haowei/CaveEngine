@@ -54,11 +54,11 @@ void ViewTabBase::onCreate() {
     switch (dim_) {
         case ViewDimension::Dim2: {
             camera_.SetProjection(ProjectionType::Orthographic);
-            camera_transform_.Translate(Vector3f(0, 0, 4));
+            camera_transform_.Translate(Vec3f(0, 0, 4));
             camera_controller_ = std::make_unique<CameraController2DEditor>(camera_, camera_transform_);
         } break;
         case ViewDimension::Dim3: {
-            camera_transform_.Translate(Vector3f(0, 4, 8));
+            camera_transform_.Translate(Vec3f(0, 4, 8));
             camera_controller_ = std::make_unique<CameraControllerFPS>(camera_, camera_transform_);
         } break;
     }

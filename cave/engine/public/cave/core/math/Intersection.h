@@ -12,7 +12,7 @@ public:
     static bool aabbAabb(const AABB& aabb1, const AABB& aabb2);
     static bool planeRay(const Plane& plane, Ray& ray);
     static bool aabbRay(const AABB& aabb, Ray& ray);
-    static bool triangleRay(const Vector3f& a, const Vector3f& b, const Vector3f& c, Ray& ray);
+    static bool triangleRay(const Vec3f& a, const Vec3f& b, const Vec3f& c, Ray& ray);
 };
 
 }  // namespace cave::math

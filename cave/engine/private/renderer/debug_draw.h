@@ -8,22 +8,22 @@ struct GpuMesh;
 
 class DebugDraw {
     struct Item {
-        math::Vector3f min;
-        math::Vector3f max;
-        math::Vector4f tint_color;
+        math::Vec3f min;
+        math::Vec3f max;
+        math::Vec4f tint_color;
         GpuTexture* texture = nullptr;
     };
 
 public:
-    void AddBox2Frame(const math::Vector2f& p_min,
-                      const math::Vector2f& p_max,
-                      const math::Vector4f& p_color,
+    void AddBox2Frame(const math::Vec2f& p_min,
+                      const math::Vec2f& p_max,
+                      const math::Vec4f& p_color,
                       const math::Matrix4x4f* p_transform = nullptr,
                       float p_thickness = 0.1f);
 
-    void AddBox2(const math::Vector2f& p_min,
-                 const math::Vector2f& p_max,
-                 const math::Vector4f& p_color,
+    void AddBox2(const math::Vec2f& p_min,
+                 const math::Vec2f& p_max,
+                 const math::Vec4f& p_color,
                  const math::Matrix4x4f* p_transform = nullptr);
 
     void Batch();

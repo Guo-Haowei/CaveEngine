@@ -39,14 +39,14 @@ public:
 
     uint32_t flags = 0;
     std::vector<uint32_t> indices;
-    std::vector<math::Vector3f> positions;
-    std::vector<math::Vector3f> normals;
-    std::vector<math::Vector3f> tangents;
-    std::vector<math::Vector2f> texcoords_0;
-    std::vector<math::Vector2f> texcoords_1;
-    std::vector<math::Vector4i> joints_0;
-    std::vector<math::Vector4f> weights_0;
-    std::vector<math::Vector4f> color_0;
+    std::vector<math::Vec3f> positions;
+    std::vector<math::Vec3f> normals;
+    std::vector<math::Vec3f> tangents;
+    std::vector<math::Vec2f> texcoords_0;
+    std::vector<math::Vec2f> texcoords_1;
+    std::vector<math::Vec4i> joints_0;
+    std::vector<math::Vec4f> weights_0;
+    std::vector<math::Vec4f> color_0;
 
     struct MeshSubset {
         uint32_t index_offset = 0;
@@ -60,8 +60,8 @@ public:
     mutable std::shared_ptr<render::BvhAccel> bvh;
     math::AABB localBound;
 
-    mutable std::vector<math::Vector3f> updatePositions;
-    mutable std::vector<math::Vector3f> updateNormals;
+    mutable std::vector<math::Vec3f> updatePositions;
+    mutable std::vector<math::Vec3f> updateNormals;
 
     VertexAttribute attributes[std::to_underlying(VertexAttributeName::COUNT)];
 

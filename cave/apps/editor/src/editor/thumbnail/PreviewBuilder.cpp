@@ -23,14 +23,14 @@ static CameraComponent FitAABBToCamera(const math::AABB& aabb,
                                        const PreviewOptions& options,
                                        float padding = 1.15f) {
     CameraComponent camera;
-    const Vector3f center = aabb.Center();
-    const Vector3f extents = aabb.HalfExtent();
+    const Vec3f center = aabb.Center();
+    const Vec3f extents = aabb.HalfExtent();
 
     const float r = padding * math::length(extents);
     const float aspect = (float)options.width / options.height;
 
-    Matrix4x4f rotation = math::Rotate(math::Degree(-30.0f), Vector3f::UnitX);
-    Vector3f front = (rotation * Vector4f::UnitZ).xyz;
+    Matrix4x4f rotation = math::Rotate(math::Degree(-30.0f), Vec3f::UnitX);
+    Vec3f front = (rotation * Vec4f::UnitZ).xyz;
 
     const float theta_y = 0.5f * glm::radians<float>(options.fov_y_deg);
     const float theta_x = std::atan(std::tan(theta_y) * aspect);
@@ -40,7 +40,7 @@ static CameraComponent FitAABBToCamera(const math::AABB& aabb,
     float dist = glm::max(dist_x, dist_y);
     dist *= 1.02f;
 
-    const Vector3f pos = center + front * dist;
+    const Vec3f pos = center + front * dist;
     Matrix4x4f transform = math::Translate(pos);
 
     const float near_z = std::max(0.01f, dist - r * 2.0f);
@@ -106,7 +106,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     Entity root = cb.CreateRootObject();
 
     if constexpr (1) {
-        Entity light = cb.CreatePointLightObject("light", math::Vector3f(0, 3, 1));
+        Entity light = cb.CreatePointLightObject("light", math::Vec3f(0, 3, 1));
         cb.AttachChild(light, root);
     }
 
@@ -127,7 +127,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     scene->m_root = map.Resolve(root);
     scene->Update(0.0f);
 
-    Matrix4x4f transform = math::Translate(Vector3f(0, 0, 1.5f));
+    Matrix4x4f transform = math::Translate(Vec3f(0, 0, 1.5f));
 
     CameraComponent camera{};
     camera.SetAspect((float)options.width / (float)options.height);
@@ -150,7 +150,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     DEV_ASSERT(mesh);
 
     if constexpr (1) {
-        Entity light = cb.CreatePointLightObject("light", math::Vector3f(0, 3, 1));
+        Entity light = cb.CreatePointLightObject("light", math::Vec3f(0, 3, 1));
         cb.AttachChild(light, root);
     }
 

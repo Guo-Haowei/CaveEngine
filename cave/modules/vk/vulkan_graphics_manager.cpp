@@ -434,7 +434,7 @@ void VulkanGraphicsManager::OnWindowResize(int p_width, int p_height) {
 void VulkanGraphicsManager::Present() {
     ImGui_ImplVulkanH_Window* wd = &g_MainWindowData;
 
-    Vector4f clear_color{ 0.3f, 0.4f, 0.3f, 1.0f };
+    Vec4f clear_color{ 0.3f, 0.4f, 0.3f, 1.0f };
     // Rendering
     wd->ClearValue.color.float32[0] = clear_color.x * clear_color.w;
     wd->ClearValue.color.float32[1] = clear_color.y * clear_color.w;

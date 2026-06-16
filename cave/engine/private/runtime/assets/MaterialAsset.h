@@ -21,7 +21,7 @@ struct MaterialAsset : public IAsset {
     CAVE_META(MaterialAsset)
 
     CAVE_PROP(editor = Color)
-    math::Vector4f base_color = math::Vector4f::One;
+    math::Vec4f base_color = math::Vec4f::One;
 
     CAVE_PROP(editor = DragFloat, min = 0.00f, max = 0.99f)
     float metallic = 0.0f;

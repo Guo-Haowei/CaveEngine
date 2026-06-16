@@ -37,7 +37,7 @@ protected:
     bool canHandleInput(const InputFrame& input);
     bool updateEditMode(const InputFrame& input);
     void applayEditorTool();
-    Option<TileIndex> pointToTile(math::Vector2f point_os);
+    Option<TileIndex> pointToTile(math::Vec2f point_os);
 
     TileMapEditorContext& ctx_;
     const DebugId debug_id_;
@@ -45,7 +45,7 @@ protected:
     Mode mode_{ Mode::None };
     bool lb_down_{ false };
     bool rb_down_{ false };
-    math::Vector2f cursor_;
+    math::Vec2f cursor_;
 };
 
 }  // namespace cave

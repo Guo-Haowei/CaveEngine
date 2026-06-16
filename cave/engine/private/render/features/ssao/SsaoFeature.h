@@ -10,7 +10,7 @@ namespace cave::render {
 struct RenderOptions;
 class RenderGraph;
 
-using KernelData = std::array<math::Vector4f, 64>;
+using KernelData = std::array<math::Vec4f, 64>;
 
 class SsaoFeature {
 public:

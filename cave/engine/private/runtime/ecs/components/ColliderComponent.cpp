@@ -8,17 +8,17 @@ using namespace cave::math;
 
 Shape::Shape() {
     type = ShapeType::Null;
-    data.half = Vector3f(0.5f);
+    data.half = Vec3f(0.5f);
 }
 
-Shape Shape::MakeBox(const Vector2f& p_half) {
+Shape Shape::MakeBox(const Vec2f& p_half) {
     Shape shape;
     shape.type = ShapeType::Box;
     shape.data.half.xy = p_half;
     return shape;
 }
 
-Shape Shape::MakeBox(const Vector3f& p_half) {
+Shape Shape::MakeBox(const Vec3f& p_half) {
     Shape shape;
     shape.type = ShapeType::Box;
     shape.data.half = p_half;

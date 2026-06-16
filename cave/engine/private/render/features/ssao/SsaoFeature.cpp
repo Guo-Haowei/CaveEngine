@@ -17,18 +17,18 @@ namespace cave {
 
 namespace cave::render {
 
-using math::Vector2f;
-using math::Vector3f;
-using math::Vector4f;
+using math::Vec2f;
+using math::Vec3f;
+using math::Vec4f;
 
-static_assert(sizeof(KernelData) == sizeof(Vector4f) * SSAO_KERNEL_SIZE);
+static_assert(sizeof(KernelData) == sizeof(Vec4f) * SSAO_KERNEL_SIZE);
 
 static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
     // generate noise texture
-    std::vector<Vector2f> ssao_noise;
+    std::vector<Vec2f> ssao_noise;
     for (int i = 0; i < (SSAO_NOISE_SIZE * SSAO_NOISE_SIZE); ++i) {
-        Vector2f noise(Random::Float(-1.0f, 1.0f),
-                       Random::Float(-1.0f, 1.0f));
+        Vec2f noise(Random::Float(-1.0f, 1.0f),
+                    Random::Float(-1.0f, 1.0f));
         ssao_noise.emplace_back(noise);
     }
 
@@ -105,9 +105,9 @@ KernelData SsaoFeature::CreateKernel() {
     const float inv_kernel_size = 1.0f / kernel_size;
     for (int i = 0; i < static_cast<int>(kernel.size()); ++i) {
         // [-1, 1], [-1, 1], [0, 1]
-        Vector3f sample(Random::Float(-1.0f, 1.0f),
-                        Random::Float(-1.0f, 1.0f),
-                        Random::Float());
+        Vec3f sample(Random::Float(-1.0f, 1.0f),
+                     Random::Float(-1.0f, 1.0f),
+                     Random::Float());
 
         sample = normalize(sample);
         sample *= Random::Float();

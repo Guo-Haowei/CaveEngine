@@ -39,11 +39,11 @@ void CenteredImage(uint64_t p_handle,
                    bool p_flip);
 
 void CenteredImage(const ImageAsset* p_image,
-                   const math::Vector2f& p_background_region,
+                   const math::Vec2f& p_background_region,
                    uint64_t p_background);
 
 auto AssetCard(uint64_t p_texture_id,
                const char* p_name,
-               const math::Vector2f& p_image_size) -> std::tuple<bool, bool>;
+               const math::Vec2f& p_image_size) -> std::tuple<bool, bool>;
 
 }  // namespace cave::ui

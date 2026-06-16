@@ -21,7 +21,7 @@ public:
     void onCreate() override;
     void onDestroy() override;
 
-    Option<PickData> getPickData(const math::Vector2f& pos_screen) override;
+    Option<PickData> getPickData(const math::Vec2f& pos_screen) override;
 
     void onInputEvents(const InputFrame& input) override;
 

@@ -41,7 +41,7 @@ void ChessBoardView::drawBoard() {
                             visible);
     }
 
-    Vector3f position = squareToVec(hovered_square_);
+    Vec3f position = squareToVec(hovered_square_);
     writer_.SetProperty(selector_,
                         cave::TransformComponent_Id,
                         kTranslationId,

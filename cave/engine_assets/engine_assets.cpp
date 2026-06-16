@@ -65,14 +65,14 @@ static void RegisterPersistentMeshes(AppServices& services) {
     auto& asset_registry = services.assetRegistry();
     auto& graphics_manager = services.renderDevice();
     {
-        auto mesh = CreatePlaneMesh(Vector3f(0.5f));
+        auto mesh = CreatePlaneMesh(Vec3f(0.5f));
         asset_registry.RegisterPersistentAsset("meshes/plane",
                                                TO_GUID(GUID4),
                                                mesh);
         graphics_manager.RequestMesh(mesh.get());
     }
     {
-        auto mesh = CreateCubeMesh(Vector3f(0.5f));
+        auto mesh = CreateCubeMesh(Vec3f(0.5f));
         asset_registry.RegisterPersistentAsset("meshes/cube",
                                                TO_GUID(GUID5),
                                                mesh);
@@ -111,7 +111,7 @@ static void RegisterPersistentMeshes(AppServices& services) {
 static void RegisterPersistentMaterials(AppServices& services) {
     auto& asset_registry = services.assetRegistry();
     auto material = std::make_shared<MaterialAsset>();
-    material->base_color = Vector4f(1.0f, 0.0f, 1.0f, 1.0f);
+    material->base_color = Vec4f(1.0f, 0.0f, 1.0f, 1.0f);
     asset_registry.RegisterPersistentAsset("materials/default", TO_GUID(GUID10), material);
 }
 

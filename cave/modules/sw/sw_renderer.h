@@ -15,17 +15,17 @@ enum VaryingFlag : uint8_t {
 };
 
 struct alignas(16) VSInput {
-    math::Vector4f position;
-    math::Vector4f normal;
-    math::Vector2f uv;
+    math::Vec4f position;
+    math::Vec4f normal;
+    math::Vec2f uv;
 };
 
 struct alignas(16) VSOutput {
-    math::Vector4f position;
-    math::Vector4f world_position;
-    math::Vector4f normal;
-    math::Vector4f color;
-    math::Vector2f uv;
+    math::Vec4f position;
+    math::Vec4f world_position;
+    math::Vec4f normal;
+    math::Vec4f color;
+    math::Vec2f uv;
 };
 
 class SwPipeline {
@@ -35,7 +35,7 @@ public:
 
     virtual VSOutput ProcessVertex(const VSInput& input) = 0;
 
-    virtual math::Vector3f ProcessFragment(const VSOutput& input) = 0;
+    virtual math::Vec3f ProcessFragment(const VSOutput& input) = 0;
 
     uint8_t GetVaryingFlags() const { return m_varying_flags; }
 

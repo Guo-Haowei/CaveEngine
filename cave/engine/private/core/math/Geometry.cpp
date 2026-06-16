@@ -24,17 +24,17 @@ namespace cave::math {
 enum { A = 0, B = 1, C = 2, D = 3, E = 4, F = 5, G = 6, H = 7 };
 // clang-format on
 
-MeshAsset MakeCubeMesh(const std::array<Vector3f, 8>& p_points) {
+MeshAsset MakeCubeMesh(const std::array<Vec3f, 8>& p_points) {
     MeshAsset mesh;
 
-    const Vector3f& a = p_points[A];
-    const Vector3f& b = p_points[B];
-    const Vector3f& c = p_points[C];
-    const Vector3f& d = p_points[D];
-    const Vector3f& e = p_points[E];
-    const Vector3f& f = p_points[F];
-    const Vector3f& g = p_points[G];
-    const Vector3f& h = p_points[H];
+    const Vec3f& a = p_points[A];
+    const Vec3f& b = p_points[B];
+    const Vec3f& c = p_points[C];
+    const Vec3f& d = p_points[D];
+    const Vec3f& e = p_points[E];
+    const Vec3f& f = p_points[F];
+    const Vec3f& g = p_points[G];
+    const Vec3f& h = p_points[H];
     // clang-format off
     mesh.positions = {
         // front
@@ -55,13 +55,13 @@ MeshAsset MakeCubeMesh(const std::array<Vector3f, 8>& p_points) {
     mesh.indices.clear();
     mesh.normals.clear();
     for (int i = 0; i < 24; i += 4) {
-        const Vector3f& A = mesh.positions[i];
-        const Vector3f& B = mesh.positions[i + 1];
-        const Vector3f& C = mesh.positions[i + 2];
+        const Vec3f& A = mesh.positions[i];
+        const Vec3f& B = mesh.positions[i + 1];
+        const Vec3f& C = mesh.positions[i + 2];
         // const Vector3f& D = mesh.positions[i + 3];
-        Vector3f AB = B - A;
-        Vector3f AC = C - A;
-        Vector3f normal = normalize(cross(AB, AC));
+        Vec3f AB = B - A;
+        Vec3f AC = C - A;
+        Vec3f normal = normalize(cross(AB, AC));
 
         mesh.normals.emplace_back(normal);
         mesh.normals.emplace_back(normal);
@@ -77,10 +77,10 @@ MeshAsset MakeCubeMesh(const std::array<Vector3f, 8>& p_points) {
         mesh.indices.emplace_back(i + 3);
 
         // TODO: fix dummy uv
-        mesh.texcoords_0.push_back(Vector2f::Zero);
-        mesh.texcoords_0.push_back(Vector2f::Zero);
-        mesh.texcoords_0.push_back(Vector2f::Zero);
-        mesh.texcoords_0.push_back(Vector2f::Zero);
+        mesh.texcoords_0.push_back(Vec2f::Zero);
+        mesh.texcoords_0.push_back(Vec2f::Zero);
+        mesh.texcoords_0.push_back(Vec2f::Zero);
+        mesh.texcoords_0.push_back(Vec2f::Zero);
     }
 
     MeshAsset::MeshSubset subset;
@@ -95,11 +95,11 @@ MeshAsset MakeCubeMesh(const std::array<Vector3f, 8>& p_points) {
 MeshAsset MakeTetrahedronMesh(float p_size) {
     // Vertex data for a tetrahedron (4 vertices, each with x, y, z coordinates)
     constexpr float h = 2.0f / 2.449f;
-    Vector3f vertices[] = {
-        p_size * Vector3f(+0, +h, +1),  // top front
-        p_size * Vector3f(+0, +h, -1),  // top back
-        p_size * Vector3f(-1, -h, +0),  // bottom left vertex
-        p_size * Vector3f(+1, -h, +0),  // bottom right vertex
+    Vec3f vertices[] = {
+        p_size * Vec3f(+0, +h, +1),  // top front
+        p_size * Vec3f(+0, +h, -1),  // top back
+        p_size * Vec3f(-1, -h, +0),  // bottom left vertex
+        p_size * Vec3f(+1, -h, +0),  // bottom right vertex
     };
 
     static const uint32_t indices[] = {
@@ -112,11 +112,11 @@ MeshAsset MakeTetrahedronMesh(float p_size) {
     MeshAsset mesh;
 
     for (uint32_t i = 0; i < std::size(indices); i += 3) {
-        Vector3f A = vertices[indices[i]];
-        Vector3f B = vertices[indices[i + 1]];
-        Vector3f C = vertices[indices[i + 2]];
+        Vec3f A = vertices[indices[i]];
+        Vec3f B = vertices[indices[i + 1]];
+        Vec3f C = vertices[indices[i + 2]];
 
-        Vector3f normal = normalize(cross(A - B, A - C));
+        Vec3f normal = normalize(cross(A - B, A - C));
 
         mesh.positions.emplace_back(A);
         mesh.positions.emplace_back(B);
@@ -130,9 +130,9 @@ MeshAsset MakeTetrahedronMesh(float p_size) {
         mesh.indices.emplace_back(i + 1);
         mesh.indices.emplace_back(i + 2);
 
-        mesh.texcoords_0.emplace_back(Vector2f());
-        mesh.texcoords_0.emplace_back(Vector2f());
-        mesh.texcoords_0.emplace_back(Vector2f());
+        mesh.texcoords_0.emplace_back(Vec2f());
+        mesh.texcoords_0.emplace_back(Vec2f());
+        mesh.texcoords_0.emplace_back(Vec2f());
     }
 
     MeshAsset::MeshSubset subset;
@@ -144,19 +144,19 @@ MeshAsset MakeTetrahedronMesh(float p_size) {
     return mesh;
 }
 
-void BoxWireFrameHelper(const Vector3f& p_min,
-                        const Vector3f& p_max,
-                        std::vector<Vector3f>& p_out_positions,
+void BoxWireFrameHelper(const Vec3f& p_min,
+                        const Vec3f& p_max,
+                        std::vector<Vec3f>& p_out_positions,
                         std::vector<uint32_t>& p_out_indices) {
     p_out_positions = {
-        Vector3f(p_min.x, p_max.y, p_max.z),  // A
-        Vector3f(p_min.x, p_min.y, p_max.z),  // B
-        Vector3f(p_max.x, p_min.y, p_max.z),  // C
-        Vector3f(p_max.x, p_max.y, p_max.z),  // D
-        Vector3f(p_min.x, p_max.y, p_min.z),  // E
-        Vector3f(p_min.x, p_min.y, p_min.z),  // F
-        Vector3f(p_max.x, p_min.y, p_min.z),  // G
-        Vector3f(p_max.x, p_max.y, p_min.z),  // H
+        Vec3f(p_min.x, p_max.y, p_max.z),  // A
+        Vec3f(p_min.x, p_min.y, p_max.z),  // B
+        Vec3f(p_max.x, p_min.y, p_max.z),  // C
+        Vec3f(p_max.x, p_max.y, p_max.z),  // D
+        Vec3f(p_min.x, p_max.y, p_min.z),  // E
+        Vec3f(p_min.x, p_min.y, p_min.z),  // F
+        Vec3f(p_max.x, p_min.y, p_min.z),  // G
+        Vec3f(p_max.x, p_max.y, p_min.z),  // H
     };
 
     p_out_indices = {
@@ -177,32 +177,32 @@ void BoxWireFrameHelper(const Vector3f& p_min,
 
 MeshAsset MakeBoxMesh(float size) {
     MeshAsset mesh;
-    Vector3f min(-size);
-    Vector3f max(+size);
+    Vec3f min(-size);
+    Vec3f max(+size);
     BoxWireFrameHelper(min, max, mesh.positions, mesh.indices);
     mesh.CreateRenderData();
     return mesh;
 }
 
-MeshAsset MakeGrassBillboard(const Vector3f& p_scale) {
+MeshAsset MakeGrassBillboard(const Vec3f& p_scale) {
     MeshAsset mesh;
 
     const float x = p_scale.x;
     const float y = p_scale.y;
 
-    std::array<Vector4f, 4> points = {
-        Vector4f(-x, 2 * y, 0.0f, 1.0f),  // A
-        Vector4f(-x, 0.0f, 0.0f, 1.0f),   // B
-        Vector4f(+x, 0.0f, 0.0f, 1.0f),   // C
-        Vector4f(+x, 2 * y, 0.0f, 1.0f),  // D
+    std::array<Vec4f, 4> points = {
+        Vec4f(-x, 2 * y, 0.0f, 1.0f),  // A
+        Vec4f(-x, 0.0f, 0.0f, 1.0f),   // B
+        Vec4f(+x, 0.0f, 0.0f, 1.0f),   // C
+        Vec4f(+x, 2 * y, 0.0f, 1.0f),  // D
     };
 
     // @TODO: correct sampler
-    constexpr std::array<Vector2f, 4> uvs = {
-        Vector2f(0, 1),  // top-left
-        Vector2f(0, 0),  // bottom-left
-        Vector2f(1, 0),  // bottom-right
-        Vector2f(1, 1),  // top-right
+    constexpr std::array<Vec2f, 4> uvs = {
+        Vec2f(0, 1),  // top-left
+        Vec2f(0, 0),  // bottom-left
+        Vec2f(1, 0),  // bottom-right
+        Vec2f(1, 1),  // top-right
     };
 
     constexpr uint32_t indices[] = {
@@ -212,14 +212,14 @@ MeshAsset MakeGrassBillboard(const Vector3f& p_scale) {
 
     Degree angle;
     for (int i = 0; i < 3; ++i, angle += Degree(120.0f)) {
-        const Matrix4x4f rotation = Rotate(angle, Vector3f(0, 1, 0));
-        const Vector4f normal4 = rotation * Vector4f{ 0, 0, 1, 0 };
-        const Vector3f normal = normal4.xyz;
+        const Matrix4x4f rotation = Rotate(angle, Vec3f(0, 1, 0));
+        const Vec4f normal4 = rotation * Vec4f{ 0, 0, 1, 0 };
+        const Vec3f normal = normal4.xyz;
 
         uint32_t offset = static_cast<uint32_t>(mesh.positions.size());
         for (size_t j = 0; j < points.size(); ++j) {
-            Vector4f tmp = rotation * points[i];
-            mesh.positions.emplace_back(Vector3f(tmp.xyz));
+            Vec4f tmp = rotation * points[i];
+            mesh.positions.emplace_back(Vec3f(tmp.xyz));
             mesh.normals.emplace_back(normal);
             mesh.texcoords_0.emplace_back(uvs[j]);
         }
@@ -247,14 +247,14 @@ MeshAsset MakeSkyBoxMesh() {
     float size = 1.0f;
     MeshAsset mesh;
     mesh.positions = {
-        Vector3f(-size, +size, +size),  // A
-        Vector3f(-size, -size, +size),  // B
-        Vector3f(+size, -size, +size),  // C
-        Vector3f(+size, +size, +size),  // D
-        Vector3f(-size, +size, -size),  // E
-        Vector3f(-size, -size, -size),  // F
-        Vector3f(+size, -size, -size),  // G
-        Vector3f(+size, +size, -size),  // H
+        Vec3f(-size, +size, +size),  // A
+        Vec3f(-size, -size, +size),  // B
+        Vec3f(+size, -size, +size),  // C
+        Vec3f(+size, +size, +size),  // D
+        Vec3f(-size, +size, -size),  // E
+        Vec3f(-size, -size, -size),  // F
+        Vec3f(+size, -size, -size),  // G
+        Vec3f(+size, +size, -size),  // H
     };
 
     mesh.indices = {
@@ -297,14 +297,14 @@ MeshAsset MakeSkyBoxMesh() {
 MeshAsset MakeBoxWireframeMesh(float size) {
     MeshAsset mesh;
     mesh.positions = {
-        Vector3f(-size, +size, +size),  // A
-        Vector3f(-size, -size, +size),  // B
-        Vector3f(+size, -size, +size),  // C
-        Vector3f(+size, +size, +size),  // D
-        Vector3f(-size, +size, -size),  // E
-        Vector3f(-size, -size, -size),  // F
-        Vector3f(+size, -size, -size),  // G
-        Vector3f(+size, +size, -size),  // H
+        Vec3f(-size, +size, +size),  // A
+        Vec3f(-size, -size, +size),  // B
+        Vec3f(+size, -size, +size),  // C
+        Vec3f(+size, +size, +size),  // D
+        Vec3f(-size, +size, -size),  // E
+        Vec3f(-size, -size, -size),  // F
+        Vec3f(+size, -size, -size),  // G
+        Vec3f(+size, +size, -size),  // H
     };
 
     mesh.indices = { A, B, B, C, C, D, D, A, E, F, F, G, G, H, H, E, A, E, B, F, D, H, C, G };

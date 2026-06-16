@@ -6,7 +6,7 @@
 
 namespace cave {
 
-using math::Vector2f;
+using math::Vec2f;
 
 constexpr Color kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
 constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
@@ -42,7 +42,7 @@ bool UIRuntime::button(UIId uiid, UIRect rect) {
     const ViewRecord* view = view_manager_.resolve(current_view_);
     DEV_ASSERT(view);
 
-    const Vector2f point_fb = view->screenToFrameBufferPixel(ui_input_.cursor_os);
+    const Vec2f point_fb = view->screenToFrameBufferPixel(ui_input_.cursor_os);
 
     const bool hovered = rect.Contains(point_fb.x, point_fb.y);
     if (hovered) {

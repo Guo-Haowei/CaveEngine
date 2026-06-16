@@ -110,8 +110,8 @@ struct FrameData {
     // std::vector<ParticleEmitterComponent> emitters;
 
     struct UpdateBuffer {
-        std::vector<math::Vector3f> positions;
-        std::vector<math::Vector3f> normals;
+        std::vector<math::Vec3f> positions;
+        std::vector<math::Vec3f> normals;
         const void* id;
     };
 

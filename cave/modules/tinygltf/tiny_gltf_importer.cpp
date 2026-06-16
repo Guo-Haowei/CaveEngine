@@ -304,7 +304,7 @@ Guid TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_mesh) {
             if (attrName == "POSITION") {
                 mesh.positions.resize(vertexOffset + vertexCount);
                 for (size_t index = 0; index < vertexCount; ++index) {
-                    mesh.positions[vertexOffset + index] = *(const Vector3f*)(data + index * stride);
+                    mesh.positions[vertexOffset + index] = *(const Vec3f*)(data + index * stride);
                 }
 
                 if (accessor.sparse.isSparse) {
@@ -319,17 +319,17 @@ Guid TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_mesh) {
                         default:
                         case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
                             for (int s = 0; s < sparse.count; ++s) {
-                                mesh.positions[sparse_indices_data[s]] = ((const Vector3f*)sparse_values_data)[s];
+                                mesh.positions[sparse_indices_data[s]] = ((const Vec3f*)sparse_values_data)[s];
                             }
                             break;
                         case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
                             for (int s = 0; s < sparse.count; ++s) {
-                                mesh.positions[((const uint16_t*)sparse_indices_data)[s]] = ((const Vector3f*)sparse_values_data)[s];
+                                mesh.positions[((const uint16_t*)sparse_indices_data)[s]] = ((const Vec3f*)sparse_values_data)[s];
                             }
                             break;
                         case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
                             for (int s = 0; s < sparse.count; ++s) {
-                                mesh.positions[((const uint32_t*)sparse_indices_data)[s]] = ((const Vector3f*)sparse_values_data)[s];
+                                mesh.positions[((const uint32_t*)sparse_indices_data)[s]] = ((const Vec3f*)sparse_values_data)[s];
                             }
                             break;
                     }
@@ -337,7 +337,7 @@ Guid TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_mesh) {
             } else if (attrName == "NORMAL") {
                 mesh.normals.resize(vertexOffset + vertexCount);
                 for (size_t index = 0; index < vertexCount; ++index) {
-                    mesh.normals[vertexOffset + index] = *(const Vector3f*)(data + index * stride);
+                    mesh.normals[vertexOffset + index] = *(const Vec3f*)(data + index * stride);
                 }
 
                 if (accessor.sparse.isSparse) {
@@ -352,17 +352,17 @@ Guid TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_mesh) {
                         default:
                         case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
                             for (int s = 0; s < sparse.count; ++s) {
-                                mesh.normals[sparse_indices_data[s]] = ((const Vector3f*)sparse_values_data)[s];
+                                mesh.normals[sparse_indices_data[s]] = ((const Vec3f*)sparse_values_data)[s];
                             }
                             break;
                         case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
                             for (int s = 0; s < sparse.count; ++s) {
-                                mesh.normals[((const uint16_t*)sparse_indices_data)[s]] = ((const Vector3f*)sparse_values_data)[s];
+                                mesh.normals[((const uint16_t*)sparse_indices_data)[s]] = ((const Vec3f*)sparse_values_data)[s];
                             }
                             break;
                         case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
                             for (int s = 0; s < sparse.count; ++s) {
-                                mesh.normals[((const uint32_t*)sparse_indices_data)[s]] = ((const Vector3f*)sparse_values_data)[s];
+                                mesh.normals[((const uint32_t*)sparse_indices_data)[s]] = ((const Vec3f*)sparse_values_data)[s];
                             }
                             break;
                     }
@@ -370,13 +370,13 @@ Guid TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_mesh) {
             } else if (attrName == "TANGENT") {
                 mesh.tangents.resize(vertexOffset + vertexCount);
                 for (size_t index = 0; index < vertexCount; ++index) {
-                    mesh.tangents[vertexOffset + index] = *(const Vector3f*)(data + index * stride);
+                    mesh.tangents[vertexOffset + index] = *(const Vec3f*)(data + index * stride);
                 }
             } else if (attrName == "TEXCOORD_0") {
                 mesh.texcoords_0.resize(vertexOffset + vertexCount);
                 if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
                     for (size_t index = 0; index < vertexCount; ++index) {
-                        const Vector2f& tex = *(const Vector2f*)((size_t)data + index * stride);
+                        const Vec2f& tex = *(const Vec2f*)((size_t)data + index * stride);
 
                         mesh.texcoords_0[vertexOffset + index].x = tex.x;
                         mesh.texcoords_0[vertexOffset + index].y = tex.y;
@@ -450,7 +450,7 @@ Guid TinyGltfImporter::ProcessMesh(const tinygltf::Mesh& p_mesh) {
                 mesh.weights_0.resize(vertexOffset + vertexCount);
                 if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
                     for (size_t index = 0; index < vertexCount; ++index) {
-                        mesh.weights_0[vertexOffset + index] = *(Vector4f*)((size_t)data + index * stride);
+                        mesh.weights_0[vertexOffset + index] = *(Vec4f*)((size_t)data + index * stride);
                     }
                 } else if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
                     for (size_t index = 0; index < vertexCount; ++index) {
@@ -580,13 +580,13 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
                     node.scale[idx] = 0.0001001 * sign;
                 }
             }
-            transform.SetScale(Vector3f(float(node.scale[0]), float(node.scale[1]), float(node.scale[2])));
+            transform.SetScale(Vec3f(float(node.scale[0]), float(node.scale[1]), float(node.scale[2])));
         }
         if (!node.rotation.empty()) {
-            transform.SetRotation(Vector4f(float(node.rotation[0]), float(node.rotation[1]), float(node.rotation[2]), float(node.rotation[3])));
+            transform.SetRotation(Vec4f(float(node.rotation[0]), float(node.rotation[1]), float(node.rotation[2]), float(node.rotation[3])));
         }
         if (!node.translation.empty()) {
-            transform.SetTranslation(Vector3f(float(node.translation[0]), float(node.translation[1]), float(node.translation[2])));
+            transform.SetTranslation(Vec3f(float(node.translation[0]), float(node.translation[1]), float(node.translation[2])));
         }
     }
     transform.UpdateTransform();
@@ -661,10 +661,10 @@ void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
                     DEV_ASSERT(stride == sizeof(float));
                     break;
                 case TINYGLTF_TYPE_VEC3:
-                    DEV_ASSERT(stride == sizeof(Vector3f));
+                    DEV_ASSERT(stride == sizeof(Vec3f));
                     break;
                 case TINYGLTF_TYPE_VEC4:
-                    DEV_ASSERT(stride == sizeof(Vector4f));
+                    DEV_ASSERT(stride == sizeof(Vec4f));
                     break;
                 default:
                     LOG_FATAL("Invalid format {}", accessor.type);

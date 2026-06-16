@@ -14,7 +14,7 @@ public:
                    EditorServices& editor_services);
     ~PickingService();
 
-    void pick(math::Vector2f point_win);
+    void pick(math::Vec2f point_win);
 
     void addConsumer(IPickConsumer* consumer);
     void removeConsumer(IPickConsumer* consumer);

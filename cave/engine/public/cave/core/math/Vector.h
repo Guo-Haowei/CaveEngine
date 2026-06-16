@@ -9,26 +9,26 @@
 
 namespace cave::math {
 
-using Vector2i = Vector<int, 2>;
-using Vector3i = Vector<int, 3>;
-using Vector4i = Vector<int, 4>;
-using Vector2u = Vector<uint32_t, 2>;
-using Vector3u = Vector<uint32_t, 3>;
-using Vector4u = Vector<uint32_t, 4>;
-using Vector2f = Vector<float, 2>;
-using Vector3f = Vector<float, 3>;
-using Vector4f = Vector<float, 4>;
+using Vec2i = Vector<int, 2>;
+using Vec3i = Vector<int, 3>;
+using Vec4i = Vector<int, 4>;
+using Vec2u = Vector<uint32_t, 2>;
+using Vec3u = Vector<uint32_t, 3>;
+using Vec4u = Vector<uint32_t, 4>;
+using Vec2f = Vector<float, 2>;
+using Vec3f = Vector<float, 3>;
+using Vec4f = Vector<float, 4>;
 
-static_assert(sizeof(Vector2f) == 8);
-static_assert(sizeof(Vector3f) == 12);
-static_assert(sizeof(Vector4f) == 16);
-static_assert(sizeof(Vector2i) == 8);
-static_assert(sizeof(Vector3i) == 12);
-static_assert(sizeof(Vector4i) == 16);
-static_assert(sizeof(Vector2u) == 8);
-static_assert(sizeof(Vector3u) == 12);
-static_assert(sizeof(Vector4u) == 16);
+static_assert(sizeof(Vec2i) == 8);
+static_assert(sizeof(Vec3i) == 12);
+static_assert(sizeof(Vec4i) == 16);
+static_assert(sizeof(Vec2u) == 8);
+static_assert(sizeof(Vec3u) == 12);
+static_assert(sizeof(Vec4u) == 16);
+static_assert(sizeof(Vec2f) == 8);
+static_assert(sizeof(Vec3f) == 12);
+static_assert(sizeof(Vec4f) == 16);
 
-static_assert(alignof(Vector4f) == 16);
+static_assert(alignof(Vec4f) == 16);
 
 }  // namespace cave::math
