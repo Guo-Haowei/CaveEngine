@@ -9,7 +9,7 @@ class SetTileCommand : public EditCmdBase {
 public:
     SetTileCommand(SceneRegistry& scene_reg,
                    ecs::Entity ent,
-                   TileIndex index,
+                   TileCoord index,
                    Option<TileId> old_tile,
                    Option<TileId> new_tile)
         : EditCmdBase(scene_reg, ent)
@@ -35,7 +35,7 @@ public:
 private:
     bool setTile(IDocument& doc, Option<TileId> tile);
 
-    TileIndex index_;
+    TileCoord index_;
 
     Option<TileId> old_tile_{ None() };
     Option<TileId> new_tile_{ None() };

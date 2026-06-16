@@ -99,11 +99,11 @@ void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_tim
         DEV_ASSERT(targetTransform);
         auto dummy_mix = [](const Vec3f& a, const Vec3f& b, float t) {
             glm::vec3 tmp = glm::mix(glm::vec3(a.x, a.y, a.z), glm::vec3(b.x, b.y, b.z), t);
-            return Vector3f(tmp.x, tmp.y, tmp.z);
+            return Vec3f(tmp.x, tmp.y, tmp.z);
         };
         auto dummy_mix_4 = [](const Vec4f& a, const Vec4f& b, float t) {
             glm::vec4 tmp = glm::mix(glm::vec4(a.x, a.y, a.z, a.w), glm::vec4(b.x, b.y, b.z, b.w), t);
-            return Vector4f(tmp.x, tmp.y, tmp.z, tmp.w);
+            return Vec4f(tmp.x, tmp.y, tmp.z, tmp.w);
         };
         switch (channel.path) {
             case AnimationChannelPath::Scale: {

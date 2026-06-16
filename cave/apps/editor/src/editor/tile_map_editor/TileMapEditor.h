@@ -37,7 +37,7 @@ protected:
     bool canHandleInput(const InputFrame& input);
     bool updateEditMode(const InputFrame& input);
     void applayEditorTool();
-    Option<TileIndex> pointToTile(math::Vec2f point_os);
+    Option<TileCoord> pointToTile(math::Vec2f point_os);
 
     TileMapEditorContext& ctx_;
     const DebugId debug_id_;

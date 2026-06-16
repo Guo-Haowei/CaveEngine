@@ -45,9 +45,9 @@ void PlayerController::onUpdate(IHostServices& host, const FrameTime& time) {
 
         const float x_speed = 4.0f;
         const float dx = x_speed * time.dt * move_x;
-        transform->IncreaseTranslation(Vector3f(dx, 0.0f, 0.0f));
+        transform->IncreaseTranslation(Vec3f(dx, 0.0f, 0.0f));
 
-        Vector4f rotation = move_x < 0 ? Vector4f{ 0.0f, 1.0f, 0.0f, 0.0f } : Vector4f{ 0.0f, 0.0f, 0.0f, 1.0f };
+        Vec4f rotation = move_x < 0 ? Vec4f{ 0.0f, 1.0f, 0.0f, 0.0f } : Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
         transform->SetRotation(rotation);
     }
 }

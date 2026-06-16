@@ -37,10 +37,10 @@ void CameraController::followTarget(cave::IHostServices& host, float dt) {
     auto target_transform = static_cast<const TransformComponent*>(query.component(TransformComponent_Id, target_));
     auto camera_transform = static_cast<TransformComponent*>(query.component(TransformComponent_Id, camera_));
 
-    const Vector3f target_pos = target_transform->GetTranslation();
-    const Vector3f camera_pos = camera_transform->GetTranslation();
+    const Vec3f target_pos = target_transform->GetTranslation();
+    const Vec3f camera_pos = camera_transform->GetTranslation();
 
-    Vector3f new_pos = camera_pos + (target_pos - camera_pos) * speed;
+    Vec3f new_pos = camera_pos + (target_pos - camera_pos) * speed;
     new_pos.z = camera_pos.z;
     camera_transform->SetTranslation(new_pos);
 

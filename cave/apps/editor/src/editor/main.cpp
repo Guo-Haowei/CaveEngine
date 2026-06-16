@@ -112,7 +112,7 @@ IApplication* CreateApp() {
         if (resolution.x > 0 && resolution.y > 0) {
             desired_size = resolution;
         } else {
-            desired_size = Vector2i(spec.width, spec.height);
+            desired_size = Vec2i(spec.width, spec.height);
         }
         desired_size = clamp(desired_size, min_size, max_size);
         spec.width = desired_size.x;

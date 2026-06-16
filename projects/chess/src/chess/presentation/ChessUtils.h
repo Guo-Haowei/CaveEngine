@@ -16,7 +16,7 @@ constexpr StringId kCastShadow = "cast_shadow"_sid;
 
 static inline Vec3f squareToVec(core::Square square) {
     const auto [file, rank] = square.fileRank();
-    return Vector3f{ (float)rank, 0.0f, (float)file };
+    return Vec3f{ (float)rank, 0.0f, (float)file };
 }
 
 }  // namespace chess

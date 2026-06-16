@@ -14,10 +14,10 @@ using TileId = uint16_t;
 constexpr TileId kEmptyTileId = 0xFFFF;
 constexpr int16_t kTileChunkSize = 32;  // 32x32 tiles per chunk
 
-struct TileIndex {
+struct TileCoord {
     int16_t x, y;
 
-    bool operator==(const TileIndex& p_rhs) const noexcept {
+    bool operator==(const TileCoord& p_rhs) const noexcept {
         return x == p_rhs.x && y == p_rhs.y;
     }
 };
@@ -27,7 +27,7 @@ struct TileChunk {
 };
 
 struct TileIndexHasher {
-    std::size_t operator()(const cave::TileIndex& key) const noexcept {
+    std::size_t operator()(const cave::TileCoord& key) const noexcept {
         const uint32_t packed = std::bit_cast<uint32_t>(key);
         return std::hash<uint32_t>{}(packed);
     }
@@ -35,7 +35,7 @@ struct TileIndexHasher {
 
 struct TileData {
     std::unordered_map<
-        TileIndex,
+        TileCoord,
         std::unique_ptr<TileChunk>,
         TileIndexHasher>
         chunks;
@@ -70,11 +70,11 @@ private:
     uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
-    Option<TileId> tileAt(TileIndex index) const;
+    Option<TileId> tileAt(TileCoord index) const;
 
-    bool addTile(TileIndex index, TileId id);
+    bool addTile(TileCoord index, TileId id);
 
-    bool removeTile(TileIndex index);
+    bool removeTile(TileCoord index);
 
     const Handle<TileSetAsset>& tileSetHandle() const { return m_tile_set_handle; }
 
@@ -99,7 +99,7 @@ public:
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    TileIndex convertIndex(TileIndex index) const;
+    TileCoord convertIndex(TileCoord index) const;
 };
 
 }  // namespace cave

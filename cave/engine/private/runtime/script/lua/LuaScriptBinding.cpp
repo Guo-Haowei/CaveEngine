@@ -100,7 +100,7 @@ bool OpenMathLib(lua_State* L) {
 
     luabridge::getGlobalNamespace(L)
         .beginClass<Quat>("Quaternion")
-        .addConstructor<void (*)(const Vector3f)>()
+        .addConstructor<void (*)(const Vec3f)>()
         .endClass();
     return true;
 }
@@ -188,7 +188,7 @@ bool OpenSceneLib(lua_State* L) {
         })
         .addFunction("get_world_translation", [](const TransformComponent& p_transform) {
             glm::vec3 v = p_transform.GetWorldMatrix()[3];
-            return Vector3f(v.x, v.y, v.z);
+            return Vec3f(v.x, v.y, v.z);
         })
         .addFunction("rotate", &TransformComponent::Rotate)
         .addFunction("set_rotation", [](TransformComponent& p_transform, const Quat& p_quat) {

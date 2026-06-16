@@ -242,7 +242,7 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
             glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
 
             Vec4f old_v = q;
-            Vec4f new_v = Vector4f(q2.x, q2.y, q2.z, q2.w);
+            Vec4f new_v{ q2.x, q2.y, q2.z, q2.w };
 
             auto cmd = std::make_unique<ChangePropertyCmd>(
                 p_ctx.app.services().sceneRegistry(),

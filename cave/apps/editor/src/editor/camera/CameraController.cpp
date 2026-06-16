@@ -122,7 +122,7 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
             m_root.Translate(delta);
         }
         if (dy) {
-            m_root.Translate(Vector3f(0.0f, m_move_speed * dy, 0.0f));
+            m_root.Translate(Vec3f(0.0f, m_move_speed * dy, 0.0f));
         }
     }
 

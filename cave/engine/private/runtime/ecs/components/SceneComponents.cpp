@@ -26,7 +26,7 @@ RigidBodyComponent& RigidBodyComponent::InitCube(const Vec3f& p_half_size) {
 
 RigidBodyComponent& RigidBodyComponent::InitSphere(float p_radius) {
     shape = SHAPE_SPHERE;
-    size = Vector3f(p_radius);
+    size = Vec3f(p_radius);
     return *this;
 }
 
