@@ -2,7 +2,7 @@
 
 namespace cave::math {
 
-TEST(vector, vector2_constructor) {
+TEST(Vector, ConstructVec2) {
     CHECK_VEC2(Vec2u::Zero, 0u, 0u);
     CHECK_VEC2(Vec2u::UnitX, 1u, 0u);
     CHECK_VEC2(Vec2u::UnitY, 0u, 1u);
@@ -13,7 +13,7 @@ TEST(vector, vector2_constructor) {
     }
 }
 
-TEST(vector, vector3_constructor) {
+TEST(Vector, ConstructVec3) {
     CHECK_VEC3(Vec3u::Zero, 0u, 0u, 0u);
     CHECK_VEC3(Vec3u::UnitX, 1u, 0u, 0u);
     CHECK_VEC3(Vec3u::UnitZ, 0u, 0u, 1u);
@@ -28,7 +28,7 @@ TEST(vector, vector3_constructor) {
     }
 }
 
-TEST(vector, vector4_constructor) {
+TEST(Vector, ConstructVec4) {
     CHECK_VEC4(Vec4f::Zero, 0, 0, 0, 0);
     CHECK_VEC4(Vec4f::One, 1, 1, 1, 1);
     CHECK_VEC4(Vec4f::UnitW, 0, 0, 0, 1);
@@ -47,7 +47,7 @@ TEST(vector, vector4_constructor) {
     }
 }
 
-TEST(vector, constructor_cast) {
+TEST(Vector, ConstructWithDifferentType) {
     {
         int a = 1;
         int b = 2;
@@ -71,7 +71,7 @@ TEST(vector, constructor_cast) {
     }
 }
 
-TEST(vector, access_operator) {
+TEST(Vector, Swizzle) {
     Vec4f vec = Vec4f::UnitY;
     vec[2] = 1;
 
