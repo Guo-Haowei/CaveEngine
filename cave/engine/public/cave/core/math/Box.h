@@ -1,5 +1,5 @@
 #pragma once
-#include "Vector.h"
+#include "cave/core/math/Vector.h"
 
 // @TODO: use new implementation
 #if 0

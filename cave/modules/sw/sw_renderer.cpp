@@ -104,7 +104,7 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     auto& depthBuffer = rt->m_depthBuffer;
     const uint32_t varyingFlags = pipeline->GetVaryingFlags();
 
-    const Box2 screenBox(Vec2f::Zero, Vector2f(width, height));
+    const Box2 screenBox(Vec2f::Zero, Vec2f(width, height));
     Box2 aabb{};
     aabb.ExpandPoint(a);
     aabb.ExpandPoint(b);
@@ -177,7 +177,7 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
                 }
 
                 // fragment shader
-                colorBuffer.m_buffer[index] = Vector4f(pipeline->ProcessFragment(output), 1.0f);
+                colorBuffer.m_buffer[index] = Vec4f(pipeline->ProcessFragment(output), 1.0f);
             }
         }
     }
@@ -279,8 +279,8 @@ auto SwGraphicsManager::CreateMesh(const MeshAsset& p_mesh) -> Result<std::share
     mesh->vertices.resize(p_mesh.positions.size());
 
     for (size_t i = 0; i < mesh->vertices.size(); ++i) {
-        mesh->vertices[i].position = Vector4f(p_mesh.positions[i], 1.0f);
-        mesh->vertices[i].normal = Vector4f(p_mesh.normals[i], 0.0f);
+        mesh->vertices[i].position = Vec4f(p_mesh.positions[i], 1.0f);
+        mesh->vertices[i].normal = Vec4f(p_mesh.normals[i], 0.0f);
         mesh->vertices[i].uv = p_mesh.texcoords_0[i];
     }
 
