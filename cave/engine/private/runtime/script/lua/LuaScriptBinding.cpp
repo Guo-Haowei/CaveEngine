@@ -19,7 +19,7 @@ using namespace cave::math;
 
 // @TODO: refactor
 struct Quat {
-    Quat(const Vector3f& p_euler) {
+    Quat(const Vec3f& p_euler) {
         value = Quaternion(glm::vec3(p_euler.x, p_euler.y, p_euler.z));
     }
 
@@ -57,50 +57,50 @@ void SetPreloadFunc(lua_State* L) {
 
 bool OpenMathLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
-        .beginClass<Vector2f>("Vector2")
+        .beginClass<Vec2f>("Vector2")
         .addConstructor<void (*)(float, float)>()
-        .addProperty("x", &Vector2f::x)
-        .addProperty("y", &Vector2f::y)
-        .addFunction("__add", [](const Vector2f& p_lhs, const Vector2f& p_rhs) {
+        .addProperty("x", &Vec2f::x)
+        .addProperty("y", &Vec2f::y)
+        .addFunction("__add", [](const Vec2f& p_lhs, const Vec2f& p_rhs) {
             return p_lhs + p_rhs;
         })
-        .addFunction("__sub", [](const Vector2f& p_lhs, const Vector2f& p_rhs) {
+        .addFunction("__sub", [](const Vec2f& p_lhs, const Vec2f& p_rhs) {
             return p_lhs - p_rhs;
         })
-        .addFunction("__mul", [](const Vector2f& p_lhs, const Vector2f& p_rhs) {
+        .addFunction("__mul", [](const Vec2f& p_lhs, const Vec2f& p_rhs) {
             return p_lhs * p_rhs;
         })
-        .addFunction("__div", [](const Vector2f& p_lhs, const Vector2f& p_rhs) {
+        .addFunction("__div", [](const Vec2f& p_lhs, const Vec2f& p_rhs) {
             return p_lhs / p_rhs;
         })
         .endClass();
 
     luabridge::getGlobalNamespace(L)
-        .beginClass<Vector3f>("Vector3")
+        .beginClass<Vec3f>("Vector3")
         .addConstructor<void (*)(float, float, float)>()
-        .addProperty("x", &Vector3f::x)
-        .addProperty("y", &Vector3f::y)
-        .addProperty("z", &Vector3f::z)
-        .addFunction("__add", [](const Vector3f& p_lhs, const Vector3f& p_rhs) {
+        .addProperty("x", &Vec3f::x)
+        .addProperty("y", &Vec3f::y)
+        .addProperty("z", &Vec3f::z)
+        .addFunction("__add", [](const Vec3f& p_lhs, const Vec3f& p_rhs) {
             return p_lhs + p_rhs;
         })
-        .addFunction("__sub", [](const Vector3f& p_lhs, const Vector3f& p_rhs) {
+        .addFunction("__sub", [](const Vec3f& p_lhs, const Vec3f& p_rhs) {
             return p_lhs - p_rhs;
         })
-        .addFunction("__mul", [](const Vector3f& p_lhs, const Vector3f& p_rhs) {
+        .addFunction("__mul", [](const Vec3f& p_lhs, const Vec3f& p_rhs) {
             return p_lhs * p_rhs;
         })
-        .addFunction("__div", [](const Vector3f& p_lhs, const Vector3f& p_rhs) {
+        .addFunction("__div", [](const Vec3f& p_lhs, const Vec3f& p_rhs) {
             return p_lhs / p_rhs;
         })
-        .addFunction("normalize", [](Vector3f& p_self) {
+        .addFunction("normalize", [](Vec3f& p_self) {
             p_self = normalize(p_self);
         })
         .endClass();
 
     luabridge::getGlobalNamespace(L)
         .beginClass<Quat>("Quaternion")
-        .addConstructor<void (*)(const Vector3f)>()
+        .addConstructor<void (*)(const Vec3f)>()
         .endClass();
     return true;
 }
@@ -177,25 +177,25 @@ bool OpenSceneLib(lua_State* L) {
     // TransformComponent
     luabridge::getGlobalNamespace(L)
         .beginClass<TransformComponent>("TransformComponent")
-        .addFunction("translate", [](TransformComponent& p_transform, const Vector3f& p_translation) {
+        .addFunction("translate", [](TransformComponent& p_transform, const Vec3f& p_translation) {
             p_transform.Translate(p_translation);
         })
-        .addFunction("get_translation", [](TransformComponent& p_transform) -> Vector3f {
+        .addFunction("get_translation", [](TransformComponent& p_transform) -> Vec3f {
             return p_transform.GetTranslation();
         })
-        .addFunction("set_translation", [](TransformComponent& p_transform, const Vector3f& p_translation) {
+        .addFunction("set_translation", [](TransformComponent& p_transform, const Vec3f& p_translation) {
             p_transform.SetTranslation(p_translation);
         })
         .addFunction("get_world_translation", [](const TransformComponent& p_transform) {
             glm::vec3 v = p_transform.GetWorldMatrix()[3];
-            return Vector3f(v.x, v.y, v.z);
+            return Vec3f(v.x, v.y, v.z);
         })
         .addFunction("rotate", &TransformComponent::Rotate)
         .addFunction("set_rotation", [](TransformComponent& p_transform, const Quat& p_quat) {
-            Vector4f rotation(p_quat.value.x, p_quat.value.y, p_quat.value.z, p_quat.value.w);
+            Vec4f rotation(p_quat.value.x, p_quat.value.y, p_quat.value.z, p_quat.value.w);
             p_transform.SetRotation(rotation);
         })
-        .addFunction("get_scale", [](const TransformComponent& p_transform) -> Vector3f {
+        .addFunction("get_scale", [](const TransformComponent& p_transform) -> Vec3f {
             return p_transform.GetScale();
         })
         .addFunction("set_scale", &TransformComponent::SetScale)

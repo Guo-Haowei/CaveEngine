@@ -23,7 +23,7 @@ public:
 
     // @TODO: move tile creation to somewhere else
     struct TileInitInfo {
-        cave::math::Vector4f color;
+        cave::math::Vec4f color;
         const char* name;
         Entity parent;
     };

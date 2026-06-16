@@ -95,7 +95,7 @@ void ChessPieceView::spawnPiece(Piece piece, Square square) {
     DEV_ASSERT(entry.cursor < entry.pool.size());
     Entity ent = entry.getAndAdvance();
 
-    Vector3f translation = squareToVec(square);
+    Vec3f translation = squareToVec(square);
 
     writer_.SetProperty(ent, TransformComponent_Id, kTranslationId, translation);
     writer_.SetProperty(ent, MeshRendererComponent_Id, kVisibility, true);

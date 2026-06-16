@@ -11,27 +11,27 @@ template<Arithmetic T, int N>
 struct VectorBase {
     using Self = VectorBase<T, N>;
 
-    constexpr T* Data() { return reinterpret_cast<T*>(this); }
-    constexpr const T* Data() const { return reinterpret_cast<const T*>(this); }
+    constexpr T* data() { return reinterpret_cast<T*>(this); }
+    constexpr const T* data() const { return reinterpret_cast<const T*>(this); }
 
-    constexpr void Set(const T* p_data) {
-        T* data = Data();
-        data[0] = p_data[0];
-        data[1] = p_data[1];
+    constexpr void set(const T* src) {
+        T* data = reinterpret_cast<T*>(this);
+        data[0] = src[0];
+        data[1] = src[1];
         if constexpr (N >= 3) {
-            data[2] = p_data[2];
+            data[2] = src[2];
         }
         if constexpr (N >= 4) {
-            data[3] = p_data[3];
+            data[3] = src[3];
         }
     }
 
-    constexpr T& operator[](size_t p_index) {
-        return Data()[p_index];
+    constexpr T& operator[](size_t idx) {
+        return data()[idx];
     }
 
     constexpr const T& operator[](size_t p_index) const {
-        return Data()[p_index];
+        return data()[p_index];
     }
 };
 

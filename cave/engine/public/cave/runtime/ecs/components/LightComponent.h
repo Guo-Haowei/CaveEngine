@@ -43,7 +43,7 @@ private:
 
     // Non-serialized
     bool m_dirty = true;
-    math::Vector3f m_position;
+    math::Vec3f m_position;
     float m_max_distance;
     std::array<math::Matrix4x4f, 6> m_light_space_matrices;
 
@@ -66,8 +66,8 @@ public:
     float GetAttenLinear() const { return m_atten_linear; }
     float GetAttenQuadratic() const { return m_atten_quadratic; }
 
-    void SetPosition(const math::Vector3f& p_position) { m_position = p_position; }
-    const math::Vector3f& GetPosition() const { return m_position; }
+    void SetPosition(const math::Vec3f& p_position) { m_position = p_position; }
+    const math::Vec3f& GetPosition() const { return m_position; }
 
     auto& GetMatrices() { return m_light_space_matrices; }
     const auto& GetMatrices() const { return m_light_space_matrices; }

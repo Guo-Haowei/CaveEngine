@@ -26,9 +26,9 @@ namespace cave {
 
 using namespace cave::literals;
 using math::Matrix4x4f;
-using math::Vector2f;
-using math::Vector3f;
-using math::Vector4f;
+using math::Vec2f;
+using math::Vec3f;
+using math::Vec4f;
 
 SceneViewTab::SceneViewTab(EditorState& editor,
                            DocId doc_id,
@@ -68,7 +68,7 @@ void SceneViewTab::onDestroy() {
     editor_services_.picking().removeConsumer(this);
 }
 
-Option<PickData> SceneViewTab::getPickData(const Vector2f& point_os) {
+Option<PickData> SceneViewTab::getPickData(const Vec2f& point_os) {
     if (!isVisible()) return None();
 
     const ViewRecord* view = view_manager_.resolve(view_id_);
@@ -186,9 +186,9 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                                      glm::value_ptr(after),
                                      nullptr, nullptr, nullptr, nullptr)) {
 
-                Vector3f scale_1, scale_2;
-                Vector3f pos_1, pos_2;
-                Vector4f rot_1, rot_2;
+                Vec3f scale_1, scale_2;
+                Vec3f pos_1, pos_2;
+                Vec4f rot_1, rot_2;
                 math::Decompose(before, scale_1, rot_1, pos_1);
                 math::Decompose(after, scale_2, rot_2, pos_2);
 

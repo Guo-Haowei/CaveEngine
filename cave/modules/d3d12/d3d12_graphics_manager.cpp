@@ -154,7 +154,7 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
 
     // Create debug buffer.
     {
-        size_t bufferSize = sizeof(Vector4f) * 1000;  // hard code
+        size_t bufferSize = sizeof(Vec4f) * 1000;  // hard code
         auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
         auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
         D3D_CALL(m_device->CreateCommittedResource(
@@ -210,7 +210,7 @@ void D3d12GraphicsManager::FinalizeImpl() {
 void D3d12GraphicsManager::Render() {
     ID3D12GraphicsCommandList* cmd_list = m_graphicsCommandList.Get();
 
-    Vector2i dim = DisplayService::singleton().windowSize();
+    Vec2i dim = DisplayService::singleton().windowSize();
     CD3DX12_VIEWPORT viewport(0.0f, 0.0f, (float)dim.x, (float)dim.y);
     cmd_list->RSSetViewports(1, &viewport);
     D3D12_RECT rect{ 0, 0, dim.x, dim.y };

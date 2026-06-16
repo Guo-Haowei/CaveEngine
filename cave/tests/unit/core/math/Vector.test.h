@@ -22,14 +22,14 @@
 
 namespace cave::math {
 
-static_assert(sizeof(Vector2f) == 8);
-static_assert(sizeof(Vector3f) == 12);
-static_assert(sizeof(Vector4f) == 16);
-static_assert(sizeof(Vector2i) == 8);
-static_assert(sizeof(Vector3i) == 12);
-static_assert(sizeof(Vector4i) == 16);
-static_assert(sizeof(Vector2u) == 8);
-static_assert(sizeof(Vector3u) == 12);
-static_assert(sizeof(Vector4u) == 16);
+static_assert(sizeof(Vec2f) == 8);
+static_assert(sizeof(Vec3f) == 12);
+static_assert(sizeof(Vec4f) == 16);
+static_assert(sizeof(Vec2i) == 8);
+static_assert(sizeof(Vec3i) == 12);
+static_assert(sizeof(Vec4i) == 16);
+static_assert(sizeof(Vec2u) == 8);
+static_assert(sizeof(Vec3u) == 12);
+static_assert(sizeof(Vec4u) == 16);
 
 }  // namespace cave::math

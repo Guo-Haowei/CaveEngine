@@ -14,13 +14,13 @@ class AssetRegistry;
 
 struct MaterialContext {
     const Guid* guid{ nullptr };
-    math::Vector4f base_color{ 1 };
+    math::Vec4f base_color{ 1 };
 };
 
 class SceneCommandWriter : public SceneCommandBuffer {
     using Entity = ecs::Entity;
-    using Vector3f = math::Vector3f;
-    using Vector4f = math::Vector4f;
+    using Vector3f = math::Vec3f;
+    using Vector4f = math::Vec4f;
 
 public:
     explicit SceneCommandWriter(AssetRegistry& p_reg) noexcept

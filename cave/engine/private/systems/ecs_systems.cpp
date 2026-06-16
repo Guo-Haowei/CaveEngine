@@ -97,36 +97,36 @@ void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_tim
 
         TransformComponent* targetTransform = p_scene.GetComponent<TransformComponent>(channel.target_id);
         DEV_ASSERT(targetTransform);
-        auto dummy_mix = [](const Vector3f& a, const Vector3f& b, float t) {
+        auto dummy_mix = [](const Vec3f& a, const Vec3f& b, float t) {
             glm::vec3 tmp = glm::mix(glm::vec3(a.x, a.y, a.z), glm::vec3(b.x, b.y, b.z), t);
-            return Vector3f(tmp.x, tmp.y, tmp.z);
+            return Vec3f(tmp.x, tmp.y, tmp.z);
         };
-        auto dummy_mix_4 = [](const Vector4f& a, const Vector4f& b, float t) {
+        auto dummy_mix_4 = [](const Vec4f& a, const Vec4f& b, float t) {
             glm::vec4 tmp = glm::mix(glm::vec4(a.x, a.y, a.z, a.w), glm::vec4(b.x, b.y, b.z, b.w), t);
-            return Vector4f(tmp.x, tmp.y, tmp.z, tmp.w);
+            return Vec4f(tmp.x, tmp.y, tmp.z, tmp.w);
         };
         switch (channel.path) {
             case AnimationChannelPath::Scale: {
                 DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 3);
-                const Vector3f* data = (const Vector3f*)sampler.keyframe_data.data();
-                const Vector3f& vLeft = data[key_left];
-                const Vector3f& vRight = data[key_right];
+                const Vec3f* data = (const Vec3f*)sampler.keyframe_data.data();
+                const Vec3f& vLeft = data[key_left];
+                const Vec3f& vRight = data[key_right];
                 targetTransform->SetScale(dummy_mix(vLeft, vRight, t));
                 break;
             }
             case AnimationChannelPath::Translation: {
                 DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 3);
-                const Vector3f* data = (const Vector3f*)sampler.keyframe_data.data();
-                const Vector3f& vLeft = data[key_left];
-                const Vector3f& vRight = data[key_right];
+                const Vec3f* data = (const Vec3f*)sampler.keyframe_data.data();
+                const Vec3f& vLeft = data[key_left];
+                const Vec3f& vRight = data[key_right];
                 targetTransform->SetTranslation(dummy_mix(vLeft, vRight, t));
                 break;
             }
             case AnimationChannelPath::Rotation: {
                 DEV_ASSERT(sampler.keyframe_data.size() == sampler.keyframe_times.size() * 4);
-                const Vector4f* data = (const Vector4f*)sampler.keyframe_data.data();
-                const Vector4f& vLeft = data[key_left];
-                const Vector4f& vRight = data[key_right];
+                const Vec4f* data = (const Vec4f*)sampler.keyframe_data.data();
+                const Vec4f& vLeft = data[key_left];
+                const Vec4f& vRight = data[key_right];
                 targetTransform->SetRotation(dummy_mix_4(vLeft, vRight, t));
                 break;
             }

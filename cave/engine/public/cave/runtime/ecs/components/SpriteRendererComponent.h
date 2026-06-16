@@ -16,10 +16,10 @@ private:
     Guid m_image_id;
 
     CAVE_PROP(editor = Color)
-    math::Vector4f m_tint_color = math::Vector4f::One;
+    math::Vec4f m_tint_color = math::Vec4f::One;
 
     CAVE_PROP()
-    math::Box2 m_rect = { math::Vector2f::Zero, math::Vector2f::One };
+    math::Box2 m_rect = { math::Vec2f::Zero, math::Vec2f::One };
 
     CAVE_PROP(editor = Toggle)
     bool m_flip_x = false;
@@ -39,8 +39,8 @@ public:
 
     const Handle<ImageAsset> GetHandle() const { return m_image_handle; }
 
-    void SetTintColor(const math::Vector4f& p_tint_color) { m_tint_color = p_tint_color; }
-    const math::Vector4f& GetTintColor() const { return m_tint_color; }
+    void SetTintColor(const math::Vec4f& p_tint_color) { m_tint_color = p_tint_color; }
+    const math::Vec4f& GetTintColor() const { return m_tint_color; }
 
     void SetRect(const math::Box2& p_rect) { m_rect = p_rect; }
     const math::Box2& GetRect() const { return m_rect; }

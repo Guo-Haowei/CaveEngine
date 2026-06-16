@@ -16,8 +16,8 @@ struct RayHit {
     bool hit{ false };
     ecs::Entity entity{};
     float t{ 0.0f };
-    math::Vector3f position{ 0 };
-    math::Vector3f normal{ 0 };
+    math::Vec3f position{ 0 };
+    math::Vec3f normal{ 0 };
     uint32_t submesh = 0;
     uint32_t triangle = 0;
 };

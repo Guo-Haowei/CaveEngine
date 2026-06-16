@@ -16,9 +16,9 @@
 namespace cave {
 
 using math::Matrix4x4f;
-using math::Vector2f;
-using math::Vector3f;
-using math::Vector4f;
+using math::Vec2f;
+using math::Vec3f;
+using math::Vec4f;
 
 PickingService::PickingService(AppServices& app_services,
                                EditorServices& editor_services)
@@ -33,7 +33,7 @@ PickingService::~PickingService() {
     app_services_.intentDispatcher().removeHandler<PickIntent>(this);
 }
 
-void PickingService::pick(math::Vector2f point_win) {
+void PickingService::pick(math::Vec2f point_win) {
     app_services_.intentDispatcher().queue<PickIntent>(point_win);
 }
 
@@ -54,7 +54,7 @@ void PickingService::raycast(const PickData& pick_data) {
 
 bool PickingService::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<PickIntent*>(&p_intent)) {
-        const Vector2f pos_screen = intent->pointer() + app_services_.displayService().windowPos();
+        const Vec2f pos_screen = intent->pointer() + app_services_.displayService().windowPos();
 
         for (IPickConsumer* p : m_consumers) {
             DEV_ASSERT(p);

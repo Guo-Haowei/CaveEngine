@@ -12,9 +12,7 @@
 
 namespace cave {
 
-using math::Matrix4x4f;
-using math::Vector2f;
-using math::Vector3f;
+using namespace ::cave::math;
 
 CameraController2DEditor::CameraController2DEditor(CameraComponent& p_camera,
                                                    TransformComponent& p_tranform)
@@ -59,9 +57,9 @@ void CameraController2DEditor::Update(const InputFrame& p_input) {
     const float dt = p_input.dt;
     if (drag_key_down && (dx || dy)) {
         constexpr float speed = 1.0f;
-        Vector2f delta(dx, dy);
+        Vec2f delta(dx, dy);
         delta *= (speed * dt);
-        m_root.Translate(math::Vector3f(delta, 0.0f));
+        m_root.Translate(Vec3f(delta, 0.0f));
 
         need_update = true;
     }
@@ -95,7 +93,7 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
     const int _dy = ks.down(id, Key::E) - ks.down(id, Key::Q);
     const int _dz = ks.down(id, Key::W) - ks.down(id, Key::S);
 
-    Vector2f rotation = Vector2f::Zero;
+    Vec2f rotation = Vec2f::Zero;
 
     for (const InputEvent& e : p_input.events) {
         if (e.consumed) continue;
@@ -120,11 +118,11 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
         float dz = dt * _dz;
 
         if (dx || dz) {
-            Vector3f delta = (m_move_speed * dz) * m_camera.GetFront() + (m_move_speed * dx) * m_camera.GetRight();
+            Vec3f delta = (m_move_speed * dz) * m_camera.GetFront() + (m_move_speed * dx) * m_camera.GetRight();
             m_root.Translate(delta);
         }
         if (dy) {
-            m_root.Translate(Vector3f(0.0f, m_move_speed * dy, 0.0f));
+            m_root.Translate(Vec3f(0.0f, m_move_speed * dy, 0.0f));
         }
     }
 
@@ -132,7 +130,7 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
         float rotate_x = 0.0f;
         float rotate_y = 0.0f;
 
-        Vector2f movement = rotation;
+        Vec2f movement = rotation;
         movement = m_rotate_speed * movement;
         if (glm::abs(movement.x) > glm::abs(movement.y)) {
             rotate_y = movement.x;

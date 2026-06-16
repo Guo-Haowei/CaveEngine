@@ -100,32 +100,32 @@ const std::string& Dvar::AsString() const {
     return m_string;
 }
 
-Vector2f Dvar::AsVector2f() const {
+Vec2f Dvar::asVec2f() const {
     DEV_ASSERT(m_type == VARIANT_TYPE_VEC2);
-    return Vector2f(m_vec.x, m_vec.y);
+    return Vec2f(m_vec.x, m_vec.y);
 }
 
-Vector3f Dvar::AsVector3f() const {
+Vec3f Dvar::asVec3f() const {
     DEV_ASSERT(m_type == VARIANT_TYPE_VEC3);
-    return Vector3f(m_vec.x, m_vec.y, m_vec.z);
+    return Vec3f(m_vec.x, m_vec.y, m_vec.z);
 }
 
-Vector4f Dvar::AsVector4f() const {
+Vec4f Dvar::asVec4f() const {
     DEV_ASSERT(m_type == VARIANT_TYPE_VEC4);
     return m_vec;
 }
 
-Vector2i Dvar::AsVector2i() const {
+Vec2i Dvar::asVec2i() const {
     DEV_ASSERT(m_type == VARIANT_TYPE_IVEC2);
-    return Vector2i(m_ivec.x, m_ivec.y);
+    return Vec2i(m_ivec.x, m_ivec.y);
 }
 
-Vector3i Dvar::AsVector3i() const {
+Vec3i Dvar::asVec3i() const {
     DEV_ASSERT(m_type == VARIANT_TYPE_IVEC3);
-    return Vector3i(m_ivec.x, m_ivec.y, m_ivec.z);
+    return Vec3i(m_ivec.x, m_ivec.y, m_ivec.z);
 }
 
-Vector4i Dvar::AsVector4i() const {
+Vec4i Dvar::asVec4i() const {
     DEV_ASSERT(m_type == VARIANT_TYPE_IVEC4);
     return m_ivec;
 }

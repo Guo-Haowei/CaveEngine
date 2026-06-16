@@ -82,10 +82,10 @@ class PickIntent : public Intent {
 public:
     CAVE_DECLARE_INTENT("editor.view.pick");
 
-    PickIntent(math::Vector2f pointer)
+    PickIntent(math::Vec2f pointer)
         : pointer_(pointer) {}
 
-    math::Vector2f pointer() const { return pointer_; }
+    math::Vec2f pointer() const { return pointer_; }
 
 #if USING(DEBUG_BUILD)
     std::string DebugString() const override {
@@ -93,7 +93,7 @@ public:
     }
 #endif
 private:
-    math::Vector2f pointer_;
+    math::Vec2f pointer_;
 };
 
 }  // namespace cave

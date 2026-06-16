@@ -26,10 +26,10 @@ class TransformAnimationComponent {
 
 public:
     CAVE_PROP(editor = Translation)
-    math::Vector3f begin;
+    math::Vec3f begin;
 
     CAVE_PROP(editor = Translation)
-    math::Vector3f end;
+    math::Vec3f end;
 
     CAVE_PROP(editor = InputFloat)
     float duration = 0.18f;

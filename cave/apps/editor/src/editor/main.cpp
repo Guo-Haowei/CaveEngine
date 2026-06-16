@@ -105,14 +105,14 @@ IApplication* CreateApp() {
 
     // window size
     {
-        const Vector2i resolution{ DVAR_GET_IVEC2(window_resolution) };
-        const Vector2i max_size{ 3840, 2160 };  // 4K
-        const Vector2i min_size{ 480, 360 };    // 360p
-        Vector2i desired_size;
+        const Vec2i resolution{ DVAR_GET_IVEC2(window_resolution) };
+        const Vec2i max_size{ 3840, 2160 };  // 4K
+        const Vec2i min_size{ 480, 360 };    // 360p
+        Vec2i desired_size;
         if (resolution.x > 0 && resolution.y > 0) {
             desired_size = resolution;
         } else {
-            desired_size = Vector2i(spec.width, spec.height);
+            desired_size = Vec2i(spec.width, spec.height);
         }
         desired_size = clamp(desired_size, min_size, max_size);
         spec.width = desired_size.x;

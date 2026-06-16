@@ -4,8 +4,8 @@ namespace cave::render {
 
 using namespace math;
 
-using VertexList = std::vector<Vector3f>;
-using TriangleList = std::vector<Vector3i>;
+using VertexList = std::vector<Vec3f>;
+using TriangleList = std::vector<Vec3i>;
 
 class BvhSorter;
 
@@ -30,7 +30,7 @@ private:
     const VertexList& m_vertices;
     const TriangleList& m_triangles;
     std::vector<AABB> m_aabbs;
-    std::vector<Vector3f> m_centroids;
+    std::vector<Vec3f> m_centroids;
 
     friend class BvhSorter;
 };
@@ -44,8 +44,8 @@ public:
     bool operator()(uint32_t p_lhs, uint32_t p_rhs) const {
         auto aabb_1 = m_builder.m_aabbs.at(p_lhs);
         auto aabb_2 = m_builder.m_aabbs.at(p_rhs);
-        Vector3f center_1 = aabb_1.Center();
-        Vector3f center_2 = aabb_2.Center();
+        Vec3f center_1 = aabb_1.Center();
+        Vec3f center_2 = aabb_2.Center();
         return center_1[m_axis] < center_2[m_axis];
     }
 
@@ -61,9 +61,9 @@ BvhBuilder::BvhBuilder(const VertexList& p_vertices,
     m_centroids.resize(m_triangles.size());
     for (size_t i = 0; i < m_triangles.size(); ++i) {
         const auto& triangle = m_triangles[i];
-        const Vector3f& a = m_vertices.at(triangle.x);
-        const Vector3f& b = m_vertices.at(triangle.y);
-        const Vector3f& c = m_vertices.at(triangle.z);
+        const Vec3f& a = m_vertices.at(triangle.x);
+        const Vec3f& b = m_vertices.at(triangle.y);
+        const Vec3f& c = m_vertices.at(triangle.z);
         m_centroids[i] = (1.0f / 3.0f) * (a + b + c);
         m_aabbs[i].Invalidate();
         m_aabbs[i].ExpandPoint(a);
@@ -74,7 +74,7 @@ BvhBuilder::BvhBuilder(const VertexList& p_vertices,
 }
 
 static int DominantAxis(const AABB& p_aabb) {
-    const Vector3f span = p_aabb.Size();
+    const Vec3f span = p_aabb.Size();
     int axis = 0;
     if (span[axis] < span.y) {
         axis = 1;
@@ -114,7 +114,7 @@ void BvhBuilder::SplitByAxis(BvhAccel* p_parent,
 
 static float SurfaceArea(const Box3& p_box) {
     if (!p_box.IsValid()) return 0.0f;
-    Vector3f span = p_box.Size();
+    Vec3f span = p_box.Size();
     const float result = 2.0f * (span.x * span.y +
                                  span.x * span.z +
                                  span.y * span.z);
@@ -159,7 +159,7 @@ BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::v
 
     AABB centroidBox;
     for (const auto index : p_indices) {
-        const Vector3f& point = m_centroids.at(index);
+        const Vec3f& point = m_centroids.at(index);
         centroidBox.ExpandPoint(point);
     }
     centroidBox.MakeValid();
@@ -288,7 +288,7 @@ BvhAccel::Ref BvhAccel::Construct(const std::vector<uint32_t>& p_indices,
         const int a = p_indices[i];
         const int b = p_indices[i + 1];
         const int c = p_indices[i + 2];
-        triangles[index] = Vector3i(a, b, c);
+        triangles[index] = Vec3i(a, b, c);
         triangle_indices[index] = index;
     }
 

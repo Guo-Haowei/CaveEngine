@@ -19,7 +19,7 @@ namespace chess {
 
 using namespace ::cave::literals;
 using namespace ::cave;
-using cave::math::Vector2i;
+using cave::math::Vec2i;
 using core::Color;
 using core::Square;
 
@@ -51,7 +51,7 @@ void ChessGameSession::tick() {
 
     // @TODO: refactor this part
     if (selector_) {
-        Vector2i focused = selector_->focus();
+        Vec2i focused = selector_->focus();
         Square square = Square::fromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
         client_->board_view().setHovered(square);
     }
@@ -141,7 +141,7 @@ void ChessGameSession::onEnterBoot() {
         };
 
         selector_ = std::make_unique<cave::GridSelectController>(
-            Vector2i(8, 8),
+            Vec2i(8, 8),
             std::move(cbs));
 
         grid_adapter_->setController(selector_.get());

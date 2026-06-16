@@ -11,12 +11,12 @@ static int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
     return (a >= 0) ? (a / b) : ((a - b + 1) / b);
 }
 
-TileIndex TileMapAsset::convertIndex(TileIndex p_index) const {
-    return TileIndex{ DivFloor(p_index.x), DivFloor(p_index.y) };
+TileCoord TileMapAsset::convertIndex(TileCoord p_index) const {
+    return TileCoord{ DivFloor(p_index.x), DivFloor(p_index.y) };
 }
 
-Option<TileId> TileMapAsset::tileAt(TileIndex p_index) const {
-    TileIndex index = convertIndex(p_index);
+Option<TileId> TileMapAsset::tileAt(TileCoord p_index) const {
+    TileCoord index = convertIndex(p_index);
 
     auto it = m_tiles.chunks.find(index);
     if (it == m_tiles.chunks.end()) {
@@ -31,8 +31,8 @@ Option<TileId> TileMapAsset::tileAt(TileIndex p_index) const {
     return Some(it->second->tiles[y][x]);
 }
 
-bool TileMapAsset::addTile(TileIndex p_index, TileId p_id) {
-    TileIndex index = convertIndex(p_index);
+bool TileMapAsset::addTile(TileCoord p_index, TileId p_id) {
+    TileCoord index = convertIndex(p_index);
 
     auto& chunk = m_tiles.chunks[index];
     if (chunk == nullptr) {
@@ -52,8 +52,8 @@ bool TileMapAsset::addTile(TileIndex p_index, TileId p_id) {
     return true;
 }
 
-bool TileMapAsset::removeTile(TileIndex p_index) {
-    TileIndex index = convertIndex(p_index);
+bool TileMapAsset::removeTile(TileCoord p_index) {
+    TileCoord index = convertIndex(p_index);
 
     auto it = m_tiles.chunks.find(index);
     if (it == m_tiles.chunks.end()) {
@@ -154,7 +154,7 @@ bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
             if (d.TryEnterKey("tiles")) {
                 auto chunk = std::make_unique<TileChunk>();
                 auto& tiles = chunk->tiles;
-                p_tile_data.chunks[TileIndex(x, y)] = std::move(chunk);
+                p_tile_data.chunks[TileCoord(x, y)] = std::move(chunk);
 
                 constexpr int TILE_COUNT = kTileChunkSize * kTileChunkSize;
                 DEV_ASSERT(d.ArraySize().unwrap_or(0) == TILE_COUNT);

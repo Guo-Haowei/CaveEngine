@@ -23,8 +23,8 @@ void MeshAsset::CreateRenderData() {
     for (MeshSubset& subset : subsets) {
         subset.local_bound.Invalidate();
         for (uint32_t i = 0; i < subset.index_count; ++i) {
-            const Vector3f& point = positions[indices[i + subset.index_offset]];
-            subset.local_bound.ExpandPoint(reinterpret_cast<const Vector3f&>(point));
+            const Vec3f& point = positions[indices[i + subset.index_offset]];
+            subset.local_bound.ExpandPoint(reinterpret_cast<const Vec3f&>(point));
         }
         subset.local_bound.MakeValid();
         localBound.UnionBox(subset.local_bound);

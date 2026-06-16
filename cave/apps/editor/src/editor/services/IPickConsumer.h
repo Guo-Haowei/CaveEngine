@@ -10,7 +10,7 @@ namespace cave {
 
 struct PickData {
     math::Matrix4x4f proj_view;
-    math::Vector2f cursor_ndc;
+    math::Vec2f cursor_ndc;
     SceneId scene_id;
     DocId doc_id;
 };
@@ -19,7 +19,7 @@ class IPickConsumer {
 public:
     virtual ~IPickConsumer() = default;
 
-    virtual Option<PickData> getPickData(const math::Vector2f& p_pos_screen) = 0;
+    virtual Option<PickData> getPickData(const math::Vec2f& p_pos_screen) = 0;
 
     virtual DebugId debugId() const = 0;
 };

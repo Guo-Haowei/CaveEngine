@@ -5,8 +5,8 @@
 namespace cave {
 
 using math::Matrix4x4f;
-using math::Vector3f;
-using math::Vector4f;
+using math::Vec3f;
+using math::Vec4f;
 
 Matrix4x4f CameraComponent::CalcProjection() const {
     if (m_projection == ProjectionType::Orthographic) {
@@ -42,13 +42,13 @@ bool CameraComponent::Update(const math::Matrix4x4f& p_transform) {
     if (IsDirty() || true) {
         SetDirty(false);
 
-        m_front = (p_transform * -Vector4f::UnitZ).xyz;
-        m_right = (p_transform * Vector4f::UnitX).xyz;
-        m_up = (p_transform * Vector4f::UnitY).xyz;
-        m_position = (p_transform * Vector4f::UnitW).xyz;
+        m_front = (p_transform * -Vec4f::UnitZ).xyz;
+        m_right = (p_transform * Vec4f::UnitX).xyz;
+        m_up = (p_transform * Vec4f::UnitY).xyz;
+        m_position = (p_transform * Vec4f::UnitW).xyz;
 
         // @TOD: should be inverse of transform
-        m_view_matrix = LookAtRh(m_position, m_position + m_front, Vector3f::UnitY);
+        m_view_matrix = LookAtRh(m_position, m_position + m_front, Vec3f::UnitY);
 
         // use gl matrix for frustum culling
         m_projection_matrix = CalcProjectionGL();

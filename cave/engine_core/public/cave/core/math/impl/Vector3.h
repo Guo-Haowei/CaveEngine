@@ -29,33 +29,33 @@ struct Vector<T, 3> : VectorBase<T, 3> {
 
     explicit constexpr Vector() = default;
 
-    explicit constexpr Vector(T p_v)
-        : x(p_v), y(p_v), z(p_v) {
+    explicit constexpr Vector(T v) noexcept
+        : x(v), y(v), z(v) {
     }
 
-    constexpr Vector(T p_x, T p_y, T p_z)
-        : x(p_x), y(p_y), z(p_z) {
-    }
-
-    template<Arithmetic U>
-        requires(!std::is_same<T, U>::value)
-    explicit constexpr Vector(U p_x, U p_y, U p_z)
-        : x(static_cast<T>(p_x)), y(static_cast<T>(p_y)), z(static_cast<T>(p_z)) {
+    constexpr Vector(T x, T y, T z) noexcept
+        : x(x), y(y), z(z) {
     }
 
     template<Arithmetic U>
         requires(!std::is_same<T, U>::value)
-    explicit Vector(const Vector<U, 3>& p_rhs)
-        : x(static_cast<T>(p_rhs.x)), y(static_cast<T>(p_rhs.y)), z(static_cast<T>(p_rhs.z)) {
+    explicit constexpr Vector(U x, U y, U z)
+        : x(static_cast<T>(x)), y(static_cast<T>(y)), z(static_cast<T>(z)) {
     }
 
-    explicit constexpr Vector(const Vector<T, 2>& p_vec, T p_z)
-        : x(p_vec.x), y(p_vec.y), z(p_z) {
+    template<Arithmetic U>
+        requires(!std::is_same<T, U>::value)
+    explicit Vector(const Vector<U, 3>& rhs)
+        : x(static_cast<T>(rhs.x)), y(static_cast<T>(rhs.y)), z(static_cast<T>(rhs.z)) {
+    }
+
+    explicit constexpr Vector(const Vector<T, 2>& vec, T z) noexcept
+        : x(vec.x), y(vec.y), z(z) {
     }
 
     template<int N, int A, int B, int C>
-    constexpr Vector(const Swizzle3<T, N, A, B, C, -1>& p_swizzle)
-        : x(p_swizzle.d[A]), y(p_swizzle.d[B]), z(p_swizzle.d[C]) {
+    constexpr Vector(const Swizzle3<T, N, A, B, C, -1>& swizzle)
+        : x(swizzle.d[A]), y(swizzle.d[B]), z(swizzle.d[C]) {
     }
 
     static const Self Zero;

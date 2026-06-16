@@ -39,21 +39,21 @@ bool DragFloat(const char* p_label,
                float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool Float2(const char* p_label,
-            math::Vector2f& p_out,
+            math::Vec2f& p_out,
             float p_reset_value = 0.0f,
             float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool Float3(const char* p_label,
-            math::Vector3f& p_out,
+            math::Vec3f& p_out,
             float p_reset_value = 0.0f,
             float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool ColorPicker3(const char* p_label,
-                  math::Vector3f& p_out,
+                  math::Vec3f& p_out,
                   float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool ColorPicker4(const char* p_label,
-                  math::Vector4f& p_out,
+                  math::Vec4f& p_out,
                   float p_column_width = DEFAULT_COLUMN_WIDTH);
 
 bool ToggleButton(const char* p_str_id, bool& p_value);

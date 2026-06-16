@@ -23,7 +23,7 @@ MaterialDocument::MaterialDocument(AppServices& services, const Guid& guid)
     Entity root = cb.CreateRootObject();
 
     if constexpr (1) {
-        Entity light = cb.CreatePointLightObject("point_light", math::Vector3f(0, 3, 1));
+        Entity light = cb.CreatePointLightObject("point_light", math::Vec3f(0, 3, 1));
         cb.AttachChild(light, root);
     }
 

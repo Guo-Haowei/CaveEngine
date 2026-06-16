@@ -26,10 +26,10 @@ using namespace ::cave::math;
 enum { A = 0, B = 1, C = 2, D = 3, E = 4, F = 5, G = 6, H = 7 };
 // clang-format on
 
-static std::shared_ptr<MeshAsset> CreatePlaneMesh(const Vector3f& p_point_0,
-                                                  const Vector3f& p_point_1,
-                                                  const Vector3f& p_point_2,
-                                                  const Vector3f& p_point_3) {
+static std::shared_ptr<MeshAsset> CreatePlaneMesh(const Vec3f& p_point_0,
+                                                  const Vec3f& p_point_1,
+                                                  const Vec3f& p_point_2,
+                                                  const Vec3f& p_point_3) {
     auto mesh = std::make_shared<MeshAsset>();
     mesh->positions = {
         p_point_0,
@@ -38,7 +38,7 @@ static std::shared_ptr<MeshAsset> CreatePlaneMesh(const Vector3f& p_point_0,
         p_point_3,
     };
 
-    Vector3f normal = cross(p_point_0 - p_point_1, p_point_0 - p_point_2);
+    Vec3f normal = cross(p_point_0 - p_point_1, p_point_0 - p_point_2);
     normal = normalize(normal);
 
     mesh->normals = {
@@ -49,10 +49,10 @@ static std::shared_ptr<MeshAsset> CreatePlaneMesh(const Vector3f& p_point_0,
     };
 
     mesh->texcoords_0 = {
-        Vector2f(0, 1),  // top-left
-        Vector2f(0, 0),  // bottom-left
-        Vector2f(1, 0),  // bottom-right
-        Vector2f(1, 1),  // top-right
+        Vec2f(0, 1),  // top-left
+        Vec2f(0, 0),  // bottom-left
+        Vec2f(1, 0),  // bottom-right
+        Vec2f(1, 1),  // top-right
     };
 
     // clang-format off
@@ -76,17 +76,17 @@ static std::shared_ptr<MeshAsset> CreatePlaneMesh(const Vector3f& p_point_0,
     return mesh;
 }
 
-static std::shared_ptr<MeshAsset> CreatePlaneMesh(const Vector3f& p_scale) {
+static std::shared_ptr<MeshAsset> CreatePlaneMesh(const Vec3f& p_scale) {
     const float x = p_scale.x;
     const float y = p_scale.y;
-    Vector3f a(-x, +y, 0.0f);  // A
-    Vector3f b(-x, -y, 0.0f);  // B
-    Vector3f c(+x, -y, 0.0f);  // C
-    Vector3f d(+x, +y, 0.0f);  // D
+    Vec3f a(-x, +y, 0.0f);  // A
+    Vec3f b(-x, -y, 0.0f);  // B
+    Vec3f c(+x, -y, 0.0f);  // C
+    Vec3f d(+x, +y, 0.0f);  // D
     return CreatePlaneMesh(a, b, c, d);
 }
 
-static std::shared_ptr<MeshAsset> CreateCubeMesh(const Vector3f& p_scale) {
+static std::shared_ptr<MeshAsset> CreateCubeMesh(const Vec3f& p_scale) {
     auto mesh = std::make_shared<MeshAsset>();
     // clang-format off
     constexpr uint32_t indices[] = {
@@ -99,107 +99,107 @@ static std::shared_ptr<MeshAsset> CreateCubeMesh(const Vector3f& p_scale) {
     };
     // clang-format on
 
-    const Vector3f& s = p_scale;
+    const Vec3f& s = p_scale;
     mesh->positions = {
         // -Z
-        Vector3f(-s.x, +s.y, -s.z),
-        Vector3f(-s.x, -s.y, -s.z),
-        Vector3f(+s.x, -s.y, -s.z),
-        Vector3f(+s.x, +s.y, -s.z),
+        Vec3f(-s.x, +s.y, -s.z),
+        Vec3f(-s.x, -s.y, -s.z),
+        Vec3f(+s.x, -s.y, -s.z),
+        Vec3f(+s.x, +s.y, -s.z),
 
         // +Z
-        Vector3f(-s.x, +s.y, +s.z),
-        Vector3f(-s.x, -s.y, +s.z),
-        Vector3f(+s.x, -s.y, +s.z),
-        Vector3f(+s.x, +s.y, +s.z),
+        Vec3f(-s.x, +s.y, +s.z),
+        Vec3f(-s.x, -s.y, +s.z),
+        Vec3f(+s.x, -s.y, +s.z),
+        Vec3f(+s.x, +s.y, +s.z),
 
         // -X
-        Vector3f(-s.x, -s.y, +s.z),
-        Vector3f(-s.x, -s.y, -s.z),
-        Vector3f(-s.x, +s.y, -s.z),
-        Vector3f(-s.x, +s.y, +s.z),
+        Vec3f(-s.x, -s.y, +s.z),
+        Vec3f(-s.x, -s.y, -s.z),
+        Vec3f(-s.x, +s.y, -s.z),
+        Vec3f(-s.x, +s.y, +s.z),
 
         // +X
-        Vector3f(+s.x, -s.y, +s.z),
-        Vector3f(+s.x, -s.y, -s.z),
-        Vector3f(+s.x, +s.y, -s.z),
-        Vector3f(+s.x, +s.y, +s.z),
+        Vec3f(+s.x, -s.y, +s.z),
+        Vec3f(+s.x, -s.y, -s.z),
+        Vec3f(+s.x, +s.y, -s.z),
+        Vec3f(+s.x, +s.y, +s.z),
 
         // -Y
-        Vector3f(-s.x, -s.y, +s.z),
-        Vector3f(-s.x, -s.y, -s.z),
-        Vector3f(+s.x, -s.y, -s.z),
-        Vector3f(+s.x, -s.y, +s.z),
+        Vec3f(-s.x, -s.y, +s.z),
+        Vec3f(-s.x, -s.y, -s.z),
+        Vec3f(+s.x, -s.y, -s.z),
+        Vec3f(+s.x, -s.y, +s.z),
 
         // +Y
-        Vector3f(-s.x, +s.y, +s.z),
-        Vector3f(-s.x, +s.y, -s.z),
-        Vector3f(+s.x, +s.y, -s.z),
-        Vector3f(+s.x, +s.y, +s.z),
+        Vec3f(-s.x, +s.y, +s.z),
+        Vec3f(-s.x, +s.y, -s.z),
+        Vec3f(+s.x, +s.y, -s.z),
+        Vec3f(+s.x, +s.y, +s.z),
     };
 
     mesh->texcoords_0 = {
-        Vector2f(0, 0),
-        Vector2f(0, 1),
-        Vector2f(1, 1),
-        Vector2f(1, 0),
+        Vec2f(0, 0),
+        Vec2f(0, 1),
+        Vec2f(1, 1),
+        Vec2f(1, 0),
 
-        Vector2f(0, 0),
-        Vector2f(0, 1),
-        Vector2f(1, 1),
-        Vector2f(1, 0),
+        Vec2f(0, 0),
+        Vec2f(0, 1),
+        Vec2f(1, 1),
+        Vec2f(1, 0),
 
-        Vector2f(0, 0),
-        Vector2f(0, 1),
-        Vector2f(1, 1),
-        Vector2f(1, 0),
+        Vec2f(0, 0),
+        Vec2f(0, 1),
+        Vec2f(1, 1),
+        Vec2f(1, 0),
 
-        Vector2f(0, 0),
-        Vector2f(0, 1),
-        Vector2f(1, 1),
-        Vector2f(1, 0),
+        Vec2f(0, 0),
+        Vec2f(0, 1),
+        Vec2f(1, 1),
+        Vec2f(1, 0),
 
-        Vector2f(0, 0),
-        Vector2f(0, 1),
-        Vector2f(1, 1),
-        Vector2f(1, 0),
+        Vec2f(0, 0),
+        Vec2f(0, 1),
+        Vec2f(1, 1),
+        Vec2f(1, 0),
 
-        Vector2f(0, 0),
-        Vector2f(0, 1),
-        Vector2f(1, 1),
-        Vector2f(1, 0),
+        Vec2f(0, 0),
+        Vec2f(0, 1),
+        Vec2f(1, 1),
+        Vec2f(1, 0),
     };
 
     mesh->normals = {
-        Vector3f(0, 0, -1),
-        Vector3f(0, 0, -1),
-        Vector3f(0, 0, -1),
-        Vector3f(0, 0, -1),
+        Vec3f(0, 0, -1),
+        Vec3f(0, 0, -1),
+        Vec3f(0, 0, -1),
+        Vec3f(0, 0, -1),
 
-        Vector3f(0, 0, 1),
-        Vector3f(0, 0, 1),
-        Vector3f(0, 0, 1),
-        Vector3f(0, 0, 1),
+        Vec3f(0, 0, 1),
+        Vec3f(0, 0, 1),
+        Vec3f(0, 0, 1),
+        Vec3f(0, 0, 1),
 
-        Vector3f(-1, 0, 0),
-        Vector3f(-1, 0, 0),
-        Vector3f(-1, 0, 0),
-        Vector3f(-1, 0, 0),
+        Vec3f(-1, 0, 0),
+        Vec3f(-1, 0, 0),
+        Vec3f(-1, 0, 0),
+        Vec3f(-1, 0, 0),
 
-        Vector3f(1, 0, 0),
-        Vector3f(1, 0, 0),
-        Vector3f(1, 0, 0),
-        Vector3f(1, 0, 0),
+        Vec3f(1, 0, 0),
+        Vec3f(1, 0, 0),
+        Vec3f(1, 0, 0),
+        Vec3f(1, 0, 0),
 
-        Vector3f(0, -1, 0),
-        Vector3f(0, -1, 0),
-        Vector3f(0, -1, 0),
-        Vector3f(0, -1, 0),
+        Vec3f(0, -1, 0),
+        Vec3f(0, -1, 0),
+        Vec3f(0, -1, 0),
+        Vec3f(0, -1, 0),
 
-        Vector3f(0, 1, 0),
-        Vector3f(0, 1, 0),
-        Vector3f(0, 1, 0),
-        Vector3f(0, 1, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(0, 1, 0),
     };
 
     for (size_t i = 0; i < std::size(indices); i += 3) {
@@ -228,7 +228,7 @@ static std::shared_ptr<MeshAsset> CreateSphereMesh(float p_radius,
         for (int step_y = 0; step_y <= p_rings; ++step_y) {
             const float x_seg = (float)step_x / (float)p_sectors;
             const float y_seg = (float)step_y / (float)p_rings;
-            const Vector3f normal{
+            const Vec3f normal{
                 std::cos(x_seg * 2.0f * pi) * std::sin(y_seg * pi),
                 std::cos(y_seg * pi),
                 std::sin(x_seg * 2.0f * pi) * std::sin(y_seg * pi)
@@ -236,9 +236,9 @@ static std::shared_ptr<MeshAsset> CreateSphereMesh(float p_radius,
 
             mesh->positions.emplace_back(p_radius * normal);
             mesh->normals.emplace_back(normal);
-            mesh->texcoords_0.emplace_back(Vector2f(1.0f - x_seg, y_seg));
+            mesh->texcoords_0.emplace_back(Vec2f(1.0f - x_seg, y_seg));
 
-            mesh->tangents.emplace_back(Vector3f(
+            mesh->tangents.emplace_back(Vec3f(
                 -std::sin(x_seg * 2.0f * pi),
                 0.0f,
                 std::cos(x_seg * 2.0f * pi)));
@@ -297,15 +297,15 @@ static std::shared_ptr<MeshAsset> CreateCylinderMesh(float p_radius,
             float x_2 = p_radius * std::cos(angle_2);
             float z_2 = p_radius * std::sin(angle_2);
 
-            Vector3f point_1(x_1, y, z_1);
-            Vector3f point_2(x_1, y + height_step, z_1);
+            Vec3f point_1(x_1, y, z_1);
+            Vec3f point_2(x_1, y + height_step, z_1);
 
-            Vector3f point_3(x_2, y, z_2);
-            Vector3f point_4(x_2, y + height_step, z_2);
+            Vec3f point_3(x_2, y, z_2);
+            Vec3f point_4(x_2, y + height_step, z_2);
 
-            Vector3f AB = point_1 - point_2;
-            Vector3f AC = point_1 - point_3;
-            Vector3f normal = normalize(cross(AB, AC));
+            Vec3f AB = point_1 - point_2;
+            Vec3f AC = point_1 - point_3;
+            Vec3f normal = normalize(cross(AB, AC));
 
             mesh->positions.emplace_back(point_1);
             mesh->positions.emplace_back(point_2);
@@ -322,10 +322,10 @@ static std::shared_ptr<MeshAsset> CreateCylinderMesh(float p_radius,
             float v0 = 1.0f - (y - heights[1]) / p_height;
             float v1 = 1.0f - (y + height_step - heights[1]) / p_height;
 
-            mesh->texcoords_0.emplace_back(Vector2f(u0, v0));  // point_1
-            mesh->texcoords_0.emplace_back(Vector2f(u0, v1));  // point_2
-            mesh->texcoords_0.emplace_back(Vector2f(u1, v0));  // point_3
-            mesh->texcoords_0.emplace_back(Vector2f(u1, v1));  // point_4
+            mesh->texcoords_0.emplace_back(Vec2f(u0, v0));  // point_1
+            mesh->texcoords_0.emplace_back(Vec2f(u0, v1));  // point_2
+            mesh->texcoords_0.emplace_back(Vec2f(u1, v0));  // point_3
+            mesh->texcoords_0.emplace_back(Vec2f(u1, v1));  // point_4
 
             const uint32_t a = point_offset + 4 * index;
             const uint32_t c = point_offset + 4 * index + 1;
@@ -346,25 +346,25 @@ static std::shared_ptr<MeshAsset> CreateCylinderMesh(float p_radius,
     for (float height : heights) {
         uint32_t offset = static_cast<uint32_t>(mesh->positions.size());
 
-        Vector3f normal = normalize(Vector3f(0.0f, height, 0.0f));
+        Vec3f normal = normalize(Vec3f(0.0f, height, 0.0f));
 
         for (int index = 0; index <= p_sectors; ++index) {
             float angle = 2.0f * pi * index / p_sectors;
             float x = p_radius * glm::cos(angle);
             float z = p_radius * glm::sin(angle);
 
-            Vector3f point(x, height, z);
-            Vector2f uv(0.5f + 0.5f * x / p_radius,
-                        0.5f + 0.5f * z / p_radius);
+            Vec3f point(x, height, z);
+            Vec2f uv(0.5f + 0.5f * x / p_radius,
+                     0.5f + 0.5f * z / p_radius);
 
             mesh->positions.emplace_back(point);
             mesh->normals.emplace_back(normal);
             mesh->texcoords_0.emplace_back(uv);
         }
 
-        mesh->positions.emplace_back(Vector3f(0.0f, height, 0.0f));
+        mesh->positions.emplace_back(Vec3f(0.0f, height, 0.0f));
         mesh->normals.emplace_back(normal);
-        mesh->texcoords_0.emplace_back(Vector2f(0.5f));
+        mesh->texcoords_0.emplace_back(Vec2f(0.5f));
 
         uint32_t center_index = static_cast<uint32_t>(mesh->positions.size()) - 1;
         for (int index = 0; index < p_sectors; ++index) {
@@ -398,7 +398,7 @@ static std::shared_ptr<MeshAsset> CreateConeMesh(float p_radius,
     constexpr float pi = glm::pi<float>();
 
     const float height_half = 0.5f * p_height;
-    const Vector3f apex{ 0.0f, height_half, 0.0f };
+    const Vec3f apex{ 0.0f, height_half, 0.0f };
 
     // cone side
     for (int index = 0; index < p_sectors; ++index) {
@@ -410,13 +410,13 @@ static std::shared_ptr<MeshAsset> CreateConeMesh(float p_radius,
         const float x_2 = p_radius * glm::cos(angle_2);
         const float z_2 = p_radius * glm::sin(angle_2);
 
-        Vector3f point_1(x_1, -height_half, z_1);
-        Vector3f point_2(x_2, -height_half, z_2);
+        Vec3f point_1(x_1, -height_half, z_1);
+        Vec3f point_2(x_2, -height_half, z_2);
 
         // Vector3f normal = glm::normalize(Vector3f(x, 0.0f, z));
-        Vector3f AB = point_1 - apex;
-        Vector3f AC = point_2 - apex;
-        Vector3f normal = normalize(cross(AC, AB));
+        Vec3f AB = point_1 - apex;
+        Vec3f AC = point_2 - apex;
+        Vec3f normal = normalize(cross(AC, AB));
 
         mesh->positions.emplace_back(point_1);
         mesh->positions.emplace_back(apex);
@@ -431,9 +431,9 @@ static std::shared_ptr<MeshAsset> CreateConeMesh(float p_radius,
         mesh->indices.emplace_back(3 * index + 2);
 
         // @TODO: fix dummy uv
-        mesh->texcoords_0.emplace_back(Vector2f());
-        mesh->texcoords_0.emplace_back(Vector2f());
-        mesh->texcoords_0.emplace_back(Vector2f());
+        mesh->texcoords_0.emplace_back(Vec2f());
+        mesh->texcoords_0.emplace_back(Vec2f());
+        mesh->texcoords_0.emplace_back(Vec2f());
     }
 
 #if 0
@@ -460,24 +460,24 @@ static std::shared_ptr<MeshAsset> CreateConeMesh(float p_radius,
     {
         uint32_t offset = static_cast<uint32_t>(mesh->positions.size());
 
-        Vector3f normal(0, -1, 0);
+        Vec3f normal(0, -1, 0);
 
         for (int index = 0; index <= p_sectors; ++index) {
             float angle = 2.0f * pi * index / p_sectors;
             float x = p_radius * glm::cos(angle);
             float z = p_radius * glm::sin(angle);
 
-            Vector3f point(x, -height_half, z);
+            Vec3f point(x, -height_half, z);
 
             mesh->positions.emplace_back(point);
             mesh->normals.emplace_back(normal);
-            mesh->texcoords_0.emplace_back(Vector2f());
+            mesh->texcoords_0.emplace_back(Vec2f());
         }
 
         // center
-        mesh->positions.emplace_back(Vector3f(0.0f, -height_half, 0.0f));
+        mesh->positions.emplace_back(Vec3f(0.0f, -height_half, 0.0f));
         mesh->normals.emplace_back(normal);
-        mesh->texcoords_0.emplace_back(Vector2f());
+        mesh->texcoords_0.emplace_back(Vec2f());
 
         uint32_t center_index = static_cast<uint32_t>(mesh->positions.size()) - 1;
         for (int index = 0; index < p_sectors; ++index) {
@@ -514,11 +514,11 @@ static std::shared_ptr<MeshAsset> CreateTorusMesh(float p_radius,
             const float ny = p_tube_radius * glm::sin(angle_2);
             const float nz = p_tube_radius * glm::cos(angle_2) * glm::sin(angle_1);
 
-            Vector2f uv(1.0f - static_cast<float>(index_1) / p_sectors,
-                        1.0f - static_cast<float>(index_2) / p_tube_sectors);
+            Vec2f uv(1.0f - static_cast<float>(index_1) / p_sectors,
+                     1.0f - static_cast<float>(index_2) / p_tube_sectors);
 
-            mesh->positions.emplace_back(Vector3f(x, y, z));
-            mesh->normals.emplace_back(normalize(Vector3f(nx, ny, nz)));
+            mesh->positions.emplace_back(Vec3f(x, y, z));
+            mesh->normals.emplace_back(normalize(Vec3f(nx, ny, nz)));
             mesh->texcoords_0.emplace_back(uv);
         }
     }

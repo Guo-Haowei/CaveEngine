@@ -208,28 +208,28 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
                                          p_property->v_max);
                 });
         case EditorHint::Color:
-            return EditAndSubmit<T, Vector4f>(
+            return EditAndSubmit<T, Vec4f>(
                 p_ctx, p_component, p_property,
-                [](const char* p_label, Vector4f& p_value) {
+                [](const char* p_label, Vec4f& p_value) {
                     return ui::ColorPicker4(p_label, p_value);
                 });
         case EditorHint::Translation:
-            return EditAndSubmit<T, Vector3f>(
+            return EditAndSubmit<T, Vec3f>(
                 p_ctx, p_component, p_property,
-                [](const char* p_label, Vector3f& p_value) {
+                [](const char* p_label, Vec3f& p_value) {
                     return ui::Float3(p_label, p_value, 0.0f);
                 });
         case EditorHint::Scale:
-            return EditAndSubmit<T, Vector3f>(
+            return EditAndSubmit<T, Vec3f>(
                 p_ctx, p_component, p_property,
-                [](const char* p_label, Vector3f& p_value) {
+                [](const char* p_label, Vec3f& p_value) {
                     return ui::Float3(p_label, p_value, 1.0f);
                 });
         case EditorHint::Rotation: {
             // @TODO: fix this
-            Vector4f& q = p_property->template GetData<Vector4f>(p_component);
+            Vec4f& q = p_property->template GetData<Vec4f>(p_component);
             glm::vec3 euler_ = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
-            Vector3f euler = *reinterpret_cast<Vector3f*>(&euler_);
+            Vec3f euler = *reinterpret_cast<Vec3f*>(&euler_);
             constexpr float RAD_TO_DEG = 180.0f / glm::pi<float>();
             constexpr float DEG_TO_RAD = glm::pi<float>() / 180.0f;
             euler *= RAD_TO_DEG;
@@ -241,8 +241,8 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
             euler *= DEG_TO_RAD;
             glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
 
-            Vector4f old_v = q;
-            Vector4f new_v = Vector4f(q2.x, q2.y, q2.z, q2.w);
+            Vec4f old_v = q;
+            Vec4f new_v{ q2.x, q2.y, q2.z, q2.w };
 
             auto cmd = std::make_unique<ChangePropertyCmd>(
                 p_ctx.app.services().sceneRegistry(),

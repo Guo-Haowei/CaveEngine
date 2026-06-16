@@ -3,13 +3,13 @@
 // @TODO: refactor
 namespace cave::math {
 
-Matrix4x4f LookAtRh(const Vector3f& p_eye, const Vector3f& p_center, const Vector3f& p_up) {
+Matrix4x4f LookAtRh(const Vec3f& p_eye, const Vec3f& p_center, const Vec3f& p_up) {
 #define C(v) glm::vec3(v.x, v.y, v.z)
     return glm::lookAtRH(C(p_eye), C(p_center), C(p_up));
 #undef C
 }
 
-Matrix4x4f LookAtLh(const Vector3f& p_eye, const Vector3f& p_center, const Vector3f& p_up) {
+Matrix4x4f LookAtLh(const Vec3f& p_eye, const Vec3f& p_center, const Vec3f& p_up) {
 #define C(v) glm::vec3(v.x, v.y, v.z)
     return glm::lookAtLH(C(p_eye), C(p_center), C(p_up));
 #undef C
@@ -91,61 +91,61 @@ Matrix4x4f BuildOpenGlOrthoRH(const float p_left,
     return result;
 }
 
-std::array<Matrix4x4f, 6> BuildPointLightCubeMapViewProjectionMatrix(const Vector3f& p_eye, float p_near, float p_far) {
+std::array<Matrix4x4f, 6> BuildPointLightCubeMapViewProjectionMatrix(const Vec3f& p_eye, float p_near, float p_far) {
     auto P = BuildPerspectiveLH(glm::radians(90.0f), 1.0f, p_near, p_far);
 
     std::array<Matrix4x4f, 6> matrices = {
-        P * LookAtLh(p_eye, p_eye + Vector3f(+1, +0, +0), Vector3f(0, +1, +0)),
-        P * LookAtLh(p_eye, p_eye + Vector3f(-1, +0, +0), Vector3f(0, +1, +0)),
-        P * LookAtLh(p_eye, p_eye + Vector3f(+0, +1, +0), Vector3f(0, +0, -1)),
-        P * LookAtLh(p_eye, p_eye + Vector3f(+0, -1, +0), Vector3f(0, +0, +1)),
-        P * LookAtLh(p_eye, p_eye + Vector3f(+0, +0, +1), Vector3f(0, +1, +0)),
-        P * LookAtLh(p_eye, p_eye + Vector3f(+0, +0, -1), Vector3f(0, +1, +0)),
+        P * LookAtLh(p_eye, p_eye + Vec3f(+1, +0, +0), Vec3f(0, +1, +0)),
+        P * LookAtLh(p_eye, p_eye + Vec3f(-1, +0, +0), Vec3f(0, +1, +0)),
+        P * LookAtLh(p_eye, p_eye + Vec3f(+0, +1, +0), Vec3f(0, +0, -1)),
+        P * LookAtLh(p_eye, p_eye + Vec3f(+0, -1, +0), Vec3f(0, +0, +1)),
+        P * LookAtLh(p_eye, p_eye + Vec3f(+0, +0, +1), Vec3f(0, +1, +0)),
+        P * LookAtLh(p_eye, p_eye + Vec3f(+0, +0, -1), Vec3f(0, +1, +0)),
     };
 
     return matrices;
 }
 
-std::array<Matrix4x4f, 6> BuildOpenGlPointLightCubeMapViewProjectionMatrix(const Vector3f& p_eye, float p_near, float p_far) {
+std::array<Matrix4x4f, 6> BuildOpenGlPointLightCubeMapViewProjectionMatrix(const Vec3f& p_eye, float p_near, float p_far) {
     auto P = BuildOpenGlPerspectiveRH(glm::radians(90.0f), 1.0f, p_near, p_far);
 
     std::array<Matrix4x4f, 6> matrices = {
-        P * LookAtRh(p_eye, p_eye + Vector3f(+1, +0, +0), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(-1, +0, +0), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +1, +0), Vector3f(0, +0, +1)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, -1, +0), Vector3f(0, +0, -1)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +0, +1), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +0, -1), Vector3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+1, +0, +0), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(-1, +0, +0), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +1, +0), Vec3f(0, +0, +1)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, -1, +0), Vec3f(0, +0, -1)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +0, +1), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +0, -1), Vec3f(0, -1, +0)),
     };
 
     return matrices;
 }
 
-std::array<Matrix4x4f, 6> BuildCubeMapViewProjectionMatrix(const Vector3f& p_eye) {
+std::array<Matrix4x4f, 6> BuildCubeMapViewProjectionMatrix(const Vec3f& p_eye) {
     auto P = BuildPerspectiveRH(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 
     std::array<Matrix4x4f, 6> matrices = {
-        P * LookAtRh(p_eye, p_eye + Vector3f(+1, +0, +0), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(-1, +0, +0), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, -1, +0), Vector3f(0, +0, -1)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +1, +0), Vector3f(0, +0, +1)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +0, +1), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +0, -1), Vector3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+1, +0, +0), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(-1, +0, +0), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, -1, +0), Vec3f(0, +0, -1)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +1, +0), Vec3f(0, +0, +1)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +0, +1), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +0, -1), Vec3f(0, -1, +0)),
     };
 
     return matrices;
 }
 
-std::array<Matrix4x4f, 6> BuildOpenGlCubeMapViewProjectionMatrix(const Vector3f& p_eye) {
+std::array<Matrix4x4f, 6> BuildOpenGlCubeMapViewProjectionMatrix(const Vec3f& p_eye) {
     auto P = BuildOpenGlPerspectiveRH(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 
     std::array<Matrix4x4f, 6> matrices = {
-        P * LookAtRh(p_eye, p_eye + Vector3f(+1, +0, +0), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(-1, +0, +0), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +1, +0), Vector3f(0, +0, +1)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, -1, +0), Vector3f(0, +0, -1)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +0, +1), Vector3f(0, -1, +0)),
-        P * LookAtRh(p_eye, p_eye + Vector3f(+0, +0, -1), Vector3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+1, +0, +0), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(-1, +0, +0), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +1, +0), Vec3f(0, +0, +1)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, -1, +0), Vec3f(0, +0, -1)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +0, +1), Vec3f(0, -1, +0)),
+        P * LookAtRh(p_eye, p_eye + Vec3f(+0, +0, -1), Vec3f(0, -1, +0)),
     };
 
     return matrices;

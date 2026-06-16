@@ -85,7 +85,7 @@ TEST(DvarPaser, set_vec2) {
     DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
-    EXPECT_EQ(DVAR_GET_VEC2(test_vec2), Vector2f(6, 7));
+    EXPECT_EQ(DVAR_GET_VEC2(test_vec2), Vec2f(6, 7));
 }
 
 TEST(DvarPaser, set_vec3) {
@@ -96,7 +96,7 @@ TEST(DvarPaser, set_vec3) {
     DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
-    EXPECT_EQ(DVAR_GET_VEC3(test_vec3), Vector3f(6, 7, 8));
+    EXPECT_EQ(DVAR_GET_VEC3(test_vec3), Vec3f(6, 7, 8));
 }
 
 TEST(DvarPaser, set_vec4) {
@@ -107,7 +107,7 @@ TEST(DvarPaser, set_vec4) {
     DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
-    EXPECT_EQ(DVAR_GET_VEC4(test_vec4), Vector4f(6, 7, 8, 9));
+    EXPECT_EQ(DVAR_GET_VEC4(test_vec4), Vec4f(6, 7, 8, 9));
 }
 
 TEST(DvarPaser, set_ivec2) {
@@ -118,7 +118,7 @@ TEST(DvarPaser, set_ivec2) {
     DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
-    EXPECT_EQ(DVAR_GET_IVEC2(test_ivec2), Vector2i(6, 7));
+    EXPECT_EQ(DVAR_GET_IVEC2(test_ivec2), Vec2i(6, 7));
 }
 
 TEST(DvarPaser, set_ivec3) {
@@ -129,7 +129,7 @@ TEST(DvarPaser, set_ivec3) {
     DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
-    EXPECT_EQ(DVAR_GET_IVEC3(test_ivec3), Vector3i(6, 7, 8));
+    EXPECT_EQ(DVAR_GET_IVEC3(test_ivec3), Vec3i(6, 7, 8));
 }
 
 TEST(DvarPaser, set_ivec4) {
@@ -140,7 +140,7 @@ TEST(DvarPaser, set_ivec4) {
     DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
-    EXPECT_EQ(DVAR_GET_IVEC4(test_ivec4), Vector4i(6, 7, 8, 9));
+    EXPECT_EQ(DVAR_GET_IVEC4(test_ivec4), Vec4i(6, 7, 8, 9));
 }
 
 TEST(DvarPaser, multiple_set_success) {
@@ -156,7 +156,7 @@ TEST(DvarPaser, multiple_set_success) {
     DvarParser parser(commands);
     bool ok = parser.Parse();
     EXPECT_TRUE(ok);
-    EXPECT_EQ(DVAR_GET_IVEC4(test_ivec4), Vector4i(7, 8, 9, 10));
+    EXPECT_EQ(DVAR_GET_IVEC4(test_ivec4), Vec4i(7, 8, 9, 10));
     EXPECT_EQ(DVAR_GET_INT(test_int), 1002);
 }
 

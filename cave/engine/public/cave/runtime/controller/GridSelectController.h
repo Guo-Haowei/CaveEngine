@@ -20,7 +20,7 @@ namespace cave {
 //-- end
 
 class GridSelectController {
-    using Vector2i = math::Vector2i;
+    using Vector2i = math::Vec2i;
 
     enum class State : uint8_t {
         Idle = 0,

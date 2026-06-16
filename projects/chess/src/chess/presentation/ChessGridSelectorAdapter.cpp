@@ -116,12 +116,12 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
         return;
     }
 
-    Vector2f pos_os = pointer.pos_win + display.windowPos();
+    Vec2f pos_os = pointer.pos_win + display.windowPos();
     if (!view->display_rect_os.Contains(pos_os.x, pos_os.y)) {
         return;
     }
 
-    Vector2f ndc = view->screenToNDC(pos_os);
+    Vec2f ndc = view->screenToNDC(pos_os);
 
     auto camera = (const CameraComponent*)host_.sceneQuery().component(CameraComponent_Id, camera_id_);
     assert(camera);
@@ -132,8 +132,8 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
         return;
     }
 
-    Vector3f p = ray.hitPoint();
-    constexpr Vector3f offset{ -3.5f, 0.0f, -3.5f };
+    Vec3f p = ray.hitPoint();
+    constexpr Vec3f offset{ -3.5f, 0.0f, -3.5f };
     p -= offset;
 
     const int file = (int)std::roundf(p.z);

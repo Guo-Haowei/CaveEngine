@@ -5,40 +5,40 @@ namespace cave::math {
 // add
 TEST(vector_math, add) {
     {
-        Vector4i vec1(1, 2, 3, 4);
-        Vector4i vec2(5, 4, 3, 1);
-        Vector4i result = vec1 + vec2;
+        Vec4i vec1(1, 2, 3, 4);
+        Vec4i vec2(5, 4, 3, 1);
+        Vec4i result = vec1 + vec2;
         CHECK_VEC4(result, 6, 6, 6, 5);
     }
     {
-        Vector3u vec1(1, 3, 4);
-        Vector3u vec2(4, 3, 1);
-        Vector3u result = vec1 + vec2;
+        Vec3u vec1(1, 3, 4);
+        Vec3u vec2(4, 3, 1);
+        Vec3u result = vec1 + vec2;
         CHECK_VEC3(result, 5u, 6u, 5u);
     }
 }
 
 TEST(vector_math, add_scalar) {
     {
-        Vector4i vec1(1, 2, 3, 4);
-        Vector4i result = vec1 + 2;
+        Vec4i vec1(1, 2, 3, 4);
+        Vec4i result = vec1 + 2;
         CHECK_VEC4(result, 3, 4, 5, 6);
     }
     {
-        Vector3i vec1(1, 3, 4);
-        Vector3i result = 1 + vec1;
+        Vec3i vec1(1, 3, 4);
+        Vec3i result = 1 + vec1;
         CHECK_VEC3(result, 2, 4, 5);
     }
 }
 
 TEST(vector_math, add_asign_scalar) {
     {
-        Vector3i vec1(1, 3, 4);
+        Vec3i vec1(1, 3, 4);
         vec1 += 4;
         CHECK_VEC3(vec1, 5, 7, 8);
     }
     {
-        Vector3i vec1(1, 3, 4);
+        Vec3i vec1(1, 3, 4);
         vec1 += -1;
         CHECK_VEC3(vec1, 0, 2, 3);
     }
@@ -46,10 +46,10 @@ TEST(vector_math, add_asign_scalar) {
 
 TEST(vector_math, add_assign) {
     {
-        Vector2i vec1(1, 2);
-        Vector2i vec2(3, 4);
-        Vector2i vec3(5, 6);
-        Vector2i vec4(7, 8);
+        Vec2i vec1(1, 2);
+        Vec2i vec2(3, 4);
+        Vec2i vec3(5, 6);
+        Vec2i vec4(7, 8);
         vec1 += vec3;
         vec2 += vec4;
         CHECK_VEC2(vec1, 6, 8);
@@ -58,8 +58,8 @@ TEST(vector_math, add_assign) {
         CHECK_VEC2(vec4, 7, 8);
     }
     {
-        Vector4i vec1(1, 2, 3, 4);
-        Vector4i vec2(5, 4, 3, 1);
+        Vec4i vec1(1, 2, 3, 4);
+        Vec4i vec2(5, 4, 3, 1);
         vec1 += vec2;
         CHECK_VEC4(vec1, 6, 6, 6, 5);
     }
@@ -68,40 +68,40 @@ TEST(vector_math, add_assign) {
 // sub
 TEST(vector_math, sub) {
     {
-        Vector4i vec1(5, 4, 3, 1);
-        Vector4i vec2(1, 2, 3, 4);
-        Vector4i result = vec1 - vec2;
+        Vec4i vec1(5, 4, 3, 1);
+        Vec4i vec2(1, 2, 3, 4);
+        Vec4i result = vec1 - vec2;
         CHECK_VEC4(result, 4, 2, 0, -3);
     }
     {
-        Vector3i vec1(1, 3, 4);
-        Vector3i vec2(4, 3, 1);
-        Vector3i result = vec1 - vec2;
+        Vec3i vec1(1, 3, 4);
+        Vec3i vec2(4, 3, 1);
+        Vec3i result = vec1 - vec2;
         CHECK_VEC3(result, -3, 0, 3);
     }
 }
 
 TEST(vector_math, sub_scalar) {
     {
-        Vector4i vec1(1, 2, 3, 4);
-        Vector4i result = vec1 - (-2);
+        Vec4i vec1(1, 2, 3, 4);
+        Vec4i result = vec1 - (-2);
         CHECK_VEC4(result, 3, 4, 5, 6);
     }
     {
-        Vector3f vec1(1.0f, 3.0f, 4.0f);
-        Vector3f result = 1 - vec1;
+        Vec3f vec1(1.0f, 3.0f, 4.0f);
+        Vec3f result = 1 - vec1;
         CHECK_VEC3(result, -0.0f, -2.0f, -3.0f);
     }
 }
 
 TEST(vector_math, sub_asign_scalar) {
     {
-        Vector3i vec1(1, 3, 4);
+        Vec3i vec1(1, 3, 4);
         vec1 -= 4;
         CHECK_VEC3(vec1, -3, -1, 0);
     }
     {
-        Vector3i vec1(1, 3, 4);
+        Vec3i vec1(1, 3, 4);
         vec1 -= 1;
         CHECK_VEC3(vec1, 0, 2, 3);
     }
@@ -109,10 +109,10 @@ TEST(vector_math, sub_asign_scalar) {
 
 TEST(vector_math, sub_assign) {
     {
-        Vector2i vec1(1, 2);
-        Vector2i vec2(3, 4);
-        Vector2i vec3(5, 6);
-        Vector2i vec4(7, 8);
+        Vec2i vec1(1, 2);
+        Vec2i vec2(3, 4);
+        Vec2i vec3(5, 6);
+        Vec2i vec4(7, 8);
         vec1 -= vec3;
         vec2 -= vec4;
         CHECK_VEC2(vec1, -4, -4);
@@ -121,8 +121,8 @@ TEST(vector_math, sub_assign) {
         CHECK_VEC2(vec4, 7, 8);
     }
     {
-        Vector4i vec1(1, 2, 3, 4);
-        Vector4i vec2(5, 4, 3, 1);
+        Vec4i vec1(1, 2, 3, 4);
+        Vec4i vec2(5, 4, 3, 1);
         vec1 -= vec2;
         CHECK_VEC4(vec1, -4, -2, 0, 3);
     }
@@ -131,40 +131,40 @@ TEST(vector_math, sub_assign) {
 // mul
 TEST(vector_math, mul) {
     {
-        Vector4i vec1(5, 4, 3, 1);
-        Vector4i vec2(1, 2, 3, 4);
-        Vector4i result = vec1 * vec2;
+        Vec4i vec1(5, 4, 3, 1);
+        Vec4i vec2(1, 2, 3, 4);
+        Vec4i result = vec1 * vec2;
         CHECK_VEC4(result, 5, 8, 9, 4);
     }
     {
-        Vector3i vec1(1, 3, 4);
-        Vector3i vec2(4, 3, 1);
-        Vector3i result = vec1 * vec2;
+        Vec3i vec1(1, 3, 4);
+        Vec3i vec2(4, 3, 1);
+        Vec3i result = vec1 * vec2;
         CHECK_VEC3(result, 4, 9, 4);
     }
 }
 
 TEST(vector_math, mul_scalar) {
     {
-        Vector4i vec1(1, 2, 3, 4);
-        Vector4i result = vec1 * 2;
+        Vec4i vec1(1, 2, 3, 4);
+        Vec4i result = vec1 * 2;
         CHECK_VEC4(result, 2, 4, 6, 8);
     }
     {
-        Vector3f vec1(1.0f, 3.0f, 4.0f);
-        Vector3f result = 1 * vec1;
+        Vec3f vec1(1.0f, 3.0f, 4.0f);
+        Vec3f result = 1 * vec1;
         CHECK_VEC3(result, 1.0f, 3.0f, 4.0f);
     }
 }
 
 TEST(vector_math, mul_asign_scalar) {
     {
-        Vector3i vec1(1, 3, 4);
+        Vec3i vec1(1, 3, 4);
         vec1 *= 4;
         CHECK_VEC3(vec1, 4, 12, 16);
     }
     {
-        Vector3i vec1(1, 3, 4);
+        Vec3i vec1(1, 3, 4);
         vec1 *= 9;
         CHECK_VEC3(vec1, 9, 27, 36);
     }
@@ -172,10 +172,10 @@ TEST(vector_math, mul_asign_scalar) {
 
 TEST(vector_math, mul_assign) {
     {
-        Vector2i vec1(1, 2);
-        Vector2i vec2(3, 4);
-        Vector2i vec3(5, 6);
-        Vector2i vec4(7, 8);
+        Vec2i vec1(1, 2);
+        Vec2i vec2(3, 4);
+        Vec2i vec3(5, 6);
+        Vec2i vec4(7, 8);
         vec1 *= vec3;
         vec2 *= vec4;
         CHECK_VEC2(vec1, 5, 12);
@@ -184,8 +184,8 @@ TEST(vector_math, mul_assign) {
         CHECK_VEC2(vec4, 7, 8);
     }
     {
-        Vector4i vec1(1, 2, 3, 4);
-        Vector4i vec2(5, 4, 3, 1);
+        Vec4i vec1(1, 2, 3, 4);
+        Vec4i vec2(5, 4, 3, 1);
         vec1 *= vec2;
         CHECK_VEC4(vec1, 5, 8, 9, 4);
     }
@@ -194,35 +194,35 @@ TEST(vector_math, mul_assign) {
 // div
 TEST(vector_math, div) {
     {
-        Vector4i vec1(5, 4, 3, 1);
-        Vector4i vec2(1, 2, 3, 4);
-        Vector4i result = vec1 / vec2;
+        Vec4i vec1(5, 4, 3, 1);
+        Vec4i vec2(1, 2, 3, 4);
+        Vec4i result = vec1 / vec2;
         CHECK_VEC4(result, 5, 2, 1, 0);
     }
     {
-        Vector3i vec1(12, 12, 4);
-        Vector3i vec2(4, 3, 2);
-        Vector3i result = vec1 / vec2;
+        Vec3i vec1(12, 12, 4);
+        Vec3i vec2(4, 3, 2);
+        Vec3i result = vec1 / vec2;
         CHECK_VEC3(result, 3, 4, 2);
     }
 }
 
 TEST(vector_math, div_scalar) {
     {
-        Vector4f vec1(1, 2, 3, 4);
-        Vector4f result = vec1 / 2.f;
+        Vec4f vec1(1, 2, 3, 4);
+        Vec4f result = vec1 / 2.f;
         CHECK_VEC4(result, 0.5f, 1.f, 1.5f, 2.f);
     }
 }
 
 TEST(vector_math, div_asign_scalar) {
     {
-        Vector3f vec1(40, 8, 4);
+        Vec3f vec1(40, 8, 4);
         vec1 /= 4.f;
         CHECK_VEC3(vec1, 10, 2, 1);
     }
     {
-        Vector3f vec1(1, 3, 4);
+        Vec3f vec1(1, 3, 4);
         vec1 /= -1.f;
         CHECK_VEC3(vec1, -1, -3, -4);
     }
@@ -230,10 +230,10 @@ TEST(vector_math, div_asign_scalar) {
 
 TEST(vector_math, div_assign) {
     {
-        Vector2f vec1(21, 20);
-        Vector2f vec2(8, 4);
-        Vector2f vec3(7, 5);
-        Vector2f vec4(2, 4);
+        Vec2f vec1(21, 20);
+        Vec2f vec2(8, 4);
+        Vec2f vec3(7, 5);
+        Vec2f vec4(2, 4);
         vec1 /= vec3;
         vec2 /= vec4;
         CHECK_VEC2(vec1, 3, 4);
@@ -242,8 +242,8 @@ TEST(vector_math, div_assign) {
         CHECK_VEC2(vec4, 2, 4);
     }
     {
-        Vector4i vec1(6, 8, 3, 81);
-        Vector4i vec2(5, 4, 3, 9);
+        Vec4i vec1(6, 8, 3, 81);
+        Vec4i vec2(5, 4, 3, 9);
         vec1 /= vec2;
         CHECK_VEC4(vec1, 1, 2, 1, 9);
     }
@@ -251,8 +251,8 @@ TEST(vector_math, div_assign) {
 
 TEST(vector_math, lerp) {
     {
-        const Vector2f a(4.0f, 1.0f);
-        const Vector2f b(2.0f, 3.0f);
+        const Vec2f a(4.0f, 1.0f);
+        const Vec2f b(2.0f, 3.0f);
         auto vec = lerp(a, b, 0.0f);
         CHECK_VEC2(vec, 4, 1);
         vec = lerp(a, b, 1.0f);
@@ -263,8 +263,8 @@ TEST(vector_math, lerp) {
         CHECK_VEC2(b, 2, 3);
     }
     {
-        const Vector4f a(4.0f, 20.0f, 12.0f, 4.0f);
-        const Vector4f b(2.0f, 4.0f, 6.0f, 8.0f);
+        const Vec4f a(4.0f, 20.0f, 12.0f, 4.0f);
+        const Vec4f b(2.0f, 4.0f, 6.0f, 8.0f);
         auto vec = lerp(a, b, .5f);
         CHECK_VEC4(vec, 3, 12, 9, 6);
     }
@@ -272,42 +272,42 @@ TEST(vector_math, lerp) {
 
 TEST(vector_math, dot) {
     {
-        const Vector2i a(4, 1);
-        const Vector2i b(2, 3);
+        const Vec2i a(4, 1);
+        const Vec2i b(2, 3);
         EXPECT_EQ(dot(a, b), 11);
     }
     {
-        const Vector4i a(1, 2, 3, 4);
-        const Vector4i b(2, 4, 6, 8);
+        const Vec4i a(1, 2, 3, 4);
+        const Vec4i b(2, 4, 6, 8);
         EXPECT_EQ(dot(a, b), 60);
     }
 }
 
 TEST(vector_math, length) {
     {
-        auto len = length(Vector2f(3, 4));
+        auto len = length(Vec2f(3, 4));
         EXPECT_FLOAT_EQ(len, 5.0f);
     }
     {
-        auto len = length(Vector3f(3, 4, 5));
+        auto len = length(Vec3f(3, 4, 5));
         EXPECT_FLOAT_EQ(len, 7.0710678f);
     }
     {
-        auto len = length(Vector4f::One);
+        auto len = length(Vec4f::One);
         EXPECT_FLOAT_EQ(len, 2.f);
     }
 }
 
 TEST(vector_math, normalize) {
     {
-        Vector2f vec1(3, 4);
+        Vec2f vec1(3, 4);
         auto vec2 = normalize(vec1);
         EXPECT_FLOAT_EQ(length(vec2), 1.0f);
         EXPECT_FLOAT_EQ(vec2.x, 3.0f / 5);
         EXPECT_FLOAT_EQ(vec2.y, 4.0f / 5);
     }
     {
-        Vector3f vec1(1, 2, 2);
+        Vec3f vec1(1, 2, 2);
         auto vec2 = normalize(vec1);
         EXPECT_FLOAT_EQ(length(vec2), 1.0f);
         EXPECT_FLOAT_EQ(vec2.x, 1.0f / 3);
@@ -315,7 +315,7 @@ TEST(vector_math, normalize) {
         EXPECT_FLOAT_EQ(vec2.z, 2.0f / 3);
     }
     {
-        Vector4f vec1(27, 36, 77, 122);
+        Vec4f vec1(27, 36, 77, 122);
         auto vec2 = normalize(vec1);
         constexpr float err = 0.001f;
         EXPECT_FLOAT_EQ(length(vec2), 1.0f);
@@ -357,8 +357,8 @@ TEST(vector_math, degrees) {
 }
 
 TEST(vector_math, cross) {
-    constexpr Vector3f a(1, 2, 3);
-    constexpr Vector3f b(5, 6, 0);
+    constexpr Vec3f a(1, 2, 3);
+    constexpr Vec3f b(5, 6, 0);
     constexpr auto c = cross(a, b);
     EXPECT_FLOAT_EQ(c.x, -18);
     EXPECT_FLOAT_EQ(c.y, 15);
@@ -366,7 +366,7 @@ TEST(vector_math, cross) {
 }
 
 TEST(vector_math, cross_parallel_vector) {
-    constexpr Vector3f a(1, 2, 3);
+    constexpr Vec3f a(1, 2, 3);
     constexpr auto c = cross(a, 2 * a);
     EXPECT_FLOAT_EQ(c.x, 0);
     EXPECT_FLOAT_EQ(c.y, 0);
@@ -381,8 +381,8 @@ TEST(vector_math, min) {
         EXPECT_EQ(min(a, b), 3);
     }
     {
-        constexpr Vector2f a(1, 3);
-        constexpr Vector2f b(-4, 5);
+        constexpr Vec2f a(1, 3);
+        constexpr Vec2f b(-4, 5);
         constexpr auto v = min(a, b);
         EXPECT_EQ(v.x, -4);
         EXPECT_EQ(v.y, 3);

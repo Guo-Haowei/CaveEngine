@@ -21,7 +21,7 @@ using Quaternion = glm::quat;
 template<typename T>
 constexpr inline float Saturate(T p_x) { return glm::min(T(1), glm::max(T(0), p_x)); }
 
-static inline void Decompose(const Matrix4x4f& p_matrix, Vector3f& p_scale, Vector4f& p_rotation, Vector3f& p_translation) {
+static inline void Decompose(const Matrix4x4f& p_matrix, Vec3f& p_scale, Vec4f& p_rotation, Vec3f& p_translation) {
     glm::vec3 scale;
     glm::vec3 translation;
     Quaternion quaternion;
@@ -34,8 +34,8 @@ static inline void Decompose(const Matrix4x4f& p_matrix, Vector3f& p_scale, Vect
     p_rotation.z = quaternion.z;
     p_rotation.w = quaternion.w;
 
-    p_scale.Set(&scale.x);
-    p_translation.Set(&translation.x);
+    p_scale.set(&scale.x);
+    p_translation.set(&translation.x);
 }
 
 }  // namespace cave::math

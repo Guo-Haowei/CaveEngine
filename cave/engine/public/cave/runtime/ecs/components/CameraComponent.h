@@ -47,10 +47,10 @@ private:
     float m_ortho_height = 10;
 
     // Not serlialized
-    math::Vector3f m_front = -math::Vector3f::UnitZ;
-    math::Vector3f m_right = math::Vector3f::UnitX;
-    math::Vector3f m_up = math::Vector3f::UnitY;
-    math::Vector3f m_position = math::Vector3f::Zero;
+    math::Vec3f m_front = -math::Vec3f::UnitZ;
+    math::Vec3f m_right = math::Vec3f::UnitX;
+    math::Vec3f m_up = math::Vec3f::UnitY;
+    math::Vec3f m_position = math::Vec3f::Zero;
 
     math::Matrix4x4f m_view_matrix;
     math::Matrix4x4f m_projection_matrix;
@@ -102,10 +102,10 @@ public:
     const math::Matrix4x4f& GetProjectionMatrix() const { return m_projection_matrix; }
     const math::Matrix4x4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
 
-    const math::Vector3f& GetFront() const { return m_front; }
-    const math::Vector3f& GetRight() const { return m_right; }
-    const math::Vector3f& GetUp() const { return m_up; }
-    const math::Vector3f& GetPosition() const { return m_position; }
+    const math::Vec3f& GetFront() const { return m_front; }
+    const math::Vec3f& GetRight() const { return m_right; }
+    const math::Vec3f& GetUp() const { return m_up; }
+    const math::Vec3f& GetPosition() const { return m_position; }
 
     bool IsDirty() const { return m_flags & DirtyFlag; }
     void SetDirty(bool p_value = true) { p_value ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }

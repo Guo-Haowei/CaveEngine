@@ -8,8 +8,8 @@ namespace cave {
 
 struct PointerState {
     bool has_pos = false;
-    math::Vector2f pos_win;  // position in window space
-    math::Vector2f delta;
+    math::Vec2f pos_win;  // position in window space
+    math::Vec2f delta;
 };
 
 }  // namespace cave
