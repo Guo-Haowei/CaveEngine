@@ -44,9 +44,9 @@ public:
         context_ = nullptr;
     }
 
-    virtual void fixedUpdate(float dt) {}
-    virtual void update(float dt) {}
-    virtual void lateUpdate(float dt) {}
+    virtual void fixedUpdate(float) {}
+    virtual void update(float) {}
+    virtual void lateUpdate(float) {}
 
     virtual SceneSystemId systemId() const = 0;
 
