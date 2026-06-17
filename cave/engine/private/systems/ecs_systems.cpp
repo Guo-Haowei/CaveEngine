@@ -18,14 +18,14 @@ using namespace cave::math;
 
 #define JS_FORCE_PARALLEL_FOR(TYPE, CTX, INDEX, SUBCOUNT, BODY) \
     CTX.Dispatch(                                               \
-        static_cast<uint32_t>(p_scene.GetCount<TYPE>()),        \
+        static_cast<uint32_t>(scene.count<TYPE>()),             \
         SUBCOUNT,                                               \
         [&](jobsystem::JobArgs args) { const uint32_t INDEX = args.jobIndex; do { BODY; } while(0); })
 
-#define JS_NO_PARALLEL_FOR(TYPE, CTX, INDEX, SUBCOUNT, BODY)            \
-    (void)(CTX);                                                        \
-    for (size_t INDEX = 0; INDEX < p_scene.GetCount<TYPE>(); ++INDEX) { \
-        BODY;                                                           \
+#define JS_NO_PARALLEL_FOR(TYPE, CTX, INDEX, SUBCOUNT, BODY)          \
+    (void)(CTX);                                                      \
+    for (size_t INDEX = 0; INDEX < scene.GetCount<TYPE>(); ++INDEX) { \
+        BODY;                                                         \
     }
 
 #if USING(ENABLE_JOB_SYSTEM)
@@ -36,15 +36,15 @@ using namespace cave::math;
 
 class SkeletalAnimationSystem {
 public:
-    static void Update(Scene& p_scene, size_t p_index, float p_timestep);
+    static void Update(Scene& scene, size_t p_index, float p_timestep);
 };
 
 // @TODO: fix
 #pragma warning(push)
 #pragma warning(disable : 4996)
 
-void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_timestep) {
-    SkeletalAnimationComponent& animation = p_scene.getComponentByIndex<SkeletalAnimationComponent>(p_index);
+void SkeletalAnimationSystem::Update(Scene& scene, size_t p_index, float p_timestep) {
+    SkeletalAnimationComponent& animation = scene.getComponentByIndex<SkeletalAnimationComponent>(p_index);
 
     if (!animation.IsPlaying()) {
         return;
@@ -95,7 +95,7 @@ void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_tim
         }
         t = Saturate(t);
 
-        TransformComponent* targetTransform = p_scene.component<TransformComponent>(channel.target_id);
+        TransformComponent* targetTransform = scene.component<TransformComponent>(channel.target_id);
         DEV_ASSERT(targetTransform);
         auto dummy_mix = [](const Vec3f& a, const Vec3f& b, float t) {
             glm::vec3 tmp = glm::mix(glm::vec3(a.x, a.y, a.z), glm::vec3(b.x, b.y, b.z), t);
@@ -293,42 +293,42 @@ void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context&, float p_timestep)
     }
 }
 
-void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float) {
+void RunTransformationUpdateSystem(Scene& scene, jobsystem::Context& p_context, float) {
     CAVE_PROFILE_EVENT();
 
     JS_PARALLEL_FOR(TransformComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, {
-        if (p_scene.getComponentByIndex<TransformComponent>(index).UpdateTransform()) {
-            p_scene.m_dirtyFlags.fetch_or(SCENE_DIRTY_WORLD);
+        if (scene.getComponentByIndex<TransformComponent>(index).UpdateTransform()) {
+            scene.m_dirtyFlags.fetch_or(SCENE_DIRTY_WORLD);
         }
     });
 }
 
-void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
+void RunAnimationUpdateSystem(Scene& scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(SkeletalAnimationComponent, p_context, index, 1, SkeletalAnimationSystem::Update(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletalAnimationComponent, p_context, index, 1, SkeletalAnimationSystem::Update(scene, index, p_timestep));
 }
 
-void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
+void RunSkeletonUpdateSystem(Scene& scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(SkeletonComponent, p_context, index, 1, UpdateSkeleton(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(SkeletonComponent, p_context, index, 1, UpdateSkeleton(scene, index, p_timestep));
 }
 
-void RunHierarchyUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
+void RunHierarchyUpdateSystem(Scene& scene, jobsystem::Context& p_context, float p_timestep) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(HierarchyComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, UpdateHierarchy(p_scene, index, p_timestep));
+    JS_PARALLEL_FOR(HierarchyComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, UpdateHierarchy(scene, index, p_timestep));
 }
 
-void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context&, float) {
+void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
     CAVE_PROFILE_EVENT();
 
     AABB bound;
 
-    for (auto [id, mesh_renderer] : p_scene.view<MeshRendererComponent>()) {
-        if (!p_scene.has<TransformComponent>(id)) {
+    for (auto [id, mesh_renderer] : scene.view<MeshRendererComponent>()) {
+        if (!scene.has<TransformComponent>(id)) {
             continue;
         }
 
-        const TransformComponent& transform = *p_scene.component<TransformComponent>(id);
+        const TransformComponent& transform = *scene.component<TransformComponent>(id);
         const MeshAsset* mesh = mesh_renderer.GetMeshHandle().Get();
         if (!mesh) {
             continue;
@@ -340,7 +340,7 @@ void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context&, float) {
         bound.UnionBox(aabb);
     }
 
-    p_scene.m_bound = bound;
+    scene.m_bound = bound;
 }
 
 #if 0

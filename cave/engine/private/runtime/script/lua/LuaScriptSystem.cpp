@@ -6,7 +6,6 @@
 
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneContext.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
@@ -16,39 +15,41 @@ extern const char* g_lua_always_load;
 
 namespace cave {
 
-inline int PushArg(lua_State*) {
+namespace {
+
+int PushArg(lua_State*) {
     return 0;
 }
 
 template<typename T>
     requires std::is_integral_v<T>
-static int PushArg(lua_State* L, const T& p_value) {
-    lua_pushinteger(L, p_value);
+int PushArg(lua_State* L, const T& value) {
+    lua_pushinteger(L, value);
     return 1;
 }
 
 template<typename T>
     requires std::is_floating_point_v<T>
-static int PushArg(lua_State* L, const T& p_value) {
-    lua_pushnumber(L, p_value);
+int PushArg(lua_State* L, const T& value) {
+    lua_pushnumber(L, value);
     return 1;
 }
 
 template<typename T, typename... Args>
-static int PushArg(lua_State* L, T&& p_value, Args&&... p_args) {
-    PushArg<T>(L, p_value);
-    PushArg(L, std::forward<Args>(p_args)...);
-    return 1 + sizeof...(p_args);
+int PushArg(lua_State* L, T&& value, Args&&... args) {
+    PushArg<T>(L, value);
+    PushArg(L, std::forward<Args>(args)...);
+    return 1 + sizeof...(args);
 }
 
 template<typename... Args>
-static void EntityCall(lua_State* L, int p_ref, const char* p_method, Args&&... p_args) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, p_ref);
-    lua_getfield(L, -1, p_method);
+static void EntityCall(lua_State* L, int ref, const char* method, Args&&... args) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+    lua_getfield(L, -1, method);
     if (lua_isfunction(L, -1)) {
         // push self
-        lua_rawgeti(L, LUA_REGISTRYINDEX, p_ref);
-        int arg_count = PushArg(L, std::forward<Args>(p_args)...);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+        int arg_count = PushArg(L, std::forward<Args>(args)...);
         const int result = lua_pcall(L, 1 + arg_count, 0, 0);
         if (result != LUA_OK) {
             const char* err = lua_tostring(L, -1);
@@ -62,13 +63,13 @@ static void EntityCall(lua_State* L, int p_ref, const char* p_method, Args&&... 
 }
 
 template<typename... Args>
-static int CreateInstance(const ObjectFunctions& p_meta, lua_State* L, Args&&... p_args) {
-    if (!p_meta.funcNew) {
+int CreateInstance(const ObjectFunctions& meta, lua_State* L, Args&&... args) {
+    if (!meta.funcNew) {
         return 0;
     }
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, p_meta.funcNew);
-    const int arg_count = PushArg(L, std::forward<Args>(p_args)...);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, meta.funcNew);
+    const int arg_count = PushArg(L, std::forward<Args>(args)...);
     if (lua_pcall(L, arg_count, 1, 0) != LUA_OK) {
         LOG_ERROR("failed to create new instance, error: {}", lua_tostring(L, -1));
         return 0;
@@ -77,8 +78,10 @@ static int CreateInstance(const ObjectFunctions& p_meta, lua_State* L, Args&&...
     return luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
+}  // namespace
+
 void LuaScriptSystem::onAttach() {
-    Scene& p_scene = *(Scene*)nullptr;
+    Scene& scene = context().scene;
 
     state_ = nullptr;
 
@@ -97,14 +100,14 @@ void LuaScriptSystem::onAttach() {
         return;
     }
 
-    if (auto res = luabridge::push(L, &p_scene); !res) {
+    if (auto res = luabridge::push(L, &scene); !res) {
         LOG_ERROR("failed to push scene, error: {}", res.message());
         lua_close(L);
         return;
     }
     lua_setglobal(L, LUA_GLOBAL_SCENE);
 
-    for (auto [entity, script] : p_scene.view<LuaScriptComponent>()) {
+    for (auto [entity, script] : scene.view<LuaScriptComponent>()) {
         if (script.m_source_id.IsNull()) {
             continue;
         }
@@ -132,15 +135,13 @@ void LuaScriptSystem::onDetach() {
 void LuaScriptSystem::update(float dt) {
     CAVE_PROFILE_EVENT();
 
-    DEV_ASSERT(0);
-    Scene& p_scene = *(Scene*)(nullptr);
-
+    Scene& scene = context().scene;
     lua_State* L = state_;
 
     if (DEV_VERIFY(L)) {
         const lua_Number timestep = dt;
 
-        for (auto [entity, script] : p_scene.view<LuaScriptComponent>()) {
+        for (auto [entity, script] : scene.view<LuaScriptComponent>()) {
             if (script.m_source_id.IsNull()) {
                 continue;
             }

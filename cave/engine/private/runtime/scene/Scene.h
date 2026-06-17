@@ -19,7 +19,7 @@ namespace cave {
 struct PhysicsWorldContext;
 class PrefabInstanceComponent;
 
-class SceneContext;
+struct SceneContext;
 class SystemManager;
 
 enum class PhysicsMode : uint8_t {
@@ -67,11 +67,11 @@ public:
     bool remove(ComponentId cid, ecs::Entity ent);
 
     template<ComponentType T>
-    bool has(ecs::Entity ent) const { return Has(T::kId, ent); }
+    bool has(ecs::Entity ent) const { return has(T::kId, ent); }
     template<ComponentType T>
     size_t count() const { return count(T::kId); }
     template<ComponentType T>
-    bool remove(ecs::Entity ent) { return Remove(T::kId, ent); }
+    bool remove(ecs::Entity ent) { return remove(T::kId, ent); }
 
     // @TODO: remove depracated
     template<ComponentType T>
@@ -168,6 +168,7 @@ public:
 
     void onSimBegin(SceneContext& ctx);
     void onSimEnd();
+    void simulate(float dt);
 
 private:
     std::vector<ecs::Entity> GetSortedEntityArray() const;

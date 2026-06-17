@@ -33,10 +33,14 @@ public:
     void onDetach() override;
 
 protected:
-    // void onCollision(Scene& scene, ecs::Entity ent_1, ecs::Entity ent_2) override;
+    ObjectFunctions findOrAdd(lua_State* L,
+                              const Guid& guid,
+                              const char* class_name);
 
-    ObjectFunctions findOrAdd(lua_State* L, const Guid& guid, const char* class_name);
-    Result<void> loadMetaTable(lua_State* L, const Guid& guid, const char* class_name, ObjectFunctions& meta);
+    Result<void> loadMetaTable(lua_State* L,
+                               const Guid& guid,
+                               const char* class_name,
+                               ObjectFunctions& meta);
 
     std::map<Guid, ObjectFunctions> meta_lookup_;
     lua_State* state_{ nullptr };

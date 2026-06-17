@@ -9,7 +9,7 @@
 
 namespace cave {
 
-class SceneContext;
+struct SceneContext;
 
 enum class SceneSystemId : uint32_t {
     Invalid = 0,

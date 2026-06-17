@@ -22,7 +22,7 @@ const void* SceneQuery::component(ComponentId cid, ecs::Entity ent) const {
 }
 
 size_t SceneQuery::componentCount(ComponentId cid) const {
-    return scene_.GetCount(cid);
+    return scene_.count(cid);
 }
 
 static bool RaycastHelper(Ray& ray,

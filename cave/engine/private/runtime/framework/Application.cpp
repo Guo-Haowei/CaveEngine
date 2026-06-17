@@ -79,9 +79,7 @@ auto Application::SetupModules() -> Result<void> {
     // @TODO: dependency injection?
     renderer_ = std::make_unique<render::Renderer>(*render_device_);
 
-    scene_scheduler_ = std::make_unique<SceneScheduler>(
-        scene_registry_,
-        *m_script_service);
+    scene_scheduler_ = std::make_unique<SceneScheduler>(scene_registry_);
 
     scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
 
@@ -116,7 +114,6 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(task_manager_);
     RegisterModule(asset_manager_);
     RegisterModule(asset_registry_);
-    RegisterModule(m_script_service);
     RegisterModule(m_physics_manager);
     RegisterModule(input_service_);
     RegisterModule(display_service_);

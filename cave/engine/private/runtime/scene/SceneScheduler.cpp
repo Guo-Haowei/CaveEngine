@@ -47,18 +47,17 @@ void SceneScheduler::tick(const FrameTime& time) {
         c->collectSceneTicks(requests);
     }
 
-    DEV_ASSERT(0);
-    unused(time);
     //// @TODO: merge same scenes from different contributors
-    // for (const SceneTickRequest& req : requests) {
-    //     if (Scene* scene = scene_manager_.resolve(req.scene_id)) {
-    //         if (req.mode == SceneTickMode::Simulation) {
-    //             script_manager_.Update(*scene, time.dt);
-    //         }
+    for (const SceneTickRequest& req : requests) {
+        if (Scene* scene = scene_manager_.resolve(req.scene_id)) {
+            // @TODO: this should be ticked inside scene::Update()
+            if (req.mode == SceneTickMode::Simulation) {
+                scene->simulate(time.dt);
+            }
 
-    //        scene->Update(time.dt);
-    //    }
-    //}
+            scene->update(time.dt);
+        }
+    }
 }
 
 }  // namespace cave

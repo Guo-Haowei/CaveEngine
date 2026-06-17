@@ -2,7 +2,7 @@
 
 namespace cave {
 
-class EngineServices;
+struct EngineServices;
 class Scene;
 
 struct SceneContext {

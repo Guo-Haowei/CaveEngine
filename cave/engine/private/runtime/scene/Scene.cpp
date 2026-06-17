@@ -219,7 +219,7 @@ void Scene::attachChild(ecs::Entity p_child, ecs::Entity p_parent) {
 
 template<typename T>
 static void DuplicateComponent(Scene& p_scene, ecs::Entity p_source, ecs::Entity p_dest) {
-    if (const T* comp = p_scene.GetComponent<T>(p_source)) {
+    if (const T* comp = p_scene.component<T>(p_source)) {
         T copy = *comp;
         T& dest = p_scene.create<T>(p_dest);
         dest = copy;
@@ -383,7 +383,7 @@ static bool SerializeComponent(ISerializer& p_serializer,
                                ecs::Entity p_ent,
                                const Scene& p_scene) {
 
-    const T* component = p_scene.GetComponent<T>(p_ent);
+    const T* component = p_scene.component<T>(p_ent);
     if (component) {
         p_serializer.Key(p_name);
         p_serializer.Write(*component);
@@ -452,6 +452,10 @@ void Scene::onSimEnd() {
     systems_->onSceneDestroy();
 
     systems_.reset();
+}
+
+void Scene::simulate(float dt) {
+    systems_->update(dt);
 }
 
 }  // namespace cave

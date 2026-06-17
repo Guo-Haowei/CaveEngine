@@ -25,7 +25,7 @@ protected:
     bool Add(IDocument& doc, T* value) {
         if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
             if (Scene* scene = resolveScene(scene_doc->previewScene())) {
-                if (scene->GetComponent<T>(ent_) == nullptr) {
+                if (scene->component<T>(ent_) == nullptr) {
                     T& comp = scene->create<T>(ent_);
                     if (value) {
                         comp = *value;
@@ -40,7 +40,7 @@ protected:
     bool Remove(IDocument& doc) {
         if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
             if (Scene* scene = resolveScene(scene_doc->previewScene())) {
-                scene->Remove<T>(ent_);
+                scene->remove<T>(ent_);
             }
         }
         return true;
