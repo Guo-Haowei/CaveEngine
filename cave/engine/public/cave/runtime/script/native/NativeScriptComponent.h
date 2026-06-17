@@ -2,6 +2,7 @@
 // File: cave/runtime/script/native/NativeScriptComponent.h
 // =============================================================================
 #pragma once
+#include "cave/core/containers/FixedString.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
@@ -11,7 +12,7 @@ struct NativeScriptComponent {
     CAVE_COMPONENT(NativeScriptComponent)
 
     CAVE_PROP()
-    std::string script_id;
+    FixedString<32> name;
 
     // Non-Serialized
     NativeScript* instance = nullptr;

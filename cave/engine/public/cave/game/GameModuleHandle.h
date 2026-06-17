@@ -2,31 +2,36 @@
 // File: cave/game/GameModuleHandle.h
 // =============================================================================
 #pragma once
-#include <memory>
-
 #include "cave/platform/Dll.h"
 #include "cave/game/IGameModule.h"
 
 namespace cave {
 
+class NativeScriptRegistry;
+
 class GameModuleHandle {
 public:
     using CreateFn = IGameModule* (*)();
+    using DestroyFn = void (*)(IGameModule*);
 
-    bool LoadFromDll(const char* dll_path);
+    bool loadFromDll(const char* dll_path, NativeScriptRegistry& registry);
 
-    void Unload();
+    void unload();
+    bool loaded() const { return module_ != nullptr; }
 
-    IGameModule* Get() const { return m_module.get(); }
+    IGameModule* get() const { return module_; }
 
 private:
     struct ModuleDeleter {
         void operator()(IGameModule* p) const { delete p; }
     };
 
-    Dll m_dll{};
-    CreateFn m_create = nullptr;
-    std::unique_ptr<IGameModule, ModuleDeleter> m_module{};
+    Dll dll_{};
+
+    CreateFn create_ = nullptr;
+    DestroyFn destroy_ = nullptr;
+
+    IGameModule* module_ = nullptr;
 };
 
 }  // namespace cave

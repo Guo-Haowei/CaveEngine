@@ -12,7 +12,6 @@ class NativeScriptSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::NativeScript)
 
 public:
-    void onAttach() override;
     void onDetach() override;
 
     void update(float dt) override;

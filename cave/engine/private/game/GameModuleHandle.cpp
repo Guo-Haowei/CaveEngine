@@ -2,28 +2,49 @@
 
 namespace cave {
 
-bool GameModuleHandle::LoadFromDll(const char* dll_path) {
-    Unload();
+bool GameModuleHandle::loadFromDll(const char* dll_path, NativeScriptRegistry& registry) {
+    unload();
 
-    if (!m_dll.Load(dll_path)) {
+    if (!dll_.load(dll_path)) {
         return false;
     }
 
-    void* sym = m_dll.GetSymbol("CreateGameModule");
-    if (!sym) {
-        m_dll.Unload();
+    void* create_func = dll_.symbol("CreateGameModule");
+    if (create_func == nullptr) {
+        unload();
         return false;
     }
 
-    m_create = reinterpret_cast<CreateFn>(sym);
-    m_module.reset(m_create());
-    return m_module != nullptr;
+    void* destroy_func = dll_.symbol("DestroyGameModule");
+    if (destroy_func == nullptr) {
+        unload();
+        return false;
+    }
+
+    create_ = reinterpret_cast<CreateFn>(create_func);
+    destroy_ = reinterpret_cast<DestroyFn>(destroy_func);
+
+    module_ = create_();
+    if (module_ == nullptr) {
+        unload();
+        return false;
+    }
+
+    module_->registerNativeScripts(registry);
+
+    return true;
 }
 
-void GameModuleHandle::Unload() {
-    m_module.reset();
-    m_create = nullptr;
-    m_dll.Unload();
+void GameModuleHandle::unload() {
+    if (module_) {
+        destroy_(module_);
+    }
+
+    module_ = nullptr;
+    create_ = nullptr;
+    destroy_ = nullptr;
+
+    dll_.unload();
 }
 
 }  // namespace cave

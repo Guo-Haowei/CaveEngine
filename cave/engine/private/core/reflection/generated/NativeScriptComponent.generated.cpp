@@ -8,12 +8,12 @@
 
 namespace cave {
 
-// std::string script_id ()
+// FixedString<32> name ()
 
 template<>
 const MetaTableFields& MetaDataTable<NativeScriptComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(NativeScriptComponent, "script_id", script_id, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(NativeScriptComponent, "name", name, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

@@ -15,14 +15,14 @@ void NativeScriptSystem::ensureCreated(Entity entity,
         return;
     }
 
-    if (component.script_id.empty()) {
+    if (component.name.empty()) {
         return;
     }
 
     SceneContext& ctx = context();
-    NativeScript* script = ctx.native_scripts.create(component.script_id);
+    NativeScript* script = ctx.native_scripts.create(component.name);
     if (!script) {
-        LOG_ERROR(LogChannel::Script, "Failed to create native script '{}'", component.script_id);
+        LOG_ERROR(LogChannel::Script, "Failed to create native script '{}'", component.name.c_str());
         return;
     }
 
@@ -45,7 +45,7 @@ void NativeScriptSystem::destroyScript(NativeScriptComponent& component) {
 
     component.instance->unbind();
 
-    context().native_scripts.destroy(component.script_id, component.instance);
+    context().native_scripts.destroy(component.name, component.instance);
 
     component.instance = nullptr;
     component.created = false;

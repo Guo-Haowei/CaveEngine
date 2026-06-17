@@ -13,6 +13,8 @@ public:
     GameModule();
     ~GameModule();
 
+    void registerNativeScripts(cave::NativeScriptRegistry& registry) override;
+
     void onModuleLoaded(cave::IHostServices& host) override;
     void onModuleUnloaded(cave::IHostServices& host) override;
 
@@ -29,7 +31,15 @@ private:
 }  // namespace super_cave_boy
 
 extern "C" {
+
 CAVE_API cave::IGameModule* CreateGameModule() {
     return new ::super_cave_boy::GameModule();
 }
+
+CAVE_API void CreateGameModule(::cave::IGameModule* game) {
+    if (game != nullptr) {
+        delete game;
+    }
+}
+
 }

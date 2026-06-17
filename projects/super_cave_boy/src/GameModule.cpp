@@ -16,6 +16,11 @@ GameModule::GameModule()
 
 GameModule::~GameModule() = default;
 
+void GameModule::registerNativeScripts(NativeScriptRegistry& registry) {
+    // registry.registerScript<PlayerController>("game.PlayerController");
+    registry.registerScript<CameraController>("game.CameraController");
+}
+
 void GameModule::onModuleLoaded(IHostServices& host) {
     LOG_OK(LogChannel::Game, "GameModule Loaded");
 

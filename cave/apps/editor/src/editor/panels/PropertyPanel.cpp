@@ -366,6 +366,7 @@ void PropertyPanel::drawUIImpl() {
     MaterialComponent* material = scene.component<MaterialComponent>(id);
     ColliderComponent* collider = scene.component<ColliderComponent>(id);
     LuaScriptComponent* lua_script = scene.component<LuaScriptComponent>(id);
+    NativeScriptComponent* native_script = scene.component<NativeScriptComponent>(id);
     CameraComponent* camera = scene.component<CameraComponent>(id);
     PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(id);
 
@@ -394,11 +395,17 @@ void PropertyPanel::drawUIImpl() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [&](LuaScriptComponent& p_script) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Lua Script"), lua_script, [&](LuaScriptComponent& p_script) {
         FixedString<32>& name = p_script.GetClassNameRef();
         ui::TextBox("class_name", name.data(), name.size());
 
         DrawComponentAuto<LuaScriptComponent>(&p_script, ctx);
+    });
+
+    DrawComponent(DRAW_COMPONENT_ARGS("Native Script"), native_script, [&](NativeScriptComponent& script) {
+        ui::TextBox("class_name", script.name.data(), script.name.size());
+
+        DrawComponentAuto<NativeScriptComponent>(&script, ctx);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent&) {

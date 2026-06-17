@@ -22,11 +22,12 @@ bool PIESession::ensureGameModuleLoaded() {
         return true;
     }
 
-    if (!game_module_handle_.LoadFromDll(start_desc_.game_dll.c_str())) {
+    if (!game_module_handle_.loadFromDll(start_desc_.game_dll.c_str())) {
         return false;
     }
 
-    game_module_ = game_module_handle_.Get();
+    game_module_ = game_module_handle_.get();
+
     return game_module_ != nullptr;
 }
 
@@ -55,7 +56,7 @@ void PIESession::stop() {
         running_ = false;
     }
 
-    game_module_handle_.Unload();
+    game_module_handle_.unload();
     game_module_ = nullptr;
 }
 
