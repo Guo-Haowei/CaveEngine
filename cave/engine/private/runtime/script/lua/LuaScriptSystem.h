@@ -23,16 +23,16 @@ struct LuaClassMeta {
     LuaMethodRefs methods{};
 };
 
-class LuaScriptSystem : public ISceneSystem {
-    CAVE_SCENE_SYSTEM(LuaScript)
+class LuaScriptSystem final : public ISceneSystem {
+    CAVE_SCENE_SYSTEM(SceneSystemId::LuaScript)
 
 public:
     void update(float dt) override;
 
+protected:
     void onAttach() override;
     void onDetach() override;
 
-protected:
     ObjectFunctions findOrAdd(lua_State* L,
                               const Guid& guid,
                               const char* class_name);

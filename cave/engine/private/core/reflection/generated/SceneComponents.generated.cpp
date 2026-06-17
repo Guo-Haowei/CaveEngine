@@ -34,7 +34,7 @@ const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_PrefabInstanceComponent_meta = MetaDataTable<PrefabInstanceComponent>::GetFields();
 
-// math::Vector3f linear (editor = Translation)
+// math::Vec3f linear (editor = Translation)
 
 template<>
 const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {

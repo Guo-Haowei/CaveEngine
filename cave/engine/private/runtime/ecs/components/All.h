@@ -5,7 +5,6 @@
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/ecs/components/LightComponent.h"
-#include "cave/runtime/ecs/components/LuaScriptComponent.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/NameComponent.h"
@@ -15,6 +14,7 @@
 #include "cave/runtime/ecs/components/TileMapRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/script/lua/LuaScriptComponent.h"
 
 // components
 // @TODO: split this

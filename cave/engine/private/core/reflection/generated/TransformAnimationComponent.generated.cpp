@@ -8,8 +8,8 @@
 
 namespace cave {
 
-// math::Vector3f begin (editor = Translation)
-// math::Vector3f end (editor = Translation)
+// math::Vec3f begin (editor = Translation)
+// math::Vec3f end (editor = Translation)
 // float duration (editor = InputFloat)
 // float elapsed (editor = DragFloat)
 // bool playing (editor = Toggle)

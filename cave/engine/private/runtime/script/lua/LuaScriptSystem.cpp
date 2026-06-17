@@ -1,8 +1,8 @@
 #include "LuaScriptSystem.h"
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "cave/runtime/ecs/components/LuaScriptComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/script/lua/LuaScriptComponent.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

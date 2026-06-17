@@ -138,20 +138,20 @@ bool OpenDisplayLib(lua_State* L) {
 bool OpenLogLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Log")
-        .addFunction("trace", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_TRACE, LogChannel::Lua, "-- {}", p_message);
+        .addFunction("trace", [](const char* message) {
+            LogImpl(LOG_LEVEL_TRACE, LogChannel::Script, "-- {}", message);
         })
-        .addFunction("info", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_INFO, LogChannel::Lua, "-- {}", p_message);
+        .addFunction("info", [](const char* message) {
+            LogImpl(LOG_LEVEL_INFO, LogChannel::Script, "-- {}", message);
         })
-        .addFunction("ok", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_OK, LogChannel::Lua, "-- {}", p_message);
+        .addFunction("ok", [](const char* message) {
+            LogImpl(LOG_LEVEL_OK, LogChannel::Script, "-- {}", message);
         })
-        .addFunction("warn", [](const char* p_message) {
-            LogImpl(LOG_LEVEL_WARN, LogChannel::Lua, "-- {}", p_message);
+        .addFunction("warn", [](const char* message) {
+            LogImpl(LOG_LEVEL_WARN, LogChannel::Script, "-- {}", message);
         })
-        .addFunction("error", [](const char* p_file, int p_line, const char* p_error) {
-            ReportErrorImpl("lua_function", p_file, p_line, p_error);
+        .addFunction("error", [](const char* file, int line, const char* error) {
+            ReportErrorImpl("lua_function", file, line, error);
             GENERATE_TRAP();
         })
         .endNamespace();
