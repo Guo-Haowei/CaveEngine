@@ -69,6 +69,7 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
 
     SceneContext ctx{
         .engine_services = app_.services(),
+        .native_scripts = app_.services().nativeScripts(),
         .scene = *scene,
     };
 

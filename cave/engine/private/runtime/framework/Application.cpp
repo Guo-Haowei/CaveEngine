@@ -99,16 +99,17 @@ auto Application::SetupModules() -> Result<void> {
     services_.display_service_ = display_service_;
     services_.input_service_ = input_service_;
     services_.intent_dispatcher_ = &intent_dispatcher_;
-    services_.ui_ = ui_.get();
+    services_.native_scripts_ = &native_scripts_;
     services_.project_manager_ = project_manager_.get();
+    services_.render_device_ = render_device_;
+    services_.renderer_ = renderer_.get();
     services_.scene_query_ = scene_query_.get();
     services_.scene_registry_ = &scene_registry_;
     services_.scene_scheduler_ = scene_scheduler_.get();
     services_.task_manager_ = task_manager_;
+    services_.ui_ = ui_.get();
     services_.view_manager_ = view_manager_.get();
     services_.vfs_ = &vfs_;
-    services_.render_device_ = render_device_;
-    services_.renderer_ = renderer_.get();
 
     // register subsystems
     RegisterModule(task_manager_);

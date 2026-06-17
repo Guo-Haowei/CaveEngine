@@ -2,7 +2,6 @@
 // File: cave/runtime/script/native/NativeScriptRegistry.h
 // =============================================================================
 #pragma once
-
 #include <span>
 #include <string>
 #include <string_view>

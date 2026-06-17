@@ -15,6 +15,7 @@
 #include "cave/runtime/ecs/components/TransformAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/script/lua/LuaScriptComponent.h"
+#include "cave/runtime/script/native/NativeScriptComponent.h"
 
 // components
 // @TODO: split this

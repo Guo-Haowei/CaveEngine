@@ -15,6 +15,7 @@
 #include "generated/TransformAnimationComponent.generated.cpp"
 #include "generated/TransformComponent.generated.cpp"
 #include "generated/LuaScriptComponent.generated.cpp"
+#include "generated/NativeScriptComponent.generated.cpp"
 #include "generated/AssetMetaData.generated.cpp"
 #include "generated/TileMapAsset.generated.cpp"
 #include "generated/MaterialAsset.generated.cpp"

@@ -36,6 +36,7 @@ using namespace ::cave::math;
 #define COMPONENT_LIST              \
     COMPONENT_DECL(Camera)          \
     COMPONENT_DECL(LuaScript)       \
+    COMPONENT_DECL(NativeScript)    \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
     COMPONENT_DECL(MeshRenderer)    \

@@ -7,7 +7,7 @@
 
 namespace cave {
 
-class SceneContext;
+struct SceneContext;
 
 class NativeScript {
 public:

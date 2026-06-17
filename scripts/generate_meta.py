@@ -28,6 +28,7 @@ FILES = [
     'public/cave/runtime/ecs/components/TransformComponent.h',
 
     'public/cave/runtime/script/lua/LuaScriptComponent.h',
+    'public/cave/runtime/script/native/NativeScriptComponent.h',
 
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
