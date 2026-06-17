@@ -62,3 +62,5 @@ entities:
       far: 1000
       aspect: 1.77999997
       ortho_height: 10
+    NativeScriptComponent:
+      name: "CameraController"

@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/time/FrameTime.h"
-#include "cave/runtime/framework/AppServices.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
@@ -15,7 +15,7 @@
 
 namespace cave {
 
-ThumbnailService::ThumbnailService(AppServices& services) noexcept
+ThumbnailService::ThumbnailService(EngineServices& services) noexcept
     : view_manager_(services.viewManager())
     , m_scene_reg(services.sceneRegistry())
     , m_render_device(services.renderDevice())

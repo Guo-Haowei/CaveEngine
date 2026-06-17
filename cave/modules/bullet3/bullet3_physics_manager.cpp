@@ -6,7 +6,6 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #pragma warning(push, 0)
@@ -44,9 +43,8 @@ static btTransform ConvertTransform(const TransformComponent& p_transform) {
 }
 
 struct CustomContactResultCallback : btCollisionWorld::ContactResultCallback {
-    CustomContactResultCallback(Scene& p_scene,
-                                IScriptService& p_script_service)
-        : m_scene(p_scene), m_script_service(p_script_service) {
+    CustomContactResultCallback(Scene& p_scene)
+        : m_scene(p_scene) {
     }
 
     btScalar addSingleResult(btManifoldPoint&, const btCollisionObjectWrapper* p_wrap_1, int, int, const btCollisionObjectWrapper* p_wrap_2, int, int) override {
@@ -56,12 +54,13 @@ struct CustomContactResultCallback : btCollisionWorld::ContactResultCallback {
         ecs::Entity entity_1{ (uint32_t)(uintptr_t)object_1->getUserPointer() };
         ecs::Entity entity_2{ (uint32_t)(uintptr_t)object_2->getUserPointer() };
 
-        m_script_service.OnCollision(m_scene, entity_1, entity_2);
+        // m_script_service.OnCollision(m_scene, entity_1, entity_2);
+        unused(entity_1);
+        unused(entity_2);
         return 0.0f;
     }
 
     Scene& m_scene;
-    IScriptService& m_script_service;
 };
 
 class CustomCollisionDispatcher : public btCollisionDispatcher {
@@ -108,7 +107,7 @@ void Bullet3PhysicsManager::UpdateSimulation(Scene& p_scene, float p_timestep) {
         uint32_t handle = (uint32_t)(uintptr_t)object->getUserPointer();
         ecs::Entity id{ handle };
         DEV_ASSERT(id.IsValid());
-        TransformComponent* transform_component = p_scene.GetComponent<TransformComponent>(id);
+        TransformComponent* transform_component = p_scene.component<TransformComponent>(id);
         if (DEV_VERIFY(transform_component)) {
             if (btGhostObject* o = btGhostObject::upcast(object); o) {
                 auto transform = ConvertTransform(*transform_component);

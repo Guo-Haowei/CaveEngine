@@ -20,6 +20,8 @@ entities:
       mask: 0
     VelocityComponent:
       linear: [0, 0, 0]
+    NativeScriptComponent:
+      name: "PlayerController"
   - id: 2
     NameComponent:
       name: player_animator_node

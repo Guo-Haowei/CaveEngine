@@ -7,7 +7,7 @@
 
 namespace cave {
 
-struct AppServices;
+struct EngineServices;
 class AssetRegistry;
 class SceneRegistry;
 
@@ -35,7 +35,7 @@ struct PreviewBuildResult {
 
 class PreviewBuilder {
 public:
-    explicit PreviewBuilder(AppServices& app) noexcept;
+    explicit PreviewBuilder(EngineServices& app) noexcept;
     ~PreviewBuilder();
 
     PreviewBuildResult build(const PreviewBuildRequest& req) const;

@@ -1,12 +1,12 @@
-#include "LuaScriptService.h"
+#include "LuaScriptSystem.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/Profiler.h"
-#include "cave/runtime/ecs/components/LuaScriptComponent.h"
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/script/lua/LuaScriptComponent.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 #include "engine/private/runtime/script/lua/LuaScriptBinding.h"
@@ -15,46 +15,41 @@ extern const char* g_lua_always_load;
 
 namespace cave {
 
-auto LuaScriptService::InitializeImpl() -> Result<void> {
-    return Result<void>();
-}
+namespace {
 
-void LuaScriptService::FinalizeImpl() {
-}
-
-inline int PushArg(lua_State*) {
+int PushArg(lua_State*) {
     return 0;
 }
 
 template<typename T>
     requires std::is_integral_v<T>
-static int PushArg(lua_State* L, const T& p_value) {
-    lua_pushinteger(L, p_value);
+int PushArg(lua_State* L, const T& value) {
+    lua_pushinteger(L, value);
     return 1;
 }
 
 template<typename T>
     requires std::is_floating_point_v<T>
-static int PushArg(lua_State* L, const T& p_value) {
-    lua_pushnumber(L, p_value);
+int PushArg(lua_State* L, const T& value) {
+    lua_pushnumber(L, value);
     return 1;
 }
 
 template<typename T, typename... Args>
-static int PushArg(lua_State* L, T&& p_value, Args&&... p_args) {
-    PushArg<T>(L, p_value);
-    PushArg(L, std::forward<Args>(p_args)...);
-    return 1 + sizeof...(p_args);
+int PushArg(lua_State* L, T&& value, Args&&... args) {
+    PushArg<T>(L, value);
+    PushArg(L, std::forward<Args>(args)...);
+    return 1 + sizeof...(args);
 }
 
 template<typename... Args>
-static void EntityCall(lua_State* L, int p_ref, const char* p_method, Args&&... p_args) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, p_ref);
-    lua_getfield(L, -1, p_method);
+static void EntityCall(lua_State* L, int ref, const char* method, Args&&... args) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+    lua_getfield(L, -1, method);
     if (lua_isfunction(L, -1)) {
         // push self
-        lua_rawgeti(L, LUA_REGISTRYINDEX, p_ref);
-        int arg_count = PushArg(L, std::forward<Args>(p_args)...);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+        int arg_count = PushArg(L, std::forward<Args>(args)...);
         const int result = lua_pcall(L, 1 + arg_count, 0, 0);
         if (result != LUA_OK) {
             const char* err = lua_tostring(L, -1);
@@ -68,13 +63,13 @@ static void EntityCall(lua_State* L, int p_ref, const char* p_method, Args&&... 
 }
 
 template<typename... Args>
-static int CreateInstance(const ObjectFunctions& p_meta, lua_State* L, Args&&... p_args) {
-    if (!p_meta.funcNew) {
+int CreateInstance(const ObjectFunctions& meta, lua_State* L, Args&&... args) {
+    if (!meta.funcNew) {
         return 0;
     }
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, p_meta.funcNew);
-    const int arg_count = PushArg(L, std::forward<Args>(p_args)...);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, meta.funcNew);
+    const int arg_count = PushArg(L, std::forward<Args>(args)...);
     if (lua_pcall(L, arg_count, 1, 0) != LUA_OK) {
         LOG_ERROR("failed to create new instance, error: {}", lua_tostring(L, -1));
         return 0;
@@ -83,8 +78,16 @@ static int CreateInstance(const ObjectFunctions& p_meta, lua_State* L, Args&&...
     return luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
-void LuaScriptService::OnSimBegin(Scene& p_scene) {
-    m_state = nullptr;
+}  // namespace
+
+LuaScriptSystem::LuaScriptSystem()
+    : debug_id_(MakeDebugId(this)) {
+}
+
+void LuaScriptSystem::onAttach() {
+    Scene& scene = context().scene;
+
+    state_ = nullptr;
 
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -101,47 +104,48 @@ void LuaScriptService::OnSimBegin(Scene& p_scene) {
         return;
     }
 
-    if (auto res = luabridge::push(L, &p_scene); !res) {
+    if (auto res = luabridge::push(L, &scene); !res) {
         LOG_ERROR("failed to push scene, error: {}", res.message());
         lua_close(L);
         return;
     }
     lua_setglobal(L, LUA_GLOBAL_SCENE);
 
-    for (auto [entity, script] : p_scene.View<LuaScriptComponent>()) {
+    for (auto [entity, script] : scene.view<LuaScriptComponent>()) {
         if (script.m_source_id.IsNull()) {
             continue;
         }
 
-        const auto& meta = FindOrAdd(L, script.m_source_id, script.m_class_name.c_str());
+        const auto& meta = findOrAdd(L, script.m_source_id, script.m_class_name.c_str());
         if (script.m_instance == 0) {
             const auto instance = CreateInstance(meta, L, entity.GetId());
             script.m_instance = instance;
         }
     }
 
-    m_state = L;
+    state_ = L;
     return;
 }
 
-void LuaScriptService::OnSimEnd() {
-    m_objects_meta.clear();
+void LuaScriptSystem::onDetach() {
+    meta_lookup_.clear();
 
-    if (m_state) {
-        lua_close(m_state);
-        m_state = nullptr;
+    if (state_) {
+        lua_close(state_);
+        state_ = nullptr;
     }
 }
 
-void LuaScriptService::Update(Scene& p_scene, float p_timestep) {
+void LuaScriptSystem::update(float dt) {
     CAVE_PROFILE_EVENT();
 
-    lua_State* L = m_state;
+    Scene& scene = context().scene;
+    lua_State* L = state_;
 
     if (DEV_VERIFY(L)) {
-        const lua_Number timestep = p_timestep;
+        const lua_Number timestep = dt;
 
-        for (auto [entity, script] : p_scene.View<LuaScriptComponent>()) {
+        for (auto [entity, script] : scene.view<LuaScriptComponent>()) {
             if (script.m_source_id.IsNull()) {
                 continue;
             }
@@ -153,7 +157,8 @@ void LuaScriptService::Update(Scene& p_scene, float p_timestep) {
     }
 }
 
-void LuaScriptService::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Entity p_ent_2) {
+#if 0
+void LuaScriptSystem::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Entity p_ent_2) {
     lua_State* L = m_state;
     if (DEV_VERIFY(L)) {
         LuaScriptComponent* script_1 = p_scene.GetComponent<LuaScriptComponent>(p_ent_1);
@@ -168,12 +173,13 @@ void LuaScriptService::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Ent
         }
     }
 }
+#endif
 
-Result<void> LuaScriptService::LoadMetaTable(lua_State* L,
-                                             const Guid& guid,
-                                             const char* class_name,
-                                             ObjectFunctions& meta) {
-    auto& asset_reg = m_app->services().assetRegistry();
+Result<void> LuaScriptSystem::loadMetaTable(lua_State* L,
+                                            const Guid& guid,
+                                            const char* class_name,
+                                            ObjectFunctions& meta) {
+    auto& asset_reg = context().engine_services.assetRegistry();
     auto _handle = asset_reg.FindByGuid<BlobAsset>(guid);
     if (_handle.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.ToString());
@@ -205,17 +211,17 @@ Result<void> LuaScriptService::LoadMetaTable(lua_State* L,
     return Result<void>();
 }
 
-ObjectFunctions LuaScriptService::FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
-    auto it = m_objects_meta.find(p_guid);
-    if (it != m_objects_meta.end()) {
+ObjectFunctions LuaScriptSystem::findOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
+    auto it = meta_lookup_.find(p_guid);
+    if (it != meta_lookup_.end()) {
         return it->second;
     }
 
     ObjectFunctions meta;
-    if (auto res = LoadMetaTable(L, p_guid, p_class_name, meta); !res) {
+    if (auto res = loadMetaTable(L, p_guid, p_class_name, meta); !res) {
         LOG_ERROR("{}", ToString(res.error()));
     } else {
-        m_objects_meta[p_guid] = meta;
+        meta_lookup_[p_guid] = meta;
     }
 
     return meta;

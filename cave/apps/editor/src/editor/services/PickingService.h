@@ -5,12 +5,12 @@
 
 namespace cave {
 
-struct AppServices;
+struct EngineServices;
 struct EditorServices;
 
 class PickingService final : public IIntentHandler {
 public:
-    PickingService(AppServices& app_services,
+    PickingService(EngineServices& app_services,
                    EditorServices& editor_services);
     ~PickingService();
 
@@ -26,7 +26,7 @@ public:
 private:
     void raycast(const PickData& data);
 
-    AppServices& app_services_;
+    EngineServices& app_services_;
     EditorServices& editor_services_;
     const DebugId debug_id_;
 

@@ -4,6 +4,7 @@
 #pragma once
 #include <cstdint>
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/script/native/NativeScriptRegistry.h"
 
 namespace cave {
 
@@ -18,6 +19,8 @@ class IHostServices;
 class IGameModule {
 public:
     virtual ~IGameModule() = default;
+
+    virtual void registerNativeScripts(NativeScriptRegistry&) {}
 
     virtual void onModuleLoaded(IHostServices& host) = 0;
     virtual void onModuleUnloaded(IHostServices& host) = 0;

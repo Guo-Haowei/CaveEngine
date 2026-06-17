@@ -15,7 +15,7 @@ void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
 
     DebugDraw& debug_draw = p_framedata.GetDebugDraw();
 
-    auto view = p_scene->View<ColliderComponent, TransformComponent>();
+    auto view = p_scene->view<ColliderComponent, TransformComponent>();
     for (const auto& [id, collider, transform] : view) {
         if (!collider.GetDebugDraw()) continue;
         const Matrix4x4f& m = transform.GetWorldMatrix();

@@ -1,5 +1,5 @@
 #include "cave/core/diagnostics/CommandRegistry.h"
-#include "cave/runtime/framework/AppServices.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/render/renderer/Renderer.h"

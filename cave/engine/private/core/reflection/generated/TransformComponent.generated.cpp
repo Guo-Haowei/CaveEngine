@@ -8,9 +8,9 @@
 
 namespace cave {
 
-// math::Vector3f m_translation (editor = Translation)
-// math::Vector4f m_rotation (editor = Rotation)
-// math::Vector3f m_scale (editor = Scale)
+// math::Vec3f m_translation (editor = Translation)
+// math::Vec4f m_rotation (editor = Rotation)
+// math::Vec3f m_scale (editor = Scale)
 
 template<>
 const MetaTableFields& MetaDataTable<TransformComponent>::GetFields() {

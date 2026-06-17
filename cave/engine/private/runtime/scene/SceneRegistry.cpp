@@ -109,7 +109,7 @@ SceneId SceneRegistry::Impl::cloneScene(SceneId scene_id) {
     const Scene* scene = Base::Resolve(scene_id);
     if (!scene) return {};
     auto copy = std::make_unique<Scene>(std::string(scene->Name()));
-    copy->Copy(*scene);
+    copy->copy(*scene);
     return registerScene(std::move(copy));
 }
 

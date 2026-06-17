@@ -6,11 +6,11 @@
 
 namespace cave {
 
-SceneDocument::SceneDocument(AppServices& services, const Guid& p_guid)
+SceneDocument::SceneDocument(EngineServices& services, const Guid& p_guid)
     : DocumentBase(services, p_guid) {
 
     auto scene = std::make_unique<Scene>(std::format("preview-scene-{}", p_guid.ToString()));
-    scene->Copy(*handle_.Get<Scene>());
+    scene->copy(*handle_.Get<Scene>());
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }
@@ -18,7 +18,7 @@ SceneDocument::SceneDocument(AppServices& services, const Guid& p_guid)
 bool SceneDocument::save() {
     Scene* source = handle_.Get<Scene>();
     Scene* tmp = scene_reg_.resolve(preview_scene_);
-    source->Copy(*tmp);
+    source->copy(*tmp);
     return asset_reg_.SaveAsset(guid_);
 }
 

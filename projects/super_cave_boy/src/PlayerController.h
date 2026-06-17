@@ -1,23 +1,21 @@
 #pragma once
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/ecs/Entity.h"
+#include "cave/runtime/script/native/NativeScript.h"
 
 namespace super_cave_boy {
 
-class PlayerController {
+class PlayerController : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 public:
-    void onCreate(cave::IHostServices& host);
-    void onDestroy(cave::IHostServices& host);
+    void onCreate() override;
+    void onDestroy() override;
 
-    void onUpdate(cave::IHostServices& host, const cave::FrameTime& time);
+    void onUpdate(float dt) override;
 
 private:
-    void initLevel(cave::IHostServices& host);
-
-    Entity player_;
-    Entity player_animator_;
+    Entity animator_;
 };
 
 }  // namespace super_cave_boy

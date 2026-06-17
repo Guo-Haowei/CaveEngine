@@ -133,7 +133,7 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
 
 Result<void> SceneImporter::RegisterScene(ecs::Entity p_root) {
     m_scene->m_root = p_root;
-    m_scene->GetComponent<NameComponent>(p_root)->SetName(m_file_name);
+    m_scene->component<NameComponent>(p_root)->SetName(m_file_name);
 
     fs::path sys_path = m_dest_dir / std::format("{}.scene", m_file_name);
 

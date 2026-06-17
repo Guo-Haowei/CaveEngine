@@ -3,7 +3,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/display/DisplayService.h"
-#include "cave/runtime/framework/AppServices.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/runtime/scene/SceneQueryService.h"
@@ -20,7 +20,7 @@ using math::Vec2f;
 using math::Vec3f;
 using math::Vec4f;
 
-PickingService::PickingService(AppServices& app_services,
+PickingService::PickingService(EngineServices& app_services,
                                EditorServices& editor_services)
     : app_services_(app_services)
     , editor_services_(editor_services)

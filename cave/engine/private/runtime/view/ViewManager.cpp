@@ -47,7 +47,7 @@ static ResolvedView ResolveView(ViewDesc&& view_desc,
             cam = &view_desc.camera_source.camera;
         } break;
         case CameraSource::Source::FirstCamera: {
-            for (auto [id, camera] : scene->View<CameraComponent>()) {
+            for (auto [id, camera] : scene->view<CameraComponent>()) {
                 // @HACK: just use the first camera
                 if (id.IsValid()) {
                     cam = &camera;

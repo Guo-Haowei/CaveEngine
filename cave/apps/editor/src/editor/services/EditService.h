@@ -8,14 +8,14 @@
 
 namespace cave {
 
-struct AppServices;
+struct EngineServices;
 struct EditorServices;
 class SceneCommandWriter;
 using SceneCommandWriterFn = std::function<void(SceneCommandWriter&)>;
 
 class EditService final : public IIntentHandler {
 public:
-    EditService(AppServices& app_services,
+    EditService(EngineServices& app_services,
                 EditorServices& editor_services);
     ~EditService();
 
@@ -40,7 +40,7 @@ private:
     IDocument* resolve(DocId doc_id);
     const IDocument* resolve(DocId doc_id) const;
 
-    AppServices& app_services_;
+    EngineServices& app_services_;
     EditorServices& editor_services_;
     const DebugId debug_id_;
 };

@@ -1,4 +1,4 @@
-#include "cave/runtime/ecs/components/LuaScriptComponent.h"
+#include "cave/runtime/script/lua/LuaScriptComponent.h"
 
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
@@ -6,16 +6,16 @@
 
 namespace cave {
 
-bool LuaScriptComponent::SetResourceGuid(const Guid& p_guid) {
+bool LuaScriptComponent::SetResourceGuid(const Guid& guid) {
     return AssetHandle::ReplaceGuidAndHandle(AssetType::Blob,
-                                             p_guid,
+                                             guid,
                                              m_source_id,
                                              m_source_handle.RawHandle());
 }
 
-LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view p_class_name) {
-    if (DEV_VERIFY(!p_class_name.empty())) {
-        m_class_name = p_class_name;
+LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view class_name) {
+    if (DEV_VERIFY(!class_name.empty())) {
+        m_class_name = class_name;
     }
 
     return *this;

@@ -72,7 +72,7 @@ public:
 void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     unused(p_context);
 
-    auto view = p_scene.View<SpriteAnimatorComponent, SpriteRendererComponent>();
+    auto view = p_scene.view<SpriteAnimatorComponent, SpriteRendererComponent>();
 
     for (auto [id, animator, renderer] : view) {
         AnimationSystem::UpdateSpriteAnimation(p_timestep, animator, renderer);
@@ -82,7 +82,7 @@ void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, flo
 void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
     unused(p_context);
 
-    auto view = p_scene.View<TransformAnimationComponent, TransformComponent>();
+    auto view = p_scene.view<TransformAnimationComponent, TransformComponent>();
 
     std::vector<ecs::Entity> pending_removes;
 
@@ -106,7 +106,7 @@ void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, 
     }
 
     for (ecs::Entity e : pending_removes) {
-        p_scene.Remove<TransformAnimationComponent>(e);
+        p_scene.remove<TransformAnimationComponent>(e);
     }
 }
 

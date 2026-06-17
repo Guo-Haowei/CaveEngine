@@ -38,7 +38,7 @@ static AssetRef LoadBlob(const unsigned char* p_data, unsigned int p_length) {
     return blob;
 }
 
-static void RegisterPersistentFonts(AppServices& services) {
+static void RegisterPersistentFonts(EngineServices& services) {
     auto& asset_reg = services.assetRegistry();
 
     asset_reg.RegisterPersistentAsset("fonts/DroidSans.ttf",
@@ -49,7 +49,7 @@ static void RegisterPersistentFonts(AppServices& services) {
                                       LoadBlob(fa_solid_900_ttf, fa_solid_900_ttf_len));
 }
 
-static void RegisterPersistentImages(AppServices& services) {
+static void RegisterPersistentImages(EngineServices& services) {
     auto& asset_registry = services.assetRegistry();
     auto& graphics_manager = services.renderDevice();
     {
@@ -61,7 +61,7 @@ static void RegisterPersistentImages(AppServices& services) {
     }
 }
 
-static void RegisterPersistentMeshes(AppServices& services) {
+static void RegisterPersistentMeshes(EngineServices& services) {
     auto& asset_registry = services.assetRegistry();
     auto& graphics_manager = services.renderDevice();
     {
@@ -108,14 +108,14 @@ static void RegisterPersistentMeshes(AppServices& services) {
     }
 }
 
-static void RegisterPersistentMaterials(AppServices& services) {
+static void RegisterPersistentMaterials(EngineServices& services) {
     auto& asset_registry = services.assetRegistry();
     auto material = std::make_shared<MaterialAsset>();
     material->base_color = Vec4f(1.0f, 0.0f, 1.0f, 1.0f);
     asset_registry.RegisterPersistentAsset("materials/default", TO_GUID(GUID10), material);
 }
 
-void RegisterAllPersistentAssets(AppServices& services) {
+void RegisterAllPersistentAssets(EngineServices& services) {
     RegisterPersistentFonts(services);
     RegisterPersistentImages(services);
     RegisterPersistentMaterials(services);

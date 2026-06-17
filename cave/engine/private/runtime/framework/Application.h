@@ -3,6 +3,7 @@
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/script/native/NativeScriptRegistry.h"
 
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
@@ -58,6 +59,7 @@ protected:
     IntentDispatcher intent_dispatcher_;
     VFS vfs_;
     SceneRegistry scene_registry_;
+    NativeScriptRegistry native_scripts_;
 
     std::unique_ptr<ProjectManager> project_manager_;
     std::unique_ptr<SceneQueryService> scene_query_;

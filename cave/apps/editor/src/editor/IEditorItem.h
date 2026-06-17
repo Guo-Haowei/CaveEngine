@@ -3,7 +3,7 @@
 
 namespace cave {
 
-struct AppServices;
+struct EngineServices;
 class EditorState;
 
 class IEditorItem {
@@ -24,7 +24,7 @@ public:
 protected:
     // @TODO: deperecate m_editor
     EditorState& m_editor;
-    AppServices& app_services_;
+    EngineServices& app_services_;
     EditorServices& editor_services_;
 };
 

@@ -6,7 +6,7 @@
 
 namespace cave {
 
-struct AppServices;
+struct EngineServices;
 struct EditorServices;
 
 // @TODO: remove this
@@ -30,7 +30,7 @@ private:
     void initShortcuts();
 
     EditorState& editor_;
-    AppServices& app_services_;
+    EngineServices& app_services_;
     EditorServices& editor_services_;
     const DebugId debug_id_;
 

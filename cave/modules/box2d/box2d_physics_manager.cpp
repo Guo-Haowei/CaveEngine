@@ -39,7 +39,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
 
     // 1. set speed
     {
-        auto view = p_scene.View<ColliderComponent, VelocityComponent>();
+        auto view = p_scene.view<ColliderComponent, VelocityComponent>();
         for (auto [id, collider, vel] : view) {
             b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
             b2Body_SetLinearVelocity(body_id, { vel.linear.x, vel.linear.y });
@@ -50,7 +50,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     b2World_Step(world_id, p_timestep, sub_step_count);
 
     // 3. sync speed and position
-    auto view = p_scene.View<ColliderComponent, TransformComponent>();
+    auto view = p_scene.view<ColliderComponent, TransformComponent>();
     for (auto [id, collider, transform] : view) {
         b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
 
@@ -63,7 +63,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
         transform.SetTranslation(translation);
         transform.SetDirty();
 
-        if (VelocityComponent* vel = p_scene.GetComponent<VelocityComponent>(id); vel) {
+        if (VelocityComponent* vel = p_scene.component<VelocityComponent>(id); vel) {
             b2Vec2 linear = b2Body_GetLinearVelocity(body_id);
             vel->linear.x = linear.x;
             vel->linear.y = linear.y;
@@ -78,13 +78,13 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
     m_world_id = Some(std::bit_cast<uint32_t>(world_id));
 
-    for (auto [id, collider, transform] : p_scene.View<ColliderComponent, TransformComponent>()) {
+    for (auto [id, collider, transform] : p_scene.view<ColliderComponent, TransformComponent>()) {
         Vec4f position = transform.GetWorldMatrix() * Vec4f::UnitW;
         b2BodyDef body_def = b2DefaultBodyDef();
         body_def.position = { position.x, position.y };
         body_def.fixedRotation = true;
 #if USING(DEBUG_BUILD)
-        const NameComponent* name = p_scene.GetComponent<NameComponent>(id);
+        const NameComponent* name = p_scene.component<NameComponent>(id);
         if (name) {
             body_def.name = name->GetName().data();
         }
@@ -123,7 +123,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
         }
     }
 
-    for (auto [id, tile_map_renderer, transform] : p_scene.View<TileMapRendererComponent, TransformComponent>()) {
+    for (auto [id, tile_map_renderer, transform] : p_scene.view<TileMapRendererComponent, TransformComponent>()) {
         const TileMapAsset* tile_map = tile_map_renderer.GetTileMapHandle().Get();
         if (!tile_map) continue;
         const TileSetAsset* tile_set = tile_map->tileSetHandle().Get();

@@ -7,7 +7,7 @@ class TileMapAsset;
 
 class TileMapDocument : public DocumentBase {
 public:
-    TileMapDocument(AppServices& services, const Guid& guid);
+    TileMapDocument(EngineServices& services, const Guid& guid);
 };
 
 }  // namespace cave

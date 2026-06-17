@@ -36,6 +36,7 @@ using namespace ::cave::math;
 #define COMPONENT_LIST              \
     COMPONENT_DECL(Camera)          \
     COMPONENT_DECL(LuaScript)       \
+    COMPONENT_DECL(NativeScript)    \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
     COMPONENT_DECL(MeshRenderer)    \
@@ -292,7 +293,7 @@ void PropertyPanel::drawUIImpl() {
     Scene& scene = *preview.scene;
     DocId doc_id = preview.doc_id;
 
-    NameComponent* name_component = scene.GetComponent<NameComponent>(id);
+    NameComponent* name_component = scene.component<NameComponent>(id);
     if (!name_component) {
         return;
     }
@@ -360,13 +361,14 @@ void PropertyPanel::drawUIImpl() {
 
     // @TODO: see how much this can be done with meta table
 
-    TransformComponent* transform = scene.GetComponent<TransformComponent>(id);
-    LightComponent* light = scene.GetComponent<LightComponent>(id);
-    MaterialComponent* material = scene.GetComponent<MaterialComponent>(id);
-    ColliderComponent* collider = scene.GetComponent<ColliderComponent>(id);
-    LuaScriptComponent* lua_script = scene.GetComponent<LuaScriptComponent>(id);
-    CameraComponent* camera = scene.GetComponent<CameraComponent>(id);
-    PrefabInstanceComponent* prefab = scene.GetComponent<PrefabInstanceComponent>(id);
+    TransformComponent* transform = scene.component<TransformComponent>(id);
+    LightComponent* light = scene.component<LightComponent>(id);
+    MaterialComponent* material = scene.component<MaterialComponent>(id);
+    ColliderComponent* collider = scene.component<ColliderComponent>(id);
+    LuaScriptComponent* lua_script = scene.component<LuaScriptComponent>(id);
+    NativeScriptComponent* native_script = scene.component<NativeScriptComponent>(id);
+    CameraComponent* camera = scene.component<CameraComponent>(id);
+    PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(id);
 
     // RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 
@@ -393,11 +395,17 @@ void PropertyPanel::drawUIImpl() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Script"), lua_script, [&](LuaScriptComponent& p_script) {
+    DrawComponent(DRAW_COMPONENT_ARGS("Lua Script"), lua_script, [&](LuaScriptComponent& p_script) {
         FixedString<32>& name = p_script.GetClassNameRef();
         ui::TextBox("class_name", name.data(), name.size());
 
         DrawComponentAuto<LuaScriptComponent>(&p_script, ctx);
+    });
+
+    DrawComponent(DRAW_COMPONENT_ARGS("Native Script"), native_script, [&](NativeScriptComponent& script) {
+        ui::TextBox("class_name", script.name.data(), script.name.size());
+
+        DrawComponentAuto<NativeScriptComponent>(&script, ctx);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent&) {
@@ -406,7 +414,7 @@ void PropertyPanel::drawUIImpl() {
         if (dirty) {
             // don't support remove instantiated entities yet
             DEV_ASSERT(was_null);
-            scene.InstantiatePrefab(*prefab, id);
+            scene.instantiatePrefab(*prefab, id);
         }
     });
 
@@ -459,7 +467,7 @@ void PropertyPanel::drawUIImpl() {
 
     DrawComponent(
         DRAW_COMPONENT_ARGS("SkeletalAnimation"),
-        scene.GetComponent<SkeletalAnimationComponent>(id),
+        scene.component<SkeletalAnimationComponent>(id),
         [&](SkeletalAnimationComponent& p_anim) {
             DrawComponentAuto<SkeletalAnimationComponent>(&p_anim, ctx);
             ImGui::Separator();
@@ -474,18 +482,18 @@ void PropertyPanel::drawUIImpl() {
         });
 
     DrawComponent(DRAW_COMPONENT_ARGS("SpriteRenderer"),
-                  scene.GetComponent<SpriteRendererComponent>(id),
+                  scene.component<SpriteRendererComponent>(id),
                   [&](SpriteRendererComponent& p_renderer) {
                       DrawComponentAuto<SpriteRendererComponent>(&p_renderer, ctx);
                   });
 
     DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"),
-                  scene.GetComponent<TileMapRendererComponent>(id),
+                  scene.component<TileMapRendererComponent>(id),
                   [&](TileMapRendererComponent& p_renderer) {
                       DrawComponentAuto<TileMapRendererComponent>(&p_renderer, ctx);
                   });
 
-    MeshRendererComponent* mesh_renderer = scene.GetComponent<MeshRendererComponent>(id);
+    MeshRendererComponent* mesh_renderer = scene.component<MeshRendererComponent>(id);
     DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_render) {
         DrawComponentAuto<MeshRendererComponent>(&p_render, ctx);
 
@@ -502,7 +510,7 @@ void PropertyPanel::drawUIImpl() {
         }
 
         for (ecs::Entity id : p_render.GetMaterialInstances()) {
-            if (MaterialComponent* material = scene.GetComponent<MaterialComponent>(id); material) {
+            if (MaterialComponent* material = scene.component<MaterialComponent>(id); material) {
                 DrawComponentCtx copy_ctx = ctx;
                 copy_ctx.entity = id;
                 DrawComponentAuto<MaterialComponent>(material, copy_ctx);

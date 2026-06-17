@@ -137,7 +137,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
                 continue;
             }
 
-            const auto material = p_scene.GetComponent<MaterialComponent>(material_id);
+            const auto material = p_scene.component<MaterialComponent>(material_id);
             DEV_ASSERT(material);
 
             materials_lookup[material_id] = (int)materials.size();
@@ -164,10 +164,10 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
     }
 
     {
-        auto view = p_scene.View<MeshRendererComponent, TransformComponent>();
+        auto view = p_scene.view<MeshRendererComponent, TransformComponent>();
 
         std::vector<GpuPtMesh> meshes;
-        meshes.reserve(p_scene.GetCount<MeshRendererComponent>());
+        meshes.reserve(p_scene.count<MeshRendererComponent>());
         for (auto [id, renderer, transform] : view) {
             auto handle = renderer.GetMeshHandle();
             auto mesh = handle.Get();
@@ -216,8 +216,8 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     stopwatch.Start();
 
     // meshes
-    for (auto [id, renderer] : p_scene.View<MeshRendererComponent>()) {
-        auto transform = p_scene.GetComponent<TransformComponent>(id);
+    for (auto [id, renderer] : p_scene.view<MeshRendererComponent>()) {
+        auto transform = p_scene.component<TransformComponent>(id);
         auto handle = renderer.GetMeshHandle();
         auto mesh = handle.Get();
         if (DEV_VERIFY(transform && mesh)) {

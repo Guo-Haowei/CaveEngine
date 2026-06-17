@@ -8,7 +8,7 @@
 
 namespace cave {
 
-// math::Vector4f base_color (editor = Color)
+// math::Vec4f base_color (editor = Color)
 // float metallic (editor = DragFloat, min = 0.00f, max = 0.99f)
 // float roughness (editor = DragFloat, min = 0.01f, max = 1)
 // float emissive (editor = DragFloat, min = 0, max = 1000)

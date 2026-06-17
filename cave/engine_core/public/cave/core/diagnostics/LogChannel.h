@@ -22,7 +22,7 @@
     CAVE_LOG_CHANNEL(Intent,  "[Intent] ") \
     CAVE_LOG_CHANNEL(UI,      "[UI]     ") \
     CAVE_LOG_CHANNEL(ImGui,   "[ImGui]  ") \
-    CAVE_LOG_CHANNEL(Lua,     "[Lua]    ") \
+    CAVE_LOG_CHANNEL(Script,  "[Script] ") \
     CAVE_LOG_CHANNEL(Physics, "[Physics]") \
     CAVE_LOG_CHANNEL(Thread,  "[Thread] ") \
     CAVE_LOG_CHANNEL(View,    "[View]   ") \

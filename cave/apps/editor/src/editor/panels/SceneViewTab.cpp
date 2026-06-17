@@ -170,7 +170,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     ecs::Entity id = selection.entity;
 
     Scene* scene = getResolvedScene();
-    TransformComponent* transform_component = scene->GetComponent<TransformComponent>(id);
+    TransformComponent* transform_component = scene->component<TransformComponent>(id);
 
     EditService& edit_service = editor_services_.edit();
 

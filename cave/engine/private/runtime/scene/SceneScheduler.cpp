@@ -2,7 +2,6 @@
 
 #include "cave/core/time/FrameTime.h"
 
-#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
@@ -48,14 +47,15 @@ void SceneScheduler::tick(const FrameTime& time) {
         c->collectSceneTicks(requests);
     }
 
-    // @TODO: merge same scenes from different contributors
+    //// @TODO: merge same scenes from different contributors
     for (const SceneTickRequest& req : requests) {
         if (Scene* scene = scene_manager_.resolve(req.scene_id)) {
+            // @TODO: this should be ticked inside scene::Update()
             if (req.mode == SceneTickMode::Simulation) {
-                script_manager_.Update(*scene, time.dt);
+                scene->simulate(time.dt);
             }
 
-            scene->Update(time.dt);
+            scene->update(time.dt);
         }
     }
 }

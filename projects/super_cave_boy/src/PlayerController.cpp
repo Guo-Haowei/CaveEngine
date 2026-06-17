@@ -6,6 +6,7 @@
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TileMapRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
 namespace super_cave_boy {
@@ -15,25 +16,22 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
-void PlayerController::onCreate(IHostServices& host) {
-    initLevel(host);
+void PlayerController::onCreate() {
+    const SceneQuery query(context().scene);
 
-    const SceneQuery& query = host.sceneQuery();
-    player_ = query.findFirstByName("player");
-    player_animator_ = query.findFirstByName("player_animator_node");
+    animator_ = query.findFirstByName("player_animator_node");
 }
 
-void PlayerController::onDestroy(IHostServices& host) {
-    unused(host);
+void PlayerController::onDestroy() {
 }
 
-void PlayerController::onUpdate(IHostServices& host, const FrameTime& time) {
-    const IGameInput& input = host.gameInput();
-    SceneQuery& query = host.sceneQuery();
+void PlayerController::onUpdate(float dt) {
+    const IGameInput& input = context().game_input;
+    SceneQuery query(context().scene);
 
     const int move_x = (int)input.isPressed("ui_right"_sid) - (int)input.isPressed("ui_left"_sid);
 
-    auto animator = static_cast<SpriteAnimatorComponent*>(query.component(SpriteAnimatorComponent_Id, player_animator_));
+    auto animator = static_cast<SpriteAnimatorComponent*>(query.component(SpriteAnimatorComponent_Id, animator_));
     DEV_ASSERT(animator);
 
     if (move_x == 0) {
@@ -41,10 +39,10 @@ void PlayerController::onUpdate(IHostServices& host, const FrameTime& time) {
     } else {
         animator->SetClip("walk");
 
-        auto transform = static_cast<TransformComponent*>(query.component(TransformComponent_Id, player_));
+        auto transform = static_cast<TransformComponent*>(query.component(TransformComponent_Id, entity()));
 
         const float x_speed = 4.0f;
-        const float dx = x_speed * time.dt * move_x;
+        const float dx = x_speed * dt * move_x;
         transform->IncreaseTranslation(Vec3f(dx, 0.0f, 0.0f));
 
         Vec4f rotation = move_x < 0 ? Vec4f{ 0.0f, 1.0f, 0.0f, 0.0f } : Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
@@ -52,46 +50,4 @@ void PlayerController::onUpdate(IHostServices& host, const FrameTime& time) {
     }
 }
 
-void PlayerController::initLevel(cave::IHostServices& host) {
-    unused(host);
-    // const SceneQuery& query = host.sceneQuery();
-    // auto instance = static_cast<const TileMapRendererComponent*>(query.component(TileMapRendererComponent_Id, player_ent_));
-    // const TileMapAsset* tile_map = instance->GetTileMapHandle().Get();
-    // unused(tile_map);
-}
-
 }  // namespace super_cave_boy
-
-#if 0
-function Player.new(id)
-    local self = GameObject.new(id)
-    setmetatable(self, Player)
-    Log.ok('hello from player.lua')
-    self.velocity = g_scene:get_velocity(self.id)
-    self.transform = g_scene:get_transform(self.id)
-    self.animator = g_scene:get_animator(self.animator_id)
-    return self
-end
-
-function Player:_process(timestep)
-    local move_x = Input.is_action_pressed('ui_right') - Input.is_action_pressed('ui_left')
-    local jump = Input.is_action_just_pressed('ui_up')
-    if jump ~= 0 then
-        self.velocity.linear.y = 10
-    end
-
-    if move_x == 0 then
-        self.animator:set_clip('idle')
-        self.velocity.linear.x = 0
-    else
-        self.animator:set_clip('walk')
-
-        -- @TODO: attach sprite as child to player
-        local rotate_z = move_x < 0 and math.rad(180) or 0
-        local euler = Vector3(0, rotate_z, 0)
-        self.transform:set_rotation(Quaternion(euler))
-
-        self.velocity.linear.x = move_x * 3.5
-    end
-end
-#endif

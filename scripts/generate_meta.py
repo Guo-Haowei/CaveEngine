@@ -10,8 +10,6 @@ def get_engine_src_folder():
 
 print('Project root folder:', get_engine_src_folder())
 
-# throw 'Source folder not found'
-
 # ========= CONFIG ==========
 FILES = [
     # components
@@ -19,7 +17,6 @@ FILES = [
     'public/cave/runtime/ecs/components/ColliderComponent.h',
     'public/cave/runtime/ecs/components/HierarchyComponent.h',
     'public/cave/runtime/ecs/components/LightComponent.h',
-    'public/cave/runtime/ecs/components/LuaScriptComponent.h',
     'public/cave/runtime/ecs/components/MaterialComponent.h',
     'public/cave/runtime/ecs/components/MeshRendererComponent.h',
     'public/cave/runtime/ecs/components/NameComponent.h',
@@ -29,6 +26,10 @@ FILES = [
     'public/cave/runtime/ecs/components/TileMapRendererComponent.h',
     'public/cave/runtime/ecs/components/TransformAnimationComponent.h',
     'public/cave/runtime/ecs/components/TransformComponent.h',
+
+    'public/cave/runtime/script/lua/LuaScriptComponent.h',
+    'public/cave/runtime/script/native/NativeScriptComponent.h',
+
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
     'public/cave/runtime/assets/TileMapAsset.h',

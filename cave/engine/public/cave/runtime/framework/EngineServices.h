@@ -1,6 +1,5 @@
-#pragma once
 // =============================================================================
-// File: cave/runtime/framework/AppServices.h
+// File: cave/runtime/framework/EngineServices.h
 // =============================================================================
 #pragma once
 
@@ -10,13 +9,13 @@ namespace cave::render { class IRenderDevice; }
 // clang-format on
 
 namespace cave {
-
 class AssetRegistry;
 class DisplayService;
 class IAssetManager;
 class InputService;
 class IntentDispatcher;
 class IUIRuntime;
+class NativeScriptRegistry;
 class ProjectManager;
 class SceneRegistry;
 class SceneScheduler;
@@ -25,13 +24,14 @@ class TaskManager;
 class VFS;
 class ViewManager;
 
-struct AppServices {
+struct EngineServices {
     AssetRegistry* asset_registry_{};
     DisplayService* display_service_{};
     IAssetManager* asset_manager_{};
     InputService* input_service_{};
     IntentDispatcher* intent_dispatcher_{};
     IUIRuntime* ui_{};
+    NativeScriptRegistry* native_scripts_{};
     ProjectManager* project_manager_{};
     SceneQueryService* scene_query_{};
     SceneRegistry* scene_registry_{};
@@ -49,6 +49,7 @@ struct AppServices {
     InputService& inputService() { return *input_service_; }
     IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
     IUIRuntime& ui() { return *ui_; }
+    NativeScriptRegistry& nativeScripts() { return *native_scripts_; }
     ProjectManager& projectManager() { return *project_manager_; }
     SceneQueryService& sceneQuery() { return *scene_query_; }
     SceneRegistry& sceneRegistry() { return *scene_registry_; }

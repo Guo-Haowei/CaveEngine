@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/runtime/ecs/components/LuaScriptComponent.h
+// File: cave/runtime/script/lua/LuaScriptComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/ids/Guid.h"
@@ -37,7 +37,7 @@ public:
     void OnDeserialized();
 
 private:
-    friend class LuaScriptService;
+    friend class LuaScriptSystem;
 };
 
 }  // namespace cave
