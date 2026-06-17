@@ -10,8 +10,7 @@ using namespace ::cave;
 namespace super_cave_boy {
 
 GameModule::GameModule()
-    : controller_(std::make_unique<PlayerController>())
-    , camera_(std::make_unique<CameraController>()) {
+    : controller_(std::make_unique<PlayerController>()) {
 }
 
 GameModule::~GameModule() = default;
@@ -32,17 +31,14 @@ void GameModule::onModuleUnloaded(IHostServices&) {
 
 void GameModule::onGameBegin(IHostServices& host) {
     controller_->onCreate(host);
-    camera_->onCreate(host);
 }
 
 void GameModule::onGameEnd(IHostServices& host) {
     controller_->onDestroy(host);
-    camera_->onDestroy(host);
 }
 
 void GameModule::tick(IHostServices& host, const FrameTime& time) {
     controller_->onUpdate(host, time);
-    camera_->onUpdate(host, time);
 }
 
 }  // namespace super_cave_boy
