@@ -44,7 +44,7 @@ public:
 #pragma warning(disable : 4996)
 
 void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_timestep) {
-    SkeletalAnimationComponent& animation = p_scene.GetComponentByIndex<SkeletalAnimationComponent>(p_index);
+    SkeletalAnimationComponent& animation = p_scene.getComponentByIndex<SkeletalAnimationComponent>(p_index);
 
     if (!animation.IsPlaying()) {
         return;
@@ -95,7 +95,7 @@ void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_tim
         }
         t = Saturate(t);
 
-        TransformComponent* targetTransform = p_scene.GetComponent<TransformComponent>(channel.target_id);
+        TransformComponent* targetTransform = p_scene.component<TransformComponent>(channel.target_id);
         DEV_ASSERT(targetTransform);
         auto dummy_mix = [](const Vec3f& a, const Vec3f& b, float t) {
             glm::vec3 tmp = glm::mix(glm::vec3(a.x, a.y, a.z), glm::vec3(b.x, b.y, b.z), t);
@@ -149,23 +149,23 @@ void SkeletalAnimationSystem::Update(Scene& p_scene, size_t p_index, float p_tim
 static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
     unused(p_timestep);
 
-    ecs::Entity self_id = p_scene.GetEntityByIndex<HierarchyComponent>(p_index);
-    TransformComponent* self_transform = p_scene.GetComponent<TransformComponent>(self_id);
+    ecs::Entity self_id = p_scene.getEntityByIndex<HierarchyComponent>(p_index);
+    TransformComponent* self_transform = p_scene.component<TransformComponent>(self_id);
 
     if (!self_transform) {
         return;
     }
 
     Matrix4x4f world_matrix = self_transform->GetLocalMatrix();
-    const HierarchyComponent* hierarchy = &p_scene.GetComponentByIndex<HierarchyComponent>(p_index);
+    const HierarchyComponent* hierarchy = &p_scene.getComponentByIndex<HierarchyComponent>(p_index);
     ecs::Entity parent = hierarchy->parent_id;
 
     while (parent.IsValid()) {
-        TransformComponent* parent_transform = p_scene.GetComponent<TransformComponent>(parent);
+        TransformComponent* parent_transform = p_scene.component<TransformComponent>(parent);
         if (DEV_VERIFY(parent_transform)) {
             world_matrix = parent_transform->GetLocalMatrix() * world_matrix;
 
-            if ((hierarchy = p_scene.GetComponent<HierarchyComponent>(parent)) != nullptr) {
+            if ((hierarchy = p_scene.component<HierarchyComponent>(parent)) != nullptr) {
                 parent = hierarchy->parent_id;
                 // DEV_ASSERT(parent.IsValid() || );
             } else {
@@ -181,7 +181,7 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
 }
 
 static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
-    TransformComponent* transform = p_scene.GetComponent<TransformComponent>(p_scene.GetEntityByIndex<SkeletonComponent>(p_index));
+    TransformComponent* transform = p_scene.component<TransformComponent>(p_scene.getEntityByIndex<SkeletonComponent>(p_index));
     DEV_ASSERT(transform);
 
     // The transform world matrices are in world space, but skinning needs them in skeleton-local space,
@@ -195,7 +195,7 @@ static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
     // to LH space) 	then the inverseBindMatrices are not reflected in that because they are not contained in
     // the hierarchy system. 	But this will correct them too.
 
-    SkeletonComponent& skeleton = p_scene.GetComponentByIndex<SkeletonComponent>(p_index);
+    SkeletonComponent& skeleton = p_scene.getComponentByIndex<SkeletonComponent>(p_index);
     const Matrix4x4f R = glm::inverse(transform->GetWorldMatrix());
     const size_t numBones = skeleton.bone_collection.size();
     if (skeleton.bone_transforms.size() != numBones) {
@@ -204,7 +204,7 @@ static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
 
     int idx = 0;
     for (ecs::Entity boneID : skeleton.bone_collection) {
-        const TransformComponent* boneTransform = p_scene.GetComponent<TransformComponent>(boneID);
+        const TransformComponent* boneTransform = p_scene.component<TransformComponent>(boneID);
         DEV_ASSERT(boneTransform);
 
         const Matrix4x4f& B = skeleton.inverse_bind_matrices[idx];
@@ -287,7 +287,7 @@ static void UpdateLight(float p_timestep,
 void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context&, float p_timestep) {
     CAVE_PROFILE_EVENT();
 
-    auto view = p_scene.View<LightComponent, TransformComponent>();
+    auto view = p_scene.view<LightComponent, TransformComponent>();
     for (auto [id, light, transform] : view) {
         UpdateLight(p_timestep, transform, light);
     }
@@ -297,7 +297,7 @@ void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context
     CAVE_PROFILE_EVENT();
 
     JS_PARALLEL_FOR(TransformComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, {
-        if (p_scene.GetComponentByIndex<TransformComponent>(index).UpdateTransform()) {
+        if (p_scene.getComponentByIndex<TransformComponent>(index).UpdateTransform()) {
             p_scene.m_dirtyFlags.fetch_or(SCENE_DIRTY_WORLD);
         }
     });
@@ -323,12 +323,12 @@ void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context&, float) {
 
     AABB bound;
 
-    for (auto [id, mesh_renderer] : p_scene.View<MeshRendererComponent>()) {
-        if (!p_scene.Has<TransformComponent>(id)) {
+    for (auto [id, mesh_renderer] : p_scene.view<MeshRendererComponent>()) {
+        if (!p_scene.has<TransformComponent>(id)) {
             continue;
         }
 
-        const TransformComponent& transform = *p_scene.GetComponent<TransformComponent>(id);
+        const TransformComponent& transform = *p_scene.component<TransformComponent>(id);
         const MeshAsset* mesh = mesh_renderer.GetMeshHandle().Get();
         if (!mesh) {
             continue;

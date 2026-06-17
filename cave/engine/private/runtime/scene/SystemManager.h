@@ -6,7 +6,7 @@
 
 namespace cave {
 
-class SceneContext;
+struct SceneContext;
 
 class SystemManager : public NonCopyable {
 public:
@@ -52,8 +52,6 @@ public:
     void fixedUpdate(float dt);
     void update(float dt);
     void lateUpdate(float dt);
-
-    void clear();
 
 private:
     void addImpl(std::unique_ptr<ISceneSystem>&& system);

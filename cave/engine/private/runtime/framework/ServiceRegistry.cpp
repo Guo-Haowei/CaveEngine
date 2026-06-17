@@ -6,7 +6,6 @@
 #include "engine/private/runtime/null/NullPhysicsService.h"
 #include "engine/private/runtime/null/NullScriptService.h"
 #include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/runtime/script/lua/LuaScriptService.h"
 
 #if USING(PLATFORM_WINDOWS)
 #include "modules/d3d11/d3d11_graphics_manager.h"
@@ -41,10 +40,6 @@ DisplayService* CreateDisplayService() {
 
 IPhysicsManager* CreatePhysicsService() {
     return CreateModule<IPhysicsManager, EmptyPhysicsManager>();
-}
-
-IScriptService* CreateScriptService() {
-    return CreateModule<IScriptService, NullScriptService>();
 }
 
 // @TODO: move to RHI

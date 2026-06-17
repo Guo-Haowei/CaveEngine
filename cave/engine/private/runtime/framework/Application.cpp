@@ -22,7 +22,6 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
-#include "engine/private/runtime/framework/IScriptService.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
@@ -71,7 +70,6 @@ auto Application::SetupModules() -> Result<void> {
 
     asset_manager_ = CreateAssetService();
     asset_registry_ = new AssetRegistry();
-    m_script_service = CreateScriptService();
     m_physics_manager = CreatePhysicsService();
     render_device_ = CreateRenderDevice(m_spec.backend);
     display_service_ = CreateDisplayService();

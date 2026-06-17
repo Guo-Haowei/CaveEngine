@@ -16,15 +16,15 @@ using math::Matrix4x4f;
 void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scene) {
     p_out_scene.Clear();
 
-    const size_t num_meshes = p_scene.GetCount<MeshRendererComponent>();
-    const size_t num_sprites = p_scene.GetCount<SpriteRendererComponent>();
+    const size_t num_meshes = p_scene.count<MeshRendererComponent>();
+    const size_t num_sprites = p_scene.count<SpriteRendererComponent>();
     const size_t num_tile_maps = 0;
     const size_t num_renderables = num_meshes + num_sprites + num_tile_maps;  // estimate
     p_out_scene.m_meshes.reserve(num_meshes);
     p_out_scene.m_sprites.reserve(num_sprites);
     p_out_scene.m_renderables.reserve(num_renderables);
 
-    for (auto [e, renderer, trans] : p_scene.View<MeshRendererComponent, TransformComponent>()) {
+    for (auto [e, renderer, trans] : p_scene.view<MeshRendererComponent, TransformComponent>()) {
         const MeshAsset* mesh_asset = renderer.GetMeshHandle().Get();
         if (!mesh_asset) {
             continue;

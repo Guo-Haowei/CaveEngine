@@ -93,14 +93,4 @@ void SystemManager::lateUpdate(float dt) {
     }
 }
 
-void SystemManager::clear() {
-    if (scene_created_) {
-        onSceneDestroy();
-    }
-
-    systems_.clear();
-    lookup_.fill(nullptr);
-    scene_created_ = false;
-}
-
 }  // namespace cave

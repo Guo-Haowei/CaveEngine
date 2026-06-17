@@ -49,7 +49,7 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& p_cb,
         switch (header->op) {
             case SceneCmd_Op::CreateEntity: {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
-                Entity real = p_ctx.scene.CreateEntity();
+                Entity real = p_ctx.scene.createEntity();
                 map.SetRemap(e, real);
             } break;
             case SceneCmd_Op::DestroyEntity: {

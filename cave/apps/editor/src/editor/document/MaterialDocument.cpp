@@ -3,7 +3,7 @@
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/framework/AppServices.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
@@ -16,7 +16,7 @@ namespace cave {
 
 using ecs::Entity;
 
-MaterialDocument::MaterialDocument(AppServices& services, const Guid& guid)
+MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
     : DocumentBase(services, guid) {
 
     SceneCommandWriter cb(services.assetRegistry());
@@ -38,7 +38,7 @@ MaterialDocument::MaterialDocument(AppServices& services, const Guid& guid)
     EntityMap map(cb.GetAllocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->m_root = map.Resolve(root);
-    scene->Update(0.0f);
+    scene->update(0.0f);
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }

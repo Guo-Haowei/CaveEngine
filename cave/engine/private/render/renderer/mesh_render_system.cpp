@@ -108,7 +108,7 @@ static void FillPass(const RenderScene& p_rs,
         }
 
         if (skeleton_id.IsValid()) {
-            const SkeletonComponent* skeleton = p_es.GetComponent<SkeletonComponent>(skeleton_id);
+            const SkeletonComponent* skeleton = p_es.component<SkeletonComponent>(skeleton_id);
             if (skeleton) {
                 DEV_ASSERT(skeleton->bone_transforms.size() <= MAX_BONE_COUNT);
 
@@ -144,7 +144,7 @@ static void FillPass(const RenderScene& p_rs,
             if (!p_frustum.intersects(aabb2)) continue;
 
             ecs::Entity material_id = mesh.materials[idx];
-            const MaterialComponent* material = p_es.GetComponent<MaterialComponent>(material_id);
+            const MaterialComponent* material = p_es.component<MaterialComponent>(material_id);
 
             MaterialConstantBuffer material_buffer;
             FillMaterialConstantBuffer(p_framedata.options.is_opengl,
@@ -163,7 +163,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                             const Scene& p_scene,
                             const ResolvedView& p_view,
                             FrameData& p_framedata) {
-    const uint32_t light_count = glm::min<uint32_t>((uint32_t)p_scene.GetCount<LightComponent>(), MAX_LIGHT_COUNT);
+    const uint32_t light_count = glm::min<uint32_t>((uint32_t)p_scene.count<LightComponent>(), MAX_LIGHT_COUNT);
 
     auto& cache = p_framedata.perFrameCache;
     cache.c_lightCount = light_count;
@@ -171,8 +171,8 @@ static void FillLightBuffer(const RenderScene& p_rs,
     [[maybe_unused]] auto& point_shadow_cache = p_framedata.pointShadowCache;
 
     int idx = 0;
-    for (auto [light_entity, light_component] : p_scene.View<LightComponent>()) {
-        const TransformComponent* light_transform = p_scene.GetComponent<TransformComponent>(light_entity);
+    for (auto [light_entity, light_component] : p_scene.view<LightComponent>()) {
+        const TransformComponent* light_transform = p_scene.component<TransformComponent>(light_entity);
         DEV_ASSERT(light_transform);
 
         // SHOULD BE THIS INDEX
@@ -180,7 +180,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
         bool cast_shadow = light_component.CastShadow();
         light.cast_shadow = cast_shadow;
         light.type = static_cast<int>(light_component.GetType());
-        const MaterialComponent& material = *p_scene.GetComponent<MaterialComponent>(light_entity);
+        const MaterialComponent& material = *p_scene.component<MaterialComponent>(light_entity);
         // @TODO: [SCRUM-210] fix material
         light.color = material.base_color.xyz;
         light.color *= material.emissive;
@@ -197,7 +197,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 // @would be nice if can add debug draw
                 AABB world_bound = light_component.GetShadowRegion();
                 if (!world_bound.IsValid()) {
-                    world_bound = p_scene.GetBound();
+                    world_bound = p_scene.bound();
                 }
                 Vec3f center = world_bound.Center();
                 Vec3f extents = world_bound.Size();

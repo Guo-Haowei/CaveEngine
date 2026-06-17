@@ -160,7 +160,7 @@ bool OpenLogLib(lua_State* L) {
 
 [[maybe_unused]] static int lua_GetAllLuaScripts(lua_State* L) {
     Scene* scene = luabridge::getGlobal(L, LUA_GLOBAL_SCENE);
-    auto view = scene->View<LuaScriptComponent>();
+    auto view = scene->view<LuaScriptComponent>();
     int i = 0;
 
     lua_newtable(L);
@@ -243,26 +243,26 @@ bool OpenSceneLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginClass<Scene>("Scene")
         .addFunction("get_name", [](Scene* p_scene, uint32_t p_ent) {
-            auto ret = p_scene->GetComponent<NameComponent>(ecs::Entity(p_ent));
+            auto ret = p_scene->component<NameComponent>(ecs::Entity(p_ent));
             return ret->GetName();
         })
         .addFunction("get_transform", [](Scene* p_scene, uint32_t p_ent) {
-            return p_scene->GetComponent<TransformComponent>(ecs::Entity(p_ent));
+            return p_scene->component<TransformComponent>(ecs::Entity(p_ent));
         })
         .addFunction("get_animator", [](Scene* p_scene, uint32_t p_ent) {
-            return p_scene->GetComponent<SpriteAnimatorComponent>(ecs::Entity(p_ent));
+            return p_scene->component<SpriteAnimatorComponent>(ecs::Entity(p_ent));
         })
         .addFunction("get_velocity", [](Scene* p_scene, uint32_t p_ent) {
-            return p_scene->GetComponent<VelocityComponent>(ecs::Entity(p_ent));
+            return p_scene->component<VelocityComponent>(ecs::Entity(p_ent));
         })
         .addFunction("get_mesh_renderer", [](Scene* p_scene, uint32_t p_ent) {
-            return p_scene->GetComponent<MeshRendererComponent>(ecs::Entity(p_ent));
+            return p_scene->component<MeshRendererComponent>(ecs::Entity(p_ent));
         })
         .addFunction("get_camera", [](Scene* p_scene, uint32_t p_ent) {
-            return p_scene->GetComponent<CameraComponent>(ecs::Entity(p_ent));
+            return p_scene->component<CameraComponent>(ecs::Entity(p_ent));
         })
         .addFunction("find_entity_by_name", [](Scene* p_scene, const char* p_name) {
-            return p_scene->FindEntityByName(p_name).GetId();
+            return p_scene->findEntityByName(p_name).GetId();
         })
         //.addFunction("GetMeshEmitter", [](Scene* p_scene, uint32_t p_ent) {
         //    return p_scene->GetComponent<MeshEmitterComponent>(ecs::Entity(p_ent));

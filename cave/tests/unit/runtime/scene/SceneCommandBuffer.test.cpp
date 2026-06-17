@@ -36,7 +36,7 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     Entity r1 = map.Resolve(e1);
     Entity r2 = map.Resolve(e2);
 
-    const HierarchyComponent* hier2 = scene.GetComponent<HierarchyComponent>(r2);
+    const HierarchyComponent* hier2 = scene.component<HierarchyComponent>(r2);
     ASSERT_TRUE(hier2);
 
     EXPECT_EQ(hier2->parent_id, r1);

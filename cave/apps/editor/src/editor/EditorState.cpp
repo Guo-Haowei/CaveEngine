@@ -49,7 +49,7 @@ EditorState::EditorState(IApplication& app)
     , pie_(app)
     , debug_id_(MakeDebugId(this)) {
 
-    AppServices& app_services = app.services();
+    EngineServices& app_services = app.services();
 
     // services
     document_ = std::make_unique<DocumentService>(app_services,

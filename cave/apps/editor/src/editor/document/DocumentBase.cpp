@@ -1,6 +1,6 @@
 #include "DocumentBase.h"
 
-#include "cave/runtime/framework/AppServices.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -13,7 +13,7 @@
 
 namespace cave {
 
-DocumentBase::DocumentBase(AppServices& services, const Guid& guid)
+DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
     : asset_reg_(services.assetRegistry())
     , scene_reg_(services.sceneRegistry())
     , guid_(guid) {

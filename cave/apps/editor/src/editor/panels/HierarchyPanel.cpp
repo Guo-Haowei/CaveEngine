@@ -63,7 +63,7 @@ static bool TreeNodeHelper(Scene& p_scene,
                            std::function<void()> p_on_left_click,
                            std::function<void()> p_on_right_click) {
 
-    const NameComponent* name_component = p_scene.GetComponent<NameComponent>(p_id);
+    const NameComponent* name_component = p_scene.component<NameComponent>(p_id);
     std::string_view name = name_component->GetName();
     if (name.empty()) {
         name = "Untitled";
@@ -105,10 +105,10 @@ static bool TreeNodeHelper(Scene& p_scene,
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_SCENE_NODE)) {
             Entity child_id = *reinterpret_cast<Entity*>(payload->Data);
             if (child_id != p_id) {
-                p_scene.AttachChild(child_id, p_id);
+                p_scene.attachChild(child_id, p_id);
 
                 if constexpr (true) {  // @TODO: log macro
-                    const NameComponent* child_name = p_scene.GetComponent<NameComponent>(child_id);
+                    const NameComponent* child_name = p_scene.component<NameComponent>(child_id);
                     DEV_ASSERT(child_name);
                     LOG_TRACE("moved '{}' under '{}'", child_name->GetName(), name);
                 }
@@ -166,12 +166,12 @@ void HierarchyCreator::DrawNode(HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flag
 }
 
 bool HierarchyCreator::Build(const Scene& p_scene) {
-    const size_t hierarchy_count = p_scene.GetCount<HierarchyComponent>();
+    const size_t hierarchy_count = p_scene.count<HierarchyComponent>();
     if (hierarchy_count == 0) {
         return false;
     }
 
-    for (auto [self_id, hier] : p_scene.View<HierarchyComponent>()) {
+    for (auto [self_id, hier] : p_scene.view<HierarchyComponent>()) {
         auto find_or_create = [this](ecs::Entity id) {
             auto it = m_nodes.find(id);
             if (it == m_nodes.end()) {

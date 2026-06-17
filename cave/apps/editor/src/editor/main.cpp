@@ -4,7 +4,6 @@
 #include "engine/private/runtime/framework/Application.h"
 #include "engine/private/runtime/framework/EntryPoint.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/script/lua/LuaScriptService.h"
 
 #include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
@@ -135,9 +134,6 @@ int main(int p_argc, const char** p_argv) {
 
     IAssetManager::RegisterCreateFunc([]() -> IAssetManager* {
         return new EditorAssetManager();
-    });
-    IScriptService::RegisterCreateFunc([]() -> IScriptService* {
-        return new LuaScriptService();
     });
     DisplayService::RegisterCreateFunc([]() -> DisplayService* {
         return new GlfwDisplayService();

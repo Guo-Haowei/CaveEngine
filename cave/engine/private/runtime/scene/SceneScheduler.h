@@ -6,7 +6,6 @@ namespace cave {
 
 struct FrameTime;
 class SceneRegistry;
-class IScriptService;
 
 enum class SceneTickMode {
     Editor,
@@ -29,10 +28,8 @@ public:
 
 class SceneScheduler {
 public:
-    SceneScheduler(SceneRegistry& scene_manager,
-                   IScriptService& script_manager) noexcept
-        : scene_manager_(scene_manager)
-        , script_manager_(script_manager) {
+    SceneScheduler(SceneRegistry& scene_manager) noexcept
+        : scene_manager_(scene_manager) {
     }
 
     bool add(ISceneTickContributor* contributor);
@@ -41,7 +38,6 @@ public:
     void tick(const FrameTime& time);
 
 private:
-    IScriptService& script_manager_;
     SceneRegistry& scene_manager_;
 
     std::vector<ISceneTickContributor*> contributors_;

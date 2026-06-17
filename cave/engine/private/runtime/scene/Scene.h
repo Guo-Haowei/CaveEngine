@@ -19,6 +19,9 @@ namespace cave {
 struct PhysicsWorldContext;
 class PrefabInstanceComponent;
 
+class SceneContext;
+class SystemManager;
+
 enum class PhysicsMode : uint8_t {
     NONE = 0,
     COLLISION_DETECTION,
@@ -40,90 +43,90 @@ class Scene final : public NonCopyable, public IAsset {
 public:
     static constexpr const char* EXTENSION = ".scene";
 
-    explicit Scene(std::string p_name, ecs::ComponentRegistry& p_reg) noexcept;
-    explicit Scene(std::string p_name) noexcept;
-    ~Scene() = default;
+    explicit Scene(std::string name, ecs::ComponentRegistry& reg) noexcept;
+    explicit Scene(std::string name) noexcept;
+    ~Scene() override;
 
     template<ComponentType T>
-    T& Create(ecs::Entity p_ent) {
-        return *((T*)m_storage.CreateRaw(p_ent, T::kId));
+    T& create(ecs::Entity ent) {
+        return *((T*)storage_.CreateRaw(ent, T::kId));
     }
 
     template<ComponentType T>
-    T* GetComponent(ecs::Entity p_ent) {
-        return (T*)m_storage.GetRaw(p_ent, T::kId);
+    T* component(ecs::Entity ent) {
+        return (T*)storage_.GetRaw(ent, T::kId);
     }
 
     template<ComponentType T>
-    const T* GetComponent(ecs::Entity p_ent) const {
-        return (const T*)m_storage.GetRaw(p_ent, T::kId);
+    const T* component(ecs::Entity ent) const {
+        return (const T*)storage_.GetRaw(ent, T::kId);
     }
 
-    bool Has(ComponentId p_cid, ecs::Entity p_ent) const;
-    size_t GetCount(ComponentId p_cid) const;
-    bool Remove(ComponentId p_cid, ecs::Entity p_ent);
+    bool has(ComponentId cid, ecs::Entity ent) const;
+    size_t count(ComponentId cid) const;
+    bool remove(ComponentId cid, ecs::Entity ent);
 
     template<ComponentType T>
-    bool Has(ecs::Entity p_ent) const { return Has(T::kId, p_ent); }
+    bool has(ecs::Entity ent) const { return Has(T::kId, ent); }
     template<ComponentType T>
-    size_t GetCount() const { return GetCount(T::kId); }
+    size_t count() const { return count(T::kId); }
     template<ComponentType T>
-    bool Remove(ecs::Entity p_ent) { return Remove(T::kId, p_ent); }
+    bool remove(ecs::Entity ent) { return Remove(T::kId, ent); }
 
     // @TODO: remove depracated
     template<ComponentType T>
-    [[deprecated]] T& GetComponentByIndex(size_t p_idx) {
-        if (auto* pool = (ecs::ComponentPool<T>*)m_storage.TryGet(T::kId)) {
-            return pool->GetComponentArray()[p_idx];
+    [[deprecated]] T& getComponentByIndex(size_t idx) {
+        if (auto* pool = (ecs::ComponentPool<T>*)storage_.TryGet(T::kId)) {
+            return pool->GetComponentArray()[idx];
         }
 
         return *(T*)nullptr;
     }
 
     template<ComponentType T>
-    [[deprecated]] ecs::Entity GetEntityByIndex(size_t p_idx) {
-        if (ecs::IComponentPool* pool = m_storage.TryGet(T::kId)) {
-            return pool->GetEntityArray()[p_idx];
+    [[deprecated]] ecs::Entity getEntityByIndex(size_t idx) {
+        if (ecs::IComponentPool* pool = storage_.TryGet(T::kId)) {
+            return pool->GetEntityArray()[idx];
         }
 
         return ecs::Entity::Null();
     }
 
     template<ComponentType T>
-    ecs::ComponentPool<T>* Get() {
-        return (ecs::ComponentPool<T>*)m_storage.TryGet(T::kId);
+    ecs::ComponentPool<T>* get() {
+        return (ecs::ComponentPool<T>*)storage_.TryGet(T::kId);
     }
 
     template<ComponentType T>
-    const ecs::ComponentPool<T>* Get() const {
-        return (const ecs::ComponentPool<T>*)m_storage.TryGet(T::kId);
+    const ecs::ComponentPool<T>* get() const {
+        return (const ecs::ComponentPool<T>*)storage_.TryGet(T::kId);
     }
 
     template<class... Cs>
-    inline auto View() {
-        return ecs::View<Cs...>(Get<Cs>()...);
+    inline auto view() {
+        return ecs::View<Cs...>(get<Cs>()...);
     }
 
     template<class... Cs>
-    inline auto View() const {
-        return ecs::ConstView<Cs...>(Get<Cs>()...);
+    inline auto view() const {
+        return ecs::ConstView<Cs...>(get<Cs>()...);
     }
 
-    ecs::Entity CreateEntity() { return ecs::Entity(++m_entity_seed); }
-    void RemoveEntity(ecs::Entity p_ent);
+    ecs::Entity createEntity() { return ecs::Entity(++entity_seed_); }
+    void removeEntity(ecs::Entity ent);
 
-    void AttachChild(ecs::Entity p_child, ecs::Entity p_parent);
-    void AttachChild(ecs::Entity p_child) { AttachChild(p_child, m_root); }
+    void attachChild(ecs::Entity child, ecs::Entity parent);
+    void attachChild(ecs::Entity child) { attachChild(child, m_root); }
 
-    void Update(float p_delta_time);
+    void update(float dt);
 
-    void Copy(const Scene& p_other);
+    void copy(const Scene& other);
 
-    ecs::Entity DuplicateEntity(ecs::Entity p_ent);
+    ecs::Entity duplicateEntity(ecs::Entity ent);
 
-    void InstantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_ent = ecs::Entity::Null());
+    void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::Null());
 
-    const math::AABB& GetBound() const { return m_bound; }
+    const math::AABB& bound() const { return m_bound; }
 
     ecs::Entity m_root;
 
@@ -144,7 +147,7 @@ public:
     // -------------------------------------------------------------------------
     // Utility
     // -------------------------------------------------------------------------
-    ecs::Entity FindEntityByName(std::string_view p_name) const;
+    ecs::Entity findEntityByName(std::string_view p_name) const;
 
     // -------------------------------------------------------------------------
     // IAsset
@@ -158,19 +161,24 @@ public:
     // -------------------------------------------------------------------------
     // Accessor
     // -------------------------------------------------------------------------
-    ecs::ComponentStorage& Storage() noexcept { return m_storage; }
-    const ecs::ComponentStorage& Storage() const noexcept { return m_storage; }
+    ecs::ComponentStorage& Storage() noexcept { return storage_; }
+    const ecs::ComponentStorage& Storage() const noexcept { return storage_; }
 
-    std::string_view Name() const { return m_name; }
+    std::string_view Name() const { return name_; }
+
+    void onSimBegin(SceneContext& ctx);
+    void onSimEnd();
 
 private:
     std::vector<ecs::Entity> GetSortedEntityArray() const;
 
-    ecs::ComponentRegistry& m_reg;
-    std::string m_name;
-    ecs::ComponentStorage m_storage;
+    ecs::ComponentRegistry& component_registry_;
+    std::string name_;
+    ecs::ComponentStorage storage_;
 
-    uint32_t m_entity_seed{ 0 };
+    uint32_t entity_seed_{ 0 };
+
+    std::unique_ptr<SystemManager> systems_;
 
     friend class AssimpImporter;
     friend class TinyGltfImporter;

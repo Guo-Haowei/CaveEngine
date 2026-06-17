@@ -7,23 +7,18 @@
 #include "cave/core/error/Result.h"
 #include "cave/core/base/NonCopyable.h"
 #include "cave/rhi/Backend.h"
-#include "cave/runtime/framework/AppServices.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 namespace cave {
 
 enum class AppStateId : uint8_t;
 
 class AppStateMachine;
-class AssetRegistry;
-class BootLoadPipeline;
 class CommandRegistry;
 class Console;
 class EventQueue;
-class IAssetManager;
 class ImguiManager;
 class IPhysicsManager;
-class IScriptService;
-class SceneRegistry;
 
 struct AppSpec {
     std::string_view userFolder;
@@ -76,13 +71,12 @@ public:
 
     // @TODO: return reference instead
     IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
-    IScriptService* ScriptService() { return m_script_service; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
 
     CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
     Console& Console() { return *m_console; }
 
-    AppServices& services() { return services_; }
+    EngineServices& services() { return services_; }
 
     const AppSpec& GetSpecification() const { return m_spec; }
     rhi::Backend GetBackend() const { return m_spec.backend; }
@@ -101,13 +95,12 @@ protected:
     // @TODO: move the following to services
     // also need subsystems
     IPhysicsManager* m_physics_manager{};
-    IScriptService* m_script_service{};
     ImguiManager* m_imgui_manager{};
 
     cave::CommandRegistry* m_cmd_reg{ nullptr };
     cave::Console* m_console{ nullptr };
 
-    AppServices services_;
+    EngineServices services_;
 };
 
 }  // namespace cave

@@ -1,26 +1,20 @@
-#include "LuaScriptService.h"
+#include "LuaScriptSystem.h"
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ecs/components/LuaScriptComponent.h"
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneContext.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 #include "engine/private/runtime/script/lua/LuaScriptBinding.h"
 
 extern const char* g_lua_always_load;
 
 namespace cave {
-
-auto LuaScriptService::InitializeImpl() -> Result<void> {
-    return Result<void>();
-}
-
-void LuaScriptService::FinalizeImpl() {
-}
 
 inline int PushArg(lua_State*) {
     return 0;
@@ -83,8 +77,10 @@ static int CreateInstance(const ObjectFunctions& p_meta, lua_State* L, Args&&...
     return luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
-void LuaScriptService::OnSimBegin(Scene& p_scene) {
-    m_state = nullptr;
+void LuaScriptSystem::onAttach() {
+    Scene& p_scene = *(Scene*)nullptr;
+
+    state_ = nullptr;
 
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -108,40 +104,43 @@ void LuaScriptService::OnSimBegin(Scene& p_scene) {
     }
     lua_setglobal(L, LUA_GLOBAL_SCENE);
 
-    for (auto [entity, script] : p_scene.View<LuaScriptComponent>()) {
+    for (auto [entity, script] : p_scene.view<LuaScriptComponent>()) {
         if (script.m_source_id.IsNull()) {
             continue;
         }
 
-        const auto& meta = FindOrAdd(L, script.m_source_id, script.m_class_name.c_str());
+        const auto& meta = findOrAdd(L, script.m_source_id, script.m_class_name.c_str());
         if (script.m_instance == 0) {
             const auto instance = CreateInstance(meta, L, entity.GetId());
             script.m_instance = instance;
         }
     }
 
-    m_state = L;
+    state_ = L;
     return;
 }
 
-void LuaScriptService::OnSimEnd() {
-    m_objects_meta.clear();
+void LuaScriptSystem::onDetach() {
+    meta_lookup_.clear();
 
-    if (m_state) {
-        lua_close(m_state);
-        m_state = nullptr;
+    if (state_) {
+        lua_close(state_);
+        state_ = nullptr;
     }
 }
 
-void LuaScriptService::Update(Scene& p_scene, float p_timestep) {
+void LuaScriptSystem::update(float dt) {
     CAVE_PROFILE_EVENT();
 
-    lua_State* L = m_state;
+    DEV_ASSERT(0);
+    Scene& p_scene = *(Scene*)(nullptr);
+
+    lua_State* L = state_;
 
     if (DEV_VERIFY(L)) {
-        const lua_Number timestep = p_timestep;
+        const lua_Number timestep = dt;
 
-        for (auto [entity, script] : p_scene.View<LuaScriptComponent>()) {
+        for (auto [entity, script] : p_scene.view<LuaScriptComponent>()) {
             if (script.m_source_id.IsNull()) {
                 continue;
             }
@@ -153,7 +152,8 @@ void LuaScriptService::Update(Scene& p_scene, float p_timestep) {
     }
 }
 
-void LuaScriptService::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Entity p_ent_2) {
+#if 0
+void LuaScriptSystem::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Entity p_ent_2) {
     lua_State* L = m_state;
     if (DEV_VERIFY(L)) {
         LuaScriptComponent* script_1 = p_scene.GetComponent<LuaScriptComponent>(p_ent_1);
@@ -168,12 +168,13 @@ void LuaScriptService::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Ent
         }
     }
 }
+#endif
 
-Result<void> LuaScriptService::LoadMetaTable(lua_State* L,
-                                             const Guid& guid,
-                                             const char* class_name,
-                                             ObjectFunctions& meta) {
-    auto& asset_reg = m_app->services().assetRegistry();
+Result<void> LuaScriptSystem::loadMetaTable(lua_State* L,
+                                            const Guid& guid,
+                                            const char* class_name,
+                                            ObjectFunctions& meta) {
+    auto& asset_reg = context().engine_services.assetRegistry();
     auto _handle = asset_reg.FindByGuid<BlobAsset>(guid);
     if (_handle.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.ToString());
@@ -205,17 +206,17 @@ Result<void> LuaScriptService::LoadMetaTable(lua_State* L,
     return Result<void>();
 }
 
-ObjectFunctions LuaScriptService::FindOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
-    auto it = m_objects_meta.find(p_guid);
-    if (it != m_objects_meta.end()) {
+ObjectFunctions LuaScriptSystem::findOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
+    auto it = meta_lookup_.find(p_guid);
+    if (it != meta_lookup_.end()) {
         return it->second;
     }
 
     ObjectFunctions meta;
-    if (auto res = LoadMetaTable(L, p_guid, p_class_name, meta); !res) {
+    if (auto res = loadMetaTable(L, p_guid, p_class_name, meta); !res) {
         LOG_ERROR("{}", ToString(res.error()));
     } else {
-        m_objects_meta[p_guid] = meta;
+        meta_lookup_[p_guid] = meta;
     }
 
     return meta;

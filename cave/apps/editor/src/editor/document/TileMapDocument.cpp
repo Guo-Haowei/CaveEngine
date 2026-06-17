@@ -14,7 +14,7 @@ namespace cave {
 using namespace ::cave::literals;
 using ecs::Entity;
 
-TileMapDocument::TileMapDocument(AppServices& services, const Guid& guid)
+TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
     : DocumentBase(services, guid) {
 
     SceneCommandWriter cb(services.assetRegistry());
@@ -30,7 +30,7 @@ TileMapDocument::TileMapDocument(AppServices& services, const Guid& guid)
     EntityMap map(cb.GetAllocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->m_root = map.Resolve(root);
-    scene->Update(0.0f);
+    scene->update(0.0f);
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }

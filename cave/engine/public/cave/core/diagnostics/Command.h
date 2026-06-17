@@ -10,14 +10,14 @@
 
 namespace cave {
 
-struct AppServices;
+struct EngineServices;
 struct CommandDesc;
 class ILogSink;
 
 struct CommandContext {
     LogWrapper log;
     const CommandDesc& desc;
-    AppServices& services;
+    EngineServices& services;
 };
 
 struct CommandArgs {

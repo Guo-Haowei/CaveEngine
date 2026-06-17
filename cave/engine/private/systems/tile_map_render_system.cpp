@@ -13,7 +13,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
     }
 
     Scene& scene = *p_scene;
-    auto view = scene.View<TileMapRendererComponent>();
+    auto view = scene.view<TileMapRendererComponent>();
     for (const auto& [id, tile_map_renderer] : view) {
         tile_map_renderer.CreateRenderData();
 
@@ -26,7 +26,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
             continue;
         }
 
-        const TransformComponent& transform = *scene.GetComponent<TransformComponent>(id);
+        const TransformComponent& transform = *scene.component<TransformComponent>(id);
 
         const math::Matrix4x4f& world_matrix = transform.GetWorldMatrix();
         PerBatchConstantBuffer batch_buffer;

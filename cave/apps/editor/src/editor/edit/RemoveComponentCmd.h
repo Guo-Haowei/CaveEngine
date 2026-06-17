@@ -26,7 +26,7 @@ protected:
         if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
             if (Scene* scene = resolveScene(scene_doc->previewScene())) {
                 if (scene->GetComponent<T>(ent_) == nullptr) {
-                    T& comp = scene->Create<T>(ent_);
+                    T& comp = scene->create<T>(ent_);
                     if (value) {
                         comp = *value;
                     }

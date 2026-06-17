@@ -1,6 +1,5 @@
-#pragma once
 // =============================================================================
-// File: cave/runtime/framework/AppServices.h
+// File: cave/runtime/framework/EngineServices.h
 // =============================================================================
 #pragma once
 
@@ -25,7 +24,7 @@ class TaskManager;
 class VFS;
 class ViewManager;
 
-struct AppServices {
+struct EngineServices {
     AssetRegistry* asset_registry_{};
     DisplayService* display_service_{};
     IAssetManager* asset_manager_{};

@@ -55,7 +55,7 @@ static CameraComponent FitAABBToCamera(const math::AABB& aabb,
     return camera;
 }
 
-PreviewBuilder::PreviewBuilder(AppServices& services) noexcept
+PreviewBuilder::PreviewBuilder(EngineServices& services) noexcept
     : asset_reg_(services.assetRegistry())
     , scene_reg_(services.sceneRegistry()) {}
 
@@ -85,12 +85,12 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
     DEV_ASSERT(meta);
 
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
-    scene->Copy(*source_scene);
+    scene->copy(*source_scene);
 
-    for (auto [id, cam] : scene->View<CameraComponent>()) {
+    for (auto [id, cam] : scene->view<CameraComponent>()) {
         cam.SetAspect(1.0f);
     }
-    scene->Update(0.0f);
+    scene->update(0.0f);
 
     return {
         .status = PreviewBuildStatus::Ok,
@@ -125,7 +125,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->m_root = map.Resolve(root);
-    scene->Update(0.0f);
+    scene->update(0.0f);
 
     Matrix4x4f transform = math::Translate(Vec3f(0, 0, 1.5f));
 
@@ -170,7 +170,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->m_root = map.Resolve(root);
-    scene->Update(0.0f);
+    scene->update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, options);
 

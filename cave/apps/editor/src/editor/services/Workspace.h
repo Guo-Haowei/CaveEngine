@@ -8,7 +8,7 @@
 
 namespace cave {
 
-struct AppServices;
+struct EngineServices;
 struct EditorServices;
 
 class EditorState;
@@ -57,7 +57,7 @@ private:
     void drawTabs();
 
     EditorState& editor_;
-    AppServices& app_services_;
+    EngineServices& app_services_;
     EditorServices& editor_services_;
     const DebugId debug_id_;
 

@@ -1,6 +1,6 @@
 #include "DocumentService.h"
 
-#include "cave/runtime/framework/AppServices.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 #include "editor/document/MaterialDocument.h"
 #include "editor/document/TileMapDocument.h"
@@ -10,7 +10,7 @@
 
 namespace cave {
 
-static std::unique_ptr<IDocument> CreateDoc(AppServices& services, const OpenDocDesc& desc) {
+static std::unique_ptr<IDocument> CreateDoc(EngineServices& services, const OpenDocDesc& desc) {
     switch (desc.asset_type) {
         case AssetType::Scene:
             return std::make_unique<SceneDocument>(services, desc.guid);

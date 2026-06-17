@@ -4,8 +4,9 @@
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
-#include "engine/private/runtime/framework/IScriptService.h"
+#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
+#include "engine/private/runtime/scene/SceneContext.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 
@@ -65,7 +66,13 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
 
     Scene* scene = scene_reg.resolve(pie_scene_);
     DEV_ASSERT(scene);
-    app_.ScriptService()->OnSimBegin(*scene);
+
+    SceneContext ctx{
+        .engine_services = app_.services(),
+        .scene = *scene,
+    };
+
+    scene->onSimBegin(ctx);
 
     app_.services().sceneScheduler().add(this);
 
@@ -84,7 +91,7 @@ void PIESession::onSimEnd() {
     running_ = false;
 
     if (Scene* scene = scene_reg.resolve(pie_scene_)) {
-        app_.ScriptService()->OnSimEnd();
+        scene->onSimEnd();
 
         if (game_module_) {
             game_module_->onGameEnd(*host_);

@@ -17,7 +17,7 @@
 
 namespace cave {
 
-EditService::EditService(AppServices& app_services,
+EditService::EditService(EngineServices& app_services,
                          EditorServices& editor_services)
     : app_services_(app_services)
     , editor_services_(editor_services)

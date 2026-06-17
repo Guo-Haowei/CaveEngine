@@ -23,11 +23,11 @@ enum class SceneSystemId : uint32_t {
     Count,
 };
 
-#define CAVE_SCENE_SYSTEM(VALUE)                              \
-public:                                                       \
-    static constexpr ::cave::SceneSystemId kSystemId = VALUE; \
-    ::cave::SceneSystemId systemId() const override {         \
-        return kSystemId;                                     \
+#define CAVE_SCENE_SYSTEM(ID)                                             \
+public:                                                                   \
+    static constexpr ::cave::SceneSystemId kSystemId = SceneSystemId::ID; \
+    ::cave::SceneSystemId systemId() const override {                     \
+        return kSystemId;                                                 \
     }
 
 class ISceneSystem {
