@@ -9,6 +9,7 @@
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
+#include "engine/private/runtime/input/InputService.h"
 
 namespace cave {
 
@@ -69,9 +70,10 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
     DEV_ASSERT(scene);
 
     SceneContext ctx{
-        .engine_services = services_,
+        .game_input = services_.inputService().gameInput(),
         .native_scripts = services_.nativeScripts(),
         .scene = *scene,
+        .engine_services = services_,
     };
 
     scene->onSimBegin(ctx);

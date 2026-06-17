@@ -5,8 +5,6 @@
 
 namespace super_cave_boy {
 
-class PlayerController;
-
 class GameModule final : public cave::IGameModule {
 public:
     GameModule();
@@ -21,9 +19,6 @@ public:
     void onGameEnd(cave::IHostServices& host) override;
 
     void tick(cave::IHostServices& host, const cave::FrameTime& time) override;
-
-private:
-    std::unique_ptr<PlayerController> controller_;
 };
 
 }  // namespace super_cave_boy

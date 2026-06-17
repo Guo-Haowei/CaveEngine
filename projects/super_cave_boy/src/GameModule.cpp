@@ -9,14 +9,11 @@ using namespace ::cave;
 
 namespace super_cave_boy {
 
-GameModule::GameModule()
-    : controller_(std::make_unique<PlayerController>()) {
-}
-
+GameModule::GameModule() = default;
 GameModule::~GameModule() = default;
 
 void GameModule::registerNativeScripts(NativeScriptRegistry& registry) {
-    // registry.registerScript<PlayerController>("game.PlayerController");
+    registry.registerScript<PlayerController>("PlayerController");
     registry.registerScript<CameraController>("CameraController");
 }
 
@@ -30,15 +27,16 @@ void GameModule::onModuleUnloaded(IHostServices&) {
 }
 
 void GameModule::onGameBegin(IHostServices& host) {
-    controller_->onCreate(host);
+    unused(host);
 }
 
 void GameModule::onGameEnd(IHostServices& host) {
-    controller_->onDestroy(host);
+    unused(host);
 }
 
 void GameModule::tick(IHostServices& host, const FrameTime& time) {
-    controller_->onUpdate(host, time);
+    unused(host);
+    unused(time);
 }
 
 }  // namespace super_cave_boy

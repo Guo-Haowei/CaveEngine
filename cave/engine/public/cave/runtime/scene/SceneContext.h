@@ -8,12 +8,15 @@ namespace cave {
 struct EngineServices;
 class Scene;
 class NativeScriptRegistry;
+class IGameInput;
 
-// @TODO: do not expose all services
 struct SceneContext {
-    EngineServices& engine_services;
+    const IGameInput& game_input;
     NativeScriptRegistry& native_scripts;
     Scene& scene;
+
+    // @TODO: do not expose all services
+    EngineServices& engine_services;
 };
 
 }  // namespace cave
