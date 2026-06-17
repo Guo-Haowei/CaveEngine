@@ -3,17 +3,17 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneContext.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
-#include "engine/private/runtime/scene/SceneContext.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 
 namespace cave {
 
-PIESession::PIESession(IApplication& app)
-    : app_(app)
+PIESession::PIESession(EngineServices& services)
+    : services_(services)
     , debug_id_(MakeDebugId(this)) {
 }
 
@@ -22,7 +22,7 @@ bool PIESession::ensureGameModuleLoaded() {
         return true;
     }
 
-    if (!game_module_handle_.loadFromDll(start_desc_.game_dll.c_str())) {
+    if (!game_module_handle_.loadFromDll(start_desc_.game_dll.c_str(), services_.nativeScripts())) {
         return false;
     }
 
@@ -38,11 +38,11 @@ bool PIESession::start(PIEStartDesc start_desc) {
 
     if (!ensureGameModuleLoaded()) return false;
 
-    Scene* scene = app_.services().sceneRegistry().resolve(start_desc_.edit_scene);
+    Scene* scene = services_.sceneRegistry().resolve(start_desc_.edit_scene);
     if (!scene) return false;
 
     if (game_module_) {
-        PIEHostServices host(app_, *scene, {});
+        PIEHostServices host(services_, *scene, {});
 
         game_module_->onModuleLoaded(host);
         host.flushSceneCommands();
@@ -61,7 +61,7 @@ void PIESession::stop() {
 }
 
 void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
-    SceneRegistry& scene_reg = app_.services().sceneRegistry();
+    SceneRegistry& scene_reg = services_.sceneRegistry();
 
     pie_scene_ = scene_reg.cloneScene(scene_id);
 
@@ -69,17 +69,17 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
     DEV_ASSERT(scene);
 
     SceneContext ctx{
-        .engine_services = app_.services(),
-        .native_scripts = app_.services().nativeScripts(),
+        .engine_services = services_,
+        .native_scripts = services_.nativeScripts(),
         .scene = *scene,
     };
 
     scene->onSimBegin(ctx);
 
-    app_.services().sceneScheduler().add(this);
+    services_.sceneScheduler().add(this);
 
     if (game_module_) {
-        host_ = std::make_unique<PIEHostServices>(app_, *scene, view_id);
+        host_ = std::make_unique<PIEHostServices>(services_, *scene, view_id);
         game_module_->onGameBegin(*host_);
         host_->flushSceneCommands();
     }
@@ -88,7 +88,7 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
 }
 
 void PIESession::onSimEnd() {
-    SceneRegistry& scene_reg = app_.services().sceneRegistry();
+    SceneRegistry& scene_reg = services_.sceneRegistry();
 
     running_ = false;
 
@@ -100,7 +100,7 @@ void PIESession::onSimEnd() {
         }
     }
 
-    app_.services().sceneScheduler().remove(this);
+    services_.sceneScheduler().remove(this);
 
     scene_reg.destroyScene(pie_scene_);
     pie_scene_ = {};
@@ -115,7 +115,7 @@ void PIESession::tick(const FrameTime& time) {
         return;
     }
 
-    SceneRegistry& scene_reg = app_.services().sceneRegistry();
+    SceneRegistry& scene_reg = services_.sceneRegistry();
     Scene* scene = scene_reg.resolve(pie_scene_);
     if (!scene) return;
 

@@ -2,6 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/threading/JobSystem.h"
+#include "cave/runtime/script/native/NativeScriptSystem.h"
 
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/components/All.h"
@@ -441,6 +442,9 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
 void Scene::onSimBegin(SceneContext& ctx) {
     systems_ = std::make_unique<SystemManager>();
 
+    if (count<NativeScriptComponent>()) {
+        systems_->add<NativeScriptSystem>();
+    }
     if (count<LuaScriptComponent>()) {
         systems_->add<LuaScriptSystem>();
     }

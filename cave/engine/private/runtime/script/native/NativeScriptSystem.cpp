@@ -1,13 +1,17 @@
 #pragma once
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneContext.h"
 
 namespace cave {
 
 using namespace ::cave::ecs;
+
+NativeScriptSystem::NativeScriptSystem()
+    : debug_id_(MakeDebugId(this)) {
+}
 
 void NativeScriptSystem::ensureCreated(Entity entity,
                                        NativeScriptComponent& component) {

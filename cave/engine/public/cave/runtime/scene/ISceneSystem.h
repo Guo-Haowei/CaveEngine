@@ -5,7 +5,10 @@
 #include <concepts>
 #include <cstdint>
 #include <type_traits>
+#include "SceneContext.h"
+
 #include "cave/core/error/ErrorMacros.h"
+#include "cave/core/ids/DebugId.h"
 
 namespace cave {
 
@@ -35,13 +38,13 @@ public:
     virtual ~ISceneSystem() = default;
 
     void attach(SceneContext& ctx) {
-        context_ = &ctx;
+        std::memcpy(context_, &ctx, sizeof(context_));
         onAttach();
     }
 
     void detach() {
         onDetach();
-        context_ = nullptr;
+        std::memset(context_, 0, sizeof(context_));
     }
 
     virtual void fixedUpdate(float) {}
@@ -49,18 +52,19 @@ public:
     virtual void lateUpdate(float) {}
 
     virtual SceneSystemId systemId() const = 0;
+    virtual DebugId debugId() const = 0;
 
 protected:
     SceneContext& context() {
-        DEV_ASSERT(context_);
-        return *context_;
+        DEV_ASSERT(context_[0]);
+        return *reinterpret_cast<SceneContext*>(context_);
     }
 
     virtual void onAttach() {}
     virtual void onDetach() {}
 
 private:
-    SceneContext* context_{ nullptr };
+    uint8_t context_[sizeof(SceneContext)];
 };
 
 template<typename T>

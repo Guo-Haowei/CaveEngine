@@ -20,9 +20,6 @@ entities:
       mask: 0
     VelocityComponent:
       linear: [0, 0, 0]
-    LuaScriptComponent:
-      class_name: "Player"
-      source_id: 133E5416-E5D5-BA4A-9F13460A05C8D6EA
   - id: 2
     NameComponent:
       name: player_animator_node

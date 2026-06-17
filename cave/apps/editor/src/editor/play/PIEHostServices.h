@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/ids/SceneId.h"
 #include "cave/game/IHostServices.h"
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/view/ViewQuery.h"
@@ -12,7 +12,7 @@ class Scene;
 
 class PIEHostServices final : public IHostServices {
 public:
-    explicit PIEHostServices(IApplication& app,
+    explicit PIEHostServices(EngineServices& services,
                              Scene& scene,
                              ViewId view_id) noexcept;
 
@@ -32,7 +32,7 @@ public:
     void flushSceneCommands();
 
 private:
-    IApplication& app_;
+    EngineServices& services_;
     Scene& scene_;
     ViewId view_id_;
     SceneCommandWriter writer_;

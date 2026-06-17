@@ -4,6 +4,7 @@
 #include "cave/core/ids/ViewId.h"
 #include "cave/core/time/FrameTime.h"
 #include "cave/game/GameModuleHandle.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/scene/SceneScheduler.h"
 
@@ -11,7 +12,6 @@
 
 namespace cave {
 
-class IApplication;
 class IGameModule;
 class Scene;
 
@@ -24,7 +24,7 @@ struct PIEStartDesc {
 class PIESession : public NonCopyable,
                    public ISceneTickContributor {
 public:
-    explicit PIESession(IApplication& app);
+    explicit PIESession(EngineServices& services);
 
     bool start(PIEStartDesc desc);
     void stop();
@@ -43,7 +43,7 @@ public:
 private:
     bool ensureGameModuleLoaded();
 
-    IApplication& app_;
+    EngineServices& services_;
     const DebugId debug_id_;
 
     bool running_{ false };

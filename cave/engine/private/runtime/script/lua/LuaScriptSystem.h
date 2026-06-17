@@ -27,7 +27,11 @@ class LuaScriptSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::LuaScript)
 
 public:
+    LuaScriptSystem();
+
     void update(float dt) override;
+
+    DebugId debugId() const override { return debug_id_; }
 
 protected:
     void onAttach() override;
@@ -42,6 +46,7 @@ protected:
                                const char* class_name,
                                ObjectFunctions& meta);
 
+    const DebugId debug_id_;
     std::map<Guid, ObjectFunctions> meta_lookup_;
     lua_State* state_{ nullptr };
 };

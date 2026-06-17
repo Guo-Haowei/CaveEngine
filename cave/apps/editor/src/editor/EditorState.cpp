@@ -46,7 +46,7 @@ using ecs::Entity;
 
 EditorState::EditorState(IApplication& app)
     : AppState(app)
-    , pie_(app)
+    , pie_(app.services())
     , debug_id_(MakeDebugId(this)) {
 
     EngineServices& app_services = app.services();

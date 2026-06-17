@@ -36,10 +36,9 @@ CAVE_API ::cave::IGameModule* CreateGameModule() {
     return new ::chess::ChessGameModule();
 }
 
-CAVE_API void CreateGameModule(::cave::IGameModule* game) {
+CAVE_API void DestroyGameModule(::cave::IGameModule* game) {
     if (game != nullptr) {
         delete game;
     }
 }
-
 }

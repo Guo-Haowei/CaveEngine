@@ -10,19 +10,19 @@
 
 namespace cave {
 
-PIEHostServices::PIEHostServices(IApplication& app,
+PIEHostServices::PIEHostServices(EngineServices& services,
                                  Scene& scene,
                                  ViewId view_id) noexcept
-    : app_(app)
+    : services_(services)
     , scene_(scene)
     , view_id_(view_id)
-    , writer_(app.services().assetRegistry())
+    , writer_(services.assetRegistry())
     , scene_query_(scene)
-    , view_query_(app.services().viewManager()) {
+    , view_query_(services.viewManager()) {
 }
 
 AssetRegistry& PIEHostServices::assetRegistry() {
-    return app_.services().assetRegistry();
+    return services_.assetRegistry();
 }
 
 ecs::ComponentRegistry& PIEHostServices::componentRegistry() {
@@ -30,19 +30,19 @@ ecs::ComponentRegistry& PIEHostServices::componentRegistry() {
 }
 
 DisplayService& PIEHostServices::displayService() {
-    return app_.services().displayService();
+    return services_.displayService();
 }
 
 IntentDispatcher& PIEHostServices::intentDispatcher() {
-    return app_.services().intentDispatcher();
+    return services_.intentDispatcher();
 }
 
 const IGameInput& PIEHostServices::gameInput() const {
-    return app_.services().inputService().gameInput();
+    return services_.inputService().gameInput();
 }
 
 IUIRuntime& PIEHostServices::ui() {
-    return app_.services().ui();
+    return services_.ui();
 }
 
 void PIEHostServices::flushSceneCommands() {

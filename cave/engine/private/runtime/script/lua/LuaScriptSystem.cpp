@@ -1,5 +1,6 @@
 #include "LuaScriptSystem.h"
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/script/lua/LuaScriptComponent.h"
@@ -7,7 +8,6 @@
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneContext.h"
 #include "engine/private/runtime/script/lua/LuaBridgeInclude.h"
 #include "engine/private/runtime/script/lua/LuaScriptBinding.h"
 
@@ -79,6 +79,10 @@ int CreateInstance(const ObjectFunctions& meta, lua_State* L, Args&&... args) {
 }
 
 }  // namespace
+
+LuaScriptSystem::LuaScriptSystem()
+    : debug_id_(MakeDebugId(this)) {
+}
 
 void LuaScriptSystem::onAttach() {
     Scene& scene = context().scene;
