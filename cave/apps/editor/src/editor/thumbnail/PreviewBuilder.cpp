@@ -29,7 +29,7 @@ static CameraComponent FitAABBToCamera(const math::AABB& aabb,
     const float r = padding * math::length(extents);
     const float aspect = (float)options.width / options.height;
 
-    Matrix4x4f rotation = math::Rotate(math::Degree(-30.0f), Vec3f::UnitX);
+    Mat4f rotation = math::Rotate(math::Degree(-30.0f), Vec3f::UnitX);
     Vec3f front = (rotation * Vec4f::UnitZ).xyz;
 
     const float theta_y = 0.5f * glm::radians<float>(options.fov_y_deg);
@@ -41,7 +41,7 @@ static CameraComponent FitAABBToCamera(const math::AABB& aabb,
     dist *= 1.02f;
 
     const Vec3f pos = center + front * dist;
-    Matrix4x4f transform = math::Translate(pos);
+    Mat4f transform = math::Translate(pos);
 
     const float near_z = std::max(0.01f, dist - r * 2.0f);
     const float far_z = dist + r * 2.0f;
@@ -127,7 +127,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     scene->m_root = map.Resolve(root);
     scene->update(0.0f);
 
-    Matrix4x4f transform = math::Translate(Vec3f(0, 0, 1.5f));
+    Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
 
     CameraComponent camera{};
     camera.SetAspect((float)options.width / (float)options.height);

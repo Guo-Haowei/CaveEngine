@@ -8,7 +8,7 @@ Vec3f Ray::direction() const {
     return normalize(end_ - origin_);
 }
 
-Ray Ray::inverse(const Matrix4x4f& inverse_matrix) const {
+Ray Ray::inverse(const Mat4f& inverse_matrix) const {
     Vec4f inversed_start = inverse_matrix * Vec4f(origin_, 1.0f);
     Vec4f inversed_end = inverse_matrix * Vec4f(end_, 1.0f);
     Ray inversed_ray(Vec3f(inversed_start.xyz), Vec3f(inversed_end.xyz));
@@ -16,11 +16,11 @@ Ray Ray::inverse(const Matrix4x4f& inverse_matrix) const {
     return inversed_ray;
 }
 
-Ray Ray::unproject(const Matrix4x4f& proj_view, const Vec2f& ndc) {
+Ray Ray::unproject(const Mat4f& proj_view, const Vec2f& ndc) {
     const Vec4f clip_near{ ndc, 0.0f, 1.0f };
     const Vec4f clip_far{ ndc, 1.0f, 1.0f };
 
-    const Matrix4x4f inv_pv = glm::inverse(proj_view);
+    const Mat4f inv_pv = glm::inverse(proj_view);
 
     Vec4f world_near = inv_pv * clip_near;
     Vec4f world_far = inv_pv * clip_far;

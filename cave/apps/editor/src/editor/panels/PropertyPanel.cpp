@@ -375,7 +375,7 @@ void PropertyPanel::drawUIImpl() {
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
     DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&](TransformComponent& p_transform) {
-        const math::Matrix4x4f old_transform = p_transform.GetLocalMatrix();
+        const math::Mat4f old_transform = p_transform.GetLocalMatrix();
 
         TransformComponent copy = p_transform;
         const bool dirty = DrawComponentAuto<TransformComponent>(&copy, ctx);

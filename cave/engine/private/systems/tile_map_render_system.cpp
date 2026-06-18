@@ -28,7 +28,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
 
         const TransformComponent& transform = *scene.component<TransformComponent>(id);
 
-        const math::Matrix4x4f& world_matrix = transform.GetWorldMatrix();
+        const math::Mat4f& world_matrix = transform.GetWorldMatrix();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
         batch_buffer.c_tint_color = tile_map_renderer.GetTintColor();

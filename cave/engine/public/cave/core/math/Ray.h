@@ -12,7 +12,7 @@ public:
     Ray(const Vec3f& start, const Vec3f& end)
         : origin_(start), end_(end), hit_distance_(1.0f) {}
 
-    Ray inverse(const Matrix4x4f& inverse_matrix) const;
+    Ray inverse(const Mat4f& inverse_matrix) const;
 
     Vec3f direction() const;
 
@@ -37,7 +37,7 @@ public:
     float distance() const { return hit_distance_; }
     void distance(float dist) { hit_distance_ = dist; }
 
-    static Ray unproject(const Matrix4x4f& proj_view, const Vec2f& ndc);
+    static Ray unproject(const Mat4f& proj_view, const Vec2f& ndc);
 
 private:
     const Vec3f origin_;

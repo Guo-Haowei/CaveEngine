@@ -9,7 +9,7 @@ class AABB : public Box3 {
 public:
     using Box3::Box;
 
-    void ApplyMatrix(const Matrix4x4f& p_mat);
+    void ApplyMatrix(const Mat4f& p_mat);
 
     bool Intersects(const AABB& p_aabb) const { return TestIntersection::aabbAabb(*this, p_aabb); }
     bool Intersects(Ray& p_ray) const { return TestIntersection::aabbRay(*this, p_ray); }

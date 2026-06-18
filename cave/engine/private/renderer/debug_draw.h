@@ -6,7 +6,7 @@ namespace cave {
 struct GpuTexture;
 struct GpuMesh;
 
-class DebugDraw {
+class DebugDrawService {
     struct Item {
         math::Vec3f min;
         math::Vec3f max;
@@ -15,24 +15,24 @@ class DebugDraw {
     };
 
 public:
-    void AddBox2Frame(const math::Vec2f& p_min,
-                      const math::Vec2f& p_max,
-                      const math::Vec4f& p_color,
-                      const math::Matrix4x4f* p_transform = nullptr,
-                      float p_thickness = 0.1f);
+    void addBox2Frame(const math::Vec2f& min,
+                      const math::Vec2f& max,
+                      const math::Vec4f& color,
+                      const math::Mat4f* transform = nullptr,
+                      float thickness = 0.1f);
 
-    void AddBox2(const math::Vec2f& p_min,
-                 const math::Vec2f& p_max,
-                 const math::Vec4f& p_color,
-                 const math::Matrix4x4f* p_transform = nullptr);
+    void addBox2(const math::Vec2f& min,
+                 const math::Vec2f& max,
+                 const math::Vec4f& color,
+                 const math::Mat4f* transform = nullptr);
 
-    void Batch();
+    void batch();
 
-    const GpuMesh* GetGpuMesh() const { return m_mesh.get(); }
+    const GpuMesh* gpuMesh() const { return mesh_.get(); }
 
 private:
-    std::shared_ptr<GpuMesh> m_mesh;
-    std::vector<Item> m_items;
+    std::shared_ptr<GpuMesh> mesh_;
+    std::vector<Item> items_;
 };
 
 }  // namespace cave

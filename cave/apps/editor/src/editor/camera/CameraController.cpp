@@ -159,8 +159,8 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
     }
 
     m_root.UpdateTransform();
-    math::Matrix4x4f R = glm::rotate(glm::radians(m_pitch), glm::vec3(1, 0, 0));
-    math::Matrix4x4f trans = m_root.GetLocalMatrix() * R;
+    math::Mat4f R = glm::rotate(glm::radians(m_pitch), glm::vec3(1, 0, 0));
+    math::Mat4f trans = m_root.GetLocalMatrix() * R;
     m_camera.Update(trans);
 }
 

@@ -420,8 +420,8 @@ void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
 
     // draw debug stuff
     // @TODO: should probably make a new pass for it
-    const DebugDraw& debug_draw = p_ctx.frameData.GetDebugDraw();
-    const GpuMesh* mesh = debug_draw.GetGpuMesh();
+    const DebugDrawService& debug_draw = p_ctx.frameData.GetDebugDraw();
+    const GpuMesh* mesh = debug_draw.gpuMesh();
     if (mesh) {
         cmd.SetMesh(mesh);
         cmd.SetPipelineState(PSO_DEBUG_DRAW);

@@ -25,7 +25,7 @@
 namespace cave {
 
 using namespace cave::literals;
-using math::Matrix4x4f;
+using math::Mat4f;
 using math::Vec2f;
 using math::Vec3f;
 using math::Vec4f;
@@ -156,9 +156,9 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     DEV_ASSERT(!camera_.IsDirty());
     DocId doc_id = docId();
 
-    const Matrix4x4f& view_matrix = camera_.GetViewMatrix();
-    const Matrix4x4f& proj_matrix = camera_.GetProjectionMatrix();
-    const Matrix4x4f& proj_view = camera_.GetProjectionViewMatrix();
+    const Mat4f& view_matrix = camera_.GetViewMatrix();
+    const Mat4f& proj_matrix = camera_.GetProjectionMatrix();
+    const Mat4f& proj_view = camera_.GetProjectionViewMatrix();
 
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();
@@ -176,8 +176,8 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {
-            const Matrix4x4f before = transform_component->GetLocalMatrix();
-            Matrix4x4f after = before;
+            const Mat4f before = transform_component->GetLocalMatrix();
+            Mat4f after = before;
             if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
                                      glm::value_ptr(proj_matrix),
                                      p_operation,

@@ -195,7 +195,7 @@ Option<TileCoord> TileMapEditor::pointToTile(math::Vec2f point_os) {
 
     Vec2f ndc = view->screenToNDC(point_os);
 
-    Matrix4x4f pv_inv = glm::inverse(camera_.GetProjectionViewMatrix());
+    Mat4f pv_inv = glm::inverse(camera_.GetProjectionViewMatrix());
 
     Vec4f pos = pv_inv * Vec4f(ndc, 0.0f, 1.0f);
     pos /= pos.w;

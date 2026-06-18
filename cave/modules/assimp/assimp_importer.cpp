@@ -189,11 +189,11 @@ ecs::Entity AssimpImporter::ProcessNode(const aiNode* p_node, ecs::Entity p_pare
 
     DEV_ASSERT(m_scene->Has<TransformComponent>(entity));
 
-    const aiMatrix4x4& local = p_node->mTransformation;                           // row major matrix
-    Matrix4x4f localTransformColumnMajor(local.a1, local.b1, local.c1, local.d1,  // x0 y0 z0 w0
-                                         local.a2, local.b2, local.c2, local.d2,  // x1 y1 z1 w1
-                                         local.a3, local.b3, local.c3, local.d3,  // x2 y2 z2 w2
-                                         local.a4, local.b4, local.c4, local.d4   // x3 y3 z3 w3
+    const aiMatrix4x4& local = p_node->mTransformation;                      // row major matrix
+    Mat4f localTransformColumnMajor(local.a1, local.b1, local.c1, local.d1,  // x0 y0 z0 w0
+                                    local.a2, local.b2, local.c2, local.d2,  // x1 y1 z1 w1
+                                    local.a3, local.b3, local.c3, local.d3,  // x2 y2 z2 w2
+                                    local.a4, local.b4, local.c4, local.d4   // x3 y3 z3 w3
     );
 
     TransformComponent& transform = *m_scene->GetComponent<TransformComponent>(entity);

@@ -53,7 +53,7 @@ Scene* CreateBoxScene() {
         constexpr float s = 5.0f;
         struct {
             std::string name;
-            Matrix4x4f transform;
+            Mat4f transform;
             ecs::Entity material;
         } wall_info[] = {
             { "wall_up", Translate(Vector3f(0, s, 0)), create_material("white") },

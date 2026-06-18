@@ -128,7 +128,7 @@ extern void runMeshRenderSystem(const Scene& scene,
                                 FrameData& out_data);
 
 #if 0
-static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Matrix4x4f* p_matrix) {
+static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Mat4f* p_matrix) {
     if (!p_bvh || p_bvh->depth > p_level) {
         return;
     }

@@ -5,7 +5,7 @@
 namespace cave::math {
 
 // https://stackoverflow.com/questions/12836967/extracting-view-frustum-planes-hartmann-gribbs-method
-static Plane extractPlane(const Matrix4x4f& m,
+static Plane extractPlane(const Mat4f& m,
                           int axis,
                           float sign) {
     return {
@@ -19,7 +19,7 @@ static Plane extractPlane(const Matrix4x4f& m,
     };
 }
 
-Frustum::Frustum(const Matrix4x4f& pv) {
+Frustum::Frustum(const Mat4f& pv) {
     left_ = extractPlane(pv, 0, +1.0f);
     right_ = extractPlane(pv, 0, -1.0f);
 

@@ -62,7 +62,7 @@ public:
 
     ISerializer& Write(const ecs::Entity& p_object);
     ISerializer& Write(const math::Degree& p_object);
-    ISerializer& Write(const math::Matrix4x4f& p_object);
+    ISerializer& Write(const math::Mat4f& p_object);
 
     template<size_t N>
     ISerializer& Write(const FixedString<N>& p_value) {

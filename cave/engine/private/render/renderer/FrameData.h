@@ -117,15 +117,15 @@ struct FrameData {
 
     math::AABB voxel_gi_bound;
 
-    DebugDraw& GetDebugDraw() { return m_debug_draw; }
-    const DebugDraw& GetDebugDraw() const { return m_debug_draw; }
+    DebugDrawService& GetDebugDraw() { return m_debug_draw; }
+    const DebugDrawService& GetDebugDraw() const { return m_debug_draw; }
 
     // UI stuff
     render::UIBatch ui_batch;
     std::shared_ptr<GpuMesh> ui_buffer;
 
 private:
-    DebugDraw m_debug_draw;
+    DebugDrawService m_debug_draw;
 };
 
 }  // namespace cave

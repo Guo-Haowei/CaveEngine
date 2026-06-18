@@ -212,7 +212,7 @@ MeshAsset MakeGrassBillboard(const Vec3f& p_scale) {
 
     Degree angle;
     for (int i = 0; i < 3; ++i, angle += Degree(120.0f)) {
-        const Matrix4x4f rotation = Rotate(angle, Vec3f(0, 1, 0));
+        const Mat4f rotation = Rotate(angle, Vec3f(0, 1, 0));
         const Vec4f normal4 = rotation * Vec4f{ 0, 0, 1, 0 };
         const Vec3f normal = normal4.xyz;
 

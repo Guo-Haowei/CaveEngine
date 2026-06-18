@@ -50,7 +50,7 @@ public:
     bool Read(ecs::Entity& p_object);
     bool Read(math::Degree& p_object);
     bool Read(Guid& p_object);
-    bool Read(math::Matrix4x4f& p_object);
+    bool Read(math::Mat4f& p_object);
 
     template<size_t N>
     bool Read(FixedString<N>& p_value) {

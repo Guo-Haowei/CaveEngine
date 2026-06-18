@@ -14,7 +14,7 @@ static constexpr float DEFAULT_Z = 0.0f;
 static void AddDebugCube(FrameData& p_framedata,
                          const AABB& p_aabb,
                          const Color& p_color,
-                         const Matrix4x4f* p_transform = nullptr) {
+                         const Mat4f* p_transform = nullptr) {
 
     const auto& min = p_aabb.Min();
     const auto& max = p_aabb.Max();
@@ -37,19 +37,19 @@ static void AddDebugCube(FrameData& p_framedata,
 }
 #endif
 
-void DebugDraw::AddBox2(const Vec2f& p_min,
-                        const Vec2f& p_max,
-                        const Vec4f& p_color,
-                        const Matrix4x4f* p_transform) {
+void DebugDrawService::addBox2(const Vec2f& min,
+                               const Vec2f& max,
+                               const Vec4f& color,
+                               const Mat4f* transform) {
     Item item;
 
-    item.min = Vec3f(p_min, 0.0f);
-    item.max = Vec3f(p_max, 0.0f);
-    item.tint_color = p_color;
+    item.min = Vec3f(min, 0.0f);
+    item.max = Vec3f(max, 0.0f);
+    item.tint_color = color;
     item.texture;
 
-    if (p_transform) {
-        const Matrix4x4f& m = *p_transform;
+    if (transform) {
+        const Mat4f& m = *transform;
         Vec4f min4{ item.min, 1.0f };
         min4 = m * min4;
         Vec4f max4{ item.max, 1.0f };
@@ -58,28 +58,28 @@ void DebugDraw::AddBox2(const Vec2f& p_min,
         item.max = max4.xyz;
     }
 
-    m_items.emplace_back(item);
+    items_.emplace_back(item);
 }
 
-void DebugDraw::AddBox2Frame(const Vec2f& p_min,
-                             const Vec2f& p_max,
-                             const Vec4f& p_color,
-                             const Matrix4x4f* p_transform,
-                             float p_thickness) {
-    const float t = p_thickness;
+void DebugDrawService::addBox2Frame(const Vec2f& min,
+                                    const Vec2f& max,
+                                    const Vec4f& color,
+                                    const Mat4f* transform,
+                                    float thickness) {
+    const float t = thickness;
 
     // Top
-    AddBox2({ p_min.x, p_max.y - t }, { p_max.x, p_max.y }, p_color, p_transform);
+    addBox2({ min.x, max.y - t }, { max.x, max.y }, color, transform);
     // Bottom
-    AddBox2({ p_min.x, p_min.y }, { p_max.x, p_min.y + t }, p_color, p_transform);
+    addBox2({ min.x, min.y }, { max.x, min.y + t }, color, transform);
     // Left
-    AddBox2({ p_min.x, p_min.y + t }, { p_min.x + t, p_max.y - t }, p_color, p_transform);
+    addBox2({ min.x, min.y + t }, { min.x + t, max.y - t }, color, transform);
     // Right
-    AddBox2({ p_max.x - t, p_min.y + t }, { p_max.x, p_max.y - t }, p_color, p_transform);
+    addBox2({ max.x - t, min.y + t }, { max.x, max.y - t }, color, transform);
 }
 
-void DebugDraw::Batch() {
-    const uint32_t item_count = static_cast<uint32_t>(m_items.size());
+void DebugDrawService::batch() {
+    const uint32_t item_count = static_cast<uint32_t>(items_.size());
     if (item_count == 0) {
         return;
     }
@@ -94,13 +94,13 @@ void DebugDraw::Batch() {
     uvs.reserve(item_count * 4);
     colors.reserve(item_count * 4);
 
-    for (const auto& item : m_items) {
+    for (const auto& item : items_) {
         const uint32_t offset = static_cast<uint32_t>(positions.size());
 
-        positions.push_back(item.min);                                      // bottom left
+        positions.push_back(item.min);                                   // bottom left
         positions.push_back(Vec3f(item.max.x, item.min.y, item.min.z));  // bottom right
         positions.push_back(Vec3f(item.min.x, item.max.y, item.min.z));  // top left
-        positions.push_back(item.max);                                      // top right
+        positions.push_back(item.max);                                   // top right
 
         colors.push_back(item.tint_color);
         colors.push_back(item.tint_color);
@@ -160,7 +160,7 @@ void DebugDraw::Batch() {
     desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vec4f), 0 };
 
     auto mesh = RenderDevice::singleton().CreateMeshImpl(desc, buffer_descs, &index_desc);
-    m_mesh = *mesh;
+    mesh_ = *mesh;
 }
 
 }  // namespace cave

@@ -156,7 +156,7 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
         return;
     }
 
-    Matrix4x4f world_matrix = self_transform->GetLocalMatrix();
+    Mat4f world_matrix = self_transform->GetLocalMatrix();
     const HierarchyComponent* hierarchy = &p_scene.getComponentByIndex<HierarchyComponent>(p_index);
     ecs::Entity parent = hierarchy->parent_id;
 
@@ -196,7 +196,7 @@ static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
     // the hierarchy system. 	But this will correct them too.
 
     SkeletonComponent& skeleton = p_scene.getComponentByIndex<SkeletonComponent>(p_index);
-    const Matrix4x4f R = glm::inverse(transform->GetWorldMatrix());
+    const Mat4f R = glm::inverse(transform->GetWorldMatrix());
     const size_t numBones = skeleton.bone_collection.size();
     if (skeleton.bone_transforms.size() != numBones) {
         skeleton.bone_transforms.resize(numBones);
@@ -207,9 +207,9 @@ static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
         const TransformComponent* boneTransform = p_scene.component<TransformComponent>(boneID);
         DEV_ASSERT(boneTransform);
 
-        const Matrix4x4f& B = skeleton.inverse_bind_matrices[idx];
-        const Matrix4x4f& W = boneTransform->GetWorldMatrix();
-        const Matrix4x4f M = R * W * B;
+        const Mat4f& B = skeleton.inverse_bind_matrices[idx];
+        const Mat4f& W = boneTransform->GetWorldMatrix();
+        const Mat4f M = R * W * B;
         skeleton.bone_transforms[idx] = M;
         ++idx;
 
@@ -334,7 +334,7 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
             continue;
         }
 
-        Matrix4x4f M = transform.GetWorldMatrix();
+        Mat4f M = transform.GetWorldMatrix();
         AABB aabb = mesh->localBound;
         aabb.ApplyMatrix(M);
         bound.UnionBox(aabb);

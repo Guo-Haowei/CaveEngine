@@ -75,7 +75,7 @@ using float2 = ::cave::math::Vec2f;
 using float3 = ::cave::math::Vec3f;
 using float4 = ::cave::math::Vec4f;
 
-using float4x4 = ::cave::math::Matrix4x4f;
+using float4x4 = ::cave::math::Mat4f;
 
 #elif defined(HLSL_LANG)
 // do nothing

@@ -44,7 +44,7 @@ struct RenderableHeader {
     PayloadRef payload{};
     RenderableFlags flags{ RenderableFlags::None };
 
-    math::Matrix4x4f world{};
+    math::Mat4f world{};
     math::AABB world_bound{};
 
     bool HasFlag(RenderableFlags p_flag) const { return !!std::to_underlying(flags & p_flag); }

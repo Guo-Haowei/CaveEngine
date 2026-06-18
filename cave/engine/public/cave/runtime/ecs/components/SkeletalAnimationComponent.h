@@ -16,10 +16,10 @@ struct SkeletonComponent {
     std::vector<ecs::Entity> bone_collection;
 
     CAVE_PROP()
-    std::vector<math::Matrix4x4f> inverse_bind_matrices;
+    std::vector<math::Mat4f> inverse_bind_matrices;
 
     // Non-Serialized
-    std::vector<math::Matrix4x4f> bone_transforms;
+    std::vector<math::Mat4f> bone_transforms;
 };
 
 enum class AnimationChannelPath {

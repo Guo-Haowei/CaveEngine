@@ -11,7 +11,7 @@
 namespace cave::render {
 
 using math::AABB;
-using math::Matrix4x4f;
+using math::Mat4f;
 
 void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scene) {
     p_out_scene.Clear();
@@ -61,7 +61,7 @@ void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scen
         if (renderer.IsVisible()) flags |= RenderableFlags::Visible;
         if (payload.skeleton.IsValid()) flags |= RenderableFlags::Skinned;
 
-        Matrix4x4f world = trans.GetWorldMatrix();
+        Mat4f world = trans.GetWorldMatrix();
         AABB world_bound = payload.local_bound;
         world_bound.ApplyMatrix(world);
         p_out_scene.m_renderables.emplace_back(

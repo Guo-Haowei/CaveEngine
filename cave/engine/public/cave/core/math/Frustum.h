@@ -9,7 +9,7 @@ class AABB;
 class Frustum {
 public:
     Frustum() = default;
-    Frustum(const Matrix4x4f& pv);
+    Frustum(const Mat4f& pv);
 
     Plane& operator[](int index) { return reinterpret_cast<Plane*>(this)[index]; }
 
