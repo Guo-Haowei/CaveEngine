@@ -5,6 +5,7 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 
+#include "engine/private/runtime/display/DebugDrawService.h"
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
@@ -56,6 +57,7 @@ protected:
     EventQueue event_queue_;
     std::vector<IService*> subsystems_;
 
+    DebugDrawService debug_draw_;
     IntentDispatcher intent_dispatcher_;
     VFS vfs_;
     SceneRegistry scene_registry_;

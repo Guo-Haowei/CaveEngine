@@ -37,7 +37,8 @@ namespace cave {
 extern void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata);
 
 extern void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata);
-extern void RunDebugRenderSystem(const Scene* p_scene, FrameData& p_framedata);
+
+extern void RunDebugRenderSystem(const Scene* scene, IDebugDrawService& debug_draw);
 
 }  // namespace cave
 
@@ -50,8 +51,9 @@ using math::Vec4f;
 
 class Renderer::Impl {
 public:
-    Impl(IRenderDevice& device)
+    Impl(IRenderDevice& device, IDebugDrawService& debug_draw)
         : device_(device)
+        , debug_draw_(debug_draw)
         , transient_pool_(device)
         , env_(transient_pool_, device)
         , ssao_(device) {}
@@ -88,7 +90,8 @@ private:
 
 private:
     IRenderDevice& device_;
-    RenderSceneBuilder m_scene_builder;
+    IDebugDrawService& debug_draw_;
+    RenderSceneBuilder scene_builder_;
     std::unordered_map<SceneId, RenderScene> scene_cache_;
 
     // features
@@ -106,8 +109,8 @@ private:
     std::shared_ptr<GpuMesh> ui_buffers_;
 };
 
-Renderer::Renderer(IRenderDevice& device)
-    : impl_(std::make_unique<Impl>(device)) {}
+Renderer::Renderer(IRenderDevice& device, IDebugDrawService& debug_draw)
+    : impl_(std::make_unique<Impl>(device, debug_draw)) {}
 
 Renderer::~Renderer() = default;
 
@@ -341,7 +344,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
 
     for (const ResolvedView& view : views) {
         RenderScene& render_scene = getOrCreateRenderScene(view.scene_id);
-        m_scene_builder.BuildFull(*view.scene, render_scene);
+        scene_builder_.BuildFull(*view.scene, render_scene);
 
         plan.views.push_back(view);
 
@@ -353,7 +356,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         runMeshRenderSystem(*view.scene, render_scene, view, framedata);
         RunTileMapRenderSystem(view.scene, framedata);
         RunSpriteRenderSystem(view.scene, framedata);
-        RunDebugRenderSystem(view.scene, framedata);
+        RunDebugRenderSystem(view.scene, debug_draw_);
         fillEnvConstants(framedata);
 
         // @HACK: only support first scene

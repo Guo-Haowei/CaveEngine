@@ -1,19 +1,20 @@
 #pragma once
+#include "cave/runtime/display/IDebugDrawService.h"
+
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/runtime/scene/Scene.h"
-
 #include "engine/private/runtime/ecs/components/All.h"
 
 namespace cave {
 
 using namespace cave::math;
 
-void RunDebugRenderSystem(const Scene* scene, FrameData& framedata) {
+class IDebugDrawService;
+
+void RunDebugRenderSystem(const Scene* scene, IDebugDrawService& debug_draw) {
     if (!scene) {
         return;
     }
-
-    DebugDrawService& debug_draw = framedata.GetDebugDraw();
 
     auto view = scene->view<ColliderComponent, TransformComponent>();
     for (const auto& [id, collider, transform] : view) {
@@ -30,8 +31,6 @@ void RunDebugRenderSystem(const Scene* scene, FrameData& framedata) {
                 break;
         }
     }
-
-    debug_draw.batch();
 }
 
 }  // namespace cave
