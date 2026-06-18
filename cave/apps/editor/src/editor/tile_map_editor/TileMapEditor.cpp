@@ -122,21 +122,27 @@ bool TileMapEditor::updateEditMode(const InputFrame& input) {
     return should_apply && mode_ != Mode::None;
 }
 
-void TileMapEditor::applayEditorTool() {
-    IDocument* doc = editor_services_.document().resolve(doc_id_);
-    DEV_ASSERT(doc);
-
+void TileMapEditor::updateTileCoord() {
     Vec2f point_os = cursor_ + engine_services_.displayService().windowPos();
     auto res = pointToTile(point_os);
     if (res.is_none()) {
         return;
     }
 
-    TileCoord tile_index = res.unwrap_unchecked();
+    coord_ = res.unwrap_unchecked();
+
+    Vec2f min{ coord_.x, coord_.y };
+    Vec2f max{ coord_.x + 1, coord_.y + 1 };
+    engine_services_.debugDraw().addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
+}
+
+void TileMapEditor::applayEditorTool() {
+    IDocument* doc = editor_services_.document().resolve(doc_id_);
+    DEV_ASSERT(doc);
 
     TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
 
-    Option<TileId> old_tile = tile_map->tileAt(tile_index);
+    Option<TileId> old_tile = tile_map->tileAt(coord_);
     Option<TileId> new_tile = Some(kEmptyTileId);
 
     if (mode_ == Mode::Painting) {
@@ -157,7 +163,7 @@ void TileMapEditor::applayEditorTool() {
 
     auto cmd = std::make_unique<SetTileCommand>(engine_services_.sceneRegistry(),
                                                 ecs::Entity::Null(),
-                                                tile_index,
+                                                coord_,
                                                 old_tile,
                                                 new_tile);
     editor_services_.edit().submit(doc_id_, std::move(cmd));
@@ -171,11 +177,10 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
     camera_controller_->Update(input);
 
     const bool should_apply_edit = updateEditMode(input);
+    updateTileCoord();
     if (should_apply_edit) {
         applayEditorTool();
     }
-
-    engine_services_.debugDraw().addBox2(Vec2f::Zero, Vec2f::One, Vec4f::One);
 }
 
 void TileMapEditor::drawUIImpl() {
