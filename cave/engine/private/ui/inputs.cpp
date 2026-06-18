@@ -4,105 +4,108 @@
 
 namespace cave::ui {
 
-bool CheckBox(const char* p_name,
-              bool& p_val,
-              float p_column_width) {
+using namespace ::cave::math;
+
+bool CheckBox(const char* name,
+              bool& value,
+              float column_width) {
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_name);
+    ImGui::SetColumnWidth(0, column_width);
+    ImGui::Text("%s", name);
     ImGui::NextColumn();
 
-    auto string_id = std::format("##{}", p_name);
-    const bool dirty = ImGui::Checkbox(string_id.c_str(), &p_val);
+    auto string_id = std::format("##{}", name);
+    const bool dirty = ImGui::Checkbox(string_id.c_str(), &value);
 
     ImGui::Columns(1);
     return dirty;
 }
 
-bool TextBox(const char* p_label,
-             char* p_buf_ptr,
-             uint32_t p_buf_size,
-             float p_text_width,
-             float p_text_box_width,
-             bool p_enter_returns_true) {
-    if (p_label) {
+bool TextBox(const char* label,
+             char* buf_ptr,
+             uint32_t buf_size,
+             bool enter_returns_true,
+             float column_width,
+             float text_box_width) {
+    if (label) {
         ImGui::Columns(2);
-        ImGui::SetColumnWidth(0, p_text_width);
-        if (p_text_box_width > 0) {
-            ImGui::SetColumnWidth(1, p_text_box_width);
+        ImGui::SetColumnWidth(0, column_width);
+        if (text_box_width > 0) {
+            ImGui::SetColumnWidth(1, text_box_width);
         }
-        ImGui::Text("%s", p_label);
+        ImGui::Text("%s", label);
         ImGui::NextColumn();
     }
 
     int flags = 0;
-    if (p_enter_returns_true) {
+    if (enter_returns_true) {
         flags |= ImGuiInputTextFlags_EnterReturnsTrue;
     }
 
-    auto tag = std::format("##{}", p_label ? p_label : "dummy");
+    auto tag = std::format("##{}", label ? label : "dummy");
     bool dirty = ImGui::InputText(tag.c_str(),
-                                  p_buf_ptr,
-                                  p_buf_size,
+                                  buf_ptr,
+                                  buf_size,
                                   flags);
 
     ImGui::Columns(1);
     return dirty;
 }
-bool InputInt(const char* p_label,
-              int& p_out,
-              float p_column_width) {
+
+bool InputInt(const char* label,
+              int& out_value,
+              float column_width) {
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
+    ImGui::SetColumnWidth(0, column_width);
+    ImGui::Text("%s", label);
     ImGui::NextColumn();
-    auto tag = std::format("##{}", p_label);
-    bool is_dirty = ImGui::InputInt(tag.c_str(), &p_out);
+    auto tag = std::format("##{}", label);
+    bool is_dirty = ImGui::InputInt(tag.c_str(), &out_value);
     ImGui::Columns(1);
     return is_dirty;
 }
 
-bool InputFloat(const char* p_label,
-                float& p_out,
-                float p_column_width) {
+bool InputFloat(const char* label,
+                float& out_value,
+                float column_width) {
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
+    ImGui::SetColumnWidth(0, column_width);
+    ImGui::Text("%s", label);
     ImGui::NextColumn();
-    auto tag = std::format("##{}", p_label);
-    bool is_dirty = ImGui::InputFloat(tag.c_str(), &p_out);
+    auto tag = std::format("##{}", label);
+    bool is_dirty = ImGui::InputFloat(tag.c_str(), &out_value);
     ImGui::Columns(1);
     return is_dirty;
 }
 
-bool DragInt(const char* p_label,
-             int& p_out,
-             float p_speed,
-             int p_min,
-             int p_max,
-             float p_column_width) {
+bool DragInt(const char* label,
+             int& out_value,
+             float speed,
+             int min,
+             int max,
+             float column_width) {
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
+    ImGui::SetColumnWidth(0, column_width);
+    ImGui::Text("%s", label);
     ImGui::NextColumn();
-    auto tag = std::format("##{}", p_label);
-    bool is_dirty = ImGui::DragInt(tag.c_str(), &p_out, p_speed, p_min, p_max);
+    auto tag = std::format("##{}", label);
+    bool is_dirty = ImGui::DragInt(tag.c_str(), &out_value, speed, min, max);
     ImGui::Columns(1);
     return is_dirty;
 }
 
-bool DragFloat(const char* p_label,
-               float& p_out,
-               float p_speed,
-               float p_min,
-               float p_max,
-               float p_column_width) {
+bool DragFloat(const char* label,
+               float& out,
+               float speed,
+               float min,
+               float max,
+               float column_width) {
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
+    ImGui::SetColumnWidth(0, column_width);
+    ImGui::Text("%s", label);
     ImGui::NextColumn();
-    auto tag = std::format("##{}", p_label);
-    bool is_dirty = ImGui::DragFloat(tag.c_str(), &p_out, p_speed, p_min, p_max);
+    auto tag = std::format("##{}", label);
+    bool is_dirty = ImGui::DragFloat(tag.c_str(), &out, speed, min, max);
     ImGui::Columns(1);
     return is_dirty;
 }
@@ -114,10 +117,10 @@ enum {
 
 template<int N>
 static bool Float3Impl(int type,
-                       const char* p_label,
-                       float* p_data,
-                       float p_reset_value,
-                       float p_column_width) {
+                       const char* label,
+                       float* data,
+                       float reset_value,
+                       float column_width) {
     static_assert(N >= 1 && N <= 3);
     bool is_dirty = false;
 
@@ -141,18 +144,18 @@ static bool Float3Impl(int type,
         button_names[2] = "Z";
     }
 
-    ImGui::PushID(p_label);
+    ImGui::PushID(label);
 
     auto draw_button = [&](int idx) {
         if (ImGui::Button(button_names[idx])) {
-            p_data[idx] = p_reset_value;
+            data[idx] = reset_value;
             is_dirty = true;
         }
     };
 
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
+    ImGui::SetColumnWidth(0, column_width);
+    ImGui::Text("%s", label);
     ImGui::NextColumn();
 
     ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
@@ -168,7 +171,7 @@ static bool Float3Impl(int type,
         ImGui::PopFont();
         ImGui::PopStyleColor(3);
         ImGui::SameLine();
-        is_dirty |= ImGui::DragFloat("##X", &p_data[0], speed, min, max, "%.2f");
+        is_dirty |= ImGui::DragFloat("##X", &data[0], speed, min, max, "%.2f");
         ImGui::PopItemWidth();
     }
 
@@ -184,7 +187,7 @@ static bool Float3Impl(int type,
         ImGui::PopFont();
         ImGui::PopStyleColor(3);
         ImGui::SameLine();
-        is_dirty |= ImGui::DragFloat("##Y", &p_data[1], speed, min, max, "%.2f");
+        is_dirty |= ImGui::DragFloat("##Y", &data[1], speed, min, max, "%.2f");
         ImGui::PopItemWidth();
     }
 
@@ -200,7 +203,7 @@ static bool Float3Impl(int type,
         ImGui::PopFont();
         ImGui::PopStyleColor(3);
         ImGui::SameLine();
-        is_dirty |= ImGui::DragFloat("##Z", &p_data[2], speed, min, max, "%.2f");
+        is_dirty |= ImGui::DragFloat("##Z", &data[2], speed, min, max, "%.2f");
         ImGui::PopItemWidth();
     }
 
@@ -209,47 +212,47 @@ static bool Float3Impl(int type,
     ImGui::PopID();
     return is_dirty;
 }
-bool Float2(const char* p_label,
-            math::Vec2f& p_out,
-            float p_reset_value,
-            float p_column_width) {
-    return Float3Impl<2>(TYPE_TRANSFORM, p_label, &p_out.x, p_reset_value, p_column_width);
+bool Float2(const char* label,
+            Vec2f& out,
+            float reset_value,
+            float column_width) {
+    return Float3Impl<2>(TYPE_TRANSFORM, label, &out.x, reset_value, column_width);
 }
 
-bool Float3(const char* p_label,
-            math::Vec3f& p_out_vec3,
-            float p_reset_value,
-            float p_column_width) {
-    return Float3Impl<3>(TYPE_TRANSFORM, p_label, &p_out_vec3.x, p_reset_value, p_column_width);
+bool Float3(const char* label,
+            Vec3f& out_vec3,
+            float reset_value,
+            float column_width) {
+    return Float3Impl<3>(TYPE_TRANSFORM, label, &out_vec3.x, reset_value, column_width);
 }
 
-bool ColorPicker3(const char* p_label,
-                  math::Vec3f& p_out,
-                  float p_column_width) {
+bool ColorPicker3(const char* label,
+                  Vec3f& out,
+                  float column_width) {
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
+    ImGui::SetColumnWidth(0, column_width);
+    ImGui::Text("%s", label);
     ImGui::NextColumn();
-    const bool dirty = ImGui::ColorPicker3(p_label, &p_out.r);
+    const bool dirty = ImGui::ColorPicker3(label, &out.r);
     ImGui::Columns(1);
     ImGui::Dummy(ImVec2(8, 8));
     return dirty;
 }
 
-bool ColorPicker4(const char* p_label,
-                  math::Vec4f& p_out,
-                  float p_column_width) {
+bool ColorPicker4(const char* label,
+                  Vec4f& out,
+                  float column_width) {
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, p_column_width);
-    ImGui::Text("%s", p_label);
+    ImGui::SetColumnWidth(0, column_width);
+    ImGui::Text("%s", label);
     ImGui::NextColumn();
-    const bool dirty = ImGui::ColorPicker4(p_label, &p_out.r);
+    const bool dirty = ImGui::ColorPicker4(label, &out.r);
     ImGui::Columns(1);
     ImGui::Dummy(ImVec2(8, 8));
     return dirty;
 }
 
-bool ToggleButton(const char* p_str_id, bool& p_value) {
+bool ToggleButton(const char* str_id, bool& value) {
     ImVec2 p = ImGui::GetCursorScreenPos();
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -259,19 +262,19 @@ bool ToggleButton(const char* p_str_id, bool& p_value) {
 
     bool toggled = false;
 
-    ImGui::InvisibleButton(p_str_id, ImVec2(width, height));
+    ImGui::InvisibleButton(str_id, ImVec2(width, height));
     if (ImGui::IsItemClicked()) {
-        p_value = !p_value;
+        value = !value;
         toggled = true;
     }
 
-    float t = p_value ? 1.0f : 0.0f;
+    float t = value ? 1.0f : 0.0f;
 
     ImGuiContext& g = *GImGui;
     float ANIM_SPEED = 0.08f;
-    if (g.LastActiveId == g.CurrentWindow->GetID(p_str_id)) {
+    if (g.LastActiveId == g.CurrentWindow->GetID(str_id)) {
         float t_anim = ImSaturate(g.LastActiveIdTimer / ANIM_SPEED);
-        t = p_value ? (t_anim) : (1.0f - t_anim);
+        t = value ? (t_anim) : (1.0f - t_anim);
     }
 
     ImU32 col_bg;

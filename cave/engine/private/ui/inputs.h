@@ -3,59 +3,59 @@
 
 namespace cave::ui {
 
-constexpr float DEFAULT_COLUMN_WIDTH = 150.0f;
+constexpr float kDefaultColumnWidth = 150.0f;
 
-bool CheckBox(const char* p_name,
-              bool& p_val,
-              float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool CheckBox(const char* name,
+              bool& val,
+              float column_width = kDefaultColumnWidth);
 
-bool TextBox(const char* p_label,
-             char* p_buf_ptr,
-             uint32_t p_buf_size,
-             float p_text_width = DEFAULT_COLUMN_WIDTH,
-             float p_text_box_width = 0,
-             bool p_enter_returns_true = true);
+bool TextBox(const char* label,
+             char* buf_ptr,
+             uint32_t buf_size,
+             bool enter_returns_true = true,
+             float column_width = kDefaultColumnWidth,
+             float text_box_width = 0);
 
-bool InputInt(const char* p_label,
-              int& p_out,
-              float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool InputInt(const char* label,
+              int& out,
+              float column_width = kDefaultColumnWidth);
 
-bool InputFloat(const char* p_label,
-                float& p_out,
-                float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool InputFloat(const char* label,
+                float& out,
+                float column_width = kDefaultColumnWidth);
 
-bool DragInt(const char* p_label,
-             int& p_out,
-             float p_speed,
-             int p_min,
-             int p_max,
-             float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool DragInt(const char* label,
+             int& out,
+             float speed,
+             int min,
+             int max,
+             float column_width = kDefaultColumnWidth);
 
-bool DragFloat(const char* p_label,
-               float& p_out,
-               float p_speed,
-               float p_min,
-               float p_max,
-               float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool DragFloat(const char* label,
+               float& out,
+               float speed,
+               float min,
+               float max,
+               float column_width = kDefaultColumnWidth);
 
-bool Float2(const char* p_label,
-            math::Vec2f& p_out,
-            float p_reset_value = 0.0f,
-            float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool Float2(const char* label,
+            math::Vec2f& out,
+            float reset_value = 0.0f,
+            float column_width = kDefaultColumnWidth);
 
-bool Float3(const char* p_label,
-            math::Vec3f& p_out,
-            float p_reset_value = 0.0f,
-            float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool Float3(const char* label,
+            math::Vec3f& out,
+            float reset_value = 0.0f,
+            float column_width = kDefaultColumnWidth);
 
-bool ColorPicker3(const char* p_label,
-                  math::Vec3f& p_out,
-                  float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool ColorPicker3(const char* label,
+                  math::Vec3f& out,
+                  float column_width = kDefaultColumnWidth);
 
-bool ColorPicker4(const char* p_label,
-                  math::Vec4f& p_out,
-                  float p_column_width = DEFAULT_COLUMN_WIDTH);
+bool ColorPicker4(const char* label,
+                  math::Vec4f& out,
+                  float column_width = kDefaultColumnWidth);
 
-bool ToggleButton(const char* p_str_id, bool& p_value);
+bool ToggleButton(const char* str_id, bool& value);
 
 }  // namespace cave::ui

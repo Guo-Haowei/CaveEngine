@@ -114,7 +114,7 @@ bool DrawAsset(const char* p_name,
     const IAsset* asset = nullptr;
 
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, ui::DEFAULT_COLUMN_WIDTH);
+    ImGui::SetColumnWidth(0, ui::kDefaultColumnWidth);
     ImGui::Text(ICON_FA_CUBE "  %s", p_name);
     ImGui::NextColumn();
 
@@ -176,7 +176,7 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
                       const DrawComponentCtx& p_ctx) {
     switch (p_property->editor_hint) {
         case EditorHint::EnumDropDown:
-            return p_property->DrawEditor(p_component, ui::DEFAULT_COLUMN_WIDTH);
+            return p_property->DrawEditor(p_component, ui::kDefaultColumnWidth);
         case EditorHint::Toggle:
             return EditAndSubmit<T, bool>(
                 p_ctx, p_component, p_property,
@@ -395,15 +395,16 @@ void PropertyPanel::drawUIImpl() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Lua Script"), lua_script, [&](LuaScriptComponent& p_script) {
-        FixedString<32>& name = p_script.GetClassNameRef();
-        ui::TextBox("class_name", name.data(), name.size());
+    DrawComponent(DRAW_COMPONENT_ARGS("Lua Script"), lua_script, [&](LuaScriptComponent& script) {
+        FixedString<32>& name = script.GetClassNameRef();
+        ui::TextBox("class_name", name.data(), name.capacity(), false);
 
-        DrawComponentAuto<LuaScriptComponent>(&p_script, ctx);
+        DrawComponentAuto<LuaScriptComponent>(&script, ctx);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Native Script"), native_script, [&](NativeScriptComponent& script) {
-        ui::TextBox("class_name", script.name.data(), script.name.size());
+        FixedString<32>& name = script.name;
+        ui::TextBox("class_name", name.data(), name.capacity(), false);
 
         DrawComponentAuto<NativeScriptComponent>(&script, ctx);
     });
@@ -422,7 +423,7 @@ void PropertyPanel::drawUIImpl() {
         DrawComponentAuto<ColliderComponent>(&p_collider, ctx);
 
         Shape& shape = p_collider.GetShape();
-        DrawEnumDropDown("shape", shape.type, ui::DEFAULT_COLUMN_WIDTH);
+        DrawEnumDropDown("shape", shape.type, ui::kDefaultColumnWidth);
         switch (shape.type) {
             case ShapeType::Round: {
                 ui::InputFloat("radius", shape.data.radius);
