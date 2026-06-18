@@ -313,7 +313,7 @@ void PropertyPanel::drawUIImpl() {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                app_services_.sceneRegistry(),
+                engine_services_.sceneRegistry(),
                 id,
                 NameComponent_Id,
                 "name"_sid,
@@ -337,7 +337,7 @@ void PropertyPanel::drawUIImpl() {
             return;
         }
         auto cmd = std::make_unique<AddComponentCmd>(
-            app_services_.sceneRegistry(),
+            engine_services_.sceneRegistry(),
             id,
             cid);
         edit_service.submit(doc_id, std::move(cmd));

@@ -13,7 +13,7 @@ public:
 
     IEditorItem(EditorState& editor)
         : m_editor(editor)
-        , app_services_(editor.app().services())
+        , engine_services_(editor.app().services())
         , editor_services_(editor.services()) {}
 
     virtual ~IEditorItem() = default;
@@ -22,9 +22,9 @@ public:
     virtual void drawUI() = 0;
 
 protected:
-    // @TODO: deperecate m_editor
+    // @TODO: remove m_editor
     EditorState& m_editor;
-    EngineServices& app_services_;
+    EngineServices& engine_services_;
     EditorServices& editor_services_;
 };
 

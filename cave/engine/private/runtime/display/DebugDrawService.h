@@ -19,9 +19,11 @@ public:
                  const math::Vec4f& color,
                  const math::Mat4f* transform) override;
 
-    std::span<const DebugDrawItem> items() const override {
+    auto items() const -> std::span<const DebugDrawItem> override {
         return items_;
     }
+
+    void clear() override { items_.clear(); }
 
 private:
     std::vector<DebugDrawItem> items_;

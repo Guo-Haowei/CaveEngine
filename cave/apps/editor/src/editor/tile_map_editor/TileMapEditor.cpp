@@ -4,6 +4,7 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/display/DisplayService.h"
+#include "cave/runtime/display/IDebugDrawService.h"
 
 #include "editor/EditorState.h"
 #include "editor/panels/AssetInspector.h"
@@ -66,7 +67,7 @@ bool TileMapEditor::canHandleInput(const InputFrame& input) {
         return false;
     }
 
-    const KeyState& st = app_services_.inputService().keyState();
+    const KeyState& st = engine_services_.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return false;
     }
@@ -125,7 +126,7 @@ void TileMapEditor::applayEditorTool() {
     IDocument* doc = editor_services_.document().resolve(doc_id_);
     DEV_ASSERT(doc);
 
-    Vec2f point_os = cursor_ + app_services_.displayService().windowPos();
+    Vec2f point_os = cursor_ + engine_services_.displayService().windowPos();
     auto res = pointToTile(point_os);
     if (res.is_none()) {
         return;
@@ -154,7 +155,7 @@ void TileMapEditor::applayEditorTool() {
         return;  // no op if the tiles are the same
     }
 
-    auto cmd = std::make_unique<SetTileCommand>(app_services_.sceneRegistry(),
+    auto cmd = std::make_unique<SetTileCommand>(engine_services_.sceneRegistry(),
                                                 ecs::Entity::Null(),
                                                 tile_index,
                                                 old_tile,
@@ -173,6 +174,8 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
     if (should_apply_edit) {
         applayEditorTool();
     }
+
+    engine_services_.debugDraw().addBox2(Vec2f::Zero, Vec2f::One, Vec4f::One);
 }
 
 void TileMapEditor::drawUIImpl() {

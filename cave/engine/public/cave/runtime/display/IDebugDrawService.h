@@ -31,6 +31,7 @@ public:
                          const math::Mat4f* transform = nullptr) = 0;
 
     virtual auto items() const -> std::span<const DebugDrawItem> = 0;
+    virtual void clear() = 0;
 };
 
 }  // namespace cave

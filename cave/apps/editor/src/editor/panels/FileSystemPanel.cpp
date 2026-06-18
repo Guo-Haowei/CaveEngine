@@ -29,7 +29,7 @@ const char* FileSystemPanel::windowId() const {
 }
 
 void FileSystemPanel::onAttach() {
-    root_ = app_services_.vfs().GetMount("@res");
+    root_ = engine_services_.vfs().GetMount("@res");
 }
 
 void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
@@ -60,7 +60,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
             if (is_dir) {
                 fs::rename(renaming_, to_path);
             } else {
-                app_services_.assetManager().MoveAsset(renaming_, to_path);
+                engine_services_.assetManager().MoveAsset(renaming_, to_path);
             }
             renaming_ = "";
         }

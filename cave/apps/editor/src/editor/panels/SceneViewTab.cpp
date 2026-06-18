@@ -128,7 +128,7 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    const KeyState& st = app_services_.inputService().keyState();
+    const KeyState& st = engine_services_.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return;
     }
@@ -192,7 +192,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                 math::Decompose(before, scale_1, rot_1, pos_1);
                 math::Decompose(after, scale_2, rot_2, pos_2);
 
-                SceneRegistry& scene_reg = app_services_.sceneRegistry();
+                SceneRegistry& scene_reg = engine_services_.sceneRegistry();
                 if (p_operation & ImGuizmo::TRANSLATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
@@ -258,7 +258,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 // }
 
 Scene* SceneViewTab::getResolvedScene() {
-    return app_services_.sceneRegistry().resolve(preview_scene_id_);
+    return engine_services_.sceneRegistry().resolve(preview_scene_id_);
 }
 
 }  // namespace cave

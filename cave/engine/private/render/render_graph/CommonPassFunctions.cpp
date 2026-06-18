@@ -505,8 +505,9 @@ void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     }
 
     // debug draw
-    const IDebugDrawService& debug_draw = p_ctx.services.debugDraw();
+    IDebugDrawService& debug_draw = p_ctx.services.debugDraw();
     auto mesh = DebugDrawItemsBuffer(p_ctx.cmd, debug_draw.items());
+    debug_draw.clear();
     if (mesh) {
         cmd.SetMesh(mesh.get());
         cmd.SetPipelineState(PSO_DEBUG_DRAW);

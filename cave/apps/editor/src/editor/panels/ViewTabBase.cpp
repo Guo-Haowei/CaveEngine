@@ -26,7 +26,7 @@ ViewTabBase::ViewTabBase(EditorState& editor,
                          SceneId scene_id,
                          ViewDimension dim)
     : Tab(editor, doc_id)
-    , view_manager_(app_services_.viewManager())
+    , view_manager_(engine_services_.viewManager())
     , dim_(dim)
     , preview_scene_id_(scene_id) {
 
@@ -70,13 +70,13 @@ void ViewTabBase::onCreate() {
         "SceneView",
         { 0, 0, kTextureWidth, kTextureHeight });
 
-    app_services_.sceneScheduler().add(this);
+    engine_services_.sceneScheduler().add(this);
 }
 
 void ViewTabBase::onDestroy() {
     view_manager_.destroyView(view_id_);
 
-    app_services_.sceneScheduler().remove(this);
+    engine_services_.sceneScheduler().remove(this);
 }
 
 void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
