@@ -14,21 +14,21 @@ namespace cave {
 
 using namespace ::cave::math;
 
-CameraController2DEditor::CameraController2DEditor(CameraComponent& p_camera,
-                                                   TransformComponent& p_tranform)
-    : m_camera(p_camera)
-    , m_root(p_tranform) {
+CameraController2DEditor::CameraController2DEditor(CameraComponent& camera,
+                                                   TransformComponent& tranform)
+    : camera_(camera)
+    , root_(tranform) {
 }
 
-void CameraController2DEditor::Update(const InputFrame& p_input) {
+void CameraController2DEditor::update(const InputFrame& input) {
     constexpr Key drag_key = Key::MMB;
     const InputDeviceId id{ 0 };
-    const bool drag_key_down = p_input.keystate.down(id, drag_key);
+    const bool drag_key_down = input.keystate.down(id, drag_key);
     float dx = 0.0f;
     float dy = 0.0f;
     float zoom = 0.0f;
 
-    for (const InputEvent& e : p_input.events) {
+    for (const InputEvent& e : input.events) {
         if (e.consumed) {
             continue;
         }
@@ -54,40 +54,40 @@ void CameraController2DEditor::Update(const InputFrame& p_input) {
     }
 
     bool need_update = false;
-    const float dt = p_input.dt;
+    const float dt = input.dt;
     if (drag_key_down && (dx || dy)) {
         constexpr float speed = 1.0f;
         Vec2f delta(dx, dy);
         delta *= (speed * dt);
-        m_root.Translate(Vec3f(delta, 0.0f));
+        root_.Translate(Vec3f(delta, 0.0f));
 
         need_update = true;
     }
 
     if (zoom != 0.0f) {
-        float ortho_height = m_camera.GetOrthoHeight() + 16.0f * (zoom * dt);
+        float ortho_height = camera_.GetOrthoHeight() + 16.0f * (zoom * dt);
         ortho_height = glm::clamp(ortho_height, 0.1f, 100.0f);
-        m_camera.SetOrthoHeight(ortho_height);
+        camera_.SetOrthoHeight(ortho_height);
         need_update = true;
     }
 
     if (need_update) {
-        m_camera.SetDirty();
-        m_root.UpdateTransform();
-        m_camera.Update(m_root.GetWorldMatrix());
+        camera_.SetDirty();
+        root_.UpdateTransform();
+        camera_.Update(root_.GetWorldMatrix());
     }
 }
 
-CameraControllerFPS::CameraControllerFPS(CameraComponent& p_camera,
-                                         TransformComponent& p_tranform)
-    : m_camera(p_camera)
-    , m_root(p_tranform) {
+CameraControllerFPS::CameraControllerFPS(CameraComponent& camera,
+                                         TransformComponent& tranform)
+    : camera_(camera)
+    , root_(tranform) {
 }
 
-void CameraControllerFPS::Update(const InputFrame& p_input) {
+void CameraControllerFPS::update(const InputFrame& input) {
     constexpr Key kDragKey = Key::MMB;
     const InputDeviceId id{ 0 };
-    auto& ks = p_input.keystate;
+    auto& ks = input.keystate;
     const bool drag_button = ks.down(id, kDragKey);
     const int _dx = ks.down(id, Key::D) - ks.down(id, Key::A);
     const int _dy = ks.down(id, Key::E) - ks.down(id, Key::Q);
@@ -95,7 +95,7 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
 
     Vec2f rotation = Vec2f::Zero;
 
-    for (const InputEvent& e : p_input.events) {
+    for (const InputEvent& e : input.events) {
         if (e.consumed) continue;
         switch (e.type) {
             case InputEventType::MouseMove: {
@@ -110,7 +110,7 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
         }
     }
 
-    const float dt = p_input.dt;
+    const float dt = input.dt;
     const bool moved = _dx || _dy || _dz;
     if (moved) {
         float dx = dt * _dx;
@@ -118,11 +118,11 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
         float dz = dt * _dz;
 
         if (dx || dz) {
-            Vec3f delta = (m_move_speed * dz) * m_camera.GetFront() + (m_move_speed * dx) * m_camera.GetRight();
-            m_root.Translate(delta);
+            Vec3f delta = (move_speed_ * dz) * camera_.GetFront() + (move_speed_ * dx) * camera_.GetRight();
+            root_.Translate(delta);
         }
         if (dy) {
-            m_root.Translate(Vec3f(0.0f, m_move_speed * dy, 0.0f));
+            root_.Translate(Vec3f(0.0f, move_speed_ * dy, 0.0f));
         }
     }
 
@@ -131,7 +131,7 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
         float rotate_y = 0.0f;
 
         Vec2f movement = rotation;
-        movement = m_rotate_speed * movement;
+        movement = rotate_speed_ * movement;
         if (glm::abs(movement.x) > glm::abs(movement.y)) {
             rotate_y = movement.x;
         } else {
@@ -139,29 +139,29 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
         }
 
         if (rotate_y) {
-            m_root.RotateY(Degree(-rotate_y * dt));
+            root_.RotateY(Degree(-rotate_y * dt));
         }
 
         if (rotate_x) {
-            m_pitch += rotate_x * dt;
-            m_pitch = clamp(m_pitch, -80.0f, 80.0f);
-            m_camera.SetDirty();
+            pitch_ += rotate_x * dt;
+            pitch_ = clamp(pitch_, -80.0f, 80.0f);
+            camera_.SetDirty();
         }
 
         return rotate_x != 0.0f || rotate_y != 0.0f;
     };
 
     if (moved || rotate_camera()) {
-        m_camera.SetDirty();
+        camera_.SetDirty();
     }
-    if (m_root.IsDirty()) {
-        m_camera.SetDirty();
+    if (root_.IsDirty()) {
+        camera_.SetDirty();
     }
 
-    m_root.UpdateTransform();
-    Mat4f R = glm::rotate(glm::radians(m_pitch), glm::vec3(1, 0, 0));
-    Mat4f trans = m_root.GetLocalMatrix() * R;
-    m_camera.Update(trans);
+    root_.UpdateTransform();
+    Mat4f R = glm::rotate(glm::radians(pitch_), glm::vec3(1, 0, 0));
+    Mat4f trans = root_.GetLocalMatrix() * R;
+    camera_.Update(trans);
 }
 
 }  // namespace cave

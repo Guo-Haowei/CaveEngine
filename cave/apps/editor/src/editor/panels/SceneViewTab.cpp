@@ -133,7 +133,7 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    camera_controller_->Update(input);
+    camera_controller_->update(input);
 }
 
 void SceneViewTab::drawUIImpl() {

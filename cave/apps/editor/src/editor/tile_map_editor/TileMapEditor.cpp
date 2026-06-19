@@ -174,7 +174,7 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    camera_controller_->Update(input);
+    camera_controller_->update(input);
 
     const bool should_apply_edit = updateEditMode(input);
     updateTileCoord();

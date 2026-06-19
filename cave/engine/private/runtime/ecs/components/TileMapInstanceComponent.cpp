@@ -82,14 +82,13 @@ void TileMapInstanceComponent::createRenderData() {
     const auto& frames = tile_set->GetFrames();
 
     vertices.reserve((kTileChunkSize * kTileChunkSize));
-    for (const auto& [key, chunk_ptr] : chunks) {
+    for (const auto& [key, chunk] : chunks) {
         const int16_t offset_x = key.x * kTileChunkSize;
         const int16_t offset_y = key.y * kTileChunkSize;
 
-        const auto& chunk = chunk_ptr->tiles;
         for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
             for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
-                const TileId& tile_id = chunk[y - offset_y][x - offset_x];
+                const TileId& tile_id = chunk->at(x - offset_x, y - offset_y);
                 if ((int)frames.size() <= tile_id) {
                     continue;
                 }

@@ -133,13 +133,12 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
         const auto& colliders = tile_set->GetColliders();
         const auto& chunks = tile_map->tiles().chunks;
-        for (const auto& [key, chunk_ptr] : chunks) {
+        for (const auto& [key, chunk] : chunks) {
             const int16_t offset_x = key.x * kTileChunkSize;
             const int16_t offset_y = key.y * kTileChunkSize;
-            const auto& chunk = chunk_ptr->tiles;
             for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
                 for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
-                    const TileId& tile_id = chunk[y - offset_y][x - offset_x];
+                    const TileId& tile_id = chunk->at(x - offset_x, y - offset_y);
                     auto it = colliders.find(tile_id);
                     if (it == colliders.end()) continue;
                     const Shape& shape = it->second;

@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include "TileCoord.h"
+#include "TileData.h"
 
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/assets/AssetHandle.h"
@@ -14,29 +15,6 @@ namespace cave {
 
 class ISerializer;
 class IDeserializer;
-
-using TileId = uint16_t;
-constexpr TileId kEmptyTileId = 0xFFFF;
-constexpr int16_t kTileChunkSize = 32;  // 32x32 tiles per chunk
-
-struct TileChunk {
-    TileId tiles[kTileChunkSize][kTileChunkSize];
-};
-
-struct TileIndexHasher {
-    std::size_t operator()(const cave::TileCoord& key) const noexcept {
-        const uint32_t packed = std::bit_cast<uint32_t>(key);
-        return std::hash<uint32_t>{}(packed);
-    }
-};
-
-struct TileData {
-    std::unordered_map<
-        TileCoord,
-        std::unique_ptr<TileChunk>,
-        TileIndexHasher>
-        chunks;
-};
 
 ISerializer& WriteObject(ISerializer& s, const TileData& tile_data);
 
@@ -67,11 +45,11 @@ private:
     uint32_t revision_{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
-    Option<TileId> tileAt(TileCoord index) const;
+    Option<TileId> tileAt(TileCoord coord) const;
 
-    bool addTile(TileCoord index, TileId id);
+    bool addTile(TileCoord coord, TileId id);
 
-    bool removeTile(TileCoord index);
+    bool removeTile(TileCoord coord);
 
     const Handle<TileSetAsset>& tileSetHandle() const { return tile_set_handle_; }
 
@@ -94,9 +72,6 @@ public:
     Result<void> LoadFromDisk(const AssetMetaData& meta) override;
 
     std::vector<Guid> GetDependencies() const override;
-
-private:
-    TileCoord convertIndex(TileCoord index) const;
 };
 
 }  // namespace cave

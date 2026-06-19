@@ -7,4 +7,12 @@ namespace cave {
 TileWorldSystem::TileWorldSystem()
     : debug_id_(MakeDebugId(this)) {}
 
+void TileWorldSystem::onAttach() {
+
+}
+
+void TileWorldSystem::onDetach() {
+
+}
+
 }  // namespace cave
