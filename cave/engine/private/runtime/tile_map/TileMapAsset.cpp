@@ -7,61 +7,64 @@
 
 namespace cave {
 
-static int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
+namespace {
+
+int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
     return (a >= 0) ? (a / b) : ((a - b + 1) / b);
 }
 
-TileCoord TileMapAsset::convertIndex(TileCoord p_index) const {
-    return TileCoord{ DivFloor(p_index.x), DivFloor(p_index.y) };
+}  // namespace
+
+TileCoord TileMapAsset::convertIndex(TileCoord coord) const {
+    return TileCoord{ DivFloor(coord.x), DivFloor(coord.y) };
 }
 
-Option<TileId> TileMapAsset::tileAt(TileCoord p_index) const {
-    TileCoord index = convertIndex(p_index);
+Option<TileId> TileMapAsset::tileAt(TileCoord coord) const {
+    TileCoord index = convertIndex(coord);
 
-    auto it = m_tiles.chunks.find(index);
-    if (it == m_tiles.chunks.end()) {
+    auto it = tiles_.chunks.find(index);
+    if (it == tiles_.chunks.end()) {
         return None();
     }
 
-    const int16_t x = p_index.x - index.x * kTileChunkSize;
-    const int16_t y = p_index.y - index.y * kTileChunkSize;
+    const int16_t x = coord.x - index.x * kTileChunkSize;
+    const int16_t y = coord.y - index.y * kTileChunkSize;
     DEV_ASSERT_INDEX(x, kTileChunkSize);
     DEV_ASSERT_INDEX(y, kTileChunkSize);
 
     return Some(it->second->tiles[y][x]);
 }
 
-bool TileMapAsset::addTile(TileCoord p_index, TileId p_id) {
-    TileCoord index = convertIndex(p_index);
+bool TileMapAsset::addTile(TileCoord coord, TileId tile_id) {
+    TileCoord index = convertIndex(coord);
 
-    auto& chunk = m_tiles.chunks[index];
+    auto& chunk = tiles_.chunks[index];
     if (chunk == nullptr) {
         chunk = std::make_unique<TileChunk>();
         std::memset(chunk.get(), 0xFFFFFFFF, sizeof(TileChunk));
     }
 
-    const int16_t x = p_index.x - index.x * kTileChunkSize;
-    const int16_t y = p_index.y - index.y * kTileChunkSize;
+    const int16_t x = coord.x - index.x * kTileChunkSize;
+    const int16_t y = coord.y - index.y * kTileChunkSize;
 
-    TileId& tile_id = chunk->tiles[y][x];
-    if (tile_id == p_id) {
+    if (chunk->tiles[y][x] == tile_id) {
         return false;
     }
 
-    tile_id = p_id;
+    chunk->tiles[y][x] = tile_id;
     return true;
 }
 
-bool TileMapAsset::removeTile(TileCoord p_index) {
-    TileCoord index = convertIndex(p_index);
+bool TileMapAsset::removeTile(TileCoord coord) {
+    TileCoord index = convertIndex(coord);
 
-    auto it = m_tiles.chunks.find(index);
-    if (it == m_tiles.chunks.end()) {
+    auto it = tiles_.chunks.find(index);
+    if (it == tiles_.chunks.end()) {
         return false;
     }
 
-    const int16_t x = p_index.x - index.x * kTileChunkSize;
-    const int16_t y = p_index.y - index.y * kTileChunkSize;
+    const int16_t x = coord.x - index.x * kTileChunkSize;
+    const int16_t y = coord.y - index.y * kTileChunkSize;
 
     TileId& tile = it->second->tiles[y][x];
     if (tile == kEmptyTileId) {
@@ -72,15 +75,15 @@ bool TileMapAsset::removeTile(TileCoord p_index) {
     return true;
 }
 
-void TileMapAsset::SetTileSetGuid(const Guid& p_guid, bool p_force) {
-    const bool should_update = p_force || m_tile_set_id != p_guid;
+void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
+    const bool should_update = force_update || tile_set_id_ != guid;
     if (should_update) {
-        if (auto handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(p_guid); handle.is_some()) {
-            m_tile_set_id = p_guid;
-            m_tile_set_handle = std::move(handle.unwrap());
+        if (auto handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(guid); handle.is_some()) {
+            tile_set_id_ = guid;
+            tile_set_handle_ = std::move(handle.unwrap());
         } else {
-            m_tile_set_id = Guid::Null();
-            m_tile_set_handle.Invalidate();
+            tile_set_id_ = Guid::Null();
+            tile_set_handle_.Invalidate();
         }
 
         incRevision();
@@ -88,10 +91,10 @@ void TileMapAsset::SetTileSetGuid(const Guid& p_guid, bool p_force) {
 }
 
 std::vector<Guid> TileMapAsset::GetDependencies() const {
-    return { m_tile_set_id };
+    return { tile_set_id_ };
 }
 
-ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data) {
+ISerializer& WriteObject(ISerializer& s, const TileData& tile_data) {
     s.BeginArray(false);
 
     auto chunk_empty = [](const TileChunk& p_chunk) {
@@ -105,7 +108,7 @@ ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data) {
         return true;
     };
 
-    for (const auto& [index, chunk] : p_tile_data.chunks) {
+    for (const auto& [index, chunk] : tile_data.chunks) {
         if (chunk_empty(*chunk.get())) {
             continue;
         }
@@ -131,7 +134,7 @@ ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data) {
     return s.EndArray();
 }
 
-bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
+bool ReadObject(IDeserializer& d, TileData& tile_data) {
     const int chunk_size = d.ArraySize().unwrap_or(-1);
     if (chunk_size < 0) {
         return false;
@@ -154,7 +157,7 @@ bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
             if (d.TryEnterKey("tiles")) {
                 auto chunk = std::make_unique<TileChunk>();
                 auto& tiles = chunk->tiles;
-                p_tile_data.chunks[TileCoord(x, y)] = std::move(chunk);
+                tile_data.chunks[TileCoord(x, y)] = std::move(chunk);
 
                 constexpr int TILE_COUNT = kTileChunkSize * kTileChunkSize;
                 DEV_ASSERT(d.ArraySize().unwrap_or(0) == TILE_COUNT);
@@ -173,8 +176,8 @@ bool ReadObject(IDeserializer& d, TileData& p_tile_data) {
     return true;
 }
 
-Result<void> TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const {
-    auto res = p_meta.SaveToDisk(this);
+Result<void> TileMapAsset::SaveToDisk(const AssetMetaData& meta) const {
+    auto res = meta.SaveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -186,13 +189,13 @@ Result<void> TileMapAsset::SaveToDisk(const AssetMetaData& p_meta) const {
         .Key("content")
         .Write(*this)
         .EndMap();
-    return SaveYaml(p_meta.import_path, yaml);
+    return SaveYaml(meta.import_path, yaml);
 }
 
-Result<void> TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) {
+Result<void> TileMapAsset::LoadFromDisk(const AssetMetaData& meta) {
     YAML::Node root;
 
-    if (auto res = LoadYaml(p_meta.import_path, root); !res) {
+    if (auto res = LoadYaml(meta.import_path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -213,7 +216,7 @@ Result<void> TileMapAsset::LoadFromDisk(const AssetMetaData& p_meta) {
         d.LeaveKey();
     }
 
-    SetTileSetGuid(m_tile_set_id, true);
+    tileSetGuid(tile_set_id_, true);
     return Result<void>();
 }
 

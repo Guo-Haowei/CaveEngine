@@ -42,7 +42,7 @@ void TileMapInstanceComponent::createRenderData() {
 
     // @TODO: update guid
     if (cache_.tile_set_handle.GetGuid() == Guid::Null()) {
-        auto tile_set_handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(tile_map->GetTileSetGuid());
+        auto tile_set_handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(tile_map->tileSetGuid());
         if (tile_set_handle.is_some()) {
             cache_.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
         }

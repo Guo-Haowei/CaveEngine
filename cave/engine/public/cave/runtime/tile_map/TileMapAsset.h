@@ -1,4 +1,9 @@
+// =============================================================================
+// File: cave/runtime/tile_map/TileMapAsset.h
+// =============================================================================
 #pragma once
+#include "TileCoord.h"
+
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/assets/IAsset.h"
@@ -13,14 +18,6 @@ class IDeserializer;
 using TileId = uint16_t;
 constexpr TileId kEmptyTileId = 0xFFFF;
 constexpr int16_t kTileChunkSize = 32;  // 32x32 tiles per chunk
-
-struct TileCoord {
-    int16_t x, y;
-
-    bool operator==(const TileCoord& p_rhs) const noexcept {
-        return x == p_rhs.x && y == p_rhs.y;
-    }
-};
 
 struct TileChunk {
     TileId tiles[kTileChunkSize][kTileChunkSize];
@@ -41,9 +38,9 @@ struct TileData {
         chunks;
 };
 
-ISerializer& WriteObject(ISerializer& s, const TileData& p_tile_data);
+ISerializer& WriteObject(ISerializer& s, const TileData& tile_data);
 
-bool ReadObject(IDeserializer& d, TileData& p_tile_data);
+bool ReadObject(IDeserializer& d, TileData& tile_data);
 
 static_assert(Serializable<TileData>);
 
@@ -54,20 +51,20 @@ class TileMapAsset : public IAsset {
 
 private:
     CAVE_PROP()
-    std::string m_name;
+    std::string name_;
 
     CAVE_PROP(editor = Asset)
-    Guid m_tile_set_id;
+    Guid tile_set_id_;
 
     CAVE_PROP(editor = Toggle)
-    bool m_visibility = true;
+    bool visible_ = true;
 
     CAVE_PROP()
-    TileData m_tiles;
+    TileData tiles_;
 
     // Non serialized
-    Handle<TileSetAsset> m_tile_set_handle;
-    uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
+    Handle<TileSetAsset> tile_set_handle_;
+    uint32_t revision_{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
     Option<TileId> tileAt(TileCoord index) const;
@@ -76,22 +73,22 @@ public:
 
     bool removeTile(TileCoord index);
 
-    const Handle<TileSetAsset>& tileSetHandle() const { return m_tile_set_handle; }
+    const Handle<TileSetAsset>& tileSetHandle() const { return tile_set_handle_; }
 
-    std::string& name() { return m_name; }
-    const std::string& name() const { return m_name; }
-    void name(std::string&& name) { m_name = std::move(name); }
+    std::string& name() { return name_; }
+    const std::string& name() const { return name_; }
+    void name(std::string&& name) { name_ = std::move(name); }
 
-    const Guid& GetTileSetGuid() const { return m_tile_set_id; }
-    void SetTileSetGuid(const Guid& guid, bool force = false);
+    const Guid& tileSetGuid() const { return tile_set_id_; }
+    void tileSetGuid(const Guid& guid, bool force = false);
 
-    const TileData& tiles() const { return m_tiles; }
+    const TileData& tiles() const { return tiles_; }
 
-    uint32_t revision() const { return m_revision; }
-    void incRevision() { ++m_revision; }
+    uint32_t revision() const { return revision_; }
+    void incRevision() { ++revision_; }
 
-    bool visible() const { return m_visibility; }
-    void visible(bool visible) { m_visibility = visible; }
+    bool visible() const { return visible_; }
+    void visible(bool visible) { visible_ = visible; }
 
     Result<void> SaveToDisk(const AssetMetaData& meta) const override;
     Result<void> LoadFromDisk(const AssetMetaData& meta) override;

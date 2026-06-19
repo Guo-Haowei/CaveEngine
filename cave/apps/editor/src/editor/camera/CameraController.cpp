@@ -139,12 +139,12 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
         }
 
         if (rotate_y) {
-            m_root.RotateY(math::Degree(-rotate_y * dt));
+            m_root.RotateY(Degree(-rotate_y * dt));
         }
 
         if (rotate_x) {
             m_pitch += rotate_x * dt;
-            m_pitch = math::clamp(m_pitch, -80.0f, 80.0f);
+            m_pitch = clamp(m_pitch, -80.0f, 80.0f);
             m_camera.SetDirty();
         }
 
@@ -159,8 +159,8 @@ void CameraControllerFPS::Update(const InputFrame& p_input) {
     }
 
     m_root.UpdateTransform();
-    math::Mat4f R = glm::rotate(glm::radians(m_pitch), glm::vec3(1, 0, 0));
-    math::Mat4f trans = m_root.GetLocalMatrix() * R;
+    Mat4f R = glm::rotate(glm::radians(m_pitch), glm::vec3(1, 0, 0));
+    Mat4f trans = m_root.GetLocalMatrix() * R;
     m_camera.Update(trans);
 }
 
