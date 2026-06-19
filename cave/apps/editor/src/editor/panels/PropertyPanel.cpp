@@ -489,9 +489,9 @@ void PropertyPanel::drawUIImpl() {
                   });
 
     DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"),
-                  scene.component<TileMapRendererComponent>(id),
-                  [&](TileMapRendererComponent& p_renderer) {
-                      DrawComponentAuto<TileMapRendererComponent>(&p_renderer, ctx);
+                  scene.component<TileMapInstanceComponent>(id),
+                  [&](TileMapInstanceComponent& p_renderer) {
+                      DrawComponentAuto<TileMapInstanceComponent>(&p_renderer, ctx);
                   });
 
     MeshRendererComponent* mesh_renderer = scene.component<MeshRendererComponent>(id);

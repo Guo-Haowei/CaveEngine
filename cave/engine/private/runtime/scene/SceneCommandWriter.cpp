@@ -170,7 +170,7 @@ Entity SceneCommandWriter::CreateTorusObject(std::string_view p_name, const Mate
 
 Entity SceneCommandWriter::CreateTileMapObject(std::string_view p_name) {
     Entity e = CreateTransformObject(p_name);
-    AddComponent(e, TileMapRendererComponent_Id);
+    AddComponent(e, TileMapInstanceComponent_Id);
     return e;
 }
 

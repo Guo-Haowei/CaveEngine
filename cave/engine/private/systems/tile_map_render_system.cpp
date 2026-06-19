@@ -3,7 +3,7 @@
 #include "engine/private/render/renderer/FrameData.h"
 
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/ecs/components/TileMapRendererComponent.h"
+#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 
 namespace cave {
 
@@ -13,12 +13,12 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
     }
 
     Scene& scene = *p_scene;
-    auto view = scene.view<TileMapRendererComponent>();
+    auto view = scene.view<TileMapInstanceComponent>();
     for (const auto& [id, tile_map_renderer] : view) {
-        tile_map_renderer.CreateRenderData();
+        tile_map_renderer.createRenderData();
 
-        const auto& cache = tile_map_renderer.GetCache();
-        if (!tile_map_renderer.IsVisible()) {
+        const auto& cache = tile_map_renderer.cache();
+        if (!tile_map_renderer.visible()) {
             continue;
         }
 

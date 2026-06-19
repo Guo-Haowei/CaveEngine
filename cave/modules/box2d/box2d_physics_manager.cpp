@@ -123,8 +123,8 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
         }
     }
 
-    for (auto [id, tile_map_renderer, transform] : p_scene.view<TileMapRendererComponent, TransformComponent>()) {
-        const TileMapAsset* tile_map = tile_map_renderer.GetTileMapHandle().Get();
+    for (auto [id, tile_map_renderer, transform] : p_scene.view<TileMapInstanceComponent, TransformComponent>()) {
+        const TileMapAsset* tile_map = tile_map_renderer.tileMapHandle().Get();
         if (!tile_map) continue;
         const TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
         if (!tile_set) continue;

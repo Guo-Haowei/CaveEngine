@@ -23,10 +23,10 @@ FILES = [
     'public/cave/runtime/ecs/components/SkeletalAnimationComponent.h',
     'public/cave/runtime/ecs/components/SpriteAnimatorComponent.h',
     'public/cave/runtime/ecs/components/SpriteRendererComponent.h',
-    'public/cave/runtime/ecs/components/TileMapRendererComponent.h',
     'public/cave/runtime/ecs/components/TransformAnimationComponent.h',
     'public/cave/runtime/ecs/components/TransformComponent.h',
 
+    'public/cave/runtime/tile_map/TileMapInstanceComponent.h',
     'public/cave/runtime/script/lua/LuaScriptComponent.h',
     'public/cave/runtime/script/native/NativeScriptComponent.h',
 
@@ -70,7 +70,11 @@ def extract_field_name_and_type(line: str) -> str:
     return token, type_name
 
 def remove_prefix(name: str) -> str:
-    return name[2:] if name.startswith('m_') else name
+    if name.endswith('_'):
+        return name[:-1]
+    if name.startswith('m_'):
+        return name[2:]
+    return name
 
 def parse_extra(meta_data: str):
     extra = {}

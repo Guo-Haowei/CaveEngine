@@ -4,7 +4,7 @@
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
-#include "cave/runtime/ecs/components/TileMapRendererComponent.h"
+#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"

@@ -252,7 +252,7 @@ std::vector<Guid> Scene::GetDependencies() const {
     for (const auto& [id, prefab] : view<PrefabInstanceComponent>()) {
         dependencies.push_back(prefab.GetResourceGuid());
     }
-    for (const auto& [id, tile_map_renderer] : view<TileMapRendererComponent>()) {
+    for (const auto& [id, tile_map_renderer] : view<TileMapInstanceComponent>()) {
         dependencies.push_back(tile_map_renderer.GetResourceGuid());
     }
     for (const auto& [id, animator] : view<SpriteAnimatorComponent>()) {

@@ -1,5 +1,5 @@
 #include "cave/runtime/assets/TileMapAsset.h"
-#include "cave/runtime/ecs/components/TileMapRendererComponent.h"
+#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 
 #include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -11,44 +11,44 @@ namespace cave {
 using namespace math;
 using namespace render;
 
-void TileMapRendererComponent::SetTintColor(const Vec4f& p_tint_color) {
-    m_tint_color = p_tint_color;
+void TileMapInstanceComponent::tintColor(const Vec4f& tint_color) {
+    tint_color_ = tint_color;
 }
 
-bool TileMapRendererComponent::SetResourceGuid(const Guid& p_guid) {
+bool TileMapInstanceComponent::SetResourceGuid(const Guid& guid) {
     return AssetHandle::ReplaceGuidAndHandle(AssetType::TileMap,
-                                             p_guid,
-                                             m_tile_map_id,
-                                             m_handle.RawHandle());
+                                             guid,
+                                             tile_map_id_,
+                                             handle_.RawHandle());
 }
 
-void TileMapRendererComponent::OnDeserialized() {
-    auto res = AssetRegistry::singleton().FindByGuid<TileMapAsset>(m_tile_map_id);
-    m_handle = std::move(res.unwrap());
+void TileMapInstanceComponent::OnDeserialized() {
+    auto res = AssetRegistry::singleton().FindByGuid<TileMapAsset>(tile_map_id_);
+    handle_ = std::move(res.unwrap());
 }
 
-void TileMapRendererComponent::CreateRenderData() {
-    if (m_tile_map_id != m_handle.GetGuid()) {
+void TileMapInstanceComponent::createRenderData() {
+    if (tile_map_id_ != handle_.GetGuid()) {
         OnDeserialized();
     }
 
-    auto tile_map = m_handle.Get();
+    auto tile_map = handle_.Get();
 
     if (!tile_map) {
         return;
     }
 
-    m_is_visible = tile_map->visible();
+    visible_ = tile_map->visible();
 
     // @TODO: update guid
-    if (m_cache.tile_set_handle.GetGuid() == Guid::Null()) {
+    if (cache_.tile_set_handle.GetGuid() == Guid::Null()) {
         auto tile_set_handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(tile_map->GetTileSetGuid());
         if (tile_set_handle.is_some()) {
-            m_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
+            cache_.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
         }
     }
 
-    TileSetAsset* tile_set = m_cache.tile_set_handle.Get();
+    TileSetAsset* tile_set = cache_.tile_set_handle.Get();
     if (!tile_set) {
         return;
     }
@@ -59,7 +59,7 @@ void TileMapRendererComponent::CreateRenderData() {
         need_update = true;
     }
 
-    if (tile_map->revision() != m_revision) {
+    if (tile_map->revision() != revision_) {
         need_update = true;
     }
 
@@ -67,7 +67,7 @@ void TileMapRendererComponent::CreateRenderData() {
         return;
     }
 
-    m_cache.image = tile_set->GetHandle();
+    cache_.image = tile_set->GetHandle();
 
     std::vector<Vec2f> vertices;
     std::vector<Vec2f> uvs;
@@ -75,7 +75,7 @@ void TileMapRendererComponent::CreateRenderData() {
 
     const auto& chunks = tile_map->tiles().chunks;
     if (chunks.empty()) {
-        m_is_visible = false;
+        visible_ = false;
         return;
     }
 
@@ -164,9 +164,9 @@ void TileMapRendererComponent::CreateRenderData() {
     // @NOTE: shouldn't call RenderDevice here
     auto mesh = RenderDevice::singleton().CreateMeshImpl(desc, buffers, &index_desc);
 
-    m_cache.mesh = *mesh;
+    cache_.mesh = *mesh;
 
-    m_revision = tile_map->revision();
+    revision_ = tile_map->revision();
 }
 
 }  // namespace cave
