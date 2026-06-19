@@ -31,7 +31,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         const math::Mat4f& world_matrix = transform.GetWorldMatrix();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_tint_color = tile_map_renderer.GetTintColor();
+        batch_buffer.c_tint_color = tile_map_renderer.tintColor();
 
         DrawItem draw;
         draw.index.count = cache.mesh->desc.drawCount;

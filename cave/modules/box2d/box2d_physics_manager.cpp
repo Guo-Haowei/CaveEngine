@@ -2,7 +2,7 @@
 
 #include <box2d/box2d.h>
 
-#include "cave/runtime/assets/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileMapAsset.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/assets/TileSetAsset.h"

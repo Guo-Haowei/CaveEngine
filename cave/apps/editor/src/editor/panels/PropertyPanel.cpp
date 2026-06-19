@@ -41,7 +41,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(Collider)        \
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
-    COMPONENT_DECL(TileMapRenderer) \
+    COMPONENT_DECL(TileMapInstance) \
     COMPONENT_DECL(PrefabInstance)
 
 struct DrawComponentCtx {

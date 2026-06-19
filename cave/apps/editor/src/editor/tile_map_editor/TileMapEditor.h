@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/assets/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "editor/document/SceneDocument.h"

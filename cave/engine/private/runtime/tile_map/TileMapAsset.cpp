@@ -1,4 +1,4 @@
-#include "cave/runtime/assets/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileMapAsset.h"
 
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/runtime/assets/TileSetAsset.h"

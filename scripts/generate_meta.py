@@ -27,12 +27,13 @@ FILES = [
     'public/cave/runtime/ecs/components/TransformComponent.h',
 
     'public/cave/runtime/tile_map/TileMapInstanceComponent.h',
+    'public/cave/runtime/tile_map/TileMapAsset.h',
+
     'public/cave/runtime/script/lua/LuaScriptComponent.h',
     'public/cave/runtime/script/native/NativeScriptComponent.h',
 
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
-    'public/cave/runtime/assets/TileMapAsset.h',
 
     'private/runtime/assets/MaterialAsset.h',
     'private/runtime/assets/SpriteAnimationAsset.h',
