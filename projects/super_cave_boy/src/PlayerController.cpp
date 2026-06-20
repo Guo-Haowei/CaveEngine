@@ -23,10 +23,18 @@ using ::cave::ecs::Entity;
 namespace {
 
 constexpr float kGravity = -35.0f;  // world units / second^2, tune this
-constexpr float kJumpForce = 9.0f;  // world units / second, tune this
+constexpr float kJumpForce = 14.0f;  // world units / second, tune this
 constexpr float kWallJumpForce = 9.5f;
 constexpr float kStepOffset = 0.05f;
 constexpr float kGrabEps = 0.03f;
+constexpr float kMinGroundSupport = 0.05f;  // tune; tile size is 1.0
+
+bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
+    TileCoord above = hit.coord;
+    above.y += 1;
+
+    return !world.isSolid(above);
+}
 
 Box2 ComputeWorldAABB(const TransformComponent& transform,
                       const ColliderComponent& collider) {
@@ -59,8 +67,8 @@ inline bool Overlap1DStrict(float a_min, float a_max, float b_min, float b_max) 
     return a_max > b_min && a_min < b_max;
 }
 
-inline bool Overlap1D(float a_min, float a_max, float b_min, float b_max) {
-    return Overlap1DStrict(a_min, a_max, b_min, b_max);
+inline float OverlapAmount1D(float a_min, float a_max, float b_min, float b_max) {
+    return std::min(a_max, b_max) - std::max(a_min, b_min);
 }
 
 inline bool NearlyEqual(float a, float b, float eps = 0.01f) {
@@ -96,7 +104,7 @@ float ResolveHorizontalMovement(
         const Box2& solid = hit_tile.aabb;
 
         // For horizontal movement, only care about current vertical overlap.
-        if (!Overlap1D(body.Min().y, body.Max().y, solid.Min().y, solid.Max().y)) {
+        if (!Overlap1DStrict(body.Min().y, body.Max().y, solid.Min().y, solid.Max().y)) {
             continue;
         }
 
@@ -181,11 +189,13 @@ VerticalMoveResult ResolveDownMovement(
     for (const TileHit& hit_tile : hits) {
         const Box2& solid = hit_tile.aabb;
 
-        const bool x_overlap =
-            body.Max().x - kStepOffset >= solid.Min().x &&
-            body.Min().x + kStepOffset <= solid.Max().x;
+        const float overlap_x = OverlapAmount1D(
+            body.Min().x,
+            body.Max().x,
+            solid.Min().x,
+            solid.Max().x);
 
-        if (!x_overlap) {
+        if (overlap_x <= kMinGroundSupport) {
             continue;
         }
 
@@ -211,6 +221,7 @@ bool CheckWallGrab(
     float dy,
     LegacyPlayerMotor& motor,
     const TileWorldSystem& world) {
+    // Y-up: falling is negative.
     if (dy >= 0.0f) {
         return false;
     }
@@ -225,27 +236,33 @@ bool CheckWallGrab(
     for (const TileHit& hit_tile : hits) {
         const Box2& solid = hit_tile.aabb;
 
-        // Y-up equivalent of old:
-        // player top descends across solid top.
-        // player top = body.Max().y
-        // solid top = solid.Max().y
-        const bool top_crosses_solid_top =
-            body.Max().y >= solid.Max().y &&
-            body.Max().y + dy <= solid.Max().y;
-
-        if (!top_crosses_solid_top) {
+        // Critical difference from old JS:
+        // A single tile is grabbable only if its top is exposed.
+        if (!IsLedgeTile(world, hit_tile)) {
             continue;
         }
 
+        // Y-up:
+        // player top crosses tile top while falling.
+        const bool player_top_crosses_tile_top =
+            body.Max().y >= solid.Max().y &&
+            body.Max().y + dy <= solid.Max().y;
+
+        if (!player_top_crosses_tile_top) {
+            continue;
+        }
+
+        // Player is on left side of tile, touching tile's left edge.
         if (NearlyEqual(body.Max().x, solid.Min().x, kGrabEps)) {
             motor.grabbing = true;
-            // player is left of wall, facing right
+            // motor.face = Direction::Right;
             return true;
         }
 
+        // Player is on right side of tile, touching tile's right edge.
         if (NearlyEqual(body.Min().x, solid.Max().x, kGrabEps)) {
             motor.grabbing = true;
-            // player is right of wall, facing left
+            // motor.face = Direction::Left;
             return true;
         }
     }

@@ -6,7 +6,7 @@
 namespace super_cave_boy {
 
 struct LegacyPlayerMotor {
-    float speed = 4.0f;
+    float speed = 5.5f;
 
     float hspeed = 0.0f;
     float vspeed = 0.0f;
