@@ -22,8 +22,8 @@ using ::cave::ecs::Entity;
 
 namespace {
 
-constexpr float kGravity = -35.0f;   // world units / second^2, tune this
-constexpr float kJumpForce = 14.0f;  // world units / second, tune this
+constexpr float kGravity = -35.0f;
+constexpr float kJumpForce = 13.0f;
 constexpr float kWallJumpForce = 9.5f;
 constexpr float kStepOffset = 0.05f;
 constexpr float kGrabEps = 0.03f;
@@ -219,9 +219,10 @@ VerticalMoveResult ResolveDownMovement(
 bool CheckWallGrab(
     const Box2& body,
     float dy,
-    LegacyPlayerMotor& motor,
+    const LegacyPlayerMotor&,
     const TileWorldSystem& world) {
-    // Y-up: falling is negative.
+    // Only used to START grabbing.
+    // Existing grab state is handled by MoveVertical().
     if (dy >= 0.0f) {
         return false;
     }
@@ -236,14 +237,10 @@ bool CheckWallGrab(
     for (const TileHit& hit_tile : hits) {
         const Box2& solid = hit_tile.aabb;
 
-        // Critical difference from old JS:
-        // A single tile is grabbable only if its top is exposed.
         if (!IsLedgeTile(world, hit_tile)) {
             continue;
         }
 
-        // Y-up:
-        // player top crosses tile top while falling.
         const bool player_top_crosses_tile_top =
             body.Max().y >= solid.Max().y &&
             body.Max().y + dy <= solid.Max().y;
@@ -252,15 +249,11 @@ bool CheckWallGrab(
             continue;
         }
 
-        // Player is on left side of tile, touching tile's left edge.
         if (NearlyEqual(body.Max().x, solid.Min().x, kGrabEps)) {
-            motor.grabbing = true;
             return true;
         }
 
-        // Player is on right side of tile, touching tile's right edge.
         if (NearlyEqual(body.Min().x, solid.Max().x, kGrabEps)) {
-            motor.grabbing = true;
             return true;
         }
     }
@@ -287,7 +280,6 @@ void MoveHorizontal(
     const float dx = motor.hspeed * motor.speed * dt;
 
     if (dx == 0.0f) {
-        motor.grabbing = false;
         return;
     }
 
@@ -295,8 +287,6 @@ void MoveHorizontal(
     const float resolved_dx = ResolveHorizontalMovement(body, dx, world);
 
     transform.Translate({ resolved_dx, 0.0f, 0.0f });
-
-    motor.grabbing = false;
 }
 
 void MoveVertical(
@@ -306,13 +296,24 @@ void MoveVertical(
     const TileWorldSystem& world,
     float dt) {
     Box2 body = ComputeWorldAABB(transform, collider);
-
     const float dy = motor.vspeed * dt;
 
-    // Optional wall grab check before vertical move.
-    motor.grabbing = CheckWallGrab(body, dy, motor, world);
-
+    // Already grabbing: stay grabbing.
+    // Only TryJump(), hurt, revive/reset should clear motor.grabbing.
     if (motor.grabbing && !motor.hurt) {
+        motor.vspeed = 0.0f;
+        return;
+    }
+
+    // Can only START grabbing while airborne and falling.
+    // In your current motor, taking_jump means "grounded / can jump".
+    const bool can_start_grab =
+        !motor.taking_jump &&
+        !motor.hurt &&
+        dy < 0.0f;
+
+    if (can_start_grab && CheckWallGrab(body, dy, motor, world)) {
+        motor.grabbing = true;
         motor.vspeed = 0.0f;
         return;
     }
@@ -451,17 +452,20 @@ void PlayerController::onUpdate(float dt) {
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
 
+    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+    DEV_ASSERT(tile_world);
+
     motor_.hspeed = static_cast<float>(move_x);
     UpdateFacing(motor_);
 
-    // @TODO: fix this part
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
-    DEV_ASSERT(tile_world);
-    motor_.grabbing = CheckWallGrab(ComputeWorldAABB(*transform, *collider), motor_.vspeed * dt, motor_, *tile_world);
+    // Jump is allowed to cancel grabbing.
     TryJump(motor_, jump_pressed);
+
+    // Movement.
     MoveHorizontal(*transform, *collider, motor_, *tile_world, dt);
     MoveVertical(*transform, *collider, motor_, *tile_world, dt);
 
+    // State + animation after movement/collision.
     UpdatePlayerState(motor_);
     updateAnimation(query);
 

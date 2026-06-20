@@ -98,8 +98,6 @@ void SpriteAnimationEditor::DrawMainView(const CameraComponent& p_camera) {
     // m_document->FlushCommands();
 }
 
-
-
 #endif
 
 }  // namespace cave
