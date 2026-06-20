@@ -422,17 +422,13 @@ void PropertyPanel::drawUIImpl() {
     DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& p_collider) {
         DrawComponentAuto<ColliderComponent>(&p_collider, ctx);
 
-        Shape& shape = p_collider.GetShape();
+        Shape& shape = p_collider.shape();
         DrawEnumDropDown("shape", shape.type, ui::kDefaultColumnWidth);
         switch (shape.type) {
             case ShapeType::Round: {
                 ui::InputFloat("radius", shape.data.radius);
             } break;
             case ShapeType::Box: {
-                // if (is_2d) {
-                //     ui::Float2("half", reinterpret_cast<math::Vector2f&>(shape.data.half), 0.5f);
-                // } else {
-                // }
                 ui::Float3("half", shape.data.half, 0.5f);
             } break;
             default:

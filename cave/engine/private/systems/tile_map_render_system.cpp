@@ -7,13 +7,12 @@
 
 namespace cave {
 
-void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
-    if (!p_scene) {
+void RunTileMapRenderSystem(Scene* scene, FrameData& framedata) {
+    if (!scene) {
         return;
     }
 
-    Scene& scene = *p_scene;
-    auto view = scene.view<TileMapInstanceComponent>();
+    auto view = scene->view<TileMapInstanceComponent>();
     for (const auto& [id, tile_map_renderer] : view) {
         tile_map_renderer.createRenderData();
 
@@ -26,7 +25,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
             continue;
         }
 
-        const TransformComponent& transform = *scene.component<TransformComponent>(id);
+        const TransformComponent& transform = *scene->component<TransformComponent>(id);
 
         const math::Mat4f& world_matrix = transform.GetWorldMatrix();
         PerBatchConstantBuffer batch_buffer;
@@ -36,7 +35,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
         DrawItem draw;
         draw.index.count = cache.mesh->desc.drawCount;
         draw.mesh_data = cache.mesh.get();
-        draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
+        draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch_buffer);
 
         ImageAsset* image = cache.image.Get();
         if (image) {
@@ -45,7 +44,7 @@ void RunTileMapRenderSystem(Scene* p_scene, FrameData& p_framedata) {
             // @TODO: dummy sprite?
         }
 
-        p_framedata.tile_maps.push_back(draw);
+        framedata.tile_maps.push_back(draw);
     }
 }
 

@@ -7,6 +7,8 @@
 
 namespace cave {
 
+using namespace ::cave::math;
+
 void TileSetAsset::row(uint32_t row) {
     if (row == 0) return;
     if (row == row_) return;
@@ -31,7 +33,7 @@ void TileSetAsset::tileScale(float scale) {
 
 bool TileSetAsset::addBoxCollider(uint32_t tile_id) {
     if (tile_id < static_cast<uint32_t>(frames_.size())) {
-        colliders_[tile_id] = Shape::MakeBox(math::Vec2f(0.5f));
+        colliders_[tile_id] = Shape::makeBox(Vec2f(0.5f));
         return true;
     }
     return false;
@@ -96,7 +98,7 @@ void TileSetAsset::updateFrames() {
             const float v1 = (y + 0) * inv_h;
 #endif
 
-            frames_.push_back(math::Box2({ u0, v0 }, { u1, v1 }));
+            frames_.push_back(Box2({ u0, v0 }, { u1, v1 }));
         }
     }
 

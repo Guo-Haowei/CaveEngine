@@ -41,7 +41,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     {
         auto view = p_scene.view<ColliderComponent, VelocityComponent>();
         for (auto [id, collider, vel] : view) {
-            b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
+            b2BodyId body_id = std::bit_cast<b2BodyId>(collider.user_data_);
             b2Body_SetLinearVelocity(body_id, { vel.linear.x, vel.linear.y });
         }
     }
@@ -52,7 +52,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     // 3. sync speed and position
     auto view = p_scene.view<ColliderComponent, TransformComponent>();
     for (auto [id, collider, transform] : view) {
-        b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
+        b2BodyId body_id = std::bit_cast<b2BodyId>(collider.user_data_);
 
         b2Vec2 position = b2Body_GetPosition(body_id);
         [[maybe_unused]] b2Rot rotation = b2Body_GetRotation(body_id);
@@ -92,7 +92,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
         b2ShapeDef shape_def = b2DefaultShapeDef();
 
-        switch (collider.GetBodyType()) {
+        switch (collider.bodyType()) {
             case BodyType::Static: {
                 body_def.type = b2_staticBody;
             } break;
@@ -109,14 +109,14 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
         b2BodyId body_id = b2CreateBody(world_id, &body_def);
 
-        const Shape& shape = collider.GetShape();
+        const Shape& shape = collider.shape();
         switch (shape.type) {
             case ShapeType::Box: {
                 const auto& half = shape.data.half;
                 b2Polygon box = b2MakeBox(half.x, half.y);
                 b2CreatePolygonShape(body_id, &shape_def, &box);
 
-                collider.m_user_data = std::bit_cast<size_t>(body_id);
+                collider.user_data_ = std::bit_cast<size_t>(body_id);
             } break;
             default:
                 break;

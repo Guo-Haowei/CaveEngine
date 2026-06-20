@@ -206,7 +206,7 @@ TEST(ChunkedTileData, AddingEmptyTileIdShouldNotBeAllowed) {
     ChunkedTileData data;
     (void)data;
 
-    EXPECT_DEATH(data.addTile(TileCoord{0, 0}, kEmptyTileId), "");
+    EXPECT_DEATH(data.addTile(TileCoord{ 0, 0 }, kEmptyTileId), "");
 }
 
 }  // namespace cave

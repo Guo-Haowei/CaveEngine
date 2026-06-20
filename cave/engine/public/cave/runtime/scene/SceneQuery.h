@@ -6,6 +6,8 @@
 #include "cave/core/math/Ray.h"
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/ecs/Entity.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/scene/ISceneSystem.h"
 
 namespace cave {
 
@@ -33,10 +35,20 @@ public:
     explicit SceneQuery(Scene& scene) noexcept
         : scene_(scene) {}
 
+    ISceneSystem* system(SceneSystemId id);
+    template<SceneSystem T>
+    T* system() {
+        return static_cast<T*>(system(T::kSystemId));
+    }
+
     ecs::Entity findFirstByName(std::string_view name) const;
 
     void* component(ComponentId cid, ecs::Entity ent);
     const void* component(ComponentId cid, ecs::Entity ent) const;
+    template<ComponentType T>
+    T* component(ecs::Entity ent) { return (T*)component(T::kId, ent); }
+    template<ComponentType T>
+    const T* component(ecs::Entity ent) const { return (const T*)component(T::kId, ent); }
 
     size_t componentCount(ComponentId cid) const;
 

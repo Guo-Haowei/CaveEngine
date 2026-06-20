@@ -11,44 +11,44 @@ Shape::Shape() {
     data.half = Vec3f(0.5f);
 }
 
-Shape Shape::MakeBox(const Vec2f& p_half) {
+Shape Shape::makeBox(const Vec2f& half) {
     Shape shape;
     shape.type = ShapeType::Box;
-    shape.data.half.xy = p_half;
+    shape.data.half.xy = half;
     return shape;
 }
 
-Shape Shape::MakeBox(const Vec3f& p_half) {
+Shape Shape::makeBox(const Vec3f& half) {
     Shape shape;
     shape.type = ShapeType::Box;
-    shape.data.half = p_half;
+    shape.data.half = half;
     return shape;
 }
 
-Shape Shape::MakeRound(float p_radius) {
+Shape Shape::makeRound(float radius) {
     Shape shape;
     shape.type = ShapeType::Round;
-    shape.data.radius = p_radius;
+    shape.data.radius = radius;
     return shape;
 }
 
-ISerializer& WriteObject(ISerializer& s, const Shape& p_shape) {
+ISerializer& WriteObject(ISerializer& s, const Shape& shape) {
     s.BeginMap(false)
         .Key("type")
-        .Write(p_shape.type)
+        .Write(shape.type)
         .Key("data")
-        .Write(p_shape.data.half);
+        .Write(shape.data.half);
     s.EndMap();
     return s;
 }
 
-bool ReadObject(IDeserializer& d, Shape& p_shape) {
+bool ReadObject(IDeserializer& d, Shape& shape) {
     if (d.TryEnterKey("type")) {
-        d.Read(p_shape.type);
+        d.Read(shape.type);
         d.LeaveKey();
     }
     if (d.TryEnterKey("data")) {
-        d.Read(p_shape.data.half);
+        d.Read(shape.data.half);
         d.LeaveKey();
     }
     return true;
