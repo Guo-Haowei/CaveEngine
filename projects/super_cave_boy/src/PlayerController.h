@@ -6,14 +6,23 @@
 namespace super_cave_boy {
 
 struct LegacyPlayerMotor {
-    float hspeed = 0.0f;  // -1, 0, 1
-    float vspeed = 0.0f;
     float speed = 4.0f;
 
-    bool grabbing = false;
+    float hspeed = 0.0f;
+    float vspeed = 0.0f;
+
     bool taking_jump = false;
+    bool landed = false;
+    bool grabbing = false;
+    bool hurt = false;
+    bool pausing = false;
+
+    int health = 3;
+    int sapphire = 0;
 
     // Direction face = Direction::Right;
+
+    // PlayerState state = PlayerState::Jumping;
 };
 
 class PlayerController : public ::cave::NativeScript {
@@ -21,7 +30,6 @@ class PlayerController : public ::cave::NativeScript {
 
 public:
     void onCreate() override;
-    void onDestroy() override;
 
     void onUpdate(float dt) override;
 
