@@ -255,14 +255,12 @@ bool CheckWallGrab(
         // Player is on left side of tile, touching tile's left edge.
         if (NearlyEqual(body.Max().x, solid.Min().x, kGrabEps)) {
             motor.grabbing = true;
-            // motor.face = Direction::Right;
             return true;
         }
 
         // Player is on right side of tile, touching tile's right edge.
         if (NearlyEqual(body.Min().x, solid.Max().x, kGrabEps)) {
             motor.grabbing = true;
-            // motor.face = Direction::Left;
             return true;
         }
     }
@@ -361,6 +359,38 @@ void TryJump(LegacyPlayerMotor& motor, bool jump_pressed) {
     }
 }
 
+void UpdateFacing(LegacyPlayerMotor& motor) {
+    if (motor.hspeed < 0.0f) {
+        motor.facing = Facing::Left;
+    } else if (motor.hspeed > 0.0f) {
+        motor.facing = Facing::Right;
+    }
+}
+
+void UpdatePlayerState(LegacyPlayerMotor& motor) {
+    if (motor.hurt) {
+        motor.state = PlayerState::Hurt;
+        return;
+    }
+
+    if (motor.grabbing) {
+        motor.state = PlayerState::Grab;
+        return;
+    }
+
+    if (!motor.taking_jump) {
+        motor.state = PlayerState::Air;
+        return;
+    }
+
+    if (motor.hspeed != 0.0f) {
+        motor.state = PlayerState::Walk;
+        return;
+    }
+
+    motor.state = PlayerState::Idle;
+}
+
 }  // namespace
 
 void PlayerController::onCreate() {
@@ -370,6 +400,47 @@ void PlayerController::onCreate() {
     // @TODO: set player position
 }
 
+void PlayerController::updateAnimation(SceneQuery& query) {
+    auto animator = query.component<SpriteAnimatorComponent>(animator_);
+    auto transform = query.component<TransformComponent>(entity());
+
+    DEV_ASSERT(animator);
+    DEV_ASSERT(transform);
+
+    switch (motor_.state) {
+        case PlayerState::Idle:
+            animator->SetClip("idle");
+            break;
+
+        case PlayerState::Walk:
+            animator->SetClip("walk");
+            break;
+
+        case PlayerState::Air:
+            if (motor_.vspeed > 0.0f) {
+                animator->SetClip("jump");
+            } else {
+                animator->SetClip("jump");
+            }
+            break;
+
+        case PlayerState::Grab:
+            animator->SetClip("grab");
+            break;
+
+        case PlayerState::Hurt:
+            // animator->SetClip("hurt");
+            break;
+    }
+
+    const Vec4f rotation =
+        motor_.facing == Facing::Left
+            ? Vec4f{ 0.0f, 1.0f, 0.0f, 0.0f }
+            : Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
+
+    transform->SetRotation(rotation);
+}
+
 void PlayerController::onUpdate(float dt) {
     const IGameInput& input = context().game_input;
     SceneQuery query(context().scene);
@@ -377,23 +448,11 @@ void PlayerController::onUpdate(float dt) {
     const int move_x = (int)input.isPressed("ui_right"_sid) - (int)input.isPressed("ui_left"_sid);
     const bool jump_pressed = input.isPressed("ui_up"_sid);
 
-    auto animator = query.component<SpriteAnimatorComponent>(animator_);
-    DEV_ASSERT(animator);
-
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
 
-    // @TODO: fix this part
-    if (move_x == 0 && !jump_pressed) {
-        animator->SetClip("idle");
-    } else {
-        animator->SetClip("walk");
-
-        Vec4f rotation = move_x < 0 ? Vec4f{ 0.0f, 1.0f, 0.0f, 0.0f } : Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
-        transform->SetRotation(rotation);
-    }
-
     motor_.hspeed = static_cast<float>(move_x);
+    UpdateFacing(motor_);
 
     // @TODO: fix this part
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
@@ -402,6 +461,9 @@ void PlayerController::onUpdate(float dt) {
     TryJump(motor_, jump_pressed);
     MoveHorizontal(*transform, *collider, motor_, *tile_world, dt);
     MoveVertical(*transform, *collider, motor_, *tile_world, dt);
+
+    UpdatePlayerState(motor_);
+    updateAnimation(query);
 
     drawDebug();
 }

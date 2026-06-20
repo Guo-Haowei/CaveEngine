@@ -3,6 +3,10 @@
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
+// clang-format off
+namespace cave { class SceneQuery; }
+// clang-format on
+
 namespace super_cave_boy {
 
 enum class PlayerState {
@@ -30,7 +34,7 @@ struct LegacyPlayerMotor {
     bool hurt = false;
     bool pausing = false;
 
-    Facing face = Facing::Right;
+    Facing facing = Facing::Right;
     PlayerState state = PlayerState::Air;
 };
 
@@ -44,6 +48,7 @@ public:
 
 private:
     void drawDebug();
+    void updateAnimation(cave::SceneQuery& query);
 
     Entity animator_;
 
