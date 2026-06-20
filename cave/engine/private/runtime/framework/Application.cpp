@@ -70,7 +70,6 @@ auto Application::SetupModules() -> Result<void> {
 
     asset_manager_ = CreateAssetService();
     asset_registry_ = new AssetRegistry();
-    m_physics_manager = CreatePhysicsService();
     render_device_ = CreateRenderDevice(m_spec.backend);
     display_service_ = CreateDisplayService();
     input_service_ = new cave::InputService();
@@ -116,7 +115,6 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(task_manager_);
     RegisterModule(asset_manager_);
     RegisterModule(asset_registry_);
-    RegisterModule(m_physics_manager);
     RegisterModule(input_service_);
     RegisterModule(display_service_);
     RegisterModule(render_device_);

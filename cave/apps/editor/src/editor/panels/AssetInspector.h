@@ -7,10 +7,16 @@ namespace cave {
 
 struct EditorServices;
 
-class TileMapAsset;
-class TileSetAsset;
 class IDocument;
+class SpriteAnimationAsset;
+class TileMapAsset;
 class TileMapDocument;
+class TileSetAsset;
+
+struct SpriteAnimationContext {
+    std::string clip_name;
+    SpriteSelector sprite_selector{ SpriteSelector::SelectionMode::Multi };
+};
 
 class AssetInspector : public EditorWindow {
 public:
@@ -30,6 +36,7 @@ protected:
 
     void drawTileMap(TileMapDocument& doc);
     void drawTileSet(IDocument& doc);
+    void drawSpriteAnimation(IDocument& doc);
 
     void tileMapLayerOverview(TileMapAsset& tile_map);
 
@@ -38,6 +45,7 @@ protected:
     uint64_t checkerboard_{};
 
     TileMapEditorContext tile_map_ctx_;
+    SpriteAnimationContext sprite_animation_ctx_;
 };
 
 }  // namespace cave

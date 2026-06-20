@@ -2,6 +2,10 @@ version: 0
 content:
   image_guid: 7AA74195-1D78-4841-9920E8650E8DE22A
   clips:
+    grab:
+      frames: [{min: [0.375, 1], max: [0.5, 0.5]}]
+      durations: [1]
+      loop: true
     idle:
       frames: [{min: [0.625, 1], max: [0.75, 0.5]}]
       durations: [1]

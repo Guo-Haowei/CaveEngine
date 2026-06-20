@@ -18,7 +18,6 @@ class CommandRegistry;
 class Console;
 class EventQueue;
 class ImguiManager;
-class IPhysicsManager;
 
 struct AppSpec {
     std::string_view userFolder;
@@ -70,7 +69,6 @@ public:
     virtual EventQueue& GetEventQueue() = 0;
 
     // @TODO: return reference instead
-    IPhysicsManager* GetPhysicsManager() { return m_physics_manager; }
     ImguiManager* GetImguiManager() { return m_imgui_manager; }
 
     CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
@@ -94,7 +92,6 @@ protected:
 
     // @TODO: move the following to services
     // also need subsystems
-    IPhysicsManager* m_physics_manager{};
     ImguiManager* m_imgui_manager{};
 
     cave::CommandRegistry* m_cmd_reg{ nullptr };

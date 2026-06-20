@@ -37,10 +37,6 @@ DisplayService* CreateDisplayService() {
     return CreateModule<DisplayService, NullDisplayService>();
 }
 
-IPhysicsManager* CreatePhysicsService() {
-    return CreateModule<IPhysicsManager, EmptyPhysicsManager>();
-}
-
 // @TODO: move to RHI
 static IRenderDevice* SelectRenderDevice(Backend p_backend) {
     if (p_backend == Backend::Direct3D11) {

@@ -1,7 +1,8 @@
-#include "box2d_physics_manager.h"
+#include "Box2dPhysicsSystem.h"
 
 #include <box2d/box2d.h>
 
+#include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
@@ -16,30 +17,27 @@ using namespace cave::math;
 static_assert(sizeof(b2WorldId) == sizeof(uint32_t));
 static_assert(sizeof(b2BodyId) == sizeof(uint64_t));
 
-Result<void> Box2dPhysicsManager::InitializeImpl() {
-    return Result<void>();
-}
-
-void Box2dPhysicsManager::FinalizeImpl() {
-    OnSimEnd();
-}
-
 static b2WorldId GetWorldId(uint32_t p_raw_id) {
     return std::bit_cast<b2WorldId>(p_raw_id);
 }
 
-void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
+Box2dPhysicsSystem::Box2dPhysicsSystem()
+    : debug_id_(MakeDebugId(this)) {
+}
+
+void Box2dPhysicsSystem::update(float dt) {
     constexpr int sub_step_count = 4;
 
-    if (m_world_id.is_none()) {
+    if (world_id_.is_none()) {
         return;
     }
 
-    b2WorldId world_id = GetWorldId(m_world_id.unwrap_unchecked());
+    b2WorldId world_id = GetWorldId(world_id_.unwrap_unchecked());
+    Scene& scene = context().scene;
 
     // 1. set speed
     {
-        auto view = p_scene.view<ColliderComponent, VelocityComponent>();
+        auto view = scene.view<ColliderComponent, VelocityComponent>();
         for (auto [id, collider, vel] : view) {
             b2BodyId body_id = std::bit_cast<b2BodyId>(collider.user_data_);
             b2Body_SetLinearVelocity(body_id, { vel.linear.x, vel.linear.y });
@@ -47,10 +45,10 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     }
 
     // 2. simulate
-    b2World_Step(world_id, p_timestep, sub_step_count);
+    b2World_Step(world_id, dt, sub_step_count);
 
     // 3. sync speed and position
-    auto view = p_scene.view<ColliderComponent, TransformComponent>();
+    auto view = scene.view<ColliderComponent, TransformComponent>();
     for (auto [id, collider, transform] : view) {
         b2BodyId body_id = std::bit_cast<b2BodyId>(collider.user_data_);
 
@@ -63,7 +61,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
         transform.SetTranslation(translation);
         transform.SetDirty();
 
-        if (VelocityComponent* vel = p_scene.component<VelocityComponent>(id); vel) {
+        if (VelocityComponent* vel = scene.component<VelocityComponent>(id); vel) {
             b2Vec2 linear = b2Body_GetLinearVelocity(body_id);
             vel->linear.x = linear.x;
             vel->linear.y = linear.y;
@@ -71,20 +69,22 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     }
 }
 
-void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
+void Box2dPhysicsSystem::onAttach() {
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = { 0.0f, -20.0f };
     b2WorldId world_id = b2CreateWorld(&worldDef);
 
-    m_world_id = Some(std::bit_cast<uint32_t>(world_id));
+    world_id_ = Some(std::bit_cast<uint32_t>(world_id));
 
-    for (auto [id, collider, transform] : p_scene.view<ColliderComponent, TransformComponent>()) {
+    Scene& scene = context().scene;
+
+    for (auto [id, collider, transform] : scene.view<ColliderComponent, TransformComponent>()) {
         Vec4f position = transform.GetWorldMatrix() * Vec4f::UnitW;
         b2BodyDef body_def = b2DefaultBodyDef();
         body_def.position = { position.x, position.y };
         body_def.fixedRotation = true;
 #if USING(DEBUG_BUILD)
-        const NameComponent* name = p_scene.component<NameComponent>(id);
+        const NameComponent* name = scene.component<NameComponent>(id);
         if (name) {
             body_def.name = name->GetName().data();
         }
@@ -123,7 +123,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
         }
     }
 
-    for (auto [id, tile_map_renderer, transform] : p_scene.view<TileMapInstanceComponent, TransformComponent>()) {
+    for (auto [id, tile_map_renderer, transform] : scene.view<TileMapInstanceComponent, TransformComponent>()) {
         const TileMapAsset* tile_map = tile_map_renderer.tileMapHandle().Get();
         if (!tile_map) continue;
         const TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
@@ -162,14 +162,14 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
     }
 }
 
-void Box2dPhysicsManager::OnSimEnd() {
-    if (m_world_id.is_none()) {
+void Box2dPhysicsSystem::onDetach() {
+    if (world_id_.is_none()) {
         return;
     }
 
-    b2WorldId world_id = GetWorldId(m_world_id.unwrap_unchecked());
+    b2WorldId world_id = GetWorldId(world_id_.unwrap_unchecked());
     b2DestroyWorld(world_id);
-    m_world_id = None();
+    world_id_ = None();
 }
 
 }  // namespace cave

@@ -4,17 +4,14 @@
 #pragma once
 #include "TileData.h"
 
+#include "cave/core/math/Box.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 
 namespace cave {
 
-struct TileQueryResult {
+struct TileHit {
     TileCoord coord{};
-};
-
-struct TileAabbQueryResult {
-    bool hit = false;
-    TileQueryResult first_hit{};
+    math::Box2 aabb;
 };
 
 class TileWorldSystem final : public ISceneSystem {
@@ -30,6 +27,8 @@ public:
     bool isSolid(TileCoord coord) const {
         return rigid_tiles_.tileAt(coord).is_some();
     }
+
+    std::vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
 
 protected:
     void onAttach() override;

@@ -40,7 +40,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0.699211895, 0, 0]
+      translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     PrefabInstanceComponent:
@@ -63,4 +63,4 @@ entities:
       aspect: 1.77999997
       ortho_height: 10
     NativeScriptComponent:
-      name: "CameraController"
+      name: CameraController

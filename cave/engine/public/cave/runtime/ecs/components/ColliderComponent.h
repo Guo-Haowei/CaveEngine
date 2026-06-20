@@ -92,7 +92,7 @@ private:
     // Non-serialized
     mutable uint64_t user_data_ = 0;
 
-    friend class Box2dPhysicsManager;
+    friend class Box2dPhysicsSystem;
     friend class Bullet3PhysicsManager;
 
 public:

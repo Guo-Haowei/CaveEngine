@@ -113,6 +113,8 @@ elseif(EMSCRIPTEN)
     list(APPEND TARGET_LIBS
         opengles_3_backend
     )
+else()
+    message(FATAL_ERROR "Platform not supported")
 endif()
 
 target_link_libraries(${TARGET_NAME} PUBLIC ${TARGET_LIBS})
