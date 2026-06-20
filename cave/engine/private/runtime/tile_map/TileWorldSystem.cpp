@@ -13,6 +13,36 @@ namespace cave {
 
 using namespace ::cave::math;
 
+namespace {
+
+struct TileRange {
+    int16_t min_x = 0;
+    int16_t min_y = 0;
+    int16_t max_x = 0;
+    int16_t max_y = 0;
+};
+
+inline TileCoord WorldToTile(Vec2f world_pos, float tile_size) {
+    return TileCoord{
+        static_cast<int16_t>(std::floor(world_pos.x / tile_size)),
+        static_cast<int16_t>(std::floor(world_pos.y / tile_size))
+    };
+}
+
+inline TileRange GetTileRangeFromAABB(const Box2& aabb, float tile_size) {
+    TileCoord min_tile = WorldToTile(aabb.Min(), tile_size);
+    TileCoord max_tile = WorldToTile(aabb.Max(), tile_size);
+
+    return TileRange{
+        min_tile.x,
+        min_tile.y,
+        max_tile.x,
+        max_tile.y
+    };
+}
+
+}  // namespace
+
 TileWorldSystem::TileWorldSystem()
     : debug_id_(MakeDebugId(this)) {}
 
@@ -22,6 +52,38 @@ void TileWorldSystem::onAttach() {
 
 void TileWorldSystem::onDetach() {
     rigid_tiles_.chunks().clear();
+}
+
+std::vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) const {
+    std::vector<TileHit> result;
+
+    const float tile_size = 1.0f;
+    TileRange range = GetTileRangeFromAABB(aabb, tile_size);
+
+    for (int16_t y = range.min_y; y <= range.max_y; ++y) {
+        for (int16_t x = range.min_x; x <= range.max_x; ++x) {
+            TileCoord coord{ x, y };
+            if (!isSolid(coord)) {
+                continue;
+            }
+
+            Vec2f tile_min{
+                static_cast<float>(x) * tile_size,
+                static_cast<float>(y) * tile_size
+            };
+
+            Vec2f tile_max = tile_min + Vec2f(tile_size, tile_size);
+
+            Box2 tile_aabb{
+                tile_min,
+                tile_max,
+            };
+
+            result.push_back({ coord, tile_aabb });
+        }
+    }
+
+    return result;
 }
 
 void TileWorldSystem::rebuildCollision() {

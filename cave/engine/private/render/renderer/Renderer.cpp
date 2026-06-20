@@ -38,6 +38,8 @@ extern void RunTileMapRenderSystem(Scene* scene, FrameData& framedata);
 
 extern void RunSpriteRenderSystem(const Scene* scene, FrameData& framedata);
 
+extern void RunDebugRenderSystem(const Scene* scene, IDebugDrawService& debug_draw);
+
 }  // namespace cave
 
 namespace cave::render {
@@ -354,6 +356,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         runMeshRenderSystem(*view.scene, render_scene, view, framedata);
         RunTileMapRenderSystem(view.scene, framedata);
         RunSpriteRenderSystem(view.scene, framedata);
+        RunDebugRenderSystem(view.scene, debug_draw_);
         fillEnvConstants(framedata);
 
         // @HACK: only support first scene
