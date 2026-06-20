@@ -1,7 +1,7 @@
 #include "cave/runtime/tile_map/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "engine/private/core/io/file_access.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/serialization/yaml_include.h"
 

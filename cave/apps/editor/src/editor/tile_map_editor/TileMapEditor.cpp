@@ -5,6 +5,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/display/IDebugDrawService.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "editor/EditorState.h"
 #include "editor/panels/AssetInspector.h"
@@ -16,7 +17,6 @@
 // @TODO: remove
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
 
 namespace cave {
 

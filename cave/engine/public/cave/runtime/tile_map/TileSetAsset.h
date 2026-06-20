@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/runtime/tile_map/TileSetAsset.h
+// =============================================================================
 #pragma once
 #include "cave/core/math/Box.h"
 #include "cave/core/reflection/Reflection.h"

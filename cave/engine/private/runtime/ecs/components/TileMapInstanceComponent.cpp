@@ -1,7 +1,7 @@
 #include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 
-#include "engine/private/runtime/assets/TileSetAsset.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/gpu_resource.h"

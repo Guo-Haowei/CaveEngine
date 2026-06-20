@@ -17,7 +17,6 @@ struct TileAabbQueryResult {
     TileQueryResult first_hit{};
 };
 
-
 class TileWorldSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::TileWorld)
 
@@ -39,4 +38,3 @@ private:
 };
 
 }  // namespace cave
-

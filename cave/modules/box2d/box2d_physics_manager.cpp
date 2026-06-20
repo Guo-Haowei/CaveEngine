@@ -3,9 +3,9 @@
 #include <box2d/box2d.h>
 
 #include "cave/runtime/tile_map/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
 

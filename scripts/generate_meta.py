@@ -28,6 +28,7 @@ FILES = [
 
     'public/cave/runtime/tile_map/TileMapInstanceComponent.h',
     'public/cave/runtime/tile_map/TileMapAsset.h',
+    'public/cave/runtime/tile_map/TileSetAsset.h',
 
     'public/cave/runtime/script/lua/LuaScriptComponent.h',
     'public/cave/runtime/script/native/NativeScriptComponent.h',
@@ -37,7 +38,6 @@ FILES = [
 
     'private/runtime/assets/MaterialAsset.h',
     'private/runtime/assets/SpriteAnimationAsset.h',
-    'private/runtime/assets/TileSetAsset.h',
     # components
     'private/runtime/ecs/components/SceneComponents.h',
 ]

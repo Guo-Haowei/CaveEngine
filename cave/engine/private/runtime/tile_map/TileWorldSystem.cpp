@@ -4,10 +4,7 @@
 #include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
-
-
-// @TODO: make TileSetAsset public
-#include "engine/private/runtime/assets/TileSetAsset.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"

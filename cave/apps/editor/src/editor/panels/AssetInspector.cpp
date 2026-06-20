@@ -2,6 +2,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "cave/runtime/tile_map/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "editor/document/TileMapDocument.h"
 #include "editor/services/DocumentService.h"
@@ -14,7 +15,6 @@
 #include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
 
 #include "editor/EditorState.h"
 

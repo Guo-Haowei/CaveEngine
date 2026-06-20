@@ -6,6 +6,7 @@
 #include "cave/core/threading/Threads.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/tile_map/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/io/file_access.h"
@@ -15,7 +16,6 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IAsyncTask.h"
