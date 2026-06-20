@@ -20,8 +20,6 @@ target_include_directories(${TARGET_NAME} PRIVATE
 set(TARGET_LIBS
     engine
     imnodes
-    box2d_physics_manager
-    bullet3_physics_manager
 )
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_LIBS})

@@ -1,4 +1,3 @@
-#pragma once
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"

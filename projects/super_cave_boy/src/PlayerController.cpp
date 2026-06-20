@@ -22,7 +22,7 @@ using ::cave::ecs::Entity;
 
 namespace {
 
-constexpr float kGravity = -35.0f;  // world units / second^2, tune this
+constexpr float kGravity = -35.0f;   // world units / second^2, tune this
 constexpr float kJumpForce = 14.0f;  // world units / second, tune this
 constexpr float kWallJumpForce = 9.5f;
 constexpr float kStepOffset = 0.05f;
@@ -383,7 +383,7 @@ void PlayerController::onUpdate(float dt) {
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
 
-    // @TODO: later
+    // @TODO: fix this part
     if (move_x == 0 && !jump_pressed) {
         animator->SetClip("idle");
     } else {
@@ -395,22 +395,21 @@ void PlayerController::onUpdate(float dt) {
 
     motor_.hspeed = static_cast<float>(move_x);
 
+    // @TODO: fix this part
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
-
-    // Order close to old JS:
-    // 1. input
-    // 2. grab/jump
-    // 3. vertical
-    // 4. horizontal/state movement
     motor_.grabbing = CheckWallGrab(ComputeWorldAABB(*transform, *collider), motor_.vspeed * dt, motor_, *tile_world);
     TryJump(motor_, jump_pressed);
     MoveHorizontal(*transform, *collider, motor_, *tile_world, dt);
     MoveVertical(*transform, *collider, motor_, *tile_world, dt);
 
-    //-------------------------------------
-    // debug draw, ignore
-    //-------------------------------------
+    drawDebug();
+}
+
+void PlayerController::drawDebug() {
+    SceneQuery query(context().scene);
+    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+
     constexpr Vec4f kPlayerColor(0, 0, 1, 0.9f);
     constexpr Vec4f kTileColor(1, 0, 0, 0.9f);
     constexpr float tile_size = 1.0f;

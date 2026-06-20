@@ -13,8 +13,13 @@ enum class PlayerState {
     Hurt,
 };
 
+enum class Facing {
+    Left,
+    Right,
+};
+
 struct LegacyPlayerMotor {
-    float speed = 5.5f;
+    const float speed = 5.5f;
 
     float hspeed = 0.0f;
     float vspeed = 0.0f;
@@ -25,11 +30,7 @@ struct LegacyPlayerMotor {
     bool hurt = false;
     bool pausing = false;
 
-    int health = 3;
-    int sapphire = 0;
-
-    // Direction face = Direction::Right;
-
+    Facing face = Facing::Right;
     PlayerState state = PlayerState::Air;
 };
 
@@ -42,6 +43,8 @@ public:
     void onUpdate(float dt) override;
 
 private:
+    void drawDebug();
+
     Entity animator_;
 
     LegacyPlayerMotor motor_;

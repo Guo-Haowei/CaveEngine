@@ -14,7 +14,7 @@ FetchContent_MakeAvailable(box2d)
 
 set_target_properties(box2d PROPERTIES FOLDER thirdparty)
 
-set(TARGET_NAME box2d_physics_manager)
+set(TARGET_NAME box2d_physics_system)
 
 file(GLOB_RECURSE SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.h"

@@ -5,7 +5,6 @@
 #include "engine/private/runtime/framework/EntryPoint.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
-#include "modules/box2d/box2d_physics_manager.h"
 #include "modules/bullet3/bullet3_physics_manager.h"
 
 #include "editor/EditorAssetManager.h"
@@ -138,17 +137,6 @@ int main(int p_argc, const char** p_argv) {
     DisplayService::RegisterCreateFunc([]() -> DisplayService* {
         return new GlfwDisplayService();
     });
-
-    // @TODO: figure out a way to create it cleanly
-#if !USING(PLATFORM_WASM)
-    IPhysicsManager::RegisterCreateFunc([]() -> IPhysicsManager* {
-        if (DVAR_GET_BOOL(is_world_2d)) {
-            return new Box2dPhysicsManager();
-        } else {
-            return new Bullet3PhysicsManager();
-        }
-    });
-#endif
 
     return Main(p_argc, p_argv);
 }

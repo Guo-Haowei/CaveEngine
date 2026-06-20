@@ -19,6 +19,6 @@ if(CAVE_BUILD_ASSIMP)
 endif()
 
 if(NOT EMSCRIPTEN)
-    add_subdirectory(box2d)
-    add_subdirectory(bullet3)
+    # add_subdirectory(box2d)
+    # add_subdirectory(bullet3)
 endif()
