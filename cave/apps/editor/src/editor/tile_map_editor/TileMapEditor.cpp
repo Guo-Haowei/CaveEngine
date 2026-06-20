@@ -143,18 +143,29 @@ void TileMapEditor::applayEditorTool() {
     TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
 
     Option<TileId> old_tile = tile_map->tiles().tileAt(coord_);
-    Option<TileId> new_tile = Some(kEmptyTileId);
+    Option<TileId> new_tile = None();
 
-    if (mode_ == Mode::Painting) {
-        auto selections = ctx_.sprite_selector.GetSelections();
-        if (!selections.empty()) {
+    switch (mode_) {
+        case cave::TileMapEditor::Mode::None:
+            return;
+        case cave::TileMapEditor::Mode::Painting: {
+            auto selections = ctx_.sprite_selector.GetSelections();
+            if (selections.empty()) {
+                return;
+            }
             auto [x, y] = selections[0];
             if (x >= 0 && y >= 0) {
                 TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
                 const uint32_t tile_id = y * tile_set->col() + x;
                 new_tile = Some(TileId(tile_id));
             }
-        }
+        } break;
+        case cave::TileMapEditor::Mode::Erasing: {
+            // old tile is already None
+            if (old_tile.unwrap_or(kEmptyTileId) == kEmptyTileId) {
+                return;
+            }
+        } break;
     }
 
     if (old_tile == new_tile) {

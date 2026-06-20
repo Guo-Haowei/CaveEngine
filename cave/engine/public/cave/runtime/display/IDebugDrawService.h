@@ -22,8 +22,8 @@ public:
     virtual void addBox2Frame(const math::Vec2f& min,
                               const math::Vec2f& max,
                               const math::Vec4f& color,
-                              const math::Mat4f* transform = nullptr,
-                              float thickness = 0.1f) = 0;
+                              float thickness = 0.1f,
+                              const math::Mat4f* transform = nullptr) = 0;
 
     virtual void addBox2(const math::Vec2f& min,
                          const math::Vec2f& max,

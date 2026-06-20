@@ -23,7 +23,13 @@ class TileWorldSystem final : public ISceneSystem {
 public:
     TileWorldSystem();
 
+    const ChunkedTileData& rigidTiles() const { return rigid_tiles_; }
+
     DebugId debugId() const override { return debug_id_; }
+
+    bool isSolid(TileCoord coord) const {
+        return rigid_tiles_.tileAt(coord).is_some();
+    }
 
 protected:
     void onAttach() override;
@@ -34,7 +40,7 @@ private:
 
     const DebugId debug_id_;
 
-    ChunkedTileData collision_tiles_;
+    ChunkedTileData rigid_tiles_;
 };
 
 }  // namespace cave

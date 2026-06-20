@@ -11,6 +11,8 @@
 
 namespace cave {
 
+using namespace ::cave::math;
+
 TileWorldSystem::TileWorldSystem()
     : debug_id_(MakeDebugId(this)) {}
 
@@ -19,13 +21,15 @@ void TileWorldSystem::onAttach() {
 }
 
 void TileWorldSystem::onDetach() {
-    collision_tiles_.chunks().clear();
+    rigid_tiles_.chunks().clear();
 }
 
 void TileWorldSystem::rebuildCollision() {
     auto view = context().scene.view<TileMapInstanceComponent, TransformComponent>();
     for (auto [ent, instance, transform] : view) {
         TileMapAsset* tile_map = instance.tileMapHandle().Get();
+        Vec2f offset = transform.GetTranslation().xy;
+
         if (!tile_map) {
             CRASH_NOW_MSG("TileMapAsset is null");
             continue;
@@ -37,7 +41,7 @@ void TileWorldSystem::rebuildCollision() {
             continue;
         }
 
-        for (auto&& [coord, chunk] : tile_map->tiles().chunks()) {
+        for (auto&& [chunk_coord, chunk] : tile_map->tiles().chunks()) {
             if (!chunk) {
                 continue;
             }
@@ -45,12 +49,16 @@ void TileWorldSystem::rebuildCollision() {
             for (int16_t y = 0; y < kTileChunkSize; ++y) {
                 for (int16_t x = 0; x < kTileChunkSize; ++x) {
                     TileId tile_id = chunk->at(x, y);
+                    if (tile_id == kEmptyTileId) continue;
                     auto res = tile_set->getCollider(tile_id);
                     if (res.is_none()) continue;
                     Shape shape = res.unwrap_unchecked();
                     DEV_ASSERT(shape.type == ShapeType::Box);
 
-                    DEV_ASSERT(0 && "add tile");
+                    TileCoord coord;
+                    coord.x = chunk_coord.x * kTileChunkSize + (int16_t)offset.x + x;
+                    coord.y = chunk_coord.y * kTileChunkSize + (int16_t)offset.y + y;
+                    rigid_tiles_.addTile(coord, tile_id);
                 }
             }
         }

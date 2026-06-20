@@ -11,8 +11,8 @@ public:
     void addBox2Frame(const math::Vec2f& min,
                       const math::Vec2f& max,
                       const math::Vec4f& color,
-                      const math::Mat4f* transform,
-                      float thickness) override;
+                      float thickness,
+                      const math::Mat4f* transform) override;
 
     void addBox2(const math::Vec2f& min,
                  const math::Vec2f& max,

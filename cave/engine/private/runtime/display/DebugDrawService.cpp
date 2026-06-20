@@ -32,8 +32,8 @@ void DebugDrawService::addBox2(const Vec2f& min,
 void DebugDrawService::addBox2Frame(const Vec2f& min,
                                     const Vec2f& max,
                                     const Vec4f& color,
-                                    const Mat4f* transform,
-                                    float thickness) {
+                                    float thickness,
+                                    const Mat4f* transform) {
     const float t = thickness;
 
     // Top
