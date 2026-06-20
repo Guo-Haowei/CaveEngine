@@ -16,11 +16,11 @@ namespace cave {
 class ISerializer;
 class IDeserializer;
 
-ISerializer& WriteObject(ISerializer& s, const TileData& tile_data);
+ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data);
 
-bool ReadObject(IDeserializer& d, TileData& tile_data);
+bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data);
 
-static_assert(Serializable<TileData>);
+static_assert(Serializable<ChunkedTileData>);
 
 class TileMapAsset : public IAsset {
     CAVE_ASSET(TileMapAsset, AssetType::TileMap, 1)
@@ -38,7 +38,7 @@ private:
     bool visible_ = true;
 
     CAVE_PROP()
-    TileData tiles_;
+    ChunkedTileData tiles_;
 
     // Non serialized
     Handle<TileSetAsset> tile_set_handle_;
@@ -54,8 +54,8 @@ public:
     const Guid& tileSetGuid() const { return tile_set_id_; }
     void tileSetGuid(const Guid& guid, bool force = false);
 
-    TileData& tiles() { return tiles_; }
-    const TileData& tiles() const { return tiles_; }
+    ChunkedTileData& tiles() { return tiles_; }
+    const ChunkedTileData& tiles() const { return tiles_; }
 
     uint32_t revision() const { return revision_; }
     void incRevision() { ++revision_; }

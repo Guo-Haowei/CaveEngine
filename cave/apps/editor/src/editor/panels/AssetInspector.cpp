@@ -82,7 +82,7 @@ void AssetInspector::tileMapLayerOverview(TileMapAsset& p_tile_map) {
 
             const ImageAsset* image = nullptr;
             if (auto image_handle = layer.tileSetHandle().Get(); image_handle) {
-                image = image_handle->GetHandle().Get();
+                image = image_handle->handle().Get();
             }
 
             Vec2f region_size(128, 128);
@@ -130,9 +130,9 @@ void AssetInspector::drawTileMap(TileMapDocument& doc) {
 
     TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
     if (tile_set) {
-        auto handle = tile_set->GetHandle();
-        const int column = tile_set->GetCol();
-        const int row = tile_set->GetRow();
+        auto handle = tile_set->handle();
+        const int column = tile_set->col();
+        const int row = tile_set->row();
         if (auto image = handle.Get(); image) {
             tile_map_ctx_.sprite_selector.SelectSprite(*image, &column, &row);
         }
@@ -143,12 +143,12 @@ static void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_select
     int index = -1;
     if (auto selected = sprite_selector.GetSelections(); !selected.empty()) {
         auto [x, y] = selected.front();
-        index = tile_set.GetCol() * y + x;
+        index = tile_set.col() * y + x;
     }
 
     ToolBarButtonDesc add_square_button_desc = { ICON_FA_SQUARE " Box", "Add box collider",
                                                  [&]() {
-                                                     if (tile_set.AddBoxCollider(index)) {
+                                                     if (index >= 0 && tile_set.addBoxCollider(index)) {
                                                          LOG_OK("Box collider added for {}", index);
                                                      } else {
                                                          LOG_ERROR("Failed to add box collider for {}", index);
@@ -184,11 +184,11 @@ void AssetInspector::drawTileSet(IDocument& doc) {
 
     auto& sprite_selector = tile_map_ctx_.sprite_selector;
     {
-        int column = tile_set->GetCol();
-        int row = tile_set->GetRow();
+        int column = tile_set->col();
+        int row = tile_set->row();
         if (sprite_selector.EditSprite(&column, &row)) {
-            tile_set->SetCol(column);
-            tile_set->SetRow(row);
+            tile_set->col(column);
+            tile_set->row(row);
         }
     }
 
@@ -204,9 +204,9 @@ void AssetInspector::drawTileSet(IDocument& doc) {
 
     ImGui::Separator();
     if (tile_set) {
-        auto handle = tile_set->GetHandle();
-        const int column = tile_set->GetCol();
-        const int row = tile_set->GetRow();
+        auto handle = tile_set->handle();
+        const int column = tile_set->col();
+        const int row = tile_set->row();
         if (auto image = handle.Get(); image) {
             sprite_selector.SelectSprite(*image, &column, &row);
         }

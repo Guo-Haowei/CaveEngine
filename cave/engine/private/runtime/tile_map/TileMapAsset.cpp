@@ -34,7 +34,7 @@ std::vector<Guid> TileMapAsset::GetDependencies() const {
     return { tile_set_id_ };
 }
 
-ISerializer& WriteObject(ISerializer& s, const TileData& tile_data) {
+ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
     s.BeginArray(false);
 
     auto chunk_empty = [](const TileChunk& p_chunk) {
@@ -74,7 +74,7 @@ ISerializer& WriteObject(ISerializer& s, const TileData& tile_data) {
     return s.EndArray();
 }
 
-bool ReadObject(IDeserializer& d, TileData& tile_data) {
+bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
     const int chunk_size = d.ArraySize().unwrap_or(-1);
     if (chunk_size < 0) {
         return false;

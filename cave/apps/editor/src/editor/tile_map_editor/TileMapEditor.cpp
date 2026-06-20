@@ -151,7 +151,7 @@ void TileMapEditor::applayEditorTool() {
             auto [x, y] = selections[0];
             if (x >= 0 && y >= 0) {
                 TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
-                const uint32_t tile_id = y * tile_set->GetCol() + x;
+                const uint32_t tile_id = y * tile_set->col() + x;
                 new_tile = Some(TileId(tile_id));
             }
         }

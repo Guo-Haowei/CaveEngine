@@ -7,81 +7,81 @@
 
 namespace cave {
 
-void TileSetAsset::SetRow(uint32_t p_row) {
-    if (p_row == 0) return;
-    if (p_row == m_row) return;
-    m_row = p_row;
-    UpdateFrames();
+void TileSetAsset::row(uint32_t row) {
+    if (row == 0) return;
+    if (row == row_) return;
+    row_ = row;
+    updateFrames();
 }
 
-void TileSetAsset::SetCol(uint32_t p_col) {
-    if (p_col == 0) return;
-    if (p_col == m_column) return;
-    m_column = p_col;
-    UpdateFrames();
+void TileSetAsset::col(uint32_t col) {
+    if (col == 0) return;
+    if (col == column_) return;
+    column_ = col;
+    updateFrames();
 }
 
-void TileSetAsset::SetScale(float p_scale) {
-    p_scale = glm::max(p_scale, 0.1f);
-    if (p_scale != m_tile_scale) {
-        m_tile_scale = p_scale;
+void TileSetAsset::tileScale(float scale) {
+    scale = glm::max(scale, 0.1f);
+    if (scale != tile_scale_) {
+        tile_scale_ = scale;
         // @TODO: dirty
     }
 }
 
-bool TileSetAsset::AddBoxCollider(uint32_t p_id) {
-    if (p_id < static_cast<uint32_t>(m_frames.size())) {
-        m_colliders[p_id] = Shape::MakeBox(math::Vec2f(0.5f));
+bool TileSetAsset::addBoxCollider(uint32_t tile_id) {
+    if (tile_id < static_cast<uint32_t>(frames_.size())) {
+        colliders_[tile_id] = Shape::MakeBox(math::Vec2f(0.5f));
         return true;
     }
     return false;
 }
 
-Option<Shape> TileSetAsset::getCollider(uint16_t tile_id) const {
-    if (auto it = m_colliders.find(tile_id); it != m_colliders.end()) {
+Option<Shape> TileSetAsset::getCollider(uint32_t tile_id) const {
+    if (auto it = colliders_.find(tile_id); it != colliders_.end()) {
         return Some(it->second);
     }
     return None();
 }
 
-void TileSetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
-    m_image_handle = std::move(p_handle);
-    const ImageAsset* image = m_image_handle.Get();
+void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {
+    image_handle_ = std::move(handle);
+    const ImageAsset* image = image_handle_.Get();
     if (image) {
-        Guid guid = m_image_handle.GetGuid();
-        if (guid != m_image_guid) {
-            LOG_INFO("TileSetAsset: GUID changed from {} to {}", m_image_guid.ToString(), guid.ToString());
-            m_image_guid = guid;
+        Guid guid = image_handle_.GetGuid();
+        if (guid != image_guid_) {
+            LOG_INFO("TileSetAsset: GUID changed from {} to {}", image_guid_.ToString(), guid.ToString());
+            image_guid_ = guid;
         }
 
-        m_width = image->width;
-        m_height = image->height;
+        width_ = image->width;
+        height_ = image->height;
     }
 }
 
-void TileSetAsset::SetImage(const Guid& p_guid) {
-    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(p_guid);
+void TileSetAsset::setImage(const Guid& guid) {
+    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(guid);
     if (handle.is_some()) {
-        SetHandle(std::move(handle.unwrap_unchecked()));
+        setHandle(std::move(handle.unwrap_unchecked()));
     }
 
-    UpdateFrames();
+    updateFrames();
 }
 
 std::vector<Guid> TileSetAsset::GetDependencies() const {
-    return { m_image_guid };
+    return { image_guid_ };
 }
 
-void TileSetAsset::UpdateFrames() {
-    DEV_ASSERT(m_row > 0 && m_column > 0);
-    m_frames.clear();
-    m_frames.reserve(m_row * m_column);
+void TileSetAsset::updateFrames() {
+    DEV_ASSERT(row_ > 0 && column_ > 0);
+    frames_.clear();
+    frames_.reserve(row_ * column_);
 
-    const float inv_w = 1.0f / m_column;
-    const float inv_h = 1.0f / m_row;
+    const float inv_w = 1.0f / column_;
+    const float inv_h = 1.0f / row_;
 
-    for (uint32_t y = 0; y < m_row; ++y) {
-        for (uint32_t x = 0; x < m_column; ++x) {
+    for (uint32_t y = 0; y < row_; ++y) {
+        for (uint32_t x = 0; x < column_; ++x) {
             // flip y here because in ndc it's up is +y, down -y
             // but in uv space, up is 0, down is 1
 #if 1
@@ -96,16 +96,16 @@ void TileSetAsset::UpdateFrames() {
             const float v1 = (y + 0) * inv_h;
 #endif
 
-            m_frames.push_back(math::Box2({ u0, v0 }, { u1, v1 }));
+            frames_.push_back(math::Box2({ u0, v0 }, { u1, v1 }));
         }
     }
 
-    m_dirty = true;
+    dirty_ = true;
 }
 
-auto TileSetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
+auto TileSetAsset::SaveToDisk(const AssetMetaData& meta) const -> Result<void> {
     // meta
-    auto res = p_meta.SaveToDisk(this);
+    auto res = meta.SaveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -117,13 +117,13 @@ auto TileSetAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void>
         .Key("content")
         .Write(*this)
         .EndMap();
-    return SaveYaml(p_meta.import_path, yaml);
+    return SaveYaml(meta.import_path, yaml);
 }
 
-auto TileSetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+auto TileSetAsset::LoadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YAML::Node root;
 
-    if (auto res = LoadYaml(p_meta.import_path, root); !res) {
+    if (auto res = LoadYaml(meta.import_path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -145,11 +145,11 @@ auto TileSetAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
     }
 
     // @TODO: post load?
-    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(m_image_guid);
+    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(image_guid_);
     if (handle.is_some()) {
-        SetHandle(std::move(handle.unwrap_unchecked()));
+        setHandle(std::move(handle.unwrap_unchecked()));
     }
-    UpdateFrames();
+    updateFrames();
 
     return Result<void>();
 }

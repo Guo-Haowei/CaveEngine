@@ -11,7 +11,7 @@ namespace cave {
 // std::string name_ ()
 // Guid tile_set_id_ (editor = Asset)
 // bool visible_ (editor = Toggle)
-// TileData tiles_ ()
+// ChunkedTileData tiles_ ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileMapAsset>::GetFields() {

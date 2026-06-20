@@ -34,7 +34,7 @@ private:
 
     const DebugId debug_id_;
 
-    TileData collision_tiles_;
+    ChunkedTileData collision_tiles_;
 };
 
 }  // namespace cave

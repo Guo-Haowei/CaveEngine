@@ -54,8 +54,8 @@ void TileMapInstanceComponent::createRenderData() {
     }
 
     bool need_update = false;
-    if (tile_set->IsDirty()) {
-        tile_set->SetDirty(false);
+    if (tile_set->dirty()) {
+        tile_set->dirty(false);
         need_update = true;
     }
 
@@ -67,7 +67,7 @@ void TileMapInstanceComponent::createRenderData() {
         return;
     }
 
-    cache_.image = tile_set->GetHandle();
+    cache_.image = tile_set->handle();
 
     std::vector<Vec2f> vertices;
     std::vector<Vec2f> uvs;

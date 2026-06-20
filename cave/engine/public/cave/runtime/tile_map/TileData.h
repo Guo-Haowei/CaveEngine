@@ -45,7 +45,7 @@ int16_t ToTileLocalX(TileCoord coord);
 int16_t ToTileLocalY(TileCoord coord);
 TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local_y);
 
-class TileData {
+class ChunkedTileData {
 public:
     Option<TileId> tileAt(TileCoord coord) const;
 

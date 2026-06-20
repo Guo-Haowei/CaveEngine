@@ -20,65 +20,65 @@ class TileSetAsset : public IAsset {
 
 private:
     CAVE_PROP(editor = Asset)
-    Guid m_image_guid;
+    Guid image_guid_;
 
     CAVE_PROP(editor = DragFloat, min = 0.01f, max = 100.0f)
-    float m_tile_scale = 1.0f;
+    float tile_scale_ = 1.0f;
 
     CAVE_PROP()
-    uint32_t m_width = 0;
+    uint32_t width_ = 0;
 
     CAVE_PROP()
-    uint32_t m_height = 0;
+    uint32_t height_ = 0;
 
     CAVE_PROP(editor = InputInt, min = 1, max = 1000)
-    uint32_t m_row = 1;
+    uint32_t row_ = 1;
 
     CAVE_PROP(editor = InputInt, min = 1, max = 1000)
-    uint32_t m_column = 1;
+    uint32_t column_ = 1;
 
     CAVE_PROP()
-    std::map<uint32_t, Shape> m_colliders;
+    std::map<uint32_t, Shape> colliders_;
 
     /// Non serialized
-    std::vector<math::Box2> m_frames;  // frames are calculated
-    Handle<ImageAsset> m_image_handle;
-    bool m_dirty;
+    std::vector<math::Box2> frames_;  // frames are calculated
+    Handle<ImageAsset> image_handle_;
+    bool dirty_;
 
 public:
-    uint32_t GetRow() const { return m_row; }
-    void SetRow(uint32_t p_row);
+    uint32_t row() const { return row_; }
+    void row(uint32_t row);
 
-    uint32_t GetCol() const { return m_column; }
-    void SetCol(uint32_t p_col);
+    uint32_t col() const { return column_; }
+    void col(uint32_t col);
 
-    uint32_t GetWidth() const { return m_width; }
-    uint32_t GetHeight() const { return m_height; }
+    uint32_t width() const { return width_; }
+    uint32_t height() const { return height_; }
 
-    float GetScale() const { return m_tile_scale; }
-    void SetScale(float p_scale);
+    float tileScale() const { return tile_scale_; }
+    void tileScale(float scale);
 
-    bool AddBoxCollider(uint32_t p_id);
-    Option<Shape> getCollider(uint16_t tile_id) const;
+    bool addBoxCollider(uint32_t tile_id);
+    Option<Shape> getCollider(uint32_t tile_id) const;
 
-    void SetImage(const Guid& p_guid);
-    const Handle<ImageAsset>& GetHandle() const { return m_image_handle; }
+    void setImage(const Guid& guid);
+    const Handle<ImageAsset>& handle() const { return image_handle_; }
 
-    auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
-    auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
+    const Guid& GetImageGuid() const { return image_guid_; }
 
-    const Guid& GetImageGuid() const { return m_image_guid; }
+    const auto& GetFrames() const { return frames_; }
 
-    const auto& GetFrames() const { return m_frames; }
+    bool dirty() const { return dirty_; }
+    void dirty(bool dirty) { dirty_ = dirty; }
 
-    bool IsDirty() const { return m_dirty; }
-    void SetDirty(bool p_dirty = true) { m_dirty = p_dirty; }
+    auto SaveToDisk(const AssetMetaData& meta) const -> Result<void> override;
+    auto LoadFromDisk(const AssetMetaData& meta) -> Result<void> override;
 
     std::vector<Guid> GetDependencies() const override;
 
 private:
-    void SetHandle(Handle<ImageAsset>&& p_handle);
-    void UpdateFrames();
+    void setHandle(Handle<ImageAsset>&& handle);
+    void updateFrames();
 };
 
 }  // namespace cave

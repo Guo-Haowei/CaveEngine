@@ -38,12 +38,12 @@ TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local
     DEV_ASSERT(local_y >= 0 && local_y < kTileChunkSize);
 
     return TileCoord{
-        chunk_coord.x * kTileChunkSize + local_x,
-        chunk_coord.y * kTileChunkSize + local_y,
+        static_cast<int16_t>(chunk_coord.x * kTileChunkSize + local_x),
+        static_cast<int16_t>(chunk_coord.y * kTileChunkSize + local_y),
     };
 }
 
-Option<TileId> TileData::tileAt(TileCoord coord) const {
+Option<TileId> ChunkedTileData::tileAt(TileCoord coord) const {
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
     auto it = chunks_.find(chunk_coord);
@@ -56,10 +56,16 @@ Option<TileId> TileData::tileAt(TileCoord coord) const {
     DEV_ASSERT_INDEX(x, kTileChunkSize);
     DEV_ASSERT_INDEX(y, kTileChunkSize);
 
-    return Some(it->second->at(x, y));
+    TileId tile = it->second->at(x, y);
+    if (tile == kEmptyTileId) {
+        return None();
+    }
+    return Some(tile);
 }
 
-bool TileData::addTile(TileCoord coord, TileId tile_id) {
+bool ChunkedTileData::addTile(TileCoord coord, TileId tile_id) {
+    DEV_ASSERT(tile_id != kEmptyTileId);
+
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
     auto& chunk = chunks_[chunk_coord];
@@ -80,7 +86,7 @@ bool TileData::addTile(TileCoord coord, TileId tile_id) {
     return true;
 }
 
-bool TileData::removeTile(TileCoord coord) {
+bool ChunkedTileData::removeTile(TileCoord coord) {
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
     auto it = chunks_.find(chunk_coord);
