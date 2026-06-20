@@ -39,7 +39,7 @@ bool IDeserializer::Read(Guid& p_object) {
     return true;
 }
 
-bool IDeserializer::Read(math::Matrix4x4f& p_object) {
+bool IDeserializer::Read(math::Mat4f& p_object) {
     const auto size = ArraySize().unwrap_or(-1);
     ERR_FAIL_COND_V_MSG(size != 16, false, "expect float[16]");
 

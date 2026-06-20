@@ -3,21 +3,21 @@
 // @TODO: refactor
 namespace cave::math {
 
-Matrix4x4f LookAtRh(const Vec3f& p_eye, const Vec3f& p_center, const Vec3f& p_up) {
+Mat4f LookAtRh(const Vec3f& p_eye, const Vec3f& p_center, const Vec3f& p_up) {
 #define C(v) glm::vec3(v.x, v.y, v.z)
     return glm::lookAtRH(C(p_eye), C(p_center), C(p_up));
 #undef C
 }
 
-Matrix4x4f LookAtLh(const Vec3f& p_eye, const Vec3f& p_center, const Vec3f& p_up) {
+Mat4f LookAtLh(const Vec3f& p_eye, const Vec3f& p_center, const Vec3f& p_up) {
 #define C(v) glm::vec3(v.x, v.y, v.z)
     return glm::lookAtLH(C(p_eye), C(p_center), C(p_up));
 #undef C
 }
 
-Matrix4x4f BuildPerspectiveLH(float p_fovy, float p_aspect, float p_near, float p_far) {
+Mat4f BuildPerspectiveLH(float p_fovy, float p_aspect, float p_near, float p_far) {
     const float tan_half_fovy = glm::tan(0.5f * p_fovy);
-    Matrix4x4f result(0.0f);
+    Mat4f result(0.0f);
     result[0][0] = 1.0f / (p_aspect * tan_half_fovy);
     result[1][1] = 1.0f / tan_half_fovy;
     result[2][2] = p_far / (p_far - p_near);
@@ -26,9 +26,9 @@ Matrix4x4f BuildPerspectiveLH(float p_fovy, float p_aspect, float p_near, float 
     return result;
 }
 
-Matrix4x4f BuildPerspectiveRH(float p_fovy, float p_aspect, float p_near, float p_far) {
+Mat4f BuildPerspectiveRH(float p_fovy, float p_aspect, float p_near, float p_far) {
     const float tan_half_fovy = glm::tan(0.5f * p_fovy);
-    Matrix4x4f result(0.0f);
+    Mat4f result(0.0f);
     result[0][0] = 1.0f / (p_aspect * tan_half_fovy);
     result[1][1] = 1.0f / tan_half_fovy;
     result[2][2] = -p_far / (p_far - p_near);
@@ -38,9 +38,9 @@ Matrix4x4f BuildPerspectiveRH(float p_fovy, float p_aspect, float p_near, float 
     return result;
 }
 
-Matrix4x4f BuildOpenGlPerspectiveRH(float p_fovy, float p_aspect, float p_near, float p_far) {
+Mat4f BuildOpenGlPerspectiveRH(float p_fovy, float p_aspect, float p_near, float p_far) {
     const float tan_half_fovy = glm::tan(0.5f * p_fovy);
-    Matrix4x4f result(0.0f);
+    Mat4f result(0.0f);
     result[0][0] = 1.0f / (p_aspect * tan_half_fovy);
     result[1][1] = 1.0f / tan_half_fovy;
     result[2][2] = -(p_far + p_near) / (p_far - p_near);
@@ -49,18 +49,18 @@ Matrix4x4f BuildOpenGlPerspectiveRH(float p_fovy, float p_aspect, float p_near, 
     return result;
 }
 
-Matrix4x4f BuildOrthoRH(const float p_left,
-                        const float p_right,
-                        const float p_bottom,
-                        const float p_top,
-                        const float p_near,
-                        const float p_far) {
+Mat4f BuildOrthoRH(const float p_left,
+                   const float p_right,
+                   const float p_bottom,
+                   const float p_top,
+                   const float p_near,
+                   const float p_far) {
 
     const float reciprocal_width = 1.0f / (p_right - p_left);
     const float reciprocal_height = 1.0f / (p_top - p_bottom);
     const float reciprocal_depth = 1.0f / (p_far - p_near);
 
-    Matrix4x4f result(1.0f);
+    Mat4f result(1.0f);
     result[0][0] = 2.0f * reciprocal_width;
     result[1][1] = 2.0f * reciprocal_height;
     result[2][2] = -1.0f * reciprocal_depth;
@@ -70,18 +70,18 @@ Matrix4x4f BuildOrthoRH(const float p_left,
     return result;
 }
 
-Matrix4x4f BuildOpenGlOrthoRH(const float p_left,
-                              const float p_right,
-                              const float p_bottom,
-                              const float p_top,
-                              const float p_near,
-                              const float p_far) {
+Mat4f BuildOpenGlOrthoRH(const float p_left,
+                         const float p_right,
+                         const float p_bottom,
+                         const float p_top,
+                         const float p_near,
+                         const float p_far) {
 
     const float reciprocal_width = 1.0f / (p_right - p_left);
     const float reciprocal_height = 1.0f / (p_top - p_bottom);
     const float reciprocal_depth = 1.0f / (p_far - p_near);
 
-    Matrix4x4f result(1.0f);
+    Mat4f result(1.0f);
     result[0][0] = 2.0f * reciprocal_width;
     result[1][1] = 2.0f * reciprocal_height;
     result[2][2] = -2.0f * reciprocal_depth;
@@ -91,10 +91,10 @@ Matrix4x4f BuildOpenGlOrthoRH(const float p_left,
     return result;
 }
 
-std::array<Matrix4x4f, 6> BuildPointLightCubeMapViewProjectionMatrix(const Vec3f& p_eye, float p_near, float p_far) {
+std::array<Mat4f, 6> BuildPointLightCubeMapViewProjectionMatrix(const Vec3f& p_eye, float p_near, float p_far) {
     auto P = BuildPerspectiveLH(glm::radians(90.0f), 1.0f, p_near, p_far);
 
-    std::array<Matrix4x4f, 6> matrices = {
+    std::array<Mat4f, 6> matrices = {
         P * LookAtLh(p_eye, p_eye + Vec3f(+1, +0, +0), Vec3f(0, +1, +0)),
         P * LookAtLh(p_eye, p_eye + Vec3f(-1, +0, +0), Vec3f(0, +1, +0)),
         P * LookAtLh(p_eye, p_eye + Vec3f(+0, +1, +0), Vec3f(0, +0, -1)),
@@ -106,10 +106,10 @@ std::array<Matrix4x4f, 6> BuildPointLightCubeMapViewProjectionMatrix(const Vec3f
     return matrices;
 }
 
-std::array<Matrix4x4f, 6> BuildOpenGlPointLightCubeMapViewProjectionMatrix(const Vec3f& p_eye, float p_near, float p_far) {
+std::array<Mat4f, 6> BuildOpenGlPointLightCubeMapViewProjectionMatrix(const Vec3f& p_eye, float p_near, float p_far) {
     auto P = BuildOpenGlPerspectiveRH(glm::radians(90.0f), 1.0f, p_near, p_far);
 
-    std::array<Matrix4x4f, 6> matrices = {
+    std::array<Mat4f, 6> matrices = {
         P * LookAtRh(p_eye, p_eye + Vec3f(+1, +0, +0), Vec3f(0, -1, +0)),
         P * LookAtRh(p_eye, p_eye + Vec3f(-1, +0, +0), Vec3f(0, -1, +0)),
         P * LookAtRh(p_eye, p_eye + Vec3f(+0, +1, +0), Vec3f(0, +0, +1)),
@@ -121,10 +121,10 @@ std::array<Matrix4x4f, 6> BuildOpenGlPointLightCubeMapViewProjectionMatrix(const
     return matrices;
 }
 
-std::array<Matrix4x4f, 6> BuildCubeMapViewProjectionMatrix(const Vec3f& p_eye) {
+std::array<Mat4f, 6> BuildCubeMapViewProjectionMatrix(const Vec3f& p_eye) {
     auto P = BuildPerspectiveRH(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 
-    std::array<Matrix4x4f, 6> matrices = {
+    std::array<Mat4f, 6> matrices = {
         P * LookAtRh(p_eye, p_eye + Vec3f(+1, +0, +0), Vec3f(0, -1, +0)),
         P * LookAtRh(p_eye, p_eye + Vec3f(-1, +0, +0), Vec3f(0, -1, +0)),
         P * LookAtRh(p_eye, p_eye + Vec3f(+0, -1, +0), Vec3f(0, +0, -1)),
@@ -136,10 +136,10 @@ std::array<Matrix4x4f, 6> BuildCubeMapViewProjectionMatrix(const Vec3f& p_eye) {
     return matrices;
 }
 
-std::array<Matrix4x4f, 6> BuildOpenGlCubeMapViewProjectionMatrix(const Vec3f& p_eye) {
+std::array<Mat4f, 6> BuildOpenGlCubeMapViewProjectionMatrix(const Vec3f& p_eye) {
     auto P = BuildOpenGlPerspectiveRH(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 
-    std::array<Matrix4x4f, 6> matrices = {
+    std::array<Mat4f, 6> matrices = {
         P * LookAtRh(p_eye, p_eye + Vec3f(+1, +0, +0), Vec3f(0, -1, +0)),
         P * LookAtRh(p_eye, p_eye + Vec3f(-1, +0, +0), Vec3f(0, -1, +0)),
         P * LookAtRh(p_eye, p_eye + Vec3f(+0, +1, +0), Vec3f(0, +0, +1)),
@@ -152,8 +152,8 @@ std::array<Matrix4x4f, 6> BuildOpenGlCubeMapViewProjectionMatrix(const Vec3f& p_
 }
 
 #if 0
-inline std::array<Matrix4x4f, 6> BuildCubeMapViewMatrices(const Vector3f& p_eye) {
-    std::array<Matrix4x4f, 6> matrices;
+inline std::array<Mat4f, 6> BuildCubeMapViewMatrices(const Vector3f& p_eye) {
+    std::array<Mat4f, 6> matrices;
 
 #if 0
     matrices[0] = glm::lookAtLH(p_eye, p_eye + Vector3f(+1, +0, +0), Vector3f(0, +1, +0));
@@ -173,8 +173,8 @@ inline std::array<Matrix4x4f, 6> BuildCubeMapViewMatrices(const Vector3f& p_eye)
     return matrices;
 }
 
-inline std::array<Matrix4x4f, 6> BuildOpenGlCubeMapViewMatrices(const Vector3f& p_eye) {
-    std::array<Matrix4x4f, 6> matrices;
+inline std::array<Mat4f, 6> BuildOpenGlCubeMapViewMatrices(const Vector3f& p_eye) {
+    std::array<Mat4f, 6> matrices;
     matrices[0] = glm::lookAtRH(p_eye, p_eye + Vector3f(+1, +0, +0), Vector3f(0, -1, +0));
     matrices[1] = glm::lookAtRH(p_eye, p_eye + Vector3f(-1, +0, +0), Vector3f(0, -1, +0));
     matrices[2] = glm::lookAtRH(p_eye, p_eye + Vector3f(+0, +1, +0), Vector3f(0, +0, +1));

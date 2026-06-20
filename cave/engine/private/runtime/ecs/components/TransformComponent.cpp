@@ -14,10 +14,10 @@ TransformComponent::TransformComponent()
     SetDirty();
 }
 
-Matrix4x4f TransformComponent::GetLocalMatrix() const {
-    Matrix4x4f rotationMatrix = glm::toMat4(Quaternion(m_rotation.w, m_rotation.x, m_rotation.y, m_rotation.z));
-    Matrix4x4f translationMatrix = cave::Translate(m_translation);
-    Matrix4x4f scaleMatrix = cave::Scale(m_scale);
+Mat4f TransformComponent::GetLocalMatrix() const {
+    Mat4f rotationMatrix = glm::toMat4(Quaternion(m_rotation.w, m_rotation.x, m_rotation.y, m_rotation.z));
+    Mat4f translationMatrix = cave::Translate(m_translation);
+    Mat4f scaleMatrix = cave::Scale(m_scale);
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
@@ -56,20 +56,20 @@ void TransformComponent::Rotate(const Vec3f& p_euler) {
     m_rotation.w = quaternion.w;
 }
 
-void TransformComponent::SetLocalTransform(const Matrix4x4f& p_matrix) {
+void TransformComponent::SetLocalTransform(const Mat4f& p_matrix) {
     SetDirty();
     Decompose(p_matrix, m_scale, m_rotation, m_translation);
 }
 
-void TransformComponent::MatrixTransform(const Matrix4x4f& p_matrix) {
+void TransformComponent::MatrixTransform(const Mat4f& p_matrix) {
     SetDirty();
     Decompose(p_matrix * GetLocalMatrix(), m_scale, m_rotation, m_translation);
 }
 
 void TransformComponent::UpdateTransformParented(const TransformComponent& p_parent) {
     CRASH_NOW();
-    Matrix4x4f worldMatrix = GetLocalMatrix();
-    const Matrix4x4f& worldMatrixParent = p_parent.m_world_matrix;
+    Mat4f worldMatrix = GetLocalMatrix();
+    const Mat4f& worldMatrixParent = p_parent.m_world_matrix;
     m_world_matrix = worldMatrixParent * worldMatrix;
 }
 

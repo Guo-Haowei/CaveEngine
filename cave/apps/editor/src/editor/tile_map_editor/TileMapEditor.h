@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/assets/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "editor/document/SceneDocument.h"
@@ -36,6 +36,7 @@ protected:
     void changeMode(Mode mode);
     bool canHandleInput(const InputFrame& input);
     bool updateEditMode(const InputFrame& input);
+    void updateTileCoord();
     void applayEditorTool();
     Option<TileCoord> pointToTile(math::Vec2f point_os);
 
@@ -46,6 +47,7 @@ protected:
     bool lb_down_{ false };
     bool rb_down_{ false };
     math::Vec2f cursor_;
+    TileCoord coord_;
 };
 
 }  // namespace cave

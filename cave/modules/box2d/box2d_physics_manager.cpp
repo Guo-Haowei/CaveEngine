@@ -2,10 +2,10 @@
 
 #include <box2d/box2d.h>
 
-#include "cave/runtime/assets/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/assets/TileSetAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -41,7 +41,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     {
         auto view = p_scene.view<ColliderComponent, VelocityComponent>();
         for (auto [id, collider, vel] : view) {
-            b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
+            b2BodyId body_id = std::bit_cast<b2BodyId>(collider.user_data_);
             b2Body_SetLinearVelocity(body_id, { vel.linear.x, vel.linear.y });
         }
     }
@@ -52,7 +52,7 @@ void Box2dPhysicsManager::Update(Scene& p_scene, float p_timestep) {
     // 3. sync speed and position
     auto view = p_scene.view<ColliderComponent, TransformComponent>();
     for (auto [id, collider, transform] : view) {
-        b2BodyId body_id = std::bit_cast<b2BodyId>(collider.m_user_data);
+        b2BodyId body_id = std::bit_cast<b2BodyId>(collider.user_data_);
 
         b2Vec2 position = b2Body_GetPosition(body_id);
         [[maybe_unused]] b2Rot rotation = b2Body_GetRotation(body_id);
@@ -92,7 +92,7 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
         b2ShapeDef shape_def = b2DefaultShapeDef();
 
-        switch (collider.GetBodyType()) {
+        switch (collider.bodyType()) {
             case BodyType::Static: {
                 body_def.type = b2_staticBody;
             } break;
@@ -109,40 +109,37 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
         b2BodyId body_id = b2CreateBody(world_id, &body_def);
 
-        const Shape& shape = collider.GetShape();
+        const Shape& shape = collider.shape();
         switch (shape.type) {
             case ShapeType::Box: {
                 const auto& half = shape.data.half;
                 b2Polygon box = b2MakeBox(half.x, half.y);
                 b2CreatePolygonShape(body_id, &shape_def, &box);
 
-                collider.m_user_data = std::bit_cast<size_t>(body_id);
+                collider.user_data_ = std::bit_cast<size_t>(body_id);
             } break;
             default:
                 break;
         }
     }
 
-    for (auto [id, tile_map_renderer, transform] : p_scene.view<TileMapRendererComponent, TransformComponent>()) {
-        const TileMapAsset* tile_map = tile_map_renderer.GetTileMapHandle().Get();
+    for (auto [id, tile_map_renderer, transform] : p_scene.view<TileMapInstanceComponent, TransformComponent>()) {
+        const TileMapAsset* tile_map = tile_map_renderer.tileMapHandle().Get();
         if (!tile_map) continue;
         const TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
         if (!tile_set) continue;
 
         Vec4f position = transform.GetWorldMatrix() * Vec4f::UnitW;
 
-        const auto& colliders = tile_set->GetColliders();
-        const auto& chunks = tile_map->tiles().chunks;
-        for (const auto& [key, chunk_ptr] : chunks) {
+        for (const auto& [key, chunk] : tile_map->tiles().chunks()) {
             const int16_t offset_x = key.x * kTileChunkSize;
             const int16_t offset_y = key.y * kTileChunkSize;
-            const auto& chunk = chunk_ptr->tiles;
             for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
                 for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
-                    const TileId& tile_id = chunk[y - offset_y][x - offset_x];
-                    auto it = colliders.find(tile_id);
-                    if (it == colliders.end()) continue;
-                    const Shape& shape = it->second;
+                    const TileId& tile_id = chunk->at(x - offset_x, y - offset_y);
+                    auto res = tile_set->getCollider(tile_id);
+                    if (res.is_none()) continue;
+                    Shape shape = res.unwrap_unchecked();
                     DEV_ASSERT(shape.type == ShapeType::Box);
 
                     // @TODO: fix this part

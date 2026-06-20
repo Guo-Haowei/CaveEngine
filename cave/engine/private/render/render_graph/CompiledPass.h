@@ -1,8 +1,9 @@
 #pragma once
-#include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/rhi/RenderTarget.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 // @TODO: fix
+#include "engine/private/render/render_graph/RenderGraphDefines.h"
+#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/graphics_defines.h"
 
 // clang-format off
@@ -19,6 +20,7 @@ struct RenderPassExcutionContext {
     const FrameData& frameData;
     const CompiledPass& pass;
     IRenderDevice& cmd;
+    EngineServices& services;
 };
 
 using ExecuteFunc = std::function<void(RenderPassExcutionContext& ctx)>;

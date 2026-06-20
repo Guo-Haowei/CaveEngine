@@ -10,7 +10,6 @@
 #include "UIRenderer.h"
 
 #include "engine/private/core/math/geomath.h"
-#include "engine/private/renderer/debug_draw.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/runtime/view/ResolvedView.h"
@@ -117,15 +116,9 @@ struct FrameData {
 
     math::AABB voxel_gi_bound;
 
-    DebugDraw& GetDebugDraw() { return m_debug_draw; }
-    const DebugDraw& GetDebugDraw() const { return m_debug_draw; }
-
     // UI stuff
     render::UIBatch ui_batch;
     std::shared_ptr<GpuMesh> ui_buffer;
-
-private:
-    DebugDraw m_debug_draw;
 };
 
 }  // namespace cave

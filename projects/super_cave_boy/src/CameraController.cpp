@@ -33,8 +33,8 @@ void CameraController::followTarget(float dt) {
     speed = math::max(speed, 0.0f);
     SceneQuery query(context().scene);
 
-    auto target_transform = static_cast<const TransformComponent*>(query.component(TransformComponent_Id, target_));
-    auto camera_transform = static_cast<TransformComponent*>(query.component(TransformComponent_Id, entity()));
+    auto target_transform = query.component<TransformComponent>(target_);
+    auto camera_transform = query.component<TransformComponent>(entity());
 
     const Vec3f target_pos = target_transform->GetTranslation();
     const Vec3f camera_pos = camera_transform->GetTranslation();

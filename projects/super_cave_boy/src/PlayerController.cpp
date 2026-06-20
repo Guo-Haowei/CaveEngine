@@ -4,7 +4,7 @@
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
-#include "cave/runtime/ecs/components/TileMapRendererComponent.h"
+#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
@@ -30,20 +30,23 @@ void PlayerController::onUpdate(float dt) {
     SceneQuery query(context().scene);
 
     const int move_x = (int)input.isPressed("ui_right"_sid) - (int)input.isPressed("ui_left"_sid);
+    const int move_y = (int)input.isPressed("ui_up"_sid) - (int)input.isPressed("ui_down"_sid);
 
-    auto animator = static_cast<SpriteAnimatorComponent*>(query.component(SpriteAnimatorComponent_Id, animator_));
+    auto animator = query.component<SpriteAnimatorComponent>(animator_);
     DEV_ASSERT(animator);
 
-    if (move_x == 0) {
+    if (move_x == 0 && move_y == 0) {
         animator->SetClip("idle");
     } else {
         animator->SetClip("walk");
 
-        auto transform = static_cast<TransformComponent*>(query.component(TransformComponent_Id, entity()));
+        auto transform = query.component<TransformComponent>(entity());
 
         const float x_speed = 4.0f;
         const float dx = x_speed * dt * move_x;
-        transform->IncreaseTranslation(Vec3f(dx, 0.0f, 0.0f));
+        const float dy = x_speed * dt * move_y;
+
+        transform->IncreaseTranslation(Vec3f(dx, dy, 0.0f));
 
         Vec4f rotation = move_x < 0 ? Vec4f{ 0.0f, 1.0f, 0.0f, 0.0f } : Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
         transform->SetRotation(rotation);

@@ -424,6 +424,7 @@ void RenderDevice::Execute(const FrameData& p_data, const CompiledPass& p_pass) 
         .frameData = p_data,
         .pass = p_pass,
         .cmd = *this,
+        .services = m_app->services(),
     };
 
     BeginEvent(p_pass.name);

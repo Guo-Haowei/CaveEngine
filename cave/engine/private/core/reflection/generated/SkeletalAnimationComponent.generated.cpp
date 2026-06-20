@@ -9,7 +9,7 @@
 namespace cave {
 
 // std::vector<ecs::Entity> bone_collection ()
-// std::vector<math::Matrix4x4f> inverse_bind_matrices ()
+// std::vector<math::Mat4f> inverse_bind_matrices ()
 
 template<>
 const MetaTableFields& MetaDataTable<SkeletonComponent>::GetFields() {

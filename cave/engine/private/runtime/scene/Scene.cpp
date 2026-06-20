@@ -3,6 +3,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/threading/JobSystem.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
+#include "cave/runtime/tile_map/TileWorldSystem.h"
 
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/components/All.h"
@@ -252,7 +253,7 @@ std::vector<Guid> Scene::GetDependencies() const {
     for (const auto& [id, prefab] : view<PrefabInstanceComponent>()) {
         dependencies.push_back(prefab.GetResourceGuid());
     }
-    for (const auto& [id, tile_map_renderer] : view<TileMapRendererComponent>()) {
+    for (const auto& [id, tile_map_renderer] : view<TileMapInstanceComponent>()) {
         dependencies.push_back(tile_map_renderer.GetResourceGuid());
     }
     for (const auto& [id, animator] : view<SpriteAnimatorComponent>()) {
@@ -447,6 +448,9 @@ void Scene::onSimBegin(SceneContext& ctx) {
     }
     if (count<LuaScriptComponent>()) {
         systems_->add<LuaScriptSystem>();
+    }
+    if (count<TileMapInstanceComponent>()) {
+        systems_->add<TileWorldSystem>();
     }
 
     systems_->onSceneCreate(ctx);

@@ -9,7 +9,7 @@
 namespace cave {
 
 struct PickData {
-    math::Matrix4x4f proj_view;
+    math::Mat4f proj_view;
     math::Vec2f cursor_ndc;
     SceneId scene_id;
     DocId doc_id;

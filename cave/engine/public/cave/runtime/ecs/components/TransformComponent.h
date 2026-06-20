@@ -31,7 +31,7 @@ private:
     math::Vec3f m_scale;
 
     // Non-serialized attributes
-    math::Matrix4x4f m_world_matrix;
+    math::Mat4f m_world_matrix;
 
     uint32_t m_flags = DirtyFlag;
 
@@ -48,11 +48,11 @@ public:
     const math::Vec3f& GetScale() const { return m_scale; }
     void SetScale(const math::Vec3f& p_scale) { m_scale = p_scale; }
 
-    const math::Matrix4x4f& GetWorldMatrix() const { return m_world_matrix; }
+    const math::Mat4f& GetWorldMatrix() const { return m_world_matrix; }
 
-    void SetWorldMatrix(const math::Matrix4x4f& p_matrix) { m_world_matrix = p_matrix; }
+    void SetWorldMatrix(const math::Mat4f& p_matrix) { m_world_matrix = p_matrix; }
 
-    math::Matrix4x4f GetLocalMatrix() const;
+    math::Mat4f GetLocalMatrix() const;
 
     bool UpdateTransform();
     void Scale(const math::Vec3f& p_scale);
@@ -62,8 +62,8 @@ public:
     void RotateY(const math::Degree& degree) { Rotate(math::Vec3f(0.0f, degree.radians(), 0.0f)); }
     void RotateZ(const math::Degree& degree) { Rotate(math::Vec3f(0.0f, 0.0f, degree.radians())); }
 
-    void SetLocalTransform(const math::Matrix4x4f& p_matrix);
-    void MatrixTransform(const math::Matrix4x4f& p_matrix);
+    void SetLocalTransform(const math::Mat4f& p_matrix);
+    void MatrixTransform(const math::Mat4f& p_matrix);
 
     void UpdateTransformParented(const TransformComponent& p_parent);
 

@@ -21,7 +21,7 @@ ISerializer& ISerializer::Write(const math::Degree& p_object) {
     return Write(p_object.degrees());
 }
 
-ISerializer& ISerializer::Write(const math::Matrix4x4f& p_object) {
+ISerializer& ISerializer::Write(const math::Mat4f& p_object) {
     BeginArray(true);
     const float* ptr = &p_object[0].x;
     for (int i = 0; i < 16; ++i) {

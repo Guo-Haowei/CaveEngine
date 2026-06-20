@@ -14,9 +14,9 @@ bool SetTileCommand::setTile(IDocument& doc, Option<TileId> tile) {
 
     bool ok;
     if (tile.is_some()) {
-        ok = tile_map->addTile(index_, tile.unwrap_unchecked());
+        ok = tile_map->tiles().addTile(index_, tile.unwrap_unchecked());
     } else {
-        ok = tile_map->removeTile(index_);
+        ok = tile_map->tiles().removeTile(index_);
     }
 
     tile_map->incRevision();

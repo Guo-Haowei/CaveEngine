@@ -29,6 +29,10 @@ ecs::ComponentRegistry& PIEHostServices::componentRegistry() {
     return engine::GetComponentRegistry();
 }
 
+IDebugDrawService& PIEHostServices::debugDraw() {
+    return services_.debugDraw();
+}
+
 DisplayService& PIEHostServices::displayService() {
     return services_.displayService();
 }

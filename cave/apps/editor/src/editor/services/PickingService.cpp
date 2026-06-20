@@ -15,7 +15,7 @@
 
 namespace cave {
 
-using math::Matrix4x4f;
+using math::Mat4f;
 using math::Vec2f;
 using math::Vec3f;
 using math::Vec4f;

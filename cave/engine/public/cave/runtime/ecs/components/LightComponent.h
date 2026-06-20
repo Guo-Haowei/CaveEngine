@@ -45,7 +45,7 @@ private:
     bool m_dirty = true;
     math::Vec3f m_position;
     float m_max_distance;
-    std::array<math::Matrix4x4f, 6> m_light_space_matrices;
+    std::array<math::Mat4f, 6> m_light_space_matrices;
 
 public:
     bool IsDirty() const { return m_dirty; }

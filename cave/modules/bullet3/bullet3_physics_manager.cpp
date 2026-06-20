@@ -35,7 +35,7 @@ struct PhysicsWorldContext {
 };
 
 static btTransform ConvertTransform(const TransformComponent& p_transform) {
-    Matrix4x4f world_matrix = p_transform.GetWorldMatrix();
+    Mat4f world_matrix = p_transform.GetWorldMatrix();
     btTransform transform;
     transform.setIdentity();
     transform.setFromOpenGLMatrix(&world_matrix[0].x);

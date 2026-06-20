@@ -25,7 +25,7 @@
 namespace cave {
 
 using namespace cave::literals;
-using math::Matrix4x4f;
+using math::Mat4f;
 using math::Vec2f;
 using math::Vec3f;
 using math::Vec4f;
@@ -128,12 +128,12 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    const KeyState& st = app_services_.inputService().keyState();
+    const KeyState& st = engine_services_.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return;
     }
 
-    camera_controller_->Update(input);
+    camera_controller_->update(input);
 }
 
 void SceneViewTab::drawUIImpl() {
@@ -156,9 +156,9 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     DEV_ASSERT(!camera_.IsDirty());
     DocId doc_id = docId();
 
-    const Matrix4x4f& view_matrix = camera_.GetViewMatrix();
-    const Matrix4x4f& proj_matrix = camera_.GetProjectionMatrix();
-    const Matrix4x4f& proj_view = camera_.GetProjectionViewMatrix();
+    const Mat4f& view_matrix = camera_.GetViewMatrix();
+    const Mat4f& proj_matrix = camera_.GetProjectionMatrix();
+    const Mat4f& proj_view = camera_.GetProjectionViewMatrix();
 
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();
@@ -176,8 +176,8 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {
-            const Matrix4x4f before = transform_component->GetLocalMatrix();
-            Matrix4x4f after = before;
+            const Mat4f before = transform_component->GetLocalMatrix();
+            Mat4f after = before;
             if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
                                      glm::value_ptr(proj_matrix),
                                      p_operation,
@@ -192,7 +192,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                 math::Decompose(before, scale_1, rot_1, pos_1);
                 math::Decompose(after, scale_2, rot_2, pos_2);
 
-                SceneRegistry& scene_reg = app_services_.sceneRegistry();
+                SceneRegistry& scene_reg = engine_services_.sceneRegistry();
                 if (p_operation & ImGuizmo::TRANSLATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
@@ -258,7 +258,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 // }
 
 Scene* SceneViewTab::getResolvedScene() {
-    return app_services_.sceneRegistry().resolve(preview_scene_id_);
+    return engine_services_.sceneRegistry().resolve(preview_scene_id_);
 }
 
 }  // namespace cave

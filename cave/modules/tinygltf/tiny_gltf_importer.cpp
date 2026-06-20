@@ -124,7 +124,7 @@ Result<void> TinyGltfImporter::Import() {
             const tinygltf::BufferView& buffer_view = m_model->bufferViews[accessor.bufferView];
             const tinygltf::Buffer& buffer = m_model->buffers[buffer_view.buffer];
             skeleton.inverse_bind_matrices.resize(accessor.count);
-            memcpy(skeleton.inverse_bind_matrices.data(), &buffer.data[accessor.byteOffset + buffer_view.byteOffset], accessor.count * sizeof(Matrix4x4f));
+            memcpy(skeleton.inverse_bind_matrices.data(), &buffer.data[accessor.byteOffset + buffer_view.byteOffset], accessor.count * sizeof(Mat4f));
         } else {
             LOG_FATAL("No inverse matrices found");
         }
@@ -553,7 +553,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 
     TransformComponent& transform = *m_scene->component<TransformComponent>(node_id);
     if (!node.matrix.empty()) {
-        Matrix4x4f matrix;
+        Mat4f matrix;
         matrix[0].x = float(node.matrix.at(0));
         matrix[0].y = float(node.matrix.at(1));
         matrix[0].z = float(node.matrix.at(2));

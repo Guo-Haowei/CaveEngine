@@ -19,7 +19,7 @@ entities:
       translation: [-6, -5, -0.290982485]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-    TileMapRendererComponent:
+    TileMapInstanceComponent:
       tile_map_id: 8B4DBABB-43B4-3048-A8F93F43AD349908
       tint_color: [1, 1, 1, 1]
   - id: 3
@@ -31,7 +31,7 @@ entities:
       translation: [4.24632502, -12.8216181, -1]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-    TileMapRendererComponent:
+    TileMapInstanceComponent:
       tile_map_id: 9FE5F444-57A6-0047-801BB379815BDC96
       tint_color: [1, 1, 1, 1]
   - id: 8

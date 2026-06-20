@@ -40,7 +40,7 @@ Vector3f AABB::Corner(int p_index) const {
 }
 #endif
 
-void AABB::ApplyMatrix(const Matrix4x4f& p_mat4) {
+void AABB::ApplyMatrix(const Mat4f& p_mat4) {
     const Vec4f points[] = { Vec4f(m_min.x, m_min.y, m_min.z, 1.0f), Vec4f(m_min.x, m_min.y, m_max.z, 1.0f),
                              Vec4f(m_min.x, m_max.y, m_min.z, 1.0f), Vec4f(m_min.x, m_max.y, m_max.z, 1.0f),
                              Vec4f(m_max.x, m_min.y, m_min.z, 1.0f), Vec4f(m_max.x, m_min.y, m_max.z, 1.0f),

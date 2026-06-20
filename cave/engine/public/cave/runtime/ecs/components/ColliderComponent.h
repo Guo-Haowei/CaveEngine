@@ -6,8 +6,8 @@
 #include "cave/runtime/ecs/ComponentDefines.h"
 
 #define FLAG_GETTER_SETTER(FLAG, DATA)             \
-    bool Has##FLAG() const { return DATA & FLAG; } \
-    void Set##FLAG(bool p_value = true) { p_value ? DATA |= FLAG : DATA &= ~FLAG; }
+    bool has##FLAG() const { return DATA & FLAG; } \
+    void set##FLAG(bool value = true) { value ? DATA |= FLAG : DATA &= ~FLAG; }
 
 /*
 [Entity Root]
@@ -51,62 +51,62 @@ struct Shape {
 
     Shape();
 
-    static Shape MakeBox(const math::Vec2f& p_half);
-    static Shape MakeBox(const math::Vec3f& p_half);
-    static Shape MakeRound(float p_half);
+    static Shape makeBox(const math::Vec2f& half);
+    static Shape makeBox(const math::Vec3f& half);
+    static Shape makeRound(float half);
 };
 
-ISerializer& WriteObject(ISerializer& s, const Shape& p_shape);
+ISerializer& WriteObject(ISerializer& s, const Shape& shape);
 
-bool ReadObject(IDeserializer& d, Shape& p_shape);
+bool ReadObject(IDeserializer& d, Shape& shape);
 
 class ColliderComponent {
     CAVE_COMPONENT(ColliderComponent)
 
     enum : uint32_t {
         None = 0,
-        FixedRotationFlag = BIT(0),
-        SensorFlag = BIT(1),
-        BulletFlag = BIT(2),
+        FixedRotationFlag = 1,
+        SensorFlag = 2,
+        BulletFlag = 4,
     };
 
 private:
     CAVE_PROP(editor = EnumDropDown)
-    BodyType m_body_type;
+    BodyType body_type_;
 
     CAVE_PROP(editor = Toggle, serialize = false)
-    bool m_debug_draw = true;
+    bool debug_draw_ = true;
 
     CAVE_PROP()
-    Shape m_shape;
+    Shape shape_;
 
     CAVE_PROP()
-    uint32_t m_flags = None;
+    uint32_t flags_ = None;
 
     CAVE_PROP()
-    uint64_t m_category = 0;
+    uint64_t category_ = 0;
 
     CAVE_PROP()
-    uint64_t m_mask = 0;
+    uint64_t mask_ = 0;
 
     // Non-serialized
-    mutable uint64_t m_user_data = 0;
+    mutable uint64_t user_data_ = 0;
 
     friend class Box2dPhysicsManager;
     friend class Bullet3PhysicsManager;
 
 public:
-    FLAG_GETTER_SETTER(FixedRotationFlag, m_flags)
-    FLAG_GETTER_SETTER(SensorFlag, m_flags)
-    FLAG_GETTER_SETTER(BulletFlag, m_flags)
+    FLAG_GETTER_SETTER(FixedRotationFlag, flags_)
+    FLAG_GETTER_SETTER(SensorFlag, flags_)
+    FLAG_GETTER_SETTER(BulletFlag, flags_)
 
-    Shape& GetShape() { return m_shape; }
-    const Shape& GetShape() const { return m_shape; }
+    Shape& shape() { return shape_; }
+    const Shape& shape() const { return shape_; }
 
-    BodyType& GetBodyType() { return m_body_type; }
-    const BodyType& GetBodyType() const { return m_body_type; }
+    BodyType& bodyType() { return body_type_; }
+    const BodyType& bodyType() const { return body_type_; }
 
-    bool GetDebugDraw() const { return m_debug_draw; }
+    bool debugDraw() const { return debug_draw_; }
 };
 
 }  // namespace cave

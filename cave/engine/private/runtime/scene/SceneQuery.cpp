@@ -4,16 +4,27 @@
 
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SystemManager.h"
 
 namespace cave {
 
 using namespace math;
+
+ISceneSystem* SceneQuery::system(SceneSystemId id) {
+    if (scene_.systems_ == nullptr) {
+        return nullptr;
+    }
+
+    return scene_.systems_->get(id);
+}
 
 ecs::Entity SceneQuery::findFirstByName(std::string_view p_name) const {
     return scene_.findEntityByName(p_name);
 }
 
 void* SceneQuery::component(ComponentId cid, ecs::Entity ent) {
+    scene_.systems_->get(SceneSystemId::TileWorld);
+
     return scene_.storage_.GetRaw(ent, cid);
 }
 
@@ -29,7 +40,7 @@ static bool RaycastHelper(Ray& ray,
                           const MeshAsset& mesh,
                           const TransformComponent& transform) {
 
-    Matrix4x4f model_inv = glm::inverse(transform.GetWorldMatrix());
+    Mat4f model_inv = glm::inverse(transform.GetWorldMatrix());
     Ray ray_inv = ray.inverse(model_inv);
     // make a copy, so aabb test doesn't change t
     if (!Ray(ray_inv).intersects(mesh.localBound)) {

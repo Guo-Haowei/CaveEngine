@@ -113,7 +113,7 @@ static void FillPass(const RenderScene& p_rs,
                 DEV_ASSERT(skeleton->bone_transforms.size() <= MAX_BONE_COUNT);
 
                 BoneConstantBuffer bone;
-                memcpy(bone.c_bones, skeleton->bone_transforms.data(), sizeof(Matrix4x4f) * skeleton->bone_transforms.size());
+                memcpy(bone.c_bones, skeleton->bone_transforms.data(), sizeof(Mat4f) * skeleton->bone_transforms.size());
 
                 // @TODO: better memory usage
                 draw.bone_idx = p_framedata.boneCache.FindOrAdd(skeleton_id, bone);
@@ -186,7 +186,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
         light.color *= material.emissive;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
-                Matrix4x4f light_local_matrix = light_transform->GetLocalMatrix();
+                Mat4f light_local_matrix = light_transform->GetLocalMatrix();
                 Vec3f light_dir((light_local_matrix * Vec4f(0, 0, 1, 1)).xyz);
                 light_dir = normalize(light_dir);
                 cache.c_sunPosition = light_dir;
@@ -278,7 +278,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
 #endif
             } break;
             case LIGHT_TYPE_AREA: {
-                Matrix4x4f transform = light_transform->GetWorldMatrix();
+                Mat4f transform = light_transform->GetWorldMatrix();
                 constexpr float s = 0.5f;
                 light.points[0] = transform * Vec4f(-s, +s, 0.0f, 1.0f);
                 light.points[1] = transform * Vec4f(-s, -s, 0.0f, 1.0f);
@@ -364,7 +364,7 @@ static void FillMeshEmitterBuffer(const Scene& p_scene,
         auto mesh = p_scene.GetComponent<MeshComponent>(emitter.meshId);
         if (DEV_VERIFY(transform && mesh)) {
             PerBatchConstantBuffer batch_buffer;
-            batch_buffer.c_worldMatrix = Matrix4x4f(1);
+            batch_buffer.c_worldMatrix = Mat4f(1);
             batch_buffer.c_meshFlag = MESH_HAS_INSTANCE;
 
             BatchContext draw;
@@ -393,9 +393,9 @@ static void FillMeshEmitterBuffer(const Scene& p_scene,
             for (auto index : emitter.aliveList) {
                 const auto& p = emitter.particles[index.v];
 
-                Matrix4x4f translation = Translate(p.position);
-                Matrix4x4f scale = Scale(Vector3f(p.scale));
-                Matrix4x4f rotation = glm::toMat4(glm::quat(glm::vec3(p.rotation.x, p.rotation.y, p.rotation.z)));
+                Mat4f translation = Translate(p.position);
+                Mat4f scale = Scale(Vector3f(p.scale));
+                Mat4f rotation = glm::toMat4(glm::quat(glm::vec3(p.rotation.x, p.rotation.y, p.rotation.z)));
                 gpu_buffer.c_bones[i++] = translation * rotation * scale;
             }
 

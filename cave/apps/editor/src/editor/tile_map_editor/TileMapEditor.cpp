@@ -4,6 +4,8 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/display/DisplayService.h"
+#include "cave/runtime/display/IDebugDrawService.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "editor/EditorState.h"
 #include "editor/panels/AssetInspector.h"
@@ -15,7 +17,6 @@
 // @TODO: remove
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
-#include "engine/private/runtime/assets/TileSetAsset.h"
 
 namespace cave {
 
@@ -66,7 +67,7 @@ bool TileMapEditor::canHandleInput(const InputFrame& input) {
         return false;
     }
 
-    const KeyState& st = app_services_.inputService().keyState();
+    const KeyState& st = engine_services_.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return false;
     }
@@ -121,42 +122,59 @@ bool TileMapEditor::updateEditMode(const InputFrame& input) {
     return should_apply && mode_ != Mode::None;
 }
 
-void TileMapEditor::applayEditorTool() {
-    IDocument* doc = editor_services_.document().resolve(doc_id_);
-    DEV_ASSERT(doc);
-
-    Vec2f point_os = cursor_ + app_services_.displayService().windowPos();
+void TileMapEditor::updateTileCoord() {
+    Vec2f point_os = cursor_ + engine_services_.displayService().windowPos();
     auto res = pointToTile(point_os);
     if (res.is_none()) {
         return;
     }
 
-    TileCoord tile_index = res.unwrap_unchecked();
+    coord_ = res.unwrap_unchecked();
+
+    Vec2f min{ coord_.x, coord_.y };
+    Vec2f max{ coord_.x + 1, coord_.y + 1 };
+    engine_services_.debugDraw().addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
+}
+
+void TileMapEditor::applayEditorTool() {
+    IDocument* doc = editor_services_.document().resolve(doc_id_);
+    DEV_ASSERT(doc);
 
     TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
 
-    Option<TileId> old_tile = tile_map->tileAt(tile_index);
-    Option<TileId> new_tile = Some(kEmptyTileId);
+    Option<TileId> old_tile = tile_map->tiles().tileAt(coord_);
+    Option<TileId> new_tile = None();
 
-    if (mode_ == Mode::Painting) {
-        auto selections = ctx_.sprite_selector.GetSelections();
-        if (!selections.empty()) {
+    switch (mode_) {
+        case cave::TileMapEditor::Mode::None:
+            return;
+        case cave::TileMapEditor::Mode::Painting: {
+            auto selections = ctx_.sprite_selector.GetSelections();
+            if (selections.empty()) {
+                return;
+            }
             auto [x, y] = selections[0];
             if (x >= 0 && y >= 0) {
                 TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
-                const uint32_t tile_id = y * tile_set->GetCol() + x;
+                const uint32_t tile_id = y * tile_set->col() + x;
                 new_tile = Some(TileId(tile_id));
             }
-        }
+        } break;
+        case cave::TileMapEditor::Mode::Erasing: {
+            // old tile is already None
+            if (old_tile.unwrap_or(kEmptyTileId) == kEmptyTileId) {
+                return;
+            }
+        } break;
     }
 
     if (old_tile == new_tile) {
         return;  // no op if the tiles are the same
     }
 
-    auto cmd = std::make_unique<SetTileCommand>(app_services_.sceneRegistry(),
+    auto cmd = std::make_unique<SetTileCommand>(engine_services_.sceneRegistry(),
                                                 ecs::Entity::Null(),
-                                                tile_index,
+                                                coord_,
                                                 old_tile,
                                                 new_tile);
     editor_services_.edit().submit(doc_id_, std::move(cmd));
@@ -167,9 +185,10 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    camera_controller_->Update(input);
+    camera_controller_->update(input);
 
     const bool should_apply_edit = updateEditMode(input);
+    updateTileCoord();
     if (should_apply_edit) {
         applayEditorTool();
     }
@@ -195,7 +214,7 @@ Option<TileCoord> TileMapEditor::pointToTile(math::Vec2f point_os) {
 
     Vec2f ndc = view->screenToNDC(point_os);
 
-    Matrix4x4f pv_inv = glm::inverse(camera_.GetProjectionViewMatrix());
+    Mat4f pv_inv = glm::inverse(camera_.GetProjectionViewMatrix());
 
     Vec4f pos = pv_inv * Vec4f(ndc, 0.0f, 1.0f);
     pos /= pos.w;

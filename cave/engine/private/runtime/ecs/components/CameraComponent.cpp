@@ -4,11 +4,11 @@
 
 namespace cave {
 
-using math::Matrix4x4f;
+using math::Mat4f;
 using math::Vec3f;
 using math::Vec4f;
 
-Matrix4x4f CameraComponent::CalcProjection() const {
+Mat4f CameraComponent::CalcProjection() const {
     if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
@@ -22,7 +22,7 @@ Matrix4x4f CameraComponent::CalcProjection() const {
     return math::BuildPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
 }
 
-Matrix4x4f CameraComponent::CalcProjectionGL() const {
+Mat4f CameraComponent::CalcProjectionGL() const {
     if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * GetAspect();
@@ -36,7 +36,7 @@ Matrix4x4f CameraComponent::CalcProjectionGL() const {
     return math::BuildOpenGlPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
 }
 
-bool CameraComponent::Update(const math::Matrix4x4f& p_transform) {
+bool CameraComponent::Update(const math::Mat4f& p_transform) {
     // @NOTE: the logic is wrong here,
     // if the transform has changed, the cache must update too
     if (IsDirty() || true) {

@@ -11,36 +11,36 @@ struct InputFrame;
 class ICameraController {
 public:
     virtual ~ICameraController() = default;
-    virtual void Update(const InputFrame& p_input) = 0;
+    virtual void update(const InputFrame& input) = 0;
 };
 
 class CameraController2DEditor : public ICameraController {
 public:
-    CameraController2DEditor(CameraComponent& p_camera,
-                             TransformComponent& p_transform);
+    CameraController2DEditor(CameraComponent& camera,
+                             TransformComponent& transform);
 
-    void Update(const InputFrame& p_input) final;
+    void update(const InputFrame& input) final;
 
 private:
-    CameraComponent& m_camera;
-    TransformComponent& m_root;
+    CameraComponent& camera_;
+    TransformComponent& root_;
 };
 
 class CameraControllerFPS : public ICameraController {
 public:
-    CameraControllerFPS(CameraComponent& p_camera,
-                        TransformComponent& p_transform);
+    CameraControllerFPS(CameraComponent& camera,
+                        TransformComponent& transform);
 
-    void Update(const InputFrame& p_input) final;
+    void update(const InputFrame& input) final;
 
 private:
-    CameraComponent& m_camera;
-    TransformComponent& m_root;
-    float m_pitch{ 0.0f };
+    CameraComponent& camera_;
+    TransformComponent& root_;
+    float pitch_{ 0.0f };
 
-    float m_move_speed{ 10.0f };
-    float m_rotate_speed{ 10.0f };
-    float m_scroll_speed{ 2.0f };
+    float move_speed_{ 10.0f };
+    float rotate_speed_{ 10.0f };
+    float scroll_speed_{ 2.0f };
 };
 
 }  // namespace cave

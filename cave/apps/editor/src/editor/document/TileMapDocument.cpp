@@ -22,7 +22,7 @@ TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
 
     Entity ent = cb.CreateTileMapObject("tilemap");
     cb.AttachChild(ent, root);
-    cb.SetProperty(ent, TileMapRendererComponent_Id, "tile_map_id"_sid, guid);
+    cb.SetProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, guid);
 
     auto scene = std::make_unique<Scene>(std::format("preview-tile-map-{}", guid.ToString()));
 

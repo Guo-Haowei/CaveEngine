@@ -7,10 +7,10 @@ namespace cave {
 class Scene;
 
 struct CameraParams {
-    math::Matrix4x4f view;
-    math::Matrix4x4f proj;
-    math::Matrix4x4f view_inv;
-    math::Matrix4x4f proj_inv;
+    math::Mat4f view;
+    math::Mat4f proj;
+    math::Mat4f view_inv;
+    math::Mat4f proj_inv;
 };
 
 struct ResolvedView {

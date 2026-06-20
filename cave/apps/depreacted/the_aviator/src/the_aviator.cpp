@@ -278,7 +278,7 @@ Scene* SceneCreator::CreateScene() {
         // @TODO: NEG_UNIT_X
         // @TODO: NEG_UNIT_Y
         // @TODO: NEG_UNIT_Z
-        Matrix4x4f matrix = Translate(Vector3f(x, y, -50.0f)) * Rotate(rad, Vector3f(0, 0, -1));
+        Mat4f matrix = Translate(Vector3f(x, y, -50.0f)) * Rotate(rad, Vector3f(0, 0, -1));
         transform->SetLocalTransform(matrix);
         create_cloud(cloud_index, cloud);
     }
@@ -624,8 +624,8 @@ void SceneCreator::CreatePlane(Scene* p_scene) {
     }
 
     {
-        Matrix4x4f rotation = Rotate(Degree(160.f), Vector3f(0, 0, 1));
-        Matrix4x4f translation = Translate(Vector3f(-3.3f, -0.2f, 0.0f));
+        Mat4f rotation = Rotate(Degree(160.f), Vector3f(0, 0, 1));
+        Mat4f translation = Translate(Vector3f(-3.3f, -0.2f, 0.0f));
         auto suspension = EntityFactory::CreateCubeEntity(*p_scene, "suspension",
                                                           material_red,
                                                           Vector3f(0.2f, 1.0f, 0.2f),

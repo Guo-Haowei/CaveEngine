@@ -21,7 +21,7 @@ using Quaternion = glm::quat;
 template<typename T>
 constexpr inline float Saturate(T p_x) { return glm::min(T(1), glm::max(T(0), p_x)); }
 
-static inline void Decompose(const Matrix4x4f& p_matrix, Vec3f& p_scale, Vec4f& p_rotation, Vec3f& p_translation) {
+static inline void Decompose(const Mat4f& p_matrix, Vec3f& p_scale, Vec4f& p_rotation, Vec3f& p_translation) {
     glm::vec3 scale;
     glm::vec3 translation;
     Quaternion quaternion;

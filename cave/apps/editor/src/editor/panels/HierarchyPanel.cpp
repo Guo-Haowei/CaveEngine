@@ -240,7 +240,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& p_ctx) {
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
                 auto cmd = std::make_unique<DeleteObjectCmd>(
-                    app_services_.sceneRegistry(),
+                    engine_services_.sceneRegistry(),
                     selected);
                 editor_services_.edit().submit(p_ctx.doc_id, std::move(cmd));
             }

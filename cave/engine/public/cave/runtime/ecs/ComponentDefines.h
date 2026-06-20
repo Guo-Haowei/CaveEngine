@@ -38,7 +38,7 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)             \
     REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)                     \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)         \
-    REGISTER_COMPONENT(TileMapRendererComponent, "World::TileMapRendererComponent", 0)
+    REGISTER_COMPONENT(TileMapInstanceComponent, "World::TileMapInstanceComponent", 0)
 
 // @TODO: use meta table for all components
 #define REGISTER_COMPONENT_LIST        \

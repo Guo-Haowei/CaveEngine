@@ -77,7 +77,7 @@ auto Application::SetupModules() -> Result<void> {
     task_manager_ = new TaskManager();
 
     // @TODO: dependency injection?
-    renderer_ = std::make_unique<render::Renderer>(*render_device_);
+    renderer_ = std::make_unique<render::Renderer>(*render_device_, debug_draw_);
 
     scene_scheduler_ = std::make_unique<SceneScheduler>(scene_registry_);
 
@@ -96,6 +96,7 @@ auto Application::SetupModules() -> Result<void> {
     // setup app services
     services_.asset_manager_ = asset_manager_;
     services_.asset_registry_ = asset_registry_;
+    services_.debug_draw_ = &debug_draw_;
     services_.display_service_ = display_service_;
     services_.input_service_ = input_service_;
     services_.intent_dispatcher_ = &intent_dispatcher_;

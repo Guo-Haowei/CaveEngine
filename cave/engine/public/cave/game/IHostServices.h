@@ -12,6 +12,7 @@ namespace cave {
 
 class AssetRegistry;
 class DisplayService;
+class IDebugDrawService;
 class IGameInput;
 class IntentDispatcher;
 class IUIRuntime;
@@ -26,6 +27,7 @@ public:
     virtual AssetRegistry& assetRegistry() = 0;
     virtual ecs::ComponentRegistry& componentRegistry() = 0;
     virtual DisplayService& displayService() = 0;
+    virtual IDebugDrawService& debugDraw() = 0;
     virtual const IGameInput& gameInput() const = 0;
     virtual IntentDispatcher& intentDispatcher() = 0;
     virtual IUIRuntime& ui() = 0;

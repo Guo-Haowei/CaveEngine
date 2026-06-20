@@ -13,11 +13,11 @@ WARNING_POP()
 
 namespace cave::math {
 
-using Matrix4x4f = glm::mat4;
+using Mat4f = glm::mat4;
 
-constexpr inline Vector<float, 4> operator*(const glm::mat4& p_lhs, const Vector<float, 4>& p_rhs) {
-    glm::vec4 tmp(p_rhs.x, p_rhs.y, p_rhs.z, p_rhs.w);
-    tmp = p_lhs * tmp;
+constexpr inline Vector<float, 4> operator*(const glm::mat4& lhs, const Vector<float, 4>& rhs) {
+    glm::vec4 tmp(rhs.x, rhs.y, rhs.z, rhs.w);
+    tmp = lhs * tmp;
     return Vector<float, 4>(tmp.x, tmp.y, tmp.z, tmp.w);
 }
 

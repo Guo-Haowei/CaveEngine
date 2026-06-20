@@ -52,16 +52,16 @@ private:
     math::Vec3f m_up = math::Vec3f::UnitY;
     math::Vec3f m_position = math::Vec3f::Zero;
 
-    math::Matrix4x4f m_view_matrix;
-    math::Matrix4x4f m_projection_matrix;
-    math::Matrix4x4f m_projection_view_matrix;
+    math::Mat4f m_view_matrix;
+    math::Mat4f m_projection_matrix;
+    math::Mat4f m_projection_view_matrix;
 
 public:
     static constexpr float kDefaultNear = 0.1f;
     static constexpr float kDefaultFar = 1000.0f;
     static constexpr float kDefaultFovy = 60.0f;
 
-    bool Update(const math::Matrix4x4f& p_transform);
+    bool Update(const math::Mat4f& p_transform);
 
     float GetFovy() const { return m_fovy; }
 
@@ -93,14 +93,14 @@ public:
     float GetOrthoHeight() const { return m_ortho_height; }
     void SetOrthoHeight(float p_height);
 
-    math::Matrix4x4f CalcProjection() const;
-    math::Matrix4x4f CalcProjectionGL() const;
+    math::Mat4f CalcProjection() const;
+    math::Mat4f CalcProjectionGL() const;
 
     // ---------------- Accessors ----------------
     // these values are modified by Update() function only
-    const math::Matrix4x4f& GetViewMatrix() const { return m_view_matrix; }
-    const math::Matrix4x4f& GetProjectionMatrix() const { return m_projection_matrix; }
-    const math::Matrix4x4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
+    const math::Mat4f& GetViewMatrix() const { return m_view_matrix; }
+    const math::Mat4f& GetProjectionMatrix() const { return m_projection_matrix; }
+    const math::Mat4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
 
     const math::Vec3f& GetFront() const { return m_front; }
     const math::Vec3f& GetRight() const { return m_right; }

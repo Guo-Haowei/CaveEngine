@@ -23,21 +23,21 @@ void ViewManager::beginFrame() {
 static ResolvedView ResolveView(ViewDesc&& view_desc,
                                 Scene* scene,
                                 bool is_opengl) {
-    using math::Matrix4x4f;
+    using math::Mat4f;
 
     // https://tomhultonharrop.com/mathematics/graphics/2023/08/06/reverse-z.html
-    auto reverse_z = [](math::Matrix4x4f& perspective) {
-        constexpr math::Matrix4x4f matrix{ 1.0f, 0.0f, 0.0f, 0.0f,
-                                           0.0f, 1.0f, 0.0f, 0.0f,
-                                           0.0f, 0.0f, -1.0f, 0.0f,
-                                           0.0f, 0.0f, 1.0f, 1.0f };
+    auto reverse_z = [](math::Mat4f& perspective) {
+        constexpr math::Mat4f matrix{ 1.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 1.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, -1.0f, 0.0f,
+                                      0.0f, 0.0f, 1.0f, 1.0f };
         perspective = matrix * perspective;
     };
-    auto normalize_unit_range = [](math::Matrix4x4f& perspective) {
-        constexpr math::Matrix4x4f matrix{ 1.0f, 0.0f, 0.0f, 0.0f,
-                                           0.0f, 1.0f, 0.0f, 0.0f,
-                                           0.0f, 0.0f, 0.5f, 0.0f,
-                                           0.0f, 0.0f, 0.5f, 1.0f };
+    auto normalize_unit_range = [](math::Mat4f& perspective) {
+        constexpr math::Mat4f matrix{ 1.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 1.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.5f, 0.0f,
+                                      0.0f, 0.0f, 0.5f, 1.0f };
         perspective = matrix * perspective;
     };
 
@@ -56,8 +56,8 @@ static ResolvedView ResolveView(ViewDesc&& view_desc,
             }
         } break;
     }
-    Matrix4x4f view;
-    Matrix4x4f proj;
+    Mat4f view;
+    Mat4f proj;
     float fovy_rad = 0.0f;
     if (cam) {
         view = cam->GetViewMatrix();

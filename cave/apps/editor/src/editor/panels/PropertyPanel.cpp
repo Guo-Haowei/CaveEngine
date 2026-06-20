@@ -41,7 +41,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(Collider)        \
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
-    COMPONENT_DECL(TileMapRenderer) \
+    COMPONENT_DECL(TileMapInstance) \
     COMPONENT_DECL(PrefabInstance)
 
 struct DrawComponentCtx {
@@ -114,7 +114,7 @@ bool DrawAsset(const char* p_name,
     const IAsset* asset = nullptr;
 
     ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, ui::DEFAULT_COLUMN_WIDTH);
+    ImGui::SetColumnWidth(0, ui::kDefaultColumnWidth);
     ImGui::Text(ICON_FA_CUBE "  %s", p_name);
     ImGui::NextColumn();
 
@@ -176,7 +176,7 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
                       const DrawComponentCtx& p_ctx) {
     switch (p_property->editor_hint) {
         case EditorHint::EnumDropDown:
-            return p_property->DrawEditor(p_component, ui::DEFAULT_COLUMN_WIDTH);
+            return p_property->DrawEditor(p_component, ui::kDefaultColumnWidth);
         case EditorHint::Toggle:
             return EditAndSubmit<T, bool>(
                 p_ctx, p_component, p_property,
@@ -313,7 +313,7 @@ void PropertyPanel::drawUIImpl() {
         FixedString<64> name = name_component->GetNameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                app_services_.sceneRegistry(),
+                engine_services_.sceneRegistry(),
                 id,
                 NameComponent_Id,
                 "name"_sid,
@@ -337,7 +337,7 @@ void PropertyPanel::drawUIImpl() {
             return;
         }
         auto cmd = std::make_unique<AddComponentCmd>(
-            app_services_.sceneRegistry(),
+            engine_services_.sceneRegistry(),
             id,
             cid);
         edit_service.submit(doc_id, std::move(cmd));
@@ -375,7 +375,7 @@ void PropertyPanel::drawUIImpl() {
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
     DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&](TransformComponent& p_transform) {
-        const math::Matrix4x4f old_transform = p_transform.GetLocalMatrix();
+        const math::Mat4f old_transform = p_transform.GetLocalMatrix();
 
         TransformComponent copy = p_transform;
         const bool dirty = DrawComponentAuto<TransformComponent>(&copy, ctx);
@@ -395,15 +395,16 @@ void PropertyPanel::drawUIImpl() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Lua Script"), lua_script, [&](LuaScriptComponent& p_script) {
-        FixedString<32>& name = p_script.GetClassNameRef();
-        ui::TextBox("class_name", name.data(), name.size());
+    DrawComponent(DRAW_COMPONENT_ARGS("Lua Script"), lua_script, [&](LuaScriptComponent& script) {
+        FixedString<32>& name = script.GetClassNameRef();
+        ui::TextBox("class_name", name.data(), name.capacity(), false);
 
-        DrawComponentAuto<LuaScriptComponent>(&p_script, ctx);
+        DrawComponentAuto<LuaScriptComponent>(&script, ctx);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Native Script"), native_script, [&](NativeScriptComponent& script) {
-        ui::TextBox("class_name", script.name.data(), script.name.size());
+        FixedString<32>& name = script.name;
+        ui::TextBox("class_name", name.data(), name.capacity(), false);
 
         DrawComponentAuto<NativeScriptComponent>(&script, ctx);
     });
@@ -421,17 +422,13 @@ void PropertyPanel::drawUIImpl() {
     DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& p_collider) {
         DrawComponentAuto<ColliderComponent>(&p_collider, ctx);
 
-        Shape& shape = p_collider.GetShape();
-        DrawEnumDropDown("shape", shape.type, ui::DEFAULT_COLUMN_WIDTH);
+        Shape& shape = p_collider.shape();
+        DrawEnumDropDown("shape", shape.type, ui::kDefaultColumnWidth);
         switch (shape.type) {
             case ShapeType::Round: {
                 ui::InputFloat("radius", shape.data.radius);
             } break;
             case ShapeType::Box: {
-                // if (is_2d) {
-                //     ui::Float2("half", reinterpret_cast<math::Vector2f&>(shape.data.half), 0.5f);
-                // } else {
-                // }
                 ui::Float3("half", shape.data.half, 0.5f);
             } break;
             default:
@@ -488,9 +485,9 @@ void PropertyPanel::drawUIImpl() {
                   });
 
     DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"),
-                  scene.component<TileMapRendererComponent>(id),
-                  [&](TileMapRendererComponent& p_renderer) {
-                      DrawComponentAuto<TileMapRendererComponent>(&p_renderer, ctx);
+                  scene.component<TileMapInstanceComponent>(id),
+                  [&](TileMapInstanceComponent& p_renderer) {
+                      DrawComponentAuto<TileMapInstanceComponent>(&p_renderer, ctx);
                   });
 
     MeshRendererComponent* mesh_renderer = scene.component<MeshRendererComponent>(id);

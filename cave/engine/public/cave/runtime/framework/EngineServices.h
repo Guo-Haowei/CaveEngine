@@ -9,9 +9,11 @@ namespace cave::render { class IRenderDevice; }
 // clang-format on
 
 namespace cave {
+
 class AssetRegistry;
 class DisplayService;
 class IAssetManager;
+class IDebugDrawService;
 class InputService;
 class IntentDispatcher;
 class IUIRuntime;
@@ -28,6 +30,7 @@ struct EngineServices {
     AssetRegistry* asset_registry_{};
     DisplayService* display_service_{};
     IAssetManager* asset_manager_{};
+    IDebugDrawService* debug_draw_{};
     InputService* input_service_{};
     IntentDispatcher* intent_dispatcher_{};
     IUIRuntime* ui_{};
@@ -44,19 +47,20 @@ struct EngineServices {
     render::Renderer* renderer_{};
 
     AssetRegistry& assetRegistry() { return *asset_registry_; }
-    DisplayService& displayService() { return *display_service_; }
     IAssetManager& assetManager() { return *asset_manager_; }
+    IDebugDrawService& debugDraw() { return *debug_draw_; }
+    DisplayService& displayService() { return *display_service_; }
     InputService& inputService() { return *input_service_; }
     IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
-    IUIRuntime& ui() { return *ui_; }
     NativeScriptRegistry& nativeScripts() { return *native_scripts_; }
     ProjectManager& projectManager() { return *project_manager_; }
     SceneQueryService& sceneQuery() { return *scene_query_; }
     SceneRegistry& sceneRegistry() { return *scene_registry_; }
     SceneScheduler& sceneScheduler() { return *scene_scheduler_; }
     TaskManager& taskManager() { return *task_manager_; }
-    ViewManager& viewManager() { return *view_manager_; }
+    IUIRuntime& ui() { return *ui_; }
     VFS& vfs() { return *vfs_; }
+    ViewManager& viewManager() { return *view_manager_; }
 
     render::Renderer& renderer() { return *renderer_; };
     render::IRenderDevice& renderDevice() { return *render_device_; };

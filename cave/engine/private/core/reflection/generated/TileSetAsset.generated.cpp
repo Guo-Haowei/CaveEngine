@@ -2,30 +2,30 @@
 // Auto-generated metadata for TileSetAsset.h
 // Check generate_meta.py for more details
 
-#include "engine/private/runtime/assets/TileSetAsset.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/serialization/yaml_include.h"
 
 namespace cave {
 
-// Guid m_image_guid (editor = Asset)
-// float m_tile_scale (editor = DragFloat, min = 0.01f, max = 100.0f)
-// uint32_t m_width ()
-// uint32_t m_height ()
-// uint32_t m_row (editor = InputInt, min = 1, max = 1000)
-// uint32_t m_column (editor = InputInt, min = 1, max = 1000)
-// std::map<uint32_t, Shape> m_colliders ()
+// Guid image_guid_ (editor = Asset)
+// float tile_scale_ (editor = DragFloat, min = 0.01f, max = 100.0f)
+// uint32_t width_ ()
+// uint32_t height_ ()
+// uint32_t row_ (editor = InputInt, min = 1, max = 1000)
+// uint32_t column_ (editor = InputInt, min = 1, max = 1000)
+// std::map<uint32_t, Shape> colliders_ ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TileSetAsset, "image_guid", m_image_guid, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(TileSetAsset, "tile_scale", m_tile_scale, FieldFlag::Serialize, EditorHint::DragFloat, 0.01f, 100.0f),
-        REGISTER_FIELD(TileSetAsset, "width", m_width, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(TileSetAsset, "height", m_height, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(TileSetAsset, "row", m_row, FieldFlag::Serialize, EditorHint::InputInt, 1, 1000),
-        REGISTER_FIELD(TileSetAsset, "column", m_column, FieldFlag::Serialize, EditorHint::InputInt, 1, 1000),
-        REGISTER_FIELD(TileSetAsset, "colliders", m_colliders, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(TileSetAsset, "image_guid", image_guid_, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(TileSetAsset, "tile_scale", tile_scale_, FieldFlag::Serialize, EditorHint::DragFloat, 0.01f, 100.0f),
+        REGISTER_FIELD(TileSetAsset, "width", width_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(TileSetAsset, "height", height_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(TileSetAsset, "row", row_, FieldFlag::Serialize, EditorHint::InputInt, 1, 1000),
+        REGISTER_FIELD(TileSetAsset, "column", column_, FieldFlag::Serialize, EditorHint::InputInt, 1, 1000),
+        REGISTER_FIELD(TileSetAsset, "colliders", colliders_, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;
