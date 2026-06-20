@@ -405,8 +405,8 @@ void PlayerController::onUpdate(float dt) {
     // 4. horizontal/state movement
     motor_.grabbing = CheckWallGrab(ComputeWorldAABB(*transform, *collider), motor_.vspeed * dt, motor_, *tile_world);
     TryJump(motor_, jump_pressed);
-    MoveVertical(*transform, *collider, motor_, *tile_world, dt);
     MoveHorizontal(*transform, *collider, motor_, *tile_world, dt);
+    MoveVertical(*transform, *collider, motor_, *tile_world, dt);
 
     //-------------------------------------
     // debug draw, ignore

@@ -5,6 +5,14 @@
 
 namespace super_cave_boy {
 
+enum class PlayerState {
+    Idle,
+    Walk,
+    Air,
+    Grab,
+    Hurt,
+};
+
 struct LegacyPlayerMotor {
     float speed = 5.5f;
 
@@ -22,7 +30,7 @@ struct LegacyPlayerMotor {
 
     // Direction face = Direction::Right;
 
-    // PlayerState state = PlayerState::Jumping;
+    PlayerState state = PlayerState::Air;
 };
 
 class PlayerController : public ::cave::NativeScript {
