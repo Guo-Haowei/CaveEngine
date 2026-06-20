@@ -45,12 +45,6 @@ private:
     uint32_t revision_{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
-    Option<TileId> tileAt(TileCoord coord) const;
-
-    bool addTile(TileCoord coord, TileId id);
-
-    bool removeTile(TileCoord coord);
-
     const Handle<TileSetAsset>& tileSetHandle() const { return tile_set_handle_; }
 
     std::string& name() { return name_; }
@@ -60,6 +54,7 @@ public:
     const Guid& tileSetGuid() const { return tile_set_id_; }
     void tileSetGuid(const Guid& guid, bool force = false);
 
+    TileData& tiles() { return tiles_; }
     const TileData& tiles() const { return tiles_; }
 
     uint32_t revision() const { return revision_; }

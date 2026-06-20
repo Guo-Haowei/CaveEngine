@@ -15,63 +15,6 @@ int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
 
 }  // namespace
 
-Option<TileId> TileMapAsset::tileAt(TileCoord coord) const {
-    TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
-
-    auto it = tiles_.chunks.find(chunk_coord);
-    if (it == tiles_.chunks.end()) {
-        return None();
-    }
-
-    const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
-    const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
-    DEV_ASSERT_INDEX(x, kTileChunkSize);
-    DEV_ASSERT_INDEX(y, kTileChunkSize);
-
-    return Some(it->second->at(x, y));
-}
-
-bool TileMapAsset::addTile(TileCoord coord, TileId tile_id) {
-    TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
-
-    auto& chunk = tiles_.chunks[chunk_coord];
-    if (chunk == nullptr) {
-        chunk = std::make_unique<TileChunk>();
-        std::memset(chunk.get(), 0xFFFFFFFF, sizeof(TileChunk));
-    }
-
-    const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
-    const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
-
-    TileId& tile = chunk->at(x, y);
-    if (tile == tile_id) {
-        return false;
-    }
-
-    tile = tile_id;
-    return true;
-}
-
-bool TileMapAsset::removeTile(TileCoord coord) {
-    TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
-
-    auto it = tiles_.chunks.find(chunk_coord);
-    if (it == tiles_.chunks.end()) {
-        return false;
-    }
-
-    const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
-    const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
-
-    TileId& tile = it->second->at(x, y);
-    if (tile == kEmptyTileId) {
-        return false;
-    }
-
-    tile = kEmptyTileId;
-    return true;
-}
-
 void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
     const bool should_update = force_update || tile_set_id_ != guid;
     if (should_update) {
@@ -105,7 +48,7 @@ ISerializer& WriteObject(ISerializer& s, const TileData& tile_data) {
         return true;
     };
 
-    for (const auto& [index, chunk] : tile_data.chunks) {
+    for (const auto& [index, chunk] : tile_data.chunks()) {
         if (chunk_empty(*chunk.get())) {
             continue;
         }
@@ -154,7 +97,7 @@ bool ReadObject(IDeserializer& d, TileData& tile_data) {
             if (d.TryEnterKey("tiles")) {
                 auto chunk = std::make_unique<TileChunk>();
                 auto& tiles = chunk->tiles;
-                tile_data.chunks[TileChunkCoord(x, y)] = std::move(chunk);
+                tile_data.chunks()[TileChunkCoord(x, y)] = std::move(chunk);
 
                 constexpr int TILE_COUNT = kTileChunkSize * kTileChunkSize;
                 DEV_ASSERT(d.ArraySize().unwrap_or(0) == TILE_COUNT);

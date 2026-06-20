@@ -40,13 +40,24 @@ struct TileChunk {
     }
 };
 
-struct TileData {
-    std::unordered_map<TileChunkCoord, std::unique_ptr<TileChunk>> chunks;
-};
-
 TileChunkCoord ToTileChunkCoord(TileCoord coord);
 int16_t ToTileLocalX(TileCoord coord);
 int16_t ToTileLocalY(TileCoord coord);
 TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local_y);
+
+class TileData {
+public:
+    Option<TileId> tileAt(TileCoord coord) const;
+
+    bool addTile(TileCoord coord, TileId id);
+
+    bool removeTile(TileCoord coord);
+
+    auto& chunks() { return chunks_; }
+    const auto& chunks() const { return chunks_; }
+
+private:
+    std::unordered_map<TileChunkCoord, std::unique_ptr<TileChunk>> chunks_;
+};
 
 }  // namespace cave

@@ -56,7 +56,7 @@ public:
     void SetScale(float p_scale);
 
     bool AddBoxCollider(uint32_t p_id);
-    const auto& GetColliders() const { return m_colliders; }
+    Option<Shape> getCollider(uint16_t tile_id) const;
 
     void SetImage(const Guid& p_guid);
     const Handle<ImageAsset>& GetHandle() const { return m_image_handle; }

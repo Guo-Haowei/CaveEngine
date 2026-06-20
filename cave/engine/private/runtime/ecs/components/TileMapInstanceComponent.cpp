@@ -73,7 +73,7 @@ void TileMapInstanceComponent::createRenderData() {
     std::vector<Vec2f> uvs;
     std::vector<uint32_t> indices;
 
-    const auto& chunks = tile_map->tiles().chunks;
+    const auto& chunks = tile_map->tiles().chunks();
     if (chunks.empty()) {
         visible_ = false;
         return;

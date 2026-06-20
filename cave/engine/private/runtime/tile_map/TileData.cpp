@@ -8,7 +8,6 @@ int16_t FloorDiv(int16_t a, int16_t b) {
     return (a >= 0) ? (a / b) : ((a - b + 1) / b);
 }
 
-
 int16_t PositiveMod(int16_t value, int16_t divisor) {
     int16_t r = value % divisor;
     if (r < 0) {
@@ -42,6 +41,63 @@ TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local
         chunk_coord.x * kTileChunkSize + local_x,
         chunk_coord.y * kTileChunkSize + local_y,
     };
+}
+
+Option<TileId> TileData::tileAt(TileCoord coord) const {
+    TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
+
+    auto it = chunks_.find(chunk_coord);
+    if (it == chunks_.end()) {
+        return None();
+    }
+
+    const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
+    const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
+    DEV_ASSERT_INDEX(x, kTileChunkSize);
+    DEV_ASSERT_INDEX(y, kTileChunkSize);
+
+    return Some(it->second->at(x, y));
+}
+
+bool TileData::addTile(TileCoord coord, TileId tile_id) {
+    TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
+
+    auto& chunk = chunks_[chunk_coord];
+    if (chunk == nullptr) {
+        chunk = std::make_unique<TileChunk>();
+        std::memset(chunk.get(), 0xFFFFFFFF, sizeof(TileChunk));
+    }
+
+    const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
+    const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
+
+    TileId& tile = chunk->at(x, y);
+    if (tile == tile_id) {
+        return false;
+    }
+
+    tile = tile_id;
+    return true;
+}
+
+bool TileData::removeTile(TileCoord coord) {
+    TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
+
+    auto it = chunks_.find(chunk_coord);
+    if (it == chunks_.end()) {
+        return false;
+    }
+
+    const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
+    const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
+
+    TileId& tile = it->second->at(x, y);
+    if (tile == kEmptyTileId) {
+        return false;
+    }
+
+    tile = kEmptyTileId;
+    return true;
 }
 
 }  // namespace cave

@@ -37,6 +37,13 @@ bool TileSetAsset::AddBoxCollider(uint32_t p_id) {
     return false;
 }
 
+Option<Shape> TileSetAsset::getCollider(uint16_t tile_id) const {
+    if (auto it = m_colliders.find(tile_id); it != m_colliders.end()) {
+        return Some(it->second);
+    }
+    return None();
+}
+
 void TileSetAsset::SetHandle(Handle<ImageAsset>&& p_handle) {
     m_image_handle = std::move(p_handle);
     const ImageAsset* image = m_image_handle.Get();

@@ -6,7 +6,6 @@
 namespace cave {
 
 class Guid;
-struct TileData;
 
 auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void>;
 

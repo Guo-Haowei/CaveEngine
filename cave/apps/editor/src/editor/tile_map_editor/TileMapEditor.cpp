@@ -142,7 +142,7 @@ void TileMapEditor::applayEditorTool() {
 
     TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
 
-    Option<TileId> old_tile = tile_map->tileAt(coord_);
+    Option<TileId> old_tile = tile_map->tiles().tileAt(coord_);
     Option<TileId> new_tile = Some(kEmptyTileId);
 
     if (mode_ == Mode::Painting) {

@@ -2,7 +2,7 @@
 // File: cave/runtime/tile_map/TileWorldSystem.h
 // =============================================================================
 #pragma once
-#include "TileCoord.h"
+#include "TileData.h"
 
 #include "cave/runtime/scene/ISceneSystem.h"
 
@@ -31,7 +31,11 @@ protected:
     void onDetach() override;
 
 private:
+    void rebuildCollision();
+
     const DebugId debug_id_;
+
+    TileData collision_tiles_;
 };
 
 }  // namespace cave

@@ -131,17 +131,15 @@ void Box2dPhysicsManager::OnSimBegin(Scene& p_scene) {
 
         Vec4f position = transform.GetWorldMatrix() * Vec4f::UnitW;
 
-        const auto& colliders = tile_set->GetColliders();
-        const auto& chunks = tile_map->tiles().chunks;
-        for (const auto& [key, chunk] : chunks) {
+        for (const auto& [key, chunk] : tile_map->tiles().chunks()) {
             const int16_t offset_x = key.x * kTileChunkSize;
             const int16_t offset_y = key.y * kTileChunkSize;
             for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
                 for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
                     const TileId& tile_id = chunk->at(x - offset_x, y - offset_y);
-                    auto it = colliders.find(tile_id);
-                    if (it == colliders.end()) continue;
-                    const Shape& shape = it->second;
+                    auto res = tile_set->getCollider(tile_id);
+                    if (res.is_none()) continue;
+                    Shape shape = res.unwrap_unchecked();
                     DEV_ASSERT(shape.type == ShapeType::Box);
 
                     // @TODO: fix this part
