@@ -14,7 +14,7 @@ class TileMapDocument;
 class TileSetAsset;
 
 struct SpriteAnimationContext {
-    FixedString<64> clip_name;
+    std::string clip_name;
     SpriteSelector sprite_selector{ SpriteSelector::SelectionMode::Multi };
 };
 

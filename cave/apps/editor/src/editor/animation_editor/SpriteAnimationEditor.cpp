@@ -72,18 +72,6 @@ void SpriteAnimationEditor::OnCreateInternal(const Guid& p_guid) {
 #endif
 }
 
-void SpriteAnimationEditor::OnDestroy() {
-    m_tmp_scene = nullptr;  // decrease ref count
-}
-
-void SpriteAnimationEditor::OnActivateInternal() {
-    DEV_ASSERT(0);
-    // auto scene_manager = static_cast<EditorSceneManager*>(m_editor.GetApp().GetSceneRegistry());
-    // DEV_ASSERT(scene_manager);
-    //// scene_manager->OpenTempScene(m_tmp_scene);
-    // m_scene_manager;
-}
-
 const std::vector<const ToolBarButtonDesc*> SpriteAnimationEditor::GetToolBarButtons() const {
     SpriteAnimatorComponent* animator = m_tmp_scene->GetComponent<SpriteAnimatorComponent>(m_animator_id);
     const bool is_playing = animator->IsPlaying();

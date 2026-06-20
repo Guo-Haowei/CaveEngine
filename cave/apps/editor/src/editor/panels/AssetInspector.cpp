@@ -231,7 +231,10 @@ static void ImageSourceDropTarget(IDocument& doc, uint64_t checkerboard) {
     }
 }
 
-static void DrawFrameSelector(ImageAsset& image_asset, SpriteAnimationContext& ctx) {
+static void DrawFrameSelector(SpriteAnimationAsset& anim,
+                              ImageAsset& image_asset,
+                              SpriteAnimationContext& ctx) {
+
     // @TODO: refactor this, this is the same as ViewerTab::DrawToolBar
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
     auto& colors = ImGui::GetStyle().Colors;
@@ -240,46 +243,39 @@ static void DrawFrameSelector(ImageAsset& image_asset, SpriteAnimationContext& c
     const auto& button_active = colors[ImGuiCol_ButtonActive];
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
-    ui::TextBox("name", ctx.clip_name.data(), ctx.clip_name.capacity(), true);
+    auto& clip_name = ctx.clip_name;
+    clip_name.resize(128);
+    ui::TextBox("name", clip_name.data(), (uint32_t)clip_name.size(), true);
 
     ImGui::SameLine();
 
     if (ImGui::Button(ICON_FA_SQUARE_PLUS "  Add Animation")) {
-        Handle<SpriteAnimationAsset> handle;
-        if (auto anim = handle.Get(); anim) {
-            Handle<ImageAsset> image_handle = anim->GetImageHandle();
-            if (auto image = image_handle.Get()) {
-                const auto [w, h] = ctx.sprite_selector.GetDim();
-                const float inv_w = 1.0f / w;
-                const float inv_h = 1.0f / h;
-                const auto& frame_indices = ctx.sprite_selector.GetSelections();
-                std::vector<Box2> frames;
-                frames.reserve(frame_indices.size());
-                for (const auto [x, y] : frame_indices) {
+        const auto [w, h] = ctx.sprite_selector.GetDim();
+        const float inv_w = 1.0f / w;
+        const float inv_h = 1.0f / h;
+        const auto& frame_indices = ctx.sprite_selector.GetSelections();
+        std::vector<Box2> frames;
+        frames.reserve(frame_indices.size());
+        for (const auto [x, y] : frame_indices) {
 #if 0
-                    const float u0 = (x + 0) * inv_w;
-                    const float v0 = (y + 0) * inv_h;
-                    const float u1 = (x + 1) * inv_w;
-                    const float v1 = (y + 1) * inv_h;
+            const float u0 = (x + 0) * inv_w;
+            const float v0 = (y + 0) * inv_h;
+            const float u1 = (x + 1) * inv_w;
+            const float v1 = (y + 1) * inv_h;
 #else
-                    const float u0 = (x + 0) * inv_w;
-                    const float v0 = (y + 1) * inv_h;
-                    const float u1 = (x + 1) * inv_w;
-                    const float v1 = (y + 0) * inv_h;
+            const float u0 = (x + 0) * inv_w;
+            const float v0 = (y + 1) * inv_h;
+            const float u1 = (x + 1) * inv_w;
+            const float v1 = (y + 0) * inv_h;
 #endif
 
-                    frames.push_back({ { u0, v0 }, { u1, v1 } });
-                }
+            frames.push_back({ { u0, v0 }, { u1, v1 } });
+        }
 
-                if (!ctx.clip_name.empty() && !frames.empty()) {
-                    anim->AddClip(std::string(ctx.clip_name.data()), std::move(frames));
-                    ctx.clip_name.clear();
-                    ctx.sprite_selector.ClearSelections();
-
-                    // @TODO: set dirty
-                    // doc.SetDirty();
-                }
-            }
+        if (!clip_name.empty() && !frames.empty()) {
+            anim.AddClip(std::move(clip_name), std::move(frames));
+            clip_name.clear();
+            ctx.sprite_selector.ClearSelections();
         }
     }
 
@@ -300,7 +296,43 @@ static void DrawFrameSelector(ImageAsset& image_asset, SpriteAnimationContext& c
     ImGui::EndGroup();
 }
 
-static void DrawTimeLine() {
+static void SelectAnimation(SpriteAnimationAsset& anim) {
+
+    int current_clip = -1;
+    std::vector<const char*> clips;
+    for (const auto& [key, value] : anim.GetClips()) {
+        // if (key == animator->GetCurrentClip()) {
+        //     current_clip = static_cast<int>(clips.size());
+        // }
+        clips.push_back(key.c_str());
+    }
+
+    const int old_clip = current_clip;
+
+    const char* current_item = current_clip == -1 ? "select clip ..." : clips[current_clip];
+    const int clip_count = static_cast<int>(clips.size());
+    if (ImGui::BeginCombo("Clips", current_item)) {
+        for (int n = 0; n < clip_count; ++n) {
+            const bool is_selected = (current_clip == n);
+            if (ImGui::Selectable(clips[n], is_selected)) {
+                current_clip = n;
+            }
+
+            if (is_selected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    if (old_clip != current_clip) {
+        LOG_OK("Set clip to {}", clips[current_clip]);
+        // animator->SetClip(clips[current_clip]);
+    }
+}
+
+static void DrawTimeLine(SpriteAnimationAsset& anim) {
+    SelectAnimation(anim);
 #if 0
     constexpr int width = 300;
 
@@ -385,11 +417,11 @@ void AssetInspector::drawSpriteAnimation(IDocument& doc) {
 
     if (ImageAsset* image = image_handle.Get()) {
         ImGui::Separator();
-        DrawFrameSelector(*image, sprite_animation_ctx_);
+        DrawFrameSelector(*sprite_animation, *image, sprite_animation_ctx_);
     }
 
     ImGui::Separator();
-    DrawTimeLine();
+    DrawTimeLine(*sprite_animation);
 }
 
 void AssetInspector::drawUIImpl() {
