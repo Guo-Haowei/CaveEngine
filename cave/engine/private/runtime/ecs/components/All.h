@@ -17,6 +17,9 @@
 #include "cave/runtime/script/lua/LuaScriptComponent.h"
 #include "cave/runtime/script/native/NativeScriptComponent.h"
 
+#include "cave/runtime/platformer/FacingComponent.h"
+#include "cave/runtime/platformer/PlatformerMotorComponent.h"
+
 // components
 // @TODO: split this
 #include "engine/private/runtime/ecs/components/SceneComponents.h"

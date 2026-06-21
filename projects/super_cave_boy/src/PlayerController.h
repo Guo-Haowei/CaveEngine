@@ -17,11 +17,6 @@ enum class PlayerState {
     Hurt,
 };
 
-enum class Facing {
-    Left,
-    Right,
-};
-
 struct LegacyPlayerMotor {
     const float speed = 5.5f;
 
@@ -34,7 +29,6 @@ struct LegacyPlayerMotor {
     bool hurt = false;
     bool pausing = false;
 
-    Facing facing = Facing::Right;
     PlayerState state = PlayerState::Air;
 };
 

@@ -361,10 +361,11 @@ void TryJump(LegacyPlayerMotor& motor, bool jump_pressed) {
 }
 
 void UpdateFacing(LegacyPlayerMotor& motor) {
+    DEV_ASSERT(0);
     if (motor.hspeed < 0.0f) {
-        motor.facing = Facing::Left;
+        //motor.facing = Facing::Left;
     } else if (motor.hspeed > 0.0f) {
-        motor.facing = Facing::Right;
+        //motor.facing = Facing::Right;
     }
 }
 
@@ -434,12 +435,15 @@ void PlayerController::updateAnimation(SceneQuery& query) {
             break;
     }
 
+    DEV_ASSERT(0);
+#if 0
     const Vec4f rotation =
         motor_.facing == Facing::Left
             ? Vec4f{ 0.0f, 1.0f, 0.0f, 0.0f }
             : Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
 
     transform->SetRotation(rotation);
+#endif
 }
 
 void PlayerController::onUpdate(float dt) {
