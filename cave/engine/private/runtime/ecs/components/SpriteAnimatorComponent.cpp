@@ -6,9 +6,17 @@
 namespace cave {
 
 void SpriteAnimatorComponent::currentClip(std::string_view name) {
+    SpriteAnimationAsset* asset = anim_handle_.Get();
+    const SpriteAnimationClip* clip = asset->tryGetClip(std::string(name));
+    if (clip == nullptr) {
+        LOG_ERROR("Clip '{}' does not exist", name);
+        return;
+    }
+
     if (current_clip_ != name) {
         current_clip_ = name;
         playback_timer_ = 0.0f;
+        looping_ = clip->looping();
     }
 }
 

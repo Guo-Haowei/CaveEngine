@@ -100,7 +100,10 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
         DEV_ASSERT(to != mapping.end());
         for (const auto& guid : asset.dependencies) {
             auto from = mapping.find(guid);
-            DEV_ASSERT(from != mapping.end());
+            if (from == mapping.end()) {
+                if (guid.IsNull()) continue;
+                CRASH_NOW_MSG("dependency not found");
+            }
             edges.push_back({ from->second, to->second });
         }
     }

@@ -1,7 +1,8 @@
 #pragma once
+#include <span>
+
 #include "cave/core/math/Box.h"
 #include "cave/core/reflection/Reflection.h"
-
 #include "cave/runtime/assets/AssetHandle.h"
 
 namespace cave {
@@ -11,32 +12,32 @@ class SpriteAnimationClip {
 
 private:
     CAVE_PROP(type = box2[])
-    std::vector<math::Box2> m_frames;
+    std::vector<math::Box2> frames_;
 
     CAVE_PROP(type = f32[])
-    std::vector<float> m_durations;
+    std::vector<float> durations_;
 
     CAVE_PROP(type = boolean, hint = toggle)
-    bool m_loop = true;
+    bool looping_ = true;
 
-    float m_total_duration = 1.0f;
+    float total_duration_ = 1.0f;
 
 public:
     SpriteAnimationClip() = default;
 
-    SpriteAnimationClip(std::vector<math::Box2>&& p_frames, float p_length = 1.0f);
+    SpriteAnimationClip(std::vector<math::Box2>&& frames, float length = 1.0f);
 
-    bool IsLooping() const { return m_loop; }
+    bool looping() const { return looping_; }
 
-    void SetFrames(std::vector<math::Box2>&& frames);
+    void setFrames(std::vector<math::Box2>&& frames);
 
-    void SetAnimationLength(float p_length);
+    void setAnimationLength(float length);
 
-    float GetTotalDuration() const { return m_total_duration; }
+    float totalDuration() const { return total_duration_; }
 
-    const std::vector<math::Box2>& GetFrames() const { return m_frames; }
+    std::span<const math::Box2> frames() const { return frames_; }
 
-    const std::vector<float>& GetDurations() const { return m_durations; }
+    std::span<const float> durations() const { return durations_; }
 
     friend class SpriteAnimationAsset;
 };
@@ -48,33 +49,33 @@ class SpriteAnimationAsset : public IAsset {
 
 private:
     CAVE_PROP(editor = Asset, tooltip = "image id")
-    Guid m_image_guid;
+    Guid image_guid_;
 
     CAVE_PROP()
-    std::map<std::string, SpriteAnimationClip> m_clips;
+    std::map<std::string, SpriteAnimationClip> clips_;
 
     // Non serialized
-    Handle<ImageAsset> m_image_handle;
+    Handle<ImageAsset> image_handle_;
 
 public:
-    bool AddClip(std::string&& p_name, std::vector<math::Box2>&& p_frames);
+    bool addClip(std::string&& name, std::vector<math::Box2>&& frames);
 
-    const SpriteAnimationClip* GetClip(const std::string& p_name);
+    const SpriteAnimationClip* tryGetClip(const std::string& name);
 
-    const auto& GetClips() const { return m_clips; }
+    const auto& clips() const { return clips_; }
 
-    void SetGuid(const Guid& p_guid);
+    void SetGuid(const Guid& guid);
 
-    const Guid& GetImageGuid() const { return m_image_guid; }
+    const Guid& imageGuid() const { return image_guid_; }
 
-    Handle<ImageAsset> GetImageHandle() const { return m_image_handle; }
+    Handle<ImageAsset> imageHandle() const { return image_handle_; }
 
-    auto SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> override;
+    auto SaveToDisk(const AssetMetaData& meta) const -> Result<void> override;
 
-    auto LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> override;
+    auto LoadFromDisk(const AssetMetaData& meta) -> Result<void> override;
 
     std::vector<Guid> GetDependencies() const override {
-        return { m_image_guid };
+        return { image_guid_ };
     }
 
     void OnDeserialized();

@@ -1,0 +1,9 @@
+type: sprite_anim
+guid: 86B180CE-BAFF-CF4F-9748E02337CCBE90
+name: spider.sprite_anim
+import_path: "@res://monsters/spider.sprite_anim"
+dependencies: [5DAAD570-BEFA-9343-A2611349F7AEF10D]
+source_created_time: 2026-06-21 05:46:30.1213636
+source_last_modified: 2026-06-21 05:49:54.2301807
+import_settings:
+  {}

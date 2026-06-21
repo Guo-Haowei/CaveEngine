@@ -8,16 +8,16 @@
 
 namespace cave {
 
-// std::vector<math::Box2> m_frames (type = box2[])
-// std::vector<float> m_durations (type = f32[])
-// bool m_loop (type = boolean, hint = toggle)
+// std::vector<math::Box2> frames_ (type = box2[])
+// std::vector<float> durations_ (type = f32[])
+// bool looping_ (type = boolean, hint = toggle)
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SpriteAnimationClip, "frames", m_frames, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SpriteAnimationClip, "durations", m_durations, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SpriteAnimationClip, "loop", m_loop, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimationClip, "frames", frames_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimationClip, "durations", durations_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimationClip, "looping", looping_, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;
@@ -26,14 +26,14 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_SpriteAnimationClip_meta = MetaDataTable<SpriteAnimationClip>::GetFields();
 
-// Guid m_image_guid (editor = Asset, tooltip = "image id")
-// std::map<std::string, SpriteAnimationClip> m_clips ()
+// Guid image_guid_ (editor = Asset, tooltip = "image id")
+// std::map<std::string, SpriteAnimationClip> clips_ ()
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SpriteAnimationAsset, "image_guid", m_image_guid, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(SpriteAnimationAsset, "clips", m_clips, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimationAsset, "image_guid", image_guid_, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(SpriteAnimationAsset, "clips", clips_, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

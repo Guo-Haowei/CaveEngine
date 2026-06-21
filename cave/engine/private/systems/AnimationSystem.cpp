@@ -12,17 +12,17 @@ namespace cave {
 
 class AnimationSystem {
 public:
-    static int GetFrame(float p_timer,
-                        float p_total,
-                        const std::vector<float>& p_durations) {
-        const int frame_count = static_cast<int>(p_durations.size());
-        if (p_timer >= p_total) {
+    static int getFrame(float timer,
+                        float total,
+                        std::span<const float> durations) {
+        const int frame_count = static_cast<int>(durations.size());
+        if (timer >= total) {
             return frame_count - 1;
         }
         float time_so_far = 0.0f;
         for (int i = 0; i < frame_count; ++i) {
-            time_so_far += p_durations[i];
-            if (p_timer <= time_so_far) {
+            time_so_far += durations[i];
+            if (timer <= time_so_far) {
                 return i;
             }
         }
@@ -30,7 +30,7 @@ public:
         return 0;
     }
 
-    static void UpdateSpriteAnimation(float dt,
+    static void updateSpriteAnimation(float dt,
                                       SpriteAnimatorComponent& animator,
                                       SpriteRendererComponent& renderer) {
         SpriteAnimationAsset* asset = animator.animHandle().Get();
@@ -38,10 +38,10 @@ public:
             return;
         }
 
-        renderer.SetResourceGuid(asset->GetImageGuid());
+        renderer.SetResourceGuid(asset->imageGuid());
 
         const auto& clip_name = animator.currentClip();
-        const auto& clips = asset->GetClips();
+        const auto& clips = asset->clips();
         auto it = clips.find(clip_name);
         if (it == clips.end()) {
             return;
@@ -53,37 +53,36 @@ public:
             timer += dt;
         }
 
-        const float duration = clip.GetTotalDuration();
+        const float duration = clip.totalDuration();
         if (animator.looping()) {
             timer = std::fmod(timer, duration);
         } else {
-            timer = std::min(timer, duration);
+            if (timer >= duration) {
+                timer = duration;
+                animator.playing(false);
+            }
         }
         animator.playbackTimer(timer);
 
-        const int frame_idx = GetFrame(timer,
+        const int frame_idx = getFrame(timer,
                                        duration,
-                                       clip.GetDurations());
+                                       clip.durations());
 
-        DEV_ASSERT_INDEX(frame_idx, clip.GetFrames().size());
-        renderer.SetRect(clip.GetFrames()[frame_idx]);
+        DEV_ASSERT_INDEX(frame_idx, clip.frames().size());
+        renderer.SetRect(clip.frames()[frame_idx]);
     }
 };
 
-void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
-    unused(p_context);
-
-    auto view = p_scene.view<SpriteAnimatorComponent, SpriteRendererComponent>();
+void RunSpriteAnimationSystem(Scene& scene, jobsystem::Context&, float dt) {
+    auto view = scene.view<SpriteAnimatorComponent, SpriteRendererComponent>();
 
     for (auto [id, animator, renderer] : view) {
-        AnimationSystem::UpdateSpriteAnimation(p_timestep, animator, renderer);
+        AnimationSystem::updateSpriteAnimation(dt, animator, renderer);
     }
 }
 
-void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep) {
-    unused(p_context);
-
-    auto view = p_scene.view<TransformAnimationComponent, TransformComponent>();
+void RunTransformAnimationSystem(Scene& scene, jobsystem::Context&, float dt) {
+    auto view = scene.view<TransformAnimationComponent, TransformComponent>();
 
     std::vector<ecs::Entity> pending_removes;
 
@@ -91,7 +90,7 @@ void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, 
         if (!anim.playing) {
             continue;
         }
-        anim.elapsed += p_timestep;
+        anim.elapsed += dt;
         const float t = anim.elapsed / anim.duration;
         if (t >= 1.0f) {
             trans.SetTranslation(anim.end);
@@ -107,7 +106,7 @@ void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, 
     }
 
     for (ecs::Entity e : pending_removes) {
-        p_scene.remove<TransformAnimationComponent>(e);
+        scene.remove<TransformAnimationComponent>(e);
     }
 }
 

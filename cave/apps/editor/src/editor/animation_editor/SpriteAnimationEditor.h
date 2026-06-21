@@ -35,12 +35,11 @@ private:
 
     const DebugId debug_id_;
 
-    std::string clip_name_;
+    std::string selected_clip_;
     SpriteSelector sprite_selector_{ SpriteSelector::SelectionMode::Multi };
 
-    // const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
-    ToolBarButtonDesc m_play_button;
-    ToolBarButtonDesc m_pause_button;
+    ToolBarButtonDesc play_button_;
+    ToolBarButtonDesc pause_button_;
 
     enum class Request {
         None,

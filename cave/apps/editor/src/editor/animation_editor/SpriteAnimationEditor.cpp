@@ -29,7 +29,7 @@ void ImageSourceDropTarget(IDocument& doc, uint64_t checkerboard) {
 
     ImGui::Text("Source Image");
 
-    auto image_handle = asset->GetImageHandle();
+    auto image_handle = asset->imageHandle();
     ImageAsset* image = image_handle.Get();
 
     Vec2f region_size(128, 128);
@@ -51,14 +51,14 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorState& editor,
     // @TODO:
     // ICON_FA_FORWARD;
     // ICON_FA_BACKWARD;
-    m_play_button = { ICON_FA_PLAY, "Play animation",
+    play_button_ = { ICON_FA_PLAY, "Play animation",
+                     [this]() {
+                         last_req_ = Request::Play;
+                     } };
+    pause_button_ = { ICON_FA_PAUSE, "Pause animation",
                       [this]() {
-                          last_req_ = Request::Play;
+                          last_req_ = Request::Pause;
                       } };
-    m_pause_button = { ICON_FA_PAUSE, "Pause animation",
-                       [this]() {
-                           last_req_ = Request::Pause;
-                       } };
 }
 
 void SpriteAnimationEditor::onCreate() {
@@ -87,7 +87,7 @@ void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
     auto sprite_animation = doc.handle<SpriteAnimationAsset>().Get();
     DEV_ASSERT(sprite_animation);
 
-    auto image_handle = sprite_animation->GetImageHandle();
+    auto image_handle = sprite_animation->imageHandle();
 
     IconCache& icons = editor_services_.iconCache();
 
@@ -121,8 +121,8 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
     const auto& button_active = colors[ImGuiCol_ButtonActive];
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
-    clip_name_.resize(128);
-    ui::TextBox("name", clip_name_.data(), (uint32_t)clip_name_.size(), true);
+    selected_clip_.resize(128);
+    ui::TextBox("name", selected_clip_.data(), (uint32_t)selected_clip_.size(), true);
 
     ImGui::SameLine();
 
@@ -149,9 +149,9 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
             frames.push_back({ { u0, v0 }, { u1, v1 } });
         }
 
-        if (!clip_name_.empty() && !frames.empty()) {
-            anim.AddClip(std::move(clip_name_), std::move(frames));
-            clip_name_.clear();
+        if (!selected_clip_.empty() && !frames.empty()) {
+            anim.addClip(std::move(selected_clip_), std::move(frames));
+            selected_clip_.clear();
             sprite_selector_.ClearSelections();
         }
     }
@@ -175,24 +175,22 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
 
 std::string SpriteAnimationEditor::selectAnimation(SpriteAnimationAsset& anim,
                                                    std::string_view current_clip) {
-    int selected_clip = -1;
+    std::string selected;
     std::vector<const char*> clips;
-    for (const auto& [key, value] : anim.GetClips()) {
+    for (const auto& [key, value] : anim.clips()) {
         if (key == current_clip) {
-            selected_clip = static_cast<int>(clips.size());
+            selected = key;
         }
         clips.push_back(key.c_str());
     }
 
-    const int old_clip = selected_clip;
-
-    const char* current_item = selected_clip == -1 ? "select clip ..." : clips[selected_clip];
+    const char* current_item = selected.empty() ? "select clip ..." : selected.c_str();
     const int clip_count = static_cast<int>(clips.size());
     if (ImGui::BeginCombo("Clips", current_item)) {
         for (int n = 0; n < clip_count; ++n) {
-            const bool is_selected = (selected_clip == n);
+            const bool is_selected = (selected == clips[n]);
             if (ImGui::Selectable(clips[n], is_selected)) {
-                selected_clip = n;
+                selected = clips[n];
             }
 
             if (is_selected) {
@@ -202,9 +200,9 @@ std::string SpriteAnimationEditor::selectAnimation(SpriteAnimationAsset& anim,
         ImGui::EndCombo();
     }
 
-    if (old_clip != selected_clip) {
-        LOG_OK("Set clip to {}", clips[selected_clip]);
-        return clips[selected_clip];
+    if (selected != current_clip) {
+        LOG_OK("Set clip to {}", selected);
+        return selected;
     }
     return "";
 }
@@ -229,7 +227,7 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
     ImGui::NextColumn();
 
     std::vector<const ToolBarButtonDesc*> buttons = {
-        animator->playing() ? &m_pause_button : &m_play_button
+        animator->playing() ? &pause_button_ : &play_button_
     };
 
     DrawToolBar(buttons);
@@ -245,9 +243,9 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
     ImGui::Columns(1);
 
     // time line
-    if (const SpriteAnimationClip* clip = anim.GetClip(animator->currentClip())) {
+    if (const SpriteAnimationClip* clip = anim.tryGetClip(animator->currentClip())) {
         float playback = animator->playbackTimer();
-        if (ImGui::SliderFloat("timeline", &playback, 0.0f, clip->GetTotalDuration())) {
+        if (ImGui::SliderFloat("timeline", &playback, 0.0f, clip->totalDuration())) {
             animator->playing(true);
             animator->playbackTimer(playback);
         }
