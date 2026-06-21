@@ -5,6 +5,7 @@
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/ecs/components/VelocityComponent.h"
 #include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
@@ -261,23 +262,24 @@ bool CheckWallGrab(
     return false;
 }
 
-void Land(LegacyPlayerMotor& motor) {
-    if (motor.vspeed == 0.0f) {
+void Land(LegacyPlayerMotor& motor, VelocityComponent& vel) {
+    if (vel.linear.y == 0.0f) {
         return;
     }
+    vel.linear.y = 0.0f;
 
     motor.taking_jump = true;
     motor.grabbing = false;
-    motor.vspeed = 0.0f;
 }
 
 void MoveHorizontal(
     TransformComponent& transform,
     const ColliderComponent& collider,
+    const VelocityComponent& vel,
     LegacyPlayerMotor& motor,
     const TileWorldSystem& world,
     float dt) {
-    const float dx = motor.hspeed * motor.speed * dt;
+    const float dx = vel.linear.x * motor.speed * dt;
 
     if (dx == 0.0f) {
         return;
@@ -292,16 +294,17 @@ void MoveHorizontal(
 void MoveVertical(
     TransformComponent& transform,
     const ColliderComponent& collider,
+    VelocityComponent& vel,
     LegacyPlayerMotor& motor,
     const TileWorldSystem& world,
     float dt) {
     Box2 body = ComputeWorldAABB(transform, collider);
-    const float dy = motor.vspeed * dt;
+    const float dy = vel.linear.y * dt;
 
     // Already grabbing: stay grabbing.
     // Only TryJump(), hurt, revive/reset should clear motor.grabbing.
     if (motor.grabbing && !motor.hurt) {
-        motor.vspeed = 0.0f;
+        vel.linear.y = 0.0f;
         return;
     }
 
@@ -314,7 +317,7 @@ void MoveVertical(
 
     if (can_start_grab && CheckWallGrab(body, dy, motor, world)) {
         motor.grabbing = true;
-        motor.vspeed = 0.0f;
+        vel.linear.y = 0.0f;
         return;
     }
 
@@ -323,7 +326,7 @@ void MoveVertical(
 
         if (down.hit) {
             transform.Translate({ 0.0f, down.dy, 0.0f });
-            Land(motor);
+            Land(motor, vel);
             return;
         }
     } else if (dy > 0.0f) {
@@ -331,45 +334,34 @@ void MoveVertical(
 
         if (up.hit) {
             transform.Translate({ 0.0f, up.dy, 0.0f });
-            motor.vspeed = 0.0f;
+            vel.linear.y = 0.0f;
             return;
         }
     }
 
     transform.Translate({ 0.0f, dy, 0.0f });
-    motor.vspeed += kGravity * dt;
+    vel.linear.y += kGravity * dt;
 }
 
-void TryJump(LegacyPlayerMotor& motor, bool jump_pressed) {
-    if (!jump_pressed) {
-        return;
-    }
+void TryJump(VelocityComponent& vel,
+             LegacyPlayerMotor& motor) {
 
     if (motor.grabbing) {
-        motor.vspeed = kWallJumpForce;
+        vel.linear.y = kWallJumpForce;
         motor.taking_jump = false;
         motor.grabbing = false;
         return;
     }
 
     if (motor.taking_jump) {
-        motor.vspeed = kJumpForce;
+        vel.linear.y = kJumpForce;
         motor.taking_jump = false;
         motor.grabbing = false;
         return;
     }
 }
 
-void UpdateFacing(LegacyPlayerMotor& motor) {
-    DEV_ASSERT(0);
-    if (motor.hspeed < 0.0f) {
-        //motor.facing = Facing::Left;
-    } else if (motor.hspeed > 0.0f) {
-        //motor.facing = Facing::Right;
-    }
-}
-
-void UpdatePlayerState(LegacyPlayerMotor& motor) {
+void UpdatePlayerState(VelocityComponent& vel, LegacyPlayerMotor& motor) {
     if (motor.hurt) {
         motor.state = PlayerState::Hurt;
         return;
@@ -385,7 +377,7 @@ void UpdatePlayerState(LegacyPlayerMotor& motor) {
         return;
     }
 
-    if (motor.hspeed != 0.0f) {
+    if (vel.linear.x != 0.0f) {
         motor.state = PlayerState::Walk;
         return;
     }
@@ -419,11 +411,11 @@ void PlayerController::updateAnimation(SceneQuery& query) {
             break;
 
         case PlayerState::Air:
-            if (motor_.vspeed > 0.0f) {
-                animator->currentClip("jump");
-            } else {
-                animator->currentClip("jump");
-            }
+            animator->currentClip("jump");
+            // if (motor_.vspeed > 0.0f) {
+            // } else {
+            //     animator->currentClip("jump");
+            // }
             break;
 
         case PlayerState::Grab:
@@ -431,46 +423,42 @@ void PlayerController::updateAnimation(SceneQuery& query) {
             break;
 
         case PlayerState::Hurt:
-            // animator->SetClip("hurt");
+            animator->currentClip("hurt");
             break;
     }
-
-    DEV_ASSERT(0);
-#if 0
-    const Vec4f rotation =
-        motor_.facing == Facing::Left
-            ? Vec4f{ 0.0f, 1.0f, 0.0f, 0.0f }
-            : Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
-
-    transform->SetRotation(rotation);
-#endif
 }
 
 void PlayerController::onUpdate(float dt) {
     const IGameInput& input = context().game_input;
     SceneQuery query(context().scene);
 
-    const int move_x = (int)input.isPressed("ui_right"_sid) - (int)input.isPressed("ui_left"_sid);
     const bool jump_pressed = input.isPressed("ui_up"_sid);
+    int move_x = input.isPressed("ui_right"_sid) - input.isPressed("ui_left"_sid);
+    if (motor_.grabbing) {
+        move_x = 0;
+    }
 
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
+    auto vel = query.component<VelocityComponent>(entity());
+    DEV_ASSERT(transform && collider && vel);
 
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
-    motor_.hspeed = static_cast<float>(move_x);
-    UpdateFacing(motor_);
+    vel->linear.x = static_cast<float>(move_x);
 
     // Jump is allowed to cancel grabbing.
-    TryJump(motor_, jump_pressed);
+    if (jump_pressed) {
+        TryJump(*vel, motor_);
+    }
 
     // Movement.
-    MoveHorizontal(*transform, *collider, motor_, *tile_world, dt);
-    MoveVertical(*transform, *collider, motor_, *tile_world, dt);
+    MoveHorizontal(*transform, *collider, *vel, motor_, *tile_world, dt);
+    MoveVertical(*transform, *collider, *vel, motor_, *tile_world, dt);
 
     // State + animation after movement/collision.
-    UpdatePlayerState(motor_);
+    UpdatePlayerState(*vel, motor_);
     updateAnimation(query);
 
     drawDebug();

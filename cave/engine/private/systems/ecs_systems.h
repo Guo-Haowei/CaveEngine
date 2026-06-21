@@ -9,17 +9,19 @@ namespace cave {
 
 class Scene;
 
-void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunLightUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
-void RunTransformationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunTransformationUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
-void RunHierarchyUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunHierarchyUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
-void RunAnimationUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunAnimationUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
-void RunSkeletonUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunSkeletonUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
-void RunMeshAABBUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
+
+void RunFacingUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
 #if 0
 void RunParticleEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);

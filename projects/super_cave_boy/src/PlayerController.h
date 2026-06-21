@@ -20,9 +20,6 @@ enum class PlayerState {
 struct LegacyPlayerMotor {
     const float speed = 5.5f;
 
-    float hspeed = 0.0f;
-    float vspeed = 0.0f;
-
     bool taking_jump = false;
     bool landed = false;
     bool grabbing = false;

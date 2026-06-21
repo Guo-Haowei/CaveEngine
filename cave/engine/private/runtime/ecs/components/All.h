@@ -11,14 +11,17 @@
 #include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/SpriteRendererComponent.h"
-#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 #include "cave/runtime/ecs/components/TransformAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/script/lua/LuaScriptComponent.h"
-#include "cave/runtime/script/native/NativeScriptComponent.h"
+#include "cave/runtime/ecs/components/VelocityComponent.h"
 
 #include "cave/runtime/platformer/FacingComponent.h"
 #include "cave/runtime/platformer/PlatformerMotorComponent.h"
+
+#include "cave/runtime/script/lua/LuaScriptComponent.h"
+#include "cave/runtime/script/native/NativeScriptComponent.h"
+
+#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 
 // components
 // @TODO: split this

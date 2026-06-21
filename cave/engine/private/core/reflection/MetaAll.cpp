@@ -13,6 +13,7 @@
 #include "generated/SpriteRendererComponent.generated.cpp"
 #include "generated/TransformAnimationComponent.generated.cpp"
 #include "generated/TransformComponent.generated.cpp"
+#include "generated/VelocityComponent.generated.cpp"
 #include "generated/FacingComponent.generated.cpp"
 #include "generated/PlatformerMotorComponent.generated.cpp"
 #include "generated/LuaScriptComponent.generated.cpp"

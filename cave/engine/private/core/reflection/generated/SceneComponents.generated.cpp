@@ -34,18 +34,4 @@ const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_PrefabInstanceComponent_meta = MetaDataTable<PrefabInstanceComponent>::GetFields();
 
-// math::Vec3f linear (editor = Translation)
-
-template<>
-const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {
-    static MetaTableFields s_table = {
-        REGISTER_FIELD(VelocityComponent, "linear", linear, FieldFlag::Serialize, EditorHint::Translation),
-    };
-
-    return s_table;
-}
-
-// Avoid lazy init
-[[maybe_unused]] static const auto& s_VelocityComponent_meta = MetaDataTable<VelocityComponent>::GetFields();
-
 }  // namespace cave
