@@ -3,6 +3,8 @@
 
 namespace cave {
 
+struct EngineServices;
+
 class AssetManager : public IAssetManager {
 public:
     AssetManager() = default;
@@ -10,26 +12,28 @@ public:
     Result<void> InitializeImpl() override;
     void FinalizeImpl() override;
 
-    void Update() override {}
+    void update() override {}
 
-    Result<Guid> CreateAsset(AssetType p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr) override;
-    Result<Guid> CreateAsset(AssetType p_type, const std::string& p_short_path) override;
+    Result<Guid> createAsset(AssetType type, const std::filesystem::path& folder, const char* name = nullptr) override;
+    Result<Guid> createAsset(AssetType type, const std::string& short_path) override;
 
-    Result<void> MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) override;
+    Result<void> moveAsset(const std::filesystem::path& old_path, const std::filesystem::path& new_path) override;
 
-    uint64_t SubmitLoadAsset(const AssetLoadRequest& p_request) override;
+    uint64_t submitLoadAsset(const AssetLoadRequest& request) override;
 
-    uint64_t SubmitImportScene(const SceneImportRequest& p_request) override;
-
-    // @TODO: deprecate
-    [[nodiscard]] std::string ResolvePath(const std::filesystem::path& p_path) override;
+    uint64_t submitImportScene(const SceneImportRequest& request) override;
 
     // @TODO: deprecate
-    AssetRef LoadAssetSync(const Guid& p_guid) override;
+    [[nodiscard]] std::string resolvePath(const std::filesystem::path& path) override;
+
+    // @TODO: deprecate
+    AssetRef loadAssetSync(const Guid& guid) override;
+
+    EngineServices& services();
 
 protected:
-    uint32_t m_fps_counter{ 0 };
-    std::mutex m_asset_lock;
+    uint32_t counter_{ 0 };
+    std::mutex asset_lock_;
 };
 
 }  // namespace cave

@@ -49,7 +49,7 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
 
     fs::path image_path = m_dest_dir / name;
 
-    std::string virtual_path = IAssetManager::singleton().ResolvePath(image_path);
+    std::string virtual_path = IAssetManager::singleton().resolvePath(image_path);
     if (auto res = AssetRegistry::singleton().FindByPath<ImageAsset>(virtual_path); res.is_some()) {
         return res.unwrap_unchecked().GetGuid();
     }
@@ -80,7 +80,7 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
 
     AssetRegistry::singleton().RegisterAsset(std::move(meta), nullptr);
 
-    IAssetManager::singleton().LoadAssetSync(guid);
+    IAssetManager::singleton().loadAssetSync(guid);
 
     return guid;
 }
@@ -95,7 +95,7 @@ Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,
     meta.type = AssetType::Material;
     meta.name = std::move(p_name);
     meta.guid = guid;
-    meta.import_path = IAssetManager::singleton().ResolvePath(sys_path);
+    meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
 
     if (auto res = p_material->SaveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
@@ -117,7 +117,7 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
     meta.type = AssetType::Mesh;
     meta.name = std::move(p_name);
     meta.guid = guid;
-    meta.import_path = IAssetManager::singleton().ResolvePath(sys_path);
+    meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
 
     if (auto res = p_mesh->SaveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
@@ -141,7 +141,7 @@ Result<void> SceneImporter::RegisterScene(ecs::Entity p_root) {
     meta.type = AssetType::Scene;
     meta.name = m_file_name;
     meta.guid = Guid::Create();
-    meta.import_path = IAssetManager::singleton().ResolvePath(sys_path);
+    meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
     if (auto res = m_scene->SaveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }

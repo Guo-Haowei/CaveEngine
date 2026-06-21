@@ -14,6 +14,4 @@ DisplayService* CreateDisplayService();
 
 render::IRenderDevice* CreateRenderDevice(rhi::Backend p_backend);
 
-IPhysicsManager* CreatePhysicsService();
-
 }  // namespace cave

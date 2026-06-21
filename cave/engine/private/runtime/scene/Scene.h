@@ -47,6 +47,10 @@ public:
     explicit Scene(std::string name) noexcept;
     ~Scene() override;
 
+    void* create(ComponentId cid, ecs::Entity ent) {
+        return storage_.CreateRaw(ent, cid);
+    }
+
     template<ComponentType T>
     T& create(ecs::Entity ent) {
         return *((T*)storage_.CreateRaw(ent, T::kId));

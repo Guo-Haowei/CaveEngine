@@ -1,0 +1,9 @@
+type: scene
+guid: F83ADE21-6C22-EC4E-AF2C5355ED60FC5F
+name: snake.scene
+import_path: "@res://prefabs/snake.scene"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

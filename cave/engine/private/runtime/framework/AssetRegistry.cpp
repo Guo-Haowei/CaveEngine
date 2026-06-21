@@ -29,7 +29,7 @@ uint64_t AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta) {
         ok = ok && m_path_map.try_emplace(entry->metadata.import_path, entry->metadata.guid).second;
     }
     if (ok) {
-        return m_app->services().assetManager().SubmitLoadAsset({ entry->metadata.guid });
+        return m_app->services().assetManager().submitLoadAsset({ entry->metadata.guid });
     }
 
     return 0;

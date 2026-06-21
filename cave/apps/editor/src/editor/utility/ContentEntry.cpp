@@ -36,7 +36,7 @@ auto BuildFolderTree(const fs::path& sys_path,
         node->sys_path = sys_path;
         node->parent = parent;
         if (parent) {
-            node->virtual_path = IAssetManager::singleton().ResolvePath(sys_path);
+            node->virtual_path = IAssetManager::singleton().resolvePath(sys_path);
             node->file_name = StringUtils::FileName(node->virtual_path, '/');
         } else {
             node->virtual_path = "@res://";
@@ -142,7 +142,7 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
 #define ADD_ASSET_MENU(TYPE)                                                        \
     do {                                                                            \
         if (ImGui::MenuItem(#TYPE)) {                                               \
-            auto res = asset_manager.CreateAsset(AssetType::TYPE, p_node.sys_path); \
+            auto res = asset_manager.createAsset(AssetType::TYPE, p_node.sys_path); \
             if (!res) {                                                             \
                 LOG_ERROR("Failed to create asset: {}", ToString(res.error()));     \
             }                                                                       \
@@ -168,7 +168,7 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
 
             if (auto path = os::OpenFileDialog(filter); path.is_some()) {
                 fs::path dest = p_node.sys_path;
-                IAssetManager::singleton().SubmitImportScene({ path.unwrap_unchecked(), dest });
+                IAssetManager::singleton().submitImportScene({ path.unwrap_unchecked(), dest });
             }
         }
         ImGui::EndMenu();

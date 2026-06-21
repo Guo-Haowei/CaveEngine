@@ -382,7 +382,7 @@ auto Renderer::Impl::buildRenderGraph(const RenderOptions& plan,
 auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan_,
                                               const ResolvedView& view_) -> Result<std::shared_ptr<CompiledGraph>> {
     if (!brdf_) {
-        std::shared_ptr<ImageAsset> image = IAssetManager::singleton().FindImage("brdf.hdr");
+        std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage("brdf.hdr");
         brdf_ = device_.CreateTexture(image.get());
     }
     if (!ltc1_) {

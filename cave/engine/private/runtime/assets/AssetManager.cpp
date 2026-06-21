@@ -5,9 +5,10 @@
 
 #include "cave/core/threading/Threads.h"
 #include "cave/core/time/Stopwatch.h"
+#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
-#include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/render/render_device/RenderDevice.h"
@@ -41,9 +42,13 @@ namespace cave {
 namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
 
-static AssetRef CreateAssetInstance(AssetType p_type) {
+EngineServices& AssetManager::services() {
+    return m_app->services();
+}
+
+static AssetRef CreateAssetInstance(AssetType type, bool create) {
     // @TODO: refactor this part
-    switch (p_type) {
+    switch (type) {
         case AssetType::Blob:
             return std::make_shared<BlobAsset>();
         case AssetType::Image:
@@ -58,20 +63,33 @@ static AssetRef CreateAssetInstance(AssetType p_type) {
             return std::make_shared<MaterialAsset>();
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
-        case AssetType::Scene:
-            return std::make_shared<Scene>("");
+        case AssetType::Scene: {
+            auto scene = std::make_shared<Scene>("");
+            if (create) {
+                auto root = scene->createEntity();
+                scene->create(TransformComponent_Id, root);
+                scene->create<NameComponent>(root);
+
+                auto ent = scene->createEntity();
+                scene->create(TransformComponent_Id, ent);
+
+                scene->m_root = root;
+                scene->attachChild(ent);
+            }
+            return scene;
+        }
         default:
             return nullptr;
     }
 }
 
-static auto LoadAsset(const std::shared_ptr<AssetEntry>& p_entry) -> Result<AssetRef> {
-    AssetRef asset = CreateAssetInstance(p_entry->metadata.type);
+static auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetRef> {
+    AssetRef asset = CreateAssetInstance(entry->metadata.type, false);
     if (!asset) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
-    if (auto res = asset->LoadFromDisk(p_entry->metadata); !res) {
+    if (auto res = asset->LoadFromDisk(entry->metadata); !res) {
         return CAVE_ERROR(res.error());
     }
     return asset;
@@ -91,17 +109,19 @@ auto AssetManager::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-Result<Guid> AssetManager::CreateAsset(AssetType p_type,
-                                       const std::string& p_short_path) {
-    AssetRef asset = CreateAssetInstance(p_type);
+void AssetManager::FinalizeImpl() {}
+
+Result<Guid> AssetManager::createAsset(AssetType type,
+                                       const std::string& short_path) {
+    AssetRef asset = CreateAssetInstance(type, true);
     DEV_ASSERT(asset);
     if (!asset) {
-        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create instance '{}'", p_short_path);
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create instance '{}'", short_path);
     }
 
-    auto _meta = AssetMetaData::CreateMeta(p_short_path);
+    auto _meta = AssetMetaData::CreateMeta(short_path);
     if (_meta.is_none()) {
-        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create meta '{}'", p_short_path);
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create meta '{}'", short_path);
     }
 
     auto meta = std::move(_meta.unwrap_unchecked());
@@ -110,155 +130,153 @@ Result<Guid> AssetManager::CreateAsset(AssetType p_type,
     }
 
     Guid guid = meta.guid;
-    m_app->services().assetRegistry().StartAsyncLoad(std::move(meta));
+    services().assetRegistry().StartAsyncLoad(std::move(meta));
     return guid;
 }
 
-Result<Guid> AssetManager::CreateAsset(AssetType p_type,
-                                       const fs::path& p_folder,
-                                       const char* p_name) {
+Result<Guid> AssetManager::createAsset(AssetType type,
+                                       const fs::path& folder,
+                                       const char* name) {
 
     // 1. Creates both meta and file
-    fs::path new_file = p_folder;
-    const char* ext = EnumTraits<AssetType>::ToString(p_type).data();
-    auto name = std::format("{}_{}.{}", p_name ? p_name : "untitled", ++m_fps_counter, ext);
-    new_file = new_file / name;
+    fs::path fullpath = folder;
+    const char* ext = EnumTraits<AssetType>::ToString(type).data();
+    fullpath = fullpath /
+               std::format("{}_{}.{}", name ? name : "untitled", ++counter_, ext);
 
-    std::string meta_file = new_file.string();
+    std::string meta_file = fullpath.string();
     meta_file.append(".meta");
 
-    auto short_path = ResolvePath(new_file);
+    auto short_path = resolvePath(fullpath);
 
-    return CreateAsset(p_type, short_path);
+    return createAsset(type, short_path);
 }
 
-Result<void> AssetManager::MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) {
-    DEV_ASSERT(!fs::is_directory(p_old));
+Result<void> AssetManager::moveAsset(const fs::path& old_path,
+                                     const fs::path& new_path) {
+    DEV_ASSERT(!fs::is_directory(old_path));
 
-    auto meta_path_str = std::format("{}.meta", p_old.string());
+    auto meta_path_str = std::format("{}.meta", old_path.string());
     fs::path old_meta{ meta_path_str };
 
-    meta_path_str = std::format("{}.meta", p_new.string());
+    meta_path_str = std::format("{}.meta", new_path.string());
     fs::path new_meta{ meta_path_str };
 
-    auto old_path = ResolvePath(p_old);
-    auto new_path = ResolvePath(p_new);
     try {
         fs::rename(old_meta, new_meta);
-        fs::rename(p_old, p_new);
+        fs::rename(old_path, new_path);
     } catch (const fs::filesystem_error& e) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_NO_PERMISSION, "{}", e.what());
     }
 
-    m_app->services().assetRegistry().MoveAsset(std::move(old_path), std::move(new_path));
+    services().assetRegistry().MoveAsset(resolvePath(old_path), resolvePath(new_path));
     return Result<void>();
 }
 
-std::string AssetManager::ResolvePath(const fs::path& p_path) {
-    return m_app->services().vfs().Resolve("@res", p_path);
+std::string AssetManager::resolvePath(const fs::path& path) {
+    return services().vfs().Resolve("@res", path);
 }
 
-uint64_t AssetManager::SubmitLoadAsset(const AssetLoadRequest& p_request) {
+uint64_t AssetManager::submitLoadAsset(const AssetLoadRequest& request) {
     class LoadAssetTask final : public IAsyncTask {
     public:
-        LoadAssetTask(AssetManager& p_asset_manager,
-                      const Guid& p_guid)
-            : m_asset_manager(p_asset_manager)
-            , m_guid(p_guid) {
+        LoadAssetTask(AssetManager& asset_manager,
+                      const Guid& guid)
+            : asset_manager_(asset_manager)
+            , guid_(guid) {
         }
 
         const char* Name() const final {
             return "LoadFileTask";
         }
 
-        void Run(TaskContext& p_ctx) final {
-            p_ctx.SetIndeterminate(false);
-            p_ctx.SetProgress(0.0f);
+        void Run(TaskContext& ctx) final {
+            ctx.SetIndeterminate(false);
+            ctx.SetProgress(0.0f);
 
-            AssetRef asset = m_asset_manager.LoadAssetSync(m_guid);
+            AssetRef asset = asset_manager_.loadAssetSync(guid_);
             if (!asset) {
-                p_ctx.Fail(std::format("LoadAssetSync failed for '{}'", m_guid.ToString()));
+                ctx.Fail(std::format("LoadAssetSync failed for '{}'", guid_.ToString()));
                 return;
             }
 
-            p_ctx.SetProgress(1.0f);
+            ctx.SetProgress(1.0f);
         }
 
     private:
-        AssetManager& m_asset_manager;
-        Guid m_guid;
+        AssetManager& asset_manager_;
+        Guid guid_;
     };
 
     TaskSubmitOptions opt;
     opt.priority = TaskPriority::Normal;
     opt.start_immediately = true;
 
-    return m_app->services().taskManager().submit(std::make_unique<LoadAssetTask>(*this, p_request.guid),
-                                                  opt);
+    return services().taskManager().submit(std::make_unique<LoadAssetTask>(*this, request.guid),
+                                           opt);
 }
 
-uint64_t AssetManager::SubmitImportScene(const SceneImportRequest& p_request) {
+uint64_t AssetManager::submitImportScene(const SceneImportRequest& request) {
     class ImportAssetTask final : public IAsyncTask {
     public:
-        ImportAssetTask(AssetManager& p_asset_manager,
-                        const fs::path& p_source,
-                        const fs::path& p_dest)
-            : m_asset_manager(p_asset_manager)
-            , m_source(p_source)
-            , m_dest(p_dest) {
+        ImportAssetTask(AssetManager& asset_manager,
+                        const fs::path& source,
+                        const fs::path& dest)
+            : asset_manager_(asset_manager)
+            , source_(source)
+            , dest_(dest) {
         }
 
         const char* Name() const final {
             return "ImportAssetTask";
         }
 
-        void Run(TaskContext& p_ctx) final {
-            p_ctx.SetIndeterminate(false);
-            p_ctx.SetProgress(0.0f);
+        void Run(TaskContext& ctx) final {
+            ctx.SetIndeterminate(false);
+            ctx.SetProgress(0.0f);
 
-            auto loader = AssetImporter::Create(m_source, m_dest);
+            auto loader = AssetImporter::Create(source_, dest_);
 
             if (!loader) {
-                p_ctx.Fail(std::format("No suitable loader found for asset '{}'", m_source.string()));
+                ctx.Fail(std::format("No suitable loader found for asset '{}'", source_.string()));
                 return;
             }
 
             auto res = loader->Import();
 
             if (!res) {
-                p_ctx.Fail(std::format("Failed to load '{}', reason: {}", m_source.string(), ToString(res.error())));
+                ctx.Fail(std::format("Failed to load '{}', reason: {}", source_.string(), ToString(res.error())));
                 return;
             }
 
-            p_ctx.SetProgress(1.0f);
+            ctx.SetProgress(1.0f);
         }
 
     private:
-        AssetManager& m_asset_manager;
-        fs::path m_source;
-        fs::path m_dest;
+        AssetManager& asset_manager_;
+        fs::path source_;
+        fs::path dest_;
     };
 
-    return m_app->services().taskManager().submit(
+    return services().taskManager().submit(
         std::make_unique<ImportAssetTask>(*this,
-                                          p_request.source_path,
-                                          p_request.dest_dir),
+                                          request.source_path,
+                                          request.dest_dir),
         TaskSubmitOptions{ .priority = TaskPriority::Normal,
                            .start_immediately = true },
-        [](uint64_t p_id, TaskSnapshot p_snapshot) {
-            unused(p_id);
-            if (p_snapshot.status == TaskStatus::Succeeded) {
+        [](uint64_t, TaskSnapshot snapshot) {
+            if (snapshot.status == TaskStatus::Succeeded) {
                 // @TODO: handle result
             }
         });
 }
 
-AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
+AssetRef AssetManager::loadAssetSync(const Guid& guid) {
     DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
 
     Stopwatch stopwatch;
     stopwatch.Start();
-    auto entry = m_app->services().assetRegistry().GetEntry(p_guid);
+    auto entry = services().assetRegistry().GetEntry(guid);
 
     auto res = LoadAsset(entry);
     if (!res) {
@@ -270,7 +288,7 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     }
 
     AssetRef asset = *res;
-    auto& device = m_app->services().renderDevice();
+    auto& device = services().renderDevice();
 
     // @TODO: based on render, create asset on work threads
     DEV_ASSERT(asset);
@@ -291,9 +309,6 @@ AssetRef AssetManager::LoadAssetSync(const Guid& p_guid) {
     LOG_TRACE(LogChannel::Asset, "Loaded {} {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
     entry->MarkLoaded(asset);
     return asset;
-}
-
-void AssetManager::FinalizeImpl() {
 }
 
 }  // namespace cave

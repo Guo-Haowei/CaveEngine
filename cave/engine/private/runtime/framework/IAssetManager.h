@@ -29,25 +29,25 @@ public:
     IAssetManager()
         : IService("AssetManager") {}
 
-    virtual void Update() = 0;
+    virtual void update() = 0;
 
-    virtual Result<Guid> CreateAsset(AssetType p_type, const std::filesystem::path& p_folder, const char* p_name = nullptr) = 0;
-    virtual Result<Guid> CreateAsset(AssetType p_type, const std::string& p_short_path) = 0;
+    virtual Result<Guid> createAsset(AssetType type, const std::filesystem::path& folder, const char* name = nullptr) = 0;
+    virtual Result<Guid> createAsset(AssetType type, const std::string& short_path) = 0;
 
-    virtual Result<void> MoveAsset(const std::filesystem::path& p_old, const std::filesystem::path& p_new) = 0;
+    virtual Result<void> moveAsset(const std::filesystem::path& old_path, const std::filesystem::path& new_path) = 0;
 
-    virtual uint64_t SubmitLoadAsset(const AssetLoadRequest& p_request) = 0;
+    virtual uint64_t submitLoadAsset(const AssetLoadRequest& request) = 0;
 
-    virtual uint64_t SubmitImportScene(const SceneImportRequest& p_request) = 0;
-
-    // @TODO: deprecate
-    virtual std::string ResolvePath(const std::filesystem::path& p_path) = 0;
+    virtual uint64_t submitImportScene(const SceneImportRequest& request) = 0;
 
     // @TODO: deprecate
-    virtual AssetRef LoadAssetSync(const Guid& p_guid) = 0;
+    virtual std::string resolvePath(const std::filesystem::path& path) = 0;
+
+    // @TODO: deprecate
+    virtual AssetRef loadAssetSync(const Guid& guid) = 0;
 
     // @TODO: remove this
-    virtual std::shared_ptr<ImageAsset> FindImage(const std::string&) { return nullptr; }
+    virtual std::shared_ptr<ImageAsset> findImage(const std::string&) { return nullptr; }
 };
 
 }  // namespace cave
