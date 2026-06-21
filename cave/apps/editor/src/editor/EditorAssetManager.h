@@ -15,9 +15,9 @@ public:
     Result<void> InitializeImpl() override;
     void FinalizeImpl() override;
 
-    void Update() override;
+    void update() override;
 
-    std::shared_ptr<ImageAsset> FindImage(const std::string& p_name);
+    std::shared_ptr<ImageAsset> findImage(const std::string& p_name);
 
     const auto& GetAssetRoot() const { return m_asset_root; }
     const auto& GetFolderLut() const { return m_folder_lut; }

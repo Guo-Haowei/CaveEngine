@@ -343,6 +343,29 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
     scene.m_bound = bound;
 }
 
+void RunFacingUpdateSystem(Scene& scene, jobsystem::Context&, float) {
+    auto view = scene.view<FacingComponent, VelocityComponent, TransformComponent>();
+    for (auto [ent, facing, vel, transform] : view) {
+        const float x_speed = vel.linear.x;
+
+        if (x_speed < 0.0f) {
+            facing.facing = Facing::Left;
+        } else if (x_speed > 0.0f) {
+            facing.facing = Facing::Right;
+        }
+        switch (facing.facing) {
+            case Facing::Left: {
+                transform.SetRotation(Vec4f{ 0, 1, 0, 0 });
+            } break;
+            case Facing::Right: {
+                transform.SetRotation(Vec4f{ 0, 0, 0, 1 });
+            } break;
+            default:
+                break;
+        }
+    }
+}
+
 #if 0
 void RunParticleEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float) {
     CAVE_PROFILE_EVENT();

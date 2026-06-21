@@ -1,6 +1,6 @@
 #include "TileMapDocument.h"
 
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 

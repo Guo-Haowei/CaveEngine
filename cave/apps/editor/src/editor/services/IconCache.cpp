@@ -38,7 +38,7 @@ void IconCache::Init() {
 
     auto& asset_manager = static_cast<EditorAssetManager&>(m_asset_manager);
     for (int i = std::to_underlying(IconName::Folder); i < kMaxIcons; ++i) {
-        m_cache[i] = asset_manager.FindImage(paths[i]);
+        m_cache[i] = asset_manager.findImage(paths[i]);
     }
 }
 

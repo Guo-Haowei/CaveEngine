@@ -60,7 +60,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
             if (is_dir) {
                 fs::rename(renaming_, to_path);
             } else {
-                engine_services_.assetManager().MoveAsset(renaming_, to_path);
+                engine_services_.assetManager().moveAsset(renaming_, to_path);
             }
             renaming_ = "";
         }

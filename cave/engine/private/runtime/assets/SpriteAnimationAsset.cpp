@@ -6,70 +6,70 @@
 
 namespace cave {
 
-SpriteAnimationClip::SpriteAnimationClip(std::vector<math::Box2>&& p_frames, float p_length) {
-    m_frames = std::move(p_frames);
-    SetAnimationLength(p_length);
+SpriteAnimationClip::SpriteAnimationClip(std::vector<math::Box2>&& frames, float length) {
+    frames_ = std::move(frames);
+    setAnimationLength(length);
 }
 
-void SpriteAnimationClip::SetFrames(std::vector<math::Box2>&& frames) {
-    m_frames = std::move(frames);
+void SpriteAnimationClip::setFrames(std::vector<math::Box2>&& frames) {
+    frames_ = std::move(frames);
 }
 
-void SpriteAnimationClip::SetAnimationLength(float p_length) {
-    DEV_ASSERT(p_length > 0.0f);
-    const float frame_duration = p_length / std::max(1, static_cast<int>(m_frames.size()));  // avoid divide by 0
-    m_durations.resize(m_frames.size());
-    for (float& duration : m_durations) {
+void SpriteAnimationClip::setAnimationLength(float length) {
+    DEV_ASSERT(length > 0.0f);
+    const float frame_duration = length / std::max(1, static_cast<int>(frames_.size()));  // avoid divide by 0
+    durations_.resize(frames_.size());
+    for (float& duration : durations_) {
         duration = frame_duration;
     }
 }
 
-bool SpriteAnimationAsset::AddClip(std::string&& p_name, std::vector<math::Box2>&& p_frames) {
-    auto it = m_clips.find(p_name);
-    if (it != m_clips.end()) {
-        LOG_WARN("clip '{}' already exists", p_name);
+bool SpriteAnimationAsset::addClip(std::string&& name, std::vector<math::Box2>&& frames) {
+    auto it = clips_.find(name);
+    if (it != clips_.end()) {
+        LOG_WARN("clip '{}' already exists", name);
         return false;
     }
 
-    m_clips.insert(std::make_pair(std::move(p_name),
-                                  SpriteAnimationClip(std::move(p_frames))));
+    clips_.insert(std::make_pair(std::move(name),
+                                 SpriteAnimationClip(std::move(frames))));
 
     return true;
 }
 
-const SpriteAnimationClip* SpriteAnimationAsset::GetClip(const std::string& p_name) {
-    auto it = m_clips.find(p_name);
-    if (it == m_clips.end()) {
+const SpriteAnimationClip* SpriteAnimationAsset::tryGetClip(const std::string& name) {
+    auto it = clips_.find(name);
+    if (it == clips_.end()) {
         return nullptr;
     }
 
     return &(it->second);
 }
 
-void SpriteAnimationAsset::SetGuid(const Guid& p_guid) {
+void SpriteAnimationAsset::SetGuid(const Guid& guid) {
     AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
-                                      p_guid,
-                                      m_image_guid,
-                                      m_image_handle.RawHandle());
+                                      guid,
+                                      image_guid_,
+                                      image_handle_.RawHandle());
 }
 
 void SpriteAnimationAsset::OnDeserialized() {
-    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(m_image_guid);
+    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(image_guid_);
     if (handle.is_some()) {
-        m_image_handle = handle.unwrap_unchecked();
+        image_handle_ = handle.unwrap_unchecked();
     }
 
-    for (auto& it : m_clips) {
-        float& total = it.second.m_total_duration;
+    for (auto& it : clips_) {
+        float& total = it.second.total_duration_;
         total = 0.0f;
-        for (float duration : it.second.m_durations) {
+        for (float duration : it.second.durations_) {
             total += duration;
         }
     }
 }
 
-auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
-    auto res = p_meta.SaveToDisk(this);
+auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& meta) const -> Result<void> {
+    auto res = meta.SaveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -81,13 +81,13 @@ auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& p_meta) const -> Resu
         .Key("content")
         .Write(*this)
         .EndMap();
-    return SaveYaml(p_meta.import_path, yaml);
+    return SaveYaml(meta.import_path, yaml);
 }
 
-auto SpriteAnimationAsset::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+auto SpriteAnimationAsset::LoadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YAML::Node root;
 
-    if (auto res = LoadYaml(p_meta.import_path, root); !res) {
+    if (auto res = LoadYaml(meta.import_path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 

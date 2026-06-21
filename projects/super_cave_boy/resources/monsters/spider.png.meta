@@ -1,0 +1,9 @@
+type: image
+guid: 5DAAD570-BEFA-9343-A2611349F7AEF10D
+name: spider.png
+import_path: "@res://monsters/spider.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

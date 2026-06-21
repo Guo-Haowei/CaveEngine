@@ -134,7 +134,7 @@ void EditorAssetManager::FinalizeImpl() {
     AssetManager::FinalizeImpl();
 }
 
-void EditorAssetManager::Update() {
+void EditorAssetManager::update() {
     if (m_resource_folder.empty()) {
         m_resource_folder = m_app->services().vfs().GetMount("@res");
         if (m_resource_folder.empty()) {
@@ -198,7 +198,7 @@ Result<void> EditorAssetManager::AddAlwaysLoadImages() {
 
     return Result<void>();
 }
-std::shared_ptr<ImageAsset> EditorAssetManager::FindImage(const std::string& p_name) {
+std::shared_ptr<ImageAsset> EditorAssetManager::findImage(const std::string& p_name) {
     auto it = m_images.find(p_name);
     if (it == m_images.end()) {
         return nullptr;

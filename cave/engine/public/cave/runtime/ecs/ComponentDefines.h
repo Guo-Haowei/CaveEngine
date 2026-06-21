@@ -37,6 +37,8 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(PrefabInstanceComponent, "World::PrefabInstanceComponent", 0)         \
     REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)             \
     REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)                     \
+    REGISTER_COMPONENT(FacingComponent, "World::FacingComponent", 0)                         \
+    REGISTER_COMPONENT(PlatformerMotorComponent, "World::PlatformerMotorComponent", 0)       \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)         \
     REGISTER_COMPONENT(TileMapInstanceComponent, "World::TileMapInstanceComponent", 0)
 

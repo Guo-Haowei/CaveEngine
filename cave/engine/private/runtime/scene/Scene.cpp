@@ -35,30 +35,31 @@ Scene::Scene(std::string name) noexcept
 
 Scene::~Scene() = default;
 
-void Scene::update(float p_timestep) {
+void Scene::update(float dt) {
     CAVE_PROFILE_EVENT();
 
     m_dirtyFlags.store(0);
 
     jobsystem::Context ctx;
     // animation
-    RunTransformAnimationSystem(*this, ctx, p_timestep);
-    RunSpriteAnimationSystem(*this, ctx, p_timestep);
-    RunLightUpdateSystem(*this, ctx, p_timestep);
-    RunAnimationUpdateSystem(*this, ctx, p_timestep);
+    RunTransformAnimationSystem(*this, ctx, dt);
+    RunSpriteAnimationSystem(*this, ctx, dt);
+    RunLightUpdateSystem(*this, ctx, dt);
+    RunAnimationUpdateSystem(*this, ctx, dt);
+    RunFacingUpdateSystem(*this, ctx, dt);
     ctx.Wait();
     // transform, update local matrix from position, rotation and scale
-    RunTransformationUpdateSystem(*this, ctx, p_timestep);
+    RunTransformationUpdateSystem(*this, ctx, dt);
     ctx.Wait();
     // hierarchy, update world matrix based on hierarchy
-    RunHierarchyUpdateSystem(*this, ctx, p_timestep);
+    RunHierarchyUpdateSystem(*this, ctx, dt);
     ctx.Wait();
 
-    RunSkeletonUpdateSystem(*this, ctx, p_timestep);
+    RunSkeletonUpdateSystem(*this, ctx, dt);
     ctx.Wait();
 
     // update bounding box
-    RunMeshAABBUpdateSystem(*this, ctx, p_timestep);
+    RunMeshAABBUpdateSystem(*this, ctx, dt);
 
     // @TODO: refactor
     for (auto [entity, camera, transform] : view<CameraComponent, TransformComponent>()) {

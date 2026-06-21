@@ -5,21 +5,29 @@
 
 namespace cave {
 
-void SpriteAnimatorComponent::SetClip(const std::string& p_name) {
-    if (m_current_clip != p_name) {
-        m_current_clip = p_name;
-        m_playback_timer = 0.0f;
+void SpriteAnimatorComponent::currentClip(std::string_view name) {
+    SpriteAnimationAsset* asset = anim_handle_.Get();
+    const SpriteAnimationClip* clip = asset->tryGetClip(std::string(name));
+    if (clip == nullptr) {
+        LOG_ERROR("Clip '{}' does not exist", name);
+        return;
+    }
+
+    if (current_clip_ != name) {
+        current_clip_ = name;
+        playback_timer_ = 0.0f;
+        looping_ = clip->looping();
     }
 }
 
-bool SpriteAnimatorComponent::SetResourceGuid(const Guid& p_guid) {
-    return AssetHandle::ReplaceGuidAndHandle(AssetType::SpriteAnimation, p_guid, m_anim_id, m_anim_handle.RawHandle());
+bool SpriteAnimatorComponent::SetResourceGuid(const Guid& guid) {
+    return AssetHandle::ReplaceGuidAndHandle(AssetType::SpriteAnimation, guid, anim_id_, anim_handle_.RawHandle());
 }
 
 void SpriteAnimatorComponent::OnDeserialized() {
-    if (!m_anim_id.IsNull()) {
-        m_anim_handle =
-            AssetRegistry::singleton().FindByGuid<SpriteAnimationAsset>(m_anim_id).unwrap();
+    if (!anim_id_.IsNull()) {
+        anim_handle_ =
+            AssetRegistry::singleton().FindByGuid<SpriteAnimationAsset>(anim_id_).unwrap();
     }
 }
 

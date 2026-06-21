@@ -35,13 +35,6 @@ public:
     const Guid& GetResourceGuid() const { return m_prefab_id; }
 };
 
-struct VelocityComponent {
-    CAVE_COMPONENT(VelocityComponent)
-
-    CAVE_PROP(editor = Translation)
-    math::Vec3f linear = math::Vec3f::Zero;
-};
-
 #pragma region COLLISION_OBJECT_COMPONENT
 
 struct CollisionObjectBase {

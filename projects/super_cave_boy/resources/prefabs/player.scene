@@ -21,7 +21,9 @@ entities:
     VelocityComponent:
       linear: [0, 0, 0]
     NativeScriptComponent:
-      name: "PlayerController"
+      name: PlayerController
+    FacingComponent:
+      facing: right
   - id: 2
     NameComponent:
       name: player_animator_node

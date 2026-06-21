@@ -1,0 +1,50 @@
+version: 19
+seed: 2
+root: 1
+physics_mode: 0
+entities:
+  - id: 1
+    NameComponent:
+      name: snake
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    ColliderComponent:
+      body_type: static
+      shape:
+        type: box
+        data: [0.5, 0.5, 0.5]
+      flags: 0
+      category: 0
+      mask: 0
+    VelocityComponent:
+      linear: [0, 0, 0]
+    NativeScriptComponent:
+      name: SnakeController
+    FacingComponent:
+      facing: right
+  - id: 2
+    NameComponent:
+      name: snake_animator_node
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    SpriteAnimatorComponent:
+      anim_id: 9C019531-38B4-F44A-9F1A715A0D2D67E7
+      current_clip: move
+      looping: true
+      playing: true
+      speed: 1
+    SpriteRendererComponent:
+      image_id: 3F1DA968-0BAE-6D4A-8886F3EC9187FDE7
+      tint_color: [1, 1, 1, 1]
+      rect:
+        min: [0.625, 1]
+        max: [0.75, 0.5]
+      flip_x: false
+      flip_y: false
+      is_billboard: false

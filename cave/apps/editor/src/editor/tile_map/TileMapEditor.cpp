@@ -11,6 +11,8 @@
 #include "editor/panels/AssetInspector.h"
 #include "editor/services/EditService.h"
 #include "editor/services/DocumentService.h"
+#include "editor/services/IconCache.h"
+#include "editor/tile_map/SetTileCommand.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 
@@ -26,7 +28,6 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              DocId doc_id,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
-    , ctx_(editor.assetInspector().tileMapContext())
     , debug_id_(MakeDebugId(this)) {
 
     // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
@@ -149,7 +150,7 @@ void TileMapEditor::applayEditorTool() {
         case cave::TileMapEditor::Mode::None:
             return;
         case cave::TileMapEditor::Mode::Painting: {
-            auto selections = ctx_.sprite_selector.GetSelections();
+            auto selections = sprite_selector_.GetSelections();
             if (selections.empty()) {
                 return;
             }
@@ -204,6 +205,113 @@ void TileMapEditor::drawUIImpl() {
     submitView();
 }
 
+void TileMapEditor::drawAssetInspector(IDocument& doc) {
+    TileMapAsset* tile_map = doc.handle<TileMapAsset>().Get();
+    DEV_ASSERT(tile_map);
+
+    if (ImGui::BeginTabBar("##MyTabs1")) {
+        if (ImGui::BeginTabItem("Layer")) {
+            tileMapLayerOverview(*tile_map);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::Separator();
+
+    TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
+    if (tile_set) {
+        auto handle = tile_set->handle();
+        const int column = tile_set->col();
+        const int row = tile_set->row();
+        if (auto image = handle.Get(); image) {
+            sprite_selector_.SelectSprite(*image, &column, &row);
+        }
+    }
+}
+
+void TileMapEditor::tileMapLayerOverview(TileMapAsset& tile_map) {
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
+        // p_tile_map.AddLayer("untitled layer");
+        LOG_WARN("TODO: Add layer");
+    }
+    ImGui::Separator();
+
+    for (int layer_id = 0; layer_id < 1; ++layer_id) {
+        TileMapAsset& layer = tile_map;
+        const bool is_layer_selected = true;
+
+        ImGui::PushID(layer_id);
+
+        if (is_layer_selected) {
+            auto& style = ImGui::GetStyle();
+            auto& colors = style.Colors;
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, colors[ImGuiCol_FrameBgHovered]);
+        }
+
+        ImGui::BeginGroup();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
+
+        ImGui::BeginGroup();
+
+        ImGui::Dummy(ImVec2(8, 8));
+
+        // if (ui::TextBox("layer", layer.GetName().c_str())) {
+        //     // @TODO: notify dirty
+        // }
+
+        ImGui::SameLine();
+
+        const bool is_visible = layer.visible();
+        const char* label = is_visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+        if (ImGui::Button(label)) {
+            layer.visible(!is_visible);
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
+            LOG_WARN("TODO: DELETE");
+        }
+
+        {
+
+            const ImageAsset* image = nullptr;
+            if (auto image_handle = layer.tileSetHandle().Get(); image_handle) {
+                image = image_handle->handle().Get();
+            }
+
+            Vec2f region_size(128, 128);
+            IconCache& icons = editor_services_.iconCache();
+            ui::CenteredImage(image, region_size, icons.GetIconHandle(IconName::Checkerboard));
+
+            if (ImGui::IsItemClicked()) {
+                // tool->SetActiveLayer(layer_id);
+            }
+
+            // @TODO: make an asset drop region
+            // accept same type of assets, show tooltips, etc
+            if (auto _handle = DragDropTarget(AssetType::TileSet); _handle.is_some()) {
+                layer.tileSetGuid(_handle.unwrap_unchecked().GetGuid());
+            }
+        }
+
+        ImGui::Dummy(ImVec2(8, 8));
+
+        ImGui::EndGroup();
+        ImGui::Separator();
+
+        ImGui::PopStyleVar(2);
+        ImGui::PopID();
+        ImGui::EndGroup();
+
+        if (is_layer_selected) {
+            ImGui::PopStyleColor();
+        }
+    }
+}
 Option<TileCoord> TileMapEditor::pointToTile(math::Vec2f point_os) {
     if (!isVisible()) return None();
 

@@ -12,43 +12,44 @@ class SpriteAnimatorComponent {
 
 private:
     CAVE_PROP(editor = Asset)
-    Guid m_anim_id;
+    Guid anim_id_;
 
     // @TODO: drop down?
     CAVE_PROP()
-    std::string m_current_clip = "idle";
+    std::string current_clip_ = "idle";
 
     CAVE_PROP(editor = Toggle)
-    bool m_looping = true;
+    bool looping_ = true;
 
     CAVE_PROP(editor = Toggle)
-    bool m_playing = true;
+    bool playing_ = true;
 
     // @TODO: add play speed
     CAVE_PROP()
-    float m_speed = 1.0f;
+    float speed_ = 1.0f;
 
     // Non-serialized
-    float m_playback_timer{ 0 };
+    float playback_timer_{ 0 };
 
-    Handle<SpriteAnimationAsset> m_anim_handle;
+    Handle<SpriteAnimationAsset> anim_handle_;
 
 public:
-    void SetClip(const std::string& p_name);
-    const std::string& GetCurrentClip() const { return m_current_clip; }
+    void currentClip(std::string_view name);
+    const std::string& currentClip() const { return current_clip_; }
 
-    bool SetResourceGuid(const Guid& p_guid);
-    const Guid& GetResourceGuid() const { return m_anim_id; }
+    bool SetResourceGuid(const Guid& guid);
+    const Guid& GetResourceGuid() const { return anim_id_; }
 
-    const Handle<SpriteAnimationAsset>& GetAnimHandle() { return m_anim_handle; }
+    const Handle<SpriteAnimationAsset>& animHandle() { return anim_handle_; }
 
-    void SetPlaying(bool p_playing = true) { m_playing = p_playing; }
-    bool IsPlaying() const { return m_playing; }
+    void playing(bool playing) { playing_ = playing; }
+    bool playing() const { return playing_; }
 
-    void SetLooping(bool p_looping = true) { m_looping = p_looping; }
-    bool IsLooping() const { return m_looping; }
+    void looping(bool looping) { looping_ = looping; }
+    bool looping() const { return looping_; }
 
-    float& GetPlaybackTimerRef() { return m_playback_timer; }
+    void playbackTimer(float timer) { playback_timer_ = timer; }
+    float playbackTimer() const { return playback_timer_; }
 
     void OnDeserialized();
 };

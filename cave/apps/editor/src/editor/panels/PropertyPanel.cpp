@@ -41,6 +41,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(Collider)        \
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
+    COMPONENT_DECL(Facing)          \
     COMPONENT_DECL(TileMapInstance) \
     COMPONENT_DECL(PrefabInstance)
 
@@ -369,6 +370,8 @@ void PropertyPanel::drawUIImpl() {
     NativeScriptComponent* native_script = scene.component<NativeScriptComponent>(id);
     CameraComponent* camera = scene.component<CameraComponent>(id);
     PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(id);
+    FacingComponent* facing = scene.component<FacingComponent>(id);
+    VelocityComponent* velocity = scene.component<VelocityComponent>(id);
 
     // RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
 
@@ -419,10 +422,10 @@ void PropertyPanel::drawUIImpl() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& p_collider) {
-        DrawComponentAuto<ColliderComponent>(&p_collider, ctx);
+    DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& collider) {
+        DrawComponentAuto(&collider, ctx);
 
-        Shape& shape = p_collider.shape();
+        Shape& shape = collider.shape();
         DrawEnumDropDown("shape", shape.type, ui::kDefaultColumnWidth);
         switch (shape.type) {
             case ShapeType::Round: {
@@ -435,6 +438,14 @@ void PropertyPanel::drawUIImpl() {
                 ui::Float3("placeholder", shape.data.half, 0.5f);
                 break;
         }
+    });
+
+    DrawComponent(DRAW_COMPONENT_ARGS("Facing"), facing, [&ctx](FacingComponent& comp) {
+        DrawComponentAuto(&comp, ctx);
+    });
+
+    DrawComponent(DRAW_COMPONENT_ARGS("Velocity"), velocity, [&ctx](VelocityComponent& comp) {
+        DrawComponentAuto(&comp, ctx);
     });
 
 #if 0

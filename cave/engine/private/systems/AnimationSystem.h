@@ -8,8 +8,8 @@ namespace cave {
 
 class Scene;
 
-void RunSpriteAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunSpriteAnimationSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
-void RunTransformAnimationSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunTransformAnimationSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
 }  // namespace cave

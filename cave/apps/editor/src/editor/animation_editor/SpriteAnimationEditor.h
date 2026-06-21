@@ -1,59 +1,51 @@
 #pragma once
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/Entity.h"
-#include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 
+#include "editor/panels/ViewTabBase.h"
 #include "editor/widgets/SpriteSelector.h"
-#include "editor/widgets/ToolBar.h"
 
 namespace cave {
 
-#if 0
-class AssetRegistry;
-class OldDocument;
-class TileMapDocument;
-class Viewer;
+// @TODO: better editor
+class SpriteAnimationAsset;
+struct ImageAsset;
 
-using SpriteAnimationDocument = OldDocument;
+class SpriteAnimationEditor final : public ViewTabBase {
 
-class SpriteAnimationEditor {
 public:
-    SpriteAnimationEditor(EditorState& p_editor, Viewer& p_viewer);
+    SpriteAnimationEditor(EditorState& editor,
+                          DocId doc_id,
+                          SceneId preview_scene_id);
 
-    void OnDestroy() final;
+    void onCreate() override;
+    void onDestroy() override;
 
-    void DrawMainView(const CameraComponent& p_camera) final;
+    DebugId debugId() const override { return debug_id_; }
 
-    void DrawAssetInspector() final;
+private:
+    void drawUIImpl() override;
+    void drawAssetInspector(IDocument& doc) override;
 
-protected:
-    void OnCreateInternal(const Guid& p_guid) final;
+    void drawFrameSelector(SpriteAnimationAsset& anim, ImageAsset& image_asset);
+    void drawTimeLine(SpriteAnimationAsset& anim, IDocument& doc);
+    std::string selectAnimation(SpriteAnimationAsset& anim, std::string_view current_clip);
 
-    void OnActivateInternal() final;
+    void submitView();
 
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
+    const DebugId debug_id_;
 
-    void DrawFrameSelector(ImageAsset& p_image_asset);
-    void DrawTimeLine();
-    void ImageSourceDropTarget();
+    std::string selected_clip_;
+    SpriteSelector sprite_selector_{ SpriteSelector::SelectionMode::Multi };
 
-    AssetRegistry* m_asset_registry = nullptr;
+    ToolBarButtonDesc play_button_;
+    ToolBarButtonDesc pause_button_;
 
-    std::shared_ptr<Scene> m_tmp_scene;
-
-    std::unique_ptr<CameraComponent> m_camera;
-
-    std::shared_ptr<SpriteAnimationDocument> m_document;
-
-    SpriteSelector m_sprite_selector;
-
-    std::string m_clip_name;
-
-    ecs::Entity m_animator_id;
-
-    ToolBarButtonDesc m_play_button;
-    ToolBarButtonDesc m_pause_button;
+    enum class Request {
+        None,
+        Play,
+        Pause,
+    } last_req_{ Request::None };
 };
-#endif
 
 }  // namespace cave

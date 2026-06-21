@@ -51,7 +51,7 @@ void ProjectBrowserState::drawRecentProjects() {
     math::Vec2f thumbnail_size(256);
 
     // @TODO: use actual image
-    std::shared_ptr<ImageAsset> image = IAssetManager::singleton().FindImage("scene@256x256.png");
+    std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage("scene@256x256.png");
     GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
     for (const ProjectInfo& project : project_list_) {

@@ -30,6 +30,7 @@ public:
     void setTitleAndId(std::string_view title, uint32_t idx);
 
     void drawUI() override;
+    virtual void drawAssetInspector(IDocument&) {}
 
     const char* windowId() const override { return window_id_.c_str(); }
 

@@ -223,7 +223,7 @@ bool Application::MainLoop() {
 
     ui_->beginFrame(input_service_->getUIInput());
 
-    asset_manager_->Update();
+    asset_manager_->update();
 
     // layer should set active scene
     // update layers from back to front

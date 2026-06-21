@@ -37,7 +37,7 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
     // go through all files, create meta if not exists
     for (const auto& entry : fs::recursive_directory_iterator(p_project_path)) {
         if (entry.is_regular_file()) {
-            std::string virtual_path = m_asset_manager.ResolvePath(entry.path());
+            std::string virtual_path = m_asset_manager.resolvePath(entry.path());
 
             auto ext = StringUtils::Extension(virtual_path);
             if (ext == ".meta") {
@@ -100,7 +100,10 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
         DEV_ASSERT(to != mapping.end());
         for (const auto& guid : asset.dependencies) {
             auto from = mapping.find(guid);
-            DEV_ASSERT(from != mapping.end());
+            if (from == mapping.end()) {
+                if (guid.IsNull()) continue;
+                CRASH_NOW_MSG("dependency not found");
+            }
             edges.push_back({ from->second, to->second });
         }
     }
