@@ -1,0 +1,9 @@
+type: sprite_anim
+guid: 9C019531-38B4-F44A-9F1A715A0D2D67E7
+name: snake.sprite_anim
+import_path: "@res://monsters/snake.sprite_anim"
+dependencies: [3F1DA968-0BAE-6D4A-8886F3EC9187FDE7]
+source_created_time: 2026-06-21 05:40:44.5543910
+source_last_modified: 2026-06-21 05:39:38.8192133
+import_settings:
+  {}

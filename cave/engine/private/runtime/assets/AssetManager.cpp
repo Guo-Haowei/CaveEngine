@@ -110,8 +110,7 @@ Result<Guid> AssetManager::CreateAsset(AssetType p_type,
     }
 
     Guid guid = meta.guid;
-    DEV_ASSERT(0 && "fix this part");
-    // m_app->GetAssetRegistry()->StartAsyncLoad(std::move(meta));
+    m_app->services().assetRegistry().StartAsyncLoad(std::move(meta));
     return guid;
 }
 

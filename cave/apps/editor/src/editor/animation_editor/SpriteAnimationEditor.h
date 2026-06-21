@@ -7,6 +7,7 @@
 
 namespace cave {
 
+// @TODO: better editor
 class SpriteAnimationAsset;
 struct ImageAsset;
 

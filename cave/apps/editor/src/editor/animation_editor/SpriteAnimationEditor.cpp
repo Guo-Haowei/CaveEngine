@@ -21,12 +21,6 @@ namespace cave {
 
 using namespace ::cave::math;
 
-#if 0
-class SpriteAnimationEditor {
-public:
-};
-#endif
-
 namespace {
 
 void ImageSourceDropTarget(IDocument& doc, uint64_t checkerboard) {
@@ -251,12 +245,12 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
     ImGui::Columns(1);
 
     // time line
-
-    const SpriteAnimationClip* clip = anim.GetClip(animator->currentClip());
-    float playback = animator->playbackTimer();
-    if (ImGui::SliderFloat("timeline", &playback, 0.0f, clip->GetTotalDuration())) {
-        animator->playing(true);
-        animator->playbackTimer(playback);
+    if (const SpriteAnimationClip* clip = anim.GetClip(animator->currentClip())) {
+        float playback = animator->playbackTimer();
+        if (ImGui::SliderFloat("timeline", &playback, 0.0f, clip->GetTotalDuration())) {
+            animator->playing(true);
+            animator->playbackTimer(playback);
+        }
     }
 }
 
