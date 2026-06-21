@@ -276,10 +276,9 @@ void MoveHorizontal(
     TransformComponent& transform,
     const ColliderComponent& collider,
     const VelocityComponent& vel,
-    LegacyPlayerMotor& motor,
     const TileWorldSystem& world,
     float dt) {
-    const float dx = vel.linear.x * motor.speed * dt;
+    const float dx = vel.linear.x * dt;
 
     if (dx == 0.0f) {
         return;
@@ -446,7 +445,7 @@ void PlayerController::onUpdate(float dt) {
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
-    vel->linear.x = static_cast<float>(move_x);
+    vel->linear.x = move_x * motor_.speed;
 
     // Jump is allowed to cancel grabbing.
     if (jump_pressed) {
@@ -454,7 +453,7 @@ void PlayerController::onUpdate(float dt) {
     }
 
     // Movement.
-    MoveHorizontal(*transform, *collider, *vel, motor_, *tile_world, dt);
+    MoveHorizontal(*transform, *collider, *vel, *tile_world, dt);
     MoveVertical(*transform, *collider, *vel, motor_, *tile_world, dt);
 
     // State + animation after movement/collision.
