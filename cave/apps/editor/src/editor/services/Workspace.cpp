@@ -10,10 +10,12 @@
 
 #include "editor/EditorIntent.h"
 #include "editor/EditorState.h"
+#include "editor/animation_editor/SpriteAnimationEditor.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
-#include "editor/tile_map_editor/TileMapEditor.h"
+#include "editor/tile_map/TileMapEditor.h"
+#include "editor/tile_map/TileSetEditor.h"
 
 // @TODO: delete
 #include "editor/panels/SceneViewTab.h"
@@ -159,11 +161,14 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
                                                  dim);
         } break;
         case AssetType::TileMap: {
-            tab = std::make_unique<TileMapEditor>(editor_,
-                                                  doc_id,
-                                                  doc->previewScene());
+            tab = std::make_unique<TileMapEditor>(editor_, doc_id, doc->previewScene());
         } break;
-        case AssetType::TileSet:
+        case AssetType::TileSet: {
+            tab = std::make_unique<TileSetEditor>(editor_, doc_id);
+        } break;
+        case AssetType::SpriteAnimation: {
+            tab = std::make_unique<SpriteAnimationEditor>(editor_, doc_id, doc->previewScene());
+        } break;
         default: {
             tab = std::make_unique<Tab>(editor_, doc_id);
         } break;

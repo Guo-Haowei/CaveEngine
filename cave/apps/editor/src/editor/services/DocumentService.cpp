@@ -2,6 +2,7 @@
 
 #include "cave/runtime/framework/EngineServices.h"
 
+#include "editor/animation_editor/SpriteAnimationDocument.h"
 #include "editor/document/MaterialDocument.h"
 #include "editor/document/TileMapDocument.h"
 #include "editor/document/SceneDocument.h"
@@ -16,6 +17,8 @@ static std::unique_ptr<IDocument> CreateDoc(EngineServices& services, const Open
             return std::make_unique<SceneDocument>(services, desc.guid);
         case AssetType::Material:
             return std::make_unique<MaterialDocument>(services, desc.guid);
+        case AssetType::SpriteAnimation:
+            return std::make_unique<SpriteAnimationDocument>(services, desc.guid);
         case AssetType::TileMap:
             return std::make_unique<TileMapDocument>(services, desc.guid);
         default:
