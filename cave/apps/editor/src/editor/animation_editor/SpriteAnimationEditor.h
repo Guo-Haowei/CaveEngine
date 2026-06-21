@@ -11,6 +11,7 @@ class SpriteAnimationAsset;
 struct ImageAsset;
 
 class SpriteAnimationEditor final : public ViewTabBase {
+
 public:
     SpriteAnimationEditor(EditorState& editor,
                           DocId doc_id,
@@ -26,7 +27,8 @@ private:
     void drawAssetInspector(IDocument& doc) override;
 
     void drawFrameSelector(SpriteAnimationAsset& anim, ImageAsset& image_asset);
-    void drawTimeLine(SpriteAnimationAsset& anim);
+    void drawTimeLine(SpriteAnimationAsset& anim, IDocument& doc);
+    std::string selectAnimation(SpriteAnimationAsset& anim, std::string_view current_clip);
 
     void submitView();
 
@@ -34,32 +36,16 @@ private:
 
     std::string clip_name_;
     SpriteSelector sprite_selector_{ SpriteSelector::SelectionMode::Multi };
-};
 
-#if 0
-class SpriteAnimationEditor {
-public:
-    const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
-
-    void DrawFrameSelector(ImageAsset& p_image_asset);
-    void DrawTimeLine();
-    void ImageSourceDropTarget();
-
-    AssetRegistry* m_asset_registry = nullptr;
-
-    std::shared_ptr<Scene> m_tmp_scene;
-
-    std::unique_ptr<CameraComponent> m_camera;
-
-    std::shared_ptr<SpriteAnimationDocument> m_document;
-
-    SpriteSelector m_sprite_selector;
-
-    std::string m_clip_name;
-
+    // const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const final;
     ToolBarButtonDesc m_play_button;
     ToolBarButtonDesc m_pause_button;
+
+    enum Req {
+        None,
+        Play,
+        Pause,
+    } last_req_;
 };
-#endif
 
 }  // namespace cave
