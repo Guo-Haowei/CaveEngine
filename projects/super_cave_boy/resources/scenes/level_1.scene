@@ -1,5 +1,5 @@
 version: 19
-seed: 12
+seed: 15
 root: 1
 physics_mode: 0
 entities:
@@ -64,3 +64,14 @@ entities:
       ortho_height: 10
     NativeScriptComponent:
       name: CameraController
+  - id: 15
+    NameComponent:
+      name: snake-01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [5.5, 0.5, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642

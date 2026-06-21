@@ -29,7 +29,7 @@ struct LegacyPlayerMotor {
     PlayerState state = PlayerState::Air;
 };
 
-class PlayerController : public ::cave::NativeScript {
+class PlayerController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 public:

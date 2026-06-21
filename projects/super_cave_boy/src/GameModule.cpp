@@ -5,6 +5,7 @@
 
 #include "CameraController.h"
 #include "PlayerController.h"
+#include "SnakeController.h"
 
 namespace super_cave_boy {
 
@@ -15,6 +16,7 @@ GameModule::~GameModule() = default;
 
 void GameModule::registerNativeScripts(NativeScriptRegistry& registry) {
     registry.registerScript<PlayerController>("PlayerController");
+    registry.registerScript<SnakeController>("SnakeController");
     registry.registerScript<CameraController>("CameraController");
 }
 
