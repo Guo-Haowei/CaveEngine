@@ -68,10 +68,11 @@ static AssetRef CreateAssetInstance(AssetType type, bool create) {
             if (create) {
                 auto root = scene->createEntity();
                 scene->create(TransformComponent_Id, root);
-                scene->create<NameComponent>(root);
+                scene->create<NameComponent>(root).SetName("root");
 
                 auto ent = scene->createEntity();
                 scene->create(TransformComponent_Id, ent);
+                scene->create<NameComponent>(ent).SetName("untitled");
 
                 scene->m_root = root;
                 scene->attachChild(ent);

@@ -70,6 +70,7 @@ void Tab::drawUI() {
     }
 }
 
+// @FIX: the title won't change when asset is renamed
 void Tab::setTitleAndId(std::string_view title, uint32_t idx) {
     idx_ = idx;
     title_ = title.empty() ? "Untitled" : title;
