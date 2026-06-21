@@ -41,7 +41,7 @@ private:
     ToolBarButtonDesc m_play_button;
     ToolBarButtonDesc m_pause_button;
 
-    enum Req {
+    enum class Request {
         None,
         Play,
         Pause,

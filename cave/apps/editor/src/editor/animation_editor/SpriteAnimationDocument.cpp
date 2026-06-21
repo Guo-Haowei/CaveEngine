@@ -1,6 +1,7 @@
 #include "SpriteAnimationDocument.h"
 
 #include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
@@ -24,7 +25,6 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     cb.AttachChild(ent, root);
     cb.AddComponent(ent, SpriteRendererComponent_Id);
     cb.AddComponent(ent, SpriteAnimatorComponent_Id);
-    cb.SetProperty(ent, SpriteAnimatorComponent_Id, "anim_id"_sid, guid);
 
     auto scene = std::make_unique<Scene>(std::format("preview-animation-{}", guid.ToString()));
 
@@ -33,6 +33,9 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->m_root = map.Resolve(root);
     scene->update(0.0f);
+
+    SpriteAnimatorComponent* animator = scene->component<SpriteAnimatorComponent>(map.Resolve(ent));
+    animator->SetResourceGuid(guid);
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }

@@ -61,11 +61,11 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorState& editor,
     // ICON_FA_BACKWARD;
     m_play_button = { ICON_FA_PLAY, "Play animation",
                       [this]() {
-                          last_req_ = Play;
+                          last_req_ = Request::Play;
                       } };
     m_pause_button = { ICON_FA_PAUSE, "Pause animation",
                        [this]() {
-                           last_req_ = Pause;
+                           last_req_ = Request::Pause;
                        } };
 }
 
@@ -242,10 +242,12 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
 
     DrawToolBar(buttons);
 
-    if (last_req_ == Play) {
+    if (last_req_ == Request::Play) {
         animator->SetPlaying(true);
-    } else if (last_req_ == Pause) {
+        last_req_ = Request::None;
+    } else if (last_req_ == Request::Pause) {
         animator->SetPlaying(false);
+        last_req_ = Request::None;
     }
 
     ImGui::Columns(1);
