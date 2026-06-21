@@ -45,7 +45,7 @@ private:
         None,
         Play,
         Pause,
-    } last_req_;
+    } last_req_{ Request::None };
 };
 
 }  // namespace cave

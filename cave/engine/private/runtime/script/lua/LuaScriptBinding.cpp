@@ -201,12 +201,6 @@ bool OpenSceneLib(lua_State* L) {
         .addFunction("set_scale", &TransformComponent::SetScale)
         .endClass();
 
-    // Animator
-    luabridge::getGlobalNamespace(L)
-        .beginClass<SpriteAnimatorComponent>("SpriteAnimatorComponent")
-        .addFunction("set_clip", &SpriteAnimatorComponent::SetClip)
-        .endClass();
-
     // CameraComponent
     luabridge::getGlobalNamespace(L)
         .beginClass<CameraComponent>("CameraComponent")

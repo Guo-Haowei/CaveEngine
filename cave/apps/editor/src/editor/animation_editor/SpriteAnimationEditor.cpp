@@ -5,11 +5,9 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 
-#include "editor/EditorState.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "engine/private/ui/inputs.h"
-#include "engine/private/ui/layout.h"
 #include "editor/services/IconCache.h"
 
 // @TODO: refactor
@@ -229,34 +227,37 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, width);
 
-    std::string selected_clip = selectAnimation(anim, animator->GetCurrentClip());
+    std::string selected_clip = selectAnimation(anim, animator->currentClip());
     if (!selected_clip.empty()) {
-        animator->SetClip(selected_clip);
+        animator->currentClip(selected_clip);
     }
 
     ImGui::NextColumn();
 
     std::vector<const ToolBarButtonDesc*> buttons = {
-        animator->IsPlaying() ? &m_pause_button : &m_play_button
+        animator->playing() ? &m_pause_button : &m_play_button
     };
 
     DrawToolBar(buttons);
 
     if (last_req_ == Request::Play) {
-        animator->SetPlaying(true);
+        animator->playing(true);
         last_req_ = Request::None;
     } else if (last_req_ == Request::Pause) {
-        animator->SetPlaying(false);
+        animator->playing(false);
         last_req_ = Request::None;
     }
 
     ImGui::Columns(1);
 
     // time line
-    // float& playback = animator->GetPlaybackTimerRef();
-    // if (ImGui::SliderFloat("timeline", &playback.timer, playback.start, playback.end)) {
-    //    animator->SetPlaying(true);
-    //}
+
+    const SpriteAnimationClip* clip = anim.GetClip(animator->currentClip());
+    float playback = animator->playbackTimer();
+    if (ImGui::SliderFloat("timeline", &playback, 0.0f, clip->GetTotalDuration())) {
+        animator->playing(true);
+        animator->playbackTimer(playback);
+    }
 }
 
 }  // namespace cave

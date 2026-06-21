@@ -30,17 +30,17 @@ public:
         return 0;
     }
 
-    static void UpdateSpriteAnimation(float p_timestep,
-                                      SpriteAnimatorComponent& p_animator,
-                                      SpriteRendererComponent& p_renderer) {
-        SpriteAnimationAsset* asset = p_animator.GetAnimHandle().Get();
+    static void UpdateSpriteAnimation(float dt,
+                                      SpriteAnimatorComponent& animator,
+                                      SpriteRendererComponent& renderer) {
+        SpriteAnimationAsset* asset = animator.animHandle().Get();
         if (!asset) {
             return;
         }
 
-        p_renderer.SetResourceGuid(asset->GetImageGuid());
+        renderer.SetResourceGuid(asset->GetImageGuid());
 
-        const auto& clip_name = p_animator.GetCurrentClip();
+        const auto& clip_name = animator.currentClip();
         const auto& clips = asset->GetClips();
         auto it = clips.find(clip_name);
         if (it == clips.end()) {
@@ -48,24 +48,25 @@ public:
         }
         const SpriteAnimationClip& clip = it->second;
 
-        auto& timer = p_animator.GetPlaybackTimerRef();
-        if (p_animator.IsPlaying()) {
-            timer += p_timestep;
+        float timer = animator.playbackTimer();
+        if (animator.playing()) {
+            timer += dt;
         }
 
         const float duration = clip.GetTotalDuration();
-        if (p_animator.IsLooping()) {
+        if (animator.looping()) {
             timer = std::fmod(timer, duration);
         } else {
             timer = std::min(timer, duration);
         }
+        animator.playbackTimer(timer);
 
         const int frame_idx = GetFrame(timer,
                                        duration,
                                        clip.GetDurations());
 
         DEV_ASSERT_INDEX(frame_idx, clip.GetFrames().size());
-        p_renderer.SetRect(clip.GetFrames()[frame_idx]);
+        renderer.SetRect(clip.GetFrames()[frame_idx]);
     }
 };
 

@@ -410,23 +410,23 @@ void PlayerController::updateAnimation(SceneQuery& query) {
 
     switch (motor_.state) {
         case PlayerState::Idle:
-            animator->SetClip("idle");
+            animator->currentClip("idle");
             break;
 
         case PlayerState::Walk:
-            animator->SetClip("walk");
+            animator->currentClip("walk");
             break;
 
         case PlayerState::Air:
             if (motor_.vspeed > 0.0f) {
-                animator->SetClip("jump");
+                animator->currentClip("jump");
             } else {
-                animator->SetClip("jump");
+                animator->currentClip("jump");
             }
             break;
 
         case PlayerState::Grab:
-            animator->SetClip("grab");
+            animator->currentClip("grab");
             break;
 
         case PlayerState::Hurt:
