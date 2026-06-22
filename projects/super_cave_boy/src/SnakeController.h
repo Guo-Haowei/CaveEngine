@@ -10,6 +10,7 @@ public:
 
 private:
     float elapsed_ = 0.0f;
+    int facing_x_ = -1;  // or 1
 };
 
 }  // namespace super_cave_boy

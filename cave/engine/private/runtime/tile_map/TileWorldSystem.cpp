@@ -22,16 +22,9 @@ struct TileRange {
     int16_t max_y = 0;
 };
 
-inline TileCoord WorldToTile(Vec2f world_pos, float tile_size) {
-    return TileCoord{
-        static_cast<int16_t>(std::floor(world_pos.x / tile_size)),
-        static_cast<int16_t>(std::floor(world_pos.y / tile_size))
-    };
-}
-
 inline TileRange GetTileRangeFromAABB(const Box2& aabb, float tile_size) {
-    TileCoord min_tile = WorldToTile(aabb.Min(), tile_size);
-    TileCoord max_tile = WorldToTile(aabb.Max(), tile_size);
+    TileCoord min_tile = TileWorldSystem::worldToTile(aabb.Min(), tile_size);
+    TileCoord max_tile = TileWorldSystem::worldToTile(aabb.Max(), tile_size);
 
     return TileRange{
         min_tile.x,
@@ -52,6 +45,13 @@ void TileWorldSystem::onAttach() {
 
 void TileWorldSystem::onDetach() {
     rigid_tiles_.chunks().clear();
+}
+
+TileCoord TileWorldSystem::worldToTile(Vec2f world_pos, float tile_size) {
+    return TileCoord{
+        static_cast<int16_t>(std::floor(world_pos.x / tile_size)),
+        static_cast<int16_t>(std::floor(world_pos.y / tile_size))
+    };
 }
 
 std::vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) const {

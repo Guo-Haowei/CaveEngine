@@ -1,12 +1,57 @@
 #include "SnakeController.h"
 
+#include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ecs/components/VelocityComponent.h"
 #include "cave/runtime/scene/SceneQuery.h"
+#include "cave/runtime/tile_map/TileWorldSystem.h"
 
 namespace super_cave_boy {
 
 using namespace ::cave;
+using namespace ::cave::math;
+
+namespace {
+
+constexpr float kSnakeSpeed = 2.0f;
+constexpr float kProbeEps = 0.05f;
+
+Box2 ComputeWorldAABB(const TransformComponent& transform,
+                      const ColliderComponent& collider) {
+    const Shape& shape = collider.shape();
+
+    // Use world translation if snake can be inside a prefab/parent.
+    Vec2f p = transform.GetTranslation().xy;
+
+    return {
+        p - Vec2f(shape.data.half.xy),
+        p + Vec2f(shape.data.half.xy),
+    };
+}
+
+bool ShouldTurnAround(const Box2& body,
+                      int facing_x,
+                      const TileWorldSystem& world) {
+    DEV_ASSERT(facing_x == -1 || facing_x == 1);
+
+    const float front_x = facing_x > 0
+                              ? body.Max().x + kProbeEps
+                              : body.Min().x - kProbeEps;
+
+    const float wall_y = (body.Min().y + body.Max().y) * 0.5f;
+
+    const float ground_y = body.Min().y - kProbeEps;
+
+    const TileCoord wall_tile = TileWorldSystem::worldToTile({ front_x, wall_y });
+    const TileCoord ground_tile = TileWorldSystem::worldToTile({ front_x, ground_y });
+
+    const bool wall_in_front = world.isSolid(wall_tile);
+    const bool ground_missing = !world.isSolid(ground_tile);
+
+    return wall_in_front || ground_missing;
+}
+
+}  // namespace
 
 void SnakeController::onCreate() {
 }
@@ -15,18 +60,24 @@ void SnakeController::onUpdate(float dt) {
     SceneQuery query(context().scene);
 
     auto transform = query.component<TransformComponent>(entity());
+    auto collider = query.component<ColliderComponent>(entity());
     auto vel = query.component<VelocityComponent>(entity());
-    DEV_ASSERT(transform && vel);
 
-    if (std::fmod(elapsed_, 6.f) < 3.f) {
-        vel->linear.x = 1.0f;
-    } else {
-        vel->linear.x = -1.0f;
+    DEV_ASSERT(transform && collider && vel);
+
+    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+    DEV_ASSERT(tile_world);
+
+    const Box2 body = ComputeWorldAABB(*transform, *collider);
+
+    if (ShouldTurnAround(body, facing_x_, *tile_world)) {
+        facing_x_ = -facing_x_;
     }
 
-    elapsed_ += dt;
+    vel->linear.x = static_cast<float>(facing_x_) * kSnakeSpeed;
 
-    const float dx = vel->linear.x * dt * 2.0f;
+    const float dx = vel->linear.x * dt;
+
     transform->Translate({ dx, 0.0f, 0.0f });
 }
 

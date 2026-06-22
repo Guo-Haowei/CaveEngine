@@ -30,6 +30,8 @@ public:
 
     std::vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
 
+    static TileCoord worldToTile(math::Vec2f world_pos, float tile_size = 1.0f);
+
 protected:
     void onAttach() override;
     void onDetach() override;
