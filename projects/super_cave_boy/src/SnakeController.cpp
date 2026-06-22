@@ -40,6 +40,7 @@ bool ShouldTurnAround(const Box2& body,
 }  // namespace
 
 void SnakeController::onCreate() {
+    facing_x_ = -1;
 }
 
 void SnakeController::onUpdate(float dt) {

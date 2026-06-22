@@ -9,8 +9,7 @@ public:
     void onUpdate(float dt) override;
 
 private:
-    float elapsed_ = 0.0f;
-    int facing_x_ = -1;  // or 1
+    int facing_x_;
 };
 
 }  // namespace super_cave_boy
