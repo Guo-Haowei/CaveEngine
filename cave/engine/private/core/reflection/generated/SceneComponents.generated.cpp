@@ -20,18 +20,4 @@ const MetaTableFields& MetaDataTable<NoSaveTag>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_NoSaveTag_meta = MetaDataTable<NoSaveTag>::GetFields();
 
-// Guid m_prefab_id (editor = Asset)
-
-template<>
-const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
-    static MetaTableFields s_table = {
-        REGISTER_FIELD(PrefabInstanceComponent, "prefab_id", m_prefab_id, FieldFlag::Serialize, EditorHint::Asset),
-    };
-
-    return s_table;
-}
-
-// Avoid lazy init
-[[maybe_unused]] static const auto& s_PrefabInstanceComponent_meta = MetaDataTable<PrefabInstanceComponent>::GetFields();
-
 }  // namespace cave

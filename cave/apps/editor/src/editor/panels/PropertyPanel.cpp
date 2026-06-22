@@ -413,11 +413,9 @@ void PropertyPanel::drawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent&) {
-        const bool was_null = prefab->GetResourceGuid().IsNull();
+        const bool is_null = prefab->prefabGuid().IsNull();
         const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(prefab, ctx);
-        if (dirty) {
-            // don't support remove instantiated entities yet
-            DEV_ASSERT(was_null);
+        if (dirty && is_null) {
             scene.instantiatePrefab(*prefab, id);
         }
     });

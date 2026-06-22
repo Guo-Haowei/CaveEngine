@@ -8,6 +8,7 @@
 #include "generated/MaterialComponent.generated.cpp"
 #include "generated/MeshRendererComponent.generated.cpp"
 #include "generated/NameComponent.generated.cpp"
+#include "generated/PrefabInstanceComponent.generated.cpp"
 #include "generated/SkeletalAnimationComponent.generated.cpp"
 #include "generated/SpriteAnimatorComponent.generated.cpp"
 #include "generated/SpriteRendererComponent.generated.cpp"

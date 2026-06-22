@@ -104,8 +104,8 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
     return entity_array;
 }
 
-void Scene::instantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_ent) {
-    auto handle = AssetRegistry::singleton().FindByGuid<Scene>(p_prefab.GetResourceGuid());
+void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
+    auto handle = AssetRegistry::singleton().FindByGuid<Scene>(prefab.prefabGuid());
     if (handle.is_none()) {
         return;
     }
@@ -156,7 +156,10 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
     // link instance
     Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
-    hier.parent_id = p_ent.IsValid() ? p_ent : m_root;
+    hier.parent_id = ent.IsValid() ? ent : m_root;
+
+    TransformComponent* transform = component<TransformComponent>(mapped_root);
+    transform->SetTranslation(prefab.translation());
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
@@ -252,7 +255,7 @@ std::vector<Guid> Scene::GetDependencies() const {
         dependencies.push_back(mesh_renderer.GetResourceGuid());
     }
     for (const auto& [id, prefab] : view<PrefabInstanceComponent>()) {
-        dependencies.push_back(prefab.GetResourceGuid());
+        dependencies.push_back(prefab.prefabGuid());
     }
     for (const auto& [id, tile_map_renderer] : view<TileMapInstanceComponent>()) {
         dependencies.push_back(tile_map_renderer.GetResourceGuid());

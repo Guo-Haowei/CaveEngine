@@ -20,6 +20,7 @@ FILES = [
     'public/cave/runtime/ecs/components/MaterialComponent.h',
     'public/cave/runtime/ecs/components/MeshRendererComponent.h',
     'public/cave/runtime/ecs/components/NameComponent.h',
+    'public/cave/runtime/ecs/components/PrefabInstanceComponent.h',
     'public/cave/runtime/ecs/components/SkeletalAnimationComponent.h',
     'public/cave/runtime/ecs/components/SpriteAnimatorComponent.h',
     'public/cave/runtime/ecs/components/SpriteRendererComponent.h',

@@ -8,6 +8,7 @@
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/PrefabInstanceComponent.h"
 #include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/SpriteRendererComponent.h"
