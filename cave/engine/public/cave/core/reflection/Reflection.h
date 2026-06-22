@@ -2,6 +2,8 @@
 // File: cave/core/reflection/Reflection.h
 // =============================================================================
 #pragma once
+#include <vector>
+
 #include "cave/core/typedefs.h"
 #include "cave/core/Option.h"
 #include "cave/core/string/StringId.h"

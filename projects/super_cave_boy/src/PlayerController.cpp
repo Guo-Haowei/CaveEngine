@@ -1,10 +1,9 @@
 #include "PlayerController.h"
+#include "PlatformerCollision.h"
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
-#include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
-#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ecs/components/VelocityComponent.h"
 #include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
@@ -35,17 +34,6 @@ bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     above.y += 1;
 
     return !world.isSolid(above);
-}
-
-Box2 ComputeWorldAABB(const TransformComponent& transform,
-                      const ColliderComponent& collider) {
-    const Shape& shape = collider.shape();
-    Vec2f translation = transform.GetTranslation().xy;
-
-    return {
-        translation - Vec2f(shape.data.half.xy),
-        translation + Vec2f(shape.data.half.xy),
-    };
 }
 
 // @TODO: refactor this part

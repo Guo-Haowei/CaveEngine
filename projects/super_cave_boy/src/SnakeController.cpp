@@ -1,7 +1,6 @@
 #include "SnakeController.h"
+#include "PlatformerCollision.h"
 
-#include "cave/runtime/ecs/components/ColliderComponent.h"
-#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ecs/components/VelocityComponent.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
@@ -15,19 +14,6 @@ namespace {
 
 constexpr float kSnakeSpeed = 2.0f;
 constexpr float kProbeEps = 0.05f;
-
-Box2 ComputeWorldAABB(const TransformComponent& transform,
-                      const ColliderComponent& collider) {
-    const Shape& shape = collider.shape();
-
-    // Use world translation if snake can be inside a prefab/parent.
-    Vec2f p = transform.GetTranslation().xy;
-
-    return {
-        p - Vec2f(shape.data.half.xy),
-        p + Vec2f(shape.data.half.xy),
-    };
-}
 
 bool ShouldTurnAround(const Box2& body,
                       int facing_x,
