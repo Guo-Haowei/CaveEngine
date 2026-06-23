@@ -7,7 +7,7 @@ namespace cave {
 bool SetTileCommand::setTile(IDocument& doc, Option<TileId> tile) {
     auto tile_map_handle = doc.handle<TileMapAsset>();
 
-    TileMapAsset* tile_map = tile_map_handle.Get();
+    TileMapAsset* tile_map = tile_map_handle.get();
     if (!tile_map) {
         return false;
     }

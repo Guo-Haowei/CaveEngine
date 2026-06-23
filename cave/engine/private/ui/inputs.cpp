@@ -2,6 +2,8 @@
 
 #include <imgui/imgui_internal.h>
 
+#include "cave/core/string/StringUtils.h"
+
 namespace cave::ui {
 
 using namespace ::cave::math;
@@ -27,6 +29,10 @@ bool TextBox(const char* label,
              bool enter_returns_true,
              float column_width,
              float text_box_width) {
+
+    char buffer[256]{};
+    StringUtils::Strcpy(buffer, std::string_view(buf_ptr, buf_size));
+
     if (label) {
         ImGui::Columns(2);
         ImGui::SetColumnWidth(0, column_width);
@@ -44,9 +50,12 @@ bool TextBox(const char* label,
 
     auto tag = std::format("##{}", label ? label : "dummy");
     bool dirty = ImGui::InputText(tag.c_str(),
-                                  buf_ptr,
-                                  buf_size,
+                                  buffer,
+                                  sizeof(buffer) - 1,
                                   flags);
+    if (dirty) {
+        StringUtils::Strcpy(buf_ptr, buf_size, buffer, sizeof(buffer) - 1);
+    }
 
     ImGui::Columns(1);
     return dirty;

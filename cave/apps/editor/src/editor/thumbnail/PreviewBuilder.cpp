@@ -62,8 +62,8 @@ PreviewBuilder::PreviewBuilder(EngineServices& services) noexcept
 PreviewBuilder::~PreviewBuilder() = default;
 
 PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
-    AssetHandle handle = asset_reg_.FindByGuid(req.guid).unwrap();
-    switch (handle.GetMeta()->type) {
+    AssetHandle handle = asset_reg_.findByGuid(req.guid).unwrap();
+    switch (handle.meta()->type) {
         case AssetType::Scene:
             return buildScene(handle, req.options);
         case AssetType::Mesh:
@@ -79,9 +79,9 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
                                               const PreviewOptions& options) const {
     unused(options);
 
-    const Scene* source_scene = handle.Get<Scene>();
+    const Scene* source_scene = handle.get<Scene>();
     DEV_ASSERT(source_scene);
-    const AssetMetaData* meta = handle.GetMeta();
+    const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
 
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
@@ -111,12 +111,12 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     }
 
     if constexpr (1) {
-        Guid guid = handle.GetGuid();
+        Guid guid = handle.guid();
         Entity sphere = cb.CreateSphereObject("sphere", { &guid });
         cb.AttachChild(sphere, root);
     }
 
-    const AssetMetaData* meta = handle.GetMeta();
+    const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
@@ -146,7 +146,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     SceneCommandWriter cb(asset_reg_);
     Entity root = cb.CreateRootObject();
 
-    const MeshAsset* mesh = handle.Get<MeshAsset>();
+    const MeshAsset* mesh = handle.get<MeshAsset>();
     DEV_ASSERT(mesh);
 
     if constexpr (1) {
@@ -157,11 +157,11 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     if constexpr (1) {
         Entity e = cb.CreateTransformObject("mesh");
         cb.AddComponent(e, MeshRendererComponent_Id);
-        cb.SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.GetGuid());
+        cb.SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
         cb.AttachChild(e, root);
     }
 
-    const AssetMetaData* meta = handle.GetMeta();
+    const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 

@@ -33,8 +33,8 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
     AssetRegistry& asset_reg = m_app->services().assetRegistry();
     {
         const std::string path = "@persist://fonts/DroidSans.ttf";
-        auto res = asset_reg.FindByPath<BlobAsset>(path).unwrap();
-        BlobAsset* font = res.Get();
+        auto res = asset_reg.findByPath<BlobAsset>(path).unwrap();
+        BlobAsset* font = res.get();
 
         if (DEV_VERIFY(font)) {
             ImFontConfig font_cfg;
@@ -49,8 +49,8 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
 
     {
         const std::string path = "@persist://fonts/fa-solid-900.ttf";
-        auto res = asset_reg.FindByPath<BlobAsset>(path).unwrap();
-        BlobAsset* font = res.Get();
+        auto res = asset_reg.findByPath<BlobAsset>(path).unwrap();
+        BlobAsset* font = res.get();
 
         if (DEV_VERIFY(font)) {
             // merge in icons from Font Awesome

@@ -32,7 +32,7 @@ public:
     void drawUI() override;
     virtual void drawAssetInspector(IDocument&) {}
 
-    const char* windowId() const override { return window_id_.c_str(); }
+    const char* windowId() const override;
 
     virtual void onCreate();
     virtual void onDestroy();
@@ -52,9 +52,7 @@ protected:
 
     DocId doc_id_;
     TabId tab_id_;
-    uint32_t idx_{ 0 };
-    std::string window_id_;
-    std::string title_;
+    mutable std::string window_id_;
 };
 
 }  // namespace cave

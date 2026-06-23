@@ -57,11 +57,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
         if (ui::TextBox(nullptr, buffer.data(), (uint32_t)buffer.size())) {
             fs::path to_path = renaming_.parent_path();
             to_path = to_path / buffer.c_str();
-            if (is_dir) {
-                fs::rename(renaming_, to_path);
-            } else {
-                engine_services_.assetManager().moveAsset(renaming_, to_path);
-            }
+            engine_services_.assetManager().renameAssetOrFolder(renaming_, to_path);
             renaming_ = "";
         }
         if (!ImGui::IsItemActive() && ImGui::IsMouseClicked(0)) {
@@ -83,7 +79,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
 
         auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
 
-        DragDropTargetFolder(entry, asset_manager.GetFolderLut());
+        DragDropTargetFolder(entry, asset_manager.folderLut());
 
         if (hovered) {
             ShowAssetToolTip(editor_services_.thumbnail(), entry);
@@ -104,7 +100,7 @@ void FileSystemPanel::drawUIImpl() {
 
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
 
-    drawFolderTreeNode(*asset_manager.GetAssetRoot());
+    drawFolderTreeNode(*asset_manager.assetRoot());
 }
 
 }  // namespace cave

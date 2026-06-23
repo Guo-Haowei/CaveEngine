@@ -49,12 +49,12 @@ auto BuildFolderTree(const fs::path& sys_path,
         }
 
         if (is_file) {
-            auto handle = AssetRegistry::singleton().FindByPath(node->virtual_path);
+            auto handle = AssetRegistry::singleton().findByPath(node->virtual_path);
             if (handle.is_none()) {
                 return nullptr;
             }
             node->handle = handle.unwrap_unchecked();
-            const AssetMetaData* meta = node->handle.GetMeta();
+            const AssetMetaData* meta = node->handle.meta();
 
             DEV_ASSERT(meta);
             node->type = meta->type;
@@ -64,7 +64,7 @@ auto BuildFolderTree(const fs::path& sys_path,
                 node->thumbnail = node->handle;
             } else {
                 std::string thumbnail_path = std::format("@res://_cache/{}@256x256.png", meta->guid.ToString());
-                if (auto _handle = AssetRegistry::singleton().FindByPath<ImageAsset>(thumbnail_path); _handle.is_some()) {
+                if (auto _handle = AssetRegistry::singleton().findByPath<ImageAsset>(thumbnail_path); _handle.is_some()) {
                     node->thumbnail = _handle.unwrap_unchecked();
                 }
             }
@@ -89,7 +89,7 @@ auto BuildFolderTree(const fs::path& sys_path,
 static constexpr int kThumbnailSize = 256;
 
 void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
-    const AssetMetaData* meta = handle.GetMeta();
+    const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
 
     if (ImGui::BeginTooltip()) {
@@ -99,7 +99,7 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
 
         switch (meta->type) {
             case AssetType::Image: {
-                auto texture = reinterpret_cast<const ImageAsset&>(*handle.Get());
+                auto texture = reinterpret_cast<const ImageAsset&>(*handle.get());
                 if (texture.gpu_texture) {
                     ui::CenteredImage(texture.gpu_texture->GetHandle(),
                                       kThumbnailSize,
@@ -112,7 +112,7 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
             case AssetType::Mesh:
             case AssetType::Scene: {
                 ThumbnailKey key{
-                    .guid = handle.GetGuid(),
+                    .guid = handle.guid(),
                     .size = kThumbnailSize,
                 };
                 const uint64_t texture = thumbnail.GetOrRequest(key);
@@ -192,12 +192,12 @@ void ShowPopup(const ContentEntry& node,
     } else {
         if (ImGui::MenuItem("Edit")) {
             OpenDocDesc desc;
-            desc.guid = node.handle.GetGuid();
-            desc.asset_type = node.handle.GetMeta()->type;
+            desc.guid = node.handle.guid();
+            desc.asset_type = node.handle.meta()->type;
             document.openDoc(desc);
         }
         if (ImGui::MenuItem("Save")) {
-            const Guid guid = node.handle.GetGuid();
+            const Guid guid = node.handle.guid();
             document.save(guid);
         }
     }

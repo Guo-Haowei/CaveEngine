@@ -25,7 +25,7 @@ void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scen
     p_out_scene.m_renderables.reserve(num_renderables);
 
     for (auto [e, renderer, trans] : p_scene.view<MeshRendererComponent, TransformComponent>()) {
-        const MeshAsset* mesh_asset = renderer.GetMeshHandle().Get();
+        const MeshAsset* mesh_asset = renderer.GetMeshHandle().get();
         if (!mesh_asset) {
             continue;
         }

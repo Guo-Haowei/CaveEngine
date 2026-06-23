@@ -50,8 +50,8 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
     fs::path image_path = m_dest_dir / name;
 
     std::string virtual_path = IAssetManager::singleton().resolvePath(image_path);
-    if (auto res = AssetRegistry::singleton().FindByPath<ImageAsset>(virtual_path); res.is_some()) {
-        return res.unwrap_unchecked().GetGuid();
+    if (auto res = AssetRegistry::singleton().findByPath<ImageAsset>(virtual_path); res.is_some()) {
+        return res.unwrap_unchecked().guid();
     }
 
     // copy image to dest
@@ -78,7 +78,7 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
 
     Guid guid = meta.guid;
 
-    AssetRegistry::singleton().RegisterAsset(std::move(meta), nullptr);
+    AssetRegistry::singleton().registerAsset(std::move(meta), nullptr);
 
     IAssetManager::singleton().loadAssetSync(guid);
 
@@ -101,7 +101,7 @@ Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::singleton().RegisterAsset(std::move(meta), p_material);
+    AssetRegistry::singleton().registerAsset(std::move(meta), p_material);
 
     // @TODO: request textures
 
@@ -123,7 +123,7 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::singleton().RegisterAsset(std::move(meta), p_mesh);
+    AssetRegistry::singleton().registerAsset(std::move(meta), p_mesh);
 
     // @TODO: move it to somewhere else, if it's headless, no need to create gpu data
     RenderDevice::singleton().RequestMesh(p_mesh.get());
@@ -146,7 +146,7 @@ Result<void> SceneImporter::RegisterScene(ecs::Entity p_root) {
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::singleton().RegisterAsset(std::move(meta), m_scene);
+    AssetRegistry::singleton().registerAsset(std::move(meta), m_scene);
     return Result<void>();
 }
 

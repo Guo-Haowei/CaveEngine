@@ -3,9 +3,11 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/game/IHostServices.h"
 
-#include "CameraController.h"
-#include "PlayerController.h"
-#include "SnakeController.h"
+#include "controllers/BatController.h"
+#include "controllers/CameraController.h"
+#include "controllers/PlayerController.h"
+#include "controllers/SnakeController.h"
+#include "controllers/SpiderController.h"
 
 namespace super_cave_boy {
 
@@ -15,9 +17,11 @@ GameModule::GameModule() = default;
 GameModule::~GameModule() = default;
 
 void GameModule::registerNativeScripts(NativeScriptRegistry& registry) {
-    registry.registerScript<PlayerController>("PlayerController");
-    registry.registerScript<SnakeController>("SnakeController");
     registry.registerScript<CameraController>("CameraController");
+    registry.registerScript<PlayerController>("PlayerController");
+    registry.registerScript<SpiderController>("SpiderController");
+    registry.registerScript<SnakeController>("SnakeController");
+    registry.registerScript<BatController>("BatController");
 }
 
 void GameModule::onModuleLoaded(IHostServices& host) {

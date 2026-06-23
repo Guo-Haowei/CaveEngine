@@ -2,9 +2,7 @@
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
-#include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
-#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ecs/components/VelocityComponent.h"
 #include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
@@ -13,6 +11,8 @@
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
+
+#include "platformer/PlatformerCollision.h"
 
 namespace super_cave_boy {
 
@@ -35,17 +35,6 @@ bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     above.y += 1;
 
     return !world.isSolid(above);
-}
-
-Box2 ComputeWorldAABB(const TransformComponent& transform,
-                      const ColliderComponent& collider) {
-    const Shape& shape = collider.shape();
-    Vec2f translation = transform.GetTranslation().xy;
-
-    return {
-        translation - Vec2f(shape.data.half.xy),
-        translation + Vec2f(shape.data.half.xy),
-    };
 }
 
 // @TODO: refactor this part
@@ -389,8 +378,7 @@ void UpdatePlayerState(VelocityComponent& vel, LegacyPlayerMotor& motor) {
 void PlayerController::onCreate() {
     const SceneQuery query(context().scene);
 
-    animator_ = query.findFirstByName("player_animator_node");
-    // @TODO: set player position
+    animator_ = query.findChildByName("animator_node", entity());
 }
 
 void PlayerController::updateAnimation(SceneQuery& query) {
@@ -464,6 +452,7 @@ void PlayerController::onUpdate(float dt) {
 }
 
 void PlayerController::drawDebug() {
+#if 0
     SceneQuery query(context().scene);
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
 
@@ -480,6 +469,7 @@ void PlayerController::drawDebug() {
     for (const TileHit& hit : hits) {
         debug_draw.addBox2Frame(hit.aabb.Min(), hit.aabb.Max(), kTileColor, 0.05f);
     }
+#endif
 }
 
 }  // namespace super_cave_boy

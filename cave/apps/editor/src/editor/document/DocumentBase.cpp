@@ -18,8 +18,8 @@ DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
     , scene_reg_(services.sceneRegistry())
     , guid_(guid) {
 
-    handle_ = asset_reg_.FindByGuid(guid).unwrap();
-    asset_ = handle_.Wait();
+    handle_ = asset_reg_.findByGuid(guid).unwrap();
+    asset_ = handle_.wait();
 }
 
 bool DocumentBase::apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) {
@@ -103,7 +103,7 @@ void DocumentBase::trimUndoIfNeeded() {
 }
 
 bool DocumentBase::save() {
-    return asset_reg_.SaveAsset(guid_);
+    return asset_reg_.saveAsset(guid_);
 }
 
 bool DocumentBase::saveAs(std::string_view) {

@@ -34,7 +34,7 @@ public:
     virtual Result<Guid> createAsset(AssetType type, const std::filesystem::path& folder, const char* name = nullptr) = 0;
     virtual Result<Guid> createAsset(AssetType type, const std::string& short_path) = 0;
 
-    virtual Result<void> moveAsset(const std::filesystem::path& old_path, const std::filesystem::path& new_path) = 0;
+    virtual Result<void> renameAssetOrFolder(const std::filesystem::path& old_path, const std::filesystem::path& new_path) = 0;
 
     virtual uint64_t submitLoadAsset(const AssetLoadRequest& request) = 0;
 

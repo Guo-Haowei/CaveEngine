@@ -39,6 +39,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(NativeScript)    \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
+    COMPONENT_DECL(Velocity)        \
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
     COMPONENT_DECL(Facing)          \
@@ -108,7 +109,7 @@ bool DrawAsset(const char* p_name,
                const Guid& p_guid,
                T* p_component,
                const DrawComponentCtx& p_context) {
-    auto handle_ = AssetRegistry::singleton().FindByGuid(p_guid);
+    auto handle_ = AssetRegistry::singleton().findByGuid(p_guid);
 
     AssetType type = AssetType::All;
     const AssetMetaData* meta = nullptr;
@@ -121,9 +122,9 @@ bool DrawAsset(const char* p_name,
 
     if (handle_.is_some()) {
         AssetHandle handle = handle_.unwrap_unchecked();
-        meta = handle.GetMeta();
+        meta = handle.meta();
         DEV_ASSERT(meta);
-        asset = handle.Get();
+        asset = handle.get();
         type = meta->type;
     }
 
@@ -135,7 +136,7 @@ bool DrawAsset(const char* p_name,
     if (auto _handle = DragDropTarget(type); _handle.is_some()) {
         if constexpr (HasSetResourceGuid<T>) {
             if (p_component) {
-                dirty = p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
+                dirty = p_component->SetResourceGuid(_handle.unwrap_unchecked().guid());
             }
         }
     }
@@ -331,7 +332,7 @@ void PropertyPanel::drawUIImpl() {
     }
 
     auto create_component = [&](BuiltinComponentId cid) {
-        if (scene.Storage().Has(id, cid)) {
+        if (scene.storage().Has(id, cid)) {
             LOG_ERROR("object {} already has component {}",
                       name_component->GetName(),
                       std::to_underlying(cid));
@@ -372,8 +373,7 @@ void PropertyPanel::drawUIImpl() {
     PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(id);
     FacingComponent* facing = scene.component<FacingComponent>(id);
     VelocityComponent* velocity = scene.component<VelocityComponent>(id);
-
-    // RigidBodyComponent* rigid_body_component = scene.GetComponent<RigidBodyComponent>(id);
+    SpriteAnimatorComponent* sprite_animator = scene.component<SpriteAnimatorComponent>(id);
 
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
@@ -412,13 +412,20 @@ void PropertyPanel::drawUIImpl() {
         DrawComponentAuto<NativeScriptComponent>(&script, ctx);
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent&) {
-        const bool was_null = prefab->GetResourceGuid().IsNull();
-        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(prefab, ctx);
+    DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent& prefab) {
+        const Guid old_guid = prefab.prefabGuid();
+        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(&prefab, ctx);
+        const Guid new_guid = prefab.prefabGuid();
+
+        // @NOTE: can only instantiate once
+        if (old_guid.IsNull() && !new_guid.IsNull()) {
+            scene.instantiatePrefab(prefab, id);
+        }
+
         if (dirty) {
-            // don't support remove instantiated entities yet
-            DEV_ASSERT(was_null);
-            scene.instantiatePrefab(*prefab, id);
+            ecs::Entity child = prefab.child();
+            TransformComponent* transform = scene.component<TransformComponent>(child);
+            transform->SetTranslation(prefab.translation());
         }
     });
 
@@ -448,30 +455,26 @@ void PropertyPanel::drawUIImpl() {
         DrawComponentAuto(&comp, ctx);
     });
 
-#if 0
     DrawComponent(
-        DRAW_COMPONENT_ARGS("SpriteAnimator"),
-        scene.GetComponent<SpriteAnimatorComponent>(id),
-        [this](SpriteAnimatorComponent& p_animator) {
+        DRAW_COMPONENT_ARGS("SpriteAnimator"), sprite_animator,
+        [&](SpriteAnimatorComponent& animator) {
             // @TODO: refactor this
             // @TODO: drop down
-            DEV_ASSERT(0);
-            const Guid& guid = p_animator.GetResourceGuid();
-            if (auto handle = AssetRegistry::singleton().FindByGuid<SpriteAnimationAsset>(guid);
+            const Guid& guid = animator.GetResourceGuid();
+            if (auto handle = AssetRegistry::singleton().findByGuid<SpriteAnimationAsset>(guid);
                 handle.is_some()) {
-                SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
-                std::string clip_name = p_animator.GetCurrentClip();
-                if (ui::TextBox("clip", clip_name)) {
-                    const SpriteAnimationClip* clip = asset->GetClip(clip_name);
-                    if (clip) {
-                        p_animator.SetClip(clip_name);
-                    }
-                }
+                // SpriteAnimationAsset* asset = handle.unwrap_unchecked().get();
+                // std::string clip_name = animator.currentClip();
+                // if (ui::TextBox("clip", clip_name)) {
+                //    const SpriteAnimationClip* clip = asset->GetClip(clip_name);
+                //    if (clip) {
+                //        p_animator.SetClip(clip_name);
+                //    }
+                //}
             }
 
-            DrawComponentAuto<SpriteAnimatorComponent>(&p_animator, ctx);
+            DrawComponentAuto<SpriteAnimatorComponent>(&animator, ctx);
         });
-#endif
 
     DrawComponent(
         DRAW_COMPONENT_ARGS("SkeletalAnimation"),
@@ -533,45 +536,6 @@ void PropertyPanel::drawUIImpl() {
     });
 
 #if 0
-    DrawComponent(DRAW_COMPONENT_ARGS("RigidBody"), rigid_body_component, [](RigidBodyComponent& p_rigid_body) {
-        const auto& size = p_rigid_body.size;
-        switch (p_rigid_body.shape) {
-            case RigidBodyComponent::SHAPE_CUBE: {
-                ImGui::Text("shape: box");
-                ImGui::Text("half size: %.2f, %.2f, %.2f", size.x, size.y, size.z);
-            } break;
-            case RigidBodyComponent::SHAPE_SPHERE: {
-                ImGui::Text("shape: sphere");
-                ImGui::Text("radius: %.2f", size.x);
-            } break;
-            default:
-                break;
-        }
-    });
-#endif
-
-#if 0
-    VoxelGiComponent* voxel_gi_component = scene.GetComponent<VoxelGiComponent>(id);
-    EnvironmentComponent* environment_component = scene.GetComponent<EnvironmentComponent>(id);
-    DrawComponent("Environment", environment_component, [](EnvironmentComponent& p_environment) {
-        DrawInputText("texture", p_environment.sky.texturePath);
-        ImGui::BeginDisabled(p_environment.sky.texturePath.empty());
-        ImGui::EndDisabled();
-        DrawColorPicker3("ambient", &p_environment.ambient.color.x);
-    });
-
-    DrawComponent("VoxelGi", voxel_gi_component, [](VoxelGiComponent& p_voxel_gi) {
-        DrawCheckBoxBitflag("enabled", p_voxel_gi.flags, VoxelGiComponent::ENABLED);
-        DrawCheckBoxBitflag("show_debug_box", p_voxel_gi.flags, VoxelGiComponent::SHOW_DEBUG_BOX);
-
-        ImGui::Checkbox("debug", (bool*)(DVAR_GET_POINTER(gfx_debug_vxgi)));
-        int value = DVAR_GET_INT(gfx_debug_vxgi_voxel);
-        ImGui::RadioButton("lighting", &value, 0);
-        ImGui::SameLine();
-        ImGui::RadioButton("normal", &value, 1);
-        DVAR_SET_INT(gfx_debug_vxgi_voxel, value);
-    });
-
     DrawComponent("ParticleEmitter", particle_emitter_component, [](ParticleEmitterComponent& p_emitter) {
         const float width = 100.0f;
         ImGui::Checkbox("Gravity", &p_emitter.gravity);

@@ -127,7 +127,7 @@ void ContentBrowser::drawContentBrowser() {
     ImGui::TableNextColumn();
 
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
-    const auto& root = asset_manager.GetAssetRoot();
+    const auto& root = asset_manager.assetRoot();
     const int max = static_cast<int>(current_path_.size()) - 1;
     const ContentEntry* current = navigate(root.get(), 0, max);
     if (!current) {
@@ -141,17 +141,17 @@ void ContentBrowser::drawContentBrowser() {
     ThumbnailService& thumbnail = editor_services_.thumbnail();
     auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
         if (p_entry.is_dir) return folder_iamge_;
-        const AssetMetaData* meta = p_entry.handle.GetMeta();
+        const AssetMetaData* meta = p_entry.handle.meta();
         if (meta) {
             if (meta->type == AssetType::Image) {
-                const ImageAsset* img = p_entry.handle.Get<ImageAsset>();
+                const ImageAsset* img = p_entry.handle.get<ImageAsset>();
                 if (img && img->gpu_texture) {
                     return img->gpu_texture->GetHandle();
                 }
             }
 
             ThumbnailKey key{
-                .guid = p_entry.handle.GetGuid(),
+                .guid = p_entry.handle.guid(),
                 .size = thumbnail_size,
             };
             if (uint64_t handle = thumbnail.GetOrRequest(key)) {
@@ -178,7 +178,7 @@ void ContentBrowser::drawContentBrowser() {
 
         DragDropSourceContentEntry(*node);
 
-        DragDropTargetFolder(*node, asset_manager.GetFolderLut());
+        DragDropTargetFolder(*node, asset_manager.folderLut());
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {

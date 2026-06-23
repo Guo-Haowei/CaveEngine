@@ -52,7 +52,7 @@ void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
 }  // namespace
 
 void TileSetEditor::drawAssetInspector(IDocument& doc) {
-    TileSetAsset* tile_set = doc.handle<TileSetAsset>().Get();
+    TileSetAsset* tile_set = doc.handle<TileSetAsset>().get();
     DEV_ASSERT(tile_set);
     if (!tile_set) {
         return;
@@ -82,7 +82,7 @@ void TileSetEditor::drawAssetInspector(IDocument& doc) {
         auto handle = tile_set->handle();
         const int column = tile_set->col();
         const int row = tile_set->row();
-        if (auto image = handle.Get(); image) {
+        if (auto image = handle.get(); image) {
             sprite_selector_.SelectSprite(*image, &column, &row);
         }
     }

@@ -58,7 +58,7 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
             return false;
         }
 
-        const ImageAsset* image = images[idx].Get();
+        const ImageAsset* image = images[idx].get();
         if (!image) {
             return false;
         }

@@ -7,10 +7,10 @@
 namespace cave {
 
 bool LuaScriptComponent::SetResourceGuid(const Guid& guid) {
-    return AssetHandle::ReplaceGuidAndHandle(AssetType::Blob,
+    return AssetHandle::replaceGuidAndHandle(AssetType::Blob,
                                              guid,
                                              m_source_id,
-                                             m_source_handle.RawHandle());
+                                             m_source_handle.rawHandle());
 }
 
 LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view class_name) {
@@ -22,7 +22,7 @@ LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view class_name
 }
 
 void LuaScriptComponent::OnDeserialized() {
-    auto res = AssetRegistry::singleton().FindByGuid<BlobAsset>(m_source_id);
+    auto res = AssetRegistry::singleton().findByGuid<BlobAsset>(m_source_id);
     m_source_handle = std::move(res.unwrap());
 }
 

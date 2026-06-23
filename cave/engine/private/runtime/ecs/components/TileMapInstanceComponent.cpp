@@ -16,23 +16,23 @@ void TileMapInstanceComponent::tintColor(const Vec4f& tint_color) {
 }
 
 bool TileMapInstanceComponent::SetResourceGuid(const Guid& guid) {
-    return AssetHandle::ReplaceGuidAndHandle(AssetType::TileMap,
+    return AssetHandle::replaceGuidAndHandle(AssetType::TileMap,
                                              guid,
                                              tile_map_id_,
-                                             handle_.RawHandle());
+                                             handle_.rawHandle());
 }
 
 void TileMapInstanceComponent::OnDeserialized() {
-    auto res = AssetRegistry::singleton().FindByGuid<TileMapAsset>(tile_map_id_);
+    auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(tile_map_id_);
     handle_ = std::move(res.unwrap());
 }
 
 void TileMapInstanceComponent::createRenderData() {
-    if (tile_map_id_ != handle_.GetGuid()) {
+    if (tile_map_id_ != handle_.guid()) {
         OnDeserialized();
     }
 
-    auto tile_map = handle_.Get();
+    auto tile_map = handle_.get();
 
     if (!tile_map) {
         return;
@@ -41,14 +41,14 @@ void TileMapInstanceComponent::createRenderData() {
     visible_ = tile_map->visible();
 
     // @TODO: update guid
-    if (cache_.tile_set_handle.GetGuid() == Guid::Null()) {
-        auto tile_set_handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(tile_map->tileSetGuid());
+    if (cache_.tile_set_handle.guid() == Guid::Null()) {
+        auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(tile_map->tileSetGuid());
         if (tile_set_handle.is_some()) {
             cache_.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
         }
     }
 
-    TileSetAsset* tile_set = cache_.tile_set_handle.Get();
+    TileSetAsset* tile_set = cache_.tile_set_handle.get();
     if (!tile_set) {
         return;
     }

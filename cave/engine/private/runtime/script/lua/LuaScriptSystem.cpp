@@ -180,12 +180,12 @@ Result<void> LuaScriptSystem::loadMetaTable(lua_State* L,
                                             const char* class_name,
                                             ObjectFunctions& meta) {
     auto& asset_reg = context().engine_services.assetRegistry();
-    auto _handle = asset_reg.FindByGuid<BlobAsset>(guid);
+    auto _handle = asset_reg.findByGuid<BlobAsset>(guid);
     if (_handle.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.ToString());
     }
 
-    const BlobAsset* blob = _handle.unwrap_unchecked().Get();
+    const BlobAsset* blob = _handle.unwrap_unchecked().get();
     if (!blob) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not loaded", guid.ToString());
     }

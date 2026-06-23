@@ -26,7 +26,7 @@ entities:
       facing: right
   - id: 2
     NameComponent:
-      name: player_animator_node
+      name: animator_node
     HierarchyComponent:
       parent_id: 1
     TransformComponent:

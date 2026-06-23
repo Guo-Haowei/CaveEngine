@@ -13,55 +13,55 @@ public:
     AssetRegistry()
         : IService("AssetRegistry") {}
 
-    Option<AssetHandle> FindByGuid(const Guid& p_guid, AssetType p_type = AssetType::All);
-    Option<AssetHandle> FindByPath(const std::string& p_path, AssetType p_type = AssetType::All);
+    Option<AssetHandle> findByGuid(const Guid& guid, AssetType type = AssetType::All);
+    Option<AssetHandle> findByPath(const std::string& path, AssetType type = AssetType::All);
 
     template<typename T>
-    Option<Handle<T>> FindByPath(const std::string& p_path) {
+    Option<Handle<T>> findByPath(const std::string& path) {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
-        auto handle = FindByPath(p_path, T::ASSET_TYPE);
+        auto handle = findByPath(path, T::ASSET_TYPE);
         if (handle.is_none()) return None();
         return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }
 
     template<typename T>
-    Option<Handle<T>> FindByGuid(const Guid& p_guid) {
+    Option<Handle<T>> findByGuid(const Guid& guid) {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
-        auto handle = FindByGuid(p_guid, T::ASSET_TYPE);
+        auto handle = findByGuid(guid, T::ASSET_TYPE);
         if (handle.is_none()) return None();
         return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }
 
-    void MoveAsset(std::string&& p_old, std::string&& p_new);
+    void moveAsset(std::string old_path, std::string new_path);
 
-    bool SaveAsset(const Guid& p_guid) const;
+    bool saveAsset(const Guid& guid) const;
 
-    bool SaveAllAssets() const;
+    bool saveAllAssets() const;
 
-    void RegisterAsset(AssetMetaData&& p_meta, AssetRef p_asset);
+    void registerAsset(AssetMetaData&& meta, AssetRef asset);
 
-    void RegisterPersistentAsset(const std::string& p_name,
-                                 const Guid& p_guid,
-                                 AssetRef p_asset);
+    void registerPersistentAsset(const std::string& name,
+                                 const Guid& guid,
+                                 AssetRef asset);
 
-    std::vector<AssetHandle> GetAssetsOfType(AssetType p_type) const;
+    std::vector<AssetHandle> getAssetsOfType(AssetType type) const;
 
     // should only used by AssetManager
     //[[deprecated]]
-    std::shared_ptr<AssetEntry> GetEntry(const Guid& p_guid);
+    std::shared_ptr<AssetEntry> entry(const Guid& guid);
 
     //[[deprecated]]
-    uint64_t StartAsyncLoad(AssetMetaData&& p_meta);
+    uint64_t startAsyncLoad(AssetMetaData&& meta);
 
 protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    bool SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const;
+    bool saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) const;
 
-    mutable std::mutex registry_mutex;
-    std::unordered_map<std::string, Guid> m_path_map;
-    std::unordered_map<Guid, std::shared_ptr<AssetEntry>> m_guid_map;
+    mutable std::mutex registry_mutex_;
+    std::unordered_map<std::string, Guid> path_map_;
+    std::unordered_map<Guid, std::shared_ptr<AssetEntry>> guid_map_;
 };
 
 }  // namespace cave

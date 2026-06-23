@@ -29,11 +29,11 @@ void IconCache::Init() {
     };
 
     for (int i = 0; i < std::to_underlying(IconName::Folder); ++i) {
-        auto handle = m_asset_reg.FindByPath<ImageAsset>(paths[i]);
+        auto handle = m_asset_reg.findByPath<ImageAsset>(paths[i]);
         if (handle.is_none()) {
             continue;
         }
-        m_cache[i] = handle.unwrap_unchecked().Wait();
+        m_cache[i] = handle.unwrap_unchecked().wait();
     }
 
     auto& asset_manager = static_cast<EditorAssetManager&>(m_asset_manager);

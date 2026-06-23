@@ -27,7 +27,7 @@ void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
         draw.index.count = 6;
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
-        ImageAsset* image = sprite_renderer.GetHandle().Get();
+        ImageAsset* image = sprite_renderer.GetHandle().get();
         if (image) {
             draw.texture = image->gpu_texture.get();
         } else {

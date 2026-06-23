@@ -23,18 +23,6 @@ struct NoSaveTag {
     CAVE_COMPONENT(NoSaveTag)
 };
 
-class PrefabInstanceComponent {
-    CAVE_COMPONENT(PrefabInstanceComponent)
-
-private:
-    CAVE_PROP(editor = Asset)
-    Guid m_prefab_id;
-
-public:
-    bool SetResourceGuid(const Guid& p_guid);
-    const Guid& GetResourceGuid() const { return m_prefab_id; }
-};
-
 #pragma region COLLISION_OBJECT_COMPONENT
 
 struct CollisionObjectBase {

@@ -81,7 +81,6 @@ void Scene::copy(const Scene& p_other) {
 
     m_root = p_other.m_root;
     m_bound = p_other.m_bound;
-    m_physicsMode = p_other.m_physicsMode;
     entity_seed_ = p_other.entity_seed_;
 }
 
@@ -104,13 +103,13 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
     return entity_array;
 }
 
-void Scene::instantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_ent) {
-    auto handle = AssetRegistry::singleton().FindByGuid<Scene>(p_prefab.GetResourceGuid());
+void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
+    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
     if (handle.is_none()) {
         return;
     }
 
-    const Scene* source = handle.unwrap_unchecked().Get();
+    const Scene* source = handle.unwrap_unchecked().get();
     DEV_ASSERT(source);
     Scene copy("prefab");
     copy.copy(*source);
@@ -156,7 +155,12 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& p_prefab, ecs::Entity p_e
     // link instance
     Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
-    hier.parent_id = p_ent.IsValid() ? p_ent : m_root;
+    hier.parent_id = ent.IsValid() ? ent : m_root;
+
+    TransformComponent* transform = component<TransformComponent>(mapped_root);
+    transform->SetTranslation(prefab.translation());
+
+    prefab.child(mapped_root);
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
@@ -171,16 +175,26 @@ size_t Scene::count(ComponentId cid) const {
     return 0;
 }
 
-bool Scene::remove(ComponentId cid, ecs::Entity ent) {
+bool Scene::remove(ComponentId cid, Entity ent) {
     return storage_.Remove(ent, cid);
 }
 
-ecs::Entity Scene::findEntityByName(std::string_view p_name) const {
-    for (auto [entity, name] : view<NameComponent>()) {
-        if (name.GetName() == p_name) {
+Entity Scene::findFirstByName(std::string_view name) const {
+    for (auto [entity, name_component] : view<NameComponent>()) {
+        if (name_component.GetName() == name) {
             return entity;
         }
     }
+    return ecs::Entity::Null();
+}
+
+Entity Scene::findChildByName(std::string_view name, Entity ent) const {
+    for (auto [entity, hier, name_component] : view<HierarchyComponent, NameComponent>()) {
+        if (hier.parent_id == ent && name_component.GetName() == name) {
+            return entity;
+        }
+    }
+
     return ecs::Entity::Null();
 }
 
@@ -252,7 +266,7 @@ std::vector<Guid> Scene::GetDependencies() const {
         dependencies.push_back(mesh_renderer.GetResourceGuid());
     }
     for (const auto& [id, prefab] : view<PrefabInstanceComponent>()) {
-        dependencies.push_back(prefab.GetResourceGuid());
+        dependencies.push_back(prefab.prefabGuid());
     }
     for (const auto& [id, tile_map_renderer] : view<TileMapInstanceComponent>()) {
         dependencies.push_back(tile_map_renderer.GetResourceGuid());
@@ -342,10 +356,6 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
         d.Read(m_root);
         d.LeaveKey();
     }
-    if (d.TryEnterKey("physics_mode")) {
-        d.Read(m_physicsMode);
-        d.LeaveKey();
-    }
 
     const bool ok = d.TryEnterKey("entities");
     DEV_ASSERT(ok);
@@ -412,8 +422,6 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
         .Write(entity_array.back())
         .Key("root")
         .Write(m_root)
-        .Key("physics_mode")
-        .Write(static_cast<uint32_t>(m_physicsMode))  // @TODO: refactor
         .Key("entities");
 
     yaml.BeginArray(false);

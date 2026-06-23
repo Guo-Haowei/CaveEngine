@@ -100,7 +100,7 @@ SceneId SceneRegistry::Impl::registerScene(std::unique_ptr<Scene> scene) {
     SceneId id = Base::Create(std::move(scene));
     // @TODO: post update
 
-    DEBUG_PRINT("SceneRegistry::Register: registered {} ({},{})", scene->Name());
+    DEBUG_PRINT("SceneRegistry::Register: registered {} ({},{})", scene->name());
 
     return id;
 }
@@ -108,7 +108,7 @@ SceneId SceneRegistry::Impl::registerScene(std::unique_ptr<Scene> scene) {
 SceneId SceneRegistry::Impl::cloneScene(SceneId scene_id) {
     const Scene* scene = Base::Resolve(scene_id);
     if (!scene) return {};
-    auto copy = std::make_unique<Scene>(std::string(scene->Name()));
+    auto copy = std::make_unique<Scene>(std::string(scene->name()));
     copy->copy(*scene);
     return registerScene(std::move(copy));
 }
@@ -134,7 +134,7 @@ bool SceneRegistry::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs&) {
         if (!slot.storage) continue;
 
         msg.append(std::format(" -- name: {}, id: {},{}\n",
-                               slot.storage->Name(),
+                               slot.storage->name(),
                                i,
                                slot.gen));
     }

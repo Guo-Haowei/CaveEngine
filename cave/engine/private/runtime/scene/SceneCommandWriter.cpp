@@ -96,10 +96,10 @@ Entity SceneCommandWriter::CreateAreaLightObject(std::string_view p_name,
     SetProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(p_color, 1.0f));
     SetProperty(e, MaterialComponent_Id, "emissive"_sid, p_emissive);
 
-    auto handle = m_asset_reg.FindByPath<MeshAsset>("@persist://meshes/plane").unwrap();
+    auto handle = m_asset_reg.findByPath<MeshAsset>("@persist://meshes/plane").unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ e };
-    SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.GetGuid());
+    SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
     SetProperty(e, MeshRendererComponent_Id, "materials"_sid, materials);
 
     return e;
@@ -123,10 +123,10 @@ Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
         }
     }
 
-    auto handle = m_asset_reg.FindByPath<MeshAsset>(p_mesh_path).unwrap();
+    auto handle = m_asset_reg.findByPath<MeshAsset>(p_mesh_path).unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ mat };
-    SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.GetGuid());
+    SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
     SetProperty(e, MeshRendererComponent_Id, "materials"_sid, materials);
 
     return e;
@@ -135,9 +135,9 @@ Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
 Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
                                             std::string_view p_name,
                                             const std::string& p_mat_path) {
-    auto handle = m_asset_reg.FindByPath<MaterialAsset>(p_mat_path);
+    auto handle = m_asset_reg.findByPath<MaterialAsset>(p_mat_path);
     if (handle.is_some()) {
-        const Guid guid = handle.unwrap_unchecked().GetGuid();
+        const Guid guid = handle.unwrap_unchecked().guid();
         return CreateMeshObject(p_mesh_path, p_name, { &guid });
     }
 

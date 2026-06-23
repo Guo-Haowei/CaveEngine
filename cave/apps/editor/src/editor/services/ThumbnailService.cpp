@@ -153,14 +153,14 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
         ++submitted;
 
 #if USING(USE_LOG)
-        auto handle = AssetRegistry::singleton().FindByGuid(pending.key.guid);
-        const AssetMetaData* meta = handle.unwrap().GetMeta();
+        auto handle = AssetRegistry::singleton().findByGuid(pending.key.guid);
+        const AssetMetaData* meta = handle.unwrap().meta();
         LOG_TRACE(LogChannel::Thumb, "Submit '{}'", meta->name);
 #endif
     }
 }
 
-void ThumbnailService::Invalidate(const Guid& p_guid) {
+void ThumbnailService::invalidate(const Guid& p_guid) {
     unused(p_guid);
 }
 

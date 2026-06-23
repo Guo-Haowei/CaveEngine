@@ -30,7 +30,7 @@ static DragPayload MakePayloadAsset(const ContentEntry& p_entry) {
     DragPayload payload;
     payload.kind = DragKind::Asset;
     payload.type = p_entry.type;
-    payload.guid = p_entry.handle.GetGuid();
+    payload.guid = p_entry.handle.guid();
     strncpy(payload.path,
             p_entry.sys_path.string().c_str(),
             sizeof(payload.path) - 1);
@@ -43,7 +43,7 @@ Option<AssetHandle> DragDropTarget(AssetType p_mask) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
             DEV_ASSERT(data.kind == DragKind::Asset);
-            auto handle = AssetRegistry::singleton().FindByGuid(data.guid, p_mask);
+            auto handle = AssetRegistry::singleton().findByGuid(data.guid, p_mask);
             if (handle.is_some()) {
                 return Some(handle.unwrap_unchecked());
             }

@@ -29,13 +29,13 @@ struct Quat {
 static int CustomSearcher(lua_State* L) {
     const char* path = luaL_checkstring(L, 1);
 
-    auto asset = AssetRegistry::singleton().FindByPath<BlobAsset>(std::format("{}", path));
+    auto asset = AssetRegistry::singleton().findByPath<BlobAsset>(std::format("{}", path));
     if (asset.is_none()) {
         return 0;
     }
 
     Handle<BlobAsset> handle = asset.unwrap_unchecked();
-    if (const BlobAsset* blob = handle.Get()) {
+    if (const BlobAsset* blob = handle.get()) {
         if (luaL_loadbuffer(L, blob->GetBufferPointer(), blob->GetBufferLength(), path) == LUA_OK) {
             return 1;
         }
@@ -256,7 +256,7 @@ bool OpenSceneLib(lua_State* L) {
             return p_scene->component<CameraComponent>(ecs::Entity(p_ent));
         })
         .addFunction("find_entity_by_name", [](Scene* p_scene, const char* p_name) {
-            return p_scene->findEntityByName(p_name).GetId();
+            return p_scene->findFirstByName(p_name).GetId();
         })
         //.addFunction("GetMeshEmitter", [](Scene* p_scene, uint32_t p_ent) {
         //    return p_scene->GetComponent<MeshEmitterComponent>(ecs::Entity(p_ent));

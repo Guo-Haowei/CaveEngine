@@ -44,7 +44,7 @@ CloseRequestResult DocumentService::closeDoc(DocId doc_id) {
     IDocument* doc = resolve(doc_id);
     DEV_ASSERT(doc);
     auto handle = doc->rawHandle();
-    guid_to_doc_.erase(handle.GetGuid());
+    guid_to_doc_.erase(handle.guid());
     Destroy(doc_id);
     return {};
 }
@@ -60,7 +60,10 @@ bool DocumentService::save(const Guid& guid) {
 
 bool DocumentService::save(DocId doc_id) {
     if (IDocument* doc = resolve(doc_id)) {
-        return doc->save();
+        if (doc->save()) {
+            doc->markSaved();
+            return true;
+        }
     }
     return false;
 }

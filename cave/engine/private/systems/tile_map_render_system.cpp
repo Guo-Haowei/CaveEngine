@@ -37,7 +37,7 @@ void RunTileMapRenderSystem(Scene* scene, FrameData& framedata) {
         draw.mesh_data = cache.mesh.get();
         draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch_buffer);
 
-        ImageAsset* image = cache.image.Get();
+        ImageAsset* image = cache.image.get();
         if (image) {
             draw.texture = image->gpu_texture.get();
         } else {

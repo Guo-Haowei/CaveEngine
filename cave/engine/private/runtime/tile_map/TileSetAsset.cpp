@@ -48,9 +48,9 @@ Option<Shape> TileSetAsset::getCollider(uint32_t tile_id) const {
 
 void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {
     image_handle_ = std::move(handle);
-    const ImageAsset* image = image_handle_.Get();
+    const ImageAsset* image = image_handle_.get();
     if (image) {
-        Guid guid = image_handle_.GetGuid();
+        Guid guid = image_handle_.guid();
         if (guid != image_guid_) {
             LOG_INFO("TileSetAsset: GUID changed from {} to {}", image_guid_.ToString(), guid.ToString());
             image_guid_ = guid;
@@ -62,7 +62,7 @@ void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {
 }
 
 void TileSetAsset::setImage(const Guid& guid) {
-    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(guid);
+    auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(guid);
     if (handle.is_some()) {
         setHandle(std::move(handle.unwrap_unchecked()));
     }
@@ -147,7 +147,7 @@ auto TileSetAsset::LoadFromDisk(const AssetMetaData& meta) -> Result<void> {
     }
 
     // @TODO: post load?
-    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(image_guid_);
+    auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(image_guid_);
     if (handle.is_some()) {
         setHandle(std::move(handle.unwrap_unchecked()));
     }

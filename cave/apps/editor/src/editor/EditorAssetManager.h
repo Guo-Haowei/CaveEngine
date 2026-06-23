@@ -17,21 +17,21 @@ public:
 
     void update() override;
 
-    std::shared_ptr<ImageAsset> findImage(const std::string& p_name);
+    std::shared_ptr<ImageAsset> findImage(const std::string& name);
 
-    const auto& GetAssetRoot() const { return m_asset_root; }
-    const auto& GetFolderLut() const { return m_folder_lut; }
+    const auto& assetRoot() const { return asset_root_; }
+    const auto& folderLut() const { return folder_lut_; }
 
 protected:
-    Result<void> AddAlwaysLoadImages();
-    void RebuildAssetFolderTree();
+    Result<void> addAlwaysLoadImages();
+    void rebuildAssetFolderTree();
 
-    std::unordered_map<std::string, std::shared_ptr<ImageAsset>> m_images;
-    std::unique_ptr<FileWatcher> m_file_watcher;
+    std::unordered_map<std::string, std::shared_ptr<ImageAsset>> images_;
+    std::unique_ptr<FileWatcher> file_watcher_;
 
-    std::filesystem::path m_resource_folder;
-    std::unique_ptr<ContentEntry> m_asset_root;
-    std::unordered_map<std::string, const ContentEntry*> m_folder_lut;
+    std::filesystem::path resource_folder_;
+    std::unique_ptr<ContentEntry> asset_root_;
+    std::unordered_map<std::string, const ContentEntry*> folder_lut_;
 };
 
 }  // namespace cave

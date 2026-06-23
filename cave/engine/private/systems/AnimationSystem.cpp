@@ -33,7 +33,7 @@ public:
     static void updateSpriteAnimation(float dt,
                                       SpriteAnimatorComponent& animator,
                                       SpriteRendererComponent& renderer) {
-        SpriteAnimationAsset* asset = animator.animHandle().Get();
+        SpriteAnimationAsset* asset = animator.animHandle().get();
         if (!asset) {
             return;
         }
