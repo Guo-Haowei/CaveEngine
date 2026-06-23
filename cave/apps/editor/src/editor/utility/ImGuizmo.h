@@ -109,10 +109,10 @@ enum class GridPlane {
     YZ,
 };
 
-IMGUI_API void DrawAxes(const glm::mat4& p_projection_view_matrix, const float p_length = 100.0f);
-IMGUI_API void DrawGrid(const glm::mat4& p_projection_view_matrix, const glm::mat4& p_matrix, const float p_grid_size, GridPlane p_plane);
-IMGUI_API void DrawBox(const glm::mat4& p_projection_view_matrix, const glm::mat4& p_matrix);
-IMGUI_API void DrawCone(const glm::mat4& p_projection_view_matrix, const glm::mat4& p_matrix);
+IMGUI_API void DrawAxes(const glm::mat4& pv, const float length = 100.0f);
+IMGUI_API void DrawGrid(const glm::mat4& pv, const glm::mat4& matrix, const float grid_size, GridPlane plane);
+IMGUI_API void DrawBox(const glm::mat4& pv, const glm::mat4& matrix);
+IMGUI_API void DrawCone(const glm::mat4& pv, const glm::mat4& matrix);
 
 // call it when you want a gizmo
 // Needs view and projection matrices.

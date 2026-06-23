@@ -27,6 +27,7 @@ public:
 
 private:
     void drawUIImpl() override;
+    void drawGizmo(const math::FloatRect& rect);
     void drawAssetInspector(IDocument& doc) override;
     void tileMapLayerOverview(TileMapAsset& tile_map);
 

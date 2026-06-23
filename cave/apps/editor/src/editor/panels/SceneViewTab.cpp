@@ -253,10 +253,6 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     }
 }
 
-// const std::vector<const ToolBarButtonDesc*> SceneEditor::GetToolBarButtons() const {
-//     return { &m_play_button };
-// }
-
 Scene* SceneViewTab::getResolvedScene() {
     return engine_services_.sceneRegistry().resolve(preview_scene_id_);
 }
