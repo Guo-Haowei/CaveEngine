@@ -123,7 +123,7 @@ static void AppendBvhs(const std::vector<GpuPtBvh>& p_source, std::vector<GpuPtB
 }
 
 void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
-    const auto dirty_flag = p_scene.GetDirtyFlags();
+    const auto dirty_flag = p_scene.dirtyFlags();
     // @TODO: refactor
     auto gm = RenderDevice::singletonPtr();
 

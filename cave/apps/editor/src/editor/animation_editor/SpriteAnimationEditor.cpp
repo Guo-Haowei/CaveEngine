@@ -210,7 +210,7 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
     Scene* scene = engine_services_.sceneRegistry().resolve(scene_id);
     DEV_ASSERT(scene);
 
-    auto ent = scene->findEntityByName("animation");
+    auto ent = scene->findFirstByName("animation");
     SpriteAnimatorComponent* animator = scene->component<SpriteAnimatorComponent>(ent);
     DEV_ASSERT(animator);
 

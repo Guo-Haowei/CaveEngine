@@ -62,7 +62,7 @@ static void Transform_OnEdited(Scene& p_scene,
                                const PropertyId&,
                                const void*,
                                uint32_t) {
-    auto* t = (TransformComponent*)p_scene.Storage().GetRaw(p_ent, TransformComponent_Id);
+    auto* t = (TransformComponent*)p_scene.storage().GetRaw(p_ent, TransformComponent_Id);
     if (DEV_VERIFY(t)) {
         t->SetDirty();
     }
@@ -75,7 +75,7 @@ static void MeshRenderer_OnEdited(Scene& p_scene,
                                   const void*,
                                   uint32_t) {
     if (p_prop_id == "mesh_id"_sid) {
-        auto* mesh = (MeshRendererComponent*)p_scene.Storage().GetRaw(p_ent, MeshRendererComponent_Id);
+        auto* mesh = (MeshRendererComponent*)p_scene.storage().GetRaw(p_ent, MeshRendererComponent_Id);
         if (DEV_VERIFY(mesh)) {
             mesh->OnDeserialized();
         }
@@ -89,7 +89,7 @@ static void Materail_OnEdited(Scene& p_scene,
                               const void*,
                               uint32_t) {
     if (p_prop_id == "material_id"_sid) {
-        auto* m = (MaterialComponent*)p_scene.Storage().GetRaw(p_ent, MaterialComponent_Id);
+        auto* m = (MaterialComponent*)p_scene.storage().GetRaw(p_ent, MaterialComponent_Id);
         if (DEV_VERIFY(m)) {
             m->OnDeserialized();
         }

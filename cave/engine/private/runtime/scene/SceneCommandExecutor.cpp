@@ -20,12 +20,12 @@ SceneCommandExecutor::SceneCommandExecutor(Scene& p_scene) noexcept
 }
 
 void SceneCommandExecutor::AddComponent(Entity p_ent, ComponentId p_id) {
-    m_scene.Storage().CreateRaw(p_ent, p_id);
+    m_scene.storage().CreateRaw(p_ent, p_id);
     return;
 }
 
 bool SceneCommandExecutor::RemoveComponent(Entity p_ent, ComponentId p_id) {
-    return m_scene.Storage().Remove(p_ent, p_id);
+    return m_scene.storage().Remove(p_ent, p_id);
 }
 
 bool SceneCommandExecutor::ChangeProperty(Entity p_ent,
@@ -39,7 +39,7 @@ bool SceneCommandExecutor::ChangeProperty(Entity p_ent,
         return false;
     }
 
-    void* comp = m_scene.Storage().GetRaw(p_ent, meta->cid);
+    void* comp = m_scene.storage().GetRaw(p_ent, meta->cid);
     if (!comp) {
         LOG_WARN("Can't find '{}' for ent {}", meta->name, p_ent.GetId());
         return false;

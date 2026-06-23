@@ -33,8 +33,6 @@ private:
     cave::ecs::Entity player_{};
     cave::ecs::Entity animator_{};
 
-    int facing_x_ = -1;
-
     float speed_ = 2.0f;
     float close_speed_ = 3.0f;
 

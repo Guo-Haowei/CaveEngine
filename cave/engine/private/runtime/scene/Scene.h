@@ -16,18 +16,10 @@ namespace cave::ecs { class ComponentRegistry; }
 namespace cave {
 
 // @TODO: refactor
-struct PhysicsWorldContext;
 class PrefabInstanceComponent;
 
 struct SceneContext;
 class SystemManager;
-
-enum class PhysicsMode : uint8_t {
-    NONE = 0,
-    COLLISION_DETECTION,
-    SIMULATION,
-    COUNT,
-};
 
 enum SceneDirtyFlags : uint32_t {
     SCENE_DIRTY_NONE = 0,
@@ -140,18 +132,22 @@ public:
     math::AABB m_bound;
 
     // @TODO: refactor
-    PhysicsMode m_physicsMode{ PhysicsMode::NONE };
+    SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
 
-    // @TODO: refactor
-    mutable PhysicsWorldContext* m_physicsWorld{ nullptr };
+    ecs::ComponentStorage& storage() noexcept { return storage_; }
+    const ecs::ComponentStorage& storage() const noexcept { return storage_; }
 
-    // @TODO: refactor
-    SceneDirtyFlags GetDirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
+    std::string_view name() const { return name_; }
+
+    void onSimBegin(SceneContext& ctx);
+    void onSimEnd();
+    void simulate(float dt);
 
     // -------------------------------------------------------------------------
     // Utility
     // -------------------------------------------------------------------------
-    ecs::Entity findEntityByName(std::string_view p_name) const;
+    ecs::Entity findFirstByName(std::string_view name) const;
+    ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
 
     // -------------------------------------------------------------------------
     // IAsset
@@ -161,18 +157,6 @@ public:
     auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
 
     virtual std::vector<Guid> GetDependencies() const override;
-
-    // -------------------------------------------------------------------------
-    // Accessor
-    // -------------------------------------------------------------------------
-    ecs::ComponentStorage& Storage() noexcept { return storage_; }
-    const ecs::ComponentStorage& Storage() const noexcept { return storage_; }
-
-    std::string_view Name() const { return name_; }
-
-    void onSimBegin(SceneContext& ctx);
-    void onSimEnd();
-    void simulate(float dt);
 
 private:
     std::vector<ecs::Entity> GetSortedEntityArray() const;

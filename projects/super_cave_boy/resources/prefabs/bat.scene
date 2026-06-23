@@ -14,7 +14,7 @@ entities:
       body_type: static
       shape:
         type: box
-        data: [0.5, 0.5, 0.5]
+        data: [0.300000012, 0.300000012, 0.5]
       flags: 0
       category: 0
       mask: 0
@@ -43,8 +43,8 @@ entities:
       image_id: F1F2928B-039B-244F-B1ADD3D1C4CF85D5
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0, 0]
-        max: [1, 1]
+        min: [0, 1]
+        max: [0.200000003, 0.5]
       flip_x: false
       flip_y: false
       is_billboard: false

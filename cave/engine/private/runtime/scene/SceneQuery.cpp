@@ -9,6 +9,7 @@
 namespace cave {
 
 using namespace math;
+using ecs::Entity;
 
 ISceneSystem* SceneQuery::system(SceneSystemId id) {
     if (scene_.systems_ == nullptr) {
@@ -18,17 +19,21 @@ ISceneSystem* SceneQuery::system(SceneSystemId id) {
     return scene_.systems_->get(id);
 }
 
-ecs::Entity SceneQuery::findFirstByName(std::string_view p_name) const {
-    return scene_.findEntityByName(p_name);
+Entity SceneQuery::findFirstByName(std::string_view name) const {
+    return scene_.findFirstByName(name);
 }
 
-void* SceneQuery::component(ComponentId cid, ecs::Entity ent) {
+Entity SceneQuery::findChildByName(std::string_view name, Entity ent) const {
+    return scene_.findChildByName(name, ent);
+}
+
+void* SceneQuery::component(ComponentId cid, Entity ent) {
     scene_.systems_->get(SceneSystemId::TileWorld);
 
     return scene_.storage_.GetRaw(ent, cid);
 }
 
-const void* SceneQuery::component(ComponentId cid, ecs::Entity ent) const {
+const void* SceneQuery::component(ComponentId cid, Entity ent) const {
     return scene_.storage_.GetRaw(ent, cid);
 }
 

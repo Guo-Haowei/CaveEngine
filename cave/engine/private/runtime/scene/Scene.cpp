@@ -81,7 +81,6 @@ void Scene::copy(const Scene& p_other) {
 
     m_root = p_other.m_root;
     m_bound = p_other.m_bound;
-    m_physicsMode = p_other.m_physicsMode;
     entity_seed_ = p_other.entity_seed_;
 }
 
@@ -176,16 +175,26 @@ size_t Scene::count(ComponentId cid) const {
     return 0;
 }
 
-bool Scene::remove(ComponentId cid, ecs::Entity ent) {
+bool Scene::remove(ComponentId cid, Entity ent) {
     return storage_.Remove(ent, cid);
 }
 
-ecs::Entity Scene::findEntityByName(std::string_view p_name) const {
-    for (auto [entity, name] : view<NameComponent>()) {
-        if (name.GetName() == p_name) {
+Entity Scene::findFirstByName(std::string_view name) const {
+    for (auto [entity, name_component] : view<NameComponent>()) {
+        if (name_component.GetName() == name) {
             return entity;
         }
     }
+    return ecs::Entity::Null();
+}
+
+Entity Scene::findChildByName(std::string_view name, Entity ent) const {
+    for (auto [entity, hier, name_component] : view<HierarchyComponent, NameComponent>()) {
+        if (hier.parent_id == ent && name_component.GetName() == name) {
+            return entity;
+        }
+    }
+
     return ecs::Entity::Null();
 }
 
@@ -347,10 +356,6 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
         d.Read(m_root);
         d.LeaveKey();
     }
-    if (d.TryEnterKey("physics_mode")) {
-        d.Read(m_physicsMode);
-        d.LeaveKey();
-    }
 
     const bool ok = d.TryEnterKey("entities");
     DEV_ASSERT(ok);
@@ -417,8 +422,6 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
         .Write(entity_array.back())
         .Key("root")
         .Write(m_root)
-        .Key("physics_mode")
-        .Write(static_cast<uint32_t>(m_physicsMode))  // @TODO: refactor
         .Key("entities");
 
     yaml.BeginArray(false);

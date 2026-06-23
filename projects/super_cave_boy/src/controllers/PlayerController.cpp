@@ -378,8 +378,7 @@ void UpdatePlayerState(VelocityComponent& vel, LegacyPlayerMotor& motor) {
 void PlayerController::onCreate() {
     const SceneQuery query(context().scene);
 
-    animator_ = query.findFirstByName("player_animator_node");
-    // @TODO: set player position
+    animator_ = query.findChildByName("player_animator_node", entity());
 }
 
 void PlayerController::updateAnimation(SceneQuery& query) {
@@ -453,6 +452,7 @@ void PlayerController::onUpdate(float dt) {
 }
 
 void PlayerController::drawDebug() {
+#if 0
     SceneQuery query(context().scene);
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
 
@@ -469,6 +469,7 @@ void PlayerController::drawDebug() {
     for (const TileHit& hit : hits) {
         debug_draw.addBox2Frame(hit.aabb.Min(), hit.aabb.Max(), kTileColor, 0.05f);
     }
+#endif
 }
 
 }  // namespace super_cave_boy

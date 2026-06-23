@@ -44,7 +44,7 @@ void BatController::onCreate() {
     SceneQuery query(context().scene);
 
     player_ = findPlayer(query);
-    animator_ = query.findFirstByName("bat_animator_node");
+    animator_ = query.findChildByName("bat_animator_node", entity());
 }
 
 Entity BatController::findPlayer(SceneQuery& query) const {
@@ -135,12 +135,6 @@ void BatController::updateMove(SceneQuery& query, float dt) {
     // if (this.hspeed == 0 || this.vspeed == 0) this.speed = 3;
     if (desired_dir.x == 0.0f || desired_dir.y == 0.0f) {
         speed = close_speed_;
-    }
-
-    if (desired_dir.x > 0.0f) {
-        facing_x_ = 1;
-    } else if (desired_dir.x < 0.0f) {
-        facing_x_ = -1;
     }
 
     vel->linear.x = desired_dir.x * speed;
