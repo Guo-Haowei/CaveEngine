@@ -1,9 +1,12 @@
 #include "SnakeController.h"
-#include "PlatformerCollision.h"
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/ecs/components/VelocityComponent.h"
+#include "cave/runtime/platformer/FacingComponent.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
+
+#include "platformer/PlatformerCollision.h"
 
 namespace super_cave_boy {
 
@@ -40,7 +43,20 @@ bool ShouldTurnAround(const Box2& body,
 }  // namespace
 
 void SnakeController::onCreate() {
-    facing_x_ = -1;
+    SceneQuery query(context().scene);
+    auto facing = query.component<FacingComponent>(entity());
+    switch (facing->facing) {
+        case Facing::Left: {
+            facing_x_ = -1;
+        } break;
+        case Facing::Right: {
+            facing_x_ = 1;
+        } break;
+        default: {
+            LOG_ERROR("Invalid facing value {}", EnumTraits<Facing>::ToString(facing->facing));
+            facing_x_ = -1;
+        } break;
+    }
 }
 
 void SnakeController::onUpdate(float dt) {

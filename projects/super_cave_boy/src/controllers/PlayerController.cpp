@@ -1,5 +1,4 @@
 #include "PlayerController.h"
-#include "PlatformerCollision.h"
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
@@ -12,6 +11,8 @@
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
+
+#include "platformer/PlatformerCollision.h"
 
 namespace super_cave_boy {
 
