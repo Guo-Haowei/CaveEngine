@@ -5,6 +5,7 @@
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 
@@ -18,9 +19,15 @@ private:
     CAVE_PROP(editor = Translation)
     math::Vec3f translation_;
 
+    // Non-serialzed
+    ecs::Entity child_;
+
 public:
     const math::Vec3f& translation() const { return translation_; }
     void translation(const math::Vec3f& translation) { translation_ = translation; }
+
+    ecs::Entity child() const { return child_; }
+    void child(ecs::Entity ent) { child_ = ent; }
 
     const Guid& prefabGuid() const { return prefab_id_; }
     bool SetResourceGuid(const Guid& guid);

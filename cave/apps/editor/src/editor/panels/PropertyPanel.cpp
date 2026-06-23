@@ -412,11 +412,20 @@ void PropertyPanel::drawUIImpl() {
         DrawComponentAuto<NativeScriptComponent>(&script, ctx);
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent&) {
-        const bool is_null = prefab->prefabGuid().IsNull();
-        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(prefab, ctx);
-        if (dirty && is_null) {
-            scene.instantiatePrefab(*prefab, id);
+    DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent& prefab) {
+        const Guid old_guid = prefab.prefabGuid();
+        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(&prefab, ctx);
+        const Guid new_guid = prefab.prefabGuid();
+
+        // @NOTE: can only instantiate once
+        if (old_guid.IsNull() && !new_guid.IsNull()) {
+            scene.instantiatePrefab(prefab, id);
+        }
+
+        if (dirty) {
+            ecs::Entity child = prefab.child();
+            TransformComponent* transform = scene.component<TransformComponent>(child);
+            transform->SetTranslation(prefab.translation());
         }
     });
 

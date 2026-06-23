@@ -160,6 +160,8 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
 
     TransformComponent* transform = component<TransformComponent>(mapped_root);
     transform->SetTranslation(prefab.translation());
+
+    prefab.child(mapped_root);
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
