@@ -1,6 +1,7 @@
 #include "Tab.h"
 
 #include "editor/EditorState.h"
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/Workspace.h"
 
@@ -70,11 +71,15 @@ void Tab::drawUI() {
     }
 }
 
-// @FIX: the title won't change when asset is renamed
-void Tab::setTitleAndId(std::string_view title, uint32_t idx) {
-    idx_ = idx;
-    title_ = title.empty() ? "Untitled" : title;
-    window_id_ = std::format("{}###WorkspaceTab{}", title_, idx_);
+const char* Tab::windowId() const {
+    IDocument* doc = editor_services_.document().resolve(doc_id_);
+    DEV_ASSERT(doc);
+    AssetHandle handle = doc->rawHandle();
+    const AssetMetaData* meta = handle.meta();
+    DEV_ASSERT(meta);
+
+    window_id_ = std::format("{}###WorkspaceTab{}", meta->name, tab_id_.index);
+    return window_id_.c_str();
 }
 
 void Tab::onCreate() {

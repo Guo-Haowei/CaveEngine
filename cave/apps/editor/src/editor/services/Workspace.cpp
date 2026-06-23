@@ -178,7 +178,6 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
 
     Tab* tab_raw = (m_slots[tab_id.index].storage).get();
     tab_raw->tabId(tab_id);
-    tab_raw->setTitleAndId(meta->name, tab_id.index);
     tab_raw->onCreate();
     request_focus_ = tab_id;
     doc_to_tab_[doc_id] = tab_id;
