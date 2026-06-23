@@ -26,7 +26,6 @@ constexpr float kGravity = -35.0f;
 constexpr float kJumpForce = 13.0f;
 constexpr float kWallJumpForce = 9.5f;
 constexpr float kGrabEps = 0.03f;
-constexpr float kMinGroundSupport = 0.05f;  // tune; tile size is 1.0
 
 bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     TileCoord above = hit.coord;
@@ -44,52 +43,6 @@ inline Box2 ExpandAABB(const Box2& aabb, Vec2f amount) {
 
 inline bool NearlyEqual(float a, float b, float eps = 0.01f) {
     return std::abs(a - b) <= eps;
-}
-
-VerticalMoveResult ResolveDownMovement(
-    const Box2& body,
-    float dy,
-    const TileWorldSystem& world) {
-    VerticalMoveResult result;
-    result.dy = dy;
-
-    if (dy >= 0.0f) {
-        return result;
-    }
-
-    Box2 query = MoveBox(body, Vec2f{ 0.0f, dy });
-    query.UnionBox(body);
-
-    auto hits = world.querySolidTiles(query);
-
-    for (const TileHit& hit_tile : hits) {
-        const Box2& solid = hit_tile.aabb;
-
-        const float overlap_x = OverlapAmount1D(
-            body.Min().x,
-            body.Max().x,
-            solid.Min().x,
-            solid.Max().x);
-
-        if (overlap_x <= kMinGroundSupport) {
-            continue;
-        }
-
-        // Y-up:
-        // player bottom crosses tile top.
-        // player bottom = body.Min().y
-        // tile top = solid.Max().y
-        if (body.Min().y >= solid.Max().y &&
-            body.Min().y + dy <= solid.Max().y) {
-            const float candidate_dy = solid.Max().y - body.Min().y;
-
-            result.hit = true;
-            // dy is negative, choose the closest ground, i.e. largest dy.
-            result.dy = std::max(result.dy, candidate_dy);
-        }
-    }
-
-    return result;
 }
 
 bool CheckWallGrab(

@@ -35,4 +35,8 @@ VerticalMoveResult ResolveUpMovement(const cave::math::Box2& body,
                                      float dy,
                                      const cave::TileWorldSystem& world);
 
+VerticalMoveResult ResolveDownMovement(const cave::math::Box2& body,
+                                       float dy,
+                                       const cave::TileWorldSystem& world);
+
 }  // namespace super_cave_boy

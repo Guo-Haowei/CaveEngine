@@ -31,7 +31,7 @@ protected:
 
     bool auto_scroll_{ true };
     bool scroll_to_bottom_{ false };
-    LogLevel level_filter_{ LOG_LEVEL_ALL };
+    LogLevel level_filter_{ LOG_LEVEL_ALL & ~(LOG_LEVEL_TRACE) };
     LogChannel channel_filter_{ LogChannel::Count };
     FixedString<128> search_buffer_;
 

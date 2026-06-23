@@ -18,7 +18,6 @@ using ::cave::ecs::Entity;
 namespace {
 
 constexpr float kGravity = -35.0f;
-constexpr float kMinGroundSupport = 0.05f;
 
 Vec2f GetAABBCenter(const TransformComponent& transform,
                     const ColliderComponent& collider) {
@@ -34,42 +33,6 @@ struct TileMoveResult {
 
     Vec2f delta{ 0.0f, 0.0f };
 };
-
-VerticalMoveResult ResolveDownMovement(const Box2& body,
-                                       float dy,
-                                       const TileWorldSystem& world) {
-    VerticalMoveResult result;
-    result.dy = dy;
-
-    if (dy >= 0.0f) {
-        return result;
-    }
-
-    Box2 query = MoveBox(body, { 0.0f, dy });
-    query.UnionBox(body);
-
-    for (const TileHit& hit_tile : world.querySolidTiles(query)) {
-        const Box2& solid = hit_tile.aabb;
-
-        const float overlap_x = OverlapAmount1D(
-            body.Min().x,
-            body.Max().x,
-            solid.Min().x,
-            solid.Max().x);
-
-        if (overlap_x <= kMinGroundSupport) {
-            continue;
-        }
-
-        if (body.Min().y >= solid.Max().y &&
-            body.Min().y + dy <= solid.Max().y) {
-            result.hit = true;
-            result.dy = std::max(result.dy, solid.Max().y - body.Min().y);
-        }
-    }
-
-    return result;
-}
 
 TileMoveResult MoveSpiderWithTileCollision(TransformComponent& transform,
                                            const ColliderComponent& collider,
