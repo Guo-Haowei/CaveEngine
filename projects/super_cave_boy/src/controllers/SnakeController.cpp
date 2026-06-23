@@ -45,6 +45,7 @@ bool ShouldTurnAround(const Box2& body,
 void SnakeController::onCreate() {
     SceneQuery query(context().scene);
     auto facing = query.component<FacingComponent>(entity());
+    // @TODO: prefab override
     switch (facing->facing) {
         case Facing::Left: {
             facing_x_ = -1;

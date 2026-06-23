@@ -1,8 +1,5 @@
 #pragma once
-#include "cave/core/math/Vector.h"
-#include "cave/runtime/ecs/Entity.h"
-#include "cave/runtime/scene/SceneQuery.h"
-#include "cave/runtime/script/native/NativeScript.h"
+#include "EnemyControllerBase.h"
 
 namespace super_cave_boy {
 
@@ -11,14 +8,11 @@ enum class BatState {
     Move,
 };
 
-class BatController : public cave::NativeScript {
+class BatController : public EnemyControllerBase {
 public:
-    void onCreate() override;
     void onUpdate(float dt) override;
 
 private:
-    cave::ecs::Entity findPlayer(cave::SceneQuery& query) const;
-
     void updateIdle(cave::SceneQuery& query);
     void updateMove(cave::SceneQuery& query, float dt);
 
@@ -29,9 +23,6 @@ private:
 
 private:
     BatState state_ = BatState::Idle;
-
-    cave::ecs::Entity player_{};
-    cave::ecs::Entity animator_{};
 
     float speed_ = 2.0f;
     float close_speed_ = 3.0f;

@@ -40,17 +40,6 @@ bool OverlapsSolidTiles(const Box2& aabb, const TileWorldSystem& world) {
 
 }  // namespace
 
-void BatController::onCreate() {
-    SceneQuery query(context().scene);
-
-    player_ = findPlayer(query);
-    animator_ = query.findChildByName("bat_animator_node", entity());
-}
-
-Entity BatController::findPlayer(SceneQuery& query) const {
-    return query.findFirstByName("player");
-}
-
 bool BatController::canSeePlayer(const Vec2f& bat_pos,
                                  const Vec2f& player_pos) const {
     const float dx = std::abs(player_pos.x - bat_pos.x);
@@ -70,13 +59,12 @@ void BatController::onUpdate(float dt) {
     }
 
     switch (state_) {
-        case BatState::Idle:
+        case BatState::Idle: {
             updateIdle(query);
-            break;
-
-        case BatState::Move:
+        } break;
+        case BatState::Move: {
             updateMove(query, dt);
-            break;
+        } break;
     }
 
     updateAnimation(query);

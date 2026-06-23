@@ -378,7 +378,7 @@ void UpdatePlayerState(VelocityComponent& vel, LegacyPlayerMotor& motor) {
 void PlayerController::onCreate() {
     const SceneQuery query(context().scene);
 
-    animator_ = query.findChildByName("player_animator_node", entity());
+    animator_ = query.findChildByName("animator_node", entity());
 }
 
 void PlayerController::updateAnimation(SceneQuery& query) {

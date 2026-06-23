@@ -1,5 +1,5 @@
 version: 19
-seed: 36
+seed: 47
 root: 1
 entities:
   - id: 1
@@ -112,3 +112,15 @@ entities:
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
       translation: [24.2999992, 3.5, 0]
+  - id: 47
+    NameComponent:
+      name: spider-01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
+      translation: [23.6000004, 0.5, 0]

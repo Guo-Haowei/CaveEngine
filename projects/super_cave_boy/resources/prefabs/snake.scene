@@ -1,14 +1,13 @@
 version: 19
 seed: 2
 root: 1
-physics_mode: 0
 entities:
   - id: 1
     NameComponent:
       name: snake
     TransformComponent:
       translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
+      rotation: [0, 1, 0, 0]
       scale: [1, 1, 1]
     ColliderComponent:
       body_type: static
@@ -23,10 +22,10 @@ entities:
     NativeScriptComponent:
       name: SnakeController
     FacingComponent:
-      facing: right
+      facing: left
   - id: 2
     NameComponent:
-      name: snake_animator_node
+      name: animator_node
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
@@ -43,8 +42,8 @@ entities:
       image_id: 3F1DA968-0BAE-6D4A-8886F3EC9187FDE7
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0.625, 1]
-        max: [0.75, 0.5]
+        min: [0, 1]
+        max: [0.5, 0]
       flip_x: false
       flip_y: false
       is_billboard: false
