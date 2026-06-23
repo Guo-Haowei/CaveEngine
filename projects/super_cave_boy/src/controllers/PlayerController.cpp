@@ -10,7 +10,6 @@
 #include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
-#include "cave/runtime/tile_map/TileWorldSystem.h"
 
 #include "platformer/PlatformerCollision.h"
 
@@ -26,7 +25,6 @@ namespace {
 constexpr float kGravity = -35.0f;
 constexpr float kJumpForce = 13.0f;
 constexpr float kWallJumpForce = 9.5f;
-constexpr float kStepOffset = 0.05f;
 constexpr float kGrabEps = 0.03f;
 constexpr float kMinGroundSupport = 0.05f;  // tune; tile size is 1.0
 
@@ -37,15 +35,6 @@ bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     return !world.isSolid(above);
 }
 
-// @TODO: refactor this part
-Box2 GetPlayerAABB(const SceneQuery& query) {
-    ecs::Entity ent = query.findFirstByName("player");
-
-    auto transform = query.component<TransformComponent>(ent);
-    auto collider = query.component<ColliderComponent>(ent);
-    return ComputeWorldAABB(*transform, *collider);
-}
-
 inline Box2 ExpandAABB(const Box2& aabb, Vec2f amount) {
     return Box2{
         aabb.Min() - amount,
@@ -53,111 +42,8 @@ inline Box2 ExpandAABB(const Box2& aabb, Vec2f amount) {
     };
 }
 
-inline bool Overlap1DStrict(float a_min, float a_max, float b_min, float b_max) {
-    return a_max > b_min && a_min < b_max;
-}
-
-inline float OverlapAmount1D(float a_min, float a_max, float b_min, float b_max) {
-    return std::min(a_max, b_max) - std::max(a_min, b_min);
-}
-
 inline bool NearlyEqual(float a, float b, float eps = 0.01f) {
     return std::abs(a - b) <= eps;
-}
-
-inline Box2 MoveBox(Box2 box, Vec2f delta) {
-    box.SetMinMax(box.Min() + delta, box.Max() + delta);
-    return box;
-}
-
-struct VerticalMoveResult {
-    bool hit = false;
-    float dy = 0.0f;
-};
-
-float ResolveHorizontalMovement(
-    const Box2& body,
-    float dx,
-    const TileWorldSystem& world) {
-    if (dx == 0.0f) {
-        return 0.0f;
-    }
-
-    Box2 query = MoveBox(body, Vec2f{ dx, 0.0f });
-    query.UnionBox(body);
-
-    float resolved_dx = dx;
-
-    auto hits = world.querySolidTiles(query);
-
-    for (const TileHit& hit_tile : hits) {
-        const Box2& solid = hit_tile.aabb;
-
-        // For horizontal movement, only care about current vertical overlap.
-        if (!Overlap1DStrict(body.Min().y, body.Max().y, solid.Min().y, solid.Max().y)) {
-            continue;
-        }
-
-        if (dx > 0.0f) {
-            // Moving right. Tile must be currently to the right.
-            if (body.Max().x <= solid.Min().x) {
-                const float candidate_dx = solid.Min().x - body.Max().x;
-                resolved_dx = std::min(resolved_dx, candidate_dx);
-            }
-        } else {
-            // Moving left. Tile must be currently to the left.
-            if (body.Min().x >= solid.Max().x) {
-                const float candidate_dx = solid.Max().x - body.Min().x;
-                resolved_dx = std::max(resolved_dx, candidate_dx);
-            }
-        }
-    }
-
-    return resolved_dx;
-}
-
-VerticalMoveResult ResolveUpMovement(
-    const Box2& body,
-    float dy,
-    const TileWorldSystem& world) {
-    VerticalMoveResult result;
-    result.dy = dy;
-
-    if (dy <= 0.0f) {
-        return result;
-    }
-
-    Box2 query = MoveBox(body, Vec2f{ 0.0f, dy });
-    query.UnionBox(body);
-
-    auto hits = world.querySolidTiles(query);
-
-    for (const TileHit& hit_tile : hits) {
-        const Box2& solid = hit_tile.aabb;
-
-        const bool x_overlap =
-            body.Max().x - kStepOffset >= solid.Min().x &&
-            body.Min().x + kStepOffset <= solid.Max().x;
-
-        if (!x_overlap) {
-            continue;
-        }
-
-        // Y-up:
-        // player top crosses tile bottom.
-        // player top = body.Max().y
-        // tile bottom = solid.Min().y
-        if (body.Max().y <= solid.Min().y &&
-            body.Max().y + dy >= solid.Min().y) {
-            const float candidate_dy = solid.Min().y - body.Max().y;
-
-            result.hit = true;
-            // dy is positive, choose the closest ceiling, i.e. smallest dy.
-            result.dy = std::min(result.dy, candidate_dy);
-        }
-    }
-
-    return result;
 }
 
 VerticalMoveResult ResolveDownMovement(

@@ -7,6 +7,8 @@
 #include "cave/runtime/ecs/components/VelocityComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
+#include "platformer/PlatformerCollision.h"
+
 namespace super_cave_boy {
 
 using namespace ::cave;
@@ -16,45 +18,13 @@ using ::cave::ecs::Entity;
 namespace {
 
 constexpr float kGravity = -35.0f;
-constexpr float kStepOffset = 0.05f;
 constexpr float kMinGroundSupport = 0.05f;
-
-inline Box2 MoveBox(Box2 box, Vec2f delta) {
-    box.SetMinMax(box.Min() + delta, box.Max() + delta);
-    return box;
-}
-
-inline bool Overlap1DStrict(float a_min, float a_max, float b_min, float b_max) {
-    return a_max > b_min && a_min < b_max;
-}
-
-inline float OverlapAmount1D(float a_min, float a_max, float b_min, float b_max) {
-    return std::min(a_max, b_max) - std::max(a_min, b_min);
-}
-
-Box2 ComputeWorldAABB(const TransformComponent& transform,
-                      const ColliderComponent& collider) {
-    const Shape& shape = collider.shape();
-
-    // Use world translation because prefab/parent transform can offset the instance.
-    Vec2f p = transform.GetTranslation().xy;
-
-    return {
-        p - Vec2f(shape.data.half.xy),
-        p + Vec2f(shape.data.half.xy),
-    };
-}
 
 Vec2f GetAABBCenter(const TransformComponent& transform,
                     const ColliderComponent& collider) {
     Box2 aabb = ComputeWorldAABB(transform, collider);
     return (aabb.Min() + aabb.Max()) * 0.5f;
 }
-
-struct VerticalMoveResult {
-    bool hit = false;
-    float dy = 0.0f;
-};
 
 struct TileMoveResult {
     bool hit_left = false;
@@ -64,76 +34,6 @@ struct TileMoveResult {
 
     Vec2f delta{ 0.0f, 0.0f };
 };
-
-float ResolveHorizontalMovement(const Box2& body,
-                                float dx,
-                                const TileWorldSystem& world) {
-    if (dx == 0.0f) {
-        return 0.0f;
-    }
-
-    Box2 query = MoveBox(body, { dx, 0.0f });
-    query.UnionBox(body);
-
-    float resolved_dx = dx;
-
-    for (const TileHit& hit_tile : world.querySolidTiles(query)) {
-        const Box2& solid = hit_tile.aabb;
-
-        if (!Overlap1DStrict(body.Min().y, body.Max().y,
-                             solid.Min().y, solid.Max().y)) {
-            continue;
-        }
-
-        if (dx > 0.0f) {
-            if (body.Max().x <= solid.Min().x) {
-                const float candidate_dx = solid.Min().x - body.Max().x;
-                resolved_dx = std::min(resolved_dx, candidate_dx);
-            }
-        } else {
-            if (body.Min().x >= solid.Max().x) {
-                const float candidate_dx = solid.Max().x - body.Min().x;
-                resolved_dx = std::max(resolved_dx, candidate_dx);
-            }
-        }
-    }
-
-    return resolved_dx;
-}
-
-VerticalMoveResult ResolveUpMovement(const Box2& body,
-                                     float dy,
-                                     const TileWorldSystem& world) {
-    VerticalMoveResult result;
-    result.dy = dy;
-
-    if (dy <= 0.0f) {
-        return result;
-    }
-
-    Box2 query = MoveBox(body, { 0.0f, dy });
-    query.UnionBox(body);
-
-    for (const TileHit& hit_tile : world.querySolidTiles(query)) {
-        const Box2& solid = hit_tile.aabb;
-
-        const bool x_overlap =
-            body.Max().x - kStepOffset >= solid.Min().x &&
-            body.Min().x + kStepOffset <= solid.Max().x;
-
-        if (!x_overlap) {
-            continue;
-        }
-
-        if (body.Max().y <= solid.Min().y &&
-            body.Max().y + dy >= solid.Min().y) {
-            result.hit = true;
-            result.dy = std::min(result.dy, solid.Min().y - body.Max().y);
-        }
-    }
-
-    return result;
-}
 
 VerticalMoveResult ResolveDownMovement(const Box2& body,
                                        float dy,

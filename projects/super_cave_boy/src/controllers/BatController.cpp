@@ -29,11 +29,6 @@ inline float SignWithDeadZone(float value, float eps) {
     return 0.0f;
 }
 
-inline Box2 MoveBox(Box2 box, Vec2f delta) {
-    box.SetMinMax(box.Min() + delta, box.Max() + delta);
-    return box;
-}
-
 bool OverlapsSolidTiles(const Box2& aabb, const TileWorldSystem& world) {
     return !world.querySolidTiles(aabb).empty();
 }
