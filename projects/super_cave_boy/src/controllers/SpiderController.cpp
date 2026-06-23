@@ -402,18 +402,19 @@ void SpiderController::updateAnimation(SceneQuery& query) {
     }
 
     switch (state_) {
-        case SpiderState::Idle:
+        case SpiderState::Idle: {
             animator->currentClip("idle");
-            break;
-
+        } break;
+        case SpiderState::PrepareAttack: {
+            animator->currentClip("prepare_attack");
+        } break;
         case SpiderState::Attack:
-        case SpiderState::Air:
-            animator->currentClip("jump");
-            break;
-
-        case SpiderState::Wait:
+        case SpiderState::Air: {
+            animator->currentClip("air");
+        } break;
+        case SpiderState::Wait: {
             animator->currentClip("idle");
-            break;
+        } break;
     }
 }
 

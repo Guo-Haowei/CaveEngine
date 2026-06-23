@@ -4,6 +4,6 @@ name: spider.sprite_anim
 import_path: "@res://monsters/spider.sprite_anim"
 dependencies: [5DAAD570-BEFA-9343-A2611349F7AEF10D]
 source_created_time: 2026-06-21 05:46:30.1213636
-source_last_modified: 2026-06-21 05:49:54.2301807
+source_last_modified: 2026-06-23 11:37:54.7668322
 import_settings:
   {}

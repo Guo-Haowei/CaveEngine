@@ -5,6 +5,7 @@ namespace super_cave_boy {
 
 enum class SpiderState {
     Idle,
+    PrepareAttack,
     Attack,
     Air,
     Wait,
