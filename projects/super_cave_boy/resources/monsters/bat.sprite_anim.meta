@@ -1,0 +1,9 @@
+type: sprite_anim
+guid: 8A0F49CE-D244-234D-BAF0A06BC018F8E0
+name: bat.sprite_anim
+import_path: "@res://monsters/bat.sprite_anim"
+dependencies: [F1F2928B-039B-244F-B1ADD3D1C4CF85D5]
+source_created_time: 2026-06-23 09:34:17.6358971
+source_last_modified: 2026-06-23 09:33:41.9532899
+import_settings:
+  {}

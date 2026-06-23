@@ -1,5 +1,5 @@
 version: 19
-seed: 20
+seed: 27
 root: 1
 physics_mode: 0
 entities:
@@ -89,3 +89,15 @@ entities:
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
       translation: [17, 0.5, 0]
+  - id: 27
+    NameComponent:
+      name: bat-01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
+      translation: [4.5, 3.5, 0]

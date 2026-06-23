@@ -201,7 +201,6 @@ std::string SpriteAnimationEditor::selectAnimation(SpriteAnimationAsset& anim,
     }
 
     if (selected != current_clip) {
-        LOG_OK("Set clip to {}", selected);
         return selected;
     }
     return "";

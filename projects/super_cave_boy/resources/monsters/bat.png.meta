@@ -1,0 +1,9 @@
+type: image
+guid: F1F2928B-039B-244F-B1ADD3D1C4CF85D5
+name: ""
+import_path: "@res://monsters/bat.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

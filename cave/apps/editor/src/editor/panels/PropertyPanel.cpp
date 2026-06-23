@@ -39,6 +39,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(NativeScript)    \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
+    COMPONENT_DECL(Velocity)        \
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
     COMPONENT_DECL(Facing)          \

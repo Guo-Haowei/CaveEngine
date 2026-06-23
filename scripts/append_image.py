@@ -2,12 +2,8 @@ from PIL import Image
 
 # Load images
 images = [Image.open(path) for path in [
-    'spr_player_walk.png',
-    'spr_player_jump.png',
-    'spr_player_damage.png',
-    'spr_player_grab.png',
-    'spr_player_grab_damaged.png',
-    'spr_player_idle.png',
+    'spr_bat_idle.png',
+    'spr_bat_fly.png',
 ]]
 
 widths = [img.width for img in images]
