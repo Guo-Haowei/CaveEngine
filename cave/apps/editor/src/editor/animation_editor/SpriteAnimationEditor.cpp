@@ -24,19 +24,19 @@ using namespace ::cave::math;
 namespace {
 
 void ImageSourceDropTarget(IDocument& doc, uint64_t checkerboard) {
-    auto asset = doc.handle<SpriteAnimationAsset>().Get();
+    auto asset = doc.handle<SpriteAnimationAsset>().get();
     DEV_ASSERT(asset);
 
     ImGui::Text("Source Image");
 
     auto image_handle = asset->imageHandle();
-    ImageAsset* image = image_handle.Get();
+    ImageAsset* image = image_handle.get();
 
     Vec2f region_size(128, 128);
     ui::CenteredImage(image, region_size, checkerboard);
 
     if (auto _handle = DragDropTarget(AssetType::Image); _handle.is_some()) {
-        asset->SetGuid(_handle.unwrap_unchecked().GetGuid());
+        asset->SetGuid(_handle.unwrap_unchecked().guid());
     }
 }
 
@@ -84,7 +84,7 @@ void SpriteAnimationEditor::drawUIImpl() {
 }
 
 void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
-    auto sprite_animation = doc.handle<SpriteAnimationAsset>().Get();
+    auto sprite_animation = doc.handle<SpriteAnimationAsset>().get();
     DEV_ASSERT(sprite_animation);
 
     auto image_handle = sprite_animation->imageHandle();
@@ -102,7 +102,7 @@ void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
     ImGui::Separator();
     sprite_selector_.EditSprite(nullptr, nullptr);
 
-    if (ImageAsset* image = image_handle.Get()) {
+    if (ImageAsset* image = image_handle.get()) {
         ImGui::Separator();
         drawFrameSelector(*sprite_animation, *image);
     }

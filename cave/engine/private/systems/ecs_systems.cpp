@@ -329,7 +329,7 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
         }
 
         const TransformComponent& transform = *scene.component<TransformComponent>(id);
-        const MeshAsset* mesh = mesh_renderer.GetMeshHandle().Get();
+        const MeshAsset* mesh = mesh_renderer.GetMeshHandle().get();
         if (!mesh) {
             continue;
         }

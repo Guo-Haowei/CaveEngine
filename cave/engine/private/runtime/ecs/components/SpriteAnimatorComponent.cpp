@@ -6,7 +6,7 @@
 namespace cave {
 
 void SpriteAnimatorComponent::currentClip(std::string_view name) {
-    SpriteAnimationAsset* asset = anim_handle_.Get();
+    SpriteAnimationAsset* asset = anim_handle_.get();
     const SpriteAnimationClip* clip = asset->tryGetClip(std::string(name));
     if (clip == nullptr) {
         LOG_ERROR("Clip '{}' does not exist", name);
@@ -21,13 +21,13 @@ void SpriteAnimatorComponent::currentClip(std::string_view name) {
 }
 
 bool SpriteAnimatorComponent::SetResourceGuid(const Guid& guid) {
-    return AssetHandle::ReplaceGuidAndHandle(AssetType::SpriteAnimation, guid, anim_id_, anim_handle_.RawHandle());
+    return AssetHandle::replaceGuidAndHandle(AssetType::SpriteAnimation, guid, anim_id_, anim_handle_.rawHandle());
 }
 
 void SpriteAnimatorComponent::OnDeserialized() {
     if (!anim_id_.IsNull()) {
         anim_handle_ =
-            AssetRegistry::singleton().FindByGuid<SpriteAnimationAsset>(anim_id_).unwrap();
+            AssetRegistry::singleton().findByGuid<SpriteAnimationAsset>(anim_id_).unwrap();
     }
 }
 

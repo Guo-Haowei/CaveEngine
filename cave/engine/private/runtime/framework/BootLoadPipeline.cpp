@@ -110,7 +110,7 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
 
     const auto order = TopologicalSort(N, edges).unwrap();
     for (int idx : order) {
-        m_children.push_back(m_asset_registry.StartAsyncLoad(std::move(assets[idx])));
+        m_children.push_back(m_asset_registry.startAsyncLoad(std::move(assets[idx])));
     }
 
     TaskGroupSpec group;

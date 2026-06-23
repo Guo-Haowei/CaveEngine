@@ -47,14 +47,14 @@ const SpriteAnimationClip* SpriteAnimationAsset::tryGetClip(const std::string& n
 }
 
 void SpriteAnimationAsset::SetGuid(const Guid& guid) {
-    AssetHandle::ReplaceGuidAndHandle(AssetType::Image,
+    AssetHandle::replaceGuidAndHandle(AssetType::Image,
                                       guid,
                                       image_guid_,
-                                      image_handle_.RawHandle());
+                                      image_handle_.rawHandle());
 }
 
 void SpriteAnimationAsset::OnDeserialized() {
-    auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(image_guid_);
+    auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(image_guid_);
     if (handle.is_some()) {
         image_handle_ = handle.unwrap_unchecked();
     }

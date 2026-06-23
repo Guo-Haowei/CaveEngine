@@ -45,7 +45,7 @@ bool ShortcutService::handleIntent(Intent& intent) {
         AssetRegistry& asset_reg = app_services_.assetRegistry();
         if (save_all) {
             // @TODO: fix this
-            asset_reg.SaveAllAssets();
+            asset_reg.saveAllAssets();
         } else {
             editor_services_.document().save(save->doc_id());
         }

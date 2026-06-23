@@ -10,10 +10,10 @@ MeshRendererComponent::MeshRendererComponent() {
 }
 
 bool MeshRendererComponent::SetResourceGuid(const Guid& p_guid) {
-    if (!AssetHandle::ReplaceGuidAndHandle(AssetType::Mesh,
+    if (!AssetHandle::replaceGuidAndHandle(AssetType::Mesh,
                                            p_guid,
                                            m_mesh_id,
-                                           m_mesh_handle.RawHandle())) {
+                                           m_mesh_handle.rawHandle())) {
         return false;
     }
 
@@ -26,7 +26,7 @@ void MeshRendererComponent::AddMaterial(ecs::Entity p_material) {
 }
 
 void MeshRendererComponent::OnDeserialized() {
-    auto handle = AssetRegistry::singleton().FindByGuid<MeshAsset>(m_mesh_id);
+    auto handle = AssetRegistry::singleton().findByGuid<MeshAsset>(m_mesh_id);
     if (handle.is_some()) {
         m_mesh_handle = handle.unwrap_unchecked();
     }

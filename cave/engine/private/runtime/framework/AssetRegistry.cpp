@@ -20,13 +20,13 @@ auto AssetRegistry::InitializeImpl() -> Result<void> {
 void AssetRegistry::FinalizeImpl() {
 }
 
-uint64_t AssetRegistry::StartAsyncLoad(AssetMetaData&& p_meta) {
-    auto entry = std::make_shared<AssetEntry>(std::move(p_meta));
+uint64_t AssetRegistry::startAsyncLoad(AssetMetaData&& meta) {
+    auto entry = std::make_shared<AssetEntry>(std::move(meta));
     bool ok = true;
     {
-        std::lock_guard<std::mutex> lock(registry_mutex);
-        ok = ok && m_guid_map.try_emplace(entry->metadata.guid, entry).second;
-        ok = ok && m_path_map.try_emplace(entry->metadata.import_path, entry->metadata.guid).second;
+        std::lock_guard<std::mutex> lock(registry_mutex_);
+        ok = ok && guid_map_.try_emplace(entry->metadata.guid, entry).second;
+        ok = ok && path_map_.try_emplace(entry->metadata.import_path, entry->metadata.guid).second;
     }
     if (ok) {
         return m_app->services().assetManager().submitLoadAsset({ entry->metadata.guid });
@@ -43,58 +43,58 @@ struct TransparentCompare {
     bool operator()(const char* lhs, const std::string& rhs) const { return lhs < rhs; }
 };
 
-void AssetRegistry::RegisterAsset(AssetMetaData&& p_meta, AssetRef p_asset) {
+void AssetRegistry::registerAsset(AssetMetaData&& meta, AssetRef asset) {
 
-    std::lock_guard lock(registry_mutex);
+    std::lock_guard lock(registry_mutex_);
 
-    Guid guid = p_meta.guid;
+    Guid guid = meta.guid;
     {
-        auto [_, ok] = m_path_map.try_emplace(p_meta.import_path, p_meta.guid);
+        auto [_, ok] = path_map_.try_emplace(meta.import_path, meta.guid);
         DEV_ASSERT(ok);
     }
 
     {
-        std::shared_ptr<AssetEntry> entry = std::make_shared<AssetEntry>(std::move(p_meta));
-        entry->status = p_asset ? AssetStatus::Loaded : AssetStatus::Unloaded;
-        entry->asset = p_asset;
-        auto [_, ok] = m_guid_map.try_emplace(guid, std::move(entry));
+        std::shared_ptr<AssetEntry> entry = std::make_shared<AssetEntry>(std::move(meta));
+        entry->status = asset ? AssetStatus::Loaded : AssetStatus::Unloaded;
+        entry->asset = asset;
+        auto [_, ok] = guid_map_.try_emplace(guid, std::move(entry));
         DEV_ASSERT(ok);
     }
 }
 
-void AssetRegistry::RegisterPersistentAsset(const std::string& p_name,
-                                            const Guid& p_guid,
-                                            AssetRef p_asset) {
+void AssetRegistry::registerPersistentAsset(const std::string& name,
+                                            const Guid& guid,
+                                            AssetRef asset) {
     AssetMetaData meta;
-    meta.guid = p_guid;
-    meta.type = p_asset->GetType();
-    meta.name = p_name;
-    meta.import_path = std::format("@persist://{}", p_name);
+    meta.guid = guid;
+    meta.type = asset->GetType();
+    meta.name = name;
+    meta.import_path = std::format("@persist://{}", name);
 
-    RegisterAsset(std::move(meta), p_asset);
+    registerAsset(std::move(meta), asset);
 }
 
-Option<AssetHandle> AssetRegistry::FindByGuid(const Guid& p_guid, AssetType p_type) {
-    std::lock_guard lock(registry_mutex);
-    auto it = m_guid_map.find(p_guid);
-    if (it != m_guid_map.end()) {
-        auto ok = p_type & it->second->metadata.type;
+Option<AssetHandle> AssetRegistry::findByGuid(const Guid& guid, AssetType type) {
+    std::lock_guard lock(registry_mutex_);
+    auto it = guid_map_.find(guid);
+    if (it != guid_map_.end()) {
+        auto ok = type & it->second->metadata.type;
         if (static_cast<bool>(ok)) {
-            return Some(AssetHandle(p_guid, it->second));
+            return Some(AssetHandle(guid, it->second));
         }
     }
 
     return None();
 }
 
-Option<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetType p_type) {
-    std::lock_guard lock(registry_mutex);
-    auto it = m_path_map.find(p_path);
-    if (it != m_path_map.end()) {
+Option<AssetHandle> AssetRegistry::findByPath(const std::string& path, AssetType type) {
+    std::lock_guard lock(registry_mutex_);
+    auto it = path_map_.find(path);
+    if (it != path_map_.end()) {
         const Guid& guid = it->second;
-        auto it2 = m_guid_map.find(guid);
-        if (it2 != m_guid_map.end()) {
-            auto ok = p_type & it2->second->metadata.type;
+        auto it2 = guid_map_.find(guid);
+        if (it2 != guid_map_.end()) {
+            auto ok = type & it2->second->metadata.type;
             if (static_cast<bool>(ok)) {
                 return Some(AssetHandle(guid, it2->second));
             }
@@ -104,70 +104,70 @@ Option<AssetHandle> AssetRegistry::FindByPath(const std::string& p_path, AssetTy
     return None();
 }
 
-void AssetRegistry::MoveAsset(std::string&& p_old, std::string&& p_new) {
-    std::lock_guard lock(registry_mutex);
-    auto it = m_path_map.find(p_old);
-    DEV_ASSERT(it != m_path_map.end());
+void AssetRegistry::moveAsset(std::string old_path, std::string new_path) {
+    std::lock_guard lock(registry_mutex_);
+    auto it = path_map_.find(old_path);
+    DEV_ASSERT(it != path_map_.end());
     const Guid& guid = it->second;
 
-    auto it2 = m_guid_map.find(guid);
-    DEV_ASSERT(it2 != m_guid_map.end());
+    auto it2 = guid_map_.find(guid);
+    DEV_ASSERT(it2 != guid_map_.end());
 
-    m_path_map[p_new] = guid;
-    it2->second->metadata.import_path = std::move(p_new);
+    path_map_[new_path] = guid;
+    it2->second->metadata.import_path = std::move(new_path);
 }
 
-bool AssetRegistry::SaveAssetHelper(const std::shared_ptr<AssetEntry>& p_entry) const {
-    if (!p_entry->asset) {
-        LOG_ERROR("Asset not loaded {}", p_entry->metadata.import_path);
+bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) const {
+    if (!entry->asset) {
+        LOG_ERROR("Asset not loaded {}", entry->metadata.import_path);
         return false;
     }
 
-    auto res = p_entry->asset->SaveToDisk(p_entry->metadata);
+    auto res = entry->asset->SaveToDisk(entry->metadata);
     if (!res) {
         LOG_ERROR("{}", ToString(res.error()));
         return false;
     }
 
-    LOG_OK("Asset '{}' saved!", p_entry->metadata.import_path);
+    LOG_OK("Asset '{}' saved!", entry->metadata.import_path);
     return true;
 }
 
-bool AssetRegistry::SaveAllAssets() const {
-    std::lock_guard lock(registry_mutex);
-    for (const auto& it : m_guid_map) {
-        SaveAssetHelper(it.second);
+bool AssetRegistry::saveAllAssets() const {
+    std::lock_guard lock(registry_mutex_);
+    for (const auto& it : guid_map_) {
+        saveAssetHelper(it.second);
     }
 
     return true;
 }
 
-bool AssetRegistry::SaveAsset(const Guid& p_guid) const {
-    std::lock_guard lock(registry_mutex);
+bool AssetRegistry::saveAsset(const Guid& guid) const {
+    std::lock_guard lock(registry_mutex_);
 
-    auto it = m_guid_map.find(p_guid);
-    if (it == m_guid_map.end()) {
-        LOG_ERROR("Asset '{}' not found", p_guid.ToString());
+    auto it = guid_map_.find(guid);
+    if (it == guid_map_.end()) {
+        LOG_ERROR("Asset '{}' not found", guid.ToString());
         return false;
     }
 
-    return SaveAssetHelper(it->second);
+    return saveAssetHelper(it->second);
 }
 
-std::shared_ptr<AssetEntry> AssetRegistry::GetEntry(const Guid& p_guid) {
-    std::lock_guard lock(registry_mutex);
-    auto it = m_guid_map.find(p_guid);
-    if (it == m_guid_map.end()) {
+std::shared_ptr<AssetEntry> AssetRegistry::entry(const Guid& guid) {
+    std::lock_guard lock(registry_mutex_);
+    auto it = guid_map_.find(guid);
+    if (it == guid_map_.end()) {
         return nullptr;
     }
     return it->second;
 }
 
-std::vector<AssetHandle> AssetRegistry::GetAssetsOfType(AssetType p_type) const {
+std::vector<AssetHandle> AssetRegistry::getAssetsOfType(AssetType type) const {
     std::vector<AssetHandle> res;
-    std::lock_guard lock(registry_mutex);
-    for (const auto& [guid, entry] : m_guid_map) {
-        if (entry->metadata.type == p_type) {
+    std::lock_guard lock(registry_mutex_);
+    for (const auto& [guid, entry] : guid_map_) {
+        if (entry->metadata.type == type) {
             res.emplace_back(AssetHandle(guid, entry));
         }
     }

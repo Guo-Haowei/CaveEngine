@@ -19,54 +19,54 @@ namespace fs = std::filesystem;
 
 class FileWatcher {
 public:
-    void Start(const std::string& path);
-    void Stop();
+    void start(const std::string& path);
+    void stop();
 
-    bool HasChanged() const { return m_changed.load(); }
+    bool hasChanged() const { return changed_.load(); }
 
-    void ClearFlag() { m_changed.store(false); }
+    void clearFlag() { changed_.store(false); }
 
-    bool IsStopped() const { return m_stop; }
+    bool isStopped() const { return stop_; }
 
 private:
-    void WatchLoop();
+    void watchLoop();
 
-    std::string m_path;
-    std::thread m_thread;
-    std::atomic<bool> m_stop{ false };
-    std::atomic<bool> m_changed{ true };  // set to true to trigger build the first frame
-    HANDLE m_dir_handle = INVALID_HANDLE_VALUE;
+    std::string path_;
+    std::thread thread_;
+    std::atomic<bool> stop_{ true };
+    std::atomic<bool> changed_{ true };  // set to true to trigger build the first frame
+    HANDLE dir_handle_ = INVALID_HANDLE_VALUE;
 };
 
-void FileWatcher::Start(const std::string& path) {
-    m_path = path;
-    m_stop = false;
+void FileWatcher::start(const std::string& path) {
+    path_ = path;
+    stop_ = false;
 
-    m_thread = std::thread([this]() {
-        WatchLoop();
+    thread_ = std::thread([this]() {
+        watchLoop();
     });
 }
 
-void FileWatcher::Stop() {
-    m_stop = true;
-    if (m_dir_handle != INVALID_HANDLE_VALUE) {
-        CancelIoEx(m_dir_handle, nullptr);  // this safely breaks ReadDirectoryChangesW
+void FileWatcher::stop() {
+    stop_ = true;
+    if (dir_handle_ != INVALID_HANDLE_VALUE) {
+        ::CancelIoEx(dir_handle_, nullptr);
     }
 
-    if (m_thread.joinable()) {
-        m_thread.join();  // make sure WatchLoop exits
+    if (thread_.joinable()) {
+        thread_.join();
     }
 
-    if (m_dir_handle != INVALID_HANDLE_VALUE) {
-        CloseHandle(m_dir_handle);  // now it's safe
-        m_dir_handle = INVALID_HANDLE_VALUE;
+    if (dir_handle_ != INVALID_HANDLE_VALUE) {
+        ::CloseHandle(dir_handle_);
+        dir_handle_ = INVALID_HANDLE_VALUE;
     }
 }
 
-void FileWatcher::WatchLoop() {
-    std::wstring path(m_path.begin(), m_path.end());
+void FileWatcher::watchLoop() {
+    std::wstring path(path_.begin(), path_.end());
 
-    m_dir_handle = CreateFileW(
+    dir_handle_ = ::CreateFileW(
         path.c_str(),
         FILE_LIST_DIRECTORY,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -75,8 +75,8 @@ void FileWatcher::WatchLoop() {
         FILE_FLAG_BACKUP_SEMANTICS,
         nullptr);
 
-    if (m_dir_handle == INVALID_HANDLE_VALUE) {
-        LOG_ERROR("Failed to open directory {}", m_path);
+    if (dir_handle_ == INVALID_HANDLE_VALUE) {
+        LOG_ERROR("Failed to open directory {}", path_);
         return;
     }
 
@@ -84,9 +84,9 @@ void FileWatcher::WatchLoop() {
     BYTE buffer[bufferSize];
     DWORD bytesReturned;
 
-    while (!m_stop.load()) {
+    while (!stop_.load()) {
         BOOL success = ReadDirectoryChangesW(
-            m_dir_handle,
+            dir_handle_,
             buffer,
             bufferSize,
             TRUE,  // recursive
@@ -97,22 +97,26 @@ void FileWatcher::WatchLoop() {
             nullptr,
             nullptr);
 
-        if (!success || m_stop.load()) {
+        if (!success || stop_.load()) {
             break;
         }
 
-        m_changed.store(true);  // flag to main thread
+        changed_.store(true);  // flag to main thread
     }
 }
 
-[[nodiscard]] static auto CreateImageAsset(const AssetMetaData& p_meta) -> Result<std::shared_ptr<ImageAsset>> {
+namespace {
+
+auto CreateImageAsset(const AssetMetaData& meta) -> Result<std::shared_ptr<ImageAsset>> {
     auto image = std::make_shared<ImageAsset>();
-    if (auto res = image->LoadFromDisk(p_meta); !res) {
+    if (auto res = image->LoadFromDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
     return image;
 }
+
+}  // namespace
 
 EditorAssetManager::EditorAssetManager() = default;
 
@@ -120,35 +124,35 @@ EditorAssetManager::~EditorAssetManager() = default;
 
 Result<void> EditorAssetManager::InitializeImpl() {
     if (auto res = AssetManager::InitializeImpl(); !res) {
-        return std::unexpected(res.error());
+        return CAVE_ERROR(res.error());
     }
 
-    m_file_watcher = std::make_unique<FileWatcher>();
+    file_watcher_ = std::make_unique<FileWatcher>();
 
-    return AddAlwaysLoadImages();
+    return addAlwaysLoadImages();
 }
 
 void EditorAssetManager::FinalizeImpl() {
-    m_file_watcher->Stop();
+    file_watcher_->stop();
 
     AssetManager::FinalizeImpl();
 }
 
 void EditorAssetManager::update() {
-    if (m_resource_folder.empty()) {
-        m_resource_folder = m_app->services().vfs().GetMount("@res");
-        if (m_resource_folder.empty()) {
+    if (resource_folder_.empty()) {
+        resource_folder_ = m_app->services().vfs().GetMount("@res");
+        if (resource_folder_.empty()) {
             return;
         }
     }
 
-    if (m_file_watcher->IsStopped()) {
-        m_file_watcher->Start(m_resource_folder.string());
+    if (file_watcher_->isStopped()) {
+        file_watcher_->start(resource_folder_.string());
     }
 
-    if (m_file_watcher->HasChanged()) {
-        RebuildAssetFolderTree();
-        m_file_watcher->ClearFlag();
+    if (file_watcher_->hasChanged()) {
+        rebuildAssetFolderTree();
+        file_watcher_->clearFlag();
     }
 }
 
@@ -160,18 +164,18 @@ static void BuildFolderLut(const ContentEntry* p_node,
     }
 }
 
-void EditorAssetManager::RebuildAssetFolderTree() {
+void EditorAssetManager::rebuildAssetFolderTree() {
     CAVE_PROFILE_EVENT("Build folder tree");
 
-    m_asset_root = BuildFolderTree(m_resource_folder, nullptr);
+    asset_root_ = BuildFolderTree(resource_folder_, nullptr);
 
-    m_folder_lut.clear();
-    if (m_asset_root) {
-        BuildFolderLut(m_asset_root.get(), m_folder_lut);
+    folder_lut_.clear();
+    if (asset_root_) {
+        BuildFolderLut(asset_root_.get(), folder_lut_);
     }
 }
 
-Result<void> EditorAssetManager::AddAlwaysLoadImages() {
+Result<void> EditorAssetManager::addAlwaysLoadImages() {
     // @TODO: fix this path, it won't work if the file is moved
     std::string_view tmp = StringUtils::BasePath(__FILE__);
     tmp = StringUtils::BasePath(tmp);
@@ -191,7 +195,7 @@ Result<void> EditorAssetManager::AddAlwaysLoadImages() {
                 return CAVE_ERROR(res.error());
             }
             auto image = *res;
-            m_images[file_name.string()] = image;
+            images_[file_name.string()] = image;
             m_app->services().renderDevice().RequestTexture(image.get());
         }
     }
@@ -199,8 +203,8 @@ Result<void> EditorAssetManager::AddAlwaysLoadImages() {
     return Result<void>();
 }
 std::shared_ptr<ImageAsset> EditorAssetManager::findImage(const std::string& p_name) {
-    auto it = m_images.find(p_name);
-    if (it == m_images.end()) {
+    auto it = images_.find(p_name);
+    if (it == images_.end()) {
         return nullptr;
     }
     return it->second;

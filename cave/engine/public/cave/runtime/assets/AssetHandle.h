@@ -20,24 +20,24 @@ class AssetHandle {
 public:
     AssetHandle() {}
 
-    AssetHandle(const Guid& p_guid, std::shared_ptr<AssetEntry> p_entry)
-        : m_guid(p_guid)
-        , m_entry(p_entry) {}
+    AssetHandle(const Guid& guid, std::shared_ptr<AssetEntry> entry)
+        : guid_(guid)
+        , entry_(std::move(entry)) {}
 
     void Invalidate() {
-        m_guid = Guid::Null();
-        m_entry.reset();
+        guid_ = Guid::Null();
+        entry_.reset();
     }
 
-    bool IsReady() const;
+    bool isReady() const;
 
-    IAsset* Get() const;
+    IAsset* get() const;
 
-    [[nodiscard]] AssetRef Wait() const;
+    [[nodiscard]] AssetRef wait() const;
 
     template<typename T>
-    [[nodiscard]] std::shared_ptr<T> Wait() const {
-        auto ptr = Wait();
+    [[nodiscard]] std::shared_ptr<T> wait() const {
+        auto ptr = wait();
         if (!ptr) {
             return nullptr;
         }
@@ -46,49 +46,50 @@ public:
     }
 
     template<typename T>
-    inline T* Get() const {
-        return dynamic_cast<T*>(Get());
+    inline T* get() const {
+        return dynamic_cast<T*>(get());
     }
 
-    const Guid& GetGuid() const { return m_guid; }
+    const Guid& guid() const { return guid_; }
 
-    const AssetMetaData* GetMeta() const;
+    AssetMetaData* meta();
+    const AssetMetaData* meta() const;
 
-    static bool ReplaceGuidAndHandle(AssetType p_type,
-                                     const Guid& p_guid,
-                                     Guid& p_out_id,
-                                     AssetHandle& p_out_handle);
+    static bool replaceGuidAndHandle(AssetType type,
+                                     const Guid& guid,
+                                     Guid& out_id,
+                                     AssetHandle& out_handle);
 
 private:
-    Guid m_guid;
-    std::weak_ptr<AssetEntry> m_entry;
+    Guid guid_;
+    std::weak_ptr<AssetEntry> entry_;
 };
 
 template<typename T>
 class Handle : private AssetHandle {
 public:
     using AssetHandle::AssetHandle;
-    using AssetHandle::GetGuid;
-    using AssetHandle::GetMeta;
+    using AssetHandle::guid;
     using AssetHandle::Invalidate;
-    using AssetHandle::IsReady;
+    using AssetHandle::isReady;
+    using AssetHandle::meta;
 
-    Handle(const AssetHandle& p_raw)
-        : AssetHandle(p_raw) {}
+    Handle(const AssetHandle& raw)
+        : AssetHandle(raw) {}
 
-    Handle(AssetHandle&& p_raw)
-        : AssetHandle(std::move(p_raw)) {}
+    Handle(AssetHandle&& raw)
+        : AssetHandle(std::move(raw)) {}
 
-    [[nodiscard]] std::shared_ptr<T> Wait() const {
-        return AssetHandle::Wait<T>();
+    [[nodiscard]] std::shared_ptr<T> wait() const {
+        return AssetHandle::wait<T>();
     }
 
-    T* Get() const {
-        return AssetHandle::Get<T>();
+    T* get() const {
+        return AssetHandle::get<T>();
     }
 
-    AssetHandle& RawHandle() { return *this; }
-    const AssetHandle& RawHandle() const { return *this; }
+    AssetHandle& rawHandle() { return *this; }
+    const AssetHandle& rawHandle() const { return *this; }
 };
 
 }  // namespace cave

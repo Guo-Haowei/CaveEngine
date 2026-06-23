@@ -138,7 +138,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         return;
     }
 
-    const AssetMetaData* meta = doc->rawHandle().GetMeta();
+    const AssetMetaData* meta = doc->rawHandle().meta();
     if (!meta) {
         return;
     }

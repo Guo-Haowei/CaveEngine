@@ -141,7 +141,7 @@ void TileMapEditor::applayEditorTool() {
     IDocument* doc = editor_services_.document().resolve(doc_id_);
     DEV_ASSERT(doc);
 
-    TileMapAsset* tile_map = doc->handle<TileMapAsset>().Get();
+    TileMapAsset* tile_map = doc->handle<TileMapAsset>().get();
 
     Option<TileId> old_tile = tile_map->tiles().tileAt(coord_);
     Option<TileId> new_tile = None();
@@ -156,7 +156,7 @@ void TileMapEditor::applayEditorTool() {
             }
             auto [x, y] = selections[0];
             if (x >= 0 && y >= 0) {
-                TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
+                TileSetAsset* tile_set = tile_map->tileSetHandle().get();
                 const uint32_t tile_id = y * tile_set->col() + x;
                 new_tile = Some(TileId(tile_id));
             }
@@ -206,7 +206,7 @@ void TileMapEditor::drawUIImpl() {
 }
 
 void TileMapEditor::drawAssetInspector(IDocument& doc) {
-    TileMapAsset* tile_map = doc.handle<TileMapAsset>().Get();
+    TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
     DEV_ASSERT(tile_map);
 
     if (ImGui::BeginTabBar("##MyTabs1")) {
@@ -219,12 +219,12 @@ void TileMapEditor::drawAssetInspector(IDocument& doc) {
 
     ImGui::Separator();
 
-    TileSetAsset* tile_set = tile_map->tileSetHandle().Get();
+    TileSetAsset* tile_set = tile_map->tileSetHandle().get();
     if (tile_set) {
         auto handle = tile_set->handle();
         const int column = tile_set->col();
         const int row = tile_set->row();
-        if (auto image = handle.Get(); image) {
+        if (auto image = handle.get(); image) {
             sprite_selector_.SelectSprite(*image, &column, &row);
         }
     }
@@ -279,8 +279,8 @@ void TileMapEditor::tileMapLayerOverview(TileMapAsset& tile_map) {
         {
 
             const ImageAsset* image = nullptr;
-            if (auto image_handle = layer.tileSetHandle().Get(); image_handle) {
-                image = image_handle->handle().Get();
+            if (auto image_handle = layer.tileSetHandle().get(); image_handle) {
+                image = image_handle->handle().get();
             }
 
             Vec2f region_size(128, 128);
@@ -294,7 +294,7 @@ void TileMapEditor::tileMapLayerOverview(TileMapAsset& tile_map) {
             // @TODO: make an asset drop region
             // accept same type of assets, show tooltips, etc
             if (auto _handle = DragDropTarget(AssetType::TileSet); _handle.is_some()) {
-                layer.tileSetGuid(_handle.unwrap_unchecked().GetGuid());
+                layer.tileSetGuid(_handle.unwrap_unchecked().guid());
             }
         }
 

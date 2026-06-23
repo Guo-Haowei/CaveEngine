@@ -44,7 +44,7 @@ CloseRequestResult DocumentService::closeDoc(DocId doc_id) {
     IDocument* doc = resolve(doc_id);
     DEV_ASSERT(doc);
     auto handle = doc->rawHandle();
-    guid_to_doc_.erase(handle.GetGuid());
+    guid_to_doc_.erase(handle.guid());
     Destroy(doc_id);
     return {};
 }

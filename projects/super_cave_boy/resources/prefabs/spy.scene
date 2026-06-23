@@ -1,0 +1,21 @@
+version: 19
+seed: 2
+root: 1
+physics_mode: 0
+entities:
+  - id: 1
+    NameComponent:
+      name: root
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 2
+    NameComponent:
+      name: untitled
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]

@@ -10,16 +10,16 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& p_guid)
     : DocumentBase(services, p_guid) {
 
     auto scene = std::make_unique<Scene>(std::format("preview-scene-{}", p_guid.ToString()));
-    scene->copy(*handle_.Get<Scene>());
+    scene->copy(*handle_.get<Scene>());
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }
 
 bool SceneDocument::save() {
-    Scene* source = handle_.Get<Scene>();
+    Scene* source = handle_.get<Scene>();
     Scene* tmp = scene_reg_.resolve(preview_scene_);
     source->copy(*tmp);
-    return asset_reg_.SaveAsset(guid_);
+    return asset_reg_.saveAsset(guid_);
 }
 
 bool SceneDocument::saveAs(std::string_view p_new_path) {

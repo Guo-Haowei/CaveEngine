@@ -170,9 +170,9 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
         meshes.reserve(p_scene.count<MeshRendererComponent>());
         for (auto [id, renderer, transform] : view) {
             auto handle = renderer.GetMeshHandle();
-            auto mesh = handle.Get();
+            auto mesh = handle.get();
             if (DEV_VERIFY(mesh)) {
-                auto mesh_it = m_meshs.find(handle.GetGuid());
+                auto mesh_it = m_meshs.find(handle.guid());
                 if (mesh_it == m_meshs.end()) {
                     CRASH_NOW_MSG("mesh not found");
                     continue;
@@ -219,9 +219,9 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     for (auto [id, renderer] : p_scene.view<MeshRendererComponent>()) {
         auto transform = p_scene.component<TransformComponent>(id);
         auto handle = renderer.GetMeshHandle();
-        auto mesh = handle.Get();
+        auto mesh = handle.get();
         if (DEV_VERIFY(transform && mesh)) {
-            auto it = m_meshs.find(handle.GetGuid());
+            auto it = m_meshs.find(handle.guid());
             if (it != m_meshs.end()) {
                 continue;
             }
@@ -234,7 +234,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
                 .rootBvhId = bvh_count,
                 .materialId = renderer.GetMaterialInstances()[0],
             };
-            m_meshs[handle.GetGuid()] = meta;
+            m_meshs[handle.guid()] = meta;
 
             GpuScene tmp_scene;
             ConstructMesh(*mesh, tmp_scene);

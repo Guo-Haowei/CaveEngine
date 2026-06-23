@@ -108,7 +108,7 @@ bool DrawAsset(const char* p_name,
                const Guid& p_guid,
                T* p_component,
                const DrawComponentCtx& p_context) {
-    auto handle_ = AssetRegistry::singleton().FindByGuid(p_guid);
+    auto handle_ = AssetRegistry::singleton().findByGuid(p_guid);
 
     AssetType type = AssetType::All;
     const AssetMetaData* meta = nullptr;
@@ -121,9 +121,9 @@ bool DrawAsset(const char* p_name,
 
     if (handle_.is_some()) {
         AssetHandle handle = handle_.unwrap_unchecked();
-        meta = handle.GetMeta();
+        meta = handle.meta();
         DEV_ASSERT(meta);
-        asset = handle.Get();
+        asset = handle.get();
         type = meta->type;
     }
 
@@ -135,7 +135,7 @@ bool DrawAsset(const char* p_name,
     if (auto _handle = DragDropTarget(type); _handle.is_some()) {
         if constexpr (HasSetResourceGuid<T>) {
             if (p_component) {
-                dirty = p_component->SetResourceGuid(_handle.unwrap_unchecked().GetGuid());
+                dirty = p_component->SetResourceGuid(_handle.unwrap_unchecked().guid());
             }
         }
     }
@@ -464,7 +464,7 @@ void PropertyPanel::drawUIImpl() {
             // @TODO: drop down
             DEV_ASSERT(0);
             const Guid& guid = p_animator.GetResourceGuid();
-            if (auto handle = AssetRegistry::singleton().FindByGuid<SpriteAnimationAsset>(guid);
+            if (auto handle = AssetRegistry::singleton().findByGuid<SpriteAnimationAsset>(guid);
                 handle.is_some()) {
                 SpriteAnimationAsset* asset = handle.unwrap_unchecked().Get();
                 std::string clip_name = p_animator.GetCurrentClip();

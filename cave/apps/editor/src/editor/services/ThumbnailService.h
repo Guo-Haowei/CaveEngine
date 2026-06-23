@@ -50,7 +50,7 @@ public:
 
     void Tick(const FrameTime& p_time, const BusyInfo& p_info);
 
-    void Invalidate(const Guid& p_guid);
+    void invalidate(const Guid& p_guid);
 
 private:
     void ProcessCompletions();

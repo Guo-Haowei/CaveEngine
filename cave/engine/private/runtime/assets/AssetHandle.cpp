@@ -5,48 +5,55 @@
 
 namespace cave {
 
-bool AssetHandle::IsReady() const {
-    auto entry = m_entry.lock();
+bool AssetHandle::isReady() const {
+    auto entry = entry_.lock();
     return entry && entry->status == AssetStatus::Loaded;
 }
 
-IAsset* AssetHandle::Get() const {
-    if (auto entry = m_entry.lock(); entry) {
+IAsset* AssetHandle::get() const {
+    if (auto entry = entry_.lock(); entry) {
         return entry->asset.get();
     }
     return nullptr;
 }
 
-[[nodiscard]] AssetRef AssetHandle::Wait() const {
-    auto entry = m_entry.lock();
+[[nodiscard]] AssetRef AssetHandle::wait() const {
+    auto entry = entry_.lock();
     DEV_ASSERT(entry);
     return entry->Wait();
 }
 
-const AssetMetaData* AssetHandle::GetMeta() const {
-    if (auto entry = m_entry.lock(); entry) {
+AssetMetaData* AssetHandle::meta() {
+    if (auto entry = entry_.lock(); entry) {
         return &entry->metadata;
     }
     return nullptr;
 }
 
-bool AssetHandle::ReplaceGuidAndHandle(AssetType p_type,
-                                       const Guid& p_guid,
-                                       Guid& p_out_id,
-                                       AssetHandle& p_out_handle) {
-    if (p_guid == p_out_id) {
+const AssetMetaData* AssetHandle::meta() const {
+    if (auto entry = entry_.lock(); entry) {
+        return &entry->metadata;
+    }
+    return nullptr;
+}
+
+bool AssetHandle::replaceGuidAndHandle(AssetType type,
+                                       const Guid& guid,
+                                       Guid& out_id,
+                                       AssetHandle& out_handle) {
+    if (guid == out_id) {
         return false;
     }
 
-    p_out_id = p_guid;
+    out_id = guid;
 
-    auto res = AssetRegistry::singleton().FindByGuid(p_guid, p_type);
+    auto res = AssetRegistry::singleton().findByGuid(guid, type);
     if (res.is_none()) {
-        LOG_WARN("asset '{}' not found", p_guid.ToString());
+        LOG_WARN("asset '{}' not found", guid.ToString());
         return false;
     }
 
-    p_out_handle = std::move(res.unwrap_unchecked());
+    out_handle = std::move(res.unwrap_unchecked());
     return true;
 }
 

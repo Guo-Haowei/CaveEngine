@@ -57,7 +57,7 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
     for (size_t i = 0; i < p_material.textures.size(); ++i) {
         Guid& material = p_material.textures[i];
 
-        auto handle = AssetRegistry::singleton().FindByGuid<ImageAsset>(material).unwrap_or(Handle<ImageAsset>());
+        auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(material).unwrap_or(Handle<ImageAsset>());
 
         const ImageAsset* image = handle.Get();
 

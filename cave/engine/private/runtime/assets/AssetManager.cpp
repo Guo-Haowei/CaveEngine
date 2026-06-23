@@ -42,11 +42,9 @@ namespace cave {
 namespace fs = std::filesystem;
 using AssetCreateFunc = AssetRef (*)(void);
 
-EngineServices& AssetManager::services() {
-    return m_app->services();
-}
+namespace {
 
-static AssetRef CreateAssetInstance(AssetType type, bool create) {
+AssetRef CreateAssetInstance(AssetType type, bool create) {
     // @TODO: refactor this part
     switch (type) {
         case AssetType::Blob:
@@ -84,7 +82,7 @@ static AssetRef CreateAssetInstance(AssetType type, bool create) {
     }
 }
 
-static auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetRef> {
+auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetRef> {
     AssetRef asset = CreateAssetInstance(entry->metadata.type, false);
     if (!asset) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
@@ -96,6 +94,7 @@ static auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetR
     return asset;
 }
 
+}  // namespace
 auto AssetManager::InitializeImpl() -> Result<void> {
 #if USING(USE_IMPORTER_TINYGLTF)
     AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
@@ -131,7 +130,7 @@ Result<Guid> AssetManager::createAsset(AssetType type,
     }
 
     Guid guid = meta.guid;
-    services().assetRegistry().StartAsyncLoad(std::move(meta));
+    services().assetRegistry().startAsyncLoad(std::move(meta));
     return guid;
 }
 
@@ -153,9 +152,16 @@ Result<Guid> AssetManager::createAsset(AssetType type,
     return createAsset(type, short_path);
 }
 
-Result<void> AssetManager::moveAsset(const fs::path& old_path,
-                                     const fs::path& new_path) {
-    DEV_ASSERT(!fs::is_directory(old_path));
+Result<void> AssetManager::renameAssetOrFolder(const fs::path& old_path,
+                                               const fs::path& new_path) {
+    if (fs::is_directory(old_path)) {
+        try {
+            fs::rename(old_path, new_path);
+        } catch (const fs::filesystem_error& e) {
+            return CAVE_ERROR(ErrorCode::ERR_FILE_NO_PERMISSION, "{}", e.what());
+        }
+        return Result<void>();
+    }
 
     auto meta_path_str = std::format("{}.meta", old_path.string());
     fs::path old_meta{ meta_path_str };
@@ -170,7 +176,18 @@ Result<void> AssetManager::moveAsset(const fs::path& old_path,
         return CAVE_ERROR(ErrorCode::ERR_FILE_NO_PERMISSION, "{}", e.what());
     }
 
-    services().assetRegistry().MoveAsset(resolvePath(old_path), resolvePath(new_path));
+    AssetRegistry& reg = services().assetRegistry();
+    std::string old_meta_path = resolvePath(old_path);
+    std::string new_meta_path = resolvePath(new_path);
+
+    reg.moveAsset(std::move(old_meta_path), new_meta_path);
+
+    AssetHandle handle = reg.findByPath(new_meta_path).unwrap();
+    AssetMetaData* meta = handle.meta();
+    meta->name = new_path.filename().string();
+    meta->import_path = new_meta_path;
+    reg.saveAsset(meta->guid);
+
     return Result<void>();
 }
 
@@ -277,7 +294,7 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
 
     Stopwatch stopwatch;
     stopwatch.Start();
-    auto entry = services().assetRegistry().GetEntry(guid);
+    auto entry = services().assetRegistry().entry(guid);
 
     auto res = LoadAsset(entry);
     if (!res) {
@@ -310,6 +327,10 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
     LOG_TRACE(LogChannel::Asset, "Loaded {} {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
     entry->MarkLoaded(asset);
     return asset;
+}
+
+EngineServices& AssetManager::services() {
+    return m_app->services();
 }
 
 }  // namespace cave

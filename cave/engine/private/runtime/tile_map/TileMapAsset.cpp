@@ -18,7 +18,7 @@ int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
 void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
     const bool should_update = force_update || tile_set_id_ != guid;
     if (should_update) {
-        if (auto handle = AssetRegistry::singleton().FindByGuid<TileSetAsset>(guid); handle.is_some()) {
+        if (auto handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(guid); handle.is_some()) {
             tile_set_id_ = guid;
             tile_set_handle_ = std::move(handle.unwrap());
         } else {

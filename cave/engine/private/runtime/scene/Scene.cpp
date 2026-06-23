@@ -105,12 +105,12 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
 }
 
 void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
-    auto handle = AssetRegistry::singleton().FindByGuid<Scene>(prefab.prefabGuid());
+    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
     if (handle.is_none()) {
         return;
     }
 
-    const Scene* source = handle.unwrap_unchecked().Get();
+    const Scene* source = handle.unwrap_unchecked().get();
     DEV_ASSERT(source);
     Scene copy("prefab");
     copy.copy(*source);
