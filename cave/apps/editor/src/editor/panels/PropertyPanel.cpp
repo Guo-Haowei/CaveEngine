@@ -40,6 +40,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
     COMPONENT_DECL(Velocity)        \
+    COMPONENT_DECL(Motor)           \
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
     COMPONENT_DECL(Facing)          \
@@ -373,6 +374,7 @@ void PropertyPanel::drawUIImpl() {
     PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(id);
     FacingComponent* facing = scene.component<FacingComponent>(id);
     VelocityComponent* velocity = scene.component<VelocityComponent>(id);
+    MotorComponent* motor = scene.component<MotorComponent>(id);
     SpriteAnimatorComponent* sprite_animator = scene.component<SpriteAnimatorComponent>(id);
 
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
@@ -452,6 +454,10 @@ void PropertyPanel::drawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Velocity"), velocity, [&ctx](VelocityComponent& comp) {
+        DrawComponentAuto(&comp, ctx);
+    });
+
+    DrawComponent(DRAW_COMPONENT_ARGS("Motor"), motor, [&ctx](MotorComponent& comp) {
         DrawComponentAuto(&comp, ctx);
     });
 

@@ -1,7 +1,7 @@
 #include "SnakeController.h"
 
 #include "cave/core/diagnostics/Log.h"
-#include "cave/runtime/ecs/components/VelocityComponent.h"
+#include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/platformer/FacingComponent.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"

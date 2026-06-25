@@ -20,6 +20,7 @@ enum class SceneSystemId : uint32_t {
     TileWorld,
     NativeScript,
     LuaScript,
+    Motor,
     Physics2D,
     Physics3D,
 

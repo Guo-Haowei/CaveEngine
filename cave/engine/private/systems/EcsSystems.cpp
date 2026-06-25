@@ -1,18 +1,22 @@
-#include "ecs_systems.h"
+#include "EcsSystems.h"
 
 #include "cave/core/diagnostics/Profiler.h"
-
-#include "engine/private/runtime/assets/MeshAsset.h"
-#include "engine/private/runtime/scene/Scene.h"
 #include "cave/core/threading/JobSystem.h"
 
 // @TODO: refactor
-#include "engine/private/core/math/Geomath.h"
+#include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/ecs/components/All.h"
 
 namespace cave {
 
 using namespace cave::math;
+
+// @TODO: refactor
+namespace {
+template<typename T>
+constexpr float Saturate(T x) { return math::min(T(1), math::max(T(0), x)); }
+}  // namespace
 
 [[maybe_unused]] static constexpr uint32_t SMALL_SUBTASK_GROUP_SIZE = 64;
 

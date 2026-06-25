@@ -198,7 +198,6 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
 
 void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
 
-
     const Mat4f& proj_view = camera_.GetProjectionViewMatrix();
 
     ImGuizmo::SetOrthographic(true);

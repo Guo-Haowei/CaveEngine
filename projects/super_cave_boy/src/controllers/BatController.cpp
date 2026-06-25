@@ -2,9 +2,9 @@
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
+#include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/ecs/components/VelocityComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
 #include "platformer/PlatformerCollision.h"
@@ -79,8 +79,6 @@ void BatController::updateIdle(SceneQuery& query) {
 
         if (auto animator = query.component<SpriteAnimatorComponent>(animator_)) {
             animator->currentClip("fly");
-            // If your animator has reset:
-            // animator->reset();
         }
     }
 }
@@ -98,9 +96,6 @@ void BatController::updateMove(SceneQuery& query, float dt) {
     const Vec2f bat_pos = transform->GetTranslation().xy;
     const Vec2f player_pos = player_transform->GetTranslation().xy;
 
-    // Old JS:
-    // xsign = this.x-player.x>5 ? 1 : this.x-player.x>=-5 ? 0 : -1
-    // hspeed = -xsign
     const float diff_x = bat_pos.x - player_pos.x;
     const float diff_y = bat_pos.y - player_pos.y;
 

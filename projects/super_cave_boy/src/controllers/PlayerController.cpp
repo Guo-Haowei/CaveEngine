@@ -3,7 +3,7 @@
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
-#include "cave/runtime/ecs/components/VelocityComponent.h"
+#include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"

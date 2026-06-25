@@ -2,9 +2,9 @@
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
+#include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/ecs/components/VelocityComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
 #include "platformer/PlatformerCollision.h"

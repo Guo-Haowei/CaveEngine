@@ -31,6 +31,7 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(SkeletonComponent, "World::SkeletonComponent", 0)                     \
     REGISTER_COMPONENT(SpriteAnimatorComponent, "World::SpriteAnimatorComponent", 0)         \
     REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)                     \
+    REGISTER_COMPONENT(MotorComponent, "World::MotorComponent", 0)                           \
     REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)                     \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)                   \
     REGISTER_COMPONENT(NativeScriptComponent, "World::NativeScriptComponent", 0)             \
@@ -38,7 +39,6 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(MeshRendererComponent, "World::MeshRendererComponent", 0)             \
     REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)                     \
     REGISTER_COMPONENT(FacingComponent, "World::FacingComponent", 0)                         \
-    REGISTER_COMPONENT(PlatformerMotorComponent, "World::PlatformerMotorComponent", 0)       \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)         \
     REGISTER_COMPONENT(TileMapInstanceComponent, "World::TileMapInstanceComponent", 0)
 
