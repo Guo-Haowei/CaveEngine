@@ -1,7 +1,6 @@
 version: 19
 seed: 2
 root: 1
-physics_mode: 0
 entities:
   - id: 1
     NameComponent:
@@ -18,6 +17,9 @@ entities:
       flags: 0
       category: 0
       mask: 0
+    MotorComponent:
+      affected_by_gravity: false
+      gravity: [0, 0, 0]
     VelocityComponent:
       linear: [0, 0, 0]
     NativeScriptComponent:

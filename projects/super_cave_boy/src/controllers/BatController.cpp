@@ -83,7 +83,7 @@ void BatController::updateIdle(SceneQuery& query) {
     }
 }
 
-void BatController::updateMove(SceneQuery& query, float dt) {
+void BatController::updateMove(SceneQuery& query, float) {
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
     auto vel = query.component<VelocityComponent>(entity());
@@ -109,42 +109,12 @@ void BatController::updateMove(SceneQuery& query, float dt) {
 
     float speed = speed_;
 
-    // Old JS:
-    // if (this.hspeed == 0 || this.vspeed == 0) this.speed = 3;
     if (desired_dir.x == 0.0f || desired_dir.y == 0.0f) {
         speed = close_speed_;
     }
 
     vel->linear.x = desired_dir.x * speed;
     vel->linear.y = desired_dir.y * speed;
-
-    Vec2f delta = vel->linear.xy;
-    delta *= dt;
-
-    Box2 body = ComputeWorldAABB(*transform, *collider);
-
-    // Bat is not affected by gravity.
-    // Resolve X and Y separately so it can slide along walls a bit.
-    if (delta.x != 0.0f) {
-        Box2 next_x = MoveBox(body, { delta.x, 0.0f });
-
-        if (!OverlapsSolidTiles(next_x, *tile_world)) {
-            transform->Translate({ delta.x, 0.0f, 0.0f });
-            body = next_x;
-        } else {
-            vel->linear.x = 0.0f;
-        }
-    }
-
-    if (delta.y != 0.0f) {
-        Box2 next_y = MoveBox(body, { 0.0f, delta.y });
-
-        if (!OverlapsSolidTiles(next_y, *tile_world)) {
-            transform->Translate({ 0.0f, delta.y, 0.0f });
-        } else {
-            vel->linear.y = 0.0f;
-        }
-    }
 }
 
 void BatController::updateAnimation(SceneQuery& query) {
