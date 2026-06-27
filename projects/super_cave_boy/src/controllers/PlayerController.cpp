@@ -2,8 +2,10 @@
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
+#include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
@@ -100,17 +102,6 @@ void TryJump(VelocityComponent& vel,
         motor.affected_by_gravity = true;
         return;
     }
-}
-
-Box2 ComputeWorldAABB(const TransformComponent& transform,
-                      const ColliderComponent& collider) {
-    const Shape& shape = collider.shape();
-    Vec2f translation = transform.GetTranslation().xy;
-
-    return {
-        translation - Vec2f(shape.data.half.xy),
-        translation + Vec2f(shape.data.half.xy),
-    };
 }
 
 }  // namespace

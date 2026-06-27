@@ -7,8 +7,6 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
-#include "platformer/PlatformerCollision.h"
-
 namespace super_cave_boy {
 
 using namespace ::cave;
