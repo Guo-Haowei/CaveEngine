@@ -1,6 +1,5 @@
 #include "SpiderController.h"
 
-#include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/core/math/Box.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
@@ -46,10 +45,6 @@ void SpiderController::onUpdate(float dt) {
     if (!player_.IsValid()) {
         player_ = findPlayer(query);
     }
-
-    const auto contact = query.component<ContactComponent>(entity());
-    auto vel = query.component<VelocityComponent>(entity());
-    LOG_INFO("state {}, v: {} {}, hit: {}", (int)state_, vel->linear.x, vel->linear.y, contact->hit_down);
 
     switch (state_) {
         case SpiderState::Idle:

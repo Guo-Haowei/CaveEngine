@@ -147,7 +147,9 @@ VerticalMoveResult ResolveDownMovement(const Box2& body,
             continue;
         }
 
-        if (body.Min().y >= solid.Max().y && body.Min().y + dy <= solid.Max().y) {
+        constexpr float kSkin = 0.001f;
+        if (body.Min().y >= solid.Max().y - kSkin &&
+            body.Min().y + dy <= solid.Max().y + kSkin) {
             result.hit = true;
             result.dy = std::max(result.dy, solid.Max().y - body.Min().y);
         }
@@ -237,7 +239,6 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
             contact.hit_up = true;
         }
     } else if (desired_delta.y < 0.0f) {
-        // motor.min_ground_support
         auto result = ResolveDownMovement(body,
                                           desired_delta.y,
                                           tile_world,
