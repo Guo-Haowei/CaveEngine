@@ -19,6 +19,7 @@
 // @TODO: remove
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
+#include "editor/utility/ImGuizmo.h"
 
 namespace cave {
 
@@ -195,12 +196,26 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
     }
 }
 
+void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
+
+    const Mat4f& proj_view = camera_.GetProjectionViewMatrix();
+
+    ImGuizmo::SetOrthographic(true);
+    ImGuizmo::BeginFrame();
+    ImGuizmo::SetDrawlist();
+    ImGuizmo::SetRect(rect.x, rect.y, rect.w, rect.h);
+
+    ImGuizmo::DrawGrid(proj_view, Mat4f(1.0f), 10.0f, ImGuizmo::GridPlane::XY);
+}
+
 void TileMapEditor::drawUIImpl() {
     ViewRecord* view = view_manager_.resolve(view_id_);
     DEV_ASSERT(view);
 
     updateRect(view->display_rect_os);
     drawMainView(view->display_rect_os);
+
+    drawGizmo(view->display_rect_os);
 
     submitView();
 }

@@ -15,23 +15,11 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [-6, -5, -0.290982485]
+      translation: [0, 0, -0.290982485]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapInstanceComponent:
       tile_map_id: 8B4DBABB-43B4-3048-A8F93F43AD349908
-      tint_color: [1, 1, 1, 1]
-  - id: 3
-    NameComponent:
-      name: back
-    HierarchyComponent:
-      parent_id: 1
-    TransformComponent:
-      translation: [4.24632502, -12.8216181, -1]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-    TileMapInstanceComponent:
-      tile_map_id: 9FE5F444-57A6-0047-801BB379815BDC96
       tint_color: [1, 1, 1, 1]
   - id: 8
     NameComponent:
@@ -44,7 +32,7 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
-      translation: [-3, 1, 0]
+      translation: [3, 6, 0]
   - id: 12
     NameComponent:
       name: game_camera
@@ -75,7 +63,7 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
-      translation: [9.5, 0.5, 0]
+      translation: [14.5, 5.30000019, 0]
   - id: 20
     NameComponent:
       name: snake-02
@@ -87,7 +75,7 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
-      translation: [17, 0.5, 0]
+      translation: [23.5, 5.30000019, 0]
   - id: 27
     NameComponent:
       name: bat-01
@@ -99,7 +87,7 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
-      translation: [4.19999981, 3.5, 0]
+      translation: [10.1999998, 8.5, 0]
   - id: 36
     NameComponent:
       name: bat-02
@@ -111,7 +99,7 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
-      translation: [24.2999992, 3.5, 0]
+      translation: [30.2999992, 8.5, 0]
   - id: 47
     NameComponent:
       name: spider-01
@@ -123,4 +111,4 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
-      translation: [23.6000004, 0.5, 0]
+      translation: [29.5, 5.5, 0]

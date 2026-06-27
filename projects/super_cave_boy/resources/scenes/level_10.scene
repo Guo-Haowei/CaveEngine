@@ -1,0 +1,54 @@
+version: 19
+seed: 6
+root: 1
+entities:
+  - id: 1
+    NameComponent:
+      name: world
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 2
+    NameComponent:
+      name: platformer
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    TileMapInstanceComponent:
+      tile_map_id: 756A8896-80D1-CF49-96F7B13268F66267
+      tint_color: [1, 1, 1, 1]
+  - id: 3
+    NameComponent:
+      name: player-01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
+      translation: [3, 4.5, 0]
+  - id: 6
+    NameComponent:
+      name: game_camera
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 4]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    CameraComponent:
+      flags: 0
+      projection: orthographic
+      fovy: 60
+      near: 0.100000001
+      far: 1000
+      aspect: 1.77999997
+      ortho_height: 10
+    NativeScriptComponent:
+      name: CameraController

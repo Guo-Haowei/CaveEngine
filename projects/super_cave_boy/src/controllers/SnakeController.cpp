@@ -1,12 +1,13 @@
 #include "SnakeController.h"
 
 #include "cave/core/diagnostics/Log.h"
-#include "cave/runtime/ecs/components/VelocityComponent.h"
+#include "cave/runtime/ecs/components/ColliderComponent.h"
+#include "cave/runtime/ecs/components/MovementComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/platformer/FacingComponent.h"
+#include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
-
-#include "platformer/PlatformerCollision.h"
 
 namespace super_cave_boy {
 

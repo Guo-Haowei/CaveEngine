@@ -24,9 +24,9 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 void RunFacingUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
 #if 0
-void RunParticleEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunParticleEmitterUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 
-void RunMeshEmitterUpdateSystem(Scene& p_scene, jobsystem::Context& p_context, float p_timestep);
+void RunMeshEmitterUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt);
 #endif
 
 }  // namespace cave

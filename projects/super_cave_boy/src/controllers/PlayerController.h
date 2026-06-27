@@ -5,6 +5,7 @@
 
 // clang-format off
 namespace cave { class SceneQuery; }
+namespace cave { struct VelocityComponent; }
 // clang-format on
 
 namespace super_cave_boy {
@@ -38,8 +39,8 @@ public:
     void onUpdate(float dt) override;
 
 private:
-    void drawDebug();
     void updateAnimation(cave::SceneQuery& query);
+    void updatePlayerState(cave::VelocityComponent& vel);
 
     Entity animator_;
 
