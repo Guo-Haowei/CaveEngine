@@ -23,12 +23,14 @@ const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {
 [[maybe_unused]] static const auto& s_VelocityComponent_meta = MetaDataTable<VelocityComponent>::GetFields();
 
 // bool affected_by_gravity (editor = Toggle)
-// math::Vec3f gravity (editor = Translation)
+// float terminal_fall_speed (editor = InputFloat)
+// float gravity (editor = Translation)
 
 template<>
 const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(MotorComponent, "affected_by_gravity", affected_by_gravity, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(MotorComponent, "terminal_fall_speed", terminal_fall_speed, FieldFlag::Serialize, EditorHint::InputFloat),
         REGISTER_FIELD(MotorComponent, "gravity", gravity, FieldFlag::Serialize, EditorHint::Translation),
     };
 
@@ -37,5 +39,17 @@ const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
 
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_MotorComponent_meta = MetaDataTable<MotorComponent>::GetFields();
+
+
+template<>
+const MetaTableFields& MetaDataTable<ContactComponent>::GetFields() {
+    static MetaTableFields s_table = {
+    };
+
+    return s_table;
+}
+
+// Avoid lazy init
+[[maybe_unused]] static const auto& s_ContactComponent_meta = MetaDataTable<ContactComponent>::GetFields();
 
 }  // namespace cave

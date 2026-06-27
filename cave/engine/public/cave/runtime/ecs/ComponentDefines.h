@@ -31,6 +31,7 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(SkeletonComponent, "World::SkeletonComponent", 0)                     \
     REGISTER_COMPONENT(SpriteAnimatorComponent, "World::SpriteAnimatorComponent", 0)         \
     REGISTER_COMPONENT(ColliderComponent, "World::ColliderComponent", 0)                     \
+    REGISTER_COMPONENT(ContactComponent, "World::ContactComponent", 0)                       \
     REGISTER_COMPONENT(MotorComponent, "World::MotorComponent", 0)                           \
     REGISTER_COMPONENT(VelocityComponent, "World::VelocityComponent", 0)                     \
     REGISTER_COMPONENT(LuaScriptComponent, "World::LuaScriptComponent", 0)                   \

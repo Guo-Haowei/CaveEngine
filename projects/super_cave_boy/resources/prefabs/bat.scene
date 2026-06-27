@@ -19,7 +19,7 @@ entities:
       mask: 0
     MotorComponent:
       affected_by_gravity: false
-      gravity: [0, 0, 0]
+      gravity: 0
     VelocityComponent:
       linear: [0, 0, 0]
     NativeScriptComponent:
