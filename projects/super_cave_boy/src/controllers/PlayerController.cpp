@@ -48,10 +48,7 @@ inline bool NearlyEqual(float a, float b, float eps = 0.01f) {
 bool CheckWallGrab(
     const Box2& body,
     float dy,
-    const LegacyPlayerMotor&,
     const TileWorldSystem& world) {
-    // Only used to START grabbing.
-    // Existing grab state is handled by MoveVertical().
     if (dy >= 0.0f) {
         return false;
     }
@@ -61,9 +58,7 @@ bool CheckWallGrab(
         query.Min() + Vec2f{ -kGrabEps, dy },
         query.Max() + Vec2f{ kGrabEps, 0.0f });
 
-    auto hits = world.querySolidTiles(query);
-
-    for (const TileHit& hit_tile : hits) {
+    for (const TileHit& hit_tile : world.querySolidTiles(query)) {
         const Box2& solid = hit_tile.aabb;
 
         if (!IsLedgeTile(world, hit_tile)) {
@@ -100,116 +95,28 @@ void Land(LegacyPlayerMotor& motor, VelocityComponent& vel) {
     motor.grabbing = false;
 }
 
-void MoveHorizontal(
-    TransformComponent& transform,
-    const ColliderComponent& collider,
-    const VelocityComponent& vel,
-    const TileWorldSystem& world,
-    float dt) {
-    const float dx = vel.linear.x * dt;
-
-    if (dx == 0.0f) {
-        return;
-    }
-
-    const Box2 body = ComputeWorldAABB(transform, collider);
-    const float resolved_dx = ResolveHorizontalMovement(body, dx, world);
-
-    transform.Translate({ resolved_dx, 0.0f, 0.0f });
-}
-
-void MoveVertical(
-    TransformComponent& transform,
-    const ColliderComponent& collider,
-    VelocityComponent& vel,
-    LegacyPlayerMotor& motor,
-    const TileWorldSystem& world,
-    float dt) {
-    Box2 body = ComputeWorldAABB(transform, collider);
-    const float dy = vel.linear.y * dt;
-
-    // Already grabbing: stay grabbing.
-    // Only TryJump(), hurt, revive/reset should clear motor.grabbing.
-    if (motor.grabbing && !motor.hurt) {
-        vel.linear.y = 0.0f;
-        return;
-    }
-
-    // Can only START grabbing while airborne and falling.
-    // In your current motor, taking_jump means "grounded / can jump".
-    const bool can_start_grab =
-        !motor.taking_jump &&
-        !motor.hurt &&
-        dy < 0.0f;
-
-    if (can_start_grab && CheckWallGrab(body, dy, motor, world)) {
-        motor.grabbing = true;
-        vel.linear.y = 0.0f;
-        return;
-    }
-
-    if (dy < 0.0f) {
-        VerticalMoveResult down = ResolveDownMovement(body, dy, world);
-
-        if (down.hit) {
-            transform.Translate({ 0.0f, down.dy, 0.0f });
-            Land(motor, vel);
-            return;
-        }
-    } else if (dy > 0.0f) {
-        VerticalMoveResult up = ResolveUpMovement(body, dy, world);
-
-        if (up.hit) {
-            transform.Translate({ 0.0f, up.dy, 0.0f });
-            vel.linear.y = 0.0f;
-            return;
-        }
-    }
-
-    transform.Translate({ 0.0f, dy, 0.0f });
-    vel.linear.y += kGravity * dt;
-}
-
 void TryJump(VelocityComponent& vel,
-             LegacyPlayerMotor& motor) {
-
-    if (motor.grabbing) {
+             MotorComponent& motor,
+             LegacyPlayerMotor& player) {
+    if (player.grabbing) {
         vel.linear.y = kWallJumpForce;
-        motor.taking_jump = false;
-        motor.grabbing = false;
+
+        player.taking_jump = false;
+        player.grabbing = false;
+
+        motor.affected_by_gravity = true;
         return;
     }
 
-    if (motor.taking_jump) {
+    if (player.taking_jump) {
         vel.linear.y = kJumpForce;
-        motor.taking_jump = false;
-        motor.grabbing = false;
+
+        player.taking_jump = false;
+        player.grabbing = false;
+
+        motor.affected_by_gravity = true;
         return;
     }
-}
-
-void UpdatePlayerState(VelocityComponent& vel, LegacyPlayerMotor& motor) {
-    if (motor.hurt) {
-        motor.state = PlayerState::Hurt;
-        return;
-    }
-
-    if (motor.grabbing) {
-        motor.state = PlayerState::Grab;
-        return;
-    }
-
-    if (!motor.taking_jump) {
-        motor.state = PlayerState::Air;
-        return;
-    }
-
-    if (vel.linear.x != 0.0f) {
-        motor.state = PlayerState::Walk;
-        return;
-    }
-
-    motor.state = PlayerState::Idle;
 }
 
 }  // namespace
@@ -218,6 +125,83 @@ void PlayerController::onCreate() {
     const SceneQuery query(context().scene);
 
     animator_ = query.findChildByName("animator_node", entity());
+}
+
+void PlayerController::onUpdate(float dt) {
+    const IGameInput& input = context().game_input;
+    SceneQuery query(context().scene);
+
+    auto transform = query.component<TransformComponent>(entity());
+    auto collider = query.component<ColliderComponent>(entity());
+    auto vel = query.component<VelocityComponent>(entity());
+    auto motor = query.component<MotorComponent>(entity());
+    auto contact = query.component<ContactComponent>(entity());
+
+    DEV_ASSERT(transform && collider && vel && motor && contact);
+
+    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+    DEV_ASSERT(tile_world);
+
+    const bool jump_pressed = input.isPressed("ui_up"_sid);
+
+    int move_x =
+        input.isPressed("ui_right"_sid) -
+        input.isPressed("ui_left"_sid);
+
+    // Contact is from previous MotorSystem frame.
+    motor_.taking_jump = contact->hit_down;
+
+    if (contact->hit_down) {
+        motor_.grabbing = false;
+    }
+
+    // Jump can cancel grab.
+    if (jump_pressed) {
+        TryJump(*vel, *motor, motor_);
+    }
+
+    // If currently grabbing, freeze player and skip normal movement.
+    if (motor_.grabbing) {
+        move_x = 0;
+
+        vel->linear.x = 0.0f;
+        vel->linear.y = 0.0f;
+
+        motor->affected_by_gravity = false;
+
+        updatePlayerState(*vel);
+        updateAnimation(query);
+        return;
+    }
+
+    // Normal horizontal control.
+    vel->linear.x = move_x * motor_.speed;
+    motor->affected_by_gravity = true;
+
+    // Try starting wall grab.
+    //
+    // Must happen after normal velocity is known, but before MotorSystem.
+    // MotorSystem will run after this script update.
+    const bool airborne = !motor_.taking_jump;
+    const bool falling = vel->linear.y < 0.0f;
+
+    if (!motor_.hurt && airborne && falling) {
+        const float predicted_dy = vel->linear.y * dt;
+        const Box2 body = ComputeWorldAABB(*transform, *collider);
+
+        if (CheckWallGrab(body, predicted_dy, *tile_world)) {
+            motor_.grabbing = true;
+            motor_.taking_jump = false;
+
+            vel->linear.x = 0.0f;
+            vel->linear.y = 0.0f;
+
+            motor->affected_by_gravity = false;
+        }
+    }
+
+    updatePlayerState(*vel);
+    updateAnimation(query);
 }
 
 void PlayerController::updateAnimation(SceneQuery& query) {
@@ -254,61 +238,29 @@ void PlayerController::updateAnimation(SceneQuery& query) {
     }
 }
 
-void PlayerController::onUpdate(float dt) {
-    const IGameInput& input = context().game_input;
-    SceneQuery query(context().scene);
-
-    const bool jump_pressed = input.isPressed("ui_up"_sid);
-    int move_x = input.isPressed("ui_right"_sid) - input.isPressed("ui_left"_sid);
-    if (motor_.grabbing) {
-        move_x = 0;
+void PlayerController::updatePlayerState(VelocityComponent& vel) {
+    auto& motor = motor_;
+    if (motor.hurt) {
+        motor.state = PlayerState::Hurt;
+        return;
     }
 
-    auto transform = query.component<TransformComponent>(entity());
-    auto collider = query.component<ColliderComponent>(entity());
-    auto vel = query.component<VelocityComponent>(entity());
-    DEV_ASSERT(transform && collider && vel);
-
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
-    DEV_ASSERT(tile_world);
-
-    vel->linear.x = move_x * motor_.speed;
-
-    // Jump is allowed to cancel grabbing.
-    if (jump_pressed) {
-        TryJump(*vel, motor_);
+    if (motor.grabbing) {
+        motor.state = PlayerState::Grab;
+        return;
     }
 
-    // Movement.
-    MoveHorizontal(*transform, *collider, *vel, *tile_world, dt);
-    MoveVertical(*transform, *collider, *vel, motor_, *tile_world, dt);
-
-    // State + animation after movement/collision.
-    UpdatePlayerState(*vel, motor_);
-    updateAnimation(query);
-
-    drawDebug();
-}
-
-void PlayerController::drawDebug() {
-#if 0
-    SceneQuery query(context().scene);
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
-
-    constexpr Vec4f kPlayerColor(0, 0, 1, 0.9f);
-    constexpr Vec4f kTileColor(1, 0, 0, 0.9f);
-    constexpr float tile_size = 1.0f;
-
-    IDebugDrawService& debug_draw = context().engine_services.debugDraw();
-    Box2 aabb = GetPlayerAABB(query);
-
-    aabb = ExpandAABB(aabb, Vec2f(tile_size));
-    auto hits = tile_world->querySolidTiles(aabb);
-
-    for (const TileHit& hit : hits) {
-        debug_draw.addBox2Frame(hit.aabb.Min(), hit.aabb.Max(), kTileColor, 0.05f);
+    if (!motor.taking_jump) {
+        motor.state = PlayerState::Air;
+        return;
     }
-#endif
+
+    if (vel.linear.x != 0.0f) {
+        motor.state = PlayerState::Walk;
+        return;
+    }
+
+    motor.state = PlayerState::Idle;
 }
 
 }  // namespace super_cave_boy
