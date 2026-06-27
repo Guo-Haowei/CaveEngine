@@ -6,6 +6,7 @@
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/scene/MotorSystem.h"
 
 namespace super_cave_boy {
 
@@ -14,17 +15,6 @@ using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
 namespace {
-
-Box2 ComputeWorldAABB(const TransformComponent& transform,
-                      const ColliderComponent& collider) {
-    const Shape& shape = collider.shape();
-    Vec2f translation = transform.GetTranslation().xy;
-
-    return {
-        translation - Vec2f(shape.data.half.xy),
-        translation + Vec2f(shape.data.half.xy),
-    };
-}
 
 Vec2f GetAABBCenter(const TransformComponent& transform,
                     const ColliderComponent& collider) {

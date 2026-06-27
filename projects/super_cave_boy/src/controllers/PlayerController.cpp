@@ -2,16 +2,16 @@
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
-#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
+#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
+#include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
-
-#include "platformer/PlatformerCollision.h"
+#include "cave/runtime/tile_map/TileWorldSystem.h"
 
 namespace super_cave_boy {
 
@@ -32,13 +32,6 @@ bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     above.y += 1;
 
     return !world.isSolid(above);
-}
-
-inline Box2 ExpandAABB(const Box2& aabb, Vec2f amount) {
-    return Box2{
-        aabb.Min() - amount,
-        aabb.Max() + amount
-    };
 }
 
 inline bool NearlyEqual(float a, float b, float eps = 0.01f) {
@@ -85,16 +78,6 @@ bool CheckWallGrab(
     return false;
 }
 
-void Land(LegacyPlayerMotor& motor, VelocityComponent& vel) {
-    if (vel.linear.y == 0.0f) {
-        return;
-    }
-    vel.linear.y = 0.0f;
-
-    motor.taking_jump = true;
-    motor.grabbing = false;
-}
-
 void TryJump(VelocityComponent& vel,
              MotorComponent& motor,
              LegacyPlayerMotor& player) {
@@ -117,6 +100,17 @@ void TryJump(VelocityComponent& vel,
         motor.affected_by_gravity = true;
         return;
     }
+}
+
+Box2 ComputeWorldAABB(const TransformComponent& transform,
+                      const ColliderComponent& collider) {
+    const Shape& shape = collider.shape();
+    Vec2f translation = transform.GetTranslation().xy;
+
+    return {
+        translation - Vec2f(shape.data.half.xy),
+        translation + Vec2f(shape.data.half.xy),
+    };
 }
 
 }  // namespace

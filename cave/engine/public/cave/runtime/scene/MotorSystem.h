@@ -1,4 +1,8 @@
+// =============================================================================
+// File: cave/runtime/scene/MotorSystem.h
+// =============================================================================
 #pragma once
+#include "cave/core/math/Box.h"
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 
@@ -10,6 +14,9 @@ struct VelocityComponent;
 class TileWorldSystem;
 class TransformComponent;
 class ColliderComponent;
+
+math::Box2 ComputeWorldAABB(const TransformComponent& transform,
+                            const ColliderComponent& collider);
 
 class MotorSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::Motor)

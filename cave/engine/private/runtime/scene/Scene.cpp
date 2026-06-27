@@ -2,6 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/threading/JobSystem.h"
+#include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
@@ -12,7 +13,6 @@
 #include "engine/private/runtime/scene/SystemManager.h"
 #include "engine/private/systems/AnimationSystem.h"
 #include "engine/private/systems/EcsSystems.h"
-#include "engine/private/systems/MotorSystem.h"
 
 // systems
 #include "engine/private/runtime/script/lua/LuaScriptSystem.h"

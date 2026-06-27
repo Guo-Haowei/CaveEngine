@@ -1,6 +1,5 @@
-#include "MotorSystem.h"
-
 #include "cave/core/diagnostics/DebugIdAllocator.h"
+#include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
@@ -15,8 +14,6 @@ namespace cave {
 using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
-namespace {
-
 Box2 ComputeWorldAABB(const TransformComponent& transform,
                       const ColliderComponent& collider) {
     const Shape& shape = collider.shape();
@@ -27,6 +24,8 @@ Box2 ComputeWorldAABB(const TransformComponent& transform,
         translation + Vec2f(shape.data.half.xy),
     };
 }
+
+namespace {
 
 cave::math::Box2 MoveBox(cave::math::Box2 box, cave::math::Vec2f delta) {
     box.SetMinMax(box.Min() + delta, box.Max() + delta);
