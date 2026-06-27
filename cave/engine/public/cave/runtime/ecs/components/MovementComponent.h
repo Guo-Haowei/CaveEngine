@@ -23,7 +23,7 @@ struct MotorComponent {
     CAVE_PROP(editor = InputFloat)
     float terminal_fall_speed = -30.0f;
 
-    CAVE_PROP(editor = Translation)
+    CAVE_PROP(editor = InputFloat)
     float gravity = -35.0f;
 
     float step_offset = 0.05f;

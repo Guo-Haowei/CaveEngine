@@ -17,6 +17,7 @@ entities:
       flags: 0
       category: 0
       mask: 0
+    ContactComponent: {}
     MotorComponent:
       affected_by_gravity: false
       gravity: 0

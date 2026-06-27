@@ -1,13 +1,12 @@
 #include "SpiderController.h"
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
+#include "cave/core/math/Box.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/tile_map/TileWorldSystem.h"
-
-#include "platformer/PlatformerCollision.h"
 
 namespace super_cave_boy {
 
@@ -17,98 +16,21 @@ using ::cave::ecs::Entity;
 
 namespace {
 
-constexpr float kGravity = -35.0f;
+Box2 ComputeWorldAABB(const TransformComponent& transform,
+                      const ColliderComponent& collider) {
+    const Shape& shape = collider.shape();
+    Vec2f translation = transform.GetTranslation().xy;
+
+    return {
+        translation - Vec2f(shape.data.half.xy),
+        translation + Vec2f(shape.data.half.xy),
+    };
+}
 
 Vec2f GetAABBCenter(const TransformComponent& transform,
                     const ColliderComponent& collider) {
     Box2 aabb = ComputeWorldAABB(transform, collider);
     return (aabb.Min() + aabb.Max()) * 0.5f;
-}
-
-struct TileMoveResult {
-    bool hit_left = false;
-    bool hit_right = false;
-    bool hit_floor = false;
-    bool hit_ceiling = false;
-
-    Vec2f delta{ 0.0f, 0.0f };
-};
-
-TileMoveResult MoveSpiderWithTileCollision(TransformComponent& transform,
-                                           const ColliderComponent& collider,
-                                           VelocityComponent& vel,
-                                           const TileWorldSystem& world,
-                                           float dt) {
-    TileMoveResult result;
-
-    // X first.
-    const float requested_dx = vel.linear.x * dt;
-
-    if (requested_dx != 0.0f) {
-        const Box2 body = ComputeWorldAABB(transform, collider);
-        const float dx = ResolveHorizontalMovement(body, requested_dx, world);
-
-        if (dx != 0.0f) {
-            transform.Translate({ dx, 0.0f, 0.0f });
-        }
-
-        result.delta.x = dx;
-
-        if (requested_dx > 0.0f && dx < requested_dx) {
-            result.hit_right = true;
-            vel.linear.x = 0.0f;
-        } else if (requested_dx < 0.0f && dx > requested_dx) {
-            result.hit_left = true;
-            vel.linear.x = 0.0f;
-        }
-    }
-
-    // Y second.
-    const float requested_dy = vel.linear.y * dt;
-
-    if (requested_dy > 0.0f) {
-        const Box2 body = ComputeWorldAABB(transform, collider);
-        VerticalMoveResult up = ResolveUpMovement(body, requested_dy, world);
-
-        if (up.dy != 0.0f) {
-            transform.Translate({ 0.0f, up.dy, 0.0f });
-        }
-
-        result.delta.y = up.dy;
-
-        if (up.hit) {
-            result.hit_ceiling = true;
-            vel.linear.y = 0.0f;
-        } else {
-            vel.linear.y += kGravity * dt;
-        }
-
-        return result;
-    }
-
-    if (requested_dy < 0.0f) {
-        const Box2 body = ComputeWorldAABB(transform, collider);
-        VerticalMoveResult down = ResolveDownMovement(body, requested_dy, world);
-
-        if (down.dy != 0.0f) {
-            transform.Translate({ 0.0f, down.dy, 0.0f });
-        }
-
-        result.delta.y = down.dy;
-
-        if (down.hit) {
-            result.hit_floor = true;
-            vel.linear.y = 0.0f;
-        } else {
-            vel.linear.y += kGravity * dt;
-        }
-
-        return result;
-    }
-
-    // Even if current vertical velocity is zero, gravity should start pulling down.
-    vel.linear.y += kGravity * dt;
-    return result;
 }
 
 }  // namespace
@@ -125,19 +47,20 @@ void SpiderController::onUpdate(float dt) {
         player_ = findPlayer(query);
     }
 
+    const auto contact = query.component<ContactComponent>(entity());
+    auto vel = query.component<VelocityComponent>(entity());
+    LOG_INFO("state {}, v: {} {}, hit: {}", (int)state_, vel->linear.x, vel->linear.y, contact->hit_down);
+
     switch (state_) {
         case SpiderState::Idle:
             updateIdle(query, dt);
             break;
-
         case SpiderState::Attack:
             enterAttack(query);
             break;
-
         case SpiderState::Air:
             updateAir(query, dt);
             break;
-
         case SpiderState::Wait:
             updateWait(dt);
             break;
@@ -225,25 +148,14 @@ void SpiderController::enterAttack(SceneQuery& query) {
     changeState(SpiderState::Air);
 }
 
-void SpiderController::updateAir(SceneQuery& query, float dt) {
-    auto transform = query.component<TransformComponent>(entity());
-    auto collider = query.component<ColliderComponent>(entity());
+void SpiderController::updateAir(SceneQuery& query, float) {
+    const auto contact = query.component<ContactComponent>(entity());
     auto vel = query.component<VelocityComponent>(entity());
+    DEV_ASSERT(contact && vel);
 
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
-
-    DEV_ASSERT(transform && collider && vel && tile_world);
-
-    TileMoveResult move = MoveSpiderWithTileCollision(
-        *transform,
-        *collider,
-        *vel,
-        *tile_world,
-        dt);
-
-    if (move.hit_floor) {
-        vel->linear.x = 0.0f;
-        vel->linear.y = 0.0f;
+    if (contact->hit_down) {
+        vel->linear.x = 0;
+        vel->linear.y = 0;
         changeState(SpiderState::Wait);
     }
 }

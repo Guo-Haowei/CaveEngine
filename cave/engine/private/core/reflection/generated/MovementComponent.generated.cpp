@@ -24,14 +24,14 @@ const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {
 
 // bool affected_by_gravity (editor = Toggle)
 // float terminal_fall_speed (editor = InputFloat)
-// float gravity (editor = Translation)
+// float gravity (editor = InputFloat)
 
 template<>
 const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(MotorComponent, "affected_by_gravity", affected_by_gravity, FieldFlag::Serialize, EditorHint::Toggle),
         REGISTER_FIELD(MotorComponent, "terminal_fall_speed", terminal_fall_speed, FieldFlag::Serialize, EditorHint::InputFloat),
-        REGISTER_FIELD(MotorComponent, "gravity", gravity, FieldFlag::Serialize, EditorHint::Translation),
+        REGISTER_FIELD(MotorComponent, "gravity", gravity, FieldFlag::Serialize, EditorHint::InputFloat),
     };
 
     return s_table;

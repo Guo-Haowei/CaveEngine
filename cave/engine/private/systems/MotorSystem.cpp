@@ -190,11 +190,13 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
                                   VelocityComponent& vel,
                                   const ColliderComponent& collider,
                                   const MotorComponent& motor,
-                                  ContactComponent* contact,
+                                  ContactComponent* out_contact,
                                   Vec2f desired_delta) {
     Box2 body = ComputeWorldAABB(transform, collider);
 
     Vec2f actual_delta{ 0.0f, 0.0f };
+
+    ContactComponent contact{};
 
     if (desired_delta.x != 0.0f) {
         float dx = ResolveHorizontalMovement(body, desired_delta.x, tile_world);
@@ -209,12 +211,10 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
         if (dx != desired_delta.x) {
             vel.linear.x = 0.0f;
 
-            if (contact) {
-                if (desired_delta.x < 0.0f) {
-                    contact->hit_left = true;
-                } else {
-                    contact->hit_right = true;
-                }
+            if (desired_delta.x < 0.0f) {
+                contact.hit_left = true;
+            } else {
+                contact.hit_right = true;
             }
         }
     }
@@ -234,10 +234,7 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
 
         if (result.hit) {
             vel.linear.y = 0.0f;
-
-            if (contact) {
-                contact->hit_up = true;
-            }
+            contact.hit_up = true;
         }
     } else if (desired_delta.y < 0.0f) {
         // motor.min_ground_support
@@ -256,14 +253,13 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
         if (result.hit) {
             vel.linear.y = 0.0f;
 
-            if (contact) {
-                contact->hit_down = true;
-            }
+            contact.hit_down = true;
         }
     }
 
-    if (contact) {
-        contact->actual_delta = actual_delta;
+    contact.actual_delta = actual_delta;
+    if (out_contact) {
+        *out_contact = contact;
     }
 }
 
