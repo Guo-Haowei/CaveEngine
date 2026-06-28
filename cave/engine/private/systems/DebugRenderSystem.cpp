@@ -17,7 +17,7 @@ void RunDebugRenderSystem(const Scene* scene, IDebugDrawService& debug_draw) {
     auto view = scene->view<ColliderComponent, TransformComponent>();
     for (const auto& [id, collider, transform] : view) {
         if (!collider.debugDraw()) continue;
-        const Mat4f& m = transform.GetWorldMatrix();
+        const Mat4f& m = transform.worldMatrix();
         const Shape& shape = collider.shape();
         switch (shape.type) {
             case ShapeType::Box: {

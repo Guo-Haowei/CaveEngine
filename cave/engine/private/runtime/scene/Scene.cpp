@@ -64,7 +64,7 @@ void Scene::update(float dt) {
 
     // @TODO: refactor
     for (auto [entity, camera, transform] : view<CameraComponent, TransformComponent>()) {
-        if (camera.Update(transform.GetWorldMatrix())) {
+        if (camera.Update(transform.worldMatrix())) {
             m_dirtyFlags.fetch_or(SCENE_DIRTY_CAMERA);
         }
     }
@@ -159,7 +159,7 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     hier.parent_id = ent.IsValid() ? ent : m_root;
 
     TransformComponent* transform = component<TransformComponent>(mapped_root);
-    transform->SetTranslation(prefab.translation());
+    transform->setTranslation(prefab.translation());
 
     prefab.child(mapped_root);
 }

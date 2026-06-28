@@ -90,7 +90,7 @@ void TileWorldSystem::rebuildCollision() {
     auto view = context().scene.view<TileMapInstanceComponent, TransformComponent>();
     for (auto [ent, instance, transform] : view) {
         TileMapAsset* tile_map = instance.tileMapHandle().get();
-        Vec2f offset = transform.GetTranslation().xy;
+        Vec2f offset = transform.translation().xy;
 
         if (!tile_map) {
             CRASH_NOW_MSG("TileMapAsset is null");

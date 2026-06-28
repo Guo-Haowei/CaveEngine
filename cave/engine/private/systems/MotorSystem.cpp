@@ -17,7 +17,7 @@ using ::cave::ecs::Entity;
 Box2 ComputeWorldAABB(const TransformComponent& transform,
                       const ColliderComponent& collider) {
     const Shape& shape = collider.shape();
-    Vec2f translation = transform.GetTranslation().xy;
+    Vec2f translation = transform.translation().xy;
 
     return {
         translation - Vec2f(shape.data.half.xy),
@@ -203,7 +203,7 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
         float dx = ResolveHorizontalMovement(body, desired_delta.x, tile_world);
 
         if (dx != 0.0f) {
-            transform.Translate({ dx, 0.0f, 0.0f });
+            transform.translate({ dx, 0.0f, 0.0f });
             body = MoveBox(body, { dx, 0.0f });
         }
 
@@ -227,7 +227,7 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
                                         motor.step_offset);
 
         if (result.dy != 0.0f) {
-            transform.Translate({ 0.0f, result.dy, 0.0f });
+            transform.translate({ 0.0f, result.dy, 0.0f });
             body = MoveBox(body, { 0.0f, result.dy });
         }
 
@@ -244,7 +244,7 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
                                           motor.min_ground_support);
 
         if (result.dy != 0.0f) {
-            transform.Translate({ 0.0f, result.dy, 0.0f });
+            transform.translate({ 0.0f, result.dy, 0.0f });
             body = MoveBox(body, { 0.0f, result.dy });
         }
 

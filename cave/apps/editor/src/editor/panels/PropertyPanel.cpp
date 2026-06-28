@@ -380,7 +380,7 @@ void PropertyPanel::drawUIImpl() {
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
     DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&](TransformComponent& p_transform) {
-        const math::Mat4f old_transform = p_transform.GetLocalMatrix();
+        const math::Mat4f old_transform = p_transform.localMatrix();
 
         TransformComponent copy = p_transform;
         const bool dirty = DrawComponentAuto<TransformComponent>(&copy, ctx);
@@ -427,7 +427,7 @@ void PropertyPanel::drawUIImpl() {
         if (dirty) {
             ecs::Entity child = prefab.child();
             TransformComponent* transform = scene.component<TransformComponent>(child);
-            transform->SetTranslation(prefab.translation());
+            transform->setTranslation(prefab.translation());
         }
     });
 

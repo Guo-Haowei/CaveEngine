@@ -8,16 +8,16 @@
 
 namespace cave {
 
-// math::Vec3f m_translation (editor = Translation)
-// math::Vec4f m_rotation (editor = Rotation)
-// math::Vec3f m_scale (editor = Scale)
+// math::Vec3f translation_ (editor = Translation)
+// math::Vec4f rotation_ (editor = Rotation)
+// math::Vec3f scale_ (editor = Scale)
 
 template<>
 const MetaTableFields& MetaDataTable<TransformComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TransformComponent, "translation", m_translation, FieldFlag::Serialize, EditorHint::Translation),
-        REGISTER_FIELD(TransformComponent, "rotation", m_rotation, FieldFlag::Serialize, EditorHint::Rotation),
-        REGISTER_FIELD(TransformComponent, "scale", m_scale, FieldFlag::Serialize, EditorHint::Scale),
+        REGISTER_FIELD(TransformComponent, "translation", translation_, FieldFlag::Serialize, EditorHint::Translation),
+        REGISTER_FIELD(TransformComponent, "rotation", rotation_, FieldFlag::Serialize, EditorHint::Rotation),
+        REGISTER_FIELD(TransformComponent, "scale", scale_, FieldFlag::Serialize, EditorHint::Scale),
     };
 
     return s_table;

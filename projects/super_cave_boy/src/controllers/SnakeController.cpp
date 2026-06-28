@@ -83,7 +83,7 @@ void SnakeController::onUpdate(float dt) {
 
     const float dx = vel->linear.x * dt;
 
-    transform->Translate({ dx, 0.0f, 0.0f });
+    transform->translate({ dx, 0.0f, 0.0f });
 }
 
 }  // namespace super_cave_boy

@@ -22,54 +22,58 @@ class TransformComponent {
 
 private:
     CAVE_PROP(editor = Translation)
-    math::Vec3f m_translation;
+    math::Vec3f translation_;
 
     CAVE_PROP(editor = Rotation)
-    math::Vec4f m_rotation;
+    math::Vec4f rotation_;
 
     CAVE_PROP(editor = Scale)
-    math::Vec3f m_scale;
+    math::Vec3f scale_;
 
     // Non-serialized attributes
-    math::Mat4f m_world_matrix;
+    math::Mat4f world_;
 
-    uint32_t m_flags = DirtyFlag;
+    uint32_t flags_ = DirtyFlag;
 
 public:
     TransformComponent();
 
-    const math::Vec3f& GetTranslation() const { return m_translation; }
-    void SetTranslation(const math::Vec3f& p_translation) { m_translation = p_translation; }
-    void IncreaseTranslation(const math::Vec3f& p_delta) { m_translation += p_delta; }
+    const math::Vec3f& translation() const { return translation_; }
+    void setTranslation(const math::Vec3f& v) { translation_ = v; }
 
-    const math::Vec4f& GetRotation() const { return m_rotation; }
-    void SetRotation(const math::Vec4f& p_rotation) { m_rotation = p_rotation; }
+    const math::Vec4f& rotation() const { return rotation_; }
+    void setRotation(const math::Vec4f& v) { rotation_ = v; }
 
-    const math::Vec3f& GetScale() const { return m_scale; }
-    void SetScale(const math::Vec3f& p_scale) { m_scale = p_scale; }
+    const math::Vec3f& scale() const { return scale_; }
+    void setScale(const math::Vec3f& v) { scale_ = v; }
 
-    const math::Mat4f& GetWorldMatrix() const { return m_world_matrix; }
+    const math::Mat4f& worldMatrix() const { return world_; }
 
-    void SetWorldMatrix(const math::Mat4f& p_matrix) { m_world_matrix = p_matrix; }
+    void setWorldMatrix(const math::Mat4f& v) { world_ = v; }
 
-    math::Mat4f GetLocalMatrix() const;
+    math::Mat4f localMatrix() const;
 
-    bool UpdateTransform();
-    void Scale(const math::Vec3f& p_scale);
-    void Translate(const math::Vec3f& p_translation);
-    void Rotate(const math::Vec3f& p_euler);
-    void RotateX(const math::Degree& degree) { Rotate(math::Vec3f(degree.radians(), 0.0f, 0.0f)); }
-    void RotateY(const math::Degree& degree) { Rotate(math::Vec3f(0.0f, degree.radians(), 0.0f)); }
-    void RotateZ(const math::Degree& degree) { Rotate(math::Vec3f(0.0f, 0.0f, degree.radians())); }
+    bool updateTransform();
 
-    void SetLocalTransform(const math::Mat4f& p_matrix);
-    void MatrixTransform(const math::Mat4f& p_matrix);
+    void translate(const math::Vec3f& translation);
+    void translateX(float delta);
+    void translateY(float delta);
+    void translateZ(float delta);
 
-    void UpdateTransformParented(const TransformComponent& p_parent);
+    void rotate(const math::Vec3f& euler);
+    void rotateX(const math::Degree& degree) { rotate(math::Vec3f(degree.radians(), 0.0f, 0.0f)); }
+    void rotateY(const math::Degree& degree) { rotate(math::Vec3f(0.0f, degree.radians(), 0.0f)); }
+    void rotateZ(const math::Degree& degree) { rotate(math::Vec3f(0.0f, 0.0f, degree.radians())); }
 
-    bool IsDirty() const { return m_flags & DirtyFlag; }
-    void SetDirty(bool p_dirty = true);
-    void OnDeserialized() { m_flags |= DirtyFlag; }
+    void scale(const math::Vec3f& scale);
+
+    void setLocalTransform(const math::Mat4f& matrix);
+    void matrixTransform(const math::Mat4f& matrix);
+
+    bool dirty() const { return flags_ & DirtyFlag; }
+    void setDirty(bool dirty = true);
+
+    void OnDeserialized() { flags_ |= DirtyFlag; }
 };
 
 }  // namespace cave

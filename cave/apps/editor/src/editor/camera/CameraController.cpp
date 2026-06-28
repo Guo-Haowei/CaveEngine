@@ -59,7 +59,7 @@ void CameraController2DEditor::update(const InputFrame& input) {
         constexpr float speed = 1.0f;
         Vec2f delta(dx, dy);
         delta *= (speed * dt);
-        root_.Translate(Vec3f(delta, 0.0f));
+        root_.translate(Vec3f(delta, 0.0f));
 
         need_update = true;
     }
@@ -73,8 +73,8 @@ void CameraController2DEditor::update(const InputFrame& input) {
 
     if (need_update) {
         camera_.SetDirty();
-        root_.UpdateTransform();
-        camera_.Update(root_.GetWorldMatrix());
+        root_.updateTransform();
+        camera_.Update(root_.worldMatrix());
     }
 }
 
@@ -119,10 +119,10 @@ void CameraControllerFPS::update(const InputFrame& input) {
 
         if (dx || dz) {
             Vec3f delta = (move_speed_ * dz) * camera_.GetFront() + (move_speed_ * dx) * camera_.GetRight();
-            root_.Translate(delta);
+            root_.translate(delta);
         }
         if (dy) {
-            root_.Translate(Vec3f(0.0f, move_speed_ * dy, 0.0f));
+            root_.translate(Vec3f(0.0f, move_speed_ * dy, 0.0f));
         }
     }
 
@@ -139,7 +139,7 @@ void CameraControllerFPS::update(const InputFrame& input) {
         }
 
         if (rotate_y) {
-            root_.RotateY(Degree(-rotate_y * dt));
+            root_.rotateY(Degree(-rotate_y * dt));
         }
 
         if (rotate_x) {
@@ -154,13 +154,13 @@ void CameraControllerFPS::update(const InputFrame& input) {
     if (moved || rotate_camera()) {
         camera_.SetDirty();
     }
-    if (root_.IsDirty()) {
+    if (root_.dirty()) {
         camera_.SetDirty();
     }
 
-    root_.UpdateTransform();
+    root_.updateTransform();
     Mat4f R = glm::rotate(glm::radians(pitch_), glm::vec3(1, 0, 0));
-    Mat4f trans = root_.GetLocalMatrix() * R;
+    Mat4f trans = root_.localMatrix() * R;
     camera_.Update(trans);
 }
 

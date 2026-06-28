@@ -186,7 +186,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
         light.color *= material.emissive;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
-                Mat4f light_local_matrix = light_transform->GetLocalMatrix();
+                Mat4f light_local_matrix = light_transform->localMatrix();
                 Vec3f light_dir((light_local_matrix * Vec4f(0, 0, 1, 1)).xyz);
                 light_dir = normalize(light_dir);
                 cache.c_sunPosition = light_dir;
@@ -278,7 +278,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
 #endif
             } break;
             case LIGHT_TYPE_AREA: {
-                Mat4f transform = light_transform->GetWorldMatrix();
+                Mat4f transform = light_transform->worldMatrix();
                 constexpr float s = 0.5f;
                 light.points[0] = transform * Vec4f(-s, +s, 0.0f, 1.0f);
                 light.points[1] = transform * Vec4f(-s, -s, 0.0f, 1.0f);

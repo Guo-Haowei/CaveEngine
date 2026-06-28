@@ -16,7 +16,7 @@ void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
 
     auto view = p_scene->view<SpriteRendererComponent, TransformComponent>();
     for (const auto& [id, sprite_renderer, transform] : view) {
-        const Mat4f& world_matrix = transform.GetWorldMatrix();
+        const Mat4f& world_matrix = transform.worldMatrix();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
         batch_buffer.c_tint_color = sprite_renderer.GetTintColor();
