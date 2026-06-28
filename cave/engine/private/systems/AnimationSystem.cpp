@@ -93,7 +93,7 @@ void RunTransformAnimationSystem(Scene& scene, jobsystem::Context&, float dt) {
         anim.elapsed += dt;
         const float t = anim.elapsed / anim.duration;
         if (t >= 1.0f) {
-            trans.SetTranslation(anim.end);
+            trans.setTranslation(anim.end);
             anim.playing = false;
             if (anim.destroy_on_finish) {
                 pending_removes.push_back(id);
@@ -102,7 +102,7 @@ void RunTransformAnimationSystem(Scene& scene, jobsystem::Context&, float dt) {
         }
 
         const math::Vec3f pos = t * anim.end + (1 - t) * anim.begin;
-        trans.SetTranslation(pos);
+        trans.setTranslation(pos);
     }
 
     for (ecs::Entity e : pending_removes) {

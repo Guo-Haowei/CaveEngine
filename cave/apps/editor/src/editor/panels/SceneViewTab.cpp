@@ -176,7 +176,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {
-            const Mat4f before = transform_component->GetLocalMatrix();
+            const Mat4f before = transform_component->localMatrix();
             Mat4f after = before;
             if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
                                      glm::value_ptr(proj_matrix),

@@ -102,8 +102,8 @@ void TileMapInstanceComponent::createRenderData() {
                 Vec2f bottom_right{ x1, y0 };
                 Vec2f top_left{ x0, y1 };
                 Vec2f top_right{ x1, y1 };
-                Vec2f uv_min = frames[tile_id].Min();
-                Vec2f uv_max = frames[tile_id].Max();
+                Vec2f uv_min = frames[tile_id].min();
+                Vec2f uv_max = frames[tile_id].max();
 
                 // manually flip y here
                 Vec2f uv0 = { uv_min.x, uv_max.y };

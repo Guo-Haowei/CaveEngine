@@ -26,6 +26,7 @@ FILES = [
     'public/cave/runtime/ecs/components/SpriteRendererComponent.h',
     'public/cave/runtime/ecs/components/TransformAnimationComponent.h',
     'public/cave/runtime/ecs/components/TransformComponent.h',
+    'public/cave/runtime/ecs/components/TriggerComponent.h',
     'public/cave/runtime/ecs/components/MovementComponent.h',
 
     'public/cave/runtime/platformer/FacingComponent.h',

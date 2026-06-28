@@ -4,6 +4,6 @@ name: spider.scene
 import_path: "@res://prefabs/spider.scene"
 dependencies: [86B180CE-BAFF-CF4F-9748E02337CCBE90]
 source_created_time: 2026-06-23 01:43:26.7599768
-source_last_modified: 2026-06-27 03:52:05.9773826
+source_last_modified: 2026-06-27 05:21:47.9640260
 import_settings:
   {}

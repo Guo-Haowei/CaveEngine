@@ -23,8 +23,8 @@ struct TileRange {
 };
 
 inline TileRange GetTileRangeFromAABB(const Box2& aabb, float tile_size) {
-    TileCoord min_tile = TileWorldSystem::worldToTile(aabb.Min(), tile_size);
-    TileCoord max_tile = TileWorldSystem::worldToTile(aabb.Max(), tile_size);
+    TileCoord min_tile = TileWorldSystem::worldToTile(aabb.min(), tile_size);
+    TileCoord max_tile = TileWorldSystem::worldToTile(aabb.max(), tile_size);
 
     return TileRange{
         min_tile.x,
@@ -90,7 +90,7 @@ void TileWorldSystem::rebuildCollision() {
     auto view = context().scene.view<TileMapInstanceComponent, TransformComponent>();
     for (auto [ent, instance, transform] : view) {
         TileMapAsset* tile_map = instance.tileMapHandle().get();
-        Vec2f offset = transform.GetTranslation().xy;
+        Vec2f offset = transform.translation().xy;
 
         if (!tile_map) {
             CRASH_NOW_MSG("TileMapAsset is null");

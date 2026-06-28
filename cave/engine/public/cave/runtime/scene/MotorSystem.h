@@ -14,6 +14,7 @@ struct VelocityComponent;
 class TileWorldSystem;
 class TransformComponent;
 class ColliderComponent;
+class SceneQuery;
 
 math::Box2 ComputeWorldAABB(const TransformComponent& transform,
                             const ColliderComponent& collider);
@@ -36,6 +37,9 @@ private:
                          const MotorComponent& motor,
                          ContactComponent* contact,
                          math::Vec2f desired_delta);
+
+    void runTileWorldCollision(SceneQuery& query, float dt);
+    void runCollisionPair(SceneQuery& query, float dt);
 
     const DebugId debug_id_;
 };

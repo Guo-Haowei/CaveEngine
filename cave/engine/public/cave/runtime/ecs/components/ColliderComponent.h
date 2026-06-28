@@ -9,14 +9,6 @@
     bool has##FLAG() const { return DATA & FLAG; } \
     void set##FLAG(bool value = true) { value ? DATA |= FLAG : DATA &= ~FLAG; }
 
-/*
-[Entity Root]
-    Collider (physics, movement)
-        Animator (decides poses, plays clips, blends layers)
-            SpriteRenderer (LowerBody)
-            SpriteRenderer (UpperBody)
-*/
-
 namespace cave {
 
 class ISerializer;
@@ -86,8 +78,11 @@ private:
     CAVE_PROP()
     uint64_t category_ = 0;
 
-    CAVE_PROP()
-    uint64_t mask_ = 0;
+    CAVE_PROP(editor = BitMask)
+    uint32_t layer_ = 0;
+
+    CAVE_PROP(editor = BitMask)
+    uint32_t mask_ = 0;
 
     // Non-serialized
     mutable uint64_t user_data_ = 0;
@@ -105,6 +100,12 @@ public:
 
     BodyType& bodyType() { return body_type_; }
     const BodyType& bodyType() const { return body_type_; }
+
+    uint32_t layer() const { return layer_; }
+    void layer(uint32_t layer) { layer_ = layer; }
+
+    uint32_t mask() const { return mask_; }
+    void mask(uint32_t mask) { mask_ = mask; }
 
     bool debugDraw() const { return debug_draw_; }
 };

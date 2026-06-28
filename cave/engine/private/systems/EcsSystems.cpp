@@ -115,7 +115,7 @@ void SkeletalAnimationSystem::Update(Scene& scene, size_t p_index, float p_times
                 const Vec3f* data = (const Vec3f*)sampler.keyframe_data.data();
                 const Vec3f& vLeft = data[key_left];
                 const Vec3f& vRight = data[key_right];
-                targetTransform->SetScale(dummy_mix(vLeft, vRight, t));
+                targetTransform->setScale(dummy_mix(vLeft, vRight, t));
                 break;
             }
             case AnimationChannelPath::Translation: {
@@ -123,7 +123,7 @@ void SkeletalAnimationSystem::Update(Scene& scene, size_t p_index, float p_times
                 const Vec3f* data = (const Vec3f*)sampler.keyframe_data.data();
                 const Vec3f& vLeft = data[key_left];
                 const Vec3f& vRight = data[key_right];
-                targetTransform->SetTranslation(dummy_mix(vLeft, vRight, t));
+                targetTransform->setTranslation(dummy_mix(vLeft, vRight, t));
                 break;
             }
             case AnimationChannelPath::Rotation: {
@@ -131,14 +131,14 @@ void SkeletalAnimationSystem::Update(Scene& scene, size_t p_index, float p_times
                 const Vec4f* data = (const Vec4f*)sampler.keyframe_data.data();
                 const Vec4f& vLeft = data[key_left];
                 const Vec4f& vRight = data[key_right];
-                targetTransform->SetRotation(dummy_mix_4(vLeft, vRight, t));
+                targetTransform->setRotation(dummy_mix_4(vLeft, vRight, t));
                 break;
             }
             default:
                 CRASH_NOW();
                 break;
         }
-        targetTransform->SetDirty();
+        targetTransform->setDirty();
     }
 
     if (animation.IsLooped() && animation.m_timer > animation.m_end) {
@@ -160,14 +160,14 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
         return;
     }
 
-    Mat4f world_matrix = self_transform->GetLocalMatrix();
+    Mat4f world_matrix = self_transform->localMatrix();
     const HierarchyComponent* hierarchy = &p_scene.getComponentByIndex<HierarchyComponent>(p_index);
     ecs::Entity parent = hierarchy->parent_id;
 
     while (parent.IsValid()) {
         TransformComponent* parent_transform = p_scene.component<TransformComponent>(parent);
         if (DEV_VERIFY(parent_transform)) {
-            world_matrix = parent_transform->GetLocalMatrix() * world_matrix;
+            world_matrix = parent_transform->localMatrix() * world_matrix;
 
             if ((hierarchy = p_scene.component<HierarchyComponent>(parent)) != nullptr) {
                 parent = hierarchy->parent_id;
@@ -180,8 +180,8 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
         }
     }
 
-    self_transform->SetWorldMatrix(world_matrix);
-    self_transform->SetDirty(false);
+    self_transform->setWorldMatrix(world_matrix);
+    self_transform->setDirty(false);
 }
 
 static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
@@ -200,7 +200,7 @@ static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
     // the hierarchy system. 	But this will correct them too.
 
     SkeletonComponent& skeleton = p_scene.getComponentByIndex<SkeletonComponent>(p_index);
-    const Mat4f R = glm::inverse(transform->GetWorldMatrix());
+    const Mat4f R = glm::inverse(transform->worldMatrix());
     const size_t numBones = skeleton.bone_collection.size();
     if (skeleton.bone_transforms.size() != numBones) {
         skeleton.bone_transforms.resize(numBones);
@@ -212,7 +212,7 @@ static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
         DEV_ASSERT(boneTransform);
 
         const Mat4f& B = skeleton.inverse_bind_matrices[idx];
-        const Mat4f& W = boneTransform->GetWorldMatrix();
+        const Mat4f& W = boneTransform->worldMatrix();
         const Mat4f M = R * W * B;
         skeleton.bone_transforms[idx] = M;
         ++idx;
@@ -226,9 +226,9 @@ static void UpdateLight(float p_timestep,
                         LightComponent& p_light) {
     unused(p_timestep);
 
-    p_light.SetPosition(p_transform.GetTranslation());
+    p_light.SetPosition(p_transform.translation());
 
-    if (p_light.IsDirty() || p_transform.IsDirty()) {
+    if (p_light.IsDirty() || p_transform.dirty()) {
         const float constant = p_light.GetAttenConstant();
         const float linear = p_light.GetAttenLinear();
         const float quadratic = p_light.GetAttenQuadratic();
@@ -301,7 +301,7 @@ void RunTransformationUpdateSystem(Scene& scene, jobsystem::Context& p_context, 
     CAVE_PROFILE_EVENT();
 
     JS_PARALLEL_FOR(TransformComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, {
-        if (scene.getComponentByIndex<TransformComponent>(index).UpdateTransform()) {
+        if (scene.getComponentByIndex<TransformComponent>(index).updateTransform()) {
             scene.m_dirtyFlags.fetch_or(SCENE_DIRTY_WORLD);
         }
     });
@@ -338,10 +338,10 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
             continue;
         }
 
-        Mat4f M = transform.GetWorldMatrix();
+        Mat4f M = transform.worldMatrix();
         AABB aabb = mesh->localBound;
-        aabb.ApplyMatrix(M);
-        bound.UnionBox(aabb);
+        aabb.applyMatrix(M);
+        bound.expandToInclude(aabb);
     }
 
     scene.m_bound = bound;
@@ -359,10 +359,10 @@ void RunFacingUpdateSystem(Scene& scene, jobsystem::Context&, float) {
         }
         switch (facing.facing) {
             case Facing::Left: {
-                transform.SetRotation(Vec4f{ 0, 1, 0, 0 });
+                transform.setRotation(Vec4f{ 0, 1, 0, 0 });
             } break;
             case Facing::Right: {
-                transform.SetRotation(Vec4f{ 0, 0, 0, 1 });
+                transform.setRotation(Vec4f{ 0, 0, 0, 1 });
             } break;
             default:
                 break;

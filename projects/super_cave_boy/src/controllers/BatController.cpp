@@ -69,8 +69,8 @@ void BatController::updateIdle(SceneQuery& query) {
 
     DEV_ASSERT(transform && player_transform);
 
-    const Vec2f bat_pos = transform->GetTranslation().xy;
-    const Vec2f player_pos = player_transform->GetTranslation().xy;
+    const Vec2f bat_pos = transform->translation().xy;
+    const Vec2f player_pos = player_transform->translation().xy;
 
     if (canSeePlayer(bat_pos, player_pos)) {
         state_ = BatState::Move;
@@ -91,8 +91,8 @@ void BatController::updateMove(SceneQuery& query, float) {
 
     DEV_ASSERT(transform && collider && vel && player_transform && tile_world);
 
-    const Vec2f bat_pos = transform->GetTranslation().xy;
-    const Vec2f player_pos = player_transform->GetTranslation().xy;
+    const Vec2f bat_pos = transform->translation().xy;
+    const Vec2f player_pos = player_transform->translation().xy;
 
     const float diff_x = bat_pos.x - player_pos.x;
     const float diff_y = bat_pos.y - player_pos.y;

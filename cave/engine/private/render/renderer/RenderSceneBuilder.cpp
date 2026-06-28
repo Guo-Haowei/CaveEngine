@@ -61,9 +61,9 @@ void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scen
         if (renderer.IsVisible()) flags |= RenderableFlags::Visible;
         if (payload.skeleton.IsValid()) flags |= RenderableFlags::Skinned;
 
-        Mat4f world = trans.GetWorldMatrix();
+        Mat4f world = trans.worldMatrix();
         AABB world_bound = payload.local_bound;
-        world_bound.ApplyMatrix(world);
+        world_bound.applyMatrix(world);
         p_out_scene.m_renderables.emplace_back(
             e,    // owner
             ref,  // payload

@@ -5,6 +5,7 @@
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/script/native/NativeScriptComponent.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
@@ -17,7 +18,7 @@ using ::cave::ecs::Entity;
 Box2 ComputeWorldAABB(const TransformComponent& transform,
                       const ColliderComponent& collider) {
     const Shape& shape = collider.shape();
-    Vec2f translation = transform.GetTranslation().xy;
+    Vec2f translation = transform.translation().xy;
 
     return {
         translation - Vec2f(shape.data.half.xy),
@@ -28,7 +29,7 @@ Box2 ComputeWorldAABB(const TransformComponent& transform,
 namespace {
 
 cave::math::Box2 MoveBox(cave::math::Box2 box, cave::math::Vec2f delta) {
-    box.SetMinMax(box.Min() + delta, box.Max() + delta);
+    box.setMinMax(box.min() + delta, box.max() + delta);
     return box;
 }
 
@@ -52,26 +53,26 @@ float ResolveHorizontalMovement(const Box2& body,
     }
 
     Box2 query = MoveBox(body, { dx, 0.0f });
-    query.UnionBox(body);
+    query.expandToInclude(body);
 
     float resolved_dx = dx;
 
     for (const TileHit& hit_tile : world.querySolidTiles(query)) {
         const Box2& solid = hit_tile.aabb;
 
-        if (!Overlap1DStrict(body.Min().y, body.Max().y,
-                             solid.Min().y, solid.Max().y)) {
+        if (!Overlap1DStrict(body.min().y, body.max().y,
+                             solid.min().y, solid.max().y)) {
             continue;
         }
 
         if (dx > 0.0f) {
-            if (body.Max().x <= solid.Min().x) {
-                const float candidate_dx = solid.Min().x - body.Max().x;
+            if (body.max().x <= solid.min().x) {
+                const float candidate_dx = solid.min().x - body.max().x;
                 resolved_dx = std::min(resolved_dx, candidate_dx);
             }
         } else {
-            if (body.Min().x >= solid.Max().x) {
-                const float candidate_dx = solid.Max().x - body.Min().x;
+            if (body.min().x >= solid.max().x) {
+                const float candidate_dx = solid.max().x - body.min().x;
                 resolved_dx = std::max(resolved_dx, candidate_dx);
             }
         }
@@ -97,22 +98,22 @@ VerticalMoveResult ResolveUpMovement(const Box2& body,
     }
 
     Box2 query = MoveBox(body, { 0.0f, dy });
-    query.UnionBox(body);
+    query.expandToInclude(body);
 
     for (const TileHit& hit_tile : world.querySolidTiles(query)) {
         const Box2& solid = hit_tile.aabb;
 
         const bool x_overlap =
-            body.Max().x - step_offset >= solid.Min().x &&
-            body.Min().x + step_offset <= solid.Max().x;
+            body.max().x - step_offset >= solid.min().x &&
+            body.min().x + step_offset <= solid.max().x;
 
         if (!x_overlap) {
             continue;
         }
 
-        if (body.Max().y <= solid.Min().y && body.Max().y + dy >= solid.Min().y) {
+        if (body.max().y <= solid.min().y && body.max().y + dy >= solid.min().y) {
             result.hit = true;
-            result.dy = std::min(result.dy, solid.Min().y - body.Max().y);
+            result.dy = std::min(result.dy, solid.min().y - body.max().y);
         }
     }
 
@@ -131,26 +132,26 @@ VerticalMoveResult ResolveDownMovement(const Box2& body,
     }
 
     Box2 query = MoveBox(body, { 0.0f, dy });
-    query.UnionBox(body);
+    query.expandToInclude(body);
 
     for (const TileHit& hit_tile : world.querySolidTiles(query)) {
         const Box2& solid = hit_tile.aabb;
 
         const float overlap_x = OverlapAmount1D(
-            body.Min().x,
-            body.Max().x,
-            solid.Min().x,
-            solid.Max().x);
+            body.min().x,
+            body.max().x,
+            solid.min().x,
+            solid.max().x);
 
         if (overlap_x <= min_ground_support) {
             continue;
         }
 
         constexpr float kSkin = 0.001f;
-        if (body.Min().y >= solid.Max().y - kSkin &&
-            body.Min().y + dy <= solid.Max().y + kSkin) {
+        if (body.min().y >= solid.max().y - kSkin &&
+            body.min().y + dy <= solid.max().y + kSkin) {
             result.hit = true;
-            result.dy = std::max(result.dy, solid.Max().y - body.Min().y);
+            result.dy = std::max(result.dy, solid.max().y - body.min().y);
         }
     }
 
@@ -163,10 +164,8 @@ MotorSystem::MotorSystem()
     : debug_id_(MakeDebugId(this)) {
 }
 
-void MotorSystem::update(float dt) {
+void MotorSystem::runTileWorldCollision(SceneQuery& query, float dt) {
     Scene& scene = context().scene;
-
-    SceneQuery query(scene);
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
@@ -186,6 +185,81 @@ void MotorSystem::update(float dt) {
     }
 }
 
+struct ColliderProxy {
+    ecs::Entity entity;
+    const ColliderComponent* collider = nullptr;
+    const TransformComponent* transform = nullptr;
+    Box2 world_aabb;
+    bool is_trigger = false;
+};
+
+struct CollisionPair {
+    ecs::Entity a;
+    ecs::Entity b;
+};
+
+void MotorSystem::runCollisionPair(SceneQuery& query, float) {
+    unused(query);
+
+    Scene& scene = context().scene;
+
+    std::vector<ColliderProxy> colliders;
+
+    for (auto [ent, collider, transform] : scene.view<ColliderComponent, TransformComponent>()) {
+        colliders.push_back({
+            .entity = ent,
+            .collider = &collider,
+            .transform = &transform,
+            .world_aabb = ComputeWorldAABB(transform, collider),
+        });
+    }
+
+    std::vector<CollisionPair> pairs;
+
+    for (size_t i = 0; i < colliders.size(); ++i) {
+        for (size_t j = i + 1; j < colliders.size(); ++j) {
+            const ColliderProxy& a = colliders[i];
+            const ColliderProxy& b = colliders[j];
+
+            bool passes_filter =
+                ((a.collider->mask() & b.collider->layer()) != 0) &&
+                ((b.collider->mask() & a.collider->layer()) != 0);
+
+            if (!passes_filter) {
+                continue;
+            }
+
+            if (!a.world_aabb.intersects(b.world_aabb)) {
+                continue;
+            }
+
+            pairs.push_back({
+                .a = a.entity,
+                .b = b.entity,
+            });
+        }
+    }
+
+    for (const auto& pair : pairs) {
+        auto a = query.component<NativeScriptComponent>(pair.a);
+        if (a && a->instance) {
+            a->instance->onCollision(pair.b);
+        }
+        auto b = query.component<NativeScriptComponent>(pair.b);
+        if (b && b->instance) {
+            b->instance->onCollision(pair.a);
+        }
+    }
+}
+
+void MotorSystem::update(float dt) {
+    Scene& scene = context().scene;
+    SceneQuery query(scene);
+
+    runTileWorldCollision(query, dt);
+    runCollisionPair(query, dt);
+}
+
 void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
                                   TransformComponent& transform,
                                   VelocityComponent& vel,
@@ -203,7 +277,7 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
         float dx = ResolveHorizontalMovement(body, desired_delta.x, tile_world);
 
         if (dx != 0.0f) {
-            transform.Translate({ dx, 0.0f, 0.0f });
+            transform.translate({ dx, 0.0f, 0.0f });
             body = MoveBox(body, { dx, 0.0f });
         }
 
@@ -227,7 +301,7 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
                                         motor.step_offset);
 
         if (result.dy != 0.0f) {
-            transform.Translate({ 0.0f, result.dy, 0.0f });
+            transform.translate({ 0.0f, result.dy, 0.0f });
             body = MoveBox(body, { 0.0f, result.dy });
         }
 
@@ -244,7 +318,7 @@ void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,
                                           motor.min_ground_support);
 
         if (result.dy != 0.0f) {
-            transform.Translate({ 0.0f, result.dy, 0.0f });
+            transform.translate({ 0.0f, result.dy, 0.0f });
             body = MoveBox(body, { 0.0f, result.dy });
         }
 

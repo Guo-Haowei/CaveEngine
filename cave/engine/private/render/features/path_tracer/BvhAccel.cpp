@@ -44,8 +44,8 @@ public:
     bool operator()(uint32_t p_lhs, uint32_t p_rhs) const {
         auto aabb_1 = m_builder.m_aabbs.at(p_lhs);
         auto aabb_2 = m_builder.m_aabbs.at(p_rhs);
-        Vec3f center_1 = aabb_1.Center();
-        Vec3f center_2 = aabb_2.Center();
+        Vec3f center_1 = aabb_1.center();
+        Vec3f center_2 = aabb_2.center();
         return center_1[m_axis] < center_2[m_axis];
     }
 
@@ -65,16 +65,16 @@ BvhBuilder::BvhBuilder(const VertexList& p_vertices,
         const Vec3f& b = m_vertices.at(triangle.y);
         const Vec3f& c = m_vertices.at(triangle.z);
         m_centroids[i] = (1.0f / 3.0f) * (a + b + c);
-        m_aabbs[i].Invalidate();
-        m_aabbs[i].ExpandPoint(a);
-        m_aabbs[i].ExpandPoint(b);
-        m_aabbs[i].ExpandPoint(c);
-        m_aabbs[i].MakeValid();
+        m_aabbs[i].invalidate();
+        m_aabbs[i].expandToInclude(a);
+        m_aabbs[i].expandToInclude(b);
+        m_aabbs[i].expandToInclude(c);
+        m_aabbs[i].makeValid();
     }
 }
 
 static int DominantAxis(const AABB& p_aabb) {
-    const Vec3f span = p_aabb.Size();
+    const Vec3f span = p_aabb.size();
     int axis = 0;
     if (span[axis] < span.y) {
         axis = 1;
@@ -90,11 +90,11 @@ AABB BvhBuilder::AABBFromTriangles(const std::vector<uint32_t>& p_indices) const
     AABB aabb;
     for (uint32_t index : p_indices) {
         const auto& points = m_triangles[index];
-        aabb.ExpandPoint(m_vertices[points.x]);
-        aabb.ExpandPoint(m_vertices[points.y]);
-        aabb.ExpandPoint(m_vertices[points.z]);
+        aabb.expandToInclude(m_vertices[points.x]);
+        aabb.expandToInclude(m_vertices[points.y]);
+        aabb.expandToInclude(m_vertices[points.z]);
     }
-    aabb.MakeValid();
+    aabb.makeValid();
     return aabb;
 }
 
@@ -113,8 +113,8 @@ void BvhBuilder::SplitByAxis(BvhAccel* p_parent,
 }
 
 static float SurfaceArea(const Box3& p_box) {
-    if (!p_box.IsValid()) return 0.0f;
-    Vec3f span = p_box.Size();
+    if (!p_box.isValid()) return 0.0f;
+    Vec3f span = p_box.size();
     const float result = 2.0f * (span.x * span.y +
                                  span.x * span.z +
                                  span.y * span.z);
@@ -160,13 +160,13 @@ BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::v
     AABB centroidBox;
     for (const auto index : p_indices) {
         const Vec3f& point = m_centroids.at(index);
-        centroidBox.ExpandPoint(point);
+        centroidBox.expandToInclude(point);
     }
-    centroidBox.MakeValid();
+    centroidBox.makeValid();
 
     const int axis = DominantAxis(centroidBox);
-    const float tmin = centroidBox.Min()[axis];
-    const float tmax = centroidBox.Max()[axis];
+    const float tmin = centroidBox.min()[axis];
+    const float tmax = centroidBox.max()[axis];
 
     for (int index : p_indices) {
         float tmp = ((m_centroids.at(index)[axis] - tmin) * BUCKED_MAX) / (tmax - tmin);
@@ -174,7 +174,7 @@ BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::v
         slot = clamp(slot, 0, BUCKED_MAX - 1);
         BucketInfo& bucket = buckets[slot];
         ++bucket.count;
-        bucket.box.UnionBox(m_aabbs.at(index));
+        bucket.box.expandToInclude(m_aabbs.at(index));
     }
 
     float costs[BUCKED_MAX - 1];
@@ -182,11 +182,11 @@ BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::v
         AABB b0, b1;
         int count0 = 0, count1 = 0;
         for (int j = 0; j <= i; ++j) {
-            b0.UnionBox(buckets[j].box);
+            b0.expandToInclude(buckets[j].box);
             count0 += buckets[j].count;
         }
         for (int j = i + 1; j < BUCKED_MAX; ++j) {
-            b1.UnionBox(buckets[j].box);
+            b1.expandToInclude(buckets[j].box);
             count1 += buckets[j].count;
         }
 
@@ -245,11 +245,11 @@ void BvhAccel::DiscoverIdx() {
 
 void BvhAccel::FillGpuBvhAccel(std::vector<GpuPtBvh>& p_out) {
     DiscoverIdx();
-    DEV_ASSERT(aabb.IsValid());
+    DEV_ASSERT(aabb.isValid());
 
     GpuPtBvh gpu_bvh;
-    gpu_bvh.min = aabb.Min();
-    gpu_bvh.max = aabb.Max();
+    gpu_bvh.min = aabb.min();
+    gpu_bvh.max = aabb.max();
     gpu_bvh.hitIdx = hitIndex;
     gpu_bvh.missIdx = missIndex;
     gpu_bvh.leaf = !!isLeaf;

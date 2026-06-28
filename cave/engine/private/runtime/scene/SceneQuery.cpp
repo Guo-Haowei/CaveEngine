@@ -45,7 +45,7 @@ static bool RaycastHelper(Ray& ray,
                           const MeshAsset& mesh,
                           const TransformComponent& transform) {
 
-    Mat4f model_inv = glm::inverse(transform.GetWorldMatrix());
+    Mat4f model_inv = glm::inverse(transform.worldMatrix());
     Ray ray_inv = ray.inverse(model_inv);
     // make a copy, so aabb test doesn't change t
     if (!Ray(ray_inv).intersects(mesh.localBound)) {

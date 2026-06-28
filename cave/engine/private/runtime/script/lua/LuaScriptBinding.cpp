@@ -178,27 +178,27 @@ bool OpenSceneLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginClass<TransformComponent>("TransformComponent")
         .addFunction("translate", [](TransformComponent& p_transform, const Vec3f& p_translation) {
-            p_transform.Translate(p_translation);
+            p_transform.translate(p_translation);
         })
         .addFunction("get_translation", [](TransformComponent& p_transform) -> Vec3f {
-            return p_transform.GetTranslation();
+            return p_transform.translation();
         })
         .addFunction("set_translation", [](TransformComponent& p_transform, const Vec3f& p_translation) {
-            p_transform.SetTranslation(p_translation);
+            p_transform.setTranslation(p_translation);
         })
         .addFunction("get_world_translation", [](const TransformComponent& p_transform) {
-            glm::vec3 v = p_transform.GetWorldMatrix()[3];
+            glm::vec3 v = p_transform.worldMatrix()[3];
             return Vec3f(v.x, v.y, v.z);
         })
-        .addFunction("rotate", &TransformComponent::Rotate)
+        .addFunction("rotate", &TransformComponent::rotate)
         .addFunction("set_rotation", [](TransformComponent& p_transform, const Quat& p_quat) {
             Vec4f rotation(p_quat.value.x, p_quat.value.y, p_quat.value.z, p_quat.value.w);
-            p_transform.SetRotation(rotation);
+            p_transform.setRotation(rotation);
         })
         .addFunction("get_scale", [](const TransformComponent& p_transform) -> Vec3f {
-            return p_transform.GetScale();
+            return p_transform.scale();
         })
-        .addFunction("set_scale", &TransformComponent::SetScale)
+        .addFunction("set_scale", &TransformComponent::setScale)
         .endClass();
 
     // CameraComponent

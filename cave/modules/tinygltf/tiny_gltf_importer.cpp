@@ -570,7 +570,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
         matrix[3].y = float(node.matrix.at(13));
         matrix[3].z = float(node.matrix.at(14));
         matrix[3].w = float(node.matrix.at(15));
-        transform.MatrixTransform(matrix);
+        transform.matrixTransform(matrix);
     } else {
         if (!node.scale.empty()) {
             // Note: limiting min scale because scale <= 0.0001 will break matrix decompose and mess up the model (float precision issue?)
@@ -580,16 +580,16 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
                     node.scale[idx] = 0.0001001 * sign;
                 }
             }
-            transform.SetScale(Vec3f(float(node.scale[0]), float(node.scale[1]), float(node.scale[2])));
+            transform.setScale(Vec3f(float(node.scale[0]), float(node.scale[1]), float(node.scale[2])));
         }
         if (!node.rotation.empty()) {
-            transform.SetRotation(Vec4f(float(node.rotation[0]), float(node.rotation[1]), float(node.rotation[2]), float(node.rotation[3])));
+            transform.setRotation(Vec4f(float(node.rotation[0]), float(node.rotation[1]), float(node.rotation[2]), float(node.rotation[3])));
         }
         if (!node.translation.empty()) {
-            transform.SetTranslation(Vec3f(float(node.translation[0]), float(node.translation[1]), float(node.translation[2])));
+            transform.setTranslation(Vec3f(float(node.translation[0]), float(node.translation[1]), float(node.translation[2])));
         }
     }
-    transform.UpdateTransform();
+    transform.updateTransform();
 
     if (p_parent.IsValid()) {
         m_scene->attachChild(node_id, p_parent);

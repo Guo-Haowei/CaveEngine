@@ -15,6 +15,7 @@
 #include "cave/runtime/ecs/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/ecs/components/TriggerComponent.h"
 
 #include "cave/runtime/platformer/FacingComponent.h"
 

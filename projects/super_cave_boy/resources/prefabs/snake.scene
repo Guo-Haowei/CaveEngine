@@ -16,7 +16,8 @@ entities:
         data: [0.400000006, 0.300000012, 0.5]
       flags: 0
       category: 0
-      mask: 0
+      mask: 1
+      layer: 2
     VelocityComponent:
       linear: [0, 0, 0]
     NativeScriptComponent:
@@ -42,8 +43,8 @@ entities:
       image_id: 3F1DA968-0BAE-6D4A-8886F3EC9187FDE7
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0.5, 1]
-        max: [1, 0]
+        min: [0, 1]
+        max: [0.5, 0]
       flip_x: false
       flip_y: false
       is_billboard: false

@@ -299,4 +299,65 @@ bool ToggleButton(const char* str_id, bool& value) {
     return toggled;
 }
 
+bool DrawBitMask32(const char* str_id, uint32_t& value) {
+    bool changed = false;
+
+    ImGui::PushID(str_id);
+
+    ImGui::TextUnformatted(str_id);
+
+    constexpr int kColumns = 8;
+    constexpr int kRows = 2;
+
+    const ImVec2 button_size(32.0f, 24.0f);
+
+    const ImVec4 selected_color = ImVec4(0.30f, 0.48f, 0.66f, 1.0f);
+    const ImVec4 selected_hover_color = ImVec4(0.36f, 0.56f, 0.76f, 1.0f);
+    const ImVec4 selected_active_color = ImVec4(0.24f, 0.42f, 0.60f, 1.0f);
+
+    const ImVec4 unselected_color = ImVec4(0.15f, 0.22f, 0.30f, 1.0f);
+    const ImVec4 unselected_hover_color = ImVec4(0.20f, 0.30f, 0.40f, 1.0f);
+    const ImVec4 unselected_active_color = ImVec4(0.24f, 0.36f, 0.48f, 1.0f);
+
+    for (int row = 0; row < kRows; ++row) {
+        for (int col = 0; col < kColumns; ++col) {
+            const int index = row * kColumns + col;
+            const uint32_t bit = 1u << index;
+            const bool enabled = (value & bit) != 0;
+
+            ImGui::PushID(index);
+
+            char text[8];
+            std::snprintf(text, sizeof(text), "%d", index + 1);
+
+            if (enabled) {
+                ImGui::PushStyleColor(ImGuiCol_Button, selected_color);
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, selected_hover_color);
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, selected_active_color);
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Button, unselected_color);
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, unselected_hover_color);
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, unselected_active_color);
+            }
+
+            if (ImGui::Button(text, button_size)) {
+                value ^= bit;
+                changed = true;
+            }
+
+            ImGui::PopStyleColor(3);
+
+            ImGui::PopID();
+
+            if (col + 1 < kColumns) {
+                ImGui::SameLine(0.0f, 2.0f);
+            }
+        }
+    }
+
+    ImGui::PopID();
+
+    return changed;
+}
+
 }  // namespace cave::ui

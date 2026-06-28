@@ -31,8 +31,8 @@ Frustum::Frustum(const Mat4f& pv) {
 }
 
 bool Frustum::intersects(const AABB& box) const {
-    const Vec3f& box_min = box.Min();
-    const Vec3f& box_max = box.Max();
+    const Vec3f& box_min = box.min();
+    const Vec3f& box_max = box.max();
     for (int i = 0; i < 6; ++i) {
         const Plane& plane = this->operator[](i);
         Vec3f p;

@@ -25,12 +25,12 @@ bool ShouldTurnAround(const Box2& body,
     DEV_ASSERT(facing_x == -1 || facing_x == 1);
 
     const float front_x = facing_x > 0
-                              ? body.Max().x + kProbeEps
-                              : body.Min().x - kProbeEps;
+                              ? body.max().x + kProbeEps
+                              : body.min().x - kProbeEps;
 
-    const float wall_y = (body.Min().y + body.Max().y) * 0.5f;
+    const float wall_y = (body.min().y + body.max().y) * 0.5f;
 
-    const float ground_y = body.Min().y - kProbeEps;
+    const float ground_y = body.min().y - kProbeEps;
 
     const TileCoord wall_tile = TileWorldSystem::worldToTile({ front_x, wall_y });
     const TileCoord ground_tile = TileWorldSystem::worldToTile({ front_x, ground_y });
@@ -83,7 +83,7 @@ void SnakeController::onUpdate(float dt) {
 
     const float dx = vel->linear.x * dt;
 
-    transform->Translate({ dx, 0.0f, 0.0f });
+    transform->translate({ dx, 0.0f, 0.0f });
 }
 
 }  // namespace super_cave_boy

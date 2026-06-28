@@ -16,7 +16,8 @@ entities:
         data: [0.349999994, 0.349999994, 0.5]
       flags: 0
       category: 0
-      mask: 0
+      mask: 1
+      layer: 2
     ContactComponent:
       {}
     MotorComponent:
@@ -48,8 +49,8 @@ entities:
       image_id: 5DAAD570-BEFA-9343-A2611349F7AEF10D
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0, 1]
-        max: [0.200000003, 0]
+        min: [0.200000003, 1]
+        max: [0.400000006, 0]
       flip_x: false
       flip_y: false
       is_billboard: false

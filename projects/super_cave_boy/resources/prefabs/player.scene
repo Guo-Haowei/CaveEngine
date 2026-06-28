@@ -1,7 +1,6 @@
 version: 19
 seed: 2
 root: 1
-physics_mode: 0
 entities:
   - id: 1
     NameComponent:
@@ -17,7 +16,8 @@ entities:
         data: [0.25, 0.5, 0.5]
       flags: 0
       category: 0
-      mask: 0
+      mask: 14
+      layer: 1
     ContactComponent:
       {}
     MotorComponent:

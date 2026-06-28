@@ -64,7 +64,7 @@ static void Transform_OnEdited(Scene& p_scene,
                                uint32_t) {
     auto* t = (TransformComponent*)p_scene.storage().GetRaw(p_ent, TransformComponent_Id);
     if (DEV_VERIFY(t)) {
-        t->SetDirty();
+        t->setDirty();
     }
 }
 

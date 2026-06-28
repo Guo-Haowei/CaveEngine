@@ -179,7 +179,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
                 }
 
                 GpuPtMesh gpu_pt_mesh;
-                gpu_pt_mesh.transform = transform.GetWorldMatrix();
+                gpu_pt_mesh.transform = transform.worldMatrix();
                 gpu_pt_mesh.transformInv = glm::inverse(gpu_pt_mesh.transform);
                 const auto& cache = mesh_it->second;
                 gpu_pt_mesh.rootBvhId = cache.rootBvhId;

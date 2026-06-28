@@ -140,7 +140,7 @@ static void FillPass(const RenderScene& p_rs,
             const auto& subset = mesh.subsets[idx];
             // @TODO: cache world bound
             AABB aabb2 = subset.local_bound;
-            aabb2.ApplyMatrix(header.world);
+            aabb2.applyMatrix(header.world);
             if (!p_frustum.intersects(aabb2)) continue;
 
             ecs::Entity material_id = mesh.materials[idx];
@@ -186,7 +186,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
         light.color *= material.emissive;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
-                Mat4f light_local_matrix = light_transform->GetLocalMatrix();
+                Mat4f light_local_matrix = light_transform->localMatrix();
                 Vec3f light_dir((light_local_matrix * Vec4f(0, 0, 1, 1)).xyz);
                 light_dir = normalize(light_dir);
                 cache.c_sunPosition = light_dir;
@@ -196,11 +196,11 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 // @TODO: add option to specify extent
                 // @would be nice if can add debug draw
                 AABB world_bound = light_component.GetShadowRegion();
-                if (!world_bound.IsValid()) {
+                if (!world_bound.isValid()) {
                     world_bound = p_scene.bound();
                 }
-                Vec3f center = world_bound.Center();
-                Vec3f extents = world_bound.Size();
+                Vec3f center = world_bound.center();
+                Vec3f extents = world_bound.size();
 
                 const float size = 0.7f * max(extents.x, max(extents.y, extents.z));
                 Vec3f tmp;
@@ -278,7 +278,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
 #endif
             } break;
             case LIGHT_TYPE_AREA: {
-                Mat4f transform = light_transform->GetWorldMatrix();
+                Mat4f transform = light_transform->worldMatrix();
                 constexpr float s = 0.5f;
                 light.points[0] = transform * Vec4f(-s, +s, 0.0f, 1.0f);
                 light.points[1] = transform * Vec4f(-s, -s, 0.0f, 1.0f);
