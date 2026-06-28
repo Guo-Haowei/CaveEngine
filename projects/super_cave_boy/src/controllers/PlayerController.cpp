@@ -1,7 +1,7 @@
 #include "PlayerController.h"
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
-#include "cave/game/IHostServices.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
@@ -49,9 +49,9 @@ bool CheckWallGrab(
     }
 
     Box2 query = body;
-    query.SetMinMax(
-        query.Min() + Vec2f{ -kGrabEps, dy },
-        query.Max() + Vec2f{ kGrabEps, 0.0f });
+    query.setMinMax(
+        query.min() + Vec2f{ -kGrabEps, dy },
+        query.max() + Vec2f{ kGrabEps, 0.0f });
 
     for (const TileHit& hit_tile : world.querySolidTiles(query)) {
         const Box2& solid = hit_tile.aabb;
@@ -61,18 +61,18 @@ bool CheckWallGrab(
         }
 
         const bool player_top_crosses_tile_top =
-            body.Max().y >= solid.Max().y &&
-            body.Max().y + dy <= solid.Max().y;
+            body.max().y >= solid.max().y &&
+            body.max().y + dy <= solid.max().y;
 
         if (!player_top_crosses_tile_top) {
             continue;
         }
 
-        if (NearlyEqual(body.Max().x, solid.Min().x, kGrabEps)) {
+        if (NearlyEqual(body.max().x, solid.min().x, kGrabEps)) {
             return true;
         }
 
-        if (NearlyEqual(body.Min().x, solid.Max().x, kGrabEps)) {
+        if (NearlyEqual(body.min().x, solid.max().x, kGrabEps)) {
             return true;
         }
     }
@@ -246,6 +246,10 @@ void PlayerController::updatePlayerState(VelocityComponent& vel) {
     }
 
     motor.state = PlayerState::Idle;
+}
+
+void PlayerController::onCollision(ecs::Entity other) {
+    LOG_OK("colliding with {}", other.GetId());
 }
 
 }  // namespace super_cave_boy

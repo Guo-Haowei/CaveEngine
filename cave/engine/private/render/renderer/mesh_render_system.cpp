@@ -140,7 +140,7 @@ static void FillPass(const RenderScene& p_rs,
             const auto& subset = mesh.subsets[idx];
             // @TODO: cache world bound
             AABB aabb2 = subset.local_bound;
-            aabb2.ApplyMatrix(header.world);
+            aabb2.applyMatrix(header.world);
             if (!p_frustum.intersects(aabb2)) continue;
 
             ecs::Entity material_id = mesh.materials[idx];
@@ -196,11 +196,11 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 // @TODO: add option to specify extent
                 // @would be nice if can add debug draw
                 AABB world_bound = light_component.GetShadowRegion();
-                if (!world_bound.IsValid()) {
+                if (!world_bound.isValid()) {
                     world_bound = p_scene.bound();
                 }
-                Vec3f center = world_bound.Center();
-                Vec3f extents = world_bound.Size();
+                Vec3f center = world_bound.center();
+                Vec3f extents = world_bound.size();
 
                 const float size = 0.7f * max(extents.x, max(extents.y, extents.z));
                 Vec3f tmp;

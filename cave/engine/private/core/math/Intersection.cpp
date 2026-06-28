@@ -5,16 +5,6 @@
 
 namespace cave::math {
 
-bool TestIntersection::aabbAabb(const AABB& aabb1, const AABB& aabb2) {
-    AABB tmp{ aabb1 };
-    tmp.IntersectBox(aabb2);
-    bool result = true;
-    result = result && tmp.m_min.x < tmp.m_max.x;
-    result = result && tmp.m_min.y < tmp.m_max.y;
-    result = result && tmp.m_min.z < tmp.m_max.z;
-    return result;
-}
-
 bool TestIntersection::planeRay(const Plane& plane, Ray& ray) {
     const float denom = math::dot(plane.normal(), ray.direction());
     if (math::abs(denom) < epsilon()) {
@@ -34,8 +24,8 @@ bool TestIntersection::aabbRay(const AABB& aabb, Ray& ray) {
     const Vec3f direction = ray.end_ - ray.origin_;
 
     Vec3f inv_d = 1.0f / direction;
-    Vec3f t0s = (aabb.m_min - ray.origin_) * inv_d;
-    Vec3f t1s = (aabb.m_max - ray.origin_) * inv_d;
+    Vec3f t0s = (aabb.min() - ray.origin_) * inv_d;
+    Vec3f t1s = (aabb.max() - ray.origin_) * inv_d;
 
     Vec3f tsmaller = min(t0s, t1s);
     Vec3f tbigger = max(t0s, t1s);

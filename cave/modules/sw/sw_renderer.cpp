@@ -106,21 +106,21 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
 
     const Box2 screenBox(Vec2f::Zero, Vec2f(width, height));
     Box2 aabb{};
-    aabb.ExpandPoint(a);
-    aabb.ExpandPoint(b);
-    aabb.ExpandPoint(c);
-    aabb.IntersectBox(screenBox);
-    bool intersect = aabb.IsValid();
+    aabb.expandToInclude(a);
+    aabb.expandToInclude(b);
+    aabb.expandToInclude(c);
+    aabb.clip(screenBox);
+    bool intersect = aabb.isValid();
     // discard if not intersect
     if (!intersect) {
         return;
     }
 
     // rasterization
-    Vec2f min = aabb.Min();
+    Vec2f min = aabb.min();
     min.x = std::floor(min.x);
     min.y = std::floor(min.y);
-    Vec2f max = aabb.Max();
+    Vec2f max = aabb.max();
     max.x = std::ceil(max.x);
     max.y = std::ceil(max.y);
     for (int _y = (int)min.y; _y < (int)max.y; ++_y) {

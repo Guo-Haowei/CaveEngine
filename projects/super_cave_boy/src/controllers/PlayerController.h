@@ -34,11 +34,12 @@ class PlayerController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 public:
-    void onCreate() override;
-
-    void onUpdate(float dt) override;
 
 private:
+    void onCreate() override;
+    void onUpdate(float dt) override;
+    void onCollision(cave::ecs::Entity other) override;
+
     void updateAnimation(cave::SceneQuery& query);
     void updatePlayerState(cave::VelocityComponent& vel);
 

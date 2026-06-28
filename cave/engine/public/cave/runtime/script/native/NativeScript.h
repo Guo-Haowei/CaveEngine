@@ -13,9 +13,9 @@ class NativeScript {
 public:
     virtual ~NativeScript() = default;
 
-    ecs::Entity entity() const {
-        return entity_;
-    }
+    ecs::Entity entity() const { return entity_; }
+
+    virtual void onCollision(ecs::Entity) {}
 
 protected:
     SceneContext& context() {

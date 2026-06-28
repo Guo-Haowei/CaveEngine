@@ -340,8 +340,8 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
 
         Mat4f M = transform.worldMatrix();
         AABB aabb = mesh->localBound;
-        aabb.ApplyMatrix(M);
-        bound.UnionBox(aabb);
+        aabb.applyMatrix(M);
+        bound.expandToInclude(aabb);
     }
 
     scene.m_bound = bound;

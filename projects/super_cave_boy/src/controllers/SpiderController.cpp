@@ -19,7 +19,7 @@ namespace {
 Vec2f GetAABBCenter(const TransformComponent& transform,
                     const ColliderComponent& collider) {
     Box2 aabb = ComputeWorldAABB(transform, collider);
-    return (aabb.Min() + aabb.Max()) * 0.5f;
+    return (aabb.min() + aabb.max()) * 0.5f;
 }
 
 }  // namespace

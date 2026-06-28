@@ -23,8 +23,8 @@ static CameraComponent FitAABBToCamera(const math::AABB& aabb,
                                        const PreviewOptions& options,
                                        float padding = 1.15f) {
     CameraComponent camera;
-    const Vec3f center = aabb.Center();
-    const Vec3f extents = aabb.HalfExtent();
+    const Vec3f center = aabb.center();
+    const Vec3f extents = aabb.halfExtent();
 
     const float r = padding * math::length(extents);
     const float aspect = (float)options.width / options.height;
