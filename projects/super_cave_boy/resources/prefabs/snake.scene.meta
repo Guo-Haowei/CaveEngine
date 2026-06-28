@@ -4,6 +4,6 @@ name: snake.scene
 import_path: "@res://prefabs/snake.scene"
 dependencies: [9C019531-38B4-F44A-9F1A715A0D2D67E7]
 source_created_time: 2026-06-21 06:53:56.0540336
-source_last_modified: 2026-06-23 14:10:46.9547574
+source_last_modified: 2026-06-27 05:21:47.9630139
 import_settings:
   {}

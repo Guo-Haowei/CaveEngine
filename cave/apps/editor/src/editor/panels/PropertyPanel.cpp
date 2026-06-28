@@ -33,12 +33,15 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 
 // @TODO: refactor this
+// @TODO: add motor to add velocity, collider, contact, etc
+// @TODO: add motor2d?
 #define COMPONENT_LIST              \
     COMPONENT_DECL(Camera)          \
     COMPONENT_DECL(LuaScript)       \
     COMPONENT_DECL(NativeScript)    \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
+    COMPONENT_DECL(Trigger)         \
     COMPONENT_DECL(Velocity)        \
     COMPONENT_DECL(Motor)           \
     COMPONENT_DECL(MeshRenderer)    \
@@ -174,71 +177,78 @@ bool EditAndSubmit(const DrawComponentCtx& p_ctx,
 }
 
 template<typename T>
-bool DrawPropertyAuto(const FieldMetaBase* p_property,
-                      T* p_component,
-                      const DrawComponentCtx& p_ctx) {
-    switch (p_property->editor_hint) {
+bool DrawPropertyAuto(const FieldMetaBase* property,
+                      T* component,
+                      const DrawComponentCtx& ctx) {
+    switch (property->editor_hint) {
         case EditorHint::EnumDropDown:
-            return p_property->DrawEditor(p_component, ui::kDefaultColumnWidth);
+            return property->DrawEditor(component, ui::kDefaultColumnWidth);
         case EditorHint::Toggle:
             return EditAndSubmit<T, bool>(
-                p_ctx, p_component, p_property,
-                [](const char* p_label, bool& p_value) {
-                    return ui::CheckBox(p_label, p_value);
+                ctx, component, property,
+                [](const char* label, bool& value) {
+                    return ui::CheckBox(label, value);
                 });
         case EditorHint::InputInt:
             return (int)EditAndSubmit<T, int>(
-                p_ctx, p_component, p_property,
-                [](const char* p_label, int& p_value) {
-                    return ui::InputInt(p_label, p_value);
+                ctx, component, property,
+                [](const char* label, int& value) {
+                    return ui::InputInt(label, value);
                 });
         case EditorHint::InputFloat:
             return EditAndSubmit<T, float>(
-                p_ctx, p_component, p_property,
-                [](const char* p_label, float& p_value) {
-                    return ui::InputFloat(p_label, p_value);
+                ctx, component, property,
+                [](const char* label, float& value) {
+                    return ui::InputFloat(label, value);
                 });
+        case EditorHint::BitMask: {
+            return EditAndSubmit<T, uint32_t>(
+                ctx, component, property,
+                [](const char* label, uint32_t& value) {
+                    return ui::DrawBitMask32(label, value);
+                });
+        } break;
         case EditorHint::DragInt:
             BreakIfDebug();
             return false;
         case EditorHint::DragFloat:
             return EditAndSubmit<T, float>(
-                p_ctx, p_component, p_property,
-                [&](const char* p_label, float& p_value) {
-                    return ui::DragFloat(p_label,
-                                         p_value,
+                ctx, component, property,
+                [&](const char* label, float& value) {
+                    return ui::DragFloat(label,
+                                         value,
                                          0.01f,
-                                         p_property->v_min,
-                                         p_property->v_max);
+                                         property->v_min,
+                                         property->v_max);
                 });
         case EditorHint::Color:
             return EditAndSubmit<T, Vec4f>(
-                p_ctx, p_component, p_property,
-                [](const char* p_label, Vec4f& p_value) {
-                    return ui::ColorPicker4(p_label, p_value);
+                ctx, component, property,
+                [](const char* label, Vec4f& value) {
+                    return ui::ColorPicker4(label, value);
                 });
         case EditorHint::Translation:
             return EditAndSubmit<T, Vec3f>(
-                p_ctx, p_component, p_property,
-                [](const char* p_label, Vec3f& p_value) {
-                    return ui::Float3(p_label, p_value, 0.0f);
+                ctx, component, property,
+                [](const char* label, Vec3f& value) {
+                    return ui::Float3(label, value, 0.0f);
                 });
         case EditorHint::Scale:
             return EditAndSubmit<T, Vec3f>(
-                p_ctx, p_component, p_property,
-                [](const char* p_label, Vec3f& p_value) {
-                    return ui::Float3(p_label, p_value, 1.0f);
+                ctx, component, property,
+                [](const char* label, Vec3f& value) {
+                    return ui::Float3(label, value, 1.0f);
                 });
         case EditorHint::Rotation: {
             // @TODO: fix this
-            Vec4f& q = p_property->template GetData<Vec4f>(p_component);
+            Vec4f& q = property->template GetData<Vec4f>(component);
             glm::vec3 euler_ = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
             Vec3f euler = *reinterpret_cast<Vec3f*>(&euler_);
             constexpr float RAD_TO_DEG = 180.0f / glm::pi<float>();
             constexpr float DEG_TO_RAD = glm::pi<float>() / 180.0f;
             euler *= RAD_TO_DEG;
 
-            if (!ui::Float3(p_property->name, euler, 0.0f)) {
+            if (!ui::Float3(property->name, euler, 0.0f)) {
                 return false;
             }
 
@@ -249,18 +259,18 @@ bool DrawPropertyAuto(const FieldMetaBase* p_property,
             Vec4f new_v{ q2.x, q2.y, q2.z, q2.w };
 
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                p_ctx.app.services().sceneRegistry(),
-                p_ctx.entity,
-                p_component->GetId(),
-                p_property->id,
+                ctx.app.services().sceneRegistry(),
+                ctx.entity,
+                component->GetId(),
+                property->id,
                 old_v,
                 new_v);
-            p_ctx.edit.submit(p_ctx.doc_id, std::move(cmd));
+            ctx.edit.submit(ctx.doc_id, std::move(cmd));
             return true;
         } break;
         case EditorHint::Asset: {
-            const Guid& guid = p_property->template GetData<Guid>(p_component);
-            return DrawAsset(p_property->name, guid, p_component, p_ctx);
+            const Guid& guid = property->template GetData<Guid>(component);
+            return DrawAsset(property->name, guid, component, ctx);
         } break;
         default:
             return false;
@@ -540,31 +550,6 @@ void PropertyPanel::drawUIImpl() {
             p_camera.SetDirty();
         }
     });
-
-#if 0
-    DrawComponent("ParticleEmitter", particle_emitter_component, [](ParticleEmitterComponent& p_emitter) {
-        const float width = 100.0f;
-        ImGui::Checkbox("Gravity", &p_emitter.gravity);
-        DrawVec3Control("Velocity", p_emitter.startingVelocity, 0.0f, width);
-        DrawDragInt("Max count", p_emitter.maxParticleCount, 1000.f, 1000, MAX_PARTICLE_COUNT, width);
-        DrawDragInt("Emit per frame", p_emitter.particlesPerFrame, 10.0f, 1, 10000, width);
-        DrawDragFloat("Scaling", p_emitter.particleScale, 0.01f, 0.01f, 10.0f, width);
-        DrawDragFloat("Life span", p_emitter.particleLifeSpan, 0.1f, 0.1f, 10.0f, width);
-        ImGui::Separator();
-        DrawColorPicker3("base color", &p_emitter.color.x, width);
-        DrawInputText("texture", p_emitter.texture, width);
-    });
-
-    DrawComponent("MeshEmitter", mesh_emitter_component, [](MeshEmitterComponent& p_emitter) {
-        // const float width = 100.0f;
-        if (ImGui::Button("reset")) {
-            p_emitter.Reset();
-        }
-
-        DrawCheckBoxBitflag("run", p_emitter.flags, MeshEmitterComponent::RUNNING);
-        DrawCheckBoxBitflag("recycle", p_emitter.flags, MeshEmitterComponent::RECYCLE);
-    });
-#endif
 }
 
 }  // namespace cave

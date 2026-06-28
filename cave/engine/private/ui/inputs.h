@@ -58,4 +58,6 @@ bool ColorPicker4(const char* label,
 
 bool ToggleButton(const char* str_id, bool& value);
 
+bool DrawBitMask32(const char* str_id, uint32_t& value);
+
 }  // namespace cave::ui

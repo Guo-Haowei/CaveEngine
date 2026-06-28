@@ -16,10 +16,13 @@ entities:
         data: [0.300000012, 0.300000012, 0.5]
       flags: 0
       category: 0
-      mask: 0
-    ContactComponent: {}
+      mask: 1
+      layer: 2
+    ContactComponent:
+      {}
     MotorComponent:
       affected_by_gravity: false
+      terminal_fall_speed: -30
       gravity: 0
     VelocityComponent:
       linear: [0, 0, 0]

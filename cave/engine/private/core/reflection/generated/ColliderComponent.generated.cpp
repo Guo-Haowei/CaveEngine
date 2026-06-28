@@ -13,7 +13,8 @@ namespace cave {
 // Shape shape_ ()
 // uint32_t flags_ ()
 // uint64_t category_ ()
-// uint64_t mask_ ()
+// uint32_t layer_ (editor = BitMask)
+// uint32_t mask_ (editor = BitMask)
 
 template<>
 const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
@@ -23,7 +24,8 @@ const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
         REGISTER_FIELD(ColliderComponent, "shape", shape_, FieldFlag::Serialize, EditorHint::None),
         REGISTER_FIELD(ColliderComponent, "flags", flags_, FieldFlag::Serialize, EditorHint::None),
         REGISTER_FIELD(ColliderComponent, "category", category_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(ColliderComponent, "mask", mask_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(ColliderComponent, "layer", layer_, FieldFlag::Serialize, EditorHint::BitMask),
+        REGISTER_FIELD(ColliderComponent, "mask", mask_, FieldFlag::Serialize, EditorHint::BitMask),
     };
 
     return s_table;
