@@ -112,7 +112,7 @@ public:
     void removeEntity(ecs::Entity ent);
 
     void attachChild(ecs::Entity child, ecs::Entity parent);
-    void attachChild(ecs::Entity child) { attachChild(child, m_root); }
+    void attachChild(ecs::Entity child) { attachChild(child, root_); }
 
     void update(float dt);
 
@@ -122,17 +122,10 @@ public:
 
     void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::Null());
 
-    const math::AABB& bound() const { return m_bound; }
-
-    ecs::Entity m_root;
-
-    // @TODO: deprecate
-    std::atomic<uint32_t> m_dirtyFlags{ SCENE_DIRTY_NONE };
-    // @TODO: refactor
-    math::AABB m_bound;
+    const math::AABB& bound() const { return bound_; }
 
     // @TODO: refactor
-    SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(m_dirtyFlags.load()); }
+    SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(dirtyFlags_.load()); }
 
     ecs::ComponentStorage& storage() noexcept { return storage_; }
     const ecs::ComponentStorage& storage() const noexcept { return storage_; }
@@ -143,9 +136,6 @@ public:
     void onSimEnd();
     void simulate(float dt);
 
-    // -------------------------------------------------------------------------
-    // Utility
-    // -------------------------------------------------------------------------
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
 
@@ -158,8 +148,16 @@ public:
 
     virtual std::vector<Guid> GetDependencies() const override;
 
+    // @TODO: deprecate
+    std::atomic<uint32_t> dirtyFlags_{ SCENE_DIRTY_NONE };
+    // @TODO: refactor
+    math::AABB bound_;
+
+    ecs::Entity root_;
+
 private:
-    std::vector<ecs::Entity> GetSortedEntityArray() const;
+    std::vector<ecs::Entity> getSortedEntityArray() const;
+    void flushPendingDestroy();
 
     ecs::ComponentRegistry& component_registry_;
     std::string name_;

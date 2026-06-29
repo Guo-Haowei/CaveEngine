@@ -39,7 +39,7 @@ Scene::~Scene() = default;
 void Scene::update(float dt) {
     CAVE_PROFILE_EVENT();
 
-    m_dirtyFlags.store(0);
+    dirtyFlags_.store(0);
 
     jobsystem::Context ctx;
     // animation
@@ -65,14 +65,16 @@ void Scene::update(float dt) {
     // @TODO: refactor
     for (auto [entity, camera, transform] : view<CameraComponent, TransformComponent>()) {
         if (camera.Update(transform.worldMatrix())) {
-            m_dirtyFlags.fetch_or(SCENE_DIRTY_CAMERA);
+            dirtyFlags_.fetch_or(SCENE_DIRTY_CAMERA);
         }
     }
+
+    flushPendingDestroy();
 }
 
-void Scene::copy(const Scene& p_other) {
+void Scene::copy(const Scene& other) {
     ComponentId idx = 0;
-    for (auto& entry : p_other.storage_.GetEntries()) {
+    for (auto& entry : other.storage_.GetEntries()) {
         if (entry.pool) {
             storage_.Ensure(idx);
             storage_.m_entries[idx].pool = std::move(entry.pool->Clone());
@@ -80,12 +82,12 @@ void Scene::copy(const Scene& p_other) {
         ++idx;
     }
 
-    m_root = p_other.m_root;
-    m_bound = p_other.m_bound;
-    entity_seed_ = p_other.entity_seed_;
+    root_ = other.root_;
+    bound_ = other.bound_;
+    entity_seed_ = other.entity_seed_;
 }
 
-std::vector<Entity> Scene::GetSortedEntityArray() const {
+std::vector<Entity> Scene::getSortedEntityArray() const {
     std::unordered_set<Entity> entity_set;
 
     for (const auto& it : storage_.GetEntries()) {
@@ -104,6 +106,23 @@ std::vector<Entity> Scene::GetSortedEntityArray() const {
     return entity_array;
 }
 
+void Scene::flushPendingDestroy() {
+    const size_t pending_count = count<PendingDestroy>();
+    if (pending_count == 0) {
+        return;
+    }
+
+    std::vector<Entity> entities;
+    entities.reserve(pending_count);
+    for (auto [ent, _] : view<PendingDestroy>()) {
+        entities.emplace_back(ent);
+    }
+
+    for (auto ent : entities) {
+        removeEntity(ent);
+    }
+}
+
 void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
     if (handle.is_none()) {
@@ -115,7 +134,7 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     Scene copy("prefab");
     copy.copy(*source);
 
-    auto new_entities = copy.GetSortedEntityArray();
+    auto new_entities = copy.getSortedEntityArray();
     std::unordered_map<Entity, Entity> mapping;
     for (Entity raw_entity : new_entities) {
         Entity mapped = createEntity();
@@ -154,9 +173,9 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     }
 
     // link instance
-    Entity mapped_root = mapping[copy.m_root];
+    Entity mapped_root = mapping[copy.root_];
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
-    hier.parent_id = ent.IsValid() ? ent : m_root;
+    hier.parent_id = ent.IsValid() ? ent : root_;
 
     TransformComponent* transform = component<TransformComponent>(mapped_root);
     transform->setTranslation(prefab.translation());
@@ -199,12 +218,12 @@ Entity Scene::findChildByName(std::string_view name, Entity ent) const {
     return ecs::Entity::Null();
 }
 
-void Scene::removeEntity(ecs::Entity p_ent) {
+void Scene::removeEntity(ecs::Entity ent) {
     // @TODO: move it to SceneCommandExecutor
-    if (!p_ent.IsValid()) return;
+    if (!ent.IsValid()) return;
     std::vector<ecs::Entity> children;
     for (auto [child, hierarchy] : view<HierarchyComponent>()) {
-        if (hierarchy.parent_id == p_ent) {
+        if (hierarchy.parent_id == ent) {
             children.emplace_back(child);
         }
     }
@@ -215,43 +234,42 @@ void Scene::removeEntity(ecs::Entity p_ent) {
 
     for (auto& e : storage_.GetEntries()) {
         if (e.pool) {
-            e.pool->Remove(p_ent);
+            e.pool->Remove(ent);
         }
     }
 }
 
-void Scene::attachChild(ecs::Entity p_child, ecs::Entity p_parent) {
-    DEV_ASSERT(p_child != p_parent);
-    DEV_ASSERT(p_parent.IsValid());
+void Scene::attachChild(ecs::Entity child, ecs::Entity parent) {
+    DEV_ASSERT(child != parent);
+    DEV_ASSERT(parent.IsValid());
 
     // @TODO: prevent circular dependency
 
-    HierarchyComponent* hier = component<HierarchyComponent>(p_child);
+    HierarchyComponent* hier = component<HierarchyComponent>(child);
 
     if (hier == nullptr) {
-        hier = &create<HierarchyComponent>(p_child);
+        hier = &create<HierarchyComponent>(child);
     }
 
-    hier->parent_id = p_parent;
+    hier->parent_id = parent;
 }
 
 template<typename T>
-static void DuplicateComponent(Scene& p_scene, ecs::Entity p_source, ecs::Entity p_dest) {
-    if (const T* comp = p_scene.component<T>(p_source)) {
+static void DuplicateComponent(Scene& scene, Entity source, Entity dest) {
+    if (const T* comp = scene.component<T>(source)) {
         T copy = *comp;
-        T& dest = p_scene.create<T>(p_dest);
-        dest = copy;
+        scene.create<T>(dest) = copy;
     }
 }
 
-ecs::Entity Scene::duplicateEntity(ecs::Entity p_ent) {
-    if (!p_ent.IsValid()) {
-        return p_ent;
+ecs::Entity Scene::duplicateEntity(ecs::Entity ent) {
+    if (!ent.IsValid()) {
+        return ent;
     }
 
     ecs::Entity entity = createEntity();
 
-#define REGISTER_COMPONENT(COMP, ...) DuplicateComponent<COMP>(*this, p_ent, entity);
+#define REGISTER_COMPONENT(COMP, ...) DuplicateComponent<COMP>(*this, ent, entity);
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
@@ -278,11 +296,11 @@ std::vector<Guid> Scene::GetDependencies() const {
 
     dependencies.erase(
         std::remove_if(dependencies.begin(), dependencies.end(),
-                       [](Guid p_guid) {
+                       [](Guid guid) {
                            // @HACK: replace the last two digits to see if guid is 0
-                           uint8_t* data = const_cast<uint8_t*>(p_guid.GetData());
+                           uint8_t* data = const_cast<uint8_t*>(guid.GetData());
                            data[15] = 0;
-                           return p_guid.IsNull();
+                           return guid.IsNull();
                        }),
         dependencies.end());
 
@@ -321,11 +339,11 @@ concept HasOnDeserialized = requires(T& t) {
 
 template<ComponentType T>
 static void DeserializeComponent(IDeserializer& d,
-                                 const char* p_key,
-                                 ecs::Entity p_id,
-                                 Scene& p_scene) {
-    if (d.TryEnterKey(p_key)) {
-        T& component = p_scene.create<T>(p_id);
+                                 const char* key,
+                                 ecs::Entity ent,
+                                 Scene& scene) {
+    if (d.TryEnterKey(key)) {
+        T& component = scene.create<T>(ent);
         d.Read(component);
         d.LeaveKey();
         if constexpr (HasOnDeserialized<T>) {
@@ -334,10 +352,10 @@ static void DeserializeComponent(IDeserializer& d,
     }
 }
 
-auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
+auto Scene::LoadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YAML::Node root;
 
-    if (auto res = LoadYaml(p_meta.import_path, root); !res) {
+    if (auto res = LoadYaml(meta.import_path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -354,7 +372,7 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
         d.LeaveKey();
     }
     if (d.TryEnterKey("root")) {
-        d.Read(m_root);
+        d.Read(root_);
         d.LeaveKey();
     }
 
@@ -392,21 +410,21 @@ auto Scene::LoadFromDisk(const AssetMetaData& p_meta) -> Result<void> {
 }
 
 template<ComponentType T>
-static bool SerializeComponent(ISerializer& p_serializer,
-                               const char* p_name,
-                               ecs::Entity p_ent,
-                               const Scene& p_scene) {
+static bool SerializeComponent(ISerializer& s,
+                               const char* name,
+                               ecs::Entity ent,
+                               const Scene& scene) {
 
-    const T* component = p_scene.component<T>(p_ent);
+    const T* component = scene.component<T>(ent);
     if (component) {
-        p_serializer.Key(p_name);
-        p_serializer.Write(*component);
+        s.Key(name);
+        s.Write(*component);
     }
     return true;
 }
 
-auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
-    auto res = p_meta.SaveToDisk(this);
+auto Scene::SaveToDisk(const AssetMetaData& meta) const -> Result<void> {
+    auto res = meta.SaveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -414,7 +432,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
     // @TODO: maybe pass ISerializer next
     YamlSerializer yaml;
 
-    auto entity_array = GetSortedEntityArray();
+    auto entity_array = getSortedEntityArray();
 
     yaml.BeginMap(false)
         .Key("version")
@@ -422,7 +440,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
         .Key("seed")
         .Write(entity_array.back())
         .Key("root")
-        .Write(m_root)
+        .Write(root_)
         .Key("entities");
 
     yaml.BeginArray(false);
@@ -447,7 +465,7 @@ auto Scene::SaveToDisk(const AssetMetaData& p_meta) const -> Result<void> {
 
     yaml.EndArray();
     yaml.EndMap();
-    return SaveYaml(p_meta.import_path, yaml);
+    return SaveYaml(meta.import_path, yaml);
 }
 
 void Scene::onSimBegin(SceneContext& ctx) {

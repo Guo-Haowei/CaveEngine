@@ -11,6 +11,10 @@ struct NoSaveTag {
     CAVE_COMPONENT(NoSaveTag)
 };
 
+struct PendingDestroy {
+    CAVE_COMPONENT(PendingDestroy)
+};
+
 class NameComponent {
     CAVE_COMPONENT(NameComponent)
 

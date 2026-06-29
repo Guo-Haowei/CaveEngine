@@ -72,7 +72,7 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
                 scene->create(TransformComponent_Id, ent);
                 scene->create<NameComponent>(ent).setName("untitled");
 
-                scene->m_root = root;
+                scene->root_ = root;
                 scene->attachChild(ent);
             }
             return scene;

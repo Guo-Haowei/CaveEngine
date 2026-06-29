@@ -1,4 +1,4 @@
-#include "SceneComponents.h"
+#include "LegacySceneComponents.h"
 
 namespace cave {
 
