@@ -25,7 +25,7 @@ class MotorSystem final : public ISceneSystem {
 public:
     MotorSystem();
 
-    void update(float dt) override;
+    void update(SceneTickContext& ctx) override;
 
     DebugId debugId() const override { return debug_id_; }
 
@@ -38,8 +38,8 @@ private:
                          ContactComponent* contact,
                          math::Vec2f desired_delta);
 
-    void runTileWorldCollision(SceneQuery& query, float dt);
-    void runCollisionPair(SceneQuery& query, float dt);
+    void runTileWorldCollision(SceneTickContext& ctx);
+    void runCollisionPair(SceneTickContext& ctx);
 
     const DebugId debug_id_;
 };

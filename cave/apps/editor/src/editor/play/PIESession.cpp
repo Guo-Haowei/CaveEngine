@@ -69,10 +69,10 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
     Scene* scene = scene_reg.resolve(pie_scene_);
     DEV_ASSERT(scene);
 
-    SceneContext ctx{
-        .game_input = services_.inputService().gameInput(),
+    SceneContext ctx = {
         .native_scripts = services_.nativeScripts(),
         .scene = *scene,
+        .query = SceneQuery(*scene),
         .engine_services = services_,
     };
 
@@ -95,7 +95,14 @@ void PIESession::onSimEnd() {
     running_ = false;
 
     if (Scene* scene = scene_reg.resolve(pie_scene_)) {
-        scene->onSimEnd();
+        SceneContext ctx = {
+            .native_scripts = services_.nativeScripts(),
+            .scene = *scene,
+            .query = SceneQuery(*scene),
+            .engine_services = services_,
+        };
+
+        scene->onSimEnd(ctx);
 
         if (game_module_) {
             game_module_->onGameEnd(*host_);

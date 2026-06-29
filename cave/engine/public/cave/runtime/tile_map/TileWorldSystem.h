@@ -33,11 +33,11 @@ public:
     static TileCoord worldToTile(math::Vec2f world_pos, float tile_size = 1.0f);
 
 protected:
-    void onAttach() override;
-    void onDetach() override;
+    void onAttach(SceneContext& ctx) override;
+    void onDetach(SceneContext& ctx) override;
 
 private:
-    void rebuildCollision();
+    void rebuildCollision(SceneContext& ctx);
 
     const DebugId debug_id_;
 

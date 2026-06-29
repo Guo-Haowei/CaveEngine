@@ -118,7 +118,7 @@ void PlayerController::onUpdate(float dt) {
         // Revive();
     }
 
-    const IGameInput& input = context().game_input;
+    const IGameInput& input = context().engine_services.gameInput();
     SceneQuery query(context().scene);
 
     auto transform = query.component<TransformComponent>(entity());

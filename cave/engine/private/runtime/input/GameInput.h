@@ -11,7 +11,7 @@ namespace cave {
 
 class GameInput final : public IGameInput {
 public:
-    GameInput(const PointerState* pointers);
+    GameInput();
 
     void initialize();
 
@@ -35,6 +35,7 @@ public:
                        const DeviceRouting& routing);
 
     const PointerState& pointerState() const override;
+    void setPointer(const PointerState* pointers) { pointers_ = pointers; }
 
 private:
     struct Entry {

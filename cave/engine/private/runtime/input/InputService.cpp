@@ -10,9 +10,9 @@ namespace cave {
 using namespace cave::literals;
 using namespace cave::math;
 
-InputService::InputService()
+InputService::InputService(GameInput& game_input)
     : IService("InputService")
-    , game_input_(pointers_.data()) {}
+    , game_input_(game_input) {}
 
 auto InputService::InitializeImpl() -> Result<void> {
     game_input_.initialize();

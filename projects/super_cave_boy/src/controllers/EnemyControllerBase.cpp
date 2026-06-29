@@ -7,8 +7,7 @@ using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
 void EnemyControllerBase::onCreate() {
-    SceneQuery query(context().scene);
-
+    SceneQuery& query = context().query;
     player_ = findPlayer(query);
     animator_ = query.findChildByName("animator_node", entity());
 }

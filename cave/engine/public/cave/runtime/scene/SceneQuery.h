@@ -7,11 +7,13 @@
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/scene/ISceneSystem.h"
 
 namespace cave {
 
+class ISceneSystem;
 class Scene;
+enum class SceneSystemId : uint32_t;
+
 using ComponentId = uint16_t;
 
 struct RayHit {
@@ -36,7 +38,7 @@ public:
         : scene_(scene) {}
 
     ISceneSystem* system(SceneSystemId id);
-    template<SceneSystem T>
+    template<typename T>
     T* system() {
         return static_cast<T*>(system(T::kSystemId));
     }

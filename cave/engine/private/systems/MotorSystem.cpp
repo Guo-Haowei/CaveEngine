@@ -164,8 +164,11 @@ MotorSystem::MotorSystem()
     : debug_id_(MakeDebugId(this)) {
 }
 
-void MotorSystem::runTileWorldCollision(SceneQuery& query, float dt) {
-    Scene& scene = context().scene;
+void MotorSystem::runTileWorldCollision(SceneTickContext& ctx) {
+    const float dt = ctx.dt;
+    Scene& scene = ctx.sceneCtx.scene;
+    SceneQuery& query = ctx.sceneCtx.query;
+
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
@@ -198,8 +201,9 @@ struct CollisionPair {
     ecs::Entity b;
 };
 
-void MotorSystem::runCollisionPair(SceneQuery& query, float) {
-    Scene& scene = context().scene;
+void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
+    Scene& scene = ctx.sceneCtx.scene;
+    SceneQuery& query = ctx.sceneCtx.query;
 
     std::vector<ColliderProxy> colliders;
 
@@ -250,12 +254,9 @@ void MotorSystem::runCollisionPair(SceneQuery& query, float) {
     }
 }
 
-void MotorSystem::update(float dt) {
-    Scene& scene = context().scene;
-    SceneQuery query(scene);
-
-    runTileWorldCollision(query, dt);
-    runCollisionPair(query, dt);
+void MotorSystem::update(SceneTickContext& ctx) {
+    runTileWorldCollision(ctx);
+    runCollisionPair(ctx);
 }
 
 void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,

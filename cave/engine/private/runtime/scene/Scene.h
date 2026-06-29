@@ -4,6 +4,7 @@
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/assets/IAsset.h"
 #include "cave/runtime/ecs/ComponentStorage.h"
+#include "cave/runtime/scene/SceneTickContext.h"
 
 #include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
@@ -18,7 +19,6 @@ namespace cave {
 // @TODO: refactor
 class PrefabInstanceComponent;
 
-struct SceneContext;
 class SystemManager;
 
 enum SceneDirtyFlags : uint32_t {
@@ -114,7 +114,8 @@ public:
     void attachChild(ecs::Entity child, ecs::Entity parent);
     void attachChild(ecs::Entity child) { attachChild(child, root_); }
 
-    void tick(float dt);
+    void update(float dt);
+    void tick(SceneTickContext& ctx);
 
     void copy(const Scene& other);
 
@@ -130,8 +131,7 @@ public:
     std::string_view name() const { return name_; }
 
     void onSimBegin(SceneContext& ctx);
-    void onSimEnd();
-    void simulate(float dt);
+    void onSimEnd(SceneContext& ctx);
 
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
@@ -160,6 +160,8 @@ public:
     math::AABB bound_;
 
 private:
+    void simulate(SceneTickContext& ctx);
+
     std::vector<ecs::Entity> getSortedEntityArray() const;
     void flushPendingDestroy();
 

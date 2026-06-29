@@ -47,11 +47,11 @@ public:
     }
 
     void onSceneCreate(SceneContext& ctx);
-    void onSceneDestroy();
+    void onSceneDestroy(SceneContext& ctx);
 
-    void fixedUpdate(float dt);
-    void update(float dt);
-    void lateUpdate(float dt);
+    void fixedUpdate(SceneTickContext& ctx);
+    void update(SceneTickContext& ctx);
+    void lateUpdate(SceneTickContext& ctx);
 
 private:
     void addImpl(std::unique_ptr<ISceneSystem>&& system);

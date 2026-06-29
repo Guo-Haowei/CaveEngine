@@ -9,6 +9,7 @@
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
@@ -73,6 +74,7 @@ protected:
     // @TODO: do not use raw pointers
     DisplayService* display_service_{};
     InputService* input_service_{};
+    GameInput game_input_;
     TaskManager* task_manager_{};
     AssetRegistry* asset_registry_{};
     IAssetManager* asset_manager_{};

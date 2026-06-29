@@ -4,9 +4,8 @@ namespace cave {
 
 using namespace ::cave::literals;
 
-GameInput::GameInput(const PointerState* pointers)
-    : pointers_(pointers)
-    , mapper_(input_action_map_) {
+GameInput::GameInput()
+    : mapper_(input_action_map_) {
 }
 
 void GameInput::initialize() {

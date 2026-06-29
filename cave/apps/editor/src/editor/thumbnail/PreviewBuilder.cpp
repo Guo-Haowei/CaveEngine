@@ -90,7 +90,7 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
     for (auto [id, cam] : scene->view<CameraComponent>()) {
         cam.SetAspect(1.0f);
     }
-    scene->tick(0.0f);
+    scene->update(0.0f);
 
     return {
         .status = PreviewBuildStatus::Ok,
@@ -125,7 +125,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->setRoot(map.Resolve(root));
-    scene->tick(0.0f);
+    scene->update(0.0f);
 
     Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
 
@@ -170,7 +170,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->setRoot(map.Resolve(root));
-    scene->tick(0.0f);
+    scene->update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, options);
 

@@ -5,14 +5,12 @@
 #include <concepts>
 #include <cstdint>
 #include <type_traits>
-#include "SceneContext.h"
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/core/ids/DebugId.h"
+#include "cave/runtime/scene/SceneTickContext.h"
 
 namespace cave {
-
-struct SceneContext;
 
 enum class SceneSystemId : uint32_t {
     Invalid = 0,
@@ -38,34 +36,19 @@ class ISceneSystem {
 public:
     virtual ~ISceneSystem() = default;
 
-    void attach(SceneContext& ctx) {
-        std::memcpy(context_, &ctx, sizeof(context_));
-        onAttach();
-    }
+    void attach(SceneContext& ctx) { onAttach(ctx); }
+    void detach(SceneContext& ctx) { onDetach(ctx); }
 
-    void detach() {
-        onDetach();
-        std::memset(context_, 0, sizeof(context_));
-    }
-
-    virtual void fixedUpdate(float) {}
-    virtual void update(float) {}
-    virtual void lateUpdate(float) {}
+    virtual void fixedUpdate(SceneTickContext&) {}
+    virtual void update(SceneTickContext&) {}
+    virtual void lateUpdate(SceneTickContext&) {}
 
     virtual SceneSystemId systemId() const = 0;
     virtual DebugId debugId() const = 0;
 
 protected:
-    SceneContext& context() {
-        DEV_ASSERT(context_[0]);
-        return *reinterpret_cast<SceneContext*>(context_);
-    }
-
-    virtual void onAttach() {}
-    virtual void onDetach() {}
-
-private:
-    uint8_t context_[sizeof(SceneContext)];
+    virtual void onAttach(SceneContext&) {}
+    virtual void onDetach(SceneContext&) {}
 };
 
 template<typename T>

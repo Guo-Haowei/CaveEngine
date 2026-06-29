@@ -29,19 +29,21 @@ class LuaScriptSystem final : public ISceneSystem {
 public:
     LuaScriptSystem();
 
-    void update(float dt) override;
+    void update(SceneTickContext& ctx) override;
 
     DebugId debugId() const override { return debug_id_; }
 
 protected:
-    void onAttach() override;
-    void onDetach() override;
+    void onAttach(SceneContext& ctx) override;
+    void onDetach(SceneContext& ctx) override;
 
-    ObjectFunctions findOrAdd(lua_State* L,
+    ObjectFunctions findOrAdd(SceneContext& ctx,
+                              lua_State* L,
                               const Guid& guid,
                               const char* class_name);
 
-    Result<void> loadMetaTable(lua_State* L,
+    Result<void> loadMetaTable(SceneContext& ctx,
+                               lua_State* L,
                                const Guid& guid,
                                const char* class_name,
                                ObjectFunctions& meta);

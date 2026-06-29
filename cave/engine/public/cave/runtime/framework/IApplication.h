@@ -55,7 +55,7 @@ struct QuitContext {
 class IApplication : public NonCopyable {
 public:
     IApplication(const AppSpec& spec)
-        : m_spec(spec) {
+        : spec_(spec) {
     }
 
     virtual ~IApplication();
@@ -69,15 +69,15 @@ public:
     virtual EventQueue& GetEventQueue() = 0;
 
     // @TODO: return reference instead
-    ImguiManager* GetImguiManager() { return m_imgui_manager; }
+    ImguiManager* GetImguiManager() { return imgui_manager_; }
 
-    CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
-    Console& Console() { return *m_console; }
+    CommandRegistry& CommandRegistry() { return *cmd_reg_; }
+    Console& Console() { return *console_; }
 
     EngineServices& services() { return services_; }
 
-    const AppSpec& GetSpecification() const { return m_spec; }
-    rhi::Backend GetBackend() const { return m_spec.backend; }
+    const AppSpec& GetSpecification() const { return spec_; }
+    rhi::Backend GetBackend() const { return spec_.backend; }
 
     static void Run(IApplication* p_app);
 
@@ -88,14 +88,14 @@ public:
 protected:
     virtual bool MainLoop() = 0;
 
-    AppSpec m_spec;
+    AppSpec spec_;
 
     // @TODO: move the following to services
     // also need subsystems
-    ImguiManager* m_imgui_manager{};
+    ImguiManager* imgui_manager_{};
 
-    cave::CommandRegistry* m_cmd_reg{ nullptr };
-    cave::Console* m_console{ nullptr };
+    cave::CommandRegistry* cmd_reg_{};
+    cave::Console* console_{};
 
     EngineServices services_;
 };

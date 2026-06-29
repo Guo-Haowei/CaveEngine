@@ -36,7 +36,7 @@ Scene::Scene(std::string name) noexcept
 
 Scene::~Scene() = default;
 
-void Scene::tick(float dt) {
+void Scene::update(float dt) {
     CAVE_PROFILE_EVENT();
 
     dirtyFlags_.store(0);
@@ -70,6 +70,14 @@ void Scene::tick(float dt) {
     }
 
     flushPendingDestroy();
+}
+
+void Scene::tick(SceneTickContext& ctx) {
+    if (ctx.mode == SceneTickMode::Simulation) {
+        simulate(ctx);
+    }
+
+    update(ctx.dt);
 }
 
 void Scene::copy(const Scene& other) {
@@ -487,14 +495,14 @@ void Scene::onSimBegin(SceneContext& ctx) {
     systems_->onSceneCreate(ctx);
 }
 
-void Scene::onSimEnd() {
-    systems_->onSceneDestroy();
+void Scene::onSimEnd(SceneContext& ctx) {
+    systems_->onSceneDestroy(ctx);
 
     systems_.reset();
 }
 
-void Scene::simulate(float dt) {
-    systems_->update(dt);
+void Scene::simulate(SceneTickContext& ctx) {
+    systems_->update(ctx);
 }
 
 }  // namespace cave

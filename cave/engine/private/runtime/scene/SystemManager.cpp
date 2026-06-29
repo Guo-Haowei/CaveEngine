@@ -64,33 +64,33 @@ void SystemManager::onSceneCreate(SceneContext& ctx) {
     scene_created_ = true;
 }
 
-void SystemManager::onSceneDestroy() {
+void SystemManager::onSceneDestroy(SceneContext& ctx) {
     if (!scene_created_) {
         return;
     }
 
     for (auto it = systems_.rbegin(); it != systems_.rend(); ++it) {
-        (*it)->detach();
+        (*it)->detach(ctx);
     }
 
     scene_created_ = false;
 }
 
-void SystemManager::fixedUpdate(float dt) {
+void SystemManager::fixedUpdate(SceneTickContext& ctx) {
     for (auto& system : systems_) {
-        system->fixedUpdate(dt);
+        system->fixedUpdate(ctx);
     }
 }
 
-void SystemManager::update(float dt) {
+void SystemManager::update(SceneTickContext& ctx) {
     for (auto& system : systems_) {
-        system->update(dt);
+        system->update(ctx);
     }
 }
 
-void SystemManager::lateUpdate(float dt) {
+void SystemManager::lateUpdate(SceneTickContext& ctx) {
     for (auto& system : systems_) {
-        system->lateUpdate(dt);
+        system->lateUpdate(ctx);
     }
 }
 

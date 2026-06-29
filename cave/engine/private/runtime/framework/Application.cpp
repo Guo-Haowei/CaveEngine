@@ -23,7 +23,6 @@
 #include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/runtime/view/ViewManager.h"
 
@@ -48,7 +47,7 @@ Application::Application(const AppSpec& p_spec, AppType p_type)
     , state_machine_(*this) {
 
     // @TODO: refactor this select work directory
-    vfs_.Mount("@user", fs::path(m_spec.userFolder));
+    vfs_.Mount("@user", fs::path(spec_.userFolder));
 }
 
 IApplication::~IApplication() = default;
@@ -65,20 +64,22 @@ Result<ImguiManager*> Application::CreateImguiManager() {
 }
 
 auto Application::SetupModules() -> Result<void> {
-    m_cmd_reg = new cave::CommandRegistry();
-    m_console = new cave::Console(*this);
+    // @TODO: clean up
+    cmd_reg_ = new cave::CommandRegistry();
+    console_ = new cave::Console(*this);
 
     asset_manager_ = CreateAssetService();
     asset_registry_ = new AssetRegistry();
-    render_device_ = CreateRenderDevice(m_spec.backend);
+    render_device_ = CreateRenderDevice(spec_.backend);
     display_service_ = CreateDisplayService();
-    input_service_ = new cave::InputService();
+    input_service_ = new InputService(game_input_);
+    game_input_.setPointer(input_service_->pointers());
     task_manager_ = new TaskManager();
 
     // @TODO: dependency injection?
     renderer_ = std::make_unique<render::Renderer>(*render_device_, debug_draw_);
 
-    scene_scheduler_ = std::make_unique<SceneScheduler>(scene_registry_);
+    scene_scheduler_ = std::make_unique<SceneScheduler>(services_);
 
     scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
 
@@ -97,6 +98,7 @@ auto Application::SetupModules() -> Result<void> {
     services_.asset_registry_ = asset_registry_;
     services_.debug_draw_ = &debug_draw_;
     services_.display_service_ = display_service_;
+    services_.game_input_ = &game_input_;
     services_.input_service_ = input_service_;
     services_.intent_dispatcher_ = &intent_dispatcher_;
     services_.native_scripts_ = &native_scripts_;
@@ -119,21 +121,21 @@ auto Application::SetupModules() -> Result<void> {
     RegisterModule(display_service_);
     RegisterModule(render_device_);
 
-    if (m_spec.enableImgui) {
+    if (spec_.enableImgui) {
         auto res = CreateImguiManager();
         if (!res) {
             return CAVE_ERROR(res.error());
         }
-        m_imgui_manager = *res;
-        RegisterModule(m_imgui_manager);
+        imgui_manager_ = *res;
+        RegisterModule(imgui_manager_);
     }
 
     event_queue_.RegisterListener(render_device_);
 
     // @TODO: move to registerCommands
-    DvarCache::registerCmd(*m_cmd_reg);
+    DvarCache::registerCmd(*cmd_reg_);
 
-    registerCommands(*m_cmd_reg);
+    registerCommands(*cmd_reg_);
     return Result<void>();
 }
 
@@ -149,10 +151,10 @@ auto Application::Initialize() -> Result<void> {
         const std::string& backend = DVAR_GET_STRING(gfx_backend);
         if (!backend.empty()) {
             do {
-#define BACKEND_DECLARE(ENUM, STR, DVAR)     \
-    if (backend == #DVAR) {                  \
-        m_spec.backend = rhi::Backend::ENUM; \
-        break;                               \
+#define BACKEND_DECLARE(ENUM, STR, DVAR)    \
+    if (backend == #DVAR) {                 \
+        spec_.backend = rhi::Backend::ENUM; \
+        break;                              \
     }
                 BACKEND_LIST
 #undef BACKEND_DECLARE

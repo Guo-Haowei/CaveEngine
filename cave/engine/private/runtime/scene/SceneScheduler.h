@@ -1,16 +1,12 @@
 #pragma once
 #include "cave/core/ids/DebugId.h"
 #include "cave/core/ids/SceneId.h"
+#include "cave/runtime/scene/SceneTickContext.h"
 
 namespace cave {
 
 struct FrameTime;
 class SceneRegistry;
-
-enum class SceneTickMode {
-    Editor,
-    Simulation,
-};
 
 struct SceneTickRequest {
     SceneTickMode mode;
@@ -28,8 +24,8 @@ public:
 
 class SceneScheduler {
 public:
-    SceneScheduler(SceneRegistry& scene_manager) noexcept
-        : scene_manager_(scene_manager) {
+    SceneScheduler(EngineServices& services) noexcept
+        : services_(services) {
     }
 
     bool add(ISceneTickContributor* contributor);
@@ -38,7 +34,7 @@ public:
     void tick(const FrameTime& time);
 
 private:
-    SceneRegistry& scene_manager_;
+    EngineServices& services_;
 
     std::vector<ISceneTickContributor*> contributors_;
 };
