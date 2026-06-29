@@ -55,7 +55,7 @@ void SceneScheduler::tick(const FrameTime& time) {
                 scene->simulate(time.dt);
             }
 
-            scene->update(time.dt);
+            scene->tick(time.dt);
         }
     }
 }

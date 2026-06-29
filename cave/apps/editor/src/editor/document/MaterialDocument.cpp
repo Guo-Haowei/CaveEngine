@@ -37,8 +37,8 @@ MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
-    scene->root_ = map.Resolve(root);
-    scene->update(0.0f);
+    scene->setRoot(map.Resolve(root));
+    scene->tick(0.0f);
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }

@@ -36,7 +36,7 @@ Scene::Scene(std::string name) noexcept
 
 Scene::~Scene() = default;
 
-void Scene::update(float dt) {
+void Scene::tick(float dt) {
     CAVE_PROFILE_EVENT();
 
     dirtyFlags_.store(0);

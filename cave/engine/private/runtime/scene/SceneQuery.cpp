@@ -13,11 +13,11 @@ using namespace math;
 using ecs::Entity;
 
 ISceneSystem* SceneQuery::system(SceneSystemId id) {
-    if (scene_.systems_ == nullptr) {
+    if (scene_.systems() == nullptr) {
         return nullptr;
     }
 
-    return scene_.systems_->get(id);
+    return scene_.systems()->get(id);
 }
 
 Entity SceneQuery::findFirstByName(std::string_view name) const {
@@ -33,13 +33,13 @@ void SceneQuery::queueDestroy(ecs::Entity ent) {
 }
 
 void* SceneQuery::component(ComponentId cid, Entity ent) {
-    scene_.systems_->get(SceneSystemId::TileWorld);
+    scene_.systems()->get(SceneSystemId::TileWorld);
 
-    return scene_.storage_.GetRaw(ent, cid);
+    return scene_.storage().GetRaw(ent, cid);
 }
 
 const void* SceneQuery::component(ComponentId cid, Entity ent) const {
-    return scene_.storage_.GetRaw(ent, cid);
+    return scene_.storage().GetRaw(ent, cid);
 }
 
 size_t SceneQuery::componentCount(ComponentId cid) const {

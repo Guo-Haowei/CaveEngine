@@ -9,19 +9,19 @@ GameplayState::GameplayState() noexcept = default;
 GameplayState::~GameplayState() = default;
 
 void GameplayState::OnEnter(cave::IHostServices& p_host) {
-    m_session = std::make_unique<ChessGameSession>(p_host);
-    m_session->onEnterBoot();
+    session_ = std::make_unique<ChessGameSession>(p_host);
+    session_->onEnterBoot();
 }
 
 void GameplayState::OnExit(cave::IHostServices& p_host) {
     unused(p_host);
 
-    m_session.reset();
+    session_.reset();
 }
 
 void GameplayState::Tick(cave::IHostServices&, const cave::FrameTime&) {
 
-    m_session->tick();
+    session_->tick();
 }
 
 }  // namespace chess

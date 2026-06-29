@@ -114,7 +114,7 @@ public:
     void attachChild(ecs::Entity child, ecs::Entity parent);
     void attachChild(ecs::Entity child) { attachChild(child, root_); }
 
-    void update(float dt);
+    void tick(float dt);
 
     void copy(const Scene& other);
 
@@ -127,9 +127,6 @@ public:
     // @TODO: refactor
     SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(dirtyFlags_.load()); }
 
-    ecs::ComponentStorage& storage() noexcept { return storage_; }
-    const ecs::ComponentStorage& storage() const noexcept { return storage_; }
-
     std::string_view name() const { return name_; }
 
     void onSimBegin(SceneContext& ctx);
@@ -138,6 +135,15 @@ public:
 
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
+
+    ecs::ComponentStorage& storage() noexcept { return storage_; }
+    const ecs::ComponentStorage& storage() const noexcept { return storage_; }
+
+    SystemManager* systems() { return systems_.get(); }
+    const SystemManager* systems() const { return systems_.get(); }
+
+    ecs::Entity root() const { return root_; }
+    void setRoot(ecs::Entity root) { root_ = root; }
 
     // -------------------------------------------------------------------------
     // IAsset
@@ -153,8 +159,6 @@ public:
     // @TODO: refactor
     math::AABB bound_;
 
-    ecs::Entity root_;
-
 private:
     std::vector<ecs::Entity> getSortedEntityArray() const;
     void flushPendingDestroy();
@@ -164,12 +168,12 @@ private:
     ecs::ComponentStorage storage_;
 
     uint32_t entity_seed_{ 0 };
+    ecs::Entity root_;
 
     std::unique_ptr<SystemManager> systems_;
 
     friend class AssimpImporter;
     friend class TinyGltfImporter;
-    friend class SceneQuery;
 };
 
 }  // namespace cave
