@@ -1,33 +1,6 @@
 #include "SceneComponents.h"
 
-#include "engine/private/core/io/archive.h"
-#include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/runtime/framework/IRenderDevice.h"
-
 namespace cave {
-
-using namespace ::cave::math;
-
-#pragma region RIGID_BODY_COMPONENT
-RigidBodyComponent& RigidBodyComponent::InitCube(const Vec3f& p_half_size) {
-    shape = SHAPE_CUBE;
-    size = p_half_size;
-    return *this;
-}
-
-RigidBodyComponent& RigidBodyComponent::InitSphere(float p_radius) {
-    shape = SHAPE_SPHERE;
-    size = Vec3f(p_radius);
-    return *this;
-}
-
-RigidBodyComponent& RigidBodyComponent::InitGhost() {
-    objectType = GHOST;
-    mass = 1.0f;
-    return *this;
-}
-#pragma endregion RIGID_BODY_COMPONENT
 
 #if 0
 void MeshEmitterComponent::Reset() {
@@ -58,21 +31,5 @@ void MeshEmitterComponent::UpdateParticle(Index p_index, float p_timestep) {
     p.position += p_timestep * p.velocity;
 }
 #endif
-
-// @TODO: refactor
-
-void CollisionObjectBase::Serialize(Archive& p_archive, uint32_t) {
-    p_archive.ArchiveValue(collisionType);
-    p_archive.ArchiveValue(collisionMask);
-}
-
-void RigidBodyComponent::Serialize(Archive& p_archive, uint32_t p_version) {
-    CollisionObjectBase::Serialize(p_archive, p_version);
-
-    p_archive.ArchiveValue(shape);
-    p_archive.ArchiveValue(objectType);
-    p_archive.ArchiveValue(size);
-    p_archive.ArchiveValue(mass);
-}
 
 }  // namespace cave

@@ -64,7 +64,7 @@ static bool TreeNodeHelper(Scene& p_scene,
                            std::function<void()> p_on_right_click) {
 
     const NameComponent* name_component = p_scene.component<NameComponent>(p_id);
-    std::string_view name = name_component->GetName();
+    std::string_view name = name_component->name();
     if (name.empty()) {
         name = "Untitled";
     }
@@ -110,7 +110,7 @@ static bool TreeNodeHelper(Scene& p_scene,
                 if constexpr (true) {  // @TODO: log macro
                     const NameComponent* child_name = p_scene.component<NameComponent>(child_id);
                     DEV_ASSERT(child_name);
-                    LOG_TRACE("moved '{}' under '{}'", child_name->GetName(), name);
+                    LOG_TRACE("moved '{}' under '{}'", child_name->name(), name);
                 }
             }
         }

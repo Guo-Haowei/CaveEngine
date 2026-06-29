@@ -238,7 +238,7 @@ bool OpenSceneLib(lua_State* L) {
         .beginClass<Scene>("Scene")
         .addFunction("get_name", [](Scene* p_scene, uint32_t p_ent) {
             auto ret = p_scene->component<NameComponent>(ecs::Entity(p_ent));
-            return ret->GetName();
+            return ret->name();
         })
         .addFunction("get_transform", [](Scene* p_scene, uint32_t p_ent) {
             return p_scene->component<TransformComponent>(ecs::Entity(p_ent));

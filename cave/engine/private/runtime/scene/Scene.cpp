@@ -182,7 +182,7 @@ bool Scene::remove(ComponentId cid, Entity ent) {
 
 Entity Scene::findFirstByName(std::string_view name) const {
     for (auto [entity, name_component] : view<NameComponent>()) {
-        if (name_component.GetName() == name) {
+        if (name_component.name() == name) {
             return entity;
         }
     }
@@ -191,7 +191,7 @@ Entity Scene::findFirstByName(std::string_view name) const {
 
 Entity Scene::findChildByName(std::string_view name, Entity ent) const {
     for (auto [entity, hier, name_component] : view<HierarchyComponent, NameComponent>()) {
-        if (hier.parent_id == ent && name_component.GetName() == name) {
+        if (hier.parent_id == ent && name_component.name() == name) {
             return entity;
         }
     }

@@ -199,8 +199,6 @@ struct CollisionPair {
 };
 
 void MotorSystem::runCollisionPair(SceneQuery& query, float) {
-    unused(query);
-
     Scene& scene = context().scene;
 
     std::vector<ColliderProxy> colliders;

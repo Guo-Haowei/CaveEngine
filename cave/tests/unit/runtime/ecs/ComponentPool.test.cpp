@@ -1,4 +1,4 @@
-#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/MiscComponents.h"
 #include "engine/private/runtime/ecs/ComponentPool.h"
 
 namespace cave::ecs {

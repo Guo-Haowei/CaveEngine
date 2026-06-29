@@ -323,14 +323,14 @@ void PropertyPanel::drawUIImpl() {
     };
 
     {
-        FixedString<64> name = name_component->GetNameRef();
+        FixedString<64> name = name_component->nameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
             auto cmd = std::make_unique<ChangePropertyCmd>(
                 engine_services_.sceneRegistry(),
                 id,
                 NameComponent_Id,
                 "name"_sid,
-                name_component->GetNameRef(),
+                name_component->nameRef(),
                 name);
             edit_service.submit(doc_id, std::move(cmd));
         }
@@ -345,7 +345,7 @@ void PropertyPanel::drawUIImpl() {
     auto create_component = [&](BuiltinComponentId cid) {
         if (scene.storage().Has(id, cid)) {
             LOG_ERROR("object {} already has component {}",
-                      name_component->GetName(),
+                      name_component->name(),
                       std::to_underlying(cid));
             return;
         }

@@ -34,7 +34,6 @@ class PlayerController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 public:
-
 private:
     void onCreate() override;
     void onUpdate(float dt) override;

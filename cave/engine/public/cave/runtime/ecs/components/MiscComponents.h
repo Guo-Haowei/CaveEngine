@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/runtime/ecs/components/NameComponent.h
+// File: cave/runtime/ecs/components/MiscComponents.h
 // =============================================================================
 #pragma once
 #include "cave/core/containers/FixedString.h"
@@ -7,23 +7,27 @@
 
 namespace cave {
 
+struct NoSaveTag {
+    CAVE_COMPONENT(NoSaveTag)
+};
+
 class NameComponent {
     CAVE_COMPONENT(NameComponent)
 
 private:
     CAVE_PROP()
-    FixedString<64> m_name;
+    FixedString<64> name_;
 
 public:
     NameComponent() = default;
 
-    NameComponent(const char* p_name) { m_name = p_name; }
+    NameComponent(const char* name) { name_ = name; }
 
-    void SetName(const char* p_name) { m_name = p_name; }
-    void SetName(std::string_view p_name) { m_name = p_name; }
+    void setName(const char* name) { name_ = name; }
+    void setName(std::string_view name) { name_ = name; }
 
-    std::string_view GetName() const { return m_name.view(); }
-    FixedString<64>& GetNameRef() { return m_name; }
+    std::string_view name() const { return name_.view(); }
+    FixedString<64>& nameRef() { return name_; }
 };
 
 }  // namespace cave
