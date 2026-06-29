@@ -88,11 +88,7 @@ void PlayerController::onCreate() {
 }
 
 void PlayerController::onUpdate(float dt) {
-    hurt_timer_ = math::max(0.0f, hurt_timer_ - dt);
-
-    if (hurt_timer_ <= 0.0f) {
-        hurt_ = false;
-    }
+    hurt_timer_.tick(dt);
 
     if (health_ <= 0) {
         // Later: revive/request respawn
@@ -110,7 +106,7 @@ void PlayerController::onUpdate(float dt) {
 
     DEV_ASSERT(transform && collider && vel && motor && contact);
 
-    if (hurt_) {
+    if (hurt()) {
         updatePlayerState(*vel);
         updateAnimation(query);
         return;
@@ -149,7 +145,7 @@ void PlayerController::onUpdate(float dt) {
     }
 
     // Normal horizontal control.
-    vel->linear.x = move_x * move_speed_;
+    vel->linear.x = move_x * kPlayerMoveX;
     motor->affected_by_gravity = true;
 
     // Try starting wall grab.
@@ -159,7 +155,7 @@ void PlayerController::onUpdate(float dt) {
     const bool airborne = !taking_jump_;
     const bool falling = vel->linear.y < 0.0f;
 
-    if (!hurt_ && airborne && falling) {
+    if (airborne && falling) {
         const float predicted_dy = vel->linear.y * dt;
         const Box2 body = ComputeWorldAABB(*transform, *collider);
 
@@ -188,9 +184,7 @@ void PlayerController::onCollision(ecs::Entity other) {
         return;
     }
 
-    // @TODO: make this global constant
-    constexpr uint32_t kEnemyLayer = 2;
-    if ((other_collider->layer() & kEnemyLayer) == 0) {
+    if (!IsEnemy(*other_collider)) {
         return;
     }
 
@@ -218,8 +212,8 @@ void PlayerController::onCollision(ecs::Entity other) {
     takeDamage(PlayerHurtInfo{
         .damage = 1,
         .knockback = math::Vec2f{
-            dir_x * knockback_x_,
-            knockback_y_,
+            dir_x * kKnockbackX,
+            kKnockbackY,
         },
     });
 }
@@ -259,7 +253,7 @@ void PlayerController::updateAnimation(SceneQuery& query) {
 }
 
 void PlayerController::updatePlayerState(VelocityComponent& vel) {
-    if (hurt_) {
+    if (hurt()) {
         state_ = PlayerState::Hurt;
         return;
     }
@@ -307,14 +301,13 @@ void PlayerController::tryJump(VelocityComponent& vel,
 
 // @TODO: pass components
 void PlayerController::takeDamage(const PlayerHurtInfo& info) {
-    if (isInvincible()) {
+    if (hurt_timer_.active()) {
         return;
     }
 
     health_ -= info.damage;
 
-    hurt_ = true;
-    hurt_timer_ = hurt_duration_;
+    hurt_timer_.start();
 
     SceneQuery query(context().scene);
 
@@ -349,7 +342,6 @@ void PlayerController::bounceFromEnemy(float bounce_speed) {
         motor->affected_by_gravity = true;
     }
 
-    hurt_ = false;
     grabbing_ = false;
     taking_jump_ = false;
 }

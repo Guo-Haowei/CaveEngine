@@ -5,6 +5,8 @@
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
+#include "Utility.h"
+
 // clang-format off
 namespace cave { class SceneQuery; }
 // clang-format on
@@ -39,31 +41,22 @@ private:
     void tryJump(cave::VelocityComponent& vel,
                  cave::MotorComponent& motor);
 
-    bool isInvincible() const { return hurt_timer_ > 0.0f; }
-
     void takeDamage(const PlayerHurtInfo& info);
     void bounceFromEnemy(float bounce_speed);
+    bool hurt() const { return hurt_timer_.active(); }
 
     PlayerState state_ = PlayerState::Air;
+    CountdownTimer hurt_timer_{ kHurtCountDown };
+
     Entity animator_;
 
-    float hurt_timer_ = 0.0f;
-    float hurt_duration_ = 0.5f;
-
-    bool hurt_ = false;
+    // @TODO: clean up
     bool taking_jump_ = false;
     bool landed_ = false;
     bool grabbing_ = false;
 
-    float bounce_speed_ = 10.0f;
-
-    float knockback_x_ = 8.0f;
-    float knockback_y_ = 8.0f;
-
-    // @TODO: clean up
     int health_ = 3;
     int sapphire_ = 0;
-    float move_speed_ = 5.5f;
 };
 
 }  // namespace super_cave_boy
