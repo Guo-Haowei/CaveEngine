@@ -53,17 +53,17 @@ Application::Application(const AppSpec& p_spec, AppType p_type)
 IApplication::~IApplication() = default;
 Application::~Application() = default;
 
-void Application::RegisterModule(IService* p_module) {
+void Application::registerModule(IService* p_module) {
     DEV_ASSERT(p_module);
     p_module->SetApp(this);
     subsystems_.push_back(p_module);
 }
 
-Result<ImguiManager*> Application::CreateImguiManager() {
+Result<ImguiManager*> Application::createImguiManager() {
     return new ImguiManager();
 }
 
-auto Application::SetupModules() -> Result<void> {
+auto Application::setupModules() -> Result<void> {
     // @TODO: clean up
     cmd_reg_ = new cave::CommandRegistry();
     console_ = new cave::Console(*this);
@@ -114,20 +114,20 @@ auto Application::SetupModules() -> Result<void> {
     services_.vfs_ = &vfs_;
 
     // register subsystems
-    RegisterModule(task_manager_);
-    RegisterModule(asset_manager_);
-    RegisterModule(asset_registry_);
-    RegisterModule(input_service_);
-    RegisterModule(display_service_);
-    RegisterModule(render_device_);
+    registerModule(task_manager_);
+    registerModule(asset_manager_);
+    registerModule(asset_registry_);
+    registerModule(input_service_);
+    registerModule(display_service_);
+    registerModule(render_device_);
 
     if (spec_.enableImgui) {
-        auto res = CreateImguiManager();
+        auto res = createImguiManager();
         if (!res) {
             return CAVE_ERROR(res.error());
         }
         imgui_manager_ = *res;
-        RegisterModule(imgui_manager_);
+        registerModule(imgui_manager_);
     }
 
     event_queue_.RegisterListener(render_device_);
@@ -139,7 +139,7 @@ auto Application::SetupModules() -> Result<void> {
     return Result<void>();
 }
 
-auto Application::Initialize() -> Result<void> {
+auto Application::initialize() -> Result<void> {
     LOG_WARN("@TODO: move thumbnail render target creation to somewhere else");
     LOG_WARN("@TODO: support material in path tracer");
     LOG_WARN("@TODO: remove global path tracer object");
@@ -163,7 +163,7 @@ auto Application::Initialize() -> Result<void> {
         }
     }
 
-    if (auto res = SetupModules(); !res) {
+    if (auto res = setupModules(); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -181,7 +181,7 @@ auto Application::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Application::Finalize() {
+void Application::finalize() {
     state_machine_.shutdown();
 
     // @TODO: move it to request shutdown
@@ -196,14 +196,14 @@ void Application::Finalize() {
     }
 }
 
-float Application::UpdateTime() {
+float Application::updateTime() {
     const Nanoseconds elapsed = stopwatch_.Restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
     return math::min(elapsed_sec, 0.5f);
 }
 
-bool Application::MainLoop() {
+bool Application::mainLoop() {
     using namespace render;
     CAVE_PROFILE_FRAME("MainThread");
 
@@ -217,7 +217,7 @@ bool Application::MainLoop() {
     task_manager_->TickMainThread();
 
     FrameTime time{
-        .dt = UpdateTime(),
+        .dt = updateTime(),
         .frame_index = frame_counter_++,
     };
 
@@ -246,7 +246,7 @@ bool Application::MainLoop() {
 }
 
 // @TODO: get rid of this
-void IApplication::Run(IApplication* p_app) {
+void IApplication::run(IApplication* p_app) {
     LOG_INFO(LogChannel::App, "----------- Enter Main Loop -----------");
 
 #if USING(PLATFORM_WASM)
@@ -256,13 +256,13 @@ void IApplication::Run(IApplication* p_app) {
     },
                              -1, 1);
 #else
-    while (p_app->MainLoop());
+    while (p_app->mainLoop());
 #endif
 
     LOG_INFO(LogChannel::App, "----------- Exit Main Loop -----------");
 }
 
-AppStateId Application::GetStateId() const {
+AppStateId Application::stateId() const {
     return state_machine_.stateId();
 }
 

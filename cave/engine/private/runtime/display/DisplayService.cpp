@@ -10,7 +10,7 @@ namespace cave {
 using rhi::Backend;
 
 Result<void> DisplayService::InitializeImpl() {
-    const auto& spec = m_app->GetSpecification();
+    const auto& spec = m_app->specification();
 
     std::string title{ spec.name };
     switch (spec.backend) {

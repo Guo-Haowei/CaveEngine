@@ -641,7 +641,7 @@ void CommonOpenGLGraphicsManager::Render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // @TODO: refactor this
-    if (m_app->IsRuntime()) {
+    if (m_app->isRuntime()) {
         CRASH_NOW();
         // const auto [width, height] = m_app->GetDisplayService()->windowSize();
         // unused(width);
@@ -652,7 +652,7 @@ void CommonOpenGLGraphicsManager::Render() {
         //                                                *this);
     }
 
-    if (m_app->GetSpecification().enableImgui) {
+    if (m_app->specification().enableImgui) {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 }
@@ -660,7 +660,7 @@ void CommonOpenGLGraphicsManager::Render() {
 void CommonOpenGLGraphicsManager::Present() {
     CAVE_PROFILE_EVENT();
 
-    if (m_app->GetSpecification().enableImgui) {
+    if (m_app->specification().enableImgui) {
         GLFWwindow* oldContext = glfwGetCurrentContext();
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();

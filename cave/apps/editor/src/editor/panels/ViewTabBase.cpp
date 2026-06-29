@@ -146,7 +146,7 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
     // @TODO: move it somewhere else
     uint64_t handle = texture_->GetHandle();
     // add image for drawing
-    switch (m_editor.app().GetBackend()) {
+    switch (m_editor.app().backend()) {
         case Backend::Direct3D11:
         case Backend::Direct3D12: {
             ImGui::GetWindowDrawList()->AddImage((ImTextureID)handle, min, max);

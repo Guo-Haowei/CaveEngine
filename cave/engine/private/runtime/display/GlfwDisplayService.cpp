@@ -62,7 +62,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
 
     glfwSetWindowCloseCallback(window_, [](GLFWwindow* window) {
         glfwSetWindowShouldClose(window, GLFW_FALSE);
-        QuitVote vote = DisplayService::singleton().GetApp()->OnQuitRequested({ QuitReason::WindowClose });
+        QuitVote vote = DisplayService::singleton().GetApp()->onQuitRequested({ QuitReason::WindowClose });
         switch (vote) {
             case QuitVote::Allow: {
                 glfwSetWindowShouldClose(window, true);
@@ -106,7 +106,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
             return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", (int)backend_);
     }
 
-    auto imgui = m_app->GetImguiManager();
+    auto imgui = m_app->imguiManager();
     if (imgui) {
         imgui->SetDisplayCallbacks(
             [this]() {
@@ -177,7 +177,7 @@ void GlfwDisplayService::windowSizeCallback(GLFWwindow*, int w, int h) {
     auto event = std::make_shared<ResizeEvent>(w, h);
     window.frame_size_.x = w;
     window.frame_size_.y = h;
-    window.m_app->GetEventQueue().DispatchEvent(event);
+    window.m_app->eventQueue().DispatchEvent(event);
 }
 
 }  // namespace cave

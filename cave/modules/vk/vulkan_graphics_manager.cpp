@@ -374,7 +374,7 @@ auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {
     VK_CHECK_ERROR(glfwCreateWindowSurface(g_Instance, m_window, g_Allocator, &m_surface),
                    ErrorCode::ERR_CANT_CREATE);
 
-    auto imgui = m_app->GetImguiManager();
+    auto imgui = m_app->imguiManager();
     if (imgui) {
         imgui->SetRenderCallbacks(
             [&]() {

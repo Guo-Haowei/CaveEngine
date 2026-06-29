@@ -10,7 +10,7 @@ namespace cave {
 
 Console::Console(IApplication& p_app) noexcept
     : m_app(p_app)
-    , m_reg(p_app.CommandRegistry()) {}
+    , m_reg(p_app.commandRegistry()) {}
 
 void Console::SubmitLine(std::string_view p_line) {
     if (p_line.empty()) return;

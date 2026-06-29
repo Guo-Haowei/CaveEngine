@@ -8,8 +8,8 @@
 
 namespace cave {
 
-ConsolePanel::ConsolePanel(EditorState& p_editor)
-    : m_console(p_editor.app().Console()) {
+ConsolePanel::ConsolePanel(EditorState& editor)
+    : m_console(editor.app().console()) {
 }
 
 void ConsolePanel::DrawConsole() {

@@ -148,7 +148,7 @@ void EditorState::tick(const FrameTime& p_time) {
         pie_.tick(p_time);
     }
 
-    ImguiManager* imgui_manager = app_.GetImguiManager();
+    ImguiManager* imgui_manager = app_.imguiManager();
     DEV_ASSERT(imgui_manager);
 
     // @TODO: refactor this
