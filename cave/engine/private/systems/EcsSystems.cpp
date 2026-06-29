@@ -10,6 +10,8 @@
 
 namespace cave {
 
+#include "shader_defines.hlsl.h"
+
 using namespace cave::math;
 
 // @TODO: refactor
@@ -252,7 +254,7 @@ static void UpdateLight(float p_timestep,
             float root1 = (-b + sqrt_d) / (2 * a);
             float root2 = (-b - sqrt_d) / (2 * a);
             float max_distance = root1 > 0.0f ? root1 : root2;
-            max_distance = glm::max(LIGHT_SHADOW_MIN_DISTANCE + 1.0f, max_distance);
+            max_distance = math::max(LIGHT_SHADOW_MIN_DISTANCE + 1.0f, max_distance);
             p_light.SetMaxDistance(max_distance);
         }
 
@@ -302,7 +304,7 @@ void RunTransformationUpdateSystem(Scene& scene, jobsystem::Context& p_context, 
 
     JS_PARALLEL_FOR(TransformComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, {
         if (scene.getComponentByIndex<TransformComponent>(index).updateTransform()) {
-            scene.m_dirtyFlags.fetch_or(SCENE_DIRTY_WORLD);
+            scene.dirtyFlags_.fetch_or(SCENE_DIRTY_WORLD);
         }
     });
 }
@@ -344,7 +346,7 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
         bound.expandToInclude(aabb);
     }
 
-    scene.m_bound = bound;
+    scene.bound_ = bound;
 }
 
 void RunFacingUpdateSystem(Scene& scene, jobsystem::Context&, float) {

@@ -1,12 +1,12 @@
 #pragma once
+#include "cave/core/math/Vector.h"
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/ecs/Entity.h"
+#include "cave/runtime/ecs/components/MovementComponent.h"
+#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
-// clang-format off
-namespace cave { class SceneQuery; }
-namespace cave { struct VelocityComponent; }
-// clang-format on
+#include "Utility.h"
 
 namespace super_cave_boy {
 
@@ -18,34 +18,47 @@ enum class PlayerState {
     Hurt,
 };
 
-struct LegacyPlayerMotor {
-    const float speed = 5.5f;
-
-    bool taking_jump = false;
-    bool landed = false;
-    bool grabbing = false;
-    bool hurt = false;
-    bool pausing = false;
-
-    PlayerState state = PlayerState::Air;
+struct PlayerHurtInfo {
+    int damage{ 1 };
+    cave::math::Vec2f knockback{};
 };
 
 class PlayerController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
-public:
-
-private:
+protected:
     void onCreate() override;
     void onUpdate(float dt) override;
-    void onCollision(cave::ecs::Entity other) override;
+    void onCollision(Entity other) override;
 
-    void updateAnimation(cave::SceneQuery& query);
+private:
+    void updateAnimation(cave::SpriteAnimatorComponent& animator);
     void updatePlayerState(cave::VelocityComponent& vel);
+
+    void tryJump(cave::VelocityComponent& vel,
+                 cave::MotorComponent& motor);
+
+    void takeDamage(cave::VelocityComponent& vel,
+                    cave::MotorComponent& motor,
+                    const PlayerHurtInfo& info);
+
+    void bounceFromEnemy(cave::VelocityComponent& vel,
+                         cave::MotorComponent& motor,
+                         float bounce_speed);
+    bool hurt() const { return hurt_timer_.active(); }
+
+    PlayerState state_ = PlayerState::Air;
+    CountdownTimer hurt_timer_{ kPlayerHurtCountDown };
 
     Entity animator_;
 
-    LegacyPlayerMotor motor_;
+    // @TODO: clean up
+    bool taking_jump_ = false;
+    bool landed_ = false;
+    bool grabbing_ = false;
+
+    int health_ = 3;
+    int sapphire_ = 0;
 };
 
 }  // namespace super_cave_boy

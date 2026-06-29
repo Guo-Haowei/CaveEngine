@@ -1,5 +1,5 @@
 #include "cave/runtime/ecs/ComponentStorage.h"
-#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/runtime/ecs/ComponentPool.h"
@@ -24,9 +24,9 @@ TEST(ComponentStorage, add_get_remove) {
     auto* t2 = (NameComponent*)storage.GetRaw(e2, NameComponent_Id);
     auto* t3 = (NameComponent*)storage.GetRaw(e3, NameComponent_Id);
 
-    t1->SetName("111");
-    t2->SetName("222");
-    t3->SetName("333");
+    t1->setName("111");
+    t2->setName("222");
+    t3->setName("333");
 
     // remove middle
     EXPECT_TRUE(storage.Remove(e2, NameComponent_Id));
@@ -38,8 +38,8 @@ TEST(ComponentStorage, add_get_remove) {
     auto* t1b = (NameComponent*)storage.GetRaw(e1, NameComponent_Id);
     auto* t3b = (NameComponent*)storage.GetRaw(e3, NameComponent_Id);
 
-    EXPECT_TRUE(t1b->GetName() == "111");
-    EXPECT_TRUE(t3b->GetName() == "333");
+    EXPECT_TRUE(t1b->name() == "111");
+    EXPECT_TRUE(t3b->name() == "333");
 }
 
 }  // namespace cave::ecs

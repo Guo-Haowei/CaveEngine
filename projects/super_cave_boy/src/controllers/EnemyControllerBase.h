@@ -7,10 +7,9 @@
 namespace super_cave_boy {
 
 class EnemyControllerBase : public cave::NativeScript {
-public:
+protected:
     void onCreate() override;
 
-protected:
     cave::ecs::Entity findPlayer(cave::SceneQuery& query) const;
 
     cave::ecs::Entity player_{};

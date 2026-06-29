@@ -44,16 +44,16 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)         \
     REGISTER_COMPONENT(TileMapInstanceComponent, "World::TileMapInstanceComponent", 0)
 
-// @TODO: use meta table for all components
-#define REGISTER_COMPONENT_LIST        \
-    REGISTER_COMPONENT_SERIALIZED_LIST \
-    REGISTER_COMPONENT(NoSaveTag, "World::NoSaveTag", 0)
+#define REGISTER_COMPONENT_LIST                          \
+    REGISTER_COMPONENT_SERIALIZED_LIST                   \
+    REGISTER_COMPONENT(NoSaveTag, "World::NoSaveTag", 0) \
+    REGISTER_COMPONENT(PendingDestroy, "World::PendingDestroy", 0)
 
 enum BuiltinComponentId : ComponentId {
 #define REGISTER_COMPONENT(TYPE, ...) TYPE##_Id,
     REGISTER_COMPONENT_LIST
 #undef REGISTER_COMPONENT
-        _Count,
+        Count,
 };
 
 }  // namespace cave

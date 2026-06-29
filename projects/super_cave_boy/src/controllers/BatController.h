@@ -9,10 +9,9 @@ enum class BatState {
 };
 
 class BatController : public EnemyControllerBase {
-public:
+private:
     void onUpdate(float dt) override;
 
-private:
     void updateIdle(cave::SceneQuery& query);
     void updateMove(cave::SceneQuery& query, float dt);
 

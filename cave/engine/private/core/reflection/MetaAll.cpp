@@ -7,7 +7,7 @@
 #include "generated/LightComponent.generated.cpp"
 #include "generated/MaterialComponent.generated.cpp"
 #include "generated/MeshRendererComponent.generated.cpp"
-#include "generated/NameComponent.generated.cpp"
+#include "generated/MiscComponents.generated.cpp"
 #include "generated/PrefabInstanceComponent.generated.cpp"
 #include "generated/SkeletalAnimationComponent.generated.cpp"
 #include "generated/SpriteAnimatorComponent.generated.cpp"
@@ -25,4 +25,3 @@
 #include "generated/AssetMetaData.generated.cpp"
 #include "generated/MaterialAsset.generated.cpp"
 #include "generated/SpriteAnimationAsset.generated.cpp"
-#include "generated/SceneComponents.generated.cpp"

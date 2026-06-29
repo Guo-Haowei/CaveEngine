@@ -19,7 +19,7 @@ FILES = [
     'public/cave/runtime/ecs/components/LightComponent.h',
     'public/cave/runtime/ecs/components/MaterialComponent.h',
     'public/cave/runtime/ecs/components/MeshRendererComponent.h',
-    'public/cave/runtime/ecs/components/NameComponent.h',
+    'public/cave/runtime/ecs/components/MiscComponents.h',
     'public/cave/runtime/ecs/components/PrefabInstanceComponent.h',
     'public/cave/runtime/ecs/components/SkeletalAnimationComponent.h',
     'public/cave/runtime/ecs/components/SpriteAnimatorComponent.h',
@@ -43,8 +43,6 @@ FILES = [
 
     'private/runtime/assets/MaterialAsset.h',
     'private/runtime/assets/SpriteAnimationAsset.h',
-    # components
-    'private/runtime/ecs/components/SceneComponents.h',
 ]
 
 OUTPUT_DIR = os.path.join(get_engine_src_folder(), 'private/core/reflection/generated')

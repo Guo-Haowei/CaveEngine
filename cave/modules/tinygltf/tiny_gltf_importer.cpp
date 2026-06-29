@@ -4,7 +4,7 @@
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
-#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
@@ -103,7 +103,7 @@ Result<void> TinyGltfImporter::Import() {
     ecs::Entity root = m_scene->createEntity();
     m_scene->create<TransformComponent>(root);
     m_scene->create<NameComponent>(root);
-    m_scene->m_root = root;
+    m_scene->root_ = root;
 
     for (const tinygltf::Material& mat : m_model->materials) {
         m_materials.emplace_back(ProcessMaterial(mat));
@@ -116,7 +116,7 @@ Result<void> TinyGltfImporter::Import() {
     // Create skeleton
     for (const auto& skin : m_model->skins) {
         ecs::Entity skeleton_id = m_scene->createEntity();
-        m_scene->create<NameComponent>(skeleton_id).SetName(skin.name);
+        m_scene->create<NameComponent>(skeleton_id).setName(skin.name);
         m_scene->create<TransformComponent>(skeleton_id);
         SkeletonComponent& skeleton = m_scene->create<SkeletonComponent>(skeleton_id);
         if (skin.inverseBindMatrices >= 0) {
@@ -510,7 +510,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 
     if (node.mesh >= 0) {
         ecs::Entity mesh_instance = m_scene->createEntity();
-        m_scene->create<NameComponent>(mesh_instance).SetName("Node::" + node.name);
+        m_scene->create<NameComponent>(mesh_instance).setName("Node::" + node.name);
         m_scene->create<TransformComponent>(mesh_instance);
 
         MeshRendererComponent& renderer = m_scene->create<MeshRendererComponent>(mesh_instance);
@@ -545,7 +545,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     if (!node_id.IsValid()) {
         node_id = m_scene->createEntity();
         m_scene->create<TransformComponent>(node_id);
-        m_scene->create<NameComponent>(node_id).SetName("Transform::" + node.name);
+        m_scene->create<NameComponent>(node_id).setName("Transform::" + node.name);
     }
 
     auto [_, ok] = m_node_map.try_emplace(p_node_index, node_id);
@@ -603,7 +603,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
     std::string tag = p_anim.name.empty() ? GenerateAnimationName() : p_anim.name;
     auto entity = m_scene->createEntity();
-    m_scene->create<NameComponent>(entity).SetName(tag);
+    m_scene->create<NameComponent>(entity).setName(tag);
 
     // @TODO: make animation asset instead
     m_scene->attachChild(entity);

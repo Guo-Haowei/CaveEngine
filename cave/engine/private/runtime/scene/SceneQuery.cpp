@@ -1,5 +1,6 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -25,6 +26,10 @@ Entity SceneQuery::findFirstByName(std::string_view name) const {
 
 Entity SceneQuery::findChildByName(std::string_view name, Entity ent) const {
     return scene_.findChildByName(name, ent);
+}
+
+void SceneQuery::queueDestroy(ecs::Entity ent) {
+    scene_.create<PendingDestroy>(ent);
 }
 
 void* SceneQuery::component(ComponentId cid, Entity ent) {

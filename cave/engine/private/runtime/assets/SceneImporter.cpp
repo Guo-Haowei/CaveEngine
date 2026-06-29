@@ -1,7 +1,7 @@
 #include "SceneImporter.h"
 
 #include "cave/core/string/StringUtils.h"
-#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/MiscComponents.h"
 
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
@@ -132,8 +132,8 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
 }
 
 Result<void> SceneImporter::RegisterScene(ecs::Entity p_root) {
-    m_scene->m_root = p_root;
-    m_scene->component<NameComponent>(p_root)->SetName(m_file_name);
+    m_scene->root_ = p_root;
+    m_scene->component<NameComponent>(p_root)->setName(m_file_name);
 
     fs::path sys_path = m_dest_dir / std::format("{}.scene", m_file_name);
 

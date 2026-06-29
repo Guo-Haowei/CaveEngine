@@ -124,7 +124,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     EntityMap map(cb.GetAllocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    scene->m_root = map.Resolve(root);
+    scene->root_ = map.Resolve(root);
     scene->update(0.0f);
 
     Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
@@ -169,7 +169,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     EntityMap map(cb.GetAllocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    scene->m_root = map.Resolve(root);
+    scene->root_ = map.Resolve(root);
     scene->update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, options);

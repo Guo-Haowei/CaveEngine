@@ -1,5 +1,5 @@
 version: 19
-seed: 47
+seed: 60
 root: 1
 entities:
   - id: 1
@@ -111,4 +111,16 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
-      translation: [29.5, 5.5, 0]
+      translation: [29.5, 5.4000001, 0]
+  - id: 60
+    NameComponent:
+      name: spider-02
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
+      translation: [36.5, 3.4000001, 0]

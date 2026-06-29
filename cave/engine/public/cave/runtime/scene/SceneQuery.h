@@ -44,6 +44,8 @@ public:
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
 
+    void queueDestroy(ecs::Entity ent);
+
     void* component(ComponentId cid, ecs::Entity ent);
     const void* component(ComponentId cid, ecs::Entity ent) const;
     template<ComponentType T>

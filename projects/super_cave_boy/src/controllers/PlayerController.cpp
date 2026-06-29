@@ -3,8 +3,6 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
-#include "cave/runtime/ecs/components/MovementComponent.h"
-#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
@@ -23,11 +21,6 @@ using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
 namespace {
-
-constexpr float kGravity = -35.0f;
-constexpr float kJumpForce = 13.0f;
-constexpr float kWallJumpForce = 9.5f;
-constexpr float kGrabEps = 0.03f;
 
 bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     TileCoord above = hit.coord;
@@ -49,9 +42,8 @@ bool CheckWallGrab(
     }
 
     Box2 query = body;
-    query.setMinMax(
-        query.min() + Vec2f{ -kGrabEps, dy },
-        query.max() + Vec2f{ kGrabEps, 0.0f });
+    query = Box(query.min() + Vec2f{ -kPlayerGrabEps, dy },
+                query.max() + Vec2f{ kPlayerGrabEps, 0.0f });
 
     for (const TileHit& hit_tile : world.querySolidTiles(query)) {
         const Box2& solid = hit_tile.aabb;
@@ -68,11 +60,11 @@ bool CheckWallGrab(
             continue;
         }
 
-        if (NearlyEqual(body.max().x, solid.min().x, kGrabEps)) {
+        if (NearlyEqual(body.max().x, solid.min().x, kPlayerGrabEps)) {
             return true;
         }
 
-        if (NearlyEqual(body.min().x, solid.max().x, kGrabEps)) {
+        if (NearlyEqual(body.min().x, solid.max().x, kPlayerGrabEps)) {
             return true;
         }
     }
@@ -80,28 +72,34 @@ bool CheckWallGrab(
     return false;
 }
 
-void TryJump(VelocityComponent& vel,
-             MotorComponent& motor,
-             LegacyPlayerMotor& player) {
-    if (player.grabbing) {
-        vel.linear.y = kWallJumpForce;
+bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
+    auto* player_transform = query.component<TransformComponent>(player);
+    auto* player_collider = query.component<ColliderComponent>(player);
+    auto* player_velocity = query.component<VelocityComponent>(player);
 
-        player.taking_jump = false;
-        player.grabbing = false;
+    auto* enemy_transform = query.component<TransformComponent>(enemy);
+    auto* enemy_collider = query.component<ColliderComponent>(enemy);
 
-        motor.affected_by_gravity = true;
-        return;
+    if (!player_transform || !player_collider || !player_velocity ||
+        !enemy_transform || !enemy_collider) {
+        return false;
     }
 
-    if (player.taking_jump) {
-        vel.linear.y = kJumpForce;
-
-        player.taking_jump = false;
-        player.grabbing = false;
-
-        motor.affected_by_gravity = true;
-        return;
+    // Y-up convention:
+    // falling downward means velocity.y < 0.
+    if (player_velocity->linear.y >= 0.0f) {
+        return false;
     }
+
+    const Box2 player_box = ComputeWorldAABB(*player_transform, *player_collider);
+    const Box2 enemy_box = ComputeWorldAABB(*enemy_transform, *enemy_collider);
+
+    const float player_feet_y = player_box.min().y;
+    const float enemy_top_y = enemy_box.max().y;
+
+    // Since this runs after overlap is already detected, player's feet may
+    // already be slightly inside enemy's box.
+    return player_feet_y >= enemy_top_y - kPlayerStompTolerance;
 }
 
 }  // namespace
@@ -113,6 +111,13 @@ void PlayerController::onCreate() {
 }
 
 void PlayerController::onUpdate(float dt) {
+    hurt_timer_.tick(dt);
+
+    if (health_ <= 0) {
+        // Later: revive/request respawn
+        // Revive();
+    }
+
     const IGameInput& input = context().game_input;
     SceneQuery query(context().scene);
 
@@ -121,11 +126,15 @@ void PlayerController::onUpdate(float dt) {
     auto vel = query.component<VelocityComponent>(entity());
     auto motor = query.component<MotorComponent>(entity());
     auto contact = query.component<ContactComponent>(entity());
+    auto animator = query.component<SpriteAnimatorComponent>(animator_);
 
-    DEV_ASSERT(transform && collider && vel && motor && contact);
+    DEV_ASSERT(transform && collider && vel && motor && contact && animator);
 
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
-    DEV_ASSERT(tile_world);
+    if (hurt()) {
+        updatePlayerState(*vel);
+        updateAnimation(*animator);
+        return;
+    }
 
     const bool jump_pressed = input.isPressed("ui_up"_sid);
 
@@ -134,19 +143,19 @@ void PlayerController::onUpdate(float dt) {
         input.isPressed("ui_left"_sid);
 
     // Contact is from previous MotorSystem frame.
-    motor_.taking_jump = contact->hit_down;
+    taking_jump_ = contact->hit_down;
 
     if (contact->hit_down) {
-        motor_.grabbing = false;
+        grabbing_ = false;
     }
 
     // Jump can cancel grab.
     if (jump_pressed) {
-        TryJump(*vel, *motor, motor_);
+        tryJump(*vel, *motor);
     }
 
     // If currently grabbing, freeze player and skip normal movement.
-    if (motor_.grabbing) {
+    if (grabbing_) {
         move_x = 0;
 
         vel->linear.x = 0.0f;
@@ -155,28 +164,30 @@ void PlayerController::onUpdate(float dt) {
         motor->affected_by_gravity = false;
 
         updatePlayerState(*vel);
-        updateAnimation(query);
+        updateAnimation(*animator);
         return;
     }
 
     // Normal horizontal control.
-    vel->linear.x = move_x * motor_.speed;
+    vel->linear.x = move_x * kPlayerMoveX;
     motor->affected_by_gravity = true;
 
     // Try starting wall grab.
     //
     // Must happen after normal velocity is known, but before MotorSystem.
     // MotorSystem will run after this script update.
-    const bool airborne = !motor_.taking_jump;
+    const bool airborne = !taking_jump_;
     const bool falling = vel->linear.y < 0.0f;
 
-    if (!motor_.hurt && airborne && falling) {
+    if (airborne && falling) {
         const float predicted_dy = vel->linear.y * dt;
         const Box2 body = ComputeWorldAABB(*transform, *collider);
 
+        const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+        DEV_ASSERT(tile_world);
         if (CheckWallGrab(body, predicted_dy, *tile_world)) {
-            motor_.grabbing = true;
-            motor_.taking_jump = false;
+            grabbing_ = true;
+            taking_jump_ = false;
 
             vel->linear.x = 0.0f;
             vel->linear.y = 0.0f;
@@ -186,70 +197,150 @@ void PlayerController::onUpdate(float dt) {
     }
 
     updatePlayerState(*vel);
-    updateAnimation(query);
+    updateAnimation(*animator);
 }
 
-void PlayerController::updateAnimation(SceneQuery& query) {
-    auto animator = query.component<SpriteAnimatorComponent>(animator_);
-    auto transform = query.component<TransformComponent>(entity());
+void PlayerController::onCollision(ecs::Entity other) {
+    SceneQuery query(context().scene);
 
-    DEV_ASSERT(animator);
-    DEV_ASSERT(transform);
+    auto* other_collider = query.component<ColliderComponent>(other);
+    if (!other_collider) {
+        return;
+    }
 
-    switch (motor_.state) {
-        case PlayerState::Idle:
-            animator->currentClip("idle");
-            break;
+    if (!IsEnemy(*other_collider)) {
+        return;
+    }
 
-        case PlayerState::Walk:
-            animator->currentClip("walk");
-            break;
+    auto* vel = query.component<VelocityComponent>(entity());
+    auto* motor = query.component<MotorComponent>(entity());
+    DEV_ASSERT(motor && vel);
+    if (IsStompingEnemy(query, entity(), other)) {
+        bounceFromEnemy(*vel, *motor, kPlayerBounceSpeed);
+        query.queueDestroy(other);
+        return;
+    }
 
-        case PlayerState::Air:
-            animator->currentClip("jump");
+    auto* transform = query.component<TransformComponent>(entity());
+    auto* enemy_transform = query.component<TransformComponent>(other);
+    DEV_ASSERT(transform && enemy_transform);
+
+    const float player_x = transform->translation().x;
+    const float enemy_x = enemy_transform->translation().x;
+
+    const float dir_x = player_x >= enemy_x ? 1.0f : -1.0f;
+
+    PlayerHurtInfo hurt_info{
+        .damage = 1,
+        .knockback = math::Vec2f{
+            dir_x * kPlayerKnockbackX,
+            kPlayerKnockbackY,
+        },
+    };
+    takeDamage(*vel, *motor, hurt_info);
+}
+
+void PlayerController::updateAnimation(SpriteAnimatorComponent& animator) {
+    switch (state_) {
+        case PlayerState::Idle: {
+            animator.currentClip("idle");
+        } break;
+        case PlayerState::Walk: {
+            animator.currentClip("walk");
+        } break;
+        case PlayerState::Air: {
+            animator.currentClip("jump");
             // if (motor_.vspeed > 0.0f) {
             // } else {
             //     animator->currentClip("jump");
             // }
-            break;
-
-        case PlayerState::Grab:
-            animator->currentClip("grab");
-            break;
-
-        case PlayerState::Hurt:
-            animator->currentClip("hurt");
-            break;
+        } break;
+        case PlayerState::Grab: {
+            animator.currentClip("grab");
+        } break;
+        case PlayerState::Hurt: {
+            animator.currentClip("hurt");
+        } break;
     }
 }
 
 void PlayerController::updatePlayerState(VelocityComponent& vel) {
-    auto& motor = motor_;
-    if (motor.hurt) {
-        motor.state = PlayerState::Hurt;
+    if (hurt()) {
+        state_ = PlayerState::Hurt;
         return;
     }
 
-    if (motor.grabbing) {
-        motor.state = PlayerState::Grab;
+    if (grabbing_) {
+        state_ = PlayerState::Grab;
         return;
     }
 
-    if (!motor.taking_jump) {
-        motor.state = PlayerState::Air;
+    if (!taking_jump_) {
+        state_ = PlayerState::Air;
         return;
     }
 
     if (vel.linear.x != 0.0f) {
-        motor.state = PlayerState::Walk;
+        state_ = PlayerState::Walk;
         return;
     }
 
-    motor.state = PlayerState::Idle;
+    state_ = PlayerState::Idle;
 }
 
-void PlayerController::onCollision(ecs::Entity other) {
-    LOG_OK("colliding with {}", other.GetId());
+void PlayerController::tryJump(VelocityComponent& vel,
+                               MotorComponent& motor) {
+    if (grabbing_) {
+        vel.linear.y = kPlayerWallJumpForce;
+
+        taking_jump_ = false;
+        grabbing_ = false;
+
+        motor.affected_by_gravity = true;
+        return;
+    }
+
+    if (taking_jump_) {
+        vel.linear.y = kPlayerJumpForce;
+
+        taking_jump_ = false;
+        grabbing_ = false;
+
+        motor.affected_by_gravity = true;
+        return;
+    }
+}
+
+void PlayerController::takeDamage(VelocityComponent& vel,
+                                  MotorComponent& motor,
+                                  const PlayerHurtInfo& info) {
+    if (hurt_timer_.active()) {
+        return;
+    }
+
+    health_ -= info.damage;
+
+    hurt_timer_.start();
+
+    vel.linear.x = info.knockback.x;
+    vel.linear.y = info.knockback.y;
+
+    motor.affected_by_gravity = true;
+
+    grabbing_ = false;
+    taking_jump_ = false;
+
+    // @TODO: play sound
+}
+
+void PlayerController::bounceFromEnemy(VelocityComponent& vel,
+                                       MotorComponent& motor,
+                                       float bounce_speed) {
+    vel.linear.y = bounce_speed;
+    motor.affected_by_gravity = true;
+
+    grabbing_ = false;
+    taking_jump_ = false;
 }
 
 }  // namespace super_cave_boy

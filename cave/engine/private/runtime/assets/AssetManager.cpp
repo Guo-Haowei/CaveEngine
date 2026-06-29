@@ -5,7 +5,7 @@
 
 #include "cave/core/threading/Threads.h"
 #include "cave/core/time/Stopwatch.h"
-#include "cave/runtime/ecs/components/NameComponent.h"
+#include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
@@ -66,13 +66,13 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
             if (create) {
                 auto root = scene->createEntity();
                 scene->create(TransformComponent_Id, root);
-                scene->create<NameComponent>(root).SetName("root");
+                scene->create<NameComponent>(root).setName("root");
 
                 auto ent = scene->createEntity();
                 scene->create(TransformComponent_Id, ent);
-                scene->create<NameComponent>(ent).SetName("untitled");
+                scene->create<NameComponent>(ent).setName("untitled");
 
-                scene->m_root = root;
+                scene->root_ = root;
                 scene->attachChild(ent);
             }
             return scene;

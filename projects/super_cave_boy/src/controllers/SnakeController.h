@@ -1,9 +1,9 @@
 #pragma once
-#include "cave/runtime/script/native/NativeScript.h"
+#include "EnemyControllerBase.h"
 
 namespace super_cave_boy {
 
-class SnakeController final : public ::cave::NativeScript {
+class SnakeController final : public EnemyControllerBase {
 public:
     void onCreate() override;
     void onUpdate(float dt) override;
