@@ -8,11 +8,15 @@ namespace super_cave_boy {
 constexpr uint32_t kPlayerLayer = 1;
 constexpr uint32_t kEnemyLayer = 2;
 
-constexpr float kBounceSpeed = 10.f;
-constexpr float kKnockbackX = 7.f;
-constexpr float kKnockbackY = 8.f;
-constexpr float kPlayerMoveX = 5.5f;
-constexpr float kHurtCountDown = 0.5f;
+constexpr float kPlayerBounceSpeed = 10.f;
+constexpr float kPlayerKnockbackX = 7.f;
+constexpr float kPlayerKnockbackY = 8.f;
+constexpr float kPlayerMoveX = 5.7f;
+constexpr float kPlayerHurtCountDown = 0.5f;
+constexpr float kPlayerStompTolerance = 0.12f;
+constexpr float kPlayerJumpForce = 13.0f;
+constexpr float kPlayerWallJumpForce = 11.5f;
+constexpr float kPlayerGrabEps = 0.03f;
 
 inline bool IsPlayer(const cave::ColliderComponent& collider) {
     return collider.layer() & kPlayerLayer;

@@ -10,8 +10,6 @@ class EnemyControllerBase : public cave::NativeScript {
 protected:
     void onCreate() override;
 
-    void onCollision(cave::ecs::Entity ent) override;
-
     cave::ecs::Entity findPlayer(cave::SceneQuery& query) const;
 
     cave::ecs::Entity player_{};

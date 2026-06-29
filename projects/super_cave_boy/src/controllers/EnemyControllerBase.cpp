@@ -17,11 +17,4 @@ Entity EnemyControllerBase::findPlayer(SceneQuery& query) const {
     return query.findFirstByName("player");
 }
 
-void EnemyControllerBase::onCollision(Entity ent) {
-    unused(ent);
-
-    SceneQuery query(context().scene);
-    query.queueDestroy(entity());
-}
-
 }  // namespace super_cave_boy

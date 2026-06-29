@@ -3,7 +3,6 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
-#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
@@ -22,11 +21,6 @@ using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
 namespace {
-
-constexpr float kGravity = -35.0f;
-constexpr float kJumpForce = 13.0f;
-constexpr float kWallJumpForce = 9.5f;
-constexpr float kGrabEps = 0.03f;
 
 bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     TileCoord above = hit.coord;
@@ -48,9 +42,8 @@ bool CheckWallGrab(
     }
 
     Box2 query = body;
-    query.setMinMax(
-        query.min() + Vec2f{ -kGrabEps, dy },
-        query.max() + Vec2f{ kGrabEps, 0.0f });
+    query = Box(query.min() + Vec2f{ -kPlayerGrabEps, dy },
+                query.max() + Vec2f{ kPlayerGrabEps, 0.0f });
 
     for (const TileHit& hit_tile : world.querySolidTiles(query)) {
         const Box2& solid = hit_tile.aabb;
@@ -67,16 +60,46 @@ bool CheckWallGrab(
             continue;
         }
 
-        if (NearlyEqual(body.max().x, solid.min().x, kGrabEps)) {
+        if (NearlyEqual(body.max().x, solid.min().x, kPlayerGrabEps)) {
             return true;
         }
 
-        if (NearlyEqual(body.min().x, solid.max().x, kGrabEps)) {
+        if (NearlyEqual(body.min().x, solid.max().x, kPlayerGrabEps)) {
             return true;
         }
     }
 
     return false;
+}
+
+bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
+    auto* player_transform = query.component<TransformComponent>(player);
+    auto* player_collider = query.component<ColliderComponent>(player);
+    auto* player_velocity = query.component<VelocityComponent>(player);
+
+    auto* enemy_transform = query.component<TransformComponent>(enemy);
+    auto* enemy_collider = query.component<ColliderComponent>(enemy);
+
+    if (!player_transform || !player_collider || !player_velocity ||
+        !enemy_transform || !enemy_collider) {
+        return false;
+    }
+
+    // Y-up convention:
+    // falling downward means velocity.y < 0.
+    if (player_velocity->linear.y >= 0.0f) {
+        return false;
+    }
+
+    const Box2 player_box = ComputeWorldAABB(*player_transform, *player_collider);
+    const Box2 enemy_box = ComputeWorldAABB(*enemy_transform, *enemy_collider);
+
+    const float player_feet_y = player_box.min().y;
+    const float enemy_top_y = enemy_box.max().y;
+
+    // Since this runs after overlap is already detected, player's feet may
+    // already be slightly inside enemy's box.
+    return player_feet_y >= enemy_top_y - kPlayerStompTolerance;
 }
 
 }  // namespace
@@ -103,12 +126,13 @@ void PlayerController::onUpdate(float dt) {
     auto vel = query.component<VelocityComponent>(entity());
     auto motor = query.component<MotorComponent>(entity());
     auto contact = query.component<ContactComponent>(entity());
+    auto animator = query.component<SpriteAnimatorComponent>(animator_);
 
-    DEV_ASSERT(transform && collider && vel && motor && contact);
+    DEV_ASSERT(transform && collider && vel && motor && contact && animator);
 
     if (hurt()) {
         updatePlayerState(*vel);
-        updateAnimation(query);
+        updateAnimation(*animator);
         return;
     }
 
@@ -140,7 +164,7 @@ void PlayerController::onUpdate(float dt) {
         motor->affected_by_gravity = false;
 
         updatePlayerState(*vel);
-        updateAnimation(query);
+        updateAnimation(*animator);
         return;
     }
 
@@ -173,7 +197,7 @@ void PlayerController::onUpdate(float dt) {
     }
 
     updatePlayerState(*vel);
-    updateAnimation(query);
+    updateAnimation(*animator);
 }
 
 void PlayerController::onCollision(ecs::Entity other) {
@@ -188,67 +212,55 @@ void PlayerController::onCollision(ecs::Entity other) {
         return;
     }
 
-#if 0
-    if (isStompingEnemy(other)) {
-        bounceFromEnemy();
-
-        // enemy dies
+    auto* vel = query.component<VelocityComponent>(entity());
+    auto* motor = query.component<MotorComponent>(entity());
+    DEV_ASSERT(motor && vel);
+    if (IsStompingEnemy(query, entity(), other)) {
+        bounceFromEnemy(*vel, *motor, kPlayerBounceSpeed);
         query.queueDestroy(other);
         return;
     }
-#endif
 
-    auto* player_transform = query.component<TransformComponent>(entity());
+    auto* transform = query.component<TransformComponent>(entity());
     auto* enemy_transform = query.component<TransformComponent>(other);
-    if (!player_transform || !enemy_transform) {
-        return;
-    }
+    DEV_ASSERT(transform && enemy_transform);
 
-    const float player_x = player_transform->translation().x;
+    const float player_x = transform->translation().x;
     const float enemy_x = enemy_transform->translation().x;
 
     const float dir_x = player_x >= enemy_x ? 1.0f : -1.0f;
 
-    takeDamage(PlayerHurtInfo{
+    PlayerHurtInfo hurt_info{
         .damage = 1,
         .knockback = math::Vec2f{
-            dir_x * kKnockbackX,
-            kKnockbackY,
+            dir_x * kPlayerKnockbackX,
+            kPlayerKnockbackY,
         },
-    });
+    };
+    takeDamage(*vel, *motor, hurt_info);
 }
 
-void PlayerController::updateAnimation(SceneQuery& query) {
-    auto animator = query.component<SpriteAnimatorComponent>(animator_);
-    auto transform = query.component<TransformComponent>(entity());
-
-    DEV_ASSERT(animator);
-    DEV_ASSERT(transform);
-
+void PlayerController::updateAnimation(SpriteAnimatorComponent& animator) {
     switch (state_) {
-        case PlayerState::Idle:
-            animator->currentClip("idle");
-            break;
-
-        case PlayerState::Walk:
-            animator->currentClip("walk");
-            break;
-
-        case PlayerState::Air:
-            animator->currentClip("jump");
+        case PlayerState::Idle: {
+            animator.currentClip("idle");
+        } break;
+        case PlayerState::Walk: {
+            animator.currentClip("walk");
+        } break;
+        case PlayerState::Air: {
+            animator.currentClip("jump");
             // if (motor_.vspeed > 0.0f) {
             // } else {
             //     animator->currentClip("jump");
             // }
-            break;
-
-        case PlayerState::Grab:
-            animator->currentClip("grab");
-            break;
-
-        case PlayerState::Hurt:
-            animator->currentClip("hurt");
-            break;
+        } break;
+        case PlayerState::Grab: {
+            animator.currentClip("grab");
+        } break;
+        case PlayerState::Hurt: {
+            animator.currentClip("hurt");
+        } break;
     }
 }
 
@@ -279,7 +291,7 @@ void PlayerController::updatePlayerState(VelocityComponent& vel) {
 void PlayerController::tryJump(VelocityComponent& vel,
                                MotorComponent& motor) {
     if (grabbing_) {
-        vel.linear.y = kWallJumpForce;
+        vel.linear.y = kPlayerWallJumpForce;
 
         taking_jump_ = false;
         grabbing_ = false;
@@ -289,7 +301,7 @@ void PlayerController::tryJump(VelocityComponent& vel,
     }
 
     if (taking_jump_) {
-        vel.linear.y = kJumpForce;
+        vel.linear.y = kPlayerJumpForce;
 
         taking_jump_ = false;
         grabbing_ = false;
@@ -299,8 +311,9 @@ void PlayerController::tryJump(VelocityComponent& vel,
     }
 }
 
-// @TODO: pass components
-void PlayerController::takeDamage(const PlayerHurtInfo& info) {
+void PlayerController::takeDamage(VelocityComponent& vel,
+                                  MotorComponent& motor,
+                                  const PlayerHurtInfo& info) {
     if (hurt_timer_.active()) {
         return;
     }
@@ -309,19 +322,10 @@ void PlayerController::takeDamage(const PlayerHurtInfo& info) {
 
     hurt_timer_.start();
 
-    SceneQuery query(context().scene);
+    vel.linear.x = info.knockback.x;
+    vel.linear.y = info.knockback.y;
 
-    auto* velocity = query.component<VelocityComponent>(entity());
-    auto* motor = query.component<MotorComponent>(entity());
-
-    if (velocity) {
-        velocity->linear.x = info.knockback.x;
-        velocity->linear.y = info.knockback.y;
-    }
-
-    if (motor) {
-        motor->affected_by_gravity = true;
-    }
+    motor.affected_by_gravity = true;
 
     grabbing_ = false;
     taking_jump_ = false;
@@ -329,18 +333,11 @@ void PlayerController::takeDamage(const PlayerHurtInfo& info) {
     // @TODO: play sound
 }
 
-void PlayerController::bounceFromEnemy(float bounce_speed) {
-    SceneQuery query(context().scene);
-    auto* velocity = query.component<VelocityComponent>(entity());
-    auto* motor = query.component<MotorComponent>(entity());
-
-    if (velocity) {
-        velocity->linear.y = bounce_speed;
-    }
-
-    if (motor) {
-        motor->affected_by_gravity = true;
-    }
+void PlayerController::bounceFromEnemy(VelocityComponent& vel,
+                                       MotorComponent& motor,
+                                       float bounce_speed) {
+    vel.linear.y = bounce_speed;
+    motor.affected_by_gravity = true;
 
     grabbing_ = false;
     taking_jump_ = false;

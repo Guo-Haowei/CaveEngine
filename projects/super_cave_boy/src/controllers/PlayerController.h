@@ -3,13 +3,10 @@
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
+#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
 #include "Utility.h"
-
-// clang-format off
-namespace cave { class SceneQuery; }
-// clang-format on
 
 namespace super_cave_boy {
 
@@ -32,21 +29,26 @@ class PlayerController final : public ::cave::NativeScript {
 protected:
     void onCreate() override;
     void onUpdate(float dt) override;
-    void onCollision(cave::ecs::Entity other) override;
+    void onCollision(Entity other) override;
 
 private:
-    void updateAnimation(cave::SceneQuery& query);
+    void updateAnimation(cave::SpriteAnimatorComponent& animator);
     void updatePlayerState(cave::VelocityComponent& vel);
 
     void tryJump(cave::VelocityComponent& vel,
                  cave::MotorComponent& motor);
 
-    void takeDamage(const PlayerHurtInfo& info);
-    void bounceFromEnemy(float bounce_speed);
+    void takeDamage(cave::VelocityComponent& vel,
+                    cave::MotorComponent& motor,
+                    const PlayerHurtInfo& info);
+
+    void bounceFromEnemy(cave::VelocityComponent& vel,
+                         cave::MotorComponent& motor,
+                         float bounce_speed);
     bool hurt() const { return hurt_timer_.active(); }
 
     PlayerState state_ = PlayerState::Air;
-    CountdownTimer hurt_timer_{ kHurtCountDown };
+    CountdownTimer hurt_timer_{ kPlayerHurtCountDown };
 
     Entity animator_;
 
