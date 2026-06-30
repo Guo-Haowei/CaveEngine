@@ -41,9 +41,9 @@ extern void registerCommands(CommandRegistry& cmd_reg);
 
 namespace fs = std::filesystem;
 
-Application::Application(const AppSpec& p_spec, AppType p_type)
-    : IApplication(p_spec)
-    , type_(p_type)
+Application::Application(const AppSpec& spec, AppType type)
+    : IApplication(spec)
+    , type_(type)
     , state_machine_(*this) {
 
     // @TODO: refactor this select work directory
@@ -223,6 +223,7 @@ bool Application::mainLoop() {
 
     input_service_->tick(time);
 
+    scene_scheduler_->flushSceneCommands();
     ui_->beginFrame(input_service_->getUIInput());
 
     asset_manager_->update();

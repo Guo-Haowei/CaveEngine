@@ -9,54 +9,63 @@
 
 namespace cave {
 
-bool SceneScheduler::add(ISceneTickContributor* contributor) {
-    DEV_ASSERT(contributor);
-    if (!contributor) return false;
+bool SceneScheduler::add(ISceneOwner* owner) {
+    DEV_ASSERT(owner);
+    if (!owner) return false;
 
-    auto it = std::ranges::find(contributors_, contributor);
-    if (it != contributors_.end()) return false;
+    auto it = std::ranges::find(owners_, owner);
+    if (it != owners_.end()) return false;
 
-    contributors_.push_back(contributor);
+    owners_.push_back(owner);
 
 #if USING(USE_LOG)
-    const DebugId id = contributor->debugId();
+    const DebugId id = owner->debugId();
     LOG_TRACE(LogChannel::Scene, "+{}#{}", id.type, id.uid);
 #endif
     return true;
 }
 
-bool SceneScheduler::remove(ISceneTickContributor* contributor) {
-    DEV_ASSERT(contributor);
+bool SceneScheduler::remove(ISceneOwner* owner) {
+    DEV_ASSERT(owner);
 
-    auto it = std::ranges::find(contributors_, contributor);
-    if (it == contributors_.end()) {
+    auto it = std::ranges::find(owners_, owner);
+    if (it == owners_.end()) {
         return false;
     }
 
-    contributors_.erase(it);
+    owners_.erase(it);
 
 #if USING(USE_LOG)
-    const DebugId id = contributor->debugId();
+    const DebugId id = owner->debugId();
     LOG_TRACE(LogChannel::Scene, "-{}#{}", id.type, id.uid);
 #endif
     return true;
 }
 
+void SceneScheduler::flushSceneCommands() {
+    for (ISceneOwner* owner : owners_) {
+        if (owner) {
+            owner->commitSceneChange();
+        }
+    }
+}
+
 void SceneScheduler::tick(const FrameTime& time) {
     std::vector<SceneTickRequest> requests;
-    for (ISceneTickContributor* c : contributors_) {
-        if (c == nullptr) continue;
-        c->collectSceneTicks(requests);
+    for (ISceneOwner* owner : owners_) {
+        if (owner) {
+            owner->collectSceneTicks(requests);
+        }
     }
 
     SceneRegistry& scene_registry = services_.sceneRegistry();
 
-    //// @TODO: merge same scenes from different contributors
     for (const SceneTickRequest& req : requests) {
         if (Scene* scene = scene_registry.resolve(req.scene_id)) {
             SceneContext ctx = {
                 .native_scripts = services_.nativeScripts(),
                 .scene = *scene,
+                .scene_owner = req.owner,
                 .query = SceneQuery(*scene),
                 .engine_services = services_,
             };

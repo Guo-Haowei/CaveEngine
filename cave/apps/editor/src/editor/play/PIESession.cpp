@@ -72,6 +72,7 @@ void PIESession::onSimBegin(SceneId scene_id, ViewId view_id) {
     SceneContext ctx = {
         .native_scripts = services_.nativeScripts(),
         .scene = *scene,
+        .scene_owner = *this,
         .query = SceneQuery(*scene),
         .engine_services = services_,
     };
@@ -98,6 +99,7 @@ void PIESession::onSimEnd() {
         SceneContext ctx = {
             .native_scripts = services_.nativeScripts(),
             .scene = *scene,
+            .scene_owner = *this,
             .query = SceneQuery(*scene),
             .engine_services = services_,
         };
@@ -116,7 +118,17 @@ void PIESession::onSimEnd() {
 }
 
 void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
-    out_requests.push_back({ SceneTickMode::Simulation, pie_scene_ });
+    out_requests.push_back({ SceneTickMode::Simulation, pie_scene_, *this });
+}
+
+void PIESession::commitSceneChange() {
+    if (pending_change_.is_none()) return;
+
+    std::string path = std::move(pending_change_.unwrap_unchecked());
+    pending_change_ = None();
+
+    unused(path);
+    CRASH_NOW();
 }
 
 void PIESession::tick(const FrameTime& time) {

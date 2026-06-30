@@ -18,7 +18,7 @@ enum class ViewDimension : uint8_t {
 };
 
 class ViewTabBase : public Tab,
-                    public ISceneTickContributor {
+                    public ISceneOwner {
 public:
     ViewTabBase(EditorState& editor,
                 DocId doc_id,
@@ -29,6 +29,7 @@ public:
     void onDestroy() override;
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
+    void commitSceneChange() override {}
 
     ViewId viewId() const override { return view_id_; }
 
