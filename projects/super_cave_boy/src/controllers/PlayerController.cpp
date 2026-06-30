@@ -104,13 +104,11 @@ bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
 
 }  // namespace
 
-void PlayerController::onCreate() {
-    const SceneQuery query(context().scene);
-
-    animator_ = query.findChildByName("animator_node", entity());
+void PlayerController::onCreate(cave::SceneContext& ctx) {
+    animator_ = ctx.query.findChildByName("animator_node", entity());
 }
 
-void PlayerController::onUpdate(float dt) {
+void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
     hurt_timer_.tick(dt);
 
     if (health_ <= 0) {
@@ -118,8 +116,8 @@ void PlayerController::onUpdate(float dt) {
         // Revive();
     }
 
-    const IGameInput& input = context().engine_services.gameInput();
-    SceneQuery query(context().scene);
+    const IGameInput& input = ctx.engine_services.gameInput();
+    SceneQuery& query = ctx.query;
 
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
@@ -200,8 +198,8 @@ void PlayerController::onUpdate(float dt) {
     updateAnimation(*animator);
 }
 
-void PlayerController::onCollision(ecs::Entity other) {
-    SceneQuery query(context().scene);
+void PlayerController::onCollision(cave::SceneContext& ctx, ecs::Entity other) {
+    SceneQuery& query = ctx.query;
 
     auto* other_collider = query.component<ColliderComponent>(other);
     if (!other_collider) {

@@ -15,7 +15,7 @@ enum class SceneTickMode : uint8_t {
 struct SceneTickContext {
     SceneTickMode mode;
     float dt;
-    SceneContext& sceneCtx;
+    SceneContext& scene_ctx;
 };
 
 }  // namespace cave

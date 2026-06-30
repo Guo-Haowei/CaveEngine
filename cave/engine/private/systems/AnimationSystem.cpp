@@ -69,7 +69,7 @@ public:
                                        clip.durations());
 
         DEV_ASSERT_INDEX(frame_idx, clip.frames().size());
-        renderer.SetRect(clip.frames()[frame_idx]);
+        renderer.setRect(clip.frames()[frame_idx]);
     }
 };
 

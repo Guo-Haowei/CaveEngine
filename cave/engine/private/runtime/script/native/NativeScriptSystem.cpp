@@ -30,8 +30,8 @@ void NativeScriptSystem::ensureCreated(SceneContext& ctx,
     }
 
     component.instance = script;
-    component.instance->bind(ctx, entity);
-    component.instance->onCreate();
+    component.instance->bind(entity);
+    component.instance->onCreate(ctx);
     component.created = true;
     component.pending_reload = false;
 }
@@ -44,7 +44,7 @@ void NativeScriptSystem::destroyScript(SceneContext& ctx,
     }
 
     if (component.created) {
-        component.instance->onDestroy();
+        component.instance->onDestroy(ctx);
     }
 
     component.instance->unbind();
@@ -68,14 +68,14 @@ void NativeScriptSystem::reloadIfNeeded(SceneContext& ctx,
 }
 
 void NativeScriptSystem::update(SceneTickContext& ctx) {
-    auto& scene = ctx.sceneCtx.scene;
+    auto& scene = ctx.scene_ctx.scene;
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        reloadIfNeeded(ctx.sceneCtx, ent, script);
-        ensureCreated(ctx.sceneCtx, ent, script);
+        reloadIfNeeded(ctx.scene_ctx, ent, script);
+        ensureCreated(ctx.scene_ctx, ent, script);
 
         if (script.instance) {
-            script.instance->onUpdate(ctx.dt);
+            script.instance->onUpdate(ctx.scene_ctx, ctx.dt);
         }
     }
 }

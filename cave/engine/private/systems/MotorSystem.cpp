@@ -166,8 +166,8 @@ MotorSystem::MotorSystem()
 
 void MotorSystem::runTileWorldCollision(SceneTickContext& ctx) {
     const float dt = ctx.dt;
-    Scene& scene = ctx.sceneCtx.scene;
-    SceneQuery& query = ctx.sceneCtx.query;
+    Scene& scene = ctx.scene_ctx.scene;
+    SceneQuery& query = ctx.scene_ctx.query;
 
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
@@ -202,8 +202,8 @@ struct CollisionPair {
 };
 
 void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
-    Scene& scene = ctx.sceneCtx.scene;
-    SceneQuery& query = ctx.sceneCtx.query;
+    Scene& scene = ctx.scene_ctx.scene;
+    SceneQuery& query = ctx.scene_ctx.query;
 
     std::vector<ColliderProxy> colliders;
 
@@ -245,11 +245,11 @@ void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
     for (const auto& pair : pairs) {
         auto a = query.component<NativeScriptComponent>(pair.a);
         if (a && a->instance) {
-            a->instance->onCollision(pair.b);
+            a->instance->onCollision(ctx.scene_ctx, pair.b);
         }
         auto b = query.component<NativeScriptComponent>(pair.b);
         if (b && b->instance) {
-            b->instance->onCollision(pair.a);
+            b->instance->onCollision(ctx.scene_ctx, pair.a);
         }
     }
 }

@@ -120,7 +120,7 @@ void EditorState::onEnter(const StateRequest& request) {
     // load pie
     PIEStartDesc desc{};
     desc.game_id = request.arg0;
-    desc.game_dll = std::format("{}_Debug.dll", desc.game_id);
+    desc.game_dll = std::format("{}.dll", desc.game_id);
     desc.edit_scene = edit_scene;
 
     pie_.start(std::move(desc));

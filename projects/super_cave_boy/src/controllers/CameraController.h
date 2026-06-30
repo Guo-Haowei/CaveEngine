@@ -9,13 +9,13 @@ class CameraController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 public:
-    void onCreate() override;
-    void onDestroy() override;
+    void onCreate(cave::SceneContext& ctx) override;
+    void onDestroy(cave::SceneContext& ctx) override;
 
-    void onUpdate(float dt) override;
+    void onUpdate(cave::SceneContext& ctx, float dt) override;
 
 private:
-    void followTarget(float dt);
+    void followTarget(cave::SceneContext& ctx, float dt);
 
     Entity target_;
 };

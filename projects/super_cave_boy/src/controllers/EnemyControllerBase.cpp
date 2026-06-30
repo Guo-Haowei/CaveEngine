@@ -6,10 +6,9 @@ using namespace ::cave;
 using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
-void EnemyControllerBase::onCreate() {
-    SceneQuery& query = context().query;
-    player_ = findPlayer(query);
-    animator_ = query.findChildByName("animator_node", entity());
+void EnemyControllerBase::onCreate(SceneContext& ctx) {
+    player_ = findPlayer(ctx.query);
+    animator_ = ctx.query.findChildByName("animator_node", entity());
 }
 
 Entity EnemyControllerBase::findPlayer(SceneQuery& query) const {

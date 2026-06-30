@@ -139,7 +139,7 @@ void LuaScriptSystem::onDetach(SceneContext&) {
 void LuaScriptSystem::update(SceneTickContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    Scene& scene = ctx.sceneCtx.scene;
+    Scene& scene = ctx.scene_ctx.scene;
     lua_State* L = state_;
 
     if (DEV_VERIFY(L)) {

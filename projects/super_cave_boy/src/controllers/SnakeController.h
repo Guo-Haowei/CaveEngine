@@ -5,8 +5,8 @@ namespace super_cave_boy {
 
 class SnakeController final : public EnemyControllerBase {
 public:
-    void onCreate() override;
-    void onUpdate(float dt) override;
+    void onCreate(cave::SceneContext& ctx) override;
+    void onUpdate(cave::SceneContext& ctx, float dt) override;
 
 private:
     int facing_x_;

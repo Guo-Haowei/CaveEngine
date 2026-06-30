@@ -11,27 +11,25 @@ namespace super_cave_boy {
 using namespace ::cave;
 using namespace ::cave::math;
 
-void CameraController::onCreate() {
-    const SceneQuery query(context().scene);
-
-    target_ = query.findFirstByName("player");
+void CameraController::onCreate(SceneContext& ctx) {
+    target_ = ctx.query.findFirstByName("player");
 }
 
-void CameraController::onDestroy() {
+void CameraController::onDestroy(SceneContext&) {
 }
 
-void CameraController::onUpdate(float dt) {
-    followTarget(dt);
+void CameraController::onUpdate(SceneContext& ctx, float dt) {
+    followTarget(ctx, dt);
 }
 
-void CameraController::followTarget(float dt) {
+void CameraController::followTarget(cave::SceneContext& ctx, float dt) {
     if (!entity().IsValid() || !target_.IsValid()) {
         return;
     }
 
     float speed = 8.f * dt;
     speed = math::max(speed, 0.0f);
-    SceneQuery query(context().scene);
+    SceneQuery& query = ctx.query;
 
     auto target_transform = query.component<TransformComponent>(target_);
     auto camera_transform = query.component<TransformComponent>(entity());

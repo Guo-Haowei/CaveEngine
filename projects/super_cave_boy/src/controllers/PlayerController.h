@@ -27,9 +27,9 @@ class PlayerController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 protected:
-    void onCreate() override;
-    void onUpdate(float dt) override;
-    void onCollision(Entity other) override;
+    void onCreate(cave::SceneContext& ctx) override;
+    void onUpdate(cave::SceneContext& ctx, float dt) override;
+    void onCollision(cave::SceneContext& ctx, Entity other) override;
 
 private:
     void updateAnimation(cave::SpriteAnimatorComponent& animator);

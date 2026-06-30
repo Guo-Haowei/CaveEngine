@@ -19,15 +19,15 @@ void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
         const Mat4f& world_matrix = transform.worldMatrix();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_tint_color = sprite_renderer.GetTintColor();
-        const auto& rect = sprite_renderer.GetRect();
+        batch_buffer.c_tint_color = sprite_renderer.tintColor();
+        const auto& rect = sprite_renderer.rect();
         batch_buffer.c_uv_rect = Vec4f(rect.min(), rect.max());
 
         DrawItem draw;
         draw.index.count = 6;
         draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
 
-        ImageAsset* image = sprite_renderer.GetHandle().get();
+        ImageAsset* image = sprite_renderer.handle().get();
         if (image) {
             draw.texture = image->gpu_texture.get();
         } else {
