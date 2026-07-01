@@ -9,12 +9,14 @@ namespace cave {
 
 using namespace cave::math;
 
-void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
-    if (!p_scene) {
+void RunSpriteRenderSystem(const Scene* scene, FrameData& framedata) {
+    if (!scene) {
         return;
     }
 
-    auto view = p_scene->view<SpriteRendererComponent, TransformComponent>();
+    auto& sprites = framedata.sprites;
+
+    auto view = scene->view<SpriteRendererComponent, TransformComponent>();
     for (const auto& [id, sprite_renderer, transform] : view) {
         const Mat4f& world_matrix = transform.worldMatrix();
         PerBatchConstantBuffer batch_buffer;
@@ -25,7 +27,8 @@ void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
 
         DrawItem draw;
         draw.index.count = 6;
-        draw.batch_idx = p_framedata.batchCache.FindOrAdd(id, batch_buffer);
+        draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch_buffer);
+        draw.z_index = sprite_renderer.zIndex();
 
         ImageAsset* image = sprite_renderer.handle().get();
         if (image) {
@@ -34,8 +37,13 @@ void RunSpriteRenderSystem(const Scene* p_scene, FrameData& p_framedata) {
             // @TODO: dummy sprite?
         }
 
-        p_framedata.sprites.push_back(draw);
+        sprites.push_back(draw);
     }
+
+    std::sort(sprites.begin(), sprites.end(),
+              [](const DrawItem& a, const DrawItem& b) {
+                  return a.z_index < b.z_index;
+              });
 }
 
 }  // namespace cave

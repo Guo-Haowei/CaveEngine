@@ -11,7 +11,7 @@ namespace super_cave_boy {
 using namespace ::cave;
 using namespace ::cave::math;
 
-void ExitTrigger::onTriggerEnter(cave::SceneContext& ctx, Entity player) {
+void ExitTrigger::onBodyEntered(cave::SceneContext& ctx, Entity player) {
     SceneQuery& query = ctx.query;
 #if USING(ENABLE_ASSERT)
     auto* player_collider = query.component<ColliderComponent>(player);
@@ -19,7 +19,14 @@ void ExitTrigger::onTriggerEnter(cave::SceneContext& ctx, Entity player) {
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
 
-    LOG_OK("Enter portal!");
+    LOG_OK("Entered portal!");
+}
+
+void ExitTrigger::onBodyExited(cave::SceneContext& ctx, Entity player) {
+    unused(ctx);
+    unused(player);
+
+    LOG_OK("Exited portal!");
 }
 
 }  // namespace super_cave_boy

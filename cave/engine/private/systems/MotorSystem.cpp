@@ -160,9 +160,68 @@ VerticalMoveResult ResolveDownMovement(const Box2& body,
 
 }  // namespace
 
+struct CollisionPair {
+    ecs::Entity a;
+    ecs::Entity b;
+    bool a_is_trigger;
+    bool b_is_trigger;
+
+    static CollisionPair make(ecs::Entity x,
+                              ecs::Entity y,
+                              bool x_is_trigger,
+                              bool y_is_trigger) {
+        return CollisionPair(x, y, x_is_trigger, y_is_trigger);
+    }
+
+private:
+    CollisionPair(ecs::Entity x,
+                  ecs::Entity y,
+                  bool x_is_trigger,
+                  bool y_is_trigger) {
+
+        if (x > y) {
+            std::swap(x, y);
+            std::swap(x_is_trigger, y_is_trigger);
+        }
+        a = x;
+        b = y;
+        a_is_trigger = x_is_trigger;
+        b_is_trigger = y_is_trigger;
+    }
+};
+
+struct CollisionPairHash {
+    std::size_t operator()(const CollisionPair& p) const noexcept {
+        uint32_t a = p.a.GetId();
+        uint32_t b = p.b.GetId();
+
+        uint64_t packed = (static_cast<uint64_t>(a) << 32) | static_cast<uint64_t>(b);
+        return std::hash<uint64_t>{}(packed);
+    }
+};
+
+struct CollisionPairEqual {
+    bool operator()(const CollisionPair& lhs, const CollisionPair& rhs) const noexcept {
+        return lhs.a == rhs.a && lhs.b == rhs.b;
+    }
+};
+
+class CollisionSystem {
+    using TriggerCache = std::unordered_set<CollisionPair, CollisionPairHash, CollisionPairEqual>;
+
+public:
+    void runCollisionPair(SceneTickContext& ctx);
+
+private:
+    TriggerCache trigger_cache_;
+};
+
 MotorSystem::MotorSystem()
-    : debug_id_(MakeDebugId(this)) {
+    : debug_id_(MakeDebugId(this))
+    , collision_(std::make_unique<CollisionSystem>()) {
 }
+
+MotorSystem::~MotorSystem() = default;
 
 void MotorSystem::runTileWorldCollision(SceneTickContext& ctx) {
     const float dt = ctx.dt;
@@ -196,14 +255,7 @@ struct ColliderProxy {
     bool is_trigger = false;
 };
 
-struct CollisionPair {
-    ecs::Entity a;
-    ecs::Entity b;
-    bool a_is_trigger;
-    bool b_is_trigger;
-};
-
-void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
+void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
     Scene& scene = ctx.scene_ctx.scene;
     SceneQuery& query = ctx.scene_ctx.query;
 
@@ -241,32 +293,55 @@ void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
                 continue;
             }
 
-            pairs.push_back({
+            pairs.push_back(CollisionPair::make(
                 a.entity,
                 b.entity,
                 a_is_trigger,
-                b_is_trigger,
-            });
-
-            cache.insert(EntityPair::make(a.entity, b.entity));
+                b_is_trigger));
         }
     }
 
-    for (const auto& pair : pairs) {
-        if (trigger_cache_.find(EntityPair::make(pair.a, pair.b)) != trigger_cache_.end()) {
-            continue;
-        }
+    for (const CollisionPair& pair : pairs) {
+        cache.insert(pair);
 
+        const bool in_last_frame = trigger_cache_.find(pair) != trigger_cache_.end();
         if (pair.a_is_trigger) {
             auto a = query.component<NativeScriptComponent>(pair.a);
             if (a && a->instance) {
-                a->instance->onTriggerEnter(ctx.scene_ctx, pair.b);
+                a->instance->onBodyOverlapping(ctx.scene_ctx, pair.b);
+                if (!in_last_frame) {
+                    a->instance->onBodyEntered(ctx.scene_ctx, pair.b);
+                }
             }
         }
+
         if (pair.b_is_trigger) {
             auto b = query.component<NativeScriptComponent>(pair.b);
             if (b && b->instance) {
-                b->instance->onTriggerEnter(ctx.scene_ctx, pair.a);
+                b->instance->onBodyOverlapping(ctx.scene_ctx, pair.a);
+                if (!in_last_frame) {
+                    b->instance->onBodyEntered(ctx.scene_ctx, pair.a);
+                }
+            }
+        }
+    }
+
+    for (const CollisionPair& old_pair : trigger_cache_) {
+        if (cache.find(old_pair) != cache.end()) {
+            continue;
+        }
+
+        if (old_pair.a_is_trigger) {
+            auto* a = query.component<NativeScriptComponent>(old_pair.a);
+            if (a && a->instance) {
+                a->instance->onBodyExited(ctx.scene_ctx, old_pair.b);
+            }
+        }
+
+        if (old_pair.b_is_trigger) {
+            auto* b = query.component<NativeScriptComponent>(old_pair.b);
+            if (b && b->instance) {
+                b->instance->onBodyExited(ctx.scene_ctx, old_pair.a);
             }
         }
     }
@@ -276,7 +351,7 @@ void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
 
 void MotorSystem::update(SceneTickContext& ctx) {
     runTileWorldCollision(ctx);
-    runCollisionPair(ctx);
+    collision_->runCollisionPair(ctx);
 }
 
 void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,

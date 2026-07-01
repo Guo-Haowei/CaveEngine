@@ -27,12 +27,15 @@ private:
     CAVE_PROP(editor = Toggle)
     bool flip_y_ = false;
 
+    CAVE_PROP(editor = InputInt)
+    int z_index_ = 0;  // higher draws later / on top
+
     // Non serialized
     Handle<ImageAsset> image_handle_;
 
 public:
     bool SetResourceGuid(const Guid& guid);
-    const Guid& GetResourceGuid() const { return image_id_; }
+    const Guid& imageGuid() const { return image_id_; }
 
     const Handle<ImageAsset> handle() const { return image_handle_; }
 
@@ -44,6 +47,7 @@ public:
 
     bool flipX() const { return flip_x_; }
     bool flipY() const { return flip_y_; }
+    int zIndex() const { return z_index_; }
 
     void OnDeserialized();
 };

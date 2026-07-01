@@ -37,3 +37,4 @@ entities:
         max: [1, 0]
       flip_x: false
       flip_y: false
+      z_index: -1

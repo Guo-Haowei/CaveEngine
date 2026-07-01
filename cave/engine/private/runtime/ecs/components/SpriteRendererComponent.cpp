@@ -5,9 +5,9 @@
 
 namespace cave {
 
-bool SpriteRendererComponent::SetResourceGuid(const Guid& p_guid) {
+bool SpriteRendererComponent::SetResourceGuid(const Guid& guid) {
     return AssetHandle::replaceGuidAndHandle(AssetType::Image,
-                                             p_guid,
+                                             guid,
                                              image_id_,
                                              image_handle_.rawHandle());
 }

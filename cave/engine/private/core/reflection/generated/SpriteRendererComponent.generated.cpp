@@ -13,6 +13,7 @@ namespace cave {
 // math::Box2 rect_ ()
 // bool flip_x_ (editor = Toggle)
 // bool flip_y_ (editor = Toggle)
+// int z_index_ (editor = InputInt)
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
@@ -22,6 +23,7 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
         REGISTER_FIELD(SpriteRendererComponent, "rect", rect_, FieldFlag::Serialize, EditorHint::None),
         REGISTER_FIELD(SpriteRendererComponent, "flip_x", flip_x_, FieldFlag::Serialize, EditorHint::Toggle),
         REGISTER_FIELD(SpriteRendererComponent, "flip_y", flip_y_, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SpriteRendererComponent, "z_index", z_index_, FieldFlag::Serialize, EditorHint::InputInt),
     };
 
     return s_table;

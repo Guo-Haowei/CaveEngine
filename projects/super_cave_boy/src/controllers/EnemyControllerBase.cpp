@@ -56,7 +56,7 @@ void EnemyControllerBase::onCreate(SceneContext& ctx) {
 void EnemyControllerBase::onDestroy() {
 }
 
-void EnemyControllerBase::onTriggerEnter(SceneContext& ctx, ecs::Entity player) {
+void EnemyControllerBase::onBodyOverlapping(SceneContext& ctx, ecs::Entity player) {
     SceneQuery& query = ctx.query;
 #if USING(ENABLE_ASSERT)
     auto* player_collider = query.component<ColliderComponent>(player);

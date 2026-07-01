@@ -20,8 +20,9 @@ public:
 
     virtual void onUpdate(SceneContext&, float) {}
 
-    virtual void onTriggerEnter(SceneContext&, ecs::Entity) {}
-    virtual void onTriggerExit(SceneContext&, ecs::Entity) {}
+    virtual void onBodyEntered(SceneContext&, ecs::Entity) {}
+    virtual void onBodyOverlapping(SceneContext&, ecs::Entity) {}
+    virtual void onBodyExited(SceneContext&, ecs::Entity) {}
 
 private:
     friend class NativeScriptSystem;
